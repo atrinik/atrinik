@@ -1007,46 +1007,24 @@ static object *object_find_object(object *tmp, int mode, shstr *archname,
 }
 /** @endcond */
 
-/** Documentation for Atrinik_Object_FindObject(). */
-static const char doc_Atrinik_Object_FindObject[] =
-".. method:: FindObject(mode=Atrinik.INVENTORY_ONLY, archname=None, name=None, "
-"title=None, type=-1, multiple=False, unpaid=False).\n\n"
-"Looks for a certain object in object's inventory.\n\n"
-":param mode: How to search the inventory. One of the INVENTORY_xxx constants "
-"defined in the :mod:`Atrinik` module, eg, :attr:`~Atrinik.INVENTORY_ALL`.\n"
-":type mode: int\n"
-":param archname: Arch name of the object to search for. If None, can be any.\n"
-":type archname: str or None\n"
-":param name: Name of the object. If None, can be any.\n"
-":type name: str or None\n"
-":param title: Title of the object. If None, can be any.\n"
-":type title: str or None\n"
-":param type: Type of the object. If -1, can be any.\n"
-":type type: int\n"
-":param multiple: If True, the return value will be a list of all matching "
-"objects, instead of just the first one found.\n"
-":type multiple: bool\n"
-":param unpaid: Only match unpaid objects.\n"
-":type unpaid: bool\n"
-":returns: The object we wanted if found, None (or an empty list) otherwise\n"
-":rtype: :class:`Atrinik.Object.Object` or None or list\n"
-":raises ValueError: If there were no conditions to search for.";
-
 /**
- * Implements Atrinik.Object.Object.CreateObject() Python method.
+ * Common implementation for both Atrinik_Object_FindObject() and
+ * Atrinik_Object_FindObjects().
  * @copydoc PyMethod_VARARGS_KEYWORDS
+ * @param multiple If true, will always return a list object.
  */
-static PyObject *Atrinik_Object_FindObject(Atrinik_Object *self, PyObject *args,
-        PyObject *keywds)
+static PyObject *common_Atrinik_Object_FindObject(Atrinik_Object *self,
+        PyObject *args, PyObject *keywds, bool multiple)
 {
-    static char *kwlist[] = {"mode", "archname", "name", "title", "type",
-            "multiple", "unpaid", NULL};
+    static char *kwlist[] = {
+        "mode", "archname", "name", "title", "type", "unpaid", NULL
+    };
     uint8_t mode = INVENTORY_ONLY;
-    int type = -1, multiple = 0, unpaid = 0;
+    int type = -1, unpaid = 0;
     const char *archname = NULL, *name = NULL, *title = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|bzzziii", kwlist, &mode,
-            &archname, &name, &title, &type, &multiple, &unpaid)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|bzzzii", kwlist, &mode,
+            &archname, &name, &title, &type, &unpaid)) {
         return NULL;
     }
 
@@ -1101,6 +1079,70 @@ done:
 
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+/** Documentation for Atrinik_Object_FindObject(). */
+static const char doc_Atrinik_Object_FindObject[] =
+".. method:: FindObject(mode=Atrinik.INVENTORY_ONLY, archname=None, name=None, "
+"title=None, type=-1, unpaid=False).\n\n"
+"Looks for a certain object in object's inventory.\n\n"
+":param mode: How to search the inventory. One of the INVENTORY_xxx constants "
+"defined in the :mod:`Atrinik` module, eg, :attr:`~Atrinik.INVENTORY_ALL`.\n"
+":type mode: int\n"
+":param archname: Arch name of the object to search for. If None, can be any.\n"
+":type archname: str or None\n"
+":param name: Name of the object. If None, can be any.\n"
+":type name: str or None\n"
+":param title: Title of the object. If None, can be any.\n"
+":type title: str or None\n"
+":param type: Type of the object. If -1, can be any.\n"
+":type type: int\n"
+":param unpaid: Only match unpaid objects.\n"
+":type unpaid: bool\n"
+":returns: The object we wanted if found, None otherwise\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
+":raises ValueError: If there were no conditions to search for.";
+
+/**
+ * Implements Atrinik.Object.Object.FindObject() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_FindObject(Atrinik_Object *self, PyObject *args,
+        PyObject *keywds)
+{
+    return common_Atrinik_Object_FindObject(self, args, keywds, false);
+}
+
+/** Documentation for Atrinik_Object_FindObjects(). */
+static const char doc_Atrinik_Object_FindObjects[] =
+".. method:: FindObjects(mode=Atrinik.INVENTORY_ONLY, archname=None, "
+"name=None, title=None, type=-1, unpaid=False).\n\n"
+"Looks for certain objects in object's inventory.\n\n"
+":param mode: How to search the inventory. One of the INVENTORY_xxx constants "
+"defined in the :mod:`Atrinik` module, eg, :attr:`~Atrinik.INVENTORY_ALL`.\n"
+":type mode: int\n"
+":param archname: Arch name of the object to search for. If None, can be any.\n"
+":type archname: str or None\n"
+":param name: Name of the object. If None, can be any.\n"
+":type name: str or None\n"
+":param title: Title of the object. If None, can be any.\n"
+":type title: str or None\n"
+":param type: Type of the object. If -1, can be any.\n"
+":type type: int\n"
+":param unpaid: Only match unpaid objects.\n"
+":type unpaid: bool\n"
+":returns: List of all matching objects.\n"
+":rtype: list of :class:`Atrinik.Object.Object`\n"
+":raises ValueError: If there were no conditions to search for.";
+
+/**
+ * Implements Atrinik.Object.Object.FindObjects() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_FindObjects(Atrinik_Object *self,
+        PyObject *args, PyObject *keywds)
+{
+    return common_Atrinik_Object_FindObject(self, args, keywds, true);
 }
 
 /** Documentation for Atrinik_Object_Remove(). */
@@ -2152,6 +2194,8 @@ static PyMethodDef methods[] = {
             METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_CreateObject},
     {"FindObject", (PyCFunction) Atrinik_Object_FindObject,
             METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_FindObject},
+    {"FindObjects", (PyCFunction) Atrinik_Object_FindObjects,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_FindObjects},
     {"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS,
             doc_Atrinik_Object_Remove},
     {"Destroy", (PyCFunction) Atrinik_Object_Destroy, METH_NOARGS,

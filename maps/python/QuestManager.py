@@ -114,7 +114,9 @@ class QuestManager:
             num = 0
 
             # Find all matching objects, and count them.
-            for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["item"]["arch"], quest["item"]["name"], multiple = True):
+            for tmp in self.activator.FindObjects(
+                    INVENTORY_CONTAINERS, quest["item"]["arch"],
+                    quest["item"]["name"]):
                 num += max(1, tmp.nrof)
 
             return num
@@ -190,7 +192,7 @@ class QuestManager:
             removed = 0
 
             # Find all matching objects.
-            for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["item"]["arch"], quest["item"]["name"], multiple = True):
+            for tmp in self.activator.FindObjects(INVENTORY_CONTAINERS, quest["item"]["arch"], quest["item"]["name"]):
                 # Keeping the quest item(s), make sure quest-related flags
                 # are not set.
                 if keep:

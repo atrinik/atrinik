@@ -1,6 +1,8 @@
 ## @file
 ## Test of waypoint functionality.
 
+from Atrinik import *
+
 def main():
     # By checking event number we can handle multiple event types
     # in a single script.
@@ -60,7 +62,7 @@ def main():
             activator.Say("Oh, an apple!")
 
             # Find the currently active waypoint of this guard.
-            for wp in activator.FindObject(type = Type.WAYPOINT_OBJECT, multiple = True):
+            for wp in activator.FindObjects(type = Type.WAYPOINT_OBJECT):
                 # Is it active?
                 if wp.f_cursed:
                     # Deactivate it; we'll create a new active waypoint, which will

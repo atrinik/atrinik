@@ -1,7 +1,7 @@
 ## @file
 ## Script for the Hierro's Lair stairs entrance.
 
-from QuestManager import QuestManager
+from Atrinik import *
 
 def main():
     if GetTime()["season_name"] != "Season of the Blizzard" or activator.Controller().quest_container.FindObject(name = "hierro_ring"):
@@ -12,7 +12,7 @@ def main():
 
         # Find applyable lights in player's inventory and extinguish
         # them all.
-        for obj in activator.FindObject(mode = INVENTORY_CONTAINERS, type = Type.LIGHT_APPLY, multiple = True):
+        for obj in activator.FindObjects(mode = INVENTORY_CONTAINERS, type = Type.LIGHT_APPLY):
             # Is the light actually lit?
             if obj.glow_radius:
                 extinguished += 1
