@@ -10,7 +10,7 @@ def main():
     pinfo = activator.FindObject(archname = "player_info", name = apartment["tag"])
 
     if not pinfo:
-        activator.TeleportTo("/emergency", 0, 0)
+        activator.TeleportTo("/emergency")
     else:
         activator.TeleportTo(pinfo.race, pinfo.last_sp, pinfo.last_grace)
 
