@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-1, rev: 1.1.1: Atrinik Interface XML Documentation                      =
+= ADS-1, rev: 1.1.2: Atrinik Interface XML Documentation                      =
 ===============================================================================
  This document contains information about the syntax and rules of the Atrinik
  XML interface files.
@@ -267,8 +267,8 @@
      See section 3.2.1.
   - <and>...</and> (optional):
      See section 3.2.2.
-  - <and>...</and> (optional):
-     See section 3.2.2.
+  - <precond>...</precond> (optional):
+     See section 3.2.3.
 
  Additionally, it may define any number of <dialog>...</dialog> tags after the
  above listed ones (see section 3.2.4.).
@@ -298,6 +298,11 @@ def dialog(self, msg):
 
  The interface will only be shown if the set of preconditions matches.
 
+ In addition, if the <and> tag is inside a <dialog> tag, it may contain any
+ number of the tags supported by the <dialog> tag itself (see section 3.2.4.),
+ specified after any <check>/<ncheck>/<and>/<or> tags. In this case, the
+ <dialog>-defined tags will only be executed if the <and> precondition passes.
+
  Example:
   <and>
    <check />
@@ -305,7 +310,7 @@ def dialog(self, msg):
     <check />
     <check />
    </or>
-   <check>
+   <check />
   </and>
 
 ===============================================================================
@@ -377,7 +382,7 @@ return self._activator.FindObject(archname = "goldcoin") != None
      [a-z0-9_ ]
   - regex (string) (optional):
      Regular expression that will match this dialogue. In this case, the "name"
-     attribute is used only as a unique identifier.
+     attribute is used only as a unique identifier and is optional.
   - inherit (string) (optional):
      If set, a previously defined dialogue may be inherited. For example, if
      this were set to "hello", and <dialog name="hello">...</dialog> existed,
@@ -533,6 +538,9 @@ return self._activator.FindObject(archname = "goldcoin") != None
      Action to execute. This can be a command, such as /chat, or "url" to open
      the "destination" attribute contents as a URL in a browser, or "close" to
      close the interface.
+  - npc (string) (optional):
+     Name of a specific (nearby) NPC that will be targeted and that the dialog
+     will lead to.
 
  Example:
   <dialog name="hello">
