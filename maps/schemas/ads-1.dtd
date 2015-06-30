@@ -1,0 +1,117 @@
+<!ELEMENT interfaces (interface*, quest?)>
+
+<!ELEMENT quest (interface*, part*)>
+<!ATTLIST quest
+        name CDATA #REQUIRED
+        repeat (1|0) #IMPLIED
+        repeat_delay CDATA #IMPLIED>
+
+<!ELEMENT part (info?, item?, kill?, interface*, part*)>
+<!ATTLIST part
+        uid CDATA #REQUIRED
+        name CDATA #REQUIRED>
+
+<!ELEMENT info (#PCDATA)>
+
+<!ELEMENT item EMPTY>
+<!ATTLIST item
+        arch CDATA #IMPLIED
+        name CDATA #IMPLIED
+        nrof CDATA #IMPLIED
+        keep (1|0) #IMPLIED>
+
+<!ELEMENT kill EMPTY>
+<!ATTLIST kill
+        nrof CDATA #IMPLIED>
+
+<!ELEMENT interface (code?, and?, dialog*)>
+<!ATTLIST interface
+        inherit CDATA #IMPLIED
+        npc CDATA #IMPLIED
+        state CDATA #IMPLIED>
+
+<!ELEMENT code (#PCDATA)>
+
+<!ELEMENT and (and|or|check|ncheck|message|choice|object|inherit|response|
+        action|notification|close|say)*>
+
+<!ELEMENT or (and|or|check|ncheck)*>
+
+<!ELEMENT check EMPTY>
+<!ATTLIST check
+        region_map CDATA #IMPLIED
+        enemy (any|player) #IMPLIED
+        started CDATA #IMPLIED
+        finished CDATA #IMPLIED
+        completed CDATA #IMPLIED
+        options CDATA #IMPLIED
+        num2finish CDATA #IMPLIED
+        gender (male|female|neuter|hermaphrodite) #IMPLIED)
+
+<!ELEMENT ncheck ()>
+<!ATTLIST ncheck
+        region_map CDATA #IMPLIED
+        enemy (any|player) #IMPLIED
+        started CDATA #IMPLIED
+        finished CDATA #IMPLIED
+        completed CDATA #IMPLIED
+        options CDATA #IMPLIED
+        num2finish CDATA #IMPLIED
+        gender (male|female|neuter|hermaphrodite) #IMPLIED)
+
+<!ELEMENT precond (#PCDATA)>
+
+<!ELEMENT dialog ((message|choice|object|inherit|response|action|
+        notification|close|say|and))>
+<!ATTLIST dialog
+        name CDATA #IMPLIED
+        regex CDATA #IMPLIED
+        inherit CDATA #IMPLIED
+        icon CDATA #IMPLIED
+        title CDATA #IMPLIED
+        animation CDATA #IMPLIED>
+
+<!ELEMENT message (#PCDATA)>
+<!ATTLIST message
+        color CDATA #IMPLIED>
+
+<!ELEMENT choice (message*)>
+
+<!ELEMENT object EMPTY>
+<!ATTLIST object
+        arch CDATA #IMPLIED
+        name CDATA #IMPLIED
+        message CDATA #IMPLIED
+        remove CDATA #IMPLIED>
+
+<!ELEMENT inherit EMPTY>
+<!ATTLIST inherit
+        name CDATA #IMPLIED>
+
+<!ELEMENT response EMPTY>
+<!ATTLIST response
+        message CDATA #REQUIRED
+        destination CDATA #IMPLIED
+        action CDATA #IMPLIED
+        npc CDATA #IMPLIED>
+
+<!ELEMENT action (#PCDATA)>
+<!ATTLIST action
+        start CDATA #IMPLIED
+        complete CDATA #IMPLIED
+        region_map CDATA #IMPLIED
+        enemy (player|clear) #IMPLIED
+        teleport CDATA #IMPLIED
+        trigger CDATA #IMPLIED
+        cast CDATA #IMPLIED>
+
+<!ELEMENT notification EMPTY>
+<!ATTLIST notification
+        message CDATA #REQUIRED
+        action CDATA #IMPLIED
+        shortcut CDATA #IMPLIED
+        delay CDATA #IMPLIED>
+
+<!ELEMENT close EMPTY>
+
+<!ELEMENT say (#PCDATA)>
