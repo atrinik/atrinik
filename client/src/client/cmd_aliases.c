@@ -114,6 +114,14 @@ static void cmd_aliases_load(const char *path)
         key = cps[0];
         value = cps[1];
 
+        if (string_isempty(key)) {
+            error_str = "empty key";
+            goto error;
+        } else if (string_isempty(value)) {
+            error_str = "empty value";
+            goto error;
+        }
+
         if (cmd_alias == NULL) {
             error_str = "expected command alias definition";
             goto error;
