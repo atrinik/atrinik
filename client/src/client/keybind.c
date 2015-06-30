@@ -114,19 +114,23 @@ void keybind_load(void)
 }
 
 /**
- * Save the keybindings. */
+ * Save the keybindings.
+ */
 void keybind_save(void)
 {
-    FILE *fp;
-    size_t i;
+    FILE *fp = fopen_wrapper(FILE_KEYBIND, "w");
+    if (fp == NULL) {
+        LOG(ERROR, "Could not open %s for writing: %s (%d)", FILE_KEYBIND,
+                strerror(errno), errno);
+        return;
+    }
 
-    fp = fopen_wrapper(FILE_KEYBIND, "w");
-
-    for (i = 0; i < keybindings_num; i++) {
+    for (size_t i = 0; i < keybindings_num; i++) {
         fprintf(fp, "bind\n");
-        fprintf(fp, "\t# %s\n\tkey %d\n", SDL_GetKeyName(keybindings[i]->key), keybindings[i]->key);
+        fprintf(fp, "\t# %s\n\tkey %d\n", SDL_GetKeyName(keybindings[i]->key),
+                keybindings[i]->key);
 
-        if (keybindings[i]->mod) {
+        if (keybindings[i]->mod != 0) {
             fprintf(fp, "\tmod %d\n", keybindings[i]->mod);
         }
 
@@ -134,7 +138,7 @@ void keybind_save(void)
             fprintf(fp, "\trepeat %d\n", keybindings[i]->repeat);
         }
 
-        if (keybindings[i]->command) {
+        if (keybindings[i]->command != NULL) {
             fprintf(fp, "\tcommand %s\n", keybindings[i]->command);
         }
 
