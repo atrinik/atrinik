@@ -304,6 +304,8 @@ void menu_container_attach(widgetdata *widget, widgetdata *menuitem, SDL_Event *
     widgetdata *widget_container;
 
     widget_container = create_widget_object(CONTAINER_ID);
+    SOFT_ASSERT(widget_container != NULL,
+            "Failed to create a widget container");
     widget_container->x = widget->x;
     widget_container->y = widget->y;
     insert_widget_in_container(widget_container, widget, 0);
@@ -351,10 +353,11 @@ void menu_container_background(widgetdata *widget, widgetdata *menuitem, SDL_Eve
 
     submenu = MENU(menuitem->env)->submenu;
     container = get_innermost_container(widget);
+    SOFT_ASSERT(container != NULL, "Failed to get innermost container.");
     is_widget_bg = container->texture != NULL && strstr(container->texture->name, "widget_bg") != NULL;
 
     add_menuitem(submenu, "Blank", &menu_container_background_change, MENU_RADIO, container->texture != NULL && !is_widget_bg);
-    add_menuitem(submenu, "Texturised", &menu_container_background_change, MENU_RADIO, container->texture != NULL && is_widget_bg);
+    add_menuitem(submenu, "Texturized", &menu_container_background_change, MENU_RADIO, container->texture != NULL && is_widget_bg);
     add_menuitem(submenu, "Transparent", &menu_container_background_change, MENU_RADIO, container->texture == NULL);
 }
 
@@ -364,6 +367,7 @@ static void menu_container(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 
     submenu = MENU(menuitem->env)->submenu;
     outermost = get_outermost_container(widget);
+    SOFT_ASSERT(outermost != NULL, "Failed to get outermost container.");
 
     if (outermost->type == CONTAINER_ID) {
         add_menuitem(submenu, "Move", &menu_container_move, MENU_NORMAL, 0);
@@ -2147,6 +2151,7 @@ widgetdata *add_label(const char *text, font_struct *font, const char *color)
     _widget_label *label;
 
     widget = create_widget_object(LABEL_ID);
+    SOFT_ASSERT_RC(widget != NULL, NULL, "Failed to create a label widget.");
     label = LABEL(widget);
 
     label->text = estrdup(text);
@@ -2169,6 +2174,7 @@ widgetdata *add_texture(const char *texture)
     _widget_texture *widget_texture;
 
     widget = create_widget_object(TEXTURE_ID);
+    SOFT_ASSERT_RC(widget != NULL, NULL, "Failed to create a texture widget.");
     widget_texture = WIDGET_TEXTURE(widget);
 
     widget_texture->texture = texture_get(TEXTURE_TYPE_CLIENT, texture);
@@ -2211,6 +2217,7 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
     _menuitem *menuitem;
 
     widget_menuitem = create_widget_object(MENUITEM_ID);
+    SOFT_ASSERT(widget_menuitem != NULL, "Failed to create a menuitem widget.");
 
     container_menuitem = CONTAINER(widget_menuitem);
     container_strip_menuitem = CONTAINER_STRIP(widget_menuitem);
@@ -2381,6 +2388,8 @@ void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *eve
     widgetdata *tmp;
 
     tmp = create_widget_object(widget->sub_type);
+    SOFT_ASSERT(tmp != NULL, "Failed to create a widget of type %d",
+            widget->sub_type);
     tmp->x = menuitem->env->x;
     tmp->y = menuitem->env->y;
     widget_ensure_onscreen(tmp);
