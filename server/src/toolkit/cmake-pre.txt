@@ -17,10 +17,6 @@ if (ENABLE_EXTRA_WARNINGS)
     add_definitions(-Wpointer-arith)
     # Casting function types to non-matching types
     add_definitions(-Wbad-function-cast)
-    # Pointer casting with increased alignment (char * -> int *)
-    add_definitions(-Wcast-align)
-    # Suspicious uses of logical operators in expressions
-    add_definitions(-Wlogical-op)
     # extern declaration within a function
     add_definitions(-Wnested-externs)
     # Dead code (removed in newer versions of GCC, might still be in clang)
@@ -38,6 +34,13 @@ if (ENABLE_EXTRA_WARNINGS)
     add_definitions(-Wuninitialized)
     # Testing floating point values for equality
     add_definitions(-Wfloat-equal)
+
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        # Suspicious uses of logical operators in expressions
+        add_definitions(-Wlogical-op)
+        # Pointer casting with increased alignment (char * -> int *)
+        add_definitions(-Wcast-align)
+    endif ()
 endif ()
 
 if (ENABLE_AGGRESSIVE_WARNINGS)
