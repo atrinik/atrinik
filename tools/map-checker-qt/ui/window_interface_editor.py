@@ -18,6 +18,9 @@ import system.utils
 from ui.ui_window_interface_editor import Ui_WindowInterfaceEditor
 from ui.model import Model
 
+INTERFACES_DOCTYPE = """<!DOCTYPE interfaces PUBLIC
+"-//Atrinik//ADS-1 1.1.2//EN" "ads-1.dtd">"""
+
 
 class ItemModel(QtGui.QStandardItemModel):
     MIME_TYPE = "application/atrinik.map-checker.interface-element"
@@ -501,11 +504,12 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         elem = ElementTree.Element("interfaces")
         self.model_items_apply(self.model_items_apply_to_xml, (elem,))
 
-        xmlstr = ElementTree.tostring(elem, "utf-8")
-        xmlstr = xml.dom.minidom.parseString(xmlstr)
+        xmlstr = INTERFACES_DOCTYPE.encode("utf-8")
+        xmlstr += ElementTree.tostring(elem, "utf-8")
+        dom = xml.dom.minidom.parseString(xmlstr)
 
         with open(path, "wb") as f:
-            f.write(xmlstr.toprettyxml(indent=" " * 4, encoding="UTF-8"))
+            f.write(dom.toprettyxml(indent=" " * 4, encoding="UTF-8"))
 
     def reset_stacked_widget(self):
         self.stackedWidget.setCurrentIndex(0)
