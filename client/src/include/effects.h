@@ -27,7 +27,7 @@
  * Effects header file. */
 
 #ifndef EFFECTS_H
-#define EFFECT_H
+#define EFFECTS_H
 
 /**
  * @defgroup WIND_BLOW_xxx Wind blow directions
