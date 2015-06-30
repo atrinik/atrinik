@@ -106,7 +106,7 @@
                     <message>Oh, is she now!</message>
                     <response destination="worried" message="She's worried about you."/>
                 </dialog>
-                <dialog>
+                <dialog name="worried">
                     <message>There's no reason to be worried about me...</message>
                     <message color="yellow">{npc.name} grins mischievously.</message>
                     <message>Tell Frevia she needn't worry about me. I'll be around the glade from time to time...</message>
