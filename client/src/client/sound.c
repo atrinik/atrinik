@@ -776,10 +776,8 @@ void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos)
 
         /* If there is an old tag, the server is telling us to stop
          * playing a sound effect. */
-        if (tag_old) {
-
-            DL_FOREACH(sound_ambient_head, sound_ambient)
-            {
+        if (tag_old != 0) {
+            DL_FOREACH(sound_ambient_head, sound_ambient) {
                 if (sound_ambient->tag == tag_old) {
                     sound_ambient_free(sound_ambient);
                     break;
