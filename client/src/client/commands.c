@@ -180,12 +180,12 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_REG_HP:
-                cpl.gen_hp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
+                cpl.gen_hp = packet_to_uint16(data, len, &pos) / 10.0f;
                 widget_redraw_type_id(STAT_ID, "health");
                 break;
 
             case CS_STAT_REG_MANA:
-                cpl.gen_sp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
+                cpl.gen_sp = packet_to_uint16(data, len, &pos) / 10.0f;
                 widget_redraw_type_id(STAT_ID, "mana");
                 break;
 
@@ -304,7 +304,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_WEIGHT_LIM:
-                cpl.weight_limit = abs(packet_to_uint32(data, len, &pos)) / 1000.0;
+                cpl.weight_limit = packet_to_uint32(data, len, &pos) / 1000.0;
                 break;
 
             case CS_STAT_ACTION_TIME:
