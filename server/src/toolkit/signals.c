@@ -371,6 +371,8 @@ TOOLKIT_INIT_FUNC(signals)
 #endif
     }
 
+    signal(SIGPIPE, SIG_IGN);
+
 #ifdef WIN32
     AddVectoredExceptionHandler(1, signal_handler);
 #endif
