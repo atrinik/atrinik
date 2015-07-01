@@ -135,22 +135,18 @@ void server_settings_init(void)
                     text_id == SERVER_TEXT_PROTECTION_FULL ||
                     text_id == SERVER_TEXT_SPELL_PATHS) {
                 char **dst;
-                size_t max, arraymax;
+                size_t arraymax;
                 if (text_id == SERVER_TEXT_PROTECTION_GROUPS) {
                     dst = s_settings->protection_groups;
-                    max = sizeof(*s_settings->protection_groups);
                     arraymax = arraysize(s_settings->protection_groups);
                 } else if (text_id == SERVER_TEXT_PROTECTION_LETTERS) {
                     dst = s_settings->protection_letters;
-                    max = sizeof(*s_settings->protection_letters);
                     arraymax = arraysize(s_settings->protection_letters);
                 } else if (text_id == SERVER_TEXT_PROTECTION_FULL) {
                     dst = s_settings->protection_full;
-                    max = sizeof(*s_settings->protection_full);
                     arraymax = arraysize(s_settings->protection_full);
                 } else if (text_id == SERVER_TEXT_SPELL_PATHS) {
                     dst = s_settings->spell_paths;
-                    max = sizeof(*s_settings->spell_paths);
                     arraymax = arraysize(s_settings->spell_paths);
                 } else {
                     HARD_ASSERT(false);
