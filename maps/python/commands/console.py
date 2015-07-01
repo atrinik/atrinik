@@ -29,7 +29,7 @@ class AutoComplete (object):
         text = re.sub(r"(\w+)(\.[\w\(]*)?", self._objs, text, 1)
         text = re.sub(r"([^=]+)=(\s*\w*)?", self._assignment, text, 1)
 
-        return (text, self.matches)
+        return text, self.matches
 
     def _best_match (self, l, match = None):
         match_new = ""

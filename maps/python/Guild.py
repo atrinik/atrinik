@@ -215,7 +215,7 @@ class Guild:
     def pl_get_guild(self, name):
         for guild in self._db:
             if name in self._db[guild]["members"]:
-                return (guild, self._db[guild]["members"], not self._db[guild]["members"][name]["flags"] & self.member_requested)
+                return guild, self._db[guild]["members"], not self._db[guild]["members"][name]["flags"] & self.member_requested
 
         return None
 
