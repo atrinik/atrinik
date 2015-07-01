@@ -161,7 +161,7 @@ class Guild:
 
             # If the player is online, remove them from the guild maps.
             # If they are not online, this will be taken care of later.
-            if member != None:
+            if member is not None:
                 member.Controller().DrawInfo("You have been removed from the guild. Goodbye!", COLOR_RED)
                 self.member_kick(member)
 

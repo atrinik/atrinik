@@ -154,7 +154,7 @@ class Seller(Merchant):
 
         obj_stock = obj.ReadKey("stock_nrof")
 
-        if obj_stock != None:
+        if obj_stock is not None:
             obj_stock = int(obj_stock)
 
             # No more goods left.
@@ -167,10 +167,10 @@ class Seller(Merchant):
         self.buy_item = obj
         self.buy_item_stock = obj_stock
 
-        if num != None:
+        if num is not None:
             num = max(1, min(int(num), self.max_goods))
 
-            if obj_stock != None:
+            if obj_stock is not None:
                 num = min(num, obj_stock)
 
             cost = obj.GetCost() * num
@@ -196,7 +196,7 @@ class Seller(Merchant):
                 # Insert the clone into the player.
                 clone.InsertInto(self._activator)
 
-                if obj_stock != None:
+                if obj_stock is not None:
                     obj.WriteKey("stock_nrof", str(obj_stock - num))
         else:
             getattr(self, "subdialog_buy_" + obj.arch.name, self.subdialog_buyitem)()
@@ -272,7 +272,7 @@ class Buyer(Merchant):
 
         self.sell_item_nrof = item.nrof
 
-        if num != None:
+        if num is not None:
             num = max(1, min(int(num), self.max_goods, item.nrof))
             cost = obj.GetCost() * num
 

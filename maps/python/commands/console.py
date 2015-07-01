@@ -37,7 +37,7 @@ class AutoComplete (object):
         l.sort()
 
         for entry in l:
-            if match == None:
+            if match is None:
                 match = entry
             else:
                 for i, c in enumerate(entry):
@@ -110,7 +110,7 @@ class AutoComplete (object):
 
                 # Do not suggest incompatible variables...
                 if hasattr(self.console.locals[name], "__call__") or (
-                        obj_type != None and
+                        obj_type is not None and
                         isinstance(self.console.locals[name], obj_type)):
                     assignments.append("{}{}".format(name,
                             "(" if hasattr(self.console.locals[name],
@@ -201,7 +201,7 @@ class PyConsole (code.InteractiveConsole):
     def show (self, ac = None, append = None):
         inf = Interface(self.activator, self.activator)
 
-        if ac == None:
+        if ac is None:
             inf.set_title(self.activator.name + "'s Python Console")
             msg = markup_escape("\n".join(self.inf_data))
             inf.add_msg("[font=mono 12]{}[/font]".format(msg))
