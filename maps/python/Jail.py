@@ -2,7 +2,7 @@
 ## The Jail class, used for scripts in jails.
 
 from Atrinik import *
-import json, os, random, datetime
+import json, random, datetime
 
 ## Try to find a jail force inside player's inventory.
 ## @param player Player to look inside.
