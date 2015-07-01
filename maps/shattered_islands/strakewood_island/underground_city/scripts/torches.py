@@ -1,6 +1,8 @@
 ## @file
 ## Script for the torches in the first room of Underground City II.
 
+from Atrinik import *
+
 ## The threading timer function for the effect.
 ## @param progress Progress in the effect.
 def timer(progress, torches):

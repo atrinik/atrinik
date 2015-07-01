@@ -15,4 +15,4 @@ def main():
         inf.add_msg("I'm noh dwunk! I jus' lika dwenk. Or two.")
 
 main()
-inf.finish()
+inf.send()

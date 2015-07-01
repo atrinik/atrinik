@@ -1,6 +1,7 @@
 ## @file
 ## Handles the 'ask show' event for Lynren.
 
+from Atrinik import *
 from QuestManager import QuestManager
 from InterfaceQuests import rescuing_lynren
 

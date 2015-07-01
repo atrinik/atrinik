@@ -1,6 +1,7 @@
 ## @file
 ## Script for the Old Treant in the Desert Plane of Loki's Temple.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)

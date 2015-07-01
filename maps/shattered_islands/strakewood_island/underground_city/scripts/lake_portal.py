@@ -1,6 +1,7 @@
 ## @file
 ## Script for the Brynknot Lake portal in UC I.
 
+from Atrinik import *
 import random
 from QuestManager import QuestManager
 from InterfaceQuests import portal_of_llwyfen

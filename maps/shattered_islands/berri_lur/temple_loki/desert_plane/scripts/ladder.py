@@ -3,6 +3,7 @@
 ## jump away from the activator, so they cannot climb it down. The trick
 ## is to get it next to a wall, where it can't escape.
 
+from Atrinik import *
 from Common import get_randomized_dir
 import os.path
 

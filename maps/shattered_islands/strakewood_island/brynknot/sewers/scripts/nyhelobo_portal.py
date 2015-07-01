@@ -1,6 +1,7 @@
 ## @file
 ## Script for the quest room of the Brynknot Sewers Maze.
 
+from Atrinik import *
 from QuestManager import QuestManager
 from InterfaceQuests import portal_of_llwyfen
 
