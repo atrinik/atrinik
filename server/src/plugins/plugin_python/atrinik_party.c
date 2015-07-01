@@ -340,7 +340,7 @@ int Atrinik_Party_init(PyObject *module)
         def->name = fields[i].name;
         def->get = (getter) Party_GetAttribute;
         def->set = (setter) Party_SetAttribute;
-        def->doc = NULL;
+        def->doc = fields[i].doc;
         def->closure = &fields[i];
     }
 
