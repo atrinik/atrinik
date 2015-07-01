@@ -388,35 +388,33 @@ static void create_server_settings(void)
 static void create_server_animations(void)
 {
     char buf[MAX_BUF];
-    FILE *fp, *fp2;
+    snprintf(VS(buf), "%s/anims", settings.datapath);
 
-    snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
-
-    fp = fopen(buf, "wb");
-
-    if (!fp) {
+    FILE *fp = fopen(buf, "wb");
+    if (fp == NULL) {
         LOG(ERROR, "Couldn't create %s.", buf);
         exit(1);
     }
 
-    snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
-    fp2 = fopen(buf, "rb");
-
-    if (!fp2) {
+    snprintf(VS(buf), "%s/animations", settings.libpath);
+    FILE *fp2 = fopen(buf, "rb");
+    if (fp2 == NULL) {
         LOG(ERROR, "Couldn't open %s.", buf);
         exit(1);
     }
 
-    while (fgets(buf, sizeof(buf), fp2)) {
+    while (fgets(VS(buf), fp2)) {
         /* Copy anything but face names. */
-        if (!strncmp(buf, "anim ", 5) || !strcmp(buf, "mina\n") || !strncmp(buf, "facings ", 8)) {
+        if (strncmp(buf, "anim ", 5) == 0 || strcmp(buf, "mina\n") == 0 ||
+                strncmp(buf, "facings ", 8) == 0) {
             fputs(buf, fp);
         } else {
             char *end = strchr(buf, '\n');
+            if (end != NULL) {
+                *end = '\0';
+            }
 
             /* Transform face names into IDs. */
-
-            *end = '\0';
             fprintf(fp, "%d\n", find_face(buf, 0));
         }
     }
