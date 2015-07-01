@@ -49,7 +49,7 @@ class QuestManager:
         inventory.
 
         :param where: Where to store the quest part information object.
-        :type where: :class:`Atrinik.Object.Object.`
+        :type where: :class:`Atrinik.Object.Object`
         :param quest: Quest part information.
         :type quest: dict
         :param uid: Unique identifier of the quest part.
