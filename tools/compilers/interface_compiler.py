@@ -283,6 +283,8 @@ class TagCompilerInterface(BaseTagCompiler):
             if isinstance(self.parent, TagCompilerPart):
                 self.uid += "_" + self.parent.data["uid"]
 
+        self.npc.body.write("\n")
+        self.npc.body.write("# noinspection PyPep8Naming")
         self.npc.body.write(
             "class InterfaceDialog{uid}({inherit}):", uid=self.uid,
             inherit=", ".join(self.interface_inherit)
@@ -384,7 +386,7 @@ class TagCompilerDialog(BaseTagCompiler):
 
         if not dialog_regex or dialog_name:
             self.npc.body.write(
-                "def {dialog_prepend}dialog{dialog_name}(self{dialog_args}):",
+                "\ndef {dialog_prepend}dialog{dialog_name}(self{dialog_args}):",
                 dialog_prepend=dialog_prepend, dialog_name=dialog_name,
                 dialog_args=dialog_args
             )
