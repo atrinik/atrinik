@@ -55,7 +55,8 @@ class PostOffice:
         del temp[id]
         self.db[self.name] = temp
 
-    def _withdraw_one(self, item, activator, pl, msgs):
+    @staticmethod
+    def _withdraw_one(item, activator, pl, msgs):
         tmp = LoadObject(item["contents"])
 
         if not pl.CanCarry(tmp):
@@ -105,7 +106,8 @@ class PostOffice:
     ## least 20 (copper).</pre>
     ## @param object Object we want to send.
     ## @return The calculated price.
-    def get_price(self, object):
+    @staticmethod
+    def get_price(object):
         return int(max(object.GetCost() / 100 * 5, 20))
 
     ## Check for common situations where activator cannot send marked item.

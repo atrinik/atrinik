@@ -192,7 +192,8 @@ class CParser(object):
         # Return the list, with parts joined using a newline.
         return "\n".join(parts)
 
-    def parse_single_comment(self, line):
+    @staticmethod
+    def parse_single_comment(line):
         match = re.match(r"(.+?(?=//|$))(?://(?:/<)?\s*(.*))", line)
         if match is None:
             return line, None
