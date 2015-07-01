@@ -129,8 +129,8 @@ def item_buy(activator, obj, nrof, seller):
     cont = create_money_container(cost, "What: {}\nPrice: {}.".format(obj_name, CostString(cost)))
 
     # Send the container.
+    post = PostOffice.PostOffice(activator.name)
     try:
-        post = PostOffice.PostOffice(activator.name)
         post.send_item(cont, seller, 1)
     finally:
         post.db.close()
