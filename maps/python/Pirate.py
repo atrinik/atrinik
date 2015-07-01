@@ -50,7 +50,7 @@ _translations = {
     "nearby": "broadside",
     "restroom": "head",
     "restaurant": "galley",
-    "restaurant": "galleys",
+    "restaurants": "galleys",
     "hotel": "fleabag inn",
     "hotels": "fleabag inns",
     "pub": "Skull & Scuppers",
