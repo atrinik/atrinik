@@ -247,6 +247,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
 
 
 def main():
+    # noinspection PyCallingNonCallable
     defaults = OrderedDict([
         ("activator", (Object(), ":class:`~Atrinik.Object.Object` that "
                                  "activated the event.")),
