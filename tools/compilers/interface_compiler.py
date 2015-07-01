@@ -74,8 +74,10 @@ class NPC(object):
                             uid=self.quest_uid)
 
         if self.preconds:
-            self.tail.write("def preconds(self):")
+            self.tail.write("\n\ndef preconds(self):")
             self.tail.indent()
+
+            self.tail.write("# noinspection PyRedundantParentheses")
 
             for i, uid in enumerate(self.preconds):
                 self.tail.write("{statement} {precond}: ",
@@ -485,6 +487,8 @@ class TagCompilerAnd(BaseTagCompiler):
             self.npc.body.seek(old_pos)
 
             precond = self.precond.getvalue()
+
+            self.npc.body.write("# noinspection PyRedundantParentheses")
 
             if not data:
                 self.npc.body.write("return {precond}", precond=precond)
