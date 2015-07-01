@@ -34,6 +34,8 @@ temple_services = OrderedDict((
 class Temple(InterfaceBuilder):
     """Temple interface builder."""
 
+    temple_name = "xxx"
+    temple_desc = "xxx"
     enemy_temple_name = None
     enemy_temple_desc = None
 
