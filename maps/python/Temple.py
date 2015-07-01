@@ -36,8 +36,8 @@ class Temple(InterfaceBuilder):
 
     temple_name = "xxx"
     temple_desc = "xxx"
-    enemy_temple_name = None
-    enemy_temple_desc = None
+    enemy_temple_name = ""
+    enemy_temple_desc = ""
 
     def subdialog_services(self):
         """Show the available temple services."""
