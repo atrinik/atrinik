@@ -860,10 +860,11 @@ static int do_script(PythonContext *context, const char *filename)
 /** @copydoc command_func */
 static void command_custom_python(object *op, const char *command, char *params)
 {
-    PythonContext *context;
-    char path[MAX_BUF];
+    PythonContext *context = malloc(sizeof(PythonContext));
+    if (context == NULL) {
+        return;
+    }
 
-    context = malloc(sizeof(PythonContext));
     context->activator = op;
     context->who = op;
     context->other = op;
@@ -876,8 +877,8 @@ static void command_custom_python(object *op, const char *command, char *params)
     context->options = NULL;
     context->returnvalue = 0;
 
-    snprintf(path, sizeof(path), "/python/commands/%s.py", command);
-
+    char path[MAX_BUF];
+    snprintf(VS(path), "/python/commands/%s.py", command);
     if (!do_script(context, path)) {
         freeContext(context);
         return;
