@@ -4,7 +4,7 @@
 import Atrinik, Markup
 
 # Log the message to the server log.
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyUnboundLocalVariable
 for line in print_msg.split("\n"):
     if line:
         Atrinik.Logger("DEBUG", line)
