@@ -378,7 +378,7 @@ def create_list(l, action, back = None, sort = None, start = None):
             s += "\n"
 
         # Create the code.
-        code_orig = code = b64encode(" ".join([obj.map.path, str(obj.x), str(obj.y), str(obj.count)]).encode()).decode()
+        code = b64encode(" ".join([obj.map.path, str(obj.x), str(obj.y), str(obj.count)]).encode()).decode()
 
         # Append the 'back' string to the code if possible.
         if back:
@@ -432,8 +432,6 @@ def main():
         filters = []
         # Use lowest-to-highest value sort by default.
         sort = Filter.SORT_VALUE
-        # Page #1.
-        page = 1
 
         match = re.match("(\d+) \"([^\"]*)\" (.+)", msg[13:])
 

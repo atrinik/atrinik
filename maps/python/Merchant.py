@@ -276,7 +276,7 @@ class Buyer(Merchant):
             num = max(1, min(int(num), self.max_goods, item.nrof))
             cost = obj.GetCost() * num
 
-            item = item.Decrease(num)
+            item.Decrease(num)
             self._activator.Controller().InsertCoins(cost)
 
             self.add_msg("You receive {}.".format(CostString(cost)), color = COLOR_YELLOW)

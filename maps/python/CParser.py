@@ -56,7 +56,6 @@ class CParser(object):
                 continue
             # End of the array.
             elif line.endswith(";"):
-                in_array = False
                 break
 
             comment = self.parse_comment(line)

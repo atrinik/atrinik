@@ -30,8 +30,7 @@ class PostOffice:
     ## Send an item.
     ## @param object What are we sending?
     ## @param who Who is receiving the item?
-    ## @param accepted Is the item accepted?
-    def send_item(self, object, who, accepted = 0):
+    def send_item(self, object, who):
         if not who in self.db:
             self.init(who)
 

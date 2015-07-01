@@ -131,7 +131,7 @@ def item_buy(activator, obj, nrof, seller):
     # Send the container.
     post = PostOffice.PostOffice(activator.name)
     try:
-        post.send_item(cont, seller, 1)
+        post.send_item(cont, seller)
     finally:
         post.db.close()
 
