@@ -360,6 +360,7 @@ class QuestManager:
     def start(self, part, sound="learnspell.ogg"):
         """
         Begins the specified quest part.
+
         :param part: Quest part specifier.
         :type part: str or list
         :param sound: Sound file to play.
