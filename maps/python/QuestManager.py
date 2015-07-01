@@ -2,8 +2,10 @@
 Quest manager related implementations.
 """
 
-import Atrinik
 import time
+
+import Atrinik
+
 
 QUEST_TYPE_ATTRIBUTES = frozenset([
     ("item", Atrinik.QUEST_TYPE_ITEM),

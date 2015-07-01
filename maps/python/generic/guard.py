@@ -1,9 +1,11 @@
 ## @file
 ## Generic script for guards.
 
+import random
+
 from Atrinik import *
 from Interface import Interface
-import random
+
 
 def main():
     replies = [

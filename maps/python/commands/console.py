@@ -3,16 +3,17 @@
 ##
 ## Only usable by DMs or those with the "console" command permission.
 
-from Atrinik import *
 import sys
-
-import Common
-from Interface import Interface
-from Markup import markup_escape
 import code
 import collections
 import inspect
 import re
+
+from Atrinik import *
+import Common
+from Interface import Interface
+from Markup import markup_escape
+
 
 ## Version of the console.
 __VERSION__ = "1.3"

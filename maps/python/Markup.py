@@ -1,8 +1,10 @@
 ## @file
 ## Deals with markup-related operations.
 
-from Atrinik import *
 import re
+
+from Atrinik import *
+
 
 ## The markup escape table.
 _markup_escape_table = {

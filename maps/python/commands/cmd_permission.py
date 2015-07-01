@@ -1,10 +1,12 @@
 ## @file
 ## Implements the /cmd_permission command.
 
-from Atrinik import *
 import re
+
+from Atrinik import *
 from Interface import Interface
 from Markup import markup_escape, markup_unescape
+
 
 def main():
     match = re.match(r"((?:\")(.+)(?:\")|([^ ]+))"

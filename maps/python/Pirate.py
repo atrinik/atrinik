@@ -1,7 +1,8 @@
 ## @file
 ## The English to Pirate translator module.
 
-import re, random
+import re
+import random
 
 ## The translation table. Keys must be strings and are matched by regex
 ## on word boundary basis in a case-insensitive manner (capitalization

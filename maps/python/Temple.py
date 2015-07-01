@@ -1,8 +1,10 @@
 """Temple.py: Implements temple-related functions."""
 
-from Atrinik import *
 from collections import OrderedDict
+
+from Atrinik import *
 from Interface import InterfaceBuilder
+
 
 temple_services = OrderedDict((
     ("remove curse", [

@@ -2,9 +2,10 @@
 Handles Interface building and management.
 """
 
+import re
+
 import Atrinik
 import Language
-import re
 
 
 class Interface:

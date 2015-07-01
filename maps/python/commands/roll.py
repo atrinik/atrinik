@@ -2,9 +2,11 @@
 Implements the /roll command.
 """
 
-from Atrinik import *
 from random import randrange
+
+from Atrinik import *
 from Markup import markup_escape
+
 
 # Limits.
 MIN_num = 1

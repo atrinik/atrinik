@@ -1,9 +1,11 @@
 ## @file
 ## Implements the /create DM command.
 
-from Atrinik import *
 import re
+
+from Atrinik import *
 from Common import obj_assign_attribs
+
 
 def main():
     msg = WhatIsMessage()

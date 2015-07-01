@@ -3,8 +3,10 @@
 ## except those that match regex specified in event options (matched
 ## against the floor's arch name).
 
-from Atrinik import *
 import re
+
+from Atrinik import *
+
 
 options = GetOptions()
 # Direction the object wants to move into

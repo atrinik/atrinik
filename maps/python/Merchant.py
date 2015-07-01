@@ -1,11 +1,13 @@
 """Seller.py: Implements the Seller class."""
 
-from Atrinik import *
-from Interface import InterfaceBuilder
-from Language import int2english
 import json
 import random
 import re
+
+from Atrinik import *
+from Interface import InterfaceBuilder
+from Language import int2english
+
 
 class Merchant(InterfaceBuilder):
     _goods = None

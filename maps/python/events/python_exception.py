@@ -6,7 +6,10 @@
 ## log file pointer (whether it's an actual file, stdout or stderr), as
 ## well as to all the online DMs.
 
-import Atrinik, Markup, traceback
+import traceback
+
+import Atrinik
+import Markup
 
 # Construct the exception string.
 # noinspection PyUnresolvedReferences

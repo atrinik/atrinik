@@ -1,8 +1,10 @@
 ## @file
 ## Implements the Guild class, which provides an API for guild management.
 
-from Atrinik import *
 import time
+
+from Atrinik import *
+
 
 ## Guild database file.
 _guilddb_file = "../server/data/guilds"

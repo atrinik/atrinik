@@ -1,8 +1,10 @@
 ## @file
 ## Script for item destroyers in public house areas.
 
-from Atrinik import *
 import random
+
+from Atrinik import *
+
 
 def main():
     # Go through objects on activator's square.

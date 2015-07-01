@@ -20,10 +20,11 @@ import os
 import re
 from collections import OrderedDict
 import datetime
+import textwrap
 
 from Atrinik import *
 from CParser import CParser
-import textwrap
+
 
 PATH = os.path.join(GetSettings()["mapspath"], "python", "Atrinik")
 

@@ -2,8 +2,10 @@
 ## Provides the PostOffice class used by post office clerks and mailbox
 ## scripts.
 
-from Atrinik import *
 import shelve
+
+from Atrinik import *
+
 
 ## The PostOffice class.
 class PostOffice:

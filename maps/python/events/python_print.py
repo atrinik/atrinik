@@ -1,7 +1,8 @@
 ## @file
 ## Handles the Atrinik module print method.
 
-import Atrinik, Markup
+import Atrinik
+import Markup
 
 # Log the message to the server log.
 # noinspection PyUnresolvedReferences,PyUnboundLocalVariable

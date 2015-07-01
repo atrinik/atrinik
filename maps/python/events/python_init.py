@@ -1,5 +1,9 @@
-import os.path, sys, gc
+import os.path
+import sys
+import gc
+
 from Atrinik import CreatePathname
+
 
 path = CreatePathname("/python/events/init")
 sys.path.insert(0, CreatePathname("/python"))

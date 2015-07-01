@@ -3,9 +3,11 @@
 ## pickable items outside the house and putting them in front of the
 ## house.
 
+import random
+
 from Atrinik import *
 from House import House
-import random
+
 
 house = House(activator, GetOptions())
 

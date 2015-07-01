@@ -1,10 +1,12 @@
 ## @file
 ## Helpful NPC to change background music of a map.
 
+import re
+
 from Atrinik import *
 from Interface import Interface
 from Packet import MapStats
-import re
+
 
 inf = Interface(activator, me)
 

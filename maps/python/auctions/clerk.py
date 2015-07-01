@@ -1,11 +1,16 @@
 ## @file
 ## Handles Auction House clerks.
 
-from Atrinik import *
-from Interface import Interface
 from base64 import b64encode, b64decode
 from math import ceil
-import shelve, random, Auction, re
+import shelve
+import random
+import re
+
+from Atrinik import *
+from Interface import Interface
+import Auction
+
 
 inf = Interface(activator, me)
 db = shelve.open("auction_house_" + me.map.region.name)

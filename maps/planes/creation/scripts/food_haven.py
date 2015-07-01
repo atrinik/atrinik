@@ -1,8 +1,10 @@
 ## @file
 ## Experimental script testing the power of CreateMap().
 
-from Atrinik import *
 import time
+
+from Atrinik import *
+
 
 # Create 17x17 map with unique name
 m = CreateMap(17, 17, activator.name + "-food-" + str(time.time()))

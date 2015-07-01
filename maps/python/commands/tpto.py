@@ -1,9 +1,11 @@
 ## @file
 ## Implements the /tpto command.
 
-from Atrinik import *
 import re
+
+from Atrinik import *
 from Markup import markup_escape
+
 
 def main():
     match = re.match(r"([^ ]+)(?: (\d+))?(?: (\d+))?(?: (unique)(?::((?:\")(.+)(?:\")|([^ ]+)))?)?", WhatIsMessage() or "")
