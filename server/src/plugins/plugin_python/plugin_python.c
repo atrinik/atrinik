@@ -952,7 +952,7 @@ static const char doc_Atrinik_FindPlayer[] =
 ":param name: The player name to find.\n"
 ":type name: str\n"
 ":returns: The player's object if found, None otherwise.\n"
-":rtype: :class:`Atrinik.Player.Player` or None";
+":rtype: :class:`Atrinik.Object.Object` or None";
 
 /**
  * Implements Atrinik.FindPlayer() Python method.
