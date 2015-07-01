@@ -896,15 +896,18 @@ static int move_randomly(object *op)
 {
     int i, r;
     int dirs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+
     mapstruct *basemap = NULL;
     rv_vector rv;
-
-    if (op->item_race || op->item_level) {
+    if (op->item_race != 0 || op->item_level != 0) {
         object *base = find_base_info_object(op);
-
-        if ((basemap = ready_map_name(base->slaying, NULL, MAP_NAME_SHARED))) {
-            if (!get_rangevector_from_mapcoords(basemap, base->x, base->y, op->map, op->x, op->y, &rv, RV_NO_DISTANCE)) {
-                basemap = NULL;
+        if (base != NULL) {
+            basemap = ready_map_name(base->slaying, NULL, MAP_NAME_SHARED);
+            if (basemap != NULL) {
+                if (!get_rangevector_from_mapcoords(basemap, base->x, base->y,
+                        op->map, op->x, op->y, &rv, RV_NO_DISTANCE)) {
+                    basemap = NULL;
+                }
             }
         }
     }
@@ -921,7 +924,7 @@ static int move_randomly(object *op)
         r = dirs[i];
 
         /* Check x and y direction of possible move against limit parameters */
-        if (basemap) {
+        if (basemap != NULL) {
             if (abs(rv.distance_x + freearr_x[r]) > op->item_race) {
                 continue;
             }
@@ -932,10 +935,10 @@ static int move_randomly(object *op)
         }
 
         if (HAS_EVENT(op, EVENT_AI)) {
-            int ret = trigger_event(EVENT_AI, NULL, op, NULL, NULL, EVENT_AI_RANDOM_MOVE, r, 0, SCRIPT_FIX_NOTHING);
-
-            /* Cancel random movement. */
+            int ret = trigger_event(EVENT_AI, NULL, op, NULL, NULL,
+                    EVENT_AI_RANDOM_MOVE, r, 0, SCRIPT_FIX_NOTHING);
             if (ret == 1) {
+                /* Cancel random movement. */
                 return 0;
             } else if (ret == 2) {
                 /* Keep trying. */
