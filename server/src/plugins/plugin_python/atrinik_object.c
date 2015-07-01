@@ -1276,7 +1276,9 @@ static const char doc_Atrinik_Object_Save[] =
 ".. method:: Save().\n\n"
 "Dump an object, as if it was being saved to map or player file. Useful for "
 "saving the object somewhere for loading later with :meth:"
-"`~Atrinik.Object.Object.Save`.";
+"`~Atrinik.Object.Object.Save`.\n\n"
+":returns: Saved object.\n"
+":rtype: str";
 
 /**
  * Implements Atrinik.Object.Object.Save() Python method.
@@ -1849,7 +1851,8 @@ static const char doc_Atrinik_Object_GetRangeVector[] =
 ":type flags: int\n"
 ":returns: None if the distance couldn't be calculated, otherwise a tuple "
 "containing:\n\n"
-"  * Direction *object* should head to reach *to*, eg, :attr:`~Atrinik.NORTH`\n"
+"  * Direction *object* should head to reach *to*, eg, \n"
+"    :attr:`~Atrinik.NORTH`\n"
 "  * Distance between *object* and *to*.\n"
 "  * X distance.\n"
 "  * Y distance.\n"

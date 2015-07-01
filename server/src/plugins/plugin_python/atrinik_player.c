@@ -330,7 +330,7 @@ static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *self)
 static const char doc_Atrinik_Player_SwapApartments[] =
 ".. method:: SwapApartments(oldmap, newmap, x, y).\n\n"
 "Swaps *oldmap* apartment with *newmap* one.\n\nCopies old items from *oldmap* "
-"to *newmap* at *x*,*y* and saves the map.\n\n"
+"to *newmap* at *x*, *y* and saves the map.\n\n"
 ":param oldmap: The old apartment map.\n"
 ":type oldmap: str\n"
 ":param newmap: The new apartment map.\n"
@@ -1038,13 +1038,13 @@ PyTypeObject Atrinik_PlayerType = {
     0, 0, 0,
     Py_TPFLAGS_DEFAULT,
     "Atrinik Player class.\n\n"
-    "To access object's player controller, you can use something like::\n"
+    "To access object's player controller, you can use something like::\n\n"
     "    activator = Atrinik.WhoIsActivator()\n"
     "    player = activator.Controller()\n\n"
     "In the above example, player points to the player structure (which Python "
     "is wrapping) that is controlling the object *activator*. In this way, you "
     "can, for example, use something like this to get player's save bed, among "
-    "other things::\n"
+    "other things::\n\n"
     "    print(Atrinik.WhoIsActivator().Controller().savebed_map)\n\n",
     NULL, NULL,
     (richcmpfunc) Atrinik_Player_RichCompare,

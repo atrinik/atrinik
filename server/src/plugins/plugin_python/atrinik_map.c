@@ -350,8 +350,8 @@ static const char doc_Atrinik_Map_DrawInfo[] =
 ":type type: int\n"
 ":param name: Player name that is the source of this message, if applicable.\n"
 ":type name: str or None\n"
-":param distance: Maximum distance for players to be away from *x*,*y* to hear "
-"the message.\n"
+":param distance: Maximum distance for players to be away from *x*, *y* to "
+"hear the message.\n"
 ":type distance: int";
 
 /**
@@ -580,7 +580,7 @@ static PyObject *Atrinik_Map_Blocked(Atrinik_Map *self, PyObject *args)
 /** Documentation for Atrinik_Map_FreeSpot(). */
 static const char doc_Atrinik_Map_FreeSpot[] =
 ".. method:: FreeSpot(obj, x, y, start, stop).\n\n"
-"Find first free spot around map at *x*,*y*. The resulting value can be used "
+"Find first free spot around map at *x*, *y*. The resulting value can be used "
 "as an index to both free spot arrays; :attr:`Atrinik.freearr_x` and "
 ":attr:`Atrinik.freearr_y`.\n\n"
 ":param obj: Involved object - will be used to find the spot this object could "
@@ -591,7 +591,7 @@ static const char doc_Atrinik_Map_FreeSpot[] =
 ":param y: Y position on the map.\n"
 ":type y: int\n"
 ":param start: Start in the free spot arrays; 0 will also check the tile at "
-"*x*,*y*, whereas 1 will start searching only around *x*,*y*.\n"
+"*x*, *y*, whereas 1 will start searching only around *x*, *y*.\n"
 ":type start: int\n"
 ":param stop: Where to stop in the free spot arrays; one of the SIZEOFFREEx "
 "constants, eg, :attr:`~Atrinik.SIZEOFFREE1`."
