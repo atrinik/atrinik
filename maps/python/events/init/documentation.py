@@ -38,7 +38,7 @@ def getargspec(obj):
         print("Failed to get args for {}".format(obj))
         return []
 
-    args = re.findall(r"([\w+_]+)(?:=([\w_\-\.]+))?", match.group(1))
+    args = re.findall(r"([\w+_\*]+)(?:=([\w_\-\.]+))?", match.group(1))
     return ["=".join(x for x in val if x) for val in args]
 
 
@@ -94,7 +94,7 @@ def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
 
         subsequent_indent = " " * indent * 4
         if line.startswith(":"):
-            subsequent_indent += " " * 8
+            subsequent_indent += " " * 2
 
         line = " " * indent * 4 + line
         line = textwrap.fill(line, width=80,
@@ -188,7 +188,10 @@ def dump_obj(obj, f, indent=0, defaults=None):
             # noinspection PyUnresolvedReferences
             f.write("{} = {cls_name}.{cls_name}()\n".format(
                 tmp_name, cls_name=tmp.__class__.__name__))
-            doc = tmp_name.replace("_", " ").title()
+
+            if not doc:
+                doc = tmp_name.replace("_", " ").title()
+
             dump_docstring(tmp, f, indent, doc=doc)
         elif inspect.isclass(obj):
             f.write("\n")
@@ -251,13 +254,14 @@ def dump_obj(obj, f, indent=0, defaults=None):
 def main():
     # noinspection PyCallingNonCallable
     defaults = OrderedDict([
-        ("activator", (Object(), ":class:`~Atrinik.Object.Object` that "
+        ("activator", (Object(), "The :class:`~Atrinik.Object.Object` that "
                                  "activated the event.")),
         ("pl", (Player(), "If the event activator is a player, this will be a "
                           ":class:`~Atrinik.Player.Player` instance, otherwise "
                           "it will be None.")),
-        ("me", (Object(), ":class:`~Atrinik.Object.Object` that has the event "
-                          "object in its inventory that triggered the event.")),
+        ("me", (Object(), "The :class:`~Atrinik.Object.Object` that has the "
+                          "event object in its inventory that triggered the "
+                          "event.")),
         ("msg", ("hello", "Message used to activate the event (eg, in case of "
                           "say events). Can be None.")),
     ])
