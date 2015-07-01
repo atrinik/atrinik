@@ -9,7 +9,7 @@ from Common import diagonal_distance
 geysers = randint(1, 3)
 
 # Now create the geysers.
-for i in range(0, geysers):
+for _ in range(0, geysers):
     # Randomly choose where to place the geyser.
     x = randint(0, me.map.width - 1)
     y = randint(0, me.map.height - 1)
