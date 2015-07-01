@@ -743,7 +743,7 @@ class TagCompilerObject(BaseTagCompiler):
         else:
             self.npc.body.write(
                 "self._activator.FindObject({item_args}).Decrease({remove})",
-                item_args=item_args, remove=remove
+                item_args=item_args, remove=remove if remove != "1" else ""
             )
 
 
