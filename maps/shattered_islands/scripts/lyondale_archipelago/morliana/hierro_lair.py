@@ -17,12 +17,12 @@ def main():
             if obj.glow_radius:
                 extinguished += 1
                 # Extinguish it.
-                obj.Apply(obj, APPLY_NORMAL)
+                obj.Apply(obj)
 
                 # If it was not applied, only lit, it will be applied
                 # now, so unapply it.
                 if obj.f_applied:
-                    obj.Apply(obj, APPLY_NORMAL)
+                    obj.Apply(obj)
 
         if extinguished:
             from Language import pluralize
