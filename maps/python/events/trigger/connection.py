@@ -16,6 +16,8 @@
 ##
 ## The event may hold a message, which will be printed to the activator.
 
+from Atrinik import *
+
 event = WhatIsEvent()
 
 def main():
