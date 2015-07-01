@@ -60,6 +60,7 @@ class PostOffice:
         tmp = LoadObject(item["contents"])
 
         if not pl.CanCarry(tmp):
+            tmp.Destroy()
             msgs.append("The '{}' from {} is too heavy for you to carry.".format(item["name"], item["from"]))
             return False
 
