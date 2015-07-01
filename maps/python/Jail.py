@@ -50,8 +50,9 @@ class Jail:
 
         # Select a random jail.
         (m, x, y) = self.select_jail()
+        map_path = self.me.map.GetPath(m)
         # Teleport the player to the jail map.
-        player.TeleportTo(self.me.map.GetPath(m), x, y)
+        player.TeleportTo(map_path, x, y)
         # Get player's controller, and set their save bed map, so they can't
         # escape by suicide.
         pl = player.Controller()
