@@ -4290,7 +4290,7 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
 
         /* Calculate alpha */
         if (s != 0) {
-            cp = (float) (abs(d)) / (float) (abs(s));
+            cp = fabs((float) d) / fabs((float) s);
             if (cp > 1.0) {
                 cp = 1.0;
             }
@@ -4349,7 +4349,7 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
 
         /* Calculate alpha */
         if (t != 0) {
-            cp = (float) (abs(d)) / (float) (abs(t));
+            cp = fabs((float) d) / fabs((float) t);
             if (cp > 1.0) {
                 cp = 1.0;
             }
