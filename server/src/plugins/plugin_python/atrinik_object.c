@@ -1195,10 +1195,10 @@ static const char doc_Atrinik_Object_SetPosition[] =
 ".. method:: SetPosition(x, y).\n\n"
 "Sets new position coordinates for the object.\n\nCannot be used to move "
 "objects out of containers, use :meth:`~Atrinik.Drop` or :meth:"
-"`~Atrinik.TeleportTo` for that."
+"`~Atrinik.TeleportTo` for that.\n\n"
 ":param x: New X position on the same map.\n"
 ":type x: int\n"
-":param Y: New Y position on the same map.\n"
+":param y: New Y position on the same map.\n"
 ":type y: int";
 
 /**
@@ -1702,8 +1702,8 @@ static const char doc_Atrinik_Object_SquaresAround[] =
 "    def cmp_squares(m, x, y, obj):\n"
 "        try:\n"
 "            return m.GetLayer(x, y, LAYER_FLOOR)[0].name == \"grass\"\n"
-"        # Exception was raised; ignore it, as it probably means there is no\n"
-"        # floor.\n"
+"        # Exception was raised; ignore it, as it probably\n"
+"        # means there is no floor.\n"
 "        except:\n"
 "            return False\n\n"
 "    for (m, x, y) in activator.SquaresAround(1, type=AROUND_WALL,\n"
@@ -1711,10 +1711,10 @@ static const char doc_Atrinik_Object_SquaresAround[] =
 "        for ob in m.GetLayer(x, y, LAYER_FLOOR):\n"
 "            print(ob)\n"
 "\n\n"
-":param range: Range around which to look at the squares. Must be higher"
+":param range: Range around which to look at the squares. Must be higher "
 "than 0.\n"
 ":type range: int\n"
-":param type: One of or a combination of the AROUND_xxx constants, eg,"
+":param type: One of or a combination of the AROUND_xxx constants, eg, "
 ":attr:`~Atrinik.AROUND_WALL`.\n"
 ":type type: int\n"
 ":param beyond: If True and one of checks from *type* parameter matches, all "
@@ -1722,10 +1722,10 @@ static const char doc_Atrinik_Object_SquaresAround[] =
 "sight).\n"
 ":type beyond: bool\n"
 ":param callable: Defines function to call for comparisons. The function "
-"should have parameters in the order of **map, x, y, obj** where map is the"
+"should have parameters in the order of **map, x, y, obj** where map is the "
 "map, x/y are the coordinates and obj is the object that :meth:"
-"`~Atrinik.Object.Object.SquaresAround()` was called for. The function should"
-"return True if the square should be considered ignored, False otherwise."
+"`~Atrinik.Object.Object.SquaresAround()` was called for. The function should "
+"return True if the square should be considered ignored, False otherwise. "
 "*type* being :attr:`~Atrinik.AROUND_ALL` takes no effect if this is set, but "
 "it can be combined with the other AROUND_xxx constants.\n"
 ":type callable: collections.Callable or None\n"
@@ -2093,9 +2093,13 @@ static PyObject *Atrinik_Object_Artificate(Atrinik_Object *self, PyObject *args)
 
 /** Documentation for Atrinik_Object_Load(). */
 static const char doc_Atrinik_Object_Load[] =
-".. method:: Load(name).\n\n"
-"Load archetype-like attribute/value pairs into the object. For example, "
-"**attack_protect 20\ndam 10**\n\n"
+".. method:: Load(lines).\n\n"
+"Load archetype-like attribute/value pairs into the object. For example::\n\n"
+"    '''\n"
+"    attack_protect 20\n"
+"    dam 10\n"
+"    '''"
+"\n\n"
 ":param lines: Lines to load into the object.\n"
 ":type lines: str";
 

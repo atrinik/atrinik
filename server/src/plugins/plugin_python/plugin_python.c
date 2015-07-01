@@ -1444,7 +1444,7 @@ static const char doc_Atrinik_GetRangeVectorFromMapCoords[] =
 ":type flags: int\n"
 ":returns: None if the distance couldn't be calculated, otherwise a "
 "tuple containing:\n\n"
-"  * Direction from the first coordinate to the second, eg, :attr:"
+"  * Direction from the first coordinate to the second, eg, :attr:\n"
 "    `~Atrinik.NORTH`\n"
 "  * Distance between the two coordinates.\n"
 "  * X distance.\n"
@@ -1766,7 +1766,7 @@ static PyObject *Atrinik_GetTicks(PyObject *self)
 
 /** Documentation for Atrinik_GetArchetype(). */
 static const char doc_Atrinik_GetArchetype[] =
-".. function:: GetArchetype(archetype).\n\n"
+".. function:: GetArchetype(archname).\n\n"
 "Finds an archetype.\n\n"
 ":param archname: Name of the archetype to find.\n"
 ":type archname: str\n"

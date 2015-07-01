@@ -50,7 +50,7 @@ static fields_struct fields[] = {
             FIELDFLAG_READONLY, "Class object of the player. Cannot be set, as "
             "it's always set to the last CLASS type object that is found in "
             "the player's inventory after calling "
-            ":meth:`Atrinik.Object.Object.Update`.; Atrinik.ObjectObject or "
+            ":meth:`Atrinik.Object.Object.Update`.; Atrinik.Object.Object or "
             "None (readonly)"},
     {"savebed_map", FIELDTYPE_CARY, offsetof(player, savebed_map), 0,
             sizeof(((player *) NULL)->savebed_map),
