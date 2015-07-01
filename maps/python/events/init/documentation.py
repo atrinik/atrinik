@@ -184,6 +184,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
             f.write("pass\n")
         elif isinstance(tmp, (Object, Map, Archetype, Player)):
             f.write(" " * indent * 4)
+            # noinspection PyUnresolvedReferences
             f.write("{} = {cls_name}.{cls_name}()\n".format(
                 tmp_name, cls_name=tmp.__class__.__name__))
             doc = tmp_name.replace("_", " ").title()
