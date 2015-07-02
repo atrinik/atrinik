@@ -1,4 +1,6 @@
-"""Seller.py: Implements the Seller class."""
+"""
+Implements merchant related classes (sellers, buyers, spell sellers, etc).
+"""
 
 import json
 import random
@@ -32,6 +34,7 @@ class Merchant(InterfaceBuilder):
                 break
 
             self.add_link(int2english(x).capitalize(), dest = dest + "{} {}".format(x, name))
+
 
 class Seller(Merchant):
     """Used for NPCs that sell something to the player."""
@@ -203,6 +206,7 @@ class Seller(Merchant):
         else:
             getattr(self, "subdialog_buy_" + obj.arch.name, self.subdialog_buyitem)()
 
+
 class Buyer(Merchant):
     @property
     def goods(self):
@@ -285,3 +289,142 @@ class Buyer(Merchant):
             getattr(self, "subdialog_sold_" + obj.arch.name, self.subdialog_solditem)()
         else:
             getattr(self, "subdialog_sell_" + obj.arch.name, self.subdialog_sellitem)()
+
+
+class SpellSeller(InterfaceBuilder):
+    """
+    Spell-selling merchant.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._spells = None
+        self.buy_spell = None
+        self.spell_name = None
+        self.spell_price = None
+        self.wizardry_skill = None
+
+    @property
+    def spells(self):
+        """Acquires the available spells."""
+
+        if self._spells is not None:
+            return self._spells
+
+        self._spells = [val.strip() for val in GetOptions().split(",")]
+        return self._spells
+
+    def subdialog_spells(self):
+        """Creates links for the available spells."""
+
+        for spell in self.spells:
+            self.add_link(spell.capitalize(), dest=spell)
+
+    def subdialog_buy_icon(self):
+        """Shows an icon of the spell to purchase."""
+
+        self.add_msg_icon(self.buy_spell.face[0], self.buy_spell.msg, fit=True)
+
+    def subdialog_buy_spell(self):
+        """Used to show info about a specific available spell."""
+
+        self.add_msg("Ah, so you want to buy {self.buy_spell.name}?")
+        self.subdialog_buy_icon()
+
+    def subdialog_buy_spell_known(self):
+        """
+        Shown immediately after :meth:`subdialog_buy_spell` in case the player
+        already knows the spell.
+        """
+
+        self.add_msg("... but you already know {self.buy_spell.name}.")
+
+    def subdialog_spell_requirement(self):
+        """
+        Shows spell requirements. Shown immediately after :meth:
+        `subdialog_buy_spell` in case the player doesn't know the spell yet.
+        """
+
+        level = self.buy_spell.level
+        color = COLOR_GREEN if self.wizardry_skill.level >= level else COLOR_RED
+        self.add_msg("{self.spell_name} requires level {self.buy_spell.level} "
+                     "to use. Your wizardry spells skill is level "
+                     "{self.wizardry_skill.level}.", color=color)
+
+    def subdialog_spell_price(self):
+        """
+        Shows the spell's price. Shown immediately after
+        :meth:`subdialog_spell_requirement`.
+        """
+
+        self.add_msg("{self.spell_name} will cost you {self.spell_price}. "
+                     "Is that okay?")
+
+    def subdialog_fail_money(self):
+        """Message when the player doesn't have enough money for the spell."""
+
+        self.add_msg("You don't have enough money...")
+
+    def subdialog_bought_icon(self):
+        """Shows an icon of the purchased spell."""
+
+        self.add_msg_icon(self.buy_spell.face[0], self.buy_spell.name, fit=True)
+
+    def subdialog_bought_spell(self):
+        """Shown after buying the spell."""
+
+        self.add_msg("You pay {self.spell_price}.", color=COLOR_YELLOW)
+        self.subdialog_bought_icon()
+        self.add_msg("Pleasure doing business with you!")
+
+    def dialog_hello(self):
+        """Default hello dialog handler."""
+
+        self.add_msg("Welcome, dear customer! I'm {npc.name}.")
+        self.add_msg("Are you here to buy one of my spells? I can offer you "
+                     "the following spells.")
+        self.subdialog_spells()
+
+    def dialog(self, msg):
+        """Handle spells purchasing."""
+
+        if msg.startswith("buy "):
+            msg = msg[4:]
+            is_buy = True
+        else:
+            is_buy = False
+
+        if msg not in self.spells:
+            return
+
+        self.buy_spell = GetArchetype("spell_" + msg.replace(" ", "_")).clone
+        self.spell_name = msg.capitalize()
+        self.spell_price = CostString(self.buy_spell.value)
+        spell_obj = self._activator.FindObject(type=Type.SPELL,
+                                               name=self.buy_spell.name)
+
+        if not is_buy:
+            self.subdialog_buy_spell()
+
+            if spell_obj:
+                self.subdialog_buy_spell_known()
+                return
+
+            self.wizardry_skill = self._activator.FindObject(
+                type=Type.SKILL, name="wizardry spells"
+            )
+            self.subdialog_spell_requirement()
+
+            self.subdialog_spell_price()
+            self.add_link("Confirm", dest="buy " + msg)
+            return
+
+        if spell_obj:
+            return
+
+        if not self._activator.PayAmount(self.buy_spell.value):
+            self.subdialog_fail_money()
+            return
+
+        self._activator.CreateObject(self.buy_spell.arch.name)
+        self.subdialog_bought_spell()
