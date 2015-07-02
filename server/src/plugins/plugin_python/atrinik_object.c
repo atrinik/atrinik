@@ -45,8 +45,9 @@ static fields_struct fields[] = {
     {"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0,
             "Object stacked above this one.; Atrinik.Object.Object or None "
             "(readonly)"},
-    {"inv", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0,
-            "First object in the inventory.; Atrinik.Object.Object or None "
+    {"inv", FIELDTYPE_OBJECT_ITERATOR, offsetof(object, inv),
+            FIELDFLAG_READONLY, 0,
+            "First object in the inventory.; Atrinik.Object.ObjectIterator "
             "(readonly)"},
     {"env", FIELDTYPE_OBJECT, offsetof(object, env), FIELDFLAG_READONLY, 0,
             "Inventory the object is in.; Atrinik.Object.Object or None "
@@ -2513,69 +2514,6 @@ static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left,
 }
 
 /**
- * Start iterating.
- * @param seq Object to start iterating from.
- * @return A new instance of PyObject, containing Atrinik_Object, with a
- * reference to 'seq'.
- */
-static PyObject *object_iter(PyObject *seq)
-{
-    Atrinik_Object *obj, *orig_obj = (Atrinik_Object *) seq;
-
-    OBJEXISTCHECK(orig_obj);
-
-    obj = PyObject_NEW(Atrinik_Object, &Atrinik_ObjectType);
-    Py_INCREF(seq);
-    obj->iter = (Atrinik_Object *) seq;
-    obj->iter_type = OBJ_ITER_TYPE_ONE;
-
-    /* Select which iteration type we're doing. It's possible that
-     * an object has both below and above set (it's not the first and
-     * not the last object), in which case we will prefer below. */
-    if (orig_obj->obj->below) {
-        obj->iter_type = OBJ_ITER_TYPE_BELOW;
-    } else if (orig_obj->obj->above) {
-        obj->iter_type = OBJ_ITER_TYPE_ABOVE;
-    }
-
-    return (PyObject *) obj;
-}
-
-/**
- * Get next object for iteration.
- * @param obj Previous object.
- * @return Next object, NULL if there is nothing left.
- */
-static PyObject *object_iternext(Atrinik_Object *obj)
-{
-    /* Do we need to iterate? */
-    if (obj->iter_type != OBJ_ITER_TYPE_NONE) {
-        OBJEXISTCHECK(obj->iter);
-        object *tmp = obj->iter->obj;
-
-        /* Check which way we're iterating. */
-        if (obj->iter_type == OBJ_ITER_TYPE_BELOW) {
-            obj->iter->obj = tmp->below;
-        } else if (obj->iter_type == OBJ_ITER_TYPE_ABOVE) {
-            obj->iter->obj = tmp->above;
-        } else if (obj->iter_type == OBJ_ITER_TYPE_ONE) {
-            obj->iter->obj = NULL;
-        }
-
-        obj->iter->count = obj->iter->obj != NULL ? obj->iter->obj->count : 0;
-
-        /* Nothing left, so mark iter_type to show that. */
-        if (obj->iter->obj == NULL) {
-            obj->iter_type = OBJ_ITER_TYPE_NONE;
-        }
-
-        return wrap_object(tmp);
-    }
-
-    return NULL;
-}
-
-/**
  * Atrinik object bool check.
  * @param obj The object.
  */
@@ -2674,8 +2612,8 @@ PyTypeObject Atrinik_ObjectType = {
     NULL, NULL,
     (richcmpfunc) Atrinik_Object_RichCompare,
     0,
-    (getiterfunc) object_iter,
-    (iternextfunc) object_iternext,
+    NULL,
+    NULL,
     methods,
     0,
     getseters,
@@ -2691,8 +2629,228 @@ PyTypeObject Atrinik_ObjectType = {
 };
 
 /**
- * Initialize the object wrapper.
- * @param module The Atrinik Python module.
+ * Free an object iterator wrapper.
+ * @param self The wrapper to free.
+ */
+static void Atrinik_ObjectIterator_dealloc(PyObject *self)
+{
+    Atrinik_ObjectIterator *iterator = (Atrinik_ObjectIterator *) self;
+    iterator->obj = NULL;
+    iterator->count = 0;
+    iterator->iter_type = 0;
+    Py_TYPE(self)->tp_free(self);
+}
+
+/**
+ * Return a string representation of an object iterator.
+ * @param self The object iterator.
+ * @return Python object containing some data about the iterator.
+ */
+static PyObject *Atrinik_ObjectIterator_str(Atrinik_ObjectIterator *self)
+{
+    return PyString_FromFormat("[%s \"%s\", type %d]",
+            self->obj != NULL ? self->obj->name : ">NULL<",
+            self->obj != NULL ? self->obj->arch->name : ">NULL<",
+            self->iter_type);
+}
+
+/**
+ * Implements Atrinik.Object.ObjectIterator.__iter__() Python method.
+ * @param self The iterator object.
+ * @return self.
+ */
+static PyObject *Atrinik_ObjectIterator_iter(PyObject *self)
+{
+    Py_INCREF(self);
+    return self;
+}
+
+/**
+ * Implements Atrinik.Object.ObjectIterator.__bool__() Python method.
+ * @param self The iterator object.
+ * @return Whether there are objects in the iterator.
+ */
+static int Atrinik_ObjectIterator_bool(Atrinik_ObjectIterator *self)
+{
+    return self->obj != NULL;
+}
+
+/**
+ * Implements Atrinik.Object.ObjectIterator.__len__() Python method.
+ * @param self The iterator object.
+ * @return Number of items in the iterator.
+ */
+static Py_ssize_t Atrinik_ObjectIterator_len(Atrinik_ObjectIterator *self)
+{
+    if (self->iterated) {
+        INTRAISE("Cannot get length of iterator that has been iterated through")
+    }
+
+    Py_ssize_t num = 0;
+    for (object *tmp = self->obj; tmp != NULL; ) {
+        num++;
+
+        if (self->iter_type == OBJ_ITER_TYPE_BELOW) {
+            tmp = tmp->below;
+        } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) {
+            tmp = tmp->above;
+        } else {
+            break;
+        }
+    }
+
+    return num;
+}
+
+/**
+ * Implements Atrinik.Object.ObjectIterator.next() Python method.
+ * @param self The iterator object.
+ * @return Next object, NULL if there is nothing left.
+ */
+static PyObject *Atrinik_ObjectIterator_iternext(PyObject *self)
+{
+    Atrinik_ObjectIterator *iterator = (Atrinik_ObjectIterator *) self;
+
+    /* Do we need to stop iterating? */
+    if (iterator->iter_type == OBJ_ITER_TYPE_NONE) {
+        PyErr_SetNone(PyExc_StopIteration);
+        return NULL;
+    }
+
+    if (!OBJECT_VALID(iterator->obj, iterator->count)) {
+        RAISE("Object disappeared during iteration.")
+    }
+
+    object *tmp = iterator->obj;
+
+    /* Check which way we're iterating. */
+    if (iterator->iter_type == OBJ_ITER_TYPE_BELOW) {
+        iterator->obj = tmp->below;
+    } else if (iterator->iter_type == OBJ_ITER_TYPE_ABOVE) {
+        iterator->obj = tmp->above;
+    } else if (iterator->iter_type == OBJ_ITER_TYPE_ONE) {
+        iterator->obj = NULL;
+    }
+
+    iterator->count = iterator->obj != NULL ? iterator->obj->count : 0;
+
+    /* Nothing left, so mark iter_type to show that. */
+    if (iterator->obj == NULL) {
+        iterator->iter_type = OBJ_ITER_TYPE_NONE;
+    }
+
+    iterator->iterated = true;
+
+    return wrap_object(tmp);
+}
+
+/**
+ * The number protocol for Atrinik object iterator.
+ */
+static PyNumberMethods Atrinik_ObjectIteratorNumber = {
+    NULL,
+    NULL,
+    NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_divide */
+#endif
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    (inquiry) Atrinik_ObjectIterator_bool,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_coerce */
+#endif
+    NULL,
+    NULL,
+    NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_oct */
+    NULL, /* nb_hex */
+#endif
+    NULL,
+    NULL,
+    NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_inplace_divide */
+#endif
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+/**
+ * The sequence protocol for Atrinik object iterator.
+ */
+static PySequenceMethods Atrinik_ObjectIteratorSequence = {
+    (lenfunc) Atrinik_ObjectIterator_len,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+/**
+ * The Atrinik.ObjectIterator type.
+ */
+PyTypeObject Atrinik_ObjectIteratorType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "Atrinik.ObjectIterator",
+    sizeof(Atrinik_ObjectIterator),
+    0,
+    (destructor) Atrinik_ObjectIterator_dealloc,
+    NULL, NULL, NULL,
+    NULL,
+    NULL,
+    &Atrinik_ObjectIteratorNumber,
+    &Atrinik_ObjectIteratorSequence,
+    0, 0, 0,
+    (reprfunc) Atrinik_ObjectIterator_str,
+    0, 0, 0,
+    Py_TPFLAGS_DEFAULT,
+    "Used for iterating object inventories.",
+    NULL, NULL,
+    NULL,
+    0,
+    (getiterfunc) Atrinik_ObjectIterator_iter,
+    (iternextfunc) Atrinik_ObjectIterator_iternext,
+    NULL,
+    0,
+    NULL,
+    0, 0, 0, 0, 0, 0, 0,
+    PyType_GenericNew,
+    0, 0, 0, 0, 0, 0, 0, 0, 0
+#ifdef Py_TPFLAGS_HAVE_FINALIZE
+    , NULL
+#endif
+};
+
+/**
+ * Initialize the Atrinik.Object module.
+ * @param module The Atrinik.Object module.
  * @return 1 on success, 0 on failure.
  */
 int Atrinik_Object_init(PyObject *module)
@@ -2738,6 +2896,14 @@ int Atrinik_Object_init(PyObject *module)
     Py_INCREF(&Atrinik_ObjectType);
     PyModule_AddObject(module, "Object", (PyObject *) &Atrinik_ObjectType);
 
+    if (PyType_Ready(&Atrinik_ObjectIteratorType) < 0) {
+        return 0;
+    }
+
+    Py_INCREF(&Atrinik_ObjectIteratorType);
+    PyModule_AddObject(module, "ObjectIterator",
+            (PyObject *) &Atrinik_ObjectIteratorType);
+
     return 1;
 }
 
@@ -2761,4 +2927,41 @@ PyObject *wrap_object(object *what)
     }
 
     return (PyObject *) wrapper;
+}
+
+/**
+ * Utility method to wrap an object inside an object iterator.
+ * @param what Object to wrap.
+ * @return Atrinik.Object.ObjectIterator instance wrapping the object.
+ */
+PyObject *wrap_object_iterator(object *what)
+{
+    Atrinik_ObjectIterator *iterator = PyObject_NEW(Atrinik_ObjectIterator,
+            &Atrinik_ObjectIteratorType);
+    if (iterator == NULL) {
+        return NULL;
+    }
+
+    if (what != NULL) {
+        iterator->obj = what;
+        iterator->count = what->count;
+        iterator->iter_type = OBJ_ITER_TYPE_ONE;
+
+        /* Select which iteration type we're doing. It's possible that
+         * an object has both below and above set (it's not the first and
+         * not the last object), in which case we will prefer below. */
+        if (what->below != NULL) {
+            iterator->iter_type = OBJ_ITER_TYPE_BELOW;
+        } else if (what->above != NULL) {
+            iterator->iter_type = OBJ_ITER_TYPE_ABOVE;
+        }
+    } else {
+        iterator->obj = NULL;
+        iterator->count = 0;
+        iterator->iter_type = OBJ_ITER_TYPE_NONE;
+    }
+
+    iterator->iterated = 0;
+
+    return (PyObject *) iterator;
 }

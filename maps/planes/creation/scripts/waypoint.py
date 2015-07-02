@@ -29,7 +29,7 @@ def main():
         # Reached waypoint that is used for getting to apples dropped around a tree.
         if me.name == "apple waypoint":
             # Try to find the apple by looking at objects below the guard's feet.
-            for obj in activator.map.GetFirstObject(activator.x, activator.y):
+            for obj in activator.map.Objects(activator.x, activator.y):
                 # Is the object an apple?
                 if obj.type == Type.FOOD and obj.arch.name == "apple":
                     # Remove the apple, inform the map and return.
@@ -95,7 +95,7 @@ def main():
         # Try to look for an apple around the guard. Squares that he cannot see
         # past or squares with walls are ignored.
         for (m, x, y) in activator.SquaresAround(5, AROUND_BLOCKSVIEW | AROUND_WALL, True):
-            for obj in m.GetFirstObject(x, y):
+            for obj in m.Objects(x, y):
                 # Is there an apple?
                 if obj.type == Type.FOOD and obj.arch.name == "apple":
                     # Go get it!

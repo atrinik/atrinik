@@ -49,7 +49,7 @@ def find_obj(activator, limit = 10, archname = None, name = None, count = None):
         raise AttributeError("No matching conditions provided.")
 
     for (m, x, y) in [(activator.map, activator.x, activator.y)] + activator.SquaresAround(limit):
-        first = m.GetFirstObject(x, y)
+        first = m.Objects(x, y)
 
         if not first:
             continue

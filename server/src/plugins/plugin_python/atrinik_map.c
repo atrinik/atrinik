@@ -114,27 +114,25 @@ static char *mapflag_docs[] = {
 /** Number of map flags */
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))
 
-/** Documentation for Atrinik_Map_GetFirstObject(). */
-static const char doc_Atrinik_Map_GetFirstObject[] =
-".. method:: GetFirstObject(x, y).\n\n"
-"Get the first object on the tile. Use :attr:`Atrinik.Object.Object.below` to "
-"access the next object. Alternatively, use a construct like this to iterate "
-"the objects::\n\n"
-"    for obj in Atrinik.WhoIsActivator().map.GetFirstObject(0, 0):\n"
+/** Documentation for Atrinik_Map_Objects(). */
+static const char doc_Atrinik_Map_Objects[] =
+".. method:: Objects(x, y).\n\n"
+"Iterate objects on the specified map square, from first to last, eg::\n\n"
+"    for obj in Atrinik.WhoIsActivator().map.Objects(0, 0):\n"
 "        print(obj)"
 "\n\n"
 ":param x: X coordinate on the map.\n"
 ":type x: int\n"
 ":param y: Y coordinate on the map.\n"
 ":type y: int\n"
-":returns: The first object on the tile. Can be None.\n"
-":rtype: :class:`Atrinik.Object.Object` or None";
+":returns: Iterator object.\n"
+":rtype: :class:`Atrinik.Object.ObjectIterator`";
 
 /**
- * Implements Atrinik.Map.Map.GetFirstObject() Python method.
+ * Implements Atrinik.Map.Map.Objects() Python method.
  * @copydoc PyMethod_VARARGS
  */
-static PyObject *Atrinik_Map_GetFirstObject(Atrinik_Map *self, PyObject *args)
+static PyObject *Atrinik_Map_Objects(Atrinik_Map *self, PyObject *args)
 {
     int x, y;
 
@@ -146,34 +144,31 @@ static PyObject *Atrinik_Map_GetFirstObject(Atrinik_Map *self, PyObject *args)
     if (m != NULL) {
         /* Since map objects are loaded in reverse mode, the last one in
          * in the list is actually the first. */
-        return wrap_object(GET_MAP_OB_LAST(m, x, y));
+        return wrap_object_iterator(GET_MAP_OB_LAST(m, x, y));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    return wrap_object_iterator(NULL);
 }
 
-/** Documentation for Atrinik_Map_GetLastObject(). */
-static const char doc_Atrinik_Map_GetLastObject[] =
-".. method:: GetLastObject(x, y).\n\n"
-"Get the last object on the tile. Use :attr:`Atrinik.Object.Object.above` to "
-"access the previous object. Alternatively, use a construct like this to "
-"iterate the objects::\n\n"
-"    for obj in Atrinik.WhoIsActivator().map.GetLastObject(0, 0):\n"
+/** Documentation for Atrinik_Map_ObjectsReversed(). */
+static const char doc_Atrinik_Map_ObjectsReversed[] =
+".. method:: ObjectsReversed(x, y).\n\n"
+"Iterate objects on the specified map square, from last to first, eg::\n\n"
+"    for obj in Atrinik.WhoIsActivator().map.ObjectsReversed(0, 0):\n"
 "        print(obj)"
 "\n\n"
 ":param x: X coordinate on the map.\n"
 ":type x: int\n"
 ":param y: Y coordinate on the map.\n"
 ":type y: int\n"
-":returns: The last object on the tile. Can be None.\n"
-":rtype: :class:`Atrinik.Object.Object` or None";
+":returns: Iterator object.\n"
+":rtype: :class:`Atrinik.Object.ObjectIterator`";
 
 /**
- * Implements Atrinik.Map.Map.GetLastObject() Python method.
+ * Implements Atrinik.Map.Map.ObjectsReversed() Python method.
  * @copydoc PyMethod_VARARGS
  */
-static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *self, PyObject *args)
+static PyObject *Atrinik_Map_ObjectsReversed(Atrinik_Map *self, PyObject *args)
 {
     int x, y;
 
@@ -181,16 +176,14 @@ static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *self, PyObject *args)
         return NULL;
     }
 
-
     mapstruct *m = hooks->get_map_from_coord(self->map, &x, &y);
     if (m != NULL) {
         /* Since map objects are loaded in reverse mode, the first one in
          * in the list is actually the last. */
-        return wrap_object(GET_MAP_OB(m, x, y));
+        return wrap_object_iterator(GET_MAP_OB(m, x, y));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    return wrap_object_iterator(NULL);
 }
 
 /** Documentation for Atrinik_Map_GetLayer(). */
@@ -200,7 +193,7 @@ static const char doc_Atrinik_Map_GetLayer[] =
 "square.\n\nNote that there is another way to loop through objects on a "
 "square, which is less memory intensive, and can be stopped at any time with a "
 "break::\n\n"
-"    for obj in Atrinik.WhoIsActivator().map.GetFirstObject(0, 0):\n"
+"    for obj in Atrinik.WhoIsActivator().map.Objects(0, 0):\n"
 "        print(obj)"
 "\n\n"
 ":param x: X coordinate on the map.\n"
@@ -812,10 +805,10 @@ static PyObject *Atrinik_Map_Redraw(Atrinik_Map *self, PyObject *args)
 
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] = {
-    {"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS,
-            doc_Atrinik_Map_GetFirstObject},
-    {"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS,
-            doc_Atrinik_Map_GetLastObject},
+    {"Objects", (PyCFunction) Atrinik_Map_Objects, METH_VARARGS,
+            doc_Atrinik_Map_Objects},
+    {"ObjectsReversed", (PyCFunction) Atrinik_Map_ObjectsReversed, METH_VARARGS,
+            doc_Atrinik_Map_ObjectsReversed},
     {"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS,
             doc_Atrinik_Map_GetLayer},
     {"GetMapFromCoord", (PyCFunction) Atrinik_Map_GetMapFromCoord, METH_VARARGS,

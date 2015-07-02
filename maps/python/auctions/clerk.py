@@ -197,7 +197,7 @@ def find_items(seller = None, namepart = None, filters = None):
 
         for (x, y) in tiles:
             # Go through the objects on this square.
-            for obj in m.GetFirstObject(x, y):
+            for obj in m.Objects(x, y):
                 # Ignore non-item layers.
                 if not obj.layer in (LAYER_ITEM, LAYER_ITEM2):
                     continue
@@ -323,7 +323,7 @@ def find_item(t):
         m.timeout = 60 * 10 * 8
 
         # Try to search for the item.
-        for obj in m.GetFirstObject(x, y):
+        for obj in m.Objects(x, y):
             if obj.layer in (LAYER_ITEM, LAYER_ITEM2) and obj.count == count and not obj.f_no_pick:
                 return obj
 

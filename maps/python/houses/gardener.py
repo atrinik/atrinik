@@ -28,7 +28,7 @@ def main():
                 continue
 
             # Go through the objects on this square.
-            for ob in m.GetFirstObject(x, y):
+            for ob in m.Objects(x, y):
                 # Ignore non-pickable and system objects.
                 if ob.f_sys_object or ob.f_no_pick or not ob.weight:
                     continue

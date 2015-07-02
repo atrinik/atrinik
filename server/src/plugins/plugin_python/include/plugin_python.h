@@ -25,7 +25,7 @@
 /**
  * @file
  * Python plugin related header file.
- * 
+ *
  * @author Alex Tokar
  * @author Yann Chachkoff
  */
@@ -319,7 +319,9 @@ typedef enum {
     /** Object's connection value. */
     FIELDTYPE_CONNECTION,
     /** Treasure list. */
-    FIELDTYPE_TREASURELIST
+    FIELDTYPE_TREASURELIST,
+    /** Object iterator. */
+    FIELDTYPE_OBJECT_ITERATOR
 } field_type;
 
 /**
@@ -336,6 +338,8 @@ typedef enum {
 
 PyTypeObject Atrinik_ObjectType;
 PyObject *wrap_object(object *what);
+PyTypeObject Atrinik_ObjectIteratorType;
+PyObject *wrap_object_iterator(object *what);
 int Atrinik_Object_init(PyObject *module);
 
 /**
@@ -359,15 +363,26 @@ typedef struct Atrinik_Object {
     /** Pointer to the Atrinik object we wrap. */
     object *obj;
 
-    /** Pointer for iteration. */
-    struct Atrinik_Object *iter;
-
-    /** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
-    uint8_t iter_type;
-
     /** ID of the object. */
     tag_t count;
 } Atrinik_Object;
+
+/** The Atrinik_ObjectIterator structure. */
+typedef struct Atrinik_ObjectIterator {
+    PyObject_HEAD
+
+    /** Pointer to the wrapper Atrinik object. */
+    object *obj;
+
+    /** ID of the object. */
+    tag_t count;
+
+    /** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
+    uint8_t iter_type:7;
+
+    /** If true, iteration has started/finished. */
+    uint8_t iterated:1;
+} Atrinik_ObjectIterator;
 
 PyTypeObject Atrinik_MapType;
 PyObject *wrap_map(mapstruct *map);

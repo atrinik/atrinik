@@ -2824,6 +2824,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_OBJECT2:
+    case FIELDTYPE_OBJECT_ITERATOR:
         INTRAISE("Field type not implemented.");
         break;
 
@@ -3092,6 +3093,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
     case FIELDTYPE_OBJECT2:
         return wrap_object(field_ptr);
+
+    case FIELDTYPE_OBJECT_ITERATOR:
+        return wrap_object_iterator(*(object **) field_ptr);
 
     case FIELDTYPE_OBJECTREF:
     {

@@ -31,7 +31,7 @@ def main():
     me.FindObject(type = Type.SPAWN_POINT_INFO).owner.Destroy()
 
     for (x, y) in locations:
-        for obj in me.map.GetFirstObject(x, y):
+        for obj in me.map.Objects(x, y):
             # Remove markers, inventory checkers and signs (magic mouths).
             if obj.type in (Type.MARKER, Type.CHECK_INV, Type.SIGN):
                 obj.Destroy()
