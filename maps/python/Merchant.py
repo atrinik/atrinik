@@ -33,7 +33,8 @@ class Merchant(InterfaceBuilder):
             if x > self.max_goods or (nrof and x > nrof):
                 break
 
-            self.add_link(int2english(x).capitalize(), dest = dest + "{} {}".format(x, name))
+            self.add_link(int2english(x).capitalize(),
+                          dest=dest + "{} {}".format(x, name))
 
 
 class Seller(Merchant):
@@ -54,7 +55,8 @@ class Seller(Merchant):
             for (treasure, num, a_chance) in json.loads(event.msg):
                 if treasure:
                     for i in range(num):
-                        event.CreateTreasure(treasure, self._npc.level, GT_ONLY_GOOD, a_chance)
+                        event.CreateTreasure(treasure, self._npc.level,
+                                             GT_ONLY_GOOD, a_chance)
                 else:
                     for obj in event.inv:
                         obj.nrof = num
@@ -74,7 +76,7 @@ class Seller(Merchant):
 
         self._goods = []
 
-        for obj in sorted(event.inv, key = lambda obj: obj.GetName()):
+        for obj in sorted(event.inv, key=lambda x: x.GetName()):
             if obj.ReadKey("stock_nrof") == "0":
                 continue
 
@@ -98,10 +100,12 @@ class Seller(Merchant):
         self.subdialog_goods()
 
     def subdialog_stockout(self):
-        self.add_msg("Sorry, it seems I am out of stock! Please come back later.")
+        self.add_msg("Sorry, it seems I am out of stock! Please come "
+                     "back later.")
 
     def subdialog_stockoutitem(self):
-        self.add_msg("Sorry, it seems I am out of stock for {self.buy_item.name}! Please come back later.")
+        self.add_msg("Sorry, it seems I am out of stock for "
+                     "{self.buy_item.name}! Please come back later.")
 
     def subdialog_stockin(self):
         self.add_msg("I can offer you the following.")
@@ -109,7 +113,7 @@ class Seller(Merchant):
     def subdialog_stock(self):
         for obj in self.goods:
             name = obj.GetName()
-            self.add_link(name.capitalize(), dest = "buy " + name)
+            self.add_link(name.capitalize(), dest="buy " + name)
 
     def subdialog_stockitem(self):
         self.generate_item_links("buy ", self.buy_item, self.buy_item_stock)
@@ -180,7 +184,8 @@ class Seller(Merchant):
 
             cost = obj.GetCost() * num
 
-            if not self._activator.Controller().CanCarry(obj.weight * num + obj.carrying):
+            if not self._activator.Controller().CanCarry(obj.weight * num +
+                                                         obj.carrying):
                 self.subdialog_fail_weight()
             elif not self._activator.PayAmount(cost):
                 self.subdialog_fail_money()
@@ -195,8 +200,10 @@ class Seller(Merchant):
 
                 self.buy_item = clone
 
-                self.add_msg("You pay {}.".format(CostString(cost)), color = COLOR_YELLOW)
-                getattr(self, "subdialog_bought_" + obj.arch.name, self.subdialog_boughtitem)()
+                self.add_msg("You pay {}.".format(CostString(cost)),
+                             color=COLOR_YELLOW)
+                getattr(self, "subdialog_bought_" + obj.arch.name,
+                        self.subdialog_boughtitem)()
 
                 # Insert the clone into the player.
                 clone.InsertInto(self._activator)
@@ -204,7 +211,8 @@ class Seller(Merchant):
                 if obj_stock is not None:
                     obj.WriteKey("stock_nrof", str(obj_stock - num))
         else:
-            getattr(self, "subdialog_buy_" + obj.arch.name, self.subdialog_buyitem)()
+            getattr(self, "subdialog_buy_" + obj.arch.name,
+                    self.subdialog_buyitem)()
 
 
 class Buyer(Merchant):
@@ -216,7 +224,7 @@ class Buyer(Merchant):
         event = WhatIsEvent()
         self._goods = []
 
-        for obj in sorted(event.inv, key = lambda obj: obj.GetName()):
+        for obj in sorted(event.inv, key=lambda x: x.GetName()):
             self._goods.append(obj)
 
         return self._goods
@@ -229,7 +237,7 @@ class Buyer(Merchant):
     def subdialog_goods(self):
         for obj in self.goods:
             name = obj.GetName()
-            self.add_link(name.capitalize(), dest = "sell " + name)
+            self.add_link(name.capitalize(), dest="sell " + name)
 
     def subdialog_noitem(self):
         self.add_msg("Ah, excellent!")
@@ -273,7 +281,8 @@ class Buyer(Merchant):
         self.sell_item = obj
 
         if not item:
-            getattr(self, "subdialog_noitem_" + obj.arch.name, self.subdialog_noitem)()
+            getattr(self, "subdialog_noitem_" + obj.arch.name,
+                    self.subdialog_noitem)()
             return
 
         self.sell_item_nrof = item.nrof
@@ -285,10 +294,13 @@ class Buyer(Merchant):
             item.Decrease(num)
             self._activator.Controller().InsertCoins(cost)
 
-            self.add_msg("You receive {}.".format(CostString(cost)), color = COLOR_YELLOW)
-            getattr(self, "subdialog_sold_" + obj.arch.name, self.subdialog_solditem)()
+            self.add_msg("You receive {}.".format(CostString(cost)),
+                         color=COLOR_YELLOW)
+            getattr(self, "subdialog_sold_" + obj.arch.name,
+                    self.subdialog_solditem)()
         else:
-            getattr(self, "subdialog_sell_" + obj.arch.name, self.subdialog_sellitem)()
+            getattr(self, "subdialog_sell_" + obj.arch.name,
+                    self.subdialog_sellitem)()
 
 
 class SpellSeller(InterfaceBuilder):
