@@ -29,12 +29,15 @@ from CParser import CParser
 PATH = os.path.join(GetSettings()["mapspath"], "python", "Atrinik")
 
 
-def getargspec(obj):
+def getargspec(obj, obj_name):
     if not obj.__doc__:
         return []
 
     match = re.search(r"[\w_]+\((.*)\)", obj.__doc__, re.M)
     if not match:
+        if obj_name.startswith("__") and obj_name.endswith("__"):
+            return ["self"]
+
         print("Failed to get args for {}".format(obj))
         return []
 
@@ -126,7 +129,8 @@ def dump_obj(obj, f, indent=0, defaults=None):
 
     for tmp_name in l:
         if tmp_name.startswith("__") and tmp_name.endswith("__"):
-            continue
+            if tmp_name not in ("__len__", "__bool__", "__iter__", "__next__"):
+                continue
 
         if tmp_name == "print":
             continue
@@ -157,8 +161,8 @@ def dump_obj(obj, f, indent=0, defaults=None):
             dump_docstring(tmp, f, indent + 1, obj_name=tmp_name)
             dump_obj(tmp, f, indent=1)
         elif hasattr(tmp, "__call__"):
-            args = getargspec(tmp)
-            if inspect.isclass(obj):
+            args = getargspec(tmp, tmp_name)
+            if inspect.isclass(obj) and not tmp_name.startswith("__"):
                 args.insert(0, "self")
             else:
                 f.write("\n")
