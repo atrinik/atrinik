@@ -88,7 +88,8 @@ def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
     iterator = iter(doc.split("\n"))
 
     for line in iterator:
-        if line.startswith(".. function::") or line.startswith(".. method::"):
+        if line.startswith(".. function::") or \
+                line.startswith(".. method::") or line.startswith(".. class::"):
             next(iterator)
             continue
 
@@ -150,16 +151,11 @@ def dump_obj(obj, f, indent=0, defaults=None):
             dump_docstring(tmp, f, indent + 1, obj_name=tmp_name)
             dump_obj(tmp, f, indent=1)
         elif inspect.isclass(tmp):
-            f.write("import Atrinik.{name} as {name}\n".format(name=tmp_name))
-
-            with open_doc_file(os.path.join(PATH, tmp_name + ".py")) as f2:
-                f2.write("# noinspection PyUnresolvedReferences\n")
-                f2.write("import Atrinik\n")
-                f2.write("\n\n")
-                f2.write(" " * indent * 4)
-                f2.write("class {}(object):\n".format(tmp_name))
-                dump_docstring(tmp, f2, indent + 1, obj_name=tmp_name)
-                dump_obj(tmp, f2, indent=1)
+            f.write("\n\n")
+            f.write(" " * indent * 4)
+            f.write("class {}(object):\n".format(tmp_name))
+            dump_docstring(tmp, f, indent + 1, obj_name=tmp_name)
+            dump_obj(tmp, f, indent=1)
         elif hasattr(tmp, "__call__"):
             args = getargspec(tmp)
             if inspect.isclass(obj):
@@ -183,7 +179,8 @@ def dump_obj(obj, f, indent=0, defaults=None):
             dump_docstring(tmp, f, indent + 1)
             f.write(" " * (indent + 1) * 4)
             f.write("pass\n")
-        elif isinstance(tmp, (Object, Map, Archetype, Player)):
+        elif isinstance(tmp, (Object.Object, Map.Map, Archetype.Archetype,
+                              Player.Player)):
             f.write(" " * indent * 4)
             # noinspection PyUnresolvedReferences
             f.write("{} = {cls_name}.{cls_name}()\n".format(
@@ -252,18 +249,20 @@ def dump_obj(obj, f, indent=0, defaults=None):
 
 
 def main():
-    # noinspection PyCallingNonCallable
     defaults = OrderedDict([
-        ("activator", (Object(), "The :class:`~Atrinik.Object.Object` that "
-                                 "activated the event.")),
-        ("pl", (Player(), "If the event activator is a player, this will be a "
-                          ":class:`~Atrinik.Player.Player` instance, otherwise "
-                          "it will be None.")),
-        ("me", (Object(), "The :class:`~Atrinik.Object.Object` that has the "
-                          "event object in its inventory that triggered the "
-                          "event.")),
-        ("msg", ("hello", "Message used to activate the event (eg, in case of "
-                          "say events). Can be None.")),
+        ("activator", (Object.Object(),
+                       "The :class:`~Atrinik.Object.Object` that activated "
+                       "the event.")),
+        ("pl", (Player.Player(),
+                "If the event activator is a player, this will be a :class:"
+                "`~Atrinik.Player.Player` instance, otherwise it will be "
+                "None.")),
+        ("me", (Object.Object(),
+                "The :class:`~Atrinik.Object.Object` that has the event object "
+                "in its inventory that triggered the event.")),
+        ("msg", ("hello",
+                 "Message used to activate the event (eg, in case of say "
+                 "events). Can be None.")),
     ])
 
     if not os.path.exists(PATH):

@@ -2356,15 +2356,17 @@ static PyObject *PyInit_Atrinik(void)
 
 /**
  * Create a module.
+ * @param parent Parent module.
  * @param name Name of the module.
- * @return The new module created using PyModule_New(). */
-static PyObject *module_create(const char *name)
+ * @return The new module created using PyModule_New().
+ */
+static PyObject *module_create(PyObject *parent, const char *name)
 {
     char tmp[MAX_BUF];
-
-    snprintf(tmp, sizeof(tmp), "Atrinik_%s", name);
-
-    return PyModule_New(tmp);
+    snprintf(VS(tmp), "Atrinik_%s", name);
+    PyObject *module = PyModule_New(tmp);
+    PyDict_SetItemString(PyModule_GetDict(parent), name, module);
+    return module;
 }
 
 /**
@@ -2382,7 +2384,7 @@ static void module_add_constants(PyObject *module, const char *name,
     PyObject *module_tmp;
 
     /* Create the new module. */
-    module_tmp = module_create(name);
+    module_tmp = module_create(module, name);
     PyModule_AddStringConstant(module_tmp, "__doc__", doc);
 
     /* Append constants. */
@@ -2390,9 +2392,6 @@ static void module_add_constants(PyObject *module, const char *name,
         PyModule_AddIntConstant(module_tmp, consts[i].name, consts[i].value);
         i++;
     }
-
-    /* Add the module. */
-    PyDict_SetItemString(PyModule_GetDict(module), name, module_tmp);
 }
 
 /**
@@ -2455,10 +2454,38 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
     AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
     PyDict_SetItemString(d, "AtrinikError", AtrinikError);
 
-    if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) ||
-            !Atrinik_Party_init(m) || !Atrinik_Region_init(m) ||
-            !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) ||
-            !Atrinik_AttrList_init(m)) {
+    module_tmp = module_create(m, "Object");
+    if (!Atrinik_Object_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Map");
+    if (!Atrinik_Map_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Party");
+    if (!Atrinik_Party_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Region");
+    if (!Atrinik_Region_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Player");
+    if (!Atrinik_Player_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Archetype");
+    if (!Atrinik_Archetype_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "AttrList");
+    if (!Atrinik_AttrList_init(module_tmp)) {
         return;
     }
 
@@ -2479,7 +2506,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
                 constants_colors[i][1]);
     }
 
-    module_tmp = module_create("Gender");
+    module_tmp = module_create(m, "Gender");
     PyModule_AddStringConstant(module_tmp, "__doc__", module_doc_gender);
     module_add_array(module_tmp, "gender_noun",
             hooks->gender_noun, GENDER_MAX, FIELDTYPE_CSTR);
@@ -2498,8 +2525,6 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
         PyModule_AddIntConstant(module_tmp, constants_gender[i].name,
                 constants_gender[i].value);
     }
-
-    PyDict_SetItemString(d, "Gender", module_tmp);
 
     /* Create the global scope dictionary. */
     py_globals_dict = PyDict_New();
