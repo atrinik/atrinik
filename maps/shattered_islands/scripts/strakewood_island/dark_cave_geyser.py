@@ -15,8 +15,12 @@ for _ in range(0, geysers):
     # Randomly choose where to place the geyser.
     x = randint(0, me.map.width - 1)
     y = randint(0, me.map.height - 1)
-    # Get the last object on the randomly chosen square (which should be floor).
-    floor = me.map.ObjectsReversed(x, y)
+
+    floor = None
+    for obj in me.map.ObjectsReversed(x, y):
+        if obj.type == Type.FLOOR:
+            floor = obj
+            break
 
     # Must have at least one object, and it must be 'fire'.
     if floor and floor.name == "fire":
