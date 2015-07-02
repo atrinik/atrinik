@@ -227,8 +227,6 @@ def console_find(activator):
 
     try:
         console = CacheGet(key)
-        assert(isinstance(console, PyConsole))
-
         if console.is_valid():
             return console
         else:
