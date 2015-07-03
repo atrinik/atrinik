@@ -168,6 +168,11 @@ static player *get_player(player *p)
  * @param pl The player structure to free. */
 void free_player(player *pl)
 {
+    /* If this player is in a party, leave the party */
+    if (pl->party) {
+        command_party(pl->ob, "party", "leave");
+    }
+
     pl->socket.state = ST_DEAD;
 
     /* Free command permissions. */

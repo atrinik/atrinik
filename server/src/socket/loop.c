@@ -191,11 +191,6 @@ void remove_ns_dead_player(player *pl)
 
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s left the game.", pl->ob->name);
 
-    /* If this player is in a party, leave the party */
-    if (pl->party) {
-        command_party(pl->ob, "party", "leave");
-    }
-
     snprintf(pl->killer, sizeof(pl->killer), "left");
     hiscore_check(pl->ob, 1);
 
