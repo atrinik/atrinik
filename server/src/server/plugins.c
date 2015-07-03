@@ -432,7 +432,7 @@ void trigger_unit_event(object *const activator)
     for (atrinik_plugin *plugin = plugins_list; plugin != NULL;
             plugin = plugin->next) {
         LOG(INFO, "Running unit tests for plugin: %s", plugin->fullname);
-        (plugin->eventfunc)(0, PLUGIN_EVENT_UNIT, activator);
+        (plugin->eventfunc)(0, PLUGIN_EVENT_UNIT, 0, activator);
     }
 }
 
