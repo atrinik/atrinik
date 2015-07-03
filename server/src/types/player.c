@@ -2175,6 +2175,8 @@ object *player_get_dummy(const char *name)
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     living_update_player(pl->ob);
 
+    pl->socket.state = ST_PLAYING;
+
     return pl->ob;
 }
 
