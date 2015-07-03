@@ -803,6 +803,23 @@ static PyObject *Atrinik_Map_Redraw(Atrinik_Map *self, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Map_Save(). */
+static const char doc_Atrinik_Map_Save[] =
+".. method:: Save().\n\n"
+"Saves the specified map.\n\n";
+
+/**
+ * Implements Atrinik.Map.Map.Save() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Map_Save(Atrinik_Map *self)
+{
+    hooks->new_save_map(self->map, 0);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] = {
     {"Objects", (PyCFunction) Atrinik_Map_Objects, METH_VARARGS,
@@ -839,6 +856,8 @@ static PyMethodDef MapMethods[] = {
             doc_Atrinik_Map_LocateBeacon},
     {"Redraw", (PyCFunction) Atrinik_Map_Redraw, METH_VARARGS,
             doc_Atrinik_Map_Redraw},
+    {"Save", (PyCFunction) Atrinik_Map_Save, METH_NOARGS,
+            doc_Atrinik_Map_Save},
 
     {NULL, NULL, 0, NULL}
 };
