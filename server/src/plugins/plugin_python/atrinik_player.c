@@ -875,6 +875,23 @@ static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *self,
     return Py_None;
 }
 
+/** Documentation for Atrinik_Player_Save(). */
+static const char doc_Atrinik_Player_Save[] =
+".. method:: Save().\n\n"
+"Saves the player.\n\n";
+
+/**
+ * Implements Atrinik.Player.Player.Save() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Player_Save(Atrinik_Player *self)
+{
+    hooks->player_save(self->pl->ob);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] = {
     {"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS,
@@ -909,6 +926,8 @@ static PyMethodDef methods[] = {
             METH_VARARGS, doc_Atrinik_Player_FactionClearBounty},
     {"InsertCoins", (PyCFunction) Atrinik_Player_InsertCoins, METH_VARARGS,
             doc_Atrinik_Player_InsertCoins},
+    {"Save", (PyCFunction) Atrinik_Player_Save, METH_NOARGS,
+            doc_Atrinik_Player_Save},
 
     {NULL, NULL, 0, NULL}
 };
