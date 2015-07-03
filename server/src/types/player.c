@@ -2164,6 +2164,7 @@ object *player_get_dummy(void)
 
     pl = get_player(NULL);
     pl->ob = arch_get("human_male");
+    FREE_AND_COPY_HASH(pl->ob->name, "Dummy");
     pl->ob->custom_attrset = pl;
 
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
