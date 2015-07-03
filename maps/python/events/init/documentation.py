@@ -162,8 +162,9 @@ def dump_obj(obj, f, indent=0, defaults=None):
             dump_obj(tmp, f, indent=1)
         elif hasattr(tmp, "__call__"):
             args = getargspec(tmp, tmp_name)
-            if inspect.isclass(obj) and not tmp_name.startswith("__"):
-                args.insert(0, "self")
+            if inspect.isclass(obj):
+                if not tmp_name.startswith("__"):
+                    args.insert(0, "self")
             else:
                 f.write("\n")
 
