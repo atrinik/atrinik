@@ -385,7 +385,12 @@ typedef struct settings_struct {
 
     /**
      * Running unit tests? */
-    uint8_t unit_tests;
+    bool unit_tests;
+
+    /**
+     * Running plugin unit tests?
+     */
+    bool plugin_unit_tests;
 
     /**
      * Adjustment to maximum magical device level the player may use. */

@@ -158,6 +158,11 @@ static void clioptions_option_unit(const char *arg)
     settings.unit_tests = 1;
 }
 
+static void clioptions_option_plugin_unit(const char *arg)
+{
+    settings.plugin_unit_tests = 1;
+}
+
 static void clioptions_option_worldmaker(const char *arg)
 {
     settings.world_maker = 1;
@@ -455,6 +460,16 @@ static void init_library(int argc, char *argv[])
             0,
             "Runs the unit tests.",
             "Runs the unit tests."
+            );
+
+    /* Add command-line options. */
+    clioptions_add(
+            "plugin_unit",
+            NULL,
+            clioptions_option_plugin_unit,
+            0,
+            "Runs the plugin unit tests.",
+            "Runs the plugin unit tests."
             );
 
     clioptions_add(

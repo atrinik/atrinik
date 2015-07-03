@@ -525,6 +525,7 @@ extern void map_event_obj_init(object *ob);
 extern void map_event_free(map_event *tmp);
 extern int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm);
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
+extern void trigger_unit_event(object *const activator);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 /* src/server/quest.c */
 extern void quest_handle(object *op, object *quest);

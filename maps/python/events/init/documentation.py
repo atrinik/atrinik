@@ -282,7 +282,7 @@ def main():
                               subsequent_indent=" " * 11))
         f.write("\n")
 
-if not GetSettings()["unit_tests"]:
+if not GetSettings()["unit_tests"] and not GetSettings()["plugin_unit_tests"]:
     parser = CParser()
     matches = {}
 

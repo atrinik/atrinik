@@ -59,6 +59,8 @@
 #define PLUGIN_EVENT_MAP 2
 /** Global event, requires no attaching of event. */
 #define PLUGIN_EVENT_GLOBAL 3
+/** Unit tests event. */
+#define PLUGIN_EVENT_UNIT 4
 /*@}*/
 
 /**

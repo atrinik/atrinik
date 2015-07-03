@@ -527,6 +527,17 @@ int main(int argc, char **argv)
 
     init(argc, argv);
 
+    if (settings.plugin_unit_tests) {
+        LOG(INFO, "Running plugin unit tests...");
+        object *dummy = player_get_dummy();
+        trigger_unit_event(dummy);
+
+        if (!settings.unit_tests) {
+            cleanup();
+            exit(0);
+        }
+    }
+
     if (settings.unit_tests) {
 #ifdef HAVE_CHECK
         LOG(INFO, "Running unit tests...");

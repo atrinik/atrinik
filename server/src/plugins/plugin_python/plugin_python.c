@@ -1751,7 +1751,7 @@ static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
 
 /** Documentation for Atrinik_GetTicks(). */
 static const char doc_Atrinik_GetTicks[] =
-".. function:: GetTicks(what).\n\n"
+".. function:: GetTicks().\n\n"
 "Acquires the current server ticks value.\n\n"
 ":returns: The server ticks.\n"
 ":rtype: int";
@@ -1933,6 +1933,8 @@ static PyObject *Atrinik_GetSettings(PyObject *self)
             hooks->settings->world_maker));
     PyDict_SetItemString(dict, "unit_tests", Py_BuildBoolean(
             hooks->settings->unit_tests));
+    PyDict_SetItemString(dict, "plugin_unit_tests", Py_BuildBoolean(
+            hooks->settings->plugin_unit_tests));
     PyDict_SetItemString(dict, "magic_devices_level", Py_BuildValue("b",
             hooks->settings->magic_devices_level));
     PyDict_SetItemString(dict, "magic_devices_level", Py_BuildValue("b",
@@ -2261,6 +2263,38 @@ static int handle_global_event(int event_type, va_list args)
     return 0;
 }
 
+/**
+ * Handles unit test event.
+ * @param args List of arguments for context.
+ * @return 0.
+ */
+static int handle_unit_event(va_list args)
+{
+    PythonContext *context = malloc(sizeof(*context));
+    if (context == NULL) {
+        return 0;
+    }
+
+    context->activator = va_arg(args, void *);
+    context->who = NULL;
+    context->other = NULL;
+    context->event = NULL;
+    context->parms[0] = 0;
+    context->parms[1] = 0;
+    context->parms[2] = 0;
+    context->parms[3] = 0;
+    context->text = "";
+    context->options = NULL;
+    context->returnvalue = 0;
+
+    if (do_script(context, "/python/events/python_unit.py")) {
+        context = popContext();
+    }
+
+    freeContext(context);
+    return 0;
+}
+
 MODULEAPI void *triggerEvent(int *type, ...)
 {
     va_list args;
@@ -2282,6 +2316,10 @@ MODULEAPI void *triggerEvent(int *type, ...)
 
     case PLUGIN_EVENT_GLOBAL:
         result = handle_global_event(eventcode, args);
+        break;
+
+    case PLUGIN_EVENT_UNIT:
+        result = handle_unit_event(args);
         break;
 
     default:
