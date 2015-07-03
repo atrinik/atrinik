@@ -1106,7 +1106,8 @@ static const char doc_Atrinik_GetEventNumber[] =
 ":returns: Event ID.\n"
 ":rtype: int\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
-"script is running in a thread).";
+"script is running in a thread).\n"
+":raises Atrinik.AtrinikError: If there is no event object.";
 
 /**
  * Implements Atrinik.GetEventNumber() Python method.
@@ -1116,6 +1117,11 @@ static PyObject *Atrinik_GetEventNumber(PyObject *self)
 {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
+        return NULL;
+    }
+
+    if (current_context->event == NULL) {
+        PyErr_SetString(AtrinikError, "There is no event object.");
         return NULL;
     }
 
