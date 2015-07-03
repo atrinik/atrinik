@@ -514,6 +514,27 @@ static int shutdown_timer_check(void)
 }
 
 /**
+ * Main processing function, called from main().
+ */
+void main_process(void)
+{
+    /* Global round ticker. */
+    global_round_tag++;
+    pticks++;
+
+    /* "do" something with objects with speed */
+    process_events(NULL);
+
+    /* Removes unused maps after a certain timeout */
+    check_active_maps();
+
+    /* Routines called from time to time. */
+    do_specials();
+
+    trigger_global_event(GEVENT_TICK, NULL, NULL);
+}
+
+/**
  * The main function.
  * @param argc Number of arguments.
  * @param argv Arguments.
@@ -526,6 +547,7 @@ int main(int argc, char **argv)
 #endif
 
     init(argc, argv);
+    memset(&marker, 0, sizeof(struct obj));
 
     if (settings.plugin_unit_tests) {
         LOG(INFO, "Running plugin unit tests...");
@@ -565,7 +587,6 @@ int main(int argc, char **argv)
     }
 
     console_start_thread();
-    memset(&marker, 0, sizeof(struct obj));
     process_delay = 0;
 
     LOG(INFO, "Server ready. Waiting for connections...");
@@ -577,25 +598,12 @@ int main(int argc, char **argv)
 
         console_command_handle();
 
+
         doeric_server();
 
         if (++process_delay >= max_time_multiplier) {
             process_delay = 0;
-
-            /* Global round ticker. */
-            global_round_tag++;
-            pticks++;
-
-            /* "do" something with objects with speed */
-            process_events(NULL);
-
-            /* Removes unused maps after a certain timeout */
-            check_active_maps();
-
-            /* Routines called from time to time. */
-            do_specials();
-
-            trigger_global_event(GEVENT_TICK, NULL, NULL);
+            main_process();
         }
 
         doeric_server_write();

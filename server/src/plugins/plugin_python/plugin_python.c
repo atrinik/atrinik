@@ -1976,6 +1976,30 @@ static PyObject *Atrinik_GetSettings(PyObject *self)
     return dict;
 }
 
+/** Documentation for Atrinik_Process(). */
+static const char doc_Atrinik_Process[] =
+".. function:: Process().\n\n"
+"Simulates server processing.\n\n"
+":raises Atrinik.AtrinikError: If called outside the plugin unit tests.";
+
+/**
+ * Implements Atrinik.Process() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Process(PyObject *self)
+{
+    if (!hooks->settings->plugin_unit_tests) {
+        PyErr_SetString(AtrinikError, "Method cannot be used outside of unit "
+                "tests.");
+        return NULL;
+    }
+
+    hooks->main_process();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /**
  * Here is the Python Declaration Table, used by the interpreter to make
  * an interface with the C code.
@@ -2046,6 +2070,8 @@ static PyMethodDef AtrinikMethods[] = {
             doc_Atrinik_Eval},
     {"GetSettings", (PyCFunction) Atrinik_GetSettings, METH_NOARGS,
             doc_Atrinik_GetSettings},
+    {"Process", (PyCFunction) Atrinik_Process, METH_NOARGS,
+            doc_Atrinik_Process},
     {NULL, NULL, 0, 0}
 };
 

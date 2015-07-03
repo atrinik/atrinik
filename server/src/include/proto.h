@@ -345,6 +345,7 @@ extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y,
 extern void shutdown_timer_start(long secs);
 extern void shutdown_timer_stop(void);
 extern int main(int argc, char **argv);
+extern void main_process(void);
 /* src/server/map.c */
 extern int global_darkness_table[7 + 1];
 extern int map_tiled_reverse[10];
