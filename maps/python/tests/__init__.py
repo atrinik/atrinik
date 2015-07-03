@@ -1,7 +1,6 @@
 import unittest
 
 import tests.Atrinik_tests.Atrinik
-import Atrinik
 
 
 def run():
