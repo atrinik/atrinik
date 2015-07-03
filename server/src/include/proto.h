@@ -525,7 +525,7 @@ extern void map_event_obj_init(object *ob);
 extern void map_event_free(map_event *tmp);
 extern int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm);
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
-extern void trigger_unit_event(object *const activator);
+extern void trigger_unit_event(object *const activator, object *const me);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 /* src/server/quest.c */
 extern void quest_handle(object *op, object *quest);
@@ -1001,7 +1001,7 @@ extern void drop(object *op, object *tmp, int no_mevent);
 extern char *player_make_path(const char *name, const char *ext);
 extern int player_exists(const char *name);
 extern void player_save(object *op);
-extern object *player_get_dummy(void);
+extern object *player_get_dummy(const char *name);
 extern object *player_find_spell(object *op, spell_struct *spell);
 extern void player_set_talking_to(player *pl, object *npc);
 extern void player_login(socket_struct *ns, const char *name, struct archetype *at);

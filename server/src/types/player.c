@@ -2158,14 +2158,17 @@ static void player_create(player *pl, const char *path, archetype_t *at, const c
     pl->ob->y = -1;
 }
 
-object *player_get_dummy(void)
+object *player_get_dummy(const char *name)
 {
     player *pl;
 
     pl = get_player(NULL);
     pl->ob = arch_get("human_male");
-    FREE_AND_COPY_HASH(pl->ob->name, "Dummy");
     pl->ob->custom_attrset = pl;
+
+    if (name != NULL) {
+        FREE_AND_COPY_HASH(pl->ob->name, name);
+    }
 
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     give_initial_items(pl->ob, pl->ob->randomitems);

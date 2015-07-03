@@ -86,6 +86,9 @@ enum {
 /** Maximum failures allowed when trying to reach destination path. */
 #define PLAYER_PATH_MAX_FAILS 15
 
+#define PLAYER_TESTING_NAME1 "Tester"
+#define PLAYER_TESTING_NAME2 "Tester Testington"
+
 /** One path player is attempting to reach. */
 typedef struct player_path {
     /** Next path in linked list. */

@@ -432,6 +432,13 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
     string_title(name);
 
+    if (strcmp(name, PLAYER_TESTING_NAME1) == 0 ||
+            strcmp(name, PLAYER_TESTING_NAME2) == 0) {
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                "Character name is reserved by the system.");
+        return;
+    }
+
     if (player_exists(name)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Character with that name already exists.");
         return;

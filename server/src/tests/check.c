@@ -99,7 +99,7 @@ void check_setup_env_pl(mapstruct **map, object **pl)
     *map = get_empty_map(24, 24);
     ck_assert(*map != NULL);
 
-    *pl = player_get_dummy();
+    *pl = player_get_dummy(NULL);
     ck_assert(*pl != NULL);
 
     *pl = insert_ob_in_map(*pl, *map, NULL, 0);

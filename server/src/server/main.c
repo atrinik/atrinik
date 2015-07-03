@@ -529,8 +529,9 @@ int main(int argc, char **argv)
 
     if (settings.plugin_unit_tests) {
         LOG(INFO, "Running plugin unit tests...");
-        object *dummy = player_get_dummy();
-        trigger_unit_event(dummy);
+        object *activator = player_get_dummy(PLAYER_TESTING_NAME1);
+        object *me = player_get_dummy(PLAYER_TESTING_NAME2);
+        trigger_unit_event(activator, me);
 
         if (!settings.unit_tests) {
             cleanup();

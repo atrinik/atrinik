@@ -426,13 +426,15 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
 
 /**
  * Triggers the unit tests event for all plugins.
+ * @param activator Player object.
+ * @param me Another player object.
  */
-void trigger_unit_event(object *const activator)
+void trigger_unit_event(object *const activator, object *const me)
 {
     for (atrinik_plugin *plugin = plugins_list; plugin != NULL;
             plugin = plugin->next) {
         LOG(INFO, "Running unit tests for plugin: %s", plugin->fullname);
-        (plugin->eventfunc)(0, PLUGIN_EVENT_UNIT, 0, activator);
+        (plugin->eventfunc)(0, PLUGIN_EVENT_UNIT, 0, activator, me);
     }
 }
 

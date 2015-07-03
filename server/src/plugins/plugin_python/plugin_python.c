@@ -2275,8 +2275,8 @@ static int handle_unit_event(va_list args)
         return 0;
     }
 
-    context->activator = va_arg(args, void *);
-    context->who = NULL;
+    context->activator = va_arg(args, object *);
+    context->who = va_arg(args, object *);
     context->other = NULL;
     context->event = NULL;
     context->parms[0] = 0;
