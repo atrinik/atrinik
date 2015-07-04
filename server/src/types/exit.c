@@ -208,6 +208,10 @@ static int apply_func(object *op, object *applier, int aflags)
         return OBJECT_METHOD_OK;
     }
 
+    if (QUERY_FLAG(applier, FLAG_NO_TELEPORT)) {
+        return OBJECT_METHOD_OK;
+    }
+
     is_shop = false;
 
     for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
