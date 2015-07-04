@@ -67,8 +67,12 @@ int trap_show(object *trap, object *where)
     }
 
     env = trap->env;
-    /* We must remove and reinsert it so the layer is updated correctly. */
-    object_remove(trap, 0);
+
+    if (!QUERY_FLAG(trap, FLAG_REMOVED)) {
+        /* We must remove and reinsert it so the layer is updated correctly. */
+        object_remove(trap, 0);
+    }
+
     CLEAR_FLAG(trap, FLAG_SYS_OBJECT);
     CLEAR_MULTI_FLAG(trap, FLAG_IS_INVISIBLE);
     trap->layer = LAYER_EFFECT;
@@ -78,10 +82,11 @@ int trap_show(object *trap, object *where)
         trap->stats.Cha = 1;
     }
 
-    if (env && env->type != PLAYER && env->type != MONSTER && env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS)) {
+    if (env && env->type != PLAYER && env->type != MONSTER &&
+            env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS)) {
         insert_ob_in_ob(trap, env);
         set_trapped_flag(env);
-    } else {
+    } else if (where->map != NULL) {
         insert_ob_in_map(trap, where->map, NULL, 0);
     }
 
