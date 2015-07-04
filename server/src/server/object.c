@@ -1482,7 +1482,8 @@ static void object_check_move_off(object *op)
 void object_remove(object *op, int flags)
 {
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        LOG(BUG, "Tried to remove an already removed object %s.", query_name(op, NULL));
+        log_error("Tried to remove an already removed object %s.",
+                object_get_str(op));
         return;
     }
 
