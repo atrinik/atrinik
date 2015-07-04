@@ -465,4 +465,6 @@ except ReferenceError:
 
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
-suite = unittest.TestLoader().loadTestsFromTestCase(AtrinikTestCase)
+suites = [
+    unittest.TestLoader().loadTestsFromTestCase(AtrinikTestCase)
+]

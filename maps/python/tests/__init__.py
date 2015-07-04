@@ -3,12 +3,15 @@ import os
 import unittest
 
 import tests.Atrinik_tests.Atrinik
+import tests.Atrinik_tests.Object
 
 
 def run():
-    alltests = unittest.TestSuite([
-        tests.Atrinik_tests.Atrinik.suite,
-    ])
+    all_suites = []
+    all_suites += tests.Atrinik_tests.Atrinik.suites
+    all_suites += tests.Atrinik_tests.Object.suites
+
+    all_tests = unittest.TestSuite(all_suites)
 
     try:
         import xmlrunner
@@ -18,8 +21,8 @@ def run():
             for name in glob.glob(os.path.join(path, "*.xml")):
                 os.unlink(name)
 
-        xmlrunner.XMLTestRunner(output=path).run(alltests)
+        xmlrunner.XMLTestRunner(output=path).run(all_tests)
     except ImportError:
-        unittest.TextTestRunner(verbosity=2).run(alltests)
+        unittest.TextTestRunner(verbosity=2).run(all_tests)
 
 __all__ = ["run"]
