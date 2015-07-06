@@ -2179,6 +2179,7 @@ object *player_get_dummy(const char *name)
     give_initial_items(pl->ob, pl->ob->randomitems);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     living_update_player(pl->ob);
+    link_player_skills(pl->ob);
 
     pl->socket.state = ST_PLAYING;
 
