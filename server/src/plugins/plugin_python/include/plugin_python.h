@@ -548,6 +548,26 @@ typedef struct {
 #define Py_BuildBoolean(val) \
     ((val) ? (Py_INCREF(Py_True), Py_True) : (Py_INCREF(Py_False), Py_False))
 
+
+/**
+ * Begins iterating an Atrinik.Object.ObjectIterator object instance.
+ */
+#define FOR_ATRINIK_ITERATOR_BEGIN()                                  \
+    for (object *tmp = self->obj; tmp != NULL; ) {
+
+/**
+ * Ends iterating an Atrinik.Object.ObjectIterator object instance.
+ */
+#define FOR_ATRINIK_ITERATOR_END() \
+        if (self->iter_type == OBJ_ITER_TYPE_BELOW) {                 \
+            tmp = tmp->below;                                         \
+        } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) {          \
+            tmp = tmp->above;                                         \
+        } else {                                                      \
+            break;                                                    \
+        }                                                             \
+    }
+
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
 PyObject *generic_field_getter(fields_struct *field, void *ptr);
 PyObject *generic_rich_compare(int op, int result);

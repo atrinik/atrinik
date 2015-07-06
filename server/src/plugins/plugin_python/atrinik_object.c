@@ -2675,19 +2675,6 @@ static int Atrinik_ObjectIterator_bool(Atrinik_ObjectIterator *self)
     return self->obj != NULL;
 }
 
-#define FOR_ATRINIK_ITERATOR_BEGIN()                                  \
-    for (object *tmp = self->obj; tmp != NULL; ) {
-
-#define FOR_ATRINIK_ITERATOR_END() \
-        if (self->iter_type == OBJ_ITER_TYPE_BELOW) {                 \
-            tmp = tmp->below;                                         \
-        } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) {          \
-            tmp = tmp->above;                                         \
-        } else {                                                      \
-            break;                                                    \
-        }                                                             \
-    }
-
 /**
  * Implements Atrinik.Object.ObjectIterator.__len__() Python method.
  * @param self The iterator object.
