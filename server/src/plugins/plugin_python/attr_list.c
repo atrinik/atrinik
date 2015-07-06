@@ -291,6 +291,39 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
 
         ptr = &(*(double **) ((void *) ((char *) faction +
                 offsetof(player_faction_t, reputation))));
+    } else if (al->field == FIELDTYPE_PACKETS) {
+        if (!PyBytes_Check(value)) {
+            PyErr_SetString(PyExc_TypeError,
+                    "value must be a bytes object");
+            return -1;
+        }
+
+        packet_struct **head = (packet_struct **) ((char *) al->ptr +
+                al->offset);
+
+        packet_struct *packet = hooks->packet_new(0, PyBytes_Size(value), 0);
+        hooks->packet_append_data_len(packet,
+                (uint8_t *) PyBytes_AsString(value), PyBytes_Size(value));
+
+        if (idx < len) {
+            i = 0;
+            packet_struct *elem;
+            DL_FOREACH(*head, elem) {
+                if (i++ == idx) {
+                    DL_PREPEND_ELEM(*head, elem, packet);
+                    return 0;
+                }
+            }
+
+            /* Should not happen... */
+            PyErr_SetString(PyExc_RuntimeError,
+                    "fatal error; could not find index");
+            hooks->packet_free(packet);
+            return -1;
+        }
+
+        DL_APPEND(*head, packet);
+        return 0;
     } else {
         PyErr_SetString(PyExc_NotImplementedError,
                 "The attribute list does not implement support for "
@@ -411,7 +444,9 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
     }
 
     i = attr_list_len(al);
-    attr_list_set(al, NULL, i, value);
+    if (attr_list_set(al, NULL, i, value) == -1) {
+        return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -445,7 +480,10 @@ static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
         if (PyObject_RichCompareBool(check, value, Py_EQ) == 1) {
             Py_DECREF(check);
             Py_INCREF(Py_None);
-            attr_list_set(al, NULL, i, Py_None);
+
+            if (attr_list_set(al, NULL, i, Py_None) == -1) {
+                return NULL;
+            }
 
             Py_INCREF(Py_None);
             return Py_None;
