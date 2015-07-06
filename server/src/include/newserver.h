@@ -164,8 +164,8 @@ typedef struct socket_struct {
     /** Last map. */
     struct Map lastmap;
 
-    struct packet_struct *packet_head;
-    struct packet_struct *packet_tail;
+    /** Outgoing packets. */
+    struct packet_struct *packets;
 
     /**
      * Buffer for how many ticks have passed since the last keep alive

@@ -94,11 +94,10 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
         return HASH_CNT(hh, factions);
     } else if (al->field == FIELDTYPE_PACKETS) {
         packet_struct *head = *(packet_struct **) ((char *) al->ptr +
-                al->offset);
+                al->offset), *packet;
 
         unsigned PY_LONG_LONG num = 0;
-        for (packet_struct *packet = head; packet != NULL;
-                packet = packet->next) {
+        DL_FOREACH(head, packet) {
             num++;
         }
 
@@ -175,11 +174,9 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key,
         }
 
         packet_struct *head = *(packet_struct **) ((char *) al->ptr +
-                al->offset);
-
+                al->offset), *packet;
         unsigned PY_LONG_LONG i = 0;
-        for (packet_struct *packet = head; packet != NULL;
-                packet = packet->next) {
+        DL_FOREACH(head, packet) {
             if (i++ == idx) {
                 return PyBytes_FromStringAndSize((const char *) packet->data,
                         packet->len);

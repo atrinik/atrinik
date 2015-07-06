@@ -134,33 +134,7 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
     }
 #endif
 
-    if (!ns->packet_head) {
-        ns->packet_head = packet;
-        packet->prev = NULL;
-    } else {
-        ns->packet_tail->next = packet;
-        packet->prev = ns->packet_tail;
-    }
-
-    ns->packet_tail = packet;
-    packet->next = NULL;
-}
-
-static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
-{
-    if (!packet->prev) {
-        ns->packet_head = packet->next;
-    } else {
-        packet->prev->next = packet->next;
-    }
-
-    if (!packet->next) {
-        ns->packet_tail = packet->prev;
-    } else {
-        packet->next->prev = packet->prev;
-    }
-
-    packet_free(packet);
+    DL_APPEND(ns->packets, packet);
 }
 
 /**
@@ -168,9 +142,12 @@ static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
  * @param ns Socket to clear the socket buffers for. */
 void socket_buffer_clear(socket_struct *ns)
 {
-    while (ns->packet_head) {
-        socket_packet_dequeue(ns, ns->packet_head);
+    packet_struct *packet, *tmp;
+    DL_FOREACH_SAFE(ns->packets, packet, tmp) {
+        packet_free(packet);
     }
+
+    ns->packets = NULL;
 }
 
 /**
@@ -180,27 +157,27 @@ void socket_buffer_write(socket_struct *ns)
 {
     int amt, max;
 
-    while (ns->packet_head) {
-        if (ns->packet_head->ndelay) {
+    while (ns->packets != NULL) {
+        packet_struct *packet = ns->packets;
+
+        if (packet->ndelay) {
             socket_enable_no_delay(ns->fd);
         }
 
-        max = ns->packet_head->len - ns->packet_head->pos;
-        amt = send(ns->fd, (const void *) (ns->packet_head->data +
-                ns->packet_head->pos), max, MSG_DONTWAIT);
+        max = packet->len - packet->pos;
+        amt = send(ns->fd, (const void *) (packet->data + packet->pos), max,
+                MSG_DONTWAIT);
 
-        if (ns->packet_head->ndelay) {
+        if (packet->ndelay) {
             socket_disable_no_delay(ns->fd);
         }
 
 #ifndef WIN32
-
-        if (!amt) {
+        if (amt == 0) {
             amt = max;
         } else
 #endif
-
-            if (amt < 0) {
+        if (amt < 0) {
 #ifdef WIN32
 
             if (WSAGetLastError() != WSAEWOULDBLOCK) {
@@ -218,10 +195,11 @@ void socket_buffer_write(socket_struct *ns)
             }
         }
 
-        ns->packet_head->pos += amt;
+        packet->pos += amt;
 
-        if (ns->packet_head->len - ns->packet_head->pos == 0) {
-            socket_packet_dequeue(ns, ns->packet_head);
+        if (packet->len - packet->pos == 0) {
+            DL_DELETE(ns->packets, packet);
+            packet_free(packet);
         }
     }
 }

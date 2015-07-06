@@ -102,7 +102,7 @@ static fields_struct fields[] = {
             offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0,
             "Socket version of the player's client.; int (readonly)"},
     {"s_packets", FIELDTYPE_LIST,
-            offsetof(player, socket.packet_head), 0, FIELDTYPE_PACKETS,
+            offsetof(player, socket.packets), 0, FIELDTYPE_PACKETS,
             "Packets that have been enqueued to the player's client.; "
             "Atrinik.AttrList.AttrList"}
 };

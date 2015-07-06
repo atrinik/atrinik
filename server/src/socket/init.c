@@ -94,8 +94,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
     ns->packet_recv_cmd = packet_new(0, 1024 * 64, 0);
 
     memset(&ns->lastmap, 0, sizeof(struct Map));
-    ns->packet_head = NULL;
-    ns->packet_tail = NULL;
+    ns->packets = NULL;
 
     ns->host = estrdup(from_ip);
 }
