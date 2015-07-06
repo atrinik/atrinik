@@ -2675,6 +2675,19 @@ static int Atrinik_ObjectIterator_bool(Atrinik_ObjectIterator *self)
     return self->obj != NULL;
 }
 
+#define FOR_ATRINIK_ITERATOR_BEGIN()                                  \
+    for (object *tmp = self->obj; tmp != NULL; ) {
+
+#define FOR_ATRINIK_ITERATOR_END() \
+        if (self->iter_type == OBJ_ITER_TYPE_BELOW) {                 \
+            tmp = tmp->below;                                         \
+        } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) {          \
+            tmp = tmp->above;                                         \
+        } else {                                                      \
+            break;                                                    \
+        }                                                             \
+    }
+
 /**
  * Implements Atrinik.Object.ObjectIterator.__len__() Python method.
  * @param self The iterator object.
@@ -2683,23 +2696,39 @@ static int Atrinik_ObjectIterator_bool(Atrinik_ObjectIterator *self)
 static Py_ssize_t Atrinik_ObjectIterator_len(Atrinik_ObjectIterator *self)
 {
     if (self->iterated) {
-        INTRAISE("Cannot get length of iterator that has been iterated through")
+        INTRAISE("Cannot get length of iterator that has been iterated")
     }
 
     Py_ssize_t num = 0;
-    for (object *tmp = self->obj; tmp != NULL; ) {
+    FOR_ATRINIK_ITERATOR_BEGIN() {
         num++;
-
-        if (self->iter_type == OBJ_ITER_TYPE_BELOW) {
-            tmp = tmp->below;
-        } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) {
-            tmp = tmp->above;
-        } else {
-            break;
-        }
-    }
+    } FOR_ATRINIK_ITERATOR_END()
 
     return num;
+}
+
+/**
+ * Implements Atrinik.Object.ObjectIterator.__getitem__() Python method.
+ * @param self The iterator object.
+ * @param idx Index to access.
+ * @return Object at the specified index, NULL on failure.
+ */
+static PyObject *Atrinik_ObjectIterator_getitem(Atrinik_ObjectIterator *self,
+        Py_ssize_t idx)
+{
+    if (self->iterated) {
+        RAISE("Cannot access items of iterator that has been iterated")
+    }
+
+    Py_ssize_t i = 0;
+    FOR_ATRINIK_ITERATOR_BEGIN() {
+        if (i++ == idx) {
+            return wrap_object(tmp);
+        }
+    } FOR_ATRINIK_ITERATOR_END()
+
+    PyErr_SetString(PyExc_IndexError, "index is out of range");
+    return NULL;
 }
 
 /**
@@ -2804,7 +2833,7 @@ static PySequenceMethods Atrinik_ObjectIteratorSequence = {
     (lenfunc) Atrinik_ObjectIterator_len,
     NULL,
     NULL,
-    NULL,
+    (ssizeargfunc) Atrinik_ObjectIterator_getitem,
     NULL,
     NULL,
     NULL,
