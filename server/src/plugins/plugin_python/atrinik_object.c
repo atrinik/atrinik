@@ -2719,6 +2719,36 @@ static PyObject *Atrinik_ObjectIterator_getitem(Atrinik_ObjectIterator *self,
 }
 
 /**
+ * Implements Atrinik.Object.ObjectIterator.__contains__() Python method.
+ * @param self The iterator object.
+ * @param what Object to check.
+ * @return 1 if the specified obj is inside the iterated inventory, 0 otherwise.
+ */
+static int Atrinik_ObjectIterator_contains(Atrinik_ObjectIterator *self,
+        PyObject *what)
+{
+    if (!PyObject_TypeCheck(what, &Atrinik_ObjectType)) {
+        PyErr_SetString(PyExc_TypeError, "invalid object type");
+        return -1;
+    }
+
+    Atrinik_Object *obj = (Atrinik_Object *) what;
+    OBJEXISTCHECK_INT(obj);
+
+    if (self->iterated) {
+        INTRAISE("Cannot access items of iterator that has been iterated")
+    }
+
+    FOR_ATRINIK_ITERATOR_BEGIN() {
+        if (tmp == obj->obj && tmp->count == obj->obj->count) {
+            return 1;
+        }
+    } FOR_ATRINIK_ITERATOR_END()
+
+    return 0;
+}
+
+/**
  * Implements Atrinik.Object.ObjectIterator.next() Python method.
  * @param self The iterator object.
  * @return Next object, NULL if there is nothing left.
@@ -2824,7 +2854,7 @@ static PySequenceMethods Atrinik_ObjectIteratorSequence = {
     NULL,
     NULL,
     NULL,
-    NULL,
+    (objobjproc) Atrinik_ObjectIterator_contains,
     NULL,
     NULL
 };
