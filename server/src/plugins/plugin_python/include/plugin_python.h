@@ -321,7 +321,9 @@ typedef enum {
     /** Treasure list. */
     FIELDTYPE_TREASURELIST,
     /** Object iterator. */
-    FIELDTYPE_OBJECT_ITERATOR
+    FIELDTYPE_OBJECT_ITERATOR,
+    /** Packets. */
+    FIELDTYPE_PACKETS
 } field_type;
 
 /**

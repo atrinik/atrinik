@@ -100,7 +100,11 @@ static fields_struct fields[] = {
             FIELDFLAG_READONLY, 0, "IP address of the player.; str (readonly)"},
     {"s_socket_version", FIELDTYPE_UINT32,
             offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0,
-            "Socket version of the player's client.; int (readonly)"}
+            "Socket version of the player's client.; int (readonly)"},
+    {"s_packets", FIELDTYPE_LIST,
+            offsetof(player, socket.packet_head), 0, FIELDTYPE_PACKETS,
+            "Packets that have been enqueued to the player's client.; "
+            "Atrinik.AttrList.AttrList"}
 };
 
 /** Documentation for Atrinik_Player_GetEquipment(). */

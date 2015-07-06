@@ -60,6 +60,7 @@
 
 #include <plugin_python.h>
 #include <plugin.h>
+#include <packet.h>
 
 /**
  * Get a pointer to integer that holds the maximum length depending on the
@@ -91,6 +92,17 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
         player_faction_t *factions = *(player_faction_t **) ((char *) al->ptr +
                 al->offset);
         return HASH_CNT(hh, factions);
+    } else if (al->field == FIELDTYPE_PACKETS) {
+        packet_struct *head = *(packet_struct **) ((char *) al->ptr +
+                al->offset);
+
+        unsigned PY_LONG_LONG num = 0;
+        for (packet_struct *packet = head; packet != NULL;
+                packet = packet->next) {
+            num++;
+        }
+
+        return num;
     }
 
     return 0;
@@ -153,6 +165,25 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key,
             ptr = &(*(double **) ((void *) ((char *) faction +
                     offsetof(player_faction_t, reputation))));
             return generic_field_getter(&field, ptr);
+        }
+
+        Py_INCREF(Py_None);
+        return Py_None;
+    } else if (al->field == FIELDTYPE_PACKETS) {
+        if (key != NULL) {
+            idx = PyLong_AsUnsignedLongLong(key);
+        }
+
+        packet_struct *head = *(packet_struct **) ((char *) al->ptr +
+                al->offset);
+
+        unsigned PY_LONG_LONG i = 0;
+        for (packet_struct *packet = head; packet != NULL;
+                packet = packet->next) {
+            if (i++ == idx) {
+                return PyBytes_FromStringAndSize((const char *) packet->data,
+                        packet->len);
+            }
         }
 
         Py_INCREF(Py_None);
