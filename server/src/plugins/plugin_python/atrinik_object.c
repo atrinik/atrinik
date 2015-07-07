@@ -864,39 +864,58 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *self, PyObject *args,
 
 /** Documentation for Atrinik_Object_CreateForce(). */
 static const char doc_Atrinik_Object_CreateForce[] =
-".. method:: CreateForce(name, time=0).\n\n"
+".. method:: CreateForce(name, seconds=0.0, expiration=0).\n\n"
 "Create a force object in object's inventory.\n\n"
 ":param name: ID of the force object.\n"
 ":type name: str\n"
-":param time: If non-zero, the force will be removed again after time / 0.02 "
-"ticks.\n"
+":param seconds: If non-zero, the force will be removed after the specified "
+"amount of seconds have passed.\n"
+":type seconds: float\n"
+":param expiration: If non-zero, the force will be removed after *expiration* / "
+"0.02 ticks.\n"
 ":type time: int\n"
 ":returns: The created force object.\n"
 ":rtype: :class:`Atrinik.Object.Object`";
 
 /**
  * Implements Atrinik.Object.Object.CreateForce() Python method.
- * @copydoc PyMethod_VARARGS
+ * @copydoc PyMethod_VARARGS_KEYWORDS
  */
 static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *self,
-        PyObject *args)
+        PyObject *args, PyObject *keywds)
 {
+    static char *kwlist[] = {"name", "seconds", "expiration", NULL};
     const char *name;
-    int expire_time = 0;
-    object *force;
+    double seconds = 0.0;
+    int expiration = 0;
 
-    if (!PyArg_ParseTuple(args, "s|i", &name, &expire_time)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|di", kwlist, &name,
+            &seconds, &expiration)) {
         return NULL;
     }
 
     OBJEXISTCHECK(self);
 
-    force = hooks->arch_get("force");
+    object *force = hooks->arch_get("force");
 
-    if (expire_time > 0) {
+    if (expiration > 0) {
         SET_FLAG(force, FLAG_IS_USED_UP);
-        force->stats.food = expire_time;
-        force->speed = 0.02f;
+        force->stats.food = expiration;
+        force->speed = 0.02;
+        force->speed_left = -1.0;
+    } else if (seconds > 0.0) {
+        SET_FLAG(force, FLAG_IS_USED_UP);
+
+        if (seconds > 10.0) {
+            double integral, fractional = modf(seconds / 10.0, &integral);
+            force->speed = 1.0 / (10.0 + fractional / integral * 10.0) /
+                    MAX_TICKS;
+            force->stats.food = integral;
+        } else {
+            force->speed = 1.0 / seconds / MAX_TICKS;
+        }
+
+        force->speed_left = -1.0;
     } else {
         force->speed = 0.0;
     }
@@ -2197,8 +2216,8 @@ static PyMethodDef methods[] = {
             doc_Atrinik_Object_Hit},
     {"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS,
             doc_Atrinik_Object_Cast},
-    {"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS,
-            doc_Atrinik_Object_CreateForce},
+    {"CreateForce", (PyCFunction) Atrinik_Object_CreateForce,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_CreateForce},
     {"CreateObject", (PyCFunction) Atrinik_Object_CreateObject,
             METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_CreateObject},
     {"FindObject", (PyCFunction) Atrinik_Object_FindObject,

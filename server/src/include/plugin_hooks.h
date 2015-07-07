@@ -262,6 +262,7 @@ PLUGIN_HOOK_VARIABLE(party_struct *, first_party)
 PLUGIN_HOOK_VARIABLE(region_struct *, first_region)
 PLUGIN_HOOK_VARIABLE(long, pticks)
 PLUGIN_HOOK_VARIABLE(settings_struct, settings)
+PLUGIN_HOOK_VARIABLE(long, max_time)
 
 };
 

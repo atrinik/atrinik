@@ -201,6 +201,7 @@ extern struct plugin_hooklist *hooks;
 #endif
 
 #define logger_print hooks->logger_print
+#define max_time *hooks->max_time
 
 extern PyObject *AtrinikError;
 
