@@ -129,7 +129,8 @@ def dump_obj(obj, f, indent=0, defaults=None):
 
     for tmp_name in l:
         if tmp_name.startswith("__") and tmp_name.endswith("__"):
-            if tmp_name not in ("__len__", "__bool__", "__iter__", "__next__"):
+            if tmp_name not in ("__len__", "__bool__", "__iter__", "__next__",
+                                "__getitem__"):
                 continue
 
         if tmp_name == "print":
