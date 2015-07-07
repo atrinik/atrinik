@@ -2168,6 +2168,16 @@ object *player_get_dummy(const char *name)
     player *pl;
 
     pl = get_player(NULL);
+#ifndef WIN32
+    struct protoent *protox = getprotobyname("tcp");
+    if (protox != NULL) {
+        pl->socket.fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+    }
+#else
+    pl->socket.fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
+    init_connection(&pl->socket, "127.0.0.1");
+
     pl->ob = arch_get("human_male");
     pl->ob->custom_attrset = pl;
 
