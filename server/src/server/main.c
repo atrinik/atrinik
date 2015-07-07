@@ -201,7 +201,15 @@ void process_events(mapstruct *map)
             op->weapon_speed_left -= op->weapon_speed;
         }
 
-        if (op->speed_left > 0 || op->type == PLAYER) {
+        if (op->speed_left <= 0) {
+            op->speed_left += FABS(op->speed);
+        }
+
+        if (op->type == PLAYER && op->speed_left > op->speed) {
+            op->speed_left = op->speed;
+        }
+
+        if (op->speed_left >= 0 || op->type == PLAYER) {
             if (op->type != PLAYER) {
                 --op->speed_left;
             }
@@ -248,14 +256,6 @@ void process_events(mapstruct *map)
             } else {
                 op->last_anim++;
             }
-        }
-
-        if (op->speed_left <= 0) {
-            op->speed_left += FABS(op->speed);
-        }
-
-        if (op->type == PLAYER && op->speed_left > op->speed) {
-            op->speed_left = op->speed;
         }
     }
 
