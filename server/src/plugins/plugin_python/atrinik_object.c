@@ -825,7 +825,7 @@ static const char doc_Atrinik_Object_Cast[] =
 static PyObject *Atrinik_Object_Cast(Atrinik_Object *self, PyObject *args,
         PyObject *keywds)
 {
-    static char *kwlist[] = {"target", "spell", "mode", "direction", "option",
+    static char *kwlist[] = {"spell", "target", "mode", "direction", "option",
             NULL};
     Atrinik_Object *target = NULL;
     int spell, direction = 0, mode = -1;
