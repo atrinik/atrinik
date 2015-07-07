@@ -2,9 +2,15 @@ import unittest
 import time
 
 import Atrinik
+from tests import simulate_server
 
 
 class AtrinikTestCase(unittest.TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        simulate_server(count=1, wait=False)
+
     def test_LoadObject(self):
         self.assertRaises(TypeError, Atrinik.LoadObject)
         self.assertRaises(TypeError, Atrinik.LoadObject, 1, 2)
@@ -380,7 +386,7 @@ class AtrinikTestCase(unittest.TestCase):
 
         ticks = Atrinik.GetTicks()
         self.assertGreaterEqual(ticks, 0)
-        Atrinik.Process()
+        simulate_server(count=1, wait=False)
         self.assertGreater(Atrinik.GetTicks(), ticks)
 
     def test_GetArchetype(self):
@@ -410,7 +416,7 @@ class AtrinikTestCase(unittest.TestCase):
         obj = Atrinik.CreateObject("sword")
         Atrinik.Eval("obj.name = 'Eval\\\'d Sword'")
         self.assertEqual(obj.name, "sword")
-        Atrinik.Process()
+        simulate_server(count=1, wait=False)
         self.assertEqual(obj.name, "Eval'd Sword")
         obj.Destroy()
 
@@ -418,12 +424,9 @@ class AtrinikTestCase(unittest.TestCase):
         now = time.time()
         Atrinik.Eval("obj.name = 'Eval\\\'d Sword'", 0.1)
         self.assertEqual(obj.name, "sword")
-        Atrinik.Process()
+        simulate_server(count=1, wait=False)
         self.assertEqual(obj.name, "sword")
-
-        while time.time() - now < 0.2:
-            Atrinik.Process()
-
+        simulate_server(seconds=0.2)
         self.assertEqual(obj.name, "Eval'd Sword")
         obj.Destroy()
 
@@ -436,7 +439,7 @@ except ReferenceError:
         """)
         self.assertEqual(obj.name, "sword")
         obj.Destroy()
-        Atrinik.Process()
+        simulate_server(count=1, wait=False)
 
     def test_GetSettings(self):
         self.assertRaises(TypeError, Atrinik.GetSettings, 1, 2)
