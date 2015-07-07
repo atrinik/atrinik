@@ -802,7 +802,7 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *self, PyObject *args)
 
 /** Documentation for Atrinik_Object_Cast(). */
 static const char doc_Atrinik_Object_Cast[] =
-".. method:: Hit(spell, target=None, mode=-1, direction=0, option=None).\n\n"
+".. method:: Cast(spell, target=None, mode=-1, direction=0, option=None).\n\n"
 "Cast the specified spell.\n\n"
 ":param spell: ID of the spell to cast.\n"
 ":type spell: int\n"
