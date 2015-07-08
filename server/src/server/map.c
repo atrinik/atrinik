@@ -960,10 +960,11 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
         return NULL;
     }
 
-    basename = strrchr(filename, '/') + 1;
-
-    if (basename - 1 == NULL) {
+    basename = strrchr(filename, '/');
+    if (basename == NULL) {
         basename = filename;
+    } else {
+        basename++;
     }
 
     pos = coords_idx = 0;
