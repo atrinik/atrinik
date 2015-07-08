@@ -619,13 +619,6 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
                 CHECK_INT_RANGE(0, UINT8_MAX);
-                if (val < 0 || val > UINT8_MAX) {
-                    PyErr_Format(PyExc_OverflowError,
-                            "Invalid integer value for '%c' format specifier.",
-                            format[i]);
-                    goto error;
-                }
-
                 hooks->packet_append_uint8(packet, val);
                 continue;
             }
