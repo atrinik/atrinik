@@ -621,11 +621,13 @@ char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
     int64_t size = curl_download_sizeinfo(data,
             CURLINFO_CONTENT_LENGTH_DOWNLOAD);
 
-    if (speed == 0 && !received && !size) {
+    if (speed == 0 && received == 0 && size == 0) {
         *buf = '\0';
     } else if (size == -1) {
         snprintf(buf, bufsize, "%0.3f MB/s", speed / 1000.0 / 1000.0);
     } else {
+        received = MAX(1, received);
+        size = MAX(1, size);
         snprintf(buf, bufsize, "%.0f%% @ %0.3f MB/s", received * 100.0 / size,
                 speed / 1000.0 / 1000.0);
     }
