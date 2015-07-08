@@ -580,7 +580,8 @@ int cast_heal(object *op, int level, object *target, int spell_type)
  * @param target Target of the caster; who is receiving the spell.
  * @param spell_type ID of the spell.
  * @retval 0 Spell failed.
- * @retval 1 Spell was successful. */
+ * @retval 1 Spell was successful.
+ */
 int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 {
     object *tmp = target, *tmp2 = NULL, *force = NULL;
@@ -638,7 +639,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
         break;
 
-        /* Attacktype protection spells */
+    /* Attacktype protection spells */
     case SP_PROT_COLD:
         i = ATNR_COLD;
         break;
