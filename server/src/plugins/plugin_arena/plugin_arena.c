@@ -579,11 +579,11 @@ MODULEAPI void *triggerEvent(int *type, ...)
     va_start(args, type);
     event_type = va_arg(args, int);
     if (event_type == PLUGIN_EVENT_UNIT) {
+        va_end(args);
         return &result;
     }
 
     eventcode = va_arg(args, int);
-
     activator = va_arg(args, object *);
 
     if (event_type == PLUGIN_EVENT_NORMAL) {
