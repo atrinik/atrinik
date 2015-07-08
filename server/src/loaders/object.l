@@ -199,7 +199,7 @@ lex_error = 0;
         if (linemode == 0) {
             lex_load(depth, items, maxdepth, map_flags, linemode);
 
-            if (tmp->arch) {
+            if (tmp->arch == NULL) {
                 tmp = insert_ob_in_ob(tmp, op);
             } else {
                 if (!arch_in_init) {
@@ -207,6 +207,7 @@ lex_error = 0;
                 }
 
                 object_destroy(tmp);
+                tmp = NULL;
             }
         }
 
@@ -217,8 +218,8 @@ lex_error = 0;
         art_amask = art_amask_tmp;
 
         if (!(map_flags & MAP_STYLE) && tmp != NULL) {
-            if (tmp->speed < 0.0 && DBL_EQUAL(tmp->speed_left,
-                    tmp->arch->clone.speed_left)) {
+            if (tmp->speed < 0.0 && tmp->arch != NULL &&
+                    DBL_EQUAL(tmp->speed_left, tmp->arch->clone.speed_left)) {
                 tmp->speed_left = tmp->arch->clone.speed_left +
                         rndm(0, 90) / 100.0f;
             }
@@ -324,10 +325,16 @@ lex_error = 0;
 }
 ^artifact{S}         FREE_AND_COPY_HASH(op->artifact, yval());
 ^amask{S}            {
-    art_amask = artifact_find_type(yval(), op->arch->clone.type);
+    char *yv = yval();
 
-    if (art_amask == NULL) {
-        LOG(ERROR, "Invalid amask '%s'.", yval());
+    if (*yv == '\0') {
+        LOG(ERROR, "Artifact mask without val");
+    } else if (op->arch != NULL) {
+        art_amask = artifact_find_type(yval(), op->arch->clone.type);
+
+        if (art_amask == NULL) {
+            LOG(ERROR, "Invalid amask '%s'.", yval());
+        }
     }
 }
 ^quickslot{S}        op->quickslot = IVAL;
