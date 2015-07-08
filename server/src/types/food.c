@@ -119,6 +119,10 @@ static void create_food_force(object *who, object *food, object *force)
     SET_FLAG(force, FLAG_APPLIED);
 
     force = insert_ob_in_ob(force, who);
+    if (force == NULL) {
+        log_error("Failed to insert force from food %s into %s.",
+                object_get_str(food), object_get_str(who));
+    }
 }
 
 /**
