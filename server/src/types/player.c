@@ -1119,76 +1119,104 @@ object *find_marked_object(object *op)
  * @param tmp Object being examined. */
 static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 {
-    object *mon = tmp->head ? tmp->head : tmp;
-    int val, val2, i, gender;
+    tmp = HEAD(tmp);
 
-    gender = object_get_gender(mon);
+    int gender = object_get_gender(tmp);
 
-    if (QUERY_FLAG(mon, FLAG_IS_GOOD)) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
-    } else if (QUERY_FLAG(mon, FLAG_IS_EVIL)) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
-    } else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL)) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+    if (QUERY_FLAG(tmp, FLAG_IS_GOOD)) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is a good aligned %s %s.", gender_subjective_upper[gender],
+                gender_noun[gender], tmp->race);
+    } else if (QUERY_FLAG(tmp, FLAG_IS_EVIL)) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is an evil aligned %s %s.", gender_subjective_upper[gender],
+                gender_noun[gender], tmp->race);
+    } else if (QUERY_FLAG(tmp, FLAG_IS_NEUTRAL)) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is a neutral aligned %s %s.",
+                gender_subjective_upper[gender], gender_noun[gender],
+                tmp->race);
     } else {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is a %s %s.", gender_subjective_upper[gender],
+                gender_noun[gender], tmp->race);
     }
 
-    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is level %d.", gender_subjective_upper[gender], mon->level);
-    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s has a base damage of %d and hp of %d.", gender_subjective_upper[gender], mon->stats.dam, mon->stats.maxhp);
-    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender], mon->stats.wc, mon->stats.ac);
+    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+            "%s is level %d.", gender_subjective_upper[gender], tmp->level);
+    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+            "%s has a base damage of %d and hp of %d.",
+            gender_subjective_upper[gender], tmp->stats.dam, tmp->stats.maxhp);
+    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+            "%s has a wc of %d and ac of %d.", gender_subjective_upper[gender],
+            tmp->stats.wc, tmp->stats.ac);
 
-    for (val = val2 = -1, i = 0; i < NROFATTACKS; i++) {
-        if (mon->protection[i] > 0) {
-            val = i;
-        } else if (mon->protection[i] < 0) {
-            val2 = i;
+    bool has_protection = true, has_weakness = false;
+    for (int i = 0; i < NROFATTACKS; i++) {
+        if (tmp->protection[i] > 0) {
+            has_protection = true;
+        } else if (tmp->protection[i] < 0) {
+            has_weakness = true;
         }
     }
 
-    if (val >= 0) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
+    if (has_protection) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s can naturally resist some attacks.",
+                gender_subjective_upper[gender]);
     }
 
-    if (val2 >= 0) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
+    if (has_weakness) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is naturally vulnerable to some attacks.",
+                gender_subjective_upper[gender]);
     }
 
-    for (val = -1, val2 = i = 0; i < NROFATTACKS; i++) {
-        if (mon->protection[i] > val2) {
-            val = i;
-            val2 = mon->protection[i];
+    int8_t highest_protection = 0;
+    int best_protection = -1;
+    for (int i = 0; i < NROFATTACKS; i++) {
+        if (tmp->protection[i] > highest_protection) {
+            best_protection = i;
+            highest_protection = tmp->protection[i];
         }
     }
 
-    if (val >= 0) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Best armour protection seems to be for %s.", attack_name[val]);
+    if (best_protection != -1) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "Best armour protection seems to be for %s.",
+                attack_name[best_protection]);
     }
 
-    if (QUERY_FLAG(mon, FLAG_UNDEAD)) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is an undead force.", gender_subjective_upper[gender]);
+    if (QUERY_FLAG(tmp, FLAG_UNDEAD)) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is an undead force.", gender_subjective_upper[gender]);
     }
 
-    switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1)) {
+    switch ((tmp->stats.hp + 1) * 4 / (tmp->stats.maxhp + 1)) {
     case 1:
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is in a bad shape.", gender_subjective_upper[gender]);
         break;
 
     case 2:
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is hurt.", gender_subjective_upper[gender]);
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is hurt.", gender_subjective_upper[gender]);
         break;
 
     case 3:
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is somewhat hurt.", gender_subjective_upper[gender]);
         break;
 
     default:
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s is in excellent shape.", gender_subjective_upper[gender]);
         break;
     }
 
-    if (present_in_ob(POISONING, mon) != NULL) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s looks very ill.", gender_subjective_upper[gender]);
+    if (present_in_ob(POISONING, tmp) != NULL) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s looks very ill.", gender_subjective_upper[gender]);
     }
 }
 
