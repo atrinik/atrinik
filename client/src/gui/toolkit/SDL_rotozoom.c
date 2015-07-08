@@ -802,7 +802,8 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
     /*
      * Clear surface to colorkey
      */
-    memset(pc, (unsigned char) (_colorkey(src) & 0xff), dst->pitch * dst->h);
+    memset(pc, (unsigned char) (_colorkey(src) & 0xff),
+            (size_t) dst->pitch * dst->h);
     /*
      * Iterate through destination surface
      */
@@ -905,7 +906,7 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
         if (src->pitch == dst->pitch) {
             /* If the pitch is the same for both surfaces, the memory can be
              * copied all at once. */
-            memcpy(dst->pixels, src->pixels, (src->h * src->pitch));
+            memcpy(dst->pixels, src->pixels, src->h * (size_t) src->pitch);
         } else {
             /* If the pitch differs, copy each row separately */
             srcBuf = src->pixels;
