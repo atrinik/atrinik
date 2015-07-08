@@ -558,14 +558,11 @@ static PyObject *attr_list_items(Atrinik_AttrList *al)
         }
 
         return tuple;
-    } else {
-        PyErr_SetString(PyExc_NotImplementedError,
-                        "This attribute list does not implement items method.");
-        return NULL;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    PyErr_SetString(PyExc_NotImplementedError,
+                    "This attribute list does not implement items method.");
+    return NULL;
 }
 
 /** Available Python methods for the AtrinikPlayer type. */
