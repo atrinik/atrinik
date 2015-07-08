@@ -2163,6 +2163,12 @@ static void player_create(player *pl, const char *path, archetype_t *at, const c
     pl->ob->y = -1;
 }
 
+/**
+ * Creates a dummy player structure and returns a pointer to the player's
+ * object.
+ * @param name Name of the player to create.
+ * @return Created player object, never NULL. Will abort() in case of failure.
+ */
 object *player_get_dummy(const char *name)
 {
     player *pl;
@@ -2170,12 +2176,21 @@ object *player_get_dummy(const char *name)
     pl = get_player(NULL);
 #ifndef WIN32
     struct protoent *protox = getprotobyname("tcp");
-    if (protox != NULL) {
-        pl->socket.fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
+    if (protox == NULL) {
+        log_error("Could not get protobyname(tcp): %s (%d)", strerror(errno),
+                errno);
+        abort();
     }
+
+    pl->socket.fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 #else
     pl->socket.fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #endif
+    if (pl->socket.fd == -1) {
+        log_error("Could not create a socket: %s (%d)", strerror(errno), errno);
+        abort();
+    }
+
     init_connection(&pl->socket, "127.0.0.1");
 
     pl->ob = arch_get("human_male");
