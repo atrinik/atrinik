@@ -3250,13 +3250,22 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 /**
  * Acquires a string representation of the object that is suitable for debugging
  * purposes, as it includes the object's name, archname, map, environment, etc.
+ *
+ * This function cycles through internal buffers to use as return values, and is
+ * safe to call up to ten times. After that, previously returned pointers will
+ * start getting overwritten.
  * @param op Object. Can be NULL.
  * @return String representation of the object.
  */
 const char *object_get_str(object *op)
 {
-    static char buf[HUGE_BUF * 16];
-    return object_get_str_r(op, VS(buf));
+    static char buf[10][HUGE_BUF * 16];
+    static int buf_idx = 0;
+
+    buf_idx++;
+    buf_idx %= 10;
+
+    return object_get_str_r(op, VS(buf[buf_idx]));
 }
 
 /**
@@ -3290,7 +3299,6 @@ char *object_get_str_r(object *op, char *buf, size_t bufsize)
                 op->x, op->y);
     } else if (op->env != NULL) {
         char buf2[HUGE_BUF];
-
         snprintfcat(buf, bufsize, " env: [%s]", object_get_str_r(op->env,
                 VS(buf2)));
     }
