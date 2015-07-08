@@ -88,7 +88,7 @@ int client_command_check(const char *cmd)
     } else if (!strncmp(cmd, "/help", 5)) {
         cmd += 5;
 
-        if (!cmd || *cmd == '\0') {
+        if (*cmd == '\0') {
             help_show("main");
         } else {
             help_show(cmd + 1);
