@@ -39,8 +39,9 @@
  * protections to the player.
  * @param who The player object.
  * @param food The food.
- * @param force The force object. */
-static void create_food_force(object* who, object *food, object *force)
+ * @param force The force object.
+ */
+static void create_food_force(object *who, object *food, object *force)
 {
     int i;
 
