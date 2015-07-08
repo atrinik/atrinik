@@ -411,6 +411,9 @@ static int setting_apply_always(int cat, int setting)
             WIDGET_SHOW_CHANGE(NETWORK_GRAPH_ID, setting_get_int(cat, setting));
             return 1;
         }
+
+        break;
+
     case OPT_CAT_DEVEL:
         switch (setting) {
         /* Need to hide/show the fps widget. */
@@ -418,6 +421,8 @@ static int setting_apply_always(int cat, int setting)
             WIDGET_SHOW_CHANGE(FPS_ID, setting_get_int(cat, setting));
             return 1;
         }
+
+        break;
     }
 
     return 0;
