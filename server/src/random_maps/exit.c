@@ -306,12 +306,19 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
         find_in_layout(0, 0, &downx, &downy, maze, RP);
     }
 
-    if (the_exit_down) {
-        int i = find_first_free_spot(the_exit_down->arch, NULL, map, downx, downy);
+    if (the_exit_down != NULL) {
+        int i = find_first_free_spot(the_exit_down->arch, NULL, map, downx,
+                downy);
+        if (i == -1) {
+            LOG(ERROR, "Could not find a free spot for exit going down.");
+            the_exit_down = NULL;
+        } else {
+            the_exit_down->x = downx + freearr_x[i];
+            the_exit_down->y = downy + freearr_y[i];
+        }
+    }
 
-        the_exit_down->x = downx + freearr_x[i];
-        the_exit_down->y = downy + freearr_y[i];
-
+    if (the_exit_down != NULL) {
         RP->origin_x = the_exit_down->x;
         RP->origin_y = the_exit_down->y;
 
