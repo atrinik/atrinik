@@ -160,7 +160,7 @@ extern int server_files_listing_processed(void);
 extern int server_files_processed(void);
 extern FILE *server_file_open(server_files_struct *tmp);
 extern FILE *server_file_open_name(const char *name);
-extern int server_file_save(server_files_struct *tmp, unsigned char *data, size_t len);
+extern bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len);
 /* src/client/server_settings.c */
 extern server_settings *s_settings;
 extern void server_settings_init(void);

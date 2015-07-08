@@ -412,30 +412,30 @@ FILE *server_file_open_name(const char *name)
  * @param tmp Server file.
  * @param data The data to save.
  * @param len Length of 'data'.
- * @return 1 on success, 0 on failure.
+ * @return True on success, false on failure.
  */
-int server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
+bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
 {
     char path[MAX_BUF];
-    FILE *fp;
+    server_file_path(tmp, VS(path));
 
-    server_file_path(tmp, path, sizeof(path));
-    fp = fopen_wrapper(path, "wb");
-
+    FILE *fp = fopen_wrapper(path, "wb");
     if (fp == NULL) {
-        LOG(BUG, "Could not open %s for writing.", path);
-        return 0;
+        LOG(ERROR, "Could not open %s for writing.", path);
+        return false;
     }
 
+    bool ret = true;
+
     if (fwrite(data, 1, len, fp) != len) {
-        LOG(BUG, "Failed to write to %s.", path);
-        return 0;
+        LOG(ERROR, "Failed to write to %s.", path);
+        ret = false;
     }
 
     if (fclose(fp) != 0) {
-        LOG(BUG, "Could not close %s.", path);
-        return 0;
+        LOG(ERROR, "Could not close %s.", path);
+        ret = false;
     }
 
-    return 1;
+    return ret;
 }
