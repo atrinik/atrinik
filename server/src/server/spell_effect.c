@@ -675,6 +675,11 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
         }
 
         force = insert_ob_in_ob(force, tmp);
+        if (force == NULL) {
+            log_error("Failed to create force for spell %d, op: %s, "
+                    "caster: %s, target: %s", spell_type, object_get_str(op),
+                    object_get_str(caster), object_get_str(target));
+        }
     } else {
         esrv_update_item(UPD_EXTRA, force);
     }
