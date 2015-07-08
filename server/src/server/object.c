@@ -3250,29 +3250,30 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 /**
  * Acquires a string representation of the object that is suitable for debugging
  * purposes, as it includes the object's name, archname, map, environment, etc.
- * @param op Object.
+ * @param op Object. Can be NULL.
  * @return String representation of the object.
  */
 const char *object_get_str(object *op)
 {
     static char buf[HUGE_BUF * 16];
-
-    HARD_ASSERT(op != NULL);
-
     return object_get_str_r(op, VS(buf));
 }
 
 /**
  * Re-entrant version of object_get_str().
- * @param op Object.
+ * @param op Object. Can be NULL.
  * @param buf Buffer to use.
  * @param bufsize Size of 'buf'.
  * @return 'buf'.
  */
 char *object_get_str_r(object *op, char *buf, size_t bufsize)
 {
-    HARD_ASSERT(op != NULL);
     HARD_ASSERT(buf != NULL);
+
+    if (op == NULL) {
+        snprintf(buf, bufsize, "<no object>");
+        return buf;
+    }
 
     snprintf(buf, bufsize, "%s UID: %u",
             op->name != NULL ? op->name : "<no name>",
