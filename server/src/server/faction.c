@@ -201,12 +201,10 @@ TOOLKIT_INIT_FUNC(faction)
             goto error;
         } else if (string_isempty(value)) {
             if (strcmp(key, "end") == 0) {
-                if (depth > 0) {
-                    depth--;
-                } else {
-                    error_str = "premature end attribute";
-                    goto error;
-                }
+                /* Safe to decrement without safety checking, because 'faction'
+                 * will be NULL in case depth is zero, and it will fall into
+                 * the above branch instead. */
+                depth--;
             } else {
                 error_str = "unknown attribute without a value";
                 goto error;
