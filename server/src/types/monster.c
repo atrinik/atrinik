@@ -116,7 +116,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
             CLEAR_FLAG(npc, FLAG_UNAGGRESSIVE);
         }
     } else {
-        object *base = insert_base_info_object(npc);
+        object *base = living_get_base_info(npc);
         object *wp = get_active_waypoint(npc);
 
         if (base && !wp) {
@@ -900,7 +900,7 @@ static int move_randomly(object *op)
     mapstruct *basemap = NULL;
     rv_vector rv;
     if (op->item_race != 0 || op->item_level != 0) {
-        object *base = find_base_info_object(op);
+        object *base = living_find_base_info(op);
         if (base != NULL) {
             basemap = ready_map_name(base->slaying, NULL, MAP_NAME_SHARED);
             if (basemap != NULL) {

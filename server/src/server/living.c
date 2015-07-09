@@ -1022,7 +1022,7 @@ void living_update_monster(object *op)
     }
 
     /* Will insert or/and return base info */
-    base = insert_base_info_object(op);
+    base = living_get_base_info(op);
 
     CLEAR_FLAG(op, FLAG_READY_BOW);
 
@@ -1487,30 +1487,54 @@ int living_update(object *op)
 }
 
 /**
- * Insert and initialize base info object in object op.
- * @param op Object.
- * @return Pointer to the inserted base info object. */
-object *insert_base_info_object(object *op)
+ * Find the base info object in the specified monster.
+ * @param op Monster object. Must not be NULL, cannot be a tail part and must
+ * be of type MONSTER.
+ * @return Pointer to the base info if found, NULL otherwise.
+ */
+object *living_find_base_info(object *op)
 {
-    object *tmp, *head = op, *env;
+    HARD_ASSERT(op != NULL);
 
-    if (op->head) {
-        head = op->head;
+    SOFT_ASSERT_RC(op->head == NULL, NULL, "Called on non-head part: %s",
+            object_get_str(op));
+    SOFT_ASSERT_RC(op->type == MONSTER, NULL, "Object is not a monster: %s",
+            object_get_str(op));
+
+    for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
+        if (tmp->type == BASE_INFO) {
+            return tmp;
+        }
     }
 
-    if (op->type == PLAYER) {
-        LOG(BUG, "Try to inserting base_info in player %s!", query_name(head, NULL));
-        return NULL;
-    }
+    return NULL;
+}
 
-    if ((tmp = find_base_info_object(head))) {
+/**
+ * Acquire the base info object of the specified monster object. If the base
+ * info doesn't exist yet, it is created automatically.
+ * @param op Monster. Must not be NULL, cannot be a tail part and must be of
+ * type MONSTER.
+ * @return Pointer to the base info object, NULL on failure.
+ */
+object *living_get_base_info(object *op)
+{
+    HARD_ASSERT(op != NULL);
+
+    SOFT_ASSERT_RC(op->head == NULL, NULL, "Called on non-head part: %s",
+            object_get_str(op));
+    SOFT_ASSERT_RC(op->type == MONSTER, NULL, "Object is not a monster: %s",
+            object_get_str(op));
+
+    object *tmp = living_find_base_info(op);
+    if (tmp != NULL) {
         return tmp;
     }
 
     tmp = get_object();
     tmp->arch = op->arch;
     /* Copy without putting it on active list */
-    copy_object(head, tmp, 1);
+    copy_object(op, tmp, 1);
     tmp->type = BASE_INFO;
     tmp->speed_left = tmp->speed;
     /* Ensure this object will not be active in any way */
@@ -1520,36 +1544,18 @@ object *insert_base_info_object(object *op)
     CLEAR_FLAG(tmp, FLAG_ANIMATE);
     CLEAR_FLAG(tmp, FLAG_FRIENDLY);
     CLEAR_FLAG(tmp, FLAG_MONSTER);
-    /* And put it in the mob */
-    insert_ob_in_ob(tmp, head);
+    /* And put it in the monster. */
+    tmp = insert_ob_in_ob(tmp, op);
 
-    env = get_env_recursive(op);
-
-    /* Store position (for returning home after aggro is lost...) */
-    if (env->map) {
+    /* Store position (for returning home after aggro is lost). */
+    object *env = get_env_recursive(op);
+    if (env->map != NULL) {
         tmp->x = env->x;
         tmp->y = env->y;
         FREE_AND_ADD_REF_HASH(tmp->slaying, env->map->path);
     }
 
     return tmp;
-}
-
-/**
- * Find base info object in monster.
- * @param op Monster object.
- * @return Pointer to the base info if found, NULL otherwise. */
-object *find_base_info_object(object *op)
-{
-    object *tmp;
-
-    for (tmp = op->inv; tmp; tmp = tmp->below) {
-        if (tmp->type == BASE_INFO) {
-            return tmp;
-        }
-    }
-
-    return NULL;
 }
 
 /**
@@ -1566,7 +1572,7 @@ void set_mobile_speed(object *op, int idx)
     object *base;
     double speed, tmp;
 
-    base = insert_base_info_object(op);
+    base = living_get_base_info(op);
 
     speed = base->speed_left;
     tmp = op->speed;

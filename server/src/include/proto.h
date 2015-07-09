@@ -318,8 +318,8 @@ extern void drain_specific_stat(object *op, int deplete_stats);
 extern void living_update_player(object *op);
 extern void living_update_monster(object *op);
 extern int living_update(object *op);
-extern object *insert_base_info_object(object *op);
-extern object *find_base_info_object(object *op);
+extern object *living_get_base_info(object *op);
+extern object *living_find_base_info(object *op);
 extern void set_mobile_speed(object *op, int idx);
 /* src/server/los.c */
 extern void init_block(void);
