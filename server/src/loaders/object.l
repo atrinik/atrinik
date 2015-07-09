@@ -199,7 +199,7 @@ lex_error = 0;
         if (linemode == 0) {
             lex_load(depth, items, maxdepth, map_flags, linemode);
 
-            if (tmp->arch == NULL) {
+            if (tmp->arch != NULL) {
                 tmp = insert_ob_in_ob(tmp, op);
             } else {
                 if (!arch_in_init) {
