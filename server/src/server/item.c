@@ -204,16 +204,11 @@ char *describe_protections(object *op, int newline)
 char *query_weight(object *op)
 {
     static char buf[10];
-    int i = op->nrof ? (int) op->nrof * op->weight : op->weight + op->carrying;
-
-    if (op->weight < 0) {
-        return "      ";
-    }
-
-    if (i % 1000) {
-        snprintf(buf, sizeof(buf), "%6.1f", (float) i / 1000.0f);
+    uint32_t weight = MAX(1, op->nrof) * op->weight + op->carrying;
+    if (weight % 1000) {
+        snprintf(VS(buf), "%6.1f", weight / 1000.0);
     } else {
-        snprintf(buf, sizeof(buf), "%4d  ", i / 1000);
+        snprintf(VS(buf), "%4d  ", weight / 1000);
     }
 
     return buf;
@@ -247,20 +242,21 @@ char *get_levelnumber(int i)
 }
 
 /**
- * Returns the text representation of the given number
- * in a static buffer. The buffer might be overwritten at the next
- * call.
+ * Returns the text representation of the given number in a static buffer.
  *
- * It is currently only used by the query_name() function.
+ * The buffer might be overwritten with the next call.
+ *
+ * It is currently only used by the query_short_name() function.
  * @param i The number.
- * @return Text representation of the given number. */
+ * @return Text representation of the given number.
+ */
 static char *get_number(int i)
 {
     if (i <= 20) {
         return numbers[i];
     } else {
         static char buf[MAX_BUF];
-        snprintf(buf, sizeof(buf), "%d", i);
+        snprintf(VS(buf), "%d", i);
         return buf;
     }
 }

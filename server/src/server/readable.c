@@ -664,7 +664,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         }
 
         /* Value of artifact. */
-        stringbuffer_append_printf(desc, " item with a value of %s.", cost_string_from_value(tmp->value));
+        stringbuffer_append_printf(desc, " item with a value of %s.", shop_get_cost_string(tmp->value));
 
         if ((ch = describe_item(tmp)) && strlen(ch) > 1) {
             stringbuffer_append_printf(desc, "\nProperties of this artifact include:\n %s", ch);

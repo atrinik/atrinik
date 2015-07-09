@@ -34,7 +34,7 @@
  * have nrof, include the weight it is carrying. */
 #define WEIGHT(op) (!op->nrof || op->type == CONTAINER ? op->weight + op->carrying : op->weight)
 
-#define WEIGHT_NROF(op, nrof) ((nrof ? op->weight * (int32_t) nrof : op->weight) + op->carrying)
+#define WEIGHT_NROF(op, nrof) (MAX(1, nrof) * op->weight + op->carrying)
 
 /**
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags */
@@ -138,7 +138,7 @@ typedef struct obj {
      * is not copied by memcpy(), since the memcpy() doesn't actually
      * copy over the inventory either, so it would create bogus carrying
      * weight in some cases. */
-    int32_t carrying;
+    uint32_t carrying;
 
     /** Type-dependant extra data. */
     void *custom_attrset;
@@ -225,7 +225,7 @@ typedef struct obj {
     uint32_t event_flags;
 
     /** Attributes of the object - the weight */
-    int32_t weight;
+    uint32_t weight;
 
     /**
      * Weight-limit of object - player and container should have this...

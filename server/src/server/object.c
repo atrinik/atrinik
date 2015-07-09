@@ -500,7 +500,7 @@ signed long sum_weight(object *op)
         return 0;
     }
 
-    int32_t sum = 0;
+    uint32_t sum = 0;
 
     for (object *inv = op->inv; inv != NULL; inv = inv->below) {
         if (QUERY_FLAG(inv, FLAG_SYS_OBJECT)) {
@@ -520,7 +520,7 @@ signed long sum_weight(object *op)
          * This allows us to reliably calculate the weight again in
          * add_weight() and sub_weight() without rounding errors. */
         op->damage_round_tag = sum;
-        sum = (int32_t) (sum * op->weapon_speed);
+        sum = sum * op->weapon_speed;
     }
 
     op->carrying = sum;
@@ -532,13 +532,13 @@ signed long sum_weight(object *op)
  * environment(s) is/are carrying.
  * @param op The object
  * @param weight The weight to add */
-void add_weight(object *op, int32_t weight)
+void add_weight(object *op, uint32_t weight)
 {
     while (op != NULL) {
         if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
-            int32_t old_carrying = op->carrying;
+            uint32_t old_carrying = op->carrying;
             op->damage_round_tag += weight;
-            op->carrying = (int32_t) (op->damage_round_tag * op->weapon_speed);
+            op->carrying = op->damage_round_tag * op->weapon_speed;
             weight = op->carrying - old_carrying;
         } else {
             op->carrying += weight;
@@ -557,13 +557,13 @@ void add_weight(object *op, int32_t weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-void sub_weight(object *op, int32_t weight)
+void sub_weight(object *op, uint32_t weight)
 {
     while (op != NULL) {
         if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
-            int32_t old_carrying = op->carrying;
+            uint32_t old_carrying = op->carrying;
             op->damage_round_tag -= weight;
-            op->carrying = (int32_t) (op->damage_round_tag * op->weapon_speed);
+            op->carrying = op->damage_round_tag * op->weapon_speed;
             weight = old_carrying - op->carrying;
         } else {
             op->carrying -= weight;

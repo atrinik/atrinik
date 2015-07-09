@@ -32,45 +32,6 @@
 #include "includes.h"
 
 /**
- * @defgroup MONEYSTRING_xxx Money string modes
- * Modes used for ::_money_block and get_money_from_string().
- *@{*/
-
-/** Invalid string (did not include any valid amount). */
-#define MONEYSTRING_NOTHING 0
-/** Got a valid amount of money from string. */
-#define MONEYSTRING_AMOUNT 1
-/** The string was "all". */
-#define MONEYSTRING_ALL -1
-/*@}*/
-
-/**
- * Used for depositing/withdrawing money from bank, and using string
- * to get information about how much money to deposit/withdraw. */
-typedef struct _money_block {
-    /** One of @ref MONEYSTRING_xxx. */
-    int mode;
-
-    /** Number of amber coins. */
-    int64_t amber;
-
-    /** Number of mithril coins. */
-    int64_t mithril;
-
-    /** Number of jade coins. */
-    int64_t jade;
-
-    /** Number of gold coins. */
-    int64_t gold;
-
-    /** Number of silver coins. */
-    int64_t silver;
-
-    /** Number of copper coins. */
-    int64_t copper;
-} _money_block;
-
-/**
  * @defgroup BANK_xxx Bank return values
  * Meaningful constants of values returned by bank_withdraw() and
  * bank_deposit().

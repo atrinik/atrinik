@@ -1388,11 +1388,11 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     if (op->carrying != op2->carrying) {
-        SAVE_INT(sb, "carrying", op->carrying);
+        SAVE_UINT(sb, "carrying", op->carrying);
     }
 
     if (op->weight != op2->weight) {
-        SAVE_INT(sb, "weight", op->weight);
+        SAVE_UINT(sb, "weight", op->weight);
     }
 
     if (op->state != op2->state) {

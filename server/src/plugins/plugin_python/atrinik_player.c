@@ -866,7 +866,7 @@ static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *self,
         return NULL;
     }
 
-    hooks->insert_coins(self->pl->ob, value);
+    hooks->shop_insert_coins(self->pl->ob, value);
 
     Py_INCREF(Py_None);
     return Py_None;

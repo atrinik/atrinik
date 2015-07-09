@@ -223,8 +223,7 @@ static int apply_func(object *op, object *applier, int aflags)
         }
     }
 
-    if (is_shop && applier->type == PLAYER && !get_payment(applier,
-            applier->inv)) {
+    if (is_shop && applier->type == PLAYER && !shop_pay_items(applier)) {
         i = find_free_spot(applier->arch, NULL, applier->map, applier->x,
                 applier->y, 1, SIZEOFFREE1);
 

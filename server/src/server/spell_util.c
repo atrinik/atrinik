@@ -722,7 +722,7 @@ void explode_object(object *op)
     play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 
     if (op->other_arch == NULL) {
-        LOG(BUG, "op %s without other_arch", query_name(op, NULL));
+        log_error("Object without other_arch: %s", object_get_str(op));
         object_remove(op, 0);
         object_destroy(op);
         return;
@@ -904,7 +904,8 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 
     /* Sanity check */
     if (level <= 0 || level > MAXLEVEL) {
-        LOG(BUG, "object %s has invalid level %d", query_name(caster, NULL), level);
+        log_error("Object %s has invalid level %d", object_get_str(caster),
+                level);
 
         if (level <= 0) {
             level = 1;

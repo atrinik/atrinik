@@ -1512,7 +1512,7 @@ static PyObject *Atrinik_CostString(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    return Py_BuildValue("s", hooks->cost_string_from_value(value));
+    return Py_BuildValue("s", hooks->shop_get_cost_string(value));
 }
 
 /** Documentation for Atrinik_CacheAdd(). */

@@ -366,8 +366,8 @@ static void party_loot_split(object *pl, object *corpse)
                     value_split += value % count;
                 }
 
-                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive %s.", cost_string_from_value(value_split));
-                insert_coins(ol->objlink.ob, value_split);
+                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive %s.", shop_get_cost_string(value_split));
+                shop_insert_coins(ol->objlink.ob, value_split);
 
                 num++;
             }

@@ -71,6 +71,7 @@ set(SOURCES
 	src/server/artifact.c
 	src/server/attack.c
 	src/server/ban.c
+	src/server/bank.c
 	src/server/cache.c
 	src/server/commands.c
 	src/server/connection.c

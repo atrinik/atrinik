@@ -134,32 +134,29 @@ int64_t do_skill(object *op, int dir, const char *params)
 }
 
 /**
- * Calculates amount of experience can be gained for
- * successfull use of a skill.
- * @param who Player/creature that used the skill.
+ * Calculates amount of experience can be gained for successful use of a skill.
+ * @param who Who used the skill. Cannot be NULL, and must be a player.
  * @param op Object that was 'defeated'.
  * @param level Level of the skill. If -1, will get level of who's chosen
  * skill.
- * @return Experience for the skill use. */
+ * @return Experience for the skill use.
+ */
 int64_t calc_skill_exp(object *who, object *op, int level)
 {
+    HARD_ASSERT(who != NULL);
+
+    SOFT_ASSERT_RC(who->type == PLAYER, 0, "Called with non-player: %s, op: %s",
+            object_get_str(who), object_get_str(op));
+
     int who_lvl = level;
-    int64_t op_exp = 0;
-    int op_lvl = 0;
-    float exp_mul, max_mul, tmp;
-
-    /* No exp for non players. */
-    if (!who || who->type != PLAYER) {
-        LOG(DEBUG, "called with who != PLAYER or NULL (%s (%s)- %s)", query_name(who, NULL), !who ? "NULL" : "", query_name(op, NULL));
-        return 0;
-    }
-
-    if (level == -1) {
+    if (who_lvl == -1) {
         /* The related skill level */
         who_lvl = SK_level(who);
     }
 
-    if (!op) {
+    int64_t op_exp;
+    int op_lvl;
+    if (op == NULL) {
         op_lvl = who->map->difficulty < 1 ? 1 : who->map->difficulty;
         op_exp = 0;
     } else {
@@ -168,16 +165,14 @@ int64_t calc_skill_exp(object *who, object *op, int level)
         op_lvl = op->level;
     }
 
-    /* No exp for no level and no exp ;) */
     if (op_lvl < 1 || op_exp < 1) {
         return 0;
     }
 
+    float max_mul;
     if (who_lvl < 2) {
         max_mul = 0.85f;
-    }
-
-    if (who_lvl < 3) {
+    } else if (who_lvl < 3) {
         max_mul = 0.7f;
     } else if (who_lvl < 4) {
         max_mul = 0.6f;
@@ -192,9 +187,10 @@ int64_t calc_skill_exp(object *who, object *op, int level)
     }
 
     /* We first get a global level difference multiplier */
-    exp_mul = calc_level_difference(who_lvl, op_lvl);
+    float exp_mul = calc_level_difference(who_lvl, op_lvl);
     op_exp = (int64_t) ((float) op_exp * lev_exp[op_lvl] * exp_mul);
-    tmp = ((float) (new_levels[who_lvl + 1] - new_levels[who_lvl]) * 0.1f) * max_mul;
+    float tmp = ((float) (new_levels[who_lvl + 1] - new_levels[who_lvl]) *
+            0.1f) * max_mul;
 
     if ((float) op_exp > tmp) {
         op_exp = (int64_t) tmp;

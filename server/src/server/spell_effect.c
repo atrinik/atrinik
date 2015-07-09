@@ -197,11 +197,8 @@ int cast_wor(object *op, object *caster)
     }
 
     dummy = arch_get("force");
-
-    if (dummy == NULL) {
-        LOG(BUG, "get_archetype failed (%s - %s)!", query_name(op, NULL), query_name(caster, NULL));
-        return 0;
-    }
+    SOFT_ASSERT_RC(dummy != NULL, 0, "Failed to find 'force' archetype, "
+            "op: %s, caster: %s", object_get_str(op), object_get_str(caster));
 
     /* Better insert the spell in the player */
     if (op->owner) {
@@ -366,8 +363,9 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     object *temp;
     int heal = 0, success = 0;
 
-    if (!op || !target) {
-        LOG(BUG, "target or caster NULL (op: %s target: %s)", query_name(op, NULL), query_name(target, NULL));
+    if (op == NULL || target == NULL) {
+        log_error("Target or caster is NULL, op: %s, target: %s",
+                object_get_str(op), object_get_str(target));
         return 0;
     }
 
@@ -566,8 +564,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
         op->speed_left = -FABS(op->speed) * 3;
     }
 
-    if (insert_spell_effect(spells[spell_type].archname, target->map, target->x, target->y)) {
-        LOG(DEBUG, "failed: spell:%d, obj:%s target:%s", spell_type, query_name(op, NULL), query_name(target, NULL));
+    if (insert_spell_effect(spells[spell_type].archname, target->map,
+            target->x, target->y)) {
+        log_error("Failed to insert spell effect, spell: %d, op: %s, "
+                "target: %s", spell_type, object_get_str(op),
+                object_get_str(target));
     }
 
     return success;
@@ -633,8 +634,11 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
             }
         }
 
-        if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y)) {
-            LOG(DEBUG, "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
+        if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map,
+                target->x, target->y)) {
+            log_error("Failed to insert spell effect, spell: %d, op: %s, "
+                    "caster: %s, target: %s", spell_type, object_get_str(op),
+                    object_get_str(caster), object_get_str(target));
         }
 
         break;
@@ -1099,7 +1103,7 @@ int cast_transform_wealth(object *op)
     /* We remove the money. */
     object_remove(marked, 0);
     /* Now give the player the new money. */
-    insert_coins(op, val);
-    draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", query_name(marked, op), cost_string_from_value(val));
+    shop_insert_coins(op, val);
+    draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", query_name(marked, op), shop_get_cost_string(val));
     return 1;
 }

@@ -76,14 +76,14 @@ static fields_struct fields[] = {
             "The object's story.; str or None"},
     {"artifact", FIELDTYPE_SHSTR, offsetof(object, artifact), 0, 0,
             "Artifact name.; str or None"},
-    {"weight", FIELDTYPE_INT32, offsetof(object, weight), 0, 0,
+    {"weight", FIELDTYPE_UINT32, offsetof(object, weight), 0, 0,
             "Weight of the object in grams.; int"},
     {"count", FIELDTYPE_UINT32, offsetof(object, count), FIELDFLAG_READONLY, 0,
             "Object's unique identifier.; int (readonly)"},
 
     {"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0, 0,
             "Maximum weight the object's inventory can hold, in grams.; int"},
-    {"carrying", FIELDTYPE_INT32, offsetof(object, carrying), 0, 0,
+    {"carrying", FIELDTYPE_UINT32, offsetof(object, carrying), 0, 0,
             "Weight the object is currently carrying in its inventory, in "
             "grams.; int"},
     {"path_attuned", FIELDTYPE_UINT32, offsetof(object, path_attuned), 0, 0,
@@ -1340,7 +1340,7 @@ static PyObject *Atrinik_Object_GetCost(Atrinik_Object *self, PyObject *args)
 
     OBJEXISTCHECK(self);
 
-    return Py_BuildValue("L", hooks->query_cost(self->obj, flag));
+    return Py_BuildValue("L", hooks->shop_get_cost(self->obj, flag));
 }
 
 /** Documentation for Atrinik_Object_GetMoney(). */
@@ -1359,7 +1359,7 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *self)
 {
     OBJEXISTCHECK(self);
 
-    return Py_BuildValue("L", hooks->query_money(self->obj));
+    return Py_BuildValue("L", hooks->shop_get_money(self->obj));
 }
 
 /** Documentation for Atrinik_Object_PayAmount(). */
@@ -1385,7 +1385,7 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *self, PyObject *args)
 
     OBJEXISTCHECK(self);
 
-    return Py_BuildBoolean(hooks->pay_for_amount(value, self->obj));
+    return Py_BuildBoolean(hooks->shop_pay(self->obj, value));
 }
 
 /** Documentation for Atrinik_Object_Clone(). */

@@ -863,17 +863,16 @@ void living_update_player(object *op)
         op->speed = 0.01f;
     } else if (!pl->tgm) {
         /* Max kg we can carry */
-        double f = ((double) weight_limit[op->stats.Str] / 100.0f) *
-        ENCUMBRANCE_LIMIT;
+        double f = (weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
 
-        if (((int32_t) f) <= op->carrying) {
-            if (op->carrying >= (int32_t) weight_limit[op->stats.Str]) {
+        if (op->carrying > f) {
+            if (op->carrying >= weight_limit[op->stats.Str]) {
                 op->speed = 0.01f;
             } else {
                 /* Total encumbrance weight part */
-                f = ((double) weight_limit[op->stats.Str] - f);
+                f = (weight_limit[op->stats.Str] - f);
                 /* Value from 0.0 to 1.0 encumbrance */
-                f = ((double) weight_limit[op->stats.Str] - op->carrying) / f;
+                f = (weight_limit[op->stats.Str] - op->carrying) / f;
 
                 if (f < 0.0f) {
                     f = 0.0f;
