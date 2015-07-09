@@ -677,7 +677,8 @@ void construction_do(object *op, int dir)
         break;
 
     default:
-        LOG(BUG, "Skill item %s has invalid subtype.", query_name(skill_item, NULL));
+        LOG(ERROR, "Skill item %s has invalid subtype.",
+                object_get_str(skill_item));
         draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
         break;
     }
