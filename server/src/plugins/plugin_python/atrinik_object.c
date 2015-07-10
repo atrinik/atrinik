@@ -1172,7 +1172,9 @@ static const char doc_Atrinik_Object_Remove[] =
 "then be inserted or teleported somewhere else.\n\n"
 "Be careful when removing one of the objects involved in the event activation "
 "(such as the activator/event/etc). It is recommended you use :meth:"
-"`Atrinik.SetReturnValue(1)` or similar before the script exits if doing so.";
+"`Atrinik.SetReturnValue(1)` or similar before the script exits if doing "
+"so.\n\n"
+":raises Atrinik.AtrinikError: If the object is already removed.";
 
 /**
  * Implements Atrinik.Object.Object.Remove() Python method.
@@ -1181,6 +1183,11 @@ static const char doc_Atrinik_Object_Remove[] =
 static PyObject *Atrinik_Object_Remove(Atrinik_Object *self)
 {
     OBJEXISTCHECK(self);
+
+    if (QUERY_FLAG(self->obj, FLAG_REMOVED)) {
+        RAISE("Object has been removed already.");
+    }
+
     hooks->object_remove(self->obj, 0);
 
     Py_INCREF(Py_None);
