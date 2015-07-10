@@ -211,8 +211,6 @@ void esrv_update_stats(player *pl)
     AddIf(pl->last_gen_hp, pl->gen_client_hp, CS_STAT_REG_HP, uint16);
     AddIf(pl->last_gen_sp, pl->gen_client_sp, CS_STAT_REG_MANA, uint16);
     AddIfFloat(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
-
-
     AddIf(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
     AddIfDouble(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
     AddIfDouble(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS,
