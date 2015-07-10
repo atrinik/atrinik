@@ -172,12 +172,13 @@ void check_main(int argc, char **argv)
     check_commands_object();
 
     /* unit/server */
-    check_server_ban();
     check_server_arch();
     check_server_attack();
+    check_server_ban();
+    check_server_cache();
     check_server_object();
     check_server_re_cmp();
-    check_server_cache();
+    check_server_shop();
 
     /* unit/toolkit */
     check_server_memory();
