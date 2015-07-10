@@ -86,7 +86,6 @@ if (CHECK_LIBRARY)
         src/tests/unit/server/shstr.c
         src/tests/unit/server/string.c
         src/tests/unit/server/stringbuffer.c
-        src/tests/unit/server/utils.c
         src/tests/unit/types/light_apply.c
         src/tests/unit/types/sound_ambient.c)
 endif ()

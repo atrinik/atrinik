@@ -35,8 +35,6 @@ extern void check_server_shstr(void);
 extern void check_server_string(void);
 /* src/tests/unit/server/stringbuffer.c */
 extern void check_server_stringbuffer(void);
-/* src/tests/unit/server/utils.c */
-extern void check_server_utils(void);
 /* src/tests/unit/types/light_apply.c */
 extern void check_types_light_apply(void);
 /* src/tests/unit/types/sound_ambient.c */

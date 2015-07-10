@@ -184,7 +184,6 @@ void check_main(int argc, char **argv)
     check_server_shstr();
     check_server_string();
     check_server_stringbuffer();
-    check_server_utils();
 
     /* unit/types */
     check_types_light_apply();
