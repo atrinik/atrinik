@@ -207,7 +207,7 @@ static void bank_insert_coins(object *op, archetype_t *at, uint32_t nrof)
  * @param op Where to look for the player info object.
  * @return The player info object if found, NULL otherwise.
  */
-static object *bank_find_info(object *op)
+object *bank_find_info(object *op)
 {
     FOR_INV_PREPARE(op, tmp) {
         if (tmp->arch->name == shstr_cons.player_info &&

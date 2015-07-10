@@ -568,6 +568,7 @@ extern bool shop_pay_item(object *op, object *item);
 extern bool shop_pay_items(object *op);
 extern void shop_sell_item(object *op, object *item);
 extern int64_t bank_get_balance(object *op);
+extern object *bank_find_info(object *op);
 extern int bank_deposit(object *op, const char *text, int64_t *value);
 extern int bank_withdraw(object *op, const char *text, int64_t *value);
 extern void shop_insert_coins(object *op, int64_t value);

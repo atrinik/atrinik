@@ -252,42 +252,39 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
         coins_objects[i] = NULL;
     }
 
-    object *bank_object = NULL;
-
     /* Remove all the money objects from the container, and store them in
      * the coin_objs pointers array. */
     FOR_INV_PREPARE(obj, tmp) {
-        if (tmp->type == MONEY) {
-            bool found = false;
-            for (int i = 0; i < NUM_COINS; i++) {
-                if (strcmp(coins[NUM_COINS - 1 - i], tmp->arch->name) != 0 ||
-                        tmp->value != tmp->arch->clone.value) {
-                    continue;
-                }
+        if (tmp->type != MONEY) {
+            continue;
+        }
 
-                /* This should not happen, but if it does, just merge them. */
-                if (coins_objects[i] != NULL) {
-                    log_error("Two money entries of %s in object: %s",
-                            coins[NUM_COINS - 1 - i],
-                            object_get_str(obj));
-                    coins_objects[i]->nrof += tmp->nrof;
-                    object_remove(tmp, 0);
-                    object_destroy(tmp);
-                } else {
-                    object_remove(tmp, 0);
-                    coins_objects[i] = tmp;
-                }
-
-                found = true;
-                break;
+        bool found = false;
+        for (int i = 0; i < NUM_COINS; i++) {
+            if (strcmp(coins[NUM_COINS - 1 - i], tmp->arch->name) != 0 ||
+                    tmp->value != tmp->arch->clone.value) {
+                continue;
             }
 
-            if (!found) {
-                log_error("Did not find string match for %s", tmp->arch->name);
+            /* This should not happen, but if it does, just merge them. */
+            if (coins_objects[i] != NULL) {
+                log_error("Two money entries of %s in object: %s",
+                        coins[NUM_COINS - 1 - i],
+                        object_get_str(obj));
+                coins_objects[i]->nrof += tmp->nrof;
+                object_remove(tmp, 0);
+                object_destroy(tmp);
+            } else {
+                object_remove(tmp, 0);
+                coins_objects[i] = tmp;
             }
-        } else if (tmp->arch->name == shstr_cons.player_info &&
-                tmp->name == shstr_cons.BANK_GENERAL) {
-            bank_object = tmp;
+
+            found = true;
+            break;
+        }
+
+        if (!found) {
+            log_error("Did not find coin match for %s", tmp->arch->name);
         }
     } FOR_INV_FINISH();
 
@@ -332,14 +329,6 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
             remain += num_coins * coins_objects[count]->value;
             count--;
         }
-    }
-
-    /* If there's still some remain, that means we could try to pay from
-     * the bank. */
-    if (bank_object != NULL && bank_object->value > 0 && remain > 0 &&
-            bank_object->value >= remain) {
-        bank_object->value -= remain;
-        remain = 0;
     }
 
     for (int i = 0; i < NUM_COINS; i++) {
@@ -398,6 +387,17 @@ bool shop_pay(object *op, int64_t to_pay)
     }
 
     to_pay = shop_pay_amount(op, to_pay);
+    if (to_pay != 0) {
+        object *bank = bank_find_info(op);
+        if (bank != NULL) {
+            SOFT_ASSERT_RC(bank->value >= to_pay, true, "Bank object value is "
+                    "%" PRId64 ", but object needs %" PRId64 " to finish "
+                    "payment, op: %s", bank->value, to_pay, object_get_str(op));
+            bank->value -= to_pay;
+            to_pay = 0;
+        }
+    }
+    
     SOFT_ASSERT_RC(to_pay == 0, true, "Still %" PRId64 " left to pay, op: %s",
             to_pay, object_get_str(op));
 
