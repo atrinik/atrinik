@@ -175,9 +175,9 @@ static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof)
                 object_remove(tmp, 0);
                 object_destroy(tmp);
             } else {
-                nrof = 0;
                 tmp->nrof -= nrof;
                 amount += nrof * tmp->value;
+                nrof = 0;
             }
         } else if (tmp->type == CONTAINER && (tmp->race == NULL ||
                 strstr(tmp->race, "gold") != NULL)) {
