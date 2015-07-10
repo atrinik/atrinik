@@ -622,6 +622,75 @@ class ObjectTestCase(unittest.TestCase):
                                               type=Atrinik.Type.WEAPON),
                          expected)
 
+    def test_Remove(self):
+        self.assertRaises(TypeError, self.obj.Remove, 1, 2)
+        self.assertRaises(TypeError, self.obj.Remove, x=1)
+
+        self.assertRaises(Atrinik.AtrinikError, self.obj.Remove)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-remove")
+        m.Insert(self.obj, 0, 0)
+        self.obj.Remove()
+        self.assertFalse(m.Objects(0, 0))
+        self.assertEqual(len(m.Objects(0, 0)), 0)
+
+        self.obj.InsertInto(activator)
+        self.assertEqual(activator.inv[0], self.obj)
+        self.obj.Remove()
+        self.assertNotEqual(activator.inv[0], self.obj)
+
+    def test_Destroy(self):
+        self.assertRaises(TypeError, self.obj.Destroy, 1, 2)
+        self.assertRaises(TypeError, self.obj.Destroy, x=1)
+
+        obj = Atrinik.CreateObject("sword")
+        obj.Destroy()
+        self.assertRaises(ReferenceError, obj.Destroy)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-remove")
+        obj = m.CreateObject("sword", 0, 0)
+        obj.Destroy()
+        self.assertRaises(ReferenceError, obj.Destroy)
+        self.assertFalse(m.Objects(0, 0))
+        self.assertEqual(len(m.Objects(0, 0)), 0)
+
+        orig = activator.inv[0]
+        obj = activator.CreateObject("sword")
+        self.assertEqual(activator.inv[0], obj)
+        obj.Destroy()
+        self.assertRaises(ReferenceError, obj.Destroy)
+        self.assertEqual(activator.inv[0], orig)
+
+    def test_SetPosition(self):
+        self.assertRaises(TypeError, self.obj.SetPosition, 1, "2")
+        self.assertRaises(TypeError, self.obj.SetPosition, x=1)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-set-position")
+        m.Insert(self.obj, 0, 0)
+        self.assertTrue(m.Objects(0, 0))
+        self.assertEqual(len(m.Objects(0, 0)), 1)
+        self.assertEqual(m.Objects(0, 0)[0], self.obj)
+        self.obj.SetPosition(0, 0)
+        self.assertTrue(m.Objects(0, 0))
+        self.assertEqual(len(m.Objects(0, 0)), 1)
+        self.assertEqual(m.Objects(0, 0)[0], self.obj)
+        self.obj.SetPosition(1, 0)
+        self.assertFalse(m.Objects(0, 0))
+        self.assertEqual(len(m.Objects(0, 0)), 0)
+        self.assertTrue(m.Objects(1, 0))
+        self.assertEqual(len(m.Objects(1, 0)), 1)
+        self.assertEqual(m.Objects(1, 0)[0], self.obj)
+        self.obj.SetPosition(4, 4)
+        self.assertFalse(m.Objects(1, 0))
+        self.assertEqual(len(m.Objects(1, 0)), 0)
+        self.assertTrue(m.Objects(4, 4))
+        self.assertEqual(len(m.Objects(4, 4)), 1)
+        self.assertEqual(m.Objects(4, 4)[0], self.obj)
+        self.obj.Remove()
+        self.assertFalse(m.Objects(4, 4))
+        self.assertEqual(len(m.Objects(4, 4)), 0)
+
+
 
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
