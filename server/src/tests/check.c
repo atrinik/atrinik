@@ -174,6 +174,7 @@ void check_main(int argc, char **argv)
     check_server_arch();
     check_server_attack();
     check_server_ban();
+    check_server_bank();
     check_server_cache();
     check_server_object();
     check_server_re_cmp();

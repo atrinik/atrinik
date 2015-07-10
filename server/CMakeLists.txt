@@ -77,6 +77,7 @@ if (CHECK_LIBRARY)
         src/tests/unit/server/arch.c
         src/tests/unit/server/attack.c
         src/tests/unit/server/ban.c
+        src/tests/unit/server/bank.c
         src/tests/unit/server/cache.c
         src/tests/unit/server/object.c
         src/tests/unit/server/re_cmp.c
