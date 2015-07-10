@@ -106,22 +106,22 @@ static void bank_parse_string(const char *str, bank_info_t *info)
             continue;
         }
 
-        if (strcasecmp(word, "amber") == 0) {
+        if (string_startswith("amber", word)) {
             info->mode = BANK_STRING_AMOUNT;
             info->amber += value;
-        } else if (strcasecmp(word, "mithril") == 0) {
+        } else if (string_startswith("mithril", word)) {
             info->mode = BANK_STRING_AMOUNT;
             info->mithril += value;
-        } else if (strcasecmp(word, "jade") == 0) {
+        } else if (string_startswith("jade", word)) {
             info->mode = BANK_STRING_AMOUNT;
             info->jade += value;
-        } else if (strcasecmp(word, "gold") == 0) {
+        } else if (string_startswith("gold", word)) {
             info->mode = BANK_STRING_AMOUNT;
             info->gold += value;
-        } else if (strcasecmp(word, "silver") == 0) {
+        } else if (string_startswith("silver", word)) {
             info->mode = BANK_STRING_AMOUNT;
             info->silver += value;
-        } else if (strcasecmp(word, "copper") == 0) {
+        } else if (string_startswith("copper", word)) {
             info->mode = BANK_STRING_AMOUNT;
             info->copper += value;
         }
