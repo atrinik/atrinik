@@ -78,14 +78,14 @@ if (CHECK_LIBRARY)
         src/tests/unit/server/attack.c
         src/tests/unit/server/ban.c
         src/tests/unit/server/cache.c
-        src/tests/unit/server/memory.c
         src/tests/unit/server/object.c
-        src/tests/unit/server/packet.c
-        src/tests/unit/server/pbkdf2.c
         src/tests/unit/server/re_cmp.c
-        src/tests/unit/server/shstr.c
-        src/tests/unit/server/string.c
-        src/tests/unit/server/stringbuffer.c
+        src/tests/unit/toolkit/memory.c
+        src/tests/unit/toolkit/packet.c
+        src/tests/unit/toolkit/pbkdf2.c
+        src/tests/unit/toolkit/shstr.c
+        src/tests/unit/toolkit/string.c
+        src/tests/unit/toolkit/stringbuffer.c
         src/tests/unit/types/light_apply.c
         src/tests/unit/types/sound_ambient.c)
 endif ()
