@@ -199,7 +199,6 @@ START_TEST(test_bank_withdraw)
     ck_assert_uint_eq(bank_get_balance(pl), in_bank);
     ck_assert_uint_eq(shop_get_money(pl), total);
 
-    in_bank = total;
     ck_assert_int_eq(bank_withdraw(pl, "5983 copper 83 silver 500 gold",
             &value), BANK_SUCCESS);
     withdrawn = 5014283;
