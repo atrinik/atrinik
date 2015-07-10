@@ -397,7 +397,7 @@ bool shop_pay(object *op, int64_t to_pay)
             to_pay = 0;
         }
     }
-    
+
     SOFT_ASSERT_RC(to_pay == 0, true, "Still %" PRId64 " left to pay, op: %s",
             to_pay, object_get_str(op));
 
@@ -537,17 +537,19 @@ void shop_insert_coins(object *op, int64_t value)
             double weight = at->clone.weight * tmp->weapon_speed;
             if (tmp->weight_limit != 0 && tmp->carrying + weight >
                     tmp->weight_limit) {
-                if (weight > 0.0 && tmp->weight_limit != 0 &&
-                        (tmp->weight_limit - tmp->carrying) / weight < nrof) {
-                    nrof = (tmp->weight_limit - tmp->carrying) / weight;
-                }
-
-                object *coin = get_object();
-                copy_object(&at->clone, coin, 0);
-                coin->nrof = nrof;
-                value -= coin->nrof * coin->value;
-                insert_ob_in_ob(coin, tmp);
+                continue;
             }
+
+            if (weight > 0.0 && tmp->weight_limit != 0 &&
+                    (tmp->weight_limit - tmp->carrying) / weight < nrof) {
+                nrof = (tmp->weight_limit - tmp->carrying) / weight;
+            }
+
+            object *coin = get_object();
+            copy_object(&at->clone, coin, 0);
+            coin->nrof = nrof;
+            value -= coin->nrof * coin->value;
+            insert_ob_in_ob(coin, tmp);
         } FOR_INV_FINISH();
 
         if (value / at->clone.value > 0) {
