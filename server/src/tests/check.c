@@ -75,7 +75,6 @@ void check_test_setup(void)
     if (fork_st != CK_FORK) {
         return;
     }
-
 }
 
 /*
