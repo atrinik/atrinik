@@ -475,6 +475,21 @@
 #define DL_SEARCH_SCALAR LL_SEARCH_SCALAR
 #define DL_SEARCH LL_SEARCH
 
+#define DL_PREPEND_ELEM(head, el, add)                                                         \
+    do {                                                                                           \
+        assert(head != NULL);                                                                         \
+        assert(el != NULL);                                                                           \
+        assert(add != NULL);                                                                          \
+        (add)->next = (el);                                                                           \
+        (add)->prev = (el)->prev;                                                                     \
+        (el)->prev = (add);                                                                           \
+        if ((head) == (el)) {                                                                         \
+            (head) = (add);                                                                              \
+        } else {                                                                                      \
+            (add)->prev->next = (add);                                                                   \
+        }                                                                                             \
+    } while (0)
+
 /******************************************************************************
  * circular doubly linked list macros                                         *
  *****************************************************************************/

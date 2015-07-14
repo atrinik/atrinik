@@ -77,6 +77,16 @@ StringBuffer *stringbuffer_new(void)
 }
 
 /**
+ * Frees the specified string buffer instance and all data associated with it.
+ * @param sb The string buffer instance to free.
+ */
+void stringbuffer_free(StringBuffer *sb)
+{
+    efree(sb->buf);
+    efree(sb);
+}
+
+/**
  * Deallocate the string buffer instance and return the string.
  *
  * The passed string buffer must not be accessed afterwards.
@@ -249,12 +259,28 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 /**
  * Return the current length of the buffer.
  * @param sb The string buffer to check.
- * @return Current length of 'sb'. */
+ * @return Current length of 'sb'.
+ */
 size_t stringbuffer_length(StringBuffer *sb)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
     return sb->pos;
+}
+
+/**
+ * Seeks to the specified position in the buffer.
+ * @param sb The string buffer.
+ * @param pos Position.
+ */
+void stringbuffer_seek(StringBuffer *sb, const size_t pos)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(sb != NULL);
+
+    SOFT_ASSERT(pos < sb->size, "Incorrect length argument: %" PRIuMAX,
+            (uintmax_t) pos);
+    sb->pos = pos;
 }
 
 /**
