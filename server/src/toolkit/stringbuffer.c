@@ -77,6 +77,16 @@ StringBuffer *stringbuffer_new(void)
 }
 
 /**
+ * Frees the specified string buffer instance and all data associated with it.
+ * @param sb The string buffer instance to free.
+ */
+void stringbuffer_free(StringBuffer *sb)
+{
+    efree(sb->buf);
+    efree(sb);
+}
+
+/**
  * Deallocate the string buffer instance and return the string.
  *
  * The passed string buffer must not be accessed afterwards.
