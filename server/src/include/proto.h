@@ -272,7 +272,6 @@ extern void init_globals(void);
 extern void write_todclock(void);
 extern void init(int argc, char **argv);
 /* src/server/item.c */
-extern char *describe_protections(object *op, int newline);
 extern StringBuffer *object_get_material(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_material_s(const object *op, const object *caller);
 extern StringBuffer *object_get_title(const object *op, const object *caller, StringBuffer *sb);
@@ -297,12 +296,6 @@ extern StringBuffer *object_get_description(const object *op, const object *call
 extern char *object_get_description_s(const object *op, const object *caller);
 extern StringBuffer *object_get_name_description(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_name_description_s(const object *op, const object *caller);
-extern char *query_weight(object *op);
-extern char *query_short_name(object *op, object *caller);
-extern char *query_name(object *op, object *caller);
-extern char *query_material_name(object *op);
-extern char *query_base_name(object *op, object *caller);
-extern char *describe_item(object *op);
 extern bool need_identify(const object *op);
 extern void identify(object *op);
 extern void set_trapped_flag(object *op);
