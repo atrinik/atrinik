@@ -35,6 +35,8 @@
 /** Number of materials real */
 #define NROFMATERIALS_REAL 64
 
+#define NUM_MATERIALS_REAL NROFMATERIALS * NROFMATERIALS_REAL + 1
+
 /**
  * @defgroup material_types Material types
  * Material types.

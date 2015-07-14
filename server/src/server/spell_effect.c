@@ -787,9 +787,12 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
         identify(tmp);
 
         if (op->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, op, "You have %s.", long_desc(tmp, NULL));
+            char *name = stringbuffer_finish(object_get_name_description(tmp,
+                    op, NULL));
+            draw_info_format(COLOR_WHITE, op, "You have %s.", name);
+            efree(name);
 
-            if (tmp->msg) {
+            if (tmp->msg != NULL) {
                 draw_info(COLOR_WHITE, op, "The item has a story:");
                 draw_info(COLOR_WHITE, op, tmp->msg);
             }

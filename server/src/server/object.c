@@ -84,8 +84,6 @@ materialtype materials[NROFMATERIALS] = {
     {"ice"}
 };
 
-#define NUM_MATERIALS_REAL NROFMATERIALS * NROFMATERIALS_REAL + 1
-
 /**
  * Real material types. This array is initialized by
  * init_materials(). */

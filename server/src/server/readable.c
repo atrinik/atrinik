@@ -547,7 +547,9 @@ object *get_random_mon(void)
  * @return 'buf'. */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
-    snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, describe_item(mon));
+    char *desc = stringbuffer_finish(object_get_description(mon, NULL, NULL));
+    snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, desc);
+    efree(desc);
     return buf;
 }
 
@@ -593,7 +595,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
     artifact_t *art;
     int chance, i, type, idx;
     int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
-    char *final, *ch;
+    char *final;
     object *tmp = NULL;
     StringBuffer *desc;
 
@@ -666,9 +668,13 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         /* Value of artifact. */
         stringbuffer_append_printf(desc, " item with a value of %s.", shop_get_cost_string(tmp->value));
 
-        if ((ch = describe_item(tmp)) && strlen(ch) > 1) {
-            stringbuffer_append_printf(desc, "\nProperties of this artifact include:\n %s", ch);
+        StringBuffer *sb = object_get_description(tmp, NULL, NULL);
+        if (stringbuffer_length(sb) > 1) {
+            stringbuffer_append_string(desc,
+                    "\nProperties of this artifact include:\n");
+            stringbuffer_append_stringbuffer(desc, sb);
         }
+        stringbuffer_free(sb);
 
         object_destroy(tmp);
         final = stringbuffer_finish(desc);

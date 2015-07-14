@@ -280,7 +280,7 @@ void change_attr_value(living *stats, int attr, int8_t value)
  * @param attr Attribute to get.
  * @return Specified attribute, 0 if not found.
  * @see set_attr_value(). */
-int8_t get_attr_value(living *stats, int attr)
+int8_t get_attr_value(const living *stats, int attr)
 {
     switch (attr) {
     case STR:

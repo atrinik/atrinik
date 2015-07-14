@@ -1221,77 +1221,6 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 }
 
 /**
- * Long description of an object.
- * @param tmp Object to get description of.
- * @param caller Caller.
- * @return The returned description. */
-char *long_desc(object *tmp, object *caller)
-{
-    static char buf[VERY_BIG_BUF];
-    char *cp;
-
-    if (tmp == NULL) {
-        return "";
-    }
-
-    buf[0] = '\0';
-
-    switch (tmp->type) {
-    case RING:
-    case SKILL:
-    case WEAPON:
-    case ARMOUR:
-    case BRACERS:
-    case HELMET:
-    case PANTS:
-    case SHIELD:
-    case BOOTS:
-    case GLOVES:
-    case AMULET:
-    case GIRDLE:
-    case POTION:
-    case BOW:
-    case ARROW:
-    case CLOAK:
-    case FOOD:
-    case DRINK:
-    case WAND:
-    case ROD:
-    case FLESH:
-    case BOOK:
-    case CONTAINER:
-
-        if (*(cp = describe_item(tmp)) != '\0') {
-            size_t len;
-
-            strncat(buf, query_name(tmp, caller), VERY_BIG_BUF - 1);
-
-            buf[VERY_BIG_BUF - 1] = '\0';
-            len = strlen(buf);
-
-            if (len < VERY_BIG_BUF - 5 && ((tmp->type != AMULET && tmp->type != RING) || tmp->title)) {
-                /* Since we know the length, we save a few CPU cycles by
-                 * using
-                 * it instead of calling strcat */
-                strcpy(buf + len, " ");
-                len++;
-                strncpy(buf + len, cp, VERY_BIG_BUF - len - 1);
-                buf[VERY_BIG_BUF - 1] = '\0';
-            }
-        }
-
-        break;
-    }
-
-    if (buf[0] == '\0') {
-        strncat(buf, query_name(tmp, caller), VERY_BIG_BUF - 1);
-        buf[VERY_BIG_BUF - 1] = '\0';
-    }
-
-    return buf;
-}
-
-/**
  * Player examines some object.
  * @param op Player.
  * @param tmp Object to examine. */
@@ -1303,14 +1232,24 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
         return;
     }
 
-    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "That is %s%s", long_desc(tmp, op), !QUERY_FLAG(tmp, FLAG_IDENTIFIED) && need_identify(tmp) ? " (unidentified)" : "");
+    tmp = HEAD(tmp);
+    char *name = stringbuffer_finish(object_get_name_description(tmp, op,
+            NULL));
+    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+            "That is %s%s", name, !QUERY_FLAG(tmp, FLAG_IDENTIFIED) &&
+            need_identify(tmp) ? " (unidentified)" : "");
+    efree(name);
 
-    if (tmp->custom_name) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "You name it %s.", tmp->custom_name);
+    if (tmp->custom_name != NULL) {
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "You name it %s.", tmp->custom_name);
     }
 
     if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER) {
-        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
+        char *desc = stringbuffer_finish(object_get_description(tmp, op, NULL));
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
+                "%s.", desc);
+        efree(desc);
         examine_living(op, tmp, sb_capture);
     } else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
         /* We don't double use the item_xxx arch commands, so they are always valid */
