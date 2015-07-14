@@ -222,7 +222,7 @@ StringBuffer *object_get_title(const object *op, const object *caller,
             if (op->title == NULL) {
                 stringbuffer_append_string(sb, " ");
                 size_t len = stringbuffer_length(sb);
-                sb = object_get_description(op, caller, NULL);
+                sb = object_get_description(op, caller, sb);
                 if (stringbuffer_length(sb) == len) {
                     stringbuffer_seek(sb, len - 1);
                 }
