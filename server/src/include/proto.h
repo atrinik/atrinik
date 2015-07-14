@@ -1192,6 +1192,7 @@ extern void socket_ssl_destroy(SSL *ssl);
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
 extern StringBuffer *stringbuffer_new(void);
+extern void stringbuffer_free(StringBuffer *sb);
 extern char *stringbuffer_finish(StringBuffer *sb);
 extern const char *stringbuffer_finish_shared(StringBuffer *sb);
 extern void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len);
@@ -1200,6 +1201,7 @@ extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 extern void stringbuffer_append_char(StringBuffer *sb, const char c);
 extern size_t stringbuffer_length(StringBuffer *sb);
+extern void stringbuffer_seek(StringBuffer *sb, const size_t pos);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 extern char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end);
