@@ -665,7 +665,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 
     while ((i = load_object(fp, op, mybuffer, LO_REPEAT, mapflags))) {
         if (i == LL_MORE) {
-            LOG(DEBUG, "object %s - its a tail!", query_short_name(op, NULL));
+            LOG(ERROR, "Encountered tail object: %s", object_get_str(op));
             continue;
         }
 
@@ -673,7 +673,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
          * got an invalid object. Don't do anything with it - the game
          * will not be able to do anything with it either. */
         if (op->arch == NULL) {
-            LOG(DEBUG, "object %s (%d)- invalid archetype. (pos:%d,%d)", query_short_name(op, NULL), op->type, op->x, op->y);
+            LOG(ERROR, "Object without an archetype: %s", object_get_str(op));
             continue;
         }
 
