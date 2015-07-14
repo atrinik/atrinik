@@ -167,7 +167,7 @@ void process_events(mapstruct *map)
 
         /* Now process op */
         if (OBJECT_FREE(op)) {
-            LOG(BUG, "Free object on active list");
+            LOG(ERROR, "Free object on active list");
             op->speed = 0;
             update_ob_speed(op);
             continue;
@@ -180,13 +180,15 @@ void process_events(mapstruct *map)
         }
 
         if (DBL_EQUAL(op->speed, 0.0)) {
-            LOG(BUG, "Object %s (%s, type:%d count:%d) has no speed, but is on active list", op->arch->name, query_name(op, NULL), op->type, op->count);
+            LOG(ERROR, "Object has no speed, but is on active list: %s",
+                    object_get_str(op));
             update_ob_speed(op);
             continue;
         }
 
-        if (op->map == NULL && op->env == NULL && op->name && op->type != MAP && map == NULL) {
-            LOG(BUG, "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
+        if (op->map == NULL && op->env == NULL) {
+            LOG(ERROR, "Object without map or inventory is on active list: %s",
+                    object_get_str(op));
             op->speed = 0;
             update_ob_speed(op);
             continue;

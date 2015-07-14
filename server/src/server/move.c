@@ -133,15 +133,17 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
  */
 int move_ob(object *op, int dir, object *originator)
 {
-    mapstruct *m;
-    int xt, yt, flags;
+    HARD_ASSERT(op != NULL);
+
+    SOFT_ASSERT_RC(!QUERY_FLAG(op, FLAG_REMOVED), 0, "Trying to move a removed "
+            "object: %s", object_get_str(op));
 
     if (op == NULL) {
         return 0;
     }
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        LOG(BUG, "monster %s has been removed - will not process further", query_name(op, NULL));
+        LOG(ERROR, "Trying to move removed object: %s", object_get_str(op));
         return 0;
     }
 
@@ -155,16 +157,16 @@ int move_ob(object *op, int dir, object *originator)
     op->anim_flags &= ~ANIM_FLAG_STOP_MOVING;
     op->direction = dir;
 
-    xt = op->x + freearr_x[dir];
-    yt = op->y + freearr_y[dir];
+    int xt = op->x + freearr_x[dir];
+    int yt = op->y + freearr_y[dir];
+    mapstruct *m = get_map_from_coord(op->map, &xt, &yt);
 
-    /* we have here a get_map_from_coord - we can skip all */
-    if (!(m = get_map_from_coord(op->map, &xt, &yt))) {
+    if (m == NULL) {
         return 0;
     }
 
     if (op->type != PLAYER || !CONTR(op)->tcl) {
-        flags = object_blocked(op, m, xt, yt);
+        int flags = object_blocked(op, m, xt, yt);
 
         if (flags != 0) {
             if (flags & P_DOOR_CLOSED) {

@@ -446,17 +446,13 @@ static bool monster_can_move(object *op)
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-    int dir, special_dir = 0, diff;
-    object *enemy, *part;
-    rv_vector rv;
+    HARD_ASSERT(op != NULL);
 
-    if (op->head) {
-        LOG(BUG, "called from tail part. (%s -- %s)", query_name(op, NULL), op->arch->name);
-        return;
-    }
+    SOFT_ASSERT(op->head == NULL, "Called on a tail part: %s",
+            object_get_str(op));
 
     /* Monsters not on maps don't do anything. */
-    if (!op->map) {
+    if (op->map == NULL) {
         return;
     }
 
@@ -469,14 +465,16 @@ static void process_func(object *op)
     /* Here is the heart of the mob attack and target area.
      * find_enemy() checks the old enemy or gets us a new one. */
 
+    object *enemy;
+    rv_vector rv;
     /* We never ever attack */
     if (QUERY_FLAG(op, FLAG_NO_ATTACK)) {
-        if (op->enemy) {
+        if (op->enemy != NULL) {
             set_npc_enemy(op, NULL, NULL);
         }
 
         enemy = NULL;
-    } else if ((enemy = find_enemy(op, &rv))) {
+    } else if ((enemy = find_enemy(op, &rv)) != NULL) {
         CLEAR_FLAG(op, FLAG_SLEEP);
         op->direction = rv.direction;
 
@@ -547,7 +545,7 @@ static void process_func(object *op)
     }
 
     /* If we don't have an enemy, do special movement or the like */
-    if (!enemy) {
+    if (enemy == NULL) {
         object *spawn_point_info;
 
         if (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || ((spawn_point_info = present_in_ob(SPAWN_POINT_INFO, op)) && spawn_point_info->owner && !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount))) {
@@ -611,8 +609,8 @@ static void process_func(object *op)
         return;
     }
 
-    part = rv.part;
-    dir = rv.direction;
+    object *part = rv.part;
+    int dir = rv.direction;
 
     /* Move the check for scared up here - if the monster was scared,
      * we were not doing any of the logic below, so might as well save
@@ -647,6 +645,7 @@ static void process_func(object *op)
         dir = get_randomized_dir(dir);
     }
 
+    int special_dir = 0;
     if (!QUERY_FLAG(op, FLAG_SCARED)) {
         if (op->attack_move_type & LO4) {
             switch (op->attack_move_type & LO4) {
@@ -683,7 +682,7 @@ static void process_func(object *op)
                 LOG(DEBUG, "Illegal low mon-move: %d", op->attack_move_type & LO4);
             }
 
-            if (!special_dir) {
+            if (special_dir == 0) {
                 return;
             }
         }
@@ -717,7 +716,7 @@ static void process_func(object *op)
             }
 
             /* Try move around corners if !close */
-            for (diff = 1; diff <= maxdiff; diff++) {
+            for (int diff = 1; diff <= maxdiff; diff++) {
                 /* try different detours */
                 /* Try left or right first? */
                 int m = 1 - (RANDOM() & 2);
@@ -787,7 +786,8 @@ void object_type_init_monster(void)
  * @param srange Stealth range this object can see.
  * @param rv Range vector.
  * @return 1 if can detect target, 0 otherwise. */
-static int can_detect_target(object *op, object *target, int range, int srange, rv_vector *rv)
+static int can_detect_target(object *op, object *target, unsigned int range,
+        unsigned int srange, rv_vector *rv)
 {
     /* We check for sys_invisible and normal */
     if (IS_INVISIBLE(target, op) || QUERY_FLAG(target, FLAG_INVULNERABLE)) {
@@ -799,11 +799,11 @@ static int can_detect_target(object *op, object *target, int range, int srange, 
     }
 
     if (QUERY_FLAG(target, FLAG_STEALTH) && !QUERY_FLAG(op, FLAG_XRAYS)) {
-        if (srange < (int) rv->distance) {
+        if (srange < rv->distance) {
             return 0;
         }
     } else {
-        if (range < (int) rv->distance) {
+        if (range < rv->distance) {
             return 0;
         }
     }
@@ -1151,23 +1151,17 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
  * @return 1 if monster fired something, 0 otherwise. */
 static int monster_use_bow(object *head, object *part, int dir)
 {
-    object *bow;
-
-    for (bow = head->inv; bow; bow = bow->below) {
-        if (bow->type == BOW && QUERY_FLAG(bow, FLAG_APPLIED)) {
-            break;
+    FOR_INV_PREPARE(head, tmp) {
+        if (tmp->type == BOW && QUERY_FLAG(tmp, FLAG_APPLIED)) {
+            object_ranged_fire(tmp, part, dir, NULL);
+            return 1;
         }
-    }
+    } FOR_INV_FINISH();
 
-    if (bow == NULL) {
-        LOG(BUG, "Monster %s (%d) HAS_READY_BOW() without bow.", query_name(head, NULL), head->count);
-        CLEAR_FLAG(head, FLAG_READY_BOW);
-        return 0;
-    }
-
-    object_ranged_fire(bow, part, dir, NULL);
-
-    return 1;
+    LOG(ERROR, "Monster %s has FLAG_READY_BOW without a bow.",
+            object_get_str(head));
+    CLEAR_FLAG(head, FLAG_READY_BOW);
+    return 0;
 }
 
 /**
