@@ -268,6 +268,21 @@ size_t stringbuffer_length(StringBuffer *sb)
 }
 
 /**
+ * Seeks to the specified position in the buffer.
+ * @param sb The string buffer.
+ * @param pos Position.
+ */
+void stringbuffer_seek(StringBuffer *sb, const size_t pos)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(sb != NULL);
+
+    SOFT_ASSERT(pos < sb->size, "Incorrect length argument: %" PRIuMAX,
+            (uintmax_t) pos);
+    sb->pos = pos;
+}
+
+/**
  * Find character 'c' in the specified StringBuffer instance, searching
  * left-to-right.
  * @param sb The StringBuffer instance to search in.
