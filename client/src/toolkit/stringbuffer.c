@@ -82,6 +82,9 @@ StringBuffer *stringbuffer_new(void)
  */
 void stringbuffer_free(StringBuffer *sb)
 {
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(sb != NULL);
+    
     efree(sb->buf);
     efree(sb);
 }
