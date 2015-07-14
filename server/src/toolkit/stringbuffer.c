@@ -257,6 +257,19 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 }
 
 /**
+ * Acquire a pointer to the buffer used by the string buffer instance.
+ * @param sb The string buffer instance.
+ * @return Pointer to the buffer.
+ * @warning The buffer is NOT NUL-terminated!
+ */
+const char *stringbuffer_data(StringBuffer *sb)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(sb != NULL);
+    return sb->buf;
+}
+
+/**
  * Return the current length of the buffer.
  * @param sb The string buffer to check.
  * @return Current length of 'sb'.

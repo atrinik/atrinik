@@ -916,6 +916,7 @@ extern void stringbuffer_append_string(StringBuffer *sb, const char *str);
 extern void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 extern void stringbuffer_append_char(StringBuffer *sb, const char c);
+extern const char *stringbuffer_data(StringBuffer *sb);
 extern size_t stringbuffer_length(StringBuffer *sb);
 extern void stringbuffer_seek(StringBuffer *sb, const size_t pos);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
