@@ -251,8 +251,9 @@ static int apply_func(object *op, object *applier, int aflags)
 
     if (!exit_activate(op, applier)) {
         if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
-            draw_info_format(COLOR_WHITE, applier, "The %s is closed.",
-                    query_name(op, NULL));
+            char *name = object_get_name_s(op, applier);
+            draw_info_format(COLOR_WHITE, applier, "The %s is closed.", name);
+            efree(name);
         }
 
         LOG(BUG, "Exit '%s' on map %s at %d,%d leads nowhere.", op->name,

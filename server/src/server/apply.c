@@ -123,7 +123,10 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 
     if (!quiet) {
         if (tmp == OBJECT_METHOD_UNHANDLED) {
-            draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the %s.", query_name(op, NULL));
+            char *name = object_get_name_s(op, NULL);
+            draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the "
+                    "%s.", name);
+            efree(name);
         } else if (tmp == OBJECT_METHOD_ERROR) {
             if (op->env != pl) {
                 draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");

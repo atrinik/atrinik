@@ -260,7 +260,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
             if (caster == op) {
                 draw_info(COLOR_WHITE, op, "Something blocks your spellcasting.");
             } else {
-                draw_info_format(COLOR_WHITE, op, "Something blocks the magic of your %s.", query_base_name(caster, op));
+                char *name = object_get_name_s(caster, op);
+                draw_info_format(COLOR_WHITE, op, "Something blocks the magic "
+                        "of your %s.", name);
+                efree(name);
             }
 
             return 0;

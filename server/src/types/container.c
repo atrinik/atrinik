@@ -107,37 +107,35 @@ static void container_open(object *applier, object *op)
 
         update_object(op, UP_OBJ_FACE);
 
-        FOR_INV_PREPARE(op, inv)
-        {
-            if (inv->type == RUNE) {
-                rune_spring(inv, applier);
-            } else if (inv->type == MONSTER) {
+        FOR_INV_PREPARE(op, tmp) {
+            if (tmp->type == RUNE) {
+                rune_spring(tmp, applier);
+            } else if (tmp->type == MONSTER) {
                 int i;
 
-                object_remove(inv, 0);
-                inv->x = op->x;
-                inv->y = op->y;
-                i = find_free_spot(inv->arch, inv, applier->map, inv->x,
-                        inv->y, 0, SIZEOFFREE1);
+                object_remove(tmp, 0);
+                tmp->x = op->x;
+                tmp->y = op->y;
 
+                i = find_free_spot(tmp->arch, tmp, op->map, tmp->x,
+                        tmp->y, 0, SIZEOFFREE1);
                 if (i != -1) {
-                    inv->x += freearr_x[i];
-                    inv->y += freearr_y[i];
+                    tmp->x += freearr_x[i];
+                    tmp->y += freearr_y[i];
                 }
 
-                inv = insert_ob_in_map(inv, applier->map, inv, 0);
-
-                if (inv) {
-                    living_update_monster(inv);
-                    draw_info_format(
-                            COLOR_WHITE, applier, "A %s jumps out of the %s.",
-                            query_name(inv, applier),
-                            query_base_name(op, applier)
-                            );
+                tmp = insert_ob_in_map(tmp, op->map, tmp, 0);
+                if (tmp != NULL) {
+                    living_update_monster(tmp);
+                    char *name = object_get_base_name_s(op, applier);
+                    char *monster_name = object_get_base_name_s(tmp, applier);
+                    draw_info_format(COLOR_WHITE, applier,
+                            "A %s jumps out of the %s.", monster_name, name);
+                    efree(name);
+                    efree(monster_name);
                 }
             }
-        }
-        FOR_INV_FINISH();
+        } FOR_INV_FINISH();
     }
 
     esrv_send_inventory(applier, op);
@@ -275,13 +273,13 @@ static int apply_func(object *op, object *applier, int aflags)
             return OBJECT_METHOD_OK;
         }
 
+        char *name = object_get_base_name_s(container, applier);
         if (container_close(applier, container)) {
-            draw_info_format(COLOR_WHITE, applier, "You close %s.",
-                    query_base_name(container, applier));
+            draw_info_format(COLOR_WHITE, applier, "You close %s.", name);
         } else {
-            draw_info_format(COLOR_WHITE, applier, "You leave %s.",
-                    query_base_name(container, applier));
+            draw_info_format(COLOR_WHITE, applier, "You leave %s.", name);
         }
+        efree(name);
 
         /* Applied the one we just closed, no need to go on. */
         if (container == op) {
@@ -295,25 +293,24 @@ static int apply_func(object *op, object *applier, int aflags)
     if (op->slaying || op->stats.maxhp) {
         /* Locked container. */
         if (op->sub_type == ST1_CONTAINER_NORMAL) {
+            char *name = object_get_base_name_s(op, applier);
             tmp = find_key(applier, op);
-
-            if (tmp) {
+            if (tmp != NULL) {
                 if (tmp->type == KEY) {
-                    draw_info_format(
-                            COLOR_WHITE, applier, "You unlock %s with %s.",
-                            query_base_name(op, applier), query_name(tmp, applier)
-                            );
+                    char *key_name = object_get_base_name_s(tmp, applier);
+                    draw_info_format(COLOR_WHITE, applier,
+                            "You unlock %s with %s.", name, key_name);
+                    efree(key_name);
                 } else if (tmp->type == FORCE) {
-                    draw_info_format(
-                            COLOR_WHITE, applier, "The %s is unlocked for you.",
-                            query_base_name(op, applier)
-                            );
+                    draw_info_format(COLOR_WHITE, applier,
+                            "The %s is unlocked for you.", name);
                 }
+
+                efree(name);
             } else {
-                draw_info_format(
-                        COLOR_WHITE, applier, "You don't have the key to unlock "
-                        "%s.", query_base_name(op, applier)
-                        );
+                draw_info_format(COLOR_WHITE, applier,
+                        "You don't have the key to unlock %s.", name);
+                efree(name);
                 return OBJECT_METHOD_OK;
             }
         } else {
@@ -332,18 +329,20 @@ static int apply_func(object *op, object *applier, int aflags)
         }
     }
 
+    char *name = stringbuffer_finish(object_get_base_name(op, applier,
+            NULL));
+
     /* The container is not in the applier's inventory. */
     if (op->env != applier) {
         /* If in inventory of some other object other than the applier,
          * can't open it. */
         if (op->env) {
-            draw_info_format(COLOR_WHITE, applier, "You can't open %s.",
-                    query_base_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You can't open %s.", name);
+            efree(name);
             return OBJECT_METHOD_OK;
         }
 
-        draw_info_format(COLOR_WHITE, applier, "You open %s.",
-                query_base_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "You open %s.", name);
         container_open(applier, op);
 
         /* Handle party corpses. */
@@ -355,16 +354,14 @@ static int apply_func(object *op, object *applier, int aflags)
 
         /* If it's readied, open it. */
         if (QUERY_FLAG(op, FLAG_APPLIED)) {
-            draw_info_format(COLOR_WHITE, applier, "You open %s.",
-                    query_base_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You open %s.", name);
             container_open(applier, op);
         } else {
             /* Otherwise ready it. */
             if (OBJECT_IS_AMMO(op)) {
                 object_apply_item(op, applier, aflags);
             } else {
-                draw_info_format(COLOR_WHITE, applier, "You ready %s.",
-                        query_base_name(op, applier));
+                draw_info_format(COLOR_WHITE, applier, "You ready %s.", name);
                 SET_FLAG(op, FLAG_APPLIED);
 
                 update_object(op, UP_OBJ_FACE);
@@ -372,6 +369,8 @@ static int apply_func(object *op, object *applier, int aflags)
             }
         }
     }
+
+    efree(name);
 
     /* If it's a corpse and it has not been searched before, add to
      * player's statistics. */

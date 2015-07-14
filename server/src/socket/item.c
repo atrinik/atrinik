@@ -179,8 +179,15 @@ void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
 
     if (flags & UPD_NAME) {
         packet_debug_data(packet, level, "Name");
-        packet_append_string_terminated(packet, op->custom_name ?
-            op->custom_name : query_base_name(op, pl));
+
+        if (op->custom_name != NULL) {
+            packet_append_string_terminated(packet, op->custom_name);
+        } else {
+            StringBuffer *sb = object_get_base_name(op, pl, NULL);
+            packet_append_string_len_terminated(packet, stringbuffer_data(sb),
+                    stringbuffer_length(sb));
+            stringbuffer_free(sb);
+        }
     }
 
     if (flags & UPD_ANIM) {
@@ -941,15 +948,19 @@ void socket_command_item_mark(socket_struct *ns, player *pl, uint8_t *data, size
         return;
     }
 
+    char *name = object_get_name_s(op, pl->ob);
+
     if (pl->mark_count == op->count) {
-        draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
+        draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", name);
         pl->mark = NULL;
         pl->mark_count = 0;
     } else {
-        draw_info_format(COLOR_WHITE, pl->ob, "Marked item %s.", query_name(op, NULL));
+        draw_info_format(COLOR_WHITE, pl->ob, "Marked item %s.", name);
         pl->mark_count = op->count;
         pl->mark = op;
     }
+
+    efree(name);
 }
 
 /**

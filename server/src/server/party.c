@@ -261,7 +261,10 @@ static void party_loot_random(object *pl, object *corpse)
             if (on_same_map(ol->objlink.ob, pl)) {
                 if (num == pl_id) {
                     if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
-                        draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+                        char *name = object_get_name_s(tmp, NULL);
+                        draw_info_format(COLOR_BLUE, ol->objlink.ob,
+                                "You receive the %s.", name);
+                        efree(name);
                         object_remove(tmp, 0);
                         insert_ob_in_ob(tmp, ol->objlink.ob);
                     }
@@ -334,7 +337,10 @@ static void party_loot_split(object *pl, object *corpse)
             }
 
             if (on_same_map(ol->objlink.ob, pl) && player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
-                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+                char *name = object_get_name_s(tmp, NULL);
+                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the "
+                        "%s.", name);
+                efree(name);
                 object_remove(tmp, 0);
                 insert_ob_in_ob(tmp, ol->objlink.ob);
                 break;

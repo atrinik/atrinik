@@ -1521,8 +1521,9 @@ int talk_to_npc(object *op, object *npc, char *txt)
                 socket_send_packet(&CONTR(op)->socket, packet);
             } else {
                 char buf[HUGE_BUF];
-                snprintf(buf, sizeof(buf), "\n%s says: %s",
-                        query_name(npc, NULL), cp);
+                char *name = object_get_name_s(npc, NULL);
+                snprintf(buf, sizeof(buf), "\n%s says: %s", name, cp);
+                efree(name);
                 draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x,
                         op->y, MAP_INFO_NORMAL, op, op, buf);
             }

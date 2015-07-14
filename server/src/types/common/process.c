@@ -49,7 +49,9 @@ static void common_object_process_changing(object *op)
 
         /* Inform the player, if the object is inside player's inventory. */
         if (op->env && op->env->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, op->env, "The %s burnt out.", query_name(op, NULL));
+            char *name = object_get_name_s(op, op->env);
+            draw_info_format(COLOR_WHITE, op->env, "The %s burnt out.", name);
+            efree(name);
         }
 
         /* If other_arch is not set, it means the light can be refilled

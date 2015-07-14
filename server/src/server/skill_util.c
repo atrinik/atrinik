@@ -396,7 +396,6 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 static int do_skill_attack(object *tmp, object *op, char *string)
 {
     int success;
-    char *name = query_name(tmp, op);
 
     if (op->type == PLAYER) {
         if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill) {
@@ -411,9 +410,13 @@ static int do_skill_attack(object *tmp, object *op, char *string)
     /* Print appropriate messages to the player. */
     if (success && string != NULL) {
         if (op->type == PLAYER) {
+            char *name = object_get_name_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You %s %s!", string, name);
+            efree(name);
         } else if (tmp->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, tmp, "%s %s you!", query_name(op, NULL), string);
+            char *name = object_get_name_s(op, tmp);
+            draw_info_format(COLOR_WHITE, tmp, "%s %s you!", name, string);
+            efree(name);
         }
     }
 

@@ -45,9 +45,10 @@ static int apply_func(object *op, object *applier, int aflags)
     if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS) {
         LOG(ERROR, "Spell book with an invalid ID (%d): %s", op->stats.sp,
                 object_get_str(op));
+        char *name = object_get_name_s(op, applier);
         draw_info_format(COLOR_WHITE, applier,
-                "The symbols in the %s make no sense.",
-                query_name(op, applier));
+                "The symbols in the %s make no sense.", name);
+        efree(name);
         return OBJECT_METHOD_OK;
     }
 
@@ -72,9 +73,10 @@ static int apply_func(object *op, object *applier, int aflags)
     }
 
     if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) {
-        draw_info_format(COLOR_RED, applier, "The %s was %s!",
-                query_base_name(op, applier),
+        char *name = object_get_base_name_s(op, applier);
+        draw_info_format(COLOR_RED, applier, "The %s was %s!", name,
                 QUERY_FLAG(op, FLAG_DAMNED) ? "damned" : "cursed");
+        efree(name);
         spell_failure(applier, (spell->at->clone.level +
                 pl->skill_ptr[SK_WIZARDRY_SPELLS]->level) / 2);
 

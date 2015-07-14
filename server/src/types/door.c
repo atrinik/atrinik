@@ -158,8 +158,7 @@ int door_try_open(object *op, mapstruct *m, int x, int y, int test)
         return 0;
     }
 
-    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_WALL, -1, tmp)
-    {
+    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_WALL, -1, tmp) {
         if (tmp->type != DOOR) {
             continue;
         }
@@ -175,8 +174,10 @@ int door_try_open(object *op, mapstruct *m, int x, int y, int test)
                 return 0;
             } else if (!test) {
                 if (key->type == KEY) {
+                    char *key_name = object_get_base_name_s(key, op);
                     draw_info_format(COLOR_WHITE, op, "You open the %s with "
-                            "the %s.", tmp->name, query_short_name(key, NULL));
+                            "the %s.", tmp->name, key_name);
+                    efree(key_name);
                 } else if (key->type == FORCE) {
                     draw_info_format(COLOR_WHITE, op, "The %s is opened for "
                             "you.", tmp->name);
@@ -190,8 +191,7 @@ int door_try_open(object *op, mapstruct *m, int x, int y, int test)
         }
 
         return 1;
-    }
-    FOR_MAP_LAYER_END
+    } FOR_MAP_LAYER_END
 
     return 0;
 }

@@ -118,7 +118,10 @@ static int apply_func(object *op, object *applier, int aflags)
     packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
     packet_debug_data(packet, 0, "Book interface header");
     packet_append_string(packet, "[book]");
-    packet_append_string(packet, query_base_name(op, applier));
+    StringBuffer *sb = object_get_base_name(op, applier, NULL);
+    packet_append_string_len_terminated(packet, stringbuffer_data(sb),
+            stringbuffer_length(sb));
+    stringbuffer_free(sb);
     packet_append_string(packet, "[/book]");
     packet_debug_data(packet, 0, "Book message");
     packet_append_string_terminated(packet, op->msg);

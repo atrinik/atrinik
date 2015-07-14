@@ -547,7 +547,7 @@ object *get_random_mon(void)
  * @return 'buf'. */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
-    char *desc = stringbuffer_finish(object_get_description(mon, NULL, NULL));
+    char *desc = object_get_description_s(mon, NULL);
     snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, desc);
     efree(desc);
     return buf;
@@ -650,7 +650,9 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         tmp = arch_to_object(art->def_at);
         SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-        stringbuffer_append_printf(desc, "\n[title]%s[/title]\nIt is ", query_material_name(tmp));
+        stringbuffer_append_string(desc, "\n[title]");
+        desc = object_get_material_name(tmp, NULL, desc);
+        stringbuffer_append_string(desc, "[/title]\nIt is ");
 
         /* Chance of finding. */
         chance = 100 * ((float) art->chance / al->total_chance);

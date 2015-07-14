@@ -331,7 +331,10 @@ static int save_life(object *op)
     for (tmp = op->inv; tmp != NULL; tmp = tmp->below) {
         if (QUERY_FLAG(tmp, FLAG_APPLIED) && QUERY_FLAG(tmp, FLAG_LIFESAVE)) {
             play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
-            draw_info_format(COLOR_WHITE, op, "Your %s vibrates violently, then evaporates.", query_name(tmp, NULL));
+            char *name = object_get_name_s(tmp, op);
+            draw_info_format(COLOR_WHITE, op, "Your %s vibrates violently, "
+                    "then evaporates.", name);
+            efree(name);
 
             object_remove(tmp, 0);
             object_destroy(tmp);
@@ -675,7 +678,8 @@ void cast_dust(object *op, object *throw_ob, int dir)
     archetype_t *arch = NULL;
 
     if (!(spells[throw_ob->stats.sp].flags & SPELL_DESC_DIRECTION)) {
-        LOG(BUG, "Warning, dust %s is not AoE spell!!", query_name(throw_ob, NULL));
+        LOG(ERROR, "Warning, dust is not AoE spell: %s",
+                object_get_str(throw_ob));
         return;
     }
 
@@ -699,7 +703,9 @@ void cast_dust(object *op, object *throw_ob, int dir)
     }
 
     if (op->type == PLAYER && arch) {
-        draw_info_format(COLOR_WHITE, op, "You cast %s.", query_name(throw_ob, NULL));
+        char *name = object_get_name_s(throw_ob, op);
+        draw_info_format(COLOR_WHITE, op, "You cast %s.", name);
+        efree(name);
     }
 
     if (op->chosen_skill) {
@@ -1233,8 +1239,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
     }
 
     tmp = HEAD(tmp);
-    char *name = stringbuffer_finish(object_get_name_description(tmp, op,
-            NULL));
+    char *name = object_get_name_description_s(tmp, op);
     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
             "That is %s%s", name, !QUERY_FLAG(tmp, FLAG_IDENTIFIED) &&
             need_identify(tmp) ? " (unidentified)" : "");
@@ -1523,29 +1528,48 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
  * @return 1 if the object will fit, 0 if it will not. */
 int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 {
-    char buf[MAX_BUF];
-
-    buf[0] = '\0';
-
     if (!QUERY_FLAG(sack, FLAG_APPLIED)) {
-        snprintf(buf, sizeof(buf), "The %s is not active.", query_name(sack, NULL));
+        if (pl != NULL) {
+            char *name = object_get_name_s(sack, pl);
+            draw_info_format(COLOR_WHITE, pl, "The %s is not active.", name);
+            efree(name);
+        }
+
+        return 0;
     }
 
     if (sack == op) {
-        snprintf(buf, sizeof(buf), "You can't put the %s into itself.", query_name(sack, NULL));
+        if (pl != NULL) {
+            char *name = object_get_name_s(sack, pl);
+            draw_info_format(COLOR_WHITE, pl, "You can't put the %s into "
+                    "itself.", name);
+            efree(name);
+        }
+
+        return 0;
     }
 
-    if ((sack->race && (sack->sub_type & 1) != ST1_CONTAINER_CORPSE) && (sack->race != op->race || op->type == CONTAINER || (sack->stats.food && sack->stats.food != op->type))) {
-        snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
+    if ((sack->race && (sack->sub_type & 1) != ST1_CONTAINER_CORPSE) &&
+            (sack->race != op->race || op->type == CONTAINER ||
+            (sack->stats.food && sack->stats.food != op->type))) {
+        if (pl != NULL) {
+            char *name = object_get_name_s(sack, pl);
+            draw_info_format(COLOR_WHITE, pl, "You can put only %s into the "
+                    "%s.", sack->race, name);
+            efree(name);
+        }
+
+        return 0;
     }
 
-    if (sack->weight_limit != 0 && sack->carrying + (((MAX(1, nrof) * op->weight) + op->carrying) * sack->weapon_speed) > sack->weight_limit) {
-        snprintf(buf, sizeof(buf), "That won't fit in the %s!", query_name(sack, NULL));
-    }
-
-    if (buf[0]) {
-        if (pl) {
-            draw_info(COLOR_WHITE, pl, buf);
+    if (sack->weight_limit != 0 && sack->carrying + (((MAX(1, nrof) *
+            op->weight) + op->carrying) * sack->weapon_speed) >
+            sack->weight_limit) {
+        if (pl != NULL) {
+            char *name = object_get_name_s(sack, pl);
+            draw_info_format(COLOR_WHITE, pl, "That won't fit in the %s!",
+                    name);
+            efree(name);
         }
 
         return 0;
@@ -1556,23 +1580,28 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 
 static object *get_pickup_object(object *pl, object *op, int nrof)
 {
+    char *name = object_get_name_s(op, pl);
+
     if (QUERY_FLAG(op, FLAG_UNPAID) && QUERY_FLAG(op, FLAG_NO_PICK)) {
         op = object_create_clone(op);
         CLEAR_FLAG(op, FLAG_NO_PICK);
         SET_FLAG(op, FLAG_STARTEQUIP);
         op->nrof = nrof;
 
-        draw_info_format(COLOR_WHITE, pl, "You pick up %s for %s from the storage.", query_name(op, NULL), shop_get_cost_string_item(op, COST_BUY));
+        draw_info_format(COLOR_WHITE, pl, "You pick up %s for %s from the "
+                "storage.", name, shop_get_cost_string_item(op, COST_BUY));
     } else {
         op = object_stack_get_removed(op, nrof);
 
         if (QUERY_FLAG(op, FLAG_UNPAID)) {
-            draw_info_format(COLOR_WHITE, pl, "%s will cost you %s.", query_name(op, NULL), shop_get_cost_string_item(op, COST_BUY));
+            draw_info_format(COLOR_WHITE, pl, "%s will cost you %s.", name,
+                    shop_get_cost_string_item(op, COST_BUY));
         } else {
-            draw_info_format(COLOR_WHITE, pl, "You pick up the %s.", query_name(op, NULL));
+            draw_info_format(COLOR_WHITE, pl, "You pick up the %s.", name);
         }
     }
 
+    efree(name);
     op->sub_layer = 0;
 
     return op;
@@ -1730,7 +1759,6 @@ void pick_up(object *op, object *alt, int no_mevent)
  * @param nrof Number of items to put into sack (0 for all). */
 void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 {
-    char buf[MAX_BUF];
     int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
     if (op->type != PLAYER) {
@@ -1743,7 +1771,9 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
     }
 
     if (sack->type != CONTAINER) {
-        draw_info_format(COLOR_WHITE, op, "The %s is not a container.", query_name(sack, NULL));
+        char *name = object_get_name_s(sack, op);
+        draw_info_format(COLOR_WHITE, op, "The %s is not a container.", name);
+        efree(name);
         return;
     }
 
@@ -1779,9 +1809,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
     tmp = get_pickup_object(op, tmp, nrof);
 
-    snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
+    char *name = object_get_name_s(sack, op);
+    char *tmp_name = object_get_name_s(tmp, op);
+    draw_info_format(COLOR_WHITE, op, "You put the %s in %s.", tmp_name, name);
+    efree(name);
+    efree(tmp_name);
+
     insert_ob_in_ob(tmp, sack);
-    draw_info(COLOR_WHITE, op, buf);
 }
 
 /**
@@ -1824,7 +1858,9 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
     if (QUERY_FLAG(tmp, FLAG_STARTEQUIP) || QUERY_FLAG(tmp, FLAG_UNPAID)) {
         if (op->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, op, "You drop the %s.", query_name(tmp, NULL));
+            char *name = object_get_name_s(tmp, op);
+            draw_info_format(COLOR_WHITE, op, "You drop the %s.", name);
+            efree(name);
 
             if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
                 draw_info(COLOR_WHITE, op, "The shop magic put it back to the storage.");

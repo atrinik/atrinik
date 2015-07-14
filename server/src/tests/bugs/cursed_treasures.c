@@ -73,8 +73,10 @@ START_TEST(test_cursed_starting_items)
         for (object *tmp = inv->inv; tmp != NULL; tmp = tmp->below) {
             if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
                 SET_FLAG(tmp, FLAG_IDENTIFIED);
+                char *name = object_get_name_s(tmp, NULL);
                 ck_abort_msg("Managed to create cursed item %s (%s) (i: %d).",
-                        query_name(tmp, NULL), object_get_str(tmp), i);
+                        name, object_get_str(tmp), i);
+                efree(name);
             }
         }
     }

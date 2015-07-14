@@ -141,7 +141,10 @@ static int builder_item(object *op, object *new_item, int x, int y)
     /* If it's not a wallmask, don't allow building on top of blocked squares.
      * */
     if (new_item->type != WALL && w) {
-        draw_info_format(COLOR_WHITE, op, "Something is blocking you from building the %s on that square.", query_name(new_item, NULL));
+        char *name = object_get_name_s(new_item, op);
+        draw_info_format(COLOR_WHITE, op, "Something is blocking you from "
+                "building the %s on that square.", name);
+        efree(name);
         return 0;
     } else if (new_item->type == WALL) {
         object *wall_ob = get_wall(op->map, x, y);
@@ -150,10 +153,16 @@ static int builder_item(object *op, object *new_item, int x, int y)
          * contains a wall. */
 
         if (!w || !wall_ob) {
-            draw_info_format(COLOR_WHITE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
+            char *name = object_get_name_s(new_item, op);
+            draw_info_format(COLOR_WHITE, op, "The %s can only be built on "
+                    "top of a wall.", name);
+            efree(name);
             return 0;
         } else if (wall_ob->above && wall_ob->above->type == WALL) {
-            draw_info_format(COLOR_WHITE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall_ob->above, NULL));
+            char *name = object_get_name_s(wall_ob->above, op);
+            draw_info_format(COLOR_WHITE, op, "You first need to remove the %s "
+                    "before building on top of that wall again.", name);
+            efree(name);
             return 0;
         }
     }
@@ -208,7 +217,9 @@ static int builder_item(object *op, object *new_item, int x, int y)
     new_item->x = x;
     new_item->y = y;
     insert_ob_in_map(new_item, op->map, NULL, 0);
-    draw_info_format(COLOR_WHITE, op, "You build the %s.", query_name(new_item, NULL));
+    char *name = object_get_name_s(new_item, op);
+    draw_info_format(COLOR_WHITE, op, "You build the %s.", name);
+    efree(name);
 
     return 1;
 }
@@ -567,7 +578,10 @@ static void construction_destroyer(object *op, int x, int y)
 
     /* Do not allow destroying containers with inventory. */
     if (item->type == CONTAINER && item->inv) {
-        draw_info_format(COLOR_WHITE, op, "You cannot remove the %s, since it contains items.", query_name(item, NULL));
+        char *name = object_get_name_s(item, op);
+        draw_info_format(COLOR_WHITE, op, "You cannot remove the %s, since it "
+                "contains items.", name);
+        efree(name);
         return;
     }
 
@@ -586,7 +600,9 @@ static void construction_destroyer(object *op, int x, int y)
         }
     }
 
-    draw_info_format(COLOR_WHITE, op, "You remove the %s.", query_name(item, NULL));
+    char *name = object_get_name_s(item, op);
+    draw_info_format(COLOR_WHITE, op, "You remove the %s.", name);
+    efree(name);
 }
 
 /**
@@ -610,7 +626,10 @@ void construction_do(object *op, int dir)
     }
 
     if (skill_item->stats.sp != SK_CONSTRUCTION) {
-        draw_info_format(COLOR_WHITE, op, "The %s cannot be used with the construction skill.", query_name(skill_item, NULL));
+        char *name = object_get_name_s(skill_item, op);
+        draw_info_format(COLOR_WHITE, op, "The %s cannot be used with the "
+                "construction skill.", name);
+        efree(name);
         return;
     }
 

@@ -704,11 +704,16 @@ bool kill_object(object *op, object *hitter)
 
     /* Player killed something. */
     if (owner->type == PLAYER) {
+        char *name = object_get_name_s(op, owner);
         if (owner != hitter) {
-            draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
+            char *hitter_name = object_get_name_s(hitter, owner);
+            draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", name,
+                    hitter_name);
+            efree(hitter_name);
         } else {
-            draw_info_format(COLOR_WHITE, owner, "You killed %s.", query_name(op, NULL));
+            draw_info_format(COLOR_WHITE, owner, "You killed %s.", name);
         }
+        efree(name);
 
         if (op->type == MONSTER) {
             CONTR(owner)->stat_kills_mob++;
@@ -762,20 +767,30 @@ bool kill_object(object *op, object *hitter)
     /* Player has been killed. */
     if (op->type == PLAYER) {
         /* Tell everyone that this player has died. */
+        char *name = object_get_name_s(op, NULL);
+        char *hitter_name = object_get_name_s(hitter, NULL);
+        char *owner_name = object_get_name_s(owner, NULL);
+
         if (get_owner(hitter)) {
-            draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
+            draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.",
+                    owner_name, name, hitter_name, battleg ? " (duel)" : "");
         } else {
-            draw_info_format(COLOR_WHITE, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
+            draw_info_format(COLOR_WHITE, NULL, "%s killed %s%s.",
+                    hitter_name, name, battleg ? " (duel)" : "");
         }
 
         /* Update player's killer. */
         if (owner->type == PLAYER) {
             char race[MAX_BUF];
-
-            snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s the %s", owner->name, player_get_race_class(owner, race, sizeof(race)));
+            snprintf(VS(CONTR(op)->killer), "%s the %s", owner_name,
+                    player_get_race_class(owner, VS(race)));
         } else {
-            snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s", owner->name);
+            snprintf(VS(CONTR(op)->killer), "%s", owner_name);
         }
+
+        efree(name);
+        efree(hitter_name);
+        efree(owner_name);
 
         /* And actually kill the player. */
         kill_player(op);
@@ -916,12 +931,21 @@ static void poison_player(object *op, object *hitter, float dam)
         insert_ob_in_ob(tmp, op);
 
         if (op->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", query_name(hitter, NULL));
+            char *name = object_get_name_s(hitter, op);
+            draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", name);
+            efree(name);
         } else {
             if (hitter->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
+                char *name = object_get_name_s(op, hitter);
+                draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", name);
+                efree(name);
             } else if (get_owner(hitter) && hitter->owner->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
+                char *name = object_get_name_s(op, hitter->owner);
+                char *hitter_name = object_get_name_s(hitter, hitter->owner);
+                draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!",
+                        hitter_name, name);
+                efree(name);
+                efree(hitter_name);
             }
         }
 
@@ -1028,7 +1052,10 @@ void blind_living(object *op, object *hitter, int dam)
                 owner = hitter;
             }
 
-            draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", query_name(op, NULL));
+            char *name = object_get_name_s(op, owner);
+            draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!",
+                    name);
+            efree(name);
         }
     }
 

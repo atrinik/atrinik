@@ -664,8 +664,10 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *self, PyObject *args)
 
     OBJEXISTCHECK(self);
 
-    snprintf(VS(buf), "%s says: %s", hooks->query_name(self->obj, NULL),
-            message);
+    char *name = hooks->stringbuffer_finish(hooks->object_get_name(self->obj,
+            NULL, NULL));
+    snprintf(VS(buf), "%s says: %s", name, message);
+    efree(name);
     hooks->draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, self->obj->map,
             self->obj->x, self->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 
@@ -1522,8 +1524,11 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *self, PyObject *args)
         OBJEXISTCHECK(ob);
     }
 
-    return Py_BuildValue("s", hooks->query_short_name(self->obj,
-            ob != NULL ? ob->obj : self->obj));
+    char *name = hooks->stringbuffer_finish(hooks->object_get_short_name(
+            self->obj, ob != NULL ? ob->obj : NULL, NULL));
+    PyObject *ret = Py_BuildValue("s", name);
+    efree(name);
+    return ret;
 }
 
 /** Documentation for Atrinik_Object_Controller(). */

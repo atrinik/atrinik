@@ -437,16 +437,19 @@ static bool shop_pay_items_rec(object *op, object *where)
         if (!shop_pay_item(op, tmp)) {
             CLEAR_FLAG(tmp, FLAG_UNPAID);
             int64_t need = shop_get_cost(tmp, COST_BUY) - shop_get_money(op);
+            char *name = object_get_name_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You lack %s to buy %s.",
-                    shop_get_cost_string(need), query_name(tmp, op));
+                    shop_get_cost_string(need), name);
+            efree(name);
             SET_FLAG(tmp, FLAG_UNPAID);
             return false;
         } else {
             CLEAR_FLAG(tmp, FLAG_UNPAID);
             CLEAR_FLAG(tmp, FLAG_STARTEQUIP);
+            char *name = object_get_name_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You paid %s for %s.",
-                    shop_get_cost_string_item(tmp, COST_BUY),
-                    query_name(tmp, op));
+                    shop_get_cost_string_item(tmp, COST_BUY), name);
+            efree(name);
 
             /* If the object wasn't merged, send flags update. */
             if (object_merge(tmp) == tmp) {
@@ -482,19 +485,20 @@ void shop_sell_item(object *op, object *item)
     }
 
     int64_t value = shop_get_cost(item, COST_SELL);
+    char *name = object_get_name_s(item, op);
     if (value == 0) {
-        draw_info_format(COLOR_WHITE, op, "We're not interested in %s.",
-                query_name(item, op));
+        draw_info_format(COLOR_WHITE, op, "We're not interested in %s.", name);
     }
 
     shop_insert_coins(op, value);
     draw_info_format(COLOR_WHITE, op, "You receive %s for %s.",
-            shop_get_cost_string(value), query_name(item, op));
+            shop_get_cost_string(value), name);
 
     SET_FLAG(item, FLAG_UNPAID);
     /* Identify the item. Makes any unidentified item sold to unique shop appear
      * identified. */
     identify(item);
+    efree(name);
 }
 
 /**

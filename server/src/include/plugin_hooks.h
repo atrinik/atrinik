@@ -59,7 +59,7 @@ struct plugin_hooklist
 #endif
 {
 
-PLUGIN_HOOK_FUNCTION(char *, query_name, object *, object *)
+PLUGIN_HOOK_FUNCTION(StringBuffer *, object_get_name, const object *, const object *, StringBuffer *)
 PLUGIN_HOOK_FUNCTION(const char *, re_cmp, const char *, const char *)
 PLUGIN_HOOK_FUNCTION(object *, present_in_ob, unsigned char, object *)
 PLUGIN_HOOK_FUNCTION(int , players_on_map, mapstruct *)
@@ -115,7 +115,7 @@ PLUGIN_HOOK_FUNCTION(void , get_tod, timeofday_t *)
 PLUGIN_HOOK_FUNCTION(const char *, object_get_value, const object *, const char *const)
 PLUGIN_HOOK_FUNCTION(int , object_set_value, object *, const char *, const char *, int)
 PLUGIN_HOOK_FUNCTION(void , drop, object *, object *, int)
-PLUGIN_HOOK_FUNCTION(char *, query_short_name, object *, object *)
+PLUGIN_HOOK_FUNCTION(StringBuffer *, object_get_short_name, const object *, const object *, StringBuffer *)
 PLUGIN_HOOK_FUNCTION(object *, beacon_locate, shstr *)
 PLUGIN_HOOK_FUNCTION(void , player_cleanup_name, char *)
 PLUGIN_HOOK_FUNCTION(party_struct *, find_party, const char *)

@@ -103,11 +103,12 @@ int object_apply_item(object *op, object *applier, int aflags)
 
         CLEAR_FLAG(op, FLAG_APPLIED);
         esrv_update_item(UPD_FLAGS, op);
+        char *name = object_get_name_s(op, applier);
 
         switch (op->type) {
         case WEAPON:
             CLEAR_FLAG(applier, FLAG_READY_WEAPON);
-            draw_info_format(COLOR_WHITE, applier, "You unwield %s.", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You unwield %s.", name);
             break;
 
         case ARMOUR:
@@ -121,7 +122,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case BRACERS:
         case CLOAK:
         case PANTS:
-            draw_info_format(COLOR_WHITE, applier, "You unwear %s.", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You unwear %s.", name);
             break;
 
         case BOW:
@@ -131,14 +132,15 @@ int object_apply_item(object *op, object *applier, int aflags)
         case SKILL:
         case ARROW:
         case CONTAINER:
-            draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You unready %s.", name);
             break;
 
         default:
-            draw_info_format(COLOR_WHITE, applier, "You unapply %s.", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You unapply %s.", name);
             break;
         }
 
+        efree(name);
         living_update(applier);
 
         if (!(aflags & APPLY_NO_MERGE)) {
@@ -172,15 +174,17 @@ int object_apply_item(object *op, object *applier, int aflags)
         op = object_stack_get_reinsert(op, 1);
     }
 
+    char *name = object_get_name_s(op, applier);
+
     switch (op->type) {
     case WEAPON:
-
         if (!QUERY_FLAG(applier, FLAG_USE_WEAPON)) {
-            draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You can't use %s.", name);
+            efree(name);
             return OBJECT_METHOD_ERROR;
         }
 
-        draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "You wield %s.", name);
         SET_FLAG(op, FLAG_APPLIED);
         SET_FLAG(applier, FLAG_READY_WEAPON);
         break;
@@ -194,15 +198,15 @@ int object_apply_item(object *op, object *applier, int aflags)
     case BRACERS:
     case CLOAK:
     case PANTS:
-
         if (!QUERY_FLAG(applier, FLAG_USE_ARMOUR)) {
-            draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You can't use %s.", name);
+            efree(name);
             return OBJECT_METHOD_ERROR;
         }
 
     case RING:
     case AMULET:
-        draw_info_format(COLOR_WHITE, applier, "You wear %s.", query_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "You wear %s.", name);
         SET_FLAG(op, FLAG_APPLIED);
         break;
 
@@ -213,24 +217,28 @@ int object_apply_item(object *op, object *applier, int aflags)
     case SKILL:
     case ARROW:
     case CONTAINER:
-
         if (op->type == SPELL && SKILL_LEVEL(CONTR(applier), SK_WIZARDRY_SPELLS) < op->level) {
-            draw_info_format(COLOR_WHITE, applier, "Your wizardry spells skill is too low to use %s.", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "Your wizardry spells skill "
+                    "is too low to use %s.", name);
+            efree(name);
             return OBJECT_METHOD_ERROR;
         }
 
-        draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "You ready %s.", name);
         SET_FLAG(op, FLAG_APPLIED);
 
         if (op->type == BOW) {
-            draw_info_format(COLOR_WHITE, applier, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, applier));
+            draw_info_format(COLOR_WHITE, applier, "You will now fire %s with "
+                    "%s.", op->race ? op->race : "nothing", name);
         }
 
         break;
 
     default:
-        draw_info_format(COLOR_WHITE, applier, "You apply %s.", query_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "You apply %s.", name);
     }
+
+    efree(name);
 
     if (!QUERY_FLAG(op, FLAG_APPLIED)) {
         SET_FLAG(op, FLAG_APPLIED);

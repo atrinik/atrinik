@@ -886,7 +886,9 @@ static void object_debugger(object *op, char *buf, size_t size)
 
     if (op->name != NULL) {
         SET_FLAG(op, FLAG_IDENTIFIED);
-        snprintfcat(buf, size, " name: %s", query_name(op, NULL));
+        char *name = object_get_name_s(op, NULL);
+        snprintfcat(buf, size, " name: %s", name);
+        efree(name);
     }
 
     snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
@@ -2988,30 +2990,40 @@ int item_matched_string(object *pl, object *op, const char *name)
             }
         }
 
-        if (!strcasecmp(cp, query_name(op, NULL))) {
+        char *obj_name = object_get_name_s(op, pl);
+        char *base_name = object_get_base_name_s(op, pl);
+        char *short_name = object_get_short_name_s(op, pl);
+
+        if (strcasecmp(cp, obj_name) == 0) {
             retval = 20;
-        } else if (!strcasecmp(cp, query_short_name(op, NULL))) {
+        } else if (strcasecmp(cp, short_name) == 0) {
             retval = 18;
-        } else if (!strcasecmp(cp, query_base_name(op, pl))) {
+        } else if (strcasecmp(cp, base_name) == 0) {
             retval = 16;
-        } else if (op->custom_name && !strcasecmp(cp, op->custom_name)) {
+        } else if (op->custom_name != NULL &&
+                strcasecmp(cp, op->custom_name) == 0) {
             retval = 15;
-        } else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp))) {
+        } else if (strncasecmp(cp, base_name, strlen(cp)) == 0) {
             retval = 14;
-        } else if (strstr(query_base_name(op, pl), cp)) {
+        } else if (strstr(base_name, cp) != NULL) {
             /* Do substring checks, so things like 'Str+1' will match.
              * retval of these should perhaps be lower - they are lower
              * than the specific strcasecmps above, but still higher than
              * some other match criteria. */
             retval = 12;
-        } else if (strstr(query_short_name(op, NULL), cp)) {
+        } else if (strstr(short_name, cp) != NULL) {
             retval = 12;
-        } else if (op->custom_name && strstr(op->custom_name, cp)) {
+        } else if (op->custom_name != NULL &&
+                strstr(op->custom_name, cp) != NULL) {
             /* Check for partial custom name, but give a really low priority. */
             retval = 3;
         }
 
-        if (retval) {
+        efree(obj_name);
+        efree(base_name);
+        efree(short_name);
+
+        if (retval != 0) {
             if (pl->type == PLAYER) {
                 CONTR(pl)->count = count;
             }
