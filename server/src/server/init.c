@@ -161,6 +161,10 @@ static void clioptions_option_unit(const char *arg)
 static void clioptions_option_plugin_unit(const char *arg)
 {
     settings.plugin_unit_tests = 1;
+
+    if (arg != NULL) {
+        snprintf(VS(settings.plugin_unit_test), "%s", arg);
+    }
 }
 
 static void clioptions_option_worldmaker(const char *arg)

@@ -354,6 +354,11 @@ typedef struct settings_struct {
     bool plugin_unit_tests;
 
     /**
+     * Only run specific plugin unit test(s).
+     */
+    char plugin_unit_test[MAX_BUF];
+
+    /**
      * Adjustment to maximum magical device level the player may use. */
     int8_t magic_devices_level;
 

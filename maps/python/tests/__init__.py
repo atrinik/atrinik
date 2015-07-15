@@ -1,5 +1,6 @@
 import glob
 import os
+import re
 import unittest
 import time
 
@@ -13,6 +14,19 @@ def run():
     all_suites = []
     all_suites += tests.Atrinik_tests.Atrinik.suites
     all_suites += tests.Atrinik_tests.Object.suites
+
+    unit_test = Atrinik.GetSettings()["plugin_unit_test"]
+    if unit_test:
+        new_all_suites = []
+
+        for suite in all_suites:
+            new_suite = unittest.TestSuite()
+            new_all_suites.append(new_suite)
+            for test in suite:
+                if re.findall(unit_test, test.id(), re.I):
+                    new_suite.addTest(test)
+
+        all_suites = new_all_suites
 
     all_tests = unittest.TestSuite(all_suites)
 

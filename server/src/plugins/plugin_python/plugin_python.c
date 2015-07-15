@@ -1941,6 +1941,8 @@ static PyObject *Atrinik_GetSettings(PyObject *self)
             hooks->settings->unit_tests));
     PyDict_SetItemString(dict, "plugin_unit_tests", Py_BuildBoolean(
             hooks->settings->plugin_unit_tests));
+    PyDict_SetItemString(dict, "plugin_unit_test", Py_BuildValue("s",
+            hooks->settings->plugin_unit_test));
     PyDict_SetItemString(dict, "magic_devices_level", Py_BuildValue("b",
             hooks->settings->magic_devices_level));
     PyDict_SetItemString(dict, "magic_devices_level", Py_BuildValue("b",
