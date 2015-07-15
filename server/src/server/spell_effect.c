@@ -850,6 +850,8 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
     insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
 
     if (mode == IDENTIFY_MARKED) {
+        SOFT_ASSERT_RC(single_ob != NULL, 0, "single_ob is NULL for object: %s",
+                object_get_str(op));
         do_cast_identify(single_ob, op, mode, &done, level);
     } else {
         object *tmp = op->inv;
