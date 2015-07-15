@@ -1260,7 +1260,9 @@ static const char doc_Atrinik_Object_CastIdentify[] =
 ":param mode: One of IDENTIFY_xxx, eg, :attr:`~Atrinik.IDENTIFY_NORMAL`.\n"
 ":type mode: int\n"
 ":param marked: Marked item.\n"
-":type marked: :class:`Atrinik.Object.Object` or None";
+":type marked: :class:`Atrinik.Object.Object` or None\n"
+":raises Atrinik.AtrinikError: If *mode* is :attr:`~Atrinik.IDENTIFY_MARKED` "
+"but *marked* is None.";
 
 /**
  * Implements Atrinik.Object.Object.CastIdentify() Python method.
@@ -1282,7 +1284,7 @@ static PyObject *Atrinik_Object_CastIdentify(Atrinik_Object *self,
     OBJEXISTCHECK(self);
     OBJEXISTCHECK(target);
 
-    if (marked && marked != Py_None) {
+    if (marked != NULL && marked != Py_None) {
         if (!PyObject_TypeCheck(marked, &Atrinik_ObjectType)) {
             PyErr_SetString(PyExc_TypeError, "Must be Atrinik.Object");
             return NULL;
@@ -1290,6 +1292,10 @@ static PyObject *Atrinik_Object_CastIdentify(Atrinik_Object *self,
 
         OBJEXISTCHECK((Atrinik_Object *) marked);
         ob = ((Atrinik_Object *) marked)->obj;
+    } else if (mode == IDENTIFY_MARKED) {
+        PyErr_SetString(AtrinikError, "'marked' object must be set for "
+                "IDENTIFY_MARKED mode");
+        return NULL;
     }
 
     hooks->cast_identify(target->obj, self->obj->level, ob, mode);
