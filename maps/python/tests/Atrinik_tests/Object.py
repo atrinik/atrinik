@@ -152,7 +152,7 @@ class ObjectTestCase(unittest.TestCase):
             data = packets[len(packets) - 1][8:-1].decode('utf-8')
             self.assertEqual(data, msg)
 
-    def test_getGender(self):
+    def test_GetGender(self):
         self.assertRaises(TypeError, self.obj.GetGender, 1, 2)
         self.assertRaises(TypeError, self.obj.GetGender, x=1)
 
@@ -164,7 +164,7 @@ class ObjectTestCase(unittest.TestCase):
         self.obj.f_is_male = False
         self.assertEqual(self.obj.GetGender(), Atrinik.Gender.FEMALE)
 
-    def test_setGender(self):
+    def test_SetGender(self):
         self.assertRaises(TypeError, self.obj.SetGender)
         self.assertRaises(TypeError, self.obj.SetGender, 1, 2)
         self.assertRaises(TypeError, self.obj.SetGender, x=1)
@@ -689,6 +689,461 @@ class ObjectTestCase(unittest.TestCase):
         self.obj.Remove()
         self.assertFalse(m.Objects(4, 4))
         self.assertEqual(len(m.Objects(4, 4)), 0)
+
+    def test_CastIdentify(self):
+        self.assertRaises(TypeError, self.obj.CastIdentify)
+        self.assertRaises(TypeError, self.obj.CastIdentify, 1, 2)
+        self.assertRaises(TypeError, self.obj.CastIdentify, x=1)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-cast-identify")
+        m.Insert(activator, 0, 0)
+        npc = m.CreateObject("smith", 1, 1)
+        npc.Update()
+
+        sword = activator.CreateObject("sword", identified=False)
+        sword.title = "of lordliness"
+        wand = activator.CreateObject("wand", identified=False)
+        wand.level = 10
+        wand.sp = 5
+        sack = activator.CreateObject("sack", identified=False)
+        sword2 = sack.CreateObject("sword", identified=False)
+        sword2.title = "of the General"
+        torch = sack.CreateObject("torch", identified=False)
+        torch.name = "ultimate torch"
+        torch.title = "of ultimates"
+        torch.msg = "Truly the ultimate torch, passed down from the ancients."
+
+        activator.Controller().s_packets.clear()
+        self.assertRaises(Atrinik.AtrinikError, npc.CastIdentify, activator,
+                          Atrinik.IDENTIFY_MARKED)
+        self.assertFalse(sword.f_identified)
+        self.assertFalse(wand.f_identified)
+        self.assertFalse(sack.f_identified)
+        self.assertFalse(sword2.f_identified)
+        self.assertFalse(torch.f_identified)
+        packets = b"".join(activator.Controller().s_packets)
+        self.assertEqual(len(packets), 0)
+
+        npc.CastIdentify(activator, Atrinik.IDENTIFY_MARKED, sack)
+        self.assertTrue(sack.f_identified)
+        self.assertFalse(sword.f_identified)
+        self.assertFalse(wand.f_identified)
+        self.assertFalse(sword2.f_identified)
+        self.assertFalse(torch.f_identified)
+        packets = b"".join(activator.Controller().s_packets)
+        self.assertIn(sack.GetName(activator).encode(), packets)
+
+        activator.Controller().s_packets.clear()
+        npc.CastIdentify(activator, Atrinik.IDENTIFY_ALL, sack)
+        self.assertTrue(sack.f_identified)
+        self.assertTrue(sword2.f_identified)
+        self.assertTrue(torch.f_identified)
+        self.assertFalse(sword.f_identified)
+        self.assertFalse(wand.f_identified)
+        packets = b"".join(activator.Controller().s_packets)
+        self.assertIn(torch.GetName(activator).encode(), packets)
+        self.assertIn(sword2.GetName(activator).encode(), packets)
+        self.assertIn(b"The item has a story:", packets)
+        self.assertIn(torch.msg.encode(), packets)
+
+        sword.f_identified = False
+        wand.f_identified = False
+        sack.f_identified = False
+        sword2.f_identified = False
+        torch.f_identified = False
+
+        activator.Controller().s_packets.clear()
+        npc.CastIdentify(activator, Atrinik.IDENTIFY_ALL)
+        self.assertTrue(sack.f_identified)
+        self.assertTrue(sword.f_identified)
+        self.assertFalse(wand.f_identified)
+        self.assertFalse(sword2.f_identified)
+        self.assertFalse(torch.f_identified)
+        packets = b"".join(activator.Controller().s_packets)
+        self.assertIn(sack.GetName(activator).encode(), packets)
+        self.assertIn(sword.GetName(activator).encode(), packets)
+
+        npc.level = 20
+        npc.Update()
+        activator.Controller().s_packets.clear()
+        npc.CastIdentify(activator, Atrinik.IDENTIFY_ALL)
+        self.assertTrue(sack.f_identified)
+        self.assertTrue(sword.f_identified)
+        self.assertTrue(wand.f_identified)
+        self.assertFalse(sword2.f_identified)
+        self.assertFalse(torch.f_identified)
+        packets = b"".join(activator.Controller().s_packets)
+        self.assertIn(wand.GetName(activator).encode(), packets)
+
+    def test_Save(self):
+        self.assertRaises(TypeError, self.obj.Save, 1, 2)
+        self.assertRaises(TypeError, self.obj.Save, x=1)
+
+        s = self.obj.Save()
+        self.assertTrue(s.startswith("arch sword\n"))
+        self.assertTrue(s.endswith("end\n"))
+        self.assertEqual(s, "arch sword\nend\n")
+
+        self.obj.f_identified = True
+        s = self.obj.Save()
+        self.assertTrue(s.startswith("arch sword\n"))
+        self.assertTrue(s.endswith("end\n"))
+        self.assertEqual(s, "arch sword\nidentified 1\nend\n")
+
+    def test_GetCost(self):
+        self.assertRaises(TypeError, self.obj.GetCost, 1, 2)
+        self.assertRaises(TypeError, self.obj.GetCost, x=1)
+
+        self.obj.f_identified = True
+        self.assertEqual(self.obj.GetCost(), self.obj.value)
+        self.assertEqual(self.obj.GetCost(Atrinik.COST_BUY), self.obj.value)
+        self.assertEqual(self.obj.GetCost(Atrinik.COST_SELL),
+                         self.obj.value * 0.2)
+
+    def test_GetMoney(self):
+        self.assertRaises(TypeError, self.obj.GetMoney, 1, 2)
+        self.assertRaises(TypeError, self.obj.GetMoney, x=1)
+
+        self.assertEqual(activator.GetMoney(), 0)
+        money = activator.CreateObject("goldcoin")
+        money.nrof = 50
+        self.assertEqual(activator.GetMoney(), money.value * money.nrof)
+        money.Destroy()
+
+    def test_PayAmount(self):
+        self.assertRaises(TypeError, self.obj.PayAmount, 1, 2)
+        self.assertRaises(TypeError, self.obj.PayAmount, x=1)
+
+        self.assertTrue(activator.PayAmount(0))
+        self.assertFalse(activator.PayAmount(1))
+        money = activator.CreateObject("goldcoin")
+        money.nrof = 50
+        self.assertFalse(activator.PayAmount(money.value * money.nrof + 1))
+        self.assertTrue(activator.PayAmount(money.value * money.nrof))
+        self.assertTrue(activator.PayAmount(0))
+        self.assertFalse(activator.PayAmount(1))
+
+    def test_Clone(self):
+        self.assertRaises(TypeError, self.obj.Clone, 1, 2)
+        self.assertRaises(TypeError, self.obj.Clone, x=1)
+
+        no_inv_obj = self.obj.Save()
+
+        clone = self.obj.Clone()
+        self.assertNotEqual(self.obj, clone)
+        self.assertEqual(self.obj.name, clone.name)
+        self.assertEqual(self.obj.arch.name, clone.arch.name)
+        self.assertEqual(no_inv_obj, clone.Save())
+        self.assertFalse(clone.inv)
+        clone.Destroy()
+
+        clone = self.obj.Clone(False)
+        self.assertNotEqual(self.obj, clone)
+        self.assertEqual(self.obj.name, clone.name)
+        self.assertEqual(self.obj.arch.name, clone.arch.name)
+        self.assertEqual(no_inv_obj, clone.Save())
+        self.assertFalse(clone.inv)
+        clone.Destroy()
+
+        torch = self.obj.CreateObject("torch")
+        self.assertEqual(self.obj.inv[0], torch)
+
+        clone = self.obj.Clone()
+        self.assertNotEqual(self.obj, clone)
+        self.assertEqual(self.obj.name, clone.name)
+        self.assertEqual(self.obj.arch.name, clone.arch.name)
+        self.assertEqual(self.obj.Save(), clone.Save())
+        self.assertTrue(clone.inv[0])
+        self.assertNotEqual(self.obj.inv[0], clone.inv[0])
+        self.assertEqual(self.obj.inv[0].name, clone.inv[0].name)
+        self.assertEqual(self.obj.inv[0].arch.name, clone.inv[0].arch.name)
+        self.assertEqual(self.obj.inv[0].Save(), clone.inv[0].Save())
+        clone.Destroy()
+
+        clone = self.obj.Clone(False)
+        self.assertNotEqual(self.obj, clone)
+        self.assertEqual(self.obj.name, clone.name)
+        self.assertEqual(self.obj.arch.name, clone.arch.name)
+        self.assertEqual(no_inv_obj, clone.Save())
+        self.assertFalse(clone.inv)
+        clone.Destroy()
+
+    def test_ReadKey(self):
+        self.assertRaises(TypeError, self.obj.ReadKey)
+        self.assertRaises(TypeError, self.obj.ReadKey, 1, 2)
+        self.assertRaises(TypeError, self.obj.ReadKey, x=1)
+
+        self.assertIsNone(self.obj.ReadKey("xxx"))
+        self.assertIsNone(self.obj.ReadKey("identified"))
+        self.obj.f_identified = True
+        self.assertIsNone(self.obj.ReadKey("identified"))
+        self.obj.f_identified = False
+
+        self.obj.WriteKey("identified", "1")
+        self.assertEqual(self.obj.ReadKey("identified"), "1")
+        self.assertIsNone(self.obj.ReadKey("xxx"))
+        self.assertFalse(self.obj.f_identified)
+
+        self.obj.WriteKey("xxx", "hello world")
+        self.assertEqual(self.obj.ReadKey("identified"), "1")
+        self.assertEqual(self.obj.ReadKey("xxx"), "hello world")
+        self.assertIsNone(self.obj.ReadKey("yyy"))
+        self.assertFalse(self.obj.f_identified)
+
+    def test_WriteKey(self):
+        self.assertRaises(TypeError, self.obj.WriteKey)
+        self.assertRaises(TypeError, self.obj.WriteKey, 1, 2)
+        self.assertRaises(TypeError, self.obj.WriteKey, x=1)
+
+        self.obj.WriteKey("xxx", "hello world")
+        self.assertEqual(self.obj.ReadKey("xxx"), "hello world")
+        self.obj.WriteKey("xxx")
+        self.assertIsNone(self.obj.ReadKey("xxx"))
+        self.obj.WriteKey("xxx", "hello world", False)
+        self.assertIsNone(self.obj.ReadKey("xxx"))
+        self.obj.WriteKey("xxx", "hello world")
+        self.assertEqual(self.obj.ReadKey("xxx"), "hello world")
+        self.obj.WriteKey("xxx", "hello horizons", False)
+        self.assertEqual(self.obj.ReadKey("xxx"), "hello horizons")
+        self.obj.WriteKey("yyy", "hello pluto")
+        self.assertEqual(self.obj.ReadKey("yyy"), "hello pluto")
+        self.assertEqual(self.obj.ReadKey("xxx"), "hello horizons")
+        self.assertIsNone(self.obj.ReadKey("zzz"))
+        self.obj.WriteKey("yyy")
+        self.assertEqual(self.obj.ReadKey("xxx"), "hello horizons")
+        self.assertIsNone(self.obj.ReadKey("yyy"))
+        self.obj.WriteKey("xxx")
+        self.assertIsNone(self.obj.ReadKey("yyy"))
+        self.assertIsNone(self.obj.ReadKey("xxx"))
+
+    def test_GetName(self):
+        self.assertRaises(TypeError, self.obj.GetName, 1, 2)
+        self.assertRaises(TypeError, self.obj.GetName, x=1)
+
+        self.assertEqual(me.GetName(), me.name)
+        self.assertEqual(activator.GetName(), activator.name)
+
+        self.assertEqual(self.obj.GetName(), "sword")
+        self.assertEqual(self.obj.GetName(activator), "sword")
+        self.obj.f_identified = True
+        self.assertEqual(self.obj.GetName(), "iron sword")
+        self.assertEqual(self.obj.GetName(activator), "iron sword")
+
+        torch = activator.CreateObject("torch")
+        self.assertEqual(torch.GetName(), "torch")
+        self.assertEqual(torch.GetName(activator), "torch")
+        torch.nrof = 50
+        self.assertEqual(torch.GetName(), "50 torch")
+        self.assertEqual(torch.GetName(activator), "50 torch")
+        torch.Destroy()
+
+        corpse = activator.CreateObject("corpse_default")
+        corpse.sub_type = 65
+        self.assertEqual(corpse.GetName(), "decaying corpse")
+        self.assertEqual(corpse.GetName(activator), "decaying corpse")
+        corpse.slaying = me.name
+        self.assertEqual(corpse.GetName(), "decaying corpse (bounty of " +
+                                           me.name + ")")
+        self.assertEqual(corpse.GetName(activator), "decaying corpse (bounty "
+                                                    "of " + me.name + ")")
+
+        corpse.sub_type = 129
+        corpse.slaying = "test"
+        self.assertEqual(corpse.GetName(), "decaying corpse (bounty of a "
+                                           "party)")
+        self.assertEqual(corpse.GetName(activator), "decaying corpse (bounty "
+                                                    "of another party)")
+        activator.Controller().ExecuteCommand("/party form test")
+        self.assertEqual(corpse.GetName(), "decaying corpse (bounty of a "
+                                           "party)")
+        self.assertEqual(corpse.GetName(activator), "decaying corpse (bounty "
+                                                    "of your party)")
+        activator.Controller().ExecuteCommand("/party leave")
+
+    def test_Controller(self):
+        self.assertRaises(TypeError, self.obj.Controller, 1, 2)
+        self.assertRaises(TypeError, self.obj.Controller, x=1)
+
+        self.assertRaises(Atrinik.AtrinikError, self.obj.Controller)
+
+        self.assertIsNotNone(activator.Controller())
+        self.assertIsInstance(activator.Controller(), Atrinik.Player.Player)
+        self.assertEqual(activator.Controller().ob, activator)
+
+    def test_Protection(self):
+        self.assertRaises(TypeError, self.obj.Protection)
+        self.assertRaises(TypeError, self.obj.Protection, 1, 2)
+        self.assertRaises(TypeError, self.obj.Protection, x=1)
+
+        self.assertRaises(IndexError, self.obj.Protection, -1)
+        self.assertRaises(IndexError, self.obj.Protection, 5000)
+
+        self.assertEqual(self.obj.Protection(Atrinik.ATNR_SLASH), 0)
+        self.obj.SetProtection(Atrinik.ATNR_SLASH, 50)
+        self.assertEqual(self.obj.Protection(Atrinik.ATNR_SLASH), 50)
+
+    def test_SetProtection(self):
+        self.assertRaises(TypeError, self.obj.SetProtection)
+        self.assertRaises(TypeError, self.obj.SetProtection, 1, "2")
+        self.assertRaises(TypeError, self.obj.SetProtection, x=1)
+
+        self.assertRaises(IndexError, self.obj.SetProtection, -1, 0)
+        self.assertRaises(IndexError, self.obj.SetProtection, 5000, 0)
+
+        self.assertRaises(OverflowError, self.obj.SetProtection,
+                          Atrinik.ATNR_SLASH, 200)
+        self.assertRaises(OverflowError, self.obj.SetProtection,
+                          Atrinik.ATNR_SLASH, -200)
+
+        self.obj.SetProtection(Atrinik.ATNR_SLASH, 50)
+        self.assertEqual(self.obj.Protection(Atrinik.ATNR_SLASH), 50)
+
+        self.obj.SetProtection(Atrinik.ATNR_SLASH, 127)
+        self.assertEqual(self.obj.Protection(Atrinik.ATNR_SLASH), 127)
+
+        self.obj.SetProtection(Atrinik.ATNR_SLASH, -128)
+        self.assertEqual(self.obj.Protection(Atrinik.ATNR_SLASH), -128)
+
+    def test_Attack(self):
+        self.assertRaises(TypeError, self.obj.Attack)
+        self.assertRaises(TypeError, self.obj.Attack, 1, 2)
+        self.assertRaises(TypeError, self.obj.Attack, x=1)
+
+        self.assertRaises(IndexError, self.obj.Attack, -1)
+        self.assertRaises(IndexError, self.obj.Attack, 5000)
+
+        self.assertEqual(self.obj.Attack(Atrinik.ATNR_SLASH), 100)
+        self.obj.SetAttack(Atrinik.ATNR_SLASH, 50)
+        self.assertEqual(self.obj.Attack(Atrinik.ATNR_SLASH), 50)
+
+    def test_SetAttack(self):
+        self.assertRaises(TypeError, self.obj.SetAttack)
+        self.assertRaises(TypeError, self.obj.SetAttack, 1, "2")
+        self.assertRaises(TypeError, self.obj.SetAttack, x=1)
+
+        self.assertRaises(IndexError, self.obj.SetAttack, -1, 0)
+        self.assertRaises(IndexError, self.obj.SetAttack, 5000, 0)
+
+        self.assertRaises(OverflowError, self.obj.SetAttack,
+                          Atrinik.ATNR_SLASH, 300)
+        self.assertRaises(OverflowError, self.obj.SetAttack,
+                          Atrinik.ATNR_SLASH, -200)
+
+        self.obj.SetAttack(Atrinik.ATNR_SLASH, 50)
+        self.assertEqual(self.obj.Attack(Atrinik.ATNR_SLASH), 50)
+
+        self.obj.SetAttack(Atrinik.ATNR_SLASH, 255)
+        self.assertEqual(self.obj.Attack(Atrinik.ATNR_SLASH), 255)
+
+        self.obj.SetAttack(Atrinik.ATNR_SLASH, 0)
+        self.assertEqual(self.obj.Attack(Atrinik.ATNR_SLASH), 0)
+
+    def test_Decrease(self):
+        self.assertRaises(TypeError, self.obj.Decrease, 1, "2")
+        self.assertRaises(TypeError, self.obj.Decrease, x=1)
+
+        torch = activator.CreateObject("torch")
+        torch.Decrease()
+        self.assertFalse(torch)
+
+        torch = activator.CreateObject("torch")
+        torch.Decrease(50)
+        self.assertFalse(torch)
+
+        torch = activator.CreateObject("torch", nrof=50)
+        torch.Decrease()
+        self.assertTrue(torch)
+        self.assertEqual(torch.nrof, 49)
+        torch.Decrease(50)
+        self.assertFalse(torch)
+
+        torch = activator.CreateObject("torch", nrof=5)
+        torch.Decrease()
+        self.assertTrue(torch)
+        self.assertEqual(torch.nrof, 4)
+        torch.Decrease(4)
+        self.assertFalse(torch)
+
+    def test_SquaresAround(self):
+        self.assertRaises(TypeError, self.obj.SquaresAround)
+        self.assertRaises(TypeError, self.obj.SquaresAround, 1, "2")
+        self.assertRaises(TypeError, self.obj.SquaresAround, x=1)
+
+        self.assertRaises(ValueError, self.obj.SquaresAround, 0)
+        self.assertRaises(TypeError, self.obj.SquaresAround, 1, callable=1)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-squares-around")
+        m.Insert(activator, 2, 2)
+
+        l = []
+        for i in range(Atrinik.SIZEOFFREE1):
+            l.append((m, activator.x + Atrinik.freearr_x[i + 1],
+                      activator.y + Atrinik.freearr_y[i + 1]))
+        self.assertEqual(sorted(l), sorted(activator.SquaresAround(1)))
+
+        l2 = activator.SquaresAround(range=1, type=Atrinik.AROUND_WALL)
+        self.assertEqual(sorted(l), sorted(l2))
+
+        m.CreateObject("blocked", 1, 1)
+        l = []
+        for i in range(Atrinik.SIZEOFFREE1):
+            x = activator.x + Atrinik.freearr_x[i + 1]
+            y = activator.y + Atrinik.freearr_y[i + 1]
+            if x == 1 and y == 1:
+                continue
+            l.append((m, x, y))
+        l2 = activator.SquaresAround(range=1, type=Atrinik.AROUND_WALL)
+        self.assertEqual(sorted(l), sorted(l2))
+
+        self.assertEqual(len(self.obj.SquaresAround(1)), 0)
+        self.assertEqual(len(activator.SquaresAround(2)), 24)
+
+        m.CreateObject("blocked", 1, 1)
+        l = [(m, 1, 1)]
+        fnc = lambda m2, x2, y2, obj: not m2.Objects(x2, y2)
+        l2 = activator.SquaresAround(range=1, callable=fnc)
+        self.assertEqual(sorted(l), sorted(l2))
+
+    def test_GetRangeVector(self):
+        self.assertRaises(TypeError, self.obj.GetRangeVector)
+        self.assertRaises(TypeError, self.obj.GetRangeVector, 1, 2)
+        self.assertRaises(TypeError, self.obj.GetRangeVector, x=1)
+
+        m = Atrinik.CreateMap(50, 50, "test-atrinik-object-get-range-vector")
+        m.Insert(self.obj, 0, 0)
+        m.Insert(activator, 0, 0)
+        t = self.obj.GetRangeVector(activator)
+        self.assertIsInstance(t, tuple)
+        self.assertEqual(t, (5, 0, 0, 0, self.obj))
+
+        m.Insert(activator, 10, 10)
+        t = self.obj.GetRangeVector(activator)
+        self.assertIsInstance(t, tuple)
+        self.assertEqual(t, (4, 14, 10, 10, self.obj))
+
+        m.Insert(activator, 10, 10)
+        t = activator.GetRangeVector(self.obj)
+        self.assertIsInstance(t, tuple)
+        self.assertEqual(t, (8, 14, -10, -10, activator))
+
+    def test_CreateTreasure(self):
+        self.assertRaises(TypeError, self.obj.CreateTreasure, 1, 2)
+        self.assertRaises(TypeError, self.obj.CreateTreasure, x=1)
+
+        self.assertRaises(ValueError, self.obj.CreateTreasure)
+
+        self.obj.CreateTreasure("random_talisman")
+        self.assertIn(self.obj.inv[0].type, (Atrinik.Type.AMULET,
+                                             Atrinik.Type.RING))
+        while self.obj.inv:
+            self.obj.inv[0].Destroy()
+
+        self.obj.randomitems = "random_talisman"
+        self.obj.CreateTreasure()
+        self.assertIn(self.obj.inv[0].type, (Atrinik.Type.AMULET,
+                                             Atrinik.Type.RING))
+        while self.obj.inv:
+            self.obj.inv[0].Destroy()
 
 
 
