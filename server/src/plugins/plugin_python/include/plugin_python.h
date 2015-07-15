@@ -571,6 +571,15 @@ typedef struct {
         }                                                             \
     }
 
+#define PY_CHECK_INT(val, min, max) \
+    if (val < min || val > max) { \
+        PyErr_Format(PyExc_OverflowError, \
+                "Invalid integer value for parameter '"STRINGIFY(val)"': " \
+                "%zd, must be %zd to %zd.", (Py_ssize_t) val, \
+                (Py_ssize_t) min, (Py_ssize_t) max); \
+        return NULL; \
+    }
+
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
 PyObject *generic_field_getter(fields_struct *field, void *ptr);
 PyObject *generic_rich_compare(int op, int result);

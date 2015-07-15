@@ -1612,13 +1612,13 @@ static const char doc_Atrinik_Object_SetProtection[] =
 static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *self,
         PyObject *args)
 {
-    int protection;
-    int8_t value;
+    int protection, value;
 
-    if (!PyArg_ParseTuple(args, "iB", &protection, &value)) {
+    if (!PyArg_ParseTuple(args, "ii", &protection, &value)) {
         return NULL;
     }
 
+    PY_CHECK_INT(value, INT8_MIN, INT8_MAX);
     OBJEXISTCHECK(self);
 
     if (protection < 0 || protection >= NROFATTACKS) {
@@ -1626,7 +1626,7 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *self,
         return NULL;
     }
 
-    self->obj->protection[protection] = value;
+    self->obj->protection[protection] = (int8_t) value;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1634,7 +1634,7 @@ static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *self,
 
 /** Documentation for Atrinik_Object_Attack(). */
 static const char doc_Atrinik_Object_Attack[] =
-".. method:: Attack(attack, value).\n\n"
+".. method:: Attack(attack).\n\n"
 "Get object's attack value for the given attack ID.\n\n"
 ":param attack: One of the ATNR_xxx constants, eg, "
 ":attr:`~Atrinik.ATNR_SLASH`.\n"
@@ -1683,13 +1683,13 @@ static const char doc_Atrinik_Object_SetAttack[] =
  */
 static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *self, PyObject *args)
 {
-    int attack;
-    uint8_t value;
+    int attack, value;
 
-    if (!PyArg_ParseTuple(args, "ib", &attack, &value)) {
+    if (!PyArg_ParseTuple(args, "ii", &attack, &value)) {
         return NULL;
     }
 
+    PY_CHECK_INT(value, 0, UINT8_MAX);
     OBJEXISTCHECK(self);
 
     if (attack < 0 || attack >= NROFATTACKS) {
@@ -1697,7 +1697,7 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *self, PyObject *args)
         return NULL;
     }
 
-    self->obj->attack[attack] = value;
+    self->obj->attack[attack] = (uint8_t) value;
 
     Py_INCREF(Py_None);
     return Py_None;
