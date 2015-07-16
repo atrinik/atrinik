@@ -5,7 +5,7 @@ import Atrinik
 from tests import simulate_server
 
 
-class ObjectTestCase(unittest.TestCase):
+class ObjectMethodsSuite(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
@@ -1316,5 +1316,5 @@ class ObjectTestCase(unittest.TestCase):
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
-    unittest.TestLoader().loadTestsFromTestCase(ObjectTestCase)
+    unittest.TestLoader().loadTestsFromTestCase(ObjectMethodsSuite),
 ]

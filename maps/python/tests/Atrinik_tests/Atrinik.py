@@ -5,7 +5,7 @@ import Atrinik
 from tests import simulate_server
 
 
-class AtrinikTestCase(unittest.TestCase):
+class AtrinikMethodsSuite(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
@@ -474,5 +474,5 @@ except ReferenceError:
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
-    unittest.TestLoader().loadTestsFromTestCase(AtrinikTestCase)
+    unittest.TestLoader().loadTestsFromTestCase(AtrinikMethodsSuite),
 ]
