@@ -2212,6 +2212,8 @@ object *player_get_dummy(const char *name)
     pl->socket.state = ST_PLAYING;
     pl->socket.socket_version = SOCKET_VERSION;
 
+    object_enter_map(pl->ob, NULL, NULL, 0, 0, 0);
+
     return pl->ob;
 }
 
