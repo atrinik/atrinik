@@ -2671,7 +2671,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
     switch (field->type) {
     case FIELDTYPE_SHSTR:
-
         if (value == Py_None) {
             FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
         } else if (PyString_Check(value)) {
@@ -2684,7 +2683,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_CSTR:
-
         if (value == Py_None || PyString_Check(value)) {
             if (*(char **) field_ptr != NULL) {
                 efree(*(char **) field_ptr);
@@ -2702,7 +2700,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_CARY:
-
         if (value == Py_None) {
             ((char *) field_ptr)[0] = '\0';
         } else if (PyString_Check(value)) {
@@ -2715,11 +2712,9 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_UINT8:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < 0 || (unsigned long) val > UINT8_MAX) {
+            unsigned long val = PyLong_AsUnsignedLong(value);
+            if (PyErr_Occurred() || val > UINT8_MAX) {
                 PyErr_SetString(PyExc_OverflowError,
                         "Invalid integer value for uint8 field.");
                 return -1;
@@ -2733,29 +2728,25 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT8:
-
         if (PyInt_Check(value)) {
             long val = PyLong_AsLong(value);
-
-            if (val < INT8_MIN || val > INT8_MAX) {
+            if (PyErr_Occurred() || val < INT8_MIN || val > INT8_MAX) {
                 PyErr_SetString(PyExc_OverflowError,
-                        "Invalid integer value for sint8 field.");
+                        "Invalid integer value for int8 field.");
                 return -1;
             }
 
             *(int8_t *) field_ptr = (int8_t) val;
         } else {
-            INTRAISE("Illegal value for sint8 field.");
+            INTRAISE("Illegal value for int8 field.");
         }
 
         break;
 
     case FIELDTYPE_UINT16:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < 0 || (unsigned long) val > UINT16_MAX) {
+            unsigned long val = PyLong_AsUnsignedLong(value);
+            if (PyErr_Occurred() || val > UINT16_MAX) {
                 PyErr_SetString(PyExc_OverflowError,
                         "Invalid integer value for uint16 field.");
                 return -1;
@@ -2769,29 +2760,25 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT16:
-
         if (PyInt_Check(value)) {
             long val = PyLong_AsLong(value);
-
-            if (val < INT16_MIN || val > INT16_MAX) {
+            if (PyErr_Occurred() || val < INT16_MIN || val > INT16_MAX) {
                 PyErr_SetString(PyExc_OverflowError,
-                        "Invalid integer value for sint16 field.");
+                        "Invalid integer value for int16 field.");
                 return -1;
             }
 
             *(int16_t *) field_ptr = (int16_t) val;
         } else {
-            INTRAISE("Illegal value for sint16 field.");
+            INTRAISE("Illegal value for int16 field.");
         }
 
         break;
 
     case FIELDTYPE_UINT32:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < 0 || (unsigned long) val > UINT32_MAX) {
+            unsigned long val = PyLong_AsUnsignedLong(value);
+            if (PyErr_Occurred()) {
                 PyErr_SetString(PyExc_OverflowError,
                         "Invalid integer value for uint32 field.");
                 return -1;
@@ -2805,28 +2792,25 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT32:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < INT32_MIN || val > INT32_MAX) {
+            int overflow;
+            long val = PyLong_AsLongAndOverflow(value, &overflow);
+            if (PyErr_Occurred() || overflow != 0) {
                 PyErr_SetString(PyExc_OverflowError,
-                        "Invalid integer value for sint32 field.");
+                        "Invalid integer value for int32 field.");
                 return -1;
             }
 
             *(int32_t *) field_ptr = (int32_t) val;
         } else {
-            INTRAISE("Illegal value for sint32 field.");
+            INTRAISE("Illegal value for int32 field.");
         }
 
         break;
 
     case FIELDTYPE_UINT64:
-
         if (PyInt_Check(value)) {
             unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
-
             if (PyErr_Occurred()) {
                 PyErr_SetString(PyExc_OverflowError,
                         "Invalid integer value for uint64 field.");
@@ -2841,29 +2825,26 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT64:
-
         if (PyInt_Check(value)) {
             PY_LONG_LONG val = PyLong_AsLongLong(value);
-
             if (PyErr_Occurred()) {
                 PyErr_SetString(PyExc_OverflowError,
-                        "Invalid integer value for sint64 field.");
+                        "Invalid integer value for int64 field.");
                 return -1;
             }
 
             *(int64_t *) field_ptr = (int64_t) val;
         } else {
-            INTRAISE("Illegal value for sint64 field.");
+            INTRAISE("Illegal value for int64 field.");
         }
 
         break;
 
     case FIELDTYPE_FLOAT:
-
         if (PyFloat_Check(value)) {
-            *(float *) field_ptr = PyFloat_AsDouble(value) * 1.0;
+            *(float *) field_ptr = (float) PyFloat_AsDouble(value);
         } else if (PyInt_Check(value)) {
-            *(float *) field_ptr = PyLong_AsLong(value) * 1.0;
+            *(float *) field_ptr = (float) PyLong_AsLong(value);
         } else {
             INTRAISE("Illegal value for float field.");
         }
@@ -2871,11 +2852,10 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_DOUBLE:
-
         if (PyFloat_Check(value)) {
-            *(double *) field_ptr = PyFloat_AsDouble(value) * 1.0;
+            *(double *) field_ptr = PyFloat_AsDouble(value);
         } else if (PyInt_Check(value)) {
-            *(double *) field_ptr = PyLong_AsLong(value) * 1.0;
+            *(double *) field_ptr = (double) PyLong_AsLong(value);
         } else {
             INTRAISE("Illegal value for double field.");
         }
@@ -2883,7 +2863,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_OBJECT:
-
         if (value == Py_None) {
             *(object **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_ObjectType)) {
@@ -2901,7 +2880,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_MAP:
-
         if (value == Py_None) {
             *(mapstruct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_MapType)) {
@@ -2916,7 +2894,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     case FIELDTYPE_OBJECTREF:
     {
         void *field_ptr2 = (char *) ptr + field->extra_data;
-
         if (value == Py_None) {
             *(object **) field_ptr = NULL;
             *(tag_t *) field_ptr2 = 0;
@@ -2936,7 +2913,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     }
 
     case FIELDTYPE_REGION:
-
         if (value == Py_None) {
             *(region_struct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_RegionType)) {
@@ -2949,7 +2925,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_PARTY:
-
         if (value == Py_None) {
             *(party_struct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_PartyType)) {
@@ -2962,7 +2937,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_ARCH:
-
         if (value == Py_None) {
             *(archetype_t **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType)) {
@@ -2989,7 +2963,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_PLAYER:
-
         if (value == Py_None) {
             *(player **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_PlayerType)) {
@@ -3001,7 +2974,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_FACE:
-
         if (PyTuple_Check(value)) {
             if (PyTuple_GET_SIZE(value) != 2) {
                 PyErr_Format(PyExc_ValueError,
@@ -3028,7 +3000,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_ANIMATION:
-
         if (PyTuple_Check(value)) {
             if (PyTuple_GET_SIZE(value) != 2) {
                 PyErr_Format(PyExc_ValueError,
@@ -3056,7 +3027,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_BOOLEAN:
-
         if (value == Py_True) {
             *(uint8_t *) field_ptr = 1;
         } else if (value == Py_False) {
@@ -3068,7 +3038,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_CONNECTION:
-
         if (PyInt_Check(value)) {
             hooks->connection_object_add(ptr, ((object *) ptr)->map,
                     PyLong_AsLong(value));
@@ -3079,7 +3048,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_TREASURELIST:
-
         if (PyString_Check(value)) {
             *(treasurelist **) field_ptr =
                     hooks->find_treasurelist(PyString_AsString(value));
