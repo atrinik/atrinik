@@ -92,6 +92,12 @@ static fields_struct fields[] = {
     {"container", FIELDTYPE_OBJECT, offsetof(player, container),
             FIELDFLAG_READONLY, 0, "Container the player has open.; "
             "Atrinik.Object.Object or None (readonly)"},
+    {"combat", FIELDTYPE_BOOLEAN, offsetof(player, combat),
+            0, 0, "Whether the player is ready to engage in combat and should "
+            "swing their weapon at targeted enemies.; bool"},
+    {"combat_force", FIELDTYPE_BOOLEAN, offsetof(player, combat_force),
+            0, 0, "Whether the player should swing their weapon at their "
+            "target, be it friend or foe.; bool"},
 
     {"s_ext_title_flag", FIELDTYPE_BOOLEAN,
             offsetof(player, socket.ext_title_flag), 0, 0,
