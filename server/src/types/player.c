@@ -2210,6 +2210,7 @@ object *player_get_dummy(const char *name)
     link_player_skills(pl->ob);
 
     pl->socket.state = ST_PLAYING;
+    pl->socket.socket_version = SOCKET_VERSION;
 
     return pl->ob;
 }
