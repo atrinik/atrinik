@@ -242,6 +242,9 @@ class AtrinikTestCase(unittest.TestCase):
         self.assertIsInstance(party, Atrinik.Party.Party)
         self.assertEqual(party.name, "xxx")
         self.assertEqual(party.leader, activator.name)
+        activator.Controller().ExecuteCommand("/party leave")
+        party = Atrinik.FindParty("xxx")
+        self.assertIsNone(party)
 
     def test_Logger(self):
         self.assertRaises(TypeError, Atrinik.Logger)
@@ -354,6 +357,8 @@ class AtrinikTestCase(unittest.TestCase):
         self.assertIsInstance(Atrinik.GetFirst("map"), Atrinik.Map.Map)
         self.assertIsInstance(Atrinik.GetFirst("party"), Atrinik.Party.Party)
         self.assertIsInstance(Atrinik.GetFirst("region"), Atrinik.Region.Region)
+
+        activator.Controller().ExecuteCommand("/party leave")
 
     def test_CreateMap(self):
         self.assertRaises(TypeError, Atrinik.CreateMap)
