@@ -1384,7 +1384,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     if (op->value != op2->value) {
-        SAVE_UINT64(sb, "value", op->value);
+        SAVE_INT64(sb, "value", op->value);
     }
 
     if (op->carrying != op2->carrying) {
