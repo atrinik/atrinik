@@ -245,7 +245,7 @@ static fields_struct fields[] = {
             0, "Power of the object (or how much it gives when equipped).; "
             "int"},
 
-    {"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0,
+    {"arch", FIELDTYPE_ARCH, offsetof(object, arch), FIELDFLAG_READONLY, 0,
             "Archetype of the object.; Atrinik.Archetype.Archetype"},
     {"z", FIELDTYPE_INT16, offsetof(object, z), 0, 0,
             "Z-position on the map (in pixels) for this object.; int"},
