@@ -1319,7 +1319,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     if (op->move_status != op2->move_status) {
-        SAVE_INT(sb, "move_state ", op->move_status);
+        SAVE_INT(sb, "move_state", op->move_status);
     }
 
     if (op->move_type != op2->move_type) {
