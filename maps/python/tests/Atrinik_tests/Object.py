@@ -1145,6 +1145,172 @@ class ObjectTestCase(unittest.TestCase):
         while self.obj.inv:
             self.obj.inv[0].Destroy()
 
+    def test_Move(self):
+        self.assertRaises(TypeError, self.obj.Move)
+        self.assertRaises(TypeError, self.obj.Move, 1, 2)
+        self.assertRaises(TypeError, self.obj.Move, x=1)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-move")
+        m.Insert(activator, 0, 0)
+        self.assertEqual(activator.Move(Atrinik.EAST), Atrinik.EAST)
+        self.assertEqual(activator.x, 1)
+        self.assertEqual(activator.y, 0)
+        self.assertEqual(activator.Move(Atrinik.NORTH), 0)
+        self.assertEqual(activator.x, 1)
+        self.assertEqual(activator.y, 0)
+        m.CreateObject("door1_locked", 2, 0)
+        self.assertEqual(activator.Move(Atrinik.EAST), -1)
+        self.assertEqual(activator.x, 1)
+        self.assertEqual(activator.y, 0)
+        self.assertEqual(activator.Move(Atrinik.EAST), Atrinik.EAST)
+        self.assertEqual(activator.x, 2)
+        self.assertEqual(activator.y, 0)
+
+    def test_ConnectionTrigger(self):
+        self.assertRaises(TypeError, self.obj.ConnectionTrigger, 1, "2")
+        self.assertRaises(TypeError, self.obj.ConnectionTrigger, x=1)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-move")
+        gate = m.CreateObject("gate_closed", 0, 0)
+        gate.connected = 101
+        switch = m.CreateObject("switch_wall", 2, 2)
+        switch.connected = 101
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 0)
+        self.assertEqual(gate.state, gate.arch.clone.state)
+        self.assertEqual(gate.wc, gate.arch.clone.wc)
+        self.assertEqual(switch.value, 0)
+        self.assertEqual(switch.state, 0)
+        switch.ConnectionTrigger()
+        self.assertEqual(switch.value, 1)
+        self.assertEqual(switch.state, 1)
+        self.assertNotAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 1)
+        simulate_server(count=20, wait=False)
+        self.assertEqual(gate.state, 0)
+        self.assertEqual(gate.wc, 0)
+        switch.ConnectionTrigger(False)
+        simulate_server(count=20, wait=False)
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 0)
+        self.assertEqual(gate.state, gate.arch.clone.state)
+        self.assertEqual(gate.wc, gate.arch.clone.wc)
+        self.assertEqual(switch.value, 0)
+        self.assertEqual(switch.state, 0)
+
+        gate = m.CreateObject("gate_closed", 1, 1)
+        gate.connected = 102
+        button = m.CreateObject("button", 3, 3)
+        button.connected = 102
+        button.weight = 10000
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 0)
+        self.assertEqual(gate.state, gate.arch.clone.state)
+        self.assertEqual(gate.wc, gate.arch.clone.wc)
+        self.assertEqual(button.value, 0)
+        self.assertEqual(button.state, 0)
+        button.ConnectionTrigger(button=True)
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 0)
+        self.assertEqual(gate.state, gate.arch.clone.state)
+        self.assertEqual(gate.wc, gate.arch.clone.wc)
+        self.assertEqual(button.value, 0)
+        self.assertEqual(button.state, 0)
+        torch = m.CreateObject("torch", button.x, button.y)
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 0)
+        self.assertEqual(gate.state, gate.arch.clone.state)
+        self.assertEqual(gate.wc, gate.arch.clone.wc)
+        self.assertEqual(button.value, 0)
+        self.assertEqual(button.state, 0)
+        torch.weight = button.weight
+        button.ConnectionTrigger(button=True)
+        self.assertEqual(button.value, 1)
+        self.assertNotAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 1)
+        simulate_server(count=20, wait=False)
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.state, 0)
+        self.assertEqual(gate.wc, 0)
+        button.ConnectionTrigger(push=False, button=True)
+        self.assertEqual(button.value, 1)
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 1)
+        self.assertEqual(gate.state, 0)
+        self.assertEqual(gate.wc, 0)
+        torch.Destroy()
+        self.assertEqual(button.value, 0)
+        self.assertNotAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 0)
+        self.assertEqual(gate.state, 0)
+        simulate_server(count=20, wait=False)
+        self.assertAlmostEqual(gate.speed, 0.0)
+        self.assertEqual(gate.value, 0)
+        self.assertEqual(gate.state, gate.arch.clone.state)
+        self.assertEqual(gate.wc, gate.arch.clone.wc)
+        self.assertEqual(button.value, 0)
+        self.assertEqual(button.state, 0)
+
+    def test_Artificate(self):
+        self.assertRaises(TypeError, self.obj.Artificate)
+        self.assertRaises(TypeError, self.obj.Artificate, 1, 2)
+        self.assertRaises(TypeError, self.obj.Artificate, x=1)
+
+        self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate, "xxx")
+        self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
+                          "cloak_lesser_fire")
+        self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
+                          "beer_charob")
+
+        self.obj.Artificate("weapon_less_fire")
+        self.assertEqual(self.obj.artifact, "weapon_less_fire")
+        self.assertGreater(self.obj.Attack(Atrinik.ATNR_FIRE), 0)
+        self.assertTrue(self.obj.f_is_magical)
+        self.assertGreater(self.obj.value, self.obj.arch.clone.value)
+        self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
+                          "weapon_less_fire")
+        self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
+                          "xxx")
+
+    def test_Load(self):
+        self.assertRaises(TypeError, self.obj.Load)
+        self.assertRaises(TypeError, self.obj.Load, 1, 2)
+        self.assertRaises(TypeError, self.obj.Load, x=1)
+
+        self.assertFalse(self.obj.f_identified)
+        self.obj.Load("identified 1\n")
+        self.assertTrue(self.obj.f_identified)
+        self.assertFalse(self.obj.f_is_magical)
+        self.assertNotEqual(self.obj.value, 50000000)
+        self.assertNotEqual(self.obj.weight, 1)
+        self.obj.Load("is_magical 1\nvalue 50000000\nweight 1\n")
+        self.assertTrue(self.obj.f_is_magical)
+        self.assertEqual(self.obj.value, 50000000)
+        self.assertEqual(self.obj.weight, 1)
+
+    def test_GetPacket(self):
+        self.assertRaises(TypeError, self.obj.GetPacket)
+        self.assertRaises(TypeError, self.obj.GetPacket, 1, 2)
+        self.assertRaises(TypeError, self.obj.GetPacket, x=1)
+
+        self.obj.f_identified = True
+        self.obj.title = "of Greatness"
+
+        fmt, data = self.obj.GetPacket(activator.Controller(), Atrinik.UPD_NAME)
+        self.assertEqual(fmt, "Hx")
+        self.assertEqual(data[0], Atrinik.UPD_NAME)
+        self.assertIn(self.obj.GetName().encode(), data[1])
+
+        self.obj.glow = "ff0000"
+
+        fmt, data = self.obj.GetPacket(activator.Controller(),
+                                       Atrinik.UPD_NAME | Atrinik.UPD_GLOW)
+        self.assertEqual(fmt, "Hx")
+        self.assertEqual(data[0], Atrinik.UPD_NAME | Atrinik.UPD_GLOW)
+        self.assertIn(self.obj.GetName().encode(), data[1])
+        self.assertIn(self.obj.glow.encode(), data[1])
+
+
 
 
 activator = Atrinik.WhoIsActivator()
