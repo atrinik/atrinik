@@ -1311,10 +1311,675 @@ class ObjectMethodsSuite(unittest.TestCase):
         self.assertIn(self.obj.glow.encode(), data[1])
 
 
+class ObjectFieldsSuite(unittest.TestCase):
+    maxDiff = None
 
+    def setUp(self):
+        simulate_server(count=1, wait=False)
+        self.obj = Atrinik.CreateObject("sword")
+
+    def tearDown(self):
+        self.obj.Destroy()
+
+    def field_compare(self, field, val):
+        if field == "type":
+            if val == Atrinik.Type.PLAYER:
+                val = Atrinik.Type.MONSTER
+        elif field == "sub_layer":
+            val = min(Atrinik.NUM_SUB_LAYERS - 1, val)
+        elif field == "layer":
+            val = min(Atrinik.NUM_LAYERS, val)
+
+        if field == "msg":
+            data = "msg\n{}\nendmsg\n".format(val)
+        else:
+            if (getattr(self.obj.arch.clone, field) == val or
+                    field in ("attacked_by_distance", "last_damage",
+                              "quick_pos", "weapon_speed_left")):
+                data = ""
+            else:
+                if field == "weight_limit":
+                    real_field = "container"
+                elif field == "move_type":
+                    real_field = "movement_type"
+                elif field == "move_status":
+                    real_field = "move_state"
+                else:
+                    real_field = field
+
+                fmt = "{0} {1:.6f}\n" if isinstance(val, float) else "{} {}\n"
+                data = fmt.format(real_field, val)
+
+        self.assertEqual(self.obj.Save(), "arch sword\n{}end\n".format(data))
+        self.assertEqual(getattr(self.obj, field), val)
+
+    def field_test_float(self, field):
+        with self.assertRaises(TypeError):
+            setattr(self.obj, field, "xxx")
+
+        setattr(self.obj, field, 1.0)
+        self.field_compare(field, 1.0)
+
+        setattr(self.obj, field, 1)
+        self.field_compare(field, 1.0)
+
+        setattr(self.obj, field, 0.98)
+        self.field_compare(field, 0.98)
+
+        setattr(self.obj, field, 0.4238499855555)
+        self.field_compare(field, 0.4238499855555)
+
+    def field_test_int(self, field, bits, unsigned=False):
+        # Test for non-integer types
+        with self.assertRaises(TypeError):
+            setattr(self.obj, field, "xxx")
+
+        # Test a negative value with the specified number of bits. Must always
+        # overflow for both signed and unsigned.
+        with self.assertRaises(OverflowError):
+            setattr(self.obj, field, -1 << bits)
+
+        if unsigned:
+            # Test negative values for an unsigned int.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, -1)
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, -1337)
+
+            # Test for overflow with one over the maximum limit.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, 1 << bits)
+        else:
+            # Test signed overflow with one over the maximum limit.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, (1 << (bits - 1)))
+
+            # Test signed overflow with one over the minimum limit.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, (-1 << (bits - 1)) - 1)
+
+        # Test for large overflows, that wouldn't even fit in 64-bit numbers.
+        with self.assertRaises(OverflowError):
+            setattr(self.obj, field, 1 << 256)
+        with self.assertRaises(OverflowError):
+            setattr(self.obj, field, -1 << 256)
+
+        # Test that zero can be set.
+        setattr(self.obj, field, 0)
+        self.field_compare(field, 0)
+
+        # Test some numbers.
+        setattr(self.obj, field, 1)
+        self.field_compare(field, 1)
+        setattr(self.obj, field, 42)
+        self.field_compare(field, 42)
+
+        if unsigned:
+            # Test that maximum can be set.
+            setattr(self.obj, field, (1 << bits) - 1)
+            self.field_compare(field, (1 << bits) - 1)
+        else:
+            # Test that minimum can be set.
+            setattr(self.obj, field, (-1 << (bits - 1)))
+            self.field_compare(field, (-1 << (bits - 1)))
+            # Test that maximum can be set.
+            setattr(self.obj, field, (1 << (bits - 1)) - 1)
+            self.field_compare(field, (1 << (bits - 1)) - 1)
+
+    def test_below(self):
+        with self.assertRaises(TypeError):
+            self.obj.below = None
+
+        self.assertIsNone(self.obj.below)
+
+    def test_above(self):
+        with self.assertRaises(TypeError):
+            self.obj.above = None
+
+        self.assertIsNone(self.obj.above)
+
+    def test_below_above(self):
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-below")
+        gate1 = m.CreateObject("gate_closed", 0, 0)
+        gate2 = m.CreateObject("gate_closed", 0, 0)
+        gate3 = m.CreateObject("gate_closed", 0, 0)
+
+        self.assertIsNone(gate1.above)
+        self.assertEqual(gate1.below, gate2)
+        self.assertEqual(gate2.above, gate1)
+        self.assertEqual(gate2.below, gate3)
+        self.assertEqual(gate3.above, gate2)
+        self.assertIsNone(gate3.below)
+
+    def test_inv(self):
+        with self.assertRaises(TypeError):
+            self.obj.inv = None
+
+        self.assertFalse(self.obj.inv)
+        torch = self.obj.CreateObject("torch")
+        self.assertTrue(self.obj.inv)
+        self.assertEqual(self.obj.inv[0], torch)
+
+    def test_env(self):
+        with self.assertRaises(TypeError):
+            self.obj.env = None
+
+        self.assertIsNone(self.obj.env)
+        self.obj.InsertInto(activator)
+        self.assertEqual(self.obj.env, activator)
+
+    def test_head(self):
+        with self.assertRaises(TypeError):
+            self.obj.head = None
+
+        self.assertEqual(self.obj.head, self.obj)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-head")
+        ballista = m.CreateObject("ballista", 0, 0)
+        self.assertEqual(ballista.head, ballista)
+        self.assertEqual(ballista.more.head, ballista)
+
+    def test_more(self):
+        with self.assertRaises(TypeError):
+            self.obj.more = None
+
+        self.assertIsNone(self.obj.more)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-more")
+        gazer = m.CreateObject("gazer_dread", 0, 0)
+        gazer.Update()
+
+        obj = gazer.more
+        for _ in range(gazer.quick_pos >> 4):
+            self.assertIsNotNone(obj)
+            obj = obj.more
+
+        self.assertIsNone(obj)
+
+    def test_map(self):
+        with self.assertRaises(TypeError):
+            self.obj.map = None
+
+        self.assertIsNone(self.obj.map)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-map")
+        m.Insert(self.obj, 0, 0)
+        self.assertEqual(self.obj.map, m)
+
+    def test_name(self):
+        with self.assertRaises(TypeError):
+            activator.name = "xxx"
+        with self.assertRaises(TypeError):
+            self.obj.name = 10
+
+        self.obj.name = "hello world"
+        self.field_compare("name", "hello world")
+        self.assertEqual(self.obj.GetName(), "hello world")
+
+    def test_custom_name(self):
+        with self.assertRaises(TypeError):
+            self.obj.custom_name = 10
+
+        self.obj.custom_name = "pointy stick of doom"
+        self.field_compare("custom_name", "pointy stick of doom")
+
+    def test_glow(self):
+        with self.assertRaises(TypeError):
+            self.obj.glow = 10
+
+        self.obj.glow = "ff0000"
+        self.field_compare("glow", "ff0000")
+
+    def test_title(self):
+        with self.assertRaises(TypeError):
+            self.obj.title = 10
+
+        self.obj.title = "of amazing damages"
+        self.field_compare("title", "of amazing damages")
+
+    def test_race(self):
+        with self.assertRaises(TypeError):
+            self.obj.race = 10
+
+        self.obj.race = "kobold"
+        self.field_compare("race", "kobold")
+
+    def test_slaying(self):
+        with self.assertRaises(TypeError):
+            self.obj.slaying = 10
+
+        self.obj.slaying = "foes"
+        self.field_compare("slaying", "foes")
+
+    def test_msg(self):
+        with self.assertRaises(TypeError):
+            self.obj.msg = 10
+
+        self.obj.msg = "hello world"
+        self.field_compare("msg", "hello world")
+
+        self.obj.msg = "this\n\is\na\nmulti\nline\nmessage"
+        self.field_compare("msg", "this\n\is\na\nmulti\nline\nmessage")
+
+    def test_artifact(self):
+        with self.assertRaises(TypeError):
+            self.obj.artifact = 10
+
+        self.obj.artifact = "testing_artifact"
+        self.field_compare("artifact", "testing_artifact")
+
+    def test_weight(self):
+        self.field_test_int("weight", 32, True)
+
+    def test_count(self):
+        with self.assertRaises(TypeError):
+            self.obj.count = 10
+
+        self.assertGreater(self.obj.count, 0)
+        torch = Atrinik.CreateObject("torch")
+        torch2 = Atrinik.CreateObject("torch")
+        self.assertEqual(torch2.count, torch.count + 1)
+        torch.Destroy()
+        torch2.Destroy()
+
+    def test_weight_limit(self):
+        self.field_test_int("weight_limit", 32, True)
+
+    def test_carrying(self):
+        self.field_test_int("carrying", 32, True)
+
+    def test_path_attuned(self):
+        self.field_test_int("path_attuned", 32, True)
+
+    def test_path_repelled(self):
+        self.field_test_int("path_repelled", 32, True)
+
+    def test_path_denied(self):
+        self.field_test_int("path_denied", 32, True)
+
+    def test_value(self):
+        self.field_test_int("value", 64)
+
+    def test_nrof(self):
+        self.field_test_int("nrof", 32, True)
+
+    def test_enemy(self):
+        with self.assertRaises(TypeError):
+            self.obj.enemy = 10
+        with self.assertRaises(TypeError):
+            activator.enemy = self.obj
+
+        self.assertIsNone(self.obj.enemy)
+        self.obj.enemy = activator
+        self.assertEqual(self.obj.Save(), "arch sword\nobject_int1 {}\n"
+                                          "end\n".format(activator.count))
+
+    def test_attacked_by(self):
+        with self.assertRaises(TypeError):
+            self.obj.attacked_by = 10
+        with self.assertRaises(TypeError):
+            activator.attacked_by = self.obj
+        with self.assertRaises(TypeError):
+            self.obj.attacked_by = activator
+
+        self.assertIsNone(self.obj.attacked_by)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-attacked_by")
+        sack = m.CreateObject("sack", 0, 0)
+        m.Insert(activator, 0, 0)
+        activator.Apply(sack)
+        self.assertEqual(sack.attacked_by, activator)
+        self.assertIn("object_int2 {}\n".format(activator.count), sack.Save())
+
+        raas = m.CreateObject("raas", 1, 1)
+        raas.Update()
+        activator.Controller().target_object = raas
+        activator.Controller().combat = True
+        simulate_server(count=5, wait=False)
+        self.assertEqual(raas.attacked_by, activator)
+        self.assertIn("object_int2 {}\n".format(activator.count), raas.Save())
+
+    def test_owner(self):
+        with self.assertRaises(TypeError):
+            self.obj.owner = 10
+        with self.assertRaises(TypeError):
+            activator.owner = self.obj
+        with self.assertRaises(TypeError):
+            self.obj.owner = activator
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-owner")
+        raas = m.CreateObject("raas", 0, 0)
+        raas.Update()
+        raas.Cast(Atrinik.GetArchetype("spell_firestorm").clone.sp,
+                  direction=Atrinik.SOUTHEAST)
+        simulate_server(count=1, wait=False)
+
+        firestorm = None
+        for obj in m.Objects(1, 1):
+            if obj.arch.name == "firebreath":
+                firestorm = obj
+                break
+
+        self.assertIsNotNone(firestorm)
+        self.assertEqual(firestorm.owner, raas)
+        self.assertIn("object_int3 {}\n".format(raas.count), firestorm.Save())
+
+    def test_x(self):
+        with self.assertRaises(TypeError):
+            self.obj.x = 10
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-x")
+        m.Insert(self.obj, 2, 1)
+        self.assertEqual(self.obj.x, 2)
+        m.Insert(self.obj, 3, 1)
+        self.assertEqual(self.obj.x, 3)
+
+    def test_y(self):
+        with self.assertRaises(TypeError):
+            self.obj.y = 10
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-y")
+        m.Insert(self.obj, 1, 2)
+        self.assertEqual(self.obj.y, 2)
+        m.Insert(self.obj, 1, 3)
+        self.assertEqual(self.obj.y, 3)
+
+    def test_attacked_by_distance(self):
+        self.field_test_int("attacked_by_distance", 16)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-"
+                                    "attacked_by_distance")
+        m.Insert(activator, 0, 0)
+        raas = m.CreateObject("raas", 1, 1)
+        raas.Update()
+        activator.Controller().target_object = raas
+        activator.Controller().combat = True
+        simulate_server(count=5, wait=False)
+        self.assertEqual(raas.attacked_by_distance, 1)
+
+    def test_last_damage(self):
+        self.field_test_int("last_damage", 16, True)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-last_damage")
+        m.Insert(activator, 0, 0)
+        sword = activator.CreateObject("sword")
+        sword.item_level = 1
+        sword.SetAttack(Atrinik.ATNR_SLASH, 100)
+        sword.item_quality = 100
+        sword.item_condition = 100
+        activator.Apply(sword)
+        raas = m.CreateObject("raas", 1, 1)
+        raas.Update()
+        raas.SetProtection(Atrinik.ATNR_SLASH, 0)
+        activator.Hit(raas, 10)
+        self.assertEqual(raas.last_damage, 10)
+        sword.Destroy()
+
+    def test_terrain_type(self):
+        self.field_test_int("terrain_type", 16, True)
+
+    def test_terrain_flag(self):
+        self.field_test_int("terrain_flag", 16, True)
+
+    def test_material(self):
+        self.field_test_int("material", 16, True)
+
+    def test_material_real(self):
+        self.field_test_int("material_real", 16)
+
+    def test_last_heal(self):
+        self.field_test_int("last_heal", 16)
+
+    def test_last_sp(self):
+        self.field_test_int("last_sp", 16)
+
+    def test_last_grace(self):
+        self.field_test_int("last_grace", 16)
+
+    def test_last_eat(self):
+        self.field_test_int("last_eat", 16)
+
+    def test_magic(self):
+        self.field_test_int("magic", 8)
+
+    def test_state(self):
+        self.field_test_int("state", 8, True)
+
+    def test_level(self):
+        with self.assertRaises(TypeError):
+            activator.level = 10
+
+        self.field_test_int("level", 8)
+        raas = Atrinik.CreateObject("raas")
+        self.assertEqual(raas.level, 1)
+        raas.Destroy()
+
+    def test_direction(self):
+        self.field_test_int("direction", 8)
+
+    def test_quick_pos(self):
+        self.field_test_int("quick_pos", 8, True)
+
+    def test_quickslot(self):
+        with self.assertRaises(TypeError):
+            self.obj.quickslot = 10
+
+        self.assertEqual(self.obj.quickslot, 0)
+
+    def test_type(self):
+        self.field_test_int("type", 8, True)
+
+    def test_sub_type(self):
+        self.field_test_int("sub_type", 8, True)
+
+    def test_item_quality(self):
+        self.field_test_int("item_quality", 8, True)
+
+    def test_condition(self):
+        self.field_test_int("item_condition", 8, True)
+
+    def test_item_race(self):
+        self.field_test_int("item_race", 8, True)
+
+    def test_item_level(self):
+        self.field_test_int("item_level", 8, True)
+
+    def test_item_skill(self):
+        self.field_test_int("item_skill", 8, True)
+
+    def test_glow_radius(self):
+        self.field_test_int("glow_radius", 8)
+
+    def test_move_status(self):
+        self.field_test_int("move_status", 8)
+
+    def test_move_type(self):
+        self.field_test_int("move_type", 8, True)
+
+    def test_anim_speed(self):
+        self.field_test_int("anim_speed", 8, True)
+
+    def test_behavior(self):
+        self.field_test_int("behavior", 8, True)
+
+    def test_run_away(self):
+        self.field_test_int("run_away", 8, True)
+
+    def test_layer(self):
+        self.field_test_int("layer", 8, True)
+
+    def test_sub_layer(self):
+        self.field_test_int("sub_layer", 8, True)
+
+    def test_speed(self):
+        self.field_test_float("speed")
+
+    def test_speed_left(self):
+        self.field_test_float("speed_left")
+
+    def test_weapon_speed(self):
+        self.field_test_float("weapon_speed")
+
+    def test_weapon_speed_left(self):
+        self.field_test_float("weapon_speed_left")
+
+    def test_exp(self):
+        self.field_test_int("exp", 64)
+
+    def test_hp(self):
+        self.field_test_int("hp", 32)
+
+    def test_maxhp(self):
+        self.field_test_int("maxhp", 32)
+
+    def test_sp(self):
+        self.field_test_int("sp", 16)
+
+    def test_maxsp(self):
+        self.field_test_int("maxsp", 16)
+
+    def test_food(self):
+        self.field_test_int("food", 16)
+
+    def test_dam(self):
+        self.field_test_int("dam", 16)
+
+    def test_wc(self):
+        self.field_test_int("wc", 16)
+
+    def test_ac(self):
+        self.field_test_int("ac", 16)
+
+    def test_wc_range(self):
+        self.field_test_int("wc_range", 8, True)
+
+    def test_Str(self):
+        self.field_test_int("Str", 8)
+
+    def test_Dex(self):
+        self.field_test_int("Dex", 8)
+
+    def test_Con(self):
+        self.field_test_int("Con", 8)
+
+    def test_Wis(self):
+        self.field_test_int("Wis", 8)
+
+    def test_Cha(self):
+        self.field_test_int("Cha", 8)
+
+    def test_Int(self):
+        self.field_test_int("Int", 8)
+
+    def test_Pow(self):
+        self.field_test_int("Pow", 8)
+
+    def test_arch(self):
+        with self.assertRaises(TypeError):
+            self.obj.arch = None
+
+        self.assertEqual(self.obj.arch, Atrinik.GetArchetype("sword"))
+
+    def test_z(self):
+        self.field_test_int("z", 16)
+
+    def test_zoom_x(self):
+        self.field_test_int("zoom_x", 16)
+
+    def test_zoom_y(self):
+        self.field_test_int("zoom_y", 16)
+
+    def test_rotate(self):
+        self.field_test_int("rotate", 16)
+
+    def test_align(self):
+        self.field_test_int("align", 16)
+
+    def test_alpha(self):
+        self.field_test_int("alpha", 8, True)
+
+    def test_glow_speed(self):
+        self.field_test_int("glow_speed", 8, True)
+
+    def test_face(self):
+        self.assertIsInstance(self.obj.face, tuple)
+        self.assertEqual(self.obj.face[0], "sword.101")
+
+        self.obj.face = Atrinik.GetArchetype("torch").clone.face
+        self.assertEqual(self.obj.face[0], "torch_unlit.101")
+        self.assertEqual(self.obj.Save(), "arch sword\nface torch_unlit.101\n"
+                                          "end\n")
+
+        self.obj.face = 0
+        self.assertEqual(self.obj.face[0], "bug.101")
+        self.assertEqual(self.obj.Save(), "arch sword\nface bug.101\nend\n")
+
+        self.obj.face = Atrinik.GetArchetype("torch").clone.face[1]
+        self.assertEqual(self.obj.face[0], "torch_unlit.101")
+        self.assertEqual(self.obj.Save(), "arch sword\nface torch_unlit.101\n"
+                                          "end\n")
+
+    def test_animation(self):
+        self.assertIsInstance(self.obj.animation, tuple)
+        self.assertEqual(self.obj.animation, ("###none", 0))
+
+        self.obj.animation = Atrinik.GetArchetype("torch").clone.animation
+        self.assertEqual(self.obj.animation[0], "torch")
+        self.assertEqual(self.obj.Save(), "arch sword\nanimation "
+                                          "torch\nend\n")
+
+        self.obj.animation = 0
+        self.assertEqual(self.obj.animation, ("###none", 0))
+        self.assertEqual(self.obj.Save(), "arch sword\nend\n")
+
+        self.obj.animation = "torch"
+        self.assertEqual(self.obj.animation[0], "torch")
+        self.assertEqual(self.obj.Save(), "arch sword\nanimation "
+                                          "torch\nend\n")
+
+    def test_inv_animation(self):
+        self.assertIsInstance(self.obj.inv_animation, tuple)
+        self.assertEqual(self.obj.inv_animation, ("###none", 0))
+
+        self.obj.inv_animation = Atrinik.GetArchetype("torch").clone.animation
+        self.assertEqual(self.obj.inv_animation[0], "torch")
+        self.assertEqual(self.obj.Save(), "arch sword\ninv_animation "
+                                          "torch\nend\n")
+
+        self.obj.inv_animation = 0
+        self.assertEqual(self.obj.inv_animation, ("###none", 0))
+        self.assertEqual(self.obj.Save(), "arch sword\nend\n")
+
+        self.obj.inv_animation = "torch"
+        self.assertEqual(self.obj.inv_animation[0], "torch")
+        self.assertEqual(self.obj.Save(), "arch sword\ninv_animation "
+                                          "torch\nend\n")
+
+    def test_other_arch(self):
+        self.assertIsNone(self.obj.other_arch)
+
+        self.obj.other_arch = Atrinik.GetArchetype("torch")
+        self.assertEqual(self.obj.Save(), "arch sword\nother_arch torch\nend\n")
+
+    def test_connected(self):
+        self.assertEqual(self.obj.connected, 0)
+
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-connected")
+        gate = m.CreateObject("gate_closed", 0, 0)
+        gate.connected = 101
+        self.assertEqual(gate.Save(), "arch gate_closed\npath_attuned 101\n"
+                                      "connected 101\nend\n")
+
+    def test_randomitems(self):
+        self.assertIsNone(self.obj.randomitems)
+
+        self.obj.randomitems = "random_talisman"
+        self.assertEqual(self.obj.Save(), "arch sword\nrandomitems "
+                                          "random_talisman\nend\n")
 
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
     unittest.TestLoader().loadTestsFromTestCase(ObjectMethodsSuite),
+    unittest.TestLoader().loadTestsFromTestCase(ObjectFieldsSuite),
 ]
