@@ -2058,14 +2058,16 @@ static const char doc_Atrinik_Object_ConnectionTrigger[] =
 
 /**
  * Implements Atrinik.Object.Object.ConnectionTrigger() Python method.
- * @copydoc PyMethod_VARARGS
+ * @copydoc PyMethod_VARARGS_KEYWORDS
  */
 static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *self,
-        PyObject *args)
+        PyObject *args, PyObject *keywds)
 {
+    static char *kwlist[] = {"push", "button", NULL};
     int push = 1, button = 0;
 
-    if (!PyArg_ParseTuple(args, "|ii", &push, &button)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwlist, &push,
+            &button)) {
         return NULL;
     }
 
@@ -2287,7 +2289,7 @@ static PyMethodDef methods[] = {
     {"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS,
             doc_Atrinik_Object_Move},
     {"ConnectionTrigger", (PyCFunction) Atrinik_Object_ConnectionTrigger,
-            METH_VARARGS, doc_Atrinik_Object_ConnectionTrigger},
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_ConnectionTrigger},
     {"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS,
             doc_Atrinik_Object_Artificate},
     {"Load", (PyCFunction) Atrinik_Object_Load, METH_VARARGS,
