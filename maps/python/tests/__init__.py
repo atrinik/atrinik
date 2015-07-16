@@ -14,6 +14,7 @@ def run():
     all_suites = []
     all_suites += tests.Atrinik_tests.Atrinik.suites
     all_suites += tests.Atrinik_tests.Object.suites
+    old_all_tests = unittest.TestSuite(all_suites)
 
     unit_test = Atrinik.GetSettings()["plugin_unit_test"]
     if unit_test:
@@ -29,6 +30,23 @@ def run():
         all_suites = new_all_suites
 
     all_tests = unittest.TestSuite(all_suites)
+    if all_tests.countTestCases() == 0:
+        suites = {}
+
+        for suite in old_all_tests:
+            for test in suite:
+                test_parts = test.id().split(".")
+                suite_name = test_parts[-2]
+                if suite_name not in suites:
+                    suites[suite_name] = []
+                suites[suite_name].append(test_parts[-1])
+
+        Atrinik.print("Available test cases:")
+        for suite in sorted(suites):
+            Atrinik.print(" - {}".format(suite))
+
+            for test in sorted(suites[suite]):
+                Atrinik.print("   - {}".format(test))
 
     try:
         import xmlrunner
