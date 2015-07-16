@@ -2444,6 +2444,7 @@ static void process_func(object *op)
                     /* Our target already has an enemy - then note we had
                      * attacked */
                     pl->ob->enemy->attacked_by = pl->ob;
+                    pl->ob->enemy->attacked_by_count = pl->ob->count;
                     pl->ob->enemy->attacked_by_distance = 1;
                 }
 
