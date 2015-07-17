@@ -129,6 +129,12 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key,
             idx = PyLong_AsUnsignedLongLong(key);
         }
 
+        unsigned PY_LONG_LONG len = attr_list_len(al);
+        if (idx >= len) {
+            PyErr_SetString(PyExc_IndexError, "Index out of range.");
+            return NULL;
+        }
+
         field.type = FIELDTYPE_CSTR;
         ptr = &(*(char ***) ptr)[idx];
     } else if (al->field == FIELDTYPE_FACTIONS) {
@@ -238,22 +244,19 @@ static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
 static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
         unsigned PY_LONG_LONG idx, PyObject *value)
 {
-    unsigned PY_LONG_LONG len;
     void *ptr;
     fields_struct field = {"xxx", 0, 0, 0, 0, NULL};
     int ret;
     unsigned PY_LONG_LONG i;
     player_faction_t *faction = NULL;
 
-    /* Get the current length of the list. */
-    len = attr_list_len(al);
     ptr = (char *) al->ptr + al->offset;
 
     /* Command permissions. */
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
+        unsigned PY_LONG_LONG len = attr_list_len(al);
         i = key ? PyLong_AsUnsignedLongLong(key) : idx;
 
-        /* Over the maximum size; resize the array, as it's dynamic. */
         if (i >= len) {
             /* Increase the number of commands... */
             (*(int *) attr_list_len_ptr(al))++;
@@ -279,9 +282,8 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
         shstr *shared_str = hooks->add_string(str);
 
         faction = hooks->player_faction_find(al->ptr, shared_str);
-
         if (faction == NULL) {
-            i = len;
+            i = attr_list_len(al);
             faction = hooks->player_faction_create(al->ptr, shared_str);
         } else {
             i = 0;
@@ -305,7 +307,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
         hooks->packet_append_data_len(packet,
                 (uint8_t *) PyBytes_AsString(value), PyBytes_Size(value));
 
-        if (idx < len) {
+        if (idx < attr_list_len(al)) {
             i = 0;
             packet_struct *elem;
             DL_FOREACH(*head, elem) {
@@ -342,7 +344,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
     } else if (ret == -1) {
         /* Failure; overflow, invalid value or some other kind of error. */
 
-        if (i >= len) {
+        if (i >= attr_list_len(al)) {
             /* We tried to add a new command permission and we have already
              * resized the array, so shrink it back now, as we failed. */
             if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
@@ -396,9 +398,9 @@ static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
         len = attr_list_len(al);
 
         if (i > len) {
-            PyErr_Format(PyExc_ValueError,
-                    "__getitem__() failed; requested index (%"PRIu64 ") too "
-                    "big (len: %"PRIu64 ").", (uint64_t) i, (uint64_t) len);
+            PyErr_Format(PyExc_IndexError,
+                    "__getitem__() failed; requested index (%llu) too "
+                    "big (len: %llu).", (uint64_t) i, (uint64_t) len);
             return NULL;
         }
     }
