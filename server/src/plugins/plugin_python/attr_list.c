@@ -504,6 +504,11 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         if (*(char ***) ((void *) ((char *) al->ptr + al->offset)) != NULL) {
+            Py_ssize_t len = attr_list_len(al);
+            for (Py_ssize_t i = 0; i < len; i++) {
+                attr_list_set(al, NULL, i, Py_None);
+            }
+
             efree(*(char ***) ((void *) ((char *) al->ptr + al->offset)));
             *(char ***) ((void *) ((char *) al->ptr + al->offset)) = NULL;
             (*(int *) attr_list_len_ptr(al)) = 0;
