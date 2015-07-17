@@ -372,7 +372,7 @@ static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
 {
     if (al->field == FIELDTYPE_FACTIONS) {
         if (!PyString_Check(key)) {
-            PyErr_SetString(PyExc_ValueError,
+            PyErr_SetString(PyExc_TypeError,
                     "__getitem__() failed; key must be a string.");
             return NULL;
         }
@@ -381,7 +381,7 @@ static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
 
         /* The key must be an integer. */
         if (!PyInt_Check(key)) {
-            PyErr_SetString(PyExc_ValueError,
+            PyErr_SetString(PyExc_TypeError,
                     "__getitem__() failed; key must be an integer.");
             return NULL;
         }
