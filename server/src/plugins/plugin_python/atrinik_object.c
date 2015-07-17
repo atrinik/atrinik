@@ -2722,7 +2722,9 @@ static int Atrinik_ObjectIterator_bool(Atrinik_ObjectIterator *self)
 static Py_ssize_t Atrinik_ObjectIterator_len(Atrinik_ObjectIterator *self)
 {
     if (self->iterated) {
-        INTRAISE("Cannot get length of iterator that has been iterated")
+        PyErr_SetString(AtrinikError, "Cannot get length of iterator that has "
+                "been iterated");
+        return -1;
     }
 
     Py_ssize_t num = 0;
@@ -2743,7 +2745,9 @@ static PyObject *Atrinik_ObjectIterator_getitem(Atrinik_ObjectIterator *self,
         Py_ssize_t idx)
 {
     if (self->iterated) {
-        RAISE("Cannot access items of iterator that has been iterated")
+        PyErr_SetString(AtrinikError, "Cannot access items of iterator that "
+                "has been iterated");
+        return NULL;
     }
 
     Py_ssize_t i = 0;
@@ -2775,7 +2779,9 @@ static int Atrinik_ObjectIterator_contains(Atrinik_ObjectIterator *self,
     OBJEXISTCHECK_INT(obj);
 
     if (self->iterated) {
-        INTRAISE("Cannot access items of iterator that has been iterated")
+        PyErr_SetString(AtrinikError, "Cannot access items of iterator that "
+                "has been iterated");
+        return -1;
     }
 
     FOR_ATRINIK_ITERATOR_BEGIN() {
