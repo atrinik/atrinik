@@ -287,7 +287,14 @@ if not GetSettings()["unit_tests"] and not GetSettings()["plugin_unit_tests"]:
     parser = CParser()
     matches = {}
 
-    for root, dirs, files in os.walk("src"):
-        for file in files:
-            matches.update(parser.parse(os.path.join(root, file)))
+    def scan(path):
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                matches.update(parser.parse(os.path.join(root, file)))
+
+    scan("src/server")
+    scan("src/plugins/plugin_python/include")
+    scan("src/include")
+    matches.update(parser.parse("src/toolkit/include/socket.h"))
+
     main()
