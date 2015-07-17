@@ -2337,10 +2337,166 @@ class ObjectFlagsSuite(unittest.TestCase):
         self.flag_test("f_no_save")
 
 
+class ObjectIteratorSuite(unittest.TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        simulate_server(count=1, wait=False)
+        self.obj = Atrinik.CreateObject("sword")
+
+    def tearDown(self):
+        self.obj.Destroy()
+
+    def test_01(self):
+        objs = []
+        for i in range(100):
+            obj = Atrinik.CreateObject("sword")
+            obj.name += str(i)
+            obj.InsertInto(self.obj)
+            objs.insert(0, obj)
+
+        self.assertTrue(self.obj.inv)
+        self.assertEqual(len(self.obj.inv), 100)
+
+        for i, obj in enumerate(self.obj.inv):
+            self.assertEqual(obj, objs[i])
+
+        self.assertEqual(self.obj.inv[0], objs[0])
+        self.assertEqual(self.obj.inv[42], objs[42])
+        self.assertEqual(self.obj.inv[99], objs[99])
+
+    def test_02(self):
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-iterator-test-02")
+        objs = []
+        for i in range(100):
+            obj = Atrinik.CreateObject("sword")
+            obj.name += str(i)
+            m.Insert(obj, 0, 0)
+            objs.append(obj)
+
+        self.assertTrue(m.Objects(0, 0))
+        self.assertEqual(len(m.Objects(0, 0)), 100)
+
+        for i, obj in enumerate(m.Objects(0, 0)):
+            self.assertEqual(obj, objs[i])
+
+        self.assertEqual(m.Objects(0, 0)[0], objs[0])
+        self.assertEqual(m.Objects(0, 0)[42], objs[42])
+        self.assertEqual(m.Objects(0, 0)[99], objs[99])
+
+    def test_03(self):
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-object-iterator-test-02")
+        objs = []
+        for i in range(100):
+            obj = Atrinik.CreateObject("sword")
+            obj.name += str(i)
+            m.Insert(obj, 0, 0)
+            objs.insert(0, obj)
+
+        self.assertTrue(m.ObjectsReversed(0, 0))
+        self.assertEqual(len(m.ObjectsReversed(0, 0)), 100)
+
+        for i, obj in enumerate(m.ObjectsReversed(0, 0)):
+            self.assertEqual(obj, objs[i])
+
+        self.assertEqual(m.ObjectsReversed(0, 0)[0], objs[0])
+        self.assertEqual(m.ObjectsReversed(0, 0)[42], objs[42])
+        self.assertEqual(m.ObjectsReversed(0, 0)[99], objs[99])
+
+
+class ObjectIteratorMethodsSuite(unittest.TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        simulate_server(count=1, wait=False)
+        self.obj = Atrinik.CreateObject("sword")
+
+    def tearDown(self):
+        self.obj.Destroy()
+
+    def test_bool(self):
+        self.assertFalse(self.obj.inv)
+        self.obj.CreateObject("torch")
+        self.assertTrue(self.obj.inv)
+
+    def test_len(self):
+        self.assertEqual(len(self.obj.inv), 0)
+        self.obj.CreateObject("torch")
+        self.assertEqual(len(self.obj.inv), 1)
+
+        iterator = self.obj.inv
+        for _ in iterator:
+            pass
+
+        with self.assertRaises(Atrinik.AtrinikError):
+            # noinspection PyStatementEffect
+            len(iterator)
+
+    def test_getitem(self):
+        with self.assertRaises(IndexError):
+            # noinspection PyStatementEffect
+            self.obj.inv[0]
+        with self.assertRaises(IndexError):
+            # noinspection PyStatementEffect
+            self.obj.inv[1]
+
+        torch = self.obj.CreateObject("torch")
+        self.assertEqual(self.obj.inv[0], torch)
+
+        with self.assertRaises(IndexError):
+            # noinspection PyStatementEffect
+            self.obj.inv[1]
+
+        iterator = self.obj.inv
+        for _ in iterator:
+            pass
+
+        with self.assertRaises(Atrinik.AtrinikError):
+            # noinspection PyStatementEffect
+            iterator[0]
+
+    def test_contains(self):
+        with self.assertRaises(TypeError):
+            # noinspection PyStatementEffect
+            None in self.obj.inv
+
+        torch = Atrinik.CreateObject("torch")
+        self.assertFalse(torch in self.obj.inv)
+        torch.InsertInto(self.obj)
+        self.assertTrue(torch in self.obj.inv)
+
+        iterator = self.obj.inv
+        for _ in iterator:
+            pass
+
+        with self.assertRaises(Atrinik.AtrinikError):
+            # noinspection PyStatementEffect
+            torch in iterator
+
+    def test_iter(self):
+        for obj in self.obj.inv:
+            self.fail("Object found that shouldn't have been: {}".format(obj))
+
+        objs = []
+        objs.insert(0, self.obj.CreateObject("torch"))
+        for i, obj in enumerate(self.obj.inv):
+            self.assertEqual(obj, objs[i])
+
+        objs.insert(0, self.obj.CreateObject("sword"))
+        for i, obj in enumerate(self.obj.inv):
+            self.assertEqual(obj, objs[i])
+
+        objs.insert(0, self.obj.CreateObject("coppercoin"))
+        for i, obj in enumerate(self.obj.inv):
+            self.assertEqual(obj, objs[i])
+
+
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
     unittest.TestLoader().loadTestsFromTestCase(ObjectMethodsSuite),
     unittest.TestLoader().loadTestsFromTestCase(ObjectFieldsSuite),
     unittest.TestLoader().loadTestsFromTestCase(ObjectFlagsSuite),
+    unittest.TestLoader().loadTestsFromTestCase(ObjectIteratorSuite),
+    unittest.TestLoader().loadTestsFromTestCase(ObjectIteratorMethodsSuite),
 ]
