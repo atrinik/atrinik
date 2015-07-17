@@ -4,6 +4,93 @@ import Atrinik
 from tests import simulate_server
 
 
+class AttrListSuite(unittest.TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        simulate_server(count=1, wait=False)
+        self.pl = me.Controller()
+        self.tearDown()
+
+    def tearDown(self):
+        self.pl.cmd_permissions.clear()
+        self.pl.factions.clear()
+        self.pl.s_packets.clear()
+
+    def test_cmd_permissions(self):
+        self.assertEqual(self.pl.cmd_permissions.items(), [])
+        self.pl.cmd_permissions.append("[OP]")
+        self.assertEqual(self.pl.cmd_permissions.items(), ["[OP]"])
+        self.assertEqual(len(self.pl.cmd_permissions), 1)
+        self.pl.cmd_permissions[1] = "[OP]"
+        self.assertEqual(len(self.pl.cmd_permissions), 2)
+        self.assertEqual(self.pl.cmd_permissions.items(), ["[OP]", "[OP]"])
+        for perm in self.pl.cmd_permissions:
+            self.assertEqual(perm, "[OP]")
+        self.pl.cmd_permissions[0] = "[DEV]"
+        perms = ["[DEV]", "[OP]"]
+        self.assertEqual(self.pl.cmd_permissions.items(), perms)
+        self.assertEqual(len(self.pl.cmd_permissions), 2)
+        for i, perm in enumerate(self.pl.cmd_permissions):
+            self.assertEqual(perm, perms[i])
+        self.pl.cmd_permissions.append("[MOD]")
+        perms.append("[MOD]")
+        self.assertEqual(self.pl.cmd_permissions.items(), perms)
+        self.assertEqual(len(self.pl.cmd_permissions), 3)
+        for i, perm in enumerate(self.pl.cmd_permissions):
+            self.assertEqual(perm, perms[i])
+        self.pl.cmd_permissions.remove("[MOD]")
+        perms = [perm if perm != "[MOD]" else None for perm in perms]
+        self.assertEqual(self.pl.cmd_permissions.items(), perms)
+        self.assertEqual(len(self.pl.cmd_permissions), 3)
+        for i, perm in enumerate(self.pl.cmd_permissions):
+            self.assertEqual(perm, perms[i])
+        self.pl.cmd_permissions.clear()
+        self.assertEqual(self.pl.cmd_permissions.items(), [])
+        self.assertEqual(len(self.pl.cmd_permissions), 0)
+        for perm in self.pl.cmd_permissions:
+            self.fail("Found invalid permission: {}".format(perm))
+
+    def test_factions(self):
+        self.assertEqual(self.pl.factions.items(), [])
+        self.pl.factions["asteria"] = 500
+        self.assertEqual(self.pl.factions.items(), [("asteria", 500.0)])
+        self.pl.factions["asteria"] += 50
+        self.assertEqual(self.pl.factions.items(), [("asteria", 550.0)])
+        self.pl.factions["brynknot"] = 120
+        self.assertEqual(self.pl.factions.items(), [("asteria", 550.0),
+                                                    ("brynknot", 120.0)])
+        del self.pl.factions["brynknot"]
+        self.assertEqual(self.pl.factions.items(), [("asteria", 550.0)])
+        with self.assertRaises(KeyError):
+            del self.pl.factions["brynknot"]
+        with self.assertRaises(NotImplementedError):
+            self.pl.factions.append("test")
+        self.pl.factions["brynknot"] = -450.23
+        factions = [("asteria", 550.0), ("brynknot", -450.23)]
+        self.assertEqual(self.pl.factions.items(), factions)
+        for i, faction in enumerate(self.pl.factions):
+            self.assertEqual(faction, factions[i][1])
+        self.pl.factions.clear()
+        for faction in self.pl.factions:
+            self.fail("Found invalid faction: {}".format(faction))
+        self.assertEqual(self.pl.factions.items(), [])
+
+    def test_packets(self):
+        with self.assertRaises(NotImplementedError):
+            self.pl.s_packets.items()
+        self.assertEqual(len(self.pl.s_packets), 0)
+        packet = "hello world".encode()
+        self.pl.s_packets.append(packet)
+        self.assertEqual(self.pl.s_packets[0], packet)
+        self.assertEqual(len(self.pl.s_packets), 1)
+        activator.Say("hello world!")
+        self.assertIn("hello world!".encode(), self.pl.s_packets[2])
+        self.assertEqual(len(self.pl.s_packets), 3)
+        self.pl.s_packets.clear()
+        self.assertEqual(len(self.pl.s_packets), 0)
+
+
 class AttrListMethodsSuite(unittest.TestCase):
     maxDiff = None
 
@@ -165,5 +252,6 @@ class AttrListMethodsSuite(unittest.TestCase):
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
+    unittest.TestLoader().loadTestsFromTestCase(AttrListSuite),
     unittest.TestLoader().loadTestsFromTestCase(AttrListMethodsSuite),
 ]
