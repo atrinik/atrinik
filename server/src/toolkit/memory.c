@@ -69,6 +69,7 @@ typedef struct memory_chunk {
 static memory_chunk_t *memory_chunks;
 static pthread_mutex_t memory_chunks_mutex;
 static ssize_t memory_chunks_num;
+static ssize_t memory_chunks_num_max;
 static ssize_t memory_chunks_allocated;
 static ssize_t memory_chunks_allocated_max;
 static uint64_t after_data;
@@ -90,6 +91,7 @@ TOOLKIT_INIT_FUNC(memory)
     pthread_mutex_init(&memory_chunks_mutex, NULL);
     memory_chunks = NULL;
     memory_chunks_num = 0;
+    memory_chunks_num_max = 0;
     memory_chunks_allocated = 0;
     memory_chunks_allocated_max = 0;
     after_data = CHUNK_AFTER_VAL;
@@ -110,6 +112,9 @@ TOOLKIT_DEINIT_FUNC(memory)
 
     LOG(INFO, "Maximum number of bytes allocated: %" PRIu64,
             (uint64_t) memory_chunks_allocated_max);
+
+    LOG(INFO, "Maximum number of pointers allocated: %" PRIu64,
+            (uint64_t) memory_chunks_num_max);
 
     if (memory_chunks_num != 0) {
         LOG(ERROR, "Number of pointers still allocated: %" PRIu64,
@@ -209,8 +214,11 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     DL_APPEND(memory_chunks, chunk);
 
     memory_chunks_num++;
-    memory_chunks_allocated += size;
+    if (memory_chunks_num > memory_chunks_num_max) {
+        memory_chunks_num_max = memory_chunks_num;
+    }
 
+    memory_chunks_allocated += size;
     if (memory_chunks_allocated > memory_chunks_allocated_max) {
         memory_chunks_allocated_max = memory_chunks_allocated;
     }
