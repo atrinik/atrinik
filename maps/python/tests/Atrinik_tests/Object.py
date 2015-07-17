@@ -1631,11 +1631,12 @@ class ObjectFieldsSuite(unittest.TestCase):
         self.assertEqual(sack.attacked_by, activator)
         self.assertIn("object_int2 {}\n".format(activator.count), sack.Save())
 
+        activator.hp = activator.maxhp
         raas = m.CreateObject("raas", 1, 1)
         raas.Update()
         activator.Controller().target_object = raas
         activator.Controller().combat = True
-        simulate_server(count=5, wait=False)
+        simulate_server(count=10, wait=False)
         self.assertEqual(raas.attacked_by, activator)
         self.assertIn("object_int2 {}\n".format(activator.count), raas.Save())
 
@@ -1690,11 +1691,12 @@ class ObjectFieldsSuite(unittest.TestCase):
         m = Atrinik.CreateMap(5, 5, "test-atrinik-object-fields-"
                                     "attacked_by_distance")
         m.Insert(activator, 0, 0)
+        activator.hp = activator.maxhp
         raas = m.CreateObject("raas", 1, 1)
         raas.Update()
         activator.Controller().target_object = raas
         activator.Controller().combat = True
-        simulate_server(count=5, wait=False)
+        simulate_server(count=10, wait=False)
         self.assertEqual(raas.attacked_by_distance, 1)
 
     def test_last_damage(self):
