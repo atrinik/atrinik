@@ -1979,9 +1979,368 @@ class ObjectFieldsSuite(unittest.TestCase):
         self.assertEqual(self.obj.Save(), "arch sword\nrandomitems "
                                           "random_talisman\nend\n")
 
+
+class ObjectFlagsSuite(unittest.TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        simulate_server(count=1, wait=False)
+        self.obj = Atrinik.CreateObject("sword")
+
+    def tearDown(self):
+        self.obj.Destroy()
+
+    def flag_compare(self, flag, val):
+        if getattr(self.obj.arch.clone, flag) == val:
+            data = ""
+        else:
+            real_flag = flag[2:]
+            data = "{} {}\n".format(real_flag, int(val))
+
+        self.assertEqual(self.obj.Save(), "arch sword\n{}end\n".format(data))
+        self.assertEqual(getattr(self.obj, flag), val)
+
+    def flag_test(self, flag):
+        with self.assertRaises(TypeError):
+            setattr(self.obj, flag, "xxx")
+        with self.assertRaises(TypeError):
+            setattr(self.obj, flag, 1)
+        with self.assertRaises(TypeError):
+            setattr(self.obj, flag, 0)
+
+        setattr(self.obj, flag, True)
+        self.flag_compare(flag, True)
+        setattr(self.obj, flag, False)
+        self.flag_compare(flag, False)
+        setattr(self.obj, flag, True)
+        self.flag_compare(flag, True)
+
+    def test_f_sleep(self):
+        self.flag_test("f_sleep")
+
+    def test_f_confused(self):
+        self.flag_test("f_confused")
+
+    def test_f_scared(self):
+        self.flag_test("f_scared")
+
+    def test_f_is_blind(self):
+        self.flag_test("f_is_blind")
+
+    def test_f_is_invisible(self):
+        self.flag_test("f_is_invisible")
+
+    def test_f_is_ethereal(self):
+        self.flag_test("f_is_ethereal")
+
+    def test_f_is_good(self):
+        self.flag_test("f_is_good")
+
+    def test_f_no_pick(self):
+        self.flag_test("f_no_pick")
+
+    def test_f_walk_on(self):
+        self.flag_test("f_walk_on")
+
+    def test_f_no_pass(self):
+        self.flag_test("f_no_pass")
+
+    def test_f_is_animated(self):
+        self.flag_test("f_is_animated")
+
+    def test_f_slow_move(self):
+        self.flag_test("f_slow_move")
+
+    def test_f_flying(self):
+        self.flag_test("f_flying")
+
+    def test_f_monster(self):
+        self.flag_test("f_monster")
+
+    def test_f_friendly(self):
+        self.flag_test("f_friendly")
+
+    def test_f_been_applied(self):
+        self.flag_test("f_been_applied")
+
+    def test_f_auto_apply(self):
+        self.flag_test("f_auto_apply")
+
+    def test_f_is_neutral(self):
+        self.flag_test("f_is_neutral")
+
+    def test_f_see_invisible(self):
+        self.flag_test("f_see_invisible")
+
+    def test_f_can_roll(self):
+        self.flag_test("f_can_roll")
+
+    def test_f_connect_reset(self):
+        self.flag_test("f_connect_reset")
+
+    def test_f_is_turnable(self):
+        self.flag_test("f_is_turnable")
+
+    def test_f_walk_off(self):
+        self.flag_test("f_walk_off")
+
+    def test_f_fly_on(self):
+        self.flag_test("f_fly_on")
+
+    def test_f_fly_off(self):
+        self.flag_test("f_fly_off")
+
+    def test_f_is_used_up(self):
+        self.flag_test("f_is_used_up")
+
+    def test_f_identified(self):
+        self.flag_test("f_identified")
+
+    def test_f_reflecting(self):
+        self.flag_test("f_reflecting")
+
+    def test_f_changing(self):
+        self.flag_test("f_changing")
+
+    def test_f_splitting(self):
+        self.flag_test("f_splitting")
+
+    def test_f_hitback(self):
+        self.flag_test("f_hitback")
+
+    def test_f_startequip(self):
+        self.flag_test("f_startequip")
+
+    def test_f_blocksview(self):
+        self.flag_test("f_blocksview")
+
+    def test_f_undead(self):
+        self.flag_test("f_undead")
+
+    def test_f_can_stack(self):
+        self.flag_test("f_can_stack")
+
+    def test_f_unaggressive(self):
+        self.flag_test("f_unaggressive")
+
+    def test_f_reflect_missile(self):
+        self.flag_test("f_reflect_missile")
+
+    def test_f_reflect_spell(self):
+        self.flag_test("f_reflect_spell")
+
+    def test_f_no_magic(self):
+        self.flag_test("f_no_magic")
+
+    def test_f_no_fix_player(self):
+        self.flag_test("f_no_fix_player")
+
+    def test_f_is_evil(self):
+        self.flag_test("f_is_evil")
+
+    def test_f_run_away(self):
+        self.flag_test("f_run_away")
+
+    def test_f_pass_thru(self):
+        self.flag_test("f_pass_thru")
+
+    def test_f_can_pass_thru(self):
+        self.flag_test("f_can_pass_thru")
+
+    def test_f_outdoor(self):
+        self.flag_test("f_outdoor")
+
+    def test_f_unique(self):
+        self.flag_test("f_unique")
+
+    def test_f_no_drop(self):
+        self.flag_test("f_no_drop")
+
+    def test_f_is_indestructible(self):
+        self.flag_test("f_is_indestructible")
+
+    def test_f_can_cast_spell(self):
+        self.flag_test("f_can_cast_spell")
+
+    def test_f_two_handed(self):
+        self.flag_test("f_two_handed")
+
+    def test_f_can_use_bow(self):
+        self.flag_test("f_can_use_bow")
+
+    def test_f_can_use_armour(self):
+        self.flag_test("f_can_use_armour")
+
+    def test_f_can_use_weapon(self):
+        self.flag_test("f_can_use_weapon")
+
+    def test_f_connect_no_push(self):
+        self.flag_test("f_connect_no_push")
+
+    def test_f_connect_no_release(self):
+        self.flag_test("f_connect_no_release")
+
+    def test_f_has_ready_bow(self):
+        self.flag_test("f_has_ready_bow")
+
+    def test_f_xrays(self):
+        self.flag_test("f_xrays")
+
+    def test_f_is_floor(self):
+        self.flag_test("f_is_floor")
+
+    def test_f_lifesave(self):
+        self.flag_test("f_lifesave")
+
+    def test_f_is_magical(self):
+        self.flag_test("f_is_magical")
+
+    def test_f_stand_still(self):
+        self.flag_test("f_stand_still")
+
+    def test_f_random_move(self):
+        self.flag_test("f_random_move")
+
+    def test_f_only_attack(self):
+        self.flag_test("f_only_attack")
+
+    def test_f_stealth(self):
+        self.flag_test("f_stealth")
+
+    def test_f_cursed(self):
+        self.flag_test("f_cursed")
+
+    def test_f_damned(self):
+        self.flag_test("f_damned")
+
+    def test_f_is_buildable(self):
+        self.flag_test("f_is_buildable")
+
+    def test_f_no_pvp(self):
+        self.flag_test("f_no_pvp")
+
+    def test_f_is_thrown(self):
+        self.flag_test("f_is_thrown")
+
+    def test_f_is_male(self):
+        self.flag_test("f_is_male")
+
+    def test_f_is_female(self):
+        self.flag_test("f_is_female")
+
+    def test_f_applied(self):
+        self.flag_test("f_applied")
+
+    def test_f_inv_locked(self):
+        self.flag_test("f_inv_locked")
+
+    def test_f_has_ready_weapon(self):
+        self.flag_test("f_has_ready_weapon")
+
+    def test_f_no_skill_ident(self):
+        self.flag_test("f_no_skill_ident")
+
+    def test_f_can_see_in_dark(self):
+        self.flag_test("f_can_see_in_dark")
+
+    def test_f_is_cauldron(self):
+        self.flag_test("f_is_cauldron")
+
+    def test_f_is_dust(self):
+        self.flag_test("f_is_dust")
+
+    def test_f_one_hit(self):
+        self.flag_test("f_one_hit")
+
+    def test_f_draw_double_always(self):
+        self.flag_test("f_draw_double_always")
+
+    def test_f_berserk(self):
+        self.flag_test("f_berserk")
+
+    def test_f_no_attack(self):
+        self.flag_test("f_no_attack")
+
+    def test_f_invulnerable(self):
+        self.flag_test("f_invulnerable")
+
+    def test_f_quest_item(self):
+        self.flag_test("f_quest_item")
+
+    def test_f_is_trapped(self):
+        self.flag_test("f_is_trapped")
+
+    def test_f_sys_object(self):
+        self.flag_test("f_sys_object")
+
+    def test_f_use_fix_pos(self):
+        self.flag_test("f_use_fix_pos")
+
+    def test_f_unpaid(self):
+        self.flag_test("f_unpaid")
+
+    def test_f_hidden(self):
+        self.flag_test("f_hidden")
+
+    def test_f_make_invisible(self):
+        self.flag_test("f_make_invisible")
+
+    def test_f_make_ethereal(self):
+        self.flag_test("f_make_ethereal")
+
+    def test_f_is_player(self):
+        self.flag_test("f_is_player")
+
+    def test_f_is_named(self):
+        self.flag_test("f_is_named")
+
+    def test_f_no_teleport(self):
+        self.flag_test("f_no_teleport")
+
+    def test_f_corpse(self):
+        self.flag_test("f_corpse")
+
+    def test_f_corpse_forced(self):
+        self.flag_test("f_corpse_forced")
+
+    def test_f_player_only(self):
+        self.flag_test("f_player_only")
+
+    def test_f_one_drop(self):
+        self.flag_test("f_one_drop")
+
+    def test_f_cursed_perm(self):
+        self.flag_test("f_cursed_perm")
+
+    def test_f_damned_perm(self):
+        self.flag_test("f_damned_perm")
+
+    def test_f_door_closed(self):
+        self.flag_test("f_door_closed")
+
+    def test_f_is_spell(self):
+        self.flag_test("f_is_spell")
+
+    def test_f_is_missile(self):
+        self.flag_test("f_is_missile")
+
+    def test_f_draw_direction(self):
+        self.flag_test("f_draw_direction")
+
+    def test_f_draw_double(self):
+        self.flag_test("f_draw_double")
+
+    def test_f_is_assassin(self):
+        self.flag_test("f_is_assassin")
+
+    def test_f_no_save(self):
+        self.flag_test("f_no_save")
+
+
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
     unittest.TestLoader().loadTestsFromTestCase(ObjectMethodsSuite),
     unittest.TestLoader().loadTestsFromTestCase(ObjectFieldsSuite),
+    unittest.TestLoader().loadTestsFromTestCase(ObjectFlagsSuite),
 ]
