@@ -53,7 +53,7 @@ typedef struct memory_chunk {
     struct memory_chunk *prev; ///< Previous memory chunk.
 
     size_t size; ///< Number of the bytes in 'data'.
-    const char *file; ///< File the memory chunk was allocated in.
+    char *file; ///< File the memory chunk was allocated in.
     uint32_t line; ///< Line number the chunk was allocated in.
 
     uint64_t before; ///< Value before the data to check for underruns.
@@ -197,7 +197,7 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     }
 
     chunk->size = size;
-    chunk->file = file;
+    chunk->file = strdup(file);
     chunk->line = line;
     chunk->before = CHUNK_BEFORE_VAL;
     chunk->next = NULL;
@@ -280,6 +280,8 @@ static void _free(void *ptr, const char *file, uint32_t line)
     memory_chunks_num--;
 
     pthread_mutex_unlock(&memory_chunks_mutex);
+
+    free(chunk->file);
 
     if (!RUNNING_ON_VALGRIND) {
         memset(chunk, 0x7A, MEM_CHUNK_SIZE(chunk->size));
