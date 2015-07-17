@@ -2778,7 +2778,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     case FIELDTYPE_UINT32:
         if (PyInt_Check(value)) {
             unsigned long val = PyLong_AsUnsignedLong(value);
-            if (PyErr_Occurred()) {
+            if (PyErr_Occurred() || val > UINT32_MAX) {
                 PyErr_SetString(PyExc_OverflowError,
                         "Invalid integer value for uint32 field.");
                 return -1;
@@ -2795,7 +2795,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         if (PyInt_Check(value)) {
             int overflow;
             long val = PyLong_AsLongAndOverflow(value, &overflow);
-            if (PyErr_Occurred() || overflow != 0) {
+            if (PyErr_Occurred() || overflow != 0 || val < INT32_MIN ||
+                    val > INT32_MAX) {
                 PyErr_SetString(PyExc_OverflowError,
                         "Invalid integer value for int32 field.");
                 return -1;
