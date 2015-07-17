@@ -11,7 +11,7 @@ class AttrListMethodsSuite(unittest.TestCase):
     def setUp(self):
         simulate_server(count=1, wait=False)
         self.pl = me.Controller()
-        self.pl.cmd_permissions.clear()
+        self.tearDown()
 
     def tearDown(self):
         self.pl.cmd_permissions.clear()
@@ -110,6 +110,20 @@ class AttrListMethodsSuite(unittest.TestCase):
         self.pl.cmd_permissions[1] = "[MOD]"
         self.assertEqual(self.pl.cmd_permissions[0], "[DEV]")
         self.assertEqual(self.pl.cmd_permissions[1], "[MOD]")
+
+    def test_delitem(self):
+        with self.assertRaises(NotImplementedError):
+            del self.pl.cmd_permissions[0]
+        with self.assertRaises(TypeError):
+            del self.pl.factions[0]
+        with self.assertRaises(KeyError):
+            del self.pl.factions["brynknot"]
+
+        self.pl.factions["brynknot"] = 10
+        self.assertEqual(self.pl.factions.items(), [("brynknot", 10.0)])
+        del self.pl.factions["brynknot"]
+        self.assertEqual(self.pl.factions.items(), [])
+
 
     def test_contains(self):
         self.assertNotIn("[OP]", self.pl.cmd_permissions)
