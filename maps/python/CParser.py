@@ -34,7 +34,7 @@ class CParser(object):
     # @return List of the split data, free of whitespace.
     @staticmethod
     def array_split_data(line):
-        return list(filter(lambda x: len(x) > 0, [x.strip() for x in line.split(",")]))
+        return [x.strip() for x in line.split(",") if x.strip()]
 
     # Parses an array's data. This most likely won't work for various array
     # styles, but it should work well enough for our purpose.
@@ -189,11 +189,11 @@ class CParser(object):
         for i, part in enumerate(parts):
             # Often enough, comments are prefixed with an asterisk, so get
             # rid of it.
-            if part[:1] == "*":
+            if part.startswith("*"):
                 parts[i] = part[1:].strip()
 
         # Remove empty strings from the list.
-        parts = list(filter(lambda x: len(x) > 0, parts))
+        parts = filter(lambda x: len(x) > 0, parts)
 
         # Return the list, with parts joined using a newline.
         return "\n".join(parts)
