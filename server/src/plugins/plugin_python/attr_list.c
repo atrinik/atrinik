@@ -244,13 +244,13 @@ static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
 static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
         unsigned PY_LONG_LONG idx, PyObject *value)
 {
-    void *ptr;
     fields_struct field = {"xxx", 0, 0, 0, 0, NULL};
     int ret;
     unsigned PY_LONG_LONG i;
     player_faction_t *faction = NULL;
 
-    ptr = (char *) al->ptr + al->offset;
+    void *ptr = (char *) al->ptr + al->offset;
+    bool added_new = false;
 
     /* Command permissions. */
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
@@ -268,6 +268,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
             ptr = (char *) al->ptr + al->offset;
             /* NULL the new member. */
             (*(char ***) ptr)[i] = NULL;
+            added_new = true;
         }
 
         field.type = FIELDTYPE_CSTR;
@@ -283,10 +284,8 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
 
         faction = hooks->player_faction_find(al->ptr, shared_str);
         if (faction == NULL) {
-            i = attr_list_len(al);
             faction = hooks->player_faction_create(al->ptr, shared_str);
-        } else {
-            i = 0;
+            added_new = true;
         }
 
         hooks->free_string_shared(shared_str);
@@ -344,7 +343,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
     } else if (ret == -1) {
         /* Failure; overflow, invalid value or some other kind of error. */
 
-        if (i >= attr_list_len(al)) {
+        if (added_new) {
             /* We tried to add a new command permission and we have already
              * resized the array, so shrink it back now, as we failed. */
             if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
