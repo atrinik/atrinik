@@ -9,10 +9,12 @@ import Atrinik
 
 def run():
     import tests.Atrinik_tests.Atrinik
+    import tests.Atrinik_tests.AttrList
     import tests.Atrinik_tests.Object
 
     all_suites = []
     all_suites += tests.Atrinik_tests.Atrinik.suites
+    all_suites += tests.Atrinik_tests.AttrList.suites
     all_suites += tests.Atrinik_tests.Object.suites
     old_all_tests = unittest.TestSuite(all_suites)
 
