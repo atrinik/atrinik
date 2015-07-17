@@ -539,25 +539,32 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
 /**
  * Implements the items() method.
  * @param al The AttrList object.
- * @return Tuple of the items in the AttrList.
+ * @return List of the items in the AttrList.
  */
 static PyObject *attr_list_items(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_FACTIONS) {
-        PyObject *tuple = PyTuple_New(attr_list_len(al));
+        PyObject *list = PyList_New(0);
         player_faction_t *factions = *(player_faction_t **) ((char *)
                 al->ptr + al->offset), *faction, *tmp;
-        Py_ssize_t i = 0;
 
         HASH_ITER(hh, factions, faction, tmp) {
-            PyObject *tuple2 = PyTuple_New(2);
-            PyTuple_SetItem(tuple2, 0, Py_BuildValue("s", faction->name));
-            PyTuple_SetItem(tuple2, 1, Py_BuildValue("f", faction->reputation));
-            PyTuple_SetItem(tuple, i, tuple2);
-            i++;
+            PyObject *tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, Py_BuildValue("s", faction->name));
+            PyTuple_SetItem(tuple, 1, Py_BuildValue("f", faction->reputation));
+            PyList_Append(list, tuple);
         }
 
-        return tuple;
+        return list;
+    } else if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
+        Py_ssize_t len = attr_list_len(al);
+        PyObject *list = PyList_New(len);
+
+        for (Py_ssize_t i = 0; i < len; i++) {
+            PyList_SetItem(list, i, attr_list_get(al, NULL, i, NULL));
+        }
+
+        return list;
     }
 
     PyErr_SetString(PyExc_NotImplementedError,
