@@ -667,6 +667,28 @@ static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
         return -1;
     }
 
+    if (value == NULL) {
+        if (al->field == FIELDTYPE_FACTIONS) {
+            shstr *shared_str = hooks->find_string(PyString_AsString(key));
+            player_faction_t *faction = NULL;
+            if (shared_str != NULL) {
+                faction = hooks->player_faction_find(al->ptr, shared_str);
+            }
+
+            if (faction == NULL) {
+                PyErr_SetString(PyExc_KeyError, "No such faction");
+                return -1;
+            }
+
+            hooks->player_faction_free(al->ptr, faction);
+            return 0;
+        }
+
+        PyErr_SetString(PyExc_NotImplementedError,
+                "This attribute list does not implement delitem method.");
+        return -1;
+    }
+
     return attr_list_set(al, key, 0, value);
 }
 
