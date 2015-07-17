@@ -13,6 +13,14 @@ def isint(s):
     except ValueError:
         return False
 
+ARRAY_PARSE_DATA_PATTERN = re.compile(r"^\{(.*)\}[,]?$")
+PARSE_ARRAY_PATTERN = re.compile(r"([a-zA-Z0-9_ \*]*)\[.*\] =")
+PARSE_ARRAY_SUB_PATTERN = re.compile(r"[\*]")
+PARSE_ENUM_REC_PATTERN = re.compile(r"^([\w_]+)\s*(?:=\s*(\d+)\s*)?(?:,)?\s*$",
+                                    re.I)
+PARSE_ENUM_PATTERN = re.compile(r"^(typedef)?\s*enum\s*([\w_]*)\s*({)?$")
+PARSE_SINGLE_COMMENT_PATTERN = re.compile(r"(.+?(?=//|$))(?://(?:/<)?\s*(.*))")
+
 
 # Simple C code parser.
 class CParser(object):
@@ -33,8 +41,7 @@ class CParser(object):
     # @param line Line to parse data from.
     # @return Parsed data.
     def array_parse_data(self, line):
-        # Construct a regex.
-        l = re.findall("^\{(.*)\}[,]?$", line)
+        l = ARRAY_PARSE_DATA_PATTERN.findall(line)
 
         if l:
             line = l[0]
@@ -80,7 +87,7 @@ class CParser(object):
     # this array).
     def parse_array(self, line):
         # Construct a regex that should match most arrays for our needs.
-        m = re.match("([a-zA-Z0-9_ \*]*)\[.*\] =", line)
+        m = PARSE_ARRAY_PATTERN.match(line)
         if m is None:
             return None
 
@@ -90,7 +97,7 @@ class CParser(object):
         parts = beginning.split()
         # Get the last element of 'parts', which is name of the array, and
         # remove asterisks.
-        name = re.sub("[\*]", "", parts[-1])
+        name = PARSE_ARRAY_SUB_PATTERN.sub("", parts[-1])
 
         # Parse it.
         l = self.parse_array_rec(in_array=line.endswith("{"))
@@ -123,8 +130,7 @@ class CParser(object):
             if not line:
                 return None
 
-            match = re.match(r"^([\w_]+)\s*(?:=\s*(\d+)\s*)?(?:,)?\s*$", line,
-                             re.I)
+            match = PARSE_ENUM_REC_PATTERN.match(line)
             if match is None:
                 continue
 
@@ -144,7 +150,7 @@ class CParser(object):
         return data
 
     def parse_enum(self, line):
-        m = re.match(r"^(typedef)?\s*enum\s*([\w_]*)\s*({)?$", line)
+        m = PARSE_ENUM_PATTERN.match(line)
         if m is None:
             return None
 
@@ -156,7 +162,7 @@ class CParser(object):
     # @return The parsed comment.
     def parse_comment(self, line):
         # Not starting with '/*', so not a comment.
-        if line[:2] != "/*":
+        if not line.startswith("/*"):
             return None
 
         # Find the comment's end.
@@ -194,7 +200,7 @@ class CParser(object):
 
     @staticmethod
     def parse_single_comment(line):
-        match = re.match(r"(.+?(?=//|$))(?://(?:/<)?\s*(.*))", line)
+        match = PARSE_SINGLE_COMMENT_PATTERN.match(line)
         if match is None:
             return line, None
 
@@ -205,7 +211,7 @@ class CParser(object):
     # @return True if it was a #define, False otherwise.
     def parse_define(self, line):
         # Must begin with a '#'.
-        if line[:1] != "#":
+        if not line.startswith("#"):
             return None
 
         # Defines can have any number of whitespace after '#', so we'll have
@@ -213,7 +219,7 @@ class CParser(object):
         line = line[1:].strip()
 
         # Is it really a define?
-        if line[:7] != "define ":
+        if not line.startswith("define "):
             return None
 
         line, comment = self.parse_single_comment(line)
