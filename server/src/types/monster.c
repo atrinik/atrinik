@@ -382,8 +382,6 @@ object *find_enemy(object *npc, rv_vector *rv)
         monster_enemy_signal(npc, tmp);
     }
 
-    /* Always clear the attacker entry */
-    npc->attacked_by = NULL;
     return tmp;
 }
 
