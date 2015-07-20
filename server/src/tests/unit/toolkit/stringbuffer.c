@@ -38,6 +38,23 @@ START_TEST(test_stringbuffer_new)
 }
 END_TEST
 
+START_TEST(test_stringbuffer_free)
+{
+    StringBuffer *sb = stringbuffer_new();
+    ck_assert_ptr_ne(sb, NULL);
+
+    memory_status_t memory_status;
+    if (memory_get_status(sb, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    stringbuffer_free(sb);
+    if (memory_get_status(sb, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
+    }
+}
+END_TEST
+
 START_TEST(test_stringbuffer_finish)
 {
     StringBuffer *sb;
@@ -230,6 +247,18 @@ START_TEST(test_stringbuffer_append_char)
 }
 END_TEST
 
+START_TEST(test_stringbuffer_data)
+{
+    StringBuffer *sb = stringbuffer_new();
+    ck_assert_ptr_ne(stringbuffer_data(sb), NULL);
+    stringbuffer_append_string(sb, "hello");
+    ck_assert(strncmp(stringbuffer_data(sb), "hello", 5) == 0);
+    char *cp = stringbuffer_finish(sb);
+    ck_assert_str_eq(cp, "hello");
+    efree(cp);
+}
+END_TEST
+
 START_TEST(test_stringbuffer_length)
 {
     StringBuffer *sb;
@@ -241,6 +270,18 @@ START_TEST(test_stringbuffer_length)
     ck_assert_uint_eq(stringbuffer_length(sb), 5);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "hello");
+    efree(cp);
+}
+END_TEST
+
+START_TEST(test_stringbuffer_seek)
+{
+    StringBuffer *sb = stringbuffer_new();
+    stringbuffer_append_string(sb, "hello");
+    stringbuffer_seek(sb, 0);
+    stringbuffer_append_string(sb, "world");
+    char *cp = stringbuffer_finish(sb);
+    ck_assert_str_eq(cp, "world");
     efree(cp);
 }
 END_TEST
@@ -387,6 +428,7 @@ static Suite *suite(void)
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_stringbuffer_new);
+    tcase_add_test(tc_core, test_stringbuffer_free);
     tcase_add_test(tc_core, test_stringbuffer_finish);
     tcase_add_test(tc_core, test_stringbuffer_finish_shared);
     tcase_add_test(tc_core, test_stringbuffer_append_string_len);
@@ -394,7 +436,9 @@ static Suite *suite(void)
     tcase_add_test(tc_core, test_stringbuffer_append_printf);
     tcase_add_test(tc_core, test_stringbuffer_append_stringbuffer);
     tcase_add_test(tc_core, test_stringbuffer_append_char);
+    tcase_add_test(tc_core, test_stringbuffer_data);
     tcase_add_test(tc_core, test_stringbuffer_length);
+    tcase_add_test(tc_core, test_stringbuffer_seek);
     tcase_add_test(tc_core, test_stringbuffer_index);
     tcase_add_test(tc_core, test_stringbuffer_rindex);
     tcase_add_test(tc_core, test_stringbuffer_sub);
