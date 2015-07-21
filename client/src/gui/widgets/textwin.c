@@ -82,7 +82,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
         if (custom_data != NULL) {
             sb = custom_data;
 
-            if (sb->pos != 0) {
+            if (stringbuffer_length(sb) != 0) {
                 stringbuffer_append_char(sb, ':');
             }
 

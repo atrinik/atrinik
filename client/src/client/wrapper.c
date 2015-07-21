@@ -380,7 +380,7 @@ char *file_path(const char *path, const char *mode)
     } else {
         if (access(new_path, R_OK) != 0) {
             get_data_dir_file(VS(client_path), path);
-            sb->pos = 0;
+            stringbuffer_seek(sb, 0);
             stringbuffer_append_string(sb, client_path);
         }
     }

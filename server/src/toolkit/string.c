@@ -805,7 +805,7 @@ char *string_join(const char *delim, ...)
     va_start(args, delim);
 
     while ((str = va_arg(args, const char *))) {
-        if (sb->pos && delim) {
+        if (stringbuffer_length(sb) != 0 && delim) {
             stringbuffer_append_string(sb, delim);
         }
 
@@ -851,7 +851,7 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
             continue;
         }
 
-        if (sb->pos && delim) {
+        if (stringbuffer_length(sb) != 0 && delim) {
             stringbuffer_append_string(sb, delim);
         }
 

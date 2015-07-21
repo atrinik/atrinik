@@ -170,7 +170,7 @@ char *path_normalize(const char *path)
         stringbuffer_append_string(sb, "./");
     }
 
-    startsbpos = sb->pos;
+    startsbpos = stringbuffer_length(sb);
 
     while (string_get_word(path, &pos, '/', component, sizeof(component), 0)) {
         if (strcmp(component, ".") == 0) {
@@ -178,7 +178,7 @@ char *path_normalize(const char *path)
         }
 
         if (strcmp(component, "..") == 0) {
-            if (sb->pos > startsbpos) {
+            if (stringbuffer_length(sb) > startsbpos) {
                 last_slash = stringbuffer_rindex(sb, '/');
 
                 if (last_slash == -1) {
@@ -186,10 +186,11 @@ char *path_normalize(const char *path)
                     continue;
                 }
 
-                sb->pos = last_slash;
+                stringbuffer_seek(sb, last_slash);
             }
         } else {
-            if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/') {
+            size_t len = stringbuffer_length(sb);
+            if (len == 0 || stringbuffer_data(sb)[len - 1] != '/') {
                 stringbuffer_append_string(sb, "/");
             }
 
@@ -197,7 +198,7 @@ char *path_normalize(const char *path)
         }
     }
 
-    if (sb->pos == 0) {
+    if (stringbuffer_length(sb) == 0) {
         stringbuffer_append_string(sb, ".");
     }
 
