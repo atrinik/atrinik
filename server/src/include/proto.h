@@ -1195,13 +1195,6 @@ extern void shstr_stats(char *buf, size_t size);
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
 /* src/toolkit/socket.c */
-extern void toolkit_socket_init(void);
-extern void toolkit_socket_deinit(void);
-extern socket_t *socket_create(const char *host, uint16_t port);
-extern int socket_connect(socket_t *sc);
-extern void socket_destroy(socket_t *sc);
-extern SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
-extern void socket_ssl_destroy(SSL *ssl);
 /* src/toolkit/string.c */
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);

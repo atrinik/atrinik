@@ -170,6 +170,18 @@ check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(mkstemp HAVE_MKSTEMP)
 
+if (WIN32)
+    check_include_files(wspiapi.h HAVE_WSPIAPI_H)
+    check_include_files(ws2tcpip.h HAVE_WS2TCPIP_H)
+    if (HAVE_WSPIAPI_H OR HAVE_WS2TCPIP_H)
+        set(HAVE_GETADDRINFO TRUE)
+    endif (HAVE_WSPIAPI_H OR HAVE_WS2TCPIP_H)
+elseif (LINUX)
+    check_function_exists(getaddrinfo HAVE_GETADDRINFO)
+endif ()
+
+try_compile(HAVE_IPV6 ${CMAKE_BINARY_DIR}/compile_tests ${CMAKE_SOURCE_DIR}/src/toolkit/cmake/ipv6test.c)
+
 configure_file(src/toolkit/include/toolkit_cmake.h.def src/toolkit/include/toolkit_cmake.h)
 
 include_directories(src/toolkit/include)

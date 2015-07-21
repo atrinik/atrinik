@@ -713,8 +713,14 @@ enum {
 
 typedef struct socket_t {
     /**
-     * Actual socket handle, as returned by socket() call. */
+     * Actual socket handle, as returned by socket() call.
+     */
     int handle;
+
+    /**
+     * The socket address.
+     */
+    struct sockaddr_storage addr;
 
     /**
      * Hostname that the socket connection will use.
@@ -731,5 +737,26 @@ typedef struct socket_t {
      */
     SSL *ssl_handle;
 } socket_t;
+
+/* Prototypes */
+void toolkit_socket_init(void);
+void toolkit_socket_deinit(void);
+socket_t *socket_create(const char *host, uint16_t port);
+int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
+        unsigned short plen);
+bool socket_connect(socket_t *sc);
+bool socket_bind(socket_t *sc);
+socket_t *socket_accept(socket_t *sc);
+bool socket_is_fd_valid(socket_t *sc);
+bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger);
+bool socket_opt_reuse_addr(socket_t *sc, bool enable);
+bool socket_opt_non_blocking(socket_t *sc, bool enable);
+bool socket_opt_send_buffer(socket_t *sc, int bufsize);
+void socket_destroy(socket_t *sc);
+bool socket_host2addr(const char *host, struct sockaddr_storage *addr);
+const char *socket_addr2host(struct sockaddr_storage *addr, char *buf,
+        size_t bufsize);
+SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
+void socket_ssl_destroy(SSL *ssl);
 
 #endif

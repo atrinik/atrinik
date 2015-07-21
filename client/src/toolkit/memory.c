@@ -53,7 +53,7 @@ typedef struct memory_chunk {
     struct memory_chunk *prev; ///< Previous memory chunk.
 
     size_t size; ///< Number of the bytes in 'data'.
-    const char *file; ///< File the memory chunk was allocated in.
+    char *file; ///< File the memory chunk was allocated in.
     uint32_t line; ///< Line number the chunk was allocated in.
 
     uint64_t before; ///< Value before the data to check for underruns.
@@ -69,6 +69,7 @@ typedef struct memory_chunk {
 static memory_chunk_t *memory_chunks;
 static pthread_mutex_t memory_chunks_mutex;
 static ssize_t memory_chunks_num;
+static ssize_t memory_chunks_num_max;
 static ssize_t memory_chunks_allocated;
 static ssize_t memory_chunks_allocated_max;
 static uint64_t after_data;
@@ -90,6 +91,7 @@ TOOLKIT_INIT_FUNC(memory)
     pthread_mutex_init(&memory_chunks_mutex, NULL);
     memory_chunks = NULL;
     memory_chunks_num = 0;
+    memory_chunks_num_max = 0;
     memory_chunks_allocated = 0;
     memory_chunks_allocated_max = 0;
     after_data = CHUNK_AFTER_VAL;
@@ -111,6 +113,9 @@ TOOLKIT_DEINIT_FUNC(memory)
     LOG(INFO, "Maximum number of bytes allocated: %" PRIu64,
             (uint64_t) memory_chunks_allocated_max);
 
+    LOG(INFO, "Maximum number of pointers allocated: %" PRIu64,
+            (uint64_t) memory_chunks_num_max);
+
     if (memory_chunks_num != 0) {
         LOG(ERROR, "Number of pointers still allocated: %" PRIu64,
                 (uint64_t) memory_chunks_num);
@@ -127,7 +132,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
 #ifndef NDEBUG
 static const char *chunk_get_str(memory_chunk_t *chunk)
 {
-    static char buf[MAX_BUF];
+    static char buf[HUGE_BUF];
 
     snprintf(VS(buf), "Chunk %p, pointer %p (%" PRIu64 " bytes) allocated in "
              "%s:%u", chunk, MEM_DATA(chunk), (uint64_t) chunk->size,
@@ -197,7 +202,7 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     }
 
     chunk->size = size;
-    chunk->file = file;
+    chunk->file = strdup(file);
     chunk->line = line;
     chunk->before = CHUNK_BEFORE_VAL;
     chunk->next = NULL;
@@ -209,8 +214,11 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     DL_APPEND(memory_chunks, chunk);
 
     memory_chunks_num++;
-    memory_chunks_allocated += size;
+    if (memory_chunks_num > memory_chunks_num_max) {
+        memory_chunks_num_max = memory_chunks_num;
+    }
 
+    memory_chunks_allocated += size;
     if (memory_chunks_allocated > memory_chunks_allocated_max) {
         memory_chunks_allocated_max = memory_chunks_allocated;
     }
@@ -280,6 +288,8 @@ static void _free(void *ptr, const char *file, uint32_t line)
     memory_chunks_num--;
 
     pthread_mutex_unlock(&memory_chunks_mutex);
+
+    free(chunk->file);
 
     if (!RUNNING_ON_VALGRIND) {
         memset(chunk, 0x7A, MEM_CHUNK_SIZE(chunk->size));

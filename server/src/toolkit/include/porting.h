@@ -124,6 +124,8 @@
 #endif
 
 #ifdef WIN32
+#define WINVER 0x502
+
 #include <winsock2.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -133,6 +135,10 @@
 
 #ifdef __MINGW32__
 #include <ws2tcpip.h>
+
+#ifndef AI_NUMERICSERV
+#define AI_NUMERICSERV 0x00000008
+#endif
 #endif
 
 #define mkdir(__a, __b) mkdir(__a)
@@ -206,6 +212,10 @@
 
 #ifndef MSG_DONTWAIT
 #define MSG_DONTWAIT 0
+#endif
+
+#ifndef HAVE_IPV6
+typedef sockaddr_in sockaddr_storage;
 #endif
 
 /** Used for faces. */
