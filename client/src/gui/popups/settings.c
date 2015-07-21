@@ -65,10 +65,10 @@ static void settings_button_handle(popup_struct *popup, size_t button)
     } else if (button == BUTTON_LOGOUT) {
         clioption_settings.connect[1] = estrdup(cpl.account);
         clioption_settings.connect[2] = estrdup(cpl.password);
-        socket_close(&csocket);
+        socket_close_socket(&csocket);
         login_start();
     } else if (button == BUTTON_DISCONNECT) {
-        socket_close(&csocket);
+        socket_close_socket(&csocket);
         cpl.state = ST_INIT;
     }
 

@@ -226,7 +226,7 @@ static int game_status_chain(void)
         cpl.state = ST_START;
     } else if (cpl.state == ST_START) {
         if (csocket.fd != -1) {
-            socket_close(&csocket);
+            socket_close_socket(&csocket);
         }
 
         clear_map(true);

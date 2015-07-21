@@ -143,7 +143,7 @@ void socket_send_packet(struct packet_struct *packet)
     buf = command_buffer_new(packet->len + 3, NULL);
 
     if (!buf) {
-        socket_close(&csocket);
+        socket_close_socket(&csocket);
         return;
     }
 
@@ -276,7 +276,7 @@ static int reader_thread_loop(void *dummy)
         }
     }
 
-    socket_close(&csocket);
+    socket_close_socket(&csocket);
 
     if (readbuf != NULL) {
         efree(readbuf);
@@ -336,7 +336,7 @@ static int writer_thread_loop(void *dummy)
         }
     }
 
-    socket_close(&csocket);
+    socket_close_socket(&csocket);
     return 0;
 }
 
@@ -374,7 +374,7 @@ void socket_thread_start(void)
  * Closes the socket first, if it hasn't already been done. */
 void socket_thread_stop(void)
 {
-    socket_close(&csocket);
+    socket_close_socket(&csocket);
 
     SDL_WaitThread(output_thread, NULL);
     SDL_WaitThread(input_thread, NULL);
@@ -425,7 +425,7 @@ int socket_get_error(void)
 /**
  * Close a socket.
  * @param csock Socket to close. */
-int socket_close(struct ClientSocket *csock)
+int socket_close_socket(struct ClientSocket *csock)
 {
     SDL_LockMutex(socket_mutex);
 
@@ -498,7 +498,7 @@ int socket_initialize(void)
 void socket_deinitialize(void)
 {
     if (csocket.fd != -1) {
-        socket_close(&csocket);
+        socket_close_socket(&csocket);
     }
 
 #ifdef WIN32
