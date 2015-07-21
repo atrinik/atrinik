@@ -753,6 +753,7 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable);
 bool socket_opt_non_blocking(socket_t *sc, bool enable);
 bool socket_opt_send_buffer(socket_t *sc, int bufsize);
 void socket_destroy(socket_t *sc);
+void socket_close(socket_t *sc);
 bool socket_host2addr(const char *host, struct sockaddr_storage *addr);
 const char *socket_addr2host(struct sockaddr_storage *addr, char *buf,
         size_t bufsize);

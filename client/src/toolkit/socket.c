@@ -110,6 +110,19 @@ socket_t *socket_create(const char *host, uint16_t port)
             continue;
         }
 
+#ifdef HAVE_IPV6
+        if (ai->ai_family == AF_INET6) {
+            int flag = 0;
+            if (setsockopt(sc->handle, IPPROTO_IPV6, IPV6_V6ONLY,
+                    (const char *) &flag, sizeof(flag)) != 0) {
+                LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)",
+                        strerror(errno), errno);
+                socket_close(sc);
+                goto error;
+            }
+        }
+#endif
+
         memcpy(&sc->addr, ai->ai_addr, sizeof(sc->addr));
         break;
     }
@@ -463,18 +476,26 @@ void socket_destroy(socket_t *sc)
         efree(sc->host);
     }
 
-    if (sc->handle == -1) {
-        log_error("Invalid socket handle");
-    } else {
-#ifndef WIN32
-        close(sc->handle);
-#else
-        shutdown(sc->handle, SD_BOTH);
-        closesocket(sc->handle);
-#endif
-    }
-
+    socket_close(sc);
     efree(sc);
+}
+
+/**
+ * Closes file descriptor associated with the socket.
+ * @param sc Socket.
+ */
+void socket_close(socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+
+    SOFT_ASSERT(sc->handle != -1, "Invalid socket handle");
+
+#ifndef WIN32
+    close(sc->handle);
+#else
+    shutdown(sc->handle, SD_BOTH);
+    closesocket(sc->handle);
+#endif
 }
 
 /**
