@@ -31,21 +31,6 @@
 
 /**
  * The string buffer state. */
-typedef struct StringBuffer_struct {
-    /**
-     * The string buffer. The first ::pos bytes contain the collected
-     * string. Its size is at least ::bytes. */
-    char *buf;
-
-    /**
-     * The current length of ::buf. The invariant <code>pos \< size</code>
-     * always holds; this means there is always enough room to attach a
-     * trailing NUL character. */
-    size_t pos;
-
-    /**
-     * The allocation size of ::buf. */
-    size_t size;
-} StringBuffer;
+typedef struct StringBuffer_struct StringBuffer;
 
 #endif

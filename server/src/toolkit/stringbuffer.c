@@ -40,11 +40,35 @@
  * @endcode
  *
  * No function ever fails. In case not enough memory is available, the
- * program exits. */
+ * program exits.
+ */
 
 #include <global.h>
 #include <stdarg.h>
 #include <toolkit_string.h>
+
+/**
+ * The string buffer state structure.
+ */
+struct StringBuffer_struct {
+    /**
+     * The string buffer. The first ::pos bytes contain the collected
+     * string. Its size is at least ::bytes.
+     */
+    char *buf;
+
+    /**
+     * The current length of ::buf. The invariant <code>pos \< size</code>
+     * always holds; this means there is always enough room to attach a
+     * trailing NUL character.
+     */
+    size_t pos;
+
+    /**
+     * The allocation size of ::buf.
+     */
+    size_t size;
+};
 
 static void stringbuffer_ensure(StringBuffer *sb, size_t len);
 
@@ -62,7 +86,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Create a new string buffer.
- * @return The newly allocated string buffer. */
+ * @return The newly allocated string buffer.
+ */
 StringBuffer *stringbuffer_new(void)
 {
     StringBuffer *sb;
@@ -84,7 +109,7 @@ void stringbuffer_free(StringBuffer *sb)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
-    
+
     efree(sb->buf);
     efree(sb);
 }
@@ -94,7 +119,8 @@ void stringbuffer_free(StringBuffer *sb)
  *
  * The passed string buffer must not be accessed afterwards.
  * @param sb The string buffer to deallocate.
- * @return The result string; to free it, call efree() on it. */
+ * @return The result string; to free it, call efree() on it.
+ */
 char *stringbuffer_finish(StringBuffer *sb)
 {
     char *result;
@@ -116,7 +142,8 @@ char *stringbuffer_finish(StringBuffer *sb)
  * The passed string buffer must not be accessed afterwards.
  * @param sb The string buffer to deallocate.
  * @return The result shared string; to free it, use
- * FREE_AND_CLEAR_HASH(). */
+ * FREE_AND_CLEAR_HASH().
+ */
 const char *stringbuffer_finish_shared(StringBuffer *sb)
 {
     char *str;
@@ -136,7 +163,8 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
  * Append a string of the specified length to a string buffer instance.
  * @param sb The string buffer to modify.
  * @param str The string to append.
- * @param len Length of the string. */
+ * @param len Length of the string.
+ */
 void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
         size_t len)
 {
@@ -153,7 +181,8 @@ void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
 /**
  * Append a string to a string buffer instance.
  * @param sb The string buffer to modify.
- * @param str The string to append. */
+ * @param str The string to append.
+ */
 void stringbuffer_append_string(StringBuffer *sb, const char *str)
 {
     TOOLKIT_PROTECT();
@@ -166,7 +195,8 @@ void stringbuffer_append_string(StringBuffer *sb, const char *str)
 /**
  * Append a formatted string to a string buffer instance.
  * @param sb The string buffer to modify.
- * @param format The format string to append. */
+ * @param format The format string to append.
+ */
 void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 {
     size_t size = MAX_BUF;
@@ -205,7 +235,8 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
  * Append the contents of a string buffer instance to another string
  * buffer instance.
  * @param sb The string buffer to modify.
- * @param sb2 The string buffer to append; it must be different from sb. */
+ * @param sb2 The string buffer to append; it must be different from sb.
+ */
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 {
     TOOLKIT_PROTECT();
@@ -223,7 +254,8 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 /**
  * Append a single character to the specified string buffer instance.
  * @param sb The string buffer to modify.
- * @param c The character to append. */
+ * @param c The character to append.
+ */
 void stringbuffer_append_char(StringBuffer *sb, const char c)
 {
     TOOLKIT_PROTECT();
@@ -238,7 +270,8 @@ void stringbuffer_append_char(StringBuffer *sb, const char c)
  * Make sure that at least len bytes are available in the passed string
  * buffer.
  * @param sb The string buffer to modify.
- * @param len The number of bytes to allocate. */
+ * @param len The number of bytes to allocate.
+ */
 static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 {
     char *tmp;
@@ -305,7 +338,8 @@ void stringbuffer_seek(StringBuffer *sb, const size_t pos)
  * @param sb The StringBuffer instance to search in.
  * @param c Character to look for.
  * @return Index in the StringBuffer's buffer, -1 if the character was
- * not found. */
+ * not found.
+ */
 ssize_t stringbuffer_index(StringBuffer *sb, char c)
 {
     size_t i;
@@ -328,7 +362,8 @@ ssize_t stringbuffer_index(StringBuffer *sb, char c)
  * @param sb The StringBuffer instance to search in.
  * @param c Character to look for.
  * @return Index in the StringBuffer's buffer, -1 if the character was
- * not found. */
+ * not found.
+ */
 ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
 {
     size_t i;
