@@ -654,7 +654,7 @@ static int client_socket_create(int *fd, char *host, int port)
         }
 
         /* Set non-blocking. */
-        flags = fcntl(*fd, F_GETFL);
+        int flags = fcntl(*fd, F_GETFL);
 
         if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1) {
             LOG(BUG, "Error on switching to non-blocking. fcntl %x.", fcntl(*fd, F_GETFL));
