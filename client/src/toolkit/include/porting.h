@@ -124,7 +124,9 @@
 #endif
 
 #ifdef WIN32
+#ifndef WINVER
 #define WINVER 0x502
+#endif
 
 #include <winsock2.h>
 #include <windows.h>
@@ -138,6 +140,10 @@
 
 #ifndef AI_NUMERICSERV
 #define AI_NUMERICSERV 0x00000008
+#endif
+
+#ifndef IPV6_V6ONLY
+#define IPV6_V6ONLY 27
 #endif
 #endif
 

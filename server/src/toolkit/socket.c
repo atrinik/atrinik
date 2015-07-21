@@ -321,7 +321,7 @@ bool socket_is_fd_valid(socket_t *sc)
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
 #ifndef WIN32
-    return fcntl(fd, F_GETFL) != -1 || errno != EBADF;
+    return fcntl(sc->handle, F_GETFL) != -1 || errno != EBADF;
 #else
     return true;
 #endif
