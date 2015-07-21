@@ -182,6 +182,17 @@ union sockaddr_union {
 #endif
 };
 
+#ifdef HAVE_IPV6
+struct in6_addr_helper {
+    union {
+        uint8_t __u6_addr8[16];
+        uint16_t __u6_addr16[8];
+        uint32_t __u6_addr32[4];
+    } __in6_u;
+#   define s6_addr32__ __in6_u.__u6_addr32
+};
+#endif
+
 /**
  * Compare the socket's address to another address/subnet.
  * @param sc Socket to compare.
@@ -223,24 +234,29 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
     case AF_INET6:
     {
         HARD_ASSERT(plen <= 128);
-        struct in6_addr mask;
-        mask.s6_addr32[0] = htonl(plen <= 32 ? 0xffffffff << (32 - plen) :
+        struct in6_addr_helper mask;
+        mask.s6_addr32__[0] = htonl(plen <= 32 ? 0xffffffff << (32 - plen) :
             0xffffffff);
-        mask.s6_addr32[1] = htonl(plen <= 32 ? 0 :
+        mask.s6_addr32__[1] = htonl(plen <= 32 ? 0 :
             (plen > 64 ? 0xffffffff : 0xffffffff << (32 - (plen - 32))));
-        mask.s6_addr32[2] = htonl(plen <= 64 ? 0 :
+        mask.s6_addr32__[2] = htonl(plen <= 64 ? 0 :
             (plen > 96 ? 0xffffffff : 0xffffffff << (32 - (plen - 64))));
-        mask.s6_addr32[3] = htonl(plen <= 96 ? 0 :
+        mask.s6_addr32__[3] = htonl(plen <= 96 ? 0 :
             0xffffffff << (32 - (plen - 96)));
 
-        return (!!(((addr1->in6.sin6_addr.s6_addr32[0] ^
-                addr2->in6.sin6_addr.s6_addr32[0]) & mask.s6_addr32[0]) |
-                ((addr1->in6.sin6_addr.s6_addr32[1] ^
-                addr2->in6.sin6_addr.s6_addr32[1]) & mask.s6_addr32[1]) |
-                ((addr1->in6.sin6_addr.s6_addr32[2] ^
-                addr2->in6.sin6_addr.s6_addr32[2]) & mask.s6_addr32[2]) |
-                ((addr1->in6.sin6_addr.s6_addr32[3] ^
-                addr2->in6.sin6_addr.s6_addr32[3]) & mask.s6_addr32[3])));
+        struct in6_addr_helper *sin6_addr1 =
+            (struct in6_addr_helper *) &addr1->in6.sin6_addr;
+        struct in6_addr_helper *sin6_addr2 =
+            (struct in6_addr_helper *) &addr2->in6.sin6_addr;
+
+        return (!!(((sin6_addr1->s6_addr32__[0] ^
+                sin6_addr2->s6_addr32__[0]) & mask.s6_addr32__[0]) |
+                ((sin6_addr1->s6_addr32__[1] ^
+                sin6_addr2->s6_addr32__[1]) & mask.s6_addr32__[1]) |
+                ((sin6_addr1->s6_addr32__[2] ^
+                sin6_addr2->s6_addr32__[2]) & mask.s6_addr32__[2]) |
+                ((sin6_addr1->s6_addr32__[3] ^
+                sin6_addr2->s6_addr32__[3]) & mask.s6_addr32__[3])));
     }
 #endif
 
