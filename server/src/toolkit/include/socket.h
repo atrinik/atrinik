@@ -711,12 +711,38 @@ enum {
     PLAYER_EQUIP_MAX
 };
 
+/**
+ * Timeout when attempting a connection in seconds.
+ */
+#define SOCKET_TIMEOUT_MS 4.0
+
 /** The socket structure. */
 typedef struct sock_struct socket_t;
 
 #ifdef WIN32
+static inline const char *s_strerror(int val)
+{
+    wchar_t *s = NULL;
+    FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS, NULL, val,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR) &s, 0, NULL);
+    static char buf[4096];
+    int end = snprintf(buf, sizeof(buf), "%S", s);
+    if (end > 0) {
+        for (int i = end - 1; i >= 0; i--) {
+            if (buf[i] != '\n' && buf[i] != '\r') {
+                break;
+            }
+
+            buf[i] = '\0';
+        }
+    }
+    LocalFree(s);
+    return buf;
+}
 #define s_errno WSAGetLastError()
 #else
+#define s_strerror(_val) strerror(_val)
 #define s_errno errno
 #endif
 
