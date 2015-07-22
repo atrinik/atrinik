@@ -92,7 +92,7 @@ extern int keybind_process_command(const char *cmd);
 /* src/client/main.c */
 extern SDL_Surface *ScreenSurface;
 extern struct sockaddr_in insock;
-extern ClientSocket csocket;
+extern client_socket_t csocket;
 extern server_struct *selected_server;
 extern uint32_t LastTick;
 extern texture_struct *cursor_texture;
@@ -191,11 +191,10 @@ extern void add_input_command(command_buffer *buf);
 extern void socket_thread_start(void);
 extern void socket_thread_stop(void);
 extern int handle_socket_shutdown(void);
-extern int socket_get_error(void);
-extern int socket_close_socket(struct ClientSocket *csock);
-extern int socket_initialize(void);
-extern void socket_deinitialize(void);
-extern int socket_open(struct ClientSocket *csock, char *host, int port);
+extern void client_socket_close(client_socket_t *csock);
+extern bool client_socket_initialize(void);
+extern void client_socket_deinitialize(void);
+extern bool client_socket_open(client_socket_t *csock, const char *host, int port);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);

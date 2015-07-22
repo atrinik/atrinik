@@ -54,7 +54,7 @@ void system_end(void)
     popup_destroy_all();
     toolkit_widget_deinit();
     curl_deinit();
-    socket_deinitialize();
+    client_socket_deinitialize();
     metaserver_clear_data();
     effects_deinit();
     interface_deinit();

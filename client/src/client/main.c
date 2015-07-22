@@ -37,7 +37,7 @@ SDL_Surface *ScreenSurface;
 /** Server's attributes */
 struct sockaddr_in insock;
 /** Client socket. */
-ClientSocket csocket;
+client_socket_t csocket;
 
 /** Our selected server that we want to connect to. */
 server_struct *selected_server = NULL;
@@ -188,7 +188,7 @@ static void init_game_data(void)
 
     cpl.state = ST_INIT;
     map_redraw_flag = minimap_redraw_flag = 1;
-    csocket.fd = -1;
+    csocket.sc = NULL;
 
     metaserver_init();
     spells_init();
@@ -225,8 +225,8 @@ static int game_status_chain(void)
         metaserver_get_servers();
         cpl.state = ST_START;
     } else if (cpl.state == ST_START) {
-        if (csocket.fd != -1) {
-            socket_close_socket(&csocket);
+        if (csocket.sc != NULL) {
+            client_socket_close(&csocket);
         }
 
         clear_map(true);
@@ -239,7 +239,7 @@ static int game_status_chain(void)
     } else if (cpl.state == ST_CONNECT) {
         packet_struct *packet;
 
-        if (!socket_open(&csocket, selected_server->ip, selected_server->port)) {
+        if (!client_socket_open(&csocket, selected_server->ip, selected_server->port)) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
 #endif
     draw_info(COLOR_HGOLD, buf);
 
-    if (!socket_initialize()) {
+    if (!client_socket_initialize()) {
         exit(1);
     }
 
@@ -668,7 +668,8 @@ int main(int argc, char *argv[])
          * action */
         if (cpl.state != ST_PLAY) {
             if (!game_status_chain()) {
-                LOG(BUG, "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
+                LOG(ERROR, "Error connecting: cpl.state: %d SocketError: %s "
+                        "(%d)", cpl.state, strerror(s_errno), s_errno);
             }
         } else if (SDL_GetAppState() & SDL_APPACTIVE) {
             if (LastTick - anim_tick > 125) {

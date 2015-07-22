@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Socket related code. */
+ * Client sockets related code.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -143,7 +144,7 @@ void socket_send_packet(struct packet_struct *packet)
     buf = command_buffer_new(packet->len + 3, NULL);
 
     if (!buf) {
-        socket_close_socket(&csocket);
+        client_socket_close(&csocket);
         return;
     }
 
@@ -236,7 +237,8 @@ static int reader_thread_loop(void *dummy)
             }
         }
 
-        ret = recv(csocket.fd, (char *) readbuf + readbuf_len, toread, 0);
+        ret = recv(socket_fd(csocket.sc), (char *) readbuf + readbuf_len,
+                toread, 0);
 
         /* End of file */
         if (ret == 0) {
@@ -276,7 +278,7 @@ static int reader_thread_loop(void *dummy)
         }
     }
 
-    socket_close_socket(&csocket);
+    client_socket_close(&csocket);
 
     if (readbuf != NULL) {
         efree(readbuf);
@@ -309,7 +311,9 @@ static int writer_thread_loop(void *dummy)
         SDL_UnlockMutex(output_buffer_mutex);
 
         while (buf && written < buf->len && !abort_thread) {
-            int ret = send(csocket.fd, (const char *) buf->data + written, buf->len - written, 0);
+            int ret = send(socket_fd(csocket.sc),
+                    (const char *) buf->data + written,
+                    buf->len - written, 0);
 
             if (ret == 0) {
                 LOG(INFO, "Writer thread got EOF.");
@@ -336,12 +340,13 @@ static int writer_thread_loop(void *dummy)
         }
     }
 
-    socket_close_socket(&csocket);
+    client_socket_close(&csocket);
     return 0;
 }
 
 /**
- * Initialize and start up the worker threads. */
+ * Initialize and start up the worker threads.
+ */
 void socket_thread_start(void)
 {
     if (input_buffer_cond == NULL) {
@@ -371,10 +376,12 @@ void socket_thread_start(void)
 
 /**
  * Wait for the socket threads to finish.
- * Closes the socket first, if it hasn't already been done. */
+ *
+ * Closes the socket first, if it hasn't already been done.
+ */
 void socket_thread_stop(void)
 {
-    socket_close_socket(&csocket);
+    client_socket_close(&csocket);
 
     SDL_WaitThread(output_thread, NULL);
     SDL_WaitThread(input_thread, NULL);
@@ -387,7 +394,8 @@ void socket_thread_stop(void)
  * for a restart.
  *
  * The main thread should poll this function which detects connection
- * shutdowns and removes the threads if it happens. */
+ * shutdowns and removes the threads if it happens.
+ */
 int handle_socket_shutdown(void)
 {
     if (abort_thread) {
@@ -411,44 +419,18 @@ int handle_socket_shutdown(void)
 }
 
 /**
- * Get error number.
- * @return The error number. */
-int socket_get_error(void)
+ * Close a client socket.
+ * @param csock Socket to close.
+ */
+void client_socket_close(client_socket_t *csock)
 {
-#ifdef WIN32
-    return WSAGetLastError();
-#else
-    return errno;
-#endif
-}
+    HARD_ASSERT(csock != NULL);
+    HARD_ASSERT(csock->sc != NULL);
 
-/**
- * Close a socket.
- * @param csock Socket to close. */
-int socket_close_socket(struct ClientSocket *csock)
-{
     SDL_LockMutex(socket_mutex);
 
-    if (csock->fd == -1) {
-        SDL_UnlockMutex(socket_mutex);
-        return 1;
-    }
-
-#ifndef WIN32
-
-    if (shutdown(csock->fd, SHUT_RDWR)) {
-        perror("shutdown");
-    }
-
-    if (close(csock->fd)) {
-        perror("close");
-    }
-#else
-    shutdown(csock->fd, 2);
-    closesocket(csock->fd);
-#endif
-
-    csock->fd = -1;
+    socket_destroy(csock->sc);
+    csock->sc = NULL;
 
     abort_thread = 1;
 
@@ -457,48 +439,44 @@ int socket_close_socket(struct ClientSocket *csock)
     SDL_CondSignal(output_buffer_cond);
 
     SDL_UnlockMutex(socket_mutex);
-
-    return 1;
 }
 
 /**
- * Initialize the socket.
- * @return 1 on success, 0 on failure. */
-int socket_initialize(void)
+ * Initialize client sockets.
+ * @return True on success, false on failure.
+ */
+bool client_socket_initialize(void)
 {
 #ifdef WIN32
-    WSADATA w;
     WORD wVersionRequested = MAKEWORD(2, 2);
-    int error;
 
-    csocket.fd = -1;
-    error = WSAStartup(wVersionRequested, &w);
-
-    if (error) {
+    csocket.sc = NULL;
+    WSADATA w;
+    int error = WSAStartup(wVersionRequested, &w);
+    if (error != 0) {
         wVersionRequested = MAKEWORD(2, 0);
         error = WSAStartup(wVersionRequested, &w);
-
-        if (error) {
+        if (error != 0) {
             wVersionRequested = MAKEWORD(1, 1);
             error = WSAStartup(wVersionRequested, &w);
-
-            if (error) {
+            if (error != 0) {
                 LOG(BUG, "Error initializing WinSock: %d.", error);
-                return 0;
+                return false;
             }
         }
     }
 
 #endif
-    return 1;
+    return true;
 }
 
 /**
- * Deinitialize the socket. */
-void socket_deinitialize(void)
+ * Deinitialize the client sockets.
+ */
+void client_socket_deinitialize(void)
 {
-    if (csocket.fd != -1) {
-        socket_close_socket(&csocket);
+    if (csocket.sc != NULL) {
+        client_socket_close(&csocket);
     }
 
 #ifdef WIN32
@@ -507,241 +485,41 @@ void socket_deinitialize(void)
 }
 
 /**
- * Create a new socket.
- * @param[out] fd File descriptor we'll update.
- * @param host Host to connect to.
- * @param port Port to use.
- * @return 1 on success, 0 on failure. */
-static int client_socket_create(int *fd, char *host, int port)
-{
-    uint32_t start_timer;
-
-    /* Use new (getaddrinfo()) or old (gethostbyname()) socket API */
-#if !defined(HAVE_GETADDRINFO) || defined(WIN32)
-    /* This method is preferable unless IPv6 is required, due to buggy distros.
-     * */
-    struct sockaddr_in addr;
-#ifndef WIN32
-    struct protoent *protox;
-    int flags;
-
-    protox = getprotobyname("tcp");
-
-    if (!protox) {
-        LOG(BUG, "Error getting protobyname (tcp)");
-        return 0;
-    }
-
-    *fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
-
-    if (*fd == -1) {
-        LOG(BUG, "Could not create socket.");
-        return 0;
-    }
-#else
-    int error = 0, SocketStatusErrorNr;
-    u_long temp;
-
-    *fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-#endif
-
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons((unsigned short) port);
-
-    if (isdigit(*host)) {
-        addr.sin_addr.s_addr = inet_addr(host);
-    } else {
-        struct hostent *hostbn = gethostbyname(host);
-
-        if (!hostbn) {
-            *fd = -1;
-            return 0;
-        }
-
-        memcpy(&addr.sin_addr, hostbn->h_addr, hostbn->h_length);
-    }
-
-#ifndef WIN32
-    /* Set non-blocking. */
-    flags = fcntl(*fd, F_GETFL);
-
-    if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-        LOG(BUG, "Error on switching to non-blocking. fcntl %x.", fcntl(*fd, F_GETFL));
-        *fd = -1;
-        return 0;
-    }
-#else
-    temp = 1;
-
-    /* Set non-blocking. */
-    if (ioctlsocket(*fd, FIONBIO, &temp) == -1) {
-        LOG(BUG, "Error on switching to non-blocking.");
-        *fd = -1;
-        return 0;
-    }
-#endif
-
-    /* Try to connect. */
-    start_timer = SDL_GetTicks();
-
-    while (connect(*fd, (struct sockaddr *) &addr, sizeof(addr)) == -1) {
-        SDL_Delay(3);
-
-        if (start_timer + SOCKET_TIMEOUT_MS < SDL_GetTicks()) {
-            *fd = -1;
-            return 0;
-        }
-
-#ifdef WIN32
-        SocketStatusErrorNr = WSAGetLastError();
-
-        /* Connected. */
-        if (SocketStatusErrorNr == WSAEISCONN) {
-            break;
-        }
-
-        if (SocketStatusErrorNr == WSAEWOULDBLOCK || SocketStatusErrorNr == WSAEALREADY || (SocketStatusErrorNr == WSAEINVAL && error)) {
-            error = 1;
-            continue;
-        }
-
-        LOG(BUG, "Connect error: %d", SocketStatusErrorNr);
-        *fd = -1;
-        return 0;
-#endif
-    }
-
-#ifndef WIN32
-
-    /* Set back to blocking. */
-    if (fcntl(*fd, F_SETFL, flags) == -1) {
-        LOG(BUG, "Error on switching to blocking. fcntl %x.", fcntl(*fd, F_GETFL));
-        *fd = -1;
-        return 0;
-    }
-#else
-    temp = 0;
-
-    /* Set back to blocking. */
-    if (ioctlsocket(*fd, FIONBIO, &temp) == -1) {
-        LOG(BUG, "Error on switching to blocking.");
-        *fd = -1;
-        return 0;
-    }
-#endif
-#else
-    struct addrinfo hints;
-    struct addrinfo *res = NULL, *ai;
-    char port_str[6], hostaddr[40];
-
-    snprintf(port_str, sizeof(port_str), "%d", port);
-    memset(&hints, 0, sizeof(hints));
-
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_NUMERICSERV;
-
-    if (getaddrinfo(host, port_str, &hints, &res) != 0) {
-        return 0;
-    }
-
-    for (ai = res; ai; ai = ai->ai_next) {
-        getnameinfo(ai->ai_addr, ai->ai_addrlen, hostaddr, sizeof(hostaddr), NULL, 0, NI_NUMERICHOST);
-        *fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-
-        if (*fd == -1) {
-            continue;
-        }
-
-        /* Set non-blocking. */
-        int flags = fcntl(*fd, F_GETFL);
-
-        if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-            LOG(BUG, "Error on switching to non-blocking. fcntl %x.", fcntl(*fd, F_GETFL));
-            *fd = -1;
-            return 0;
-        }
-
-        /* Try to connect. */
-        start_timer = SDL_GetTicks();
-
-        while (connect(*fd, ai->ai_addr, ai->ai_addrlen) != 0) {
-            SDL_Delay(3);
-
-            if (start_timer + SOCKET_TIMEOUT_MS < SDL_GetTicks()) {
-                close(*fd);
-                *fd = -1;
-                break;
-            }
-        }
-
-        /* Set back to blocking. */
-        if (*fd != -1 && fcntl(*fd, F_SETFL, flags) == -1) {
-            LOG(BUG, "Error on switching to blocking. fcntl %x.", fcntl(*fd, F_GETFL));
-            *fd = -1;
-            return 0;
-        }
-
-        if (*fd != -1) {
-            break;
-        }
-    }
-
-    freeaddrinfo(res);
-
-    if (*fd == -1) {
-        return 0;
-    }
-#endif
-
-    return 1;
-}
-
-/**
  * Open a new socket.
  * @param csock Socket to open.
  * @param host Host to connect to.
  * @param port Port to connect to.
- * @return 1 on success, 0 on failure. */
-int socket_open(struct ClientSocket *csock, char *host, int port)
+ * @return True on success, false on failure.
+ */
+bool client_socket_open(client_socket_t *csock, const char *host, int port)
 {
-    int oldbufsize, newbufsize = 65535;
-    socklen_t buflen = sizeof(int);
-    struct linger linger_opt;
-
-    if (!client_socket_create(&csock->fd, host, port)) {
-        LOG(DEBUG, "Can't connect to server %s:%d.", host, port);
-        return 0;
+    csock->sc = socket_create(host, port);
+    if (csock->sc == NULL) {
+        return false;
     }
 
-    linger_opt.l_onoff = 1;
-    linger_opt.l_linger = 5;
+    if (!socket_connect(csock->sc)) {
+        goto error;
+    }
 
-    if (setsockopt(csock->fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger))) {
-        LOG(BUG, "Error on setsockopt LINGER");
+    if (!socket_opt_linger(csock->sc, true, 5)) {
+        goto error;
     }
 
     if (setting_get_int(OPT_CAT_CLIENT, OPT_MINIMIZE_LATENCY)) {
-        int tmp = 1;
-
-        if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1) {
-            LOG(BUG, "Error setting TCP_NODELAY.");
+        if (!socket_opt_ndelay(csock->sc, true)) {
+            goto error;
         }
     }
 
-    if (getsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, &buflen) == -1) {
-        oldbufsize = 0;
+    if (!socket_opt_recv_buffer(csock->sc, 65535)) {
+        goto error;
     }
 
-    if (oldbufsize < newbufsize) {
-        if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(newbufsize))) {
-            LOG(BUG, "Unable to set output buf size to %d", newbufsize);
+    return true;
 
-            if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(oldbufsize))) {
-                LOG(BUG, "Unable to set output buf size back to %d", oldbufsize);
-            }
-        }
-    }
-
-    return 1;
+error:
+    socket_destroy(csock->sc);
+    csock->sc = NULL;
+    return false;
 }
