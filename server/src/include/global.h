@@ -456,8 +456,6 @@ typedef struct cache_struct {
 #define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a' : (C))
 #endif
 
-#define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
-
 #define MAX_TICKS (1000000.0 / max_time)
 #define MAX_TICKS_MULTIPLIER (MAX_TICKS * max_time_multiplier)
 

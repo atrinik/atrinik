@@ -158,6 +158,8 @@
 #endif
 #endif
 
+#define GETTIMEOFDAY(last_time) gettimeofday(last_time, NULL);
+
 #ifdef HAVE_SRANDOM
 #define RANDOM() random()
 #define SRANDOM(xyz) srandom(xyz)
