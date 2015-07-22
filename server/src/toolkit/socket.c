@@ -525,6 +525,29 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable)
 }
 
 /**
+ * Turns TCP_NODELAY socket option on/off.
+ * @param sc Socket.
+ * @param enable Whether to enable or disable TCP_NODELAY.
+ * @return True on success, false on failure.
+ */
+bool socket_opt_ndelay(socket_t *sc, bool enable)
+{
+    HARD_ASSERT(sc != NULL);
+
+    SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
+
+    int flag = !!enable;
+    if (setsockopt(sc->handle, IPPROTO_TCP, TCP_NODELAY, (const char *) &flag,
+            sizeof(flag)) == -1) {
+        LOG(ERROR, "Cannot setsockopt(TCP_NODELAY): %s (%d)", strerror(errno),
+                errno);
+        return false;
+    }
+
+    return false;
+}
+
+/**
  * Changes the socket's send buffer size option.
  * @param sc Socket.
  * @param bufsize New send buffer size. If smaller than existing buffer size,
@@ -547,6 +570,39 @@ bool socket_opt_send_buffer(socket_t *sc, int bufsize)
 
     if (oldbufsize < bufsize) {
         if (setsockopt(sc->handle, SOL_SOCKET, SO_SNDBUF,
+                (const char *) &bufsize, sizeof(bufsize))) {
+            LOG(ERROR, "Cannot setsockopt(), bufsize %d: %s (%d)", bufsize,
+                    strerror(errno), errno);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Changes the socket's receive buffer size option.
+ * @param sc Socket.
+ * @param bufsize New receive buffer size. If smaller than existing buffer size,
+ * nothing is done.
+ * @return True on success, false on failure.
+ */
+bool socket_opt_recv_buffer(socket_t *sc, int bufsize)
+{
+    HARD_ASSERT(sc != NULL);
+
+    SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
+
+    int oldbufsize;
+    socklen_t buflen = sizeof(int);
+
+    if (getsockopt(sc->handle, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize,
+            &buflen) == -1) {
+        oldbufsize = 0;
+    }
+
+    if (oldbufsize < bufsize) {
+        if (setsockopt(sc->handle, SOL_SOCKET, SO_RCVBUF,
                 (const char *) &bufsize, sizeof(bufsize))) {
             LOG(ERROR, "Cannot setsockopt(), bufsize %d: %s (%d)", bufsize,
                     strerror(errno), errno);
