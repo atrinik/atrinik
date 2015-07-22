@@ -350,8 +350,7 @@ error:
  */
 static void arch_load(void)
 {
-    PERF_TIMER_DECLARE(1);
-    PERF_TIMER_START(1);
+    TIMER_START(1);
 
     char filename[MAX_BUF];
     snprintf(VS(filename), "%s/archetypes", settings.libpath);
@@ -373,8 +372,8 @@ static void arch_load(void)
     arch_pass_second(fp, filename);
     fclose(fp);
 
-    PERF_TIMER_STOP(1);
-    LOG(DEVEL, "Archetype loading took %f seconds", PERF_TIMER_GET(1));
+    TIMER_UPDATE(1);
+    LOG(DEVEL, "Archetype loading took %f seconds", TIMER_GET(1));
 }
 
 /**

@@ -704,7 +704,6 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 #endif
 #if TIME_PATHFINDING
     int searched;
-    PERF_TIMER_DECLARE(1);
 #endif
 
     start.x = x;
@@ -727,7 +726,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
 #if TIME_PATHFINDING
     searched = 0;
-    PERF_TIMER_START(1);
+    TIMER_START(1);
 #endif
 
     traversal_id++;
@@ -896,9 +895,9 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
     }
 
 #if TIME_PATHFINDING
-    PERF_TIMER_STOP(1);
+    TIMER_UPDATE(1);
     LOG(DEVEL, "Pathfinding took %f seconds (searched %d nodes)",
-            PERF_TIMER_GET(1), searched);
+            TIMER_GET(1), searched);
 #endif
 
 #if VISUALIZE_PATHFINDING
@@ -1023,7 +1022,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             fprintf(fp, "],\n\"time_taken\": ");
 
 #if TIME_PATHFINDING
-            fprintf(fp, "%f", PERF_TIMER_GET(1));
+            fprintf(fp, "%f", TIMER_GET(1));
 #else
             fprintf(fp, "NaN");
 #endif
