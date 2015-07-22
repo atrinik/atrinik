@@ -42,36 +42,16 @@ socket_struct *init_sockets;
  *
  * Sends server version to the client.
  * @param ns Client's socket.
- * @param from Where the connection is coming from.
  * @todo Remove version sending legacy support for older clients at some
- * point. */
-void init_connection(socket_struct *ns, const char *from_ip)
+ * point.
+ */
+bool init_connection(socket_struct *ns)
 {
-    int bufsize = 65535;
-    int oldbufsize;
-    socklen_t buflen = sizeof(int);
-
-#ifdef WIN32
-    u_long temp = 1;
-
-    if (ioctlsocket(ns->fd, FIONBIO, &temp) == -1) {
-        LOG(DEBUG, "Error on ioctlsocket.");
+    if (!socket_opt_non_blocking(ns->sc, true)) {
+        return false;
     }
-#else
-
-    if (fcntl(ns->fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1) {
-        LOG(DEBUG, "Error on fcntl.");
-    }
-#endif
-
-    if (getsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize, &buflen) == -1) {
-        oldbufsize = 0;
-    }
-
-    if (oldbufsize < bufsize) {
-        if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize))) {
-            LOG(DEBUG, "setsockopt unable to set output buf size to %d", bufsize);
-        }
+    if (!socket_opt_send_buffer(ns->sc, 65535)) {
+        return false;
     }
 
     ns->login_count = 0;
@@ -96,7 +76,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
     memset(&ns->lastmap, 0, sizeof(struct Map));
     ns->packets = NULL;
 
-    ns->host = estrdup(from_ip);
+    return true;
 }
 
 /**
@@ -104,8 +84,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
  * memory. */
 void init_ericserver(void)
 {
-    struct sockaddr_in insock;
-    struct linger linger_opt;
 #ifndef WIN32
     struct protoent *protox;
 
@@ -135,74 +113,17 @@ void init_ericserver(void)
     init_sockets = emalloc(sizeof(socket_struct));
     socket_info.allocated_sockets = 1;
 
-#ifndef WIN32
-    protox = getprotobyname("tcp");
-
-    if (protox == NULL) {
-        LOG(BUG, "Error getting protox");
-        return;
-    }
-
-    init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
-
-#else
-    init_sockets[0].fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-#endif
-
-    if (init_sockets[0].fd == -1) {
-        LOG(ERROR, "Cannot create socket: %s", strerror(errno));
+    init_sockets[0].sc = socket_create(NULL, settings.port);
+    if (init_sockets[0].sc == NULL) {
         exit(1);
     }
-
-    insock.sin_family = AF_INET;
-    insock.sin_port = htons(settings.port);
-    insock.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    linger_opt.l_onoff = 0;
-    linger_opt.l_linger = 0;
-
-    if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger))) {
-        LOG(ERROR, "Cannot setsockopt(SO_LINGER): %s", strerror(errno));
+    if (!socket_opt_linger(init_sockets[0].sc, false, 0)) {
         exit(1);
     }
-
-    /* Would be nice to have an autoconf check for this.  It appears that
-     * these functions are both using the same calling syntax, just one
-     * of them needs extra values passed. */
-#if !defined(_WEIRD_OS_)
-    {
-        int tmp = 1;
-
-        if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp))) {
-            LOG(DEBUG, "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
-        }
-    }
-#else
-
-    if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0)) {
-        LOG(DEBUG, "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
-    }
-#endif
-
-    if (bind(init_sockets[0].fd, (struct sockaddr *) &insock, sizeof(insock)) == -1) {
-#ifndef WIN32
-        close(init_sockets[0].fd);
-#else
-        shutdown(init_sockets[0].fd, SD_BOTH);
-        closesocket(init_sockets[0].fd);
-#endif
-        LOG(ERROR, "Cannot bind socket to port %d: %s", ntohs(insock.sin_port), strerror(errno));
+    if (!socket_opt_reuse_addr(init_sockets[0].sc, true)) {
         exit(1);
     }
-
-    if (listen(init_sockets[0].fd, 5) == -1) {
-#ifndef WIN32
-        close(init_sockets[0].fd);
-#else
-        shutdown(init_sockets[0].fd, SD_BOTH);
-        closesocket(init_sockets[0].fd);
-#endif
-        LOG(ERROR, "Cannot listen on socket: %s", strerror(errno));
+    if (!socket_bind(init_sockets[0].sc)) {
         exit(1);
     }
 
@@ -226,13 +147,7 @@ void free_all_newserver(void)
         }
     }
 
-#ifndef WIN32
-    close(init_sockets[0].fd);
-#else
-    shutdown(init_sockets[0].fd, SD_BOTH);
-    closesocket(init_sockets[0].fd);
-#endif
-
+    socket_destroy(init_sockets[0].sc);
     efree(init_sockets);
 }
 
@@ -244,23 +159,7 @@ void free_all_newserver(void)
  * @param ns The socket. */
 void free_newsocket(socket_struct *ns)
 {
-#ifndef WIN32
-
-    if (close(ns->fd))
-#else
-    shutdown(ns->fd, SD_BOTH);
-
-    if (closesocket(ns->fd))
-#endif
-    {
-#ifdef ESRV_DEBUG
-        LOG(DEBUG, "Error closing socket %d", ns->fd);
-#endif
-    }
-
-    if (ns->host) {
-        efree(ns->host);
-    }
+    socket_destroy(ns->sc);
 
     if (ns->account) {
         efree(ns->account);

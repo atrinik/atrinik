@@ -102,8 +102,6 @@ static fields_struct fields[] = {
     {"s_ext_title_flag", FIELDTYPE_BOOLEAN,
             offsetof(player, socket.ext_title_flag), 0, 0,
             "If True, will force updating the player's map name.; bool"},
-    {"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host),
-            FIELDFLAG_READONLY, 0, "IP address of the player.; str (readonly)"},
     {"s_socket_version", FIELDTYPE_UINT32,
             offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0,
             "Socket version of the player's client.; int (readonly)"},
@@ -895,6 +893,33 @@ static PyObject *Atrinik_Player_Save(Atrinik_Player *self)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Player_Address(). */
+static const char doc_Atrinik_Player_Address[] =
+".. method:: Address(verbose=False).\n\n"
+"Acquires the player's IP address.\n\n"
+":param verbose: If True, will contain the port as well.\n"
+":type verbose: bool\n"
+":returns: The player's IP address.\n"
+":rtype: str";
+
+/**
+ * Implements Atrinik.Player.Player.Address() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_Address(Atrinik_Player *self, PyObject *args)
+{
+    int verbose = 0;
+    if (!PyArg_ParseTuple(args, "|i", &verbose)) {
+        return NULL;
+    }
+
+    if (!verbose) {
+        return Py_BuildValue("s", hooks->socket_get_addr(self->pl->socket.sc));
+    }
+
+    return Py_BuildValue("s", hooks->socket_get_str(self->pl->socket.sc));
+}
+
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] = {
     {"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS,
@@ -931,6 +956,8 @@ static PyMethodDef methods[] = {
             doc_Atrinik_Player_InsertCoins},
     {"Save", (PyCFunction) Atrinik_Player_Save, METH_NOARGS,
             doc_Atrinik_Player_Save},
+    {"Address", (PyCFunction) Atrinik_Player_Address, METH_VARARGS,
+            doc_Atrinik_Player_Address},
 
     {NULL, NULL, 0, NULL}
 };

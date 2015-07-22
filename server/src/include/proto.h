@@ -706,7 +706,7 @@ extern void draw_info_map(uint8_t type, const char *name, const char *color, map
 /* src/socket/init.c */
 extern Socket_Info socket_info;
 extern socket_struct *init_sockets;
-extern void init_connection(socket_struct *ns, const char *from_ip);
+extern bool init_connection(socket_struct *ns);
 extern void init_ericserver(void);
 extern void free_all_newserver(void);
 extern void free_newsocket(socket_struct *ns);

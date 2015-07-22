@@ -102,8 +102,8 @@ enum {
 
 /** This contains basic information on the socket structure. */
 typedef struct socket_struct {
-    /** The actual file descriptor we are using. */
-    int fd;
+    /** The real socket. */
+    socket_t *sc;
 
     /**
      * If someone is too long idle in the login, he will get
@@ -121,9 +121,6 @@ typedef struct socket_struct {
 
     /** Y size of the map the client wants / 2. */
     int mapy_2;
-
-    /** Which host it is connected from (ip address). */
-    char *host;
 
     /** Version of the client. */
     uint32_t socket_version;
@@ -182,7 +179,7 @@ typedef struct socket_struct {
 /**
  * How many seconds must pass since the last keep alive command for the
  * socket to be disconnected. */
-#define SOCKET_KEEPALIVE_TIMEOUT (60 * 10)
+#define SOCKET_KEEPALIVE_TIMEOUT (uint32_t) ((60 * 10) * MAX_TICKS_MULTIPLIER)
 
 /** Holds some system related information. */
 typedef struct Socket_Info_struct {

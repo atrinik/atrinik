@@ -240,7 +240,7 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
         packet_debug_data(packet, 0, "Account name");
         packet_append_string_terminated(packet, ns->account);
         packet_debug_data(packet, 0, "Hostname");
-        packet_append_string_terminated(packet, ns->host);
+        packet_append_string_terminated(packet, socket_get_addr(ns->sc));
         packet_debug_data(packet, 0, "Last hostname");
         packet_append_string_terminated(packet, account->last_host);
         packet_debug_data(packet, 0, "Last time");
@@ -328,10 +328,10 @@ void account_login(socket_struct *ns, char *name, char *password)
         efree(path);
 
         ns->password_fails++;
-        LOG(SYSTEM, "%s: Failed to provide correct password for account %s.", ns->host, name);
+        LOG(SYSTEM, "%s: Failed to provide correct password for account %s.", socket_get_str(ns->sc), name);
 
         if (ns->password_fails >= MAX_PASSWORD_FAILURES) {
-            LOG(SYSTEM, "%s: Failed to provide a correct password for account %s too many times!", ns->host, name);
+            LOG(SYSTEM, "%s: Failed to provide a correct password for account %s too many times!", socket_get_str(ns->sc), name);
             draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "You have failed to provide a correct password too many times.");
             ns->state = ST_ZOMBIE;
         }
@@ -347,7 +347,7 @@ void account_login(socket_struct *ns, char *name, char *password)
     account_send_characters(ns, &account);
 
     efree(account.last_host);
-    account.last_host = estrdup(ns->host);
+    account.last_host = estrdup(socket_get_addr(ns->sc));
     account.last_time = datetime_getutc();
     account_save(&account, path);
     account_free(&account);
@@ -398,7 +398,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
     path_ensure_directories(path);
 
     account_set_password(&account, password);
-    account.last_host = ns->host;
+    account.last_host = socket_get_addr(ns->sc);
     account.last_time = datetime_getutc();
     account.characters = NULL;
     account.characters_num = 0;

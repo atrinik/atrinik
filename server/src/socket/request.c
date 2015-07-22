@@ -2082,17 +2082,17 @@ void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t le
     run_on = packet_to_uint8(data, len, &pos);
 
     if (dir > 8) {
-        LOG(PACKET, "%s: Invalid dir: %d", ns->host, dir);
+        LOG(PACKET, "%s: Invalid dir: %d", socket_get_str(ns->sc), dir);
         return;
     }
 
     if (run_on > 1) {
-        LOG(PACKET, "%s: Invalid run_on: %d", ns->host, run_on);
+        LOG(PACKET, "%s: Invalid run_on: %d", socket_get_str(ns->sc), run_on);
         return;
     }
 
     if (run_on == 1 && dir == 0) {
-        LOG(PACKET, "%s: run_on is 1 but dir is 0", ns->host);
+        LOG(PACKET, "%s: run_on is 1 but dir is 0", socket_get_str(ns->sc));
         return;
     }
 
@@ -2481,9 +2481,10 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     pos2 = 0;
     ip_match = 0;
+    char *host = socket_get_str(ns->sc);
 
     while (string_get_word(settings.control_allowed_ips, &pos2, ',', word, sizeof(word), 0)) {
-        if (strcmp(ns->host, word) == 0) {
+        if (strcmp(host, word) == 0) {
             ip_match = 1;
             break;
         }
@@ -2491,7 +2492,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     if (!ip_match) {
         LOG(PACKET, "Received control command from unauthorized IP: %s",
-                ns->host);
+                socket_get_str(ns->sc));
         return;
     }
 

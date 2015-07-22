@@ -2177,24 +2177,12 @@ object *player_get_dummy(const char *name)
     player *pl;
 
     pl = get_player(NULL);
-#ifndef WIN32
-    struct protoent *protox = getprotobyname("tcp");
-    if (protox == NULL) {
-        log_error("Could not get protobyname(tcp): %s (%d)", strerror(errno),
-                errno);
+    pl->socket.sc = socket_create("127.0.0.1", 13327);
+    if (pl->socket.sc == NULL) {
         abort();
     }
 
-    pl->socket.fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
-#else
-    pl->socket.fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-#endif
-    if (pl->socket.fd == -1) {
-        log_error("Could not create a socket: %s (%d)", strerror(errno), errno);
-        abort();
-    }
-
-    init_connection(&pl->socket, "127.0.0.1");
+    init_connection(&pl->socket);
 
     pl->ob = arch_get("human_male");
     pl->ob->custom_attrset = pl;
@@ -2271,14 +2259,14 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
         remove_ns_dead_player(pl);
     }
 
-    if (checkbanned(name, ns->host)) {
-        LOG(SYSTEM, "Ban: Banned player tried to login. [%s@%s]", name, ns->host);
+    if (checkbanned(name, "")) {
+        LOG(SYSTEM, "Ban: Banned player tried to login. [%s@%s]", name, "");
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Connection refused due to a ban.");
         ns->state = ST_ZOMBIE;
         return;
     }
 
-    LOG(INFO, "Login %s from IP %s", name, ns->host);
+    LOG(INFO, "Login %s from IP %s", name, socket_get_str(ns->sc));
 
     pl = get_player(NULL);
     memcpy(&pl->socket, ns, sizeof(socket_struct));
@@ -2319,7 +2307,7 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
 
     display_motd(pl->ob);
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
-    trigger_global_event(GEVENT_LOGIN, pl, pl->socket.host);
+    trigger_global_event(GEVENT_LOGIN, pl, socket_get_addr(pl->socket.sc));
 
     m = ready_map_name(pl->maplevel, NULL, 0);
 

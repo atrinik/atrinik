@@ -39,12 +39,12 @@ int socket_recv(socket_struct *ns)
     int stat_ret;
 
 #ifdef WIN32
-    stat_ret = recv(ns->fd, (char *) ns->packet_recv->data +
+    stat_ret = recv(ns->sc->handle, (char *) ns->packet_recv->data +
             ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len,
             0);
 #else
     do {
-        stat_ret = read(ns->fd, (void *) (ns->packet_recv->data +
+        stat_ret = read(ns->sc->handle, (void *) (ns->packet_recv->data +
                 ns->packet_recv->len), ns->packet_recv->size -
                 ns->packet_recv->len);
     }    while (stat_ret == -1 && errno == EINTR);
@@ -161,15 +161,15 @@ void socket_buffer_write(socket_struct *ns)
         packet_struct *packet = ns->packets;
 
         if (packet->ndelay) {
-            socket_enable_no_delay(ns->fd);
+            socket_enable_no_delay(ns->sc->handle);
         }
 
         max = packet->len - packet->pos;
-        amt = send(ns->fd, (const void *) (packet->data + packet->pos), max,
-                MSG_DONTWAIT);
+        amt = send(ns->sc->handle, (const void *) (packet->data + packet->pos),
+                max, MSG_DONTWAIT);
 
         if (packet->ndelay) {
-            socket_disable_no_delay(ns->fd);
+            socket_disable_no_delay(ns->sc->handle);
         }
 
 #ifndef WIN32
