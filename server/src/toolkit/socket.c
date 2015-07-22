@@ -105,6 +105,12 @@ socket_t *socket_create(const char *host, uint16_t port)
     }
 
     for (struct addrinfo *ai = res; ai != NULL; ai = ai->ai_next) {
+#ifdef HAVE_IPV6
+        if (host == NULL && ai->ai_family != AF_INET6) {
+            continue;
+        }
+#endif
+
         sc->handle = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
         if (sc->handle == -1) {
             continue;
