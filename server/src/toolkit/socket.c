@@ -370,7 +370,9 @@ bool socket_connect(socket_t *sc)
 
     while (connect(sc->handle, (struct sockaddr *) &sc->addr,
             sizeof(struct sockaddr)) == -1) {
+#ifdef WIN32
         int rc = s_errno;
+#endif
 
         usleep(3000);
         TIMER_UPDATE(connect);
