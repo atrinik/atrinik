@@ -738,10 +738,18 @@ typedef struct socket_t {
     SSL *ssl_handle;
 } socket_t;
 
+#ifdef WIN32
+#define s_errno WSAGetLastError()
+#else
+#define s_errno errno
+#endif
+
 /* Prototypes */
 void toolkit_socket_init(void);
 void toolkit_socket_deinit(void);
 socket_t *socket_create(const char *host, uint16_t port);
+char *socket_get_addr(socket_t *sc);
+char *socket_get_str(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
         unsigned short plen);
 bool socket_connect(socket_t *sc);

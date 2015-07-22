@@ -178,6 +178,34 @@ error:
     return NULL;
 }
 
+/**
+ * Acquire the socket's address as a string representation.
+ * @param sc Socket.
+ * @return Pointer to a static buffer containing the socket's address. Will be
+ * overwritten with the next call.
+ */
+char *socket_get_addr(socket_t *sc)
+{
+    static char buf[MAX_BUF];
+    if (socket_addr2host(&sc->addr, VS(buf)) == NULL) {
+        snprintf(VS(buf), "<no address>");
+    }
+    return buf;
+}
+
+/**
+ * Acquire a string representation of the socket (its address and port).
+ * @param sc Socket.
+ * @return Pointer to a static buffer containing the socket's string
+ * representation. Will be overwritten with the next call.
+ */
+char *socket_get_str(socket_t *sc)
+{
+    static char buf[MAX_BUF];
+    snprintf(VS(buf), "%s %" PRIu16, socket_get_addr(sc), sc->port);
+    return buf;
+}
+
 /** Helper structure used in socket_cmp_addr(). */
 union sockaddr_union {
     struct sockaddr sa; ///< sockaddr.
@@ -333,14 +361,15 @@ socket_t *socket_accept(socket_t *sc)
 
     SOFT_ASSERT_RC(sc->handle != -1, NULL, "Invalid socket file handle");
 
-    socklen_t addrlen = sizeof(sc->addr);
-    int handle = accept(sc->handle, (struct sockaddr *) &sc->addr, &addrlen);
-    if (handle == -1) {
+    socket_t *tmp = ecalloc(1, sizeof(*tmp));
+    socklen_t addrlen = sizeof(tmp->addr);
+    tmp->handle = accept(sc->handle, (struct sockaddr *) &tmp->addr, &addrlen);
+    if (tmp->handle == -1) {
+        efree(tmp);
         return NULL;
     }
 
-    socket_t *tmp = ecalloc(1, sizeof(*tmp));
-    tmp->handle = handle;
+    tmp->port = ((struct sockaddr_in *) &tmp->addr)->sin_port;
     return tmp;
 }
 
@@ -593,12 +622,19 @@ static const char *inet_ntop(int af, const void *src, char *dst, size_t size)
             break;
 
         default:
+            LOG(ERROR, "Unknown family: %d", af);
             return NULL;
     }
 
     unsigned long s = size;
-    return (WSAAddressToString((struct sockaddr *) &ss, sizeof(ss), NULL, dst,
-            &s) == 0) ? dst : NULL;
+    if (WSAAddressToString((struct sockaddr *) &ss, sizeof(ss), NULL, dst,
+            &s) == 0) {
+        return dst;
+    }
+
+    LOG(ERROR, "Cannot WSAAddressToString(): %s (%d)", strerror(s_errno),
+            errno);
+    return NULL;
 }
 /** @endcond */
 #endif
