@@ -85,8 +85,6 @@ bool init_connection(socket_struct *ns)
 void init_ericserver(void)
 {
 #ifndef WIN32
-    struct protoent *protox;
-
 #ifdef HAVE_SYSCONF
     socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
 #else
