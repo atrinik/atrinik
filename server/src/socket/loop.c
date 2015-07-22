@@ -253,15 +253,15 @@ void doeric_server(void)
                 if (init_sockets[i].keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT) {
                     LOG(INFO, "Keepalive: disconnecting %s: %d",
                             socket_get_str(init_sockets[i].sc),
-                            init_sockets[i].sc->handle);
+                            socket_fd(init_sockets[i].sc));
                     FREE_SOCKET(i);
                     continue;
                 }
             }
 
-            FD_SET((uint32_t) init_sockets[i].sc->handle, &tmp_read);
-            FD_SET((uint32_t) init_sockets[i].sc->handle, &tmp_write);
-            FD_SET((uint32_t) init_sockets[i].sc->handle, &tmp_exceptions);
+            FD_SET((uint32_t) socket_fd(init_sockets[i].sc), &tmp_read);
+            FD_SET((uint32_t) socket_fd(init_sockets[i].sc), &tmp_write);
+            FD_SET((uint32_t) socket_fd(init_sockets[i].sc), &tmp_exceptions);
         }
     }
 
@@ -273,7 +273,7 @@ void doeric_server(void)
         if (pl->socket.state != ST_DEAD && !socket_is_fd_valid(pl->socket.sc)) {
             LOG(DEBUG, "Invalid file descriptor for player %s [%s]: %d",
                     object_get_str(pl->ob), socket_get_str(pl->socket.sc),
-                    pl->socket.sc->handle);
+                    socket_fd(pl->socket.sc));
             pl->socket.state = ST_DEAD;
         }
 
@@ -281,7 +281,7 @@ void doeric_server(void)
                 pl->socket.keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT) {
             LOG(INFO, "Keepalive: disconnecting %s [%s]: %d",
                     object_get_str(pl->ob), socket_get_str(pl->socket.sc),
-                    pl->socket.sc->handle);
+                    socket_fd(pl->socket.sc));
             pl->socket.state = ST_DEAD;
         }
 
@@ -292,9 +292,9 @@ void doeric_server(void)
                 pl->socket.state = ST_DEAD;
             }
         } else {
-            FD_SET((uint32_t) pl->socket.sc->handle, &tmp_read);
-            FD_SET((uint32_t) pl->socket.sc->handle, &tmp_write);
-            FD_SET((uint32_t) pl->socket.sc->handle, &tmp_exceptions);
+            FD_SET((uint32_t) socket_fd(pl->socket.sc), &tmp_read);
+            FD_SET((uint32_t) socket_fd(pl->socket.sc), &tmp_write);
+            FD_SET((uint32_t) socket_fd(pl->socket.sc), &tmp_exceptions);
         }
     }
 
@@ -310,7 +310,7 @@ void doeric_server(void)
     }
 
     /* Following adds a new connection */
-    if (pollret && FD_ISSET(init_sockets[0].sc->handle, &tmp_read)) {
+    if (pollret && FD_ISSET(socket_fd(init_sockets[0].sc), &tmp_read)) {
         int newsocknum = 0;
 
         /* If this is the case, all sockets are currently in use */
@@ -351,12 +351,12 @@ void doeric_server(void)
                 continue;
             }
 
-            if (FD_ISSET(init_sockets[i].sc->handle, &tmp_exceptions)) {
+            if (FD_ISSET(socket_fd(init_sockets[i].sc), &tmp_exceptions)) {
                 FREE_SOCKET(i);
                 continue;
             }
 
-            if (FD_ISSET(init_sockets[i].sc->handle, &tmp_read)) {
+            if (FD_ISSET(socket_fd(init_sockets[i].sc), &tmp_read)) {
                 rr = socket_recv(&init_sockets[i]);
 
                 if (rr < 0) {
@@ -377,7 +377,7 @@ void doeric_server(void)
                 continue;
             }
 
-            if (FD_ISSET(init_sockets[i].sc->handle, &tmp_write)) {
+            if (FD_ISSET(socket_fd(init_sockets[i].sc), &tmp_write)) {
                 socket_buffer_write(&init_sockets[i]);
             }
 
@@ -392,13 +392,13 @@ void doeric_server(void)
         next = pl->next;
 
         /* Kill players if we have problems */
-        if (pl->socket.state == ST_DEAD || FD_ISSET(pl->socket.sc->handle,
+        if (pl->socket.state == ST_DEAD || FD_ISSET(socket_fd(pl->socket.sc),
                 &tmp_exceptions)) {
             remove_ns_dead_player(pl);
             continue;
         }
 
-        if (FD_ISSET(pl->socket.sc->handle, &tmp_read)) {
+        if (FD_ISSET(socket_fd(pl->socket.sc), &tmp_read)) {
             rr = socket_recv(&pl->socket);
 
             if (rr < 0) {
@@ -417,7 +417,7 @@ void doeric_server(void)
             continue;
         }
 
-        if (FD_ISSET(pl->socket.sc->handle, &tmp_write)) {
+        if (FD_ISSET(socket_fd(pl->socket.sc), &tmp_write)) {
             socket_buffer_write(&pl->socket);
         }
     }
@@ -434,7 +434,7 @@ void doeric_server_write(void)
     for (pl = first_player; pl; pl = next) {
         next = pl->next;
 
-        if (pl->socket.state == ST_DEAD || FD_ISSET(pl->socket.sc->handle,
+        if (pl->socket.state == ST_DEAD || FD_ISSET(socket_fd(pl->socket.sc),
                 &tmp_exceptions)) {
             remove_ns_dead_player(pl);
             continue;
@@ -461,7 +461,7 @@ void doeric_server_write(void)
             pl->socket.update_tile = update_below;
         }
 
-        if (FD_ISSET(pl->socket.sc->handle, &tmp_write)) {
+        if (FD_ISSET(socket_fd(pl->socket.sc), &tmp_write)) {
             socket_buffer_write(&pl->socket);
         }
     }

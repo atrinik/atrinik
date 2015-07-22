@@ -711,32 +711,8 @@ enum {
     PLAYER_EQUIP_MAX
 };
 
-typedef struct socket_t {
-    /**
-     * Actual socket handle, as returned by socket() call.
-     */
-    int handle;
-
-    /**
-     * The socket address.
-     */
-    struct sockaddr_storage addr;
-
-    /**
-     * Hostname that the socket connection will use.
-     */
-    char *host;
-
-    /**
-     * Port that the socket connection will use.
-     */
-    uint16_t port;
-
-    /**
-     * SSL socket handle.
-     */
-    SSL *ssl_handle;
-} socket_t;
+/** The socket structure. */
+typedef struct sock_struct socket_t;
 
 #ifdef WIN32
 #define s_errno WSAGetLastError()
@@ -753,6 +729,7 @@ char *socket_get_str(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
         unsigned short plen);
 bool socket_connect(socket_t *sc);
+int socket_fd(socket_t *sc);
 bool socket_bind(socket_t *sc);
 socket_t *socket_accept(socket_t *sc);
 bool socket_is_fd_valid(socket_t *sc);

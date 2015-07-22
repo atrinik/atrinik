@@ -36,6 +36,36 @@
 #include <sys/types.h>
 
 /**
+ * The socket structure.
+ */
+struct sock_struct {
+    /**
+     * Actual socket handle, as returned by socket() call.
+     */
+    int handle;
+
+    /**
+     * The socket address.
+     */
+    struct sockaddr_storage addr;
+
+    /**
+     * Hostname that the socket connection will use.
+     */
+    char *host;
+
+    /**
+     * Port that the socket connection will use.
+     */
+    uint16_t port;
+
+    /**
+     * SSL socket handle.
+     */
+    SSL *ssl_handle;
+};
+
+/**
  * The OpenSSL context.
  */
 static SSL_CTX *ssl_context;
@@ -301,6 +331,19 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
     }
 
     return -1;
+}
+
+/**
+ * Acquire the socket's file descriptor.
+ * @param sc Socket.
+ * @return The file descriptor.
+ */
+int socket_fd(socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(sc->handle != -1);
+
+    return sc->handle;
 }
 
 /**
