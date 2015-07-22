@@ -130,7 +130,8 @@ socket_t *socket_create(const char *host, uint16_t port)
 
     if (getaddrinfo(host, port_str, &hints, &res) != 0) {
         LOG(ERROR, "Cannot getaddrinfo(), host %s, port %" PRIu16 ": %s (%d)",
-                host != NULL ? host : "<none>", port, strerror(errno), errno);
+                host != NULL ? host : "<none>", port, strerror(s_errno),
+                s_errno);
         goto error;
     }
 
@@ -152,7 +153,7 @@ socket_t *socket_create(const char *host, uint16_t port)
             if (setsockopt(sc->handle, IPPROTO_IPV6, IPV6_V6ONLY,
                     (const char *) &flag, sizeof(flag)) != 0) {
                 LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)",
-                        strerror(errno), errno);
+                        strerror(s_errno), s_errno);
                 socket_close(sc);
                 goto error;
             }
@@ -170,7 +171,7 @@ socket_t *socket_create(const char *host, uint16_t port)
         if (host_entry == NULL) {
             LOG(ERROR, "Cannot gethostbyname(), host %s, port %" PRIu16 ": %s "
                     "(%d)", host != NULL ? host : "<none>", port,
-                    strerror(errno), errno);
+                    strerror(s_errno), s_errno);
             goto error;
         }
 
@@ -186,8 +187,8 @@ socket_t *socket_create(const char *host, uint16_t port)
     struct protoent *protox = getprotobyname("tcp");
     if (protox == NULL) {
         LOG(ERROR, "Cannot getprotobyname(), host %s, port %" PRIu16 ": %s "
-                "(%d)", host != NULL ? host : "<none>", port, strerror(errno),
-                errno);
+                "(%d)", host != NULL ? host : "<none>", port, strerror(s_errno),
+                s_errno);
         goto error;
     }
 
@@ -195,7 +196,8 @@ socket_t *socket_create(const char *host, uint16_t port)
 #endif
     if (sc->handle == -1) {
         LOG(ERROR, "Cannot socket(), host %s, port %" PRIu16 ": %s (%d)",
-                host != NULL ? host : "<none>", port, strerror(errno), errno);
+                host != NULL ? host : "<none>", port, strerror(s_errno),
+                s_errno);
         goto error;
     }
 
@@ -360,7 +362,7 @@ bool socket_connect(socket_t *sc)
 
     if (connect(sc->handle, (struct sockaddr *) &sc->addr,
             sizeof(struct sockaddr)) == -1) {
-        LOG(ERROR, "Cannot connect(): %s (%d)", strerror(errno), errno);
+        LOG(ERROR, "Cannot connect(): %s (%d)", strerror(s_errno), s_errno);
         return false;
     }
 
@@ -380,12 +382,12 @@ bool socket_bind(socket_t *sc)
 
     if (bind(sc->handle, (struct sockaddr *) &sc->addr,
             sizeof(sc->addr)) == -1) {
-        LOG(ERROR, "Cannot bind(): %s (%d)", strerror(errno), errno);
+        LOG(ERROR, "Cannot bind(): %s (%d)", strerror(s_errno), s_errno);
         return false;
     }
 
     if (listen(sc->handle, 5) == -1) {
-        LOG(ERROR, "Cannot listen(): %s (%d)", strerror(errno), errno);
+        LOG(ERROR, "Cannot listen(): %s (%d)", strerror(s_errno), s_errno);
         return false;
     }
 
@@ -453,8 +455,8 @@ bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger)
 
     if (setsockopt(sc->handle, SOL_SOCKET, SO_LINGER,
             (const char *) &linger_opt, sizeof(struct linger)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(SO_LINGER): %s (%d)", strerror(errno),
-                errno);
+        LOG(ERROR, "Cannot setsockopt(SO_LINGER): %s (%d)", strerror(s_errno),
+                s_errno);
         return false;
     }
 
@@ -476,8 +478,8 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable)
     int flag = !!enable;
     if (setsockopt(sc->handle, SOL_SOCKET, SO_REUSEADDR, (const char *) &flag,
             sizeof(flag)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(SO_REUSEADDR): %s (%d)", strerror(errno),
-                errno);
+        LOG(ERROR, "Cannot setsockopt(SO_REUSEADDR): %s (%d)", strerror(s_errno),
+                s_errno);
         return false;
     }
 
@@ -500,11 +502,12 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable)
 #ifdef WIN32
     u_long flag = !!enable;
     if (ioctlsocket(sc->handle, FIONBIO, &flag) == -1) {
-        LOG(ERROR, "Cannot ioctlsocket(): %s (%d)", strerror(errno), errno);
+        LOG(ERROR, "Cannot ioctlsocket(): %s (%d)", strerror(s_errno), s_errno);
 #else
     int flags = fcntl(sc->handle, F_GETFL);
     if (flags == -1) {
-        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", strerror(errno), errno);
+        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", strerror(s_errno),
+                s_errno);
         return false;
     }
 
@@ -516,7 +519,7 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable)
 
     if (fcntl(sc->handle, F_SETFL, flags) == -1) {
         LOG(ERROR, "Cannot fcntl(F_SETFL), flags %d: %s (%d)", flags,
-                strerror(errno), errno);
+                strerror(s_errno), s_errno);
 #endif
         return false;
     }
@@ -539,8 +542,8 @@ bool socket_opt_ndelay(socket_t *sc, bool enable)
     int flag = !!enable;
     if (setsockopt(sc->handle, IPPROTO_TCP, TCP_NODELAY, (const char *) &flag,
             sizeof(flag)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(TCP_NODELAY): %s (%d)", strerror(errno),
-                errno);
+        LOG(ERROR, "Cannot setsockopt(TCP_NODELAY): %s (%d)", strerror(s_errno),
+                s_errno);
         return false;
     }
 
@@ -572,7 +575,7 @@ bool socket_opt_send_buffer(socket_t *sc, int bufsize)
         if (setsockopt(sc->handle, SOL_SOCKET, SO_SNDBUF,
                 (const char *) &bufsize, sizeof(bufsize))) {
             LOG(ERROR, "Cannot setsockopt(), bufsize %d: %s (%d)", bufsize,
-                    strerror(errno), errno);
+                    strerror(s_errno), s_errno);
             return false;
         }
     }
@@ -605,7 +608,7 @@ bool socket_opt_recv_buffer(socket_t *sc, int bufsize)
         if (setsockopt(sc->handle, SOL_SOCKET, SO_RCVBUF,
                 (const char *) &bufsize, sizeof(bufsize))) {
             LOG(ERROR, "Cannot setsockopt(), bufsize %d: %s (%d)", bufsize,
-                    strerror(errno), errno);
+                    strerror(s_errno), s_errno);
             return false;
         }
     }
@@ -668,7 +671,7 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
 
     if (getaddrinfo(host, NULL, &hints, &res) != 0) {
         LOG(ERROR, "Cannot getaddrinfo(), host %s: %s (%d)", host,
-                strerror(errno), errno);
+                strerror(s_errno), s_errno);
         return false;
     }
 
@@ -691,7 +694,7 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
     struct hostent *host_entry = gethostbyname(host);
     if (host_entry == NULL) {
         LOG(ERROR, "Cannot gethostbyname(), host %s: %s (%d)", host,
-                strerror(errno), errno);
+                strerror(s_errno), s_errno);
         return false;
     }
 
@@ -732,7 +735,7 @@ static const char *inet_ntop(int af, const void *src, char *dst, size_t size)
     }
 
     LOG(ERROR, "Cannot WSAAddressToString(): %s (%d)", strerror(s_errno),
-            errno);
+            s_errno);
     return NULL;
 }
 /** @endcond */
