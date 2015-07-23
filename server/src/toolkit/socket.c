@@ -177,7 +177,7 @@ socket_t *socket_create(const char *host, uint16_t port)
 
         sc->addr.sin_addr = *((struct in_addr *) host_entry->h_addr);
     } else {
-        sc->addr.sin_addr = INADDR_ANY;
+        sc->addr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
 
     sc->addr.sin_family = AF_INET;
@@ -457,6 +457,106 @@ socket_t *socket_accept(socket_t *sc)
 }
 
 /**
+ * Read data from the socket into a buffer.
+ * @param sc Socket to read from.
+ * @param buf Buffer to read into.
+ * @param len Maximum number of bytes to read into the buffer.
+ * @param[out] amt Will contain the number of bytes written into the buffer.
+ * @return True on success, false if there was an error and the connection
+ * should be closed.
+ */
+bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
+{
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(amt != NULL);
+
+    SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
+
+    *amt = 0;
+
+    if (len == 0) {
+        return true;
+    }
+
+    ssize_t ret = recv(sc->handle, buf, len, 0);
+    if (ret == -1) {
+        int rc = s_errno;
+
+#ifdef WIN32
+        if (rc == WSAEWOULDBLOCK) {
+            return true;
+        }
+#else
+        if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+            return true;
+        }
+#endif
+
+        LOG(INFO, "Error reading from %s: %s (%d)", socket_get_str(sc),
+                s_strerror(rc), rc);
+        return false;
+    } else if (ret == 0) {
+        /* The connection has been gracefully shutdown; EOF. */
+        return false;
+    }
+
+    HARD_ASSERT(ret > 0);
+    *amt = (size_t) ret;
+
+    return true;
+}
+
+/**
+ * Write data to the socket.
+ * @param sc Socket to write to.
+ * @param buf Data to write.
+ * @param len Maximum number of bytes to write.
+ * @param amt Total amount of bytes written.
+ * @return True on success, false if there was an error and the connection
+ * should be closed.
+ */
+bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
+{
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(amt != NULL);
+
+    SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
+    SOFT_ASSERT_RC(len != 0, true, "Sending zero-length buffer");
+
+    *amt = 0;
+
+    ssize_t ret = send(sc->handle, buf, len, 0);
+    if (ret == -1) {
+        int rc = s_errno;
+
+#ifdef WIN32
+        if (rc == WSAEWOULDBLOCK) {
+            return true;
+        }
+#else
+        if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+            return true;
+        }
+#endif
+
+        LOG(INFO, "Error writing to %s: %s (%d)", socket_get_str(sc),
+                s_strerror(rc), rc);
+        return false;
+    } else if (ret == 0) {
+        /* Zero can be returned in case the other end cannot keep up with
+         * the data we're sending, so it's not an error. */
+        return true;
+    }
+
+    HARD_ASSERT(ret > 0);
+    *amt = (size_t) ret;
+
+    return true;
+}
+
+/**
  * Checks if socket's file descriptor is valid.
  * @param sc Socket to check.
  * @return True if the socket's file descriptor is valid, false otherwise.
@@ -733,7 +833,7 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
     struct hostent *host_entry = gethostbyname(host);
     if (host_entry == NULL) {
         LOG(ERROR, "Cannot gethostbyname(), host %s: %s (%d)", host,
-                s_s_strerror(s_errno), s_errno);
+                s_strerror(s_errno), s_errno);
         return false;
     }
 
@@ -745,22 +845,32 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
 #endif
 }
 
-#if defined(WIN32) && defined(HAVE_IPV6)
+#ifdef WIN32
 /** @cond */
 static const char *inet_ntop(int af, const void *src, char *dst, size_t size)
 {
+#ifdef HAVE_IPV6
     struct sockaddr_storage ss;
+#else
+    struct sockaddr ss;
+#endif
     ZeroMemory(&ss, sizeof(ss));
+#ifdef HAVE_IPV6
     ss.ss_family = af;
+#else
+    ss.sa_family = af;
+#endif
 
     switch (af) {
         case AF_INET:
             ((struct sockaddr_in *) &ss)->sin_addr = *(struct in_addr *) src;
             break;
 
+#ifdef HAVE_IPV6
         case AF_INET6:
             ((struct sockaddr_in6 *) &ss)->sin6_addr = *(struct in6_addr *) src;
             break;
+#endif
 
         default:
             LOG(ERROR, "Unknown family: %d", af);
@@ -803,7 +913,11 @@ const char *socket_addr2host(struct sockaddr_storage *addr, char *buf,
     }
     return inet_ntop(saddr->sin_family, &saddr->sin_addr, buf, bufsize);
 #else
+#ifdef WIN32
+    return inet_ntop(saddr->sin_family, &saddr->sin_addr, buf, bufsize);
+#else
     return inet_ntoa_r(saddr->sin_addr, buf, bufsize);
+#endif
 #endif
 }
 

@@ -758,6 +758,8 @@ bool socket_connect(socket_t *sc);
 int socket_fd(socket_t *sc);
 bool socket_bind(socket_t *sc);
 socket_t *socket_accept(socket_t *sc);
+bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt);
+bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt);
 bool socket_is_fd_valid(socket_t *sc);
 bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger);
 bool socket_opt_reuse_addr(socket_t *sc, bool enable);
