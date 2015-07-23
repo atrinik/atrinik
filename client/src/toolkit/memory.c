@@ -187,12 +187,14 @@ static void chunk_freed_check(memory_chunk_t *chunk)
         return;
     }
 
-    for (size_t i = 0; i < chunk->size; i++) {
-        if (chunk->data[i] != 0x7A) {
-            log_error("Freed pointer has been modified at byte %" PRIu64 ": %s",
-                    (uint64_t) i, chunk_get_str(chunk));
-            abort();
-        }
+    if (chunk->size == 0) {
+        return;
+    }
+
+    if (chunk->data[0] != 0x7A || memcmp(chunk->data, chunk->data + 1,
+            chunk->size - 1) != 0) {
+        log_error("Freed pointer has been modified: %s", chunk_get_str(chunk));
+        abort();
     }
 }
 
