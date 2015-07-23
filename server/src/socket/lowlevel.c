@@ -30,80 +30,6 @@
 #include <packet.h>
 #include <toolkit_string.h>
 
-/**
- * Receives data from socket.
- * @param ns Socket to read from.
- * @return 1 on success, -1 on failure. */
-int socket_recv(socket_struct *ns)
-{
-    int stat_ret;
-
-#ifdef WIN32
-    stat_ret = recv(socket_fd(ns->sc), (char *) ns->packet_recv->data +
-            ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len,
-            0);
-#else
-    do {
-        stat_ret = read(socket_fd(ns->sc), (void *) (ns->packet_recv->data +
-                ns->packet_recv->len), ns->packet_recv->size -
-                ns->packet_recv->len);
-    }    while (stat_ret == -1 && errno == EINTR);
-#endif
-
-    if (stat_ret == 0) {
-        return -1;
-    }
-
-    if (stat_ret > 0) {
-        ns->packet_recv->len += stat_ret;
-    } else if (stat_ret < 0) {
-#ifdef WIN32
-
-        if (WSAGetLastError() != WSAEWOULDBLOCK) {
-            if (WSAGetLastError() == WSAECONNRESET) {
-                LOG(DEBUG, "Connection closed by client.");
-            } else {
-                LOG(DEBUG, "got error %d, returning %d.", WSAGetLastError(), stat_ret);
-            }
-
-            return stat_ret;
-        }
-#else
-
-        if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-            LOG(DEBUG, "got error %d: %s, returning %d.", errno, strerror(errno), stat_ret);
-            return stat_ret;
-        }
-#endif
-    }
-
-    return 1;
-}
-
-/**
- * Enable TCP_NODELAY on the specified file descriptor (socket).
- * @param fd Socket's file descriptor. */
-void socket_enable_no_delay(int fd)
-{
-    int tmp = 1;
-
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp))) {
-        LOG(DEBUG, "Cannot enable TCP_NODELAY: %s", strerror(errno));
-    }
-}
-
-/**
- * Disable TCP_NODELAY on the specified file descriptor (socket).
- * @param fd Socket's file descriptor. */
-void socket_disable_no_delay(int fd)
-{
-    int tmp = 0;
-
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp))) {
-        LOG(DEBUG, "Cannot disable TCP_NODELAY: %s", strerror(errno));
-    }
-}
-
 static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {
 #ifndef DEBUG
@@ -155,45 +81,24 @@ void socket_buffer_clear(socket_struct *ns)
  * @param ns The socket we are writing to. */
 void socket_buffer_write(socket_struct *ns)
 {
-    int amt, max;
-
     while (ns->packets != NULL) {
         packet_struct *packet = ns->packets;
 
         if (packet->ndelay) {
-            socket_enable_no_delay(socket_fd(ns->sc));
+            socket_opt_ndelay(ns->sc, true);
         }
 
-        max = packet->len - packet->pos;
-        amt = send(socket_fd(ns->sc),
-                (const void *) (packet->data + packet->pos),
-                max, MSG_DONTWAIT);
+        size_t amt;
+        bool success = socket_write(ns->sc, (const void *) (packet->data +
+                packet->pos), packet->len - packet->pos, &amt);
 
         if (packet->ndelay) {
-            socket_disable_no_delay(socket_fd(ns->sc));
+            socket_opt_ndelay(ns->sc, false);
         }
 
-#ifndef WIN32
-        if (amt == 0) {
-            amt = max;
-        } else
-#endif
-        if (amt < 0) {
-#ifdef WIN32
-
-            if (WSAGetLastError() != WSAEWOULDBLOCK) {
-                LOG(DEBUG, "New socket write failed (%d).", WSAGetLastError());
-#else
-
-            if (errno != EWOULDBLOCK) {
-                LOG(DEBUG, "New socket write failed (%d: %s).", errno, strerror(errno));
-#endif
-                ns->state = ST_DEAD;
-                break;
-            } else {
-                /* EWOULDBLOCK: We can't write because socket is busy. */
-                break;
-            }
+        if (!success) {
+            ns->state = ST_DEAD;
+            break;
         }
 
         packet->pos += amt;

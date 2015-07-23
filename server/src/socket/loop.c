@@ -222,13 +222,33 @@ void remove_ns_dead_player(player *pl)
     socket_info.nconns--;
 
 /**
+ * Reads player socket.
+ * @param ns Socket.
+ * @return True on success, false on failure.
+ */
+static bool player_socket_read(socket_struct *ns)
+{
+    size_t amt;
+    bool success = socket_read(ns->sc, (void *) (ns->packet_recv->data +
+            ns->packet_recv->len), ns->packet_recv->size - ns->packet_recv->len,
+            &amt);
+    if (!success) {
+        return false;
+    }
+
+    ns->packet_recv->len += amt;
+
+    return true;
+}
+
+/**
  * This checks the sockets for input and exceptions, does the right
  * thing.
  *
  * There are 2 lists we need to look through - init_sockets is a list */
 void doeric_server(void)
 {
-    int i, pollret, rr;
+    int i, pollret;
     player *pl, *next;
 
     FD_ZERO(&tmp_read);
@@ -303,9 +323,8 @@ void doeric_server(void)
 
     pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write,
             &tmp_exceptions, &socket_info.timeout);
-
     if (pollret == -1) {
-        LOG(DEBUG, "select failed: %s", strerror(errno));
+        LOG(ERROR, "Cannot select(): %s (%d)", s_strerror(s_errno), s_errno);
         return;
     }
 
@@ -357,9 +376,7 @@ void doeric_server(void)
             }
 
             if (FD_ISSET(socket_fd(init_sockets[i].sc), &tmp_read)) {
-                rr = socket_recv(&init_sockets[i]);
-
-                if (rr < 0) {
+                if (!player_socket_read(&init_sockets[i])) {
                     LOG(INFO, "Drop connection: %s",
                             socket_get_str(init_sockets[i].sc));
                     init_sockets[i].state = ST_DEAD;
@@ -399,9 +416,7 @@ void doeric_server(void)
         }
 
         if (FD_ISSET(socket_fd(pl->socket.sc), &tmp_read)) {
-            rr = socket_recv(&pl->socket);
-
-            if (rr < 0) {
+            if (!player_socket_read(&pl->socket)) {
                 LOG(INFO, "Drop connection: %s (%s)", pl->ob->name,
                         socket_get_str(pl->socket.sc));
                 pl->socket.state = ST_DEAD;

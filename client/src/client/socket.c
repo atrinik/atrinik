@@ -196,7 +196,6 @@ static int reader_thread_loop(void *dummy)
     }
 
     while (!abort_thread) {
-        int ret;
         int toread;
 
         /* First, try to read a command length sequence */
@@ -237,35 +236,21 @@ static int reader_thread_loop(void *dummy)
             }
         }
 
-        ret = recv(socket_fd(csocket.sc), (char *) readbuf + readbuf_len,
-                toread, 0);
-
-        /* End of file */
-        if (ret == 0) {
-            LOG(INFO, "Reader thread got EOF trying to read %d bytes.", toread);
+        size_t amt;
+        bool success = socket_read(csocket.sc, (void *) (readbuf + readbuf_len),
+                toread, &amt);
+        if (!success) {
             break;
-        } else if (ret == -1) {
-            /* IO error */
-#ifdef WIN32
-            LOG(INFO, "Reader thread got error %d", WSAGetLastError());
-#else
-            LOG(INFO, "Reader thread got error %d: %s", errno, strerror(errno));
-#endif
-            break;
-        } else {
-            readbuf_len += ret;
         }
 
+        readbuf_len += amt;
         network_graph_update(NETWORK_GRAPH_TYPE_GAME, NETWORK_GRAPH_TRAFFIC_RX,
-                ret);
+                amt);
 
         /* Finished with a command? */
         if (readbuf_len == cmd_len + header_len && !abort_thread) {
-            command_buffer *buf = command_buffer_new(readbuf_len - header_len, readbuf + header_len);
-
-            if (!buf) {
-                break;
-            }
+            command_buffer *buf = command_buffer_new(readbuf_len - header_len,
+                    readbuf + header_len);
 
             SDL_LockMutex(input_buffer_mutex);
             command_buffer_enqueue(buf, &input_queue_start, &input_queue_end);
@@ -299,8 +284,6 @@ static int writer_thread_loop(void *dummy)
     command_buffer *buf = NULL;
 
     while (!abort_thread) {
-        int written = 0;
-
         SDL_LockMutex(output_buffer_mutex);
 
         while (output_queue_start == NULL && !abort_thread) {
@@ -309,32 +292,22 @@ static int writer_thread_loop(void *dummy)
 
         buf = command_buffer_dequeue(&output_queue_start, &output_queue_end);
         SDL_UnlockMutex(output_buffer_mutex);
+        size_t written = 0;
 
-        while (buf && written < buf->len && !abort_thread) {
-            int ret = send(socket_fd(csocket.sc),
-                    (const char *) buf->data + written,
-                    buf->len - written, 0);
-
-            if (ret == 0) {
-                LOG(INFO, "Writer thread got EOF.");
+        while (buf != NULL && written < buf->len && !abort_thread) {
+            size_t amt;
+            bool success = socket_write(csocket.sc, (const void *) (buf->data +
+                    written), buf->len - written, &amt);
+            if (!success) {
                 break;
-            } else if (ret == -1) {
-                /* IO error */
-#ifdef WIN32
-                LOG(INFO, "Writer thread got error %d", WSAGetLastError());
-#else
-                LOG(INFO, "Writer thread got error %d: %s", errno, strerror(errno));
-#endif
-                break;
-            } else {
-                written += ret;
             }
 
+            written += amt;
             network_graph_update(NETWORK_GRAPH_TYPE_GAME,
-                    NETWORK_GRAPH_TRAFFIC_TX, ret);
+                    NETWORK_GRAPH_TRAFFIC_TX, amt);
         }
 
-        if (buf) {
+        if (buf != NULL) {
             command_buffer_free(buf);
             buf = NULL;
         }
@@ -425,12 +398,13 @@ int handle_socket_shutdown(void)
 void client_socket_close(client_socket_t *csock)
 {
     HARD_ASSERT(csock != NULL);
-    HARD_ASSERT(csock->sc != NULL);
 
     SDL_LockMutex(socket_mutex);
 
-    socket_destroy(csock->sc);
-    csock->sc = NULL;
+    if (csock->sc != NULL) {
+        socket_destroy(csock->sc);
+        csock->sc = NULL;
+    }
 
     abort_thread = 1;
 

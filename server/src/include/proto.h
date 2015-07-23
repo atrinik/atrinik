@@ -734,9 +734,6 @@ extern void remove_ns_dead_player(player *pl);
 extern void doeric_server(void);
 extern void doeric_server_write(void);
 /* src/socket/lowlevel.c */
-extern int socket_recv(socket_struct *ns);
-extern void socket_enable_no_delay(int fd);
-extern void socket_disable_no_delay(int fd);
 extern void socket_buffer_clear(socket_struct *ns);
 extern void socket_buffer_write(socket_struct *ns);
 extern void socket_send_packet(socket_struct *ns, struct packet_struct *packet);

@@ -75,7 +75,7 @@ typedef struct command_buffer {
     struct command_buffer *prev;
 
     /** Length of the data. */
-    int len;
+    size_t len;
 
     /** The data. */
     uint8_t data[1];
