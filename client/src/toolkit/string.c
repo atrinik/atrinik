@@ -433,6 +433,11 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
         (*pos)++;
     }
 
+    while (str && *str != '\0' && *str == delim) {
+        str++;
+        (*pos)++;
+    }
+
     word[i] = '\0';
 
     return *word == '\0' ? NULL : word;
