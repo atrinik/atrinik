@@ -428,6 +428,7 @@ static void init_library(int argc, char *argv[])
     toolkit_import(path);
     toolkit_import(porting);
     toolkit_import(shstr);
+    toolkit_import(socket);
     toolkit_import(string);
     toolkit_import(stringbuffer);
 

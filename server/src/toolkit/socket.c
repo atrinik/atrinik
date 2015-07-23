@@ -88,6 +88,24 @@ TOOLKIT_API();
 
 TOOLKIT_INIT_FUNC(socket)
 {
+#ifdef WIN32
+    WORD wVersionRequested = MAKEWORD(2, 2);
+    WSADATA w;
+    int error = WSAStartup(wVersionRequested, &w);
+    if (error != 0) {
+        wVersionRequested = MAKEWORD(2, 0);
+        error = WSAStartup(wVersionRequested, &w);
+        if (error != 0) {
+            wVersionRequested = MAKEWORD(1, 1);
+            error = WSAStartup(wVersionRequested, &w);
+            if (error != 0) {
+                LOG(ERROR, "Error initializing WinSock: %d.", error);
+                exit(1);
+            }
+        }
+    }
+#endif
+
     OPENSSL_config(NULL);
     SSL_load_error_strings();
     SSL_library_init();

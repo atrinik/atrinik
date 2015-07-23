@@ -192,7 +192,6 @@ extern void socket_thread_start(void);
 extern void socket_thread_stop(void);
 extern int handle_socket_shutdown(void);
 extern void client_socket_close(client_socket_t *csock);
-extern bool client_socket_initialize(void);
 extern void client_socket_deinitialize(void);
 extern bool client_socket_open(client_socket_t *csock, const char *host, int port);
 /* src/client/sound.c */

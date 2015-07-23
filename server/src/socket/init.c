@@ -95,12 +95,8 @@ void init_ericserver(void)
 #endif
 #endif
 #else
-    WSADATA w;
-
     /* Used in select, ignored in winsockets */
     socket_info.max_filedescriptor = 1;
-    /* This sets up all socket stuff */
-    WSAStartup(0x0101, &w);
 #endif
 
     socket_info.timeout.tv_sec = 0;

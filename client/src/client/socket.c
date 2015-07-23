@@ -416,35 +416,6 @@ void client_socket_close(client_socket_t *csock)
 }
 
 /**
- * Initialize client sockets.
- * @return True on success, false on failure.
- */
-bool client_socket_initialize(void)
-{
-#ifdef WIN32
-    WORD wVersionRequested = MAKEWORD(2, 2);
-
-    csocket.sc = NULL;
-    WSADATA w;
-    int error = WSAStartup(wVersionRequested, &w);
-    if (error != 0) {
-        wVersionRequested = MAKEWORD(2, 0);
-        error = WSAStartup(wVersionRequested, &w);
-        if (error != 0) {
-            wVersionRequested = MAKEWORD(1, 1);
-            error = WSAStartup(wVersionRequested, &w);
-            if (error != 0) {
-                LOG(BUG, "Error initializing WinSock: %d.", error);
-                return false;
-            }
-        }
-    }
-
-#endif
-    return true;
-}
-
-/**
  * Deinitialize the client sockets.
  */
 void client_socket_deinitialize(void)

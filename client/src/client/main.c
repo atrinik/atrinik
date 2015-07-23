@@ -459,6 +459,7 @@ int main(int argc, char *argv[])
     toolkit_import(packet);
     toolkit_import(porting);
     toolkit_import(sha1);
+    toolkit_import(socket);
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);
@@ -610,10 +611,6 @@ int main(int argc, char *argv[])
             STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
 #endif
     draw_info(COLOR_HGOLD, buf);
-
-    if (!client_socket_initialize()) {
-        exit(1);
-    }
 
     if (!x11_clipboard_register_events()) {
         draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
