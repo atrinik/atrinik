@@ -922,6 +922,31 @@ const char *socket_addr2host(struct sockaddr_storage *addr, char *buf,
 }
 
 /**
+ * Acquire the default (maximum) prefix length (the subnet) for the specified
+ * address, ie, 32 for IPv4 and 128 for IPv6.
+ * @param addr The address.
+ * @return Default prefix length.
+ */
+unsigned short socket_addr_plen(const struct sockaddr_storage *addr)
+{
+    HARD_ASSERT(addr != NULL);
+
+    struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+
+#ifdef HAVE_IPV6
+    if (saddr->sin_family == AF_INET6) {
+        return 128;
+    }
+#endif
+
+    if (saddr->sin_family == AF_INET) {
+        return 32;
+    }
+
+    SOFT_ASSERT_RC(false, 0, "Invalid address family: %d", saddr->sin_family);
+}
+
+/**
  * Selects the best cipher from the list of available ciphers, which is
  * obtained by creating a dummy SSL session.
  * @param ctx Context to select the best cipher for.

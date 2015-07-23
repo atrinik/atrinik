@@ -772,6 +772,7 @@ void socket_close(socket_t *sc);
 bool socket_host2addr(const char *host, struct sockaddr_storage *addr);
 const char *socket_addr2host(struct sockaddr_storage *addr, char *buf,
         size_t bufsize);
+unsigned short socket_addr_plen(const struct sockaddr_storage *addr);
 SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 void socket_ssl_destroy(SSL *ssl);
 
