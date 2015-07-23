@@ -416,15 +416,6 @@ typedef struct shstr_constants {
     const char *of_hideous_poison;
 } shstr_constants;
 
-/** Ban structure. */
-typedef struct ban_struct {
-    /** Name of the banned player. */
-    const char *name;
-
-    /** Banned IP/hostname. */
-    char *ip;
-} _ban_struct;
-
 /**
  * @defgroup CACHE_FLAG_xxx Cache flags
  * The various cache flag bitmasks.

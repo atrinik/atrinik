@@ -31,6 +31,7 @@
 #include <packet.h>
 #include <toolkit_string.h>
 #include <plugin.h>
+#include <ban.h>
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
@@ -352,8 +353,9 @@ void doeric_server(void)
 
         init_sockets[newsocknum].sc = socket_accept(init_sockets[0].sc);
         if (init_sockets[newsocknum].sc != NULL) {
-            if (checkbanned(NULL, "")) {
-                LOG(SYSTEM, "Ban: Banned IP tried to connect: %s", "");
+            if (ban_check(&init_sockets[newsocknum], NULL)) {
+                LOG(SYSTEM, "Ban: Banned IP tried to connect: %s",
+                        socket_get_addr(init_sockets[newsocknum].sc));
                 socket_destroy(init_sockets[newsocknum].sc);
                 init_sockets[newsocknum].sc = NULL;
             } else {

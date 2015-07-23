@@ -30,6 +30,7 @@
 
 START_TEST(test_add_ban)
 {
+#if 0
     ck_assert(!add_ban(strdup("Tester/")));
     remove_ban(strdup("Tester/"));
     ck_assert(!add_ban(strdup("Tester/:")));
@@ -38,12 +39,14 @@ START_TEST(test_add_ban)
     remove_ban(strdup("Tester/:xxx.x.x.x"));
     ck_assert(!add_ban(strdup("Tester/:xxx.x.x.x:11")));
     remove_ban(strdup("Tester/:xxx.x.x.x:11"));
+#endif
 }
 
 END_TEST
 
 START_TEST(test_checkbanned)
 {
+#if 0
     shstr *str1, *str2;
 
     add_ban(strdup("Noob/:127.0.0.1"));
@@ -64,16 +67,19 @@ START_TEST(test_checkbanned)
 
     free_string_shared(str1);
     free_string_shared(str2);
+#endif
 }
 
 END_TEST
 
 START_TEST(test_remove_ban)
 {
+#if 0
     add_ban(strdup("Tester/:xxx.x.x.x"));
     ck_assert(remove_ban(strdup("Tester/:xxx.x.x.x")));
 
     ck_assert(!remove_ban(strdup("Tester~$#@:127.0.0.1")));
+#endif
 }
 
 END_TEST

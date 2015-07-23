@@ -212,14 +212,6 @@ extern void paralyze_living(object *op, int dam);
 extern void fall_damage_living(object *op, int fall_floors);
 extern _Bool is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
-extern void ban_init(void);
-extern void ban_deinit(void);
-extern void load_bans_file(void);
-extern void save_bans_file(void);
-extern int checkbanned(const char *name, char *ip);
-extern int add_ban(char *input);
-extern int remove_ban(char *input);
-extern void list_bans(object *op);
 /* src/server/cache.c */
 extern cache_struct *cache_find(shstr *key);
 extern int cache_add(const char *key, void *ptr, uint32_t flags);

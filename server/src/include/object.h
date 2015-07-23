@@ -458,9 +458,6 @@ typedef struct oblnk {
 
         /** Object. */
         object *ob;
-
-        /** Ban. */
-        struct ban_struct *ban;
     } objlink;
 
     /** Next object in this list. */

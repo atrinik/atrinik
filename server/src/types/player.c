@@ -32,6 +32,7 @@
 #include <plugin.h>
 #include <monster_data.h>
 #include <arch.h>
+#include <ban.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
@@ -2259,8 +2260,9 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
         remove_ns_dead_player(pl);
     }
 
-    if (checkbanned(name, "")) {
-        LOG(SYSTEM, "Ban: Banned player tried to login. [%s@%s]", name, "");
+    if (ban_check(ns, name)) {
+        LOG(SYSTEM, "Ban: Banned player tried to login. [%s, %s]", name,
+                socket_get_addr(ns->sc));
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Connection refused due to a ban.");
         ns->state = ST_ZOMBIE;
         return;

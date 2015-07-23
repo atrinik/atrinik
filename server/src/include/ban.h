@@ -24,51 +24,39 @@
 
 /**
  * @file
- * Implements the /ban command.
+ * Ban API header file.
  *
  * @author Alex Tokar
  */
 
-#include <global.h>
-#include <toolkit_string.h>
-#include <ban.h>
+#ifndef BAN_H
+#define	BAN_H
 
-/** @copydoc command_func */
-void command_ban(object *op, const char *command, char *params)
-{
-    size_t pos = 0;
-    char word[MAX_BUF];
-    if (!string_get_word(params, &pos, ' ', VS(word), '"')) {
-        return;
-    }
+/**
+ * Used as return codes for ban API functions.
+ *
+ * Use ban_strerror() to get a string representation of returned error codes.
+ */
+typedef enum ban_error {
+    BAN_OK, ///< Success.
+    BAN_EXIST, ///< Ban entry exists.
+    BAN_NOTEXIST, ///< Ban entry doesn't exist.
+    BAN_REMOVED, ///< Ban was already removed.
+    BAN_BADID, ///< Bad ban ID.
+    BAN_BADIP, ///< Invalid IP address.
+    BAN_BADPLEN, ///< Invalid prefix length.
+    BAN_BADSYNTAX, ///< Invalid syntax.
 
-    params = player_sanitize_input(params + pos);
+    BAN_MAX ///< Number of ban error codes.
+} ban_error_t;
 
-    if (strcmp(word, "add") == 0) {
-        if (params == NULL) {
-            return;
-        }
+/* Prototypes */
+void toolkit_ban_init(void);
+void toolkit_ban_deinit(void);
+ban_error_t ban_add(const char *str);
+ban_error_t ban_remove(const char *str);
+bool ban_check(socket_struct *ns, const char *name);
+void ban_list(object *op);
+const char *ban_strerror(ban_error_t errnum);
 
-        ban_error_t rc = ban_add(params);
-        if (rc == BAN_OK) {
-            draw_info(COLOR_GREEN, op, "Added new ban successfully.");
-        } else {
-            draw_info_format(COLOR_RED, op, "Failed to add new ban: %s",
-                    ban_strerror(rc));
-        }
-    } else if (strcmp(word, "remove") == 0) {
-        if (params == NULL) {
-            return;
-        }
-
-        ban_error_t rc = ban_remove(params);
-        if (rc == BAN_OK) {
-            draw_info(COLOR_GREEN, op, "Removed ban successfully.");
-        } else {
-            draw_info_format(COLOR_RED, op, "Failed to remove ban: %s",
-                    ban_strerror(rc));
-        }
-    } else if (strcmp(word, "list") == 0) {
-        ban_list(op);
-    }
-}
+#endif

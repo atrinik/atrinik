@@ -32,6 +32,7 @@
 #include <faction.h>
 #include <arch.h>
 #include <artifact.h>
+#include <ban.h>
 
 /**
  * The server's settings. */
@@ -145,7 +146,6 @@ void cleanup(void)
     objectlink_deinit();
     object_deinit();
     metaserver_deinit();
-    ban_deinit();
     party_deinit();
     toolkit_deinit();
     free_object_loader();
@@ -740,13 +740,13 @@ static void init_library(int argc, char *argv[])
 
     toolkit_import(commands);
     toolkit_import(faction);
+    toolkit_import(ban);
 
     map_init();
     init_globals();
     objectlink_init();
     object_init();
     player_init();
-    ban_init();
     party_init();
     init_block();
     read_bmap_names();
@@ -872,7 +872,6 @@ void init(int argc, char **argv)
     init_beforeplay();
     init_ericserver();
     metaserver_init();
-    load_bans_file();
     statistics_init();
     reset_sleep();
     init_plugins();
