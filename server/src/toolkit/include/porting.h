@@ -223,7 +223,7 @@
 #endif
 
 #ifndef HAVE_IPV6
-typedef sockaddr_in sockaddr_storage;
+#define sockaddr_storage sockaddr_in
 #endif
 
 /** Used for faces. */
