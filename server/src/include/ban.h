@@ -57,6 +57,7 @@ ban_error_t ban_add(const char *str);
 ban_error_t ban_remove(const char *str);
 bool ban_check(socket_struct *ns, const char *name);
 void ban_list(object *op);
+void ban_reset(void);
 const char *ban_strerror(ban_error_t errnum);
 
 #endif

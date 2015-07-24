@@ -70,6 +70,7 @@ static size_t bans_num = 0;
 
 /* Prototypes */
 static void ban_save(void);
+static void ban_free(void);
 static void ban_entry_free(ban_t *ban);
 
 TOOLKIT_API(DEPENDS(socket), IMPORTS(shstr), IMPORTS(string));
@@ -110,20 +111,7 @@ TOOLKIT_INIT_FUNC_FINISH
 TOOLKIT_DEINIT_FUNC(ban)
 {
     ban_save();
-
-    for (size_t i = 0; i < bans_num; i++) {
-        ban_t *ban = &bans[i];
-        if (!ban->removed) {
-            ban_entry_free(ban);
-        }
-    }
-
-    if (bans != NULL) {
-        efree(bans);
-        bans = NULL;
-    }
-
-    bans_num = 0;
+    ban_free();
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
@@ -164,6 +152,23 @@ static void ban_save(void)
     }
 
     fclose(fp);
+}
+
+static void ban_free(void)
+{
+    for (size_t i = 0; i < bans_num; i++) {
+        ban_t *ban = &bans[i];
+        if (!ban->removed) {
+            ban_entry_free(ban);
+        }
+    }
+
+    if (bans != NULL) {
+        efree(bans);
+        bans = NULL;
+    }
+
+    bans_num = 0;
 }
 
 static void ban_entry_new(const char *name, const char *account,
@@ -389,6 +394,12 @@ void ban_list(object *op)
                 ban->account != NULL ? ban->account : "*",
                 address);
     }
+}
+
+void ban_reset(void)
+{
+    ban_free();
+    ban_save();
 }
 
 const char *ban_strerror(ban_error_t errnum)
