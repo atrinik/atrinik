@@ -203,7 +203,7 @@ static ban_t *ban_entry_find(const char *name, const char *account,
             continue;
         }
 
-        if (ban->plen == plen) {
+        if (ban->plen != plen) {
             continue;
         }
 
