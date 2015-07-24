@@ -194,13 +194,13 @@ static ban_t *ban_entry_find(const char *name, const char *account,
             continue;
         }
 
-        if (ban->name != NULL && strcmp(name, "*") != 0 &&
-                strcmp(ban->name, name) != 0) {
+        if (strcmp(name, "*") != 0 && (ban->name == NULL ||
+                strcmp(ban->name, name) != 0)) {
             continue;
         }
 
-        if (ban->account != NULL && strcmp(account, "*") != 0 &&
-                strcmp(ban->account, account) != 0) {
+        if (strcmp(account, "*") != 0 && (ban->account == NULL ||
+                strcmp(ban->account, account) != 0)) {
             continue;
         }
 
