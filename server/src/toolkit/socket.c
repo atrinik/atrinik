@@ -729,8 +729,8 @@ void socket_close(socket_t *sc)
 }
 
 /**
- * Convert an IPv4/IPv6 address or a hostname to a binary representation.
- * @param host IP/hostname.
+ * Convert an IPv4/IPv6 address to a binary representation.
+ * @param host IP address.
  * @param[out] addr Where to store the binary representation.
  * @return True on success, false on failure.
  */
@@ -744,7 +744,7 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = 0;
+    hints.ai_flags = AI_NUMERICHOST;
 
     if (getaddrinfo(host, NULL, &hints, &res) != 0) {
         LOG(ERROR, "Cannot getaddrinfo(), host %s: %s (%d)", host,
