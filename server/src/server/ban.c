@@ -49,7 +49,7 @@
 typedef struct ban {
     shstr *name; ///< Name of the banned player. Can be NULL.
 
-    shstr *account; ///< Name of the banned account. Can be NULL.
+    char *account; ///< Name of the banned account. Can be NULL.
 
     struct sockaddr_storage addr; ///< IP address.
 
@@ -182,7 +182,7 @@ static void ban_entry_new(const char *name, const char *account,
     bans_num++;
 
     ban->name = strcmp(name, "*") == 0 ? NULL : add_string(name);
-    ban->account = strcmp(account, "*") == 0 ? NULL : add_string(account);
+    ban->account = strcmp(account, "*") == 0 ? NULL : estrdup(account);
     memcpy(&ban->addr, addr, sizeof(ban->addr));
     ban->plen = plen;
     ban->removed = false;
@@ -242,7 +242,7 @@ static void ban_entry_free(ban_t *ban)
     }
 
     if (ban->account != NULL) {
-        free_string_shared(ban->account);
+        efree(ban->account);
     }
 
     ban->removed = true;
@@ -431,7 +431,7 @@ bool ban_check(socket_struct *ns, const char *name)
         }
 
         if (ns->account != NULL && ban->account != NULL &&
-                !(got_one = (ban->account == ns->account))) {
+                !(got_one = (strcmp(ban->account, ns->account) == 0))) {
             continue;
         }
 
