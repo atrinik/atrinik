@@ -2185,7 +2185,6 @@ object *player_get_dummy(const char *name, const char *host)
     }
 
     init_connection(&pl->socket);
-    pl->socket.account = estrdup(ACCOUNT_TESTING_NAME);
 
     pl->ob = arch_get("human_male");
     pl->ob->custom_attrset = pl;
@@ -2202,6 +2201,8 @@ object *player_get_dummy(const char *name, const char *host)
 
     pl->socket.state = ST_PLAYING;
     pl->socket.socket_version = SOCKET_VERSION;
+    pl->socket.account = estrdup(ACCOUNT_TESTING_NAME);
+    pl->socket.sound = 1;
 
     object_enter_map(pl->ob, NULL, NULL, 0, 0, 0);
 
