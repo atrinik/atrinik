@@ -256,27 +256,6 @@ char *socket_get_str(socket_t *sc)
     return buf;
 }
 
-/** Helper structure used in socket_cmp_addr(). */
-union sockaddr_union {
-    struct sockaddr sa; ///< sockaddr.
-    struct sockaddr_in in4; ///< IPv4.
-#ifdef HAVE_IPV6
-    struct sockaddr_in6 in6; ///< IPv6.
-    struct sockaddr_storage storage; ///< Storage.
-#endif
-};
-
-#ifdef HAVE_IPV6
-struct in6_addr_helper {
-    union {
-        uint8_t __u6_addr8[16];
-        uint16_t __u6_addr16[8];
-        uint32_t __u6_addr32[4];
-    } __in6_u;
-#   define s6_addr32__ __in6_u.__u6_addr32
-};
-#endif
-
 /**
  * Compare the socket's address to another address/subnet.
  * @param sc Socket to compare.
@@ -291,66 +270,7 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(addr != NULL);
 
-    const struct sockaddr *sc_addr = (const struct sockaddr *) &sc->addr;
-    const struct sockaddr *saddr = (const struct sockaddr *) addr;
-    if (sc_addr->sa_family != saddr->sa_family) {
-        return -1;
-    }
-
-    const union sockaddr_union *addr1 = (const union sockaddr_union *) sc_addr;
-    const union sockaddr_union *addr2 = (const union sockaddr_union *) addr;
-
-    switch (sc_addr->sa_family) {
-    case AF_INET:
-    {
-        HARD_ASSERT(plen <= 32);
-        unsigned long mask = htonl(0xffffffff << (32 - plen));
-
-        if ((addr1->in4.sin_addr.s_addr & mask) ==
-            (addr2->in4.sin_addr.s_addr & mask)) {
-            return 0;
-        }
-
-        break;
-    }
-
-#ifdef HAVE_IPV6
-    case AF_INET6:
-    {
-        HARD_ASSERT(plen <= 128);
-        struct in6_addr_helper mask;
-        mask.s6_addr32__[0] = htonl(plen <= 32 ? 0xffffffff << (32 - plen) :
-            0xffffffff);
-        mask.s6_addr32__[1] = htonl(plen <= 32 ? 0 :
-            (plen > 64 ? 0xffffffff : 0xffffffff << (32 - (plen - 32))));
-        mask.s6_addr32__[2] = htonl(plen <= 64 ? 0 :
-            (plen > 96 ? 0xffffffff : 0xffffffff << (32 - (plen - 64))));
-        mask.s6_addr32__[3] = htonl(plen <= 96 ? 0 :
-            0xffffffff << (32 - (plen - 96)));
-
-        struct in6_addr_helper *sin6_addr1 =
-            (struct in6_addr_helper *) &addr1->in6.sin6_addr;
-        struct in6_addr_helper *sin6_addr2 =
-            (struct in6_addr_helper *) &addr2->in6.sin6_addr;
-
-        return (!!(((sin6_addr1->s6_addr32__[0] ^
-                sin6_addr2->s6_addr32__[0]) & mask.s6_addr32__[0]) |
-                ((sin6_addr1->s6_addr32__[1] ^
-                sin6_addr2->s6_addr32__[1]) & mask.s6_addr32__[1]) |
-                ((sin6_addr1->s6_addr32__[2] ^
-                sin6_addr2->s6_addr32__[2]) & mask.s6_addr32__[2]) |
-                ((sin6_addr1->s6_addr32__[3] ^
-                sin6_addr2->s6_addr32__[3]) & mask.s6_addr32__[3])));
-    }
-#endif
-
-    default:
-        LOG(ERROR, "Don't know how to compare socket family: %u",
-                sc_addr->sa_family);
-        break;
-    }
-
-    return -1;
+    return socket_addr_cmp(&sc->addr, addr, plen);
 }
 
 /**
@@ -962,6 +882,103 @@ unsigned short socket_addr_plen(const struct sockaddr_storage *addr)
     }
 
     SOFT_ASSERT_RC(false, 0, "Invalid address family: %d", saddr->sin_family);
+}
+
+/** Helper structure used in socket_cmp_addr(). */
+union sockaddr_union {
+    struct sockaddr sa; ///< sockaddr.
+    struct sockaddr_in in4; ///< IPv4.
+#ifdef HAVE_IPV6
+    struct sockaddr_in6 in6; ///< IPv6.
+    struct sockaddr_storage storage; ///< Storage.
+#endif
+};
+
+#ifdef HAVE_IPV6
+struct in6_addr_helper {
+    union {
+        uint8_t __u6_addr8[16];
+        uint16_t __u6_addr16[8];
+        uint32_t __u6_addr32[4];
+    } __in6_u;
+#   define s6_addr32__ __in6_u.__u6_addr32
+};
+#endif
+
+/**
+ * Compare the specified address to another address/subnet.
+ * @param a Address to compare against.
+ * @param b Address to compare.
+ * @param plen Prefix length; the subnet.
+ * @return 0 if the s address matches the supplied address/subnet, anything
+ * else otherwise.
+ */
+int socket_addr_cmp(const struct sockaddr_storage *a,
+        const struct sockaddr_storage *b, unsigned short plen)
+{
+    HARD_ASSERT(a != NULL);
+    HARD_ASSERT(b != NULL);
+
+    const struct sockaddr *saddr1 = (const struct sockaddr *) a;
+    const struct sockaddr *saddr2 = (const struct sockaddr *) b;
+    if (saddr1->sa_family != saddr2->sa_family) {
+        return -1;
+    }
+
+    const union sockaddr_union *addr1 = (const union sockaddr_union *) saddr1;
+    const union sockaddr_union *addr2 = (const union sockaddr_union *) saddr2;
+
+    switch (saddr1->sa_family) {
+    case AF_INET:
+    {
+        HARD_ASSERT(plen <= 32);
+        unsigned long mask = htonl(0xffffffff << (32 - plen));
+
+        if ((addr1->in4.sin_addr.s_addr & mask) ==
+            (addr2->in4.sin_addr.s_addr & mask)) {
+            return 0;
+        }
+
+        break;
+    }
+
+#ifdef HAVE_IPV6
+    case AF_INET6:
+    {
+        HARD_ASSERT(plen <= 128);
+        struct in6_addr_helper mask;
+        mask.s6_addr32__[0] = htonl(plen <= 32 ? 0xffffffff << (32 - plen) :
+            0xffffffff);
+        mask.s6_addr32__[1] = htonl(plen <= 32 ? 0 :
+            (plen > 64 ? 0xffffffff : 0xffffffff << (32 - (plen - 32))));
+        mask.s6_addr32__[2] = htonl(plen <= 64 ? 0 :
+            (plen > 96 ? 0xffffffff : 0xffffffff << (32 - (plen - 64))));
+        mask.s6_addr32__[3] = htonl(plen <= 96 ? 0 :
+            0xffffffff << (32 - (plen - 96)));
+
+        struct in6_addr_helper *sin6_addr1 =
+            (struct in6_addr_helper *) &addr1->in6.sin6_addr;
+        struct in6_addr_helper *sin6_addr2 =
+            (struct in6_addr_helper *) &addr2->in6.sin6_addr;
+
+        return (!!(((sin6_addr1->s6_addr32__[0] ^
+                sin6_addr2->s6_addr32__[0]) & mask.s6_addr32__[0]) |
+                ((sin6_addr1->s6_addr32__[1] ^
+                sin6_addr2->s6_addr32__[1]) & mask.s6_addr32__[1]) |
+                ((sin6_addr1->s6_addr32__[2] ^
+                sin6_addr2->s6_addr32__[2]) & mask.s6_addr32__[2]) |
+                ((sin6_addr1->s6_addr32__[3] ^
+                sin6_addr2->s6_addr32__[3]) & mask.s6_addr32__[3])));
+    }
+#endif
+
+    default:
+        LOG(ERROR, "Don't know how to compare socket family: %u",
+                saddr1->sa_family);
+        break;
+    }
+
+    return -1;
 }
 
 /**
