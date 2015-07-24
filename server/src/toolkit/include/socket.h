@@ -770,7 +770,7 @@ bool socket_opt_recv_buffer(socket_t *sc, int bufsize);
 void socket_destroy(socket_t *sc);
 void socket_close(socket_t *sc);
 bool socket_host2addr(const char *host, struct sockaddr_storage *addr);
-const char *socket_addr2host(struct sockaddr_storage *addr, char *buf,
+const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
         size_t bufsize);
 unsigned short socket_addr_plen(const struct sockaddr_storage *addr);
 int socket_addr_cmp(const struct sockaddr_storage *a,

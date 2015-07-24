@@ -746,9 +746,13 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_NUMERICHOST;
 
-    if (getaddrinfo(host, NULL, &hints, &res) != 0) {
-        LOG(ERROR, "Cannot getaddrinfo(), host %s: %s (%d)", host,
-                s_strerror(s_errno), s_errno);
+    int rc = getaddrinfo(host, NULL, &hints, &res);
+    if (rc != 0) {
+        if (rc != EAI_NONAME) {
+            LOG(ERROR, "Cannot getaddrinfo(), host %s: %s (%d)", host,
+                    gai_strerror(rc), rc);
+        }
+
         return false;
     }
 
@@ -836,16 +840,16 @@ static const char *inet_ntop(int af, const void *src, char *dst, size_t size)
  * @param bufsize Size of 'buf'.
  * @return 'buf' on success, NULL on failure.
  */
-const char *socket_addr2host(struct sockaddr_storage *addr, char *buf,
+const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
         size_t bufsize)
 {
     HARD_ASSERT(addr != NULL);
     HARD_ASSERT(buf != NULL);
 
-    struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+    const struct sockaddr_in *saddr = (const struct sockaddr_in *) addr;
 #ifdef HAVE_IPV6
     if (saddr->sin_family == AF_INET6) {
-        struct sockaddr_in6 *saddr6 = (struct sockaddr_in6 *) addr;
+        const struct sockaddr_in6 *saddr6 = (const struct sockaddr_in6 *) addr;
         return inet_ntop(saddr6->sin6_family, &saddr6->sin6_addr, buf,
                 bufsize);
     }
