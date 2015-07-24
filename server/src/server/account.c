@@ -381,6 +381,12 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
         return;
     }
 
+    if (strcasecmp(name, ACCOUNT_TESTING_NAME) == 0) {
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                "Account name is reserved by the system.");
+        return;
+    }
+
     if (strcmp(password, password2) != 0) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "The passwords did not match.");
         return;

@@ -89,6 +89,8 @@ enum {
 #define PLAYER_TESTING_NAME1 "Tester"
 #define PLAYER_TESTING_NAME2 "Tester Testington"
 
+#define ACCOUNT_TESTING_NAME "tester"
+
 /** One path player is attempting to reach. */
 typedef struct player_path {
     /** Next path in linked list. */
