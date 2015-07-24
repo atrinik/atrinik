@@ -2171,14 +2171,15 @@ static void player_create(player *pl, const char *path, archetype_t *at, const c
  * Creates a dummy player structure and returns a pointer to the player's
  * object.
  * @param name Name of the player to create.
+ * @param host IP address of the player.
  * @return Created player object, never NULL. Will abort() in case of failure.
  */
-object *player_get_dummy(const char *name)
+object *player_get_dummy(const char *name, const char *host)
 {
     player *pl;
 
     pl = get_player(NULL);
-    pl->socket.sc = socket_create("127.0.0.1", 13327);
+    pl->socket.sc = socket_create(host != NULL ? host : "127.0.0.1", 13327);
     if (pl->socket.sc == NULL) {
         abort();
     }

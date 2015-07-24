@@ -553,8 +553,8 @@ int main(int argc, char **argv)
 
     if (settings.plugin_unit_tests) {
         LOG(INFO, "Running plugin unit tests...");
-        object *activator = player_get_dummy(PLAYER_TESTING_NAME1);
-        object *me = player_get_dummy(PLAYER_TESTING_NAME2);
+        object *activator = player_get_dummy(PLAYER_TESTING_NAME1, NULL);
+        object *me = player_get_dummy(PLAYER_TESTING_NAME2, NULL);
         trigger_unit_event(activator, me);
 
         if (!settings.unit_tests) {
