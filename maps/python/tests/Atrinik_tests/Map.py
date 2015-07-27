@@ -288,8 +288,122 @@ class MapMethodsSuite(TestSuite):
         self.assertTrue(os.path.exists(m.path))
 
 
+class MapFieldsSuite(TestSuite):
+    def setUp(self):
+        super().setUp()
+        self.map = self.obj = Atrinik.CreateMap(24, 24, self.id())
+
+    def field_compare(self, field, val):
+        if field == "darkness":
+            val = min(7, val)
+
+        super().field_compare(field, val)
+
+    def test_next(self):
+        with self.assertRaises(TypeError):
+            self.map.next = None
+
+        self.assertIsNone(self.map.next)
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-map-next")
+        self.assertEqual(self.map.next, m)
+
+    def test_previous(self):
+        with self.assertRaises(TypeError):
+            self.map.previous = None
+
+        self.assertIsNotNone(Atrinik.GetFirst("map").previous)
+        m = Atrinik.CreateMap(5, 5, "test-atrinik-map-previous")
+        self.assertEqual(m.previous, self.map)
+
+    def test_name(self):
+        with self.assertRaises(TypeError):
+            self.map.name = 10
+
+        self.map.name = "hello world"
+        self.field_compare("name", "hello world")
+
+    def test_msg(self):
+        with self.assertRaises(TypeError):
+            self.map.msg = 10
+
+        self.map.msg = "hello world"
+        self.field_compare("msg", "hello world")
+
+        self.map.msg = "this\n\is\na\nmulti\nline\nmessage"
+        self.field_compare("msg", "this\n\is\na\nmulti\nline\nmessage")
+
+    def test_reset_timeout(self):
+        self.field_test_int("reset_timeout", 32, True)
+
+    def test_timeout(self):
+        self.field_test_int("timeout", 32)
+
+    def test_difficulty(self):
+        self.field_test_int("difficulty", 16, True)
+
+    def test_height(self):
+        with self.assertRaises(TypeError):
+            self.map.height = 10
+        with self.assertRaises(TypeError):
+            self.map.height = "xxx"
+
+        self.assertEqual(self.map.height, 24)
+
+    def test_width(self):
+        with self.assertRaises(TypeError):
+            self.map.width = 10
+        with self.assertRaises(TypeError):
+            self.map.width = "xxx"
+
+        self.assertEqual(self.map.width, 24)
+
+    def test_darkness(self):
+        self.field_test_int("darkness", 8, True)
+
+    def test_path(self):
+        with self.assertRaises(TypeError):
+            self.map.path = "xxx"
+        with self.assertRaises(TypeError):
+            self.map.path = 10
+
+        self.assertEqual(self.map.path, self.map.GetPath())
+
+    def test_enter_x(self):
+        self.field_test_int("enter_x", 8, True)
+
+    def test_enter_y(self):
+        self.field_test_int("enter_y", 8, True)
+
+    def test_region(self):
+        with self.assertRaises(TypeError):
+            self.map.region = "xxx"
+        with self.assertRaises(TypeError):
+            self.map.region = 10
+        with self.assertRaises(TypeError):
+            self.map.region = Atrinik.GetFirst("region")
+
+        self.assertIsNone(self.map.region)
+        m = Atrinik.ReadyMap("/shattered_islands/world_1_67")
+        self.assertEqual(m.region.name, "brynknot")
+
+    def test_bg_music(self):
+        with self.assertRaises(TypeError):
+            self.map.bg_music = 10
+
+        self.map.bg_music = "music.ogg"
+        self.field_compare("bg_music", "music.ogg")
+
+    def test_weather(self):
+        with self.assertRaises(TypeError):
+            self.map.weather = 10
+
+        self.map.weather = "snow"
+        self.field_compare("weather", "snow")
+
+
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
     unittest.TestLoader().loadTestsFromTestCase(MapMethodsSuite),
+    unittest.TestLoader().loadTestsFromTestCase(MapFieldsSuite),
 ]
