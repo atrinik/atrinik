@@ -116,4 +116,91 @@ def simulate_server(seconds=None, count=None, wait=True, before_cb=None,
 
     return i
 
+
+class TestSuite(unittest.TestCase):
+    maxDiff = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.obj = None
+
+    def setUp(self):
+        simulate_server(count=1, wait=False)
+
+    def field_compare(self, field, val):
+        self.assertEqual(getattr(self.obj, field), val)
+
+    def field_test_float(self, field):
+        with self.assertRaises(TypeError):
+            setattr(self.obj, field, "xxx")
+
+        setattr(self.obj, field, 1.0)
+        self.field_compare(field, 1.0)
+
+        setattr(self.obj, field, 1)
+        self.field_compare(field, 1.0)
+
+        setattr(self.obj, field, 0.98)
+        self.field_compare(field, 0.98)
+
+        setattr(self.obj, field, 0.4238499855555)
+        self.field_compare(field, 0.4238499855555)
+
+    def field_test_int(self, field, bits, unsigned=False):
+        # Test for non-integer types
+        with self.assertRaises(TypeError):
+            setattr(self.obj, field, "xxx")
+
+        # Test a negative value with the specified number of bits. Must always
+        # overflow for both signed and unsigned.
+        with self.assertRaises(OverflowError):
+            setattr(self.obj, field, -1 << bits)
+
+        if unsigned:
+            # Test negative values for an unsigned int.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, -1)
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, -1337)
+
+            # Test for overflow with one over the maximum limit.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, 1 << bits)
+        else:
+            # Test signed overflow with one over the maximum limit.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, (1 << (bits - 1)))
+
+            # Test signed overflow with one over the minimum limit.
+            with self.assertRaises(OverflowError):
+                setattr(self.obj, field, (-1 << (bits - 1)) - 1)
+
+        # Test for large overflows, that wouldn't even fit in 64-bit numbers.
+        with self.assertRaises(OverflowError):
+            setattr(self.obj, field, 1 << 256)
+        with self.assertRaises(OverflowError):
+            setattr(self.obj, field, -1 << 256)
+
+        # Test that zero can be set.
+        setattr(self.obj, field, 0)
+        self.field_compare(field, 0)
+
+        # Test some numbers.
+        setattr(self.obj, field, 1)
+        self.field_compare(field, 1)
+        setattr(self.obj, field, 42)
+        self.field_compare(field, 42)
+
+        if unsigned:
+            # Test that maximum can be set.
+            setattr(self.obj, field, (1 << bits) - 1)
+            self.field_compare(field, (1 << bits) - 1)
+        else:
+            # Test that minimum can be set.
+            setattr(self.obj, field, (-1 << (bits - 1)))
+            self.field_compare(field, (-1 << (bits - 1)))
+            # Test that maximum can be set.
+            setattr(self.obj, field, (1 << (bits - 1)) - 1)
+            self.field_compare(field, (1 << (bits - 1)) - 1)
+
 __all__ = ["run", "simulate_server"]

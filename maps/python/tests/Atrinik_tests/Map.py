@@ -2,14 +2,12 @@ import os
 import unittest
 
 import Atrinik
-from tests import simulate_server
+from tests import TestSuite
 
 
-class MapMethodsSuite(unittest.TestCase):
-    maxDiff = None
-
+class MapMethodsSuite(TestSuite):
     def setUp(self):
-        simulate_server(count=1, wait=False)
+        super().setUp()
         self.map = Atrinik.CreateMap(24, 24, self.id())
 
     def test_Objects(self):
