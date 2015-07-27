@@ -401,9 +401,49 @@ class MapFieldsSuite(TestSuite):
         self.field_compare("weather", "snow")
 
 
+class MapFlagsSuite(TestSuite):
+    def setUp(self):
+        super().setUp()
+        self.map = self.obj = Atrinik.CreateMap(24, 24, self.id())
+
+    def test_f_outdoor(self):
+        self.flag_test("f_outdoor")
+
+    def test_f_unique(self):
+        self.flag_test("f_unique")
+
+    def test_f_fixed_rtime(self):
+        self.flag_test("f_fixed_rtime")
+
+    def test_f_nomagic(self):
+        self.flag_test("f_nomagic")
+
+    def test_f_height_diff(self):
+        self.flag_test("f_height_diff")
+
+    def test_f_noharm(self):
+        self.flag_test("f_noharm")
+
+    def test_f_nosummon(self):
+        self.flag_test("f_nosummon")
+
+    def test_f_fixed_login(self):
+        self.flag_test("f_fixed_login")
+
+    def test_f_player_no_save(self):
+        self.flag_test("f_player_no_save")
+
+    def test_f_pvp(self):
+        self.flag_test("f_pvp")
+
+    def test_f_no_save(self):
+        self.flag_test("f_no_save")
+
+
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()
 suites = [
     unittest.TestLoader().loadTestsFromTestCase(MapMethodsSuite),
     unittest.TestLoader().loadTestsFromTestCase(MapFieldsSuite),
+    unittest.TestLoader().loadTestsFromTestCase(MapFlagsSuite),
 ]
