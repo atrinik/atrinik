@@ -1905,11 +1905,9 @@ class ObjectFieldsSuite(TestSuite):
                                           "random_talisman\nend\n")
 
 
-class ObjectFlagsSuite(unittest.TestCase):
-    maxDiff = None
-
+class ObjectFlagsSuite(TestSuite):
     def setUp(self):
-        simulate_server(count=1, wait=False)
+        super().setUp()
         self.obj = Atrinik.CreateObject("sword")
 
     def tearDown(self):
@@ -1923,22 +1921,7 @@ class ObjectFlagsSuite(unittest.TestCase):
             data = "{} {}\n".format(real_flag, int(val))
 
         self.assertEqual(self.obj.Save(), "arch sword\n{}end\n".format(data))
-        self.assertEqual(getattr(self.obj, flag), val)
-
-    def flag_test(self, flag):
-        with self.assertRaises(TypeError):
-            setattr(self.obj, flag, "xxx")
-        with self.assertRaises(TypeError):
-            setattr(self.obj, flag, 1)
-        with self.assertRaises(TypeError):
-            setattr(self.obj, flag, 0)
-
-        setattr(self.obj, flag, True)
-        self.flag_compare(flag, True)
-        setattr(self.obj, flag, False)
-        self.flag_compare(flag, False)
-        setattr(self.obj, flag, True)
-        self.flag_compare(flag, True)
+        super().flag_compare(flag, val)
 
     def test_f_sleep(self):
         self.flag_test("f_sleep")

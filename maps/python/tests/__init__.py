@@ -203,4 +203,22 @@ class TestSuite(unittest.TestCase):
             setattr(self.obj, field, (1 << (bits - 1)) - 1)
             self.field_compare(field, (1 << (bits - 1)) - 1)
 
+    def flag_compare(self, flag, val):
+        self.assertEqual(getattr(self.obj, flag), val)
+
+    def flag_test(self, flag):
+        with self.assertRaises(TypeError):
+            setattr(self.obj, flag, "xxx")
+        with self.assertRaises(TypeError):
+            setattr(self.obj, flag, 1)
+        with self.assertRaises(TypeError):
+            setattr(self.obj, flag, 0)
+
+        setattr(self.obj, flag, True)
+        self.flag_compare(flag, True)
+        setattr(self.obj, flag, False)
+        self.flag_compare(flag, False)
+        setattr(self.obj, flag, True)
+        self.flag_compare(flag, True)
+
 __all__ = ["run", "simulate_server"]
