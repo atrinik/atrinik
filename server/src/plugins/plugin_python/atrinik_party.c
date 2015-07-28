@@ -142,15 +142,18 @@ static PyObject *Atrinik_Party_GetMembers(Atrinik_Party *self)
 
 /** Documentation for Atrinik_Party_SendMessage(). */
 static const char doc_Atrinik_Party_SendMessage[] =
-".. method:: SendMessage(message, flags, player=None).\n\n"
+".. method:: SendMessage(message, flags, player=None, exclude=None).\n\n"
 "Send a message to members of the party.\n\n"
 ":param message: Message to send.\n"
 ":type message: str\n"
 ":param flags: One of the PARTY_MESSAGE_xxx constants, eg, :attr:"
 "`~Atrinik.PARTY_MESSAGE_STATUS`\n"
 ":type flags: int\n"
-":param player: Player object to exclude from sending the message to.\n"
-":type player: :class:`Atrinik.Object.Object`";
+":param player: Who is sending the message. Required for :attr:"
+"`~Atrinik.PARTY_MESSAGE_CHAT`.\n"
+":type player: :class:`Atrinik.Object.Object`\n"
+":param exclude: Player object to exclude from sending the message to.\n"
+":type exclude: :class:`Atrinik.Object.Object`";
 
 /**
  * Implements Atrinik.Party.Party.SendMessage() Python method.
@@ -158,12 +161,12 @@ static const char doc_Atrinik_Party_SendMessage[] =
  */
 static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *self, PyObject *args)
 {
-    Atrinik_Object *ob = NULL;
+    Atrinik_Object *ob = NULL, *exclude = NULL;
     int flags;
     const char *msg;
 
-    if (!PyArg_ParseTuple(args, "si|O!", &msg, &flags, &Atrinik_ObjectType,
-            &ob)) {
+    if (!PyArg_ParseTuple(args, "si|O!O!", &msg, &flags, &Atrinik_ObjectType,
+            &ob, &Atrinik_ObjectType, &exclude)) {
         return NULL;
     }
 
@@ -171,8 +174,16 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *self, PyObject *args)
         OBJEXISTCHECK(ob);
     }
 
+    if (exclude != NULL) {
+        OBJEXISTCHECK(exclude);
+    }
+
+    if (flags == PARTY_MESSAGE_CHAT && ob == NULL) {
+        RAISE("'player' argument is required.")
+    }
+
     hooks->send_party_message(self->party, msg, flags,
-            ob != NULL ? ob->obj : NULL,  NULL);
+            ob != NULL ? ob->obj : NULL, exclude != NULL ? exclude->obj : NULL);
 
     Py_INCREF(Py_None);
     return Py_None;
