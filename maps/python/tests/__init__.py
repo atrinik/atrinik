@@ -13,6 +13,7 @@ def run():
     import tests.Atrinik_tests.AttrList
     import tests.Atrinik_tests.Map
     import tests.Atrinik_tests.Object
+    import tests.Atrinik_tests.Party
     import tests.Atrinik_tests.Region
 
     all_suites = []
@@ -21,6 +22,7 @@ def run():
     all_suites += tests.Atrinik_tests.AttrList.suites
     all_suites += tests.Atrinik_tests.Map.suites
     all_suites += tests.Atrinik_tests.Object.suites
+    all_suites += tests.Atrinik_tests.Party.suites
     all_suites += tests.Atrinik_tests.Region.suites
     old_all_tests = unittest.TestSuite(all_suites)
 
