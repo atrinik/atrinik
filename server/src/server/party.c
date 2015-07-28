@@ -423,10 +423,17 @@ void party_handle_corpse(object *pl, object *corpse)
  * @param party Party to send the message to.
  * @param msg Message to send.
  * @param flag One of @ref PARTY_MESSAGE_xxx "party message flags".
- * @param op Player sending the message. If not NULL, this player will
- * not receive the message. */
+ * @param op Player sending the message.
+ * @param except If not NULL, this player will not receive the message.
+ */
 void send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except)
 {
+    HARD_ASSERT(party != NULL);
+    HARD_ASSERT(msg != NULL);
+
+    SOFT_ASSERT(op != NULL || flag == PARTY_MESSAGE_STATUS,
+            "'op' argument not supplied");
+
     objectlink *ol;
 
     for (ol = party->members; ol; ol = ol->next) {
