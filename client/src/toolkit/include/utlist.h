@@ -462,14 +462,14 @@
     for(el=head; el; el=el->next)
 
 #define DL_FOREACH_REVERSE(head, el) \
-    for ((el) = (head) ? (head)->prev : NULL; (el); (el) = ((el)->prev == (head->prev) ? NULL : (el)->prev))
+    for ((el) = (head) ? (head)->prev : NULL; (el); (el) = ((el)->prev == ((head)->prev) ? NULL : (el)->prev))
 
 /* this version is safe for deleting the elements during iteration */
 #define DL_FOREACH_SAFE(head,el,tmp)                                                           \
     for((el)=(head); (el) && (tmp = (el)->next, 1); (el) = tmp)
 
 #define DL_FOREACH_REVERSE_SAFE(head, el, tmp) \
-    for ((el) = (head) ? (head)->prev : NULL; (el) && ((tmp) = ((el)->prev == (head->prev) ? NULL : (el)->prev), 1); (el) = (tmp))
+    for ((el) = (head) ? (head)->prev : NULL; (el) && ((tmp) = ((el)->prev == ((head)->prev) ? NULL : (el)->prev), 1); (el) = (tmp))
 
 /* these are identical to their singly-linked list counterparts */
 #define DL_SEARCH_SCALAR LL_SEARCH_SCALAR
