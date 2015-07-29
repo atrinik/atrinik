@@ -67,7 +67,7 @@ static fields_struct fields[] = {
             "Atrinik.Object.Object (readonly)"},
     {"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0,
             offsetof(player, target_object_count), "Currently targeted "
-            "NPC/monster.;Atrinik.Object.Object or None"},
+            "NPC/monster.; Atrinik.Object.Object or None"},
     {"no_chat", FIELDTYPE_BOOLEAN, offsetof(player, no_chat), 0, 0,
             "If true, the player is not allowed to chat.; bool"},
     {"tcl", FIELDTYPE_BOOLEAN, offsetof(player, tcl), 0, 0,
