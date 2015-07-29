@@ -46,9 +46,9 @@ static fields_struct fields[] = {
     {"party", FIELDTYPE_PARTY, offsetof(player, party), FIELDFLAG_READONLY, 0,
             "Party the player is a member of.; Atrinik.Party.Party or None "
             "(readonly)"},
-    {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob), 0,
-            FIELDFLAG_READONLY, "Class object of the player. Cannot be set, as "
-            "it's always set to the last CLASS type object that is found in "
+    {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob),
+            FIELDFLAG_READONLY, 0, "Class object of the player. Cannot be set, "
+            "as it's always set to the last CLASS type object that is found in "
             "the player's inventory after calling "
             ":meth:`Atrinik.Object.Object.Update`.; Atrinik.Object.Object or "
             "None (readonly)"},
