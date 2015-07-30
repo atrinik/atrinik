@@ -22,7 +22,9 @@ class AttrListSuite(unittest.TestCase):
         self.pl.cmd_permissions.append("[OP]")
         self.assertEqual(self.pl.cmd_permissions.items(), ["[OP]"])
         self.assertEqual(len(self.pl.cmd_permissions), 1)
-        self.pl.cmd_permissions[1] = "[OP]"
+        with self.assertRaises(IndexError):
+            self.pl.cmd_permissions[1] = "[OP]"
+        self.pl.cmd_permissions.append("[OP]")
         self.assertEqual(len(self.pl.cmd_permissions), 2)
         self.assertEqual(self.pl.cmd_permissions.items(), ["[OP]", "[OP]"])
         for perm in self.pl.cmd_permissions:
@@ -89,6 +91,29 @@ class AttrListSuite(unittest.TestCase):
         self.assertEqual(len(self.pl.s_packets), 3)
         self.pl.s_packets.clear()
         self.assertEqual(len(self.pl.s_packets), 0)
+        with self.assertRaises(IndexError):
+            self.pl.s_packets[-1] = packet
+        packet1 = "hello world 1".encode()
+        packet2 = "hello world 2".encode()
+        self.pl.s_packets.append(packet1)
+        self.assertEqual(self.pl.s_packets[0], packet1)
+        self.pl.s_packets[-1] = packet2
+        self.assertEqual(self.pl.s_packets[0], packet2)
+        self.assertEqual(len(self.pl.s_packets), 1)
+        self.pl.s_packets[0] = packet1
+        self.assertEqual(self.pl.s_packets[0], packet1)
+        self.assertEqual(len(self.pl.s_packets), 1)
+        self.pl.s_packets.append(packet2)
+        self.assertEqual(self.pl.s_packets[0], packet1)
+        self.assertEqual(self.pl.s_packets[1], packet2)
+        self.assertEqual(len(self.pl.s_packets), 2)
+        self.pl.s_packets[-2] = packet2
+        self.assertEqual(self.pl.s_packets[0], packet2)
+        self.assertEqual(self.pl.s_packets[1], packet2)
+        self.pl.s_packets[-1] = packet1
+        self.pl.s_packets[0] = packet1
+        self.assertEqual(self.pl.s_packets[0], packet1)
+        self.assertEqual(self.pl.s_packets[1], packet1)
 
 
 class AttrListMethodsSuite(unittest.TestCase):
@@ -121,27 +146,27 @@ class AttrListMethodsSuite(unittest.TestCase):
         self.pl.cmd_permissions.append("[OP]")
         self.pl.cmd_permissions.append("[OP]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            [None, "[OP]", "[OP]"])
+                         [None, "[OP]", "[OP]"])
         self.pl.cmd_permissions.remove("[OP]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            [None, None, "[OP]"])
+                         [None, None, "[OP]"])
         self.pl.cmd_permissions.remove("[OP]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            [None, None, None])
+                         [None, None, None])
         self.pl.cmd_permissions.append("[OP]")
         self.pl.cmd_permissions.append("[DEV]")
         self.pl.cmd_permissions.append("[MOD]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            [None, None, None, "[OP]", "[DEV]", "[MOD]"])
+                         [None, None, None, "[OP]", "[DEV]", "[MOD]"])
         self.pl.cmd_permissions.remove("[DEV]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            [None, None, None, "[OP]", None, "[MOD]"])
+                         [None, None, None, "[OP]", None, "[MOD]"])
         self.pl.cmd_permissions.remove("[MOD]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            [None, None, None, "[OP]", None, None])
+                         [None, None, None, "[OP]", None, None])
         self.pl.cmd_permissions.remove("[OP]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            [None, None, None, None, None, None])
+                         [None, None, None, None, None, None])
 
     def test_clear(self):
         self.assertEqual(self.pl.cmd_permissions.items(), [])
@@ -153,14 +178,14 @@ class AttrListMethodsSuite(unittest.TestCase):
         self.pl.cmd_permissions.append("[OP]")
         self.pl.cmd_permissions.append("[OP]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            ["[OP]", "[OP]", "[OP]"])
+                         ["[OP]", "[OP]", "[OP]"])
         self.pl.cmd_permissions.clear()
         self.assertEqual(self.pl.cmd_permissions.items(), [])
         self.pl.cmd_permissions.append("[OP]")
         self.pl.cmd_permissions.append("[DEV]")
         self.pl.cmd_permissions.append("[MOD]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            ["[OP]", "[DEV]", "[MOD]"])
+                         ["[OP]", "[DEV]", "[MOD]"])
         self.pl.cmd_permissions.clear()
         self.assertEqual(self.pl.cmd_permissions.items(), [])
 
@@ -170,7 +195,7 @@ class AttrListMethodsSuite(unittest.TestCase):
         self.pl.cmd_permissions.append("[DEV]")
         self.pl.cmd_permissions.append("[MOD]")
         self.assertEqual(self.pl.cmd_permissions.items(),
-            ["[OP]", "[DEV]", "[MOD]"])
+                         ["[OP]", "[DEV]", "[MOD]"])
 
     def test_getitem(self):
         with self.assertRaises(IndexError):
@@ -182,10 +207,20 @@ class AttrListMethodsSuite(unittest.TestCase):
         self.pl.cmd_permissions.append("[DEV]")
         self.assertEqual(self.pl.cmd_permissions[0], "[OP]")
         self.assertEqual(self.pl.cmd_permissions[1], "[DEV]")
+        self.assertEqual(self.pl.cmd_permissions[-1], "[DEV]")
+        self.assertEqual(self.pl.cmd_permissions[-2], "[OP]")
 
     def test_setitem(self):
         with self.assertRaises(IndexError):
             self.pl.cmd_permissions[1] = "DEV"
+        with self.assertRaises(IndexError):
+            self.pl.cmd_permissions[0] = "[OP]"
+
+        self.pl.cmd_permissions.append("[MOD]")
+        self.pl.cmd_permissions.append("[DEV]")
+        self.assertEqual(self.pl.cmd_permissions[0], "[MOD]")
+        self.assertEqual(self.pl.cmd_permissions[1], "[DEV]")
+
         with self.assertRaises(TypeError):
             self.pl.cmd_permissions[0] = 50
 
@@ -196,6 +231,9 @@ class AttrListMethodsSuite(unittest.TestCase):
         self.pl.cmd_permissions[1] = "[MOD]"
         self.assertEqual(self.pl.cmd_permissions[0], "[DEV]")
         self.assertEqual(self.pl.cmd_permissions[1], "[MOD]")
+        self.pl.cmd_permissions[-1] = "[DEV]"
+        self.assertEqual(self.pl.cmd_permissions[0], "[DEV]")
+        self.assertEqual(self.pl.cmd_permissions[1], "[DEV]")
 
     def test_delitem(self):
         with self.assertRaises(NotImplementedError):
@@ -209,7 +247,6 @@ class AttrListMethodsSuite(unittest.TestCase):
         self.assertEqual(self.pl.factions.items(), [("brynknot", 10.0)])
         del self.pl.factions["brynknot"]
         self.assertEqual(self.pl.factions.items(), [])
-
 
     def test_contains(self):
         self.assertNotIn("[OP]", self.pl.cmd_permissions)

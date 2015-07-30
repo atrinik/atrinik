@@ -462,7 +462,10 @@ typedef struct {
     field_type field;
 
     /** Used to keep track of iteration index. */
-    unsigned PY_LONG_LONG iter;
+    union {
+        void *ptr; ///< Pointer.
+        PY_LONG_LONG idx; ///< Index.
+    } iter;
 } Atrinik_AttrList;
 
 /** One cache entry. */
