@@ -110,7 +110,7 @@ static fields_struct fields[] = {
             "Packets that have been enqueued to the player's client.; "
             "Atrinik.AttrList.AttrList"},
     {"s_packet_recv_cmd", FIELDTYPE_PACKET,
-            offsetof(player, socket.packet_recv_cmd), 0, FIELDTYPE_PACKETS,
+            offsetof(player, socket.packet_recv_cmd), 0, 0,
             "Commands received from the player's client.; bytes"},
 };
 
