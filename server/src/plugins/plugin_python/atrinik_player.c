@@ -408,11 +408,6 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *self,
     return Py_None;
 }
 
-/**
- * <h1>player.FindMarkedObject()</h1>
- * Find marked object in player's inventory.
- * @return The marked object, or None if no object is marked. */
-
 /** Documentation for Atrinik_Player_FindMarkedObject(). */
 static const char doc_Atrinik_Player_FindMarkedObject[] =
 ".. method:: FindMarkedObject().\n\n"
