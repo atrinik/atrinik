@@ -2193,6 +2193,10 @@ object *player_get_dummy(const char *name, const char *host)
         FREE_AND_COPY_HASH(pl->ob->name, name);
     }
 
+    snprintf(VS(pl->savebed_map), "%s", EMERGENCY_MAPPATH);
+    pl->bed_x = EMERGENCY_X;
+    pl->bed_y = EMERGENCY_Y;
+
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     give_initial_items(pl->ob, pl->ob->randomitems);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
