@@ -609,13 +609,9 @@ static PyObject *iter(PyObject *seq)
  */
 static PyObject *iternext(Atrinik_AttrList *al)
 {
-    PyObject *value;
-    if (attr_list_oper(al, AL_OPER_ITER, NULL, &value)) {
-        return value;
-    }
-
-    /* Stop iteration. */
-    return NULL;
+    PyObject *value = NULL;
+    attr_list_oper(al, AL_OPER_ITER, NULL, &value);
+    return value;
 }
 
 /**
@@ -637,11 +633,8 @@ static Py_ssize_t __len__(Atrinik_AttrList *al)
  */
 static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 {
-    PyObject *value;
-    if (!attr_list_oper(al, AL_OPER_GET, key, &value)) {
-        return NULL;
-    }
-
+    PyObject *value = NULL;
+    attr_list_oper(al, AL_OPER_GET, key, &value);
     return value;
 }
 
