@@ -324,7 +324,9 @@ typedef enum {
     /** Object iterator. */
     FIELDTYPE_OBJECT_ITERATOR,
     /** Packets. */
-    FIELDTYPE_PACKETS
+    FIELDTYPE_PACKETS,
+    /** Single packet. */
+    FIELDTYPE_PACKET,
 } field_type;
 
 /**

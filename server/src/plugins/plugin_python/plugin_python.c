@@ -35,6 +35,7 @@
 #endif
 
 #include <plugin_python.h>
+#include <packet.h>
 
 #include <compile.h>
 #include <eval.h>
@@ -3058,6 +3059,26 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         break;
 
+    case FIELDTYPE_PACKET:
+    {
+        if (!PyBytes_Check(value)) {
+            INTRAISE("Illegal value for packet field.");
+        }
+
+        packet_struct *packet = *(packet_struct **) field_ptr;
+        char *str = PyBytes_AsString(value);
+        size_t len = PyBytes_Size(value);
+        if (len > packet->size) {
+            PyErr_Format(PyExc_OverflowError,
+                    "Data too large for the packet to hold.");
+            return -1;
+        }
+
+        packet->len = 0;
+        hooks->packet_append_data_len(packet, (uint8_t *) str, len);
+        break;
+    }
+
     default:
         break;
     }
@@ -3185,6 +3206,13 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         }
 
         return Py_BuildValue("s", tl->name);
+    }
+
+    case FIELDTYPE_PACKET:
+    {
+        packet_struct *packet = *(packet_struct **) field_ptr;
+        return PyBytes_FromStringAndSize((const char *) packet->data,
+                packet->len);
     }
 
     default:
