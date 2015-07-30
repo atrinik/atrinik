@@ -864,7 +864,7 @@ static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *self,
 {
     int64_t value;
 
-    if (!PyArg_ParseTuple(args, "l", &value)) {
+    if (!PyArg_ParseTuple(args, "L", &value)) {
         return NULL;
     }
 
