@@ -16,6 +16,7 @@ def run():
     import tests.Atrinik_tests.Party
     import tests.Atrinik_tests.Player
     import tests.Atrinik_tests.Region
+    import tests.QuestManager
 
     all_suites = []
     all_suites += tests.Atrinik_tests.Archetype.suites
@@ -26,6 +27,7 @@ def run():
     all_suites += tests.Atrinik_tests.Party.suites
     all_suites += tests.Atrinik_tests.Player.suites
     all_suites += tests.Atrinik_tests.Region.suites
+    all_suites += tests.QuestManager.suites
     old_all_tests = unittest.TestSuite(all_suites)
 
     unit_test = Atrinik.GetSettings()["plugin_unit_test"]
