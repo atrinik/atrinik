@@ -232,9 +232,10 @@ class QuestManager:
         """
 
         part, quest = self.get_part(part)
-        nrof = quest.get("nrof", 1)
 
         if "kill" in quest:
+            nrof = quest["kill"].get("nrof", 1)
+
             if not self.quest_object:
                 return nrof
 
@@ -244,6 +245,7 @@ class QuestManager:
 
             return max(0, nrof - obj.last_sp)
         elif "item" in quest:
+            nrof = quest["item"].get("nrof", 1)
             return max(0, nrof - self.get_quest_item_num(quest))
 
         return 0
