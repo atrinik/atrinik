@@ -388,6 +388,8 @@ class QuestManager:
         :rtype: bool
         """
 
+        assert self.quest_object
+
         part, quest = self.get_part(part)
         obj = self.quest_object.FindObject(name=part)
         if not obj:
