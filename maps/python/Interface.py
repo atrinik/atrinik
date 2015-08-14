@@ -635,7 +635,7 @@ class InterfaceBuilder(Interface):
 
         return Language.genders2[self._activator.GetGender()]
 
-    def finish(self, locals_dict, msg):
+    def finish(self, locals_dict, msg, dialog_name="InterfaceDialog"):
         """
         Decides which interface dialog to use and sends it off.
 
@@ -643,10 +643,13 @@ class InterfaceBuilder(Interface):
         :type locals_dict: dict
         :param msg: Message that was spoken to the NPC.
         :type msg: str
+        :param dialog_name: Prefix of class names to look for, eg, only the
+                            ones beginning with 'InterfaceDialog'.
+        :type dialog_name: str
         """
 
         self.locals = locals_dict
-        self.dialog_name = "InterfaceDialog"
+        self.dialog_name = dialog_name
         dialog = None
 
         # Do some quest handling.
