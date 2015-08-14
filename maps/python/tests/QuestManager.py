@@ -9,14 +9,6 @@ from QuestManager import QuestManager
 class QuestManagerSuite(TestSuite):
     maxDiff = None
 
-    def setUp(self):
-        super().setUp()
-        quest_container = activator.FindObject(archname="quest_container")
-        self.assertTrue(quest_container)
-
-        while quest_container.inv:
-            quest_container.inv[0].Destroy()
-
     def test_01(self):
         quest = {
             "parts": OrderedDict((("deliver", {

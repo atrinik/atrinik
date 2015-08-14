@@ -137,6 +137,13 @@ class TestSuite(unittest.TestCase):
     def setUp(self):
         simulate_server(count=1, wait=False)
 
+        activator = Atrinik.WhoIsActivator()
+        quest_container = activator.FindObject(archname="quest_container")
+        self.assertTrue(quest_container)
+
+        while quest_container.inv:
+            quest_container.inv[0].Destroy()
+
     def field_compare(self, field, val):
         self.assertEqual(getattr(self.obj, field), val)
 
