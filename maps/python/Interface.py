@@ -497,9 +497,9 @@ class InterfaceBuilder(Interface):
 
         def preconds(self):
             if GetOptions() == 'interface1':
-                self.dialog = 'InterfaceDialog_1'
+                self.dialog_name = 'InterfaceDialog_1'
             elif GetOptions() == 'interface2':
-                self.dialog = 'InterfaceDialog_2'
+                self.dialog_name = 'InterfaceDialog_2'
 
         ib.preconds = preconds
         ib.finish(locals(), msg)
