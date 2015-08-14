@@ -6,6 +6,8 @@ import time
 
 import Atrinik
 
+called_ib_fnc = None
+
 
 def run():
     import tests.Atrinik_tests.Archetype
@@ -16,6 +18,7 @@ def run():
     import tests.Atrinik_tests.Party
     import tests.Atrinik_tests.Player
     import tests.Atrinik_tests.Region
+    import tests.Interface
     import tests.QuestManager
 
     all_suites = []
@@ -27,6 +30,7 @@ def run():
     all_suites += tests.Atrinik_tests.Party.suites
     all_suites += tests.Atrinik_tests.Player.suites
     all_suites += tests.Atrinik_tests.Region.suites
+    all_suites += tests.Interface.suites
     all_suites += tests.QuestManager.suites
     old_all_tests = unittest.TestSuite(all_suites)
 
@@ -73,6 +77,16 @@ def run():
         xmlrunner.XMLTestRunner(output=path).run(all_tests)
     except ImportError:
         unittest.TextTestRunner(verbosity=2).run(all_tests)
+
+
+def ib_wrapper(fnc):
+    def wrapper(self, *args, **kwargs):
+        ret = fnc(self, *args, **kwargs)
+        global called_ib_fnc
+        called_ib_fnc = ".".join((self.__class__.__name__, fnc.__name__))
+        return ret
+
+    return wrapper
 
 
 def simulate_server(seconds=None, count=None, wait=True, before_cb=None,
@@ -237,5 +251,10 @@ class TestSuite(unittest.TestCase):
         self.flag_compare(flag, False)
         setattr(self.obj, flag, True)
         self.flag_compare(flag, True)
+
+    def IB_test(self, what):
+        global called_ib_fnc
+        self.assertEqual(called_ib_fnc, what)
+        called_ib_fnc = None
 
 __all__ = ["run", "simulate_server"]
