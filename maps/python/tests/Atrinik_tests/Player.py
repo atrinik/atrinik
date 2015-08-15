@@ -519,52 +519,52 @@ class PlayerFieldsSuite(PlayerCommonSuite):
     def test_tcl(self):
         self.flag_test("tcl")
         self.pl.tcl = False
-        self.pl.cmd_permissions.append("/tcl")
+        self.pl.cmd_permissions.append("tcl")
         self.pl.ExecuteCommand("/tcl")
         self.assertTrue(self.pl.tcl)
         self.pl.ExecuteCommand("/tcl")
         self.assertFalse(self.pl.tcl)
-        self.pl.cmd_permissions.remove("/tcl")
+        self.pl.cmd_permissions.remove("tcl")
 
     def test_tgm(self):
         self.flag_test("tgm")
         self.pl.tgm = False
-        self.pl.cmd_permissions.append("/tgm")
+        self.pl.cmd_permissions.append("tgm")
         self.pl.ExecuteCommand("/tgm")
         self.assertTrue(self.pl.tgm)
         self.pl.ExecuteCommand("/tgm")
         self.assertFalse(self.pl.tgm)
-        self.pl.cmd_permissions.remove("/tgm")
+        self.pl.cmd_permissions.remove("tgm")
 
     def test_tli(self):
         self.flag_test("tli")
         self.pl.tli = False
-        self.pl.cmd_permissions.append("/tli")
+        self.pl.cmd_permissions.append("tli")
         self.pl.ExecuteCommand("/tli")
         self.assertTrue(self.pl.tli)
         self.pl.ExecuteCommand("/tli")
         self.assertFalse(self.pl.tli)
-        self.pl.cmd_permissions.remove("/tli")
+        self.pl.cmd_permissions.remove("tli")
 
     def test_tls(self):
         self.flag_test("tls")
         self.pl.tls = False
-        self.pl.cmd_permissions.append("/tls")
+        self.pl.cmd_permissions.append("tls")
         self.pl.ExecuteCommand("/tls")
         self.assertTrue(self.pl.tls)
         self.pl.ExecuteCommand("/tls")
         self.assertFalse(self.pl.tls)
-        self.pl.cmd_permissions.remove("/tls")
+        self.pl.cmd_permissions.remove("tls")
 
     def test_tsi(self):
         self.flag_test("tsi")
         self.pl.tsi = False
-        self.pl.cmd_permissions.append("/tsi")
+        self.pl.cmd_permissions.append("tsi")
         self.pl.ExecuteCommand("/tsi")
         self.assertTrue(self.pl.tsi)
         self.pl.ExecuteCommand("/tsi")
         self.assertFalse(self.pl.tsi)
-        self.pl.cmd_permissions.remove("/tsi")
+        self.pl.cmd_permissions.remove("tsi")
 
     def test_cmd_permissions(self):
         self.pl.cmd_permissions.clear()
