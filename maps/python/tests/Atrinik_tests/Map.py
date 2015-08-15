@@ -411,6 +411,7 @@ class MapFlagsSuite(TestSuite):
 
     def test_f_unique(self):
         self.flag_test("f_unique")
+        self.map.f_unique = False
 
     def test_f_fixed_rtime(self):
         self.flag_test("f_fixed_rtime")
