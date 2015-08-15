@@ -2,6 +2,7 @@
 
 project(atrinik-server C)
 cmake_minimum_required(VERSION 2.6)
+cmake_policy(SET CMP0037 OLD)
 set(EXECUTABLE atrinik-server)
 
 # Include build configuration.
@@ -152,6 +153,13 @@ add_custom_target(proto
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generating prototypes..."
     VERBATIM)
+
+add_custom_target(test
+    COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel || exit 5
+    COMMAND ${EXECUTABLE} --plugin_unit || exit 5
+    COMMENT "Executing unit tests..."
+    VERBATIM
+)
 
 if (CHECK_LIBRARY)
     # Go through the source files and construct a string.
