@@ -3557,6 +3557,13 @@ arch bartender
 type 83
 direction 3
 faction incuna_citizens
+name Arvend Blessed
+arch event_obj
+sub_type 6
+race /interfaces/quests/lost_memories/quest.xml
+arch beer
+end
+end
 end
 end
 arch floor_wood3f

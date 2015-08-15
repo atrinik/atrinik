@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2011-09-03 Alex Tokar
-Modified: 2015-06-27 Alex Tokar
+Modified: 2015-06-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -152,6 +152,18 @@ end
 arch floor_white1d
 x 14
 y 16
+end
+arch spawn_point
+x 14
+y 16
+arch priest_green
+type 83
+is_male 0
+is_female 1
+name Angela Sawthrow
+faction incuna_citizens
+level 5
+end
 end
 arch floor_white1e
 x 14

@@ -1115,6 +1115,7 @@ You don't see the need to go back down to the lower deck...
 endmsg
 hp 7
 sp 13
+last_heal 0
 x 7
 y 13
 end
