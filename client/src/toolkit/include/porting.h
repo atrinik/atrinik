@@ -54,7 +54,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/param.h>
-#include <pthread.h>
 #include <inttypes.h>
 
 #include <openssl/rand.h>
@@ -69,6 +68,7 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#define HAVE_STRUCT_TIMESPEC
 #endif
 
 #ifdef HAVE_SYS_TIME_H
@@ -122,6 +122,8 @@
 #include <X11/Xmu/Atoms.h>
 #endif
 #endif
+
+#include <pthread.h>
 
 #ifdef WIN32
 #ifndef WINVER
