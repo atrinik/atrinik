@@ -142,5 +142,10 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
     packet_append_uint8(tmp, packet->type);
 
     socket_packet_enqueue(ns, tmp);
-    socket_packet_enqueue(ns, packet);
+
+    if (packet->len != 0) {
+        socket_packet_enqueue(ns, packet);
+    } else {
+        packet_free(packet);
+    }
 }
