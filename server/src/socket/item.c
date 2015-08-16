@@ -815,10 +815,14 @@ void send_quickslots(player *pl)
 {
     HARD_ASSERT(pl != NULL);
 
-    packet_struct *packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
+    packet_struct *packet = NULL;
 
     for (object *tmp = pl->ob->inv; tmp != NULL; tmp = tmp->below) {
         if (tmp->quickslot != 0) {
+            if (packet == NULL) {
+                packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
+            }
+
             packet_debug_data(packet, 0, "\nQuickslot ID");
             packet_append_uint8(packet, tmp->quickslot - 1);
             packet_debug_data(packet, 0, "Object ID");
@@ -826,7 +830,9 @@ void send_quickslots(player *pl)
         }
     }
 
-    socket_send_packet(&pl->socket, packet);
+    if (packet != NULL) {
+        socket_send_packet(&pl->socket, packet);
+    }
 }
 
 void socket_command_quickslot(socket_struct *ns, player *pl, uint8_t *data,
