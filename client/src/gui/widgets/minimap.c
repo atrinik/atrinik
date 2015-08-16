@@ -199,7 +199,6 @@ static void widget_draw(widgetdata *widget)
             SDL_BlitSurface(minimap->textures[MINIMAP_TEXTURE_BORDER_ROTATED],
                     NULL, widget->surface, NULL);
         } else {
-            double zoomfactor;
             SDL_Surface *zoomed;
             SDL_Rect zoomedbox;
 
@@ -209,11 +208,17 @@ static void widget_draw(widgetdata *widget)
                         video_get_bpp(), 0, 0, 0, 0);
             }
 
+            double zoomx = (double) widget->w / minimap->surface->w *
+                    (minimap->surface->w / (MAP_FOW_SIZE + 1.0));
+            double zoomy = (double) widget->h / minimap->surface->h *
+                    (minimap->surface->h / (MAP_FOW_SIZE + 1.0));
+
             SDL_FillRect(minimap->surface, NULL, 0);
             map_draw_map(minimap->surface);
 
-            zoomfactor = (MapData.region_map->zoom) / 100.0 * (15 / 100.0);
-            zoomed = zoomSurface(minimap->surface, zoomfactor, zoomfactor,
+            zoomx = (MapData.region_map->zoom) / 100.0 * (zoomx / 100.0);
+            zoomy = (MapData.region_map->zoom) / 100.0 * (zoomy / 100.0);
+            zoomed = zoomSurface(minimap->surface, zoomx, zoomy,
                     setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
             zoomedbox.x = zoomed->w / 2 - widget->surface->w / 2;
             zoomedbox.y = zoomed->h / 2 - widget->surface->h / 2;
