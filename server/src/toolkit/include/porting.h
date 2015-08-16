@@ -38,6 +38,12 @@
 #define  __attribute__(x)
 #endif
 
+#ifdef WIN32
+#ifndef WINVER
+#define WINVER 0x502
+#endif
+#endif
+
 #include <cmake.h>
 #include <toolkit_cmake.h>
 #include <math.h>
@@ -126,10 +132,6 @@
 #include <pthread.h>
 
 #ifdef WIN32
-#ifndef WINVER
-#define WINVER 0x502
-#endif
-
 #include <winsock2.h>
 #include <windows.h>
 #include <windowsx.h>
