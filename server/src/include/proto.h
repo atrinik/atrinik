@@ -258,6 +258,8 @@ extern shstr_constants shstr_cons;
 extern int world_darkness;
 extern unsigned long todtick;
 extern char first_map_path[256];
+extern int first_map_x;
+extern int first_map_y;
 extern void free_strings(void);
 extern void cleanup(void);
 extern void init_globals(void);

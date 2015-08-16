@@ -50,6 +50,12 @@ unsigned long todtick;
 /** The starting map. */
 char first_map_path[MAX_BUF];
 
+/** Enter X coordinate on the starting map. */
+int first_map_x;
+
+/** Enter Y coordinate on the starting map. */
+int first_map_y;
+
 /** Name of the archetype to use for the level up effect. */
 #define ARCHETYPE_LEVEL_UP "level_up"
 
@@ -790,6 +796,8 @@ static void init_dynamic(void)
     HASH_ITER(hh, arch_table, at, tmp) {
         if (at->clone.type == MAP && EXIT_PATH(&at->clone) != NULL) {
             snprintf(VS(first_map_path), "%s", EXIT_PATH(&at->clone));
+            first_map_x = at->clone.stats.hp;
+            first_map_y = at->clone.stats.sp;
             return;
         }
     }

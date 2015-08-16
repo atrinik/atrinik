@@ -2163,8 +2163,8 @@ static void player_create(player *pl, const char *path, archetype_t *at, const c
 
     strncpy(pl->maplevel, first_map_path, sizeof(pl->maplevel) - 1);
     pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
-    pl->ob->x = -1;
-    pl->ob->y = -1;
+    pl->ob->x = first_map_x;
+    pl->ob->y = first_map_y;
 }
 
 /**
