@@ -9,6 +9,7 @@ Move with numpad keys. Press C to toggle combat mode on/off. Press X to target n
 
 [title]See Also:[/title]
 List of [a=help]contributors[/a]
+[a=help:basics_main]Basics[/a] (Tutorial pages)
 
 [title]Useful Commands[/title]
 [a=help]afk[/a]
@@ -1415,6 +1416,26 @@ Resumes previously paused music.
 [title]See Also:[/title]
 
 [a=help]music_pause[/a]
+endmsg
+end
+
+help basics_main
+title Basics
+msg
+[title]Overview of tutorial pages[/title]
+[a=help:basics_movement]Movement[/a]
+[a=help:basics_object_interaction]Object Interaction[/a]
+[a=help:basics_talking]Talking[/a]
+[a=help:basics_inventory_interaction]Inventory Interaction[/a]
+[a=help:basics_quest_list]Quest List[/a]
+[a=help:basics_weight]Weight[/a]
+[a=help:basics_caverns]Caverns[/a]
+[a=help:basics_hunger]Hunger[/a]
+[a=help:basics_taking_dropping]Taking And Dropping Items[/a]
+[a=help:basics_containers]Containers[/a]
+[a=help:basics_region_map]Region Map[/a]
+[a=help:basics_doors]Doors[/a]
+
 endmsg
 end
 
