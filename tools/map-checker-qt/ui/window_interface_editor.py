@@ -893,6 +893,19 @@ class InterfaceElementResponse(InterfaceElement):
     dialog_attributes = ("destination",)
     priority = 400
 
+    def update_text(self, s=""):
+        destination = self.elem_data.get("destination")
+        action = self.elem_data.get("action")
+        text = ""
+
+        if destination:
+            text += " ({})".format(destination)
+
+        if action:
+            text += " (action: {})".format(action)
+
+        super().update_text(text)
+
 
 class InterfaceElementAction(InterfaceElement):
     tag = "action"
