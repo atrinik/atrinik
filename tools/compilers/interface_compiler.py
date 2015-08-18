@@ -84,7 +84,7 @@ class NPC(object):
                                 statement="if" if i == 0 else "elif",
                                 precond=self.preconds[uid])
                 self.tail.indent()
-                self.tail.write("self.dialog = {dialog}",
+                self.tail.write("self.dialog_name = {dialog}",
                                 dialog=repr("InterfaceDialog" + uid))
                 self.tail.unindent()
 
