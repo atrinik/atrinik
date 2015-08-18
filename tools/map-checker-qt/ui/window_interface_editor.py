@@ -473,7 +473,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
         if self.config.getboolean("Interface Editor", "collect"):
             path = self.config.get("General", "path_dir_tools")
-            p = subprocess.Popen(["./collect.py", "-c", "interfaces"],
+            p = subprocess.Popen(["python", "collect.py", "-c", "interfaces"],
                                  cwd=path, shell=sys.platform.startswith("win"))
             p.wait()
 
