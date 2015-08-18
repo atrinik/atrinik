@@ -2469,9 +2469,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
 void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    size_t pos2;
     char word[MAX_BUF], app_name[MAX_BUF];
-    uint8_t ip_match, type, sub_type;
+    uint8_t type, sub_type;
     packet_struct *packet;
 
     if (strcasecmp(settings.control_allowed_ips, "none") == 0) {
@@ -2479,13 +2478,31 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
         return;
     }
 
-    pos2 = 0;
-    ip_match = 0;
-    char *host = socket_get_str(ns->sc);
+    bool ip_match = false;
 
-    while (string_get_word(settings.control_allowed_ips, &pos2, ',', word, sizeof(word), 0)) {
-        if (strcmp(host, word) == 0) {
-            ip_match = 1;
+    size_t pos2 = 0;
+    while (string_get_word(settings.control_allowed_ips, &pos2, ',', VS(word),
+            0)) {
+        char *split[2];
+        if (string_split(word, split, arraysize(split), '/') < 1) {
+            continue;
+        }
+
+        struct sockaddr_storage addr;
+        if (!socket_host2addr(split[0], &addr)) {
+            continue;
+        }
+
+        unsigned short plen = socket_addr_plen(&addr);
+        if (split[1] != NULL) {
+            unsigned long value = strtoul(split[1], NULL, 10);
+            if (value < plen) {
+                plen = value;
+            }
+        }
+
+        if (socket_cmp_addr(ns->sc, &addr, plen) == 0) {
+            ip_match = true;
             break;
         }
     }
