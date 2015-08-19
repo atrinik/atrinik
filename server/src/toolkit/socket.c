@@ -65,6 +65,29 @@ struct sock_struct {
     SSL *ssl_handle;
 };
 
+/** Helper structure used in socket_cmp_addr(). */
+union sockaddr_union {
+    struct sockaddr sa; ///< sockaddr.
+    struct sockaddr_in in4; ///< IPv4.
+#ifdef HAVE_IPV6
+    struct sockaddr_in6 in6; ///< IPv6.
+    struct sockaddr_storage storage; ///< Storage.
+#endif
+};
+
+#ifdef HAVE_IPV6
+struct in6_addr_helper {
+    union {
+        uint8_t __u6_addr8[16];
+        uint16_t __u6_addr16[8];
+        uint32_t __u6_addr32[4];
+    } __in6_u;
+#   define s6_addr8__ __in6_u.__u6_addr8
+#   define s6_addr16__ __in6_u.__u6_addr16
+#   define s6_addr32__ __in6_u.__u6_addr32
+};
+#endif
+
 /**
  * The OpenSSL context.
  */
@@ -269,6 +292,47 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
 {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(addr != NULL);
+
+#ifdef HAVE_IPV6
+    const struct sockaddr *saddr1 = (const struct sockaddr *) &sc->addr;
+    const struct sockaddr *saddr2 = (const struct sockaddr *) addr;
+
+    /* In the case that the socket is IPv6 and the address to compare is IPv4,
+     * we need to check if the socket is an IPv4-mapped IPv6 address, and if so,
+     * run a comparison against that instead. */
+    if (saddr1->sa_family == AF_INET6 && saddr2->sa_family == AF_INET) {
+        const union sockaddr_union *addr_ipv6 =
+            (const union sockaddr_union *) saddr1;
+        struct in6_addr_helper *addr_ipv6_help =
+            (struct in6_addr_helper *) &addr_ipv6->in6.sin6_addr;
+
+        /* As per https://tools.ietf.org/html/rfc4291#section-2.5.5.2 an
+         * IPv4-mapped IPv6 address begins with 80 bits of zeroes, followed
+         * by 16 bits of ones, and finally followed by 32 bits holding the
+         * IPv4 address. */
+        if (addr_ipv6_help->s6_addr32__[0] == 0 &&
+                addr_ipv6_help->s6_addr32__[1] == 0 &&
+                addr_ipv6_help->s6_addr16__[4] == 0 &&
+                addr_ipv6_help->s6_addr16__[5] == 0xffff) {
+            /* We create a clone of the socket's IPv4-mapped IPv6 address and
+             * replace the IPv4 address part with the IPv4 address to be
+             * compared. Then we use socket_addr_cmp() on this temporary
+             * address instead, thus triggering a comparison between two
+             * IPv6-family addresses (albeit IPv4-mapped ones). */
+            struct sockaddr_storage addr_new = sc->addr;
+            struct sockaddr *saddr_new = (struct sockaddr *) &addr_new;
+            union sockaddr_union *addr_ipv6_new =
+                (union sockaddr_union *) saddr_new;
+            addr_ipv6_help =
+                (struct in6_addr_helper *) &addr_ipv6_new->in6.sin6_addr;
+            const union sockaddr_union *addr_ipv4 =
+                (const union sockaddr_union *) saddr2;
+            addr_ipv6_help->s6_addr32__[3] = addr_ipv4->in4.sin_addr.s_addr;
+            /* Need to compare the first 96 bits as well. */
+            return socket_addr_cmp(&sc->addr, &addr_new, 96 + plen);
+        }
+    }
+#endif
 
     return socket_addr_cmp(&sc->addr, addr, plen);
 }
@@ -887,27 +951,6 @@ unsigned short socket_addr_plen(const struct sockaddr_storage *addr)
 
     SOFT_ASSERT_RC(false, 0, "Invalid address family: %d", saddr->sin_family);
 }
-
-/** Helper structure used in socket_cmp_addr(). */
-union sockaddr_union {
-    struct sockaddr sa; ///< sockaddr.
-    struct sockaddr_in in4; ///< IPv4.
-#ifdef HAVE_IPV6
-    struct sockaddr_in6 in6; ///< IPv6.
-    struct sockaddr_storage storage; ///< Storage.
-#endif
-};
-
-#ifdef HAVE_IPV6
-struct in6_addr_helper {
-    union {
-        uint8_t __u6_addr8[16];
-        uint16_t __u6_addr16[8];
-        uint32_t __u6_addr32[4];
-    } __in6_u;
-#   define s6_addr32__ __in6_u.__u6_addr32
-};
-#endif
 
 /**
  * Compare the specified address to another address/subnet.
