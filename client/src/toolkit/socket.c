@@ -371,7 +371,7 @@ bool socket_connect(socket_t *sc)
     TIMER_START(connect);
 
     while (connect(sc->handle, (struct sockaddr *) &sc->addr,
-            sizeof(struct sockaddr)) == -1) {
+            sizeof(sc->addr)) == -1) {
 #ifdef WIN32
         int rc = s_errno;
 #endif
