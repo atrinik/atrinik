@@ -1,0 +1,12 @@
+<?php
+
+// The database server. Usually this should be 'localhost'.
+$db_server = 'localhost';
+// Database user
+$db_user = 'db_user';
+// Password for the database user
+$db_passwd = 'db_password';
+// Name of the database where all tables are stored
+$db_name = 'metaserver';
+
+?>

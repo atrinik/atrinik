@@ -10,6 +10,9 @@ server/src/loaders/*.c
 timidity.cfg
 .idea
 
+# Metaserver config
+metaserver/db-cfg.php
+
 # The optional Atrinik sound files Git directory
 client/sound
 

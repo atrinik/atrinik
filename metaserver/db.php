@@ -30,14 +30,7 @@
 * connection, or exit on failure to do so.                              *
 ************************************************************************/
 
-// The database server. Usually this should be 'localhost'.
-$db_server = 'localhost';
-// Database user
-$db_user = 'db_user';
-// Password for the database user
-$db_passwd = 'db_password';
-// Name of the database where all tables are stored
-$db_name = 'metaserver';
+require_once('db-cfg.php');
 
 // Initate a connection
 $db_connection = mysql_connect($db_server, $db_user, $db_passwd);
