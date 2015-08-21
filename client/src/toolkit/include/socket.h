@@ -714,7 +714,7 @@ enum {
 /**
  * Timeout when attempting a connection in seconds.
  */
-#define SOCKET_TIMEOUT_MS 4.0
+#define SOCKET_TIMEOUT_MS 30.0
 
 /** The socket structure. */
 typedef struct sock_struct socket_t;
