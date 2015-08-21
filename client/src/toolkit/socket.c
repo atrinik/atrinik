@@ -785,6 +785,7 @@ void socket_close(socket_t *sc)
     SOFT_ASSERT(sc->handle != -1, "Invalid socket handle");
 
 #ifndef WIN32
+    shutdown(sc->handle, SHUT_RDWR);
     close(sc->handle);
 #else
     shutdown(sc->handle, SD_BOTH);
