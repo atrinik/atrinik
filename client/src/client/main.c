@@ -212,7 +212,7 @@ static int game_status_chain(void)
 
         metaserver_clear_data();
 
-        metaserver_add("127.0.0.1", 13327, "Localhost", "localhost", -1, "local", "Localhost. Start server before you try to connect.");
+        metaserver_add("localhost", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
         for (i = 0; i < clioption_settings.servers_num; i++) {
             pos = 0;
@@ -220,7 +220,7 @@ static int game_status_chain(void)
             string_get_word(clioption_settings.servers[i], &pos, ' ', VS(port), 0);
             port_num = atoi(port);
             metaserver_add(host, port_num != 0 ? port_num : 13327,
-                    host, host, -1, "user server",
+                    host, -1, "user server",
                     "Server from command line --server option.");
         }
 

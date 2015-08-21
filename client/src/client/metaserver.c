@@ -70,14 +70,13 @@ void metaserver_disable(void)
  * @param info The data to parse. */
 static void parse_metaserver_data(char *info)
 {
-    char *tmp[7];
+    char *tmp[6];
 
-    if (!info || string_split(info, tmp, arraysize(tmp), ':') != 7) {
+    if (!info || string_split(info, tmp, arraysize(tmp), '\t') != 6) {
         return;
     }
 
-    metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], tmp[3], atoi(tmp[4]), tmp[5],
-            tmp[6]);
+    metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], atoi(tmp[3]), tmp[4], tmp[5]);
 }
 
 /**
@@ -145,9 +144,8 @@ void metaserver_clear_data(void)
     DL_FOREACH_SAFE(server_head, node, tmp)
     {
         DL_DELETE(server_head, node);
-        efree(node->ip);
-        efree(node->name);
         efree(node->hostname);
+        efree(node->name);
         efree(node->version);
         efree(node->desc);
         efree(node);
@@ -160,24 +158,22 @@ void metaserver_clear_data(void)
 /**
  * Add a server entry to the linked list of available servers reported by
  * metaserver.
- * @param ip The server IP.
+ * @param hostname Server's hostname.
  * @param port Server port.
  * @param name Server's name.
- * @param hostname Server's hostname.
  * @param player Number of players.
  * @param version Server version.
  * @param desc Description of the server. */
-void metaserver_add(const char *ip, int port, const char *name,
-        const char *hostname, int player, const char *version, const char *desc)
+void metaserver_add(const char *hostname, int port, const char *name,
+        int player, const char *version, const char *desc)
 {
     server_struct *node;
 
     node = ecalloc(1, sizeof(*node));
     node->player = player;
     node->port = port;
-    node->ip = estrdup(ip);
-    node->name = estrdup(name);
     node->hostname = estrdup(hostname);
+    node->name = estrdup(name);
     node->version = estrdup(version);
     node->desc = estrdup(desc);
 
