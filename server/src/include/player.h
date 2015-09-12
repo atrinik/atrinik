@@ -91,6 +91,12 @@ enum {
 
 #define ACCOUNT_TESTING_NAME "tester"
 
+#define PLAYER_REGEN_HP_RATE 2000.0
+#define PLAYER_REGEN_SP_RATE 1200.0
+
+#define PLAYER_REGEN_MODIFIER 10.0
+#define PLAYER_REGEN_MODIFIER_MAX 10.0
+
 /** One path player is attempting to reach. */
 typedef struct player_path {
     /** Next path in linked list. */
@@ -299,6 +305,9 @@ typedef struct pl_player {
     /** Last time the player was saved. */
     time_t last_save_time;
 #endif
+
+    /** Last tick the player was in combat. */
+    long last_combat;
 
     /** The count of the container. */
     uint32_t container_count;

@@ -149,6 +149,14 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
     hitter->anim_flags |= ANIM_FLAG_ATTACKING;
     hitter->anim_flags &= ~ANIM_FLAG_STOP_ATTACKING;
 
+    if (op->type == PLAYER) {
+        CONTR(op)->last_combat = pticks;
+    }
+
+    if (hitter->type == PLAYER) {
+        CONTR(hitter)->last_combat = pticks;
+    }
+
     /* See if we hit the creature */
     if (roll >= hitter->stats.wc_range ||
             op->stats.ac <= base_wc + roll + adjust) {
@@ -314,6 +322,14 @@ int hit_player(object *op, int dam, object *hitter)
 
     if (target_obj->type == PLAYER) {
         CONTR(target_obj)->stat_damage_taken += maxdam;
+    }
+
+    if (hit_obj->type == PLAYER) {
+        CONTR(hit_obj)->last_combat = pticks;
+    }
+
+    if (target_obj->type == PLAYER) {
+        CONTR(target_obj)->last_combat = pticks;
     }
 
     op->last_damage += maxdam;

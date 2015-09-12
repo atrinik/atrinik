@@ -436,19 +436,28 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 void do_some_living(object *op)
 {
     int last_food = op->stats.food;
-    int gen_hp, gen_sp;
-    int rate_hp = 2000;
-    int rate_sp = 1200;
+    double gen_hp, gen_sp;
     int add;
 
-    gen_hp = (CONTR(op)->gen_hp * (rate_hp / 20)) + (op->stats.maxhp / 4);
-    gen_sp = (CONTR(op)->gen_sp * (rate_sp / 20)) + op->stats.maxsp;
+    double modifier = (pticks - CONTR(op)->last_combat) / MAX_TICKS;
+    modifier /= PLAYER_REGEN_MODIFIER;
+    modifier += 1.0;
+    modifier = MIN(PLAYER_REGEN_MODIFIER_MAX, modifier);
 
+    gen_hp = (CONTR(op)->gen_hp * (PLAYER_REGEN_HP_RATE / 20.0)) +
+            (op->stats.maxhp / 4.0);
+    gen_hp *= modifier;
+
+    gen_sp = (CONTR(op)->gen_sp * (PLAYER_REGEN_SP_RATE / 20.0)) +
+            op->stats.maxsp;
+    gen_sp *= modifier;
     gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
 
     /* Update client's regen rates. */
-    CONTR(op)->gen_client_hp = ((float) MAX_TICKS / ((float) rate_hp / (MAX(gen_hp, 20) + 10))) * 10.0f;
-    CONTR(op)->gen_client_sp = ((float) MAX_TICKS / ((float) rate_sp / (MAX(gen_sp, 20) + 10))) * 10.0f;
+    CONTR(op)->gen_client_hp = (MAX_TICKS / (PLAYER_REGEN_HP_RATE /
+            (MAX(gen_hp, 20.0) + 10.0))) * 10.0;
+    CONTR(op)->gen_client_sp = (MAX_TICKS / (PLAYER_REGEN_SP_RATE /
+            (MAX(gen_sp, 20.0) + 10.0))) * 10.0;
 
     /* Regenerate hit points. */
     if (op->stats.hp < op->stats.maxhp && op->stats.food) {
