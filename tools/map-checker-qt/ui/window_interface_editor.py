@@ -873,6 +873,11 @@ class InterfaceElementAnd(InterfaceElement):
     priority = 1000
 
 
+class InterfaceElementOr(InterfaceElement):
+    tag = "or"
+    priority = 1000
+
+
 class InterfaceElementCheck(InterfaceElement):
     tag = "check"
     attributes = ("region_map", "enemy", "started", "finished", "completed",
