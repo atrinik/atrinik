@@ -34,6 +34,7 @@
 #include <bresenham.h>
 #include <artifact.h>
 #include <packet.h>
+#include <faction.h>
 
 /**
  * All the possible fields of an object.
@@ -2210,6 +2211,46 @@ static PyObject *Atrinik_Object_GetPacket(Atrinik_Object *self, PyObject *args)
     return tuple;
 }
 
+/** Documentation for Atrinik_Object_FactionIsFriend(). */
+static const char doc_Atrinik_Object_FactionIsFriend[] =
+".. method:: FactionIsFriend(faction).\n\n"
+"Checks whether the object is a friend of the specified faction.\n\n"
+":param faction: Name of the faction to check.\n"
+":type faction: str\n"
+":returns: Whether the object is a friend of the faction.\n"
+":rtype: bool\n"
+":raises Atrinik.AtrinikError: If the specified faction doesn't exist.";
+
+/**
+ * Implements Atrinik.Object.Object.FactionIsFriend() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Object_FactionIsFriend(Atrinik_Object *self,
+        PyObject *args)
+{
+    const char *name;
+
+    if (!PyArg_ParseTuple(args, "s", &name)) {
+        return NULL;
+    }
+
+    OBJEXISTCHECK(self);
+
+    shstr *sh_name = hooks->find_string(name);
+    if (sh_name == NULL) {
+        PyErr_Format(AtrinikError, "No such faction: %s", name);
+        return NULL;
+    }
+
+    faction_t faction = hooks->faction_find(sh_name);
+    if (faction == NULL) {
+        PyErr_Format(AtrinikError, "No such faction: %s", name);
+        return NULL;
+    }
+
+    return Py_BuildBoolean(hooks->faction_is_friend(faction, self->obj));
+}
+
 /** Available Python methods for the Atrinik.Object.Object object */
 static PyMethodDef methods[] = {
     {"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS,
@@ -2296,6 +2337,8 @@ static PyMethodDef methods[] = {
             doc_Atrinik_Object_Load},
     {"GetPacket", (PyCFunction) Atrinik_Object_GetPacket, METH_VARARGS,
             doc_Atrinik_Object_GetPacket},
+    {"FactionIsFriend", (PyCFunction) Atrinik_Object_FactionIsFriend,
+            METH_VARARGS, doc_Atrinik_Object_FactionIsFriend},
     {NULL, NULL, 0, 0}
 };
 
