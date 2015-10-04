@@ -728,7 +728,16 @@ class TagCompilerObject(BaseTagCompiler):
                 item_args=item_args)
             parent.precond.write(")")
         elif not remove:
-            if not self.npc.closed and not message:
+            if isinstance(parent, TagCompilerMessage):
+                self.npc.body.write(
+                    "obj = self._npc.FindObject({item_args})",
+                    item_args=item_args
+                )
+                self.npc.body.write(
+                    "self.add_msg_icon_object(obj, desc={message})",
+                    message=repr(message)
+                )
+            elif not self.npc.closed and not message:
                 self.npc.body.write(
                     "self.add_objects(self._npc.FindObject({item_args}))",
                     item_args=item_args
@@ -783,9 +792,12 @@ class TagCompilerChoice(BaseTagCompiler):
 
 
 class TagCompilerMessage(BaseTagCompiler):
+    def register_handlers(self):
+        self.handlers["object"] = TagCompilerObject
+
     def compile(self, elem):
         color = elem.get("color", "")
-        msg = repr(elem.text)
+        msg = repr(elem.text.strip())
 
         if color:
             if color.startswith("#"):
@@ -798,6 +810,7 @@ class TagCompilerMessage(BaseTagCompiler):
         if not self.npc.closed:
             self.npc.body.write("self.add_msg({msg}{color})", msg=msg,
                                 color=color)
+            BaseTagCompiler.compile(self, elem)
         else:
             self.npc.body.write(
                 "self._activator.Controller().DrawInfo({msg}{color})", msg=msg,
