@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-27 Alex Tokar
+Modified: 2015-10-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3563,6 +3563,9 @@ sub_type 6
 race /interfaces/quests/lost_memories/quest.xml
 arch beer
 end
+end
+arch silvercoin
+nrof 10
 end
 end
 end

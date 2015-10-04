@@ -22,6 +22,12 @@
         </interface>
         <interface inherit="Temple.TempleElathiel" npc="Brelend Lee"/>
         <interface inherit="Tavern.Bartender" npc="Arvend Blessed"/>
+        <interface inherit="Smith.Smith" npc="Ken Berger"/>
+        <interface npc="Angela Sawthrow">
+            <dialog name="hello">
+                <message>Excuse me, I'm currently busy working on this decoction.</message>
+            </dialog>
+        </interface>
         <part name="The Priest" uid="speak_priest">
             <info>You have reached Incuna, and have started the attempt to get back your lost memories. Sam Goodberry has suggested that you go speak to the local church priest, who may be able to help you.</info>
             <interface npc="Sam Goodberry" state="need_start">
@@ -127,6 +133,85 @@
         </part>
         <part name="Gearing Up" uid="gear">
             <info>speak to the smith</info>
+            <interface inherit="Smith.Smith" npc="Ken Berger" state="need_complete">
+                <dialog name="hello">
+                    <inherit/>
+                    <response destination="gearup" message="I was told you could help me gear up."/>
+                </dialog>
+                <dialog name="gearup">
+                    <message>Ah, Sam Goodberry sent you, did he now?</message>
+                    <message>
+                        Yes, I can certainly gear you up with some basic weapons... Hmm, sort of weapons do you prefer?
+                        <object arch="shortsword" message="Slash weapons include shortswords, swords, broadswords, falchions, etc. They typically have average speed and damage."/>
+                        <object arch="dagger_small" message="Pierce weapons include daggers, rapiers, sabers, etc. They typically have faster speed and lower damage."/>
+                        <object arch="axe_small" message="Cleave weapons include axes, broad axes, battle axes, cleavers, etc. They typically have slower speed and higher damage."/>
+                        <object arch="club" message="Impact weapons include clubs, flails, hammers, etc. They typically have slow speed and high damage."/>
+                    </message>
+                    <response destination="sword" message="I'd like a shortsword."/>
+                    <response destination="dagger" message="I'd like a dagger."/>
+                    <response destination="axe" message="I'd like an axe."/>
+                    <response destination="club" message="I'd like a club."/>
+                </dialog>
+                <dialog name="sword">
+                    <message>
+                        Are you sure that you want a sword?
+                        <object arch="shortsword"/>
+                    </message>
+                    <response destination="confirm_sword" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="dagger">
+                    <message>
+                        Are you sure that you want a dagger?
+                        <object arch="dagger_small"/>
+                    </message>
+                    <response destination="confirm_dagger" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="axe">
+                    <message>
+                        Are you sure that you want an axe?
+                        <object arch="axe_small"/>
+                    </message>
+                    <response destination="confirm_axe" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="club">
+                    <message>
+                        Are you sure that you want a club?
+                        <object arch="club"/>
+                    </message>
+                    <response destination="confirm_club" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="::confirm_pre">
+                    <message>Alright, here you go!</message>
+                </dialog>
+                <dialog name="::confirm_post">
+                    <message>Come back to my shop if you need my services again!</message>
+                    <action complete="gear"/>
+                </dialog>
+                <dialog name="confirm_sword">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="shortsword"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_dagger">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="dagger_small"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_axe">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="axe_small"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_club">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="club"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+            </interface>
         </part>
         <part name="The Arcane" uid="sorcery">
             <info>speak to the priests</info>
@@ -161,6 +246,7 @@
                         <message>Ah, you must be the traveler Sam mentioned.</message>
                         <message>Yes, I'm having some issues with an ant infestation in my barn! They're enormous, and there's so many of them all over my precious stock of provisions!</message>
                         <message>A week ago, one of the priestesses from the temple stopped by and said she would look into the matter, but I haven't heard from her since. Could you please check up on her?</message>
+                        <message>There will be a monetary reward involved if you help in solving the issue!</message>
                         <response destination="sure" message="Sure, I'll chat her up."/>
                         <response action="close" message="Perhaps later. Farewell."/>
                     </dialog>
@@ -178,18 +264,6 @@
                         <action start="helping_out::ant_trouble::the_priestess"/>
                     </dialog>
                 </interface>
-                <interface inherit="interface" npc="Arvend Blessed" state="need_finish">
-                    <dialog name="hello">
-                        <message>have you slain the queen?</message>
-                        <inherit/>
-                    </dialog>
-                </interface>
-                <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
-                    <dialog name="hello">
-                        <message>have you slain the queen 2?</message>
-                        <inherit/>
-                    </dialog>
-                </interface>
                 <interface inherit="interface" npc="Arvend Blessed" state="completed">
                     <dialog name="hello">
                         <message>Thank you very much for solving the ant issue!</message>
@@ -198,7 +272,158 @@
                 </interface>
                 <part name="The Priestess" uid="the_priestess">
                     <info/>
+                    <interface inherit="interface" npc="Angela Sawthrow" state="need_complete">
+                        <dialog inherit="hello" name="hello">
+                            <response destination="infestation" message="Arvend mentioned you had been looking into the ant infestation issue..."/>
+                        </dialog>
+                        <dialog name="infestation">
+                            <message>Ah, is that what this is about?</message>
+                            <message>Yes, I've been looking into the issue and I've come to the conclusion that there are two approaches that could solve it.</message>
+                            <response destination="tellmore" message="Tell me more..."/>
+                        </dialog>
+                        <dialog name="tellmore">
+                            <message>Well, the most obvious one would be to slay their queen, and hope that the rest of the ants slowly die off, as they will be left with no way to reproduce. Who knows how long that will take, though.</message>
+                            <message>The other method would be to &quot;poison&quot; their food supply with a calming tonic which would render them unaggressive, perhaps even friendly.</message>
+                            <response destination="tellslay" message="We shouldn't take any chances and slay the beast."/>
+                            <response destination="tellfriends" message="We should try to make friends with them."/>
+                        </dialog>
+                        <dialog name="tellslay">
+                            <message>Who's the real beast, I wonder; a creature trying to survive and harming no one, or a person who wants to kill the creature that has caused no harm...</message>
+                            <inherit name="::help"/>
+                        </dialog>
+                        <dialog name="tellfriends">
+                            <message>That's the spirit! Ehm, excuse me. Yes, that would be my preferred approach.</message>
+                            <inherit name="::help"/>
+                        </dialog>
+                        <dialog name="::help">
+                            <message>At any rate, I need to ask you a favor. I need to you to enter the barn and deal with the ants however you see fit.</message>
+                            <message>Are you up for such a task?</message>
+                            <response destination="sure" message="Sure, I can do that."/>
+                            <response destination="noway" message="No way!"/>
+                        </dialog>
+                        <dialog name="sure">
+                            <message>Splendid. Here, take the tonic, should you decide to spare the ants. Just find a food source, for example some hay or straw that has ants swarming around it and pour the tonic somewhere nearby. The vapors alone should have instantaneous effects.</message>
+                            <object arch="incuna_angelas_tonic"/>
+                            <action start="helping_out::ant_trouble::the_ants"/>
+                            <action start="helping_out::ant_trouble::the_ants::slay_queen"/>
+                            <action start="helping_out::ant_trouble::the_ants::befriend"/>
+                            <action complete="helping_out::ant_trouble::the_priestess"/>
+                        </dialog>
+                        <dialog name="noway">
+                            <message>Well, come back if you change your mind...</message>
+                        </dialog>
+                    </interface>
+                    <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
+                        <dialog name="hello">
+                            <inherit/>
+                            <message>Ah, you're back! Have you talked to the priestess yet?</message>
+                            <response destination="notyet" message="Not yet."/>
+                        </dialog>
+                        <dialog name="notyet">
+                            <message>Well hurry up then, it's not like the ants will go away on their own!</message>
+                        </dialog>
+                    </interface>
                 </part>
+                <part name="The Ants" uid="the_ants">
+                    <info>Angela the priestess has asked you to deal with the ants however you see fit and then return to her.</info>
+                    <part name="The Ants" uid="report_angela">
+                        <info>Report to Angela.</info>
+                        <interface npc="Angela Sawthrow" state="need_complete">
+                            <dialog name="hello">
+                                <message>Welcome back, {activator.name}.</message>
+                                <response destination="resolved" message="I have resolved the ants issue."/>
+                            </dialog>
+                            <dialog name="resolved">
+                                <message>Have you now?</message>
+                                <message color="yellow">{npc.name} listens to your story.</message>
+                                <and>
+                                    <or>
+                                        <check completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                        <check finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    </or>
+                                    <check faction_friend="incuna_barn_ants"/>
+                                    <message>So, you killed the queen. However, you also calmed the ants, preventing further aggression.</message>
+                                    <message>I admire people with courage and creative thinking.</message>
+                                    <inherit name="::reward"/>
+                                </and>
+                                <and>
+                                    <or>
+                                        <check completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                        <check finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    </or>
+                                    <check>
+                                        <object arch="incuna_angelas_tonic"/>
+                                    </check>
+                                    <message>So, you just straight up killed the ant queen in cold blood.</message>
+                                    <message>You have become a beast yourself; begone!</message>
+                                </and>
+                                <and>
+                                    <or>
+                                        <check completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                        <check finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    </or>
+                                    <message>So, you calmed the ants and then you killed their queen, angering them.</message>
+                                    <message>You have become a beast yourself; begone!</message>
+                                </and>
+                                <and>
+                                    <message>So, you calmed the ants and didn't kill the queen, preserving the balance. You have my thanks, kind {self.gender}.</message>
+                                    <inherit name="::reward"/>
+                                </and>
+                            </dialog>
+                            <dialog name="::reward">
+                                <message>Please, take this as a gift from me.</message>
+                            </dialog>
+                        </interface>
+                    </part>
+                    <part name="To Slay A Queen" uid="slay_queen">
+                        <info>Slay the ant queen under the Incuna Barn to stop the ant invasion. [b]OR[/b]</info>
+                        <item arch="head_ant_queen" name="incuna barn ant queen head"/>
+                        <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
+                            <dialog name="hello">
+                                <message>Ah, you're back! Have you talked to the priestess yet?</message>
+                                <response destination="head" message="Here's the queen's head."/>
+                            </dialog>
+                            <dialog name="head">
+                                <message>Eww, how abominable! Thank you, you have saved my barn. Please, take these coins as your reward.</message>
+                                <object arch="silvercoin"/>
+                                <and>
+                                    <check faction_friend="incuna_barn_ants"/>
+                                    <message>Oh, you calmed the ants as well! That's even better. You deserve an extra reward for such effort!</message>
+                                    <object arch="silvercoin"/>
+                                </and>
+                                <action/>
+                                <and>
+                                    <ncheck started="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <action start="helping_out::ant_trouble::the_ants::report_angela"/>
+                                </and>
+                                <action complete="helping_out::ant_trouble::the_ants::slay_queen"/>
+                            </dialog>
+                        </interface>
+                    </part>
+                    <part name="Making Friends" uid="befriend">
+                        <info>Befriend the ants by dropping the calming tonic Angela gave you near some ants and a source of food (such as straw or hay).</info>
+                    </part>
+                    <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
+                        <dialog name="hello">
+                            <inherit/>
+                            <message>Ah, you're back! Have you talked to the priestess yet?</message>
+                            <response destination="proposed" message="Yes, she proposed to calm the ants."/>
+                        </dialog>
+                        <dialog name="proposed">
+                            <message>WHAT!?! Calm them?! Preposterous!</message>
+                            <message>They need to be eradicated. I told Angela to make a poison tonic, not a calming one!</message>
+                            <and>
+                                <check gender="male"/>
+                                <message>There will be a hefty reward if you slay the queen, sire!</message>
+                            </and>
+                            <and>
+                                <check gender="female"/>
+                                <message>There will be a hefty reward if you slay the queen, lass!</message>
+                            </and>
+                        </dialog>
+                    </interface>
+                </part>
+                <part name="The Ants" uid="report_arvend"/>
             </part>
         </part>
     </quest>

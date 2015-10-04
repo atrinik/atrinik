@@ -2,7 +2,7 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2011-09-17 Edwin Miltenburg
-Modified: 2015-06-27 Alex Tokar
+Modified: 2015-10-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -177,6 +177,7 @@ ac 8
 unaggressive 0
 random_move 0
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_wood2_d2
@@ -246,6 +247,7 @@ wc_range 12
 maxhp 40
 ac 6
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_wood2_d2
@@ -615,6 +617,7 @@ wc_range 12
 maxhp 40
 ac 6
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_wood2_d1
@@ -887,6 +890,7 @@ wc_range 12
 maxhp 40
 ac 6
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_wood2_d1

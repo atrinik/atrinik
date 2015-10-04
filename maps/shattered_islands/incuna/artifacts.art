@@ -1,0 +1,20 @@
+Allowed none
+chance 1
+artifact incuna_angelas_tonic
+def_arch potion_generic
+Object
+face potion_pink.101
+quest_item 1
+no_drop 1
+item_quality 100
+item_condition 100
+name Angela's Calming Tonic
+startequip 1
+identified 1
+is_magical 1
+glow #dbce3b
+glow_speed 10
+msg
+Pour the tonic somewhere in the barn, in close proximity to some ants and a food source.
+endmsg
+end

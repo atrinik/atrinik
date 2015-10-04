@@ -2,7 +2,7 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2011-09-17 Edwin Miltenburg
-Modified: 2015-06-27 Alex Tokar
+Modified: 2015-10-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -52,6 +52,7 @@ randomitems mob_fighter_l9
 wc_range 12
 item_race 6
 item_level 2
+faction incuna_barn_ants
 end
 end
 arch floor_earth1a
@@ -105,6 +106,7 @@ dam 4
 wc_range 12
 ac 7
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1a
@@ -1012,6 +1014,7 @@ dam 4
 wc_range 12
 ac 7
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1d
@@ -1042,6 +1045,7 @@ randomitems mob_fighter_l9
 level 2
 wc_range 12
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1e
@@ -1535,11 +1539,12 @@ arch spawn_point
 x 10
 y 2
 arch ant_red
-type 83
 randomitems mob_fighter_l9
+faction incuna_barn_ants
 wc_range 12
 item_race 6
 item_level 7
+type 83
 end
 end
 arch floor_earth1e
@@ -1726,6 +1731,7 @@ randomitems mob_fighter_l9
 wc_range 12
 item_race 6
 item_level 2
+faction incuna_barn_ants
 end
 end
 arch floor_earth1b
@@ -1933,6 +1939,7 @@ randomitems mob_fighter_l9
 wc_range 12
 item_race 6
 item_level 2
+faction incuna_barn_ants
 end
 end
 arch floor_earth1a
@@ -2439,6 +2446,7 @@ randomitems mob_fighter_l9
 level 2
 wc_range 12
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1d
@@ -2479,6 +2487,7 @@ randomitems mob_fighter_l9
 level 2
 wc_range 12
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1d
@@ -2500,6 +2509,7 @@ arch ant_soldier
 randomitems mob_fighter_l9
 wc_range 12
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1b
@@ -2654,6 +2664,7 @@ randomitems mob_fighter_l9
 level 2
 wc_range 12
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1c
@@ -2733,6 +2744,7 @@ randomitems mob_fighter_l9
 wc_range 12
 item_race 6
 item_level 7
+faction incuna_barn_ants
 end
 end
 arch floor_earth1b
@@ -2798,6 +2810,7 @@ arch ant_soldier
 randomitems mob_fighter_l9
 wc_range 12
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1c
@@ -3162,6 +3175,7 @@ wc_range 12
 item_race 6
 item_level 7
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1b
@@ -3444,6 +3458,7 @@ arch pudding_red
 randomitems mob_fighter_l9
 level 2
 type 83
+faction incuna_barn_slimes
 end
 arch ant_red
 name royal ant guard
@@ -3454,6 +3469,7 @@ wc_range 15
 unaggressive 0
 random_move 0
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1c
@@ -3535,6 +3551,7 @@ arch pudding_red
 randomitems mob_fighter_l9
 level 2
 type 83
+faction incuna_barn_slimes
 end
 arch ant_red
 name royal ant guard
@@ -3545,6 +3562,7 @@ wc_range 15
 unaggressive 0
 random_move 0
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1b
@@ -3715,6 +3733,7 @@ wc_range 12
 item_race 3
 item_level 2
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_earth1d

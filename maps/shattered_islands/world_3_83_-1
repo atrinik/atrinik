@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2011-09-03 Alex Tokar
-Modified: 2015-06-28 Alex Tokar
+Modified: 2015-10-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -163,6 +163,12 @@ is_female 1
 name Angela Sawthrow
 faction incuna_citizens
 level 5
+arch event_obj
+sub_type 6
+race /interfaces/quests/lost_memories/quest.xml
+end
+arch incuna_angelas_tonic
+end
 end
 end
 arch floor_white1e

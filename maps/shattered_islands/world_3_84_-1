@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2011-09-17 Edwin Miltenburg
-Modified: 2015-06-27 Alex Tokar
+Modified: 2015-10-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -73,6 +73,7 @@ wc_range 12
 maxhp 40
 ac 6
 type 83
+faction incuna_barn_ants
 end
 end
 arch trans
@@ -719,6 +720,7 @@ wc_range 12
 maxhp 40
 ac 6
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_wood2_d2
@@ -1078,6 +1080,7 @@ wc_range 12
 maxhp 40
 ac 6
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_wood2_d2
@@ -1497,6 +1500,7 @@ wc_range 12
 maxhp 40
 ac 6
 type 83
+faction incuna_barn_ants
 end
 end
 arch floor_wood2_d2
