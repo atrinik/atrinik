@@ -536,11 +536,7 @@ static bool _faction_is_friend(faction_t faction, object *op,
     if (op->type == PLAYER) {
         reputation = player_faction_reputation(CONTR(op), faction->name);
     } else {
-        reputation = 0;
-
-        if (faction->name == object_get_value(op, "faction")) {
-            return true;
-        }
+        reputation = fabs(faction->threshold) + 1;
     }
 
     if (check_enemies) {
