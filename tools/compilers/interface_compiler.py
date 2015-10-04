@@ -459,6 +459,9 @@ class TagCompilerAnd(BaseTagCompiler):
 
         if isinstance(self.parent, TagCompilerDialog):
             self.handlers["message"] = TagCompilerMessage
+            self.handlers["inherit"] = TagCompilerInherit
+            self.handlers["object"] = TagCompilerObject
+            self.handlers["action"] = TagCompilerAction
 
     def precompile(self, elem):
         if not isinstance(self, TagCompilerAnd):
