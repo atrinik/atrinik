@@ -223,6 +223,16 @@
                 </item>
                </widget>
               </item>
+              <item row="8" column="0">
+               <widget class="QLabel" name="label_61">
+                <property name="text">
+                 <string>Friend of faction</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_faction_friend"/>
+              </item>
              </layout>
             </item>
             <item>
@@ -351,13 +361,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_27">
-                <property name="text">
-                 <string>Name</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1">
                <spacer name="horizontalSpacer_18">
                 <property name="orientation">
@@ -371,18 +374,18 @@
                 </property>
                </spacer>
               </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Name</string>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="2">
                <widget class="QLineEdit" name="interface_element_part_uid"/>
               </item>
               <item row="1" column="2">
                <widget class="QLineEdit" name="interface_element_part_name"/>
-              </item>
-              <item row="2" column="2">
-               <widget class="QCheckBox" name="interface_element_part_optional">
-                <property name="text">
-                 <string>Optional</string>
-                </property>
-               </widget>
               </item>
              </layout>
             </item>
@@ -556,6 +559,13 @@
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
              <layout class="QGridLayout" name="gridLayout_6">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Enemy</string>
+                </property>
+               </widget>
+              </item>
               <item row="3" column="0">
                <widget class="QLabel" name="label_9">
                 <property name="text">
@@ -574,13 +584,6 @@
                <widget class="QLabel" name="label_12">
                 <property name="text">
                  <string>Number to finish</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_7">
-                <property name="text">
-                 <string>Enemy</string>
                 </property>
                </widget>
               </item>
@@ -690,6 +693,16 @@
                  </property>
                 </item>
                </widget>
+              </item>
+              <item row="8" column="0">
+               <widget class="QLabel" name="label_60">
+                <property name="text">
+                 <string>Friend of faction</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
+               <widget class="QLineEdit" name="interface_element_check_faction_friend"/>
               </item>
              </layout>
             </item>
@@ -1432,7 +1445,7 @@
      <x>0</x>
      <y>0</y>
      <width>969</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTest">

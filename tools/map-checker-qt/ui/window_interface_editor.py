@@ -881,7 +881,7 @@ class InterfaceElementOr(InterfaceElement):
 class InterfaceElementCheck(InterfaceElement):
     tag = "check"
     attributes = ("region_map", "enemy", "started", "finished", "completed",
-                  "num2finish", "options", "gender")
+                  "num2finish", "options", "gender", "faction_friend")
     priority = 1000
 
 
