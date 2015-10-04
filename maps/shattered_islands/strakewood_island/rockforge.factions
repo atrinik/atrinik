@@ -9,7 +9,7 @@ faction rockforge
             modifier 5%
 
             faction rockforge_royalty
-                penalty 1000.0
+                penalty -1000.0
             end
         end
     end

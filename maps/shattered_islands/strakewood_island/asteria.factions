@@ -15,7 +15,7 @@ faction asteria
             modifier 5%
 
             faction asteria_royalty
-                penalty 1000.0
+                penalty -1000.0
             end
         end
     end
