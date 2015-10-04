@@ -113,7 +113,7 @@ class Interface:
 
         pl = self._activator.Controller()
         if pl.s_socket_version < 1063:
-            self.add_msg_icon(obj.face[0], obj.GetName())
+            self.add_msg_icon(obj.face[0], desc or obj.GetName())
             return
 
         packet = obj.GetPacket(pl, Atrinik.UPD_ANIM | Atrinik.UPD_ANIMSPEED |
