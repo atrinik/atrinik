@@ -601,6 +601,10 @@ class TagCompilerCheck(TagCompilerAnd):
                     self.precond.write("Gender.HERMAPHRODITE")
                 else:
                     self.precond.write("Gender.NEUTER")
+            elif attr == "faction_friend":
+                self.precond.write(
+                    "self._activator.FactionIsFriend({faction})",
+                   faction=repr(val))
 
         self.precond.write(")")
 
