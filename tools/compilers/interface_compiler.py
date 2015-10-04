@@ -797,7 +797,7 @@ class TagCompilerMessage(BaseTagCompiler):
 
     def compile(self, elem):
         color = elem.get("color", "")
-        msg = repr(elem.text.strip())
+        msg = repr(elem.text.strip() if elem.text else elem.text)
 
         if color:
             if color.startswith("#"):
