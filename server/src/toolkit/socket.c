@@ -360,6 +360,7 @@ bool socket_connect(socket_t *sc)
 {
     HARD_ASSERT(sc != NULL);
 
+    SOFT_ASSERT_RC(sc->host != NULL, false, "NULL host");
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
     /* Set non-blocking */
