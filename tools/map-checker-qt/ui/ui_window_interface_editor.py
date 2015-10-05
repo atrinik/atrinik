@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '../ui/ui_window_interface_editor.ui'
 #
-# Created: Sun Oct  4 13:11:03 2015
+# Created: Mon Oct  5 01:09:36 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -293,10 +293,16 @@ class Ui_WindowInterfaceEditor(object):
         self.gridLayout_18.addWidget(self.interface_element_object_arch, 0, 2, 1, 1)
         self.label_41 = QtWidgets.QLabel(self.pageObject)
         self.label_41.setObjectName("label_41")
-        self.gridLayout_18.addWidget(self.label_41, 2, 0, 1, 1)
+        self.gridLayout_18.addWidget(self.label_41, 3, 0, 1, 1)
         self.interface_element_object_remove = QtWidgets.QLineEdit(self.pageObject)
         self.interface_element_object_remove.setObjectName("interface_element_object_remove")
-        self.gridLayout_18.addWidget(self.interface_element_object_remove, 2, 2, 1, 1)
+        self.gridLayout_18.addWidget(self.interface_element_object_remove, 3, 2, 1, 1)
+        self.label_62 = QtWidgets.QLabel(self.pageObject)
+        self.label_62.setObjectName("label_62")
+        self.gridLayout_18.addWidget(self.label_62, 2, 0, 1, 1)
+        self.interface_element_object_nrof = QtWidgets.QLineEdit(self.pageObject)
+        self.interface_element_object_nrof.setObjectName("interface_element_object_nrof")
+        self.gridLayout_18.addWidget(self.interface_element_object_nrof, 2, 2, 1, 1)
         self.verticalLayout_16.addLayout(self.gridLayout_18)
         self.label_42 = QtWidgets.QLabel(self.pageObject)
         self.label_42.setObjectName("label_42")
@@ -795,6 +801,7 @@ class Ui_WindowInterfaceEditor(object):
         self.label_33.setText(_translate("WindowInterfaceEditor", "Name"))
         self.label_32.setText(_translate("WindowInterfaceEditor", "Arch name"))
         self.label_41.setText(_translate("WindowInterfaceEditor", "Number to remove"))
+        self.label_62.setText(_translate("WindowInterfaceEditor", "Number"))
         self.label_42.setText(_translate("WindowInterfaceEditor", "Message"))
         self.label_7.setText(_translate("WindowInterfaceEditor", "Enemy"))
         self.label_9.setText(_translate("WindowInterfaceEditor", "Finished"))

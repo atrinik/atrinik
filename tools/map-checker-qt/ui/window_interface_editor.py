@@ -980,7 +980,7 @@ class InterfaceElementItem(InterfaceElement):
 
 class InterfaceElementObject(InterfaceElement):
     tag = "object"
-    attributes = ("arch", "name", "remove", "message")
+    attributes = ("arch", "name", "remove", "message", "nrof")
     priority = 1000
 
 

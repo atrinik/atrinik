@@ -530,15 +530,25 @@
               <item row="0" column="2">
                <widget class="QLineEdit" name="interface_element_object_arch"/>
               </item>
-              <item row="2" column="0">
+              <item row="3" column="0">
                <widget class="QLabel" name="label_41">
                 <property name="text">
                  <string>Number to remove</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="2">
+              <item row="3" column="2">
                <widget class="QLineEdit" name="interface_element_object_remove"/>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_62">
+                <property name="text">
+                 <string>Number</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLineEdit" name="interface_element_object_nrof"/>
               </item>
              </layout>
             </item>
