@@ -735,6 +735,10 @@ class TagCompilerObject(BaseTagCompiler):
                 item_args=item_args)
             parent.precond.write(")")
         elif not remove:
+            nrof = elem.get("nrof") or 0
+            if nrof:
+                nrof = int(nrof)
+
             if isinstance(parent, TagCompilerMessage):
                 self.npc.body.write(
                     "obj = self._npc.FindObject({item_args})",
@@ -744,16 +748,35 @@ class TagCompilerObject(BaseTagCompiler):
                     "self.add_msg_icon_object(obj, desc={message})",
                     message=repr(message)
                 )
-            elif not self.npc.closed and not message:
+                return
+
+            if nrof > 0:
                 self.npc.body.write(
-                    "self.add_objects(self._npc.FindObject({item_args}))",
-                    item_args=item_args
+                    "obj = CreateObject({arch})",
+                    arch=repr(elem.get("arch"))
                 )
+
+                if nrof > 1:
+                    self.npc.body.write(
+                        "obj.nrof = {nrof}",
+                        nrof=repr(nrof)
+                    )
+
+
+            if not self.npc.closed and not message:
+                if not nrof:
+                    self.npc.body.write(
+                        "obj = self._npc.FindObject({item_args})",
+                        item_args=item_args
+                    )
+
+                self.npc.body.write("self.add_objects(obj)")
             else:
-                self.npc.body.write(
-                    "obj = self._npc.FindObject({item_args}).Clone()",
-                    item_args=item_args
-                )
+                if not nrof:
+                    self.npc.body.write(
+                        "obj = self._npc.FindObject({item_args}).Clone()",
+                        item_args=item_args
+                    )
 
                 if not self.npc.closed and message:
                     self.npc.body.write(
