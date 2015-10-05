@@ -241,7 +241,7 @@ static int game_status_chain(void)
     } else if (cpl.state == ST_CONNECT) {
         packet_struct *packet;
 
-        if (!client_socket_open(&csocket, selected_server->ip, selected_server->port)) {
+        if (!client_socket_open(&csocket, selected_server->hostname, selected_server->port)) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;
