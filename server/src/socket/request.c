@@ -1900,6 +1900,8 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
 
                 if (tmp2->magic == QUEST_STATUS_COMPLETED) {
                     stringbuffer_append_string(sb, " []done]");
+                } else if (tmp2->magic == QUEST_STATUS_FAILED) {
+                    stringbuffer_append_string(sb, " []failed]");
                 }
             }
 

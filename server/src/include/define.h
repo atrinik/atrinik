@@ -1277,10 +1277,14 @@ enum apply_flag {
  * Quest statuses. Stored in object::magic.
  *@{*/
 
+/** Quest status is invalid. */
+#define QUEST_STATUS_INVALID -1
 /** The quest has been started. */
 #define QUEST_STATUS_STARTED 0
 /** The quest has been completed. */
 #define QUEST_STATUS_COMPLETED 1
+/** The quest part was failed. */
+#define QUEST_STATUS_FAILED 2
 /*@}*/
 
 /**

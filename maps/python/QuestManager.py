@@ -186,6 +186,43 @@ class QuestManager:
         if delay:
             self.quest_object.exp = int(time.time()) + delay
 
+    def remove_quest_items(self, quest, obj):
+        """
+        Removes quest items associated with the quest part from the activator's
+        inventory.
+
+        :param quest: The actual quest part info.
+        :type quest: dict
+        :param obj: The quest part object.
+        :type obj: :class:`Atrinik.Object.Object`
+        """
+
+        # Only do this for kill item quest types.
+        if obj.sub_type != Atrinik.QUEST_TYPE_ITEM:
+            return
+
+        # Are we going to keep the quest item(s)?
+        keep = quest["item"].get("keep")
+        nrof = quest["item"].get("nrof", 1)
+        removed = 0
+
+        # Find all matching objects.
+        for tmp in self.activator.FindObjects(
+                Atrinik.INVENTORY_CONTAINERS, quest["item"]["arch"],
+                quest["item"]["name"]):
+            # Keeping the quest item(s), make sure quest-related flags
+            # are not set.
+            if keep:
+                tmp.f_quest_item = False
+                tmp.f_startequip = False
+            else:
+                remove = min(max(1, tmp.nrof), nrof - removed)
+                tmp.Decrease(remove)
+                removed += remove
+
+                if removed == nrof:
+                    break
+
     def get_quest_item_num(self, quest):
         """
         Acquire the number of quest items the activator has found.
@@ -250,6 +287,43 @@ class QuestManager:
 
         return 0
 
+    def get_quest_status(self, part=None):
+        """
+        Acquire quest status of the specified quest (part).
+
+        :param part: Quest part specifier. If None, will get the overall quest
+                     status itself.
+        :type part: str or list or None
+        :return: The quest status.
+        :rtype: int
+        """
+
+        if part is None:
+            return self.quest_object.magic
+
+        part, quest = self.get_part(part)
+        obj = self.quest_object.FindObject(name=part)
+        if obj is None:
+            return Atrinik.QUEST_STATUS_INVALID
+
+        return obj.magic
+
+    def any_started(self):
+        """
+        Checks if the quest has any started parts. Child parts are not checked.
+
+        :return: True if there are any started quest parts, False otherwise.
+        :rtype: bool
+        """
+
+        assert self.quest_object
+
+        for obj in self.quest_object.inv:
+            if obj.magic == Atrinik.QUEST_STATUS_STARTED:
+                return True
+
+        return False
+
     def need_start(self, part):
         """
         Checks whether the specified quest part needs to be started.
@@ -307,6 +381,9 @@ class QuestManager:
         if self.completed(part):
             return False
 
+        if self.failed(part):
+            return False
+
         return True
 
     def need_complete_before_start(self, part):
@@ -324,6 +401,9 @@ class QuestManager:
             return False
 
         if self.completed(part):
+            return False
+
+        if self.failed(part):
             return False
 
         if not self.finished(part):
@@ -400,39 +480,48 @@ class QuestManager:
         # Mark the quest part as completed.
         obj.magic = Atrinik.QUEST_STATUS_COMPLETED
         self.sound(sound)
-
-        # Special handling for kill item quests.
-        if obj.sub_type == Atrinik.QUEST_TYPE_ITEM:
-            # Are we going to keep the quest item(s)?
-            keep = quest["item"].get("keep")
-            nrof = quest["item"].get("nrof", 1)
-            removed = 0
-
-            # Find all matching objects.
-            for tmp in self.activator.FindObjects(
-                    Atrinik.INVENTORY_CONTAINERS, quest["item"]["arch"],
-                    quest["item"]["name"]
-            ):
-                # Keeping the quest item(s), make sure quest-related flags
-                # are not set.
-                if keep:
-                    tmp.f_quest_item = False
-                    tmp.f_startequip = False
-                else:
-                    remove = min(max(1, tmp.nrof), nrof - removed)
-                    tmp.Decrease(remove)
-                    removed += remove
-
-                    if removed == nrof:
-                        break
+        self.remove_quest_items(quest, obj)
 
         # Check all quest parts. If all are completed, complete the
         # entire quest.
-        for obj in self.quest_object.inv:
-            if obj.magic != Atrinik.QUEST_STATUS_COMPLETED:
-                return False
+        if self.any_started():
+            return False
 
         # Complete the quest itself now.
+        self.quest_object.magic = Atrinik.QUEST_STATUS_COMPLETED
+        self.use_qp()
+        return True
+
+    def fail(self, part, sound="warning_statdown.ogg"):
+        """
+        Fails the specified quest part.
+
+        :param part: Quest part specifier.
+        :type part: str or list
+        :param sound: Sound file to play.
+        :type sound: str
+        :return: True if the entire quest was failed, False otherwise.
+        :rtype: bool
+        """
+
+        assert self.quest_object
+
+        part, quest = self.get_part(part)
+        obj = self.quest_object.FindObject(name=part)
+        if not obj:
+            return False
+
+        # Mark the quest part as failed.
+        obj.magic = Atrinik.QUEST_STATUS_FAILED
+        self.sound(sound)
+        self.remove_quest_items(quest, obj)
+
+        # Check all quest parts. If any are still started, no reason to fail
+        # the entire quest just yet.
+        if self.any_started():
+            return False
+
+        # Fail the quest itself now.
         self.quest_object.magic = Atrinik.QUEST_STATUS_COMPLETED
         self.use_qp()
         return True
@@ -484,15 +573,20 @@ class QuestManager:
         if not self.started(part):
             return False
 
-        if part is None:
-            # Check the quest object's magic field to see if the quest has
-            # been completed.
-            if self.quest_object.magic == Atrinik.QUEST_STATUS_COMPLETED:
-                return True
-        else:
-            part, quest = self.get_part(part)
-            obj = self.quest_object.FindObject(name=part)
-            if obj is not None and obj.magic == Atrinik.QUEST_STATUS_COMPLETED:
-                return True
+        return self.get_quest_status(part) == Atrinik.QUEST_STATUS_COMPLETED
 
-        return False
+    def failed(self, part=None):
+        """
+        Checks if the specified quest part has been completed.
+
+        :param part: Quest part specifier. If None, will check whether the quest
+                     itself has been fully completed.
+        :type part: str or list or None
+        :return: Whether the quest (part) has been completed.
+        :rtype: bool
+        """
+
+        if not self.started(part):
+            return False
+
+        return self.get_quest_status(part) == Atrinik.QUEST_STATUS_FAILED
