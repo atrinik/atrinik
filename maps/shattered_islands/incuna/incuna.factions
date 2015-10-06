@@ -1,6 +1,11 @@
 faction incuna
     parent world
 
+    faction incuna_animals
+        spill 10%
+        spill_force true
+    end
+
     faction incuna_citizens
         faction incuna_guards
         end
