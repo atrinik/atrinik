@@ -7,6 +7,8 @@ import re
 import Atrinik
 import Language
 
+DEBUG = False
+
 
 class Interface:
     """
@@ -47,6 +49,13 @@ class Interface:
         if npc:
             self.set_anim(npc.animation[1], npc.anim_speed, npc.direction)
             self.set_title(npc.name)
+
+    @staticmethod
+    def dbg(fmt, *args, **kwargs):
+        if not DEBUG:
+            return
+
+        Atrinik.Logger("DEBUG", fmt.format(*args, **kwargs))
 
     def add_msg(self, msg, color=None, newline=True, **keywds):
         """
@@ -522,12 +531,14 @@ class InterfaceBuilder(Interface):
 
     def _part_dialog(self, part, checks):
         for check in checks:
+            self.dbg("Checking state {} for part {}", check, " -> ".join(part))
             name = "_".join((self.dialog_name, check, part[-1:][0]))
 
             if name not in self.locals:
                 continue
 
             if getattr(self.qm, check)(part):
+                self.dbg("Found match: {}", name)
                 self.dialog_name = name
                 self.part = part
                 return True
@@ -535,6 +546,10 @@ class InterfaceBuilder(Interface):
         return False
 
     def _check_parts(self, parts, name=None):
+        self.dbg("Checking quest parts: {} (from: {})",
+                 ", ".join(parts.keys()),
+                 name)
+
         for part in parts:
             if name is not None:
                 l = name + [part]
@@ -648,14 +663,19 @@ class InterfaceBuilder(Interface):
         :type dialog_name: str
         """
 
+        self.dbg("Handling interface for message: {}", msg)
+
         self.locals = locals_dict
         self.dialog_name = dialog_name
         dialog = None
 
         # Do some quest handling.
         if self.qm is not None:
+            self.dbg("Performing quest handling")
+
             # Quest is completed, regardless of parts, so show completed dialog.
             if self.qm.completed():
+                self.dbg("Quest is complete, using 'completed' dialog")
                 dialog = "completed"
             elif self.qm.failed():
                 dialog = "failed"
@@ -669,6 +689,7 @@ class InterfaceBuilder(Interface):
             # noinspection PyCallingNonCallable
             self.preconds(self)
 
+        self.dbg("Handling with dialog: {}", self.dialog_name)
         c = self.locals[self.dialog_name](self._activator, self._npc)
         c.set_quest(self.qm)
         c.part = self.part
