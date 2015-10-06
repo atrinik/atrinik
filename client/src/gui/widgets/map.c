@@ -1664,7 +1664,7 @@ void map_draw_map(SDL_Surface *surface)
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                 draw_map_object(surface, cell, x, y, LAYER_LIVING, sub_layer,
                         player_height_offset, &target_cell, &target_layer,
-                        &target_rect, &tiles, &tiles_num, 128);
+                        &target_rect, &tiles, &tiles_num, 100);
             }
         }
     }
