@@ -630,7 +630,7 @@ class TagCompilerAction(BaseTagCompiler):
             self.npc.body.write("{text}", text=elem.text())
 
         for attr in ["start", "complete", "region_map", "enemy", "teleport",
-                     "trigger", "cast"]:
+                     "trigger", "cast", "fail"]:
             val = elem.get(attr)
 
             if not val:
