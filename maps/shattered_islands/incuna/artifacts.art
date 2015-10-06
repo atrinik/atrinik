@@ -14,7 +14,12 @@ identified 1
 is_magical 1
 glow #dbce3b
 glow_speed 10
+type 79
 msg
 Pour the tonic somewhere in the barn, in close proximity to some ants and a food source.
 endmsg
+arch event_obj
+sub_type 1
+race /python/items/incuna_angelas_tonic.py
+end
 end

@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2011-09-03 Alex Tokar
-Modified: 2015-10-04 Alex Tokar
+Modified: 2015-10-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -166,8 +166,6 @@ level 5
 arch event_obj
 sub_type 6
 race /interfaces/quests/lost_memories/quest.xml
-end
-arch incuna_angelas_tonic
 end
 end
 end
