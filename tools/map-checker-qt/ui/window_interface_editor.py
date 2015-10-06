@@ -881,14 +881,16 @@ class InterfaceElementOr(InterfaceElement):
 class InterfaceElementCheck(InterfaceElement):
     tag = "check"
     attributes = ("region_map", "enemy", "started", "finished", "completed",
-                  "num2finish", "options", "gender", "faction_friend")
+                  "num2finish", "options", "gender", "faction_friend",
+                  "failed")
     priority = 1000
 
 
 class InterfaceElementNcheck(InterfaceElement):
     tag = "ncheck"
     attributes = ("region_map", "enemy", "started", "finished", "completed",
-                  "num2finish", "options", "gender")
+                  "num2finish", "options", "gender", "faction_friend",
+                  "failed")
     priority = 1000
 
 
@@ -915,7 +917,7 @@ class InterfaceElementResponse(InterfaceElement):
 class InterfaceElementAction(InterfaceElement):
     tag = "action"
     attributes = ("region_map", "start", "complete", "enemy", "text",
-                  "teleport", "trigger", "cast")
+                  "teleport", "trigger", "cast", "fail")
     priority = 1000
 
     def build_xml_element(self):

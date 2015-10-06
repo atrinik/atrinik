@@ -81,7 +81,7 @@
            </size>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pageNone"/>
           <widget class="QWidget" name="pageNcheck">
@@ -167,34 +167,34 @@
               <item row="4" column="2">
                <widget class="QLineEdit" name="interface_element_ncheck_completed"/>
               </item>
-              <item row="5" column="0">
+              <item row="6" column="0">
                <widget class="QLabel" name="label_57">
                 <property name="text">
                  <string>Number to finish</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="2">
+              <item row="6" column="2">
                <widget class="QLineEdit" name="interface_element_ncheck_num2finish"/>
               </item>
-              <item row="6" column="0">
+              <item row="7" column="0">
                <widget class="QLabel" name="label_54">
                 <property name="text">
                  <string>Options</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="2">
+              <item row="7" column="2">
                <widget class="QLineEdit" name="interface_element_ncheck_options"/>
               </item>
-              <item row="7" column="0">
+              <item row="8" column="0">
                <widget class="QLabel" name="label_59">
                 <property name="text">
                  <string>Gender</string>
                 </property>
                </widget>
               </item>
-              <item row="7" column="2">
+              <item row="8" column="2">
                <widget class="QComboBox" name="interface_element_ncheck_gender">
                 <item>
                  <property name="text">
@@ -223,15 +223,25 @@
                 </item>
                </widget>
               </item>
-              <item row="8" column="0">
+              <item row="9" column="0">
                <widget class="QLabel" name="label_61">
                 <property name="text">
                  <string>Friend of faction</string>
                 </property>
                </widget>
               </item>
-              <item row="8" column="2">
+              <item row="9" column="2">
                <widget class="QLineEdit" name="interface_element_ncheck_faction_friend"/>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_65">
+                <property name="text">
+                 <string>Failed</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_failed"/>
               </item>
              </layout>
             </item>
@@ -583,14 +593,14 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="0">
+              <item row="7" column="0">
                <widget class="QLabel" name="label_11">
                 <property name="text">
                  <string>Options</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item row="6" column="0">
                <widget class="QLabel" name="label_12">
                 <property name="text">
                  <string>Number to finish</string>
@@ -662,20 +672,27 @@
               <item row="4" column="2">
                <widget class="QLineEdit" name="interface_element_check_completed"/>
               </item>
-              <item row="6" column="2">
+              <item row="7" column="2">
                <widget class="QLineEdit" name="interface_element_check_options"/>
               </item>
-              <item row="5" column="2">
+              <item row="6" column="2">
                <widget class="QLineEdit" name="interface_element_check_num2finish"/>
               </item>
-              <item row="7" column="0">
+              <item row="8" column="0">
                <widget class="QLabel" name="label_58">
                 <property name="text">
                  <string>Gender</string>
                 </property>
                </widget>
               </item>
-              <item row="7" column="2">
+              <item row="9" column="0">
+               <widget class="QLabel" name="label_60">
+                <property name="text">
+                 <string>Friend of faction</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
                <widget class="QComboBox" name="interface_element_check_gender">
                 <item>
                  <property name="text">
@@ -704,15 +721,18 @@
                 </item>
                </widget>
               </item>
-              <item row="8" column="0">
-               <widget class="QLabel" name="label_60">
+              <item row="9" column="2">
+               <widget class="QLineEdit" name="interface_element_check_faction_friend"/>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_63">
                 <property name="text">
-                 <string>Friend of faction</string>
+                 <string>Failed</string>
                 </property>
                </widget>
               </item>
-              <item row="8" column="2">
-               <widget class="QLineEdit" name="interface_element_check_faction_friend"/>
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="interface_element_check_failed"/>
               </item>
              </layout>
             </item>
@@ -820,10 +840,10 @@
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <item>
              <layout class="QGridLayout" name="gridLayout_11">
-              <item row="4" column="2">
+              <item row="5" column="2">
                <widget class="QLineEdit" name="interface_element_action_teleport"/>
               </item>
-              <item row="4" column="0">
+              <item row="5" column="0">
                <widget class="QLabel" name="label_40">
                 <property name="text">
                  <string>Teleport</string>
@@ -839,7 +859,7 @@
               <item row="0" column="2">
                <widget class="QLineEdit" name="interface_element_action_region_map"/>
               </item>
-              <item row="3" column="2">
+              <item row="4" column="2">
                <widget class="QComboBox" name="interface_element_action_enemy">
                 <item>
                  <property name="text">
@@ -892,32 +912,42 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
+              <item row="4" column="0">
                <widget class="QLabel" name="label_19">
                 <property name="text">
                  <string>Enemy</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item row="6" column="0">
                <widget class="QLabel" name="label_45">
                 <property name="text">
                  <string>Trigger</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="2">
+              <item row="6" column="2">
                <widget class="QLineEdit" name="interface_element_action_trigger"/>
               </item>
-              <item row="6" column="0">
+              <item row="7" column="0">
                <widget class="QLabel" name="label_48">
                 <property name="text">
                  <string>Cast</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="2">
+              <item row="7" column="2">
                <widget class="QLineEdit" name="interface_element_action_cast"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_64">
+                <property name="text">
+                 <string>Fail</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QLineEdit" name="interface_element_action_fail"/>
               </item>
              </layout>
             </item>
