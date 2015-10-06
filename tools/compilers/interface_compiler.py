@@ -627,7 +627,7 @@ class TagCompilerClose(BaseTagCompiler):
 class TagCompilerAction(BaseTagCompiler):
     def compile(self, elem):
         if elem.text:
-            self.npc.body.write("{text}", text=elem.text())
+            self.npc.body.write("{text}", text=elem.text)
 
         for attr in ["start", "complete", "region_map", "enemy", "teleport",
                      "trigger", "cast", "fail"]:
