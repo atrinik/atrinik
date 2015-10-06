@@ -22,6 +22,15 @@
         </interface>
         <interface inherit="Temple.TempleElathiel" npc="Brelend Lee"/>
         <interface inherit="Tavern.Bartender" npc="Arvend Blessed"/>
+        <interface npc="Arvend Blessed" state="calmed">
+            <dialog name="hello">
+                <message>Did you not hear me?! Be off!</message>
+            </dialog>
+            <and>
+                <check failed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                <check completed="helping_out::ant_trouble"/>
+            </and>
+        </interface>
         <interface inherit="Smith.Smith" npc="Ken Berger"/>
         <interface npc="Angela Sawthrow">
             <dialog name="hello">
@@ -132,7 +141,7 @@
             </interface>
         </part>
         <part name="Gearing Up" uid="gear">
-            <info>speak to the smith</info>
+            <info>Sam has suggested that you go speak to the local smith, Ken Berger, in order to choose a melee weapon to use. []optional]</info>
             <interface inherit="Smith.Smith" npc="Ken Berger" state="need_complete">
                 <dialog name="hello">
                     <inherit/>
@@ -220,7 +229,7 @@
             <info>speak to tom</info>
         </part>
         <part name="Helping Out" uid="helping_out">
-            <info>speak to Arvend Blessed</info>
+            <info>According to Sam, a local tavern owner, Arvend Blessed, is in need of some assistance.</info>
             <interface npc="Sam Goodberry" state="need_complete">
                 <dialog name="hello">
                     <message>Ah, you've helped everyone, have you?</message>
@@ -271,7 +280,7 @@
                     </dialog>
                 </interface>
                 <part name="The Priestess" uid="the_priestess">
-                    <info/>
+                    <info>Arvend Blessed, the local tavern owner, has asked you to speak to the local priestess and alchemist, named Angela Sawthrow, about the ants problem.</info>
                     <interface inherit="interface" npc="Angela Sawthrow" state="need_complete">
                         <dialog inherit="hello" name="hello">
                             <response destination="infestation" message="Arvend mentioned you had been looking into the ant infestation issue..."/>
@@ -303,7 +312,7 @@
                         </dialog>
                         <dialog name="sure">
                             <message>Splendid. Here, take the tonic, should you decide to spare the ants. Just find a food source, for example some hay or straw that has ants swarming around it and pour the tonic somewhere nearby. The vapors alone should have instantaneous effects.</message>
-                            <object arch="incuna_angelas_tonic"/>
+                            <object arch="incuna_angelas_tonic" nrof="1"/>
                             <action start="helping_out::ant_trouble::the_ants"/>
                             <action start="helping_out::ant_trouble::the_ants::slay_queen"/>
                             <action start="helping_out::ant_trouble::the_ants::befriend"/>
@@ -325,9 +334,9 @@
                     </interface>
                 </part>
                 <part name="The Ants" uid="the_ants">
-                    <info>Angela the priestess has asked you to deal with the ants however you see fit and then return to her.</info>
-                    <part name="The Ants" uid="report_angela">
-                        <info>Report to Angela.</info>
+                    <info>Angela the priestess has asked you to deal with the ants however you see fit, within reason.</info>
+                    <part name="Report To Angela" uid="report_angela">
+                        <info>Report how you resolved the ants issue to Angela.</info>
                         <interface npc="Angela Sawthrow" state="need_complete">
                             <dialog name="hello">
                                 <message>Welcome back, {activator.name}.</message>
@@ -343,7 +352,7 @@
                                     </or>
                                     <check faction_friend="incuna_barn_ants"/>
                                     <message>So, you killed the queen. However, you also calmed the ants, preventing further aggression.</message>
-                                    <message>I admire people with courage and creative thinking.</message>
+                                    <message>I admire people with courage and creative thinking. The ants are likely to recover, find a new queen and the balance should be right once again.</message>
                                     <inherit name="::reward"/>
                                 </and>
                                 <and>
@@ -355,23 +364,92 @@
                                         <object arch="incuna_angelas_tonic"/>
                                     </check>
                                     <message>So, you just straight up killed the ant queen in cold blood.</message>
-                                    <message>You have become a beast yourself; begone!</message>
+                                    <inherit name="::killed"/>
                                 </and>
                                 <and>
                                     <or>
                                         <check completed="helping_out::ant_trouble::the_ants::slay_queen"/>
                                         <check finished="helping_out::ant_trouble::the_ants::slay_queen"/>
                                     </or>
-                                    <message>So, you calmed the ants and then you killed their queen, angering them.</message>
-                                    <message>You have become a beast yourself; begone!</message>
+                                    <message>So, you calmed the ants and then you killed their queen, angering them once more.</message>
+                                    <inherit name="::killed"/>
                                 </and>
                                 <and>
                                     <message>So, you calmed the ants and didn't kill the queen, preserving the balance. You have my thanks, kind {self.gender}.</message>
                                     <inherit name="::reward"/>
                                 </and>
+                                <action complete="helping_out::ant_trouble::the_ants::befriend"/>
                             </dialog>
                             <dialog name="::reward">
                                 <message>Please, take this as a gift from me.</message>
+                                <action>sack = CreateObject(&quot;sack&quot;)
+try:
+    sack.CreateTreasure(&quot;random_talisman&quot;, level=activator.level, flags=GT_ONLY_GOOD, a_chance=0)
+    obj = sack.inv[0]
+    obj.Remove()
+    obj.f_identified = True
+    self.add_objects(obj)
+finally:
+    sack.Destroy()</action>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <ncheck finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <action start="helping_out::ant_trouble::the_ants::report_arvend"/>
+                                    <action fail="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <message>You should report the good news to Arvend, I am sure he will be pleased that we managed to resolve this peacefully.</message>
+                                </and>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <message color="navy">You recall that Arvend mentioned a reward for killing the queen...</message>
+                                </and>
+                                <and>
+                                    <action start="report_sam"/>
+                                    <message color="navy">You should report your progress to Sam...</message>
+                                    <action complete="helping_out::ant_trouble"/>
+                                    <action complete="helping_out"/>
+                                </and>
+                                <action complete="helping_out::ant_trouble::the_ants::report_angela"/>
+                            </dialog>
+                            <dialog name="::killed">
+                                <message>You have become a beast yourself; just like that tavern owner, Arvend.</message>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::befriend"/>
+                                    <object arch="incuna_angelas_tonic" remove="1"/>
+                                    <message color="yellow">{npc.name} takes her tonic back from you.</message>
+                                    <action fail="helping_out::ant_trouble::the_ants::befriend"/>
+                                </and>
+                                <message>Begone!</message>
+                                <action complete="helping_out::ant_trouble::the_ants::report_angela"/>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <message color="navy">You recall that Arvend mentioned a reward for killing the queen...</message>
+                                </and>
+                                <and>
+                                    <action start="report_sam"/>
+                                    <message color="navy">You should report your progress to Sam...</message>
+                                    <action complete="helping_out::ant_trouble"/>
+                                    <action complete="helping_out"/>
+                                </and>
+                            </dialog>
+                        </interface>
+                    </part>
+                    <part name="Report To Arvend" uid="report_arvend">
+                        <info>After telling Angela that the ants have been calmed, she has suggested that you report the good news to Arvend, the tavern owner.</info>
+                        <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
+                            <dialog name="hello">
+                                <response destination="calmed" message="The ants have been calmed."/>
+                                <inherit/>
+                            </dialog>
+                            <dialog name="calmed">
+                                <message>What?! I wanted the ant queen dead! How do you know that they won't attack my provisions again!?!</message>
+                                <message color="yellow">{npc.name} grumbles angrily.</message>
+                                <message>Take this and off with you, or I will set my dogs on you!</message>
+                                <object arch="coppercoin" nrof="50"/>
+                                <action start="report_sam"/>
+                                <action complete="helping_out::ant_trouble::the_ants::report_arvend"/>
+                                <action complete="helping_out::ant_trouble"/>
+                                <action complete="helping_out"/>
+                                <message color="navy">You should report your progress to Sam...</message>
                             </dialog>
                         </interface>
                     </part>
@@ -380,51 +458,67 @@
                         <item arch="head_ant_queen" name="incuna barn ant queen head"/>
                         <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
                             <dialog name="hello">
-                                <message>Ah, you're back! Have you talked to the priestess yet?</message>
                                 <response destination="head" message="Here's the queen's head."/>
+                                <inherit/>
+                                <message>Ah, you're back! Have you talked to the priestess yet?</message>
                             </dialog>
                             <dialog name="head">
                                 <message>Eww, how abominable! Thank you, you have saved my barn. Please, take these coins as your reward.</message>
-                                <object arch="silvercoin"/>
+                                <object arch="silvercoin" nrof="15"/>
                                 <and>
                                     <check faction_friend="incuna_barn_ants"/>
                                     <message>Oh, you calmed the ants as well! That's even better. You deserve an extra reward for such effort!</message>
-                                    <object arch="silvercoin"/>
+                                    <object arch="silvercoin" nrof="5"/>
                                 </and>
                                 <action/>
                                 <and>
                                     <ncheck started="helping_out::ant_trouble::the_ants::report_angela"/>
                                     <action start="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <message>You should let Angela know that we dealt with the situation successfully.</message>
+                                </and>
+                                <and>
+                                    <check started="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <message>You should let Angela know that we dealt with the situation successfully.</message>
+                                </and>
+                                <and>
+                                    <action start="report_sam"/>
+                                    <action complete="helping_out::ant_trouble::the_ants"/>
+                                    <action complete="helping_out::ant_trouble"/>
+                                    <action complete="helping_out"/>
+                                    <message color="navy">You should report your progress to Sam...</message>
                                 </and>
                                 <action complete="helping_out::ant_trouble::the_ants::slay_queen"/>
+                            </dialog>
+                        </interface>
+                        <interface inherit="interface" npc="Arvend Blessed" state="need_finish">
+                            <dialog name="hello">
+                                <response destination="proposed" message="Yes, she proposed to calm the ants."/>
+                                <inherit/>
+                                <message>Ah, you're back! Have you talked to the priestess yet?</message>
+                            </dialog>
+                            <dialog name="proposed">
+                                <message>WHAT!?! Calm them?! Preposterous!</message>
+                                <message>They need to be eradicated. I told Angela to make a poison tonic, not a calming one!</message>
+                                <and>
+                                    <check gender="male"/>
+                                    <message>There will be a hefty reward if you slay the queen, sire!</message>
+                                </and>
+                                <and>
+                                    <check gender="female"/>
+                                    <message>There will be a hefty reward if you slay the queen, lass!</message>
+                                </and>
                             </dialog>
                         </interface>
                     </part>
                     <part name="Making Friends" uid="befriend">
                         <info>Befriend the ants by dropping the calming tonic Angela gave you near some ants and a source of food (such as straw or hay).</info>
                     </part>
-                    <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
-                        <dialog name="hello">
-                            <inherit/>
-                            <message>Ah, you're back! Have you talked to the priestess yet?</message>
-                            <response destination="proposed" message="Yes, she proposed to calm the ants."/>
-                        </dialog>
-                        <dialog name="proposed">
-                            <message>WHAT!?! Calm them?! Preposterous!</message>
-                            <message>They need to be eradicated. I told Angela to make a poison tonic, not a calming one!</message>
-                            <and>
-                                <check gender="male"/>
-                                <message>There will be a hefty reward if you slay the queen, sire!</message>
-                            </and>
-                            <and>
-                                <check gender="female"/>
-                                <message>There will be a hefty reward if you slay the queen, lass!</message>
-                            </and>
-                        </dialog>
-                    </interface>
                 </part>
-                <part name="The Ants" uid="report_arvend"/>
             </part>
+        </part>
+        <part name="Back To You, Sam" uid="report_sam">
+            <info>Solving Arvend's ants problem, you decide to report back to Sam.</info>
         </part>
     </quest>
 </interfaces>
