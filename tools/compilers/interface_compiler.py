@@ -555,7 +555,7 @@ class TagCompilerCheck(TagCompilerAnd):
             elif attr == "num2finish":
                 self.precond.write("self.num2finish == {num}",
                                    num=repr(int(val)))
-            elif attr in ("started", "finished", "completed"):
+            elif attr in ("started", "finished", "completed", "failed"):
                 words = elem.attrib[attr].split(" ")
 
                 if len(words) == 2:
