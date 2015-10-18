@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-10-04 Alex Tokar
+Modified: 2015-10-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1431,6 +1431,7 @@ level 20
 type 83
 direction 1
 faction incuna_citizens
+invulnerable 1
 arch event_obj
 sub_type 6
 race /interfaces/quests/lost_memories/quest.xml
@@ -3918,6 +3919,7 @@ type 83
 faction incuna_citizens
 level 15
 name Ken Berger
+invulnerable 1
 arch event_obj
 sub_type 6
 race /interfaces/quests/lost_memories/quest.xml

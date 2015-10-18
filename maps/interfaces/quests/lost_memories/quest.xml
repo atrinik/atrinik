@@ -37,6 +37,13 @@
                 <message>Excuse me, I'm currently busy working on this decoction.</message>
             </dialog>
         </interface>
+        <interface inherit="Merchant.Buyer" npc="Tom Istrad">
+            <dialog name="hello">
+                <message>Welcome, traveler!</message>
+                <message>As usual, I'm looking for wolf pets to tan into leather. If you happen to have any, I would be interested in purchasing them from you.</message>
+                <inherit name="::goods"/>
+            </dialog>
+        </interface>
         <part name="The Priest" uid="speak_priest">
             <info>You have reached Incuna, and have started the attempt to get back your lost memories. Sam Goodberry has suggested that you go speak to the local church priest, who may be able to help you.</info>
             <interface npc="Sam Goodberry" state="need_start">
@@ -226,7 +233,77 @@
             <info>speak to the priests</info>
         </part>
         <part name="Shooting Practice" uid="archery">
-            <info>speak to tom</info>
+            <info>Sam has suggested that you go speak to the tanner, Tom Istrad, in order to choose a ranged weapon to use. []optional]</info>
+            <interface inherit="interface" npc="Tom Istrad" state="need_complete">
+                <dialog name="hello">
+                    <response destination="archery" message="I was told you could teach me the basics of archery."/>
+                    <inherit/>
+                </dialog>
+                <dialog name="archery">
+                    <message>
+                        Ah, so, Sam sent you, did he now? Yes. I suppose I could help you. First, tell me, what sort of a ranged weapon do you prefer?
+                        <object arch="bow_short" message="Bows have an average reload speed and moderate damage."/>
+                        <object arch="crossbow_small" message="Crossbows have a slow reload speed and high damage."/>
+                        <object arch="sling_small" message="Slings have a fast reload speed and low damage."/>
+                    </message>
+                    <message>In fact, I will let you take one of those basics weapons to practise with.</message>
+                    <response destination="bow" message="I'd like a bow."/>
+                    <response destination="crossbow" message="I'd like a crossbow."/>
+                    <response destination="sling" message="I'd like a sling."/>
+                </dialog>
+                <dialog name="bow">
+                    <message>
+                        Are you sure you want a bow?
+                        <object arch="bow_short"/>
+                    </message>
+                    <response destination="confirm_bow" message="Yes."/>
+                    <response destination="archery" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="crossbow">
+                    <message>
+                        Are you sure you want a crossbow?
+                        <object arch="crossbow_small"/>
+                    </message>
+                    <response destination="confirm_crossbow" message="Yes."/>
+                    <response destination="archery" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="sling">
+                    <message>
+                        Are you sure you want a sling?
+                        <object arch="sling_small"/>
+                    </message>
+                    <response destination="confirm_sling" message="Yes."/>
+                    <response destination="archery" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="::confirm_pre">
+                    <message>Alright, here you go!</message>
+                </dialog>
+                <dialog name="::confirm_post">
+                    <message color="yellow">During your instructions with {npc.name}, you feel a small part of your memories coming back to you...</message>
+                    <message>And that's pretty much it! No, no need to thank me, really!</message>
+                    <message>However, if you were to see any wolves... I would be willing to pay for their pelts!</message>
+                    <message>If you need any further practise, feel free to try shooting the target dummies!</message>
+                    <action complete="archery"/>
+                </dialog>
+                <dialog name="confirm_bow">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="bow_short"/>
+                    <message>Now, let me teach you how to handle that bow properly...</message>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_crossbow">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="crossbow_small"/>
+                    <message>Now, let me teach you how to handle that crossbow properly...</message>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_sling">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="sling_small"/>
+                    <message>Now, let me teach you how to handle that sling properly...</message>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+            </interface>
         </part>
         <part name="Helping Out" uid="helping_out">
             <info>According to Sam, a local tavern owner, Arvend Blessed, is in need of some assistance.</info>
@@ -244,6 +321,15 @@
                     </dialog>
                     <dialog name="working">
                         <message>Arvend seemed to be a bit on edge, I think the sooner you figure out what's troubling him the better.</message>
+                    </dialog>
+                </interface>
+                <interface npc="Sam Goodberry" state="need_complete">
+                    <dialog name="hello">
+                        <message>Have you spoken to Arvend Blessed yet?</message>
+                        <response destination="yes" message="Yes, his barn has an infestation problem."/>
+                    </dialog>
+                    <dialog name="yes">
+                        <message>Ah, I've heard about that while you've been running around. It seems Angela Sawthrow, a local priestess and herbalist, has been working on the issue. I would suggest chatting her up if you want to know the details.</message>
                     </dialog>
                 </interface>
                 <interface inherit="interface" npc="Arvend Blessed" state="need_start">

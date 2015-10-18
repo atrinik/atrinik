@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-10-06 Alex Tokar
+Modified: 2015-10-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2248,6 +2248,7 @@ direction 3
 name town guard
 faction incuna_guards
 randomitems mob_default
+level 18
 arch event_obj
 sub_type 6
 race /python/generic/npc_poker.py
@@ -2500,6 +2501,7 @@ type 83
 name town guard
 faction incuna_guards
 randomitems mob_default
+level 18
 arch event_obj
 sub_type 6
 race /python/generic/npc_poker.py
@@ -3594,14 +3596,12 @@ type 83
 direction 3
 faction incuna_citizens
 name Arvend Blessed
+level 5
 arch event_obj
 sub_type 6
 race /interfaces/quests/lost_memories/quest.xml
 arch beer
 end
-end
-arch silvercoin
-nrof 10
 end
 end
 end
@@ -4046,6 +4046,7 @@ type 83
 name town guard
 randomitems mob_guard_drunk
 faction incuna_guards
+level 18
 end
 end
 arch floor_wood3a
@@ -4842,6 +4843,7 @@ type 83
 direction 7
 randomitems mob_default
 faction incuna_citizens
+level 10
 end
 end
 arch floor_wood3g
