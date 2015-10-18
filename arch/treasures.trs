@@ -4727,6 +4727,9 @@ treasure mob_wolf
             chance_fix 199
         end
     end
+  more
+  arch wolf_pelt
+    chance_fix 7
 end
 
 treasure mob_crocodile
