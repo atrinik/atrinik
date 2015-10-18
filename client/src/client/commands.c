@@ -177,6 +177,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
             switch (type) {
             case CS_STAT_TARGET_HP:
                 cpl.target_hp = packet_to_uint8(data, len, &pos);
+                WIDGET_REDRAW_ALL(TARGET_ID);
                 break;
 
             case CS_STAT_REG_HP:
