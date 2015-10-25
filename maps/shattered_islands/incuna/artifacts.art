@@ -23,3 +23,12 @@ sub_type 1
 race /python/items/incuna_angelas_tonic.py
 end
 end
+
+Allowed none
+chance 1
+artifact incuna_tavern_barn_key
+def_arch key2
+Object
+name Incuna Tavern Barn Key
+slaying incuna_tavern_barn
+end

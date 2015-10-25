@@ -399,6 +399,8 @@
                         <dialog name="sure">
                             <message>Splendid. Here, take the tonic, should you decide to spare the ants. Just find a food source, for example some hay or straw that has ants swarming around it and pour the tonic somewhere nearby. The vapors alone should have instantaneous effects.</message>
                             <object arch="incuna_angelas_tonic" nrof="1"/>
+                            <message>I almost forgot. Arvend has given me this key to unlock the barn. I think you better take it, Arvend almost always locks the barn. You can access it from inside his tavern.</message>
+                            <object arch="incuna_tavern_barn_key" nrof="1"/>
                             <action start="helping_out::ant_trouble::the_ants"/>
                             <action start="helping_out::ant_trouble::the_ants::slay_queen"/>
                             <action start="helping_out::ant_trouble::the_ants::befriend"/>

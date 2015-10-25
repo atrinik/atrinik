@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-10-18 Alex Tokar
+Modified: 2015-10-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -138,12 +138,12 @@ y 16
 end
 arch door_wood1
 direction 3
-slaying incuna_tavern_storage
+slaying incuna_tavern_barn
 sp 2
 y 16
 end
 arch check_inv
-slaying incuna_tavern_storage
+slaying incuna_tavern_barn
 sp 1
 last_grace 1
 y 16
@@ -176,7 +176,6 @@ arch floor_wood3a
 y 21
 end
 arch door_wood1
-player_only 1
 direction 5
 y 21
 end
@@ -1185,8 +1184,8 @@ slaying incuna_marshes
 name incuna_marshes
 end
 arch key2
-slaying incuna_tavern_storage
-name incuna_tavern_storage
+slaying incuna_tavern_barn
+name incuna_tavern_barn
 end
 arch key2
 slaying incuna_tavern
