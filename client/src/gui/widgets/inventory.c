@@ -504,10 +504,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
     if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_WHEELUP) {
-            widget_inventory_handle_arrow_key(widget, SDLK_LEFT);
+            widget_inventory_handle_arrow_key(widget, SDLK_UP);
             return 1;
         } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
-            widget_inventory_handle_arrow_key(widget, SDLK_RIGHT);
+            widget_inventory_handle_arrow_key(widget, SDLK_DOWN);
             return 1;
         }
     }
