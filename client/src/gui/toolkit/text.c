@@ -862,19 +862,17 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             /* Find the ending tag. */
             tag2 = strstr(tag + tag_len, "[/center]");
 
-            if (tag2 && box && box->w) {
-                char *buf = emalloc(tag2 - cp - 8 + 1);
-                int w;
-
+            if (tag2 != NULL && box != NULL && box->w != 0) {
                 /* Copy the string between [center] and [/center] to a
                  * temporary buffer so we can calculate its width. */
+                char *buf = emalloc(tag2 - cp - 8 + 1);
                 memcpy(buf, cp + 8, tag2 - cp - 8);
                 buf[tag2 - cp - 8] = '\0';
-                w = dest->x + box->w / 2 - text_get_width(*font, buf, flags) / 2;
+                int text_width = text_get_width(*font, buf, flags);
                 efree(buf);
 
-                if (surface) {
-                    dest->x = w;
+                if (surface != NULL && text_width < box->w - dest->x) {
+                    dest->x += box->w / 2 - text_width / 2;
                 }
             }
         } else if (tag_len == 7 && strncmp(tag, "/center", tag_len) == 0) {
