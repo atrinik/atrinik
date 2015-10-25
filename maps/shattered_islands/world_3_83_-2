@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2015-04-24 Alex Tokar
+Modified: 2015-10-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,109 +10,399 @@ difficulty 1
 darkness 2
 region incuna
 end
-arch floor_sand_d2
-x 10
-y 18
+arch floor_sand_d1
+z 24
+y 19
 end
 arch wall_cave1.111
-x 10
-y 18
-end
-arch water_lt2
-x 10
 y 19
 end
 arch water_lt2
-x 10
+z 24
 y 20
 end
-arch floor_sand_d2
-x 10
+arch water_lt2
+z 24
 y 21
+end
+arch floor_sand_d2
+z 24
+y 22
 end
 arch wall_cave1.151
-x 10
-y 21
+y 22
 end
-arch floor_sand_d1
-x 11
-y 18
+arch floor_sand_d4
+z 24
+x 1
+y 19
 end
 arch wall_cave1.111
-x 11
-y 18
+x 1
+y 19
 end
 arch water_lt4
-x 11
-y 19
-end
-arch water_lt
-x 11
+z 24
+x 1
 y 20
 end
-arch floor_sand_d2
-x 11
+arch water_lt
+z 24
+x 1
 y 21
 end
+arch floor_sand_d2
+z 24
+x 1
+y 22
+end
 arch wall_cave1.151
-x 11
+x 1
+y 22
+end
+arch floor_sand_d4
+z 24
+x 2
+y 19
+end
+arch wall_cave1.111
+x 2
+y 19
+end
+arch water_lt2
+z 24
+x 2
+y 20
+end
+arch water_lt4
+z 24
+x 2
 y 21
 end
 arch floor_sand_d4
+z 24
+x 2
+y 22
+end
+arch wall_cave1.151
+x 2
+y 22
+end
+arch floor_sand_d2
+z 24
+x 3
+y 19
+end
+arch wall_cave1.111
+x 3
+y 19
+end
+arch water_lt4
+z 24
+x 3
+y 20
+end
+arch water_lt2
+z 24
+x 3
+y 21
+end
+arch floor_sand_d4
+z 24
+x 3
+y 22
+end
+arch wall_cave1.151
+x 3
+y 22
+end
+arch floor_sand_d1
+z 24
+x 4
+y 19
+end
+arch wall_cave1.111
+x 4
+y 19
+end
+arch water_lt2
+z 24
+x 4
+y 20
+end
+arch water_lt2
+z 24
+x 4
+y 21
+end
+arch floor_sand_d2
+z 24
+x 4
+y 22
+end
+arch wall_cave1.151
+x 4
+y 22
+end
+arch floor_sand_d4
+z 24
+x 5
+y 19
+end
+arch wall_cave1.111
+x 5
+y 19
+end
+arch water_lt4
+z 24
+x 5
+y 20
+end
+arch water_lt
+z 24
+x 5
+y 21
+end
+arch floor_sand_d2
+z 24
+x 5
+y 22
+end
+arch wall_cave1.151
+x 5
+y 22
+end
+arch floor_sand_d4
+z 24
+x 6
+y 19
+end
+arch wall_cave1.111
+x 6
+y 19
+end
+arch water_lt2
+z 24
+x 6
+y 20
+end
+arch water_lt4
+z 24
+x 6
+y 21
+end
+arch floor_sand_d4
+z 24
+x 6
+y 22
+end
+arch wall_cave1.151
+x 6
+y 22
+end
+arch floor_sand_d1
+z 24
+x 7
+y 19
+end
+arch wall_cave1.111
+x 7
+y 19
+end
+arch water_lt2
+z 24
+x 7
+y 20
+end
+arch water_lt2
+z 24
+x 7
+y 21
+end
+arch floor_sand_d2
+z 24
+x 7
+y 22
+end
+arch wall_cave1.151
+x 7
+y 22
+end
+arch floor_sand_d4
+z 24
+x 8
+y 19
+end
+arch wall_cave1.111
+x 8
+y 19
+end
+arch water_lt4
+z 24
+x 8
+y 20
+end
+arch water_lt
+z 24
+x 8
+y 21
+end
+arch floor_sand_d2
+z 24
+x 8
+y 22
+end
+arch wall_cave1.151
+x 8
+y 22
+end
+arch floor_sand_d4
+z 24
+x 9
+y 19
+end
+arch wall_cave1.111
+x 9
+y 19
+end
+arch water_lt2
+z 24
+x 9
+y 20
+end
+arch water_lt4
+z 24
+x 9
+y 21
+end
+arch floor_sand_d4
+z 24
+x 9
+y 22
+end
+arch wall_cave1.151
+x 9
+y 22
+end
+arch floor_sand_d2
+z 24
+x 10
+y 19
+end
+arch wall_cave1.111
+x 10
+y 19
+end
+arch water_lt4
+z 24
+x 10
+y 20
+end
+arch water_lt2
+z 24
+x 10
+y 21
+end
+arch floor_sand_d4
+z 24
+x 10
+y 22
+end
+arch wall_cave1.151
+x 10
+y 22
+end
+arch floor_sand_d1
+z 24
+x 11
+y 19
+end
+arch wall_cave1.111
+x 11
+y 19
+end
+arch water_lt2
+z 24
+x 11
+y 20
+end
+arch water_lt2
+z 24
+x 11
+y 21
+end
+arch floor_sand_d2
+z 24
+x 11
+y 22
+end
+arch wall_cave1.151
+x 11
+y 22
+end
+arch floor_sand_d4
+z 24
 x 12
-y 6
+y 7
 end
 arch wall_cave1.181
 x 12
-y 6
+y 7
 end
 arch floor_sand_d2
+z 24
 x 12
-y 7
+y 8
 end
 arch wall_cave1.171
 x 12
-y 7
+y 8
 end
 arch floor_sand_d4
+z 24
 x 12
-y 8
+y 9
 end
 arch wall_cave1.171
 x 12
-y 8
+y 9
 end
 arch floor_sand_d1
+z 24
 x 12
-y 9
+y 10
 end
 arch wall_cave1b.161
 x 12
-y 9
+y 10
 end
 arch floor_sand_d4
+z 24
 x 12
-y 18
+y 19
 end
 arch wall_cave1.111
-x 12
-y 18
-end
-arch water_lt2
 x 12
 y 19
 end
 arch water_lt4
+z 24
 x 12
 y 20
 end
-arch floor_sand_d4
+arch water_lt
+z 24
 x 12
 y 21
 end
+arch floor_sand_d2
+z 24
+x 12
+y 22
+end
 arch wall_cave1.151
 x 12
-y 21
+y 22
 end
 arch blocked
 x 13
@@ -126,81 +416,92 @@ x 13
 y 2
 end
 arch floor_sand_d4
+z 24
 x 13
-y 5
+y 6
 end
 arch wall_cave1.181
 x 13
-y 5
+y 6
 end
 arch floor_sand_d1
+z 24
 x 13
-y 6
+y 7
 end
 arch wall_cave1.141
 x 13
-y 6
+y 7
 end
 arch floor_sand_d3
+z 24
 x 13
-y 7
+y 8
 end
 arch rock5
 x 13
-y 7
+y 8
 end
 arch floor_sand_d4
+z 24
 x 13
-y 8
+y 9
 end
 arch rock1
 x 13
-y 8
+y 9
 end
 arch floor_sand_d1
+z 24
 x 13
-y 9
+y 10
 end
 arch wall_cave1.121
 x 13
-y 9
+y 10
 end
 arch floor_sand_d1
+z 24
 x 13
-y 10
+y 11
 end
 arch wall_cave1b.161
 x 13
-y 10
+y 11
 end
 arch floor_sand_d4
+z 24
 x 13
-y 18
+y 19
 end
 arch wall_cave1.111
-x 13
-y 18
-end
-arch water_lt4
 x 13
 y 19
 end
 arch water_lt2
+z 24
 x 13
 y 20
 end
-arch floor_sand_d4
+arch water_lt4
+z 24
 x 13
 y 21
 end
+arch floor_sand_d4
+z 24
+x 13
+y 22
+end
 arch wall_cave1.151
 x 13
-y 21
+y 22
 end
 arch blocked
 x 14
 end
 arch floor_ruin3
+z 24
 x 14
 y 1
 end
@@ -216,7 +517,7 @@ x 14
 y 1
 end
 arch grassd_2
-z 3
+z 24
 x 14
 y 2
 end
@@ -225,80 +526,90 @@ blocksview 1
 x 14
 y 2
 end
-arch floor_sand_d3
+arch floor_sand_d1
+z 24
 x 14
 y 3
 end
 arch wall_cave1.171
 x 14
 y 3
+end
+arch floor_sand_d3
+z 24
+x 14
+y 4
+end
+arch wall_cave1.171
+x 14
+y 4
 end
 arch floor_sand_d1
+z 24
 x 14
-y 4
+y 5
 end
 arch wall_cave1.171
 x 14
-y 4
+y 5
 end
 arch floor_sand_d4
+z 24
 x 14
-y 5
+y 6
 end
 arch wall_cave1.141
 x 14
-y 5
+y 6
 end
 arch floor_sand_d3
+z 24
 x 14
-y 6
+y 7
 end
 arch rock6
 x 14
-y 6
+y 7
 end
 arch floor_sand_d3
+z 24
 x 14
-y 7
+y 8
 end
 arch small_stones
 x 14
-y 7
+y 8
 end
 arch floor_sand_d1
+z 24
 x 14
-y 8
+y 9
 end
 arch ladder_down
 direction 7
 x 14
-y 8
+y 9
 end
 arch floor_sand_d3
+z 24
 x 14
-y 9
+y 10
 end
 arch stone1
 x 14
-y 9
+y 10
 end
 arch floor_sand_d2
+z 24
 x 14
-y 10
+y 11
 end
 arch wall_cave1.121
 x 14
-y 10
+y 11
 end
 arch floor_sand_d3
-x 14
-y 11
-end
-arch wall_cave1.171
-x 14
-y 11
-end
-arch floor_sand_d2
+z 24
 x 14
 y 12
 end
@@ -307,30 +618,34 @@ x 14
 y 12
 end
 arch floor_sand_d2
+z 24
 x 14
 y 13
 end
 arch wall_cave1.171
 x 14
 y 13
-end
-arch floor_sand_d1
-x 14
-y 14
-end
-arch wall_cave1.171
-x 14
-y 14
-end
-arch floor_sand_d1
-x 14
-y 15
-end
-arch wall_cave1.171
-x 14
-y 15
 end
 arch floor_sand_d2
+z 24
+x 14
+y 14
+end
+arch wall_cave1.171
+x 14
+y 14
+end
+arch floor_sand_d1
+z 24
+x 14
+y 15
+end
+arch wall_cave1.171
+x 14
+y 15
+end
+arch floor_sand_d1
+z 24
 x 14
 y 16
 end
@@ -338,42 +653,57 @@ arch wall_cave1.171
 x 14
 y 16
 end
-arch floor_sand_d3
+arch floor_sand_d2
+z 24
 x 14
 y 17
+end
+arch wall_cave1.171
+x 14
+y 17
+end
+arch floor_sand_d3
+z 24
+x 14
+y 18
 end
 arch wall_cave1b.161
 x 14
-y 17
+y 18
 end
 arch floor_sand_d2
-x 14
-y 18
-end
-arch wall_cave1.111
-x 14
-y 18
-end
-arch water_lt4
+z 24
 x 14
 y 19
 end
-arch water_lt3
+arch wall_cave1.111
+x 14
+y 19
+end
+arch water_lt4
+z 24
 x 14
 y 20
 end
-arch floor_sand_d2
+arch water_lt2
+z 24
 x 14
 y 21
 end
+arch floor_sand_d4
+z 24
+x 14
+y 22
+end
 arch wall_cave1.151
 x 14
-y 21
+y 22
 end
 arch blocked
 x 15
 end
 arch floor_ruin2
+z 24
 x 15
 y 1
 end
@@ -382,6 +712,7 @@ x 15
 y 1
 end
 arch floor_ruin5
+z 24
 x 15
 y 2
 end
@@ -389,117 +720,142 @@ arch sand_dm11
 x 15
 y 2
 end
-arch floor_sand_d4
+arch floor_sand_d2
+z 24
 x 15
 y 3
+end
+arch floor_sand_d4
+z 24
+x 15
+y 4
 end
 arch torch_wall_1
 direction 5
 align -12
 z -6
 x 15
-y 3
-end
-arch floor_sand_d2
-x 15
 y 4
 end
-arch floor_sand_d1
+arch floor_sand_d2
+z 24
 x 15
 y 5
 end
-arch floor_sand_d2
+arch floor_sand_d1
+z 24
 x 15
 y 6
 end
-arch floor_sand_d3
+arch floor_sand_d2
+z 24
 x 15
 y 7
 end
-arch floor_sand_d2
+arch floor_sand_d3
+z 24
 x 15
 y 8
 end
-arch floor_sand_d1
+arch floor_sand_d2
+z 24
 x 15
 y 9
 end
 arch floor_sand_d1
+z 24
 x 15
 y 10
 end
-arch small_stones
-x 15
-y 10
-end
-arch floor_sand_d4
+arch floor_sand_d1
+z 24
 x 15
 y 11
 end
-arch floor_sand_d2
+arch small_stones
+x 15
+y 11
+end
+arch floor_sand_d4
+z 24
 x 15
 y 12
 end
-arch floor_sand_d1
+arch floor_sand_d2
+z 24
 x 15
 y 13
 end
-arch floor_sand_d2
+arch floor_sand_d1
+z 24
 x 15
 y 14
 end
 arch floor_sand_d2
+z 24
 x 15
 y 15
+end
+arch floor_sand_d2
+z 24
+x 15
+y 16
 end
 arch small_stones
 x 15
-y 15
+y 16
 end
 arch floor_sand_d4
+z 24
 x 15
-y 16
+y 17
 end
 arch rock2
 x 15
-y 16
+y 17
 end
 arch floor_sand_d2
+z 24
 x 15
-y 17
+y 18
 end
 arch wall_cave1.121
 x 15
-y 17
+y 18
 end
 arch floor_sand_d1
+z 24
 x 15
-y 18
+y 19
 end
 arch wall_cave1.141
 x 15
-y 18
-end
-arch water_lt4
-x 15
 y 19
 end
-arch water_lt2
+arch water_lt4
+z 24
 x 15
 y 20
+end
+arch water_lt3
+z 24
+x 15
+y 21
 end
 arch floor_sand_d2
+z 24
 x 15
-y 21
+y 22
 end
 arch wall_cave1.151
 x 15
-y 21
+y 22
 end
 arch blocked
 x 16
 end
-arch water_lt3
+arch water_lt2
+z 24
 x 16
 y 1
 end
@@ -509,7 +865,8 @@ align -20
 x 16
 y 1
 end
-arch water_lt4
+arch water_lt3
+z 24
 x 16
 y 2
 end
@@ -518,58 +875,64 @@ z 7
 align -20
 x 16
 y 2
+end
+arch water_lt4
+z 24
+x 16
+y 3
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 16
+y 3
 end
 arch water_lt2
+z 24
 x 16
-y 3
+y 4
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 3
+y 4
 end
 arch water_lt
+z 24
 x 16
-y 4
+y 5
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 4
+y 5
 end
 arch water_lt4
+z 24
 x 16
-y 5
+y 6
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 5
+y 6
 end
 arch water_lt2
+z 24
 x 16
-y 6
+y 7
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 6
+y 7
 end
 arch water_lt3
-x 16
-y 7
-end
-arch flagwall_short_brick1.131
-z 7
-align -20
-x 16
-y 7
-end
-arch water_lt
+z 24
 x 16
 y 8
 end
@@ -580,6 +943,7 @@ x 16
 y 8
 end
 arch water_lt
+z 24
 x 16
 y 9
 end
@@ -590,6 +954,7 @@ x 16
 y 9
 end
 arch water_lt
+z 24
 x 16
 y 10
 end
@@ -600,6 +965,7 @@ x 16
 y 10
 end
 arch water_lt
+z 24
 x 16
 y 11
 end
@@ -610,6 +976,7 @@ x 16
 y 11
 end
 arch water_lt
+z 24
 x 16
 y 12
 end
@@ -620,6 +987,7 @@ x 16
 y 12
 end
 arch water_lt
+z 24
 x 16
 y 13
 end
@@ -628,77 +996,97 @@ z 7
 align -20
 x 16
 y 13
+end
+arch water_lt
+z 24
+x 16
+y 14
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 16
+y 14
 end
 arch water_lt3
+z 24
 x 16
-y 14
+y 15
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 14
+y 15
 end
 arch water_lt
+z 24
 x 16
-y 15
+y 16
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 15
+y 16
 end
 arch water_lt2
+z 24
 x 16
-y 16
+y 17
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 16
+y 17
 end
 arch water_lt4
+z 24
 x 16
-y 17
+y 18
 end
 arch flagwall_short_brick1.131
 z 7
 align -20
 x 16
-y 17
+y 18
 end
 arch water_lt3
-x 16
-y 18
-end
-arch flagwall_short_brick1.131
-z 7
-align -20
-x 16
-y 18
-end
-arch water_lt2
+z 24
 x 16
 y 19
 end
-arch water_lt3
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 16
+y 19
+end
+arch water_lt4
+z 24
 x 16
 y 20
 end
-arch water_lt3
+arch water_lt2
+z 24
 x 16
 y 21
 end
+arch floor_sand_d2
+z 24
+x 16
+y 22
+end
 arch wall_cave1.151
 x 16
-y 21
+y 22
 end
 arch blocked
 x 17
 end
-arch water_lt4
+arch water_lt3
+z 24
 x 17
 y 1
 end
@@ -706,7 +1094,8 @@ arch flagwall_short_brick1.131
 x 17
 y 1
 end
-arch water_lt3
+arch water_lt4
+z 24
 x 17
 y 2
 end
@@ -715,6 +1104,7 @@ x 17
 y 2
 end
 arch water_lt3
+z 24
 x 17
 y 3
 end
@@ -722,7 +1112,8 @@ arch flagwall_short_brick1.131
 x 17
 y 3
 end
-arch water_lt2
+arch water_lt3
+z 24
 x 17
 y 4
 end
@@ -731,30 +1122,34 @@ x 17
 y 4
 end
 arch water_lt2
+z 24
 x 17
 y 5
 end
 arch flagwall_short_brick1.131
 x 17
 y 5
+end
+arch water_lt2
+z 24
+x 17
+y 6
+end
+arch flagwall_short_brick1.131
+x 17
+y 6
 end
 arch water_lt4
+z 24
 x 17
-y 6
+y 7
 end
 arch flagwall_short_brick1.131
 x 17
-y 6
+y 7
 end
 arch water_lt
-x 17
-y 7
-end
-arch flagwall_short_brick1.131
-x 17
-y 7
-end
-arch water_lt4
+z 24
 x 17
 y 8
 end
@@ -763,22 +1158,25 @@ x 17
 y 8
 end
 arch water_lt4
+z 24
 x 17
 y 9
 end
 arch flagwall_short_brick1.131
 x 17
 y 9
-end
-arch water_lt3
-x 17
-y 10
-end
-arch flagwall_short_brick1.131
-x 17
-y 10
 end
 arch water_lt4
+z 24
+x 17
+y 10
+end
+arch flagwall_short_brick1.131
+x 17
+y 10
+end
+arch water_lt3
+z 24
 x 17
 y 11
 end
@@ -786,7 +1184,8 @@ arch flagwall_short_brick1.131
 x 17
 y 11
 end
-arch water_lt3
+arch water_lt4
+z 24
 x 17
 y 12
 end
@@ -795,6 +1194,7 @@ x 17
 y 12
 end
 arch water_lt3
+z 24
 x 17
 y 13
 end
@@ -803,30 +1203,34 @@ x 17
 y 13
 end
 arch water_lt3
+z 24
 x 17
 y 14
 end
 arch flagwall_short_brick1.131
 x 17
 y 14
+end
+arch water_lt3
+z 24
+x 17
+y 15
+end
+arch flagwall_short_brick1.131
+x 17
+y 15
 end
 arch water_lt
+z 24
 x 17
-y 15
+y 16
 end
 arch flagwall_short_brick1.131
 x 17
-y 15
+y 16
 end
 arch water_lt4
-x 17
-y 16
-end
-arch flagwall_short_brick1.131
-x 17
-y 16
-end
-arch water_lt3
+z 24
 x 17
 y 17
 end
@@ -835,6 +1239,7 @@ x 17
 y 17
 end
 arch water_lt3
+z 24
 x 17
 y 18
 end
@@ -842,26 +1247,39 @@ arch flagwall_short_brick1.131
 x 17
 y 18
 end
-arch water_lt4
+arch water_lt3
+z 24
 x 17
 y 19
 end
-arch water_lt3
+arch flagwall_short_brick1.131
+x 17
+y 19
+end
+arch water_lt2
+z 24
 x 17
 y 20
 end
-arch floor_sand_d4
+arch water_lt3
+z 24
 x 17
 y 21
 end
+arch water_lt3
+z 24
+x 17
+y 22
+end
 arch wall_cave1.151
 x 17
-y 21
+y 22
 end
 arch blocked
 x 18
 end
 arch floor_ruin3
+z 24
 x 18
 y 1
 end
@@ -873,6 +1291,7 @@ x 18
 y 1
 end
 arch floor_ruin2
+z 24
 x 18
 y 2
 end
@@ -881,46 +1300,50 @@ x 18
 y 2
 end
 arch floor_sand_d4
+z 24
 x 18
 y 3
 end
-arch floor_sand_d3
+arch floor_sand_d4
+z 24
 x 18
 y 4
 end
 arch floor_sand_d3
+z 24
 x 18
 y 5
 end
 arch floor_sand_d3
+z 24
 x 18
 y 6
 end
 arch floor_sand_d3
+z 24
 x 18
 y 7
+end
+arch floor_sand_d3
+z 24
+x 18
+y 8
 end
 arch small_stones
 x 18
-y 7
+y 8
 end
 arch floor_sand_d1
+z 24
 x 18
-y 8
+y 9
 end
 arch wall_cave1.101
 x 18
-y 8
+y 9
 end
 arch floor_sand_d2
-x 18
-y 9
-end
-arch wall_cave1.131
-x 18
-y 9
-end
-arch floor_sand_d1
+z 24
 x 18
 y 10
 end
@@ -928,7 +1351,8 @@ arch wall_cave1.131
 x 18
 y 10
 end
-arch floor_sand_d2
+arch floor_sand_d1
+z 24
 x 18
 y 11
 end
@@ -936,7 +1360,8 @@ arch wall_cave1.131
 x 18
 y 11
 end
-arch floor_sand_d1
+arch floor_sand_d2
+z 24
 x 18
 y 12
 end
@@ -945,71 +1370,90 @@ x 18
 y 12
 end
 arch floor_sand_d1
+z 24
 x 18
 y 13
 end
 arch wall_cave1.131
 x 18
 y 13
+end
+arch floor_sand_d1
+z 24
+x 18
+y 14
+end
+arch wall_cave1.131
+x 18
+y 14
 end
 arch floor_sand_d4
+z 24
 x 18
-y 14
+y 15
 end
 arch wall_cave1.131
 x 18
-y 14
+y 15
 end
 arch floor_sand_d2
+z 24
 x 18
-y 15
+y 16
 end
 arch wall_cave1.161
 x 18
-y 15
+y 16
 end
 arch floor_sand_d3
-x 18
-y 16
-end
-arch small_stones
-x 18
-y 16
-end
-arch floor_sand_d2
+z 24
 x 18
 y 17
 end
-arch floor_sand_d4
+arch small_stones
+x 18
+y 17
+end
+arch floor_sand_d2
+z 24
 x 18
 y 18
 end
-arch water_lt3
+arch floor_sand_d4
+z 24
 x 18
 y 19
+end
+arch water_lt4
+z 24
+x 18
+y 20
 end
 arch flagwall_short_brick1.111
 align 24
 z 12
 x 18
-y 19
-end
-arch water_lt
-x 18
 y 20
 end
 arch water_lt3
+z 24
 x 18
 y 21
 end
+arch floor_sand_d4
+z 24
+x 18
+y 22
+end
 arch wall_cave1.151
 x 18
-y 21
+y 22
 end
 arch blocked
 x 19
 end
 arch floor_ruin3
+z 24
 x 19
 y 1
 end
@@ -1025,6 +1469,7 @@ x 19
 y 1
 end
 arch grassd_1
+z 24
 x 19
 y 2
 end
@@ -1034,6 +1479,7 @@ x 19
 y 2
 end
 arch floor_sand_d3
+z 24
 x 19
 y 3
 end
@@ -1042,94 +1488,115 @@ x 19
 y 3
 end
 arch floor_sand_d3
+z 24
 x 19
 y 4
 end
 arch wall_cave1.131
 x 19
 y 4
-end
-arch floor_sand_d2
-x 19
-y 5
-end
-arch wall_cave1.131
-x 19
-y 5
-end
-arch floor_sand_d2
-x 19
-y 6
-end
-arch wall_cave1.131
-x 19
-y 6
-end
-arch floor_sand_d2
-x 19
-y 7
-end
-arch wall_cave1.131
-x 19
-y 7
 end
 arch floor_sand_d3
+z 24
+x 19
+y 5
+end
+arch wall_cave1.131
+x 19
+y 5
+end
+arch floor_sand_d2
+z 24
+x 19
+y 6
+end
+arch wall_cave1.131
+x 19
+y 6
+end
+arch floor_sand_d2
+z 24
+x 19
+y 7
+end
+arch wall_cave1.131
+x 19
+y 7
+end
+arch floor_sand_d2
+z 24
 x 19
 y 8
+end
+arch wall_cave1.131
+x 19
+y 8
+end
+arch floor_sand_d3
+z 24
+x 19
+y 9
 end
 arch wall_cave1b.141
 x 19
-y 8
+y 9
 end
 arch floor_sand_d4
+z 24
 x 19
-y 15
+y 16
 end
 arch wall_cave1b.121
 x 19
-y 15
+y 16
 end
 arch floor_sand_d1
+z 24
 x 19
-y 16
+y 17
 end
 arch wall_cave1.161
 x 19
-y 16
-end
-arch floor_sand_d1
-x 19
-y 17
-end
-arch rock1
-x 19
 y 17
 end
 arch floor_sand_d1
+z 24
 x 19
 y 18
 end
-arch water_lt
+arch rock1
+x 19
+y 18
+end
+arch floor_sand_d1
+z 24
 x 19
 y 19
+end
+arch water_lt3
+z 24
+x 19
+y 20
 end
 arch flagwall_short_brick1.111
 align 24
 z 12
 x 19
-y 19
-end
-arch water_lt
-x 19
 y 20
 end
-arch water_lt4
+arch water_lt
+z 24
 x 19
 y 21
+end
+arch water_lt3
+z 24
+x 19
+y 22
 end
 arch wall_cave1.151
 x 19
-y 21
+y 22
 end
 arch blocked
 x 20
@@ -1143,146 +1610,167 @@ x 20
 y 2
 end
 arch floor_sand_d4
+z 24
 x 20
-y 16
+y 17
 end
 arch wall_cave1b.121
 x 20
-y 16
+y 17
 end
 arch floor_sand_d1
+z 24
 x 20
-y 17
+y 18
 end
 arch wall_cave1.161
 x 20
-y 17
+y 18
 end
 arch floor_sand_d2
-x 20
-y 18
-end
-arch water_lt2
+z 24
 x 20
 y 19
 end
-arch flagwall_short_brick1.111
-align 24
-z 12
-x 20
-y 19
-end
-arch water_lt3
+arch water_lt
+z 24
 x 20
 y 20
 end
-arch water_lt3
+arch flagwall_short_brick1.111
+align 24
+z 12
 x 20
-y 21
-end
-arch wall_cave1.151
-x 20
-y 21
-end
-arch floor_sand_d4
-x 21
-y 17
-end
-arch wall_cave1.111
-x 21
-y 17
-end
-arch floor_sand_d1
-x 21
-y 18
-end
-arch water_lt2
-x 21
-y 19
-end
-arch flagwall_short_brick1.111
-align 24
-z 12
-x 21
-y 19
-end
-arch water_lt4
-x 21
-y 20
-end
-arch water_lt4
-x 21
-y 21
-end
-arch wall_cave1.151
-x 21
-y 21
-end
-arch floor_sand_d2
-x 22
-y 17
-end
-arch wall_cave1.111
-x 22
-y 17
-end
-arch floor_sand_d3
-x 22
-y 18
-end
-arch water_lt2
-x 22
-y 19
-end
-arch flagwall_short_brick1.111
-align 24
-z 12
-x 22
-y 19
-end
-arch water_lt4
-x 22
-y 20
-end
-arch water_lt4
-x 22
-y 21
-end
-arch wall_cave1.151
-x 22
-y 21
-end
-arch floor_sand_d4
-x 23
-y 17
-end
-arch wall_cave1.111
-x 23
-y 17
-end
-arch floor_sand_d4
-x 23
-y 18
-end
-arch water_lt3
-x 23
-y 19
-end
-arch flagwall_short_brick1.111
-align 24
-z 12
-x 23
-y 19
-end
-arch water_lt3
-x 23
 y 20
 end
 arch water_lt
+z 24
+x 20
+y 21
+end
+arch water_lt4
+z 24
+x 20
+y 22
+end
+arch wall_cave1.151
+x 20
+y 22
+end
+arch floor_sand_d2
+z 24
+x 21
+y 18
+end
+arch wall_cave1.111
+x 21
+y 18
+end
+arch floor_sand_d3
+z 24
+x 21
+y 19
+end
+arch water_lt2
+z 24
+x 21
+y 20
+end
+arch flagwall_short_brick1.111
+align 24
+z 12
+x 21
+y 20
+end
+arch water_lt3
+z 24
+x 21
+y 21
+end
+arch water_lt3
+z 24
+x 21
+y 22
+end
+arch wall_cave1.151
+x 21
+y 22
+end
+arch floor_sand_d4
+z 24
+x 22
+y 18
+end
+arch wall_cave1.111
+x 22
+y 18
+end
+arch floor_sand_d1
+z 24
+x 22
+y 19
+end
+arch water_lt2
+z 24
+x 22
+y 20
+end
+arch flagwall_short_brick1.111
+align 24
+z 12
+x 22
+y 20
+end
+arch water_lt4
+z 24
+x 22
+y 21
+end
+arch water_lt4
+z 24
+x 22
+y 22
+end
+arch wall_cave1.151
+x 22
+y 22
+end
+arch floor_sand_d2
+z 24
+x 23
+y 18
+end
+arch wall_cave1.111
+x 23
+y 18
+end
+arch floor_sand_d3
+z 24
+x 23
+y 19
+end
+arch water_lt2
+z 24
+x 23
+y 20
+end
+arch flagwall_short_brick1.111
+align 24
+z 12
+x 23
+y 20
+end
+arch water_lt4
+z 24
 x 23
 y 21
 end
+arch water_lt4
+z 24
+x 23
+y 22
+end
 arch wall_cave1.151
 x 23
-y 21
+y 22
 end
