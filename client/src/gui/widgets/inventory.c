@@ -607,10 +607,20 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                     event_dragging_set_callback(event_drag_cb);
                 }
             } else {
-                widget_inventory_handle_apply(widget);
+                if (SDL_GetTicks() - inventory->last_clicked <
+                        DOUBLE_CLICK_DELAY) {
+                    widget_inventory_handle_apply(widget);
+                    inventory->last_clicked = 0;
+                } else {
+                    inventory->last_clicked = SDL_GetTicks();
+                }
             }
 
-            inventory->selected = i;
+            if (inventory->selected != i) {
+                inventory->selected = i;
+                inventory->last_clicked = 0;
+            }
+
             widget->redraw = 1;
 
             return 1;

@@ -108,6 +108,9 @@ typedef struct inventory_struct {
 
     /** Texture to use for the background. */
     texture_struct *texture;
+
+    /** When the inventory was last clicked. */
+    uint32_t last_clicked;
 } inventory_struct;
 
 #endif
