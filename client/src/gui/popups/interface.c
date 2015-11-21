@@ -161,7 +161,7 @@ static int popup_draw_func(popup_struct *popup)
             request_face(interface_data->anim->face);
             object_show_centered(popup->surface, interface_data->anim,
                     INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY,
-                    INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+                    INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT, false);
         }
 
         box.w = INTERFACE_TITLE_WIDTH;

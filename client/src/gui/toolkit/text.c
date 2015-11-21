@@ -1346,15 +1346,17 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             if (surface) {
                 tag_t id;
                 int wd, ht;
+                int fit = 0;
 
                 wd = ht = INVENTORY_ICON_SIZE;
 
-                if (sscanf(tag + 4, "%" SCNu32 " %d %d", &id, &wd, &ht) >= 1) {
+                if (sscanf(tag + 4, "%" SCNu32 " %d %d %d", &id, &wd, &ht,
+                           &fit) >= 1) {
                     object *tmp = object_find(id);
 
                     if (tmp != NULL) {
                         object_show_centered(surface, tmp, dest->x, dest->y,
-                                wd, ht);
+                                wd, ht, !!fit);
                     }
                 }
             }

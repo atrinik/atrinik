@@ -852,7 +852,7 @@ void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
     SDL_Surface *icon;
 
     object_show_centered(surface, tmp, x, y, INVENTORY_ICON_SIZE,
-            INVENTORY_ICON_SIZE);
+            INVENTORY_ICON_SIZE, false);
 
     if (tmp->nrof > 1) {
         char buf[64];

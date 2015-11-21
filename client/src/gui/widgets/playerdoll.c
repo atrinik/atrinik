@@ -219,7 +219,7 @@ static void widget_draw(widgetdata *widget)
         }
 
         object_show_centered(widget->surface, obj, xpos + xoff, ypos + yoff,
-                INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE);
+                INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE, false);
     }
 }
 

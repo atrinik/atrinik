@@ -726,7 +726,7 @@ int main(int argc, char *argv[])
 
             SDL_GetMouseState(&mx, &my);
             object_show_centered(ScreenSurface, object_find(cpl.dragging_tag),
-                    mx, my, INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE);
+                    mx, my, INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE, false);
         }
 
         if (cursor_x != -1 && cursor_y != -1 &&
