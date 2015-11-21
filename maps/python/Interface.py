@@ -125,13 +125,15 @@ class Interface:
             self.add_msg_icon(obj.face[0], desc or obj.GetName())
             return
 
+        fit = obj.type in (Atrinik.Type.SKILL, Atrinik.Type.SPELL)
+
         packet = obj.GetPacket(pl, Atrinik.UPD_ANIM | Atrinik.UPD_ANIMSPEED |
                                Atrinik.UPD_FACE | Atrinik.UPD_NROF |
-                               Atrinik.UPD_GLOW)
+                               Atrinik.UPD_GLOW | Atrinik.UPD_DIRECTION)
         self._objects.append(packet)
         self._msg += "\n\n"
         self._msg += "[bar=#000000 52 52][border=#606060 52 52][x=1][y=1]"
-        self._msg += "[obj={} 50 50]".format(obj.count)
+        self._msg += "[obj={} 50 50 {}]".format(obj.count, int(fit))
         self._msg += "[x=-1][y=-1]"
         self._msg += "[padding=60][hcenter=50]"
         self._msg += desc or obj.GetName()
