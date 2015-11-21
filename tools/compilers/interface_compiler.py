@@ -777,7 +777,7 @@ class TagCompilerObject(BaseTagCompiler):
 
                 if not self.npc.closed and message:
                     self.npc.body.write(
-                        "self.add_msg_icon(obj.face[0], {message})",
+                        "self.add_msg_icon_object(obj, desc={message})",
                         message=repr(message)
                     )
 
