@@ -1639,7 +1639,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
     int fall_floors = 0;
 
-    if (flag & INS_FALL_THROUGH) {
+    /* Attempt to fall down through empty map squares onto maps below, but
+     * only if the object is not a player or the player doesn't have collision
+     * disabled. */
+    if (flag & INS_FALL_THROUGH && (op->type != PLAYER || !CONTR(op)->tcl)) {
         mapstruct *tiled;
         object *floor, *floor_tmp;
         int z_highest, sub_layer, z;
