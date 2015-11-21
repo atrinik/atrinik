@@ -728,12 +728,9 @@ class TagCompilerObject(BaseTagCompiler):
         parent = self.parent
 
         if isinstance(parent, (TagCompilerCheck, TagCompilerNcheck)):
-            not_str = "not " if isinstance(parent, TagCompilerNcheck) else ""
-            parent.precond.write("{not_str}(", not_str=not_str)
             parent.precond.write(
                 "self._activator.FindObject({item_args})",
                 item_args=item_args)
-            parent.precond.write(")")
         elif not remove:
             nrof = elem.get("nrof") or 0
             if nrof:
