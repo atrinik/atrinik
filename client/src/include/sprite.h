@@ -58,7 +58,7 @@ typedef struct sprite_effects {
     ((_effects)->flags != 0 || (_effects)->alpha != 0 ||                       \
     (_effects)->stretch != 0 || ((_effects)->zoom_x != 0 &&                    \
     (_effects)->zoom_x != 100) || ((_effects)->zoom_y != 0 &&                  \
-    (_effects)->zoom_y != 00) || (_effects)->rotate != 0 ||                    \
+    (_effects)->zoom_y != 100) || (_effects)->rotate != 0 ||                   \
     (_effects)->glow[0] != '\0')
 
 /**
