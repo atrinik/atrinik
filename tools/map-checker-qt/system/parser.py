@@ -242,12 +242,14 @@ class ParserArchetype(Parser):
             self._link_inventory_arches(tmp, arch)
 
 
-class ParserArtifact(Parser):
+class ParserArtifact(ParserArchetype):
     """Artifacts parser."""
 
     # The artifact definitions have a very unique syntax, and there is
-    # no such thing as 'Object ring_of_thieves', for example.
-    objectIdentifiers = []
+    # no such thing as 'Object ring_of_thieves', for example; however,
+    # "arch event_obj" can be used to define an event object inside the
+    # artifact's inventory.
+    objectIdentifiers = ["arch"]
 
     def parse(self, f):
         """Parse the artifacts file."""
@@ -288,6 +290,10 @@ class ParserArtifact(Parser):
                 self.objectLoadedHandler(artifact)
             else:
                 self.handle_line(line, obj)
+
+        for obj in self.collection:
+            for tmp in self.collection[obj].inv:
+                self._link_inventory_arches(tmp, self.collection[obj])
 
 
 class ParserMap(Parser):
