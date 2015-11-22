@@ -168,6 +168,7 @@ void object_methods_init(void)
     object_type_init_swarm_spell();
     object_type_init_symptom();
     object_type_init_treasure();
+    object_type_init_trinket();
     object_type_init_wall();
     object_type_init_wand();
     object_type_init_waypoint();

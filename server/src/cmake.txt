@@ -226,6 +226,7 @@ set(SOURCES
 	src/types/swarm_spell.c
 	src/types/symptom.c
 	src/types/treasure.c
+	src/types/trinket.c
 	src/types/wall.c
 	src/types/wand.c
 	src/types/waypoint.c

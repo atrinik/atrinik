@@ -1065,6 +1065,8 @@ extern void object_type_init_swarm_spell(void);
 extern void object_type_init_symptom(void);
 /* src/types/treasure.c */
 extern void object_type_init_treasure(void);
+/* src/types/trinket.c */
+extern void object_type_init_trinket(void);
 /* src/types/wall.c */
 extern void object_type_init_wall(void);
 /* src/types/wand.c */

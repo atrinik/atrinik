@@ -60,8 +60,6 @@ static int object_apply_item_check_type(object *op, object *tmp)
 int object_apply_item(object *op, object *applier, int aflags)
 {
     int basic_aflag;
-    object *tmp;
-    uint8_t ring_left;
 
     if (!op || !applier) {
         return OBJECT_METHOD_UNHANDLED;
@@ -122,6 +120,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case BRACERS:
         case CLOAK:
         case PANTS:
+        case TRINKET:
             draw_info_format(COLOR_WHITE, applier, "You unwear %s.", name);
             break;
 
@@ -154,20 +153,26 @@ int object_apply_item(object *op, object *applier, int aflags)
         return OBJECT_METHOD_OK;
     }
 
-    ring_left = 0;
+    if (op->type != TRINKET) {
+        bool ring_left = false;
 
-    /* This goes through and checks to see if the player already has
-     * something of that type applied - if so, unapply it. */
-    for (tmp = applier->inv; tmp; tmp = tmp->below) {
-        if (tmp == op || !object_apply_item_check_type(op, tmp)) {
-            continue;
-        }
+        /* This goes through and checks to see if the player already has
+         * something of that type applied - if so, unapply it. */
+        FOR_INV_PREPARE(applier, tmp) {
+            if (tmp == op || !object_apply_item_check_type(op, tmp)) {
+                continue;
+            }
 
-        if (tmp->type == RING && !ring_left) {
-            ring_left = 1;
-        } else if (object_apply(tmp, applier, APPLY_ALWAYS_UNAPPLY) != OBJECT_METHOD_OK) {
-            return OBJECT_METHOD_ERROR;
-        }
+            if (tmp->type == RING && !ring_left) {
+                ring_left = true;
+                continue;
+            }
+
+            int ret = object_apply(tmp, applier, APPLY_ALWAYS_UNAPPLY);
+            if (ret != OBJECT_METHOD_OK) {
+                return OBJECT_METHOD_ERROR;
+            }
+        } FOR_INV_FINISH();
     }
 
     if (!QUERY_FLAG(op, FLAG_CAN_STACK)) {
@@ -206,6 +211,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 
     case RING:
     case AMULET:
+    case TRINKET:
         draw_info_format(COLOR_WHITE, applier, "You wear %s.", name);
         SET_FLAG(op, FLAG_APPLIED);
         break;

@@ -217,6 +217,7 @@ StringBuffer *object_get_title(const object *op, const object *caller,
     case SKILL:
     case AMULET:
     case RING:
+    case TRINKET:
         if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             /* If ring has a title, full description isn't so useful. */
             if (op->title == NULL) {
@@ -338,6 +339,7 @@ StringBuffer *object_get_name(const object *op, const object *caller,
         case BRACERS:
         case CLOAK:
         case PANTS:
+        case TRINKET:
             stringbuffer_append_string(sb, " (worn)");
             break;
 
@@ -905,6 +907,7 @@ StringBuffer *object_get_description(const object *op, const object *caller,
             case RING:
             case AMULET:
             case FORCE:
+            case TRINKET:
                 more_info = 1;
 
             case BOW:
@@ -1162,8 +1165,10 @@ StringBuffer *object_get_name_description(const object *op,
     case FLESH:
     case BOOK:
     case CONTAINER:
+    case TRINKET:
     {
-        if ((op->type != AMULET && op->type != RING) || op->title != NULL) {
+        if ((op->type != AMULET && op->type != RING && op->type != TRINKET) ||
+            op->title != NULL) {
             StringBuffer *sb2 = object_get_description(op, caller, NULL);
             if (stringbuffer_length(sb2) > 1) {
                 stringbuffer_append_string(sb, " ");
@@ -1233,6 +1238,7 @@ bool need_identify(const object *op)
     case LIGHT_APPLY:
     case LIGHT_REFILL:
     case BOOK_SPELL:
+    case TRINKET:
         return true;
     }
 

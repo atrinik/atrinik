@@ -457,6 +457,7 @@ static const Atrinik_Constant constants_types[] = {
     {"CORPSE", CORPSE},
     {"DISEASE", DISEASE},
     {"SYMPTOM", SYMPTOM},
+    {"TRINKET", TRINKET},
 
     {NULL, 0}
 };

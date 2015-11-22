@@ -125,7 +125,7 @@
  *
  * Currently unused types to fill: 63, 67, 76, 97, 108, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
- * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57, 45,
+ * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57,
  * 46, 24.
  *@{*/
 /**
@@ -232,6 +232,10 @@
 /**
  * An experience object. */
 #define EXPERIENCE 44
+/*
+ * A trinket.
+ */
+#define TRINKET 45
 /**
  * Blindness force object. */
 #define BLINDNESS 49
