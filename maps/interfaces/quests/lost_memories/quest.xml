@@ -31,6 +31,11 @@
                 <check completed="helping_out::ant_trouble"/>
             </and>
         </interface>
+        <interface npc="John Aldman">
+            <dialog name="hello">
+                <message>Excuse me, I'm currently quite busy conducting these experiments...</message>
+            </dialog>
+        </interface>
         <interface inherit="Smith.Smith" npc="Ken Berger"/>
         <interface npc="Angela Sawthrow">
             <dialog name="hello">
@@ -42,6 +47,34 @@
                 <message>Welcome, traveler!</message>
                 <message>As usual, I'm looking for wolf pets to tan into leather. If you happen to have any, I would be interested in purchasing them from you.</message>
                 <inherit name="::goods"/>
+            </dialog>
+        </interface>
+        <interface inherit="Guard.Guard" npc="Rick Grizley"/>
+        <interface inherit="interface" npc="Rick Grizley" state="no_key">
+            <and>
+                <ncheck started="the_kobolds"/>
+            </and>
+            <dialog name="hello">
+                <inherit/>
+                <response destination="out" message="Excuse me, I need to head out of the town."/>
+            </dialog>
+            <dialog name="out">
+                <message>Huh? What for? Everything you need is in the town; no need to venture out into the wild! Now leave me be.</message>
+            </dialog>
+        </interface>
+        <interface inherit="no_key" npc="Rick Grizley" state="no_key_brelend">
+            <and>
+                <ncheck>
+                    <object arch="incuna_western_gate_key"/>
+                </ncheck>
+            </and>
+            <dialog name="out">
+                <inherit/>
+                <response destination="brelend" message="Brelend Lee sent me on a mission to the mines."/>
+            </dialog>
+            <dialog name="brelend">
+                <message>Did he now? I suppose he knows what he's doing then... Very well then. Take this key to open the gate. And... be careful in the mines, please. There's a reason we've surrounded the town with such high walls...</message>
+                <object arch="incuna_western_gate_key" nrof="1"/>
             </dialog>
         </interface>
         <part name="The Priest" uid="speak_priest">
@@ -230,7 +263,38 @@
             </interface>
         </part>
         <part name="The Arcane" uid="sorcery">
-            <info>speak to the priests</info>
+            <info>Sam has suggested that you go speak to the local cleric, John Aldman, in order to learn some divine magic. []optional]</info>
+            <interface inherit="interface" npc="John Aldman" state="need_complete">
+                <dialog name="hello">
+                    <response destination="spells" message="Excuse me, Sam said you could teach me some spells."/>
+                    <inherit/>
+                </dialog>
+                <dialog name="spells">
+                    <message>Sam? Ah, Sam Goodberry! I see, so you're the new face around here.</message>
+                    <message>Well, hm, I can indeed teach you the basics, I suppose. Some spells that might come in handy in the near future, yes yes.</message>
+                    <message>I will teach you [b]cause light wounds[/b] and [b]minor healing[/b], what do you say?</message>
+                    <response destination="yes" message="Yes, please!"/>
+                    <response action="close" message="Perhaps next time. Goodbye."/>
+                </dialog>
+                <dialog name="yes">
+                    <message>So be it!</message>
+                    <and>
+                        <ncheck>
+                            <object arch="spell_cause_light_wounds"/>
+                        </ncheck>
+                        <object arch="spell_cause_light_wounds" message="Cause light wounds is an offensive divine spell that shoots a projectile of raw divine power in the direction of your choice." nrof="1"/>
+                    </and>
+                    <action/>
+                    <and>
+                        <ncheck>
+                            <object arch="spell_minor_healing"/>
+                        </ncheck>
+                        <object arch="spell_minor_healing" message="Minor healing is divine spell that instantly restores lost hit points." nrof="1"/>
+                    </and>
+                    <message>May these serve you well on your travels!</message>
+                    <action complete="sorcery"/>
+                </dialog>
+            </interface>
         </part>
         <part name="Shooting Practice" uid="archery">
             <info>Sam has suggested that you go speak to the tanner, Tom Istrad, in order to choose a ranged weapon to use. []optional]</info>
@@ -307,11 +371,6 @@
         </part>
         <part name="Helping Out" uid="helping_out">
             <info>According to Sam, a local tavern owner, Arvend Blessed, is in need of some assistance.</info>
-            <interface npc="Sam Goodberry" state="need_complete">
-                <dialog name="hello">
-                    <message>Ah, you've helped everyone, have you?</message>
-                </dialog>
-            </interface>
             <part name="Ant Trouble" uid="ant_trouble">
                 <info>Arvend Blessed, a tavern owner in Incuna, has asked you to help with his ant infestation problem.</info>
                 <interface npc="Sam Goodberry" state="need_start">
@@ -607,6 +666,74 @@ finally:
         </part>
         <part name="Back To You, Sam" uid="report_sam">
             <info>Solving Arvend's ants problem, you decide to report back to Sam.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, you're back! You've been gone for a while, I was starting to worry, but you seem safe and sound.</message>
+                    <message>I presume that the infestation problem has been taken care of?</message>
+                    <response destination="yes" message="Yes, the ants shouldn't be a problem any longer."/>
+                </dialog>
+                <dialog name="yes">
+                    <message>Excellent! While you were away, Brelend came looking for you. He said that you should go see him immediately when you return.</message>
+                    <response action="close" message="Thanks, I'll talk to him. See you soon."/>
+                    <action start="the_solution"/>
+                    <action complete="report_sam"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Solution?" uid="the_solution">
+            <info>Receiving the information that Brelend Lee has been looking for you, you decide to visit him at his church.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Hurry up, Brelend seemed to be anxious to speak to you!</message>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, very good {activator.name}, you're here. I've been anxious to talk to you.</message>
+                    <response destination="learned" message="Have you learned anything new?"/>
+                </dialog>
+                <dialog name="learned">
+                    <message>Yes indeed. While you were gone, I spent a long time perusing the temple's library and consulting my colleagues and friends.</message>
+                    <message>In one of the books, I found a mention of an amazingly powerful artifact, that was supposed to have been excavated from the nearby crystal mines. However, the book doesn't mention if this was ever finished!</message>
+                    <response destination="mines" message="Tell me more about these mines."/>
+                </dialog>
+                <dialog name="mines">
+                    <message>The old mines, just north of the town, past a wooden bridge...</message>
+                    <message>Long ago, the site was found to be rich in crystal deposits and mining operations began immediately. Eventually, the miners came upon a crystal like no other. It was blue, glowing with a pale white light and sparkling like a diamond.</message>
+                    <response destination="crystal" message="What did they do with the crystal?"/>
+                </dialog>
+                <dialog name="crystal">
+                    <message>That's the sad part of the story...</message>
+                    <message>The miners tried many things to remove the crystal from the rock it was embedded in, but every plan failed. In desperation, they decided to plant some carefully placed explosives, hoping to shatter the rock surrounding the crystal.</message>
+                    <message>The resulting blast is said to have been heard from all the way over in Brynknot on Strakewood Island! For some reason, the placed explosives were many times stronger than they would have been under normal circumstances...</message>
+                    <message>After the dust from the explosion cleared, the crystal lay on the floor, free from the rock at last. However...</message>
+                    <response destination="happened" message="Yes? What happened?"/>
+                </dialog>
+                <dialog name="happened">
+                    <message color="yellow">{npc.name} sighs heavily.</message>
+                    <message>The blast was so great, it opened a large gaping hole in the rock the crystal was embedded in. Hundreds of tiny little red dots appeared in the blackness of the hole, one by one...</message>
+                    <message>Kobolds. Hundreds of them, they struck quickly and without hesitation, overwhelming the miners. Only a few escaped that day...</message>
+                    <message>The mine has been abandoned ever since.</message>
+                    <response destination="crystal2" message="What happened to the crystal?"/>
+                </dialog>
+                <dialog name="crystal2">
+                    <message>No one really knows. Those who escaped the kobolds didn't even think about grabbing it with them; there was no time.</message>
+                    <message>It is said that the kobolds took it for their own, which is very likely.</message>
+                    <message>There are also stories of the kobold king fashioning himself a crown out of it! What a load of nonsense. The crystal is probably impossible to work using any normal means.</message>
+                    <message>At any rate. The crystal could be the answer for us; it's obviously highly magical. It's the best shot we have for unlocking your memories...</message>
+                    <response destination="recover" message="I will recover it."/>
+                </dialog>
+                <dialog name="recover">
+                    <message>I know you will. You seem to be much more in control, so to speak, in comparison to when you first came to me. How strange...</message>
+                    <message>Well, go on, {activator.name}. Go to the western gate of the town, and ask Rick Grizley for a key to open it. From there, look for a bridge to the north and then, for a cave in the old mines.</message>
+                    <action start="the_kobolds"/>
+                    <action complete="the_solution"/>
+                    <response action="close" message="I'll better head there right away. See you soon."/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Kobolds" uid="the_kobolds">
+            <info>Receiving information about a powerful magical crystal in the old mines, located to the north of the north of Incuna past a bridge, you decide to investigate. The western gate out of the town is locked, but Brelend Lee mentioned that Rick Grizley, a guard by gate, has a key to open it.</info>
         </part>
     </quest>
 </interfaces>

@@ -1,0 +1,139 @@
+arch map
+name Forgotten Tunnels
+msg
+Created:  2011-03-19 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+height_diff 1
+bg_music venturing_dragons.ogg
+region incuna
+end
+arch floor_sand_d4
+y 14
+end
+arch fwall_sand1b
+y 14
+end
+arch floor_sand_d1
+y 15
+end
+arch fwall_sand1b
+y 15
+end
+arch floor_sand_d4
+y 16
+end
+arch fwall_sand1a
+y 16
+end
+arch floor_sand_d4
+y 17
+end
+arch fwall_sand1b
+y 17
+end
+arch floor_sand_d2
+y 18
+end
+arch rubbish.101
+y 18
+end
+arch floor_sand_d2
+y 19
+end
+arch floor_sand_d1
+y 20
+end
+arch floor_sand_d4
+y 21
+end
+arch floor_sand_d1
+y 22
+end
+arch floor_sand_d2
+y 23
+end
+arch floor_sand_d1
+x 1
+y 17
+end
+arch fwall_sand1b
+x 1
+y 17
+end
+arch floor_sand_d3
+x 1
+y 18
+end
+arch fwall_sand1a
+x 1
+y 18
+end
+arch floor_sand_d2
+x 1
+y 19
+end
+arch fwall_sand1a
+x 1
+y 19
+end
+arch floor_sand_d2
+x 1
+y 20
+end
+arch fwall_sand1a
+x 1
+y 20
+end
+arch floor_sand_d3
+x 1
+y 21
+end
+arch fwall_sand1a
+x 1
+y 21
+end
+arch floor_sand_d2
+x 1
+y 22
+end
+arch box2.101
+x 1
+y 22
+end
+arch floor_sand_d4
+x 1
+y 23
+end
+arch straw1.101
+x 1
+y 23
+end
+arch floor_sand_d1
+x 2
+y 21
+end
+arch fwall_sand1a
+x 2
+y 21
+end
+arch floor_sand_d3
+x 2
+y 22
+end
+arch fwall_sand1b
+x 2
+y 22
+end
+arch floor_sand_d4
+x 2
+y 23
+end
+arch fwall_sand1a
+x 2
+y 23
+end

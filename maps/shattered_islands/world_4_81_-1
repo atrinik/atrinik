@@ -1,0 +1,3615 @@
+arch map
+name Forgotten Tunnels
+msg
+Created:  2011-03-19 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+height_diff 1
+bg_music venturing_dragons.ogg
+region incuna
+end
+arch floor_sand_d3
+end
+arch fwall_sand1b
+end
+arch floor_sand_d2
+y 1
+end
+arch fwall_sand1b
+y 1
+end
+arch floor_sand_d3
+y 2
+end
+arch wood_pile.101
+y 2
+end
+arch floor_sand_d1
+y 3
+end
+arch basket1.101
+y 3
+end
+arch floor_sand_d3
+y 4
+end
+arch cave_deco_f1.101
+y 4
+end
+arch floor_sand_d2
+y 5
+end
+arch candlelight3.101
+y 5
+end
+arch light3
+y 5
+end
+arch floor_sand_d3
+y 6
+end
+arch floor_sand_d2
+y 7
+end
+arch spawn_point
+y 7
+arch kobold_guard
+name kobold guard leader
+level 6
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+y 8
+end
+arch floor_sand_d2
+y 9
+end
+arch floor_sand_d2
+y 10
+end
+arch fwall_sand1a
+y 10
+end
+arch floor_sand_d1
+y 11
+end
+arch fwall_sand1a
+y 11
+end
+arch floor_sand_d1
+y 12
+end
+arch fwall_sand1b
+y 12
+end
+arch floor_sand_d2
+y 13
+end
+arch fwall_sand1a
+y 13
+end
+arch floor_sand_d2
+y 14
+end
+arch fwall_sand1b
+y 14
+end
+arch flag_kobold
+y 14
+end
+arch floor_sand_d1
+y 15
+end
+arch floor_sand_d2
+y 16
+end
+arch floor_sand_d3
+y 17
+end
+arch trash_wood2.101
+y 17
+end
+arch floor_sand_d4
+y 18
+end
+arch fwall_sand1a
+y 18
+end
+arch floor_sand_d2
+z 130
+y 22
+end
+arch rock_big2
+y 22
+end
+arch floor_sand_d1
+z 130
+y 23
+end
+arch rock_big2
+y 23
+end
+arch floor_sand_d3
+x 1
+y 1
+end
+arch fwall_sand1b
+x 1
+y 1
+end
+arch floor_sand_d3
+x 1
+y 2
+end
+arch fwall_sand1a
+x 1
+y 2
+end
+arch floor_sand_d2
+x 1
+y 3
+end
+arch fwall_sand1a
+x 1
+y 3
+end
+arch floor_sand_d4
+x 1
+y 4
+end
+arch mushroom_spot1
+x 1
+y 4
+end
+arch light2
+x 1
+y 4
+end
+arch floor_sand_d4
+x 1
+y 5
+end
+arch mushroom_spot1
+x 1
+y 5
+end
+arch light2
+x 1
+y 5
+end
+arch floor_sand_d3
+x 1
+y 6
+end
+arch floor_sand_d4
+x 1
+y 7
+end
+arch floor_sand_d2
+x 1
+y 8
+end
+arch floor_sand_d4
+x 1
+y 9
+end
+arch fwall_sand1b
+x 1
+y 9
+end
+arch floor_sand_d3
+x 1
+y 10
+end
+arch fwall_sand1b
+x 1
+y 10
+end
+arch floor_sand_d2
+x 1
+y 14
+end
+arch fwall_sand1a
+x 1
+y 14
+end
+arch floor_sand_d4
+x 1
+y 15
+end
+arch torch_wall_1
+x 1
+y 15
+end
+arch floor_sand_d1
+x 1
+y 16
+end
+arch dirt_floor4
+x 1
+y 16
+end
+arch spawn_point
+x 1
+y 16
+arch kobold
+name kobold sneaker
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 1
+y 17
+end
+arch floor_sand_d4
+x 1
+y 18
+end
+arch fwall_sand1b
+x 1
+y 18
+end
+arch floor_sand_d4
+z 130
+x 1
+y 23
+end
+arch rock_big2
+x 1
+y 23
+end
+arch floor_sand_d1
+x 2
+y 3
+end
+arch fwall_sand1b
+x 2
+y 3
+end
+arch floor_sand_d4
+x 2
+y 4
+end
+arch fwall_sand1b
+x 2
+y 4
+end
+arch floor_sand_d1
+x 2
+y 5
+end
+arch fwall_sand1b
+x 2
+y 5
+end
+arch floor_sand_d4
+x 2
+y 6
+end
+arch floor_sand_d4
+x 2
+y 7
+end
+arch trash_wood2.101
+x 2
+y 7
+end
+arch floor_sand_d4
+x 2
+y 8
+end
+arch fwall_sand1a
+x 2
+y 8
+end
+arch floor_sand_d4
+x 2
+y 9
+end
+arch fwall_sand1a
+x 2
+y 9
+end
+arch floor_sand_d3
+x 2
+y 14
+end
+arch fwall_sand1a
+x 2
+y 14
+end
+arch plant1_wall.151
+x 2
+y 14
+end
+arch floor_sand_d3
+x 2
+y 15
+end
+arch blood_floor2
+x 2
+y 15
+end
+arch floor_sand_d1
+x 2
+y 16
+end
+arch floor_sand_d3
+x 2
+y 17
+end
+arch floor_sand_d3
+x 2
+y 18
+end
+arch fwall_sand1a
+x 2
+y 18
+end
+arch floor_sand_d4
+x 3
+y 5
+end
+arch fwall_sand1b
+x 3
+y 5
+end
+arch floor_sand_d4
+x 3
+y 6
+end
+arch fwall_sand1a
+x 3
+y 6
+end
+arch floor_sand_d1
+x 3
+y 7
+end
+arch fwall_sand1a
+x 3
+y 7
+end
+arch floor_sand_d1
+x 3
+y 8
+end
+arch fwall_sand1b
+x 3
+y 8
+end
+arch floor_sand_d2
+x 3
+y 14
+end
+arch fwall_sand1a
+x 3
+y 14
+end
+arch plant2_wall.151
+x 3
+y 14
+end
+arch floor_sand_d2
+x 3
+y 15
+end
+arch mushroom_giant2
+x 3
+y 15
+end
+arch floor_sand_d2
+x 3
+y 16
+end
+arch floor_sand_d3
+x 3
+y 17
+end
+arch floor_sand_d2
+x 3
+y 18
+end
+arch fwall_sand1b
+x 3
+y 18
+end
+arch floor_sand_d3
+x 4
+end
+arch fwall_sand1b
+x 4
+end
+arch plant2_wall.151
+direction 7
+x 4
+end
+arch floor_sand_d3
+x 4
+y 1
+end
+arch fwall_sand1a
+x 4
+y 1
+end
+arch floor_sand_d3
+x 4
+y 2
+end
+arch fwall_sand1a
+x 4
+y 2
+end
+arch floor_sand_d1
+x 4
+y 3
+end
+arch fwall_sand1a
+x 4
+y 3
+end
+arch plant1_wall.151
+direction 7
+x 4
+y 3
+end
+arch floor_sand_d2
+x 4
+y 4
+end
+arch fwall_sand1b
+x 4
+y 4
+end
+arch floor_sand_d3
+x 4
+y 5
+end
+arch fwall_sand1b
+x 4
+y 5
+end
+arch floor_sand_d2
+x 4
+y 6
+end
+arch fwall_sand1b
+x 4
+y 6
+end
+arch floor_sand_d3
+x 4
+y 7
+end
+arch fwall_sand1b
+x 4
+y 7
+end
+arch plant2_wall.151
+direction 7
+x 4
+y 7
+end
+arch floor_sand_d2
+x 4
+y 8
+end
+arch fwall_sand1a
+x 4
+y 8
+end
+arch floor_sand_d2
+x 4
+y 9
+end
+arch fwall_sand1b
+x 4
+y 9
+end
+arch floor_sand_d1
+x 4
+y 14
+end
+arch fwall_sand1a
+x 4
+y 14
+end
+arch floor_sand_d2
+x 4
+y 15
+end
+arch torch_wall_1
+x 4
+y 15
+end
+arch floor_sand_d3
+x 4
+y 16
+end
+arch dirt_floor2
+x 4
+y 16
+end
+arch floor_sand_d1
+x 4
+y 17
+end
+arch floor_sand_d4
+x 4
+y 18
+end
+arch fwall_sand1a
+x 4
+y 18
+end
+arch floor_sand_d3
+x 5
+end
+arch prison_deco1.131
+direction 7
+x 5
+end
+arch floor_sand_d3
+x 5
+y 1
+end
+arch prison_deco2.131
+direction 7
+x 5
+y 1
+end
+arch floor_sand_d1
+x 5
+y 2
+end
+arch prison_deco2.131
+direction 7
+x 5
+y 2
+end
+arch floor_sand_d4
+x 5
+y 3
+end
+arch prison_deco1.131
+direction 7
+x 5
+y 3
+end
+arch floor_sand_d2
+x 5
+y 4
+end
+arch prison_deco1.131
+direction 7
+x 5
+y 4
+end
+arch floor_sand_d3
+x 5
+y 5
+end
+arch prison_deco2.131
+direction 7
+x 5
+y 5
+end
+arch torch_wall_1
+direction 7
+x 5
+y 5
+end
+arch floor_sand_d1
+x 5
+y 6
+end
+arch prison_deco1.131
+direction 7
+x 5
+y 6
+end
+arch floor_sand_d1
+x 5
+y 7
+end
+arch prison_deco2.131
+direction 7
+x 5
+y 7
+end
+arch floor_sand_d4
+x 5
+y 8
+end
+arch prison_deco1.131
+direction 7
+x 5
+y 8
+end
+arch spawn_point
+x 5
+y 8
+arch kobold_fighter
+direction 3
+level 5
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 5
+y 9
+end
+arch fwall_sand1b
+x 5
+y 9
+end
+arch plant2_wall.151
+direction 7
+x 5
+y 9
+end
+arch floor_sand_d2
+x 5
+y 10
+end
+arch fwall_sand1b
+x 5
+y 10
+end
+arch floor_sand_d3
+x 5
+y 11
+end
+arch fwall_sand1b
+x 5
+y 11
+end
+arch floor_sand_d1
+x 5
+y 14
+end
+arch fwall_sand1a
+x 5
+y 14
+end
+arch plant1_wall.151
+x 5
+y 14
+end
+arch floor_sand_d4
+x 5
+y 15
+end
+arch trash_wood2.101
+x 5
+y 15
+end
+arch floor_sand_d2
+x 5
+y 16
+end
+arch spawn_point
+x 5
+y 16
+arch kobold
+name kobold sneaker
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d1
+x 5
+y 17
+end
+arch floor_sand_d3
+x 5
+y 18
+end
+arch fwall_sand1a
+x 5
+y 18
+end
+arch floor_sand_d1
+x 6
+end
+arch trash_wood2.101
+x 6
+end
+arch spawn_point
+x 6
+arch kobold_fighter
+level 4
+wis 2
+type 83
+end
+end
+arch floor_sand_d2
+x 6
+y 1
+end
+arch floor_sand_d4
+x 6
+y 2
+end
+arch dirt_floor3
+x 6
+y 2
+end
+arch floor_sand_d1
+x 6
+y 3
+end
+arch floor_sand_d2
+x 6
+y 4
+end
+arch spawn_point
+x 6
+y 4
+arch kobold_guard
+level 4
+wis 2
+type 83
+end
+end
+arch floor_sand_d1
+x 6
+y 5
+end
+arch dirt_floor4
+x 6
+y 5
+end
+arch floor_sand_d2
+x 6
+y 6
+end
+arch floor_sand_d1
+x 6
+y 7
+end
+arch trash_wood2.101
+x 6
+y 7
+end
+arch floor_sand_d2
+x 6
+y 8
+end
+arch floor_sand_d4
+x 6
+y 9
+end
+arch floor_sand_d4
+x 6
+y 10
+end
+arch dirt_floor2
+x 6
+y 10
+end
+arch floor_sand_d4
+x 6
+y 11
+end
+arch fwall_sand1a
+x 6
+y 11
+end
+arch floor_sand_d3
+x 6
+y 12
+end
+arch fwall_sand1b
+x 6
+y 12
+end
+arch floor_sand_d2
+x 6
+y 14
+end
+arch fwall_sand1b
+x 6
+y 14
+end
+arch plant1_wall.151
+x 6
+y 14
+end
+arch floor_sand_d3
+x 6
+y 15
+end
+arch floor_sand_d4
+x 6
+y 16
+end
+arch floor_sand_d2
+x 6
+y 17
+end
+arch floor_sand_d3
+x 6
+y 18
+end
+arch fwall_sand1b
+x 6
+y 18
+end
+arch floor_sand_d3
+x 7
+end
+arch floor_sand_d1
+x 7
+y 1
+end
+arch floor_sand_d4
+x 7
+y 2
+end
+arch floor_sand_d3
+x 7
+y 3
+end
+arch prison_deco1.131
+x 7
+y 3
+end
+arch floor_sand_d1
+x 7
+y 4
+end
+arch prison_deco2.131
+x 7
+y 4
+end
+arch floor_sand_d3
+x 7
+y 5
+end
+arch prison_deco1.131
+x 7
+y 5
+end
+arch floor_sand_d3
+x 7
+y 6
+end
+arch prison_deco1.131
+x 7
+y 6
+end
+arch floor_sand_d1
+x 7
+y 7
+end
+arch prison_deco2.131
+x 7
+y 7
+end
+arch floor_sand_d3
+x 7
+y 8
+end
+arch prison_deco1.131
+x 7
+y 8
+end
+arch floor_sand_d2
+x 7
+y 9
+end
+arch floor_sand_d2
+x 7
+y 10
+end
+arch floor_sand_d1
+x 7
+y 11
+end
+arch floor_sand_d3
+x 7
+y 12
+end
+arch fwall_sand1b
+x 7
+y 12
+end
+arch floor_sand_d3
+x 7
+y 14
+end
+arch fwall_sand1a
+x 7
+y 14
+end
+arch floor_sand_d2
+x 7
+y 15
+end
+arch fwall_sand1a
+x 7
+y 15
+end
+arch floor_sand_d4
+x 7
+y 16
+end
+arch doorway_wood1_1
+direction 7
+x 7
+y 16
+end
+arch floor_sand_d1
+x 7
+y 17
+end
+arch fwall_sand1a
+x 7
+y 17
+end
+arch plant1_wall.151
+direction 7
+x 7
+y 17
+end
+arch floor_sand_d3
+x 7
+y 18
+end
+arch fwall_sand1b
+x 7
+y 18
+end
+arch floor_sand_d1
+x 7
+y 19
+end
+arch fwall_sand1b
+x 7
+y 19
+end
+arch floor_sand_d2
+x 7
+y 20
+end
+arch fwall_sand1a
+x 7
+y 20
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 20
+end
+arch floor_sand_d1
+x 7
+y 21
+end
+arch fwall_sand1b
+x 7
+y 21
+end
+arch floor_sand_d1
+x 7
+y 22
+end
+arch fwall_sand1b
+x 7
+y 22
+end
+arch floor_sand_d1
+x 7
+y 23
+end
+arch fwall_sand1b
+x 7
+y 23
+end
+arch floor_sand_d2
+x 8
+end
+arch doorway_wood1_1
+direction 7
+x 8
+end
+arch floor_sand_d4
+x 8
+y 1
+end
+arch fwall_sand1a
+x 8
+y 1
+end
+arch plant1_wall.151
+direction 7
+x 8
+y 1
+end
+arch floor_sand_d4
+x 8
+y 2
+end
+arch doorway_wood1_1
+direction 7
+x 8
+y 2
+end
+arch floor_sand_d3
+x 8
+y 3
+end
+arch fwall_sand1a
+x 8
+y 3
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 3
+end
+arch floor_sand_d4
+x 8
+y 4
+end
+arch fwall_sand1a
+x 8
+y 4
+end
+arch floor_sand_d2
+x 8
+y 5
+end
+arch fwall_sand1b
+x 8
+y 5
+end
+arch floor_sand_d1
+x 8
+y 6
+end
+arch fwall_sand1a
+x 8
+y 6
+end
+arch floor_sand_d2
+x 8
+y 7
+end
+arch fwall_sand1b
+x 8
+y 7
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 7
+end
+arch floor_sand_d2
+x 8
+y 8
+end
+arch fwall_sand1a
+x 8
+y 8
+end
+arch floor_sand_d4
+x 8
+y 9
+end
+arch doorway_wood1_1
+direction 7
+x 8
+y 9
+end
+arch floor_sand_d2
+x 8
+y 10
+end
+arch fwall_sand1a
+x 8
+y 10
+end
+arch floor_sand_d3
+x 8
+y 11
+end
+arch doorway_wood1_1
+direction 7
+x 8
+y 11
+end
+arch floor_sand_d3
+x 8
+y 12
+end
+arch fwall_sand1a
+x 8
+y 12
+end
+arch floor_sand_d2
+x 8
+y 14
+end
+arch fwall_sand1a
+x 8
+y 14
+end
+arch plant1_wall.151
+x 8
+y 14
+end
+arch floor_sand_d4
+x 8
+y 15
+end
+arch torch_wall_1
+direction 7
+x 8
+y 15
+end
+arch floor_sand_d4
+x 8
+y 16
+end
+arch floor_sand_d3
+x 8
+y 17
+end
+arch floor_sand_d3
+x 8
+y 18
+end
+arch fwall_sand1b
+x 8
+y 18
+end
+arch floor_sand_d1
+x 8
+y 19
+end
+arch torch_wall_1
+direction 7
+x 8
+y 19
+end
+arch floor_sand_d4
+x 8
+y 20
+end
+arch floor_sand_d2
+x 8
+y 21
+end
+arch trash_wood2.101
+x 8
+y 21
+end
+arch floor_sand_d3
+x 8
+y 22
+end
+arch chair1_drop_111
+x 8
+y 22
+end
+arch floor_sand_d4
+x 8
+y 23
+end
+arch fwall_sand1a
+x 8
+y 23
+end
+arch floor_sand_d3
+x 9
+end
+arch trash_wood1.101
+x 9
+end
+arch floor_sand_d3
+x 9
+y 1
+end
+arch torch_wall_1
+direction 7
+x 9
+y 1
+end
+arch floor_sand_d2
+x 9
+y 2
+end
+arch floor_sand_d4
+x 9
+y 3
+end
+arch prison_deco2.131
+direction 7
+x 9
+y 3
+end
+arch floor_sand_d1
+x 9
+y 4
+end
+arch prison_deco2.131
+direction 7
+x 9
+y 4
+end
+arch floor_sand_d4
+x 9
+y 5
+end
+arch prison_deco2.131
+direction 7
+x 9
+y 5
+end
+arch torch_wall_1
+direction 7
+x 9
+y 5
+end
+arch floor_sand_d4
+x 9
+y 6
+end
+arch prison_deco1.131
+direction 7
+x 9
+y 6
+end
+arch floor_sand_d2
+x 9
+y 7
+end
+arch prison_deco2.131
+direction 7
+x 9
+y 7
+end
+arch floor_sand_d3
+x 9
+y 8
+end
+arch prison_deco2.131
+direction 7
+x 9
+y 8
+end
+arch spawn_point
+x 9
+y 8
+arch kobold_guard
+level 5
+wis 2
+type 83
+end
+end
+arch floor_sand_d1
+x 9
+y 9
+end
+arch floor_sand_d1
+x 9
+y 10
+end
+arch dirt_floor1
+x 9
+y 10
+end
+arch torch_wall_1
+direction 7
+x 9
+y 10
+end
+arch floor_sand_d2
+x 9
+y 11
+end
+arch floor_sand_d1
+x 9
+y 12
+end
+arch fwall_sand1b
+x 9
+y 12
+end
+arch floor_sand_d4
+x 9
+y 14
+end
+arch fwall_sand1a
+x 9
+y 14
+end
+arch floor_sand_d2
+x 9
+y 15
+end
+arch floor_sand_d1
+x 9
+y 16
+end
+arch dirt_floor3
+x 9
+y 16
+end
+arch spawn_point
+x 9
+y 16
+arch kobold
+name kobold sneaker
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 9
+y 17
+end
+arch floor_sand_d2
+x 9
+y 18
+end
+arch doorway_wood1_1
+x 9
+y 18
+end
+arch floor_sand_d1
+x 9
+y 19
+end
+arch floor_sand_d4
+x 9
+y 20
+end
+arch dirt_floor2
+x 9
+y 20
+end
+arch floor_sand_d4
+x 9
+y 21
+end
+arch spawn_point
+x 9
+y 21
+arch kobold
+name kobold sneaker
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 9
+y 22
+end
+arch floor_sand_d3
+x 9
+y 23
+end
+arch floor_sand_d4
+x 10
+end
+arch fwall_sand1a
+x 10
+end
+arch floor_sand_d1
+x 10
+y 1
+end
+arch prison_deco2.131
+x 10
+y 1
+end
+arch floor_sand_d2
+x 10
+y 2
+end
+arch blood_floor1
+x 10
+y 2
+end
+arch floor_sand_d4
+x 10
+y 3
+end
+arch floor_sand_d3
+x 10
+y 4
+end
+arch dirt_floor2
+x 10
+y 4
+end
+arch spawn_point
+x 10
+y 4
+arch kobold_guard
+level 4
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 10
+y 5
+end
+arch floor_sand_d1
+x 10
+y 6
+end
+arch floor_sand_d4
+x 10
+y 7
+end
+arch floor_sand_d3
+x 10
+y 8
+end
+arch dirt_floor4
+x 10
+y 8
+end
+arch floor_sand_d4
+x 10
+y 9
+end
+arch floor_sand_d2
+x 10
+y 10
+end
+arch floor_sand_d4
+x 10
+y 11
+end
+arch trash_wood2.101
+x 10
+y 11
+end
+arch floor_sand_d2
+x 10
+y 12
+end
+arch fwall_sand1b
+x 10
+y 12
+end
+arch floor_sand_d1
+x 10
+y 14
+end
+arch fwall_sand1b
+x 10
+y 14
+end
+arch floor_sand_d4
+x 10
+y 15
+end
+arch torch_wall_1
+x 10
+y 15
+end
+arch floor_sand_d1
+x 10
+y 16
+end
+arch floor_sand_d4
+x 10
+y 17
+end
+arch floor_sand_d1
+x 10
+y 18
+end
+arch fwall_sand1b
+x 10
+y 18
+end
+arch floor_sand_d4
+x 10
+y 19
+end
+arch floor_sand_d4
+x 10
+y 20
+end
+arch floor_sand_d3
+x 10
+y 21
+end
+arch floor_sand_d4
+x 10
+y 22
+end
+arch floor_sand_d4
+x 10
+y 23
+end
+arch water_floor
+x 10
+y 23
+end
+arch floor_sand_d3
+x 11
+end
+arch fwall_sand1a
+x 11
+end
+arch floor_sand_d1
+x 11
+y 1
+end
+arch fwall_sand1b
+x 11
+y 1
+end
+arch floor_sand_d4
+x 11
+y 2
+end
+arch fwall_sand1a
+x 11
+y 2
+end
+arch floor_sand_d3
+x 11
+y 3
+end
+arch fwall_sand1a
+x 11
+y 3
+end
+arch floor_sand_d1
+x 11
+y 4
+end
+arch prison_deco1.131
+x 11
+y 4
+end
+arch floor_sand_d1
+x 11
+y 5
+end
+arch prison_deco1.131
+x 11
+y 5
+end
+arch floor_sand_d3
+x 11
+y 6
+end
+arch prison_deco2.131
+x 11
+y 6
+end
+arch floor_sand_d1
+x 11
+y 7
+end
+arch prison_deco1.131
+x 11
+y 7
+end
+arch floor_sand_d2
+x 11
+y 8
+end
+arch prison_deco2.131
+x 11
+y 8
+end
+arch floor_sand_d1
+x 11
+y 9
+end
+arch prison_deco1.131
+x 11
+y 9
+end
+arch floor_sand_d4
+x 11
+y 10
+end
+arch prison_deco2.131
+x 11
+y 10
+end
+arch floor_sand_d4
+x 11
+y 11
+end
+arch fwall_sand1b
+x 11
+y 11
+end
+arch floor_sand_d2
+x 11
+y 12
+end
+arch fwall_sand1a
+x 11
+y 12
+end
+arch floor_sand_d1
+x 11
+y 14
+end
+arch fwall_sand1a
+x 11
+y 14
+end
+arch floor_sand_d3
+x 11
+y 15
+end
+arch fwall_sand1a
+x 11
+y 15
+end
+arch plant2_wall.151
+direction 7
+x 11
+y 15
+end
+arch floor_sand_d2
+x 11
+y 16
+end
+arch doorway_wood1_1
+direction 7
+x 11
+y 16
+end
+arch floor_sand_d2
+x 11
+y 17
+end
+arch fwall_sand1a
+x 11
+y 17
+end
+arch floor_sand_d1
+x 11
+y 18
+end
+arch fwall_sand1b
+x 11
+y 18
+end
+arch floor_sand_d2
+x 11
+y 19
+end
+arch fwall_sand1a
+x 11
+y 19
+end
+arch floor_sand_d4
+x 11
+y 20
+end
+arch fwall_sand1a
+x 11
+y 20
+end
+arch floor_sand_d2
+x 11
+y 21
+end
+arch fwall_sand1a
+x 11
+y 21
+end
+arch floor_sand_d4
+x 11
+y 22
+end
+arch floor_sand_d4
+x 11
+y 23
+end
+arch floor_sand_d2
+x 12
+end
+arch fwall_sand1b
+x 12
+end
+arch plant2_wall.151
+direction 7
+x 12
+end
+arch floor_sand_d2
+x 12
+y 1
+end
+arch fwall_sand1a
+x 12
+y 1
+end
+arch floor_sand_d4
+x 12
+y 2
+end
+arch fwall_sand1b
+x 12
+y 2
+end
+arch floor_sand_d1
+x 12
+y 3
+end
+arch fwall_sand1b
+x 12
+y 3
+end
+arch floor_sand_d1
+x 12
+y 4
+end
+arch fwall_sand1a
+x 12
+y 4
+end
+arch floor_sand_d4
+x 12
+y 5
+end
+arch fwall_sand1a
+x 12
+y 5
+end
+arch floor_sand_d4
+x 12
+y 6
+end
+arch fwall_sand1b
+x 12
+y 6
+end
+arch floor_sand_d3
+x 12
+y 7
+end
+arch fwall_sand1b
+x 12
+y 7
+end
+arch floor_sand_d1
+x 12
+y 8
+end
+arch fwall_sand1b
+x 12
+y 8
+end
+arch floor_sand_d1
+x 12
+y 9
+end
+arch fwall_sand1a
+x 12
+y 9
+end
+arch floor_sand_d1
+x 12
+y 10
+end
+arch fwall_sand1b
+x 12
+y 10
+end
+arch floor_sand_d4
+x 12
+y 11
+end
+arch fwall_sand1b
+x 12
+y 11
+end
+arch floor_sand_d1
+x 12
+y 14
+end
+arch fwall_sand1a
+x 12
+y 14
+end
+arch floor_sand_d2
+x 12
+y 15
+end
+arch floor_sand_d1
+x 12
+y 16
+end
+arch floor_sand_d4
+x 12
+y 17
+end
+arch barrel_water.101
+x 12
+y 17
+end
+arch floor_sand_d4
+x 12
+y 18
+end
+arch fwall_sand1a
+x 12
+y 18
+end
+arch floor_sand_d4
+x 12
+y 21
+end
+arch fwall_sand1a
+x 12
+y 21
+end
+arch floor_sand_d1
+x 12
+y 22
+end
+arch fwall_sand1b
+x 12
+y 22
+end
+arch floor_sand_d3
+x 12
+y 23
+end
+arch fwall_sand1b
+x 12
+y 23
+end
+arch floor_sand_d4
+x 13
+end
+arch dirt_floor3
+x 13
+end
+arch floor_sand_d1
+x 13
+y 1
+end
+arch plant_mushroom4
+x 13
+y 1
+end
+arch floor_sand_d4
+x 13
+y 2
+end
+arch fwall_sand1b
+x 13
+y 2
+end
+arch floor_sand_d4
+x 13
+y 3
+end
+arch fwall_sand1a
+x 13
+y 3
+end
+arch plant2_wall.151
+direction 7
+x 13
+y 3
+end
+arch floor_sand_d3
+x 13
+y 4
+end
+arch fwall_sand1a
+x 13
+y 4
+end
+arch floor_sand_d3
+x 13
+y 5
+end
+arch fwall_sand1b
+x 13
+y 5
+end
+arch floor_sand_d1
+x 13
+y 14
+end
+arch fwall_sand1a
+x 13
+y 14
+end
+arch floor_sand_d3
+x 13
+y 15
+end
+arch trash_wood1.101
+x 13
+y 15
+end
+arch floor_sand_d1
+x 13
+y 16
+end
+arch floor_sand_d2
+x 13
+y 17
+end
+arch water_floor
+x 13
+y 17
+end
+arch floor_sand_d3
+x 13
+y 18
+end
+arch fwall_sand1b
+x 13
+y 18
+end
+arch floor_sand_d4
+x 14
+end
+arch floor_sand_d3
+x 14
+y 1
+end
+arch plant_mushroom1
+x 14
+y 1
+end
+arch floor_sand_d3
+x 14
+y 2
+end
+arch water_floor
+x 14
+y 2
+end
+arch floor_sand_d2
+x 14
+y 3
+end
+arch plant_mushroom3
+x 14
+y 3
+end
+arch floor_sand_d2
+x 14
+y 4
+end
+arch torch_wall_1
+direction 7
+x 14
+y 4
+end
+arch floor_sand_d3
+x 14
+y 5
+end
+arch fwall_sand1a
+x 14
+y 5
+end
+arch floor_sand_d1
+x 14
+y 6
+end
+arch fwall_sand1a
+x 14
+y 6
+end
+arch plant2_wall.151
+direction 7
+x 14
+y 6
+end
+arch floor_sand_d3
+x 14
+y 7
+end
+arch fwall_sand1b
+x 14
+y 7
+end
+arch floor_sand_d4
+x 14
+y 8
+end
+arch fwall_sand1b
+x 14
+y 8
+end
+arch floor_sand_d3
+x 14
+y 9
+end
+arch fwall_sand1b
+x 14
+y 9
+end
+arch floor_sand_d1
+x 14
+y 14
+end
+arch fwall_sand1b
+x 14
+y 14
+end
+arch plant1_wall.151
+x 14
+y 14
+end
+arch floor_sand_d2
+x 14
+y 15
+end
+arch floor_sand_d3
+x 14
+y 16
+end
+arch dirt_floor3
+x 14
+y 16
+end
+arch floor_sand_d3
+x 14
+y 17
+end
+arch floor_sand_d1
+x 14
+y 18
+end
+arch fwall_sand1b
+x 14
+y 18
+end
+arch floor_sand_d3
+x 14
+y 22
+end
+arch fwall_sand1b
+x 14
+y 22
+end
+arch floor_sand_d4
+x 14
+y 23
+end
+arch fwall_sand1a
+x 14
+y 23
+end
+arch plant2_wall.151
+direction 7
+x 14
+y 23
+end
+arch floor_sand_d2
+x 15
+end
+arch torch_wall_1
+x 15
+end
+arch floor_sand_d2
+x 15
+y 1
+end
+arch plant_mushroom2
+x 15
+y 1
+end
+arch floor_sand_d4
+x 15
+y 2
+end
+arch mushroom_giant1
+x 15
+y 2
+end
+arch floor_sand_d2
+x 15
+y 3
+end
+arch floor_sand_d2
+x 15
+y 4
+end
+arch plant_mushroom2
+x 15
+y 4
+end
+arch floor_sand_d2
+x 15
+y 5
+end
+arch floor_sand_d2
+x 15
+y 6
+end
+arch floor_sand_d2
+x 15
+y 7
+end
+arch plant_mushroom2
+x 15
+y 7
+end
+arch floor_sand_d4
+x 15
+y 8
+end
+arch torch_wall_1
+direction 7
+x 15
+y 8
+end
+arch floor_sand_d4
+x 15
+y 9
+end
+arch fwall_sand1a
+x 15
+y 9
+end
+arch plant2_wall.151
+direction 7
+x 15
+y 9
+end
+arch floor_sand_d2
+x 15
+y 10
+end
+arch fwall_sand1b
+x 15
+y 10
+end
+arch floor_sand_d1
+x 15
+y 11
+end
+arch fwall_sand1b
+x 15
+y 11
+end
+arch floor_sand_d1
+x 15
+y 14
+end
+arch fwall_sand1a
+x 15
+y 14
+end
+arch plant1_wall.151
+x 15
+y 14
+end
+arch floor_sand_d4
+x 15
+y 15
+end
+arch torch_wall_1
+x 15
+y 15
+end
+arch floor_sand_d3
+x 15
+y 16
+end
+arch spawn_point
+x 15
+y 16
+arch kobold
+name kobold sneaker
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 15
+y 17
+end
+arch floor_sand_d4
+x 15
+y 18
+end
+arch fwall_sand1a
+x 15
+y 18
+end
+arch floor_sand_d3
+x 15
+y 20
+end
+arch fwall_sand1b
+x 15
+y 20
+end
+arch floor_sand_d4
+x 15
+y 21
+end
+arch fwall_sand1a
+x 15
+y 21
+end
+arch plant1_wall.151
+direction 7
+x 15
+y 21
+end
+arch floor_sand_d4
+x 15
+y 22
+end
+arch fwall_sand1b
+x 15
+y 22
+end
+arch plant1_wall.151
+x 15
+y 22
+end
+arch floor_sand_d1
+x 15
+y 23
+end
+arch chest7_111
+direction 5
+x 15
+y 23
+arch buckler
+no_pick 1
+identified 1
+end
+arch buckler
+no_pick 1
+identified 1
+end
+arch buckler
+no_pick 1
+identified 1
+end
+arch buckler
+no_pick 1
+identified 1
+end
+end
+arch floor_sand_d3
+x 16
+end
+arch plant_mushroom3
+x 16
+end
+arch floor_sand_d3
+x 16
+y 1
+end
+arch plant_mushroom1
+x 16
+y 1
+end
+arch floor_sand_d1
+x 16
+y 2
+end
+arch floor_sand_d4
+x 16
+y 3
+end
+arch spawn_point
+x 16
+y 3
+arch kobold
+name kobold mushroom collector
+level 4
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 16
+y 4
+end
+arch dirt_floor3
+x 16
+y 4
+end
+arch floor_sand_d4
+x 16
+y 5
+end
+arch plant_mushroom1
+x 16
+y 5
+end
+arch floor_sand_d1
+x 16
+y 6
+end
+arch trash_wood2.101
+x 16
+y 6
+end
+arch floor_sand_d1
+x 16
+y 7
+end
+arch floor_sand_d2
+x 16
+y 8
+end
+arch plant_mushroom4
+x 16
+y 8
+end
+arch floor_sand_d3
+x 16
+y 9
+end
+arch spawn_point
+x 16
+y 9
+arch kobold
+name kobold mushroom collector
+randomitems mob_mage_l9
+level 4
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 16
+y 10
+end
+arch plant_mushroom1
+x 16
+y 10
+end
+arch floor_sand_d4
+x 16
+y 11
+end
+arch fwall_sand1b
+x 16
+y 11
+end
+arch floor_sand_d1
+x 16
+y 12
+end
+arch fwall_sand1a
+x 16
+y 12
+end
+arch floor_sand_d1
+x 16
+y 14
+end
+arch fwall_sand1a
+x 16
+y 14
+end
+arch floor_sand_d2
+x 16
+y 15
+end
+arch floor_sand_d1
+x 16
+y 16
+end
+arch floor_sand_d3
+x 16
+y 17
+end
+arch floor_sand_d3
+x 16
+y 18
+end
+arch fwall_sand1b
+x 16
+y 18
+end
+arch floor_sand_d1
+x 16
+y 20
+end
+arch fwall_sand1b
+x 16
+y 20
+end
+arch floor_sand_d3
+x 16
+y 21
+end
+arch prison_deco1.131
+x 16
+y 21
+end
+arch floor_sand_d1
+x 16
+y 22
+end
+arch dirt_floor2
+x 16
+y 22
+end
+arch torch_wall_1
+direction 7
+x 16
+y 22
+end
+arch floor_sand_d4
+x 16
+y 23
+end
+arch floor_sand_d4
+x 17
+end
+arch fwall_sand1a
+x 17
+end
+arch floor_sand_d3
+x 17
+y 1
+end
+arch floor_sand_d4
+x 17
+y 2
+end
+arch mushroom_spot2
+x 17
+y 2
+end
+arch light1
+x 17
+y 2
+end
+arch floor_sand_d4
+x 17
+y 3
+end
+arch cave_deco_f4.101
+x 17
+y 3
+end
+arch floor_sand_d1
+x 17
+y 4
+end
+arch mushroom_spot1
+x 17
+y 4
+end
+arch light1
+x 17
+y 4
+end
+arch floor_sand_d4
+x 17
+y 5
+end
+arch floor_sand_d1
+x 17
+y 6
+end
+arch floor_sand_d3
+x 17
+y 7
+end
+arch floor_sand_d4
+x 17
+y 8
+end
+arch mushroom_spot2
+x 17
+y 8
+end
+arch light1
+x 17
+y 8
+end
+arch floor_sand_d4
+x 17
+y 9
+end
+arch floor_sand_d3
+x 17
+y 10
+end
+arch blood_floor2
+x 17
+y 10
+end
+arch floor_sand_d3
+x 17
+y 11
+end
+arch floor_sand_d4
+x 17
+y 12
+end
+arch fwall_sand1a
+x 17
+y 12
+end
+arch floor_sand_d4
+x 17
+y 13
+end
+arch fwall_sand1a
+x 17
+y 13
+end
+arch floor_sand_d1
+x 17
+y 14
+end
+arch fwall_sand1b
+x 17
+y 14
+end
+arch plant1_wall.151
+x 17
+y 14
+end
+arch floor_sand_d2
+x 17
+y 15
+end
+arch floor_sand_d4
+x 17
+y 16
+end
+arch floor_sand_d3
+x 17
+y 17
+end
+arch floor_sand_d2
+x 17
+y 18
+end
+arch fwall_sand1a
+x 17
+y 18
+end
+arch floor_sand_d3
+x 17
+y 20
+end
+arch fwall_sand1b
+x 17
+y 20
+end
+arch plant1_wall.151
+x 17
+y 20
+end
+arch floor_sand_d3
+x 17
+y 21
+end
+arch prison_deco1.131
+x 17
+y 21
+end
+arch floor_sand_d2
+x 17
+y 22
+end
+arch floor_sand_d1
+x 17
+y 23
+end
+arch chair1_111
+x 17
+y 23
+end
+arch spawn_point
+x 17
+y 23
+arch kobold_guard
+direction 3
+level 3
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 18
+end
+arch fwall_sand1b
+x 18
+end
+arch floor_sand_d4
+x 18
+y 1
+end
+arch floor_sand_d4
+x 18
+y 2
+end
+arch mushroom_spot2
+x 18
+y 2
+end
+arch light1
+x 18
+y 2
+end
+arch floor_sand_d1
+x 18
+y 3
+end
+arch cave_pillar4
+x 18
+y 3
+end
+arch floor_sand_d4
+x 18
+y 4
+end
+arch cave_deco_f1.101
+x 18
+y 4
+end
+arch floor_sand_d2
+x 18
+y 5
+end
+arch plant_mushroom3
+x 18
+y 5
+end
+arch floor_sand_d4
+x 18
+y 6
+end
+arch plant_mushroom3
+x 18
+y 6
+end
+arch floor_sand_d4
+x 18
+y 7
+end
+arch mushroom_spot2
+x 18
+y 7
+end
+arch light1
+x 18
+y 7
+end
+arch floor_sand_d4
+x 18
+y 8
+end
+arch cave_pillar3
+x 18
+y 8
+end
+arch floor_sand_d3
+x 18
+y 9
+end
+arch cave_deco_f4.101
+x 18
+y 9
+end
+arch floor_sand_d1
+x 18
+y 10
+end
+arch plant_mushroom2
+x 18
+y 10
+end
+arch floor_sand_d1
+x 18
+y 11
+end
+arch floor_sand_d1
+x 18
+y 12
+end
+arch plant_mushroom1
+x 18
+y 12
+end
+arch floor_sand_d3
+x 18
+y 13
+end
+arch fwall_sand1a
+x 18
+y 13
+end
+arch floor_sand_d3
+x 18
+y 14
+end
+arch fwall_sand1a
+x 18
+y 14
+end
+arch floor_sand_d4
+x 18
+y 15
+end
+arch dirt_floor1
+x 18
+y 15
+end
+arch floor_sand_d1
+x 18
+y 16
+end
+arch floor_sand_d4
+x 18
+y 17
+end
+arch floor_sand_d1
+x 18
+y 18
+end
+arch fwall_sand1a
+x 18
+y 18
+end
+arch floor_sand_d1
+x 18
+y 19
+end
+arch fwall_sand1a
+x 18
+y 19
+end
+arch floor_sand_d2
+x 18
+y 20
+end
+arch fwall_sand1a
+x 18
+y 20
+end
+arch floor_sand_d4
+x 18
+y 21
+end
+arch prison_deco1.131
+x 18
+y 21
+end
+arch floor_sand_d1
+x 18
+y 22
+end
+arch floor_sand_d3
+x 18
+y 23
+end
+arch floor_sand_d3
+x 19
+end
+arch fwall_sand1a
+x 19
+end
+arch plant2_wall.151
+x 19
+end
+arch floor_sand_d3
+x 19
+y 1
+end
+arch dirt_floor2
+x 19
+y 1
+end
+arch floor_sand_d1
+x 19
+y 2
+end
+arch plant_mushroom3
+x 19
+y 2
+end
+arch floor_sand_d3
+x 19
+y 3
+end
+arch mushroom_spot2
+x 19
+y 3
+end
+arch light1
+x 19
+y 3
+end
+arch floor_sand_d1
+x 19
+y 4
+end
+arch mushroom_spot1
+x 19
+y 4
+end
+arch light1
+x 19
+y 4
+end
+arch floor_sand_d3
+x 19
+y 5
+end
+arch water_floor
+x 19
+y 5
+end
+arch floor_sand_d2
+x 19
+y 6
+end
+arch dirt_floor3
+x 19
+y 6
+end
+arch floor_sand_d1
+x 19
+y 7
+end
+arch floor_sand_d4
+x 19
+y 8
+end
+arch cave_deco_f3.101
+x 19
+y 8
+end
+arch floor_sand_d2
+x 19
+y 9
+end
+arch mushroom_spot2
+x 19
+y 9
+end
+arch light1
+x 19
+y 9
+end
+arch floor_sand_d4
+x 19
+y 10
+end
+arch floor_sand_d3
+x 19
+y 11
+end
+arch mushroom_giant2
+x 19
+y 11
+end
+arch floor_sand_d1
+x 19
+y 12
+end
+arch water_floor
+x 19
+y 12
+end
+arch floor_sand_d4
+x 19
+y 13
+end
+arch fwall_sand1a
+x 19
+y 13
+end
+arch floor_sand_d4
+x 19
+y 14
+end
+arch fwall_sand1a
+x 19
+y 14
+end
+arch floor_sand_d3
+x 19
+y 15
+end
+arch chair1_drop_111
+x 19
+y 15
+end
+arch floor_sand_d2
+x 19
+y 16
+end
+arch floor_sand_d3
+x 19
+y 17
+end
+arch floor_sand_d1
+x 19
+y 18
+end
+arch box2.101
+x 19
+y 18
+end
+arch floor_sand_d1
+x 19
+y 19
+end
+arch fwall_sand1b
+x 19
+y 19
+end
+arch floor_sand_d1
+x 19
+y 20
+end
+arch fwall_sand1b
+x 19
+y 20
+end
+arch floor_sand_d3
+x 19
+y 21
+end
+arch fwall_sand1a
+x 19
+y 21
+end
+arch floor_sand_d1
+x 19
+y 22
+end
+arch fwall_sand1a
+x 19
+y 22
+end
+arch floor_sand_d1
+x 19
+y 23
+end
+arch dirt_floor4
+x 19
+y 23
+end
+arch torch_wall_1
+x 19
+y 23
+end
+arch floor_sand_d4
+x 20
+end
+arch torch_wall_1
+x 20
+end
+arch floor_sand_d4
+x 20
+y 1
+end
+arch floor_sand_d1
+x 20
+y 2
+end
+arch spawn_point
+x 20
+y 2
+arch kobold
+name kobold mushroom collector
+randomitems mob_mage_l9
+level 3
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 20
+y 3
+end
+arch floor_sand_d3
+x 20
+y 4
+end
+arch plant_mushroom2
+x 20
+y 4
+end
+arch floor_sand_d3
+x 20
+y 5
+end
+arch floor_sand_d2
+x 20
+y 6
+end
+arch plant_mushroom2
+x 20
+y 6
+end
+arch floor_sand_d3
+x 20
+y 7
+end
+arch floor_sand_d3
+x 20
+y 8
+end
+arch plant_mushroom3
+x 20
+y 8
+end
+arch floor_sand_d1
+x 20
+y 9
+end
+arch dirt_floor2
+x 20
+y 9
+end
+arch spawn_point
+x 20
+y 9
+arch kobold
+name kobold mushroom collector
+level 4
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 20
+y 10
+end
+arch plant_mushroom1
+x 20
+y 10
+end
+arch floor_sand_d2
+x 20
+y 11
+end
+arch floor_sand_d4
+x 20
+y 12
+end
+arch plant_mushroom1
+x 20
+y 12
+end
+arch floor_sand_d3
+x 20
+y 13
+end
+arch fwall_sand1a
+x 20
+y 13
+end
+arch floor_sand_d4
+x 20
+y 14
+end
+arch fwall_sand1a
+x 20
+y 14
+end
+arch floor_sand_d2
+x 20
+y 15
+end
+arch fwall_sand1b
+x 20
+y 15
+end
+arch floor_sand_d3
+x 20
+y 16
+end
+arch torch_wall_1
+x 20
+y 16
+end
+arch floor_sand_d2
+x 20
+y 17
+end
+arch spawn_point
+x 20
+y 17
+arch kobold
+name kobold hunter
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 20
+y 18
+end
+arch floor_sand_d4
+x 20
+y 19
+end
+arch fwall_sand1a
+x 20
+y 19
+end
+arch floor_sand_d3
+x 20
+y 22
+end
+arch fwall_sand1b
+x 20
+y 22
+end
+arch plant1_wall.151
+x 20
+y 22
+end
+arch floor_sand_d3
+x 20
+y 23
+end
+arch chair1_drop_171
+x 20
+y 23
+end
+arch floor_sand_d3
+x 21
+end
+arch basket1.101
+x 21
+end
+arch floor_sand_d3
+x 21
+y 1
+end
+arch plant_mushroom1
+x 21
+y 1
+end
+arch floor_sand_d4
+x 21
+y 2
+end
+arch plant_mushroom4
+x 21
+y 2
+end
+arch floor_sand_d3
+x 21
+y 3
+end
+arch plant_mushroom1
+x 21
+y 3
+end
+arch floor_sand_d2
+x 21
+y 4
+end
+arch dirt_floor2
+x 21
+y 4
+end
+arch floor_sand_d2
+x 21
+y 5
+end
+arch mushroom_giant2
+x 21
+y 5
+end
+arch floor_sand_d2
+x 21
+y 6
+end
+arch floor_sand_d4
+x 21
+y 7
+end
+arch plant_mushroom3
+x 21
+y 7
+end
+arch floor_sand_d4
+x 21
+y 8
+end
+arch plant_mushroom2
+x 21
+y 8
+end
+arch floor_sand_d1
+x 21
+y 9
+end
+arch floor_sand_d3
+x 21
+y 10
+end
+arch plant_mushroom2
+x 21
+y 10
+end
+arch floor_sand_d2
+x 21
+y 11
+end
+arch fwall_sand1b
+x 21
+y 11
+end
+arch floor_sand_d4
+x 21
+y 12
+end
+arch fwall_sand1b
+x 21
+y 12
+end
+arch floor_sand_d3
+x 21
+y 13
+end
+arch fwall_sand1b
+x 21
+y 13
+end
+arch floor_sand_d2
+x 21
+y 15
+end
+arch fwall_sand1b
+x 21
+y 15
+end
+arch plant1_wall.151
+x 21
+y 15
+end
+arch floor_sand_d4
+x 21
+y 16
+end
+arch floor_sand_d1
+x 21
+y 17
+end
+arch floor_sand_d4
+x 21
+y 18
+end
+arch floor_sand_d1
+x 21
+y 19
+end
+arch fwall_sand1a
+x 21
+y 19
+end
+arch floor_sand_d1
+x 21
+y 22
+end
+arch fwall_sand1b
+x 21
+y 22
+end
+arch floor_sand_d4
+x 21
+y 23
+end
+arch spawn_point
+x 21
+y 23
+arch cube_gel
+randomitems mob_fighter_l9
+level 2
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d1
+x 22
+end
+arch plant_mushroom3
+x 22
+end
+arch floor_sand_d4
+x 22
+y 1
+end
+arch floor_sand_d3
+x 22
+y 2
+end
+arch plant_mushroom3
+x 22
+y 2
+end
+arch floor_sand_d4
+x 22
+y 3
+end
+arch water_floor
+x 22
+y 3
+end
+arch floor_sand_d3
+x 22
+y 4
+end
+arch floor_sand_d3
+x 22
+y 5
+end
+arch floor_sand_d4
+x 22
+y 6
+end
+arch plant_mushroom3
+x 22
+y 6
+end
+arch floor_sand_d3
+x 22
+y 7
+end
+arch floor_sand_d1
+x 22
+y 8
+end
+arch floor_sand_d4
+x 22
+y 9
+end
+arch fwall_sand1a
+x 22
+y 9
+end
+arch floor_sand_d4
+x 22
+y 10
+end
+arch fwall_sand1b
+x 22
+y 10
+end
+arch floor_sand_d4
+x 22
+y 11
+end
+arch fwall_sand1a
+x 22
+y 11
+end
+arch floor_sand_d4
+x 22
+y 15
+end
+arch fwall_sand1a
+x 22
+y 15
+end
+arch floor_sand_d1
+x 22
+y 16
+end
+arch trash_wood1.101
+x 22
+y 16
+end
+arch floor_sand_d3
+x 22
+y 17
+end
+arch floor_sand_d1
+x 22
+y 18
+end
+arch dirt_floor4
+x 22
+y 18
+end
+arch floor_sand_d1
+x 22
+y 19
+end
+arch fwall_sand1b
+x 22
+y 19
+end
+arch floor_sand_d4
+x 22
+y 20
+end
+arch fwall_sand1b
+x 22
+y 20
+end
+arch floor_sand_d4
+x 22
+y 22
+end
+arch fwall_sand1a
+x 22
+y 22
+end
+arch plant1_wall.151
+x 22
+y 22
+end
+arch floor_sand_d2
+x 22
+y 23
+end
+arch floor_sand_d3
+x 23
+end
+arch fwall_sand1b
+x 23
+end
+arch floor_sand_d1
+x 23
+y 1
+end
+arch fwall_sand1b
+x 23
+y 1
+end
+arch floor_sand_d2
+x 23
+y 2
+end
+arch plant_mushroom2
+x 23
+y 2
+end
+arch floor_sand_d2
+x 23
+y 3
+end
+arch floor_sand_d3
+x 23
+y 4
+end
+arch floor_sand_d2
+x 23
+y 5
+end
+arch floor_sand_d4
+x 23
+y 6
+end
+arch plant_mushroom2
+x 23
+y 6
+end
+arch floor_sand_d1
+x 23
+y 7
+end
+arch fwall_sand1a
+x 23
+y 7
+end
+arch floor_sand_d2
+x 23
+y 8
+end
+arch fwall_sand1b
+x 23
+y 8
+end
+arch floor_sand_d1
+x 23
+y 9
+end
+arch fwall_sand1a
+x 23
+y 9
+end
+arch floor_sand_d3
+x 23
+y 15
+end
+arch fwall_sand1b
+x 23
+y 15
+end
+arch plant1_wall.151
+x 23
+y 15
+end
+arch floor_sand_d2
+x 23
+y 16
+end
+arch floor_sand_d4
+x 23
+y 17
+end
+arch floor_sand_d2
+x 23
+y 18
+end
+arch floor_sand_d3
+x 23
+y 19
+end
+arch floor_sand_d3
+x 23
+y 20
+end
+arch fwall_sand1b
+x 23
+y 20
+end
+arch floor_sand_d4
+x 23
+y 21
+end
+arch fwall_sand1b
+x 23
+y 21
+end
+arch plant1_wall.151
+direction 7
+x 23
+y 21
+end
+arch floor_sand_d2
+x 23
+y 22
+end
+arch fwall_sand1b
+x 23
+y 22
+end
+arch floor_sand_d4
+x 23
+y 23
+end

@@ -1,0 +1,320 @@
+arch map
+name Forgotten Tunnels
+msg
+Created:  2011-03-19 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+height_diff 1
+bg_music venturing_dragons.ogg
+region incuna
+end
+arch floor_sand_d3
+end
+arch floor_sand_d3
+y 1
+end
+arch floor_sand_d3
+y 2
+end
+arch floor_sand_d3
+y 3
+end
+arch floor_sand_d1
+y 4
+end
+arch dirt_floor1
+y 4
+end
+arch floor_sand_d4
+y 5
+end
+arch keg_big.101
+y 5
+end
+arch floor_sand_d4
+y 6
+end
+arch grain2.101
+y 6
+end
+arch floor_sand_d1
+y 7
+end
+arch cave_deco_f2.101
+y 7
+end
+arch floor_sand_d1
+y 8
+end
+arch grain2.101
+y 8
+end
+arch floor_sand_d3
+y 9
+end
+arch box1.101
+y 9
+end
+arch floor_sand_d2
+y 10
+end
+arch box1.101
+y 10
+end
+arch floor_sand_d1
+y 11
+end
+arch fwall_sand1b
+y 11
+end
+arch floor_sand_d3
+y 12
+end
+arch fwall_sand1a
+y 12
+end
+arch floor_sand_d4
+x 1
+end
+arch floor_sand_d2
+x 1
+y 1
+end
+arch basket1.101
+x 1
+y 1
+end
+arch floor_sand_d1
+x 1
+y 2
+end
+arch floor_sand_d4
+x 1
+y 3
+end
+arch floor_sand_d4
+x 1
+y 4
+end
+arch floor_sand_d3
+x 1
+y 5
+end
+arch grain1.101
+x 1
+y 5
+end
+arch floor_sand_d3
+x 1
+y 6
+end
+arch blood_floor2
+x 1
+y 6
+end
+arch spawn_point
+x 1
+y 6
+arch kobold
+name kobold mushroom keeper
+direction 7
+level 2
+wc_range 12
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 1
+y 7
+end
+arch grain5.101
+x 1
+y 7
+end
+arch floor_sand_d2
+x 1
+y 8
+end
+arch box_big.101
+x 1
+y 8
+end
+arch floor_sand_d4
+x 1
+y 9
+end
+arch box1.101
+x 1
+y 9
+end
+arch floor_sand_d4
+x 1
+y 10
+end
+arch fwall_sand1b
+x 1
+y 10
+end
+arch floor_sand_d1
+x 1
+y 11
+end
+arch fwall_sand1b
+x 1
+y 11
+end
+arch floor_sand_d4
+x 2
+end
+arch fwall_sand1b
+x 2
+end
+arch floor_sand_d4
+x 2
+y 1
+end
+arch fwall_sand1b
+x 2
+y 1
+end
+arch floor_sand_d3
+x 2
+y 2
+end
+arch fwall_sand1a
+x 2
+y 2
+end
+arch floor_sand_d1
+x 2
+y 3
+end
+arch box1.101
+x 2
+y 3
+end
+arch floor_sand_d4
+x 2
+y 4
+end
+arch box1.101
+x 2
+y 4
+end
+arch floor_sand_d3
+x 2
+y 5
+end
+arch trash_wood2.101
+x 2
+y 5
+end
+arch floor_sand_d4
+x 2
+y 6
+end
+arch grain4.101
+x 2
+y 6
+end
+arch floor_sand_d2
+x 2
+y 7
+end
+arch barrel_water.101
+x 2
+y 7
+end
+arch floor_sand_d2
+x 2
+y 8
+end
+arch barrel_water.101
+x 2
+y 8
+end
+arch floor_sand_d1
+x 2
+y 9
+end
+arch fwall_sand1b
+x 2
+y 9
+end
+arch floor_sand_d3
+x 2
+y 10
+end
+arch fwall_sand1b
+x 2
+y 10
+end
+arch floor_sand_d2
+x 3
+y 2
+end
+arch fwall_sand1b
+x 3
+y 2
+end
+arch floor_sand_d1
+x 3
+y 3
+end
+arch fwall_sand1b
+x 3
+y 3
+end
+arch floor_sand_d3
+x 3
+y 4
+end
+arch fwall_sand1b
+x 3
+y 4
+end
+arch floor_sand_d2
+x 3
+y 5
+end
+arch fwall_sand1a
+x 3
+y 5
+end
+arch floor_sand_d3
+x 3
+y 6
+end
+arch fwall_sand1b
+x 3
+y 6
+end
+arch floor_sand_d4
+x 3
+y 7
+end
+arch fwall_sand1b
+x 3
+y 7
+end
+arch floor_sand_d2
+x 3
+y 8
+end
+arch fwall_sand1b
+x 3
+y 8
+end
+arch floor_sand_d1
+x 3
+y 9
+end
+arch fwall_sand1b
+x 3
+y 9
+end

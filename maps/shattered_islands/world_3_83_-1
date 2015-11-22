@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2011-09-03 Alex Tokar
-Modified: 2015-10-06 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -96,7 +96,17 @@ arch floor_white1e
 x 13
 y 15
 end
+arch table_lab2.111
+direction 7
+x 13
+y 15
+end
 arch floor_white1d
+x 13
+y 16
+end
+arch table_lab1.111
+direction 7
 x 13
 y 16
 end
@@ -104,7 +114,17 @@ arch floor_white1a
 x 13
 y 17
 end
+arch table_lab3.111
+direction 7
+x 13
+y 17
+end
 arch floor_white1c
+x 13
+y 18
+end
+arch table_lab1.111
+direction 7
 x 13
 y 18
 end
@@ -117,7 +137,17 @@ arch floor_white1c
 x 13
 y 19
 end
+arch table_lab2.111
+direction 7
+x 13
+y 19
+end
 arch floor_white1a
+x 13
+y 20
+end
+arch table_lab3.111
+direction 7
 x 13
 y 20
 end
@@ -141,7 +171,13 @@ arch floor_white1e
 x 14
 y 14
 end
+arch shelf5_wall.111
+direction 7
+x 14
+y 14
+end
 arch torch_wall_1
+align 8
 x 14
 y 14
 end
@@ -150,6 +186,11 @@ x 14
 y 15
 end
 arch floor_white1d
+x 14
+y 16
+end
+arch chair1_111
+direction 3
 x 14
 y 16
 end
@@ -185,6 +226,11 @@ arch floor_white1b
 x 14
 y 20
 end
+arch chair1_111
+direction 3
+x 14
+y 20
+end
 arch floor_white1e
 x 14
 y 21
@@ -218,6 +264,10 @@ x 15
 y 13
 end
 arch floor_white1a
+x 15
+y 14
+end
+arch table_lab1.111
 x 15
 y 14
 end
@@ -262,6 +312,11 @@ arch floor_white1c
 x 15
 y 23
 end
+arch shelf3_wall.111
+direction 7
+x 15
+y 23
+end
 arch trans
 x 16
 y 13
@@ -274,7 +329,16 @@ arch floor_white1b
 x 16
 y 14
 end
+arch table_lab2.111
+x 16
+y 14
+end
 arch floor_white1b
+x 16
+y 15
+end
+arch chair1_111
+direction 5
 x 16
 y 15
 end
@@ -286,11 +350,50 @@ arch floor_white1e
 x 16
 y 17
 end
+arch table_stone_c
+direction 7
+x 16
+y 17
+end
+arch claw_demon
+z 22
+align -4
+sub_layer 1
+layer 4
+x 16
+y 17
+end
 arch floor_white1e
 x 16
 y 18
 end
+arch table_stone_b
+direction 7
+x 16
+y 18
+end
+arch eye_gazer
+sub_layer 1
+z 20
+align 2
+layer 4
+x 16
+y 18
+end
 arch floor_white1a
+x 16
+y 19
+end
+arch table_stone_a
+direction 7
+x 16
+y 19
+end
+arch mushroom1
+sub_layer 1
+layer 4
+z 22
+align 4
 x 16
 y 19
 end
@@ -319,6 +422,10 @@ x 17
 y 13
 end
 arch floor_white1c
+x 17
+y 14
+end
+arch table_lab1.111
 x 17
 y 14
 end
@@ -457,6 +564,11 @@ x 18
 y 14
 end
 arch floor_white1e
+x 18
+y 15
+end
+arch torch_wall_1
+align 8
 x 18
 y 15
 end
@@ -853,8 +965,6 @@ y 19
 end
 arch door1_locked
 direction 5
-slaying incuna_temple
-sp 2
 x 21
 y 19
 end

@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-10-24 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1277,8 +1277,9 @@ y 13
 end
 arch gate1_locked
 direction 3
-sp 2
+slaying incuna_western_gate_key
 cursed 1
+sp 2
 x 8
 y 13
 end
@@ -1288,13 +1289,20 @@ no_pass 0
 x 8
 y 13
 end
+arch check_inv
+slaying incuna_western_gate_key
+sp 1
+last_grace 1
+x 8
+y 13
+end
 arch floor_sand_d2
 x 8
 y 14
 end
 arch gate1_locked
 direction 5
-slaying incuna_gate
+slaying incuna_western_gate_key
 cursed 1
 sp 2
 x 8
@@ -1307,7 +1315,7 @@ x 8
 y 14
 end
 arch check_inv
-slaying incuna_gate
+slaying incuna_western_gate_key
 sp 1
 last_grace 1
 x 8
@@ -1548,14 +1556,6 @@ arch floor_sand_d3
 x 9
 y 13
 end
-arch sign
-msg
-This gate is opened for testing, normally it would require a key.
-endmsg
-name DEV message
-x 9
-y 13
-end
 arch floor_sand_d3
 x 9
 y 14
@@ -1574,9 +1574,14 @@ y 15
 arch guard_pole
 type 83
 direction 3
-name town guard
+name Rick Grizley
 faction incuna_guards
 level 18
+randomitems mob_default
+arch event_obj
+sub_type 6
+race /interfaces/quests/lost_memories/quest.xml
+end
 end
 end
 arch grassd_2

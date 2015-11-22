@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-27 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -656,30 +656,15 @@ arch grassd_4
 x 4
 y 13
 end
-arch rock_big2
+arch plant11
 x 4
 y 13
 end
-arch blocked
-x 4
-y 14
-end
-arch grassd_m3
-x 4
-y 14
-end
-arch rock_big2
+arch grassd_6
 x 4
 y 14
 end
 arch grassd_6
-x 4
-y 15
-end
-arch sign
-msg
-The dark floor seems to lead into a dungeon, you should try walking into it.
-endmsg
 x 4
 y 15
 end
@@ -812,31 +797,11 @@ arch grassd_5
 x 5
 y 12
 end
-arch rock_big2
-x 5
-y 12
-end
-arch blocked
+arch grassd_4
 x 5
 y 13
 end
-arch rock_big2
-x 5
-y 13
-end
-arch blocked
-no_pass 0
-x 5
-y 14
-end
-arch grassd_m7
-x 5
-y 14
-end
-arch invis_exit
-slaying incuna/forgotten_tunnels/tunnels_0101
-hp 9
-sp 13
+arch grassd_3
 x 5
 y 14
 end
@@ -980,31 +945,19 @@ arch rock_big2
 x 6
 y 11
 end
-arch blocked
+arch grassd_6
 x 6
 y 12
 end
-arch rock_big2
+arch plant8
 x 6
 y 12
 end
-arch blocked
+arch grassd_5
 x 6
 y 13
 end
-arch blocked
-no_pass 0
-x 6
-y 14
-end
-arch grassd_m7
-x 6
-y 14
-end
-arch invis_exit
-slaying incuna/forgotten_tunnels/tunnels_0101
-hp 10
-sp 13
+arch grassd_7
 x 6
 y 14
 end
@@ -1013,6 +966,10 @@ x 6
 y 15
 end
 arch grassd_2
+x 6
+y 16
+end
+arch plant14
 x 6
 y 16
 end
@@ -1165,27 +1122,11 @@ arch rock_big2
 x 7
 y 12
 end
-arch blocked
+arch grassd_5
 x 7
 y 13
 end
-arch rock_big2
-x 7
-y 13
-end
-arch blocked
-no_pass 0
-x 7
-y 14
-end
-arch grassd_m7
-x 7
-y 14
-end
-arch invis_exit
-slaying incuna/forgotten_tunnels/tunnels_0101
-hp 11
-sp 13
+arch grassd_5
 x 7
 y 14
 end
@@ -1343,15 +1284,11 @@ arch rock_big2
 x 8
 y 13
 end
-arch blocked
+arch grassd_6
 x 8
 y 14
 end
-arch grassd_m5
-x 8
-y 14
-end
-arch rock_big2
+arch plant8
 x 8
 y 14
 end
@@ -1522,6 +1459,10 @@ x 9
 y 14
 end
 arch grassd_7
+x 9
+y 15
+end
+arch plant6
 x 9
 y 15
 end
@@ -1881,6 +1822,10 @@ arch grassd_8
 x 11
 y 16
 end
+arch plant6
+x 11
+y 16
+end
 arch floor_ruin6
 x 11
 y 17
@@ -1964,7 +1909,11 @@ arch floor_cave2
 x 12
 y 4
 end
-arch rock6
+arch crystal10
+x 12
+y 4
+end
+arch light3
 x 12
 y 4
 end
@@ -1990,6 +1939,10 @@ x 12
 y 8
 end
 arch crystal_yellow_s
+x 12
+y 8
+end
+arch light3
 x 12
 y 8
 end
@@ -2132,11 +2085,19 @@ blocksview 0
 x 13
 y 2
 end
-arch grassd_4
+arch floor_cave1
 x 13
 y 3
 end
-arch fwall_grit1b
+arch stairs_down
+x 13
+y 3
+end
+arch cave_deco_full
+x 13
+y 3
+end
+arch light1
 x 13
 y 3
 end
@@ -2144,7 +2105,8 @@ arch floor_cave1
 x 13
 y 4
 end
-arch crystal10
+arch stairs_stone_down
+direction 1
 x 13
 y 4
 end
@@ -2311,15 +2273,28 @@ blocksview 0
 x 14
 y 2
 end
-arch grassd_5
+arch cave_deco_wall3
+x 14
+y 2
+end
+arch floor_cave1
 x 14
 y 3
 end
-arch fwall_grit1b
+arch stairs_down
+x 14
+y 3
+end
+arch light2
 x 14
 y 3
 end
 arch floor_cave5
+x 14
+y 4
+end
+arch stairs_stone_down
+direction 1
 x 14
 y 4
 end
@@ -2489,11 +2464,19 @@ blocksview 0
 x 15
 y 2
 end
-arch grassd_7
+arch cave_deco_wall2
+x 15
+y 2
+end
+arch floor_cave5
 x 15
 y 3
 end
-arch fwall_grit1b
+arch stairs_down
+x 15
+y 3
+end
+arch light1
 x 15
 y 3
 end
@@ -2501,15 +2484,12 @@ arch floor_cave2
 x 15
 y 4
 end
-arch small_stones
+arch stairs_stone_down
+direction 1
 x 15
 y 4
 end
 arch floor_cave5
-x 15
-y 5
-end
-arch rock6
 x 15
 y 5
 end
@@ -2677,6 +2657,10 @@ arch floor_cave6
 x 16
 y 5
 end
+arch rock6
+x 16
+y 5
+end
 arch floor_cave5
 x 16
 y 6
@@ -2707,6 +2691,10 @@ x 16
 y 11
 end
 arch crystal_red
+x 16
+y 11
+end
+arch light5
 x 16
 y 11
 end
@@ -3030,6 +3018,10 @@ x 18
 y 9
 end
 arch crystal14
+x 18
+y 9
+end
+arch light3
 x 18
 y 9
 end

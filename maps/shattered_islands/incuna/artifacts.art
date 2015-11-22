@@ -32,3 +32,34 @@ Object
 name Incuna Tavern Barn Key
 slaying incuna_tavern_barn
 end
+
+Allowed none
+chance 1
+artifact incuna_western_gate_key
+def_arch key2
+Object
+name Incuna Western Gate Key
+slaying incuna_western_gate_key
+end
+
+Allowed none
+chance 1
+artifact incuna_talisman_blue_crystal
+def_arch talisman_generic
+Object
+name Blue Crystal Talisman
+title of Incuna
+face talisman_great_blue_crystal.101
+is_named 1
+material 324
+glow_speed 4
+glow 00face
+maxsp 10
+maxhp 10
+sp 1
+hp 1
+msg
+There is a vibrant aura around the blue crystal. It's quite cool to the touch, but you can feel it buzzing with energy...
+endmsg
+value 1500
+end
