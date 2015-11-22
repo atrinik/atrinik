@@ -1297,12 +1297,6 @@ arch floor_sand_d1
 x 13
 y 9
 end
-arch amulet_generic
-material_real 514
-material 324
-x 13
-y 9
-end
 arch floor_sand_d2
 x 13
 y 10
@@ -2190,6 +2184,8 @@ name lost_memories
 arch quest_container
 name the_kobolds
 sub_type 2
+arch incuna_talisman_blue_crystal
+end
 end
 end
 end
