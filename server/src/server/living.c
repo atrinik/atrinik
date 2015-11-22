@@ -817,7 +817,7 @@ void living_update_player(object *op)
 
                 if (tmp->attack[i] > 0 && tmp->type != DISEASE &&
                     tmp->type != SYMPTOM && tmp->type != POISONING) {
-                    uint attack = op->attack[i] + tmp->attack[i];
+                    unsigned int attack = op->attack[i] + tmp->attack[i];
                     op->attack[i] = MIN(UINT8_MAX, attack);
                 }
             }
@@ -927,7 +927,7 @@ void living_update_player(object *op)
             attacks[i] = MIN(UINT8_MAX, op->attack[i] + potion_attack[i]);
         }
 
-        uint attack = op->attack[i] + attacks[i];
+        unsigned int attack = op->attack[i] + attacks[i];
         op->attack[i] = MIN(UINT8_MAX, attack);
 
         /* Add in the potion protections. */
@@ -1083,8 +1083,8 @@ void living_update_player(object *op)
                     continue;
                 }
 
-                uint attack = op->attack[i] +
-                              pl->skill_ptr[SK_UNARMED]->attack[i];
+                unsigned int attack = op->attack[i] +
+                                      pl->skill_ptr[SK_UNARMED]->attack[i];
                 op->attack[i] = MIN(UINT8_MAX, attack);
             }
         }
