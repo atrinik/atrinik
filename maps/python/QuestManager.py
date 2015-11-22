@@ -215,6 +215,9 @@ class QuestManager:
             if keep:
                 tmp.f_quest_item = False
                 tmp.f_startequip = False
+
+                if tmp.f_soulbound:
+                    tmp.WriteKey("soulbound_name", self.activator.name)
             else:
                 remove = min(max(1, tmp.nrof), nrof - removed)
                 tmp.Decrease(remove)
