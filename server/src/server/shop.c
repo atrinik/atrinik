@@ -449,6 +449,22 @@ static bool shop_pay_items_rec(object *op, object *where)
             char *name = object_get_name_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You paid %s for %s.",
                     shop_get_cost_string_item(tmp, COST_BUY), name);
+
+            if (QUERY_FLAG(tmp, FLAG_SOULBOUND)) {
+                bool ret = object_set_value(tmp,
+                                            "soulbound_name",
+                                            op->name,
+                                            true);
+                if (ret) {
+                    draw_info_format(COLOR_WHITE, op,
+                                     "%s becomes soulbound to you.", name);
+                } else {
+                    CLEAR_FLAG(tmp, FLAG_SOULBOUND);
+                    LOG(ERROR, "Failed to soulbind %s to %s",
+                        object_get_str(tmp), object_get_str(op));
+                }
+            }
+
             efree(name);
 
             /* If the object wasn't merged, send flags update. */

@@ -1467,6 +1467,28 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
         }
     }
 
+    if (QUERY_FLAG(tmp, FLAG_SOULBOUND)) {
+        if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
+            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture,
+                                  op, "%s would become soulbound to you.",
+                                  tmp->nrof > 1 ? "They" : "It");
+        } else {
+            shstr *soulbound_name = object_get_value(tmp, "soulbound_name");
+            if (soulbound_name == NULL) {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                                      sb_capture, op,
+                                      "%s soulbound without an owner.",
+                                      tmp->nrof > 1 ? "They are" : "It is");
+            } else {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                                      sb_capture, op,
+                                      "%s soulbound to %s.",
+                                      tmp->nrof > 1 ? "They are" : "It is",
+                                      soulbound_name);
+            }
+        }
+    }
+
     if (QUERY_FLAG(tmp, FLAG_STARTEQUIP)) {
         /* Unpaid clone shop item */
         if (QUERY_FLAG(tmp, FLAG_UNPAID)) {

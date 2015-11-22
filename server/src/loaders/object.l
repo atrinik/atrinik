@@ -733,6 +733,7 @@ lex_error = 0;
 ^is_vul_sphere{S}    {/* DEPRECATED */}
 ^is_proof_sphere{S}  {/* DEPRECATED */}
 ^is_indestructible{S} CHANGE_FLAG(op, FLAG_INDESTRUCTIBLE, IVAL);
+^soulbound{S}        CHANGE_FLAG(op, FLAG_SOULBOUND, IVAL);
 
     /* Ignore editor_folder values. */
 ^editor_folder{S}    {}

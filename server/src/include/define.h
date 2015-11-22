@@ -888,6 +888,10 @@
  * The object is evil. */
 #define FLAG_IS_EVIL 43
 /**
+ * The object is soulbound to the player.
+ */
+#define FLAG_SOULBOUND 44
+/**
  * Object runs away from nearest player but can still attack
  * from distance. */
 #define FLAG_RUN_AWAY 45

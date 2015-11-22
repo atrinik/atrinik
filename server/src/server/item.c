@@ -288,6 +288,10 @@ StringBuffer *object_get_name(const object *op, const object *caller,
         stringbuffer_append_string(sb, " (quest)");
     }
 
+    if (QUERY_FLAG(op, FLAG_SOULBOUND)) {
+        stringbuffer_append_string(sb, " (soulbound)");
+    }
+
     if (QUERY_FLAG(op, FLAG_INV_LOCKED)) {
         stringbuffer_append_string(sb, " *");
     }

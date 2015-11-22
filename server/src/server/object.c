@@ -208,7 +208,7 @@ const char *object_flag_names[NUM_FLAGS + 1] = {
     "walk_off", "fly_on", "fly_off", "is_used_up", "identified",
     "reflecting", "changing", "splitting", "hitback", "startequip",
     "blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
-    "reflect_spell", "no_magic", "no_fix_player", "is_evil", NULL,
+    "reflect_spell", "no_magic", "no_fix_player", "is_evil", "soulbound",
     "run_away", "pass_thru", "can_pass_thru", "outdoor", "unique",
     "no_drop", "is_indestructible", "can_cast_spell", NULL, "two_handed",
     "can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push", "connect_no_release",
@@ -2456,6 +2456,17 @@ int can_pick(object *who, object *item)
 
     if (IS_INVISIBLE(item, who) && !QUERY_FLAG(who, FLAG_SEE_INVISIBLE)) {
         return 0;
+    }
+
+    if (QUERY_FLAG(item, FLAG_SOULBOUND)) {
+        shstr *name = object_get_value(item, "soulbound_name");
+        if (name == NULL) {
+            return 0;
+        }
+
+        if (name != who->name) {
+            return 0;
+        }
     }
 
     /* Weight limit for monsters */

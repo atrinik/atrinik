@@ -393,6 +393,7 @@ class Game:
             "is_dust": BOOLEAN,
             "one_hit": BOOLEAN,
             "is_indestructible": BOOLEAN,
+            "soulbound": BOOLEAN,
 
             "spawn_time": STRING,
             "stock": INTEGER,
