@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2015-10-25 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1192,15 +1192,6 @@ arch wall_cave1.121
 x 15
 y 23
 end
-arch floor_sand_d3
-z 24
-x 15
-y 23
-end
-arch wall_cave1.121
-x 15
-y 23
-end
 arch floor_sand_d2
 z 24
 x 16
@@ -1291,17 +1282,7 @@ z 24
 x 18
 y 20
 end
-arch water_lt
-z 24
-x 18
-y 20
-end
 arch water_lt4
-z 24
-x 18
-y 21
-end
-arch water_lt
 z 24
 x 18
 y 21
