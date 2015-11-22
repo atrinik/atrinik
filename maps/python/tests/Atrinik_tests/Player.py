@@ -477,7 +477,9 @@ class PlayerFieldsSuite(PlayerCommonSuite):
             self.pl.quest_container = None
 
         self.assertIsNotNone(self.pl.quest_container)
+        self.pl.ob.f_no_fix_player = True
         self.pl.quest_container.Destroy()
+        self.pl.ob.f_no_fix_player = False
         self.assertIsNone(self.pl.quest_container)
         ob = self.pl.ob.CreateObject("quest_container")
         self.assertIsNotNone(self.pl.quest_container)
