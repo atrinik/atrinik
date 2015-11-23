@@ -153,6 +153,8 @@ void regions_init(void)
             region->jailmap = estrdup(path);
             region->jailx = x;
             region->jaily = y;
+        } else if (strcmp(key, "child_maps") == 0) {
+            region->child_maps = KEYWORD_IS_TRUE(value);
         } else {
             LOG(ERROR, "Parsing error: %s %s", buf,
                     value ? value : "");

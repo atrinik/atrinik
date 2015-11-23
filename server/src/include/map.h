@@ -476,6 +476,8 @@ typedef struct region_struct {
 
     /** Y coodinate in jailmap to which the player should be sent. */
     int16_t jaily;
+
+    bool child_maps:1; ///< If true, map of this region has all the children.
 } region_struct;
 
 /**
