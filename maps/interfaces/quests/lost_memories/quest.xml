@@ -4,17 +4,6 @@
   'ads-1.dtd'>
 <interfaces>
     <quest name="Lost Memories">
-        <interface npc="Sam Goodberry" state="completed">
-            <dialog name="hello">
-                <message>Ah, good! You seem much more confident now - almost the same person I have seen in you when you first came to me and hired me to transport you to Strakewood.</message>
-                <message>Very well then. Are you packed up and ready to go?</message>
-                <response destination="ready" message="I'm ready."/>
-                <response action="close" message="Not just yet..."/>
-            </dialog>
-            <dialog name="ready">
-                <close/>
-            </dialog>
-        </interface>
         <interface npc="Sam Goodberry">
             <dialog name="hello">
                 <message>Hmmm... You don't seem ready yet, {activator.name}. I am sorry, but unless you regain at least part of your memory, there's no reason for us to sail to Strakewood...</message>
@@ -96,6 +85,15 @@
                     <response action="close" message="I'll do that."/>
                 </dialog>
             </interface>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, {activator.name}! You're back. How did it go with the priest, Brelend?</message>
+                    <response destination="working" message="I'm working on it."/>
+                </dialog>
+                <dialog name="working">
+                    <message>I see. Don't worry, we're not in a hurry... but unless you regain some of your memory, I don't see the need for us to sail for Strakewood yet.</message>
+                </dialog>
+            </interface>
             <interface inherit="interface" npc="Brelend Lee" state="need_complete">
                 <dialog name="hello">
                     <response destination="helprecover" message="I need help recovering my memories."/>
@@ -136,6 +134,15 @@
         </part>
         <part name="Healed Body..." uid="healed_body">
             <info>You have visited the local priest, Brelend Lee, and agreed to let him try and heal you with a spell.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, {activator.name}! You're back. How did it go with the priest, Brelend?</message>
+                    <response destination="working" message="I'm working on it."/>
+                </dialog>
+                <dialog name="working">
+                    <message>I see. Don't worry, we're not in a hurry... but unless you regain some of your memory, I don't see the need for us to sail for Strakewood yet.</message>
+                </dialog>
+            </interface>
             <interface inherit="interface" npc="Brelend Lee" state="need_complete">
                 <dialog name="hello">
                     <response destination="headhealed" message="My head doesn't hurt anymore!"/>
@@ -171,12 +178,36 @@
             <info>Brelend Lee has tried to recover your memories, but he was only successful in healing the wounds of the flesh. He has suggested that you go speak to Sam Goodberry while he ponders what to do next...</info>
             <interface npc="Sam Goodberry" state="need_complete">
                 <dialog name="hello">
-                    <message>test</message>
+                    <message>Ah, {activator.name}! You're back. How did it go with the priest, Brelend?</message>
+                    <response destination="remember" message="My head doesn't hurt anymore, but I still can't remember much at all."/>
+                </dialog>
+                <dialog name="remember">
+                    <message>Hm... that's not good at all. However, I may have found something for you to try. It might help you.</message>
+                    <response destination="whatis" message="What is it?"/>
+                </dialog>
+                <dialog name="whatis">
+                    <message>First off, I spoke to some of my friends around here. They're willing to help, if you want to stop by them.</message>
+                    <message>First is the smith, Ken Berger. He has agreed to let you choose a melee weapon of your choice. I'm afraid that shiny meteorite steel sword you had must have gone overboard back in the storm, I couldn't find it anywhere. His shop is just by the temple.</message>
+                    <response destination="else" message="Sounds good. What else?"/>
+                </dialog>
+                <dialog name="else">
+                    <message>The local hunter, Tom Istrad, has also agreed to let you choose one of his ranged weapons, if you so wish. I remember you practising with that yew longbow back on the ship; perhaps you'd like something like that again. He has a shop by the western gate.</message>
+                    <message>There's also the priest, John Aldman, who wanted to teach you some divine magic. Now, I heard rumours that you knew some magic already, so you might just have the knack for this sort of thing. You can find him in the temple's basement.</message>
+                    <response destination="then" message="Thank you. And then?"/>
+                </dialog>
+                <dialog name="then">
+                    <message>Well... once you're ready, I heard my old friend, Arvend Blessed, the local tavern owner, is in need of some assistance.</message>
+                    <message>I would appreciate it if you could lend him a hand in the matter. Be warned though, Arvend can be a bit... eccentric at times.</message>
+                    <response destination="alright" message="Alright, I'll give it a shot."/>
+                </dialog>
+                <dialog name="alright">
+                    <message>Thank you, I appreciate it! You should be able to see Arvend's tavern from here; it's the building just past the docks, near the temple.</message>
                     <action start="gear"/>
-                    <action start="sorcery"/>
                     <action start="archery"/>
+                    <action start="sorcery"/>
                     <action start="helping_out"/>
                     <action complete="broken_spirit"/>
+                    <response action="close" message="Thanks, see you soon."/>
                 </dialog>
             </interface>
         </part>
@@ -552,6 +583,7 @@ finally:
                                 <and>
                                     <action start="report_sam"/>
                                     <message color="navy">You should report your progress to Sam...</message>
+                                    <action complete="helping_out::ant_trouble::the_ants"/>
                                     <action complete="helping_out::ant_trouble"/>
                                     <action complete="helping_out"/>
                                 </and>
@@ -574,6 +606,7 @@ finally:
                                 <and>
                                     <action start="report_sam"/>
                                     <message color="navy">You should report your progress to Sam...</message>
+                                    <action complete="helping_out::ant_trouble::the_ants"/>
                                     <action complete="helping_out::ant_trouble"/>
                                     <action complete="helping_out"/>
                                 </and>
@@ -594,6 +627,7 @@ finally:
                                 <object arch="coppercoin" nrof="50"/>
                                 <action start="report_sam"/>
                                 <action complete="helping_out::ant_trouble::the_ants::report_arvend"/>
+                                <action complete="helping_out::ant_trouble::the_ants"/>
                                 <action complete="helping_out::ant_trouble"/>
                                 <action complete="helping_out"/>
                                 <message color="navy">You should report your progress to Sam...</message>
@@ -726,6 +760,7 @@ finally:
                 <dialog name="recover">
                     <message>I know you will. You seem to be much more in control, so to speak, in comparison to when you first came to me. How strange...</message>
                     <message>Well, go on, {activator.name}. Go to the western gate of the town, and ask Rick Grizley for a key to open it. From there, look for a bridge to the north and then, for a cave in the old mines.</message>
+                    <message>If you do find the crystal, make sure to use gloves or a piece of cloth to handle it, for it could be very dangerous...</message>
                     <action start="the_kobolds"/>
                     <action complete="the_solution"/>
                     <response action="close" message="I'll better head there right away. See you soon."/>
@@ -734,6 +769,146 @@ finally:
         </part>
         <part name="The Kobolds" uid="the_kobolds">
             <info>Receiving information about a powerful magical crystal in the old mines, located to the north of the north of Incuna past a bridge, you decide to investigate. The western gate out of the town is locked, but Brelend Lee mentioned that Rick Grizley, a guard by gate, has a key to open it.</info>
+            <item arch="incuna_talisman_blue_crystal" keep="1"/>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>So, have you spoken to Brelend yet?</message>
+                    <response destination="yes" message="Yes. He wanted me to go to the old mines."/>
+                </dialog>
+                <dialog name="yes">
+                    <message>Hm, that's terribly dangerous. Make sure you're ready before you head out. But Brelend must know what he's doing...</message>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_finish">
+                <dialog name="hello">
+                    <response destination="mines" message="Sorry, how do I get to the mines again?"/>
+                    <inherit/>
+                </dialog>
+                <dialog name="mines">
+                    <message color="yellow">{npc.name} sighs.</message>
+                    <message>Follow the road west from the church until you reach a gate; the guard will let you pass if you tell him I sent you.</message>
+                    <message>From there, head north, past a bridge until you see a rocky formation. Find the entrance on the western side of the formation, and proceed forth with caution...</message>
+                    <message>The tales speak of a kobold king, or a leader, taking the blue crystal for himself. Please, bring it back in one piece...</message>
+                    <response action="close" message="I'm on it. See you."/>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
+                <dialog name="hello">
+                    <response destination="crystal" message="I recovered the blue crystal!"/>
+                    <inherit/>
+                </dialog>
+                <dialog name="crystal">
+                    <message>You did?! I didn't think it possible! Fascinating, simply fascinating.</message>
+                    <message>Now we shall see... here, let me have a look.</message>
+                    <message color="yellow">You let Brelend inspect the ring thoroughly...</message>
+                    <message>Strange... it almost feels alive, buzzing with energy! No time to waste. Why don't you try putting it on?</message>
+                    <response destination="goes" message="Here goes..."/>
+                </dialog>
+                <dialog name="goes">
+                    <action start="the_presence"/>
+                    <action complete="the_kobolds"/>
+                    <action>talisman = self._activator.FindObject(INVENTORY_ALL, archname=&quot;incuna_talisman_blue_crystal&quot;)
+if talisman and not talisman.f_applied:
+    self._activator.Apply(talisman)</action>
+                    <message color="yellow">You barely touch the crystal with your bare skin, and you feel a shock run through you.</message>
+                    <message>What's this?! Can you sense it too?! A presence!</message>
+                    <message color="#ffface">[b][o=#ab1010][font=fanwood][size=+4][i]{activator.name}[/i]... come... continue your journey... and your questions... shall be answered...[/size][/font][/o][/b]</message>
+                    <message>Oh my! Did you hear that too?</message>
+                    <response destination="whatwas" message="Yes, what was it?!"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Presence" uid="the_presence">
+            <info>Touching the blue crystal with your bare skin, something spoke to you and to Brelend. Perhaps he knows what it was...</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>So, have you spoken to Brelend yet?</message>
+                    <response destination="touched" message="Yes, and I heard something speak to me when I touched the crystal!"/>
+                </dialog>
+                <dialog name="touched">
+                    <message>What?! That's a bad sign. You should ask Brelend what it means...</message>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
+                <dialog name="hello">
+                    <message>{activator.name}! Snap out of it! Did you hear that too?</message>
+                    <response destination="whatwas" message="Yes, what was it?!"/>
+                </dialog>
+                <dialog name="whatwas">
+                    <message>A dark presence. I have never in my entire life, felt anything so powerful and menacing. Its voice still echoes in my mind...</message>
+                    <message>I wouldn't touch the crystal again if I were you, and I would get rid of it as soon as possible.</message>
+                    <response destination="trouble" message="After all the trouble we went through for it?"/>
+                    <response destination="bad" message="It can't be all that bad."/>
+                </dialog>
+                <dialog name="trouble">
+                    <message>Hm... well...</message>
+                    <message>Tell me. Do you feel any different?</message>
+                    <response destination="clicked" message="I feel like something has... clicked... into place."/>
+                    <response destination="dizzy" message="I feel a bit dizzy."/>
+                </dialog>
+                <dialog name="bad">
+                    <message>You don't know what you speak of. I insist, we must get rid of it.</message>
+                    <response destination="trouble" message="After all the trouble we went through for it?"/>
+                </dialog>
+                <dialog name="dizzy">
+                    <message>I don't doubt that. What about your memory though?</message>
+                    <response destination="clicked" message="I feel like something has... clicked... into place."/>
+                </dialog>
+                <dialog name="clicked">
+                    <message>Hm... it is as I feared. There is some sort of a magical bond between you, the crystal, and whatever that... thing... that spoke to us, was.</message>
+                    <message>It said something about continuing your journey... well, I see no harm in that. However, be careful, please. That thing... is dangerous.</message>
+                    <response destination="talk" message="Thank you for everything. I'll go talk to Sam."/>
+                </dialog>
+                <dialog name="talk">
+                    <message>Good idea. Remember, stay vigilant. And, {activator.name}?</message>
+                    <message>Best of luck to you.</message>
+                    <action start="the_journey"/>
+                    <action complete="the_presence"/>
+                    <response action="close" message="Thank you. Take care now."/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Journey" uid="the_journey">
+            <info>After discussing with Brelend, you decide to continue on your journey and head back to Sam.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>So, how are we feeling? Did you figure out anything with Brelend?</message>
+                    <response destination="continue" message="Yes. We summoned a... thing. It told me to continue my journey."/>
+                </dialog>
+                <dialog name="continue">
+                    <message>A thing? That spoke to you? What on earth do you mean?</message>
+                    <response destination="presence" message="It was some sort of a presence. I'm not quite sure."/>
+                    <response destination="presson" message="Whatever it was, we need to press on, captain."/>
+                </dialog>
+                <dialog name="presence">
+                    <message>How queer! What are we to do about it?</message>
+                    <response destination="presson" message="We need to press on, captain."/>
+                </dialog>
+                <dialog name="presson">
+                    <message>Aye... I can see that you're no longer the same person who lost their memory. You seem more... sure of yourself.</message>
+                    <message>Very well then. Are you packed up and ready to go?</message>
+                    <response destination="ready" message="I'm ready."/>
+                    <response action="close" message="Not just yet..."/>
+                </dialog>
+                <dialog name="ready">
+                    <and>
+                        <ncheck completed="gear"/>
+                        <action fail="gear"/>
+                    </and>
+                    <action/>
+                    <and>
+                        <ncheck completed="sorcery"/>
+                        <action fail="sorcery"/>
+                    </and>
+                    <action/>
+                    <and>
+                        <ncheck completed="archery"/>
+                        <action fail="archery"/>
+                    </and>
+                    <action complete="the_journey"/>
+                    <close/>
+                </dialog>
+            </interface>
         </part>
     </quest>
 </interfaces>
