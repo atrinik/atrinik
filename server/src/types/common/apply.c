@@ -22,13 +22,28 @@
  * The author can be reached at admin@atrinik.org                        *
  ************************************************************************/
 
+/**
+ * @file
+ *
+ * Apply-related functions.
+ *
+ * @author Alex Tokar
+ */
+
 #include <global.h>
 
-int common_object_apply(object *op, object *applier, int aflags)
+/**
+ * Handle generic object applying.
+ *
+ * @param op Object being applied.
+ * @param applier Who is applying the object.
+ * @param aflags Apply flags.
+ * @return One of @ref OBJECT_METHOD_xxx.
+ */
+int
+common_object_apply (object *op, object *applier, int aflags)
 {
-    (void) aflags;
-
-    if (op->msg) {
+    if (op->msg != NULL) {
         draw_info(COLOR_WHITE, applier, op->msg);
         return OBJECT_METHOD_OK;
     }
@@ -36,48 +51,72 @@ int common_object_apply(object *op, object *applier, int aflags)
     return OBJECT_METHOD_UNHANDLED;
 }
 
-static int object_apply_item_check_type(object *op, object *tmp)
+/**
+ * Check if the specified object matches the type of the one being applied,
+ * and whether it's applied.
+ *
+ * @param op Object being applied.
+ * @param tmp Object to check.
+ * @return True if the object matches, false otherwise.
+ */
+static bool
+object_apply_item_check_type (object *op, object *tmp)
 {
     if (!QUERY_FLAG(tmp, FLAG_APPLIED)) {
-        return 0;
+        return false;
     }
 
-    if (op->type == tmp->type && QUERY_FLAG(op, FLAG_IS_THROWN) == QUERY_FLAG(tmp, FLAG_IS_THROWN)) {
-        return 1;
+    if (op->type == tmp->type &&
+        QUERY_FLAG(op, FLAG_IS_THROWN) == QUERY_FLAG(tmp, FLAG_IS_THROWN)) {
+        return true;
     }
 
     if (OBJECT_IS_RANGED(op) && OBJECT_IS_RANGED(tmp)) {
-        return 1;
+        return true;
     }
 
     if (OBJECT_IS_AMMO(op) && OBJECT_IS_AMMO(tmp)) {
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
-int object_apply_item(object *op, object *applier, int aflags)
+/**
+ * Generic handler for applying equipment-like items, such as armour, weapons,
+ * trinkets, jewelry, etc.
+ *
+ * @param op Object being applied.
+ * @param applier Who is applying the object.
+ * @param aflags Apply flags.
+ * @return One of @ref OBJECT_METHOD_xxx.
+ */
+int
+object_apply_item (object *op, object *applier, int aflags)
 {
-    int basic_aflag;
-
-    if (!op || !applier) {
-        return OBJECT_METHOD_UNHANDLED;
-    }
+    SOFT_ASSERT_RC(op != NULL, OBJECT_METHOD_UNHANDLED,
+                   "Object to apply is NULL.");
+    SOFT_ASSERT_RC(applier != NULL, OBJECT_METHOD_UNHANDLED,
+                   "Applier is NULL.");
 
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_UNHANDLED;
     }
 
+    /* The item must be in the applier's inventory in order to be equipped. */
     if (op->env != applier) {
         return OBJECT_METHOD_ERROR;
     }
 
-    basic_aflag = aflags & APPLY_BASIC_FLAGS;
+    int basic_aflag = aflags & APPLY_BASIC_FLAGS;
 
     if (!QUERY_FLAG(op, FLAG_APPLIED)) {
-        if (op->item_power != 0 && op->item_power + CONTR(applier)->item_power > settings.item_power_factor * applier->level) {
-            draw_info(COLOR_WHITE, applier, "Equipping that combined with other items would consume your soul!");
+        if (op->item_power != 0 &&
+            op->item_power + CONTR(applier)->item_power >
+                settings.item_power_factor * applier->level) {
+            draw_info(COLOR_WHITE, applier,
+                      "Equipping that combined with other items would consume "
+                      "your soul!");
             return OBJECT_METHOD_ERROR;
         }
     } else {
@@ -86,8 +125,11 @@ int object_apply_item(object *op, object *applier, int aflags)
             return OBJECT_METHOD_OK;
         }
 
-        if (!(aflags & APPLY_IGNORE_CURSE) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))) {
-            draw_info_format(COLOR_WHITE, applier, "No matter how hard you try, you just can't remove it!");
+        if (!(aflags & APPLY_IGNORE_CURSE) &&
+            (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))) {
+            draw_info_format(COLOR_WHITE, applier,
+                             "No matter how hard you try, you just can't "
+                             "remove it!");
             return OBJECT_METHOD_ERROR;
         }
 
@@ -223,9 +265,11 @@ int object_apply_item(object *op, object *applier, int aflags)
     case SKILL:
     case ARROW:
     case CONTAINER:
-        if (op->type == SPELL && SKILL_LEVEL(CONTR(applier), SK_WIZARDRY_SPELLS) < op->level) {
-            draw_info_format(COLOR_WHITE, applier, "Your wizardry spells skill "
-                    "is too low to use %s.", name);
+        if (op->type == SPELL &&
+            SKILL_LEVEL(CONTR(applier), SK_WIZARDRY_SPELLS) < op->level) {
+            draw_info_format(COLOR_WHITE, applier,
+                             "Your wizardry spells skill is too low to use %s.",
+                             name);
             efree(name);
             return OBJECT_METHOD_ERROR;
         }
@@ -234,8 +278,10 @@ int object_apply_item(object *op, object *applier, int aflags)
         SET_FLAG(op, FLAG_APPLIED);
 
         if (op->type == BOW) {
-            draw_info_format(COLOR_WHITE, applier, "You will now fire %s with "
-                    "%s.", op->race ? op->race : "nothing", name);
+            draw_info_format(COLOR_WHITE, applier,
+                             "You will now fire %s with %s.",
+                             op->race != NULL ? op->race : "nothing",
+                             name);
         }
 
         break;
