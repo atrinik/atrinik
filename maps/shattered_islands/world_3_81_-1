@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2015-11-22 Alex Tokar
+Modified: 2015-11-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1751,16 +1751,6 @@ arch floor_sand_d1
 x 16
 y 8
 end
-arch spawn_point
-x 16
-y 8
-arch kobold_guard
-name kobold clan guard
-level 5
-wis 2
-type 83
-end
-end
 arch floor_sand_d4
 x 16
 y 9
@@ -2063,13 +2053,46 @@ arch torch_wall_1
 x 18
 y 8
 end
+arch magic_mouth
+msg
+You found what appears to be the kobold leader's chamber. Perhaps the blue crystal is here somewhere...
+endmsg
+x 18
+y 8
+arch event_obj
+sub_type 10
+race scripts/incuna/forgotten_tunnels_magic_mouth.py
+end
+end
 arch floor_sand_d1
 x 18
 y 9
 end
+arch magic_mouth
+msg
+You found what appears to be the kobold leader's chamber. Perhaps the blue crystal is here somewhere...
+endmsg
+x 18
+y 9
+arch event_obj
+sub_type 10
+race scripts/incuna/forgotten_tunnels_magic_mouth.py
+end
+end
 arch floor_sand_d1
 x 18
 y 10
+end
+arch magic_mouth
+msg
+You found what appears to be the kobold leader's chamber. Perhaps the blue crystal is here somewhere...
+endmsg
+x 18
+y 10
+arch event_obj
+sub_type 10
+race scripts/incuna/forgotten_tunnels_magic_mouth.py
+end
 end
 arch floor_sand_d2
 x 18
@@ -2424,16 +2447,6 @@ arch floor_sand_d2
 x 20
 y 9
 end
-arch spawn_point
-x 20
-y 9
-arch kobold_guard
-name kobold clan guard
-level 5
-wis 2
-type 83
-end
-end
 arch floor_sand_d2
 x 20
 y 10
@@ -2564,22 +2577,6 @@ end
 arch floor_sand_d2
 x 21
 y 7
-end
-arch spawn_point
-x 21
-y 7
-arch kobold_shaman
-level 6
-wis 2
-type 83
-arch ability_cause_lig_wound
-last_grace 14
-end
-arch ability_cause_lig_wound
-sp 2
-hp 2
-end
-end
 end
 arch floor_sand_d4
 x 21
@@ -2750,6 +2747,22 @@ end
 arch floor_sand_d3
 x 22
 y 7
+end
+arch spawn_point
+x 22
+y 7
+arch kobold_shaman
+level 6
+wis 2
+type 83
+arch ability_cause_lig_wound
+last_grace 14
+end
+arch ability_cause_lig_wound
+sp 2
+hp 2
+end
+end
 end
 arch floor_sand_d3
 x 22
@@ -2922,6 +2935,14 @@ name Forgotten Tunnels Kobold Key
 face key_gray.111
 slaying forgotten_tunnels_kobold_key
 startequip 1
+end
+end
+arch rand_drop
+container 15
+arch robe
+amask robe_min_dex
+magic 1
+is_magical 1
 end
 end
 end
