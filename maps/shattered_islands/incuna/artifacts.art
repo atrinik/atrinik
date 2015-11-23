@@ -52,6 +52,7 @@ title of Incuna
 face talisman_great_blue_crystal.101
 is_named 1
 soulbound 1
+identified 1
 material 324
 glow_speed 4
 glow 00face
