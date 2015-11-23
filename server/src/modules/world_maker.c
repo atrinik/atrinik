@@ -562,6 +562,10 @@ void world_maker(void)
                 sb = stringbuffer_new();
 
                 for (r2 = m->region; r2 != NULL; r2 = r2->parent) {
+                    if (r2 != m->region && !r2->child_maps) {
+                        continue;
+                    }
+
                     if (stringbuffer_length(sb) != 0) {
                         stringbuffer_append_char(sb, ',');
                     }
