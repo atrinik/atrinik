@@ -218,25 +218,21 @@ You see many passages here, and wonder which you should take.
 It is said Zechna awaits any challenger at the end of the temple.
 endmsg
 map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0
-map_quest true
 end
 
 region zechna_temple_b
 parent zechna_temple
 map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0_-1
-map_quest true
 end
 
 region zechna_temple_c
 parent zechna_temple
 map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0_-2
-map_quest true
 end
 
 region zechna_temple_d
 parent zechna_temple
 map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0_-3
-map_quest true
 end
 
 # Underground City.
@@ -244,25 +240,21 @@ region underground_city
 parent strakewood_island
 longname The Underground City
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_0_0
-map_quest true
 end
 
 region underground_city_a
 parent underground_city
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_2_4_-1
-map_quest true
 end
 
 region underground_city_b
 parent underground_city
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_0_2_-2
-map_quest true
 end
 
 region underground_city_c
 parent underground_city
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_2_-2_-3
-map_quest true
 end
 
 
