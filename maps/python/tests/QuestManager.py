@@ -414,6 +414,41 @@ class QuestManagerSuite(TestSuite):
         qm.complete(["special", "special2"])
         self.assertFalse(qm.completed(["special", "special2", "kill"]))
 
+    def test_07(self):
+        quest = {
+            "name": "Test Quest",
+            "uid": "test_quest",
+        }
+        qm = QuestManager(activator, quest)
+        self.assertIsNone(qm.state_get("foo"))
+        self.assertEqual(qm.state_get_int("foo"), 0)
+        self.assertFalse(qm.state_get_bool("foo"))
+        self.assertAlmostEqual(qm.state_get_float("foo"), 0.0)
+        qm.state_set("foo", True)
+        self.assertEqual(qm.state_get("foo"), "1")
+        self.assertEqual(qm.state_get_int("foo"), 1)
+        self.assertTrue(qm.state_get_bool("foo"))
+        self.assertAlmostEqual(qm.state_get_float("foo"), 1.0)
+        qm.state_set("foo", False)
+        self.assertEqual(qm.state_get("foo"), "0")
+        self.assertEqual(qm.state_get_int("foo"), 0)
+        self.assertFalse(qm.state_get_bool("foo"))
+        self.assertAlmostEqual(qm.state_get_float("foo"), 0.0)
+        qm.state_set("foo", 42)
+        self.assertEqual(qm.state_get("foo"), "42")
+        self.assertEqual(qm.state_get_int("foo"), 42)
+        self.assertTrue(qm.state_get_bool("foo"))
+        self.assertAlmostEqual(qm.state_get_float("foo"), 42.0)
+        qm.state_set("bar", "hello world")
+        self.assertEqual(qm.state_get("bar"), "hello world")
+        self.assertEqual(qm.state_get_int("bar"), 0)
+        self.assertFalse(qm.state_get_bool("bar"))
+        qm.state_set("foo", 42.69)
+        self.assertEqual(qm.state_get("foo"), "42.69")
+        self.assertEqual(qm.state_get_int("foo"), 0)
+        self.assertTrue(qm.state_get_bool("foo"))
+        self.assertAlmostEqual(qm.state_get_float("foo"), 42.69)
+
 
 activator = Atrinik.WhoIsActivator()
 me = Atrinik.WhoAmI()

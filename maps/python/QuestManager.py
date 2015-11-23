@@ -442,6 +442,18 @@ class QuestManager:
 
         return part[-1], new_part
 
+    def ensure_quest_object(self):
+        """
+        Ensure the main quest object exists, if not, create it.
+        """
+
+        if self.quest_object:
+            return
+
+        self.quest_object = self.create_quest_object(
+            self.quest_container, self.quest, self.quest.get("uid")
+        )
+
     def start(self, part, sound="learnspell.ogg"):
         """
         Begins the specified quest part.
@@ -452,11 +464,7 @@ class QuestManager:
         :type sound: str
         """
 
-        if not self.quest_object:
-            self.quest_object = self.create_quest_object(
-                self.quest_container, self.quest, self.quest.get("uid")
-            )
-
+        self.ensure_quest_object()
         part, quest = self.get_part(part)
         self.create_quest_object(self.quest_object, quest, part)
         self.sound(sound)
@@ -593,3 +601,87 @@ class QuestManager:
             return False
 
         return self.get_quest_status(part) == Atrinik.QUEST_STATUS_FAILED
+
+    def state_set(self, key, value):
+        """
+        Store a key/value based quest state, regardless of quest parts.
+
+        :param key: Unique identifier.
+        :type key: str
+        :param value: Value to store.
+        :type value: str or int or float or bool
+        """
+
+        assert isinstance(value, (str, int, float, bool))
+
+        if isinstance(value, bool):
+            value = int(value)
+
+        value = str(value)
+        self.ensure_quest_object()
+        self.quest_object.WriteKey(key, value)
+
+    def state_get(self, key):
+        """
+        Acquire previously stored quest state.
+
+        :param key: Unique identifier.
+        :type key: str
+        :return: Previously stored value.
+        :rtype: str
+        """
+
+        if self.quest_object is None:
+            return None
+
+        return self.quest_object.ReadKey(key)
+
+    def state_get_int(self, key):
+        """
+        Acquire previously stored quest state as an integer.
+
+        :param key: Unique identifier.
+        :type key: str
+        :return: Previously stored value.
+        :rtype: int
+        """
+
+        value = self.state_get(key)
+        if value is None:
+            return 0
+
+        try:
+            return int(value)
+        except ValueError:
+            return 0
+
+    def state_get_float(self, key):
+        """
+        Acquire previously stored quest state as a float.
+
+        :param key: Unique identifier.
+        :type key: str
+        :return: Previously stored value.
+        :rtype: float
+        """
+
+        value = self.state_get(key)
+        if value is None:
+            return 0.0
+
+        try:
+            return float(value)
+        except ValueError:
+            return 0.0
+
+    def state_get_bool(self, key):
+        """
+        Acquire previously stored quest state as a boolean.
+
+        :param key: Unique identifier.
+        :type key: str
+        :return: Previously stored value.
+        :rtype: bool
+        """
+
+        return bool(self.state_get_float(key))
