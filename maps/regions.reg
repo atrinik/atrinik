@@ -4,6 +4,7 @@ msg
 Somewhere in the world...
 endmsg
 jail /shattered_islands/strakewood_island/greyton/jail/jail_a 1 11
+child_maps true
 end
 
 region creation
