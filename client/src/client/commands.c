@@ -646,7 +646,7 @@ void socket_command_mapstats(uint8_t *data, size_t len, size_t pos)
         } else if (type == CMD_MAPSTATS_TEXT_ANIM) {
             packet_to_string(data, len, &pos, msg_anim.color, sizeof(msg_anim.color));
             packet_to_string(data, len, &pos, msg_anim.message, sizeof(msg_anim.message));
-            msg_anim.tick = SDL_GetTicks();
+            msg_anim.tick = LastTick;
         }
     }
 }

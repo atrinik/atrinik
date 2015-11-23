@@ -2144,6 +2144,7 @@ static void widget_draw(widgetdata *widget)
             }
 
             efree(msg);
+            widget->redraw++;
         } else {
             msg_anim.message[0] = '\0';
         }
