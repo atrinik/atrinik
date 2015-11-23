@@ -471,11 +471,6 @@ typedef struct region_struct {
     /** Client map background to use: if not set, will use transparency. */
     char *map_bg;
 
-    /**
-     * If 1, the map will not be available unless the player has done
-     * the quest to obtain it. */
-    uint8_t map_quest;
-
     /** X coodinate in jailmap to which the player should be sent. */
     int16_t jailx;
 

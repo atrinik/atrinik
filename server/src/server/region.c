@@ -139,8 +139,6 @@ void regions_init(void)
             region->map_first = estrdup(value);
         } else if (strcmp(key, "map_bg") == 0) {
             region->map_bg = estrdup(value);
-        } else if (strcmp(key, "map_quest") == 0) {
-            region->map_quest = KEYWORD_IS_TRUE(value);
         } else if (strcmp(key, "jail") == 0) {
             char path[MAX_BUF];
             int x, y;
