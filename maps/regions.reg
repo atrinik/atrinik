@@ -391,7 +391,26 @@ A port town, somewhere south of Strakewood Island.
 endmsg
 map_first /shattered_islands/world_4_85
 map_bg #009ffb
-map_quest true
+end
+
+region incuna_-1
+parent incuna
+map_first /shattered_islands/world_4_85_-1
+end
+
+region incuna_-2
+parent incuna_-1
+map_first /shattered_islands/world_4_85_-2
+end
+
+region forgotten_tunnels
+parent incuna
+map_first /shattered_islands/world_3_82_-1
+msg
+The old crystal mines of Incuna have all but passed into legend.
+
+The days of bloodshed when the kobolds were inadvertently released into the mines are not so easily forgotten...
+endmsg
 end
 
 region deserted_tutorial_island

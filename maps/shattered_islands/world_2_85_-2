@@ -2,13 +2,13 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2011-09-17 Edwin Miltenburg
-Modified: 2015-10-04 Alex Tokar
+Modified: 2015-11-23 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 3
-region incuna
+region incuna_-2
 end
 arch floor_earth1d
 x 10

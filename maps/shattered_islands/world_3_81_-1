@@ -10,7 +10,7 @@ difficulty 1
 darkness 3
 height_diff 1
 bg_music venturing_dragons.ogg
-region incuna
+region forgotten_tunnels
 end
 arch floor_sand_d1
 x 4
