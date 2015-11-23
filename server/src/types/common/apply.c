@@ -119,6 +119,12 @@ object_apply_item (object *op, object *applier, int aflags)
                       "your soul!");
             return OBJECT_METHOD_ERROR;
         }
+
+        if (QUERY_FLAG(op, FLAG_QUEST_ITEM)) {
+            draw_info(COLOR_WHITE, applier,
+                      "You feel you should turn it in first...");
+            return OBJECT_METHOD_ERROR;
+        }
     } else {
         /* Always apply, so no reason to unapply. */
         if (basic_aflag == APPLY_ALWAYS) {
