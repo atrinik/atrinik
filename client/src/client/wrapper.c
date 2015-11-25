@@ -57,6 +57,7 @@ void system_end(void)
     client_socket_deinitialize();
     metaserver_clear_data();
     effects_deinit();
+    sound_ambient_clear();
     interface_deinit();
     sound_deinit();
     intro_deinit();
