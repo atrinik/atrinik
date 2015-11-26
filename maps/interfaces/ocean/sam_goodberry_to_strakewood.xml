@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>We have the right heading, {activator.name}. Why don't you go have a rest in the lower deck - I'll wake you up when we arrive in Brynknot on Strakewood Island.</message>
+            <response destination="verywell" message="Very well."/>
+        </dialog>
+        <dialog name="verywell">
+            <close/>
+            <action teleport="/shattered_islands/incuna/ship_lower_deck_to_strakewood 2 11"/>
+        </dialog>
+    </interface>
+</interfaces>

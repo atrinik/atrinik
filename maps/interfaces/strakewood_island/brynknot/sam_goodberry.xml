@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>At last! We're here in Brynknot, {activator.name}. A large world awaits you. If you wish to sail back to Incuna, come see me any time.</message>
+            <response destination="incuna" message="Let's go back to Incuna."/>
+        </dialog>
+        <dialog name="incuna">
+            <close/>
+            <action teleport="/shattered_islands/world_2_87 5 6"/>
+        </dialog>
+    </interface>
+</interfaces>

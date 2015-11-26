@@ -2,7 +2,7 @@ arch map
 name Deserted Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2015-06-03 Alex Tokar
+Modified: 2015-11-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1122,6 +1122,8 @@ arch ranger
 type 83
 name Sam Goodberry
 level 3
+invulnerable 1
+randomitems mob_default
 arch event_obj
 sub_type 6
 race /interfaces/quests/escaping_deserted_island/quest.xml

@@ -9,6 +9,17 @@
                 <message>Hmmm... You don't seem ready yet, {activator.name}. I am sorry, but unless you regain at least part of your memory, there's no reason for us to sail to Strakewood...</message>
             </dialog>
         </interface>
+        <interface npc="Sam Goodberry" state="completed">
+            <dialog name="hello">
+                <message>Welcome back, {activator.name}! Are you ready to sail back to Strakewood?</message>
+                <response destination="ready" message="I'm ready."/>
+                <response action="close" message="Not yet. See you."/>
+            </dialog>
+            <dialog name="ready">
+                <action teleport="/shattered_islands/incuna/ship_lower_deck_to_strakewood 2 11 savebed"/>
+                <close/>
+            </dialog>
+        </interface>
         <interface inherit="Temple.TempleElathiel" npc="Brelend Lee"/>
         <interface inherit="Tavern.Bartender" npc="Arvend Blessed"/>
         <interface npc="Arvend Blessed" state="calmed">
@@ -906,6 +917,7 @@ if talisman and not talisman.f_applied:
                         <action fail="archery"/>
                     </and>
                     <action complete="the_journey"/>
+                    <action teleport="/shattered_islands/incuna/ship_lower_deck_to_strakewood 2 11 savebed"/>
                     <close/>
                 </dialog>
             </interface>

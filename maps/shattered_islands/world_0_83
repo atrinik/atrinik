@@ -2,7 +2,7 @@ arch map
 name World
 msg
 Created:  2011-09-03 Alex Tokar
-Modified: 2015-11-25 Alex Tokar
+Modified: 2015-11-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1442,10 +1442,9 @@ x 8
 y 16
 end
 arch stairs_wood_down
-slaying incuna/ship_lower_deck
+slaying incuna/ship_lower_deck_to_strakewood
 hp 2
 sp 2
-damned 1
 direction 1
 x 8
 y 16
@@ -1481,7 +1480,11 @@ type 83
 name Sam Goodberry
 level 3
 direction 3
+randomitems mob_default
+invulnerable 1
 arch event_obj
+sub_type 6
+race /interfaces/ocean/sam_goodberry_to_strakewood.xml
 end
 end
 end
@@ -1812,8 +1815,7 @@ arch ship_hull_prow_n_rear_1
 x 10
 y 15
 end
-arch floor_ruin2
-no_pass 1
+arch water_dk2
 x 10
 y 16
 end
@@ -1821,8 +1823,7 @@ arch ship_hull_e_high
 x 10
 y 16
 end
-arch floor_ruin6
-no_pass 1
+arch water_dk
 x 10
 y 17
 end
@@ -1830,8 +1831,7 @@ arch ship_hull_e_high
 x 10
 y 17
 end
-arch floor_ruin6
-no_pass 1
+arch water_dk
 x 10
 y 18
 end
@@ -1839,8 +1839,7 @@ arch ship_hull_e_high
 x 10
 y 18
 end
-arch floor_ruin2
-no_pass 1
+arch water_dk2
 x 10
 y 19
 end
@@ -1848,8 +1847,7 @@ arch ship_hull_e_high
 x 10
 y 19
 end
-arch floor_ruin2
-no_pass 1
+arch water_dk2
 x 10
 y 20
 end

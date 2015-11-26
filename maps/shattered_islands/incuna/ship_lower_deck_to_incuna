@@ -1,0 +1,641 @@
+arch map
+name Lower Deck
+msg
+Created:  2015-11-26 Alex Tokar
+Modified: 2015-11-26 Alex Tokar
+endmsg
+width 14
+height 5
+difficulty 1
+darkness 5
+bg_music adventurers_wish.ogg
+region incuna
+end
+arch blocked
+end
+arch ship_rail_e_high
+end
+arch blocked
+y 1
+end
+arch ship_rail_e_high
+y 1
+end
+arch blocked
+y 2
+end
+arch ship_rail_e_high
+y 2
+end
+arch blocked
+y 3
+end
+arch ship_rail_e_high
+y 3
+end
+arch blocked
+y 4
+end
+arch ship_rail_e_high
+y 4
+end
+arch ship_floor_we_1
+x 1
+end
+arch ship_rail_n_high
+x 1
+end
+arch bed_7a
+sub_layer 1
+no_pass 1
+layer 5
+x 1
+end
+arch ship_floor_we_1
+x 1
+y 1
+end
+arch table_small1
+x 1
+y 1
+end
+arch ship_floor_we_1
+x 1
+y 2
+end
+arch table_small1
+align -4
+z -2
+x 1
+y 2
+end
+arch ship_floor_we_1
+x 1
+y 3
+end
+arch bed_4a
+no_pass 1
+z -4
+align -8
+x 1
+y 3
+end
+arch ship_floor_we_1
+x 1
+y 4
+end
+arch ship_rail_s_high
+no_pass 1
+x 1
+y 4
+end
+arch ship_floor_we_1
+x 2
+end
+arch ship_rail_n_high
+x 2
+end
+arch bed_7b
+sub_layer 1
+no_pass 1
+layer 5
+x 2
+end
+arch ship_floor_we_1
+x 2
+y 1
+end
+arch ship_floor_we_1
+x 2
+y 2
+end
+arch magic_mouth
+msg
+
+You wake up and find that the boat is not sailing anymore...
+
+You have reached Incuna.
+endmsg
+x 2
+y 2
+end
+arch ship_floor_we_1
+x 2
+y 3
+end
+arch bed_4b
+no_pass 1
+z -4
+align -8
+x 2
+y 3
+end
+arch ship_floor_we_1
+x 2
+y 4
+end
+arch ship_rail_s_high
+no_pass 1
+x 2
+y 4
+end
+arch ship_floor_we_1
+x 3
+end
+arch ship_rail_n_high
+x 3
+end
+arch ship_floor_we_1
+x 3
+y 1
+end
+arch ship_floor_we_1
+x 3
+y 2
+end
+arch ship_floor_we_1
+x 3
+y 3
+end
+arch ship_floor_we_1
+x 3
+y 4
+end
+arch ship_rail_s_high
+no_pass 1
+x 3
+y 4
+end
+arch ship_floor_we_1
+x 4
+end
+arch ship_rail_n_high
+x 4
+end
+arch ship_floor_we_1
+x 4
+y 1
+end
+arch ship_floor_we_1
+x 4
+y 2
+end
+arch ship_floor_we_1
+x 4
+y 3
+end
+arch box_big.101
+z -4
+x 4
+y 3
+end
+arch ship_floor_we_1
+x 4
+y 4
+end
+arch ship_rail_s_high
+no_pass 1
+x 4
+y 4
+end
+arch ship_floor_we_1
+x 5
+end
+arch ship_rail_ne_high
+no_pass 1
+blocksview 1
+x 5
+end
+arch ship_floor_we_1
+x 5
+y 1
+end
+arch door_wood2
+direction 3
+x 5
+y 1
+end
+arch ship_floor_we_1
+x 5
+y 2
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 5
+y 2
+end
+arch ship_floor_we_1
+x 5
+y 3
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 5
+y 3
+end
+arch ship_floor_we_1
+x 5
+y 4
+end
+arch ship_rail_se_high
+no_pass 1
+blocksview 1
+x 5
+y 4
+end
+arch ship_floor_we_1
+x 6
+end
+arch ship_rail_n_high
+x 6
+end
+arch barrel.101
+sub_layer 1
+layer 5
+x 6
+end
+arch ship_floor_we_1
+x 6
+y 1
+end
+arch ship_floor_we_1
+x 6
+y 2
+end
+arch stairs_wood_up
+slaying ../world_4_85
+hp 7
+sp 13
+direction 1
+x 6
+y 2
+end
+arch ship_floor_we_1
+x 6
+y 3
+end
+arch stairs_wood_up2
+slaying ../world_4_85
+hp 7
+sp 13
+direction 1
+x 6
+y 3
+end
+arch ship_floor_we_1
+x 6
+y 4
+end
+arch ship_rail_se_high
+no_pass 1
+blocksview 1
+x 6
+y 4
+end
+arch ship_floor_we_1
+x 7
+end
+arch ship_rail_n_high
+x 7
+end
+arch box_big.101
+sub_layer 1
+layer 5
+x 7
+end
+arch ship_floor_we_1
+x 7
+y 1
+end
+arch ship_floor_we_1
+x 7
+y 2
+end
+arch ship_floor_we_1
+x 7
+y 3
+end
+arch barrel.101
+x 7
+y 3
+end
+arch ship_floor_we_1
+x 7
+y 4
+end
+arch ship_rail_s_high
+no_pass 1
+x 7
+y 4
+end
+arch ship_floor_we_1
+x 8
+end
+arch ship_rail_n_high
+x 8
+end
+arch barrel_water.101
+sub_layer 1
+layer 5
+x 8
+end
+arch ship_floor_we_1
+x 8
+y 1
+end
+arch ship_floor_we_1
+x 8
+y 2
+end
+arch ship_floor_we_1
+x 8
+y 3
+end
+arch ship_floor_we_1
+x 8
+y 4
+end
+arch ship_rail_s_high
+no_pass 1
+x 8
+y 4
+end
+arch blocked
+x 9
+end
+arch ship_hull_prow_e_front_strokeside_1
+x 9
+end
+arch ship_prow_e_strokeside_a
+blocksview 1
+x 9
+end
+arch ship_prow_e_strokeside_a
+sub_layer 1
+z 12
+x 9
+end
+arch ship_floor_we_1
+x 9
+y 1
+end
+arch chair1_111
+x 9
+y 1
+end
+arch ship_floor_we_1
+x 9
+y 2
+end
+arch table_round2
+z 2
+x 9
+y 2
+end
+arch mushroom1
+z 12
+align 6
+rotate -90
+layer 4
+sub_layer 1
+x 9
+y 2
+end
+arch ship_floor_we_1
+x 9
+y 3
+end
+arch chair1_111
+direction 5
+x 9
+y 3
+end
+arch blocked
+x 9
+y 4
+end
+arch ship_prow_e_starboard_a
+blocksview 1
+x 9
+y 4
+end
+arch ship_prow_e_starboard_a
+sub_layer 1
+z 12
+x 9
+y 4
+end
+arch blocked
+x 10
+end
+arch ship_hull_prow_e_front_strokeside_2
+x 10
+end
+arch ship_prow_e_strokeside_b
+blocksview 1
+x 10
+end
+arch ship_prow_e_strokeside_b
+z 12
+sub_layer 1
+x 10
+end
+arch ship_floor_we_1
+x 10
+y 1
+end
+arch ship_prow_e_strokeside_c
+x 10
+y 1
+end
+arch ship_prow_e_strokeside_c
+sub_layer 1
+z 12
+x 10
+y 1
+end
+arch box1.101
+sub_layer 2
+layer 5
+x 10
+y 1
+end
+arch ship_floor_we_1
+x 10
+y 2
+end
+arch ship_floor_we_1
+x 10
+y 3
+end
+arch ship_prow_e_starboard_c
+no_pass 1
+x 10
+y 3
+end
+arch ship_prow_e_starboard_c
+sub_layer 1
+z 12
+x 10
+y 3
+end
+arch blocked
+x 10
+y 4
+end
+arch ship_prow_e_starboard_b
+blocksview 1
+x 10
+y 4
+end
+arch ship_prow_e_starboard_b
+sub_layer 1
+z 12
+x 10
+y 4
+end
+arch blocked
+x 11
+end
+arch blocked
+x 11
+y 1
+end
+arch ship_hull_prow_e_front_strokeside_1
+x 11
+y 1
+end
+arch ship_prow_e_strokeside_a
+blocksview 1
+x 11
+y 1
+end
+arch ship_prow_e_strokeside_a
+sub_layer 1
+z 12
+x 11
+y 1
+end
+arch metal_bucket.101
+align -6
+layer 5
+sub_layer 2
+x 11
+y 1
+end
+arch ship_floor_we_1
+x 11
+y 2
+end
+arch box2.101
+z 5
+x 11
+y 2
+end
+arch blocked
+x 11
+y 3
+end
+arch ship_prow_e_starboard_a
+blocksview 1
+x 11
+y 3
+end
+arch ship_prow_e_starboard_a
+sub_layer 1
+z 12
+x 11
+y 3
+end
+arch blocked
+x 11
+y 4
+end
+arch blocked
+x 12
+end
+arch blocked
+x 12
+y 1
+end
+arch ship_hull_prow_e_front_strokeside_2
+x 12
+y 1
+end
+arch ship_prow_e_strokeside_b
+blocksview 1
+x 12
+y 1
+end
+arch ship_prow_e_strokeside_b
+z 12
+sub_layer 1
+x 12
+y 1
+end
+arch ship_floor_we_1
+x 12
+y 2
+end
+arch ship_prow_e_midship
+no_pass 1
+x 12
+y 2
+end
+arch ship_prow_e_midship
+sub_layer 1
+z 12
+x 12
+y 2
+end
+arch blocked
+x 12
+y 3
+end
+arch ship_prow_e_starboard_b
+blocksview 1
+x 12
+y 3
+end
+arch ship_prow_e_starboard_b
+sub_layer 1
+z 12
+x 12
+y 3
+end
+arch blocked
+x 12
+y 4
+end
+arch blocked
+x 13
+end
+arch blocked
+x 13
+y 1
+end
+arch blocked
+x 13
+y 2
+end
+arch ship_prow_e
+blocksview 1
+x 13
+y 2
+end
+arch ship_prow_e_long
+sub_layer 1
+z 12
+x 13
+y 2
+end
+arch blocked
+x 13
+y 3
+end
+arch blocked
+x 13
+y 4
+end

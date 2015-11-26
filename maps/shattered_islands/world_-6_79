@@ -2,7 +2,7 @@ arch map
 name Ocean
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2015-04-21 Alex Tokar
+Modified: 2015-11-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -618,6 +618,8 @@ type 83
 name Sam Goodberry
 level 3
 direction 3
+invulnerable 1
+randomitems mob_default
 arch event_obj
 sub_type 6
 race /interfaces/ocean/sam_goodberry.xml
@@ -2821,7 +2823,7 @@ end
 arch water_dk2
 x 19
 end
-arch water_dk4
+arch water_dk2
 x 19
 y 1
 end
@@ -2831,17 +2833,17 @@ speed 1
 x 19
 y 1
 end
-arch water_dk4
+arch water_dk3
 x 19
 y 2
 end
 arch mover
-direction 0
+direction 7
 speed 1
 x 19
 y 2
 end
-arch water_dk
+arch water_dk4
 x 19
 y 3
 end
@@ -2883,7 +2885,7 @@ arch water_dk3
 x 19
 y 11
 end
-arch water_dk2
+arch water_dk
 x 19
 y 12
 end
@@ -2898,7 +2900,7 @@ x 19
 y 13
 end
 arch mover
-direction 0
+direction 7
 speed 1
 x 19
 y 13
@@ -2952,22 +2954,22 @@ end
 arch water_dk4
 x 20
 end
-arch water_dk
+arch water_dk4
 x 20
 y 1
 end
 arch mover
-direction 6
+direction 7
 speed 1
 x 20
 y 1
 end
-arch water_dk3
+arch water_dk4
 x 20
 y 2
 end
 arch mover
-direction 7
+direction 0
 speed 1
 x 20
 y 2
@@ -2977,8 +2979,8 @@ x 20
 y 3
 end
 arch mover
+direction 7
 speed 1
-direction 8
 x 20
 y 3
 end
@@ -2994,181 +2996,312 @@ arch water_dk4
 x 20
 y 6
 end
+arch water_dk2
+x 20
+y 7
+end
+arch water_dk2
+x 20
+y 8
+end
 arch water_dk
 x 20
+y 9
+end
+arch water_dk3
+x 20
+y 10
+end
+arch water_dk3
+x 20
+y 11
+end
+arch water_dk2
+x 20
+y 12
+end
+arch mover
+direction 7
+speed 1
+x 20
+y 12
+end
+arch water_dk2
+x 20
+y 13
+end
+arch mover
+direction 0
+speed 1
+x 20
+y 13
+end
+arch water_dk3
+x 20
+y 14
+end
+arch mover
+direction 7
+speed 1
+x 20
+y 14
+end
+arch water_dk2
+x 20
+y 15
+end
+arch water_dk
+x 20
+y 16
+end
+arch water_dk3
+x 20
+y 17
+end
+arch water_dk3
+x 20
+y 18
+end
+arch water_dk3
+x 20
+y 19
+end
+arch water_dk3
+x 20
+y 20
+end
+arch water_dk
+x 20
+y 21
+end
+arch water_dk
+x 20
+y 22
+end
+arch water_dk3
+x 20
+y 23
+end
+arch water_dk4
+x 21
+end
+arch water_dk
+x 21
+y 1
+end
+arch mover
+direction 7
+speed 1
+x 21
+y 1
+end
+arch water_dk3
+x 21
+y 2
+end
+arch mover
+direction 7
+speed 1
+x 21
+y 2
+end
+arch water_dk
+x 21
+y 3
+end
+arch mover
+speed 1
+direction 7
+x 21
+y 3
+end
+arch water_dk2
+x 21
+y 4
+end
+arch water_dk3
+x 21
+y 5
+end
+arch water_dk2
+x 21
+y 6
+end
+arch water_dk
+x 21
 y 7
 end
 arch mover
 speed 1
 direction 2
-x 20
+x 21
 y 7
 end
 arch water_dk2
-x 20
+x 21
 y 8
 end
 arch mover
 direction 5
 speed 1
-x 20
+x 21
 y 8
 end
 arch water_dk4
-x 20
+x 21
 y 9
 end
 arch mover
 direction 4
 speed 1
-x 20
+x 21
 y 9
 end
-arch water_dk3
-x 20
+arch water_dk
+x 21
 y 10
 end
-arch water_dk3
-x 20
+arch water_dk2
+x 21
 y 11
 end
 arch water_dk3
-x 20
+x 21
 y 12
 end
 arch mover
 direction 7
 speed 1
-x 20
+x 21
 y 12
 end
 arch water_dk3
-x 20
+x 21
 y 13
 end
 arch mover
 direction 7
 speed 1
-x 20
+x 21
 y 13
 end
 arch water_dk2
-x 20
+x 21
 y 14
 end
 arch mover
 direction 7
 speed 1
-x 20
+x 21
 y 14
 end
-arch water_dk2
-x 20
+arch water_dk3
+x 21
 y 15
 end
 arch water_dk
-x 20
+x 21
 y 16
 end
-arch water_dk3
-x 20
+arch water_dk2
+x 21
 y 17
 end
-arch water_dk3
-x 20
+arch water_dk2
+x 21
 y 18
 end
 arch water_dk3
-x 20
+x 21
 y 19
 end
-arch water_dk3
-x 20
+arch water_dk2
+x 21
 y 20
 end
-arch water_dk
-x 20
+arch water_dk3
+x 21
 y 21
 end
-arch water_dk
-x 20
+arch water_dk3
+x 21
 y 22
 end
-arch water_dk3
-x 20
+arch water_dk2
+x 21
 y 23
 end
-arch water_dk4
-x 21
+arch water_dk
+x 22
 end
 arch water_dk4
-x 21
+x 22
 y 1
 end
 arch water_dk
-x 21
+x 22
 y 2
 end
 arch water_dk4
-x 21
+x 22
 y 3
 end
 arch mover
 speed 1
 direction 8
-x 21
+x 22
 y 3
 end
 arch water_dk4
-x 21
+x 22
 y 4
 end
 arch mover
 speed 1
-x 21
+x 22
 y 4
 end
 arch water_dk2
-x 21
+x 22
 y 5
 end
 arch mover
 speed 1
-x 21
+x 22
 y 5
 end
 arch water_dk4
-x 21
+x 22
 y 6
 end
 arch mover
 speed 1
-x 21
+x 22
 y 6
 end
 arch water_dk
-x 21
+x 22
 y 7
 end
 arch mover
 speed 1
-x 21
+x 22
 y 7
 end
 arch water_dk4
-x 21
+x 22
 y 8
 end
 arch mover
 direction 0
 speed 0.8
-x 21
+x 22
 y 8
 end
 arch spawn_point
 speed 0.2
 last_grace 0
-x 21
+x 22
 y 8
 arch ant_red
 no_pass 1
@@ -3253,237 +3386,142 @@ type 83
 end
 end
 arch water_dk
-x 21
+x 22
 y 9
 end
 arch mover
 direction 5
 speed 1
-x 21
+x 22
 y 9
 end
 arch water_dk
-x 21
+x 22
 y 10
 end
 arch mover
 direction 5
 speed 1
-x 21
+x 22
 y 10
 end
 arch water_dk3
-x 21
+x 22
 y 11
 end
 arch mover
 direction 5
 speed 1
-x 21
+x 22
 y 11
 end
 arch water_dk2
-x 21
+x 22
 y 12
 end
 arch mover
 direction 6
 speed 1
-x 21
+x 22
 y 12
 end
-arch water_dk
-x 21
+arch water_dk4
+x 22
 y 13
 end
-arch water_dk
-x 21
+arch water_dk4
+x 22
 y 14
 end
 arch water_dk3
-x 21
+x 22
 y 15
 end
-arch water_dk
-x 21
+arch water_dk3
+x 22
 y 16
 end
-arch water_dk2
-x 21
+arch water_dk
+x 22
 y 17
 end
-arch water_dk2
-x 21
+arch water_dk3
+x 22
 y 18
 end
 arch water_dk3
-x 21
+x 22
 y 19
 end
-arch water_dk2
-x 21
+arch water_dk4
+x 22
 y 20
 end
 arch water_dk3
-x 21
+x 22
 y 21
 end
 arch water_dk3
-x 21
+x 22
 y 22
-end
-arch water_dk2
-x 21
-y 23
 end
 arch water_dk
 x 22
+y 23
 end
 arch water_dk2
-x 22
+x 23
+end
+arch water_dk2
+x 23
 y 1
 end
 arch water_dk4
-x 22
+x 23
 y 2
 end
-arch water_dk3
-x 22
+arch water_dk2
+x 23
 y 3
 end
 arch water_dk2
-x 22
+x 23
 y 4
 end
-arch water_dk
-x 22
+arch water_dk2
+x 23
 y 5
 end
-arch water_dk4
-x 22
+arch water_dk3
+x 23
 y 6
 end
 arch water_dk
-x 22
+x 23
 y 7
 end
 arch mover
 direction 8
 speed 1
-x 22
+x 23
 y 7
 end
 arch water_dk2
-x 22
+x 23
 y 8
 end
 arch mover
 speed 1
-x 22
+x 23
 y 8
 end
 arch water_dk3
-x 22
+x 23
 y 9
 end
 arch mover
 direction 6
 speed 1
-x 22
-y 9
-end
-arch water_dk
-x 22
-y 10
-end
-arch water_dk2
-x 22
-y 11
-end
-arch water_dk
-x 22
-y 12
-end
-arch water_dk4
-x 22
-y 13
-end
-arch water_dk4
-x 22
-y 14
-end
-arch water_dk3
-x 22
-y 15
-end
-arch water_dk3
-x 22
-y 16
-end
-arch water_dk
-x 22
-y 17
-end
-arch water_dk3
-x 22
-y 18
-end
-arch water_dk3
-x 22
-y 19
-end
-arch water_dk4
-x 22
-y 20
-end
-arch water_dk3
-x 22
-y 21
-end
-arch water_dk3
-x 22
-y 22
-end
-arch water_dk
-x 22
-y 23
-end
-arch water_dk2
-x 23
-end
-arch water_dk2
-x 23
-y 1
-end
-arch water_dk4
-x 23
-y 2
-end
-arch water_dk2
-x 23
-y 3
-end
-arch water_dk2
-x 23
-y 4
-end
-arch water_dk2
-x 23
-y 5
-end
-arch water_dk3
-x 23
-y 6
-end
-arch water_dk4
-x 23
-y 7
-end
-arch water_dk
-x 23
-y 8
-end
-arch water_dk2
 x 23
 y 9
 end

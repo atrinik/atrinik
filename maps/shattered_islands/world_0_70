@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-11-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -49,55 +49,100 @@ end
 arch water_lt2
 y 6
 end
-arch water_lt3
+arch water_lt2
 y 7
 end
-arch water_lt2
+arch water_lt3
 y 8
 end
-arch water_lt2
+arch water_lt3
 y 9
 end
-arch water_lt2
+arch water_lt
 y 10
 end
-arch water_lt3
+arch ship_hull_prow_n_front_strokeside_dark
+y 10
+end
+arch ship_prow_n_strokeside_b
+y 10
+end
+arch ship_floor_ns_dark_2
 y 11
 end
-arch water_lt3
+arch ship_prow_n_strokeside_a
+y 11
+end
+arch ship_floor_ns_dark_1
 y 12
 end
-arch water_lt4
+arch tackelage_w_low
+y 12
+end
+arch sail_reffed_n
+z -10
+align -2
+sub_layer 1
+y 12
+end
+arch box_big.101
+sub_layer 2
+layer 5
+y 12
+end
+arch ship_floor_ns_dark_1
 y 13
 end
-arch water_lt3
+arch ship_rail_w_hole
+y 13
+end
+arch ship_floor_ns_dark_1
 y 14
 end
-arch water_lt
+arch ship_rail_w_hole
+y 14
+end
+arch ship_floor_ns_dark_1
 y 15
 end
-arch water_lt4
+arch ship_rail_w_hole
+y 15
+end
+arch ship_floor_ns_dark_1
 y 16
 end
-arch water_lt
+arch ship_rail_w_hole
+y 16
+end
+arch ship_floor_ns_dark_1
 y 17
 end
-arch sail_short_mast_e_3
+arch ship_rail_w
 y 17
 end
-arch water_lt
+arch water_lt3
 y 18
 end
-arch water_lt
+arch ship_hull_s_low_corner_w
+y 18
+end
+arch ship_rail_n
+y 18
+end
+arch water_lt3
 y 19
 end
-arch water_lt
+arch water_lt4
 y 20
 end
 arch water_lt
 y 21
 end
 arch water_lt2
+y 22
+end
+arch sound_ambient
+race ocean_waves.ogg
 y 22
 end
 arch water_lt
@@ -141,11 +186,11 @@ arch water_lt3
 x 1
 y 6
 end
-arch water_lt
+arch water_lt2
 x 1
 y 7
 end
-arch water_lt2
+arch water_lt
 x 1
 y 8
 end
@@ -153,75 +198,132 @@ arch water_lt4
 x 1
 y 9
 end
-arch water_lt4
+arch ship_hull_prow_n_front_3_dark
+x 1
+y 9
+end
+arch ship_prow_n_long
+x 1
+y 9
+end
+arch ship_floor_ns_dark_2
 x 1
 y 10
 end
-arch water_lt
+arch ship_prow_n_midship
+x 1
+y 10
+end
+arch basket1.101
+x 1
+y 10
+end
+arch ship_floor_we_dark_1
 x 1
 y 11
 end
-arch water_lt2
+arch box_big.101
+x 1
+y 11
+end
+arch ship_floor_ns_dark_1
 x 1
 y 12
 end
-arch water_lt
+arch sail_reffed_n
+z -10
+align -2
+x 1
+y 12
+end
+arch mast_n_short
+sub_layer 1
+x 1
+y 12
+end
+arch ship_floor_ns_dark_1
 x 1
 y 13
 end
-arch water_lt
+arch stairs_wood_down
+msg
+You should talk to Sam Goodberry if you wish to sail back to Incuna...
+endmsg
+direction 1
+hp 1
+sp 13
+last_heal 0
+x 1
+y 13
+end
+arch ship_floor_ns_dark_1
 x 1
 y 14
 end
-arch water_lt
+arch ship_floor_ns_dark_1
 x 1
 y 15
 end
-arch client_map_info
-msg
-Ship to Tutorial Island.
-endmsg
-name brynknot_ship_tutorial
-sub_type 2
-stand_still 1
+arch ship_rail_n_high
+align -10
+z -8
 x 1
 y 15
 end
-arch ship_floor_we_4
-x 1
-y 16
-end
-arch ship_rail_nw
-x 1
-y 16
-end
-arch ship_floor_we_1
-no_pass 1
-x 1
-y 17
-end
-arch ship_rail_w
-x 1
-y 17
-end
-arch sail_short_mast_e_2
+arch ship_n_steering_wheel
 sub_layer 1
 x 1
+y 15
+end
+arch ship_floor_ns_dark_1
+x 1
+y 16
+end
+arch spawn_point
+x 1
+y 16
+arch ranger
+type 83
+name Sam Goodberry
+level 3
+direction 3
+randomitems mob_default
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/brynknot/sam_goodberry.xml
+end
+end
+end
+arch ship_floor_ns_dark_1
+x 1
 y 17
 end
-arch ship_floor_we_3
+arch sail_short_mast_n_1
+x 1
+y 17
+end
+arch water_lt4
 x 1
 y 18
 end
-arch ship_rail_sw
+arch ship_hull_s_low
 x 1
 y 18
 end
-arch water_lt3
+arch ship_rail_n
+x 1
+y 18
+end
+arch sail_short_mast_n_2
+sub_layer 1
+x 1
+y 18
+end
+arch water_lt2
 x 1
 y 19
 end
-arch ship_hull_s_high_corner_w
+arch sail_short_mast_n_3
 x 1
 y 19
 end
@@ -229,18 +331,7 @@ arch water_lt2
 x 1
 y 20
 end
-arch client_map_info
-name brynknot_ship_tutorial
-sub_type 2
-x 1
-y 20
-end
 arch water_lt2
-x 1
-y 21
-end
-arch sound_ambient
-race ocean_waves.ogg
 x 1
 y 21
 end
@@ -286,20 +377,19 @@ arch water_lt4
 x 2
 y 6
 end
-arch water_lt
+arch water_lt3
 x 2
 y 7
 end
-arch water_lt4
+arch water_lt
 x 2
 y 8
 end
-arch water_lt2
+arch water_lt4
 x 2
 y 9
 end
-arch sound_ambient
-race ocean_waves.ogg
+arch ship_hull_prow_n_front_2
 x 2
 y 9
 end
@@ -307,457 +397,497 @@ arch water_lt4
 x 2
 y 10
 end
-arch water_lt4
+arch ship_hull_prow_n_front_1_dark
 x 2
-y 11
-end
-arch water_lt4
-x 2
-y 12
-end
-arch water_lt2
-x 2
-y 13
-end
-arch water_lt4
-x 2
-y 14
-end
-arch water_lt3
-x 2
-y 15
-end
-arch ship_floor_we_1
-x 2
-y 16
-end
-arch ship_rail_n
-x 2
-y 16
-end
-arch ship_floor_we_3
-x 2
-y 17
-end
-arch sail_short_mast_e_1
-x 2
-y 17
-end
-arch light9
-x 2
-y 17
-end
-arch ship_floor_we_3
-x 2
-y 18
-end
-arch ship_rail_s
-x 2
-y 18
-end
-arch water_lt4
-x 2
-y 19
-end
-arch ship_hull_s_high
-x 2
-y 19
-end
-arch water_lt4
-x 2
-y 20
-end
-arch water_lt2
-x 2
-y 21
-end
-arch water_lt4
-x 2
-y 22
-end
-arch water_lt3
-x 2
-y 23
-end
-arch water_lt
-x 3
-end
-arch grassd_m10
-x 3
-end
-arch water_lt
-x 3
-y 1
-end
-arch water_lt3
-x 3
-y 2
-end
-arch water_lt3
-x 3
-y 3
-end
-arch water_lt
-x 3
-y 4
-end
-arch water_lt2
-x 3
-y 5
-end
-arch water_lt2
-x 3
-y 6
-end
-arch water_lt
-x 3
-y 7
-end
-arch water_lt2
-x 3
-y 8
-end
-arch water_lt4
-x 3
-y 9
-end
-arch water_lt4
-x 3
 y 10
 end
-arch water_lt
-x 3
-y 11
-end
-arch water_lt4
-x 3
-y 12
-end
-arch water_lt4
-x 3
-y 13
-end
-arch water_lt3
-x 3
-y 14
-end
-arch ship_floor_we_4
-x 3
-y 15
-end
-arch ship_rail_nw
-x 3
-y 15
-end
-arch ship_floor_we_4
-x 3
-y 16
-end
-arch ship_rail_n
-x 3
-y 16
-end
-arch ship_floor_we_3
-x 3
-y 17
-end
-arch ship_floor_we_1
-x 3
-y 18
-end
-arch ship_rail_s
-x 3
-y 18
-end
-arch ship_floor_we_4
-x 3
-y 19
-end
-arch ship_rail_sw
-x 3
-y 19
-end
-arch water_lt3
-x 3
-y 20
-end
-arch ship_hull_s_high_corner_w
-x 3
-y 20
-end
-arch water_lt2
-x 3
-y 21
-end
-arch water_lt3
-x 3
-y 22
-end
-arch water_lt4
-x 3
-y 23
-end
-arch water_lt4
-x 4
-end
-arch grassd_m10
-x 4
-end
-arch water_lt
-x 4
-y 1
-end
-arch water_lt4
-x 4
-y 2
-end
-arch water_lt3
-x 4
-y 3
-end
-arch water_lt3
-x 4
-y 4
-end
-arch water_lt
-x 4
-y 5
-end
-arch water_lt4
-x 4
-y 6
-end
-arch water_lt
-x 4
-y 7
-end
-arch water_lt3
-x 4
-y 8
-end
-arch water_lt2
-x 4
-y 9
-end
-arch water_lt2
-x 4
+arch ship_prow_n_starboard_b
+x 2
 y 10
 end
-arch water_lt4
-x 4
+arch ship_floor_ns_dark_4
+x 2
 y 11
 end
-arch water_lt2
-x 4
-y 12
-end
-arch water_lt3
-x 4
-y 13
-end
-arch water_lt4
-x 4
-y 14
-end
-arch ship_floor_we_1
-x 4
-y 15
-end
-arch ship_rail_n_hole
-x 4
-y 15
-end
-arch light5
-x 4
-y 15
-end
-arch ship_floor_we_3
-x 4
-y 16
-end
-arch ship_floor_we_1
-x 4
-y 17
-end
-arch spawn_point
-x 4
-y 17
-arch peasant
-msg
-@match ^hello$
-Hello there! If you want to go back to the Tutorial Island, go down the stairs and take the other stairs in there.
-endmsg
-name Ship Captain
-type 83
-level 13
-faction brynknot_citizens
-direction 3
-end
-end
-arch ship_floor_we_3
-x 4
-y 18
-end
-arch ship_floor_we_1
-x 4
-y 19
-end
-arch ship_rail_s_hole
-x 4
-y 19
-end
-arch light5
-x 4
-y 19
-end
-arch water_lt2
-x 4
-y 20
-end
-arch ship_hull_s_high
-x 4
-y 20
-end
-arch water_lt3
-x 4
-y 21
-end
-arch water_lt4
-x 4
-y 22
-end
-arch water_lt3
-x 4
-y 23
-end
-arch bridge_wood_NS.171
-x 5
-end
-arch bridge_wood_NS.171
-x 5
-y 1
-end
-arch bridge_wood_NS.171
-x 5
-y 2
-end
-arch bridge_wood_NS.171
-x 5
-y 3
-end
-arch light7
-x 5
-y 3
-end
-arch bridge_wood_NS.171
-x 5
-y 4
-end
-arch bridge_wood_NS.171
-x 5
-y 5
-end
-arch bridge_wood_NS.171
-x 5
-y 6
-end
-arch bridge_wood_NS.171
-x 5
-y 7
-end
-arch bridge_wood_NS.171
-x 5
-y 8
-end
-arch bridge_wood_NS.171
-x 5
-y 9
-end
-arch light7
-x 5
-y 9
-end
-arch bridge_wood_NS.171
-x 5
-y 10
-end
-arch bridge_wood_NS.171
-x 5
+arch ship_hull_prow_n_rear_3
+x 2
 y 11
 end
-arch bridge_wood_NS.171
-x 5
+arch ship_prow_n_starboard_a
+x 2
+y 11
+end
+arch ship_floor_ns_dark_1
+x 2
 y 12
 end
-arch bridge_wood_NS.171
-x 5
+arch barrel.101
+align -5
+z 5
+x 2
+y 12
+end
+arch lamp_wall
+direction 7
+align -7
+x 2
+y 12
+end
+arch tackelage_e_low
+x 2
+y 12
+end
+arch sail_reffed_n
+z -10
+align -2
+sub_layer 1
+x 2
+y 12
+end
+arch ship_floor_ns_dark_1
+x 2
 y 13
 end
-arch bollard_tied_n_1
-x 5
+arch bollard_tied_e_3
+x 2
 y 13
 end
-arch water_lt
-x 5
+arch ship_floor_ns_dark_1
+x 2
 y 14
 end
-arch bridge_wood_EW.151
-x 5
-y 14
-end
-arch bollard_tied_s_2
-x 5
-y 14
-end
-arch ship_floor_we_4
-x 5
+arch ship_floor_ns_dark_1
+x 2
 y 15
 end
-arch bollard_tied_n_3
-x 5
+arch ship_rail_e_hole
+x 2
 y 15
 end
-arch ship_floor_we_3
-x 5
+arch ship_floor_ns_dark_1
+x 2
 y 16
 end
-arch ship_rail_s_hole
-x 5
+arch bollard_tied_e_3
+x 2
 y 16
 end
-arch ship_floor_we_4
-x 5
-y 17
-end
-arch ship_w_steering_wheel
-x 5
+arch ship_floor_ns_dark_1
+x 2
 y 17
 end
 arch ship_rail_e
-x 5
+x 2
 y 17
 end
-arch ship_floor_we_1
-x 5
+arch lamp_wall
+direction 7
+align -7
+x 2
+y 17
+end
+arch water_lt2
+x 2
 y 18
 end
-arch ship_rail_n_hole
-x 5
+arch ship_hull_s_low
+x 2
 y 18
 end
-arch ship_floor_we_4
-x 5
-y 19
+arch ship_rail_n
+x 2
+y 18
 end
-arch ship_rail_s
-x 5
+arch water_lt
+x 2
 y 19
 end
 arch water_lt3
-x 5
+x 2
 y 20
 end
-arch ship_hull_s_high
+arch water_lt2
+x 2
+y 21
+end
+arch water_lt4
+x 2
+y 22
+end
+arch water_lt3
+x 2
+y 23
+end
+arch water_lt
+x 3
+end
+arch grassd_m10
+x 3
+end
+arch water_lt
+x 3
+y 1
+end
+arch water_lt3
+x 3
+y 2
+end
+arch water_lt3
+x 3
+y 3
+end
+arch water_lt
+x 3
+y 4
+end
+arch water_lt2
+x 3
+y 5
+end
+arch water_lt2
+x 3
+y 6
+end
+arch water_lt
+x 3
+y 7
+end
+arch water_lt
+x 3
+y 8
+end
+arch water_lt
+x 3
+y 9
+end
+arch water_lt4
+x 3
+y 10
+end
+arch water_lt3
+x 3
+y 11
+end
+arch ship_hull_prow_n_rear_2
+x 3
+y 11
+end
+arch water_lt2
+x 3
+y 12
+end
+arch ship_hull_prow_n_rear_1
+x 3
+y 12
+end
+arch water_lt2
+x 3
+y 13
+end
+arch ship_hull_e_high
+x 3
+y 13
+end
+arch bollard_tied_e_2
+x 3
+y 13
+end
+arch bridge_wood_EW.111
+x 3
+y 14
+end
+arch water_lt
+x 3
+y 15
+end
+arch ship_hull_e_high
+x 3
+y 15
+end
+arch bridge_wood_EW.151
+sub_layer 1
+x 3
+y 15
+end
+arch water_lt
+x 3
+y 16
+end
+arch ship_hull_e_high
+x 3
+y 16
+end
+arch bollard_tied_e_2
+x 3
+y 16
+end
+arch water_lt2
+x 3
+y 17
+end
+arch ship_hull_e_high
+x 3
+y 17
+end
+arch water_lt4
+x 3
+y 18
+end
+arch ship_hull_se_low_astern_s
+x 3
+y 18
+end
+arch water_lt2
+x 3
+y 19
+end
+arch water_lt2
+x 3
+y 20
+end
+arch water_lt2
+x 3
+y 21
+end
+arch water_lt3
+x 3
+y 22
+end
+arch water_lt4
+x 3
+y 23
+end
+arch water_lt4
+x 4
+end
+arch grassd_m10
+x 4
+end
+arch water_lt
+x 4
+y 1
+end
+arch water_lt4
+x 4
+y 2
+end
+arch water_lt3
+x 4
+y 3
+end
+arch water_lt3
+x 4
+y 4
+end
+arch water_lt
+x 4
+y 5
+end
+arch water_lt4
+x 4
+y 6
+end
+arch water_lt3
+x 4
+y 7
+end
+arch water_lt
+x 4
+y 8
+end
+arch water_lt3
+x 4
+y 9
+end
+arch water_lt2
+x 4
+y 10
+end
+arch water_lt2
+x 4
+y 11
+end
+arch water_lt4
+x 4
+y 12
+end
+arch water_lt2
+x 4
+y 13
+end
+arch bollard_tied_e_2
+rotate 20
+z -5
+align -5
+x 4
+y 13
+end
+arch bridge_wood_EW.111
+x 4
+y 14
+end
+arch water_lt3
+x 4
+y 15
+end
+arch bridge_wood_EW.151
+x 4
+y 15
+end
+arch water_lt
+x 4
+y 16
+end
+arch bollard_tied_e_2
+rotate 20
+z -5
+align -5
+x 4
+y 16
+end
+arch water_lt
+x 4
+y 17
+end
+arch water_lt4
+x 4
+y 18
+end
+arch water_lt2
+x 4
+y 19
+end
+arch water_lt4
+x 4
+y 20
+end
+arch water_lt3
+x 4
+y 21
+end
+arch water_lt4
+x 4
+y 22
+end
+arch water_lt3
+x 4
+y 23
+end
+arch bridge_wood_NS.171
+x 5
+end
+arch bridge_wood_NS.171
+x 5
+y 1
+end
+arch bridge_wood_NS.171
+x 5
+y 2
+end
+arch bridge_wood_NS.171
+x 5
+y 3
+end
+arch bridge_wood_NS.171
+x 5
+y 4
+end
+arch lantern_magic.131
+direction 5
+x 5
+y 4
+end
+arch bridge_wood_NS.171
+x 5
+y 5
+end
+arch bridge_wood_NS.171
+x 5
+y 6
+end
+arch bridge_wood_NS.171
+x 5
+y 7
+end
+arch bridge_wood_NS.171
+x 5
+y 8
+end
+arch lantern_magic.131
+direction 5
+x 5
+y 8
+end
+arch bridge_wood_NS.171
+x 5
+y 9
+end
+arch bridge_wood_NS.171
+x 5
+y 10
+end
+arch bridge_wood_NS.171
+x 5
+y 11
+end
+arch bridge_wood_NS.171
+x 5
+y 12
+end
+arch lantern_magic.131
+direction 5
+x 5
+y 12
+end
+arch bridge_wood_NS.171
+x 5
+y 13
+end
+arch bollard_tied_e_1
+x 5
+y 13
+end
+arch bridge_wood_NS.101
+x 5
+y 14
+end
+arch bridge_wood_NS.171
+x 5
+y 15
+end
+arch sign
+msg
+This ship will take you to back to Incuna.
+endmsg
+name To Incuna
+x 5
+y 15
+end
+arch bridge_wood_NS.171
+x 5
+y 16
+end
+arch bollard_tied_e_1
+x 5
+y 16
+end
+arch water_lt
+x 5
+y 17
+end
+arch bridge_wood_EW.151
+x 5
+y 17
+end
+arch water_lt3
+x 5
+y 18
+end
+arch water_lt
+x 5
+y 19
+end
+arch water_lt
 x 5
 y 20
 end
@@ -776,9 +906,6 @@ end
 arch bridge_wood_NS.101
 x 6
 end
-arch light3
-x 6
-end
 arch bridge_wood_NS.101
 x 6
 y 1
@@ -795,6 +922,10 @@ arch bridge_wood_NS.101
 x 6
 y 4
 end
+arch light7
+x 6
+y 4
+end
 arch bridge_wood_NS.101
 x 6
 y 5
@@ -803,15 +934,15 @@ arch bridge_wood_NS.101
 x 6
 y 6
 end
-arch light3
-x 6
-y 6
-end
 arch bridge_wood_NS.101
 x 6
 y 7
 end
 arch bridge_wood_NS.101
+x 6
+y 8
+end
+arch light7
 x 6
 y 8
 end
@@ -831,7 +962,7 @@ arch bridge_wood_NS.101
 x 6
 y 12
 end
-arch light3
+arch light7
 x 6
 y 12
 end
@@ -839,71 +970,35 @@ arch bridge_wood_NS.101
 x 6
 y 13
 end
-arch sign
-msg
-Ship currently out of order.
-endmsg
-name To Tutorial Island
+arch bridge_wood_NS.101
 x 6
-y 13
+y 14
+end
+arch bridge_wood_NS.101
+x 6
+y 15
+end
+arch bridge_wood_NS.101
+x 6
+y 16
 end
 arch water_lt3
 x 6
-y 14
+y 17
 end
 arch bridge_wood_EW.151
 x 6
-y 14
-end
-arch ship_floor_we_4
-x 6
-y 15
-end
-arch tackelage_n_low
-x 6
-y 15
-end
-arch ship_floor_we_3
-x 6
-y 16
-end
-arch tackelage_n_high
-x 6
-y 16
-end
-arch ship_floor_we_4
-x 6
 y 17
 end
-arch mast_e_long
-x 6
-y 17
-end
-arch light9
-x 6
-y 17
-end
-arch ship_floor_we_1
+arch water_lt3
 x 6
 y 18
 end
-arch tackelage_s_high
-x 6
-y 18
-end
-arch ship_floor_we_4
-x 6
-y 19
-end
-arch tackelage_s_low
+arch water_lt4
 x 6
 y 19
 end
 arch water_lt4
-x 6
-y 20
-end
-arch ship_hull_s_high
 x 6
 y 20
 end
@@ -938,6 +1033,10 @@ arch bridge_wood_NS.101
 x 7
 y 4
 end
+arch light7
+x 7
+y 4
+end
 arch bridge_wood_NS.101
 x 7
 y 5
@@ -954,6 +1053,10 @@ arch bridge_wood_NS.101
 x 7
 y 8
 end
+arch light7
+x 7
+y 8
+end
 arch bridge_wood_NS.101
 x 7
 y 9
@@ -962,21 +1065,7 @@ arch bridge_wood_NS.101
 x 7
 y 10
 end
-arch sign
-msg
-Welcome to Brynknot. You can return to Incuna with this portal, if you wish.
-endmsg
-x 7
-y 10
-end
 arch bridge_wood_NS.101
-x 7
-y 11
-end
-arch exit
-slaying world_4_85
-hp 5
-sp 8
 x 7
 y 11
 end
@@ -984,67 +1073,43 @@ arch bridge_wood_NS.101
 x 7
 y 12
 end
+arch light7
+x 7
+y 12
+end
 arch bridge_wood_NS.101
 x 7
 y 13
 end
-arch water_lt3
+arch bridge_wood_NS.101
 x 7
 y 14
+end
+arch bridge_wood_NS.101
+x 7
+y 15
+end
+arch bridge_wood_NS.101
+x 7
+y 16
+end
+arch water_lt3
+x 7
+y 17
 end
 arch bridge_wood_EW.151
 x 7
-y 14
-end
-arch ship_floor_we_3
-x 7
-y 15
-end
-arch ship_rail_n
-x 7
-y 15
-end
-arch ship_floor_we_1
-x 7
-y 16
-end
-arch sail_reffed_e
-x 7
-y 16
-end
-arch ship_floor_we_3
-x 7
 y 17
 end
-arch sail_reffed_e
-x 7
-y 17
-end
-arch ship_floor_we_3
+arch water_lt
 x 7
 y 18
 end
-arch sail_reffed_e
-x 7
-y 18
-end
-arch ship_floor_we_4
+arch water_lt2
 x 7
 y 19
 end
-arch sail_reffed_e_over_rail
-x 7
-y 19
-end
-arch water_lt4
-x 7
-y 20
-end
-arch ship_hull_s_high
-x 7
-y 20
-end
-arch sail_reffed_e
+arch water_lt
 x 7
 y 20
 end
@@ -1061,9 +1126,6 @@ x 7
 y 23
 end
 arch bridge_wood_NS.101
-x 8
-end
-arch light3
 x 8
 end
 arch bridge_wood_NS.101
@@ -1090,10 +1152,6 @@ arch bridge_wood_NS.101
 x 8
 y 6
 end
-arch light3
-x 8
-y 6
-end
 arch bridge_wood_NS.101
 x 8
 y 7
@@ -1118,89 +1176,53 @@ arch bridge_wood_NS.101
 x 8
 y 12
 end
-arch light3
-x 8
-y 12
-end
 arch bridge_wood_NS.101
 x 8
 y 13
 end
-arch water_lt3
+arch bridge_wood_NS.101
 x 8
 y 14
+end
+arch bridge_wood_NS.101
+x 8
+y 15
+end
+arch bridge_wood_NS.101
+x 8
+y 16
+end
+arch water_lt3
+x 8
+y 17
 end
 arch bridge_wood_EW.151
 x 8
-y 14
-end
-arch ship_floor_we_3
-x 8
-y 15
-end
-arch ship_rail_n
-x 8
-y 15
-end
-arch light5
-x 8
-y 15
-end
-arch ship_floor_we_3
-x 8
-y 16
-end
-arch ship_rail_s_hole
-x 8
-y 16
-end
-arch ship_floor_we_3
-x 8
 y 17
 end
-arch stairs_wood_down
-x 8
-y 17
-end
-arch ship_floor_we_1
+arch water_lt4
 x 8
 y 18
 end
-arch ship_rail_n_hole
-x 8
-y 18
-end
-arch ship_floor_we_1
+arch water_lt4
 x 8
 y 19
 end
-arch ship_rail_s
-x 8
-y 19
-end
-arch light5
-x 8
-y 19
-end
-arch water_lt2
-x 8
-y 20
-end
-arch ship_hull_s_high
+arch water_lt
 x 8
 y 20
 end
 arch water_lt3
 x 8
 y 21
-end
-arch water_lt4
-x 8
-y 22
 end
 arch sound_ambient
 race ocean_waves.ogg
 x 8
+y 21
+end
+arch water_lt4
+x 8
 y 22
 end
 arch water_lt2
@@ -1219,10 +1241,6 @@ x 9
 y 2
 end
 arch bridge_wood_NS.101
-x 9
-y 3
-end
-arch light7
 x 9
 y 3
 end
@@ -1250,10 +1268,6 @@ arch bridge_wood_NS.101
 x 9
 y 9
 end
-arch light7
-x 9
-y 9
-end
 arch bridge_wood_NS.101
 x 9
 y 10
@@ -1270,67 +1284,35 @@ arch bridge_wood_NS.101
 x 9
 y 13
 end
-arch bollard_tied_n_1
+arch bridge_wood_NS.101
 x 9
-y 13
+y 14
+end
+arch bridge_wood_NS.101
+x 9
+y 15
+end
+arch bridge_wood_NS.101
+x 9
+y 16
 end
 arch water_lt3
 x 9
-y 14
+y 17
 end
 arch bridge_wood_EW.151
 x 9
-y 14
-end
-arch bollard_tied_s_2
-x 9
-y 14
-end
-arch ship_floor_we_4
-x 9
-y 15
-end
-arch bollard_tied_n_3
-x 9
-y 15
-end
-arch ship_floor_we_1
-x 9
-y 16
-end
-arch ship_rail_s_hole
-x 9
-y 16
-end
-arch blocked
-x 9
 y 17
 end
-arch ship_rail_e_hole
-x 9
-y 17
-end
-arch ship_floor_we_3
+arch water_lt3
 x 9
 y 18
 end
-arch ship_rail_n_hole
-x 9
-y 18
-end
-arch ship_floor_we_4
+arch water_lt2
 x 9
 y 19
 end
-arch ship_rail_s
-x 9
-y 19
-end
-arch water_lt
-x 9
-y 20
-end
-arch ship_hull_s_high
+arch water_lt3
 x 9
 y 20
 end
@@ -1448,63 +1430,47 @@ arch bridge_wood_NS.131
 x 10
 y 13
 end
-arch water_lt2
+arch water_lt4
 x 10
 y 14
+end
+arch bridge_wood_NS.131
+x 10
+y 14
+end
+arch water_lt4
+x 10
+y 15
+end
+arch bridge_wood_NS.131
+x 10
+y 15
+end
+arch water_lt4
+x 10
+y 16
+end
+arch bridge_wood_NS.131
+x 10
+y 16
+end
+arch water_lt2
+x 10
+y 17
 end
 arch bridge_wood_01
 x 10
-y 14
-end
-arch ship_floor_we_4
-x 10
-y 15
-end
-arch tackelage_n_low
-x 10
-y 15
-end
-arch ship_floor_we_1
-x 10
-y 16
-end
-arch tackelage_n_high
-x 10
-y 16
-end
-arch ship_floor_we_3
-x 10
 y 17
 end
-arch mast_e_long
-x 10
-y 17
-end
-arch light9
-x 10
-y 17
-end
-arch ship_floor_we_1
+arch water_lt3
 x 10
 y 18
-end
-arch tackelage_s_high
-x 10
-y 18
-end
-arch ship_floor_we_1
-x 10
-y 19
-end
-arch tackelage_s_low
-x 10
-y 19
 end
 arch water_lt
 x 10
-y 20
+y 19
 end
-arch ship_hull_s_high
+arch water_lt3
 x 10
 y 20
 end
@@ -1590,55 +1556,27 @@ arch water_lt4
 x 11
 y 14
 end
-arch ship_floor_we_3
+arch water_lt
 x 11
 y 15
-end
-arch ship_rail_n
-x 11
-y 15
-end
-arch ship_floor_we_4
-x 11
-y 16
-end
-arch sail_reffed_e
-x 11
-y 16
-end
-arch ship_floor_we_1
-x 11
-y 17
-end
-arch sail_reffed_e
-x 11
-y 17
-end
-arch ship_floor_we_3
-x 11
-y 18
-end
-arch sail_reffed_e
-x 11
-y 18
-end
-arch ship_floor_we_4
-x 11
-y 19
-end
-arch sail_reffed_e_over_rail
-x 11
-y 19
 end
 arch water_lt4
 x 11
-y 20
+y 16
 end
-arch ship_hull_s_high
+arch water_lt
 x 11
-y 20
+y 17
 end
-arch sail_reffed_e
+arch water_lt3
+x 11
+y 18
+end
+arch water_lt
+x 11
+y 19
+end
+arch water_lt
 x 11
 y 20
 end
@@ -1728,55 +1666,27 @@ arch water_lt2
 x 12
 y 14
 end
-arch water_lt4
+arch water_lt3
 x 12
 y 15
 end
-arch ship_prow_e_strokeside_a
-x 12
-y 15
-end
-arch ship_hull_prow_e_front_strokeside_1
-x 12
-y 15
-end
-arch light5
-x 12
-y 15
-end
-arch ship_floor_we_3
+arch water_lt2
 x 12
 y 16
 end
-arch ship_floor_we_1
+arch water_lt
 x 12
 y 17
 end
-arch ship_floor_we_1
+arch water_lt2
 x 12
 y 18
 end
-arch ship_floor_we_3
+arch water_lt2
 x 12
 y 19
 end
-arch ship_prow_e_starboard_a
-x 12
-y 19
-end
-arch ship_hull_prow_e_rear_2
-x 12
-y 19
-end
-arch light5
-x 12
-y 19
-end
-arch water_lt
-x 12
-y 20
-end
-arch ship_hull_prow_e_rear_1
+arch water_lt3
 x 12
 y 20
 end
@@ -1847,7 +1757,8 @@ arch bridge_wood_EW.111
 x 13
 y 9
 end
-arch light7
+arch lantern_magic.131
+direction 3
 x 13
 y 9
 end
@@ -1855,11 +1766,11 @@ arch bridge_wood_EW.101
 x 13
 y 10
 end
-arch bridge_wood_EW.101
-x 13
-y 11
-end
 arch light7
+x 13
+y 10
+end
+arch bridge_wood_EW.101
 x 13
 y 11
 end
@@ -1883,51 +1794,23 @@ arch water_lt4
 x 13
 y 15
 end
-arch ship_prow_e_strokeside_b
-x 13
-y 15
-end
-arch ship_hull_prow_e_front_strokeside_2
-x 13
-y 15
-end
-arch ship_floor_we_1
+arch water_lt4
 x 13
 y 16
 end
-arch ship_prow_e_strokeside_c
-x 13
-y 16
-end
-arch ship_floor_we_4
+arch water_lt
 x 13
 y 17
 end
-arch ship_floor_we_3
-x 13
-y 18
-end
-arch ship_prow_e_starboard_c
-x 13
-y 18
-end
-arch ship_floor_we_3
-x 13
-y 19
-end
-arch ship_prow_e_starboard_b
-x 13
-y 19
-end
-arch ship_hull_prow_e_rear_4
-x 13
-y 19
-end
 arch water_lt4
 x 13
-y 20
+y 18
 end
-arch ship_hull_prow_e_rear_3
+arch water_lt2
+x 13
+y 19
+end
+arch water_lt
 x 13
 y 20
 end
@@ -2021,51 +1904,23 @@ arch water_lt4
 x 14
 y 15
 end
-arch water_lt3
+arch water_lt4
 x 14
 y 16
-end
-arch ship_prow_e_strokeside_a
-x 14
-y 16
-end
-arch ship_hull_prow_e_front_strokeside_1
-x 14
-y 16
-end
-arch ship_floor_we_1
-x 14
-y 17
-end
-arch light9
-x 14
-y 17
-end
-arch ship_floor_we_3
-x 14
-y 18
-end
-arch ship_prow_e_starboard_a
-x 14
-y 18
-end
-arch ship_hull_prow_e_rear_2
-x 14
-y 18
-end
-arch water_lt
-x 14
-y 19
-end
-arch ship_hull_prow_e_rear_6
-x 14
-y 19
 end
 arch water_lt3
 x 14
-y 20
+y 17
 end
-arch ship_hull_prow_e_rear_5
+arch water_lt2
+x 14
+y 18
+end
+arch water_lt3
+x 14
+y 19
+end
+arch water_lt4
 x 14
 y 20
 end
@@ -2164,47 +2019,23 @@ arch water_lt4
 x 15
 y 15
 end
-arch water_lt3
-x 15
-y 16
-end
-arch ship_prow_e_strokeside_b
-x 15
-y 16
-end
-arch ship_hull_prow_e_front_strokeside_2
-x 15
-y 16
-end
-arch ship_floor_we_4
-x 15
-y 17
-end
-arch ship_prow_e_midship
-x 15
-y 17
-end
-arch ship_floor_we_3
-x 15
-y 18
-end
-arch ship_prow_e_starboard_b
-x 15
-y 18
-end
-arch ship_hull_prow_e_rear_4
-x 15
-y 18
-end
-arch water_lt3
-x 15
-y 19
-end
-arch ship_hull_prow_e_rear_3
-x 15
-y 19
-end
 arch water_lt2
+x 15
+y 16
+end
+arch water_lt
+x 15
+y 17
+end
+arch water_lt
+x 15
+y 18
+end
+arch water_lt
+x 15
+y 19
+end
+arch water_lt
 x 15
 y 20
 end
@@ -2278,13 +2109,8 @@ end
 arch sign
 msg
 This ship will take you to the Eld Woods Island.
-The Eld Woods Island is a perfect alternative starting place for newbies, but some skills can only be learned on Strakewood Island, like the quest for Two Handed Weapons Mastery.
 endmsg
 name To Eld Woods Island
-x 16
-y 9
-end
-arch light7
 x 16
 y 9
 end
@@ -2293,10 +2119,6 @@ x 16
 y 10
 end
 arch bridge_wood_EW.101
-x 16
-y 11
-end
-arch light7
 x 16
 y 11
 end
@@ -2316,17 +2138,11 @@ arch water_lt
 x 16
 y 14
 end
-arch water_lt2
+arch water_lt3
 x 16
 y 15
 end
-arch client_map_info
-name brynknot_ship_tutorial
-sub_type 2
-x 16
-y 15
-end
-arch water_lt2
+arch water_lt
 x 16
 y 16
 end
@@ -2334,19 +2150,7 @@ arch water_lt3
 x 16
 y 17
 end
-arch ship_hull_prow_e_front_3
-x 16
-y 17
-end
-arch ship_prow_e_long
-x 16
-y 17
-end
-arch water_lt
-x 16
-y 18
-end
-arch ship_hull_prow_e_rear_6
+arch water_lt4
 x 16
 y 18
 end
@@ -2354,11 +2158,7 @@ arch water_lt3
 x 16
 y 19
 end
-arch ship_hull_prow_e_rear_5
-x 16
-y 19
-end
-arch water_lt2
+arch water_lt
 x 16
 y 20
 end
@@ -2456,27 +2256,27 @@ arch water_lt
 x 17
 y 14
 end
-arch water_lt2
+arch water_lt3
 x 17
 y 15
 end
-arch water_lt
+arch water_lt4
 x 17
 y 16
 end
-arch water_lt
+arch water_lt2
 x 17
 y 17
 end
-arch water_lt3
+arch water_lt
 x 17
 y 18
 end
-arch water_lt3
+arch water_lt4
 x 17
 y 19
 end
-arch water_lt
+arch water_lt2
 x 17
 y 20
 end
