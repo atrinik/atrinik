@@ -1376,6 +1376,11 @@ int widget_event_start_move(widgetdata *widget)
     }
 
     SDL_GetMouseState(&x, &y);
+    if (!widget_mouse_over(widget, x, y)) {
+        x = widget_x(widget) + widget_w(widget) / 2;
+        y = widget_y(widget) + widget_h(widget) / 2;
+        SDL_WarpMouse(x, y);
+    }
 
     /* we know this widget owns the mouse.. */
     widget_event_move.active = 1;
