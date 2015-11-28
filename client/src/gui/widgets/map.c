@@ -1610,10 +1610,6 @@ void map_draw_map(SDL_Surface *surface)
             }
 
             for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
-                if (!(cell->priority[sub_layer] & (1 << (LAYER_EFFECT - 1)))) {
-                    continue;
-                }
-
                 if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] <
                         cell->height[GET_MAP_LAYER(LAYER_FLOOR,
                         MapData.player_sub_layer)]) {
