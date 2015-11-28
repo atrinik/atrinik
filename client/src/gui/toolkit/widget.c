@@ -677,6 +677,27 @@ widget_set_zoom (widgetdata *widget, double zoom)
 }
 
 /**
+ * Determine whether the specified coordinates are over the widget.
+ *
+ * @param widget Widget.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return Whether the coordinates are over the widget.
+ */
+static bool
+widget_mouse_over (widgetdata *widget, int x, int y)
+{
+    if (x >= widget_x(widget) &&
+        y >= widget_y(widget) &&
+        x <= widget_x(widget) + widget_w(widget) &&
+        y <= widget_y(widget) + widget_h(widget)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Ensures a single widget is on-screen.
  * @param widget The widget. */
 static void widget_ensure_onscreen(widgetdata *widget)
@@ -1475,15 +1496,8 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
             }
         }
 
-        switch (widget->type) {
-        default:
-
-            if (x >= widget_x(widget) &&
-                y >= widget_y(widget) &&
-                x <= widget_x(widget) + widget_w(widget) &&
-                y <= widget_y(widget) + widget_h(widget)) {
-                return widget;
-            }
+        if (widget_mouse_over(widget, x, y)) {
+            return widget;
         }
 
         /* get the next sibling for our next loop */
