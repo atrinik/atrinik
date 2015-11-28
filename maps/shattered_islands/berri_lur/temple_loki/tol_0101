@@ -2469,7 +2469,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -2517,7 +2516,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -2593,7 +2591,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -2641,7 +2638,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3143,7 +3139,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3191,7 +3186,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3267,7 +3261,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3315,7 +3308,6 @@ pow 0
 see_invisible 0
 can_see_in_dark 1
 unaggressive 0
-friendly 0
 protect_impact 0
 protect_slash 0
 protect_cleave 0

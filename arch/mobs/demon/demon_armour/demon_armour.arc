@@ -38,4 +38,6 @@ animation demon_armour
 is_animated 1
 anim_speed 4
 no_pick 1
+faction monsters
+int 18
 end

@@ -45,11 +45,11 @@ def player_sanitize_input(s):
 ## @param name Optional name to look for.
 ## @param count Optional object ID to look for.
 def find_obj(activator, limit = 10, archname = None, name = None, count = None):
-    if archname == None and name == None and count == None:
+    if archname is None and name is None and count is None:
         raise AttributeError("No matching conditions provided.")
 
     for (m, x, y) in [(activator.map, activator.x, activator.y)] + activator.SquaresAround(limit):
-        first = m.GetFirstObject(x, y)
+        first = m.Objects(x, y)
 
         if not first:
             continue
@@ -63,13 +63,13 @@ def find_obj(activator, limit = 10, archname = None, name = None, count = None):
                 if tmp.inv:
                     toscan.append(tmp.inv)
 
-                if archname != None and tmp.arch.name != archname:
+                if archname is not None and tmp.arch.name != archname:
                     continue
 
-                if name != None and tmp.name != name:
+                if name is not None and tmp.name != name:
                     continue
 
-                if count != None and tmp.count != count:
+                if count is not None and tmp.count != count:
                     continue
 
                 return tmp
@@ -103,5 +103,5 @@ def obj_assign_attribs (obj, attribs):
             setattr(obj, "f_" + attrib, True if val else False)
         # Otherwise attempt to use the Load method
         else:
-            obj.Load("{} {}".format(attrib, "NONE" if val == None else val))
+            obj.Load("{} {}".format(attrib, "NONE" if val is None else val))
 

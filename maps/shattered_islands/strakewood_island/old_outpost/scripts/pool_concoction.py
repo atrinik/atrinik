@@ -1,6 +1,7 @@
 ## @file
 ## Script for concoction pools in Old Outpost.
 
+from Atrinik import *
 from QuestManager import QuestManager
 from InterfaceQuests import gandyld_mana_crystal
 

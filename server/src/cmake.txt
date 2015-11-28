@@ -68,12 +68,15 @@ set(SOURCES
 	src/server/anim.c
 	src/server/apply.c
 	src/server/arch.c
+	src/server/artifact.c
 	src/server/attack.c
 	src/server/ban.c
+	src/server/bank.c
 	src/server/cache.c
 	src/server/commands.c
 	src/server/connection.c
 	src/server/exp.c
+	src/server/faction.c
 	src/server/gods.c
 	src/server/hiscore.c
 	src/server/image.c
@@ -120,6 +123,7 @@ set(SOURCES
 	src/socket/sounds.c
 	src/socket/updates.c
 	src/types/monster/monster_data.c
+	src/types/monster/monster_guard.c
 	src/types/ability.c
 	src/types/amulet.c
 	src/types/armour.c
@@ -171,7 +175,6 @@ set(SOURCES
 	src/types/gloves.c
 	src/types/god.c
 	src/types/gravestone.c
-	src/types/greaves.c
 	src/types/handle.c
 	src/types/helmet.c
 	src/types/holy_altar.c
@@ -193,6 +196,7 @@ set(SOURCES
 	src/types/monster.c
 	src/types/nugget.c
 	src/types/organic.c
+	src/types/pants.c
 	src/types/pearl.c
 	src/types/pedestal.c
 	src/types/player.c
@@ -222,6 +226,7 @@ set(SOURCES
 	src/types/swarm_spell.c
 	src/types/symptom.c
 	src/types/treasure.c
+	src/types/trinket.c
 	src/types/wall.c
 	src/types/wand.c
 	src/types/waypoint.c

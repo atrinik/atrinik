@@ -1,6 +1,10 @@
 /**
-@fn obj::item_skill
-@section Use
+@var obj::item_skill
+@sa @ref page_field_item_skill
+*/
+
+/**
+@page page_field_item_skill obj::item_skill Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

@@ -77,7 +77,6 @@ void clear_player(void)
 
     memset(&cpl, 0, sizeof(cpl));
     cpl.stats.Str = cpl.stats.Dex = cpl.stats.Con = cpl.stats.Int = cpl.stats.Pow = -1;
-    cpl.mark_count = -1;
     objects_init();
     quickslots_init();
     init_player_data();
@@ -101,13 +100,19 @@ void new_player(tag_t tag, long weight, short face)
 
 /**
  * Send apply command to server.
- * @param tag Item tag. */
-void client_send_apply(tag_t tag)
+ * @param op Object to apply.
+ */
+void client_send_apply(object *op)
 {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_APPLY, 8, 0);
-    packet_append_uint32(packet, tag);
+    packet_append_uint32(packet, op->tag);
+
+    if (op->tag == 0) {
+        packet_append_uint8(packet, op->apply_action);
+    }
+
     socket_send_packet(packet);
 }
 
@@ -127,8 +132,9 @@ void client_send_examine(tag_t tag)
  * Request nrof of objects of tag get moved to loc.
  * @param loc Location where to move the object.
  * @param tag Item tag.
- * @param nrof Number of objects from tag. */
-void client_send_move(int loc, int tag, int nrof)
+ * @param nrof Number of objects from tag.
+ */
+void client_send_move(tag_t loc, tag_t tag, uint32_t nrof)
 {
     packet_struct *packet;
 
@@ -159,9 +165,8 @@ void init_player_data(void)
 {
     new_player(0, 0, 0);
 
-    cpl.inventory_focus = BELOW_INV_ID;
-
-    cpl.container_tag = -996;
+    cpl.inventory_focus = widget_find(NULL, INVENTORY_ID, "below", NULL);
+    SetPriorityWidget(cpl.inventory_focus);
 
     cpl.stats.maxsp = 1;
     cpl.stats.maxhp = 1;
@@ -174,8 +179,6 @@ void init_player_data(void)
     /* Avoid division by 0 errors */
     cpl.stats.maxsp = 1;
     cpl.stats.maxhp = 1;
-
-    cpl.container_tag = -997;
 }
 
 /**

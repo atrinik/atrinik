@@ -430,6 +430,7 @@ void effect_sprites_play(void)
     int num_sprites = 0;
     int x_check, y_check;
     uint32_t ticks;
+    sprite_effects_t sprite_effects;
 
     /* No current effect or not playing, quit. */
     if (!current_effect || cpl.state != ST_PLAY) {
@@ -437,6 +438,7 @@ void effect_sprites_play(void)
     }
 
     ticks = SDL_GetTicks();
+    memset(&sprite_effects, 0, sizeof(sprite_effects));
 
     for (tmp = current_effect->sprites; tmp; tmp = next) {
         next = tmp->next;
@@ -478,7 +480,9 @@ void effect_sprites_play(void)
         }
 
         /* Show the sprite. */
-        map_sprite_show(cur_widget[MAP_ID]->surface, tmp->x, tmp->y, NULL, FaceList[tmp->def->id].sprite, 0, 0, 0, 0, tmp->def->zoom, tmp->def->zoom, 0);
+        sprite_effects.zoom_x = sprite_effects.zoom_y = tmp->def->zoom;
+        surface_show_effects(cur_widget[MAP_ID]->surface, tmp->x, tmp->y, NULL,
+                FaceList[tmp->def->id].sprite->bitmap, &sprite_effects);
         num_sprites++;
 
         /* Move it if there is no delay configured or if enough time has passed.
@@ -507,8 +511,12 @@ void effect_sprites_play(void)
     }
 
     /* Change wind direction... */
-    if (current_effect->wind_blow_dir == WIND_BLOW_RANDOM && current_effect->wind_chance != 1.0 && (current_effect->wind_chance == 0.0 || RANDOM() / (RAND_MAX + 1.0) >= current_effect->wind_chance)) {
-        current_effect->wind += (-2.0 + 4.0 * RANDOM() / (RAND_MAX + 1.0)) * current_effect->wind_mod;
+    if (current_effect->wind_blow_dir == WIND_BLOW_RANDOM &&
+            !DBL_EQUAL(current_effect->wind_chance, 1.0) &&
+            (DBL_EQUAL(current_effect->wind_chance, 0.0) ||
+            RANDOM() / (RAND_MAX + 1.0) >= current_effect->wind_chance)) {
+        current_effect->wind += (-2.0 + 4.0 * RANDOM() / (RAND_MAX + 1.0)) *
+                current_effect->wind_mod;
     }
 
     if (current_effect->wind_blow_dir == WIND_BLOW_LEFT) {
@@ -531,7 +539,7 @@ void effect_sprites_play(void)
 
             /* Invalid sprite. */
             if (sprite->def->id == -1 || !FaceList[sprite->def->id].sprite) {
-                logger_print(LOG(INFO), "Invalid sprite ID %d", sprite->def->id);
+                LOG(INFO, "Invalid sprite ID %d", sprite->def->id);
                 effect_sprite_remove(sprite);
                 return;
             }
@@ -606,32 +614,6 @@ int effect_start(const char *name)
             /* Load it up. */
             current_effect = tmp;
 
-            /* Does this effect have an overlay? If so, we need to free
-             * old dark levels, as they are rendered without the image
-             * overlay. */
-            if (current_effect->overlay) {
-                size_t i, dark;
-
-                for (i = 0; i < MAX_FACE_TILES; i++) {
-                    if (!FaceList[i].sprite) {
-                        continue;
-                    }
-
-                    if (FaceList[i].sprite->effect) {
-                        SDL_FreeSurface(FaceList[i].sprite->effect);
-                        FaceList[i].sprite->effect = NULL;
-                    }
-
-                    /* Free all dark levels. */
-                    for (dark = 0; dark < DARK_LEVELS; dark++) {
-                        if (FaceList[i].sprite->dark_level[dark]) {
-                            SDL_FreeSurface(FaceList[i].sprite->dark_level[dark]);
-                            FaceList[i].sprite->dark_level[dark] = NULL;
-                        }
-                    }
-                }
-            }
-
             if (current_effect->sound_effect[0] != '\0') {
                 current_effect->sound_channel = sound_play_effect_loop(current_effect->sound_effect, current_effect->sound_volume, -1);
             }
@@ -703,28 +685,48 @@ uint8_t effect_has_overlay(void)
 }
 
 /**
- * Add an effect overlay to a sprite.
- * @param sprite The sprite to add overlay to. */
-void effect_scale(sprite_struct *sprite)
+ * Acquire an identifier for the overlay effect, if any.
+ * @return Identifier; empty string in case no overlay is present.
+ */
+const char *effect_overlay_identifier(void)
 {
-    int j, k, r, g, b, a, idx;
-    Uint8 vals[4];
-    SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
+    if (current_effect == NULL || !current_effect->overlay) {
+        return "";
+    }
 
-    for (k = 0; k < temp->h; k++) {
-        for (j = 0; j < temp->w; j++) {
-            SDL_GetRGBA(getpixel(temp, j, k), temp->format, &vals[0], &vals[1], &vals[2], &vals[3]);
+    return current_effect->name;
+}
 
-            idx = 0;
+/**
+ * Add an effect overlay to a sprite surface.
+ * @param surface The sprite surface to add overlay to.
+ * @return New surface, NULL in case of failure.
+ */
+SDL_Surface *effect_sprite_overlay(SDL_Surface *surface)
+{
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format,
+            FormatHolder->flags);
+    if (tmp == NULL) {
+        return NULL;
+    }
+
+    for (int y = 0; y < tmp->h; y++) {
+        for (int x = 0; x < tmp->w; x++) {
+            Uint8 vals[4];
+            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &vals[0], &vals[1],
+                    &vals[2], &vals[3]);
+
+            int idx = 0, r, g, b, a;
             EFFECT_SCALE_ADJUST(r, current_effect->overlay);
             EFFECT_SCALE_ADJUST(g, current_effect->overlay);
             EFFECT_SCALE_ADJUST(b, current_effect->overlay);
             EFFECT_SCALE_ADJUST(a, current_effect->overlay);
 
-            putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
+            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
         }
     }
 
-    sprite->effect = SDL_DisplayFormatAlpha(temp);
-    SDL_FreeSurface(temp);
+    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
+    SDL_FreeSurface(tmp);
+    return ret;
 }

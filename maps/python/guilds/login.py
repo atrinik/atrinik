@@ -2,6 +2,7 @@
 ## Activated on login map-wide event used in guild maps so players that
 ## are no longer members of the guild are kicked out.
 
+from Atrinik import *
 from Guild import Guild
 
 guild = Guild(GetOptions())

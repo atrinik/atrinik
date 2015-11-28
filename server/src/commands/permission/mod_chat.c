@@ -42,7 +42,7 @@ void command_mod_chat(object *op, const char *command, char *params)
         return;
     }
 
-    logger_print(LOG(CHAT), "[MOD CHAT] [%s] %s", op->name, params);
+    LOG(CHAT, "[MOD CHAT] [%s] %s", op->name, params);
 
     for (pl = first_player; pl; pl = pl->next) {
         if (commands_check_permission(pl, command)) {

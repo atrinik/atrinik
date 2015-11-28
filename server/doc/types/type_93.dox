@@ -67,10 +67,11 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>connection flag1</td>
+		<td>connection flag</td>
 		<td>@ref obj::last_eat</td>
-		<td>		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
+		<td>		Signals the connected objects to do a different action. See the
+		help file for the object you are connecting this to for details
+		what this setting will affect.
 		</td>
 	</tr>
 	<tr>
@@ -88,12 +89,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>description</td>
-		<td>@ref obj::msg</td>
-		<td>		This text may describe the item.
-		</td>
-	</tr>
-	<tr>
 		<td>direction</td>
 		<td>@ref obj::direction</td>
 		<td>		The object's direction.
@@ -101,7 +96,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -123,6 +118,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
 		<td>identified</td>
 		<td>@ref FLAG_IDENTIFIED</td>
 		<td>		If an item is identified, the player has full knowledge about it.
@@ -130,14 +131,14 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>ignore connection push</td>
-		<td>@ref obj::connect_no_push</td>
+		<td>@ref FLAG_CONNECT_NO_PUSH</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 		</td>
 	</tr>
 	<tr>
 		<td>ignore connection release</td>
-		<td>@ref obj::connect_no_release</td>
+		<td>@ref FLAG_CONNECT_NO_RELEASE</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
 		</td>
@@ -185,12 +186,19 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>key string</td>
+		<td>@ref obj::slaying</td>
+		<td>		If &lt;key string&gt; is set, only players with a special key of
+		matching &lt;key string&gt; are able to activate the handle.
+		</td>
+	</tr>
+	<tr>
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -228,13 +236,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -312,6 +313,21 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>reset time</td>
+		<td>@ref liv::exp</td>
+		<td>		Being activated, the handle will reset after "reset time"
+		ticks. After reset, the handle is ready to be activated once
+		again. If -1, the handle will never reset and won't be possible
+		to trigger again.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
 		<td>stackable</td>
 		<td>@ref FLAG_CAN_STACK</td>
 		<td>		If set, the item can be stacked. Careful, don't use on rings or
@@ -352,8 +368,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -363,6 +388,12 @@ Type defined by:
 		Warning: Not all objects have a sub type and changing it without
 		care can corrupt server AND/OR the clients. Normally this is not
 		a subject to change outside arch definition.
+		</td>
+	</tr>
+	<tr>
+		<td>tiled maps</td>
+		<td>@ref obj::path_repelled</td>
+		<td>	    Tiled maps to load and look for connected objects on.
 		</td>
 	</tr>
 	<tr>
@@ -385,6 +416,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

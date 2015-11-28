@@ -1,0 +1,654 @@
+arch map
+name Lower Deck
+msg
+Created:  2015-11-25 Alex Tokar
+Modified: 2015-11-26 Alex Tokar
+endmsg
+width 5
+height 14
+difficulty 1
+darkness 5
+bg_music adventurers_wish.ogg
+region strakewood_island
+end
+arch blocked
+end
+arch blocked
+y 1
+end
+arch blocked
+y 2
+end
+arch blocked
+y 3
+end
+arch ship_hull_prow_n_front_strokeside
+y 3
+end
+arch ship_prow_n_strokeside_b
+y 3
+end
+arch ship_prow_n_strokeside_b
+z 12
+sub_layer 1
+y 3
+end
+arch ship_floor_we_3
+y 4
+end
+arch ship_prow_n_strokeside_a
+y 4
+end
+arch ship_prow_n_strokeside_a
+z 12
+sub_layer 1
+y 4
+end
+arch ship_floor_we_4
+y 5
+end
+arch ship_rail_w_high
+no_pass 1
+y 5
+end
+arch barrel_water.101
+sub_layer 1
+layer 5
+y 5
+end
+arch ship_floor_we_4
+y 6
+end
+arch ship_rail_w_high
+no_pass 1
+y 6
+end
+arch box_big.101
+sub_layer 1
+layer 5
+y 6
+end
+arch ship_floor_we_4
+y 7
+end
+arch ship_rail_w_high
+no_pass 1
+y 7
+end
+arch barrel.101
+layer 5
+sub_layer 1
+y 7
+end
+arch ship_floor_we_4
+y 8
+end
+arch ship_rail_sw_high
+no_pass 1
+blocksview 1
+y 8
+end
+arch ship_floor_we_4
+y 9
+end
+arch ship_rail_w_high
+no_pass 1
+y 9
+end
+arch ship_floor_we_4
+y 10
+end
+arch ship_rail_w_high
+no_pass 1
+y 10
+end
+arch ship_floor_we_4
+y 11
+end
+arch ship_rail_w_high
+no_pass 1
+y 11
+end
+arch bed_7a
+sub_layer 1
+no_pass 1
+layer 5
+direction 5
+y 11
+end
+arch ship_floor_we_4
+y 12
+end
+arch ship_rail_w_high
+no_pass 1
+y 12
+end
+arch bed_7b
+sub_layer 1
+no_pass 1
+layer 5
+direction 5
+y 12
+end
+arch ship_floor_we_1
+y 13
+end
+arch ship_rail_sw_high
+no_pass 1
+y 13
+end
+arch blocked
+x 1
+end
+arch ship_floor_we_4
+x 1
+y 1
+end
+arch ship_prow_n_strokeside_b
+x 1
+y 1
+end
+arch ship_prow_n_strokeside_b
+z 12
+sub_layer 1
+x 1
+y 1
+end
+arch ship_floor_we_3
+x 1
+y 2
+end
+arch ship_prow_n_strokeside_a
+x 1
+y 2
+end
+arch ship_prow_n_strokeside_a
+z 12
+sub_layer 1
+x 1
+y 2
+end
+arch metal_bucket.101
+align -6
+layer 5
+sub_layer 2
+x 1
+y 2
+end
+arch ship_floor_we_1
+x 1
+y 3
+end
+arch ship_prow_n_strokeside_c
+x 1
+y 3
+end
+arch ship_prow_n_strokeside_c
+z 12
+sub_layer 1
+x 1
+y 3
+end
+arch box1.101
+sub_layer 2
+layer 5
+x 1
+y 3
+end
+arch ship_floor_we_1
+x 1
+y 4
+end
+arch chair1_111
+direction 7
+x 1
+y 4
+end
+arch ship_floor_we_3
+x 1
+y 5
+end
+arch ship_floor_we_3
+x 1
+y 6
+end
+arch ship_floor_we_1
+x 1
+y 7
+end
+arch ship_floor_we_2
+x 1
+y 8
+end
+arch door_wood2
+x 1
+y 8
+end
+arch ship_floor_we_2
+x 1
+y 9
+end
+arch ship_floor_we_4
+x 1
+y 10
+end
+arch ship_floor_we_3
+x 1
+y 11
+end
+arch ship_floor_we_1
+x 1
+y 12
+end
+arch table_small1
+align -4
+z -2
+x 1
+y 12
+end
+arch ship_floor_we_1
+x 1
+y 13
+end
+arch ship_rail_s_high
+no_pass 1
+x 1
+y 13
+end
+arch blocked
+x 2
+end
+arch ship_hull_prow_e_front_strokeside_2
+x 2
+end
+arch ship_prow_n
+x 2
+end
+arch ship_prow_n_long
+z 12
+sub_layer 1
+x 2
+end
+arch ship_floor_we_3
+x 2
+y 1
+end
+arch ship_prow_n_midship
+x 2
+y 1
+end
+arch ship_prow_n_midship
+z 12
+sub_layer 1
+x 2
+y 1
+end
+arch ship_floor_we_3
+x 2
+y 2
+end
+arch box2.101
+z 5
+x 2
+y 2
+end
+arch ship_floor_we_3
+x 2
+y 3
+end
+arch ship_floor_we_3
+x 2
+y 4
+end
+arch table_round2
+z 2
+x 2
+y 4
+end
+arch mushroom1
+z 12
+align 6
+rotate -90
+layer 4
+sub_layer 1
+x 2
+y 4
+end
+arch ship_floor_we_3
+x 2
+y 5
+end
+arch ship_floor_we_1
+x 2
+y 6
+end
+arch ship_floor_we_3
+x 2
+y 7
+end
+arch stairs_wood_up
+direction 7
+slaying ../world_0_70
+hp 1
+sp 13
+x 2
+y 7
+end
+arch ship_floor_we_2
+x 2
+y 8
+end
+arch ship_rail_s_high
+no_pass 1
+blocksview 1
+x 2
+y 8
+end
+arch ship_floor_we_4
+x 2
+y 9
+end
+arch ship_floor_we_4
+x 2
+y 10
+end
+arch ship_floor_we_3
+x 2
+y 11
+end
+arch magic_mouth
+msg
+
+You wake up and find that the boat is not sailing anymore...
+
+You have reached Strakewood Island.
+endmsg
+x 2
+y 11
+end
+arch ship_floor_we_1
+x 2
+y 12
+end
+arch table_small1
+align -4
+z -2
+x 2
+y 12
+end
+arch ship_floor_we_2
+x 2
+y 13
+end
+arch ship_rail_s_high
+no_pass 1
+x 2
+y 13
+end
+arch blocked
+x 3
+end
+arch blocked
+x 3
+y 1
+end
+arch ship_prow_n_starboard_b
+x 3
+y 1
+end
+arch ship_prow_n_starboard_b
+z 12
+sub_layer 1
+x 3
+y 1
+end
+arch blocked
+x 3
+y 2
+end
+arch ship_hull_prow_n_rear_4
+x 3
+y 2
+end
+arch ship_prow_n_starboard_a
+x 3
+y 2
+end
+arch ship_prow_n_starboard_a
+z 12
+sub_layer 1
+x 3
+y 2
+end
+arch ship_floor_we_2
+x 3
+y 3
+end
+arch ship_prow_n_starboard_c
+x 3
+y 3
+end
+arch ship_prow_n_starboard_c
+z 12
+sub_layer 1
+x 3
+y 3
+end
+arch ship_floor_we_3
+x 3
+y 4
+end
+arch chair1_111
+direction 3
+x 3
+y 4
+end
+arch ship_floor_we_1
+x 3
+y 5
+end
+arch ship_floor_we_4
+x 3
+y 6
+end
+arch barrel.101
+x 3
+y 6
+end
+arch ship_floor_we_3
+x 3
+y 7
+end
+arch stairs_wood_up2
+direction 7
+slaying ../world_0_70
+hp 1
+sp 13
+x 3
+y 7
+end
+arch ship_floor_we_1
+x 3
+y 8
+end
+arch ship_rail_se_high
+no_pass 1
+blocksview 1
+x 3
+y 8
+end
+arch ship_floor_we_1
+x 3
+y 9
+end
+arch box_big.101
+z -4
+x 3
+y 9
+end
+arch ship_floor_we_3
+x 3
+y 10
+end
+arch ship_floor_we_1
+x 3
+y 11
+end
+arch bed_4a
+no_pass 1
+direction 5
+x 3
+y 11
+end
+arch ship_floor_we_4
+x 3
+y 12
+end
+arch bed_4b
+no_pass 1
+direction 5
+x 3
+y 12
+end
+arch ship_floor_we_1
+x 3
+y 13
+end
+arch ship_rail_s_high
+no_pass 1
+x 3
+y 13
+end
+arch blocked
+x 4
+end
+arch blocked
+x 4
+y 1
+end
+arch blocked
+x 4
+y 2
+end
+arch blocked
+x 4
+y 3
+end
+arch ship_prow_n_starboard_b
+x 4
+y 3
+end
+arch ship_prow_n_starboard_b
+z 12
+sub_layer 1
+x 4
+y 3
+end
+arch blocked
+x 4
+y 4
+end
+arch ship_hull_prow_n_rear_4
+x 4
+y 4
+end
+arch ship_prow_n_starboard_a
+x 4
+y 4
+end
+arch ship_prow_n_starboard_a
+z 12
+sub_layer 1
+x 4
+y 4
+end
+arch ship_floor_we_4
+x 4
+y 5
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 4
+y 5
+end
+arch ship_floor_we_1
+x 4
+y 6
+end
+arch ship_rail_se_high
+no_pass 1
+blocksview 1
+x 4
+y 6
+end
+arch ship_floor_we_4
+x 4
+y 7
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 4
+y 7
+end
+arch ship_floor_we_1
+x 4
+y 8
+end
+arch ship_rail_se_high
+no_pass 1
+blocksview 1
+x 4
+y 8
+end
+arch ship_floor_we_2
+x 4
+y 9
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 4
+y 9
+end
+arch ship_floor_we_2
+x 4
+y 10
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 4
+y 10
+end
+arch ship_floor_we_1
+x 4
+y 11
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 4
+y 11
+end
+arch ship_floor_we_4
+x 4
+y 12
+end
+arch ship_rail_e_high
+no_pass 1
+blocksview 1
+x 4
+y 12
+end
+arch ship_floor_we_1
+x 4
+y 13
+end
+arch ship_rail_se_high
+no_pass 1
+blocksview 1
+x 4
+y 13
+end

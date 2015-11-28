@@ -66,10 +66,6 @@ typedef struct _anim_table {
 } _anim_table;
 
 /**
- * Timeout when attempting a connection in milliseconds. */
-#define SOCKET_TIMEOUT_MS 4000
-
-/**
  * One command buffer. */
 typedef struct command_buffer {
     /** Next command in queue. */
@@ -79,7 +75,7 @@ typedef struct command_buffer {
     struct command_buffer *prev;
 
     /** Length of the data. */
-    int len;
+    size_t len;
 
     /** The data. */
     uint8_t data[1];
@@ -88,9 +84,9 @@ typedef struct command_buffer {
 /* ClientSocket could probably hold more of the global values - it could
  * probably hold most all socket/communication related values instead
  * of globals. */
-typedef struct ClientSocket {
-    int fd;
-} ClientSocket;
+typedef struct client_socket {
+    socket_t *sc;
+} client_socket_t;
 
 /** Check if the keyword represents a true value. */
 #define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))

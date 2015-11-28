@@ -14,7 +14,8 @@ corpse 1
 layer 6
 direction 5
 is_neutral 1
-friendly 1
+faction npcs
+int 26
 terrain_flag 65
 weapon_speed 0.038
 attack_magic 100

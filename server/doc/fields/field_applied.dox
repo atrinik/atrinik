@@ -1,6 +1,10 @@
 /**
-@fn FLAG_APPLIED
-@section Use
+@var FLAG_APPLIED
+@sa @ref page_field_applied
+*/
+
+/**
+@page page_field_applied FLAG_APPLIED Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

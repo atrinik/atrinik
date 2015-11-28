@@ -1,0 +1,32 @@
+faction incuna
+    parent world
+
+    faction incuna_animals
+        spill 10%
+        spill_force true
+    end
+
+    faction incuna_citizens
+        faction incuna_guards
+        end
+    end
+
+    faction incuna_barn
+        alliance yes
+        modifier 0%
+
+        faction incuna_barn_slimes
+            threshold 1000.0
+            penalty 0.0
+        end
+
+        faction incuna_barn_ants
+            threshold 1000.0
+            penalty 0.0
+
+            faction incuna_barn_queen
+                penalty -2000.0
+            end
+        end
+    end
+end

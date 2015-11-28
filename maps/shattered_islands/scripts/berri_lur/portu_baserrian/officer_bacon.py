@@ -1,6 +1,7 @@
 ## @file
 ## Script for Officer Bacon in Portu Baserrian.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)
@@ -42,4 +43,4 @@ def main():
         inf.add_msg("Weird, eh? Well if it is his temple, you wouldn't catch me there. I prefer law and order to unbridled chaos!")
 
 main()
-inf.finish()
+inf.send()

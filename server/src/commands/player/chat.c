@@ -44,6 +44,6 @@ void command_chat(object *op, const char *command, char *params)
         return;
     }
 
-    logger_print(LOG(CHAT), "[CHAT] [%s] %s", op->name, params);
+    LOG(CHAT, "[CHAT] [%s] %s", op->name, params);
     draw_info_type(CHAT_TYPE_CHAT, op->name, COLOR_ORANGE, NULL, params);
 }

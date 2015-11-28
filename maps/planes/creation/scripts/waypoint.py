@@ -1,6 +1,8 @@
 ## @file
 ## Test of waypoint functionality.
 
+from Atrinik import *
+
 def main():
     # By checking event number we can handle multiple event types
     # in a single script.
@@ -21,13 +23,13 @@ def main():
             me.FindObject(name = "waypoint1").f_cursed = True
             inf.dialog_close()
 
-        inf.finish(disable_timeout = True)
+        inf.send()
     # Trigger event is triggered when the waypoint has reached its destination.
     elif event_nr == EVENT_TRIGGER:
         # Reached waypoint that is used for getting to apples dropped around a tree.
         if me.name == "apple waypoint":
             # Try to find the apple by looking at objects below the guard's feet.
-            for obj in activator.map.GetFirstObject(activator.x, activator.y):
+            for obj in activator.map.Objects(activator.x, activator.y):
                 # Is the object an apple?
                 if obj.type == Type.FOOD and obj.arch.name == "apple":
                     # Remove the apple, inform the map and return.
@@ -60,7 +62,7 @@ def main():
             activator.Say("Oh, an apple!")
 
             # Find the currently active waypoint of this guard.
-            for wp in activator.FindObject(type = Type.WAYPOINT_OBJECT, multiple = True):
+            for wp in activator.FindObjects(type = Type.WAYPOINT_OBJECT):
                 # Is it active?
                 if wp.f_cursed:
                     # Deactivate it; we'll create a new active waypoint, which will
@@ -93,7 +95,7 @@ def main():
         # Try to look for an apple around the guard. Squares that he cannot see
         # past or squares with walls are ignored.
         for (m, x, y) in activator.SquaresAround(5, AROUND_BLOCKSVIEW | AROUND_WALL, True):
-            for obj in m.GetFirstObject(x, y):
+            for obj in m.Objects(x, y):
                 # Is there an apple?
                 if obj.type == Type.FOOD and obj.arch.name == "apple":
                     # Go get it!

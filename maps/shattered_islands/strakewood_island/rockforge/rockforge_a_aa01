@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -43,6 +43,7 @@ arch dwarf_steelclad
 name Hodda Gravelender
 level 39
 type 83
+faction rockforge_citizens
 end
 end
 arch floor_marble1a
@@ -63,6 +64,7 @@ level 50
 is_male 0
 is_female 1
 type 83
+faction rockforge_citizens
 end
 end
 arch floor_marble1b
@@ -127,6 +129,7 @@ arch dwarf_scout
 name Tvard Spiritbreaker
 level 28
 type 83
+faction rockforge_citizens
 end
 end
 arch floor_marble1a

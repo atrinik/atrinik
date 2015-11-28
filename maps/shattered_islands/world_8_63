@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-10 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 9
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_2
@@ -2765,7 +2765,7 @@ y 3
 arch ogre
 name ogre rock thrower
 type 83
-level 13
+level 12
 dex 2
 can_use_bow 1
 arch ability_stone_throw

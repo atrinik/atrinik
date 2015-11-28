@@ -44,7 +44,7 @@ void video_init(void)
     list_vid_modes();
 
     if (!video_set_size()) {
-        logger_print(LOG(ERROR), "Couldn't set video size: %s", SDL_GetError());
+        LOG(ERROR, "Couldn't set video size: %s", SDL_GetError());
         exit(1);
     }
 
@@ -60,7 +60,7 @@ void video_init(void)
             SDL_display = info.info.x11.display;
             SDL_window = info.info.x11.window;
         } else {
-            logger_print(LOG(BUG), "SDL is not running on X11 display.");
+            LOG(BUG, "SDL is not running on X11 display.");
         }
 
 #elif defined(WIN32)
@@ -124,7 +124,7 @@ uint32_t get_video_flags(void)
  *  @return Non-zero on success, zero on failure. */
 int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags)
 {
-    long framesize = 0;
+    size_t framesize = 0;
     void *pixels = NULL;
     SDL_Rect clip;
     uint32_t tmpflags = 0;
@@ -171,7 +171,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags)
 
     /* Save the contents of the screen. */
     if ((!(tmpflags & SDL_OPENGL)) && (!(tmpflags & SDL_OPENGLBLIT))) {
-        framesize = (w * h) * ((*surface)->format->BytesPerPixel);
+        framesize = (w * h) * (size_t) (*surface)->format->BytesPerPixel;
         pixels = emalloc(framesize);
 
         if (pixels == NULL) {

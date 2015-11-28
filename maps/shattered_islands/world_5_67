@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-25 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -923,13 +923,13 @@ level 25
 dam 50
 maxhp 90
 can_see_in_dark 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15
 protect_pierce 15
 protect_magic 50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch light7
@@ -1574,6 +1574,7 @@ arch female2
 name Rienn Howell
 level 21
 type 83
+faction fort_ghzal_citizens
 arch event_obj
 sub_type 6
 race /interfaces/quests/two_lovers_doomed/quest.xml
@@ -1898,20 +1899,13 @@ dam 40
 maxhp 90
 dex 3
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15
 protect_pierce 15
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
+faction fort_ghzal_guards
 end
 end
 arch light7
@@ -2579,13 +2573,13 @@ level 25
 dam 50
 maxhp 90
 can_see_in_dark 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15
 protect_pierce 15
 protect_magic 50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch light7
@@ -2764,7 +2758,7 @@ y 4
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 name fort_ghzal_temple
 sub_type 2
@@ -2901,8 +2895,6 @@ dam 40
 maxhp 90
 dex 3
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15
@@ -2987,9 +2979,10 @@ direction 3
 level 35
 type 83
 name Celach Dawson
+faction fort_ghzal_citizens
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end
@@ -3257,7 +3250,7 @@ arch floor_wood2_l1
 x 19
 y 5
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 19
 y 5

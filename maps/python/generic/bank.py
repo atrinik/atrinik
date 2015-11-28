@@ -1,6 +1,7 @@
 ## @file
 ## Generic bank script used for bank NPCs.
 
+from Atrinik import *
 from Interface import Interface
 from Bank import Bank
 
@@ -11,4 +12,4 @@ def main():
     bank.handle_chat(msg)
 
 main()
-inf.finish()
+inf.send()

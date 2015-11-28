@@ -35,6 +35,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <plugin.h>
 
 static object *exit_find(object *op, int do_load)
 {
@@ -84,7 +85,7 @@ static object *exit_find(object *op, int do_load)
         return NULL;
     }
 
-    return altern[RANDOM() % nrofalt];
+    return altern[rndm(0, nrofalt - 1)];
 }
 
 /**
@@ -99,7 +100,7 @@ static bool exit_activate(object *op, object *applier)
     mapstruct *m;
     int x, y, i;
 
-    if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+    if (EXIT_PATH(op) != NULL) {
         return object_enter_map(applier, op, NULL, 0, 0, 0);
     }
 
@@ -109,7 +110,7 @@ static bool exit_activate(object *op, object *applier)
         return false;
     }
 
-    i = find_free_spot(applier->arch, applier, m, x, y, 1, 9);
+    i = find_free_spot(applier->arch, applier, m, x, y, 1, SIZEOFFREE1);
 
     if (i == -1) {
         return false;
@@ -142,7 +143,7 @@ mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
 
     HARD_ASSERT(op != NULL);
 
-    if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+    if (EXIT_PATH(op) != NULL) {
         if (do_load) {
             m = ready_map_name(EXIT_PATH(op), NULL, 0);
         } else {
@@ -153,12 +154,16 @@ mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
             return NULL;
         }
 
+        int xt = EXIT_X(op);
+        int yt = EXIT_Y(op);
+        m = get_map_from_coord(m, &xt, &yt);
+
         if (x != NULL) {
-            *x = EXIT_X(op);
+            *x = xt;
         }
 
         if (y != NULL) {
-            *y = EXIT_Y(op);
+            *y = yt;
         }
 
         return m;
@@ -203,6 +208,10 @@ static int apply_func(object *op, object *applier, int aflags)
         return OBJECT_METHOD_OK;
     }
 
+    if (QUERY_FLAG(applier, FLAG_NO_TELEPORT)) {
+        return OBJECT_METHOD_OK;
+    }
+
     is_shop = false;
 
     for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
@@ -214,10 +223,9 @@ static int apply_func(object *op, object *applier, int aflags)
         }
     }
 
-    if (is_shop && applier->type == PLAYER && !get_payment(applier,
-            applier->inv)) {
+    if (is_shop && applier->type == PLAYER && !shop_pay_items(applier)) {
         i = find_free_spot(applier->arch, NULL, applier->map, applier->x,
-                applier->y, 1, SIZEOFFREE1 + 1);
+                applier->y, 1, SIZEOFFREE1);
 
         if (i != -1) {
             object_remove(applier, 0);
@@ -243,11 +251,12 @@ static int apply_func(object *op, object *applier, int aflags)
 
     if (!exit_activate(op, applier)) {
         if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
-            draw_info_format(COLOR_WHITE, applier, "The %s is closed.",
-                    query_name(op, NULL));
+            char *name = object_get_name_s(op, applier);
+            draw_info_format(COLOR_WHITE, applier, "The %s is closed.", name);
+            efree(name);
         }
 
-        log(LOG(BUG), "Exit '%s' on map %s at %d,%d leads nowhere.", op->name,
+        LOG(BUG, "Exit '%s' on map %s at %d,%d leads nowhere.", op->name,
                 op->map->path, op->x, op->y);
         return OBJECT_METHOD_OK;
     }
@@ -335,13 +344,12 @@ static void insert_map_func(object *op)
 
             EXIT_X(op) += freearr_x[dir];
             EXIT_Y(op) += freearr_y[dir];
-
         }
     } else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
         FREE_AND_ADD_REF_HASH(EXIT_PATH(op), op->map->path);
     }
 
-    if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+    if (EXIT_PATH(op) != NULL) {
         map_exit_t *exit;
 
         exit = ecalloc(1, sizeof(*exit));

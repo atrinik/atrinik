@@ -4,6 +4,7 @@ msg
 Somewhere in the world...
 endmsg
 jail /shattered_islands/strakewood_island/greyton/jail/jail_a 1 11
+child_maps true
 end
 
 region creation
@@ -18,6 +19,17 @@ map_first /planes/creation/creation_0101
 map_bg #009ffb
 end
 
+region bone_cairn
+parent world
+longname Bone Cairn
+msg
+Known as the Bone Cairn, this realm has no name that can be rendered in the Common tongue.
+
+Due to its recent discovery, is is still shrouded in mystery.
+endmsg
+map_first /planes/bone_cairn/bone_cairn_0_0
+end
+
 #########################
 ### Strakewood island ###
 #########################
@@ -27,7 +39,7 @@ longname The Strakewood Island
 msg
 It has been found in the ancient records that the Strakewood Island was the first island formed in this world.
 
-The rumor is that in the ancient times the Strakewood Island was home to two opposing deities, Tabernacle and Moroch, both fighting an endless battle against each other.
+The rumor is that in the ancient times the Strakewood Island was home to two opposing deities, Elathiel and Rashindel, both fighting an endless battle against each other.
 endmsg
 map_first /shattered_islands/world_4_40
 map_bg #009ffb
@@ -191,41 +203,37 @@ region old_outpost
 parent strakewood_island
 longname The Old Outpost
 msg
-The Old Outpost was once a great outpost of Moroch's giant and troll forces, controlled by King Rhun, but is mostly inhabited by ice and lava golems now.
+The Old Outpost was once a great outpost of Zechna's giant and troll forces, controlled by King Rhun, but is mostly inhabited by ice and lava golems now.
 
 You wonder if King Rhun still lives in here.
 endmsg
 end
 
-# Moroch Temple.
-region moroch_temple
+# Temple of Zechna.
+region zechna_temple
 parent strakewood_island
-longname The Moroch Temple Dungeon
+longname Temple of Zechna
 msg
 You see many passages here, and wonder which you should take.
 
-It is said Moroch awaits any challenger at the end of the temple.
+It is said Zechna awaits any challenger at the end of the temple.
 endmsg
-map_first /shattered_islands/strakewood_island/moroch_temple/moroch_temple_0101
-map_quest true
+map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0
 end
 
-region moroch_temple_b
-parent moroch_temple
-map_first /shattered_islands/strakewood_island/moroch_temple/moroch_temple_b_0101
-map_quest true
+region zechna_temple_b
+parent zechna_temple
+map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0_-1
 end
 
-region moroch_temple_c
-parent moroch_temple
-map_first /shattered_islands/strakewood_island/moroch_temple/moroch_temple_c_0101
-map_quest true
+region zechna_temple_c
+parent zechna_temple
+map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0_-2
 end
 
-region moroch_temple_d
-parent moroch_temple
-map_first /shattered_islands/strakewood_island/moroch_temple/moroch_temple_d_0101
-map_quest true
+region zechna_temple_d
+parent zechna_temple
+map_first /shattered_islands/strakewood_island/zechna_temple/zechna_temple_0_0_-3
 end
 
 # Underground City.
@@ -233,25 +241,21 @@ region underground_city
 parent strakewood_island
 longname The Underground City
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_0_0
-map_quest true
 end
 
 region underground_city_a
 parent underground_city
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_2_4_-1
-map_quest true
 end
 
 region underground_city_b
 parent underground_city
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_0_2_-2
-map_quest true
 end
 
 region underground_city_c
 parent underground_city
 map_first /shattered_islands/strakewood_island/underground_city/underground_city_2_-2_-3
-map_quest true
 end
 
 
@@ -380,7 +384,26 @@ A port town, somewhere south of Strakewood Island.
 endmsg
 map_first /shattered_islands/world_4_85
 map_bg #009ffb
-map_quest true
+end
+
+region incuna_-1
+parent incuna
+map_first /shattered_islands/world_4_85_-1
+end
+
+region incuna_-2
+parent incuna_-1
+map_first /shattered_islands/world_4_85_-2
+end
+
+region forgotten_tunnels
+parent incuna
+map_first /shattered_islands/world_3_82_-1
+msg
+The old crystal mines of Incuna have all but passed into legend.
+
+The days of bloodshed when the kobolds were inadvertently released into the mines are not so easily forgotten...
+endmsg
 end
 
 region deserted_tutorial_island

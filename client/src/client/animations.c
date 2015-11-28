@@ -29,22 +29,17 @@
 #include <global.h>
 
 /**
- * Load animations. */
+ * Load animations.
+ */
 void read_anims(void)
 {
-    size_t anim_len = 0;
-    uint8_t new_anim = 1;
-    uint8_t faces = 0;
-    FILE *fp;
-    char buf[HUGE_BUF];
-    uint8_t anim_cmd[2048];
-    size_t count = 0;
-
     anims_deinit();
 
-    anim_table = emalloc(sizeof(_anim_table));
+    size_t count = 0;
+    anim_table = emalloc(sizeof(*anim_table));
 
     /* Animation #0 is like face id #0. */
+    uint8_t anim_cmd[2048];
     anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
     anim_cmd[1] = (uint8_t) (count & 0xff);
     anim_cmd[2] = 0;
@@ -57,41 +52,43 @@ void read_anims(void)
     anim_table[count].len = 6;
     count++;
 
-    fp = server_file_open_name(SERVER_FILE_ANIMS);
-
-    if (!fp) {
-        logger_print(LOG(ERROR), "Could not open anims server file.");
+    FILE *fp = server_file_open_name(SERVER_FILE_ANIMS);
+    if (fp == NULL) {
+        return;
     }
 
-    while (fgets(buf, sizeof(buf) - 1, fp)) {
-        /* Are we outside an anim body? */
-        if (new_anim == 1) {
-            if (!strncmp(buf, "anim ", 5)) {
-                new_anim = 0;
-                faces = 0;
+    uint8_t faces;
+    size_t anim_len;
+    bool in_anim = false;
+
+    char buf[HUGE_BUF];
+    while (fgets(VS(buf), fp)) {
+        if (!in_anim) {
+            if (strncmp(buf, "anim ", 5) == 0) {
+                in_anim = true;
                 anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
                 anim_cmd[1] = (uint8_t) (count & 0xff);
                 faces = 1;
                 anim_len = 4;
             } else {
-                /* we should never hit this point */
-                logger_print(LOG(BUG), "Error parsing anims.tmp - unknown cmd: >%s<!", buf);
+                LOG(ERROR, "Invalid entry in animations file: %s", buf);
+                break;
             }
         } else {
             if (!strncmp(buf, "facings ", 8)) {
                 faces = atoi(buf + 8);
             } else if (!strncmp(buf, "mina", 4)) {
-                anim_table = erealloc(anim_table, sizeof(_anim_table) * (count + 1));
+                anim_table = erealloc(anim_table, sizeof(*anim_table) *
+                        (count + 1));
                 anim_cmd[2] = 0;
                 anim_cmd[3] = faces;
                 anim_table[count].len = anim_len;
                 anim_table[count].anim_cmd = emalloc(anim_len);
                 memcpy(anim_table[count].anim_cmd, anim_cmd, anim_len);
                 count++;
-                new_anim = 1;
+                in_anim = false;
             } else {
                 uint16_t face_id = atoi(buf);
-
                 anim_cmd[anim_len++] = (uint8_t) ((face_id >> 8) & 0xff);
                 anim_cmd[anim_len++] = (uint8_t) (face_id & 0xff);
             }
@@ -99,7 +96,7 @@ void read_anims(void)
     }
 
     animations_num = count;
-    animations = ecalloc(animations_num, sizeof(Animations));
+    animations = ecalloc(animations_num, sizeof(*animations));
     fclose(fp);
 }
 

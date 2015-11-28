@@ -16,7 +16,6 @@ terrain_flag 65
 can_see_in_dark 1
 can_use_weapon 1
 can_use_armour 1
-int 10
 wis 3
 dex 3
 exp 115
@@ -38,4 +37,6 @@ animation imp
 is_animated 1
 anim_speed 4
 no_pick 1
+faction monsters
+int 15
 end

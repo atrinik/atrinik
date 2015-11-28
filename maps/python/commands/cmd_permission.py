@@ -2,8 +2,11 @@
 ## Implements the /cmd_permission command.
 
 import re
+
+from Atrinik import *
 from Interface import Interface
 from Markup import markup_escape, markup_unescape
+
 
 def main():
     match = re.match(r"((?:\")(.+)(?:\")|([^ ]+))"
@@ -61,6 +64,6 @@ def main():
             dest = "/cmd_permission {} add".format(pl.name))
     inf.add_link("Remove all permissions",
             dest = "/cmd_permission {} removeall".format(pl.name))
-    inf.finish()
+    inf.send()
 
 main()

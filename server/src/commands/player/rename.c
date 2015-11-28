@@ -45,14 +45,17 @@ void command_rename(object *op, const char *command, char *params)
     params = player_sanitize_input(params);
 
     /* Clear custom name. */
-    if (!params) {
-        if (!tmp->custom_name) {
+    if (params == NULL) {
+        if (tmp->custom_name == NULL) {
             draw_info(COLOR_WHITE, op, "This item has no custom name.");
             return;
         }
 
         FREE_AND_CLEAR_HASH(tmp->custom_name);
-        draw_info_format(COLOR_WHITE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
+        char *name = object_get_base_name_s(tmp, op);
+        draw_info_format(COLOR_WHITE, op, "You stop calling your %s with weird "
+                "names.", name);
+        efree(name);
     } else {
         if (tmp->type == MONEY) {
             draw_info(COLOR_WHITE, op, "You cannot rename that item.");
@@ -64,15 +67,21 @@ void command_rename(object *op, const char *command, char *params)
             return;
         }
 
-        if (tmp->custom_name && strcmp(tmp->custom_name, params) == 0) {
-            draw_info_format(COLOR_WHITE, op, "You keep calling your %s %s.", query_base_name(tmp, NULL), tmp->custom_name);
+        char *name = object_get_base_name_s(tmp, op);
+
+        if (tmp->custom_name != NULL && strcmp(tmp->custom_name, params) == 0) {
+            draw_info_format(COLOR_WHITE, op, "You keep calling your %s %s.",
+                    name, tmp->custom_name);
+            efree(name);
             return;
         }
 
         /* Set custom name. */
         FREE_AND_COPY_HASH(tmp->custom_name, params);
-        draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.", query_base_name(tmp, NULL), tmp->custom_name);
+        draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.",
+                name, tmp->custom_name);
         CONTR(op)->stat_renamed_items++;
+        efree(name);
     }
 
     esrv_update_item(UPD_NAME, tmp);

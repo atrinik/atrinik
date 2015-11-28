@@ -3,6 +3,7 @@
 ## members to look who else is in the guild, and whether they are online
 ## or not.
 
+from Atrinik import *
 from Guild import Guild
 
 guild = Guild(None)

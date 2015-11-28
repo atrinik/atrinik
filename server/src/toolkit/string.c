@@ -33,6 +33,8 @@
 
 TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer), IMPORTS(memory));
 
+#ifndef __CPROTO__
+
 TOOLKIT_INIT_FUNC(string)
 {
 }
@@ -42,8 +44,6 @@ TOOLKIT_DEINIT_FUNC(string)
 {
 }
 TOOLKIT_DEINIT_FUNC_FINISH
-
-#ifndef __CPROTO__
 
 #undef string_sub
 #undef string_create_char_range
@@ -61,7 +61,7 @@ char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
     char *cp;
 
     if (s == NULL) {
-        logger_print(LOG(ERROR), "'s' is NULL.");
+        LOG(ERROR, "'s' is NULL.");
         abort();
     }
 
@@ -75,7 +75,7 @@ char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
 #endif
 
     if (cp == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
+        LOG(ERROR, "OOM.");
         abort();
     }
 
@@ -100,7 +100,7 @@ char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
     char *cp;
 
     if (s == NULL) {
-        logger_print(LOG(ERROR), "'s' is NULL.");
+        LOG(ERROR, "'s' is NULL.");
         abort();
     }
 
@@ -114,7 +114,7 @@ char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
 #endif
 
     if (cp == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
+        LOG(ERROR, "OOM.");
         abort();
     }
 
@@ -429,6 +429,11 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
             word[i++] = *str;
         }
 
+        str++;
+        (*pos)++;
+    }
+
+    while (str && *str != '\0' && *str == delim) {
         str++;
         (*pos)++;
     }
@@ -805,7 +810,7 @@ char *string_join(const char *delim, ...)
     va_start(args, delim);
 
     while ((str = va_arg(args, const char *))) {
-        if (sb->pos && delim) {
+        if (stringbuffer_length(sb) != 0 && delim) {
             stringbuffer_append_string(sb, delim);
         }
 
@@ -851,7 +856,7 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
             continue;
         }
 
-        if (sb->pos && delim) {
+        if (stringbuffer_length(sb) != 0 && delim) {
             stringbuffer_append_string(sb, delim);
         }
 
@@ -991,7 +996,7 @@ size_t string_fromhex(char *str, size_t len, unsigned char *result,
  * @param str String to skip whitespace in.
  * @return String with the whitespace skipped, NULL if 'str' is also NULL.
  */
-const char *string_skip_whitespace(const char *str)
+char *string_skip_whitespace(char *str)
 {
     if (str == NULL) {
         return NULL;

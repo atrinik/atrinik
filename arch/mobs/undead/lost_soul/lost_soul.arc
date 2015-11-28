@@ -32,4 +32,6 @@ level 1
 speed -0.048
 weight 32500
 undead 1
+faction monsters
+int 17
 end

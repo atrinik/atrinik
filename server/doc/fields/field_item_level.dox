@@ -1,6 +1,10 @@
 /**
-@fn obj::item_level
-@section Use
+@var obj::item_level
+@sa @ref page_field_item_level
+*/
+
+/**
+@page page_field_item_level obj::item_level Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -51,6 +55,11 @@
 @ref page_type_155
 		</td><td>		Number of tiles around the info object (including the info object's
 		tile) that are within the tooltip's area.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_61
+		</td><td>		The maximum range at which the sound effect may be heard.</td>
 	</tr>
 
 */

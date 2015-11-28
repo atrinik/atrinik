@@ -30,66 +30,11 @@
 #include <loader.h>
 #include <toolkit_string.h>
 #include <monster_data.h>
+#include <plugin.h>
+#include <arch.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;
-
-/**
- * Basically, this is a table of directions, and what directions one
- * could go to go back to us. Eg, entry 15 below is 4, 14, 16. This
- * basically means that if direction is 15, then it could either go
- * direction 4, 14, or 16 to get back to where we are. */
-static const int reduction_dir[SIZEOFFREE][3] = {
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0},
-    {8, 1, 2},
-    {1, 2, -1},
-    {2, 10, 12},
-    {2, 3, -1},
-    {2, 3, 4},
-    {3, 4, -1},
-    {4, 14, 16},
-    {5, 4, -1},
-    {4, 5, 6},
-    {6, 5, -1},
-    {6, 20, 18},
-    {7, 6, -1},
-    {6, 7, 8},
-    {7, 8, -1},
-    {8, 22, 24},
-    {8, 1, -1},
-    {24, 9, 10},
-    {9, 10, -1},
-    {10, 11, -1},
-    {27, 11, 29},
-    {11, 12, -1},
-    {12, 13, -1},
-    {12, 13, 14},
-    {13, 14, -1},
-    {14, 15, -1},
-    {33, 15, 35},
-    {16, 15, -1},
-    {17, 16, -1},
-    {18, 17, 16},
-    {18, 17, -1},
-    {18, 19, -1},
-    {41, 19, 39},
-    {19, 20, -1},
-    {20, 21, -1},
-    {20, 21, 22},
-    {21, 22, -1},
-    {23, 22, -1},
-    {45, 47, 23},
-    {23, 24, -1},
-    {24, 9, -1}
-};
 
 /**
  * Gender nouns. */
@@ -139,8 +84,6 @@ materialtype materials[NROFMATERIALS] = {
     {"ice"}
 };
 
-#define NUM_MATERIALS_REAL NROFMATERIALS * NROFMATERIALS_REAL + 1
-
 /**
  * Real material types. This array is initialized by
  * init_materials(). */
@@ -165,7 +108,7 @@ void init_materials(void)
     snprintf(filename, sizeof(filename), "%s/materials", settings.libpath);
 
     if (!(fp = fopen(filename, "r"))) {
-        logger_print(LOG(ERROR), "Could not open materials file: %s", filename);
+        LOG(ERROR, "Could not open materials file: %s", filename);
         exit(1);
     }
 
@@ -179,7 +122,7 @@ void init_materials(void)
             char name[MAX_BUF];
 
             if (i < 0 || i >= NUM_MATERIALS_REAL) {
-                logger_print(LOG(ERROR), "Materials file contains declaration for material #%d but it doesn't exist.", i);
+                LOG(ERROR, "Materials file contains declaration for material #%d but it doesn't exist.", i);
                 exit(1);
             }
 
@@ -191,7 +134,7 @@ void init_materials(void)
                 }
 
                 if (!sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %[^\n]", name)) {
-                    logger_print(LOG(ERROR), "Bogus line in materials file: %s", buf);
+                    LOG(ERROR, "Bogus line in materials file: %s", buf);
                     exit(1);
                 }
             }
@@ -204,7 +147,7 @@ void init_materials(void)
             material_real[i].type = type;
             material_real[i].def_race = def_race;
         } else {
-            logger_print(LOG(ERROR), "Bogus line in materials file: %s", buf);
+            LOG(ERROR, "Bogus line in materials file: %s", buf);
             exit(1);
         }
     }
@@ -256,20 +199,16 @@ void (*object_initializers[256]) (object *);
  *
  * If an entry is NULL, that is a flag not to be loaded/saved.
  * @see flag_defines */
-/* @cparser FLAG_(.*)
- * @page plugin_python_object_flags Python object flags
- * <h2>Python object flags</h2>
- * List of the object flags and their meaning. */
 const char *object_flag_names[NUM_FLAGS + 1] = {
     "sleep", "confused", NULL, "scared", "is_blind",
     "is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
     "no_pass", "is_animated", "slow_move", "flying", "monster",
-    "friendly", NULL, "been_applied", "auto_apply", "is_ready",
+    "friendly", NULL, "been_applied", "auto_apply", NULL,
     "is_neutral", "see_invisible", "can_roll", "connect_reset", "is_turnable",
     "walk_off", "fly_on", "fly_off", "is_used_up", "identified",
     "reflecting", "changing", "splitting", "hitback", "startequip",
     "blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
-    "reflect_spell", "no_magic", "no_fix_player", "is_evil", NULL,
+    "reflect_spell", "no_magic", "no_fix_player", "is_evil", "soulbound",
     "run_away", "pass_thru", "can_pass_thru", "outdoor", "unique",
     "no_drop", "is_indestructible", "can_cast_spell", NULL, "two_handed",
     "can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push", "connect_no_release",
@@ -290,7 +229,6 @@ const char *object_flag_names[NUM_FLAGS + 1] = {
     "draw_direction", "draw_double", "is_assassin", NULL, "no_save",
     NULL
 };
-/* @endcparser */
 
 /**
  * Compares value lists.
@@ -390,7 +328,7 @@ int CAN_MERGE(object *ob1, object *ob2)
     }
 
     /* Check attributes that cannot ever merge if they're different. */
-    if (ob1->arch               != ob2->arch ||
+    if (ob1->arch                   != ob2->arch ||
             ob1->item_condition     != ob2->item_condition ||
             ob1->item_level         != ob2->item_level ||
             ob1->item_power         != ob2->item_power ||
@@ -407,14 +345,17 @@ int CAN_MERGE(object *ob1, object *ob2)
             ob1->path_denied        != ob2->path_denied ||
             ob1->path_repelled      != ob2->path_repelled ||
             ob1->randomitems        != ob2->randomitems ||
-            ob1->speed              != ob2->speed ||
             ob1->sub_type           != ob2->sub_type ||
             ob1->terrain_flag       != ob2->terrain_flag ||
             ob1->terrain_type       != ob2->terrain_type ||
             ob1->type               != ob2->type ||
             ob1->value              != ob2->value ||
-            ob1->weapon_speed       != ob2->weapon_speed ||
             ob1->weight             != ob2->weight) {
+        return 0;
+    }
+
+    if (!DBL_EQUAL(ob1->speed, ob2->speed) ||
+            !DBL_EQUAL(ob1->weapon_speed, ob2->weapon_speed)) {
         return 0;
     }
 
@@ -460,13 +401,14 @@ int CAN_MERGE(object *ob1, object *ob2)
             ob1->slaying        != ob2->slaying ||
             ob1->msg            != ob2->msg ||
             ob1->artifact       != ob2->artifact ||
-            ob1->custom_name    != ob2->custom_name) {
+            ob1->custom_name    != ob2->custom_name ||
+            ob1->glow           != ob2->glow) {
         return 0;
     }
 
     /* Compare arrays and structures the object has (stats, protections, etc) */
     if (memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0 ||
-            memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack) != 0) ||
+            memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack)) != 0 ||
             memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0) {
         return 0;
     }
@@ -552,32 +494,31 @@ object *object_merge(object *op)
  * @return The calculated weight */
 signed long sum_weight(object *op)
 {
-    int32_t sum;
-    object *inv;
-
     if (QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
         return 0;
     }
 
-    for (sum = 0, inv = op->inv; inv != NULL; inv = inv->below) {
+    uint32_t sum = 0;
+
+    for (object *inv = op->inv; inv != NULL; inv = inv->below) {
         if (QUERY_FLAG(inv, FLAG_SYS_OBJECT)) {
             continue;
         }
 
-        if (inv->inv) {
+        if (inv->inv != NULL) {
             sum_weight(inv);
         }
 
         sum += WEIGHT_NROF(inv, inv->nrof);
     }
 
-    if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
+    if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
         /* We'll store the calculated value in damage_round_tag, so
          * we can use that as 'cache' for unmodified carrying weight.
          * This allows us to reliably calculate the weight again in
          * add_weight() and sub_weight() without rounding errors. */
         op->damage_round_tag = sum;
-        sum = (int32_t) ((float) sum * op->weapon_speed);
+        sum = sum * op->weapon_speed;
     }
 
     op->carrying = sum;
@@ -589,20 +530,19 @@ signed long sum_weight(object *op)
  * environment(s) is/are carrying.
  * @param op The object
  * @param weight The weight to add */
-void add_weight(object *op, int32_t weight)
+void add_weight(object *op, uint32_t weight)
 {
-    while (op) {
-        if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
-            int32_t old_carrying = op->carrying;
-
+    while (op != NULL) {
+        if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
+            uint32_t old_carrying = op->carrying;
             op->damage_round_tag += weight;
-            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = op->damage_round_tag * op->weapon_speed;
             weight = op->carrying - old_carrying;
         } else {
             op->carrying += weight;
         }
 
-        if (op->env && op->env->type == PLAYER) {
+        if (op->env != NULL && op->env->type == PLAYER) {
             esrv_update_item(UPD_WEIGHT, op);
         }
 
@@ -615,20 +555,19 @@ void add_weight(object *op, int32_t weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-void sub_weight(object *op, int32_t weight)
+void sub_weight(object *op, uint32_t weight)
 {
-    while (op) {
-        if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
-            int32_t old_carrying = op->carrying;
-
+    while (op != NULL) {
+        if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
+            uint32_t old_carrying = op->carrying;
             op->damage_round_tag -= weight;
-            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = op->damage_round_tag * op->weapon_speed;
             weight = old_carrying - op->carrying;
         } else {
             op->carrying -= weight;
         }
 
-        if (op->env && op->env->type == PLAYER) {
+        if (op->env != NULL && op->env->type == PLAYER) {
             esrv_update_item(UPD_WEIGHT, op);
         }
 
@@ -679,7 +618,7 @@ void dump_object(object *op, StringBuffer *sb)
 
     if (op->arch != NULL) {
         stringbuffer_append_printf(sb, "arch %s\n", op->arch->name ? op->arch->name : "(null)");
-        get_ob_diff(sb, op, &empty_archetype->clone);
+        get_ob_diff(sb, op, &arches[ARCH_EMPTY_ARCHETYPE]->clone);
         stringbuffer_append_string(sb, "end\n");
     } else {
         stringbuffer_append_string(sb, "Object ");
@@ -694,7 +633,7 @@ void dump_object(object *op, StringBuffer *sb)
  * @param sb Buffer that will contain object information. */
 void dump_object_rec(object *op, StringBuffer *sb)
 {
-    archetype *at;
+    archetype_t *at;
     object *tmp;
 
     if (!op) {
@@ -705,8 +644,8 @@ void dump_object_rec(object *op, StringBuffer *sb)
     at = op->arch;
 
     /* No archetype, use empty archetype. */
-    if (!at) {
-        at = empty_archetype;
+    if (at == NULL) {
+        at = arches[ARCH_EMPTY_ARCHETYPE];
     }
 
     stringbuffer_append_printf(sb, "arch %s\n", at->name);
@@ -864,6 +803,7 @@ void copy_object(object *op2, object *op, int no_speed)
     FREE_ONLY_HASH(op->msg);
     FREE_ONLY_HASH(op->artifact);
     FREE_ONLY_HASH(op->custom_name);
+    FREE_ONLY_HASH(op->glow);
 
     free_key_values(op);
 
@@ -880,10 +820,12 @@ void copy_object(object *op2, object *op, int no_speed)
     ADD_REF_NOT_NULL_HASH(op->msg);
     ADD_REF_NOT_NULL_HASH(op->artifact);
     ADD_REF_NOT_NULL_HASH(op->custom_name);
+    ADD_REF_NOT_NULL_HASH(op->glow);
 
-    /* Only alter speed_left when we sure we have not done it before */
-    if (!no_speed && op->speed < 0 && op->speed_left == op->arch->clone.speed_left) {
-        op->speed_left += (RANDOM() % 90) / 100.0f;
+    /* Only alter speed_left when we are sure that we have not done it before */
+    if (!no_speed && op->speed < 0.0 && DBL_EQUAL(op->speed_left,
+            op->arch->clone.speed_left)) {
+        op->speed_left += rndm(0, 90) / 100.0f;
     }
 
     /* Copy over key_values, if any. */
@@ -944,7 +886,9 @@ static void object_debugger(object *op, char *buf, size_t size)
 
     if (op->name != NULL) {
         SET_FLAG(op, FLAG_IDENTIFIED);
-        snprintfcat(buf, size, " name: %s", query_name(op, NULL));
+        char *name = object_get_name_s(op, NULL);
+        snprintfcat(buf, size, " name: %s", name);
+        efree(name);
     }
 
     snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
@@ -980,6 +924,11 @@ void object_deinit(void)
  * @return The new object. */
 object *get_object(void)
 {
+    static New_Face *blank_face = NULL;
+    if (blank_face == NULL) {
+        blank_face = &new_faces[find_face(BLANK_FACE_NAME, 0)];
+    }
+
     object *new_obj = mempool_get(pool_object);
 
     SET_FLAG(new_obj, FLAG_REMOVED);
@@ -1015,12 +964,12 @@ void update_ob_speed(object *op)
 {
     /* No reason putting the archetypes objects on the speed list,
      * since they never really need to be updated. */
-    if (OBJECT_FREE(op) && op->speed) {
-        logger_print(LOG(BUG), "Object %s is freed but has speed.", op->name);
+    if (OBJECT_FREE(op) && DBL_EQUAL(op->speed, 0.0)) {
+        LOG(BUG, "Object %s is freed but has speed.", op->name);
         op->speed = 0;
     }
 
-    if (arch_init) {
+    if (arch_in_init) {
         return;
     }
 
@@ -1342,6 +1291,7 @@ void drop_ob_inv(object *ob)
 
         /* Store the original food value. */
         corpse->last_eat = corpse->stats.food;
+        corpse->sub_layer = ob->sub_layer;
 
         if (ob->env) {
             insert_ob_in_ob(corpse, ob->env);
@@ -1385,7 +1335,7 @@ void object_destroy(object *ob)
         char buf[HUGE_BUF];
 
         object_debugger(ob, VS(buf));
-        log(LOG(ERROR), "Freeing an object that was not removed: %s", buf);
+        LOG(ERROR, "Freeing an object that was not removed: %s", buf);
         return;
     }
 
@@ -1428,7 +1378,7 @@ void object_destroy(object *ob)
             break;
 
         default:
-            logger_print(LOG(BUG), "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
+            LOG(BUG, "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
         }
 
         ob->custom_attrset = NULL;
@@ -1445,6 +1395,7 @@ void object_destroy(object *ob)
     FREE_AND_CLEAR_HASH2(ob->msg);
     FREE_AND_CLEAR_HASH2(ob->artifact);
     FREE_AND_CLEAR_HASH2(ob->custom_name);
+    FREE_AND_CLEAR_HASH2(ob->glow);
 
     /* Mark object as freed and invalidate all references to it. */
     ob->count = 0;
@@ -1531,7 +1482,8 @@ static void object_check_move_off(object *op)
 void object_remove(object *op, int flags)
 {
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        logger_print(LOG(BUG), "Tried to remove an already removed object %s.", query_name(op, NULL));
+        log_error("Tried to remove an already removed object %s.",
+                object_get_str(op));
         return;
     }
 
@@ -1655,7 +1607,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
     }
 
     if (!op->head && op->arch->more && !op->more) {
-        archetype *at;
+        archetype_t *at;
         object *prev, *tail;
 
         prev = op;
@@ -1687,7 +1639,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
     int fall_floors = 0;
 
-    if (flag & INS_FALL_THROUGH) {
+    /* Attempt to fall down through empty map squares onto maps below, but
+     * only if the object is not a player or the player doesn't have collision
+     * disabled. */
+    if (flag & INS_FALL_THROUGH && (op->type != PLAYER || !CONTR(op)->tcl)) {
         mapstruct *tiled;
         object *floor, *floor_tmp;
         int z_highest, sub_layer, z;
@@ -1699,7 +1654,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
                                      op->sub_layer);
             z = floor != NULL ? floor->z : 0;
             z_highest = 0;
-            sub_layer = 0;
+            sub_layer = -1;
             found_floor = false;
 
             if (tiled != m) {
@@ -1709,6 +1664,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
             FOR_MAP_LAYER_BEGIN(tiled, op->x, op->y, LAYER_FLOOR, -1,
                                 floor_tmp) {
                 found_floor = true;
+
+                if (tiled == m) {
+                    continue;
+                }
 
                 if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
                     continue;
@@ -1735,7 +1694,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
                 }
             }
 
-            op->sub_layer = sub_layer;
+            if (sub_layer != -1) {
+                op->sub_layer = sub_layer;
+            }
+
             m = tiled;
         }
 
@@ -1867,31 +1829,14 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         }
     }
 
-    if (fall_floors != 0 && IS_LIVE(op) && ((MAX_STAT - op->stats.Dex +
-            MAX_STAT - rndm(1, op->stats.Dex))) * MAX(1, fall_floors - 1) >=
-            MAX_STAT / 4) {
-        object *damager;
-        tag_t op_tag;
+    if (fall_floors != 0 && IS_LIVE(op)) {
+        OBJ_DESTROYED_BEGIN(op) {
+            fall_damage_living(op, fall_floors);
 
-        damager = get_archetype("falling");
-        damager->level = op->level;
-        damager->stats.dam = ((op->weight + op->carrying) / 2500 *
-                MIN(10, fall_floors)) * falling_mitigation[op->stats.Dex];
-
-        if (damager->stats.dam <= 0) {
-            damager->stats.dam = 1;
-        }
-
-        damager->stats.dam = rndm(damager->stats.dam / 2 + 1,
-                damager->stats.dam + 1) - 1;
-
-        op_tag = op->count;
-        hit_player(op, damager->stats.dam, damager);
-        object_destroy(damager);
-
-        if (was_destroyed(op, op_tag)) {
-            return NULL;
-        }
+            if (OBJ_DESTROYED(op)) {
+                return NULL;
+            }
+        } OBJ_DESTROYED_END();
     }
 
     return op;
@@ -1966,7 +1911,7 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
         }
     }
 
-    tmp1 = arch_to_object(find_archetype(arch_string));
+    tmp1 = arch_to_object(arch_find(arch_string));
     tmp1->x = op->x;
     tmp1->y = op->y;
     insert_ob_in_map(tmp1, op->map, op, 0);
@@ -2189,7 +2134,7 @@ object *insert_ob_in_ob(object *op, object *where)
  * @param x X coordinate on map.
  * @param y Y coordinate on map.
  * @return First matching object, or NULL if none matches. */
-object *present_arch(archetype *at, mapstruct *m, int x, int y)
+object *present_arch(struct archetype *at, mapstruct *m, int x, int y)
 {
     object *tmp;
 
@@ -2256,7 +2201,7 @@ object *present_in_ob(uint8_t type, object *op)
  * @param at Archetype to search for.
  * @param op Where to search.
  * @return First matching object, or NULL if none matches. */
-object *present_arch_in_ob(archetype *at, object *op)
+object *present_arch_in_ob(struct archetype *at, object *op)
 {
     object *tmp;
 
@@ -2283,12 +2228,19 @@ object *present_arch_in_ob(archetype *at, object *op)
  * object - if it is a multispace object, this should be called for all
  * pieces.
  * @todo Document. */
-int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
+int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
 {
     int i, inx = 0;
     static int altern[SIZEOFFREE];
 
-    for (i = start; i < stop; i++) {
+    SOFT_ASSERT_RC(start >= 0 && start < SIZEOFFREE, -1,
+            "Invalid start value: %d", start);
+    SOFT_ASSERT_RC(stop >= 0 && stop < SIZEOFFREE, -1,
+            "Invalid stop value: %d", start);
+    SOFT_ASSERT_RC(stop > start, -1, "Stop (%d) is not higher than start (%d)",
+            stop, start);
+
+    for (i = start; i <= stop; i++) {
         if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i])) {
             altern[inx++] = i;
         } else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop) {
@@ -2308,11 +2260,11 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
  *
  * It will return the first available spot, not a random choice.
  * @todo Document. */
-int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y)
+int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y)
 {
     int i;
 
-    for (i = 0; i < SIZEOFFREE; i++) {
+    for (i = 0; i <= SIZEOFFREE3; i++) {
         if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i])) {
             return i;
         }
@@ -2323,11 +2275,11 @@ int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y)
 
 /**
  * @todo Document. */
-int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range)
+int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int start, int range)
 {
     int i;
 
-    for (i = start; i < range; i++) {
+    for (i = start; i <= range; i++) {
         if (!arch_blocked(at, NULL, m, x + freearr_x[i], y + freearr_y[i])) {
             return i;
         }
@@ -2375,7 +2327,7 @@ void get_search_arr(int *search_arr)
 
     permute(search_arr, 1, SIZEOFFREE1 + 1);
     permute(search_arr, SIZEOFFREE1 + 1, SIZEOFFREE2 + 1);
-    permute(search_arr, SIZEOFFREE2 + 1, SIZEOFFREE);
+    permute(search_arr, SIZEOFFREE2 + 1, SIZEOFFREE3 + 1);
 }
 
 /**
@@ -2506,6 +2458,17 @@ int can_pick(object *who, object *item)
         return 0;
     }
 
+    if (QUERY_FLAG(item, FLAG_SOULBOUND)) {
+        shstr *name = object_get_value(item, "soulbound_name");
+        if (name == NULL) {
+            return 0;
+        }
+
+        if (name != who->name) {
+            return 0;
+        }
+    }
+
     /* Weight limit for monsters */
     if (who->type != PLAYER && item->weight > (who->weight / 3)) {
         return 0;
@@ -2584,7 +2547,7 @@ object *load_object_str(char *obstr)
     object *ob = get_object();
 
     if (!load_object(obstr, ob, NULL, LO_MEMORYMODE, 0)) {
-        logger_print(LOG(BUG), "load_object() failed.");
+        LOG(BUG, "load_object() failed.");
         return NULL;
     }
 
@@ -2610,7 +2573,7 @@ int auto_apply(object *op)
     CLEAR_FLAG(op, FLAG_AUTO_APPLY);
 
     if (op->env && op->env->type == PLAYER) {
-        logger_print(LOG(DEBUG), "Object with auto_apply (%s, %s) found in %s.", op->name, op->arch->name, op->env->name);
+        LOG(DEBUG, "Object with auto_apply (%s, %s) found in %s.", op->name, op->arch->name, op->env->name);
         return 0;
     }
 
@@ -2683,7 +2646,7 @@ int auto_apply(object *op)
         break;
     }
 
-    return tmp ? 1 : 0;
+    return tmp != NULL;
 }
 
 /**
@@ -3041,30 +3004,40 @@ int item_matched_string(object *pl, object *op, const char *name)
             }
         }
 
-        if (!strcasecmp(cp, query_name(op, NULL))) {
+        char *obj_name = object_get_name_s(op, pl);
+        char *base_name = object_get_base_name_s(op, pl);
+        char *short_name = object_get_short_name_s(op, pl);
+
+        if (strcasecmp(cp, obj_name) == 0) {
             retval = 20;
-        } else if (!strcasecmp(cp, query_short_name(op, NULL))) {
+        } else if (strcasecmp(cp, short_name) == 0) {
             retval = 18;
-        } else if (!strcasecmp(cp, query_base_name(op, pl))) {
+        } else if (strcasecmp(cp, base_name) == 0) {
             retval = 16;
-        } else if (op->custom_name && !strcasecmp(cp, op->custom_name)) {
+        } else if (op->custom_name != NULL &&
+                strcasecmp(cp, op->custom_name) == 0) {
             retval = 15;
-        } else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp))) {
+        } else if (strncasecmp(cp, base_name, strlen(cp)) == 0) {
             retval = 14;
-        } else if (strstr(query_base_name(op, pl), cp)) {
+        } else if (strstr(base_name, cp) != NULL) {
             /* Do substring checks, so things like 'Str+1' will match.
              * retval of these should perhaps be lower - they are lower
              * than the specific strcasecmps above, but still higher than
              * some other match criteria. */
             retval = 12;
-        } else if (strstr(query_short_name(op, NULL), cp)) {
+        } else if (strstr(short_name, cp) != NULL) {
             retval = 12;
-        } else if (op->custom_name && strstr(op->custom_name, cp)) {
+        } else if (op->custom_name != NULL &&
+                strstr(op->custom_name, cp) != NULL) {
             /* Check for partial custom name, but give a really low priority. */
             retval = 3;
         }
 
-        if (retval) {
+        efree(obj_name);
+        efree(base_name);
+        efree(short_name);
+
+        if (retval != 0) {
             if (pl->type == PLAYER) {
                 CONTR(pl)->count = count;
             }
@@ -3209,22 +3182,25 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         fixed_pos = 1;
     }
 
-    /* -1,-1 marks to use the default ENTER_xx position of the map */
-    if ((x == -1 && y == -1) || (exit_ob == NULL && MAP_FIXEDLOGIN(m))) {
+    if (exit_ob == NULL && MAP_FIXEDLOGIN(m)) {
         x = MAP_ENTER_X(m);
         y = MAP_ENTER_Y(m);
     }
 
-    if (OUT_OF_MAP(m, x, y)) {
-        logger_print(LOG(BUG), "Supplied coordinates are not within the map %s (%d,%d)", m->path, x, y);
+    mapstruct *m2 = get_map_from_coord(m, &x, &y);
+    if (m2 == NULL) {
+        LOG(ERROR, "Invalid exit coordinates (%d,%d): %s", x, y,
+                exit_ob != NULL ? object_get_str(exit_ob) : "<no exit>");
         x = MAP_ENTER_X(m);
         y = MAP_ENTER_Y(m);
+    } else {
+        m = m2;
     }
 
     if (!fixed_pos && blocked(op, m, x, y, TERRAIN_ALL)) {
         int i;
 
-        i = find_free_spot(op->arch, NULL, m, x, y, 1, SIZEOFFREE1 + 1);
+        i = find_free_spot(op->arch, NULL, m, x, y, 1, SIZEOFFREE1);
 
         if (i != -1) {
             x += freearr_x[i];
@@ -3298,46 +3274,55 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 /**
  * Acquires a string representation of the object that is suitable for debugging
  * purposes, as it includes the object's name, archname, map, environment, etc.
- * @param op Object.
+ *
+ * This function cycles through internal buffers to use as return values, and is
+ * safe to call up to ten times. After that, previously returned pointers will
+ * start getting overwritten.
+ * @param op Object. Can be NULL.
  * @return String representation of the object.
  */
 const char *object_get_str(object *op)
 {
-    static char buf[HUGE_BUF * 16];
+    static char buf[10][HUGE_BUF * 16];
+    static int buf_idx = 0;
 
-    HARD_ASSERT(op != NULL);
+    buf_idx++;
+    buf_idx %= 10;
 
-    return object_get_str_r(op, VS(buf));
+    return object_get_str_r(op, VS(buf[buf_idx]));
 }
 
 /**
  * Re-entrant version of object_get_str().
- * @param op Object.
+ * @param op Object. Can be NULL.
  * @param buf Buffer to use.
  * @param bufsize Size of 'buf'.
  * @return 'buf'.
  */
 char *object_get_str_r(object *op, char *buf, size_t bufsize)
 {
-    HARD_ASSERT(op != NULL);
     HARD_ASSERT(buf != NULL);
+
+    if (op == NULL) {
+        snprintf(buf, bufsize, "<no object>");
+        return buf;
+    }
 
     snprintf(buf, bufsize, "%s UID: %u",
             op->name != NULL ? op->name : "<no name>",
             op->count);
 
-    if (op->arch != NULL && op->arch->name != NULL) {
+    if (arch_table != NULL && op->arch != NULL && op->arch->name != NULL) {
         snprintfcat(buf, bufsize, " arch: %s", op->arch->name);
     }
 
-    if (op->map != NULL) {
+    if (first_map != NULL && op->map != NULL) {
         snprintfcat(buf, bufsize, " map: %s [%s] @ %d,%d",
                 op->map->name != NULL ? op->map->name : "<no name>",
                 op->map->path != NULL ? op->map->path : "<no path>",
                 op->x, op->y);
     } else if (op->env != NULL) {
         char buf2[HUGE_BUF];
-
         snprintfcat(buf, bufsize, " env: [%s]", object_get_str_r(op->env,
                 VS(buf2)));
     }
@@ -3403,4 +3388,57 @@ int object_blocked(object *op, mapstruct *m, int x, int y)
     }
 
     return 0;
+}
+
+/**
+ * Creates a dummy object.
+ * @param name Name to give the dummy object. Can be NULL.
+ * @return Object of specified name. It fill have the ::FLAG_NO_PICK flag
+ * set. */
+object *object_create_singularity(const char *name)
+{
+    char buf[MAX_BUF];
+    snprintf(VS(buf), "singularity");
+    if (name != NULL) {
+        snprintfcat(VS(buf), " (%s)", name);
+    }
+
+    object *op = get_object();
+    FREE_AND_COPY_HASH(op->name, buf);
+    SET_FLAG(op, FLAG_NO_PICK);
+    return op;
+}
+
+/**
+ * Dumps all variables in an object to a file.
+ * @param op Object to save.
+ * @param fp Where to save the object's text representation. Can be NULL.
+ */
+void object_save(object *op, FILE *fp)
+{
+    HARD_ASSERT(op != NULL);
+
+    if (fp == NULL) {
+        return;
+    }
+
+    archetype_t *at = op->arch;
+    if (at == NULL) {
+        at = arches[ARCH_EMPTY_ARCHETYPE];
+    }
+
+    fprintf(fp, "arch %s\n", at->name);
+
+    StringBuffer *sb = stringbuffer_new();
+    get_ob_diff(sb, op, &at->clone);
+
+    char *cp = stringbuffer_finish(sb);
+    fputs(cp, fp);
+    efree(cp);
+
+    for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
+        object_save(tmp, fp);
+    }
+
+    fprintf(fp, "end\n");
 }

@@ -27,6 +27,8 @@ dam 56
 hp -1
 maxhp 67
 level 1
+faction monsters
+int 20
 speed -0.058
 weight 83500
 end

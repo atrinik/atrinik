@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2015-06-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1017,12 +1017,36 @@ z 50
 x 5
 y 9
 end
+arch handle_lever
+connected 101
+slaying asteria_walls_gate
+exp 1000
+path_repelled 1
+x 5
+y 9
+end
+arch spawn_point
+x 5
+y 9
+arch guard
+name Asterian Guard
+type 83
+level 36
+faction asteria_guards
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
+end
 arch fstone1b
 z 50
 x 5
 y 10
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
 x 5
 y 10
 end
@@ -1037,12 +1061,8 @@ y 11
 arch guard
 name Asterian Guard
 type 83
-level 100
-unaggressive 0
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+level 36
+faction asteria_guards
 end
 end
 arch floor_fs_grey1b
@@ -1080,13 +1100,9 @@ y 16
 arch guard
 name Asterian Guard
 type 83
-level 100
-unaggressive 0
+level 36
 direction 1
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch fstone1a
@@ -1094,7 +1110,9 @@ z 50
 x 5
 y 17
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 5
 y 17
 end
@@ -1102,6 +1120,31 @@ arch fstone1c
 z 50
 x 5
 y 18
+end
+arch handle_lever
+connected 101
+slaying asteria_walls_gate
+exp 1000
+path_repelled 1
+x 5
+y 18
+end
+arch spawn_point
+x 5
+y 18
+arch guard
+name Asterian Guard
+type 83
+level 36
+faction asteria_guards
+direction 1
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
 end
 arch fstone1b
 z 50
@@ -1208,6 +1251,7 @@ end
 arch grate_open
 sub_layer 1
 direction 3
+connected 101
 x 6
 y 12
 end
@@ -1220,6 +1264,7 @@ end
 arch grate_open
 sub_layer 1
 direction 3
+connected 101
 x 6
 y 13
 end
@@ -1232,6 +1277,7 @@ end
 arch grate_open
 sub_layer 1
 direction 3
+connected 101
 x 6
 y 14
 end
@@ -1244,6 +1290,7 @@ end
 arch grate_open
 sub_layer 1
 direction 3
+connected 101
 x 6
 y 15
 end
@@ -1566,12 +1613,8 @@ y 11
 arch guard
 name Asterian Guard
 type 83
-level 100
-unaggressive 0
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+level 36
+faction asteria_guards
 end
 end
 arch floor_fs_grey1b
@@ -1613,13 +1656,9 @@ y 16
 arch guard
 name Asterian Guard
 type 83
-level 100
-unaggressive 0
+level 36
 direction 1
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch grassd_2
@@ -3396,6 +3435,17 @@ endmsg
 name Crimdon Crazymix
 level 32
 type 83
+faction asteria_citizens
+arch event_obj
+sub_type 6
+race /interfaces/quests/crazymix_alchemical_reagents/quest.xml
+arch mythical_scarlet_pimpernel_flower
+end
+end
+arch silvercoin
+no_drop 1
+nrof 35
+end
 end
 end
 arch light5

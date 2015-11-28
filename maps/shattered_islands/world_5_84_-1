@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2011-09-17 Alex Tokar
-Modified: 2011-09-17 Alex Tokar
+Modified: 2015-11-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,9 +10,9 @@ difficulty 1
 darkness 3
 no_harm 1
 bg_music tutorialisland.mid
-region incuna
+region incuna_-1
 end
-arch blocked
+arch trans
 y 4
 end
 arch wall_dungeon_1
@@ -48,7 +48,7 @@ end
 arch wall_dungeon_1
 y 12
 end
-arch blocked
+arch trans
 x 1
 y 4
 end
@@ -104,7 +104,7 @@ arch wall_dungeon_1
 x 1
 y 12
 end
-arch blocked
+arch trans
 x 2
 y 4
 end

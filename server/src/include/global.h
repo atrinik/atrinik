@@ -32,39 +32,6 @@
 #include "includes.h"
 
 /**
- * @defgroup MONEYSTRING_xxx Money string modes
- * Modes used for ::_money_block and get_money_from_string().
- *@{*/
-
-/** Invalid string (did not include any valid amount). */
-#define MONEYSTRING_NOTHING 0
-/** Got a valid amount of money from string. */
-#define MONEYSTRING_AMOUNT 1
-/** The string was "all". */
-#define MONEYSTRING_ALL -1
-/*@}*/
-
-/**
- * Used for depositing/withdrawing money from bank, and using string
- * to get information about how much money to deposit/withdraw. */
-typedef struct _money_block {
-    /** One of @ref MONEYSTRING_xxx. */
-    int mode;
-
-    /** Number of mithril coins. */
-    int64_t mithril;
-
-    /** Number of gold coins. */
-    int64_t gold;
-
-    /** Number of silver coins. */
-    int64_t silver;
-
-    /** Number of copper coins. */
-    int64_t copper;
-} _money_block;
-
-/**
  * @defgroup BANK_xxx Bank return values
  * Meaningful constants of values returned by bank_withdraw() and
  * bank_deposit().
@@ -91,8 +58,12 @@ typedef struct _money_block {
 #define BANK_DEPOSIT_SILVER 2
 /** Player doesn't have enough gold coins on hand. */
 #define BANK_DEPOSIT_GOLD 3
+/** Player doesn't have enough jade coins on hand. */
+#define BANK_DEPOSIT_JADE 4
 /** Player doesn't have enough mithril coins on hand. */
 #define BANK_DEPOSIT_MITHRIL 4
+/** Player doesn't have enough amber coins on hand. */
+#define BANK_DEPOSIT_AMBER 4
 /*@}*/
 
 #define POW2(x) ((x) * (x))
@@ -179,8 +150,8 @@ typedef struct _money_block {
 
 #define SPAWN_RANDOM_RANGE 10000
 
-#define T_STYLE_UNSET (-2)
-#define ART_CHANCE_UNSET (-1)
+#define T_STYLE_UNSET -2 ///< Treasure style value is not set.
+#define ART_CHANCE_UNSET -1 ///< Art chance value is not set.
 
 /** Minimum monster detection radius */
 #define MIN_MON_RADIUS 2
@@ -249,7 +220,6 @@ typedef struct linked_char {
 #include <living.h>
 #include <object.h>
 #include <object_methods.h>
-#include <arch.h>
 #include <map.h>
 #include <tod.h>
 #include <pathfinder.h>
@@ -259,7 +229,6 @@ typedef struct linked_char {
 #include <player.h>
 #include <treasure.h>
 #include <commands.h>
-#include <artifact.h>
 #include <race.h>
 #include <recipe.h>
 #include <spells.h>
@@ -377,7 +346,17 @@ typedef struct settings_struct {
 
     /**
      * Running unit tests? */
-    uint8_t unit_tests;
+    bool unit_tests;
+
+    /**
+     * Running plugin unit tests?
+     */
+    bool plugin_unit_tests;
+
+    /**
+     * Only run specific plugin unit test(s).
+     */
+    char plugin_unit_test[MAX_BUF];
 
     /**
      * Adjustment to maximum magical device level the player may use. */
@@ -437,15 +416,6 @@ typedef struct shstr_constants {
     const char *of_hideous_poison;
 } shstr_constants;
 
-/** Ban structure. */
-typedef struct ban_struct {
-    /** Name of the banned player. */
-    const char *name;
-
-    /** Banned IP/hostname. */
-    char *ip;
-} _ban_struct;
-
 /**
  * @defgroup CACHE_FLAG_xxx Cache flags
  * The various cache flag bitmasks.
@@ -477,8 +447,6 @@ typedef struct cache_struct {
 #define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a' : (C))
 #endif
 
-#define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
-
 #define MAX_TICKS (1000000.0 / max_time)
 #define MAX_TICKS_MULTIPLIER (MAX_TICKS * max_time_multiplier)
 
@@ -506,7 +474,5 @@ struct packet_struct;
 #ifndef GLOBAL_NO_PROTOTYPES
 #include "proto.h"
 #endif
-
-#include "plugin.h"
 
 #endif

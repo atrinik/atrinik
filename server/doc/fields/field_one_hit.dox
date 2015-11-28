@@ -1,6 +1,10 @@
 /**
-@fn FLAG_ONE_HIT
-@section Use
+@var FLAG_ONE_HIT
+@sa @ref page_field_one_hit
+*/
+
+/**
+@page page_field_one_hit FLAG_ONE_HIT Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

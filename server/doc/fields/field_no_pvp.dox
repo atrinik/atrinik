@@ -1,6 +1,10 @@
 /**
-@fn obj::no_pvp
-@section Use
+@var FLAG_NO_PVP
+@sa @ref page_field_no_pvp
+*/
+
+/**
+@page page_field_no_pvp FLAG_NO_PVP Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -12,6 +16,11 @@
 		maps with PvP enabled: it should not be possible to get on this floor
 		directly from the arena (escape route), but more like an area for
 		spectators.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_152
+		</td><td>		Disables PvP.</td>
 	</tr>
 
 */

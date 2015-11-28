@@ -2,11 +2,11 @@ arch map
 name Asteria Sewers
 msg
 Created:  2009-08-09 emperorbma
-Modified: 2015-04-26 emperorbma
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 1
 bg_music sewers.ogg
 region asteria_sewers
@@ -317,6 +317,13 @@ z 50
 x 2
 y 4
 end
+arch handle_lever
+slaying asteria_walls_gate
+connected 101
+exp 1000
+x 2
+y 4
+end
 arch torch_wall_1
 x 2
 y 4
@@ -326,16 +333,15 @@ x 2
 y 4
 arch guard
 name Asterian Guard
-level 100
+level 40
+faction asteria_guards
 type 83
-unaggressive 0
+arch key2
+slaying asteria_walls_gate
+end
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
-end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
 end
 end
 end
@@ -381,21 +387,27 @@ z 50
 x 2
 y 10
 end
+arch handle_lever
+slaying asteria_walls_gate
+connected 101
+exp 1000
+x 2
+y 10
+end
 arch spawn_point
 x 2
 y 10
 arch guard
 name Asterian Guard
-level 100
+level 40
+faction asteria_guards
 type 83
-unaggressive 0
+arch key2
+slaying asteria_walls_gate
+end
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
-end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
 end
 end
 end
@@ -1015,14 +1027,14 @@ y 3
 end
 arch bedpost_a
 sub_layer 1
-z 13
+z 63
 direction 3
 x 8
 y 3
 end
 arch bed_1a.111
 sub_layer 2
-z 22
+z 72
 direction 3
 no_pass 1
 x 8
@@ -1050,14 +1062,14 @@ y 5
 end
 arch bedpost_a
 sub_layer 1
-z 13
+z 63
 direction 3
 x 8
 y 5
 end
 arch bed_1a.111
 sub_layer 2
-z 22
+z 72
 direction 3
 no_pass 1
 x 8
@@ -1149,14 +1161,14 @@ y 3
 end
 arch bedpost_b
 sub_layer 1
-z 12
+z 62
 direction 3
 x 9
 y 3
 end
 arch bed_1b.111
 sub_layer 2
-z 22
+z 72
 direction 3
 no_pass 1
 x 9
@@ -1164,7 +1176,7 @@ y 3
 end
 arch ladder_up
 sub_layer 3
-z -4
+z 46
 align -8
 direction 3
 x 9
@@ -1187,14 +1199,14 @@ y 5
 end
 arch bedpost_b
 sub_layer 1
-z 12
+z 62
 direction 3
 x 9
 y 5
 end
 arch bed_1b.111
 sub_layer 2
-z 22
+z 72
 direction 3
 no_pass 1
 x 9
@@ -1202,7 +1214,7 @@ y 5
 end
 arch ladder_up
 sub_layer 3
-z -4
+z 46
 align -8
 direction 3
 x 9

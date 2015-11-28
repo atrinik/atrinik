@@ -1,3 +1,4 @@
+from Atrinik import *
 from Interface import Interface
 
 activator = WhoIsActivator()
@@ -21,4 +22,4 @@ def main():
         inf.add_msg(random.choice(replies))
 
 main()
-inf.finish()
+inf.send()

@@ -1,8 +1,12 @@
 ## @file
 ## The Jail class, used for scripts in jails.
 
+import json
+import random
+import datetime
+
 from Atrinik import *
-import json, os, random, datetime
+
 
 ## Try to find a jail force inside player's inventory.
 ## @param player Player to look inside.
@@ -50,8 +54,9 @@ class Jail:
 
         # Select a random jail.
         (m, x, y) = self.select_jail()
+        map_path = self.me.map.GetPath(m)
         # Teleport the player to the jail map.
-        player.TeleportTo(self.me.map.GetPath(m), x, y)
+        player.TeleportTo(map_path, x, y)
         # Get player's controller, and set their save bed map, so they can't
         # escape by suicide.
         pl = player.Controller()
@@ -59,13 +64,10 @@ class Jail:
         pl.bed_x = x
         pl.bed_y = y
 
-        # 'time' of 0 means forever.
-        if time != 0:
-            force = player.CreateForce("jail_force", int(time / 6.25))
-            pl.DrawInfo("You have been jailed for {0} for your actions.".format(datetime.timedelta(seconds = time)), COLOR_RED)
-        else:
-            force = player.CreateForce("jail_force")
-            pl.DrawInfo("You have been jailed for life for your actions.", COLOR_RED)
-
+        force = player.CreateForce("jail_force", seconds=time)
         force.slaying = "jail_force"
+        pl.DrawInfo("You have been jailed for {} for your actions.".format(
+            "life" if time == 0 else datetime.timedelta(seconds=time)),
+            COLOR_RED
+        )
         return True

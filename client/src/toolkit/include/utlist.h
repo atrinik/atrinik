@@ -462,18 +462,33 @@
     for(el=head; el; el=el->next)
 
 #define DL_FOREACH_REVERSE(head, el) \
-    for ((el) = (head) ? (head)->prev : NULL; (el); (el) = ((el)->prev == (head->prev) ? NULL : (el)->prev))
+    for ((el) = (head) ? (head)->prev : NULL; (el); (el) = ((el)->prev == ((head)->prev) ? NULL : (el)->prev))
 
 /* this version is safe for deleting the elements during iteration */
 #define DL_FOREACH_SAFE(head,el,tmp)                                                           \
     for((el)=(head); (el) && (tmp = (el)->next, 1); (el) = tmp)
 
 #define DL_FOREACH_REVERSE_SAFE(head, el, tmp) \
-    for ((el) = (head) ? (head)->prev : NULL; (el) && ((tmp) = ((el)->prev == (head->prev) ? NULL : (el)->prev), 1); (el) = (tmp))
+    for ((el) = (head) ? (head)->prev : NULL; (el) && ((tmp) = ((el)->prev == ((head)->prev) ? NULL : (el)->prev), 1); (el) = (tmp))
 
 /* these are identical to their singly-linked list counterparts */
 #define DL_SEARCH_SCALAR LL_SEARCH_SCALAR
 #define DL_SEARCH LL_SEARCH
+
+#define DL_PREPEND_ELEM(head, el, add)                                                         \
+    do {                                                                                           \
+        assert(head != NULL);                                                                         \
+        assert(el != NULL);                                                                           \
+        assert(add != NULL);                                                                          \
+        (add)->next = (el);                                                                           \
+        (add)->prev = (el)->prev;                                                                     \
+        (el)->prev = (add);                                                                           \
+        if ((head) == (el)) {                                                                         \
+            (head) = (add);                                                                              \
+        } else {                                                                                      \
+            (add)->prev->next = (add);                                                                   \
+        }                                                                                             \
+    } while (0)
 
 /******************************************************************************
  * circular doubly linked list macros                                         *

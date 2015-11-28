@@ -204,6 +204,10 @@ void packet_delete(packet_struct *packet, size_t pos, size_t len)
 {
     TOOLKIT_PROTECT();
 
+    if (len > packet->len - pos) {
+        return;
+    }
+
     if (packet->len - len + pos) {
         memmove(packet->data + pos, packet->data + pos + len, packet->len - len + pos);
     }
@@ -219,7 +223,7 @@ void packet_save(packet_struct *packet, packet_save_t *packet_save_buf)
     packet_save_buf->pos = packet->len;
 
 #ifndef NDEBUG
-    packet_save_buf->sb_pos = packet->sb->pos;
+    packet_save_buf->sb_pos = stringbuffer_length(packet->sb);
 #endif
 }
 
@@ -231,7 +235,7 @@ void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
     packet->len = packet_save_buf->pos;
 
 #ifndef NDEBUG
-    packet->sb->pos = packet_save_buf->sb_pos;
+    stringbuffer_seek(packet->sb, packet_save_buf->sb_pos);
 #endif
 }
 

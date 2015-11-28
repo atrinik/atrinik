@@ -2,11 +2,11 @@ arch map
 name Quick Wolves Guild
 msg
 Created:  2009-10-13 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 115
 darkness -1
 no_harm 1
 bg_music shanty.mid
@@ -997,6 +997,7 @@ level 70
 random_move 1
 item_race 1
 type 83
+faction guild_quick_wolves
 arch event_obj
 sub_type 6
 race /python/guilds/guard.py

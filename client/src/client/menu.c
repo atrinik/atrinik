@@ -53,7 +53,7 @@ int client_command_check(const char *cmd)
             for (tmp = cpl.ob->inv; tmp; tmp = tmp->next) {
                 if (tmp->itype == TYPE_SPELL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0) {
                     if (!(tmp->flags & CS_FLAG_APPLIED)) {
-                        client_send_apply(tmp->tag);
+                        client_send_apply(tmp);
                     }
 
                     return 1;
@@ -75,7 +75,7 @@ int client_command_check(const char *cmd)
             for (tmp = cpl.ob->inv; tmp; tmp = tmp->next) {
                 if (tmp->itype == TYPE_SKILL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0) {
                     if (!(tmp->flags & CS_FLAG_APPLIED)) {
-                        client_send_apply(tmp->tag);
+                        client_send_apply(tmp);
                     }
 
                     return 1;
@@ -88,7 +88,7 @@ int client_command_check(const char *cmd)
     } else if (!strncmp(cmd, "/help", 5)) {
         cmd += 5;
 
-        if (!cmd || *cmd == '\0') {
+        if (*cmd == '\0') {
             help_show("main");
         } else {
             help_show(cmd + 1);
@@ -192,11 +192,10 @@ int client_command_check(const char *cmd)
 
         return 1;
     } else if (strncasecmp(cmd, "/console-obj", 11) == 0) {
-        menu_inventory_loadtoconsole(cur_widget[cpl.inventory_focus], NULL,
-                NULL);
+        menu_inventory_loadtoconsole(cpl.inventory_focus, NULL, NULL);
         return 1;
     } else if (strncasecmp(cmd, "/patch-obj", 11) == 0) {
-        menu_inventory_patch(cur_widget[cpl.inventory_focus], NULL, NULL);
+        menu_inventory_patch(cpl.inventory_focus, NULL, NULL);
         return 1;
     } else if (string_startswith(cmd, "/cast ") || string_startswith(cmd, "/use_skill ")) {
         object *tmp;
@@ -234,19 +233,19 @@ int client_command_check(const char *cmd)
         }
 
         return 1;
-    } else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
+    } else if (string_startswith(cmd, "/droptag ") ||
+            string_startswith(cmd, "/gettag ")) {
         char *cps[3];
-        tag_t loc, tag;
-        uint32_t num;
+        unsigned long int loc, tag, num;
 
-        if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') != arraysize(cps)) {
+        if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') !=
+                arraysize(cps)) {
             return 1;
         }
 
-        loc = atoi(cps[0]);
-        tag = atoi(cps[1]);
-        num = atoi(cps[2]);
-
+        loc = strtoul(cps[0], NULL, 10);
+        tag = strtoul(cps[1], NULL, 10);
+        num = strtoul(cps[2], NULL, 10);
         client_send_move(loc, tag, num);
 
         if (string_startswith(cmd, "/gettag ")) {
@@ -329,6 +328,28 @@ int client_command_check(const char *cmd)
                     WIDGET_SHOW_TOGGLE(widget);
                 }
             }
+        }
+
+        return 1;
+    } else if (string_startswith(cmd, "/widget_focus")) {
+        size_t pos;
+        char word[MAX_BUF], *cps[2];
+        int widget_id;
+
+        pos = 14;
+
+        while (string_get_word(cmd, &pos, ' ', word, sizeof(word), 0)) {
+            if (string_split(word, cps, arraysize(cps), ':') < 1) {
+                continue;
+            }
+
+            widget_id = widget_id_from_name(cps[0]);
+            if (widget_id == -1) {
+                /* Invalid widget ID */
+                continue;
+            }
+
+            widget_switch_focus(widget_id, cps[1]);
         }
 
         return 1;

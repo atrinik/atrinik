@@ -2,7 +2,7 @@ arch map
 name Abandoned Mine
 msg
 Created:  2011-01-31 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -684,7 +684,7 @@ end
 arch map_info
 hp 14
 sp 9
-race Abandoned Mine - Moroch's Shrine
+race Abandoned Mine - Zechna's Shrine
 x 9
 y 14
 end
@@ -828,7 +828,7 @@ x 11
 y 22
 end
 arch check_inv
-slaying moroch_temple_key1
+slaying zechna_temple_key1
 sp 1
 last_grace 1
 xrays 0
@@ -844,7 +844,7 @@ msg
 You see a powerful force field in front of you. Perhaps the proper key would work...
 endmsg
 direction 6
-slaying moroch_temple_key1
+slaying zechna_temple_key1
 sp 1
 last_sp 1
 splitting 1
@@ -934,7 +934,7 @@ end
 arch hole
 name shrine of the Vampire Lord
 face shrine1.111
-slaying strakewood_island/moroch_temple/moroch_temple_b_0201
+slaying strakewood_island/zechna_temple/zechna_temple_1_1_-1
 hp 2
 sp 17
 x 13
@@ -953,7 +953,7 @@ x 13
 y 16
 end
 arch check_inv
-slaying moroch_temple_key1
+slaying zechna_temple_key1
 sp 1
 last_grace 1
 xrays 0
@@ -1142,9 +1142,9 @@ end
 arch hole
 name shrine of Selvirus
 face shrine1.111
-slaying strakewood_island/moroch_temple/moroch_temple_c_0202
+slaying strakewood_island/zechna_temple/zechna_temple_1_0_-2
 hp 2
-sp 1
+sp 2
 x 16
 y 15
 end
@@ -1161,7 +1161,7 @@ x 16
 y 16
 end
 arch check_inv
-slaying moroch_temple_key2
+slaying zechna_temple_key2
 sp 1
 last_grace 1
 xrays 0
@@ -1339,11 +1339,11 @@ x 19
 y 15
 end
 arch hole
-name shrine of Moroch
+name shrine of Zechna
 face shrine1.111
-slaying strakewood_island/moroch_temple/moroch_temple_d_0101
+slaying strakewood_island/zechna_temple/zechna_temple_0_0_-3
 hp 4
-sp 6
+sp 23
 x 19
 y 15
 end
@@ -1360,7 +1360,7 @@ x 19
 y 16
 end
 arch check_inv
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 sp 1
 last_grace 1
 xrays 0
@@ -1525,7 +1525,7 @@ x 21
 y 22
 end
 arch check_inv
-slaying moroch_temple_key1
+slaying zechna_temple_key1
 sp 1
 last_grace 1
 xrays 0
@@ -1545,7 +1545,7 @@ msg
 You see a powerful force field in front of you. Perhaps the proper key would work...
 endmsg
 direction 4
-slaying moroch_temple_key1
+slaying zechna_temple_key1
 sp 1
 last_sp 1
 splitting 1

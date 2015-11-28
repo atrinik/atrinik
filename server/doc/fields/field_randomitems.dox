@@ -1,6 +1,10 @@
 /**
-@fn obj::randomitems
-@section Use
+@var obj::randomitems
+@sa @ref page_field_randomitems
+*/
+
+/**
+@page page_field_randomitems obj::randomitems Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

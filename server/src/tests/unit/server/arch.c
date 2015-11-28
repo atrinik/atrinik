@@ -26,6 +26,7 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
+#include <arch.h>
 
 START_TEST(test_item_matched_string)
 {
@@ -34,7 +35,7 @@ START_TEST(test_item_matched_string)
 
     check_setup_env_pl(&map, &pl);
 
-    o1 = get_archetype("cloak");
+    o1 = arch_get("cloak");
     ck_assert_ptr_ne(o1, NULL);
     FREE_AND_COPY_HASH(o1->title, "of Moroch");
     CLEAR_FLAG(o1, FLAG_IDENTIFIED);
@@ -46,7 +47,7 @@ START_TEST(test_item_matched_string)
     SET_FLAG(o1, FLAG_IDENTIFIED);
     ck_assert_int_ne(item_matched_string(pl, o1, "Moroch"), 0);
 
-    o2 = get_archetype("cloak");
+    o2 = arch_get("cloak");
     SET_FLAG(o2, FLAG_UNPAID);
     ck_assert_int_eq(item_matched_string(pl, o2, "unpaid"), 2);
     ck_assert_int_ne(item_matched_string(pl, o2, "cloak"), 0);
@@ -55,60 +56,41 @@ START_TEST(test_item_matched_string)
     object_destroy(o1);
     object_destroy(o2);
 }
-
 END_TEST
 
 START_TEST(test_arch_to_object)
 {
-    archetype *arch;
+    archetype_t *arch;
     object *obj;
 
-    arch = find_archetype("empty_archetype");
+    arch = arch_find("empty_archetype");
     obj = arch_to_object(arch);
     ck_assert_ptr_ne(obj, NULL);
     object_destroy(obj);
-
-    ck_assert_ptr_eq(arch_to_object(NULL), NULL);
 }
-
 END_TEST
 
-START_TEST(test_create_singularity)
+START_TEST(test_arch_get)
 {
     object *obj;
 
-    obj = create_singularity("JO3584jke");
-    ck_assert_ptr_ne(obj, NULL);
-    ck_assert_ptr_ne(obj->name, NULL);
-    ck_assert(strstr(obj->name, "JO3584jke") != NULL);
-    object_destroy(obj);
-}
-
-END_TEST
-
-START_TEST(test_get_archetype)
-{
-    object *obj;
-
-    obj = get_archetype("empty_archetype");
+    obj = arch_get("empty_archetype");
     ck_assert_ptr_ne(obj, NULL);
     object_destroy(obj);
 
-    obj = get_archetype("AA938DFEPQ54FH");
+    obj = arch_get("AA938DFEPQ54FH");
     ck_assert_ptr_ne(obj, NULL);
     ck_assert_ptr_ne(obj->name, NULL);
     ck_assert(strstr(obj->name, "AA938DFEPQ54FH") != NULL);
     object_destroy(obj);
 }
-
 END_TEST
 
-START_TEST(test_find_archetype)
+START_TEST(test_arch_find)
 {
-    ck_assert_ptr_ne(find_archetype("empty_archetype"), NULL);
-    ck_assert_ptr_eq(find_archetype("AA938DFEPQ54FH"), NULL);
+    ck_assert_ptr_ne(arch_find("empty_archetype"), NULL);
+    ck_assert_ptr_eq(arch_find("AA938DFEPQ54FH"), NULL);
 }
-
 END_TEST
 
 static Suite *suite(void)
@@ -122,9 +104,8 @@ static Suite *suite(void)
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_item_matched_string);
     tcase_add_test(tc_core, test_arch_to_object);
-    tcase_add_test(tc_core, test_create_singularity);
-    tcase_add_test(tc_core, test_get_archetype);
-    tcase_add_test(tc_core, test_find_archetype);
+    tcase_add_test(tc_core, test_arch_get);
+    tcase_add_test(tc_core, test_arch_find);
 
     return s;
 }

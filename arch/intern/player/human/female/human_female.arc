@@ -1,6 +1,6 @@
 Object human_female
 race human
-randomitems player
+randomitems player_female
 layer 6
 behavior 10
 friendly 1
@@ -21,7 +21,7 @@ level 1
 hp -1
 maxhp 8
 sp -1
-maxsp 3
+maxsp 4
 ac 0
 wc 2
 wc_range 20

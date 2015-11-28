@@ -739,8 +739,8 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
             sdx = (ax + (isin * dy)) + xd;
             sdy = (ay - (icos * dy)) + yd;
             for (x = 0; x < dst->w; x++) {
-                dx = (short) (sdx >> 16);
-                dy = (short) (sdy >> 16);
+                dx = (int) (short) (sdx >> 16);
+                dy = (int) (short) (sdy >> 16);
 
                 if (flipx) {
                     dx = (src->w - 1) - dx;
@@ -802,7 +802,8 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
     /*
      * Clear surface to colorkey
      */
-    memset(pc, (unsigned char) (_colorkey(src) & 0xff), dst->pitch * dst->h);
+    memset(pc, (unsigned char) (_colorkey(src) & 0xff),
+            (size_t) dst->pitch * dst->h);
     /*
      * Iterate through destination surface
      */
@@ -811,8 +812,8 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
         sdx = (ax + (isin * dy)) + xd;
         sdy = (ay - (icos * dy)) + yd;
         for (x = 0; x < dst->w; x++) {
-            dx = (short) (sdx >> 16);
-            dy = (short) (sdy >> 16);
+            dx = (int) (short) (sdx >> 16);
+            dy = (int) (short) (sdy >> 16);
 
             if (flipx) {
                 dx = (src->w - 1) - dx;
@@ -905,7 +906,7 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
         if (src->pitch == dst->pitch) {
             /* If the pitch is the same for both surfaces, the memory can be
              * copied all at once. */
-            memcpy(dst->pixels, src->pixels, (src->h * src->pitch));
+            memcpy(dst->pixels, src->pixels, src->h * (size_t) src->pitch);
         } else {
             /* If the pitch differs, copy each row separately */
             srcBuf = src->pixels;
@@ -1010,8 +1011,8 @@ void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx,
     *canglezoom = cos(radangle);
     *sanglezoom *= zoomx;
     *canglezoom *= zoomx;
-    x = width / 2;
-    y = height / 2;
+    x = width / 2.0;
+    y = height / 2.0;
     cx = *canglezoom * x;
     cy = *canglezoom * y;
     sx = *sanglezoom * x;

@@ -1,0 +1,291 @@
+arch map
+name Asteria Palace
+msg
+Created:  2011-01-23 emperorbma
+Modified: 2015-05-08 emperorbma
+endmsg
+width 24
+height 24
+difficulty 40
+darkness -1
+outdoor 1
+no_harm 1
+bg_music kaitindam.mid
+region asteria
+end
+arch floor_rhomb
+x 17
+y 15
+end
+arch map_info
+name asteria_palace
+sp 2
+is_magical 1
+x 17
+y 15
+end
+arch floor_rhomb
+x 17
+y 16
+end
+arch floor_rhomb
+x 17
+y 17
+end
+arch floor_rhomb
+x 18
+y 14
+end
+arch map_info
+name asteria_palace
+sp 4
+is_magical 1
+x 18
+y 14
+end
+arch floor_rhomb
+x 18
+y 15
+end
+arch floor_rhomb
+x 18
+y 16
+end
+arch floor_rhomb
+x 18
+y 17
+end
+arch floor_rhomb
+x 18
+y 18
+end
+arch floor_rhomb
+x 19
+y 13
+end
+arch map_info
+name asteria_palace
+hp 2
+sp 1
+is_magical 1
+x 19
+y 13
+end
+arch floor_rhomb
+x 19
+y 14
+end
+arch floor_rhomb
+x 19
+y 15
+end
+arch map_info
+name asteria_palace
+hp 4
+sp 8
+is_magical 1
+x 19
+y 15
+end
+arch floor_rhomb
+x 19
+y 16
+end
+arch floor_rhomb
+x 19
+y 17
+end
+arch floor_rhomb
+x 19
+y 18
+end
+arch floor_rhomb
+x 19
+y 19
+end
+arch floor_rhomb
+x 19
+y 20
+end
+arch floor_rhomb
+x 19
+y 21
+end
+arch floor_rhomb
+x 19
+y 22
+end
+arch floor_rhomb
+x 19
+y 23
+end
+arch floor_rhomb
+x 20
+y 13
+end
+arch floor_rhomb
+x 20
+y 14
+end
+arch floor_rhomb
+x 20
+y 15
+end
+arch floor_rhomb
+x 20
+y 16
+end
+arch floor_rhomb
+x 20
+y 17
+end
+arch floor_rhomb
+x 20
+y 18
+end
+arch floor_rhomb
+x 20
+y 19
+end
+arch floor_rhomb
+x 20
+y 20
+end
+arch floor_rhomb
+x 20
+y 21
+end
+arch floor_rhomb
+x 20
+y 22
+end
+arch floor_rhomb
+x 20
+y 23
+end
+arch floor_rhomb
+x 21
+y 13
+end
+arch floor_rhomb
+x 21
+y 14
+end
+arch floor_rhomb
+x 21
+y 15
+end
+arch floor_rhomb
+x 21
+y 16
+end
+arch floor_rhomb
+x 21
+y 17
+end
+arch floor_rhomb
+x 21
+y 18
+end
+arch floor_rhomb
+x 21
+y 19
+end
+arch floor_rhomb
+x 21
+y 20
+end
+arch floor_rhomb
+x 21
+y 21
+end
+arch floor_rhomb
+x 21
+y 22
+end
+arch floor_rhomb
+x 21
+y 23
+end
+arch floor_rhomb
+x 22
+y 14
+end
+arch map_info
+name asteria_palace
+is_magical 1
+x 22
+y 14
+end
+arch floor_rhomb
+x 22
+y 15
+end
+arch floor_rhomb
+x 22
+y 16
+end
+arch floor_rhomb
+x 22
+y 17
+end
+arch floor_rhomb
+x 22
+y 18
+end
+arch floor_rhomb
+x 22
+y 19
+end
+arch floor_rhomb
+x 22
+y 20
+end
+arch floor_rhomb
+x 22
+y 21
+end
+arch floor_rhomb
+x 22
+y 22
+end
+arch floor_rhomb
+x 22
+y 23
+end
+arch floor_rhomb
+x 23
+y 15
+end
+arch floor_rhomb
+x 23
+y 16
+end
+arch floor_rhomb
+x 23
+y 17
+end
+arch floor_rhomb
+x 23
+y 18
+end
+arch floor_rhomb
+x 23
+y 19
+end
+arch floor_rhomb
+x 23
+y 20
+end
+arch floor_rhomb
+x 23
+y 21
+end
+arch floor_rhomb
+x 23
+y 22
+end
+arch floor_rhomb
+x 23
+y 23
+end

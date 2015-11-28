@@ -31,6 +31,8 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <plugin.h>
+#include <arch.h>
 
 /** Table for stat modification of exp */
 float stat_exp_mult[MAX_STAT + 1] = {
@@ -132,32 +134,29 @@ int64_t do_skill(object *op, int dir, const char *params)
 }
 
 /**
- * Calculates amount of experience can be gained for
- * successfull use of a skill.
- * @param who Player/creature that used the skill.
+ * Calculates amount of experience can be gained for successful use of a skill.
+ * @param who Who used the skill. Cannot be NULL, and must be a player.
  * @param op Object that was 'defeated'.
  * @param level Level of the skill. If -1, will get level of who's chosen
  * skill.
- * @return Experience for the skill use. */
+ * @return Experience for the skill use.
+ */
 int64_t calc_skill_exp(object *who, object *op, int level)
 {
+    HARD_ASSERT(who != NULL);
+
+    SOFT_ASSERT_RC(who->type == PLAYER, 0, "Called with non-player: %s, op: %s",
+            object_get_str(who), object_get_str(op));
+
     int who_lvl = level;
-    int64_t op_exp = 0;
-    int op_lvl = 0;
-    float exp_mul, max_mul, tmp;
-
-    /* No exp for non players. */
-    if (!who || who->type != PLAYER) {
-        logger_print(LOG(DEBUG), "called with who != PLAYER or NULL (%s (%s)- %s)", query_name(who, NULL), !who ? "NULL" : "", query_name(op, NULL));
-        return 0;
-    }
-
-    if (level == -1) {
+    if (who_lvl == -1) {
         /* The related skill level */
         who_lvl = SK_level(who);
     }
 
-    if (!op) {
+    int64_t op_exp;
+    int op_lvl;
+    if (op == NULL) {
         op_lvl = who->map->difficulty < 1 ? 1 : who->map->difficulty;
         op_exp = 0;
     } else {
@@ -166,16 +165,14 @@ int64_t calc_skill_exp(object *who, object *op, int level)
         op_lvl = op->level;
     }
 
-    /* No exp for no level and no exp ;) */
     if (op_lvl < 1 || op_exp < 1) {
         return 0;
     }
 
+    float max_mul;
     if (who_lvl < 2) {
         max_mul = 0.85f;
-    }
-
-    if (who_lvl < 3) {
+    } else if (who_lvl < 3) {
         max_mul = 0.7f;
     } else if (who_lvl < 4) {
         max_mul = 0.6f;
@@ -189,13 +186,14 @@ int64_t calc_skill_exp(object *who, object *op, int level)
         max_mul = 0.25f;
     }
 
-    /* We first get a global level difference multiplicator */
-    exp_mul = calc_level_difference(who_lvl, op_lvl);
-    op_exp = (int) ((float) op_exp * lev_exp[op_lvl] * exp_mul);
-    tmp = ((float) (new_levels[who_lvl + 1] - new_levels[who_lvl]) * 0.1f) * max_mul;
+    /* We first get a global level difference multiplier */
+    float exp_mul = calc_level_difference(who_lvl, op_lvl);
+    op_exp = (int64_t) ((float) op_exp * lev_exp[op_lvl] * exp_mul);
+    float tmp = ((float) (new_levels[who_lvl + 1] - new_levels[who_lvl]) *
+            0.1f) * max_mul;
 
     if ((float) op_exp > tmp) {
-        op_exp = (int) tmp;
+        op_exp = (int64_t) tmp;
     }
 
     return op_exp;
@@ -206,14 +204,14 @@ int64_t calc_skill_exp(object *who, object *op, int level)
 void init_new_exp_system(void)
 {
     int i;
-    archetype *at;
+    archetype_t *at;
     char buf[MAX_BUF];
 
     for (i = 0; i < NROFSKILLS; i++) {
         snprintf(buf, sizeof(buf), "skill_%s", skills[i].name);
         string_replace_char(buf, " ", '_');
 
-        at = find_archetype(buf);
+        at = arch_find(buf);
 
         if (!at) {
             continue;
@@ -398,7 +396,6 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
 static int do_skill_attack(object *tmp, object *op, char *string)
 {
     int success;
-    char *name = query_name(tmp, op);
 
     if (op->type == PLAYER) {
         if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill) {
@@ -413,9 +410,13 @@ static int do_skill_attack(object *tmp, object *op, char *string)
     /* Print appropriate messages to the player. */
     if (success && string != NULL) {
         if (op->type == PLAYER) {
+            char *name = object_get_name_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You %s %s!", string, name);
+            efree(name);
         } else if (tmp->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, tmp, "%s %s you!", query_name(op, NULL), string);
+            char *name = object_get_name_s(op, tmp);
+            draw_info_format(COLOR_WHITE, tmp, "%s %s you!", name, string);
+            efree(name);
         }
     }
 

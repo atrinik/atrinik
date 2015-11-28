@@ -63,7 +63,7 @@ void keybind_load(void)
     fp = fopen_wrapper(FILE_KEYBIND, "r");
 
     if (fp == NULL) {
-        logger_print(LOG(ERROR), "Failed to open file: %s", FILE_KEYBIND);
+        LOG(ERROR, "Failed to open file: %s", FILE_KEYBIND);
         return;
     }
 
@@ -114,19 +114,23 @@ void keybind_load(void)
 }
 
 /**
- * Save the keybindings. */
+ * Save the keybindings.
+ */
 void keybind_save(void)
 {
-    FILE *fp;
-    size_t i;
+    FILE *fp = fopen_wrapper(FILE_KEYBIND, "w");
+    if (fp == NULL) {
+        LOG(ERROR, "Could not open %s for writing: %s (%d)", FILE_KEYBIND,
+                strerror(errno), errno);
+        return;
+    }
 
-    fp = fopen_wrapper(FILE_KEYBIND, "w");
-
-    for (i = 0; i < keybindings_num; i++) {
+    for (size_t i = 0; i < keybindings_num; i++) {
         fprintf(fp, "bind\n");
-        fprintf(fp, "\t# %s\n\tkey %d\n", SDL_GetKeyName(keybindings[i]->key), keybindings[i]->key);
+        fprintf(fp, "\t# %s\n\tkey %d\n", SDL_GetKeyName(keybindings[i]->key),
+                keybindings[i]->key);
 
-        if (keybindings[i]->mod) {
+        if (keybindings[i]->mod != 0) {
             fprintf(fp, "\tmod %d\n", keybindings[i]->mod);
         }
 
@@ -134,7 +138,7 @@ void keybind_save(void)
             fprintf(fp, "\trepeat %d\n", keybindings[i]->repeat);
         }
 
-        if (keybindings[i]->command) {
+        if (keybindings[i]->command != NULL) {
             fprintf(fp, "\tcommand %s\n", keybindings[i]->command);
         }
 
@@ -531,17 +535,17 @@ int keybind_process_command(const char *cmd)
         } else if (!strcmp(cmd, "CONSOLE")) {
             widget_textwin_handle_console(NULL);
         } else if (!strcmp(cmd, "APPLY")) {
-            widget_inventory_handle_apply(cur_widget[cpl.inventory_focus]);
+            widget_inventory_handle_apply(cpl.inventory_focus);
         } else if (!strcmp(cmd, "EXAMINE")) {
-            menu_inventory_examine(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_examine(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "MARK")) {
-            menu_inventory_mark(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_mark(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "LOCK")) {
-            menu_inventory_lock(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_lock(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "GET")) {
-            menu_inventory_get(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_get(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "DROP")) {
-            menu_inventory_drop(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_drop(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "HELP")) {
             help_show("main");
         } else if (!strcmp(cmd, "QLIST")) {
@@ -574,13 +578,13 @@ int keybind_process_command(const char *cmd)
 
             widget_textwin_handle_console(cmd);
         } else if (!strcmp(cmd, "UP")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_UP);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_UP);
         } else if (!strcmp(cmd, "DOWN")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_DOWN);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_DOWN);
         } else if (!strcmp(cmd, "LEFT")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_LEFT);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_LEFT);
         } else if (!strcmp(cmd, "RIGHT")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_RIGHT);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_RIGHT);
         } else if (!strncmp(cmd, "RUNON", 5)) {
             if (!strcmp(cmd + 5, "_TOGGLE")) {
                 if (cpl.run_on) {
@@ -620,6 +624,22 @@ int keybind_process_command(const char *cmd)
             textwin_handle_copy(NULL);
         } else if (!strcmp(cmd, "HELLO")) {
             send_command_check("/talk 1 hello");
+        } else if (strcmp(cmd, "COMBAT") == 0 ||
+                strcmp(cmd, "COMBAT_FORCE") == 0) {
+            uint8_t combat = cpl.combat, combat_force = cpl.combat_force;
+
+            if (strcmp(cmd, "COMBAT") == 0) {
+                combat = !combat;
+            } else {
+                combat_force = !combat_force;
+            }
+
+            WIDGET_REDRAW_ALL(TARGET_ID);
+
+            packet_struct *packet = packet_new(SERVER_CMD_COMBAT, 8, 0);
+            packet_append_uint8(packet, combat);
+            packet_append_uint8(packet, combat_force);
+            socket_send_packet(packet);
         }
 
         return 1;

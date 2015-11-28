@@ -2,13 +2,13 @@ arch map
 name Bog of Eternal Stench
 msg
 Created:  2010-05-27 Asa
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-bg_music swamp.ogg
+bg_music escape.mid
 region berri_lur
 end
 arch earth_dark2

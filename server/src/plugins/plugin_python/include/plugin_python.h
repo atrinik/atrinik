@@ -24,15 +24,26 @@
 
 /**
  * @file
- * Python plugin related header file. */
+ * Python plugin related header file.
+ *
+ * @author Alex Tokar
+ * @author Yann Chachkoff
+ */
 
 #ifndef PLUGIN_PYTHON_H
 #define PLUGIN_PYTHON_H
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 #include <Python.h>
+#pragma GCC diagnostic pop
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>
+#include <arch.h>
+#include <plugin.h>
+#include <plugin_hooklist.h>
 
 /** This is for allowing both python 3 and python 2. */
 #if PY_MAJOR_VERSION >= 3
@@ -65,6 +76,30 @@ extern PyTypeObject PyIOBase_Type;
 #define PLUGIN_NAME "Python"
 /** Name of the plugin, and its version. */
 #define PLUGIN_VERSION "Atrinik Python Plugin 1.0"
+
+/**
+ * @param self Self object for methods; module object for module functions.
+ */
+typedef PyObject *(*PyMethod_NOARGS)(PyObject *self);
+
+/**
+ * @copydoc PyMethod_NOARGS
+ * @param args Arguments.
+ */
+typedef PyObject *(*PyMethod_VARARGS)(PyObject *self, PyObject *args);
+
+/**
+ * @copydoc PyMethod_NOARGS
+ * @param what The object.
+ */
+typedef PyObject *(*PyMethod_OBJECT)(PyObject *self, PyObject *what);
+
+/**
+ * @copydoc PyMethod_VARARGS
+ * @param keywds Keyword arguments.
+ */
+typedef PyObject *(*PyMethod_VARARGS_KEYWORDS)(PyObject *self, PyObject *args,
+        PyObject *keywds);
 
 extern struct plugin_hooklist *hooks;
 
@@ -165,6 +200,9 @@ extern struct plugin_hooklist *hooks;
 #define estrndup(_s, _n) hooks->string_estrndup(_s, _n)
 #endif
 
+#define logger_print hooks->logger_print
+#define max_time *hooks->max_time
+
 extern PyObject *AtrinikError;
 
 /** Raise an error using AtrinikError, and return NULL. */
@@ -247,6 +285,8 @@ typedef enum {
     FIELDTYPE_INT64,
     /** Float. */
     FIELDTYPE_FLOAT,
+    /** Double. */
+    FIELDTYPE_DOUBLE,
     /** Pointer to object. */
     FIELDTYPE_OBJECT,
     /** Object. */
@@ -280,7 +320,13 @@ typedef enum {
     /** Object's connection value. */
     FIELDTYPE_CONNECTION,
     /** Treasure list. */
-    FIELDTYPE_TREASURELIST
+    FIELDTYPE_TREASURELIST,
+    /** Object iterator. */
+    FIELDTYPE_OBJECT_ITERATOR,
+    /** Packets. */
+    FIELDTYPE_PACKETS,
+    /** Single packet. */
+    FIELDTYPE_PACKET,
 } field_type;
 
 /**
@@ -297,6 +343,8 @@ typedef enum {
 
 PyTypeObject Atrinik_ObjectType;
 PyObject *wrap_object(object *what);
+PyTypeObject Atrinik_ObjectIteratorType;
+PyObject *wrap_object_iterator(object *what);
 int Atrinik_Object_init(PyObject *module);
 
 /**
@@ -320,15 +368,26 @@ typedef struct Atrinik_Object {
     /** Pointer to the Atrinik object we wrap. */
     object *obj;
 
-    /** Pointer for iteration. */
-    struct Atrinik_Object *iter;
-
-    /** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
-    uint8_t iter_type;
-
     /** ID of the object. */
     tag_t count;
 } Atrinik_Object;
+
+/** The Atrinik_ObjectIterator structure. */
+typedef struct Atrinik_ObjectIterator {
+    PyObject_HEAD
+
+    /** Pointer to the wrapper Atrinik object. */
+    object *obj;
+
+    /** ID of the object. */
+    tag_t count;
+
+    /** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
+    uint8_t iter_type:7;
+
+    /** If true, iteration has started/finished. */
+    uint8_t iterated:1;
+} Atrinik_ObjectIterator;
 
 PyTypeObject Atrinik_MapType;
 PyObject *wrap_map(mapstruct *map);
@@ -375,14 +434,14 @@ typedef struct {
 } Atrinik_Player;
 
 PyTypeObject Atrinik_ArchetypeType;
-PyObject *wrap_archetype(archetype *at);
+PyObject *wrap_archetype(archetype_t *at);
 int Atrinik_Archetype_init(PyObject *module);
 
 /** The Atrinik_Archetype structure. */
 typedef struct {
     PyObject_HEAD
     /** Pointer to the Atrinik archetype we wrap. */
-    archetype *at;
+    archetype_t *at;
 } Atrinik_Archetype;
 
 PyTypeObject Atrinik_AttrListType;
@@ -405,7 +464,10 @@ typedef struct {
     field_type field;
 
     /** Used to keep track of iteration index. */
-    unsigned PY_LONG_LONG iter;
+    union {
+        void *ptr; ///< Pointer.
+        PY_LONG_LONG idx; ///< Index.
+    } iter;
 } Atrinik_AttrList;
 
 /** One cache entry. */
@@ -445,6 +507,11 @@ typedef struct {
     /**
      * Extra data for some special fields. */
     uint32_t extra_data;
+
+    /**
+     * Documentation for the field.
+     */
+    char *doc;
 } fields_struct;
 
 /**
@@ -484,19 +551,38 @@ typedef struct {
 
 /**
  * Returns Py_True (increasing its reference) if 'val' is non-NULL, otherwise
- * returns Py_False. */
-#define Py_ReturnBoolean(val) \
-    { \
-        if ((val)) \
-        { \
-            Py_INCREF(Py_True); \
-            return Py_True; \
-        } \
-        else \
-        { \
-            Py_INCREF(Py_False); \
-            return Py_False; \
-        } \
+ * returns Py_False (increasing its reference).
+ */
+#define Py_BuildBoolean(val) \
+    ((val) ? (Py_INCREF(Py_True), Py_True) : (Py_INCREF(Py_False), Py_False))
+
+
+/**
+ * Begins iterating an Atrinik.Object.ObjectIterator object instance.
+ */
+#define FOR_ATRINIK_ITERATOR_BEGIN()                                  \
+    for (object *tmp = self->obj; tmp != NULL; ) {
+
+/**
+ * Ends iterating an Atrinik.Object.ObjectIterator object instance.
+ */
+#define FOR_ATRINIK_ITERATOR_END() \
+        if (self->iter_type == OBJ_ITER_TYPE_BELOW) {                 \
+            tmp = tmp->below;                                         \
+        } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) {          \
+            tmp = tmp->above;                                         \
+        } else {                                                      \
+            break;                                                    \
+        }                                                             \
+    }
+
+#define PY_CHECK_INT(val, min, max) \
+    if (val < min || val > max) { \
+        PyErr_Format(PyExc_OverflowError, \
+                "Invalid integer value for parameter '"STRINGIFY(val)"': " \
+                "%zd, must be %zd to %zd.", (Py_ssize_t) val, \
+                (Py_ssize_t) min, (Py_ssize_t) max); \
+        return NULL; \
     }
 
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);

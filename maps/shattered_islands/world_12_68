@@ -2,11 +2,11 @@ arch map
 name Greyton Docks
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 100
 outdoor 1
 no_harm 1
 bg_music town_music.ogg
@@ -216,6 +216,11 @@ arch water_lt2
 x 2
 y 7
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 2
+y 7
+end
 arch water_lt
 x 2
 y 8
@@ -277,6 +282,11 @@ x 2
 y 19
 end
 arch water_lt3
+x 2
+y 20
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 2
 y 20
 end
@@ -395,6 +405,11 @@ arch water_lt4
 x 4
 end
 arch water_lt3
+x 4
+y 1
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 4
 y 1
 end
@@ -1253,6 +1268,7 @@ endmsg
 name Ship Captain
 level 15
 type 83
+faction greyton_citizens
 end
 end
 arch ship_floor_we_dark_2
@@ -1971,6 +1987,11 @@ arch water_lt3
 x 16
 y 6
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 16
+y 6
+end
 arch water_lt4
 x 16
 y 7
@@ -2139,6 +2160,11 @@ x 17
 y 18
 end
 arch water_lt4
+x 17
+y 19
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 17
 y 19
 end
@@ -2531,6 +2557,10 @@ end
 arch water_lt3
 x 20
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 20
+end
 arch water_lt3
 x 20
 y 1
@@ -2578,6 +2608,7 @@ endmsg
 name Arraunak Almirante
 level 13
 type 83
+faction greyton_citizens
 end
 end
 arch ship_floor_ns_light_2

@@ -2,14 +2,14 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 40
 outdoor 1
 no_harm 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region asteria
 end
 arch water_lt4
@@ -59,16 +59,23 @@ end
 arch wall_cave1b.141
 y 12
 end
+arch map_info
+name asteria_mushroom_cave
+hp 4
+sp 5
+cursed 1
+y 12
+end
 arch fstone1b
 y 13
 end
-arch fwall_fstone2
+arch box1.101
 y 13
 end
 arch fstone1b
 y 14
 end
-arch fwall_fstone2
+arch trash_wood1.101
 y 14
 end
 arch fstone1b
@@ -81,19 +88,16 @@ end
 arch fstone1b
 y 16
 end
-arch fwall_fstone2
-y 16
-end
 arch fstone1b
 y 17
 end
-arch fwall_fstone2
+arch wall_cave1b.121
 y 17
 end
 arch fstone1b
 y 18
 end
-arch wall_cave1.111
+arch wall_cave1.161
 y 18
 end
 arch grassd_3
@@ -143,6 +147,11 @@ arch water_lt
 x 1
 y 5
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 1
+y 5
+end
 arch water_lt4
 x 1
 y 6
@@ -179,7 +188,7 @@ arch fstone1b
 x 1
 y 12
 end
-arch fwall_fstone2
+arch basket2.101
 x 1
 y 12
 end
@@ -187,16 +196,7 @@ arch fstone1b
 x 1
 y 13
 end
-arch fwall_fstone2d
-x 1
-y 13
-end
 arch fstone1b
-x 1
-y 14
-end
-arch torch_wall_1
-direction 7
 x 1
 y 14
 end
@@ -208,15 +208,11 @@ arch fstone1c
 x 1
 y 16
 end
-arch fwall_fstone2a
-x 1
-y 16
-end
 arch fstone1b
 x 1
 y 17
 end
-arch fwall_fstone2
+arch basket1.101
 x 1
 y 17
 end
@@ -228,11 +224,14 @@ arch wall_cave1.111
 x 1
 y 18
 end
-arch grassd_2
+arch grassd_3
 x 1
 y 19
 end
-arch plant_mushroom3
+arch sign
+msg
+You see a faded scrawl: B,w.r, |h, ^,shr,,m D.m,n!
+endmsg
 x 1
 y 19
 end
@@ -323,7 +322,7 @@ arch fstone1b
 x 2
 y 12
 end
-arch fwall_fstone2
+arch barrel.101
 x 2
 y 12
 end
@@ -331,15 +330,15 @@ arch fstone1b
 x 2
 y 13
 end
-arch fwall_fstone2b
-x 2
-y 13
-end
 arch fstone1b
 x 2
 y 14
 end
-arch basket2.101
+arch blood_floor1
+x 2
+y 14
+end
+arch light3
 x 2
 y 14
 end
@@ -347,11 +346,11 @@ arch fstone1b
 x 2
 y 15
 end
-arch fstone1b
+arch pile_floor1
 x 2
-y 16
+y 15
 end
-arch basket1.101
+arch fstone1b
 x 2
 y 16
 end
@@ -359,26 +358,19 @@ arch fstone1b
 x 2
 y 17
 end
-arch fwall_fstone2
+arch doorway_wood1_1
 x 2
 y 17
 end
-arch fstone1b
+arch fstone1c
 x 2
 y 18
 end
-arch wall_cave1.111
-x 2
-y 18
-end
-arch grassd_3
+arch floor_sand_d1
 x 2
 y 19
 end
-arch sign
-msg
-You see a faded scrawl: B,w.r, |h, ^,shr,,m D.m,n!
-endmsg
+arch grassd_m9
 x 2
 y 19
 end
@@ -386,7 +378,7 @@ arch floor_sand_d3
 x 2
 y 20
 end
-arch grassd_m10
+arch grassd_m13
 x 2
 y 20
 end
@@ -489,15 +481,11 @@ arch fstone1b
 x 3
 y 13
 end
-arch fwall_fstone2
+arch box2.101
 x 3
 y 13
 end
 arch fstone1b
-x 3
-y 14
-end
-arch fwall_fstone2b
 x 3
 y 14
 end
@@ -513,11 +501,11 @@ arch fstone1b
 x 3
 y 17
 end
-arch doorway_wood1_1
+arch fstone1b
 x 3
-y 17
+y 18
 end
-arch fstone1c
+arch wall_cave1.111
 x 3
 y 18
 end
@@ -525,11 +513,15 @@ arch floor_sand_d1
 x 3
 y 19
 end
-arch grassd_m9
+arch grassd_m6
 x 3
 y 19
 end
 arch floor_sand_d1
+x 3
+y 20
+end
+arch grassd_m12
 x 3
 y 20
 end
@@ -644,7 +636,7 @@ arch grassd_7
 x 4
 y 14
 end
-arch fwall_fstone2
+arch barrel.101
 x 4
 y 14
 end
@@ -652,7 +644,7 @@ arch grassd_3
 x 4
 y 15
 end
-arch fwall_fstone2
+arch barrel_water.101
 x 4
 y 15
 end
@@ -660,7 +652,7 @@ arch fstone1b
 x 4
 y 16
 end
-arch fwall_fstone2
+arch box_big.101
 x 4
 y 16
 end
@@ -680,15 +672,19 @@ arch wall_cave1.141
 x 4
 y 18
 end
+arch grassd_2
+x 4
+y 19
+end
+arch plant_mushroom3
+x 4
+y 19
+end
 arch floor_sand_d1
 x 4
-y 19
+y 20
 end
-arch grassd_m6
-x 4
-y 19
-end
-arch floor_sand_d4
+arch grassd_m10
 x 4
 y 20
 end
@@ -1007,6 +1003,10 @@ x 6
 y 23
 end
 arch water_lt3
+x 7
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 7
 end
 arch water_lt4
@@ -1681,10 +1681,7 @@ arch guard
 name Asterian Guard
 type 83
 level 25
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_sand_d4
@@ -2135,10 +2132,7 @@ arch guard
 name Asterian Guard
 type 83
 level 25
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_sand_d3
@@ -2331,6 +2325,10 @@ end
 arch water_lt2
 x 16
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 16
+end
 arch water_lt2
 x 16
 y 1
@@ -2414,10 +2412,7 @@ arch guard
 name Asterian Guard
 type 83
 level 25
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_ostone10
@@ -2914,10 +2909,7 @@ y 7
 arch ranger
 type 83
 level 28
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_ostone10

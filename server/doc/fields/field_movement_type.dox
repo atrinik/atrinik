@@ -1,6 +1,10 @@
 /**
-@fn obj::move_type
-@section Use
+@var obj::move_type
+@sa @ref page_field_movement_type
+*/
+
+/**
+@page page_field_movement_type obj::move_type Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

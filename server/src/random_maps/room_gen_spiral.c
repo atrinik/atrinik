@@ -80,7 +80,7 @@ char **map_gen_spiral(int xsize, int ysize, int option)
 
     /* Select random options if necessary */
     if (option == 0) {
-        option = RANDOM() % MAX_SPIRAL_OPT;
+        option = rndm(0, MAX_SPIRAL_OPT);
     }
 
     /* the order in which these are evaluated matters */
@@ -89,7 +89,7 @@ char **map_gen_spiral(int xsize, int ysize, int option)
      *    pick one if they're both set. */
     if ((option & REGULAR_SPIRAL) && (option & FIT_SPIRAL)) {
         /* unset REGULAR_SPIRAL half the time */
-        if (RANDOM() % 2 && (option & REGULAR_SPIRAL)) {
+        if (rndm_chance(2) && (option & REGULAR_SPIRAL)) {
             option -= REGULAR_SPIRAL;
         } else {
             option -= FIT_SPIRAL;
@@ -97,7 +97,7 @@ char **map_gen_spiral(int xsize, int ysize, int option)
     }
 
     /* fine spiral */
-    xscale = yscale = ( float) MAX_FINE;
+    xscale = yscale = (float) MAX_FINE;
 
     /* choose the spiral pitch */
     if (!(option & FINE_SPIRAL)) {

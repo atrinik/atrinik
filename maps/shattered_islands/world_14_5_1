@@ -2,12 +2,13 @@ arch map
 name Morliana
 msg
 Created:  2010-12-08 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-25 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 20
 darkness -1
+outdoor 1
 no_harm 1
 bg_music campfire_tales.mid
 region morliana

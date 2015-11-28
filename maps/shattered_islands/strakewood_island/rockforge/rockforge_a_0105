@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2014-03-09 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -245,6 +245,7 @@ endmsg
 type 83
 name Tidek Ironbellows
 level 27
+faction rockforge_citizens
 end
 end
 arch floor_marble1b
@@ -1550,6 +1551,7 @@ type 83
 name Kendo Flamecutter
 level 40
 direction 1
+faction rockforge_citizens
 arch event_obj
 sub_type 6
 race /interfaces/strakewood_island/rockforge/kendo_flamecutter.xml
@@ -1832,6 +1834,7 @@ name Fede Greatblade
 level 38
 spawn_time 08:30 - 23:00
 type 83
+faction rockforge_citizens
 arch event_obj
 sub_type 6
 race /interfaces/strakewood_island/rockforge/fede_greatblade.xml
@@ -2271,6 +2274,7 @@ name Tdoh Glittercarver
 level 37
 is_male 0
 is_female 1
+faction rockforge_citizens
 end
 end
 arch floor_marble1
@@ -2409,6 +2413,7 @@ name Raru Mountainsmiter
 level 37
 is_male 0
 is_female 1
+faction rockforge_citizens
 arch event_obj
 sub_type 6
 race /interfaces/strakewood_island/rockforge/raru_mountainsmiter.xml
@@ -2531,6 +2536,7 @@ level 29
 is_male 0
 is_female 1
 type 83
+faction rockforge_citizens
 end
 end
 arch floor_marble1
@@ -3092,6 +3098,7 @@ arch dwarf_thunderer
 type 83
 name Fhod Grimfist
 level 30
+faction rockforge_citizens
 arch event_obj
 sub_type 6
 race /interfaces/strakewood_island/rockforge/fhod_grimfist.xml
@@ -3238,6 +3245,7 @@ type 83
 name dwarf cook
 level 30
 direction 3
+faction rockforge_citizens
 end
 end
 arch floor_marble1
@@ -3343,6 +3351,7 @@ name dwarf cook
 level 30
 is_male 0
 is_female 1
+faction rockforge_citizens
 end
 end
 arch floor_marble1a

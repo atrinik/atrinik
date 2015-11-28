@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 15
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_3
@@ -2195,7 +2195,9 @@ y 9
 arch ranger
 name Guild Manager
 direction 1
+level 80
 type 83
+faction guild_quick_wolves
 arch event_obj
 sub_type 6
 race /python/guilds/guild.py

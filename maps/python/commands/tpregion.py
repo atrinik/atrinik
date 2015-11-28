@@ -1,6 +1,8 @@
 ## @file
 ## Implements the /tpregion command.
 
+from Atrinik import *
+
 def main():
     region_name = WhatIsMessage()
 

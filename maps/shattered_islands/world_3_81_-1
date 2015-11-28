@@ -1,0 +1,3057 @@
+arch map
+name Forgotten Tunnels
+msg
+Created:  2011-03-19 Alex Tokar
+Modified: 2015-11-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+height_diff 1
+bg_music venturing_dragons.ogg
+region forgotten_tunnels
+end
+arch floor_sand_d1
+x 4
+end
+arch fwall_sand1a
+x 4
+end
+arch floor_sand_d2
+x 4
+y 1
+end
+arch fwall_sand1a
+x 4
+y 1
+end
+arch floor_sand_d4
+x 4
+y 2
+end
+arch fwall_sand1b
+x 4
+y 2
+end
+arch plant2_wall.151
+direction 7
+x 4
+y 2
+end
+arch floor_sand_d3
+x 4
+y 3
+end
+arch fwall_sand1a
+x 4
+y 3
+end
+arch floor_sand_d2
+x 4
+y 4
+end
+arch fwall_sand1a
+x 4
+y 4
+end
+arch floor_sand_d3
+x 4
+y 5
+end
+arch fwall_sand1b
+x 4
+y 5
+end
+arch floor_sand_d4
+x 4
+y 6
+end
+arch fwall_sand1b
+x 4
+y 6
+end
+arch floor_sand_d3
+x 5
+end
+arch basket1.101
+x 5
+end
+arch floor_sand_d1
+x 5
+y 1
+end
+arch spawn_point
+x 5
+y 1
+arch kobold
+name kobold hunter
+level 4
+unaggressive 1
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 5
+y 2
+end
+arch floor_sand_d2
+x 5
+y 3
+end
+arch shelf3_dem2.111
+direction 7
+x 5
+y 3
+end
+arch floor_sand_d1
+x 5
+y 4
+end
+arch torch_wall_1
+direction 7
+x 5
+y 4
+end
+arch floor_sand_d2
+x 5
+y 5
+end
+arch pottery2.101
+x 5
+y 5
+end
+arch floor_sand_d3
+x 5
+y 6
+end
+arch fwall_sand1a
+x 5
+y 6
+end
+arch flag_kobold
+direction 7
+x 5
+y 6
+end
+arch floor_sand_d1
+x 5
+y 7
+end
+arch fwall_sand1b
+x 5
+y 7
+end
+arch floor_sand_d1
+x 5
+y 8
+end
+arch fwall_sand1a
+x 5
+y 8
+end
+arch floor_sand_d3
+x 5
+y 9
+end
+arch fwall_sand1b
+x 5
+y 9
+end
+arch plant1_wall.151
+direction 7
+x 5
+y 9
+end
+arch floor_sand_d2
+x 5
+y 10
+end
+arch fwall_sand1b
+x 5
+y 10
+end
+arch floor_sand_d4
+x 5
+y 11
+end
+arch fwall_sand1b
+x 5
+y 11
+end
+arch floor_sand_d4
+x 6
+end
+arch floor_sand_d4
+x 6
+y 1
+end
+arch floor_sand_d3
+x 6
+y 2
+end
+arch blood_floor1
+x 6
+y 2
+end
+arch floor_sand_d2
+x 6
+y 3
+end
+arch floor_sand_d4
+x 6
+y 4
+end
+arch floor_sand_d2
+x 6
+y 5
+end
+arch floor_sand_d2
+x 6
+y 6
+end
+arch floor_sand_d2
+x 6
+y 7
+end
+arch floor_sand_d2
+x 6
+y 8
+end
+arch torch_wall_1
+direction 7
+x 6
+y 8
+end
+arch floor_sand_d2
+x 6
+y 9
+end
+arch grain1.101
+x 6
+y 9
+end
+arch floor_sand_d4
+x 6
+y 10
+end
+arch box1.101
+x 6
+y 10
+end
+arch floor_sand_d2
+x 6
+y 11
+end
+arch fwall_sand1a
+x 6
+y 11
+end
+arch floor_sand_d4
+x 6
+y 12
+end
+arch fwall_sand1b
+x 6
+y 12
+end
+arch floor_sand_d3
+z 38
+x 6
+y 18
+end
+arch rock_big2
+x 6
+y 18
+end
+arch floor_sand_d3
+z 42
+x 6
+y 19
+end
+arch rock_big2
+x 6
+y 19
+end
+arch floor_sand_d1
+z 42
+x 6
+y 20
+end
+arch rock_big2
+x 6
+y 20
+end
+arch floor_sand_d3
+z 42
+x 6
+y 21
+end
+arch rock_big2
+x 6
+y 21
+end
+arch floor_sand_d3
+z 46
+x 6
+y 22
+end
+arch rock_big2
+x 6
+y 22
+end
+arch floor_sand_d1
+z 50
+x 6
+y 23
+end
+arch rock_big2
+x 6
+y 23
+end
+arch floor_sand_d4
+x 7
+end
+arch floor_sand_d1
+x 7
+y 1
+end
+arch floor_sand_d4
+x 7
+y 2
+end
+arch trash_wood1.101
+x 7
+y 2
+end
+arch floor_sand_d3
+x 7
+y 3
+end
+arch floor_sand_d3
+x 7
+y 4
+end
+arch floor_sand_d3
+x 7
+y 5
+end
+arch dirt_floor2
+x 7
+y 5
+end
+arch floor_sand_d3
+x 7
+y 6
+end
+arch floor_sand_d2
+x 7
+y 7
+end
+arch trash_wood1.101
+x 7
+y 7
+end
+arch floor_sand_d1
+x 7
+y 8
+end
+arch floor_sand_d1
+x 7
+y 9
+end
+arch cave_deco_f1.101
+x 7
+y 9
+end
+arch floor_sand_d1
+x 7
+y 10
+end
+arch grain2.101
+x 7
+y 10
+end
+arch floor_sand_d4
+x 7
+y 11
+end
+arch box1.101
+x 7
+y 11
+end
+arch floor_sand_d3
+x 7
+y 12
+end
+arch fwall_sand1b
+x 7
+y 12
+end
+arch floor_sand_d1
+x 7
+y 13
+end
+arch fwall_sand1a
+x 7
+y 13
+end
+arch floor_sand_d3
+z 30
+x 7
+y 17
+end
+arch rock_big2
+x 7
+y 17
+end
+arch floor_sand_d2
+z 34
+x 7
+y 18
+end
+arch rock_big2
+x 7
+y 18
+end
+arch floor_sand_d1
+z 38
+x 7
+y 19
+end
+arch chair1_drop_171
+x 7
+y 19
+end
+arch floor_sand_d4
+z 42
+x 7
+y 20
+end
+arch mushroom_giant3
+x 7
+y 20
+end
+arch floor_sand_d2
+z 42
+x 7
+y 21
+end
+arch spider_web
+x 7
+y 21
+end
+arch floor_sand_d1
+z 46
+x 7
+y 22
+end
+arch mushroom_spot1
+x 7
+y 22
+end
+arch light2
+x 7
+y 22
+end
+arch floor_sand_d1
+z 50
+x 7
+y 23
+end
+arch mushroom_spot2
+x 7
+y 23
+end
+arch light2
+x 7
+y 23
+end
+arch floor_sand_d2
+x 8
+end
+arch fwall_sand1b
+x 8
+end
+arch floor_sand_d1
+x 8
+y 1
+end
+arch fwall_sand1a
+x 8
+y 1
+end
+arch floor_sand_d1
+x 8
+y 2
+end
+arch fwall_sand1a
+x 8
+y 2
+end
+arch floor_sand_d4
+x 8
+y 3
+end
+arch fwall_sand1a
+x 8
+y 3
+end
+arch floor_sand_d2
+x 8
+y 4
+end
+arch chained_skel.111
+x 8
+y 4
+end
+arch floor_sand_d1
+x 8
+y 5
+end
+arch floor_sand_d2
+x 8
+y 6
+end
+arch floor_sand_d4
+x 8
+y 7
+end
+arch spawn_point
+x 8
+y 7
+arch kobold_fighter
+direction 3
+level 5
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 8
+y 8
+end
+arch cave_deco_f4.101
+x 8
+y 8
+end
+arch floor_sand_d4
+x 8
+y 9
+end
+arch cave_pillar2
+x 8
+y 9
+end
+arch floor_sand_d4
+x 8
+y 10
+end
+arch blood_floor2
+x 8
+y 10
+end
+arch floor_sand_d2
+x 8
+y 11
+end
+arch grain5.101
+x 8
+y 11
+end
+arch floor_sand_d4
+x 8
+y 12
+end
+arch chair1_drop_171
+x 8
+y 12
+end
+arch floor_sand_d4
+x 8
+y 13
+end
+arch fwall_sand1b
+x 8
+y 13
+end
+arch floor_sand_d3
+z 22
+x 8
+y 16
+end
+arch rock_big2
+x 8
+y 16
+end
+arch floor_sand_d4
+z 26
+x 8
+y 17
+end
+arch rock_big2
+x 8
+y 17
+end
+arch floor_sand_d1
+z 30
+x 8
+y 18
+end
+arch dirt_floor1
+x 8
+y 18
+end
+arch floor_sand_d1
+z 34
+x 8
+y 19
+end
+arch floor_sand_d1
+z 38
+x 8
+y 20
+end
+arch floor_sand_d3
+z 42
+x 8
+y 21
+end
+arch floor_sand_d1
+z 46
+x 8
+y 22
+end
+arch floor_sand_d3
+z 50
+x 8
+y 23
+end
+arch dirt_floor2
+x 8
+y 23
+end
+arch floor_sand_d3
+x 9
+end
+arch fwall_sand1a
+x 9
+end
+arch floor_sand_d3
+x 9
+y 3
+end
+arch fwall_sand1a
+x 9
+y 3
+end
+arch flag_kobold
+x 9
+y 3
+end
+arch floor_sand_d3
+x 9
+y 4
+end
+arch floor_sand_d2
+x 9
+y 5
+end
+arch spawn_point
+x 9
+y 5
+arch kobold_fighter
+level 5
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 9
+y 6
+end
+arch campfire_out
+x 9
+y 6
+end
+arch floor_sand_d2
+x 9
+y 7
+end
+arch floor_sand_d2
+x 9
+y 8
+end
+arch floor_sand_d1
+x 9
+y 9
+end
+arch dirt_floor3
+x 9
+y 9
+end
+arch floor_sand_d3
+x 9
+y 10
+end
+arch cave_deco_f4.101
+x 9
+y 10
+end
+arch floor_sand_d3
+x 9
+y 11
+end
+arch floor_sand_d1
+x 9
+y 12
+end
+arch barrel.101
+x 9
+y 12
+end
+arch floor_sand_d2
+x 9
+y 13
+end
+arch fwall_sand1a
+x 9
+y 13
+end
+arch floor_sand_d3
+z 12
+x 9
+y 15
+end
+arch rock_big2
+x 9
+y 15
+end
+arch floor_sand_d3
+z 18
+x 9
+y 16
+end
+arch rock_big2
+x 9
+y 16
+end
+arch floor_sand_d4
+z 22
+x 9
+y 17
+end
+arch crystal_purple_s
+x 9
+y 17
+end
+arch light5
+x 9
+y 17
+end
+arch floor_sand_d2
+z 26
+x 9
+y 18
+end
+arch floor_sand_d4
+z 30
+x 9
+y 19
+end
+arch fmask_ruin1_s1.101
+x 9
+y 19
+end
+arch floor_sand_d1
+z 34
+x 9
+y 20
+end
+arch floor_sand_d3
+z 38
+x 9
+y 21
+end
+arch floor_sand_d2
+z 46
+x 9
+y 22
+end
+arch floor_sand_d4
+z 50
+x 9
+y 23
+end
+arch floor_sand_d4
+x 10
+y 3
+end
+arch fwall_sand1a
+x 10
+y 3
+end
+arch floor_sand_d4
+x 10
+y 4
+end
+arch torch_wall_1
+x 10
+y 4
+end
+arch floor_sand_d3
+x 10
+y 5
+end
+arch floor_sand_d3
+x 10
+y 6
+end
+arch floor_sand_d1
+x 10
+y 7
+end
+arch floor_sand_d3
+x 10
+y 8
+end
+arch floor_sand_d3
+x 10
+y 9
+end
+arch floor_sand_d2
+x 10
+y 10
+end
+arch floor_sand_d2
+x 10
+y 11
+end
+arch dirt_floor4
+x 10
+y 11
+end
+arch floor_sand_d3
+x 10
+y 12
+end
+arch barrel.101
+x 10
+y 12
+end
+arch floor_sand_d1
+x 10
+y 13
+end
+arch fwall_sand1a
+x 10
+y 13
+end
+arch floor_sand_d4
+z 8
+x 10
+y 14
+end
+arch rock_big2
+x 10
+y 14
+end
+arch floor_sand_d4
+z 8
+x 10
+y 15
+end
+arch rock_big2
+x 10
+y 15
+end
+arch floor_sand_d4
+z 14
+x 10
+y 16
+end
+arch lab_cauld_brk
+x 10
+y 16
+end
+arch floor_sand_d1
+z 18
+x 10
+y 17
+end
+arch water_floor
+x 10
+y 17
+end
+arch floor_sand_d2
+z 22
+x 10
+y 18
+end
+arch floor_sand_d3
+z 26
+x 10
+y 19
+end
+arch floor_sand_d4
+z 30
+x 10
+y 20
+end
+arch cave_deco_f5.101
+x 10
+y 20
+end
+arch floor_sand_d1
+z 34
+x 10
+y 21
+end
+arch rock_big2
+x 10
+y 21
+end
+arch floor_sand_d1
+z 42
+x 10
+y 22
+end
+arch rock_big2
+x 10
+y 22
+end
+arch floor_sand_d4
+z 50
+x 10
+y 23
+end
+arch rock_big2
+x 10
+y 23
+end
+arch floor_sand_d3
+x 11
+y 2
+end
+arch fwall_sand1b
+x 11
+y 2
+end
+arch floor_sand_d1
+x 11
+y 3
+end
+arch fwall_sand1b
+x 11
+y 3
+end
+arch floor_sand_d2
+x 11
+y 4
+end
+arch box2.101
+x 11
+y 4
+end
+arch floor_sand_d1
+x 11
+y 5
+end
+arch floor_sand_d3
+x 11
+y 6
+end
+arch floor_sand_d1
+x 11
+y 7
+end
+arch floor_sand_d2
+x 11
+y 8
+end
+arch floor_sand_d1
+x 11
+y 9
+end
+arch blood_floor2
+x 11
+y 9
+end
+arch floor_sand_d2
+x 11
+y 10
+end
+arch spawn_point
+x 11
+y 10
+arch kobold_guard
+direction 3
+level 5
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 11
+y 11
+end
+arch floor_sand_d2
+x 11
+y 12
+end
+arch barrel.101
+x 11
+y 12
+end
+arch floor_sand_d4
+x 11
+y 13
+end
+arch fwall_sand1a
+x 11
+y 13
+end
+arch floor_sand_d3
+z 8
+x 11
+y 14
+end
+arch rock_big2
+x 11
+y 14
+end
+arch floor_sand_d1
+z 8
+x 11
+y 15
+end
+arch mushroom_spot1
+x 11
+y 15
+end
+arch light2
+x 11
+y 15
+end
+arch floor_sand_d2
+z 12
+x 11
+y 16
+end
+arch floor_sand_d4
+z 14
+x 11
+y 17
+end
+arch floor_sand_d2
+z 18
+x 11
+y 18
+end
+arch floor_sand_d4
+z 22
+x 11
+y 19
+end
+arch floor_sand_d4
+z 26
+x 11
+y 20
+end
+arch rock_big2
+x 11
+y 20
+end
+arch floor_sand_d2
+z 30
+x 11
+y 21
+end
+arch rock_big2
+x 11
+y 21
+end
+arch floor_sand_d4
+x 12
+y 1
+end
+arch fwall_sand1b
+x 12
+y 1
+end
+arch floor_sand_d4
+x 12
+y 2
+end
+arch fwall_sand1a
+x 12
+y 2
+end
+arch plant1_wall.151
+x 12
+y 2
+end
+arch floor_sand_d3
+x 12
+y 3
+end
+arch barrel.101
+x 12
+y 3
+end
+arch floor_sand_d1
+x 12
+y 4
+end
+arch box2.101
+x 12
+y 4
+end
+arch floor_sand_d3
+x 12
+y 5
+end
+arch floor_sand_d4
+x 12
+y 6
+end
+arch floor_sand_d4
+x 12
+y 7
+end
+arch cave_deco_f2.101
+x 12
+y 7
+end
+arch floor_sand_d2
+x 12
+y 8
+end
+arch spawn_point
+x 12
+y 8
+arch kobold_guard
+level 5
+wis 2
+type 83
+end
+end
+arch floor_sand_d2
+x 12
+y 9
+end
+arch floor_sand_d2
+x 12
+y 10
+end
+arch campfire_out
+x 12
+y 10
+end
+arch floor_sand_d4
+x 12
+y 11
+end
+arch pottery2.101
+x 12
+y 11
+end
+arch floor_sand_d1
+x 12
+y 12
+end
+arch fwall_sand1b
+x 12
+y 12
+end
+arch floor_sand_d4
+x 12
+y 13
+end
+arch fwall_sand1b
+x 12
+y 13
+end
+arch floor_sand_d1
+z 8
+x 12
+y 14
+end
+arch rock_big2
+x 12
+y 14
+end
+arch floor_sand_d2
+z 8
+x 12
+y 15
+end
+arch cave_deco_f1.101
+x 12
+y 15
+end
+arch floor_sand_d4
+z 8
+x 12
+y 16
+end
+arch floor_sand_d4
+z 12
+x 12
+y 17
+end
+arch blood_floor2
+x 12
+y 17
+end
+arch floor_sand_d3
+z 14
+x 12
+y 18
+end
+arch floor_sand_d3
+z 18
+x 12
+y 19
+end
+arch rock_big2
+x 12
+y 19
+end
+arch floor_sand_d4
+z 22
+x 12
+y 20
+end
+arch rock_big2
+x 12
+y 20
+end
+arch floor_sand_d3
+z 146
+x 12
+y 23
+end
+arch rock_big2
+x 12
+y 23
+end
+arch floor_sand_d4
+x 13
+y 1
+end
+arch fwall_sand1a
+x 13
+y 1
+end
+arch floor_sand_d3
+x 13
+y 2
+end
+arch chair1_drop_111
+x 13
+y 2
+end
+arch floor_sand_d2
+x 13
+y 3
+end
+arch trash_wood1.101
+x 13
+y 3
+end
+arch floor_sand_d3
+x 13
+y 4
+end
+arch box1.101
+x 13
+y 4
+end
+arch floor_sand_d2
+x 13
+y 5
+end
+arch floor_sand_d2
+x 13
+y 6
+end
+arch cave_deco_f3.101
+x 13
+y 6
+end
+arch floor_sand_d2
+x 13
+y 7
+end
+arch cave_pillar1
+x 13
+y 7
+end
+arch floor_sand_d3
+x 13
+y 8
+end
+arch floor_sand_d1
+x 13
+y 9
+end
+arch floor_sand_d2
+x 13
+y 10
+end
+arch floor_sand_d1
+x 13
+y 11
+end
+arch box2.101
+x 13
+y 11
+end
+arch floor_sand_d3
+x 13
+y 12
+end
+arch fwall_sand1a
+x 13
+y 12
+end
+arch floor_sand_d3
+z 8
+x 13
+y 14
+end
+arch rock_big2
+x 13
+y 14
+end
+arch floor_sand_d2
+z 8
+x 13
+y 15
+end
+arch cave_pillar1
+x 13
+y 15
+end
+arch floor_sand_d3
+z 8
+x 13
+y 16
+end
+arch trash_wood1.101
+x 13
+y 16
+end
+arch floor_sand_d3
+z 8
+x 13
+y 17
+end
+arch floor_sand_d3
+z 8
+x 13
+y 18
+end
+arch rock_big2
+x 13
+y 18
+end
+arch floor_sand_d4
+z 12
+x 13
+y 19
+end
+arch rock_big2
+x 13
+y 19
+end
+arch floor_sand_d4
+z 142
+x 13
+y 22
+end
+arch rock_big2
+x 13
+y 22
+end
+arch floor_sand_d3
+z 146
+x 13
+y 23
+end
+arch rock_big2
+x 13
+y 23
+end
+arch floor_sand_d1
+x 14
+y 1
+end
+arch fwall_sand1a
+x 14
+y 1
+end
+arch plant1_wall.151
+x 14
+y 1
+end
+arch floor_sand_d1
+x 14
+y 2
+end
+arch box_big.101
+x 14
+y 2
+end
+arch floor_sand_d4
+x 14
+y 3
+end
+arch dirt_floor4
+x 14
+y 3
+end
+arch spawn_point
+x 14
+y 3
+arch kobold
+name kobold mushroom keeper
+direction 7
+level 4
+wc_range 12
+wis 2
+type 83
+end
+end
+arch floor_sand_d4
+x 14
+y 4
+end
+arch basket1.101
+x 14
+y 4
+end
+arch floor_sand_d2
+x 14
+y 5
+end
+arch dirt_floor2
+x 14
+y 5
+end
+arch floor_sand_d2
+x 14
+y 6
+end
+arch floor_sand_d1
+x 14
+y 7
+end
+arch floor_sand_d4
+x 14
+y 8
+end
+arch cave_deco_f1.101
+x 14
+y 8
+end
+arch floor_sand_d4
+x 14
+y 9
+end
+arch dirt_floor1
+x 14
+y 9
+end
+arch floor_sand_d4
+x 14
+y 10
+end
+arch floor_sand_d1
+x 14
+y 11
+end
+arch barrel_water.101
+x 14
+y 11
+end
+arch floor_sand_d3
+x 14
+y 12
+end
+arch fwall_sand1a
+x 14
+y 12
+end
+arch floor_sand_d1
+z 4
+x 14
+y 14
+end
+arch rock_big2
+x 14
+y 14
+end
+arch floor_sand_d1
+z 4
+x 14
+y 15
+end
+arch cave_deco_f2.101
+x 14
+y 15
+end
+arch floor_sand_d3
+z 4
+x 14
+y 16
+end
+arch fmask_ruin1_s2.101
+x 14
+y 16
+end
+arch floor_sand_d3
+z 4
+x 14
+y 17
+end
+arch floor_sand_d3
+z 4
+x 14
+y 18
+end
+arch rock_big2
+x 14
+y 18
+end
+arch floor_sand_d4
+z 138
+x 14
+y 21
+end
+arch rock_big2
+x 14
+y 21
+end
+arch floor_sand_d3
+z 142
+x 14
+y 22
+end
+arch rock_big2
+x 14
+y 22
+end
+arch floor_sand_d1
+z 142
+x 14
+y 23
+end
+arch lab_cauld_brk
+x 14
+y 23
+end
+arch floor_sand_d3
+x 15
+y 1
+end
+arch fwall_sand1a
+x 15
+y 1
+end
+arch floor_sand_d2
+x 15
+y 2
+end
+arch grain2.101
+x 15
+y 2
+end
+arch torch_wall_1
+x 15
+y 2
+end
+arch floor_sand_d4
+x 15
+y 3
+end
+arch grain2.101
+x 15
+y 3
+end
+arch floor_sand_d3
+x 15
+y 4
+end
+arch floor_sand_d2
+x 15
+y 5
+end
+arch floor_sand_d2
+x 15
+y 6
+end
+arch floor_sand_d1
+x 15
+y 7
+end
+arch trash_wood1.101
+x 15
+y 7
+end
+arch floor_sand_d3
+x 15
+y 8
+end
+arch floor_sand_d1
+x 15
+y 9
+end
+arch floor_sand_d2
+x 15
+y 10
+end
+arch floor_sand_d2
+x 15
+y 11
+end
+arch barrel_water.101
+x 15
+y 11
+end
+arch floor_sand_d3
+x 15
+y 12
+end
+arch fwall_sand1a
+x 15
+y 12
+end
+arch floor_sand_d4
+z 2
+x 15
+y 14
+end
+arch rock_big2
+x 15
+y 14
+end
+arch floor_sand_d1
+z 2
+x 15
+y 15
+end
+arch prison_deco3.131
+x 15
+y 15
+end
+arch floor_sand_d3
+z 2
+x 15
+y 16
+end
+arch floor_sand_d2
+z 2
+x 15
+y 17
+end
+arch floor_sand_d4
+z 2
+x 15
+y 18
+end
+arch rock_big2
+x 15
+y 18
+end
+arch floor_sand_d1
+z 138
+x 15
+y 21
+end
+arch rock_big2
+x 15
+y 21
+end
+arch floor_sand_d3
+z 138
+x 15
+y 22
+end
+arch mushroom_spot1
+x 15
+y 22
+end
+arch light2
+x 15
+y 22
+end
+arch floor_sand_d4
+z 142
+x 15
+y 23
+end
+arch dirt_floor2
+x 15
+y 23
+end
+arch floor_sand_d1
+x 16
+end
+arch fwall_sand1a
+x 16
+end
+arch floor_sand_d4
+x 16
+y 1
+end
+arch fwall_sand1a
+x 16
+y 1
+end
+arch floor_sand_d2
+x 16
+y 2
+end
+arch wood_pile.101
+x 16
+y 2
+end
+arch floor_sand_d4
+x 16
+y 3
+end
+arch wood_pile.101
+x 16
+y 3
+end
+arch floor_sand_d1
+x 16
+y 4
+end
+arch grain3.101
+x 16
+y 4
+end
+arch floor_sand_d4
+x 16
+y 5
+end
+arch floor_sand_d4
+x 16
+y 6
+end
+arch floor_sand_d2
+x 16
+y 7
+end
+arch floor_sand_d1
+x 16
+y 8
+end
+arch floor_sand_d4
+x 16
+y 9
+end
+arch floor_sand_d2
+x 16
+y 10
+end
+arch floor_sand_d2
+x 16
+y 11
+end
+arch fwall_sand1b
+x 16
+y 11
+end
+arch floor_sand_d2
+x 16
+y 12
+end
+arch fwall_sand1b
+x 16
+y 12
+end
+arch floor_sand_d4
+x 16
+y 14
+end
+arch rock_big2
+x 16
+y 14
+end
+arch floor_sand_d3
+x 16
+y 15
+end
+arch prison_deco2.131
+x 16
+y 15
+end
+arch floor_sand_d1
+x 16
+y 16
+end
+arch dirt_floor1
+x 16
+y 16
+end
+arch floor_sand_d3
+x 16
+y 17
+end
+arch floor_sand_d1
+x 16
+y 18
+end
+arch rock_big2
+x 16
+y 18
+end
+arch floor_sand_d4
+z 134
+x 16
+y 21
+end
+arch rock_big2
+x 16
+y 21
+end
+arch floor_sand_d2
+z 138
+x 16
+y 22
+end
+arch cave_pillar2
+x 16
+y 22
+end
+arch floor_sand_d4
+z 138
+x 16
+y 23
+end
+arch fmask_ruin1_s4.101
+x 16
+y 23
+end
+arch floor_sand_d3
+x 17
+end
+arch fwall_sand1b
+x 17
+end
+arch floor_sand_d1
+x 17
+y 1
+end
+arch fwall_sand1b
+x 17
+y 1
+end
+arch floor_sand_d4
+x 17
+y 2
+end
+arch fwall_sand1a
+x 17
+y 2
+end
+arch floor_sand_d4
+x 17
+y 3
+end
+arch fwall_sand1b
+x 17
+y 3
+end
+arch floor_sand_d3
+x 17
+y 4
+end
+arch lab_cauld_brk
+x 17
+y 4
+end
+arch floor_sand_d4
+x 17
+y 5
+end
+arch fwall_sand1a
+x 17
+y 5
+end
+arch floor_sand_d3
+x 17
+y 6
+end
+arch fwall_sand1b
+x 17
+y 6
+end
+arch floor_sand_d1
+x 17
+y 7
+end
+arch pottery1.101
+x 17
+y 7
+end
+arch floor_sand_d4
+x 17
+y 8
+end
+arch floor_sand_d4
+x 17
+y 9
+end
+arch floor_sand_d1
+x 17
+y 10
+end
+arch floor_sand_d4
+x 17
+y 11
+end
+arch fwall_sand1a
+x 17
+y 11
+end
+arch floor_sand_d1
+x 17
+y 14
+end
+arch rock_big2
+x 17
+y 14
+end
+arch floor_sand_d3
+x 17
+y 15
+end
+arch fmask_ruin1_s4.101
+x 17
+y 15
+end
+arch mushroom_giant1
+x 17
+y 15
+end
+arch floor_sand_d1
+x 17
+y 16
+end
+arch floor_sand_d1
+x 17
+y 17
+end
+arch floor_sand_d3
+x 17
+y 18
+end
+arch rock_big2
+x 17
+y 18
+end
+arch floor_sand_d1
+z 134
+x 17
+y 21
+end
+arch rock_big2
+x 17
+y 21
+end
+arch floor_sand_d4
+z 134
+x 17
+y 22
+end
+arch cave_deco_f1.101
+x 17
+y 22
+end
+arch floor_sand_d3
+z 138
+x 17
+y 23
+end
+arch trash_wood2.101
+x 17
+y 23
+end
+arch floor_sand_d2
+x 18
+end
+arch fwall_sand1a
+x 18
+end
+arch floor_sand_d2
+x 18
+y 1
+end
+arch fwall_sand1a
+x 18
+y 1
+end
+arch floor_sand_d4
+x 18
+y 2
+end
+arch fwall_sand1a
+x 18
+y 2
+end
+arch floor_sand_d2
+x 18
+y 3
+end
+arch fwall_sand1a
+x 18
+y 3
+end
+arch floor_sand_d2
+x 18
+y 4
+end
+arch fwall_sand1b
+x 18
+y 4
+end
+arch floor_sand_d2
+x 18
+y 5
+end
+arch fwall_sand1b
+x 18
+y 5
+end
+arch floor_sand_d2
+x 18
+y 6
+end
+arch fwall_sand1b
+x 18
+y 6
+end
+arch floor_sand_d2
+x 18
+y 7
+end
+arch fwall_sand1a
+x 18
+y 7
+end
+arch floor_sand_d3
+x 18
+y 8
+end
+arch torch_wall_1
+x 18
+y 8
+end
+arch magic_mouth
+msg
+You found what appears to be the kobold leader's chamber. Perhaps the blue crystal is here somewhere...
+endmsg
+x 18
+y 8
+arch event_obj
+sub_type 10
+race scripts/incuna/forgotten_tunnels_magic_mouth.py
+end
+end
+arch floor_sand_d1
+x 18
+y 9
+end
+arch magic_mouth
+msg
+You found what appears to be the kobold leader's chamber. Perhaps the blue crystal is here somewhere...
+endmsg
+x 18
+y 9
+arch event_obj
+sub_type 10
+race scripts/incuna/forgotten_tunnels_magic_mouth.py
+end
+end
+arch floor_sand_d1
+x 18
+y 10
+end
+arch magic_mouth
+msg
+You found what appears to be the kobold leader's chamber. Perhaps the blue crystal is here somewhere...
+endmsg
+x 18
+y 10
+arch event_obj
+sub_type 10
+race scripts/incuna/forgotten_tunnels_magic_mouth.py
+end
+end
+arch floor_sand_d2
+x 18
+y 11
+end
+arch fwall_sand1b
+x 18
+y 11
+end
+arch floor_sand_d2
+x 18
+y 14
+end
+arch rock_big2
+x 18
+y 14
+end
+arch floor_sand_d4
+x 18
+y 15
+end
+arch water_floor
+x 18
+y 15
+end
+arch floor_sand_d2
+x 18
+y 16
+end
+arch floor_sand_d4
+x 18
+y 17
+end
+arch floor_sand_d4
+x 18
+y 18
+end
+arch rock_big2
+x 18
+y 18
+end
+arch floor_sand_d1
+z 134
+x 18
+y 21
+end
+arch rock_big2
+x 18
+y 21
+end
+arch floor_sand_d1
+z 134
+x 18
+y 22
+end
+arch floor_sand_d3
+z 134
+x 18
+y 23
+end
+arch floor_sand_d2
+x 19
+end
+arch chest7_111
+direction 7
+x 19
+arch sword_great
+no_pick 1
+identified 1
+end
+arch spear_black
+no_pick 1
+identified 1
+end
+arch hammer_giant
+no_pick 1
+identified 1
+end
+end
+arch floor_sand_d4
+x 19
+y 1
+end
+arch chest7_111
+direction 7
+x 19
+y 1
+arch goldcoin
+no_pick 1
+nrof 49
+end
+arch coppercoin
+no_pick 1
+nrof 5976
+end
+arch silvercoin
+no_pick 1
+nrof 958
+end
+arch jasper_medium
+no_pick 1
+nrof 20
+identified 1
+end
+arch opal_except
+no_pick 1
+identified 1
+nrof 4
+end
+arch quest_container
+name lost_memories
+arch quest_container
+name the_kobolds
+sub_type 2
+arch incuna_talisman_blue_crystal
+end
+end
+end
+end
+arch floor_sand_d2
+x 19
+y 2
+end
+arch chest7_111
+direction 7
+x 19
+y 2
+arch club_giant_spiked
+no_pick 1
+identified 1
+end
+arch bolt
+no_pick 1
+identified 1
+nrof 400
+end
+end
+arch floor_sand_d4
+x 19
+y 3
+end
+arch fwall_sand1b
+x 19
+y 3
+end
+arch floor_sand_d2
+x 19
+y 4
+end
+arch fwall_sand1a
+x 19
+y 4
+end
+arch floor_sand_d4
+x 19
+y 5
+end
+arch fwall_sand1a
+x 19
+y 5
+end
+arch floor_sand_d2
+x 19
+y 6
+end
+arch fwall_sand1a
+x 19
+y 6
+end
+arch floor_sand_d3
+x 19
+y 7
+end
+arch fwall_sand1b
+x 19
+y 7
+end
+arch flag_kobold
+x 19
+y 7
+end
+arch flag_kobold
+sub_layer 1
+direction 7
+x 19
+y 7
+end
+arch floor_sand_d2
+x 19
+y 8
+end
+arch floor_sand_d3
+x 19
+y 9
+end
+arch floor_sand_d3
+x 19
+y 10
+end
+arch floor_sand_d4
+x 19
+y 11
+end
+arch fwall_sand1a
+x 19
+y 11
+end
+arch floor_sand_d4
+x 19
+y 12
+end
+arch fwall_sand1b
+x 19
+y 12
+end
+arch floor_sand_d1
+x 19
+y 14
+end
+arch rock_big2
+x 19
+y 14
+end
+arch floor_sand_d1
+x 19
+y 15
+end
+arch crystal_red_s
+x 19
+y 15
+end
+arch light5
+x 19
+y 15
+end
+arch floor_sand_d4
+x 19
+y 16
+end
+arch floor_sand_d2
+x 19
+y 17
+end
+arch floor_sand_d4
+x 19
+y 18
+end
+arch rock_big2
+x 19
+y 18
+end
+arch floor_sand_d4
+z 134
+x 19
+y 21
+end
+arch rock_big2
+x 19
+y 21
+end
+arch floor_sand_d4
+z 134
+x 19
+y 22
+end
+arch crystal_purple
+x 19
+y 22
+end
+arch light5
+x 19
+y 22
+end
+arch floor_sand_d2
+z 134
+x 19
+y 23
+end
+arch floor_sand_d2
+x 20
+end
+arch chest7_111
+x 20
+end
+arch floor_sand_d4
+x 20
+y 1
+end
+arch spawn_point
+x 20
+y 1
+arch kobold_guard
+name kobold clan guard
+level 5
+wis 2
+type 83
+end
+end
+arch floor_sand_d3
+x 20
+y 2
+end
+arch floor_sand_d3
+x 20
+y 3
+end
+arch trash_wood2.101
+x 20
+y 3
+end
+arch floor_sand_d1
+x 20
+y 4
+end
+arch barrel_water.101
+x 20
+y 4
+end
+arch floor_sand_d4
+x 20
+y 5
+end
+arch fwall_sand1a
+x 20
+y 5
+end
+arch floor_sand_d2
+x 20
+y 6
+end
+arch fwall_sand1b
+x 20
+y 6
+end
+arch plant1_wall.151
+x 20
+y 6
+end
+arch floor_sand_d3
+x 20
+y 7
+end
+arch wagon_small.111
+x 20
+y 7
+end
+arch floor_sand_d3
+x 20
+y 8
+end
+arch floor_sand_d2
+x 20
+y 9
+end
+arch floor_sand_d2
+x 20
+y 10
+end
+arch blood_floor2
+x 20
+y 10
+end
+arch floor_sand_d3
+x 20
+y 11
+end
+arch chair1_drop_171
+x 20
+y 11
+end
+arch floor_sand_d4
+x 20
+y 12
+end
+arch fwall_sand1a
+x 20
+y 12
+end
+arch floor_sand_d2
+x 20
+y 14
+end
+arch rock_big2
+x 20
+y 14
+end
+arch floor_sand_d3
+x 20
+y 15
+end
+arch rock_big2
+x 20
+y 15
+end
+arch floor_sand_d1
+x 20
+y 16
+end
+arch floor_sand_d3
+x 20
+y 17
+end
+arch rock_big2
+x 20
+y 17
+end
+arch floor_sand_d2
+x 20
+y 18
+end
+arch rock_big2
+x 20
+y 18
+end
+arch floor_sand_d2
+z 134
+x 20
+y 21
+end
+arch rock_big2
+x 20
+y 21
+end
+arch floor_sand_d1
+z 134
+x 20
+y 22
+end
+arch floor_sand_d1
+z 134
+x 20
+y 23
+end
+arch blood_floor2
+x 20
+y 23
+end
+arch floor_sand_d3
+x 21
+end
+arch fwall_sand1a
+x 21
+end
+arch floor_sand_d4
+x 21
+y 1
+end
+arch torch_wall_1
+x 21
+y 1
+end
+arch floor_sand_d4
+x 21
+y 2
+end
+arch floor_sand_d1
+x 21
+y 3
+end
+arch floor_sand_d2
+x 21
+y 4
+end
+arch floor_sand_d3
+x 21
+y 5
+end
+arch torch_wall_1
+direction 7
+x 21
+y 5
+end
+arch floor_sand_d2
+x 21
+y 6
+end
+arch rack.111
+direction 7
+x 21
+y 6
+end
+arch floor_sand_d2
+x 21
+y 7
+end
+arch floor_sand_d4
+x 21
+y 8
+end
+arch floor_sand_d4
+x 21
+y 9
+end
+arch floor_sand_d3
+x 21
+y 10
+end
+arch floor_sand_d2
+x 21
+y 11
+end
+arch barrel.101
+x 21
+y 11
+end
+arch floor_sand_d2
+x 21
+y 12
+end
+arch fwall_sand1b
+x 21
+y 12
+end
+arch floor_sand_d3
+x 21
+y 14
+end
+arch fwall_sand1b
+x 21
+y 14
+end
+arch floor_sand_d1
+x 21
+y 15
+end
+arch fwall_sand1b
+x 21
+y 15
+end
+arch floor_sand_d4
+x 21
+y 16
+end
+arch door1_locked
+direction 3
+x 21
+y 16
+end
+arch floor_sand_d2
+x 21
+y 17
+end
+arch fwall_sand1a
+x 21
+y 17
+end
+arch plant1_wall.151
+direction 7
+x 21
+y 17
+end
+arch floor_sand_d4
+x 21
+y 18
+end
+arch fwall_sand1a
+x 21
+y 18
+end
+arch floor_sand_d3
+z 134
+x 21
+y 21
+end
+arch rock_big2
+x 21
+y 21
+end
+arch floor_sand_d1
+z 134
+x 21
+y 22
+end
+arch mushroom_spot2
+x 21
+y 22
+end
+arch light2
+x 21
+y 22
+end
+arch floor_sand_d1
+z 134
+x 21
+y 23
+end
+arch floor_sand_d4
+x 22
+end
+arch fwall_sand1b
+x 22
+end
+arch plant2_wall.151
+x 22
+end
+arch floor_sand_d2
+x 22
+y 1
+end
+arch chest7_111
+x 22
+y 1
+arch helm_plate
+no_pick 1
+identified 1
+end
+arch lamellar_mail
+no_pick 1
+identified 1
+end
+arch gauntlets_plate
+no_pick 1
+identified 1
+end
+arch breastplate
+no_pick 1
+identified 1
+end
+end
+arch floor_sand_d4
+x 22
+y 2
+end
+arch floor_sand_d4
+x 22
+y 3
+end
+arch floor_sand_d3
+x 22
+y 4
+end
+arch dirt_floor1
+x 22
+y 4
+end
+arch floor_sand_d3
+x 22
+y 5
+end
+arch candlelight3.101
+x 22
+y 5
+end
+arch light3
+x 22
+y 5
+end
+arch floor_sand_d4
+x 22
+y 6
+end
+arch floor_sand_d3
+x 22
+y 7
+end
+arch spawn_point
+x 22
+y 7
+arch kobold_shaman
+level 6
+wis 2
+type 83
+arch ability_cause_lig_wound
+last_grace 14
+end
+arch ability_cause_lig_wound
+sp 2
+hp 2
+end
+end
+end
+arch floor_sand_d3
+x 22
+y 8
+end
+arch floor_sand_d2
+x 22
+y 9
+end
+arch floor_sand_d1
+x 22
+y 10
+end
+arch floor_sand_d1
+x 22
+y 11
+end
+arch fwall_sand1a
+x 22
+y 11
+end
+arch floor_sand_d3
+x 22
+y 12
+end
+arch fwall_sand1b
+x 22
+y 12
+end
+arch floor_sand_d2
+x 22
+y 13
+end
+arch fwall_sand1b
+x 22
+y 13
+end
+arch floor_sand_d4
+x 22
+y 14
+end
+arch fwall_sand1a
+x 22
+y 14
+end
+arch flag_kobold
+x 22
+y 14
+end
+arch floor_sand_d4
+x 22
+y 15
+end
+arch torch_wall_1
+direction 7
+x 22
+y 15
+end
+arch floor_sand_d2
+x 22
+y 16
+end
+arch dirt_floor3
+x 22
+y 16
+end
+arch floor_sand_d4
+x 22
+y 17
+end
+arch torch_wall_1
+direction 7
+x 22
+y 17
+end
+arch floor_sand_d1
+x 22
+y 18
+end
+arch fwall_sand1b
+x 22
+y 18
+end
+arch floor_sand_d3
+z 134
+x 22
+y 21
+end
+arch rock_big2
+x 22
+y 21
+end
+arch floor_sand_d4
+z 134
+x 22
+y 22
+end
+arch prison_deco1.131
+x 22
+y 22
+end
+arch floor_sand_d3
+z 130
+x 22
+y 23
+end
+arch pile_floor3
+x 22
+y 23
+end
+arch floor_sand_d2
+x 23
+end
+arch fwall_sand1a
+x 23
+end
+arch floor_sand_d4
+x 23
+y 1
+end
+arch chest7_111
+x 23
+y 1
+arch voulge
+end
+end
+arch floor_sand_d2
+x 23
+y 2
+end
+arch floor_sand_d1
+x 23
+y 3
+end
+arch cave_deco_f1.101
+x 23
+y 3
+end
+arch floor_sand_d2
+x 23
+y 4
+end
+arch cave_pillar5
+x 23
+y 4
+end
+arch floor_sand_d2
+x 23
+y 5
+end
+arch throne.111
+x 23
+y 5
+end
+arch spawn_point
+x 23
+y 5
+arch kobold_big
+name kobold clan chief
+level 6
+wis 2
+type 83
+arch quest_container
+sub_type 3
+arch key2
+msg
+Key from kobold clan chief in Forgotten Tunnels
+endmsg
+name Forgotten Tunnels Kobold Key
+face key_gray.111
+slaying forgotten_tunnels_kobold_key
+startequip 1
+end
+end
+arch rand_drop
+container 15
+arch robe
+amask robe_min_dex
+magic 1
+is_magical 1
+end
+end
+end
+end
+arch floor_sand_d4
+x 23
+y 6
+end
+arch dirt_floor3
+x 23
+y 6
+end
+arch floor_sand_d4
+x 23
+y 7
+end
+arch floor_sand_d2
+x 23
+y 8
+end
+arch dirt_floor3
+x 23
+y 8
+end
+arch floor_sand_d3
+x 23
+y 9
+end
+arch floor_sand_d3
+x 23
+y 10
+end
+arch floor_sand_d4
+x 23
+y 11
+end
+arch floor_sand_d3
+x 23
+y 12
+end
+arch torch_wall_1
+direction 7
+x 23
+y 12
+end
+arch floor_sand_d2
+x 23
+y 13
+end
+arch dirt_floor1
+x 23
+y 13
+end
+arch floor_sand_d3
+x 23
+y 14
+end
+arch door1_locked
+slaying forgotten_tunnels_kobold_key
+x 23
+y 14
+end
+arch check_inv
+slaying forgotten_tunnels_kobold_key
+sp 1
+last_grace 1
+x 23
+y 14
+end
+arch floor_sand_d3
+x 23
+y 15
+end
+arch floor_sand_d3
+x 23
+y 16
+end
+arch floor_sand_d3
+x 23
+y 17
+end
+arch floor_sand_d3
+x 23
+y 18
+end
+arch fwall_sand1a
+x 23
+y 18
+end
+arch floor_sand_d2
+z 134
+x 23
+y 21
+end
+arch rock_big2
+x 23
+y 21
+end
+arch floor_sand_d4
+z 130
+x 23
+y 22
+end
+arch rock_big2
+x 23
+y 22
+end
+arch floor_sand_d2
+z 130
+x 23
+y 23
+end

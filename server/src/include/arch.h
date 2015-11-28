@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Arch related structures */
+ * Arch related structures and definitions.
+ */
 
 #ifndef ARCH_H
 #define ARCH_H
@@ -32,26 +33,55 @@
 /**
  * The archetype structure is a set of rules on how to generate and manipulate
  * objects which point to archetypes.
- * This structure should get removed, and just replaced
- * by the object structure */
-typedef struct archt {
-    /** More definite name, like "generate_kobold" */
-    const char *name;
+ */
+typedef struct archetype {
+    struct archetype *head; ///< The main part of a linked object.
+    struct archetype *more; ///< Next part of a linked object.
 
-    /** Next archetype in a linked list */
-    struct archt *next;
+    UT_hash_handle hh; ///< Hash handle.
 
-    /** The main part of a linked object */
-    struct archt *head;
+    shstr *name; ///< More definite name, like "kobold".
+    object clone; ///< An object from which to do copy_object().
+} archetype_t;
 
-    /** Next part of a linked object */
-    struct archt *more;
+/**
+ * IDs of archetype pointers cached in #arches.
+ * @anchor ARCH_xxx
+ */
+enum {
+    ARCH_WAYPOINT, ///< The 'waypoint' archetype.
+    ARCH_EMPTY_ARCHETYPE, ///< The 'empty_archetype' archetype.
+    ARCH_BASE_INFO, ///< The 'base_info' archetype.
+    ARCH_LEVEL_UP, ///< The 'level_up' archetype.
+    ARCH_RING_NORMAL, ///< The 'ring_normal' archetype.
+    ARCH_RING_GENERIC, ///< The 'ring_generic' archetype.
+    ARCH_AMULET_NORMAL, ///< The 'amulet_normal' archetype.
+    ARCH_AMULET_GENERIC, ///< The 'amulet_generic' archetype.
+    ARCH_INV_GROUP_NEXT, ///< The 'inv_group_next' archetype.
+    ARCH_INV_GROUP_PREV, ///< The 'inv_group_prev' archetype.
+    ARCH_INV_START, ///< The 'inv_start' archetype.
+    ARCH_INV_END, ///< The 'inv_end' archetype.
 
-    /** An object from which to do copy_object() */
-    object clone;
+    ARCH_MAX ///< Maximum number of cached archetype pointers.
+};
 
-    /** Hash handle. */
-    UT_hash_handle hh;
-} archetype;
+/* Prototypes */
+
+#ifndef __CPROTO__
+
+archetype_t *arch_table;
+archetype_t *arches[ARCH_MAX];
+bool arch_in_init;
+archetype_t *wp_archetype;
+
+void arch_init(void);
+void arch_deinit(void);
+void arch_add(archetype_t *at);
+archetype_t *arch_find(const char *name);
+object *arch_get(const char *name);
+object *arch_to_object(archetype_t *at);
+archetype_t *arch_clone(archetype_t *at);
+
+#endif
 
 #endif

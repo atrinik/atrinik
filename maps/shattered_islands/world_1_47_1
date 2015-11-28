@@ -1,0 +1,228 @@
+arch map
+name Asteria
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2015-05-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music jungle.ogg
+region asteria
+end
+arch roof_wood
+direction 3
+x 15
+y 21
+end
+arch roof_wood
+direction 3
+x 15
+y 22
+end
+arch roof_wood
+direction 3
+x 15
+y 23
+end
+arch roof_wood
+direction 5
+x 16
+y 20
+end
+arch roof_wood
+x 16
+y 21
+end
+arch roof_wood
+x 16
+y 22
+end
+arch roof_wood
+x 16
+y 23
+end
+arch roof_wood
+direction 3
+x 17
+y 18
+end
+arch roof_wood
+direction 3
+x 17
+y 19
+end
+arch roof_wood
+direction 4
+x 17
+y 20
+end
+arch roof_wood
+direction 8
+x 17
+y 21
+end
+arch roof_wood
+x 17
+y 22
+end
+arch roof_wood
+x 17
+y 23
+end
+arch roof_wood
+direction 5
+x 18
+y 17
+end
+arch roof_wood
+x 18
+y 18
+end
+arch roof_wood
+direction 4
+x 18
+y 19
+end
+arch roof_wood
+direction 7
+x 18
+y 20
+end
+arch roof_wood
+direction 7
+x 18
+y 21
+end
+arch roof_wood
+direction 8
+x 18
+y 22
+end
+arch roof_wood
+x 18
+y 23
+end
+arch roof_wood
+direction 5
+x 19
+y 17
+end
+arch roof_wood
+x 19
+y 18
+end
+arch roof_wood
+x 19
+y 19
+end
+arch roof_wood
+direction 4
+x 19
+y 20
+end
+arch roof_wood
+direction 7
+x 19
+y 21
+end
+arch roof_wood
+direction 7
+x 19
+y 22
+end
+arch roof_wood
+direction 8
+x 19
+y 23
+end
+arch roof_wood
+direction 5
+x 20
+y 17
+end
+arch roof_wood
+direction 8
+x 20
+y 18
+end
+arch roof_wood
+x 20
+y 19
+end
+arch roof_wood
+direction 4
+x 20
+y 20
+end
+arch roof_wood
+direction 7
+x 20
+y 21
+end
+arch roof_wood
+direction 7
+x 20
+y 22
+end
+arch roof_wood
+direction 7
+x 20
+y 23
+end
+arch roof_wood
+direction 5
+x 21
+y 17
+end
+arch roof_wood
+direction 7
+x 21
+y 18
+end
+arch roof_wood
+direction 8
+x 21
+y 19
+end
+arch roof_wood
+x 21
+y 20
+end
+arch roof_wood
+direction 5
+x 22
+y 17
+end
+arch roof_wood
+direction 7
+x 22
+y 18
+end
+arch roof_wood
+direction 7
+x 22
+y 19
+end
+arch roof_wood
+direction 8
+x 22
+y 20
+end
+arch fstone1b
+z -22
+x 23
+y 15
+end
+arch wall_cave1.101
+x 23
+y 15
+end
+arch map_info
+name asteria_mushroom_cave
+is_magical 1
+x 23
+y 15
+end

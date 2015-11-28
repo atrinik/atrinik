@@ -2,11 +2,11 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 100
 outdoor 1
 no_harm 1
 bg_music town_music.ogg
@@ -219,6 +219,8 @@ x 1
 y 12
 end
 arch exit
+hp 1
+sp 11
 x 1
 y 12
 end
@@ -544,6 +546,7 @@ endmsg
 name Galend
 type 83
 level 20
+faction greyton_citizens
 direction 3
 end
 end
@@ -1501,10 +1504,7 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch floor_flagm2
@@ -1961,10 +1961,7 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch floor_marble_grey
@@ -2055,10 +2052,7 @@ name jail guard
 level 80
 type 83
 direction 1
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch floor_marble_grey

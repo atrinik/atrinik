@@ -1,6 +1,10 @@
 /**
-@fn obj::item_race
-@section Use
+@var obj::item_race
+@sa @ref page_field_item_race
+*/
+
+/**
+@page page_field_item_race obj::item_race Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

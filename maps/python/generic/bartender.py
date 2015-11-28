@@ -1,7 +1,7 @@
 ## @file
 ## Generic script to handle bartenders, using the Tavern API.
 
-from Interface import InterfaceBuilder
+from Atrinik import *
 from Tavern import Bartender
 
 class InterfaceDialog(Bartender):

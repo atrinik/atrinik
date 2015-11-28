@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
 <interfaces>
     <interface>
         <dialog name="hello">
@@ -7,13 +10,13 @@
         </dialog>
         <dialog name="tellthelras">
             <message>Thelras are a powerful, tall and fierce race. They excel in magic, where they can overpower even the strongest elvish spellcasters.</message>
-            <message>Long ago, we Thelras decided to help the Thraal army in the fight against Moroch.</message>
+            <message>Long ago, we Thelras decided to help the Thraal army in the fight against Zechna.</message>
             <message>Since most Thelras excel in magic as wizards, this tower was built for those who wanted to practice in the arts of magic.</message>
             <response destination="tellfight" message="Tell me about the fight."/>
             <response destination="telltower" message="Tell me about the tower."/>
         </dialog>
         <dialog name="tellfight">
-            <message>We fought - and still do - together against Moroch, and became friends with the other races.</message>
+            <message>We fought - and still do - together against Zechna, and became friends with the other races.</message>
             <message>Many humans, dwarves and other races come to this tower to learn about magic. Of course, when we first met the dwarves, we called them 'shorties', which made many of them furious. We eventually became friends with them, though.</message>
         </dialog>
         <dialog name="telltower">

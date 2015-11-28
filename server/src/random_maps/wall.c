@@ -27,6 +27,7 @@
  * Deals with wall management in random maps. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Given a layout and a coordinate, tell me which squares
@@ -232,7 +233,7 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
 {
     int surround_index = 0, l;
     char wall_name[MAX_BUF];
-    archetype *wall_arch = 0;
+    archetype_t *wall_arch = 0;
 
     strncpy(wall_name, the_wall->arch->name, sizeof(wall_name) - 1);
     wall_name[sizeof(wall_name) - 1] = '\0';
@@ -286,7 +287,7 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
         break;
     }
 
-    wall_arch = find_archetype(wall_name);
+    wall_arch = arch_find(wall_name);
 
     if (wall_arch) {
         return arch_to_object(wall_arch);
@@ -307,7 +308,7 @@ object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, 
 {
     int surround_index = 0, l;
     object *the_wall = NULL, *new_wall = NULL;
-    archetype *wall_arch = NULL;
+    archetype_t *wall_arch = NULL;
 
     /* First find the wall */
     for (the_wall = GET_MAP_OB(the_map, i, j); the_wall != NULL; the_wall = the_wall->above) {
@@ -373,7 +374,7 @@ object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, 
         break;
     }
 
-    wall_arch = find_archetype(RP->wall_name);
+    wall_arch = arch_find(RP->wall_name);
 
     if (wall_arch != NULL) {
         new_wall = arch_to_object(wall_arch);

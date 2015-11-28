@@ -27,6 +27,7 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <stdarg.h>
+#include <arch.h>
 
 START_TEST(test_sound_ambient_match_parse)
 {
@@ -76,7 +77,7 @@ START_TEST(test_sound_ambient_match_parse)
         NULL};
     size_t i;
 
-    ob = get_archetype("sound_ambient");
+    ob = arch_get("sound_ambient");
     ck_assert_ptr_ne(ob, NULL);
 
     for (i = 0; match[i] != NULL; i++) {

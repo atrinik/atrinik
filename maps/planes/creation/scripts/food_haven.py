@@ -3,6 +3,9 @@
 
 import time
 
+from Atrinik import *
+
+
 # Create 17x17 map with unique name
 m = CreateMap(17, 17, activator.name + "-food-" + str(time.time()))
 # Change its name.
@@ -42,7 +45,7 @@ for x in range(m.width):
 
                 # Keep generating food until we get food that gives at
                 # least 100 food points.
-                while food == None:
+                while food is None:
                     cont.CreateTreasure("random_food", 1, GT_NO_VALUE | GT_ONLY_GOOD)
                     food = cont.inv
 

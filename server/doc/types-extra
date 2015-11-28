@@ -52,7 +52,7 @@ field object::speed
 Speed of movement, from @ref DISEASE
 end
 
-type TIMED_GATE
+type GATE
 field living::hp
 How long a gate is open/closed.
 field living::maxhp
@@ -86,15 +86,6 @@ end
 type MARKER
 field living::hp
 How many times the marker will work. If zero, infinite, otherwise every time the marker grants a mark, the value is decremented and when reached zero, the marker is removed.
-end
-
-type MOOD_FLOOR
-field object::last_sp
-Used to differentiate mood floors. Value meanings:
-- 0 = furious, all monsters become aggressive.
-- 1 = angry, all but friendly become aggressive.
-- 2 = calm, all aggressive monsters calm down.
-- 3 = sleep, all monsters fall asleep.
 end
 
 type DISEASE
@@ -162,7 +153,7 @@ field living::wc
 Reduction in wc per generation of disease. This builds in a self-limiting factor.
 end
 
-type PLAYERMOVER
+type PLAYER_MOVER
 field object::direction
 Direction the activating object will be moved to, if zero, a random one will be chosen. Perhaps useful for a dance club.
 field object::speed

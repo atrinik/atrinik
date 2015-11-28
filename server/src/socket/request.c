@@ -36,6 +36,8 @@
 #include <packet.h>
 #include <toolkit_string.h>
 #include <monster_data.h>
+#include <plugin.h>
+#include <monster_guard.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
@@ -63,7 +65,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             y = packet_to_uint8(data, len, &pos);
 
             if (x < 9 || y < 9 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y) {
-                log(LOG(PACKET), "X/Y not in range: %d, %d", x, y);
+                LOG(PACKET, "X/Y not in range: %d, %d", x, y);
                 x = MAP_CLIENT_X;
                 y = MAP_CLIENT_Y;
             }
@@ -98,7 +100,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
                 packet_append_string_terminated(packet, settings.http_url);
             }
         } else {
-            log(LOG(PACKET), "Unknown type: %d", type);
+            LOG(PACKET, "Unknown type: %d", type);
         }
     }
 
@@ -110,7 +112,7 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, siz
     char command[MAX_BUF];
 
     if (pl->socket.state != ST_PLAYING) {
-        log(LOG(PACKET), "Received player command while not playing.");
+        LOG(PACKET, "Received player command while not playing.");
         return;
     }
 
@@ -125,7 +127,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     /* Ignore multiple version commands. */
     if (ns->socket_version != 0) {
-        log(LOG(PACKET), "Received extraneous version command.");
+        LOG(PACKET, "Received extraneous version command.");
         return;
     }
 
@@ -157,7 +159,7 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size
     nrof = packet_to_uint32(data, len, &pos);
 
     if (tag == 0) {
-        log(LOG(PACKET), "Tag is zero.");
+        LOG(PACKET, "Tag is zero.");
         return;
     }
 
@@ -172,90 +174,95 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size
  * Stat mapping values are in socket.h */
 void esrv_update_stats(player *pl)
 {
-    packet_struct *packet;
-    int i;
-    uint16_t flags;
+    HARD_ASSERT(pl != NULL);
 
+    SOFT_ASSERT(pl->ob != NULL, "Player has no object!");
+
+#define _Add(_old, _new, _type, _bitsize) \
+    if (packet == NULL) { \
+        packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
+    } \
+    (_old) = (_new); \
+    packet_debug_data(packet, 0, "Stats command type"); \
+    packet_append_uint8(packet, (_type)); \
+    packet_debug_data(packet, 0, "%s", #_new); \
+    packet_append_ ## _bitsize(packet, (_new));
 #define AddIf(_old, _new, _type, _bitsize) \
-    if ((_old) != (_new)) \
-    { \
-        if (packet == NULL) { \
-            packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
-        } \
-        (_old) = (_new); \
-        packet_debug_data(packet, 0, "Stats command type"); \
-        packet_append_uint8(packet, (_type)); \
-        packet_debug_data(packet, 0, "%s", #_new); \
-        packet_append_ ## _bitsize(packet, (_new)); \
+    if ((_old) != (_new)) { \
+        _Add(_old, _new, _type, _bitsize); \
+    }
+#define AddIfFloat(_old, _new, _type) \
+    if (!FLT_EQUAL(_old, _new)) { \
+        _Add(_old, _new, _type, float); \
+    }
+#define AddIfDouble(_old, _new, _type) \
+    if (!DBL_EQUAL(_old, _new)) { \
+        _Add(_old, _new, _type, double); \
     }
 
-    packet = NULL;
+    packet_struct *packet = NULL;
 
     if (pl->target_object && pl->target_object != pl->ob) {
-        char hp;
-
-        hp = MAX(1, (((float) pl->target_object->stats.hp /
+        uint8_t hp = MAX(1, (((float) pl->target_object->stats.hp /
                 (float) pl->target_object->stats.maxhp) * 100.0f));
-
         AddIf(pl->target_hp, hp, CS_STAT_TARGET_HP, uint8);
     }
 
     AddIf(pl->last_gen_hp, pl->gen_client_hp, CS_STAT_REG_HP, uint16);
     AddIf(pl->last_gen_sp, pl->gen_client_sp, CS_STAT_REG_MANA, uint16);
-    AddIf(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME, float);
+    AddIfFloat(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
+    AddIf(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
+    AddIfDouble(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
+    AddIfDouble(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS,
+            CS_STAT_WEAPON_SPEED);
+    AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str],
+            CS_STAT_WEIGHT_LIM, uint32);
+    AddIf(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, int32);
+    AddIf(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, int32);
+    AddIf(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, int16);
+    AddIf(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, int16);
+    AddIf(pl->last_stats.Str, pl->ob->stats.Str, CS_STAT_STR, uint8);
+    AddIf(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX, uint8);
+    AddIf(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON, uint8);
+    AddIf(pl->last_stats.Int, pl->ob->stats.Int, CS_STAT_INT, uint8);
+    AddIf(pl->last_stats.Pow, pl->ob->stats.Pow, CS_STAT_POW, uint8);
+    AddIf(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP, uint64);
+    AddIf(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC, uint16);
+    AddIf(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
+    AddIf(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM, uint16);
+    AddIf(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD, uint16);
+    AddIf(pl->last_path_attuned, pl->ob->path_attuned,
+            CS_STAT_PATH_ATTUNED, uint32);
+    AddIf(pl->last_path_repelled, pl->ob->path_repelled,
+            CS_STAT_PATH_REPELLED, uint32);
+    AddIf(pl->last_path_denied, pl->ob->path_denied,
+            CS_STAT_PATH_DENIED, uint32);
 
-    if (pl->ob) {
-        object *arrow;
-        int16_t ranged_dam, ranged_wc;
-        float ranged_ws;
-
-        AddIf(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
-        AddIf(pl->last_speed, pl->ob->speed, CS_STAT_SPEED, float);
-        AddIf(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS,
-                CS_STAT_WEAPON_SPEED, float);
-        AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str],
-                CS_STAT_WEIGHT_LIM, uint32);
-        AddIf(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, int32);
-        AddIf(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, int32);
-        AddIf(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, int16);
-        AddIf(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, int16);
-        AddIf(pl->last_stats.Str, pl->ob->stats.Str, CS_STAT_STR, uint8);
-        AddIf(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX, uint8);
-        AddIf(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON, uint8);
-        AddIf(pl->last_stats.Int, pl->ob->stats.Int, CS_STAT_INT, uint8);
-        AddIf(pl->last_stats.Pow, pl->ob->stats.Pow, CS_STAT_POW, uint8);
-        AddIf(pl->last_stats.exp, pl->ob->stats.exp, CS_STAT_EXP, uint64);
-        AddIf(pl->last_stats.wc, pl->ob->stats.wc, CS_STAT_WC, uint16);
-        AddIf(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
-        AddIf(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM, uint16);
-        AddIf(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD, uint16);
-        AddIf(pl->last_path_attuned, pl->ob->path_attuned,
-                CS_STAT_PATH_ATTUNED, uint32);
-        AddIf(pl->last_path_repelled, pl->ob->path_repelled,
-                CS_STAT_PATH_REPELLED, uint32);
-        AddIf(pl->last_path_denied, pl->ob->path_denied,
-                CS_STAT_PATH_DENIED, uint32);
-
-        if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] &&
-                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->type == BOW &&
-                (arrow = arrow_find(pl->ob,
-                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->race))) {
-            ranged_dam = arrow_get_damage(pl->ob,
-                    pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
-            ranged_wc = arrow_get_wc(pl->ob,
-                    pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
-            ranged_ws = bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED],
-                    arrow);
-        } else {
-            ranged_dam = ranged_wc = ranged_ws = 0;
-        }
-
-        AddIf(pl->last_ranged_dam, ranged_dam, CS_STAT_RANGED_DAM, uint16);
-        AddIf(pl->last_ranged_wc, ranged_wc, CS_STAT_RANGED_WC, uint16);
-        AddIf(pl->last_ranged_ws, ranged_ws, CS_STAT_RANGED_WS, float);
+    object *arrow = NULL;
+    if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] != NULL &&
+            pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->type == BOW) {
+        arrow = arrow_find(pl->ob,
+                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->race);
     }
 
-    flags = 0;
+    int16_t ranged_dam, ranged_wc;
+    float ranged_ws;
+    if (arrow != NULL) {
+        ranged_dam = arrow_get_damage(pl->ob,
+                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
+        ranged_wc = arrow_get_wc(pl->ob,
+                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
+        ranged_ws = bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED],
+                arrow);
+    } else {
+        ranged_dam = ranged_wc = ranged_ws = 0;
+    }
+
+    AddIf(pl->last_ranged_dam, ranged_dam, CS_STAT_RANGED_DAM, uint16);
+    AddIf(pl->last_ranged_wc, ranged_wc, CS_STAT_RANGED_WC, uint16);
+    AddIfFloat(pl->last_ranged_ws, ranged_ws, CS_STAT_RANGED_WS);
+
+    uint16_t flags = 0;
 
     if (pl->run_on) {
         flags |= SF_RUNON;
@@ -283,7 +290,7 @@ void esrv_update_stats(player *pl)
 
     AddIf(pl->last_flags, flags, CS_STAT_FLAGS, uint16);
 
-    for (i = 0; i < NROFATTACKS; i++) {
+    for (int i = 0; i < NROFATTACKS; i++) {
         /* If there are more attacks, but we reached CS_STAT_PROT_END,
          * we stop now. */
         if (CS_STAT_PROT_START + i > CS_STAT_PROT_END) {
@@ -294,7 +301,7 @@ void esrv_update_stats(player *pl)
                 CS_STAT_PROT_START + i, int8);
     }
 
-    for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
+    for (int i = 0; i < PLAYER_EQUIP_MAX; i++) {
         AddIf(pl->last_equipment[i], pl->equipment[i] != NULL ?
                 pl->equipment[i]->count : 0, CS_STAT_EQUIP_START + i, uint32);
     }
@@ -306,6 +313,9 @@ void esrv_update_stats(player *pl)
     }
 
 #undef AddIf
+#undef _Add
+#undef AddIfFloat
+#undef AddIfDouble
 }
 
 /**
@@ -394,7 +404,7 @@ void draw_client_map(object *pl)
     int redraw_below = 0;
 
     if (pl->type != PLAYER) {
-        logger_print(LOG(BUG), "Called with non-player: %s", pl->name);
+        LOG(BUG, "Called with non-player: %s", pl->name);
         return;
     }
 
@@ -623,7 +633,7 @@ void draw_client_map2(object *pl)
     int special_vision, is_building_wall;
     uint16_t mask;
     int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
-    int anim_value, anim_type, ext_flags;
+    int ext_flags, anim_num;
     int num_layers;
     object *mirror = NULL, *tmp, *tmp2;
     uint8_t have_sound_ambient;
@@ -655,7 +665,7 @@ void draw_client_map2(object *pl)
         packet_append_map_music(packet, pl, map_info);
         packet_append_map_weather(packet, pl, map_info);
         packet_debug_data(packet, 0, "Map height diff");
-        packet_append_uint8(packet, MAP_HEIGHT_DIFF(pl->map) ? 1 : 0);
+        packet_append_uint8(packet, MAP_HEIGHT_DIFF(pl->map) != 0);
 
         if (map_info) {
             if (map_info->race) {
@@ -851,14 +861,17 @@ void draw_client_map2(object *pl)
             /* Initialize default values for some variables. */
             ext_flags = 0;
             packet_save(packet, &packet_save_buf);
-            anim_type = 0;
-            anim_value = 0;
+            anim_num = 0;
             have_down = 0;
             floor_z_down = floor_z_up = 0;
             zadj = 0;
 
+            uint8_t anim_type[NUM_SUB_LAYERS] = {0};
+            int16_t anim_value[NUM_SUB_LAYERS] = {0};
+
             /* Check if we have a map under this tile. */
-            if (get_map_from_tiled(m, TILED_DOWN) != NULL) {
+            if (get_map_from_tiled(m, TILED_DOWN) != NULL &&
+                    MAP_TILE_IS_SAME_LEVEL(m, -1)) {
                 have_down = 1;
             }
 
@@ -1020,9 +1033,7 @@ void draw_client_map2(object *pl)
                                     ((msp_tmp->extra_flags &
                                     (MSP_EXTRA_IS_BUILDING |
                                     MSP_EXTRA_IS_BALCONY)) ||
-                                    QUERY_FLAG(tmp, FLAG_HIDDEN)) &&
-                                    !(msp->extra_flags &
-                                    MSP_EXTRA_IS_OVERLOOK)) {
+                                    QUERY_FLAG(tmp, FLAG_HIDDEN))) {
                                 tmp = NULL;
                             }
 
@@ -1134,6 +1145,11 @@ void draw_client_map2(object *pl)
                                 break;
                             }
                         }
+                    }
+
+                    if (tmp != NULL && tmp->layer != LAYER_WALL &&
+                            QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+                        tmp = NULL;
                     }
 
                     /* Handle objects that are shown based on their direction
@@ -1273,10 +1289,11 @@ void draw_client_map2(object *pl)
                         msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
 
                         if ((tmp->map->coords[2] != 0 || !is_building_wall) &&
-                                msp_tmp->map_info->item_power == -1 &&
-                                (msp->extra_flags & (MSP_EXTRA_IS_BUILDING |
+                                (msp_tmp->extra_flags & (MSP_EXTRA_IS_BUILDING |
                                 MSP_EXTRA_IS_BALCONY)) ==
-                                MSP_EXTRA_IS_BUILDING) {
+                                MSP_EXTRA_IS_BUILDING &&
+                                msp_tmp->map_info != NULL &&
+                                msp_tmp->map_info->item_power == -1) {
                             if (is_building_wall) {
                                 d = MAX(world_darkness,
                                         MAP_BUILDING_DARKNESS_WALL);
@@ -1305,6 +1322,15 @@ void draw_client_map2(object *pl)
                         mp->darkness[sub_layer] = dark[sub_layer];
                     }
 
+                    if (tmp != NULL && tmp->map != m &&
+                            anim_type[sub_layer] == 0 && GET_MAP_RTAG(tmp->map,
+                            tmp->x, tmp->y, sub_layer) == global_round_tag) {
+                        anim_type[sub_layer] = ANIM_KILL;
+                        anim_value[sub_layer] = GET_MAP_DAMAGE(tmp->map, tmp->x,
+                                tmp->y, sub_layer);
+                        anim_num++;
+                    }
+
                     if (tmp == NULL && layer == LAYER_FLOOR && sub_layer != 0) {
                         if (tiled_dir == TILED_DOWN) {
                             floor_z_down &= ~(1 << sub_layer);
@@ -1325,6 +1351,7 @@ void draw_client_map2(object *pl)
                         tag_t target_object_count = 0;
                         uint8_t anim_speed, anim_facing, anim_flags;
                         uint8_t client_flags;
+                        int is_friend = 0;
 
                         face_obj = NULL;
                         anim_speed = anim_facing = anim_flags = 0;
@@ -1427,6 +1454,7 @@ void draw_client_map2(object *pl)
                         if (head != pl && layer == LAYER_LIVING && IS_LIVE(head)) {
                             flags2 |= MAP2_FLAG2_TARGET;
                             target_object_count = head->count;
+                            is_friend = is_friend_of(pl, head);
                         }
 
                         if (priority) {
@@ -1440,19 +1468,43 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_SECONDPASS;
                         }
 
+                        if (head->glow != NULL &&
+                                CONTR(pl)->socket.socket_version >= 1060) {
+                            flags2 |= MAP2_FLAG2_GLOW;
+                        }
+
                         if (flags2) {
                             flags |= MAP2_FLAG_MORE;
                         }
 
                         /* Damage animation? Store it for later. */
-                        if (tmp->last_damage && tmp->damage_round_tag == global_round_tag) {
-                            ext_flags |= MAP2_FLAG_EXT_ANIM;
-                            anim_type = ANIM_DAMAGE;
-                            anim_value = tmp->last_damage;
+                        if (tmp->last_damage && tmp->damage_round_tag ==
+                                global_round_tag) {
+                            if (anim_type[sub_layer] == 0) {
+                                anim_num++;
+                            }
+
+                            anim_type[sub_layer] = ANIM_DAMAGE;
+                            anim_value[sub_layer] = tmp->last_damage;
                         }
 
                         /* Now, check if we have cached this. */
-                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || (mp->anim_flags[sub_layer] == anim_flags && mp->client_flags[sub_layer] == client_flags)) && (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->socket.ext_title_flag)) {
+                        if (mp->faces[socket_layer] == face &&
+                                mp->quick_pos[socket_layer] == quick_pos &&
+                                mp->flags[socket_layer] == flags && (layer !=
+                                LAYER_LIVING || !IS_LIVE(head) || (mp->probe ==
+                                probe_val && mp->target_object_count ==
+                                target_object_count)) &&
+                                mp->anim_speed[socket_layer] == anim_speed &&
+                                mp->anim_facing[socket_layer] == anim_facing &&
+                                (layer != LAYER_LIVING ||
+                                (mp->anim_flags[sub_layer] == anim_flags &&
+                                mp->client_flags[sub_layer] == client_flags)) &&
+                                (!(flags & MAP2_FLAG_NAME) ||
+                                !CONTR(tmp)->socket.ext_title_flag) &&
+                                (!(flags2 & MAP2_FLAG2_TARGET) ||
+                                ((mp->is_friend & (1 << sub_layer)) != 0) ==
+                                is_friend)) {
                             continue;
                         }
 
@@ -1471,6 +1523,14 @@ void draw_client_map2(object *pl)
                         if (layer == LAYER_LIVING) {
                             mp->probe = probe_val;
                             mp->target_object_count = target_object_count;
+
+                            if (flags2 & MAP2_FLAG2_TARGET) {
+                                if (is_friend) {
+                                    mp->is_friend |= 1 << sub_layer;
+                                } else {
+                                    mp->is_friend &= ~(1 << sub_layer);
+                                }
+                            }
                         }
 
                         if (OBJECT_IS_HIDDEN(pl, head)) {
@@ -1635,7 +1695,7 @@ void draw_client_map2(object *pl)
                                 packet_debug_data(packet_layer, 3,
                                         "Target is friend");
                                 packet_append_uint8(packet_layer,
-                                        is_friend_of(pl, head));
+                                        is_friend);
                             }
 
                             /* Target's HP bar. */
@@ -1643,6 +1703,18 @@ void draw_client_map2(object *pl)
                                 packet_debug_data(packet_layer, 3,
                                         "HP percentage");
                                 packet_append_uint8(packet_layer, probe_val);
+                            }
+
+                            /* Target's HP bar. */
+                            if (flags2 & MAP2_FLAG2_GLOW) {
+                                packet_debug_data(packet_layer, 3,
+                                        "Glow color");
+                                packet_append_string_terminated(packet_layer,
+                                        head->glow);
+                                packet_debug_data(packet_layer, 3,
+                                        "Glow speed");
+                                packet_append_uint8(packet_layer,
+                                        head->glow_speed);
                             }
                         }
                     } else if (mp->faces[socket_layer]) {
@@ -1712,17 +1784,29 @@ void draw_client_map2(object *pl)
             packet_append_packet(packet, packet_layer);
             packet_free(packet_layer);
 
-            /* Kill animation? */
-            if (GET_MAP_RTAG(m, nx, ny) == global_round_tag) {
-                ext_flags |= MAP2_FLAG_EXT_ANIM;
-                anim_type = ANIM_KILL;
-                anim_value = GET_MAP_DAMAGE(m, nx, ny);
+            /* Kill animations? */
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                if (GET_MAP_RTAG(m, nx, ny, sub_layer) == global_round_tag) {
+                    if (anim_type[sub_layer] == 0) {
+                        anim_num++;
+                    }
+
+                    anim_type[sub_layer] = ANIM_KILL;
+                    anim_value[sub_layer] = GET_MAP_DAMAGE(m, nx, ny,
+                            sub_layer);
+                }
             }
 
-            if (ext_flags == mp->ext_flags && process_delay != 0) {
+            if (anim_num != 0) {
+                ext_flags |= MAP2_FLAG_EXT_ANIM;
+            }
+
+            if (ext_flags == mp->ext_flags && anim_num == mp->anim_num &&
+                    process_delay != 0) {
                 ext_flags = 0;
             } else {
                 mp->ext_flags = ext_flags;
+                mp->anim_num = anim_num;
             }
 
             /* Add flags for this tile. */
@@ -1731,10 +1815,21 @@ void draw_client_map2(object *pl)
 
             /* Animation? Add its type and value. */
             if (ext_flags & MAP2_FLAG_EXT_ANIM) {
-                packet_debug_data(packet, 1, "Animation type");
-                packet_append_uint8(packet, anim_type);
-                packet_debug_data(packet, 1, "Animation value");
-                packet_append_uint16(packet, anim_value);
+                packet_debug_data(packet, 1, "Number of animations");
+                packet_append_uint8(packet, anim_num);
+
+                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    if (anim_type[sub_layer] == 0) {
+                        continue;
+                    }
+
+                    packet_debug_data(packet, 1, "Animation sub-layer");
+                    packet_append_uint8(packet, sub_layer);
+                    packet_debug_data(packet, 1, "Animation type");
+                    packet_append_uint8(packet, anim_type[sub_layer]);
+                    packet_debug_data(packet, 1, "Animation value");
+                    packet_append_int16(packet, anim_value[sub_layer]);
+                }
             }
 
             /* If nothing has really changed, go back to the old position
@@ -1805,6 +1900,8 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
 
                 if (tmp2->magic == QUEST_STATUS_COMPLETED) {
                     stringbuffer_append_string(sb, " []done]");
+                } else if (tmp2->magic == QUEST_STATUS_FAILED) {
+                    stringbuffer_append_string(sb, " []failed]");
                 }
             }
 
@@ -1856,7 +1953,7 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size
 
     /* Validate the passed x/y. */
     if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
-        log(LOG(PACKET), "X/Y not in range: %d, %d", x, y);
+        LOG(PACKET, "X/Y not in range: %d, %d", x, y);
         return;
     }
 
@@ -1949,11 +2046,11 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
     object_ranged_fire(tmp, pl->ob, dir, &delay);
 
-    if (skill_time > 1.0f) {
-        skill_time -= (SK_level(pl->ob) / 10 / 3) * 0.1f;
+    if (skill_time > 1.0) {
+        skill_time -= (SK_level(pl->ob) / 10.0 / 3.0) * 0.1;
 
-        if (skill_time < 1.0f) {
-            skill_time = 1.0f;
+        if (skill_time < 1.0) {
+            skill_time = 1.0;
         }
     }
 
@@ -1987,17 +2084,17 @@ void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t le
     run_on = packet_to_uint8(data, len, &pos);
 
     if (dir > 8) {
-        log(LOG(PACKET), "%s: Invalid dir: %d", ns->host, dir);
+        LOG(PACKET, "%s: Invalid dir: %d", socket_get_str(ns->sc), dir);
         return;
     }
 
     if (run_on > 1) {
-        log(LOG(PACKET), "%s: Invalid run_on: %d", ns->host, run_on);
+        LOG(PACKET, "%s: Invalid run_on: %d", socket_get_str(ns->sc), run_on);
         return;
     }
 
     if (run_on == 1 && dir == 0) {
-        log(LOG(PACKET), "%s: run_on is 1 but dir is 0", ns->host);
+        LOG(PACKET, "%s: run_on is 1 but dir is 0", socket_get_str(ns->sc));
         return;
     }
 
@@ -2018,7 +2115,7 @@ void send_target_command(player *pl)
     packet_struct *packet;
 
     if (!pl->ob->map) {
-        log(LOG(PACKET), "Received target command while not playing.");
+        LOG(PACKET, "Received target command while not playing.");
         return;
     }
 
@@ -2041,8 +2138,12 @@ void send_target_command(player *pl)
     } else {
         packet_debug_data(packet, 0, "Target command type");
 
-        if (is_friend_of(pl->ob, pl->target_object)) {
-            packet_append_uint8(packet, CMD_TARGET_FRIEND);
+        if (is_friend_of(pl->target_object, pl->ob)) {
+            if (pl->target_object->type == PLAYER) {
+                packet_append_uint8(packet, CMD_TARGET_FRIEND);
+            } else {
+                packet_append_uint8(packet, CMD_TARGET_NEUTRAL);
+            }
         } else {
             packet_append_uint8(packet, CMD_TARGET_ENEMY);
 
@@ -2086,6 +2187,11 @@ void send_target_command(player *pl)
         }
     }
 
+    packet_debug_data(packet, 0, "Combat mode");
+    packet_append_uint8(packet, pl->combat);
+    packet_debug_data(packet, 0, "Combat force mode");
+    packet_append_uint8(packet, pl->combat_force);
+
     socket_send_packet(&pl->socket, packet);
 }
 
@@ -2102,7 +2208,7 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
         packet_to_string(data, len, &pos, password, sizeof(password));
 
         if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
-            log(LOG(PACKET), "Received invalid data in account login command.");
+            LOG(PACKET, "Received invalid data in account login command.");
             return;
         }
 
@@ -2137,7 +2243,7 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
 
         account_password_change(ns, password, password_new, password_new2);
     } else {
-        log(LOG(PACKET), "Invalid type: %d", type);
+        LOG(PACKET, "Invalid type: %d", type);
     }
 }
 
@@ -2181,7 +2287,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
 
         /* Validate the passed x/y. */
         if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
-            log(LOG(PACKET), "Invalid X/Y: %d, %d", x, y);
+            LOG(PACKET, "Invalid X/Y: %d, %d", x, y);
             return;
         }
 
@@ -2237,7 +2343,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
             send_target_command(pl);
         }
     } else {
-        log(LOG(PACKET), "Invalid type: %d", type);
+        LOG(PACKET, "Invalid type: %d", type);
     }
 }
 
@@ -2260,7 +2366,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             packet_to_string(data, len, &pos, npc_name, sizeof(npc_name));
 
             if (string_isempty(npc_name)) {
-                log(LOG(PACKET), "Empty NPC name.");
+                LOG(PACKET, "Empty NPC name.");
                 return;
             }
         }
@@ -2269,7 +2375,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
-            log(LOG(PACKET), "Empty message.");
+            LOG(PACKET, "Empty message.");
             return;
         }
 
@@ -2293,7 +2399,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         }
 
         /* Use larger search space when trying to talk to a specific NPC. */
-        for (i = 0; i < (type == CMD_TALK_NPC ? SIZEOFFREE2 + 1 : SIZEOFFREE) && !npc; i++) {
+        for (i = 0; i <= (type == CMD_TALK_NPC ? SIZEOFFREE2 : SIZEOFFREE3) && !npc; i++) {
             x = pl->ob->x + freearr_x[i];
             y = pl->ob->y + freearr_y[i];
             m = get_map_from_coord(pl->ob->map, &x, &y);
@@ -2313,22 +2419,10 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         }
 
         if (npc) {
-            logger_print(LOG(CHAT), "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
+            LOG(CHAT, "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
 
-            if (talk_to_npc(pl->ob, npc, msg)) {
-                if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
-                        pl->talking_to != npc) {
-                    monster_data_dialogs_remove(pl->talking_to, pl->ob);
-                }
-
-                pl->talking_to = npc;
-                pl->talking_to_count = npc->count;
-
-                if (pl->target_object != npc || pl->target_object_count != npc->count) {
-                    pl->target_object = npc;
-                    pl->target_object_count = npc->count;
-                    send_target_command(pl);
-                }
+            if (!monster_guard_check(npc, pl->ob, msg, 0)) {
+                talk_to_npc(pl->ob, npc, msg);
             }
         } else if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
             draw_info_format(COLOR_WHITE, pl->ob, "You are too far away from %s.", pl->target_object->name);
@@ -2344,7 +2438,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
-            log(LOG(PACKET), "Empty message.");
+            LOG(PACKET, "Empty message.");
             return;
         }
 
@@ -2371,42 +2465,60 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             pl->talking_to_count = 0;
         }
     } else {
-        log(LOG(PACKET), "Invalid type: %d", type);
+        LOG(PACKET, "Invalid type: %d", type);
     }
 }
 
 void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    size_t pos2;
     char word[MAX_BUF], app_name[MAX_BUF];
-    uint8_t ip_match, type, sub_type;
+    uint8_t type, sub_type;
     packet_struct *packet;
 
     if (strcasecmp(settings.control_allowed_ips, "none") == 0) {
-        log(LOG(PACKET), "Control command received but no IPs are allowed.");
+        LOG(PACKET, "Control command received but no IPs are allowed.");
         return;
     }
 
-    pos2 = 0;
-    ip_match = 0;
+    bool ip_match = false;
 
-    while (string_get_word(settings.control_allowed_ips, &pos2, ',', word, sizeof(word), 0)) {
-        if (strcmp(ns->host, word) == 0) {
-            ip_match = 1;
+    size_t pos2 = 0;
+    while (string_get_word(settings.control_allowed_ips, &pos2, ',', VS(word),
+            0)) {
+        char *split[2];
+        if (string_split(word, split, arraysize(split), '/') < 1) {
+            continue;
+        }
+
+        struct sockaddr_storage addr;
+        if (!socket_host2addr(split[0], &addr)) {
+            continue;
+        }
+
+        unsigned short plen = socket_addr_plen(&addr);
+        if (split[1] != NULL) {
+            unsigned long value = strtoul(split[1], NULL, 10);
+            if (value < plen) {
+                plen = value;
+            }
+        }
+
+        if (socket_cmp_addr(ns->sc, &addr, plen) == 0) {
+            ip_match = true;
             break;
         }
     }
 
     if (!ip_match) {
-        log(LOG(PACKET), "Received control command from unauthorized IP: %s",
-                ns->host);
+        LOG(PACKET, "Received control command from unauthorized IP: %s",
+                socket_get_str(ns->sc));
         return;
     }
 
     packet_to_string(data, len, &pos, app_name, sizeof(app_name));
 
     if (string_isempty(app_name)) {
-        log(LOG(PACKET), "Received empty app_name.");
+        LOG(PACKET, "Received empty app_name.");
         return;
     }
 
@@ -2481,7 +2593,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
             m = ready_map_name(mappath, NULL, 0);
 
             if (m == NULL) {
-                log(LOG(ERROR), "Could not teleport player to '%s' (%d,%d): "
+                LOG(ERROR, "Could not teleport player to '%s' (%d,%d): "
                         "map could not be loaded.", mappath, x, y);
                 return;
             }
@@ -2505,6 +2617,25 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     }
     }
 
-    log(LOG(PACKET), "Unrecognised control command type: %d, sub-type: %d, "
+    LOG(PACKET, "Unrecognised control command type: %d, sub-type: %d, "
             "by application: '%s'", type, sub_type, app_name);
 }
+
+void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data,
+        size_t len, size_t pos)
+{
+    uint8_t combat = packet_to_uint8(data, len, &pos);
+    uint8_t combat_force = packet_to_uint8(data, len, &pos);
+
+    if (combat_force && !pl->combat_force) {
+        combat = true;
+    } else if (!combat && pl->combat) {
+        combat_force = false;
+    }
+
+    pl->combat = combat;
+    pl->combat_force = combat_force;
+
+    send_target_command(pl);
+}
+

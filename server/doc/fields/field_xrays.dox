@@ -1,6 +1,10 @@
 /**
-@fn FLAG_XRAYS
-@section Use
+@var FLAG_XRAYS
+@sa @ref page_field_xrays
+*/
+
+/**
+@page page_field_xrays FLAG_XRAYS Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -20,15 +24,36 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_29
-		</td><td>		If on, all players in range will receive the magic ear's message,
-		instead of just the player who activated it.</td>
+@ref page_type_56
+		</td><td>		If not set and player with different deity prays on this altar, they
+		will have 1/&lt;divine prayers level&gt; to become follower of the altar's
+		deity. With this setting on, the chance effectively becomes 1/1, thus always.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_64
+		</td><td>		If enabled, only players will be affected by the "blocking passage"
+		setting, while any other object will be able to pass through (as
+		long as it can move).</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>		If a mover has no direction, the normal behavior is to choose
+		a random direction. However, with this flag, the direction the
+		mover will move its victims depends on the victim's actual direction.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_98
 		</td><td>		If set, instead of printing the sign's contents to text window, use the
 		book GUI to show the message, using any fancy formatting books allow.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_61
+		</td><td>		If set, the sound effect will be heard through sight-blocking
+		obstacles, so long as it's in range.</td>
 	</tr>
 
 */

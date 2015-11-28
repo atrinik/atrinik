@@ -82,7 +82,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
         if (custom_data != NULL) {
             sb = custom_data;
 
-            if (sb->pos != 0) {
+            if (stringbuffer_length(sb) != 0) {
                 stringbuffer_append_char(sb, ':');
             }
 
@@ -599,11 +599,19 @@ static void widget_draw(widgetdata *widget)
         textwin_readjust(widget);
     }
 
-    if ((alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY))) {
+    alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY);
+    if (alpha != 0) {
         SDL_Color bg_color;
 
-        if (text_color_parse(setting_get_str(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_BG_COLOR), &bg_color)) {
-            filledRectAlpha(ScreenSurface, widget->x, widget->y, widget->x + widget->w - 1, widget->y + widget->h - 1, ((uint32_t) bg_color.r << 24) | ((uint32_t) bg_color.g << 16) | ((uint32_t) bg_color.b << 8) | (uint32_t) alpha);
+        if (text_color_parse(setting_get_str(OPT_CAT_CLIENT,
+                OPT_TEXT_WINDOW_BG_COLOR), &bg_color)) {
+            Uint32 color = ((uint32_t) bg_color.r << 24) |
+                    ((uint32_t) bg_color.g << 16) |
+                    ((uint32_t) bg_color.b << 8) |
+                    (uint32_t) alpha;
+            filledRectAlpha(ScreenSurface, widget->x, widget->y,
+                    widget->x + widget->w - 1, widget->y + widget->h - 1,
+                    color);
         }
     }
 
@@ -699,6 +707,8 @@ static void widget_draw(widgetdata *widget)
     box.y = widget->y;
     SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
+    box.x = widget->x;
+    box.y = widget->y;
     box.w = widget->w;
     box.h = widget->h;
     border_create_texture(ScreenSurface, &box, 1, TEXTURE_CLIENT("widget_border"));
@@ -943,9 +953,18 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 
 static void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-    textwin_struct *textwin;
+    textwin_struct *textwin = TEXTWIN(widget);
 
-    textwin = TEXTWIN(widget);
+    /* No tabs. */
+    if (textwin->tabs == NULL) {
+        return;
+    }
+
+    /* The tab has no text. */
+    if (textwin->tabs[textwin->tab_selected].entries == NULL) {
+        return;
+    }
+
     efree(textwin->tabs[textwin->tab_selected].entries);
     textwin->tabs[textwin->tab_selected].entries = NULL;
     textwin->tabs[textwin->tab_selected].num_lines = textwin->tabs[textwin->tab_selected].entries_size = textwin->tabs[textwin->tab_selected].scroll_offset = 0;
@@ -1241,7 +1260,7 @@ void widget_textwin_handle_console(const char *text)
     }
 
     if (widget == NULL) {
-        logger_print(LOG(BUG), "Failed to find a text window.");
+        LOG(BUG, "Failed to find a text window.");
         return;
     }
 

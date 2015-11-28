@@ -2,14 +2,14 @@ arch map
 name Asteria Docks
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-16 emperorbma
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 40
 outdoor 1
 no_harm 1
-bg_music ocean.ogg
+bg_music chether.mid
 region asteria
 end
 arch water_lt3
@@ -253,6 +253,11 @@ arch water_lt
 x 2
 y 14
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 2
+y 14
+end
 arch water_lt4
 x 2
 y 15
@@ -330,6 +335,11 @@ x 3
 y 7
 end
 arch water_lt4
+x 3
+y 8
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 3
 y 8
 end
@@ -1508,6 +1518,11 @@ arch water_lt3
 x 14
 y 10
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 14
+y 10
+end
 arch water_lt3
 x 14
 y 11
@@ -1830,6 +1845,11 @@ x 17
 y 19
 end
 arch water_lt2
+x 17
+y 20
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 17
 y 20
 end

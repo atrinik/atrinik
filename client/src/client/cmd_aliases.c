@@ -61,45 +61,91 @@ static cmd_alias_struct *cmd_aliases = NULL;
  * @param path Where to load the file from. */
 static void cmd_aliases_load(const char *path)
 {
-    FILE *fp;
-    char buf[HUGE_BUF], *end;
-    cmd_alias_struct *cmd_alias;
-
-    fp = fopen_wrapper(path, "r");
-
-    if (!fp) {
+    FILE *fp = fopen_wrapper(path, "r");
+    if (fp == NULL) {
         return;
     }
 
-    cmd_alias = NULL;
+    cmd_alias_struct *cmd_alias = NULL;
 
-    while (fgets(buf, sizeof(buf) - 1, fp)) {
+    char buf[HUGE_BUF];
+    uint64_t linenum = 0;
+
+    while (fgets(VS(buf), fp)) {
+        linenum++;
+
         if (*buf == '#' || *buf == '\n') {
             continue;
         }
 
-        end = strchr(buf, '\n');
-
-        if (end) {
+        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
+        if (end != NULL) {
             *end = '\0';
         }
 
-        if (string_startswith(buf, "[") && string_endswith(buf, "]")) {
-            if (cmd_alias) {
-                HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
+        char *error_str;
+        const char *key = cp, *value = NULL;
+
+        if (string_startswith(cp, "[") && string_endswith(cp, "]")) {
+            if (cmd_alias != NULL) {
+                HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name,
+                        strlen(cmd_alias->name), cmd_alias);
             }
 
             cmd_alias = ecalloc(1, sizeof(*cmd_alias));
-            cmd_alias->name = string_sub(buf, 1, -1);
-        } else if (string_startswith(buf, "arg = ")) {
-            cmd_alias->arg = string_sub(buf, 6, strlen(buf));
-        } else if (string_startswith(buf, "noarg = ")) {
-            cmd_alias->noarg = string_sub(buf, 8, strlen(buf));
+            cmd_alias->name = string_sub(cp, 1, -1);
+
+            if (string_isempty(cmd_alias->name)) {
+                error_str = "empty command alias name";
+                goto error;
+            }
+
+            continue;
         }
+
+        char *cps[2];
+        if (string_split(cp, cps, arraysize(cps), '=') != 2) {
+            error_str = "malformed line";
+            goto error;
+        }
+
+        string_whitespace_trim(cps[0]);
+        string_whitespace_trim(cps[1]);
+        key = cps[0];
+        value = cps[1];
+
+        if (string_isempty(key)) {
+            error_str = "empty key";
+            goto error;
+        } else if (string_isempty(value)) {
+            error_str = "empty value";
+            goto error;
+        }
+
+        if (cmd_alias == NULL) {
+            error_str = "expected command alias definition";
+            goto error;
+        } else if (strcmp(key, "arg") == 0) {
+            cmd_alias->arg = estrdup(value);
+        } else if (strcmp(key, "noarg") == 0) {
+            cmd_alias->noarg = estrdup(value);
+        } else {
+            error_str = "unknown attribute";
+            goto error;
+        }
+
+        continue;
+
+error:
+        LOG(ERROR, "Error parsing %s, line %" PRIu64 ", %s: %s%s%s", path,
+                linenum, error_str, key, value != NULL ? " = " : "",
+                value != NULL ? value : "");
+        exit(1);
     }
 
-    if (cmd_alias) {
-        HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
+    if (cmd_alias != NULL) {
+        HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name,
+                strlen(cmd_alias->name), cmd_alias);
     }
 
     fclose(fp);

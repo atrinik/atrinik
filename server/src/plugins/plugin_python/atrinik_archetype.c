@@ -24,24 +24,30 @@
 
 /**
  * @file
- * Atrinik Python plugin archetype related code. */
+ * Atrinik Python plugin archetype related code.
+ *
+ * @author Alex Tokar
+ */
 
 #include <plugin_python.h>
 
 /**
- * Archetype fields. */
-/* @cparser
- * @page plugin_python_archetype_fields Python archetype fields
- * <h2>Python archetype fields</h2>
- * List of the archetype fields and their meaning. */
+ * Archetype fields.
+ */
 static fields_struct fields[] = {
-    {"name", FIELDTYPE_SHSTR, offsetof(archetype, name), 0, 0},
-    {"next", FIELDTYPE_ARCH, offsetof(archetype, next), 0, 0},
-    {"head", FIELDTYPE_ARCH, offsetof(archetype, head), 0, 0},
-    {"more", FIELDTYPE_ARCH, offsetof(archetype, more), 0, 0},
-    {"clone", FIELDTYPE_OBJECT2, offsetof(archetype, clone), 0, 0}
+    {"name", FIELDTYPE_SHSTR, offsetof(archetype_t, name), 0, 0,
+            "Name of the archetype.; str (readonly)"},
+    {"head", FIELDTYPE_ARCH, offsetof(archetype_t, head), 0, 0,
+            "The main part of a linked object.; Atrinik.Object.Object or None "
+            "(readonly)"},
+    {"more", FIELDTYPE_ARCH, offsetof(archetype_t, more), 0, 0,
+            "Next part of a linked object.; Atrinik.Object.Object or None "
+            "(readonly)"},
+    {"clone", FIELDTYPE_OBJECT2, offsetof(archetype_t, clone), 0, 0,
+            "Archetype's default object from which new objects are created "
+            "using functions such as :func:`Atrinik.CreateObject`.; "
+            "Atrinik.Object.Object (readonly)"}
 };
-/* @endcparser */
 
 /**
  * Get archetype's attribute.
@@ -58,17 +64,13 @@ static PyObject *get_attribute(Atrinik_Archetype *at, void *context)
  * @param type Type object.
  * @param args Unused.
  * @param kwds Unused.
- * @return The new wrapper. */
-static PyObject *Atrinik_Archetype_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+ * @return The new wrapper.
+ */
+static PyObject *Atrinik_Archetype_new(PyTypeObject *type, PyObject *args,
+        PyObject *kwds)
 {
-    Atrinik_Archetype *at;
-
-    (void) args;
-    (void) kwds;
-
-    at = (Atrinik_Archetype *) type->tp_alloc(type, 0);
-
-    if (at) {
+    Atrinik_Archetype *at = (Atrinik_Archetype *) type->tp_alloc(type, 0);
+    if (at != NULL) {
         at->at = NULL;
     }
 
@@ -77,7 +79,8 @@ static PyObject *Atrinik_Archetype_new(PyTypeObject *type, PyObject *args, PyObj
 
 /**
  * Free an archetype wrapper.
- * @param pl The wrapper to free. */
+ * @param pl The wrapper to free.
+ */
 static void Atrinik_Archetype_dealloc(Atrinik_Archetype *at)
 {
     at->at = NULL;
@@ -91,29 +94,36 @@ static void Atrinik_Archetype_dealloc(Atrinik_Archetype *at)
 /**
  * Return a string representation of an archetype.
  * @param at The archetype.
- * @return Python object containing the name of the archetype. */
+ * @return Python object containing the name of the archetype.
+ */
 static PyObject *Atrinik_Archetype_str(Atrinik_Archetype *at)
 {
     return Py_BuildValue("s", at->at->name);
 }
 
-static int Atrinik_Archetype_InternalCompare(Atrinik_Archetype *left, Atrinik_Archetype *right)
+static int Atrinik_Archetype_InternalCompare(Atrinik_Archetype *left,
+        Atrinik_Archetype *right)
 {
     return (left->at < right->at ? -1 : (left->at == right->at ? 0 : 1));
 }
 
-static PyObject *Atrinik_Archetype_RichCompare(Atrinik_Archetype *left, Atrinik_Archetype *right, int op)
+static PyObject *Atrinik_Archetype_RichCompare(Atrinik_Archetype *left,
+        Atrinik_Archetype *right, int op)
 {
-    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_ArchetypeType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_ArchetypeType)) {
+    if (left == NULL || right == NULL ||
+            !PyObject_TypeCheck((PyObject *) left, &Atrinik_ArchetypeType) ||
+            !PyObject_TypeCheck((PyObject *) right, &Atrinik_ArchetypeType)) {
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
 
-    return generic_rich_compare(op, Atrinik_Archetype_InternalCompare(left, right));
+    return generic_rich_compare(op,
+            Atrinik_Archetype_InternalCompare(left, right));
 }
 
 /**
- * This is filled in when we initialize our archetype type. */
+ * This is filled in when we initialize our archetype type.
+ */
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python ArchetypeType. */
@@ -159,7 +169,8 @@ PyTypeObject Atrinik_ArchetypeType = {
 /**
  * Initialize the archetype wrapper.
  * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure. */
+ * @return 1 on success, 0 on failure.
+ */
 int Atrinik_Archetype_init(PyObject *module)
 {
     size_t i;
@@ -171,7 +182,7 @@ int Atrinik_Archetype_init(PyObject *module)
         def->name = fields[i].name;
         def->get = (getter) get_attribute;
         def->set = NULL;
-        def->doc = NULL;
+        def->doc = fields[i].doc;
         def->closure = &fields[i];
     }
 
@@ -184,7 +195,8 @@ int Atrinik_Archetype_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_ArchetypeType);
-    PyModule_AddObject(module, "Archetype", (PyObject *) & Atrinik_ArchetypeType);
+    PyModule_AddObject(module, "Archetype",
+            (PyObject *) &Atrinik_ArchetypeType);
 
     return 1;
 }
@@ -192,20 +204,19 @@ int Atrinik_Archetype_init(PyObject *module)
 /**
  * Utility method to wrap an archetype.
  * @param what Archetype to wrap.
- * @return Python object wrapping the real archetype. */
-PyObject *wrap_archetype(archetype *at)
+ * @return Python object wrapping the real archetype.
+ */
+PyObject *wrap_archetype(archetype_t *at)
 {
-    Atrinik_Archetype *wrapper;
-
     /* Return None if no archetype was to be wrapped. */
-    if (!at) {
+    if (at == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    wrapper = PyObject_NEW(Atrinik_Archetype, &Atrinik_ArchetypeType);
-
-    if (wrapper) {
+    Atrinik_Archetype *wrapper = PyObject_NEW(Atrinik_Archetype,
+            &Atrinik_ArchetypeType);
+    if (wrapper != NULL) {
         wrapper->at = at;
     }
 

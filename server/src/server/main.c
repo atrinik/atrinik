@@ -29,6 +29,8 @@
 #include <global.h>
 #include <gitversion.h>
 #include <toolkit_string.h>
+#include <plugin.h>
+#include <arch.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>
@@ -48,7 +50,7 @@ mapstruct *first_map;
 /** First treasure. */
 treasurelist *first_treasurelist;
 /** First artifact. */
-artifactlist *first_artifactlist;
+struct artifact_list *first_artifactlist;
 /*@}*/
 
 /** Last player. */
@@ -80,7 +82,7 @@ void version(object *op)
     if (op != NULL) {
         draw_info(COLOR_WHITE, op, buf);
     } else {
-        logger_print(LOG(INFO), "%s", buf);
+        LOG(INFO, "%s", buf);
     }
 }
 
@@ -165,7 +167,7 @@ void process_events(mapstruct *map)
 
         /* Now process op */
         if (OBJECT_FREE(op)) {
-            logger_print(LOG(BUG), "Free object on active list");
+            LOG(ERROR, "Free object on active list");
             op->speed = 0;
             update_ob_speed(op);
             continue;
@@ -177,14 +179,16 @@ void process_events(mapstruct *map)
             continue;
         }
 
-        if (!op->speed) {
-            logger_print(LOG(BUG), "Object %s (%s, type:%d count:%d) has no speed, but is on active list", op->arch->name, query_name(op, NULL), op->type, op->count);
+        if (DBL_EQUAL(op->speed, 0.0)) {
+            LOG(ERROR, "Object has no speed, but is on active list: %s",
+                    object_get_str(op));
             update_ob_speed(op);
             continue;
         }
 
-        if (op->map == NULL && op->env == NULL && op->name && op->type != MAP && map == NULL) {
-            logger_print(LOG(BUG), "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
+        if (op->map == NULL && op->env == NULL) {
+            LOG(ERROR, "Object without map or inventory is on active list: %s",
+                    object_get_str(op));
             op->speed = 0;
             update_ob_speed(op);
             continue;
@@ -199,7 +203,15 @@ void process_events(mapstruct *map)
             op->weapon_speed_left -= op->weapon_speed;
         }
 
-        if (op->speed_left > 0 || op->type == PLAYER) {
+        if (op->speed_left <= 0) {
+            op->speed_left += FABS(op->speed);
+        }
+
+        if (op->type == PLAYER && op->speed_left > op->speed) {
+            op->speed_left = op->speed;
+        }
+
+        if (op->speed_left >= 0 || op->type == PLAYER) {
             if (op->type != PLAYER) {
                 --op->speed_left;
             }
@@ -246,14 +258,6 @@ void process_events(mapstruct *map)
             } else {
                 op->last_anim++;
             }
-        }
-
-        if (op->speed_left <= 0) {
-            op->speed_left += FABS(op->speed);
-        }
-
-        if (op->type == PLAYER && op->speed_left > op->speed) {
-            op->speed_left = op->speed;
         }
     }
 
@@ -369,7 +373,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     efree(cleanpath);
 
     if (!oldmap) {
-        logger_print(LOG(BUG), "Could not get oldmap using ready_map_name().");
+        LOG(BUG, "Could not get oldmap using ready_map_name().");
         return 0;
     }
 
@@ -382,7 +386,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     efree(cleanpath);
 
     if (!newmap) {
-        logger_print(LOG(BUG), "Could not get newmap using ready_map_name().");
+        LOG(BUG, "Could not get newmap using ready_map_name().");
         return 0;
     }
 
@@ -499,11 +503,37 @@ static int shutdown_timer_check(void)
         return 1;
     }
 
-    if (!((shutdown_time - pticks) % (60 * (long) MAX_TICKS)) || pticks == shutdown_time - 5 * MAX_TICKS) {
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"PRIu64 ":%02"PRIu64 " minutes.", (uint64_t) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64_t) ((shutdown_time - pticks) / (long) MAX_TICKS % 60));
+    if (((shutdown_time - pticks) % (long) (60 * MAX_TICKS)) == 0 ||
+            pticks == shutdown_time - (long) (5 * MAX_TICKS)) {
+        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL,
+                "[Server]: Server will shut down in %02"PRIu64
+                ":%02"PRIu64 " minutes.", (uint64_t) ((shutdown_time - pticks) /
+                MAX_TICKS / 60), (uint64_t) ((shutdown_time - pticks) / (long)
+                MAX_TICKS % 60));
     }
 
     return 0;
+}
+
+/**
+ * Main processing function, called from main().
+ */
+void main_process(void)
+{
+    /* Global round ticker. */
+    global_round_tag++;
+    pticks++;
+
+    /* "do" something with objects with speed */
+    process_events(NULL);
+
+    /* Removes unused maps after a certain timeout */
+    check_active_maps();
+
+    /* Routines called from time to time. */
+    do_specials();
+
+    trigger_global_event(GEVENT_TICK, NULL, NULL);
 }
 
 /**
@@ -519,15 +549,28 @@ int main(int argc, char **argv)
 #endif
 
     init(argc, argv);
+    memset(&marker, 0, sizeof(struct obj));
+
+    if (settings.plugin_unit_tests) {
+        LOG(INFO, "Running plugin unit tests...");
+        object *activator = player_get_dummy(PLAYER_TESTING_NAME1, NULL);
+        object *me = player_get_dummy(PLAYER_TESTING_NAME2, NULL);
+        trigger_unit_event(activator, me);
+
+        if (!settings.unit_tests) {
+            cleanup();
+            exit(0);
+        }
+    }
 
     if (settings.unit_tests) {
 #ifdef HAVE_CHECK
-        logger_print(LOG(INFO), "Running unit tests...");
+        LOG(INFO, "Running unit tests...");
         cleanup();
         check_main(argc, argv);
         exit(0);
 #else
-        logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.");
+        LOG(ERROR, "Unit tests have not been compiled, aborting.");
         exit(1);
 #endif
     }
@@ -536,20 +579,19 @@ int main(int argc, char **argv)
 
     if (settings.world_maker) {
 #ifdef HAVE_WORLD_MAKER
-        logger_print(LOG(INFO), "Running the world maker...");
+        LOG(INFO, "Running the world maker...");
         world_maker();
         exit(0);
 #else
-        logger_print(LOG(ERROR), "Cannot run world maker; server was not compiled with libgd, exiting...");
+        LOG(ERROR, "Cannot run world maker; server was not compiled with libgd, exiting...");
         exit(1);
 #endif
     }
 
     console_start_thread();
-    memset(&marker, 0, sizeof(struct obj));
     process_delay = 0;
 
-    logger_print(LOG(INFO), "Server ready. Waiting for connections...");
+    LOG(INFO, "Server ready. Waiting for connections...");
 
     for (; ; ) {
         if (shutdown_timer_check()) {
@@ -558,25 +600,12 @@ int main(int argc, char **argv)
 
         console_command_handle();
 
+
         doeric_server();
 
         if (++process_delay >= max_time_multiplier) {
             process_delay = 0;
-
-            /* Global round ticker. */
-            global_round_tag++;
-            pticks++;
-
-            /* "do" something with objects with speed */
-            process_events(NULL);
-
-            /* Removes unused maps after a certain timeout */
-            check_active_maps();
-
-            /* Routines called from time to time. */
-            do_specials();
-
-            trigger_global_event(GEVENT_TICK, NULL, NULL);
+            main_process();
         }
 
         doeric_server_write();

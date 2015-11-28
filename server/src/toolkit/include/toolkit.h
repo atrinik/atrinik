@@ -151,51 +151,61 @@ typedef struct toolkit_dependency {
 #define VS(var) (var), sizeof((var))
 
 /**
- * @defgroup PERF_TIMER_xxx Performance timer macros
+ * @defgroup TIMER_xxx Timer macros
  *
- * Helper macros to perform high-precision performance profiling in a
- * platform-independent way. Ideally we want a precision of 1 ms, if possible.
+ * Helper macros to perform high-precision timing in a platform-independent way.
+ * Ideally we want a precision of 1 ms, if possible.
  *
- * The typical use case is using, for example, PERF_TIMER_DECLARE(1) at the
- * beginning of the function to declare the variables used by the timer. Then
- * before the code you want to profile, use PERF_TIMER_START(1), and after
- * the code, use PERF_TIMER_STOP(1). Afterwards, you can use PERF_TIMER_GET(1)
- * to get the number of seconds the execution took as a floating point number.
+ * The typical use case is using TIMER_START(1) in order to declare and start
+ * the timer, then TIMER_UPDATE(1) whenever you want to update/stop the timer.
+ * Afterwards, you can use TIMER_GET(1) to get the number of seconds the
+ * execution took as a floating point number.
  *
  * You can have multiple timers by changing the 1 to 2 or anything else (note
  * that this is a compile-time feature).
  *@{*/
 
-#define PERF_TIMER_VAR(__var, __id) (__var##_##__id)
+#define TIMER_VAR(__var, __id) (__var##_##__id)
+#define TIMER_START(__id)                                                      \
+    TIMER_DECLARE(__id);                                                       \
+    TIMER_RESTART(__id);
 
 #ifdef WIN32
 
-#define PERF_TIMER_DECLARE(__id) \
-    LARGE_INTEGER PERF_TIMER_VAR(__pt_frequency, __id); \
-    LARGE_INTEGER PERF_TIMER_VAR(__pt_t1, __id), PERF_TIMER_VAR(__pt_t2, __id);
-#define PERF_TIMER_START(__id) \
-    QueryPerformanceFrequency(&PERF_TIMER_VAR(__pt_frequency, __id)); \
-    QueryPerformanceCounter(&PERF_TIMER_VAR(__pt_t1, __id));
-#define PERF_TIMER_STOP(__id) \
-    QueryPerformanceCounter(&PERF_TIMER_VAR(__pt_t2, __id));
-#define PERF_TIMER_GET(__id) \
-    ((PERF_TIMER_VAR(__pt_t2, __id).QuadPart - \
-    PERF_TIMER_VAR(__pt_t1, __id).QuadPart) * 1000.0 / \
-    PERF_TIMER_VAR(__pt_frequency, __id).QuadPart)
+#define TIMER_DECLARE(__id)                                                    \
+    LARGE_INTEGER TIMER_VAR(__pt_frequency, __id);                             \
+    LARGE_INTEGER TIMER_VAR(__pt_t1, __id), TIMER_VAR(__pt_t2, __id)
+#define TIMER_RESTART(__id)                                                    \
+    do {                                                                       \
+        QueryPerformanceFrequency(&TIMER_VAR(__pt_frequency, __id));           \
+        QueryPerformanceCounter(&TIMER_VAR(__pt_t1, __id));                    \
+    } while (0)
+#define TIMER_UPDATE(__id)                                                     \
+    do {                                                                       \
+        QueryPerformanceCounter(&TIMER_VAR(__pt_t2, __id));                    \
+    } while (0)
+#define TIMER_GET(__id)                                                        \
+    (((TIMER_VAR(__pt_t2, __id).QuadPart -                                     \
+    TIMER_VAR(__pt_t1, __id).QuadPart)) /                                      \
+    (double) TIMER_VAR(__pt_frequency, __id).QuadPart)
 
 #else
 
-#define PERF_TIMER_DECLARE(__id) \
-    struct timeval PERF_TIMER_VAR(__pt_t1, __id), PERF_TIMER_VAR(__pt_t2, __id);
-#define PERF_TIMER_START(__id) \
-    GETTIMEOFDAY(&PERF_TIMER_VAR(__pt_t1, __id));
-#define PERF_TIMER_STOP(__id) \
-    GETTIMEOFDAY(&PERF_TIMER_VAR(__pt_t2, __id));
-#define PERF_TIMER_GET(__id) \
-    (((PERF_TIMER_VAR(__pt_t2, __id).tv_sec - \
-    PERF_TIMER_VAR(__pt_t1, __id).tv_sec) * 1000.0) + \
-    ((PERF_TIMER_VAR(__pt_t2, __id).tv_usec - \
-    PERF_TIMER_VAR(__pt_t1, __id).tv_usec) / 1000.0))
+#define TIMER_DECLARE(__id)                                                    \
+    struct timeval TIMER_VAR(__pt_t1, __id), TIMER_VAR(__pt_t2, __id)
+#define TIMER_RESTART(__id)                                                    \
+    do {                                                                       \
+        GETTIMEOFDAY(&TIMER_VAR(__pt_t1, __id));                               \
+    } while (0)
+#define TIMER_UPDATE(__id)                                                     \
+    do {                                                                       \
+        GETTIMEOFDAY(&TIMER_VAR(__pt_t2, __id));                               \
+    } while (0)
+#define TIMER_GET(__id)                                                        \
+    (((TIMER_VAR(__pt_t2, __id).tv_sec -                                       \
+    TIMER_VAR(__pt_t1, __id).tv_sec)) +                                        \
+    ((TIMER_VAR(__pt_t2, __id).tv_usec -                                       \
+    TIMER_VAR(__pt_t1, __id).tv_usec) / 1000000.0))
 
 #endif
 /*@}*/
@@ -266,5 +276,36 @@ typedef struct toolkit_dependency {
 #endif
 
 #define HARD_ASSERT(cond) assert(cond)
+
+#define _FLOATING_EQUAL(_a, _b, _epsilon) (fabs((_a) - (_b)) < (_epsilon))
+#define FLT_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, FLT_EPSILON)
+#define DBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, DBL_EPSILON)
+#define LDBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, LDBL_EPSILON)
+
+#define BIT_MASK(_bit) ((uintmax_t) 1 << (_bit))
+
+#define BIT_QUERY(_val, _bit) (((_val) & BIT_MASK(_bit)) != 0)
+#define BIT_SET(_val, _bit) BITMASK_SET(_val, BIT_MASK(_bit))
+#define BIT_CLEAR(_val, _bit) BITMASK_CLEAR(_val, BIT_MASK(_bit))
+#define BIT_FLIP(_val, _bit) BITMASK_FLIP(_val, BIT_MASK(_bit))
+#define BIT_CHANGE(_val, _bit, _x) BITMASK_CHANGE(_val, BIT_MASK(_bit), _x)
+
+#define BITMASK_QUERY(_val, _mask) (((_val) & (_mask)) == (_mask))
+#define BITMASK_SET(_val, _mask)                          \
+    do {                                                  \
+        (_val) |= (_mask);                                \
+    } while (0)
+#define BITMASK_CLEAR(_val, _mask)                        \
+    do {                                                  \
+        (_val) &= ~(_mask);                               \
+    } while (0)
+#define BITMASK_FLIP(_val, _mask)                         \
+    do {                                                  \
+        (_val) ^= (_mask);                                \
+    } while (0)
+#define BITMASK_CHANGE(_val, _mask, _x)                   \
+    do {                                                  \
+        (_val) ^= ((-(_x)) ^ (_val)) & (_mask);           \
+    } while (0)
 
 #endif

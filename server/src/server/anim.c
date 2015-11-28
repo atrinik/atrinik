@@ -81,7 +81,7 @@ void init_anim(void)
     snprintf(buf, sizeof(buf), "%s/animations", settings.libpath);
 
     if ((fp = fopen(buf, "r")) == NULL) {
-        logger_print(LOG(ERROR), "Can not open animations file %s.", buf);
+        LOG(ERROR, "Can not open animations file %s.", buf);
         exit(1);
     }
 
@@ -95,7 +95,7 @@ void init_anim(void)
 
         if (!strncmp(buf, "anim ", 5)) {
             if (num_frames) {
-                logger_print(LOG(ERROR), "Didn't get a mina before %s.", buf);
+                LOG(ERROR, "Didn't get a mina before %s.", buf);
                 exit(1);
             }
 
@@ -121,23 +121,23 @@ void init_anim(void)
             animations[num_animations].num_animations = num_frames;
 
             if (num_frames % animations[num_animations].facings) {
-                logger_print(LOG(DEBUG), "Animation %s frame numbers (%d) is not a multiple of facings (%d)", STRING_SAFE(animations[num_animations].name), num_frames, animations[num_animations].facings);
+                LOG(DEBUG, "Animation %s frame numbers (%d) is not a multiple of facings (%d)", STRING_SAFE(animations[num_animations].name), num_frames, animations[num_animations].facings);
             }
 
             num_frames = 0;
         } else if (!strncmp(buf, "facings", 7)) {
             if (!(animations[num_animations].facings = atoi(buf + 7))) {
-                logger_print(LOG(DEBUG), "Animation %s has 0 facings, line=%s", STRING_SAFE(animations[num_animations].name), buf);
+                LOG(DEBUG, "Animation %s has 0 facings, line=%s", STRING_SAFE(animations[num_animations].name), buf);
                 animations[num_animations].facings = 1;
             }
 
             if (animations[num_animations].facings != 9 && animations[num_animations].facings != 25) {
-                logger_print(LOG(DEBUG), "Animation %s has invalid facings parameter (%d - allowed are 9 or 25 only).", STRING_SAFE(animations[num_animations].name), animations[num_animations].facings);
+                LOG(DEBUG, "Animation %s has invalid facings parameter (%d - allowed are 9 or 25 only).", STRING_SAFE(animations[num_animations].name), animations[num_animations].facings);
                 animations[num_animations].facings = 1;
             }
         } else {
             if (!(faces[num_frames++] = find_face(buf, 0))) {
-                logger_print(LOG(BUG), "Could not find face %s for animation %s", buf, STRING_SAFE(animations[num_animations].name));
+                LOG(BUG, "Could not find face %s for animation %s", buf, STRING_SAFE(animations[num_animations].name));
             }
         }
     }
@@ -174,7 +174,7 @@ int find_animation(char *name)
         return match->num;
     }
 
-    logger_print(LOG(BUG), "Unable to find animation %s", STRING_SAFE(name));
+    LOG(BUG, "Unable to find animation %s", STRING_SAFE(name));
     return 0;
 }
 

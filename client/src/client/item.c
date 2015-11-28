@@ -85,11 +85,9 @@ void objects_free(object *op)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object_inv(object *op, int32_t tag)
+object *object_find_object_inv(object *op, tag_t tag)
 {
-    object *tmp;
-
-    for (tmp = op->inv; tmp; tmp = tmp->next) {
+    for (object *tmp = op->inv; tmp != NULL; tmp = tmp->next) {
         if (tmp->tag == tag) {
             return op;
         }
@@ -103,15 +101,14 @@ object *object_find_object_inv(object *op, int32_t tag)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object(object *op, int32_t tag)
+object *object_find_object(object *op, tag_t tag)
 {
-    for (; op; op = op->next) {
+    for ( ; op != NULL; op = op->next) {
         if (op->tag == tag) {
             return op;
-        } else if (op->inv) {
+        } else if (op->inv != NULL) {
             object *tmp = object_find_object(op->inv, tag);
-
-            if (tmp) {
+            if (tmp != NULL) {
                 return tmp;
             }
         }
@@ -123,33 +120,30 @@ object *object_find_object(object *op, int32_t tag)
 /**
  * Attempts to find an object by its tag, wherever it may be.
  * @param tag Tag to look for.
- * @return Matching object if found, NULL otherwise. */
-object *object_find(int32_t tag)
+ * @return Matching object if found, NULL otherwise.
+ */
+object *object_find(tag_t tag)
 {
-    object *op;
-
-    if (tag == 0) {
-        return cpl.below;
-    }
-
-    if (tag == -1) {
-        return cpl.sack;
+    /* In interface GUI. */
+    if (cpl.interface != NULL) {
+        object *op = object_find_object(cpl.interface->inv, tag);
+        if (op != NULL) {
+            return op;
+        }
     }
 
     /* Below the player. */
-    if (cpl.below) {
-        op = object_find_object(cpl.below->inv, tag);
-
-        if (op) {
+    if (cpl.below != NULL) {
+        object *op = object_find_object(cpl.below, tag);
+        if (op != NULL) {
             return op;
         }
     }
 
     /* Open container. */
-    if (cpl.sack) {
-        op = object_find_object(cpl.sack->inv, tag);
-
-        if (op) {
+    if (cpl.sack != NULL) {
+        object *op = object_find_object(cpl.sack, tag);
+        if (op != NULL) {
             return op;
         }
     }
@@ -163,7 +157,7 @@ object *object_find(int32_t tag)
  * @param op What to remove. */
 void object_remove(object *op)
 {
-    if (op == NULL || op == cpl.ob || op == cpl.below || op == cpl.sack) {
+    if (op == NULL || op == cpl.ob || op == cpl.below) {
         return;
     }
 
@@ -208,10 +202,20 @@ void object_remove_inventory(object *op)
         return;
     }
 
+    if (op == cpl.sack) {
+        cpl.sack = NULL;
+    }
+
     object_redraw(op);
 
-    while (op->inv) {
-        object_remove(op->inv);
+    for (object *tmp = op->inv, *next; tmp != NULL; tmp = next) {
+        next = tmp->next;
+
+        if (tmp == cpl.sack) {
+            continue;
+        }
+
+        object_remove(tmp);
     }
 }
 
@@ -260,6 +264,30 @@ static void object_add(object *env, object *op, int bflag)
 }
 
 /**
+ * Transfer the entire inventory of 'op' into 'to'.
+ * @param op Object to transfer the inventory of.
+ * @param to Object to receive the items.
+ */
+void object_transfer_inventory(object *op, object *to)
+{
+    for (object *tmp = op->inv, *next; tmp != NULL; tmp = next) {
+        next = tmp->next;
+
+        if (tmp->prev != NULL) {
+            tmp->prev->next = tmp->next;
+        } else if (tmp->env != NULL) {
+            tmp->env->inv = tmp->next;
+        }
+
+        if (tmp->next != NULL) {
+            tmp->next->prev = tmp->prev;
+        }
+
+        object_add(to, tmp, 1);
+    }
+}
+
+/**
  * Creates a new object and inserts it into 'env'.
  * @param env Which object to insert the created object into. Can be NULL
  * not to insert the created object anywhere.
@@ -267,15 +295,13 @@ static void object_add(object *env, object *op, int bflag)
  * @param bflag If 1, the object will be added to the end of the
  * inventory instead of the start.
  * @return The created object. */
-object *object_create(object *env, int32_t tag, int bflag)
+object *object_create(object *env, tag_t tag, int bflag)
 {
-    object *op;
-
-    op = mempool_get(pool_object);
+    object *op = mempool_get(pool_object);
 
     op->tag = tag;
 
-    if (env) {
+    if (env != NULL) {
         object_add(env, op, bflag);
     }
 
@@ -314,7 +340,7 @@ void object_send_mark(object *op)
     }
 
     if (cpl.mark_count == op->tag) {
-        cpl.mark_count = -1;
+        cpl.mark_count = 0;
     } else {
         cpl.mark_count = op->tag;
     }
@@ -339,19 +365,15 @@ void object_redraw(object *op)
     env = op->env;
 
     if (env == cpl.sack) {
-        object *sack;
-
-        sack = object_find(cpl.container_tag);
-
-        if (sack != NULL) {
-            env = sack->env;
-        }
+        env = cpl.sack->env;
     }
 
-    if (env == cpl.below) {
-        WIDGET_REDRAW_ALL(BELOW_INV_ID);
+    if (env == cpl.interface) {
+        interface_redraw();
+    } else if (env == cpl.below) {
+        widget_redraw_type_id(INVENTORY_ID, "below");
     } else {
-        WIDGET_REDRAW_ALL(MAIN_INV_ID);
+        widget_redraw_type_id(INVENTORY_ID, "main");
         /* TODO: This could be more sophisticated... */
         WIDGET_REDRAW_ALL(QUICKSLOT_ID);
     }
@@ -362,7 +384,6 @@ void object_redraw(object *op)
  */
 void objects_deinit(void)
 {
-    objects_free(cpl.sack);
     objects_free(cpl.below);
     objects_free(cpl.ob);
 }
@@ -374,10 +395,8 @@ void objects_init(void)
 {
     cpl.ob = mempool_get(pool_object);
     cpl.below = mempool_get(pool_object);
-    cpl.sack = mempool_get(pool_object);
 
     cpl.below->weight = -111;
-    cpl.sack->weight = -111;
 }
 
 /**
@@ -386,6 +405,18 @@ void objects_init(void)
  * @return 1 if the object changed face, 0 otherwise. */
 int object_animate(object *ob)
 {
+    bool ret = false;
+
+    if (ob->glow_speed > 1) {
+        ob->glow_state++;
+
+        if (ob->glow_state > ob->glow_speed) {
+            ob->glow_state = 0;
+        }
+
+        ret = true;
+    }
+
     if (ob->animation_id > 0) {
         check_animation_status(ob->animation_id);
     }
@@ -406,11 +437,11 @@ int object_animate(object *ob)
 
             ob->last_anim = 0;
 
-            return 1;
+            ret = true;
         }
     }
 
-    return 0;
+    return ret;
 }
 
 /**
@@ -442,29 +473,47 @@ void animate_objects(void)
 {
     animate_inventory(cpl.ob);
     animate_inventory(cpl.below);
-    animate_inventory(cpl.sack);
+
+    if (cpl.sack != NULL) {
+        animate_inventory(cpl.sack);
+    }
+
+    if (cpl.interface != NULL) {
+        animate_inventory(cpl.interface);
+    }
 }
 
 /**
  * Draw the object, centering it. Animation offsets are taken into
  * account for perfect centering, even with different image sizes in
  * animation.
+ *
+ * @param surface Surface to render on.
  * @param tmp Object to show.
  * @param x X position.
- * @param y Y position. */
-void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
-        int w, int h)
+ * @param y Y position.
+ * @param w Maximum width.
+ * @param h Maximum height.
+ * @param fit Whether to fit the object into the maximum width/height by
+ * zooming it as necessary.
+ */
+void object_show_centered (SDL_Surface *surface,
+                           object      *tmp,
+                           int          x,
+                           int          y,
+                           int          w,
+                           int          h,
+                           bool         fit)
 {
-    int temp, xstart, xlen, ystart, ylen;
-    uint16_t face;
-    SDL_Rect box;
+    HARD_ASSERT(surface != NULL);
+    HARD_ASSERT(tmp != NULL);
 
-    if (!FaceList[tmp->face].sprite) {
+    if (FaceList[tmp->face].sprite == NULL) {
         return;
     }
 
     /* Will be used for coordinate calculations. */
-    face = tmp->face;
+    uint16_t face = tmp->face;
 
     /* If the item is animated, try to use the first animation face for
      * coordinate calculations to prevent 'jumping' of the animation. */
@@ -482,75 +531,133 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
         }
     }
 
-    xstart = FaceList[face].sprite->border_left;
-    xlen = FaceList[face].sprite->bitmap->w - xstart - FaceList[face].sprite->border_right;
-    ystart = FaceList[face].sprite->border_up;
-    ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
+    int border_left = FaceList[face].sprite->border_left;
+    int border_up = FaceList[face].sprite->border_up;
+    if (tmp->glow[0] != '\0') {
+        border_left -= SPRITE_GLOW_SIZE * 2;
+        border_up -= SPRITE_GLOW_SIZE * 2;
+    }
 
+    int xlen = FaceList[face].sprite->bitmap->w - border_left -
+               FaceList[face].sprite->border_right;
+    int ylen = FaceList[face].sprite->bitmap->h - border_up -
+               FaceList[face].sprite->border_down;
+    if (tmp->glow[0] != '\0') {
+        xlen += SPRITE_GLOW_SIZE * 2;
+        ylen += SPRITE_GLOW_SIZE * 2;
+    }
+
+    double zoom_x = 1.0, zoom_y = 1.0;
+    if (fit) {
+        int xlen2 = xlen, ylen2 = ylen;
+
+        if (xlen2 != w) {
+            double factor = (double) w / xlen2;
+            xlen2 *= factor;
+            ylen2 *= factor;
+        }
+
+        if (ylen2 != h) {
+            double factor = (double) h / ylen2;
+            xlen2 *= factor;
+            ylen2 *= factor;
+        }
+
+        if (xlen2 != xlen) {
+            zoom_x = ((double) xlen2 + 0.5) / xlen;
+            xlen = xlen2;
+            border_left *= zoom_x;
+        }
+
+        if (ylen2 != ylen) {
+            zoom_y = ((double) ylen2 + 0.5) / ylen;
+            ylen = ylen2;
+            border_up *= zoom_x;
+        }
+    }
+
+    SDL_Rect box;
     if (xlen > w) {
         box.w = w;
-        temp = (xlen - w) / 2;
-        box.x = xstart + temp;
-        xstart = 0;
+        int temp = (xlen - w) / 2;
+        box.x = border_left + temp;
+        border_left = 0;
     } else {
         box.w = xlen;
-        box.x = xstart;
-        xstart = (w - xlen) / 2;
+        box.x = border_left;
+        border_left = (w - xlen) / 2;
     }
 
     if (ylen > h) {
         box.h = h;
-        temp = (ylen - h) / 2;
-        box.y = ystart + temp;
-        ystart = 0;
+        int temp = (ylen - h) / 2;
+        box.y = border_up + temp;
+        border_up = 0;
     } else {
         box.h = ylen;
-        box.y = ystart;
-        ystart = (h - ylen) / 2;
+        box.y = border_up;
+        border_up = (h - ylen) / 2;
     }
 
     if (face != tmp->face) {
-        temp = xstart - box.x;
+        int temp = border_left - box.x;
 
         box.x = 0;
-        box.w = FaceList[tmp->face].sprite->bitmap->w;
-        xstart = temp;
+        box.w = FaceList[tmp->face].sprite->bitmap->w * zoom_x;
+        border_left = temp;
 
-        temp = ystart - box.y + (FaceList[face].sprite->bitmap->h - FaceList[tmp->face].sprite->bitmap->h);
+        temp = border_up - box.y + (FaceList[face].sprite->bitmap->h * zoom_y -
+                                    FaceList[tmp->face].sprite->bitmap->h *
+                                    zoom_y);
         box.y = 0;
-        box.h = FaceList[tmp->face].sprite->bitmap->h;
-        ystart = temp;
+        box.h = FaceList[tmp->face].sprite->bitmap->h * zoom_y;
+        border_up = temp;
 
-        if (xstart < 0) {
-            box.x = -xstart;
-            box.w = FaceList[tmp->face].sprite->bitmap->w + xstart;
+        if (border_left < 0) {
+            box.x = -border_left;
+            box.w = FaceList[tmp->face].sprite->bitmap->w * zoom_x +
+                    border_left;
 
             if (box.w > w) {
                 box.w = w;
             }
 
-            xstart = 0;
+            border_left = 0;
         } else {
-            if (box.w + xstart > w) {
-                box.w -= ((box.w + xstart) - w);
+            if (box.w + border_left > w) {
+                box.w -= ((box.w + border_left) - w);
             }
         }
 
-        if (ystart < 0) {
-            box.y = -ystart;
-            box.h = FaceList[tmp->face].sprite->bitmap->h + ystart;
+        if (border_up < 0) {
+            box.y = -border_up;
+            box.h = FaceList[tmp->face].sprite->bitmap->h * zoom_y + border_up;
 
             if (box.h > h) {
                 box.h = h;
             }
 
-            ystart = 0;
+            border_up = 0;
         } else {
-            if (box.h + ystart > h) {
-                box.h -= ((box.h + ystart) - h);
+            if (box.h + border_up > h) {
+                box.h -= ((box.h + border_up) - h);
             }
         }
     }
 
-    surface_show(surface, x + xstart, y + ystart, &box, FaceList[tmp->face].sprite->bitmap);
+    sprite_effects_t effects;
+    memset(&effects, 0, sizeof(effects));
+    snprintf(VS(effects.glow), "%s", tmp->glow);
+    effects.glow_speed = tmp->glow_speed;
+    effects.glow_state = tmp->glow_state;
+    effects.zoom_x = zoom_x * 100.0;
+    effects.zoom_y = zoom_y * 100.0;
+
+    if (effects.glow[0] != '\0') {
+        BIT_SET(effects.flags, SPRITE_FLAG_DARK);
+        effects.dark_level = 0;
+    }
+
+    surface_show_effects(surface, x + border_left, y + border_up, &box,
+                         FaceList[tmp->face].sprite->bitmap, &effects);
 }

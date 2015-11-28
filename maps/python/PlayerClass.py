@@ -7,7 +7,8 @@ class PlayerClass:
     def __init__(self, activator):
         self._activator = activator
 
-    def get_classes(self):
+    @staticmethod
+    def get_classes():
         return ["warrior", "archer", "sorcerer", "warlock", "priest", "paladin"]
 
     def get_class_name_gender(self, name):
@@ -23,7 +24,8 @@ class PlayerClass:
 
         return name
 
-    def get_class_bonuses(self, name):
+    @staticmethod
+    def get_class_bonuses(name):
         if name == "warrior":
             return ["+20% hit points", "+2 AC", "+2 Strength", "+1 Dexterity", "+1 Constitution"]
         elif name == "archer":

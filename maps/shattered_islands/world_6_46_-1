@@ -2,7 +2,7 @@ arch map
 name Asteria Sewers
 msg
 Created:  2009-08-09 emperorbma
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -698,7 +698,7 @@ arch floor_flagm2
 x 7
 y 5
 end
-arch mitcoin
+arch mithrilcoin
 nrof 250
 no_pick 1
 type 60

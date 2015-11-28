@@ -308,10 +308,10 @@ void region_map_pan(region_map_t *region_map)
     if (map != NULL) {
         region_map->pos.x = (map->xpos + MapData.posx *
                 region_map->def->pixel_size) * (region_map->zoom / 100.0) -
-                region_map->pos.w / 2;
+                region_map->pos.w / 2.0;
         region_map->pos.y = (map->ypos + MapData.posy *
                 region_map->def->pixel_size) * (region_map->zoom / 100.0) -
-                region_map->pos.h / 2;
+                region_map->pos.h / 2.0;
     } else {
         region_map->pos.x = region_map->surface->w / 2 - region_map->pos.w / 2;
         region_map->pos.y = region_map->surface->h / 2 - region_map->pos.h / 2;
@@ -395,11 +395,11 @@ void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
             region_map->zoom / 100.0, 1);
     /* Calculate the player's marker position. */
     box.x = x + (map->xpos + MapData.posx * region_map->def->pixel_size) *
-            (region_map->zoom / 100.0) - marker->w / 2 +
-            region_map->def->pixel_size / 2 - region_map->pos.x;
+            (region_map->zoom / 100.0) - marker->w / 2.0 +
+            region_map->def->pixel_size / 2.0 - region_map->pos.x;
     box.y = y + (map->ypos + MapData.posy * region_map->def->pixel_size) *
-            (region_map->zoom / 100.0) - marker->h / 2 +
-            region_map->def->pixel_size / 2 - region_map->pos.y;
+            (region_map->zoom / 100.0) - marker->h / 2.0 +
+            region_map->def->pixel_size / 2.0 - region_map->pos.y;
 
     srcbox.x = MAX(0, x - box.x);
     srcbox.y = MAX(0, y - box.y);
@@ -462,7 +462,7 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
     while (string_get_word(str, &pos, '\n', VS(line), 0)) {
         if (strcmp(line, "t_outline") == 0) {
             if (def->num_tooltips == 0) {
-                log(LOG(ERROR), "No tooltips defined.");
+                LOG(ERROR, "No tooltips defined.");
                 continue;
             }
 
@@ -475,7 +475,7 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
         }
 
         if (string_split(line, cps, 2, ' ') != 2) {
-            log(LOG(ERROR), "Invalid line in definitions file: %s", line);
+            LOG(ERROR, "Invalid line in definitions file: %s", line);
             continue;
         }
 
@@ -487,7 +487,7 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
             def->map_size_y = atoi(cps[1]);
         } else if (strcmp(cps[0], "map") == 0) {
             if (string_split(cps[1], cps, 4, ' ') < 3) {
-                log(LOG(ERROR), "Invalid map in definitions file: %s", cps[1]);
+                LOG(ERROR, "Invalid map in definitions file: %s", cps[1]);
                 continue;
             }
 
@@ -515,7 +515,7 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
             }
         } else if (strcmp(cps[0], "label") == 0) {
             if (string_split(cps[1], cps, 4, ' ') != 4) {
-                log(LOG(ERROR), "Invalid label in definitions file: %s",
+                LOG(ERROR, "Invalid label in definitions file: %s",
                         cps[1]);
                 continue;
             }
@@ -532,7 +532,7 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
 
         } else if (strcmp(cps[0], "tooltip") == 0) {
             if (string_split(cps[1], cps, 6, ' ') != 6) {
-                log(LOG(ERROR), "Invalid tooltip in definitions file: %s",
+                LOG(ERROR, "Invalid tooltip in definitions file: %s",
                         cps[1]);
                 continue;
             }
@@ -550,19 +550,19 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
             def->num_tooltips++;
         } else if (strcmp(cps[0], "t_outline") == 0) {
             if (string_split(cps[1], cps, 2, ' ') != 2) {
-                log(LOG(ERROR), "Invalid t_outline in definitions file: %s",
+                LOG(ERROR, "Invalid t_outline in definitions file: %s",
                         cps[1]);
                 continue;
             }
 
             if (def->num_tooltips == 0) {
-                log(LOG(ERROR), "No tooltips defined.");
+                LOG(ERROR, "No tooltips defined.");
                 continue;
             }
 
             if (!text_color_parse(cps[0],
                     &def->tooltips[def->num_tooltips - 1].outline_color)) {
-                log(LOG(ERROR), "Color in invalid format: %s", cps[0]);
+                LOG(ERROR, "Color in invalid format: %s", cps[0]);
                 continue;
             }
 
@@ -657,7 +657,7 @@ static void region_map_fow_create(region_map_t *region_map)
         struct stat statbuf;
 
         if (fstat(fileno(fp), &statbuf) == -1) {
-            log(LOG(ERROR), "Could not stat %s: %d (%s)", region_map->fow->path,
+            LOG(ERROR, "Could not stat %s: %d (%s)", region_map->fow->path,
                     errno, strerror(errno));
         } else if ((size_t) statbuf.st_size ==
                 RM_MAP_FOW_BITMAP_SIZE(region_map)) {
@@ -665,7 +665,7 @@ static void region_map_fow_create(region_map_t *region_map)
 
             if (fread(region_map->fow->bitmap, 1, statbuf.st_size, fp) !=
                     (size_t) statbuf.st_size) {
-                log(LOG(ERROR), "Could not read %"PRIu64" bytes from %s: %d "
+                LOG(ERROR, "Could not read %"PRIu64" bytes from %s: %d "
                         "(%s)", (uint64_t) statbuf.st_size, region_map->fow->path,
                         errno, strerror(errno));
                 efree(region_map->fow->bitmap);

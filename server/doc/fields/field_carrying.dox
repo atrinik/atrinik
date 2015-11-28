@@ -1,6 +1,10 @@
 /**
-@fn obj::carrying
-@section Use
+@var obj::carrying
+@sa @ref page_field_carrying
+*/
+
+/**
+@page page_field_carrying obj::carrying Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

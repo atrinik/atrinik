@@ -94,6 +94,11 @@ typedef struct interface_struct {
     object *anim;
 
     /**
+     * Virtual objects inside the interface.
+     */
+    object *objects;
+
+    /**
      * Ticks of the last animation.
      */
     uint32_t last_anim;

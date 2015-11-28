@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-20 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -47,7 +47,7 @@ arch spawn_point
 y 5
 arch dog_brown
 speed -0.025
-friendly 1
+faction asteria_animals
 random_move 1
 item_race 10
 item_level 10
@@ -494,10 +494,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch grassd_8
@@ -1008,6 +1005,7 @@ Sorry, as the Prime Minister of Asteria, I'm quite busy.
 endmsg
 name Arkomir Goodbeard
 level 22
+faction asteria_nobility
 type 83
 end
 end
@@ -1487,10 +1485,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_blue3
@@ -2608,12 +2603,8 @@ y 19
 arch guard
 name Asterian Guard
 type 83
-level 100
-unaggressive 0
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+level 36
+faction asteria_guards
 end
 end
 arch floor_fs_grey1b
@@ -2642,11 +2633,7 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-unaggressive 0
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch grassd_7
@@ -2747,12 +2734,36 @@ z 50
 x 16
 y 17
 end
+arch handle_lever
+connected 101
+slaying asteria_walls_gate
+exp 1000
+path_repelled 4
+x 16
+y 17
+end
+arch spawn_point
+x 16
+y 17
+arch guard
+name Asterian Guard
+type 83
+level 36
+faction asteria_guards
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
+end
 arch fstone1b
 z 50
 x 16
 y 18
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
 x 16
 y 18
 end
@@ -2817,7 +2828,9 @@ z 50
 x 16
 y 23
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 16
 y 23
 end
@@ -2914,6 +2927,14 @@ z 50
 x 17
 y 17
 end
+arch handle_lever
+connected 101
+slaying asteria_walls_gate
+exp 1000
+path_repelled 4
+x 17
+y 17
+end
 arch fstone1b
 z 50
 x 17
@@ -2938,12 +2959,8 @@ y 19
 arch guard
 name Asterian Guard
 type 83
-level 100
-unaggressive 0
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+level 36
+faction asteria_guards
 end
 end
 arch floor_fs_grey1b
@@ -2971,12 +2988,8 @@ y 22
 arch guard
 name Asterian Guard
 type 83
-level 100
-unaggressive 0
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+level 36
+faction asteria_guards
 end
 end
 arch fstone1b
@@ -3591,16 +3604,14 @@ x 21
 y 5
 arch archer
 level 100
-dex 1
-can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
 align 5
 direction 1
+faction asteria_guards
 arch ability_stone_throw
-race arrows
+race haxarrows
 sp 1
 wc 300
 wc_range 150
@@ -3619,6 +3630,7 @@ attack_fire 100
 attack_electricity 100
 attack_cold 100
 attack_poison 100
+race haxarrows
 end
 end
 end
@@ -3842,6 +3854,7 @@ y 8
 arch female2
 name Terri
 level 22
+faction asteria_citizens
 type 83
 arch event_obj
 sub_type 6

@@ -125,7 +125,7 @@
  *
  * Currently unused types to fill: 63, 67, 76, 97, 108, 128, 129,
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
- * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57, 45,
+ * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57,
  * 46, 24.
  *@{*/
 /**
@@ -189,6 +189,9 @@
 /**
  * Key to unlock @ref DOOR "a locked door". */
 #define KEY 21
+/**
+ * Map object. Used internally.
+ */
 #define MAP 22
 /**
  * A magic mirror which allows you to see objects on a different coordinate. */
@@ -203,8 +206,8 @@
  * Helmet. */
 #define HELMET 34
 /**
- * Greaves. */
-#define GREAVES 35
+ * Pants. */
+#define PANTS 35
 /**
  * Money (copper, silver, etc). */
 #define MONEY 36
@@ -229,6 +232,10 @@
 /**
  * An experience object. */
 #define EXPERIENCE 44
+/*
+ * A trinket.
+ */
+#define TRINKET 45
 /**
  * Blindness force object. */
 #define BLINDNESS 49
@@ -540,14 +547,19 @@
 
 /**
  * @defgroup size_of_free_defines Size of free defines
- * Instead of using arbitrary constants for indexing the
- * freearr, add these values.  <= SIZEOFFREE1 will get you
- * within 1 space.  <= SIZEOFFREE2 will get you within
- * 2 spaces, and the entire array (<= SIZEOFFREE) is
- * three spaces.
+ * Instead of using arbitrary constants for indexing freearr_x/freearr_y, use
+ * these values.
+ *  - <= SIZEOFFREE1 will get you within 1 space.
+ *  - <= SIZEOFFREE2 will get you within 2 spaces.
+ *  - <= SIZEOFFREE3 will get you within 3 spaces.
  *@{*/
+/** Up to one space when searching around a spot. */
 #define SIZEOFFREE1     8
+/** Up to two spaces when searching around a spot. */
 #define SIZEOFFREE2     24
+/** Up to three spaces when searching around a spot. */
+#define SIZEOFFREE3     48
+/** Maximum size of the arrays. */
 #define SIZEOFFREE      49
 /*@}*/
 
@@ -620,44 +632,50 @@
  *@{*/
 
 /** Macro for getting flag's bitmask value. */
-#define FLAG_BITMASK(p) (1U << (p % 32))
+#define FLAG_BITMASK(p) BIT_MASK(p % 32)
 
 /**
  * Set flag of of an object.
  * @param xyz The object
- * @param p The flag to set */
+ * @param p The flag to set
+ */
 #define SET_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] |= FLAG_BITMASK(p))
+    BIT_SET((xyz)->flags[p / 32], p % 32)
 
 /**
  * Clear flag of an object.
  * @param xyz The object
- * @param p The flag to clear */
+ * @param p The flag to clear
+ */
 #define CLEAR_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] &= ~FLAG_BITMASK(p))
+    BIT_CLEAR((xyz)->flags[p / 32], p % 32)
 
 /**
  * Query flag of an object.
  * @param xyz The object
- * @param p The flag to query */
+ * @param p The flag to query
+ */
 #define QUERY_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] & FLAG_BITMASK(p))
+    BIT_QUERY((xyz)->flags[p / 32], p % 32)
 
 /**
- * Toggle flag of an object.
+ * Flip flag of an object.
  * @param xyz The object.
- * @param p The flag to toggle. */
-#define TOGGLE_FLAG(xyz, p) \
-    { \
-        if (QUERY_FLAG((xyz), (p))) \
-        { \
-            CLEAR_FLAG((xyz), (p)); \
-        } \
-        else \
-        { \
-            SET_FLAG((xyz), (p)); \
-        } \
-    }
+ * @param p The flag to flip.
+ */
+#define FLIP_FLAG(xyz, p) \
+    BIT_FLIP((xyz)->flags[p / 32], p % 32)
+
+/**
+ * Utility macro to set or clear an object's flag depending on whether the cond
+ * evaluates to true or false.
+ * @param op Object to set or clear the flag for
+ * @param flag The flag we're setting/clearing
+ * @param cond If true, will set the flag, will clear otherwise.
+ */
+#define CHANGE_FLAG(op, flag, cond) \
+    BIT_CHANGE((op)->flags[flag / 32], flag % 32, cond)
+
 /*@}*/
 
 /**
@@ -668,45 +686,39 @@
  * we set this ONE time outside instead of every time in object_remove():
  * we skip the call for the head in this way.
  *@{*/
-#define SET_MULTI_FLAG(xyz, p)                          \
-    {                                                       \
-        object *_tos_;                                      \
-                                                        \
-        for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
-        {                                                   \
-            ((_tos_)->flags[p / 32] |= (1U << (p % 32)));   \
-        }                                                   \
-    }
+#define SET_MULTI_FLAG(xyz, p)                                                 \
+    do {                                                                       \
+        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) {                \
+            SET_FLAG(_tos_, p);                                                \
+        }                                                                      \
+    } while (0)
 
-#define CLEAR_MULTI_FLAG(xyz, p)                        \
-    {                                                       \
-        object *_tos_;                                      \
-                                                        \
-        for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
-        {                                                   \
-            ((_tos_)->flags[p / 32] &= ~(1U << (p % 32)));  \
-        }                                                   \
-    }
+#define CLEAR_MULTI_FLAG(xyz, p)                                               \
+    do {                                                                       \
+        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) {                \
+            CLEAR_FLAG(_tos_, p);                                              \
+        }                                                                      \
+    } while (0)
 
-#define SET_OR_CLEAR_MULTI_FLAG(_head, _flag) \
-    if (QUERY_FLAG((_head), (_flag))) \
-    { \
-        SET_MULTI_FLAG((_head)->more, (_flag)); \
-    } \
-    else \
-    { \
-        CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
-    }
+#define SET_OR_CLEAR_MULTI_FLAG(_head, _flag)                                  \
+    do {                                                                       \
+        if (QUERY_FLAG(_head, _flag)) {                                        \
+            SET_MULTI_FLAG((_head)->more, _flag);                              \
+        } else {                                                               \
+            CLEAR_MULTI_FLAG((_head)->more, _flag);                            \
+        }                                                                      \
+    } while (0)
 
-#define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag) \
-    if (QUERY_FLAG((_head), (_flag)) && !QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
-    { \
-        SET_MULTI_FLAG((_head)->more, (_flag)); \
-    } \
-    else if (!QUERY_FLAG((_head), (_flag)) && QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
-    { \
-        CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
-    }
+#define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag)                         \
+    do {                                                                       \
+        bool _has_head_ = QUERY_FLAG(_head, _flag);                            \
+        bool _has_clone_ = QUERY_FLAG(&(_head)->arch->clone, _flag);           \
+        if (_has_head_ && !_has_clone_) {                                      \
+            SET_MULTI_FLAG((_head), _flag);                                    \
+        } else if (!_has_head_ && _has_clone_) {                               \
+            CLEAR_MULTI_FLAG((_head), _flag);                                  \
+        }                                                                      \
+    } while (0)
 /*@}*/
 
 /**
@@ -716,7 +728,7 @@
 /** Is this a weapon? */
 #define IS_WEAPON(op) (op->type == ARROW || op->type == BOW || op->type == WEAPON)
 /** Is this some kind of armor (shield, helmet, cloak, etc)? */
-#define IS_ARMOR(op) (op->type == ARMOUR || op->type == SHIELD || op->type == HELMET || op->type == CLOAK || op->type == BOOTS || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE || op->type == GREAVES)
+#define IS_ARMOR(op) (op->type == ARMOUR || op->type == SHIELD || op->type == HELMET || op->type == CLOAK || op->type == BOOTS || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE || op->type == PANTS)
 /** Is this object alive? */
 #define IS_LIVE(op) ((op)->type == PLAYER || QUERY_FLAG((op), FLAG_MONSTER))
 /** Is it an arrow? */
@@ -875,6 +887,10 @@
 /**
  * The object is evil. */
 #define FLAG_IS_EVIL 43
+/**
+ * The object is soulbound to the player.
+ */
+#define FLAG_SOULBOUND 44
 /**
  * Object runs away from nearest player but can still attack
  * from distance. */
@@ -1232,75 +1248,8 @@
 #define HI4    240
 /*@}*/
 
+/** Name of the blank face. */
 #define BLANK_FACE_NAME "blank.111"
-#define NEXT_ITEM_FACE_NAME "next_item.101"
-#define PREVIOUS_ITEM_FACE_NAME "prev_item.101"
-
-/**
- * Simple function we use below to keep adding to the same string
- * but also make sure we don't overwrite that string.
- * @param dest String to append to.
- * @param orig String to append.
- * @param curlen Current length of dest. Will be updated by this function.
- * @param maxlen Maximum length of dest buffer. */
-static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, size_t maxlen)
-{
-    if (*curlen == (maxlen - 1)) {
-        return;
-    }
-
-    strncpy(dest + *curlen, orig, maxlen - *curlen - 1);
-    dest[maxlen - 1] = 0;
-    *curlen += strlen(orig);
-
-    if (*curlen > (maxlen - 1)) {
-        *curlen = maxlen - 1;
-    }
-}
-
-#define DESCRIBE_PATH(retbuf, variable, name)                        \
-    if (variable)                                                    \
-    {                                                                \
-        int i, j = 0;                                                \
-        strcat(retbuf, "(" name ": ");                               \
-                                                                     \
-        for (i = 0; i < NRSPELLPATHS; i++)                           \
-        {                                                            \
-            if (variable & (1 << i))                                 \
-            {                                                        \
-                if (j)                                               \
-                    strcat(retbuf, ", ");                            \
-                else                                                 \
-                    j = 1;                                           \
-                                                                     \
-                strcat(retbuf, spellpathnames[i]);                   \
-            }                                                        \
-        }                                                            \
-                                                                     \
-        strcat(retbuf, ")");                                         \
-    }
-
-#define DESCRIBE_PATH_SAFE(retbuf, variable, name, len, maxlen)      \
-    if (variable)                                                    \
-    {                                                                \
-        int i, j = 0;                                                \
-        safe_strcat(retbuf, "(" name ": ", len, maxlen);             \
-                                                                     \
-        for (i = 0; i < NRSPELLPATHS; i++)                           \
-        {                                                            \
-            if (variable & (1 << i))                                 \
-            {                                                        \
-                if (j)                                               \
-                    safe_strcat(retbuf, ", ", len, maxlen);          \
-                else                                                 \
-                    j = 1;                                           \
-                                                                     \
-                safe_strcat(retbuf, spellpathnames[i], len, maxlen); \
-            }                                                        \
-        }                                                            \
-                                                                     \
-        safe_strcat(retbuf, ")", len, maxlen);                       \
-    }
 
 /**
  * Flags for object_apply_item().
@@ -1308,14 +1257,14 @@ static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, siz
  * @anchor AP_xxx */
 enum apply_flag {
     /* Basic flags, always use one of these */
-    AP_NULL = 0,
-    AP_APPLY = 1,
-    AP_UNAPPLY = 2,
-    AP_BASIC_FLAGS = 15,
+    APPLY_NORMAL = 0, ///< Regular apply.
+    APPLY_ALWAYS = 1, ///< Always apply, never unapply.
+    APPLY_ALWAYS_UNAPPLY = 2, ///< Always unapply, never apply.
+    APPLY_BASIC_FLAGS = 15, ///< Used internally.
     /* Optional flags, for bitwise or with a basic flag */
-    AP_NO_MERGE = 16,
-    AP_IGNORE_CURSE = 32,
-    AP_NO_EVENT = 64
+    APPLY_NO_MERGE = 16, ///< Do not merge unapplied items.
+    APPLY_IGNORE_CURSE = 32, ///< Allow unapplying cursed items.
+    APPLY_NO_EVENT = 64 ///< Do not trigger an event.
 };
 
 /** Cut off point of when an object is put on the active list or not */
@@ -1336,10 +1285,14 @@ enum apply_flag {
  * Quest statuses. Stored in object::magic.
  *@{*/
 
+/** Quest status is invalid. */
+#define QUEST_STATUS_INVALID -1
 /** The quest has been started. */
 #define QUEST_STATUS_STARTED 0
 /** The quest has been completed. */
 #define QUEST_STATUS_COMPLETED 1
+/** The quest part was failed. */
+#define QUEST_STATUS_FAILED 2
 /*@}*/
 
 /**
@@ -1390,6 +1343,12 @@ enum apply_flag {
  * Maximum number of seconds the NPC may stop moving for, regardless of
  * message length. */
 #define INTERFACE_TIMEOUT_MAX 60 * 5
+/**
+ * Calculates number of seconds for the interface timeout.
+ */
+#define INTERFACE_TIMEOUT(ret) ((long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, \
+        (ret)) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - \
+        INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL)
 /*@}*/
 
 /** Check if the keyword represents a true value. */
@@ -1481,13 +1440,13 @@ enum apply_flag {
  * Constructs a loop iterating over the inventory of an object. Example:
  * <pre>
  * FOR_INV_PREPARE(op, inv)
- *     logger_print(LOG(INFO), "%s\n", inv->name);
+ *     LOG(INFO, "%s\n", inv->name);
  * FOR_INV_FINISH();
  * </pre>
  * or
  * <pre>
  * FOR_INV_PREPARE(op, inv) {
- *     logger_print(LOG(INFO), "%s\n", inv->name);
+ *     LOG(INFO, "%s\n", inv->name);
  * } FOR_INV_FINISH();
  * </pre>
  * @param op_ the object to iterate over

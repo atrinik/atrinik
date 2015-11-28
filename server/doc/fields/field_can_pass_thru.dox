@@ -1,6 +1,10 @@
 /**
-@fn FLAG_CAN_PASS_THRU
-@section Use
+@var FLAG_CAN_PASS_THRU
+@sa @ref page_field_can_pass_thru
+*/
+
+/**
+@page page_field_can_pass_thru FLAG_CAN_PASS_THRU Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

@@ -86,6 +86,17 @@ enum {
 /** Maximum failures allowed when trying to reach destination path. */
 #define PLAYER_PATH_MAX_FAILS 15
 
+#define PLAYER_TESTING_NAME1 "Tester"
+#define PLAYER_TESTING_NAME2 "Tester Testington"
+
+#define ACCOUNT_TESTING_NAME "tester"
+
+#define PLAYER_REGEN_HP_RATE 2000.0
+#define PLAYER_REGEN_SP_RATE 1200.0
+
+#define PLAYER_REGEN_MODIFIER 10.0
+#define PLAYER_REGEN_MODIFIER_MAX 10.0
+
 /** One path player is attempting to reach. */
 typedef struct player_path {
     /** Next path in linked list. */
@@ -108,6 +119,16 @@ typedef struct player_path {
 } player_path;
 
 #define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
+
+/**
+ * Player faction structure. Holds information about the player's affiliation
+ * with a particular faction.
+ */
+typedef struct player_faction {
+    shstr *name; ///< Name of the faction.
+    double reputation; ///< Reputation.
+    UT_hash_handle hh; ///< Hash handle.
+} player_faction_t;
 
 /** The player structure. */
 typedef struct pl_player {
@@ -145,9 +166,6 @@ typedef struct pl_player {
 
     /** DM command permissions. */
     char **cmd_permissions;
-
-    /** Faction IDs. */
-    shstr **faction_ids;
 
     /** Last map info name sent. */
     char map_info_name[HUGE_BUF];
@@ -237,12 +255,6 @@ typedef struct pl_player {
     /** Number of player::cmd_permissions. */
     int num_cmd_permissions;
 
-    /** Number of faction IDs. */
-    int num_faction_ids;
-
-    /** Reputations with the various factions. */
-    int64_t *faction_reputation;
-
     /** Fame rating in the world. */
     int64_t fame;
 
@@ -255,10 +267,10 @@ typedef struct pl_player {
     float last_action_timer;
 
     /** Last speed value sent to client. */
-    float last_speed;
+    double last_speed;
 
     /** Last weapon speed value sent to client. */
-    float last_weapon_speed;
+    double last_weapon_speed;
 
     /** Last overall level sent to the client. */
     unsigned char last_level;
@@ -293,6 +305,9 @@ typedef struct pl_player {
     /** Last time the player was saved. */
     time_t last_save_time;
 #endif
+
+    /** Last tick the player was in combat. */
+    long last_combat;
 
     /** The count of the container. */
     uint32_t container_count;
@@ -432,7 +447,7 @@ typedef struct pl_player {
     uint32_t count;
 
     /** Last ranged weapon speed sent. */
-    int32_t last_ranged_ws;
+    float last_ranged_ws;
 
     /**
      * Last attuned spell path sent to client. */
@@ -516,6 +531,18 @@ typedef struct pl_player {
     /** If 1, normally invisible items can be seen. */
     uint8_t tsi;
 
+    /**
+     * If 1, the player is ready to engage in combat and will swing their
+     * weapon at targeted enemies.
+     */
+    uint8_t combat;
+
+    /**
+     * If 1, the player will swing their weapon at their target, be it friend
+     * or foe.
+     */
+    uint8_t combat_force;
+
     /** Last stats sent to the client. */
     living last_stats;
 
@@ -537,6 +564,8 @@ typedef struct pl_player {
 
     object *talking_to; ///< Object the player is talking to.
     tag_t talking_to_count; ///< ID of ::talking_to.
+
+    player_faction_t *factions;
 } player;
 
 #endif

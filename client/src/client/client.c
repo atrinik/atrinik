@@ -45,9 +45,6 @@
 /** Client player structure with things like stats, damage, etc */
 Client_Player cpl;
 
-/** Client socket. */
-ClientSocket csocket;
-
 /** Structure of all the socket commands */
 static socket_command_struct commands[CLIENT_CMD_NROF] = {
     {socket_command_map},
@@ -91,7 +88,7 @@ void DoClient(void)
     /* Handle all enqueued commands */
     while ((cmd = get_next_input_command())) {
         if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func) {
-            logger_print(LOG(BUG), "Bad command from server (%d)", cmd->data[0]);
+            LOG(BUG, "Bad command from server (%d)", cmd->data[0]);
         } else {
             commands[cmd->data[0]].handle_func(cmd->data + 1, cmd->len - 1, 0);
         }

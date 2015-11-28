@@ -84,6 +84,8 @@
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>
+#include <plugin.h>
+#include <plugin_hooklist.h>
 #include <stdarg.h>
 
 /** Plugin name */
@@ -91,6 +93,8 @@
 
 /** Plugin version */
 #define PLUGIN_VERSION "Arena plugin 1.0"
+
+#define logger_print hooks->logger_print
 
 /** Players currently in an arena map */
 typedef struct arena_map_players {
@@ -293,7 +297,7 @@ static void arena_map_parse_script(const char *arena_script, object *exit_ob, ar
     fh = fopen(arena_script_path, "r");
 
     if (!fh) {
-        hooks->logger_print(LOG(BUG), "Arena: Could not open arena script: %s", arena_script_path);
+        LOG(BUG, "Arena: Could not open arena script: %s", arena_script_path);
         return;
     }
 
@@ -574,8 +578,12 @@ MODULEAPI void *triggerEvent(int *type, ...)
 
     va_start(args, type);
     event_type = va_arg(args, int);
-    eventcode = va_arg(args, int);
+    if (event_type == PLUGIN_EVENT_UNIT) {
+        va_end(args);
+        return &result;
+    }
 
+    eventcode = va_arg(args, int);
     activator = va_arg(args, object *);
 
     if (event_type == PLUGIN_EVENT_NORMAL) {

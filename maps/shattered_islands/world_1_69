@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch grassd_8
@@ -164,7 +164,7 @@ arch wall_stone_1
 x 1
 y 3
 end
-arch shop_floor
+arch shop_floor_normal
 x 1
 y 4
 end
@@ -172,7 +172,7 @@ arch wall_stone_3
 x 1
 y 4
 end
-arch shop_floor
+arch shop_floor_normal
 x 1
 y 5
 end
@@ -1824,6 +1824,7 @@ y 3
 arch mage_old
 name Feldain Goodwin
 level 30
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -2463,12 +2464,8 @@ y 20
 arch guard
 direction 3
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_6

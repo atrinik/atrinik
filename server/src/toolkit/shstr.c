@@ -56,7 +56,7 @@ TOOLKIT_DEINIT_FUNC(shstr)
 
     for (i = 0; i < TABLESIZE; i++) {
         for (ss = hash_table[i]; ss != NULL; ss = ss->next) {
-            log(LOG(ERROR), "String still has %lu references: '%s'",
+            LOG(ERROR, "String still has %lu references: '%s'",
                     ss->refcount & ~TOPBIT, ss->string);
         }
     }

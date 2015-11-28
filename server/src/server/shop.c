@@ -24,104 +24,87 @@
 
 /**
  * @file
- * Functions dealing with shop handling, bargaining, etc. */
+ * Functions dealing with shop handling, bargaining, etc.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
-
-static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay);
+#include <arch.h>
 
 /**
- * Return the price of an item for a character.
+ * Calculate the price of an item.
  * @param tmp Object we're querying the price of.
- * @param who Who is inquiring. Can be NULL, only meaningful if player.
- * @param flag Combination of @ref F_xxx "F_xxx" flags.
- * @return The price for the item. */
-int64_t query_cost(object *tmp, object *who, int flag)
+ * @param mode One of @ref COST_xxx.
+ * @return The price of the item.
+ */
+int64_t shop_get_cost(object *op, int mode)
 {
-    int64_t val;
-    double diff;
-    int number;
+    HARD_ASSERT(op != NULL);
 
-    if ((number = tmp->nrof) == 0) {
-        number = 1;
-    }
+    SOFT_ASSERT_RC(op->arch != NULL, 0, "Object has no archetype: %s",
+            object_get_str(op));
 
+    uint32_t nrof = MAX(1, op->nrof);
     /* Money is always identified */
-    if (tmp->type == MONEY) {
-        return (number * tmp->value);
+    if (op->type == MONEY) {
+        return op->value * nrof;
     }
 
-    /* Handle identified items */
-    if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) || !need_identify(tmp)) {
-        if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
+    int64_t val;
+
+    if (QUERY_FLAG(op, FLAG_IDENTIFIED) || !need_identify(op)) {
+        /* Handle identified items */
+        if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) {
+            /* Cursed or damned items have no value at all. */
             return 0;
         } else {
-            val = tmp->value * number;
+            val = op->value * nrof;
         }
     } else {
-        /* This area deals with objects that are not identified, but can be */
-
-        if (tmp->arch != NULL) {
-            if (flag == COST_BUY) {
-                logger_print(LOG(BUG), "Asking for buy-value of unidentified object %s.", query_name(tmp, NULL));
-                val = tmp->arch->clone.value * number;
-            } else {
-                /* Trying to sell something, or get true value */
-
-                /* Selling unidentified gems is *always* stupid */
-                if (tmp->type == GEM || tmp->type == JEWEL || tmp->type == NUGGET || tmp->type == PEARL) {
-                    val = number * 3;
-                } else if (tmp->type == POTION) {
-                    /* Don't want to give anything away */
-                    val = number * 50;
-                } else {
-                    val = number * tmp->arch->clone.value;
-                }
-            }
+        /* This area deals with objects that are not identified, but can be. */
+        if (mode == COST_BUY) {
+            log_error("Asking for buy value of unidentified object: %s",
+                    object_get_str(op));
+            val = op->arch->clone.value * nrof;
         } else {
-            /* No archetype with this object - we generate some dummy values to
-             * avoid server break */
-            logger_print(LOG(BUG), "Have object with no archetype: %s", query_name(tmp, NULL));
-
-            if (flag == COST_BUY) {
-                logger_print(LOG(BUG), "Asking for buy-value of unidentified object without arch.");
-                val = number * 100;
+            /* Trying to sell something, or get true value. */
+            if (op->type == GEM || op->type == JEWEL || op->type == NUGGET ||
+                    op->type == PEARL) {
+                val = 3 * nrof;
+            } else if (op->type == POTION) {
+                val = 50 * nrof;
             } else {
-                val = number * 80;
+                val = op->arch->clone.value * nrof;
             }
         }
     }
 
-    /* Wands will count special. The base value is for a wand with one charge */
-    if (tmp->type == WAND) {
-        val += (val * tmp->level) * tmp->stats.food;
-    } else if (tmp->type == ROD || tmp->type == POTION || tmp->type == SCROLL) {
-        val += val * tmp->level;
-    } else if (tmp->type == BOOK_SPELL) {
-        if (tmp->stats.sp >= 0 && tmp->stats.sp < NROFREALSPELLS) {
-            val += val * spells[tmp->stats.sp].at->clone.level;
-            val += spells[tmp->stats.sp].at->clone.value;
+    if (op->type == WAND) {
+        val += (val * op->level) * op->stats.food;
+    } else if (op->type == ROD || op->type == POTION || op->type == SCROLL) {
+        val += val * op->level;
+    } else if (op->type == BOOK_SPELL) {
+        if (op->stats.sp >= 0 && op->stats.sp < NROFREALSPELLS) {
+            val += val * spells[op->stats.sp].at->clone.level;
+            val += spells[op->stats.sp].at->clone.value;
         }
     }
 
-    /* We are done if we only want get the real value */
-    if (flag == COST_TRUE) {
+    /* We are done if we only want get the real value. */
+    if (mode == COST_TRUE) {
         return val;
     }
 
-    /* Now adjust for sell or buy multiplier */
-    if (flag == COST_BUY) {
+    double diff;
+    /* Now adjust for sell or buy multiplier. */
+    if (mode == COST_BUY) {
         diff = 1.0;
     } else {
         diff = 0.20;
     }
 
-    val = (val * (long) (1000 * (diff))) / 1000;
-
-    /* We want to give at least 1 copper for items which have any
-     * value. */
-    if (val < 1 && tmp->value > 0) {
+    val = (int64_t) (val * diff);
+    if (val < 1 && op->value > 0) {
         val = 1;
     }
 
@@ -129,28 +112,29 @@ int64_t query_cost(object *tmp, object *who, int flag)
 }
 
 /**
- * Find the coin type that is worth more than 'c'. Starts at the cointype
+ * Find the coin type that is worth more than 'cost'. Starts at the 'cointype'
  * placement.
- * @param c Value we're searching.
- * @param cointype First coin type to search.
- * @return Coin archetype, NULL if none found. */
-static archetype *find_next_coin(int64_t c, int *cointype)
+ * @param cost Value we're searching.
+ * @param[in,out] cointype First coin type to search. Will contain the next
+ * coin ID.
+ * @return Coin archetype, NULL if none found.
+ */
+static archetype_t *shop_get_next_coin(int64_t cost, int *cointype)
 {
-    archetype *coin;
+    archetype_t *coin;
 
     do {
         if (coins[*cointype] == NULL) {
             return NULL;
         }
 
-        coin = find_archetype(coins[*cointype]);
-
+        coin = arch_find(coins[*cointype]);
         if (coin == NULL) {
             return NULL;
         }
 
         *cointype += 1;
-    }    while (coin->clone.value > c);
+    } while (coin->clone.value > cost);
 
     return coin;
 }
@@ -158,793 +142,464 @@ static archetype *find_next_coin(int64_t c, int *cointype)
 /**
  * Converts a price to number of coins.
  * @param cost Value to transform to currency.
- * @return Buffer containing the price. */
-char *cost_string_from_value(int64_t cost)
+ * @return Static buffer containing the price. Will be overwritten with the next
+ * call to this function.
+ */
+char *shop_get_cost_string(int64_t cost)
 {
     static char buf[MAX_BUF];
-    archetype *coin, *next_coin;
-    char *endbuf;
-    int64_t num;
+
     int cointype = 0;
-
-    coin = find_next_coin(cost, &cointype);
-
+    archetype_t *coin = shop_get_next_coin(cost, &cointype);
     if (coin == NULL) {
         return "nothing";
     }
 
-    num = cost / coin->clone.value;
+    int64_t num = cost / coin->clone.value;
     cost -= num * coin->clone.value;
 
-    if (num == 1) {
-        snprintf(buf, sizeof(buf), "1 %s%s", material_real[coin->clone.material_real].name, coin->clone.name);
-    } else {
-        snprintf(buf, sizeof(buf), "%"PRId64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
-    }
+    snprintf(VS(buf), "%" PRId64 " %s%s%s", num,
+            material_real[coin->clone.material_real].name,
+            coin->clone.name, num == 1 ? "" : "s");
 
-    next_coin = find_next_coin(cost, &cointype);
-
+    archetype_t *next_coin = shop_get_next_coin(cost, &cointype);
     if (next_coin == NULL) {
         return buf;
     }
 
     do {
-        endbuf = buf + strlen(buf);
-
         coin = next_coin;
         num = cost / coin->clone.value;
         cost -= num * coin->clone.value;
 
-        if (cost == 0.0) {
+        if (cost == 0) {
             next_coin = NULL;
         } else {
-            next_coin = find_next_coin(cost, &cointype);
+            next_coin = shop_get_next_coin(cost, &cointype);
         }
 
-        if (next_coin) {
+        if (next_coin != NULL) {
             /* There will be at least one more string to add to the list,
              * use a comma. */
-            strcat(endbuf, ", ");
-            endbuf += 2;
+            snprintfcat(VS(buf), ", ");
         } else {
-            strcat(endbuf, " and ");
-            endbuf += 5;
+            snprintfcat(VS(buf), " and ");
         }
 
-        if (num == 1) {
-            sprintf(endbuf, "1 %s%s", material_real[coin->clone.material_real].name, coin->clone.name);
-        } else {
-            sprintf(endbuf, "%"PRId64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
-        }
-
-    }    while (next_coin);
+        snprintfcat(VS(buf), "%" PRId64 " %s%s%s", num,
+                material_real[coin->clone.material_real].name,
+                coin->clone.name, num == 1 ? "" : "s");
+    } while (next_coin != NULL);
 
     return buf;
 }
 
 /**
- * Query the cost of an object.
+ * Query the cost of an item.
  *
- * This is really a wrapper for cost_string_from_value() and
- * query_cost().
- * @param tmp Object we're querying the price of.
- * @param who Who is inquiring. Can be NULL, only meaningful if player.
- * @param flag Combination of @ref F_xxx "F_xxx" flags.
- * @return The cost string. */
-char *query_cost_string(object *tmp, object *who, int flag)
+ * This is really a wrapper for shop_get_cost_string() and shop_get_cost().
+ * @param op Object we're querying the price of.
+ * @param mode One of @ref COST_xxx.
+ * @return The cost string.
+ */
+char *shop_get_cost_string_item(object *op, int mode)
 {
-    return cost_string_from_value(query_cost(tmp, who, flag));
+    return shop_get_cost_string(shop_get_cost(op, mode));
 }
 
 /**
  * Finds out how much money the player is carrying, including what is in
  * containers and in bank.
  * @param op Item to get money for. Must be a player or a container.
- * @return Total money the player is carrying. */
-int64_t query_money(object *op)
+ * @return Total money the player is carrying.
+ */
+int64_t shop_get_money(object *op)
 {
-    object *tmp;
+    HARD_ASSERT(op != NULL);
+
+    SOFT_ASSERT_RC(op->type == PLAYER || op->type == CONTAINER, 0,
+            "Called with invalid object type: %s", object_get_str(op));
+
     int64_t total = 0;
-
-    if (op->type != PLAYER && op->type != CONTAINER) {
-        logger_print(LOG(BUG), "Called with non player/container.");
-        return 0;
-    }
-
-    for (tmp = op->inv; tmp; tmp = tmp->below) {
+    FOR_INV_PREPARE(op, tmp) {
         if (tmp->type == MONEY) {
             total += tmp->nrof * tmp->value;
-        } else if (tmp->type == CONTAINER && ((!tmp->race || strstr(tmp->race, "gold")) || QUERY_FLAG(tmp, FLAG_APPLIED))) {
-            total += query_money(tmp);
-        } else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
+        } else if (tmp->type == CONTAINER && (QUERY_FLAG(tmp, FLAG_APPLIED) ||
+                tmp->race == NULL || strstr(tmp->race, "gold") != NULL)) {
+            total += shop_get_money(tmp);
+        } else if (tmp->arch->name == shstr_cons.player_info &&
+                tmp->name == shstr_cons.BANK_GENERAL) {
             total += tmp->value;
         }
-    }
+    } FOR_INV_FINISH();
 
     return total;
 }
 
 /**
- * Takes the amount of money from the the player inventory and from it's
- * various pouches using the pay_from_container() function.
- * @param to_pay Amount to pay.
- * @param pl Player paying.
- * @return 0 if not enough money, in which case nothing is removed, 1 if
- * money was removed. */
-int pay_for_amount(int64_t to_pay, object *pl)
-{
-    object *pouch;
-
-    if (to_pay == 0) {
-        return 1;
-    }
-
-    if (to_pay > query_money(pl)) {
-        return 0;
-    }
-
-    to_pay = pay_from_container(NULL, pl, to_pay);
-
-    for (pouch = pl->inv; (pouch != NULL) && (to_pay > 0); pouch = pouch->below) {
-        if (pouch->type == CONTAINER && pouch->inv && (QUERY_FLAG(pouch, FLAG_APPLIED) || (!pouch->race || strstr(pouch->race, "gold")))) {
-            to_pay = pay_from_container(NULL, pouch, to_pay);
-        }
-    }
-
-    return 1;
-}
-
-/**
- * This is a wrapper for pay_from_container, which is called for the
- * player, then for each active container that can hold money until op is
- * paid for. Change will be left wherever the last of the price was paid
- * from.
- * @param op Object to buy.
- * @param pl Player buying.
- * @return 1 if object was bought, 0 otherwise. */
-int pay_for_item(object *op, object *pl)
-{
-    int64_t to_pay = query_cost(op, pl, COST_BUY);
-    object *pouch;
-
-    if (to_pay == 0.0) {
-        return 1;
-    }
-
-    if (to_pay > query_money(pl)) {
-        return 0;
-    }
-
-    to_pay = pay_from_container(op, pl, to_pay);
-
-    for (pouch = pl->inv; (pouch != NULL) && (to_pay > 0); pouch = pouch->below) {
-        if (pouch->type == CONTAINER && pouch->inv && (QUERY_FLAG(pouch, FLAG_APPLIED) || (!pouch->race || strstr(pouch->race, "gold")))) {
-            to_pay = pay_from_container(op, pouch, to_pay);
-        }
-    }
-
-    return 1;
-}
-
-/**
- * This pays for the item, and takes the proper amount of money off the
- * player.
- * @param op Player paying.
- * @param pouch Container (pouch or player) to remove the coins from.
+ * Pays the specified amount, taking the proper amount of money from the
+ * object's inventory.
+ * @param obj Object to remove the money for.
  * @param to_pay Required amount.
- * @return Amount still not paid after using "pouch".
- * @todo Should be able to avoid the extra object allocations...
+ * @return Amount still left to pay.
  */
-static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay)
+static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
 {
-    int64_t remain;
-    int count, i;
-    object *tmp, *coin_objs[NUM_COINS], *next, *bank_object = NULL;
+    int64_t remain = to_pay;
 
-    (void) op;
-
-    if (pouch->type != PLAYER && pouch->type != CONTAINER) {
-        return to_pay;
+    object *coins_objects[NUM_COINS];
+    for (int i = 0; i < NUM_COINS; i++) {
+        coins_objects[i] = NULL;
     }
 
-    remain = to_pay;
+    /* Remove all the money objects from the container, and store them in
+     * the coin_objs pointers array. */
+    FOR_INV_PREPARE(obj, tmp) {
+        if (tmp->type != MONEY) {
+            continue;
+        }
 
-    for (i = 0; i < NUM_COINS; i++) {
-        coin_objs[i] = NULL;
-    }
-
-    /* This hunk should remove all the money objects from the player/container
-     * */
-    for (tmp = pouch->inv; tmp; tmp = next) {
-        next = tmp->below;
-
-        if (tmp->type == MONEY) {
-            for (i = 0; i < NUM_COINS; i++) {
-                if (!strcmp(coins[NUM_COINS - 1 - i], tmp->arch->name) && (tmp->value == tmp->arch->clone.value)) {
-                    /* This should not happen, but if it does, just merge
-                     * the two. */
-                    if (coin_objs[i] != NULL) {
-                        logger_print(LOG(BUG), "%s has two money entries of (%s)", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
-                        object_remove(tmp, 0);
-                        coin_objs[i]->nrof += tmp->nrof;
-                    } else {
-                        object_remove(tmp, 0);
-                        coin_objs[i] = tmp;
-                    }
-
-                    break;
-                }
+        bool found = false;
+        for (int i = 0; i < NUM_COINS; i++) {
+            if (strcmp(coins[NUM_COINS - 1 - i], tmp->arch->name) != 0 ||
+                    tmp->value != tmp->arch->clone.value) {
+                continue;
             }
 
-            if (i == NUM_COINS) {
-                logger_print(LOG(BUG), "Did not find string match for %s", tmp->arch->name);
+            /* This should not happen, but if it does, just merge them. */
+            if (coins_objects[i] != NULL) {
+                log_error("Two money entries of %s in object: %s",
+                        coins[NUM_COINS - 1 - i],
+                        object_get_str(obj));
+                coins_objects[i]->nrof += tmp->nrof;
+                object_remove(tmp, 0);
+                object_destroy(tmp);
+            } else {
+                object_remove(tmp, 0);
+                coins_objects[i] = tmp;
             }
-        } else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
-            bank_object = tmp;
-        }
-    }
 
-    /* Fill in any gaps in the coin_objs array - needed to make change. */
-    /* Note that the coin_objs array goes from least value to greatest value */
-    for (i = 0; i < NUM_COINS; i++) {
-        if (coin_objs[i] == NULL) {
-            coin_objs[i] = get_archetype(coins[NUM_COINS - 1 - i]);
-            coin_objs[i]->nrof = 0;
+            found = true;
+            break;
         }
-    }
 
-    for (i = 0; i < NUM_COINS; i++) {
+        if (!found) {
+            log_error("Did not find coin match for %s", tmp->arch->name);
+        }
+    } FOR_INV_FINISH();
+
+    for (int i = 0; i < NUM_COINS; i++) {
+        if (coins_objects[i] == NULL) {
+            continue;
+        }
+
         int64_t num_coins;
+        if ((int64_t) coins_objects[i]->nrof * coins_objects[i]->value >
+                remain) {
+            num_coins = remain / coins_objects[i]->value;
 
-        if ((int64_t) (coin_objs[i]->nrof * coin_objs[i]->value) > remain) {
-            num_coins = remain / coin_objs[i]->value;
-
-            if ((num_coins * coin_objs[i]->value) < remain) {
+            if (num_coins * coins_objects[i]->value < remain) {
                 num_coins++;
             }
         } else {
-            num_coins = coin_objs[i]->nrof;
+            num_coins = coins_objects[i]->nrof;
         }
 
-        if (num_coins > INT32_MAX) {
-            logger_print(LOG(DEBUG), "Money overflow value->nrof: number of coins > INT32_MAX (type coin %d)", i);
-            num_coins = INT32_MAX;
+        if (num_coins > UINT32_MAX) {
+            LOG(ERROR, "Money overflow value->nrof: number of coins > "
+                    "UINT32_MAX (type coin %d)", i);
+            num_coins = UINT32_MAX;
         }
 
-        remain -= num_coins * coin_objs[i]->value;
-        coin_objs[i]->nrof -= (uint32_t) num_coins;
+        remain -= num_coins * coins_objects[i]->value;
+        coins_objects[i]->nrof -= (uint32_t) num_coins;
+
         /* Now start making change.  Start at the coin value
          * below the one we just did, and work down to
          * the lowest value. */
-        count = i - 1;
-
+        int count = i - 1;
         while (remain < 0 && count >= 0) {
-            num_coins = -remain / coin_objs[count]->value;
-            coin_objs[count]->nrof += (uint32_t) num_coins;
-            remain += num_coins * coin_objs[count]->value;
+            if (coins_objects[count] == NULL) {
+                coins_objects[count] = arch_get(coins[NUM_COINS - 1 - count]);
+                coins_objects[count]->nrof = 0;
+            }
+
+            num_coins = -remain / coins_objects[count]->value;
+            coins_objects[count]->nrof += (uint32_t) num_coins;
+            remain += num_coins * coins_objects[count]->value;
             count--;
         }
     }
 
-    /* If there's still some remain, that means we could try to pay from
-     * bank. */
-    if (bank_object && bank_object->value != 0 && remain != 0 && bank_object->value >= remain) {
-        bank_object->value -= remain;
-        remain = 0;
-    }
-
-    for (i = 0; i < NUM_COINS; i++) {
-        if (coin_objs[i]->nrof) {
-            insert_ob_in_ob(coin_objs[i], pouch);
-        } else {
-            object_destroy(coin_objs[i]);
+    for (int i = 0; i < NUM_COINS; i++) {
+        if (coins_objects[i] == NULL) {
+            continue;
         }
+
+        insert_ob_in_ob(coins_objects[i], obj);
     }
 
     return remain;
 }
 
 /**
- * Descends containers looking for unpaid items, and pays for them.
- * @param pl Player buying the stuff.
- * @param op Object we are examining. If op has and inventory, we examine
- * that. Ii there are objects below op, we descend down.
- * @retval 0 Player still has unpaid items.
- * @retval 1 Player has paid for everything. */
-int get_payment(object *pl, object *op)
+ * Recursively attempts to pay the specified amount of money.
+ * @param op Who is paying.
+ * @param to_pay Amount to pay.
+ * @return Amount left to pay.
+ */
+static int64_t shop_pay_amount(object *op, int64_t to_pay)
 {
-    int ret = 1;
-
-    if (op != NULL && op->inv) {
-        ret = get_payment(pl, op->inv);
-    }
-
-    if (ret == 0) {
-        return 0;
-    }
-
-    if (op != NULL && op->below) {
-        ret = get_payment(pl, op->below);
-    }
-
-    if (ret == 0) {
-        return 0;
-    }
-
-    if (op != NULL && QUERY_FLAG(op, FLAG_UNPAID)) {
-        if (!pay_for_item(op, pl)) {
-            CLEAR_FLAG(op, FLAG_UNPAID);
-            draw_info_format(COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(query_cost(op, pl, COST_BUY) - query_money(pl)), query_name(op, NULL));
-            SET_FLAG(op, FLAG_UNPAID);
-            return 0;
-        } else {
-            CLEAR_FLAG(op, FLAG_UNPAID);
-            CLEAR_FLAG(op, FLAG_STARTEQUIP);
-
-            if (pl->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", query_cost_string(op, pl, COST_BUY), query_name(op, NULL));
-            }
-
-            /* If the object wasn't merged, send flags update. */
-            if (object_merge(op) == op) {
-                esrv_update_item(UPD_FLAGS, op);
-            }
+    to_pay = shop_pay_inventory(op, to_pay);
+    FOR_INV_PREPARE(op, tmp) {
+        if (to_pay <= 0) {
+            break;
         }
-    }
 
-    return 1;
-}
-
-/**
- * Player is selling an item. Give money, print appropriate messages.
- * @param op Object to sell.
- * @param pl Player. Shouldn't be NULL or non player.
- * @param value If op is NULL, this value is used instead of using
- * query_cost(). */
-void sell_item(object *op, object *pl, int64_t value)
-{
-    int64_t i;
-
-    if (pl == NULL || pl->type != PLAYER) {
-        logger_print(LOG(DEBUG), "Object other than player tried to sell something.");
-        return;
-    }
-
-    if (op == NULL) {
-        i = value;
-    } else {
-        i = query_cost(op, pl, COST_SELL);
-    }
-
-    if (op && op->custom_name) {
-        FREE_AND_CLEAR_HASH(op->custom_name);
-    }
-
-    if (!i) {
-        if (op) {
-            draw_info_format(COLOR_WHITE, pl, "We're not interested in %s.", query_name(op, NULL));
-        }
-    }
-
-    i = insert_coins(pl, i);
-
-    if (!op) {
-        return;
-    }
-
-    if (i != 0) {
-        logger_print(LOG(BUG), "Warning - payment not zero: %"PRId64, i);
-    }
-
-    draw_info_format(COLOR_WHITE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
-    SET_FLAG(op, FLAG_UNPAID);
-
-    /* Identify the item. Makes any unidentified item sold to unique shop appear
-     * identified. */
-    identify(op);
-}
-
-/**
- * Get money from a string.
- * @param text Text to get money from.
- * @param money Money block structure.
- * @return One of @ref MONEYSTRING_xxx. */
-int get_money_from_string(const char *text, struct _money_block *money)
-{
-    size_t pos = 0;
-    char word[MAX_BUF];
-    int value;
-
-    memset(money, 0, sizeof(struct _money_block));
-
-    /* Kill all whitespace */
-    while (*text != '\0' && (isspace(*text) || !isprint(*text))) {
-        text++;
-    }
-
-    /* Easy, special case: all money */
-    if (!strncasecmp(text, "all", 3)) {
-        money->mode = MONEYSTRING_ALL;
-        return money->mode;
-    }
-
-    money->mode = MONEYSTRING_NOTHING;
-
-    while (string_get_word(text, &pos, ' ', word, sizeof(word), 0)) {
-        if (!string_isdigit(word)) {
+        if (tmp->type != CONTAINER || tmp->inv == NULL) {
             continue;
         }
 
-        value = atoi(word);
+        if (QUERY_FLAG(tmp, FLAG_APPLIED) || tmp->race == NULL ||
+                strstr(tmp->race, "gold") != NULL) {
+            to_pay = shop_pay_amount(tmp, to_pay);
+        }
+    } FOR_INV_FINISH();
 
-        if (value > 0 && value < 1000000) {
-            if (string_get_word(text, &pos, ' ', word, sizeof(word), 0)) {
-                size_t len;
+    return to_pay;
+}
 
-                len = strlen(word);
+/**
+ * Pays the specified amount of money.
+ * @param op Object paying.
+ * @param to_pay Amount to pay.
+ * @return False if not enough money, in which case nothing is removed, true
+ * if money was removed.
+ */
+bool shop_pay(object *op, int64_t to_pay)
+{
+    if (to_pay == 0) {
+        return true;
+    }
 
-                if (!strncasecmp("mithril", word, len)) {
-                    money->mode = MONEYSTRING_AMOUNT;
-                    money->mithril += value;
-                } else if (!strncasecmp("gold", word, len)) {
-                    money->mode = MONEYSTRING_AMOUNT;
-                    money->gold += value;
-                } else if (!strncasecmp("silver", word, len)) {
-                    money->mode = MONEYSTRING_AMOUNT;
-                    money->silver += value;
-                } else if (!strncasecmp("copper", word, len)) {
-                    money->mode = MONEYSTRING_AMOUNT;
-                    money->copper += value;
-                }
+    if (to_pay > shop_get_money(op)) {
+        return false;
+    }
+
+    to_pay = shop_pay_amount(op, to_pay);
+    if (to_pay != 0) {
+        object *bank = bank_find_info(op);
+        if (bank != NULL) {
+            SOFT_ASSERT_RC(bank->value >= to_pay, true, "Bank object value is "
+                    "%" PRId64 ", but object needs %" PRId64 " to finish "
+                    "payment, op: %s", bank->value, to_pay, object_get_str(op));
+            bank->value -= to_pay;
+            to_pay = 0;
+        }
+    }
+
+    SOFT_ASSERT_RC(to_pay == 0, true, "Still %" PRId64 " left to pay, op: %s",
+            to_pay, object_get_str(op));
+
+    return true;
+}
+
+/**
+ * Attempts to pay for the specified item.
+ * @param op Object buying.
+ * @param item Item to buy.
+ * @return Whether the object was purchased successfully (and money removed).
+ */
+bool shop_pay_item(object *op, object *item)
+{
+    return shop_pay(op, shop_get_cost(item, COST_BUY));
+}
+
+/**
+ * Recursively pay for items in inventories. Used by shop_pay_items().
+ * @param op Object buying the stuff.
+ * @param where Where to look.
+ * @return True if everything has been paid for, false otherwise.
+ */
+static bool shop_pay_items_rec(object *op, object *where)
+{
+    FOR_INV_PREPARE(where, tmp) {
+        if (tmp->inv != NULL) {
+            if (!shop_pay_items_rec(op, tmp)) {
+                return false;
             }
         }
-    }
 
-    return money->mode;
-}
-
-/**
- * Query money by type.
- * @param op Object.
- * @param value Value of the coin to query for.
- * @return Total number of coins of the specified type. */
-int query_money_type(object *op, int value)
-{
-    object *tmp;
-    int64_t total = 0;
-
-    for (tmp = op->inv; tmp; tmp = tmp->below) {
-        if (tmp->type == MONEY && tmp->value == value) {
-            total += tmp->nrof;
-        } else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold")))) {
-            total += query_money_type(tmp, value);
+        if (!QUERY_FLAG(tmp, FLAG_UNPAID)) {
+            continue;
         }
 
-        if (total >= (int64_t) value) {
-            break;
-        }
-    }
+        if (!shop_pay_item(op, tmp)) {
+            CLEAR_FLAG(tmp, FLAG_UNPAID);
+            int64_t need = shop_get_cost(tmp, COST_BUY) - shop_get_money(op);
+            char *name = object_get_name_s(tmp, op);
+            draw_info_format(COLOR_WHITE, op, "You lack %s to buy %s.",
+                    shop_get_cost_string(need), name);
+            efree(name);
+            SET_FLAG(tmp, FLAG_UNPAID);
+            return false;
+        } else {
+            CLEAR_FLAG(tmp, FLAG_UNPAID);
+            CLEAR_FLAG(tmp, FLAG_STARTEQUIP);
+            char *name = object_get_name_s(tmp, op);
+            draw_info_format(COLOR_WHITE, op, "You paid %s for %s.",
+                    shop_get_cost_string_item(tmp, COST_BUY), name);
 
-    return (int) total;
-}
-
-/**
- * Remove money by type.
- * @param who Player object who is getting the money removed.
- * @param op Object we're removing from.
- * @param value Value of the coin type to remove.
- * @param amount Amount of money to remove.
- * @return Removed amount. */
-int64_t remove_money_type(object *who, object *op, int64_t value, int64_t amount)
-{
-    object *tmp, *tmp2;
-
-    for (tmp = op->inv; tmp; tmp = tmp2) {
-        tmp2 = tmp->below;
-
-        if (!amount && value != -1) {
-            return amount;
-        }
-
-        if (tmp->type == MONEY && (tmp->value == value || value == -1)) {
-            if ((int64_t) tmp->nrof <= amount || value == -1) {
-                if (value == -1) {
-                    amount += (tmp->nrof * tmp->value);
+            if (QUERY_FLAG(tmp, FLAG_SOULBOUND)) {
+                bool ret = object_set_value(tmp,
+                                            "soulbound_name",
+                                            op->name,
+                                            true);
+                if (ret) {
+                    draw_info_format(COLOR_WHITE, op,
+                                     "%s becomes soulbound to you.", name);
                 } else {
-                    amount -= tmp->nrof;
+                    CLEAR_FLAG(tmp, FLAG_SOULBOUND);
+                    LOG(ERROR, "Failed to soulbind %s to %s",
+                        object_get_str(tmp), object_get_str(op));
                 }
-
-                object_remove(tmp, 0);
-            } else {
-                tmp->nrof -= (uint32_t) amount;
-                amount = 0;
             }
-        } else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold")))) {
-            amount = remove_money_type(who, tmp, value, amount);
-        }
-    }
 
-    return amount;
-}
+            efree(name);
 
-/**
- * Insert money inside player.
- * @param pl Player.
- * @param money Money object to insert.
- * @param nrof How many money objects to insert to player. */
-void insert_money_in_player(object *pl, object *money, uint32_t nrof)
-{
-    object *tmp = get_object();
-    copy_object(money, tmp, 0);
-    tmp->nrof = nrof;
-    insert_ob_in_ob(tmp, pl);
-}
-
-/**
- * Find bank player info object in player's inventory.
- * @param op Where to look for the player info object.
- * @return The player info object if found, NULL otherwise. */
-object *bank_get_info(object *op)
-{
-    object *tmp;
-
-    for (tmp = op->inv; tmp; tmp = tmp->below) {
-        if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
-            return tmp;
-        }
-    }
-
-    return NULL;
-}
-
-/**
- * Create a new bank player info object and insert it to 'op'.
- * @param op Player.
- * @return The created player info object. */
-object *bank_create_info(object *op)
-{
-    object *bank = get_archetype(shstr_cons.player_info);
-
-    FREE_AND_COPY_HASH(bank->name, shstr_cons.BANK_GENERAL);
-    insert_ob_in_ob(bank, op);
-
-    return bank;
-}
-
-/**
- * Convenience function to either find a bank player info object and if
- * not found, create a new one.
- * @param op Player object.
- * @return The bank player info object. Never NULL. */
-object *bank_get_create_info(object *op)
-{
-    object *bank = bank_get_info(op);
-
-    if (!bank) {
-        bank = bank_create_info(op);
-    }
-
-    return bank;
-}
-
-/**
- * Query how much money player has stored in bank.
- * @param op Player to query for.
- * @return The money stored. */
-int64_t bank_get_balance(object *op)
-{
-    object *bank = bank_get_info(op);
-
-    if (!bank) {
-        return 0;
-    }
-
-    return bank->value;
-}
-
-/**
- * Deposit money to player's bank object.
- * @param op Player.
- * @param text What was said to trigger this.
- * @param[out] value Will contain the deposited amount.
- * @return One of @ref BANK_xxx. */
-int bank_deposit(object *op, const char *text, int64_t *value)
-{
-    _money_block money;
-    object *bank;
-
-    get_money_from_string(text, &money);
-    *value = 0;
-
-    if (!money.mode) {
-        return BANK_SYNTAX_ERROR;
-    } else if (money.mode == MONEYSTRING_ALL) {
-        bank = bank_get_create_info(op);
-        *value = remove_money_type(op, op, -1, 0);
-        bank->value += *value;
-    } else {
-        if (money.mithril) {
-            if (query_money_type(op, coins_arch[0]->clone.value) < money.mithril) {
-                return BANK_DEPOSIT_MITHRIL;
+            /* If the object wasn't merged, send flags update. */
+            if (object_merge(tmp) == tmp) {
+                esrv_update_item(UPD_FLAGS, tmp);
             }
         }
+    } FOR_INV_FINISH();
 
-        if (money.gold) {
-            if (query_money_type(op, coins_arch[1]->clone.value) < money.gold) {
-                return BANK_DEPOSIT_GOLD;
-            }
-        }
-
-        if (money.silver) {
-            if (query_money_type(op, coins_arch[2]->clone.value) < money.silver) {
-                return BANK_DEPOSIT_SILVER;
-            }
-        }
-
-        if (money.copper) {
-            if (query_money_type(op, coins_arch[3]->clone.value) < money.copper) {
-                return BANK_DEPOSIT_COPPER;
-            }
-        }
-
-        if (money.mithril) {
-            remove_money_type(op, op, coins_arch[0]->clone.value, money.mithril);
-        }
-
-        if (money.gold) {
-            remove_money_type(op, op, coins_arch[1]->clone.value, money.gold);
-        }
-
-        if (money.silver) {
-            remove_money_type(op, op, coins_arch[2]->clone.value, money.silver);
-        }
-
-        if (money.copper) {
-            remove_money_type(op, op, coins_arch[3]->clone.value, money.copper);
-        }
-
-        bank = bank_get_create_info(op);
-        *value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
-        bank->value += *value;
-    }
-
-    return BANK_SUCCESS;
+    return true;
 }
 
 /**
- * Withdraw money player previously stored in bank object.
- * @param op Player.
- * @param bank Bank object in player's inventory.
- * @param text What was said to trigger this.
- * @param[out] value Will contain the withdrawn amount.
- * @return One of @ref BANK_xxx. */
-int bank_withdraw(object *op, const char *text, int64_t *value)
+ * Descends inventories looking for unpaid items, and pays for them.
+ * @param op Object buying the stuff.
+ * @return True if everything has been paid for, false otherwise.
+ */
+bool shop_pay_items(object *op)
 {
-    int64_t big_value;
-    _money_block money;
-    object *bank;
-
-    get_money_from_string(text, &money);
-
-    bank = bank_get_info(op);
-    *value = 0;
-
-    if (!bank || !bank->value) {
-        return BANK_WITHDRAW_MISSING;
-    }
-
-    if (!money.mode) {
-        return BANK_SYNTAX_ERROR;
-    } else if (money.mode == MONEYSTRING_ALL) {
-        *value = bank->value;
-        sell_item(NULL, op, bank->value);
-        bank->value = 0;
-    } else {
-        /* Just to set a border. */
-        if (money.mithril > 100000 || money.gold > 100000 || money.silver > 1000000 || money.copper > 1000000) {
-            return BANK_WITHDRAW_HIGH;
-        }
-
-        big_value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
-
-        if (big_value > bank->value) {
-            return BANK_WITHDRAW_MISSING;
-        }
-
-        if (!player_can_carry(op, money.mithril * coins_arch[0]->clone.weight + money.gold * coins_arch[1]->clone.weight + money.silver * coins_arch[2]->clone.weight + money.copper * coins_arch[3]->clone.weight)) {
-            return BANK_WITHDRAW_OVERWEIGHT;
-        }
-
-        if (money.mithril) {
-            insert_money_in_player(op, &coins_arch[0]->clone, money.mithril);
-        }
-
-        if (money.gold) {
-            insert_money_in_player(op, &coins_arch[1]->clone, money.gold);
-        }
-
-        if (money.silver) {
-            insert_money_in_player(op, &coins_arch[2]->clone, money.silver);
-        }
-
-        if (money.copper) {
-            insert_money_in_player(op, &coins_arch[3]->clone, money.copper);
-        }
-
-        *value = big_value;
-        bank->value -= big_value;
-    }
-
-    return BANK_SUCCESS;
+    return shop_pay_items_rec(op, op);
 }
 
 /**
- * Insert coins into a player.
- * @param pl Player.
+ * Sell an item.
+ * @param op Who is selling the item.
+ * @param item The item to sell.
+ */
+void shop_sell_item(object *op, object *item)
+{
+    HARD_ASSERT(op != NULL);
+
+    if (item->custom_name) {
+        FREE_AND_CLEAR_HASH(item->custom_name);
+    }
+
+    int64_t value = shop_get_cost(item, COST_SELL);
+    char *name = object_get_name_s(item, op);
+    if (value == 0) {
+        draw_info_format(COLOR_WHITE, op, "We're not interested in %s.", name);
+    }
+
+    shop_insert_coins(op, value);
+    draw_info_format(COLOR_WHITE, op, "You receive %s for %s.",
+            shop_get_cost_string(value), name);
+
+    SET_FLAG(item, FLAG_UNPAID);
+    /* Identify the item. Makes any unidentified item sold to unique shop appear
+     * identified. */
+    identify(item);
+    efree(name);
+}
+
+/**
+ * Insert coins into an object.
+ * @param op Object to receive the coins.
  * @param value Value of coins to insert (for example, 120 for 1 silver and 20
  * copper).
- * @return value. */
-int64_t insert_coins(object *pl, int64_t value)
+ */
+void shop_insert_coins(object *op, int64_t value)
 {
-    int count;
-    object *tmp, *pouch;
-    archetype *at;
-    uint32_t n;
-
-    for (count = 0; coins[count]; count++) {
-        at = find_archetype(coins[count]);
-
+    for (int i = 0; coins[i] != NULL; i++) {
+        archetype_t *at = arch_find(coins[i]);
         if (at == NULL) {
-            logger_print(LOG(BUG), "Could not find %s archetype", coins[count]);
-        } else if ((value / at->clone.value) > 0) {
-            for (pouch = pl->inv; pouch; pouch = pouch->below) {
-                if (pouch->type == CONTAINER && QUERY_FLAG(pouch, FLAG_APPLIED) && pouch->race && strstr(pouch->race, "gold")) {
-                    double w;
+            log_error("Could not find archetype: %s", coins[i]);
+            continue;
+        }
 
-                    w = (float) at->clone.weight * pouch->weapon_speed;
-                    n = (uint32_t) (value / at->clone.value);
+        if (value / at->clone.value <= 0) {
+            continue;
+        }
 
-                    if (n > 0 && (!pouch->weight_limit || pouch->carrying + w <= (int32_t) pouch->weight_limit)) {
-                        if (w > 0.0 && pouch->weight_limit && ((int32_t) pouch->weight_limit - pouch->carrying) / w < (int32_t) n) {
-                            n = (pouch->weight_limit - pouch->carrying) / w;
-                        }
+        FOR_INV_PREPARE(op, tmp) {
+            if (tmp->type != CONTAINER) {
+                continue;
+            }
 
-                        tmp = get_object();
-                        copy_object(&at->clone, tmp, 0);
-                        tmp->nrof = n;
-                        value -= tmp->nrof * tmp->value;
-                        insert_ob_in_ob(tmp, pouch);
-                    }
+            if (!QUERY_FLAG(tmp, FLAG_APPLIED)) {
+                continue;
+            }
+
+            if (tmp->race == NULL || strstr(tmp->race, "gold") == NULL) {
+                continue;
+            }
+
+            uint32_t nrof = (uint32_t) (value / at->clone.value);
+            if (nrof == 0) {
+                continue;
+            }
+
+            double weight = at->clone.weight * tmp->weapon_speed;
+            if (tmp->weight_limit != 0 && tmp->carrying + weight >
+                    tmp->weight_limit) {
+                continue;
+            }
+
+            if (weight > 0.0 && tmp->weight_limit != 0 &&
+                    (tmp->weight_limit - tmp->carrying) / weight < nrof) {
+                nrof = (tmp->weight_limit - tmp->carrying) / weight;
+            }
+
+            object *coin = get_object();
+            copy_object(&at->clone, coin, 0);
+            coin->nrof = nrof;
+            value -= coin->nrof * coin->value;
+            insert_ob_in_ob(coin, tmp);
+        } FOR_INV_FINISH();
+
+        if (value / at->clone.value > 0) {
+            uint32_t nrof = (uint32_t) (value / at->clone.value);
+            uint32_t weight_max = weight_limit[MIN(op->stats.Str, MAX_STAT)];
+
+            if (nrof > 0 && op->carrying + at->clone.weight <= weight_max) {
+                if ((weight_max - op->carrying) / at->clone.weight < nrof) {
+                    nrof = (weight_max - op->carrying) / at->clone.weight;
                 }
+
+                object *coin = get_object();
+                copy_object(&at->clone, coin, 0);
+                coin->nrof = nrof;
+                value -= coin->nrof * coin->value;
+                insert_ob_in_ob(coin, op);
             }
+        }
 
-            if (value / at->clone.value > 0) {
-                n = (uint32_t) (value / at->clone.value);
-
-                if (n > 0 && pl->carrying + at->clone.weight <= (int32_t) weight_limit[MIN(pl->stats.Str, MAX_STAT)]) {
-                    if (((int32_t) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight < (int32_t) n) {
-                        n = ((int32_t) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight;
-                    }
-
-                    tmp = get_object();
-                    copy_object(&at->clone, tmp, 0);
-                    tmp->nrof = n;
-                    value -= tmp->nrof * tmp->value;
-                    insert_ob_in_ob(tmp, pl);
-                }
-            }
-
-            if (value / at->clone.value > 0) {
-                tmp = get_object();
-                copy_object(&at->clone, tmp, 0);
-                tmp->nrof = (uint32_t) (value / at->clone.value);
-                value -= tmp->nrof * tmp->value;
-                tmp->x = pl->x;
-                tmp->y = pl->y;
-                insert_ob_in_map(tmp, pl->map, NULL, 0);
-            }
+        if (value / at->clone.value > 0) {
+            object *coin = get_object();
+            copy_object(&at->clone, coin, 0);
+            coin->nrof = (uint32_t) (value / at->clone.value);
+            value -= coin->nrof * coin->value;
+            coin->x = op->x;
+            coin->y = op->y;
+            insert_ob_in_map(coin, op->map, NULL, 0);
         }
     }
 
-    return value;
+    SOFT_ASSERT(value == 0, "Value is not zero: %" PRId64 ", object: %s",
+            value, object_get_str(op));
 }

@@ -31,6 +31,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 #define ACCOUNT_CHARACTERS_LIMIT 16
 #define ACCOUNT_PASSWORD_SIZE 32
@@ -48,7 +49,7 @@ typedef struct account_struct {
     time_t last_time;
 
     struct {
-        archetype *at;
+        archetype_t *at;
 
         char *name;
 
@@ -138,7 +139,7 @@ static int account_save(account_struct *account, const char *path)
     fp = fopen(path, "w");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open %s for writing.", path);
+        LOG(BUG, "Could not open %s for writing.", path);
         return 0;
     }
 
@@ -172,7 +173,7 @@ static int account_load(account_struct *account, const char *path)
     fp = fopen(path, "rb");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open %s for reading.", path);
+        LOG(BUG, "Could not open %s for reading.", path);
         return 0;
     }
 
@@ -193,12 +194,12 @@ static int account_load(account_struct *account, const char *path)
             if (len == 13 || len == 40) {
                 account->password_old = estrdup(buf + 5);
             } else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
-                logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
+                LOG(BUG, "Invalid password entry in file: %s", path);
                 memset(account->password, 0, sizeof(account->password));
             }
         } else if (strncmp(buf, "salt ", 5) == 0) {
             if (string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
-                logger_print(LOG(BUG), "Invalid salt entry in file: %s", path);
+                LOG(BUG, "Invalid salt entry in file: %s", path);
                 memset(account->salt, 0, sizeof(account->salt));
             }
         } else if (strncmp(buf, "host ", 5) == 0) {
@@ -209,12 +210,12 @@ static int account_load(account_struct *account, const char *path)
             char *cps[4];
 
             if (string_split(buf + 5, cps, arraysize(cps), ':') != arraysize(cps)) {
-                logger_print(LOG(BUG), "Invalid character entry in file: %s", path);
+                LOG(BUG, "Invalid character entry in file: %s", path);
                 continue;
             }
 
             account->characters = erealloc(account->characters, sizeof(*account->characters) * (account->characters_num + 1));
-            account->characters[account->characters_num].at = find_archetype(cps[0]);
+            account->characters[account->characters_num].at = arch_find(cps[0]);
             account->characters[account->characters_num].name = estrdup(cps[1]);
             account->characters[account->characters_num].region_name = estrdup(cps[2]);
             account->characters[account->characters_num].level = atoi(cps[3]);
@@ -239,7 +240,7 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
         packet_debug_data(packet, 0, "Account name");
         packet_append_string_terminated(packet, ns->account);
         packet_debug_data(packet, 0, "Hostname");
-        packet_append_string_terminated(packet, ns->host);
+        packet_append_string_terminated(packet, socket_get_addr(ns->sc));
         packet_debug_data(packet, 0, "Last hostname");
         packet_append_string_terminated(packet, account->last_host);
         packet_debug_data(packet, 0, "Last time");
@@ -327,10 +328,10 @@ void account_login(socket_struct *ns, char *name, char *password)
         efree(path);
 
         ns->password_fails++;
-        logger_print(LOG(SYSTEM), "%s: Failed to provide correct password for account %s.", ns->host, name);
+        LOG(SYSTEM, "%s: Failed to provide correct password for account %s.", socket_get_str(ns->sc), name);
 
         if (ns->password_fails >= MAX_PASSWORD_FAILURES) {
-            logger_print(LOG(SYSTEM), "%s: Failed to provide a correct password for account %s too many times!", ns->host, name);
+            LOG(SYSTEM, "%s: Failed to provide a correct password for account %s too many times!", socket_get_str(ns->sc), name);
             draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "You have failed to provide a correct password too many times.");
             ns->state = ST_ZOMBIE;
         }
@@ -346,7 +347,7 @@ void account_login(socket_struct *ns, char *name, char *password)
     account_send_characters(ns, &account);
 
     efree(account.last_host);
-    account.last_host = estrdup(ns->host);
+    account.last_host = estrdup(socket_get_addr(ns->sc));
     account.last_time = datetime_getutc();
     account_save(&account, path);
     account_free(&account);
@@ -380,6 +381,12 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
         return;
     }
 
+    if (strcasecmp(name, ACCOUNT_TESTING_NAME) == 0) {
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                "Account name is reserved by the system.");
+        return;
+    }
+
     if (strcmp(password, password2) != 0) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "The passwords did not match.");
         return;
@@ -397,7 +404,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
     path_ensure_directories(path);
 
     account_set_password(&account, password);
-    account.last_host = ns->host;
+    account.last_host = socket_get_addr(ns->sc);
     account.last_time = datetime_getutc();
     account.characters = NULL;
     account.characters_num = 0;
@@ -415,7 +422,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
 void account_new_char(socket_struct *ns, char *name, char *archname)
 {
-    archetype *at;
+    archetype_t *at;
     char *path, *path_player;
     account_struct account;
 
@@ -431,12 +438,19 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
     string_title(name);
 
+    if (strcmp(name, PLAYER_TESTING_NAME1) == 0 ||
+            strcmp(name, PLAYER_TESTING_NAME2) == 0) {
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                "Character name is reserved by the system.");
+        return;
+    }
+
     if (player_exists(name)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Character with that name already exists.");
         return;
     }
 
-    at = find_archetype(archname);
+    at = arch_find(archname);
 
     if (!at || at->clone.type != PLAYER) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid archname.");

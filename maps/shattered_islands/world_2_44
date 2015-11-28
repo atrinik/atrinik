@@ -2,14 +2,14 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-07 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 40
 outdoor 1
 no_harm 1
-bg_music ocean.ogg
+bg_music chether.mid
 region asteria
 end
 arch water_lt3
@@ -474,6 +474,11 @@ arch water_lt4
 x 3
 y 14
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 3
+y 14
+end
 arch water_lt4
 x 3
 y 15
@@ -786,6 +791,11 @@ x 6
 y 2
 end
 arch water_lt3
+x 6
+y 3
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 6
 y 3
 end
@@ -1425,6 +1435,11 @@ arch water_lt3
 x 10
 y 15
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 10
+y 15
+end
 arch water_lt4
 x 10
 y 16
@@ -1997,6 +2012,11 @@ x 15
 y 2
 end
 arch water_lt2
+x 15
+y 3
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 15
 y 3
 end
@@ -2493,6 +2513,11 @@ x 18
 y 13
 end
 arch water_lt2
+x 18
+y 14
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 18
 y 14
 end
@@ -2997,6 +3022,11 @@ x 21
 y 20
 end
 arch water_lt3
+x 21
+y 21
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 21
 y 21
 end

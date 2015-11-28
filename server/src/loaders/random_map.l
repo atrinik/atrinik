@@ -35,6 +35,9 @@ static int rmap_lex_error;
 #define FVAL    atof(rmap_yval())
 
 #define YY_NO_INPUT
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 %}
 
 S   [ \ t]+.+
@@ -105,6 +108,8 @@ rmap_lex_error = 0;
                           }
 
 %%
+
+#pragma GCC diagnostic pop
 
 /* Our save file syntax is very simple, so we can use a very simple
  * processing mechanism here instead using something like bison

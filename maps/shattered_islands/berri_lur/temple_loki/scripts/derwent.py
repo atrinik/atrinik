@@ -1,6 +1,7 @@
 ## @file
 ## Script for Derwent the snake priest in Loki's Temple.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)
@@ -14,4 +15,4 @@ def main():
         inf.add_msg("Loki is regarded as a god of chaos, due to his playful, unpredictable nature. He is by nature however, a shapeshifter.")
 
 main()
-inf.finish()
+inf.send()

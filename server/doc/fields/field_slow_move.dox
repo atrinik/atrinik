@@ -1,6 +1,10 @@
 /**
-@fn FLAG_SLOW_MOVE
-@section Use
+@var FLAG_SLOW_MOVE
+@sa @ref page_field_slow_move
+*/
+
+/**
+@page page_field_slow_move FLAG_SLOW_MOVE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -8,12 +12,9 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_88
-		</td><td>			If set, 'slow movement penalty' will take effect.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_138
-		</td><td>		If set, 'slow movement penalty' will take effect.</td>
+		</td><td>			If set, 'slow movement penalty' will take effect. Remember to
+			set "walk on" and "fly on" according to which creatures
+			should be slowed down.</td>
 	</tr>
 
 */

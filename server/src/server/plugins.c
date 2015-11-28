@@ -30,198 +30,17 @@
 #include <loader.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <plugin.h>
+#include <faction.h>
+#include <arch.h>
+#include <artifact.h>
+#include <plugin_hooklist.h>
 
 static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);
 
-#undef string_sub
-char *string_sub(const char *str, ssize_t start,
-        ssize_t end MEMORY_DEBUG_PROTO);
-
-/** The actual hooklist. */
-struct plugin_hooklist hooklist = {
-    query_name,
-    re_cmp,
-    present_in_ob,
-    players_on_map,
-    create_pathname,
-    free_string_shared,
-    add_string,
-    object_remove,
-    object_destroy,
-    living_update,
-    insert_ob_in_ob,
-    draw_info_map,
-    rune_spring,
-    cast_spell,
-    update_ob_speed,
-    change_skill,
-    pick_up,
-    get_map_from_coord,
-    esrv_send_item,
-    find_player,
-    manual_apply,
-    command_drop,
-    transfer_ob,
-    kill_object,
-    esrv_send_inventory,
-    get_archetype,
-    ready_map_name,
-    add_exp,
-    determine_god,
-    find_god,
-    register_global_event,
-    unregister_global_event,
-    load_object_str,
-    query_cost,
-    query_money,
-    pay_for_item,
-    pay_for_amount,
-    object_create_clone,
-    get_object,
-    copy_object,
-    object_enter_map,
-    play_sound_map,
-    find_marked_object,
-    cast_identify,
-    find_archetype,
-    arch_to_object,
-    insert_ob_in_map,
-    cost_string_from_value,
-    bank_deposit,
-    bank_withdraw,
-    bank_get_balance,
-    swap_apartments,
-    player_exists,
-    get_tod,
-    object_get_value,
-    object_set_value,
-    drop,
-    query_short_name,
-    beacon_locate,
-    player_cleanup_name,
-    find_party,
-    add_party_member,
-    remove_party_member,
-    send_party_message,
-    dump_object,
-    stringbuffer_new,
-    stringbuffer_append_string,
-    stringbuffer_append_printf,
-    stringbuffer_finish,
-    find_face,
-    find_animation,
-    play_sound_player_only,
-    was_destroyed,
-    object_get_gender,
-    decrease_ob_nr,
-    wall,
-    blocked,
-    get_rangevector,
-    get_rangevector_from_mapcoords,
-    player_can_carry,
-    cache_find,
-    cache_add,
-    cache_remove,
-    cache_remove_by_flags,
-    find_string,
-    command_take,
-    esrv_update_item,
-    commands_handle,
-    find_treasurelist,
-    create_treasure,
-    dump_object_rec,
-    hit_player,
-    move_ob,
-    get_empty_map,
-    set_map_darkness,
-    find_free_spot,
-    send_target_command,
-    examine,
-    draw_info,
-    draw_info_format,
-    draw_info_type,
-    draw_info_type_format,
-    find_artifactlist,
-    give_artifact_abilities,
-    connection_object_get_value,
-    connection_object_add,
-    connection_trigger,
-    connection_trigger_button,
-    packet_new,
-    packet_free,
-    packet_compress,
-    packet_enable_ndelay,
-    packet_set_pos,
-    packet_get_pos,
-    packet_append_uint8,
-    packet_append_int8,
-    packet_append_uint16,
-    packet_append_int16,
-    packet_append_uint32,
-    packet_append_int32,
-    packet_append_uint64,
-    packet_append_int64,
-    packet_append_data_len,
-    packet_append_string,
-    packet_append_string_terminated,
-    packet_append_map_name,
-    packet_append_map_music,
-    packet_append_map_weather,
-    socket_send_packet,
-    logger_print,
-    logger_get_level,
-    commands_add,
-    map_get_darkness,
-    map_get_path,
-    map_path_isabs,
-    path_dirname,
-    path_basename,
-    string_join,
-    get_env_recursive,
-    set_variable,
-    level_exp,
-    string_endswith,
-    string_sub,
-    path_join,
-    monster_enemy_signal,
-    map_redraw,
-    memory_emalloc,
-    memory_efree,
-    memory_ecalloc,
-    memory_erealloc,
-    memory_reallocz,
-    string_estrdup,
-    string_estrndup,
-
-    season_name,
-    weekdays,
-    month_name,
-    periodsofday,
-    spells,
-    &shstr_cons,
-    gender_noun,
-    gender_subjective,
-    gender_subjective_upper,
-    gender_objective,
-    gender_possessive,
-    gender_reflexive,
-    object_flag_names,
-    freearr_x,
-    freearr_y,
-    &first_player,
-    &new_faces,
-    &nrofpixmaps,
-    &animations,
-    &num_animations,
-    &first_archetype,
-    &first_map,
-    &first_party,
-    &first_region,
-    &pticks,
-    &settings,
-    skills
-};
+#define PLUGIN_HOOK_DEFINITIONS
+#include <plugin_hooks.h>
 
 /** The list of loaded plugins. */
 static atrinik_plugin *plugins_list = NULL;
@@ -256,7 +75,7 @@ static void register_global_event(const char *plugin_name, int event_nr)
     atrinik_plugin *plugin = find_plugin(plugin_name);
 
     if (!plugin) {
-        logger_print(LOG(BUG), "Could not find plugin %s.", plugin_name);
+        LOG(BUG, "Could not find plugin %s.", plugin_name);
         return;
     }
 
@@ -272,7 +91,7 @@ static void unregister_global_event(const char *plugin_name, int event_nr)
     atrinik_plugin *plugin = find_plugin(plugin_name);
 
     if (!plugin) {
-        logger_print(LOG(BUG), "Could not find plugin %s.", plugin_name);
+        LOG(BUG, "Could not find plugin %s.", plugin_name);
         return;
     }
 
@@ -401,14 +220,14 @@ void init_plugin(const char *pluginfile)
     ptr = plugins_dlopen(pluginfile);
 
     if (!ptr) {
-        logger_print(LOG(BUG), "Error while trying to load %s, returned: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while trying to load %s, returned: %s", pluginfile, plugins_dlerror());
         return;
     }
 
     initfunc = plugins_dlsym(ptr, "initPlugin", f_plug_init);
 
     if (!initfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'initPlugin' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'initPlugin' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -416,7 +235,7 @@ void init_plugin(const char *pluginfile)
     eventfunc = plugins_dlsym(ptr, "triggerEvent", f_plug_event);
 
     if (!eventfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -424,7 +243,7 @@ void init_plugin(const char *pluginfile)
     pinitfunc = plugins_dlsym(ptr, "postinitPlugin", f_plug_pinit);
 
     if (!pinitfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -432,7 +251,7 @@ void init_plugin(const char *pluginfile)
     propfunc = plugins_dlsym(ptr, "getPluginProperty", f_plug_prop);
 
     if (!propfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -440,7 +259,7 @@ void init_plugin(const char *pluginfile)
     closefunc = plugins_dlsym(ptr, "closePlugin", f_plug_pinit);
 
     if (!closefunc) {
-        logger_print(LOG(BUG), "Error while requesting 'closePlugin' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'closePlugin' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -527,7 +346,7 @@ void map_event_obj_init(object *ob)
     map_event *tmp;
 
     if (!ob->map) {
-        logger_print(LOG(BUG), "Map event object not on map.");
+        LOG(BUG, "Map event object not on map.");
         return;
     }
 
@@ -572,7 +391,7 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
                 tmp->plugin = find_plugin(tmp->event->name);
 
                 if (!tmp->plugin) {
-                    logger_print(LOG(BUG), "Tried to trigger map event #%d, but could not find plugin '%s'.", event_id, tmp->event->name);
+                    LOG(BUG, "Tried to trigger map event #%d, but could not find plugin '%s'.", event_id, tmp->event->name);
                     return 0;
                 }
             }
@@ -606,6 +425,20 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
 }
 
 /**
+ * Triggers the unit tests event for all plugins.
+ * @param activator Player object.
+ * @param me Another player object.
+ */
+void trigger_unit_event(object *const activator, object *const me)
+{
+    for (atrinik_plugin *plugin = plugins_list; plugin != NULL;
+            plugin = plugin->next) {
+        LOG(INFO, "Running unit tests for plugin: %s", plugin->fullname);
+        (plugin->eventfunc)(0, PLUGIN_EVENT_UNIT, 0, activator, me);
+    }
+}
+
+/**
  * Handles triggering normal events like EVENT_ATTACK, EVENT_STOP,
  * etc.
  * @param event_type The event type.
@@ -628,7 +461,7 @@ int trigger_event(int event_type, object * const activator, object * const me, o
     }
 
     if ((event_obj = get_event_object(me, event_type)) == NULL) {
-        logger_print(LOG(BUG), "Object with event flag and no event object: %s", STRING_OBJ_NAME(me));
+        LOG(BUG, "Object with event flag and no event object: %s", STRING_OBJ_NAME(me));
         me->event_flags &= ~(1 << event_type);
         return 0;
     }
@@ -658,11 +491,11 @@ int trigger_event(int event_type, object * const activator, object * const me, o
         start_u = start.tv_sec * 1000000 + start.tv_usec;
         stop_u = stop.tv_sec * 1000000 + stop.tv_usec;
 
-        logger_print(LOG(DEBUG), "Running time: %2.6f seconds", (stop_u - start_u) / 1000000.0);
+        LOG(DEBUG, "Running time: %2.6f seconds", (stop_u - start_u) / 1000000.0);
 #endif
         return returnvalue;
     } else {
-        logger_print(LOG(BUG), "event object with unknown plugin: %s, plugin %s", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
+        LOG(BUG, "event object with unknown plugin: %s, plugin %s", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
         me->event_flags &= ~(1 << event_type);
     }
 

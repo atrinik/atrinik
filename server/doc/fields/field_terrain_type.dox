@@ -1,6 +1,10 @@
 /**
-@fn obj::terrain_type
-@section Use
+@var obj::terrain_type
+@sa @ref page_field_terrain_type
+*/
+
+/**
+@page page_field_terrain_type obj::terrain_type Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -21,7 +25,7 @@
 @ref page_type_71
 		</td><td>			The &lt;terrain type&gt; defines what kind of environment
 			exists on this tile. This can be anything from normal land (=
-			"none") to water, fire etc. Only creatures whith appropriate
+			"none") to water, fire etc. Only creatures with appropriate
 			terrain abilities can pass over this square.</td>
 	</tr>
 

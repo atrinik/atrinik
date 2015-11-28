@@ -2,11 +2,11 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 100
 darkness -1
 outdoor 1
 no_harm 1
@@ -291,16 +291,14 @@ y 1
 arch archer
 sub_layer 1
 align 5
+direction 1
 level 75
-dex 1
-can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
-direction 1
+faction greyton_guards
 arch ability_stone_throw
-race arrows
+race haxarrows
 sp 1
 wc 300
 wc_range 150
@@ -319,10 +317,7 @@ attack_fire 100
 attack_electricity 100
 attack_cold 100
 attack_poison 100
-end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
+race haxarrows
 end
 end
 end
@@ -482,16 +477,14 @@ y 1
 arch archer
 sub_layer 1
 align 5
+direction 1
 level 75
-dex 1
-can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
-direction 1
+faction greyton_guards
 arch ability_stone_throw
-race arrows
+race haxarrows
 sp 1
 wc 300
 wc_range 150
@@ -510,10 +503,7 @@ attack_fire 100
 attack_electricity 100
 attack_cold 100
 attack_poison 100
-end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
+race haxarrows
 end
 end
 end

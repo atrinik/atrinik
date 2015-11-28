@@ -26,50 +26,12 @@
  * @file
  * Handles code for @ref SPAWN_POINT "spawn points".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
-
-/**
- * Signal all linked spawn points on the specified map about a possible enemy.
- * @param op Spawn point that is signalling.
- * @param map Map to signal on.
- */
-static void spawn_point_enemy_signal_map(object *op, mapstruct *map)
-{
-    objectlink *ol;
-
-    for (ol = map->linked_spawn_points; ol != NULL; ol = ol->next) {
-        if (ol->objlink.ob != op && ol->objlink.ob->title == op->title &&
-                OBJECT_VALID(ol->objlink.ob->enemy, ol->objlink.ob->enemy_count) &&
-                !OBJECT_VALID(ol->objlink.ob->enemy->enemy, ol->objlink.ob->enemy->enemy_count)) {
-            set_npc_enemy(ol->objlink.ob->enemy, op->enemy->enemy, NULL);
-        }
-    }
-}
-
-/**
- * Signal a possible enemy to all linked spawn points.
- * @param op Spawn point that is signalling. */
-void spawn_point_enemy_signal(object *op)
-{
-    int i;
-
-    /* Spawn point has no map or no title (linked group name), nothing to do. */
-    if (op->map == NULL || op->title == NULL) {
-        return;
-    }
-
-    /* Signal the map the spawn point is on. */
-    spawn_point_enemy_signal_map(op, op->map);
-
-    /* Signal all the tiled maps that are in memory. */
-    for (i = 0; i < TILED_NUM_DIR; i++) {
-        if (op->map->tile_map[i] != NULL && op->map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
-            spawn_point_enemy_signal_map(op, op->map->tile_map[i]);
-        }
-    }
-}
+#include <monster_guard.h>
+#include <arch.h>
 
 /**
  * Generate a monster from the spawn point.
@@ -190,7 +152,7 @@ static int spawn_point_can_generate(object *op, object *monster)
 
             return 1;
         } else {
-            logger_print(LOG(BUG), "Syntax error in spawn_time attribute: %s", spawn_time);
+            LOG(BUG, "Syntax error in spawn_time attribute: %s", spawn_time);
         }
     }
 
@@ -303,6 +265,7 @@ static void process_func(object *op)
     /* Insert the generated monster into the map. */
     insert_ob_in_map(monster, op->map, op, 0);
     living_update_monster(monster);
+    monster_guard_activate_gate(monster, 0);
 }
 
 /** @copydoc object_methods::trigger_func */
@@ -319,10 +282,6 @@ static int trigger_func(object *op, object *cause, int state)
 static void insert_map_func(object *op)
 {
     objectlink *ol;
-
-    if (op->title == NULL) {
-        return;
-    }
 
     ol = get_objectlink();
     ol->objlink.ob = op;

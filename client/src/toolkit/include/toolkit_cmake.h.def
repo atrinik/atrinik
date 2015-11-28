@@ -178,6 +178,18 @@
 #cmakedefine HAVE_MKSTEMP
 #endif
 
+#ifndef HAVE_STRNLEN
+#cmakedefine HAVE_STRNLEN
+#endif
+
+#ifndef HAVE_GETADDRINFO
+#cmakedefine HAVE_GETADDRINFO
+#endif
+
+#ifndef HAVE_IPV6
+#cmakedefine HAVE_IPV6
+#endif
+
 /* Name of the generated executable. */
 #define EXECUTABLE "@EXECUTABLE@"
 

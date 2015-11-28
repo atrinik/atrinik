@@ -91,6 +91,12 @@ Alex "Cleo" Tokar - GPLv2:
 	stat_sphere_food.png
 	stat_sphere_health.png
 	stat_sphere_mana.png
+    target_hp.png
+    target_hp_b.png
+	minimap_bg.png
+    minimap_border.png
+    minimap_border_rotated.png
+    minimap_mask.png
 
 Glenn Hanna - GPLv2:
 	book.png
@@ -108,6 +114,8 @@ David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
 	warn_food.png
 	warn_hp.png
 	player_doll.png
+    target_normal.png
+    target_attack.png
 
 Riccardo Iaconelli - GPLv3:
 	cursor_default.png
@@ -120,4 +128,4 @@ Riccardo Iaconelli - GPLv3:
 	cursor_text.png
 
 Brian "Gramlath" Angeletti - GPLv2:
-	player_doll_f.png
+    player_doll_f.png (based on: player_doll.png, by: David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0)

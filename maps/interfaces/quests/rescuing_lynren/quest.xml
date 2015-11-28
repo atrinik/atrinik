@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
 <interfaces>
     <quest name="Rescuing Lynren">
         <interface npc="Lynren" state="completed"/>
         <part name="The Book" uid="rescue">
-            <info>Rescue Lynren the paladin, who is imprisoned in Moroch Temple, by locating her book of holy word in her home in Asteria, among the various temples, and bringing the book to her.</info>
+            <info>Rescue Lynren the paladin, who is imprisoned in the Temple of Zechna, by locating her book of holy word in her home in Asteria, among the various temples, and bringing the book to her.</info>
             <item arch="book" name="Lynren's book of holy word"/>
             <interface npc="Lynren" state="need_start">
                 <dialog name="hello">

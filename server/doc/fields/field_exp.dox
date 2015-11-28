@@ -1,21 +1,15 @@
 /**
-@fn liv::exp
-@section Use
+@var liv::exp
+@sa @ref page_field_exp
+*/
+
+/**
+@page page_field_exp liv::exp Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
-		<td>
-@ref page_type_31
-		</td><td>		Being activated, the altar will reset after "reset time"
-		ticks. After reset, the altar is ready to be activated once
-		again. If 0, the altar will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.</td>
-	</tr>
-	<tr>
 		<td>
 @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
 		</td><td>			Divide by ten to get the player's speed bonus from wearing
@@ -35,13 +29,11 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_30
+@ref page_type_92
 		</td><td>		Being activated, the button will reset after "reset time"
 		ticks. After reset, the button is ready to be activated once
-		again. If 0, the button will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.</td>
+		again. If -1, the button will never reset and won't be possible
+		to trigger again.</td>
 	</tr>
 	<tr>
 		<td>
@@ -52,19 +44,19 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_27
+@ref page_type_93
 		</td><td>		Being activated, the handle will reset after "reset time"
 		ticks. After reset, the handle is ready to be activated once
-		again. If 0, the handle will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.</td>
+		again. If -1, the handle will never reset and won't be possible
+		to trigger again.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_88
 		</td><td>			If set to a value greater than zero, all creatures moving over this
-			spot will be slower than normal.</td>
+			spot will be slower than normal.
+
+			This is the amount of ticks that they will be frozen for.</td>
 	</tr>
 	<tr>
 		<td>
@@ -76,13 +68,10 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_32
+@ref page_type_17
 		</td><td>		Being activated, the pedestal will reset after "reset time"
 		ticks. After reset, the pedestal is ready to be activated once
-		again. If 0, the pedestal will never reset and won't be possible
-		to trigger again.
-
-		The default reset time is 30.</td>
+		again.</td>
 	</tr>
 	<tr>
 		<td>
@@ -99,21 +88,12 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_138
-		</td><td>		If set to a value greater than zero, all creatures moving over this
-		spot will be slower than normal.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_4
 		</td><td>		The &lt;quality level&gt; will be used for the quality of the
 		generated treasure instead of the map difficulty (as was done
 		with shops).
 
-		If zero/unset, the map difficulty will instead be used.
-
-		(Example for comparison: Shop floors generate treasure of
-		&lt;quality level&gt; 5 per default).</td>
+		If zero/unset, the map difficulty will instead be used.</td>
 	</tr>
 
 */

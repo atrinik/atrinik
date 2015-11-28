@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_7
@@ -2053,6 +2053,24 @@ end
 arch grassd_m12
 x 16
 y 5
+end
+arch bag
+no_pick 1
+name forgotten bag
+zoom 90
+z 2
+align 2
+x 16
+y 5
+arch letter
+msg
+<The majority of the letter is smeared with dirt, but you manage to make out a few sentences>
+
+... furthermore, I have failed to discover the location of the glade you spoke of. It should be just north of my camp, but it must be protected by some powerful magic, for I could not find the entrance, which is said to be marked by flow... <the rest of the letter is illegible>
+endmsg
+name unsent letter
+no_pick 1
+end
 end
 arch floor_sand_d3
 x 16

@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-10-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -674,6 +674,11 @@ x 2
 y 21
 end
 arch water_lt3
+x 2
+y 22
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 2
 y 22
 end
@@ -2241,6 +2246,9 @@ arch guard_pole
 type 83
 direction 3
 name town guard
+faction incuna_guards
+randomitems mob_default
+level 18
 arch event_obj
 sub_type 6
 race /python/generic/npc_poker.py
@@ -2491,6 +2499,9 @@ y 5
 arch guard_pole
 type 83
 name town guard
+faction incuna_guards
+randomitems mob_default
+level 18
 arch event_obj
 sub_type 6
 race /python/generic/npc_poker.py
@@ -2778,6 +2789,24 @@ arch sand_dm19
 x 11
 y 14
 end
+arch spawn_point
+x 11
+y 14
+arch dog_brown
+speed -0.025
+faction incuna_animals
+random_move 1
+item_race 10
+item_level 10
+type 83
+arch event_obj
+sub_type 15
+race /python/generic/random_move_block.py
+slaying grassd_*
+path_attuned 1
+end
+end
+end
 arch grassd_7
 x 11
 y 15
@@ -2825,6 +2854,24 @@ end
 arch reed_sm2
 x 11
 y 20
+end
+arch spawn_point
+x 11
+y 20
+arch dog_brown
+speed -0.025
+faction incuna_animals
+random_move 1
+item_race 10
+item_level 10
+type 83
+arch event_obj
+sub_type 15
+race /python/generic/random_move_block.py
+slaying grassd_*
+path_attuned 1
+end
+end
 end
 arch grassd_4
 x 11
@@ -3547,6 +3594,15 @@ y 17
 arch bartender
 type 83
 direction 3
+faction incuna_citizens
+name Arvend Blessed
+level 5
+arch event_obj
+sub_type 6
+race /interfaces/quests/lost_memories/quest.xml
+arch beer
+end
+end
 end
 end
 arch floor_wood3f
@@ -3988,10 +4044,9 @@ y 12
 arch guard_pole
 type 83
 name town guard
-arch event_obj
-sub_type 6
-race /python/generic/guard_drunk.py
-end
+randomitems mob_guard_drunk
+faction incuna_guards
+level 18
 end
 end
 arch floor_wood3a
@@ -4708,6 +4763,22 @@ arch sand_dm9
 x 21
 y 12
 end
+arch spawn_point
+x 21
+y 12
+arch dog_brown
+speed -0.025
+faction incuna_animals
+type 83
+direction 3
+arch event_obj
+sub_type 15
+race /python/generic/random_move_block.py
+slaying grassd_*
+path_attuned 1
+end
+end
+end
 arch grassd_1
 x 21
 y 13
@@ -4770,6 +4841,9 @@ y 20
 arch ranger
 type 83
 direction 7
+randomitems mob_default
+faction incuna_citizens
+level 10
 end
 end
 arch floor_wood3g

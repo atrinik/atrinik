@@ -1,6 +1,7 @@
 ## @file
 ## Generic script for post office clerks.
 
+from Atrinik import *
 from Interface import Interface
 from PostOffice import PostOffice
 
@@ -76,6 +77,6 @@ def main():
 
 try:
     main()
-    inf.finish()
+    inf.send()
 finally:
     post.db.close()

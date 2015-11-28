@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
 <interfaces>
     <interface>
         <dialog name="hello">
@@ -6,7 +9,7 @@
             <response destination="tellmore" message="Tell me more..."/>
         </dialog>
         <dialog name="tellmore">
-            <message>It's an abandoned dwarven mine that makes some sort of a tunnel between several locations. Rumor is that a portal to the legendary Moroch Temple is located there, which is what I'm trying to find out about.</message>
+            <message>It's an abandoned dwarven mine that makes some sort of a tunnel between several locations. Rumor is that a portal to the legendary Temple of Zechna is located there, which is what I'm trying to find out about.</message>
             <message>If you are also interested in the mine, you can read about it in my notes in the bookcase.</message>
         </dialog>
     </interface>

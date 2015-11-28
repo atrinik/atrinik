@@ -1,0 +1,195 @@
+arch map
+name Asteria
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2015-05-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music jungle.ogg
+region asteria
+end
+arch fstone1b
+z -22
+y 12
+end
+arch wall_cave1.101
+y 12
+end
+arch map_info
+name asteria_mushroom_cave
+hp 4
+sp 5
+is_magical 1
+y 12
+end
+arch fstone1b
+z -22
+y 13
+end
+arch wall_cave1.131
+y 13
+end
+arch fstone1b
+z -22
+y 14
+end
+arch wall_cave1.131
+y 14
+end
+arch fstone1b
+z -22
+y 15
+end
+arch wall_cave1b.141
+y 15
+end
+arch fstone1b
+z -22
+y 16
+end
+arch wall_cave1.111
+y 16
+end
+arch fstone1b
+z -22
+y 17
+end
+arch wall_cave1.161
+y 17
+end
+arch fstone1b
+z -22
+x 1
+y 12
+end
+arch wall_cave1.151
+x 1
+y 12
+end
+arch fstone1c
+z -22
+x 1
+y 16
+end
+arch wall_cave1.111
+x 1
+y 16
+end
+arch fstone1b
+z -22
+x 1
+y 17
+end
+arch wall_cave1.111
+x 1
+y 17
+end
+arch fstone1b
+z -22
+x 2
+y 12
+end
+arch wall_cave1.151
+x 2
+y 12
+end
+arch fstone1b
+z -22
+x 2
+y 16
+end
+arch wall_cave1.111
+x 2
+y 16
+end
+arch fstone1b
+x 2
+y 17
+end
+arch wall_cave1.111
+sub_layer 1
+x 2
+y 17
+end
+arch wall_cave1.111
+z -12
+align 24
+x 2
+y 17
+end
+arch fstone1b
+z -22
+x 3
+y 12
+end
+arch wall_cave1.121
+x 3
+y 12
+end
+arch fstone1b
+z -22
+x 3
+y 13
+end
+arch wall_cave1b.161
+x 3
+y 13
+end
+arch fstone1b
+z -22
+x 3
+y 16
+end
+arch wall_cave1.181
+x 3
+y 16
+end
+arch fstone1b
+z -22
+x 3
+y 17
+end
+arch wall_cave1.141
+x 3
+y 17
+end
+arch fstone1b
+z -22
+x 4
+y 13
+end
+arch wall_cave1.121
+x 4
+y 13
+end
+arch fstone1b
+z -22
+x 4
+y 14
+end
+arch wall_cave1.171
+x 4
+y 14
+end
+arch fstone1b
+z -22
+x 4
+y 15
+end
+arch wall_cave1.171
+x 4
+y 15
+end
+arch fstone1b
+z -22
+x 4
+y 16
+end
+arch wall_cave1.141
+x 4
+y 16
+end

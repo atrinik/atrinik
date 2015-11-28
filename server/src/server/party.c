@@ -261,7 +261,10 @@ static void party_loot_random(object *pl, object *corpse)
             if (on_same_map(ol->objlink.ob, pl)) {
                 if (num == pl_id) {
                     if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
-                        draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+                        char *name = object_get_name_s(tmp, NULL);
+                        draw_info_format(COLOR_BLUE, ol->objlink.ob,
+                                "You receive the %s.", name);
+                        efree(name);
                         object_remove(tmp, 0);
                         insert_ob_in_ob(tmp, ol->objlink.ob);
                     }
@@ -334,7 +337,10 @@ static void party_loot_split(object *pl, object *corpse)
             }
 
             if (on_same_map(ol->objlink.ob, pl) && player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
-                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", query_name(tmp, NULL));
+                char *name = object_get_name_s(tmp, NULL);
+                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the "
+                        "%s.", name);
+                efree(name);
                 object_remove(tmp, 0);
                 insert_ob_in_ob(tmp, ol->objlink.ob);
                 break;
@@ -366,8 +372,8 @@ static void party_loot_split(object *pl, object *corpse)
                     value_split += value % count;
                 }
 
-                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive %s.", cost_string_from_value(value_split));
-                insert_coins(ol->objlink.ob, value_split);
+                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive %s.", shop_get_cost_string(value_split));
+                shop_insert_coins(ol->objlink.ob, value_split);
 
                 num++;
             }
@@ -417,10 +423,17 @@ void party_handle_corpse(object *pl, object *corpse)
  * @param party Party to send the message to.
  * @param msg Message to send.
  * @param flag One of @ref PARTY_MESSAGE_xxx "party message flags".
- * @param op Player sending the message. If not NULL, this player will
- * not receive the message. */
+ * @param op Player sending the message.
+ * @param except If not NULL, this player will not receive the message.
+ */
 void send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except)
 {
+    HARD_ASSERT(party != NULL);
+    HARD_ASSERT(msg != NULL);
+
+    SOFT_ASSERT(op != NULL || flag == PARTY_MESSAGE_STATUS,
+            "'op' argument not supplied");
+
     objectlink *ol;
 
     for (ol = party->members; ol; ol = ol->next) {

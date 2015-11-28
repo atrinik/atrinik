@@ -37,7 +37,7 @@ SDL_Surface *ScreenSurface;
 /** Server's attributes */
 struct sockaddr_in insock;
 /** Client socket. */
-ClientSocket csocket;
+client_socket_t csocket;
 
 /** Our selected server that we want to connect to. */
 server_struct *selected_server = NULL;
@@ -167,7 +167,7 @@ void socket_command_keepalive(uint8_t *data, size_t len, size_t pos)
         }
     }
 
-    log(LOG(BUG), "Received unknown keepalive ID: %d", id);
+    LOG(BUG, "Received unknown keepalive ID: %d", id);
 }
 
 /**
@@ -188,7 +188,7 @@ static void init_game_data(void)
 
     cpl.state = ST_INIT;
     map_redraw_flag = minimap_redraw_flag = 1;
-    csocket.fd = -1;
+    csocket.sc = NULL;
 
     metaserver_init();
     spells_init();
@@ -203,7 +203,6 @@ static int game_status_chain(void)
     if (cpl.state == ST_INIT) {
         clear_map(true);
         effect_stop();
-        sound_ambient_clear();
         cpl.state = ST_META;
     } else if (cpl.state == ST_META) {
         size_t i, pos;
@@ -212,21 +211,23 @@ static int game_status_chain(void)
 
         metaserver_clear_data();
 
-        metaserver_add("127.0.0.1", 13327, "Localhost", "localhost", -1, "local", "Localhost. Start server before you try to connect.");
+        metaserver_add("localhost", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
         for (i = 0; i < clioption_settings.servers_num; i++) {
             pos = 0;
-            string_get_word(clioption_settings.servers[i], &pos, ':', host, sizeof(host), 0);
-            string_get_word(clioption_settings.servers[i], &pos, ':', port, sizeof(port), 0);
+            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(host), 0);
+            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(port), 0);
             port_num = atoi(port);
-            metaserver_add(host, port_num ? port_num : 13327, host, host, -1, "user server", "Server from command line --server option.");
+            metaserver_add(host, port_num != 0 ? port_num : 13327,
+                    host, -1, "user server",
+                    "Server from command line --server option.");
         }
 
         metaserver_get_servers();
         cpl.state = ST_START;
     } else if (cpl.state == ST_START) {
-        if (csocket.fd != -1) {
-            socket_close(&csocket);
+        if (csocket.sc != NULL) {
+            client_socket_close(&csocket);
         }
 
         clear_map(true);
@@ -239,7 +240,7 @@ static int game_status_chain(void)
     } else if (cpl.state == ST_CONNECT) {
         packet_struct *packet;
 
-        if (!socket_open(&csocket, selected_server->ip, selected_server->port)) {
+        if (!client_socket_open(&csocket, selected_server->hostname, selected_server->port)) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;
@@ -327,7 +328,7 @@ void list_vid_modes(void)
 
     /* Check if there are any modes available */
     if (modes == (SDL_Rect **) 0) {
-        logger_print(LOG(ERROR), "No video modes available!");
+        LOG(ERROR, "No video modes available!");
         exit(1);
     }
 }
@@ -459,6 +460,7 @@ int main(int argc, char *argv[])
     toolkit_import(packet);
     toolkit_import(porting);
     toolkit_import(sha1);
+    toolkit_import(socket);
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);
@@ -584,7 +586,7 @@ int main(int argc, char *argv[])
     curl_init();
 
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0) {
-        logger_print(LOG(ERROR), "Couldn't initialize SDL: %s", SDL_GetError());
+        LOG(ERROR, "Couldn't initialize SDL: %s", SDL_GetError());
         exit(1);
     }
 
@@ -610,10 +612,6 @@ int main(int argc, char *argv[])
             STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
 #endif
     draw_info(COLOR_HGOLD, buf);
-
-    if (!socket_initialize()) {
-        exit(1);
-    }
 
     if (!x11_clipboard_register_events()) {
         draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
@@ -668,7 +666,8 @@ int main(int argc, char *argv[])
          * action */
         if (cpl.state != ST_PLAY) {
             if (!game_status_chain()) {
-                logger_print(LOG(BUG), "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
+                LOG(ERROR, "Error connecting: cpl.state: %d SocketError: %s "
+                        "(%d)", cpl.state, strerror(s_errno), s_errno);
             }
         } else if (SDL_GetAppState() & SDL_APPACTIVE) {
             if (LastTick - anim_tick > 125) {
@@ -726,7 +725,7 @@ int main(int argc, char *argv[])
 
             SDL_GetMouseState(&mx, &my);
             object_show_centered(ScreenSurface, object_find(cpl.dragging_tag),
-                    mx, my, INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE);
+                    mx, my, INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE, false);
         }
 
         if (cursor_x != -1 && cursor_y != -1 &&
@@ -739,6 +738,7 @@ int main(int argc, char *argv[])
 
         texture_gc();
         font_gc();
+        sprite_cache_gc();
 
         if (update) {
             SDL_Flip(ScreenSurface);

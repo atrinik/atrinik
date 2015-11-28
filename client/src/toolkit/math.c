@@ -98,8 +98,12 @@ int rndm(int min, int max)
 {
     TOOLKIT_PROTECT();
 
-    if (max < 1 || max - min + 1 < 1) {
+    if (max - min + 1 < 1) {
         log_error("Calling rndm() with min=%d max=%d", min, max);
+        return min;
+    }
+
+    if (max == 0) {
         return min;
     }
 

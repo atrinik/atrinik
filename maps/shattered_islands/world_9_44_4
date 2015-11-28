@@ -2,15 +2,15 @@ arch map
 name Asteria Auction House
 msg
 Created:  2011-01-09 Alex Tokar
-Modified: 2015-04-20 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness -1
 outdoor 1
 no_harm 1
-bg_music fuego.ogg
+bg_music joyful_life.mid
 region asteria
 end
 arch trans
@@ -1215,6 +1215,7 @@ x 7
 y 20
 arch knight1
 level 80
+faction asteria_guards
 type 83
 direction 3
 end
@@ -1246,6 +1247,7 @@ x 8
 y 1
 arch knight1
 level 80
+faction asteria_guards
 type 83
 end
 end
@@ -2344,36 +2346,36 @@ y 21
 end
 arch map_event_obj
 sub_type 13
-race /python/auction/mevent.py
+race /python/auctions/mevent.py
 x 23
 end
 arch map_event_obj
 sub_type 12
-race /python/auction/mevent.py
+race /python/auctions/mevent.py
 x 23
 y 1
 end
 arch map_event_obj
 sub_type 11
-race /python/auction/mevent.py
+race /python/auctions/mevent.py
 x 23
 y 2
 end
 arch map_event_obj
 sub_type 6
-race /python/auction/mevent.py
+race /python/auctions/mevent.py
 x 23
 y 3
 end
 arch map_event_obj
 sub_type 7
-race /python/auction/mevent.py
+race /python/auctions/mevent.py
 x 23
 y 4
 end
 arch map_event_obj
 sub_type 9
-race /python/auction/mevent.py
+race /python/auctions/mevent.py
 x 23
 y 5
 end

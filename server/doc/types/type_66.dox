@@ -72,6 +72,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>base damage</td>
+		<td>@ref liv::dam</td>
+		<td>		How much damage is inflicted to the player using the exit.
+		</td>
+	</tr>
+	<tr>
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
 		<td>		If an item is set to block view, players (and monsters) cannot
@@ -115,7 +121,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -138,13 +144,12 @@ Type defined by:
 		You can enter an absolute path, beginning with '/' (for example
 		"/tutorial"). It can also be a relative path, not beginning with
 		'/' (on the map "/shattered_islands/world_0303" for example I
-		could use the relative path "0304"). Use relative paths whenever
-		possible! Note that upper/lower case must always be set
+		could use the relative path "world_0304"). Use relative paths
+		whenever possible! Note that upper/lower case must always be set
 		correctly. However, please use lower case only.
 
-		It is well possible to have an exit pointing to the same map that
-		the exit is on. If slaying is not set in an exit, the player will
-		see a message like "The exit is closed".
+		If the path is not set, it is automatically assumed to be the same
+		as the map the exit is on.
 		</td>
 	</tr>
 	<tr>
@@ -160,6 +165,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -214,12 +225,18 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
+		</td>
+	</tr>
+	<tr>
+		<td>level</td>
+		<td>@ref obj::level</td>
+		<td>		Level at which to hit the player with 'base damage'.
 		</td>
 	</tr>
 	<tr>
@@ -254,13 +271,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -338,6 +348,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
 		<td>stackable</td>
 		<td>@ref FLAG_CAN_STACK</td>
 		<td>		If set, the item can be stacked. Careful, don't use on rings or
@@ -378,8 +394,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -389,6 +414,17 @@ Type defined by:
 		Warning: Not all objects have a sub type and changing it without
 		care can corrupt server AND/OR the clients. Normally this is not
 		a subject to change outside arch definition.
+		</td>
+	</tr>
+	<tr>
+		<td>tile direction</td>
+		<td>@ref obj::last_heal</td>
+		<td>        If set to something other than "none", the exit will attempt to
+        automatically calculate its destination, relative to its position
+        on the current map and the specified map tile direction.
+
+        This is used for exits such as stairs, where the destination is
+        usually clear just from the tiled maps.
 		</td>
 	</tr>
 	<tr>
@@ -404,11 +440,7 @@ Type defined by:
 		<td>@ref obj::last_eat</td>
 		<td>		This flag defines the destined map as "personal unique map". If
 		set, there will be a seperate version of that map for every
-		player out there. This feature is used for the permanent
-		apartments.
-
-		It should not be used for anything else other than apartments,
-		since Atrinik is a multiplayer game.
+		player out there.
 
 		An exit pointing outside of a personal unique map must have the
 		"unique destination" flag unset.
@@ -426,6 +458,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

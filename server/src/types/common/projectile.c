@@ -25,9 +25,11 @@
 /**
  * @file
  * Common projectile object (arrow, bolt, bullet, etc) related
- * functions. */
+ * functions.
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Attempts to stick a projectile such as an arrow into the victim.
@@ -157,10 +159,16 @@ object *common_object_projectile_move(object *op)
         return NULL;
     }
 
-    if (!object_move_to(op, op->direction, op, m, x, y)) {
-        object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
-        return NULL;
-    }
+    OBJ_DESTROYED_BEGIN(op) {
+        if (!object_move_to(op, op->direction, op, m, x, y)) {
+            object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
+            return NULL;
+        }
+
+        if (OBJ_DESTROYED(op)) {
+            return NULL;
+        }
+    } OBJ_DESTROYED_END();
 
     return op;
 }
@@ -175,7 +183,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
     }
 
     /* Already stopped, nothing to do. */
-    if (!op->speed) {
+    if (DBL_EQUAL(op->speed, 0.0)) {
         return op;
     }
 
@@ -229,8 +237,10 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 
         update_ob_speed(op);
 
-        object_remove(op, 0);
-        op = insert_ob_in_map(op, op->map, op, INS_FALL_THROUGH);
+        if (op->map != NULL) {
+            object_remove(op, 0);
+            op = insert_ob_in_map(op, op->map, op, INS_FALL_THROUGH);
+        }
     } else if (op->inv) {
         object *payload;
 
@@ -281,8 +291,8 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
     op->direction = dir;
     SET_ANIMATION_STATE(op);
 
-    if (!op->speed) {
-        op->speed = 1;
+    if (DBL_EQUAL(op->speed, 0.0)) {
+        op->speed = 1.0;
     }
 
     /* Save the shooter's level. */
@@ -334,16 +344,15 @@ int common_object_projectile_hit(object *op, object *victim)
 
         op = projectile_stick(op, victim);
 
-        OBJ_DESTROYED_BEGIN(op);
-        dam = hit_player(victim, op->stats.dam, op);
+        OBJ_DESTROYED_BEGIN(op) {
+            dam = hit_player(victim, op->stats.dam, op);
 
-        if (OBJ_DESTROYED(op)) {
-            return OBJECT_METHOD_ERROR;
-        }
+            if (OBJ_DESTROYED(op)) {
+                return OBJECT_METHOD_ERROR;
+            }
 
-        op->stats.dam -= dam;
-
-        OBJ_DESTROYED_END(op);
+            op->stats.dam -= dam;
+        } OBJ_DESTROYED_END();
     }
 
     return OBJECT_METHOD_OK;

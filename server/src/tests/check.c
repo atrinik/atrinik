@@ -75,7 +75,6 @@ void check_test_setup(void)
     if (fork_st != CK_FORK) {
         return;
     }
-
 }
 
 /*
@@ -99,8 +98,10 @@ void check_setup_env_pl(mapstruct **map, object **pl)
     *map = get_empty_map(24, 24);
     ck_assert(*map != NULL);
 
-    *pl = player_get_dummy();
+    *pl = player_get_dummy(NULL, NULL);
     ck_assert(*pl != NULL);
+
+    object_remove(*pl, 0);
 
     *pl = insert_ob_in_map(*pl, *map, NULL, 0);
     ck_assert(*pl != NULL);
@@ -166,24 +167,28 @@ void check_main(int argc, char **argv)
     }
 
     /* bugs */
-    check_bug_85();
+    check_bug_cursed_treasures();
 
     /* unit/commands */
     check_commands_object();
 
     /* unit/server */
-    check_server_ban();
     check_server_arch();
+    check_server_attack();
+    check_server_ban();
+    check_server_bank();
+    check_server_cache();
     check_server_object();
+    check_server_re_cmp();
+    check_server_shop();
+
+    /* unit/toolkit */
+    check_server_memory();
     check_server_packet();
     check_server_pbkdf2();
-    check_server_re_cmp();
-    check_server_cache();
-    check_server_memory();
     check_server_shstr();
     check_server_string();
     check_server_stringbuffer();
-    check_server_utils();
 
     /* unit/types */
     check_types_light_apply();

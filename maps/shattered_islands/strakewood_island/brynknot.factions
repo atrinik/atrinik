@@ -1,0 +1,20 @@
+faction brynknot
+    parent greyton_republic
+
+    faction brynknot_animals
+        spill 10%
+        spill_force true
+    end
+
+    faction brynknot_citizens
+        faction brynknot_guards
+        end
+
+        faction brynknot_nobility
+            modifier 50%
+
+            faction brynknot_mayor
+            end
+        end
+    end
+end

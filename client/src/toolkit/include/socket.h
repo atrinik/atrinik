@@ -54,8 +54,7 @@ enum {
     SERVER_CMD_QUICKSLOT,
     SERVER_CMD_QUESTLIST,
     SERVER_CMD_MOVE_PATH,
-    /** @deprecated */
-    SERVER_CMD_ITEM_READY,
+    SERVER_CMD_COMBAT,
     SERVER_CMD_TALK,
     SERVER_CMD_MOVE,
     SERVER_CMD_TARGET,
@@ -116,8 +115,10 @@ enum {
 #define CMD_TARGET_SELF 0
 /** Enemy. */
 #define CMD_TARGET_ENEMY 1
+/** Neutral. */
+#define CMD_TARGET_NEUTRAL 2
 /** Friend. */
-#define CMD_TARGET_FRIEND 2
+#define CMD_TARGET_FRIEND 3
 /*@}*/
 
 /**
@@ -158,6 +159,8 @@ enum {
 #define CMD_INTERFACE_APPEND_TEXT 12
 /** Animation; animated image in the upper left corner square. */
 #define CMD_INTERFACE_ANIM 13
+/** Virtual object. */
+#define CMD_INTERFACE_OBJECT 14
 /*@}*/
 
 /**
@@ -244,6 +247,8 @@ enum {
 #define MAP2_FLAG2_PRIORITY 32
 /** Second alpha pass rendering. */
 #define MAP2_FLAG2_SECONDPASS 64
+/** The object glows. */
+#define MAP2_FLAG2_GLOW 128
 /*@}*/
 
 /**
@@ -464,6 +469,8 @@ enum {
 #define UPD_TYPE 512
 /** Extra data, such as spell/skill data. */
 #define UPD_EXTRA 1024
+/** Item glow. */
+#define UPD_GLOW 2048
 /*@}*/
 
 /**
@@ -583,14 +590,19 @@ enum {
 #define ANIM_FLAG_STOP_ATTACKING 0x08 ///< Stop attacking.
 /*@}*/
 
-#define CHAT_TYPE_ALL 1
-#define CHAT_TYPE_GAME 2
-#define CHAT_TYPE_CHAT 3
-#define CHAT_TYPE_LOCAL 4
-#define CHAT_TYPE_PRIVATE 5
-#define CHAT_TYPE_GUILD 6
-#define CHAT_TYPE_PARTY 7
-#define CHAT_TYPE_OPERATOR 8
+/**
+ * @defgroup CHAT_TYPE_xxx Chat types
+ * Chat types.
+ *@{*/
+#define CHAT_TYPE_ALL 1 ///< Goes to the 'all' tab window.
+#define CHAT_TYPE_GAME 2 ///< Game-related messages (eg, examine output)
+#define CHAT_TYPE_CHAT 3 ///< Player chat.
+#define CHAT_TYPE_LOCAL 4 ///< Local map chat.
+#define CHAT_TYPE_PRIVATE 5 ///< Private chat (/tell)
+#define CHAT_TYPE_GUILD 6 ///< Guild chat.
+#define CHAT_TYPE_PARTY 7 ///< Party chat.
+#define CHAT_TYPE_OPERATOR 8 ///< Operator-only chat.
+/*@}*/
 
 #define CMD_TALK_NPC 1
 #define CMD_TALK_INV 2
@@ -628,6 +640,16 @@ enum {
 /*@}*/
 
 /**
+ * @defgroup CMD_APPLY_ACTION_xxx Apply action types
+ * Used for special handling of the apply command.
+ *@{*/
+#define CMD_APPLY_ACTION_NORMAL 0 ///< Normal apply. Not transmitted.
+#define CMD_APPLY_ACTION_NONE 1 ///< No action.
+#define CMD_APPLY_ACTION_BELOW_NEXT 2 ///< Next group of items.
+#define CMD_APPLY_ACTION_BELOW_PREV 3 ///< Previous group of items.
+/*@}*/
+
+/**
  * Player equipment.
  * @anchor PLAYER_EQUIP_xxx */
 enum {
@@ -659,8 +681,8 @@ enum {
      * Belt. */
     PLAYER_EQUIP_BELT,
     /**
-     * Greaves. */
-    PLAYER_EQUIP_GREAVES,
+     * Pants. */
+    PLAYER_EQUIP_PANTS,
     /**
      * Boots. */
     PLAYER_EQUIP_BOOTS,
@@ -689,25 +711,71 @@ enum {
     PLAYER_EQUIP_MAX
 };
 
-typedef struct socket_t {
-    /**
-     * Actual socket handle, as returned by socket() call. */
-    int handle;
+/**
+ * Timeout when attempting a connection in seconds.
+ */
+#define SOCKET_TIMEOUT_MS 30.0
 
-    /**
-     * Hostname that the socket connection will use.
-     */
-    char *host;
+/** The socket structure. */
+typedef struct sock_struct socket_t;
 
-    /**
-     * Port that the socket connection will use.
-     */
-    uint16_t port;
+#ifdef WIN32
+static inline const char *s_strerror(int val)
+{
+    wchar_t *s = NULL;
+    FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS, NULL, val,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR) &s, 0, NULL);
+    static char buf[4096];
+    int end = snprintf(buf, sizeof(buf), "%S", s);
+    if (end > 0) {
+        for (int i = end - 1; i >= 0; i--) {
+            if (buf[i] != '\n' && buf[i] != '\r') {
+                break;
+            }
 
-    /**
-     * SSL socket handle.
-     */
-    SSL *ssl_handle;
-} socket_t;
+            buf[i] = '\0';
+        }
+    }
+    LocalFree(s);
+    return buf;
+}
+#define s_errno WSAGetLastError()
+#else
+#define s_strerror(_val) strerror(_val)
+#define s_errno errno
+#endif
+
+/* Prototypes */
+void toolkit_socket_init(void);
+void toolkit_socket_deinit(void);
+socket_t *socket_create(const char *host, uint16_t port);
+char *socket_get_addr(socket_t *sc);
+char *socket_get_str(socket_t *sc);
+int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
+        unsigned short plen);
+bool socket_connect(socket_t *sc);
+int socket_fd(socket_t *sc);
+bool socket_bind(socket_t *sc);
+socket_t *socket_accept(socket_t *sc);
+bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt);
+bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt);
+bool socket_is_fd_valid(socket_t *sc);
+bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger);
+bool socket_opt_reuse_addr(socket_t *sc, bool enable);
+bool socket_opt_non_blocking(socket_t *sc, bool enable);
+bool socket_opt_ndelay(socket_t *sc, bool enable);
+bool socket_opt_send_buffer(socket_t *sc, int bufsize);
+bool socket_opt_recv_buffer(socket_t *sc, int bufsize);
+void socket_destroy(socket_t *sc);
+void socket_close(socket_t *sc);
+bool socket_host2addr(const char *host, struct sockaddr_storage *addr);
+const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
+        size_t bufsize);
+unsigned short socket_addr_plen(const struct sockaddr_storage *addr);
+int socket_addr_cmp(const struct sockaddr_storage *a,
+        const struct sockaddr_storage *b, unsigned short plen);
+SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
+void socket_ssl_destroy(SSL *ssl);
 
 #endif

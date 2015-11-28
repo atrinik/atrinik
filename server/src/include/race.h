@@ -38,7 +38,7 @@ typedef struct ob_race {
 
     /**
      * The default corpse archetype of this race. */
-    struct archt *corpse;
+    struct archetype *corpse;
 
     /**
      * Linked list of monsters belonging to this race. */

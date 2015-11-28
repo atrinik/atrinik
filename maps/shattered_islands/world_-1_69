@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch floor_flagm1
@@ -822,8 +822,13 @@ arch spawn_point
 x 4
 y 13
 arch female1
+msg
+@match ^hello$
+Watching our kids play makes me feel young again.
+endmsg
 type 83
 direction 3
+faction brynknot_citizens
 name Telana Reed
 end
 end
@@ -840,8 +845,13 @@ arch spawn_point
 x 4
 y 14
 arch peasant
+msg
+@match ^hello$
+I had to sit down for a moment. I'm not as young as I used to be...
+endmsg
 type 83
 direction 3
+faction brynknot_citizens
 name Deran Reed
 end
 end
@@ -1353,11 +1363,8 @@ x 7
 y 7
 arch guard
 level 30
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm1
@@ -1421,6 +1428,7 @@ x 7
 y 15
 arch guard
 level 30
+faction brynknot_guards
 type 83
 direction 1
 end
@@ -1968,6 +1976,7 @@ msg
 Wheeeee!
 endmsg
 level 4
+faction brynknot_citizens
 speed -0.228
 movement_type 176
 type 83
@@ -2185,7 +2194,12 @@ arch spawn_point
 x 12
 y 7
 arch woman_old
+msg
+@match ^hello$
+Wouldn't it be nice to be young again, all that energy... Ahh, the years press upon me. Do an old grandma a favor, would you, dearie? Don't waste all that energy of your prime age...
+endmsg
 type 83
+faction brynknot_citizens
 name Salith Green
 end
 end
@@ -2346,12 +2360,18 @@ arch spawn_point
 x 13
 y 4
 arch childm4
+msg
+@match ^hello$
+My brother never gets bored of running in circles around the fountain.
+endmsg
 level 7
+faction brynknot_citizens
 random_move 1
 item_race 2
 item_level 2
 type 83
 speed -0.147
+name Nathan Reed
 end
 end
 arch earth_brown2

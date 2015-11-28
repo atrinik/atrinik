@@ -251,6 +251,10 @@ typedef struct MapCell {
     uint8_t priority[NUM_SUB_LAYERS];
 
     uint8_t secondpass[NUM_SUB_LAYERS];
+
+    char glow[NUM_REAL_LAYERS][COLOR_BUF];
+    uint8_t glow_speed[NUM_REAL_LAYERS];
+    uint8_t glow_state[NUM_REAL_LAYERS];
 } MapCell;
 
 #define MAP_STARTX map_width * (MAP_FOW_SIZE / 2)
@@ -304,6 +308,7 @@ typedef struct map_anim {
     struct map_anim *prev; ///< Previous animation.
 
     int type; ///< Type of the animation, one of @ref ANIM_xxx.
+    int sub_layer; ///< Sub-layer the damage is happening on.
     int value; ///< This is the number to display.
     int mapx; ///< Map position X.
     int mapy; ///< Map position Y.

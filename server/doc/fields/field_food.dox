@@ -1,6 +1,10 @@
 /**
-@fn liv::food
-@section Use
+@var liv::food
+@sa @ref page_field_food
+*/
+
+/**
+@page page_field_food liv::food Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -21,30 +25,6 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_18
-		</td><td>		The drop amount specifies the amount of items (specified in
-		&lt;match item name&gt;) that must be dropped to activate the
-		altar.
-
-		If &lt;match item name&gt; is set to "money", then the value of
-		the sacrificed money must be equal to &lt;drop amount&gt; (ie, if
-		food = 200, then 200 silver, 20 gold, or 4 platinum will all
-		work.)</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_31
-		</td><td>		The drop amount specifies the amount of items (specified in
-		&lt;match item name&gt;) that must be dropped to activate the
-		altar.
-
-		If &lt;match item name&gt; is set to "money", then the value of
-		the sacrificed money must be equal to &lt;drop amount&gt; (ie, if
-		food = 200, then 200 silver, 20 gold, or 4 platinum will all
-		work).</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
 		</td><td>			Positive &lt;food bonus&gt; slows down the player's
 			digestion, thus he consumes less food. Negative values speed
@@ -56,13 +36,6 @@
 			&lt;food bonus&gt; only affects the amount of food consumed
 			for "being alive". Hence, even with high &lt;food bonus&gt;,
 			during a fight a player can run out of food quickly.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_103
-		</td><td>		The player has to put &lt;cost number&gt; items of
-		&lt;cost arch&gt; on the converter, in order to get
-		&lt;receive number&gt; items of &lt;receive arch&gt;.</td>
 	</tr>
 	<tr>
 		<td>
@@ -81,10 +54,9 @@
 	<tr>
 		<td>
 @ref page_type_55
-		</td><td>		This value defines the duration of the force it inserts. If
-		nonzero, the duration of the player's mark is finite: about 1
-		food per 10 seconds. &lt;mark duration&gt; zero/unset means the
-		mark will stay on the player forever.</td>
+		</td><td>		How long the mark will remain on the player. If zero, the mark
+		will never vanish automatically. A value of 1 is about 10
+		seconds.</td>
 	</tr>
 	<tr>
 		<td>

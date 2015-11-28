@@ -111,6 +111,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <network_graph.h>
 
 /** Shared handle. */
 static CURLSH *handle_share = NULL;
@@ -141,6 +142,9 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 
     SDL_UnlockMutex(mem->mutex);
 
+    network_graph_update(NETWORK_GRAPH_TYPE_HTTP, NETWORK_GRAPH_TRAFFIC_RX,
+            realsize);
+
     return realsize;
 }
 
@@ -168,6 +172,9 @@ static size_t curl_header_callback(void *ptr, size_t size, size_t nmemb,
     }
 
     SDL_UnlockMutex(mem->mutex);
+
+    network_graph_update(NETWORK_GRAPH_TYPE_HTTP, NETWORK_GRAPH_TRAFFIC_RX,
+            realsize);
 
     return realsize;
 }
@@ -200,20 +207,18 @@ static char *curl_load_etag(curl_data *data)
     }
 
     if (fstat(fileno(fp), &statbuf) == -1) {
-        log(LOG(BUG), "Could not stat %s: %d (%s)", path, errno,
+        LOG(BUG, "Could not stat %s: %d (%s)", path, errno,
                 strerror(errno));
         goto fail;
     }
 
     etag = emalloc(sizeof(*etag) * (statbuf.st_size + 1));
 
-    if (!fgets(etag, sizeof(etag), fp)) {
-        log(LOG(BUG), "Could not read %s: %d (%s)", path, errno,
+    if (fgets(etag, statbuf.st_size + 1, fp) == NULL) {
+        LOG(BUG, "Could not read %s: %d (%s)", path, errno,
                 strerror(errno));
         goto fail;
     }
-
-    etag[statbuf.st_size] = '\0';
 
     goto done;
 
@@ -252,20 +257,20 @@ static bool curl_load_cache(curl_data *data)
     memory = NULL;
 
     if (data->path == NULL) {
-        log(LOG(BUG), "No cache location specified for %s", data->url);
+        LOG(BUG, "No cache location specified for %s", data->url);
         goto fail;
     }
 
     fp = fopen_wrapper(data->path, "rb");
 
     if (fp == NULL) {
-        log(LOG(BUG), "Could not open %s: %d (%s)", data->path, errno,
+        LOG(BUG, "Could not open %s: %d (%s)", data->path, errno,
                 strerror(errno));
         goto fail;
     }
 
     if (fstat(fileno(fp), &statbuf) == -1) {
-        log(LOG(BUG), "Could not stat %s: %d (%s)", data->path, errno,
+        LOG(BUG, "Could not stat %s: %d (%s)", data->path, errno,
                 strerror(errno));
         goto fail;
     }
@@ -274,7 +279,7 @@ static bool curl_load_cache(curl_data *data)
     memory = emalloc(size + 1);
 
     if (fread(memory, 1, size, fp) != size) {
-        log(LOG(BUG), "Could not read %s: %d (%s)", data->path, errno,
+        LOG(BUG, "Could not read %s: %d (%s)", data->path, errno,
                 strerror(errno));
         goto fail;
     }
@@ -388,8 +393,15 @@ int curl_connect(void *c_data)
     /* Get the data. */
     res = curl_easy_perform(data->handle);
 
+    long request_size;
+    if (curl_easy_getinfo(data->handle, CURLINFO_REQUEST_SIZE, &request_size) ==
+            CURLE_OK) {
+        network_graph_update(NETWORK_GRAPH_TYPE_HTTP, NETWORK_GRAPH_TRAFFIC_TX,
+                request_size);
+    }
+
     if (res) {
-        logger_print(LOG(BUG), "curl_easy_perform() got error %d (%s).", res,
+        LOG(BUG, "curl_easy_perform() got error %d (%s).", res,
                 curl_easy_strerror(res));
         status = -1;
         goto done;
@@ -436,14 +448,14 @@ int curl_connect(void *c_data)
             fp = fopen_wrapper(data->path, "wb");
 
             if (fp != NULL) {
-                if (!fwrite(data->memory, 1, data->size, fp)) {
-                    log(LOG(BUG), "Failed to save %s: %d (%s)", data->path,
+                if (fwrite(data->memory, 1, data->size, fp) != data->size) {
+                    LOG(BUG, "Failed to save %s: %d (%s)", data->path,
                             errno, strerror(errno));
                 }
 
                 fclose(fp);
             } else {
-                log(LOG(BUG), "Failed to open %s: %d (%s)", data->path, errno,
+                LOG(BUG, "Failed to open %s: %d (%s)", data->path, errno,
                         strerror(errno));
             }
 
@@ -454,14 +466,14 @@ int curl_connect(void *c_data)
                 fp = fopen_wrapper(path, "w");
 
                 if (fp != NULL) {
-                    if (!fputs(etag, fp)) {
-                        log(LOG(BUG), "Failed to save %s: %d (%s)", path, errno,
+                    if (fputs(etag, fp) == EOF) {
+                        LOG(BUG, "Failed to save %s: %d (%s)", path, errno,
                                 strerror(errno));
                     }
 
                     fclose(fp);
                 } else {
-                    log(LOG(BUG), "Failed to open %s: %d (%s)", path, errno,
+                    LOG(BUG, "Failed to open %s: %d (%s)", path, errno,
                             strerror(errno));
                 }
             }
@@ -538,7 +550,7 @@ curl_data *curl_download_start(const char *url, const char *path)
     data->thread = SDL_CreateThread(curl_connect, data);
 
     if (!data->thread) {
-        logger_print(LOG(ERROR), "Thread creation failed.");
+        LOG(ERROR, "Thread creation failed.");
         exit(1);
     }
 
@@ -570,22 +582,23 @@ int8_t curl_download_finished(curl_data *data)
  *   be -1 if the size is not known.
  * - CURLINFO_SPEED_DOWNLOAD; speed in bytes that the file is being
  *   downloaded at.
- * - CURLINFO_SIZE_DOWNLOAD; how many bytes have been downloaded so far. */
-double curl_download_sizeinfo(curl_data *data, CURLINFO info)
+ * - CURLINFO_SIZE_DOWNLOAD; how many bytes have been downloaded so far.
+ */
+int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info)
 {
-    CURLcode res;
-    double val;
-
     HARD_ASSERT(data != NULL);
 
-    if (curl_download_finished(data) != 0 || !data->handle) {
+    if (curl_download_finished(data) != 0 || data->handle == NULL) {
         return 0;
     }
 
-    res = curl_easy_getinfo(data->handle, info, &val);
+    double val;
+    CURLcode res = curl_easy_getinfo(data->handle, info, &val);
 
     if (res == CURLE_OK) {
-        return val;
+        /* cURL uses doubles, but all the info values we use this for are
+         * in bytes, so there's no reason for a double. */
+        return (int64_t) val;
     }
 
     return 0;
@@ -596,25 +609,27 @@ double curl_download_sizeinfo(curl_data *data, CURLINFO info)
  * @param data cURL data structure.
  * @param buf Where to store the information.
  * @param bufsize Size of 'buf'.
- * @return 'buf'. */
+ * @return 'buf'.
+ */
 char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
 {
-    double speed, received, size;
-
     HARD_ASSERT(data != NULL);
     HARD_ASSERT(buf != NULL);
 
-    speed = curl_download_sizeinfo(data, CURLINFO_SPEED_DOWNLOAD);
-    received = curl_download_sizeinfo(data, CURLINFO_SIZE_DOWNLOAD);
-    size = curl_download_sizeinfo(data, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    int64_t speed = curl_download_sizeinfo(data, CURLINFO_SPEED_DOWNLOAD);
+    int64_t received = curl_download_sizeinfo(data, CURLINFO_SIZE_DOWNLOAD);
+    int64_t size = curl_download_sizeinfo(data,
+            CURLINFO_CONTENT_LENGTH_DOWNLOAD);
 
-    if (!speed && !received && !size) {
+    if (speed == 0 && received == 0 && size == 0) {
         *buf = '\0';
     } else if (size == -1) {
-        snprintf(buf, bufsize, "%0.3f MB/s", speed / 1024.0 / 1024.0);
+        snprintf(buf, bufsize, "%0.3f MB/s", speed / 1000.0 / 1000.0);
     } else {
+        received = MAX(1, received);
+        size = MAX(1, size);
         snprintf(buf, bufsize, "%.0f%% @ %0.3f MB/s", received * 100.0 / size,
-                speed / 1024.0 / 1024.0);
+                speed / 1000.0 / 1000.0);
     }
 
     return buf;

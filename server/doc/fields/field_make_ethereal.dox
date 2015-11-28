@@ -1,6 +1,10 @@
 /**
-@fn FLAG_MAKE_ETHEREAL
-@section Use
+@var FLAG_MAKE_ETHEREAL
+@sa @ref page_field_make_ethereal
+*/
+
+/**
+@page page_field_make_ethereal FLAG_MAKE_ETHEREAL Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -12,13 +16,6 @@
 			transparently seen. Grants the ability to move through walls
 			and doors which have the PASS_THRU flag set (like ghosts and
 			other non physical monsters).</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_35, @ref page_type_3
-		</td><td>		When applied the user gets ethereal. He will be seen as
-		transparent. He can move through walls and doors which have the
-		PASS_THRU flag set (like ghosts and other non physical monsters).</td>
 	</tr>
 
 */

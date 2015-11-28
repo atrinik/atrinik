@@ -13,7 +13,6 @@ is_evil 1
 terrain_flag 65
 can_see_in_dark 1
 can_use_weapon 1
-int 10
 wis 3
 dex 3
 con 15
@@ -41,6 +40,8 @@ anim_speed 4
 no_pick 1
 mpart_id 3
 run_away 6
+faction monsters
+int 20
 end
 More
 Object demon_red_b

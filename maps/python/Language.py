@@ -137,3 +137,6 @@ def time2seconds(s):
 
 def l2s(l, sep = ", ", sep2 = " and "):
     return sep.join(l[:-2] + [""]) + sep2.join(l[-2:])
+
+genders = ["weirdo", "mister", "miss", "freak"]
+genders2 = ["weirdo", "sir", "lady", "freak"]

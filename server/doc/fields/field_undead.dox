@@ -1,6 +1,10 @@
 /**
-@fn FLAG_UNDEAD
-@section Use
+@var FLAG_UNDEAD
+@sa @ref page_field_undead
+*/
+
+/**
+@page page_field_undead FLAG_UNDEAD Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

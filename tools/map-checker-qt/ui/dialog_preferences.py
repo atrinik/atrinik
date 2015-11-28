@@ -31,9 +31,9 @@ class DialogPreferences(Model, QDialog, Ui_DialogPreferences):
     def settings_parse(self, save=False):
         for section in self.config.sections():
             for option in self.config.options(section):
-                widget = self.findChild(QWidget,
-                                        "pref_{0}_{1}".format(section.lower(),
-                                            option))
+                name = "pref_{}_{}".format(section.replace(" ", "_").lower(),
+                                           option)
+                widget = self.findChild(QWidget, name)
 
                 if not widget:
                     continue

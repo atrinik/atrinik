@@ -43,6 +43,8 @@ no_pick 1
 weight 850000
 run_away 6
 undead 1
+faction monsters
+int 27
 end
 More
 Object dragon_skeletal_b

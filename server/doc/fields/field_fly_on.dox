@@ -1,11 +1,20 @@
 /**
-@fn FLAG_FLY_ON
-@section Use
+@var FLAG_FLY_ON
+@sa @ref page_field_fly_on
+*/
+
+/**
+@page page_field_fly_on FLAG_FLY_ON Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
+		<td>
+@ref page_type_112
+		</td><td>		Affect flying creatures.</td>
+	</tr>
+	<tr>
 		<td>
 @ref page_type_66
 		</td><td>		If set, the player will apply the exit by "flying into it".
@@ -14,20 +23,31 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_40
-		</td><td>			Move flying creatures enabled means all flying (living)
-			objects will get moved too. If disabled, only walking
-			(non-flying) creatures will get moved.</td>
+@ref page_type_88
+		</td><td>		Whether to trigger the damager each time an object flies on top
+		of it.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_94
-		</td><td>		If set, all flying creatures will fall into the pit as well. This
-		is not the behaviour expected from a pit, and it should only be
-		used for map-mechanisms (e.g. for transporting flying monsters).
-
-		An interesting side-effect: If this flag is enabled, spell
-		effects like fire/snow also make their way through the pit.</td>
+@ref page_type_55
+		</td><td>		Whether to mark creatures flying onto the marker.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>	    Whether to trigger the mover when an object flies on top of it.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_17
+		</td><td>		Whether to trigger the connection when an object flies on the
+		pedestal.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_51
+		</td><td>		Whether to trigger the connection when an object flies on the
+		detector.</td>
 	</tr>
 	<tr>
 		<td>

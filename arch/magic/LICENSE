@@ -1,18 +1,18 @@
 Crossfire - http://crossfire.real-time.com/ - GPLv2:
-	asteroid
-	bomb
-	bullet
-	burnout
-	icecube
-	magic_missile
-	meteor
-	probe
-	town_portal
-	wounds
-	spectral_strike (based on: magic_bullet, modified by: Unislash - Freeware)
+    asteroid
+    bullet
+    burnout
+    icecube
+    magic_missile
+    meteor
+    probe
+    town_portal
+    wounds
+    spectral_strike (based on: magic_bullet, modified by: Unislash - Freeware)
 
 David Gervais - http://pousse.rapiere.free.fr/tome/tome-tiles.htm - CC BY 3.0:
-	holyword
+    holyword
 
 Alex "Cleo" Tokar - GPLv2:
-	forcefield (based on particles in: effect_green)
+    forcefield (based on particles in: effect_green)
+    raw_mana (based on: probe)

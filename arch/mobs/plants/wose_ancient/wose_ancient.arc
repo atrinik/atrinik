@@ -38,4 +38,6 @@ level 1
 con 10
 speed -0.036
 weight 823000
+faction monsters
+int 13
 end

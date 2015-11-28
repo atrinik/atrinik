@@ -80,16 +80,16 @@ typedef struct server_settings {
     char *text[SERVER_TEXT_MAX];
 
     /** Protection group names. */
-    char protection_groups[5][MAX_BUF];
+    char *protection_groups[5];
 
     /** Protection few-letter acronyms. */
-    char protection_letters[20][MAX_BUF];
+    char *protection_letters[20];
 
     /** Full protection names. */
-    char protection_full[20][MAX_BUF];
+    char *protection_full[20];
 
     /** Spell path names. */
-    char spell_paths[SPELL_PATH_NUM][MAX_BUF];
+    char *spell_paths[SPELL_PATH_NUM];
 } server_settings;
 
 #endif

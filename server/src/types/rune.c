@@ -64,35 +64,33 @@ void rune_spring(object *op, object *victim)
 
     /* Direct damage. */
     if (op->stats.sp == -1) {
-        OBJ_DESTROYED_BEGIN(op);
-        OBJ_DESTROYED_BEGIN(victim);
+        OBJ_DESTROYED_BEGIN(op) {
+            OBJ_DESTROYED_BEGIN(victim) {
+                hit_player(victim, (int16_t) ((float) op->stats.dam * (LEVEL_DAMAGE(op->level) * 0.925f)), op);
 
-        hit_player(victim, (int16_t) ((float) op->stats.dam * (LEVEL_DAMAGE(op->level) * 0.925f)), op);
+                if (!OBJ_DESTROYED(victim)) {
+                    object *tmp, *next;
 
-        if (!OBJ_DESTROYED(victim)) {
-            object *tmp, *next;
+                    if (op->randomitems) {
+                        create_treasure(op->randomitems, op, 0, op->level ? op->level : env->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+                    }
 
-            if (op->randomitems) {
-                create_treasure(op->randomitems, op, 0, op->level ? op->level : env->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
-            }
+                    for (tmp = op->inv; tmp; tmp = next) {
+                        next = tmp->below;
 
-            for (tmp = op->inv; tmp; tmp = next) {
-                next = tmp->below;
-
-                if (tmp->type == DISEASE) {
-                    infect_object(victim, tmp, 1);
-                    object_remove(tmp, 0);
-                    object_destroy(tmp);
+                        if (tmp->type == DISEASE) {
+                            infect_object(victim, tmp, 1);
+                            object_remove(tmp, 0);
+                            object_destroy(tmp);
+                        }
+                    }
                 }
-            }
-        }
 
-        if (OBJ_DESTROYED(op)) {
-            return;
-        }
-
-        OBJ_DESTROYED_END(victim);
-        OBJ_DESTROYED_END(op);
+                if (OBJ_DESTROYED(op)) {
+                    return;
+                }
+            } OBJ_DESTROYED_END();
+        } OBJ_DESTROYED_END();
     } else {
         /* Spell. */
         cast_spell(env, op, op->stats.maxsp, op->stats.sp, 1, CAST_NORMAL, NULL);

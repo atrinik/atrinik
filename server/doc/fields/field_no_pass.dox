@@ -1,13 +1,17 @@
 /**
-@fn FLAG_NO_PASS
-@section Use
+@var FLAG_NO_PASS
+@sa @ref page_field_no_pass
+*/
+
+/**
+@page page_field_no_pass FLAG_NO_PASS Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_79, @ref page_type_71, @ref page_type_77, @ref page_type_62
+@ref page_type_79, @ref page_type_71, @ref page_type_77
 		</td><td>		If set, the object cannot be passed by players nor monsters.</td>
 	</tr>
 

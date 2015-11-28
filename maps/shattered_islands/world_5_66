@@ -2,13 +2,13 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 25
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_7
@@ -572,8 +572,6 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -581,12 +579,7 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
+faction fort_ghzal_guards
 end
 end
 arch grassd_6
@@ -1145,8 +1138,6 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -1154,12 +1145,7 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
+faction fort_ghzal_guards
 end
 end
 arch grassd_8
@@ -1199,8 +1185,6 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -1208,12 +1192,7 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
+faction fort_ghzal_guards
 end
 end
 arch grassd_3
@@ -1504,7 +1483,6 @@ magic 5
 dex 2
 see_invisible 0
 can_see_in_dark 1
-unaggressive 0
 stand_still 1
 wis 9
 protect_impact 0
@@ -1512,6 +1490,7 @@ protect_slash 0
 protect_cleave 0
 protect_pierce 0
 type 83
+faction fort_ghzal_guards
 arch ability_mbullet
 sp 0
 end
@@ -1929,7 +1908,6 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-unaggressive 0
 wis 7
 protect_impact 5
 protect_slash 0
@@ -1937,6 +1915,7 @@ protect_cleave 0
 protect_pierce 0
 protect_magic -50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch grassd_2
@@ -2060,7 +2039,6 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-unaggressive 0
 wis 7
 protect_impact 5
 protect_slash 0
@@ -2068,6 +2046,7 @@ protect_cleave 0
 protect_pierce 0
 protect_magic -50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch grassd_2
@@ -2579,8 +2558,6 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -2588,12 +2565,7 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
+faction fort_ghzal_guards
 end
 end
 arch grassd_2
@@ -2915,7 +2887,6 @@ con 5
 attack_cleave 75
 attack_weaponmagic 0
 can_see_in_dark 1
-unaggressive 0
 wis 7
 protect_impact 5
 protect_slash 0
@@ -2923,6 +2894,7 @@ protect_cleave 0
 protect_pierce 5
 protect_magic -50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch grassd_5
@@ -3049,8 +3021,6 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -3058,12 +3028,7 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
+faction fort_ghzal_guards
 end
 end
 arch grassd_2
@@ -3397,8 +3362,6 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -3406,12 +3369,7 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
+faction fort_ghzal_guards
 end
 end
 arch floor_sand_d2

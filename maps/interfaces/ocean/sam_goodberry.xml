@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
 <interfaces>
     <interface>
         <dialog name="hello">
@@ -9,7 +12,7 @@
         </dialog>
         <dialog name="verywell">
             <close/>
-            <action teleport="/shattered_islands/incuna/ship_lower_deck 2 2"/>
+            <action teleport="/shattered_islands/incuna/ship_lower_deck 2 2 savebed"/>
         </dialog>
     </interface>
 </interfaces>

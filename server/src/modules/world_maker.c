@@ -30,6 +30,7 @@
 #include <loader.h>
 #include <gd.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 /**
  * Array of colors used by the different faces.
@@ -326,9 +327,9 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
         }
 
         if (num_z != 0) {
-            r -= z / num_z / 2.5;
-            g -= z / num_z / 2.5;
-            b -= z / num_z / 2.5;
+            r -= z / (double) num_z / 2.5;
+            g -= z / (double) num_z / 2.5;
+            b -= z / (double) num_z / 2.5;
             color = -1;
         }
 
@@ -509,7 +510,7 @@ void world_maker(void)
         def_fp = fopen(buf, "w");
 
         if (!def_fp) {
-            logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
+            LOG(ERROR, "Could not open '%s': %s", buf,
                     strerror(errno));
             exit(1);
         }
@@ -561,6 +562,10 @@ void world_maker(void)
                 sb = stringbuffer_new();
 
                 for (r2 = m->region; r2 != NULL; r2 = r2->parent) {
+                    if (r2 != m->region && !r2->child_maps) {
+                        continue;
+                    }
+
                     if (stringbuffer_length(sb) != 0) {
                         stringbuffer_append_char(sb, ',');
                     }
@@ -855,7 +860,7 @@ void world_maker(void)
         out = fopen(buf, "wb");
 
         if (out == NULL) {
-            logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
+            LOG(ERROR, "Could not open '%s': %s", buf,
                     strerror(errno));
             exit(1);
         }

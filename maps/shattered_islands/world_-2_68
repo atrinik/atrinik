@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch floor_sand_d3
@@ -3022,12 +3022,8 @@ y 23
 arch guard
 direction 3
 level 66
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_3

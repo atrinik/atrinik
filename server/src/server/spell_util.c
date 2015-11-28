@@ -29,11 +29,13 @@
 #include <global.h>
 #include <spellist.h>
 #include <toolkit_string.h>
+#include <plugin.h>
+#include <arch.h>
 
 /**
  * Array of pointers to archetypes used by the spells for quick
  * access. */
-archetype *spellarch[NROFREALSPELLS];
+struct archetype *spellarch[NROFREALSPELLS];
 
 /**
  * Initialize spells. */
@@ -50,15 +52,15 @@ void init_spells(void)
 
     for (i = 0; i < NROFREALSPELLS; i++) {
         char spellname[MAX_BUF], tmpresult[MAX_BUF];
-        archetype *at;
+        archetype_t *at;
 
         string_replace(spells[i].name, " ", "_", tmpresult, sizeof(spellname));
         snprintf(spellname, sizeof(spellname), "spell_%s", tmpresult);
 
-        at = find_archetype(spellname);
+        at = arch_find(spellname);
 
         if (!at) {
-            logger_print(LOG(ERROR), "Could not find required archetype %s.", spellname);
+            LOG(ERROR, "Could not find required archetype %s.", spellname);
             exit(1);
         }
 
@@ -71,8 +73,8 @@ void init_spells(void)
         }
 
         if (spells[i].archname) {
-            if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL) {
-                logger_print(LOG(ERROR), "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
+            if ((spellarch[i] = arch_find(spells[i].archname)) == NULL) {
+                LOG(ERROR, "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
                 exit(1);
             }
         } else {
@@ -90,16 +92,16 @@ void init_spells(void)
  * @return 1 on failure, 0 otherwise. */
 int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 {
-    archetype *effect_arch;
+    archetype_t *effect_arch;
     object *effect_ob;
 
     if (!archname || !m) {
-        logger_print(LOG(BUG), "archname or map NULL.");
+        LOG(BUG, "archname or map NULL.");
         return 1;
     }
 
-    if (!(effect_arch = find_archetype(archname))) {
-        logger_print(LOG(BUG), "Couldn't find effect arch (%s).", archname);
+    if (!(effect_arch = arch_find(archname))) {
+        LOG(BUG, "Couldn't find effect arch (%s).", archname);
         return 1;
     }
 
@@ -110,7 +112,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
     effect_ob->y = y;
 
     if (!insert_ob_in_map(effect_ob, m, NULL, 0)) {
-        logger_print(LOG(BUG), "effect arch (%s) out of map (%s) (%d,%d) or failed insertion.", archname, effect_ob->map->name, x, y);
+        LOG(BUG, "effect arch (%s) out of map (%s) (%d,%d) or failed insertion.", archname, effect_ob->map->name, x, y);
 
         /* Something is wrong - kill object */
         if (!QUERY_FLAG(effect_ob, FLAG_REMOVED)) {
@@ -161,14 +163,14 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     } else if (caster == NULL && op != NULL) {
         caster = op;
     } else if (op == NULL && caster == NULL) {
-        logger_print(LOG(BUG), "Both 'op' and 'caster' are NULL.");
+        LOG(BUG, "Both 'op' and 'caster' are NULL.");
         return 0;
     }
 
     s = find_spell(type);
 
     if (s == NULL) {
-        logger_print(LOG(BUG), "Unknown spell: %d", type);
+        LOG(BUG, "Unknown spell: %d", type);
         return 0;
     }
 
@@ -258,7 +260,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
             if (caster == op) {
                 draw_info(COLOR_WHITE, op, "Something blocks your spellcasting.");
             } else {
-                draw_info_format(COLOR_WHITE, op, "Something blocks the magic of your %s.", query_base_name(caster, op));
+                char *name = object_get_name_s(caster, op);
+                draw_info_format(COLOR_WHITE, op, "Something blocks the magic "
+                        "of your %s.", name);
+                efree(name);
             }
 
             return 0;
@@ -426,7 +431,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
         break;
 
     default:
-        logger_print(LOG(BUG), "Invalid spell: %d", type);
+        LOG(BUG, "Invalid spell: %d", type);
         break;
     }
 
@@ -544,7 +549,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
  * @param at The archetype to fire.
  * @param type Spell ID.
  * @return 0 on failure, 1 on success. */
-int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, archetype *at, int type, object *target)
+int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, struct archetype *at, int type, object *target)
 {
     object *tmp, *env;
 
@@ -607,7 +612,7 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
  * @param spell_arch Spell's arch.
  * @retval 0 Couldn't cast.
  * @retval 1 Successful cast. */
-int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch)
+int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, struct archetype *spell_arch)
 {
     object *tmp;
     int i, success = 0, range_min = -1, range_max = 1;
@@ -621,7 +626,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
     tmp = arch_to_object(spell_arch);
 
     if (!tmp) {
-        logger_print(LOG(BUG), "arch_to_object() failed!? (%s)", spell_arch->name);
+        LOG(BUG, "arch_to_object() failed!? (%s)", spell_arch->name);
         return 0;
     }
 
@@ -659,11 +664,11 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         tmp->stats.maxhp = tmp->count;
 
         if (!QUERY_FLAG(tmp, FLAG_FLYING)) {
-            logger_print(LOG(DEBUG), "arch %s doesn't have flying 1", spell_arch->name);
+            LOG(DEBUG, "arch %s doesn't have flying 1", spell_arch->name);
         }
 
         if ((!QUERY_FLAG(tmp, FLAG_WALK_ON) || !QUERY_FLAG(tmp, FLAG_FLY_ON)) && tmp->stats.dam) {
-            logger_print(LOG(DEBUG), "arch %s doesn't have walk_on 1 and fly_on 1", spell_arch->name);
+            LOG(DEBUG, "arch %s doesn't have walk_on 1 and fly_on 1", spell_arch->name);
         }
 
         if (!insert_ob_in_map(tmp, op->map, op, 0)) {
@@ -720,7 +725,7 @@ void explode_object(object *op)
     play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 
     if (op->other_arch == NULL) {
-        logger_print(LOG(BUG), "op %s without other_arch", query_name(op, NULL));
+        log_error("Object without other_arch: %s", object_get_str(op));
         object_remove(op, 0);
         object_destroy(op);
         return;
@@ -902,7 +907,8 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 
     /* Sanity check */
     if (level <= 0 || level > MAXLEVEL) {
-        logger_print(LOG(BUG), "object %s has invalid level %d", query_name(caster, NULL), level);
+        log_error("Object %s has invalid level %d", object_get_str(caster),
+                level);
 
         if (level <= 0) {
             level = 1;
@@ -987,9 +993,9 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
  * @param spell_type ID of the spell.
  * @param n The number to be fired.
  * @param magic Magic. */
-void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic)
+void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_type, int spell_type, int n, int magic)
 {
-    object *tmp = get_archetype("swarm_spell");
+    object *tmp = arch_get("swarm_spell");
 
     tmp->x = op->x;
     tmp->y = op->y;
@@ -1021,12 +1027,12 @@ void spell_failure_raw_mana(object *caster, int level)
     object *tmp;
     tag_t count_ref;
 
-    tmp = get_archetype("raw_mana");
+    tmp = arch_get("raw_mana");
     count_ref = tmp->count;
 
     for (int i = 0; i <= SIZEOFFREE1; i++) {
         if (tmp == NULL) {
-            tmp = get_archetype("raw_mana");
+            tmp = arch_get("raw_mana");
         }
 
         tmp->weight_limit = count_ref;

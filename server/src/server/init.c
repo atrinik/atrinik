@@ -29,6 +29,10 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <faction.h>
+#include <arch.h>
+#include <artifact.h>
+#include <ban.h>
 
 /**
  * The server's settings. */
@@ -43,11 +47,14 @@ int world_darkness;
 /** Time of day tick. */
 unsigned long todtick;
 
-/** Pointer to archetype that is used as effect when player levels up. */
-archetype *level_up_arch = NULL;
-
 /** The starting map. */
 char first_map_path[MAX_BUF];
+
+/** Enter X coordinate on the starting map. */
+int first_map_x;
+
+/** Enter Y coordinate on the starting map. */
+int first_map_y;
 
 /** Name of the archetype to use for the level up effect. */
 #define ARCHETYPE_LEVEL_UP "level_up"
@@ -98,10 +105,10 @@ static void console_command_speed(const char *params)
     if (params && sscanf(params, "%ld", &new_speed) == 1) {
         set_max_time(new_speed);
         reset_sleep();
-        logger_print(LOG(INFO), "The speed has been changed to %ld.", max_time);
+        LOG(INFO, "The speed has been changed to %ld.", max_time);
         draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change in the fabric of time and space...");
     } else {
-        logger_print(LOG(INFO), "Current speed is: %ld, default speed is: %d.", max_time, MAX_TIME);
+        LOG(INFO, "Current speed is: %ld, default speed is: %d.", max_time, MAX_TIME);
     }
 }
 
@@ -111,12 +118,12 @@ static void console_command_speed_multiplier(const char *params)
 
     if (params != NULL && sscanf(params, "%d", &new_speed_multiplier) == 1) {
         set_max_time_multiplier(new_speed_multiplier);
-        logger_print(LOG(INFO), "The speed multiplier has been changed to %d.",
+        LOG(INFO, "The speed multiplier has been changed to %d.",
                 max_time_multiplier);
         draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change "
                 "in the fabric of time and space...");
     } else {
-        logger_print(LOG(INFO), "Current speed multiplier is: %d, default "
+        LOG(INFO, "Current speed multiplier is: %d, default "
                 "speed multiplier is: %d.", max_time_multiplier,
                 MAX_TIME_MULTIPLIER);
     }
@@ -132,8 +139,9 @@ void cleanup(void)
     account_deinit();
     free_all_maps();
     free_style_maps();
-    free_all_archs();
+    arch_deinit();
     free_all_treasures();
+    artifact_deinit();
     free_all_images();
     free_all_newserver();
     free_all_readable();
@@ -144,7 +152,6 @@ void cleanup(void)
     objectlink_deinit();
     object_deinit();
     metaserver_deinit();
-    ban_deinit();
     party_deinit();
     toolkit_deinit();
     free_object_loader();
@@ -155,6 +162,15 @@ void cleanup(void)
 static void clioptions_option_unit(const char *arg)
 {
     settings.unit_tests = 1;
+}
+
+static void clioptions_option_plugin_unit(const char *arg)
+{
+    settings.plugin_unit_tests = 1;
+
+    if (arg != NULL) {
+        snprintf(VS(settings.plugin_unit_test), "%s", arg);
+    }
 }
 
 static void clioptions_option_worldmaker(const char *arg)
@@ -175,7 +191,7 @@ static void clioptions_option_port(const char *arg)
     val = atoi(arg);
 
     if (val <= 0 || val > UINT16_MAX) {
-        logger_print(LOG(ERROR), "%d is an invalid port number.", val);
+        LOG(ERROR, "%d is an invalid port number.", val);
         exit(1);
     }
 
@@ -242,7 +258,7 @@ static void clioptions_option_magic_devices_level(const char *arg)
     val = atoi(arg);
 
     if (val < INT8_MIN || val > INT8_MAX) {
-        logger_print(LOG(ERROR), "Invalid value for argument of --magic_devices_level (%d).", val);
+        LOG(ERROR, "Invalid value for argument of --magic_devices_level (%d).", val);
         exit(1);
     }
 
@@ -283,12 +299,12 @@ static void clioptions_option_allowed_chars(const char *arg)
     pos = 0;
 
     if (!string_get_word(arg, &pos, ' ', word, sizeof(word), 0)) {
-        logger_print(LOG(ERROR), "Invalid argument for allowed_chars option: %s", arg);
+        LOG(ERROR, "Invalid argument for allowed_chars option: %s", arg);
         return;
     }
 
     if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps)) {
-        logger_print(LOG(ERROR), "Invalid word in allowed_chars option: %s", word);
+        LOG(ERROR, "Invalid word in allowed_chars option: %s", word);
         return;
     }
 
@@ -299,12 +315,12 @@ static void clioptions_option_allowed_chars(const char *arg)
     }
 
     if (type == ALLOWED_CHARS_NUM) {
-        logger_print(LOG(ERROR), "Invalid allowed_chars option type: %s", cps[0]);
+        LOG(ERROR, "Invalid allowed_chars option type: %s", cps[0]);
         return;
     }
 
     if (sscanf(cps[1], "%d-%d", &lower, &upper) != 2) {
-        logger_print(LOG(ERROR), "Lower/upper bounds for allowed_chars option in invalid format: %s", cps[1]);
+        LOG(ERROR, "Lower/upper bounds for allowed_chars option in invalid format: %s", cps[1]);
         return;
     }
 
@@ -418,6 +434,7 @@ static void init_library(int argc, char *argv[])
     toolkit_import(path);
     toolkit_import(porting);
     toolkit_import(shstr);
+    toolkit_import(socket);
     toolkit_import(string);
     toolkit_import(stringbuffer);
 
@@ -454,6 +471,16 @@ static void init_library(int argc, char *argv[])
             0,
             "Runs the unit tests.",
             "Runs the unit tests."
+            );
+
+    /* Add command-line options. */
+    clioptions_add(
+            "plugin_unit",
+            NULL,
+            clioptions_option_plugin_unit,
+            0,
+            "Runs the plugin unit tests.",
+            "Runs the plugin unit tests."
             );
 
     clioptions_add(
@@ -718,13 +745,14 @@ static void init_library(int argc, char *argv[])
     }
 
     toolkit_import(commands);
+    toolkit_import(faction);
+    toolkit_import(ban);
 
     map_init();
     init_globals();
     objectlink_init();
     object_init();
     player_init();
-    ban_init();
     party_init();
     init_block();
     read_bmap_names();
@@ -732,19 +760,10 @@ static void init_library(int argc, char *argv[])
     /* Must be after we read in the bitmaps */
     init_anim();
     /* Reads all archetypes from file */
-    init_archetypes();
+    arch_init();
     init_dynamic();
     init_clocks();
     account_init();
-
-    /* init some often used default archetypes */
-    if (level_up_arch == NULL) {
-        level_up_arch = find_archetype(ARCHETYPE_LEVEL_UP);
-    }
-
-    if (!level_up_arch) {
-        logger_print(LOG(BUG), "Can't find '%s' arch", ARCHETYPE_LEVEL_UP);
-    }
 }
 
 /**
@@ -760,7 +779,6 @@ void init_globals(void)
     first_map = NULL;
     first_treasurelist = NULL;
     first_artifactlist = NULL;
-    first_archetype = NULL;
     first_region = NULL;
     init_strings();
     init_object_initializers();
@@ -774,18 +792,19 @@ void init_globals(void)
  * Initializes first_map_path from the archetype collection. */
 static void init_dynamic(void)
 {
-    archetype *at = first_archetype;
-
-    while (at) {
-        if (at->clone.type == MAP && EXIT_PATH(&at->clone)) {
-            strcpy(first_map_path, EXIT_PATH(&at->clone));
+    archetype_t *at, *tmp;
+    HASH_ITER(hh, arch_table, at, tmp) {
+        if (at->clone.type == MAP && EXIT_PATH(&at->clone) != NULL) {
+            snprintf(VS(first_map_path), "%s", EXIT_PATH(&at->clone));
+            first_map_x = at->clone.stats.hp;
+            first_map_y = at->clone.stats.sp;
             return;
         }
-
-        at = at->next;
     }
 
-    logger_print(LOG(ERROR), "You need an archetype called 'map' and it has to contain start map.");
+    LOG(ERROR, "You need an archetype called 'map' and it has to contain "
+            "start map.");
+    exit(1);
 }
 
 /**
@@ -799,7 +818,7 @@ void write_todclock(void)
     snprintf(filename, sizeof(filename), "%s/clockdata", settings.datapath);
 
     if ((fp = fopen(filename, "w")) == NULL) {
-        logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
+        LOG(BUG, "Cannot open %s for writing.", filename);
         return;
     }
 
@@ -826,7 +845,7 @@ static void init_clocks(void)
     snprintf(filename, sizeof(filename), "%s/clockdata", settings.datapath);
 
     if ((fp = fopen(filename, "r")) == NULL) {
-        logger_print(LOG(DEBUG), "Can't open %s.", filename);
+        LOG(DEBUG, "Can't open %s.", filename);
         todtick = 0;
         write_todclock();
         return;
@@ -861,7 +880,6 @@ void init(int argc, char **argv)
     init_beforeplay();
     init_ericserver();
     metaserver_init();
-    load_bans_file();
     statistics_init();
     reset_sleep();
     init_plugins();
@@ -871,10 +889,8 @@ void init(int argc, char **argv)
  * Initialize before playing. */
 static void init_beforeplay(void)
 {
-    init_archetypes();
     init_spells();
     race_init();
     init_readable();
-    init_archetype_pointers();
     init_new_exp_system();
 }

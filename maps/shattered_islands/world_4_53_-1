@@ -2,11 +2,11 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 25
 darkness 3
 no_harm 1
 bg_music solemn.mid
@@ -363,6 +363,7 @@ name Gwenty
 direction 3
 level 60
 type 83
+faction fort_sether_citizens
 arch event_obj
 sub_type 6
 race /interfaces/quests/fort_sether_illness/quest.xml
@@ -380,6 +381,7 @@ startequip 1
 end
 arch silvercoin
 nrof 150
+no_drop 1
 end
 end
 end
@@ -456,7 +458,9 @@ msg
 You descend below Fort Sether through a tunnel...
 endmsg
 layer 4
-last_heal 10
+slaying world_4_53_-2
+hp 5
+sp 21
 x 4
 y 21
 end
@@ -1076,6 +1080,7 @@ arch guard
 name Fortress Guard
 type 83
 level 20
+faction fort_sether_guards
 end
 end
 arch floor_grey9
@@ -1780,6 +1785,7 @@ name Fortress Guard
 direction 3
 level 25
 type 83
+faction fort_sether_guards
 end
 end
 arch floor_grey9
@@ -2053,6 +2059,7 @@ name Fortress Guard
 direction 3
 level 30
 type 83
+faction fort_sether_guards
 arch event_obj
 sub_type 6
 race /interfaces/quests/fort_sether_illness/quest.xml
@@ -2201,6 +2208,7 @@ arch guard
 name Fortress Guard
 type 83
 level 20
+faction fort_sether_guards
 arch event_obj
 sub_type 6
 race /interfaces/quests/fort_sether_illness/quest.xml

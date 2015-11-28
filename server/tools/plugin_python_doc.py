@@ -4,6 +4,7 @@
 
 from CParser import CParser, isint
 import os
+import math
 
 # Transform fieldtype macro type to something that can be understood by
 # scripters.
@@ -100,7 +101,7 @@ for comment in parser.cparser_comments:
                 doc_fp.write("\n\t<tr>")
                 doc_fp.write("\n\t\t<td>{0}</td>".format(mem["contents"][0][1:-1]))
                 doc_fp.write("\n\t\t<td>{0}</td>".format(fieldtype_to_string(mem["contents"][1])))
-                doc_fp.write("\n\t\t<td>@copydoc {0}</td>".format(fix_copydoc(mem["contents"][2][9:] + "::" + mem["contents"][3][:-1])))
+                doc_fp.write("\n\t\t<td>@copydoc {0} </td>".format(fix_copydoc(mem["contents"][2][9:] + "::" + mem["contents"][3][:-1])))
                 doc_fp.write("\n\t\t<td>")
 
                 if mem["contents"][4] == "FIELDFLAG_READONLY":
@@ -131,7 +132,7 @@ for comment in parser.cparser_comments:
                 if isint(mem["contents"][1]):
                     doc_fp.write("\n\t\t<td>{0}</td>".format(mem["contents"][1]))
                 else:
-                    doc_fp.write("\n\t\t<td>@copydoc {0}</td>".format(mem["contents"][1]))
+                    doc_fp.write("\n\t\t<td>@copydoc {0} </td>".format(mem["contents"][1]))
                 doc_fp.write("\n\t\t<td>{0}</td>".format("comment" in mem and mem["comment"] or ""))
                 doc_fp.write("\n\t</tr>")
 
@@ -139,14 +140,17 @@ for comment in parser.cparser_comments:
     elif comment["match"] and comment["match"] in parser.matches:
         flags = {}
         i = 0
+        import pdb
+        from pprint import pprint
 
         for (constant, val) in parser.matches[comment["match"]]:
             if isint(val):
-                if constant[:9] == "MAP_FLAG_":
-                    val = i
-                    i += 1
+                val = int(val)
 
-                flags[int(val)] = constant
+                if constant[:9] == "MAP_FLAG_":
+                    val = math.log2(val)
+
+                flags[val] = constant
 
         data = comment["data"][0]["contents"]
 
@@ -172,7 +176,7 @@ for comment in parser.cparser_comments:
 
                 doc_fp.write("\n\t<tr>")
                 doc_fp.write("\n\t\t<td>{0}</td>".format(val))
-                doc_fp.write("\n\t\t<td>@copydoc {0}</td>".format(flags[i]))
+                doc_fp.write("\n\t\t<td>@copydoc {0} </td>".format(flags[i]))
                 doc_fp.write("\n\t</tr>")
 
         doc_fp.write("\n</table>")

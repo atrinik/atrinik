@@ -54,7 +54,7 @@ typedef struct recipestruct {
     int yield;
 
     /** Comma delimited list of ingredients */
-    linked_char *ingred;
+    shstr_list_t *ingred;
 
     /** Keycode needed to use the recipe */
     const char *keycode;

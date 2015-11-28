@@ -1,15 +1,31 @@
 /**
-@fn FLAG_WALK_OFF
-@section Use
+@var FLAG_WALK_OFF
+@sa @ref page_field_walk_off
+*/
+
+/**
+@page page_field_walk_off FLAG_WALK_OFF Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_92, @ref page_type_30, @ref page_type_17, @ref page_type_32
-		</td><td>		Whether to trigger the connection when the object is released. Do
-		not change unless "connection reset" is set.</td>
+@ref page_type_40
+		</td><td>	    Whether to trigger the mover when an object walks on off of it.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_17
+		</td><td>		Whether to trigger the connection when an object walks off the
+		pedestal. Should be left on, unless "reset connection" is enabled
+		or "walk on" is disabled.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_51
+		</td><td>		Whether to trigger the connection when an object walks off the
+		detector.</td>
 	</tr>
 
 */

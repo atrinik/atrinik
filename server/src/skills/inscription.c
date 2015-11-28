@@ -47,13 +47,16 @@ static int inscribe_book(object *op, const char *msg, object *marked)
     /* Prevent cheating. */
     if (strcasestr(msg, "endmsg")) {
         draw_info(COLOR_WHITE, op, "Trying to cheat now are we?");
-        logger_print(LOG(INFO), "%s tried to write a bogus message using inscription skill.", op->name);
+        LOG(INFO, "%s tried to write a bogus message using inscription skill.", op->name);
         return 0;
     }
 
+    char *name = object_get_short_name_s(marked, op);
     /* Check if we can fit the message into the book. */
     if (book_overflow(marked->msg, msg, sizeof(buf))) {
-        draw_info_format(COLOR_WHITE, op, "Your message won't fit in the %s.", query_short_name(marked, op));
+        draw_info_format(COLOR_WHITE, op, "Your message won't fit in the %s.",
+                name);
+        efree(name);
         return 0;
     }
 
@@ -64,9 +67,10 @@ static int inscribe_book(object *op, const char *msg, object *marked)
     }
 
     FREE_AND_COPY_HASH(marked->msg, buf);
-    draw_info_format(COLOR_WHITE, op, "You write in the %s.", query_short_name(marked, op));
+    draw_info_format(COLOR_WHITE, op, "You write in the %s.", name);
     CONTR(op)->stat_books_inscribed++;
 
+    efree(name);
     return strlen(msg);
 }
 
@@ -93,7 +97,10 @@ int skill_inscription(object *op, const char *params)
     }
 
     if (skill_item->stats.sp != SK_INSCRIPTION) {
-        draw_info_format(COLOR_WHITE, op, "The %s cannot be used with this skill.", query_short_name(skill_item, NULL));
+        char *name = object_get_short_name_s(skill_item, op);
+        draw_info_format(COLOR_WHITE, op, "The %s cannot be used with this "
+                "skill.", name);
+        efree(name);
         return 0;
     }
 
@@ -113,6 +120,8 @@ int skill_inscription(object *op, const char *params)
         return inscribe_book(op, params, marked);
     }
 
-    draw_info_format(COLOR_WHITE, op, "You can't write on the %s.", query_short_name(marked, NULL));
+    char *name = object_get_short_name_s(marked, op);
+    draw_info_format(COLOR_WHITE, op, "You can't write on the %s.", name);
+    efree(name);
     return 0;
 }

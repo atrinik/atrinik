@@ -84,6 +84,9 @@ static void interface_destroy(interface_struct *data)
         object_remove(data->anim);
     }
 
+    object_remove(data->objects);
+    cpl.interface = NULL;
+
     utarray_free(data->links);
     font_free(data->font);
     efree(data);
@@ -158,7 +161,7 @@ static int popup_draw_func(popup_struct *popup)
             request_face(interface_data->anim->face);
             object_show_centered(popup->surface, interface_data->anim,
                     INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY,
-                    INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+                    INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT, false);
         }
 
         box.w = INTERFACE_TITLE_WIDTH;
@@ -406,6 +409,9 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 
         interface_popup->button_right.x = 411;
         interface_popup->button_right.y = 4;
+    } else {
+        button_destroy(&button_hello);
+        button_destroy(&button_close);
     }
 
     if (!text_input_history) {
@@ -422,6 +428,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
     interface_popup->redraw = 1;
     interface_popup->selection_start = interface_popup->selection_end = -1;
     interface_data->font = font_get("arial", 11);
+    interface_data->objects = object_create(NULL, 0, 0);
     utarray_new(interface_data->links, &ut_str_icd);
 
     /* Parse the data. */
@@ -479,6 +486,10 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 
         case CMD_INTERFACE_INPUT_PREPEND:
         {
+            if (interface_data->text_input_prepend != NULL) {
+                efree(interface_data->text_input_prepend);
+            }
+
             char text_input_prepend[HUGE_BUF];
 
             packet_to_string(data, len, &pos, text_input_prepend, sizeof(text_input_prepend));
@@ -504,6 +515,10 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 
         case CMD_INTERFACE_AUTOCOMPLETE:
         {
+            if (interface_data->text_autocomplete != NULL) {
+                efree(interface_data->text_autocomplete);
+            }
+
             char text_autocomplete[HUGE_BUF];
 
             packet_to_string(data, len, &pos, text_autocomplete, sizeof(text_autocomplete));
@@ -543,6 +558,21 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
             interface_data->anim->anim_speed = packet_to_uint8(data, len, &pos);
             interface_data->anim->direction = packet_to_uint8(data, len, &pos);
             interface_data->anim->last_anim = interface_data->anim->anim_speed;
+            break;
+        }
+
+        case CMD_INTERFACE_OBJECT:
+        {
+            uint16_t flags = packet_to_uint16(data, len, &pos);
+            tag_t tag = packet_to_uint32(data, len, &pos);
+            object *old_obj = object_find(tag);
+            object *obj = object_create(interface_data->objects, tag, 0);
+            command_item_update(data, len, &pos, flags, obj);
+
+            if (old_obj != NULL && old_obj->env != cpl.interface) {
+                object_remove(obj);
+            }
+
             break;
         }
 
@@ -604,6 +634,8 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
     if (interface_data != old_interface_data) {
         interface_destroy(old_interface_data);
     }
+
+    cpl.interface = interface_data->objects;
 }
 
 /**

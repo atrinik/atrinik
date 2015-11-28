@@ -1,6 +1,8 @@
 ## @file
 ## Implements the /mapinfo command.
 
+from Atrinik import *
+
 def main():
     for msg in (
         "{map.name} ({map.bg_music}, {map.path}, x: {activator.x}, y: "

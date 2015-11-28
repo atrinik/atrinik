@@ -1,6 +1,10 @@
 /**
-@fn obj::race
-@section Use
+@var obj::race
+@sa @ref page_field_race
+*/
+
+/**
+@page page_field_race obj::race Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -34,10 +38,15 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64, @ref page_type_98
-		</td><td>		This string specifies the object we are looking for: We have a
-		match if the player does/don't carry an object of archetype
-		&lt;match arch name&gt;.</td>
+@ref page_type_64
+		</td><td>		Arch name of the object to match.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_55
+		</td><td>		The key string to insert into the passing player. If a marker
+		with the same key string already exists, a new one won't be
+		inserted.</td>
 	</tr>
 	<tr>
 		<td>
@@ -46,6 +55,11 @@
 		monster's &lt;race&gt; can have different effects: Slaying
 		weapons inflict triple damage against enemy races and holy word
 		kills only enemy races of the god.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_17, @ref page_type_51
+		</td><td>		Archname of the object to match.</td>
 	</tr>
 	<tr>
 		<td>
@@ -72,6 +86,13 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_98
+		</td><td>		This string specifies the object we are looking for: We have a
+		match if the player does/don't carry an object of archetype
+		&lt;match arch name&gt;.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_118
 		</td><td>		Name of the script of data file we want submit to the plugin when
 		the event is triggered.</td>
@@ -81,6 +102,21 @@
 @ref page_type_127
 		</td><td>		Name of the script of data file we want submit to the plugin when
 		the map event is triggered.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_120
+		</td><td>        Name of this quest. Only use for item drop quests.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_152
+		</td><td>		Override map name.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_61
+		</td><td>		Sound effect filename to play.</td>
 	</tr>
 
 */

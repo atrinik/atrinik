@@ -50,12 +50,6 @@
 
 #include <global.h>
 
-void centered_onion(char **maze, int xsize, int ysize, int option, int layers);
-void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
-void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
-void draw_onion(char **maze, float *xlocations, float *ylocations, int layers);
-void make_doors(char **maze, float *xlocations, float *ylocations, int layers, int options);
-
 /**
  * Generates an onion layout.
  * @param xsize X size of the layout.
@@ -76,7 +70,7 @@ char **map_gen_onion(int xsize, int ysize, int option, int layers)
 
     /* Pick some random options if option = 0 */
     if (option == 0) {
-        switch (RANDOM() % 3) {
+        switch (rndm(0, 2)) {
         case 0:
             option |= OPT_CENTERED;
             break;
@@ -90,11 +84,11 @@ char **map_gen_onion(int xsize, int ysize, int option, int layers)
             break;
         }
 
-        if (RANDOM() % 2) {
+        if (rndm_chance(2)) {
             option |= OPT_LINEAR;
         }
 
-        if (RANDOM() % 2) {
+        if (rndm_chance(2)) {
             option |= OPT_IRR_SPACE;
         }
     }

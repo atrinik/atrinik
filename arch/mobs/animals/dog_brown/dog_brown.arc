@@ -9,7 +9,6 @@ layer 6
 direction 5
 is_neutral 1
 terrain_flag 65
-flying 1
 weapon_speed 0.038
 attack_cleave 80
 type 80
@@ -29,4 +28,6 @@ maxhp 67
 level 1
 speed -0.06
 weight 225000
+faction monsters
+int 8
 end

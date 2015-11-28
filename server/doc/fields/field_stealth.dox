@@ -1,6 +1,10 @@
 /**
-@fn FLAG_STEALTH
-@section Use
+@var FLAG_STEALTH
+@sa @ref page_field_stealth
+*/
+
+/**
+@page page_field_stealth FLAG_STEALTH Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

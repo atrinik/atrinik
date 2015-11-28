@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-10-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -138,12 +138,12 @@ y 16
 end
 arch door_wood1
 direction 3
-slaying incuna_tavern_storage
+slaying incuna_tavern_barn
 sp 2
 y 16
 end
 arch check_inv
-slaying incuna_tavern_storage
+slaying incuna_tavern_barn
 sp 1
 last_grace 1
 y 16
@@ -176,7 +176,6 @@ arch floor_wood3a
 y 21
 end
 arch door_wood1
-player_only 1
 direction 5
 y 21
 end
@@ -956,7 +955,7 @@ arch floor_marble1f
 x 5
 y 6
 end
-arch altar_tabernacle
+arch altar_elathiel
 direction 7
 x 5
 y 6
@@ -1185,8 +1184,8 @@ slaying incuna_marshes
 name incuna_marshes
 end
 arch key2
-slaying incuna_tavern_storage
-name incuna_tavern_storage
+slaying incuna_tavern_barn
+name incuna_tavern_barn
 end
 arch key2
 slaying incuna_tavern
@@ -1267,6 +1266,10 @@ x 6
 y 13
 end
 arch floor_wood2b
+x 6
+y 14
+end
+arch stairs_wood_down
 x 6
 y 14
 end
@@ -1426,6 +1429,8 @@ name Brelend Lee
 level 20
 type 83
 direction 1
+faction incuna_citizens
+invulnerable 1
 arch event_obj
 sub_type 6
 race /interfaces/quests/lost_memories/quest.xml
@@ -1489,7 +1494,7 @@ arch floor_wood2b
 x 7
 y 14
 end
-arch stairs_wood_down
+arch stairs_down
 x 7
 y 14
 end
@@ -1846,12 +1851,11 @@ direction 5
 x 9
 y 7
 end
-arch blocked
-no_pass 0
+arch floor_marble1f
 x 9
 y 8
 end
-arch invis_exit
+arch stairs_down
 x 9
 y 8
 end
@@ -2034,12 +2038,11 @@ direction 5
 x 10
 y 7
 end
-arch blocked
-no_pass 0
+arch floor_marble1f
 x 10
 y 8
 end
-arch invis_exit
+arch stairs_down
 x 10
 y 8
 end
@@ -3912,6 +3915,30 @@ x 20
 y 9
 arch smith
 type 83
+faction incuna_citizens
+level 15
+name Ken Berger
+invulnerable 1
+arch event_obj
+sub_type 6
+race /interfaces/quests/lost_memories/quest.xml
+end
+arch shortsword
+value 0
+identified 1
+end
+arch dagger_small
+value 0
+identified 1
+end
+arch club
+value 0
+identified 1
+end
+arch axe_small
+value 0
+identified 1
+end
 end
 end
 arch floor_green1

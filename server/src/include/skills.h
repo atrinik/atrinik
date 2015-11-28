@@ -87,13 +87,15 @@ enum skillnrs {
     NROFSKILLS
 };
 
+struct archetype;
+
 /** Skill structure for the skills array. */
 typedef struct skill_struct {
     /** How to describe it to the player */
     char *name;
 
     /** Pointer to the skill archetype in the archlist */
-    archetype *at;
+    struct archetype *at;
 
     /** Base number of ticks it takes to use the skill */
     short time;

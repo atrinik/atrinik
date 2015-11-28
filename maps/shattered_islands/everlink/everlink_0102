@@ -564,7 +564,7 @@ x 5
 y 7
 arch event_obj
 sub_type 10
-race /python/house/exit.py
+race /python/houses/exit.py
 slaying everlink
 end
 end

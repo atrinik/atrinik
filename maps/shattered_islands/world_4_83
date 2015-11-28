@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-04-24 Alex Tokar
+Modified: 2015-10-18 Alex Tokar
 endmsg
 width 24
 height 24
@@ -398,10 +398,7 @@ arch guard
 name bank guard
 type 83
 level 18
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction incuna_guards
 end
 end
 arch grassd_8
@@ -703,6 +700,7 @@ name Singhul
 type 83
 level 15
 direction 7
+faction incuna_citizens
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
@@ -1457,6 +1455,9 @@ end
 arch floor_ruin6
 x 9
 end
+arch seashell3
+x 9
+end
 arch floor_ruin3
 x 9
 y 1
@@ -1506,6 +1507,10 @@ x 9
 y 9
 end
 arch grassd_1
+x 9
+y 10
+end
+arch tree_big4b
 x 9
 y 10
 end
@@ -1628,6 +1633,10 @@ x 10
 y 1
 end
 arch grassd_m7
+x 10
+y 1
+end
+arch starfish
 x 10
 y 1
 end
@@ -2699,6 +2708,8 @@ arch peasant
 stand_still 1
 type 83
 name Ellamin
+faction incuna_citizens
+level 10
 end
 end
 arch floor_wood2_l2
@@ -2784,6 +2795,10 @@ y 1
 end
 arch water_lt2_m
 direction 3
+x 17
+y 1
+end
+arch seashell3
 x 17
 y 1
 end
@@ -3010,6 +3025,10 @@ y 3
 end
 arch water_lt2_m
 direction 2
+x 18
+y 3
+end
+arch starfish
 x 18
 y 3
 end
@@ -3511,6 +3530,10 @@ direction 2
 x 21
 y 8
 end
+arch seashell
+x 21
+y 8
+end
 arch floor_ruin3
 x 21
 y 9
@@ -3571,6 +3594,10 @@ z 4
 x 21
 y 17
 end
+arch tree_big4b
+x 21
+y 17
+end
 arch grassd_1
 z 2
 x 21
@@ -3609,6 +3636,11 @@ x 22
 y 2
 end
 arch water_lt2
+x 22
+y 3
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 22
 y 3
 end

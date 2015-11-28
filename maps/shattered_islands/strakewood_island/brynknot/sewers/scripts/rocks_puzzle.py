@@ -1,6 +1,8 @@
 ## @file
 ## Script for the rocks puzzle in second level of Brynknot Sewers.
 
+from Atrinik import *
+
 def main():
     # The rocks.
     rocks = [

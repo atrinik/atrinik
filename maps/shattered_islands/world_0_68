@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch floor_flagm2
@@ -594,6 +594,7 @@ y 5
 arch monk
 name Darlin
 type 83
+faction brynknot_citizens
 level 34
 arch event_obj
 sub_type 6
@@ -1882,12 +1883,8 @@ y 11
 arch guard
 direction 7
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm2
@@ -2265,12 +2262,8 @@ y 15
 arch guard
 direction 3
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_grey1a1
@@ -2745,12 +2738,8 @@ y 11
 arch guard
 direction 7
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_grey1a1
@@ -3302,12 +3291,8 @@ y 8
 arch guard
 direction 7
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_grey1a1
@@ -3770,12 +3755,8 @@ y 16
 arch guard
 direction 7
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_grey1a1

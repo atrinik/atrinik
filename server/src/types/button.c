@@ -36,7 +36,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
     (void) victim;
     (void) originator;
 
-    if (op->speed || (op->stats.exp == -1 && op->value)) {
+    if (!DBL_EQUAL(op->speed, 0.0) || (op->stats.exp == -1 && op->value)) {
         return OBJECT_METHOD_OK;
     }
 
@@ -63,7 +63,7 @@ static int trigger_func(object *op, object *cause, int state)
 static int trigger_button_func(object *op, object *cause, int state)
 {
     object *tmp, *head;
-    int32_t total;
+    uint32_t total;
 
     (void) cause;
     (void) state;
@@ -74,7 +74,7 @@ static int trigger_button_func(object *op, object *cause, int state)
         head = HEAD(tmp);
 
         if (head != op && (QUERY_FLAG(head, FLAG_FLYING) ? QUERY_FLAG(op, FLAG_FLY_ON) : QUERY_FLAG(op, FLAG_WALK_ON))) {
-            total += head->weight * MAX(1, (int32_t) head->nrof) + head->carrying;
+            total += head->weight * MAX(1, head->nrof) + head->carrying;
         }
     }
 

@@ -58,10 +58,10 @@ typedef struct obj {
     char s_name[NAME_LEN];
 
     /** Item identifier (0 = free). */
-    int32_t tag;
+    uint32_t tag;
 
     /** Number of items. */
-    int32_t nrof;
+    uint32_t nrof;
 
     /** How much item weights. */
     double weight;
@@ -102,6 +102,18 @@ typedef struct obj {
 
     /** The item's direction. */
     uint8_t direction;
+
+    /** Glow color. */
+    char glow[7];
+
+    /** Glow speed. */
+    uint8_t glow_speed;
+
+    /** The glow state. */
+    uint8_t glow_state;
+
+    /** Action to execute on applying. */
+    uint8_t apply_action;
 } object;
 
 #define TYPE_PLAYER                 1
@@ -138,7 +150,7 @@ typedef struct obj {
 #define TYPE_TRIGGER_PEDESTAL       32
 #define TYPE_SHIELD                 33
 #define TYPE_HELMET                 34
-#define TYPE_GREAVES                35
+#define TYPE_PANTS                  35
 #define TYPE_MONEY                  36
 #define TYPE_CLASS                  37
 #define TYPE_GRAVESTONE             38

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-05-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -370,18 +370,16 @@ arch floor_flagm1
 x 21
 y 8
 end
-arch floor_fs_grey1d
+arch floor_fs_grey1a
 x 21
 y 9
 end
 arch fwall_fstone2
-hidden 1
 x 21
 y 9
 end
 arch map_info
 name greyton_gate
-sp 5
 is_magical 1
 x 21
 y 9
@@ -391,7 +389,10 @@ x 21
 y 10
 end
 arch fwall_fstone2
-hidden 1
+x 21
+y 10
+end
+arch light1
 x 21
 y 10
 end
@@ -400,7 +401,10 @@ x 21
 y 11
 end
 arch fwall_fstone2
-hidden 1
+x 21
+y 11
+end
+arch light1
 x 21
 y 11
 end
@@ -409,7 +413,10 @@ x 21
 y 12
 end
 arch fwall_fstone2
-hidden 1
+x 21
+y 12
+end
+arch light1
 x 21
 y 12
 end
@@ -418,16 +425,24 @@ x 21
 y 13
 end
 arch fwall_fstone2
-hidden 1
 x 21
 y 13
 end
-arch floor_fs_grey1b
+arch light1
+x 21
+y 13
+end
+arch floor_fs_grey1a
 x 21
 y 14
 end
 arch fwall_fstone2
-hidden 1
+x 21
+y 14
+end
+arch map_info
+name greyton_gate
+is_magical 1
 x 21
 y 14
 end

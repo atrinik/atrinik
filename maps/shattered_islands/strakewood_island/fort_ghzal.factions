@@ -1,0 +1,8 @@
+faction fort_ghzal
+    parent greyton_republic
+
+    faction fort_ghzal_citizens
+        faction fort_ghzal_guards
+        end
+    end
+end

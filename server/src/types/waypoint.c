@@ -27,6 +27,8 @@
  * Handles the code for @ref WAYPOINT_OBJECT "waypoint objects". */
 
 #include <global.h>
+#include <plugin.h>
+#include <monster_guard.h>
 
 /**
  * Find a monster's currently active waypoint, if any.
@@ -147,7 +149,7 @@ void waypoint_compute_path(object *waypoint)
             waypoint->x = waypoint->stats.hp = waypoint->enemy->x;
             waypoint->y = waypoint->stats.sp = waypoint->enemy->y;
         } else {
-            logger_print(LOG(BUG), "Dynamic waypoint without valid target: '%s'", waypoint->name);
+            LOG(BUG, "Dynamic waypoint without valid target: '%s'", waypoint->name);
             return;
         }
     }
@@ -157,7 +159,7 @@ void waypoint_compute_path(object *waypoint)
     }
 
     if (!destmap) {
-        logger_print(LOG(BUG), "Invalid destination map '%s'", waypoint->slaying);
+        LOG(BUG, "Invalid destination map '%s'", waypoint->slaying);
         return;
     }
 
@@ -165,7 +167,7 @@ void waypoint_compute_path(object *waypoint)
 
     if (!path) {
         if (!QUERY_FLAG(waypoint, FLAG_DAMNED)) {
-            log(LOG(BUG), "No path to destination ('%s', %s @ %d,%d -> "
+            LOG(BUG, "No path to destination ('%s', %s @ %d,%d -> "
                     "'%s', %s @ %d,%d)", op->name, op->map->path, op->x, op->y,
                     waypoint->name, destmap->path, waypoint->stats.hp,
                     waypoint->stats.sp);
@@ -242,12 +244,12 @@ void waypoint_move(object *op, object *waypoint)
     }
 
     if (!destmap) {
-        logger_print(LOG(BUG), "Invalid destination map '%s' for '%s' -> '%s'", waypoint->slaying, op->name, waypoint->name);
+        LOG(BUG, "Invalid destination map '%s' for '%s' -> '%s'", waypoint->slaying, op->name, waypoint->name);
         return;
     }
 
     if (!get_rangevector_from_mapcoords(op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp, &global_rv, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE)) {
-        log(LOG(DEBUG), "Could not find rv to: %s, %d, %d", destmap->path, waypoint->stats.hp, waypoint->stats.sp);
+        LOG(DEBUG, "Could not find rv to: %s, %d, %d", destmap->path, waypoint->stats.hp, waypoint->stats.sp);
         /* Disable this waypoint */
         CLEAR_FLAG(waypoint, FLAG_CURSED);
         return;
@@ -262,7 +264,7 @@ void waypoint_move(object *op, object *waypoint)
         /* Just arrived? */
         if (waypoint->stats.ac == 0) {
 #ifdef DEBUG_PATHFINDING
-            logger_print(LOG(DEBUG), "'%s' reached destination '%s'", op->name, waypoint->name);
+            LOG(DEBUG, "'%s' reached destination '%s'", op->name, waypoint->name);
 #endif
 
             /* Trigger the TRIGGER event */
@@ -289,6 +291,7 @@ void waypoint_move(object *op, object *waypoint)
         /* Is it a return-home waypoint? */
         if (QUERY_FLAG(waypoint, FLAG_REFLECTING)) {
             op->move_type = waypoint->move_type;
+            monster_guard_activate_gate(op, 0);
         }
 
         /* Start over with the new waypoint, if any */
@@ -297,13 +300,13 @@ void waypoint_move(object *op, object *waypoint)
 
             if (nextwp) {
 #ifdef DEBUG_PATHFINDING
-                logger_print(LOG(DEBUG), "'%s' next waypoint: '%s'", op->name, waypoint->title);
+                LOG(DEBUG, "'%s' next waypoint: '%s'", op->name, waypoint->title);
 #endif
                 SET_FLAG(nextwp, FLAG_CURSED);
             }
 #ifdef DEBUG_PATHFINDING
             else {
-                logger_print(LOG(DEBUG), "'%s' is missing next waypoint.", op->name);
+                LOG(DEBUG, "'%s' is missing next waypoint.", op->name);
             }
 #endif
         }
@@ -332,7 +335,7 @@ void waypoint_move(object *op, object *waypoint)
 
         if (global_rv.distance_z != 0 || (rv.distance > 1 && rv.distance > global_rv.distance)) {
 #ifdef DEBUG_PATHFINDING
-            logger_print(LOG(DEBUG), "Path distance = %d for '%s' -> '%s'. Discarding old path.", rv.distance, op->name, op->enemy->name);
+            LOG(DEBUG, "Path distance = %d for '%s' -> '%s'. Discarding old path.", rv.distance, op->name, op->enemy->name);
 #endif
             FREE_AND_CLEAR_HASH(waypoint->msg);
         }
@@ -374,7 +377,7 @@ void waypoint_move(object *op, object *waypoint)
         /* For best-effort waypoints don't try too many times. */
         if (QUERY_FLAG(waypoint, FLAG_NO_ATTACK) && waypoint->stats.Int++ > 10) {
 #ifdef DEBUG_PATHFINDING
-            logger_print(LOG(DEBUG), "Stuck with a best-effort waypoint (%s). Accepting current position", waypoint->name);
+            LOG(DEBUG, "Stuck with a best-effort waypoint (%s). Accepting current position", waypoint->name);
 #endif
             /* A bit ugly, but will work for now (we want to trigger the
              * "reached goal" above) */
@@ -388,7 +391,7 @@ void waypoint_move(object *op, object *waypoint)
             !waypoint->msg && QUERY_FLAG(waypoint, FLAG_WP_PATH_REQUESTED) &&
             !QUERY_FLAG(waypoint, FLAG_DAMNED)) {
 #ifdef DEBUG_PATHFINDING
-        logger_print(LOG(DEBUG), "No path found. '%s' standing still.", op->name);
+        LOG(DEBUG, "No path found. '%s' standing still.", op->name);
 #endif
         return;
     }
@@ -401,24 +404,36 @@ void waypoint_move(object *op, object *waypoint)
     }
 
     if (dir && !QUERY_FLAG(op, FLAG_STAND_STILL)) {
-        /* Can the monster move directly toward waypoint? */
-        if (dest_rv->distance != 0 && !move_object(op, dir)) {
-            int diff;
+        int ret = 0;
 
-            /* Try move around corners otherwise */
-            for (diff = 1; diff <= 2; diff++) {
-                /* Try left or right first? */
-                int m = 1 - (RANDOM() & 2);
+        OBJ_DESTROYED_BEGIN(op) {
+            /* Can the monster move directly toward waypoint? */
+            if (dest_rv->distance != 0 && (ret = move_object(op, dir)) == 0) {
+                int diff;
 
-                if (move_object(op, absdir(dir + diff * m)) || move_object(op, absdir(dir - diff * m))) {
-                    break;
+                /* Try move around corners otherwise */
+                for (diff = 1; diff <= 2; diff++) {
+                    /* Try left or right first? */
+                    int m = 1 - rndm_chance(2) ? 2 : 0;
+
+                    if ((ret = move_object(op, absdir(dir + diff * m))) != 0) {
+                        break;
+                    }
+
+                    if ((ret = move_object(op, absdir(dir - diff * m))) != 0) {
+                        break;
+                    }
                 }
             }
-        }
+
+            if (OBJ_DESTROYED(op)) {
+                return;
+            }
+        } OBJ_DESTROYED_END();
 
         /* If we had a local destination and we got close enough to it, accept
          * it. */
-        if (dest_rv == &local_rv && dest_rv->distance == 1) {
+        if (dest_rv == &local_rv && dest_rv->distance == 1 && ret != -1) {
             if (destflags & PATH_NODE_EXIT && op->map == destmap &&
                     op->x == destx && op->y == desty) {
                 object *tmp;

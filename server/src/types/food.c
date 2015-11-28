@@ -25,9 +25,11 @@
 /**
  * @file
  * Handles code used for @ref FOOD "food", @ref DRINK "drinks" and
- * @ref FLESH "flesh". */
+ * @ref FLESH "flesh".
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /** Maximum allowed food value. */
 #define FOOD_MAX 999
@@ -37,8 +39,9 @@
  * protections to the player.
  * @param who The player object.
  * @param food The food.
- * @param force The force object. */
-static void create_food_force(object* who, object *food, object *force)
+ * @param force The force object.
+ */
+static void create_food_force(object *who, object *food, object *force)
 {
     int i;
 
@@ -109,13 +112,17 @@ static void create_food_force(object* who, object *food, object *force)
         }
     }
 
-    if (food->speed_left) {
+    if (!DBL_EQUAL(food->speed_left, 0.0)) {
         force->speed = food->speed_left;
     }
 
     SET_FLAG(force, FLAG_APPLIED);
 
     force = insert_ob_in_ob(force, who);
+    if (force == NULL) {
+        log_error("Failed to insert force from food %s into %s.",
+                object_get_str(food), object_get_str(who));
+    }
 }
 
 /**
@@ -142,13 +149,13 @@ static void eat_special_food(object *who, object *food)
     /* if there is any stat or protection value - create force for the object!
      * */
     if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha) {
-        create_food_force(who, food, get_archetype("force"));
+        create_food_force(who, food, arch_get("force"));
     } else {
         int i;
 
         for (i = 0; i < NROFATTACKS; i++) {
             if (food->protection[i] > 0) {
-                create_food_force(who, food, get_archetype("force"));
+                create_food_force(who, food, arch_get("force"));
                 break;
             }
         }

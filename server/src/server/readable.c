@@ -33,6 +33,8 @@
 #include <global.h>
 #include <book.h>
 #include <toolkit_string.h>
+#include <arch.h>
+#include <artifact.h>
 
 /* This flag is useful for debugging archiving action */
 /* #define ARCHIVE_DEBUG */
@@ -153,7 +155,8 @@ static arttypename art_name_array[] = {
     {"Hand Weapon", WEAPON},
     {"Artifact", SKILL},
     {"Food", FOOD},
-    {"Body Armour", ARMOUR}
+    {"Body Armour", ARMOUR},
+    {"Pants", PANTS}
 };
 
 /** Artifact book information */
@@ -369,7 +372,7 @@ static void init_msgfile(void)
             if (in_msg) {
                 if (!strcmp(buf, "ENDMSG")) {
                     if (strlen(msgbuf) > BOOK_BUF) {
-                        logger_print(LOG(BUG), "This string exceeded max book buf size: %s", msgbuf);
+                        LOG(BUG, "This string exceeded max book buf size: %s", msgbuf);
                     }
 
                     num_msgs++;
@@ -380,7 +383,7 @@ static void init_msgfile(void)
                     strcat(msgbuf, buf);
                     strcat(msgbuf, "\n");
                 } else if (error_lineno != 0) {
-                    logger_print(LOG(BUG), "Truncating book at %s, line %d", fname, error_lineno);
+                    LOG(BUG, "Truncating book at %s, line %d", fname, error_lineno);
                     error_lineno = 0;
                 }
             } else if (!strcmp(buf, "MSG")) {
@@ -388,7 +391,7 @@ static void init_msgfile(void)
                 msgbuf[0] = '\0';
                 in_msg = 1;
             } else {
-                logger_print(LOG(BUG), "Syntax error at %s, line %d", fname, lineno);
+                LOG(BUG, "Syntax error at %s, line %d", fname, lineno);
             }
         }
 
@@ -400,17 +403,18 @@ static void init_msgfile(void)
  * Initialize array of ::monsters. */
 static void init_mon_info(void)
 {
-    archetype *at;
-
     monsters = NULL;
     num_monsters = 0;
 
-    for (at = first_archetype; at; at = at->next) {
-        if (QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
-            num_monsters++;
-            monsters = erealloc(monsters, sizeof(object *) * num_monsters);
-            monsters[num_monsters - 1] = &at->clone;
+    archetype_t *at, *tmp;
+    HASH_ITER(hh, arch_table, at, tmp) {
+        if (!QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
+            continue;
         }
+
+        monsters = erealloc(monsters, sizeof(*monsters) * (num_monsters + 1));
+        monsters[num_monsters] = &at->clone;
+        num_monsters++;
     }
 }
 
@@ -543,7 +547,9 @@ object *get_random_mon(void)
  * @return 'buf'. */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
-    snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, describe_item(mon));
+    char *desc = object_get_description_s(mon, NULL);
+    snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, desc);
+    efree(desc);
     return buf;
 }
 
@@ -585,11 +591,11 @@ static char *mon_info_msg(char *buf, size_t booksize)
  * @return 'buf'. */
 static char *artifact_msg(int level, char *buf, size_t booksize)
 {
-    artifactlist *al;
-    artifact *art;
+    artifact_list_t *al;
+    artifact_t *art;
     int chance, i, type, idx;
     int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
-    char *final, *ch;
+    char *final;
     object *tmp = NULL;
     StringBuffer *desc;
 
@@ -607,7 +613,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
     do {
         idx = rndm(1, arraysize(art_name_array)) - 1;
         type = art_name_array[idx].type;
-        al = find_artifactlist(type);
+        al = artifact_list_find(type);
         i++;
     } while (al == NULL && i < 10);
 
@@ -641,11 +647,12 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         }
 
         desc = stringbuffer_new();
-        tmp = get_archetype(art->def_at_name);
-        give_artifact_abilities(tmp, art);
+        tmp = arch_to_object(art->def_at);
         SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-        stringbuffer_append_printf(desc, "\n[title]%s[/title]\nIt is ", query_material_name(tmp));
+        stringbuffer_append_string(desc, "\n[title]");
+        desc = object_get_material_name(tmp, NULL, desc);
+        stringbuffer_append_string(desc, "[/title]\nIt is ");
 
         /* Chance of finding. */
         chance = 100 * ((float) art->chance / al->total_chance);
@@ -661,11 +668,15 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         }
 
         /* Value of artifact. */
-        stringbuffer_append_printf(desc, " item with a value of %s.", cost_string_from_value(tmp->value));
+        stringbuffer_append_printf(desc, " item with a value of %s.", shop_get_cost_string(tmp->value));
 
-        if ((ch = describe_item(tmp)) && strlen(ch) > 1) {
-            stringbuffer_append_printf(desc, "\nProperties of this artifact include:\n %s", ch);
+        StringBuffer *sb = object_get_description(tmp, NULL, NULL);
+        if (stringbuffer_length(sb) > 1) {
+            stringbuffer_append_string(desc,
+                    "\nProperties of this artifact include:\n");
+            stringbuffer_append_stringbuffer(desc, sb);
         }
+        stringbuffer_free(sb);
 
         object_destroy(tmp);
         final = stringbuffer_finish(desc);

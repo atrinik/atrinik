@@ -61,7 +61,7 @@ char **make_snake_layout(int xsize, int ysize)
      *    make the walls and place the doors. */
 
     /* vertical orientation */
-    if (RANDOM() % 2) {
+    if (rndm_chance(2)) {
         int n_walls = RANDOM() % ((xsize - 5) / 3) + 1;
         int spacing = xsize / (n_walls + 1);
         int orientation = 1;
@@ -112,7 +112,7 @@ char **make_snake_layout(int xsize, int ysize)
     }
 
     /* Place the exit up/down */
-    if (RANDOM() % 2) {
+    if (rndm_chance(2)) {
         maze[1][1] = '<';
         maze[xsize - 2][ysize - 2] = '>';
     } else {

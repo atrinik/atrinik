@@ -1,13 +1,17 @@
 /**
-@fn FLAG_STARTEQUIP
-@section Use
+@var FLAG_STARTEQUIP
+@sa @ref page_field_startequip
+*/
+
+/**
+@page page_field_startequip FLAG_STARTEQUIP Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_79, @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_8, @ref page_type_122, @ref page_type_72, @ref page_type_6, @ref page_type_54, @ref page_type_35, @ref page_type_3, @ref page_type_5, @ref page_type_13, @ref page_type_14, @ref page_type_111, @ref page_type_21, @ref page_type_85, @ref page_type_15, @ref page_type_109
+@ref page_type_79, @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_8, @ref page_type_122, @ref page_type_72, @ref page_type_6, @ref page_type_54, @ref page_type_35, @ref page_type_3, @ref page_type_5, @ref page_type_13, @ref page_type_14, @ref page_type_111, @ref page_type_21, @ref page_type_15, @ref page_type_109
 		</td><td>		A god-given item vanishes as soon as the player drops it to the
 		ground.</td>
 	</tr>

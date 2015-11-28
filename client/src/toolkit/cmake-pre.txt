@@ -1,3 +1,64 @@
+# Add some useful compile flags.
+add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
+add_definitions(${CUSTOM_WARNINGS})
+
+if (NOT MINGW)
+    if (ENABLE_STACK_PROTECTOR)
+        add_definitions(-fstack-protector-all -Wstack-protector)
+    else ()
+        add_definitions(-fno-stack-protector)
+    endif ()
+endif ()
+
+if (ENABLE_EXTRA_WARNINGS)
+    # Non-macro identifiers inside #if outside of defined()
+    add_definitions(-Wundef)
+    # sizeof() on function types or void
+    add_definitions(-Wpointer-arith)
+    # Casting function types to non-matching types
+    add_definitions(-Wbad-function-cast)
+    # extern declaration within a function
+    add_definitions(-Wnested-externs)
+    # Dead code (removed in newer versions of GCC, might still be in clang)
+    add_definitions(-Wunreachable-code)
+    # Additional format checks for printf/scanf/etc not enabled by -Wall
+    add_definitions(-Wformat=2 -Wno-format-nonliteral)
+    # Declarations like int i = i
+    add_definitions(-Winit-self)
+    # Local variables or types that shadow another variable, parameter, type,
+    # built-in function, etc.
+    add_definitions(-Wshadow)
+    # Global function defined without a previous declaration.
+    add_definitions(-Wmissing-declarations)
+    # Variable that may be clobbered by a setjmp call
+    add_definitions(-Wuninitialized)
+    # Testing floating point values for equality
+    add_definitions(-Wfloat-equal)
+
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        # Suspicious uses of logical operators in expressions
+        add_definitions(-Wlogical-op)
+        # Pointer casting with increased alignment (char * -> int *)
+        add_definitions(-Wcast-align)
+    endif ()
+endif ()
+
+if (ENABLE_AGGRESSIVE_WARNINGS)
+    # Casting const char * to char *
+    add_definitions(-Wcast-qual)
+    # Assigning signed int to unsigned int
+    add_definitions(-Wsign-conversion)
+    # Loop indices that could potentially overflow
+    add_definitions(-Wunsafe-loop-optimizations)
+    # Redundant (multiple same) declarations
+    add_definitions(-Wredundant-decls)
+endif ()
+
+# Turn warnings into errors?
+if (ENABLE_WARNING_ERRORS)
+    add_definitions(-Werror)
+endif ()
+
 if (MINGW)
     add_definitions(-DCURL_STATICLIB -DPTW32_STATIC_LIB -DBGDWIN32 -DNONDLL)
     set(CURL_STATICLIB true)
@@ -108,6 +169,18 @@ check_function_exists(getline HAVE_GETLINE)
 check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(mkstemp HAVE_MKSTEMP)
+
+if (WIN32)
+    check_include_files(wspiapi.h HAVE_WSPIAPI_H)
+    check_include_files(ws2tcpip.h HAVE_WS2TCPIP_H)
+    if (HAVE_WSPIAPI_H OR HAVE_WS2TCPIP_H)
+        set(HAVE_GETADDRINFO TRUE)
+    endif (HAVE_WSPIAPI_H OR HAVE_WS2TCPIP_H)
+elseif (LINUX)
+    check_function_exists(getaddrinfo HAVE_GETADDRINFO)
+endif ()
+
+try_compile(HAVE_IPV6 ${CMAKE_BINARY_DIR}/compile_tests ${CMAKE_SOURCE_DIR}/src/toolkit/cmake/ipv6test.c)
 
 configure_file(src/toolkit/include/toolkit_cmake.h.def src/toolkit/include/toolkit_cmake.h)
 

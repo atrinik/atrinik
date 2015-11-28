@@ -31,6 +31,8 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <plugin.h>
+#include <arch.h>
 
 /**
  * Find a quest inside the specified quest object.
@@ -117,7 +119,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
     char buf[MAX_BUF];
 
     if (item == NULL) {
-        logger_print(LOG(BUG), "Quest '%s' without an item.", quest->name);
+        LOG(BUG, "Quest '%s' without an item.", quest->name);
         return;
     }
 
@@ -143,7 +145,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
     if (QUERY_FLAG(item, FLAG_ONE_DROP)) {
         /* Create a quest object in the player's container, so that the item
          * will never drop for them again. */
-        quest_pl = get_archetype(QUEST_CONTAINER_ARCHETYPE);
+        quest_pl = arch_get(QUEST_CONTAINER_ARCHETYPE);
 
         /* Mark this quest as completed. */
         quest_pl->magic = QUEST_STATUS_COMPLETED;
@@ -156,8 +158,9 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
         snprintf(VS(buf), "You solved the one drop quest %s!\n",
                 QUEST_NAME(quest_pl));
     } else {
-        snprintf(VS(buf), "You found the special drop %s!\n",
-                query_short_name(clone, NULL));
+        char *name = object_get_short_name_s(clone, op);
+        snprintf(VS(buf), "You found the special drop %s!\n", name);
+        efree(name);
     }
 
     draw_map_text_anim(op, COLOR_NAVY, buf);
@@ -177,7 +180,7 @@ static void quest_check_kill(object *op, object *quest, object *quest_pl,
         object *item)
 {
     if (item != NULL) {
-        logger_print(LOG(BUG), "Quest '%s' with an item.", quest->name);
+        LOG(BUG, "Quest '%s' with an item.", quest->name);
         return;
     }
 
@@ -227,7 +230,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     char buf[MAX_BUF];
 
     if (item == NULL) {
-        logger_print(LOG(BUG), "Quest '%s' without an item.", quest->name);
+        LOG(BUG, "Quest '%s' without an item.", quest->name);
         return;
     }
 
@@ -257,8 +260,10 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     SET_FLAG(clone, FLAG_STARTEQUIP);
     CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
 
+    char *name = object_get_base_name_s(clone, op);
     snprintf(VS(buf), "Quest [b]%s[/b]: You found the quest item %s",
-            QUEST_NAME(quest_pl), query_base_name(clone, NULL));
+            QUEST_NAME(quest_pl), name);
+    efree(name);
 
     if (quest_pl->last_grace > 1) {
         snprintfcat(VS(buf), " (%"PRId64"/%d)", num + MAX(1, clone->nrof),
@@ -322,7 +327,7 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
         break;
 
     default:
-        logger_print(LOG(BUG), "Quest '%s' has unknown sub type: %d",
+        LOG(BUG, "Quest '%s' has unknown sub type: %d",
                 quest->name, quest->sub_type);
         break;
     }

@@ -1,0 +1,31 @@
+/**
+@var FLAG_FLY_OFF
+@sa @ref page_field_fly_off
+*/
+
+/**
+@page page_field_fly_off FLAG_FLY_OFF Uses
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_40
+		</td><td>	    Whether to trigger the mover when an object flies off top of it.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_17
+		</td><td>		Whether to trigger the connection when an object flies off the
+		pedestal. Should be left on, unless "reset connection" is enabled
+		or "fly on" is disabled.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_51
+		</td><td>		Whether to trigger the connection when an object flies off the
+		detector.</td>
+	</tr>
+
+*/

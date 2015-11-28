@@ -2,6 +2,7 @@
 ## Script for Hoofyard in Everlink, who explains about the construction
 ## skill.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)
@@ -20,4 +21,4 @@ def main():
         inf.add_msg("To build using the construction builder, you need to mark a material you want to build. For example, an altar material, desk material, or wall material. Sign materials exist too, but to build them, you need a book on the square where you want to build the sign with the message you want the sign to have (custom name of the book will be copied to the sign). Windows, pictures, flags and so on can only be built on top of walls.")
 
 main()
-inf.finish()
+inf.send()

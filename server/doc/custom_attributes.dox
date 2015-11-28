@@ -1,0 +1,157 @@
+/**
+@page page_custom_attributes Custom attributes
+
+Fields that the rest of loader.l doesn't understand are recorded in the
+object as 'key/value fields'. The first word on the line is the key, and the
+rest of the line (leading and trailing whitespace is stripped) is the value
+(which may be an empty string!).
+
+These allow arbitrary addition of new fields to the object definition
+without any changes to the loader/saver, and without any increase in object
+space. Use these to reduce the overloading of various fields for sets of
+infrequently used objects.
+
+Storing as key/value pairing makes it so that it is only parsed once during
+loading - this makes accessing data much faster than if it was just a free
+block of text that needed parsing each time something might need to get a
+key. The data itself does remain as text, so if the data is desired in
+another format, function will need to convert it (eg, atoi) as needed.
+
+@section sec_keyval_how How to use them
+
+@subsection ssec_code From the code
+
+The following functions are available:
+
+@subsubsection sssec_get const char *get_ob_key_value(object *op, const char *key)
+
+  Returns the value parameter for the given key, or NULL if the
+  object doesn't have such an extra_field. The string returned is
+  a shared string so should not be modified.
+
+  Note there is no way to tell if the field does not exist or has
+  been set to an empty value. If this differentiation is necessary,
+  a value should be stored away.
+
+@subsubsection sssec_set int set_ob_key_value(object *op, const char *key, const char *value, int add_key)
+
+  Sets the value for the given key. If add_key is true, it will add the key
+  if not defined, otherwise, it only updates existing keys. Returns
+  true/false based on success.
+
+  The passed in value is converted to a shared string. Thus, once this function
+  is called, modifying value should not be done.
+
+  Note - usually add_key should be false - there should be little reason
+  to only update existing keys - if you want to store that data away, you should
+  do it regardless of the type.
+
+  Passing in NULL as the value effectively clears the value.
+
+
+@subsection ssec_maps Use in objects/maps:
+
+Just add the lines to the object, eg
+
+<code>
+foo bar
+</code>
+
+will automatically be handled so that key 'foo' is set to 'bar'
+
+
+@section sec_keyval_when When to use key/value compared to adding new fields:
+
+The following should be considered:
+1) Access to key/value fields is slower than accessing a field directly.
+   Thus, should not be used in time sensitive areas (combat related
+   basically).
+
+   For example, if the only time the key/value would need to be used is by
+   player activating the object, that doesn't happen all that often, so good
+   option.
+
+   If however the key/value would be examined for map updates (say
+   glow_radius) probably not a good option.
+
+   Note also that the performance impact of key/values depend on the
+   number of key/values used for the specific object. If an object has
+   10 key/value pairs, access is much worse than if it just has one.
+
+   However, in all cases, performance is slow because the key has to
+   looked up in the shared string database and then pointer comparisons
+   done.
+
+   This performance consideration is only something that needs to be if the
+   actual key/value is used in the time critical area, and not the object
+   as a whole. For example, setting a key/value for a monster isn't
+   a problem if that key/value isn't examined during combat (maybe
+   something related to conversation). However, storing attack
+   related value there would not be a good idea.
+
+2) Use of key values is more memory intensive than just adding fields
+   for objects. On a 32 bit system, eg key/value structure is 12 bytes,
+   compared to just 4 bytes for a pointer to a string.
+
+   One big advantage of the key value is this memory is only used when
+   a key is set. So if you do the math, if more than about 1/3 of the
+   items would have that key/value pair, actually uses less memory to
+   just add a field.
+
+3) Key/value fields shouldn't be used if they are related to an existing
+   field. For example, if there is a 'foo' field, add you want a
+   maxfoo value, it should be done as another field and not as a
+   get_ob_key_value(op, "maxfoo") - trying to main that is difficult.
+
+@section sec_keyval_caveats Caveats
+
+- key/values don't guard against real fields being used: <code>set_ob_key_value(ob, "hp", "acidic")</code>
+  will not have the desired effect.
+  The load/save code is such that it will save the key/value lists
+  before actual field values. When loading, the last value is
+  used, so in the above example, there may be two lines:
+<pre>
+  hp acidic
+  hp 20
+</pre>
+  After load, the value of hp will be 20, since that is the last value
+  loaded.
+
+- Using get_ob_key_value() with a key for an actual field in the object
+  will not work. Eg, get_ob_key_value(op, "hp") will not return the
+  hp value of the object - there is no easy way for the functions to
+  access all the fields.
+
+- Key/values are limited to single lines - you can't do something like
+<pre>
+  startfoo
+  line1
+  line2
+  endfoo
+</pre>
+  and have it work. However, the line length allowed in the loader is
+  quite long.
+
+- There is no function that walks the key/value list for you. If this
+  is needed, should write your own. However, such functionality really
+  shouldn't be needed.
+
+- Key names with no value are an indicator to the loader that there is
+  no value, and that key should be deleted.
+  This is most often used by the saver to denote that the object
+  has cleared the key/value. Eg, the archetype has a key/value
+  pair, but this object doesn't have a key/value that name.
+
+- Checking two objects against each other can be costly with key/values -
+  its basically a O(n^2) operation because have to check of objects 1
+  keys are in object 2 and vice versa. At a cost of a higher load time,
+  if the fields were sorted, this could be much quicker, as logic is then
+  becomes iterating both lists at the same time, and if any mismatches,
+  know it is different right there. However, this is likely to only
+  become an issue if the number of key/value pairs for any objects go
+  above some certain amount. It's also conceivable since the real
+  high cost here is the comparisons, hashing the keys or values and
+  storing that hash in the object could be a big gain, but once again,
+  depends on how often the values change (as you'd have to recalculate
+  the entire hash)
+*/

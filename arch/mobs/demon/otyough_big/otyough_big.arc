@@ -32,6 +32,8 @@ maxhp 67
 level 1
 speed -0.06
 weight 225000
+faction monsters
+int 24
 end
 More
 Object otyough_big_b

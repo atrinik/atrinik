@@ -1,6 +1,10 @@
 /**
-@fn obj::weight_limit
-@section Use
+@var obj::weight_limit
+@sa @ref page_field_container
+*/
+
+/**
+@page page_field_container obj::weight_limit Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

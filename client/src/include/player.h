@@ -115,8 +115,11 @@ typedef struct Player_Struct {
     /** Inventory of an open container. */
     object *sack;
 
+    /** Objects in the interface GUI. */
+    object *interface;
+
     /** Tag of the open container. */
-    int32_t container_tag;
+    tag_t container_tag;
 
     /** Player's weight limit. */
     float weight_limit;
@@ -136,7 +139,7 @@ typedef struct Player_Struct {
     int warn_hp;
 
     /** Currently marked item. */
-    int mark_count;
+    tag_t mark_count;
 
     /** HP regeneration. */
     float gen_hp;
@@ -189,7 +192,7 @@ typedef struct Player_Struct {
     int dragging_starty;
 
     /** Which inventory widget has the focus. */
-    int inventory_focus;
+    widgetdata *inventory_focus;
 
     /** Version of the server's socket. */
     int server_socket_version;
@@ -236,6 +239,18 @@ typedef struct Player_Struct {
      * HTTP data URL.
      */
     char http_url[MAX_BUF];
+
+    /**
+     * If 1, the player is ready to engage in combat and will swing their
+     * weapon at targeted enemies.
+     */
+    uint8_t combat;
+
+    /**
+     * If 1, the player will swing their weapon at their target, be it friend
+     * or foe.
+     */
+    uint8_t combat_force;
 } Client_Player;
 
 #endif

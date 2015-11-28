@@ -1,0 +1,1002 @@
+arch map
+name Incuna - Under the Barn
+msg
+Created:  2011-09-17 Edwin Miltenburg
+Modified: 2015-11-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+region incuna_-1
+end
+arch floor_wood2_d1
+end
+arch box2.101
+end
+arch floor_wood2_d2
+y 1
+end
+arch pile_floor2
+y 1
+end
+arch floor_wood2_d2
+y 2
+end
+arch straw1.101
+y 2
+end
+arch floor_wood2_d2
+y 3
+end
+arch wall_wood2_1
+y 3
+end
+arch trans
+y 4
+end
+arch wall_wood_1
+y 4
+end
+arch floor_wood2_d2
+y 5
+end
+arch floor_wood2_d2
+y 6
+end
+arch wood_pile.101
+y 6
+end
+arch floor_wood2_d2
+y 7
+end
+arch wood_pile.101
+y 7
+end
+arch floor_wood2_d1
+y 8
+end
+arch wall_wood_1
+y 8
+end
+arch floor_wood2_d1
+x 1
+end
+arch spawn_point
+x 1
+arch ant_red
+name minor ant scout
+randomitems mob_fighter_l9
+exp 75
+dam 30
+wc_range 12
+maxhp 40
+ac 6
+type 83
+faction incuna_barn_ants
+end
+end
+arch floor_wood2_d2
+x 1
+y 1
+end
+arch floor_wood2_d2
+x 1
+y 2
+end
+arch floor_wood2_d2
+x 1
+y 3
+end
+arch wall_wood2_1
+x 1
+y 3
+end
+arch trans
+x 1
+y 4
+end
+arch wall_wood3_1
+x 1
+y 4
+end
+arch floor_wood2_d1
+x 1
+y 5
+end
+arch wall_wood3_3
+x 1
+y 5
+end
+arch floor_wood2_d2
+x 1
+y 6
+end
+arch wall_wood_3
+x 1
+y 6
+end
+arch floor_wood2_d2
+x 1
+y 7
+end
+arch wall_wood3_3
+x 1
+y 7
+end
+arch floor_wood2_d2
+x 1
+y 8
+end
+arch wall_wood_4
+x 1
+y 8
+end
+arch floor_wood2_d2
+x 2
+end
+arch floor_wood2_d2
+x 2
+y 1
+end
+arch dirt_floor3
+x 2
+y 1
+end
+arch floor_wood2_d2
+x 2
+y 2
+end
+arch floor_wood2_d2
+x 2
+y 3
+end
+arch wall_wood2_1
+x 2
+y 3
+end
+arch trans
+x 2
+y 4
+end
+arch wall_wood_3
+x 2
+y 4
+end
+arch trans
+x 2
+y 5
+end
+arch wall_wood2_3
+x 2
+y 5
+end
+arch floor_wood2_d2
+x 3
+end
+arch floor_wood2_d1
+x 3
+y 1
+end
+arch dirt_floor3
+x 3
+y 1
+end
+arch floor_wood2_d2
+x 3
+y 2
+end
+arch floor_wood2_d2
+x 3
+y 3
+end
+arch trash_wood2.101
+x 3
+y 3
+end
+arch floor_wood2_d1
+x 3
+y 4
+end
+arch dirt_floor4
+x 3
+y 4
+end
+arch floor_wood2_d2
+x 3
+y 5
+end
+arch wall_wood_1
+x 3
+y 5
+end
+arch floor_wood2_d2
+x 4
+end
+arch straw2.111
+x 4
+end
+arch floor_wood2_d1
+x 4
+y 1
+end
+arch light1
+x 4
+y 1
+end
+arch floor_wood2_d2
+x 4
+y 2
+end
+arch floor_wood2_d2
+x 4
+y 3
+end
+arch spawn_point
+x 4
+y 3
+arch ant_red
+name minor ant scout
+randomitems mob_fighter_l9
+exp 75
+dam 30
+wc_range 12
+maxhp 40
+ac 6
+type 83
+faction incuna_barn_ants
+end
+end
+arch floor_wood2_d1
+x 4
+y 4
+end
+arch trash_wood1.101
+x 4
+y 4
+end
+arch floor_wood2_d1
+x 4
+y 5
+end
+arch wall_wood2_1
+x 4
+y 5
+end
+arch floor_wood2_d2
+x 5
+end
+arch box2.101
+x 5
+end
+arch floor_wood2_d2
+x 5
+y 1
+end
+arch floor_wood2_d1
+x 5
+y 2
+end
+arch floor_wood2_d2
+x 5
+y 3
+end
+arch floor_wood2_d2
+x 5
+y 4
+end
+arch floor_wood2_d1
+x 5
+y 5
+end
+arch wall_wood_1
+x 5
+y 5
+end
+arch floor_wood2_d2
+x 6
+end
+arch wall_wood_3
+x 6
+end
+arch floor_wood2_d2
+x 6
+y 1
+end
+arch wall_wood3_3
+x 6
+y 1
+end
+arch floor_wood2_d2
+x 6
+y 2
+end
+arch wall_wood2_3
+x 6
+y 2
+end
+arch floor_wood2_d2
+x 6
+y 3
+end
+arch wall_wood3_3
+x 6
+y 3
+end
+arch floor_wood2_d2
+x 6
+y 4
+end
+arch wall_wood3_3
+x 6
+y 4
+end
+arch floor_wood2_d2
+x 6
+y 5
+end
+arch wall_wood_4
+x 6
+y 5
+end
+arch map_info
+hp 10
+sp 17
+race Incuna - Slime Pit
+item_power 2
+x 13
+y 6
+end
+arch floor_cave1
+z 30
+x 18
+y 11
+end
+arch wall_cave1.181
+x 18
+y 11
+end
+arch floor_cave1
+z 30
+x 18
+y 12
+end
+arch wall_cave1.171
+x 18
+y 12
+end
+arch floor_cave6
+z 30
+x 18
+y 13
+end
+arch wall_cave1.171
+x 18
+y 13
+end
+arch floor_cave1
+z 30
+x 18
+y 14
+end
+arch wall_cave1.171
+x 18
+y 14
+end
+arch floor_cave5
+z 30
+x 18
+y 15
+end
+arch wall_cave1.171
+x 18
+y 15
+end
+arch floor_cave2
+z 30
+x 18
+y 16
+end
+arch wall_cave1.171
+x 18
+y 16
+end
+arch floor_cave2
+z 30
+x 18
+y 17
+end
+arch wall_cave1.171
+x 18
+y 17
+end
+arch floor_cave5
+z 30
+x 18
+y 18
+end
+arch wall_cave1b.161
+x 18
+y 18
+end
+arch floor_cave6
+z 30
+x 18
+y 23
+end
+arch wall_cave1.181
+x 18
+y 23
+end
+arch floor_cave6
+z 30
+x 19
+y 11
+end
+arch wall_cave1.111
+x 19
+y 11
+end
+arch floor_sand_d2
+z 30
+x 19
+y 12
+end
+arch cave_deco_f4.101
+no_pass 1
+x 19
+y 12
+end
+arch floor_sand_d3
+z 30
+x 19
+y 13
+end
+arch plant16
+x 19
+y 13
+end
+arch light1
+x 19
+y 13
+end
+arch floor_sand_d3
+z 30
+x 19
+y 14
+end
+arch cave_deco_f3.101
+no_pass 1
+x 19
+y 14
+end
+arch floor_cave1
+z 30
+x 19
+y 15
+end
+arch sand_dm6
+x 19
+y 15
+end
+arch cave_pillar2
+x 19
+y 15
+end
+arch floor_cave5
+z 30
+x 19
+y 16
+end
+arch floor_cave1
+z 30
+x 19
+y 17
+end
+arch floor_cave1
+z 30
+x 19
+y 18
+end
+arch wall_cave1.121
+x 19
+y 18
+end
+arch floor_cave6
+z 30
+x 19
+y 19
+end
+arch wall_cave1b.161
+x 19
+y 19
+end
+arch floor_cave2
+z 30
+x 19
+y 22
+end
+arch wall_cave1.181
+x 19
+y 22
+end
+arch floor_cave6
+z 30
+x 19
+y 23
+end
+arch wall_cave1.141
+x 19
+y 23
+end
+arch floor_cave6
+z 30
+x 20
+y 10
+end
+arch wall_cave1.181
+x 20
+y 10
+end
+arch floor_cave5
+z 30
+x 20
+y 11
+end
+arch wall_cave1.141
+x 20
+y 11
+end
+arch floor_sand_d3
+z 30
+x 20
+y 12
+end
+arch plant13
+x 20
+y 12
+end
+arch light1
+x 20
+y 12
+end
+arch floor_ruin6
+z 35
+x 20
+y 13
+end
+arch sand_dm17
+x 20
+y 13
+end
+arch rope_up
+last_heal 9
+x 20
+y 13
+end
+arch light3
+x 20
+y 13
+end
+arch floor_sand_d2
+z 27
+x 20
+y 14
+end
+arch small_stones
+x 20
+y 14
+end
+arch light2
+x 20
+y 14
+end
+arch floor_cave1
+z 22
+x 20
+y 15
+end
+arch sand_dm6
+x 20
+y 15
+end
+arch floor_cave2
+z 22
+x 20
+y 16
+end
+arch floor_cave6
+z 22
+x 20
+y 17
+end
+arch plant15
+x 20
+y 17
+end
+arch floor_cave1
+z 30
+x 20
+y 18
+end
+arch small_stones
+x 20
+y 18
+end
+arch floor_cave5
+z 30
+x 20
+y 19
+end
+arch wall_cave1.121
+x 20
+y 19
+end
+arch floor_cave5
+z 30
+x 20
+y 20
+end
+arch wall_cave1.171
+x 20
+y 20
+end
+arch floor_cave5
+z 30
+x 20
+y 21
+end
+arch wall_cave1.171
+x 20
+y 21
+end
+arch floor_cave2
+z 30
+x 20
+y 22
+end
+arch wall_cave1.141
+x 20
+y 22
+end
+arch floor_cave5
+z 30
+x 20
+y 23
+end
+arch cave_deco_f2.101
+no_pass 1
+x 20
+y 23
+end
+arch floor_cave6
+z 30
+x 21
+y 9
+end
+arch wall_cave1.181
+x 21
+y 9
+end
+arch floor_cave1
+z 30
+x 21
+y 10
+end
+arch wall_cave1.141
+x 21
+y 10
+end
+arch floor_sand_d4
+z 30
+x 21
+y 11
+end
+arch cave_pillar2
+x 21
+y 11
+end
+arch floor_sand_d3
+z 30
+x 21
+y 12
+end
+arch rock2
+x 21
+y 12
+end
+arch floor_sand_d1
+z 27
+x 21
+y 13
+end
+arch small_stones
+x 21
+y 13
+end
+arch light2
+x 21
+y 13
+end
+arch floor_sand_d4
+z 24
+x 21
+y 14
+end
+arch plant11
+x 21
+y 14
+end
+arch floor_cave1
+z 18
+x 21
+y 15
+end
+arch sand_dm6
+x 21
+y 15
+end
+arch floor_cave2
+z 14
+x 21
+y 16
+end
+arch floor_cave5
+z 22
+x 21
+y 17
+end
+arch floor_cave1
+z 22
+x 21
+y 18
+end
+arch floor_cave5
+z 30
+x 21
+y 19
+end
+arch floor_cave6
+z 30
+x 21
+y 20
+end
+arch floor_cave5
+z 38
+x 21
+y 21
+end
+arch floor_cave5
+z 33
+x 21
+y 22
+end
+arch floor_cave6
+z 30
+x 21
+y 23
+end
+arch floor_cave6
+z 30
+x 22
+y 8
+end
+arch wall_cave1.181
+x 22
+y 8
+end
+arch floor_cave1
+z 30
+x 22
+y 9
+end
+arch wall_cave1.141
+x 22
+y 9
+end
+arch floor_cave6
+z 30
+x 22
+y 10
+end
+arch floor_cave2
+z 30
+x 22
+y 11
+end
+arch cave_deco_f2.101
+no_pass 1
+x 22
+y 11
+end
+arch floor_cave1
+z 22
+x 22
+y 12
+end
+arch sand_dm8
+x 22
+y 12
+end
+arch floor_cave5
+z 22
+x 22
+y 13
+end
+arch sand_dm8
+x 22
+y 13
+end
+arch floor_cave6
+z 18
+x 22
+y 14
+end
+arch sand_dm8
+x 22
+y 14
+end
+arch floor_cave5
+z 16
+x 22
+y 15
+end
+arch sand_dm3
+x 22
+y 15
+end
+arch small_stones
+x 22
+y 15
+end
+arch floor_cave2
+z 14
+x 22
+y 16
+end
+arch cave_deco_f1.101
+no_pass 1
+x 22
+y 16
+end
+arch floor_cave1
+z 14
+x 22
+y 17
+end
+arch floor_cave2
+z 22
+x 22
+y 18
+end
+arch floor_cave1
+z 30
+x 22
+y 19
+end
+arch floor_cave5
+z 32
+x 22
+y 20
+end
+arch cave_deco_f1.101
+no_pass 1
+x 22
+y 20
+end
+arch floor_cave2
+z 32
+x 22
+y 21
+end
+arch floor_cave6
+z 30
+x 22
+y 22
+end
+arch floor_cave5
+z 30
+x 22
+y 23
+end
+arch small_stones
+x 22
+y 23
+end
+arch floor_cave5
+z 30
+x 23
+y 8
+end
+arch wall_cave1.111
+x 23
+y 8
+end
+arch floor_cave6
+z 33
+x 23
+y 9
+end
+arch small_stones
+x 23
+y 9
+end
+arch floor_cave5
+z 30
+x 23
+y 10
+end
+arch floor_cave5
+z 30
+x 23
+y 11
+end
+arch floor_cave5
+z 22
+x 23
+y 12
+end
+arch floor_cave2
+z 14
+x 23
+y 13
+end
+arch floor_cave6
+z 14
+x 23
+y 14
+end
+arch cave_deco_f3.101
+no_pass 1
+x 23
+y 14
+end
+arch floor_cave1
+z 14
+x 23
+y 15
+end
+arch floor_cave6
+z 22
+x 23
+y 16
+end
+arch floor_cave2
+z 22
+x 23
+y 17
+end
+arch floor_cave2
+z 22
+x 23
+y 18
+end
+arch floor_cave1
+z 30
+x 23
+y 19
+end
+arch floor_cave6
+z 30
+x 23
+y 20
+end
+arch small_stones
+x 23
+y 20
+end
+arch floor_cave2
+z 33
+x 23
+y 21
+end
+arch floor_cave1
+z 30
+x 23
+y 22
+end
+arch floor_cave6
+z 22
+x 23
+y 23
+end

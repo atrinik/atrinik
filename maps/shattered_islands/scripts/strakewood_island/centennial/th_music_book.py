@@ -1,6 +1,7 @@
 ## @file
 ## Script for the Music Book in the Centennial Library
 
+from Atrinik import *
 from Interface import Interface
 from Packet import MapStats
 
@@ -50,4 +51,4 @@ def main():
         inf.add_link("Stop Music", dest = "none")
 
 main()
-inf.finish()
+inf.send()

@@ -21,27 +21,6 @@ if (NOT DL_LIBRARY AND NOT MINGW)
     message(FATAL_ERROR "Could not find dl library.")
 endif ()
 
-# Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
-add_definitions(${CUSTOM_WARNINGS})
-
-if (ENABLE_EXTRA_WARNINGS)
-    add_definitions(-ftree-vrp -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -fbounds-check -ftrapv -Wformat -Wformat-security -Winit-self -Wshadow -Wbad-function-cast -Wmissing-declarations)
-
-    if (NOT MINGW)
-        add_definitions(-fstack-protector-all)
-    endif ()
-endif ()
-
-if (ENABLE_AGGRESSIVE_WARNINGS)
-    add_definitions(-Wcast-qual -Wunsafe-loop-optimizations)
-endif ()
-
-# Turn warnings into errors?
-if (ENABLE_WARNING_ERRORS)
-    add_definitions(-Werror)
-endif ()
-
 # Add our includes.
 include_directories(src/include)
 include_directories(src/random_maps)
@@ -93,20 +72,22 @@ endif ()
 if (CHECK_LIBRARY)
     set(SOURCES_CHECK
         src/tests/check.c
-        src/tests/bugs/85.c
+        src/tests/bugs/cursed_treasures.c
         src/tests/unit/commands/object.c
         src/tests/unit/server/arch.c
+        src/tests/unit/server/attack.c
         src/tests/unit/server/ban.c
+        src/tests/unit/server/bank.c
         src/tests/unit/server/cache.c
-        src/tests/unit/server/memory.c
         src/tests/unit/server/object.c
-        src/tests/unit/server/packet.c
-        src/tests/unit/server/pbkdf2.c
         src/tests/unit/server/re_cmp.c
-        src/tests/unit/server/shstr.c
-        src/tests/unit/server/string.c
-        src/tests/unit/server/stringbuffer.c
-        src/tests/unit/server/utils.c
+        src/tests/unit/server/shop.c
+        src/tests/unit/toolkit/memory.c
+        src/tests/unit/toolkit/packet.c
+        src/tests/unit/toolkit/pbkdf2.c
+        src/tests/unit/toolkit/shstr.c
+        src/tests/unit/toolkit/string.c
+        src/tests/unit/toolkit/stringbuffer.c
         src/tests/unit/types/light_apply.c
         src/tests/unit/types/sound_ambient.c)
 endif ()
@@ -171,6 +152,22 @@ add_custom_target(proto
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generating prototypes..."
     VERBATIM)
+
+if (POLICY CMP0037)
+    cmake_policy(PUSH)
+    cmake_policy(SET CMP0037 OLD)
+endif ()
+
+add_custom_target(test
+    COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel || exit 5
+    COMMAND ${EXECUTABLE} --plugin_unit || exit 5
+    COMMENT "Executing unit tests..."
+    VERBATIM
+)
+
+if (POLICY CMP0037)
+    cmake_policy(POP)
+endif ()
 
 if (CHECK_LIBRARY)
     # Go through the source files and construct a string.

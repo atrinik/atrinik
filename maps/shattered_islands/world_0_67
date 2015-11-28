@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-03-20 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch floor_sand_d1
@@ -164,19 +164,8 @@ y 5
 arch ranger
 direction 3
 level 73
-dex 1
-can_use_bow 1
-unaggressive 0
+faction brynknot_guards
 type 83
-arch ability_stone_throw
-race arrows
-wc 200
-end
-arch arrow_woodlanders
-sys_object 1
-dam 100
-wc 300
-end
 end
 end
 arch grassd_1
@@ -197,12 +186,8 @@ y 7
 arch guard
 direction 3
 level 66
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_7
@@ -227,12 +212,8 @@ y 10
 arch guard
 direction 3
 level 66
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_7
@@ -295,12 +276,8 @@ y 18
 arch guard
 direction 3
 level 66
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_2
@@ -851,19 +828,8 @@ y 5
 arch ranger
 direction 3
 level 73
-dex 1
-can_use_bow 1
-unaggressive 0
+faction brynknot_guards
 type 83
-arch ability_stone_throw
-race arrows
-wc 200
-end
-arch arrow_woodlanders
-sys_object 1
-dam 100
-wc 300
-end
 end
 end
 arch grassd_5
@@ -884,12 +850,8 @@ y 7
 arch guard
 direction 3
 level 66
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_5
@@ -914,12 +876,8 @@ y 10
 arch guard
 direction 3
 level 66
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_3
@@ -1630,12 +1588,8 @@ x 9
 y 21
 arch guard
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm3
@@ -2244,6 +2198,7 @@ y 15
 arch priest_green
 name Fallain
 level 42
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -2547,11 +2502,8 @@ y 14
 arch guard
 name bank guard
 level 45
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_ostone13
@@ -2854,11 +2806,8 @@ y 14
 arch guard
 name bank guard
 level 45
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_ostone13
@@ -3424,6 +3373,7 @@ y 15
 arch monk
 name Tolmir
 level 41
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6

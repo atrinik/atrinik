@@ -66,13 +66,17 @@ void command_push(object *op, const char *command, char *params)
 
     tmp->direction = dir;
 
+    char *name = object_get_name_s(tmp, op);
+
     /* Try to push the object. */
     if (!push_ob(tmp, dir, op)) {
-        draw_info_format(COLOR_WHITE, op, "You fail to push the %s.", query_name(tmp, NULL));
+        draw_info_format(COLOR_WHITE, op, "You fail to push the %s.", name);
         return;
     }
 
+    draw_info_format(COLOR_WHITE, op, "You push the %s.", name);
+
     /* Now we move the player who was pushing the object. */
     move_ob(op, dir, op);
-    draw_info_format(COLOR_WHITE, op, "You push the %s.", query_name(tmp, NULL));
+    efree(name);
 }

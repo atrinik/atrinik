@@ -1,6 +1,10 @@
 /**
-@fn obj::path_attuned
-@section Use
+@var obj::path_attuned
+@sa @ref page_field_path_attuned
+*/
+
+/**
+@page page_field_path_attuned obj::path_attuned Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -26,7 +30,7 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_127
+@ref page_type_118
 		</td><td>		A combination of AI events this object wants to receive.</td>
 	</tr>
 	<tr>

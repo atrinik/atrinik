@@ -2,7 +2,7 @@ arch map
 name Cathedral of Holy Wisdom
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1209,11 +1209,8 @@ y 8
 arch guard_pole
 name cathedral guard
 level 35
+faction asteria_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1b
@@ -1654,11 +1651,8 @@ y 8
 arch guard_pole
 name cathedral guard
 level 35
+faction asteria_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1h
@@ -3630,11 +3624,8 @@ y 11
 arch guard_pole
 name cathedral guard
 level 35
+faction asteria_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1

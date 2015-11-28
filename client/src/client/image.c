@@ -102,7 +102,7 @@ void bmap_add(bmap_struct *bmap)
 
     for (; ; ) {
         if (bmaps_default[idx] && !strcmp(bmaps_default[idx]->name, bmap->name)) {
-            logger_print(LOG(BUG), "Double use of bmap name %s.", bmap->name);
+            LOG(BUG, "Double use of bmap name %s.", bmap->name);
         }
 
         if (!bmaps_default[idx]) {
@@ -115,7 +115,7 @@ void bmap_add(bmap_struct *bmap)
         }
 
         if (idx == orig_idx) {
-            logger_print(LOG(BUG), "bmaps array is too small for %s.", bmap->name);
+            LOG(BUG, "bmaps array is too small for %s.", bmap->name);
             return;
         }
     }
@@ -144,7 +144,7 @@ void read_bmaps_p0(void)
 
     while (fgets(buf, sizeof(buf) - 1, fp) != NULL) {
         if (strncmp(buf, "IMAGE ", 6)) {
-            logger_print(LOG(ERROR), "The file %s is corrupted.", FILE_ATRINIK_P0);
+            LOG(ERROR, "The file %s is corrupted.", FILE_ATRINIK_P0);
             exit(1);
         }
 
@@ -214,7 +214,7 @@ void read_bmaps(void)
 
     while (fgets(buf, sizeof(buf) - 1, fp)) {
         if (sscanf(buf, "%x %x %s", &len, &crc, name) != 3) {
-            logger_print(LOG(BUG), "Syntax error in server bmaps file: %s", buf);
+            LOG(BUG, "Syntax error in server bmaps file: %s", buf);
             break;
         }
 
@@ -268,6 +268,8 @@ void bmaps_deinit(void)
             FaceList[i].flags = 0;
         }
     }
+
+    sprite_cache_free_all();
 }
 
 /**
@@ -297,6 +299,7 @@ void finish_face_cmd(int facenum, uint32_t checksum, char *face)
         efree(FaceList[facenum].name);
         FaceList[facenum].name = NULL;
         sprite_free_sprite(FaceList[facenum].sprite);
+        FaceList[facenum].sprite = NULL;
     }
 
     snprintf(buf, sizeof(buf), "%s.png", face);
@@ -446,7 +449,7 @@ int request_face(int pnum)
     }
 
     if (num >= bmaps_size) {
-        logger_print(LOG(BUG), "Server sent picture ID too big (%d, max: %"PRIu64 ")", num, (uint64_t) bmaps_size);
+        LOG(BUG, "Server sent picture ID too big (%d, max: %"PRIu64 ")", num, (uint64_t) bmaps_size);
         return 0;
     }
 

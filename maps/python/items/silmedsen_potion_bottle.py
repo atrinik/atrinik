@@ -1,6 +1,9 @@
 ## @file
 ## Script for Silmedsen's potion bottle.
 
+from Atrinik import *
+
+
 def main():
     SetReturnValue(1)
 
@@ -12,6 +15,6 @@ def main():
                 pl.DrawInfo("You fill the bottle to the brim with the clear water.", COLOR_GREEN)
                 return
 
-    pl.DrawInfo("You can't fill the bottle with that... You must face the water around the Great Blue Crystal in Morliana.", COLOR_ORANGE)
+    pl.DrawInfo("You can't fill the bottle with that... You must face the water around the Great Blue Crystal in Morliana.")
 
 main()

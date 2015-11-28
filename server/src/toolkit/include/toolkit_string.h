@@ -85,7 +85,7 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result,
         size_t resultsize, bool sep);
 size_t string_fromhex(char *str, size_t len, unsigned char *result,
         size_t resultsize);
-const char *string_skip_whitespace(const char *str);
+char *string_skip_whitespace(char *str);
 char *string_last(const char *haystack, const char *needle);
 
 #ifndef NDEBUG

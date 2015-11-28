@@ -1,0 +1,206 @@
+arch map
+name Incuna - Slime Pit
+msg
+Created:  2011-09-17 Edwin Miltenburg
+Modified: 2015-11-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+region incuna_-1
+end
+arch floor_cave5
+z 30
+x 18
+end
+arch wall_cave1.171
+x 18
+end
+arch floor_cave6
+z 30
+x 18
+y 1
+end
+arch wall_cave1b.161
+x 18
+y 1
+end
+arch floor_cave6
+z 30
+x 19
+end
+arch floor_cave6
+z 30
+x 19
+y 1
+end
+arch wall_cave1.121
+x 19
+y 1
+end
+arch floor_cave2
+z 30
+x 19
+y 2
+end
+arch wall_cave1.171
+x 19
+y 2
+end
+arch floor_cave5
+z 30
+x 19
+y 3
+end
+arch wall_cave1b.161
+x 19
+y 3
+end
+arch floor_cave5
+z 30
+x 20
+end
+arch cave_pillar1
+x 20
+end
+arch floor_cave5
+z 33
+x 20
+y 1
+end
+arch floor_cave1
+z 30
+x 20
+y 2
+end
+arch floor_cave5
+z 30
+x 20
+y 3
+end
+arch wall_cave1.121
+x 20
+y 3
+end
+arch floor_cave6
+z 30
+x 20
+y 4
+end
+arch wall_cave1b.161
+x 20
+y 4
+end
+arch floor_cave6
+z 30
+x 21
+end
+arch floor_cave6
+z 25
+x 21
+y 1
+end
+arch floor_cave2
+z 25
+x 21
+y 2
+end
+arch cave_deco_f3.101
+no_pass 1
+x 21
+y 2
+end
+arch floor_cave2
+z 30
+x 21
+y 3
+end
+arch floor_cave2
+z 30
+x 21
+y 4
+end
+arch wall_cave1.151
+x 21
+y 4
+end
+arch floor_cave5
+z 22
+x 22
+end
+arch floor_cave6
+z 22
+x 22
+y 1
+end
+arch floor_cave2
+z 22
+x 22
+y 2
+end
+arch floor_cave1
+z 30
+x 22
+y 3
+end
+arch floor_cave5
+z 30
+x 22
+y 4
+end
+arch wall_cave1.121
+x 22
+y 4
+end
+arch floor_cave1
+z 30
+x 22
+y 5
+end
+arch wall_cave1b.161
+x 22
+y 5
+end
+arch floor_cave1
+z 22
+x 23
+end
+arch floor_cave6
+z 14
+x 23
+y 1
+end
+arch floor_cave5
+z 22
+x 23
+y 2
+end
+arch floor_cave2
+z 22
+x 23
+y 3
+end
+arch floor_cave6
+z 30
+x 23
+y 4
+end
+arch floor_cave1
+z 30
+x 23
+y 5
+end
+arch wall_cave1.121
+x 23
+y 5
+end
+arch floor_cave2
+z 30
+x 23
+y 6
+end
+arch wall_cave1b.161
+x 23
+y 6
+end

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-06-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,7 +10,7 @@ difficulty 15
 outdoor 1
 no_harm 1
 fixed_resettime 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch floor_flagm4
@@ -49,7 +49,7 @@ end
 arch floor_marble1
 y 7
 end
-arch altar_tabernacle
+arch altar_elathiel
 direction 3
 xrays 1
 y 7
@@ -206,10 +206,11 @@ y 6
 arch priest_church
 name Conuld Burch
 level 65
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end
@@ -688,6 +689,7 @@ arch woman_old
 name Lairwenn
 direction 3
 level 14
+faction brynknot_citizens
 movement_type 176
 type 83
 arch waypoint
@@ -733,6 +735,7 @@ arch writing_pen
 end
 end
 arch writing_pen
+no_drop 1
 end
 end
 end
@@ -1741,12 +1744,8 @@ y 14
 arch guard
 direction 3
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_8

@@ -54,9 +54,10 @@ void system_end(void)
     popup_destroy_all();
     toolkit_widget_deinit();
     curl_deinit();
-    socket_deinitialize();
+    client_socket_deinitialize();
     metaserver_clear_data();
     effects_deinit();
+    sound_ambient_clear();
     interface_deinit();
     sound_deinit();
     intro_deinit();
@@ -149,7 +150,7 @@ void copy_file(const char *filename, const char *filename_out)
     fp = fopen(filename, "r");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Failed to open '%s' for reading.", filename);
+        LOG(BUG, "Failed to open '%s' for reading.", filename);
         return;
     }
 
@@ -158,7 +159,7 @@ void copy_file(const char *filename, const char *filename_out)
     fp_out = fopen(filename_out, "w");
 
     if (!fp_out) {
-        logger_print(LOG(BUG), "Failed to open '%s' for writing.", filename_out);
+        LOG(BUG, "Failed to open '%s' for writing.", filename_out);
         fclose(fp);
         return;
     }
@@ -380,7 +381,7 @@ char *file_path(const char *path, const char *mode)
     } else {
         if (access(new_path, R_OK) != 0) {
             get_data_dir_file(VS(client_path), path);
-            sb->pos = 0;
+            stringbuffer_seek(sb, 0);
             stringbuffer_append_string(sb, client_path);
         }
     }

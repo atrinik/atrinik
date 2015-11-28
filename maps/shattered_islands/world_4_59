@@ -2,13 +2,13 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
-bg_music town.mid
+bg_music town.mod
 region strakewood_island
 end
 arch grassd_2
@@ -999,6 +999,7 @@ arch guard
 level 17
 movement_type 176
 type 83
+faction aris_guards
 arch waypoint
 name wp7
 title wp1
@@ -3089,6 +3090,7 @@ arch priest_green
 name Jaktis
 type 83
 level 8
+faction aris_citizens
 arch event_obj
 sub_type 6
 race /python/generic/bank.py

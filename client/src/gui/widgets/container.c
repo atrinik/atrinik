@@ -117,6 +117,22 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
     fprintf(fp, "\n");
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    _widget_container *container = widget->subwidget;
+
+    if (container->subcontainer != NULL) {
+        _widget_container_strip *container_strip = container->subcontainer;
+
+        if (container_strip->subcontainer_strip != NULL) {
+            efree(container_strip->subcontainer_strip);
+        }
+
+        efree(container->subcontainer);
+    }
+}
+
 /**
  * Initialize one container widget.
  * @param widget Widget to initialize. */
@@ -131,6 +147,7 @@ void widget_container_init(widgetdata *widget)
     widget->event_func = widget_event;
     widget->load_func = widget_load;
     widget->save_func = widget_save;
+    widget->deinit_func = widget_deinit;
     widget->subwidget = container;
 
     if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID) {

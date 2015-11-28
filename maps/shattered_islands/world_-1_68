@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch grassd_7
@@ -1106,6 +1106,7 @@ y 9
 arch female1
 name Taeriss Palmer
 direction 3
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -1151,6 +1152,7 @@ y 15
 arch female1
 name Sivinn Palmer
 direction 3
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -2223,11 +2225,8 @@ x 12
 y 20
 arch guard
 level 28
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm1

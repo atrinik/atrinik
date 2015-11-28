@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -336,6 +336,7 @@ arch female3
 name councilwoman
 direction 1
 level 15
+faction asteria_nobility
 spawn_time 8:00 - 19:00
 type 83
 end
@@ -735,10 +736,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_dungeon1b
@@ -1254,6 +1252,7 @@ arch monk
 name councilman
 direction 1
 level 18
+faction asteria_nobility
 spawn_time 8:00 - 19:00
 type 83
 end
@@ -1288,10 +1287,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_dungeon1b
@@ -1602,6 +1598,7 @@ arch priest_sad
 name councilman
 direction 1
 level 16
+faction asteria_nobility
 spawn_time 8:00 - 19:00
 type 83
 end
@@ -2562,9 +2559,17 @@ z 18
 x 14
 y 23
 end
+arch fstone1c
+z 50
+x 15
+end
+arch fwall_fstone2
+x 15
+end
 arch grassd_6
 z 50
 x 15
+y 1
 end
 arch door1_locked
 msg
@@ -2573,19 +2578,12 @@ endmsg
 slaying asteria_dungeon_key1
 direction 3
 x 15
+y 1
 end
 arch check_inv
 slaying asteria_dungeon_key1
 sp 1
 last_grace 1
-x 15
-end
-arch fstone1c
-z 50
-x 15
-y 1
-end
-arch fwall_fstone2
 x 15
 y 1
 end
@@ -2753,6 +2751,29 @@ end
 arch fstone1c
 z 50
 x 16
+end
+arch handle_lever
+connected 101
+slaying asteria_walls_gate
+exp 1000
+path_repelled 1
+x 16
+end
+arch spawn_point
+x 16
+arch guard
+name Asterian Guard
+type 83
+level 36
+faction asteria_guards
+direction 1
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
 end
 arch fstone1c
 z 50

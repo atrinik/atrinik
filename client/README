@@ -32,12 +32,12 @@ Atrinik client
 
 Atrinik client graphics
 ===================
- See the LICENSE file in the 'bitmaps' directory.
+ See the LICENSE file in the 'textures' directory.
 
 Atrinik client sounds
 ===================
- See the LICENSE file in the 'media' directory for background music,
- or the LICENSE file in the 'sfx' directory for sound effects.
+ See the LICENSE file in the 'sound/background' directory for background music,
+ or the LICENSE file in the 'sound/effects' directory for sound effects.
 
 Atrinik client fonts
 ===================

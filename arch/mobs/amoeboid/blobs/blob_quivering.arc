@@ -31,4 +31,5 @@ corpse 1
 monster 1
 no_pick 1
 level 1
+faction monsters
 end

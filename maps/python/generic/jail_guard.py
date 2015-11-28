@@ -1,6 +1,7 @@
 ## @file
 ## Generic script for jail guards.
 
+from Atrinik import *
 from Interface import Interface
 import Jail
 
@@ -29,4 +30,4 @@ def main():
         inf.add_msg("Move along. We'll have no trouble here.")
 
 main()
-inf.finish()
+inf.send()

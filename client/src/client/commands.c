@@ -122,8 +122,7 @@ void socket_command_image(uint8_t *data, size_t len, size_t pos)
      * these widgets actually contain an object with the updated face. */
     WIDGET_REDRAW_ALL(PDOLL_ID);
     WIDGET_REDRAW_ALL(QUICKSLOT_ID);
-    WIDGET_REDRAW_ALL(MAIN_INV_ID);
-    WIDGET_REDRAW_ALL(BELOW_INV_ID);
+    WIDGET_REDRAW_ALL(INVENTORY_ID);
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -151,6 +150,9 @@ void socket_command_target(uint8_t *data, size_t len, size_t pos)
     cpl.target_code = packet_to_uint8(data, len, &pos);
     packet_to_string(data, len, &pos, cpl.target_color, sizeof(cpl.target_color));
     packet_to_string(data, len, &pos, cpl.target_name, sizeof(cpl.target_name));
+    cpl.combat = packet_to_uint8(data, len, &pos);
+    cpl.combat_force = packet_to_uint8(data, len, &pos);
+    WIDGET_REDRAW_ALL(TARGET_ID);
 
     map_redraw_flag = 1;
 }
@@ -175,15 +177,16 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
             switch (type) {
             case CS_STAT_TARGET_HP:
                 cpl.target_hp = packet_to_uint8(data, len, &pos);
+                WIDGET_REDRAW_ALL(TARGET_ID);
                 break;
 
             case CS_STAT_REG_HP:
-                cpl.gen_hp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
+                cpl.gen_hp = packet_to_uint16(data, len, &pos) / 10.0f;
                 widget_redraw_type_id(STAT_ID, "health");
                 break;
 
             case CS_STAT_REG_MANA:
-                cpl.gen_sp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
+                cpl.gen_sp = packet_to_uint16(data, len, &pos) / 10.0f;
                 widget_redraw_type_id(STAT_ID, "mana");
                 break;
 
@@ -283,7 +286,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_SPEED:
-                cpl.stats.speed = packet_to_float(data, len, &pos);
+                cpl.stats.speed = packet_to_double(data, len, &pos);
                 WIDGET_REDRAW_ALL(PDOLL_ID);
                 break;
 
@@ -293,7 +296,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_WEAPON_SPEED:
-                cpl.stats.weapon_speed = packet_to_float(data, len, &pos);
+                cpl.stats.weapon_speed = packet_to_double(data, len, &pos);
                 WIDGET_REDRAW_ALL(PDOLL_ID);
                 break;
 
@@ -302,7 +305,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_WEIGHT_LIM:
-                cpl.weight_limit = abs(packet_to_uint32(data, len, &pos)) / 1000.0;
+                cpl.weight_limit = packet_to_uint32(data, len, &pos) / 1000.0;
                 break;
 
             case CS_STAT_ACTION_TIME:
@@ -369,11 +372,9 @@ void socket_command_player(uint8_t *data, size_t len, size_t pos)
     cpl.state = ST_PLAY;
 }
 
-static void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp)
+void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp)
 {
-    bool force_anim;
-
-    force_anim = false;
+    bool force_anim = false;
 
     if (flags & UPD_LOCATION) {
         /* Currently unused. */
@@ -479,6 +480,11 @@ static void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t
         }
     }
 
+    if (flags & UPD_GLOW) {
+        packet_to_string(data, len, pos, VS(tmp->glow));
+        tmp->glow_speed = packet_to_uint8(data, len, pos);
+    }
+
     if (tmp->itype == TYPE_REGION_MAP) {
         region_map_fow_update(MapData.region_map);
         minimap_redraw_flag = 1;
@@ -495,58 +501,69 @@ static void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_item(uint8_t *data, size_t len, size_t pos)
 {
-    int32_t dmode, loc;
-    uint32_t tag, flags;
-    object *env, *tmp;
-    uint8_t bflag;
-
-    dmode = packet_to_int32(data, len, &pos);
-    loc = packet_to_int32(data, len, &pos);
-
-    if (dmode >= 0) {
-        object_remove_inventory(object_find(loc));
-    }
-
-    if (dmode == -4) { /* send item flag */
-        /* and redirect it to our invisible sack */
-        if (loc == cpl.container_tag) {
-            loc = -1;
-        }
-    } else if (dmode == -1) { /* container flag! */
-        /* we catch the REAL container tag */
-        cpl.container_tag = loc;
-        object_remove_inventory(object_find(-1));
-
-        /* if this happens, we want to close the container */
-        if (loc == -1) {
-            cpl.container_tag = -998;
+    bool delete_env = packet_to_uint8(data, len, &pos) == 1;
+    if (delete_env) {
+        tag_t loc_delete = packet_to_uint32(data, len, &pos);
+        object *env = object_find(loc_delete);
+        if (env == NULL) {
             return;
         }
 
-        /* and redirect it to our invisible sack */
-        loc = -1;
+        object_remove_inventory(env);
+
+        if (pos == len) {
+            return;
+        }
     }
 
-    bflag = packet_to_uint8(data, len, &pos);
+    tag_t loc = packet_to_uint32(data, len, &pos);
+    object *env = object_find(loc);
+    if (env == NULL) {
+        LOG(ERROR, "Server sent invalid location: %" PRIu32, loc);
+        return;
+    }
 
-    env = object_find(loc);
+    if (env != cpl.below && env != cpl.ob) {
+        cpl.sack = env;
+    }
+
+    uint8_t bflag = packet_to_uint8(data, len, &pos);
 
     while (pos < len) {
-        tag = packet_to_uint32(data, len, &pos);
-        tmp = object_find(tag);
+        tag_t tag = packet_to_uint32(data, len, &pos);
+        uint8_t apply_action = CMD_APPLY_ACTION_NORMAL;
 
-        if (tmp && tmp->env != env) {
+        object *tmp = NULL;
+        if (tag != 0) {
+            tmp = object_find(tag);
+        } else {
+            apply_action = packet_to_uint8(data, len, &pos);
+        }
+
+        if (tmp != NULL && tmp->env != env) {
             object_remove(tmp);
             tmp = NULL;
         }
 
-        if (!tmp) {
+        if (tmp == NULL || delete_env) {
+            object *old_tmp = tmp;
             tmp = object_create(env, tag, bflag);
+            tmp->apply_action = apply_action;
+
+            if (old_tmp != NULL) {
+                if (old_tmp == cpl.sack) {
+                    cpl.sack = tmp;
+                }
+
+                object_transfer_inventory(old_tmp, tmp);
+                object_remove(old_tmp);
+            }
         }
 
-        flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF;
+        uint32_t flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION |
+                UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_GLOW;
 
-        if (loc) {
+        if (loc > 0) {
             flags |= UPD_TYPE | UPD_EXTRA;
         }
 
@@ -629,7 +646,7 @@ void socket_command_mapstats(uint8_t *data, size_t len, size_t pos)
         } else if (type == CMD_MAPSTATS_TEXT_ANIM) {
             packet_to_string(data, len, &pos, msg_anim.color, sizeof(msg_anim.color));
             packet_to_string(data, len, &pos, msg_anim.message, sizeof(msg_anim.message));
-            msg_anim.tick = SDL_GetTicks();
+            msg_anim.tick = LastTick;
         }
     }
 }
@@ -761,19 +778,22 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 
             /* Clear this layer. */
             if (type == MAP2_LAYER_CLEAR) {
-                map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0,
+                        "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0, "", 0);
             } else { /* We have some data. */
                 int16_t face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
                 uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0, target_is_friend = 0;
-                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass;
-                char player_name[64], player_color[COLOR_BUF];
+                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass, glow_speed;
+                char player_name[64], player_color[COLOR_BUF], glow[COLOR_BUF];
                 uint32_t target_object_count = 0;
 
                 anim_speed = anim_facing = anim_flags = anim_state = 0;
-                priority = secondpass = 0;
+                priority = secondpass = glow_speed = 0;
 
                 player_name[0] = '\0';
                 player_color[0] = '\0';
+                glow[0] = '\0';
 
                 face = packet_to_uint16(data, len, &pos);
                 /* Object flags. */
@@ -788,8 +808,8 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 
                 /* Player name? */
                 if (flags & MAP2_FLAG_NAME) {
-                    packet_to_string(data, len, &pos, player_name, sizeof(player_name));
-                    packet_to_string(data, len, &pos, player_color, sizeof(player_color));
+                    packet_to_string(data, len, &pos, VS(player_name));
+                    packet_to_string(data, len, &pos, VS(player_color));
                 }
 
                 /* Animation? */
@@ -858,6 +878,11 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
                     if (flags2 & MAP2_FLAG2_SECONDPASS) {
                         secondpass = 1;
                     }
+
+                    if (flags2 & MAP2_FLAG2_GLOW) {
+                        packet_to_string(data, len, &pos, VS(glow));
+                        glow_speed = packet_to_uint8(data, len, &pos);
+                    }
                 }
 
                 /* Set the data we figured out. */
@@ -866,7 +891,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
                         zoom_y, align, draw_double, alpha, rotate, infravision,
                         target_object_count, target_is_friend, anim_speed,
                         anim_facing, anim_flags, anim_state, priority,
-                        secondpass);
+                        secondpass, glow, glow_speed);
             }
         }
 
@@ -875,13 +900,15 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 
         /* Animation? */
         if (ext_flags & MAP2_FLAG_EXT_ANIM) {
-            uint8_t anim_type;
-            int16_t anim_value;
+            uint8_t anim_num = packet_to_uint8(data, len, &pos);
 
-            anim_type = packet_to_uint8(data, len, &pos);
-            anim_value = packet_to_uint16(data, len, &pos);
+            for (uint8_t i = 0; i < anim_num; i++) {
+                uint8_t sub_layer = packet_to_uint8(data, len, &pos);
+                uint8_t anim_type = packet_to_uint8(data, len, &pos);
+                int16_t anim_value = packet_to_int16(data, len, &pos);
 
-            map_anims_add(anim_type, x, y, anim_value);
+                map_anims_add(anim_type, x, y, sub_layer, anim_value);
+            }
         }
     }
 
@@ -898,7 +925,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 void socket_command_version(uint8_t *data, size_t len, size_t pos)
 {
     if (cpl.state != ST_WAITVERSION) {
-        logger_print(LOG(BUG), "Received version command when not in proper "
+        LOG(BUG, "Received version command when not in proper "
                 "state: %d, should be: %d.", cpl.state, ST_WAITVERSION);
         return;
     }

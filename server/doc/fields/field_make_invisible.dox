@@ -1,6 +1,10 @@
 /**
-@fn FLAG_MAKE_INVISIBLE
-@section Use
+@var FLAG_MAKE_INVISIBLE
+@sa @ref page_field_make_invisible
+*/
+
+/**
+@page page_field_make_invisible FLAG_MAKE_INVISIBLE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -10,12 +14,6 @@
 @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
 		</td><td>			When applied the user gets invisible. He can't be seen by
 			players or monsters unless they have "see invisible".</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_35, @ref page_type_3
-		</td><td>		When applied the user gets invisible. He cannot be seen by
-		players or monsters unless they have "see invisible" power.</td>
 	</tr>
 
 */

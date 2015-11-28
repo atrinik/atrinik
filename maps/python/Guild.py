@@ -1,8 +1,10 @@
 ## @file
 ## Implements the Guild class, which provides an API for guild management.
 
-from Atrinik import *
 import time
+
+from Atrinik import *
+
 
 ## Guild database file.
 _guilddb_file = "../server/data/guilds"
@@ -161,7 +163,7 @@ class Guild:
 
             # If the player is online, remove them from the guild maps.
             # If they are not online, this will be taken care of later.
-            if member != None:
+            if member is not None:
                 member.Controller().DrawInfo("You have been removed from the guild. Goodbye!", COLOR_RED)
                 self.member_kick(member)
 
@@ -215,7 +217,7 @@ class Guild:
     def pl_get_guild(self, name):
         for guild in self._db:
             if name in self._db[guild]["members"]:
-                return (guild, self._db[guild]["members"], not self._db[guild]["members"][name]["flags"] & self.member_requested)
+                return guild, self._db[guild]["members"], not self._db[guild]["members"][name]["flags"] & self.member_requested
 
         return None
 
@@ -298,7 +300,7 @@ class Guild:
                 self._db[self._guild]["members"][name]["value_used"] = 0
 
         # Get the object's cost.
-        val = obj.GetCost(obj, COST_TRUE)
+        val = obj.GetCost()
 
         # Don't allow the object to be picked up if its value and the used
         # up value would go above the limit.

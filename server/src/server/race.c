@@ -27,6 +27,7 @@
  * Handles code related to races. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * This list is used for the item prefixes ('dwarven bolt', 'elven arrow',
@@ -47,7 +48,7 @@ static size_t num_races = 0;
  * Link corpse to a race.
  * @param race_name Race name.
  * @param at Archetype of the corpse. */
-static void race_add_corpse(shstr *race_name, archetype *at)
+static void race_add_corpse(shstr *race_name, archetype_t *at)
 {
     ob_race *race;
 
@@ -169,30 +170,26 @@ ob_race *race_get_random(void)
  * the archetype is a @ref MONSTER or @ref PLAYER. */
 void race_init(void)
 {
-    archetype *at, *tmp;
     size_t i;
 
     races = NULL;
     num_races = 0;
 
-    for (at = first_archetype; at; at = at->next) {
+    archetype_t *at, *tmp;
+    HASH_ITER(hh, arch_table, at, tmp) {
         if (at->clone.type == MONSTER || at->clone.type == PLAYER) {
             race_add(at->clone.race, &at->clone);
-        }
-    }
-
-    /* Now search for corpses. */
-    for (at = first_archetype; at; at = at->next) {
-        if (at->clone.type == CONTAINER && at->clone.sub_type == ST1_CONTAINER_CORPSE) {
+        } else if (at->clone.type == CONTAINER &&
+                at->clone.sub_type == ST1_CONTAINER_CORPSE) {
             race_add_corpse(at->clone.race, at);
         }
     }
 
     /* Try to find the default corpse archetype. */
-    tmp = find_archetype(RACE_CORPSE_DEFAULT);
+    tmp = arch_find(RACE_CORPSE_DEFAULT);
 
     if (!tmp) {
-        logger_print(LOG(ERROR), "Can't find required archetype: '%s'.", RACE_CORPSE_DEFAULT);
+        LOG(ERROR, "Can't find required archetype: '%s'.", RACE_CORPSE_DEFAULT);
         exit(1);
     }
 

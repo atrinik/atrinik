@@ -32,6 +32,7 @@
 #include <global.h>
 #include <monster_data.h>
 #include <packet.h>
+#include <monster_guard.h>
 
 #ifndef __CPROTO__
 
@@ -141,6 +142,22 @@ static void monster_data_dialogs_free(monster_data_dialog_t *dialog)
 }
 
 /**
+ * Closes the specified dialog (for players).
+ * @param dialog Dialog.
+ */
+static void monster_data_dialogs_close(monster_data_dialog_t *dialog)
+{
+    HARD_ASSERT(dialog != NULL);
+
+    if (dialog->ob->type != PLAYER) {
+        return;
+    }
+
+    packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 32, 0);
+    socket_send_packet(&CONTR(dialog->ob)->socket, packet);
+}
+
+/**
  * Verify that the specified dialog is still valid (the activator wasn't
  * destroyed, the dialog hasn't expired, etc).
  * @param monster_data Monster's data.
@@ -159,11 +176,7 @@ static bool monster_data_dialogs_verify(monster_data_t *monster_data,
 
     if (pticks > dialog->expire) {
         /* Close the dialog for players. */
-        if (dialog->ob->type == PLAYER) {
-            packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 32, 0);
-            socket_send_packet(&CONTR(dialog->ob)->socket, packet);
-        }
-
+        monster_data_dialogs_close(dialog);
         goto invalid;
     }
 
@@ -238,6 +251,7 @@ void monster_data_dialogs_remove(object *op, object *activator)
 
         if (dialog->ob == activator && dialog->count == activator->count) {
             DL_DELETE(monster_data->dialogs, dialog);
+            monster_guard_check_close(op, activator);
             monster_data_dialogs_free(dialog);
             break;
         }
@@ -332,12 +346,36 @@ void monster_data_dialogs_cleanup(object *op)
 
         rv_vector rv;
 
-        if (!get_rangevector(op, dialog->ob, &rv, RV_MANHATTAN_DISTANCE) ||
-                rv.distance > MONSTER_DATA_INTERFACE_DISTANCE) {
-            DL_DELETE(monster_data->dialogs, dialog);
-            monster_data_dialogs_free(dialog);
-            break;
+        if (get_rangevector(op, dialog->ob, &rv, RV_MANHATTAN_DISTANCE) &&
+                rv.distance <= MONSTER_DATA_INTERFACE_DISTANCE) {
+            continue;
         }
+
+        DL_DELETE(monster_data->dialogs, dialog);
+        monster_guard_check_close(op, dialog->ob);
+        monster_data_dialogs_free(dialog);
+    }
+}
+
+/**
+ * Purge all the dialogs the monster has open.
+ * @param op Monster.
+ */
+void monster_data_dialogs_purge(object *op)
+{
+    HARD_ASSERT(op != NULL);
+
+    monster_data_t *monster_data = MONSTER_DATA(op);
+    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
+                object_get_str(op));
+
+    monster_data_dialog_t *dialog, *tmp;
+
+    DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
+        monster_data_dialogs_close(dialog);
+        DL_DELETE(monster_data->dialogs, dialog);
+        monster_guard_check_close(op, dialog->ob);
+        monster_data_dialogs_free(dialog);
     }
 }
 

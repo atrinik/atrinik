@@ -1,6 +1,10 @@
 /**
-@fn liv::maxsp
-@section Use
+@var liv::maxsp
+@sa @ref page_field_maxsp
+*/
+
+/**
+@page page_field_maxsp liv::maxsp Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -27,7 +31,7 @@
 	<tr>
 		<td>
 @ref page_type_112
-		</td><td>		If object is turned, turn it "turn value" steps every time.</td>
+		</td><td>		How many steps to turn when the director's connection is triggered.</td>
 	</tr>
 	<tr>
 		<td>
@@ -46,8 +50,8 @@
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>		If set and a connected object without "last_eat 1" gives signal,
-		the magic wall turns this steps.</td>
+		</td><td>		If set and the magic wall is triggered by an object without
+		"connection signal" set, the magic wall will turn this many steps.</td>
 	</tr>
 	<tr>
 		<td>
@@ -78,6 +82,15 @@
 		</td><td>			If set, the rune will cast its spell (if any) in this direction.
 			In most cases this appears useless because the spell directly
 			hits the player.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_119
+		</td><td>		How far away from the exact position will the waypoint be
+		considered to be reached.
+
+		Set to 0 to require the mob to be standing on top of the
+		specified destination.</td>
 	</tr>
 
 */

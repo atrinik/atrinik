@@ -83,6 +83,13 @@ def collect_interfaces():
     compiler.compile()
 
 
+def collect_factions():
+    """Collect factions."""
+
+    compiler = compilers.FactionsCompiler(paths=paths)
+    compiler.compile()
+
+
 def usage():
     """Show usage."""
 

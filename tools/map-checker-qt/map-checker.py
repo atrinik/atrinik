@@ -170,6 +170,9 @@ class MapChecker:
             # First scan for possible map files.
             self._scan_status = "Gathering files..."
             files = self.scanner.scan(path, rec)
+            had_files = False
+        else:
+            had_files = True
 
         if not real_map_path:
             self._scan_status = "Gathering modified files..."
@@ -218,8 +221,9 @@ class MapChecker:
         for file in maps:
             self.db.file_set_modified(file)
 
-        for error in self.db.get_errors():
-            self.queue.put(error)
+        if not had_files:
+            for error in self.db.get_errors():
+                self.queue.put(error)
 
         i = 0
 

@@ -114,7 +114,7 @@ static TTF_Font *font_open(const char *name, uint8_t size)
     }
 
     if (ttf_font == NULL) {
-        logger_print(LOG(ERROR), "Unable to load font (%s, %d): %s", name, size,
+        LOG(ERROR, "Unable to load font (%s, %d): %s", name, size,
                 TTF_GetError());
     }
 
@@ -250,7 +250,7 @@ void font_free(font_struct *font)
         HASH_FIND_STR(fonts, key, tmp);
 
         if (tmp != NULL) {
-            logger_print(LOG(ERROR), "Attempted to free a font that was still "
+            LOG(ERROR, "Attempted to free a font that was still "
                     "in the hash table! Font name: %s, "
                     "size: %d", font->name, font->size);
             abort();
@@ -325,7 +325,7 @@ void text_deinit(void)
         FONT_DECREF(font);
 
         if (font->ref > 0) {
-            log(LOG(DEVEL), "Font %s (size: %u) still has %u references",
+            LOG(DEVEL, "Font %s (size: %u) still has %u references",
                     font->name, font->size, font->ref);
             font->ref = 0;
         }
@@ -862,19 +862,17 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             /* Find the ending tag. */
             tag2 = strstr(tag + tag_len, "[/center]");
 
-            if (tag2 && box && box->w) {
-                char *buf = emalloc(tag2 - cp - 8 + 1);
-                int w;
-
+            if (tag2 != NULL && box != NULL && box->w != 0) {
                 /* Copy the string between [center] and [/center] to a
                  * temporary buffer so we can calculate its width. */
+                char *buf = emalloc(tag2 - cp - 8 + 1);
                 memcpy(buf, cp + 8, tag2 - cp - 8);
                 buf[tag2 - cp - 8] = '\0';
-                w = dest->x + box->w / 2 - text_get_width(*font, buf, flags) / 2;
+                int text_width = text_get_width(*font, buf, flags);
                 efree(buf);
 
-                if (surface) {
-                    dest->x = w;
+                if (surface != NULL && text_width < box->w - dest->x) {
+                    dest->x += box->w / 2 - text_width / 2;
                 }
             }
         } else if (tag_len == 7 && strncmp(tag, "/center", tag_len) == 0) {
@@ -944,13 +942,24 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         } else if (tag_len >= 4 && strncmp(tag, "img=", 4) == 0) {
             if (surface) {
                 char face[MAX_BUF];
-                int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, wd = 0, ht = 0, sprite_flags = 0, dark_level = 0, quick_pos = 0;
-                uint32_t stretch = 0;
+                int x = 0, y = 0, align = 0, wd = 0, ht = 0, quick_pos = 0;
+                uint16_t dark_level = 0, alpha = 0;
 
-                if (sscanf(tag + 4, "%128[^] >] %d %d %d %d %d %d %d %d %d %d %u %d %d", face, &x, &y, &align, &sprite_flags, &dark_level, &quick_pos, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &wd, &ht) >= 1) {
+                sprite_effects_t sprite_effects;
+                memset(&sprite_effects, 0, sizeof(sprite_effects));
+
+                if (sscanf(tag + 4, "%128[^] >] %d %d %d %u %" SCNu16 " %d "
+                        "%" SCNu16 " %" SCNd16 " %" SCNd16 " %" SCNd16 " "
+                        "%u %d %d", face, &x, &y, &align,
+                        &sprite_effects.flags, &dark_level, &quick_pos, &alpha,
+                        &sprite_effects.zoom_x, &sprite_effects.zoom_y,
+                        &sprite_effects.rotate, &sprite_effects.stretch,
+                        &wd, &ht) >= 1) {
                     int id;
 
                     id = get_bmap_id(face);
+                    sprite_effects.dark_level = dark_level;
+                    sprite_effects.alpha = alpha;
 
                     if (id != -1 && FaceList[id].sprite) {
                         int w, h;
@@ -959,10 +968,23 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                         w = FaceList[id].sprite->bitmap->w;
                         h = FaceList[id].sprite->bitmap->h;
 
-                        if (rotate) {
-                            rotozoomSurfaceSizeXY(w, h, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
-                        } else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
-                            zoomSurfaceSize(w, h, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
+                        if (sprite_effects.rotate) {
+                            rotozoomSurfaceSizeXY(w, h, sprite_effects.rotate,
+                                    sprite_effects.zoom_x ?
+                                        sprite_effects.zoom_x / 100.0 : 1.0,
+                                    sprite_effects.zoom_y ?
+                                        sprite_effects.zoom_y / 100.0 : 1.0,
+                                    &w, &h);
+                        } else if ((sprite_effects.zoom_x &&
+                                sprite_effects.zoom_x != 100) ||
+                                (sprite_effects.zoom_y &&
+                                sprite_effects.zoom_y != 100)) {
+                            zoomSurfaceSize(w, h,
+                                    sprite_effects.zoom_x ?
+                                        sprite_effects.zoom_x / 100.0 : 1.0,
+                                    sprite_effects.zoom_y ?
+                                        sprite_effects.zoom_y / 100.0 : 1.0,
+                                    &w, &h);
                         }
 
                         if (align & 1) {
@@ -980,7 +1002,8 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                                 mnr = quick_pos;
                                 mid = mnr >> 4;
                                 mnr &= 0x0f;
-                                y = y - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - h;
+                                y = y - MultiArchs[mid].part[mnr].yoff +
+                                        MultiArchs[mid].ylen - h;
                                 x -= MultiArchs[mid].part[mnr].xoff;
 
                                 if (w > MultiArchs[mid].xlen) {
@@ -1002,7 +1025,9 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                             srcrect.h = ht;
                         }
 
-                        map_sprite_show(surface, dest->x + x, dest->y + y, wd || ht ? &srcrect : NULL, FaceList[id].sprite, sprite_flags, dark_level, alpha, stretch, zoom_x, zoom_y, rotate);
+                        surface_show_effects(surface, dest->x + x, dest->y + y,
+                                wd || ht ? &srcrect : NULL,
+                                FaceList[id].sprite->bitmap, &sprite_effects);
                     }
                 }
             }
@@ -1280,7 +1305,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                             zoom_y *= -1;
                         }
 
-                        if (show_percentage != 1.0) {
+                        if (!FLT_EQUAL(show_percentage, 1.0)) {
                             // Left to right
                             if (show_percentage >= 6.0) {
                                 icon_box.w *= show_percentage - 6.0;
@@ -1314,6 +1339,24 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                         } else {
                             SDL_BlitSurface(icon_surface, &icon_box, surface, &icon_dst);
                         }
+                    }
+                }
+            }
+        } else if (tag_len >= 4 && strncmp(tag, "obj=", 4) == 0) {
+            if (surface) {
+                tag_t id;
+                int wd, ht;
+                int fit = 0;
+
+                wd = ht = INVENTORY_ICON_SIZE;
+
+                if (sscanf(tag + 4, "%" SCNu32 " %d %d %d", &id, &wd, &ht,
+                           &fit) >= 1) {
+                    object *tmp = object_find(id);
+
+                    if (tmp != NULL) {
+                        object_show_centered(surface, tmp, dest->x, dest->y,
+                                wd, ht, !!fit);
                     }
                 }
             }
@@ -1729,7 +1772,7 @@ int glyph_get_height(font_struct *font, char c)
  * Begin handling text mouse-based selection. */
 #define TEXT_SHOW_SELECT_BEGIN() \
     { \
-        if (!skip && selection_start && selection_end) \
+        if (!skip && selection_start && selection_end && surface != NULL) \
         { \
             select_start = *selection_start; \
             select_end = *selection_end; \
@@ -1818,7 +1861,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
     if (text_color_parse(color_notation, &color)) {
         orig_color = color;
     } else {
-        logger_print(LOG(BUG), "Invalid color: %s, text: %s", color_notation, text);
+        LOG(BUG, "Invalid color: %s, text: %s", color_notation, text);
         return;
     }
 

@@ -2,12 +2,13 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 100
 darkness 3
+no_harm 1
 bg_music thonkdonk.ogg
 region greyton
 end
@@ -75,17 +76,20 @@ arch floor_fs_grey1d
 y 11
 end
 arch switch_wall
-connected 101
-path_repelled 8
 is_invisible 1
+connected 101
+slaying greyton_lower_gate_key1
+path_repelled 8
 y 11
 end
 arch spawn_point
 y 11
 arch guard_royal
 level 70
-unaggressive 0
 type 83
+arch key2
+slaying greyton_lower_gate_key1
+end
 end
 end
 arch floor_fs_grey1b
@@ -548,4 +552,146 @@ end
 arch wall_dungeon_4
 x 3
 y 22
+end
+arch floor_fs_grey1a
+x 8
+y 11
+end
+arch fwall_fstone2
+x 8
+y 11
+end
+arch floor_fs_grey1b
+x 8
+y 12
+end
+arch fwall_fstone2
+x 8
+y 12
+end
+arch floor_fs_grey1a
+x 8
+y 13
+end
+arch fwall_fstone2
+x 8
+y 13
+end
+arch floor_fs_grey1b
+x 9
+y 10
+end
+arch fwall_fstone2
+x 9
+y 10
+end
+arch floor_fs_grey1d
+x 9
+y 11
+end
+arch fwall_fstone2
+x 9
+y 11
+end
+arch floor_fs_grey1d
+x 9
+y 12
+end
+arch piston_down
+connected 101
+x 9
+y 12
+end
+arch boulder
+sub_layer 2
+can_roll 1
+terrain_flag 1
+x 9
+y 12
+end
+arch floor_fs_grey1d
+x 9
+y 13
+end
+arch fwall_fstone2
+x 9
+y 13
+end
+arch floor_fs_grey1a
+x 10
+y 10
+end
+arch fwall_fstone2
+x 10
+y 10
+end
+arch floor_fs_grey1b
+x 10
+y 11
+end
+arch piston_up
+connected 102
+x 10
+y 11
+end
+arch floor_fs_grey1c
+x 10
+y 12
+end
+arch piston_up
+connected 101
+x 10
+y 12
+end
+arch piston_down
+connected 102
+sub_layer 1
+x 10
+y 12
+end
+arch button
+connected 103
+path_repelled 256
+x 10
+y 12
+end
+arch floor_fs_grey1a
+x 10
+y 13
+end
+arch fwall_fstone2
+x 10
+y 13
+end
+arch floor_fs_grey1a
+x 11
+y 10
+end
+arch fwall_fstone2
+x 11
+y 10
+end
+arch floor_fs_grey1a
+x 11
+y 11
+end
+arch fwall_fstone2
+x 11
+y 11
+end
+arch floor_fs_grey1c
+x 11
+y 12
+end
+arch fwall_fstone2
+x 11
+y 12
+end
+arch floor_fs_grey1c
+x 11
+y 13
+end
+arch fwall_fstone2
+x 11
+y 13
 end

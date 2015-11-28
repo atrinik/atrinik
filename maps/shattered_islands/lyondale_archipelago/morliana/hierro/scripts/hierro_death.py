@@ -1,6 +1,8 @@
 ## @file
 ## Script to be executed when Hierro dies.
 
+from Atrinik import *
+
 # X/Y locations of various objects to remove/adjust when Hierro dies.
 locations = [
     # No need for the map event objects now.
@@ -29,7 +31,7 @@ def main():
     me.FindObject(type = Type.SPAWN_POINT_INFO).owner.Destroy()
 
     for (x, y) in locations:
-        for obj in me.map.GetFirstObject(x, y):
+        for obj in me.map.Objects(x, y):
             # Remove markers, inventory checkers and signs (magic mouths).
             if obj.type in (Type.MARKER, Type.CHECK_INV, Type.SIGN):
                 obj.Destroy()
@@ -39,7 +41,7 @@ def main():
             # Change torches back to normal and light them up.
             elif obj.type == Type.LIGHT_APPLY:
                 if obj.f_no_pick:
-                    obj.Apply(obj, APPLY_TOGGLE)
+                    obj.Apply(obj, APPLY_NORMAL)
             # Remove the map event objects.
             elif obj.type == Type.MAP_EVENT_OBJ:
                 obj.Destroy()

@@ -2,14 +2,14 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 40
 outdoor 1
 no_harm 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region asteria
 end
 arch grassd_4
@@ -1025,6 +1025,30 @@ arch floor_fstone2a
 x 7
 y 11
 end
+arch handle_lever
+slaying asteria_walls_gate
+connected 101
+exp 1000
+x 7
+y 11
+end
+arch spawn_point
+x 7
+y 11
+arch guard
+name Asterian Guard
+type 83
+level 30
+faction asteria_guards
+direction 3
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
+end
 arch grassd_2
 x 7
 y 12
@@ -1162,7 +1186,7 @@ arch wall_fstone_round.102
 x 8
 y 9
 end
-arch floor_fs_grey1b
+arch floor_fstone2a
 x 8
 y 10
 end
@@ -1170,11 +1194,11 @@ arch fwall_fstone2
 x 8
 y 10
 end
-arch floor_fs_grey1b
+arch floor_fstone2a
 x 8
 y 11
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.131
 x 8
 y 11
 end
@@ -1335,11 +1359,8 @@ y 10
 arch guard
 name Asterian Guard
 type 83
+faction asteria_guards
 level 30
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1b
@@ -1365,11 +1386,8 @@ y 12
 arch guard
 name Asterian Guard
 type 83
+faction asteria_guards
 level 30
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_4
@@ -1966,11 +1984,8 @@ y 10
 arch guard
 name Asterian Guard
 type 83
+faction asteria_guards
 level 30
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1b
@@ -1996,11 +2011,8 @@ y 12
 arch guard
 name Asterian Guard
 type 83
+faction asteria_guards
 level 30
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_6
@@ -2144,7 +2156,7 @@ arch wall_fstone_round.108
 x 14
 y 9
 end
-arch floor_fs_grey1b
+arch floor_fstone2a
 x 14
 y 10
 end
@@ -2152,11 +2164,13 @@ arch fwall_fstone2
 x 14
 y 10
 end
-arch floor_fs_grey1b
+arch floor_fstone2a
 x 14
 y 11
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.131
+z 9
+align -18
 x 14
 y 11
 end
@@ -2278,6 +2292,29 @@ end
 arch floor_fstone2a
 x 15
 y 11
+end
+arch handle_lever
+slaying asteria_walls_gate
+connected 101
+exp 1000
+x 15
+y 11
+end
+arch spawn_point
+x 15
+y 11
+arch guard
+name Asterian Guard
+type 83
+faction asteria_guards
+level 30
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
 end
 arch grassd_1
 x 15

@@ -1,6 +1,10 @@
 /**
-@fn obj::last_eat
-@section Use
+@var obj::last_eat
+@sa @ref page_field_last_eat
+*/
+
+/**
+@page page_field_last_eat obj::last_eat Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -13,9 +17,10 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_18, @ref page_type_31, @ref page_type_92, @ref page_type_30, @ref page_type_51, @ref page_type_93, @ref page_type_27, @ref page_type_64, @ref page_type_17, @ref page_type_32
-		</td><td>		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.</td>
+@ref page_type_92, @ref page_type_93, @ref page_type_17, @ref page_type_51
+		</td><td>		Signals the connected objects to do a different action. See the
+		help file for the object you are connecting this to for details
+		what this setting will affect.</td>
 	</tr>
 	<tr>
 		<td>
@@ -30,14 +35,15 @@
 @ref page_type_66
 		</td><td>		This flag defines the destined map as "personal unique map". If
 		set, there will be a seperate version of that map for every
-		player out there. This feature is used for the permanent
-		apartments.
-
-		It should not be used for anything else other than apartments,
-		since Atrinik is a multiplayer game.
+		player out there.
 
 		An exit pointing outside of a personal unique map must have the
 		"unique destination" flag unset.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_64
+		</td><td>		Signals the connected object(s) to do a different action.</td>
 	</tr>
 	<tr>
 		<td>
@@ -48,8 +54,9 @@
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>		If set the wall is "on" and casts spells - if not set the wall is
-		"off" and doesn't cast spells (but can be turned on).</td>
+		</td><td>		If set, the wall is on and casts spells in regular intervals.
+		This setting can be toggled by a connected object with
+		"connection flag" set.</td>
 	</tr>
 	<tr>
 		<td>

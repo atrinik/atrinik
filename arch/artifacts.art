@@ -2584,6 +2584,189 @@ damned_perm 1
 item_power 1
 end
 
+#########
+# Pants #
+#########
+Allowed all
+chance 30
+difficulty 5
+artifact pants_min_str
+def_arch pants_black
+Object
+title of minor strength
+type 35
+is_magical 1
+str 1
+item_level_art 3
+value 3000
+item_power 1
+end
+
+Allowed all
+chance 30
+difficulty 5
+artifact pants_min_dex
+def_arch pants_black
+Object
+title of minor dexterity
+type 35
+is_magical 1
+item_level_art 3
+dex 1
+value 3000
+item_power 1
+end
+
+Allowed all
+chance 30
+difficulty 5
+artifact pants_min_int
+def_arch pants_black
+Object
+title of minor intelligence
+item_level_art 3
+type 35
+is_magical 1
+int 1
+value 3000
+item_power 1
+end
+
+Allowed all
+chance 30
+difficulty 5
+artifact pants_min_pow
+def_arch pants_black
+Object
+title of minor power
+item_level_art 3
+type 35
+is_magical 1
+pow 1
+value 3000
+item_power 1
+end
+
+Allowed all
+chance 30
+difficulty 5
+artifact pants_min_con
+def_arch pants_black
+Object
+title of minor constitution
+item_level_art 3
+type 35
+is_magical 1
+con 1
+value 3000
+item_power 1
+end
+
+Allowed all
+chance 30
+difficulty 2
+t_style 1
+artifact pants_less_fire
+def_arch pants_black
+Object
+title of lesser fire protection
+item_level_art 2
+type 35
+is_magical 1
+protect_fire 15
+value 2100
+item_power 1
+end
+
+Allowed all
+chance 30
+difficulty 2
+t_style 2
+artifact pants_less_cold
+def_arch pants_black
+Object
+title of lesser cold protection
+item_level_art 2
+type 35
+is_magical 1
+protect_cold 15
+value 2100
+item_power 1
+end
+
+Allowed all
+chance 30
+t_style 3
+difficulty 2
+artifact pants_less_elec
+def_arch pants_black
+Object
+title of lesser electricity protection
+item_level_art 2
+type 35
+is_magical 1
+protect_electricity 15
+value 2100
+item_power 1
+end
+
+Allowed all
+chance 30
+t_style 4
+difficulty 2
+artifact pants_less_poison
+def_arch pants_black
+Object
+title of lesser poison protection
+item_level_art 2
+type 35
+is_magical 1
+protect_poison 15
+value 2100
+item_power 1
+end
+
+Allowed all
+chance 30
+t_style 5
+difficulty 2
+artifact pants_less_acid
+def_arch pants_black
+Object
+title of lesser acid protection
+item_level_art 2
+type 35
+is_magical 1
+protect_acid 15
+value 2100
+item_power 1
+end
+
+Allowed all
+chance 20
+difficulty 35
+artifact pants_argoth
+def_arch pants_black
+Object
+title of Argoth
+item_level_art 35
+type 35
+is_magical 1
+ac_add 1
+con 1
+str 1
+protect_fire 17
+value 2500
+msg
+  Argoth was an ancient dwarven city in a mountain which
+  was infested with dragons.
+
+  The dwarves specialized in equipment which helped them
+  survive their environment.
+endmsg
+item_power 4
+end
+
 ###########
 # Bracers #
 ###########

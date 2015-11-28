@@ -2,13 +2,13 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-17 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
-bg_music town.mid
+bg_music town.mod
 region strakewood_island
 end
 arch grassd_6
@@ -403,6 +403,7 @@ arch smith
 name John Markor
 type 83
 level 40
+faction aris_citizens
 arch event_obj
 sub_type 6
 race /python/generic/smith.py
@@ -854,7 +855,7 @@ unpaid 1
 x 5
 y 21
 end
-arch shop_floor
+arch shop_floor_normal
 x 5
 y 22
 end
@@ -1012,7 +1013,7 @@ unpaid 1
 x 6
 y 21
 end
-arch shop_floor
+arch shop_floor_normal
 x 6
 y 22
 end
@@ -1186,7 +1187,7 @@ unpaid 1
 x 7
 y 21
 end
-arch shop_floor
+arch shop_floor_normal
 x 7
 y 22
 end
@@ -1356,7 +1357,7 @@ unpaid 1
 x 8
 y 21
 end
-arch shop_floor
+arch shop_floor_normal
 x 8
 y 22
 end
@@ -1530,7 +1531,7 @@ unpaid 1
 x 9
 y 21
 end
-arch shop_floor
+arch shop_floor_normal
 x 9
 y 22
 end
@@ -1636,7 +1637,7 @@ arch wall_pattern1.111
 x 10
 y 16
 end
-arch shop_floor
+arch shop_floor_normal
 x 10
 y 17
 end
@@ -1644,7 +1645,7 @@ arch wall_pattern1.131
 x 10
 y 17
 end
-arch shop_floor
+arch shop_floor_normal
 x 10
 y 18
 end
@@ -1652,7 +1653,7 @@ arch wall_pattern1.131
 x 10
 y 18
 end
-arch shop_floor
+arch shop_floor_normal
 x 10
 y 19
 end
@@ -1660,7 +1661,7 @@ arch wall_pattern1.131
 x 10
 y 19
 end
-arch shop_floor
+arch shop_floor_normal
 x 10
 y 20
 end
@@ -1668,7 +1669,7 @@ arch wall_pattern1.131
 x 10
 y 20
 end
-arch shop_floor
+arch shop_floor_normal
 x 10
 y 21
 end
@@ -1676,7 +1677,7 @@ arch wall_pattern1.131
 x 10
 y 21
 end
-arch shop_floor
+arch shop_floor_normal
 x 10
 y 22
 end

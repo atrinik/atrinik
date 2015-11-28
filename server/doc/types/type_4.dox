@@ -52,16 +52,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>auto-generate</td>
-		<td>@ref FLAG_AUTO_APPLY</td>
-		<td>		"Auto-generate" must be set in order to have the treasure be
-		created when the map is loaded.
-		If you want to create a random treasure chest, you unset this
-		flag. That way, the player has to apply the object (the chest),
-		then the treasure is generated.
-		</td>
-	</tr>
-	<tr>
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
 		<td>		If an item is set to block view, players (and monsters) cannot
@@ -91,7 +81,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -110,6 +100,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -164,9 +160,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -184,13 +180,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -254,9 +243,6 @@ Type defined by:
 		with shops).
 
 		If zero/unset, the map difficulty will instead be used.
-
-		(Example for comparison: Shop floors generate treasure of
-		&lt;quality level&gt; 5 per default).
 		</td>
 	</tr>
 	<tr>
@@ -269,6 +255,12 @@ Type defined by:
 		<td>reflect spells</td>
 		<td>@ref FLAG_REFL_SPELL</td>
 		<td>		Object will reflect spells.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
 		</td>
 	</tr>
 	<tr>
@@ -312,8 +304,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -337,6 +338,12 @@ Type defined by:
 		<td>		An &lt;unpaid&gt; item cannot be used unless the player carried
 		it over a shop mat, paying the demanded price. Setting this flag
 		makes sense only for items inside shops.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

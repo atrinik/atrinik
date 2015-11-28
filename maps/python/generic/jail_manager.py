@@ -1,6 +1,7 @@
 ## @file
 ## Jail manager NPC.
 
+from Atrinik import *
 from Interface import Interface
 import Jail
 
@@ -87,4 +88,4 @@ def main():
             pl.Controller().DrawInfo("You have been released early.", COLOR_GREEN)
 
 main()
-inf.finish()
+inf.send()

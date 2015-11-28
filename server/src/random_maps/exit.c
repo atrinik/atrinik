@@ -27,6 +27,7 @@
  * Handle exit placement in map. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Find a character in the layout.
@@ -48,7 +49,7 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
 
     /* if a starting point isn't given, pick one */
     if (mode < 1 || mode > 4) {
-        M = RANDOM() % 4 + 1;
+        M = rndm(1, 4);
     } else {
         M = mode;
     }
@@ -151,7 +152,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     int downx = -1, downy = -1, j;
 
     if (orientation == 0) {
-        orientation = RANDOM() % 6 + 1;
+        orientation = rndm(1, 3);
     }
 
     switch (orientation) {
@@ -175,7 +176,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     }
 
     if (style_map_up == NULL) {
-        the_exit_up = arch_to_object(find_archetype("exit"));
+        the_exit_up = arch_to_object(arch_find("exit"));
     } else {
         object *tmp = pick_random_object(style_map_up);
         the_exit_up = arch_to_object(tmp->arch);
@@ -184,7 +185,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     /* we need a down exit only if we're recursing. */
     if (RP->dungeon_level < RP->dungeon_depth || RP->final_map[0] != 0) {
         if (style_map_down == NULL) {
-            the_exit_down = arch_to_object(find_archetype("exit"));
+            the_exit_down = arch_to_object(arch_find("exit"));
         } else {
             object *tmp = pick_random_object(style_map_down);
             the_exit_down = arch_to_object(tmp->arch);
@@ -245,7 +246,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
         if (!wall_blocked(map, the_exit_up->x + freearr_x[j], the_exit_up->y + freearr_y[j])) {
             char buf[MAX_BUF];
 
-            random_sign = get_archetype("sign");
+            random_sign = arch_get("sign");
             random_sign->x = the_exit_up->x + freearr_x[j];
             random_sign->y = the_exit_up->y + freearr_y[j];
 
@@ -305,12 +306,19 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
         find_in_layout(0, 0, &downx, &downy, maze, RP);
     }
 
-    if (the_exit_down) {
-        int i = find_first_free_spot(the_exit_down->arch, NULL, map, downx, downy);
+    if (the_exit_down != NULL) {
+        int i = find_first_free_spot(the_exit_down->arch, NULL, map, downx,
+                downy);
+        if (i == -1) {
+            LOG(ERROR, "Could not find a free spot for exit going down.");
+            the_exit_down = NULL;
+        } else {
+            the_exit_down->x = downx + freearr_x[i];
+            the_exit_down->y = downy + freearr_y[i];
+        }
+    }
 
-        the_exit_down->x = downx + freearr_x[i];
-        the_exit_down->y = downy + freearr_y[i];
-
+    if (the_exit_down != NULL) {
         RP->origin_x = the_exit_down->x;
         RP->origin_y = the_exit_down->y;
 

@@ -1,31 +1,4 @@
 /**
-@def PLAYERMOVER
-@ref ::obj "Object" fields and flags used by this type.
-<table>
-<tr>
-<th>Field/Flag</th>
-<th>Explanation</th>
-</tr>
-<tr>
-<td>object::direction</td>
-<td>Direction the activating object will be moved to, if zero, a random one will be chosen. Perhaps useful for a dance club.</td>
-</tr>
-<tr>
-<td>object::speed</td>
-<td>How often it will move objects.</td>
-</tr>
-<tr>
-<td>@ref FLAG_LIFESAVE</td>
-<td>If set, it'll disappear after living::hp + 1 moves.</td>
-</tr>
-<tr>
-<td>living::maxsp, living::sp</td>
-<td>If both are set, it'll paralyze the victim for living::maxsp * his speed / object::speed</td>
-</tr>
-</table>
-*/
-
-/**
 @def CREATOR
 @ref ::obj "Object" fields and flags used by this type.
 <table>
@@ -83,6 +56,114 @@
 <tr>
 <td>@ref FLAG_IS_MAGICAL</td>
 <td>If set, the shop floor will be a unique shop; items dropped will stay there until someone buys them or the map resets.</td>
+</tr>
+</table>
+*/
+
+/**
+@def DETECTOR
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::slaying</td>
+<td>Name of the thing the detector is to look for.</td>
+</tr>
+<tr>
+<td>object::speed</td>
+<td>Frequency of 'glances'.</td>
+</tr>
+<tr>
+<td>connected</td>
+<td>Connected value of detector.</td>
+</tr>
+<tr>
+<td>living::sp</td>
+<td>1 if detection sets buttons, -1 if detection unsets buttons.</td>
+</tr>
+</table>
+*/
+
+/**
+@def GATE
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>living::hp</td>
+<td>How long a gate is open/closed.</td>
+</tr>
+<tr>
+<td>living::maxhp</td>
+<td>Initial value for living::hp.</td>
+</tr>
+<tr>
+<td>living::sp</td>
+<td>If zero the gate is closed, if 1 the gate is open.</td>
+</tr>
+</table>
+*/
+
+/**
+@def MARKER
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>living::hp</td>
+<td>How many times the marker will work. If zero, infinite, otherwise every time the marker grants a mark, the value is decremented and when reached zero, the marker is removed.</td>
+</tr>
+</table>
+*/
+
+/**
+@def SYMPTOM
+@ref ::obj "Object" fields and flags used by this type.
+<table>
+<tr>
+<th>Field/Flag</th>
+<th>Explanation</th>
+</tr>
+<tr>
+<td>object::stats</td>
+<td>Modify stats</td>
+</tr>
+<tr>
+<td>living::hp</td>
+<td>Modify regen</td>
+</tr>
+<tr>
+<td>object::value</td>
+<td>Progression counter (multiplier = value / 100)</td>
+</tr>
+<tr>
+<td>living::food</td>
+<td>Modify food use (from object::last_eat in @ref DISEASE)</td>
+</tr>
+<tr>
+<td>living::maxsp</td>
+<td>Suck mana (as noted for @ref DISEASE)</td>
+</tr>
+<tr>
+<td>object::last_sp</td>
+<td>Lethargy</td>
+</tr>
+<tr>
+<td>object::msg</td>
+<td>What to say</td>
+</tr>
+<tr>
+<td>object::speed</td>
+<td>Speed of movement, from @ref DISEASE</td>
 </tr>
 </table>
 */
@@ -156,7 +237,7 @@
 <td>Every "disease move" the severity of the symptoms are increased by ac / 100. (severity = 1 + (accumlated_progression) / 100)</td>
 </tr>
 <tr>
-<td><span title="Should be negative to cause adverse effect and is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">object::last_eat</span></td>
+<td><span title="Should be negative to cause adverse effect._LDAM" style="border-bottom: 1px dashed #000;">object::last_eat</span></td>
 <td>Increases food usage if negative.</td>
 </tr>
 <tr>
@@ -168,11 +249,11 @@
 <td>Experience awarded when plague cured.</td>
 </tr>
 <tr>
-<td><span title="Should be negative to cause adverse effect and is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">living::hp</span></td>
+<td><span title="Should be negative to cause adverse effect._LDAM" style="border-bottom: 1px dashed #000;">living::hp</span></td>
 <td>Reduces regeneration of disease-bearer.</td>
 </tr>
 <tr>
-<td><span title="Should be negative to cause adverse effect and is modulated in spells by ldam." style="border-bottom: 1px dashed #000;">living::sp</span></td>
+<td><span title="Should be negative to cause adverse effect._LDAM" style="border-bottom: 1px dashed #000;">living::sp</span></td>
 <td>Reduces spellpoint regeneration.</td>
 </tr>
 <tr>
@@ -199,7 +280,7 @@
 */
 
 /**
-@def TIMED_GATE
+@def PLAYER_MOVER
 @ref ::obj "Object" fields and flags used by this type.
 <table>
 <tr>
@@ -207,120 +288,20 @@
 <th>Explanation</th>
 </tr>
 <tr>
-<td>living::hp</td>
-<td>How long a gate is open/closed.</td>
-</tr>
-<tr>
-<td>living::maxhp</td>
-<td>Initial value for living::hp.</td>
-</tr>
-<tr>
-<td>living::sp</td>
-<td>If zero the gate is closed, if 1 the gate is open.</td>
-</tr>
-</table>
-*/
-
-/**
-@def MARKER
-@ref ::obj "Object" fields and flags used by this type.
-<table>
-<tr>
-<th>Field/Flag</th>
-<th>Explanation</th>
-</tr>
-<tr>
-<td>living::hp</td>
-<td>How many times the marker will work. If zero, infinite, otherwise every time the marker grants a mark, the value is decremented and when reached zero, the marker is removed.</td>
-</tr>
-</table>
-*/
-
-/**
-@def DETECTOR
-@ref ::obj "Object" fields and flags used by this type.
-<table>
-<tr>
-<th>Field/Flag</th>
-<th>Explanation</th>
-</tr>
-<tr>
-<td>object::slaying</td>
-<td>Name of the thing the detector is to look for.</td>
+<td>object::direction</td>
+<td>Direction the activating object will be moved to, if zero, a random one will be chosen. Perhaps useful for a dance club.</td>
 </tr>
 <tr>
 <td>object::speed</td>
-<td>Frequency of 'glances'.</td>
+<td>How often it will move objects.</td>
 </tr>
 <tr>
-<td>connected</td>
-<td>Connected value of detector.</td>
+<td>@ref FLAG_LIFESAVE</td>
+<td>If set, it'll disappear after living::hp + 1 moves.</td>
 </tr>
 <tr>
-<td>living::sp</td>
-<td>1 if detection sets buttons, -1 if detection unsets buttons.</td>
-</tr>
-</table>
-*/
-
-/**
-@def MOOD_FLOOR
-@ref ::obj "Object" fields and flags used by this type.
-<table>
-<tr>
-<th>Field/Flag</th>
-<th>Explanation</th>
-</tr>
-<tr>
-<td>object::last_sp</td>
-<td>Used to differentiate mood floors. Value meanings:
-- 0 = furious, all monsters become aggressive.
-- 1 = angry, all but friendly become aggressive.
-- 2 = calm, all aggressive monsters calm down.
-- 3 = sleep, all monsters fall asleep.</td>
-</tr>
-</table>
-*/
-
-/**
-@def SYMPTOM
-@ref ::obj "Object" fields and flags used by this type.
-<table>
-<tr>
-<th>Field/Flag</th>
-<th>Explanation</th>
-</tr>
-<tr>
-<td>object::stats</td>
-<td>Modify stats</td>
-</tr>
-<tr>
-<td>living::hp</td>
-<td>Modify regen</td>
-</tr>
-<tr>
-<td>object::value</td>
-<td>Progression counter (multiplier = value / 100)</td>
-</tr>
-<tr>
-<td>living::food</td>
-<td>Modify food use (from object::last_eat in @ref DISEASE)</td>
-</tr>
-<tr>
-<td>living::maxsp</td>
-<td>Suck mana (as noted for @ref DISEASE)</td>
-</tr>
-<tr>
-<td>object::last_sp</td>
-<td>Lethargy</td>
-</tr>
-<tr>
-<td>object::msg</td>
-<td>What to say</td>
-</tr>
-<tr>
-<td>object::speed</td>
-<td>Speed of movement, from @ref DISEASE</td>
+<td>living::maxsp, living::sp</td>
+<td>If both are set, it'll paralyze the victim for living::maxsp * his speed / object::speed</td>
 </tr>
 </table>
 */

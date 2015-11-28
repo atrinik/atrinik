@@ -44,11 +44,11 @@ void browser_open(const char *url)
         snprintf(buf, sizeof(buf), "x-www-browser \"%s\"", url);
 
         if (system(buf) != 0) {
-            logger_print(LOG(BUG), "Could not open '%s'.", url);
+            LOG(BUG, "Could not open '%s'.", url);
         }
     }
 #else
-    logger_print(LOG(DEBUG), "Unknown platform, cannot open '%s'.", url);
+    LOG(DEBUG, "Unknown platform, cannot open '%s'.", url);
 #endif
 }
 
@@ -99,7 +99,7 @@ int bmp2png(const char *path)
     snprintf(buf, sizeof(buf), "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"", path, path, path);
 
     if (system(buf) != 0) {
-        logger_print(LOG(INFO), "Could not convert %s from BMP to PNG.", path);
+        LOG(INFO, "Could not convert %s from BMP to PNG.", path);
         return 0;
     }
 

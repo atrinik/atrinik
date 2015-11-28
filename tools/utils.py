@@ -120,7 +120,7 @@ def file_copy(path, output):
     with open(path) as orig_file:
         for line in orig_file:
             # Blank line or comment.
-            if not line or line.startswith("#"):
+            if not line.strip() or line.lstrip().startswith("#"):
                 continue
 
             output.write("{}\n".format(line.rstrip()).encode())

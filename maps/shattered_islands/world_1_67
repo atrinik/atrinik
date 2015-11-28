@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-12-24 Alex Tokar
+Modified: 2015-06-03 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch grassd_7
@@ -452,6 +452,7 @@ x 2
 y 18
 arch ranger
 level 61
+faction brynknot_citizens
 type 83
 end
 end
@@ -1101,6 +1102,7 @@ y 19
 arch woman_old
 name Melanye
 level 18
+faction brynknot_citizens
 type 83
 direction 3
 arch event_obj
@@ -1109,6 +1111,7 @@ race /interfaces/quests/melanye_lost_stick/quest.xml
 end
 arch silvercoin
 nrof 10
+no_drop 1
 end
 end
 end
@@ -1269,6 +1272,7 @@ x 7
 y 18
 arch monk
 level 17
+faction brynknot_citizens
 type 83
 end
 end
@@ -1588,11 +1592,9 @@ y 13
 arch guard
 direction 1
 level 58
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard_drunk.py
-end
+randomitems mob_guard_drunk
 end
 end
 arch floor_wood3a
@@ -1937,6 +1939,7 @@ y 15
 arch bartender
 name Kestrei
 level 12
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -2591,6 +2594,7 @@ x 15
 y 14
 arch chef
 level 9
+faction brynknot_citizens
 type 83
 end
 end
@@ -3154,12 +3158,8 @@ x 18
 y 21
 arch guard
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm2
@@ -3795,12 +3795,14 @@ y 16
 arch smith
 name Galann Strongfist
 level 30
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
 race /interfaces/quests/galann_revenge/quest.xml
 end
 arch ring_prayers
+no_drop 1
 end
 end
 end

@@ -132,7 +132,7 @@ void read_client_images(void)
     infile = fopen(filename, "rb");
 
     if (!infile) {
-        logger_print(LOG(ERROR), "Unable to open %s", filename);
+        LOG(ERROR, "Unable to open %s", filename);
         exit(1);
     }
 
@@ -142,13 +142,13 @@ void read_client_images(void)
         }
 
         if (string_split(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7) {
-            logger_print(LOG(ERROR), "Bad line in image_info file: %s", buf);
+            LOG(ERROR, "Bad line in image_info file: %s", buf);
             exit(1);
         } else {
             len = atoi(cps[0]);
 
             if (len >= MAX_FACE_SETS) {
-                logger_print(LOG(ERROR), "Too high a setnum in image_info file: %d > %d", len, MAX_FACE_SETS);
+                LOG(ERROR, "Too high a setnum in image_info file: %d > %d", len, MAX_FACE_SETS);
                 exit(1);
             }
 
@@ -176,27 +176,27 @@ void read_client_images(void)
         snprintf(buf, sizeof(buf), "%s/bmaps", settings.datapath);
 
         if ((fbmap = fopen(buf, "wb")) == NULL) {
-            logger_print(LOG(ERROR), "Unable to open %s", buf);
+            LOG(ERROR, "Unable to open %s", buf);
             exit(1);
         }
 
         infile = fopen(filename, "rb");
 
         if (!infile) {
-            logger_print(LOG(ERROR), "Unable to open %s", filename);
+            LOG(ERROR, "Unable to open %s", filename);
             exit(1);
         }
 
         while (fgets(buf, HUGE_BUF - 1, infile) != NULL) {
             if (strncmp(buf, "IMAGE ", 6) != 0) {
-                logger_print(LOG(ERROR), "Bad image line - not IMAGE, instead: %s", buf);
+                LOG(ERROR, "Bad image line - not IMAGE, instead: %s", buf);
                 exit(1);
             }
 
             num = atoi(buf + 6);
 
             if (num < 0 || num >= nrofpixmaps) {
-                logger_print(LOG(ERROR), "Image num %d not in 0..%d: %s", num, nrofpixmaps, buf);
+                LOG(ERROR, "Image num %d not in 0..%d: %s", num, nrofpixmaps, buf);
                 exit(1);
             }
 
@@ -207,7 +207,7 @@ void read_client_images(void)
             len = atoi(cp);
 
             if (len == 0 || len > MAX_IMAGE_SIZE) {
-                logger_print(LOG(ERROR), "Length not valid: %d > %d: %s", len, MAX_IMAGE_SIZE, buf);
+                LOG(ERROR, "Length not valid: %d > %d: %s", len, MAX_IMAGE_SIZE, buf);
                 exit(1);
             }
 
@@ -217,7 +217,7 @@ void read_client_images(void)
             facesets[file_num].faces[num].data = emalloc(len);
 
             if ((i = fread(facesets[file_num].faces[num].data, len, 1, infile)) != 1) {
-                logger_print(LOG(ERROR), "Did not read desired amount of data, wanted %d, got %d: %s", len, i, buf);
+                LOG(ERROR, "Did not read desired amount of data, wanted %d, got %d: %s", len, i, buf);
                 exit(1);
             }
 

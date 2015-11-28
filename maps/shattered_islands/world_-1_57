@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 30
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_5
@@ -3277,6 +3277,8 @@ arch dwarf_steelclad
 name Tockli Goldrock
 level 30
 type 83
+faction rockforge_guards
+randomitems mob_guard
 end
 end
 arch floor_marble1g

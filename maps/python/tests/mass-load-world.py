@@ -1,5 +1,7 @@
-from Atrinik import *
 import os
+
+from Atrinik import *
+
 
 def main():
     path = "/shattered_islands"

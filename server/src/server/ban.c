@@ -26,196 +26,499 @@
  * @file
  * Banning related functions.
  *
- * It is possible to use the /ban DM command or interactive server mode
- * ban command to ban specified player or IP from the game.
+ * It is possible to use the /ban operator command to ban a specified player,
+ * account or IP from the game.
  *
- * Syntax for banning:
- * Player:IP
+ * Syntax for banning is: "player account[ address/plen]", where player is name
+ * of the player to ban (or * to match any player), account name to match (or *
+ * to match any account), address is an IP address (IPv4, or IPv6 if the server
+ * supports it) and plen is the subnet to match.
  *
- * Where Player is the player name and IP is the IP address. It is
- * possible to use * for both IP and player, which means any match. */
+ * @author Alex Tokar
+ */
+
+#ifndef __CPROTO__
 
 #include <global.h>
 #include <toolkit_string.h>
-
-/** The list of the bans. */
-static objectlink *ban_list = NULL;
+#include <ban.h>
 
 /**
- * Ban memory pool. */
-static mempool_struct *pool_ban;
+ * The ban structure.
+ */
+typedef struct ban {
+    shstr *name; ///< Name of the banned player. Can be NULL.
+
+    char *account; ///< Name of the banned account. Can be NULL.
+
+    struct sockaddr_storage addr; ///< IP address.
+
+    unsigned short plen; ///< Prefix length (the subnet).
+
+    bool removed:1; ///< If true, the ban entry is no longer valid.
+} ban_t;
 
 /**
- * Initialize the ban API. */
-void ban_init(void)
+ * Array of all the bans.
+ */
+static ban_t *bans = NULL;
+
+/**
+ * Number of bans.
+ */
+static size_t bans_num = 0;
+
+/* Prototypes */
+static void ban_save(void);
+static void ban_free(void);
+static void ban_entry_free(ban_t *ban);
+static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len);
+
+TOOLKIT_API(DEPENDS(socket), IMPORTS(shstr), IMPORTS(string));
+
+TOOLKIT_INIT_FUNC(ban)
 {
-    pool_ban = mempool_create("bans", 25, sizeof(_ban_struct),
-            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
-}
+    char filename[HUGE_BUF];
+    snprintf(VS(filename), "%s/" BANFILE, settings.datapath);
 
-/**
- * Deinitialize the ban API. */
-void ban_deinit(void)
-{
-}
-
-/**
- * Add a ban entry to ::ban_list.
- * @param name Name to ban.
- * @param ip IP to ban. */
-static void add_ban_entry(char *name, char *ip)
-{
-    objectlink *ol = get_objectlink();
-    _ban_struct *gptr = mempool_get(pool_ban);
-
-    ol->objlink.ban = gptr;
-
-    ol->objlink.ban->ip = estrdup(ip);
-    FREE_AND_COPY_HASH(ol->objlink.ban->name, name);
-    objectlink_link(&ban_list, NULL, NULL, ban_list, ol);
-}
-
-/**
- * Remove a ban entry from ::ban_list.
- * @param ol Pointer to the objectlink to remove. */
-static void remove_ban_entry(objectlink *ol)
-{
-    efree(ol->objlink.ban->ip);
-    FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
-    objectlink_unlink(&ban_list, NULL, ol);
-    mempool_return(pool_ban, ol->objlink.ban);
-    mempool_return(pool_objectlink, ol);
-}
-
-/**
- * Load the ban file. */
-void load_bans_file(void)
-{
-    char filename[MAX_BUF], buf[MAX_BUF], name[64], ip[64];
-    FILE *fp;
-
-    snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
-
-    if (!(fp = fopen(filename, "r"))) {
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
         return;
     }
 
-    while (fgets(buf, sizeof(buf), fp)) {
+    char buf[HUGE_BUF];
+    while (fgets(VS(buf), fp)) {
         /* Skip comments and blank lines. */
         if (buf[0] == '#' || buf[0] == '\n') {
             continue;
         }
 
-        if (sscanf(buf, "%s %s", name, ip) == 2) {
-            add_ban_entry(name, ip);
-        } else {
-            logger_print(LOG(BUG), "Malformed line in bans file: %s", buf);
+        char *end = strchr(buf, '\n');
+        if (end != NULL) {
+            *end = '\0';
+        }
+
+        ban_error_t rc = ban_add(buf);
+        if (rc != BAN_OK) {
+            LOG(ERROR, "Malformed line in bans file: %s, %s", buf,
+                    ban_strerror(rc));
         }
     }
 
     fclose(fp);
 }
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(ban)
+{
+    ban_save();
+    ban_free();
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
- * Save the bans file. */
-void save_bans_file(void)
+ * Saves all the bans to the bans file.
+ */
+static void ban_save(void)
 {
-    char filename[MAX_BUF];
-    FILE *fp;
-    objectlink *ol;
+    char filename[HUGE_BUF];
+    snprintf(VS(filename), "%s/" BANFILE, settings.datapath);
 
-    snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
-
-    if (!(fp = fopen(filename, "w"))) {
-        logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
+    FILE *fp = fopen(filename, "w");
+    if (fp == NULL) {
+        LOG(ERROR, "Cannot open %s for writing.", filename);
         return;
     }
 
-    for (ol = ban_list; ol; ol = ol->next) {
-        fprintf(fp, "%s %s\n", ol->objlink.ban->name, ol->objlink.ban->ip);
+    for (size_t i = 0; i < bans_num; i++) {
+        ban_t *ban = &bans[i];
+        if (ban->removed) {
+            continue;
+        }
+
+        char buf[HUGE_BUF];
+        if (ban_entry_save(ban, VS(buf)) == NULL) {
+            continue;
+        }
+
+        fprintf(fp, "%s", buf);
     }
 
     fclose(fp);
 }
 
 /**
- * Check if this player or host is banned.
- * @param name Login name to check.
- * @param ip Host name to check.
- * @return 1 if banned, 0 if not. */
-int checkbanned(const char *name, char *ip)
+ * Frees all the bans.
+ */
+static void ban_free(void)
 {
-    objectlink *ol;
-
-    for (ol = ban_list; ol; ol = ol->next) {
-        int name_matches = name && (ol->objlink.ban->name[0] == '*' || ol->objlink.ban->name == name);
-
-        if ((name_matches || ol->objlink.ban->name[0] == '*') && (ol->objlink.ban->ip[0] == '*' || strstr(ip, ol->objlink.ban->ip) || !strcmp(ip, ol->objlink.ban->ip))) {
-            return 1;
+    for (size_t i = 0; i < bans_num; i++) {
+        ban_t *ban = &bans[i];
+        if (!ban->removed) {
+            ban_entry_free(ban);
         }
     }
 
-    return 0;
+    if (bans != NULL) {
+        efree(bans);
+        bans = NULL;
+    }
+
+    bans_num = 0;
 }
 
 /**
- * Add a ban. Will take care of getting the right values from input
- * string.
- * @param input The input string with both name and IP.
- * @return 1 on success, 0 on failure. */
-int add_ban(char *input)
+ * Creates a new ban entry.
+ * @param name Player name. Can be NULL.
+ * @param account Account name. Can be NULL.
+ * @param addr Binary representation of an IP address.
+ * @param plen Prefix length (the subnet).
+ */
+static void ban_entry_new(const char *name, const char *account,
+        const struct sockaddr_storage *addr, unsigned short plen)
 {
-    char *tmp[2];
+    bans = erealloc(bans, sizeof(*bans) * (bans_num + 1));
+    ban_t *ban = &bans[bans_num];
+    bans_num++;
 
-    if (string_split(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0') {
-        return 0;
-    }
-
-    /* IPs with ':' in them will be impossible to remove once added. */
-    if (strstr(tmp[1], ":")) {
-        return 0;
-    }
-
-    add_ban_entry(tmp[0], tmp[1]);
-    save_bans_file();
-    return 1;
+    ban->name = strcmp(name, "*") == 0 ? NULL : add_string(name);
+    ban->account = strcmp(account, "*") == 0 ? NULL : estrdup(account);
+    memcpy(&ban->addr, addr, sizeof(ban->addr));
+    ban->plen = plen;
+    ban->removed = false;
 }
 
 /**
- * Remove a ban. Will take care of getting the right values from input
- * string.
- * @param input The input string with both name and IP.
- * @return 1 on success, 0 on failure. */
-int remove_ban(char *input)
+ * Find an existing ban entry.
+ * @param name Player name, * for any match.
+ * @param account Account name, * for any match.
+ * @param addr Binary representation of an IP address.
+ * @param plen Prefix length (the subnet).
+ * @return Pointer to the found ban structure, NULL otherwise.
+ */
+static ban_t *ban_entry_find(const char *name, const char *account,
+        const struct sockaddr_storage *addr, unsigned short plen)
 {
-    char *tmp[2];
-    objectlink *ol;
+    for (size_t i = 0; i < bans_num; i++) {
+        ban_t *ban = &bans[i];
+        if (ban->removed) {
+            continue;
+        }
 
-    if (string_split(input, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 2 || *tmp[1] == '\0') {
-        return 0;
+        if (strcmp(name, "*") != 0 && (ban->name == NULL ||
+                strcmp(ban->name, name) != 0)) {
+            continue;
+        }
+
+        if (strcmp(account, "*") != 0 && (ban->account == NULL ||
+                strcmp(ban->account, account) != 0)) {
+            continue;
+        }
+
+        if (ban->plen != plen) {
+            continue;
+        }
+
+        if (plen != 0 && (ban->plen == 0 ||
+                socket_addr_cmp(&ban->addr, addr,
+                    socket_addr_plen(&ban->addr)) != 0)) {
+            continue;
+        }
+
+        return ban;
     }
 
-    for (ol = ban_list; ol; ol = ol->next) {
-        if (!strcmp(ol->objlink.ban->name, tmp[0]) && !strcmp(ol->objlink.ban->ip, tmp[1])) {
-            remove_ban_entry(ol);
-            save_bans_file();
-            return 1;
+    return NULL;
+}
+
+/**
+ * Frees the specified ban entry.
+ * @param ban Ban entry to free.
+ */
+static void ban_entry_free(ban_t *ban)
+{
+    if (ban->name != NULL) {
+        free_string_shared(ban->name);
+    }
+
+    if (ban->account != NULL) {
+        efree(ban->account);
+    }
+
+    ban->removed = true;
+}
+
+/**
+ * Create a text representation of a single ban entry.
+ * @param ban Pointer to the ban entry.
+ * @param buf Where to store the text representation.
+ * @param len Size of 'buf'.
+ * @return 'buf' on success, NULL on failure.
+ */
+static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len)
+{
+    char address[MAX_BUF];
+    if (ban->plen != 0) {
+        if (!socket_addr2host(&ban->addr, VS(address))) {
+            LOG(ERROR, "Failed to convert banned IP address");
+            return NULL;
+        }
+
+        snprintfcat(VS(address), "/%u", ban->plen);
+    } else {
+        address[0] = '\0';
+    }
+
+    if (ban->name == NULL) {
+        snprintf(buf, len, "*");
+    } else {
+        snprintf(buf, len, "\"%s\"", ban->name);
+    }
+
+    snprintfcat(buf, len, " %s %s\n", ban->account != NULL ? ban->account : "*",
+            address);
+    return buf;
+}
+
+/**
+ * Parse ban command parameters into supported components.
+ * @param str The command parameters.
+ * @param[out] name Where to store player name.
+ * @param name_len Size of 'name'.
+ * @param[out] account Where to store account name.
+ * @param account_len Size of 'account'.
+ * @param[out] addr Where to store binary representation of an IP address.
+ * @param[out] plen Prefix length (the subnet).
+ * @return #BAN_OK on success, one of the errors defined in #ban_error_t on
+ * failure.
+ */
+static ban_error_t ban_parse(const char *str, char *name, size_t name_len,
+        char *account, size_t account_len, struct sockaddr_storage *addr,
+        unsigned short *plen)
+{
+    size_t pos = 0;
+    if (!string_get_word(str, &pos, ' ', name, name_len, '"')) {
+        return BAN_BADSYNTAX;
+    }
+
+    memset(addr, 0, sizeof(*addr));
+    *plen = 0;
+
+    if (!string_get_word(str, &pos, ' ', account, account_len, 0)) {
+        snprintf(account, account_len, "*");
+        return BAN_OK;
+    }
+
+    char address[MAX_BUF];
+    if (!string_get_word(str, &pos, '/', VS(address), 0)) {
+        return BAN_OK;
+    }
+
+    if (!socket_host2addr(address, addr)) {
+        return BAN_BADIP;
+    }
+
+    char subnet[MAX_BUF];
+    unsigned short max_plen = socket_addr_plen(addr);
+    if (string_get_word(str, &pos, ' ', VS(subnet), 0)) {
+        int val = atoi(subnet);
+        if (val <= 0 || val > max_plen) {
+            return BAN_BADPLEN;
+        }
+
+        *plen = (unsigned short) val;
+    } else {
+        *plen = max_plen;
+    }
+
+    return BAN_OK;
+}
+
+/**
+ * Adds a new ban.
+ * @param str Ban command parameters.
+ * @return #BAN_OK on success, one of the errors defined in #ban_error_t on
+ * failure.
+ */
+ban_error_t ban_add(const char *str)
+{
+    HARD_ASSERT(str != NULL);
+
+    char name[MAX_BUF], account[MAX_BUF];
+    struct sockaddr_storage addr;
+    unsigned short plen;
+    ban_error_t rc = ban_parse(str, VS(name), VS(account), &addr, &plen);
+    if (rc != BAN_OK) {
+        return rc;
+    }
+
+    ban_t *ban = ban_entry_find(name, account, &addr, plen);
+    if (ban != NULL) {
+        return BAN_EXIST;
+    }
+
+    ban_entry_new(name, account, &addr, plen);
+    ban_save();
+    return BAN_OK;
+}
+
+/**
+ * Remove an existing ban.
+ * @param str Ban command parameters.
+ * @return #BAN_OK on success, one of the errors defined in #ban_error_t on
+ * failure.
+ */
+ban_error_t ban_remove(const char *str)
+{
+    HARD_ASSERT(str != NULL);
+
+    ban_t *ban;
+    if (string_startswith(str, "#")) {
+        if (string_isempty(str + 1)) {
+            return BAN_BADID;
+        }
+
+        unsigned long value = strtoul(str + 1, NULL, 10);
+        if (value == 0 || value > bans_num) {
+            return BAN_BADID;
+        }
+
+        ban = &bans[value - 1];
+        if (ban->removed) {
+            return BAN_REMOVED;
+        }
+    } else {
+        char name[MAX_BUF], account[MAX_BUF];
+        struct sockaddr_storage addr;
+        unsigned short plen;
+        ban_error_t rc = ban_parse(str, VS(name), VS(account), &addr, &plen);
+        if (rc != BAN_OK) {
+            return rc;
+        }
+
+        ban = ban_entry_find(name, account, &addr, plen);
+        if (ban == NULL) {
+            return BAN_NOTEXIST;
         }
     }
 
-    return 0;
+    ban_entry_free(ban);
+    ban_save();
+    return BAN_OK;
 }
 
 /**
- * List all bans.
- * @param op Player object to print this information to. */
-void list_bans(object *op)
+ * Checks if the specified connection is banned from the game.
+ * @param ns The connection.
+ * @param name Player name to check. Can be NULL.
+ * @return True if the connection is banned, false otherwise.
+ */
+bool ban_check(socket_struct *ns, const char *name)
 {
-    objectlink *ol;
+    HARD_ASSERT(ns != NULL);
 
+    for (size_t i = 0; i < bans_num; i++) {
+        ban_t *ban = &bans[i];
+        if (ban->removed) {
+            continue;
+        }
+
+        bool got_one = false;
+
+        if (name != NULL && ban->name != NULL &&
+                !(got_one = (strcmp(ban->name, name) == 0))) {
+            continue;
+        }
+
+        if (ns->account != NULL && ban->account != NULL &&
+                !(got_one = (strcmp(ban->account, ns->account) == 0))) {
+            continue;
+        }
+
+        if (ban->plen != 0 && !(got_one =
+                (socket_cmp_addr(ns->sc, &ban->addr, ban->plen) == 0))) {
+            continue;
+        }
+
+        return got_one;
+    }
+
+    return false;
+}
+
+/**
+ * List existing bans to the specified player.
+ * @param op Player.
+ */
+void ban_list(object *op)
+{
     draw_info(COLOR_WHITE, op, "List of bans:");
 
-    for (ol = ban_list; ol; ol = ol->next) {
-        draw_info_format(COLOR_WHITE, op, "%s:%s", ol->objlink.ban->name, ol->objlink.ban->ip);
+    for (size_t i = 0; i < bans_num; i++) {
+        ban_t *ban = &bans[i];
+        if (ban->removed) {
+            continue;
+        }
+
+        char buf[HUGE_BUF];
+        if (ban_entry_save(ban, VS(buf)) == NULL) {
+            continue;
+        }
+
+        draw_info_format(COLOR_WHITE, op, "#%" PRIuMAX ": %s",
+                (uintmax_t) i, buf);
     }
 }
+
+/**
+ * Removes all existing bans.
+ */
+void ban_reset(void)
+{
+    ban_free();
+    ban_save();
+}
+
+/**
+ * Create string representation of an error code.
+ * @param errnum Error code. Cannot be #BAN_OK.
+ * @return String representation, never NULL.
+ */
+const char *ban_strerror(ban_error_t errnum)
+{
+    SOFT_ASSERT_RC(errnum > 0 && errnum < BAN_MAX, "unknown error",
+            "Invalid error number: %d", errnum);
+
+    switch (errnum) {
+    case BAN_OK:
+        return "success";
+
+    case BAN_EXIST:
+        return "specified ban already exists";
+
+    case BAN_NOTEXIST:
+        return "no such ban entry";
+
+    case BAN_REMOVED:
+        return "ban entry has been removed already";
+
+    case BAN_BADID:
+        return "invalid ban ID";
+
+    case BAN_BADIP:
+        return "IP address in invalid format";
+
+    case BAN_BADPLEN:
+        return "invalid subnet";
+
+    case BAN_BADSYNTAX:
+        return "invalid syntax";
+
+    case BAN_MAX:
+        break;
+    }
+
+    return "<unreachable>";
+}
+
+#endif

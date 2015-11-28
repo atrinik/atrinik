@@ -2,15 +2,15 @@ arch map
 name Brynknot
 msg
 Created:  2010-09-08 Alex Tokar
-Modified: 2014-12-25 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 darkness -1
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch trans
@@ -341,6 +341,7 @@ y 19
 arch monk
 direction 1
 level 13
+faction brynknot_citizens
 type 83
 end
 end
@@ -450,6 +451,7 @@ y 19
 arch monk
 direction 1
 level 9
+faction brynknot_citizens
 type 83
 end
 end
@@ -531,6 +533,7 @@ y 15
 arch guard
 name bank guard
 level 45
+faction brynknot_guards
 type 83
 end
 end
@@ -568,6 +571,7 @@ y 19
 arch mage_old
 direction 1
 level 17
+faction brynknot_citizens
 type 83
 end
 end

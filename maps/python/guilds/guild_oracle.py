@@ -2,9 +2,12 @@
 ## Guild Oracle provides guild administration features for the guild
 ## administrators.
 
+import re
+
+from Atrinik import *
 from Interface import Interface
 from Guild import Guild
-import re
+
 
 inf = Interface(activator, me)
 player = activator.Controller()
@@ -268,4 +271,4 @@ def main():
                 inf.add_msg("Could not make {} the guild founder.".format(name))
 
 main()
-inf.finish()
+inf.send()

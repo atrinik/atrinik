@@ -2,7 +2,10 @@
 ## Implements the /addexp command.
 
 import re
+
+from Atrinik import *
 from Markup import markup_escape
+
 
 def main():
     match = re.match(r"((?:\")(.+)(?:\")|([^ ]+)) ((?:\")?([^\d]+)(?:\")?|(\d+)) (-?\d+)( (?:level|lvl)(?:s)?)?", WhatIsMessage() or "")

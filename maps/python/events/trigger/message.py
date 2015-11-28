@@ -4,6 +4,8 @@
 ## Used for objects that cannot have message to show defined, such as
 ## containers.
 
+from Atrinik import *
+
 def main():
     if not pl:
         return

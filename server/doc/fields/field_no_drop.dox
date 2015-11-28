@@ -1,6 +1,10 @@
 /**
-@fn FLAG_NO_DROP
-@section Use
+@var FLAG_NO_DROP
+@sa @ref page_field_no_drop
+*/
+
+/**
+@page page_field_no_drop FLAG_NO_DROP Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

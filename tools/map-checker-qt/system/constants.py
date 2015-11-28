@@ -72,6 +72,21 @@ class Game:
         (1, 1, 0), (1, -1, 0), (-1, -1, 0), (-1, 1, 0),
         (0, 0, 1), (0, 0, -1)
     ]
+    freearr = [
+        (0, 0), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0),
+        (-1, -1)
+    ]
+
+    class Directions:
+        none = 0
+        north = 1
+        northeast = 2
+        east = 3
+        southeast = 4
+        south = 5
+        southwest = 6
+        west = 7
+        northwest = 8
 
     class ServerCommands:
         control = 0
@@ -145,6 +160,7 @@ class Game:
             "inv_face": STRING,
             "title": STRING,
             "randomitems": STRING,
+            "glow": STRING,
 
             "quickslot": INTEGER,
             "object_int1": INTEGER,
@@ -264,6 +280,7 @@ class Game:
             "mpart_id": INTEGER,
             "mpart_nr": INTEGER,
             "item_power": INTEGER,
+            "glow_speed": INTEGER,
 
             "speed": FLOAT,
             "speed_left": FLOAT,
@@ -376,6 +393,7 @@ class Game:
             "is_dust": BOOLEAN,
             "one_hit": BOOLEAN,
             "is_indestructible": BOOLEAN,
+            "soulbound": BOOLEAN,
 
             "spawn_time": STRING,
             "stock": INTEGER,

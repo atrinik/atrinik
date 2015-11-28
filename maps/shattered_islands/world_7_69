@@ -2,80 +2,109 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-08-27 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 18
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_6
 end
-arch plant_flower11
+arch wall_wood_1
 end
-arch grassd_1
+arch map_info
+name greyton_strakes
+hp 8
+sp 7
+cursed 1
+end
+arch ship_floor_we_dark_1
 y 1
 end
-arch grassd_5
+arch bed_double2
+y 1
+end
+arch ship_floor_we_dark_4
 y 2
 end
-arch plant_flower5
-y 2
-end
-arch grassd_8
+arch ship_floor_we_dark_2
 y 3
 end
-arch grassd_4
+arch shelf3c.111
+direction 7
+y 3
+end
+arch ship_floor_we_dark_1
 y 4
 end
-arch grassd_1
+arch wall_wood3_1
+y 4
+end
+arch ship_floor_we_dark_4
 y 5
 end
-arch plant11
+arch locker3.111
 y 5
 end
-arch grassd_2
+arch ship_floor_we_dark_2
 y 6
 end
-arch grassd_5
+arch carpet1.131
+y 6
+end
+arch ship_floor_we_dark_2
 y 7
 end
-arch grassd_5
+arch wall_wood_1
+y 7
+end
+arch floor_sand_d2
 y 8
 end
-arch plant_mushroom2
+arch grassd_m4
 y 8
 end
-arch grassd_6
+arch torch_wall_1
+direction 3
+y 8
+end
+arch floor_sand_d3
 y 9
 end
-arch grassd_3
+arch grassd_m9
+y 9
+end
+arch floor_sand_d3
 y 10
 end
-arch tree_branch2
+arch grassd_m3
 y 10
 end
 arch grassd_7
 y 11
 end
-arch grassd_1
+arch plant_flower9
+y 11
+end
+arch floor_sand_d4
 y 12
 end
-arch plant11
+arch grassd_m10
 y 12
 end
-arch grassd_4
+arch floor_sand_d3
 y 13
 end
-arch grassd_5
+arch floor_sand_d1
+y 14
+end
+arch grassd_m7
 y 14
 end
 arch grassd_4
-y 15
-end
-arch tree_big4b
 y 15
 end
 arch grassd_7
@@ -99,9 +128,6 @@ end
 arch reed_sm10
 y 19
 end
-arch tree_big4b
-y 19
-end
 arch water_lt4
 y 20
 end
@@ -120,90 +146,102 @@ end
 arch grassd_3
 x 1
 end
-arch plant8
+arch wall_wood3_1
 x 1
 end
-arch grassd_5
-x 1
-y 1
-end
-arch plant8
+arch ship_floor_we_dark_2
 x 1
 y 1
 end
-arch grassd_6
+arch ship_floor_we_dark_2
 x 1
 y 2
 end
-arch plant8
-x 1
-y 2
-end
-arch grassd_7
+arch ship_floor_we_dark_2
 x 1
 y 3
 end
-arch plant8
-x 1
-y 3
-end
-arch grassd_7
+arch ship_floor_we_dark_1
 x 1
 y 4
 end
-arch plant7
+arch wall_wood3_1
 x 1
 y 4
 end
-arch grassd_5
+arch ship_floor_we_dark_1
 x 1
 y 5
 end
-arch plant8
+arch carpet1.151
 x 1
 y 5
 end
-arch grassd_4
+arch locker2.111
+x 1
+y 5
+end
+arch ship_floor_we_dark_1
 x 1
 y 6
 end
-arch grassd_6
+arch carpet1
+x 1
+y 6
+end
+arch ship_floor_we_dark_2
 x 1
 y 7
 end
-arch tree_big4b
+arch carpet1.111
 x 1
 y 7
 end
-arch grassd_1
+arch door_wood2
+x 1
+y 7
+end
+arch floor_sand_d4
 x 1
 y 8
 end
-arch grassd_2
+arch floor_sand_d2
 x 1
 y 9
 end
-arch grassd_2
+arch floor_sand_d4
 x 1
 y 10
 end
-arch grassd_2
+arch grassd_m14
+x 1
+y 10
+end
+arch floor_sand_d3
 x 1
 y 11
 end
-arch grassd_3
+arch grassd_m9
+x 1
+y 11
+end
+arch floor_sand_d4
 x 1
 y 12
 end
-arch grassd_5
+arch grassd_m13
+x 1
+y 12
+end
+arch floor_sand_d1
 x 1
 y 13
 end
-arch grassd_1
+arch floor_sand_d3
 x 1
 y 14
 end
-arch tree_big2
+arch grassd_m7
 x 1
 y 14
 end
@@ -212,6 +250,10 @@ x 1
 y 15
 end
 arch grassd_4
+x 1
+y 16
+end
+arch tree_big2
 x 1
 y 16
 end
@@ -232,10 +274,6 @@ x 1
 y 19
 end
 arch reed_sm10
-x 1
-y 19
-end
-arch tree_big4b
 x 1
 y 19
 end
@@ -262,94 +300,115 @@ end
 arch grassd_2
 x 2
 end
-arch wall_cave1.131
+arch wall_wood_1
 x 2
 end
-arch grassd_5
-x 2
-y 1
-end
-arch wall_cave1.131
+arch ship_floor_we_dark_4
 x 2
 y 1
 end
-arch grassd_2
+arch locker4
+x 2
+y 1
+end
+arch ship_floor_we_dark_3
 x 2
 y 2
 end
-arch wall_cave1.131
-x 2
-y 2
-end
-arch grassd_3
+arch ship_floor_we_dark_1
 x 2
 y 3
 end
-arch wall_cave1.131
-x 2
-y 3
-end
-arch grassd_3
+arch ship_floor_we_dark_3
 x 2
 y 4
 end
-arch wall_cave1.131
+arch wall_wood_1
 x 2
 y 4
 end
-arch grassd_5
+arch ship_floor_we_dark_1
 x 2
 y 5
 end
-arch wall_cave1.161
+arch carpet1.151
 x 2
 y 5
 end
-arch grassd_6
+arch locker5
+x 2
+y 5
+end
+arch ship_floor_we_dark_1
 x 2
 y 6
 end
-arch plant8
+arch carpet1
 x 2
 y 6
 end
-arch grassd_2
+arch ship_floor_we_dark_3
 x 2
 y 7
 end
-arch grassd_4
+arch carpet1.111
+x 2
+y 7
+end
+arch wall_wood3_1
+x 2
+y 7
+end
+arch floor_sand_d1
 x 2
 y 8
 end
-arch grassd_3
+arch grassd_m6
+x 2
+y 8
+end
+arch torch_wall_1
+direction 3
+x 2
+y 8
+end
+arch floor_sand_d3
 x 2
 y 9
 end
-arch tree_big
+arch grassd_m8
 x 2
 y 9
 end
-arch grassd_7
+arch floor_sand_d4
 x 2
 y 10
 end
-arch grassd_3
+arch grassd_m8
+x 2
+y 10
+end
+arch floor_sand_d2
 x 2
 y 11
 end
-arch grassd_7
+arch grassd_m12
+x 2
+y 11
+end
+arch floor_sand_d3
 x 2
 y 12
 end
-arch plant10
-x 2
-y 12
-end
-arch grassd_8
+arch floor_sand_d1
 x 2
 y 13
 end
-arch grassd_7
+arch floor_sand_d2
+x 2
+y 14
+end
+arch grassd_m7
 x 2
 y 14
 end
@@ -385,10 +444,6 @@ arch reed_sm10
 x 2
 y 19
 end
-arch tree_big5b
-x 2
-y 19
-end
 arch water_lt
 x 2
 y 20
@@ -409,35 +464,75 @@ arch water_lt2
 x 2
 y 23
 end
-arch grassd_6
+arch grassd_3
+x 3
+end
+arch wall_wood_1
+x 3
+end
+arch ship_floor_we_dark_2
+x 3
+y 1
+end
+arch wall_wood2_3
+x 3
+y 1
+end
+arch ship_floor_we_dark_2
+x 3
+y 2
+end
+arch curtain1
+direction 3
+x 3
+y 2
+end
+arch ship_floor_we_dark_2
+x 3
+y 3
+end
+arch wall_wood3_3
+x 3
+y 3
+end
+arch ship_floor_we_dark_3
+x 3
+y 4
+end
+arch wall_wood_4
+x 3
+y 4
+end
+arch ship_floor_we_dark_4
 x 3
 y 5
 end
-arch wall_cave1b.121
+arch wall_wood2_3
 x 3
 y 5
 end
-arch grassd_8
+arch ship_floor_we_dark_3
 x 3
 y 6
 end
-arch wall_cave1.161
+arch carpet1.171
 x 3
 y 6
 end
-arch grassd_6
+arch doorway_wood1_1
+direction 7
+x 3
+y 6
+end
+arch ship_floor_we_dark_1
 x 3
 y 7
 end
-arch plant7
+arch wall_wood_4
 x 3
 y 7
 end
 arch grassd_1
-x 3
-y 8
-end
-arch plant8
 x 3
 y 8
 end
@@ -445,39 +540,43 @@ arch grassd_5
 x 3
 y 9
 end
+arch small_stones
+x 3
+y 9
+end
 arch grassd_1
 x 3
 y 10
 end
-arch grassd_8
+arch floor_sand_d4
 x 3
 y 11
 end
-arch grassd_8
+arch grassd_m10
+x 3
+y 11
+end
+arch floor_sand_d4
 x 3
 y 12
 end
-arch tree_branch1
-x 3
-y 12
-end
-arch grassd_3
+arch floor_sand_d3
 x 3
 y 13
 end
-arch grassd_1
+arch grassd_m11
+x 3
+y 13
+end
+arch floor_sand_d4
 x 3
 y 14
 end
-arch plant_flower7
+arch grassd_m5
 x 3
 y 14
 end
 arch grassd_8
-x 3
-y 15
-end
-arch tree_big3
 x 3
 y 15
 end
@@ -489,7 +588,7 @@ arch grassd_7
 x 3
 y 17
 end
-arch tree_big2
+arch tree_big3
 x 3
 y 17
 end
@@ -505,7 +604,7 @@ arch grassd_3
 x 3
 y 19
 end
-arch reed_sm1
+arch reed_sm10
 x 3
 y 19
 end
@@ -513,15 +612,11 @@ arch water_lt3
 x 3
 y 20
 end
-arch grassd_m6
+arch grassd_m10
 x 3
 y 20
 end
 arch water_lt3
-x 3
-y 21
-end
-arch grassd_m12
 x 3
 y 21
 end
@@ -533,19 +628,74 @@ arch water_lt3
 x 3
 y 23
 end
-arch grassd_6
+arch grassd_8
+x 4
+end
+arch wall_wood2_1
+x 4
+end
+arch ship_floor_we_dark_4
+x 4
+y 1
+end
+arch ship_floor_we_dark_2
+x 4
+y 2
+end
+arch carpet1.131
+x 4
+y 2
+end
+arch ship_floor_we_dark_1
+x 4
+y 3
+end
+arch carpet1.131
+x 4
+y 3
+end
+arch fireplace_left
+x 4
+y 3
+end
+arch light5
+x 4
+y 3
+end
+arch ship_floor_we_dark_4
+x 4
+y 4
+end
+arch carpet1.131
+x 4
+y 4
+end
+arch light5
+x 4
+y 4
+end
+arch ship_floor_we_dark_1
+x 4
+y 5
+end
+arch carpet1.131
+x 4
+y 5
+end
+arch wall_well.131
+direction 7
+x 4
+y 5
+end
+arch ship_floor_we_dark_3
 x 4
 y 6
 end
-arch wall_cave1b.121
-x 4
-y 6
-end
-arch grassd_1
+arch ship_floor_we_dark_3
 x 4
 y 7
 end
-arch wall_cave1.161
+arch wall_wood_1
 x 4
 y 7
 end
@@ -553,9 +703,23 @@ arch grassd_2
 x 4
 y 8
 end
-arch plant7
+arch bench3
 x 4
 y 8
+end
+arch spawn_point
+x 4
+y 8
+arch traveller_parka
+msg
+@match ^hello$
+Greetings, traveler! My name is Josh Strake. If you're heading for Greyton, you've just reached its outskirts. Continue the road East to enter the city.
+endmsg
+type 83
+name Josh Strake
+level 10
+faction greyton_citizens
+end
 end
 arch grassd_2
 x 4
@@ -569,75 +733,76 @@ arch plant_mushroom5
 x 4
 y 10
 end
-arch grassd_4
+arch floor_sand_d3
 x 4
 y 11
-end
-arch grassd_1
-x 4
-y 12
-end
-arch plant9
-x 4
-y 12
-end
-arch grassd_1
-x 4
-y 13
-end
-arch grassd_7
-x 4
-y 14
-end
-arch grassd_3
-x 4
-y 15
-end
-arch grassd_4
-x 4
-y 16
-end
-arch grassd_3
-x 4
-y 17
-end
-arch tree_big3
-x 4
-y 17
-end
-arch grassd_6
-x 4
-y 18
-end
-arch plant8
-x 4
-y 18
-end
-arch grassd_6
-x 4
-y 19
-end
-arch reed_sm1
-x 4
-y 19
-end
-arch grassd_8
-x 4
-y 20
-end
-arch reed_sm1
-x 4
-y 20
-end
-arch water_lt3
-x 4
-y 21
 end
 arch grassd_m10
 x 4
+y 11
+end
+arch floor_sand_d1
+x 4
+y 12
+end
+arch floor_sand_d1
+x 4
+y 13
+end
+arch grassd_m7
+x 4
+y 13
+end
+arch grassd_7
+x 4
+y 14
+end
+arch grassd_3
+x 4
+y 15
+end
+arch grassd_4
+x 4
+y 16
+end
+arch grassd_3
+x 4
+y 17
+end
+arch grassd_6
+x 4
+y 18
+end
+arch plant8
+x 4
+y 18
+end
+arch grassd_6
+x 4
+y 19
+end
+arch reed_sm10
+x 4
+y 19
+end
+arch water_lt2
+x 4
+y 20
+end
+arch grassd_m10
+x 4
+y 20
+end
+arch water_lt3
+x 4
 y 21
 end
 arch water_lt
+x 4
+y 22
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 4
 y 22
 end
@@ -645,11 +810,103 @@ arch water_lt2
 x 4
 y 23
 end
-arch grassd_7
+arch grassd_4
+x 5
+end
+arch wall_wood3_1
+x 5
+end
+arch ship_floor_we_dark_4
+x 5
+y 1
+end
+arch carpet1.151
+x 5
+y 1
+end
+arch table_wood1.111
+x 5
+y 1
+end
+arch kitchen_cleaver
+sub_layer 1
+z 28
+align 18
+x 5
+y 1
+end
+arch kitchen_pan
+sub_layer 2
+z 34
+align 10
+x 5
+y 1
+end
+arch ship_floor_we_dark_1
+x 5
+y 2
+end
+arch carpet1
+x 5
+y 2
+end
+arch chair2_111
+direction 5
+x 5
+y 2
+end
+arch spawn_point
+x 5
+y 2
+arch traveller_wife
+msg
+@match ^hello$
+Excuse me, I need to fix supper for my hubby!
+endmsg
+type 83
+direction 1
+name Angela Strake
+level 10
+faction greyton_citizens
+end
+end
+arch ship_floor_we_dark_4
+x 5
+y 3
+end
+arch carpet1
+x 5
+y 3
+end
+arch ship_floor_we_dark_4
+x 5
+y 4
+end
+arch carpet1
+x 5
+y 4
+end
+arch ship_floor_we_dark_3
+x 5
+y 5
+end
+arch carpet1
+x 5
+y 5
+end
+arch ship_floor_we_dark_4
+x 5
+y 6
+end
+arch carpet1.111
+x 5
+y 6
+end
+arch ship_floor_we_dark_4
 x 5
 y 7
 end
-arch wall_cave1b.121
+arch wall_wood_w_1
 x 5
 y 7
 end
@@ -657,15 +914,11 @@ arch grassd_8
 x 5
 y 8
 end
-arch wall_cave1.161
+arch plant12
 x 5
 y 8
 end
 arch grassd_1
-x 5
-y 9
-end
-arch plant8
 x 5
 y 9
 end
@@ -673,39 +926,27 @@ arch grassd_4
 x 5
 y 10
 end
-arch plant8
-x 5
-y 10
-end
-arch grassd_3
+arch floor_sand_d4
 x 5
 y 11
 end
-arch plant7
+arch grassd_m10
 x 5
 y 11
 end
-arch grassd_2
+arch floor_sand_d2
 x 5
 y 12
 end
-arch plant8
-x 5
-y 12
-end
-arch grassd_6
+arch floor_sand_d2
 x 5
 y 13
 end
-arch plant7
+arch grassd_m7
 x 5
 y 13
 end
 arch grassd_6
-x 5
-y 14
-end
-arch plant8
 x 5
 y 14
 end
@@ -713,23 +954,15 @@ arch grassd_8
 x 5
 y 15
 end
-arch plant7
-x 5
-y 15
-end
 arch grassd_3
 x 5
 y 16
 end
-arch plant7
+arch plant9
 x 5
 y 16
 end
 arch grassd_1
-x 5
-y 17
-end
-arch plant7
 x 5
 y 17
 end
@@ -745,327 +978,2251 @@ arch grassd_7
 x 5
 y 19
 end
-arch plant7
+arch reed_sm10
 x 5
 y 19
 end
-arch grassd_1
+arch water_lt4
 x 5
 y 20
 end
-arch reed_sm1
+arch grassd_m10
 x 5
 y 20
 end
 arch water_lt2
 x 5
 y 21
+end
+arch water_lt3
+x 5
+y 22
+end
+arch water_lt
+x 5
+y 23
+end
+arch grassd_1
+x 6
+end
+arch wall_wood3_1
+x 6
+end
+arch ship_floor_we_dark_4
+x 6
+y 1
+end
+arch carpet1.151
+x 6
+y 1
+end
+arch table_wood1.111
+x 6
+y 1
+end
+arch kitchen_bowl
+sub_layer 2
+z 30
+align 22
+x 6
+y 1
+end
+arch kitchen_plate13
+sub_layer 1
+z 36
+align 10
+x 6
+y 1
+end
+arch ship_floor_we_dark_2
+x 6
+y 2
+end
+arch carpet1
+x 6
+y 2
+end
+arch chair2_111
+direction 5
+x 6
+y 2
+end
+arch ship_floor_we_dark_1
+x 6
+y 3
+end
+arch carpet1
+x 6
+y 3
+end
+arch ship_floor_we_dark_2
+x 6
+y 4
+end
+arch carpet1
+x 6
+y 4
+end
+arch ship_floor_we_dark_1
+x 6
+y 5
+end
+arch carpet1
+x 6
+y 5
+end
+arch ship_floor_we_dark_3
+x 6
+y 6
+end
+arch carpet1.111
+x 6
+y 6
+end
+arch ship_floor_we_dark_4
+x 6
+y 7
+end
+arch wall_wood_w_1
+x 6
+y 7
+end
+arch grassd_1
+x 6
+y 8
+end
+arch grassd_8
+x 6
+y 9
+end
+arch tree_branch2
+x 6
+y 9
+end
+arch grassd_6
+x 6
+y 10
+end
+arch marker0
+msg
+East: The City of Greyton
+West: Fort Ghzal, Brynknot
+endmsg
+direction 5
+x 6
+y 10
+end
+arch floor_sand_d4
+x 6
+y 11
+end
+arch grassd_m10
+x 6
+y 11
+end
+arch floor_sand_d2
+x 6
+y 12
+end
+arch floor_sand_d2
+x 6
+y 13
+end
+arch floor_sand_d4
+x 6
+y 14
+end
+arch grassd_m3
+x 6
+y 14
+end
+arch grassd_1
+x 6
+y 15
+end
+arch grassd_3
+x 6
+y 16
+end
+arch grassd_8
+x 6
+y 17
+end
+arch grassd_2
+x 6
+y 18
+end
+arch plant7
+x 6
+y 18
+end
+arch grassd_2
+x 6
+y 19
+end
+arch reed_sm10
+x 6
+y 19
+end
+arch water_lt4
+x 6
+y 20
+end
+arch grassd_m10
+x 6
+y 20
+end
+arch water_lt4
+x 6
+y 21
+end
+arch water_lt4
+x 6
+y 22
+end
+arch water_lt4
+x 6
+y 23
+end
+arch grassd_7
+x 7
+end
+arch wall_wood2_1
+x 7
+end
+arch ship_floor_we_dark_2
+x 7
+y 1
+end
+arch candlelight4.101
+glow_radius 5
+x 7
+y 1
+end
+arch ship_floor_we_dark_2
+x 7
+y 2
+end
+arch carpet1.171
+x 7
+y 2
+end
+arch ship_floor_we_dark_1
+x 7
+y 3
+end
+arch carpet1.171
+x 7
+y 3
+end
+arch ship_floor_we_dark_1
+x 7
+y 4
+end
+arch carpet1.171
+x 7
+y 4
+end
+arch ship_floor_we_dark_4
+x 7
+y 5
+end
+arch carpet1.171
+x 7
+y 5
+end
+arch ship_floor_we_dark_1
+x 7
+y 6
+end
+arch ship_floor_we_dark_4
+x 7
+y 7
+end
+arch wall_wood2_1
+x 7
+y 7
+end
+arch grassd_5
+x 7
+y 8
+end
+arch plant_mushroom4
+x 7
+y 8
+end
+arch grassd_1
+x 7
+y 9
+end
+arch grassd_8
+x 7
+y 10
+end
+arch floor_sand_d3
+x 7
+y 11
+end
+arch grassd_m10
+x 7
+y 11
+end
+arch floor_sand_d3
+x 7
+y 12
+end
+arch floor_sand_d1
+x 7
+y 13
+end
+arch floor_sand_d4
+x 7
+y 14
+end
+arch grassd_m7
+x 7
+y 14
+end
+arch grassd_4
+x 7
+y 15
+end
+arch plant13
+x 7
+y 15
+end
+arch grassd_6
+x 7
+y 16
+end
+arch grassd_1
+x 7
+y 17
+end
+arch tree_burned1
+x 7
+y 17
+end
+arch grassd_2
+x 7
+y 18
+end
+arch plant8
+x 7
+y 18
+end
+arch grassd_6
+x 7
+y 19
+end
+arch reed_sm10
+x 7
+y 19
+end
+arch water_lt
+x 7
+y 20
+end
+arch grassd_m10
+x 7
+y 20
+end
+arch water_lt2
+x 7
+y 21
+end
+arch water_lt2
+x 7
+y 22
+end
+arch water_lt3
+x 7
+y 23
+end
+arch grassd_2
+x 8
+end
+arch wall_wood3_1
+x 8
+end
+arch ship_floor_we_dark_2
+x 8
+y 1
+end
+arch wall_wood3_3
+x 8
+y 1
+end
+arch ship_floor_we_dark_4
+x 8
+y 2
+end
+arch wall_wood_w_3
+x 8
+y 2
+end
+arch ship_floor_we_dark_2
+x 8
+y 3
+end
+arch wall_wood3_3
+x 8
+y 3
+end
+arch ship_floor_we_dark_3
+x 8
+y 4
+end
+arch wall_wood3_3
+x 8
+y 4
+end
+arch ship_floor_we_dark_3
+x 8
+y 5
+end
+arch wall_wood_w_3
+x 8
+y 5
+end
+arch ship_floor_we_dark_4
+x 8
+y 6
+end
+arch wall_wood2_3
+x 8
+y 6
+end
+arch ship_floor_we_dark_2
+x 8
+y 7
+end
+arch wall_wood_4
+x 8
+y 7
+end
+arch grassd_2
+x 8
+y 8
+end
+arch grassd_4
+x 8
+y 9
+end
+arch grassd_2
+x 8
+y 10
+end
+arch wagon_big
+direction 3
+x 8
+y 10
+end
+arch floor_sand_d4
+x 8
+y 11
 end
 arch grassd_m6
-x 5
-y 21
+x 8
+y 11
 end
-arch water_lt3
-x 5
-y 22
+arch floor_sand_d4
+x 8
+y 12
 end
 arch grassd_m12
-x 5
-y 22
+x 8
+y 12
+end
+arch floor_sand_d3
+x 8
+y 13
+end
+arch floor_sand_d1
+x 8
+y 14
+end
+arch grassd_m7
+x 8
+y 14
+end
+arch grassd_8
+x 8
+y 15
+end
+arch grassd_5
+x 8
+y 16
+end
+arch grassd_1
+x 8
+y 17
+end
+arch grassd_1
+x 8
+y 18
+end
+arch plant7
+x 8
+y 18
+end
+arch grassd_6
+x 8
+y 19
+end
+arch reed_sm3
+x 8
+y 19
 end
 arch water_lt
-x 5
+x 8
+y 20
+end
+arch grassd_m10
+x 8
+y 20
+end
+arch water_lt4
+x 8
+y 21
+end
+arch water_lt4
+x 8
+y 22
+end
+arch water_lt3
+x 8
 y 23
 end
-arch grassd_1
-x 6
-y 8
+arch grassd_2
+x 9
 end
-arch wall_cave1b.121
-x 6
-y 8
-end
-arch grassd_8
-x 6
-y 9
-end
-arch wall_cave1.131
-x 6
-y 9
-end
-arch grassd_6
-x 6
-y 10
-end
-arch wall_cave1.131
-x 6
-y 10
-end
-arch grassd_7
-x 6
-y 11
-end
-arch wall_cave1.131
-x 6
-y 11
-end
-arch grassd_8
-x 6
-y 12
-end
-arch wall_cave1.131
-x 6
-y 12
-end
-arch grassd_6
-x 6
-y 13
-end
-arch wall_cave1.131
-x 6
-y 13
+arch tree_branch3
+x 9
 end
 arch grassd_2
-x 6
-y 14
-end
-arch wall_cave1.131
-x 6
-y 14
-end
-arch grassd_1
-x 6
-y 15
-end
-arch wall_cave1.131
-x 6
-y 15
+x 9
+y 1
 end
 arch grassd_3
-x 6
-y 16
+x 9
+y 2
 end
-arch wall_cave1.131
-x 6
-y 16
+arch grassd_3
+x 9
+y 3
+end
+arch plant_flower7
+x 9
+y 3
+end
+arch grassd_5
+x 9
+y 4
+end
+arch grassd_3
+x 9
+y 5
+end
+arch grassd_3
+x 9
+y 6
+end
+arch plant_flower8
+x 9
+y 6
+end
+arch grassd_2
+x 9
+y 7
 end
 arch grassd_8
-x 6
-y 17
-end
-arch wall_cave1.131
-x 6
-y 17
-end
-arch grassd_2
-x 6
-y 18
-end
-arch wall_cave1.131
-x 6
-y 18
-end
-arch grassd_2
-x 6
-y 19
-end
-arch wall_cave1.131
-x 6
-y 19
-end
-arch grassd_2
-x 6
-y 20
-end
-arch wall_cave1.131
-x 6
-y 20
-end
-arch water_lt4
-x 6
-y 21
-end
-arch wall_cave1.131
-x 6
-y 21
-end
-arch water_lt4
-x 6
-y 22
-end
-arch wall_cave1.161
-x 6
-y 22
-end
-arch water_lt4
-x 6
-y 23
-end
-arch water_lt2
-x 7
-y 22
-end
-arch wall_cave1b.121
-x 7
-y 22
-end
-arch water_lt3
-x 7
-y 23
-end
-arch wall_cave1.161
-x 7
-y 23
-end
-arch water_lt3
-x 8
-y 23
-end
-arch wall_cave1.111
-x 8
-y 23
-end
-arch water_lt2
 x 9
-y 23
+y 8
 end
-arch wall_cave1.111
+arch tree_big2
 x 9
-y 23
-end
-arch water_lt
-x 10
-y 23
-end
-arch wall_cave1.111
-x 10
-y 23
-end
-arch water_lt4
-x 11
-y 23
-end
-arch wall_cave1.111
-x 11
-y 23
-end
-arch water_lt4
-x 12
-y 23
-end
-arch wall_cave1.111
-x 12
-y 23
-end
-arch water_lt
-x 13
-y 23
-end
-arch wall_cave1.111
-x 13
-y 23
-end
-arch water_lt
-x 14
-y 23
-end
-arch wall_cave1.111
-x 14
-y 23
-end
-arch water_lt
-x 15
-y 23
-end
-arch wall_cave1.111
-x 15
-y 23
-end
-arch water_lt4
-x 16
-y 23
-end
-arch wall_cave1.111
-x 16
-y 23
-end
-arch grassd_2
-x 17
-end
-arch wall_cave1b.161
-x 17
-end
-arch water_lt
-x 17
-y 23
-end
-arch wall_cave1.111
-x 17
-y 23
-end
-arch grassd_5
-x 18
-end
-arch wall_cave1.121
-x 18
+y 8
 end
 arch grassd_7
-x 18
-y 1
-end
-arch wall_cave1b.161
-x 18
-y 1
-end
-arch water_lt4
-x 18
-y 23
-end
-arch wall_cave1.111
-x 18
-y 23
-end
-arch grassd_5
-x 19
-end
-arch plant8
-x 19
+x 9
+y 9
 end
 arch grassd_4
-x 19
-y 1
+x 9
+y 10
 end
-arch wall_cave1.121
-x 19
-y 1
+arch grassd_4
+x 9
+y 11
+end
+arch floor_sand_d4
+x 9
+y 12
+end
+arch grassd_m10
+x 9
+y 12
+end
+arch floor_sand_d2
+x 9
+y 13
+end
+arch floor_sand_d3
+x 9
+y 14
+end
+arch grassd_m7
+x 9
+y 14
+end
+arch grassd_8
+x 9
+y 15
+end
+arch grassd_4
+x 9
+y 16
 end
 arch grassd_6
-x 19
-y 2
+x 9
+y 17
 end
-arch wall_cave1b.161
-x 19
-y 2
+arch plant7
+x 9
+y 17
 end
-arch water_lt3
-x 19
+arch grassd_6
+x 9
+y 18
+end
+arch reed_sm10
+x 9
+y 18
+end
+arch water_lt4
+x 9
+y 19
+end
+arch grassd_m4
+x 9
+y 19
+end
+arch water_lt2
+x 9
+y 20
+end
+arch grassd_m13
+x 9
+y 20
+end
+arch water_lt2
+x 9
+y 21
+end
+arch water_lt2
+x 9
+y 22
+end
+arch water_lt2
+x 9
 y 23
 end
-arch wall_cave1.111
-x 19
-y 23
+arch grassd_3
+x 10
+end
+arch wall_wood_8
+x 10
+end
+arch map_info
+name greyton_tom_radson
+hp 7
+sp 6
+cursed 1
+x 10
+end
+arch grassd_5
+x 10
+y 1
+end
+arch wall_wood3_3
+x 10
+y 1
+end
+arch grassd_2
+x 10
+y 2
+end
+arch wall_wood_w_3
+x 10
+y 2
+end
+arch grassd_5
+x 10
+y 3
+end
+arch wall_wood_3
+x 10
+y 3
+end
+arch grassd_1
+x 10
+y 4
+end
+arch wall_wood_3
+x 10
+y 4
+end
+arch grassd_5
+x 10
+y 5
+end
+arch wall_wood_3
+x 10
+y 5
+end
+arch grassd_3
+x 10
+y 6
+end
+arch wall_wood_3
+x 10
+y 6
+end
+arch grassd_3
+x 10
+y 7
+end
+arch plant_mushroom1
+x 10
+y 7
+end
+arch grassd_1
+x 10
+y 8
+end
+arch grassd_2
+x 10
+y 9
+end
+arch plant_flower14
+x 10
+y 9
 end
 arch grassd_4
-x 20
+x 10
+y 10
+end
+arch floor_sand_d4
+x 10
+y 11
+end
+arch grassd_m4
+x 10
+y 11
+end
+arch floor_sand_d1
+x 10
+y 12
+end
+arch grassd_m13
+x 10
+y 12
+end
+arch floor_sand_d1
+x 10
+y 13
+end
+arch floor_sand_d4
+x 10
+y 14
+end
+arch grassd_m7
+x 10
+y 14
+end
+arch grassd_8
+x 10
+y 15
+end
+arch grassd_8
+x 10
+y 16
 end
 arch tree_big3
+x 10
+y 16
+end
+arch grassd_3
+x 10
+y 17
+end
+arch plant8
+x 10
+y 17
+end
+arch grassd_8
+x 10
+y 18
+end
+arch reed_sm10
+x 10
+y 18
+end
+arch water_lt3
+x 10
+y 19
+end
+arch grassd_m10
+x 10
+y 19
+end
+arch water_lt2
+x 10
+y 20
+end
+arch water_lt4
+x 10
+y 21
+end
+arch water_lt
+x 10
+y 22
+end
+arch water_lt
+x 10
+y 23
+end
+arch grassd_5
+x 11
+end
+arch wall_wood2_1
+x 11
+end
+arch floor_wood2_l2
+x 11
+y 1
+end
+arch locker2.111
+x 11
+y 1
+end
+arch floor_wood2_l2
+x 11
+y 2
+end
+arch floor_wood2_l2
+x 11
+y 3
+end
+arch wall_wood_1
+x 11
+y 3
+end
+arch floor_wood2_l1
+x 11
+y 4
+end
+arch locker5
+x 11
+y 4
+end
+arch floor_wood2_l2
+x 11
+y 5
+end
+arch carpet1.131
+x 11
+y 5
+end
+arch floor_wood2_l1
+x 11
+y 6
+end
+arch wall_wood_1
+x 11
+y 6
+end
+arch grassd_8
+x 11
+y 7
+end
+arch torch_wall_1
+direction 3
+x 11
+y 7
+end
+arch grassd_1
+x 11
+y 8
+end
+arch grassd_2
+x 11
+y 9
+end
+arch plant_mushroom4
+x 11
+y 9
+end
+arch grassd_7
+x 11
+y 10
+end
+arch floor_sand_d4
+x 11
+y 11
+end
+arch grassd_m10
+x 11
+y 11
+end
+arch floor_sand_d4
+x 11
+y 12
+end
+arch floor_sand_d1
+x 11
+y 13
+end
+arch floor_sand_d4
+x 11
+y 14
+end
+arch grassd_m7
+x 11
+y 14
+end
+arch grassd_8
+x 11
+y 15
+end
+arch plant12
+x 11
+y 15
+end
+arch grassd_1
+x 11
+y 16
+end
+arch grassd_7
+x 11
+y 17
+end
+arch plant7
+x 11
+y 17
+end
+arch grassd_8
+x 11
+y 18
+end
+arch reed_sm10
+x 11
+y 18
+end
+arch water_lt4
+x 11
+y 19
+end
+arch grassd_m10
+x 11
+y 19
+end
+arch water_lt
+x 11
+y 20
+end
+arch water_lt
+x 11
+y 21
+end
+arch water_lt
+x 11
+y 22
+end
+arch water_lt4
+x 11
+y 23
+end
+arch grassd_6
+x 12
+end
+arch wall_wood_1
+x 12
+end
+arch floor_wood2_l1
+x 12
+y 1
+end
+arch locker1.111
+x 12
+y 1
+end
+arch floor_wood2_l2
+x 12
+y 2
+end
+arch floor_wood2_l1
+x 12
+y 3
+end
+arch doorway_wood1_1
+x 12
+y 3
+end
+arch floor_wood2_l1
+x 12
+y 4
+end
+arch carpet1.151
+x 12
+y 4
+end
+arch floor_wood2_l2
+x 12
+y 5
+end
+arch carpet1
+x 12
+y 5
+end
+arch floor_wood2_l1
+x 12
+y 6
+end
+arch carpet1.111
+x 12
+y 6
+end
+arch door_wood2
+x 12
+y 6
+end
+arch floor_sand_d2
+x 12
+y 7
+end
+arch grassd_m4
+x 12
+y 7
+end
+arch floor_sand_d4
+x 12
+y 8
+end
+arch grassd_m9
+x 12
+y 8
+end
+arch floor_sand_d2
+x 12
+y 9
+end
+arch grassd_m9
+x 12
+y 9
+end
+arch floor_sand_d1
+x 12
+y 10
+end
+arch grassd_m9
+x 12
+y 10
+end
+arch floor_sand_d3
+x 12
+y 11
+end
+arch grassd_m13
+x 12
+y 11
+end
+arch floor_sand_d2
+x 12
+y 12
+end
+arch floor_sand_d2
+x 12
+y 13
+end
+arch grassd_m11
+x 12
+y 13
+end
+arch floor_sand_d1
+x 12
+y 14
+end
+arch grassd_m5
+x 12
+y 14
+end
+arch grassd_3
+x 12
+y 15
+end
+arch grassd_7
+x 12
+y 16
+end
+arch grassd_4
+x 12
+y 17
+end
+arch plant8
+x 12
+y 17
+end
+arch grassd_2
+x 12
+y 18
+end
+arch reed_sm10
+x 12
+y 18
+end
+arch water_lt4
+x 12
+y 19
+end
+arch grassd_m10
+x 12
+y 19
+end
+arch water_lt3
+x 12
+y 20
+end
+arch water_lt3
+x 12
+y 21
+end
+arch water_lt
+x 12
+y 22
+end
+arch water_lt4
+x 12
+y 23
+end
+arch grassd_2
+x 13
+end
+arch wall_wood2_1
+x 13
+end
+arch floor_wood2_l1
+x 13
+y 1
+end
+arch wall_wood_3
+x 13
+y 1
+end
+arch floor_wood2_l2
+x 13
+y 2
+end
+arch door_wood1
+direction 3
+x 13
+y 2
+end
+arch floor_wood2_l1
+x 13
+y 3
+end
+arch wall_wood_4
+x 13
+y 3
+end
+arch floor_wood2_l1
+x 13
+y 4
+end
+arch carpet1.151
+x 13
+y 4
+end
+arch shelf2_wall.111
+x 13
+y 4
+end
+arch floor_wood2_l1
+x 13
+y 5
+end
+arch carpet1
+x 13
+y 5
+end
+arch floor_wood2_l1
+x 13
+y 6
+end
+arch carpet1.111
+x 13
+y 6
+end
+arch wall_wood_1
+x 13
+y 6
+end
+arch floor_sand_d3
+x 13
+y 7
+end
+arch grassd_m6
+x 13
+y 7
+end
+arch torch_wall_1
+direction 3
+x 13
+y 7
+end
+arch floor_sand_d2
+x 13
+y 8
+end
+arch grassd_m8
+x 13
+y 8
+end
+arch floor_sand_d1
+x 13
+y 9
+end
+arch grassd_m8
+x 13
+y 9
+end
+arch floor_sand_d2
+x 13
+y 10
+end
+arch grassd_m12
+x 13
+y 10
+end
+arch floor_sand_d2
+x 13
+y 11
+end
+arch floor_sand_d1
+x 13
+y 12
+end
+arch floor_sand_d1
+x 13
+y 13
+end
+arch grassd_m7
+x 13
+y 13
+end
+arch grassd_4
+x 13
+y 14
+end
+arch grassd_8
+x 13
+y 15
+end
+arch grassd_5
+x 13
+y 16
+end
+arch grassd_7
+x 13
+y 17
+end
+arch plant7
+x 13
+y 17
+end
+arch grassd_8
+x 13
+y 18
+end
+arch reed_sm3
+x 13
+y 18
+end
+arch water_lt4
+x 13
+y 19
+end
+arch grassd_m10
+x 13
+y 19
+end
+arch water_lt
+x 13
+y 20
+end
+arch water_lt
+x 13
+y 21
+end
+arch water_lt2
+x 13
+y 22
+end
+arch water_lt
+x 13
+y 23
+end
+arch grassd_2
+x 14
+end
+arch wall_wood2_1
+x 14
+end
+arch floor_wood2_l2
+x 14
+y 1
+end
+arch drawers1.111
+x 14
+y 1
+end
+arch floor_wood2_l2
+x 14
+y 2
+end
+arch floor_wood2_l2
+x 14
+y 3
+end
+arch wall_wood3_1
+x 14
+y 3
+end
+arch floor_wood2_l1
+x 14
+y 4
+end
+arch carpet1.151
+x 14
+y 4
+end
+arch candlelight4.101
+glow_radius 5
+x 14
+y 4
+end
+arch floor_wood2_l1
+x 14
+y 5
+end
+arch carpet1
+x 14
+y 5
+end
+arch floor_wood2_l2
+x 14
+y 6
+end
+arch carpet1.111
+x 14
+y 6
+end
+arch wall_wood_w_1
+x 14
+y 6
+end
+arch grassd_3
+x 14
+y 7
+end
+arch grassd_4
+x 14
+y 8
+end
+arch plant_mushroom3
+x 14
+y 8
+end
+arch floor_sand_d1
+x 14
+y 9
+end
+arch grassd_m4
+x 14
+y 9
+end
+arch floor_sand_d4
+x 14
+y 10
+end
+arch grassd_m13
+x 14
+y 10
+end
+arch floor_sand_d4
+x 14
+y 11
+end
+arch floor_sand_d2
+x 14
+y 12
+end
+arch grassd_m11
+x 14
+y 12
+end
+arch floor_sand_d3
+x 14
+y 13
+end
+arch grassd_m5
+x 14
+y 13
+end
+arch grassd_2
+x 14
+y 14
+end
+arch grassd_3
+x 14
+y 15
+end
+arch plant10
+x 14
+y 15
+end
+arch grassd_1
+x 14
+y 16
+end
+arch plant7
+x 14
+y 16
+end
+arch grassd_2
+x 14
+y 17
+end
+arch reed_sm10
+x 14
+y 17
+end
+arch water_lt4
+x 14
+y 18
+end
+arch grassd_m4
+x 14
+y 18
+end
+arch water_lt4
+x 14
+y 19
+end
+arch grassd_m13
+x 14
+y 19
+end
+arch water_lt4
+x 14
+y 20
+end
+arch water_lt2
+x 14
+y 21
+end
+arch water_lt2
+x 14
+y 22
+end
+arch water_lt
+x 14
+y 23
+end
+arch grassd_4
+x 15
+end
+arch wall_wood2_1
+x 15
+end
+arch floor_wood2_l1
+x 15
+y 1
+end
+arch locker3.111
+x 15
+y 1
+end
+arch floor_wood2_l1
+x 15
+y 2
+end
+arch floor_wood2_l1
+x 15
+y 3
+end
+arch wall_wood3_1
+x 15
+y 3
+end
+arch floor_wood2_l2
+x 15
+y 4
+end
+arch carpet1.151
+x 15
+y 4
+end
+arch table_wood1.111
+x 15
+y 4
+end
+arch kitchen_plate
+sub_layer 1
+z 34
+align 8
+x 15
+y 4
+end
+arch kitchen_goblet5
+sub_layer 3
+z 31
+align 28
+x 15
+y 4
+end
+arch steak
+sub_layer 2
+zoom 40
+align 10
+z 36
+layer 4
+x 15
+y 4
+end
+arch floor_wood2_l1
+x 15
+y 5
+end
+arch carpet1
+x 15
+y 5
+end
+arch chair1_111
+direction 5
+x 15
+y 5
+end
+arch spawn_point
+x 15
+y 5
+arch ranger
+msg
+@match ^hello$
+Hi there! My name is Tom Radson, a hunter by profession. There's quite a lot of bears around in the area, so I'm able to supply Greyton with fresh meat and hides!
+endmsg
+name Tom Radson
+direction 1
+type 83
+level 14
+faction greyton_citizens
+randomitems mob_default
+end
+end
+arch floor_wood2_l1
+x 15
+y 6
+end
+arch carpet1.111
+x 15
+y 6
+end
+arch wall_wood2_1
+x 15
+y 6
+end
+arch grassd_6
+x 15
+y 7
+end
+arch bench1b.111
+x 15
+y 7
+end
+arch grassd_1
+x 15
+y 8
+end
+arch plant_flower3
+x 15
+y 8
+end
+arch floor_sand_d4
+x 15
+y 9
+end
+arch grassd_m10
+x 15
+y 9
+end
+arch floor_sand_d4
+x 15
+y 10
+end
+arch floor_sand_d2
+x 15
+y 11
+end
+arch floor_sand_d3
+x 15
+y 12
+end
+arch grassd_m7
+x 15
+y 12
+end
+arch grassd_7
+x 15
+y 13
+end
+arch grassd_1
+x 15
+y 14
+end
+arch grassd_5
+x 15
+y 15
+end
+arch tree_big4b
+x 15
+y 15
+end
+arch grassd_7
+x 15
+y 16
+end
+arch plant7
+x 15
+y 16
+end
+arch grassd_7
+x 15
+y 17
+end
+arch reed_sm10
+x 15
+y 17
+end
+arch water_lt4
+x 15
+y 18
+end
+arch grassd_m10
+x 15
+y 18
+end
+arch water_lt4
+x 15
+y 19
+end
+arch water_lt
+x 15
+y 20
+end
+arch water_lt4
+x 15
+y 21
+end
+arch water_lt2
+x 15
+y 22
+end
+arch water_lt
+x 15
+y 23
+end
+arch grassd_4
+x 16
+end
+arch wall_wood_1
+x 16
+end
+arch floor_wood2_l2
+x 16
+y 1
+end
+arch bed_8a
+direction 7
+x 16
+y 1
+end
+arch floor_wood2_l2
+x 16
+y 2
+end
+arch bed_8b
+direction 7
+x 16
+y 2
+end
+arch floor_wood2_l2
+x 16
+y 3
+end
+arch wall_wood2_1
+x 16
+y 3
+end
+arch floor_wood2_l1
+x 16
+y 4
+end
+arch floor_wood2_l1
+x 16
+y 5
+end
+arch carpet1.171
+x 16
+y 5
+end
+arch floor_wood2_l1
+x 16
+y 6
+end
+arch wall_wood2_1
+x 16
+y 6
+end
+arch grassd_2
+x 16
+y 7
+end
+arch bench1a.111
+x 16
+y 7
+end
+arch floor_sand_d4
+x 16
+y 8
+end
+arch grassd_m4
+x 16
+y 8
+end
+arch floor_sand_d2
+x 16
+y 9
+end
+arch grassd_m13
+x 16
+y 9
+end
+arch floor_sand_d4
+x 16
+y 10
+end
+arch floor_sand_d2
+x 16
+y 11
+end
+arch grassd_m11
+x 16
+y 11
+end
+arch floor_sand_d3
+x 16
+y 12
+end
+arch grassd_m5
+x 16
+y 12
+end
+arch grassd_1
+x 16
+y 13
+end
+arch grassd_4
+x 16
+y 14
+end
+arch grassd_6
+x 16
+y 15
+end
+arch grassd_3
+x 16
+y 16
+end
+arch plant8
+x 16
+y 16
+end
+arch grassd_6
+x 16
+y 17
+end
+arch reed_sm3
+x 16
+y 17
+end
+arch water_lt2
+x 16
+y 18
+end
+arch grassd_m10
+x 16
+y 18
+end
+arch water_lt
+x 16
+y 19
+end
+arch water_lt2
+x 16
+y 20
+end
+arch water_lt2
+x 16
+y 21
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 16
+y 21
+end
+arch water_lt3
+x 16
+y 22
+end
+arch water_lt4
+x 16
+y 23
+end
+arch grassd_2
+x 17
+end
+arch wall_wood2_1
+x 17
+end
+arch floor_wood2_l2
+x 17
+y 1
+end
+arch wall_wood_3
+x 17
+y 1
+end
+arch floor_wood2_l2
+x 17
+y 2
+end
+arch wall_wood_w_3
+x 17
+y 2
+end
+arch floor_wood2_l2
+x 17
+y 3
+end
+arch wall_wood_4
+x 17
+y 3
+end
+arch floor_wood2_l1
+x 17
+y 4
+end
+arch wall_wood2_3
+x 17
+y 4
+end
+arch floor_wood2_l1
+x 17
+y 5
+end
+arch wall_wood_w_3
+x 17
+y 5
+end
+arch floor_wood2_l1
+x 17
+y 6
+end
+arch wall_wood_4
+x 17
+y 6
+end
+arch grassd_8
+x 17
+y 7
+end
+arch floor_sand_d4
+x 17
+y 8
+end
+arch grassd_m10
+x 17
+y 8
+end
+arch floor_sand_d2
+x 17
+y 9
+end
+arch floor_sand_d2
+x 17
+y 10
+end
+arch floor_sand_d3
+x 17
+y 11
+end
+arch grassd_m7
+x 17
+y 11
+end
+arch grassd_4
+x 17
+y 12
+end
+arch grassd_3
+x 17
+y 13
+end
+arch grassd_2
+x 17
+y 14
+end
+arch plant_flower1
+x 17
+y 14
+end
+arch grassd_8
+x 17
+y 15
+end
+arch plant8
+x 17
+y 15
+end
+arch grassd_1
+x 17
+y 16
+end
+arch reed_sm10
+x 17
+y 16
+end
+arch water_lt3
+x 17
+y 17
+end
+arch grassd_m4
+x 17
+y 17
+end
+arch water_lt
+x 17
+y 18
+end
+arch grassd_m13
+x 17
+y 18
+end
+arch water_lt
+x 17
+y 19
+end
+arch water_lt2
+x 17
+y 20
+end
+arch water_lt3
+x 17
+y 21
+end
+arch water_lt2
+x 17
+y 22
+end
+arch water_lt
+x 17
+y 23
+end
+arch grassd_5
+x 18
+end
+arch tree_branch3
+x 18
+end
+arch grassd_7
+x 18
+y 1
+end
+arch grassd_5
+x 18
+y 2
+end
+arch grassd_8
+x 18
+y 3
+end
+arch grassd_6
+x 18
+y 4
+end
+arch plant5
+x 18
+y 4
+end
+arch grassd_4
+x 18
+y 5
+end
+arch grassd_5
+x 18
+y 6
+end
+arch floor_sand_d2
+x 18
+y 7
+end
+arch grassd_m4
+x 18
+y 7
+end
+arch floor_sand_d2
+x 18
+y 8
+end
+arch grassd_m13
+x 18
+y 8
+end
+arch floor_sand_d4
+x 18
+y 9
+end
+arch floor_sand_d4
+x 18
+y 10
+end
+arch grassd_m11
+x 18
+y 10
+end
+arch floor_sand_d2
+x 18
+y 11
+end
+arch grassd_m5
+x 18
+y 11
+end
+arch grassd_3
+x 18
+y 12
+end
+arch grassd_8
+x 18
+y 13
+end
+arch grassd_1
+x 18
+y 14
+end
+arch grassd_2
+x 18
+y 15
+end
+arch plant8
+x 18
+y 15
+end
+arch grassd_3
+x 18
+y 16
+end
+arch reed_sm3
+x 18
+y 16
+end
+arch water_lt3
+x 18
+y 17
+end
+arch grassd_m10
+x 18
+y 17
+end
+arch water_lt2
+x 18
+y 18
+end
+arch water_lt4
+x 18
+y 19
+end
+arch water_lt3
+x 18
+y 20
+end
+arch water_lt
+x 18
+y 21
+end
+arch water_lt3
+x 18
+y 22
+end
+arch water_lt4
+x 18
+y 23
+end
+arch grassd_5
+x 19
+end
+arch grassd_4
+x 19
+y 1
+end
+arch grassd_6
+x 19
+y 2
+end
+arch grassd_2
+x 19
+y 3
+end
+arch tree_big3
+x 19
+y 3
+end
+arch grassd_8
+x 19
+y 4
+end
+arch grassd_6
+x 19
+y 5
+end
+arch plant_flower10
+x 19
+y 5
+end
+arch floor_sand_d3
+x 19
+y 6
+end
+arch grassd_m4
+x 19
+y 6
+end
+arch floor_sand_d4
+x 19
+y 7
+end
+arch grassd_m13
+x 19
+y 7
+end
+arch floor_sand_d4
+x 19
+y 8
+end
+arch floor_sand_d3
+x 19
+y 9
+end
+arch floor_sand_d3
+x 19
+y 10
+end
+arch grassd_m7
+x 19
+y 10
+end
+arch grassd_6
+x 19
+y 11
+end
+arch plant_flower6
+x 19
+y 11
+end
+arch grassd_4
+x 19
+y 12
+end
+arch grassd_5
+x 19
+y 13
+end
+arch grassd_6
+x 19
+y 14
+end
+arch plant7
+x 19
+y 14
+end
+arch grassd_8
+x 19
+y 15
+end
+arch reed_sm3
+x 19
+y 15
+end
+arch water_lt4
+x 19
+y 16
+end
+arch grassd_m4
+x 19
+y 16
+end
+arch water_lt
+x 19
+y 17
+end
+arch grassd_m13
+x 19
+y 17
+end
+arch water_lt
+x 19
+y 18
+end
+arch water_lt3
+x 19
+y 19
+end
+arch water_lt3
+x 19
+y 20
+end
+arch water_lt
+x 19
+y 21
+end
+arch water_lt
+x 19
+y 22
+end
+arch water_lt3
+x 19
+y 23
+end
+arch grassd_4
 x 20
 end
 arch grassd_6
 x 20
 y 1
 end
-arch plant8
+arch plant9
 x 20
 y 1
 end
@@ -1073,15 +3230,7 @@ arch grassd_3
 x 20
 y 2
 end
-arch wall_cave1.121
-x 20
-y 2
-end
 arch grassd_2
-x 20
-y 3
-end
-arch wall_cave1.171
 x 20
 y 3
 end
@@ -1089,39 +3238,111 @@ arch grassd_3
 x 20
 y 4
 end
-arch wall_cave1.171
-x 20
-y 4
-end
-arch grassd_2
+arch floor_sand_d4
 x 20
 y 5
 end
-arch wall_cave1.171
+arch grassd_m4
 x 20
 y 5
+end
+arch floor_sand_d3
+x 20
+y 6
+end
+arch grassd_m13
+x 20
+y 6
+end
+arch floor_sand_d1
+x 20
+y 7
+end
+arch floor_sand_d2
+x 20
+y 8
+end
+arch floor_sand_d2
+x 20
+y 9
+end
+arch grassd_m11
+x 20
+y 9
+end
+arch floor_sand_d3
+x 20
+y 10
+end
+arch grassd_m5
+x 20
+y 10
 end
 arch grassd_5
 x 20
-y 6
+y 11
 end
-arch wall_cave1b.161
+arch grassd_7
 x 20
-y 6
+y 12
+end
+arch grassd_7
+x 20
+y 13
+end
+arch plant8
+x 20
+y 13
+end
+arch grassd_4
+x 20
+y 14
+end
+arch reed_sm10
+x 20
+y 14
+end
+arch water_lt
+x 20
+y 15
+end
+arch grassd_m4
+x 20
+y 15
+end
+arch water_lt
+x 20
+y 16
+end
+arch grassd_m13
+x 20
+y 16
+end
+arch water_lt3
+x 20
+y 17
+end
+arch water_lt4
+x 20
+y 18
+end
+arch water_lt
+x 20
+y 19
+end
+arch water_lt
+x 20
+y 20
+end
+arch water_lt2
+x 20
+y 21
 end
 arch water_lt
 x 20
 y 22
 end
-arch wall_cave1.181
-x 20
-y 22
-end
 arch water_lt2
-x 20
-y 23
-end
-arch wall_cave1.141
 x 20
 y 23
 end
@@ -1136,63 +3357,115 @@ arch grassd_6
 x 21
 y 2
 end
-arch plant8
-x 21
-y 2
-end
 arch grassd_3
 x 21
 y 3
 end
-arch plant7
-x 21
-y 3
-end
-arch grassd_2
+arch floor_sand_d1
 x 21
 y 4
 end
-arch plant7
+arch grassd_m4
 x 21
 y 4
 end
-arch grassd_8
+arch floor_sand_d3
 x 21
 y 5
 end
-arch plant7
+arch grassd_m13
 x 21
 y 5
 end
-arch grassd_4
+arch floor_sand_d1
 x 21
 y 6
 end
-arch wall_cave1.121
+arch floor_sand_d3
 x 21
-y 6
+y 7
+end
+arch floor_sand_d1
+x 21
+y 8
+end
+arch grassd_m11
+x 21
+y 8
+end
+arch floor_sand_d2
+x 21
+y 9
+end
+arch grassd_m5
+x 21
+y 9
+end
+arch grassd_3
+x 21
+y 10
 end
 arch grassd_6
 x 21
-y 7
+y 11
 end
-arch wall_cave1b.161
+arch grassd_2
 x 21
-y 7
+y 12
+end
+arch tree_big3
+x 21
+y 12
+end
+arch grassd_3
+x 21
+y 13
+end
+arch plant7
+x 21
+y 13
+end
+arch grassd_4
+x 21
+y 14
+end
+arch reed_sm3
+x 21
+y 14
+end
+arch water_lt3
+x 21
+y 15
+end
+arch grassd_m10
+x 21
+y 15
+end
+arch water_lt2
+x 21
+y 16
+end
+arch water_lt4
+x 21
+y 17
+end
+arch water_lt2
+x 21
+y 18
+end
+arch water_lt
+x 21
+y 19
+end
+arch water_lt3
+x 21
+y 20
 end
 arch water_lt4
 x 21
 y 21
 end
-arch wall_cave1.181
-x 21
-y 21
-end
 arch water_lt2
-x 21
-y 22
-end
-arch wall_cave1.141
 x 21
 y 22
 end
@@ -1201,9 +3474,6 @@ x 21
 y 23
 end
 arch grassd_3
-x 22
-end
-arch tree_big
 x 22
 end
 arch grassd_7
@@ -1218,47 +3488,43 @@ arch grassd_2
 x 22
 y 2
 end
+arch tree_big
+x 22
+y 2
+end
 arch grassd_2
 x 22
 y 3
 end
-arch tree_big
-x 22
-y 3
-end
-arch grassd_1
+arch floor_sand_d3
 x 22
 y 4
 end
-arch grassd_6
+arch grassd_m10
+x 22
+y 4
+end
+arch floor_sand_d1
 x 22
 y 5
 end
-arch tree_big2
-x 22
-y 5
-end
-arch grassd_2
+arch floor_sand_d2
 x 22
 y 6
 end
-arch plant8
-x 22
-y 6
-end
-arch grassd_4
+arch floor_sand_d1
 x 22
 y 7
 end
-arch wall_cave1.121
+arch grassd_m11
 x 22
 y 7
 end
-arch grassd_2
+arch floor_sand_d3
 x 22
 y 8
 end
-arch wall_cave1.171
+arch grassd_m5
 x 22
 y 8
 end
@@ -1266,23 +3532,72 @@ arch grassd_1
 x 22
 y 9
 end
-arch wall_cave1b.161
+arch grassd_2
 x 22
-y 9
+y 10
+end
+arch grassd_3
+x 22
+y 11
+end
+arch grassd_1
+x 22
+y 12
+end
+arch plant7
+x 22
+y 12
+end
+arch grassd_5
+x 22
+y 13
+end
+arch reed_sm3
+x 22
+y 13
+end
+arch water_lt3
+x 22
+y 14
+end
+arch grassd_m4
+x 22
+y 14
+end
+arch water_lt2
+x 22
+y 15
+end
+arch grassd_m13
+x 22
+y 15
+end
+arch water_lt2
+x 22
+y 16
+end
+arch water_lt3
+x 22
+y 17
+end
+arch water_lt3
+x 22
+y 18
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 22
+y 18
+end
+arch water_lt2
+x 22
+y 19
 end
 arch water_lt3
 x 22
 y 20
 end
-arch wall_cave1.181
-x 22
-y 20
-end
 arch water_lt3
-x 22
-y 21
-end
-arch wall_cave1.141
 x 22
 y 21
 end
@@ -1308,47 +3623,43 @@ arch grassd_3
 x 23
 y 2
 end
-arch grassd_7
+arch floor_sand_d2
 x 23
 y 3
 end
-arch plant10
+arch grassd_m4
 x 23
 y 3
 end
-arch grassd_5
+arch floor_sand_d1
 x 23
 y 4
 end
-arch grassd_6
+arch grassd_m13
+x 23
+y 4
+end
+arch floor_sand_d3
 x 23
 y 5
 end
-arch plant10
-x 23
-y 5
-end
-arch grassd_6
+arch floor_sand_d1
 x 23
 y 6
 end
-arch grassd_8
+arch grassd_m11
+x 23
+y 6
+end
+arch floor_sand_d3
 x 23
 y 7
 end
-arch plant7
-x 23
-y 7
-end
-arch tree_big3
+arch grassd_m5
 x 23
 y 7
 end
 arch grassd_1
-x 23
-y 8
-end
-arch plant7
 x 23
 y 8
 end
@@ -1356,7 +3667,7 @@ arch grassd_1
 x 23
 y 9
 end
-arch wall_cave1.121
+arch plant16
 x 23
 y 9
 end
@@ -1364,15 +3675,59 @@ arch grassd_5
 x 23
 y 10
 end
-arch wall_cave1b.161
+arch grassd_8
 x 23
-y 10
+y 11
+end
+arch plant8
+x 23
+y 11
+end
+arch grassd_6
+x 23
+y 12
+end
+arch reed_sm3
+x 23
+y 12
+end
+arch water_lt
+x 23
+y 13
+end
+arch grassd_m4
+x 23
+y 13
+end
+arch water_lt
+x 23
+y 14
+end
+arch grassd_m13
+x 23
+y 14
+end
+arch water_lt
+x 23
+y 15
 end
 arch water_lt4
 x 23
-y 20
+y 16
 end
-arch wall_cave1.111
+arch water_lt
+x 23
+y 17
+end
+arch water_lt3
+x 23
+y 18
+end
+arch water_lt
+x 23
+y 19
+end
+arch water_lt4
 x 23
 y 20
 end

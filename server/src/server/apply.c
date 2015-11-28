@@ -27,6 +27,7 @@
  * Handles objects being applied, and their effect. */
 
 #include <global.h>
+#include <plugin.h>
 
 /**
  * Main apply handler.
@@ -60,12 +61,12 @@ int manual_apply(object *op, object *tmp, int aflag)
     }
 
     /* Trigger the APPLY event */
-    if (!(aflag & AP_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (!(aflag & APPLY_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
         return OBJECT_METHOD_OK;
     }
 
     /* Trigger the map-wide apply event. */
-    if (!(aflag & AP_NO_EVENT) && op->map && op->map->events) {
+    if (!(aflag & APPLY_NO_EVENT) && op->map && op->map->events) {
         int retval = trigger_map_event(MEVENT_APPLY, op->map, op, tmp, NULL, NULL, aflag);
 
         if (retval) {
@@ -73,7 +74,7 @@ int manual_apply(object *op, object *tmp, int aflag)
         }
     }
 
-    aflag &= ~AP_NO_EVENT;
+    aflag &= ~APPLY_NO_EVENT;
 
     if (tmp->item_level) {
         int tmp_lev;
@@ -122,7 +123,10 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
 
     if (!quiet) {
         if (tmp == OBJECT_METHOD_UNHANDLED) {
-            draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the %s.", query_name(op, NULL));
+            char *name = object_get_name_s(op, NULL);
+            draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the "
+                    "%s.", name);
+            efree(name);
         } else if (tmp == OBJECT_METHOD_ERROR) {
             if (op->env != pl) {
                 draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");

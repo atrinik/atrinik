@@ -1,28 +1,17 @@
 /**
-@fn page_connected "connection value"
-@section Use
+@var page_connected "connection value"
+@sa @ref page_field_connected
+*/
+
+/**
+@page page_field_connected page_connected "connection value" Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_18
-		</td><td>		If a connection value is set, the altar will trigger all objects
-		with the same value when activated. This will only work once.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_31
-		</td><td>		If a connection value is set, the altar will trigger all objects
-		with the same value when activated. This can be used infinitely.
-
-		The altar will reset itself after some time, specified by
-		&lt;reset time&gt;.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_92, @ref page_type_30
+@ref page_type_92
 		</td><td>		Every time the button is pressed or released, all objects with
 		the same &lt;connection&gt; value are activated.</td>
 	</tr>
@@ -34,15 +23,8 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_51, @ref page_type_55
-		</td><td>		When the detector is triggered, all objects with the same
-		connection value get activated.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_112
-		</td><td>		If a connection value is set, the director will be turnable when
-		a handle or button is used.</td>
+		</td><td>		When triggered, the director will turn "turn value" steps.</td>
 	</tr>
 	<tr>
 		<td>
@@ -54,36 +36,27 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_91, @ref page_type_26
-		</td><td>		Whenever a "signal" object is triggered, all objects with
-		identical &lt;connection&gt; value get activated. This only makes
-		sense together with &lt;blocking passage&gt; disabled.</td>
+@ref page_type_91
+		</td><td>		When triggered, the gate will start closing if it's open, and
+		start opening if it's closed.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_93, @ref page_type_27
+@ref page_type_93
 		</td><td>		Every time the handle is applied, all objects with the same
 		&lt;connection&gt; value are activated.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_64
-		</td><td>		Whenever the inventory checker is triggered, all objects with
-		identical &lt;connection&gt; value get activated. This only makes
-		sense together with &lt;blocking passage&gt; disabled.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_29
-		</td><td>		The magic ear will trigger all objects with the same connection
-		value, every time it is activated.</td>
+		</td><td>		Whenever the inventory checker is triggered, all connected
+		objects get triggered. This only makes sense together with
+		"blocking passage" disabled.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>		Every time the &lt;connection&gt; value is triggered, the wall
-		will cast it's spell. You should set &lt;casting speed&gt; to
-		zero, or this won't have much visible effect.</td>
+		</td><td>		Connection ID for the magic wall.</td>
 	</tr>
 	<tr>
 		<td>
@@ -95,27 +68,15 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_65
-		</td><td>		This should only be set in combination with 'charm' mood.
-		Normally, monsters are affected by the mood floor as soon as they
-		step on it. But charming (monster -&gt; pet) is too powerful,
-		so it needs to be activated.
-
-		Typically it is connected to an altar, for buying a "hireling".
-		But a powerful pet could as well be the reward for solving a
-		quest. Or even better: It could be *part* of a quest!</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_17, @ref page_type_32
+@ref page_type_17
 		</td><td>		When the pedestal is triggered, all objects with the same
 		connection value get activated.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_94
-		</td><td>		When a &lt;connection&gt; value is set, the pit can be
-		opened/closed by activating the connection.</td>
+@ref page_type_51
+		</td><td>		When the detector is triggered, all objects with the same
+		connection value get activated.</td>
 	</tr>
 	<tr>
 		<td>

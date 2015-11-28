@@ -1,6 +1,10 @@
 /**
-@fn liv::Cha
-@section Use
+@var liv::Cha
+@sa @ref page_field_cha
+*/
+
+/**
+@page page_field_cha liv::Cha Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

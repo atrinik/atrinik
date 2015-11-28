@@ -1,12 +1,15 @@
 arch map
-name World
+name Incuna
 msg
 Created:  2011-09-03 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
+bg_music tutorialisland.mid
+region incuna
 end
 arch water_dk3
 end
@@ -1856,31 +1859,66 @@ arch water_dk2
 x 19
 y 16
 end
-arch water_dk3
+arch water_md4
 x 19
 y 17
 end
-arch water_dk3
+arch water_dk_m
+direction 8
+x 19
+y 17
+end
+arch water_md3
 x 19
 y 18
 end
-arch water_dk3
+arch water_dk_m
+direction 7
+x 19
+y 18
+end
+arch water_md2
 x 19
 y 19
 end
-arch water_dk
+arch water_dk_m
+direction 7
+x 19
+y 19
+end
+arch water_md3
 x 19
 y 20
 end
-arch water_dk2
+arch water_dk_m
+direction 7
+x 19
+y 20
+end
+arch water_md
 x 19
 y 21
 end
-arch water_dk
+arch water_dk_m
+direction 7
+x 19
+y 21
+end
+arch water_md3
 x 19
 y 22
 end
-arch water_dk4
+arch water_dk_m
+direction 7
+x 19
+y 22
+end
+arch water_md3
+x 19
+y 23
+end
+arch water_dk2_m
+direction 7
 x 19
 y 23
 end
@@ -1923,59 +1961,94 @@ arch water_dk
 x 20
 y 9
 end
-arch water_dk2
+arch water_md2
 x 20
 y 10
 end
-arch water_dk4
+arch water_dk_m
+direction 8
+x 20
+y 10
+end
+arch water_md
 x 20
 y 11
 end
-arch water_dk2
+arch water_dk_m
+direction 7
+x 20
+y 11
+end
+arch water_md3
 x 20
 y 12
 end
-arch water_dk
+arch water_dk_m
+direction 7
+x 20
+y 12
+end
+arch water_md2
 x 20
 y 13
 end
-arch water_dk2
+arch water_dk2_m
+direction 7
+x 20
+y 13
+end
+arch water_md4
 x 20
 y 14
 end
-arch water_dk
+arch water_dk_m
+direction 7
+x 20
+y 14
+end
+arch water_md4
 x 20
 y 15
 end
-arch water_dk3
+arch water_dk_m
+direction 7
+x 20
+y 15
+end
+arch water_md2
 x 20
 y 16
 end
-arch water_dk4
+arch water_dk2_m
+direction 7
+x 20
+y 16
+end
+arch water_md3
 x 20
 y 17
 end
-arch water_dk3
+arch water_md2
 x 20
 y 18
 end
-arch water_dk2
+arch water_md2
 x 20
 y 19
 end
-arch water_dk4
+arch water_md3
 x 20
 y 20
 end
-arch water_dk3
+arch water_md4
 x 20
 y 21
 end
-arch water_dk
+arch water_md
 x 20
 y 22
 end
-arch water_dk3
+arch water_md2
 x 20
 y 23
 end
@@ -2014,63 +2087,68 @@ arch water_dk3
 x 21
 y 8
 end
-arch water_dk3
+arch water_md
 x 21
 y 9
 end
-arch water_dk2
+arch water_dk_m
+direction 8
+x 21
+y 9
+end
+arch water_md4
 x 21
 y 10
 end
-arch water_dk4
+arch water_md3
 x 21
 y 11
 end
-arch water_dk4
+arch water_md
 x 21
 y 12
 end
-arch water_dk3
+arch water_md3
 x 21
 y 13
 end
-arch water_dk
+arch water_md3
 x 21
 y 14
 end
-arch water_dk3
+arch water_md2
 x 21
 y 15
 end
-arch water_dk
+arch water_md2
 x 21
 y 16
 end
-arch water_dk2
+arch water_md
 x 21
 y 17
 end
-arch water_dk
+arch water_md
 x 21
 y 18
 end
-arch water_dk4
+arch water_md2
 x 21
 y 19
 end
-arch water_dk3
+arch water_md2
 x 21
 y 20
 end
-arch water_dk2
+arch water_md4
 x 21
 y 21
 end
-arch water_dk3
+arch water_md3
 x 21
 y 22
 end
-arch water_dk4
+arch water_md
 x 21
 y 23
 end
@@ -2093,79 +2171,89 @@ arch water_dk
 x 22
 y 4
 end
-arch water_dk3
+arch water_dk2
 x 22
 y 5
 end
-arch water_dk
+arch water_dk2
 x 22
 y 6
 end
-arch water_dk
+arch water_md4
 x 22
 y 7
 end
-arch water_dk3
+arch water_dk_m
+direction 8
+x 22
+y 7
+end
+arch water_md
 x 22
 y 8
 end
-arch water_dk
+arch water_dk2_m
+direction 7
+x 22
+y 8
+end
+arch water_md
 x 22
 y 9
 end
-arch water_dk
+arch water_md
 x 22
 y 10
 end
-arch water_dk4
+arch water_md2
 x 22
 y 11
 end
-arch water_dk3
+arch water_md
 x 22
 y 12
 end
-arch water_dk4
+arch water_md
 x 22
 y 13
 end
-arch water_dk2
+arch water_md3
 x 22
 y 14
 end
-arch water_dk
+arch water_md
 x 22
 y 15
 end
-arch water_dk4
+arch water_md
 x 22
 y 16
 end
-arch water_dk
+arch water_md2
 x 22
 y 17
 end
-arch water_dk3
+arch water_md4
 x 22
 y 18
 end
-arch water_dk2
+arch water_md4
 x 22
 y 19
 end
-arch water_dk4
+arch water_md4
 x 22
 y 20
 end
-arch water_dk3
+arch water_md2
 x 22
 y 21
 end
-arch water_dk2
+arch water_md3
 x 22
 y 22
 end
-arch water_dk
+arch water_md
 x 22
 y 23
 end
@@ -2184,83 +2272,88 @@ arch water_dk4
 x 23
 y 3
 end
-arch water_dk3
+arch water_dk2
 x 23
 y 4
 end
-arch water_dk
+arch water_dk2
 x 23
 y 5
 end
-arch water_dk2
+arch water_md4
 x 23
 y 6
 end
-arch water_dk3
+arch water_dk_m
+direction 8
+x 23
+y 6
+end
+arch water_md4
 x 23
 y 7
 end
-arch water_dk
+arch water_md2
 x 23
 y 8
 end
-arch water_dk4
+arch water_md
 x 23
 y 9
 end
-arch water_dk2
+arch water_md4
 x 23
 y 10
 end
-arch water_dk2
+arch water_md3
 x 23
 y 11
 end
-arch water_dk4
+arch water_md2
 x 23
 y 12
 end
-arch water_dk2
+arch water_md2
 x 23
 y 13
 end
-arch water_dk2
+arch water_md4
 x 23
 y 14
 end
-arch water_dk4
+arch water_md
 x 23
 y 15
 end
-arch water_dk3
+arch water_md
 x 23
 y 16
 end
-arch water_dk4
+arch water_md
 x 23
 y 17
 end
-arch water_dk
+arch water_md4
 x 23
 y 18
 end
-arch water_dk
+arch water_md4
 x 23
 y 19
 end
-arch water_dk
+arch water_md2
 x 23
 y 20
 end
-arch water_dk2
+arch water_md4
 x 23
 y 21
 end
-arch water_dk2
+arch water_md3
 x 23
 y 22
 end
-arch water_dk3
+arch water_md4
 x 23
 y 23
 end

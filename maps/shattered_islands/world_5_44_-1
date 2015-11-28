@@ -2,14 +2,14 @@ arch map
 name Asteria Palace Dungeon
 msg
 Created:  2009-08-09 emperorbma
-Modified: 2014-03-02 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 20
 darkness 1
 no_harm 1
-bg_music trial.mid
+bg_music th_08.mid
 region asteria_palace_dungeon
 end
 arch blocked
@@ -341,6 +341,7 @@ arch guard_pole
 name Warden Argoth
 randomitems mob_default
 level 20
+faction asteria_guards
 type 83
 arch quest_container
 sub_type 3

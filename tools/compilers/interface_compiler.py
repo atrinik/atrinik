@@ -59,7 +59,7 @@ class NPC(object):
         self.head = InterfaceIO()
         self.body = InterfaceIO()
         self.tail = InterfaceIO()
-        self.imports = ["Interface.InterfaceBuilder"]
+        self.imports = ["Interface.InterfaceBuilder", "Atrinik.*"]
         self.preconds = OrderedDict()
         self.quest_uid = None
 
@@ -74,15 +74,17 @@ class NPC(object):
                             uid=self.quest_uid)
 
         if self.preconds:
-            self.tail.write("def preconds(self):")
+            self.tail.write("\n\ndef preconds(self):")
             self.tail.indent()
+
+            self.tail.write("# noinspection PyRedundantParentheses")
 
             for i, uid in enumerate(self.preconds):
                 self.tail.write("{statement} {precond}: ",
                                 statement="if" if i == 0 else "elif",
                                 precond=self.preconds[uid])
                 self.tail.indent()
-                self.tail.write("self.dialog = {dialog}",
+                self.tail.write("self.dialog_name = {dialog}",
                                 dialog=repr("InterfaceDialog" + uid))
                 self.tail.unindent()
 
@@ -252,11 +254,28 @@ class TagCompilerInterface(BaseTagCompiler):
                     self.npc.imports.append(imp)
 
         state = elem.get("state")
-        inherit = elem.get("inherit")
+        self.inherit = []
+        self.interface_inherit = []
+        for val in elem.get("inherit", "").split(","):
+            val = val.strip()
+            if val:
+                self.inherit.append(val)
 
-        if inherit and inherit.find(".") != -1 and \
-                inherit not in self.npc.imports:
-            self.npc.imports.append(inherit)
+        for val in self.inherit:
+            if val.find(".") != -1:
+                if val not in self.npc.imports:
+                    self.npc.imports.append(val)
+
+                val = val[val.find(".") + 1:]
+            elif val == "interface":
+                val = "InterfaceDialog"
+            else:
+                val = "InterfaceDialog_" + val
+
+            self.interface_inherit.append(val)
+
+        if not self.interface_inherit:
+            self.interface_inherit.append("InterfaceBuilder")
 
         if not state:
             self.uid = ""
@@ -266,22 +285,12 @@ class TagCompilerInterface(BaseTagCompiler):
             if isinstance(self.parent, TagCompilerPart):
                 self.uid += "_" + self.parent.data["uid"]
 
-        if not inherit:
-            interface_inherit = "InterfaceBuilder"
-        elif inherit == "interface":
-            interface_inherit = "InterfaceDialog"
-        elif inherit.find(".") != -1:
-            interface_inherit = inherit[inherit.find(".") + 1:]
-        else:
-            interface_inherit = "InterfaceDialog_" + inherit
-
+        self.npc.body.write("\n")
+        self.npc.body.write("# noinspection PyPep8Naming")
         self.npc.body.write(
             "class InterfaceDialog{uid}({inherit}):", uid=self.uid,
-            inherit=interface_inherit
+            inherit=", ".join(self.interface_inherit)
         )
-
-        self.inherit = inherit
-        self.interface_inherit = interface_inherit
 
         self.npc.body.indent()
 
@@ -340,10 +349,8 @@ class TagCompilerDialog(BaseTagCompiler):
 
         if not self.parent.inherit or dialog_name.startswith("_::"):
             self.inherit = "self"
-            self.inherit_args = ""
         else:
-            self.inherit = self.parent.interface_inherit
-            self.inherit_args = "self"
+            self.inherit = "super()"
 
         self.inherit_name = elem.get("inherit")
         self.inherit_name_prefix = ""
@@ -371,7 +378,7 @@ class TagCompilerDialog(BaseTagCompiler):
                 if not self.parent.inherit:
                     dest_inherit = ""
                 else:
-                    dest_inherit = self.parent.interface_inherit + "."
+                    dest_inherit = self.parent.interface_inherit[0] + "."
 
                 dest = "{dest_inherit}dialog{inherit_name}".format(
                     dest_inherit=dest_inherit, inherit_name=self.inherit_name
@@ -381,7 +388,7 @@ class TagCompilerDialog(BaseTagCompiler):
 
         if not dialog_regex or dialog_name:
             self.npc.body.write(
-                "def {dialog_prepend}dialog{dialog_name}(self{dialog_args}):",
+                "\ndef {dialog_prepend}dialog{dialog_name}(self{dialog_args}):",
                 dialog_prepend=dialog_prepend, dialog_name=dialog_name,
                 dialog_args=dialog_args
             )
@@ -421,10 +428,9 @@ class TagCompilerDialog(BaseTagCompiler):
     def do_inherit(self):
         self.was_inherited = True
         self.npc.body.write(
-            "{inherit}.{inherit_name_prefix}dialog{inherit_name}"
-            "({inherit_args})", inherit=self.inherit,
-            inherit_name_prefix=self.inherit_name_prefix,
-            inherit_name=self.inherit_name, inherit_args=self.inherit_args
+            "{inherit}.{inherit_name_prefix}dialog{inherit_name}()",
+            inherit=self.inherit, inherit_name_prefix=self.inherit_name_prefix,
+            inherit_name=self.inherit_name
         )
 
     def finish(self, tag):
@@ -453,6 +459,9 @@ class TagCompilerAnd(BaseTagCompiler):
 
         if isinstance(self.parent, TagCompilerDialog):
             self.handlers["message"] = TagCompilerMessage
+            self.handlers["inherit"] = TagCompilerInherit
+            self.handlers["object"] = TagCompilerObject
+            self.handlers["action"] = TagCompilerAction
 
     def precompile(self, elem):
         if not isinstance(self, TagCompilerAnd):
@@ -482,6 +491,8 @@ class TagCompilerAnd(BaseTagCompiler):
 
             precond = self.precond.getvalue()
 
+            self.npc.body.write("# noinspection PyRedundantParentheses")
+
             if not data:
                 self.npc.body.write("return {precond}", precond=precond)
             elif precond == "()":
@@ -509,10 +520,12 @@ class TagCompilerOr(TagCompilerAnd):
 
 class TagCompilerCheck(TagCompilerAnd):
     def register_handlers(self):
-        pass
+        self.handlers["object"] = TagCompilerObject
 
     def compile(self, elem):
         not_str = "not " if isinstance(self, TagCompilerNcheck) else ""
+        self.precond.write("{not_str}(", not_str=not_str)
+        BaseTagCompiler.compile(self, elem)
 
         for attr in elem.attrib:
             val = elem.get(attr)
@@ -520,12 +533,13 @@ class TagCompilerCheck(TagCompilerAnd):
             if not val:
                 continue
 
-            self.precond.write("{not_str}(", not_str=not_str)
+            if not self.precond.getvalue().endswith("("):
+                self.precond.write(" and ")
 
             if attr == "region_map":
                 self.precond.write(
                     "self._activator.FindObject(type=Type.REGION_MAP, "
-                    "name={name})", name=val
+                    "name={name})", name=repr(val)
                 )
             elif attr == "options":
                 self.precond.write("GetOptions() == {options}",
@@ -541,7 +555,7 @@ class TagCompilerCheck(TagCompilerAnd):
             elif attr == "num2finish":
                 self.precond.write("self.num2finish == {num}",
                                    num=repr(int(val)))
-            elif attr in ("started", "finished", "completed"):
+            elif attr in ("started", "finished", "completed", "failed"):
                 words = elem.attrib[attr].split(" ")
 
                 if len(words) == 2:
@@ -576,8 +590,23 @@ class TagCompilerCheck(TagCompilerAnd):
                         "QuestManager(self._activator, {quest_name})"
                         ".{attr}({part_name})", quest_name=quest_name,
                         attr=attr, part_name=part_name)
+            elif attr == "gender":
+                self.precond.write("self._activator.GetGender() == ")
 
-            self.precond.write(")")
+                if val == "male":
+                    self.precond.write("Gender.MALE")
+                elif val == "female":
+                    self.precond.write("Gender.FEMALE")
+                elif val == "hermaphrodite":
+                    self.precond.write("Gender.HERMAPHRODITE")
+                else:
+                    self.precond.write("Gender.NEUTER")
+            elif attr == "faction_friend":
+                self.precond.write(
+                    "self._activator.FactionIsFriend({faction})",
+                   faction=repr(val))
+
+        self.precond.write(")")
 
 
 class TagCompilerNcheck(TagCompilerCheck):
@@ -598,10 +627,10 @@ class TagCompilerClose(BaseTagCompiler):
 class TagCompilerAction(BaseTagCompiler):
     def compile(self, elem):
         if elem.text:
-            self.npc.body.write("{text}", text=elem.text())
+            self.npc.body.write("{text}", text=elem.text)
 
         for attr in ["start", "complete", "region_map", "enemy", "teleport",
-                     "trigger", "cast"]:
+                     "trigger", "cast", "fail"]:
             val = elem.get(attr)
 
             if not val:
@@ -620,6 +649,7 @@ class TagCompilerAction(BaseTagCompiler):
                 else:
                     raise ParseError("Invalid data in tag", elem)
 
+                self.npc.body.write("self._npc.WriteKey('was_provoked', '1')")
                 self.npc.body.write("self._npc.enemy = {enemy}", enemy=enemy)
             elif attr == "teleport":
                 match = re.match(r"([^ ]+)\s*(\d+)?\s*(\d+)?\s*(savebed)?", val)
@@ -649,7 +679,7 @@ class TagCompilerAction(BaseTagCompiler):
             elif attr == "trigger":
                 self.npc.body.write(
                     "beacon = self._npc.map.LocateBeacon({name})\n"
-                    "beacon.env.Apply(beacon.env, APPLY_TOGGLE)",
+                    "beacon.env.Apply(beacon.env, APPLY_NORMAL)",
                     name=repr(val)
                 )
             elif attr == "cast":
@@ -695,22 +725,59 @@ class TagCompilerObject(BaseTagCompiler):
         item_args = ", ".join(item_args)
         remove = elem.get("remove")
         message = elem.get("message")
+        parent = self.parent
 
-        if not remove:
+        if isinstance(parent, (TagCompilerCheck, TagCompilerNcheck)):
+            parent.precond.write(
+                "self._activator.FindObject({item_args})",
+                item_args=item_args)
+        elif not remove:
+            nrof = elem.get("nrof") or 0
+            if nrof:
+                nrof = int(nrof)
+
+            if isinstance(parent, TagCompilerMessage):
+                self.npc.body.write(
+                    "obj = self._npc.FindObject({item_args})",
+                    item_args=item_args
+                )
+                self.npc.body.write(
+                    "self.add_msg_icon_object(obj, desc={message})",
+                    message=repr(message)
+                )
+                return
+
+            if nrof > 0:
+                self.npc.body.write(
+                    "obj = CreateObject({arch})",
+                    arch=repr(elem.get("arch"))
+                )
+
+                if nrof > 1:
+                    self.npc.body.write(
+                        "obj.nrof = {nrof}",
+                        nrof=repr(nrof)
+                    )
+
+
             if not self.npc.closed and not message:
-                self.npc.body.write(
-                    "self.add_objects(self._npc.FindObject({item_args}))",
-                    item_args=item_args
-                )
+                if not nrof:
+                    self.npc.body.write(
+                        "obj = self._npc.FindObject({item_args})",
+                        item_args=item_args
+                    )
+
+                self.npc.body.write("self.add_objects(obj)")
             else:
-                self.npc.body.write(
-                    "obj = self._npc.FindObject({item_args}).Clone()",
-                    item_args=item_args
-                )
+                if not nrof:
+                    self.npc.body.write(
+                        "obj = self._npc.FindObject({item_args}).Clone()",
+                        item_args=item_args
+                    )
 
                 if not self.npc.closed and message:
                     self.npc.body.write(
-                        "self.add_msg_icon(obj.face[0], {message})",
+                        "self.add_msg_icon_object(obj, desc={message})",
                         message=repr(message)
                     )
 
@@ -718,7 +785,7 @@ class TagCompilerObject(BaseTagCompiler):
         else:
             self.npc.body.write(
                 "self._activator.FindObject({item_args}).Decrease({remove})",
-                item_args=item_args, remove=remove
+                item_args=item_args, remove=remove if remove != "1" else ""
             )
 
 
@@ -752,9 +819,12 @@ class TagCompilerChoice(BaseTagCompiler):
 
 
 class TagCompilerMessage(BaseTagCompiler):
+    def register_handlers(self):
+        self.handlers["object"] = TagCompilerObject
+
     def compile(self, elem):
         color = elem.get("color", "")
-        msg = repr(elem.text)
+        msg = repr(elem.text.strip() if elem.text else elem.text)
 
         if color:
             if color.startswith("#"):
@@ -767,6 +837,7 @@ class TagCompilerMessage(BaseTagCompiler):
         if not self.npc.closed:
             self.npc.body.write("self.add_msg({msg}{color})", msg=msg,
                                 color=color)
+            BaseTagCompiler.compile(self, elem)
         else:
             self.npc.body.write(
                 "self._activator.Controller().DrawInfo({msg}{color})", msg=msg,

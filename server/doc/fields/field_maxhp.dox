@@ -1,6 +1,10 @@
 /**
-@fn liv::maxhp
-@section Use
+@var liv::maxhp
+@sa @ref page_field_maxhp
+*/
+
+/**
+@page page_field_maxhp liv::maxhp Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -31,10 +35,12 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_26
-		</td><td>		When triggered, this is the time the timed gate will stay in the
-		new condition, until it resets itself. When opened, it stays this
-		time open, then it closes. 10 ticks are around 5 seconds.</td>
+@ref page_type_91
+		</td><td>		If set and the gate is triggered, the gate will stay in the
+		new condition for the specified amount of time, by which it
+		will reset back to the previous state.
+
+		A value of 10 is around 5 seconds.</td>
 	</tr>
 	<tr>
 		<td>
@@ -60,16 +66,16 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_62
-		</td><td>			&lt;Max hitpoints&gt; are the maximum amount of hitpoints the
-			wall can have. This only makes sense if the wall can regain
-			health.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_80, @ref page_type_83
 		</td><td>			&lt;max health&gt; is the maximum amount of
 			&lt;health points&gt; this monster can have.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>			Move flying creatures enabled means all flying (living)
+			objects will get moved too. If disabled, only walking
+			(non-flying) creatures will get moved.</td>
 	</tr>
 
 */

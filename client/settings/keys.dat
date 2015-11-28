@@ -199,7 +199,13 @@ end
 bind
 	# tab
 	key 9
-	command /widget_toggle maininv
+	command /widget_toggle inventory:main
+end
+bind
+    # tab
+    key 9
+    mod 3
+    command /widget_focus inventory
 end
 bind
 	# left alt
@@ -331,4 +337,15 @@ bind
 	# left shift
 	key 304
 	command ?QUICKSLOT_SET_KEY
+end
+bind
+    # c
+    key 99
+    mod 3
+    command ?COMBAT_FORCE
+end
+bind
+    # c
+    key 99
+    command ?COMBAT
 end

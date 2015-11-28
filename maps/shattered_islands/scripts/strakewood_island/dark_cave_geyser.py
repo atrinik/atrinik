@@ -2,18 +2,25 @@
 ## Implements geysers in Dark Cave on Strakewood Island.
 
 from random import randint
+
+from Atrinik import *
 from Common import diagonal_distance
+
 
 ## Number of geysers to create at once.
 geysers = randint(1, 3)
 
 # Now create the geysers.
-for i in range(0, geysers):
+for _ in range(0, geysers):
     # Randomly choose where to place the geyser.
     x = randint(0, me.map.width - 1)
     y = randint(0, me.map.height - 1)
-    # Get the last object on the randomly chosen square (which should be floor).
-    floor = me.map.GetLastObject(x, y)
+
+    floor = None
+    for obj in me.map.ObjectsReversed(x, y):
+        if obj.type == Type.FLOOR:
+            floor = obj
+            break
 
     # Must have at least one object, and it must be 'fire'.
     if floor and floor.name == "fire":

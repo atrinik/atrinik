@@ -242,7 +242,7 @@ arch floor_stone_b3
 x 1
 y 6
 end
-arch altar_moroch
+arch altar_zechna
 direction 7
 xrays 1
 x 1
@@ -378,7 +378,7 @@ arch floor_stone_b4
 x 2
 y 2
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 2
 y 2

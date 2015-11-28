@@ -1,6 +1,10 @@
 /**
-@fn FLAG_SEE_INVISIBLE
-@section Use
+@var FLAG_SEE_INVISIBLE
+@sa @ref page_field_see_invisible
+*/
+
+/**
+@page page_field_see_invisible FLAG_SEE_INVISIBLE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

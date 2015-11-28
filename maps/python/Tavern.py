@@ -1,7 +1,7 @@
 ## @file
 ## API for handling taverns.
 
-from Seller import Seller
+from Merchant import Seller
 
 class Bartender(Seller):
     def subdialog_buyitem(self):

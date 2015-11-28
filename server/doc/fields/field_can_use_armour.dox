@@ -1,6 +1,10 @@
 /**
-@fn FLAG_USE_ARMOUR
-@section Use
+@var FLAG_USE_ARMOUR
+@sa @ref page_field_can_use_armour
+*/
+
+/**
+@page page_field_can_use_armour FLAG_USE_ARMOUR Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

@@ -258,7 +258,7 @@ int server_files_listing_processed(void)
                 tmp->update = 1;
             }
 
-            log(LOG(DEVEL),
+            LOG(DEVEL,
                     "%-10s CRC32: %lu (local: %lu) Size: %"PRIu64" ("
                     "local: %"PRIu64") Update: %d", tmp->name, crc, tmp->crc32,
                     (uint64_t) fsize, (uint64_t) tmp->size, tmp->update);
@@ -297,7 +297,7 @@ static int server_file_process(server_files_struct *tmp)
             curl_data_free(tmp->dl_data);
         }
 
-        log(LOG(DEVEL), "Beginning download: %s, URL: %s", tmp->name, url);
+        LOG(DEVEL, "Beginning download: %s, URL: %s", tmp->name, url);
 
         tmp->dl_data = curl_download_start(url, NULL);
         tmp->update = -1;
@@ -311,10 +311,8 @@ static int server_file_process(server_files_struct *tmp)
         return 1;
     }
 
-    log(LOG(DEVEL),
-            "Download finished: %s, ret: %d, http_code: %d, size: %"PRIu64,
-            tmp->name, ret, tmp->dl_data->http_code,
-            (uint64_t) tmp->dl_data->size);
+    LOG(DEVEL, "Download finished: %s, ret: %d, http_code: %d, size: %"PRIu64,
+        tmp->name, ret, tmp->dl_data->http_code, (uint64_t) tmp->dl_data->size);
 
     /* Done. */
     if (ret == 1) {
@@ -328,7 +326,7 @@ static int server_file_process(server_files_struct *tmp)
                 (const Bytef *) tmp->dl_data->memory,
                 (uLong) tmp->dl_data->size);
 
-        log(LOG(DEVEL), "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
+        LOG(DEVEL, "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
 
         if (server_file_save(tmp, dest, len_ucomp)) {
             tmp->loaded = 0;
@@ -337,7 +335,7 @@ static int server_file_process(server_files_struct *tmp)
         efree(dest);
     } else if (ret == -1) {
         /* Error occurred. */
-        logger_print(LOG(BUG), "Could not download %s: %d", tmp->name,
+        LOG(BUG, "Could not download %s: %d", tmp->name,
                 tmp->dl_data->http_code);
     }
 
@@ -414,30 +412,30 @@ FILE *server_file_open_name(const char *name)
  * @param tmp Server file.
  * @param data The data to save.
  * @param len Length of 'data'.
- * @return 1 on success, 0 on failure.
+ * @return True on success, false on failure.
  */
-int server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
+bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
 {
     char path[MAX_BUF];
-    FILE *fp;
+    server_file_path(tmp, VS(path));
 
-    server_file_path(tmp, path, sizeof(path));
-    fp = fopen_wrapper(path, "wb");
-
+    FILE *fp = fopen_wrapper(path, "wb");
     if (fp == NULL) {
-        logger_print(LOG(BUG), "Could not open %s for writing.", path);
-        return 0;
+        LOG(ERROR, "Could not open %s for writing.", path);
+        return false;
     }
 
+    bool ret = true;
+
     if (fwrite(data, 1, len, fp) != len) {
-        logger_print(LOG(BUG), "Failed to write to %s.", path);
-        return 0;
+        LOG(ERROR, "Failed to write to %s.", path);
+        ret = false;
     }
 
     if (fclose(fp) != 0) {
-        logger_print(LOG(BUG), "Could not close %s.", path);
-        return 0;
+        LOG(ERROR, "Could not close %s.", path);
+        ret = false;
     }
 
-    return 1;
+    return ret;
 }

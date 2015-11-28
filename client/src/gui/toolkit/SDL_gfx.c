@@ -693,8 +693,14 @@ int _filledRectAlpha(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 
         sB = colors[color].b;
 
         for (y = yy; y <= y2; y++) {
+            if (y < 0 || y >= dst->h) {
+                continue;
+            }
             row = (Uint8 *) dst->pixels + y * dst->pitch;
             for (x = xx; x <= x2; x++) {
+                if (x < 0 || x >= dst->w) {
+                    continue;
+                }
                 pixel = row + x;
 
                 dR = colors[*pixel].r;
@@ -728,8 +734,14 @@ int _filledRectAlpha(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 
         A = 0;
 
         for (y = yy; y <= y2; y++) {
+            if (y < 0 || y >= dst->h) {
+                continue;
+            }
             row = (Uint16 *) dst->pixels + y * dst->pitch / 2;
             for (x = xx; x <= x2; x++) {
+                if (x < 0 || x >= dst->w) {
+                    continue;
+                }
                 pixel = row + x;
 
                 R = ((*pixel & Rmask) + ((dR - (*pixel & Rmask)) * alpha >> 8)) & Rmask;
@@ -768,8 +780,14 @@ int _filledRectAlpha(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 
         sA = (color >> Ashift) & 0xff;
 
         for (y = yy; y <= y2; y++) {
+            if (y < 0 || y >= dst->h) {
+                continue;
+            }
             row = (Uint8 *) dst->pixels + y * dst->pitch;
             for (x = xx; x <= x2; x++) {
+                if (x < 0 || x >= dst->w) {
+                    continue;
+                }
                 pix = row + x * 3;
 
                 dR = *((pix) + Rshift8);
@@ -813,8 +831,14 @@ int _filledRectAlpha(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 
         dA = (color & Amask);
 
         for (y = yy; y <= y2; y++) {
+            if (y < 0 || y >= dst->h) {
+                continue;
+            }
             row = (Uint32 *) dst->pixels + y * dst->pitch / 4;
             for (x = xx; x <= x2; x++) {
+                if (x < 0 || x >= dst->w) {
+                    continue;
+                }
                 pixel = row + x;
 
                 R = ((*pixel & Rmask) + ((((dR - (*pixel & Rmask)) >> Rshift) * alpha >> 8) << Rshift)) & Rmask;
@@ -861,8 +885,14 @@ int _filledRectAlpha(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 
         preMultB = (alpha * (dB >> Bshift));
 
         for (y = y1; y <= y2; y++) {
+            if (y < 0 || y >= dst->h) {
+                continue;
+            }
             row = (Uint32 *) dst->pixels + y * dst->pitch / 4;
             for (x = x1; x <= x2; x++) {
+                if (x < 0 || x >= dst->w) {
+                    continue;
+                }
                 pixel = row + x;
                 dc = *pixel;
 
@@ -4259,8 +4289,8 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
         t -= dt;
 
         /* Calculate alpha */
-        if (s != 0.0) {
-            cp = abs(d) / abs(s);
+        if (s != 0) {
+            cp = fabs((float) d) / fabs((float) s);
             if (cp > 1.0) {
                 cp = 1.0;
             }
@@ -4318,8 +4348,8 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
         s += ds;
 
         /* Calculate alpha */
-        if (t != 0.0) {
-            cp = abs(d) / abs(t);
+        if (t != 0) {
+            cp = fabs((float) d) / fabs((float) t);
             if (cp > 1.0) {
                 cp = 1.0;
             }

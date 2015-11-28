@@ -42,14 +42,15 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <network_graph.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {
     "map", "stat", "menu_buttons", "quickslots", "textwin", "playerdoll",
-    "belowinv", "playerinfo", "maininv", "mapname",
-    "input", "fps", "mplayer", "spells", "skills", "party", "notification",
-    "container", "label", "texture", "buddy", "active_effects", "protections",
-    "minimap",
+    "playerinfo", "mapname", "input", "fps", "mplayer", "spells", "skills",
+    "party", "notification", "container", "label", "texture", "buddy",
+    "active_effects", "protections", "minimap", "target", "inventory",
+    "network_graph",
 
     "container_strip", "menu", "menuitem"
 };
@@ -163,7 +164,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
                 /* Reset to NULL in case there was a valid widget previously,
                  * so that we don't load into it from this invalid one. */
                 widget = NULL;
-                logger_print(LOG(DEBUG), "Invalid widget: %s", line);
+                LOG(DEBUG, "Invalid widget: %s", line);
                 continue;
             }
 
@@ -178,7 +179,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
             char *cps[2];
 
             if (string_split(line, cps, arraysize(cps), '=') != arraysize(cps)) {
-                logger_print(LOG(BUG), "Invalid line: %s", line);
+                LOG(BUG, "Invalid line: %s", line);
                 continue;
             }
 
@@ -216,7 +217,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
                 widget->min_h = atoi(cps[1]);
             } else if (widget->load_func && widget->load_func(widget, cps[0], cps[1])) {
             } else {
-                logger_print(LOG(BUG), "Invalid line: %s = %s", cps[0], cps[1]);
+                LOG(BUG, "Invalid line: %s = %s", cps[0], cps[1]);
             }
         }
     }
@@ -242,14 +243,14 @@ void toolkit_widget_init(void)
     widget_initializers[CONTAINER_ID] = widget_container_init;
     widget_initializers[FPS_ID] = widget_fps_init;
     widget_initializers[INPUT_ID] = widget_input_init;
-    widget_initializers[MAIN_INV_ID] = widget_inventory_init;
-    widget_initializers[BELOW_INV_ID] = widget_inventory_init;
+    widget_initializers[INVENTORY_ID] = widget_inventory_init;
     widget_initializers[LABEL_ID] = widget_label_init;
     widget_initializers[MAP_ID] = widget_map_init;
     widget_initializers[MAPNAME_ID] = widget_mapname_init;
     widget_initializers[MENU_B_ID] = widget_menu_buttons_init;
     widget_initializers[MINIMAP_ID] = widget_minimap_init;
     widget_initializers[MPLAYER_ID] = widget_mplayer_init;
+    widget_initializers[NETWORK_GRAPH_ID] = widget_network_graph_init;
     widget_initializers[NOTIFICATION_ID] = widget_notification_init;
     widget_initializers[PARTY_ID] = widget_party_init;
     widget_initializers[PDOLL_ID] = widget_playerdoll_init;
@@ -259,11 +260,12 @@ void toolkit_widget_init(void)
     widget_initializers[SKILLS_ID] = widget_skills_init;
     widget_initializers[SPELLS_ID] = widget_spells_init;
     widget_initializers[STAT_ID] = widget_stat_init;
+    widget_initializers[TARGET_ID] = widget_target_init;
     widget_initializers[TEXTURE_ID] = widget_texture_init;
     widget_initializers[CHATWIN_ID] = widget_textwin_init;
 
     if (!widget_load("data/interface.cfg", 1, widgets)) {
-        logger_print(LOG(ERROR), "Could not load widget defaults from data/interface.cfg.");
+        LOG(ERROR, "Could not load widget defaults from data/interface.cfg.");
         exit(1);
     }
 
@@ -274,46 +276,9 @@ void toolkit_widget_init(void)
 /** @copydoc widgetdata::menu_handle_func */
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 {
-    widgetdata *menu;
-
-    /* Create a context menu for the widget clicked on. */
-    menu = create_menu(event->motion.x, event->motion.y, widget);
-
-    if ((widget->sub_type == MAIN_INV_ID || widget->sub_type == BELOW_INV_ID) && INVENTORY_MOUSE_INSIDE(widget, event->motion.x, event->motion.y)) {
-        if (widget->sub_type == MAIN_INV_ID) {
-            add_menuitem(menu, "Drop", &menu_inventory_drop, MENU_NORMAL, 0);
-        }
-
-        add_menuitem(menu, "Get", &menu_inventory_get, MENU_NORMAL, 0);
-
-        if (widget->sub_type == BELOW_INV_ID) {
-            add_menuitem(menu, "Get all", &menu_inventory_getall, MENU_NORMAL, 0);
-        }
-
-        add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
-
-        if (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR)) {
-            add_menuitem(menu, "Patch", &menu_inventory_patch, MENU_NORMAL, 0);
-            add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
-        }
-
-        if (widget->sub_type == MAIN_INV_ID) {
-            add_menuitem(menu, "More  >", &menu_inventory_submenu_more, MENU_SUBMENU, 0);
-        }
-
-        /* Process the right click event so the correct item is
-         * selected. */
-        widget->event_func(widget, event);
-    } else {
-        widget_menu_standard_items(widget, menu);
-
-        if (widget->sub_type == MAIN_INV_ID) {
-            add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
-        }
-    }
-
+    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widget_menu_standard_items(widget, menu);
     menu_finalize(menu);
-
     return 1;
 }
 
@@ -339,6 +304,8 @@ void menu_container_attach(widgetdata *widget, widgetdata *menuitem, SDL_Event *
     widgetdata *widget_container;
 
     widget_container = create_widget_object(CONTAINER_ID);
+    SOFT_ASSERT(widget_container != NULL,
+            "Failed to create a widget container");
     widget_container->x = widget->x;
     widget_container->y = widget->y;
     insert_widget_in_container(widget_container, widget, 0);
@@ -354,7 +321,7 @@ void menu_container_background_change(widgetdata *widget, widgetdata *menuitem, 
     for (tmp = menuitem->inv; tmp; tmp = tmp->next) {
         if (tmp->type == LABEL_ID) {
             label = LABEL(tmp);
-            logger_print(LOG(INFO), "%s, %s", label->text, container->texture ? container->texture->name : "NONE");
+            LOG(INFO, "%s, %s", label->text, container->texture ? container->texture->name : "NONE");
 
             SDL_FreeSurface(container->surface);
             container->surface = NULL;
@@ -386,10 +353,11 @@ void menu_container_background(widgetdata *widget, widgetdata *menuitem, SDL_Eve
 
     submenu = MENU(menuitem->env)->submenu;
     container = get_innermost_container(widget);
+    SOFT_ASSERT(container != NULL, "Failed to get innermost container.");
     is_widget_bg = container->texture != NULL && strstr(container->texture->name, "widget_bg") != NULL;
 
     add_menuitem(submenu, "Blank", &menu_container_background_change, MENU_RADIO, container->texture != NULL && !is_widget_bg);
-    add_menuitem(submenu, "Texturised", &menu_container_background_change, MENU_RADIO, container->texture != NULL && is_widget_bg);
+    add_menuitem(submenu, "Texturized", &menu_container_background_change, MENU_RADIO, container->texture != NULL && is_widget_bg);
     add_menuitem(submenu, "Transparent", &menu_container_background_change, MENU_RADIO, container->texture == NULL);
 }
 
@@ -399,6 +367,7 @@ static void menu_container(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 
     submenu = MENU(menuitem->env)->submenu;
     outermost = get_outermost_container(widget);
+    SOFT_ASSERT(outermost != NULL, "Failed to get outermost container.");
 
     if (outermost->type == CONTAINER_ID) {
         add_menuitem(submenu, "Move", &menu_container_move, MENU_NORMAL, 0);
@@ -423,10 +392,12 @@ void widget_menu_standard_items(widgetdata *widget, widgetdata *menu)
 
 static void widget_texture_create(widgetdata *widget)
 {
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
+    snprintf(VS(buf), "rectangle:%d,%d;", widget->w, widget->h);
 
     if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL) {
-        snprintf(buf, sizeof(buf), "rectangle:%d,%d;[bar=%s]", widget->w, widget->h, widget->bg[0] != '\0' ? widget->bg : "widget_bg");
+        snprintfcat(VS(buf), "[bar=%s]",
+                widget->bg[0] != '\0' ? widget->bg : "widget_bg");
     }
 
     texture_delete(widget->texture);
@@ -708,7 +679,7 @@ widgetdata *create_widget(int widget_id)
     widgetdata *node;
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(INFO), "Entering create_widget()..");
+    LOG(INFO, "Entering create_widget()..");
 #endif
 
     /* allocate it */
@@ -745,10 +716,10 @@ widgetdata *create_widget(int widget_id)
     }
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..ALLOCATED: %s", node->name);
+    LOG(DEBUG, "..ALLOCATED: %s", node->name);
     debug_count_nodes(1);
 
-    logger_print(LOG(INFO), "..create_widget(): Done.");
+    LOG(INFO, "..create_widget(): Done.");
 #endif
 
     return node;
@@ -761,7 +732,7 @@ void remove_widget(widgetdata *widget)
     widgetdata *tmp = NULL;
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(INFO), "Entering remove_widget()..");
+    LOG(INFO, "Entering remove_widget()..");
 #endif
 
     /* node to delete is the only node in the tree, bye-bye binary tree :) */
@@ -833,7 +804,7 @@ void remove_widget(widgetdata *widget)
     }
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..REMOVED: %s", widget->name);
+    LOG(DEBUG, "..REMOVED: %s", widget->name);
 #endif
 
     /* free the surface */
@@ -846,7 +817,7 @@ void remove_widget(widgetdata *widget)
 
 #ifdef DEBUG_WIDGET
     debug_count_nodes(1);
-    logger_print(LOG(INFO), "..remove_widget(): Done.");
+    LOG(INFO, "..remove_widget(): Done.");
 #endif
 }
 
@@ -916,7 +887,7 @@ int debug_count_nodes_rec(widgetdata *widget, int i, int j, int output)
                 printf("..");
             }
 
-            logger_print(LOG(INFO), "..%s", widget->name);
+            LOG(INFO, "..%s", widget->name);
         }
 
         i++;
@@ -938,15 +909,15 @@ void debug_count_nodes(int output)
 {
     int i = 0;
 
-    logger_print(LOG(INFO), "Output of widget nodes:");
-    logger_print(LOG(INFO), "========================================");
+    LOG(INFO, "Output of widget nodes:");
+    LOG(INFO, "========================================");
 
     if (widget_list_head) {
         i = debug_count_nodes_rec(widget_list_head, 0, 0, output);
     }
 
-    logger_print(LOG(INFO), "========================================");
-    logger_print(LOG(INFO), "..Total widget nodes: %d", i);
+    LOG(INFO, "========================================");
+    LOG(INFO, "..Total widget nodes: %d", i);
 }
 #endif
 
@@ -1204,36 +1175,6 @@ int widgets_event(SDL_Event *event)
         if (event->type == SDL_MOUSEMOTION) {
             if (widget->resizeable) {
                 widget->resize_flags = 0;
-
-#define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj) (event->motion.coord >= widget->coord + (upper_adj) && event->motion.coord <= widget->coord + (lower_adj))
-
-                if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
-                    widget->resize_flags = RESIZE_TOP;
-                } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
-                    widget->resize_flags = RESIZE_BOTTOM;
-                } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
-                    widget->resize_flags = RESIZE_LEFT;
-                } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
-                    widget->resize_flags = RESIZE_RIGHT;
-                }
-
-                if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
-                    if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
-                        widget->resize_flags |= RESIZE_LEFT;
-                    } else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05, widget->w)) {
-                        widget->resize_flags |= RESIZE_RIGHT;
-                    }
-                } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
-                    if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
-                        widget->resize_flags |= RESIZE_TOP;
-                    } else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05, widget->h)) {
-                        widget->resize_flags |= RESIZE_BOTTOM;
-                    }
-                }
-
-                if (widget->resize_flags) {
-                    return 1;
-                }
             }
         } else if (event->type == SDL_MOUSEBUTTONDOWN) {
             /* Set the priority to this widget. */
@@ -1260,6 +1201,42 @@ int widgets_event(SDL_Event *event)
 
         if (widget->event_func) {
             ret = widget->event_func(widget, event);
+        }
+
+        if (ret == 0 && event->type == SDL_MOUSEMOTION && widget->resizeable) {
+#define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj)      \
+    (event->motion.coord >= widget->coord + (upper_adj) &&    \
+    event->motion.coord <= widget->coord + (lower_adj))
+            if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
+                widget->resize_flags = RESIZE_TOP;
+            } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
+                widget->resize_flags = RESIZE_BOTTOM;
+            } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
+                widget->resize_flags = RESIZE_LEFT;
+            } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
+                widget->resize_flags = RESIZE_RIGHT;
+            }
+
+            if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
+                if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
+                    widget->resize_flags |= RESIZE_LEFT;
+                } else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05,
+                        widget->w)) {
+                    widget->resize_flags |= RESIZE_RIGHT;
+                }
+            } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
+                if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
+                    widget->resize_flags |= RESIZE_TOP;
+                } else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05,
+                        widget->h)) {
+                    widget->resize_flags |= RESIZE_BOTTOM;
+                }
+            }
+#undef WIDGET_RESIZE_CHECK
+
+            if (widget->resize_flags) {
+                return 1;
+            }
         }
 
         if (event->type == SDL_MOUSEBUTTONDOWN) {
@@ -1387,7 +1364,7 @@ widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end)
      * back. if not, we get a big fat NULL */
     success = get_widget_owner_rec(x, y, start, end);
 
-    /*logger_print(LOG(DEBUG), "WIDGET OWNER: %s", success? success->name:
+    /*LOG(DEBUG, "WIDGET OWNER: %s", success? success->name:
      * "NULL");*/
 
     return success;
@@ -1585,14 +1562,14 @@ void process_widgets(int draw)
 void SetPriorityWidget(widgetdata *node)
 {
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "Entering SetPriorityWidget..");
+    LOG(DEBUG, "Entering SetPriorityWidget..");
 #endif
 
     /* widget doesn't exist, means parent node has no children, so nothing to do
      * here */
     if (!node) {
 #ifdef DEBUG_WIDGET
-        logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done (Node does not exist).");
+        LOG(DEBUG, "..SetPriorityWidget(): Done (Node does not exist).");
 #endif
         return;
     }
@@ -1602,17 +1579,17 @@ void SetPriorityWidget(widgetdata *node)
     }
 
     /* TODO: add callback function? could also block the above if with it */
-    if (node->type == MAIN_INV_ID || node->type == BELOW_INV_ID) {
-        cpl.inventory_focus = node->type;
-        node->redraw = 1;
+    if (node->type == INVENTORY_ID) {
+        cpl.inventory_focus = node;
+        WIDGET_REDRAW_ALL(INVENTORY_ID);
     }
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..BEFORE:");
-    logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
-    logger_print(LOG(DEBUG), "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
+    LOG(DEBUG, "..BEFORE:");
+    LOG(DEBUG, "....node: %p - %s", node, node->name);
+    LOG(DEBUG, "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
+    LOG(DEBUG, "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
+    LOG(DEBUG, "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
 #endif
 
     /* see if the node has a parent before continuing */
@@ -1634,7 +1611,7 @@ void SetPriorityWidget(widgetdata *node)
     /* now we need to move our other node in front of the first sibling */
     if (!node->prev) {
 #ifdef DEBUG_WIDGET
-        logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done (Node already at front).");
+        LOG(DEBUG, "..SetPriorityWidget(): Done (Node already at front).");
 #endif
         /* no point continuing, node is already at the front */
         return;
@@ -1681,13 +1658,13 @@ void SetPriorityWidget(widgetdata *node)
     node->prev = NULL;
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..AFTER:");
-    logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
-    logger_print(LOG(DEBUG), "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
+    LOG(DEBUG, "..AFTER:");
+    LOG(DEBUG, "....node: %p - %s", node, node->name);
+    LOG(DEBUG, "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
+    LOG(DEBUG, "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
+    LOG(DEBUG, "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
 
-    logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done.");
+    LOG(DEBUG, "..SetPriorityWidget(): Done.");
 #endif
 }
 
@@ -1916,6 +1893,41 @@ widgetdata *widget_find_create_id(int type, const char *id)
     return tmp;
 }
 
+/**
+ * Actually switches focus to the backmost widget; used by
+ * widget_switch_focus().
+ * @param widget Where to start.
+ * @param type Widget type.
+ * @param id UID. Can be NULL.
+ */
+static void widget_switch_focus_do(widgetdata *widget, int type, const char *id)
+{
+    for (widgetdata *tmp = widget; tmp != NULL; tmp = tmp->prev) {
+        if (!tmp->show) {
+            continue;
+        }
+
+        if (tmp->type == type && (id == NULL || strcmp(tmp->id, id) == 0)) {
+            SetPriorityWidget(tmp);
+            return;
+        }
+
+        if (tmp->inv) {
+            widget_switch_focus_do(tmp->inv_rev, type, id);
+        }
+    }
+}
+
+/**
+ * Switches focus to the backmost widget of the given type and UID.
+ * @param type Widget type.
+ * @param id UID. Can be NULL.
+ */
+void widget_switch_focus(int type, const char *id)
+{
+    widget_switch_focus_do(widget_list_foot, type, id);
+}
+
 /* wrapper function to get the outermost container the widget is inside before
  * moving it */
 void move_widget(widgetdata *widget, int x, int y)
@@ -2139,6 +2151,7 @@ widgetdata *add_label(const char *text, font_struct *font, const char *color)
     _widget_label *label;
 
     widget = create_widget_object(LABEL_ID);
+    SOFT_ASSERT_RC(widget != NULL, NULL, "Failed to create a label widget.");
     label = LABEL(widget);
 
     label->text = estrdup(text);
@@ -2161,6 +2174,7 @@ widgetdata *add_texture(const char *texture)
     _widget_texture *widget_texture;
 
     widget = create_widget_object(TEXTURE_ID);
+    SOFT_ASSERT_RC(widget != NULL, NULL, "Failed to create a texture widget.");
     widget_texture = WIDGET_TEXTURE(widget);
 
     widget_texture->texture = texture_get(TEXTURE_TYPE_CLIENT, texture);
@@ -2203,6 +2217,7 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
     _menuitem *menuitem;
 
     widget_menuitem = create_widget_object(MENUITEM_ID);
+    SOFT_ASSERT(widget_menuitem != NULL, "Failed to create a menuitem widget.");
 
     container_menuitem = CONTAINER(widget_menuitem);
     container_strip_menuitem = CONTAINER_STRIP(widget_menuitem);
@@ -2338,13 +2353,12 @@ void widget_show(widgetdata *widget, int show)
     resize_widget(widget, 0, 0);
 
     /* TODO: make a callback function for this? seems a bit hacky ATM */
-    if (widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID) {
+    if (widget->type == INVENTORY_ID) {
         if (!show) {
-            int type;
-
-            type = widget->type == MAIN_INV_ID ? BELOW_INV_ID : MAIN_INV_ID;
-            widget = widget_find(NULL, type, NULL, NULL);
-            SOFT_ASSERT(widget != NULL, "Could not find widget type: %d", type);
+            const char *id = strcmp(widget->id, "main") == 0 ? "below" : "main";
+            widget = widget_find(NULL, widget->type, id, NULL);
+            SOFT_ASSERT(widget != NULL, "Could not find inventory widget: %s",
+                    id);
         }
 
         SetPriorityWidget(widget);
@@ -2374,6 +2388,8 @@ void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *eve
     widgetdata *tmp;
 
     tmp = create_widget_object(widget->sub_type);
+    SOFT_ASSERT(tmp != NULL, "Failed to create a widget of type %d",
+            widget->sub_type);
     tmp->x = menuitem->env->x;
     tmp->y = menuitem->env->y;
     widget_ensure_onscreen(tmp);

@@ -1,6 +1,10 @@
 /**
-@fn obj::behavior
-@section Use
+@var obj::behavior
+@sa @ref page_field_behavior
+*/
+
+/**
+@page page_field_behavior obj::behavior Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

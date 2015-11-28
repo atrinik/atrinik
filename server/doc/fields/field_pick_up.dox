@@ -1,6 +1,10 @@
 /**
-@fn obj::pick_up
-@section Use
+@var obj::pick_up
+@sa @ref page_field_pick_up
+*/
+
+/**
+@page page_field_pick_up obj::pick_up Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

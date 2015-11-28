@@ -1,6 +1,7 @@
 ## @file
 ## Generic script for post office mailboxes.
 
+from Atrinik import *
 from PostOffice import PostOffice
 
 post = PostOffice(activator.name)

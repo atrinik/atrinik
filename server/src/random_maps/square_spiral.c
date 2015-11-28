@@ -123,7 +123,7 @@ char **make_square_spiral_layout(int xsize, int ysize)
     }
 
     /* place the exits.  */
-    if (RANDOM() % 2) {
+    if (rndm_chance(2)) {
         maze[cx][cy] = '>';
         maze[xsize - 2][1] = '<';
     } else {

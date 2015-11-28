@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2015-05-10 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 15
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_2
@@ -1479,7 +1479,7 @@ arch wall_cave1.111
 x 17
 y 3
 end
-arch grassd_8
+arch grassd_3
 x 17
 y 4
 end
@@ -1491,23 +1491,11 @@ arch grassd_6
 x 17
 y 5
 end
-arch tree_big
-x 17
-y 5
-end
-arch grassd_8
+arch grassd_7
 x 17
 y 6
 end
-arch tree_big
-x 17
-y 6
-end
-arch grassd_6
-x 17
-y 7
-end
-arch tree_big2
+arch grassd_3
 x 17
 y 7
 end
@@ -1515,35 +1503,19 @@ arch grassd_7
 x 17
 y 8
 end
-arch tree_big2
-x 17
-y 8
-end
-arch grassd_4
+arch grassd_3
 x 17
 y 9
 end
-arch tree_big
-x 17
-y 9
-end
-arch grassd_2
+arch grassd_7
 x 17
 y 10
 end
-arch tree_big2
-x 17
-y 10
-end
-arch grassd_5
+arch grassd_6
 x 17
 y 11
 end
-arch grassd_1
-x 17
-y 12
-end
-arch tree_big
+arch grassd_3
 x 17
 y 12
 end
@@ -1551,31 +1523,15 @@ arch grassd_3
 x 17
 y 13
 end
-arch tree_big3
-x 17
-y 13
-end
-arch grassd_4
+arch grassd_1
 x 17
 y 14
 end
-arch tree_big
-x 17
-y 14
-end
-arch grassd_4
+arch grassd_3
 x 17
 y 15
 end
-arch tree_big4b
-x 17
-y 15
-end
-arch grassd_4
-x 17
-y 16
-end
-arch fence_01.173
+arch grassd_2
 x 17
 y 16
 end
@@ -1587,19 +1543,11 @@ arch grassd_m10
 x 17
 y 17
 end
-arch fence_01.171
-x 17
-y 17
-end
-arch floor_sand_d1
+arch floor_sand_d4
 x 17
 y 18
 end
-arch fence_01.171
-x 17
-y 18
-end
-arch floor_sand_d2
+arch floor_sand_d3
 x 17
 y 19
 end
@@ -1607,15 +1555,7 @@ arch grassd_m7
 x 17
 y 19
 end
-arch fence_01.171
-x 17
-y 19
-end
 arch grassd_7
-x 17
-y 20
-end
-arch fence_01.172
 x 17
 y 20
 end
@@ -1623,15 +1563,11 @@ arch grassd_5
 x 17
 y 21
 end
-arch grassd_1
+arch grassd_7
 x 17
 y 22
 end
-arch grassd_1
-x 17
-y 23
-end
-arch plant8
+arch grassd_7
 x 17
 y 23
 end
@@ -1643,167 +1579,111 @@ arch wall_cave1.111
 x 18
 y 3
 end
-arch grassd_4
-x 18
-y 4
-end
-arch tree_big3
-x 18
-y 4
-end
-arch grassd_4
-x 18
-y 5
-end
-arch tree_big3
-x 18
-y 5
-end
-arch grassd_8
-x 18
-y 6
-end
-arch tree_big3
-x 18
-y 6
-end
 arch grassd_5
 x 18
-y 7
+y 4
 end
-arch tree_big4b
+arch plant7
 x 18
-y 7
-end
-arch grassd_1
-x 18
-y 8
-end
-arch tree_big4b
-x 18
-y 8
-end
-arch grassd_6
-x 18
-y 9
-end
-arch tree_big3
-x 18
-y 9
-end
-arch grassd_8
-x 18
-y 10
-end
-arch tree_big4b
-x 18
-y 10
-end
-arch grassd_6
-x 18
-y 11
-end
-arch tree_big4b
-x 18
-y 11
+y 4
 end
 arch grassd_2
 x 18
-y 12
+y 5
+end
+arch grassd_8
+x 18
+y 6
+end
+arch grassd_2
+x 18
+y 7
+end
+arch grassd_8
+x 18
+y 8
 end
 arch tree_big
 x 18
-y 12
+y 8
 end
 arch grassd_2
 x 18
-y 13
-end
-arch plant_mushroom4
-x 18
-y 13
-end
-arch grassd_2
-x 18
-y 14
-end
-arch tree_big2
-x 18
-y 14
+y 9
 end
 arch grassd_6
 x 18
-y 15
-end
-arch tree_big4b
-x 18
-y 15
-end
-arch grassd_8
-x 18
-y 16
-end
-arch plant7
-x 18
-y 16
-end
-arch floor_sand_d2
-x 18
-y 17
-end
-arch grassd_m6
-x 18
-y 17
-end
-arch floor_sand_d4
-x 18
-y 18
-end
-arch grassd_m8
-x 18
-y 18
-end
-arch spawn_point
-x 18
-y 18
-arch guard
-msg
-@match ^hello$
-Hello there. Be careful, please! Right up ahead is nasty quicksand. It is blocking the road to Brynknot; you will have to take a ship from Greyton to Asteria instead.
-endmsg
-level 28
-type 83
-end
-end
-arch floor_sand_d4
-x 18
-y 19
-end
-arch grassd_m5
-x 18
-y 19
-end
-arch grassd_2
-x 18
-y 20
-end
-arch grassd_5
-x 18
-y 21
+y 10
 end
 arch grassd_4
 x 18
-y 22
+y 11
 end
-arch plant8
+arch grassd_5
 x 18
-y 22
+y 12
 end
 arch grassd_8
 x 18
-y 23
+y 13
+end
+arch grassd_8
+x 18
+y 14
 end
 arch tree_big2
+x 18
+y 14
+end
+arch grassd_3
+x 18
+y 15
+end
+arch floor_sand_d1
+x 18
+y 16
+end
+arch grassd_m4
+x 18
+y 16
+end
+arch floor_sand_d1
+x 18
+y 17
+end
+arch grassd_m13
+x 18
+y 17
+end
+arch floor_sand_d1
+x 18
+y 18
+end
+arch floor_sand_d1
+x 18
+y 19
+end
+arch grassd_m7
+x 18
+y 19
+end
+arch grassd_8
+x 18
+y 20
+end
+arch grassd_4
+x 18
+y 21
+end
+arch grassd_5
+x 18
+y 22
+end
+arch grassd_1
+x 18
+y 23
+end
+arch plant11
 x 18
 y 23
 end
@@ -1819,83 +1699,43 @@ arch grassd_8
 x 19
 y 4
 end
-arch tree_big2
+arch plant8
 x 19
 y 4
 end
-arch grassd_6
+arch grassd_5
 x 19
 y 5
 end
-arch tree_big3
+arch grassd_3
 x 19
-y 5
+y 6
 end
 arch grassd_7
 x 19
-y 6
-end
-arch tree_big3
-x 19
-y 6
-end
-arch floor_sand_d2
-x 19
 y 7
 end
-arch grassd_m4
-x 19
-y 7
-end
-arch plant7
-x 19
-y 7
-end
-arch floor_sand_d2
+arch grassd_6
 x 19
 y 8
 end
-arch grassd_m9
-x 19
-y 8
-end
-arch plant7
-x 19
-y 8
-end
-arch floor_sand_d3
+arch grassd_5
 x 19
 y 9
 end
-arch grassd_m9
-x 19
-y 9
-end
-arch plant8
-x 19
-y 9
-end
-arch floor_sand_d1
+arch grassd_8
 x 19
 y 10
 end
-arch grassd_m9
-x 19
-y 10
-end
-arch floor_sand_d3
+arch grassd_4
 x 19
 y 11
 end
-arch grassd_m3
-x 19
-y 11
-end
-arch grassd_2
+arch grassd_6
 x 19
 y 12
 end
-arch tree_big3
+arch plant_mushroom3
 x 19
 y 12
 end
@@ -1903,281 +1743,175 @@ arch grassd_1
 x 19
 y 13
 end
-arch tree_big3
-x 19
-y 13
-end
-arch grassd_2
+arch grassd_3
 x 19
 y 14
 end
-arch tree_big2
-x 19
-y 14
-end
-arch grassd_6
+arch grassd_8
 x 19
 y 15
 end
-arch tree_big4b
-x 19
-y 15
-end
-arch grassd_7
+arch floor_sand_d3
 x 19
 y 16
 end
-arch tree_big3
+arch grassd_m10
 x 19
 y 16
 end
-arch grassd_6
+arch floor_sand_d3
 x 19
 y 17
 end
-arch grassd_2
+arch floor_sand_d2
 x 19
 y 18
 end
-arch grassd_5
+arch floor_sand_d4
 x 19
 y 19
+end
+arch grassd_m7
+x 19
+y 19
+end
+arch grassd_1
+x 19
+y 20
+end
+arch grassd_4
+x 19
+y 21
 end
 arch plant11
 x 19
-y 19
+y 21
 end
-arch grassd_5
+arch grassd_6
 x 19
-y 20
+y 22
+end
+arch grassd_3
+x 19
+y 23
 end
 arch grassd_7
-x 19
-y 21
+x 20
+y 3
+end
+arch wall_cave1.111
+x 20
+y 3
+end
+arch grassd_5
+x 20
+y 4
 end
 arch plant8
-x 19
-y 21
+x 20
+y 4
 end
-arch grassd_1
-x 19
-y 22
+arch grassd_4
+x 20
+y 5
 end
-arch tree_big4b
-x 19
-y 22
+arch grassd_3
+x 20
+y 6
 end
-arch grassd_5
-x 19
-y 23
+arch grassd_8
+x 20
+y 7
 end
-arch tree_big
-x 19
-y 23
+arch plant_flower14
+x 20
+y 7
 end
 arch grassd_7
 x 20
-y 3
-end
-arch wall_cave1.111
-x 20
-y 3
-end
-arch grassd_4
-x 20
-y 4
-end
-arch tree_big4b
-x 20
-y 4
-end
-arch floor_sand_d3
-x 20
-y 5
-end
-arch grassd_m4
-x 20
-y 5
-end
-arch au_tree2
-x 20
-y 5
-end
-arch floor_sand_d3
-x 20
-y 6
-end
-arch grassd_m9
-x 20
-y 6
-end
-arch plant7
-x 20
-y 6
-end
-arch floor_sand_d2
-x 20
-y 7
-end
-arch grassd_m13
-x 20
-y 7
-end
-arch tree_branch2
-x 20
-y 7
-end
-arch floor_sand_d1
-x 20
 y 8
 end
-arch au_tree2
-x 20
-y 8
-end
-arch floor_sand_d4
+arch grassd_3
 x 20
 y 9
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 20
-y 9
-end
-arch floor_sand_d4
+arch grassd_7
 x 20
 y 10
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
+arch plant10
 x 20
 y 10
 end
-arch floor_sand_d1
+arch grassd_6
 x 20
 y 11
-end
-arch grassd_m14
-x 20
-y 11
-end
-arch tree_branch3
-x 20
-y 11
-end
-arch floor_sand_d4
-x 20
-y 12
-end
-arch grassd_m9
-x 20
-y 12
-end
-arch plant_mushroom4
-x 20
-y 12
-end
-arch floor_sand_d2
-x 20
-y 13
-end
-arch grassd_m9
-x 20
-y 13
-end
-arch small_stones
-x 20
-y 13
-end
-arch floor_sand_d3
-x 20
-y 14
-end
-arch grassd_m9
-x 20
-y 14
-end
-arch floor_sand_d3
-x 20
-y 15
-end
-arch grassd_m9
-x 20
-y 15
-end
-arch plant_mushroom4
-x 20
-y 15
-end
-arch floor_sand_d1
-x 20
-y 16
-end
-arch grassd_m9
-x 20
-y 16
-end
-arch floor_sand_d3
-x 20
-y 17
-end
-arch grassd_m9
-x 20
-y 17
-end
-arch tree_branch2
-x 20
-y 17
-end
-arch floor_sand_d3
-x 20
-y 18
-end
-arch grassd_m9
-x 20
-y 18
-end
-arch floor_sand_d4
-x 20
-y 19
-end
-arch grassd_m9
-x 20
-y 19
-end
-arch floor_sand_d2
-x 20
-y 20
-end
-arch grassd_m3
-x 20
-y 20
-end
-arch grassd_1
-x 20
-y 21
-end
-arch tree_big
-x 20
-y 21
 end
 arch grassd_8
 x 20
-y 22
+y 12
+end
+arch grassd_7
+x 20
+y 13
 end
 arch tree_big4b
+x 20
+y 13
+end
+arch grassd_8
+x 20
+y 14
+end
+arch grassd_1
+x 20
+y 15
+end
+arch floor_sand_d3
+x 20
+y 16
+end
+arch grassd_m10
+x 20
+y 16
+end
+arch floor_sand_d2
+x 20
+y 17
+end
+arch floor_sand_d1
+x 20
+y 18
+end
+arch grassd_m11
+x 20
+y 18
+end
+arch floor_sand_d3
+x 20
+y 19
+end
+arch grassd_m5
+x 20
+y 19
+end
+arch grassd_4
+x 20
+y 20
+end
+arch grassd_6
+x 20
+y 21
+end
+arch grassd_1
+x 20
+y 22
+end
+arch tree_big2
 x 20
 y 22
 end
 arch grassd_4
-x 20
-y 23
-end
-arch tree_big
 x 20
 y 23
 end
@@ -2189,212 +1923,111 @@ arch wall_cave1.111
 x 21
 y 3
 end
-arch floor_sand_d2
+arch grassd_3
 x 21
 y 4
+end
+arch plant8
+x 21
+y 4
+end
+arch grassd_3
+x 21
+y 5
+end
+arch grassd_1
+x 21
+y 6
+end
+arch grassd_7
+x 21
+y 7
+end
+arch tree_big3
+x 21
+y 7
+end
+arch grassd_3
+x 21
+y 8
+end
+arch grassd_7
+x 21
+y 9
+end
+arch tree_big4b
+x 21
+y 9
+end
+arch grassd_1
+x 21
+y 10
+end
+arch grassd_5
+x 21
+y 11
+end
+arch grassd_6
+x 21
+y 12
+end
+arch plant_flower11
+x 21
+y 12
+end
+arch grassd_1
+x 21
+y 13
+end
+arch grassd_5
+x 21
+y 14
+end
+arch floor_sand_d3
+x 21
+y 15
 end
 arch grassd_m4
 x 21
-y 4
-end
-arch au_tree2
-x 21
-y 4
+y 15
 end
 arch floor_sand_d3
 x 21
-y 5
+y 16
 end
 arch grassd_m13
 x 21
-y 5
-end
-arch au_tree3
-x 21
-y 5
-end
-arch floor_sand_d3
-x 21
-y 6
-end
-arch tree_burned4
-x 21
-y 6
-end
-arch floor_sand_d3
-x 21
-y 7
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 7
-end
-arch floor_sand_d1
-x 21
-y 8
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 8
-end
-arch floor_sand_d2
-x 21
-y 9
-end
-arch au_tree1
-x 21
-y 9
-end
-arch floor_sand_d2
-x 21
-y 10
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 10
-end
-arch floor_sand_d1
-x 21
-y 11
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 11
-end
-arch floor_sand_d3
-x 21
-y 12
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 12
-end
-arch floor_sand_d2
-x 21
-y 13
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 13
-end
-arch floor_sand_d3
-x 21
-y 14
-end
-arch rock2
-x 21
-y 14
-end
-arch floor_sand_d2
-x 21
-y 15
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 15
-end
-arch floor_sand_d1
-x 21
 y 16
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 16
-end
-arch floor_sand_d4
+arch floor_sand_d2
 x 21
 y 17
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 17
-end
-arch floor_sand_d4
+arch floor_sand_d3
 x 21
 y 18
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
+arch grassd_m7
 x 21
 y 18
 end
-arch floor_sand_d1
+arch grassd_3
 x 21
 y 19
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 21
-y 19
-end
-arch floor_sand_d1
+arch grassd_8
 x 21
 y 20
 end
-arch grassd_m14
-x 21
-y 20
-end
-arch tree_branch3
-x 21
-y 20
-end
-arch floor_sand_d4
+arch grassd_7
 x 21
 y 21
 end
-arch grassd_m9
-x 21
-y 21
-end
-arch floor_sand_d4
+arch grassd_7
 x 21
 y 22
 end
-arch grassd_m9
-x 21
-y 22
-end
-arch plant_mushroom3
-x 21
-y 22
-end
-arch floor_sand_d1
-x 21
-y 23
-end
-arch grassd_m9
+arch grassd_8
 x 21
 y 23
 end
@@ -2406,140 +2039,71 @@ arch wall_cave1.111
 x 22
 y 3
 end
-arch floor_sand_d3
+arch grassd_5
 x 22
 y 4
 end
-arch grassd_m10
+arch plant8
 x 22
 y 4
 end
-arch tree_burned4
-x 22
-y 4
-end
-arch floor_sand_d1
+arch grassd_8
 x 22
 y 5
 end
-arch tree_burned4
+arch tree_big3
 x 22
 y 5
 end
+arch grassd_3
+x 22
+y 6
+end
+arch grassd_2
+x 22
+y 7
+end
+arch grassd_7
+x 22
+y 8
+end
+arch grassd_6
+x 22
+y 9
+end
+arch grassd_7
+x 22
+y 10
+end
+arch grassd_8
+x 22
+y 11
+end
+arch grassd_1
+x 22
+y 12
+end
+arch grassd_5
+x 22
+y 13
+end
 arch floor_sand_d3
 x 22
-y 6
+y 14
 end
-arch au_tree3
-x 22
-y 6
-end
-arch floor_sand_d4
-x 22
-y 7
-end
-arch au_tree1
-x 22
-y 7
-end
-arch floor_sand_d1
-x 22
-y 8
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 8
-end
-arch floor_sand_d1
-x 22
-y 9
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 9
-end
-arch floor_sand_d1
-x 22
-y 10
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 10
-end
-arch floor_sand_d1
-x 22
-y 11
-end
-arch au_tree3
-x 22
-y 11
-end
-arch floor_sand_d2
-x 22
-y 12
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 12
-end
-arch floor_sand_d1
-x 22
-y 13
-end
-arch tree_branch3
-x 22
-y 13
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 13
-end
-arch floor_sand_d2
+arch grassd_m4
 x 22
 y 14
 end
-arch plant_mushroom3
-x 22
-y 14
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 14
-end
-arch floor_sand_d2
+arch floor_sand_d1
 x 22
 y 15
 end
-arch tree_burned4
+arch grassd_m13
 x 22
 y 15
 end
-arch floor_sand_d4
-x 22
-y 16
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
+arch floor_sand_d3
 x 22
 y 16
 end
@@ -2547,77 +2111,35 @@ arch floor_sand_d2
 x 22
 y 17
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 17
-end
 arch floor_sand_d4
 x 22
 y 18
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
+arch grassd_m7
 x 22
 y 18
 end
-arch floor_sand_d3
+arch grassd_1
 x 22
 y 19
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 19
-end
-arch floor_sand_d3
+arch grassd_5
 x 22
 y 20
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 20
-end
-arch floor_sand_d3
+arch grassd_8
 x 22
 y 21
 end
-arch au_tree3
+arch plant5
 x 22
 y 21
 end
-arch floor_sand_d4
+arch grassd_5
 x 22
 y 22
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 22
-y 22
-end
-arch floor_sand_d1
-x 22
-y 23
-end
-arch plant_mushroom5
-x 22
-y 23
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
+arch grassd_7
 x 22
 y 23
 end
@@ -2629,122 +2151,71 @@ arch wall_cave1.111
 x 23
 y 3
 end
-arch floor_sand_d2
+arch grassd_6
 x 23
 y 4
+end
+arch plant8
+x 23
+y 4
+end
+arch grassd_2
+x 23
+y 5
+end
+arch grassd_5
+x 23
+y 6
+end
+arch grassd_4
+x 23
+y 7
+end
+arch plant_mushroom3
+x 23
+y 7
+end
+arch grassd_7
+x 23
+y 8
+end
+arch grassd_5
+x 23
+y 9
+end
+arch plant11
+x 23
+y 9
+end
+arch grassd_2
+x 23
+y 10
+end
+arch plant_mushroom5
+x 23
+y 10
+end
+arch grassd_4
+x 23
+y 11
+end
+arch grassd_1
+x 23
+y 12
+end
+arch grassd_4
+x 23
+y 13
+end
+arch floor_sand_d1
+x 23
+y 14
 end
 arch grassd_m10
 x 23
-y 4
-end
-arch au_tree1
-x 23
-y 4
-end
-arch floor_sand_d3
-x 23
-y 5
-end
-arch tree_burned4
-x 23
-y 5
-end
-arch floor_sand_d1
-x 23
-y 6
-end
-arch au_tree2
-x 23
-y 6
-end
-arch floor_sand_d1
-x 23
-y 7
-end
-arch tree_burned2
-x 23
-y 7
-end
-arch floor_sand_d3
-x 23
-y 8
-end
-arch tree_burned2
-x 23
-y 8
-end
-arch floor_sand_d3
-x 23
-y 9
-end
-arch au_tree1
-x 23
-y 9
-end
-arch floor_sand_d4
-x 23
-y 10
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 10
-end
-arch floor_sand_d3
-x 23
-y 11
-end
-arch small_stones
-x 23
-y 11
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 11
-end
-arch floor_sand_d1
-x 23
-y 12
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 12
-end
-arch floor_sand_d2
-x 23
-y 13
-end
-arch au_tree2
-x 23
-y 13
-end
-arch floor_sand_d3
-x 23
-y 14
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
 y 14
 end
 arch floor_sand_d1
-x 23
-y 15
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
 x 23
 y 15
 end
@@ -2752,89 +2223,47 @@ arch floor_sand_d3
 x 23
 y 16
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 16
-end
-arch floor_sand_d2
+arch floor_sand_d3
 x 23
 y 17
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
+arch grassd_m11
 x 23
 y 17
 end
-arch floor_sand_d4
-x 23
-y 18
-end
-arch tree_branch2
-x 23
-y 18
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 18
-end
-arch floor_sand_d3
-x 23
-y 19
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 19
-end
-arch floor_sand_d3
-x 23
-y 20
-end
-arch tree_branch3
-x 23
-y 20
-end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
-x 23
-y 20
-end
 arch floor_sand_d2
 x 23
-y 21
+y 18
 end
-arch rock2
+arch grassd_m5
+x 23
+y 18
+end
+arch grassd_8
+x 23
+y 19
+end
+arch grassd_4
+x 23
+y 20
+end
+arch grassd_8
 x 23
 y 21
 end
-arch floor_sand_d1
+arch tree_big2
+x 23
+y 21
+end
+arch grassd_7
 x 23
 y 22
 end
-arch au_tree1
-x 23
-y 22
-end
-arch floor_sand_d4
+arch grassd_8
 x 23
 y 23
 end
-arch magic_mouth
-msg
-You are down to your waist in the wet quicksand.
-endmsg
+arch plant11
 x 23
 y 23
 end

@@ -27,6 +27,7 @@
  * Experience management. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Experience needed for each level. */
@@ -369,11 +370,11 @@ int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact)
         living_update(op);
 
         /* Show the player some effects. */
-        if (op->map && level_up_arch) {
+        if (op->map != NULL) {
             object *effect_ob;
 
             /* Prepare effect */
-            effect_ob = arch_to_object(level_up_arch);
+            effect_ob = arch_to_object(arches[ARCH_LEVEL_UP]);
             effect_ob->map = op->map;
             effect_ob->x = op->x;
             effect_ob->y = op->y;

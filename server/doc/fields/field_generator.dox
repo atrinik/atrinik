@@ -1,6 +1,10 @@
 /**
-@fn FLAG_GENERATOR
-@section Use
+@var obj::generator
+@sa @ref page_field_generator
+*/
+
+/**
+@page page_field_generator obj::generator Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

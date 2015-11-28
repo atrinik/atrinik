@@ -1,0 +1,429 @@
+/**
+@var SOUND_AMBIENT
+See @ref page_type_61
+*/
+
+/**
+@page page_type_61 Ambient Sound Effect
+
+
+@section Description
+		Ambient sound effect will keep playing its sound effect infinitely
+		for all players in range.
+
+		This is useful for effects such as waterfall, dripping water as a
+		quest hint, etc.
+	
+
+
+
+Type defined by:
+- @ref object::type = 61
+
+
+@section Attributes
+
+<table>
+	<tr>
+		<th>Attribute</th>
+		<th>Field</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td>align</td>
+		<td>@ref obj::align</td>
+		<td>		X align of the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>alpha</td>
+		<td>@ref obj::alpha</td>
+		<td>		Alpha value of the object.
+		</td>
+	</tr>
+	<tr>
+		<td>anim speed</td>
+		<td>@ref obj::anim_speed</td>
+		<td>		How fast to play this animation.
+		</td>
+	</tr>
+	<tr>
+		<td>animation</td>
+		<td>@ref obj::animation_id</td>
+		<td>		The animation-name defines what animation is displayed for this
+		object in-game. Note that a set animation will overrule the face.
+		</td>
+	</tr>
+	<tr>
+		<td>block view</td>
+		<td>@ref FLAG_BLOCKSVIEW</td>
+		<td>		If an item is set to block view, players (and monsters) cannot
+		see beyond it unless they cross it or manage to stand on top of
+		it.
+		</td>
+	</tr>
+	<tr>
+		<td>cursed</td>
+		<td>@ref FLAG_CURSED</td>
+		<td>		The item is cursed. This object can't be removed when wielded or
+		worn (without uncursing it). Remove curse will remove this flag.
+		</td>
+	</tr>
+	<tr>
+		<td>damned</td>
+		<td>@ref FLAG_DAMNED</td>
+		<td>		Stronger form of curse. Item can't be removed when wielded or
+		worn. Remove damnation will remove this flag.
+		</td>
+	</tr>
+	<tr>
+		<td>direction</td>
+		<td>@ref obj::direction</td>
+		<td>		The object's direction.
+		</td>
+	</tr>
+	<tr>
+		<td>direction based drawing</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
+		<td>		If enabled, the object will be shown depending on its direction
+		and player's position. Usually used by wall decoration so the
+		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
+		<td>glow radius</td>
+		<td>@ref obj::glow_radius</td>
+		<td>		If &lt;glow radius&gt; is set to a value greater than zero, the
+		object appears lit up on dark maps. &lt;glow radius&gt; can be a
+		value between 0 and 4, the higher, the more light does the object
+		emit.
+		</td>
+	</tr>
+	<tr>
+		<td>heard through obstacles</td>
+		<td>@ref FLAG_XRAYS</td>
+		<td>		If set, the sound effect will be heard through sight-blocking
+		obstacles, so long as it's in range.
+		</td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td>@ref obj::z</td>
+		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>identified</td>
+		<td>@ref FLAG_IDENTIFIED</td>
+		<td>		If an item is identified, the player has full knowledge about it.
+		</td>
+	</tr>
+	<tr>
+		<td>image</td>
+		<td>@ref obj::face</td>
+		<td>		The image name defines what image is displayed for this object
+		in-game.
+		</td>
+	</tr>
+	<tr>
+		<td>inv. system object</td>
+		<td>@ref FLAG_SYS_OBJECT</td>
+		<td>		Marks an object as system object. System objects are ALWAYS
+		invisible and hidden from the players.
+
+		System objects are put in layer 0.
+		</td>
+	</tr>
+	<tr>
+		<td>invisible</td>
+		<td>@ref FLAG_IS_INVISIBLE</td>
+		<td>		Generally makes the object invisible. Invisible objects will be
+		shown if the player has "see invisible" (from an item). To hide
+		objects totally from detection, use "sys_object".
+		</td>
+	</tr>
+	<tr>
+		<td>is animated</td>
+		<td>@ref FLAG_ANIMATE</td>
+		<td>		If set, the object is animated and animation is used.
+
+		Note: Some special objects will use an animation NOT as animation
+		but as frame list. Examples are buttons (which frames are changed
+		by the object status of the button). IS_TURNABLE will enable
+		direction turning for some object types. These flags are all
+		system related. Be VERY careful when changing them.
+		</td>
+	</tr>
+	<tr>
+		<td>is turnable</td>
+		<td>@ref FLAG_IS_TURNABLE</td>
+		<td>		System flag. Object can be turned into directions.
+		</td>
+	</tr>
+	<tr>
+		<td>layer</td>
+		<td>@ref obj::layer</td>
+		<td>		This is the map layer the object will put in. The selected layer
+		will affect where and how this object is shown on the client side.
+		Layer 0 is reserved for sys_object type objects and will NEVER be
+		shown on the client side. Layer 1 is for floor objects and layer 2
+		for floor masks. Layer 3 and 4 are for items on the ground. Layer
+		5 is for walls, layer 6 is reserved for players and layer 7 is
+		for spell effects and high flying/visible objects like arrows.
+		</td>
+	</tr>
+	<tr>
+		<td>magical</td>
+		<td>@ref FLAG_IS_MAGICAL</td>
+		<td>		If set, this object counts as "magical". Detect magic or identify
+		will show this flag and the player will see a small blue M in the
+		client's inventory part.
+		</td>
+	</tr>
+	<tr>
+		<td>match expression</td>
+		<td>@ref page_custom_attributes "match"</td>
+		<td>        Expression that must match in order for the sound to be heard, eg:
+
+        hour &lt; 7 &amp;&amp; hour &gt; 20
+		</td>
+	</tr>
+	<tr>
+		<td>material</td>
+		<td>@ref obj::material_real</td>
+		<td>		The material defines the exact material of which the object
+		consists. It is much more specific than &lt;material class&gt;,
+		however only one material can be selected, not multiple.
+
+		&lt;material&gt; is not required to be set, it can be left
+		'undefined'.
+		</td>
+	</tr>
+	<tr>
+		<td>material class</td>
+		<td>@ref obj::material</td>
+		<td>		This bitmask-value informs the player of which basic material(s)
+		the object consists. Material class does also affect how likely
+		the object can be destroyed by hazardous spell-effects, like
+		firestorm.
+		</td>
+	</tr>
+	<tr>
+		<td>max range</td>
+		<td>@ref obj::item_level</td>
+		<td>		The maximum range at which the sound effect may be heard.
+		</td>
+	</tr>
+	<tr>
+		<td>name</td>
+		<td>@ref obj::name</td>
+		<td>		This is the name of the object, displayed to the player.
+		</td>
+	</tr>
+	<tr>
+		<td>no spells</td>
+		<td>@ref FLAG_NO_MAGIC</td>
+		<td>		If enabled, it is impossible for players to use spells on that
+		spot.
+		</td>
+	</tr>
+	<tr>
+		<td>no teleport</td>
+		<td>@ref FLAG_NO_TELEPORT</td>
+		<td>		Marks an object as no teleport object. A no teleport object can't
+		be teleported by teleporter except if the object is inside the
+		inventory of another object which can be teleported.
+		</td>
+	</tr>
+	<tr>
+		<td>non-pickable</td>
+		<td>@ref FLAG_NO_PICK</td>
+		<td>		If set, the object cannot be picked up (neither by players nor
+		monsters).
+		</td>
+	</tr>
+	<tr>
+		<td>number</td>
+		<td>@ref obj::nrof</td>
+		<td>		This value determines the number of objects in one stack (for
+		example: 100 goldcoins =&gt; "number = 100"). You should set this
+		at least to one, for any pickable object - otherwise it won't be
+		mergeable into a stack.
+		</td>
+	</tr>
+	<tr>
+		<td>one drop</td>
+		<td>@ref FLAG_ONE_DROP</td>
+		<td>		If this flag is set for an item inside monster's quest_container
+		with the quest being quest item type, the player will only be able
+		to get this item once.
+		</td>
+	</tr>
+	<tr>
+		<td>permanent cursed</td>
+		<td>@ref FLAG_PERM_CURSED</td>
+		<td>		The item is permanently cursed. If this flag is set, applying or
+		unapplying it will set "cursed 1" again. This flag can't be
+		removed by remove curse.
+		</td>
+	</tr>
+	<tr>
+		<td>permanent damned</td>
+		<td>@ref FLAG_PERM_DAMNED</td>
+		<td>		The item is permanently damned. If this flag is set, applying or
+		unapplying it will set "damned 1" again. This flag can't be
+		removed by remove damnation.
+		</td>
+	</tr>
+	<tr>
+		<td>player only</td>
+		<td>@ref FLAG_PLAYER_ONLY</td>
+		<td>		If set, only players can enter the tile the object with this flag
+		is on.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect missiles</td>
+		<td>@ref FLAG_REFL_MISSILE</td>
+		<td>		Object will reflect missiles.
+		</td>
+	</tr>
+	<tr>
+		<td>reflect spells</td>
+		<td>@ref FLAG_REFL_SPELL</td>
+		<td>		Object will reflect spells.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
+		<td>sound effect</td>
+		<td>@ref obj::race</td>
+		<td>		Sound effect filename to play.
+		</td>
+	</tr>
+	<tr>
+		<td>stackable</td>
+		<td>@ref FLAG_CAN_STACK</td>
+		<td>		If set, the item can be stacked. Careful, don't use on rings or
+		other applyable items, it will lead to side effects.
+
+		Missiles are designed to be used as stacks for example.
+		</td>
+	</tr>
+	<tr>
+		<td>start speed</td>
+		<td>@ref obj::speed_left</td>
+		<td>		When an active object (with 'speed' being non-zero) is put on a
+		map, this value is used as counter. Every 'tick', 'speed' (if
+		negative, value is turned positive before) is added to this
+		value - if it is bigger than 0 the object 'will do something' and
+		this counter is decreased with -1.0.
+
+		By default a normal object will be put on the map with start
+		speed 0. It 'will do something' with the next coming 'tick'.
+		Setting this value to -1.0 will put it on map but wait one full
+		'lifetime' round until it does something.
+
+		A 'fire object' should be put on map with start speed 0 - it
+		should try to burn something in the moment it comes in the game.
+		A bomb for example should be put with speed -1.0 on the map - it
+		will stay then on map until the bomb becomes active - it
+		explodes.
+
+		The 'lifetime' round is determinated by speed. A speed of 1.0
+		will give a 'lifetime' round of 1 tick - a speed of 0.01 100
+		ticks.
+
+		Special case: A negative speed value will add to start speed a
+		random value between 0.0 to 0.9 . So, a speed of -0.1 with a
+		start speed of -1.0 will result in speed 0.1 and start speed
+		between -1.0 and -0.1. This is useful to let a row of same
+		objects act in different tick ranges.
+		</td>
+	</tr>
+	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
+		<td>sub type</td>
+		<td>@ref obj::sub_type</td>
+		<td>		This important value is used to define "sub types" for objects of
+		the same object type. Examples are weapons, which are all from
+		type WEAPON but can be different sub types like slash, cleave,
+		two-handed, polearms and so on. This value goes to the client
+		too.
+
+		Warning: Not all objects have a sub type and changing it without
+		care can corrupt server AND/OR the clients. Normally this is not
+		a subject to change outside arch definition.
+		</td>
+	</tr>
+	<tr>
+		<td>title</td>
+		<td>@ref obj::title</td>
+		<td>		This is the object's title. Once an object is identified the
+		title is attached to the name. Typical titles are "of Yordan",
+		"of xray vision" etc.
+		</td>
+	</tr>
+	<tr>
+		<td>unpaid</td>
+		<td>@ref FLAG_UNPAID</td>
+		<td>		An &lt;unpaid&gt; item cannot be used unless the player carried
+		it over a shop mat, paying the demanded price. Setting this flag
+		makes sense only for items inside shops.
+		</td>
+	</tr>
+	<tr>
+		<td>value</td>
+		<td>@ref obj::value</td>
+		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>volume</td>
+		<td>@ref obj::item_condition</td>
+		<td>		Volume at which to play the sound effect. This will be adjusted
+		based on the client's volume setting, and how far away the player
+		is from this object.
+		</td>
+	</tr>
+	<tr>
+		<td>weight</td>
+		<td>@ref obj::weight</td>
+		<td>		This value defines the object's weight in gram (1000g is 1kg).
+		Objects with zero weight are not pickable for players. Still, set
+		the "non-pickable" flag for explicitly non-pickable objects.
+		</td>
+	</tr>
+	<tr>
+		<td>zoom</td>
+		<td>@ref obj::zoom</td>
+		<td>		How much to zoom the object on the map.
+		</td>
+	</tr>
+</table>
+*/

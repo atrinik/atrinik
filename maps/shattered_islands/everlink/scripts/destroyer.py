@@ -3,9 +3,12 @@
 
 import random
 
+from Atrinik import *
+
+
 def main():
     # Go through objects on activator's square.
-    for ob in activator.map.GetFirstObject(activator.x, activator.y):
+    for ob in activator.map.Objects(activator.x, activator.y):
         if ob.f_sys_object or ob.f_no_pick or not ob.weight or ob.type == Type.PLAYER:
             continue
 

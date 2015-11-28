@@ -4,6 +4,7 @@ race human
 type 80
 layer 6
 behavior 10
+randomitems mob_guard_archer
 wc_range 20
 direction 5
 is_male 1
@@ -18,7 +19,7 @@ is_animated 1
 anim_speed 4
 speed -0.0495
 monster 1
-wis 4
+wis 6
 see_invisible 1
 protect_impact 75
 protect_cleave 75
@@ -38,7 +39,9 @@ wc 6
 dam 100
 level 1
 weight 85000
-friendly 1
-unaggressive 1
+faction npcs
+int 20
 str 25
+can_use_bow 1
+dex 1
 end

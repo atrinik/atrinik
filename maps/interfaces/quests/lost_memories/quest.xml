@@ -1,23 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
 <interfaces>
     <quest name="Lost Memories">
-        <interface npc="Sam Goodberry" state="completed">
-            <dialog name="hello">
-                <message>Ah, good! You seem much more confident now - almost the same person I have seen in you when you first came to me and hired me to transport you to Strakewood.</message>
-                <message>Very well then. Are you packed up and ready to go?</message>
-                <response destination="ready" message="I'm ready."/>
-                <response action="close" message="Not just yet..."/>
-            </dialog>
-            <dialog name="ready">
-                <close/>
-            </dialog>
-        </interface>
         <interface npc="Sam Goodberry">
             <dialog name="hello">
                 <message>Hmmm... You don't seem ready yet, {activator.name}. I am sorry, but unless you regain at least part of your memory, there's no reason for us to sail to Strakewood...</message>
             </dialog>
         </interface>
-        <interface inherit="Temple.TempleTabernacle" npc="Brelend Lee"/>
+        <interface npc="Sam Goodberry" state="completed">
+            <dialog name="hello">
+                <message>Welcome back, {activator.name}! Are you ready to sail back to Strakewood?</message>
+                <response destination="ready" message="I'm ready."/>
+                <response action="close" message="Not yet. See you."/>
+            </dialog>
+            <dialog name="ready">
+                <action teleport="/shattered_islands/incuna/ship_lower_deck_to_strakewood 2 11 savebed"/>
+                <close/>
+            </dialog>
+        </interface>
+        <interface inherit="Temple.TempleElathiel" npc="Brelend Lee"/>
+        <interface inherit="Tavern.Bartender" npc="Arvend Blessed"/>
+        <interface npc="Arvend Blessed" state="calmed">
+            <dialog name="hello">
+                <message>Did you not hear me?! Be off!</message>
+            </dialog>
+            <and>
+                <check failed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                <check completed="helping_out::ant_trouble"/>
+            </and>
+        </interface>
+        <interface npc="John Aldman">
+            <dialog name="hello">
+                <message>Excuse me, I'm currently quite busy conducting these experiments...</message>
+            </dialog>
+        </interface>
+        <interface inherit="Smith.Smith" npc="Ken Berger"/>
+        <interface npc="Angela Sawthrow">
+            <dialog name="hello">
+                <message>Excuse me, I'm currently busy working on this decoction.</message>
+            </dialog>
+        </interface>
+        <interface inherit="Merchant.Buyer" npc="Tom Istrad">
+            <dialog name="hello">
+                <message>Welcome, traveler!</message>
+                <message>As usual, I'm looking for wolf pets to tan into leather. If you happen to have any, I would be interested in purchasing them from you.</message>
+                <inherit name="::goods"/>
+            </dialog>
+        </interface>
+        <interface inherit="Guard.Guard" npc="Rick Grizley"/>
+        <interface inherit="interface" npc="Rick Grizley" state="no_key">
+            <and>
+                <ncheck started="the_kobolds"/>
+            </and>
+            <dialog name="hello">
+                <inherit/>
+                <response destination="out" message="Excuse me, I need to head out of the town."/>
+            </dialog>
+            <dialog name="out">
+                <message>Huh? What for? Everything you need is in the town; no need to venture out into the wild! Now leave me be.</message>
+            </dialog>
+        </interface>
+        <interface inherit="no_key" npc="Rick Grizley" state="no_key_brelend">
+            <and>
+                <ncheck>
+                    <object arch="incuna_western_gate_key"/>
+                </ncheck>
+            </and>
+            <dialog name="out">
+                <inherit/>
+                <response destination="brelend" message="Brelend Lee sent me on a mission to the mines."/>
+            </dialog>
+            <dialog name="brelend">
+                <message>Did he now? I suppose he knows what he's doing then... Very well then. Take this key to open the gate. And... be careful in the mines, please. There's a reason we've surrounded the town with such high walls...</message>
+                <object arch="incuna_western_gate_key" nrof="1"/>
+            </dialog>
+        </interface>
         <part name="The Priest" uid="speak_priest">
             <info>You have reached Incuna, and have started the attempt to get back your lost memories. Sam Goodberry has suggested that you go speak to the local church priest, who may be able to help you.</info>
             <interface npc="Sam Goodberry" state="need_start">
@@ -35,6 +94,15 @@
                     <notification action="/help basics_containers" delay="90000" message="Tutorial Available: Containers" shortcut="?HELP"/>
                     <action start="speak_priest"/>
                     <response action="close" message="I'll do that."/>
+                </dialog>
+            </interface>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, {activator.name}! You're back. How did it go with the priest, Brelend?</message>
+                    <response destination="working" message="I'm working on it."/>
+                </dialog>
+                <dialog name="working">
+                    <message>I see. Don't worry, we're not in a hurry... but unless you regain some of your memory, I don't see the need for us to sail for Strakewood yet.</message>
                 </dialog>
             </interface>
             <interface inherit="interface" npc="Brelend Lee" state="need_complete">
@@ -77,6 +145,15 @@
         </part>
         <part name="Healed Body..." uid="healed_body">
             <info>You have visited the local priest, Brelend Lee, and agreed to let him try and heal you with a spell.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, {activator.name}! You're back. How did it go with the priest, Brelend?</message>
+                    <response destination="working" message="I'm working on it."/>
+                </dialog>
+                <dialog name="working">
+                    <message>I see. Don't worry, we're not in a hurry... but unless you regain some of your memory, I don't see the need for us to sail for Strakewood yet.</message>
+                </dialog>
+            </interface>
             <interface inherit="interface" npc="Brelend Lee" state="need_complete">
                 <dialog name="hello">
                     <response destination="headhealed" message="My head doesn't hurt anymore!"/>
@@ -110,6 +187,740 @@
         </part>
         <part name="... Broken Spirit" uid="broken_spirit">
             <info>Brelend Lee has tried to recover your memories, but he was only successful in healing the wounds of the flesh. He has suggested that you go speak to Sam Goodberry while he ponders what to do next...</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, {activator.name}! You're back. How did it go with the priest, Brelend?</message>
+                    <response destination="remember" message="My head doesn't hurt anymore, but I still can't remember much at all."/>
+                </dialog>
+                <dialog name="remember">
+                    <message>Hm... that's not good at all. However, I may have found something for you to try. It might help you.</message>
+                    <response destination="whatis" message="What is it?"/>
+                </dialog>
+                <dialog name="whatis">
+                    <message>First off, I spoke to some of my friends around here. They're willing to help, if you want to stop by them.</message>
+                    <message>First is the smith, Ken Berger. He has agreed to let you choose a melee weapon of your choice. I'm afraid that shiny meteorite steel sword you had must have gone overboard back in the storm, I couldn't find it anywhere. His shop is just by the temple.</message>
+                    <response destination="else" message="Sounds good. What else?"/>
+                </dialog>
+                <dialog name="else">
+                    <message>The local hunter, Tom Istrad, has also agreed to let you choose one of his ranged weapons, if you so wish. I remember you practising with that yew longbow back on the ship; perhaps you'd like something like that again. He has a shop by the western gate.</message>
+                    <message>There's also the priest, John Aldman, who wanted to teach you some divine magic. Now, I heard rumours that you knew some magic already, so you might just have the knack for this sort of thing. You can find him in the temple's basement.</message>
+                    <response destination="then" message="Thank you. And then?"/>
+                </dialog>
+                <dialog name="then">
+                    <message>Well... once you're ready, I heard my old friend, Arvend Blessed, the local tavern owner, is in need of some assistance.</message>
+                    <message>I would appreciate it if you could lend him a hand in the matter. Be warned though, Arvend can be a bit... eccentric at times.</message>
+                    <response destination="alright" message="Alright, I'll give it a shot."/>
+                </dialog>
+                <dialog name="alright">
+                    <message>Thank you, I appreciate it! You should be able to see Arvend's tavern from here; it's the building just past the docks, near the temple.</message>
+                    <action start="gear"/>
+                    <action start="archery"/>
+                    <action start="sorcery"/>
+                    <action start="helping_out"/>
+                    <action complete="broken_spirit"/>
+                    <response action="close" message="Thanks, see you soon."/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="Gearing Up" uid="gear">
+            <info>Sam has suggested that you go speak to the local smith, Ken Berger, in order to choose a melee weapon to use. []optional]</info>
+            <interface inherit="Smith.Smith" npc="Ken Berger" state="need_complete">
+                <dialog name="hello">
+                    <inherit/>
+                    <response destination="gearup" message="I was told you could help me gear up."/>
+                </dialog>
+                <dialog name="gearup">
+                    <message>Ah, Sam Goodberry sent you, did he now?</message>
+                    <message>
+                        Yes, I can certainly gear you up with some basic weapons... Hmm, sort of weapons do you prefer?
+                        <object arch="shortsword" message="Slash weapons include shortswords, swords, broadswords, falchions, etc. They typically have average speed and damage."/>
+                        <object arch="dagger_small" message="Pierce weapons include daggers, rapiers, sabers, etc. They typically have faster speed and lower damage."/>
+                        <object arch="axe_small" message="Cleave weapons include axes, broad axes, battle axes, cleavers, etc. They typically have slower speed and higher damage."/>
+                        <object arch="club" message="Impact weapons include clubs, flails, hammers, etc. They typically have slow speed and high damage."/>
+                    </message>
+                    <response destination="sword" message="I'd like a shortsword."/>
+                    <response destination="dagger" message="I'd like a dagger."/>
+                    <response destination="axe" message="I'd like an axe."/>
+                    <response destination="club" message="I'd like a club."/>
+                </dialog>
+                <dialog name="sword">
+                    <message>
+                        Are you sure that you want a sword?
+                        <object arch="shortsword"/>
+                    </message>
+                    <response destination="confirm_sword" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="dagger">
+                    <message>
+                        Are you sure that you want a dagger?
+                        <object arch="dagger_small"/>
+                    </message>
+                    <response destination="confirm_dagger" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="axe">
+                    <message>
+                        Are you sure that you want an axe?
+                        <object arch="axe_small"/>
+                    </message>
+                    <response destination="confirm_axe" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="club">
+                    <message>
+                        Are you sure that you want a club?
+                        <object arch="club"/>
+                    </message>
+                    <response destination="confirm_club" message="Yes."/>
+                    <response destination="gearup" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="::confirm_pre">
+                    <message>Alright, here you go!</message>
+                </dialog>
+                <dialog name="::confirm_post">
+                    <message>Come back to my shop if you need my services again!</message>
+                    <action complete="gear"/>
+                </dialog>
+                <dialog name="confirm_sword">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="shortsword"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_dagger">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="dagger_small"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_axe">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="axe_small"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_club">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="club"/>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Arcane" uid="sorcery">
+            <info>Sam has suggested that you go speak to the local cleric, John Aldman, in order to learn some divine magic. []optional]</info>
+            <interface inherit="interface" npc="John Aldman" state="need_complete">
+                <dialog name="hello">
+                    <response destination="spells" message="Excuse me, Sam said you could teach me some spells."/>
+                    <inherit/>
+                </dialog>
+                <dialog name="spells">
+                    <message>Sam? Ah, Sam Goodberry! I see, so you're the new face around here.</message>
+                    <message>Well, hm, I can indeed teach you the basics, I suppose. Some spells that might come in handy in the near future, yes yes.</message>
+                    <message>I will teach you [b]cause light wounds[/b] and [b]minor healing[/b], what do you say?</message>
+                    <response destination="yes" message="Yes, please!"/>
+                    <response action="close" message="Perhaps next time. Goodbye."/>
+                </dialog>
+                <dialog name="yes">
+                    <message>So be it!</message>
+                    <and>
+                        <ncheck>
+                            <object arch="spell_cause_light_wounds"/>
+                        </ncheck>
+                        <object arch="spell_cause_light_wounds" message="Cause light wounds is an offensive divine spell that shoots a projectile of raw divine power in the direction of your choice." nrof="1"/>
+                    </and>
+                    <action/>
+                    <and>
+                        <ncheck>
+                            <object arch="spell_minor_healing"/>
+                        </ncheck>
+                        <object arch="spell_minor_healing" message="Minor healing is divine spell that instantly restores lost hit points." nrof="1"/>
+                    </and>
+                    <message>May these serve you well on your travels!</message>
+                    <action complete="sorcery"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="Shooting Practice" uid="archery">
+            <info>Sam has suggested that you go speak to the tanner, Tom Istrad, in order to choose a ranged weapon to use. []optional]</info>
+            <interface inherit="interface" npc="Tom Istrad" state="need_complete">
+                <dialog name="hello">
+                    <response destination="archery" message="I was told you could teach me the basics of archery."/>
+                    <inherit/>
+                </dialog>
+                <dialog name="archery">
+                    <message>
+                        Ah, so, Sam sent you, did he now? Yes. I suppose I could help you. First, tell me, what sort of a ranged weapon do you prefer?
+                        <object arch="bow_short" message="Bows have an average reload speed and moderate damage."/>
+                        <object arch="crossbow_small" message="Crossbows have a slow reload speed and high damage."/>
+                        <object arch="sling_small" message="Slings have a fast reload speed and low damage."/>
+                    </message>
+                    <message>In fact, I will let you take one of those basics weapons to practise with.</message>
+                    <response destination="bow" message="I'd like a bow."/>
+                    <response destination="crossbow" message="I'd like a crossbow."/>
+                    <response destination="sling" message="I'd like a sling."/>
+                </dialog>
+                <dialog name="bow">
+                    <message>
+                        Are you sure you want a bow?
+                        <object arch="bow_short"/>
+                    </message>
+                    <response destination="confirm_bow" message="Yes."/>
+                    <response destination="archery" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="crossbow">
+                    <message>
+                        Are you sure you want a crossbow?
+                        <object arch="crossbow_small"/>
+                    </message>
+                    <response destination="confirm_crossbow" message="Yes."/>
+                    <response destination="archery" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="sling">
+                    <message>
+                        Are you sure you want a sling?
+                        <object arch="sling_small"/>
+                    </message>
+                    <response destination="confirm_sling" message="Yes."/>
+                    <response destination="archery" message="No. &lt;go back&gt;"/>
+                </dialog>
+                <dialog name="::confirm_pre">
+                    <message>Alright, here you go!</message>
+                </dialog>
+                <dialog name="::confirm_post">
+                    <message color="yellow">During your instructions with {npc.name}, you feel a small part of your memories coming back to you...</message>
+                    <message>And that's pretty much it! No, no need to thank me, really!</message>
+                    <message>However, if you were to see any wolves... I would be willing to pay for their pelts!</message>
+                    <message>If you need any further practise, feel free to try shooting the target dummies!</message>
+                    <action complete="archery"/>
+                </dialog>
+                <dialog name="confirm_bow">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="bow_short"/>
+                    <message>Now, let me teach you how to handle that bow properly...</message>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_crossbow">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="crossbow_small"/>
+                    <message>Now, let me teach you how to handle that crossbow properly...</message>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+                <dialog name="confirm_sling">
+                    <inherit name="::confirm_pre"/>
+                    <object arch="sling_small"/>
+                    <message>Now, let me teach you how to handle that sling properly...</message>
+                    <inherit name="::confirm_post"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="Helping Out" uid="helping_out">
+            <info>According to Sam, a local tavern owner, Arvend Blessed, is in need of some assistance.</info>
+            <part name="Ant Trouble" uid="ant_trouble">
+                <info>Arvend Blessed, a tavern owner in Incuna, has asked you to help with his ant infestation problem.</info>
+                <interface npc="Sam Goodberry" state="need_start">
+                    <dialog name="hello">
+                        <message>Have you spoken to Arvend Blessed yet?</message>
+                        <response destination="working" message="Working on it."/>
+                    </dialog>
+                    <dialog name="working">
+                        <message>Arvend seemed to be a bit on edge, I think the sooner you figure out what's troubling him the better.</message>
+                    </dialog>
+                </interface>
+                <interface npc="Sam Goodberry" state="need_complete">
+                    <dialog name="hello">
+                        <message>Have you spoken to Arvend Blessed yet?</message>
+                        <response destination="yes" message="Yes, his barn has an infestation problem."/>
+                    </dialog>
+                    <dialog name="yes">
+                        <message>Ah, I've heard about that while you've been running around. It seems Angela Sawthrow, a local priestess and herbalist, has been working on the issue. I would suggest chatting her up if you want to know the details.</message>
+                    </dialog>
+                </interface>
+                <interface inherit="interface" npc="Arvend Blessed" state="need_start">
+                    <dialog name="hello">
+                        <response destination="needhelp" message="I heard you needed some help?"/>
+                        <inherit/>
+                    </dialog>
+                    <dialog name="needhelp">
+                        <message>Ah, you must be the traveler Sam mentioned.</message>
+                        <message>Yes, I'm having some issues with an ant infestation in my barn! They're enormous, and there's so many of them all over my precious stock of provisions!</message>
+                        <message>A week ago, one of the priestesses from the temple stopped by and said she would look into the matter, but I haven't heard from her since. Could you please check up on her?</message>
+                        <message>There will be a monetary reward involved if you help in solving the issue!</message>
+                        <response destination="sure" message="Sure, I'll chat her up."/>
+                        <response action="close" message="Perhaps later. Farewell."/>
+                    </dialog>
+                    <dialog name="sure">
+                        <and>
+                            <check gender="male"/>
+                            <message>Thank you, kind sire!</message>
+                        </and>
+                        <and>
+                            <check gender="female"/>
+                            <message>Thank you, kind lass!</message>
+                        </and>
+                        <message>The priestesses name is Angela Sawthrow. She mostly specializes in alchemy and healing, you should be able to find her somewhere inside the temple.</message>
+                        <action start="helping_out::ant_trouble"/>
+                        <action start="helping_out::ant_trouble::the_priestess"/>
+                    </dialog>
+                </interface>
+                <interface inherit="interface" npc="Arvend Blessed" state="completed">
+                    <dialog name="hello">
+                        <message>Thank you very much for solving the ant issue!</message>
+                        <inherit/>
+                    </dialog>
+                </interface>
+                <part name="The Priestess" uid="the_priestess">
+                    <info>Arvend Blessed, the local tavern owner, has asked you to speak to the local priestess and alchemist, named Angela Sawthrow, about the ants problem.</info>
+                    <interface inherit="interface" npc="Angela Sawthrow" state="need_complete">
+                        <dialog inherit="hello" name="hello">
+                            <response destination="infestation" message="Arvend mentioned you had been looking into the ant infestation issue..."/>
+                        </dialog>
+                        <dialog name="infestation">
+                            <message>Ah, is that what this is about?</message>
+                            <message>Yes, I've been looking into the issue and I've come to the conclusion that there are two approaches that could solve it.</message>
+                            <response destination="tellmore" message="Tell me more..."/>
+                        </dialog>
+                        <dialog name="tellmore">
+                            <message>Well, the most obvious one would be to slay their queen, and hope that the rest of the ants slowly die off, as they will be left with no way to reproduce. Who knows how long that will take, though.</message>
+                            <message>The other method would be to &quot;poison&quot; their food supply with a calming tonic which would render them unaggressive, perhaps even friendly.</message>
+                            <response destination="tellslay" message="We shouldn't take any chances and slay the beast."/>
+                            <response destination="tellfriends" message="We should try to make friends with them."/>
+                        </dialog>
+                        <dialog name="tellslay">
+                            <message>Who's the real beast, I wonder; a creature trying to survive and harming no one, or a person who wants to kill the creature that has caused no harm...</message>
+                            <inherit name="::help"/>
+                        </dialog>
+                        <dialog name="tellfriends">
+                            <message>That's the spirit! Ehm, excuse me. Yes, that would be my preferred approach.</message>
+                            <inherit name="::help"/>
+                        </dialog>
+                        <dialog name="::help">
+                            <message>At any rate, I need to ask you a favor. I need to you to enter the barn and deal with the ants however you see fit.</message>
+                            <message>Are you up for such a task?</message>
+                            <response destination="sure" message="Sure, I can do that."/>
+                            <response destination="noway" message="No way!"/>
+                        </dialog>
+                        <dialog name="sure">
+                            <message>Splendid. Here, take the tonic, should you decide to spare the ants. Just find a food source, for example some hay or straw that has ants swarming around it and pour the tonic somewhere nearby. The vapors alone should have instantaneous effects.</message>
+                            <object arch="incuna_angelas_tonic" nrof="1"/>
+                            <message>I almost forgot. Arvend has given me this key to unlock the barn. I think you better take it, Arvend almost always locks the barn. You can access it from inside his tavern.</message>
+                            <object arch="incuna_tavern_barn_key" nrof="1"/>
+                            <action start="helping_out::ant_trouble::the_ants"/>
+                            <action start="helping_out::ant_trouble::the_ants::slay_queen"/>
+                            <action start="helping_out::ant_trouble::the_ants::befriend"/>
+                            <action complete="helping_out::ant_trouble::the_priestess"/>
+                        </dialog>
+                        <dialog name="noway">
+                            <message>Well, come back if you change your mind...</message>
+                        </dialog>
+                    </interface>
+                    <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
+                        <dialog name="hello">
+                            <inherit/>
+                            <message>Ah, you're back! Have you talked to the priestess yet?</message>
+                            <response destination="notyet" message="Not yet."/>
+                        </dialog>
+                        <dialog name="notyet">
+                            <message>Well hurry up then, it's not like the ants will go away on their own!</message>
+                        </dialog>
+                    </interface>
+                </part>
+                <part name="The Ants" uid="the_ants">
+                    <info>Angela the priestess has asked you to deal with the ants however you see fit, within reason.</info>
+                    <part name="Report To Angela" uid="report_angela">
+                        <info>Report how you resolved the ants issue to Angela.</info>
+                        <interface npc="Angela Sawthrow" state="need_complete">
+                            <dialog name="hello">
+                                <message>Welcome back, {activator.name}.</message>
+                                <response destination="resolved" message="I have resolved the ants issue."/>
+                            </dialog>
+                            <dialog name="resolved">
+                                <message>Have you now?</message>
+                                <message color="yellow">{npc.name} listens to your story.</message>
+                                <and>
+                                    <or>
+                                        <check completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                        <check finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    </or>
+                                    <check faction_friend="incuna_barn_ants"/>
+                                    <message>So, you killed the queen. However, you also calmed the ants, preventing further aggression.</message>
+                                    <message>I admire people with courage and creative thinking. The ants are likely to recover, find a new queen and the balance should be right once again.</message>
+                                    <inherit name="::reward"/>
+                                </and>
+                                <and>
+                                    <or>
+                                        <check completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                        <check finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    </or>
+                                    <check>
+                                        <object arch="incuna_angelas_tonic"/>
+                                    </check>
+                                    <message>So, you just straight up killed the ant queen in cold blood.</message>
+                                    <inherit name="::killed"/>
+                                </and>
+                                <and>
+                                    <or>
+                                        <check completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                        <check finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    </or>
+                                    <message>So, you calmed the ants and then you killed their queen, angering them once more.</message>
+                                    <inherit name="::killed"/>
+                                </and>
+                                <and>
+                                    <message>So, you calmed the ants and didn't kill the queen, preserving the balance. You have my thanks, kind {self.gender}.</message>
+                                    <inherit name="::reward"/>
+                                </and>
+                                <action complete="helping_out::ant_trouble::the_ants::befriend"/>
+                            </dialog>
+                            <dialog name="::reward">
+                                <message>Please, take this as a gift from me.</message>
+                                <action>sack = CreateObject(&quot;sack&quot;)
+try:
+    sack.CreateTreasure(&quot;random_talisman&quot;, level=activator.level, flags=GT_ONLY_GOOD, a_chance=0)
+    obj = sack.inv[0]
+    obj.Remove()
+    obj.f_identified = True
+    self.add_objects(obj)
+finally:
+    sack.Destroy()</action>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <ncheck finished="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <action start="helping_out::ant_trouble::the_ants::report_arvend"/>
+                                    <action fail="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <message>You should report the good news to Arvend, I am sure he will be pleased that we managed to resolve this peacefully.</message>
+                                </and>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <message color="navy">You recall that Arvend mentioned a reward for killing the queen...</message>
+                                </and>
+                                <and>
+                                    <action start="report_sam"/>
+                                    <message color="navy">You should report your progress to Sam...</message>
+                                    <action complete="helping_out::ant_trouble::the_ants"/>
+                                    <action complete="helping_out::ant_trouble"/>
+                                    <action complete="helping_out"/>
+                                </and>
+                                <action complete="helping_out::ant_trouble::the_ants::report_angela"/>
+                            </dialog>
+                            <dialog name="::killed">
+                                <message>You have become a beast yourself; just like that tavern owner, Arvend.</message>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::befriend"/>
+                                    <object arch="incuna_angelas_tonic" remove="1"/>
+                                    <message color="yellow">{npc.name} takes her tonic back from you.</message>
+                                    <action fail="helping_out::ant_trouble::the_ants::befriend"/>
+                                </and>
+                                <message>Begone!</message>
+                                <action complete="helping_out::ant_trouble::the_ants::report_angela"/>
+                                <and>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::slay_queen"/>
+                                    <message color="navy">You recall that Arvend mentioned a reward for killing the queen...</message>
+                                </and>
+                                <and>
+                                    <action start="report_sam"/>
+                                    <message color="navy">You should report your progress to Sam...</message>
+                                    <action complete="helping_out::ant_trouble::the_ants"/>
+                                    <action complete="helping_out::ant_trouble"/>
+                                    <action complete="helping_out"/>
+                                </and>
+                            </dialog>
+                        </interface>
+                    </part>
+                    <part name="Report To Arvend" uid="report_arvend">
+                        <info>After telling Angela that the ants have been calmed, she has suggested that you report the good news to Arvend, the tavern owner.</info>
+                        <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
+                            <dialog name="hello">
+                                <response destination="calmed" message="The ants have been calmed."/>
+                                <inherit/>
+                            </dialog>
+                            <dialog name="calmed">
+                                <message>What?! I wanted the ant queen dead! How do you know that they won't attack my provisions again!?!</message>
+                                <message color="yellow">{npc.name} grumbles angrily.</message>
+                                <message>Take this and off with you, or I will set my dogs on you!</message>
+                                <object arch="coppercoin" nrof="50"/>
+                                <action start="report_sam"/>
+                                <action complete="helping_out::ant_trouble::the_ants::report_arvend"/>
+                                <action complete="helping_out::ant_trouble::the_ants"/>
+                                <action complete="helping_out::ant_trouble"/>
+                                <action complete="helping_out"/>
+                                <message color="navy">You should report your progress to Sam...</message>
+                            </dialog>
+                        </interface>
+                    </part>
+                    <part name="To Slay A Queen" uid="slay_queen">
+                        <info>Slay the ant queen under the Incuna Barn to stop the ant invasion. [b]OR[/b]</info>
+                        <item arch="head_ant_queen" name="incuna barn ant queen head"/>
+                        <interface inherit="interface" npc="Arvend Blessed" state="need_complete">
+                            <dialog name="hello">
+                                <response destination="head" message="Here's the queen's head."/>
+                                <inherit/>
+                                <message>Ah, you're back! Have you talked to the priestess yet?</message>
+                            </dialog>
+                            <dialog name="head">
+                                <message>Eww, how abominable! Thank you, you have saved my barn. Please, take these coins as your reward.</message>
+                                <object arch="silvercoin" nrof="15"/>
+                                <and>
+                                    <check faction_friend="incuna_barn_ants"/>
+                                    <message>Oh, you calmed the ants as well! That's even better. You deserve an extra reward for such effort!</message>
+                                    <object arch="silvercoin" nrof="5"/>
+                                </and>
+                                <action/>
+                                <and>
+                                    <ncheck started="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <action start="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <message>You should let Angela know that we dealt with the situation successfully.</message>
+                                </and>
+                                <and>
+                                    <check started="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <ncheck completed="helping_out::ant_trouble::the_ants::report_angela"/>
+                                    <message>You should let Angela know that we dealt with the situation successfully.</message>
+                                </and>
+                                <and>
+                                    <action start="report_sam"/>
+                                    <action complete="helping_out::ant_trouble::the_ants"/>
+                                    <action complete="helping_out::ant_trouble"/>
+                                    <action complete="helping_out"/>
+                                    <message color="navy">You should report your progress to Sam...</message>
+                                </and>
+                                <action complete="helping_out::ant_trouble::the_ants::slay_queen"/>
+                            </dialog>
+                        </interface>
+                        <interface inherit="interface" npc="Arvend Blessed" state="need_finish">
+                            <dialog name="hello">
+                                <response destination="proposed" message="Yes, she proposed to calm the ants."/>
+                                <inherit/>
+                                <message>Ah, you're back! Have you talked to the priestess yet?</message>
+                            </dialog>
+                            <dialog name="proposed">
+                                <message>WHAT!?! Calm them?! Preposterous!</message>
+                                <message>They need to be eradicated. I told Angela to make a poison tonic, not a calming one!</message>
+                                <and>
+                                    <check gender="male"/>
+                                    <message>There will be a hefty reward if you slay the queen, sire!</message>
+                                </and>
+                                <and>
+                                    <check gender="female"/>
+                                    <message>There will be a hefty reward if you slay the queen, lass!</message>
+                                </and>
+                            </dialog>
+                        </interface>
+                    </part>
+                    <part name="Making Friends" uid="befriend">
+                        <info>Befriend the ants by dropping the calming tonic Angela gave you near some ants and a source of food (such as straw or hay).</info>
+                    </part>
+                </part>
+            </part>
+        </part>
+        <part name="Back To You, Sam" uid="report_sam">
+            <info>Solving Arvend's ants problem, you decide to report back to Sam.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, you're back! You've been gone for a while, I was starting to worry, but you seem safe and sound.</message>
+                    <message>I presume that the infestation problem has been taken care of?</message>
+                    <response destination="yes" message="Yes, the ants shouldn't be a problem any longer."/>
+                </dialog>
+                <dialog name="yes">
+                    <message>Excellent! While you were away, Brelend came looking for you. He said that you should go see him immediately when you return.</message>
+                    <response action="close" message="Thanks, I'll talk to him. See you soon."/>
+                    <action start="the_solution"/>
+                    <action complete="report_sam"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Solution?" uid="the_solution">
+            <info>Receiving the information that Brelend Lee has been looking for you, you decide to visit him at his church.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>Hurry up, Brelend seemed to be anxious to speak to you!</message>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
+                <dialog name="hello">
+                    <message>Ah, very good {activator.name}, you're here. I've been anxious to talk to you.</message>
+                    <response destination="learned" message="Have you learned anything new?"/>
+                </dialog>
+                <dialog name="learned">
+                    <message>Yes indeed. While you were gone, I spent a long time perusing the temple's library and consulting my colleagues and friends.</message>
+                    <message>In one of the books, I found a mention of an amazingly powerful artifact, that was supposed to have been excavated from the nearby crystal mines. However, the book doesn't mention if this was ever finished!</message>
+                    <response destination="mines" message="Tell me more about these mines."/>
+                </dialog>
+                <dialog name="mines">
+                    <message>The old mines, just north of the town, past a wooden bridge...</message>
+                    <message>Long ago, the site was found to be rich in crystal deposits and mining operations began immediately. Eventually, the miners came upon a crystal like no other. It was blue, glowing with a pale white light and sparkling like a diamond.</message>
+                    <response destination="crystal" message="What did they do with the crystal?"/>
+                </dialog>
+                <dialog name="crystal">
+                    <message>That's the sad part of the story...</message>
+                    <message>The miners tried many things to remove the crystal from the rock it was embedded in, but every plan failed. In desperation, they decided to plant some carefully placed explosives, hoping to shatter the rock surrounding the crystal.</message>
+                    <message>The resulting blast is said to have been heard from all the way over in Brynknot on Strakewood Island! For some reason, the placed explosives were many times stronger than they would have been under normal circumstances...</message>
+                    <message>After the dust from the explosion cleared, the crystal lay on the floor, free from the rock at last. However...</message>
+                    <response destination="happened" message="Yes? What happened?"/>
+                </dialog>
+                <dialog name="happened">
+                    <message color="yellow">{npc.name} sighs heavily.</message>
+                    <message>The blast was so great, it opened a large gaping hole in the rock the crystal was embedded in. Hundreds of tiny little red dots appeared in the blackness of the hole, one by one...</message>
+                    <message>Kobolds. Hundreds of them, they struck quickly and without hesitation, overwhelming the miners. Only a few escaped that day...</message>
+                    <message>The mine has been abandoned ever since.</message>
+                    <response destination="crystal2" message="What happened to the crystal?"/>
+                </dialog>
+                <dialog name="crystal2">
+                    <message>No one really knows. Those who escaped the kobolds didn't even think about grabbing it with them; there was no time.</message>
+                    <message>It is said that the kobolds took it for their own, which is very likely.</message>
+                    <message>There are also stories of the kobold king fashioning himself a crown out of it! What a load of nonsense. The crystal is probably impossible to work using any normal means.</message>
+                    <message>At any rate. The crystal could be the answer for us; it's obviously highly magical. It's the best shot we have for unlocking your memories...</message>
+                    <response destination="recover" message="I will recover it."/>
+                </dialog>
+                <dialog name="recover">
+                    <message>I know you will. You seem to be much more in control, so to speak, in comparison to when you first came to me. How strange...</message>
+                    <message>Well, go on, {activator.name}. Go to the western gate of the town, and ask Rick Grizley for a key to open it. From there, look for a bridge to the north and then, for a cave in the old mines.</message>
+                    <message>If you do find the crystal, make sure to use gloves or a piece of cloth to handle it, for it could be very dangerous...</message>
+                    <action start="the_kobolds"/>
+                    <action complete="the_solution"/>
+                    <response action="close" message="I'll better head there right away. See you soon."/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Kobolds" uid="the_kobolds">
+            <info>Receiving information about a powerful magical crystal in the old mines, located to the north of the north of Incuna past a bridge, you decide to investigate. The western gate out of the town is locked, but Brelend Lee mentioned that Rick Grizley, a guard by gate, has a key to open it.</info>
+            <item arch="incuna_talisman_blue_crystal" keep="1"/>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>So, have you spoken to Brelend yet?</message>
+                    <response destination="yes" message="Yes. He wanted me to go to the old mines."/>
+                </dialog>
+                <dialog name="yes">
+                    <message>Hm, that's terribly dangerous. Make sure you're ready before you head out. But Brelend must know what he's doing...</message>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_finish">
+                <dialog name="hello">
+                    <response destination="mines" message="Sorry, how do I get to the mines again?"/>
+                    <inherit/>
+                </dialog>
+                <dialog name="mines">
+                    <message color="yellow">{npc.name} sighs.</message>
+                    <message>Follow the road west from the church until you reach a gate; the guard will let you pass if you tell him I sent you.</message>
+                    <message>From there, head north, past a bridge until you see a rocky formation. Find the entrance on the western side of the formation, and proceed forth with caution...</message>
+                    <message>The tales speak of a kobold king, or a leader, taking the blue crystal for himself. Please, bring it back in one piece...</message>
+                    <response action="close" message="I'm on it. See you."/>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
+                <dialog name="hello">
+                    <response destination="crystal" message="I recovered the blue crystal!"/>
+                    <inherit/>
+                </dialog>
+                <dialog name="crystal">
+                    <message>You did?! I didn't think it possible! Fascinating, simply fascinating.</message>
+                    <message>Now we shall see... here, let me have a look.</message>
+                    <message color="yellow">You let Brelend inspect the ring thoroughly...</message>
+                    <message>Strange... it almost feels alive, buzzing with energy! No time to waste. Why don't you try putting it on?</message>
+                    <response destination="goes" message="Here goes..."/>
+                </dialog>
+                <dialog name="goes">
+                    <action start="the_presence"/>
+                    <action complete="the_kobolds"/>
+                    <action>talisman = self._activator.FindObject(INVENTORY_ALL, archname=&quot;incuna_talisman_blue_crystal&quot;)
+if talisman and not talisman.f_applied:
+    self._activator.Apply(talisman)</action>
+                    <message color="yellow">You barely touch the crystal with your bare skin, and you feel a shock run through you.</message>
+                    <message>What's this?! Can you sense it too?! A presence!</message>
+                    <message color="#ffface">[b][o=#ab1010][font=fanwood][size=+4][i]{activator.name}[/i]... come... continue your journey... and your questions... shall be answered...[/size][/font][/o][/b]</message>
+                    <message>Oh my! Did you hear that too?</message>
+                    <response destination="whatwas" message="Yes, what was it?!"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Presence" uid="the_presence">
+            <info>Touching the blue crystal with your bare skin, something spoke to you and to Brelend. Perhaps he knows what it was...</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>So, have you spoken to Brelend yet?</message>
+                    <response destination="touched" message="Yes, and I heard something speak to me when I touched the crystal!"/>
+                </dialog>
+                <dialog name="touched">
+                    <message>What?! That's a bad sign. You should ask Brelend what it means...</message>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
+                <dialog name="hello">
+                    <message>{activator.name}! Snap out of it! Did you hear that too?</message>
+                    <response destination="whatwas" message="Yes, what was it?!"/>
+                </dialog>
+                <dialog name="whatwas">
+                    <message>A dark presence. I have never in my entire life, felt anything so powerful and menacing. Its voice still echoes in my mind...</message>
+                    <message>I wouldn't touch the crystal again if I were you, and I would get rid of it as soon as possible.</message>
+                    <response destination="trouble" message="After all the trouble we went through for it?"/>
+                    <response destination="bad" message="It can't be all that bad."/>
+                </dialog>
+                <dialog name="trouble">
+                    <message>Hm... well...</message>
+                    <message>Tell me. Do you feel any different?</message>
+                    <response destination="clicked" message="I feel like something has... clicked... into place."/>
+                    <response destination="dizzy" message="I feel a bit dizzy."/>
+                </dialog>
+                <dialog name="bad">
+                    <message>You don't know what you speak of. I insist, we must get rid of it.</message>
+                    <response destination="trouble" message="After all the trouble we went through for it?"/>
+                </dialog>
+                <dialog name="dizzy">
+                    <message>I don't doubt that. What about your memory though?</message>
+                    <response destination="clicked" message="I feel like something has... clicked... into place."/>
+                </dialog>
+                <dialog name="clicked">
+                    <message>Hm... it is as I feared. There is some sort of a magical bond between you, the crystal, and whatever that... thing... that spoke to us, was.</message>
+                    <message>It said something about continuing your journey... well, I see no harm in that. However, be careful, please. That thing... is dangerous.</message>
+                    <response destination="talk" message="Thank you for everything. I'll go talk to Sam."/>
+                </dialog>
+                <dialog name="talk">
+                    <message>Good idea. Remember, stay vigilant. And, {activator.name}?</message>
+                    <message>Best of luck to you.</message>
+                    <action start="the_journey"/>
+                    <action complete="the_presence"/>
+                    <response action="close" message="Thank you. Take care now."/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="The Journey" uid="the_journey">
+            <info>After discussing with Brelend, you decide to continue on your journey and head back to Sam.</info>
+            <interface npc="Sam Goodberry" state="need_complete">
+                <dialog name="hello">
+                    <message>So, how are we feeling? Did you figure out anything with Brelend?</message>
+                    <response destination="continue" message="Yes. We summoned a... thing. It told me to continue my journey."/>
+                </dialog>
+                <dialog name="continue">
+                    <message>A thing? That spoke to you? What on earth do you mean?</message>
+                    <response destination="presence" message="It was some sort of a presence. I'm not quite sure."/>
+                    <response destination="presson" message="Whatever it was, we need to press on, captain."/>
+                </dialog>
+                <dialog name="presence">
+                    <message>How queer! What are we to do about it?</message>
+                    <response destination="presson" message="We need to press on, captain."/>
+                </dialog>
+                <dialog name="presson">
+                    <message>Aye... I can see that you're no longer the same person who lost their memory. You seem more... sure of yourself.</message>
+                    <message>Very well then. Are you packed up and ready to go?</message>
+                    <response destination="ready" message="I'm ready."/>
+                    <response action="close" message="Not just yet..."/>
+                </dialog>
+                <dialog name="ready">
+                    <and>
+                        <ncheck completed="gear"/>
+                        <action fail="gear"/>
+                    </and>
+                    <action/>
+                    <and>
+                        <ncheck completed="sorcery"/>
+                        <action fail="sorcery"/>
+                    </and>
+                    <action/>
+                    <and>
+                        <ncheck completed="archery"/>
+                        <action fail="archery"/>
+                    </and>
+                    <action complete="the_journey"/>
+                    <action teleport="/shattered_islands/incuna/ship_lower_deck_to_strakewood 2 11 savebed"/>
+                    <close/>
+                </dialog>
+            </interface>
         </part>
     </quest>
 </interfaces>

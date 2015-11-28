@@ -346,7 +346,7 @@ static void mempool_free(mempool_struct *pool)
     cp = strtok(info, "\n");
 
     while (cp != NULL) {
-        log(LOG(ERROR), "%s", cp);
+        LOG(ERROR, "%s", cp);
         cp = strtok(NULL, "\n");
     }
 
@@ -495,7 +495,7 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
     nrof_arrays = pool->expand_size >> arraysize_exp;
 
     if (nrof_arrays == 0) {
-        log(LOG(ERROR), "Called with too large array size exponent: %"PRIu64,
+        LOG(ERROR, "Called with too large array size exponent: %"PRIu64,
                 (uint64_t) arraysize_exp);
         nrof_arrays = 1;
     }
@@ -602,7 +602,7 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
     chunk = MEM_POOLDATA(data);
 
     if (CHUNK_FREE(data)) {
-        log(LOG(ERROR), "Chunk %p in pool '%s' has already been freed.", chunk,
+        LOG(ERROR, "Chunk %p in pool '%s' has already been freed.", chunk,
                 pool->chunk_description);
         abort();
     }

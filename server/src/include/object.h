@@ -34,7 +34,7 @@
  * have nrof, include the weight it is carrying. */
 #define WEIGHT(op) (!op->nrof || op->type == CONTAINER ? op->weight + op->carrying : op->weight)
 
-#define WEIGHT_NROF(op, nrof) ((nrof ? op->weight * (int32_t) nrof : op->weight) + op->carrying)
+#define WEIGHT_NROF(op, nrof) (MAX(1, nrof) * op->weight + op->carrying)
 
 /**
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags */
@@ -138,7 +138,7 @@ typedef struct obj {
      * is not copied by memcpy(), since the memcpy() doesn't actually
      * copy over the inventory either, so it would create bogus carrying
      * weight in some cases. */
-    int32_t carrying;
+    uint32_t carrying;
 
     /** Type-dependant extra data. */
     void *custom_attrset;
@@ -172,6 +172,9 @@ typedef struct obj {
     /** Custom name assigned by player. */
     shstr *custom_name;
 
+    /** Glow color. */
+    shstr *glow;
+
     /** Monster/player to follow even if not closest */
     struct obj *enemy;
 
@@ -201,10 +204,10 @@ typedef struct obj {
     tag_t attacked_by_count;
 
     /** Pointer to archetype */
-    struct archt *arch;
+    struct archetype *arch;
 
     /** Pointer used for various things */
-    struct archt *other_arch;
+    struct archetype *other_arch;
 
     /** Items to be generated */
     struct treasureliststruct *randomitems;
@@ -222,7 +225,7 @@ typedef struct obj {
     uint32_t event_flags;
 
     /** Attributes of the object - the weight */
-    int32_t weight;
+    uint32_t weight;
 
     /**
      * Weight-limit of object - player and container should have this...
@@ -266,7 +269,7 @@ typedef struct obj {
     int16_t attacked_by_distance;
 
     /** The damage sent with map2 */
-    uint16_t last_damage;
+    int16_t last_damage;
 
     /**
      * type flags for different environment (tile is under water, firewalk,...)
@@ -423,17 +426,20 @@ typedef struct obj {
     /** Object's alpha value. */
     uint8_t alpha;
 
+    /** Object's glowing speed. */
+    uint8_t glow_speed;
+
     /** The overall speed of this object */
-    float speed;
+    double speed;
 
     /** How much speed is left to spend this round */
-    float speed_left;
+    double speed_left;
 
     /** new weapon speed system. swing of weapon */
-    float weapon_speed;
+    double weapon_speed;
 
     /** Weapon speed left */
-    float weapon_speed_left;
+    double weapon_speed_left;
 
     /** Str, Con, Dex, etc */
     living stats;
@@ -452,9 +458,6 @@ typedef struct oblnk {
 
         /** Object. */
         object *ob;
-
-        /** Ban. */
-        struct ban_struct *ban;
     } objlink;
 
     /** Next object in this list. */
@@ -573,6 +576,10 @@ typedef struct oblnk {
  * Use secret passages.
  */
 #define BEHAVIOR_SECRET_PASSAGES 0x10
+/**
+ * Guard behavior.
+ */
+#define BEHAVIOR_GUARD 0x20
 /*@}*/
 
 /** Decrease an object by one. */
@@ -627,18 +634,20 @@ typedef struct magic_mirror_struct {
 
 /**
  * Check whether the specified object can talk. */
-#define OBJECT_CAN_TALK(ob) ((ob)->type == MONSTER && ((ob)->msg || HAS_EVENT((ob), EVENT_SAY)))
+#define OBJECT_CAN_TALK(ob) ((ob)->type == MONSTER && ((ob)->msg || \
+        HAS_EVENT((ob), EVENT_SAY)) && !OBJECT_VALID((ob)->enemy, \
+        (ob)->enemy_count))
 
 /**
  * Check whether an object is cursed/damned. */
 #define OBJECT_CURSED(ob) (QUERY_FLAG((ob), FLAG_CURSED) || QUERY_FLAG((ob), FLAG_DAMNED))
 
 #define OBJ_DESTROYED_BEGIN(_op) \
-    { \
+    do { \
         tag_t __tag_ ## _op = (_op)->count;
 #define OBJ_DESTROYED(_op) (!OBJECT_VALID((_op), __tag_ ## _op))
-#define OBJ_DESTROYED_END(_op) \
-    }
+#define OBJ_DESTROYED_END() \
+    } while (0)
 
 /**
  * Check whether the object is a flying projectile. */

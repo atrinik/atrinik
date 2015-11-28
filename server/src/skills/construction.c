@@ -27,6 +27,7 @@
  * Handles code for the construction skill. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Check if objects on a square interfere with building.
@@ -140,7 +141,10 @@ static int builder_item(object *op, object *new_item, int x, int y)
     /* If it's not a wallmask, don't allow building on top of blocked squares.
      * */
     if (new_item->type != WALL && w) {
-        draw_info_format(COLOR_WHITE, op, "Something is blocking you from building the %s on that square.", query_name(new_item, NULL));
+        char *name = object_get_name_s(new_item, op);
+        draw_info_format(COLOR_WHITE, op, "Something is blocking you from "
+                "building the %s on that square.", name);
+        efree(name);
         return 0;
     } else if (new_item->type == WALL) {
         object *wall_ob = get_wall(op->map, x, y);
@@ -149,10 +153,16 @@ static int builder_item(object *op, object *new_item, int x, int y)
          * contains a wall. */
 
         if (!w || !wall_ob) {
-            draw_info_format(COLOR_WHITE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
+            char *name = object_get_name_s(new_item, op);
+            draw_info_format(COLOR_WHITE, op, "The %s can only be built on "
+                    "top of a wall.", name);
+            efree(name);
             return 0;
         } else if (wall_ob->above && wall_ob->above->type == WALL) {
-            draw_info_format(COLOR_WHITE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall_ob->above, NULL));
+            char *name = object_get_name_s(wall_ob->above, op);
+            draw_info_format(COLOR_WHITE, op, "You first need to remove the %s "
+                    "before building on top of that wall again.", name);
+            efree(name);
             return 0;
         }
     }
@@ -207,7 +217,9 @@ static int builder_item(object *op, object *new_item, int x, int y)
     new_item->x = x;
     new_item->y = y;
     insert_ob_in_map(new_item, op->map, NULL, 0);
-    draw_info_format(COLOR_WHITE, op, "You build the %s.", query_name(new_item, NULL));
+    char *name = object_get_name_s(new_item, op);
+    draw_info_format(COLOR_WHITE, op, "You build the %s.", name);
+    efree(name);
 
     return 1;
 }
@@ -253,7 +265,7 @@ static void fix_walls(mapstruct *map, int x, int y)
     object *wall_ob;
     char wall_name[MAX_BUF], orientation[MAX_BUF];
     uint32_t old_flags[NUM_FLAGS_32];
-    archetype *new_arch;
+    archetype_t *new_arch;
     int flag;
 
     /* First, find the wall on that spot */
@@ -319,7 +331,7 @@ static void fix_walls(mapstruct *map, int x, int y)
     }
 
     /* Before anything, make sure the archetype does in fact exist... */
-    new_arch = find_archetype(wall_name);
+    new_arch = arch_find(wall_name);
 
     if (!new_arch) {
         return;
@@ -414,7 +426,7 @@ static int builder_window(object *op, int x, int y)
 {
     object *wall_ob;
     char wall_name[MAX_BUF], orientation[MAX_BUF];
-    archetype *new_arch;
+    archetype_t *new_arch;
     object *window;
     uint32_t old_flags[NUM_FLAGS_32];
     int flag;
@@ -437,7 +449,7 @@ static int builder_window(object *op, int x, int y)
     strncat(wall_name, "_w", sizeof(wall_name) - strlen(wall_name) - 1);
     strncat(wall_name, orientation, sizeof(wall_name) - strlen(wall_name) - 1);
 
-    new_arch = find_archetype(wall_name);
+    new_arch = arch_find(wall_name);
 
     /* That type of wall doesn't have corresponding window archetype. */
     if (!new_arch) {
@@ -476,7 +488,7 @@ static int builder_window(object *op, int x, int y)
 static void construction_builder(object *op, int x, int y)
 {
     object *material, *new_item;
-    archetype *new_arch;
+    archetype_t *new_arch;
     int built = 0;
 
     material = find_marked_object(op);
@@ -492,10 +504,10 @@ static void construction_builder(object *op, int x, int y)
     }
 
     /* Create a new object from the raw materials. */
-    new_arch = find_archetype(material->slaying);
+    new_arch = arch_find(material->slaying);
 
     if (!new_arch) {
-        logger_print(LOG(BUG), "Unable to find archetype %s.", material->slaying);
+        LOG(BUG, "Unable to find archetype %s.", material->slaying);
         draw_info(COLOR_WHITE, op, "You can't use this strange material.");
         return;
     }
@@ -527,7 +539,7 @@ static void construction_builder(object *op, int x, int y)
         break;
 
     default:
-        logger_print(LOG(BUG), "Invalid material subtype %d.", material->sub_type);
+        LOG(BUG, "Invalid material subtype %d.", material->sub_type);
         draw_info(COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
         break;
     }
@@ -566,7 +578,10 @@ static void construction_destroyer(object *op, int x, int y)
 
     /* Do not allow destroying containers with inventory. */
     if (item->type == CONTAINER && item->inv) {
-        draw_info_format(COLOR_WHITE, op, "You cannot remove the %s, since it contains items.", query_name(item, NULL));
+        char *name = object_get_name_s(item, op);
+        draw_info_format(COLOR_WHITE, op, "You cannot remove the %s, since it "
+                "contains items.", name);
+        efree(name);
         return;
     }
 
@@ -585,7 +600,9 @@ static void construction_destroyer(object *op, int x, int y)
         }
     }
 
-    draw_info_format(COLOR_WHITE, op, "You remove the %s.", query_name(item, NULL));
+    char *name = object_get_name_s(item, op);
+    draw_info_format(COLOR_WHITE, op, "You remove the %s.", name);
+    efree(name);
 }
 
 /**
@@ -609,7 +626,10 @@ void construction_do(object *op, int dir)
     }
 
     if (skill_item->stats.sp != SK_CONSTRUCTION) {
-        draw_info_format(COLOR_WHITE, op, "The %s cannot be used with the construction skill.", query_name(skill_item, NULL));
+        char *name = object_get_name_s(skill_item, op);
+        draw_info_format(COLOR_WHITE, op, "The %s cannot be used with the "
+                "construction skill.", name);
+        efree(name);
         return;
     }
 
@@ -631,7 +651,7 @@ void construction_do(object *op, int dir)
     floor_ob = GET_MAP_OB(op->map, x, y);
 
     if (!floor_ob) {
-        logger_print(LOG(BUG), "Undefined square on map %s (%d, %d)", op->map->path, x, y);
+        LOG(BUG, "Undefined square on map %s (%d, %d)", op->map->path, x, y);
         draw_info(COLOR_WHITE, op, "You'd better not build here, it looks weird.");
         return;
     }
@@ -676,7 +696,8 @@ void construction_do(object *op, int dir)
         break;
 
     default:
-        logger_print(LOG(BUG), "Skill item %s has invalid subtype.", query_name(skill_item, NULL));
+        LOG(ERROR, "Skill item %s has invalid subtype.",
+                object_get_str(skill_item));
         draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
         break;
     }

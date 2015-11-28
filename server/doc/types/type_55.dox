@@ -10,9 +10,9 @@ See @ref page_type_55
 @section Description
 		A marker is an object that inserts an invisible force (a mark)
 		into a player stepping on it. This force does nothing except
-		containing a &lt;key string&gt; which can be discovered by
-		detectors or inventory checkers. It is also possible to use
-		markers for removing marks again.
+		contain a "key string"; which can be discovered by inventory
+		checkers. It is also possible to use markers for removing marks
+		again.
 		<br><br>
 		Note that the player has no possibility to "see" his own marks,
 		except by the effect that they cause on the maps.
@@ -66,13 +66,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>connection</td>
-		<td>@ref page_connected "connection value"</td>
-		<td>		When the detector is triggered, all objects with the same
-		connection value get activated.
-		</td>
-	</tr>
-	<tr>
 		<td>cursed</td>
 		<td>@ref FLAG_CURSED</td>
 		<td>		The item is cursed. This object can't be removed when wielded or
@@ -88,15 +81,9 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>delete mark</td>
-		<td>@ref obj::name</td>
-		<td>		When the player steps onto the marker, all existing forces in
-		the player's inventory with a &lt;key string&gt; matching
-		&lt;delete mark&gt; will be removed. If you don't want to remove
-		any marks, leave this textfield empty.
-
-		Note that the string &lt;delete mark&gt; is set as the name of
-		this marker. So don't be confused, and remember changing the
-		name will take effect on the marker's functionality.
+		<td>@ref obj::slaying</td>
+		<td>		If set, the marker with this key string will be removed when the
+		player passes over the marker.
 		</td>
 	</tr>
 	<tr>
@@ -107,10 +94,16 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
+		<td>fly on</td>
+		<td>@ref FLAG_FLY_ON</td>
+		<td>		Whether to mark creatures flying onto the marker.
 		</td>
 	</tr>
 	<tr>
@@ -126,6 +119,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -178,19 +177,19 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>key string</td>
-		<td>@ref obj::slaying</td>
-		<td>		The &lt;key string&gt; can be detected by inventory checkers/
-		detectors. If the player already has a force with that
-		&lt;key string&gt;, there won't be inserted a second one.
+		<td>@ref obj::race</td>
+		<td>		The key string to insert into the passing player. If a marker
+		with the same key string already exists, a new one won't be
+		inserted.
 		</td>
 	</tr>
 	<tr>
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -207,28 +206,16 @@ Type defined by:
 	<tr>
 		<td>mark duration</td>
 		<td>@ref liv::food</td>
-		<td>		This value defines the duration of the force it inserts. If
-		nonzero, the duration of the player's mark is finite: about 1
-		food per 10 seconds. &lt;mark duration&gt; zero/unset means the
-		mark will stay on the player forever.
+		<td>		How long the mark will remain on the player. If zero, the mark
+		will never vanish automatically. A value of 1 is about 10
+		seconds.
 		</td>
 	</tr>
 	<tr>
 		<td>marking message</td>
 		<td>@ref obj::msg</td>
 		<td>		In the moment when the player gets marked, this text is displayed
-		to him. You should really set a message in any marker you create,
-		because it's the only way for the player to notice what's going
-		on.
-		</td>
-	</tr>
-	<tr>
-		<td>marking speed</td>
-		<td>@ref obj::speed</td>
-		<td>		The &lt;marking speed&gt; defines how quickly it will mark
-		something standing on the marker. Set this value rather high to
-		make sure the player really gets his mark. I think
-		&lt;marking speed&gt; 1.0 should do fine.
+		to him.
 		</td>
 	</tr>
 	<tr>
@@ -252,10 +239,9 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
+		<td>name</td>
+		<td>@ref obj::name</td>
+		<td>		This is the name of the object, displayed to the player.
 		</td>
 	</tr>
 	<tr>
@@ -333,6 +319,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
 		<td>stackable</td>
 		<td>@ref FLAG_CAN_STACK</td>
 		<td>		If set, the item can be stacked. Careful, don't use on rings or
@@ -373,8 +365,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -406,6 +407,18 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>walk on</td>
+		<td>@ref FLAG_WALK_ON</td>
+		<td>		Whether to mark creatures walking onto the marker.
 		</td>
 	</tr>
 	<tr>

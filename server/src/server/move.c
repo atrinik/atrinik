@@ -42,7 +42,7 @@ int get_random_dir(void)
  * @return The randomized direction. */
 int get_randomized_dir(int dir)
 {
-    return absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+    return absdir(dir + rndm(0, 2) + rndm(0, 2) - 2);
 }
 
 /**
@@ -69,11 +69,53 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
     SOFT_ASSERT_RC(x >= 0 && x < m->width, 0, "Invalid X coordinate: %d", x);
     SOFT_ASSERT_RC(y >= 0 && y < m->height, 0, "Invalid Y coordinate: %d", y);
 
+    object *floor =
+            GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
+    int z = floor != NULL ? floor->z : 0;
+    int z_highest = 0, sub_layer = 0;
+    object *floor_tmp;
+
+    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_FLOOR, -1, floor_tmp) {
+        if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
+            continue;
+        }
+
+        if (floor_tmp->z > z_highest) {
+            z_highest = floor_tmp->z;
+            sub_layer = floor_tmp->sub_layer;
+        }
+    } FOR_MAP_LAYER_END
+
     object_remove(op, 0);
 
+    op->sub_layer = sub_layer;
     op->x = x;
     op->y = y;
-    insert_ob_in_map(op, m, originator, INS_FALL_THROUGH);
+    op = insert_ob_in_map(op, m, originator, INS_FALL_THROUGH);
+
+    if (op == NULL) {
+        return 1;
+    }
+
+    if (op->map == m && op->x == x && op->y == y) {
+        floor = GET_MAP_OB_LAYER(m, x, y, LAYER_FLOOR, sub_layer);
+        int fall_floors = (int) ((z - (floor != NULL ? floor->z : 0)) / 50.0 +
+                0.5);
+
+        if (fall_floors > 0 && IS_LIVE(op)) {
+            OBJ_DESTROYED_BEGIN(op) {
+                fall_damage_living(op, fall_floors);
+
+                if (OBJ_DESTROYED(op)) {
+                    return 1;
+                }
+            } OBJ_DESTROYED_END();
+        }
+    }
+
+    if (op->type == PLAYER) {
+        CONTR(op)->stat_steps_taken++;
+    }
 
     return 1;
 }
@@ -91,15 +133,17 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
  */
 int move_ob(object *op, int dir, object *originator)
 {
-    mapstruct *m;
-    int xt, yt, flags;
+    HARD_ASSERT(op != NULL);
+
+    SOFT_ASSERT_RC(!QUERY_FLAG(op, FLAG_REMOVED), 0, "Trying to move a removed "
+            "object: %s", object_get_str(op));
 
     if (op == NULL) {
         return 0;
     }
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        logger_print(LOG(BUG), "monster %s has been removed - will not process further", query_name(op, NULL));
+        LOG(ERROR, "Trying to move removed object: %s", object_get_str(op));
         return 0;
     }
 
@@ -113,16 +157,16 @@ int move_ob(object *op, int dir, object *originator)
     op->anim_flags &= ~ANIM_FLAG_STOP_MOVING;
     op->direction = dir;
 
-    xt = op->x + freearr_x[dir];
-    yt = op->y + freearr_y[dir];
+    int xt = op->x + freearr_x[dir];
+    int yt = op->y + freearr_y[dir];
+    mapstruct *m = get_map_from_coord(op->map, &xt, &yt);
 
-    /* we have here a get_map_from_coord - we can skip all */
-    if (!(m = get_map_from_coord(op->map, &xt, &yt))) {
+    if (m == NULL) {
         return 0;
     }
 
     if (op->type != PLAYER || !CONTR(op)->tcl) {
-        flags = object_blocked(op, m, xt, yt);
+        int flags = object_blocked(op, m, xt, yt);
 
         if (flags != 0) {
             if (flags & P_DOOR_CLOSED) {
@@ -137,10 +181,8 @@ int move_ob(object *op, int dir, object *originator)
         return -1;
     }
 
-    object_move_to(op, dir, originator, m, xt, yt);
-
-    if (op->type == PLAYER) {
-        CONTR(op)->stat_steps_taken++;
+    if (!object_move_to(op, dir, originator, m, xt, yt)) {
+        return 0;
     }
 
     return dir;
@@ -170,7 +212,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
         object_enter_map(op, trap, NULL, 0, 0, 0);
         return 1;
     } else if (randomly) {
-        i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE);
+        i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE3);
     } else {
         i = find_first_free_spot(op->arch, op, op->map, x, y);
     }

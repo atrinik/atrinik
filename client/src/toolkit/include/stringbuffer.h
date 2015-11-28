@@ -24,28 +24,37 @@
 
 /**
  * @file
- * Header file for stringbuffer.c. */
+ * Header file for stringbuffer.c.
+ */
 
 #ifndef STRINGBUFFER_H
 #define STRINGBUFFER_H
 
 /**
- * The string buffer state. */
-typedef struct StringBuffer_struct {
-    /**
-     * The string buffer. The first ::pos bytes contain the collected
-     * string. Its size is at least ::bytes. */
-    char *buf;
+ * The string buffer state.
+ */
+typedef struct StringBuffer_struct StringBuffer;
 
-    /**
-     * The current length of ::buf. The invariant <code>pos \< size</code>
-     * always holds; this means there is always enough room to attach a
-     * trailing NUL character. */
-    size_t pos;
-
-    /**
-     * The allocation size of ::buf. */
-    size_t size;
-} StringBuffer;
+/* Prototypes */
+void toolkit_stringbuffer_init(void);
+void toolkit_stringbuffer_deinit(void);
+StringBuffer *stringbuffer_new(void);
+void stringbuffer_free(StringBuffer *sb);
+char *stringbuffer_finish(StringBuffer *sb);
+const char *stringbuffer_finish_shared(StringBuffer *sb);
+void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
+        size_t len);
+void stringbuffer_append_string(StringBuffer *sb, const char *str);
+void stringbuffer_append_printf(StringBuffer *sb, const char *format,
+        ...) __attribute__((format(printf, 2, 3)));
+void stringbuffer_append_stringbuffer(StringBuffer *sb,
+        const StringBuffer *sb2);
+void stringbuffer_append_char(StringBuffer *sb, const char c);
+const char *stringbuffer_data(StringBuffer *sb);
+size_t stringbuffer_length(StringBuffer *sb);
+void stringbuffer_seek(StringBuffer *sb, const size_t pos);
+ssize_t stringbuffer_index(StringBuffer *sb, char c);
+ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
+char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end);
 
 #endif

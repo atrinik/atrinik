@@ -33,7 +33,7 @@
 #define CHANCE_FOR_ARTIFACT 20
 
 /** Number of coin types */
-#define NUM_COINS 4
+#define NUM_COINS 6
 
 /**
  * @defgroup GT_xxx Treasure generation flags
@@ -43,7 +43,6 @@
  * Put generated treasure below the object instead of inside the object's
  * inventory. */
 #define GT_ENVIRONMENT 0x0001
-#define GT_INVISIBLE 0x0002
 /** Generated items have ::FLAG_STARTEQUIP set */
 #define GT_STARTEQUIP 0x0004
 /** Unused. */
@@ -97,7 +96,7 @@ typedef struct _change_arch {
  * treasure when an archetype of that type is generated. */
 typedef struct treasurestruct {
     /** Which item this link can be */
-    struct archt *item;
+    struct archetype *item;
 
     /** If not NULL, name of list to use instead */
     const char *name;

@@ -2,6 +2,7 @@
 ## Script for the main entrance of the Abandoned Mine; gate that requires
 ## a passphrase.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)
@@ -27,4 +28,4 @@ def main():
         inf.set_text_input()
 
 main()
-inf.finish()
+inf.send()

@@ -1,0 +1,12 @@
+arch map
+name Test Map
+width 5
+height 5
+difficulty 1
+darkness -1
+no_save 1
+region world
+end
+arch beacon
+name test_atrinik_map_locate_beacon
+end

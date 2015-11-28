@@ -78,6 +78,10 @@ typedef struct MapCell_struct {
     uint8_t ext_flags; ///< Last ext flags.
 
     uint8_t client_flags[NUM_SUB_LAYERS];
+
+    uint8_t anim_num; ///< Last number of animations sent.
+
+    uint8_t is_friend:NUM_SUB_LAYERS; ///< Friendly state cache.
 } MapCell;
 
 /** One map for a player. */
@@ -98,8 +102,8 @@ enum {
 
 /** This contains basic information on the socket structure. */
 typedef struct socket_struct {
-    /** The actual file descriptor we are using. */
-    int fd;
+    /** The real socket. */
+    socket_t *sc;
 
     /**
      * If someone is too long idle in the login, he will get
@@ -117,9 +121,6 @@ typedef struct socket_struct {
 
     /** Y size of the map the client wants / 2. */
     int mapy_2;
-
-    /** Which host it is connected from (ip address). */
-    char *host;
 
     /** Version of the client. */
     uint32_t socket_version;
@@ -141,7 +142,7 @@ typedef struct socket_struct {
     uint8_t is_bot;
 
     /** Start of drawing of look window. */
-    int16_t look_position;
+    uint32_t look_position;
 
     /** Faceset the client is using, default 0. */
     uint8_t faceset;
@@ -160,8 +161,8 @@ typedef struct socket_struct {
     /** Last map. */
     struct Map lastmap;
 
-    struct packet_struct *packet_head;
-    struct packet_struct *packet_tail;
+    /** Outgoing packets. */
+    struct packet_struct *packets;
 
     /**
      * Buffer for how many ticks have passed since the last keep alive
@@ -178,7 +179,7 @@ typedef struct socket_struct {
 /**
  * How many seconds must pass since the last keep alive command for the
  * socket to be disconnected. */
-#define SOCKET_KEEPALIVE_TIMEOUT (60 * 10)
+#define SOCKET_KEEPALIVE_TIMEOUT (uint32_t) ((60 * 10) * MAX_TICKS_MULTIPLIER)
 
 /** Holds some system related information. */
 typedef struct Socket_Info_struct {

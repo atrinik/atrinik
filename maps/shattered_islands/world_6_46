@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -454,6 +454,7 @@ arch priest_green
 name Amber Shire
 direction 3
 level 20
+faction asteria_citizens
 is_male 0
 is_female 1
 type 83
@@ -857,10 +858,7 @@ arch guard
 name Asterian Guard
 type 83
 level 45
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction asteria_guards
 end
 end
 arch floor_parquet2a
@@ -3224,6 +3222,7 @@ endmsg
 name Dan
 type 83
 level 35
+faction asteria_citizens
 end
 end
 arch light4
@@ -3294,6 +3293,7 @@ arch smith
 name Farah
 type 83
 level 80
+faction asteria_citizens
 arch event_obj
 sub_type 6
 race /python/generic/smith.py
@@ -3352,7 +3352,7 @@ x 17
 y 19
 arch dog_brown
 speed -0.025
-friendly 1
+faction asteria_animals
 random_move 1
 item_race 10
 item_level 10

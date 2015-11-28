@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <plugin.h>
 
 /**
  * Write maps log. */
@@ -41,7 +42,7 @@ void write_map_log(void)
     snprintf(buf, sizeof(buf), "%s/temp.maps", settings.datapath);
 
     if (!(fp = fopen(buf, "w"))) {
-        logger_print(LOG(BUG), "Could not open %s for writing", buf);
+        LOG(BUG, "Could not open %s for writing", buf);
         return;
     }
 
@@ -78,7 +79,7 @@ void read_map_log(void)
         map = get_linked_map();
 
         if (string_split(buf, tmp, sizeof(tmp) / sizeof(*tmp), ':') != 3) {
-            logger_print(LOG(DEBUG), "%s/temp.maps: ignoring invalid line: %s", settings.datapath, buf);
+            LOG(DEBUG, "%s/temp.maps: ignoring invalid line: %s", settings.datapath, buf);
             continue;
         }
 
@@ -118,7 +119,7 @@ static int swap_map_check(mapstruct *tiled, mapstruct *map)
 void swap_map(mapstruct *map, int force_flag)
 {
     if (map->in_memory != MAP_IN_MEMORY) {
-        logger_print(LOG(BUG), "Tried to swap out map which was not in memory (%s).", map->path);
+        LOG(BUG, "Tried to swap out map which was not in memory (%s).", map->path);
         return;
     }
 
@@ -150,7 +151,7 @@ void swap_map(mapstruct *map, int force_flag)
     }
 
     if (new_save_map(map, 0) == -1) {
-        logger_print(LOG(BUG), "Failed to swap map %s.", map->path);
+        LOG(BUG, "Failed to swap map %s.", map->path);
         /* Need to reset the in_memory flag so that delete map will also
          * free the objects with it. */
         map->in_memory = MAP_IN_MEMORY;

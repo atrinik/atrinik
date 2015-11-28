@@ -1,0 +1,67 @@
+Allowed none
+chance 1
+artifact incuna_angelas_tonic
+def_arch potion_generic
+Object
+face potion_pink.101
+quest_item 1
+no_drop 1
+item_quality 100
+item_condition 100
+name Angela's Calming Tonic
+startequip 1
+identified 1
+is_magical 1
+glow #dbce3b
+glow_speed 10
+type 79
+msg
+Pour the tonic somewhere in the barn, in close proximity to some ants and a food source.
+endmsg
+arch event_obj
+sub_type 1
+race /python/items/incuna_angelas_tonic.py
+end
+end
+
+Allowed none
+chance 1
+artifact incuna_tavern_barn_key
+def_arch key2
+Object
+name Incuna Tavern Barn Key
+slaying incuna_tavern_barn
+end
+
+Allowed none
+chance 1
+artifact incuna_western_gate_key
+def_arch key2
+Object
+name Incuna Western Gate Key
+slaying incuna_western_gate_key
+end
+
+Allowed none
+chance 1
+artifact incuna_talisman_blue_crystal
+def_arch talisman_generic
+Object
+name Blue Crystal Talisman
+title of Incuna
+face talisman_great_blue_crystal.101
+is_named 1
+soulbound 1
+identified 1
+material 324
+glow_speed 4
+glow 00face
+maxsp 10
+maxhp 10
+sp 1
+hp 1
+msg
+There is a vibrant aura around the blue crystal. It's quite cool to the touch, but you can feel it buzzing with energy...
+endmsg
+value 1500
+end

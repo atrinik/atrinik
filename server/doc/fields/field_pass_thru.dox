@@ -1,13 +1,17 @@
 /**
-@fn FLAG_PASS_THRU
-@section Use
+@var FLAG_PASS_THRU
+@sa @ref page_field_pass_thru
+*/
+
+/**
+@page page_field_pass_thru FLAG_PASS_THRU Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_79, @ref page_type_71, @ref page_type_77, @ref page_type_91, @ref page_type_26, @ref page_type_20, @ref page_type_62
+@ref page_type_79, @ref page_type_71, @ref page_type_77, @ref page_type_20
 		</td><td>		If no_pass (blocking passage) is set, no one can pass. If this
 		flag is set too, ethereal objects with the CAN_PASS_THRU flag can
 		pass. This is used for example for ghosts who move through doors.</td>

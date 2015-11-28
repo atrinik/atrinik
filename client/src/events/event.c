@@ -71,7 +71,7 @@ int event_dragging_need_redraw(void)
     return 0;
 }
 
-void event_dragging_start(int tag, int mx, int my)
+void event_dragging_start(tag_t tag, int mx, int my)
 {
     dragging_old_mx = -1;
     dragging_old_my = -1;
@@ -174,7 +174,7 @@ int Event_PollInputDevice(void)
             ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
 
             if (!ScreenSurface) {
-                logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
+                LOG(ERROR, "Unable to grab surface after resize event: %s", SDL_GetError());
                 exit(1);
             }
 

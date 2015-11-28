@@ -30,97 +30,23 @@
 #include <packet.h>
 #include <toolkit_string.h>
 
-/**
- * Receives data from socket.
- * @param ns Socket to read from.
- * @return 1 on success, -1 on failure. */
-int socket_recv(socket_struct *ns)
-{
-    int stat_ret;
-
-#ifdef WIN32
-    stat_ret = recv(ns->fd, (char *) ns->packet_recv->data +
-            ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len,
-            0);
-#else
-    do {
-        stat_ret = read(ns->fd, (void *) (ns->packet_recv->data +
-                ns->packet_recv->len), ns->packet_recv->size -
-                ns->packet_recv->len);
-    }    while (stat_ret == -1 && errno == EINTR);
-#endif
-
-    if (stat_ret == 0) {
-        return -1;
-    }
-
-    if (stat_ret > 0) {
-        ns->packet_recv->len += stat_ret;
-    } else if (stat_ret < 0) {
-#ifdef WIN32
-
-        if (WSAGetLastError() != WSAEWOULDBLOCK) {
-            if (WSAGetLastError() == WSAECONNRESET) {
-                logger_print(LOG(DEBUG), "Connection closed by client.");
-            } else {
-                logger_print(LOG(DEBUG), "got error %d, returning %d.", WSAGetLastError(), stat_ret);
-            }
-
-            return stat_ret;
-        }
-#else
-
-        if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-            logger_print(LOG(DEBUG), "got error %d: %s, returning %d.", errno, strerror(errno), stat_ret);
-            return stat_ret;
-        }
-#endif
-    }
-
-    return 1;
-}
-
-/**
- * Enable TCP_NODELAY on the specified file descriptor (socket).
- * @param fd Socket's file descriptor. */
-void socket_enable_no_delay(int fd)
-{
-    int tmp = 1;
-
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp))) {
-        logger_print(LOG(DEBUG), "Cannot enable TCP_NODELAY: %s", strerror(errno));
-    }
-}
-
-/**
- * Disable TCP_NODELAY on the specified file descriptor (socket).
- * @param fd Socket's file descriptor. */
-void socket_disable_no_delay(int fd)
-{
-    int tmp = 0;
-
-    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp))) {
-        logger_print(LOG(DEBUG), "Cannot disable TCP_NODELAY: %s", strerror(errno));
-    }
-}
-
 static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {
 #ifndef DEBUG
     {
         char *cp, *cp2;
 
-        log(LOG(DUMPTX), "Enqueuing packet with command type %d (%" PRIu64
+        LOG(DUMPTX, "Enqueuing packet with command type %d (%" PRIu64
                 " bytes):", packet->type, (uint64_t) packet->len);
 
         cp = packet_get_debug(packet);
 
         if (cp[0] != '\0') {
-            log(LOG(DUMPTX), "  Debug info:\n");
+            LOG(DUMPTX, "  Debug info:\n");
             cp2 = strtok(cp, "\n");
 
             while (cp2 != NULL) {
-                log(LOG(DUMPTX), "  %s", cp2);
+                LOG(DUMPTX, "  %s", cp2);
                 cp2 = strtok(NULL, "\n");
             }
         }
@@ -129,38 +55,12 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 
         cp = emalloc(sizeof(*cp) * (packet->len * 3 + 1));
         string_tohex(packet->data, packet->len, cp, packet->len * 3 + 1, true);
-        log(LOG(DUMPTX), "  Hexadecimal: %s", cp);
+        LOG(DUMPTX, "  Hexadecimal: %s", cp);
         efree(cp);
     }
 #endif
 
-    if (!ns->packet_head) {
-        ns->packet_head = packet;
-        packet->prev = NULL;
-    } else {
-        ns->packet_tail->next = packet;
-        packet->prev = ns->packet_tail;
-    }
-
-    ns->packet_tail = packet;
-    packet->next = NULL;
-}
-
-static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
-{
-    if (!packet->prev) {
-        ns->packet_head = packet->next;
-    } else {
-        packet->prev->next = packet->next;
-    }
-
-    if (!packet->next) {
-        ns->packet_tail = packet->prev;
-    } else {
-        packet->next->prev = packet->prev;
-    }
-
-    packet_free(packet);
+    DL_APPEND(ns->packets, packet);
 }
 
 /**
@@ -168,9 +68,12 @@ static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
  * @param ns Socket to clear the socket buffers for. */
 void socket_buffer_clear(socket_struct *ns)
 {
-    while (ns->packet_head) {
-        socket_packet_dequeue(ns, ns->packet_head);
+    packet_struct *packet, *tmp;
+    DL_FOREACH_SAFE(ns->packets, packet, tmp) {
+        packet_free(packet);
     }
+
+    ns->packets = NULL;
 }
 
 /**
@@ -178,50 +81,31 @@ void socket_buffer_clear(socket_struct *ns)
  * @param ns The socket we are writing to. */
 void socket_buffer_write(socket_struct *ns)
 {
-    int amt, max;
+    while (ns->packets != NULL) {
+        packet_struct *packet = ns->packets;
 
-    while (ns->packet_head) {
-        if (ns->packet_head->ndelay) {
-            socket_enable_no_delay(ns->fd);
+        if (packet->ndelay) {
+            socket_opt_ndelay(ns->sc, true);
         }
 
-        max = ns->packet_head->len - ns->packet_head->pos;
-        amt = send(ns->fd, (const void *) (ns->packet_head->data +
-                ns->packet_head->pos), max, MSG_DONTWAIT);
+        size_t amt;
+        bool success = socket_write(ns->sc, (const void *) (packet->data +
+                packet->pos), packet->len - packet->pos, &amt);
 
-        if (ns->packet_head->ndelay) {
-            socket_disable_no_delay(ns->fd);
+        if (packet->ndelay) {
+            socket_opt_ndelay(ns->sc, false);
         }
 
-#ifndef WIN32
-
-        if (!amt) {
-            amt = max;
-        } else
-#endif
-
-            if (amt < 0) {
-#ifdef WIN32
-
-            if (WSAGetLastError() != WSAEWOULDBLOCK) {
-                logger_print(LOG(DEBUG), "New socket write failed (%d).", WSAGetLastError());
-#else
-
-            if (errno != EWOULDBLOCK) {
-                logger_print(LOG(DEBUG), "New socket write failed (%d: %s).", errno, strerror(errno));
-#endif
-                ns->state = ST_DEAD;
-                break;
-            } else {
-                /* EWOULDBLOCK: We can't write because socket is busy. */
-                break;
-            }
+        if (!success) {
+            ns->state = ST_DEAD;
+            break;
         }
 
-        ns->packet_head->pos += amt;
+        packet->pos += amt;
 
-        if (ns->packet_head->len - ns->packet_head->pos == 0) {
-            socket_packet_dequeue(ns, ns->packet_head);
+        if (packet->len - packet->pos == 0) {
+            DL_DELETE(ns->packets, packet);
+            packet_free(packet);
         }
     }
 }
@@ -243,7 +127,7 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
     toread = packet->len + 1;
 
     if (toread > 32 * 1024 - 1) {
-        log(LOG(PACKET), "Sending packet with size > 32KB: %"PRIu64", type: %d",
+        LOG(PACKET, "Sending packet with size > 32KB: %"PRIu64", type: %d",
                 (uint64_t) toread, packet->type);
         tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
         tmp->data[1] = (toread >> 8) & 0xff;
@@ -258,5 +142,10 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
     packet_append_uint8(tmp, packet->type);
 
     socket_packet_enqueue(ns, tmp);
-    socket_packet_enqueue(ns, packet);
+
+    if (packet->len != 0) {
+        socket_packet_enqueue(ns, packet);
+    } else {
+        packet_free(packet);
+    }
 }

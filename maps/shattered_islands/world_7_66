@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 15
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_5
@@ -713,6 +713,7 @@ name Lothost
 direction 1
 level 103
 type 83
+faction greyton_citizens
 arch event_obj
 sub_type 6
 race /interfaces/strakewood_island/lothost.xml
@@ -3089,6 +3090,16 @@ x 20
 y 6
 end
 arch grassd_1
+x 20
+y 7
+end
+arch marker3
+msg
+North: Abandonded Mine
+East: Aris
+South: The City of Greyton
+endmsg
+direction 3
 x 20
 y 7
 end

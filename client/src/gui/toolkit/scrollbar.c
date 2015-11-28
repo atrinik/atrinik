@@ -41,9 +41,11 @@ static SDL_Color scrollbar_color_highlight;
  * Initialize the scrollbar API. */
 void scrollbar_init()
 {
-    text_color_parse("000000", &scrollbar_color_bg);
-    text_color_parse("b5a584", &scrollbar_color_fg);
-    text_color_parse("ffffff", &scrollbar_color_highlight);
+    if (!text_color_parse("000000", &scrollbar_color_bg) ||
+            !text_color_parse("b5a584", &scrollbar_color_fg) ||
+            !text_color_parse("ffffff", &scrollbar_color_highlight)) {
+        log_error("Failed to parse scrollbar color");
+    }
 }
 
 /**
@@ -352,7 +354,7 @@ void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll)
     if (scroll < SCROLL_TOP(scrollbar)) {
         scroll = SCROLL_TOP(scrollbar);
     } else if ((uint32_t) scroll > SCROLL_BOTTOM(scrollbar)) {
-        scroll = SCROLL_BOTTOM(scrollbar);
+        scroll = (int) SCROLL_BOTTOM(scrollbar);
     }
 
     /* If the scroll offset changed, update it and set the redraw flag,

@@ -1,6 +1,7 @@
 ## @file
 ## Script for the Old Treant in the Desert Plane of Loki's Temple.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)
@@ -14,4 +15,4 @@ def main():
         inf.add_msg("Have you tried pushing?")
 
 main()
-inf.finish()
+inf.send()

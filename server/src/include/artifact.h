@@ -24,63 +24,81 @@
 
 /**
  * @file
- * Artifact related structures */
+ * Artifact related structures.
+ */
 
 #ifndef ARTIFACT_H
 #define ARTIFACT_H
 
-/** The artifact structure. */
-typedef struct artifactstruct {
-    /** Memory block with artifacts parse commands for loader.l. */
+/* Forward declarations */
+struct archetype;
+
+/**
+ * The artifact structure.
+ */
+typedef struct artifact {
+    struct artifact *next; ///< Next artifact in the list.
+    shstr_list_t *allowed; ///< List of allowed archetypes.
+
+    /**
+     * Memory block with artifacts parse commands for loader.l.
+     */
     char *parse_text;
 
-    /** The fake arch name when chained to arch list. */
-    const char *name;
+    /**
+     * The base archetype object.
+     */
+    struct archetype *def_at;
 
-    /** We use this as marker for def_at is valid and quick name access. */
-    const char *def_at_name;
-
-    /** Next artifact in the list. */
-    struct artifactstruct *next;
-
-    /** List of allowed archetypes. */
-    linked_char *allowed;
-
-    /** The base archetype object. */
-    archetype def_at;
+    /**
+     * Name from the def_arch attribute.
+     */
+    shstr *def_at_name;
 
     /**
      * Treasure style.
-     * @see @ref treasure_style */
+     * @see @ref treasure_style
+     */
     int t_style;
 
-    /** Chance. */
-    uint16_t chance;
-
-    /** Difficulty. */
-    uint8_t difficulty;
+    uint16_t chance; ///< Chance.
+    uint8_t difficulty; ///< Difficulty.
 
     /**
      * If set, the artifact will be directly copied to the object,
-     * instead of just having the extra attributes added. */
-    uint8_t copy_artifact;
-} artifact;
-
-/** Artifact list structure. */
-typedef struct artifactliststruct {
-    /** Next list. */
-    struct artifactliststruct *next;
-
-    /** Items in this artifact list. */
-    struct artifactstruct *items;
-
-    /** Sum of chance for all artifacts on this list. */
-    uint16_t total_chance;
+     * instead of just having the extra attributes added.
+     */
+    bool copy_artifact:1;
 
     /**
-     * Object type that this list represents.
-     * -1 are "Allowed none" items. */
-    int16_t type;
-} artifactlist;
+     * If true, artifact::allowed is a list of disallowed archetypes.
+     */
+    bool disallowed:1;
+} artifact_t;
+
+/**
+ * Artifact list structure.
+ */
+typedef struct artifact_list {
+    struct artifact_list *next; ///< Next list.
+
+    struct artifact *items; ///< Artifacts in this artifact list.
+    uint16_t total_chance; ///< Sum of chance for all artifacts on this list.
+
+    /**
+     * Object type that this list represents. 0 represents unique artifacts
+     * (defined with 'Allowed none').
+     */
+    uint8_t type;
+} artifact_list_t;
+
+/* Prototypes */
+
+void artifact_init(void);
+void artifact_deinit(void);
+artifact_list_t *artifact_list_find(uint8_t type);
+artifact_t *artifact_find_type(const char *name, uint8_t type);
+void artifact_change_object(artifact_t *art, object *op);
+bool artifact_generate(object *op, int difficulty, int t_style, int a_chance);
 
 #endif

@@ -1,6 +1,10 @@
 /**
-@fn obj::path_repelled
-@section Use
+@var obj::path_repelled
+@sa @ref page_field_path_repelled
+*/
+
+/**
+@page page_field_path_repelled obj::path_repelled Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -11,6 +15,11 @@
 		</td><td>			Click on the &lt;repelled paths&gt; button to select
 			spellpaths. The player will get attuned to the specified
 			spellpaths while wearing this item.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_92, @ref page_type_93, @ref page_type_64, @ref page_type_17, @ref page_type_51
+		</td><td>	    Tiled maps to load and look for connected objects on.</td>
 	</tr>
 	<tr>
 		<td>

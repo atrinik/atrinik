@@ -30,6 +30,8 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <plugin.h>
+#include <ban.h>
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
@@ -62,13 +64,14 @@ static const socket_command_struct socket_commands[SERVER_CMD_NROF] = {
     {socket_command_quickslot, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_quest_list, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_move_path, SOCKET_CMD_PLAYER_ONLY},
-    {NULL, SOCKET_CMD_PLAYER_ONLY},
+    {socket_command_combat, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_talk, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_move, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_target, SOCKET_CMD_PLAYER_ONLY}
 };
 
-static int socket_command_check(socket_struct *ns, player *pl, uint8_t *data, size_t len)
+static int socket_command_check(socket_struct *ns, player *pl, uint8_t *data,
+        size_t len)
 {
     size_t pos;
     uint8_t type;
@@ -80,12 +83,12 @@ static int socket_command_check(socket_struct *ns, player *pl, uint8_t *data, si
     {
         char *cp;
 
-        log(LOG(DUMPRX), "Received packet with command type %d (%" PRIu64
+        LOG(DUMPRX, "Received packet with command type %d (%" PRIu64
                 " bytes):", type, (uint64_t) len);
 
         cp = emalloc(sizeof(*cp) * (len * 3 + 1));
         string_tohex(data, len, cp, len * 3 + 1, true);
-        log(LOG(DUMPRX), "  Hexadecimal: %s", cp);
+        LOG(DUMPRX, "  Hexadecimal: %s", cp);
         efree(cp);
     }
 #endif
@@ -151,11 +154,14 @@ void handle_client(socket_struct *ns, player *pl)
 
         /* If it is a player, and they don't have any speed left, we
          * return, and will parse the data when they do have time. */
-        if (ns->state == ST_ZOMBIE || ns->state == ST_DEAD || (pl && pl->socket.state == ST_PLAYING && pl->ob && pl->ob->speed_left < 0)) {
+        if (ns->state == ST_ZOMBIE || ns->state == ST_DEAD || (pl &&
+                pl->socket.state == ST_PLAYING && pl->ob &&
+                pl->ob->speed_left < 0)) {
             break;
         }
 
-        len = 2 + (ns->packet_recv_cmd->data[0] << 8) + ns->packet_recv_cmd->data[1];
+        len = 2 + (ns->packet_recv_cmd->data[0] << 8) +
+                ns->packet_recv_cmd->data[1];
 
         /* Reset idle counter. */
         if (pl && pl->socket.state == ST_PLAYING) {
@@ -185,15 +191,10 @@ void remove_ns_dead_player(player *pl)
     }
 
     /* Trigger the global LOGOUT event */
-    trigger_global_event(GEVENT_LOGOUT, pl->ob, pl->socket.host);
+    trigger_global_event(GEVENT_LOGOUT, pl->ob, socket_get_addr(pl->socket.sc));
     statistics_player_logout(pl);
 
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s left the game.", pl->ob->name);
-
-    /* If this player is in a party, leave the party */
-    if (pl->party) {
-        command_party(pl->ob, "party", "leave");
-    }
 
     snprintf(pl->killer, sizeof(pl->killer), "left");
     hiscore_check(pl->ob, 1);
@@ -205,24 +206,12 @@ void remove_ns_dead_player(player *pl)
     account_logout_char(&pl->socket, pl);
     leave_map(pl->ob);
 
-    logger_print(LOG(INFO), "Logout %s from IP %s", pl->ob->name, pl->socket.host);
+    LOG(INFO, "Logout %s from IP %s", pl->ob->name,
+            socket_get_str(pl->socket.sc));
 
     /* To avoid problems with inventory window */
     pl->ob->type = DEAD_OBJECT;
     free_player(pl);
-}
-
-/**
- * Checks if file descriptor is valid.
- * @param fd File descriptor to check.
- * @return 1 if fd is valid, 0 else. */
-static int is_fd_valid(int fd)
-{
-#ifndef WIN32
-    return fcntl(fd, F_GETFL) != -1 || errno != EBADF;
-#else
-    return 1;
-#endif
 }
 
 /**
@@ -234,15 +223,33 @@ static int is_fd_valid(int fd)
     socket_info.nconns--;
 
 /**
+ * Reads player socket.
+ * @param ns Socket.
+ * @return True on success, false on failure.
+ */
+static bool player_socket_read(socket_struct *ns)
+{
+    size_t amt;
+    bool success = socket_read(ns->sc, (void *) (ns->packet_recv->data +
+            ns->packet_recv->len), ns->packet_recv->size - ns->packet_recv->len,
+            &amt);
+    if (!success) {
+        return false;
+    }
+
+    ns->packet_recv->len += amt;
+
+    return true;
+}
+
+/**
  * This checks the sockets for input and exceptions, does the right
  * thing.
  *
  * There are 2 lists we need to look through - init_sockets is a list */
 void doeric_server(void)
 {
-    int i, pollret, rr;
-    struct sockaddr_in addr;
-    socklen_t addrlen = sizeof(addr);
+    int i, pollret;
     player *pl, *next;
 
     FD_ZERO(&tmp_read);
@@ -250,8 +257,9 @@ void doeric_server(void)
     FD_ZERO(&tmp_exceptions);
 
     for (i = 0; i < socket_info.allocated_sockets; i++) {
-        if (init_sockets[i].state == ST_LOGIN && !is_fd_valid(init_sockets[i].fd)) {
-            logger_print(LOG(DEBUG), "Invalid waiting fd %d", i);
+        if (init_sockets[i].state == ST_LOGIN &&
+                !socket_is_fd_valid(init_sockets[i].sc)) {
+            LOG(DEBUG, "Invalid waiting fd %d", i);
             init_sockets[i].state = ST_DEAD;
         }
 
@@ -263,16 +271,18 @@ void doeric_server(void)
             }
         } else if (init_sockets[i].state != ST_AVAILABLE) {
             if (init_sockets[i].state > ST_WAITING) {
-                if (init_sockets[i].keepalive++ >= (uint32_t) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
-                    logger_print(LOG(INFO), "Keepalive: disconnecting %s: %d", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
+                if (init_sockets[i].keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT) {
+                    LOG(INFO, "Keepalive: disconnecting %s: %d",
+                            socket_get_str(init_sockets[i].sc),
+                            socket_fd(init_sockets[i].sc));
                     FREE_SOCKET(i);
                     continue;
                 }
             }
 
-            FD_SET((uint32_t) init_sockets[i].fd, &tmp_read);
-            FD_SET((uint32_t) init_sockets[i].fd, &tmp_write);
-            FD_SET((uint32_t) init_sockets[i].fd, &tmp_exceptions);
+            FD_SET((uint32_t) socket_fd(init_sockets[i].sc), &tmp_read);
+            FD_SET((uint32_t) socket_fd(init_sockets[i].sc), &tmp_write);
+            FD_SET((uint32_t) socket_fd(init_sockets[i].sc), &tmp_exceptions);
         }
     }
 
@@ -281,13 +291,18 @@ void doeric_server(void)
     for (pl = first_player; pl != NULL; pl = next) {
         next = pl->next;
 
-        if (pl->socket.state != ST_DEAD && !is_fd_valid(pl->socket.fd)) {
-            logger_print(LOG(DEBUG), "Invalid file descriptor for player %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+        if (pl->socket.state != ST_DEAD && !socket_is_fd_valid(pl->socket.sc)) {
+            LOG(DEBUG, "Invalid file descriptor for player %s [%s]: %d",
+                    object_get_str(pl->ob), socket_get_str(pl->socket.sc),
+                    socket_fd(pl->socket.sc));
             pl->socket.state = ST_DEAD;
         }
 
-        if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32_t) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
-            logger_print(LOG(INFO), "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+        if (pl->socket.state != ST_DEAD &&
+                pl->socket.keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT) {
+            LOG(INFO, "Keepalive: disconnecting %s [%s]: %d",
+                    object_get_str(pl->ob), socket_get_str(pl->socket.sc),
+                    socket_fd(pl->socket.sc));
             pl->socket.state = ST_DEAD;
         }
 
@@ -298,29 +313,30 @@ void doeric_server(void)
                 pl->socket.state = ST_DEAD;
             }
         } else {
-            FD_SET((uint32_t) pl->socket.fd, &tmp_read);
-            FD_SET((uint32_t) pl->socket.fd, &tmp_write);
-            FD_SET((uint32_t) pl->socket.fd, &tmp_exceptions);
+            FD_SET((uint32_t) socket_fd(pl->socket.sc), &tmp_read);
+            FD_SET((uint32_t) socket_fd(pl->socket.sc), &tmp_write);
+            FD_SET((uint32_t) socket_fd(pl->socket.sc), &tmp_exceptions);
         }
     }
 
     socket_info.timeout.tv_sec = 0;
     socket_info.timeout.tv_usec = 0;
 
-    pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
-
+    pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write,
+            &tmp_exceptions, &socket_info.timeout);
     if (pollret == -1) {
-        logger_print(LOG(DEBUG), "select failed: %s", strerror(errno));
+        LOG(ERROR, "Cannot select(): %s (%d)", s_strerror(s_errno), s_errno);
         return;
     }
 
     /* Following adds a new connection */
-    if (pollret && FD_ISSET(init_sockets[0].fd, &tmp_read)) {
+    if (pollret && FD_ISSET(socket_fd(init_sockets[0].sc), &tmp_read)) {
         int newsocknum = 0;
 
         /* If this is the case, all sockets are currently in use */
         if (socket_info.allocated_sockets <= socket_info.nconns) {
-            init_sockets = erealloc(init_sockets, sizeof(socket_struct) * (socket_info.nconns + 1));
+            init_sockets = erealloc(init_sockets, sizeof(socket_struct) *
+                    (socket_info.nconns + 1));
             newsocknum = socket_info.allocated_sockets;
             socket_info.allocated_sockets++;
             init_sockets[newsocknum].state = ST_AVAILABLE;
@@ -335,27 +351,15 @@ void doeric_server(void)
             }
         }
 
-        init_sockets[newsocknum].fd = accept(init_sockets[0].fd, (struct sockaddr *) &addr, &addrlen);
-
-        if (init_sockets[newsocknum].fd == -1) {
-            logger_print(LOG(DEBUG), "accept failed: %s", strerror(errno));
-        } else {
-            char buf[MAX_BUF];
-            long ip = ntohl(addr.sin_addr.s_addr);
-
-            snprintf(buf, sizeof(buf), "%ld.%ld.%ld.%ld", (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip & 255);
-
-            if (checkbanned(NULL, buf)) {
-                logger_print(LOG(SYSTEM), "Ban: Banned IP tried to connect: %s", buf);
-#ifndef WIN32
-                close(init_sockets[newsocknum].fd);
-#else
-                shutdown(init_sockets[newsocknum].fd, SD_BOTH);
-                closesocket(init_sockets[newsocknum].fd);
-#endif
-                init_sockets[newsocknum].fd = -1;
+        init_sockets[newsocknum].sc = socket_accept(init_sockets[0].sc);
+        if (init_sockets[newsocknum].sc != NULL) {
+            if (ban_check(&init_sockets[newsocknum], NULL)) {
+                LOG(SYSTEM, "Ban: Banned IP tried to connect: %s",
+                        socket_get_addr(init_sockets[newsocknum].sc));
+                socket_destroy(init_sockets[newsocknum].sc);
+                init_sockets[newsocknum].sc = NULL;
             } else {
-                init_connection(&init_sockets[newsocknum], buf);
+                init_connection(&init_sockets[newsocknum]);
                 socket_info.nconns++;
             }
         }
@@ -368,16 +372,15 @@ void doeric_server(void)
                 continue;
             }
 
-            if (FD_ISSET(init_sockets[i].fd, &tmp_exceptions)) {
+            if (FD_ISSET(socket_fd(init_sockets[i].sc), &tmp_exceptions)) {
                 FREE_SOCKET(i);
                 continue;
             }
 
-            if (FD_ISSET(init_sockets[i].fd, &tmp_read)) {
-                rr = socket_recv(&init_sockets[i]);
-
-                if (rr < 0) {
-                    logger_print(LOG(INFO), "Drop connection: %s", STRING_SAFE(init_sockets[i].host));
+            if (FD_ISSET(socket_fd(init_sockets[i].sc), &tmp_read)) {
+                if (!player_socket_read(&init_sockets[i])) {
+                    LOG(INFO, "Drop connection: %s",
+                            socket_get_str(init_sockets[i].sc));
                     init_sockets[i].state = ST_DEAD;
                 } else {
                     fill_command_buffer(&init_sockets[i]);
@@ -393,7 +396,7 @@ void doeric_server(void)
                 continue;
             }
 
-            if (FD_ISSET(init_sockets[i].fd, &tmp_write)) {
+            if (FD_ISSET(socket_fd(init_sockets[i].sc), &tmp_write)) {
                 socket_buffer_write(&init_sockets[i]);
             }
 
@@ -408,16 +411,16 @@ void doeric_server(void)
         next = pl->next;
 
         /* Kill players if we have problems */
-        if (pl->socket.state == ST_DEAD || FD_ISSET(pl->socket.fd, &tmp_exceptions)) {
+        if (pl->socket.state == ST_DEAD || FD_ISSET(socket_fd(pl->socket.sc),
+                &tmp_exceptions)) {
             remove_ns_dead_player(pl);
             continue;
         }
 
-        if (FD_ISSET(pl->socket.fd, &tmp_read)) {
-            rr = socket_recv(&pl->socket);
-
-            if (rr < 0) {
-                logger_print(LOG(INFO), "Drop connection: %s (%s)", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
+        if (FD_ISSET(socket_fd(pl->socket.sc), &tmp_read)) {
+            if (!player_socket_read(&pl->socket)) {
+                LOG(INFO, "Drop connection: %s (%s)", pl->ob->name,
+                        socket_get_str(pl->socket.sc));
                 pl->socket.state = ST_DEAD;
             } else {
                 fill_command_buffer(&pl->socket);
@@ -431,7 +434,7 @@ void doeric_server(void)
             continue;
         }
 
-        if (FD_ISSET(pl->socket.fd, &tmp_write)) {
+        if (FD_ISSET(socket_fd(pl->socket.sc), &tmp_write)) {
             socket_buffer_write(&pl->socket);
         }
     }
@@ -448,7 +451,8 @@ void doeric_server_write(void)
     for (pl = first_player; pl; pl = next) {
         next = pl->next;
 
-        if (pl->socket.state == ST_DEAD || FD_ISSET(pl->socket.fd, &tmp_exceptions)) {
+        if (pl->socket.state == ST_DEAD || FD_ISSET(socket_fd(pl->socket.sc),
+                &tmp_exceptions)) {
             remove_ns_dead_player(pl);
             continue;
         }
@@ -468,12 +472,13 @@ void doeric_server_write(void)
 
         draw_client_map(pl->ob);
 
-        if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y)) != pl->socket.update_tile) {
+        if (pl->ob->map && (update_below = GET_MAP_UPDATE_COUNTER(pl->ob->map,
+                pl->ob->x, pl->ob->y)) != pl->socket.update_tile) {
             esrv_draw_look(pl->ob);
             pl->socket.update_tile = update_below;
         }
 
-        if (FD_ISSET(pl->socket.fd, &tmp_write)) {
+        if (FD_ISSET(socket_fd(pl->socket.sc), &tmp_write)) {
             socket_buffer_write(&pl->socket);
         }
     }

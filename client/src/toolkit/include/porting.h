@@ -38,9 +38,16 @@
 #define  __attribute__(x)
 #endif
 
+#ifdef WIN32
+#ifndef WINVER
+#define WINVER 0x502
+#endif
+#endif
+
 #include <cmake.h>
 #include <toolkit_cmake.h>
 #include <math.h>
+#include <float.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -53,7 +60,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/param.h>
-#include <pthread.h>
 #include <inttypes.h>
 
 #include <openssl/rand.h>
@@ -68,6 +74,9 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#ifndef HAVE_STRUCT_TIMESPEC
+#   define HAVE_STRUCT_TIMESPEC
+#endif
 #endif
 
 #ifdef HAVE_SYS_TIME_H
@@ -122,6 +131,8 @@
 #endif
 #endif
 
+#include <pthread.h>
+
 #ifdef WIN32
 #include <winsock2.h>
 #include <windows.h>
@@ -132,6 +143,14 @@
 
 #ifdef __MINGW32__
 #include <ws2tcpip.h>
+
+#ifndef AI_NUMERICSERV
+#define AI_NUMERICSERV 0x00000008
+#endif
+
+#ifndef IPV6_V6ONLY
+#define IPV6_V6ONLY 27
+#endif
 #endif
 
 #define mkdir(__a, __b) mkdir(__a)
@@ -144,6 +163,8 @@
         }
 #endif
 #endif
+
+#define GETTIMEOFDAY(last_time) gettimeofday(last_time, NULL);
 
 #ifdef HAVE_SRANDOM
 #define RANDOM() random()
@@ -207,11 +228,15 @@
 #define MSG_DONTWAIT 0
 #endif
 
+#ifndef HAVE_IPV6
+#define sockaddr_storage sockaddr_in
+#endif
+
 /** Used for faces. */
-typedef unsigned short Fontindex;
+typedef uint16_t Fontindex;
 
 /** Object unique IDs. */
-typedef unsigned int tag_t;
+typedef uint32_t tag_t;
 
 /* Only C99 has lrint. */
 #if !defined(_ISOC99_SOURCE) && (!defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L)

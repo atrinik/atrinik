@@ -122,6 +122,8 @@
 #define SPELL_DESC_ENEMY        0x10
 /*@}*/
 
+struct archetype;
+
 /** Spell structure. */
 typedef struct spell_struct {
     /** Name of this spell. */
@@ -185,10 +187,11 @@ typedef struct spell_struct {
     /** Path this spell belongs to. */
     uint32_t path;
 
-    /** Pointer to archetype used by spell. */
+    /** Name of the archetype used by the spell. */
     char *archname;
 
-    archetype *at;
+    /** Pointer to archetype used by spell. */
+    struct archetype *at;
 } spell_struct;
 
 /** Marks no spell. */

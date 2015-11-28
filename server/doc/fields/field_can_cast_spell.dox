@@ -1,6 +1,10 @@
 /**
-@fn FLAG_CAST_SPELL
-@section Use
+@var FLAG_CAST_SPELL
+@sa @ref page_field_can_cast_spell
+*/
+
+/**
+@page page_field_can_cast_spell FLAG_CAST_SPELL Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

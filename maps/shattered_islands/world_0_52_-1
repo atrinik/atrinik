@@ -2,14 +2,14 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 30
 darkness 2
 no_harm 1
-bg_music yewtree.mid
+bg_music th_25.mid
 region centennial
 end
 arch blocked
@@ -280,6 +280,7 @@ sp -1
 maxsp 15
 dex 2
 type 83
+faction centennial
 arch ability_cause_lig_wound
 name ability meteor
 sp 34
@@ -350,6 +351,7 @@ sp -1
 maxsp 12
 dex 3
 type 83
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -576,6 +578,7 @@ sp -1
 maxsp 12
 dex 3
 type 83
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -673,11 +676,11 @@ maxsp 12
 pow 3
 dex 2
 unaggressive 1
-friendly 1
 random_move 1
 item_race 8
 item_level 8
 type 83
+faction centennial
 arch ability_mbullet
 name ability magic missile
 sp 43

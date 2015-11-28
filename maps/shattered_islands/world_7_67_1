@@ -1,0 +1,38 @@
+arch map
+name Strakewood Island
+msg
+Created:  2009-09-10 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+bg_music jungle.ogg
+region strakewood_island
+end
+arch roof_wood
+direction 5
+x 10
+y 23
+end
+arch roof_wood
+direction 5
+x 11
+y 23
+end
+arch roof_wood
+direction 5
+x 12
+y 23
+end
+arch roof_wood
+direction 5
+x 13
+y 23
+end
+arch roof_wood
+direction 5
+x 14
+y 23
+end

@@ -86,6 +86,8 @@ enum {
     OPT_DISABLE_FILE_UPDATES,
     /** Minimize latency at the expense of outgoing bandwidth. */
     OPT_MINIMIZE_LATENCY,
+    /** Whether to show the network graph widget. */
+    OPT_SHOW_NETWORK_GRAPH,
     /** Whether to allow dragging widgets off-screen. */
     OPT_OFFSCREEN_WIDGETS,
     /** Background color of text windows. */

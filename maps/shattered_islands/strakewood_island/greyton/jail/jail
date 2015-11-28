@@ -2,11 +2,11 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 15
 height 23
-difficulty 1
+difficulty 100
 darkness 4
 no_magic 1
 no_harm 1
@@ -940,10 +940,7 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch floor_marble_b1d
@@ -1196,6 +1193,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 arch event_obj
 sub_type 6
 race /python/generic/jail_guard.py
@@ -1259,6 +1257,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 arch event_obj
 sub_type 6
 race /python/generic/jail_guard.py
@@ -1327,6 +1326,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 arch event_obj
 sub_type 6
 race /python/generic/jail_guard.py
@@ -1397,10 +1397,7 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch floor_marble_b1b
@@ -1558,6 +1555,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 arch event_obj
 sub_type 6
 race /python/generic/jail_guard.py
@@ -1620,6 +1618,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 arch event_obj
 sub_type 6
 race /python/generic/jail_guard.py
@@ -1682,6 +1681,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 arch event_obj
 sub_type 6
 race /python/generic/jail_guard.py
@@ -2179,10 +2179,7 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch floor_marble_b1c

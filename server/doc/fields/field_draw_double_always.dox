@@ -1,0 +1,19 @@
+/**
+@var FLAG_DRAW_DOUBLE_ALWAYS
+@sa @ref page_field_draw_double_always
+*/
+
+/**
+@page page_field_draw_double_always FLAG_DRAW_DOUBLE_ALWAYS Uses
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_77
+		</td><td>		If set, the wall will always be drawn twice, regardless of where
+		it is on the map relative to the player.</td>
+	</tr>
+
+*/

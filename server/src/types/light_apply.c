@@ -26,13 +26,17 @@
  * @file
  * Handles code related to @ref LIGHT_APPLY "applyable lights".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
+    char *name = object_get_name_s(op, applier);
+
     if (op->glow_radius != 0 && op->env != NULL && op->env->type == PLAYER &&
             !QUERY_FLAG(op, FLAG_APPLIED)) {
         /* The object is lit and in player's inventory but it's not yet applied,
@@ -40,7 +44,7 @@ static int apply_func(object *op, object *applier, int aflags)
     } else if (op->glow_radius) {
         op = object_stack_get_reinsert(op, 1);
 
-        draw_info_format(COLOR_WHITE, applier, "You extinguish the %s.", query_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "You extinguish the %s.", name);
 
         CLEAR_FLAG(op, FLAG_CHANGING);
 
@@ -61,12 +65,13 @@ static int apply_func(object *op, object *applier, int aflags)
 
         /* It's not applied, nothing else to do. */
         if (!QUERY_FLAG(op, FLAG_APPLIED)) {
+            efree(name);
             return OBJECT_METHOD_OK;
         }
     } else if (op->last_sp) {
         op = object_stack_get_reinsert(op, 1);
 
-        draw_info_format(COLOR_WHITE, applier, "You light the %s.", query_name(op, NULL));
+        draw_info_format(COLOR_WHITE, applier, "You light the %s.", name);
 
         /* Light source that burns out... */
         if (op->last_eat) {
@@ -88,12 +93,16 @@ static int apply_func(object *op, object *applier, int aflags)
 
         /* It's already applied, nothing else to do. */
         if (QUERY_FLAG(op, FLAG_APPLIED)) {
+            efree(name);
             return OBJECT_METHOD_OK;
         }
     } else {
-        draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", query_name(op, applier));
+        draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", name);
+        efree(name);
         return OBJECT_METHOD_OK;
     }
+
+    efree(name);
 
     if (op->env != NULL && op->env->type == PLAYER) {
         /* Handle applying/unapplying the light.  */

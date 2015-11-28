@@ -96,7 +96,7 @@ void settings_init(void)
     fp = fopen_wrapper(FILE_SETTINGS_TXT, "r");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Missing "FILE_SETTINGS_TXT ", cannot continue.");
+        LOG(ERROR, "Missing "FILE_SETTINGS_TXT ", cannot continue.");
         exit(1);
     }
 
@@ -150,7 +150,7 @@ void settings_init(void)
                 }
 
                 if (type_id == OPT_TYPE_NUM) {
-                    logger_print(LOG(ERROR), "Invalid type: %s", cp + 5);
+                    LOG(ERROR, "Invalid type: %s", cp + 5);
                     exit(1);
                 } else if (type_id == OPT_TYPE_SELECT) {
                     setting->custom_attrset = ecalloc(1, sizeof(setting_select));
@@ -178,19 +178,19 @@ void settings_init(void)
                     range->min = min;
                     range->max = max;
                 } else {
-                    logger_print(LOG(BUG), "Invalid line: %s", cp);
+                    LOG(BUG, "Invalid line: %s", cp);
                 }
             } else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "advance ", 8)) {
                 SETTING_RANGE(setting)->advance = atoi(cp + 8);
             } else {
-                logger_print(LOG(BUG), "Invalid line: %s", cp);
+                LOG(BUG, "Invalid line: %s", cp);
             }
         } else if (category) {
             if (!strncmp(cp, "setting ", 8)) {
                 setting = ecalloc(1, sizeof(*setting));
                 setting->name = estrdup(cp + 8);
             } else {
-                logger_print(LOG(BUG), "Invalid line: %s", cp);
+                LOG(BUG, "Invalid line: %s", cp);
             }
         } else if (!strncmp(cp, "category ", 9)) {
             category = ecalloc(1, sizeof(*category));
@@ -270,7 +270,7 @@ void settings_save(void)
     fp = fopen_wrapper(FILE_SETTINGS_DAT, "w");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open settings file ("FILE_SETTINGS_DAT ").");
+        LOG(BUG, "Could not open settings file ("FILE_SETTINGS_DAT ").");
         return;
     }
 
@@ -404,13 +404,25 @@ int64_t setting_get_int(int cat, int setting)
 static int setting_apply_always(int cat, int setting)
 {
     switch (cat) {
-    case OPT_CAT_DEVEL:
+    case OPT_CAT_CLIENT:
         switch (setting) {
-            /* Need to hide/show the fps widget. */
-        case OPT_SHOW_FPS:
-            cur_widget[FPS_ID]->show = setting_get_int(cat, setting);
+        /* Need to hide/show the network graph widget. */
+        case OPT_SHOW_NETWORK_GRAPH:
+            WIDGET_SHOW_CHANGE(NETWORK_GRAPH_ID, setting_get_int(cat, setting));
             return 1;
         }
+
+        break;
+
+    case OPT_CAT_DEVEL:
+        switch (setting) {
+        /* Need to hide/show the fps widget. */
+        case OPT_SHOW_FPS:
+            WIDGET_SHOW_CHANGE(FPS_ID, setting_get_int(cat, setting));
+            return 1;
+        }
+
+        break;
     }
 
     return 0;

@@ -1,7 +1,7 @@
 Object dwarf_male
 race dwarf
 face dwarf.151
-randomitems player
+randomitems player_male
 layer 6
 behavior 10
 friendly 1
@@ -24,7 +24,7 @@ wc_range 20
 hp -1
 maxhp 8
 sp -1
-maxsp 3
+maxsp 4
 can_use_armour 1
 can_use_weapon 1
 is_player 1

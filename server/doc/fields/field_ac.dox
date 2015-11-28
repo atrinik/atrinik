@@ -1,6 +1,10 @@
 /**
-@fn liv::ac
-@section Use
+@var liv::ac
+@sa @ref page_field_ac
+*/
+
+/**
+@page page_field_ac liv::ac Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -20,13 +24,6 @@
 		increased by &lt;progressiveness&gt; / 100.
 
 		(severity = 1 + (accumulated progression) / 100)</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_62
-		</td><td>			A magic wall of high &lt;armour class&gt; is less likely to
-			get hit from an opponent. &lt;armour class&gt; can be
-			considered the "counterpiece" to &lt;weapon class&gt;.</td>
 	</tr>
 	<tr>
 		<td>

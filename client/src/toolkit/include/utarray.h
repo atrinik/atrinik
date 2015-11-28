@@ -214,7 +214,9 @@ typedef struct {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
+#ifdef __GNU__
 #pragma GCC diagnostic ignored "-fpermissive"
+#endif
 
 /* last we pre-define a few icd for common utarrays of ints and strings */
 static void utarray_str_cpy(void *dst, const void *src)

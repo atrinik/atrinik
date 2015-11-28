@@ -2,15 +2,15 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2014-12-25 Alex Tokar
+Modified: 2015-06-03 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 darkness -1
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch roof_brick
@@ -522,12 +522,8 @@ y 16
 arch guard
 direction 3
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_grey1a1
@@ -1232,6 +1228,7 @@ y 10
 arch guard_royal
 type 83
 level 60
+faction brynknot_guards
 name Talthor Redeye
 direction 1
 arch event_obj
@@ -1242,6 +1239,7 @@ arch key_brynknot_sewer_maze
 end
 arch goldcoin
 nrof 20
+no_drop 1
 end
 end
 end

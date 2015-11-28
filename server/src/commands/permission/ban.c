@@ -26,46 +26,59 @@
  * @file
  * Implements the /ban command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <ban.h>
 
 /** @copydoc command_func */
 void command_ban(object *op, const char *command, char *params)
 {
-    size_t pos;
+    size_t pos = 0;
     char word[MAX_BUF];
-
-    pos = 0;
-
-    if (!string_get_word(params, &pos, ' ', word, sizeof(word), '"')) {
+    if (!string_get_word(params, &pos, ' ', VS(word), '"')) {
         return;
     }
 
     params = player_sanitize_input(params + pos);
 
     if (strcmp(word, "add") == 0) {
-        if (!params) {
+        if (params == NULL) {
             return;
         }
 
-        if (add_ban(params)) {
+        ban_error_t rc = ban_add(params);
+        if (rc == BAN_OK) {
             draw_info(COLOR_GREEN, op, "Added new ban successfully.");
         } else {
-            draw_info(COLOR_RED, op, "Failed to add new ban!");
+            draw_info_format(COLOR_RED, op, "Failed to add new ban: %s",
+                    ban_strerror(rc));
         }
     } else if (strcmp(word, "remove") == 0) {
-        if (!params) {
+        if (params == NULL) {
             return;
         }
 
-        if (remove_ban(params)) {
+        ban_error_t rc = ban_remove(params);
+        if (rc == BAN_OK) {
             draw_info(COLOR_GREEN, op, "Removed ban successfully.");
         } else {
-            draw_info(COLOR_RED, op, "Failed to remove ban!");
+            draw_info_format(COLOR_RED, op, "Failed to remove ban: %s",
+                    ban_strerror(rc));
         }
     } else if (strcmp(word, "list") == 0) {
-        list_bans(op);
+        ban_list(op);
+    } else if (strcmp(word, "kick") == 0) {
+        for (player *pl = first_player; pl != NULL; pl = pl->next) {
+            if (ban_check(&pl->socket, pl->ob->name)) {
+                LOG(SYSTEM, "Ban: Kicking player due to a ban. [%s, %s]",
+                        pl->ob->name, socket_get_addr(pl->socket.sc));
+                draw_info_type(CHAT_TYPE_GAME, NULL, COLOR_RED, pl->ob,
+                        "You have been banned.");
+                pl->socket.state = ST_ZOMBIE;
+            }
+        }
     }
 }

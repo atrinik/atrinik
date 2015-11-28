@@ -2,7 +2,10 @@
 ## Implements the /patch DM command.
 
 import re
+
+from Atrinik import *
 from Common import obj_assign_attribs, find_obj
+
 
 def main():
     msg = WhatIsMessage()

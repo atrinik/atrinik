@@ -1,107 +1,139 @@
-## @file
-## Generic smith API.
+"""
+Implements Smith related functions.
+"""
 
-from Atrinik import *
+from collections import OrderedDict
 
-## The generic smith API.
-class Smith:
-    ## The initializer.
-    ## @param activator Who activated the script.
-    ## @param me The NPC.
-    ## @param inf Interface to use.
-    def __init__(self, activator, me, inf):
-        self.hello_msg = None
+import Atrinik
+from Interface import InterfaceBuilder
 
-        self._activator = activator
-        self._me = me
-        self._inf = inf
 
-        self.services = {
-            "idall": [
-                200 + (50 * self._activator.level),
-                50,
-                "Identification of all objects",
-            ],
-            "identify": [
-                50 + (10 * self._activator.level),
-                0,
-                "Identification of a single marked object",
-            ],
-        }
+smith_services = OrderedDict((
+    ("identify_all", (
+        lambda npc: 200 + (50 * npc.level),
+        "Identification of all objects",
+    )),
+    ("identify", (
+        lambda npc: 50 + (10 * npc.level),
+        "Identification of a single marked object",
+    )),
+))
+"""
+Contains all the possible smith services.
+"""
 
-    ## Handle chat messages for the smith.
-    ## @param msg The message to handle.
-    ## @return True if the message was handled, False otherwise.
-    def handle_chat(self, msg):
-        if msg == "hello":
-            self._inf.add_msg("Welcome! I am {}, the smith.".format(self._me.name))
 
-            services = sorted(self.services, key = lambda key: self.services[key][1], reverse = True)
+class Smith(InterfaceBuilder):
+    """
+    Implements generic smith services.
+    """
 
-            if services:
-                self._inf.add_msg("I can offer you the following services.")
+    def subdialog_services(self):
+        """Show the available temple services."""
 
-                for service in services:
-                    self._inf.add_link(self.services[service][2], dest = service)
+        for service in smith_services:
+            self.add_link(smith_services[service][1], dest=service)
 
-            return True
+    def subdialog_service_identify_all(self):
+        """Message for the mass identify service."""
 
-        is_buy = False
+        self.add_msg("I will identify all of the objects in your inventory, "
+                     "including containers.")
+
+    def subdialog_service_identify_all_marked_container(self):
+        """
+        Additional message for the mass identify service if the player has a
+        marked container.
+        """
+
+        self.add_msg("Ah, you have a container marked! Alright then, I will "
+                     "identify all of the objects in that container instead, "
+                     "then.")
+
+    def subdialog_service_identify(self):
+        """Message for the single item identify service."""
+
+        self.add_msg("I will identify a single marked object in your "
+                     "inventory.")
+
+    def subdialog_service_identify_no_marked(self):
+        """Message when there's no marked object for the identify service."""
+        self.add_msg("... but it seems you do not have a marked object.")
+
+    def subdialog_fail_money(self):
+        """Message when the player doesn't have enough money for the service."""
+
+        self.add_msg("Sorry, you don't have enough money...")
+
+    def subdialog_purchased_service(self):
+        """Message after purchasing a service."""
+
+        self.add_msg("Thank you for your business!")
+
+    def dialog_hello(self):
+        """Default hello dialog handler."""
+
+        self.add_msg("Welcome! I am {npc.name}, the smith.")
+        self.add_msg("I can offer you the following services.")
+        self.subdialog_services()
+
+    def dialog(self, msg):
+        """Handle services."""
 
         if msg.startswith("buy "):
             msg = msg[4:]
             is_buy = True
+        else:
+            is_buy = False
 
-        service = self.services.get(msg)
-
-        # No such service...
+        service = smith_services.get(msg)
         if not service:
-            return False
+            return
 
-        # Find marked object; need it in most cases anyway;
         marked = self._activator.Controller().FindMarkedObject()
-        # Add the title for what is being done.
-        self._inf.add_msg("[title]{}[/title]".format(service[2]))
+        cost = service[0](self._npc)
+
+        self.add_msg("[title]{service[1]}[/title]", service=service)
 
         if not is_buy:
-            # Explain about single-item identification
-            if msg == "identify":
-                self._inf.add_msg("I will identify a single marked object in your inventory.")
+            getattr(self, "subdialog_service_" + msg)()
 
+            if msg == "identify_all":
+                if marked and marked.type == Atrinik.Type.CONTAINER:
+                    self.subdialog_service_identify_all_marked_container()
+                    self.add_msg_icon_object(
+                        marked, "Contents of the container will be identified"
+                    )
+            elif msg == "identify":
                 if not marked:
-                    self._inf.add_msg("... But it seems you do not have a marked object.")
-                    return True
+                    self.subdialog_service_identify_no_marked()
+                    return
 
-                self._inf.add_msg_icon(marked.face[0], "Will be identified")
-            # Identification of all items.
-            elif msg == "idall":
-                self._inf.add_msg("I will identify all of the objects in your inventory, including containers.")
+                self.add_msg_icon_object(marked, "Will be identified")
 
-                if marked and marked.type == Type.CONTAINER:
-                    self._inf.add_msg("Ah, you have a container marked! Alright then, I will identify all of the objects in that container instead, then.")
-                    self._inf.add_msg_icon(marked.face[0], "Contents of the container will be identified")
+            if cost != 0:
+                self.add_msg("This will cost you {cost}.",
+                             cost=Atrinik.CostString(cost))
 
-            if service[0]:
-                self._inf.add_msg("This will cost you {}.".format(CostString(service[0])))
+            self.add_link("Confirm", dest="buy " + msg)
+            return
 
-            self._inf.add_link("Confirm".format(msg), dest = "buy " + msg)
-        else:
-            # Make sure we still have the marked object...
-            if msg == "identify" and not marked:
-                self._inf.add_msg("Hm? What did you want to identify again?")
-                return True
+        if msg == "identify" and not marked:
+            return
 
-            if self._activator.PayAmount(service[0]):
-                if service[0]:
-                    self._inf.add_msg("You pay {}.".format(CostString(service[0])), COLOR_YELLOW)
+        if cost != 0:
+            if not self._activator.PayAmount(cost):
+                self.subdialog_fail_money()
+                return
 
-                self._inf.add_msg("Thank you for your business!")
+            self.add_msg("You pay {cost}.", cost=Atrinik.CostString(cost),
+                         color=Atrinik.COLOR_YELLOW)
 
-                if msg == "idall":
-                    self._me.CastIdentify(self._activator, IDENTIFY_ALL, marked)
-                elif msg == "identify":
-                    self._me.CastIdentify(self._activator, IDENTIFY_MARKED, marked)
-            else:
-                self._inf.add_msg("Sorry, you do not have enough money...")
+        if msg == "identify_all":
+            self._npc.CastIdentify(self._activator, Atrinik.IDENTIFY_ALL,
+                                   marked)
+        elif msg == "identify":
+            self._npc.CastIdentify(self._activator, Atrinik.IDENTIFY_MARKED,
+                                   marked)
 
-        return True
+        self.subdialog_purchased_service()

@@ -102,4 +102,90 @@ typedef struct _shared_string {
     char string[PADDING];
 } shared_string;
 
+/**
+ * Used to link together shared strings.
+ *
+ * @sa SHSTR_LIST_xxx
+ */
+typedef struct shstr_list {
+    struct shstr_list *next; ///< Next shared string.
+    shstr *value; ///< The actual shared string.
+} shstr_list_t;
+
+/**
+ * @defgroup SHSTR_LIST_xxx Shared string list manipulation macros
+ * Macros used for manipulation of shared string lists, such as prepending,
+ * clearing, looping, etc.
+ * @author Alex Tokar
+ *@{*/
+
+/**
+ * Prepends the specified string value to the shared string list.
+ *
+ * The value has its shstr refcount increased automatically.
+ *
+ * Example:
+ * <pre>
+ * shstr_list_t *list = NULL;
+ * SHSTR_LIST_PREPEND(list, "hello world");
+ * </pre>
+ * @param list_ Pointer to a shared string list that will be prepended to.
+ * @param value_ String to add to the list.
+ */
+#define SHSTR_LIST_PREPEND(list_, value_) \
+    do {                                                                       \
+        shstr_list_t *shstr_list = emalloc(sizeof(*shstr_list));               \
+        shstr_list->next = NULL;                                               \
+        shstr_list->value = add_string(value_);                                \
+        LL_PREPEND(list_, shstr_list);                                         \
+    } while (0)
+
+/**
+ * Frees the entire shared string list, setting the list pointer to NULL
+ * afterwards.
+ *
+ * Example:
+ * <pre>
+ * SHSTR_LIST_CLEAR(list);
+ * </pre>
+ * @param list_ Pointer to a shared string list that will be cleared.
+ */
+#define SHSTR_LIST_CLEAR(list_)                                                \
+    do {                                                                       \
+        shstr_list_t *shstr_list, *shstr_list_tmp;                             \
+        LL_FOREACH_SAFE(list_, shstr_list, shstr_list_tmp) {                   \
+            free_string_shared(shstr_list->value);                             \
+            efree(shstr_list);                                                 \
+        }                                                                      \
+        list_ = NULL;                                                          \
+    } while (0)
+
+/**
+ * Begin iterating a shared string list.
+ *
+ * Example:
+ * <pre>
+ * SHSTR_LIST_FOR_PREPARE(list, value) {
+ *     printf("%s\n", value);
+ * } SHSTR_LIST_FOR_FINISH();
+ * </pre>
+ * @param list_ Pointer to a shared string list that will be iterated.
+ * @param it_ A variable name that will hold the shared string values;
+ * a new variable will be declared
+ */
+#define SHSTR_LIST_FOR_PREPARE(list_, it_)                                     \
+    do {                                                                       \
+        shstr_list_t *shstr_list, *shstr_list_tmp;                             \
+        LL_FOREACH_SAFE(list_, shstr_list, shstr_list_tmp) {                   \
+            shstr *it_ = shstr_list->value;
+
+/**
+ * Finishes iteration started by #SHSTR_LIST_FOR_PREPARE.
+ */
+#define SHSTR_LIST_FOR_FINISH()                                                \
+        }                                                                      \
+    } while (0)
+
+/*@}*/
+
 #endif

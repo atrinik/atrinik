@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
 <interfaces>
     <quest name="Construction of Telescope">
         <interface npc="Jonaslen">
@@ -51,7 +54,7 @@
                 </dialog>
                 <dialog name="herego">
                     <message color="yellow">You hand the blue crystal fragment to {npc.name} and tell him about the earthquake and the investigation...</message>
-                    <message>Thank you {activator.name}. That is indeed very interesting report you have from Jonaslen... And the fragment! My piece and this fragment look very much alike. It is odd... My piece came from the sky, and the fragment came from the ground?... Hmmm... This is very confusing indeed. Hm... </message>
+                    <message>Thank you {activator.name}. That is indeed very interesting report you have from Jonaslen... And the fragment! My piece and this fragment look very much alike. It is odd... My piece came from the sky, and the fragment came from the ground?... Hmmm... This is very confusing indeed. Hm...</message>
                     <message>Please, go back to Brynknot and ask Jonaslen whether there were reports of a flash in the sky just before the earthquake.</message>
                     <action start="ask_flash"/>
                     <action complete="get_shard"/>

@@ -27,6 +27,7 @@
  * Door related functions. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Search for doors or walls around a spot.

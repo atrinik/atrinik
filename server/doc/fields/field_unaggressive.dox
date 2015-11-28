@@ -1,6 +1,10 @@
 /**
-@fn FLAG_UNAGGRESSIVE
-@section Use
+@var FLAG_UNAGGRESSIVE
+@sa @ref page_field_unaggressive
+*/
+
+/**
+@page page_field_unaggressive FLAG_UNAGGRESSIVE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

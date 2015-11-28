@@ -68,7 +68,7 @@ void command_tell(object *op, const char *command, char *params)
     strncpy(pl->player_reply, op->name, sizeof(pl->player_reply) - 1);
     pl->player_reply[sizeof(pl->player_reply) - 1] = '\0';
 
-    logger_print(LOG(CHAT), "[TELL] [%s] [%s] %s", op->name, name, msg);
+    LOG(CHAT, "[TELL] [%s] [%s] %s", op->name, name, msg);
 
     snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] tells you: %s", op->name, msg);
     draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, pl->ob, buf);

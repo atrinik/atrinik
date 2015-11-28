@@ -56,7 +56,7 @@ void command_afk(object *op, const char *command, char *params)
         CONTR(op)->stat_afk_used++;
         draw_info_format(COLOR_WHITE, op, "You are now AFK. Auto-reply: %s", params);
 
-        logger_print(LOG(CHAT), "[AFK] [%s] %s", op->name, params);
+        LOG(CHAT, "[AFK] [%s] %s", op->name, params);
         strncpy(CONTR(op)->afk_auto_reply, params, sizeof(CONTR(op)->afk_auto_reply) - 1);
         CONTR(op)->afk_auto_reply[sizeof(CONTR(op)->afk_auto_reply) - 1] = '\0';
     }

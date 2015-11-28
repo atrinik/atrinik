@@ -1,6 +1,10 @@
 /**
-@fn FLAG_HITBACK
-@section Use
+@var FLAG_HITBACK
+@sa @ref page_field_hitback
+*/
+
+/**
+@page page_field_hitback FLAG_HITBACK Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

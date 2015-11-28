@@ -2,14 +2,14 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 30
 outdoor 1
 no_harm 1
-bg_music yewtree.mid
+bg_music th_25.mid
 region centennial
 end
 arch trans
@@ -172,6 +172,7 @@ maxsp 12
 dex 3
 type 83
 direction 3
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -243,6 +244,7 @@ maxsp 15
 pow 4
 dex 2
 type 83
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -304,6 +306,7 @@ dex 3
 type 83
 direction 1
 spawn_time 14:00-16:00
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -426,6 +429,7 @@ maxsp 12
 dex 3
 type 83
 spawn_time 14:00-16:00
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -831,6 +835,7 @@ maxsp 12
 dex 3
 type 83
 direction 3
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -1008,6 +1013,7 @@ maxsp 12
 dex 3
 type 83
 direction 1
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -1077,6 +1083,7 @@ maxsp 15
 pow 4
 dex 2
 type 83
+faction centennial
 arch ability_mbullet
 name ability lightning
 sp 48
@@ -1125,25 +1132,25 @@ y 4
 arch tiger
 spawn_time 8:00-16:00
 unaggressive 1
-friendly 1
+faction centennial_animals
 type 83
 end
 arch snake
 spawn_time 8:00-16:00
 unaggressive 1
-friendly 1
+faction centennial_animals
 type 83
 end
 arch slime
 spawn_time 8:00-16:00
 unaggressive 1
-friendly 1
+faction centennial_animals
 type 83
 end
 arch spider
 spawn_time 8:00-16:00
 unaggressive 1
-friendly 1
+faction centennial_animals
 type 83
 end
 end
@@ -1362,6 +1369,7 @@ sp -1
 maxsp 12
 dex 3
 type 83
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj
@@ -1404,6 +1412,7 @@ maxsp 12
 dex 3
 type 83
 direction 7
+faction centennial
 arch ability_cause_lig_wound
 end
 arch event_obj

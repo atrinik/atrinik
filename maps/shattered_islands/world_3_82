@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2015-11-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,10 +12,12 @@ bg_music tutorialisland.mid
 region incuna
 end
 arch grass_flowers3
+z 2
 end
 arch grassd_m13
 end
 arch grass_flowers2
+z 1
 y 1
 end
 arch grassd_m11
@@ -46,6 +48,9 @@ arch grassd_4
 y 6
 end
 arch grassd_8
+y 7
+end
+arch tree_big3
 y 7
 end
 arch grassd_4
@@ -112,6 +117,7 @@ arch bridge_wood_NS.171
 y 23
 end
 arch grass_flowers3
+z 1
 x 1
 end
 arch grassd_m8
@@ -165,7 +171,11 @@ arch grassd_8
 x 1
 y 8
 end
-arch grassd_8
+arch floor_sand_d1
+x 1
+y 9
+end
+arch grassd_m1
 x 1
 y 9
 end
@@ -173,7 +183,11 @@ arch grassd_3
 x 1
 y 10
 end
-arch grassd_1
+arch floor_sand_d4
+x 1
+y 11
+end
+arch grassd_m1
 x 1
 y 11
 end
@@ -185,11 +199,19 @@ arch grassd_6
 x 1
 y 13
 end
-arch grassd_6
+arch floor_sand_d1
 x 1
 y 14
 end
-arch grassd_3
+arch grassd_m1
+x 1
+y 14
+end
+arch floor_sand_d3
+x 1
+y 15
+end
+arch grassd_m1
 x 1
 y 15
 end
@@ -201,7 +223,11 @@ arch plant_flower1
 x 1
 y 16
 end
-arch grassd_1
+arch floor_sand_d4
+x 1
+y 17
+end
+arch grassd_m1
 x 1
 y 17
 end
@@ -288,11 +314,19 @@ arch grassd_7
 x 2
 y 11
 end
-arch grassd_5
+arch floor_sand_d3
 x 2
 y 12
 end
-arch grassd_2
+arch grassd_m1
+x 2
+y 12
+end
+arch floor_sand_d1
+x 2
+y 13
+end
+arch grassd_m1
 x 2
 y 13
 end
@@ -444,7 +478,11 @@ arch grassd_5
 x 3
 y 8
 end
-arch grassd_1
+arch floor_sand_d2
+x 3
+y 9
+end
+arch grassd_m1
 x 3
 y 9
 end
@@ -514,7 +552,15 @@ arch water_lt3
 x 3
 y 21
 end
+arch water_lily2
+x 3
+y 21
+end
 arch water_lt3
+x 3
+y 22
+end
+arch water_plant4
 x 3
 y 22
 end
@@ -574,7 +620,11 @@ arch plant16
 x 4
 y 6
 end
-arch grassd_6
+arch floor_sand_d4
+x 4
+y 7
+end
+arch grassd_m1
 x 4
 y 7
 end
@@ -582,7 +632,11 @@ arch grassd_4
 x 4
 y 8
 end
-arch grassd_8
+arch floor_sand_d1
+x 4
+y 9
+end
+arch grassd_m1
 x 4
 y 9
 end
@@ -602,30 +656,15 @@ arch grassd_4
 x 4
 y 13
 end
-arch rock_big2
+arch plant11
 x 4
 y 13
 end
-arch blocked
-x 4
-y 14
-end
-arch grassd_m3
-x 4
-y 14
-end
-arch rock_big2
+arch grassd_6
 x 4
 y 14
 end
 arch grassd_6
-x 4
-y 15
-end
-arch sign
-msg
-The dark floor seems to lead into a dungeon, you should try walking into it.
-endmsg
 x 4
 y 15
 end
@@ -658,11 +697,19 @@ arch water_lt2
 x 4
 y 20
 end
+arch water_plant1
+x 4
+y 20
+end
 arch water_lt4
 x 4
 y 21
 end
 arch water_lt2
+x 4
+y 22
+end
+arch water_plant3
 x 4
 y 22
 end
@@ -718,7 +765,11 @@ arch grassd_1
 x 5
 y 5
 end
-arch grassd_7
+arch floor_sand_d3
+x 5
+y 6
+end
+arch grassd_m1
 x 5
 y 6
 end
@@ -746,31 +797,11 @@ arch grassd_5
 x 5
 y 12
 end
-arch rock_big2
-x 5
-y 12
-end
-arch blocked
+arch grassd_4
 x 5
 y 13
 end
-arch rock_big2
-x 5
-y 13
-end
-arch blocked
-no_pass 0
-x 5
-y 14
-end
-arch grassd_m7
-x 5
-y 14
-end
-arch invis_exit
-slaying incuna/forgotten_tunnels/tunnels_0101
-hp 9
-sp 13
+arch grassd_3
 x 5
 y 14
 end
@@ -811,7 +842,15 @@ arch water_lt4
 x 5
 y 21
 end
+arch water_lily3
+x 5
+y 21
+end
 arch water_lt4
+x 5
+y 22
+end
+arch water_plant2
 x 5
 y 22
 end
@@ -825,6 +864,9 @@ x 5
 y 23
 end
 arch grassd_7
+x 6
+end
+arch plant5
 x 6
 end
 arch grass_flowers3
@@ -903,31 +945,19 @@ arch rock_big2
 x 6
 y 11
 end
-arch blocked
+arch grassd_6
 x 6
 y 12
 end
-arch rock_big2
+arch plant8
 x 6
 y 12
 end
-arch blocked
+arch grassd_5
 x 6
 y 13
 end
-arch blocked
-no_pass 0
-x 6
-y 14
-end
-arch grassd_m7
-x 6
-y 14
-end
-arch invis_exit
-slaying incuna/forgotten_tunnels/tunnels_0101
-hp 10
-sp 13
+arch grassd_7
 x 6
 y 14
 end
@@ -939,7 +969,15 @@ arch grassd_2
 x 6
 y 16
 end
+arch plant14
+x 6
+y 16
+end
 arch grassd_2
+x 6
+y 17
+end
+arch plant_flower5
 x 6
 y 17
 end
@@ -961,6 +999,10 @@ x 6
 y 19
 end
 arch water_lt2
+x 6
+y 20
+end
+arch water_plant4
 x 6
 y 20
 end
@@ -1012,7 +1054,11 @@ arch grassd_8
 x 7
 y 4
 end
-arch grassd_5
+arch floor_sand_d2
+x 7
+y 5
+end
+arch grassd_m1
 x 7
 y 5
 end
@@ -1076,27 +1122,11 @@ arch rock_big2
 x 7
 y 12
 end
-arch blocked
+arch grassd_5
 x 7
 y 13
 end
-arch rock_big2
-x 7
-y 13
-end
-arch blocked
-no_pass 0
-x 7
-y 14
-end
-arch grassd_m7
-x 7
-y 14
-end
-arch invis_exit
-slaying incuna/forgotten_tunnels/tunnels_0101
-hp 11
-sp 13
+arch grassd_5
 x 7
 y 14
 end
@@ -1137,6 +1167,10 @@ arch water_lt
 x 7
 y 21
 end
+arch water_plant3
+x 7
+y 21
+end
 arch floor_ruin6
 x 7
 y 22
@@ -1172,7 +1206,11 @@ arch grassd_8
 x 8
 y 3
 end
-arch grassd_6
+arch floor_sand_d1
+x 8
+y 4
+end
+arch grassd_m1
 x 8
 y 4
 end
@@ -1246,15 +1284,11 @@ arch rock_big2
 x 8
 y 13
 end
-arch blocked
+arch grassd_6
 x 8
 y 14
 end
-arch grassd_m5
-x 8
-y 14
-end
-arch rock_big2
+arch plant8
 x 8
 y 14
 end
@@ -1282,6 +1316,10 @@ arch grassd_m10
 x 8
 y 18
 end
+arch seashell
+x 8
+y 18
+end
 arch floor_ruin5
 x 8
 y 19
@@ -1292,6 +1330,11 @@ x 8
 y 19
 end
 arch water_lt2
+x 8
+y 20
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 8
 y 20
 end
@@ -1339,7 +1382,11 @@ arch grassd_5
 x 9
 y 5
 end
-arch grassd_7
+arch floor_sand_d1
+x 9
+y 6
+end
+arch grassd_m1
 x 9
 y 6
 end
@@ -1412,6 +1459,10 @@ x 9
 y 14
 end
 arch grassd_7
+x 9
+y 15
+end
+arch plant6
 x 9
 y 15
 end
@@ -1472,6 +1523,9 @@ end
 arch grassd_3
 x 10
 end
+arch plant9
+x 10
+end
 arch grassd_8
 x 10
 y 1
@@ -1524,6 +1578,11 @@ arch floor_cave6
 x 10
 y 7
 end
+arch minecart_track
+direction 7
+x 10
+y 7
+end
 arch floor_cave2
 x 10
 y 8
@@ -1622,6 +1681,10 @@ arch water_lt4
 x 10
 y 20
 end
+arch water_plant2
+x 10
+y 20
+end
 arch water_lt3
 x 10
 y 21
@@ -1689,6 +1752,11 @@ x 11
 y 6
 end
 arch floor_cave1
+x 11
+y 7
+end
+arch minecart_track
+direction 7
 x 11
 y 7
 end
@@ -1754,6 +1822,10 @@ arch grassd_8
 x 11
 y 16
 end
+arch plant6
+x 11
+y 16
+end
 arch floor_ruin6
 x 11
 y 17
@@ -1775,11 +1847,19 @@ arch water_lt4
 x 11
 y 19
 end
+arch water_plant3
+x 11
+y 19
+end
 arch water_lt2
 x 11
 y 20
 end
 arch water_lt
+x 11
+y 21
+end
+arch water_plant3
 x 11
 y 21
 end
@@ -1829,7 +1909,11 @@ arch floor_cave2
 x 12
 y 4
 end
-arch rock6
+arch crystal10
+x 12
+y 4
+end
+arch light3
 x 12
 y 4
 end
@@ -1845,7 +1929,20 @@ arch floor_cave2
 x 12
 y 7
 end
+arch minecart_track
+direction 7
+x 12
+y 7
+end
 arch floor_cave5
+x 12
+y 8
+end
+arch crystal_yellow_s
+x 12
+y 8
+end
+arch light3
 x 12
 y 8
 end
@@ -1857,7 +1954,7 @@ arch floor_cave2
 x 12
 y 10
 end
-arch stone1
+arch minecart_track
 x 12
 y 10
 end
@@ -1865,11 +1962,15 @@ arch floor_cave2
 x 12
 y 11
 end
+arch minecart_track
+x 12
+y 11
+end
 arch floor_cave1
 x 12
 y 12
 end
-arch small_stones
+arch minecart_track
 x 12
 y 12
 end
@@ -1930,7 +2031,15 @@ arch water_lt3
 x 12
 y 19
 end
+arch water_plant1
+x 12
+y 19
+end
 arch water_lt4
+x 12
+y 20
+end
+arch water_plant4
 x 12
 y 20
 end
@@ -1976,15 +2085,28 @@ blocksview 0
 x 13
 y 2
 end
-arch grassd_4
+arch floor_cave1
 x 13
 y 3
 end
-arch fwall_grit1b
+arch stairs_down
+x 13
+y 3
+end
+arch cave_deco_full
+x 13
+y 3
+end
+arch light1
 x 13
 y 3
 end
 arch floor_cave1
+x 13
+y 4
+end
+arch stairs_stone_down
+direction 1
 x 13
 y 4
 end
@@ -2001,6 +2123,11 @@ x 13
 y 6
 end
 arch floor_cave5
+x 13
+y 7
+end
+arch minecart_track
+direction 7
 x 13
 y 7
 end
@@ -2093,6 +2220,10 @@ arch water_lt
 x 13
 y 20
 end
+arch water_lily2
+x 13
+y 20
+end
 arch water_lt2
 x 13
 y 21
@@ -2103,6 +2234,10 @@ y 22
 end
 arch water_lt5_m
 direction 2
+x 13
+y 22
+end
+arch water_plant4
 x 13
 y 22
 end
@@ -2138,15 +2273,28 @@ blocksview 0
 x 14
 y 2
 end
-arch grassd_5
+arch cave_deco_wall3
+x 14
+y 2
+end
+arch floor_cave1
 x 14
 y 3
 end
-arch fwall_grit1b
+arch stairs_down
+x 14
+y 3
+end
+arch light2
 x 14
 y 3
 end
 arch floor_cave5
+x 14
+y 4
+end
+arch stairs_stone_down
+direction 1
 x 14
 y 4
 end
@@ -2163,6 +2311,16 @@ x 14
 y 6
 end
 arch floor_cave5
+x 14
+y 7
+end
+arch minecart_track
+direction 7
+x 14
+y 7
+end
+arch minecart
+direction 7
 x 14
 y 7
 end
@@ -2257,6 +2415,10 @@ arch water_lt
 x 14
 y 19
 end
+arch water_plant3
+x 14
+y 19
+end
 arch water_lt2
 x 14
 y 20
@@ -2302,11 +2464,19 @@ blocksview 0
 x 15
 y 2
 end
-arch grassd_7
+arch cave_deco_wall2
+x 15
+y 2
+end
+arch floor_cave5
 x 15
 y 3
 end
-arch fwall_grit1b
+arch stairs_down
+x 15
+y 3
+end
+arch light1
 x 15
 y 3
 end
@@ -2314,15 +2484,12 @@ arch floor_cave2
 x 15
 y 4
 end
-arch small_stones
+arch stairs_stone_down
+direction 1
 x 15
 y 4
 end
 arch floor_cave5
-x 15
-y 5
-end
-arch rock6
 x 15
 y 5
 end
@@ -2331,6 +2498,11 @@ x 15
 y 6
 end
 arch floor_cave1
+x 15
+y 7
+end
+arch minecart_track
+direction 7
 x 15
 y 7
 end
@@ -2413,6 +2585,10 @@ arch water_lt3
 x 15
 y 19
 end
+arch water_plant2
+x 15
+y 19
+end
 arch water_lt2
 x 15
 y 20
@@ -2421,11 +2597,19 @@ arch water_lt
 x 15
 y 21
 end
+arch water_plant1
+x 15
+y 21
+end
 arch water_lt2
 x 15
 y 22
 end
 arch water_lt4
+x 15
+y 23
+end
+arch water_plant3
 x 15
 y 23
 end
@@ -2473,11 +2657,20 @@ arch floor_cave6
 x 16
 y 5
 end
+arch rock6
+x 16
+y 5
+end
 arch floor_cave5
 x 16
 y 6
 end
 arch floor_cave2
+x 16
+y 7
+end
+arch minecart_track
+direction 7
 x 16
 y 7
 end
@@ -2497,11 +2690,15 @@ arch floor_cave1
 x 16
 y 11
 end
-arch floor_cave5
+arch crystal_red
 x 16
-y 12
+y 11
 end
-arch ladder_tall_up
+arch light5
+x 16
+y 11
+end
+arch floor_cave5
 x 16
 y 12
 end
@@ -2738,11 +2935,20 @@ arch water_lt
 x 17
 y 21
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 17
+y 21
+end
 arch water_lt
 x 17
 y 22
 end
 arch water_lt2
+x 17
+y 23
+end
+arch water_plant4
 x 17
 y 23
 end
@@ -2811,7 +3017,19 @@ arch floor_cave2
 x 18
 y 9
 end
+arch crystal14
+x 18
+y 9
+end
+arch light3
+x 18
+y 9
+end
 arch floor_cave5
+x 18
+y 10
+end
+arch minecart_track
 x 18
 y 10
 end
@@ -2819,15 +3037,27 @@ arch floor_cave6
 x 18
 y 11
 end
+arch minecart_track
+x 18
+y 11
+end
 arch floor_cave2
 x 18
 y 12
 end
-arch rock2
+arch minecart_track
+x 18
+y 12
+end
+arch minecart
 x 18
 y 12
 end
 arch floor_cave5
+x 18
+y 13
+end
+arch minecart_track
 x 18
 y 13
 end
@@ -2892,6 +3122,10 @@ arch water_lt4
 x 18
 y 20
 end
+arch water_plant1
+x 18
+y 20
+end
 arch water_lt3
 x 18
 y 21
@@ -2905,6 +3139,9 @@ x 18
 y 23
 end
 arch grassd_7
+x 19
+end
+arch plant13
 x 19
 end
 arch grassd_7
@@ -3078,7 +3315,15 @@ arch water_lt3
 x 19
 y 22
 end
+arch water_plant3
+x 19
+y 22
+end
 arch water_lt
+x 19
+y 23
+end
+arch water_plant2
 x 19
 y 23
 end
@@ -3263,6 +3508,9 @@ end
 arch grassd_8
 x 21
 end
+arch plant_mushroom2
+x 21
+end
 arch grassd_5
 x 21
 y 1
@@ -3434,6 +3682,10 @@ arch water_lt3
 x 21
 y 21
 end
+arch water_lily
+x 21
+y 21
+end
 arch water_lt2
 x 21
 y 22
@@ -3455,6 +3707,10 @@ x 22
 y 1
 end
 arch grassd_4
+x 22
+y 2
+end
+arch plant5
 x 22
 y 2
 end
@@ -3603,7 +3859,15 @@ direction 5
 x 22
 y 19
 end
+arch starfish
+x 22
+y 19
+end
 arch water_lt
+x 22
+y 20
+end
+arch water_plant1
 x 22
 y 20
 end
@@ -3625,6 +3889,9 @@ x 22
 y 23
 end
 arch grassd_1
+x 23
+end
+arch plant17
 x 23
 end
 arch grassd_6
@@ -3777,7 +4044,15 @@ arch water_lt4
 x 23
 y 20
 end
+arch water_plant3
+x 23
+y 20
+end
 arch water_lt
+x 23
+y 21
+end
+arch water_plant2
 x 23
 y 21
 end

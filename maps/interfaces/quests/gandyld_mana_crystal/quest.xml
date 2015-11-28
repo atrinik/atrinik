@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
 <interfaces>
     <quest name="Gandyld's Mana Crystal">
         <interface npc="Gandyld" state="completed">
@@ -55,7 +58,7 @@
                     <message>So, how did it go? Have you found the concoction and managed to enhance the crystal I have given you?</message>
                     <response destination="worked" message="Yes, it worked. See for yourself..."/>
                 </dialog>
-                <dialog name="hello">
+                <dialog name="worked">
                     <message>Hmm, I see! That is very interesting... and rather odd. You can still smell the brimstone too...</message>
                     <message>Very well... Seeing that their enchantment works, it is rather worrying. Maybe the giants are becoming intelligent? Hm... King Rhun is rather intelligent for a giant, and likes to experiment with alchemy and some magic, but most other giants? Very strange indeed.</message>
                     <message>At any rate, this seems like the sort of thing King Rhun would be interested in experimenting with, making it better. If you can find his concoction, you might be able to improve the crystal I have given you even further. I suggest trying to look for his vault or similar.</message>

@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-30 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch grassd_5
@@ -306,9 +306,9 @@ x 2
 y 7
 arch dragon_water_small
 spawn_time 7:00 - 19:00
-unaggressive 1
-friendly 1
 random_move 1
+faction brynknot_animals
+level 55
 type 83
 end
 end
@@ -1009,6 +1009,7 @@ x 7
 y 8
 arch peasant
 type 83
+faction brynknot_citizens
 name Garland
 arch event_obj
 sub_type 6
@@ -1168,12 +1169,8 @@ x 8
 y 14
 arch guard
 level 60
-unaggressive 0
+faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm2

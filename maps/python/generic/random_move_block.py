@@ -5,6 +5,9 @@
 
 import re
 
+from Atrinik import *
+
+
 options = GetOptions()
 # Direction the object wants to move into
 d = GetEventParameters()[1]

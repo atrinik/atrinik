@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 11
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region eld_woods_island
 end
 arch grassd_8

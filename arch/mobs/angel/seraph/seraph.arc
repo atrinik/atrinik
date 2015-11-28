@@ -21,7 +21,6 @@ speed -0.060
 monster 1
 wis 4
 dex 3
-int 10
 pow 10
 magic 1
 see_invisible 1
@@ -48,6 +47,8 @@ wc 6
 dam 100
 level 1
 weight 125000
+faction monsters
+int 27
 end
 More
 Object seraph_b

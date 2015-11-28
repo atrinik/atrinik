@@ -1,0 +1,186 @@
+arch map
+name Incuna - Under the Barn
+msg
+Created:  2011-09-17 Edwin Miltenburg
+Modified: 2015-11-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+region incuna_-2
+end
+arch floor_earth1c
+x 11
+y 23
+end
+arch fwall_wood1c
+x 11
+y 23
+end
+arch floor_earth1c
+x 12
+y 22
+end
+arch fwall_wood1a
+x 12
+y 22
+end
+arch floor_earth1c
+x 12
+y 23
+end
+arch fwall_wood1b
+x 12
+y 23
+end
+arch floor_earth1a
+x 13
+y 22
+end
+arch fwall_wood1c
+x 13
+y 22
+end
+arch floor_earth1c
+x 13
+y 23
+end
+arch straw2.111
+direction 7
+x 13
+y 23
+end
+arch floor_earth1b
+x 14
+y 22
+end
+arch fwall_wood1c
+x 14
+y 22
+end
+arch floor_earth1c
+x 14
+y 23
+end
+arch trash_wood1.101
+x 14
+y 23
+end
+arch floor_earth1b
+x 15
+y 22
+end
+arch fwall_wood1c
+x 15
+y 22
+end
+arch floor_earth1b
+x 15
+y 23
+end
+arch floor_earth1c
+x 16
+y 22
+end
+arch fwall_wood1b
+x 16
+y 22
+end
+arch floor_earth1a
+x 16
+y 23
+end
+arch floor_earth1d
+x 17
+y 22
+end
+arch fwall_wood1b
+x 17
+y 22
+end
+arch floor_earth1e
+x 17
+y 23
+end
+arch pile_floor2
+x 17
+y 23
+end
+arch floor_earth1e
+x 18
+y 22
+end
+arch fwall_wood1a
+x 18
+y 22
+end
+arch floor_earth1b
+x 18
+y 23
+end
+arch floor_earth1b
+x 19
+y 22
+end
+arch fwall_wood1c
+x 19
+y 22
+end
+arch floor_earth1b
+x 19
+y 23
+end
+arch floor_earth1b
+x 20
+y 22
+end
+arch fwall_wood1b
+x 20
+y 22
+end
+arch floor_earth1b
+x 20
+y 23
+end
+arch floor_earth1c
+x 21
+y 22
+end
+arch fwall_wood1b
+x 21
+y 22
+end
+arch floor_earth1a
+x 21
+y 23
+end
+arch straw2.111
+direction 7
+x 21
+y 23
+end
+arch floor_earth1c
+x 22
+y 22
+end
+arch fwall_wood1a
+x 22
+y 22
+end
+arch floor_earth1e
+x 22
+y 23
+end
+arch floor_earth1e
+x 23
+y 22
+end
+arch fwall_wood1b
+x 23
+y 22
+end
+arch floor_earth1b
+x 23
+y 23
+end

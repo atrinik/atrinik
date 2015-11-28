@@ -77,7 +77,7 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos)
     fp = fopen_wrapper(filename, "wb");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open file '%s' for writing.", filename);
+        LOG(BUG, "Could not open file '%s' for writing.", filename);
         efree(dest);
         return;
     }

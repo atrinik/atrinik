@@ -2,6 +2,7 @@ arch map
 name World
 msg
 Created:  2011-09-03 Alex Tokar
+Modified: 2015-11-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -177,7 +178,18 @@ end
 arch water_dk2
 x 2
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 2
+end
+arch water_dk2
+x 2
+y 1
+end
+arch mover
+direction 5
+speed 0.8
 x 2
 y 1
 end
@@ -185,19 +197,49 @@ arch water_dk4
 x 2
 y 2
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 2
+y 2
+end
+arch water_dk3
 x 2
 y 3
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 2
+y 3
+end
+arch water_dk
 x 2
 y 4
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 2
+y 4
+end
+arch water_dk2
 x 2
 y 5
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 2
+y 5
+end
+arch water_dk2
+x 2
+y 6
+end
+arch mover
+direction 5
+speed 0.8
 x 2
 y 6
 end
@@ -205,11 +247,29 @@ arch water_dk
 x 2
 y 7
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 2
+y 7
+end
+arch water_dk2
 x 2
 y 8
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 2
+y 8
+end
+arch water_dk
+x 2
+y 9
+end
+arch mover
+direction 5
+speed 0.8
 x 2
 y 9
 end
@@ -217,23 +277,59 @@ arch water_dk4
 x 2
 y 10
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 2
+y 10
+end
+arch water_dk3
 x 2
 y 11
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
 x 2
-y 12
-end
-arch water_dk3
-x 2
-y 13
+y 11
 end
 arch water_dk4
 x 2
+y 12
+end
+arch mover
+direction 5
+speed 0.8
+x 2
+y 12
+end
+arch water_dk4
+x 2
+y 13
+end
+arch mover
+direction 5
+speed 0.8
+x 2
+y 13
+end
+arch water_dk2
+x 2
 y 14
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 2
+y 14
+end
+arch water_dk4
+x 2
+y 15
+end
+arch mover
+direction 5
+speed 0.8
 x 2
 y 15
 end
@@ -241,15 +337,39 @@ arch water_dk3
 x 2
 y 16
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 2
+y 16
+end
+arch water_dk
 x 2
 y 17
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 2
+y 17
+end
+arch water_dk
 x 2
 y 18
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 2
+y 18
+end
+arch water_dk4
+x 2
+y 19
+end
+arch mover
+direction 4
+speed 0.8
 x 2
 y 19
 end
@@ -269,66 +389,161 @@ arch water_dk2
 x 2
 y 23
 end
-arch water_dk2
+arch water_dk4
 x 3
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 3
+end
+arch water_dk4
 x 3
 y 1
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 1
+end
+arch water_dk
 x 3
 y 2
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 3
+y 2
+end
+arch water_dk4
 x 3
 y 3
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 3
+end
+arch water_dk2
 x 3
 y 4
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 4
+end
+arch water_dk
 x 3
 y 5
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 5
+end
+arch water_dk
 x 3
 y 6
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 6
+end
+arch water_dk
 x 3
 y 7
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 3
+y 7
+end
+arch water_dk
 x 3
 y 8
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 3
+y 8
+end
+arch water_dk4
 x 3
 y 9
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 3
+y 9
+end
+arch water_dk4
 x 3
 y 10
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 3
+y 10
+end
+arch water_dk3
 x 3
 y 11
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 3
+y 11
+end
+arch water_dk4
 x 3
 y 12
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 12
+end
+arch water_dk3
 x 3
 y 13
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 13
+end
+arch water_dk
 x 3
 y 14
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 3
+y 14
+end
+arch water_dk4
+x 3
+y 15
+end
+arch mover
+direction 5
+speed 0.8
 x 3
 y 15
 end
@@ -336,19 +551,50 @@ arch water_dk2
 x 3
 y 16
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 3
+y 16
+end
+arch water_dk2
 x 3
 y 17
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 17
+end
+arch water_dk3
 x 3
 y 18
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 18
+end
+arch water_dk
 x 3
 y 19
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 3
+y 19
+end
+arch water_dk2
+x 3
+y 20
+end
+arch detector
+slaying removable
+last_heal 1
+connected 121
 x 3
 y 20
 end
@@ -367,11 +613,28 @@ end
 arch water_dk4
 x 4
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 4
+end
+arch water_dk2
 x 4
 y 1
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 4
+y 1
+end
+arch water_dk2
+x 4
+y 2
+end
+arch mover
+direction 5
+speed 0.8
 x 4
 y 2
 end
@@ -379,7 +642,19 @@ arch water_dk3
 x 4
 y 3
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 4
+y 3
+end
+arch water_dk2
+x 4
+y 4
+end
+arch mover
+direction 5
+speed 0.8
 x 4
 y 4
 end
@@ -387,11 +662,29 @@ arch water_dk3
 x 4
 y 5
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 4
+y 5
+end
+arch water_dk
 x 4
 y 6
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 4
+y 6
+end
+arch water_dk3
+x 4
+y 7
+end
+arch mover
+direction 5
+speed 0.8
 x 4
 y 7
 end
@@ -399,27 +692,69 @@ arch water_dk4
 x 4
 y 8
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 4
+y 8
+end
+arch water_dk3
 x 4
 y 9
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 4
+y 9
+end
+arch water_dk
 x 4
 y 10
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 4
+y 10
+end
+arch water_dk4
 x 4
 y 11
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 4
+y 11
+end
+arch water_dk3
 x 4
 y 12
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 4
+y 12
+end
+arch water_dk4
 x 4
 y 13
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 4
+y 13
+end
+arch water_dk
+x 4
+y 14
+end
+arch mover
+direction 5
+speed 0.8
 x 4
 y 14
 end
@@ -427,7 +762,19 @@ arch water_dk3
 x 4
 y 15
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 4
+y 15
+end
+arch water_dk2
+x 4
+y 16
+end
+arch mover
+direction 5
+speed 0.8
 x 4
 y 16
 end
@@ -435,15 +782,33 @@ arch water_dk
 x 4
 y 17
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 4
+y 17
+end
+arch water_dk4
 x 4
 y 18
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 4
+y 18
+end
+arch water_dk
 x 4
 y 19
 end
-arch water_dk4
+arch mover
+direction 6
+speed 0.8
+x 4
+y 19
+end
+arch water_dk2
 x 4
 y 20
 end
@@ -1219,50 +1584,121 @@ arch water_dk2
 x 12
 y 23
 end
-arch water_dk4
+arch water_dk2
 x 13
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 13
+end
+arch water_dk2
 x 13
 y 1
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 13
+y 1
+end
+arch water_dk3
 x 13
 y 2
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
 x 13
-y 3
-end
-arch water_dk2
-x 13
-y 4
+y 2
 end
 arch water_dk4
 x 13
-y 5
+y 3
+end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 3
 end
 arch water_dk3
 x 13
-y 6
+y 4
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
 x 13
-y 7
-end
-arch water_dk
-x 13
-y 8
-end
-arch water_dk3
-x 13
-y 9
+y 4
 end
 arch water_dk2
 x 13
-y 10
+y 5
+end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 5
+end
+arch water_dk2
+x 13
+y 6
+end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 6
+end
+arch water_dk4
+x 13
+y 7
+end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 7
 end
 arch water_dk3
+x 13
+y 8
+end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 8
+end
+arch water_dk2
+x 13
+y 9
+end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 9
+end
+arch water_dk4
+x 13
+y 10
+end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 10
+end
+arch water_dk4
+x 13
+y 11
+end
+arch mover
+direction 5
+speed 0.8
 x 13
 y 11
 end
@@ -1270,23 +1706,59 @@ arch water_dk3
 x 13
 y 12
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 13
+y 12
+end
+arch water_dk4
 x 13
 y 13
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 13
+y 13
+end
+arch water_dk4
 x 13
 y 14
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 13
+y 14
+end
+arch water_dk
 x 13
 y 15
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 13
+y 15
+end
+arch water_dk4
 x 13
 y 16
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 13
+y 16
+end
+arch water_dk
+x 13
+y 17
+end
+arch mover
+direction 5
+speed 0.8
 x 13
 y 17
 end
@@ -1294,11 +1766,23 @@ arch water_dk4
 x 13
 y 18
 end
+arch mover
+direction 5
+speed 0.8
+x 13
+y 18
+end
 arch water_dk
 x 13
 y 19
 end
-arch water_dk3
+arch mover
+direction 4
+speed 0.8
+x 13
+y 19
+end
+arch water_dk4
 x 13
 y 20
 end
@@ -1314,38 +1798,91 @@ arch water_dk3
 x 13
 y 23
 end
-arch water_dk3
+arch water_dk4
 x 14
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 14
+end
+arch water_dk3
 x 14
 y 1
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
 x 14
-y 2
+y 1
 end
 arch water_dk3
 x 14
-y 3
+y 2
+end
+arch mover
+direction 5
+speed 0.8
+x 14
+y 2
 end
 arch water_dk4
+x 14
+y 3
+end
+arch mover
+direction 5
+speed 0.8
+x 14
+y 3
+end
+arch water_dk2
 x 14
 y 4
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
 x 14
-y 5
+y 4
 end
 arch water_dk
 x 14
+y 5
+end
+arch mover
+direction 5
+speed 0.8
+x 14
+y 5
+end
+arch water_dk3
+x 14
 y 6
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 14
+y 6
+end
+arch water_dk
 x 14
 y 7
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 14
+y 7
+end
+arch water_dk4
+x 14
+y 8
+end
+arch mover
+direction 5
+speed 0.8
 x 14
 y 8
 end
@@ -1353,15 +1890,39 @@ arch water_dk4
 x 14
 y 9
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 14
+y 9
+end
+arch water_dk3
 x 14
 y 10
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 14
+y 10
+end
+arch water_dk3
 x 14
 y 11
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 14
+y 11
+end
+arch water_dk4
+x 14
+y 12
+end
+arch mover
+direction 5
+speed 0.8
 x 14
 y 12
 end
@@ -1369,11 +1930,29 @@ arch water_dk4
 x 14
 y 13
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 14
+y 13
+end
+arch water_dk
 x 14
 y 14
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 14
+y 14
+end
+arch water_dk4
+x 14
+y 15
+end
+arch mover
+direction 5
+speed 0.8
 x 14
 y 15
 end
@@ -1381,7 +1960,19 @@ arch water_dk2
 x 14
 y 16
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 14
+y 16
+end
+arch water_dk4
+x 14
+y 17
+end
+arch mover
+direction 5
+speed 0.8
 x 14
 y 17
 end
@@ -1389,11 +1980,30 @@ arch water_dk
 x 14
 y 18
 end
+arch mover
+direction 5
+speed 0.8
+x 14
+y 18
+end
 arch water_dk
 x 14
 y 19
 end
-arch water_dk
+arch mover
+direction 5
+speed 0.8
+x 14
+y 19
+end
+arch water_dk2
+x 14
+y 20
+end
+arch detector
+slaying removable
+last_heal 1
+connected 121
 x 14
 y 20
 end
@@ -1409,10 +2019,21 @@ arch water_dk2
 x 14
 y 23
 end
-arch water_dk4
+arch water_dk2
 x 15
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 15
+end
+arch water_dk
+x 15
+y 1
+end
+arch mover
+direction 5
+speed 0.8
 x 15
 y 1
 end
@@ -1420,55 +2041,139 @@ arch water_dk
 x 15
 y 2
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 15
+y 2
+end
+arch water_dk2
 x 15
 y 3
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 15
+y 3
+end
+arch water_dk4
 x 15
 y 4
 end
-arch water_dk2
+arch mover
+direction 5
+speed 0.8
+x 15
+y 4
+end
+arch water_dk4
 x 15
 y 5
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
 x 15
-y 6
-end
-arch water_dk3
-x 15
-y 7
-end
-arch water_dk4
-x 15
-y 8
+y 5
 end
 arch water_dk
 x 15
-y 9
+y 6
+end
+arch mover
+direction 5
+speed 0.8
+x 15
+y 6
 end
 arch water_dk4
+x 15
+y 7
+end
+arch mover
+direction 5
+speed 0.8
+x 15
+y 7
+end
+arch water_dk
+x 15
+y 8
+end
+arch mover
+direction 5
+speed 0.8
+x 15
+y 8
+end
+arch water_dk4
+x 15
+y 9
+end
+arch mover
+direction 5
+speed 0.8
+x 15
+y 9
+end
+arch water_dk2
 x 15
 y 10
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 15
+y 10
+end
+arch water_dk3
 x 15
 y 11
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
 x 15
-y 12
+y 11
 end
 arch water_dk4
 x 15
-y 13
+y 12
+end
+arch mover
+direction 5
+speed 0.8
+x 15
+y 12
 end
 arch water_dk3
 x 15
+y 13
+end
+arch mover
+direction 5
+speed 0.8
+x 15
+y 13
+end
+arch water_dk2
+x 15
 y 14
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 15
+y 14
+end
+arch water_dk
+x 15
+y 15
+end
+arch mover
+direction 5
+speed 0.8
 x 15
 y 15
 end
@@ -1476,7 +2181,19 @@ arch water_dk
 x 15
 y 16
 end
-arch water_dk4
+arch mover
+direction 5
+speed 0.8
+x 15
+y 16
+end
+arch water_dk2
+x 15
+y 17
+end
+arch mover
+direction 5
+speed 0.8
 x 15
 y 17
 end
@@ -1484,11 +2201,23 @@ arch water_dk4
 x 15
 y 18
 end
-arch water_dk3
+arch mover
+direction 5
+speed 0.8
+x 15
+y 18
+end
+arch water_dk
 x 15
 y 19
 end
-arch water_dk
+arch mover
+direction 6
+speed 0.8
+x 15
+y 19
+end
+arch water_dk3
 x 15
 y 20
 end

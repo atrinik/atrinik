@@ -1,14 +1,15 @@
-## @file
-## Generic script for smiths in shops.
+"""
+Generic script for smiths in shops.
+"""
 
-from Interface import Interface
+from Atrinik import *
 from Smith import Smith
 
-inf = Interface(activator, me)
 
-def main():
-    smith = Smith(activator, me, inf)
-    smith.handle_chat(msg)
+class InterfaceDialog(Smith):
+    """
+    Dialog when talking to the smith.
+    """
 
-main()
-inf.finish()
+ib = InterfaceDialog(activator, me)
+ib.finish(locals(), msg)

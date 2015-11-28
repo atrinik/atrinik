@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2014-12-25 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,7 +11,7 @@ darkness -1
 outdoor 1
 no_harm 1
 fixed_resettime 1
-bg_music town_music.ogg
+bg_music town_folk.ogg
 region brynknot
 end
 arch roof_brick_gray

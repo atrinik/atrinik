@@ -3,6 +3,7 @@ Implementation for the 'Interface Editor' window.
 """
 
 import os
+import subprocess
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom
 import logging
@@ -11,10 +12,14 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QMainWindow
+import sys
 
 import system.utils
 from ui.ui_window_interface_editor import Ui_WindowInterfaceEditor
 from ui.model import Model
+
+INTERFACES_DOCTYPE = """<!DOCTYPE interfaces PUBLIC
+"-//Atrinik//ADS-1 1.1.2//EN" "ads-1.dtd">"""
 
 
 class ItemModel(QtGui.QStandardItemModel):
@@ -466,6 +471,12 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
         self.save_interface_file(self.file_path)
 
+        if self.config.getboolean("Interface Editor", "collect"):
+            path = self.config.get("General", "path_dir_tools")
+            p = subprocess.Popen(["python", "collect.py", "-c", "interfaces"],
+                                 cwd=path, shell=sys.platform.startswith("win"))
+            p.wait()
+
     def action_save_as_trigger(self):
         # noinspection PyTypeChecker,PyCallByClass
         path = QtWidgets.QFileDialog.getSaveFileName(
@@ -493,11 +504,12 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         elem = ElementTree.Element("interfaces")
         self.model_items_apply(self.model_items_apply_to_xml, (elem,))
 
-        xmlstr = ElementTree.tostring(elem, "utf-8")
-        xmlstr = xml.dom.minidom.parseString(xmlstr)
+        xmlstr = INTERFACES_DOCTYPE.encode("utf-8")
+        xmlstr += ElementTree.tostring(elem, "utf-8")
+        dom = xml.dom.minidom.parseString(xmlstr)
 
         with open(path, "wb") as f:
-            f.write(xmlstr.toprettyxml(indent=" " * 4, encoding="UTF-8"))
+            f.write(dom.toprettyxml(indent=" " * 4, encoding="UTF-8"))
 
     def reset_stacked_widget(self):
         self.stackedWidget.setCurrentIndex(0)
@@ -861,10 +873,24 @@ class InterfaceElementAnd(InterfaceElement):
     priority = 1000
 
 
+class InterfaceElementOr(InterfaceElement):
+    tag = "or"
+    priority = 1000
+
+
 class InterfaceElementCheck(InterfaceElement):
     tag = "check"
     attributes = ("region_map", "enemy", "started", "finished", "completed",
-                  "num2finish", "options")
+                  "num2finish", "options", "gender", "faction_friend",
+                  "failed")
+    priority = 1000
+
+
+class InterfaceElementNcheck(InterfaceElement):
+    tag = "ncheck"
+    attributes = ("region_map", "enemy", "started", "finished", "completed",
+                  "num2finish", "options", "gender", "faction_friend",
+                  "failed")
     priority = 1000
 
 
@@ -874,11 +900,24 @@ class InterfaceElementResponse(InterfaceElement):
     dialog_attributes = ("destination",)
     priority = 400
 
+    def update_text(self, s=""):
+        destination = self.elem_data.get("destination")
+        action = self.elem_data.get("action")
+        text = ""
+
+        if destination:
+            text += " ({})".format(destination)
+
+        if action:
+            text += " (action: {})".format(action)
+
+        super().update_text(text)
+
 
 class InterfaceElementAction(InterfaceElement):
     tag = "action"
     attributes = ("region_map", "start", "complete", "enemy", "text",
-                  "teleport", "trigger", "cast")
+                  "teleport", "trigger", "cast", "fail")
     priority = 1000
 
     def build_xml_element(self):
@@ -943,7 +982,7 @@ class InterfaceElementItem(InterfaceElement):
 
 class InterfaceElementObject(InterfaceElement):
     tag = "object"
-    attributes = ("arch", "name", "remove", "message")
+    attributes = ("arch", "name", "remove", "message", "nrof")
     priority = 1000
 
 

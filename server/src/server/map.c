@@ -29,6 +29,7 @@
 #include <global.h>
 #include <loader.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280
@@ -332,7 +333,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
     if (traversal_id == 4294967295U) {
         mapstruct *m;
 
-        logger_print(LOG(DEBUG), "resetting traversal id");
+        LOG(DEBUG, "resetting traversal id");
 
         DL_FOREACH(first_map, m)
         {
@@ -362,7 +363,7 @@ mapstruct *has_been_loaded_sh(shstr *name)
     }
 
     if (*name != '/' && *name != '.') {
-        logger_print(LOG(DEBUG), "Found map name without starting '/' or '.' (%s)", name);
+        LOG(DEBUG, "Found map name without starting '/' or '.' (%s)", name);
         return NULL;
     }
 
@@ -608,9 +609,9 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
  * @param y Y position.
  * @return 0 if the space to check is not blocked, return value of blocked()
  * otherwise. */
-int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
+int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
 {
-    archetype *tmp;
+    archetype_t *tmp;
     mapstruct *mt;
     int xt, yt, t;
 
@@ -664,7 +665,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 
     while ((i = load_object(fp, op, mybuffer, LO_REPEAT, mapflags))) {
         if (i == LL_MORE) {
-            logger_print(LOG(DEBUG), "object %s - its a tail!", query_short_name(op, NULL));
+            LOG(ERROR, "Encountered tail object: %s", object_get_str(op));
             continue;
         }
 
@@ -672,7 +673,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
          * got an invalid object. Don't do anything with it - the game
          * will not be able to do anything with it either. */
         if (op->arch == NULL) {
-            logger_print(LOG(DEBUG), "object %s (%d)- invalid archetype. (pos:%d,%d)", query_short_name(op, NULL), op->type, op->x, op->y);
+            LOG(ERROR, "Object without an archetype: %s", object_get_str(op));
             continue;
         }
 
@@ -783,9 +784,9 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
                 }
 
                 if (unique || QUERY_FLAG(head, FLAG_UNIQUE)) {
-                    save_object(fp2, head);
+                    object_save(head, fp2);
                 } else {
-                    save_object(fp, head);
+                    object_save(head, fp);
                 }
             }
         }
@@ -866,7 +867,7 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname)
     SOFT_ASSERT(tile >= 0 && tile < TILED_NUM, "Invalid tile: %d", tile);
 
     if (m->tile_path[tile] != NULL) {
-        log(LOG(BUG), "Tile location %d duplicated (%s <-> %s)", tile, m->path,
+        LOG(BUG, "Tile location %d duplicated (%s <-> %s)", tile, m->path,
                 m->tile_path[tile]);
         FREE_AND_CLEAR_HASH(m->tile_path[tile]);
     }
@@ -959,10 +960,11 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
         return NULL;
     }
 
-    basename = strrchr(filename, '/') + 1;
-
-    if (basename - 1 == NULL) {
+    basename = strrchr(filename, '/');
+    if (basename == NULL) {
         basename = filename;
+    } else {
+        basename++;
     }
 
     pos = coords_idx = 0;
@@ -1061,7 +1063,7 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
     }
 
     if (!MAP_DIFFICULTY(m)) {
-        logger_print(LOG(BUG), "Map %s has difficulty 0. Changing to 1.", filename);
+        LOG(BUG, "Map %s has difficulty 0. Changing to 1.", filename);
         MAP_DIFFICULTY(m) = 1;
     }
 
@@ -1080,7 +1082,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
     char buf[HUGE_BUF];
 
     if (!m->tmpname) {
-        logger_print(LOG(BUG), "No temporary filename for map %s! Fallback to original!", m->path);
+        LOG(BUG, "No temporary filename for map %s! Fallback to original!", m->path);
         snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
         m = load_original_map(buf, NULL, 0);
@@ -1094,7 +1096,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
             return NULL;
         }
 
-        logger_print(LOG(BUG), "Can't open temporary map %s! Fallback to original!", m->tmpname);
+        LOG(BUG, "Can't open temporary map %s! Fallback to original!", m->tmpname);
         snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
         m = load_original_map(buf, NULL, 0);
@@ -1102,7 +1104,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
     }
 
     if (!load_map_header(m, fp)) {
-        logger_print(LOG(BUG), "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
+        LOG(BUG, "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
         snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
         m = load_original_map(buf, NULL, 0);
@@ -1229,7 +1231,7 @@ int new_save_map(mapstruct *m, int flag)
             fd = mkstemp(m->tmpname);
 
             if (fd == -1) {
-                log(LOG(ERROR), "Can't create a temporary file: %d (%s)", errno,
+                LOG(ERROR, "Can't create a temporary file: %d (%s)", errno,
                         strerror(errno));
                 return -1;
             }
@@ -1237,7 +1239,7 @@ int new_save_map(mapstruct *m, int flag)
             fp = fdopen(fd, "w");
 
             if (fp == NULL) {
-                log(LOG(ERROR), "Can't open file %s for saving: %d (%s)",
+                LOG(ERROR, "Can't open file %s for saving: %d (%s)",
                         filename, errno, strerror(errno));
                 close(fd);
                 return -1;
@@ -1250,7 +1252,7 @@ int new_save_map(mapstruct *m, int flag)
     }
 
     if (fp == NULL) {
-        log(LOG(ERROR), "Can't open file %s for saving: %d (%s)", filename,
+        LOG(ERROR, "Can't open file %s for saving: %d (%s)", filename,
                 errno, strerror(errno));
         return -1;
     }
@@ -1266,7 +1268,7 @@ int new_save_map(mapstruct *m, int flag)
         snprintf(buf, sizeof(buf), "%s.v00", create_items_path(m->path));
 
         if ((fp2 = fopen(buf, "w")) == NULL) {
-            logger_print(LOG(BUG), "Can't open unique items file %s", buf);
+            LOG(BUG, "Can't open unique items file %s", buf);
         }
 
         save_objects(m, fp, fp2);
@@ -1349,7 +1351,7 @@ void free_map(mapstruct *m, int flag)
         /* Delete the backlinks in other tiled maps to our map */
         if (m->tile_map[i]) {
             if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] && m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m) {
-                logger_print(LOG(BUG), "Freeing map %s linked to %s which links back to another map.", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
+                LOG(BUG, "Freeing map %s linked to %s which links back to another map.", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
             }
 
             m->tile_map[i]->tile_map[map_tiled_reverse[i]] = NULL;
@@ -1526,7 +1528,7 @@ void update_position(mapstruct *m, int x, int y)
     int oldflags;
 
     if (!((oldflags = GET_MAP_FLAGS(m, x, y)) & (P_NEED_UPDATE | P_FLAGS_UPDATE))) {
-        logger_print(LOG(DEBUG), "called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)", m->path, x, y);
+        LOG(DEBUG, "called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)", m->path, x, y);
     }
 #endif
 
@@ -1623,7 +1625,7 @@ void update_position(mapstruct *m, int x, int y)
          * since we're already doing the work, we calculate them here.
          * if they don't match, logic is broken someplace. */
         if (((oldflags & ~(P_FLAGS_UPDATE | P_FLAGS_ONLY | P_NO_ERROR)) != flags) && (!(oldflags & P_NO_ERROR))) {
-            logger_print(LOG(DEBUG), "updated flags do not match old flags: %s (%d,%d) old:%x != %x", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
+            LOG(DEBUG, "updated flags do not match old flags: %s (%d,%d) old:%x != %x", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
         }
 #endif
 
@@ -2552,6 +2554,9 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
  * @param y Y coordinate.
  * @param layer Layer to redraw, -1 for all.
  * @param sub_layer Sub-layer to redraw, -1 for all.
+ * @warning This is a costly function, and should only be called sparingly, and
+ * only if it's really necessary. Do not EVER call it from code that is called
+ * very often (combat code for example).
  */
 void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer)
 {

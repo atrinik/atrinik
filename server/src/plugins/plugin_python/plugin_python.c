@@ -24,13 +24,18 @@
 
 /**
  * @file
- * Atrinik python plugin. */
+ * Atrinik python plugin.
+ *
+ * @author Alex Tokar
+ * @author Yann Chachkoff
+ */
 
 #ifdef WIN32
 #include <fcntl.h>
 #endif
 
 #include <plugin_python.h>
+#include <packet.h>
 
 #include <compile.h>
 #include <eval.h>
@@ -74,12 +79,23 @@ typedef struct python_eval_struct {
  */
 static python_eval_struct *python_eval;
 
+/** The Atrinik package docstring. */
+static const char package_doc[] =
+"The Atrinik Python package provides an interface to the Atrinik server.\n\n"
+"The server is able to run Python scripts dynamically, usually as a response "
+"to some event.";
+
+/** The Atrinik Type module docstring. */
+static const char module_doc_type[] =
+"Contains all the Atrinik object types as constants.";
+
+/** The Atrinik Gender module docstring. */
+static const char module_doc_gender[] =
+"Contains gender related constants.";
+
 /**
- * Useful constants */
-/* @cparser
- * @page plugin_python_constants Python constants
- * <h2>Python constants</h2>
- * List of the Python plugin constants and their meaning. */
+ * Useful constants
+ */
 static const Atrinik_Constant constants[] = {
     {"NORTH", NORTH},
     {"NORTHEAST", NORTHEAST},
@@ -134,12 +150,12 @@ static const Atrinik_Constant constants[] = {
     {"COST_BUY", COST_BUY},
     {"COST_SELL", COST_SELL},
 
-    {"APPLY_TOGGLE", 0},
-    {"APPLY_ALWAYS", AP_APPLY},
-    {"UNAPPLY_ALWAYS", AP_UNAPPLY},
-    {"UNAPPLY_NO_MERGE", AP_NO_MERGE},
-    {"UNAPPLY_IGNORE_CURSE", AP_IGNORE_CURSE},
-    {"APPLY_NO_EVENT", AP_NO_EVENT},
+    {"APPLY_NORMAL", APPLY_NORMAL},
+    {"APPLY_ALWAYS", APPLY_ALWAYS},
+    {"APPLY_ALWAYS_UNAPPLY", APPLY_ALWAYS_UNAPPLY},
+    {"APPLY_NO_MERGE", APPLY_NO_MERGE},
+    {"APPLY_IGNORE_CURSE", APPLY_IGNORE_CURSE},
+    {"APPLY_NO_EVENT", APPLY_NO_EVENT},
 
     {"MAXLEVEL", MAXLEVEL},
 
@@ -153,9 +169,6 @@ static const Atrinik_Constant constants[] = {
     {"IDENTIFY_NORMAL", IDENTIFY_NORMAL},
     {"IDENTIFY_ALL", IDENTIFY_ALL},
     {"IDENTIFY_MARKED", IDENTIFY_MARKED},
-
-    {"CLONE_WITH_INVENTORY", 0},
-    {"CLONE_WITHOUT_INVENTORY", 1},
 
     {"CHAT_TYPE_ALL", CHAT_TYPE_ALL},
     {"CHAT_TYPE_GAME", CHAT_TYPE_GAME},
@@ -175,7 +188,7 @@ static const Atrinik_Constant constants[] = {
     {"PLAYER_EQUIP_HELM", PLAYER_EQUIP_HELM},
     {"PLAYER_EQUIP_ARMOUR", PLAYER_EQUIP_ARMOUR},
     {"PLAYER_EQUIP_BELT", PLAYER_EQUIP_BELT},
-    {"PLAYER_EQUIP_GREAVES", PLAYER_EQUIP_GREAVES},
+    {"PLAYER_EQUIP_PANTS", PLAYER_EQUIP_PANTS},
     {"PLAYER_EQUIP_BOOTS", PLAYER_EQUIP_BOOTS},
     {"PLAYER_EQUIP_CLOAK", PLAYER_EQUIP_CLOAK},
     {"PLAYER_EQUIP_BRACERS", PLAYER_EQUIP_BRACERS},
@@ -188,7 +201,10 @@ static const Atrinik_Constant constants[] = {
     {"QUEST_TYPE_ITEM", QUEST_TYPE_ITEM},
     {"QUEST_TYPE_ITEM_DROP", QUEST_TYPE_ITEM_DROP},
     {"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
+    {"QUEST_STATUS_INVALID", QUEST_STATUS_INVALID},
+    {"QUEST_STATUS_STARTED", QUEST_STATUS_STARTED},
     {"QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED},
+    {"QUEST_STATUS_FAILED", QUEST_STATUS_FAILED},
 
     {"PARTY_MESSAGE_STATUS", PARTY_MESSAGE_STATUS},
     {"PARTY_MESSAGE_CHAT", PARTY_MESSAGE_CHAT},
@@ -217,12 +233,13 @@ static const Atrinik_Constant constants[] = {
     {"NROFATTACKS", NROFATTACKS},
 
     {"TERRAIN_NOTHING", TERRAIN_NOTHING},
-    {"TERRAIN_AIRBREATH", TERRAIN_NOTHING},
+    {"TERRAIN_AIRBREATH", TERRAIN_AIRBREATH},
     {"TERRAIN_WATERWALK", TERRAIN_WATERWALK},
     {"TERRAIN_WATERBREATH", TERRAIN_WATERBREATH},
     {"TERRAIN_FIREWALK", TERRAIN_FIREWALK},
     {"TERRAIN_FIREBREATH", TERRAIN_FIREBREATH},
     {"TERRAIN_CLOUDWALK", TERRAIN_CLOUDWALK},
+    {"TERRAIN_WATER_SHALLOW", TERRAIN_WATER_SHALLOW},
     {"TERRAIN_ALL", TERRAIN_ALL},
 
     {"P_BLOCKSVIEW", P_BLOCKSVIEW},
@@ -262,7 +279,9 @@ static const Atrinik_Constant constants[] = {
     {"BANK_DEPOSIT_COPPER", BANK_DEPOSIT_COPPER},
     {"BANK_DEPOSIT_SILVER", BANK_DEPOSIT_SILVER},
     {"BANK_DEPOSIT_GOLD", BANK_DEPOSIT_GOLD},
+    {"BANK_DEPOSIT_JADE", BANK_DEPOSIT_JADE},
     {"BANK_DEPOSIT_MITHRIL", BANK_DEPOSIT_MITHRIL},
+    {"BANK_DEPOSIT_AMBER", BANK_DEPOSIT_AMBER},
 
     {"AROUND_ALL", AROUND_ALL},
     {"AROUND_WALL", AROUND_WALL},
@@ -286,16 +305,16 @@ static const Atrinik_Constant constants[] = {
     {"INVENTORY_ALL", INVENTORY_ALL},
 
     {"GT_ENVIRONMENT", GT_ENVIRONMENT},
-    {"GT_INVISIBLE", GT_INVISIBLE},
     {"GT_STARTEQUIP", GT_STARTEQUIP},
     {"GT_APPLY", GT_APPLY},
     {"GT_ONLY_GOOD", GT_ONLY_GOOD},
     {"GT_UPDATE_INV", GT_UPDATE_INV},
     {"GT_NO_VALUE", GT_NO_VALUE},
 
-    {"SIZEOFFREE", SIZEOFFREE},
     {"SIZEOFFREE1", SIZEOFFREE1},
     {"SIZEOFFREE2", SIZEOFFREE2},
+    {"SIZEOFFREE3", SIZEOFFREE3},
+    {"SIZEOFFREE", SIZEOFFREE},
 
     {"NROFREALSPELLS", NROFREALSPELLS},
 
@@ -305,15 +324,35 @@ static const Atrinik_Constant constants[] = {
     {"OBJECT_METHOD_OK", OBJECT_METHOD_OK},
     {"OBJECT_METHOD_ERROR", OBJECT_METHOD_ERROR},
 
+    {"UPD_LOCATION", UPD_LOCATION},
+    {"UPD_FLAGS", UPD_FLAGS},
+    {"UPD_WEIGHT", UPD_WEIGHT},
+    {"UPD_FACE", UPD_FACE},
+    {"UPD_NAME", UPD_NAME},
+    {"UPD_ANIM", UPD_ANIM},
+    {"UPD_ANIMSPEED", UPD_ANIMSPEED},
+    {"UPD_NROF", UPD_NROF},
+    {"UPD_DIRECTION", UPD_DIRECTION},
+    {"UPD_TYPE", UPD_TYPE},
+    {"UPD_EXTRA", UPD_EXTRA},
+    {"UPD_GLOW", UPD_GLOW},
+
+    {"RV_MANHATTAN_DISTANCE", RV_MANHATTAN_DISTANCE},
+    {"RV_EUCLIDIAN_DISTANCE", RV_EUCLIDIAN_DISTANCE},
+    {"RV_DIAGONAL_DISTANCE", RV_DIAGONAL_DISTANCE},
+    {"RV_NO_DISTANCE", RV_NO_DISTANCE},
+    {"RV_IGNORE_MULTIPART", RV_IGNORE_MULTIPART},
+    {"RV_RECURSIVE_SEARCH", RV_RECURSIVE_SEARCH},
+    {"RV_NO_LOAD", RV_NO_LOAD},
+
+    {"ART_CHANCE_UNSET", ART_CHANCE_UNSET},
+
     {NULL, 0}
 };
-/* @endcparser */
 
-/** Game object type constants. */
-/* @cparser
- * @page plugin_python_constants_types Python game object type constants
- * <h2>Python game object type constants</h2>
- * List of the Python plugin game object type constants and their meaning. */
+/**
+ * Game object type constants.
+ */
 static const Atrinik_Constant constants_types[] = {
     {"PLAYER", PLAYER},
     {"BULLET", BULLET},
@@ -340,7 +379,7 @@ static const Atrinik_Constant constants_types[] = {
     {"SPELL", SPELL},
     {"SHIELD", SHIELD},
     {"HELMET", HELMET},
-    {"GREAVES", GREAVES},
+    {"PANTS", PANTS},
     {"MONEY", MONEY},
     {"CLASS", CLASS},
     {"GRAVESTONE", GRAVESTONE},
@@ -418,16 +457,14 @@ static const Atrinik_Constant constants_types[] = {
     {"CORPSE", CORPSE},
     {"DISEASE", DISEASE},
     {"SYMPTOM", SYMPTOM},
+    {"TRINKET", TRINKET},
 
     {NULL, 0}
 };
-/* @endcparser */
 
-/** Gender constants. */
-/* @cparser
- * @page plugin_python_constants_gender Python gender constants
- * <h2>Python gender constants</h2>
- * List of the Python plugin gender constants and their meaning. */
+/**
+ * Gender constants.
+ */
 static const Atrinik_Constant constants_gender[] = {
     {"NEUTER", GENDER_NEUTER},
     {"MALE", GENDER_MALE},
@@ -436,14 +473,10 @@ static const Atrinik_Constant constants_gender[] = {
 
     {NULL, 0}
 };
-/* @endcparser */
 
 /**
- * Color constants */
-/* @cparser
- * @page plugin_python_constants_colors Python color constants
- * <h2>Python color constants</h2>
- * List of the Python plugin color constants and their meaning. */
+ * Color constants
+ */
 static const char *const constants_colors[][2] = {
     {"COLOR_WHITE", COLOR_WHITE},
     {"COLOR_ORANGE", COLOR_ORANGE},
@@ -463,13 +496,13 @@ static const char *const constants_colors[][2] = {
     {"COLOR_DGOLD", COLOR_DGOLD},
     {NULL, NULL}
 };
-/* @endcparser */
 
 /** The Python cache. */
 static python_cache_entry *python_cache = NULL;
 
 /**
- * Initialize the context stack. */
+ * Initialize the context stack.
+ */
 static void initContextStack(void)
 {
     current_context = NULL;
@@ -478,7 +511,8 @@ static void initContextStack(void)
 
 /**
  * Push context to the context stack and to current context.
- * @param context The context to push. */
+ * @param context The context to push.
+ */
 static void pushContext(PythonContext *context)
 {
     if (current_context == NULL) {
@@ -495,7 +529,8 @@ static void pushContext(PythonContext *context)
  * Pop the first context from the current context, replacing it by the
  * next one in the list.
  * @return NULL if there is no current context, the previous current
- * context otherwise. */
+ * context otherwise.
+ */
 static PythonContext *popContext(void)
 {
     PythonContext *oldcontext;
@@ -511,7 +546,8 @@ static PythonContext *popContext(void)
 
 /**
  * Free a context.
- * @param context Context to free. */
+ * @param context Context to free.
+ */
 static void freeContext(PythonContext *context)
 {
     free(context);
@@ -523,8 +559,10 @@ static void freeContext(PythonContext *context)
  * @param path The Python file in the maps directory to run (absolute).
  * @param globals Globals dictionary.
  * @param locals Locals dictionary. May be NULL.
- * @return The returned object, if any. */
-static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *locals)
+ * @return The returned object, if any.
+ */
+static PyObject *py_runfile(const char *path, PyObject *globals,
+        PyObject *locals)
 {
     char *fullpath;
     FILE *fp;
@@ -542,7 +580,8 @@ static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *local
         fclose(fp);
 
         sb = hooks->stringbuffer_new();
-        hooks->stringbuffer_append_printf(sb, "exec(open('%s').read())", fullpath);
+        hooks->stringbuffer_append_printf(sb, "exec(open('%s').read())",
+                fullpath);
         cp = hooks->stringbuffer_finish(sb);
         PyRun_String(cp, Py_file_input, globals, locals);
         efree(cp);
@@ -561,7 +600,8 @@ static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *local
  * Simplified interface to py_runfile(); automatically constructs the
  * globals dictionary with the Python builtins.
  * @param path The Python file in the maps directory to run (absolute).
- * @param locals Locals dictionary. May be NULL. */
+ * @param locals Locals dictionary. May be NULL.
+ */
 static void py_runfile_simple(const char *path, PyObject *locals)
 {
     PyObject *globals, *ret;
@@ -579,7 +619,8 @@ static void py_runfile_simple(const char *path, PyObject *locals)
 
 /**
  * Log a Python exception. Will also send the exception to any online
- * DMs or those with /resetmap command permission. */
+ * DMs or those with /resetmap command permission.
+ */
 static void PyErr_LOG(void)
 {
     PyObject *locals;
@@ -594,8 +635,8 @@ static void PyErr_LOG(void)
     PyDict_SetItemString(locals, "exc_type", ptype);
     PyDict_SetItemString(locals, "exc_value", pvalue);
 
-    if (ptraceback) {
-        PyDict_SetItemString(locals, "exc_traceback", ptraceback ? ptraceback : Py_None);
+    if (ptraceback != NULL) {
+        PyDict_SetItemString(locals, "exc_traceback", ptraceback);
     } else {
         Py_INCREF(Py_None);
         PyDict_SetItemString(locals, "exc_traceback", Py_None);
@@ -611,14 +652,15 @@ static void PyErr_LOG(void)
 
 /**
  * Outputs the compiled bytecode for a given python file, using in-memory
- * caching of bytecode. */
+ * caching of bytecode.
+ */
 static PyCodeObject *compilePython(char *filename)
 {
     struct stat stat_buf;
     python_cache_entry *cache;
 
     if (stat(filename, &stat_buf)) {
-        hooks->logger_print(LOG(DEBUG), "Python: The script file %s can't be stat()ed.", filename);
+        LOG(DEBUG, "Python: The script file %s can't be stat()ed.", filename);
         return NULL;
     }
 
@@ -639,7 +681,7 @@ static PyCodeObject *compilePython(char *filename)
         fp = fopen(filename, "r");
 
         if (!fp) {
-            hooks->logger_print(LOG(BUG), "Python: The script file %s can't be opened.", filename);
+            LOG(BUG, "Python: The script file %s can't be opened.", filename);
             return NULL;
         }
 
@@ -679,7 +721,8 @@ static PyCodeObject *compilePython(char *filename)
         cache->file = strdup(filename);
         cache->code = code;
         cache->cached_time = stat_buf.st_mtime;
-        HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
+        HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file),
+                cache);
     }
 
     return cache->code;
@@ -745,9 +788,9 @@ static int do_script(PythonContext *context, const char *filename)
 
     gilstate = PyGILState_Ensure();
 
-    pycode = compilePython(hooks->create_pathname(context->event ? context->event->race : filename));
-
-    if (pycode) {
+    pycode = compilePython(hooks->create_pathname(
+            context->event != NULL ? context->event->race : filename));
+    if (pycode != NULL) {
         if (hooks->settings->python_reload_modules) {
             PyObject *modules = PyImport_GetModuleDict(), *key, *value;
             Py_ssize_t pos = 0;
@@ -755,7 +798,8 @@ static int do_script(PythonContext *context, const char *filename)
             char m_buf[MAX_BUF];
 
             /* Create path name to the Python scripts directory. */
-            strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
+            strncpy(m_buf, hooks->create_pathname("/python"),
+                    sizeof(m_buf) - 1);
 
             /* Go through the loaded modules. */
             while (PyDict_Next(modules, &pos, &key, &value)) {
@@ -780,12 +824,17 @@ static int do_script(PythonContext *context, const char *filename)
 
         pushContext(context);
         dict = PyDict_Copy(py_globals_dict);
-        PyDict_SetItemString(dict, "activator", wrap_object(context->activator));
-        PyDict_SetItemString(dict, "pl", wrap_player(context->activator && context->activator->type == PLAYER ? CONTR(context->activator) : NULL));
+        PyDict_SetItemString(dict, "activator",
+                wrap_object(context->activator));
+        PyDict_SetItemString(dict, "pl",
+                wrap_player(context->activator != NULL &&
+                context->activator->type == PLAYER ?
+                    CONTR(context->activator) : NULL));
         PyDict_SetItemString(dict, "me", wrap_object(context->who));
 
         if (context->text) {
-            PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
+            PyDict_SetItemString(dict, "msg",
+                    Py_BuildValue("s", context->text));
         } else if (context->event && context->event->sub_type == EVENT_SAY) {
             PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
         }
@@ -816,10 +865,11 @@ static int do_script(PythonContext *context, const char *filename)
 /** @copydoc command_func */
 static void command_custom_python(object *op, const char *command, char *params)
 {
-    PythonContext *context;
-    char path[MAX_BUF];
+    PythonContext *context = malloc(sizeof(PythonContext));
+    if (context == NULL) {
+        return;
+    }
 
-    context = malloc(sizeof(PythonContext));
     context->activator = op;
     context->who = op;
     context->other = op;
@@ -832,8 +882,8 @@ static void command_custom_python(object *op, const char *command, char *params)
     context->options = NULL;
     context->returnvalue = 0;
 
-    snprintf(path, sizeof(path), "/python/commands/%s.py", command);
-
+    char path[MAX_BUF];
+    snprintf(VS(path), "/python/commands/%s.py", command);
     if (!do_script(context, path)) {
         freeContext(context);
         return;
@@ -843,20 +893,23 @@ static void command_custom_python(object *op, const char *command, char *params)
     freeContext(context);
 }
 
-/**
- * @defgroup plugin_python_functions Python functions
- *@{*/
+/** Documentation for Atrinik_LoadObject(). */
+static const char doc_Atrinik_LoadObject[] =
+".. function:: LoadObject(text).\n\n"
+"Load an object from a string dump, for example, one stored using "
+":meth:`Atrinik.Object.Object.Save`.\n\n"
+":param text: The object text dump.\n"
+":type text: str\n"
+":returns: New object, loaded from the text or None in case of failure.\n"
+":rtype: :class:`Atrinik.Object.Object` or None";
 
 /**
- * <h1>LoadObject(string dump)</h1>
- * Load an object from a string dump, for example, one stored using
- * @ref Atrinik_Object_Save "Save()".
- * @param dump The string dump from which to load the actual object. */
+ * Implements Atrinik.LoadObject() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 {
     char *dumpob;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &dumpob)) {
         return NULL;
@@ -865,19 +918,27 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
     return wrap_object(hooks->load_object_str(dumpob));
 }
 
+/** Documentation for Atrinik_ReadyMap(). */
+static const char doc_Atrinik_ReadyMap[] =
+".. function:: ReadyMap(path, unique=False).\n\n"
+"Make sure the named map is loaded into memory, loading it if necessary.\n\n"
+":param path: Path to the map.\n"
+":type path: str\n"
+":param unique: Whether the destination should be loaded as a unique map, for "
+"example, apartments.\n"
+":type unique: bool\n"
+":returns: The map associated with the specified path or None in case of "
+"failure.\n"
+":rtype: :class:`Atrinik.Map.Map` or None";
+
 /**
- * <h1>ReadyMap(string path, int [unique = False])</h1>
- * Make sure the named map is loaded into memory, loading it if necessary.
- * @param path Path to the map.
- * @param unique Whether the destination should be loaded as unique map,
- * for example, apartments.
- * @return The loaded map. */
+ * Implements Atrinik.ReadyMap() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 {
     const char *path;
     int flags = 0, unique = 0;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s|i", &path, &unique)) {
         return NULL;
@@ -890,25 +951,29 @@ static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
     return wrap_map(hooks->ready_map_name(path, NULL, flags));
 }
 
+/** Documentation for Atrinik_FindPlayer(). */
+static const char doc_Atrinik_FindPlayer[] =
+".. function:: FindPlayer(name).\n\n"
+"Find a player by name.\n\n"
+":param name: The player name to find.\n"
+":type name: str\n"
+":returns: The player's object if found, None otherwise.\n"
+":rtype: :class:`Atrinik.Object.Object` or None";
+
 /**
- * <h1>FindPlayer(string name)</h1>
- * Find a player by name.
- * @param name The player name to find.
- * @return The player's object if found, None otherwise. */
+ * Implements Atrinik.FindPlayer() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
 {
     const char *name;
-    player *pl;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
     }
 
-    pl = hooks->find_player(name);
-
-    if (pl) {
+    player *pl = hooks->find_player(name);
+    if (pl != NULL) {
         return wrap_object(pl->ob);
     }
 
@@ -916,44 +981,52 @@ static PyObject *Atrinik_FindPlayer(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_PlayerExists(). */
+static const char doc_Atrinik_PlayerExists[] =
+".. function:: PlayerExists(name).\n\n"
+"Check if player exists.\n\n"
+":param name: The player name to check.\n"
+":type name: str\n"
+":returns: True if the player exists, False otherwise.\n"
+":rtype: bool";
+
 /**
- * <h1>PlayerExists(string name)</h1>
- * Check if player exists.
- * @param name The player name to check.
- * @return True if the player exists, False otherwise */
+ * Implements Atrinik.PlayerExists() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
 {
     const char *name;
-    char *cp;
-    int ret;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
     }
 
-    cp = strdup(name);
+    char *cp = strdup(name);
     hooks->player_cleanup_name(cp);
-    ret = hooks->player_exists(cp);
+    int ret = hooks->player_exists(cp);
     free(cp);
 
-    Py_ReturnBoolean(ret);
+    return Py_BuildBoolean(ret);
 }
 
-/**
- * <h1>WhoAmI()</h1>
- * Get the owner of the active script (the object that has the event
- * handler).
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return The script owner. */
-static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_WhoAmI(). */
+static const char doc_Atrinik_WhoAmI[] =
+".. function:: WhoAmI().\n\n"
+"Get the owner of the active script (the object that has the event "
+"handler).\n\n"
+":returns: The script owner.\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.WhoAmI() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_WhoAmI(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -961,18 +1034,22 @@ static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *args)
     return wrap_object(current_context->who);
 }
 
-/**
- * <h1>WhoIsActivator()</h1>
- * Get the object that activated the current event.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return The script activator. */
-static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_WhoIsActivator(). */
+static const char doc_Atrinik_WhoIsActivator[] =
+".. function:: WhoIsActivator().\n\n"
+"Get the object that activated the current event.\n\n"
+":returns: The script activator.\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.WhoIsActivator() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_WhoIsActivator(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -980,19 +1057,23 @@ static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *args)
     return wrap_object(current_context->activator);
 }
 
-/**
- * <h1>WhoIsOther()</h1>
- * Get another object related to the event. What this object is depends
- * on the event.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return The other object. */
-static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_WhoIsOther(). */
+static const char doc_Atrinik_WhoIsOther[] =
+".. function:: WhoIsOther().\n\n"
+"Get another object related to the event. What this object is depends on the "
+"event.\n\n"
+":returns: The other object.\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.WhoIsOther() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_WhoIsOther(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -1000,18 +1081,22 @@ static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *args)
     return wrap_object(current_context->other);
 }
 
-/**
- * <h1>WhatIsEvent()</h1>
- * Get the event object that caused this event to trigger.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return The event object. */
-static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_WhatIsEvent(). */
+static const char doc_Atrinik_WhatIsEvent[] =
+".. function:: WhatIsEvent().\n\n"
+"Get the event object that caused this event to trigger.\n\n"
+":returns: The event object.\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.WhatIsEvent() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_WhatIsEvent(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -1019,37 +1104,51 @@ static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *args)
     return wrap_object(current_context->event);
 }
 
-/**
- * <h1>GetEventNumber()</h1>
- * Get the ID of the event that is being triggered.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return Event ID. */
-static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_GetEventNumber(). */
+static const char doc_Atrinik_GetEventNumber[] =
+".. function:: GetEventNumber().\n\n"
+"Get the ID of the event that is being triggered.\n\n"
+":returns: Event ID.\n"
+":rtype: int\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).\n"
+":raises Atrinik.AtrinikError: If there is no event object.";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.GetEventNumber() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetEventNumber(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
+        return NULL;
+    }
+
+    if (current_context->event == NULL) {
+        PyErr_SetString(AtrinikError, "There is no event object.");
         return NULL;
     }
 
     return Py_BuildValue("i", current_context->event->sub_type);
 }
 
-/**
- * <h1>WhatIsMessage()</h1>
- * Gets the actual message in SAY events.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return The message. */
-static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_WhatIsMessage(). */
+static const char doc_Atrinik_WhatIsMessage[] =
+".. function:: WhatIsMessage().\n\n"
+"Gets the actual message in SAY events.\n\n"
+":returns: The message.\n"
+":rtype: str or None\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.WhatIsMessage() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_WhatIsMessage(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -1057,18 +1156,22 @@ static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *args)
     return Py_BuildValue("s", current_context->text);
 }
 
-/**
- * <h1>GetOptions()</h1>
- * Gets the script options (as passed in the event's slaying field).
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return The script options. */
-static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_GetOptions(). */
+static const char doc_Atrinik_GetOptions[] =
+".. function:: GetOptions().\n\n"
+"Gets the script options (as passed in the event's slaying field).\n\n"
+":returns: The script options.\n"
+":rtype: str or None\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.GetOptions() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetOptions(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -1076,18 +1179,22 @@ static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *args)
     return Py_BuildValue("s", current_context->options);
 }
 
-/**
- * <h1>GetReturnValue()</h1>
- * Gets the script's return value.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return The return value. */
-static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_GetReturnValue(). */
+static const char doc_Atrinik_GetReturnValue[] =
+".. function:: GetReturnValue().\n\n"
+"Gets the script's return value.\n\n"
+":returns: The return value.\n"
+":rtype: int\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
 
-    if (!current_context) {
+/**
+ * Implements Atrinik.GetReturnValue() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetReturnValue(PyObject *self)
+{
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -1095,23 +1202,28 @@ static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *args)
     return Py_BuildValue("i", current_context->returnvalue);
 }
 
+/** Documentation for Atrinik_SetReturnValue(). */
+static const char doc_Atrinik_SetReturnValue[] =
+".. function:: SetReturnValue(value).\n\n"
+"Sets the script's return value.\n\n"
+":param value: The new return value.\n"
+":type value: int\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
+
 /**
- * <h1>SetReturnValue(int value)</h1>
- * Sets the script's return value.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @param value The new return value. */
+ * Implements Atrinik.SetReturnValue() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
 {
     int value;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "i", &value)) {
         return NULL;
     }
 
-    if (!current_context) {
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
@@ -1122,49 +1234,59 @@ static PyObject *Atrinik_SetReturnValue(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_GetEventParameters(). */
+static const char doc_Atrinik_GetEventParameters[] =
+".. function:: GetEventParameters().\n\n"
+"Get the parameters of an event. This varies from event to event, and some "
+"events pass all parameters as 0. EVENT_ATTACK usually passes damage done and "
+"the WC of the hit as second and third parameter, respectively.\n\n"
+":returns: A list of the event parameters. The last entry is the event flags, "
+"used to determine whom to call :meth:`Atrinik.Object.Object.Update` on after "
+"executing the script.\n"
+":rtype: list\n"
+":raises Atrinik.AtrinikError: If there's no event context (for example, the "
+"script is running in a thread).";
+
 /**
- * <h1>GetEventParameters()</h1>
- * Get the parameters of an event. This varies from event to event, and
- * some events pass all parameters as 0. EVENT_ATTACK usually passes damage
- * done and the WC of the hit as second and third parameter, respectively.
- * @throws AtrinikError if there's no event context (for example, the
- * script is running in a thread).
- * @return A list of the event parameters. The last entry is the event flags,
- * used to determine whom to call fix_player() on after executing the script. */
-static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *args)
+ * Implements Atrinik.GetEventParameters() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetEventParameters(PyObject *self)
 {
-    size_t i;
-    PyObject *list = PyList_New(0);
-
-    (void) self;
-    (void) args;
-
-    if (!current_context) {
+    if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
     }
 
-    for (i = 0; i < sizeof(current_context->parms) / sizeof(current_context->parms[0]); i++) {
+    PyObject *list = PyList_New(0);
+    for (size_t i = 0; i < arraysize(current_context->parms); i++) {
         PyList_Append(list, Py_BuildValue("i", current_context->parms[i]));
     }
 
     return list;
 }
 
+/** Documentation for Atrinik_RegisterCommand(). */
+static const char doc_Atrinik_RegisterCommand[] =
+".. function:: RegisterCommand(name, speed, flags=0).\n\n"
+"Register a custom command ran using Python script.\n\n"
+":param name: Name of the command. For example, \"roll\" in order to create "
+"/roll command. Note the lack of forward slash in the name.\n"
+":type name: str\n"
+":param speed: How long it takes to execute the command; 1.0 is usually fine.\n"
+":type speed: float\n"
+":param flags: Optional flags.\n"
+":type flags: int";
+
 /**
- * <h1>RegisterCommand(string name, float speed, [flags = 0])</h1>
- * Register a custom command ran using Python script.
- * @param name Name of the command. For example, "roll" in order to create /roll
- * command. Note the lack of forward slash in the name.
- * @param speed How long it takes to execute the command; 1.0 is usually fine.
- * @param flags Optional flags. */
+ * Implements Atrinik.RegisterCommand() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
     const char *name;
     double speed;
     uint64_t flags = 0;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "sd|K", &name, &speed, &flags)) {
         return NULL;
@@ -1176,17 +1298,23 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_CreatePathname(). */
+static const char doc_Atrinik_CreatePathname[] =
+".. function:: CreatePathname(path).\n\n"
+"Creates path to a file in the maps directory. For example, '/hall_of_dms' -> "
+"'../maps/hall_of_dms'.\n\n"
+":param path: Path to the map.\n"
+":type path: str\n"
+":returns: Real path of the map on the system.\n"
+":rtype: str";
+
 /**
- * <h1>CreatePathname(string path)</h1>
- * Creates path to file in the maps directory using the create_pathname()
- * function.
- * @param path Path to file to create.
- * @return The path to file in the maps directory. */
+ * Implements Atrinik.CreatePathname() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 {
     const char *path;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &path)) {
         return NULL;
@@ -1195,59 +1323,80 @@ static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
     return Py_BuildValue("s", hooks->create_pathname(path));
 }
 
+/** Documentation for Atrinik_GetTime(). */
+static const char doc_Atrinik_GetTime[] =
+".. function:: GetTime().\n\n"
+"Get the game time.\n\n"
+":returns: A dictionary containing all the information about the in-game "
+"time:\n\n"
+"  * **year**: Current year.\n"
+"  * **month**: Current month.\n"
+"  * **month_name**: Name of the current month.\n"
+"  * **day**: Day.\n"
+"  * **hour**: Hour.\n"
+"  * **minute**: Minute.\n"
+"  * **dayofweek**: Day of the week.\n"
+"  * **dayofweek_name**: Name of the week day.\n"
+"  * **season**: Season.\n"
+"  * **season_name**: Name of the season.\n"
+"  * **periodofday**: Period of the day.\n"
+"  * **periodofday_name**: Name of the period of the day.\n"
+":rtype: dict";
+
 /**
- * <h1>GetTime()</h1>
- * Get the game time.
- * @return A dictionary containing all the information about the in-game
- * time:
- * - <b>year</b>: Current year.
- * - <b>month</b>: Current month.
- * - <b>month_name</b>: Name of the current month.
- * - <b>day</b>: Day.
- * - <b>hour</b>: Hour.
- * - <b>minute</b>: Minute.
- * - <b>dayofweek</b>: Day of the week.
- * - <b>dayofweek_name</b>: Name of the week day.
- * - <b>season</b>: Season.
- * - <b>season_name</b>: Name of the season.
- * - <b>periodofday</b>: Period of the day.
- * - <b>periodofday_name</b>: Name of the period of the day. */
-static PyObject *Atrinik_GetTime(PyObject *self, PyObject *args)
+ * Implements Atrinik.GetTime() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetTime(PyObject *self)
 {
-    PyObject *dict = PyDict_New();
     timeofday_t tod;
-
-    (void) self;
-    (void) args;
-
     hooks->get_tod(&tod);
 
-    PyDict_SetItemString(dict, "year", Py_BuildValue("i", tod.year + 1));
-    PyDict_SetItemString(dict, "month", Py_BuildValue("i", tod.month + 1));
-    PyDict_SetItemString(dict, "month_name", Py_BuildValue("s", hooks->month_name[tod.month]));
-    PyDict_SetItemString(dict, "day", Py_BuildValue("i", tod.day + 1));
-    PyDict_SetItemString(dict, "hour", Py_BuildValue("i", tod.hour));
-    PyDict_SetItemString(dict, "minute", Py_BuildValue("i", tod.minute));
-    PyDict_SetItemString(dict, "dayofweek", Py_BuildValue("i", tod.dayofweek + 1));
-    PyDict_SetItemString(dict, "dayofweek_name", Py_BuildValue("s", hooks->weekdays[tod.dayofweek]));
-    PyDict_SetItemString(dict, "season", Py_BuildValue("i", tod.season + 1));
-    PyDict_SetItemString(dict, "season_name", Py_BuildValue("s", hooks->season_name[tod.season]));
-    PyDict_SetItemString(dict, "periodofday", Py_BuildValue("i", tod.periodofday + 1));
-    PyDict_SetItemString(dict, "periodofday_name", Py_BuildValue("s", hooks->periodsofday[tod.periodofday]));
+    PyObject *dict = PyDict_New();
+    PyDict_SetItemString(dict, "year",
+            Py_BuildValue("i", tod.year + 1));
+    PyDict_SetItemString(dict, "month",
+            Py_BuildValue("i", tod.month + 1));
+    PyDict_SetItemString(dict, "month_name",
+            Py_BuildValue("s", hooks->month_name[tod.month]));
+    PyDict_SetItemString(dict, "day",
+            Py_BuildValue("i", tod.day + 1));
+    PyDict_SetItemString(dict, "hour",
+            Py_BuildValue("i", tod.hour));
+    PyDict_SetItemString(dict, "minute",
+            Py_BuildValue("i", tod.minute));
+    PyDict_SetItemString(dict, "dayofweek",
+            Py_BuildValue("i", tod.dayofweek + 1));
+    PyDict_SetItemString(dict, "dayofweek_name",
+            Py_BuildValue("s", hooks->weekdays[tod.dayofweek]));
+    PyDict_SetItemString(dict, "season",
+            Py_BuildValue("i", tod.season + 1));
+    PyDict_SetItemString(dict, "season_name",
+            Py_BuildValue("s", hooks->season_name[tod.season]));
+    PyDict_SetItemString(dict, "periodofday",
+            Py_BuildValue("i", tod.periodofday + 1));
+    PyDict_SetItemString(dict, "periodofday_name",
+            Py_BuildValue("s", hooks->periodsofday[tod.periodofday]));
 
     return dict;
 }
 
+/** Documentation for Atrinik_FindParty(). */
+static const char doc_Atrinik_FindParty[] =
+".. function:: FindParty(name).\n\n"
+"Find a party by name.\n\n"
+":param name: The party name to find.\n"
+":type name: str\n"
+":returns: The party if found, None otherwise.\n"
+":rtype: :class:`Atrinik.Party.Party` or None";
+
 /**
- * <h1>FindParty(string name)</h1>
- * Find a party by name.
- * @param name The party name to find.
- * @return The party if found, None otherwise. */
+ * Implements Atrinik.FindParty() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
 {
     const char *name;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
@@ -1256,66 +1405,87 @@ static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
     return wrap_party(hooks->find_party(name));
 }
 
+/** Documentation for Atrinik_Logger(). */
+static const char doc_Atrinik_Logger[] =
+".. function:: Logger(level, message).\n\n"
+"Logs a message.\n\n"
+":param level: Level of the log message, eg, \"BUG\", \"ERROR\", \"CHAT\", "
+"\"INFO\", etc.\n"
+":type level: str\n"
+":param message: The message to log. Cannot contain newlines.\n"
+":type message: str";
+
 /**
- * <h1>Logger(string type, string message)</h1>
- * Logs a message.
- * @param type Type of the message, eg, "BUG", "ERROR", "CHAT",
- * "INFO", etc.
- * @param message The message to log. Cannot contain newlines. */
+ * Implements Atrinik.Logger() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Logger(PyObject *self, PyObject *args)
 {
     const char *mode, *string;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "ss", &mode, &string)) {
         return NULL;
     }
 
-    hooks->logger_print(hooks->logger_get_level(mode), __FUNCTION__, __LINE__,
-            string);
+    logger_print(hooks->logger_get_level(mode), __FUNCTION__, __LINE__,
+                 string);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_GetRangeVectorFromMapCoords(). */
+static const char doc_Atrinik_GetRangeVectorFromMapCoords[] =
+".. function:: GetRangeVectorFromMapCoords(map1, x1, y1, map2, x2, y2, "
+"flags=0).\n\n"
+"Get the distance and direction from one map coordinate to another.\n\n"
+":param map1: From which map to get the distance from.\n"
+":type map1: :class:`Atrinik.Map.Map`\n"
+":param x1: X coordinate on *map1*.\n"
+":type x1: int\n"
+":param y1: Y coordinate on *map1*.\n"
+":type y1: int\n"
+":param map2: From which map to get the distance to.\n"
+":type map2: :class:`Atrinik.Map.Map`\n"
+":param x2: X coordinate on *map2*.\n"
+":type x2: int\n"
+":param y2: Y coordinate on *map2*.\n"
+":type y2: int\n"
+":param flags: One or a combination of RV_xxx, eg, :attr:"
+"`~Atrinik.RV_MANHATTAN_DISTANCE`\n"
+":type flags: int\n"
+":returns: None if the distance couldn't be calculated, otherwise a "
+"tuple containing:\n\n"
+"  * Direction from the first coordinate to the second, eg, :attr:\n"
+"    `~Atrinik.NORTH`\n"
+"  * Distance between the two coordinates.\n"
+"  * X distance.\n"
+"  * Y distance.\n"
+":rtype: tuple or None";
+
 /**
- * <h1>GetRangeVectorFromMapCoords(map map, int x, int y, map map2, int x2, int
- * y2, int [flags = 0])</h1>
- * Get the distance and direction from one map coordinate to another.
- * @param map From which map to get distance from.
- * @param x X on 'map'.
- * @param y Y on 'map'.
- * @param map2 Which map to get distance to.
- * @param x2 X on 'map2'.
- * @param y2 Y on 'map2'.
- * @param flags One or a combination of @ref range_vector_flags.
- * @return None if the distance couldn't be calculated, otherwise a tuple
- * containing:
- *  - Direction from the first coordinate to the second, one of @ref
- * direction_constants.
- *  - Distance between the two coordinates.
- *  - X distance.
- *  - Y distance. */
-static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *args)
+ * Implements Atrinik.GetRangeVectorFromMapCoords() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self,
+        PyObject *args)
 {
     Atrinik_Map *map, *map2;
     int x, y, x2, y2, flags = 0;
-    rv_vector rv;
-    PyObject *tuple;
 
-    (void) self;
-
-    if (!PyArg_ParseTuple(args, "O!iiO!ii|i", &Atrinik_MapType, &map, &x, &y, &Atrinik_MapType, &map2, &x2, &y2, &flags)) {
+    if (!PyArg_ParseTuple(args, "O!iiO!ii|i", &Atrinik_MapType, &map, &x, &y,
+            &Atrinik_MapType, &map2, &x2, &y2, &flags)) {
         return NULL;
     }
 
-    if (!hooks->get_rangevector_from_mapcoords(map->map, x, y, map2->map, x2, y2, &rv, flags)) {
+    rv_vector rv;
+    if (!hooks->get_rangevector_from_mapcoords(map->map, x, y,
+            map2->map, x2, y2, &rv, flags)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    tuple = PyTuple_New(4);
+    PyObject *tuple = PyTuple_New(4);
     PyTuple_SET_ITEM(tuple, 0, Py_BuildValue("i", rv.direction));
     PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", rv.distance));
     PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", rv.distance_x));
@@ -1324,156 +1494,194 @@ static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *a
     return tuple;
 }
 
+/** Documentation for Atrinik_CostString(). */
+static const char doc_Atrinik_CostString[] =
+".. function:: CostString(value).\n\n"
+"Build a string representation of the value in the game's money syntax, for "
+"example, a value of 134 would become \"1 silver coin and 34 copper "
+"coins\".\n\n"
+":param value: Value to build the string from.\n"
+":type value: int\n"
+":returns: The string.\n"
+":rtype: str";
+
 /**
- * <h1>CostString(int value)</h1>
- * Build a string representation of the value in the game's money syntax, for
- * example, a value of 134 would become "1 silver coin and 34 copper coins".
- * @param value Value to build the string from.
- * @return The built string. */
+ * Implements Atrinik.CostString() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CostString(PyObject *self, PyObject *args)
 {
     int64_t value;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "L", &value)) {
         return NULL;
     }
 
-    return Py_BuildValue("s", hooks->cost_string_from_value(value));
+    return Py_BuildValue("s", hooks->shop_get_cost_string(value));
 }
 
+/** Documentation for Atrinik_CacheAdd(). */
+static const char doc_Atrinik_CacheAdd[] =
+".. function:: CacheAdd(key, what).\n\n"
+"Store 'what' in memory identified by unique identifier 'key'.\n\n"
+"The object will be stored forever in memory, until it's either removed by "
+":func:`~Atrinik.CacheRemove` or the server is shut down; in both cases, the "
+"object will be closed, if applicable (databases, file objects, etc)\n\n."
+"A stored object can be retrieved at any time using :func:"
+"`~Atrinik.CacheGet`.\n\n"
+":param key: The unique identifier for the cache entry.\n"
+":type key: str\n"
+":param what: Any Python object (string, integer, database, etc) to store in "
+"memory.\n"
+":type what: object\n"
+":returns: True if the object was cached successfully, False otherwise (cache "
+"entry with same key name already exists).\n"
+":rtype: bool";
+
 /**
- * <h1>CacheAdd(string key, object what)</h1>
- * Store 'what' in memory identified by unique identifier 'key'.
- *
- * The object will be stored forever in memory, until it's either removed by
- * @ref Atrinik_CacheRemove "CacheRemove()" or the server is shut down; in both
- * cases, the object will be closed, if applicable (databases, file objects,
- * etc).
- *
- * A stored object can be retrieved at any time using @ref Atrinik_CacheGet
- * "CacheGet()".
- * @param key The unique identifier for the cache entry.
- * @param what Any Python object (string, integer, database, etc) to store in
- * memory.
- * @return True if the object was cached successfully, False otherwise (cache
- * entry with same key name already exists). */
+ * Implements Atrinik.CacheAdd() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CacheAdd(PyObject *self, PyObject *args)
 {
     const char *key;
     PyObject *what;
-    int ret;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "sO", &key, &what)) {
         return NULL;
     }
 
     /* Add it to the cache. */
-    ret = hooks->cache_add(key, what, CACHE_FLAG_PYOBJ | CACHE_FLAG_GEVENT);
-
+    int ret = hooks->cache_add(key, what, CACHE_FLAG_PYOBJ | CACHE_FLAG_GEVENT);
     if (ret) {
         Py_INCREF(what);
     }
 
-    Py_ReturnBoolean(ret);
+    return Py_BuildBoolean(ret);
 }
 
+/** Documentation for Atrinik_CacheGet(). */
+static const char doc_Atrinik_CacheGet[] =
+".. function:: CacheGet(key).\n\n"
+"Attempt to find a cache entry identified by 'key' that was previously added "
+"using :func:`~Atrinik.CacheAdd`.\n\n"
+":param key: Unique identifier of the cache entry to find.\n"
+":type key: str\n"
+":returns: The cache entry.\n"
+":rtype: object\n"
+":raises ValueError: If the cache entry could not be found.";
+
 /**
- * <h1>CacheGet(string key)</h1>
- * Attempt to find a cache entry identified by 'key' that was previously
- * added using @ref Atrinik_CacheAdd "CacheAdd()".
- * @param key Unique identifier of the cache entry to find.
- * @throws ValueError if the cache entry could not be found.
- * @return The cache entry. An exception is raised if the cache entry was
- * not found. */
+ * Implements Atrinik.CacheGet() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CacheGet(PyObject *self, PyObject *args)
 {
     const char *key;
-    shstr *sh_key;
-    cache_struct *result;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &key)) {
         return NULL;
     }
 
-    sh_key = hooks->find_string(key);
+    shstr *sh_key = hooks->find_string(key);
+    if (sh_key == NULL) {
+        goto not_found;
+    }
+
+    cache_struct *result = hooks->cache_find(sh_key);
+    if (result == NULL) {
+        goto not_found;
+    }
 
     /* Even if the cache entry was found, pretend it doesn't exist if
      * CACHE_FLAG_PYOBJ is not set. */
-    if (!sh_key || !(result = hooks->cache_find(sh_key)) || !(result->flags & CACHE_FLAG_PYOBJ)) {
-        PyErr_SetString(PyExc_ValueError, "No such cache entry.");
-        return NULL;
-    } else {
-        Py_INCREF((PyObject *) result->ptr);
-        return result->ptr;
+    if (!(result->flags & CACHE_FLAG_PYOBJ)) {
+        goto not_found;
     }
+
+    Py_INCREF((PyObject *) result->ptr);
+    return result->ptr;
+
+not_found:
+    PyErr_SetString(PyExc_ValueError, "No such cache entry.");
+    return NULL;
 }
 
+/** Documentation for Atrinik_CacheRemove(). */
+static const char doc_Atrinik_CacheRemove[] =
+".. function:: CacheRemove(key).\n\n"
+"Remove a cache entry that was added with a previous call to :func:"
+"`~Atrinik.CacheAdd`.\n\n"
+":param key: Unique identifier of the cache entry to remove.\n"
+":type key: str\n"
+":returns: True is always returned.\n"
+":rtype: bool\n"
+":raises ValueError: If the cache entry could not be removed (it didn't exist)";
+
 /**
- * <h1>CacheRemove(string key)</h1>
- * Remove a cache entry that was added with a previous call to
- * @ref Atrinik_CacheAdd "CacheAdd()".
- * @param key Unique identifier of the cache entry to remove.
- * @throws ValueError if the cache entry could not be removed (it didn't
- * exist).
- * @return True if the cache entry was removed. An exception is raised if
- * the cache entry was not found. */
+ * Implements Atrinik.CacheRemove() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CacheRemove(PyObject *self, PyObject *args)
 {
     const char *key;
-    shstr *sh_key;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &key)) {
         return NULL;
     }
 
-    sh_key = hooks->find_string(key);
-
-    if (!sh_key || !hooks->cache_remove(sh_key)) {
-        PyErr_SetString(PyExc_ValueError, "No such cache entry.");
-        return NULL;
-    } else {
-        Py_INCREF(Py_True);
-        return Py_True;
+    shstr *sh_key = hooks->find_string(key);
+    if (sh_key == NULL) {
+        goto not_found;
     }
+
+    if (!hooks->cache_remove(sh_key)) {
+        goto not_found;
+    }
+
+    Py_INCREF(Py_True);
+    return Py_True;
+
+not_found:
+    PyErr_SetString(PyExc_ValueError, "No such cache entry.");
+    return NULL;
 }
 
+/** Documentation for Atrinik_GetFirst(). */
+static const char doc_Atrinik_GetFirst[] =
+".. function:: GetFirst(what).\n\n"
+"Get first member of various linked lists.\n\n"
+":param what: What list to get first member of. Available list names:\n\n"
+"  * player: First player.\n"
+"  * map: First map.\n"
+"  * archetype: First archetype.\n"
+"  * party: First party.\n"
+"  * region: First region.\n"
+":type what: str\n"
+":returns: First member of the specified linked list.\n"
+":rtype: :class:`Atrinik.Player.Player` or :class:`Atrinik.Map.Map` or "
+":class:`Atrinik.Party.Party` or :class:`Atrinik.Region.Region`\n"
+":raises ValueError: If *what* is invalid.";
+
 /**
- * <h1>GetFirst(string what)</h1>
- * Get first member of various linked lists.
- * @param what What list to get first member of. Available list names:
- * - player: First player.
- * - map: First map.
- * - archetype: First archetype.
- * - party: First party.
- * - region: First region.
- * @return First member of the specified linked list. */
+ * Implements Atrinik.GetFirst() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_GetFirst(PyObject *self, PyObject *args)
 {
     const char *what;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &what)) {
         return NULL;
     }
 
-    if (!strcmp(what, "player")) {
+    if (strcmp(what, "player") == 0) {
         return wrap_player(*hooks->first_player);
-    } else if (!strcmp(what, "map")) {
+    } else if (strcmp(what, "map") == 0) {
         return wrap_map(*hooks->first_map);
-    } else if (!strcmp(what, "archetype")) {
-        return wrap_archetype(*hooks->first_archetype);
-    } else if (!strcmp(what, "party")) {
+    } else if (strcmp(what, "party") == 0) {
         return wrap_party(*hooks->first_party);
-    } else if (!strcmp(what, "region")) {
+    } else if (strcmp(what, "region") == 0) {
         return wrap_region(*hooks->first_region);
     }
 
@@ -1481,129 +1689,152 @@ static PyObject *Atrinik_GetFirst(PyObject *self, PyObject *args)
     return NULL;
 }
 
+/** Documentation for Atrinik_CreateMap(). */
+static const char doc_Atrinik_CreateMap[] =
+".. function:: CreateMap(width, height, path).\n\n"
+"Creates an empty map.\n\n"
+":param width: The new map's width.\n"
+":type width: int\n"
+":param height: The new map's height.\n"
+":type height: int\n"
+":param path: Path to the new map. This should be a unique path to avoid "
+"collisions. \"/python-maps/\" is prepended to this to ensure no collision "
+"with regular maps.\n"
+":type path: str\n"
+":returns: The new empty map.\n"
+":rtype: :class:`Atrinik.Map.Map`";
+
 /**
- * <h1>CreateMap(int width, int height, string path)</h1>
- * Creates an empty map.
- * @param width The new map's width.
- * @param height The new map's height.
- * @param path Path to the new map. This should be a unique path to avoid
- * collisions. "/python-maps/" is prepended to this to ensure no collision
- * with regular maps.
- * @return The new empty map. */
+ * Implements Atrinik.CreateMap() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CreateMap(PyObject *self, PyObject *args)
 {
     int width, height;
     const char *path;
-    mapstruct *m;
-    char buf[HUGE_BUF];
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "iis", &width, &height, &path)) {
         return NULL;
     }
 
-    m = hooks->get_empty_map(width, height);
-    snprintf(buf, sizeof(buf), "/python-maps/%s", path);
+    mapstruct *m = hooks->get_empty_map(width, height);
+    char buf[HUGE_BUF];
+    snprintf(VS(buf), "/python-maps/%s", path);
     m->path = hooks->add_string(buf);
 
     return wrap_map(m);
 }
 
+/** Documentation for Atrinik_CreateObject(). */
+static const char doc_Atrinik_CreateObject[] =
+".. function:: CreateObject(archname).\n\n"
+"Creates a new object. Note that if the created object is not put on map or "
+"inside an inventory of another object, it will be considered a leaked object. "
+"Use :meth:`Atrinik.Object.Object.Destroy` to free it if you no longer need "
+"it.\n\n"
+":param archname: Name of the arch to create.\n"
+":type archname: str\n"
+":returns: The newly created object.\n"
+":rtype: :class:`Atrinik.Object.Object`\n"
+":raises Atrinik.AtrinikError: If *archname* is not a valid archetype.";
+
 /**
- * <h1>CreateObject(string archname)</h1>
- * Creates a new object. If the created object is not put on map or
- * inside an inventory of another object, it will be removed by the
- * garbage collector.
- * @param archname Name of the arch to create.
- * @throws AtrinikError if 'archname' is not a valid archetype.
- * @return The newly created object. */
+ * Implements Atrinik.CreateObject() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
 {
     const char *archname;
-    archetype *at;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &archname)) {
         return NULL;
     }
 
-    at = hooks->find_archetype(archname);
-
-    if (!at) {
-        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
+    archetype_t *at = hooks->arch_find(archname);
+    if (at == NULL) {
+        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.",
+                archname);
         return NULL;
     }
 
     return wrap_object(hooks->arch_to_object(at));
 }
 
-/**
- * <h1>GetTicks()</h1>
- * Acquires the current server ticks value.
- * @return The server ticks. * */
-static PyObject *Atrinik_GetTicks(PyObject *self, PyObject *args)
-{
-    (void) self;
-    (void) args;
+/** Documentation for Atrinik_GetTicks(). */
+static const char doc_Atrinik_GetTicks[] =
+".. function:: GetTicks().\n\n"
+"Acquires the current server ticks value.\n\n"
+":returns: The server ticks.\n"
+":rtype: int";
 
+/**
+ * Implements Atrinik.GetTicks() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetTicks(PyObject *self)
+{
     return Py_BuildValue("l", *hooks->pticks);
 }
 
+/** Documentation for Atrinik_GetArchetype(). */
+static const char doc_Atrinik_GetArchetype[] =
+".. function:: GetArchetype(archname).\n\n"
+"Finds an archetype.\n\n"
+":param archname: Name of the archetype to find.\n"
+":type archname: str\n"
+":returns: The archetype.\n"
+":rtype: :class:`Atrinik.Archetype.Archetype`\n"
+":raises Atrinik.AtrinikError: If *archname* is not a valid archetype.";
+
 /**
- * <h1>GetArchetype(archname)</h1>
- * Finds an archetype.
- * @param archname Name of the archetype to find.
- * @throws AtrinikError if 'archname' is not a valid archetype.
- * @return The archetype. * */
+ * Implements Atrinik.GetArchetype() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_GetArchetype(PyObject *self, PyObject *args)
 {
     const char *archname;
-    archetype *at;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &archname)) {
         return NULL;
     }
 
-    at = hooks->find_archetype(archname);
-
-    if (!at) {
-        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
+    archetype_t *at = hooks->arch_find(archname);
+    if (at == NULL) {
+        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.",
+                archname);
         return NULL;
     }
 
     return wrap_archetype(at);
 }
 
+/** Documentation for Atrinik_print(). */
+static const char doc_Atrinik_print[] =
+".. function:: print(...).\n\n"
+"Prints the string representations of the given objects to the server log, as "
+"well as all online DMs. Essentially a replacement for standard library "
+"print() function.\n\n";
+
 /**
- * <h1>print(...)</h1>
- * Prints the string representations of the given objects to the server
- * log, as well as all online DMs. */
+ * Implements print() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_print(PyObject *self, PyObject *args)
 {
-    Py_ssize_t i;
-    StringBuffer *sb;
-    char *cp;
-    PyObject *locals;
+    StringBuffer *sb = hooks->stringbuffer_new();
 
-    (void) self;
-
-    sb = hooks->stringbuffer_new();
-
-    for (i = 0; i < PyTuple_Size(args); i++) {
+    for (Py_ssize_t i = 0; i < PyTuple_Size(args); i++) {
         if (i > 0) {
             hooks->stringbuffer_append_string(sb, " ");
         }
 
-        hooks->stringbuffer_append_string(sb, PyString_AsString(PyObject_Str(PyTuple_GetItem(args, i))));
+        hooks->stringbuffer_append_string(sb,
+                PyString_AsString(PyObject_Str(PyTuple_GetItem(args, i))));
     }
 
-    cp = hooks->stringbuffer_finish(sb);
+    char *cp = hooks->stringbuffer_finish(sb);
 
-    locals = PyDict_New();
+    PyObject *locals = PyDict_New();
     PyDict_SetItemString(locals, "print_msg", Py_BuildValue("s", cp));
     efree(cp);
 
@@ -1614,13 +1845,20 @@ static PyObject *Atrinik_print(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Eval(). */
+static const char doc_Atrinik_Eval[] =
+".. function:: Eval(code, seconds=0.0).\n\n"
+"Executes the specified code from the main thread after the specified delay in "
+"seconds.\n\n"
+":param code: The code to compile and execute.\n"
+":type code: str\n"
+":param seconds: How long to wait, eg, 0.5 for half a second, 10.0 for 10 "
+"seconds, etc.\n"
+":type seconds: float";
+
 /**
- * <h1>Eval(string code, float [seconds = 0])</h1>
- * Executes the specified code from the main thread after the specified delay
- * in seconds.
- * @param code The code to compile and execute.
- * @param seconds How long to wait. 0.5 for half a second, 10.0 for 10 seconds,
- * etc.
+ * Implements Atrinik.Eval() Python method.
+ * @copydoc PyMethod_VARARGS
  */
 static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
 {
@@ -1670,50 +1908,185 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-/*@}*/
+/** Documentation for Atrinik_GetSettings(). */
+static const char doc_Atrinik_GetSettings[] =
+".. function:: GetSettings().\n\n"
+"Acquire a dictionary containing the server's settings.\n\n"
+":returns: Dictionary with the server's settings, such as the maps path.\n"
+":rtype: dict";
+
+/**
+ * Implements Atrinik.GetSettings() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetSettings(PyObject *self)
+{
+    PyObject *dict = PyDict_New();
+    PyDict_SetItemString(dict, "port", Py_BuildValue("H",
+            hooks->settings->port));
+    PyDict_SetItemString(dict, "libpath", Py_BuildValue("s",
+            hooks->settings->libpath));
+    PyDict_SetItemString(dict, "datapath", Py_BuildValue("s",
+            hooks->settings->datapath));
+    PyDict_SetItemString(dict, "mapspath", Py_BuildValue("s",
+            hooks->settings->mapspath));
+    PyDict_SetItemString(dict, "httppath", Py_BuildValue("s",
+            hooks->settings->httppath));
+    PyDict_SetItemString(dict, "metaserver_url", Py_BuildValue("s",
+            hooks->settings->metaserver_url));
+    PyDict_SetItemString(dict, "server_host", Py_BuildValue("s",
+            hooks->settings->server_host));
+    PyDict_SetItemString(dict, "server_name", Py_BuildValue("s",
+            hooks->settings->server_name));
+    PyDict_SetItemString(dict, "server_desc", Py_BuildValue("s",
+            hooks->settings->server_desc));
+    PyDict_SetItemString(dict, "world_maker", Py_BuildBoolean(
+            hooks->settings->world_maker));
+    PyDict_SetItemString(dict, "unit_tests", Py_BuildBoolean(
+            hooks->settings->unit_tests));
+    PyDict_SetItemString(dict, "plugin_unit_tests", Py_BuildBoolean(
+            hooks->settings->plugin_unit_tests));
+    PyDict_SetItemString(dict, "plugin_unit_test", Py_BuildValue("s",
+            hooks->settings->plugin_unit_test));
+    PyDict_SetItemString(dict, "magic_devices_level", Py_BuildValue("b",
+            hooks->settings->magic_devices_level));
+    PyDict_SetItemString(dict, "magic_devices_level", Py_BuildValue("b",
+            hooks->settings->magic_devices_level));
+    PyDict_SetItemString(dict, "item_power_factor", Py_BuildValue("d",
+            hooks->settings->item_power_factor));
+    PyDict_SetItemString(dict, "python_reload_modules", Py_BuildBoolean(
+            hooks->settings->python_reload_modules));
+    PyDict_SetItemString(dict, "default_permission_groups", Py_BuildValue("s",
+            hooks->settings->default_permission_groups));
+
+    PyObject *list_allowed_chars = PyList_New(ALLOWED_CHARS_NUM);
+    PyDict_SetItemString(dict, "allowed_chars", list_allowed_chars);
+    PyObject *list_limits = PyList_New(ALLOWED_CHARS_NUM);
+    PyDict_SetItemString(dict, "limits", list_limits);
+
+    for (Py_ssize_t i = 0; i < ALLOWED_CHARS_NUM; i++) {
+        PyList_SetItem(list_allowed_chars, i, Py_BuildValue("s",
+                hooks->settings->allowed_chars[i]));
+        PyList_SetItem(list_limits, i, Py_BuildValue("KK",
+                (unsigned PY_LONG_LONG) hooks->settings->limits[i][0],
+                (unsigned PY_LONG_LONG) hooks->settings->limits[i][1]));
+    }
+
+    PyDict_SetItemString(dict, "control_allowed_ips", Py_BuildValue("s",
+            hooks->settings->control_allowed_ips));
+    PyDict_SetItemString(dict, "control_player", Py_BuildValue("s",
+            hooks->settings->control_player));
+    PyDict_SetItemString(dict, "recycle_tmp_maps", Py_BuildBoolean(
+            hooks->settings->recycle_tmp_maps));
+    PyDict_SetItemString(dict, "http_url", Py_BuildValue("s",
+            hooks->settings->http_url));
+    return dict;
+}
+
+/** Documentation for Atrinik_Process(). */
+static const char doc_Atrinik_Process[] =
+".. function:: Process().\n\n"
+"Simulates server processing.\n\n"
+":raises Atrinik.AtrinikError: If called outside the plugin unit tests.";
+
+/**
+ * Implements Atrinik.Process() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Process(PyObject *self)
+{
+    if (!hooks->settings->plugin_unit_tests) {
+        PyErr_SetString(AtrinikError, "Method cannot be used outside of unit "
+                "tests.");
+        return NULL;
+    }
+
+    hooks->main_process();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 /**
  * Here is the Python Declaration Table, used by the interpreter to make
- * an interface with the C code. */
+ * an interface with the C code.
+ */
 static PyMethodDef AtrinikMethods[] = {
-    {"LoadObject", Atrinik_LoadObject, METH_VARARGS, 0},
-    {"ReadyMap", Atrinik_ReadyMap, METH_VARARGS, 0},
-    {"FindPlayer", Atrinik_FindPlayer, METH_VARARGS, 0},
-    {"PlayerExists", Atrinik_PlayerExists, METH_VARARGS, 0},
-    {"WhoAmI", Atrinik_WhoAmI, METH_NOARGS, 0},
-    {"WhoIsActivator", Atrinik_WhoIsActivator, METH_NOARGS, 0},
-    {"WhoIsOther", Atrinik_WhoIsOther, METH_NOARGS, 0},
-    {"WhatIsEvent", Atrinik_WhatIsEvent, METH_NOARGS, 0},
-    {"GetEventNumber", Atrinik_GetEventNumber, METH_NOARGS, 0},
-    {"WhatIsMessage", Atrinik_WhatIsMessage, METH_NOARGS, 0},
-    {"GetOptions", Atrinik_GetOptions, METH_NOARGS, 0},
-    {"GetReturnValue", Atrinik_GetReturnValue, METH_NOARGS, 0},
-    {"SetReturnValue", Atrinik_SetReturnValue, METH_VARARGS, 0},
-    {"GetEventParameters", Atrinik_GetEventParameters, METH_NOARGS, 0},
-    {"RegisterCommand", Atrinik_RegisterCommand, METH_VARARGS, 0},
-    {"CreatePathname", Atrinik_CreatePathname, METH_VARARGS, 0},
-    {"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
-    {"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
-    {"Logger", Atrinik_Logger, METH_VARARGS, 0},
-    {"GetRangeVectorFromMapCoords", Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS, 0},
-    {"CostString", Atrinik_CostString, METH_VARARGS, 0},
-    {"CacheAdd", Atrinik_CacheAdd, METH_VARARGS, 0},
-    {"CacheGet", Atrinik_CacheGet, METH_VARARGS, 0},
-    {"CacheRemove", Atrinik_CacheRemove, METH_VARARGS, 0},
-    {"GetFirst", Atrinik_GetFirst, METH_VARARGS, 0},
-    {"CreateMap", Atrinik_CreateMap, METH_VARARGS, 0},
-    {"CreateObject", Atrinik_CreateObject, METH_VARARGS, 0},
-    {"GetTicks", Atrinik_GetTicks, METH_NOARGS, 0},
-    {"GetArchetype", Atrinik_GetArchetype, METH_VARARGS, 0},
-    {"print", Atrinik_print, METH_VARARGS, 0},
-    {"Eval", Atrinik_Eval, METH_VARARGS, 0},
+    {"LoadObject", (PyCFunction) Atrinik_LoadObject, METH_VARARGS,
+            doc_Atrinik_LoadObject},
+    {"ReadyMap", (PyCFunction) Atrinik_ReadyMap, METH_VARARGS,
+            doc_Atrinik_ReadyMap},
+    {"FindPlayer", (PyCFunction) Atrinik_FindPlayer, METH_VARARGS,
+            doc_Atrinik_FindPlayer},
+    {"PlayerExists", (PyCFunction) Atrinik_PlayerExists, METH_VARARGS,
+            doc_Atrinik_PlayerExists},
+    {"WhoAmI", (PyCFunction) Atrinik_WhoAmI, METH_NOARGS,
+            doc_Atrinik_WhoAmI},
+    {"WhoIsActivator", (PyCFunction) Atrinik_WhoIsActivator, METH_NOARGS,
+            doc_Atrinik_WhoIsActivator},
+    {"WhoIsOther", (PyCFunction) Atrinik_WhoIsOther, METH_NOARGS,
+            doc_Atrinik_WhoIsOther},
+    {"WhatIsEvent", (PyCFunction) Atrinik_WhatIsEvent, METH_NOARGS,
+            doc_Atrinik_WhatIsEvent},
+    {"GetEventNumber", (PyCFunction) Atrinik_GetEventNumber, METH_NOARGS,
+            doc_Atrinik_GetEventNumber},
+    {"WhatIsMessage", (PyCFunction) Atrinik_WhatIsMessage, METH_NOARGS,
+            doc_Atrinik_WhatIsMessage},
+    {"GetOptions", (PyCFunction) Atrinik_GetOptions, METH_NOARGS,
+            doc_Atrinik_GetOptions},
+    {"GetReturnValue", (PyCFunction) Atrinik_GetReturnValue, METH_NOARGS,
+            doc_Atrinik_GetReturnValue},
+    {"SetReturnValue", (PyCFunction) Atrinik_SetReturnValue, METH_VARARGS,
+            doc_Atrinik_SetReturnValue},
+    {"GetEventParameters", (PyCFunction) Atrinik_GetEventParameters,
+            METH_NOARGS, doc_Atrinik_GetEventParameters},
+    {"RegisterCommand", (PyCFunction) Atrinik_RegisterCommand, METH_VARARGS,
+            doc_Atrinik_RegisterCommand},
+    {"CreatePathname", (PyCFunction) Atrinik_CreatePathname, METH_VARARGS,
+            doc_Atrinik_CreatePathname},
+    {"GetTime", (PyCFunction) Atrinik_GetTime, METH_NOARGS,
+            doc_Atrinik_GetTime},
+    {"FindParty", (PyCFunction) Atrinik_FindParty, METH_VARARGS,
+            doc_Atrinik_FindParty},
+    {"Logger", (PyCFunction) Atrinik_Logger, METH_VARARGS,
+            doc_Atrinik_Logger},
+    {"GetRangeVectorFromMapCoords",
+            (PyCFunction) Atrinik_GetRangeVectorFromMapCoords, METH_VARARGS,
+            doc_Atrinik_GetRangeVectorFromMapCoords},
+    {"CostString", (PyCFunction) Atrinik_CostString, METH_VARARGS,
+            doc_Atrinik_CostString},
+    {"CacheAdd", (PyCFunction) Atrinik_CacheAdd, METH_VARARGS,
+            doc_Atrinik_CacheAdd},
+    {"CacheGet", (PyCFunction) Atrinik_CacheGet, METH_VARARGS,
+            doc_Atrinik_CacheGet},
+    {"CacheRemove", (PyCFunction) Atrinik_CacheRemove, METH_VARARGS,
+            doc_Atrinik_CacheRemove},
+    {"GetFirst", (PyCFunction) Atrinik_GetFirst, METH_VARARGS,
+            doc_Atrinik_GetFirst},
+    {"CreateMap", (PyCFunction) Atrinik_CreateMap, METH_VARARGS,
+            doc_Atrinik_CreateMap},
+    {"CreateObject", (PyCFunction) Atrinik_CreateObject, METH_VARARGS,
+            doc_Atrinik_CreateObject},
+    {"GetTicks", (PyCFunction) Atrinik_GetTicks, METH_NOARGS,
+            doc_Atrinik_GetTicks},
+    {"GetArchetype", (PyCFunction) Atrinik_GetArchetype, METH_VARARGS,
+            doc_Atrinik_GetArchetype},
+    {"print", (PyCFunction) Atrinik_print, METH_VARARGS,
+            doc_Atrinik_print},
+    {"Eval", (PyCFunction) Atrinik_Eval, METH_VARARGS,
+            doc_Atrinik_Eval},
+    {"GetSettings", (PyCFunction) Atrinik_GetSettings, METH_NOARGS,
+            doc_Atrinik_GetSettings},
+    {"Process", (PyCFunction) Atrinik_Process, METH_NOARGS,
+            doc_Atrinik_Process},
     {NULL, NULL, 0, 0}
 };
 
 /**
  * Handles normal events.
  * @param args List of arguments for context.
- * @return 0 on failure, script's return value otherwise. */
+ * @return 0 on failure, script's return value otherwise.
+ */
 static int handle_event(va_list args)
 {
     char *script;
@@ -1752,7 +2125,8 @@ static int handle_event(va_list args)
         if (context->activator && IS_LIVE(context->activator)) {
             hooks->living_update(context->activator);
         }
-    } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR && IS_LIVE(context->activator)) {
+    } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR &&
+            IS_LIVE(context->activator)) {
         hooks->living_update(context->activator);
     }
 
@@ -1765,7 +2139,8 @@ static int handle_event(va_list args)
 /**
  * Handles map events.
  * @param args List of arguments for context.
- * @return 0 on failure, script's return value otherwise. */
+ * @return 0 on failure, script's return value otherwise.
+ */
 static int handle_map_event(va_list args)
 {
     PythonContext *context = calloc(1, sizeof(PythonContext));
@@ -1797,7 +2172,8 @@ static int handle_map_event(va_list args)
  * Handles global event.
  * @param event_type The event ID.
  * @param args List of arguments for context.
- * @return 0. */
+ * @return 0.
+ */
 static int handle_global_event(int event_type, va_list args)
 {
     PythonContext *context;
@@ -1818,7 +2194,8 @@ static int handle_global_event(int event_type, va_list args)
             retval = PyObject_CallMethod(ptr, "close", "");
 
             /* No close() method, ignore the exception. */
-            if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+            if (PyErr_Occurred() &&
+                    PyErr_ExceptionMatches(PyExc_AttributeError)) {
                 PyErr_Clear();
             }
 
@@ -1925,6 +2302,38 @@ static int handle_global_event(int event_type, va_list args)
     return 0;
 }
 
+/**
+ * Handles unit test event.
+ * @param args List of arguments for context.
+ * @return 0.
+ */
+static int handle_unit_event(va_list args)
+{
+    PythonContext *context = malloc(sizeof(*context));
+    if (context == NULL) {
+        return 0;
+    }
+
+    context->activator = va_arg(args, object *);
+    context->who = va_arg(args, object *);
+    context->other = NULL;
+    context->event = NULL;
+    context->parms[0] = 0;
+    context->parms[1] = 0;
+    context->parms[2] = 0;
+    context->parms[3] = 0;
+    context->text = "";
+    context->options = NULL;
+    context->returnvalue = 0;
+
+    if (do_script(context, "/python/events/python_unit.py")) {
+        context = popContext();
+    }
+
+    freeContext(context);
+    return 0;
+}
+
 MODULEAPI void *triggerEvent(int *type, ...)
 {
     va_list args;
@@ -1948,8 +2357,12 @@ MODULEAPI void *triggerEvent(int *type, ...)
         result = handle_global_event(eventcode, args);
         break;
 
+    case PLUGIN_EVENT_UNIT:
+        result = handle_unit_event(args);
+        break;
+
     default:
-        hooks->logger_print(LOG(BUG), "Python: Requested unknown event type %d.", event_type);
+        LOG(BUG, "Python: Requested unknown event type %d.", event_type);
         break;
     }
 
@@ -1992,6 +2405,11 @@ MODULEAPI void postinitPlugin(void)
 
     gilstate = PyGILState_Ensure();
     py_runfile_simple("/python/events/python_init.py", NULL);
+
+    if (PyErr_Occurred()) {
+        PyErr_LOG();
+    }
+
     PyGILState_Release(gilstate);
 }
 
@@ -2015,15 +2433,17 @@ static PyObject *PyInit_Atrinik(void)
 
 /**
  * Create a module.
+ * @param parent Parent module.
  * @param name Name of the module.
- * @return The new module created using PyModule_New(). */
-static PyObject *module_create(const char *name)
+ * @return The new module created using PyModule_New().
+ */
+static PyObject *module_create(PyObject *parent, const char *name)
 {
     char tmp[MAX_BUF];
-
-    snprintf(tmp, sizeof(tmp), "Atrinik_%s", name);
-
-    return PyModule_New(tmp);
+    snprintf(VS(tmp), "Atrinik_%s", name);
+    PyObject *module = PyModule_New(tmp);
+    PyDict_SetItemString(PyModule_GetDict(parent), name, module);
+    return module;
 }
 
 /**
@@ -2031,23 +2451,24 @@ static PyObject *module_create(const char *name)
  * specified module.
  * @param module Module to add to.
  * @param name Name of the created module.
- * @param constants Constants to add. */
-static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *consts)
+ * @param constants Constants to add.
+ * @param doc Docstring for the created module.
+ */
+static void module_add_constants(PyObject *module, const char *name,
+        const Atrinik_Constant *consts, const char *doc)
 {
     size_t i = 0;
     PyObject *module_tmp;
 
     /* Create the new module. */
-    module_tmp = module_create(name);
+    module_tmp = module_create(module, name);
+    PyModule_AddStringConstant(module_tmp, "__doc__", doc);
 
     /* Append constants. */
     while (consts[i].name) {
         PyModule_AddIntConstant(module_tmp, consts[i].name, consts[i].value);
         i++;
     }
-
-    /* Add the module. */
-    PyDict_SetItemString(PyModule_GetDict(module), name, module_tmp);
 }
 
 /**
@@ -2056,8 +2477,10 @@ static void module_add_constants(PyObject *module, const char *name, const Atrin
  * @param name Name of the list.
  * @param array Pointer to the C array.
  * @param array_size Number of entries in the C array.
- * @param type Type of the entries in the C array. */
-static void module_add_array(PyObject *module, const char *name, void *array, size_t array_size, field_type type)
+ * @param type Type of the entries in the C array.
+ */
+static void module_add_array(PyObject *module, const char *name, void *array,
+        size_t array_size, field_type type)
 {
     size_t i;
     PyObject *list;
@@ -2103,17 +2526,51 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
     m = Py_InitModule("Atrinik", AtrinikMethods);
 #endif
 
+    PyModule_AddStringConstant(m, "__doc__", package_doc);
     d = PyModule_GetDict(m);
     AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
     PyDict_SetItemString(d, "AtrinikError", AtrinikError);
 
-    if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) || !Atrinik_AttrList_init(m)) {
+    module_tmp = module_create(m, "Object");
+    if (!Atrinik_Object_init(module_tmp)) {
         return;
     }
 
-    module_add_constants(m, "Type", constants_types);
-    module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_INT32);
-    module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE, FIELDTYPE_INT32);
+    module_tmp = module_create(m, "Map");
+    if (!Atrinik_Map_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Party");
+    if (!Atrinik_Party_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Region");
+    if (!Atrinik_Region_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Player");
+    if (!Atrinik_Player_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "Archetype");
+    if (!Atrinik_Archetype_init(module_tmp)) {
+        return;
+    }
+
+    module_tmp = module_create(m, "AttrList");
+    if (!Atrinik_AttrList_init(module_tmp)) {
+        return;
+    }
+
+    module_add_constants(m, "Type", constants_types, module_doc_type);
+    module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE,
+            FIELDTYPE_INT32);
+    module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE,
+            FIELDTYPE_INT32);
 
     /* Initialize integer constants */
     for (i = 0; constants[i].name; i++) {
@@ -2122,22 +2579,29 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
     /* Initialize integer constants */
     for (i = 0; constants_colors[i][0]; i++) {
-        PyModule_AddStringConstant(m, constants_colors[i][0], constants_colors[i][1]);
+        PyModule_AddStringConstant(m, constants_colors[i][0],
+                constants_colors[i][1]);
     }
 
-    module_tmp = module_create("Gender");
-    module_add_array(module_tmp, "gender_noun", hooks->gender_noun, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_subjective", hooks->gender_subjective, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_subjective_upper", hooks->gender_subjective_upper, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_objective", hooks->gender_objective, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_possessive", hooks->gender_possessive, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_reflexive", hooks->gender_reflexive, GENDER_MAX, FIELDTYPE_CSTR);
+    module_tmp = module_create(m, "Gender");
+    PyModule_AddStringConstant(module_tmp, "__doc__", module_doc_gender);
+    module_add_array(module_tmp, "gender_noun",
+            hooks->gender_noun, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_subjective",
+            hooks->gender_subjective, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_subjective_upper",
+            hooks->gender_subjective_upper, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_objective",
+            hooks->gender_objective, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_possessive",
+            hooks->gender_possessive, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_reflexive",
+            hooks->gender_reflexive, GENDER_MAX, FIELDTYPE_CSTR);
 
     for (i = 0; constants_gender[i].name; i++) {
-        PyModule_AddIntConstant(module_tmp, constants_gender[i].name, constants_gender[i].value);
+        PyModule_AddIntConstant(module_tmp, constants_gender[i].name,
+                constants_gender[i].value);
     }
-
-    PyDict_SetItemString(d, "Gender", module_tmp);
 
     /* Create the global scope dictionary. */
     py_globals_dict = PyDict_New();
@@ -2161,11 +2625,13 @@ MODULEAPI void closePlugin(void)
  * Sets face field.
  * @param ptr Pointer to ::New_Face structure.
  * @param face_id ID of the face to set.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 static int set_face_field(void *ptr, long face_id)
 {
     if (face_id < 0 || face_id >= *hooks->nrofpixmaps) {
-        PyErr_Format(PyExc_ValueError, "Illegal value for face field: %ld", face_id);
+        PyErr_Format(PyExc_ValueError, "Illegal value for face field: %ld",
+                face_id);
         return -1;
     }
 
@@ -2177,11 +2643,13 @@ static int set_face_field(void *ptr, long face_id)
  * Sets animation field.
  * @param ptr Pointer to ::uint16 structure member.
  * @param anim_id ID of the animation to set.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 static int set_animation_field(void *ptr, long anim_id)
 {
     if (anim_id < 0 || anim_id >= *hooks->num_animations) {
-        PyErr_Format(PyExc_ValueError, "Illegal value for animation field: %ld", anim_id);
+        PyErr_Format(PyExc_ValueError, "Illegal value for animation field: %ld",
+                anim_id);
         return -1;
     }
 
@@ -2194,7 +2662,8 @@ static int set_animation_field(void *ptr, long anim_id)
  * @param type Type of the field.
  * @param[out] field_ptr Field pointer.
  * @param value Value to set for the field pointer.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 {
     void *field_ptr;
@@ -2207,7 +2676,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
     switch (field->type) {
     case FIELDTYPE_SHSTR:
-
         if (value == Py_None) {
             FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
         } else if (PyString_Check(value)) {
@@ -2220,7 +2688,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_CSTR:
-
         if (value == Py_None || PyString_Check(value)) {
             if (*(char **) field_ptr != NULL) {
                 efree(*(char **) field_ptr);
@@ -2238,7 +2705,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_CARY:
-
         if (value == Py_None) {
             ((char *) field_ptr)[0] = '\0';
         } else if (PyString_Check(value)) {
@@ -2251,12 +2717,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_UINT8:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < 0 || (unsigned long) val > UINT8_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint8 field.");
+            unsigned long val = PyLong_AsUnsignedLong(value);
+            if (PyErr_Occurred() || val > UINT8_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint8 field.");
                 return -1;
             }
 
@@ -2268,29 +2733,27 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT8:
-
         if (PyInt_Check(value)) {
             long val = PyLong_AsLong(value);
-
-            if (val < INT8_MIN || val > INT8_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint8 field.");
+            if (PyErr_Occurred() || val < INT8_MIN || val > INT8_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for int8 field.");
                 return -1;
             }
 
             *(int8_t *) field_ptr = (int8_t) val;
         } else {
-            INTRAISE("Illegal value for sint8 field.");
+            INTRAISE("Illegal value for int8 field.");
         }
 
         break;
 
     case FIELDTYPE_UINT16:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < 0 || (unsigned long) val > UINT16_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint16 field.");
+            unsigned long val = PyLong_AsUnsignedLong(value);
+            if (PyErr_Occurred() || val > UINT16_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint16 field.");
                 return -1;
             }
 
@@ -2302,29 +2765,27 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT16:
-
         if (PyInt_Check(value)) {
             long val = PyLong_AsLong(value);
-
-            if (val < INT16_MIN || val > INT16_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint16 field.");
+            if (PyErr_Occurred() || val < INT16_MIN || val > INT16_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for int16 field.");
                 return -1;
             }
 
             *(int16_t *) field_ptr = (int16_t) val;
         } else {
-            INTRAISE("Illegal value for sint16 field.");
+            INTRAISE("Illegal value for int16 field.");
         }
 
         break;
 
     case FIELDTYPE_UINT32:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < 0 || (unsigned long) val > UINT32_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint32 field.");
+            unsigned long val = PyLong_AsUnsignedLong(value);
+            if (PyErr_Occurred() || val > UINT32_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint32 field.");
                 return -1;
             }
 
@@ -2336,29 +2797,29 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT32:
-
         if (PyInt_Check(value)) {
-            long val = PyLong_AsLong(value);
-
-            if (val < INT32_MIN || val > INT32_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint32 field.");
+            int overflow;
+            long val = PyLong_AsLongAndOverflow(value, &overflow);
+            if (PyErr_Occurred() || overflow != 0 || val < INT32_MIN ||
+                    val > INT32_MAX) {
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for int32 field.");
                 return -1;
             }
 
             *(int32_t *) field_ptr = (int32_t) val;
         } else {
-            INTRAISE("Illegal value for sint32 field.");
+            INTRAISE("Illegal value for int32 field.");
         }
 
         break;
 
     case FIELDTYPE_UINT64:
-
         if (PyInt_Check(value)) {
             unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
-
             if (PyErr_Occurred()) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint64 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint64 field.");
                 return -1;
             }
 
@@ -2370,26 +2831,24 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_INT64:
-
         if (PyInt_Check(value)) {
             PY_LONG_LONG val = PyLong_AsLongLong(value);
-
             if (PyErr_Occurred()) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint64 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for int64 field.");
                 return -1;
             }
 
             *(int64_t *) field_ptr = (int64_t) val;
         } else {
-            INTRAISE("Illegal value for sint64 field.");
+            INTRAISE("Illegal value for int64 field.");
         }
 
         break;
 
     case FIELDTYPE_FLOAT:
-
         if (PyFloat_Check(value)) {
-            *(float *) field_ptr = PyFloat_AsDouble(value) * 1.0;
+            *(float *) field_ptr = PyFloat_AsDouble(value);
         } else if (PyInt_Check(value)) {
             *(float *) field_ptr = PyLong_AsLong(value) * 1.0;
         } else {
@@ -2398,8 +2857,18 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         break;
 
-    case FIELDTYPE_OBJECT:
+    case FIELDTYPE_DOUBLE:
+        if (PyFloat_Check(value)) {
+            *(double *) field_ptr = PyFloat_AsDouble(value);
+        } else if (PyInt_Check(value)) {
+            *(double *) field_ptr = PyLong_AsLong(value) * 1.0;
+        } else {
+            INTRAISE("Illegal value for double field.");
+        }
 
+        break;
+
+    case FIELDTYPE_OBJECT:
         if (value == Py_None) {
             *(object **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_ObjectType)) {
@@ -2412,15 +2881,16 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_OBJECT2:
+    case FIELDTYPE_OBJECT_ITERATOR:
         INTRAISE("Field type not implemented.");
         break;
 
     case FIELDTYPE_MAP:
-
         if (value == Py_None) {
             *(mapstruct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_MapType)) {
-            *(mapstruct **) field_ptr = (mapstruct *) ((Atrinik_Map *) value)->map;
+            *(mapstruct **) field_ptr =
+                    (mapstruct *) ((Atrinik_Map *) value)->map;
         } else {
             INTRAISE("Illegal value for map field.");
         }
@@ -2430,7 +2900,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     case FIELDTYPE_OBJECTREF:
     {
         void *field_ptr2 = (char *) ptr + field->extra_data;
-
         if (value == Py_None) {
             *(object **) field_ptr = NULL;
             *(tag_t *) field_ptr2 = 0;
@@ -2450,11 +2919,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     }
 
     case FIELDTYPE_REGION:
-
         if (value == Py_None) {
             *(region_struct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_RegionType)) {
-            *(region_struct **) field_ptr = (region_struct *) ((Atrinik_Region *) value)->region;
+            *(region_struct **) field_ptr =
+                    (region_struct *) ((Atrinik_Region *) value)->region;
         } else {
             INTRAISE("Illegal value for region field.");
         }
@@ -2462,11 +2931,11 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_PARTY:
-
         if (value == Py_None) {
             *(party_struct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_PartyType)) {
-            *(party_struct **) field_ptr = (party_struct *) ((Atrinik_Party *) value)->party;
+            *(party_struct **) field_ptr =
+                    (party_struct *) ((Atrinik_Party *) value)->party;
         } else {
             INTRAISE("Illegal value for party field.");
         }
@@ -2474,23 +2943,24 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_ARCH:
-
         if (value == Py_None) {
-            *(archetype **) field_ptr = NULL;
+            *(archetype_t **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType)) {
-            *(archetype **) field_ptr = (archetype *) ((Atrinik_Archetype *) value)->at;
+            *(archetype_t **) field_ptr =
+                    (archetype_t *) ((Atrinik_Archetype *) value)->at;
         } else if (PyString_Check(value)) {
             const char *archname;
-            archetype *arch;
+            archetype_t *arch;
 
             archname = PyString_AsString(value);
-            arch = hooks->find_archetype(archname);
+            arch = hooks->arch_find(archname);
 
             if (!arch) {
-                PyErr_Format(AtrinikError, "Could not find archetype '%s'.", archname);
+                PyErr_Format(AtrinikError, "Could not find archetype '%s'.",
+                        archname);
                 return -1;
             } else {
-                *(archetype **) field_ptr = arch;
+                *(archetype_t **) field_ptr = arch;
             }
         } else {
             INTRAISE("Illegal value for archetype field.");
@@ -2499,7 +2969,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_PLAYER:
-
         if (value == Py_None) {
             *(player **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_PlayerType)) {
@@ -2511,21 +2980,25 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_FACE:
-
         if (PyTuple_Check(value)) {
             if (PyTuple_GET_SIZE(value) != 2) {
-                PyErr_Format(PyExc_ValueError, "Tuple for face field must have exactly two values.");
+                PyErr_Format(PyExc_ValueError,
+                        "Tuple for face field must have exactly two values.");
                 return -1;
             } else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
-                PyErr_SetString(PyExc_ValueError, "Second value of tuple used for face field is not an integer.");
+                PyErr_SetString(PyExc_ValueError,
+                        "Second value of tuple used for face field is not an "
+                        "integer.");
                 return -1;
             }
 
-            return set_face_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
+            return set_face_field(field_ptr,
+                    PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
         } else if (PyInt_Check(value)) {
             return set_face_field(field_ptr, PyLong_AsLong(value));
         } else if (PyString_Check(value)) {
-            return set_face_field(field_ptr, hooks->find_face(PyString_AsString(value), 0));
+            return set_face_field(field_ptr,
+                    hooks->find_face(PyString_AsString(value), 0));
         } else {
             INTRAISE("Illegal value for face field.");
         }
@@ -2533,21 +3006,26 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_ANIMATION:
-
         if (PyTuple_Check(value)) {
             if (PyTuple_GET_SIZE(value) != 2) {
-                PyErr_Format(PyExc_ValueError, "Tuple for animation field must have exactly two values.");
+                PyErr_Format(PyExc_ValueError,
+                        "Tuple for animation field must have exactly two "
+                        "values.");
                 return -1;
             } else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
-                PyErr_SetString(PyExc_ValueError, "Second value of tuple used for animation field is not an integer.");
+                PyErr_SetString(PyExc_ValueError,
+                        "Second value of tuple used for animation field is not "
+                        "an integer.");
                 return -1;
             }
 
-            return set_animation_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
+            return set_animation_field(field_ptr,
+                    PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
         } else if (PyInt_Check(value)) {
-            return set_animation_field(field_ptr, PyLong_AsLong(value));
+            return set_animation_field(field_ptr,  PyLong_AsLong(value));
         } else if (PyString_Check(value)) {
-            return set_animation_field(field_ptr, hooks->find_animation(PyString_AsString(value)));
+            return set_animation_field(field_ptr,
+                    hooks->find_animation(PyString_AsString(value)));
         } else {
             INTRAISE("Illegal value for animation field.");
         }
@@ -2555,7 +3033,6 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_BOOLEAN:
-
         if (value == Py_True) {
             *(uint8_t *) field_ptr = 1;
         } else if (value == Py_False) {
@@ -2567,9 +3044,9 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_CONNECTION:
-
         if (PyInt_Check(value)) {
-            hooks->connection_object_add(ptr, ((object *) ptr)->map, PyLong_AsLong(value));
+            hooks->connection_object_add(ptr, ((object *) ptr)->map,
+                    PyLong_AsLong(value));
         } else {
             INTRAISE("Illegal value for connection field.");
         }
@@ -2577,14 +3054,34 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         break;
 
     case FIELDTYPE_TREASURELIST:
-
         if (PyString_Check(value)) {
-            *(treasurelist **) field_ptr = hooks->find_treasurelist(PyString_AsString(value));
+            *(treasurelist **) field_ptr =
+                    hooks->find_treasurelist(PyString_AsString(value));
         } else {
             INTRAISE("Illegal value for treasure list field.");
         }
 
         break;
+
+    case FIELDTYPE_PACKET:
+    {
+        if (!PyBytes_Check(value)) {
+            INTRAISE("Illegal value for packet field.");
+        }
+
+        packet_struct *packet = *(packet_struct **) field_ptr;
+        char *str = PyBytes_AsString(value);
+        size_t len = PyBytes_Size(value);
+        if (len > packet->size) {
+            PyErr_Format(PyExc_OverflowError,
+                    "Data too large for the packet to hold.");
+            return -1;
+        }
+
+        packet->len = 0;
+        hooks->packet_append_data_len(packet, (uint8_t *) str, len);
+        break;
+    }
 
     default:
         break;
@@ -2599,7 +3096,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
  * @param field_ptr Field pointer.
  * @param field_ptr2 Field pointer for extra data.
  * @return Python object containing value of field_ptr (and field_ptr2, if
- * applicable). */
+ * applicable).
+ */
 PyObject *generic_field_getter(fields_struct *field, void *ptr)
 {
     void *field_ptr;
@@ -2624,10 +3122,10 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         return Py_BuildValue("s", (char *) field_ptr);
 
     case FIELDTYPE_UINT8:
-        return Py_BuildValue("b", *(uint8_t *) field_ptr);
+        return Py_BuildValue("B", *(uint8_t *) field_ptr);
 
     case FIELDTYPE_INT8:
-        return Py_BuildValue("B", *(int8_t *) field_ptr);
+        return Py_BuildValue("b", *(int8_t *) field_ptr);
 
     case FIELDTYPE_UINT16:
         return Py_BuildValue("H", *(uint16_t *) field_ptr);
@@ -2650,6 +3148,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
     case FIELDTYPE_FLOAT:
         return Py_BuildValue("f", *(float *) field_ptr);
 
+    case FIELDTYPE_DOUBLE:
+        return Py_BuildValue("d", *(double *) field_ptr);
+
     case FIELDTYPE_MAP:
         return wrap_map(*(mapstruct **) field_ptr);
 
@@ -2658,6 +3159,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
     case FIELDTYPE_OBJECT2:
         return wrap_object(field_ptr);
+
+    case FIELDTYPE_OBJECT_ITERATOR:
+        return wrap_object_iterator(*(object **) field_ptr);
 
     case FIELDTYPE_OBJECTREF:
     {
@@ -2674,19 +3178,22 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         return wrap_party(*(party_struct **) field_ptr);
 
     case FIELDTYPE_ARCH:
-        return wrap_archetype(*(archetype **) field_ptr);
+        return wrap_archetype(*(archetype_t **) field_ptr);
 
     case FIELDTYPE_PLAYER:
         return wrap_player(*(player **) field_ptr);
 
     case FIELDTYPE_FACE:
-        return Py_BuildValue("(sH)", (*(New_Face **) field_ptr)->name, (*(New_Face **) field_ptr)->number);
+        return Py_BuildValue("(sH)", (*(New_Face **) field_ptr)->name,
+                (*(New_Face **) field_ptr)->number);
 
     case FIELDTYPE_ANIMATION:
-        return Py_BuildValue("(sH)", (&(*hooks->animations)[*(uint16_t *) field_ptr])->name, *(uint16_t *) field_ptr);
+        return Py_BuildValue("(sH)",
+                (&(*hooks->animations)[*(uint16_t *) field_ptr])->name,
+                *(uint16_t *) field_ptr);
 
     case FIELDTYPE_BOOLEAN:
-        Py_ReturnBoolean(*(uint8_t *) field_ptr);
+        return Py_BuildBoolean(*(uint8_t *) field_ptr);
 
     case FIELDTYPE_LIST:
         return wrap_attr_list(ptr, field->offset, field->extra_data);
@@ -2696,16 +3203,20 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
     case FIELDTYPE_TREASURELIST:
     {
-        treasurelist *tl;
-
-        tl = *(treasurelist **) field_ptr;
-
-        if (!tl) {
+        treasurelist *tl = *(treasurelist **) field_ptr;
+        if (tl == NULL) {
             Py_INCREF(Py_None);
             return Py_None;
         }
 
         return Py_BuildValue("s", tl->name);
+    }
+
+    case FIELDTYPE_PACKET:
+    {
+        packet_struct *packet = *(packet_struct **) field_ptr;
+        return PyBytes_FromStringAndSize((const char *) packet->data,
+                packet->len);
     }
 
     default:
@@ -2719,7 +3230,8 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
  * Generic rich comparison function.
  * @param op
  * @param result
- * @return  */
+ * @return
+ */
 PyObject *generic_rich_compare(int op, int result)
 {
     /* Based on how Python 3.0 (GPL compatible) implements it for internal
@@ -2753,17 +3265,16 @@ PyObject *generic_rich_compare(int op, int result)
  * @param callable What to call.
  * @param arglist Arguments to call the function with. Will have reference
  * decreased.
- * @return Integer value the function returned. */
+ * @return Integer value the function returned.
+ */
 int python_call_int(PyObject *callable, PyObject *arglist)
 {
-    PyObject *result;
-    int retval = 0;
-
     /* Call the Python function. */
-    result = PyEval_CallObject(callable, arglist);
+    PyObject *result = PyEval_CallObject(callable, arglist);
 
+    int retval = 0;
     /* Check the result. */
-    if (result && PyInt_Check(result)) {
+    if (result != NULL && PyInt_Check(result)) {
         retval = PyInt_AsLong(result);
     }
 

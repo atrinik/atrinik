@@ -2,8 +2,10 @@
 ## Provides the PostOffice class used by post office clerks and mailbox
 ## scripts.
 
-from Atrinik import *
 import shelve
+
+from Atrinik import *
+
 
 ## The PostOffice class.
 class PostOffice:
@@ -30,8 +32,7 @@ class PostOffice:
     ## Send an item.
     ## @param object What are we sending?
     ## @param who Who is receiving the item?
-    ## @param accepted Is the item accepted?
-    def send_item(self, object, who, accepted = 0):
+    def send_item(self, object, who):
         if not who in self.db:
             self.init(who)
 
@@ -56,10 +57,12 @@ class PostOffice:
         del temp[id]
         self.db[self.name] = temp
 
-    def _withdraw_one(self, item, activator, pl, msgs):
+    @staticmethod
+    def _withdraw_one(item, activator, pl, msgs):
         tmp = LoadObject(item["contents"])
 
         if not pl.CanCarry(tmp):
+            tmp.Destroy()
             msgs.append("The '{}' from {} is too heavy for you to carry.".format(item["name"], item["from"]))
             return False
 
@@ -106,8 +109,9 @@ class PostOffice:
     ## least 20 (copper).</pre>
     ## @param object Object we want to send.
     ## @return The calculated price.
-    def get_price(self, object):
-        return int(max(object.GetCost(object, COST_TRUE) / 100 * 5, 20))
+    @staticmethod
+    def get_price(object):
+        return int(max(object.GetCost() / 100 * 5, 20))
 
     ## Check for common situations where activator cannot send marked item.
     ## @param object The marked object.

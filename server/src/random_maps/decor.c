@@ -53,7 +53,7 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP)
 
     for (i = 0; i < RP->Xsize - 1; i++) {
         for (j = 0; j < RP->Ysize - 1; j++) {
-            if (RP->decorchance > 0 && RANDOM() % RP->decorchance) {
+            if (RP->decorchance > 0 && !rndm_chance(RP->decorchance)) {
                 continue;
             }
 

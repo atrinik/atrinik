@@ -211,15 +211,15 @@
 #define GET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_, _SL_) \
     ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) -1])
 
-#define SET_MAP_DAMAGE(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16_t) (tmp))
-#define GET_MAP_DAMAGE(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage)
+#define SET_MAP_DAMAGE(M, X, Y, SUB_LAYER, tmp) \
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)] = (int16_t) (tmp))
+#define GET_MAP_DAMAGE(M, X, Y, SUB_LAYER) \
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)])
 
-#define SET_MAP_RTAG(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32_t) (tmp))
-#define GET_MAP_RTAG(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag)
+#define SET_MAP_RTAG(M, X, Y, SUB_LAYER, tmp) \
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag[(SUB_LAYER)] = (uint32_t) (tmp))
+#define GET_MAP_RTAG(M, X, Y, SUB_LAYER) \
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag[(SUB_LAYER)])
 
 #define GET_BOTTOM_MAP_OB(O) ((O)->map ? GET_MAP_OB((O)->map, (O)->x, (O)->y) : NULL)
 
@@ -345,7 +345,7 @@ typedef struct MapSpace_s {
     struct MapSpace_s *next_light;
 
     /** Tag for last_damage */
-    uint32_t round_tag;
+    uint32_t round_tag[NUM_SUB_LAYERS];
 
     /** ID of ::map_info. */
     tag_t map_info_count;
@@ -370,7 +370,7 @@ typedef struct MapSpace_s {
     int flags;
 
     /** last_damage tmp backbuffer */
-    uint16_t last_damage;
+    int16_t last_damage[NUM_SUB_LAYERS];
 
     /** Terrain type flags (water, underwater,...) */
     uint16_t move_flags;
@@ -471,16 +471,13 @@ typedef struct region_struct {
     /** Client map background to use: if not set, will use transparency. */
     char *map_bg;
 
-    /**
-     * If 1, the map will not be available unless the player has done
-     * the quest to obtain it. */
-    uint8_t map_quest;
-
     /** X coodinate in jailmap to which the player should be sent. */
     int16_t jailx;
 
     /** Y coodinate in jailmap to which the player should be sent. */
     int16_t jaily;
+
+    bool child_maps:1; ///< If true, map of this region has all the children.
 } region_struct;
 
 /**
@@ -764,15 +761,38 @@ typedef struct rv_vector_s {
  * Range vector flags, used by functions like get_rangevector() and
  * get_rangevector_from_mapcoords().
  *@{*/
+/**
+ * Calculate Manhattan distance.
+ */
 #define RV_MANHATTAN_DISTANCE  0x00
+/**
+ * Calculate Euclidian distance.
+ */
 #define RV_EUCLIDIAN_DISTANCE  0x01
+/**
+ * Calculate diagonal distance.
+ */
 #define RV_DIAGONAL_DISTANCE   0x02
+/**
+ * Do not perform distance calculation.
+ */
 #define RV_NO_DISTANCE         (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)
 
+/**
+ * If set, will ignore tail parts of a multi-part object in range vector
+ * calculations.
+ */
 #define RV_IGNORE_MULTIPART    0x04
-#define RV_RECURSIVE_SEARCH    0x08
-#define RV_NO_LOAD             0x10
 
+/**
+ * If not set, only immediately adjacent tiled maps are searched. If set, a
+ * depth-first search is performed on the tiled maps, up to some limit.
+ */
+#define RV_RECURSIVE_SEARCH    0x08
+/**
+ * Do not load any maps when attempting to calculate the range vector.
+ */
+#define RV_NO_LOAD             0x10
 /*@}*/
 
 /**

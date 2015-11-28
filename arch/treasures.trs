@@ -7,10 +7,26 @@
 #
 treasure player
   arch padded_armour
+    artifact_chance 0
   more
   arch sandals
+    artifact_chance 0
   more
   arch quest_container
+end
+
+treasure player_male
+  list player
+  more
+  arch pants_blue
+    artifact_chance 0
+end
+
+treasure player_female
+  list player
+  more
+  arch skirt_red
+    artifact_chance 0
 end
 
 ##############################################################
@@ -494,7 +510,7 @@ treasureone random_weapons_throw
     artifact_chance 40
 end
 
-treasureone random_weapons_missile
+treasureone random_weapons_missile_bow
   arch bow_short
     chance 12
     magic 1
@@ -514,7 +530,9 @@ treasureone random_weapons_missile
     magic 1
     material_quality 80
     material_range 15
-  more
+end
+
+treasureone random_weapons_missile_sling
   arch sling_small
     chance 12
     magic 1
@@ -534,7 +552,9 @@ treasureone random_weapons_missile
     magic 1
     material_quality 80
     material_range 15
-  more
+end
+
+treasureone random_weapons_missile_crossbow
   arch crossbow_small
     chance 12
     magic 1
@@ -554,6 +574,17 @@ treasureone random_weapons_missile
     magic 1
     material_quality 80
     material_range 15
+end
+
+treasureone random_weapons_missile
+  list random_weapons_missile_bow
+    chance 25
+  more
+  list random_weapons_missile_sling
+    chance 25
+  more
+  list random_weapons_missile_crossbow
+    chance 25
 end
 
 treasureone random_weapons_melee
@@ -1404,6 +1435,11 @@ treasureone random_armour
     material_quality 80
     material_range 15
   more
+  list random_armour_pants
+    chance 10
+    material_quality 80
+    material_range 15
+  more
   list random_armour_gauntlet
     chance 5
     material_quality 80
@@ -1442,6 +1478,11 @@ treasureone random_armour_l9
     material_range 15
   more
   list random_armour_cloak
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  list random_armour_pants
     chance 10
     material_quality 80
     material_range 15
@@ -2242,6 +2283,101 @@ treasureone random_armour_helm
     material_range 15
   more
   arch hat_blue
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+end
+
+treasureone random_armour_pants
+  arch chainpants
+    difficulty 15
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch chaps
+    difficulty 9
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch chausses
+    difficulty 21
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch miniskirt_magenta
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch miniskirt_red
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch miniskirt_yellow
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants2_brown
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants2_red
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants_black
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants_blue
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants_brown
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch shorts_brown
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch skirt_magenta
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch skirt_red
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch skirt_yellow
     magic 1
     chance 10
     material_quality 80
@@ -3546,7 +3682,7 @@ treasure mob_dragon_skeletal
     end
 end
 
-treasure mob_beholder_dread
+treasure mob_gazer_dread
   list traps
     chance 8
   more
@@ -4591,6 +4727,9 @@ treasure mob_wolf
             chance_fix 199
         end
     end
+  more
+  arch wolf_pelt
+    chance_fix 7
 end
 
 treasure mob_crocodile

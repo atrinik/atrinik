@@ -1,7 +1,8 @@
 ## @file
 ## Implements the House class.
 
-import json, time
+import json
+import time
 
 ## The House class, used for luxury houses.
 class House:

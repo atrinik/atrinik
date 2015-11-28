@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
+<interfaces>
+    <quest name="Frevia's Tomboyish Fairy">
+        <interface inherit="Merchant.Seller" npc="Frevia">
+            <dialog name="hello">
+                <message>Oh, hello there again, {self.gender}!</message>
+                <inherit name="::goods"/>
+            </dialog>
+            <dialog name="::stockin">
+                <message>Would you like to buy one of my flowers?</message>
+            </dialog>
+            <dialog name="::stockout">
+                <message>I'm sorry, I'm all out of flowers right now!</message>
+            </dialog>
+            <dialog name="::stockoutitem">
+                <message>Oh dear, I don't have any {self.buy_item.name} left!</message>
+            </dialog>
+        </interface>
+        <interface npc="Tomboyish Fairy">
+            <dialog name="hello">
+                <message>Eye'm the strongest!</message>
+                <response destination="the strongest" message="You're the strongest?"/>
+                <response destination="not the strongest" message="No way, that's impossible!"/>
+                <response destination="strongest fairy" message="You're the strongest fairy... maybe."/>
+                <response destination="idiot" message="What?  Are you dumb or something?"/>
+                <response action="close" message="Goodbye."/>
+            </dialog>
+            <dialog name="the strongest">
+                <choice>
+                    <message>Yay!</message>
+                    <message>Yeah. I'm the best.</message>
+                    <message>There are no buses in Gensokyo.</message>
+                    <message>Eye'm a genius!</message>
+                    <message>So, what was I doing, again...?</message>
+                </choice>
+                <response destination="hello" message="OK."/>
+                <response destination="idiot" message="Well, that was stupid."/>
+                <response action="close" message="Goodbye."/>
+            </dialog>
+            <dialog inherit="the strongest" regex="(strong|cirno)"/>
+            <dialog name="not the strongest">
+                <choice>
+                    <message>Eye said Eye'm the strongest!</message>
+                    <message>I'll cryo-freeze you along with some English beef!</message>
+                    <message>This atmosphere... it smells like WAR!</message>
+                    <message>I'm going to beat you for that.</message>
+                    <message>Freeze to death! Freeze to death!</message>
+                </choice>
+                <response destination="hello" message="Whatever."/>
+                <response destination="idiot" message="You must be stupid or something."/>
+                <response action="close" message="Goodbye."/>
+            </dialog>
+            <dialog inherit="not the strongest" regex="(weak|strongest fairy)"/>
+            <dialog name="idiot">
+                <choice>
+                    <message>Hey!  Eye'm not dumb.</message>
+                    <message>The one saying &quot;idiot&quot; is an idiot.</message>
+                </choice>
+                <response destination="hello" message="OK."/>
+                <response destination="idiot" message="That was childish."/>
+                <response action="close" message="Goodbye."/>
+            </dialog>
+            <dialog inherit="idiot" regex="(baka|nineball|marukyuu|\(9\))"/>
+        </interface>
+        <part name="The Fairy" uid="find_fairy">
+            <info>Frevia, an elven shyde with home in a glade east of Aris, has asked you to find her missing fairy. She has suggested to look near a small lake south of the glade.</info>
+            <interface npc="Frevia" state="need_start">
+                <dialog name="hello">
+                    <message>Oh, hello there, wandering stranger! You're welcome to stay a while and rest in my glade, if you like.</message>
+                    <message>However, I do have to ask... Have you, by any chance, seen my little fairy? She has been missing for a while now, and I'm beginning to worry...</message>
+                    <response destination="havefairies" message="You seem to have a few fairies around right here."/>
+                </dialog>
+                <dialog name="havefairies">
+                    <message>Oh no, I don't mean these!</message>
+                    <message color="yellow">{npc.name} the elven shyde giggles softly to herself.</message>
+                    <message>This one was... special, shall we say... always had a mind of her own, bit tomboyish really.</message>
+                    <response destination="lookfor" message="I could look for her."/>
+                    <response action="close" message="Farewell."/>
+                </dialog>
+                <dialog name="lookfor">
+                    <message>You would! Thank you, kind {self.gender2}!</message>
+                    <message>I think my little fairy has taken a liking to the small lake south of my glade, near a large waterfall. Perhaps she will be around there...</message>
+                    <action start="find_fairy"/>
+                </dialog>
+            </interface>
+            <interface npc="Frevia" state="need_complete">
+                <dialog name="hello">
+                    <message>Have you found my little fairy yet, kind {self.gender2}?</message>
+                    <response destination="working" message="Working on it."/>
+                </dialog>
+                <dialog name="working">
+                    <message>I think she has taken a liking to the small lake south of my glade, near a large waterfall. Perhaps she will be around there...</message>
+                    <response action="close" message="Farewell."/>
+                </dialog>
+            </interface>
+            <interface inherit="interface" npc="Tomboyish Fairy" state="need_complete">
+                <dialog name="hello">
+                    <response destination="oneof" message="Are you one of Frevia's fairies?"/>
+                    <inherit/>
+                </dialog>
+                <dialog name="oneof">
+                    <message>Humpf, what if I am?!</message>
+                    <response destination="lookingfor" message="She's looking for you."/>
+                </dialog>
+                <dialog name="lookingfor">
+                    <message>Oh, is she now!</message>
+                    <response destination="worried" message="She's worried about you."/>
+                </dialog>
+                <dialog name="worried">
+                    <message>There's no reason to be worried about me...</message>
+                    <message color="yellow">{npc.name} grins mischievously.</message>
+                    <message>Tell Frevia she needn't worry about me. I'll be around the glade from time to time...</message>
+                    <action start="report"/>
+                    <action complete="find_fairy"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="Report to Frevia" uid="report">
+            <info>You have found the fairy safe and sound, exactly where Frevia said she would be. You should report the good news to Frevia.</info>
+            <interface npc="Frevia" state="need_complete">
+                <dialog name="hello">
+                    <message>Have you found my little fairy yet, kind {self.gender2}?</message>
+                    <response destination="safe" message="Yes, she's safe and sound at the lake."/>
+                </dialog>
+                <dialog name="safe">
+                    <message>Ah, I see! Thank you, I appreciate your kindness, dear {self.gender2}. It will be nice to see her again from time to time, like I said, she's a bit of a rebel...</message>
+                    <message>As a token of my gratitude, please accept this flower from me. As you may know, flowers are a powerful symbol among the elves, but the flowers from this glade are even more special...</message>
+                    <action complete="report"/>
+                    <object arch="mythical_scarlet_pimpernel_flower"/>
+                </dialog>
+            </interface>
+        </part>
+    </quest>
+</interfaces>

@@ -26,9 +26,11 @@
  * @file
  * Handles code related to @ref DUPLICATOR "duplicators".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Try matching an object for duplicator.

@@ -82,7 +82,7 @@ void command_apply(object *op, const char *command, char *params)
 
     if (string_get_word(params, &pos, ' ', word, sizeof(word), 0)) {
         if (strcmp(word, "-a") == 0) {
-            aflag = AP_APPLY;
+            aflag = APPLY_ALWAYS;
         } else {
             pos = 0;
         }
@@ -90,7 +90,7 @@ void command_apply(object *op, const char *command, char *params)
 
     if (string_get_word(params, &pos, ' ', word, sizeof(word), 0)) {
         if (strcmp(word, "-u") == 0) {
-            aflag = AP_UNAPPLY;
+            aflag = APPLY_ALWAYS_UNAPPLY;
         } else {
             pos = 0;
         }

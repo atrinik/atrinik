@@ -2,13 +2,13 @@ arch map
 name Eld Woods Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-04-28 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 10
 outdoor 1
-bg_music swamp.ogg
+bg_music jungle.ogg
 region eld_woods_island
 end
 arch grassd_8

@@ -2,11 +2,11 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 100
 outdoor 1
 no_harm 1
 bg_music town_music.ogg
@@ -678,13 +678,9 @@ x 4
 y 12
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch grassd_2
@@ -2327,13 +2323,9 @@ x 17
 y 14
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch grassd_8
@@ -2412,12 +2404,8 @@ x 18
 y 8
 arch guard_royal
 level 70
-unaggressive 0
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+faction greyton_guards
 end
 end
 arch grassd_2
@@ -2570,6 +2558,13 @@ arch grassd_2
 x 19
 y 9
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 19
+y 9
+end
 arch floor_flagm1
 x 19
 y 10
@@ -2578,11 +2573,32 @@ arch grassd_m10
 x 19
 y 10
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 19
+y 10
+end
 arch floor_flagm2
 x 19
 y 11
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 19
+y 11
+end
 arch floor_flagm3
+x 19
+y 12
+end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
 x 19
 y 12
 end
@@ -2594,7 +2610,21 @@ arch grassd_m7
 x 19
 y 13
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 19
+y 13
+end
 arch grassd_4
+x 19
+y 14
+end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
 x 19
 y 14
 end
@@ -2730,11 +2760,33 @@ arch floor_flagm3
 x 20
 y 7
 end
+arch switch_wall
+slaying greyton_dock_gate_key
+connected 102
+exp 1000
+path_repelled 512
+direction 7
+x 20
+y 7
+end
+arch spawn_point
+x 20
+y 7
+arch guard_royal
+direction 1
+level 70
+type 83
+faction greyton_guards
+arch key2
+slaying greyton_dock_gate_key
+end
+end
+end
 arch floor_flagm1
 x 20
 y 8
 end
-arch fwall_fstone2
+arch wall_fstone_round.102
 x 20
 y 8
 end
@@ -2745,6 +2797,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 20
 y 9
 end
@@ -2759,6 +2812,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 20
 y 10
 end
@@ -2769,6 +2823,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 20
 y 11
 end
@@ -2776,13 +2831,10 @@ arch floor_flagm4
 x 20
 y 12
 end
-arch grassd_m7
-x 20
-y 12
-end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 20
 y 12
 end
@@ -2797,6 +2849,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 20
 y 13
 end
@@ -2807,6 +2860,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 20
 y 14
 end
@@ -2814,13 +2868,35 @@ arch floor_flagm1
 x 20
 y 15
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 20
 y 15
 end
 arch floor_flagm1
 x 20
 y 16
+end
+arch switch_wall
+slaying greyton_dock_gate_key
+connected 102
+exp 1000
+path_repelled 512
+direction 7
+x 20
+y 16
+end
+arch spawn_point
+x 20
+y 16
+arch guard_royal
+direction 1
+level 70
+type 83
+faction greyton_guards
+arch key2
+slaying greyton_dock_gate_key
+end
+end
 end
 arch floor_flagm2
 x 20
@@ -2905,7 +2981,7 @@ arch floor_flagm1
 x 21
 y 8
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
 x 21
 y 8
 end
@@ -2915,13 +2991,14 @@ y 9
 end
 arch portcullis_closed
 direction 3
-connected 101
+connected 103
 x 21
 y 9
 end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 21
 y 9
 end
@@ -2935,13 +3012,14 @@ y 10
 end
 arch portcullis_closed
 direction 3
-connected 101
+connected 103
 x 21
 y 10
 end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 21
 y 10
 end
@@ -2955,13 +3033,14 @@ y 11
 end
 arch portcullis_closed
 direction 3
-connected 101
+connected 103
 x 21
 y 11
 end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 21
 y 11
 end
@@ -2969,19 +3048,20 @@ arch floor_flagm1
 x 21
 y 12
 end
-arch grassd_m5
+arch grassd_m8
 x 21
 y 12
 end
 arch portcullis_closed
 direction 3
-connected 101
+connected 103
 x 21
 y 12
 end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 21
 y 12
 end
@@ -2995,13 +3075,14 @@ y 13
 end
 arch portcullis_closed
 direction 3
-connected 101
+connected 103
 x 21
 y 13
 end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 21
 y 13
 end
@@ -3011,13 +3092,14 @@ y 14
 end
 arch portcullis_closed
 direction 3
-connected 101
+connected 103
 x 21
 y 14
 end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 21
 y 14
 end
@@ -3025,7 +3107,9 @@ arch floor_flagm2
 x 21
 y 15
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 21
 y 15
 end
@@ -3096,7 +3180,7 @@ arch floor_flagm2
 x 22
 y 8
 end
-arch fwall_fstone2
+arch wall_fstone_round.108
 x 22
 y 8
 end
@@ -3115,13 +3199,16 @@ x 22
 y 9
 arch guard_royal
 level 70
-unaggressive 0
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
+faction greyton_guards
 end
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 22
+y 9
 end
 arch grassd_5
 x 22
@@ -3134,6 +3221,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 22
 y 10
 end
@@ -3148,6 +3236,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 22
 y 11
 end
@@ -3162,6 +3251,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 22
 y 12
 end
@@ -3176,6 +3266,7 @@ end
 arch pedestal
 hp 1
 connected 101
+path_repelled 512
 x 22
 y 13
 end
@@ -3199,19 +3290,22 @@ y 14
 arch guard_royal
 direction 1
 level 70
-unaggressive 0
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
+faction greyton_guards
 end
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 22
+y 14
 end
 arch floor_flagm1
 x 22
 y 15
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 22
 y 15
 end
@@ -3337,11 +3431,32 @@ arch light5
 x 23
 y 10
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 23
+y 10
+end
 arch bridge_wood_EW.101
 x 23
 y 11
 end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
+x 23
+y 11
+end
 arch bridge_wood_EW.101
+x 23
+y 12
+end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
 x 23
 y 12
 end
@@ -3350,6 +3465,13 @@ x 23
 y 13
 end
 arch light5
+x 23
+y 13
+end
+arch pedestal
+hp 1
+connected 101
+path_repelled 512
 x 23
 y 13
 end

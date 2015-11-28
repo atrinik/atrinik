@@ -29,6 +29,12 @@ Type defined by:
 		<th>Description</th>
 	</tr>
 	<tr>
+		<td>AI events</td>
+		<td>@ref obj::path_attuned</td>
+		<td>		A combination of AI events this object wants to receive.
+		</td>
+	</tr>
+	<tr>
 		<td>align</td>
 		<td>@ref obj::align</td>
 		<td>		X align of the object on the map.
@@ -82,7 +88,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -90,7 +96,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>event ID</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		Set the event where this event object should trigger.
 		</td>
 	</tr>
@@ -107,6 +113,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -161,9 +173,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -195,13 +207,6 @@ Type defined by:
 		the object consists. Material class does also affect how likely
 		the object can be destroyed by hazardous spell-effects, like
 		firestorm.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -273,6 +278,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>players only</td>
+		<td>@ref FLAG_LIFESAVE</td>
+		<td>		If set, this event will only be activated by players.
+		</td>
+	</tr>
+	<tr>
 		<td>plugin</td>
 		<td>@ref obj::name</td>
 		<td>		Name of the plugin which should be triggered by this event object.
@@ -288,6 +299,12 @@ Type defined by:
 		<td>reflect spells</td>
 		<td>@ref FLAG_REFL_SPELL</td>
 		<td>		Object will reflect spells.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
 		</td>
 	</tr>
 	<tr>
@@ -338,6 +355,15 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>title</td>
 		<td>@ref obj::title</td>
 		<td>		This is the object's title. Once an object is identified the
@@ -357,6 +383,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

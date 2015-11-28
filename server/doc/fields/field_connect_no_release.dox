@@ -1,13 +1,17 @@
 /**
-@fn obj::connect_no_release
-@section Use
+@var FLAG_CONNECT_NO_RELEASE
+@sa @ref page_field_connect_no_release
+*/
+
+/**
+@page page_field_connect_no_release FLAG_CONNECT_NO_RELEASE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_18, @ref page_type_92, @ref page_type_30, @ref page_type_42, @ref page_type_112, @ref page_type_11, @ref page_type_91, @ref page_type_26, @ref page_type_93, @ref page_type_27, @ref page_type_62, @ref page_type_81, @ref page_type_17, @ref page_type_32, @ref page_type_94, @ref page_type_98, @ref page_type_41
+@ref page_type_92, @ref page_type_42, @ref page_type_112, @ref page_type_11, @ref page_type_91, @ref page_type_93, @ref page_type_62, @ref page_type_81, @ref page_type_17, @ref page_type_98, @ref page_type_41
 		</td><td>		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.</td>
 	</tr>

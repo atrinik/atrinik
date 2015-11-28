@@ -1,6 +1,9 @@
 ## @file
 ## Script for the smoking pipe item.
 
+from Atrinik import *
+
+
 def main():
     # Find the marked pipeweed.
     marked = activator.Controller().FindMarkedObject()

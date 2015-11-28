@@ -7,20 +7,20 @@ use this package.
 
 == Map Editor ==
 
-To run Gridarta for Atrinik - the Atrinik map editor - you'll need Java 1.6 or later.
-Download it from the Java website (http://www.java.com).
+To run Gridarta for Atrinik - the Atrinik map editor - you'll need Java 1.6 or
+later. Download it from the Java website (http://www.java.com).
 
-Note that on some versions of Java (generally the newer ones), you have to manually
-set the PATH environment variable. See http://www.jibble.org/settingupjava.php for
-instructions.
+Note that on some versions of Java (generally the newer ones), you have to
+manually set the PATH environment variable. See this for instructions:
+http://www.jibble.org/settingupjava.php
 
-When you're finished setting up Java, double-click w32_start_editor.bat to start the
-editor.
+When you're finished setting up Java, double-click w32_start_editor.bat to start
+the editor.
 
 == Server ==
 
-You need to download Python 3.3 from the Python website (http://www.python.org) and install
-it to the default location.
+You need to download Python 3.4 from the Python website (http://www.python.org)
+and install it to the default location.
 
 Simply double-click w32_start_server.bat and the server should start.
 
@@ -30,10 +30,11 @@ Double-click w32_start_client.bat.
 
 == Map Checker ==
 
-Map checker is a tool to check your maps located in tools/map-checker. To run it, you need
-Python 2.7 and PyGTK, which can be downloaded here: http://www.pygtk.org
+Map checker is a tool to check your maps located in tools/map-checker-qt. To run
+it, you need Python 3.4 and PyQt5, which can be downloaded here:
+http://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.4.1/PyQt5-5.4.1-gpl-Py3.4-Qt5.4.1-x32.exe
 
-Then simply execute map-checker.py in tools/map-checker with Python.
+Then simply double-click map-checker-w32.bat in tools/map-checker-qt.
 
 #####################
 #     GNU/Linux     #
@@ -41,28 +42,29 @@ Then simply execute map-checker.py in tools/map-checker with Python.
 
 == Map Editor ==
 
-Download Java 1.6 or later from the Java website (http://www.java.com) or install it using
-your favorite package manager. Then use:
+Download Java 1.6 or later from the Java website (http://www.java.com) or
+install it using your favorite package manager. Then use:
 
-sh linux_start_client.sh
+./linux_start_editor.sh
 
 == Server ==
 
-Use your favorite package manager to install Python 3.3 (or compile it from source).
+Use your favorite package manager to install Python 3.3 or later (or compile it from source).
 Then use this command:
 
-sh linux_start_server.sh
+./linux_start_server.sh
 
 == Client ==
 
 Use this command to start up the client:
 
-sh linux_start_client.sh
+./linux_start_client.sh
 
 == Map Checker ==
 
-Map checker is a tool to check your maps located in tools/map-checker. To run it, you need
-Python 2.7 (which you should have by now from the above server step) and PyGTK, which you
-can install using your favorite package manager. After that, run this command:
+Map checker is a tool to check your maps located in tools/map-checker-qt. To run
+it, you need Python 3.3 or later (which you should have by now from the above
+server step) and PyQt5, which you can install using your favorite package
+manager. After that, run this command:
 
-python2.7 tools/map-checker/map-checker.py
+./tools/map-checker-qt/map-checker.py

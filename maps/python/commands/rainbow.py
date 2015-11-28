@@ -1,7 +1,11 @@
 ## @file
 ## The /rainbow command.
 
-import colorsys, random
+import colorsys
+import random
+
+from Atrinik import *
+
 
 def main():
     if not msg:

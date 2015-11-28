@@ -1,6 +1,10 @@
 /**
-@fn FLAG_AUTO_APPLY
-@section Use
+@var FLAG_AUTO_APPLY
+@sa @ref page_field_auto_apply
+*/
+
+/**
+@page page_field_auto_apply FLAG_AUTO_APPLY Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -12,15 +16,6 @@
 		loaded. You need to specify a &lt;treasurelist&gt; to define what
 		kinds of items are generated. The items will be unpaid and marked
 		as "clone items", unless &lt;don't clone randomitems&gt; is set.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_4
-		</td><td>		"Auto-generate" must be set in order to have the treasure be
-		created when the map is loaded.
-		If you want to create a random treasure chest, you unset this
-		flag. That way, the player has to apply the object (the chest),
-		then the treasure is generated.</td>
 	</tr>
 
 */

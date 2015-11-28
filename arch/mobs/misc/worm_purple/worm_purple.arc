@@ -37,6 +37,8 @@ attack_pierce 90
 no_pick 1
 weight 350000
 run_away 6
+faction monsters
+int 11
 end
 More
 Object worm_purple_b

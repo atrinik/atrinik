@@ -2,11 +2,11 @@ arch map
 name Asteria Sewers
 msg
 Created:  2009-08-09 emperorbma
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-08 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 1
 bg_music sewers.ogg
 region asteria_sewers
@@ -1061,6 +1061,7 @@ y 18
 arch pirate3
 name John
 level 28
+faction asteria_thieves
 type 83
 arch event_obj
 sub_type 6
@@ -1499,6 +1500,7 @@ y 23
 arch peasant
 name Serge Aster
 level 34
+faction asteria_thieves
 type 83
 arch event_obj
 sub_type 6

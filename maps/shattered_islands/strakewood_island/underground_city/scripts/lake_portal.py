@@ -2,8 +2,11 @@
 ## Script for the Brynknot Lake portal in UC I.
 
 import random
+
+from Atrinik import *
 from QuestManager import QuestManager
 from InterfaceQuests import portal_of_llwyfen
+
 
 qm = QuestManager(activator, portal_of_llwyfen)
 

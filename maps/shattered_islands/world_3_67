@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2012-03-12 Alex Tokar
+Modified: 2015-05-10 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_8
@@ -1175,9 +1175,9 @@ y 14
 end
 arch marker3
 msg
-North: Aris, Greyton
+North: Aris, The City of Greyton
 West: Brynknot
-East: Fort Ghzal
+East: Fort Ghzal, The City of Greyton
 endmsg
 x 9
 y 14

@@ -2,6 +2,7 @@
 ## Script for guild manager NPCs to manage applications, allow entering the
 ## guild, etc.
 
+from Atrinik import *
 from Interface import Interface
 from Guild import Guild
 
@@ -59,4 +60,4 @@ def main():
             inf.add_msg("You have been accepted to the guild. Before you are a fully qualified member however, you must wait for an approval from a guild administrator.")
 
 main()
-inf.finish()
+inf.send()

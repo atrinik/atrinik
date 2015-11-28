@@ -1,6 +1,10 @@
 /**
-@fn obj::item_condition
-@section Use
+@var obj::item_condition
+@sa @ref page_field_item_condition
+*/
+
+/**
+@page page_field_item_condition obj::item_condition Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -17,6 +21,13 @@
 		<td>
 @ref page_type_80, @ref page_type_83
 		</td><td>		Level of the monster relative to map difficulty.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_61
+		</td><td>		Volume at which to play the sound effect. This will be adjusted
+		based on the client's volume setting, and how far away the player
+		is from this object.</td>
 	</tr>
 
 */

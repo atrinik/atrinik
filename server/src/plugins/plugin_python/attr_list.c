@@ -25,327 +25,504 @@
 /**
  * @file
  * Implements AttrList Python object; this is a class similar to Python
- * lists, but with more limited functionality (it does not implement many
- * methods normal lists do; however, the AttrList object can be converted
- * to a list).
+ * lists/dictionaries, but with more limited functionality (it does not
+ * implement many methods normal lists do; however, the AttrList object can
+ * be converted to a list).
  *
  * These objects are used to wrap an array of data, for example,
- * player::known_spells array, which holds the spell IDs the player knows.
- * When Python requests to get player.known_spells, the code generates an
- * AttrList object, which "wraps" the actual array of known spells - it
+ * player::cmd_permissions array, which holds the command permissions the player
+ * has access to.
+ * When Python requests to get player.cmd_permissions, the code generates an
+ * AttrList object, which "wraps" the actual array of command permissions - it
  * holds a pointer to the structure, the offset in the structure, etc.
  * Thus, it is possible for Python to use __setitem__() and __getitem__()
  * methods on this AttrList object to change/extract the array data in the
  * most efficient way possible; all of the data of the array is never held
  * in memory (unless you implicitly convert it to a list, of course).
  *
- * The code uses many, many castings and does extensive error checking
+ * The code uses many castings and performs exhaustive error checking
  * of passed arguments, as the smallest imperfection could cause a memory
  * corruption, most likely resulting in a crash.
  *
- * If you are adding more field types to handle your array, you will need
- * to modify the following functions:
- *
- * - attr_list_len_ptr(): should return a properly cast pointer to the
- *   current length of the array
- * - attr_list_len(): should use the above, but cast the void pointer back
- *   into the proper type
- * - attr_list_get(): should have proper casting and configured field type
- *   for generic_field_getter()
- * - attr_list_set(): similar to the above, but with error checking, array
- *   resizing (in case of dynamic arrays), maximum array size checking
- *   (static sized arrays), etc.
- *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <plugin_python.h>
+#include <plugin.h>
+#include <packet.h>
 
 /**
- * Get a pointer to integer that holds the maximum length depending on the
- * AttrList's field type.
- * @param al The AttrList pointer.
- * @return Pointer to the integer holding the maximum length. Must be cast
- * to the correct type before usage. */
-static void *attr_list_len_ptr(Atrinik_AttrList *al)
+ * Operations supported by attr_list_oper().
+ */
+typedef enum attr_list_oper {
+    AL_OPER_SET, ///< __setitem__()
+    AL_OPER_GET, ///< __getitem__()
+    AL_OPER_REMOVE, ///< remove()
+    AL_OPER_APPEND, //< append()
+    AL_OPER_CONTAINS, ///< __contains__()
+    AL_OPER_CLEAR, ///< clear()
+    AL_OPER_ITEMS, ///< items()
+    AL_OPER_ITER, ///< __iter__()
+    AL_OPER_DELETE, ///< __del__()
+} attr_list_oper_t;
+
+/**
+ * Calculate length of the specified AttrList instance.
+ * @param al AttrList being used.
+ * @return The length of the provided AttrList.
+ */
+static Py_ssize_t attr_list_len(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-        return (char *) al->ptr + offsetof(player, num_cmd_permissions);
+        return *(int *) ((char *) al->ptr +
+                offsetof(player, num_cmd_permissions));
     } else if (al->field == FIELDTYPE_FACTIONS) {
-        return (char *) al->ptr + offsetof(player, num_faction_ids);
-    }
+        player_faction_t *factions = *(player_faction_t **) ((char *) al->ptr +
+                al->offset);
+        return HASH_CNT(hh, factions);
+    } else if (al->field == FIELDTYPE_PACKETS) {
+        packet_struct *head = *(packet_struct **) ((char *) al->ptr +
+                al->offset), *packet;
+        Py_ssize_t num = 0;
+        DL_FOREACH(head, packet) {
+            num++;
+        }
 
-    /* Not reached. */
-    return NULL;
-}
-
-/**
- * Similar to attr_list_len_ptr(), but does not return a pointer.
- * @param al AttrList being used.
- * @return The length of the provided AttrList. */
-static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
-{
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS) {
-        return *(int *) attr_list_len_ptr(al);
+        return num;
     }
 
     return 0;
 }
 
 /**
- * Get value from an AttrList object.
- * @param al The AttrList object.
- * @param key Index of the value to get. Can be NULL, in which case 'idx' or
- * 'str' will be used instead, depending on the type.
- * @param idx Index of the value to get.
- * @param str String index of the value to get.
- * @return 0 on success, -1 on failure. */
-static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_LONG idx, const char *str)
+ * Perform specified operation on a command permissions attribute list.
+ * @param al The attribute list.
+ * @param oper Operation to perform.
+ * @param key Key.
+ * @param value Value.
+ * @return True on success, false on failure.
+ */
+static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
+        attr_list_oper_t oper, PyObject *key, PyObject **value)
 {
-    void *ptr;
-    fields_struct field = {"xxx", 0, 0, 0, 0};
+    char ***perms = ((char ***) ((char *) al->ptr + al->offset));
+    int *len = (int *) ((char *) al->ptr +
+            offsetof(player, num_cmd_permissions));
+    socket_struct *ns = (socket_struct *) ((char *) al->ptr +
+            offsetof(player, socket));
 
-    ptr = (char *) al->ptr + al->offset;
-
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-        if (key) {
-            idx = PyLong_AsUnsignedLongLong(key);
+    if (oper == AL_OPER_CLEAR) {
+        if (*perms == NULL) {
+            return true;
         }
 
-        field.type = FIELDTYPE_CSTR;
-        ptr = &(*(char ***) ptr)[idx];
-    } else if (al->field == FIELDTYPE_FACTIONS) {
-        unsigned PY_LONG_LONG len, i;
-
-        if (key) {
-            str = PyString_AsString(key);
-        }
-
-        len = attr_list_len(al);
-        field.type = FIELDTYPE_INT64;
-
-        for (i = 0; i < len; i++) {
-            if (!strcmp(str, *(const char **) (&(*(shstr ***) ptr)[i]))) {
-                ptr = &(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
-                return generic_field_getter(&field, ptr);
+        for (int i = 0; i < *len; i++) {
+            if ((*perms)[i] != NULL) {
+                efree((*perms)[i]);
             }
         }
 
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+        efree(*perms);
+        *perms = NULL;
+        *len = 0;
 
-    return generic_field_getter(&field, ptr);
-}
-
-/**
- * Check if the provided AttrList contains 'value'.
- * @param al The AttrList object.
- * @param value The value to try and find.
- * @return 1 if the value was found, 0 otherwise. */
-static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
-{
-    unsigned PY_LONG_LONG i, len;
-    PyObject *check;
-
-    if (al->field == FIELDTYPE_FACTIONS) {
-        PyErr_SetString(PyExc_NotImplementedError, "Attribute list does not implement contains method.");
-        return -1;
-    }
-
-    len = attr_list_len(al);
-
-    for (i = 0; i < len; i++) {
-        /* attr_list_get() creates a new reference, so make sure to decrease
-         * it later. */
-        check = attr_list_get(al, NULL, i, NULL);
-
-        /* Compare the two objects... */
-        if (PyObject_RichCompareBool(check, value, Py_EQ) == 1) {
-            Py_DECREF(check);
-            return 1;
+        ns->ext_title_flag = true;
+        return true;
+    } else if (oper == AL_OPER_ITEMS) {
+        HARD_ASSERT(value != NULL);
+        *value = PyList_New(*len);
+        for (int i = 0; i < *len; i++) {
+            PyList_SetItem(*value, i, Py_BuildValue("s", (*perms)[i]));
         }
 
-        Py_DECREF(check);
-    }
-
-    return 0;
-}
-
-/**
- * Set new value for an array member that AttrList object is wrapping.
- * @param al The AttrList object.
- * @param key Index of the value to get. Can be NULL, in which case 'idx' will
- * be used instead.
- * @param idx Index of the value to get.
- * @param value New value to set.
- * @return 0 on success, -1 on failure. */
-static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_LONG idx, PyObject *value)
-{
-    unsigned PY_LONG_LONG len;
-    void *ptr;
-    fields_struct field = {"xxx", 0, 0, 0, 0};
-    int ret;
-    unsigned PY_LONG_LONG i;
-
-    /* Get the current length of the list. */
-    len = attr_list_len(al);
-    ptr = (char *) al->ptr + al->offset;
-
-    /* Command permissions. */
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-        i = key ? PyLong_AsUnsignedLongLong(key) : idx;
-
-        /* Over the maximum size; resize the array, as it's dynamic. */
-        if (i >= len) {
-            /* Increase the number of commands... */
-            (*(int *) attr_list_len_ptr(al))++;
-            /* And resize it. */
-            *(char ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
-            /* Make sure ptr points to the right memory... */
-            ptr = (char *) al->ptr + al->offset;
-            /* NULL the new member. */
-            (*(char ***) ptr)[i] = NULL;
+        return true;
+    } else if (oper == AL_OPER_CONTAINS) {
+        char *str = PyString_AsString(*value);
+        for (int i = 0; i < *len; i++) {
+            if ((*perms)[i] != NULL && strcmp((*perms)[i], str) == 0) {
+                return true;
+            }
         }
 
-        field.type = FIELDTYPE_CSTR;
-        ptr = &(*(char ***) ptr)[i];
-    } else if (al->field == FIELDTYPE_FACTIONS) {
-        char *str;
+        return false;
+    } else if (oper != AL_OPER_APPEND && oper != AL_OPER_GET &&
+            oper != AL_OPER_SET && oper != AL_OPER_ITER &&
+            oper != AL_OPER_REMOVE) {
+        PyErr_SetString(PyExc_NotImplementedError, "operation not implemented");
+        return false;
+    }
 
-        /* Factions. */
+    HARD_ASSERT(value != NULL);
 
-        str = PyString_AsString(key);
-        field.type = FIELDTYPE_INT64;
+    PY_LONG_LONG idx;
+    if (oper == AL_OPER_APPEND) {
+        *perms = erealloc(*perms, sizeof(**perms) * (*len + 1));
+        idx = *len;
+        (*perms)[idx] = NULL;
+        (*len)++;
+    } else if (oper == AL_OPER_ITER) {
+        idx = al->iter.idx;
+        if (idx >= *len) {
+            return false;
+        }
 
-        /* Try to find an existing entry. */
-        for (i = 0; i < len; i++) {
-            if (!strcmp(str, *(const char **) (&(*(shstr ***) ptr)[i]))) {
+        al->iter.idx++;
+    } else if (oper == AL_OPER_REMOVE) {
+        char *str = PyString_AsString(*value);
+        for (idx = 0; idx < *len; idx++) {
+            if ((*perms)[idx] != NULL && strcmp((*perms)[idx], str) == 0) {
                 break;
             }
         }
 
-        /* Doesn't exist, create it. */
-        if (i == len) {
-            (*(int *) attr_list_len_ptr(al))++;
-            *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-            *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string(str);
-            *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = erealloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
-            /* Make sure ptr points to the right memory... */
-            ptr = (char *) al->ptr + offsetof(player, faction_reputation);
-            /* NULL the new member. */
-            (*(int64_t **) ptr)[i] = 0;
+        if (idx >= *len) {
+            PyErr_SetString(PyExc_ValueError, "value not found");
+            return false;
+        }
+    } else {
+        HARD_ASSERT(key != NULL);
+        if (!PyLong_Check(key)) {
+            PyErr_SetString(PyExc_TypeError, "index must be an integer");
+            return false;
         }
 
-        ptr = &(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
-    } else {
-        PyErr_SetString(PyExc_NotImplementedError, "The attribute list does not implement support for write operations.");
-        return -1;
+        idx = PyLong_AsLongLong(key);
+        if (idx < 0) {
+            idx += *len;
+        }
+
+        if (idx >= *len) {
+            PyErr_SetString(PyExc_IndexError, "index out of range");
+            return false;
+        }
     }
 
-    ret = generic_field_setter(&field, ptr, value);
+    void *ptr = &(*perms)[idx];
+    fields_struct field = {"xxx", FIELDTYPE_CSTR, 0, 0, 0, NULL};
 
-    /* Success! */
-    if (ret == 0) {
-        if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
+    if (oper == AL_OPER_GET || oper == AL_OPER_ITER) {
+        *value = generic_field_getter(&field, ptr);
+        if (*value == NULL) {
+            return false;
         }
-    } else if (ret == -1) {
-        /* Failure; overflow, invalid value or some other kind of error. */
+    } else {
+        PyObject *what = oper == AL_OPER_REMOVE ? Py_None : *value;
+        int ret = generic_field_setter(&field, ptr, what);
+        if (ret == -1) {
+            if (oper == AL_OPER_APPEND) {
+                (*len)--;
+                *perms = erealloc(*perms, sizeof(**perms) * (*len));
+            }
 
-        if (i >= len) {
-            /* We tried to add a new command permission and we have already
-             * resized the array, so shrink it back now, as we failed. */
-            if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-                /* Decrease the number of commands... */
-                (*(int *) attr_list_len_ptr(al))--;
-                /* And resize it. */
-                *(char ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
-            } else if (al->field == FIELDTYPE_FACTIONS) {
-                (*(int *) attr_list_len_ptr(al))--;
-                *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-                *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = erealloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
+            return false;
+        }
+
+        ns->ext_title_flag = true;
+    }
+
+    return true;
+}
+
+/**
+ * Perform specified operation on a factions attribute list.
+ * @param al The attribute list.
+ * @param oper Operation to perform.
+ * @param key Key.
+ * @param value Value.
+ * @return True on success, false on failure.
+ */
+static bool attr_list_oper_factions(Atrinik_AttrList *al,
+        attr_list_oper_t oper, PyObject *key, PyObject **value)
+{
+    HARD_ASSERT(al != NULL);
+
+    if (oper == AL_OPER_CLEAR) {
+        player_faction_t *factions = *(player_faction_t **) (
+                (char *) al->ptr + al->offset), *faction, *tmp;
+        HASH_ITER(hh, factions, faction, tmp) {
+            hooks->player_faction_free(al->ptr, faction);
+        }
+
+        return true;
+    } else if (oper == AL_OPER_ITEMS) {
+        *value = PyList_New(0);
+        player_faction_t *factions = *(player_faction_t **) (
+                (char *) al->ptr + al->offset), *faction, *tmp;
+        HASH_ITER(hh, factions, faction, tmp) {
+            PyObject *tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, Py_BuildValue("s", faction->name));
+            PyTuple_SetItem(tuple, 1, Py_BuildValue("f", faction->reputation));
+            PyList_Append(*value, tuple);
+        }
+
+        return true;
+    } else if (oper != AL_OPER_CONTAINS && oper != AL_OPER_GET &&
+            oper != AL_OPER_SET && oper != AL_OPER_DELETE &&
+            oper != AL_OPER_ITER) {
+        PyErr_SetString(PyExc_NotImplementedError, "operation not implemented");
+        return false;
+    }
+
+    if (oper == AL_OPER_CONTAINS) {
+        HARD_ASSERT(value != NULL);
+        key = *value;
+    }
+
+    char *str = NULL;
+    if (oper != AL_OPER_ITER) {
+        HARD_ASSERT(key != NULL);
+        if (!PyString_Check(key)) {
+            PyErr_SetString(PyExc_TypeError, "key must be a string");
+            return false;
+        }
+
+        str = PyString_AsString(key);
+    }
+
+    if (oper == AL_OPER_CONTAINS) {
+        shstr *shared_str = hooks->find_string(str);
+        if (shared_str == NULL) {
+            return false;
+        }
+
+        player_faction_t *factions = *(player_faction_t **) (
+                (char *) al->ptr + al->offset), *faction, *tmp;
+        HASH_ITER(hh, factions, faction, tmp) {
+            if (faction->name == shared_str) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    HARD_ASSERT(value != NULL);
+
+    player_faction_t *faction;
+    bool added_new = false;
+    if (oper == AL_OPER_ITER) {
+        player_faction_t *factions = *(player_faction_t **) ((char *) al->ptr +
+                al->offset), *tmp;
+        PY_LONG_LONG i = 0;
+        HASH_ITER(hh, factions, faction, tmp) {
+            if (i++ == al->iter.idx) {
+                break;
+            }
+        }
+
+        if (faction == NULL) {
+            return false;
+        }
+
+        al->iter.idx++;
+    } else {
+        shstr *shared_str;
+        if (oper == AL_OPER_SET) {
+            shared_str = hooks->add_string(str);
+        } else {
+            shared_str = hooks->find_string(str);
+            if (shared_str == NULL) {
+                PyErr_SetString(PyExc_KeyError, "invalid key");
+                return false;
+            }
+        }
+
+        faction = hooks->player_faction_find(al->ptr, shared_str);
+        if (faction == NULL) {
+            if (oper != AL_OPER_SET) {
+                PyErr_SetString(PyExc_KeyError, "invalid key");
+                return false;
+            }
+
+            faction = hooks->player_faction_create(al->ptr, shared_str);
+            added_new = true;
+        }
+
+        if (oper == AL_OPER_SET) {
+            hooks->free_string_shared(shared_str);
+        } else if (oper == AL_OPER_DELETE) {
+            hooks->player_faction_free(al->ptr, faction);
+            return true;
+        }
+    }
+
+    void *ptr = &(*(double **) ((char *) (void *) faction +
+            offsetof(player_faction_t, reputation)));
+    fields_struct field = {"xxx", FIELDTYPE_DOUBLE, 0, 0, 0, NULL};
+
+    if (oper == AL_OPER_GET || oper == AL_OPER_ITER) {
+        *value = generic_field_getter(&field, ptr);
+        if (*value == NULL) {
+            return false;
+        }
+    } else {
+        int ret = generic_field_setter(&field, ptr, *value);
+        if (ret == -1) {
+            if (added_new) {
+                hooks->player_faction_free(al->ptr, faction);
+            }
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Perform specified operation on a packets attribute list.
+ * @param al The attribute list.
+ * @param oper Operation to perform.
+ * @param key Key.
+ * @param value Value.
+ * @return True on success, false on failure.
+ */
+static bool attr_list_oper_packets(Atrinik_AttrList *al,
+        attr_list_oper_t oper, PyObject *key, PyObject **value)
+{
+    HARD_ASSERT(al != NULL);
+
+    if (oper == AL_OPER_SET || oper == AL_OPER_CONTAINS ||
+            oper == AL_OPER_APPEND) {
+        HARD_ASSERT(value != NULL);
+        if (!PyBytes_Check(*value)) {
+            PyErr_SetString(PyExc_TypeError, "value must be a bytes object");
+            return false;
+        }
+    }
+
+    packet_struct **head = (packet_struct **) ((char *) al->ptr + al->offset);
+    if (oper == AL_OPER_CLEAR) {
+        packet_struct *packet, *tmp;
+        DL_FOREACH_SAFE(*head, packet, tmp) {
+            hooks->packet_free(packet);
+        }
+
+        *head = NULL;
+        return true;
+    } else if (oper == AL_OPER_CONTAINS) {
+        char *str = PyBytes_AsString(*value);
+        size_t len = PyBytes_Size(*value);
+        packet_struct *packet;
+        DL_FOREACH(*head, packet) {
+            if (packet->len == len && memcmp(packet->data, str, len) == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    } else if (oper != AL_OPER_GET && oper != AL_OPER_SET &&
+            oper != AL_OPER_APPEND && oper != AL_OPER_ITER) {
+        PyErr_SetString(PyExc_NotImplementedError, "operation not implemented");
+        return false;
+    }
+
+    packet_struct *elem = NULL;
+    if (oper == AL_OPER_ITER) {
+        elem = al->iter.ptr;
+        if (elem == NULL) {
+            elem = *head;
+        } else {
+            elem = elem->next;
+        }
+
+        if (elem == NULL) {
+            return false;
+        }
+
+        al->iter.ptr = elem;
+    } else if (oper != AL_OPER_APPEND) {
+        if (key == NULL) {
+            PyErr_SetString(PyExc_NotImplementedError,
+                    "operation not implemented");
+            return false;
+        }
+
+        if (!PyLong_Check(key)) {
+            PyErr_SetString(PyExc_TypeError, "index must be an integer");
+            return false;
+        }
+
+        PY_LONG_LONG idx = PyLong_AsLongLong(key), i = 0;
+        if (idx < 0) {
+            DL_FOREACH_REVERSE(*head, elem) {
+                if (--i == idx) {
+                    break;
+                }
+            }
+        } else {
+            DL_FOREACH(*head, elem) {
+                if (i++ == idx) {
+                    break;
+                }
             }
         }
     }
 
-    return ret;
-}
+    if (oper != AL_OPER_APPEND && elem == NULL) {
+        PyErr_SetString(PyExc_IndexError, "index out of range");
+        return false;
+    }
 
-/**
- * Implements value checking for both getter and setter methods.
- * @param al The AttrList object.
- * @param key Index to try and find.
- * @return 'key' if the value is valid, NULL otherwise. */
-static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
-{
-    if (al->field == FIELDTYPE_FACTIONS) {
-        if (!PyString_Check(key)) {
-            PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be a string.");
-            return NULL;
-        }
+    if (oper == AL_OPER_GET || oper == AL_OPER_ITER) {
+        *value = PyBytes_FromStringAndSize((const char *) elem->data,
+                elem->len);
+        return true;
+    }
+
+    packet_struct *packet = hooks->packet_new(0, PyBytes_Size(*value), 0);
+    hooks->packet_append_data_len(packet, (uint8_t *) PyBytes_AsString(*value),
+            PyBytes_Size(*value));
+
+    if (oper == AL_OPER_SET) {
+        DL_PREPEND_ELEM(*head, elem, packet);
+        DL_DELETE(*head, elem);
+        hooks->packet_free(elem);
     } else {
-        unsigned PY_LONG_LONG i, len;
-
-        /* The key must be an integer. */
-        if (!PyInt_Check(key)) {
-            PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be an integer.");
-            return NULL;
-        }
-
-        i = PyLong_AsUnsignedLongLong(key);
-
-        if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_OverflowError, "__getitem__() failed; key's integer value is too large.");
-            return NULL;
-        }
-
-        len = attr_list_len(al);
-
-        if (i > len) {
-            PyErr_Format(PyExc_ValueError, "__getitem__() failed; requested index (%"PRIu64 ") too big (len: %"PRIu64 ").", (uint64_t) i, (uint64_t) len);
-            return NULL;
-        }
+        DL_APPEND(*head, packet);
     }
 
-    return key;
+    return true;
 }
 
 /**
- * Implements the __getitem__() method.
- * @param al The AttrList object.
- * @param key Index to try and find.
- * @return The object from the AttrList at the specified index, NULL on
- * failure. */
-static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
+ * Perform specified operation on the attribute list.
+ * @param al The attribute list.
+ * @param oper Operation to perform.
+ * @param key Key.
+ * @param value Value.
+ * @return True on success, false on failure.
+ */
+static bool attr_list_oper(Atrinik_AttrList *al, attr_list_oper_t oper,
+        PyObject *key, PyObject **value)
 {
-    key = __getsetitem__(al, key);
+    switch (al->field) {
+    case FIELDTYPE_CMD_PERMISSIONS:
+        return attr_list_oper_cmd_permissions(al, oper, key, value);
 
-    if (key == NULL) {
-        return NULL;
+    case FIELDTYPE_FACTIONS:
+        return attr_list_oper_factions(al, oper, key, value);
+
+    case FIELDTYPE_PACKETS:
+        return attr_list_oper_packets(al, oper, key, value);
+
+    default:
+        LOG(ERROR, "Unhandled field: %d", al->field);
+        return false;
     }
-
-    return attr_list_get(al, key, 0, NULL);
 }
 
 /**
- * Implements the append() method; this is equivalent to the following:
- * @code
- *    attr_list[len(attr_list)] = xyz
- * @endcode
+ * Implements the append() method.
  * @param al The AttrList object.
  * @param value Value to append.
- * @return None. */
+ * @return None.
+ */
 static PyObject *append(Atrinik_AttrList *al, PyObject *value)
 {
-    unsigned PY_LONG_LONG i;
-
-    if (al->field == FIELDTYPE_FACTIONS) {
-        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement append method.");
+    if (!attr_list_oper(al, AL_OPER_APPEND, NULL, &value)) {
         return NULL;
     }
-
-    i = attr_list_len(al);
-    attr_list_set(al, NULL, i, value);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -355,57 +532,11 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
  * Implements the remove() method.
  * @param al The AttrList object.
  * @param value Value to remove.
- * @return None. */
+ * @return None.
+ */
 static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
 {
-    unsigned PY_LONG_LONG i, len;
-    PyObject *check;
-
-    if (al->field == FIELDTYPE_FACTIONS) {
-        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement remove method.");
-        return NULL;
-    }
-
-    len = attr_list_len(al);
-
-    for (i = 0; i < len; i++) {
-        /* attr_list_get() creates a new reference, so make sure to decrease
-         * it later. */
-        check = attr_list_get(al, NULL, i, NULL);
-
-        /* Compare the two objects... */
-        if (PyObject_RichCompareBool(check, value, Py_EQ) == 1) {
-            Py_DECREF(check);
-            Py_INCREF(Py_None);
-            attr_list_set(al, NULL, i, Py_None);
-
-            Py_INCREF(Py_None);
-            return Py_None;
-        }
-
-        Py_DECREF(check);
-    }
-
-    PyErr_SetString(PyExc_ValueError, "Value is not in attribute list.");
-    return NULL;
-}
-
-/**
- * Implements the clear() method.
- * @param al The AttrList object.
- * @return None. */
-static PyObject *attr_list_clear(Atrinik_AttrList *al)
-{
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-        if (*(char ***) ((void *) ((char *) al->ptr + al->offset)) != NULL) {
-            efree(*(char ***) ((void *) ((char *) al->ptr + al->offset)));
-            *(char ***) ((void *) ((char *) al->ptr + al->offset)) = NULL;
-            (*(int *) attr_list_len_ptr(al)) = 0;
-
-            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
-        }
-    } else {
-        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement clear method.");
+    if (!attr_list_oper(al, AL_OPER_REMOVE, NULL, &value)) {
         return NULL;
     }
 
@@ -413,40 +544,57 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
     return Py_None;
 }
 
-/** Available Python methods for the AtrinikPlayer type. */
+/**
+ * Implements the clear() method.
+ * @param al The AttrList object.
+ * @return None.
+ */
+static PyObject *attr_list_clear(Atrinik_AttrList *al)
+{
+    if (!attr_list_oper(al, AL_OPER_CLEAR, NULL, NULL)) {
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+/**
+ * Implements the items() method.
+ * @param al The AttrList object.
+ * @return List of the items in the AttrList.
+ */
+static PyObject *attr_list_items(Atrinik_AttrList *al)
+{
+    PyObject *value;
+    if (!attr_list_oper(al, AL_OPER_ITEMS, NULL, &value)) {
+        return NULL;
+    }
+
+    return value;
+}
+
+/** Available Python methods for the AtrinikAttrList type. */
 static PyMethodDef methods[] = {
-    {"__getitem__", (PyCFunction) __getitem__, METH_O | METH_COEXIST, 0},
     {"append", (PyCFunction) append, METH_O, 0},
     {"remove", (PyCFunction) attr_list_remove, METH_O, 0},
     {"clear", (PyCFunction) attr_list_clear, METH_NOARGS, 0},
+    {"items", (PyCFunction) attr_list_items, METH_NOARGS, 0},
     {NULL, NULL, 0, 0}
 };
-
-static int InternalCompare(Atrinik_AttrList *left, Atrinik_AttrList *right)
-{
-    return (left->field < right->field ? -1 : (left->field == right->field ? 0 : 1));
-}
-
-static PyObject *RichCompare(Atrinik_AttrList *left, Atrinik_AttrList *right, int op)
-{
-    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_AttrListType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_AttrListType)) {
-        Py_INCREF(Py_NotImplemented);
-        return Py_NotImplemented;
-    }
-
-    return generic_rich_compare(op, InternalCompare(left, right));
-}
 
 /**
  * Start iterating.
  * @param seq What to iterate through.
- * @return New iteration object. */
+ * @return New iteration object.
+ */
 static PyObject *iter(PyObject *seq)
 {
     Atrinik_AttrList *al, *orig_al = (Atrinik_AttrList *) seq;
 
     al = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
-    al->iter = 0;
+    al->iter.ptr = NULL;
+    al->iter.idx = 0;
     al->ptr = orig_al->ptr;
     al->offset = orig_al->offset;
     al->field = orig_al->field;
@@ -457,57 +605,65 @@ static PyObject *iter(PyObject *seq)
 /**
  * Keep iterating over an iteration object.
  * @param al The iteration object.
- * @return Next object from attribute list, NULL if the end was reached. */
+ * @return Next object from attribute list, NULL if the end was reached.
+ */
 static PyObject *iternext(Atrinik_AttrList *al)
 {
-    /* Possible to continue iteration? */
-    if (al->iter < attr_list_len(al)) {
-        al->iter++;
-
-        if (al->field == FIELDTYPE_FACTIONS) {
-            return attr_list_get(al, NULL, 0, *(const char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]));
-        }
-
-        return attr_list_get(al, NULL, al->iter - 1, NULL);
-    }
-
-    /* Stop iteration. */
-    return NULL;
+    PyObject *value = NULL;
+    attr_list_oper(al, AL_OPER_ITER, NULL, &value);
+    return value;
 }
 
 /**
- * Wrapper for attr_list_len(), using Py_ssize_t return value.
- *
- * Used by the len() method.
- * @param al AttrList pointer len() is being called on.
- * @return Length of the attribute list. */
+ * Implements the __len__() method.
+ * @param al AttrList instance.
+ * @return Length of the attribute list.
+ */
 static Py_ssize_t __len__(Atrinik_AttrList *al)
 {
     return attr_list_len(al);
 }
 
 /**
- * Wrapper for attr_list_set(), used by the __setitem__() method.
- * @param al AttrList pointer __setitem__() is being called on.
- * @return Return value of attr_list_set(). */
-static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
+ * Implements the __getitem__() method.
+ * @param al AttrList instance.
+ * @param key Index to try and find.
+ * @return The object from the AttrList at the specified index, NULL on
+ * failure.
+ */
+static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 {
-    key = __getsetitem__(al, key);
-
-    if (key == NULL) {
-        return -1;
-    }
-
-    return attr_list_set(al, key, 0, value);
+    PyObject *value = NULL;
+    attr_list_oper(al, AL_OPER_GET, key, &value);
+    return value;
 }
 
 /**
- * Wrapper for attr_list_contains(), used by the __contains__() method.
- * @param al AttrList pointer __contains__() is being called on.
- * @return Return value of attr_list_contains(). */
+ * Implements the __setitem__() method.
+ * @param al AttrList instance.
+ * @param key Key/index.
+ * @param value Value to set.
+ * @return 0 on success, -1 on failure.
+ */
+static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
+{
+    attr_list_oper_t oper = value != NULL ? AL_OPER_SET : AL_OPER_DELETE;
+    if (attr_list_oper(al, oper, key, &value)) {
+        return 0;
+    }
+
+    return -1;
+}
+
+/**
+ * Implements the __contains__() method for attribute list.
+ * @param al AttrList instance.
+ * @param value Value to find.
+ * @return 1 if the value is in the attribute list, 0 otherwise.
+ */
 static int __contains__(Atrinik_AttrList *al, PyObject *value)
 {
-    return attr_list_contains(al, value);
+    return attr_list_oper(al, AL_OPER_CONTAINS, NULL, &value);
 }
 
 /** Common sequence methods. */
@@ -520,7 +676,8 @@ static PySequenceMethods SequenceMethods = {
 
 /**
  * Defines what to map some common methods (len(), __setitem__() and
- * __getitem__()) to. */
+ * __getitem__()) to.
+ */
 static PyMappingMethods MappingMethods = {
     (lenfunc) __len__,
     (binaryfunc) __getitem__,
@@ -540,11 +697,7 @@ PyTypeObject Atrinik_AttrListType = {
     0,
     NULL,
     NULL, NULL, NULL,
-#ifdef IS_PY3K
     NULL,
-#else
-    (cmpfunc) InternalCompare,
-#endif
     NULL,
     0,
     &SequenceMethods,
@@ -554,8 +707,7 @@ PyTypeObject Atrinik_AttrListType = {
     0, 0, 0,
     Py_TPFLAGS_DEFAULT,
     "Atrinik attr lists",
-    NULL, NULL,
-    (richcmpfunc) RichCompare,
+    NULL, NULL, NULL,
     0,
     (getiterfunc) iter,
     (iternextfunc) iternext,
@@ -576,7 +728,8 @@ PyTypeObject Atrinik_AttrListType = {
 /**
  * Initializes the AttrList module.
  * @param module The main Atrinik module.
- * @return 1 on success, 0 on failure. */
+ * @return 1 on success, 0 on failure.
+ */
 int Atrinik_AttrList_init(PyObject *module)
 {
     Atrinik_AttrListType.tp_new = PyType_GenericNew;
@@ -586,7 +739,7 @@ int Atrinik_AttrList_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_AttrListType);
-    PyModule_AddObject(module, "AtrrList", (PyObject *) & Atrinik_AttrListType);
+    PyModule_AddObject(module, "AttrList", (PyObject *) &Atrinik_AttrListType);
 
     return 1;
 }
@@ -597,14 +750,13 @@ int Atrinik_AttrList_init(PyObject *module)
  * @param offset Where the array is in the structure.
  * @param field Type of the array being handled; for example,
  * @ref FIELDTYPE_FACTIONS.
- * @return The new wrapper object. */
+ * @return The new wrapper object.
+ */
 PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field)
 {
-    Atrinik_AttrList *wrapper;
-
-    wrapper = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
-
-    if (wrapper) {
+    Atrinik_AttrList *wrapper = PyObject_NEW(Atrinik_AttrList,
+            &Atrinik_AttrListType);
+    if (wrapper != NULL) {
         wrapper->ptr = ptr;
         wrapper->offset = offset;
         wrapper->field = field;

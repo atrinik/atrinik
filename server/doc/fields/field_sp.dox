@@ -1,6 +1,10 @@
 /**
-@fn liv::sp
-@section Use
+@var liv::sp
+@sa @ref page_field_sp
+*/
+
+/**
+@page page_field_sp liv::sp Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -13,31 +17,9 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_18
-		</td><td>		When activated, the selected &lt;spell&gt; will be cast (once, on
-		the player). This should work for any given spell. The altar will
-		work infinitely in this way. Don't set both &lt;spell&gt; and
-		&lt;connection&gt; for one altar.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33, @ref page_type_15
 		</td><td>			Positive &lt;mana regen.&gt; bonus speeds up the player's
 			mana regeneration. Negative values slow it down.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_103
-		</td><td>		The player has to put &lt;cost number&gt; items of
-		&lt;cost arch&gt; on the converter, in order to get
-		&lt;receive number&gt; items of &lt;receive arch&gt;.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_112
-		</td><td>		Projectiles will leave the director flying in the selected
-		&lt;direction&gt;. A director with direction &lt;none&gt; simply
-		stops projectiles.</td>
 	</tr>
 	<tr>
 		<td>
@@ -64,10 +46,7 @@
 @ref page_type_35
 		</td><td>		Sets the &lt;spell&gt; of the horn. Consider twice before handing
 		out any horns to players, since they can be used endlessly
-		without any mana cost!
-
-		Horns with heal/restoration/protection spells, IF available, MUST
-		be very very VERY difficult to get!</td>
+		without any mana cost!</td>
 	</tr>
 	<tr>
 		<td>
@@ -79,9 +58,9 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64, @ref page_type_98
+@ref page_type_64
 		</td><td>		Enabled means key text is compared to the slaying field of an
-		object and NOT to the name.</td>
+		object and not the name.</td>
 	</tr>
 	<tr>
 		<td>
@@ -127,14 +106,6 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_94
-		</td><td>		The pit will transport creatures (and items) randomly into a
-		two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the pit will act like
-		being filled up and not work anymore!</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_5
 		</td><td>		When a player drinks this potion, the selected spell will be cast
 		once. This should work for any given spell.
@@ -171,9 +142,9 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_85
-		</td><td>		The book will contain the specified spell. You could
-		alternatively use the spell name.</td>
+@ref page_type_98
+		</td><td>		Enabled means key text is compared to the slaying field of an
+		object and NOT to the name.</td>
 	</tr>
 	<tr>
 		<td>
@@ -188,14 +159,6 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_95
-		</td><td>		The trapdoor will transport creatures (and items) randomly into
-		a two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the trapdoor will act like
-		being filled up and not work anymore!</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_109
 		</td><td>		The &lt;spell&gt; specifies the contained spell.</td>
 	</tr>
@@ -204,6 +167,11 @@
 @ref page_type_119
 		</td><td>		The destinations define the (x, y)-coordinates where the mob
 		should go.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_152
+		</td><td>		Number of tiles south of the info object that the object spans.</td>
 	</tr>
 
 */

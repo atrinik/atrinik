@@ -1,6 +1,9 @@
 import json
 import random
 
+from Atrinik import *
+
+
 def get_waypoints():
     for obj in activator.inv:
         if obj != me and obj.type == Type.WAYPOINT_OBJECT:

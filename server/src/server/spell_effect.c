@@ -27,6 +27,7 @@
  * Various spell effects. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * This is really used mostly for spell fumbles at the like.
@@ -67,19 +68,25 @@ int recharge(object *op)
         return 0;
     }
 
+    char *name = object_get_name_s(wand, op);
+
     if (wand->stats.sp < 0 || wand->stats.sp >= NROFREALSPELLS || !spells[wand->stats.sp].charges) {
-        draw_info_format(COLOR_RED, op, "The %s cannot be recharged.", query_name(wand, NULL));
+        draw_info_format(COLOR_RED, op, "The %s cannot be recharged.", name);
+        efree(name);
         return 0;
     }
 
-    if (!(rndm(0, 6))) {
-        draw_info_format(COLOR_WHITE, op, "The %s vibrates violently, then explodes!", query_name(wand, NULL));
+    if (rndm_chance(6)) {
+        draw_info_format(COLOR_WHITE, op, "The %s vibrates violently, then "
+                "explodes!", name);
         play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
         object_remove(wand, 0);
+        object_destroy(wand);
+        efree(name);
         return 1;
     }
 
-    draw_info_format(COLOR_WHITE, op, "The %s glows with power.", query_name(wand, NULL));
+    draw_info_format(COLOR_WHITE, op, "The %s glows with power.", name);
 
     wand->stats.food += 12 + rndm(1, spells[wand->stats.sp].charges);
     cap = spells[wand->stats.sp].charges + 12;
@@ -95,6 +102,7 @@ int recharge(object *op)
         update_ob_speed(wand);
     }
 
+    efree(name);
     return 1;
 }
 
@@ -109,41 +117,43 @@ int recharge(object *op)
  * @param stringarg Optional parameter specifying what kind of items to
  * create.
  * @retval 0 No food created.
- * @retval 1 Food was created. */
+ * @retval 1 Food was created.
+ * @todo Looping the global arch table is not an ideal case in terms of
+ * performance...
+ */
 int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 {
-    int food_value;
-    archetype *at = NULL;
-    object *new_op;
+    int food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
 
-    food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
+    archetype_t *at = NULL;
+    if (stringarg != NULL) {
+        at = arch_find(stringarg);
 
-    if (stringarg) {
-        at = find_archetype(stringarg);
-
-        if (at == NULL || ((at->clone.type != FOOD && at->clone.type != DRINK) || (at->clone.stats.food > food_value))) {
+        if (at == NULL || ((at->clone.type != FOOD &&
+                at->clone.type != DRINK) || (at->clone.stats.food >
+                food_value))) {
             stringarg = NULL;
+            at = NULL;
         }
     }
 
-    if (!stringarg) {
-        archetype *at_tmp;
+    if (stringarg == NULL) {
+        archetype_t *at_tmp, *tmp;
+        HASH_ITER(hh, arch_table, at_tmp, tmp) {
+            /* Not food or a drink */
+            if (at_tmp->clone.type != FOOD && at_tmp->clone.type != DRINK) {
+                continue;
+            }
 
-        /* We try to find the archetype with the maximum food value.
-         * This removes the dependency of hard coded food values in this
-         * function, and addition of new food types is automatically added.
-         * We don't use flesh types because the weight values of those need
-         * to be altered from the donor. */
+            /* Food value is higher than what is creatable, skip. */
+            if (at_tmp->clone.stats.food > food_value) {
+                continue;
+            }
 
-        /* We assume the food items don't have multiple parts */
-        for (at_tmp = first_archetype; at_tmp != NULL; at_tmp = at_tmp->next) {
-            if (at_tmp->clone.type == FOOD || at_tmp->clone.type == DRINK) {
-                /* Basically, if the food value is something that is creatable
-                 * under the limits of the spell and it is higher than
-                 * the item we have now, take it instead. */
-                if (at_tmp->clone.stats.food <= food_value && (!at || at_tmp->clone.stats.food > at->clone.stats.food)) {
-                    at = at_tmp;
-                }
+            /* Don't have a food arch yet, or the current one has a higher food
+             * value, so take it instead. */
+            if (at == NULL || at_tmp->clone.stats.food > at->clone.stats.food) {
+                at = at_tmp;
             }
         }
     }
@@ -156,7 +166,7 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
     }
 
     food_value /= at->clone.stats.food;
-    new_op = get_object();
+    object *new_op = get_object();
     copy_object(&at->clone, new_op, 0);
     new_op->nrof = food_value;
 
@@ -193,12 +203,9 @@ int cast_wor(object *op, object *caster)
         return 0;
     }
 
-    dummy = get_archetype("force");
-
-    if (dummy == NULL) {
-        logger_print(LOG(BUG), "get_archetype failed (%s - %s)!", query_name(op, NULL), query_name(caster, NULL));
-        return 0;
-    }
+    dummy = arch_get("force");
+    SOFT_ASSERT_RC(dummy != NULL, 0, "Failed to find 'force' archetype, "
+            "op: %s, caster: %s", object_get_str(op), object_get_str(caster));
 
     /* Better insert the spell in the player */
     if (op->owner) {
@@ -359,12 +366,13 @@ int cast_heal_around(object *op, int level, int type)
  * @param spell_type ID of the spell. */
 int cast_heal(object *op, int level, object *target, int spell_type)
 {
-    archetype *at;
+    archetype_t *at;
     object *temp;
     int heal = 0, success = 0;
 
-    if (!op || !target) {
-        logger_print(LOG(BUG), "target or caster NULL (op: %s target: %s)", query_name(op, NULL), query_name(target, NULL));
+    if (op == NULL || target == NULL) {
+        log_error("Target or caster is NULL, op: %s, target: %s",
+                object_get_str(op), object_get_str(target));
         return 0;
     }
 
@@ -378,7 +386,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
         break;
 
     case SP_CURE_POISON:
-        at = find_archetype("poisoning");
+        at = arch_find("poisoning");
 
         if (op != target && target->type == PLAYER) {
             draw_info_format(COLOR_WHITE, target, "%s casts cure poison on you!", op->name ? op->name : "Someone");
@@ -416,7 +424,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
         break;
 
     case SP_CURE_CONFUSION:
-        at = find_archetype("confusion");
+        at = arch_find("confusion");
 
         if (op != target && target->type == PLAYER) {
             draw_info_format(COLOR_WHITE, target, "%s casts cure confusion on you!", op->name ? op->name : "Someone");
@@ -563,8 +571,11 @@ int cast_heal(object *op, int level, object *target, int spell_type)
         op->speed_left = -FABS(op->speed) * 3;
     }
 
-    if (insert_spell_effect(spells[spell_type].archname, target->map, target->x, target->y)) {
-        logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s target:%s", spell_type, query_name(op, NULL), query_name(target, NULL));
+    if (insert_spell_effect(spells[spell_type].archname, target->map,
+            target->x, target->y)) {
+        log_error("Failed to insert spell effect, spell: %d, op: %s, "
+                "target: %s", spell_type, object_get_str(op),
+                object_get_str(target));
     }
 
     return success;
@@ -577,7 +588,8 @@ int cast_heal(object *op, int level, object *target, int spell_type)
  * @param target Target of the caster; who is receiving the spell.
  * @param spell_type ID of the spell.
  * @retval 0 Spell failed.
- * @retval 1 Spell was successful. */
+ * @retval 1 Spell was successful.
+ */
 int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 {
     object *tmp = target, *tmp2 = NULL, *force = NULL;
@@ -601,7 +613,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
     }
 
     if (force == NULL) {
-        force = get_archetype("force_effect");
+        force = arch_get("force_effect");
     }
 
     /* Mark this force with the originating spell */
@@ -629,13 +641,16 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
             }
         }
 
-        if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y)) {
-            logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
+        if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map,
+                target->x, target->y)) {
+            log_error("Failed to insert spell effect, spell: %d, op: %s, "
+                    "caster: %s, target: %s", spell_type, object_get_str(op),
+                    object_get_str(caster), object_get_str(target));
         }
 
         break;
 
-        /* Attacktype protection spells */
+    /* Attacktype protection spells */
     case SP_PROT_COLD:
         i = ATNR_COLD;
         break;
@@ -671,6 +686,11 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
         }
 
         force = insert_ob_in_ob(force, tmp);
+        if (force == NULL) {
+            log_error("Failed to create force for spell %d, op: %s, "
+                    "caster: %s, target: %s", spell_type, object_get_str(op),
+                    object_get_str(caster), object_get_str(target));
+        }
     } else {
         esrv_update_item(UPD_EXTRA, force);
     }
@@ -697,9 +717,15 @@ int remove_curse(object *op, object *target, int type, int src)
 
     if (op != target) {
         if (op->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, op, "You cast remove %s on %s.", type == SP_REMOVE_CURSE ? "curse" : "damnation", query_base_name(target, NULL));
+            char *name = object_get_base_name_s(target, op);
+            draw_info_format(COLOR_WHITE, op, "You cast remove %s on %s.",
+                    type == SP_REMOVE_CURSE ? "curse" : "damnation", name);
+            efree(name);
         } else if (target->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, target, "%s casts remove %s on you.", query_base_name(op, NULL), type == SP_REMOVE_CURSE ? "curse" : "damnation");
+            char *name = object_get_base_name_s(op, target);
+            draw_info_format(COLOR_WHITE, target, "%s casts remove %s on you.",
+                    name, type == SP_REMOVE_CURSE ? "curse" : "damnation");
+            efree(name);
         }
     }
 
@@ -719,9 +745,17 @@ int remove_curse(object *op, object *target, int type, int src)
                 /* Level of the items is too high for this remove curse */
 
                 if (target->type == PLAYER) {
-                    draw_info_format(COLOR_WHITE, target, "The %s's curse is stronger than the spell!", query_base_name(tmp, NULL));
+                    char *name = object_get_base_name_s(tmp, target);
+                    draw_info_format(COLOR_WHITE, target, "The %s's curse is "
+                            "stronger than the spell!", name);
+                    efree(name);
                 } else if (op != target && op->type == PLAYER) {
-                    draw_info_format(COLOR_WHITE, op, "The %s's curse of %s is stronger than your spell!", query_base_name(tmp, NULL), query_base_name(target, NULL));
+                    char *name = object_get_base_name_s(tmp, op);
+                    char *target_name = object_get_base_name_s(target, op);
+                    draw_info_format(COLOR_WHITE, op, "The %s's curse of %s is "
+                            "stronger than your spell!", name, target_name);
+                    efree(name);
+                    efree(target_name);
                 }
             }
         }
@@ -731,7 +765,10 @@ int remove_curse(object *op, object *target, int type, int src)
         if (success) {
             draw_info(COLOR_WHITE, op, "Your spell removes some curses.");
         } else {
-            draw_info_format(COLOR_WHITE, op, "%s's items seem uncursed.", query_base_name(target, NULL));
+            char *name = object_get_base_name_s(target, op);
+            draw_info_format(COLOR_WHITE, op, "%s's items seem uncursed.",
+                    name);
+            efree(name);
         }
     }
 
@@ -768,15 +805,20 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 
     if (level < tmp->level) {
         if (op->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, op, "The %s is too powerful for this identify!", query_base_name(tmp, NULL));
+            char *name = object_get_base_name_s(tmp, op);
+            draw_info_format(COLOR_WHITE, op, "The %s is too powerful for this "
+                    "identify!", name);
+            efree(name);
         }
     } else {
         identify(tmp);
 
         if (op->type == PLAYER) {
-            draw_info_format(COLOR_WHITE, op, "You have %s.", long_desc(tmp, NULL));
+            char *name = object_get_name_description_s(tmp, op);
+            draw_info_format(COLOR_WHITE, op, "You have %s.", name);
+            efree(name);
 
-            if (tmp->msg) {
+            if (tmp->msg != NULL) {
                 draw_info(COLOR_WHITE, op, "The item has a story:");
                 draw_info(COLOR_WHITE, op, tmp->msg);
             }
@@ -808,6 +850,8 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
     insert_spell_effect(spells[SP_IDENTIFY].archname, op->map, op->x, op->y);
 
     if (mode == IDENTIFY_MARKED) {
+        SOFT_ASSERT_RC(single_ob != NULL, 0, "single_ob is NULL for object: %s",
+                object_get_str(op));
         do_cast_identify(single_ob, op, mode, &done, level);
     } else {
         object *tmp = op->inv;
@@ -869,7 +913,7 @@ int cast_consecrate(object *op)
                     *cp = tolower(*cp);
                 }
 
-                new_altar = get_archetype(buf);
+                new_altar = arch_get(buf);
                 new_altar->level = tmp->level;
                 new_altar->x = tmp->x;
                 new_altar->y = tmp->y;
@@ -910,7 +954,10 @@ int finger_of_death(object *op, object *target)
     int dam;
 
     if (QUERY_FLAG(target, FLAG_UNDEAD)) {
-        draw_info_format(COLOR_WHITE, op, "The spell seems ineffective against the %s!", query_name(target, NULL));
+        char *name = object_get_name_s(target, op);
+        draw_info_format(COLOR_WHITE, op, "The spell seems ineffective against "
+                "the %s!", name);
+        efree(name);
 
         if (!OBJECT_VALID(target->enemy, target->enemy_count)) {
             set_npc_enemy(target, op, NULL);
@@ -943,7 +990,7 @@ int finger_of_death(object *op, object *target)
  * @param type ID of the spell.
  * @retval 0 No one caught anything.
  * @retval 1 At least one living was affected. */
-int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type)
+int cast_cause_disease(object *op, object *caster, int dir, struct archetype *disease_arch, int type)
 {
     int x = op->x, y = op->y, i, xt, yt;
     object *walk;
@@ -1079,9 +1126,13 @@ int cast_transform_wealth(object *op)
         return 0;
     }
 
+    char *name = object_get_name_s(marked, op);
+
     /* Only allow coppers and silvers to be transformed. */
     if (strcmp(marked->arch->name, coins[NUM_COINS - 1]) && strcmp(marked->arch->name, coins[NUM_COINS - 2])) {
-        draw_info_format(COLOR_WHITE, op, "You don't see a way to transform %s.", query_name(marked, op));
+        draw_info_format(COLOR_WHITE, op, "You don't see a way to transform "
+                "%s.", name);
+        efree(name);
         return 0;
     }
 
@@ -1090,7 +1141,9 @@ int cast_transform_wealth(object *op)
     /* We remove the money. */
     object_remove(marked, 0);
     /* Now give the player the new money. */
-    insert_coins(op, val);
-    draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", query_name(marked, op), cost_string_from_value(val));
+    shop_insert_coins(op, val);
+    draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", name,
+            shop_get_cost_string(val));
+    efree(name);
     return 1;
 }

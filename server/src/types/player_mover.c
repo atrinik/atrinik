@@ -83,7 +83,7 @@ static void player_mover_handle(object *op, object *victim, bool process)
         return;
     }
 
-    if (op->speed) {
+    if (!DBL_EQUAL(op->speed, 0.0)) {
         object *nextmover;
 
         FOR_MAP_LAYER_BEGIN(map, x, y, LAYER_SYS, -1, nextmover) {
@@ -109,7 +109,13 @@ static void player_mover_handle(object *op, object *victim, bool process)
             player_path_clear(CONTR(victim));
         }
 
-        move_object(victim, dir);
+        OBJ_DESTROYED_BEGIN(victim) {
+            move_object(victim, dir);
+
+            if (OBJ_DESTROYED(victim)) {
+                return;
+            }
+        } OBJ_DESTROYED_END();
     }
 
     if (op->stats.maxsp == 0 && op->stats.sp) {

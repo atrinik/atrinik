@@ -1,6 +1,7 @@
 ## @file
 ## Handles map-wide events in guild storage maps.
 
+from Atrinik import *
 from Guild import Guild
 
 other = WhoIsOther()
@@ -81,7 +82,7 @@ def main():
             pl.DrawInfo("You must get it first!\n", COLOR_WHITE)
             SetReturnValue(OBJECT_METHOD_OK + 1)
         elif other.type == Type.CONTAINER and other.title and guild.member_get_rank(activator.name) != other.title[1:-1] and not guild.member_is_admin(activator.name):
-            pl.DrawInfo("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]), COLOR_ORANGE)
+            pl.DrawInfo("The {} is only accessible to those with the {} rank.".format(other.GetName(), other.title[1:-1]))
             SetReturnValue(OBJECT_METHOD_OK + 1)
     elif event_num == MEVENT_CMD_DROP or event_num == MEVENT_CMD_TAKE:
         if not "[OP]" in player.cmd_permissions and not guild.member_is_admin(activator.name):

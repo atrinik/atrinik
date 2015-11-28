@@ -4,7 +4,7 @@ See @ref page_type_98
 */
 
 /**
-@page page_type_98 Sign &amp; MagicMouth
+@page page_type_98 Sign
 
 
 @section Description
@@ -29,6 +29,14 @@ Type defined by:
 		<th>Attribute</th>
 		<th>Field</th>
 		<th>Description</th>
+	</tr>
+	<tr>
+		<td>action</td>
+		<td>@ref page_custom_attributes "notification_action"</td>
+		<td>			Action to execute when the notification is triggered - either a
+			keybinding macro (starting with a question mark, for example,
+			?HELP), or a command beginning with a slash.
+		</td>
 	</tr>
 	<tr>
 		<td>activate by flying</td>
@@ -133,6 +141,16 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>delay</td>
+		<td>@ref page_custom_attributes "notification_delay"</td>
+		<td>			Time in milliseconds that the notification will stay visible.
+			About 5 seconds before the time runs out, the notification will
+			start fading out (thus, the client forces the delay to be at least
+			5 seconds, even if you use a smaller value). The default delay is
+			30 seconds.
+		</td>
+	</tr>
+	<tr>
 		<td>direction</td>
 		<td>@ref obj::direction</td>
 		<td>		The object's direction.
@@ -140,7 +158,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -162,6 +180,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
 		<td>identified</td>
 		<td>@ref FLAG_IDENTIFIED</td>
 		<td>		If an item is identified, the player has full knowledge about it.
@@ -169,14 +193,14 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>ignore connection push</td>
-		<td>@ref obj::connect_no_push</td>
+		<td>@ref FLAG_CONNECT_NO_PUSH</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 		</td>
 	</tr>
 	<tr>
 		<td>ignore connection release</td>
-		<td>@ref obj::connect_no_release</td>
+		<td>@ref FLAG_CONNECT_NO_RELEASE</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
 		</td>
@@ -227,9 +251,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -307,6 +331,12 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>message</td>
+		<td>@ref page_custom_attributes "notification_message"</td>
+		<td>			Notification message to show below the map name.
+		</td>
+	</tr>
+	<tr>
+		<td>message</td>
 		<td>@ref obj::msg</td>
 		<td>		This text will be displayed to the player.
 		</td>
@@ -315,13 +345,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -399,6 +422,28 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
+		<td>shortcut</td>
+		<td>@ref page_custom_attributes "notification_shortcut"</td>
+		<td>			Keybinding macro that will be temporarily used for the notification -
+			for example, one could use ?CONSOLE to make the enter key (default)
+			execute the notification action - until the notification disappears
+			(fade out, or dismissed by actually triggering its action).
+		</td>
+	</tr>
+	<tr>
+		<td>sound effect</td>
+		<td>@ref obj::title</td>
+		<td>		Optional sound effect to play when the sign is read (or triggered,
+		in case of magic mouths).
+		</td>
+	</tr>
+	<tr>
 		<td>stackable</td>
 		<td>@ref FLAG_CAN_STACK</td>
 		<td>		If set, the item can be stacked. Careful, don't use on rings or
@@ -439,8 +484,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -450,14 +504,6 @@ Type defined by:
 		Warning: Not all objects have a sub type and changing it without
 		care can corrupt server AND/OR the clients. Normally this is not
 		a subject to change outside arch definition.
-		</td>
-	</tr>
-	<tr>
-		<td>title</td>
-		<td>@ref obj::title</td>
-		<td>		This is the object's title. Once an object is identified the
-		title is attached to the name. Typical titles are "of Yordan",
-		"of xray vision" etc.
 		</td>
 	</tr>
 	<tr>
@@ -479,6 +525,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

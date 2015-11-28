@@ -221,7 +221,7 @@ void skills_remove(object *op)
     size_t skill_id, i;
 
     if (!skill_find_object(op, &skill_id)) {
-        logger_print(LOG(BUG), "Tried to remove skill '%s', but it was not in skill list.", op->s_name);
+        LOG(BUG, "Tried to remove skill '%s', but it was not in skill list.", op->s_name);
         return;
     }
 

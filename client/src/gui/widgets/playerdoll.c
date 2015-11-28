@@ -219,7 +219,7 @@ static void widget_draw(widgetdata *widget)
         }
 
         object_show_centered(widget->surface, obj, xpos + xoff, ypos + yoff,
-                INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE);
+                INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE, false);
     }
 }
 
@@ -254,7 +254,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 }
 
                 if (obj->nrof > 1) {
-                    snprintfcat(buf, sizeof(buf), "%d %s", obj->nrof,
+                    snprintfcat(buf, sizeof(buf), "%" PRIu32 " %s", obj->nrof,
                             obj->s_name);
                 } else {
                     strncat(buf, obj->s_name, sizeof(buf) - strlen(buf) - 1);
@@ -266,9 +266,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
             tooltip_enable_delay(300);
             tooltip_multiline(200);
+            return 1;
         }
-
-        return 1;
     }
 
     return 0;

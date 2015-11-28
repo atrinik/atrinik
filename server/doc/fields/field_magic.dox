@@ -1,6 +1,10 @@
 /**
-@fn obj::magic
-@section Use
+@var obj::magic
+@sa @ref page_field_magic
+*/
+
+/**
+@page page_field_magic obj::magic Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

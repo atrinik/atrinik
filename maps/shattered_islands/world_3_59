@@ -2,13 +2,13 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 5
 outdoor 1
-bg_music town.mid
+bg_music town.mod
 region strakewood_island
 end
 arch grassd_6
@@ -2445,6 +2445,7 @@ endmsg
 name Captain Ferrel
 level 25
 type 83
+faction aris_guards
 end
 end
 arch floor_flagm2
@@ -2638,6 +2639,7 @@ arch guard
 type 83
 level 17
 direction 3
+faction aris_guards
 end
 end
 arch floor_flagm1

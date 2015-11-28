@@ -2,11 +2,11 @@ arch map
 name Asteria
 msg
 Created:  2011-10-07 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 darkness 3
 no_harm 1
 bg_music chether.mid
@@ -161,11 +161,8 @@ arch guard
 name Asterian Guard
 type 83
 level 35
+faction asteria_guards
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1d
@@ -357,7 +354,7 @@ arch table_wood1.111
 x 7
 y 23
 end
-arch mitcoin
+arch mithrilcoin
 z 26
 layer 4
 sub_layer 1
@@ -667,11 +664,8 @@ arch guard
 name Asterian Guard
 type 83
 level 35
+faction asteria_guards
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1d
@@ -965,7 +959,7 @@ direction 0
 randomitems none
 invulnerable 1
 no_attack 1
-friendly 1
+faction asteria_citizens
 stand_still 1
 type 83
 end

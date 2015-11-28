@@ -1,6 +1,10 @@
 /**
-@fn obj::last_sp
-@section Use
+@var obj::last_sp
+@sa @ref page_field_last_sp
+*/
+
+/**
+@page page_field_last_sp obj::last_sp Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -16,28 +20,6 @@
 		This is used for burned out lights like torches.
 
 		If the value is negative, this object will invoke darkness.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_18
-		</td><td>		The spell will be cast in this direction. Note, that if the altar
-		should cast a healing spell on the player, this must be direction
-		0. For other spells like firestorm, it should be set a valid
-		point of the compass direction.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_31
-		</td><td>		If this attribute is enabled, the altar trigger won't push the
-		connected value by altar reset. Only ONCE by dropping the
-		sacrifice. This is typically used when the altar is connected to
-		a creator, e.g. for selling tickets.
-
-		If this attribute is disabled (default), the altar trigger will
-		push the connected value TWICE per sacrifice: First by dropping
-		sacrifice, second by reset. This mode is typically used for
-		altars being connected to gates, resulting in the gate being
-		opened and closed again.</td>
 	</tr>
 	<tr>
 		<td>
@@ -77,27 +59,6 @@
 @ref page_type_64, @ref page_type_98
 		</td><td>		Enabled means having that object is a match. Disabled means not
 		having that object is a match.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_65
-		</td><td>		&lt;mood&gt; is used to determine what will happen to the monster
-		when affected by the mood floor:
-
-		furious: Makes all monsters aggressive.
-		angry: As above but pets are unaffected.
-		calm: Makes all monsters unaggressive.
-		sleep: Puts all monsters to sleep.
-		charm: Turns monster into a pet of person who triggers the
-		       square. This setting is not enabled for continous
-			   operation, you need to insert a &lt;connection&gt; value!</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_94, @ref page_type_95
-		</td><td>		If the transfer flag is set, the destination values are used in a
-		special way - instead of marking a fixed position, they are used
-		to define a "drop area" where the player drops randomly.</td>
 	</tr>
 	<tr>
 		<td>

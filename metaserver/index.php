@@ -63,7 +63,11 @@ while ($row = db_fetch_assoc($request))
 	}
 	else
     {
-        if ($matched && (int) $matches[3] >= 1059)
+        if ($matched && (int) $matches[3] >= 1064)
+        {
+		    echo $row['hostname'], "\t", $row['port'], "\t", $row['name'], "\t", $row['num_players'], "\t", $row['version'], "\t", $row['text_comment'];
+        }
+        elseif ($matched && (int) $matches[3] >= 1059)
         {
 		    echo $row['ip_address'], ':', $row['port'], ':', $row['name'], ':', $row['hostname'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
         }
