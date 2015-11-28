@@ -55,6 +55,12 @@ typedef struct widgetdata {
     /** Height. */
     int h;
 
+    /** X position with zooming taken into account. */
+    int zoom_x;
+
+    /** Y position with zooming taken into account. */
+    int zoom_y;
+
     /** Is the widget moveable? */
     uint8_t moveable;
 
@@ -129,6 +135,8 @@ typedef struct widgetdata {
      * If 1, this widget will not be rendered, but any items it contains
      * will still get processed and rendered. */
     int hidden;
+
+    double zoom; ///< Zoom factor of the widget.
 
     void (*draw_func)(struct widgetdata *widget);
 

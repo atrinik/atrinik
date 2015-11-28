@@ -595,6 +595,88 @@ void widgets_reset(void)
 }
 
 /**
+ * Acquire the specified widget's X coordinate.
+ *
+ * @param widget Widget.
+ * @return X coordinate.
+ */
+int
+widget_x (const widgetdata *widget)
+{
+    if (!DBL_EQUAL(widget->zoom, 1.0)) {
+        return widget->zoom_x;
+    }
+
+    return widget->x;
+}
+
+/**
+ * Acquire the specified widget's Y coordinate.
+ *
+ * @param widget Widget.
+ * @return Y coordinate.
+ */
+int
+widget_y (const widgetdata *widget)
+{
+    if (!DBL_EQUAL(widget->zoom, 1.0)) {
+        return widget->zoom_y;
+    }
+
+    return widget->y;
+}
+
+/**
+ * Acquire the specified widget's width.
+ *
+ * @param widget Widget.
+ * @return Width.
+ */
+int
+widget_w (const widgetdata *widget)
+{
+    return widget->w * widget->zoom;
+}
+
+/**
+ * Acquire the specified widget's height.
+ *
+ * @param widget Widget.
+ * @return Height.
+ */
+int
+widget_h (const widgetdata *widget)
+{
+    return widget->h * widget->zoom;
+}
+
+/**
+ * Set the widget's zoom value.
+ *
+ * @param widget Widget.
+ * @param zoom New zoom value.
+ * @return Whether the widget's zoom value changed.
+ */
+bool
+widget_set_zoom (widgetdata *widget, double zoom)
+{
+    if (DBL_EQUAL(widget->zoom, zoom)) {
+        /* Zoom values are the same; nothing to do. */
+        return false;
+    }
+
+    widget->zoom = zoom;
+
+    int w, h;
+    zoomSurfaceSize(widget->w, widget->h, zoom, zoom, &w, &h);
+
+    widget->zoom_x = widget->x - (w - widget->w) / 2;
+    widget->zoom_y = widget->y - (h - widget->h) / 2;
+
+    return true;
+}
+
+/**
  * Ensures a single widget is on-screen.
  * @param widget The widget. */
 static void widget_ensure_onscreen(widgetdata *widget)
@@ -688,6 +770,7 @@ widgetdata *create_widget(int widget_id)
     /* set the members */
     memcpy(node, &def_widget[widget_id], sizeof(*node));
     node->sub_type = widget_id;
+    node->zoom = 1.0;
 
     /* link it up to the tree if the root exists */
     if (widget_list_head) {
@@ -1395,7 +1478,10 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
         switch (widget->type) {
         default:
 
-            if (x >= widget->x && x <= (widget->x + widget->w) && y >= widget->y && y <= (widget->y + widget->h)) {
+            if (x >= widget_x(widget) &&
+                y >= widget_y(widget) &&
+                x <= widget_x(widget) + widget_w(widget) &&
+                y <= widget_y(widget) + widget_h(widget)) {
                 return widget;
             }
         }
