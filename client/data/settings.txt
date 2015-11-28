@@ -135,7 +135,7 @@ category Client
 		type range
 		range 0 - 255
 		advance 5
-		default 255
+		default 190
 		desc Transparency of text window background. 255 is fully opaque, and 0 is fully transparent.
 	end
 	setting Resolution X
