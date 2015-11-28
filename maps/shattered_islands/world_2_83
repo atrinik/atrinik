@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-27 Alex Tokar
+Modified: 2015-11-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3410,6 +3410,13 @@ x 23
 y 16
 end
 arch wall_wood_8
+x 23
+y 16
+end
+arch map_info
+name incuna_stables
+sp 4
+cursed 1
 x 23
 y 16
 end

@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-10-25 Alex Tokar
+Modified: 2015-11-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -112,6 +112,13 @@ end
 arch wall_wood_8
 y 12
 end
+arch map_info
+name incuna_tavern
+hp 8
+sp 7
+cursed 1
+y 12
+end
 arch grassd_5
 y 13
 end
@@ -170,6 +177,12 @@ arch floor_wood3f
 y 20
 end
 arch wall_wood_3
+y 20
+end
+arch map_info
+name incuna_tavern
+sp 2
+cursed 1
 y 20
 end
 arch floor_wood3a
@@ -271,8 +284,8 @@ arch floor_wood2b
 x 1
 y 15
 end
-arch grain3.101
-no_pass 1
+arch ladder_up
+direction 7
 x 1
 y 15
 end
@@ -3467,6 +3480,14 @@ arch wall_stone4_8
 x 18
 y 4
 end
+arch map_info
+name incuna_smith
+hp 5
+sp 8
+cursed 1
+x 18
+y 4
+end
 arch grassd_1
 x 18
 y 5
@@ -3612,12 +3633,6 @@ x 18
 y 23
 end
 arch grassd_5
-x 19
-end
-arch lantern_blue
-x 19
-end
-arch light5
 x 19
 end
 arch grassd_7
@@ -3832,6 +3847,12 @@ x 19
 y 23
 end
 arch grassd_2
+x 20
+end
+arch lantern_blue
+x 20
+end
+arch light5
 x 20
 end
 arch grassd_8

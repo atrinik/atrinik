@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-10-18 Alex Tokar
+Modified: 2015-11-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -51,6 +51,13 @@ end
 arch stairs_stone_down
 y 7
 end
+arch map_info
+name incuna_bank
+hp 6
+sp 5
+cursed 1
+y 7
+end
 arch floor_pattern_brown1
 y 8
 end
@@ -81,10 +88,22 @@ end
 arch carpet1
 y 13
 end
+arch map_info
+name incuna_bank
+hp 5
+cursed 1
+y 13
+end
 arch floor_pattern_brown1
 y 14
 end
 arch carpet1.111
+y 14
+end
+arch map_info
+name incuna_bank
+hp 4
+cursed 1
 y 14
 end
 arch floor_pattern_brown2
@@ -92,6 +111,12 @@ y 15
 end
 arch door1_locked
 player_only 1
+cursed 1
+y 15
+end
+arch map_info
+name incuna_bank
+hp 3
 cursed 1
 y 15
 end
@@ -1838,6 +1863,14 @@ arch wall_wood_8
 x 11
 y 9
 end
+arch map_info
+name incuna_ellamin
+hp 7
+sp 4
+cursed 1
+x 11
+y 9
+end
 arch grassd_8
 z 16
 x 11
@@ -3131,6 +3164,10 @@ arch sand_dm8
 x 18
 y 14
 end
+arch lamp_wall
+x 18
+y 14
+end
 arch grassd_1
 z 8
 x 18
@@ -3160,6 +3197,14 @@ y 17
 end
 arch grassd_5
 z 6
+x 18
+y 18
+end
+arch lantern_blue
+x 18
+y 18
+end
+arch light5
 x 18
 y 18
 end

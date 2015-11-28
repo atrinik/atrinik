@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-11-22 Alex Tokar
+Modified: 2015-11-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -101,6 +101,13 @@ arch grassd_6
 y 16
 end
 arch wall_wood3_1
+y 16
+end
+arch map_info
+name incuna_stables
+hp 6
+sp 4
+cursed 1
 y 16
 end
 arch floor_earth_light1a
@@ -1625,6 +1632,14 @@ arch wall_flagstone1.111
 x 9
 y 21
 end
+arch map_info
+name incuna_barracks
+hp 7
+sp 2
+cursed 1
+x 9
+y 21
+end
 arch floor_sblack2
 x 9
 y 22
@@ -2551,6 +2566,14 @@ arch wall_flagstone1b.131
 x 15
 y 7
 end
+arch map_info
+name incuna_bank
+hp 8
+sp 2
+cursed 1
+x 15
+y 7
+end
 arch grassd_5
 x 15
 y 8
@@ -3079,6 +3102,14 @@ arch wall_flagstone1b.131
 x 18
 y 10
 end
+arch map_info
+name incuna_bank
+hp 5
+sp 2
+cursed 1
+x 18
+y 10
+end
 arch grassd_7
 x 18
 y 11
@@ -3275,6 +3306,13 @@ arch wall_flagstone1b.131
 x 19
 y 13
 end
+arch map_info
+name incuna_bank
+hp 4
+cursed 1
+x 19
+y 13
+end
 arch grassd_4
 x 19
 y 14
@@ -3440,6 +3478,13 @@ x 20
 y 14
 end
 arch wall_flagstone1b.131
+x 20
+y 14
+end
+arch map_info
+name incuna_bank
+hp 3
+cursed 1
 x 20
 y 14
 end
@@ -3616,6 +3661,13 @@ x 21
 y 15
 end
 arch wall_flagstone1b.131
+x 21
+y 15
+end
+arch map_info
+name incuna_bank
+hp 2
+cursed 1
 x 21
 y 15
 end

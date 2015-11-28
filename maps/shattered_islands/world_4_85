@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-11-26 Alex Tokar
+Modified: 2015-11-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -15,6 +15,12 @@ end
 arch grassd_4
 end
 arch wall_wood2_1
+end
+arch map_info
+name incuna_dockhouse
+hp 8
+sp 4
+cursed 1
 end
 arch bridge_wood_NS.101
 y 1
@@ -43,6 +49,12 @@ z 6
 y 5
 end
 arch wall_wood2_1
+y 5
+end
+arch map_info
+name incuna_dockhouse
+hp 5
+cursed 1
 y 5
 end
 arch bridge_wood_NS.101
