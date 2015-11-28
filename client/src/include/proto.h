@@ -718,7 +718,7 @@ extern void map_animate(void);
 extern void map_draw_map(SDL_Surface *surface);
 extern void map_draw_one(int x, int y, SDL_Surface *surface);
 extern void map_target_handle(uint8_t is_friend);
-extern int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
+extern bool mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
 extern void widget_map_init(widgetdata *widget);
 /* src/gui/widgets/mapname.c */
 extern void widget_mapname_init(widgetdata *widget);

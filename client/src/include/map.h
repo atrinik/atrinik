@@ -29,12 +29,6 @@
 #ifndef MAP_H
 #define MAP_H
 
-/** Map start X offset */
-#define MAP_START_XOFF 386
-
-/** Map start Y offset */
-#define MAP_START_YOFF 143
-
 /** Map tile position Y offset */
 #define MAP_TILE_POS_YOFF 23
 
