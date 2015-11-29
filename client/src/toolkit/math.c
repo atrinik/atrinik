@@ -283,3 +283,33 @@ size_t nearest_pow_two_exp(size_t n)
 
     return i;
 }
+
+/**
+ * Determine whether the specified point X,Y is in an ellipse.
+ *
+ * @param x X of the point.
+ * @param y Y of the point.
+ * @param cx X center of the ellipse.
+ * @param cy Y center of the ellipse.
+ * @param dx X diameter of the ellipse.
+ * @param dy Y diameter of the ellipse.
+ * @param angle Angle of the ellipse.
+ * @return True if the point is inside the ellipse, false otherwise.
+ */
+bool
+math_point_in_ellipse (int    x,
+                       int    y,
+                       int    cx,
+                       int    cy,
+                       int    dx,
+                       int    dy,
+                       double angle)
+{
+    double sin_angle, cos_angle;
+    sincos(angle, &sin_angle, &cos_angle);
+
+    double a = pow(cos_angle * (x - cx) + sin_angle * (y - cy), 2.0);
+    double b = pow(sin_angle * (x - cx) + cos_angle * (y - cy), 2.0);
+
+    return a / (dx / 2.0 * dx / 2.0) + b / (dy / 2.0 * dy / 2.0) < 1.0;
+}

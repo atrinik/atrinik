@@ -841,6 +841,7 @@ extern int rndm(int min, int max);
 extern int rndm_chance(uint32_t n);
 extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
 extern size_t nearest_pow_two_exp(size_t n);
+extern bool math_point_in_ellipse(int x, int y, int cx, int cy, int dx, int dy, double angle);
 /* src/toolkit/memory.c */
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);
