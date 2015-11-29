@@ -677,6 +677,24 @@ widget_set_zoom (widgetdata *widget, double zoom)
 }
 
 /**
+ * Determine if the widget is an ellipse.
+ *
+ * @param widget Widget.
+ * @return Whether the widget is an ellipse.
+ */
+static bool
+widget_is_ellipse (widgetdata *widget)
+{
+    switch (widget->type) {
+    case MINIMAP_ID:
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+/**
  * Determine whether the specified coordinates are over the widget.
  *
  * @param widget Widget.
@@ -687,14 +705,31 @@ widget_set_zoom (widgetdata *widget, double zoom)
 static bool
 widget_mouse_over (widgetdata *widget, int x, int y)
 {
-    if (x >= widget_x(widget) &&
-        y >= widget_y(widget) &&
-        x <= widget_x(widget) + widget_w(widget) &&
-        y <= widget_y(widget) + widget_h(widget)) {
-        return true;
+    if (x < widget_x(widget) ||
+        y < widget_y(widget) ||
+        x > widget_x(widget) + widget_w(widget) ||
+        y > widget_y(widget) + widget_h(widget)) {
+        return false;
     }
 
-    return false;
+    if (widget_is_ellipse(widget)) {
+        int xpad = 0, ypad = 0;
+        if (widget->padding_func != NULL) {
+            widget->padding_func(widget, &xpad, &ypad);
+        }
+
+        if (!math_point_in_ellipse(x - widget_x(widget) - xpad,
+                                   y - widget_y(widget) - ypad,
+                                   (widget_w(widget) - xpad * 2) / 2,
+                                   (widget_h(widget) - ypad * 2) / 2,
+                                   widget_w(widget) - xpad * 2,
+                                   widget_h(widget) - ypad * 2,
+                                   0.0)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**

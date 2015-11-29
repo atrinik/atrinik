@@ -364,6 +364,13 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
     return 1;
 }
 
+/** @copydoc widgetdata::padding_func */
+static void
+widget_padding (widgetdata *widget, int *x, int *y)
+{
+    *x = *y = MINIMAP_CIRCLE_PADDING(widget);
+}
+
 void widget_minimap_init(widgetdata *widget)
 {
     minimap_widget_t *minimap;
@@ -378,5 +385,6 @@ void widget_minimap_init(widgetdata *widget)
     widget->load_func = widget_load;
     widget->save_func = widget_save;
     widget->menu_handle_func = widget_menu_handle;
+    widget->padding_func = widget_padding;
     widget->subwidget = minimap;
 }
