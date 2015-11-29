@@ -299,8 +299,8 @@ size_t nearest_pow_two_exp(size_t n)
 bool
 math_point_in_ellipse (int    x,
                        int    y,
-                       int    cx,
-                       int    cy,
+                       double cx,
+                       double cy,
                        int    dx,
                        int    dy,
                        double angle)
