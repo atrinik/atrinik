@@ -26,7 +26,8 @@
  * @file
  * Math related functions.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -54,21 +55,24 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Computes the integer square root.
+ *
  * @param n Number of which to compute the root.
- * @return Integer square root. */
-unsigned long isqrt(unsigned long n)
+ * @return Integer square root.
+ */
+unsigned long
+isqrt (unsigned long n)
 {
-    unsigned long op = n, res = 0, one;
-
     TOOLKIT_PROTECT();
 
     /* "one" starts at the highest power of four <= than the argument. */
-    one = 1 << 30;
+    unsigned long one = 1 << 30;
 
+    unsigned long op = n;
     while (one > op) {
         one >>= 2;
     }
 
+    unsigned long res = 0;
     while (one != 0) {
         if (op >= res + one) {
             op -= res + one;
@@ -91,10 +95,13 @@ unsigned long isqrt(unsigned long n)
  * use of %.
  *
  * This should also prevent SIGFPE.
+ *
  * @param min Starting range.
  * @param max Ending range.
- * @return The random number. */
-int rndm(int min, int max)
+ * @return The random number.
+ */
+int
+rndm (int min, int max)
 {
     TOOLKIT_PROTECT();
 
@@ -112,13 +119,16 @@ int rndm(int min, int max)
 
 /**
  * Calculates a chance of 1 in 'n'.
+ *
  * @param n Number.
- * @return 1 if the chance of 1/n was successful, 0 otherwise. */
-int rndm_chance(uint32_t n)
+ * @return 1 if the chance of 1/n was successful, 0 otherwise.
+ */
+int
+rndm_chance (uint32_t n)
 {
     TOOLKIT_PROTECT();
 
-    if (!n) {
+    if (n == 0) {
         log_error("Calling rndm_chance() with n=0.");
         return 0;
     }
@@ -167,9 +177,13 @@ int rndm_chance(uint32_t n)
  * It is permissible to sort an empty list. If first == end_marker, the returned
  * value will also be end_marker.
  */
-void *sort_linked_list(void *p, unsigned index,
-        int (*compare) (void *, void *, void *) , void *pointer,
-        unsigned long *pcount, void *end_marker)
+void *
+sort_linked_list (void          *p,
+                  unsigned      index,
+                  int          (*compare)(void *, void *, void *),
+                  void          *pointer,
+                  unsigned long *pcount,
+                  void          *end_marker)
 {
     unsigned base;
     unsigned long block_size;
@@ -199,7 +213,7 @@ void *sort_linked_list(void *p, unsigned index,
     /* If the list is empty or contains only a single record, then */
     /* tape[1].count == 0L and this part is vacuous.               */
     for (base = 0, block_size = 1L; tape[base + 1].count != 0L;
-            base ^= 2, block_size <<= 1) {
+         base ^= 2, block_size <<= 1) {
         int dest;
         struct tape *tape0, *tape1;
 
@@ -228,8 +242,8 @@ void *sort_linked_list(void *p, unsigned index,
                 } else if (n1 == 0 || tape1->count == 0) {
                     chosen_tape = tape0;
                     n0--;
-                } else if ((*compare) (tape0->first, tape1->first,
-                        pointer) > 0) {
+                } else if ((*compare)(tape0->first, tape1->first,
+                                      pointer) > 0) {
                     chosen_tape = tape1;
                     n1--;
                 } else {
@@ -268,16 +282,16 @@ void *sort_linked_list(void *p, unsigned index,
  * Return the exponent exp needed to round n up to the nearest power of two, so
  * that (1 << exp) >= n and (1 << (exp - 1)) \< n
  */
-size_t nearest_pow_two_exp(size_t n)
+size_t
+nearest_pow_two_exp (size_t n)
 {
-    size_t i;
-
     TOOLKIT_PROTECT();
 
     if (n <= 64) {
         return exp_lookup[n];
     }
 
+    size_t i;
     for (i = 7; (1U << i) < n; i++) {
     }
 
