@@ -720,8 +720,8 @@ widget_mouse_over (widgetdata *widget, int x, int y)
 
         if (!math_point_in_ellipse(x - widget_x(widget) - xpad,
                                    y - widget_y(widget) - ypad,
-                                   (widget_w(widget) - xpad * 2) / 2,
-                                   (widget_h(widget) - ypad * 2) / 2,
+                                   (widget_w(widget) - xpad * 2) / 2.0,
+                                   (widget_h(widget) - ypad * 2) / 2.0,
                                    widget_w(widget) - xpad * 2,
                                    widget_h(widget) - ypad * 2,
                                    0.0)) {
@@ -1346,29 +1346,61 @@ int widgets_event(SDL_Event *event)
 #define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj)      \
     (event->motion.coord >= widget->coord + (upper_adj) &&    \
     event->motion.coord <= widget->coord + (lower_adj))
-            if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
-                widget->resize_flags = RESIZE_TOP;
-            } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
-                widget->resize_flags = RESIZE_BOTTOM;
-            } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
-                widget->resize_flags = RESIZE_LEFT;
-            } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
-                widget->resize_flags = RESIZE_RIGHT;
-            }
-
-            if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
-                if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
-                    widget->resize_flags |= RESIZE_LEFT;
-                } else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05,
-                        widget->w)) {
-                    widget->resize_flags |= RESIZE_RIGHT;
+            if (widget_is_ellipse(widget)) {
+                int xpad = 0, ypad = 0;
+                if (widget->padding_func != NULL) {
+                    widget->padding_func(widget, &xpad, &ypad);
                 }
-            } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
-                if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
-                    widget->resize_flags |= RESIZE_TOP;
-                } else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05,
-                        widget->h)) {
-                    widget->resize_flags |= RESIZE_BOTTOM;
+                int x = event->motion.x - widget_x(widget) - xpad;
+                int y = event->motion.y - widget_y(widget) - ypad;
+                int deg;
+                if (math_point_edge_ellipse(x,
+                                            y,
+                                            (widget_w(widget) - xpad * 2) / 2.0,
+                                            (widget_h(widget) - ypad * 2) / 2.0,
+                                            widget_w(widget) - xpad * 2,
+                                            widget_h(widget) - ypad * 2,
+                                            0.0,
+                                            &deg)) {
+                    if (deg >= 5 && deg < 175) {
+                        widget->resize_flags |= RESIZE_RIGHT;
+                    } else if (deg >= 185 && deg < 355) {
+                        widget->resize_flags |= RESIZE_LEFT;
+                    }
+
+                    if (deg >= 95 && deg < 265) {
+                        widget->resize_flags |= RESIZE_BOTTOM;
+                    } else if (deg >= 275 || deg < 85) {
+                        widget->resize_flags |= RESIZE_TOP;
+                    }
+                }
+            } else {
+                if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
+                    widget->resize_flags = RESIZE_TOP;
+                } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
+                    widget->resize_flags = RESIZE_BOTTOM;
+                } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
+                    widget->resize_flags = RESIZE_LEFT;
+                } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
+                    widget->resize_flags = RESIZE_RIGHT;
+                }
+
+                if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
+                    if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
+                        widget->resize_flags |= RESIZE_LEFT;
+                    } else if (WIDGET_RESIZE_CHECK(x,
+                                                   widget->w - widget->w * 0.05,
+                                                   widget->w)) {
+                        widget->resize_flags |= RESIZE_RIGHT;
+                    }
+                } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
+                    if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
+                        widget->resize_flags |= RESIZE_TOP;
+                    } else if (WIDGET_RESIZE_CHECK(y,
+                                                   widget->h - widget->h * 0.05,
+                                                   widget->h)) {
+                        widget->resize_flags |= RESIZE_BOTTOM;
+                    }
                 }
             }
 #undef WIDGET_RESIZE_CHECK
@@ -1596,7 +1628,8 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 
         if (draw && widget->show && !widget->hidden && widget->draw_func) {
             if (widget->resize_flags) {
-                if (cursor_x < widget->x || cursor_x > widget->x + widget->w || cursor_y < widget->y || cursor_y > widget->y + widget->h) {
+                if (!widget_event_resize.active &&
+                    !widget_mouse_over(widget, cursor_x, cursor_y)) {
                     widget->resize_flags = 0;
                 }
 
