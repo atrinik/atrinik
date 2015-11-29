@@ -1131,6 +1131,7 @@ extern int rndm_chance(uint32_t n);
 extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
 extern size_t nearest_pow_two_exp(size_t n);
 extern bool math_point_in_ellipse(int x, int y, int double, int double, int dx, int dy, double angle);
+extern bool math_point_edge_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle, int *deg);
 /* src/toolkit/memory.c */
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);

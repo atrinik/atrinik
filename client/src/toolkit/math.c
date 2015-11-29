@@ -313,3 +313,48 @@ math_point_in_ellipse (int    x,
 
     return a / (dx / 2.0 * dx / 2.0) + b / (dy / 2.0 * dy / 2.0) < 1.0;
 }
+
+/**
+ * Determine whether the specified point X,Y is on the edge of an ellipse.
+ *
+ * @param x X of the point.
+ * @param y Y of the point.
+ * @param cx X center of the ellipse.
+ * @param cy Y center of the ellipse.
+ * @param dx X diameter of the ellipse.
+ * @param dy Y diameter of the ellipse.
+ * @param angle Angle of the ellipse.
+ * @param[out] deg On success, will contain the angle the point is at in
+ * relation to the center of the ellipse, in degrees (0-359), with up=0,
+ * right=90, etc. Can be NULL. Undefined if the function returns false.
+ * @return True if the point is on the edge of the ellipse, false otherwise.
+ */
+bool
+math_point_edge_ellipse (int    x,
+                         int    y,
+                         double cx,
+                         double cy,
+                         int    dx,
+                         int    dy,
+                         double angle,
+                         int   *deg)
+{
+    double sin_angle, cos_angle;
+    sincos(angle, &sin_angle, &cos_angle);
+
+    double a = pow(cos_angle * (x - cx) + sin_angle * (y - cy), 2.0);
+    double b = pow(sin_angle * (x - cx) + cos_angle * (y - cy), 2.0);
+    double r = a / (dx / 2.0 * dx / 2.0) + b / (dy / 2.0 * dy / 2.0);
+
+    if (r >= 1.0 || r <= 0.9) {
+        return false;
+    }
+
+    if (deg != NULL) {
+        double rad = atan2(y - cy, x - cx);
+        *deg = rad * (180.0 / M_PI) + 90.0;
+        *deg = (*deg + 360) % 360;
+    }
+
+    return true;
+}
