@@ -183,6 +183,7 @@ void check_main(int argc, char **argv)
     check_server_shop();
 
     /* unit/toolkit */
+    check_server_math();
     check_server_memory();
     check_server_packet();
     check_server_pbkdf2();

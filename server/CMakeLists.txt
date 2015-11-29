@@ -82,6 +82,7 @@ if (CHECK_LIBRARY)
         src/tests/unit/server/object.c
         src/tests/unit/server/re_cmp.c
         src/tests/unit/server/shop.c
+        src/tests/unit/toolkit/math.c
         src/tests/unit/toolkit/memory.c
         src/tests/unit/toolkit/packet.c
         src/tests/unit/toolkit/pbkdf2.c
