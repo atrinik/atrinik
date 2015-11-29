@@ -1344,8 +1344,8 @@ int widgets_event(SDL_Event *event)
 
         if (ret == 0 && event->type == SDL_MOUSEMOTION && widget->resizeable) {
 #define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj)      \
-    (event->motion.coord >= widget->coord + (upper_adj) &&    \
-    event->motion.coord <= widget->coord + (lower_adj))
+    (event->motion.coord >= widget_##coord(widget) + (upper_adj) &&    \
+    event->motion.coord <= widget_##coord(widget) + (lower_adj))
             if (widget_is_ellipse(widget)) {
                 int xpad = 0, ypad = 0;
                 if (widget->padding_func != NULL) {
@@ -1375,30 +1375,46 @@ int widgets_event(SDL_Event *event)
                     }
                 }
             } else {
-                if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
+                if (WIDGET_RESIZE_CHECK(y,
+                                        0,
+                                        2)) {
                     widget->resize_flags = RESIZE_TOP;
-                } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
+                } else if (WIDGET_RESIZE_CHECK(y,
+                                               widget_h(widget) - 2,
+                                               widget_h(widget))) {
                     widget->resize_flags = RESIZE_BOTTOM;
-                } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
+                } else if (WIDGET_RESIZE_CHECK(x,
+                                               0,
+                                               2)) {
                     widget->resize_flags = RESIZE_LEFT;
-                } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
+                } else if (WIDGET_RESIZE_CHECK(x,
+                                               widget_w(widget) - 2,
+                                               widget_w(widget))) {
                     widget->resize_flags = RESIZE_RIGHT;
                 }
 
-                if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
-                    if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
+                if (widget->resize_flags & (RESIZE_TOP |
+                                            RESIZE_BOTTOM)) {
+                    if (WIDGET_RESIZE_CHECK(x,
+                                            0,
+                                            widget_w(widget) * 0.05)) {
                         widget->resize_flags |= RESIZE_LEFT;
                     } else if (WIDGET_RESIZE_CHECK(x,
-                                                   widget->w - widget->w * 0.05,
-                                                   widget->w)) {
+                                                   widget_w(widget) -
+                                                       widget_w(widget) * 0.05,
+                                                   widget_w(widget))) {
                         widget->resize_flags |= RESIZE_RIGHT;
                     }
-                } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
-                    if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
+                } else if (widget->resize_flags & (RESIZE_LEFT |
+                                                   RESIZE_RIGHT)) {
+                    if (WIDGET_RESIZE_CHECK(y,
+                                            0,
+                                            widget_h(widget) * 0.05)) {
                         widget->resize_flags |= RESIZE_TOP;
                     } else if (WIDGET_RESIZE_CHECK(y,
-                                                   widget->h - widget->h * 0.05,
-                                                   widget->h)) {
+                                                   widget_h(widget) -
+                                                       widget_h(widget) * 0.05,
+                                                   widget_h(widget))) {
                         widget->resize_flags |= RESIZE_BOTTOM;
                     }
                 }
