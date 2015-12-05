@@ -132,6 +132,9 @@ find_package(Threads REQUIRED)
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 
+set(CMAKE_REQUIRED_INCLUDES "math.h")
+set(CMAKE_REQUIRED_LIBRARIES "m")
+
 # Check for various include files.
 check_include_files(fcntl.h HAVE_FCNTL_H)
 check_include_files(unistd.h HAVE_UNISTD_H)
@@ -169,6 +172,7 @@ check_function_exists(getline HAVE_GETLINE)
 check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(mkstemp HAVE_MKSTEMP)
+check_function_exists(sincos HAVE_SINCOS)
 
 if (WIN32)
     check_include_files(wspiapi.h HAVE_WSPIAPI_H)

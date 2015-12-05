@@ -306,4 +306,8 @@ extern size_t strnlen(const char *s, size_t max);
 int mkstemp(char *tmpl);
 #endif
 
+#ifndef HAVE_SINCOS
+void sincos(double x, double *s, double *c);
+#endif
+
 #endif

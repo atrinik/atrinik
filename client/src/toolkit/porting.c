@@ -422,4 +422,18 @@ int mkstemp(char *tmpl)
 }
 #endif
 
+#ifndef HAVE_SINCOS
+void
+sincos (double x, double *s, double *c)
+{
+    if (s != NULL) {
+        *s = sin(x);
+    }
+
+    if (c != NULL) {
+        *c = cos(x);
+    }
+}
+#endif
+
 #endif
