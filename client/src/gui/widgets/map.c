@@ -1509,10 +1509,12 @@ map_should_draw (SDL_Surface *surface, map_render_data_t *data)
     HARD_ASSERT(surface != NULL);
     HARD_ASSERT(data != NULL);
 
-    data->xpos = surface->w / 2 - MAP_TILE_POS_XOFF / 2 + data->x *
-                 MAP_TILE_YOFF - data->y * MAP_TILE_YOFF;
-    data->ypos = surface->h / 2 + ((data->x - data->midx)  * MAP_TILE_XOFF +
-                 (data->y - data->midy) * MAP_TILE_XOFF);
+    data->xpos = surface->w / 2 - MAP_TILE_POS_XOFF / 2 +
+                 (data->x - data->midx) * MAP_TILE_YOFF -
+                 (data->y - data->midy) * MAP_TILE_YOFF;
+    data->ypos = surface->h / 2 - MAP_TILE_POS_YOFF / 2 +
+                 (data->x - data->midx) * MAP_TILE_XOFF +
+                 (data->y - data->midy) * MAP_TILE_XOFF;
 
     if (surface != cur_widget[MAP_ID]->surface) {
         data->ypos -= map_width * MAP_TILE_XOFF + map_height *
