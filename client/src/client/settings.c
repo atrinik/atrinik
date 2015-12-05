@@ -410,6 +410,10 @@ static int setting_apply_always(int cat, int setting)
         case OPT_SHOW_NETWORK_GRAPH:
             WIDGET_SHOW_CHANGE(NETWORK_GRAPH_ID, setting_get_int(cat, setting));
             return 1;
+
+        case OPT_SYSTEM_CURSOR:
+            SDL_ShowCursor(setting_get_int(cat, setting));
+            return 1;
         }
 
         break;

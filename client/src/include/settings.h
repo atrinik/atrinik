@@ -94,6 +94,8 @@ enum {
     OPT_TEXT_WINDOW_BG_COLOR,
     /** Transparency of text windows. */
     OPT_TEXT_WINDOW_TRANSPARENCY,
+    /** Whether to use the system cursor. */
+    OPT_SYSTEM_CURSOR,
 
     /** Internal: stores the current resolution width. */
     OPT_RESOLUTION_X,

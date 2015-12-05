@@ -138,6 +138,11 @@ category Client
 		default 190
 		desc Transparency of text window background. 255 is fully opaque, and 0 is fully transparent.
 	end
+	setting Use system cursor
+		type bool
+		default off
+		desc Use the system cursor instead of the custom in-game one. May improve performance.
+	end
 	setting Resolution X
 		type int
 		default 1024

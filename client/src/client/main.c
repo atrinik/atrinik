@@ -623,7 +623,6 @@ int main(int argc, char *argv[])
 
     atexit(system_end);
 
-    SDL_ShowCursor(0);
     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
 
     sound_background_hook_register(sound_background_hook);
@@ -728,12 +727,14 @@ int main(int argc, char *argv[])
                     mx, my, INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE, false);
         }
 
-        if (cursor_x != -1 && cursor_y != -1 &&
-                SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
+        if (!setting_get_int(OPT_CAT_CLIENT, OPT_SYSTEM_CURSOR) &&
+            cursor_x != -1 && cursor_y != -1 &&
+            SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
             surface_show(ScreenSurface,
-                    cursor_x - (texture_surface(cursor_texture)->w / 2),
-                    cursor_y - (texture_surface(cursor_texture)->h / 2),
-                    NULL, texture_surface(cursor_texture));
+                         cursor_x - texture_surface(cursor_texture)->w / 2,
+                         cursor_y - texture_surface(cursor_texture)->h / 2,
+                         NULL,
+                         texture_surface(cursor_texture));
         }
 
         texture_gc();
