@@ -369,16 +369,15 @@ void clear_map(bool hard)
 
 /**
  * Update map size.
+ *
  * @param w New width.
  * @param h New height.
  */
-void map_update_size(int w, int h)
+void
+map_update_size (int w, int h)
 {
-    int old_w, old_h, x, y;
-    struct MapCell *cell;
-
-    old_w = map_width;
-    old_h = map_height;
+    int old_w = map_width;
+    int old_h = map_height;
 
     if (w != 0) {
         map_width = w;
@@ -388,19 +387,10 @@ void map_update_size(int w, int h)
         map_height = h;
     }
 
-    display_mapscroll(old_w - map_width, old_h - map_height,
-            old_w * MAP_FOW_SIZE, old_h * MAP_FOW_SIZE);
-
-    /* Clear all the Fog of War cells. */
-    for (x = 0; x < map_width * MAP_FOW_SIZE; x++) {
-        for (y = 0; y < map_height * MAP_FOW_SIZE; y++) {
-            cell = MAP_CELL_GET(x, y);
-
-            if (cell->fow) {
-                memset(cell, 0, sizeof(struct MapCell));
-            }
-        }
-    }
+    display_mapscroll((old_w - map_width) * (MAP_FOW_SIZE / 2),
+                      (old_h - map_height) * (MAP_FOW_SIZE / 2),
+                      old_w * MAP_FOW_SIZE,
+                      old_h * MAP_FOW_SIZE);
 }
 
 /**
