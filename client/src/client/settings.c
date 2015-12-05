@@ -558,6 +558,9 @@ void settings_apply_change(void)
 void setting_set_int(int cat, int setting, int64_t val)
 {
     void *dst = setting_get(setting_categories[cat]->settings[setting]);
+    if ((*(int64_t *) dst) == val) {
+        return;
+    }
 
     (*(int64_t *) dst) = val;
 

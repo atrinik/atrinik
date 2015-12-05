@@ -106,9 +106,7 @@ static void setting_change_value(int cat, int set, int64_t val)
             new_val = MAX(range->min, MIN(range->max, new_val));
         }
 
-        if (old_val != new_val) {
-            setting_set_int(cat, set, new_val);
-        }
+        setting_set_int(cat, set, new_val);
     }
 }
 
