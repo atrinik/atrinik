@@ -2011,6 +2011,16 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
     sprite_effects_t effects = {0};
     effects.zoom_x = 100.0 * zoom;
     effects.zoom_y = 100.0 * zoom;
+
+    /* Outside of the "visible" area; always render as fog of war
+     * (grayscale). */
+    if (x < map_width * (MAP_FOW_SIZE / 2) ||
+        x >= map_width * (MAP_FOW_SIZE / 2) + map_width ||
+        y < map_height * (MAP_FOW_SIZE / 2) ||
+        y >= map_height * (MAP_FOW_SIZE / 2) + map_height) {
+        BIT_SET(effects.flags, SPRITE_FLAG_FOW);
+    }
+
     surface_show_effects(ScreenSurface,
                          widget_x(cur_widget[MAP_ID]) + data.xpos,
                          widget_y(cur_widget[MAP_ID]) + data.ypos,
