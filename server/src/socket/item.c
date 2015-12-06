@@ -257,10 +257,12 @@ void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
             sec = -1;
 
             if (QUERY_FLAG(op, FLAG_IS_USED_UP)) {
-                sec = (int) (op->speed_left / op->speed / (float) MAX_TICKS +
-                        (1.0 / op->speed / (float) MAX_TICKS *
-                        (float) op->stats.food - 1));
-                sec = ABS(sec);
+                double tmp_sec = op->speed_left / op->speed / MAX_TICKS;
+                tmp_sec = ABS(tmp_sec);
+                double tmp_sec2 = 1.0 / op->speed / MAX_TICKS;
+                tmp_sec2 *= op->stats.food - 1;
+                tmp_sec2 = ABS(tmp_sec2);
+                sec = tmp_sec + tmp_sec2;
             }
 
             packet_debug_data(packet, level + 1, "Seconds");
