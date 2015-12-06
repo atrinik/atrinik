@@ -432,135 +432,146 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
  *
  * We will only regenerate HP and mana if the player has some food in their
  * stomach.
- * @param op Player. */
-void do_some_living(object *op)
+ *
+ * @param op Player.
+ */
+void
+do_some_living (object *op)
 {
-    int last_food = op->stats.food;
-    double gen_hp, gen_sp;
-    int add;
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT(op->type == PLAYER, "Not a player object: %s",
+                object_get_str(op));
 
-    double modifier = (pticks - CONTR(op)->last_combat) / MAX_TICKS;
+    player *pl = CONTR(op);
+
+    double modifier = (pticks - pl->last_combat) / MAX_TICKS;
     modifier /= PLAYER_REGEN_MODIFIER;
     modifier += 1.0;
     modifier = MIN(PLAYER_REGEN_MODIFIER_MAX, modifier);
 
-    gen_hp = (CONTR(op)->gen_hp * (PLAYER_REGEN_HP_RATE / 20.0)) +
-            (op->stats.maxhp / 4.0);
+    double gen_hp = (pl->gen_hp * (PLAYER_REGEN_HP_RATE / 20.0)) +
+                    (op->stats.maxhp / 4.0);
     gen_hp *= modifier;
 
-    gen_sp = (CONTR(op)->gen_sp * (PLAYER_REGEN_SP_RATE / 20.0)) +
-            op->stats.maxsp;
+    double gen_sp = (pl->gen_sp * (PLAYER_REGEN_SP_RATE / 20.0)) +
+                    op->stats.maxsp;
     gen_sp *= modifier;
-    gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
+    gen_sp = gen_sp * 10 / MAX(pl->gen_sp_armour, 10);
 
     /* Update client's regen rates. */
-    CONTR(op)->gen_client_hp = (MAX_TICKS / (PLAYER_REGEN_HP_RATE /
-            (MAX(gen_hp, 20.0) + 10.0))) * 10.0;
-    CONTR(op)->gen_client_sp = (MAX_TICKS / (PLAYER_REGEN_SP_RATE /
-            (MAX(gen_sp, 20.0) + 10.0))) * 10.0;
+    pl->gen_client_hp = (MAX_TICKS / (PLAYER_REGEN_HP_RATE /
+                                      (MAX(gen_hp, 20.0) + 10.0))
+                        ) * 10.0;
+    pl->gen_client_sp = (MAX_TICKS / (PLAYER_REGEN_SP_RATE /
+                                      (MAX(gen_sp, 20.0) + 10.0))
+                        ) * 10.0;
+
+    int16_t last_food = op->stats.food;
 
     /* Regenerate hit points. */
     if (op->stats.hp < op->stats.maxhp && op->stats.food) {
-        add = get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
-
-        if (add) {
+        int add = get_regen_amount(pl->gen_client_hp, &pl->gen_hp_remainder);
+        if (add != 0) {
             op->stats.hp += add;
-            CONTR(op)->stat_hp_regen += add;
+            pl->stat_hp_regen += add;
 
             if (op->stats.hp > op->stats.maxhp) {
                 op->stats.hp = op->stats.maxhp;
             }
 
-            if (!CONTR(op)->tgm) {
+            if (!pl->tgm) {
                 op->stats.food--;
 
-                if (CONTR(op)->digestion < 0) {
-                    op->stats.food += CONTR(op)->digestion;
-                } else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
+                if (pl->digestion < 0) {
+                    op->stats.food += pl->digestion;
+                } else if (pl->digestion > 0 && rndm(0, pl->digestion)) {
                     op->stats.food = last_food;
                 }
             }
         }
     } else {
-        CONTR(op)->gen_hp_remainder = 0;
+        pl->gen_hp_remainder = 0;
     }
 
     /* Regenerate mana. */
     if (op->stats.sp < op->stats.maxsp && op->stats.food) {
-        add = get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
-
-        if (add) {
+        int add = get_regen_amount(pl->gen_client_sp, &pl->gen_sp_remainder);
+        if (add != 0) {
             op->stats.sp += add;
-            CONTR(op)->stat_sp_regen += add;
+            pl->stat_sp_regen += add;
 
             if (op->stats.sp > op->stats.maxsp) {
                 op->stats.sp = op->stats.maxsp;
             }
 
-            if (!CONTR(op)->tgm) {
+            if (!pl->tgm) {
                 op->stats.food--;
 
-                if (CONTR(op)->digestion < 0) {
-                    op->stats.food += CONTR(op)->digestion;
-                } else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
+                if (pl->digestion < 0) {
+                    op->stats.food += pl->digestion;
+                } else if (pl->digestion > 0 && rndm(0, pl->digestion)) {
                     op->stats.food = last_food;
                 }
             }
         }
     } else {
-        CONTR(op)->gen_sp_remainder = 0;
+        pl->gen_sp_remainder = 0;
     }
 
     /* Digestion */
     if (--op->last_eat < 0) {
-        int bonus = MAX(CONTR(op)->digestion, 0);
-        int penalty = MAX(-CONTR(op)->digestion, 0);
+        int bonus = MAX(pl->digestion, 0);
+        int penalty = MAX(-pl->digestion, 0);
 
-        if (CONTR(op)->gen_hp > 0) {
-            op->last_eat = 25 * (1 + bonus) / (CONTR(op)->gen_hp + penalty + 1);
+        if (pl->gen_hp > 0) {
+            op->last_eat = 25 * (1 + bonus) / (pl->gen_hp + penalty + 1);
         } else {
             op->last_eat = 25 * (1 + bonus) / (penalty + 1);
         }
 
-        if (!CONTR(op)->tgm) {
+        if (!pl->tgm) {
             op->stats.food--;
         }
     }
 
     if (op->stats.food < 0 && op->stats.hp >= 0) {
-        object *tmp, *flesh = NULL;
+        object *flesh = NULL;
 
-        for (tmp = op->inv; tmp; tmp = tmp->below) {
-            if (!QUERY_FLAG(tmp, FLAG_UNPAID)) {
-                if (tmp->type == FOOD || tmp->type == DRINK) {
-                    draw_info(COLOR_WHITE, op, "You blindly grab for a bite of food.");
-                    manual_apply(op, tmp, 0);
-
-                    if (op->stats.food >= 0 || op->stats.hp < 0) {
-                        break;
-                    }
-                } else if (tmp->type == FLESH) {
-                    flesh = tmp;
-                }
+        FOR_INV_PREPARE(op, tmp) {
+            if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
+                continue;
             }
-        }
+
+            if (tmp->type == FOOD || tmp->type == DRINK) {
+                draw_info(COLOR_WHITE, op,
+                          "You blindly grab for a bite of food.");
+                manual_apply(op, tmp, 0);
+
+                if (op->stats.food >= 0 || op->stats.hp < 0) {
+                    break;
+                }
+            } else if (tmp->type == FLESH && flesh == NULL) {
+                flesh = tmp;
+            }
+        } FOR_INV_FINISH();
 
         /* If player is still starving, it means they don't have any food, so
          * eat flesh instead. */
-        if (op->stats.food < 0 && op->stats.hp >= 0 && flesh) {
+        if (op->stats.food < 0 && op->stats.hp >= 0 && flesh != NULL) {
             draw_info(COLOR_WHITE, op, "You blindly grab for a bite of food.");
             manual_apply(op, flesh, 0);
         }
     }
 
+    /* Lose hitpoints for lack of food. */
     while (op->stats.food < 0 && op->stats.hp > 0) {
         op->stats.food++;
         op->stats.hp--;
     }
 
-    if ((op->stats.hp <= 0 || op->stats.food < 0) && !CONTR(op)->tgm) {
+    if ((op->stats.hp <= 0 || op->stats.food < 0) && !pl->tgm) {
         draw_info_format(COLOR_WHITE, NULL, "%s starved to death.", op->name);
-        snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "starvation");
+        snprintf(VS(pl->killer), "starvation");
         kill_player(op);
     }
 }
