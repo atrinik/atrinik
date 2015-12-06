@@ -111,15 +111,6 @@ object_apply_item (object *op, object *applier, int aflags)
     int basic_aflag = aflags & APPLY_BASIC_FLAGS;
 
     if (!QUERY_FLAG(op, FLAG_APPLIED)) {
-        if (op->item_power != 0 &&
-            op->item_power + CONTR(applier)->item_power >
-                settings.item_power_factor * applier->level) {
-            draw_info(COLOR_WHITE, applier,
-                      "Equipping that combined with other items would consume "
-                      "your soul!");
-            return OBJECT_METHOD_ERROR;
-        }
-
         if (QUERY_FLAG(op, FLAG_QUEST_ITEM)) {
             draw_info(COLOR_WHITE, applier,
                       "You feel you should turn it in first...");

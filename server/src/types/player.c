@@ -2399,6 +2399,139 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
     efree(path);
 }
 
+/**
+ * Handle negative effects caused by equipping items with an item power sum
+ * higher than player's maximum item power.
+ *
+ * @param op Player.
+ */
+static void
+player_item_power_effects (object *op)
+{
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT(op->type == PLAYER, "Not a player: %s", object_get_str(op));
+
+    player *pl = CONTR(op);
+    if (pl->tgm) {
+        /* God mode, no negative effects. */
+        return;
+    }
+
+    int max = settings.item_power_factor * op->level;
+    if (pl->item_power <= max) {
+        /* If we're within the maximum item power, nothing to do. */
+        return;
+    }
+
+    int diff = pl->item_power - max;
+    int chance = MAX(1, 100 - diff);
+    if (!rndm_chance(MAX_TICKS + 5 + chance)) {
+        return;
+    }
+
+    if (pticks < pl->item_power_effects) {
+        return;
+    }
+
+    pl->item_power_effects = pticks + rndm(50, 100) * MAX_TICKS;
+
+    if (diff <= 15 || rndm_chance(diff / 3)) {
+        static archetype_t *at = NULL;
+        if (at == NULL) {
+            at = arch_find("soul_depletion");
+            SOFT_ASSERT(at != NULL, "Failed to find soul_depletion arch");
+        }
+
+        object *force = present_arch_in_ob(at, op);
+        if (force == NULL) {
+            force = arch_to_object(at);
+            force->speed_left = -1.0;
+            force->stats.food = rndm(1, 5) + rndm(0, MAX(1, diff / 3));
+            force->stats.food *= rndm(2, 6);
+            force->stats.food *= MAX_TICKS;
+            force->stats.food *= force->speed;
+            if (force->stats.food < 0) {
+                force->stats.food = 0;
+            }
+
+            force = insert_ob_in_ob(force, op);
+            SOFT_ASSERT(force != NULL, "Failed to insert force into player %s",
+                        object_get_str(op));
+        }
+
+        /* Try to pick a random protection/stat/etc to decrease. */
+        int tries = 0;
+        bool done = false;
+        while (!done && tries < 5) {
+            switch (rndm(0, 7)) {
+            case 0:
+            case 1:
+            case 2: {
+                int num = rndm(0, LAST_PROTECTION - 1);
+                if (force->protection[num] > -100) {
+                    int prot = force->protection[num];
+                    prot -= rndm(1, 5 + diff / 2);
+                    if (prot < -100) {
+                        prot = -100;
+                    }
+                    force->protection[num] = prot;
+                    done = true;
+                }
+
+                break;
+            }
+
+            case 3:
+            case 4:
+            case 5: {
+                int num = rndm(0, NUM_STATS - 1);
+                int8_t val = get_attr_value(&force->stats, num);
+                if (val > -MAX_STAT) {
+                    int stat = val - rndm(1, MAX(1, diff / 5));
+                    if (stat < -MAX_STAT) {
+                        stat = -MAX_STAT;
+                    }
+                    set_attr_value(&force->stats, num, stat);
+                    done = true;
+                }
+            }
+
+            case 6:
+                if (force->stats.ac > -10) {
+                    force->stats.ac--;
+                    done = true;
+                }
+
+                break;
+
+            case 7:
+                if (force->stats.wc > -10) {
+                    force->stats.wc--;
+                    done = true;
+                }
+
+                break;
+            }
+
+            tries++;
+        }
+
+        if (done) {
+            draw_info(COLOR_RED, op, "The combined power of your equipped "
+                                     "items begins to sicken your soul!");
+            living_update(op);
+        }
+    } else if (diff > 50 && rndm_chance(MAX(25, 100 - diff))) {
+        draw_info(COLOR_RED, op, "The combined power of your equipped items "
+                                 "begins to consume your soul!");
+        drain_stat(op);
+    }  else {
+        draw_info(COLOR_RED, op, "The combined power of your equipped items "
+                                 "releases wild magic!");
+        spell_failure(op, diff);
+    }
+}
+
 /** @copydoc object_methods::remove_map_func */
 static void remove_map_func(object *op)
 {
@@ -2502,6 +2635,7 @@ static void process_func(object *op)
     }
 
     player_do_some_living(pl->ob);
+    player_item_power_effects(pl->ob);
 
 #ifdef AUTOSAVE
 

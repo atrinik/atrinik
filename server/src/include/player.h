@@ -566,6 +566,8 @@ typedef struct pl_player {
     tag_t talking_to_count; ///< ID of ::talking_to.
 
     player_faction_t *factions;
+
+    long item_power_effects; ///< Next time of item power effects.
 } player;
 
 #endif

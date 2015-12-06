@@ -1558,6 +1558,21 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
+    if (pl->item_power != refpl->item_power &&
+        (pl->item_power > settings.item_power_factor * op->level ||
+         refpl->item_power > settings.item_power_factor * op->level)) {
+        if (pl->item_power > refpl->item_power) {
+            draw_info(COLOR_GRAY, op, "You feel the combined power of your "
+                                      "equipped items begin gnawing on your "
+                                      "soul!");
+        } else if (pl->item_power > settings.item_power_factor * op->level) {
+            draw_info(COLOR_GRAY, op, "You feel your soul return closer to "
+                                      "normal.");
+        } else {
+            draw_info(COLOR_WHITE, op, "You feel your soul return to normal.");
+        }
+    }
+
     return ret;
 }
 
