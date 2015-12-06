@@ -436,7 +436,7 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
  * @param op Player.
  */
 static void
-do_some_living (object *op)
+player_do_some_living (object *op)
 {
     HARD_ASSERT(op != NULL);
     SOFT_ASSERT(op->type == PLAYER, "Not a player object: %s",
@@ -2501,7 +2501,7 @@ static void process_func(object *op)
         player_path_handle(pl);
     }
 
-    do_some_living(pl->ob);
+    player_do_some_living(pl->ob);
 
 #ifdef AUTOSAVE
 
