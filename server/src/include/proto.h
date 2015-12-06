@@ -975,7 +975,6 @@ extern void display_motd(object *op);
 extern void free_player(player *pl);
 extern void give_initial_items(object *pl, treasurelist *items);
 extern int handle_newcs_player(player *pl);
-extern void do_some_living(object *op);
 extern void kill_player(object *op);
 extern void cast_dust(object *op, object *throw_ob, int dir);
 extern int pvp_area(object *attacker, object *victim);

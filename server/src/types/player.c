@@ -435,7 +435,7 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
  *
  * @param op Player.
  */
-void
+static void
 do_some_living (object *op)
 {
     HARD_ASSERT(op != NULL);
