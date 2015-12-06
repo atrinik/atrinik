@@ -68,6 +68,8 @@ void objects_free(object *op)
             spells_remove(op);
         } else if (op->itype == TYPE_SKILL) {
             skills_remove(op);
+        } else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
+            widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
         }
 
         if (op->inv) {

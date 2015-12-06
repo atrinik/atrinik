@@ -50,6 +50,7 @@ void system_start(void)
 void system_end(void)
 {
     tooltip_dismiss();
+    object_deinit();
     notification_destroy();
     popup_destroy_all();
     toolkit_widget_deinit();
@@ -70,7 +71,6 @@ void system_end(void)
     keybind_deinit();
     bmaps_deinit();
     anims_deinit();
-    object_deinit();
     skills_deinit();
     spells_deinit();
     clioption_settings_deinit();
