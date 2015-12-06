@@ -444,6 +444,10 @@ living_apply_flags (object       *op,
     if (QUERY_FLAG(item, FLAG_UNDEAD)) {
         SET_FLAG(op, FLAG_UNDEAD);
     }
+
+    if (QUERY_FLAG(item, FLAG_CONFUSED)) {
+        SET_FLAG(op, FLAG_CONFUSED);
+    }
 }
 
 /**

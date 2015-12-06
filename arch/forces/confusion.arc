@@ -6,6 +6,6 @@ identified 1
 face force.101
 speed 0.05
 no_drop 1
-food 8
+confused 1
 is_used_up 1
 end
