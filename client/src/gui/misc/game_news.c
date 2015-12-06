@@ -74,7 +74,6 @@ static int popup_draw(popup_struct *popup)
 {
     game_news_struct *game_news;
     SDL_Rect box;
-    int ret;
 
     game_news = popup->custom_data;
 
@@ -82,18 +81,18 @@ static int popup_draw(popup_struct *popup)
     box.h = 38;
     text_show(popup->surface, FONT_SERIF16, game_news->title, 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
-    ret = curl_download_finished(game_news->data);
+    curl_state_t state = curl_download_get_state(game_news->data);
 
     box.w = popup->surface->w;
     box.h = popup->surface->h - box.h;
 
-    if (ret == -1) {
+    if (state == CURL_STATE_ERROR) {
         text_show(popup->surface, FONT_SERIF12, "Connection timed out.", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    } else if (ret == 0) {
+    } else if (state == CURL_STATE_DOWNLOAD) {
         text_show(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    } else if (ret == 1) {
+    } else if (state == CURL_STATE_OK) {
         if (!game_news->msg) {
             game_news->msg = estrdup(game_news->data->memory ? game_news->data->memory : "???");
 

@@ -34,7 +34,7 @@ extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
 extern int curl_connect(void *c_data);
 extern curl_data *curl_data_new(const char *url, const char *path);
 extern curl_data *curl_download_start(const char *url, const char *path);
-extern int8_t curl_download_finished(curl_data *data);
+extern curl_state_t curl_download_get_state(curl_data *data);
 extern int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info);
 extern char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize);
 extern void curl_data_free(curl_data *data);

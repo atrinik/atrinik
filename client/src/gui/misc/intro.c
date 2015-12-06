@@ -278,11 +278,10 @@ void intro_show(void)
 
     /* Download in progress? */
     if (news_data) {
-        /* Get the status. */
-        int ret = curl_download_finished(news_data);
+        curl_state_t state = curl_download_get_state(news_data);
 
         /* Finished downloading, parse the data. */
-        if (ret == 1) {
+        if (state == CURL_STATE_OK) {
             char *mem = estrdup(news_data->memory ? news_data->memory : "???"), *cp;
             size_t i = 0;
 
@@ -299,7 +298,7 @@ void intro_show(void)
 
         /* Finished downloading or there was an error: clean up in either
          * case. */
-        if (ret != 0) {
+        if (state != CURL_STATE_DOWNLOAD) {
             curl_data_free(news_data);
             news_data = NULL;
         }

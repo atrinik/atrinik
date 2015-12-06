@@ -309,19 +309,22 @@ done:
 }
 
 /**
- * Use cURL to download the url we specified in curl_data structure
+ * Use cURL to download the URL we specified in curl_data structure
  * (c_data).
+ *
  * @param c_data ::curl_data structure that will receive the data (and
- * has url of what to download).
- * @return -1 on failure, 1 on success. */
-int curl_connect(void *c_data)
+ * has URL of what to download).
+ * @return One of ::curl_state_t.
+ */
+int
+curl_connect (void *c_data)
 {
     curl_data *data = c_data;
     char user_agent[MAX_BUF], version[MAX_BUF], *etag;
     CURLcode res;
     long http_code;
     struct curl_slist *chunk;
-    int8_t status;
+    curl_state_t state;
 
     HARD_ASSERT(c_data != NULL);
 
@@ -346,7 +349,7 @@ int curl_connect(void *c_data)
     data->handle = curl_easy_init();
 
     if (data->handle == NULL) {
-        status = -1;
+        state = CURL_STATE_ERROR;
         goto done;
     }
 
@@ -403,7 +406,7 @@ int curl_connect(void *c_data)
     if (res) {
         LOG(BUG, "curl_easy_perform() got error %d (%s).", res,
                 curl_easy_strerror(res));
-        status = -1;
+        state = CURL_STATE_ERROR;
         goto done;
     }
 
@@ -413,7 +416,7 @@ int curl_connect(void *c_data)
     SDL_UnlockMutex(data->mutex);
 
     if (http_code != 200 && http_code != 304) {
-        status = -1;
+        state = CURL_STATE_ERROR;
         goto done;
     }
 
@@ -482,16 +485,16 @@ int curl_connect(void *c_data)
         SDL_UnlockMutex(data->mutex);
     } else if (http_code == 304) {
         if (!curl_load_cache(data)) {
-            status = -1;
+            state = CURL_STATE_ERROR;
             goto done;
         }
     }
 
-    status = 1;
+    state = CURL_STATE_OK;
 
 done:
     SDL_LockMutex(data->mutex);
-    data->status = status;
+    data->state = state;
     SDL_UnlockMutex(data->mutex);
 
     if (data->handle != NULL) {
@@ -502,7 +505,7 @@ done:
         curl_slist_free_all(chunk);
     }
 
-    return status;
+    return state;
 }
 
 /**
@@ -521,6 +524,7 @@ curl_data *curl_data_new(const char *url, const char *path)
     data->http_code = -1;
     /* Create a mutex to protect the structure. */
     data->mutex = SDL_CreateMutex();
+    data->state = CURL_STATE_DOWNLOAD;
 
     if (path != NULL) {
         data->path = estrdup(path);
@@ -558,21 +562,22 @@ curl_data *curl_download_start(const char *url, const char *path)
 }
 
 /**
- * Check if cURL has finished downloading the previously supplied url.
+ * Acquire state of the cURL download.
+ *
  * @param data cURL data structure that was returned by a previous
  * curl_download_start() call.
- * @return @copydoc curl_data::status */
-int8_t curl_download_finished(curl_data *data)
+ * @return State of the data.
+ */
+curl_state_t
+curl_download_get_state (curl_data *data)
 {
-    int8_t status;
-
     HARD_ASSERT(data != NULL);
 
     SDL_LockMutex(data->mutex);
-    status = data->status;
+    curl_state_t state = data->state;
     SDL_UnlockMutex(data->mutex);
 
-    return status;
+    return state;
 }
 
 /**
@@ -588,7 +593,8 @@ int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info)
 {
     HARD_ASSERT(data != NULL);
 
-    if (curl_download_finished(data) != 0 || data->handle == NULL) {
+    if (curl_download_get_state(data) != CURL_STATE_DOWNLOAD ||
+        data->handle == NULL) {
         return 0;
     }
 
@@ -643,7 +649,7 @@ void curl_data_free(curl_data *data)
     HARD_ASSERT(data != NULL);
 
     /* Still downloading? Kill the thread. */
-    if (curl_download_finished(data) == 0) {
+    if (curl_download_get_state(data) == CURL_STATE_DOWNLOAD) {
         SDL_LockMutex(data->mutex);
         SDL_KillThread(data->thread);
         SDL_UnlockMutex(data->mutex);

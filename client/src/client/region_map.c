@@ -199,11 +199,11 @@ bool region_map_ready(region_map_t *region_map)
     SOFT_ASSERT_RC(region_map->zoomed == NULL, false,
             "Region map already has a zoomed surface.");
 
-    if (curl_download_finished(region_map->data_png) != 1) {
+    if (curl_download_get_state(region_map->data_png) != CURL_STATE_OK) {
         return false;
     }
 
-    if (curl_download_finished(region_map->data_def) != 1) {
+    if (curl_download_get_state(region_map->data_def) != CURL_STATE_OK) {
         return false;
     }
 

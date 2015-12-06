@@ -207,13 +207,13 @@ static int popup_draw_post(popup_struct *popup)
 
     /* There is something being downloaded. */
     if (dl_data) {
-        int8_t ret = curl_download_finished(dl_data);
+        curl_state_t state = curl_download_get_state(dl_data);
 
         /* We are not done yet... */
         progress.done = 0;
 
         /* Failed? */
-        if (ret == -1) {
+        if (state == CURL_STATE_ERROR) {
             /* Remove the temporary directory. */
             cleanup_patch_files();
             progress.done = 1;
@@ -225,7 +225,7 @@ static int popup_draw_post(popup_struct *popup)
             button_retry.x = box.x + box.w / 2 - texture_surface(button_retry.texture)->w / 2;
             button_retry.y = box.y;
             button_show(&button_retry, "Retry");
-        } else if (ret == 1) {
+        } else if (state == CURL_STATE_OK) {
             /* Finished downloading. */
 
             /* Is it the list of updates? */

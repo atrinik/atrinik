@@ -201,7 +201,7 @@ int metaserver_thread(void *dummy)
         data = curl_data_new(clioption_settings.metaservers[i - 1], NULL);
 
         /* If the connection succeeded, break out. */
-        if (curl_connect(data) == 1 && data->memory) {
+        if (curl_connect(data) == CURL_STATE_OK && data->memory) {
             char word[HUGE_BUF];
             size_t pos;
 

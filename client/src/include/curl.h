@@ -29,6 +29,16 @@
 #ifndef CURL_H
 #define CURL_H
 
+/**
+ * Possible cURL data states.
+ */
+typedef enum curl_state {
+    CURL_STATE_NONE, ///< No state.
+    CURL_STATE_DOWNLOAD, ///< Downloading the data.
+    CURL_STATE_OK, ///< cURL thread finished and the data is ready to be used.
+    CURL_STATE_ERROR, ///< An error occurred trying to get the data
+} curl_state_t;
+
 /** cURL data. */
 typedef struct curl_data {
     /** The data. Can be NULL in case we got no data from the url. */
@@ -58,14 +68,9 @@ typedef struct curl_data {
     SDL_Thread *thread;
 
     /**
-     * State of the data:
-     * - 0: still trying to get data (connecting to server, getting data,
-     *      etc). While this is the state, no members of this structure
-     *      should be accessed from the outside (at the very least not
-     *      without mutex locking).
-     * - -1: An error occurred trying to get the data.
-     * - 1: cURL thread finished and the data is ready to be used. */
-    int8_t status;
+     * State of the data.
+     */
+    curl_state_t state;
 
     /**
      * Will contain HTTP code. */

@@ -176,18 +176,20 @@ static int popup_draw_post_func(popup_struct *popup)
     box.h = RM_MAP_HEIGHT;
 
     if (!region_map_ready(MapData.region_map)) {
-        int ret_png, ret_def;
-
         /* Check the status of the downloads. */
-        ret_png = curl_download_finished(MapData.region_map->data_png);
-        ret_def = curl_download_finished(MapData.region_map->data_def);
+        curl_state_t state_png =
+            curl_download_get_state(MapData.region_map->data_png);
+        curl_state_t state_def =
+            curl_download_get_state(MapData.region_map->data_def);
 
         /* We failed. */
-        if (ret_png == -1 || ret_def == -1) {
+        if (state_png == CURL_STATE_ERROR || state_def == CURL_STATE_ERROR) {
             curl_data *tmp;
-
-            tmp = ret_png == -1 ? MapData.region_map->data_png :
-                MapData.region_map->data_def;
+            if (state_png == CURL_STATE_ERROR) {
+                tmp = MapData.region_map->data_png;
+            } else {
+                tmp = MapData.region_map->data_def;
+            }
 
             if (tmp->http_code != -1) {
                 text_show_format(ScreenSurface, FONT_SERIF14,
@@ -200,13 +202,16 @@ static int popup_draw_post_func(popup_struct *popup)
                         TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE,
                         &box);
             }
-        } else if (ret_png == 0 || ret_def == 0) {
-            char buf[MAX_BUF];
+        } else if (state_png == CURL_STATE_DOWNLOAD ||
+                   state_def == CURL_STATE_DOWNLOAD) {
             curl_data *tmp;
+            if (state_png == CURL_STATE_DOWNLOAD) {
+                tmp = MapData.region_map->data_png;
+            } else {
+                tmp = MapData.region_map->data_def;
+            }
 
-            tmp = ret_png == 0 ? MapData.region_map->data_png :
-                MapData.region_map->data_def;
-
+            char buf[MAX_BUF];
             text_show_format(ScreenSurface, FONT_SERIF14,
                     box.x, box.y, COLOR_WHITE,
                     TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box,

@@ -213,19 +213,18 @@ void server_files_listing_retrieve(void)
  */
 int server_files_listing_processed(void)
 {
-    int ret;
-
     if (listing_data == NULL) {
         return 0;
     }
 
-    ret = curl_download_finished(listing_data);
+    curl_state_t state = curl_download_get_state(listing_data);
 
-    if (ret == -1) {
+    if (state == CURL_STATE_ERROR) {
         cpl.state = ST_INIT;
+        return 0;
     }
 
-    if (ret <= 0) {
+    if (state == CURL_STATE_DOWNLOAD) {
         return 0;
     }
 
@@ -281,8 +280,6 @@ int server_files_listing_processed(void)
  */
 static int server_file_process(server_files_struct *tmp)
 {
-    int ret;
-
     if (tmp->update == 0) {
         return 0;
     }
@@ -304,18 +301,20 @@ static int server_file_process(server_files_struct *tmp)
         return 1;
     }
 
-    ret = curl_download_finished(tmp->dl_data);
-
+    curl_state_t state = curl_download_get_state(tmp->dl_data);
     /* In progress. */
-    if (ret == 0) {
+    if (state == CURL_STATE_DOWNLOAD) {
         return 1;
     }
 
-    LOG(DEVEL, "Download finished: %s, ret: %d, http_code: %d, size: %"PRIu64,
-        tmp->name, ret, tmp->dl_data->http_code, (uint64_t) tmp->dl_data->size);
+    LOG(DEVEL, "Download finished: %s, state: %d, http_code: %d, size: %"PRIu64,
+        tmp->name,
+        state,
+        tmp->dl_data->http_code,
+        (uint64_t) tmp->dl_data->size);
 
     /* Done. */
-    if (ret == 1) {
+    if (state == CURL_STATE_OK) {
         unsigned char *dest;
         unsigned long len_ucomp;
 
@@ -333,7 +332,7 @@ static int server_file_process(server_files_struct *tmp)
         }
 
         efree(dest);
-    } else if (ret == -1) {
+    } else if (state == CURL_STATE_ERROR) {
         /* Error occurred. */
         LOG(BUG, "Could not download %s: %d", tmp->name,
                 tmp->dl_data->http_code);
