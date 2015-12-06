@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2015-11-23 Alex Tokar
+Modified: 2015-12-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -59,7 +59,8 @@ arch spawn_point
 y 7
 arch kobold_guard
 name kobold guard leader
-level 6
+item_condition 5
+dam 56
 wis 2
 type 83
 end
@@ -234,17 +235,6 @@ end
 arch dirt_floor4
 x 1
 y 16
-end
-arch spawn_point
-x 1
-y 16
-arch kobold
-name kobold sneaker
-wc_range 12
-unaggressive 1
-wis 2
-type 83
-end
 end
 arch floor_sand_d4
 x 1
@@ -539,6 +529,18 @@ arch dirt_floor2
 x 4
 y 16
 end
+arch spawn_point
+x 4
+y 16
+arch kobold
+name kobold sneaker
+item_condition 3
+wc_range 12
+unaggressive 1
+wis 2
+type 83
+end
+end
 arch floor_sand_d1
 x 4
 y 17
@@ -640,7 +642,7 @@ x 5
 y 8
 arch kobold_fighter
 direction 3
-level 5
+item_condition 5
 wis 2
 type 83
 end
@@ -698,17 +700,6 @@ arch floor_sand_d2
 x 5
 y 16
 end
-arch spawn_point
-x 5
-y 16
-arch kobold
-name kobold sneaker
-wc_range 12
-unaggressive 1
-wis 2
-type 83
-end
-end
 arch floor_sand_d1
 x 5
 y 17
@@ -730,7 +721,7 @@ end
 arch spawn_point
 x 6
 arch kobold_fighter
-level 4
+item_condition 5
 wis 2
 type 83
 end
@@ -759,7 +750,7 @@ arch spawn_point
 x 6
 y 4
 arch kobold_guard
-level 4
+item_condition 5
 wis 2
 type 83
 end
@@ -1295,7 +1286,7 @@ arch spawn_point
 x 9
 y 8
 arch kobold_guard
-level 5
+item_condition 5
 wis 2
 type 83
 end
@@ -1349,17 +1340,6 @@ arch dirt_floor3
 x 9
 y 16
 end
-arch spawn_point
-x 9
-y 16
-arch kobold
-name kobold sneaker
-wc_range 12
-unaggressive 1
-wis 2
-type 83
-end
-end
 arch floor_sand_d4
 x 9
 y 17
@@ -1393,6 +1373,7 @@ x 9
 y 21
 arch kobold
 name kobold sneaker
+item_condition 3
 wc_range 12
 unaggressive 1
 wis 2
@@ -1445,7 +1426,7 @@ arch spawn_point
 x 10
 y 4
 arch kobold_guard
-level 4
+item_condition 5
 wis 2
 type 83
 end
@@ -2226,6 +2207,7 @@ x 15
 y 16
 arch kobold
 name kobold sneaker
+item_condition 3
 wc_range 12
 unaggressive 1
 wis 2
@@ -2329,7 +2311,7 @@ x 16
 y 3
 arch kobold
 name kobold mushroom collector
-level 4
+item_condition 5
 wc_range 12
 unaggressive 1
 wis 2
@@ -2382,7 +2364,7 @@ y 9
 arch kobold
 name kobold mushroom collector
 randomitems mob_mage_l9
-level 4
+item_condition 4
 wc_range 12
 unaggressive 1
 wis 2
@@ -2641,7 +2623,7 @@ x 17
 y 23
 arch kobold_guard
 direction 3
-level 3
+item_condition 4
 wis 2
 type 83
 end
@@ -3033,7 +3015,7 @@ y 2
 arch kobold
 name kobold mushroom collector
 randomitems mob_mage_l9
-level 3
+item_condition 4
 wc_range 12
 unaggressive 1
 wis 2
@@ -3089,7 +3071,7 @@ x 20
 y 9
 arch kobold
 name kobold mushroom collector
-level 4
+item_condition 5
 wc_range 12
 unaggressive 1
 wis 2
@@ -3157,6 +3139,7 @@ x 20
 y 17
 arch kobold
 name kobold hunter
+item_condition 3
 unaggressive 1
 wis 2
 type 83
@@ -3345,7 +3328,7 @@ x 21
 y 23
 arch cube_gel
 randomitems mob_fighter_l9
-level 2
+item_condition 3
 wc_range 12
 unaggressive 1
 wis 2

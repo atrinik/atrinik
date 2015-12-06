@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2015-11-23 Alex Tokar
+Modified: 2015-12-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -138,7 +138,7 @@ arch spawn_point
 x 2
 y 5
 arch kobold_fighter
-level 2
+item_condition 3
 wis 2
 type 83
 end
@@ -380,15 +380,6 @@ arch floor_sand_d4
 x 7
 y 6
 end
-arch spawn_point
-x 7
-y 6
-arch kobold_fighter
-level 2
-wis 2
-type 83
-end
-end
 arch floor_sand_d2
 x 7
 y 7
@@ -564,7 +555,7 @@ arch spawn_point
 x 10
 y 3
 arch kobold_guard
-level 2
+item_condition 4
 wis 2
 type 83
 end
@@ -859,7 +850,7 @@ x 14
 y 7
 arch kobold_fighter
 direction 3
-level 3
+item_condition 4
 wis 2
 type 83
 end
@@ -941,7 +932,7 @@ x 15
 y 9
 arch kobold_fighter
 direction 3
-level 3
+item_condition 4
 wis 2
 type 83
 end
@@ -982,7 +973,7 @@ arch spawn_point
 x 16
 y 6
 arch kobold_guard
-level 3
+item_condition 4
 wis 2
 type 83
 end
@@ -1072,7 +1063,7 @@ x 17
 y 8
 arch kobold_guard
 name kobold fighter leader
-level 3
+item_condition 4
 attack_slash 80
 wis 2
 type 83
@@ -1330,7 +1321,7 @@ arch spawn_point
 x 20
 y 5
 arch kobold_fighter
-level 3
+item_condition 4
 wis 2
 type 83
 end
@@ -1494,7 +1485,7 @@ x 22
 y 2
 arch kobold_shaman
 direction 3
-level 2
+item_condition 5
 maxsp 10
 magic 1
 dex 10
@@ -1567,7 +1558,7 @@ y 10
 arch kobold
 name kobold mushroom keeper
 direction 7
-level 2
+item_condition 4
 wc_range 12
 wis 2
 type 83
@@ -1603,7 +1594,7 @@ end
 arch spawn_point
 x 23
 arch kobold_shaman
-level 3
+item_condition 5
 maxsp 10
 magic 1
 dex 10

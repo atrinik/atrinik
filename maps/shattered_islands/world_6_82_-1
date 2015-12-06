@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2015-11-23 Alex Tokar
+Modified: 2015-12-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -122,7 +122,7 @@ y 6
 arch kobold
 name kobold mushroom keeper
 direction 7
-level 2
+item_condition 4
 wc_range 12
 wis 2
 type 83
