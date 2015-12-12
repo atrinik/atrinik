@@ -62,6 +62,8 @@ void tooltip_create(int mx, int my, font_struct *font, const char *text)
     tooltip_font = font;
     tooltip_x = mx;
     tooltip_y = my;
+    tooltip_w = -1;
+    tooltip_h = -1;
     strncpy(tooltip_text, text, sizeof(tooltip_text) - 1);
     tooltip_text[sizeof(tooltip_text) - 1] = '\0';
 }
@@ -123,8 +125,14 @@ void tooltip_show(void)
     text_box.w = tooltip_w;
     text_box.h = tooltip_h;
 
-    text_get_width_height(tooltip_font, tooltip_text, TEXT_MARKUP, &text_box,
-            &text_box.w, &text_box.h);
+    if (tooltip_w == -1 || tooltip_h == -1) {
+        text_get_width_height(tooltip_font,
+                              tooltip_text,
+                              TEXT_MARKUP,
+                              &text_box,
+                              tooltip_w == -1 ? &text_box.w : NULL,
+                              tooltip_h == -1 ? &text_box.h : NULL);
+    }
 
     /* Generate the tooltip's background. */
     box.x = tooltip_x + 9;
