@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-11-28 Alex Tokar
+Modified: 2015-12-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -583,13 +583,6 @@ arch bridge_wood_NS.101
 x 4
 y 8
 end
-arch exit
-slaying world_0_70
-hp 7
-sp 10
-x 4
-y 8
-end
 arch bridge_wood_NS.101
 x 4
 y 9
@@ -774,13 +767,6 @@ x 5
 y 7
 end
 arch bridge_wood_NS.101
-x 5
-y 8
-end
-arch sign
-msg
-Welcome to Incuna. Please note that this area is not yet finished - feel free to explore, but currently, this portal is the only way to leave the island (you can come back at any time).
-endmsg
 x 5
 y 8
 end
