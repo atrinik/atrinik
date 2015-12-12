@@ -787,7 +787,7 @@ extern void textwin_tab_add(widgetdata *widget, const char *name);
 extern int textwin_tab_find(widgetdata *widget, uint8_t type, const char *name, size_t *id);
 extern void textwin_tab_open(widgetdata *widget, const char *name);
 extern void draw_info_tab(size_t type, const char *color, const char *str);
-extern void draw_info_format(const char *color, char *format, ...) __attribute__((format(printf, 2, 3)));
+extern void draw_info_format(const char *color, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void draw_info(const char *color, const char *str);
 extern void textwin_handle_copy(widgetdata *widget);
 extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);

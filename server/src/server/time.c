@@ -269,14 +269,12 @@ void get_tod(timeofday_t *tod)
 void print_tod(object *op)
 {
     timeofday_t tod;
-    char *suf;
-    int day;
-
     get_tod(&tod);
     draw_info_format(COLOR_WHITE, op, "It is %s, %d minute%s past %d o'clock %s, on the %s.", periodsofday[tod.periodofday], tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
 
-    day = tod.day + 1;
+    int day = tod.day + 1;
 
+    const char *suf;
     if (day == 1 || ((day % 10) == 1 && day > 20)) {
         suf = "st";
     } else if (day == 2 || ((day % 10) == 2 && day > 20)) {

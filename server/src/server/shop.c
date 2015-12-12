@@ -145,7 +145,7 @@ static archetype_t *shop_get_next_coin(int64_t cost, int *cointype)
  * @return Static buffer containing the price. Will be overwritten with the next
  * call to this function.
  */
-char *shop_get_cost_string(int64_t cost)
+const char *shop_get_cost_string(int64_t cost)
 {
     static char buf[MAX_BUF];
 
@@ -202,7 +202,7 @@ char *shop_get_cost_string(int64_t cost)
  * @param mode One of @ref COST_xxx.
  * @return The cost string.
  */
-char *shop_get_cost_string_item(object *op, int mode)
+const char *shop_get_cost_string_item(object *op, int mode)
 {
     return shop_get_cost_string(shop_get_cost(op, mode));
 }

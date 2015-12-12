@@ -78,13 +78,11 @@ static void cmd_aliases_load(const char *path)
             continue;
         }
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
-        char *error_str;
-        const char *key = cp, *value = NULL;
+        const char *key = cp, *value = NULL, *error_str;
 
         if (string_startswith(cp, "[") && string_endswith(cp, "]")) {
             if (cmd_alias != NULL) {

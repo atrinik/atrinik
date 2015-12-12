@@ -345,7 +345,7 @@ spell_struct spells[NROFREALSPELLS] = {
 };
 
 /** Spell paths */
-char *spellpathnames[NRSPELLPATHS] = {
+const char *const spellpathnames[NRSPELLPATHS] = {
     "Protection",
     "Fire",
     "Frost",

@@ -118,10 +118,11 @@ static void textwin_tab_append(widgetdata *widget, uint8_t id, uint8_t type, con
 
     if (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS) && textwin->timestamps) {
         time_t now = time(NULL);
-        char tmptimebuf[MAX_BUF], *format;
+        char tmptimebuf[MAX_BUF];
         struct tm *tm = localtime(&now);
         size_t timelen;
 
+        const char *format;
         switch (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS)) {
             /* HH:MM */
         case 1:
@@ -417,7 +418,7 @@ void draw_info_tab(size_t type, const char *color, const char *str)
  * Draw info with format arguments.
  * @param flags Various flags, like color.
  * @param format Format arguments. */
-void draw_info_format(const char *color, char *format, ...)
+void draw_info_format(const char *color, const char *format, ...)
 {
     char buf[HUGE_BUF * 2];
     va_list ap;

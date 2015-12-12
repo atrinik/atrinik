@@ -90,7 +90,7 @@ void init_spells(void)
  * @param x X position on map.
  * @param y Y position on map.
  * @return 1 on failure, 0 otherwise. */
-int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
+int insert_spell_effect(const char *archname, mapstruct *m, int x, int y)
 {
     archetype_t *effect_arch;
     object *effect_ob;

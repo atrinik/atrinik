@@ -127,7 +127,7 @@ struct archetype;
 /** Spell structure. */
 typedef struct spell_struct {
     /** Name of this spell. */
-    char name[BIG_NAME];
+    const char *name;
 
     /** Spellpoint cost to cast it. */
     int sp;
@@ -188,7 +188,7 @@ typedef struct spell_struct {
     uint32_t path;
 
     /** Name of the archetype used by the spell. */
-    char *archname;
+    const char *archname;
 
     /** Pointer to archetype used by spell. */
     struct archetype *at;

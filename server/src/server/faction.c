@@ -161,11 +161,9 @@ TOOLKIT_INIT_FUNC(faction)
     while (fgets(VS(buf), fp)) {
         linenum++;
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         char *cps[2];
 

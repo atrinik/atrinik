@@ -684,10 +684,10 @@ END_TEST
 START_TEST(test_string_join_array)
 {
     char *cp;
-    char *cps[] = {"hello", "world"};
-    char *cps2[] = {"hello"};
-    char *cps3[] = {"hello", "world", "hi"};
-    char *cps4[] = {"hello", NULL, "world"};
+    const char *cps[] = {"hello", "world"};
+    const char *cps2[] = {"hello"};
+    const char *cps3[] = {"hello", "world", "hi"};
+    const char *cps4[] = {"hello", NULL, "world"};
 
     cp = string_join_array(NULL, cps, arraysize(cps));
     ck_assert_str_eq(cp, "helloworld");
@@ -839,14 +839,37 @@ END_TEST
 
 START_TEST(test_string_skip_whitespace)
 {
-    ck_assert_ptr_eq(string_skip_whitespace(NULL), NULL);
-    ck_assert_str_eq(string_skip_whitespace("      "), "");
-    ck_assert_str_eq(string_skip_whitespace(""), "");
-    ck_assert_str_eq(string_skip_whitespace("hello world"), "hello world");
-    ck_assert_str_eq(string_skip_whitespace("    hello world"), "hello world");
-    ck_assert_str_eq(string_skip_whitespace(" hello world "), "hello world ");
-    ck_assert_str_eq(string_skip_whitespace("\t\thello world"), "hello world");
-    ck_assert_str_eq(string_skip_whitespace("\t\nhello world"), "hello world");
+    const char *str = "";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "");
+
+    str = "      ";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "");
+
+    str = "hello world";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "hello world");
+
+    str = "    hello world";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "hello world");
+
+    str = " hello world ";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "hello world ");
+
+    str = "";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "");
+
+    str = "\t\thello world";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "hello world");
+
+    str = "\t\nhello world";
+    string_skip_whitespace(str);
+    ck_assert_str_eq(str, "hello world");
 }
 
 END_TEST

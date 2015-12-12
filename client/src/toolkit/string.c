@@ -842,7 +842,8 @@ char *string_join(const char *delim, ...)
  * @param arraysize Number of entries inside ::array.
  * @return Joined string; never NULL. Must be freed.
  */
-char *string_join_array(const char *delim, char **array, size_t arraysize)
+char *string_join_array(const char *delim, const char *const *array,
+                        size_t arraysize)
 {
     StringBuffer *sb;
     size_t i;
@@ -967,7 +968,7 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result,
  * @param resultsize Number of elements in 'result'.
  * @return How many elements have been filled into 'result'.
  */
-size_t string_fromhex(char *str, size_t len, unsigned char *result,
+size_t string_fromhex(const char *str, size_t len, unsigned char *result,
         size_t resultsize)
 {
     size_t i, j;
@@ -989,24 +990,6 @@ size_t string_fromhex(char *str, size_t len, unsigned char *result,
     }
 
     return j;
-}
-
-/**
- * Skips whitespace in the string 'str'.
- * @param str String to skip whitespace in.
- * @return String with the whitespace skipped, NULL if 'str' is also NULL.
- */
-char *string_skip_whitespace(char *str)
-{
-    if (str == NULL) {
-        return NULL;
-    }
-
-    while (isspace(*str)) {
-        str++;
-    }
-
-    return str;
 }
 
 /**

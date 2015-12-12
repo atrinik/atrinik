@@ -92,7 +92,7 @@ struct archetype;
 /** Skill structure for the skills array. */
 typedef struct skill_struct {
     /** How to describe it to the player */
-    char *name;
+    const char *name;
 
     /** Pointer to the skill archetype in the archlist */
     struct archetype *at;

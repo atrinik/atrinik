@@ -552,8 +552,8 @@ extern void regions_init(void);
 extern void regions_free(void);
 extern region_struct *region_find_by_name(const char *region_name);
 extern const region_struct *region_find_with_map(const region_struct *region);
-extern char *region_get_longname(const region_struct *region);
-extern char *region_get_msg(const region_struct *region);
+extern const char *region_get_longname(const region_struct *region);
+extern const char *region_get_msg(const region_struct *region);
 extern int region_enter_jail(object *op);
 /* src/server/rune.c */
 extern int trap_see(object *op, object *trap, int level);
@@ -562,8 +562,8 @@ extern int trap_disarm(object *disarmer, object *trap);
 extern void trap_adjust(object *trap, int difficulty);
 /* src/server/shop.c */
 extern int64_t shop_get_cost(object *op, int mode);
-extern char *shop_get_cost_string(int64_t cost);
-extern char *shop_get_cost_string_item(object *op, int flag);
+extern const char *shop_get_cost_string(int64_t cost);
+extern const char *shop_get_cost_string_item(object *op, int flag);
 extern int64_t shop_get_money(object *op);
 extern bool shop_pay(object *op, int64_t to_pay);
 extern bool shop_pay_item(object *op, object *item);
@@ -607,10 +607,10 @@ extern int cast_cause_disease(object *op, object *caster, int dir, struct archet
 extern int cast_transform_wealth(object *op);
 /* src/server/spell_util.c */
 extern spell_struct spells[52];
-extern char *spellpathnames[20];
+extern const char *const spellpathnames[20];
 extern struct archetype *spellarch[52];
 extern void init_spells(void);
-extern int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
+extern int insert_spell_effect(const char *archname, mapstruct *m, int x, int y);
 extern spell_struct *find_spell(int spelltype);
 extern int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg);
 extern int cast_create_obj(object *op, object *new_op, int dir);

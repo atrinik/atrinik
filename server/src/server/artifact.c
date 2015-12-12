@@ -139,10 +139,9 @@ void artifact_load(void)
     while (fgets(VS(buf), fp) != NULL) {
         linenum++;
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         char *cps[2];
         if (string_split(cp, cps, arraysize(cps), ' ') < 1) {

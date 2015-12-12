@@ -42,7 +42,7 @@
 /** special structure, used only by art_name_array[] */
 typedef struct namebytype {
     /** Generic name to call artifacts of this type */
-    char *name;
+    const char *name;
 
     /** Matching type */
     int type;
@@ -87,7 +87,7 @@ static uint32_t spellpathdef[NRSPELLPATHS] = {
 };
 
 /** Path book information */
-static char *path_book_name[] = {
+static const char *const path_book_name[] = {
     "codex",
     "compendium",
     "exposition",
@@ -106,7 +106,7 @@ static char *path_book_name[] = {
 };
 
 /** Used by spellpath texts */
-static char *path_author[] = {
+static const char *const path_author[] = {
     "aether",
     "astral byways",
     "connections",
@@ -160,7 +160,7 @@ static arttypename art_name_array[] = {
 };
 
 /** Artifact book information */
-static char *art_book_name[] = {
+static const char *const art_book_name[] = {
     "collection",
     "file",
     "files",
@@ -175,7 +175,7 @@ static char *art_book_name[] = {
 };
 
 /** Used by artifact texts */
-static char *art_author[] = {
+static const char *const art_author[] = {
     "ancient things",
     "artifacts",
     "Havlor",
@@ -186,7 +186,7 @@ static char *art_author[] = {
 };
 
 /** Monster book information */
-static char *mon_book_name[] = {
+static const char *const mon_book_name[] = {
     "bestiary",
     "catalog",
     "compilation",
@@ -203,7 +203,7 @@ static char *mon_book_name[] = {
 };
 
 /** Used by monster bestiary texts */
-static char *mon_author[] = {
+static const char *const mon_author[] = {
     "beasts",
     "creatures",
     "dezidens",
@@ -221,7 +221,7 @@ static char *mon_author[] = {
 
 /**
  * Generic book information. */
-static char *book_name[] = {
+static const char *const book_name[] = {
     "calendar",
     "datebook",
     "diary",
@@ -247,7 +247,7 @@ static char *book_name[] = {
 };
 
 /** Used by 'generic' books */
-static char *book_author[] = {
+static const char *const book_author[] = {
     "Abdulah",
     "Al'hezred",
     "Alywn",

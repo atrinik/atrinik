@@ -296,7 +296,7 @@ const region_struct *region_find_with_map(const region_struct *region)
  * @return Long name of a region if found. Will also search recursively in
  * parents. NULL is never returned, instead a fake region name is returned.
  */
-char *region_get_longname(const region_struct *region)
+const char *region_get_longname(const region_struct *region)
 {
     if (region->longname) {
         return region->longname;
@@ -315,7 +315,7 @@ char *region_get_longname(const region_struct *region)
  * @return Message of a region if found. Will also search recursively in
  * parents. NULL is never returned, instead a fake region message is returned.
  */
-char *region_get_msg(const region_struct *region)
+const char *region_get_msg(const region_struct *region)
 {
     if (region->msg) {
         return region->msg;
