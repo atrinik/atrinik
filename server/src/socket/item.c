@@ -501,6 +501,9 @@ void esrv_close_container(object *pl, object *op)
 {
     packet_struct *packet;
 
+    SOFT_ASSERT(pl != NULL, "pl is NULL");
+    SOFT_ASSERT(op != NULL, "op is NULL");
+
     packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
     packet_enable_ndelay(packet);
 
