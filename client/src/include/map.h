@@ -307,8 +307,6 @@ typedef struct map_anim {
     int mapx; ///< Map position X.
     int mapy; ///< Map position Y.
 
-    int x; ///< X position.
-    int y; ///< Y position.
     double xoff; ///< Movement in X per tick.
     double yoff; ///< Movement in Y per tick.
 
