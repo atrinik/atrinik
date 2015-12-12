@@ -684,6 +684,13 @@ end
 arch wall_palace_14
 x 4
 end
+arch map_info
+name incuna_temple
+hp 7
+sp 9
+cursed 1
+x 4
+end
 arch floor_marble1f
 x 4
 y 1
@@ -973,7 +980,7 @@ direction 7
 x 5
 y 6
 end
-arch light2
+arch light3
 x 5
 y 6
 end
