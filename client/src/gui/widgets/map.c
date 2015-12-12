@@ -1441,8 +1441,8 @@ map_should_cull (SDL_Surface           *surface,
                  map_render_data_t     *data)
 {
     /* Determine the distance of the object relative to the PC. */
-    int distance_x = data->x - map_width / 2;
-    int distance_y = data->y - map_height / 2;
+    int distance_x = data->x - map_width * MAP_FOW_SIZE / 2;
+    int distance_y = data->y - map_height * MAP_FOW_SIZE / 2;
     int distance = isqrt(distance_x * distance_x +
                          distance_y * distance_y);
     if (distance > 3) {
@@ -1451,7 +1451,8 @@ map_should_cull (SDL_Surface           *surface,
     }
 
     /* Must be in the southern or eastern quadrant to be culled. */
-    if (data->x < map_width / 2 || data->y < map_height / 2) {
+    if (data->x < map_width * MAP_FOW_SIZE / 2 ||
+        data->y < map_height * MAP_FOW_SIZE / 2) {
         return false;
     }
 
@@ -1482,8 +1483,8 @@ map_should_cull (SDL_Surface           *surface,
                 if (cell2->secondpass[sub_layer2] & (1 << (LAYER_WALL - 1)) &&
                     !obj_is_behind_wall(nx,
                                         ny,
-                                        map_width / 2,
-                                        map_height / 2)) {
+                                        map_width * MAP_FOW_SIZE / 2,
+                                        map_height * MAP_FOW_SIZE / 2)) {
                     cull = true;
                     break;
                 }
@@ -1821,6 +1822,11 @@ map_draw_map (SDL_Surface *surface)
                                            data.sub_layer - 1);
                 if (data.cell->height[map_layer] <=
                     data.cell->height[map_layer2]) {
+                    continue;
+                }
+
+                if (surface == cur_widget[MAP_ID]->surface &&
+                    map_should_cull(surface, &data)) {
                     continue;
                 }
 
