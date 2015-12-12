@@ -121,8 +121,10 @@ widget_event (struct widgetdata *widget, SDL_Event *event)
 }
 
 /**
- * Initialize one player info widget. */
-void widget_playerinfo_init(widgetdata *widget)
+ * Initialize one player info widget.
+ */
+void
+widget_playerinfo_init (widgetdata *widget)
 {
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
