@@ -1208,8 +1208,9 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                 wd = ht = -1;
                 fit_to_size = flip = 0;
                 show_percentage = 1.0;
+                int rotate = 0;
 
-                if (sscanf(tag + 5, "%255[^] >] %d %d %d %d %f", face, &wd, &ht, &fit_to_size, &flip, &show_percentage) >= 1) {
+                if (sscanf(tag + 5, "%255[^] >] %d %d %d %d %f %d", face, &wd, &ht, &fit_to_size, &flip, &show_percentage, &rotate) >= 1) {
                     int id;
                     sprite_struct *icon_sprite;
                     SDL_Surface *icon_surface;
@@ -1329,10 +1330,39 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                             }
                         }
 
-                        if (icon_w != icon_orig_w || icon_h != icon_orig_h || flip != 0) {
+                        if (rotate != 0) {
+                            int dstwd, dstht;
+                            rotozoomSurfaceSizeXY(icon_w,
+                                                  icon_h,
+                                                  rotate, 1.0, 1.0,
+                                                  &dstwd, &dstht);
+                            int xoff = (dstwd - icon_w) / 2;
+                            icon_dst.x -= xoff;
+                            icon_box.w += xoff;
+                            int yoff = (dstht - icon_h) / 2;
+                            icon_dst.y -= yoff;
+                            icon_box.h += yoff;
+                        }
+
+                        if (icon_w != icon_orig_w ||
+                            icon_h != icon_orig_h ||
+                            flip != 0 ||
+                            rotate != 0) {
                             SDL_Surface *tmp_icon;
 
-                            tmp_icon = zoomSurface(icon_surface, zoom_x, zoom_y, icon_w != icon_orig_w || icon_h != icon_orig_h ? setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH) : 0);
+                            bool smooth = false;
+                            if (icon_w != icon_orig_w ||
+                                icon_h != icon_orig_h ||
+                                rotate != 0) {
+                                smooth = setting_get_int(OPT_CAT_CLIENT,
+                                                         OPT_ZOOM_SMOOTH);
+                            }
+
+                            tmp_icon = rotozoomSurfaceXY(icon_surface,
+                                                         rotate,
+                                                         zoom_x,
+                                                         zoom_y,
+                                                         smooth);
 
                             SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
                             SDL_FreeSurface(tmp_icon);
