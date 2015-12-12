@@ -35,7 +35,7 @@
  * create a new face with that color. */
 typedef struct new_face_struct {
     /** Name of the face. */
-    char *name;
+    const char *name;
 
     /**
      * This is the image ID. It should be the same value as its position

@@ -28,7 +28,7 @@
 
 #define YY_DECL int rmap_lex_read(RMParms *RP)
 
-static char *rmap_yval(void);
+static const char *rmap_yval(void);
 static int rmap_lex_error;
 
 #define IVAL    atoi(rmap_yval())
@@ -103,7 +103,7 @@ rmap_lex_error = 0;
 }
 
 .*                        {
-                            yyerror("Unrecognized string");
+                            LOG(ERROR, "Unrecognized string: %s", yytext);
                             rmap_lex_error = -1;
                           }
 
@@ -115,9 +115,9 @@ rmap_lex_error = 0;
  * processing mechanism here instead using something like bison
  * This skips over the space and returns the value, or "" if no value
  * is found. */
-static char *rmap_yval(void)
+static const char *rmap_yval(void)
 {
-    static char *em = "";
+    static const char *em = "";
     char *cp;
 
     cp = strchr(yytext,' ');

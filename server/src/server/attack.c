@@ -35,7 +35,7 @@
 /**
  * Names of attack types to use when saving them to file.
  * @warning Cannot contain spaces. Use underscores instead. */
-char *attack_save[NROFATTACKS] = {
+const char *const attack_save[NROFATTACKS] = {
     "impact",   "slash", "cleave",      "pierce",    "weaponmagic",
     "fire",     "cold",  "electricity", "poison",    "acid",
     "magic",    "mind",  "blind",       "paralyze",  "force",
@@ -45,7 +45,7 @@ char *attack_save[NROFATTACKS] = {
 
 /**
  * Short description of names of the attack types. */
-char *attack_name[NROFATTACKS] = {
+const char *const attack_name[NROFATTACKS] = {
     "impact",   "slash", "cleave",      "pierce",    "weapon magic",
     "fire",     "cold",  "electricity", "poison",    "acid",
     "magic",    "mind",  "blind",       "paralyze",  "force",

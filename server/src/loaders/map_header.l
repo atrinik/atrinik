@@ -29,7 +29,7 @@
 
 #define YY_DECL int map_lex_load(mapstruct *m)
 
-static char *yval(void);
+static const char *yval(void);
 
 static char msgbuf[HUGE_BUF];
 static int lex_error, msg_flag;
@@ -161,9 +161,9 @@ lex_error = 0;
  *
  * This skips over the space and returns the value, or "" if no value is
  * found. */
-static char *yval(void)
+static const char *yval(void)
 {
-    static char *em = "";
+    static const char *em = "";
     char *cp, *end;
 
     /* First skip over start of line, like animation or name */

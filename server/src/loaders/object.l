@@ -38,7 +38,7 @@
         int map_flags, int linemode)
 #define MAXDEPTH 10
 
-static char *yval(void);
+static const char *yval(void);
 
 /* that's needed to track the used buffers for recursive ccalling */
 static void *cur_buffer;
@@ -249,7 +249,7 @@ lex_error = 0;
 }
 
 ^object{S}           {
-    char *yv = yval();
+    const char *yv = yval();
 
     if (*yv == '\0') {
         LOG(ERROR, "Object lacks name.");
@@ -281,7 +281,7 @@ lex_error = 0;
     msgbuf_len += yyleng;
 }
 ^name{S}             {
-    char *yv = yval();
+    const char *yv = yval();
 
     if (*yv == '\0') {
         LOG(ERROR, "Name without val");
@@ -290,7 +290,7 @@ lex_error = 0;
     }
 }
 ^custom_name{S}      {
-    char *yv = yval();
+    const char *yv = yval();
 
     if (*yv == '\0') {
         LOG(ERROR, "Custom name without val.");
@@ -303,7 +303,7 @@ lex_error = 0;
     }
 }
 ^glow{S}      {
-    char *yv = yval();
+    const char *yv = yval();
 
     if (*yv == '\0') {
         LOG(ERROR, "Glow without val.");
@@ -325,7 +325,7 @@ lex_error = 0;
 }
 ^artifact{S}         FREE_AND_COPY_HASH(op->artifact, yval());
 ^amask{S}            {
-    char *yv = yval();
+    const char *yv = yval();
 
     if (*yv == '\0') {
         LOG(ERROR, "Artifact mask without val");
@@ -340,7 +340,7 @@ lex_error = 0;
 ^quickslot{S}        op->quickslot = IVAL;
 ^other_arch{S}       op->other_arch = arch_find(yval());
 ^animation{S}        {
-    char *yv = yval();
+    const char *yv = yval();
 
     if (strcmp(yv, "NONE") == 0) {
         op->animation_id = 0;
@@ -349,7 +349,7 @@ lex_error = 0;
     }
 }
 ^inv_animation{S}    {
-    char *yv = yval();
+    const char *yv = yval();
 
     if (strcmp(yv, "NONE") == 0) {
         op->inv_animation_id = 0;
@@ -696,7 +696,7 @@ lex_error = 0;
 ^can_use_skill{S}    {/* DEPRECATED */}
 ^been_applied{S}     CHANGE_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
 ^title{S}            {
-    char *y = yval();
+    const char *y = yval();
 
     if (*y == '\0') {
         LOG(ERROR, "Title without value.");
@@ -815,9 +815,10 @@ int yyerror(char *s)
  * This skips over the space and returns the value, or "" if no value is
  * found.
  */
-static char *yval(void)
+static const char *
+yval (void)
 {
-    static char *em = "";
+    static const char *em = "";
     char *cp, *end;
     size_t len = yyleng;
 

@@ -163,7 +163,7 @@ extern char **make_square_spiral_layout(int xsize, int ysize);
 extern int load_dir(const char *dir, char ***namelist, int skip_dirs);
 extern mapstruct *styles;
 extern mapstruct *load_style_map(char *style_name);
-extern mapstruct *find_style(char *dirname, char *stylename, int difficulty);
+extern mapstruct *find_style(const char *dirname, const char *stylename, int difficulty);
 extern object *pick_random_object(mapstruct *style);
 extern void free_style_maps(void);
 /* src/random_maps/wall.c */
@@ -191,7 +191,7 @@ extern int num_animations;
 extern int animations_allocated;
 extern void free_all_anim(void);
 extern void init_anim(void);
-extern int find_animation(char *name);
+extern int find_animation(const char *name);
 extern void animate_object(object *op);
 extern void animate_turning(object *op);
 /* src/server/apply.c */
@@ -200,8 +200,8 @@ extern int player_apply(object *pl, object *op, int aflag, int quiet);
 extern void player_apply_below(object *pl);
 /* src/server/arch.c */
 /* src/server/attack.c */
-extern char *attack_save[NROFATTACKS];
-extern char *attack_name[NROFATTACKS];
+extern const char *const attack_save[NROFATTACKS];
+extern const char *const attack_name[NROFATTACKS];
 extern int attack_ob(object *op, object *hitter);
 extern int hit_player(object *op, int dam, object *hitter);
 extern void hit_map(object *op, int dir, int reduce);
@@ -250,7 +250,7 @@ extern New_Face *new_faces;
 extern int nroffiles;
 extern int nrofpixmaps;
 extern int read_bmap_names(void);
-extern int find_face(char *name, int error);
+extern int find_face(const char *name, int error);
 extern void free_all_images(void);
 /* src/server/init.c */
 extern struct settings_struct settings;
@@ -664,7 +664,7 @@ extern void print_tod(object *op);
 extern void time_info(object *op);
 extern long seconds(void);
 /* src/server/treasure.c */
-extern char *coins[6 + 1];
+extern const char *const coins[6 + 1];
 extern struct archetype *coins_arch[6];
 extern void load_treasures(void);
 extern treasurelist *find_treasurelist(const char *name);

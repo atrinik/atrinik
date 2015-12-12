@@ -160,16 +160,11 @@ int read_bmap_names(void)
  * or added, all faces after that will have a different number).
  * @param name Face to search for.
  * @param error Value to return if face was not found. */
-int find_face(char *name, int error)
+int find_face(const char *name, int error)
 {
     struct bmappair *bp, tmp;
-    char *p;
 
-    if ((p = strchr(name, '\n'))) {
-        *p = '\0';
-    }
-
-    tmp.name = name;
+    tmp.name = (char *) name;
     bp = bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), compar);
 
     return bp ? bp->number : (unsigned int) error;

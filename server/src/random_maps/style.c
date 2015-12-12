@@ -147,7 +147,7 @@ mapstruct *load_style_map(char *style_name)
  * @param stylename Style to use, can be NULL.
  * @param difficulty Style difficulty.
  * @return Style, or NULL if none suitable. */
-mapstruct *find_style(char *dirname, char *stylename, int difficulty)
+mapstruct *find_style(const char *dirname, const char *stylename, int difficulty)
 {
     char style_file_path[256], style_file_full_path[256];
     mapstruct *style_map = NULL;

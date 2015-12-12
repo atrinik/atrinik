@@ -236,10 +236,10 @@ typedef struct _pythoncontext {
     object *event;
 
     /** Text message (say event for example) */
-    char *text;
+    const char *text;
 
     /** Event options. */
-    char *options;
+    const char *options;
 
     /** Return value of the event. */
     int returnvalue;

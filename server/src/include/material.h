@@ -102,7 +102,7 @@
 /** A single material. */
 typedef struct {
     /** Name of the material. */
-    char *name;
+    const char *name;
 } materialtype;
 
 /** A real material. */

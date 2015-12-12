@@ -162,11 +162,11 @@ static int anim_compare(const void *a, const void *b)
  * @param name Animation name to find
  * @return ID of the animation if found, 0 otherwise (animation 0 is
  * initialized as the 'bug' face). */
-int find_animation(char *name)
+int find_animation(const char *name)
 {
     Animations search, *match;
 
-    search.name = name;
+    search.name = (char *) name;
 
     match = bsearch(&search, animations, (num_animations + 1), sizeof(Animations), anim_compare);
 
