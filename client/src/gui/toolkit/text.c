@@ -1410,6 +1410,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         } else if (tag_len >= 8 && strncmp(tag, "tooltip=", 8) == 0) {
             if (surface || info->obscured) {
                 if (sscanf(tag + 8, "%512[^]>]", info->tooltip_text) == 1) {
+                    info->tooltip_font = *font;
                 }
             }
         } else if (tag_len == 8 && strncmp(tag, "/tooltip", tag_len) == 0) {
@@ -1472,9 +1473,17 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     }
                 }
             }
-        } else if (tag_len == 4 && strncmp(tag, "/flip", tag_len) == 0) {
+        } else if (tag_len == 5 && strncmp(tag, "/flip", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->flip = 0;
+            }
+        } else if (tag_len >= 13 && strncmp(tag, "tooltip_conf=", 13) == 0) {
+            if (surface || info->obscured) {
+                if (sscanf(tag + 13,
+                           "%" SCNu32 " %d",
+                           &info->tooltip_delay,
+                           &info->tooltip_width) >= 1) {
+                }
             }
         } else {
             char *cp2;
@@ -1615,8 +1624,14 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     }
 
                     if (*info->tooltip_text != '\0') {
-                        tooltip_create(orig_mx, orig_my, *font, info->tooltip_text);
-                        tooltip_multiline(0);
+                        tooltip_create(orig_mx,
+                                       orig_my,
+                                       info->tooltip_font,
+                                       info->tooltip_text);
+                        tooltip_multiline(info->tooltip_width);
+                        if (info->tooltip_delay != 0) {
+                            tooltip_enable_delay(info->tooltip_delay);
+                        }
                     }
                 }
 

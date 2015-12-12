@@ -203,6 +203,12 @@ typedef struct text_info_struct {
     SDL_Color highlight_color;
 
     char tooltip_text[MAX_BUF * 2];
+
+    font_struct *tooltip_font;
+
+    uint32_t tooltip_delay;
+
+    int tooltip_width;
 } text_info_struct;
 
 /**
