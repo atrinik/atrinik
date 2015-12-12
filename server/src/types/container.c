@@ -198,11 +198,11 @@ int container_close(object *applier, object *op)
             }
         }
 
+        esrv_close_container(applier, pl->container);
         pl->container_above = NULL;
         pl->container_below = NULL;
         pl->container = NULL;
         pl->container_count = 0;
-        esrv_close_container(applier, op);
     } else if (op) {
         object *tmp, *next;
 
