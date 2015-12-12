@@ -269,8 +269,9 @@ void artifact_load(void)
                 goto error;
             }
 
-            if (load_object(fp, &art->def_at->clone, NULL, LO_LINEMODE,
-                    MAP_STYLE) == LL_EOF) {
+            if (load_object_fp(fp,
+                               &art->def_at->clone,
+                               MAP_STYLE) != LL_NORMAL) {
                 error_str = "could not load object";
                 goto error;
             }
@@ -432,10 +433,9 @@ void artifact_change_object(artifact_t *art, object *op)
     int64_t tmp_value = op->value;
     op->value = 0;
 
-    if (load_object(art->parse_text, op, NULL, LO_MEMORYMODE, MAP_ARTIFACT) ==
-            LL_EOF) {
+    if (load_object(art->parse_text, op, MAP_ARTIFACT) != LL_NORMAL) {
         LOG(ERROR, "load_object() error, art: %s, object: %s",
-                art->def_at->name, object_get_str(op));
+            art->def_at->name, object_get_str(op));
     }
 
     FREE_AND_ADD_REF_HASH(op->artifact, art->def_at->name);

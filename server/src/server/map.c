@@ -653,18 +653,15 @@ int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
  * @param mapflags The same as we get with load_original_map(). */
 static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 {
-    int i;
-    void *mybuffer;
-    object *op;
-
-    op = get_object();
-
+    object *op = get_object();
     /* To handle buttons correctly */
     op->map = m;
-    mybuffer = create_loader_buffer(fp);
 
-    while ((i = load_object(fp, op, mybuffer, LO_REPEAT, mapflags))) {
-        if (i == LL_MORE) {
+    void *buffer = create_loader_buffer(fp);
+
+    int rc;
+    while ((rc = load_object_buffer(buffer, op, mapflags)) != LL_EOF) {
+        if (rc == LL_MORE) {
             LOG(ERROR, "Encountered tail object: %s", object_get_str(op));
             continue;
         }
@@ -708,7 +705,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
         op->map = m;
     }
 
-    delete_loader_buffer(mybuffer);
+    delete_loader_buffer(buffer);
     object_destroy(op);
 
     m->in_memory = MAP_IN_MEMORY;

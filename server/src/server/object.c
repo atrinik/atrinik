@@ -2542,11 +2542,11 @@ int was_destroyed(object *op, tag_t old_tag)
  * Creates an object using a string representing its content.
  * @param obstr String to load the object from.
  * @return The newly created object, NULL on failure. */
-object *load_object_str(char *obstr)
+object *load_object_str(const char *obstr)
 {
     object *ob = get_object();
 
-    if (!load_object(obstr, ob, NULL, LO_MEMORYMODE, 0)) {
+    if (load_object(obstr, ob, 0) != LL_NORMAL) {
         LOG(BUG, "load_object() failed.");
         return NULL;
     }

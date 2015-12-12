@@ -157,18 +157,18 @@ static void arch_free(archetype_t *at)
  */
 static void arch_pass_first(FILE *fp)
 {
-    archetype_t *at, *prev = NULL, *last_more = NULL;
-    at = arch_new();
+    HARD_ASSERT(fp != NULL);
+
+    archetype_t *at = arch_new();
     at->clone.arch = at;
 
-    void *mybuffer = create_loader_buffer(fp);
-    int i, first = LO_NEWFILE;
+    void *buffer = create_loader_buffer(fp);
+    archetype_t *prev = NULL, *last_more = NULL;
 
-    while ((i = load_object(fp, &at->clone, mybuffer, first, MAP_STYLE)) !=
-            LL_EOF) {
-        first = LO_REPEAT;
-
-        switch (i) {
+    for (int rc = load_object_fp(fp, &at->clone, MAP_STYLE);
+         rc != LL_EOF;
+         rc = load_object_buffer(buffer, &at->clone, MAP_STYLE)) {
+        switch (rc) {
         /* A new archetype, add it to the arch table. */
         case LL_NORMAL:
             arch_add(at);
@@ -193,7 +193,7 @@ static void arch_pass_first(FILE *fp)
         at->clone.arch = at;
     }
 
-    delete_loader_buffer(mybuffer);
+    delete_loader_buffer(buffer);
     efree(at);
 }
 
@@ -263,7 +263,7 @@ static void arch_pass_second(FILE *fp, const char *filename)
             at->clone.randomitems = tl;
         } else if (strcmp(key, "arch") == 0) {
             object *inv = arch_get(value);
-            load_object(fp, inv, NULL, LO_LINEMODE, 0);
+            load_object_fp(fp, inv, 0);
             insert_ob_in_ob(inv, &at->clone);
         }
     }

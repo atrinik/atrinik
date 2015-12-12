@@ -33,6 +33,7 @@
 #include <arch.h>
 #include <artifact.h>
 #include <ban.h>
+#include <loader.h>
 
 /**
  * The server's settings. */

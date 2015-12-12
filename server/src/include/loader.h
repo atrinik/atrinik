@@ -29,11 +29,16 @@
 #ifndef LOADER_H
 #define LOADER_H
 
-#define LL_IGNORED  -1
-#define LL_EOF      0
-#define LL_MORE     1
-#define LL_NORMAL   2
-#define LL_ERROR    3
+/**
+ * @defgroup LL_xxx Lexical loader return codes
+ *
+ * Codes returned by the lexical loader functions.
+ *@{*/
+#define LL_EOF      0 ///< End of file reached.
+#define LL_MORE     1 ///< Object has more parts that need loading
+#define LL_NORMAL   2 ///< Object was successfully loaded.
+#define LL_ERROR    3 ///< Error loading.
+/*@}*/
 
 /* see loader.l for more details on this */
 #define LO_REPEAT   0
@@ -41,5 +46,23 @@
 #define LO_NEWFILE  2
 #define LO_NOREAD   3
 #define LO_MEMORYMODE 4
+
+/* Prototypes */
+void
+free_object_loader(void);
+void
+delete_loader_buffer(void *buffer);
+void *
+create_loader_buffer(FILE *fp);
+int
+load_object(const char *str, object *op, int map_flags);
+int
+load_object_fp(FILE *fp, object *op, int map_flags);
+int
+load_object_buffer(void *buffer, object *op, int map_flags);
+int
+set_variable(object *op, const char *buf);
+void
+get_ob_diff(StringBuffer *sb, object *op, object *op2);
 
 #endif

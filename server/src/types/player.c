@@ -2115,7 +2115,6 @@ static int player_load(player *pl, const char *path)
 {
     FILE *fp;
     char buf[MAX_BUF], *end;
-    void *loaderbuf;
 
     if (path_size(path) == 0) {
         return 0;
@@ -2179,9 +2178,9 @@ static int player_load(player *pl, const char *path)
     }
 
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
-    loaderbuf = create_loader_buffer(fp);
-    load_object(fp, pl->ob, loaderbuf, LO_REPEAT, 0);
-    delete_loader_buffer(loaderbuf);
+    void *buffer = create_loader_buffer(fp);
+    load_object_buffer(buffer, pl->ob, 0);
+    delete_loader_buffer(buffer);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     fclose(fp);
 

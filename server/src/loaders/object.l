@@ -34,8 +34,13 @@
 #include <artifact.h>
 #include <toolkit_string.h>
 
-#define YY_DECL int lex_load(int *depth, object **items, int maxdepth, \
-        int map_flags, int linemode)
+#define YY_DECL                 \
+static int                      \
+lex_load (int     *depth,       \
+          object **items,       \
+          int      maxdepth,    \
+          int      map_flags,   \
+          int      linemode)
 #define MAXDEPTH 10
 
 static const char *yval(void);
@@ -797,16 +802,6 @@ lex_error = 0;
 #pragma GCC diagnostic pop
 
 /**
- * Used to report an error when parsing object data.
- * @param s The error to report.
- * @return Always returns -1. */
-int yyerror(char *s)
-{
-    LOG(BUG, "%s: %s", s, yytext);
-    return -1;
-}
-
-/**
  * Returns the next token for lex.
  *
  * Our save file syntax is very simple, so we can use a very simple
@@ -853,7 +848,8 @@ yval (void)
 /**
  * Frees all memory allocated by the object loader.
  */
-void free_object_loader(void)
+void
+free_object_loader (void)
 {
 #ifndef WIN32
     yylex_destroy();
@@ -861,20 +857,22 @@ void free_object_loader(void)
 }
 
 /* Buffer functions - needed to make load_object() recursive save. */
-void delete_loader_buffer(void *buffer)
+void
+delete_loader_buffer (void *buffer)
 {
-    if (buffer) {
+    if (buffer != NULL) {
         yy_delete_buffer(buffer);
-    }
-    else {
+    } else {
         yy_delete_buffer(YY_CURRENT_BUFFER);
     }
 
     cur_buffer = NULL;
 }
 
-void *create_loader_buffer(void *fp)
+void *
+create_loader_buffer (FILE *fp)
 {
+    HARD_ASSERT(fp != NULL);
     cur_buffer = yy_create_buffer(fp, YY_BUF_SIZE);
     yy_switch_to_buffer(cur_buffer);
 
@@ -882,95 +880,34 @@ void *create_loader_buffer(void *fp)
 }
 
 /**
- * Loads an object from the given file-pointer.
+ * Begin loading an object; sets up the necessary state variables.
  *
- * Variables will be read, parsed and patched into the object until the
- * string "end" is reached, or the end of the file.
- * @param fp File pointer from which to read.
- * @param op Where to read the data.
- * @param bufstate Used to determine various file attributes:
- * - LO_REPEAT (0): We are reading from the same buffer as the last call.
- * - LO_LINEMODE (1): File that is being read from is multi purpose (ie,
- *   other functions will also be reading from this (treasures file,
- *   artifacts.)
- * - LO_NEWFILE (2): Disabled.
- * - LO_NOREAD (3): Disabled.
- * - LO_MEMORYMODE (4): Read from a memory buffer instead of a file.
+ * @param op Object that is to be loaded.
+ * @param items Objects array.
  */
-int load_object(void *fp, object *op, void *mybuffer, int bufstate,
-        int map_flags)
+static void
+load_object_begin (object *op, object **items)
 {
-    int retval = 0;
-    char inbuf[HUGE_BUF];
-    object *items[MAXDEPTH];
-    int depth = 0;
+    HARD_ASSERT(op != NULL);
 
     items[0] = op;
     art_amask = NULL;
+}
 
-    if (bufstate == LO_REPEAT) {
-        /* Be sure we work on the right buffer */
-        if (cur_buffer != mybuffer) {
-            cur_buffer = mybuffer;
-            yy_switch_to_buffer(mybuffer);
-        }
+/**
+ * Finish loading an object.
+ *
+ * @param op Object that is to be loaded.
+ * @param map_flags Load flags.
+ */
+static void
+load_object_finish (object *op, int map_flags)
+{
+    HARD_ASSERT(op != NULL);
 
-        retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
-    } else if (bufstate == LO_MEMORYMODE) {
-        char *strptr = fp;
-        YY_BUFFER_STATE yybufstate;
-        size_t lcount = 0;
-
-        for ( ; ; ) {
-            strptr += lcount;
-            lcount = strlen(strptr) + 1;
-            yybufstate = yy_scan_string(strptr);
-            retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
-            yy_delete_buffer(yybufstate);
-
-            if (retval == LL_NORMAL) {
-                break;
-            }
-        }
-
-        /* Be sure we work on the right buffer */
-        if (cur_buffer != NULL) {
-            yy_switch_to_buffer(cur_buffer);
-        }
-    } else {
-        while (fgets(VS(inbuf), fp)) {
-            YY_BUFFER_STATE yybufstate = yy_scan_string(inbuf);
-            retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
-            yy_delete_buffer(yybufstate);
-
-            if (retval == LL_NORMAL) {
-                /* Be sure we work on the right buffer */
-                if (cur_buffer != NULL) {
-                    yy_switch_to_buffer(cur_buffer);
-                }
-
-                if (depth == 0) {
-                    return retval;
-                } else {
-                    depth--;
-                }
-            }
-        }
-
-        LOG(DEBUG, "Got EOF while scanning strings (%d)", retval);
-
-        /* Be sure we work on the right buffer */
-        if (cur_buffer != NULL) {
-            yy_switch_to_buffer(cur_buffer);
-        }
-
-        return LL_EOF;
-    }
-
-    /* OK, now we have our old speed values and our new ones. */
     if (!(map_flags & MAP_STYLE)) {
         if (op->speed < 0.0 && DBL_EQUAL(op->speed_left,
-                op->arch->clone.speed_left)) {
+                                         op->arch->clone.speed_left)) {
             op->speed_left = op->speed_left + rndm(0, 90) / 100.0f;
         }
 
@@ -980,11 +917,139 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate,
 
         update_ob_speed(op);
 
-        if (object_initializers[op->type]) {
+        if (object_initializers[op->type] != NULL) {
             object_initializers[op->type](op);
         }
     }
+}
 
+/**
+ * Loads an object from the given string.
+ *
+ * Variables will be read, parsed and patched into the object until the
+ * string "end" is reached, or the end of the string.
+ *
+ * @param str String to load from.
+ * @param op Object to load into.
+ * @param map_flags Load flags.
+ * @return One of @ref LL_xxx.
+ */
+int
+load_object (const char *str, object *op, int map_flags)
+{
+    HARD_ASSERT(str != NULL);
+    HARD_ASSERT(op != NULL);
+
+    static object *items[MAXDEPTH];
+    int depth = 0;
+
+    load_object_begin(op, items);
+
+    size_t lcount = 0;
+
+    for ( ; ; ) {
+        str += lcount;
+        lcount = strlen(str) + 1;
+        YY_BUFFER_STATE yybufstate = yy_scan_string(str);
+        int retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
+        yy_delete_buffer(yybufstate);
+
+        if (retval == LL_NORMAL) {
+            break;
+        }
+    }
+
+    /* Be sure we work on the right buffer */
+    if (cur_buffer != NULL) {
+        yy_switch_to_buffer(cur_buffer);
+    }
+
+    load_object_finish(op, map_flags);
+    return LL_NORMAL;
+}
+
+/**
+ * Loads an object from the given file pointer.
+ *
+ * Variables will be read, parsed and patched into the object until the
+ * string "end" is reached, or the end of the file.
+ *
+ * @param fp File to load from.
+ * @param op Object to load into.
+ * @param map_flags Load flags.
+ * @return One of @ref LL_xxx.
+ */
+int
+load_object_fp (FILE *fp, object *op, int map_flags)
+{
+    HARD_ASSERT(fp != NULL);
+    HARD_ASSERT(op != NULL);
+
+    static object *items[MAXDEPTH];
+    int depth = 0;
+
+    load_object_begin(op, items);
+
+    static char buf[HUGE_BUF * 16];
+    int retval = LL_EOF;
+    while (fgets(VS(buf), fp)) {
+        YY_BUFFER_STATE yybufstate = yy_scan_string(buf);
+        retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
+        yy_delete_buffer(yybufstate);
+
+        if (retval == LL_NORMAL) {
+            /* Be sure we work on the right buffer */
+            if (cur_buffer != NULL) {
+                yy_switch_to_buffer(cur_buffer);
+            }
+
+            if (depth == 0) {
+                return retval;
+            } else {
+                depth--;
+            }
+        }
+    }
+
+    LOG(ERROR, "Got EOF while scanning strings (%d)", retval);
+
+    /* Be sure we work on the right buffer */
+    if (cur_buffer != NULL) {
+        yy_switch_to_buffer(cur_buffer);
+    }
+
+    return LL_EOF;
+}
+
+/**
+ * Loads an object from the given flex buffer.
+ *
+ * Variables will be read, parsed and patched into the object until the
+ * string "end" is reached, or the end of the file.
+ *
+ * @param buffer Buffer to load from.
+ * @param op Object to load into.
+ * @param map_flags Load flags.
+ * @return One of @ref LL_xxx.
+ */
+int
+load_object_buffer (void *buffer, object *op, int map_flags)
+{
+    HARD_ASSERT(buffer != NULL);
+    HARD_ASSERT(op != NULL);
+
+    static object *items[MAXDEPTH];
+    load_object_begin(op, items);
+
+    /* Be sure we work on the right buffer */
+    if (cur_buffer != buffer) {
+        cur_buffer = buffer;
+        yy_switch_to_buffer(buffer);
+    }
+
+    int depth = 0;
+    int retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
+    load_object_finish(op, map_flags);
     return retval;
 }
 
@@ -992,22 +1057,20 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate,
  * This takes a buffer, scans it for variables, and sets those variables
  * as appropriate in op.
  *
- * This function appears to be used only in @ref c_wiz.c to mutate
- * values.
  * @param op Object to alter.
- * @param buf Modifications to apply. */
-int set_variable(object *op, const char *buf)
+ * @param buf Modifications to apply.
+ */
+int
+set_variable (object *op, const char *buf)
 {
-    YY_BUFFER_STATE yybufstate, yycurbuf = YY_CURRENT_BUFFER;
-    int retval, depth;
-    object *items[MAXDEPTH];
-
+    YY_BUFFER_STATE yycurbuf = YY_CURRENT_BUFFER;
     yy_push_state(INITIAL);
-    yybufstate = yy_scan_string(buf);
+    YY_BUFFER_STATE yybufstate = yy_scan_string(buf);
 
+    object *items[MAXDEPTH];
     items[0] = op;
-    depth = 0;
-    retval = lex_load(&depth, items, MAXDEPTH, 0, 0);
+    int depth = 0;
+    int retval = lex_load(&depth, items, MAXDEPTH, 0, 0);
 
     if (yycurbuf != NULL) {
         yy_switch_to_buffer(yycurbuf);
@@ -1054,24 +1117,29 @@ int set_variable(object *op, const char *buf)
     SAVE_VALUE(_sb, _name, _value, "%" PRIu64)
 
 /**
- * Get difference between two objects, and save it in StringBuffer.
+ * Get difference between two objects, and save it in a StringBuffer instance.
  *
  * This function is typically used to dump objects (op2 = empty object),
  * or to save objects (op2 is the objects original archetype).
+ *
  * @param sb String buffer to modify.
  * @param op What object the different values will be taken from.
- * @param op2 Object's original archetype. */
-void get_ob_diff(StringBuffer *sb, object *op, object *op2)
+ * @param op2 Object's original archetype.
+ */
+void
+get_ob_diff (StringBuffer *sb, object *op, object *op2)
 {
-    key_value *my_field, *arch_field;
-    int tmp;
+    HARD_ASSERT(sb != NULL);
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(op2 != NULL);
 
     /* This saves the key/value lists. We do it first so that any
      * keys that match field names will be overwritten by the loader. */
-    for (my_field = op->key_values; my_field != NULL;
-            my_field = my_field->next) {
+    for (key_value *my_field = op->key_values;
+         my_field != NULL;
+         my_field = my_field->next) {
         /* Find the field in the opposing member. */
-        arch_field = object_get_key_link(op2, my_field->key);
+        key_value *arch_field = object_get_key_link(op2, my_field->key);
 
         /* If there's no partnering field, or it's got a different value,
          * save our field. */
@@ -1145,8 +1213,9 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 
     if (op->inv_animation_id != op2->inv_animation_id) {
         if (op->inv_animation_id != 0) {
-            SAVE_STRING(sb, "inv_animation",
-                    animations[GET_INV_ANIM_ID(op)].name);
+            SAVE_STRING(sb,
+                        "inv_animation",
+                        animations[GET_INV_ANIM_ID(op)].name);
         } else {
             stringbuffer_append_string(sb, "inv_animation NONE\n");
         }
@@ -1349,15 +1418,19 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     /* attack_save[] holds the attack form also for attack_xx */
-    for (tmp = 0; tmp < NROFATTACKS; tmp++) {
+    for (int tmp = 0; tmp < NROFATTACKS; tmp++) {
         if (op->attack[tmp] != op2->attack[tmp]) {
-            stringbuffer_append_printf(sb, "attack_%s %u\n", attack_save[tmp],
-                    op->attack[tmp]);
+            stringbuffer_append_printf(sb,
+                                       "attack_%s %u\n",
+                                       attack_save[tmp],
+                                       op->attack[tmp]);
         }
 
         if (op->protection[tmp] != op2->protection[tmp]) {
-            stringbuffer_append_printf(sb, "protect_%s %d\n", attack_save[tmp],
-                    op->protection[tmp]);
+            stringbuffer_append_printf(sb,
+                                       "protect_%s %d\n",
+                                       attack_save[tmp],
+                                       op->protection[tmp]);
         }
     }
 
@@ -1422,7 +1495,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     if (QUERY_FLAG(op, FLAG_IS_LINKED)) {
-        tmp = connection_object_get_value(op);
+        int tmp = connection_object_get_value(op);
 
         if (tmp != 0) {
             SAVE_INT(sb, "connected", tmp);
@@ -1434,8 +1507,9 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     if (op->randomitems != op2->randomitems) {
-        SAVE_STRING(sb, "randomitems",
-                op->randomitems != NULL ? op->randomitems->name : "none");
+        SAVE_STRING(sb,
+                    "randomitems",
+                    op->randomitems != NULL ? op->randomitems->name : "none");
     }
 
     if (op->run_away != op2->run_away) {
@@ -1458,7 +1532,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
         SAVE_INT(sb, "item_power", op->item_power);
     }
 
-    for (tmp = 0; tmp <= NUM_FLAGS; tmp++) {
+    for (int tmp = 0; tmp <= NUM_FLAGS; tmp++) {
         if (object_flag_names[tmp] == NULL) {
             continue;
         }

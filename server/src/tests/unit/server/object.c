@@ -399,13 +399,24 @@ START_TEST(test_load_object_str)
     ob = load_object_str("arch sack\nend\n");
     ck_assert_ptr_ne(ob, NULL);
     ck_assert_str_eq(ob->arch->name, "sack");
-
     object_destroy(ob);
+
     ob = load_object_str("arch sack\nname magic sack\nweight 129\nend\n");
     ck_assert_ptr_ne(ob, NULL);
     ck_assert_str_eq(ob->name, "magic sack");
     ck_assert_int_eq(ob->weight, 129);
+    object_destroy(ob);
 
+    ob = load_object_str("arch sack\narch sword\narch sword\ntitle of swords\n"
+                         "end\nend\nend\n");
+    ck_assert_ptr_ne(ob, NULL);
+    ck_assert_str_eq(ob->arch->name, "sack");
+    ck_assert_ptr_ne(ob->inv, NULL);
+    ck_assert_str_eq(ob->inv->arch->name, "sword");
+    ck_assert_ptr_eq(ob->inv->title, NULL);
+    ck_assert_ptr_ne(ob->inv->inv, NULL);
+    ck_assert_str_eq(ob->inv->inv->arch->name, "sword");
+    ck_assert_str_eq(ob->inv->inv->title, "of swords");
     object_destroy(ob);
 }
 

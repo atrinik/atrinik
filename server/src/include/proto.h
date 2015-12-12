@@ -100,14 +100,6 @@ extern void free_map_header_loader(void);
 extern int load_map_header(mapstruct *m, FILE *fp);
 extern void save_map_header(mapstruct *m, FILE *fp, int flag);
 /* src/loaders/object.c */
-extern int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode);
-extern int yyerror(char *s);
-extern void free_object_loader(void);
-extern void delete_loader_buffer(void *buffer);
-extern void *create_loader_buffer(void *fp);
-extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
-extern int set_variable(object *op, const char *buf);
-extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 /* src/loaders/random_map.c */
 extern int rmap_lex_read(RMParms *RP);
 extern int load_parameters(FILE *fp, int bufstate, RMParms *RP);
@@ -469,7 +461,7 @@ extern int get_dir_to_target(object *op, object *target, rv_vector *range_vector
 extern int can_pick(object *who, object *item);
 extern object *object_create_clone(object *asrc);
 extern int was_destroyed(object *op, tag_t old_tag);
-extern object *load_object_str(char *obstr);
+extern object *load_object_str(const char *obstr);
 extern int auto_apply(object *op);
 extern void free_key_values(object *op);
 extern key_value *object_get_key_link(const object *ob, const char *key);
