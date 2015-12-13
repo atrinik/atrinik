@@ -287,6 +287,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
     if (caster->type == PLAYER) {
         CONTR(caster)->stat_spells_cast++;
+        CONTR(caster)->last_combat = pticks;
     }
 
     /* We need to calculate the spell point cost before the spell actually
