@@ -810,6 +810,13 @@ void living_update_player(object *op)
 
             if (tmp->type == DISEASE || tmp->type == SYMPTOM) {
                 speed_reduce_from_disease = tmp->last_sp / 100.0;
+            } else if (tmp->stats.exp != 0) {
+                if (tmp->stats.exp > 0) {
+                    added_speed += tmp->stats.exp / 3.0;
+                    bonus_speed += 1.0 + tmp->stats.exp / 3.0;
+                } else {
+                    added_speed += tmp->stats.exp;
+                }
             }
 
             for (int i = 0; i < NROFATTACKS; i++) {
