@@ -51,8 +51,8 @@ enum skillnrs {
     SK_WIZARDRY_SPELLS,
     /** Player use wands/horns/rods */
     SK_MAGIC_DEVICES,
-    /** @deprecated */
-    SK_PRAYING,
+    /** Passively increases HP/SP regeneration when out of combat. */
+    SK_MEDITATION,
 
     /** Player can find traps better */
     SK_FIND_TRAPS,

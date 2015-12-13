@@ -428,6 +428,22 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 }
 
 /**
+ * Calculate HP/SP regeneration value.
+ *
+ * @param speed Regeneration speed.
+ * @param rate Regeneration rate.
+ * @return Calculated regeneration value.
+ */
+static inline uint16_t
+get_regen_value (double speed, double rate)
+{
+    double value = MAX_TICKS;
+    value /= rate / (MAX(speed, 20.0) + 10.0);
+    value *= 10.0;
+    return value;
+}
+
+/**
  * Regenerate player's hp/mana, decrease food, etc.
  *
  * We will only regenerate HP and mana if the player has some food in their
@@ -444,33 +460,34 @@ player_do_some_living (object *op)
 
     player *pl = CONTR(op);
 
-    double modifier = (pticks - pl->last_combat) / MAX_TICKS;
-    modifier /= PLAYER_REGEN_MODIFIER;
-    modifier += 1.0;
-    modifier = MIN(PLAYER_REGEN_MODIFIER_MAX, modifier);
-
     double gen_hp = (pl->gen_hp * (PLAYER_REGEN_HP_RATE / 20.0)) +
                     (op->stats.maxhp / 4.0);
-    gen_hp *= modifier;
 
     double gen_sp = (pl->gen_sp * (PLAYER_REGEN_SP_RATE / 20.0)) +
                     op->stats.maxsp;
-    gen_sp *= modifier;
     gen_sp = gen_sp * 10 / MAX(pl->gen_sp_armour, 10);
 
     /* Update client's regen rates. */
-    pl->gen_client_hp = (MAX_TICKS / (PLAYER_REGEN_HP_RATE /
-                                      (MAX(gen_hp, 20.0) + 10.0))
-                        ) * 10.0;
-    pl->gen_client_sp = (MAX_TICKS / (PLAYER_REGEN_SP_RATE /
-                                      (MAX(gen_sp, 20.0) + 10.0))
-                        ) * 10.0;
+    pl->gen_client_hp = get_regen_value(gen_hp, PLAYER_REGEN_HP_RATE);
+    pl->gen_client_sp = get_regen_value(gen_sp, PLAYER_REGEN_SP_RATE);
+
+    if (pl->skill_ptr[SK_MEDITATION] != NULL) {
+        double modifier = (pticks - pl->last_combat) / MAX_TICKS;
+        modifier /= PLAYER_REGEN_MODIFIER;
+        modifier += 1.0;
+        modifier = MIN(PLAYER_REGEN_MODIFIER_MAX, modifier);
+        gen_hp *= modifier;
+        gen_sp *= modifier;
+    }
+
+    uint16_t gen_real_hp = get_regen_value(gen_hp, PLAYER_REGEN_HP_RATE);
+    uint16_t gen_real_sp = get_regen_value(gen_sp, PLAYER_REGEN_SP_RATE);
 
     int16_t last_food = op->stats.food;
 
     /* Regenerate hit points. */
     if (op->stats.hp < op->stats.maxhp && op->stats.food) {
-        int add = get_regen_amount(pl->gen_client_hp, &pl->gen_hp_remainder);
+        int add = get_regen_amount(gen_real_hp, &pl->gen_hp_remainder);
         if (add != 0) {
             op->stats.hp += add;
             pl->stat_hp_regen += add;
@@ -495,7 +512,7 @@ player_do_some_living (object *op)
 
     /* Regenerate mana. */
     if (op->stats.sp < op->stats.maxsp && op->stats.food) {
-        int add = get_regen_amount(pl->gen_client_sp, &pl->gen_sp_remainder);
+        int add = get_regen_amount(gen_real_sp, &pl->gen_sp_remainder);
         if (add != 0) {
             op->stats.sp += add;
             pl->stat_sp_regen += add;
