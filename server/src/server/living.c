@@ -357,9 +357,9 @@ void drain_specific_stat(object *op, int deplete_stats)
         }
     }
 
-    draw_info(COLOR_WHITE, op, drain_msg[deplete_stats]);
+    draw_info(COLOR_GRAY, op, drain_msg[deplete_stats]);
     change_attr_value(&tmp->stats, deplete_stats, -1);
-    living_update(op);
+    living_update_player(op);
 }
 
 /**

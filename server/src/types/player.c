@@ -594,6 +594,76 @@ player_do_some_living (object *op)
 }
 
 /**
+ * Deplete player's stats due to dying.
+ *
+ * @param op Player.
+ */
+static void
+player_death_deplete_stats (object *op)
+{
+    HARD_ASSERT(op != NULL);
+
+    int num_lose = 1 + op->level / BALSL_NUMBER_LOSSES_RATIO;
+    bool lost_stat = false;
+
+    /* Protect low level players for a little while. */
+    if (op->level <= 3) {
+        num_lose = 0;
+    }
+
+    object *depletion = NULL;
+    for (int i = 0; i < num_lose; i++) {
+        static archetype_t *at = NULL;
+        if (at == NULL) {
+            at = arch_find("depletion");
+            SOFT_ASSERT(at != NULL, "Could not find depletion archetype");
+        }
+
+        if (depletion == NULL) {
+            depletion = present_arch_in_ob(at, op);
+            if (depletion == NULL) {
+                depletion = arch_to_object(at);
+                depletion = object_insert_into(depletion, op, 0);
+                SOFT_ASSERT(depletion != NULL, "Could not insert depletion");
+            }
+        }
+
+        int stat = rndm(0, NUM_STATS - 1);
+        bool lose = true;
+
+        int8_t value = get_attr_value(&depletion->stats, stat);
+        if (value < 0) {
+            int loss_chance = 1 + op->level / BALSL_LOSS_CHANCE_RATIO;
+            int keep_chance = value * value;
+
+            /* There is a maximum depletion total per level. */
+            if (value < -1 - op->level / BALSL_MAX_LOSS_RATIO) {
+                lose = false;
+            } else if (rndm(0, loss_chance + keep_chance - 1) < keep_chance) {
+                lose = false;
+            }
+        }
+
+        if (!lose || value < -50) {
+            continue;
+        }
+
+        change_attr_value(&depletion->stats, stat, -1);
+        SET_FLAG(depletion, FLAG_APPLIED);
+        lost_stat = true;
+        draw_info(COLOR_GRAY, op, lose_msg[stat]);
+    }
+
+    if (lost_stat) {
+        living_update_player(op);
+    } else {
+        draw_info(COLOR_WHITE, op,
+                  "For a brief moment you feel a holy presence "
+                  "protecting you.");
+    }
+}
+
+/**
  * If the player should die (lack of hp, food, etc), we call this.
  *
  * Will remove diseases, apply death penalties, and so on.
@@ -666,18 +736,19 @@ void kill_player(object *op)
     tmp->y = op->y;
     insert_ob_in_map(tmp, op->map, NULL, 0);
 
-    /* Subtract the experience points, if we died because of food give us
-     * food, and reset HP... */
+    player_death_deplete_stats(op);
 
     /* Remove any poisoning the character may be suffering. */
     cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
     /* Remove any disease */
     cure_disease(op, NULL);
 
+    /* If the player starved to death, give them some food back... */
     if (op->stats.food <= 0) {
-        op->stats.food = 999;
+        op->stats.food = 500;
     }
 
+    /* Reset HP/SP */
     op->stats.hp = op->stats.maxhp;
     op->stats.sp = op->stats.maxsp;
 
@@ -687,7 +758,7 @@ void kill_player(object *op)
      * on map Wilderness' even if they were killed in a dungeon. */
     CONTR(op)->killer[0] = '\0';
 
-    /* Check to see if the player is in a shop. Ii so, then check to see
+    /* Check to see if the player is in a shop. If so, then check to see
      * if the player has any unpaid items. If so, remove them and put
      * them back in the map. */
     tmp = GET_MAP_OB(op->map, op->x, op->y);

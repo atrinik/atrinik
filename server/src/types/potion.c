@@ -167,8 +167,11 @@ static int apply_func(object *op, object *applier, int aflags)
                     }
                 }
 
+                SET_FLAG(applier, FLAG_NO_FIX_PLAYER);
                 object_remove(depletion, 0);
                 object_destroy(depletion);
+                CLEAR_FLAG(applier, FLAG_NO_FIX_PLAYER);
+                living_update_player(applier);
             } else {
                 draw_info(COLOR_WHITE, applier, "You are not depleted.");
             }

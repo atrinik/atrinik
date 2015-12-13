@@ -314,6 +314,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
         success = cast_heal(op, SK_level(caster), target, type);
         break;
 
+    case SP_REMOVE_DEPLETION:
+        success = cast_remove_depletion(op, target);
+        break;
+
     case SP_REMOVE_CURSE:
     case SP_REMOVE_DAMNATION:
         success = remove_curse(op, target, type, item);

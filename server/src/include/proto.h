@@ -598,6 +598,7 @@ extern void cast_destruction(object *op, object *caster, int dam);
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
+extern int cast_remove_depletion(object *op, object *target);
 extern int remove_curse(object *op, object *target, int type, int src);
 extern int do_cast_identify(object *tmp, object *op, int mode, int *done, int level);
 extern int cast_identify(object *op, int level, object *single_ob, int mode);

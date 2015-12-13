@@ -7,6 +7,11 @@ from Interface import InterfaceBuilder
 
 
 temple_services = OrderedDict((
+    ("remove depletion", [
+        lambda activator: activator.level / 2 * 130 + 525,
+        "Removal of depletion",
+        "Depletion most commonly occurs when you die, and it drains some of your stat attributes. In order to get them back, [green]remove depletion[/green] prayer can be used. I can cast this prayer on you, if you wish.",
+    ]),
     ("remove curse", [
         3000,
         "Removal of curse from all cursed items",
@@ -90,15 +95,18 @@ class Temple(InterfaceBuilder):
                     self.add_msg("You don't look very hungry to me...")
             else:
                 self.add_msg("[title]{service[1]}[/title]", service = service)
+                cost = service[0]
+                if not isinstance(cost, int):
+                    cost = int(cost(self._activator))
 
                 if not is_buy:
                     self.add_msg(service[2])
-                    self.add_msg("This will cost you {cost}.", cost = CostString(service[0]))
+                    self.add_msg("This will cost you {cost}.", cost = CostString(cost))
                     self.add_link("Confirm", dest = "buy " + msg)
                 else:
-                    if self._activator.PayAmount(service[0]):
-                        if service[0]:
-                            self.add_msg("You pay {cost}.", cost = CostString(service[0]), color = COLOR_YELLOW)
+                    if self._activator.PayAmount(cost):
+                        if cost:
+                            self.add_msg("You pay {cost}.", cost = CostString(cost), color = COLOR_YELLOW)
 
                         self.add_msg("Okay, I will cast [green]{origmsg}[/green] on you now.", origmsg = msg)
                         self._npc.Cast(GetArchetype("spell_" + msg.replace(" ", "_")).clone.sp, self._activator)

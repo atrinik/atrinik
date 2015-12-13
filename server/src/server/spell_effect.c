@@ -699,6 +699,90 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 }
 
 /**
+ * Cast remove depletion spell.
+ *
+ * @param op Object casting this.
+ * @param target Target.
+ * @return 0 on failure or if there's no depletion, number of stats cured
+ * otherwise.
+ */
+int
+cast_remove_depletion (object *op, object *target)
+{
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT_RC(target != NULL, 0, "Target is NULL");
+
+    static archetype_t *at = NULL;
+    if (at == NULL) {
+        at = arch_find("depletion");
+        if (at == NULL) {
+            LOG(ERROR, "Could not find depletion archetype");
+            return 0;
+        }
+    }
+
+    if (target->type != PLAYER) {
+        char *name = object_get_base_name_s(target, op);
+        draw_info_format(COLOR_WHITE, op, "You cast remove depletion on %s.",
+                         name);
+        efree(name);
+        draw_info(COLOR_WHITE, op, "There is no depletion.");
+        return 0;
+    }
+
+    if (op != target) {
+        if (op->type == PLAYER) {
+            char *name = object_get_base_name_s(target, op);
+            draw_info_format(COLOR_WHITE, op,
+                             "You cast remove depletion on %s.", name);
+            efree(name);
+        } else if (target->type == PLAYER) {
+            char *name = object_get_base_name_s(op, target);
+            draw_info_format(COLOR_WHITE, target,
+                             "%s casts remove depletion on you.", name);
+            efree(name);
+        }
+    }
+
+    int success = 0;
+
+    object *depletion = present_arch_in_ob(at, target);
+    if (depletion != NULL) {
+        for (int i = 0; i < NUM_STATS; i++) {
+            if (get_attr_value(&depletion->stats, i) != 0) {
+                success++;
+                draw_info(COLOR_WHITE, target, restore_msg[i]);
+            }
+        }
+
+        SET_FLAG(target, FLAG_NO_FIX_PLAYER);
+        object_remove(depletion, 0);
+        object_destroy(depletion);
+        CLEAR_FLAG(target, FLAG_NO_FIX_PLAYER);
+        living_update_player(target);
+    }
+
+    if (op != target && op->type == PLAYER) {
+        if (success != 0) {
+            draw_info(COLOR_WHITE, op, "Your spell removes some depletion.");
+        } else {
+            draw_info(COLOR_WHITE, op, "There is no depletion.");
+        }
+    }
+
+    if (op != target && target->type == PLAYER && success == 0) {
+        draw_info(COLOR_WHITE, target, "There is no depletion.");
+    }
+
+    insert_spell_effect(spells[SP_REMOVE_DEPLETION].archname,
+                        target->map,
+                        target->x,
+                        target->y);
+
+    return success;
+}
+
+/**
  * Cast remove curse or remove damnation.
  * @param op Caster object.
  * @param target Target.
