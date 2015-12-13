@@ -5,4 +5,5 @@ layer 3
 face icon_literacy.101
 no_drop 1
 stand_still 1
+level 1
 end

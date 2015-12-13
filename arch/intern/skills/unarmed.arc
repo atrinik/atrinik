@@ -7,4 +7,5 @@ no_drop 1
 last_grace 8
 attack_impact 100
 dam 3
+level 1
 end
