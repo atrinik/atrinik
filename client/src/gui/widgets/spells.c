@@ -412,6 +412,17 @@ static void widget_draw(widgetdata *widget)
         SDL_Surface *icon;
         const char *status;
 
+        box.h = 30;
+        box.w = 150;
+        text_show(widget->surface,
+                  FONT_SERIF12,
+                  spell->spell->s_name,
+                  160,
+                  20,
+                  COLOR_HGOLD,
+                  TEXT_OUTLINE | TEXT_WORD_WRAP | TEXT_ALIGN_CENTER,
+                  &box);
+
         box.h = 120;
         box.w = 150;
         text_show(widget->surface, FONT_ARIAL10, spell->msg, 160, 40,
