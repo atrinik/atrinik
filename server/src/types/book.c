@@ -119,8 +119,9 @@ static int apply_func(object *op, object *applier, int aflags)
     packet_debug_data(packet, 0, "Book interface header");
     packet_append_string(packet, "[book]");
     StringBuffer *sb = object_get_base_name(op, applier, NULL);
-    packet_append_string_len_terminated(packet, stringbuffer_data(sb),
-            stringbuffer_length(sb));
+    packet_append_string_len(packet,
+                             stringbuffer_data(sb),
+                             stringbuffer_length(sb));
     stringbuffer_free(sb);
     packet_append_string(packet, "[/book]");
     packet_debug_data(packet, 0, "Book message");
