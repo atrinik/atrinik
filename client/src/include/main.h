@@ -130,6 +130,8 @@ typedef struct skill_entry_struct {
     uint8_t level;
 
     int64_t exp;
+
+    char msg[MAX_BUF];
 } skill_entry_struct;
 
 /** Fire mode structure */

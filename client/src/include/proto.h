@@ -758,7 +758,7 @@ extern void skills_deinit(void);
 extern int skill_find(const char *name, size_t *id);
 extern int skill_find_object(object *op, size_t *id);
 extern skill_entry_struct *skill_get(size_t id);
-extern void skills_update(object *op, uint8_t level, int64_t xp);
+extern void skills_update(object *op, uint8_t level, int64_t xp, const char *msg);
 extern void skills_remove(object *op);
 extern void widget_skills_init(widgetdata *widget);
 /* src/gui/widgets/spells.c */

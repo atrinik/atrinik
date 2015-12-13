@@ -462,13 +462,12 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
 
             spells_update(tmp, spell_cost, spell_path, spell_flags, spell_msg);
         } else if (tmp->itype == TYPE_SKILL) {
-            uint8_t skill_level;
-            int64_t skill_exp;
+            uint8_t skill_level = packet_to_uint8(data, len, pos);
+            int64_t skill_exp = packet_to_int64(data, len, pos);
+            char skill_msg[MAX_BUF];
+            packet_to_string(data, len, pos, VS(skill_msg));
 
-            skill_level = packet_to_uint8(data, len, pos);
-            skill_exp = packet_to_int64(data, len, pos);
-
-            skills_update(tmp, skill_level, skill_exp);
+            skills_update(tmp, skill_level, skill_exp, skill_msg);
         } else if (tmp->itype == TYPE_FORCE || tmp->itype == TYPE_POISONING) {
             int32_t sec;
             char msg[HUGE_BUF];

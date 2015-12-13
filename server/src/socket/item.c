@@ -249,6 +249,11 @@ void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
             packet_append_uint8(packet, op->level);
             packet_debug_data(packet, level + 1, "Experience");
             packet_append_int64(packet, op->stats.exp);
+
+            if (CONTR(pl)->socket.socket_version >= 1065) {
+                packet_debug_data(packet, level + 1, "Message");
+                packet_append_string_terminated(packet, op->msg ? op->msg : "");
+            }
         } else if (op->type == FORCE || op->type == POISONING) {
             int32_t sec;
 
