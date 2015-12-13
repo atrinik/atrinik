@@ -407,6 +407,10 @@ int exp_lvl_adj(object *who, object *op)
         op = who;
     }
 
+    if (op->type == SKILL && op->level == 0) {
+        return 0;
+    }
+
     if (op->level < MAXLEVEL && op->stats.exp >= (int64_t) level_exp(op->level + 1, 1.0)) {
         op->level++;
 

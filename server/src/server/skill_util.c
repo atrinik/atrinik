@@ -221,7 +221,6 @@ void init_new_exp_system(void)
 
         /* Set some default values for the archetype. */
         at->clone.stats.sp = i;
-        at->clone.level = 1;
         at->clone.stats.exp = 0;
     }
 }
