@@ -1,6 +1,6 @@
 Object soul_depletion
 name soul depletion
-face force.101
+face soul_depletion.101
 identified 1
 layer 3
 type 114
