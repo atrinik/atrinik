@@ -691,11 +691,9 @@ void kill_player(object *op)
         tmp = arch_to_object(arch_find("finger"));
 
         if (tmp) {
-            char race[MAX_BUF];
-
             snprintf(buf, sizeof(buf), "%s's finger", op->name);
             FREE_AND_COPY_HASH(tmp->name, buf);
-            snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, player_get_race_class(op, race, sizeof(race)), gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
+            snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, op->race, gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
             FREE_AND_COPY_HASH(tmp->msg, buf);
             tmp->value = 0;
             tmp->material = 0;
@@ -896,31 +894,6 @@ int player_can_carry(object *pl, uint32_t weight)
     }
 
     return (pl->carrying + weight) < effective_weight_limit;
-}
-
-/**
- * Combine player's race with their class (if there is one).
- * @param op Player.
- * @param buf Buffer to write into.
- * @param size Size of 'buf'.
- * @return 'buf'. */
-char *player_get_race_class(object *op, char *buf, size_t size)
-{
-    strncpy(buf, op->race, size - 1);
-
-    if (CONTR(op)->class_ob) {
-        shstr *name_female;
-
-        strncat(buf, " ", size - strlen(buf) - 1);
-
-        if (object_get_gender(op) == GENDER_FEMALE && (name_female = object_get_value(CONTR(op)->class_ob, "name_female"))) {
-            strncat(buf, name_female, size - strlen(buf) - 1);
-        } else {
-            strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
-        }
-    }
-
-    return buf;
 }
 
 /**

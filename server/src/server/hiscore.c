@@ -301,7 +301,7 @@ void hiscore_init(void)
 void hiscore_check(object *op, int quiet)
 {
     score new_score, old_score;
-    char bufscore[MAX_BUF], race[MAX_BUF];
+    char bufscore[MAX_BUF];
     const char *message;
 
     if (!op->stats.exp) {
@@ -311,7 +311,7 @@ void hiscore_check(object *op, int quiet)
     strncpy(new_score.name, op->name, sizeof(new_score.name));
     new_score.name[sizeof(new_score.name) - 1] = '\0';
 
-    strncpy(new_score.title, player_get_race_class(op, race, sizeof(race)), sizeof(new_score.title));
+    strncpy(new_score.title, op->race, sizeof(new_score.title));
     new_score.title[sizeof(new_score.title) - 1] = '\0';
 
     strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));

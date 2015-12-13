@@ -973,7 +973,6 @@ extern void cast_dust(object *op, object *throw_ob, int dir);
 extern int pvp_area(object *attacker, object *victim);
 extern object *find_skill(object *op, int skillnr);
 extern int player_can_carry(object *pl, uint32_t weight);
-extern char *player_get_race_class(object *op, char *buf, size_t size);
 extern void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y);
 extern void player_path_clear(player *pl);
 extern void player_path_handle(player *pl);

@@ -590,7 +590,6 @@ void living_update_player(object *op)
     pl->gen_sp_armour = 0;
     pl->item_power = 0;
     pl->quest_container = NULL;
-    pl->class_ob = NULL;
 
     for (int i = 0; i < NUM_STATS; i++) {
         int8_t value = get_attr_value(&op->arch->clone.stats, i);
@@ -773,13 +772,10 @@ void living_update_player(object *op)
             }
 
             living_apply_flags(op, tmp);
-        } else if (tmp->type == CLASS || tmp->type == FORCE ||
-                   tmp->type == POISONING || tmp->type == DISEASE ||
+        } else if (tmp->type == FORCE ||
+                   tmp->type == POISONING ||
+                   tmp->type == DISEASE ||
                    tmp->type == SYMPTOM) {
-            if (tmp->type == CLASS) {
-                pl->class_ob = tmp;
-            }
-
             if (ARMOUR_SPEED(tmp) != 0 &&
                 max_speed > ARMOUR_SPEED(tmp) / 10.0) {
                 max_speed = ARMOUR_SPEED(tmp) / 10.0;
@@ -1038,18 +1034,6 @@ void living_update_player(object *op)
     op->stats.maxhp += max_bonus_hp;
     op->stats.maxsp += op->stats.maxsp * pow_bonus[op->stats.Pow];
     op->stats.maxsp += max_bonus_sp;
-
-    /* HP/SP adjustments coming from class-defining object; these should
-     * always be last, since they add a percentage based on the max. */
-    if (CONTR(op)->class_ob != NULL) {
-        if (CONTR(op)->class_ob->stats.hp != 0) {
-            op->stats.maxhp *= 1.0 + CONTR(op)->class_ob->stats.hp / 100.0;
-        }
-
-        if (CONTR(op)->class_ob->stats.sp != 0) {
-            op->stats.maxsp *= 1.0 + CONTR(op)->class_ob->stats.sp / 100.0;
-        }
-    }
 
     if (op->stats.maxhp < 1) {
         op->stats.maxhp = 1;

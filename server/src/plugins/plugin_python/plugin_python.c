@@ -381,7 +381,6 @@ static const Atrinik_Constant constants_types[] = {
     {"HELMET", HELMET},
     {"PANTS", PANTS},
     {"MONEY", MONEY},
-    {"CLASS", CLASS},
     {"GRAVESTONE", GRAVESTONE},
     {"AMULET", AMULET},
     {"PLAYER_MOVER", PLAYER_MOVER},

@@ -212,9 +212,6 @@
  * Money (copper, silver, etc). */
 #define MONEY 36
 /**
- * Object for applying character class modifications to someone. */
-#define CLASS 37
-/**
  * Objects that appear on place of player's death. */
 #define GRAVESTONE 38
 /**

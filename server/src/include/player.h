@@ -210,10 +210,6 @@ typedef struct pl_player {
     /** Last player accessing player::container. */
     object *container_below;
 
-    /**
-     * Object defining player's class. Can be NULL. */
-    object *class_ob;
-
     /** Player's quest container. */
     object *quest_container;
 

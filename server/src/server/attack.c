@@ -797,9 +797,10 @@ bool kill_object(object *op, object *hitter)
 
         /* Update player's killer. */
         if (owner->type == PLAYER) {
-            char race[MAX_BUF];
-            snprintf(VS(CONTR(op)->killer), "%s the %s", owner_name,
-                    player_get_race_class(owner, VS(race)));
+            snprintf(VS(CONTR(op)->killer),
+                     "%s the %s",
+                     owner_name,
+                     owner->race);
         } else {
             snprintf(VS(CONTR(op)->killer), "%s", owner_name);
         }

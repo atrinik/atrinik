@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-12-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1822,14 +1822,16 @@ arch spawn_point
 x 12
 y 3
 arch mage_old
+msg
+@match ^hello$
+Oh, what's that? Sorry, I'm afraid my hearing isn't what it used to be.
+
+You know, back in my days I used to be an adventurer like you... I traveled across the land, learned many of the different trades, visited all the brothels on the way... ah, a time long past.
+endmsg
 name Feldain Goodwin
 level 30
 faction brynknot_citizens
 type 83
-arch event_obj
-sub_type 6
-race scripts/strakewood_island/brynknot/feldain_goodwin.py
-end
 end
 end
 arch floor_rhomb
