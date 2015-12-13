@@ -1422,7 +1422,7 @@ void draw_client_map2(object *pl)
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
-                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
+                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) || (head->type == CONTAINER && head->sub_type == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
                             flags |= MAP2_FLAG_INFRAVISION;
                         }
 

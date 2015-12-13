@@ -1653,7 +1653,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
         return 0;
     }
 
-    if ((sack->race && (sack->sub_type & 1) != ST1_CONTAINER_CORPSE) &&
+    if ((sack->race && sack->sub_type != ST1_CONTAINER_CORPSE) &&
             (sack->race != op->race || op->type == CONTAINER ||
             (sack->stats.food && sack->stats.food != op->type))) {
         if (pl != NULL) {

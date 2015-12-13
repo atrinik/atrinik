@@ -124,7 +124,7 @@ int common_object_process_pre(object *op)
 
     if (QUERY_FLAG(op, FLAG_IS_USED_UP) && --op->stats.food <= 0) {
         /* Handle corpses specially. */
-        if (op->type == CONTAINER && (op->sub_type & 1) == ST1_CONTAINER_CORPSE) {
+        if (op->type == CONTAINER && op->sub_type == ST1_CONTAINER_CORPSE) {
             /* If the corpse is currently open by someone, delay the
              * corpse removal for a bit longer. */
             if (op->attacked_by) {
