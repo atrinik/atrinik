@@ -75,7 +75,7 @@ void spells_init(void)
     memset(&spell_list, 0, sizeof(*spell_list) * arraysize(spell_list));
     memset(&spell_list_num, 0,
             sizeof(*spell_list_num) * arraysize(spell_list_num));
-    spell_list_path = 0;
+    spell_list_path = SPELL_PATH_NUM - 1;
 }
 
 /**
