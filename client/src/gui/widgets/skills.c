@@ -103,23 +103,64 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 
     surface_show(list->surface, box.x, box.y, NULL, FaceList[skill_list[skill_id]->skill->face].sprite->bitmap);
 
-    if (selected_skill == skill_id) {
-        char buf[MAX_BUF];
-
-        border_create_color(list->surface, &box, 1, "ff0000");
-
-        strncpy(buf, skill_list[skill_id]->skill->s_name, sizeof(buf) - 1);
-        buf[sizeof(buf) - 1] = '\0';
-        string_title(buf);
-
-        box.w = 170;
-        text_show(list->surface, FONT_SERIF12, buf, 147, 25, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-
-        text_show_format(list->surface, FONT_ARIAL11, 165, 45, COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Current level[/b]: %d", skill_list[skill_id]->level);
-        text_show(list->surface, FONT_ARIAL11, "[b]Skill progress[/b]:", 165, 60, COLOR_WHITE, TEXT_MARKUP, NULL);
-
-        player_draw_exp_progress(list->surface, 165, 80, skill_list[skill_id]->exp, skill_list[skill_id]->level);
+    if (selected_skill != skill_id) {
+        return;
     }
+    border_create_color(list->surface, &box, 1, "ff0000");
+
+    char buf[MAX_BUF];
+    snprintf(VS(buf), "%s", skill_list[skill_id]->skill->s_name);
+    string_title(buf);
+
+    box.w = 160;
+    text_show(list->surface,
+              FONT_SERIF12,
+              buf,
+              150,
+              18,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_OUTLINE,
+              &box);
+
+    box.h = 100;
+    text_show(list->surface,
+              FONT_ARIAL11,
+              skill_list[skill_id]->msg,
+              150,
+              38,
+              COLOR_WHITE,
+              TEXT_WORD_WRAP,
+              &box);
+
+    if (skill_list[skill_id]->level == 0) {
+        return;
+    }
+
+    widgetdata *widget = widget_find(NULL, -1, NULL, list->surface);
+    SOFT_ASSERT(widget != NULL, "Could not find widget");
+
+    text_show(list->surface, FONT("arial", 10), "[b]Experience[/b]", 167, widget->h - 47, COLOR_WHITE, TEXT_MARKUP, NULL);
+    player_draw_exp_progress(list->surface, 160, widget->h - 32, skill_list[skill_id]->exp, skill_list[skill_id]->level);
+
+    box.h = 30;
+    box.w = 35;
+    text_show(list->surface,
+              FONT("arial", 10),
+              "[b]Level[/b]",
+              widget->w - 45,
+              widget->h - 47,
+              COLOR_WHITE,
+              TEXT_MARKUP | TEXT_ALIGN_CENTER,
+              &box);
+    text_show_format(list->surface,
+                     FONT_SERIF18,
+                     widget->w - 45,
+                     widget->h - 30,
+                     COLOR_HGOLD,
+                     TEXT_MARKUP | TEXT_OUTLINE | TEXT_ALIGN_CENTER,
+                     &box,
+                     "%" PRIu8,
+                     skill_list[skill_id]->level);
 }
 
 /** @copydoc list_struct::row_color_func */
