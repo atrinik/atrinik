@@ -13,4 +13,5 @@ value 35
 weight 250
 container 20000
 weapon_speed 1.0
+food 13
 end
