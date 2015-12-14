@@ -60,7 +60,6 @@ static void process_func(object *op)
             /* Now deplete the stat. Relatively small chance that the
              * depletion will be worse than usual. */
             change_attr_value(&op->stats, i, rndm_chance(6) ? -2 : -1);
-            draw_info(COLOR_GRAY, target, lose_msg[i]);
         }
     }
 
