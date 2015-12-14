@@ -4905,20 +4905,6 @@ value 135
 end
 
 Allowed potion_generic
-chance 15
-artifact potion_improve
-difficulty 5
-def_arch potion_generic
-Object
-title of improvement
-level 1
-type 5
-is_magical 1
-last_eat 2
-value 1500
-end
-
-Allowed potion_generic
 chance 30
 artifact potion_firestorm
 def_arch potion_generic

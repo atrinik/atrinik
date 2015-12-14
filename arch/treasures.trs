@@ -2985,11 +2985,6 @@ treasure mob_slime
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3038,11 +3033,6 @@ treasure mob_wyvern
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3091,11 +3081,6 @@ treasure mob_ogre
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3144,11 +3129,6 @@ treasure mob_giant_hill
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3197,11 +3177,6 @@ treasure mob_giant_stone
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3250,11 +3225,6 @@ treasure mob_dragon_water
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3303,11 +3273,6 @@ treasure mob_kobold_big
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3356,11 +3321,6 @@ treasure mob_kobold
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 299
-        end
     end
 end
 
@@ -3409,11 +3369,6 @@ treasure mob_worm_purple
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3462,11 +3417,6 @@ treasure mob_ettin
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3515,11 +3465,6 @@ treasure mob_wraith
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 125
-        end
     end
 end
 
@@ -3568,11 +3513,6 @@ treasure mob_lost_soul
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3621,11 +3561,6 @@ treasure mob_slugs
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3674,11 +3609,6 @@ treasure mob_dragon_skeletal
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 120
-        end
     end
 end
 
@@ -3727,11 +3657,6 @@ treasure mob_gazer_dread
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -3780,11 +3705,6 @@ treasure mob_demilich
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -3833,11 +3753,6 @@ treasure mob_troll
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 110
-        end
     end
 end
 
@@ -3886,11 +3801,6 @@ treasure mob_skeleton1
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3939,11 +3849,6 @@ treasure mob_skeleton2
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3992,11 +3897,6 @@ treasure mob_skeleton_mage
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4045,11 +3945,6 @@ treasure mob_vampire_lord
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4098,11 +3993,6 @@ treasure mob_vampire
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4161,11 +4051,6 @@ treasure mob_dragon_green
       list random_potion
         t_style 4
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4224,11 +4109,6 @@ treasure mob_dragon_fire
       list random_potion
         t_style 1
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4287,11 +4167,6 @@ treasure mob_dragon_blue
       list random_potion
         t_style 2
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4350,11 +4225,6 @@ treasure mob_dragon_black
       list random_potion
         t_style 3
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4403,11 +4273,6 @@ treasure mob_lich_lord
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4456,11 +4321,6 @@ treasure mob_lom_lobon
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4509,11 +4369,6 @@ treasure mob_raas
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4562,11 +4417,6 @@ treasure mob_cat_black
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4615,11 +4465,6 @@ treasure mob_chicken_large
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4668,11 +4513,6 @@ treasure mob_tiger
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4721,11 +4561,6 @@ treasure mob_wolf
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
   more
   arch wolf_pelt
@@ -4777,11 +4612,6 @@ treasure mob_crocodile
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4830,11 +4660,6 @@ treasure mob_horse_white
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4883,11 +4708,6 @@ treasure mob_rooster
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4936,11 +4756,6 @@ treasure mob_snake
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4989,11 +4804,6 @@ treasure mob_deer
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5042,11 +4852,6 @@ treasure mob_orc
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5095,11 +4900,6 @@ treasure mob_orc_mage
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 250
-        end
     end
 end
 
@@ -5148,11 +4948,6 @@ treasure mob_hobgoblin
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5201,11 +4996,6 @@ treasure mob_goblin
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5254,11 +5044,6 @@ treasure mob_gnoll
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5307,11 +5092,6 @@ treasure mob_drow
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 125
-        end
     end
 end
 
@@ -5360,11 +5140,6 @@ treasure mob_drow_mage
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 120
-        end
     end
 end
 
@@ -5413,11 +5188,6 @@ treasure mob_ghoul
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5478,11 +5248,6 @@ treasure mob_fire
       list random_potion
         t_style 1
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5543,11 +5308,6 @@ treasure mob_ice
       list random_potion
         t_style 2
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5596,11 +5356,6 @@ treasure mob_mud_hand
     no
       list random_potion
         chance_fix 75
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5652,11 +5407,6 @@ treasure mob_quickwood
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5708,11 +5458,6 @@ treasure mob_treant
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5805,11 +5550,6 @@ treasure mob_frog
     no
       list random_potion
         chance_fix 75
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5858,11 +5598,6 @@ treasure mob_spider
     no
       list random_potion
         chance_fix 75
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -6007,11 +5742,6 @@ treasure mob_default
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -6084,11 +5814,6 @@ treasure random_testx
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 99
-        end
     end
 end
 
@@ -6155,10 +5880,5 @@ treasure mob_balrog
       list random_potion
         t_style 1
         chance_fix 54
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 132
-        end
     end
 end
