@@ -80,9 +80,10 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
     }
 
     double dam = arrow->stats.dam + arrow->magic;
-    dam = ABS(dam * LEVEL_DAMAGE(level));
-    dam += dam * (dam_bonus[op->stats.Str] / 2.0 +
-                  bow->stats.dam + bow->magic) / 10.0;
+    dam += bow->stats.dam + bow->magic;
+    dam *= LEVEL_DAMAGE(level);
+    dam = ABS(dam);
+    dam += dam * (dam_bonus[op->stats.Str] / 2.0) / 10.0;
 
     uint8_t item_condition;
     if (bow->item_condition > arrow->item_condition) {
