@@ -336,6 +336,11 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
             continue;
         }
 
+        if (coins_objects[i]->nrof == 0) {
+            object_destroy(coins_objects[i]);
+            continue;
+        }
+
         insert_ob_in_ob(coins_objects[i], obj);
     }
 
