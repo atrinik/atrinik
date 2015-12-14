@@ -1806,7 +1806,7 @@ void pick_up(object *op, object *alt, int no_mevent)
 
     /* Container is open, so use it */
     if (op->type == PLAYER && CONTR(op)->container != NULL &&
-            CONTR(op)->container != tmp) {
+            CONTR(op)->container != tmp && CONTR(op)->container != tmp->env) {
         alt = CONTR(op)->container;
 
         if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !check_magical_container(tmp, alt)) {
