@@ -287,6 +287,23 @@ static int apply_func(object *op, object *applier, int aflags)
         }
     }
 
+    int basic_aflag = aflags & APPLY_BASIC_FLAGS;
+
+    if (basic_aflag == APPLY_ALWAYS_UNAPPLY) {
+        if (QUERY_FLAG(op, FLAG_APPLIED)) {
+            if (OBJECT_IS_AMMO(op)) {
+                object_apply_item(op, applier, aflags);
+            } else {
+                char *name = object_get_base_name_s(op, applier);
+                draw_info_format(COLOR_WHITE, applier, "You unready %s.", name);
+                efree(name);
+                CLEAR_FLAG(op, FLAG_APPLIED);
+            }
+        }
+
+        return OBJECT_METHOD_OK;
+    }
+
     /* If the player is trying to open it (which he must be doing if we
      * got here), and it is locked, check to see if player has the means
      * to open it. */
