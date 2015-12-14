@@ -65,17 +65,12 @@ int16_t arrow_get_wc(object *op, object *bow, object *arrow)
  * @return The arrow's damage. */
 int16_t arrow_get_damage(object *op, object *bow, object *arrow)
 {
-    int16_t dam;
-    int level;
-
     op = HEAD(op);
 
+    int8_t level;
     if (op->type == PLAYER) {
-        object *skill;
-
-        skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
-
-        if (!skill) {
+        object *skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+        if (skill == NULL) {
             return 0;
         }
 
@@ -84,17 +79,21 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
         level = op->level;
     }
 
-    dam = arrow->stats.dam + arrow->magic;
-    dam = FABS((int) ((float) (dam * LEVEL_DAMAGE(level))));
-    dam += dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
+    double dam = arrow->stats.dam + arrow->magic;
+    dam = ABS(dam * LEVEL_DAMAGE(level));
+    dam += dam * (dam_bonus[op->stats.Str] / 2.0 +
+                  bow->stats.dam + bow->magic) / 10.0;
 
+    uint8_t item_condition;
     if (bow->item_condition > arrow->item_condition) {
-        dam = (int16_t) (((float) dam / 100.0f) * (float) bow->item_condition);
+        item_condition = bow->item_condition;
     } else {
-        dam = (int16_t) (((float) dam / 100.0f) * (float) arrow->item_condition);
+        item_condition = arrow->item_condition;
     }
 
-    return dam;
+    dam = dam / 100.0 * item_condition;
+
+    return (int16_t) dam;
 }
 
 /**
