@@ -1178,7 +1178,8 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
         data->tiles_num++;
     }
 
-    if (data->cell->probe[map_layer] != 0) {
+    if (!data->cell->fow &&
+        data->cell->probe[map_layer] != 0) {
         data->target_cell = data->cell;
         data->target_layer = map_layer;
         data->target_rect.x = xoff + xoff2;
