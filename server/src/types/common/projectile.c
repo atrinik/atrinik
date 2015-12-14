@@ -240,6 +240,8 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         if (op->map != NULL) {
             object_remove(op, 0);
             op = insert_ob_in_map(op, op->map, op, INS_FALL_THROUGH);
+        } else {
+            op = object_merge(op);
         }
     } else if (op->inv) {
         object *payload;
