@@ -1815,6 +1815,8 @@ void pick_up(object *op, object *alt, int no_mevent)
     } else {
         /* Con container pickup */
 
+        alt = NULL;
+
         if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
             for (alt = op->inv; alt; alt = alt->below) {
                 if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt)) {
