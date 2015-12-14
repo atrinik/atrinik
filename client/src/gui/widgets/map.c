@@ -1694,7 +1694,7 @@ map_draw_map (SDL_Surface *surface)
         efree(data.tiles);
     }
 
-    if (data.target_cell != NULL) {
+    if (data.target_cell != NULL && cpl.target_code != 0) {
         const char *hp_color;
 
         if (cpl.target_hp > 90) {
