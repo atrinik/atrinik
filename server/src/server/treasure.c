@@ -745,11 +745,11 @@ static const int difftomagic_list[DIFFLEVELS][MAXMAGIC + 1] = {
     {85, 6, 4, 3, 2},   /*13*/
     {85, 6, 4, 3, 2},   /*14*/
     {85, 6, 4, 3, 2},   /*15*/
-    {81, 8, 5, 4, 3},   /*16*/
-    {81, 8, 5, 4, 3},   /*17*/
-    {81, 8, 5, 4, 3},   /*18*/
-    {81, 8, 5, 4, 3},   /*19*/
-    {81, 8, 5, 4, 3},   /*20*/
+    {80, 8, 5, 4, 3},   /*16*/
+    {80, 8, 5, 4, 3},   /*17*/
+    {80, 8, 5, 4, 3},   /*18*/
+    {80, 8, 5, 4, 3},   /*19*/
+    {80, 8, 5, 4, 3},   /*20*/
     {75, 10, 6, 5, 4},  /*21*/
     {75, 10, 6, 5, 4},  /*22*/
     {75, 10, 6, 5, 4},  /*23*/
@@ -949,7 +949,17 @@ magic_from_difficulty (int difficulty)
         difficulty = DIFFLEVELS - 1;
     }
 
-    int roll = rndm(0, 100);
+    for (int i = 0; i < DIFFLEVELS; i++) {
+        int sum = 0;
+        for (int j = 0; j < MAXMAGIC+1; j++) {
+            sum += difftomagic_list[i][j];
+        }
+        if (sum != 100) {
+            LOG(ERROR, "%d", i);
+        }
+    }
+
+    int roll = rndm(0, 99);
 
     int magic;
     for (magic = 0; magic < MAXMAGIC+1; magic++) {

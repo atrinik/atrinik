@@ -350,7 +350,7 @@ end
 treasureone random_arrows
   arch arrow
     magic_chance 25
-    magic 3
+    magic 4
     chance 50
     nrof 3
     material_quality 80
@@ -359,7 +359,7 @@ treasureone random_arrows
   more
   arch arrow_woodlanders
     magic_chance 20
-    magic 3
+    magic 4
     chance 30
     nrof 3
     material_quality 80
@@ -368,7 +368,7 @@ treasureone random_arrows
   more
   arch arrow_fey
     magic_chance 15
-    magic 3
+    magic 4
     chance 20
     nrof 2
     material_quality 80
@@ -377,7 +377,7 @@ treasureone random_arrows
   more
   arch arrow_elven
     magic_chance 10
-    magic 3
+    magic 4
     chance 10
     nrof 2
     material_quality 80
@@ -388,7 +388,7 @@ end
 treasureone random_bolts
   arch bolt
     magic_chance 25
-    magic 3
+    magic 4
     chance 50
     nrof 3
     material_quality 80
@@ -397,7 +397,7 @@ treasureone random_bolts
   more
   arch bolt_woodlanders
     magic_chance 20
-    magic 3
+    magic 4
     chance 30
     nrof 3
     material_quality 80
@@ -406,7 +406,7 @@ treasureone random_bolts
   more
   arch bolt_fey
     magic_chance 15
-    magic 3
+    magic 4
     chance 20
     nrof 2
     material_quality 80
@@ -415,7 +415,7 @@ treasureone random_bolts
   more
   arch bolt_dwarven
     magic_chance 10
-    magic 3
+    magic 4
     chance 10
     nrof 2
     material_quality 80
@@ -426,7 +426,7 @@ end
 treasureone random_sstones
   arch sstone
     magic_chance 25
-    magic 3
+    magic 4
     chance 50
     nrof 3
     material_quality 80
@@ -435,7 +435,7 @@ treasureone random_sstones
   more
   arch sstone_woodlanders
     magic_chance 20
-    magic 3
+    magic 4
     chance 30
     nrof 3
     material_quality 80
@@ -444,7 +444,7 @@ treasureone random_sstones
   more
   arch sstone_fey
     magic_chance 15
-    magic 3
+    magic 4
     chance 20
     nrof 2
     material_quality 80
@@ -453,7 +453,7 @@ treasureone random_sstones
   more
   arch sstone_iron
     magic_chance 10
-    magic 3
+    magic 4
     chance 10
     nrof 2
     material_quality 80
