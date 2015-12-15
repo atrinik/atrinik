@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-12-15 Alex Tokar
 endmsg
 width 24
 height 24
@@ -324,7 +324,9 @@ x 3
 y 2
 end
 arch well_bucket
-last_heal 9
+slaying world_4_53
+hp 3
+sp 2
 x 3
 y 2
 end
@@ -2922,7 +2924,9 @@ x 22
 y 1
 end
 arch well_bucket
-last_heal 9
+slaying world_4_53
+hp 22
+sp 1
 x 22
 y 1
 end
