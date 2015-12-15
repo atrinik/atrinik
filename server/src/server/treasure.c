@@ -962,7 +962,7 @@ magic_from_difficulty (int difficulty)
     int roll = rndm(0, 99);
 
     int magic;
-    for (magic = 0; magic < MAXMAGIC+1; magic++) {
+    for (magic = 0; magic < MAXMAGIC + 1; magic++) {
         roll -= difftomagic_list[difficulty][magic];
         if (roll < 0) {
             break;
