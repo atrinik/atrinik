@@ -607,7 +607,7 @@ static void process_func(object *op)
         return;
     }
 
-    object *part = rv.part;
+    object *part = rv.part != NULL ? rv.part : op;
     int dir = rv.direction;
 
     /* Move the check for scared up here - if the monster was scared,
