@@ -36,6 +36,16 @@
 #define NUM_COINS 6
 
 /**
+ * Maximum difficulty levels.
+ */
+#define DIFFLEVELS 201
+
+/**
+ * Maximum magic.
+ */
+#define MAXMAGIC 4
+
+/**
  * @defgroup GT_xxx Treasure generation flags
  * Treasure generation flags.
  *@{*/
