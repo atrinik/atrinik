@@ -2176,27 +2176,35 @@ static void widget_draw(widgetdata *widget)
     /* The damage numbers */
     map_anims_play();
 
+    map_render_data_t data = {0};
+    map_setup_render_data(widget->surface, &data, NULL, NULL, NULL, NULL);
+
+    int xpos = widget_x(widget) + widget_w(widget) / 2;
+    int ypos = widget_y(widget) + widget_h(widget) / 2;
+    ypos -= MAP_TILE_POS_YOFF * 1.5 + 7;
+
     /* Draw warning icons above player */
     if ((gfx_toggle++ & 63) < 25) {
-        if (setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING) &&
-                ((float) cpl.stats.hp / (float) cpl.stats.maxhp) * 100 <=
-                setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING)) {
-            surface_show(ScreenSurface, widget->x + 393 *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0),
-                    widget->y + 298 *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0),
-                    NULL, TEXTURE_CLIENT("warn_hp"));
+        int warn = setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING);
+        double hp_percent = (double) cpl.stats.hp / cpl.stats.maxhp * 100.0;
+        if (warn != 0 && warn >= hp_percent) {
+            SDL_Surface *texture = TEXTURE_CLIENT("warn_hp");
+            surface_show(ScreenSurface,
+                         xpos - texture->w / 2,
+                         ypos - texture->h / 2,
+                         NULL,
+                         texture);
         }
     } else {
-        /* Low food */
-        if (setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING) &&
-                ((float) cpl.stats.food / 1000.0f) * 100 <=
-                setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING)) {
-            surface_show(ScreenSurface, widget_x(widget) + 390 *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0),
-                    widget_y(widget) + 294 *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0),
-                    NULL, TEXTURE_CLIENT("warn_food"));
+        int warn = setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING);
+        double food_percent = (double) cpl.stats.food / 1000.0 * 100.0;
+        if (warn != 0 && warn >= food_percent) {
+            SDL_Surface *texture = TEXTURE_CLIENT("warn_food");
+            surface_show(ScreenSurface,
+                         xpos - texture->w / 2,
+                         ypos - texture->h / 2,
+                         NULL,
+                         texture);
         }
     }
 
