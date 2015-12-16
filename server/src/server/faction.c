@@ -537,14 +537,23 @@ static bool _faction_is_friend(faction_t faction, object *op,
         reputation = fabs(faction->threshold) + 1;
     } else {
         reputation = 0;
+
+        if (faction->name == object_get_value(op, "faction")) {
+            return true;
+        }
     }
 
     if (check_enemies) {
         for (size_t i = 0; i < faction->enemies_num; i++) {
-            if (_faction_is_friend(faction->enemies[i].faction.ptr, op, false,
-                    attention)) {
-                reputation -= fabs(faction->threshold) + 1.0;
-                break;
+            if (_faction_is_friend(faction->enemies[i].faction.ptr,
+                                   op,
+                                   false,
+                                   attention)) {
+                double value = fabs(faction->threshold) + 1.0;
+                if (op->type != PLAYER) {
+                    value *= 2.0;
+                }
+                reputation -= value;
             }
         }
     }
