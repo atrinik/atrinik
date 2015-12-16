@@ -38,7 +38,8 @@
  * Affects @ref BOOK_LEVEL_DIFF, depending on the player's intelligence
  * stat. If the player is intelligent enough, they may be able to read
  * higher level books; if their intelligence is too low, the maximum level
- * books they can read will decrease. */
+ * books they can read will decrease.
+ */
 static int book_level_mod[MAX_STAT + 1] = {
     -9,
     -8, -7, -6, -5, -4,
@@ -50,10 +51,11 @@ static int book_level_mod[MAX_STAT + 1] = {
 };
 
 /**
- * The higher your wisdom, the more you are able to make use of the
+ * The higher your intelligence, the more you are able to make use of the
  * knowledge you read from books. Thus, you get more experience by
- * reading books the more wisdom you have, and less experience if you
- * have unnaturally low wisdom. */
+ * reading books the more intelligence you have, and less experience if you
+ * have unnaturally low intelligence.
+ */
 static double book_exp_mod[MAX_STAT + 1] = {
     -3.00f,
     -2.00f, -1.90f, -1.80f, -1.70f, -1.60f,
@@ -130,16 +132,14 @@ static int apply_func(object *op, object *applier, int aflags)
 
     /* Gain xp from reading but only if not read before. */
     if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
-        int64_t exp_gain, old_exp;
-
         CONTR(applier)->stat_unique_books_read++;
 
         /* Store original exp value. We want to keep the experience cap
          * from calc_skill_exp() below, so we temporarily adjust the exp
          * of the book, instead of adjusting the return value. */
-        old_exp = op->stats.exp;
-        /* Adjust the experience based on player's wisdom. */
-        op->stats.exp = (int64_t) ((double) op->stats.exp * book_exp_mod[applier->stats.Wis]);
+        int64_t old_exp = op->stats.exp;
+        /* Adjust the experience based on player's intelligence. */
+        op->stats.exp *= book_exp_mod[applier->stats.Int];
 
         if (!QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             /* Because they just identified it too. */
@@ -147,7 +147,7 @@ static int apply_func(object *op, object *applier, int aflags)
             identify(op);
         }
 
-        exp_gain = calc_skill_exp(applier, op, -1);
+        int64_t exp_gain = calc_skill_exp(applier, op, -1);
         add_exp(applier, exp_gain, applier->chosen_skill->stats.sp, 0);
 
         /* So no more exp gained from this book. */
