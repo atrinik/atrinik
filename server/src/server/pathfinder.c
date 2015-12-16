@@ -413,7 +413,7 @@ static int tile_is_blocked(object *op, mapstruct *map, int x, int y)
     if (op->type == PLAYER && CONTR(op)->tcl) {
         block = 0;
     } else {
-        block = object_blocked(op, map, x, y);
+        block = blocked(op, map, x, y, op->terrain_flag);
     }
 
     return block;

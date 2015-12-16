@@ -483,6 +483,44 @@ int blocks_magic(mapstruct *m, int x, int y)
 }
 
 /**
+ * Check if the specified object would block itself on the specified
+ * coordinates. This is required for pathfinding with multi-part monsters;
+ * otherwise, what ends up happening is that all the tiles the monster's
+ * tails are on will be considered impassable.
+ *
+ * @param op Object that is being checked. Cannot be NULL.
+ * @param m Map position to check. Cannot be NULL.
+ * @param x X coordinate to check.
+ * @param y Y coordinate to check.
+ * @return Whether the object is blocked by itself on the specified square.
+ */
+static bool
+blocked_self (object *op, mapstruct *m, int x, int y)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(m != NULL);
+
+    op = HEAD(op);
+
+    if (op->more == NULL) {
+        return false;
+    }
+
+    for (object *tmp = op->more; tmp != NULL; tmp = tmp->more) {
+        int x2 = op->x + tmp->arch->clone.x;
+        int y2 = op->y + tmp->arch->clone.y;
+        mapstruct *m2 = get_map_from_coord2(op->map, &x2, &y2);
+        SOFT_ASSERT_RC(m2 != NULL, false, "Map is NULL");
+
+        if (m2 == m && x2 == x && y2 == y) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Check if specified object cannot move onto x, y on the given map and
  * terrain.
  * @param op Object.
@@ -531,7 +569,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
     }
 
     /* It's forbidden for other living objects to enter tiles with a monster. */
-    if (flags & P_IS_MONSTER && IS_LIVE(op)) {
+    if (flags & P_IS_MONSTER && IS_LIVE(op) && !blocked_self(op, m, x, y)) {
         return flags;
     }
 
