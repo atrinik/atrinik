@@ -1789,12 +1789,6 @@ class ObjectFieldsSuite(TestSuite):
     def test_Con(self):
         self.field_test_int("Con", 8)
 
-    def test_Wis(self):
-        self.field_test_int("Wis", 8)
-
-    def test_Cha(self):
-        self.field_test_int("Cha", 8)
-
     def test_Int(self):
         self.field_test_int("Int", 8)
 
