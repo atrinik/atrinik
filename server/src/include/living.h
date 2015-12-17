@@ -39,16 +39,12 @@
 #define DEX             1
 /** Constitution. */
 #define CON             2
-/** Wisdom. */
-#define WIS             3
-/** Charisma. */
-#define CHA             4
 /** Intelligence. */
-#define INT 5
+#define INT             3
 /** Power. */
-#define POW             6
+#define POW             4
 /** Number of stats. */
-#define NUM_STATS       7
+#define NUM_STATS       5
 /*@}*/
 
 /* Changed from NO_STAT to NO_STAT_VAL to fix conflict on
@@ -106,12 +102,6 @@ typedef struct liv {
 
     /** Constitution. */
     int8_t Con;
-
-    /** Wisdom. */
-    int8_t Wis;
-
-    /** Charisma. */
-    int8_t Cha;
 
     /** Intelligence. */
     int8_t Int;

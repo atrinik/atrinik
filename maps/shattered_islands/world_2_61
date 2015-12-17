@@ -1091,7 +1091,7 @@ maxsp 50
 pow 30
 dex 1
 stand_still 1
-wis 7
+item_power 7
 type 83
 faction aris_guards
 arch ability_firestorm
@@ -2324,7 +2324,7 @@ maxsp 50
 pow 30
 dex 1
 stand_still 1
-wis 7
+item_power 7
 type 83
 faction aris_guards
 arch ability_firestorm

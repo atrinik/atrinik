@@ -393,7 +393,7 @@ level 7
 spawn_time 19:00 - 7:00
 maxsp 16
 dex 2
-wis 5
+item_power 5
 arch ability_mbullet
 end
 end
@@ -461,7 +461,7 @@ type 83
 randomitems mob_fighter_l9
 level 7
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1c
@@ -694,7 +694,7 @@ level 7
 spawn_time 19:00 - 7:00
 maxsp 16
 dex 2
-wis 5
+item_power 5
 type 83
 arch ability_mbullet
 end
@@ -756,7 +756,7 @@ type 83
 randomitems mob_fighter_l9
 level 7
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1c
@@ -941,7 +941,7 @@ type 83
 randomitems mob_fighter_l9
 level 6
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch grassd_4
@@ -1024,7 +1024,7 @@ level 7
 spawn_time 19:00 - 7:00
 maxsp 16
 dex 2
-wis 5
+item_power 5
 arch ability_mbullet
 end
 end
@@ -1191,7 +1191,7 @@ type 83
 randomitems mob_fighter_l9
 level 7
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1c
@@ -1214,7 +1214,7 @@ type 83
 randomitems mob_fighter_l9
 level 6
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1e
@@ -1603,7 +1603,7 @@ type 83
 randomitems mob_fighter_l9
 level 6
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1c
@@ -1972,7 +1972,7 @@ type 83
 randomitems mob_fighter_l9
 level 7
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1a
@@ -2407,7 +2407,7 @@ type 83
 randomitems mob_fighter_l9
 level 6
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1e
@@ -2694,7 +2694,7 @@ type 83
 randomitems mob_fighter_l9
 level 7
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1c
@@ -2877,7 +2877,7 @@ type 83
 randomitems mob_fighter_l9
 level 6
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1a

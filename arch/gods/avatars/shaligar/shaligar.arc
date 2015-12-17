@@ -13,7 +13,7 @@ str 30
 con 30
 dex 30
 int 30
-wis 30
+item_power 30
 pow 30
 monster 1
 is_male 1

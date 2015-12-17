@@ -417,8 +417,6 @@ lex_error = 0;
 ^str{S}              op->stats.Str = IVAL;
 ^dex{S}              op->stats.Dex = IVAL;
 ^con{S}              op->stats.Con = IVAL;
-^wis{S}              op->stats.Wis = IVAL;
-^cha{S}              op->stats.Cha = IVAL;
 ^int{S}              op->stats.Int = IVAL;
 ^pow{S}              op->stats.Pow = IVAL;
 ^hp{S}               op->stats.hp = IVAL;
@@ -1241,16 +1239,8 @@ get_ob_diff (StringBuffer *sb, object *op, object *op2)
         SAVE_INT(sb, "Con", op->stats.Con);
     }
 
-    if (op->stats.Wis != op2->stats.Wis) {
-        SAVE_INT(sb, "Wis", op->stats.Wis);
-    }
-
     if (op->stats.Pow != op2->stats.Pow) {
         SAVE_INT(sb, "Pow", op->stats.Pow);
-    }
-
-    if (op->stats.Cha != op2->stats.Cha) {
-        SAVE_INT(sb, "Cha", op->stats.Cha);
     }
 
     if (op->stats.Int != op2->stats.Int) {

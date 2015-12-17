@@ -10,7 +10,6 @@ magic 0
 str -1
 con -1
 dex -1
-cha -2
 maxhp 1
 dam 1
 food -1

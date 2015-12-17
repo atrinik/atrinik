@@ -40,10 +40,10 @@ int trap_see(object *op, object *trap, int level)
     int chance = rndm(0, 99);
 
     /* Decide if we can see the rune or not */
-    if ((trap->level <= level && rndm_chance(10)) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0)))))) {
+    if ((trap->level <= level && rndm_chance(10)) || trap->stats.Int == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Int - op->level) / 10.0 * 50.0)))))) {
         draw_info_format(COLOR_WHITE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
 
-        if (trap->stats.Cha != 1) {
+        if (trap->stats.Int != 1) {
             CONTR(op)->stat_traps_found++;
         }
 
@@ -78,8 +78,8 @@ int trap_show(object *trap, object *where)
     trap->layer = LAYER_EFFECT;
 
     /* The trap is not hidden anymore. */
-    if (trap->stats.Cha > 1) {
-        trap->stats.Cha = 1;
+    if (trap->stats.Int > 1) {
+        trap->stats.Int = 1;
     }
 
     if (env && env->type != PLAYER && env->type != MONSTER &&
@@ -143,5 +143,5 @@ void trap_adjust(object *trap, int difficulty)
     hide = MAX(1, MIN(hide, INT8_MAX));
 
     trap->level = level;
-    trap->stats.Cha = hide;
+    trap->stats.Int = hide;
 }

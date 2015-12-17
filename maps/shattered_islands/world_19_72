@@ -160,7 +160,7 @@ sp -1
 maxsp 16
 pow 20
 dex 2
-wis 7
+item_power 7
 type 83
 arch ability_firestorm
 end

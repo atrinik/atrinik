@@ -18,7 +18,7 @@ dam 44
 hp -1
 maxhp 52
 terrain_flag 65
-wis 3
+item_power 3
 can_see_in_dark 1
 face quivering_blob.111
 animation blob_quivering

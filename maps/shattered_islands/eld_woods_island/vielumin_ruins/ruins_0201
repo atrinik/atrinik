@@ -345,7 +345,7 @@ can_see_in_dark 1
 random_move 1
 item_race 5
 item_level 5
-wis 6
+item_power 6
 run_away 10
 type 83
 end

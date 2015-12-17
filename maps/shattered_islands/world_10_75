@@ -2614,7 +2614,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-wis 4
+item_power 4
 direction 3
 end
 end

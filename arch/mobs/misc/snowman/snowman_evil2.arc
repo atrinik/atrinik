@@ -14,7 +14,7 @@ terrain_flag 65
 weapon_speed 0.038
 attack_cleave 80
 type 80
-wis 3
+item_power 3
 animation snowman_evil2
 is_animated 1
 anim_speed 4

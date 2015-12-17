@@ -147,8 +147,6 @@ static const char *const drain_msg[NUM_STATS] = {
     "Oh no! You are weakened!",
     "You're feeling clumsy!",
     "You feel less healthy",
-    "You suddenly begin to lose your memory!",
-    "Your face gets distorted!",
     "Watch out, your mind is going!",
     "Your spirit feels drained!"
 };
@@ -158,8 +156,6 @@ const char *const restore_msg[NUM_STATS] = {
     "You feel your strength return.",
     "You feel your agility return.",
     "You feel your health return.",
-    "You feel your wisdom return.",
-    "You feel your charisma return.",
     "You feel your memory return.",
     "You feel your spirits return."
 };
@@ -169,8 +165,6 @@ static const char *const gain_msg[NUM_STATS] = {
     "You feel stronger.",
     "You feel more agile.",
     "You feel healthy.",
-    "You feel wiser.",
-    "You seem to look better.",
     "You feel smarter.",
     "You feel more potent."
 };
@@ -180,8 +174,6 @@ const char *const lose_msg[NUM_STATS] = {
     "You feel weaker!",
     "You feel clumsy!",
     "You feel less healthy!",
-    "You lose some of your memory!",
-    "You look ugly!",
     "You feel stupid!",
     "You feel less potent!"
 };
@@ -191,8 +183,6 @@ const char *const statname[NUM_STATS] = {
     "strength",
     "dexterity",
     "constitution",
-    "wisdom",
-    "charisma",
     "intelligence",
     "power"
 };
@@ -202,8 +192,6 @@ const char *const short_stat_name[NUM_STATS] = {
     "Str",
     "Dex",
     "Con",
-    "Wis",
-    "Cha",
     "Int",
     "Pow"
 };
@@ -229,16 +217,8 @@ void set_attr_value(living *stats, int attr, int8_t value)
         stats->Con = value;
         break;
 
-    case WIS:
-        stats->Wis = value;
-        break;
-
     case POW:
         stats->Pow = value;
-        break;
-
-    case CHA:
-        stats->Cha = value;
         break;
 
     case INT:
@@ -291,12 +271,6 @@ int8_t get_attr_value(const living *stats, int attr)
 
     case CON:
         return stats->Con;
-
-    case WIS:
-        return stats->Wis;
-
-    case CHA:
-        return stats->Cha;
 
     case INT:
         return stats->Int;

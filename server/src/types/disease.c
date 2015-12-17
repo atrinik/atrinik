@@ -369,10 +369,8 @@ static void do_symptoms(object *disease)
         new_symptom->stats.Str = disease->stats.Str;
         new_symptom->stats.Dex = disease->stats.Dex;
         new_symptom->stats.Con = disease->stats.Con;
-        new_symptom->stats.Wis = disease->stats.Wis;
         new_symptom->stats.Int = disease->stats.Int;
         new_symptom->stats.Pow = disease->stats.Pow;
-        new_symptom->stats.Cha = disease->stats.Cha;
         new_symptom->stats.sp  = disease->stats.sp;
         new_symptom->stats.food = disease->last_eat;
         new_symptom->stats.maxsp = disease->stats.maxsp;
@@ -411,10 +409,8 @@ static void do_symptoms(object *disease)
         symptom->stats.Str = (int8_t) (scale * disease->stats.Str);
         symptom->stats.Dex = (int8_t) (scale * disease->stats.Dex);
         symptom->stats.Con = (int8_t) (scale * disease->stats.Con);
-        symptom->stats.Wis = (int8_t) (scale * disease->stats.Wis);
         symptom->stats.Int = (int8_t) (scale * disease->stats.Int);
         symptom->stats.Pow = (int8_t) (scale * disease->stats.Pow);
-        symptom->stats.Cha = (int8_t) (scale * disease->stats.Cha);
         symptom->stats.dam = (int16_t) (scale * disease->stats.dam);
         symptom->stats.sp = (int16_t) (scale * disease->stats.sp);
         symptom->stats.food = (int16_t) (scale * disease->last_eat);

@@ -572,7 +572,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -907,7 +907,7 @@ x 6
 y 4
 arch orc_outlaw
 type 83
-wis 6
+item_power 6
 level 29
 end
 end
@@ -956,7 +956,7 @@ level 28
 random_move 1
 item_race 5
 item_level 2
-wis 6
+item_power 6
 type 83
 end
 end
@@ -1138,7 +1138,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -1185,7 +1185,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -1216,7 +1216,7 @@ y 2
 arch orc_warlord
 level 30
 object_int1 80
-wis 6
+item_power 6
 type 83
 end
 arch orc_warlord
@@ -1228,7 +1228,7 @@ dam 100
 wc 14
 maxhp 110
 ac 14
-wis 6
+item_power 6
 type 83
 arch rand_drop
 container 150
@@ -1414,7 +1414,7 @@ maxsp 16
 pow 20
 dex 2
 stand_still 1
-wis 9
+item_power 9
 type 83
 arch ability_cause_lig_wound
 sp 1
@@ -1484,7 +1484,7 @@ dex 2
 see_invisible 0
 can_see_in_dark 1
 stand_still 1
-wis 9
+item_power 9
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -1814,7 +1814,7 @@ arch orc_outlaw
 level 29
 dex 3
 can_use_bow 1
-wis 6
+item_power 6
 type 83
 arch ability_stone_throw
 race arrows
@@ -1908,7 +1908,7 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 5
 protect_slash 0
 protect_cleave 0
@@ -2039,7 +2039,7 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 5
 protect_slash 0
 protect_cleave 0
@@ -2558,7 +2558,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -2681,7 +2681,7 @@ level 28
 random_move 1
 item_race 5
 item_level 2
-wis 6
+item_power 6
 type 83
 end
 end
@@ -2887,7 +2887,7 @@ con 5
 attack_cleave 75
 attack_weaponmagic 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 5
 protect_slash 0
 protect_cleave 0
@@ -3021,7 +3021,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3362,7 +3362,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3450,7 +3450,7 @@ arch orc_outlaw
 level 29
 dex 3
 can_use_bow 1
-wis 6
+item_power 6
 type 83
 arch ability_stone_throw
 race arrows

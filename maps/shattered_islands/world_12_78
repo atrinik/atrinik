@@ -204,7 +204,7 @@ y 20
 arch mud_hand
 type 83
 level 10
-wis 4
+item_power 4
 end
 end
 arch swamp1
@@ -641,7 +641,7 @@ y 11
 arch mud_hand
 type 83
 level 12
-wis 4
+item_power 4
 end
 end
 arch swamp1
@@ -785,7 +785,7 @@ y 19
 arch mud_hand
 type 83
 level 11
-wis 4
+item_power 4
 end
 end
 arch swamp1
@@ -1185,7 +1185,7 @@ y 12
 arch mud_hand
 type 83
 level 12
-wis 4
+item_power 4
 end
 end
 arch swamp1
@@ -1321,7 +1321,7 @@ y 18
 arch mud_hand
 type 83
 level 11
-wis 4
+item_power 4
 end
 end
 arch swamp1
@@ -1697,7 +1697,7 @@ y 9
 arch mud_hand
 type 83
 level 12
-wis 4
+item_power 4
 end
 end
 arch swamp1
@@ -1841,7 +1841,7 @@ y 15
 arch mud_hand
 type 83
 level 11
-wis 4
+item_power 4
 end
 end
 arch swamp1

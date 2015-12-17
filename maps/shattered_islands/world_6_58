@@ -2685,7 +2685,6 @@ direction 1
 level 69
 invulnerable 1
 no_attack 1
-wis 0
 type 83
 faction aris_citizens
 arch event_obj

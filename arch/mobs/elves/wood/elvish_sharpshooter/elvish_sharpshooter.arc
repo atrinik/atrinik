@@ -16,7 +16,7 @@ weapon_speed 0.035
 attack_slash 95
 attack_magic 5
 type 80
-wis 3
+item_power 3
 animation elvish_sharpshooter
 is_animated 1
 anim_speed 4

@@ -16,7 +16,7 @@ dam 51
 hp -1
 maxhp 58
 terrain_flag 65
-wis 3
+item_power 3
 can_see_in_dark 1
 face pudding_red.111
 animation pudding_red

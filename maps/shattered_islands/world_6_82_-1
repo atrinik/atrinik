@@ -124,7 +124,7 @@ name kobold mushroom keeper
 direction 7
 item_condition 4
 wc_range 12
-wis 2
+item_power 2
 type 83
 end
 end

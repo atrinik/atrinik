@@ -971,7 +971,7 @@ arch troll
 name troll guard
 type 83
 level 14
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -1220,7 +1220,7 @@ arch troll
 name troll guard
 type 83
 level 14
-wis 3
+item_power 3
 direction 7
 end
 end
@@ -1588,7 +1588,7 @@ level 15
 random_move 1
 item_race 8
 item_level 2
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -1891,7 +1891,7 @@ arch troll
 name troll guard
 type 83
 level 14
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -1991,7 +1991,7 @@ level 15
 random_move 1
 item_race 8
 item_level 2
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -2613,7 +2613,7 @@ arch troll
 name troll guard
 type 83
 level 14
-wis 3
+item_power 3
 direction 7
 end
 end

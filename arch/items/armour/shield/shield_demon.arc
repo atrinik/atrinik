@@ -10,7 +10,6 @@ protect_impact 5
 protect_cleave 10
 protect_pierce 10
 protect_slash 5
-cha -1
 material_real 65
 material 2
 weight 1500

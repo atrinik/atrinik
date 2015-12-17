@@ -22,7 +22,7 @@ protect_cleave -10
 protect_impact 10
 protect_pierce 5
 type 80
-wis 3
+item_power 3
 animation wose_ancient
 is_animated 1
 anim_speed 4

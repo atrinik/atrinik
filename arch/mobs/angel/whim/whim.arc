@@ -13,7 +13,7 @@ attack_weaponmagic 75
 unaggressive 1
 random_move 1
 type 80
-wis 3
+item_power 3
 randomitems mob_default
 animation whim
 is_animated 1

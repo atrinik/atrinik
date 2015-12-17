@@ -233,12 +233,6 @@ static fields_struct fields[] = {
     {"Con", FIELDTYPE_INT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX,
             0, "Constitution of the object (or how much it gives when "
             "equipped).; int"},
-    {"Wis", FIELDTYPE_INT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX,
-            0, "Wisdom of the object (or how much it gives when equipped).; "
-            "int"},
-    {"Cha", FIELDTYPE_INT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX,
-            0, "Charisma of the object (or how much it gives when equipped).; "
-            "int"},
     {"Int", FIELDTYPE_INT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX,
             0, "Intelligence of the object (or how much it gives when "
             "equipped).; int"},

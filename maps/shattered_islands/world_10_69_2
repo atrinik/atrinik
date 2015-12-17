@@ -323,7 +323,7 @@ align 5
 direction 7
 level 75
 stand_still 1
-wis 12
+item_power 12
 type 83
 faction greyton_guards
 arch ability_stone_throw
@@ -519,7 +519,7 @@ align 5
 direction 7
 level 75
 stand_still 1
-wis 12
+item_power 12
 type 83
 faction greyton_guards
 arch ability_stone_throw

@@ -15,7 +15,7 @@ attack_fire 80
 protect_cold -35
 protect_fire 100
 type 80
-wis 3
+item_power 3
 randomitems mob_fire
 animation lavagolem
 is_animated 1

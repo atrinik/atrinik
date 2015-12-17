@@ -1292,7 +1292,7 @@ void set_trapped_flag(object *op)
 
     for (tmp = op->inv; tmp != NULL; tmp = tmp->below) {
         /* Must be a rune AND visible */
-        if (tmp->type == RUNE && tmp->stats.Cha <= 1) {
+        if (tmp->type == RUNE && tmp->stats.Int <= 1) {
             SET_FLAG(op, FLAG_IS_TRAPPED);
             return;
         }

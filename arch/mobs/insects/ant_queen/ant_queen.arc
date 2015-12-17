@@ -12,7 +12,7 @@ terrain_flag 65
 weapon_speed 0.038
 attack_cleave 80
 type 80
-wis 3
+item_power 3
 randomitems mob_ant_queen
 animation ant_queen
 is_animated 1

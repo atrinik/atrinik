@@ -50,8 +50,6 @@ static void create_food_force(object *who, object *food, object *force)
     force->stats.Dex = food->stats.Dex;
     force->stats.Con = food->stats.Con;
     force->stats.Int = food->stats.Int;
-    force->stats.Wis = food->stats.Wis;
-    force->stats.Cha = food->stats.Cha;
 
     for (i = 0; i < NROFATTACKS; i++) {
         force->protection[i] = food->protection[i];
@@ -85,23 +83,11 @@ static void create_food_force(object *who, object *food, object *force)
 
         force->stats.Int *= stat_multiplier;
 
-        if (force->stats.Wis > 0) {
-            force->stats.Wis = -force->stats.Wis;
-        }
-
-        force->stats.Wis *= stat_multiplier;
-
         if (force->stats.Pow > 0) {
             force->stats.Pow = -force->stats.Pow;
         }
 
         force->stats.Pow *= stat_multiplier;
-
-        if (force->stats.Cha > 0) {
-            force->stats.Cha = -force->stats.Cha;
-        }
-
-        force->stats.Cha *= stat_multiplier;
 
         for (i = 0; i < NROFATTACKS; i++) {
             if (force->protection[i] > 0) {
@@ -148,7 +134,7 @@ static void eat_special_food(object *who, object *food)
 {
     /* if there is any stat or protection value - create force for the object!
      * */
-    if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha) {
+    if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int) {
         create_food_force(who, food, arch_get("force"));
     } else {
         int i;

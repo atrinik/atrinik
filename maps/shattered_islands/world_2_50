@@ -1782,7 +1782,7 @@ sp -1
 maxsp 15
 dex 2
 friendly 1
-wis 4
+item_power 4
 type 83
 arch ability_mbullet
 name ability lightning

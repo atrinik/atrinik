@@ -1086,7 +1086,9 @@ void set_abs_magic(object *op, int magic)
  * @param bonus Bonus to add to item.
  * @param level Level.
  * @return 1.
- * @todo Get rid of the gotos in here. */
+ * @todo Extract this ugly piece of crap into subroutines. Use separate logic
+ * for determining stats based on type (amulet/ring).
+ */
 static int set_ring_bonus(object *op, int bonus, int level)
 {
     int tmp, r, off;
@@ -1094,35 +1096,28 @@ static int set_ring_bonus(object *op, int bonus, int level)
 
     /* Let's repeat, too lazy for a loop */
 set_ring_bonus_jump1:
-    r = rndm(0, bonus > 0 ? 20 : 13);
 
     SET_FLAG(op, FLAG_IS_MAGICAL);
 
     if (op->type == AMULET) {
         if (rndm_chance(20)) {
-            r = 20 + rndm(0, 1);
+            r = 18 + rndm(0, 1);
         } else if (rndm_chance(20)) {
-            tmp = rndm(0, 2);
-
-            if (tmp == 2) {
-                r = 0;
-            } else if (tmp == 1) {
-                r = 12;
-            } else {
-                r = 11;
-            }
+            r = rndm_chance(2) ? 0 : 10;
         } else if (rndm_chance(2)) {
             if (rndm_chance(2)) {
-                r = 10;
+                r = 9;
             } else {
-                r = 8;
+                r = 7;
             }
         } else {
-            r = 13 + rndm(0, 6);
+            r = 11;
         }
+    } else {
+        r = rndm(0, bonus > 0 ? 20 : 11);
     }
 
-    switch (r % 25) {
+    switch (r) {
     /* Health */
     case 0:
         tmp = 5;
@@ -1191,13 +1186,21 @@ set_ring_bonus_jump1:
     case 2:
     case 3:
     case 4:
-    case 5:
-    case 6:
-        set_attr_value(&op->stats, r, (int8_t) (bonus + get_attr_value(&op->stats, r)));
+    case 5: {
+        int stat = rndm(0, NUM_STATS - 1);
+        int value = get_attr_value(&op->stats, stat) + bonus;
+        if (value > MAX_STAT) {
+            value = MAX_STAT;
+        } else if (value < -MAX_STAT) {
+            value = -MAX_STAT;
+        }
+
+        set_attr_value(&op->stats, stat, value);
         break;
+    }
 
     /* Damage */
-    case 7:
+    case 6:
         op->stats.dam += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -1208,7 +1211,7 @@ set_ring_bonus_jump1:
         break;
 
     /* WC*/
-    case 8:
+    case 7:
         op->stats.wc += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -1219,7 +1222,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Hunger/sustenance */
-    case 9:
+    case 8:
         op->stats.food += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -1230,7 +1233,7 @@ set_ring_bonus_jump1:
         break;
 
     /* AC */
-    case 10:
+    case 9:
         op->stats.ac += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -1241,12 +1244,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Mana */
-    case 11:
-    case 12:
-        if (!rndm_chance(3)) {
-            goto make_prot_items;
-        }
-
+    case 10:
         tmp = 3;
 
         if (level < 5) {
@@ -1309,14 +1307,13 @@ set_ring_bonus_jump1:
         break;
 
     /* Protections */
+    case 11:
+    case 12:
     case 13:
-        make_prot_items:
     case 14:
     case 15:
     case 16:
     case 17:
-    case 18:
-    case 19:
     {
         int b = 5 + FABS(bonus), val;
 
@@ -1341,7 +1338,7 @@ set_ring_bonus_jump1:
         }
 
         b = 0;
-        int protect = rndm(0, LAST_PROTECTION - 4 + off);
+        int protect = rndm(0, LAST_PROTECTION - 1 - 4 + off);
 
         while (op->protection[protect] != 0) {
             /* Not able to find a free protection */
@@ -1349,7 +1346,7 @@ set_ring_bonus_jump1:
                 goto set_ring_bonus_jump1;
             }
 
-            protect = rndm(0, LAST_PROTECTION - 4 + off);
+            protect = rndm(0, LAST_PROTECTION - 1 - 4 + off);
         }
 
         op->protection[protect] = val;
@@ -1357,7 +1354,7 @@ set_ring_bonus_jump1:
     }
 
     /* Reflect spells for amulets, health regeneration for rings */
-    case 20:
+    case 18:
         if (op->type == AMULET) {
             /* Reflect spells */
             SET_FLAG(op, FLAG_REFL_SPELL);
@@ -1376,7 +1373,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Reflect missiles for amulets, mana regeneration for rings */
-    case 21:
+    case 19:
         if (op->type == AMULET) {
             /* Reflect missiles */
             SET_FLAG(op, FLAG_REFL_MISSILE);
@@ -1395,7 +1392,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Speed */
-    default:
+    case 20:
         if (bonus == 0) {
             bonus = 1;
         }
@@ -1403,6 +1400,9 @@ set_ring_bonus_jump1:
         op->stats.exp += bonus;
         op->value = (int64_t) ((double) op->value * 1.4f);
         break;
+
+    default:
+        SOFT_ASSERT_RC(false, 0, "Reached impossible code branch");
     }
 
     if (bonus > 0) {

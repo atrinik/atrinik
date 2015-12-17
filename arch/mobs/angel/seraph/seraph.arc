@@ -19,7 +19,7 @@ is_animated 1
 anim_speed 4
 speed -0.060
 monster 1
-wis 4
+item_power 4
 dex 3
 pow 10
 magic 1

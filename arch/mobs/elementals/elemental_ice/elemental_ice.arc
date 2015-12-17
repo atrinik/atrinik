@@ -14,7 +14,7 @@ attack_cold 80
 protect_cold 100
 protect_fire -25
 type 80
-wis 3
+item_power 3
 animation elemental_ice
 is_animated 1
 anim_speed 4

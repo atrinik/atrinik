@@ -16,6 +16,6 @@ no_pick 1
 walk_on 1
 attack_poison 100
 dam 4
-cha 20
+int 20
 sp -1
 end

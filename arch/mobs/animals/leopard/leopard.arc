@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_slash 80
 attack_pierce 20
 type 80
-wis 3
+item_power 3
 animation leopard
 is_animated 1
 anim_speed 4

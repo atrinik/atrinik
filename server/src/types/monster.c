@@ -279,7 +279,7 @@ void monster_enemy_signal(object *npc, object *enemy)
     rv_vector rv;
 
     if (get_rangevector(npc, enemy, &rv, 0)) {
-        dist = (int32_t) ((double) npc->stats.Wis * 1.5) - rv.distance;
+        dist = (int32_t) ((double) npc->item_power * 1.5) - rv.distance;
 
         if (dist < 0) {
             dist = 0;
@@ -410,7 +410,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
     }
 
     /* If our enemy is too far away ... */
-    if ((int) rv->distance >= MAX(MAX_AGGRO_RANGE, op->stats.Wis)) {
+    if ((int) rv->distance >= MAX(MAX_AGGRO_RANGE, op->item_power)) {
         /* Then start counting until our mob loses aggro... */
         if (++op->last_eat > MAX_AGGRO_TIME) {
             set_npc_enemy(op, NULL, NULL);
@@ -821,7 +821,7 @@ static object *find_nearest_enemy(object *ob)
     int i, j, xt, yt;
     mapstruct *m;
 
-    aggro_range = ob->stats.Wis;
+    aggro_range = ob->item_power;
 
     if (ob->enemy || ob->attacked_by) {
         aggro_range += 3;

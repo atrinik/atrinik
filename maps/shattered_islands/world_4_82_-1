@@ -421,7 +421,7 @@ arch kobold
 name kobold hunter
 item_condition 3
 unaggressive 1
-wis 2
+item_power 2
 type 83
 end
 end
@@ -462,7 +462,7 @@ randomitems mob_fighter_l9
 item_condition 3
 wc_range 12
 unaggressive 1
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1195,7 +1195,7 @@ y 6
 arch kobold
 name kobold scout
 item_condition 3
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1369,7 +1369,7 @@ randomitems mob_fighter_l9
 item_condition 3
 wc_range 12
 unaggressive 1
-wis 2
+item_power 2
 type 83
 end
 end

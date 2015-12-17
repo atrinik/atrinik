@@ -139,7 +139,7 @@ x 2
 y 5
 arch kobold_fighter
 item_condition 3
-wis 2
+item_power 2
 type 83
 end
 end
@@ -556,7 +556,7 @@ x 10
 y 3
 arch kobold_guard
 item_condition 4
-wis 2
+item_power 2
 type 83
 end
 end
@@ -851,7 +851,7 @@ y 7
 arch kobold_fighter
 direction 3
 item_condition 4
-wis 2
+item_power 2
 type 83
 end
 end
@@ -933,7 +933,7 @@ y 9
 arch kobold_fighter
 direction 3
 item_condition 4
-wis 2
+item_power 2
 type 83
 end
 end
@@ -974,7 +974,7 @@ x 16
 y 6
 arch kobold_guard
 item_condition 4
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1065,7 +1065,7 @@ arch kobold_guard
 name kobold fighter leader
 item_condition 4
 attack_slash 80
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1322,7 +1322,7 @@ x 20
 y 5
 arch kobold_fighter
 item_condition 4
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1489,7 +1489,7 @@ item_condition 5
 maxsp 10
 magic 1
 dex 10
-wis 2
+item_power 2
 type 83
 arch ability_cause_lig_wound
 last_grace 14
@@ -1560,7 +1560,7 @@ name kobold mushroom keeper
 direction 7
 item_condition 4
 wc_range 12
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1598,7 +1598,7 @@ item_condition 5
 maxsp 10
 magic 1
 dex 10
-wis 2
+item_power 2
 type 83
 arch ability_cause_lig_wound
 last_grace 14

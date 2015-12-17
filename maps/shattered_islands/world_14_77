@@ -485,7 +485,7 @@ type 83
 level 15
 dam 54
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_7
@@ -618,7 +618,7 @@ type 83
 level 16
 dam 54
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_3
@@ -1279,7 +1279,7 @@ type 83
 level 15
 dam 54
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_4
@@ -1392,7 +1392,7 @@ level 16
 object_int1 90
 dam 54
 unaggressive 1
-wis 4
+item_power 4
 type 83
 end
 arch treant_evil
@@ -1401,7 +1401,7 @@ level 17
 object_int1 10
 dam 56
 unaggressive 1
-wis 4
+item_power 4
 type 83
 arch rand_drop
 container 40
@@ -2249,7 +2249,7 @@ arch treant_evil
 level 15
 dam 54
 unaggressive 1
-wis 4
+item_power 4
 type 83
 end
 end
@@ -2366,7 +2366,7 @@ arch quickwood
 level 16
 dam 54
 unaggressive 1
-wis 4
+item_power 4
 type 83
 end
 end

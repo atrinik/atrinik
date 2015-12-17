@@ -668,7 +668,7 @@ sp -1
 maxsp 30
 pow 10
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 sp 50
@@ -1046,7 +1046,7 @@ sp -1
 maxsp 30
 pow 10
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 sp 47
@@ -2106,7 +2106,7 @@ sp -1
 maxsp 30
 pow 10
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 sp 50
@@ -3161,7 +3161,7 @@ sp -1
 maxsp 30
 pow 10
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 sp 35
@@ -3274,7 +3274,7 @@ sp -1
 maxsp 30
 pow 10
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 sp 38
@@ -4763,7 +4763,7 @@ sp -1
 maxsp 30
 pow 10
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 sp 50
@@ -4905,7 +4905,7 @@ sp -1
 maxsp 30
 pow 10
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 sp 38

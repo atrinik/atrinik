@@ -150,7 +150,7 @@ x 1
 y 7
 arch bat_brown
 level 13
-wis 4
+item_power 4
 type 83
 direction 4
 end
@@ -212,7 +212,7 @@ x 1
 y 14
 arch bat_brown
 level 13
-wis 4
+item_power 4
 type 83
 direction 3
 end
@@ -274,7 +274,7 @@ x 1
 y 21
 arch bat_brown
 level 13
-wis 4
+item_power 4
 type 83
 direction 3
 end
@@ -1395,7 +1395,7 @@ x 10
 y 23
 arch bat_brown
 level 13
-wis 4
+item_power 4
 type 83
 direction 8
 end
@@ -1701,7 +1701,7 @@ x 12
 y 15
 arch bat_brown
 level 12
-wis 4
+item_power 4
 type 83
 end
 end
@@ -1839,7 +1839,7 @@ x 13
 y 8
 arch bat_brown
 level 12
-wis 4
+item_power 4
 type 83
 direction 2
 end
@@ -2263,7 +2263,7 @@ x 15
 y 20
 arch bat_brown
 level 12
-wis 4
+item_power 4
 type 83
 direction 6
 end
@@ -2449,7 +2449,7 @@ x 17
 y 1
 arch bat_brown
 level 12
-wis 4
+item_power 4
 type 83
 direction 7
 end

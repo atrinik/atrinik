@@ -2834,7 +2834,7 @@ magic 2
 dex 2
 can_use_weapon 1
 can_use_armour 1
-wis 5
+item_power 5
 protect_impact 15
 protect_slash 15
 protect_cleave 15

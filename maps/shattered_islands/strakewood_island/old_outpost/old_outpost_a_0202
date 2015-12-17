@@ -362,7 +362,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 3
+item_power 3
 type 83
 end
 arch troll
@@ -373,7 +373,7 @@ dam 90
 wc 12
 maxhp 100
 ac 12
-wis 3
+item_power 3
 type 83
 arch quest_container
 sub_type 3
@@ -431,7 +431,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -555,7 +555,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -817,7 +817,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -1104,7 +1104,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 2
+item_power 2
 direction 3
 end
 end
@@ -1480,7 +1480,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -1648,7 +1648,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 3
+item_power 3
 direction 7
 end
 end
@@ -2152,7 +2152,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 3
+item_power 3
 direction 3
 end
 end
@@ -2965,7 +2965,7 @@ dam 80
 wc 11
 maxhp 100
 ac 12
-wis 2
+item_power 2
 direction 3
 end
 end

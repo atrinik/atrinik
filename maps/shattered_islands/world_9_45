@@ -3481,7 +3481,7 @@ y 4
 arch archer
 level 100
 stand_still 1
-wis 12
+item_power 12
 type 83
 align 5
 direction 1

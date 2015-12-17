@@ -929,7 +929,7 @@ speed -0.1
 maxhp 70
 attack_poison 5
 attack_acid 20
-wis 5
+item_power 5
 run_away 15
 type 83
 arch quest_container

@@ -13,7 +13,7 @@ terrain_flag 65
 weapon_speed 0.040
 attack_weaponmagic 80
 type 80
-wis 3
+item_power 3
 animation angel_warrior
 is_animated 1
 anim_speed 4

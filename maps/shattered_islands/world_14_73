@@ -981,7 +981,7 @@ maxhp 70
 ac 10
 item_race 3
 item_level 3
-wis 4
+item_power 4
 end
 end
 arch grassd_2
@@ -1113,7 +1113,7 @@ maxhp 70
 ac 10
 item_race 3
 item_level 3
-wis 4
+item_power 4
 end
 end
 arch grassd_2
@@ -1399,7 +1399,7 @@ maxhp 70
 ac 10
 item_race 3
 item_level 3
-wis 4
+item_power 4
 end
 end
 arch grassd_5
@@ -1770,7 +1770,7 @@ maxhp 70
 ac 10
 item_race 3
 item_level 3
-wis 4
+item_power 4
 type 83
 end
 end
@@ -1805,7 +1805,7 @@ maxhp 70
 ac 10
 item_race 3
 item_level 3
-wis 4
+item_power 4
 end
 end
 arch grassd_6
@@ -2071,7 +2071,7 @@ maxhp 70
 ac 10
 item_race 3
 item_level 3
-wis 4
+item_power 4
 end
 end
 arch grassd_5
@@ -2321,7 +2321,7 @@ maxhp 70
 ac 10
 item_race 3
 item_level 3
-wis 4
+item_power 4
 end
 end
 arch grassd_8

@@ -13,7 +13,7 @@ is_neutral 1
 direction 5
 terrain_flag 65
 randomitems mob_default
-wis 3
+item_power 3
 animation mandragora
 is_animated 1
 anim_speed 4

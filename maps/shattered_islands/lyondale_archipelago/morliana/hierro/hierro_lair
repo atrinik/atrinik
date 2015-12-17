@@ -1836,7 +1836,7 @@ attack_confusion 5
 can_cast_spell 1
 can_use_weapon 0
 can_use_armour 0
-wis 10
+item_power 10
 attack_move_type 3
 run_away 5
 protect_impact 5

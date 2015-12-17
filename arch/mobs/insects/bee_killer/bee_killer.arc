@@ -13,7 +13,7 @@ weapon_speed 0.035
 attack_cleave 75
 random_move 1
 type 80
-wis 3
+item_power 3
 randomitems mob_insect
 animation bee_killer
 is_animated 1

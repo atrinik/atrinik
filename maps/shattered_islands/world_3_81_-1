@@ -513,7 +513,7 @@ y 7
 arch kobold_fighter
 direction 3
 item_condition 5
-wis 2
+item_power 2
 type 83
 end
 end
@@ -652,7 +652,7 @@ x 9
 y 5
 arch kobold_fighter
 item_condition 5
-wis 2
+item_power 2
 type 83
 end
 end
@@ -977,7 +977,7 @@ y 10
 arch kobold_guard
 direction 3
 item_condition 5
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1122,7 +1122,7 @@ x 12
 y 8
 arch kobold_guard
 item_condition 5
-wis 2
+item_power 2
 type 83
 end
 end
@@ -1410,7 +1410,7 @@ name kobold mushroom keeper
 direction 7
 item_condition 4
 wc_range 12
-wis 2
+item_power 2
 type 83
 end
 end
@@ -2376,7 +2376,7 @@ y 1
 arch kobold_guard
 name kobold clan guard
 item_condition 5
-wis 2
+item_power 2
 type 83
 end
 end
@@ -2742,7 +2742,7 @@ x 22
 y 7
 arch kobold_shaman
 item_condition 5
-wis 2
+item_power 2
 type 83
 arch ability_cause_lig_wound
 last_grace 14
@@ -2913,7 +2913,7 @@ arch kobold_big
 name kobold clan chief
 item_condition 5
 dam 58
-wis 2
+item_power 2
 type 83
 arch quest_container
 sub_type 3
