@@ -2102,33 +2102,32 @@ int player_exists(const char *name)
     return ret;
 }
 
-void player_save(object *op)
+/**
+ * Saves the specified player.
+ *
+ * @param op Player object to save.
+ */
+void
+player_save (object *op)
 {
-    player *pl;
-    char *path, pathtmp[HUGE_BUF];
-    FILE *fp;
-    int i;
+    HARD_ASSERT(op != NULL);
 
     /* Is this a map players can't save on? */
-    if (op->map && MAP_PLAYER_NO_SAVE(op->map)) {
+    if (op->map != NULL && MAP_PLAYER_NO_SAVE(op->map)) {
         return;
     }
 
-    pl = CONTR(op);
-    path = player_make_path(op->name, "player.dat");
+    char *path = player_make_path(op->name, "player.dat");
+    char *path_tmp = player_make_path(op->name, "player.dat.tmp");
 
-    path_ensure_directories(path);
-    snprintf(pathtmp, sizeof(pathtmp), "%s.tmp", path);
-    rename(path, pathtmp);
+    player *pl = CONTR(op);
 
-    fp = fopen(path, "w");
-
-    if (!fp) {
-        draw_info(COLOR_WHITE, op, "Can't open file for saving.");
-        LOG(BUG, "Can't open file for saving: %s.", path);
-        rename(pathtmp, path);
-        efree(path);
-        return;
+    path_ensure_directories(path_tmp);
+    FILE *fp = fopen(path_tmp, "w");
+    if (unlikely(fp == NULL)) {
+        LOG(ERROR, "Failure opening %s for writing: %s",
+            path_tmp, strerror(errno));
+        goto error;
     }
 
     fprintf(fp, "no_chat %d\n", pl->no_chat);
@@ -2144,14 +2143,15 @@ void player_save(object *op)
     fprintf(fp, "bed_map %s\n", pl->savebed_map);
     fprintf(fp, "bed_x %d\nbed_y %d\n", pl->bed_x, pl->bed_y);
 
-    for (i = 0; i < pl->num_cmd_permissions; i++) {
-        if (pl->cmd_permissions[i]) {
-            fprintf(fp, "cmd_permission %s\n", pl->cmd_permissions[i]);
+    for (int i = 0; i < pl->num_cmd_permissions; i++) {
+        if (unlikely(pl->cmd_permissions[i] == NULL)) {
+            continue;
         }
+
+        fprintf(fp, "cmd_permission %s\n", pl->cmd_permissions[i]);
     }
 
     player_faction_t *faction, *tmp;
-
     HASH_ITER(hh, pl->factions, faction, tmp) {
         fprintf(fp, "faction %s %e\n", faction->name, faction->reputation);
     }
@@ -2163,40 +2163,60 @@ void player_save(object *op)
     object_save(op, fp);
     CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
-    /* Make sure the write succeeded */
-    if (fclose(fp) == EOF) {
-        draw_info(COLOR_WHITE, op, "Can't save character.");
-        rename(pathtmp, path);
-        efree(path);
-        return;
+    /* Make sure the write succeeded. */
+    if (unlikely(fclose(fp) == EOF)) {
+        LOG(ERROR, "Failure closing file %s: %s",
+            path_tmp, strerror(errno));
+        goto error;
     }
 
-    chmod(path, SAVE_MODE);
-    unlink(pathtmp);
+    /* Set the correct permissions. */
+    if (unlikely(chmod(path_tmp, SAVE_MODE) != 0)) {
+        LOG(ERROR, "Failure setting permissions of %s: %s",
+            path_tmp, strerror(errno));
+        goto error;
+    }
+
+    /* Rename the file, removing the .tmp extension. */
+    if (unlikely(rename(path_tmp, path) != 0)) {
+        LOG(ERROR, "Failure renaming %s to %s: %s",
+            path_tmp, path, strerror(errno));
+        goto error;
+    }
+
+    goto out;
+
+error:
+    /* Handle errors. */
+    draw_info(COLOR_RED, op, "Your character couldn't be saved.");
+
+    /* Try to remove the temporary file if it was created. */
+    if (fp != NULL && unlink(path_tmp) != 0) {
+        LOG(ERROR, "Failure removing temporary file %s: %s",
+            path_tmp, strerror(errno));
+    }
+
+out:
     efree(path);
+    efree(path_tmp);
 }
 
-static int player_load(player *pl, const char *path)
+/**
+ * Loads player data from the specified file into the player.
+ *
+ * @param pl Player.
+ * @param path Path to load the data from.
+ */
+static void
+player_load (player *pl, FILE *fp)
 {
-    FILE *fp;
-    char buf[MAX_BUF], *end;
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(fp != NULL);
 
-    if (path_size(path) == 0) {
-        return 0;
-    }
-
-    fp = fopen(path, "rb");
-
-    if (!fp) {
-        return 0;
-    }
-
-    while (fgets(buf, sizeof(buf), fp)) {
-        end = strchr(buf, '\n');
-
-        if (end) {
-            *end = '\0';
-        }
+    char buf[HUGE_BUF];
+    while (fgets(VS(buf), fp)) {
+        char *cp = buf;
+        string_strip_newline(cp);
 
         if (strcmp(buf, "endplst") == 0) {
             break;
@@ -2213,32 +2233,29 @@ static int player_load(player *pl, const char *path)
         } else if (strncmp(buf, "tls ", 4) == 0) {
             pl->tls = atoi(buf + 4);
         } else if (strncmp(buf, "map ", 4) == 0) {
-            strncpy(pl->maplevel, buf + 4, sizeof(pl->maplevel) - 1);
-            pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
+            snprintf(VS(pl->maplevel), "%s", buf + 4);
         } else if (strncmp(buf, "bed_map ", 8) == 0) {
-            strncpy(pl->savebed_map, buf + 8, sizeof(pl->savebed_map) - 1);
-            pl->savebed_map[sizeof(pl->savebed_map) - 1] = '\0';
+            snprintf(VS(pl->savebed_map), "%s", buf + 8);
         } else if (strncmp(buf, "bed_x ", 5) == 0) {
             pl->bed_x = atoi(buf + 5);
         } else if (strncmp(buf, "bed_y ", 5) == 0) {
             pl->bed_y = atoi(buf + 5);
         } else if (strncmp(buf, "cmd_permission ", 15) == 0) {
-            pl->cmd_permissions = erealloc(pl->cmd_permissions, sizeof(char *) * (pl->num_cmd_permissions + 1));
+            pl->cmd_permissions =
+                erealloc(pl->cmd_permissions,
+                         sizeof(char *) * (pl->num_cmd_permissions + 1));
             pl->cmd_permissions[pl->num_cmd_permissions] = estrdup(buf + 15);
             pl->num_cmd_permissions++;
         } else if (strncmp(buf, "faction ", 8) == 0) {
-            size_t pos;
+            size_t pos = 8;
             char faction_name[MAX_BUF];
-
-            pos = 8;
-
             if (string_get_word(buf, &pos, ' ', VS(faction_name), 0)) {
                 player_faction_t *faction =
-                        player_faction_create(pl, faction_name);
+                    player_faction_create(pl, faction_name);
                 faction->reputation = atof(buf + pos);
             }
         } else if (strncmp(buf, "fame ", 5) == 0) {
-            pl->fame = atoi(buf + 5);
+            pl->fame = atoll(buf + 5);
         }
     }
 
@@ -2247,17 +2264,26 @@ static int player_load(player *pl, const char *path)
     load_object_buffer(buffer, pl->ob, 0);
     delete_loader_buffer(buffer);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
-    fclose(fp);
 
     /* The inventory of players is loaded in reverse order, so we need to
      * reorder it. */
     object_reverse_inventory(pl->ob);
-
-    return 1;
 }
 
-static void player_create(player *pl, const char *path, archetype_t *at, const char *name)
+/**
+ * Create a new player character.
+ *
+ * @param pl Player.
+ * @param at Character's archetype.
+ * @param name Name of the player character.
+ */
+static void
+player_create (player *pl, archetype_t *at, const char *name)
 {
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(at != NULL);
+    HARD_ASSERT(name != NULL);
+
     copy_object(&at->clone, pl->ob, 0);
     pl->ob->custom_attrset = pl;
     FREE_AND_COPY_HASH(pl->ob->name, name);
@@ -2267,8 +2293,7 @@ static void player_create(player *pl, const char *path, archetype_t *at, const c
     trigger_global_event(GEVENT_BORN, pl->ob, NULL);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
 
-    strncpy(pl->maplevel, first_map_path, sizeof(pl->maplevel) - 1);
-    pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
+    snprintf(VS(pl->maplevel), "%s", first_map_path);
     pl->ob->x = first_map_x;
     pl->ob->y = first_map_y;
 }
@@ -2355,31 +2380,72 @@ void player_set_talking_to(player *pl, object *npc)
     }
 }
 
-void player_login(socket_struct *ns, const char *name, struct archetype *at)
+/**
+ * Perform player login.
+ *
+ * @param ns Client that wants to log in.
+ * @param name Character name to log in to.
+ * @param at Character archetype. Will be used to perform new character
+ * creation if this is the first time the player is logging in to this
+ * character.
+ */
+void
+player_login (socket_struct *ns, const char *name, struct archetype *at)
 {
-    player *pl;
-    char *path;
-    mapstruct *m;
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(name != NULL);
+    HARD_ASSERT(at != NULL);
 
     /* Not in the login procedure, can't login. */
     if (ns->state != ST_LOGIN) {
         return;
     }
 
-    pl = find_player(name);
-
-    if (pl) {
+    player *pl = find_player(name);
+    if (pl != NULL) {
         pl->socket.state = ST_DEAD;
         remove_ns_dead_player(pl);
     }
 
     if (ban_check(ns, name)) {
-        LOG(SYSTEM, "Ban: Banned player tried to login. [%s, %s]", name,
-                socket_get_addr(ns->sc));
-        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Connection refused due to a ban.");
+        LOG(SYSTEM, "Ban: Banned player tried to login. [%s, %s]",
+            name, socket_get_addr(ns->sc));
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                       "Connection refused due to a ban.");
         ns->state = ST_ZOMBIE;
         return;
     }
+
+    char *path = player_make_path(name, "player.dat");
+    FILE *fp = fopen(path, "rb");
+    /* This shouldn't happen, because creating a new character creates an
+     * empty file (to reserve the character name until the player actually
+     * logs in with the character). */
+    if (unlikely(fp == NULL)) {
+        LOG(ERROR, "Failed to open player data file %s: %s",
+            path, strerror(errno));
+        ns->state = ST_ZOMBIE;
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                       "Could not open your player file; contact an "
+                       "administrator.");
+        efree(path);
+        return;
+    }
+
+    struct stat statbuf;
+    /* Similar to above. */
+    if (unlikely(fstat(fileno(fp), &statbuf) != 0)) {
+        LOG(ERROR, "Failed to stat player data file %s: %s",
+            path, strerror(errno));
+        ns->state = ST_ZOMBIE;
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                       "Could not stat your player file; contact an "
+                       "administrator.");
+        efree(path);
+        return;
+    }
+
+    efree(path);
 
     LOG(INFO, "Login %s from IP %s", name, socket_get_str(ns->sc));
 
@@ -2405,11 +2471,14 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
     pl->last_save_tick = pticks;
 #endif
 
-    path = player_make_path(name, "player.dat");
-
-    if (!player_load(pl, path)) {
-        player_create(pl, path, at, name);
+    /* If the file is empty, it's a new character. */
+    if (statbuf.st_size == 0) {
+        player_create(pl, at, name);
+    } else {
+        player_load(pl, fp);
     }
+
+    fclose(fp);
 
     pl->ob->custom_attrset = pl;
     pl->ob->speed_left = 0.5;
@@ -2424,7 +2493,7 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
     trigger_global_event(GEVENT_LOGIN, pl, socket_get_addr(pl->socket.sc));
 
-    m = ready_map_name(pl->maplevel, NULL, 0);
+    mapstruct *m = ready_map_name(pl->maplevel, NULL, 0);
 
     if (!m && strncmp(pl->maplevel, "/random/", 8) == 0) {
         object_enter_map(pl->ob, NULL, ready_map_name(pl->savebed_map, NULL, 0), pl->bed_x, pl->bed_y, 1);
@@ -2459,8 +2528,6 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
     if (pl->ob->map && pl->ob->map->events) {
         trigger_map_event(MEVENT_LOGIN, pl->ob->map, pl->ob, NULL, NULL, NULL, 0);
     }
-
-    efree(path);
 }
 
 /**
