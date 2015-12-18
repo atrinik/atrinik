@@ -903,12 +903,7 @@ void living_update_player(object *op)
     }
 
     for (int i = 0; i < NROFATTACKS; i++) {
-        if (potion_attack[i] != 0) {
-            attacks[i] += potion_attack[i];
-            attacks[i] = MIN(UINT8_MAX, op->attack[i] + potion_attack[i]);
-        }
-
-        unsigned int attack = op->attack[i] + attacks[i];
+        unsigned int attack = op->attack[i] + attacks[i] + potion_attack[i];
         op->attack[i] = MIN(UINT8_MAX, attack);
 
         /* Add in the potion protections. */
