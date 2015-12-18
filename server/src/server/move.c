@@ -138,15 +138,6 @@ int move_ob(object *op, int dir, object *originator)
     SOFT_ASSERT_RC(!QUERY_FLAG(op, FLAG_REMOVED), 0, "Trying to move a removed "
             "object: %s", object_get_str(op));
 
-    if (op == NULL) {
-        return 0;
-    }
-
-    if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        LOG(ERROR, "Trying to move removed object: %s", object_get_str(op));
-        return 0;
-    }
-
     op = HEAD(op);
 
     if (QUERY_FLAG(op, FLAG_CONFUSED)) {
