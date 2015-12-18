@@ -382,7 +382,7 @@ static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
     }
 
     hsv[1] += 0.10;
-    hsv[1] = MIN(1.0, hsv[2]);
+    hsv[1] = MIN(1.0, hsv[1]);
     hsv[2] -= 0.25;
     hsv[2] = MAX(0.0, hsv[2]);
     colorspace_hsv2rgb(hsv, rgb);
