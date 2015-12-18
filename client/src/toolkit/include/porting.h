@@ -33,9 +33,15 @@
 #define _GNU_SOURCE
 #endif
 
+#ifdef __GNUC__
+#define likely(x)           __builtin_expect(!!(x), 1)
+#define unlikely(x)         __builtin_expect(!!(x), 0)
+#else
 /* If we're not using GNU C, ignore __attribute__ */
-#ifndef __GNUC__
 #define  __attribute__(x)
+/* Ignore likely/unlikely branch prediction when not using GNU C.*/
+#define likely(x)           (x)
+#define unlikely(x)         (x)
 #endif
 
 #ifdef WIN32
