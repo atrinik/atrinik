@@ -201,7 +201,7 @@ socket_t *socket_create(const char *host, uint16_t port)
         }
 #endif
 
-        memcpy(&sc->addr, ai->ai_addr, sizeof(sc->addr));
+        memcpy(&sc->addr, ai->ai_addr, res->ai_addrlen);
         break;
     }
 
