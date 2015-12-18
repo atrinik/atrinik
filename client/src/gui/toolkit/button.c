@@ -149,7 +149,7 @@ void button_show(button_struct *button, const char *text)
 {
     SDL_Surface *texture;
 
-    button_need_redraw(button);
+    (void) button_need_redraw(button);
 
     if (button->pressed_forced) {
         button->pressed = 1;
