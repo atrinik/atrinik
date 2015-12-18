@@ -196,6 +196,7 @@ socket_t *socket_create(const char *host, uint16_t port)
                 LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)",
                         s_strerror(s_errno), s_errno);
                 socket_close(sc);
+                freeaddrinfo(res);
                 goto error;
             }
         }
