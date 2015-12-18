@@ -470,7 +470,7 @@ void packet_append_string_len(packet_struct *packet, const char *data,
     packet_ensure(packet, len);
     memcpy(packet->data + packet->len, data, len);
     packet->len += len;
-    packet_debug(packet, 0, "%s", data);
+    packet_debug(packet, 0, "%.*s", (int) len, data);
 }
 
 void packet_append_string(packet_struct *packet, const char *data)
