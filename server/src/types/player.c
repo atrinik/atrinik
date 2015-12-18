@@ -2136,9 +2136,6 @@ player_save (object *op)
     fprintf(fp, "tsi %d\n", pl->tsi);
     fprintf(fp, "tli %d\n", pl->tli);
     fprintf(fp, "tls %d\n", pl->tls);
-    fprintf(fp, "gen_hp %d\n", pl->gen_hp);
-    fprintf(fp, "gen_sp %d\n", pl->gen_sp);
-    fprintf(fp, "digestion %d\n", pl->digestion);
     fprintf(fp, "map %s\n", op->map ? op->map->path : EMERGENCY_MAPPATH);
     fprintf(fp, "bed_map %s\n", pl->savebed_map);
     fprintf(fp, "bed_x %d\nbed_y %d\n", pl->bed_x, pl->bed_y);
