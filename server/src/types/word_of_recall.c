@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref WORD_OF_RECALL "word of recall" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -46,7 +47,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the word of recall type object methods. */
+ * Initialize the word of recall type object methods.
+ */
 void object_type_init_word_of_recall(void)
 {
     object_type_methods[WORD_OF_RECALL].process_func = process_func;

@@ -26,7 +26,8 @@
  * @file
  * Implements the /party command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>

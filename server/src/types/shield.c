@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref SHIELD "shields".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the shield type object methods. */
+ * Initialize the shield type object methods.
+ */
 void object_type_init_shield(void)
 {
     object_type_methods[SHIELD].apply_func = object_apply_item;

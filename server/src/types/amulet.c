@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref AMULET "amulets".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the amulet type object methods. */
+ * Initialize the amulet type object methods.
+ */
 void object_type_init_amulet(void)
 {
     object_type_methods[AMULET].apply_func = object_apply_item;

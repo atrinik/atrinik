@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Memory API header file. */
+ * Memory API header file.
+ */
 
 #ifndef MEMORY_H
 #define MEMORY_H

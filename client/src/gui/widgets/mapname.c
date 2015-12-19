@@ -26,7 +26,8 @@
  * @file
  * Implements map name type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -99,7 +100,8 @@ static void widget_background(widgetdata *widget, int draw)
 }
 
 /**
- * Initialize one mapname widget. */
+ * Initialize one mapname widget.
+ */
 void widget_mapname_init(widgetdata *widget)
 {
     widget_mapname_struct *widget_mapname;

@@ -36,7 +36,8 @@
  * standard input, you will need to call console_command_handle() in your
  * program's main loop every iteration.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -47,28 +48,34 @@
 #endif
 
 /**
- * Dynamic array of all the possible console commands. */
+ * Dynamic array of all the possible console commands.
+ */
 static console_command_struct *console_commands;
 
 /**
- * Number of ::console_commands. */
+ * Number of ::console_commands.
+ */
 static size_t console_commands_num;
 
 /**
- * Command process queue. */
+ * Command process queue.
+ */
 static UT_array *command_process_queue;
 
 /**
- * Mutex protecting command command process queue. */
+ * Mutex protecting command command process queue.
+ */
 static pthread_mutex_t command_process_queue_mutex;
 
 /**
- * The thread's ID. */
+ * The thread's ID.
+ */
 static pthread_t thread_id;
 
 #ifdef HAVE_READLINE
 /**
- * Prompt for readline. */
+ * Prompt for readline.
+ */
 static const char *current_prompt;
 
 static pthread_mutex_t rl_mutex; ///< Mutex for readline in general.
@@ -132,7 +139,9 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * The help command of the console.
- * @param params Command parameters. */
+ * @param params
+ * Command parameters.
+ */
 static void console_command_help(const char *params)
 {
     size_t i;
@@ -175,7 +184,9 @@ static void console_command_help(const char *params)
 
 /**
  * Implements callback handler for readline.
- * @param line Line. */
+ * @param line
+ * Line.
+ */
 static void handle_line_fake(char *line)
 {
     if (line) {
@@ -185,7 +196,8 @@ static void handle_line_fake(char *line)
 }
 
 /**
- * Handle enter key. */
+ * Handle enter key.
+ */
 static int handle_enter(int cnt, int key)
 {
     char *line;
@@ -214,7 +226,8 @@ static int handle_enter(int cnt, int key)
 }
 
 /**
- * Command generator for readline's completion. */
+ * Command generator for readline's completion.
+ */
 static char *command_generator(const char *text, int state)
 {
     static size_t i, len;
@@ -238,7 +251,8 @@ static char *command_generator(const char *text, int state)
 }
 
 /**
- * Readline completion. */
+ * Readline completion.
+ */
 static char **readline_completion(const char *text, int start, int end)
 {
     char **matches;
@@ -253,7 +267,8 @@ static char **readline_completion(const char *text, int start, int end)
 }
 
 /**
- * Overrides the logger's standard printing function. */
+ * Overrides the logger's standard printing function.
+ */
 static void console_print(const char *str)
 {
     char *saved_line;
@@ -284,8 +299,11 @@ static void console_print(const char *str)
 
 /**
  * Thread for acquiring stdin data.
- * @param dummy Unused.
- * @return NULL. */
+ * @param dummy
+ * Unused.
+ * @return
+ * NULL.
+ */
 static void *do_thread(void *dummy)
 {
 #ifndef HAVE_READLINE
@@ -330,7 +348,9 @@ static void *do_thread(void *dummy)
 
 /**
  * Start the console stdin-reading thread.
- * @return 1 on success, 0 on failure. */
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int console_start_thread(void)
 {
     int ret;
@@ -365,10 +385,15 @@ int console_start_thread(void)
 
 /**
  * Add a possible command to the console.
- * @param command Command name, must be unique.
- * @param handle_func Function that will handle the command.
- * @param desc_brief Brief, one-line description of the command.
- * @param desc More detailed description of the command. */
+ * @param command
+ * Command name, must be unique.
+ * @param handle_func
+ * Function that will handle the command.
+ * @param desc_brief
+ * Brief, one-line description of the command.
+ * @param desc
+ * More detailed description of the command.
+ */
 void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc)
 {
     size_t i;
@@ -394,7 +419,8 @@ void console_command_add(const char *command, console_command_func handle_func, 
 
 /**
  * Process the console API. This should usually be part of the program's
- * main loop. */
+ * main loop.
+ */
 void console_command_handle(void)
 {
     char **line, *cp;

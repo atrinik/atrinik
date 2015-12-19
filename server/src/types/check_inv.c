@@ -35,9 +35,13 @@
 /**
  * Inventory checker object tries to find a matching object in creature's
  * inventory.
- * @param op What is doing the searching.
- * @param ob Object of which to search the inventory.
- * @return Object that matches, NULL if none matched. */
+ * @param op
+ * What is doing the searching.
+ * @param ob
+ * Object of which to search the inventory.
+ * @return
+ * Object that matches, NULL if none matched.
+ */
 object *check_inv(object *op, object *ob)
 {
     object *tmp, *ret;
@@ -96,7 +100,8 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 }
 
 /**
- * Initialize the inventory checker type object methods. */
+ * Initialize the inventory checker type object methods.
+ */
 void object_type_init_check_inv(void)
 {
     object_type_methods[CHECK_INV].move_on_func = move_on_func;

@@ -36,9 +36,12 @@
 
 /**
  * Find a quest inside the specified quest object.
- * @param quest The quest object.
- * @param quest_name Name of the quest.
- * @return The object that is used to represent the quest in the quest
+ * @param quest
+ * The quest object.
+ * @param quest_name
+ * Name of the quest.
+ * @return
+ * The object that is used to represent the quest in the quest
  * object, NULL if no matching quest found.
  */
 static object *quest_find(object *quest, shstr *quest_name)
@@ -60,13 +63,17 @@ static object *quest_find(object *quest, shstr *quest_name)
  * (name and arch name are compared).
  * @note This function is recursive and will call itself on any
  * non-system inventories inside the player until it finds a matching item.
- * @param op The player object.
- * @param quest_item The quest item we'll be comparing values from.
- * @param flag Flag to compare the quest item against, -1 for no flag
+ * @param op
+ * The player object.
+ * @param quest_item
+ * The quest item we'll be comparing values from.
+ * @param flag
+ * Flag to compare the quest item against, -1 for no flag
  * comparison.
  * @param[out] num If not NULL, will contain number of matching objects
  * found and the return value will always be 0.
- * @return 1 if the player has the quest item, 0 otherwise.
+ * @return
+ * 1 if the player has the quest item, 0 otherwise.
  */
 static int quest_item_check(object *op, object *quest_item, int flag,
         int64_t *num)
@@ -107,10 +114,14 @@ static int quest_item_check(object *op, object *quest_item, int flag,
 
 /**
  * Handle the item drop quest type.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
- * @param item Quest item.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
+ * @param item
+ * Quest item.
  */
 static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
         object *item)
@@ -171,10 +182,14 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
 
 /**
  * Handle the kill quest type.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
- * @param item Quest item.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
+ * @param item
+ * Quest item.
  */
 static void quest_check_kill(object *op, object *quest, object *quest_pl,
         object *item)
@@ -217,10 +232,14 @@ static void quest_check_kill(object *op, object *quest, object *quest_pl,
 
 /**
  * Handle the item quest type.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
- * @param item Quest item.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
+ * @param item
+ * Quest item.
  */
 static void quest_check_item(object *op, object *quest, object *quest_pl,
         object *item)
@@ -283,9 +302,12 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
 
 /**
  * Called from quest_handle(). Handles the parsing of a specific quest object.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
  */
 static void quest_object_handle(object *op, object *quest, object *quest_pl)
 {
@@ -338,8 +360,10 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
  * function is called to parse the quest object and its contents for any
  * possible quests the player may be running.
  * @warning <b>ONLY</b> call on player objects.
- * @param op The player object.
- * @param quest The quest.
+ * @param op
+ * The player object.
+ * @param quest
+ * The quest.
  */
 void quest_handle(object *op, object *quest)
 {

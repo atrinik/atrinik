@@ -24,17 +24,20 @@
 
 /**
  * @file
- * Handles movement events. */
+ * Handles movement events.
+ */
 
 #include <global.h>
 #include <packet.h>
 
 /**
- * Number of the possible directions. */
+ * Number of the possible directions.
+ */
 #define DIRECTIONS_NUM 9
 
 /**
- * Directions to fire into. */
+ * Directions to fire into.
+ */
 static const int directions_fire[DIRECTIONS_NUM] = {
     6, 5, 4, 7, 0, 3, 8, 1, 2
 };
@@ -76,9 +79,13 @@ void move_keys(int num)
  * Transform tile coordinates into direction, which can be used as a
  * result for functions like move_keys() or ::directions_move (return
  * value - 1).
- * @param tx Tile X.
- * @param ty Tile Y.
- * @return The direction, 1-9. */
+ * @param tx
+ * Tile X.
+ * @param ty
+ * Tile Y.
+ * @return
+ * The direction, 1-9.
+ */
 int dir_from_tile_coords(int tx, int ty)
 {
     int player_tile_x = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2, player_tile_y = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;

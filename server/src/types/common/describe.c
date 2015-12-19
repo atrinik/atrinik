@@ -26,7 +26,8 @@
 
 /**
  * Common function for descripting generic objects.
- * @copydoc object_methods::describe_func */
+ * @copydoc object_methods::describe_func
+ */
 void common_object_describe(object *op, object *observer, char *buf, size_t size)
 {
     (void) op;

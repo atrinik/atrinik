@@ -25,13 +25,15 @@
 /**
  * @file
  * Structures and defines related to living objects, including stats
- * of objects. */
+ * of objects.
+ */
 
 #ifndef LIVING_H
 #define LIVING_H
 
 /**
- * @defgroup STATS Object statistics */
+ * @defgroup STATS Object statistics
+ */
 /*@{*/
 /** Strength. */
 #define STR             0
@@ -54,12 +56,14 @@
 #define NO_STAT_VAL 99
 
 /**
- * Calculates damage based on level. */
+ * Calculates damage based on level.
+ */
 #define LEVEL_DAMAGE(level) (float) ((level) > 0 ? 0.75 + (level) * 0.25 : 1.0)
 
 /**
  * Mostly used by "alive" objects, but also by other objects like gates,
- * buttons, waypoints and a number of other objects. */
+ * buttons, waypoints and a number of other objects.
+ */
 typedef struct liv {
     /** Experience. */
     int64_t exp;
@@ -91,7 +95,8 @@ typedef struct liv {
     /**
      * Random value range we add to wc value of attacker:
      * wc + (random() % wc_range). If it's higher than
-     * defender's AC then we can hit our enemy. */
+     * defender's AC then we can hit our enemy.
+ */
     uint8_t wc_range;
 
     /** Strength. */

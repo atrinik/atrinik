@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref WAND "wands".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -57,7 +58,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 }
 
 /**
- * Initialize the wand type object methods. */
+ * Initialize the wand type object methods.
+ */
 void object_type_init_wand(void)
 {
     object_type_methods[WAND].apply_func = object_apply_item;

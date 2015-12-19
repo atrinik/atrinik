@@ -26,7 +26,8 @@
  * @file
  * Map effects handling.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -40,7 +41,8 @@ static const char *overlay_cols[] = {"r", "g", "b", "a"};
 static int max_frames = 60;
 
 /**
- * Initialize effects from file. */
+ * Initialize effects from file.
+ */
 void effects_init(void)
 {
     FILE *fp;
@@ -260,7 +262,8 @@ void effects_init(void)
 }
 
 /**
- * Deinitialize ::effects linked list. */
+ * Deinitialize ::effects linked list.
+ */
 void effects_deinit(void)
 {
     effect_struct *effect, *effect_next;
@@ -286,7 +289,8 @@ void effects_deinit(void)
 
 /**
  * Makes sure all sprite definitions have correct sprite IDs and their
- * images are properly loaded. */
+ * images are properly loaded.
+ */
 void effects_reinit(void)
 {
     effect_struct *effect;
@@ -301,7 +305,9 @@ void effects_reinit(void)
 
 /**
  * Deinitialize shown sprites of a single effect.
- * @param effect The effect to have shown sprites deinitialized. */
+ * @param effect
+ * The effect to have shown sprites deinitialized.
+ */
 void effect_sprites_free(effect_struct *effect)
 {
     effect_sprite *tmp, *next;
@@ -323,7 +329,9 @@ void effect_sprites_free(effect_struct *effect)
 
 /**
  * Deinitialize a single effect.
- * @param effect Effect that will be freed. */
+ * @param effect
+ * Effect that will be freed.
+ */
 void effect_free(effect_struct *effect)
 {
     if (effect->overlay) {
@@ -335,7 +343,9 @@ void effect_free(effect_struct *effect)
 
 /**
  * Deinitialize a single sprite definition.
- * @param sprite_def Sprite definition that will be freed. */
+ * @param sprite_def
+ * Sprite definition that will be freed.
+ */
 void effect_sprite_def_free(effect_sprite_def *sprite_def)
 {
     efree(sprite_def->name);
@@ -344,7 +354,9 @@ void effect_sprite_def_free(effect_sprite_def *sprite_def)
 
 /**
  * Deinitialize a single shown sprite.
- * @param sprite Sprite that will be freed. */
+ * @param sprite
+ * Sprite that will be freed.
+ */
 void effect_sprite_free(effect_sprite *sprite)
 {
     efree(sprite);
@@ -352,7 +364,9 @@ void effect_sprite_free(effect_sprite *sprite)
 
 /**
  * Remove a single shown sprite from the linked list and free it.
- * @param sprite Sprite to remove and free. */
+ * @param sprite
+ * Sprite to remove and free.
+ */
 void effect_sprite_remove(effect_sprite *sprite)
 {
     if (!sprite || !current_effect) {
@@ -379,8 +393,11 @@ void effect_sprite_remove(effect_sprite *sprite)
  * sprites.
  *
  * A random sprite definition object will be chosen.
- * @param effect Effect this is being done for.
- * @return The created sprite. */
+ * @param effect
+ * Effect this is being done for.
+ * @return
+ * The created sprite.
+ */
 static effect_sprite *effect_sprite_create(effect_struct *effect)
 {
     int roll;
@@ -423,7 +440,8 @@ static effect_sprite *effect_sprite_create(effect_struct *effect)
 }
 
 /**
- * Try to play effect sprites. */
+ * Try to play effect sprites.
+ */
 void effect_sprites_play(void)
 {
     effect_sprite *tmp, *next;
@@ -585,9 +603,12 @@ void effect_frames(int frames)
 
 /**
  * Start an effect identified by its name.
- * @param name Name of the effect to start. 'none' is a reserved effect name
+ * @param name
+ * Name of the effect to start. 'none' is a reserved effect name
  * and will stop any currently playing effect.
- * @return 1 if the effect was started, 0 otherwise. */
+ * @return
+ * 1 if the effect was started, 0 otherwise.
+ */
 int effect_start(const char *name)
 {
     effect_struct *tmp;
@@ -627,7 +648,9 @@ int effect_start(const char *name)
 
 /**
  * Used for debugging effects code using /d_effect command.
- * @param type What debugging command to run. */
+ * @param type
+ * What debugging command to run.
+ */
 void effect_debug(const char *type)
 {
     if (!strcmp(type, "num")) {
@@ -661,7 +684,8 @@ void effect_debug(const char *type)
 }
 
 /**
- * Stop currently playing effect. */
+ * Stop currently playing effect.
+ */
 void effect_stop(void)
 {
     if (!current_effect) {
@@ -674,7 +698,9 @@ void effect_stop(void)
 
 /**
  * Check whether there is an overlay on the active effect (if any).
- * @return 1 if there is an overlay, 0 otherwise. */
+ * @return
+ * 1 if there is an overlay, 0 otherwise.
+ */
 uint8_t effect_has_overlay(void)
 {
     if (!current_effect) {
@@ -686,7 +712,8 @@ uint8_t effect_has_overlay(void)
 
 /**
  * Acquire an identifier for the overlay effect, if any.
- * @return Identifier; empty string in case no overlay is present.
+ * @return
+ * Identifier; empty string in case no overlay is present.
  */
 const char *effect_overlay_identifier(void)
 {
@@ -699,8 +726,10 @@ const char *effect_overlay_identifier(void)
 
 /**
  * Add an effect overlay to a sprite surface.
- * @param surface The sprite surface to add overlay to.
- * @return New surface, NULL in case of failure.
+ * @param surface
+ * The sprite surface to add overlay to.
+ * @return
+ * New surface, NULL in case of failure.
  */
 SDL_Surface *effect_sprite_overlay(SDL_Surface *surface)
 {

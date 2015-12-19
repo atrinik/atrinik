@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref ABILITY "abilities".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the ability type object methods. */
+ * Initialize the ability type object methods.
+ */
 void object_type_init_ability(void)
 {
 }

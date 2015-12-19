@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref ROD "rods".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -75,7 +76,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 }
 
 /**
- * Initialize the rod type object methods. */
+ * Initialize the rod type object methods.
+ */
 void object_type_init_rod(void)
 {
     object_type_methods[ROD].apply_func = object_apply_item;

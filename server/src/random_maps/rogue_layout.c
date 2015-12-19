@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Rogue/nethack-like layout generation. */
+ * Rogue/nethack-like layout generation.
+ */
 
 #include <global.h>
 
@@ -50,16 +51,23 @@ static void roguelike_link_rooms(Room *Rooms, char **maze);
 
 /**
  * Checks free spots around a spot.
- * @param layout Map layout.
- * @param i X coordinate to check.
- * @param j Y coordinate to check.
- * @param Xsize X size of the layout.
- * @param Ysize Y size of the layout.
- * @return Combination of the following values:
+ * @param layout
+ * Map layout.
+ * @param i
+ * X coordinate to check.
+ * @param j
+ * Y coordinate to check.
+ * @param Xsize
+ * X size of the layout.
+ * @param Ysize
+ * Y size of the layout.
+ * @return
+ * Combination of the following values:
  * - <b>1</b>: Free space to left,
  * - <b>2</b>: Free space to right,
  * - <b>4</b>: Free space above
- * - <b>8</b>: Free space below */
+ * - <b>8</b>: Free space below
+ */
 int surround_check(char **layout, int i, int j, int Xsize, int Ysize)
 {
     int surround_index = 0;
@@ -87,11 +95,16 @@ int surround_check(char **layout, int i, int j, int Xsize, int Ysize)
  * Actually make the rogue layout. We work by a reduction process:
  *
  * first we make everything a wall, then we remove areas to make rooms.
- * @param xsize X size of the wanted layout size.
- * @param ysize Y size of the wanted layout size.
- * @param options 2 to have circular rooms, 1 for rectangular ones,
+ * @param xsize
+ * X size of the wanted layout size.
+ * @param ysize
+ * Y size of the wanted layout size.
+ * @param options
+ * 2 to have circular rooms, 1 for rectangular ones,
  * another value for random choice.
- * @return Generated layout. */
+ * @return
+ * Generated layout.
+ */
 char **roguelike_layout_gen(int xsize, int ysize, int options)
 {
     int i, j = 0;
@@ -203,11 +216,17 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
 
 /**
  * Place a room in the layout.
- * @param Rooms List of existing rooms, new room will be added to it.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @param nrooms Wanted number of room, used to determine size.
- * @return 0 if no room could be generated, 1 otherwise. */
+ * @param Rooms
+ * List of existing rooms, new room will be added to it.
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @param nrooms
+ * Wanted number of room, used to determine size.
+ * @return
+ * 0 if no room could be generated, 1 otherwise.
+ */
 static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms)
 {
     /* trial center locations */
@@ -286,10 +305,14 @@ static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms)
 
 /**
  * Write all the rooms into the maze.
- * @param Rooms List of rooms to write.
- * @param maze Where to write to.
- * @param options 2 to have circular rooms, 1 for rectangular ones,
- * another value for random choice. */
+ * @param Rooms
+ * List of rooms to write.
+ * @param maze
+ * Where to write to.
+ * @param options
+ * 2 to have circular rooms, 1 for rectangular ones,
+ * another value for random choice.
+ */
 static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
 {
     int making_circle = 0, i, j, R = 0;
@@ -329,10 +352,15 @@ static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
 
 /**
  * Link generated rooms with corridors.
- * @param Rooms Room list.
- * @param maze Maze.
- * @param xsize X size of the maze.
- * @param ysize Y size of the maze. */
+ * @param Rooms
+ * Room list.
+ * @param maze
+ * Maze.
+ * @param xsize
+ * X size of the maze.
+ * @param ysize
+ * Y size of the maze.
+ */
 static void roguelike_link_rooms(Room *Rooms, char **maze)
 {
     Room *walk;

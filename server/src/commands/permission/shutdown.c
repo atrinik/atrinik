@@ -26,7 +26,8 @@
  * @file
  * Implements the /shutdown command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>

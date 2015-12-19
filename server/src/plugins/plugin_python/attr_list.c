@@ -68,8 +68,10 @@ typedef enum attr_list_oper {
 
 /**
  * Calculate length of the specified AttrList instance.
- * @param al AttrList being used.
- * @return The length of the provided AttrList.
+ * @param al
+ * AttrList being used.
+ * @return
+ * The length of the provided AttrList.
  */
 static Py_ssize_t attr_list_len(Atrinik_AttrList *al)
 {
@@ -96,11 +98,16 @@ static Py_ssize_t attr_list_len(Atrinik_AttrList *al)
 
 /**
  * Perform specified operation on a command permissions attribute list.
- * @param al The attribute list.
- * @param oper Operation to perform.
- * @param key Key.
- * @param value Value.
- * @return True on success, false on failure.
+ * @param al
+ * The attribute list.
+ * @param oper
+ * Operation to perform.
+ * @param key
+ * Key.
+ * @param value
+ * Value.
+ * @return
+ * True on success, false on failure.
  */
 static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
         attr_list_oper_t oper, PyObject *key, PyObject **value)
@@ -225,11 +232,16 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
 
 /**
  * Perform specified operation on a factions attribute list.
- * @param al The attribute list.
- * @param oper Operation to perform.
- * @param key Key.
- * @param value Value.
- * @return True on success, false on failure.
+ * @param al
+ * The attribute list.
+ * @param oper
+ * Operation to perform.
+ * @param key
+ * Key.
+ * @param value
+ * Value.
+ * @return
+ * True on success, false on failure.
  */
 static bool attr_list_oper_factions(Atrinik_AttrList *al,
         attr_list_oper_t oper, PyObject *key, PyObject **value)
@@ -371,11 +383,16 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
 
 /**
  * Perform specified operation on a packets attribute list.
- * @param al The attribute list.
- * @param oper Operation to perform.
- * @param key Key.
- * @param value Value.
- * @return True on success, false on failure.
+ * @param al
+ * The attribute list.
+ * @param oper
+ * Operation to perform.
+ * @param key
+ * Key.
+ * @param value
+ * Value.
+ * @return
+ * True on success, false on failure.
  */
 static bool attr_list_oper_packets(Atrinik_AttrList *al,
         attr_list_oper_t oper, PyObject *key, PyObject **value)
@@ -487,11 +504,16 @@ static bool attr_list_oper_packets(Atrinik_AttrList *al,
 
 /**
  * Perform specified operation on the attribute list.
- * @param al The attribute list.
- * @param oper Operation to perform.
- * @param key Key.
- * @param value Value.
- * @return True on success, false on failure.
+ * @param al
+ * The attribute list.
+ * @param oper
+ * Operation to perform.
+ * @param key
+ * Key.
+ * @param value
+ * Value.
+ * @return
+ * True on success, false on failure.
  */
 static bool attr_list_oper(Atrinik_AttrList *al, attr_list_oper_t oper,
         PyObject *key, PyObject **value)
@@ -514,9 +536,12 @@ static bool attr_list_oper(Atrinik_AttrList *al, attr_list_oper_t oper,
 
 /**
  * Implements the append() method.
- * @param al The AttrList object.
- * @param value Value to append.
- * @return None.
+ * @param al
+ * The AttrList object.
+ * @param value
+ * Value to append.
+ * @return
+ * None.
  */
 static PyObject *append(Atrinik_AttrList *al, PyObject *value)
 {
@@ -530,9 +555,12 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
 
 /**
  * Implements the remove() method.
- * @param al The AttrList object.
- * @param value Value to remove.
- * @return None.
+ * @param al
+ * The AttrList object.
+ * @param value
+ * Value to remove.
+ * @return
+ * None.
  */
 static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
 {
@@ -546,8 +574,10 @@ static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
 
 /**
  * Implements the clear() method.
- * @param al The AttrList object.
- * @return None.
+ * @param al
+ * The AttrList object.
+ * @return
+ * None.
  */
 static PyObject *attr_list_clear(Atrinik_AttrList *al)
 {
@@ -561,8 +591,10 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
 
 /**
  * Implements the items() method.
- * @param al The AttrList object.
- * @return List of the items in the AttrList.
+ * @param al
+ * The AttrList object.
+ * @return
+ * List of the items in the AttrList.
  */
 static PyObject *attr_list_items(Atrinik_AttrList *al)
 {
@@ -585,8 +617,10 @@ static PyMethodDef methods[] = {
 
 /**
  * Start iterating.
- * @param seq What to iterate through.
- * @return New iteration object.
+ * @param seq
+ * What to iterate through.
+ * @return
+ * New iteration object.
  */
 static PyObject *iter(PyObject *seq)
 {
@@ -604,8 +638,10 @@ static PyObject *iter(PyObject *seq)
 
 /**
  * Keep iterating over an iteration object.
- * @param al The iteration object.
- * @return Next object from attribute list, NULL if the end was reached.
+ * @param al
+ * The iteration object.
+ * @return
+ * Next object from attribute list, NULL if the end was reached.
  */
 static PyObject *iternext(Atrinik_AttrList *al)
 {
@@ -616,8 +652,10 @@ static PyObject *iternext(Atrinik_AttrList *al)
 
 /**
  * Implements the __len__() method.
- * @param al AttrList instance.
- * @return Length of the attribute list.
+ * @param al
+ * AttrList instance.
+ * @return
+ * Length of the attribute list.
  */
 static Py_ssize_t __len__(Atrinik_AttrList *al)
 {
@@ -626,9 +664,12 @@ static Py_ssize_t __len__(Atrinik_AttrList *al)
 
 /**
  * Implements the __getitem__() method.
- * @param al AttrList instance.
- * @param key Index to try and find.
- * @return The object from the AttrList at the specified index, NULL on
+ * @param al
+ * AttrList instance.
+ * @param key
+ * Index to try and find.
+ * @return
+ * The object from the AttrList at the specified index, NULL on
  * failure.
  */
 static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
@@ -640,10 +681,14 @@ static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 
 /**
  * Implements the __setitem__() method.
- * @param al AttrList instance.
- * @param key Key/index.
- * @param value Value to set.
- * @return 0 on success, -1 on failure.
+ * @param al
+ * AttrList instance.
+ * @param key
+ * Key/index.
+ * @param value
+ * Value to set.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
 {
@@ -657,9 +702,12 @@ static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
 
 /**
  * Implements the __contains__() method for attribute list.
- * @param al AttrList instance.
- * @param value Value to find.
- * @return 1 if the value is in the attribute list, 0 otherwise.
+ * @param al
+ * AttrList instance.
+ * @param value
+ * Value to find.
+ * @return
+ * 1 if the value is in the attribute list, 0 otherwise.
  */
 static int __contains__(Atrinik_AttrList *al, PyObject *value)
 {
@@ -727,8 +775,10 @@ PyTypeObject Atrinik_AttrListType = {
 
 /**
  * Initializes the AttrList module.
- * @param module The main Atrinik module.
- * @return 1 on success, 0 on failure.
+ * @param module
+ * The main Atrinik module.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int Atrinik_AttrList_init(PyObject *module)
 {
@@ -746,11 +796,15 @@ int Atrinik_AttrList_init(PyObject *module)
 
 /**
  * Creates a new AttrList wrapping an array.
- * @param ptr Pointer to the structure the array is in.
- * @param offset Where the array is in the structure.
- * @param field Type of the array being handled; for example,
+ * @param ptr
+ * Pointer to the structure the array is in.
+ * @param offset
+ * Where the array is in the structure.
+ * @param field
+ * Type of the array being handled; for example,
  * @ref FIELDTYPE_FACTIONS.
- * @return The new wrapper object.
+ * @return
+ * The new wrapper object.
  */
 PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field)
 {

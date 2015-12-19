@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Sound related functions. */
+ * Sound related functions.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -33,7 +34,8 @@
  * Maximum distance a player may hear a sound from.
  *
  * This is only used for new client/server sound.  If the sound source
- * on the map is farther away than this, we don't sent it to the client. */
+ * on the map is farther away than this, we don't sent it to the client.
+ */
 #define MAX_SOUND_DISTANCE 12
 /** Squared maximum sound distance, using POW2. */
 #define MAX_SOUND_DISTANCE_SQUARED POW2(MAX_SOUND_DISTANCE)
@@ -44,13 +46,21 @@
 
 /**
  * Plays a sound for specified player only.
- * @param pl Player to play sound to.
- * @param type Type of the sound being played, one of @ref CMD_SOUND_xxx.
- * @param filename Name of the sound to play.
- * @param x X position where the sound is playing from.
- * @param y Y position where the sound is playing from.
- * @param loop How many times to loop the sound, -1 for infinite number.
- * @param volume Volume adjustment. */
+ * @param pl
+ * Player to play sound to.
+ * @param type
+ * Type of the sound being played, one of @ref CMD_SOUND_xxx.
+ * @param filename
+ * Name of the sound to play.
+ * @param x
+ * X position where the sound is playing from.
+ * @param y
+ * Y position where the sound is playing from.
+ * @param loop
+ * How many times to loop the sound, -1 for infinite number.
+ * @param volume
+ * Volume adjustment.
+ */
 void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume)
 {
     packet_struct *packet;
@@ -83,15 +93,24 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
 
 /**
  * Internal function used by play_sound_map().
- * @param tiled Tiled map that is being checked.
- * @param map Map to play the sound on.
- * @param type Type of the sound being played, one of @ref CMD_SOUND_xxx.
- * @param filename Name of the sound to play.
- * @param x X position where the sound is playing from.
- * @param y Y position where the sound is playing from.
- * @param loop How many times to loop the sound, -1 for infinite number.
- * @param volume Volume adjustment.
- * @return 0.
+ * @param tiled
+ * Tiled map that is being checked.
+ * @param map
+ * Map to play the sound on.
+ * @param type
+ * Type of the sound being played, one of @ref CMD_SOUND_xxx.
+ * @param filename
+ * Name of the sound to play.
+ * @param x
+ * X position where the sound is playing from.
+ * @param y
+ * Y position where the sound is playing from.
+ * @param loop
+ * How many times to loop the sound, -1 for infinite number.
+ * @param volume
+ * Volume adjustment.
+ * @return
+ * 0.
  */
 static int play_sound_map_internal(mapstruct *tiled, mapstruct *map,
         mapstruct *orig, int type, const char *filename, int x, int y, int loop,
@@ -120,13 +139,20 @@ static int play_sound_map_internal(mapstruct *tiled, mapstruct *map,
  * Plays a sound on a map.
  *
  * Considers tiled maps.
- * @param map Map to play the sound on.
- * @param type Type of the sound being played, one of @ref CMD_SOUND_xxx.
- * @param filename Name of the sound to play.
- * @param x X position where the sound is playing from.
- * @param y Y position where the sound is playing from.
- * @param loop How many times to loop the sound, -1 for infinite number.
- * @param volume Volume adjustment.
+ * @param map
+ * Map to play the sound on.
+ * @param type
+ * Type of the sound being played, one of @ref CMD_SOUND_xxx.
+ * @param filename
+ * Name of the sound to play.
+ * @param x
+ * X position where the sound is playing from.
+ * @param y
+ * Y position where the sound is playing from.
+ * @param loop
+ * How many times to loop the sound, -1 for infinite number.
+ * @param volume
+ * Volume adjustment.
  */
 void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume)
 {

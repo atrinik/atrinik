@@ -26,13 +26,15 @@
  * @file
  * @ref BEACON "Beacon" related code.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * One beacon. */
+ * One beacon.
+ */
 typedef struct beacon_struct {
     /** The beacon object. */
     object *ob;
@@ -46,7 +48,9 @@ static beacon_struct *beacons = NULL;
 
 /**
  * Add a beacon to ::beacons_list.
- * @param ob Beacon to add. */
+ * @param ob
+ * Beacon to add.
+ */
 void beacon_add(object *ob)
 {
     beacon_struct *beacon;
@@ -75,7 +79,9 @@ void beacon_add(object *ob)
 
 /**
  * Remove a beacon from ::beacons_list.
- * @param ob Beacon to remove. */
+ * @param ob
+ * Beacon to remove.
+ */
 void beacon_remove(object *ob)
 {
     beacon_struct *beacon;
@@ -92,8 +98,11 @@ void beacon_remove(object *ob)
 
 /**
  * Locate a beacon object in ::beacons_list.
- * @param name Name of the beacon to locate. Must be a shared string.
- * @return The beacon object if found, NULL otherwise. */
+ * @param name
+ * Name of the beacon to locate. Must be a shared string.
+ * @return
+ * The beacon object if found, NULL otherwise.
+ */
 object *beacon_locate(shstr *name)
 {
     beacon_struct *beacon;
@@ -108,7 +117,8 @@ object *beacon_locate(shstr *name)
 }
 
 /**
- * Initialize the beacon type object methods. */
+ * Initialize the beacon type object methods.
+ */
 void object_type_init_beacon(void)
 {
 }

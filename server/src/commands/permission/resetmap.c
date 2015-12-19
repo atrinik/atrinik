@@ -26,7 +26,8 @@
  * @file
  * Implements the /resetmap command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

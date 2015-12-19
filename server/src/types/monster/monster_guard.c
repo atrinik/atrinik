@@ -41,8 +41,10 @@
 /**
  * Make the monster activate a gate by applying a lever/switch/etc under
  * the monster's feet.
- * @param op The monster.
- * @param state 1 to activate the gate, 0 to deactivate.
+ * @param op
+ * The monster.
+ * @param state
+ * 1 to activate the gate, 0 to deactivate.
  */
 void monster_guard_activate_gate(object *op, int state)
 {
@@ -86,10 +88,13 @@ void monster_guard_activate_gate(object *op, int state)
 
 /**
  * Acquire player's bounty.
- * @param op Guard.
- * @param pl Player.
+ * @param op
+ * Guard.
+ * @param pl
+ * Player.
  * @param[out] bounty Where to store the bounty.
- * @return Whether the bounty was successfully acquired.
+ * @return
+ * Whether the bounty was successfully acquired.
  */
 static bool monster_guard_get_bounty(object *op, player *pl, double *bounty)
 {
@@ -124,11 +129,16 @@ static bool monster_guard_get_bounty(object *op, player *pl, double *bounty)
 
 /**
  * Check a potential target's bounty.
- * @param op Guard.
- * @param target Target to check.
- * @param msg What the target is saying to the guard.
- * @param distance How far away the target is.
- * @return Whether the target was stopped.
+ * @param op
+ * Guard.
+ * @param target
+ * Target to check.
+ * @param msg
+ * What the target is saying to the guard.
+ * @param distance
+ * How far away the target is.
+ * @return
+ * Whether the target was stopped.
  */
 bool monster_guard_check(object *op, object *target, const char *msg,
         uint32_t distance)
@@ -192,8 +202,10 @@ bool monster_guard_check(object *op, object *target, const char *msg,
 
 /**
  * Handle closing an interface for a guard.
- * @param op Guard.
- * @param target Who is closing the interface.
+ * @param op
+ * Guard.
+ * @param target
+ * Who is closing the interface.
  */
 void monster_guard_check_close(object *op, object *target)
 {

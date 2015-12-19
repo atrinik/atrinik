@@ -34,9 +34,12 @@
 
 /**
  * Open the specified door.
- * @param op The door to open.
- * @param opener Who is opening the door.
- * @param nearby Whether this door was opened by opening a nearby door.
+ * @param op
+ * The door to open.
+ * @param opener
+ * Who is opening the door.
+ * @param nearby
+ * Whether this door was opened by opening a nearby door.
  */
 static void door_open(object *op, object *opener, uint8_t nearby)
 {
@@ -84,8 +87,10 @@ static void door_open(object *op, object *opener, uint8_t nearby)
 
 /**
  * Open a door, including all nearby doors.
- * @param op Door object to open.
- * @param opener Object opening the door.
+ * @param op
+ * Door object to open.
+ * @param opener
+ * Object opening the door.
  */
 static void doors_open(object *op, object *opener)
 {
@@ -123,13 +128,19 @@ static void doors_open(object *op, object *opener)
 
 /**
  * Open a door (or check whether it can be opened).
- * @param op Object which will open the door.
- * @param m Map where the door is.
- * @param x X position of the door.
- * @param y Y position of the door.
- * @param test If 1, only check whether the door can be opened, but do
+ * @param op
+ * Object which will open the door.
+ * @param m
+ * Map where the door is.
+ * @param x
+ * X position of the door.
+ * @param y
+ * Y position of the door.
+ * @param test
+ * If 1, only check whether the door can be opened, but do
  * not actually open the door.
- * @return 1 if door was opened (or can be), 0 if not and is not possible
+ * @return
+ * 1 if door was opened (or can be), 0 if not and is not possible
  * to open.
  */
 int door_try_open(object *op, mapstruct *m, int x, int y, int test)
@@ -198,9 +209,12 @@ int door_try_open(object *op, mapstruct *m, int x, int y, int test)
 
 /**
  * Search object for the needed key to open a door/container.
- * @param op Object to search in.
- * @param door The object to find the key for.
- * @return The key pointer if found, NULL otherwise.
+ * @param op
+ * Object to search in.
+ * @param door
+ * The object to find the key for.
+ * @return
+ * The key pointer if found, NULL otherwise.
  */
 object *find_key(object *op, object *door)
 {
@@ -228,10 +242,14 @@ object *find_key(object *op, object *door)
 
 /**
  * Print the locked door message to the specified player.
- * @param op Player.
- * @param m Map where the locked door is.
- * @param x X position.
- * @param y Y position.
+ * @param op
+ * Player.
+ * @param m
+ * Map where the locked door is.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
  */
 void door_show_message(object *op, mapstruct *m, int x, int y)
 {
@@ -304,7 +322,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the door type object methods. */
+ * Initialize the door type object methods.
+ */
 void object_type_init_door(void)
 {
     object_type_methods[DOOR].process_func = process_func;

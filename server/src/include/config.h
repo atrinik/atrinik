@@ -29,7 +29,8 @@
  *
  * In theory, most of the values here should just be defaults, and
  * everything here should just be selectable by different run time
- * flags. However, for some things, that would just be too messy. */
+ * flags. However, for some things, that would just be too messy.
+ */
 
 /** Location of plugins */
 #ifndef PLUGINDIR
@@ -56,7 +57,8 @@
  *
  * The larger this number, the more CPU time and memory the server will
  * need to spend to figure this out in addition to bandwidth needs.
- * The server CPU time should be pretty trivial. */
+ * The server CPU time should be pretty trivial.
+ */
 #define MAP_CLIENT_X 17
 #define MAP_CLIENT_Y 17
 
@@ -65,7 +67,8 @@
  * You can experiment with the /speed \<new_max_time\> command first.
  *
  * The length of a tick is MAX_TIME microseconds. During a tick,
- * players, monsters, or items with speed 1 can do one thing. */
+ * players, monsters, or items with speed 1 can do one thing.
+ */
 #define MAX_TIME 125000
 
 /**
@@ -100,10 +103,12 @@
  *
  * Having a nonzero value can be useful: If a player leaves a map (and thus
  * is on a new map), and realizes they want to go back pretty quickly, the
- * old map is still in memory, so don't need to go disk and get it. */
+ * old map is still in memory, so don't need to go disk and get it.
+ */
 #define MAP_DEFAULTTIMEOUT 500
 /**
- * Maximum map timeout value. */
+ * Maximum map timeout value.
+ */
 #define MAP_MAXTIMEOUT 10000
 
 /**
@@ -115,7 +120,8 @@
  * The default value in the map object is 7200 (2 hours).
  *
  * Comment out MAP_MAXRESET time if you always want to use the value
- * in the map archetype. */
+ * in the map archetype.
+ */
 #define MAP_MAXRESET 7200
 /** Default time to reset. */
 #define MAP_DEFAULTRESET 7200
@@ -123,7 +129,8 @@
 /**
  * These define the players starting map and location on that map, and where
  * emergency saves are defined. This should be left as is unless you make
- * major changes to the map. */
+ * major changes to the map.
+ */
 #define EMERGENCY_MAPPATH "/emergency"
 #define EMERGENCY_X 0
 #define EMERGENCY_Y 0
@@ -143,7 +150,8 @@
  * game admin. So if you make Atrinik set-uid, use 0600.
  *
  * If you are running the game set-gid (to a games-group, for instance),
- * you must remember to make it writeable for the group (ie 0660). */
+ * you must remember to make it writeable for the group (ie 0660).
+ */
 #define SAVE_MODE   0660
 
 /**
@@ -152,7 +160,8 @@
  * if the player drops an item, and the last time he was saved due to item
  * drop is longer the SAVE_INTERVAL seconds, he is then saved. Depending on
  * your playing environment, you may want to set this to a higher value, so
- * that you are not spending too much time saving the characters. */
+ * that you are not spending too much time saving the characters.
+ */
 /*#define SAVE_INTERVAL 300*/
 
 /**
@@ -163,7 +172,8 @@
  * worth (depending on the spacing, if enough players log on, the spacing
  * may not be large enough to save all of them). As it is now, it will
  * just set the base tick of when they log on, which should keep the
- * saves pretty well spread out (in a fairly random fashion). */
+ * saves pretty well spread out (in a fairly random fashion).
+ */
 #define AUTOSAVE 5000
 
 /** Socket version. */
@@ -177,7 +187,8 @@
  *
  * This option is useful for bandwidth-limited servers, as it has nearly
  * no CPU impact, but halves the bandwidth usage of most common data
- * packets. */
+ * packets.
+ */
 #define COMPRESS_DATA_PACKETS 0
 
 /**
@@ -189,5 +200,6 @@
  *
  * The default of '128' is a reasonable value, as such data packets will
  * get compressed by zlib nicely (a data packet of size 20 would actually
- * be bigger when compressed). */
+ * be bigger when compressed).
+ */
 #define COMPRESS_DATA_PACKETS_SIZE 128

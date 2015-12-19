@@ -93,7 +93,8 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 }
 
 /**
- * Initialize the marker type object methods. */
+ * Initialize the marker type object methods.
+ */
 void object_type_init_marker(void)
 {
     object_type_methods[MARKER].move_on_func = move_on_func;

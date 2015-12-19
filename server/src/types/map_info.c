@@ -24,13 +24,16 @@
 
 /**
  * @file
- * Handles @ref MAP_INFO "map info" objects. */
+ * Handles @ref MAP_INFO "map info" objects.
+ */
 
 #include <global.h>
 
 /**
  * Initialize a map info object.
- * @param info The info object. */
+ * @param info
+ * The info object.
+ */
 void map_info_init(object *info)
 {
     int x, y;
@@ -81,7 +84,8 @@ void map_info_init(object *info)
 }
 
 /**
- * Initialize the map info type object methods. */
+ * Initialize the map info type object methods.
+ */
 void object_type_init_map_info(void)
 {
 }

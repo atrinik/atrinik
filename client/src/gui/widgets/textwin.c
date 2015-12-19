@@ -26,13 +26,15 @@
  * @file
  * Implements text window type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * Names of the text window tabs. */
+ * Names of the text window tabs.
+ */
 const char *const textwin_tab_names[] = {
     "[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
@@ -44,7 +46,9 @@ const char *const textwin_tab_commands[] = {
 /**
  * Readjust text window's scroll/entries counts due to a font size
  * change.
- * @param widget Text window's widget. */
+ * @param widget
+ * Text window's widget.
+ */
 void textwin_readjust(widgetdata *widget)
 {
     textwin_struct *textwin = TEXTWIN(widget);
@@ -416,8 +420,11 @@ void draw_info_tab(size_t type, const char *color, const char *str)
 
 /**
  * Draw info with format arguments.
- * @param flags Various flags, like color.
- * @param format Format arguments. */
+ * @param flags
+ * Various flags, like color.
+ * @param format
+ * Format arguments.
+ */
 void draw_info_format(const char *color, const char *format, ...)
 {
     char buf[HUGE_BUF * 2];
@@ -432,8 +439,11 @@ void draw_info_format(const char *color, const char *format, ...)
 
 /**
  * Add string to the text window.
- * @param flags Various flags, like color.
- * @param str The string. */
+ * @param flags
+ * Various flags, like color.
+ * @param str
+ * The string.
+ */
 void draw_info(const char *color, const char *str)
 {
     draw_info_tab(CHAT_TYPE_GAME, color, str);
@@ -441,8 +451,10 @@ void draw_info(const char *color, const char *str)
 
 /**
  * Handle ctrl+C for textwin widget
- * @param widget The textwin widget. If NULL, try to find the first one
- * in the priority list. */
+ * @param widget
+ * The textwin widget. If NULL, try to find the first one
+ * in the priority list.
+ */
 void textwin_handle_copy(widgetdata *widget)
 {
     int64_t start, end;
@@ -496,11 +508,17 @@ void textwin_handle_copy(widgetdata *widget)
 /**
  * Display the message text window, without handling scrollbar/mouse
  * actions.
- * @param surface Surface to draw on.
- * @param x X position.
- * @param y Y position.
- * @param w Maximum width.
- * @param h Maximum height. */
+ * @param surface
+ * Surface to draw on.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param w
+ * Maximum width.
+ * @param h
+ * Maximum height.
+ */
 void textwin_show(SDL_Surface *surface, int x, int y, int w, int h)
 {
     widgetdata *widget;
@@ -568,7 +586,9 @@ int textwin_tabs_height(widgetdata *widget)
 
 /**
  * Initialize text window scrollbar.
- * @param widget The text window. */
+ * @param widget
+ * The text window.
+ */
 void textwin_create_scrollbar(widgetdata *widget)
 {
     textwin_struct *textwin = TEXTWIN(widget);

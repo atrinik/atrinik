@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref DETECTOR "detectors".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -47,7 +48,8 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 }
 
 /**
- * Initialize the detector type object methods. */
+ * Initialize the detector type object methods.
+ */
 void object_type_init_detector(void)
 {
     object_type_methods[DETECTOR].move_on_func = move_on_func;

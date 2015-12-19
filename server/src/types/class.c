@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref CLASS "classes".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the class type object methods. */
+ * Initialize the class type object methods.
+ */
 void object_type_init_class(void)
 {
 }

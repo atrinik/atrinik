@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref DRINK "drink".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the drink type object methods. */
+ * Initialize the drink type object methods.
+ */
 void object_type_init_drink(void)
 {
     object_type_methods[DRINK].fallback = &object_type_methods[FOOD];

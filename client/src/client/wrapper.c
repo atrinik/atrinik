@@ -24,13 +24,15 @@
 
 /**
  * @file
- * General convenience functions for the client. */
+ * General convenience functions for the client.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * Start the base system, setting caption name and window icon. */
+ * Start the base system, setting caption name and window icon.
+ */
 void system_start(void)
 {
     SDL_Surface *icon;
@@ -46,7 +48,8 @@ void system_start(void)
 }
 
 /**
- * End the system. */
+ * End the system.
+ */
 void system_end(void)
 {
     tooltip_dismiss();
@@ -83,8 +86,11 @@ void system_end(void)
  * Recursively creates directories from path.
  *
  * Used by file_path().
- * @param path The path
- * @return 0 on success, -1 otherwise */
+ * @param path
+ * The path
+ * @return
+ * 0 on success, -1 otherwise
+ */
 static int mkdir_recurse(const char *path)
 {
     char *copy, *p;
@@ -121,7 +127,9 @@ static int mkdir_recurse(const char *path)
  * this to ensure directory path exists, make sure to end the 'path'
  * string with a forward slash, otherwise the function will assume that
  * the path is a file path.
- * @param path The path to ensure. */
+ * @param path
+ * The path to ensure.
+ */
 void mkdir_ensure(const char *path)
 {
     char *stmp;
@@ -140,8 +148,11 @@ void mkdir_ensure(const char *path)
 
 /**
  * Copy a file.
- * @param filename Source file.
- * @param filename_out Destination file. */
+ * @param filename
+ * Source file.
+ * @param filename_out
+ * Destination file.
+ */
 void copy_file(const char *filename, const char *filename_out)
 {
     FILE *fp, *fp_out;
@@ -174,10 +185,15 @@ void copy_file(const char *filename, const char *filename_out)
 
 /**
  * Copy a file/directory if it exists.
- * @param from Directory where to copy from.
- * @param to Directort to copy to.
- * @param src File/directory to copy.
- * @param dst Where to copy the file/directory to. */
+ * @param from
+ * Directory where to copy from.
+ * @param to
+ * Directort to copy to.
+ * @param src
+ * File/directory to copy.
+ * @param dst
+ * Where to copy the file/directory to.
+ */
 void copy_if_exists(const char *from, const char *to, const char *src, const char *dst)
 {
     char src_path[HUGE_BUF], dst_path[HUGE_BUF];
@@ -194,7 +210,9 @@ void copy_if_exists(const char *from, const char *to, const char *src, const cha
  * Recursively remove a directory and its contents.
  *
  * Effectively same as 'rf -rf path'.
- * @param path What to remove. */
+ * @param path
+ * What to remove.
+ */
 void rmrf(const char *path)
 {
     DIR *dir;
@@ -232,8 +250,11 @@ void rmrf(const char *path)
 
 /**
  * Recursively copy a file or directory.
- * @param src Source file/directory to copy.
- * @param dst Where to copy to. */
+ * @param src
+ * Source file/directory to copy.
+ * @param dst
+ * Where to copy to.
+ */
 void copy_rec(const char *src, const char *dst)
 {
     struct stat st;
@@ -278,7 +299,9 @@ void copy_rec(const char *src, const char *dst)
 
 /**
  * Get configuration directory.
- * @return The configuration directory. */
+ * @return
+ * The configuration directory.
+ */
 const char *get_config_dir(void)
 {
     const char *desc;
@@ -300,9 +323,13 @@ const char *get_config_dir(void)
 
 /**
  * Get path to a file in the data directory.
- * @param buf Buffer where to store the path.
- * @param len Size of buf.
- * @param fname File. */
+ * @param buf
+ * Buffer where to store the path.
+ * @param len
+ * Size of buf.
+ * @param fname
+ * File.
+ */
 void get_data_dir_file(char *buf, size_t len, const char *fname)
 {
     /* Try the current directory first. */
@@ -334,9 +361,12 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
  *
  * Generally, you should almost always use this when you need to construct a
  * path, or use one of the many @ref file_wrapper_functions.
- * @param fname The file path.
- * @param mode File mode.
- * @return The absolute path. Must be freed.
+ * @param fname
+ * The file path.
+ * @param mode
+ * File mode.
+ * @return
+ * The absolute path. Must be freed.
  */
 char *file_path(const char *path, const char *mode)
 {
@@ -395,6 +425,7 @@ char *file_path(const char *path, const char *mode)
  * Constructs a path leading to the chosen server settings directory. Used
  * internally by file_path_player() and file_path_server().
  * @return
+ *
  */
 static StringBuffer *file_path_server_internal(void)
 {
@@ -415,8 +446,10 @@ static StringBuffer *file_path_server_internal(void)
 
 /**
  * Create a path to the per-player settings directory.
- * @param path Path inside the per-player settings directory.
- * @return New path. Must be freed.
+ * @param path
+ * Path inside the per-player settings directory.
+ * @return
+ * New path. Must be freed.
  */
 char *file_path_player(const char *path)
 {
@@ -437,8 +470,10 @@ done:
 
 /**
  * Create a path to the per-server settings directory.
- * @param path Path inside the per-server settings directory.
- * @return New path. Must be freed.
+ * @param path
+ * Path inside the per-server settings directory.
+ * @return
+ * New path. Must be freed.
  */
 char *file_path_server(const char *path)
 {
@@ -460,13 +495,18 @@ char *file_path_server(const char *path)
  * For GNU/Linux, they call file_path() to determine the path to the file
  * to open in ~/.atrinik, and if the file doesn't exist there, copy it
  * there from the directory the client is running in.
- *@{*/
+ *@{
+ */
 
 /**
  * fopen wrapper.
- * @param fname The file name.
- * @param mode File mode.
- * @return Return value of fopen().  */
+ * @param fname
+ * The file name.
+ * @param mode
+ * File mode.
+ * @return
+ * Return value of fopen().
+ */
 FILE *fopen_wrapper(const char *fname, const char *mode)
 {
     char *path;
@@ -481,8 +521,11 @@ FILE *fopen_wrapper(const char *fname, const char *mode)
 
 /**
  * IMG_Load wrapper.
- * @param file The file name
- * @return Return value of IMG_Load().  */
+ * @param file
+ * The file name
+ * @return
+ * Return value of IMG_Load().
+ */
 SDL_Surface *IMG_Load_wrapper(const char *file)
 {
     char *path;
@@ -497,9 +540,13 @@ SDL_Surface *IMG_Load_wrapper(const char *file)
 
 /**
  * TTF_OpenFont wrapper.
- * @param file The file name.
- * @param ptsize Size of font.
- * @return Return value of TTF_OpenFont(). */
+ * @param file
+ * The file name.
+ * @param ptsize
+ * Size of font.
+ * @return
+ * Return value of TTF_OpenFont().
+ */
 TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize)
 {
     char *path;

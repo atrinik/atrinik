@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles code used for @ref SAVEBED "savebeds". */
+ * Handles code used for @ref SAVEBED "savebeds".
+ */
 
 #include <global.h>
 
@@ -51,7 +52,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the savebed type object methods. */
+ * Initialize the savebed type object methods.
+ */
 void object_type_init_savebed(void)
 {
     object_type_methods[SAVEBED].apply_func = apply_func;

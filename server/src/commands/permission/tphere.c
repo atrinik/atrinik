@@ -26,7 +26,8 @@
  * @file
  * Implements the /tphere command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

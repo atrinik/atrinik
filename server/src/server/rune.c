@@ -24,17 +24,22 @@
 
 /**
  * @file
- * All rune related functions. */
+ * All rune related functions.
+ */
 
 #include <global.h>
 
 /**
  * Should op see trap?
- * @param op Living that could spot the trap.
- * @param trap Trap that is invisible.
- * @param level Level.
+ * @param op
+ * Living that could spot the trap.
+ * @param trap
+ * Trap that is invisible.
+ * @param level
+ * Level.
  * @retval 0 Trap wasn't spotted.
- * @retval 1 Trap was spotted. */
+ * @retval 1 Trap was spotted.
+ */
 int trap_see(object *op, object *trap, int level)
 {
     int chance = rndm(0, 99);
@@ -55,9 +60,13 @@ int trap_see(object *op, object *trap, int level)
 
 /**
  * Handles showing of a trap.
- * @param trap The trap.
- * @param where Where.
- * @return 1 if the trap was shown, 0 otherwise. */
+ * @param trap
+ * The trap.
+ * @param where
+ * Where.
+ * @return
+ * 1 if the trap was shown, 0 otherwise.
+ */
 int trap_show(object *trap, object *where)
 {
     object *env;
@@ -95,9 +104,13 @@ int trap_show(object *trap, object *where)
 
 /**
  * Try to disarm a trap.
- * @param disarmer Player disarming the trap.
- * @param trap Trap to disarm.
- * @return 1 if trap was disarmed, 0 otherwise. */
+ * @param disarmer
+ * Player disarming the trap.
+ * @param trap
+ * Trap to disarm.
+ * @return
+ * 1 if trap was disarmed, 0 otherwise.
+ */
 int trap_disarm(object *disarmer, object *trap)
 {
     object *env = trap->env;
@@ -126,8 +139,11 @@ int trap_disarm(object *disarmer, object *trap)
 /**
  * Adjust trap difficulty to the map. The default traps are too strong
  * for wimpy level 1 players, and unthreatening to anyone of high level.
- * @param trap Trap to adjust.
- * @param difficulty Map difficulty. */
+ * @param trap
+ * Trap to adjust.
+ * @param difficulty
+ * Map difficulty.
+ */
 void trap_adjust(object *trap, int difficulty)
 {
     int off, level, hide;

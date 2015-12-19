@@ -24,17 +24,20 @@
 
 /**
  * @file
- * Shared-strings defines. */
+ * Shared-strings defines.
+ */
 
 #ifndef SHSTR_H
 #define SHSTR_H
 
 /**
- * Used to differentiate shared strings from normal strings. */
+ * Used to differentiate shared strings from normal strings.
+ */
 typedef const char shstr;
 
 /**
- * The size of the shared strings hashtable. */
+ * The size of the shared strings hashtable.
+ */
 #define TABLESIZE 8266
 
 /*
@@ -47,7 +50,8 @@ typedef const char shstr;
 /**
  * This specifies how many characters the hashing routine should look at.
  * You may actually save CPU by increasing this number if the typical string
- * is large. */
+ * is large.
+ */
 #ifndef MAXSTRING
 #define MAXSTRING 20
 #endif
@@ -56,7 +60,8 @@ typedef const char shstr;
  * In the unlikely occurrence that 16383 references to a string are too
  * few, you can modify the below type to something bigger.
  * (The top bit of "refcount" is used to signify that "u.array" points
- * at the array entry.) */
+ * at the array entry.)
+ */
 #define REFCOUNT_TYPE long
 
 /* The offsetof macro is part of ANSI C, but many compilers lack it, for
@@ -67,7 +72,8 @@ typedef const char shstr;
 
 /**
  * SS(string) will return the address of the shared_string struct which
- * contains "string". */
+ * contains "string".
+ */
 #define SS(x) ((shared_string *) ((x) - offsetof(shared_string, string)))
 
 #define SS_DUMP_TABLE   1
@@ -78,7 +84,8 @@ typedef const char shstr;
 #define PADDING ((2 * sizeof(long) - sizeof(REFCOUNT_TYPE)) % sizeof(long)) + 1
 
 /**
- * One actual shared string. */
+ * One actual shared string.
+ */
 typedef struct _shared_string {
 
     union {
@@ -92,13 +99,15 @@ typedef struct _shared_string {
 
     /**
      * The top bit of "refcount" is used to signify that "u.array" points
-     * at the array entry. */
+     * at the array entry.
+ */
     unsigned REFCOUNT_TYPE refcount;
 
     /**
      * Padding will be unused memory, since we can't know how large the
      * padding when allocating memory. We assume here that sizeof(long)
-     * is a good boundary. */
+     * is a good boundary.
+ */
     char string[PADDING];
 } shared_string;
 
@@ -117,7 +126,8 @@ typedef struct shstr_list {
  * Macros used for manipulation of shared string lists, such as prepending,
  * clearing, looping, etc.
  * @author Alex Tokar
- *@{*/
+ *@{
+ */
 
 /**
  * Prepends the specified string value to the shared string list.
@@ -129,8 +139,10 @@ typedef struct shstr_list {
  * shstr_list_t *list = NULL;
  * SHSTR_LIST_PREPEND(list, "hello world");
  * </pre>
- * @param list_ Pointer to a shared string list that will be prepended to.
- * @param value_ String to add to the list.
+ * @param list_
+ * Pointer to a shared string list that will be prepended to.
+ * @param value_
+ * String to add to the list.
  */
 #define SHSTR_LIST_PREPEND(list_, value_) \
     do {                                                                       \
@@ -148,7 +160,8 @@ typedef struct shstr_list {
  * <pre>
  * SHSTR_LIST_CLEAR(list);
  * </pre>
- * @param list_ Pointer to a shared string list that will be cleared.
+ * @param list_
+ * Pointer to a shared string list that will be cleared.
  */
 #define SHSTR_LIST_CLEAR(list_)                                                \
     do {                                                                       \
@@ -169,8 +182,10 @@ typedef struct shstr_list {
  *     printf("%s\n", value);
  * } SHSTR_LIST_FOR_FINISH();
  * </pre>
- * @param list_ Pointer to a shared string list that will be iterated.
- * @param it_ A variable name that will hold the shared string values;
+ * @param list_
+ * Pointer to a shared string list that will be iterated.
+ * @param it_
+ * A variable name that will hold the shared string values;
  * a new variable will be declared
  */
 #define SHSTR_LIST_FOR_PREPARE(list_, it_)                                     \

@@ -34,7 +34,8 @@
  * @defgroup bresenham_algorithm Bresenham algorithm
  * Bresenham line drawing algorithm. Implemented as macros for
  * flexibility and speed.
- *@{*/
+ *@{
+ */
 
 /**
  * Bresenham init.

@@ -26,80 +26,101 @@
  * @file
  * Commands header file.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
 /**
  * Format for a command handler function.
- * @param op The player.
- * @param command The command's name.
- * @param params Optional arguments for the command. */
+ * @param op
+ * The player.
+ * @param command
+ * The command's name.
+ * @param params
+ * Optional arguments for the command.
+ */
 typedef void (*command_func)(object *op, const char *command, char *params);
 
 /**
- * A single command. */
+ * A single command.
+ */
 typedef struct command_struct {
     /**
-     * Name of the command. */
+     * Name of the command.
+ */
     char *name;
 
     /**
-     * Handler function. */
+     * Handler function.
+ */
     command_func handle_func;
 
     /**
-     * Time the player must wait before doing another command. */
+     * Time the player must wait before doing another command.
+ */
     double delay;
 
     /**
-     * A combination of @ref COMMAND_xxx. */
+     * A combination of @ref COMMAND_xxx.
+ */
     uint64_t flags;
 
     /**
-     * Hash handle. */
+     * Hash handle.
+ */
     UT_hash_handle hh;
 } command_struct;
 
 /**
- * A single permission group. */
+ * A single permission group.
+ */
 typedef struct permission_group_struct {
     /**
-     * Name, eg, '[OP]'. */
+     * Name, eg, '[OP]'.
+ */
     char *name;
 
     /**
-     * The command permissions for this group. */
+     * The command permissions for this group.
+ */
     char **cmd_permissions;
 
     /**
-     * Number of command permissions. */
+     * Number of command permissions.
+ */
     size_t cmd_permissions_num;
 
     /**
-     * Hash handle. */
+     * Hash handle.
+ */
     UT_hash_handle hh;
 } permission_group_struct;
 
 /**
  * @defgroup COMMAND_xxx Command flags
  * Command flags.
- *@{*/
+ *@{
+ */
 /**
- * The command requires a permission. */
+ * The command requires a permission.
+ */
 #define COMMAND_PERMISSION 1
 /**
- * Markup can be used in this command. */
+ * Markup can be used in this command.
+ */
 #define COMMAND_ALLOW_MARKUP 2
 /*@}*/
 
 /**
- * Shortcut macro for commands_add(). */
+ * Shortcut macro for commands_add().
+ */
 #define COMMAND(__name) # __name, command_ ## __name
 
 /**
- * Execute the specific command. */
+ * Execute the specific command.
+ */
 #define COMMAND_EXECUTE(__op, __command, __params) command_ ## __command((__op), # __command, (__params))
 
 #endif

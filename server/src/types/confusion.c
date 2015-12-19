@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref CONFUSION "confusion" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -47,7 +48,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the confusion type object methods. */
+ * Initialize the confusion type object methods.
+ */
 void object_type_init_confusion(void)
 {
     object_type_methods[CONFUSION].process_func = process_func;

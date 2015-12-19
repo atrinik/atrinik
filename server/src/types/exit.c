@@ -32,7 +32,8 @@
  * or its tail will be on top of the return portal, causing it to teleport back
  * to the portal it wanted to enter in the first place...
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <plugin.h>
@@ -91,9 +92,12 @@ static object *exit_find(object *op, int do_load)
 /**
  * Activate the exit, teleporting the person who applied it to the appropriate
  * destination.
- * @param op The exit.
- * @param applier Who applied the exit.
- * @return True on success, false on failure.
+ * @param op
+ * The exit.
+ * @param applier
+ * Who applied the exit.
+ * @return
+ * True on success, false on failure.
  */
 static bool exit_activate(object *op, object *applier)
 {
@@ -131,11 +135,14 @@ static bool exit_activate(object *op, object *applier)
  * Acquires the specified exit's destination (map and coordinates).
  *
  * If this function returns NULL, the contents of 'x' and 'y' are undefined.
- * @param op Exit.
+ * @param op
+ * Exit.
  * @param[out] x Will contain the destination X coordinate. Can be NULL.
  * @param[out] y Will contain the destination Y coordinate. Can be NULL.
- * @param do_load Whether to load maps if necessary.
- * @return Destination map. Can be NULL.
+ * @param do_load
+ * Whether to load maps if necessary.
+ * @return
+ * Destination map. Can be NULL.
  */
 mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
 {
@@ -374,7 +381,8 @@ static void remove_map_func(object *op)
 }
 
 /**
- * Initialize the exit type object methods. */
+ * Initialize the exit type object methods.
+ */
 void object_type_init_exit(void)
 {
     object_type_methods[EXIT].apply_func = apply_func;

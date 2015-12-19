@@ -24,7 +24,8 @@
 
 /**
  * @file
- * OS path API. */
+ * OS path API.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -43,9 +44,13 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Joins two path components, eg, '/usr' and 'bin' -> '/usr/bin'.
- * @param path First path component.
- * @param path2 Second path component.
- * @return The joined path; should be freed when no longer needed. */
+ * @param path
+ * First path component.
+ * @param path2
+ * Second path component.
+ * @return
+ * The joined path; should be freed when no longer needed.
+ */
 char *path_join(const char *path, const char *path2)
 {
     StringBuffer *sb;
@@ -76,10 +81,13 @@ char *path_join(const char *path, const char *path2)
  * @code
  * path_dirname("/usr/local/foobar"); --> "/usr/local"
  * @endcode
- * @param path A path.
- * @return A directory name. This string should be freed when no longer
+ * @param path
+ * A path.
+ * @return
+ * A directory name. This string should be freed when no longer
  * needed.
- * @author Hongli Lai (public domain) */
+ * @author Hongli Lai (public domain)
+ */
 char *path_dirname(const char *path)
 {
     const char *end;
@@ -118,9 +126,12 @@ char *path_dirname(const char *path)
  * @code
  * path_basename("/usr/bin/kate"); --> "kate"
  * @endcode
- * @param path A path.
- * @return The basename of the path. Should be freed when no longer
- * needed. */
+ * @param path
+ * A path.
+ * @return
+ * The basename of the path. Should be freed when no longer
+ * needed.
+ */
 char *path_basename(const char *path)
 {
     const char *slash;
@@ -146,8 +157,11 @@ char *path_basename(const char *path)
  *
  * If the path begins with either a forward slash or a dot *and* a forward
  * slash, they will be preserved.
- * @param path Path to normalize.
- * @return The normalized path; never NULL. Must be freed. */
+ * @param path
+ * Path to normalize.
+ * @return
+ * The normalized path; never NULL. Must be freed.
+ */
 char *path_normalize(const char *path)
 {
     StringBuffer *sb;
@@ -208,7 +222,9 @@ char *path_normalize(const char *path)
 /**
  * Checks whether any directories in the given path don't exist, and
  * creates them if necessary.
- * @param path The path to check. */
+ * @param path
+ * The path to check.
+ */
 void path_ensure_directories(const char *path)
 {
     char buf[MAXPATHLEN], *cp;
@@ -249,10 +265,15 @@ void path_ensure_directories(const char *path)
 
 /**
  * Copy the contents of file 'src' into 'dst'.
- * @param src Path of the file to copy contents from.
- * @param dst Where to put the contents of 'src'.
- * @param mode Mode to open 'src' in.
- * @return 1 on success, 0 on failure. */
+ * @param src
+ * Path of the file to copy contents from.
+ * @param dst
+ * Where to put the contents of 'src'.
+ * @param mode
+ * Mode to open 'src' in.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int path_copy_file(const char *src, FILE *dst, const char *mode)
 {
     FILE *fp;
@@ -281,8 +302,11 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
 
 /**
  * Check if the specified path exists.
- * @param path Path to check.
- * @return 1 if 'path' exists, 0 otherwise. */
+ * @param path
+ * Path to check.
+ * @return
+ * 1 if 'path' exists, 0 otherwise.
+ */
 int path_exists(const char *path)
 {
     struct stat statbuf;
@@ -298,8 +322,11 @@ int path_exists(const char *path)
 
 /**
  * Create a new blank file.
- * @param path Path to the file.
- * @return 1 on success, 0 on failure. */
+ * @param path
+ * Path to the file.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int path_touch(const char *path)
 {
     FILE *fp;
@@ -322,8 +349,11 @@ int path_touch(const char *path)
 
 /**
  * Get size of the specified file, in bytes.
- * @param path Path to the file.
- * @return Size of the file. */
+ * @param path
+ * Path to the file.
+ * @return
+ * Size of the file.
+ */
 size_t path_size(const char *path)
 {
     struct stat statbuf;
@@ -340,8 +370,11 @@ size_t path_size(const char *path)
 /**
  * Load the entire contents of file 'path' into a StringBuffer instance,
  * then return the created string.
- * @param path File to load contents of.
- * @return The loaded contents. Must be freed. */
+ * @param path
+ * File to load contents of.
+ * @return
+ * The loaded contents. Must be freed.
+ */
 char *path_file_contents(const char *path)
 {
     FILE *fp;

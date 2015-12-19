@@ -26,14 +26,18 @@
  * @file
  * Handles code for @ref RUNE "runes".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Springs a rune.
- * @param op The rune.
- * @param victim Victim of the rune. */
+ * @param op
+ * The rune.
+ * @param victim
+ * Victim of the rune.
+ */
 void rune_spring(object *op, object *victim)
 {
     object *env;
@@ -125,7 +129,8 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 }
 
 /**
- * Initialize the rune type object methods. */
+ * Initialize the rune type object methods.
+ */
 void object_type_init_rune(void)
 {
     object_type_methods[RUNE].move_on_func = move_on_func;

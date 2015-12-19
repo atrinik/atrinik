@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Cross-platform support header file. */
+ * Cross-platform support header file.
+ */
 
 #ifndef PORTING_H
 #define PORTING_H

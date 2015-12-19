@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Spells list. */
+ * Spells list.
+ */
 
 #ifndef SPELLIST_H
 #define SPELLIST_H

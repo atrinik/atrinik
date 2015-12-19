@@ -46,7 +46,8 @@
  * stat, stat2 the 'secondary' stat, etc. In this scheme the primary stat
  * is most important for determining the associated experience category.
  * If a skill has the primary stat set to NO_STAT_VAL then it defaults to a
- * 'miscellaneous skill'. */
+ * 'miscellaneous skill'.
+ */
 
 #ifndef SKILLIST_H
 #define SKILLIST_H
@@ -56,7 +57,8 @@
  * in skill_util.c.
  *
  * @warning Don't change the order here without changing the skills.h
- * file */
+ * file
+ */
 skill_struct skills[NROFSKILLS] = {
     {"alchemy", NULL, 10},
     {"literacy", NULL, 0},

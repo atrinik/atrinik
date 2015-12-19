@@ -24,15 +24,20 @@
 
 /**
  * @file
- * Snake-like layout generator. */
+ * Snake-like layout generator.
+ */
 
 #include <global.h>
 
 /**
  * Generate a snake-like layout.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @return The generated layout. */
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @return
+ * The generated layout.
+ */
 char **make_snake_layout(int xsize, int ysize)
 {
     int i, j;

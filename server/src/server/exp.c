@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Experience management. */
+ * Experience management.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
- * Experience needed for each level. */
+ * Experience needed for each level.
+ */
 uint64_t new_levels[MAXLEVEL + 2] = {
     0, 0, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000,
     900000, 1400000, 2000000, 2600000,
@@ -58,7 +60,8 @@ uint64_t new_levels[MAXLEVEL + 2] = {
 };
 
 /**
- * Level colors. */
+ * Level colors.
+ */
 _level_color level_color[201] = {
     {-2, -1, 0, 1, 2, 3},
     {-1, 0, 1, 2, 3, 4},
@@ -266,11 +269,15 @@ _level_color level_color[201] = {
 /**
  * Calculates how much experience is needed for a player to become the
  * given level.
- * @param level Level to become.
- * @param expmul Experience multiplicator.
- * @return The experience needed.
+ * @param level
+ * Level to become.
+ * @param expmul
+ * Experience multiplicator.
+ * @return
+ * The experience needed.
  * @todo Remove, since the param expmul seems to always be passed as
- * '1.0'? */
+ * '1.0'?
+ */
 uint64_t level_exp(int level, double expmul)
 {
     return (uint64_t) (expmul * (double) new_levels[level]);
@@ -278,12 +285,18 @@ uint64_t level_exp(int level, double expmul)
 
 /**
  * Add experience to player.
- * @param op The player.
- * @param exp_gain How much experience to add (or, in case the value being
+ * @param op
+ * The player.
+ * @param exp_gain
+ * How much experience to add (or, in case the value being
  * negative, subtract).
- * @param skill_nr Skill ID.
- * @param exact If 1, experience gained will not be capped.
- * @return 0 on failure, experience gained on success. */
+ * @param skill_nr
+ * Skill ID.
+ * @param exact
+ * If 1, experience gained will not be capped.
+ * @return
+ * 0 on failure, experience gained on success.
+ */
 int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact)
 {
     object *exp_skill;
@@ -393,10 +406,14 @@ int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact)
  * has been reached.
  *
  * Will tell the player about changed levels.
- * @param who Player. Cannot be NULL.
- * @param op What we are checking to gain the level (eg, skill). If NULL, will
+ * @param who
+ * Player. Cannot be NULL.
+ * @param op
+ * What we are checking to gain the level (eg, skill). If NULL, will
  * use 'who'.
- * @return Amount of levels affected. 0 if no change. */
+ * @return
+ * Amount of levels affected. 0 if no change.
+ */
 int exp_lvl_adj(object *who, object *op)
 {
     if (who == NULL) {
@@ -457,9 +474,13 @@ int exp_lvl_adj(object *who, object *op)
  * between 0.8 and 1.1 (80% - 110%).
  *
  * If the target is in blue range, the experience
- * @param who_lvl Player.
- * @param op_lvl Victim.
- * @return Level difference. */
+ * @param who_lvl
+ * Player.
+ * @param op_lvl
+ * Victim.
+ * @return
+ * Level difference.
+ */
 float calc_level_difference(int who_lvl, int op_lvl)
 {
     int r;

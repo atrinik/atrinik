@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Menu related functions. */
+ * Menu related functions.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -35,8 +36,11 @@
  * key.
  * Sort out the "client intern" commands and expand or pre process them for the
  * server.
- * @param cmd Command to check
- * @return 0 to send command to server, 1 to not send it */
+ * @param cmd
+ * Command to check
+ * @return
+ * 0 to send command to server, 1 to not send it
+ */
 int client_command_check(const char *cmd)
 {
     if (cmd_aliases_handle(cmd)) {
@@ -366,7 +370,9 @@ int client_command_check(const char *cmd)
 
 /**
  * Same as send_command(), but also check client commands.
- * @param cmd Command to send. */
+ * @param cmd
+ * Command to send.
+ */
 int send_command_check(const char *cmd)
 {
     if (!client_command_check(cmd)) {

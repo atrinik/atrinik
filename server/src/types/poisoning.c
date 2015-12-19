@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref POISONING "poisoning" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -67,7 +68,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the poisoning type object methods. */
+ * Initialize the poisoning type object methods.
+ */
 void object_type_init_poisoning(void)
 {
     object_type_methods[POISONING].process_func = process_func;

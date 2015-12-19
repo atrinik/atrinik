@@ -24,7 +24,8 @@
 
 /**
  * @file
- * This file contains core skill handling. */
+ * This file contains core skill handling.
+ */
 
 #include <global.h>
 #include <book.h>
@@ -33,8 +34,10 @@
 /**
  * Checks for traps on the spaces around the player or in certain
  * objects.
- * @param pl Player searching.
- * @param level Level of the find traps skill.
+ * @param pl
+ * Player searching.
+ * @param level
+ * Level of the find traps skill.
  */
 void find_traps(object *pl, int level)
 {
@@ -105,7 +108,8 @@ void find_traps(object *pl, int level)
 
 /**
  * This skill will disarm any previously discovered trap.
- * @param op Player disarming.
+ * @param op
+ * Player disarming.
  */
 void remove_trap(object *op)
 {

@@ -32,7 +32,8 @@
  * be done, based on the signal's type - aborting for SIGSEGV, exiting
  * with an error code for others.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifdef WIN32
 #define WINVER 0x502
@@ -46,7 +47,8 @@
 #endif
 
 /**
- * The signals to register. */
+ * The signals to register.
+ */
 static const int register_signals[] = {
 #ifndef WIN32
     SIGHUP,
@@ -62,7 +64,8 @@ TOOLKIT_API();
 
 /**
  * The signal interception handler.
- * @param signum ID of the signal being intercepted.
+ * @param signum
+ * ID of the signal being intercepted.
  */
 static void simple_signal_handler(int signum)
 {

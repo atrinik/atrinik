@@ -25,7 +25,8 @@
 /**
  * @file
  * The mapstruct is allocated each time a new map is opened.
- * It contains pointers (very indirectly) to all objects on the map. */
+ * It contains pointers (very indirectly) to all objects on the map.
+ */
 
 #ifndef MAP_H
 #define MAP_H
@@ -39,7 +40,8 @@
 /**
  * @defgroup LAYER_xxx Layer types
  * The layer types used for different objects.
- *@{*/
+ *@{
+ */
 /** System objects. */
 #define LAYER_SYS 0
 /** Floor. */
@@ -59,20 +61,24 @@
 /*@}*/
 
 /**
- * The number of object layers. */
+ * The number of object layers.
+ */
 #define NUM_LAYERS 7
 /**
- * Number of sub-layers. */
+ * Number of sub-layers.
+ */
 #define NUM_SUB_LAYERS 7
 /**
- * Effective number of all the visible layers. */
+ * Effective number of all the visible layers.
+ */
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
 
 /**
  * @defgroup map_struct_macros Map structure macros
  * These macros are used to access flags of a map, the map reset time,
  * the map owner, etc.
- *@{*/
+ *@{
+ */
 
 /** This is when the map will reset */
 #define MAP_WHEN_RESET(m)      ((m)->reset_time)
@@ -116,7 +122,8 @@
 #define MAP_HEIGHT(m)          (m)->height
 /**
  * Convenience function - total number of spaces on map is used in many
- * places. */
+ * places.
+ */
 #define MAP_SIZE(m)            ((m)->width * (m)->height)
 /** Enter X position of a map */
 #define MAP_ENTER_X(m)         (m)->enter_x
@@ -128,15 +135,18 @@
  * @defgroup map_load_flags Map loading flags
  * Flags passed to map loading functions such as ready_map_name() and
  * load_original_map().
- *@{*/
+ *@{
+ */
 
 /**
  * Always load map from the map directory, and don't do unique items or
- * the like. */
+ * the like.
+ */
 #define MAP_FLUSH         1
 /**
  * This map is player-specific. Don't do any more name translation on
- * it. */
+ * it.
+ */
 #define MAP_PLAYER_UNIQUE 2
 /** Unused. */
 #define MAP_BLOCK         4
@@ -155,7 +165,8 @@
 /**
  * @defgroup map_memory_flags Map memory flags
  * Map memory flags, used from @ref mapstruct::in_memory.
- *@{*/
+ *@{
+ */
 
 /** Map is fully loaded. */
 #define MAP_IN_MEMORY   1
@@ -226,7 +237,8 @@
 /**
  * You should really know what you are doing before using this - you
  * should almost always be using get_map_from_coord() instead, which
- * takes into account map tiling. */
+ * takes into account map tiling.
+ */
 #define OUT_OF_MAP(M, X, Y) \
     ((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
 
@@ -234,7 +246,8 @@
  * @defgroup map_look_flags Map look flags
  * These are used in the MapLook flags element.  They are not used in
  * in the object flags structure.
- *@{*/
+ *@{
+ */
 
 /** Blocks the view. */
 #define P_BLOCKSVIEW          0x01
@@ -252,24 +265,29 @@
  * Only players are allowed to enter this space. This excludes mobs
  * and golems but also spell effects and thrown / fired items.
  * It works like a no_pass for players only (pass_thru doesn't work for
- * it). */
+ * it).
+ */
 #define P_PLAYER_ONLY         0x40
 /**
  * A closed door is blocking this space - if we want to approach, we must
- * first check if it's possible to open it. */
+ * first check if it's possible to open it.
+ */
 #define P_DOOR_CLOSED         0x80
 /**
- * We have something like an inventory checker in this tile node. */
+ * We have something like an inventory checker in this tile node.
+ */
 #define P_CHECK_INV           0x100
 /**
- * PvP is not possible on this tile. */
+ * PvP is not possible on this tile.
+ */
 #define P_NO_PVP              0x200
 /**
  * Same as NO_PASS - but objects with PASS_THRU set can cross it.
  *
  * @note If a node has NO_PASS and P_PASS_THRU set, there are 2 objects
  * in the node, one with pass_thru and one with real no_pass - then
- * no_pass will overrule pass_thru */
+ * no_pass will overrule pass_thru
+ */
 #define P_PASS_THRU           0x400
 /** For moving objects and what happens when they enter */
 #define P_WALK_ON             0x1000
@@ -285,7 +303,8 @@
 #define P_OUTDOOR 0x20000
 /**
  * Of course not set for map tiles but from blocked_xx() function where
- * the get_map_from_coord() fails to grab a valid map or tile. */
+ * the get_map_from_coord() fails to grab a valid map or tile.
+ */
 #define P_OUT_OF_MAP          0x4000000
 /** Skip the layer update, do flags only */
 #define P_FLAGS_ONLY          0x8000000
@@ -295,18 +314,21 @@
 #define P_NEED_UPDATE         0x20000000
 /**
  * Purely temporary - if set, update_position
- * does not complain if the flags are different. */
+ * does not complain if the flags are different.
+ */
 #define P_NO_ERROR            0x40000000
 /**
  * Do <b>NOT</b> use this with SET_MAP_FLAGS(). This is just to mark for
- * return values of blocked(). */
+ * return values of blocked().
+ */
 #define P_NO_TERRAIN          0x80000000
 /*@}*/
 
 /**
  * @defgroup MSP_EXTRA_xxx Map space extra flags
  * Map space extra flags
- *@{*/
+ *@{
+ */
 /** No harmful spells. */
 #define MSP_EXTRA_NO_HARM 1
 /** No PvP. */
@@ -361,12 +383,14 @@ typedef struct MapSpace_s {
 
     /**
      * How much light is on this tile. 0 = total dark
-     * 255+ = full daylight. */
+     * 255+ = full daylight.
+ */
     int32_t light_value;
 
     /**
      * Flags about this space
-     * @see map_look_flags */
+     * @see map_look_flags
+ */
     int flags;
 
     /** last_damage tmp backbuffer */
@@ -382,14 +406,16 @@ typedef struct MapSpace_s {
 /**
  * @defgroup map_flags Map flags
  * Map flags for global map settings, used in @ref mapstruct::map_flags.
- *@{*/
+ *@{
+ */
 /** Map is outdoor map - daytime effects are on */
 #define MAP_FLAG_OUTDOOR 1
 /** Special unique map  */
 #define MAP_FLAG_UNIQUE 2
 /**
  * If true, reset time is not affected by players entering / exiting
- * map */
+ * map
+ */
 #define MAP_FLAG_FIXED_RTIME 4
 /** No wizardry based spells */
 #define MAP_FLAG_NOMAGIC 8
@@ -400,12 +426,14 @@ typedef struct MapSpace_s {
 /** No harmful spells like fireball, magic bullet, etc. */
 #define MAP_FLAG_NOHARM 32
 /**
- * Don't allow any summoning spells. */
+ * Don't allow any summoning spells.
+ */
 #define MAP_FLAG_NOSUMMON 64
 /**
  * When set, a player login on this map will be forced to default
  * @ref mapstruct::enter_x and @ref mapstruct::enter_y of this map.
- * This avoids getting stuck in a map and treasure camping. */
+ * This avoids getting stuck in a map and treasure camping.
+ */
 #define MAP_FLAG_FIXED_LOGIN 128
 /** Players cannot save on this map. */
 #define MAP_FLAG_PLAYER_NO_SAVE 256
@@ -422,7 +450,8 @@ typedef struct MapSpace_s {
 /**
  * @defgroup map_default_values Default map values
  * Nonzero default map values.
- *@{*/
+ *@{
+ */
 
 /** Default darkness */
 #define MAP_DEFAULT_DARKNESS    0
@@ -432,7 +461,8 @@ typedef struct MapSpace_s {
  * This is a game region.
  *
  * Each map is in a given region of the game world and links to a region
- * definition. */
+ * definition.
+ */
 typedef struct region_struct {
     /** Pointer to next region, NULL for the last one */
     struct region_struct *next;
@@ -440,7 +470,8 @@ typedef struct region_struct {
     /**
      * Pointer to the region that is a parent of the current
      * region, if a value isn't defined in the current region
-     * we traverse this series of pointers until it is. */
+     * we traverse this series of pointers until it is.
+ */
     struct region_struct *parent;
 
     /** Shortened name of the region as maps refer to it */
@@ -451,12 +482,14 @@ typedef struct region_struct {
      * any order, we keep hold of the parent_name during
      * initialization, and the children get assigned to their
      * parents later. (before runtime on the server though)
-     * nothing outside the init code should ever use this value. */
+     * nothing outside the init code should ever use this value.
+ */
     char *parent_name;
 
     /**
      * Official title of the region, this might be defined
-     * to be the same as name */
+     * to be the same as name
+ */
     char *longname;
 
     /** The description of the region. */
@@ -481,7 +514,8 @@ typedef struct region_struct {
 } region_struct;
 
 /**
- * A single map event, holding a pointer to map event object on map. */
+ * A single map event, holding a pointer to map event object on map.
+ */
 typedef struct map_event {
     /** Next map event in linked list. */
     struct map_event *next;
@@ -490,7 +524,8 @@ typedef struct map_event {
     object *event;
 
     /**
-     * Plugin the map event object is using. */
+     * Plugin the map event object is using.
+ */
     struct atrinik_plugin *plugin;
 } map_event;
 
@@ -511,18 +546,21 @@ struct path_node;
  *
  * You may think it is safe to look at width and height values directly
  * (or even through the macros), but doing so will completely break map
- * tiling. */
+ * tiling.
+ */
 typedef struct mapdef {
     /**
      * Next map in a doubly-linked list.
      * @private
-     */
+
+ */
     struct mapdef *next;
 
     /**
      * Previous map in a doubly-linked list.
      * @private
-     */
+
+ */
     struct mapdef *prev;
 
     /** Any maps tiled together to this one */
@@ -588,7 +626,8 @@ typedef struct mapdef {
 
     /**
      * How many seconds must elapse before this map
-     * should be reset */
+     * should be reset
+ */
     uint32_t reset_timeout;
 
     /** When this reaches 0, the map will be swapped out. */
@@ -600,7 +639,8 @@ typedef struct mapdef {
     /**
      * If not true, the map has been freed and must
      * be loaded before used. The map, omap and map_ob
-     * arrays will be allocated when the map is loaded */
+     * arrays will be allocated when the map is loaded
+ */
     uint32_t in_memory;
 
     /** Used by relative_tile_position() to mark visited maps */
@@ -610,17 +650,20 @@ typedef struct mapdef {
      * Indicates the base light value on this map.
      *
      * This value is only used when the map is not marked as outdoor.
-     * @see MAP_DEFAULT_DARKNESS */
+     * @see MAP_DEFAULT_DARKNESS
+ */
     int darkness;
 
     /**
      * The real light_value, built out from darkness and possible other
-     * factors. */
+     * factors.
+ */
     int light_value;
 
     /**
      * What level the player should be to play here. Affects treasures,
-     * random shops and various other things. */
+     * random shops and various other things.
+ */
     int difficulty;
 
     /** Height of the map. */
@@ -635,7 +678,8 @@ typedef struct mapdef {
      *
      * Also used by exits as the default X location if the exit doesn't
      * have one set.
-     * @see MAP_FLAG_FIXED_LOGIN */
+     * @see MAP_FLAG_FIXED_LOGIN
+ */
     int enter_x;
 
     /**
@@ -644,7 +688,8 @@ typedef struct mapdef {
      *
      * Also used by exits as the default Y location if the exit doesn't
      * have one set.
-     * @see MAP_FLAG_FIXED_LOGIN */
+     * @see MAP_FLAG_FIXED_LOGIN
+ */
     int enter_y;
 
     int16_t coords[3]; ///< X, Y and Z coordinates.
@@ -660,8 +705,10 @@ typedef struct mapdef {
 
 /**
  * Checks if the specified map level offset is part of the map.
- * @param _m Map.
- * @param _z Level offset.
+ * @param _m
+ * Map.
+ * @param _z
+ * Level offset.
  */
 #define MAP_TILE_IS_SAME_LEVEL(_m, _z) \
     ((_m)->coords[2] + (_z) >= (_m)->level_min && \
@@ -685,8 +732,10 @@ typedef struct mapdef {
  * Walks all the tiled maps, including up/down maps that are on the same level
  * as the specified map, including the direction-based tiled maps of those
  * up/down maps.
- * @param _m The map to walk.
- * @param _fnc Function to apply to each map. This should have 'int' return
+ * @param _m
+ * The map to walk.
+ * @param _fnc
+ * Function to apply to each map. This should have 'int' return
  * value, which indicates whether to keep going or not. Non-zero return value
  * will stop the walk, and can be retrieved with MAP_TILES_WALK_RETVAL. Two
  * arguments are automatically supplied to the function: the first one is the
@@ -695,7 +744,8 @@ typedef struct mapdef {
  * you can use the second 'map' parameter to do things like non-recursive
  * distance calculation (since you need the specific map level for that, but you
  * can still re-use the X/Y map tile coordinates).
- * @param ... Additional arguments supplied to the function.
+ * @param ...
+ * Additional arguments supplied to the function.
  */
 #define MAP_TILES_WALK_START(_m, _fnc, ...) \
 { \
@@ -735,7 +785,8 @@ typedef struct mapdef {
 
 /**
  * This is used by get_rangevector() to determine where the other
- * creature is. */
+ * creature is.
+ */
 typedef struct rv_vector_s {
     /** The distance away */
     unsigned int distance;
@@ -760,7 +811,8 @@ typedef struct rv_vector_s {
  * @defgroup range_vector_flags Range Vector Flags
  * Range vector flags, used by functions like get_rangevector() and
  * get_rangevector_from_mapcoords().
- *@{*/
+ *@{
+ */
 /**
  * Calculate Manhattan distance.
  */
@@ -798,7 +850,8 @@ typedef struct rv_vector_s {
 /**
  * @defgroup direction_constants Direction constants
  * The direction constants.
- *@{*/
+ *@{
+ */
 /** North. */
 #define NORTH 1
 /** Northeast. */

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Global definitions, u/sint8, things like that. */
+ * Global definitions, u/sint8, things like that.
+ */
 
 #ifndef GLOBAL_H
 #define GLOBAL_H
@@ -39,7 +40,8 @@
  * BANK_WITHDRAW_xxx constants can only be returned by bank_withdraw(),
  * while BANK_DEPOSIT_xxx constants can only be returned by bank_deposit().
  * Any other constants can be returned by both functions.
- *@{*/
+ *@{
+ */
 /** Syntax error: did not get text in expected format. */
 #define BANK_SYNTAX_ERROR -1
 /** Successfully withdrawn/deposited money. */
@@ -71,7 +73,8 @@
 /**
  * @defgroup MAP_INFO_xxx Map info modes
  * Modes used for new_info_map().
- *@{*/
+ *@{
+ */
 
 /** Normal map info, to everyone in range of 12 tiles. */
 #define MAP_INFO_NORMAL 12
@@ -82,12 +85,16 @@
 /**
  * @defgroup shared_string_macros Shared string macros
  * Common macros used for manipulating shared strings.
- *@{*/
+ *@{
+ */
 
 /**
  * Free old shared string and add new string.
- * @param _sv_ Shared string.
- * @param _nv_ String to copy to the shared string. */
+ * @param _sv_
+ * Shared string.
+ * @param _nv_
+ * String to copy to the shared string.
+ */
 #define FREE_AND_COPY_HASH(_sv_, _nv_) \
     {                                      \
         if (_sv_)                          \
@@ -99,8 +106,11 @@
     }
 /**
  * Free old hash and add a reference to the new one.
- * @param _sv_ Pointer to shared string.
- * @param _nv_ String to add reference to. Must be a shared string. */
+ * @param _sv_
+ * Pointer to shared string.
+ * @param _nv_
+ * String to add reference to. Must be a shared string.
+ */
 #define FREE_AND_ADD_REF_HASH(_sv_, _nv_) \
     {                                         \
         if (_sv_)                             \
@@ -112,7 +122,9 @@
     }
 /**
  * Free and NULL a shared string.
- * @param _nv_ Shared string to free and NULL. */
+ * @param _nv_
+ * Shared string to free and NULL.
+ */
 #define FREE_AND_CLEAR_HASH(_nv_) \
     {                                 \
         if (_nv_)                     \
@@ -123,7 +135,9 @@
     }
 /**
  * Free a shared string.
- * @param _nv_ Shared string to free. */
+ * @param _nv_
+ * Shared string to free.
+ */
 #define FREE_ONLY_HASH(_nv_)  \
     if (_nv_)                     \
     {                             \
@@ -131,7 +145,9 @@
     }
 /**
  * Add reference to a non-null hash.
- * @param _nv_ Pointer to shared string. */
+ * @param _nv_
+ * Pointer to shared string.
+ */
 #define ADD_REF_NOT_NULL_HASH(_nv_) \
     if (_nv_)                           \
     {                                   \
@@ -139,7 +155,8 @@
     }
 /**
  * @copydoc FREE_AND_CLEAR_HASH
- * @warning Like FREE_AND_CLEAR_HASH(), but without { and }. */
+ * @warning Like FREE_AND_CLEAR_HASH(), but without { and }.
+ */
 #define FREE_AND_CLEAR_HASH2(_nv_) \
     if (_nv_)                          \
     {                                  \
@@ -163,7 +180,8 @@
 /**
  * @defgroup TILED_xxx Tiled map constants
  * Constants of tiled map IDs.
- *@{*/
+ *@{
+ */
 /** North. */
 #define TILED_NORTH 0
 /** East. */
@@ -205,7 +223,8 @@
 #define MAX_EXPERIENCE new_levels[MAXLEVEL]
 
 /**
- * Used to link together shared strings. */
+ * Used to link together shared strings.
+ */
 typedef struct linked_char {
     /** Shared string. */
     shstr *name;
@@ -236,7 +255,8 @@ typedef struct linked_char {
 /**
  * Special potions are identified by the last_eat value.
  * last_eat == 0 is no special potion - means they are used
- * as spell effect carrier. */
+ * as spell effect carrier.
+ */
 #define special_potion(__op_sp) (__op_sp)->last_eat
 
 /** Move an object. */
@@ -261,12 +281,16 @@ typedef struct linked_char {
 
 /**
  * Set object's face by its animation ID.
- * @param ob Object.
- * @param newanim Animation ID to set. */
+ * @param ob
+ * Object.
+ * @param newanim
+ * Animation ID to set.
+ */
 #define SET_ANIMATION(ob, newanim) (ob)->face = &new_faces[animations[(ob)->animation_id].faces[(newanim)]]
 /**
  * Set object's animation depending on its number of animations/facings,
- * direction and animation state. */
+ * direction and animation state.
+ */
 #define SET_ANIMATION_STATE(ob) \
     if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) \
     { \
@@ -302,101 +326,125 @@ enum {
 };
 
 /**
- * The server settings. */
+ * The server settings.
+ */
 typedef struct settings_struct {
     /**
-     * Port to use for client/server communication. */
+     * Port to use for client/server communication.
+ */
     uint16_t port;
 
     /**
-     * Read only data files, such as the collected archetypes. */
+     * Read only data files, such as the collected archetypes.
+ */
     char libpath[MAX_BUF];
 
     /**
-     * Player data, unique maps, etc. */
+     * Player data, unique maps, etc.
+ */
     char datapath[MAX_BUF];
 
     /**
-     * Where the map files are. */
+     * Where the map files are.
+ */
     char mapspath[MAX_BUF];
 
     /**
-     * Where the HTTP files are. */
+     * Where the HTTP files are.
+ */
     char httppath[MAX_BUF];
 
     /**
-     * HTTP URL of the metaserver. */
+     * HTTP URL of the metaserver.
+ */
     char metaserver_url[MAX_BUF];
 
     /**
-     * Hostname of this server. */
+     * Hostname of this server.
+ */
     char server_host[MAX_BUF];
 
     /**
-     * Name of this server. */
+     * Name of this server.
+ */
     char server_name[MAX_BUF];
 
     /**
-     * Comment about the server we send to the metaserver. */
+     * Comment about the server we send to the metaserver.
+ */
     char server_desc[MAX_BUF];
 
     /**
-     * Executing the world maker? */
+     * Executing the world maker?
+ */
     uint8_t world_maker;
 
     /**
-     * Running unit tests? */
+     * Running unit tests?
+ */
     bool unit_tests;
 
     /**
      * Running plugin unit tests?
-     */
+
+ */
     bool plugin_unit_tests;
 
     /**
      * Only run specific plugin unit test(s).
-     */
+
+ */
     char plugin_unit_test[MAX_BUF];
 
     /**
-     * Adjustment to maximum magical device level the player may use. */
+     * Adjustment to maximum magical device level the player may use.
+ */
     int8_t magic_devices_level;
 
     /**
-     * See note in server.cfg. */
+     * See note in server.cfg.
+ */
     double item_power_factor;
 
     /**
-     * Whether to reload Python modules whenever Python script executes. */
+     * Whether to reload Python modules whenever Python script executes.
+ */
     uint8_t python_reload_modules;
 
     /**
      * Comma-delimited list of permission groups each player
-     * automatically has. */
+     * automatically has.
+ */
     char default_permission_groups[MAX_BUF];
 
     /**
-     * Allowed characters for certain strings. */
+     * Allowed characters for certain strings.
+ */
     char allowed_chars[ALLOWED_CHARS_NUM][MAX_BUF];
 
     /**
-     * Limits on the allowed characters. */
+     * Limits on the allowed characters.
+ */
     size_t limits[ALLOWED_CHARS_NUM][2];
 
     /**
-     * IPs allowed to remotely control the client. */
+     * IPs allowed to remotely control the client.
+ */
     char control_allowed_ips[HUGE_BUF];
 
     /**
-     * Which player the remote command goes through, if applicable. */
+     * Which player the remote command goes through, if applicable.
+ */
     char control_player[MAX_BUF];
 
     /**
-     * Whether to recycle tmp maps or not. */
+     * Whether to recycle tmp maps or not.
+ */
     uint8_t recycle_tmp_maps;
 
     /**
-     * URL to the HTTP server. */
+     * URL to the HTTP server.
+ */
     char http_url[MAX_BUF];
 } settings_struct;
 
@@ -419,7 +467,8 @@ typedef struct shstr_constants {
 /**
  * @defgroup CACHE_FLAG_xxx Cache flags
  * The various cache flag bitmasks.
- *@{*/
+ *@{
+ */
 /** The cache contains pointer to a PyObject. */
 #define CACHE_FLAG_PYOBJ 1
 /** Automatically free() the pointer in the cache entry. */
@@ -453,7 +502,8 @@ typedef struct cache_struct {
 /**
  * @defgroup SCRIPT_FIX_xxx For plugin events
  * These are used by plugin events.
- *@{*/
+ *@{
+ */
 /** Fix the event activator. */
 #define SCRIPT_FIX_ACTIVATOR 2
 /** Fix all objects related to the event. */

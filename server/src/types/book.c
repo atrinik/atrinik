@@ -24,14 +24,16 @@
 
 /**
  * @file
- * Handles code related to @ref BOOK "books". */
+ * Handles code related to @ref BOOK "books".
+ */
 
 #include <global.h>
 #include <packet.h>
 
 /**
  * Maximum amount of difference in levels between the book's level and
- * the player's literacy skill. */
+ * the player's literacy skill.
+ */
 #define BOOK_LEVEL_DIFF 12
 
 /**
@@ -160,7 +162,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the book type object methods. */
+ * Initialize the book type object methods.
+ */
 void object_type_init_book(void)
 {
     object_type_methods[BOOK].apply_func = apply_func;

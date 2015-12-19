@@ -26,7 +26,8 @@
  * @file
  * Common code for objects moving onto/from another object.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

@@ -26,7 +26,8 @@
  * @file
  * Implements buddy type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -41,26 +42,32 @@ enum {
 };
 
 /**
- * Buddy data structure. */
+ * Buddy data structure.
+ */
 typedef struct buddy_struct {
     /**
-     * The character names. */
+     * The character names.
+ */
     UT_array *names;
 
     /**
-     * Path where to load/save the character names. */
+     * Path where to load/save the character names.
+ */
     char *path;
 
     /**
-     * Button buffer. */
+     * Button buffer.
+ */
     button_struct buttons[BUTTON_NUM];
 
     /**
-     * The list. */
+     * The list.
+ */
     list_struct *list;
 
     /**
-     * Text input buffer. */
+     * Text input buffer.
+ */
     text_input_struct text_input;
 } buddy_struct;
 
@@ -81,9 +88,12 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 
 /**
  * Add a buddy.
- * @param widget Widget to add to.
- * @param name Buddy's name. Can be NULL, in which case nothing is added.
- * @param sort If 1, sort the buddy list.
+ * @param widget
+ * Widget to add to.
+ * @param name
+ * Buddy's name. Can be NULL, in which case nothing is added.
+ * @param sort
+ * If 1, sort the buddy list.
  */
 void widget_buddy_add(widgetdata *widget, const char *name, uint8_t sort)
 {
@@ -107,8 +117,10 @@ void widget_buddy_add(widgetdata *widget, const char *name, uint8_t sort)
 
 /**
  * Remove a buddy.
- * @param widget Widget to remove from.
- * @param name Buddy's name.
+ * @param widget
+ * Widget to remove from.
+ * @param name
+ * Buddy's name.
  */
 void widget_buddy_remove(widgetdata *widget, const char *name)
 {
@@ -136,9 +148,12 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
 
 /**
  * Check if the specified character name is a buddy.
- * @param widget Widget to check. Can be NULL, in which case -1 is returned.
- * @param name Character name to check.
- * @return -1 if the character name is not a buddy, index in the character
+ * @param widget
+ * Widget to check. Can be NULL, in which case -1 is returned.
+ * @param name
+ * Character name to check.
+ * @return
+ * -1 if the character name is not a buddy, index in the character
  * names array otherwise.
  */
 ssize_t widget_buddy_check(widgetdata *widget, const char *name)
@@ -162,7 +177,8 @@ ssize_t widget_buddy_check(widgetdata *widget, const char *name)
 
 /**
  * Load the buddy data file.
- * @param widget The buddy widget.
+ * @param widget
+ * The buddy widget.
  */
 static void widget_buddy_load(widgetdata *widget)
 {
@@ -201,7 +217,8 @@ static void widget_buddy_load(widgetdata *widget)
 
 /**
  * Save the buddy data file.
- * @param widget The buddy widget.
+ * @param widget
+ * The buddy widget.
  */
 static void widget_buddy_save(widgetdata *widget)
 {
@@ -322,7 +339,8 @@ static void widget_background(widgetdata *widget, int draw)
 
 /**
  * Handles event for adding of a buddy to the specified buddy widget.
- * @param widget The buddy widget.
+ * @param widget
+ * The buddy widget.
  */
 static void widget_event_buddy_add(widgetdata *widget)
 {
@@ -453,7 +471,8 @@ static void widget_deinit(widgetdata *widget)
 }
 
 /**
- * Initialize one buddy widget. */
+ * Initialize one buddy widget.
+ */
 void widget_buddy_init(widgetdata *widget)
 {
     buddy_struct *tmp;

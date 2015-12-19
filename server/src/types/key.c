@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref KEY "keys".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the key type object methods. */
+ * Initialize the key type object methods.
+ */
 void object_type_init_key(void)
 {
 }

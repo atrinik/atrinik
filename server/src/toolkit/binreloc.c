@@ -31,13 +31,15 @@
  *
  * See http://autopackage.org/docs/binreloc/ for
  * more information and how to use this.
- * @author Hongli Lai \<h.lai@chello.nl\> */
+ * @author Hongli Lai \<h.lai@chello.nl\>
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * Canonical filename of the executable. May be NULL. */
+ * Canonical filename of the executable. May be NULL.
+ */
 static char *exe = NULL;
 
 static char *_binreloc_find_exe(void);
@@ -61,7 +63,9 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Finds the canonical filename of the executable.
- * @return The filename (which must be freed) or NULL on error. */
+ * @return
+ * The filename (which must be freed) or NULL on error.
+ */
 static char *_binreloc_find_exe(void)
 {
 #ifndef ENABLE_BINRELOC
@@ -177,11 +181,14 @@ static char *_binreloc_find_exe(void)
 
 /**
  * Finds the canonical filename of the current application.
- * @param default_exe A default filename which will be used as fallback.
- * @returns A string containing the application's canonical filename,
+ * @param default_exe
+ * A default filename which will be used as fallback.
+ * @return
+ *s A string containing the application's canonical filename,
  * which must be freed when no longer necessary. If BinReloc is not
  * initialized, or if initialization failed, then a copy of default_exe
- * will be returned. If default_exe is NULL, then NULL will be returned. */
+ * will be returned. If default_exe is NULL, then NULL will be returned.
+ */
 char *binreloc_find_exe(const char *default_exe)
 {
     TOOLKIT_PROTECT();
@@ -204,11 +211,14 @@ char *binreloc_find_exe(const char *default_exe)
  * @code
  * dirname(exename)
  * @endcode
- * @param default_dir A default directory which will used as fallback.
- * @return A string containing the directory, which must be freed when no
+ * @param default_dir
+ * A default directory which will used as fallback.
+ * @return
+ * A string containing the directory, which must be freed when no
  * longer necessary. If BinReloc is not initialized, or if the
  * initialization failed, then a copy of default_dir will be returned. If
- * default_dir is NULL, then NULL will be returned. */
+ * default_dir is NULL, then NULL will be returned.
+ */
 char *binreloc_find_exe_dir(const char *default_dir)
 {
     TOOLKIT_PROTECT();
@@ -231,11 +241,14 @@ char *binreloc_find_exe_dir(const char *default_dir)
  * @code
  * dirname(dirname(exename))
  * @endcode
- * @param default_prefix A default prefix which will used as fallback.
- * @return A string containing the prefix, which must be freed when no
+ * @param default_prefix
+ * A default prefix which will used as fallback.
+ * @return
+ * A string containing the prefix, which must be freed when no
  * longer necessary. If BinReloc is not initialized, or if the
  * initialization failed, then a copy of default_prefix will be returned.
- * If default_prefix is NULL, then NULL will be returned. */
+ * If default_prefix is NULL, then NULL will be returned.
+ */
 char *binreloc_find_prefix(const char *default_prefix)
 {
     TOOLKIT_PROTECT();
@@ -263,11 +276,14 @@ char *binreloc_find_prefix(const char *default_prefix)
  * @code
  * prefix + "/bin"
  * @endcode
- * @param default_bin_dir A default path which will used as fallback.
- * @return A string containing the bin folder's path, which must be freed
+ * @param default_bin_dir
+ * A default path which will used as fallback.
+ * @return
+ * A string containing the bin folder's path, which must be freed
  * when no longer necessary. If BinReloc is not initialized, or if the
  * initialization failed, then a copy of default_bin_dir will be
- * returned. If default_bin_dir is NULL, then NULL will be returned. */
+ * returned. If default_bin_dir is NULL, then NULL will be returned.
+ */
 char *binreloc_find_bin_dir(const char *default_bin_dir)
 {
     char *prefix, *dir;
@@ -296,11 +312,14 @@ char *binreloc_find_bin_dir(const char *default_bin_dir)
  * @code
  * prefix + "/sbin"
  * @endcode
- * @param default_sbin_dir A default path which will used as fallback.
- * @return A string containing the sbin folder's path, which must be
+ * @param default_sbin_dir
+ * A default path which will used as fallback.
+ * @return
+ * A string containing the sbin folder's path, which must be
  * freed when no longer necessary. If BinReloc is not initialized, or if
  * the initialization failed, then a copy of default_sbin_dir will be
- * returned. If default_bin_dir is NULL, then NULL will be returned. */
+ * returned. If default_bin_dir is NULL, then NULL will be returned.
+ */
 char *binreloc_find_sbin_dir (const char *default_sbin_dir)
 {
     char *prefix, *dir;
@@ -329,11 +348,14 @@ char *binreloc_find_sbin_dir (const char *default_sbin_dir)
  * @code
  * prefix + "/share"
  * @endcode
- * @param default_data_dir A default path which will used as fallback.
- * @return A string containing the data folder's path, which must be
+ * @param default_data_dir
+ * A default path which will used as fallback.
+ * @return
+ * A string containing the data folder's path, which must be
  * freed when no longer necessary. If BinReloc is not initialized, or if
  * the initialization failed, then a copy of default_data_dir will be
- * returned. If default_data_dir is NULL, then NULL will be returned. */
+ * returned. If default_data_dir is NULL, then NULL will be returned.
+ */
 char *binreloc_find_data_dir(const char *default_data_dir)
 {
     char *prefix, *dir;
@@ -362,12 +384,15 @@ char *binreloc_find_data_dir(const char *default_data_dir)
  * @code
  * prefix + "/share/locale"
  * @endcode
- * @param default_locale_dir A default path which will used as fallback.
- * @return A string containing the localization folder's path, which must
+ * @param default_locale_dir
+ * A default path which will used as fallback.
+ * @return
+ * A string containing the localization folder's path, which must
  * be freed when no longer necessary. If BinReloc is not initialized, or
  * if the initialization failed, then a copy of default_locale_dir will
  * be returned. If default_locale_dir is NULL, then NULL will be
- * returned. */
+ * returned.
+ */
 char *binreloc_find_locale_dir(const char *default_locale_dir)
 {
     char *data_dir, *dir;
@@ -396,11 +421,14 @@ char *binreloc_find_locale_dir(const char *default_locale_dir)
  * @code
  * prefix + "/lib"
  * @endcode
- * @param default_lib_dir A default path which will used as fallback.
- * @return A string containing the library folder's path, which must be
+ * @param default_lib_dir
+ * A default path which will used as fallback.
+ * @return
+ * A string containing the library folder's path, which must be
  * freed when no longer necessary. If BinReloc is not initialized, or if
  * the initialization failed, then a copy of default_lib_dir will be
- * returned. If default_lib_dir is NULL, then NULL will be returned. */
+ * returned. If default_lib_dir is NULL, then NULL will be returned.
+ */
 char *binreloc_find_lib_dir(const char *default_lib_dir)
 {
     char *prefix, *dir;
@@ -429,12 +457,15 @@ char *binreloc_find_lib_dir(const char *default_lib_dir)
  * @code
  * prefix + "/libexec"
  * @endcode
- * @param default_libexec_dir A default path which will used as fallback.
- * @return A string containing the libexec folder's path, which must be
+ * @param default_libexec_dir
+ * A default path which will used as fallback.
+ * @return
+ * A string containing the libexec folder's path, which must be
  * freed when no longer necessary. If BinReloc is not initialized, or if
  * the initialization failed, then a copy of default_libexec_dir will be
  * returned. If default_libexec_dir is NULL, then NULL will be
- * returned. */
+ * returned.
+ */
 char *binreloc_find_libexec_dir(const char *default_libexec_dir)
 {
     char *prefix, *dir;
@@ -463,11 +494,14 @@ char *binreloc_find_libexec_dir(const char *default_libexec_dir)
  * @code
  * prefix + "/etc"
  * @endcode
- * @param default_etc_dir A default path which will used as fallback.
- * @return A string containing the etc folder's path, which must be freed
+ * @param default_etc_dir
+ * A default path which will used as fallback.
+ * @return
+ * A string containing the etc folder's path, which must be freed
  * when no longer necessary. If BinReloc is not initialized, or if the
  * initialization failed, then a copy of default_etc_dir will be
- * returned. If default_etc_dir is NULL, then NULL will be returned. */
+ * returned. If default_etc_dir is NULL, then NULL will be returned.
+ */
 char *binreloc_find_etc_dir(const char *default_etc_dir)
 {
     char *prefix, *dir;

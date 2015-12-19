@@ -37,9 +37,12 @@
 /**
  * Create a food force to include buff/debuff effects of stats and
  * protections to the player.
- * @param who The player object.
- * @param food The food.
- * @param force The force object.
+ * @param who
+ * The player object.
+ * @param food
+ * The food.
+ * @param force
+ * The force object.
  */
 static void create_food_force(object *who, object *food, object *force)
 {
@@ -128,8 +131,11 @@ static void create_food_force(object *who, object *food, object *force)
  * Food effects can stack. For really powerful food, a high food value
  * should be set, so the player can't eat a lot of such food, as his
  * stomach will be full.
- * @param who Object eating the food.
- * @param food The food object. */
+ * @param who
+ * Object eating the food.
+ * @param food
+ * The food object.
+ */
 static void eat_special_food(object *who, object *food)
 {
     /* if there is any stat or protection value - create force for the object!
@@ -262,7 +268,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the food type object methods. */
+ * Initialize the food type object methods.
+ */
 void object_type_init_food(void)
 {
     object_type_methods[FOOD].apply_func = apply_func;

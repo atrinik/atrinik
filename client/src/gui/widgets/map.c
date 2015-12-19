@@ -137,7 +137,8 @@ void load_mapdef_dat(void)
 
 /**
  * Clear the map.
- * @param hard Hard reset
+ * @param hard
+ * Hard reset
  */
 void clear_map(bool hard)
 {
@@ -169,8 +170,10 @@ void clear_map(bool hard)
 /**
  * Update map size.
  *
- * @param w New width.
- * @param h New height.
+ * @param w
+ * New width.
+ * @param h
+ * New height.
  */
 void
 map_update_size (int w, int h)
@@ -194,10 +197,14 @@ map_update_size (int w, int h)
 
 /**
  * Scroll the map.
- * @param dx X offset.
- * @param dy Y offset.
- * @param old_w Old width. 0 if width hasn't changed.
- * @param old_h Old height. 0 if height hasn't changed.
+ * @param dx
+ * X offset.
+ * @param dy
+ * Y offset.
+ * @param old_w
+ * Old width. 0 if width hasn't changed.
+ * @param old_h
+ * Old height. 0 if height hasn't changed.
  */
 void display_mapscroll(int dx, int dy, int old_w, int old_h)
 {
@@ -247,7 +254,8 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h)
 
 /**
  * Update map's name.
- * @param name New map name.
+ * @param name
+ * New map name.
  */
 void update_map_name(const char *name)
 {
@@ -256,7 +264,8 @@ void update_map_name(const char *name)
 
 /**
  * Update map's weather.
- * @param weather New weather.
+ * @param weather
+ * New weather.
  */
 void update_map_weather(const char *weather)
 {
@@ -273,7 +282,8 @@ void update_map_height_diff(uint8_t height_diff)
 
 /**
  * Update map's region name.
- * @param region_name New region name.
+ * @param region_name
+ * New region name.
  */
 void update_map_region_name(const char *region_name)
 {
@@ -287,7 +297,8 @@ void update_map_region_name(const char *region_name)
 
 /**
  * Update map's region long name.
- * @param region_longname New region long name.
+ * @param region_longname
+ * New region long name.
  */
 void update_map_region_longname(const char *region_longname)
 {
@@ -296,7 +307,8 @@ void update_map_region_longname(const char *region_longname)
 
 /**
  * Update map's path.
- * @param map_path New map path.
+ * @param map_path
+ * New map path.
  */
 void update_map_path(const char *map_path)
 {
@@ -308,7 +320,8 @@ void update_map_path(const char *map_path)
  *
  * When entering a building, clears FoW objects from effect layer with non-zero
  * sub-layer.
- * @param in_building New in_building state.
+ * @param in_building
+ * New in_building state.
  */
 void map_update_in_building(uint8_t in_building)
 {
@@ -340,7 +353,8 @@ void map_update_in_building(uint8_t in_building)
 
 /**
  * Get player's direction.
- * @return Player's direction.
+ * @return
+ * Player's direction.
  */
 int map_get_player_direction(void)
 {
@@ -373,10 +387,14 @@ void map_get_real_coords(int *x, int *y)
 
 /**
  * Initialize map's data.
- * @param xl Map width.
- * @param yl Map height.
- * @param px Player's X position.
- * @param py Player's Y position.
+ * @param xl
+ * Map width.
+ * @param yl
+ * Map height.
+ * @param px
+ * Player's X position.
+ * @param py
+ * Player's Y position.
  */
 void init_map_data(int xl, int yl, int px, int py)
 {
@@ -408,11 +426,16 @@ void init_map_data(int xl, int yl, int px, int py)
  * Calculate height of X/Y coordinate on the specified cell.
  *
  * Checks for X/Y overflows.
- * @param x X position.
- * @param y Y position.
- * @param w Max width.
- * @param h Max height.
- * @return The height.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param w
+ * Max width.
+ * @param h
+ * Max height.
+ * @return
+ * The height.
  */
 static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer,
         int my_height)
@@ -450,11 +473,16 @@ static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer,
 
 /**
  * Align tile stretch based on X/Y.
- * @param x X position.
- * @param y Y position.
- * @param w Max width.
- * @param h Max height.
- * @param sub_layer Sub-layer.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param w
+ * Max width.
+ * @param h
+ * Max height.
+ * @param sub_layer
+ * Sub-layer.
  */
 static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
 {
@@ -604,20 +632,34 @@ void adjust_tile_stretch(void)
  * Set data for map cell.
  *
  * If FOW was previously set on this cell, cell data is cleared.
- * @param x X of the cell.
- * @param y Y of the cell.
- * @param layer Layer we're doing this for.
- * @param face Face to set.
- * @param quick_pos Is this a multi-arch?
- * @param obj_flags Flags.
- * @param name Player's name.
- * @param name_color Player's name color.
- * @param height Z position of the tile.
- * @param probe Target's HP bar.
- * @param zoom How much to zoom the face by.
- * @param align X align.
- * @param rotate Rotation in degrees.
- * @param infravision Whether to show the object in red.
+ * @param x
+ * X of the cell.
+ * @param y
+ * Y of the cell.
+ * @param layer
+ * Layer we're doing this for.
+ * @param face
+ * Face to set.
+ * @param quick_pos
+ * Is this a multi-arch?
+ * @param obj_flags
+ * Flags.
+ * @param name
+ * Player's name.
+ * @param name_color
+ * Player's name color.
+ * @param height
+ * Z position of the tile.
+ * @param probe
+ * Target's HP bar.
+ * @param zoom
+ * How much to zoom the face by.
+ * @param align
+ * X align.
+ * @param rotate
+ * Rotation in degrees.
+ * @param infravision
+ * Whether to show the object in red.
  */
 void map_set_data(int x, int y, int layer, int16_t face,
         uint8_t quick_pos, uint8_t obj_flags, const char *name,
@@ -725,8 +767,10 @@ void map_set_data(int x, int y, int layer, int16_t face,
  *
  * In reality, this only clears some data on the cell, and sets the FOW flag
  * to mark that the cell is actually FOW.
- * @param x X of the cell.
- * @param y Y of the cell.
+ * @param x
+ * X of the cell.
+ * @param y
+ * Y of the cell.
  */
 void map_clear_cell(int x, int y)
 {
@@ -746,10 +790,14 @@ void map_clear_cell(int x, int y)
 
 /**
  * Set darkness for map's cell.
- * @param x X of the cell.
- * @param y Y of the cell.
- * @param sub_layer Sub-layer.
- * @param darkness Darkness to set.
+ * @param x
+ * X of the cell.
+ * @param y
+ * Y of the cell.
+ * @param sub_layer
+ * Sub-layer.
+ * @param darkness
+ * Darkness to set.
  */
 void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness)
 {
@@ -761,9 +809,12 @@ void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness)
 
 /**
  * Get the height of the topmost floor on the specified square.
- * @param x X position.
- * @param y Y position.
- * @return The height.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @return
+ * The height.
  */
 static int get_top_floor_height(struct MapCell *cell, int sub_layer)
 {
@@ -908,8 +959,10 @@ typedef struct map_render_data {
 /**
  * Draw a single object on the map.
  *
- * @param surface Surface to render on.
- * @param data Rendering data. May be modified.
+ * @param surface
+ * Surface to render on.
+ * @param data
+ * Rendering data. May be modified.
  */
 static void
 draw_map_object (SDL_Surface *surface, map_render_data_t *data)
@@ -1192,11 +1245,16 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
 /**
  * Calculates whether the specified coordinates are behind a wall.
  *
- * @param dx Start X.
- * @param dy Start Y.
- * @param sx End X.
- * @param sy End Y.
- * @return Whether the coordinates @p dx and @p dy are behind a wall or not.
+ * @param dx
+ * Start X.
+ * @param dy
+ * Start Y.
+ * @param sx
+ * End X.
+ * @param sy
+ * End Y.
+ * @return
+ * Whether the coordinates @p dx and @p dy are behind a wall or not.
  */
 static bool
 obj_is_behind_wall (int dx, int dy, int sx, int sy)
@@ -1232,9 +1290,12 @@ obj_is_behind_wall (int dx, int dy, int sx, int sy)
 /**
  * Determine if an object being rendered should be culled.
  *
- * @param surface Surface that rendering is being done for.
- * @param data Rendering data.
- * @return Whether the object should be culled.
+ * @param surface
+ * Surface that rendering is being done for.
+ * @param data
+ * Rendering data.
+ * @return
+ * Whether the object should be culled.
  */
 static bool
 map_should_cull (SDL_Surface           *surface,
@@ -1300,9 +1361,12 @@ map_should_cull (SDL_Surface           *surface,
  *
  * Assigns the cell to be rendered in the map render data structure on success.
  *
- * @param surface Surface rendering is being done on.
- * @param data Map rendering data.
- * @return Whether the tile should be rendered.
+ * @param surface
+ * Surface rendering is being done on.
+ * @param data
+ * Map rendering data.
+ * @return
+ * Whether the tile should be rendered.
  */
 static bool
 map_should_draw (SDL_Surface *surface, map_render_data_t *data)
@@ -1354,7 +1418,8 @@ map_should_draw (SDL_Surface *surface, map_render_data_t *data)
  * Setup the base information in a map render data structure and calculate
  * X/Y cell indexes and maximum dimensions.
  *
- * @param surface Surface rendering is being done for.
+ * @param surface
+ * Surface rendering is being done for.
  * @param[out] data Map rendering data.
  * @param[out] x Will contain X index of the cell to render. Can be NULL.
  * @param[out] y Will contain Y index of the cell to render. Can be NULL.
@@ -1437,7 +1502,8 @@ map_setup_render_data (SDL_Surface       *surface,
 /**
  * Draw the map.
  *
- * @param surface Surface to render on.
+ * @param surface
+ * Surface to render on.
  */
 void
 map_draw_map (SDL_Surface *surface)
@@ -1777,9 +1843,12 @@ map_draw_map (SDL_Surface *surface)
 
 /**
  * Draw one sprite on map.
- * @param x X position.
- * @param y Y position.
- * @param surface What to draw.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param surface
+ * What to draw.
  */
 void map_draw_one(int x, int y, SDL_Surface *surface)
 {
@@ -1830,8 +1899,10 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
 /**
  * Send a command to move the player to the specified square.
  *
- * @param tx Square X position.
- * @param ty Square Y position.
+ * @param tx
+ * Square X position.
+ * @param ty
+ * Square Y position.
  */
 static void
 send_move_path (int tx, int ty)
@@ -1850,9 +1921,12 @@ send_move_path (int tx, int ty)
 
 /**
  * Send a command to target an NPC.
- * @param tx NPC's X position.
- * @param ty NPC's Y position.
- * @param count NPC's UID.
+ * @param tx
+ * NPC's X position.
+ * @param ty
+ * NPC's Y position.
+ * @param count
+ * NPC's UID.
  */
 static void send_target(int x, int y, uint32_t count)
 {
@@ -1879,9 +1953,12 @@ static void send_target(int x, int y, uint32_t count)
 
 /**
  * Compare distances between two targets on the map.
- * @param a First target.
- * @param b Second target.
- * @return Comparison result.
+ * @param a
+ * First target.
+ * @param b
+ * Second target.
+ * @return
+ * Comparison result.
  */
 static int map_target_cmp(const void *a, const void *b)
 {
@@ -1908,7 +1985,8 @@ static int map_target_cmp(const void *a, const void *b)
 
 /**
  * Target something on the map.
- * @param is_friend 1 if targeting friendlies only.
+ * @param is_friend
+ * 1 if targeting friendlies only.
  */
 void map_target_handle(uint8_t is_friend)
 {
@@ -1986,11 +2064,14 @@ void map_target_handle(uint8_t is_friend)
  * Both 'tx' and 'ty' can be NULL, which is useful if you only want to
  * check if the mouse is over a valid map tile.
  *
- * @param mx Mouse X.
- * @param my Mouse Y.
+ * @param mx
+ * Mouse X.
+ * @param my
+ * Mouse Y.
  * @param[out] tx Will contain tile X, unless function returns false.
  * @param[out] ty Will contain tile Y, unless function returns false.
- * @return True on success, false on failure.
+ * @return
+ * True on success, false on failure.
  */
 bool
 mouse_to_tile_coords (int mx, int my, int *tx, int *ty)
@@ -2066,9 +2147,12 @@ mouse_to_tile_coords (int mx, int my, int *tx, int *ty)
 
 /**
  * Handle the "Walk Here" option in map widget menu.
- * @param widget Map widget.
- * @param menuitem Menu item.
- * @param event Event.
+ * @param widget
+ * Map widget.
+ * @param menuitem
+ * Menu item.
+ * @param event
+ * Event.
  */
 static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -2085,9 +2169,12 @@ static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * Handle the "Talk To NPC" option in map widget menu.
- * @param widget Map widget.
- * @param menuitem Menu item.
- * @param event Event.
+ * @param widget
+ * Map widget.
+ * @param menuitem
+ * Menu item.
+ * @param event
+ * Event.
  */
 static void menu_map_talk_to(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -2348,12 +2435,18 @@ void widget_map_init(widgetdata *widget)
 
 /**
  * Add an animation.
- * @param type Animation type, one of @ref ANIM_xxx.
- * @param mapx Map X.
- * @param mapy Map Y.
- * @param sub_layer Sub-layer.
- * @param value Value to display.
- * @return Created animation.
+ * @param type
+ * Animation type, one of @ref ANIM_xxx.
+ * @param mapx
+ * Map X.
+ * @param mapy
+ * Map Y.
+ * @param sub_layer
+ * Sub-layer.
+ * @param value
+ * Value to display.
+ * @return
+ * Created animation.
  */
 struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer,
         int value)
@@ -2403,7 +2496,8 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer,
 
 /**
  * Remove a map animation.
- * @param anim The animation to remove.
+ * @param anim
+ * The animation to remove.
  */
 void maps_anims_remove(map_anim_t *anim)
 {
@@ -2416,8 +2510,10 @@ void maps_anims_remove(map_anim_t *anim)
 
 /**
  * Adjust the X/Y coordinates of map animations due to a map scroll.
- * @param xoff X offset.
- * @param Yoff Y offset.
+ * @param xoff
+ * X offset.
+ * @param Yoff
+ * Y offset.
  */
 void map_anims_mapscroll(int xoff, int yoff)
 {
@@ -2519,7 +2615,8 @@ void map_anims_play(void)
 
 /**
  * Check whether the damage animations need redrawing.
- * @return 1 if the damage animations need redrawing, 0 otherwise.
+ * @return
+ * 1 if the damage animations need redrawing, 0 otherwise.
  */
 int map_anims_need_redraw(void)
 {

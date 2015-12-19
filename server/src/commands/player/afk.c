@@ -26,7 +26,8 @@
  * @file
  * Implements the /afk command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

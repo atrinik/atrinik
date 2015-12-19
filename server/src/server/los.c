@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Line of sight related functions. */
+ * Line of sight related functions.
+ */
 
 #include <global.h>
 #include <bresenham.h>
@@ -34,7 +35,8 @@
  * An object is 1.0 wide, so if set to 0.5, it means the object
  * that blocks half the view (0.0 is complete block) will
  * block view in our tables.
- * .4 or less lets you see through walls.  .5 is about right. */
+ * .4 or less lets you see through walls.  .5 is about right.
+ */
 #define SPACE_BLOCK 0.5
 
 typedef struct blstr {
@@ -54,7 +56,8 @@ static void expand_sight(object *op);
  * Since we are only doing the upper left quadrant, only
  * these spaces could possibly get blocked, since these
  * are the only ones further out that are still possibly in the
- * sightline. */
+ * sightline.
+ */
 void init_block(void)
 {
     int x, y, dx, dy, i;
@@ -128,10 +131,15 @@ void init_block(void)
  * etc. So when we check 5, 4 and find it block, we have
  * the data to know that 5, 3 and 5, 2 and 5, 1 should
  * also be blocked.
- * @param x X position
- * @param y Y position
- * @param bx Blocked X position
- * @param by Blocked Y position */
+ * @param x
+ * X position
+ * @param y
+ * Y position
+ * @param bx
+ * Blocked X position
+ * @param by
+ * Blocked Y position
+ */
 void set_block(int x, int y, int bx, int by)
 {
     int idx = block[x][y].index, i;
@@ -157,9 +165,13 @@ void set_block(int x, int y, int bx, int by)
  * the view of the spaces 'behind' it, and those blocked
  * spaces behind it may block other spaces, etc.
  * In this way, the chain of visibility is set.
- * @param op Player object
- * @param x X position
- * @param y Y position */
+ * @param op
+ * Player object
+ * @param x
+ * X position
+ * @param y
+ * Y position
+ */
 static void set_wall(object *op, int x, int y)
 {
     int i, xt, yt;
@@ -197,9 +209,13 @@ static void set_wall(object *op, int x, int y)
  * Instead of light values, blocked_los[][] now tells the client
  * update function what kind of tile we have: visible, sight
  * blocked, blocksview trigger or out of map.
- * @param op The player object
- * @param x X position based on MAP_CLIENT_X
- * @param y Y position based on MAP_CLIENT_Y */
+ * @param op
+ * The player object
+ * @param x
+ * X position based on MAP_CLIENT_X
+ * @param y
+ * Y position based on MAP_CLIENT_Y
+ */
 static void check_wall(object *op, int x, int y)
 {
     int ax, ay, flags;
@@ -271,7 +287,9 @@ static void check_wall(object *op, int x, int y)
  * Sets all viewable squares to blocked except for the central one that
  * the player occupies. A little odd that you can see yourself (and what
  * you're standing on), but really need for any reasonable game play.
- * @param op Player's object for which to reset los. */
+ * @param op
+ * Player's object for which to reset los.
+ */
 static void blinded_sight(object *op)
 {
     int x, y;
@@ -288,7 +306,9 @@ static void blinded_sight(object *op)
 /**
  * Recalculates the array which specifies what is visible
  * for the given player object.
- * @param op The player object */
+ * @param op
+ * The player object
+ */
 void update_los(object *op)
 {
     int dx = CONTR(op)->socket.mapx_2, dy = CONTR(op)->socket.mapy_2, x, y;
@@ -335,7 +355,9 @@ void update_los(object *op)
 /**
  * Clears/initializes the LOS array associated to the player
  * controlling the object.
- * @param op The player object. */
+ * @param op
+ * The player object.
+ */
 void clear_los(object *op)
 {
     (void) memset(CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
@@ -349,8 +371,10 @@ void clear_los(object *op)
  * a certain degree, be able to see into corners.
  * This is somewhat suboptimal, would be better to improve the
  * formula.
- * @param op The player object.
- * @todo Improve the formula. */
+ * @param op
+ * The player object.
+ * @todo Improve the formula.
+ */
 static void expand_sight(object *op)
 {
     int i, x, y, dx, dy;
@@ -391,9 +415,13 @@ static void expand_sight(object *op)
  * This will check also check for blocksview 1 objects.
  *
  * Uses the Bresenham line algorithm.
- * @param obj The object to check
- * @param rv rv_vector to get distances, map, etc from
- * @return 1 if in line of sight, 0 otherwise */
+ * @param obj
+ * The object to check
+ * @param rv
+ * rv_vector to get distances, map, etc from
+ * @return
+ * 1 if in line of sight, 0 otherwise
+ */
 int obj_in_line_of_sight(object *obj, rv_vector *rv)
 {
     /* Bresenham variables */

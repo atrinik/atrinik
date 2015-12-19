@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref WEAPON "weapons".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the weapon type object methods. */
+ * Initialize the weapon type object methods.
+ */
 void object_type_init_weapon(void)
 {
     object_type_methods[WEAPON].apply_func = object_apply_item;

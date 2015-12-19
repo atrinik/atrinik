@@ -26,7 +26,8 @@
  * @file
  * This contains item logic for client/server. It doesn't contain the
  * actual commands that send the data, but does contain the logic for
- * what items should be sent. */
+ * what items should be sent.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -40,8 +41,11 @@ static int check_container(object *pl, object *con);
 /**
  * This is a similar to query_name, but returns flags to be sent to
  * client.
- * @param op Object to query the flags for.
- * @return Flags. */
+ * @param op
+ * Object to query the flags for.
+ * @return
+ * Flags.
+ */
 unsigned int query_flags(object *op)
 {
     uint32_t flags = 0;
@@ -87,12 +91,18 @@ unsigned int query_flags(object *op)
 
 /**
  * Add data about object to a packet.
- * @param packet Packet to append to.
- * @param op Object to add information about.
- * @param pl Player that will receive the data.
- * @param apply_action One of @ref CMD_APPLY_ACTION_xxx.
- * @param flags Combination of @ref UPD_XXX.
- * @param level Inventory level.
+ * @param packet
+ * Packet to append to.
+ * @param op
+ * Object to add information about.
+ * @param pl
+ * Player that will receive the data.
+ * @param apply_action
+ * One of @ref CMD_APPLY_ACTION_xxx.
+ * @param flags
+ * Combination of @ref UPD_XXX.
+ * @param level
+ * Inventory level.
  */
 void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
         uint8_t apply_action, uint32_t flags, int level)
@@ -289,10 +299,14 @@ void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
 
 /**
  * Recursively draw inventory of an object for DMs.
- * @param pl DM.
- * @param packet Packet to append to.
- * @param op Object of which inventory is going to be sent.
- * @param level Inventory level.
+ * @param pl
+ * DM.
+ * @param packet
+ * Packet to append to.
+ * @param op
+ * Object of which inventory is going to be sent.
+ * @param level
+ * Inventory level.
  */
 static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
         int level)
@@ -374,7 +388,8 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
  *
  * This sends all the faces to the client, not just updates. This is
  * because object ordering would otherwise be inconsistent.
- * @param pl Player to draw the look window for.
+ * @param pl
+ * Player to draw the look window for.
  */
 void esrv_draw_look(object *pl)
 {
@@ -499,8 +514,10 @@ void esrv_draw_look(object *pl)
 
 /**
  * Close a container.
- * @param pl Player to close container of.
- * @param op The container.
+ * @param pl
+ * Player to close container of.
+ * @param op
+ * The container.
  */
 void esrv_close_container(object *pl, object *op)
 {
@@ -529,9 +546,12 @@ void esrv_close_container(object *pl, object *op)
 
 /**
  * Sends a whole inventory of an object.
- * @param pl Player to send the inventory to.
- * @param op Object to send inventory of. Can be same as 'pl' to send
- * inventory of the player. */
+ * @param pl
+ * Player to send the inventory to.
+ * @param op
+ * Object to send inventory of. Can be same as 'pl' to send
+ * inventory of the player.
+ */
 void esrv_send_inventory(object *pl, object *op)
 {
     packet_struct *packet;
@@ -578,9 +598,13 @@ void esrv_send_inventory(object *pl, object *op)
 
 /**
  * Informs client about new object data.
- * @param flags List of values to update.
- * @param pl The player.
- * @param op The object to update. */
+ * @param flags
+ * List of values to update.
+ * @param pl
+ * The player.
+ * @param op
+ * The object to update.
+ */
 static void esrv_update_item_send(int flags, object *pl, object *op)
 {
     packet_struct *packet;
@@ -605,8 +629,11 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 /**
  * Updates specified data about the specified object for all involved
  * clients.
- * @param flags List of values to update.
- * @param op The object to update. */
+ * @param flags
+ * List of values to update.
+ * @param op
+ * The object to update.
+ */
 void esrv_update_item(int flags, object *op)
 {
     if (op->type == PLAYER) {
@@ -626,8 +653,11 @@ void esrv_update_item(int flags, object *op)
 
 /**
  * Informs a client about the specified object.
- * @param pl The player.
- * @param op Object to send information of. */
+ * @param pl
+ * The player.
+ * @param op
+ * Object to send information of.
+ */
 static void esrv_send_item_send(object *pl, object *op)
 {
     packet_struct *packet;
@@ -665,7 +695,9 @@ static void esrv_send_item_send(object *pl, object *op)
 
 /**
  * Informs all involved clients about the specified object.
- * @param op Object to send information of. */
+ * @param op
+ * Object to send information of.
+ */
 void esrv_send_item(object *op)
 {
     object *tmp;
@@ -688,8 +720,11 @@ void esrv_send_item(object *op)
 
 /**
  * Informs a client about item deletion.
- * @param pl Player.
- * @param op The item that was deleted. */
+ * @param pl
+ * Player.
+ * @param op
+ * The item that was deleted.
+ */
 static void esrv_del_item_send(object *pl, object *op)
 {
     packet_struct *packet;
@@ -712,7 +747,9 @@ static void esrv_del_item_send(object *pl, object *op)
 
 /**
  * Informs involved clients about item deletion.
- * @param op The item that was deleted. */
+ * @param op
+ * The item that was deleted.
+ */
 void esrv_del_item(object *op)
 {
     /* No object or object is not inside an inventory, nothing to do. */
@@ -732,7 +769,8 @@ void esrv_del_item(object *op)
 }
 
 /**
- * Recursive part of esrv_get_ob_from_count(). */
+ * Recursive part of esrv_get_ob_from_count().
+ */
 static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
 {
     for (object *tmp = where; tmp != NULL; tmp = tmp->below) {
@@ -764,9 +802,13 @@ static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
 /**
  * Looks for an object player's client requested in player's inventory
  * and below player.
- * @param pl Player.
- * @param count ID of the object to look for.
- * @return The found object, NULL if it can't be found. */
+ * @param pl
+ * Player.
+ * @param count
+ * ID of the object to look for.
+ * @return
+ * The found object, NULL if it can't be found.
+ */
 object *esrv_get_ob_from_count(object *pl, tag_t count)
 {
     if (pl->count == count) {
@@ -820,7 +862,9 @@ void socket_command_item_examine(socket_struct *ns, player *pl, uint8_t *data, s
 
 /**
  * Send quickslots to player.
- * @param pl Player to send the quickslots to. */
+ * @param pl
+ * Player to send the quickslots to.
+ */
 void send_quickslots(player *pl)
 {
     HARD_ASSERT(pl != NULL);
@@ -981,10 +1025,15 @@ void socket_command_item_mark(socket_struct *ns, player *pl, uint8_t *data, size
 
 /**
  * Move an object to a new location.
- * @param pl Player.
- * @param to ID of the object to move the object. If 0, it's on ground.
- * @param tag ID of the object to drop.
- * @param nrof How many objects to drop. */
+ * @param pl
+ * Player.
+ * @param to
+ * ID of the object to move the object. If 0, it's on ground.
+ * @param tag
+ * ID of the object to drop.
+ * @param nrof
+ * How many objects to drop.
+ */
 void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 {
     object *op, *env;
@@ -1065,9 +1114,13 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
  *
  * Locked or FLAG_STARTEQUIP items cannot be dropped, so we check if the
  * container carries one (or one of containers in that container).
- * @param pl Player.
- * @param con Container.
- * @return 0 if it can be dropped, non-zero otherwise. */
+ * @param pl
+ * Player.
+ * @param con
+ * Container.
+ * @return
+ * 0 if it can be dropped, non-zero otherwise.
+ */
 static int check_container(object *pl, object *con)
 {
     object *current, *next;

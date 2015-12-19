@@ -26,7 +26,8 @@
  * @file
  * Handles code related to @ref COMPASS "compasses".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -47,7 +48,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the compass type object methods. */
+ * Initialize the compass type object methods.
+ */
 void object_type_init_compass(void)
 {
     object_type_methods[COMPASS].apply_func = apply_func;

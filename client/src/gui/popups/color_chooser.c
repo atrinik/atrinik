@@ -26,7 +26,8 @@
  * @file
  * Color chooser popup.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -67,7 +68,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
 /**
  * Open a color chooser popup.
- * @return Allocated color picker. */
+ * @return
+ * Allocated color picker.
+ */
 color_picker_struct *color_chooser_open(void)
 {
     popup_struct *popup;

@@ -30,7 +30,8 @@
  * he's at full spellpoints, or give him mana, if it's got spellpoints
  * stored.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -60,7 +61,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the power crystal type object methods. */
+ * Initialize the power crystal type object methods.
+ */
 void object_type_init_power_crystal(void)
 {
     object_type_methods[POWER_CRYSTAL].apply_func = apply_func;

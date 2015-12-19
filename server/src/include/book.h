@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Book related definitions (type BOOK). */
+ * Book related definitions (type BOOK).
+ */
 
 #ifndef BOOK_H
 #define BOOK_H
@@ -32,7 +33,8 @@
 /**
  * Maximum message buf size for books.
  * @note Note that the book messages are stored in the msg buf, which is
- * limited by 'HUGE_BUF' in the loader. */
+ * limited by 'HUGE_BUF' in the loader.
+ */
 #define BOOK_BUF ((HUGE_BUF / 2) - 10)
 
 #define MSGTYPE_MSGFILE 0

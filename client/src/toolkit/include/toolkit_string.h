@@ -46,7 +46,8 @@
 /**
  * Skip whitespace in the specified string.
  *
- * @param str The string. Cannot be NULL.
+ * @param str
+ * The string. Cannot be NULL.
  */
 #define string_skip_whitespace(str)     \
 do {                                    \
@@ -59,7 +60,8 @@ do {                                    \
 /**
  * Strip the trailing newline in the specified string, if any.
  *
- * @param str The string. Cannot be NULL.
+ * @param str
+ * The string. Cannot be NULL.
  */
 #define string_strip_newline(str)                       \
 do {                                                    \

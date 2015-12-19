@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Lighting system. */
+ * Lighting system.
+ */
 
 #include <global.h>
 
@@ -243,10 +244,15 @@ static int light_mask_adjust(mapstruct *map, int x, int y, int intensity, int mo
  * Add or remove a light source to a map space.
  * Adjust the light source map counter and apply
  * the area of light it invokes around it.
- * @param map The map of this light
- * @param x X position of light
- * @param y Y position of light
- * @param light Glow radius of the light */
+ * @param map
+ * The map of this light
+ * @param x
+ * X position of light
+ * @param y
+ * Y position of light
+ * @param light
+ * Glow radius of the light
+ */
 void adjust_light_source(mapstruct *map, int x, int y, int light)
 {
     int nlm, olm;
@@ -311,7 +317,9 @@ void adjust_light_source(mapstruct *map, int x, int y, int light)
  * Check light source list of specified map.
  * This will also check all tiled maps attached
  * to the map.
- * @param map The map to check. */
+ * @param map
+ * The map to check.
+ */
 void check_light_source_list(mapstruct *map)
 {
     int i, intensity, x, y, reaching;
@@ -409,7 +417,9 @@ void check_light_source_list(mapstruct *map)
 
 /**
  * Remove light sources list from a map.
- * @param map The map to remove from. */
+ * @param map
+ * The map to remove from.
+ */
 void remove_light_source_list(mapstruct *map)
 {
     MapSpace *tmp;

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Server main related functions. */
+ * Server main related functions.
+ */
 
 #include <global.h>
 #include <gitversion.h>
@@ -42,7 +43,8 @@ static object marker;
 
 /**
  * @defgroup first_xxx Beginnings of linked lists.
- *@{*/
+ *@{
+ */
 /** First player. */
 player *first_player;
 /** First map. */
@@ -67,8 +69,10 @@ static void do_specials(void);
 
 /**
  * Shows version information.
- * @param op If NULL the version is logged using LOG(), otherwise it is
- * shown to the player object using draw_info_format(). */
+ * @param op
+ * If NULL the version is logged using LOG(), otherwise it is
+ * shown to the player object using draw_info_format().
+ */
 void version(object *op)
 {
     char buf[HUGE_BUF];
@@ -89,7 +93,9 @@ void version(object *op)
 /**
  * All this really is is a glorified object_removeject that also updates the
  * counts on the map if needed and sets map timeout if needed.
- * @param op The object leaving the map. */
+ * @param op
+ * The object leaving the map.
+ */
 void leave_map(object *op)
 {
     object_remove(op, 0);
@@ -104,7 +110,9 @@ void leave_map(object *op)
 
 /**
  * Sets map timeout value.
- * @param map The map to set the timeout for. */
+ * @param map
+ * The map to set the timeout for.
+ */
 void set_map_timeout(mapstruct *map)
 {
 #if MAP_DEFAULTTIMEOUT
@@ -279,7 +287,8 @@ process_events (void)
 }
 
 /**
- * Clean temporary map files. */
+ * Clean temporary map files.
+ */
 void clean_tmp_files(void)
 {
     mapstruct *m, *tmp;
@@ -307,7 +316,8 @@ void clean_tmp_files(void)
 }
 
 /**
- * Shut down the server, saving and freeing all data. */
+ * Shut down the server, saving and freeing all data.
+ */
 void server_shutdown(void)
 {
     player_disconnect_all();
@@ -318,7 +328,8 @@ void server_shutdown(void)
 /**
  * Dequeue path requests.
  * @todo Only compute time if there is something more in the queue,
- * something like if (path_request_queue_empty()) { break; } */
+ * something like if (path_request_queue_empty()) { break; }
+ */
 static void dequeue_path_requests(void)
 {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING
@@ -360,12 +371,19 @@ static void dequeue_path_requests(void)
 
 /**
  * Swap one apartment (unique) map for another.
- * @param mapold Old map path.
- * @param mapnew Map to switch for.
- * @param x X position where player's items from old map will go to.
- * @param y Y position where player's items from old map will go to.
- * @param op Player we're doing the switching for.
- * @return 1 on success, 0 on failure. */
+ * @param mapold
+ * Old map path.
+ * @param mapnew
+ * Map to switch for.
+ * @param x
+ * X position where player's items from old map will go to.
+ * @param y
+ * Y position where player's items from old map will go to.
+ * @param op
+ * Player we're doing the switching for.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op)
 {
     char *cleanpath, *path;
@@ -466,7 +484,8 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 }
 
 /**
- * Collection of functions to call from time to time. */
+ * Collection of functions to call from time to time.
+ */
 static void do_specials(void)
 {
     if (!(pticks % 2)) {
@@ -547,9 +566,13 @@ void main_process(void)
 
 /**
  * The main function.
- * @param argc Number of arguments.
- * @param argv Arguments.
- * @return 0. */
+ * @param argc
+ * Number of arguments.
+ * @param argv
+ * Arguments.
+ * @return
+ * 0.
+ */
 int main(int argc, char **argv)
 {
 #ifdef WIN32

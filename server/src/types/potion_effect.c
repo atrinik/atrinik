@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref POTION_EFFECT "potion effect".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the potion effect type object methods. */
+ * Initialize the potion effect type object methods.
+ */
 void object_type_init_potion_effect(void)
 {
 }

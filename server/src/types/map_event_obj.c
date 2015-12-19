@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref MAP_EVENT_OBJ "map event objects".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -54,7 +55,8 @@ static void remove_map_func(object *op)
 }
 
 /**
- * Initialize the map event object type object methods. */
+ * Initialize the map event object type object methods.
+ */
 void object_type_init_map_event_obj(void)
 {
     object_type_methods[MAP_EVENT_OBJ].remove_map_func = remove_map_func;

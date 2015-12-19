@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles the world maker code. */
+ * Handles the world maker code.
+ */
 
 #include <global.h>
 #include <loader.h>
@@ -181,11 +182,16 @@ static void wm_images_deinit(void)
 
 /**
  * Render a single object on the image 'im'.
- * @param im Image to render on.
- * @param x X position.
- * @param y Y position.
- * @param ob Object to render.
- * @return 1 if we rendered the object, 0 otherwise.
+ * @param im
+ * Image to render on.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param ob
+ * Object to render.
+ * @return
+ * 1 if we rendered the object, 0 otherwise.
  */
 static int render_object(gdImagePtr im, int x, int y, object *ob)
 {
@@ -349,8 +355,10 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 
 /**
  * Add map to region.
- * @param r Region.
- * @param m Map to add.
+ * @param r
+ * Region.
+ * @param m
+ * Map to add.
  */
 static void region_add_map(wm_region *r, mapstruct *m)
 {
@@ -365,9 +373,12 @@ static void region_add_map(wm_region *r, mapstruct *m)
 /**
  * Check if the specified map is in the specified region. Parent regions
  * are checked for match.
- * @param m Map.
- * @param name Region to check.
- * @return 1 if it is in the region, 0 otherwise.
+ * @param m
+ * Map.
+ * @param name
+ * Region to check.
+ * @return
+ * 1 if it is in the region, 0 otherwise.
  */
 static int map_in_region(mapstruct *m, const char *name)
 {
@@ -384,9 +395,12 @@ static int map_in_region(mapstruct *m, const char *name)
 
 /**
  * Recursively add maps to a region.
- * @param r Region.
- * @param m Start map.
- * @param region_name Region name.
+ * @param r
+ * Region.
+ * @param m
+ * Start map.
+ * @param region_name
+ * Region name.
  */
 static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 {

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Map header file. */
+ * Map header file.
+ */
 
 #ifndef MAP_H
 #define MAP_H
@@ -50,7 +51,8 @@
 /**
  * @defgroup LAYER_xxx Layer types
  * The layer types used for different objects.
- *@{*/
+ *@{
+ */
 /** System objects. */
 #define LAYER_SYS 0
 /** Floor. */
@@ -70,13 +72,16 @@
 /*@}*/
 
 /**
- * The number of object layers. */
+ * The number of object layers.
+ */
 #define NUM_LAYERS 7
 /**
- * Number of sub-layers. */
+ * Number of sub-layers.
+ */
 #define NUM_SUB_LAYERS 7
 /**
- * Effective number of all the visible layers. */
+ * Effective number of all the visible layers.
+ */
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
 
 #define GET_MAP_LAYER(_layer, _sub_layer) \
@@ -146,22 +151,26 @@ typedef struct _mapdata {
     /**
      * If set, height difference will be taken into account when rendering
      * tiles (even if they are not FoW tiles).
-     */
+
+ */
     int height_diff : 1;
 
     /**
      * If 1, the player is currently in a building.
-     */
+
+ */
     int in_building : 1;
 
     /**
      * Player's current sub-layer.
-     */
+
+ */
     uint8_t player_sub_layer;
 
     /**
      * Region map.
-     */
+
+ */
     struct region_map *region_map;
 } _mapdata;
 
@@ -219,12 +228,14 @@ typedef struct MapCell {
 
     /**
      * Target object.
-     */
+
+ */
     uint32_t target_object_count[NUM_REAL_LAYERS];
 
     /**
      * Whether the target is a friend.
-     */
+
+ */
     uint8_t target_is_friend[NUM_REAL_LAYERS];
 
     uint8_t anim_last[NUM_REAL_LAYERS];
@@ -239,7 +250,8 @@ typedef struct MapCell {
 
     /**
      * Whether Fog of War is enabled on this cell.
-     */
+
+ */
     uint8_t fow;
 
     uint8_t priority[NUM_SUB_LAYERS];
@@ -287,7 +299,8 @@ typedef struct map_target_struct {
 /**
  * @defgroup ANIM_xxx Animation types
  * Animation types.
- *@{*/
+ *@{
+ */
 /** Damage animation. */
 #define ANIM_DAMAGE     1
 /** Kill animation. */

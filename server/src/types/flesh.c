@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref FLESH "flesh".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the flesh type object methods. */
+ * Initialize the flesh type object methods.
+ */
 void object_type_init_flesh(void)
 {
     object_type_methods[FLESH].fallback = &object_type_methods[FOOD];

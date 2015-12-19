@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles file updates that the client may request. */
+ * Handles file updates that the client may request.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -33,15 +34,19 @@
 
 /**
  * All the files the client can request an update for, sorted using
- * Quicksort.. */
+ * Quicksort..
+ */
 static update_file_struct *update_files;
 /** Number of ::update_files. */
 static size_t update_files_num;
 
 /**
  * Add a new file to ::update_files.
- * @param filename Path to the file to add.
- * @param sb Stat buffer. */
+ * @param filename
+ * Path to the file to add.
+ * @param sb
+ * Stat buffer.
+ */
 static void updates_file_new(const char *filename, struct stat *sb)
 {
     char *contents, *compressed;
@@ -92,9 +97,13 @@ static void updates_file_new(const char *filename, struct stat *sb)
 
 /**
  * Compare two entries of ::update_files.
- * @param a First entry to compare.
- * @param b Second entry to compare.
- * @return Return value of strcmp(). */
+ * @param a
+ * First entry to compare.
+ * @param b
+ * Second entry to compare.
+ * @return
+ * Return value of strcmp().
+ */
 static int updates_file_compare(const void *a, const void *b)
 {
     return strcmp(((const update_file_struct *) a)->filename, ((const update_file_struct *) b)->filename);
@@ -102,8 +111,11 @@ static int updates_file_compare(const void *a, const void *b)
 
 /**
  * Find an entry in ::update_files based on its filename.
- * @param filename What to look for.
- * @return The found entry, NULL if not found. */
+ * @param filename
+ * What to look for.
+ * @return
+ * The found entry, NULL if not found.
+ */
 static update_file_struct *updates_file_find(const char *filename)
 {
     update_file_struct key;
@@ -114,7 +126,9 @@ static update_file_struct *updates_file_find(const char *filename)
 
 /**
  * Recursively traverse through the updates directory.
- * @param path Path we're traversing through. */
+ * @param path
+ * Path we're traversing through.
+ */
 static void updates_traverse(const char *path)
 {
     DIR *dir = opendir(path);
@@ -150,7 +164,8 @@ static void updates_traverse(const char *path)
 
 /**
  * Initialize all the file updates, traversing the updates directory,
- * creating the srv updates file, etc. */
+ * creating the srv updates file, etc.
+ */
 void updates_init(void)
 {
     char path[HUGE_BUF];

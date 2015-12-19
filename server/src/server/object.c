@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Object related code. */
+ * Object related code.
+ */
 
 #include <global.h>
 #include <loader.h>
@@ -37,32 +38,38 @@
 object *active_objects;
 
 /**
- * Gender nouns. */
+ * Gender nouns.
+ */
 const char *gender_noun[GENDER_MAX] = {
     "neuter", "male", "female", "hermaphrodite"
 };
 /**
- * Subjective pronouns. */
+ * Subjective pronouns.
+ */
 const char *gender_subjective[GENDER_MAX] = {
     "it", "he", "she", "it"
 };
 /**
- * Subjective pronouns, with first letter in uppercase. */
+ * Subjective pronouns, with first letter in uppercase.
+ */
 const char *gender_subjective_upper[GENDER_MAX] = {
     "It", "He", "She", "It"
 };
 /**
- * Objective pronouns. */
+ * Objective pronouns.
+ */
 const char *gender_objective[GENDER_MAX] = {
     "it", "him", "her", "it"
 };
 /**
- * Possessive pronouns. */
+ * Possessive pronouns.
+ */
 const char *gender_possessive[GENDER_MAX] = {
     "its", "his", "her", "its"
 };
 /**
- * Reflexive pronouns. */
+ * Reflexive pronouns.
+ */
 const char *gender_reflexive[GENDER_MAX] = {
     "itself", "himself", "herself", "itself"
 };
@@ -86,11 +93,13 @@ materialtype materials[NROFMATERIALS] = {
 
 /**
  * Real material types. This array is initialized by
- * init_materials(). */
+ * init_materials().
+ */
 material_real_struct material_real[NUM_MATERIALS_REAL];
 
 /**
- * Initialize materials from file. */
+ * Initialize materials from file.
+ */
 void init_materials(void)
 {
     int i;
@@ -180,16 +189,19 @@ int freedir[SIZEOFFREE] = {
 };
 
 /**
- * The object memory pool. */
+ * The object memory pool.
+ */
 static mempool_struct *pool_object;
 
 /**
  * Progressive object counter (every new object will increase this, even
- * if that object is later removed). */
+ * if that object is later removed).
+ */
 static long ob_count = 0;
 
 /**
- * Object type-specific functions to call when initializing objects. */
+ * Object type-specific functions to call when initializing objects.
+ */
 void (*object_initializers[256]) (object *);
 
 /**
@@ -198,7 +210,8 @@ void (*object_initializers[256]) (object *);
  * element of this array should match that name.
  *
  * If an entry is NULL, that is a flag not to be loaded/saved.
- * @see flag_defines */
+ * @see flag_defines
+ */
 const char *object_flag_names[NUM_FLAGS + 1] = {
     "sleep", "confused", NULL, "scared", "is_blind",
     "is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
@@ -232,10 +245,14 @@ const char *object_flag_names[NUM_FLAGS + 1] = {
 
 /**
  * Compares value lists.
- * @param wants What to search.
- * @param has Where to search.
- * @return 1 if every key_values in wants has a partner with the same
- * value in has. */
+ * @param wants
+ * What to search.
+ * @param has
+ * Where to search.
+ * @return
+ * 1 if every key_values in wants has a partner with the same
+ * value in has.
+ */
 static int compare_ob_value_lists_one(const object *wants, const object *has)
 {
     key_value *wants_field;
@@ -259,9 +276,13 @@ static int compare_ob_value_lists_one(const object *wants, const object *has)
 
 /**
  * Compares two object lists.
- * @param ob1 Object to compare.
- * @param ob2 Object to compare.
- * @return 1 if ob1 has the same key_values as ob2. */
+ * @param ob1
+ * Object to compare.
+ * @param ob2
+ * Object to compare.
+ * @return
+ * 1 if ob1 has the same key_values as ob2.
+ */
 static int compare_ob_value_lists(const object *ob1, const object *ob2)
 {
     return compare_ob_value_lists_one(ob1, ob2) && compare_ob_value_lists_one(ob2, ob1);
@@ -283,9 +304,13 @@ static int compare_ob_value_lists(const object *ob1, const object *ob2)
  * @note This function appears a lot longer than the macro it replaces
  * (mostly for clarity). A decent compiler should hopefully reduce this
  * to the same efficiency.
- * @param ob1 The first object
- * @param ob2 The second object
- * @return 1 if the two object can merge, 0 otherwise */
+ * @param ob1
+ * The first object
+ * @param ob2
+ * The second object
+ * @return
+ * 1 if the two object can merge, 0 otherwise
+ */
 int CAN_MERGE(object *ob1, object *ob2)
 {
     if (!QUERY_FLAG(ob1, FLAG_CAN_STACK) && ob1->type != EVENT_OBJECT) {
@@ -452,8 +477,11 @@ int CAN_MERGE(object *ob1, object *ob2)
 
 /**
  * Tries to merge 'op' with items above and below the object.
- * @param op Object to merge.
- * @return 'op', or the object 'op' was merged into. */
+ * @param op
+ * Object to merge.
+ * @return
+ * 'op', or the object 'op' was merged into.
+ */
 object *object_merge(object *op)
 {
     object *tmp;
@@ -490,8 +518,11 @@ object *object_merge(object *op)
  *
  * It goes through in figures out how much containers are carrying, and
  * sums it up.
- * @param op The object to calculate the weight for
- * @return The calculated weight */
+ * @param op
+ * The object to calculate the weight for
+ * @return
+ * The calculated weight
+ */
 signed long sum_weight(object *op)
 {
     if (QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
@@ -528,8 +559,11 @@ signed long sum_weight(object *op)
 /**
  * Adds the specified weight to an object, and also updates how much the
  * environment(s) is/are carrying.
- * @param op The object
- * @param weight The weight to add */
+ * @param op
+ * The object
+ * @param weight
+ * The weight to add
+ */
 void add_weight(object *op, uint32_t weight)
 {
     while (op != NULL) {
@@ -553,8 +587,11 @@ void add_weight(object *op, uint32_t weight)
 /**
  * Recursively (outwards) subtracts a number from the weight of an object
  * (and what is carried by its environment(s)).
- * @param op The object
- * @param weight The weight to subtract */
+ * @param op
+ * The object
+ * @param weight
+ * The weight to subtract
+ */
 void sub_weight(object *op, uint32_t weight)
 {
     while (op != NULL) {
@@ -577,9 +614,12 @@ void sub_weight(object *op, uint32_t weight)
 
 /**
  * Utility function.
- * @param op Object we want the environment of. Can't be NULL.
- * @return The outermost environment object for a given object. Will not be
- * NULL. */
+ * @param op
+ * Object we want the environment of. Can't be NULL.
+ * @return
+ * The outermost environment object for a given object. Will not be
+ * NULL.
+ */
 object *get_env_recursive(object *op)
 {
     while (op->env) {
@@ -591,8 +631,11 @@ object *get_env_recursive(object *op)
 
 /**
  * Finds the player carrying an object.
- * @param op Item for which we want the carrier (player).
- * @return The player, or NULL if not in an inventory. */
+ * @param op
+ * Item for which we want the carrier (player).
+ * @return
+ * The player, or NULL if not in an inventory.
+ */
 object *is_player_inv(object *op)
 {
     for (; op != NULL && op->type != PLAYER; op = op->env) {
@@ -606,9 +649,12 @@ object *is_player_inv(object *op)
 
 /**
  * Dumps an object.
- * @param op Object to dump. Can be NULL.
- * @param sb Buffer that will contain object information. Must not be
- * NULL. */
+ * @param op
+ * Object to dump. Can be NULL.
+ * @param sb
+ * Buffer that will contain object information. Must not be
+ * NULL.
+ */
 void dump_object(object *op, StringBuffer *sb)
 {
     if (op == NULL) {
@@ -629,8 +675,11 @@ void dump_object(object *op, StringBuffer *sb)
 
 /**
  * Dump an object, complete with its inventory.
- * @param op Object to dump.
- * @param sb Buffer that will contain object information. */
+ * @param op
+ * Object to dump.
+ * @param sb
+ * Buffer that will contain object information.
+ */
 void dump_object_rec(object *op, StringBuffer *sb)
 {
     archetype_t *at;
@@ -667,8 +716,11 @@ void dump_object_rec(object *op, StringBuffer *sb)
  * set to NULL, and NULL is returned.
  *
  * (This scheme should be changed to a refcount scheme in the future)
- * @param op The object to get owner for
- * @return Owner of the object if any, NULL if no owner */
+ * @param op
+ * The object to get owner for
+ * @return
+ * Owner of the object if any, NULL if no owner
+ */
 object *get_owner(object *op)
 {
     if (!op || op->owner == NULL) {
@@ -686,7 +738,9 @@ object *get_owner(object *op)
 
 /**
  * Clear pointer to owner of an object, including ownercount.
- * @param op The object to clear the owner for */
+ * @param op
+ * The object to clear the owner for
+ */
 void clear_owner(object *op)
 {
     if (!op) {
@@ -702,9 +756,12 @@ void clear_owner(object *op)
  *
  * Also checkpoints a backup id scheme which detects freeing (and
  * reusage) of the owner object.
- * @param op The object to set the owner for
- * @param owner The owner
- * @see get_owner() */
+ * @param op
+ * The object to set the owner for
+ * @param owner
+ * The owner
+ * @see get_owner()
+ */
 static void set_owner_simple(object *op, object *owner)
 {
     /* next line added to allow objects which own objects */
@@ -735,8 +792,11 @@ static void set_skill_pointers(object *op, object *chosen_skill)
 /**
  * Sets the owner and sets the skill and exp pointers to owner's current
  * skill and experience objects.
- * @param op The object.
- * @param owner The owner. */
+ * @param op
+ * The object.
+ * @param owner
+ * The owner.
+ */
 void set_owner(object *op, object *owner)
 {
     if (owner == NULL || op == NULL) {
@@ -762,8 +822,11 @@ void set_owner(object *op, object *owner)
  * spell), and this object creates further objects whose kills should be
  * accounted for the player's original skill, even if player has changed
  * skills meanwhile.
- * @param op The object.
- * @param clone_ob The clone. */
+ * @param op
+ * The object.
+ * @param clone_ob
+ * The clone.
+ */
 void copy_owner(object *op, object *clone_ob)
 {
     object *owner = get_owner(clone_ob);
@@ -789,9 +852,13 @@ void copy_owner(object *op, object *clone_ob)
  * Copy object first frees everything allocated by the second object,
  * and then copies the contents of the first object into the second
  * object, allocating what needs to be allocated.
- * @param op2 Object that we copy from.
- * @param op Object that we copy to.
- * @param no_speed If set, do not touch the active list. */
+ * @param op2
+ * Object that we copy from.
+ * @param op
+ * Object that we copy to.
+ * @param no_speed
+ * If set, do not touch the active list.
+ */
 void copy_object(object *op2, object *op, int no_speed)
 {
     int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
@@ -864,8 +931,11 @@ void copy_object(object *op2, object *op, int no_speed)
 
 /**
  * Copy an object with an inventory, duplicating the inv too.
- * @param src_ob Object to copy.
- * @param dest_ob Where to copy. */
+ * @param src_ob
+ * Object to copy.
+ * @param dest_ob
+ * Where to copy.
+ */
 void copy_object_with_inv(object *src_ob, object *dest_ob)
 {
     object *walk, *tmp;
@@ -901,7 +971,8 @@ static bool object_validator(object *op)
 }
 
 /**
- * Initialize the object API. */
+ * Initialize the object API.
+ */
 void object_init(void)
 {
     pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object),
@@ -911,7 +982,8 @@ void object_init(void)
 }
 
 /**
- * Deinitialize the object API. */
+ * Deinitialize the object API.
+ */
 void object_deinit(void)
 {
 }
@@ -921,7 +993,9 @@ void object_deinit(void)
  * initialized, and returns it.
  *
  * If there are no free objects, expand_objects() is called to get more.
- * @return The new object. */
+ * @return
+ * The new object.
+ */
 object *get_object(void)
 {
     static New_Face *blank_face = NULL;
@@ -944,7 +1018,9 @@ object *get_object(void)
  * to the closest player being on the other side, this function can
  * be called to update the face variable, <u>and</u> how it looks on the
  * map.
- * @param op The object to update. */
+ * @param op
+ * The object to update.
+ */
 void update_turn_face(object *op)
 {
     if (!QUERY_FLAG(op, FLAG_IS_TURNABLE) || op->arch == NULL) {
@@ -959,7 +1035,9 @@ void update_turn_face(object *op)
  * Updates the speed of an object. If the speed changes from 0 to another
  * value, or vice versa, then add/remove the object from the active list.
  * This function needs to be called whenever the speed of an object changes.
- * @param op The object */
+ * @param op
+ * The object
+ */
 void update_ob_speed(object *op)
 {
     /* No reason putting the archetypes objects on the speed list,
@@ -1030,9 +1108,12 @@ void update_ob_speed(object *op)
  *
  * If the object being updated is beneath a player, the below window
  * of that player is updated.
- * @param op Object to update
- * @param action Hint of what the caller believes need to be done. One of
- * @ref UP_OBJ_xxx values. */
+ * @param op
+ * Object to update
+ * @param action
+ * Hint of what the caller believes need to be done. One of
+ * @ref UP_OBJ_xxx values.
+ */
 void update_object(object *op, int action)
 {
     MapSpace *msp;
@@ -1192,7 +1273,9 @@ void update_object(object *op, int action)
  *
  * Makes some decisions whether to actually drop or not, and/or to
  * create a corpse for the stuff.
- * @param ob The object to drop the inventory for. */
+ * @param ob
+ * The object to drop the inventory for.
+ */
 void drop_ob_inv(object *ob)
 {
     object *corpse = NULL, *enemy = NULL, *tmp_op = NULL, *tmp = NULL;
@@ -1304,7 +1387,9 @@ void drop_ob_inv(object *ob)
 /**
  * Destroy (free) inventory of an object. Used internally by
  * object_destroy() to recursively free the object's inventory.
- * @param ob Object to free the inventory of. */
+ * @param ob
+ * Object to free the inventory of.
+ */
 void object_destroy_inv(object *ob)
 {
     object *tmp, *next;
@@ -1328,7 +1413,9 @@ void object_destroy_inv(object *ob)
  * memory back to the object mempool.
  *
  * @note The object must have been removed by object_remove() first.
- * @param ob The object to destroy (free). */
+ * @param ob
+ * The object to destroy (free).
+ */
 void object_destroy(object *ob)
 {
     if (!QUERY_FLAG(ob, FLAG_REMOVED)) {
@@ -1408,7 +1495,9 @@ void object_destroy(object *ob)
  * Drop op's inventory on the floor and remove op from the map.
  *
  * Used mainly for physical destruction of normal objects and monsters.
- * @param op Object to destruct. */
+ * @param op
+ * Object to destruct.
+ */
 void destruct_ob(object *op)
 {
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -1477,8 +1566,11 @@ static void object_check_move_off(object *op)
  * @note If you want to remove a lot of items in player's inventory,
  * set FLAG_NO_FIX_PLAYER on the player first and then explicitly call
  * living_update() on the player.
- * @param op Object to remove.
- * @param flags Combination of @ref REMOVAL_xxx. */
+ * @param op
+ * Object to remove.
+ * @param flags
+ * Combination of @ref REMOVAL_xxx.
+ */
 void object_remove(object *op, int flags)
 {
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
@@ -1583,11 +1675,17 @@ void object_remove(object *op, int flags)
 /**
  * This function inserts the object in the two-way linked list which
  * represents what is on a map.
- * @param op Object to insert.
- * @param m Map to insert into.
- * @param originator What caused op to be inserted.
- * @param flag Combination of @ref INS_xxx "INS_xxx" values.
- * @return NULL if 'op' was destroyed, 'op' otherwise. */
+ * @param op
+ * Object to insert.
+ * @param m
+ * Map to insert into.
+ * @param originator
+ * What caused op to be inserted.
+ * @param flag
+ * Combination of @ref INS_xxx "INS_xxx" values.
+ * @return
+ * NULL if 'op' was destroyed, 'op' otherwise.
+ */
 object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 {
     object *tmp, *top;
@@ -1846,10 +1944,14 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
  * Checks if any objects has a movement type that matches objects
  * that affect this object on this space. Calls object_move_on() to
  * process these events.
- * @param op Object that may trigger something.
- * @param originator Player, monster or other object that caused 'op' to
+ * @param op
+ * Object that may trigger something.
+ * @param originator
+ * Player, monster or other object that caused 'op' to
  * be inserted into the map. May be NULL.
- * @return 1 if 'op' was destroyed, 0 otherwise. */
+ * @return
+ * 1 if 'op' was destroyed, 0 otherwise.
+ */
 int object_check_move_on(object *op, object *originator)
 {
     object *tmp;
@@ -1895,8 +1997,11 @@ int object_check_move_on(object *op, object *originator)
 /**
  * This function inserts an object of a specified archetype in the map, but
  * if it finds objects of its own type, it'll remove them first.
- * @param arch_string Object's archetype to insert.
- * @param op Object to insert under, supplies coordinates and the map. */
+ * @param arch_string
+ * Object's archetype to insert.
+ * @param op
+ * Object to insert under, supplies coordinates and the map.
+ */
 void replace_insert_ob_in_map(char *arch_string, object *op)
 {
     object *tmp, *tmp1;
@@ -1979,9 +2084,13 @@ object *object_stack_get_removed(object *op, uint32_t nrof)
  *
  * This function will send an update to client if op is in a player
  * inventory.
- * @param op Object to decrease.
- * @param i Number to remove.
- * @return 'op' if something is left, NULL if the amount reached 0. */
+ * @param op
+ * Object to decrease.
+ * @param i
+ * Number to remove.
+ * @return
+ * 'op' if something is left, NULL if the amount reached 0.
+ */
 object *decrease_ob_nr(object *op, uint32_t i)
 {
     /* Objects with op->nrof require this check */
@@ -2114,13 +2223,17 @@ object *object_insert_into(object *op, object *where, int flag)
 /**
  * This function inserts the object op in the linked list inside the
  * object environment.
- * @param op Object to insert. Must be removed and not NULL. Must not be
+ * @param op
+ * Object to insert. Must be removed and not NULL. Must not be
  * multipart. May become invalid after return, so use return value of the
  * function.
- * @param where Object to insert into. Must not be NULL. Should be the
+ * @param where
+ * Object to insert into. Must not be NULL. Should be the
  * head part.
- * @return Pointer to inserted item, which will be different than op if
- * object was merged. */
+ * @return
+ * Pointer to inserted item, which will be different than op if
+ * object was merged.
+ */
 object *insert_ob_in_ob(object *op, object *where)
 {
     return object_insert_into(op, where, 0);
@@ -2129,11 +2242,17 @@ object *insert_ob_in_ob(object *op, object *where)
 /**
  * Searches for any objects with a matching archetype at the given map
  * and coordinates.
- * @param at Archetype to look for.
- * @param m Map.
- * @param x X coordinate on map.
- * @param y Y coordinate on map.
- * @return First matching object, or NULL if none matches. */
+ * @param at
+ * Archetype to look for.
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate on map.
+ * @param y
+ * Y coordinate on map.
+ * @return
+ * First matching object, or NULL if none matches.
+ */
 object *present_arch(struct archetype *at, mapstruct *m, int x, int y)
 {
     object *tmp;
@@ -2154,11 +2273,17 @@ object *present_arch(struct archetype *at, mapstruct *m, int x, int y)
 /**
  * Searches for any objects with a matching type at the given map and
  * coordinates.
- * @param type Type to find.
- * @param m Map.
- * @param x X coordinate on map.
- * @param y Y coordinate on map.
- * @return First matching object, or NULL if none matches. */
+ * @param type
+ * Type to find.
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate on map.
+ * @param y
+ * Y coordinate on map.
+ * @return
+ * First matching object, or NULL if none matches.
+ */
 object *present(uint8_t type, mapstruct *m, int x, int y)
 {
     object *tmp;
@@ -2179,9 +2304,13 @@ object *present(uint8_t type, mapstruct *m, int x, int y)
 /**
  * Searches for any objects with a matching type variable in the
  * inventory of the given object.
- * @param type Type to search for.
- * @param op Object to search into.
- * @return First matching object, or NULL if none matches. */
+ * @param type
+ * Type to search for.
+ * @param op
+ * Object to search into.
+ * @return
+ * First matching object, or NULL if none matches.
+ */
 object *present_in_ob(uint8_t type, object *op)
 {
     object *tmp;
@@ -2198,9 +2327,13 @@ object *present_in_ob(uint8_t type, object *op)
 /**
  * Searches for any objects with a matching archetype in the inventory
  * of the given object.
- * @param at Archetype to search for.
- * @param op Where to search.
- * @return First matching object, or NULL if none matches. */
+ * @param at
+ * Archetype to search for.
+ * @param op
+ * Where to search.
+ * @return
+ * First matching object, or NULL if none matches.
+ */
 object *present_arch_in_ob(struct archetype *at, object *op)
 {
     object *tmp;
@@ -2227,7 +2360,8 @@ object *present_arch_in_ob(struct archetype *at, object *op)
  * @note This only checks to see if there is space for the head of the
  * object - if it is a multispace object, this should be called for all
  * pieces.
- * @todo Document. */
+ * @todo Document.
+ */
 int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
 {
     int i, inx = 0;
@@ -2259,7 +2393,8 @@ int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y,
  * Works like find_free_spot(), but it will search max number of squares.
  *
  * It will return the first available spot, not a random choice.
- * @todo Document. */
+ * @todo Document.
+ */
 int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y)
 {
     int i;
@@ -2274,7 +2409,8 @@ int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, 
 }
 
 /**
- * @todo Document. */
+ * @todo Document.
+ */
 int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int start, int range)
 {
     int i;
@@ -2290,9 +2426,13 @@ int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int 
 
 /**
  * Randomly permutes an array.
- * @param arr Array to permute.
- * @param begin First index to permute.
- * @param end Second index to permute. */
+ * @param arr
+ * Array to permute.
+ * @param begin
+ * First index to permute.
+ * @param end
+ * Second index to permute.
+ */
 void permute(int *arr, int begin, int end)
 {
     int i, j, tmp, len;
@@ -2315,8 +2455,10 @@ void permute(int *arr, int begin, int end)
  * monsters to the north first. However, the size of the array passed
  * covers all the spaces, so within that size, all the spaces within
  * the 3x3 area will be searched, just not in a predictable order.
- * @param search_arr Array that will be initialized. Must contain at
- * least SIZEOFFREE elements. */
+ * @param search_arr
+ * Array that will be initialized. Must contain at
+ * least SIZEOFFREE elements.
+ */
 void get_search_arr(int *search_arr)
 {
     int i;
@@ -2332,9 +2474,13 @@ void get_search_arr(int *search_arr)
 
 /**
  * Computes a direction which you should travel to move of x and y.
- * @param x Delta.
- * @param y Delta.
- * @return Direction */
+ * @param x
+ * Delta.
+ * @param y
+ * Delta.
+ * @return
+ * Direction
+ */
 int find_dir_2(int x, int y)
 {
     int q;
@@ -2386,10 +2532,13 @@ int find_dir_2(int x, int y)
 
 /**
  * Computes an absolute direction.
- * @param d Direction to convert.
- * @return Number between 1 and 8, which represent the "absolute" direction
+ * @param d
+ * Direction to convert.
+ * @return
+ * Number between 1 and 8, which represent the "absolute" direction
  * of a number (it actually takes care of "overflow" in previous calculations
- * of a direction). */
+ * of a direction).
+ */
 int absdir(int d)
 {
     while (d < 1) {
@@ -2405,10 +2554,14 @@ int absdir(int d)
 
 /**
  * Computes a direction difference.
- * @param dir1 First direction to compare.
- * @param dir2 Second direction to compare.
- * @return How many 45-degrees differences there is between two directions
- * (which are expected to be absolute (see absdir()). */
+ * @param dir1
+ * First direction to compare.
+ * @param dir2
+ * Second direction to compare.
+ * @return
+ * How many 45-degrees differences there is between two directions
+ * (which are expected to be absolute (see absdir()).
+ */
 int dirdiff(int dir1, int dir2)
 {
     int d = abs(dir1 - dir2);
@@ -2425,10 +2578,15 @@ int dirdiff(int dir1, int dir2)
  *
  * If the first object is a player, this will set the player's facing
  * direction to the returned direction.
- * @param op The first object
- * @param target The target object
- * @param range_vector Range vector pointer to use
- * @return The direction */
+ * @param op
+ * The first object
+ * @param target
+ * The target object
+ * @param range_vector
+ * Range vector pointer to use
+ * @return
+ * The direction
+ */
 int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
 {
     if (!get_rangevector(op, target, range_vector, 0)) {
@@ -2440,10 +2598,14 @@ int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
 
 /**
  * Finds out if an object can be picked up.
- * @param who Who is trying to pick up. Can be a monster or a player.
- * @param item Item we're trying to pick up.
- * @return 1 if it can be picked up, 0 otherwise.
- * @note This introduces a weight limitation for monsters. */
+ * @param who
+ * Who is trying to pick up. Can be a monster or a player.
+ * @param item
+ * Item we're trying to pick up.
+ * @return
+ * 1 if it can be picked up, 0 otherwise.
+ * @note This introduces a weight limitation for monsters.
+ */
 int can_pick(object *who, object *item)
 {
     if (item->weight <= 0) {
@@ -2479,8 +2641,11 @@ int can_pick(object *who, object *item)
 
 /**
  * Create clone from one object to another.
- * @param asrc Object to clone.
- * @return Clone of asrc, including inventory and 'more' body parts. */
+ * @param asrc
+ * Object to clone.
+ * @return
+ * Clone of asrc, including inventory and 'more' body parts.
+ */
 object *object_create_clone(object *asrc)
 {
     object *dst = NULL, *tmp, *src, *part, *prev, *item;
@@ -2529,10 +2694,14 @@ object *object_create_clone(object *asrc)
 
 /**
  * Check if object has been destroyed.
- * @param op Object.
- * @param old_tag Object's tag.
- * @return 1 if it was destroyed (removed from map, old_tag does not match
- * object's count or it is freed), 0 otherwise. */
+ * @param op
+ * Object.
+ * @param old_tag
+ * Object's tag.
+ * @return
+ * 1 if it was destroyed (removed from map, old_tag does not match
+ * object's count or it is freed), 0 otherwise.
+ */
 int was_destroyed(object *op, tag_t old_tag)
 {
     return op->count != old_tag || OBJECT_FREE(op);
@@ -2540,8 +2709,11 @@ int was_destroyed(object *op, tag_t old_tag)
 
 /**
  * Creates an object using a string representing its content.
- * @param obstr String to load the object from.
- * @return The newly created object, NULL on failure. */
+ * @param obstr
+ * String to load the object from.
+ * @return
+ * The newly created object, NULL on failure.
+ */
 object *load_object_str(const char *obstr)
 {
     object *ob = get_object();
@@ -2561,8 +2733,11 @@ object *load_object_str(const char *obstr)
  *
  * Basically creates treasure for objects like
  * @ref SHOP_FLOOR "shop floors" and @ref TREASURE "treasures".
- * @param op The object to process.
- * @return 1 if a new object was generated, 0 otherwise. */
+ * @param op
+ * The object to process.
+ * @return
+ * 1 if a new object was generated, 0 otherwise.
+ */
 int auto_apply(object *op)
 {
     object *tmp = NULL, *tmp2;
@@ -2652,7 +2827,9 @@ int auto_apply(object *op)
 /**
  * Zero the key_values on op, decrementing the shared-string refcounts
  * and freeing the links.
- * @param op Object to clear. */
+ * @param op
+ * Object to clear.
+ */
 void free_key_values(object *op)
 {
     key_value *i, *next = NULL;
@@ -2682,10 +2859,14 @@ void free_key_values(object *op)
 
 /**
  * Search for a field by key.
- * @param ob Object to search in.
- * @param key Key to search. Must be a shared string.
- * @return The link from the list if ob has a field named key, NULL
- * otherwise. */
+ * @param ob
+ * Object to search in.
+ * @param key
+ * Key to search. Must be a shared string.
+ * @return
+ * The link from the list if ob has a field named key, NULL
+ * otherwise.
+ */
 key_value *object_get_key_link(const object *ob, const char *key)
 {
     key_value *field;
@@ -2701,11 +2882,15 @@ key_value *object_get_key_link(const object *ob, const char *key)
 
 /**
  * Get an extra value by key.
- * @param op Object we're considering.
- * @param key Key of which to retrieve the value. Doesn't need to be a
+ * @param op
+ * Object we're considering.
+ * @param key
+ * Key of which to retrieve the value. Doesn't need to be a
  * shared string.
- * @return The value if found, NULL otherwise.
- * @note The returned string is shared. */
+ * @return
+ * The value if found, NULL otherwise.
+ * @note The returned string is shared.
+ */
 const char *object_get_value(const object *op, const char *const key)
 {
     key_value *field;
@@ -2728,11 +2913,17 @@ const char *object_get_value(const object *op, const char *const key)
 
 /**
  * Updates or sets a key value.
- * @param op Object we're considering.
- * @param canonical_key Key to set or update. Must be a shared string.
- * @param value Value to set. Doesn't need to be a shared string.
- * @param add_key If 0, will not add the key if it doesn't exist in op.
- * @return 1 if key was updated or added, 0 otherwise. */
+ * @param op
+ * Object we're considering.
+ * @param canonical_key
+ * Key to set or update. Must be a shared string.
+ * @param value
+ * Value to set. Doesn't need to be a shared string.
+ * @param add_key
+ * If 0, will not add the key if it doesn't exist in op.
+ * @return
+ * 1 if key was updated or added, 0 otherwise.
+ */
 static int object_set_value_s(object *op, const char *canonical_key, const char *value, int add_key)
 {
     key_value *field = NULL, *last = NULL;
@@ -2804,13 +2995,19 @@ static int object_set_value_s(object *op, const char *canonical_key, const char 
 
 /**
  * Updates the key in op to value.
- * @param op Object we're considering.
- * @param key Key to set or update. Doesn't need to be a shared string.
- * @param value Value to set. Doesn't need to be a shared string.
- * @param add_key If 0, will not add the key if it doesn't exist in op.
- * @return 1 if key was updated or added, 0 otherwise.
+ * @param op
+ * Object we're considering.
+ * @param key
+ * Key to set or update. Doesn't need to be a shared string.
+ * @param value
+ * Value to set. Doesn't need to be a shared string.
+ * @param add_key
+ * If 0, will not add the key if it doesn't exist in op.
+ * @return
+ * 1 if key was updated or added, 0 otherwise.
  * @note This function is merely a wrapper to object_set_value_s() to
- * ensure the key is a shared string.*/
+ * ensure the key is a shared string.
+ */
 int object_set_value(object *op, const char *key, const char *value, int add_key)
 {
     const char *canonical_key = find_string(key);
@@ -2831,7 +3028,8 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 }
 
 /**
- * Initialize the table of object initializers. */
+ * Initialize the table of object initializers.
+ */
 void init_object_initializers(void)
 {
     object_initializers[BEACON] = beacon_add;
@@ -2857,11 +3055,16 @@ void init_object_initializers(void)
  * count is >1, we need to make plural name.  Return if match.
  *
  * Last, make a check on the full name.
- * @param pl Player (only needed to set count properly).
- * @param op The item we're trying to match.
- * @param name String we're searching.
- * @return Non-zero if we have a match. A higher value means a better
- * match. Zero means no match. */
+ * @param pl
+ * Player (only needed to set count properly).
+ * @param op
+ * The item we're trying to match.
+ * @param name
+ * String we're searching.
+ * @return
+ * Non-zero if we have a match. A higher value means a better
+ * match. Zero means no match.
+ */
 int item_matched_string(object *pl, object *op, const char *name)
 {
     char *cp, local_name[MAX_BUF];
@@ -3051,8 +3254,11 @@ int item_matched_string(object *pl, object *op, const char *name)
 
 /**
  * Get object's gender ID, as defined in @ref GENDER_xxx.
- * @param op Object to get gender ID of.
- * @return The gender ID. */
+ * @param op
+ * Object to get gender ID of.
+ * @return
+ * The gender ID.
+ */
 int object_get_gender(object *op)
 {
     if (QUERY_FLAG(op, FLAG_IS_MALE)) {
@@ -3278,8 +3484,10 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
  * This function cycles through internal buffers to use as return values, and is
  * safe to call up to ten times. After that, previously returned pointers will
  * start getting overwritten.
- * @param op Object. Can be NULL.
- * @return String representation of the object.
+ * @param op
+ * Object. Can be NULL.
+ * @return
+ * String representation of the object.
  */
 const char *object_get_str(object *op)
 {
@@ -3294,10 +3502,14 @@ const char *object_get_str(object *op)
 
 /**
  * Re-entrant version of object_get_str().
- * @param op Object. Can be NULL.
- * @param buf Buffer to use.
- * @param bufsize Size of 'buf'.
- * @return 'buf'.
+ * @param op
+ * Object. Can be NULL.
+ * @param buf
+ * Buffer to use.
+ * @param bufsize
+ * Size of 'buf'.
+ * @return
+ * 'buf'.
  */
 char *object_get_str_r(object *op, char *buf, size_t bufsize)
 {
@@ -3334,11 +3546,16 @@ char *object_get_str_r(object *op, char *buf, size_t bufsize)
  * Checks if the specified coordinates are blocked for the specified object.
  *
  * Takes multi-part objects into account.
- * @param op Object to check.
- * @param m Map.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @return 0 if the tile is not blocked, a combination of @ref map_look_flags
+ * @param op
+ * Object to check.
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @return
+ * 0 if the tile is not blocked, a combination of @ref map_look_flags
  * otherwise.
  */
 int object_blocked(object *op, mapstruct *m, int x, int y)
@@ -3392,9 +3609,12 @@ int object_blocked(object *op, mapstruct *m, int x, int y)
 
 /**
  * Creates a dummy object.
- * @param name Name to give the dummy object. Can be NULL.
- * @return Object of specified name. It fill have the ::FLAG_NO_PICK flag
- * set. */
+ * @param name
+ * Name to give the dummy object. Can be NULL.
+ * @return
+ * Object of specified name. It fill have the ::FLAG_NO_PICK flag
+ * set.
+ */
 object *object_create_singularity(const char *name)
 {
     char buf[MAX_BUF];
@@ -3411,8 +3631,10 @@ object *object_create_singularity(const char *name)
 
 /**
  * Dumps all variables in an object to a file.
- * @param op Object to save.
- * @param fp Where to save the object's text representation. Can be NULL.
+ * @param op
+ * Object to save.
+ * @param fp
+ * Where to save the object's text representation. Can be NULL.
  */
 void object_save(object *op, FILE *fp)
 {

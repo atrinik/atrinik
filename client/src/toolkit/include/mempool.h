@@ -45,7 +45,8 @@ typedef struct mempool_chunk_struct {
 
     /**
      * Used for the free list and the limbo list. NULL if this memory chunk has
-     * been allocated and is in use. */
+     * been allocated and is in use.
+ */
     struct mempool_chunk_struct *next;
 } mempool_chunk_struct;
 
@@ -94,42 +95,50 @@ typedef bool (*chunk_validator)(void *ptr);
 typedef struct mempool_struct {
     /**
      * Description of chunks. Mostly for debugging.
-     */
+
+ */
     const char *chunk_description;
 
     /**
      * How many chunks to allocate at each expansion.
-     */
+
+ */
     size_t expand_size;
 
     /**
      * Size of chunks, excluding sizeof(mempool_chunk) and padding.
-     */
+
+ */
     size_t chunksize;
 
     /**
      * Special handling flags. See @ref mempool_flags
-     */
+
+ */
     uint32_t flags;
 
     /**
      * First free chunk.
-     */
+
+ */
     mempool_chunk_struct *freelist[MEMPOOL_NROF_FREELISTS];
 
     /**
      * Number of free.
-     */
+
+ */
     size_t nrof_free[MEMPOOL_NROF_FREELISTS];
 
     /**
      * Number of allocated.
-     */
+
+ */
     size_t nrof_allocated[MEMPOOL_NROF_FREELISTS];
 
     /**
      * List of puddles used for chunk tracking.
-     */
+
+ */
     mempool_puddle_struct *puddlelist[MEMPOOL_NROF_FREELISTS];
 
     uint64_t calls_expand; ///< Number of calls to expand the pool.
@@ -163,7 +172,8 @@ typedef struct mempool_struct {
 /**
  * @defgroup mempool_flags Mempool flags
  * Mempool flags.
- *@{*/
+ *@{
+ */
 
 /** Don't use pooling, but only malloc/free instead */
 #define MEMPOOL_BYPASS_POOLS  1

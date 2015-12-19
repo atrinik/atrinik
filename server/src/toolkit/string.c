@@ -51,8 +51,10 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Like strdup(), but performs error checking.
- * @param s String to duplicate.
- * @return Duplicated string, never NULL.
+ * @param s
+ * String to duplicate.
+ * @return
+ * Duplicated string, never NULL.
  * @note abort() is called in case 's' is NULL or strdup() fails to duplicate
  * the string (oom).
  */
@@ -89,9 +91,12 @@ char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
 
 /**
  * Like strndup(), but performs error checking.
- * @param s String to duplicate.
- * @param n At most this many bytes to copy.
- * @return Duplicated string, never NULL.
+ * @param s
+ * String to duplicate.
+ * @param n
+ * At most this many bytes to copy.
+ * @return
+ * Duplicated string, never NULL.
  * @note abort() is called in case 's' is NULL or strndup() fails to duplicate
  * the string (oom).
  */
@@ -163,10 +168,13 @@ void string_replace(const char *src, const char *key, const char *replacement,
 
 /**
  * Perform in-place replacement of all characters in 'key'.
- * @param str String to modify.
- * @param key Characters to replace, eg, " \t" to match all spaces and
+ * @param str
+ * String to modify.
+ * @param key
+ * Characters to replace, eg, " \t" to match all spaces and
  * tabs. NULL to match any character.
- * @param replacement What to replace matched characters with.
+ * @param replacement
+ * What to replace matched characters with.
  */
 void string_replace_char(char *str, const char *key, const char replacement)
 {
@@ -193,13 +201,18 @@ void string_replace_char(char *str, const char *key, const char replacement)
 /**
  * Splits a string delimited by passed in sep value into characters into an
  * array of strings.
- * @param str The string to be split; will be modified.
- * @param array The string array; will be filled with pointers into str.
- * @param array_size The number of elements in array; if <code>str</code>
+ * @param str
+ * The string to be split; will be modified.
+ * @param array
+ * The string array; will be filled with pointers into str.
+ * @param array_size
+ * The number of elements in array; if <code>str</code>
  * contains more fields
  * excess fields are not split but included into the last element.
- * @param sep Separator to use.
- * @return The number of elements found; always less or equal to
+ * @param sep
+ * Separator to use.
+ * @return
+ * The number of elements found; always less or equal to
  * <code>array_size</code>.
  */
 size_t string_split(char *str, char *array[], size_t array_size, char sep)
@@ -243,7 +256,8 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
 
 /**
  * Replaces any unprintable character in the given buffer with a space.
- * @param buf The buffer to modify.
+ * @param buf
+ * The buffer to modify.
  */
 void string_replace_unprintable_chars(char *buf)
 {
@@ -260,8 +274,10 @@ void string_replace_unprintable_chars(char *buf)
 
 /**
  * Adds thousand separators to a given number.
- * @param num Number.
- * @return Thousands-separated string.
+ * @param num
+ * Number.
+ * @return
+ * Thousands-separated string.
  */
 char *string_format_number_comma(uint64_t num)
 {
@@ -289,7 +305,8 @@ char *string_format_number_comma(uint64_t num)
 
 /**
  * Transforms a string to uppercase, in-place.
- * @param str String to transform, will be modified.
+ * @param str
+ * String to transform, will be modified.
  */
 void string_toupper(char *str)
 {
@@ -303,7 +320,8 @@ void string_toupper(char *str)
 
 /**
  * Transforms a string to lowercase, in-place.
- * @param str String to transform, will be modified.
+ * @param str
+ * String to transform, will be modified.
  */
 void string_tolower(char *str)
 {
@@ -319,8 +337,10 @@ void string_tolower(char *str)
  * Trim left and right whitespace in string.
  *
  * @note Does in-place modification.
- * @param str String to trim.
- * @return 'str'.
+ * @param str
+ * String to trim.
+ * @return
+ * 'str'.
  */
 char *string_whitespace_trim(char *str)
 {
@@ -350,8 +370,10 @@ char *string_whitespace_trim(char *str)
  * Remove extraneous whitespace in a string.
  *
  * @note Does in-place modification.
- * @param str The string.
- * @return 'str'.
+ * @param str
+ * The string.
+ * @return
+ * 'str'.
  */
 char *string_whitespace_squeeze(char *str)
 {
@@ -378,7 +400,8 @@ char *string_whitespace_squeeze(char *str)
  * Replaces "\n" by a newline char.
  *
  * Since we are replacing 2 chars by 1, no overflow should happen.
- * @param str Text to replace into.
+ * @param str
+ * Text to replace into.
  */
 void string_newline_to_literal(char *str)
 {
@@ -397,13 +420,19 @@ void string_newline_to_literal(char *str)
  * whitespace.
  *
  * Effectively allows looping through all the words in a string.
- * @param str The string.
+ * @param str
+ * The string.
  * @param[out] pos Position in string.
- * @param delim Delimeter character.
- * @param word Where to store the word.
- * @param wordsize Size of 'word'.
- * @param surround Character that can surround a word, regardless of 'delim'.
- * @return 'word', NULL if 'word' is empty.
+ * @param delim
+ * Delimeter character.
+ * @param word
+ * Where to store the word.
+ * @param wordsize
+ * Size of 'word'.
+ * @param surround
+ * Character that can surround a word, regardless of 'delim'.
+ * @return
+ * 'word', NULL if 'word' is empty.
  */
 const char *string_get_word(const char *str, size_t *pos, char delim,
         char *word, size_t wordsize, int surround)
@@ -445,9 +474,11 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
 
 /**
  * Skips whitespace and the first word in the string.
- * @param str String.
+ * @param str
+ * String.
  * @param[out] i Position to adjust.
- * @param dir If 1, skip to the right, if -1, skip to the left.
+ * @param dir
+ * If 1, skip to the right, if -1, skip to the left.
  */
 void string_skip_word(const char *str, size_t *i, int dir)
 {
@@ -473,7 +504,8 @@ void string_skip_word(const char *str, size_t *i, int dir)
 
 /**
  * Checks if string is a digit.
- * @return 1 if the string is a digit, 0 otherwise.
+ * @return
+ * 1 if the string is a digit, 0 otherwise.
  */
 int string_isdigit(const char *str)
 {
@@ -498,7 +530,8 @@ int string_isdigit(const char *str)
  * Capitalize a string, transforming the starting letter (if any) into
  * its uppercase version, and all following letters into their lowercase
  * versions.
- * @param str String to capitalize.
+ * @param str
+ * String to capitalize.
  */
 void string_capitalize(char *str)
 {
@@ -519,7 +552,8 @@ void string_capitalize(char *str)
 
 /**
  * Titlecase a string.
- * @param str String to titlecase.
+ * @param str
+ * String to titlecase.
  */
 void string_title(char *str)
 {
@@ -556,9 +590,12 @@ void string_title(char *str)
 
 /**
  * Check whether the specified string starts with another string.
- * @param str String to check.
- * @param cmp What to check for.
- * @return 1 if 'str' starts with 'cmp', 0 otherwise.
+ * @param str
+ * String to check.
+ * @param cmp
+ * What to check for.
+ * @return
+ * 1 if 'str' starts with 'cmp', 0 otherwise.
  */
 int string_startswith(const char *str, const char *cmp)
 {
@@ -577,9 +614,12 @@ int string_startswith(const char *str, const char *cmp)
 
 /**
  * Check whether the specified string ends with another string.
- * @param str String to check.
- * @param cmp What to check for.
- * @return 1 if 'str' ends with 'cmp', 0 otherwise.
+ * @param str
+ * String to check.
+ * @param cmp
+ * What to check for.
+ * @return
+ * 1 if 'str' ends with 'cmp', 0 otherwise.
  */
 int string_endswith(const char *str, const char *cmp)
 {
@@ -621,10 +661,14 @@ int string_endswith(const char *str, const char *cmp)
  * string_sub("hello world", 4, 0); --> "o world"
  * string_sub("hello world", -5, 0); --> "world"
  * @endcode
- * @param str String to get a substring from.
- * @param start Starting index, eg, 0 for the beginning.
- * @param end Ending index, eg, strlen(end) for the end.
- * @return The created substring; never NULL. Must be freed.
+ * @param str
+ * String to get a substring from.
+ * @param start
+ * Starting index, eg, 0 for the beginning.
+ * @param end
+ * Ending index, eg, strlen(end) for the end.
+ * @return
+ * The created substring; never NULL. Must be freed.
  */
 char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
 {
@@ -662,8 +706,10 @@ char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
 
 /**
  * Convenience function to check whether a string is empty.
- * @param str String to check.
- * @return 1 if 'str' is either NULL or if it begins with the NUL
+ * @param str
+ * String to check.
+ * @return
+ * 1 if 'str' is either NULL or if it begins with the NUL
  * character.
  */
 int string_isempty(const char *str)
@@ -676,8 +722,10 @@ int string_isempty(const char *str)
 /**
  * Checks whether the specified string consists of only whitespace
  * characters.
- * @param str String to check.
- * @return 1 if 'str' consists of purely whitespace character, 0 otherwise.
+ * @param str
+ * String to check.
+ * @return
+ * 1 if 'str' consists of purely whitespace character, 0 otherwise.
  */
 int string_iswhite(const char *str)
 {
@@ -697,9 +745,12 @@ int string_iswhite(const char *str)
 /**
  * Check if the specified character equals to any of the characters in
  * 'key'.
- * @param c Character to check.
- * @param key Characters to look for.
- * @return 1 if 'c' equals to any of the character in 'key', 0 otherwise.
+ * @param c
+ * Character to check.
+ * @param key
+ * Characters to look for.
+ * @return
+ * 1 if 'c' equals to any of the character in 'key', 0 otherwise.
  */
 int char_contains(const char c, const char *key)
 {
@@ -718,9 +769,12 @@ int char_contains(const char c, const char *key)
 
 /**
  * Check whether the specified string contains any of the characters in 'key'.
- * @param str String to check.
- * @param key Characters to look for.
- * @return 1 if 'str' contains any of the characters in 'key', 0 otherwise.
+ * @param str
+ * String to check.
+ * @param key
+ * Characters to look for.
+ * @return
+ * 1 if 'str' contains any of the characters in 'key', 0 otherwise.
  */
 int string_contains(const char *str, const char *key)
 {
@@ -740,9 +794,12 @@ int string_contains(const char *str, const char *key)
 /**
  * Check whether the specified string contains any characters other than
  * those specified in 'key'.
- * @param str String to check.
- * @param key Characters to look for.
- * @return 1 if 'str' contains a character that is not in 'key', 0 otherwise.
+ * @param str
+ * String to check.
+ * @param key
+ * Characters to look for.
+ * @return
+ * 1 if 'str' contains a character that is not in 'key', 0 otherwise.
  */
 int string_contains_other(const char *str, const char *key)
 {
@@ -766,9 +823,13 @@ int string_contains_other(const char *str, const char *key)
  * @code
  * string_create_char_range('a', 'd'); --> "abcd"
  * @endcode
- * @param start Character index start.
- * @param end Character index end.
- * @return The generated string; never NULL. Must be freed. */
+ * @param start
+ * Character index start.
+ * @param end
+ * Character index end.
+ * @return
+ * The generated string; never NULL. Must be freed.
+ */
 char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO)
 {
     char *str, c;
@@ -793,9 +854,12 @@ char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO)
  * @code
  * string_join(", ", "hello", "world", NULL); --> "hello, world"
  * @endcode
- * @param delim Delimeter to use, eg, ", ". Can be NULL.
- * @param ... Strings to join. Must have a terminating NULL entry.
- * @return Joined string; never NULL. Must be freed.
+ * @param delim
+ * Delimeter to use, eg, ", ". Can be NULL.
+ * @param ...
+ * Strings to join. Must have a terminating NULL entry.
+ * @return
+ * Joined string; never NULL. Must be freed.
  */
 char *string_join(const char *delim, ...)
 {
@@ -837,10 +901,14 @@ char *string_join(const char *delim, ...)
  *
  * string_join_array(", ", strs, strs_num); --> "hello, world"
  * @endcode
- * @param delim Delimeter to use, eg, ", ". Can be NULL.
- * @param array Array of string pointers.
- * @param arraysize Number of entries inside ::array.
- * @return Joined string; never NULL. Must be freed.
+ * @param delim
+ * Delimeter to use, eg, ", ". Can be NULL.
+ * @param array
+ * Array of string pointers.
+ * @param arraysize
+ * Number of entries inside ::array.
+ * @return
+ * Joined string; never NULL. Must be freed.
  */
 char *string_join_array(const char *delim, const char *const *array,
                         size_t arraysize)
@@ -874,9 +942,12 @@ char *string_join_array(const char *delim, const char *const *array,
  * @code
  * string_repeat("world", 5); --> "worldworldworldworldworld"
  * @endcode
- * @param str String to repeat.
- * @param num How many times to repeat the string.
- * @return Constructed string; never NULL. Must be freed.
+ * @param str
+ * String to repeat.
+ * @param num
+ * How many times to repeat the string.
+ * @return
+ * Constructed string; never NULL. Must be freed.
  */
 char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO)
 {
@@ -902,11 +973,16 @@ char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO)
 /**
  * Like snprintf(), but appends the formatted string to the specified buffer.
  * The buffer must contain a null-byte.
- * @param buf Buffer to append to.
- * @param size Maximum size of the buffer.
- * @param fmt Format specifier.
- * @param ... Format arguments.
- * @return Length of string in the buffer.
+ * @param buf
+ * Buffer to append to.
+ * @param size
+ * Maximum size of the buffer.
+ * @param fmt
+ * Format specifier.
+ * @param ...
+ * Format arguments.
+ * @return
+ * Length of string in the buffer.
  */
 size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
 {
@@ -925,12 +1001,18 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
 
 /**
  * Converts unsigned char array into a hexadecimal char representation.
- * @param str Unsigned char array.
- * @param len Number of elements in 'str'.
- * @param result Where to store the result.
- * @param resultsize Size of 'result'.
- * @param sep If true, separate each hex with a colon.
- * @return Number of characters written into 'result'.
+ * @param str
+ * Unsigned char array.
+ * @param len
+ * Number of elements in 'str'.
+ * @param result
+ * Where to store the result.
+ * @param resultsize
+ * Size of 'result'.
+ * @param sep
+ * If true, separate each hex with a colon.
+ * @return
+ * Number of characters written into 'result'.
  */
 size_t string_tohex(const unsigned char *str, size_t len, char *result,
         size_t resultsize, bool sep)
@@ -962,11 +1044,16 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result,
 /**
  * Does the reverse of string_tohex(), loading hexadecimal back into unsigned
  * char.
- * @param str String to load from.
- * @param len Length of 'str'.
- * @param result Where to store the result.
- * @param resultsize Number of elements in 'result'.
- * @return How many elements have been filled into 'result'.
+ * @param str
+ * String to load from.
+ * @param len
+ * Length of 'str'.
+ * @param result
+ * Where to store the result.
+ * @param resultsize
+ * Number of elements in 'result'.
+ * @return
+ * How many elements have been filled into 'result'.
  */
 size_t string_fromhex(const char *str, size_t len, unsigned char *result,
         size_t resultsize)
@@ -994,9 +1081,12 @@ size_t string_fromhex(const char *str, size_t len, unsigned char *result,
 
 /**
  * Find the last occurrence of 'needle' in 'haystack'.
- * @param haystack Where to search in.
- * @param needle What to search.
- * @return Substring or NULL if not found.
+ * @param haystack
+ * Where to search in.
+ * @param needle
+ * What to search.
+ * @return
+ * Substring or NULL if not found.
  */
 char *string_last(const char *haystack, const char *needle)
 {

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Widget header file. */
+ * Widget header file.
+ */
 
 #ifndef WIDGET_H
 #define WIDGET_H
@@ -77,7 +78,8 @@ typedef struct widgetdata {
     uint8_t required;
 
     /**
-     * If 0, will not save this widget. */
+     * If 0, will not save this widget.
+ */
     uint8_t save;
 
     /** Next widget. */
@@ -133,7 +135,8 @@ typedef struct widgetdata {
 
     /**
      * If 1, this widget will not be rendered, but any items it contains
-     * will still get processed and rendered. */
+     * will still get processed and rendered.
+ */
     int hidden;
 
     double zoom; ///< Zoom factor of the widget.
@@ -260,7 +263,8 @@ typedef struct _menu {
  * clicked on.
  * It is a special strip container that contains the string inside.
  * This allows the menu to detect how long the string is so that it can resize
- * itself to fit it on the fly. */
+ * itself to fit it on the fly.
+ */
 typedef struct _menuitem {
     /** Pointer to the function that performs the relevant operation when the
      * menuitem is clicked. */

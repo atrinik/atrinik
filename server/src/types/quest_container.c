@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref QUEST_CONTAINER "quest container".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the quest container type object methods. */
+ * Initialize the quest container type object methods.
+ */
 void object_type_init_quest_container(void)
 {
 }

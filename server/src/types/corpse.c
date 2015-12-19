@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref CORPSE "corpses".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the corpse type object methods. */
+ * Initialize the corpse type object methods.
+ */
 void object_type_init_corpse(void)
 {
 }

@@ -78,25 +78,29 @@ extern PyTypeObject PyIOBase_Type;
 #define PLUGIN_VERSION "Atrinik Python Plugin 1.0"
 
 /**
- * @param self Self object for methods; module object for module functions.
+ * @param self
+ * Self object for methods; module object for module functions.
  */
 typedef PyObject *(*PyMethod_NOARGS)(PyObject *self);
 
 /**
  * @copydoc PyMethod_NOARGS
- * @param args Arguments.
+ * @param args
+ * Arguments.
  */
 typedef PyObject *(*PyMethod_VARARGS)(PyObject *self, PyObject *args);
 
 /**
  * @copydoc PyMethod_NOARGS
- * @param what The object.
+ * @param what
+ * The object.
  */
 typedef PyObject *(*PyMethod_OBJECT)(PyObject *self, PyObject *what);
 
 /**
  * @copydoc PyMethod_VARARGS
- * @param keywds Keyword arguments.
+ * @param keywds
+ * Keyword arguments.
  */
 typedef PyObject *(*PyMethod_VARARGS_KEYWORDS)(PyObject *self, PyObject *args,
         PyObject *keywds);
@@ -107,7 +111,8 @@ extern struct plugin_hooklist *hooks;
  * @defgroup AROUND_xxx Types for object.SquaresAround()
  * The various types of squares returned by object.SquaresAround().
  * @note These are bitmasks.
- *@{*/
+ *@{
+ */
 /** All squares around the object. */
 #define AROUND_ALL 0
 /** Ignore squares that have a wall. */
@@ -121,16 +126,19 @@ extern struct plugin_hooklist *hooks;
 /**
  * @defgroup INVENTORY_xxx Modes for object.FindObject()
  * Different modes for object.FindObject().
- *@{*/
+ *@{
+ */
 /** Search only inside the inventory of the object. */
 #define INVENTORY_ONLY 0
 /**
  * Search inside the inventory of the object and inventories of
- * containers. */
+ * containers.
+ */
 #define INVENTORY_CONTAINERS 1
 /**
  * Search inside the inventory of the object, inventories of
- * containers and inventories of other objects. */
+ * containers and inventories of other objects.
+ */
 #define INVENTORY_ALL 2
 /*@}*/
 
@@ -139,8 +147,11 @@ extern struct plugin_hooklist *hooks;
 
 /**
  * Free old shared string and add new string.
- * @param _sv_ Shared string.
- * @param _nv_ String to copy to the shared string. */
+ * @param _sv_
+ * Shared string.
+ * @param _nv_
+ * String to copy to the shared string.
+ */
 #define FREE_AND_COPY_HASH(_sv_, _nv_)   \
     {                                        \
         if (_sv_)                            \
@@ -152,8 +163,11 @@ extern struct plugin_hooklist *hooks;
     }
 /**
  * Free old hash and add a reference to the new one.
- * @param _sv_ Pointer to shared string.
- * @param _nv_ String to add reference to. Must be a shared string. */
+ * @param _sv_
+ * Pointer to shared string.
+ * @param _nv_
+ * String to add reference to. Must be a shared string.
+ */
 #define FREE_AND_CLEAR_HASH(_nv_)        \
     {                                        \
         if (_nv_)                            \
@@ -307,7 +321,8 @@ typedef enum {
     FIELDTYPE_FACE,
     /**
      * Animation ID. The field is actually uint16, but the result is a
-     * tuple containing the animation name and the animation ID. */
+     * tuple containing the animation name and the animation ID.
+ */
     FIELDTYPE_ANIMATION,
     /** uint8 that only accepts True/False. */
     FIELDTYPE_BOOLEAN,
@@ -332,7 +347,8 @@ typedef enum {
 /**
  * @defgroup FIELDFLAG_xxx Field flags
  * Special flags for object attribute access.
- *@{*/
+ *@{
+ */
 /** Changing value not allowed. */
 #define FIELDFLAG_READONLY 1
 /** Changing value is not allowed if object is a player. */
@@ -350,7 +366,8 @@ int Atrinik_Object_init(PyObject *module);
 /**
  * @defgroup OBJ_ITER_TYPE_xxx Object iteration types
  * These determine how we're iterating over an object.
- *@{*/
+ *@{
+ */
 /** Nothing to iterate over. */
 #define OBJ_ITER_TYPE_NONE 0
 /** Using object::below. */
@@ -460,7 +477,8 @@ typedef struct {
 
     /**
      * Type of the array being handled; for example,
-     * @ref FIELDTYPE_FACTIONS. */
+     * @ref FIELDTYPE_FACTIONS.
+ */
     field_type field;
 
     /** Used to keep track of iteration index. */
@@ -486,37 +504,46 @@ typedef struct python_cache_entry {
 } python_cache_entry;
 
 /**
- * General structure for Python object fields. */
+ * General structure for Python object fields.
+ */
 typedef struct {
     /**
-     * Name of the field. */
+     * Name of the field.
+ */
     char *name;
 
     /**
-     * Field type. */
+     * Field type.
+ */
     field_type type;
 
     /**
-     * Offset in player structure. */
+     * Offset in player structure.
+ */
     size_t offset;
 
     /**
-     * Flags for special handling. */
+     * Flags for special handling.
+ */
     uint32_t flags;
 
     /**
-     * Extra data for some special fields. */
+     * Extra data for some special fields.
+ */
     uint32_t extra_data;
 
     /**
      * Documentation for the field.
-     */
+
+ */
     char *doc;
 } fields_struct;
 
 /**
  * Get number of fields in the fields array.
- * @return Number of fields. */
+ * @return
+ * Number of fields.
+ */
 #define NUM_FIELDS (sizeof(fields) / sizeof(fields[0]))
 
 #define OBJEXISTCHECK_INT(ob) \
@@ -538,7 +565,8 @@ typedef struct {
     }
 
 /**
- * Helper macro for the object.SquaresAround() Python function. */
+ * Helper macro for the object.SquaresAround() Python function.
+ */
 #define SQUARES_AROUND_ADD(_m, _x, _y) \
     { \
         PyObject *tuple = PyTuple_New(3); \

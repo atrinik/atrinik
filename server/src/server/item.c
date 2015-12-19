@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Item related functions */
+ * Item related functions
+ */
 
 #include <global.h>
 
@@ -55,11 +56,15 @@ static char numbers[21][20] = {
 
 /**
  * Builds a textual representation of the object's material (if applicable).
- * @param op Object to get the material of.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object to get the material of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object material.
+ * @return
+ * StringBuffer instance that contains the object material.
  */
 StringBuffer *object_get_material(const object *op, const object *caller,
         StringBuffer *sb)
@@ -90,9 +95,12 @@ StringBuffer *object_get_material(const object *op, const object *caller,
 
 /**
  * Wrapper for object_get_material() that returns a string.
- * @param op Object to get the material of.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the object material. Must be freed.
+ * @param op
+ * Object to get the material of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the object material. Must be freed.
  */
 char *object_get_material_s(const object *op, const object *caller)
 {
@@ -101,11 +109,15 @@ char *object_get_material_s(const object *op, const object *caller)
 
 /**
  * Builds a textual representation of the object's title (if applicable).
- * @param op Object to get the title of.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object to get the title of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object title.
+ * @return
+ * StringBuffer instance that contains the object title.
  */
 StringBuffer *object_get_title(const object *op, const object *caller,
         StringBuffer *sb)
@@ -258,9 +270,12 @@ StringBuffer *object_get_title(const object *op, const object *caller,
 
 /**
  * Wrapper for object_get_title() that returns a string.
- * @param op Object to get the title of.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the object title. Must be freed.
+ * @param op
+ * Object to get the title of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the object title. Must be freed.
  */
 char *object_get_title_s(const object *op, const object *caller)
 {
@@ -269,11 +284,15 @@ char *object_get_title_s(const object *op, const object *caller)
 
 /**
  * Builds a verbose textual representation of the name of the given object.
- * @param op Object to get the name of.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object to get the name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object name.
+ * @return
+ * StringBuffer instance that contains the object name.
  */
 StringBuffer *object_get_name(const object *op, const object *caller,
         StringBuffer *sb)
@@ -367,9 +386,12 @@ StringBuffer *object_get_name(const object *op, const object *caller,
 
 /**
  * Wrapper for object_get_name() that returns a string.
- * @param op Object to get the name of.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the object name. Must be freed.
+ * @param op
+ * Object to get the name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the object name. Must be freed.
  */
 char *object_get_name_s(const object *op, const object *caller)
 {
@@ -379,11 +401,15 @@ char *object_get_name_s(const object *op, const object *caller)
 /**
  * Like object_get_name(), but object status information (eg, worn/cursed/etc)
  * is not included.
- * @param op Object to get the name of.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object to get the name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object name.
+ * @return
+ * StringBuffer instance that contains the object name.
  */
 StringBuffer *object_get_short_name(const object *op, const object *caller,
         StringBuffer *sb)
@@ -415,9 +441,12 @@ StringBuffer *object_get_short_name(const object *op, const object *caller,
 
 /**
  * Wrapper for object_get_short_name() that returns a string.
- * @param op Object to get the short name of.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the short object name. Must be freed.
+ * @param op
+ * Object to get the short name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the short object name. Must be freed.
  */
 char *object_get_short_name_s(const object *op, const object *caller)
 {
@@ -427,11 +456,15 @@ char *object_get_short_name_s(const object *op, const object *caller)
 /**
  * Builds an object's name, but only includes the name, title (if any)
  * and material information (if any).
- * @param op Object to get the name of.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object to get the name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object name.
+ * @return
+ * StringBuffer instance that contains the object name.
  */
 StringBuffer *object_get_material_name(const object *op, const object *caller,
         StringBuffer *sb)
@@ -450,9 +483,12 @@ StringBuffer *object_get_material_name(const object *op, const object *caller,
 
 /**
  * Wrapper for object_get_material_name() that returns a string.
- * @param op Object to get the material name of.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the material object name. Must be freed.
+ * @param op
+ * Object to get the material name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the material object name. Must be freed.
  */
 char *object_get_material_name_s(const object *op, const object *caller)
 {
@@ -462,11 +498,15 @@ char *object_get_material_name_s(const object *op, const object *caller)
 /**
  * Like object_get_name(), but neither object count nor object status
  * information is included.
- * @param op Object to get the name of.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object to get the name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object name.
+ * @return
+ * StringBuffer instance that contains the object name.
  */
 StringBuffer *object_get_base_name(const object *op, const object *caller,
         StringBuffer *sb)
@@ -482,9 +522,12 @@ StringBuffer *object_get_base_name(const object *op, const object *caller,
 
 /**
  * Wrapper for object_get_base_name() that returns a string.
- * @param op Object to get the base name of.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the base object name. Must be freed.
+ * @param op
+ * Object to get the base name of.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the base object name. Must be freed.
  */
 char *object_get_base_name_s(const object *op, const object *caller)
 {
@@ -493,11 +536,15 @@ char *object_get_base_name_s(const object *op, const object *caller)
 
 /**
  * Builds a description of the object's terrain flags.
- * @param op Object's terrain to describe.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object's terrain to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object terrain.
+ * @return
+ * StringBuffer instance that contains the object terrain.
  */
 StringBuffer *object_get_description_terrain(const object *op,
         const object *caller, StringBuffer *sb)
@@ -557,9 +604,12 @@ StringBuffer *object_get_description_terrain(const object *op,
 
 /**
  * Wrapper for object_get_description_terrain() that returns a string.
- * @param op Object's terrain to describe.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the terrain description. Must be freed.
+ * @param op
+ * Object's terrain to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the terrain description. Must be freed.
  */
 char *object_get_description_terrain_s(const object *op, const object *caller)
 {
@@ -569,11 +619,15 @@ char *object_get_description_terrain_s(const object *op, const object *caller)
 
 /**
  * Builds a description of the object's attack types.
- * @param op Object's attack types to describe.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object's attack types to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object attack types.
+ * @return
+ * StringBuffer instance that contains the object attack types.
  */
 StringBuffer *object_get_description_attacks(const object *op,
         const object *caller, StringBuffer *sb)
@@ -612,9 +666,12 @@ StringBuffer *object_get_description_attacks(const object *op,
 
 /**
  * Wrapper for object_get_description_attacks() that returns a string.
- * @param op Object's attacks to describe.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the attacks description. Must be freed.
+ * @param op
+ * Object's attacks to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the attacks description. Must be freed.
  */
 char *object_get_description_attacks_s(const object *op, const object *caller)
 {
@@ -624,11 +681,15 @@ char *object_get_description_attacks_s(const object *op, const object *caller)
 
 /**
  * Builds a description of the object's protections.
- * @param op Object's protections to describe.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object's protections to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the object protections.
+ * @return
+ * StringBuffer instance that contains the object protections.
  */
 StringBuffer *object_get_description_protections(const object *op,
         const object *caller, StringBuffer *sb)
@@ -667,9 +728,12 @@ StringBuffer *object_get_description_protections(const object *op,
 
 /**
  * Wrapper for object_get_description_protections() that returns a string.
- * @param op Object's protections to describe.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the protections description. Must be freed.
+ * @param op
+ * Object's protections to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the protections description. Must be freed.
  */
 char *object_get_description_protections_s(const object *op,
         const object *caller)
@@ -680,13 +744,19 @@ char *object_get_description_protections_s(const object *op,
 
 /**
  * Builds a description of the object's spell path.
- * @param op Object's spell path to describe.
- * @param caller Object calling this. Can be NULL.
- * @param path The spell path flags.
- * @param name Name of the spell path.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object's spell path to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param path
+ * The spell path flags.
+ * @param name
+ * Name of the spell path.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the spell path description.
+ * @return
+ * StringBuffer instance that contains the spell path description.
  */
 StringBuffer *object_get_description_path(const object *op, const
         object *caller, const uint32_t path, const char *name, StringBuffer *sb)
@@ -725,11 +795,16 @@ StringBuffer *object_get_description_path(const object *op, const
 
 /**
  * Wrapper for object_get_description_path() that returns a string.
- * @param op Object's path to describe.
- * @param caller Object calling this. Can be NULL.
- * @param path The spell path flags.
- * @param name Name of the spell path.
- * @return String containing the path description. Must be freed.
+ * @param op
+ * Object's path to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param path
+ * The spell path flags.
+ * @param name
+ * Name of the spell path.
+ * @return
+ * String containing the path description. Must be freed.
  */
 char *object_get_description_path_s(const object *op, const object *caller,
         const uint32_t path, const char *name)
@@ -749,11 +824,15 @@ char *object_get_description_path_s(const object *op, const object *caller,
  *
  * If it is a player, generates the current abilities of the player, which are
  * usually gained by the items applied.
- * @param op Object that should be described.
- * @param caller Object calling this. Can be NULL.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param op
+ * Object that should be described.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the description.
+ * @return
+ * StringBuffer instance that contains the description.
  */
 StringBuffer *object_get_description(const object *op, const object *caller,
         StringBuffer *sb)
@@ -1120,9 +1199,12 @@ StringBuffer *object_get_description(const object *op, const object *caller,
 
 /**
  * Wrapper for object_get_description() that returns a string.
- * @param op Object to describe.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the description. Must be freed.
+ * @param op
+ * Object to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the description. Must be freed.
  */
 char *object_get_description_s(const object *op, const object *caller)
 {
@@ -1132,11 +1214,15 @@ char *object_get_description_s(const object *op, const object *caller)
 /**
  * Get object's name using object_get_name(), along with its description
  * (if any).
- * @param tmp Object to get description of.
- * @param caller Caller.
- * @param sb StringBuffer instance to append to. If NULL, a new instance will
+ * @param tmp
+ * Object to get description of.
+ * @param caller
+ * Caller.
+ * @param sb
+ * StringBuffer instance to append to. If NULL, a new instance will
  * be created.
- * @return StringBuffer instance that contains the description.
+ * @return
+ * StringBuffer instance that contains the description.
  */
 StringBuffer *object_get_name_description(const object *op,
         const object *caller, StringBuffer *sb)
@@ -1193,9 +1279,12 @@ StringBuffer *object_get_name_description(const object *op,
 
 /**
  * Wrapper for object_get_name_description() that returns a string.
- * @param op Object to describe.
- * @param caller Object calling this. Can be NULL.
- * @return String containing the object's name and its description. Must be
+ * @param op
+ * Object to describe.
+ * @param caller
+ * Object calling this. Can be NULL.
+ * @return
+ * String containing the object's name and its description. Must be
  * freed.
  */
 char *object_get_name_description_s(const object *op, const object *caller)
@@ -1205,8 +1294,11 @@ char *object_get_name_description_s(const object *op, const object *caller)
 
 /**
  * Checks if given object should need identification.
- * @param op Object to check.
- * @return True if this object needs identification, false otherwise. */
+ * @param op
+ * Object to check.
+ * @return
+ * True if this object needs identification, false otherwise.
+ */
 bool need_identify(const object *op)
 {
     switch (op->type) {
@@ -1252,7 +1344,9 @@ bool need_identify(const object *op)
 /**
  * Identify an object. Basically sets FLAG_IDENTIFIED on the object along
  * with other things.
- * @param op Object to identify. */
+ * @param op
+ * Object to identify.
+ */
 void identify(object *op)
 {
     if (!op) {
@@ -1272,7 +1366,9 @@ void identify(object *op)
 /**
  * Check if an object marked with FLAG_IS_TRAPPED still has a known trap
  * in it.
- * @param op The object to check. */
+ * @param op
+ * The object to check.
+ */
 void set_trapped_flag(object *op)
 {
     object *tmp;

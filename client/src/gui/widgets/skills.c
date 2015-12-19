@@ -26,7 +26,8 @@
  * @file
  * Implements skills type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -39,19 +40,24 @@ enum {
 } ;
 
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct buttons[BUTTON_NUM];
 /**
- * The skills list. */
+ * The skills list.
+ */
 static skill_entry_struct **skill_list;
 /**
- * Number of skills contained in ::skill_list. */
+ * Number of skills contained in ::skill_list.
+ */
 static size_t skill_list_num;
 /**
- * The skills list. */
+ * The skills list.
+ */
 static list_struct *list_skills = NULL;
 /**
- * Currently selected skill in the skills list. */
+ * Currently selected skill in the skills list.
+ */
 static size_t selected_skill;
 
 /**
@@ -170,7 +176,8 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 }
 
 /**
- * Reload the skills list, due to a change of the skill type, for example. */
+ * Reload the skills list, due to a change of the skill type, for example.
+ */
 static void skill_list_reload(void)
 {
     size_t i;
@@ -201,9 +208,12 @@ static void skill_list_reload(void)
  * Find a skill in the ::skill_list based on its name.
  *
  * Partial skill names will be matched.
- * @param name Skill name to find.
+ * @param name
+ * Skill name to find.
  * @param[out] id Will contain the skill's ID.
- * @return 1 if the skill was found, 0 otherwise. */
+ * @return
+ * 1 if the skill was found, 0 otherwise.
+ */
 int skill_find(const char *name, size_t *id)
 {
     for (*id = 0; *id < skill_list_num; *id += 1) {
@@ -228,8 +238,11 @@ int skill_find_object(object *op, size_t *id)
 
 /**
  * Get skill from the ::skill_list structure.
- * @param id Skill ID.
- * @return The skill. */
+ * @param id
+ * Skill ID.
+ * @return
+ * The skill.
+ */
 skill_entry_struct *skill_get(size_t id)
 {
     return skill_list[id];
@@ -426,7 +439,8 @@ static void widget_deinit(widgetdata *widget)
 }
 
 /**
- * Initialize one skills widget. */
+ * Initialize one skills widget.
+ */
 void widget_skills_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;

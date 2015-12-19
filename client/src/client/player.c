@@ -31,44 +31,52 @@
  * This file does most of the handling of commands from the client to
  * server (see commands.c for server->client)
  *
- * Does most of the work for sending messages to the server */
+ * Does most of the work for sending messages to the server
+ */
 
 #include <global.h>
 #include <packet.h>
 
 /**
- * Gender nouns. */
+ * Gender nouns.
+ */
 const char *gender_noun[GENDER_MAX] = {
     "neuter", "male", "female", "hermaphrodite"
 };
 /**
- * Subjective pronouns. */
+ * Subjective pronouns.
+ */
 const char *gender_subjective[GENDER_MAX] = {
     "it", "he", "she", "it"
 };
 /**
- * Subjective pronouns, with first letter in uppercase. */
+ * Subjective pronouns, with first letter in uppercase.
+ */
 const char *gender_subjective_upper[GENDER_MAX] = {
     "It", "He", "She", "It"
 };
 /**
- * Objective pronouns. */
+ * Objective pronouns.
+ */
 const char *gender_objective[GENDER_MAX] = {
     "it", "him", "her", "it"
 };
 /**
- * Possessive pronouns. */
+ * Possessive pronouns.
+ */
 const char *gender_possessive[GENDER_MAX] = {
     "its", "his", "her", "its"
 };
 /**
- * Reflexive pronouns. */
+ * Reflexive pronouns.
+ */
 const char *gender_reflexive[GENDER_MAX] = {
     "itself", "himself", "herself", "itself"
 };
 
 /**
- * Clear the player data like quickslots, inventory items, etc. */
+ * Clear the player data like quickslots, inventory items, etc.
+ */
 void clear_player(void)
 {
     objects_deinit();
@@ -87,10 +95,15 @@ void clear_player(void)
 
 /**
  * Initialize new player.
- * @param tag Tag of the player.
- * @param name Name of the player.
- * @param weight Weight of the player.
- * @param face Face ID. */
+ * @param tag
+ * Tag of the player.
+ * @param name
+ * Name of the player.
+ * @param weight
+ * Weight of the player.
+ * @param face
+ * Face ID.
+ */
 void new_player(tag_t tag, long weight, short face)
 {
     cpl.ob->tag = tag;
@@ -100,7 +113,8 @@ void new_player(tag_t tag, long weight, short face)
 
 /**
  * Send apply command to server.
- * @param op Object to apply.
+ * @param op
+ * Object to apply.
  */
 void client_send_apply(object *op)
 {
@@ -118,7 +132,9 @@ void client_send_apply(object *op)
 
 /**
  * Send examine command to server.
- * @param tag Item tag. */
+ * @param tag
+ * Item tag.
+ */
 void client_send_examine(tag_t tag)
 {
     packet_struct *packet;
@@ -130,9 +146,12 @@ void client_send_examine(tag_t tag)
 
 /**
  * Request nrof of objects of tag get moved to loc.
- * @param loc Location where to move the object.
- * @param tag Item tag.
- * @param nrof Number of objects from tag.
+ * @param loc
+ * Location where to move the object.
+ * @param tag
+ * Item tag.
+ * @param nrof
+ * Number of objects from tag.
  */
 void client_send_move(tag_t loc, tag_t tag, uint32_t nrof)
 {
@@ -148,8 +167,11 @@ void client_send_move(tag_t loc, tag_t tag, uint32_t nrof)
 /**
  * This should be used for all 'command' processing. Other functions
  * should call this so that proper windowing will be done.
- * @param command Text command.
- * @return 1 if command was sent, 0 otherwise. */
+ * @param command
+ * Text command.
+ * @return
+ * 1 if command was sent, 0 otherwise.
+ */
 void send_command(const char *command)
 {
     packet_struct *packet;
@@ -160,7 +182,8 @@ void send_command(const char *command)
 }
 
 /**
- * Initialize player data. */
+ * Initialize player data.
+ */
 void init_player_data(void)
 {
     new_player(0, 0, 0);
@@ -183,9 +206,12 @@ void init_player_data(void)
 
 /**
  * Transform gender-string into its @ref GENDER_xxx "ID".
- * @param gender The gender string.
- * @return The gender's ID as one of @ref GENDER_xxx, or -1 if 'gender'
- * didn't match any of the existing genders. */
+ * @param gender
+ * The gender string.
+ * @return
+ * The gender's ID as one of @ref GENDER_xxx, or -1 if 'gender'
+ * didn't match any of the existing genders.
+ */
 int gender_to_id(const char *gender)
 {
     size_t i;

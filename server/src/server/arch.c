@@ -116,7 +116,8 @@ void arch_deinit(void)
 
 /**
  * Allocates, initializes and returns the pointer to an archetype structure.
- * @return New archetype structure, never NULL.
+ * @return
+ * New archetype structure, never NULL.
  */
 static archetype_t *arch_new(void)
 {
@@ -130,7 +131,8 @@ static archetype_t *arch_new(void)
 
 /**
  * Frees the specified archetype structure.
- * @param at Archetype to free.
+ * @param at
+ * Archetype to free.
  */
 static void arch_free(archetype_t *at)
 {
@@ -152,7 +154,8 @@ static void arch_free(archetype_t *at)
 /**
  * Reads/parses the archetype-file, and copies into a linked list
  * of archetype structures.
- * @param fp Opened file descriptor which will be used to read the
+ * @param fp
+ * Opened file descriptor which will be used to read the
  * archetypes.
  */
 static void arch_pass_first(FILE *fp)
@@ -200,8 +203,10 @@ static void arch_pass_first(FILE *fp)
 /**
  * Reads the archetype file once more, and links all pointers between
  * archetypes and treasure lists. Must be called after first_arch_pass().
- * @param fp File from which to read. Won't be rewinded.
- * @param filename Filename fp is being read from.
+ * @param fp
+ * File from which to read. Won't be rewinded.
+ * @param filename
+ * Filename fp is being read from.
  */
 static void arch_pass_second(FILE *fp, const char *filename)
 {
@@ -379,7 +384,8 @@ static void arch_load(void)
  *
  * Must be called within archetypes initialization time-frame
  * (arch_in_init == true).
- * @param at Archetype to add.
+ * @param at
+ * Archetype to add.
  */
 void arch_add(archetype_t *at)
 {
@@ -393,8 +399,10 @@ void arch_add(archetype_t *at)
 
 /**
  * Finds, using the hashtable, which archetype matches the given name.
- * @param name Archetype name to find. Can be NULL.
- * @return Pointer to the found archetype, otherwise NULL.
+ * @param name
+ * Archetype name to find. Can be NULL.
+ * @return
+ * Pointer to the found archetype, otherwise NULL.
  */
 archetype_t *arch_find(const char *name)
 {
@@ -413,8 +421,10 @@ archetype_t *arch_find(const char *name)
  *
  * If the archetype cannot be found, object_create_singularity() is used to
  * create a singularity. Thus the return value is never NULL.
- * @param name Archetype name. Can be NULL.
- * @return Object of specified archetype, or a singularity. Will never be
+ * @param name
+ * Archetype name. Can be NULL.
+ * @return
+ * Object of specified archetype, or a singularity. Will never be
  * NULL.
  */
 object *arch_get(const char *name)
@@ -428,8 +438,10 @@ object *arch_get(const char *name)
 
 /**
  * Creates and returns a new object which is a copy of the given archetype.
- * @param at Archetype from which to get an object.
- * @return New object, never NULL.
+ * @param at
+ * Archetype from which to get an object.
+ * @return
+ * New object, never NULL.
  */
 object *arch_to_object(archetype_t *at)
 {
@@ -443,8 +455,10 @@ object *arch_to_object(archetype_t *at)
 
 /**
  * Clones the specified archetype.
- * @param at The archetype to clone.
- * @return New archetype.
+ * @param at
+ * The archetype to clone.
+ * @return
+ * New archetype.
  * @warning The archetype's name is not cloned.
  */
 archetype_t *arch_clone(archetype_t *at)

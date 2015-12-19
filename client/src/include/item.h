@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Header file dealing with objects. */
+ * Header file dealing with objects.
+ */
 
 #ifndef ITEM_H
 #define ITEM_H
@@ -37,7 +38,8 @@
 
 /**
  * Item structure keeps all information what player (= client) knows
- * about items in its inventory. */
+ * about items in its inventory.
+ */
 typedef struct obj {
     /** Next item in inventory. */
     struct obj *next;

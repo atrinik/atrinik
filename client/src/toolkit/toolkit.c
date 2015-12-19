@@ -50,8 +50,10 @@ static size_t apis_num = 0;
 
 /**
  * Registers an API import.
- * @param name Name of the API to register.
- * @param func Deinitialization function.
+ * @param name
+ * Name of the API to register.
+ * @param func
+ * Deinitialization function.
  */
 void toolkit_import_register(const char *name, toolkit_func func)
 {
@@ -83,8 +85,10 @@ void toolkit_import_register(const char *name, toolkit_func func)
 /**
  * Checks if the specified API was registered, identified by its
  * deinitialization function.
- * @param func Deinitialization function.
- * @return Whether the API was registered.
+ * @param func
+ * Deinitialization function.
+ * @return
+ * Whether the API was registered.
  */
 bool toolkit_check_imported(toolkit_func func)
 {

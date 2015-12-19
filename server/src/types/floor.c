@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref FLOOR "floor".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the floor type object methods. */
+ * Initialize the floor type object methods.
+ */
 void object_type_init_floor(void)
 {
 }

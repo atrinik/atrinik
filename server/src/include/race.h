@@ -24,42 +24,51 @@
 
 /**
  * @file
- * Race header file. */
+ * Race header file.
+ */
 
 #ifndef RACE_H
 #define RACE_H
 
 /**
- * A single race. */
+ * A single race.
+ */
 typedef struct ob_race {
     /**
-     * Name of this race. */
+     * Name of this race.
+ */
     shstr *name;
 
     /**
-     * The default corpse archetype of this race. */
+     * The default corpse archetype of this race.
+ */
     struct archetype *corpse;
 
     /**
-     * Linked list of monsters belonging to this race. */
+     * Linked list of monsters belonging to this race.
+ */
     struct oblnk *members;
 
     /**
-     * Number of monsters belonging to this race. */
+     * Number of monsters belonging to this race.
+ */
     int num_members;
 } ob_race;
 
 /**
  * The default corpse archetype name, used for races that do not
- * define their own corpse. */
+ * define their own corpse.
+ */
 #define RACE_CORPSE_DEFAULT "corpse_default"
 
 /**
- * Marks no race. */
+ * Marks no race.
+ */
 #define RACE_TYPE_NONE 0
 
 /**
- * Number of races in ::item_races. */
+ * Number of races in ::item_races.
+ */
 #define NROF_ITEM_RACES 13
 
 #endif

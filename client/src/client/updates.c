@@ -26,7 +26,8 @@
  * @file
  * Handles code for file updates by the server.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -34,12 +35,15 @@
 /**
  * How many file updates have been requested. This is used to block the
  * login: it's not possible to login unless this value is 0, to ensure
- * everything is downloaded intact from the server first. */
+ * everything is downloaded intact from the server first.
+ */
 static size_t file_updates_requested = 0;
 
 /**
  * Request the server to send us an updated copy of a file.
- * @param filename What to request. */
+ * @param filename
+ * What to request.
+ */
 static void file_updates_request(char *filename)
 {
     packet_struct *packet;
@@ -90,14 +94,17 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos)
 
 /**
  * Check if we have finished downloading updated files from the server.
- * @return 1 if we have finished, 0 otherwise. */
+ * @return
+ * 1 if we have finished, 0 otherwise.
+ */
 int file_updates_finished(void)
 {
     return file_updates_requested == 0;
 }
 
 /**
- * Parse the updates srv file, and request updated files as needed. */
+ * Parse the updates srv file, and request updated files as needed.
+ */
 void file_updates_parse(void)
 {
     FILE *fp;

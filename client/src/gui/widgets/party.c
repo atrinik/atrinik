@@ -26,7 +26,8 @@
  * @file
  * Implements party type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -58,19 +59,24 @@ enum {
 } ;
 
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct buttons[BUTTON_NUM];
 /**
- * The party list. */
+ * The party list.
+ */
 static list_struct *list_party = NULL;
 /**
  * What type of data is currently in the list; -1 means no data,
- * otherwise one of @ref CMD_PARTY_xxx. */
+ * otherwise one of @ref CMD_PARTY_xxx.
+ */
 static int8_t list_contents = -1;
 
 /**
  * Handle enter/double click for the party list.
- * @param list List. */
+ * @param list
+ * List.
+ */
 static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
     if (list_contents == CMD_PARTY_LIST && list->text) {
@@ -83,8 +89,11 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 
 /**
  * Highlight a row in the party list.
- * @param list List.
- * @param box Dimensions for the row. */
+ * @param list
+ * List.
+ * @param box
+ * Dimensions for the row.
+ */
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x80, 0x00));
@@ -92,8 +101,11 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
 
 /**
  * Highlight selected row in the party list.
- * @param list List.
- * @param box Dimensions for the row. */
+ * @param list
+ * List.
+ * @param box
+ * Dimensions for the row.
+ */
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
@@ -403,7 +415,8 @@ static void widget_deinit(widgetdata *widget)
 }
 
 /**
- * Initialize one party widget. */
+ * Initialize one party widget.
+ */
 void widget_party_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;

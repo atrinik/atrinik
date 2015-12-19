@@ -24,7 +24,8 @@
 
 /**
  * @file
- * This handles all attacks, magical or not. */
+ * This handles all attacks, magical or not.
+ */
 
 #include <global.h>
 #include <monster_data.h>
@@ -34,7 +35,8 @@
 
 /**
  * Names of attack types to use when saving them to file.
- * @warning Cannot contain spaces. Use underscores instead. */
+ * @warning Cannot contain spaces. Use underscores instead.
+ */
 const char *const attack_save[NROFATTACKS] = {
     "impact",   "slash", "cleave",      "pierce",    "weaponmagic",
     "fire",     "cold",  "electricity", "poison",    "acid",
@@ -44,7 +46,8 @@ const char *const attack_save[NROFATTACKS] = {
 };
 
 /**
- * Short description of names of the attack types. */
+ * Short description of names of the attack types.
+ */
 const char *const attack_name[NROFATTACKS] = {
     "impact",   "slash", "cleave",      "pierce",    "weapon magic",
     "fire",     "cold",  "electricity", "poison",    "acid",
@@ -68,9 +71,13 @@ static int is_aimed_missile(object *op);
 
 /**
  * Simple wrapper for attack_ob_simple(), will use hitter's values.
- * @param op Victim.
- * @param hitter Attacker.
- * @return Dealt damage. */
+ * @param op
+ * Victim.
+ * @param hitter
+ * Attacker.
+ * @return
+ * Dealt damage.
+ */
 int attack_ob(object *op, object *hitter)
 {
     if (op->head) {
@@ -86,11 +93,17 @@ int attack_ob(object *op, object *hitter)
 
 /**
  * Handles simple attack cases.
- * @param op Victim.
- * @param hitter Attacker.
- * @param base_dam Damage to do.
- * @param base_wc WC to hit with.
- * @return Dealt damage. */
+ * @param op
+ * Victim.
+ * @param hitter
+ * Attacker.
+ * @param base_dam
+ * Damage to do.
+ * @param base_wc
+ * WC to hit with.
+ * @return
+ * Dealt damage.
+ */
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc)
 {
     int simple_attack, roll, adjust, dam = 0;
@@ -224,11 +237,16 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
  * Object is attacked by something.
  *
  * This isn't used just for players, but in fact most objects.
- * @param op Object to be hit.
- * @param dam Base damage - protections/vulnerabilities/slaying matches
+ * @param op
+ * Object to be hit.
+ * @param dam
+ * Base damage - protections/vulnerabilities/slaying matches
  * can modify it.
- * @param hitter What is hitting the object.
- * @return Dealt damage. */
+ * @param hitter
+ * What is hitting the object.
+ * @return
+ * Dealt damage.
+ */
 int hit_player(object *op, int dam, object *hitter)
 {
     object *hit_obj, *hitter_owner, *target_obj;
@@ -360,11 +378,15 @@ int hit_player(object *op, int dam, object *hitter)
 
 /**
  * Attack a spot on the map.
- * @param op Object hitting the map.
- * @param dir Direction op is hitting/going.
- * @param reduce Whether to reduce the damage for multi-arch monsters.
+ * @param op
+ * Object hitting the map.
+ * @param dir
+ * Direction op is hitting/going.
+ * @param reduce
+ * Whether to reduce the damage for multi-arch monsters.
  * This will make it so that part of 4-tiles monster only gets hit for
- * 1/4 of the damage, making storms fairer against multi-arch monsters. */
+ * 1/4 of the damage, making storms fairer against multi-arch monsters.
+ */
 void hit_map(object *op, int dir, int reduce)
 {
     object *tmp, *owner;
@@ -428,11 +450,17 @@ void hit_map(object *op, int dir, int reduce)
  *
  * This doesn't damage the creature, but returns how much it should
  * take. However, it will do other effects (paralyzation, slow, etc).
- * @param op Victim of the attack.
- * @param hitter Attacker.
- * @param damage Maximum dealt damage.
- * @param attacknum Number of the attacktype of the attack.
- * @return Damage to actually do. */
+ * @param op
+ * Victim of the attack.
+ * @param hitter
+ * Attacker.
+ * @param damage
+ * Maximum dealt damage.
+ * @param attacknum
+ * Number of the attacktype of the attack.
+ * @return
+ * Damage to actually do.
+ */
 static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_t attacknum)
 {
     double dam = (double) damage;
@@ -598,12 +626,18 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_
 
 /**
  * Send attack message for players.
- * @param op Victim of the attack.
- * @param hitter Attacker.
- * @param attacknum ID of the attack type.
- * @param dam Actual damage done.
- * @param damage How much damage should have been done, not counting
- * resists/protections/etc. */
+ * @param op
+ * Victim of the attack.
+ * @param hitter
+ * Attacker.
+ * @param attacknum
+ * ID of the attack type.
+ * @param dam
+ * Actual damage done.
+ * @param damage
+ * How much damage should have been done, not counting
+ * resists/protections/etc.
+ */
 static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage)
 {
     object *orig_hitter = hitter;
@@ -619,9 +653,13 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 
 /**
  * One player gets exp by killing a monster.
- * @param op Player. This should be the killer.
- * @param exp_gain Experience to gain.
- * @param skill Skill that was used to kill the monster. */
+ * @param op
+ * Player. This should be the killer.
+ * @param exp_gain
+ * Experience to gain.
+ * @param skill
+ * Skill that was used to kill the monster.
+ */
 static void share_kill_exp_one(object *op, int64_t exp_gain, object *skill)
 {
     if (exp_gain) {
@@ -635,9 +673,13 @@ static void share_kill_exp_one(object *op, int64_t exp_gain, object *skill)
  * Share experience gained by killing a monster. This will fairly share
  * experience between party members, or if none are present, it will use
  * share_kill_exp_one() instead.
- * @param op Player that killed the monster.
- * @param exp_gain Experience to share.
- * @param skill Skill that was used to kill the monster. */
+ * @param op
+ * Player that killed the monster.
+ * @param exp_gain
+ * Experience to share.
+ * @param skill
+ * Skill that was used to kill the monster.
+ */
 static void share_kill_exp(object *op, int64_t exp_gain, object *skill)
 {
     int shares = 0, count = 0;
@@ -678,8 +720,10 @@ static void share_kill_exp(object *op, int64_t exp_gain, object *skill)
 
 /**
  * An object was killed, handle various things (logging, messages, ...).
- * @param op What is being killed.
- * @param hitter What is hitting it.
+ * @param op
+ * What is being killed.
+ * @param hitter
+ * What is hitting it.
  * @retval true Object was killed.
  * @retval false Object was not killed.
  */
@@ -848,11 +892,16 @@ bool kill_object(object *op, object *hitter)
 
 /**
  * Find correct parameters for attack, do some sanity checks.
- * @param target Will point to victim's head.
- * @param hitter Will point to hitter's head.
- * @param simple_attack Will be 1 if one of victim or target isn't on a
+ * @param target
+ * Will point to victim's head.
+ * @param hitter
+ * Will point to hitter's head.
+ * @param simple_attack
+ * Will be 1 if one of victim or target isn't on a
  * map, 0 otherwise.
- * @return 0 if hitter can attack target, 1 otherwise. */
+ * @return
+ * 0 if hitter can attack target, 1 otherwise.
+ */
 static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 {
     if (OBJECT_FREE(*target) || OBJECT_FREE(*hitter)) {
@@ -883,10 +932,15 @@ static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 /**
  * Check if target and hitter are still in a relation similar to the one
  * determined by get_attack_mode().
- * @param target Who is attacked.
- * @param hitter Who is attacking.
- * @param simple_attack Previous mode as returned by get_attack_mode().
- * @return 1 if the relation has changed, 0 otherwise. */
+ * @param target
+ * Who is attacked.
+ * @param hitter
+ * Who is attacking.
+ * @param simple_attack
+ * Previous mode as returned by get_attack_mode().
+ * @return
+ * 1 if the relation has changed, 0 otherwise.
+ */
 static int abort_attack(object *target, object *hitter, int simple_attack)
 {
     int new_mode;
@@ -904,9 +958,13 @@ static int abort_attack(object *target, object *hitter, int simple_attack)
 
 /**
  * Poison a living thing.
- * @param op Victim.
- * @param hitter Who is attacking.
- * @param dam Damage to deal. */
+ * @param op
+ * Victim.
+ * @param hitter
+ * Who is attacking.
+ * @param dam
+ * Damage to deal.
+ */
 static void poison_player(object *op, object *hitter, float dam)
 {
     archetype_t *at;
@@ -983,7 +1041,9 @@ static void poison_player(object *op, object *hitter, float dam)
 
 /**
  * Slow a living thing.
- * @param op Victim. */
+ * @param op
+ * Victim.
+ */
 static void slow_living(object *op)
 {
     archetype_t *at = arch_find("slowness");
@@ -1009,7 +1069,9 @@ static void slow_living(object *op)
 
 /**
  * Confuse a living thing.
- * @param op Victim. */
+ * @param op
+ * Victim.
+ */
 void confuse_living(object *op)
 {
     archetype_t *at;
@@ -1040,9 +1102,13 @@ void confuse_living(object *op)
 
 /**
  * Blind a living thing.
- * @param op Victim.
- * @param hitter Who is attacking.
- * @param dam Damage to deal. */
+ * @param op
+ * Victim.
+ * @param hitter
+ * Who is attacking.
+ * @param dam
+ * Damage to deal.
+ */
 void blind_living(object *op, object *hitter, int dam)
 {
     archetype_t *at;
@@ -1092,8 +1158,11 @@ void blind_living(object *op, object *hitter, int dam)
 
 /**
  * Paralyze a living thing.
- * @param op Victim.
- * @param dam Damage to deal. */
+ * @param op
+ * Victim.
+ * @param dam
+ * Damage to deal.
+ */
 void paralyze_living(object *op, int dam)
 {
     double effect, max;
@@ -1120,8 +1189,10 @@ void paralyze_living(object *op, int dam)
 
 /**
  * Cause damage due to falling.
- * @param op Object.
- * @param fall_floors Number of floors the object fell down.
+ * @param op
+ * Object.
+ * @param fall_floors
+ * Number of floors the object fell down.
  */
 void fall_damage_living(object *op, int fall_floors)
 {
@@ -1153,9 +1224,13 @@ void fall_damage_living(object *op, int fall_floors)
 
 /**
  * Adjustments to attack rolls by various conditions.
- * @param hitter Who is hitting.
- * @param target Victim of the attack.
- * @return Adjustment to attack roll. */
+ * @param hitter
+ * Who is hitting.
+ * @param target
+ * Victim of the attack.
+ * @return
+ * Adjustment to attack roll.
+ */
 static int adj_attackroll(object *hitter, object *target)
 {
     object *attacker = hitter;
@@ -1215,8 +1290,11 @@ static int adj_attackroll(object *hitter, object *target)
 
 /**
  * Determine if the object is an 'aimed' missile.
- * @param op Object to check.
- * @return 1 if aimed missile, 0 otherwise. */
+ * @param op
+ * Object to check.
+ * @return
+ * 1 if aimed missile, 0 otherwise.
+ */
 static int is_aimed_missile(object *op)
 {
     if (op && QUERY_FLAG(op, FLAG_FLYING) && op->type == ARROW) {
@@ -1228,9 +1306,12 @@ static int is_aimed_missile(object *op)
 
 /**
  * Test if objects are in range for melee attack.
- * @param hitter Attacker.
- * @param enemy Enemy -- the target.
- * @return True if the target is in melee range, false otherwise.
+ * @param hitter
+ * Attacker.
+ * @param enemy
+ * Enemy -- the target.
+ * @return
+ * True if the target is in melee range, false otherwise.
  */
 bool is_melee_range(object *hitter, object *enemy)
 {

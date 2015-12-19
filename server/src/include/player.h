@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles player related structures, enums and defines. */
+ * Handles player related structures, enums and defines.
+ */
 
 #ifndef PLAYER_H
 #define PLAYER_H
@@ -68,13 +69,15 @@ enum {
 
 /**
  * @defgroup PLAYER_AFLAG_xxx Player animation flags
- *@{*/
+ *@{
+ */
 /** If set, show fighting animation. */
 #define PLAYER_AFLAG_FIGHT      1
 /**
  * If set at the end of an animation, set fighting flag and clear this
  * flag. It is set in attack_ob_simple() when the player swings at an
- * enemy. */
+ * enemy.
+ */
 #define PLAYER_AFLAG_ENEMY      2
 /** Whether to add an extra frame to do one more swing animation. */
 #define PLAYER_AFLAG_ADDFRAME   4
@@ -114,7 +117,8 @@ typedef struct player_path {
     /**
      * How many times we failed trying to reach this destination. If more
      * than @ref PLAYER_PATH_MAX_FAILS, will abort trying to reach the
-     * destination. */
+     * destination.
+ */
     uint8_t fails;
 } player_path;
 
@@ -177,7 +181,8 @@ typedef struct pl_player {
     char map_info_weather[MAX_BUF];
 
     /**
-     * Last sent map. */
+     * Last sent map.
+ */
     struct mapdef *last_update;
 
     /** The object representing the player. */
@@ -224,7 +229,8 @@ typedef struct pl_player {
 
     /**
      * Array showing what spaces the player can see. For maps smaller
-     * than MAP_CLIENT_.., the upper left is used. */
+     * than MAP_CLIENT_.., the upper left is used.
+ */
     int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
 
     /** This is initialized from init_player_exp(). */
@@ -424,7 +430,8 @@ typedef struct pl_player {
 
     /**
      * Number of times the player used inscription skill to write in a
-     * book. */
+     * book.
+ */
     uint64_t stat_books_inscribed;
 
     /** Count of target. */
@@ -446,19 +453,23 @@ typedef struct pl_player {
     float last_ranged_ws;
 
     /**
-     * Last attuned spell path sent to client. */
+     * Last attuned spell path sent to client.
+ */
     uint32_t last_path_attuned;
 
     /**
-     * Last repelled spell path sent to client. */
+     * Last repelled spell path sent to client.
+ */
     uint32_t last_path_repelled;
 
     /**
-     * Last denied spell path sent to client. */
+     * Last denied spell path sent to client.
+ */
     uint32_t last_path_denied;
 
     /**
-     * Last sent UIDs of player's equipment. */
+     * Last sent UIDs of player's equipment.
+ */
     uint32_t last_equipment[PLAYER_EQUIP_MAX];
 
     /** Last fire/run on flags sent to client. */
@@ -530,13 +541,15 @@ typedef struct pl_player {
     /**
      * If 1, the player is ready to engage in combat and will swing their
      * weapon at targeted enemies.
-     */
+
+ */
     uint8_t combat;
 
     /**
      * If 1, the player will swing their weapon at their target, be it friend
      * or foe.
-     */
+
+ */
     uint8_t combat_force;
 
     /** Last stats sent to the client. */
@@ -552,7 +565,8 @@ typedef struct pl_player {
     player_path *move_path_end;
 
     /**
-     * Player name to reply to. */
+     * Player name to reply to.
+ */
     char player_reply[64];
 
     /** Auto-reply message when AFK */

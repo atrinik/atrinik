@@ -26,7 +26,8 @@
  * @file
  * Text input API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -49,8 +50,11 @@ void text_input_history_free(text_input_history_struct *history)
 
 /**
  * Add string to text input history.
- * @param history The history to add to.
- * @param text The text to add to the history. */
+ * @param history
+ * The history to add to.
+ * @param text
+ * The text to add to the history.
+ */
 static void text_input_history_add(text_input_history_struct *history, const char *text)
 {
     char **p;
@@ -85,7 +89,8 @@ void text_input_create(text_input_struct *text_input)
 /**
  * Destroy data associated with the specified text input. The text input
  * structure itself is not freed.
- * @param text_input Text input to destroy.
+ * @param text_input
+ * Text input to destroy.
  */
 void text_input_destroy(text_input_struct *text_input)
 {

@@ -26,7 +26,8 @@
  * @file
  * Logger API header file.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifndef LOGGER_H
 #define LOGGER_H
@@ -34,7 +35,8 @@
 typedef void (*logger_print_func)(const char *str);
 
 /**
- * Possible log levels. */
+ * Possible log levels.
+ */
 typedef enum logger_level {
     LOG_CHAT,
     LOG_INFO,

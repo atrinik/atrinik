@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles code related to @ref SWARM_SPELL "swarm spells". */
+ * Handles code related to @ref SWARM_SPELL "swarm spells".
+ */
 
 #include <global.h>
 
@@ -80,7 +81,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the swarm spell type object methods. */
+ * Initialize the swarm spell type object methods.
+ */
 void object_type_init_swarm_spell(void)
 {
     object_type_methods[SWARM_SPELL].process_func = process_func;

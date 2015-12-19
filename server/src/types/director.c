@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref DIRECTOR "directors".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -70,7 +71,8 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the director type object methods. */
+ * Initialize the director type object methods.
+ */
 void object_type_init_director(void)
 {
     object_type_methods[DIRECTOR].move_on_func = move_on_func;

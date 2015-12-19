@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles image related code. */
+ * Handles image related code.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -39,8 +40,11 @@ static size_t bmaps_size = 0;
 
 /**
  * Hash string to find it in the ::bmaps array.
- * @param str The string to hash.
- * @return Hashed string. */
+ * @param str
+ * The string to hash.
+ * @return
+ * Hashed string.
+ */
 static unsigned long bmap_hash(const char *str)
 {
     unsigned long hash = 0;
@@ -62,8 +66,11 @@ static unsigned long bmap_hash(const char *str)
 
 /**
  * Find a bmap by name.
- * @param name The bmap name to find.
- * @return NULL if not found, pointer to the bmap otherwise. */
+ * @param name
+ * The bmap name to find.
+ * @return
+ * NULL if not found, pointer to the bmap otherwise.
+ */
 bmap_struct *bmap_find(const char *name)
 {
     bmap_struct *bmap;
@@ -95,7 +102,9 @@ bmap_struct *bmap_find(const char *name)
 
 /**
  * Add a bmap to the ::bmaps array.
- * @param at The bitmap to add. */
+ * @param at
+ * The bitmap to add.
+ */
 void bmap_add(bmap_struct *bmap)
 {
     unsigned long idx = bmap_hash(bmap->name), orig_idx = idx;
@@ -122,7 +131,8 @@ void bmap_add(bmap_struct *bmap)
 }
 
 /**
- * Read bmaps from atrinik.p0, calculate checksums, etc. */
+ * Read bmaps from atrinik.p0, calculate checksums, etc.
+ */
 void read_bmaps_p0(void)
 {
     FILE *fp;
@@ -195,7 +205,8 @@ void read_bmaps_p0(void)
 }
 
 /**
- * Read bmaps server file. */
+ * Read bmaps server file.
+ */
 void read_bmaps(void)
 {
     FILE *fp;
@@ -274,9 +285,13 @@ void bmaps_deinit(void)
 
 /**
  * Finish face command.
- * @param pnum ID of the face.
- * @param checksum Face checksum.
- * @param face Face name. */
+ * @param pnum
+ * ID of the face.
+ * @param checksum
+ * Face checksum.
+ * @param face
+ * Face name.
+ */
 void finish_face_cmd(int facenum, uint32_t checksum, char *face)
 {
     FILE *fp;
@@ -344,8 +359,11 @@ void finish_face_cmd(int facenum, uint32_t checksum, char *face)
 
 /**
  * Load picture from atrinik.p0 file.
- * @param num ID of the picture to load.
- * @return 1 if the file does not exist, 0 otherwise. */
+ * @param num
+ * ID of the picture to load.
+ * @return
+ * 1 if the file does not exist, 0 otherwise.
+ */
 static int load_picture_from_pack(int num)
 {
     FILE *stream;
@@ -380,8 +398,11 @@ static int load_picture_from_pack(int num)
 
 /**
  * Load face from user's graphics directory.
- * @param num ID of the face to load.
- * @return 1 on success, 0 on failure. */
+ * @param num
+ * ID of the face to load.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 static int load_gfx_user_face(uint16_t num)
 {
     char buf[MAX_BUF];
@@ -432,8 +453,11 @@ static int load_gfx_user_face(uint16_t num)
 /**
  * We got a face - test if we have it loaded. If not, ask the server to
  * send us face command.
- * @param pnum Face ID.
- * @return 0 if face is not there, 1 if face was requested or loaded. */
+ * @param pnum
+ * Face ID.
+ * @return
+ * 0 if face is not there, 1 if face was requested or loaded.
+ */
 int request_face(int pnum)
 {
     char buf[MAX_BUF];
@@ -475,8 +499,11 @@ int request_face(int pnum)
 /**
  * Find a face ID by name. Request the face by finding it, loading it or
  * requesting it.
- * @param name Face name to find
- * @return Face ID if found, -1 otherwise */
+ * @param name
+ * Face name to find
+ * @return
+ * Face ID if found, -1 otherwise
+ */
 int get_bmap_id(char *name)
 {
     int l = 0, r = bmaps_size - 1, x, cmp;
@@ -502,10 +529,15 @@ int get_bmap_id(char *name)
 
 /**
  * Draw a face.
- * @param surface Surface to draw on.
- * @param x X position.
- * @param y Y position.
- * @param id ID of the face. */
+ * @param surface
+ * Surface to draw on.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param id
+ * ID of the face.
+ */
 void face_show(SDL_Surface *surface, int x, int y, int id)
 {
     if (id == -1 || !FaceList[id].sprite) {

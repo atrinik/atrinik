@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Everything concerning treasures. */
+ * Everything concerning treasures.
+ */
 
 /* TREASURE_DEBUG does some checking on the treasurelists after loading.
  * It is useful for finding bugs in the treasures file.  Since it only
@@ -74,7 +75,8 @@ static void free_treasurestruct(treasure *t);
 /**
  * Opens LIBDIR/treasure and reads all treasure declarations from it.
  *
- * Each treasure is parsed with the help of load_treasure(). */
+ * Each treasure is parsed with the help of load_treasure().
+ */
 void load_treasures(void)
 {
     FILE *fp;
@@ -158,7 +160,8 @@ void load_treasures(void)
 /**
  * Create money table, setting up pointers to the archetypes.
  *
- * This is done for faster access of the coins archetypes. */
+ * This is done for faster access of the coins archetypes.
+ */
 static void create_money_table(void)
 {
     int i;
@@ -176,10 +179,15 @@ static void create_money_table(void)
 /**
  * Reads one treasure from the file, including the 'yes', 'no' and 'more'
  * options.
- * @param fp File to read from.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @return Read structure, never NULL. */
+ * @param fp
+ * File to read from.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @return
+ * Read structure, never NULL.
+ */
 static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 {
     char buf[MAX_BUF], *cp = NULL, variable[MAX_BUF];
@@ -312,7 +320,9 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 
 /**
  * Allocate and return the pointer to an empty treasurelist structure.
- * @return New structure, blanked, never NULL. */
+ * @return
+ * New structure, blanked, never NULL.
+ */
 static treasurelist *get_empty_treasurelist(void)
 {
     treasurelist *tl = emalloc(sizeof(treasurelist));
@@ -332,7 +342,9 @@ static treasurelist *get_empty_treasurelist(void)
 
 /**
  * Allocate and return the pointer to an empty treasure structure.
- * @return New structure, blanked, never NULL. */
+ * @return
+ * New structure, blanked, never NULL.
+ */
 static treasure *get_empty_treasure(void)
 {
     treasure *t = emalloc(sizeof(treasure));
@@ -369,7 +381,9 @@ static treasure *get_empty_treasure(void)
 /**
  * Searches for the given treasurelist in the globally linked list of
  * treasure lists which has been built by load_treasures().
- * @param name Treasure list to search for. */
+ * @param name
+ * Treasure list to search for.
+ */
 treasurelist *find_treasurelist(const char *name)
 {
     const char *tmp = find_string(name);
@@ -400,10 +414,14 @@ treasurelist *find_treasurelist(const char *name)
  * instead takes a treasurelist. It is really just a wrapper around
  * create_treasure(). We create a dummy object that the treasure gets
  * inserted into, and then return that treasure.
- * @param t Treasure list to generate from.
- * @param difficulty Treasure difficulty.
- * @return Generated treasure. Can be NULL if no suitable treasure was
- * found. */
+ * @param t
+ * Treasure list to generate from.
+ * @param difficulty
+ * Treasure difficulty.
+ * @return
+ * Generated treasure. Can be NULL if no suitable treasure was
+ * found.
+ */
 object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 {
     object *ob = get_object(), *tmp;
@@ -429,14 +447,23 @@ object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 
 /**
  * This calls the appropriate treasure creation function.
- * @param t What to generate.
- * @param op For who to generate the treasure.
- * @param flag Combination of @ref GT_xxx values.
- * @param difficulty Map difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @param tries To avoid infinite recursion.
- * @param arch_change Arch change. */
+ * @param t
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param arch_change
+ * Arch change.
+ */
 void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *arch_change)
 {
     if (tries++ > 100) {
@@ -461,14 +488,23 @@ void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int 
 
 /**
  * Creates all the treasures.
- * @param t What to generate.
- * @param op For who to generate the treasure.
- * @param flag Combination of @ref GT_xxx values.
- * @param difficulty Map difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @param tries To avoid infinite recursion.
- * @param change_arch Arch change. */
+ * @param t
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param change_arch
+ * Arch change.
+ */
 static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {
     object *tmp;
@@ -546,15 +582,24 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 
 /**
  * Creates one treasure from the list.
- * @param tl What to generate.
- * @param op For who to generate the treasure.
- * @param flag Combination of @ref GT_xxx values.
- * @param difficulty Map difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @param tries To avoid infinite recursion.
- * @param change_arch Arch change.
- * @todo Get rid of the goto. */
+ * @param tl
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param change_arch
+ * Arch change.
+ * @todo Get rid of the goto.
+ */
 static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {
     int value, diff_tries = 0;
@@ -690,9 +735,13 @@ create_one_treasure_again_jmp:
 
 /**
  * Inserts generated treasure where it should go.
- * @param op Treasure just generated.
- * @param creator For which object the treasure is being generated.
- * @param flags Combination of @ref GT_xxx values. */
+ * @param op
+ * Treasure just generated.
+ * @param creator
+ * For which object the treasure is being generated.
+ * @param flags
+ * Combination of @ref GT_xxx values.
+ */
 static void put_treasure(object *op, object *creator, int flags)
 {
     if (flags & GT_ENVIRONMENT) {
@@ -707,8 +756,11 @@ static void put_treasure(object *op, object *creator, int flags)
 /**
  * If there are change_xxx commands in the treasure, we include the
  * changes in the generated object.
- * @param ca Arch to change to.
- * @param op Actual generated treasure. */
+ * @param ca
+ * Arch to change to.
+ * @param op
+ * Actual generated treasure.
+ */
 static void change_treasure(struct _change_arch *ca, object *op)
 {
     if (ca->name) {
@@ -937,7 +989,9 @@ static const int difftomagic_list[DIFFLEVELS][MAXMAGIC + 1] = {
  * Calculate a magic value from the specified difficulty.
  *
  * @param difficulty
- * @return Magic value.
+ *
+ * @return
+ * Magic value.
  */
 static int
 magic_from_difficulty (int difficulty)
@@ -982,12 +1036,19 @@ magic_from_difficulty (int difficulty)
  * difficulty, and the given max possible bonus.
  *
  * Item will be cursed if magic is negative.
- * @param difficulty Difficulty we want the item to be.
- * @param op The object.
- * @param max_magic What should be the maximum magic of the item.
- * @param fix_magic Fixed value of magic for the object.
- * @param chance_magic Chance to get a magic bonus.
- * @param flags Combination of @ref GT_xxx flags. */
+ * @param difficulty
+ * Difficulty we want the item to be.
+ * @param op
+ * The object.
+ * @param max_magic
+ * What should be the maximum magic of the item.
+ * @param fix_magic
+ * Fixed value of magic for the object.
+ * @param chance_magic
+ * Chance to get a magic bonus.
+ * @param flags
+ * Combination of @ref GT_xxx flags.
+ */
 static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, int chance_magic, int flags)
 {
     int magic;
@@ -1023,8 +1084,11 @@ static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, 
  *
  * This function doesn't work properly, should add use of archetypes to
  * make it truly absolute.
- * @param op Object we're modifying.
- * @param magic Magic modifier. */
+ * @param op
+ * Object we're modifying.
+ * @param magic
+ * Magic modifier.
+ */
 void set_abs_magic(object *op, int magic)
 {
     if (!magic) {
@@ -1082,10 +1146,14 @@ void set_abs_magic(object *op, int magic)
  * -# Add code to deal with new PR method.
  *
  * Changes the item's value.
- * @param op Ring or amulet to change.
- * @param bonus Bonus to add to item.
- * @param level Level.
- * @return 1.
+ * @param op
+ * Ring or amulet to change.
+ * @param bonus
+ * Bonus to add to item.
+ * @param level
+ * Level.
+ * @return
+ * 1.
  * @todo Extract this ugly piece of crap into subroutines. Use separate logic
  * for determining stats based on type (amulet/ring).
  */
@@ -1421,7 +1489,9 @@ set_ring_bonus_jump1:
 
 /**
  * Calculate the item power of the given ring/amulet.
- * @param ob The ring/amulet. */
+ * @param ob
+ * The ring/amulet.
+ */
 static void set_ring_item_power(object *ob)
 {
     int tmp, i;
@@ -1491,9 +1561,12 @@ static void set_ring_item_power(object *ob)
  * It is only used in fix_generated_treasure() to set bonuses on rings
  * and amulets. Another scheme is used to calculate the magic of weapons
  * and armours.
- * @param diff Any value above 2. The higher the value, the higher is the
+ * @param diff
+ * Any value above 2. The higher the value, the higher is the
  * chance of returning a low number.
- * @return The random number. */
+ * @return
+ * The random number.
+ */
 static int get_magic(int diff)
 {
     int i;
@@ -1515,10 +1588,14 @@ static int get_magic(int diff)
  * Get a random spell from the spell list.
  *
  * Used for item generation which uses spells like wands, rods, etc.
- * @param level Level of the spell.
- * @param flags @ref SPELL_USE_xxx to check for.
- * @return SP_NO_SPELL if no valid spell matches, ID of the spell
- * otherwise. */
+ * @param level
+ * Level of the spell.
+ * @param flags
+ * @ref SPELL_USE_xxx to check for.
+ * @return
+ * SP_NO_SPELL if no valid spell matches, ID of the spell
+ * otherwise.
+ */
 static int get_random_spell(int level, int flags)
 {
     int i, num_spells = 0, possible_spells[NROFREALSPELLS];
@@ -1543,7 +1620,9 @@ static int get_random_spell(int level, int flags)
 /**
  * Assign a random slaying race to an object, for weapons, arrows
  * and such.
- * @param op Object. */
+ * @param op
+ * Object.
+ */
 static void add_random_race(object *op)
 {
     ob_race *race = race_get_random();
@@ -1559,15 +1638,25 @@ static void add_random_race(object *op)
  * This is called after an item is generated, in order to set it up
  * right. This produced magical bonuses, puts spells into
  * scrolls/books/wands, makes it unidentified, hides the value, etc.
- * @param op_ptr Object to fix.
- * @param creator For who op was created. Can be NULL.
- * @param difficulty Difficulty level.
- * @param a_chance Artifact chance.
- * @param t_style Treasure style.
- * @param max_magic Maximum magic for the item.
- * @param fix_magic Fixed magic value.
- * @param chance_magic Chance of magic.
- * @param flags One of @ref GT_xxx */
+ * @param op_ptr
+ * Object to fix.
+ * @param creator
+ * For who op was created. Can be NULL.
+ * @param difficulty
+ * Difficulty level.
+ * @param a_chance
+ * Artifact chance.
+ * @param t_style
+ * Treasure style.
+ * @param max_magic
+ * Maximum magic for the item.
+ * @param fix_magic
+ * Fixed magic value.
+ * @param chance_magic
+ * Chance of magic.
+ * @param flags
+ * One of @ref GT_xxx
+ */
 int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags)
 {
     /* Just to make things easy */
@@ -2016,8 +2105,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
 /**
  * Frees a treasure, including its yes, no and next items.
- * @param t Treasure to free. Pointer is efree()d too, so becomes
- * invalid. */
+ * @param t
+ * Treasure to free. Pointer is efree()d too, so becomes
+ * invalid.
+ */
 static void free_treasurestruct(treasure *t)
 {
     if (t->next) {
@@ -2040,7 +2131,8 @@ static void free_treasurestruct(treasure *t)
 }
 
 /**
- * Free all treasure related memory. */
+ * Free all treasure related memory.
+ */
 void free_all_treasures(void)
 {
     treasurelist *tl, *next;
@@ -2059,8 +2151,11 @@ void free_all_treasures(void)
 
 /**
  * Set object's object::material_real.
- * @param op Object to set material_real for.
- * @param change_arch Change arch. */
+ * @param op
+ * Object to set material_real for.
+ * @param change_arch
+ * Change arch.
+ */
 static void set_material_real(object *op, struct _change_arch *change_arch)
 {
     if (op->type == MONEY) {
@@ -2205,8 +2300,11 @@ set_material_real:
 /**
  * Gets the environment level for treasure generation for the given
  * object.
- * @param op Object to get environment level of.
- * @return The environment level, always at least 1. */
+ * @param op
+ * Object to get environment level of.
+ * @return
+ * The environment level, always at least 1.
+ */
 int get_environment_level(object *op)
 {
     object *env;
@@ -2246,8 +2344,11 @@ int get_environment_level(object *op)
 
 /**
  * Checks if a treasure if valid. Will also check its yes and no options.
- * @param t Treasure to check.
- * @param tl Needed only so that the treasure name can be printed out. */
+ * @param t
+ * Treasure to check.
+ * @param tl
+ * Needed only so that the treasure name can be printed out.
+ */
 static void check_treasurelist(treasure *t, treasurelist *tl)
 {
     if (t->item == NULL && t->name == NULL) {

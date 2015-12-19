@@ -24,15 +24,20 @@
 
 /**
  * @file
- * These functions handle decoration in random maps. */
+ * These functions handle decoration in random maps.
+ */
 
 #include <global.h>
 
 /**
  * Put the decor into the map.
- * @param map Map to add decor to.
- * @param layout Layout of the map, as was generated.
- * @param RP Parameters of the random map. */
+ * @param map
+ * Map to add decor to.
+ * @param layout
+ * Layout of the map, as was generated.
+ * @param RP
+ * Parameters of the random map.
+ */
 void put_decor(mapstruct *map, char **layout, RMParms *RP)
 {
     mapstruct *decor_map;

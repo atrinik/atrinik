@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Attack and defense system macros, defines, etc. */
+ * Attack and defense system macros, defines, etc.
+ */
 
 #ifndef ATTACK_H
 #define ATTACK_H
 
 /**
- * The attack IDs. */
+ * The attack IDs.
+ */
 typedef enum _attacks {
     /** Impact. */
     ATNR_IMPACT,
@@ -75,7 +77,8 @@ typedef enum _attacks {
     ATNR_SLOW,
     /**
      * Confusion. Affected object will move in random directions until
-     * the effect wears off. */
+     * the effect wears off.
+ */
     ATNR_CONFUSION,
 
     /** Used for internal calculations. */

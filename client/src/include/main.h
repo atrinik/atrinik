@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Header file for things that are generally used in many places. */
+ * Header file for things that are generally used in many places.
+ */
 
 #ifndef MAIN_H
 #define MAIN_H
@@ -65,7 +66,8 @@ typedef struct server_struct {
 
 /**
  * Message animation structure. Used when NDI_ANIM is passed to
- * DrawInfoCmd2(). */
+ * DrawInfoCmd2().
+ */
 typedef struct msg_anim_struct {
     /** The message to play. */
     char message[MAX_BUF];
@@ -99,29 +101,35 @@ typedef struct _face_struct {
 
 typedef struct spell_entry_struct {
     /**
-     * The spell object in player's inventory. */
+     * The spell object in player's inventory.
+ */
     object *spell;
 
     /**
-     * Cost of spell. */
+     * Cost of spell.
+ */
     uint16_t cost;
 
     /**
-     * Spell's flags. */
+     * Spell's flags.
+ */
     uint32_t flags;
 
     /**
-     * Spell's path. */
+     * Spell's path.
+ */
     uint32_t path;
 
     /**
-     * Description of the spell. */
+     * Description of the spell.
+ */
     char msg[MAX_BUF];
 } spell_entry_struct;
 
 /**
  * Maximum number of spell paths. The last one is always 'all' and holds
- * pointers to spells in the other spell paths. */
+ * pointers to spells in the other spell paths.
+ */
 #define SPELL_PATH_NUM 21
 
 typedef struct skill_entry_struct {
@@ -152,7 +160,8 @@ typedef struct _fire_mode {
 } _fire_mode;
 
 /**
- * A single help file entry. */
+ * A single help file entry.
+ */
 typedef struct hfile_struct {
     char *key;
 
@@ -168,74 +177,92 @@ typedef struct hfile_struct {
 } hfile_struct;
 
 /**
- * Player's state. */
+ * Player's state.
+ */
 typedef enum player_state_t {
     /**
-     * Just initialized the client. */
+     * Just initialized the client.
+ */
     ST_INIT,
 
     /**
-     * Re-download metaserver list. */
+     * Re-download metaserver list.
+ */
     ST_META,
 
     /**
-     * Close opened socket if any, prepare for connection. */
+     * Close opened socket if any, prepare for connection.
+ */
     ST_START,
 
     /**
-     * Waiting to select a server to play on. */
+     * Waiting to select a server to play on.
+ */
     ST_WAITLOOP,
 
     /**
-     * Selected a server, so start the connection procedure. */
+     * Selected a server, so start the connection procedure.
+ */
     ST_STARTCONNECT,
 
     /**
-     * Open a connection to the server. */
+     * Open a connection to the server.
+ */
     ST_CONNECT,
 
     /**
-     * Wait for version information from the server. */
+     * Wait for version information from the server.
+ */
     ST_WAITVERSION,
 
     /**
-     * Server version received. */
+     * Server version received.
+ */
     ST_VERSION,
 
     /**
-     * Wait for setup command from the server. */
+     * Wait for setup command from the server.
+ */
     ST_WAITSETUP,
 
     /**
-     * Request files listing. */
+     * Request files listing.
+ */
     ST_REQUEST_FILES_LISTING,
 
     /**
-     * Wait for files listing request to complete. */
+     * Wait for files listing request to complete.
+ */
     ST_WAITREQUEST_FILES_LISTING,
 
     /**
-     * Request files as necessary. */
+     * Request files as necessary.
+ */
     ST_REQUEST_FILES,
 
     /**
-     * Choosing which account to login with. */
+     * Choosing which account to login with.
+ */
     ST_LOGIN,
 
     /**
-     * Wait for login response. */
+     * Wait for login response.
+ */
     ST_WAITLOGIN,
 
     /**
-     * Choosing which character to play with. */
+     * Choosing which character to play with.
+ */
     ST_CHARACTERS,
 
     /**
-     * Waiting for the relevant data packets to start playing. */
+     * Waiting for the relevant data packets to start playing.
+ */
     ST_WAITFORPLAY,
 
     /**
-     * Playing. */
+     * Playing.
+ */
     ST_PLAY
 } player_state_t;
 

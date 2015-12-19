@@ -26,7 +26,8 @@
  * @file
  * Handles code related to @ref GATE "gates".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -150,7 +151,8 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the gate type object methods. */
+ * Initialize the gate type object methods.
+ */
 void object_type_init_gate(void)
 {
     object_type_methods[GATE].trigger_func = trigger_func;

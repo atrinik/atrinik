@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref TREASURE "treasure".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the treasure type object methods. */
+ * Initialize the treasure type object methods.
+ */
 void object_type_init_treasure(void)
 {
 }

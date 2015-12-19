@@ -27,7 +27,8 @@
  * Implements container type widgets.
  *
  * @author Alex Tokar
- * @author Daniel Liptrot */
+ * @author Daniel Liptrot
+ */
 
 #include <global.h>
 
@@ -135,7 +136,9 @@ static void widget_deinit(widgetdata *widget)
 
 /**
  * Initialize one container widget.
- * @param widget Widget to initialize. */
+ * @param widget
+ * Widget to initialize.
+ */
 void widget_container_init(widgetdata *widget)
 {
     _widget_container *container;

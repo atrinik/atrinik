@@ -81,7 +81,8 @@
  * If there are any updates available, the user is simply instructed to
  * use their update manager to update.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -101,14 +102,19 @@ static uint8_t download_package_process = 0;
 /** Progress dots in the popup. */
 static progress_dots progress;
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct button_close, button_retry, button_restart;
 
 /**
  * Get temporary directory where updates will be stored.
- * @param buf Where to store the result.
- * @param len Size of 'buf'.
- * @return 'buf'. */
+ * @param buf
+ * Where to store the result.
+ * @param len
+ * Size of 'buf'.
+ * @return
+ * 'buf'.
+ */
 static char *updater_get_dir(char *buf, size_t len)
 {
     snprintf(buf, len, "%s/.atrinik/temp", get_config_dir());
@@ -117,7 +123,8 @@ static char *updater_get_dir(char *buf, size_t len)
 
 /**
  * Cleans up updater files - basically recursively removes the temporary
- * directory. */
+ * directory.
+ */
 static void cleanup_patch_files(void)
 {
     char dir_path[HUGE_BUF];
@@ -126,7 +133,8 @@ static void cleanup_patch_files(void)
 }
 
 /**
- * Start updater download. */
+ * Start updater download.
+ */
 static void updater_download_start(void)
 {
     CURL *curl;
@@ -147,7 +155,8 @@ static void updater_download_start(void)
 }
 
 /**
- * Cleanup after downloading. */
+ * Cleanup after downloading.
+ */
 static void updater_download_clean(void)
 {
     size_t i;
@@ -397,7 +406,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 /**
  * Called when the updater popup is destroyed; frees the data used (if
  * any), etc.
- * @param popup Updater popup. */
+ * @param popup
+ * Updater popup.
+ */
 static int popup_destroy_callback(popup_struct *popup)
 {
     updater_download_clean();
@@ -410,7 +421,8 @@ static int popup_destroy_callback(popup_struct *popup)
 }
 
 /**
- * Open the updater popup. */
+ * Open the updater popup.
+ */
 void updater_open(void)
 {
     popup_struct *popup;

@@ -26,7 +26,8 @@
  * @file
  * Scrollbar API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -38,7 +39,8 @@ static SDL_Color scrollbar_color_fg;
 static SDL_Color scrollbar_color_highlight;
 
 /**
- * Initialize the scrollbar API. */
+ * Initialize the scrollbar API.
+ */
 void scrollbar_init()
 {
     if (!text_color_parse("000000", &scrollbar_color_bg) ||
@@ -50,11 +52,17 @@ void scrollbar_init()
 
 /**
  * Initialize a single scrollbar element.
- * @param elem Element to initialize.
- * @param x X position.
- * @param y Y position.
- * @param w Width of the element.
- * @param h Height of the element. */
+ * @param elem
+ * Element to initialize.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param w
+ * Width of the element.
+ * @param h
+ * Height of the element.
+ */
 static void scrollbar_element_init(scrollbar_element *elem, int x, int y, int w, int h)
 {
     elem->x = x;
@@ -136,11 +144,17 @@ static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box,
 
 /**
  * Check if scrollbar element should be highlighted.
- * @param scrollbar The scrollbar.
- * @param elem The element.
- * @param mx Mouse X.
- * @param my Mouse Y.
- * @return 1 if the element is highlighted, 0 otherwise. */
+ * @param scrollbar
+ * The scrollbar.
+ * @param elem
+ * The element.
+ * @param mx
+ * Mouse X.
+ * @param my
+ * Mouse Y.
+ * @return
+ * 1 if the element is highlighted, 0 otherwise.
+ */
 static int scrollbar_element_highlight_check(scrollbar_struct *scrollbar, scrollbar_element *elem, int mx, int my)
 {
     SDL_Rect box;
@@ -161,9 +175,13 @@ static int scrollbar_element_highlight_check(scrollbar_struct *scrollbar, scroll
 
 /**
  * Render a single scrollbar element.
- * @param scrollbar The scrollbar.
- * @param elem The element.
- * @param surface The surface to draw on. */
+ * @param scrollbar
+ * The scrollbar.
+ * @param elem
+ * The element.
+ * @param surface
+ * The surface to draw on.
+ */
 static void scrollbar_element_render(scrollbar_struct *scrollbar, scrollbar_element *elem, SDL_Surface *surface)
 {
     SDL_Rect box;
@@ -190,9 +208,13 @@ static void scrollbar_element_render(scrollbar_struct *scrollbar, scrollbar_elem
 
 /**
  * Handle clicking an element in scrollbar.
- * @param scrollbar The scrollbar.
- * @param test If 1, only test whether anything can be clicked.
- * @return 1 if the click was handled, 0 otherwise. */
+ * @param scrollbar
+ * The scrollbar.
+ * @param test
+ * If 1, only test whether anything can be clicked.
+ * @return
+ * 1 if the click was handled, 0 otherwise.
+ */
 static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test)
 {
     /* Dragging the slider, do not allow clicking anything. */
@@ -237,8 +259,11 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test)
 
 /**
  * Check whether scrollbar needs redrawing.
- * @param scrollbar Scrollbar to check.
- * @return 1 if the scrollbar needs redrawing, 0 otherwise. */
+ * @param scrollbar
+ * Scrollbar to check.
+ * @return
+ * 1 if the scrollbar needs redrawing, 0 otherwise.
+ */
 int scrollbar_need_redraw(scrollbar_struct *scrollbar)
 {
     if (scrollbar_click_scroll(scrollbar, 1) && SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT) {
@@ -250,8 +275,11 @@ int scrollbar_need_redraw(scrollbar_struct *scrollbar)
 
 /**
  * Calculate scrollbar's slider X position.
- * @param scrollbar The scrollbar.
- * @return Slider's X position. */
+ * @param scrollbar
+ * The scrollbar.
+ * @return
+ * Slider's X position.
+ */
 static int scrollbar_slider_startx(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
@@ -263,8 +291,11 @@ static int scrollbar_slider_startx(scrollbar_struct *scrollbar)
 
 /**
  * Calculate scrollbar's slider Y position.
- * @param scrollbar The scrollbar.
- * @return Slider's Y position. */
+ * @param scrollbar
+ * The scrollbar.
+ * @return
+ * Slider's Y position.
+ */
 static int scrollbar_slider_starty(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
@@ -276,8 +307,11 @@ static int scrollbar_slider_starty(scrollbar_struct *scrollbar)
 
 /**
  * Calculate scrollbar's slider width.
- * @param scrollbar The scrollbar.
- * @return Slider's width. */
+ * @param scrollbar
+ * The scrollbar.
+ * @return
+ * Slider's width.
+ */
 static int scrollbar_slider_width(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
@@ -289,8 +323,11 @@ static int scrollbar_slider_width(scrollbar_struct *scrollbar)
 
 /**
  * Calculate scrollbar's slider height.
- * @param scrollbar The scrollbar.
- * @return Slider's height. */
+ * @param scrollbar
+ * The scrollbar.
+ * @return
+ * Slider's height.
+ */
 static int scrollbar_slider_height(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
@@ -302,10 +339,14 @@ static int scrollbar_slider_height(scrollbar_struct *scrollbar)
 
 /**
  * Initialize a single scrollbar structure.
- * @param scrollbar Structure to initialize.
- * @param w Width of the scrollbar. Should be an odd number, otherwise
+ * @param scrollbar
+ * Structure to initialize.
+ * @param w
+ * Width of the scrollbar. Should be an odd number, otherwise
  * the arrow calculations will not work correctly.
- * @param h Height of the scrollbar. */
+ * @param h
+ * Height of the scrollbar.
+ */
 void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32_t *scroll_offset, uint32_t *num_lines, uint32_t max_lines)
 {
     memset(scrollbar, 0, sizeof(*scrollbar));
@@ -335,7 +376,9 @@ void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32_t *scrol
 
 /**
  * Initialize scrollbar information structure.
- * @param info The structure to initialize. */
+ * @param info
+ * The structure to initialize.
+ */
 void scrollbar_info_create(scrollbar_info_struct *info)
 {
     memset(info, 0, sizeof(*info));
@@ -346,8 +389,11 @@ void scrollbar_info_create(scrollbar_info_struct *info)
  *
  * If the scroll offset has changed at all, value of the
  * scrollbar_struct::redraw pointer will be set to 1.
- * @param scrollbar The scrollbar.
- * @param scroll Offset to scroll to. */
+ * @param scrollbar
+ * The scrollbar.
+ * @param scroll
+ * Offset to scroll to.
+ */
 void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll)
 {
     /* Make sure the scroll offset is in a valid range. */
@@ -373,8 +419,11 @@ void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll)
  *
  * If the scroll offset has changed at all, value of the
  * scrollbar_struct::redraw pointer will be set to 1.
- * @param scrollbar The scrollbar to scroll.
- * @param adjust How much to scroll by. */
+ * @param scrollbar
+ * The scrollbar to scroll.
+ * @param adjust
+ * How much to scroll by.
+ */
 void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
 {
     scrollbar_scroll_to(scrollbar, *scrollbar->scroll_offset + adjust);
@@ -382,10 +431,15 @@ void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust)
 
 /**
  * Render a scrollbar.
- * @param scrollbar The scrollbar to render.
- * @param surface Surface to render on.
- * @param x X position on the surface.
- * @param y Y position on the surface. */
+ * @param scrollbar
+ * The scrollbar to render.
+ * @param surface
+ * Surface to render on.
+ * @param x
+ * X position on the surface.
+ * @param y
+ * Y position on the surface.
+ */
 void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, int y)
 {
     int horizontal;
@@ -465,9 +519,13 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
 
 /**
  * Try to handle a scrollbar event.
- * @param scrollbar Scrollbar to handle the event for.
- * @param event The event.
- * @return 1 if the event was handled, 0 otherwise. */
+ * @param scrollbar
+ * Scrollbar to handle the event for.
+ * @param event
+ * The event.
+ * @return
+ * 1 if the event was handled, 0 otherwise.
+ */
 int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 {
     if (event->type == SDL_MOUSEMOTION) {
@@ -564,8 +622,11 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 
 /**
  * Get the scrollbar's width.
- * @param scrollbar The scrollbar to get width of.
- * @return The width. */
+ * @param scrollbar
+ * The scrollbar to get width of.
+ * @return
+ * The width.
+ */
 int scrollbar_get_width(scrollbar_struct *scrollbar)
 {
     return scrollbar->background.w;

@@ -59,9 +59,12 @@ static fields_struct fields[] = {
 
 /**
  * Get region's attribute.
- * @param r Python region wrapper.
- * @param context Void pointer to the field ID.
- * @return Python object with the attribute value, NULL on failure.
+ * @param r
+ * Python region wrapper.
+ * @param context
+ * Void pointer to the field ID.
+ * @return
+ * Python object with the attribute value, NULL on failure.
  */
 static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
 {
@@ -70,10 +73,14 @@ static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
 
 /**
  * Create a new region wrapper.
- * @param type Type object.
- * @param args Unused.
- * @param kwds Unused.
- * @return The new wrapper.
+ * @param type
+ * Type object.
+ * @param args
+ * Unused.
+ * @param kwds
+ * Unused.
+ * @return
+ * The new wrapper.
  */
 static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args,
         PyObject *kwds)
@@ -88,7 +95,8 @@ static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args,
 
 /**
  * Free a region wrapper.
- * @param self The wrapper to free.
+ * @param self
+ * The wrapper to free.
  */
 static void Atrinik_Region_dealloc(Atrinik_Region *self)
 {
@@ -102,8 +110,10 @@ static void Atrinik_Region_dealloc(Atrinik_Region *self)
 
 /**
  * Return a string representation of a region.
- * @param self The region object.
- * @return Python object containing the name of the region.
+ * @param self
+ * The region object.
+ * @return
+ * Python object containing the name of the region.
  */
 static PyObject *Atrinik_Region_str(Atrinik_Region *self)
 {
@@ -178,8 +188,10 @@ PyTypeObject Atrinik_RegionType = {
 
 /**
  * Initialize the region wrapper.
- * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure.
+ * @param module
+ * The Atrinik Python module.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int Atrinik_Region_init(PyObject *module)
 {
@@ -212,8 +224,10 @@ int Atrinik_Region_init(PyObject *module)
 
 /**
  * Utility method to wrap a region.
- * @param what Region to wrap.
- * @return Python object wrapping the real region.
+ * @param what
+ * Region to wrap.
+ * @return
+ * Python object wrapping the real region.
  */
 PyObject *wrap_region(region_struct *what)
 {

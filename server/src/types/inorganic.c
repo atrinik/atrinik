@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref INORGANIC "inorganics".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the inorganic type object methods. */
+ * Initialize the inorganic type object methods.
+ */
 void object_type_init_inorganic(void)
 {
 }

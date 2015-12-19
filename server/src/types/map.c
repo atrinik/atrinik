@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref MAP "maps".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the map type object methods. */
+ * Initialize the map type object methods.
+ */
 void object_type_init_map(void)
 {
 }

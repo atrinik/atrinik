@@ -26,7 +26,8 @@
  * @file
  * Manages server file updates.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -104,8 +105,10 @@ void server_files_init_all(void)
  * Create a server file with the specified name.
  *
  * The server file will be added to a hash table automatically.
- * @param name Name of the server file.
- * @return Created server file.
+ * @param name
+ * Name of the server file.
+ * @return
+ * Created server file.
  */
 server_files_struct *server_files_create(const char *name)
 {
@@ -120,8 +123,10 @@ server_files_struct *server_files_create(const char *name)
 
 /**
  * Find the specified server file in the hash table.
- * @param name Name of the server file.
- * @return Server file if found, NULL otherwise.
+ * @param name
+ * Name of the server file.
+ * @return
+ * Server file if found, NULL otherwise.
  */
 server_files_struct *server_files_find(const char *name)
 {
@@ -135,7 +140,8 @@ server_files_struct *server_files_find(const char *name)
 /**
  * Load the server files. If they haven't changed since last load, no
  * loading will be done.
- * @param post_load Unless 1, (re-)parsing the server files will not be done.
+ * @param post_load
+ * Unless 1, (re-)parsing the server files will not be done.
  */
 void server_files_load(int post_load)
 {
@@ -209,7 +215,8 @@ void server_files_listing_retrieve(void)
 
 /**
  * Check if the listing file has been downloaded and processed.
- * @return 1 if it has been processed, 0 otherwise.
+ * @return
+ * 1 if it has been processed, 0 otherwise.
  */
 int server_files_listing_processed(void)
 {
@@ -275,8 +282,10 @@ int server_files_listing_processed(void)
 
 /**
  * Process a single server file.
- * @param tmp What to process.
- * @return 1 if the file is being processed, 0 otherwise.
+ * @param tmp
+ * What to process.
+ * @return
+ * 1 if the file is being processed, 0 otherwise.
  */
 static int server_file_process(server_files_struct *tmp)
 {
@@ -347,7 +356,8 @@ static int server_file_process(server_files_struct *tmp)
 
 /**
  * Check if all of the server files have been processed.
- * @return 1 if they all have been processed, 0 otherwise.
+ * @return
+ * 1 if they all have been processed, 0 otherwise.
  */
 int server_files_processed(void)
 {
@@ -366,10 +376,13 @@ int server_files_processed(void)
 
 /**
  * Construct a path to the specified server file.
- * @param tmp Server file.
+ * @param tmp
+ * Server file.
  * @param[out] buf Will contain the constructed path.
- * @param buf_size Size of 'buf'.
- * @return 'buf'.
+ * @param buf_size
+ * Size of 'buf'.
+ * @return
+ * 'buf'.
  */
 static char *server_file_path(server_files_struct *tmp, char *buf,
         size_t buf_size)
@@ -380,8 +393,10 @@ static char *server_file_path(server_files_struct *tmp, char *buf,
 
 /**
  * Open a server file for reading.
- * @param tmp Server file.
- * @return The file pointer, or NULL on failure of opening the file.
+ * @param tmp
+ * Server file.
+ * @return
+ * The file pointer, or NULL on failure of opening the file.
  */
 FILE *server_file_open(server_files_struct *tmp)
 {
@@ -398,8 +413,10 @@ FILE *server_file_open(server_files_struct *tmp)
 /**
  * Wrapper for server_file_open(), allows opening a server file by its
  * name.
- * @param name Name of the server file.
- * @return Opened file pointer, NULL on failure.
+ * @param name
+ * Name of the server file.
+ * @return
+ * Opened file pointer, NULL on failure.
  */
 FILE *server_file_open_name(const char *name)
 {
@@ -408,10 +425,14 @@ FILE *server_file_open_name(const char *name)
 
 /**
  * We have received the server file we asked for, so save it to disk.
- * @param tmp Server file.
- * @param data The data to save.
- * @param len Length of 'data'.
- * @return True on success, false on failure.
+ * @param tmp
+ * Server file.
+ * @param data
+ * The data to save.
+ * @param len
+ * Length of 'data'.
+ * @return
+ * True on success, false on failure.
  */
 bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
 {

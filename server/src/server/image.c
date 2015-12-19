@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles face-related stuff, including the actual face data. */
+ * Handles face-related stuff, including the actual face data.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -42,7 +43,8 @@ New_Face *new_faces;
  * the new_face data - when accessing new_face[some number], that some
  * number corresponds to the face at that number - for ::xbm, it may not.
  * At current time, these do in fact match because the bmaps file is
- * created in a sorted order. */
+ * created in a sorted order.
+ */
 struct bmappair {
     char *name;
 
@@ -51,7 +53,8 @@ struct bmappair {
 
 /**
  * The xbm array (which contains name and number information, and is then
- * sorted) contains ::nroffiles entries. */
+ * sorted) contains ::nroffiles entries.
+ */
 static struct bmappair *xbm = NULL;
 
 /** The actual number of bitmaps defined. */
@@ -59,11 +62,13 @@ int nroffiles = 0;
 
 /**
  * The number of bitmaps loaded.  With the automatic generation of the
- * bmaps file, this is now equal to ::nroffiles. */
+ * bmaps file, this is now equal to ::nroffiles.
+ */
 int nrofpixmaps = 0;
 
 /**
- * Used for bsearch searching. */
+ * Used for bsearch searching.
+ */
 static int compar(const void *a, const void *b)
 {
     return strcmp(((const struct bmappair *) a)->name, ((const struct bmappair *) b)->name);
@@ -72,7 +77,8 @@ static int compar(const void *a, const void *b)
 /**
  * This reads the bmaps file to get all the bitmap names and stuff. It
  * only needs to be done once, because it is player independent (ie, what
- * display the person is on will not make a difference). */
+ * display the person is on will not make a difference).
+ */
 int read_bmap_names(void)
 {
     char buf[MAX_BUF], *cp;
@@ -158,8 +164,11 @@ int read_bmap_names(void)
  * an invocation, but not necessarily between versions (this is because
  * the faces are arranged in alphabetical order, so if a face is removed
  * or added, all faces after that will have a different number).
- * @param name Face to search for.
- * @param error Value to return if face was not found. */
+ * @param name
+ * Face to search for.
+ * @param error
+ * Value to return if face was not found.
+ */
 int find_face(const char *name, int error)
 {
     struct bmappair *bp, tmp;

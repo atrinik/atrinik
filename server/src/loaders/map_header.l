@@ -160,7 +160,8 @@ lex_error = 0;
  * processing mechanism here instead using something like bison.
  *
  * This skips over the space and returns the value, or "" if no value is
- * found. */
+ * found. 
+ */
 static const char *yval(void)
 {
     static const char *em = "";
@@ -214,7 +215,8 @@ int map_set_variable(mapstruct *m, char *buf)
 }
 
 /**
- * Frees all memory allocated by the map header loader. */
+ * Frees all memory allocated by the map header loader. 
+ */
 void free_map_header_loader(void)
 {
 #ifndef WIN32
@@ -225,9 +227,13 @@ void free_map_header_loader(void)
 /**
  * This loads the header information of the map. The header contains
  * things like difficulty, size, timeout, etc.
- * @param m Map being read.
- * @param fp File to read from.
- * @return 1 on success, 0 on failure. */
+ * @param m
+ * Map being read.
+ * @param fp
+ * File to read from.
+ * @return
+ * 1 on success, 0 on failure. 
+ */
 int load_map_header(mapstruct *m, FILE *fp)
 {
     char inbuf[HUGE_BUF];

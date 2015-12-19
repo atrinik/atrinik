@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref MATERIAL "materials".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the material type object methods. */
+ * Initialize the material type object methods.
+ */
 void object_type_init_material(void)
 {
 }

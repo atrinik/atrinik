@@ -65,7 +65,8 @@ void artifact_deinit(void)
 
 /**
  * Allocate and return the pointer to an empty artifact structure.
- * @return New structure.
+ * @return
+ * New structure.
  */
 static artifact_t *artifact_new(void)
 {
@@ -75,7 +76,8 @@ static artifact_t *artifact_new(void)
 
 /**
  * Frees an artifact structures.
- * @param art Artifact to free.
+ * @param art
+ * Artifact to free.
  */
 static void artifact_free(artifact_t *art)
 {
@@ -94,7 +96,8 @@ static void artifact_free(artifact_t *art)
 
 /**
  * Allocate and return the pointer to an empty artifact_list_t structure.
- * @return New structure.
+ * @return
+ * New structure.
  */
 static artifact_list_t *artifact_list_new(void)
 {
@@ -105,7 +108,8 @@ static artifact_list_t *artifact_list_new(void)
 /**
  * Frees the specified artifact list, its artifacts, and all linked artifact
  * lists.
- * @param al Artifact list.
+ * @param al
+ * Artifact list.
  */
 static void artifact_list_free(artifact_list_t *al)
 {
@@ -377,8 +381,10 @@ error:
 /**
  * Searches the artifact lists and returns one that has the same type of
  * objects on it.
- * @param type Type to search for.
- * @return NULL if no suitable list found.
+ * @param type
+ * Type to search for.
+ * @return
+ * NULL if no suitable list found.
  */
 artifact_list_t *artifact_list_find(uint8_t type)
 {
@@ -394,9 +400,12 @@ artifact_list_t *artifact_list_find(uint8_t type)
 /**
  * Find an artifact by its name and type (as there are several lists of
  * artifacts, depending on their types).
- * @param name Name of the artifact to find.
- * @param type Type of the artifact to find.
- * @return The artifact if found, NULL otherwise.
+ * @param name
+ * Name of the artifact to find.
+ * @param type
+ * Type of the artifact to find.
+ * @return
+ * The artifact if found, NULL otherwise.
  */
 artifact_t *artifact_find_type(const char *name, uint8_t type)
 {
@@ -419,8 +428,10 @@ artifact_t *artifact_find_type(const char *name, uint8_t type)
 /**
  * Fixes the given object, giving it the abilities and titles it should
  * have due to the artifact template.
- * @param art The artifact.
- * @param op The object to change.
+ * @param art
+ * The artifact.
+ * @param op
+ * The object to change.
  */
 void artifact_change_object(artifact_t *art, object *op)
 {
@@ -452,11 +463,16 @@ void artifact_change_object(artifact_t *art, object *op)
 /**
  * Checks if op can be combined with art, depending on 'Allowed xxx' from
  * the artifacts file (stored in artifact::allowed), the difficulty, etc.
- * @param art Artifact.
- * @param op The object to check.
- * @param difficulty Difficulty.
- * @param t_style Treasure style value to check.
- * @return Whether the object can be combined with the artifact.
+ * @param art
+ * Artifact.
+ * @param op
+ * The object to check.
+ * @param difficulty
+ * Difficulty.
+ * @param t_style
+ * Treasure style value to check.
+ * @return
+ * Whether the object can be combined with the artifact.
  */
 static bool artifact_can_combine(artifact_t *art, object *op, int difficulty,
         int t_style)
@@ -498,11 +514,16 @@ static bool artifact_can_combine(artifact_t *art, object *op, int difficulty,
  * Makes sure that the item can become that artifact (means magic, difficulty,
  * and Allowed fields properly). Then calls artifact_change_object() in order
  * to actually create the artifact.
- * @param op Object.
- * @param difficulty Difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @return Whether the object was turned into an artifact.
+ * @param op
+ * Object.
+ * @param difficulty
+ * Difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @return
+ * Whether the object was turned into an artifact.
  */
 bool artifact_generate(object *op, int difficulty, int t_style, int a_chance)
 {

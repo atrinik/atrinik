@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Various defines. */
+ * Various defines.
+ */
 
 #ifndef CLIENT_H
 #define CLIENT_H
@@ -66,7 +67,8 @@ typedef struct _anim_table {
 } _anim_table;
 
 /**
- * One command buffer. */
+ * One command buffer.
+ */
 typedef struct command_buffer {
     /** Next command in queue. */
     struct command_buffer *next;
@@ -119,7 +121,8 @@ typedef struct socket_command_struct {
 /**
  * @defgroup SPELL_DESC_xxx Spell flags
  * Spell flags.
- *@{*/
+ *@{
+ */
 /** Spell is safe to cast in town. */
 #define SPELL_DESC_TOWN         0x01
 /** Spell is fired in a direction (bullet, bolt, ...). */

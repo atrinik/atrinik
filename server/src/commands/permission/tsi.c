@@ -26,7 +26,8 @@
  * @file
  * Implements the /tsi command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

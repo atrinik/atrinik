@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref GEM "gems".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the gem type object methods. */
+ * Initialize the gem type object methods.
+ */
 void object_type_init_gem(void)
 {
 }

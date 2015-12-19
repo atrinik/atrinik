@@ -30,7 +30,8 @@
  *
  * @note All functions that are used to process data from the client
  * have the prototype of (char *data, int datalen, int client_num).  This
- * way, we can use one dispatch table. */
+ * way, we can use one dispatch table.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -171,7 +172,8 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size
  *
  * We look at the old values, and only send what has changed.
  *
- * Stat mapping values are in socket.h */
+ * Stat mapping values are in socket.h
+ */
 void esrv_update_stats(player *pl)
 {
     HARD_ASSERT(pl != NULL);
@@ -319,7 +321,8 @@ void esrv_update_stats(player *pl)
 }
 
 /**
- * Tells the client that here is a player it should start using. */
+ * Tells the client that here is a player it should start using.
+ */
 void esrv_new_player(player *pl, uint32_t weight)
 {
     packet_struct *packet;
@@ -338,9 +341,13 @@ void esrv_new_player(player *pl, uint32_t weight)
 
 /**
  * Get ID of a tiled map by checking player::last_update.
- * @param pl Player.
- * @param map Tiled map.
- * @return ID of the tiled map, 0 if there is no match. */
+ * @param pl
+ * Player.
+ * @param map
+ * Tiled map.
+ * @return
+ * ID of the tiled map, 0 if there is no match.
+ */
 static inline int get_tiled_map_id(player *pl, struct mapdef *map)
 {
     int i;
@@ -360,9 +367,13 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
 
 /**
  * Copy socket's last map according to new coordinates.
- * @param ns Socket.
- * @param dx X.
- * @param dy Y. */
+ * @param ns
+ * Socket.
+ * @param dx
+ * X.
+ * @param dy
+ * Y.
+ */
 static inline void copy_lastmap(socket_struct *ns, int dx, int dy)
 {
     struct Map newmap;
@@ -398,7 +409,9 @@ void draw_map_text_anim(object *pl, const char *color, const char *text)
 
 /**
  * Do some checks, map name and LOS and then draw the map.
- * @param pl Whom to draw map for. */
+ * @param pl
+ * Whom to draw map for.
+ */
 void draw_client_map(object *pl)
 {
     int redraw_below = 0;
@@ -569,9 +582,13 @@ void draw_client_map(object *pl)
  *
  * As you can see in this function, it is easy to add new player name
  * colors, just check for the match and make it return the correct color.
- * @param pl Player object that will get the map data sent to.
- * @param op Player object on the map, to get the name from.
- * @return The color. */
+ * @param pl
+ * Player object that will get the map data sent to.
+ * @param op
+ * Player object on the map, to get the name from.
+ * @return
+ * The color.
+ */
 static const char *get_playername_color(object *pl, object *op)
 {
     if (CONTR(pl)->party != NULL && CONTR(op)->party != NULL && CONTR(pl)->party == CONTR(op)->party) {
@@ -2109,7 +2126,9 @@ void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
 /**
  * Send target command, calculate the target's color level, etc.
- * @param pl Player requesting this. */
+ * @param pl
+ * Player requesting this.
+ */
 void send_target_command(player *pl)
 {
     packet_struct *packet;
@@ -2249,7 +2268,9 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
 
 /**
  * Generate player's name, as visible on the map.
- * @param pl The player. */
+ * @param pl
+ * The player.
+ */
 void generate_quick_name(player *pl)
 {
     int i;

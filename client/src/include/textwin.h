@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Text window header file. */
+ * Text window header file.
+ */
 
 #ifndef TEXTWIN_H
 #define TEXTWIN_H
@@ -90,7 +91,8 @@ typedef struct textwin_struct {
 /**
  * @defgroup TEXTWIN_TEXT_xxx Textwin text coordinates
  * Coordinates used for the text in text window widgets.
- *@{*/
+ *@{
+ */
 /** Text starting X position. */
 #define TEXTWIN_TEXT_STARTX(_widget) (3)
 /** Text starting Y position. */

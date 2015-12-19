@@ -24,23 +24,31 @@
 
 /**
  * @file
- * Door related functions. */
+ * Door related functions.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
  * Search for doors or walls around a spot.
- * @param layout Maze.
- * @param x X coordinate to check
- * @param y Y coordinate to check
- * @param Xsize X map size
- * @param Ysize Y map size
- * @return Combination of flags:
+ * @param layout
+ * Maze.
+ * @param x
+ * X coordinate to check
+ * @param y
+ * Y coordinate to check
+ * @param Xsize
+ * X map size
+ * @param Ysize
+ * Y map size
+ * @return
+ * Combination of flags:
  * - <b>1</b>: Door or wall to left.
  * - <b>2</b>: Door or wall to right.
  * - <b>4</b>: Door or wall above.
- * - <b>8</b>: Door or wall below. */
+ * - <b>8</b>: Door or wall below.
+ */
 int surround_check2(char **layout, int x, int y, int Xsize, int Ysize)
 {
     /* 1 = door or wall to left,
@@ -70,10 +78,15 @@ int surround_check2(char **layout, int x, int y, int Xsize, int Ysize)
 
 /**
  * Add doors to a map.
- * @param the_map Map we're adding the doors to.
- * @param maze Maze layout.
- * @param doorstyle Door style to use. If NULL, will choose one randomly.
- * @param RP Random map parameters. */
+ * @param the_map
+ * Map we're adding the doors to.
+ * @param maze
+ * Maze layout.
+ * @param doorstyle
+ * Door style to use. If NULL, will choose one randomly.
+ * @param RP
+ * Random map parameters.
+ */
 void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP)
 {
     int x, y;

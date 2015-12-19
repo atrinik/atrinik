@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref BLINDNESS "blindness" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -42,7 +43,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the blindness type object methods. */
+ * Initialize the blindness type object methods.
+ */
 void object_type_init_blindness(void)
 {
     object_type_methods[BLINDNESS].process_func = process_func;

@@ -24,19 +24,22 @@
 
 /**
  * @file
- * This file handles party related code. */
+ * This file handles party related code.
+ */
 
 #include <global.h>
 #include <packet.h>
 
 /**
- * String representations of the party looting modes. */
+ * String representations of the party looting modes.
+ */
 const char *const party_loot_modes[PARTY_LOOT_MAX] = {
     "normal", "leader", "owner", "random", "split"
 };
 
 /**
- * Explanation of the party modes. */
+ * Explanation of the party modes.
+ */
 const char *const party_loot_modes_help[PARTY_LOOT_MAX] = {
     "everyone in the party is able to loot the corpse",
     "only the party leader can loot the corpse",
@@ -49,11 +52,13 @@ const char *const party_loot_modes_help[PARTY_LOOT_MAX] = {
 party_struct *first_party = NULL;
 
 /**
- * Party memory pool. */
+ * Party memory pool.
+ */
 static mempool_struct *pool_party;
 
 /**
- * Initialize the party API. */
+ * Initialize the party API.
+ */
 void party_init(void)
 {
     pool_party = mempool_create("parties", 25, sizeof(party_struct),
@@ -61,15 +66,19 @@ void party_init(void)
 }
 
 /**
- * Deinitialize the party API. */
+ * Deinitialize the party API.
+ */
 void party_deinit(void)
 {
 }
 
 /**
  * Add a player to party's member list.
- * @param party Party to add the player to.
- * @param op The player to add. */
+ * @param party
+ * Party to add the player to.
+ * @param op
+ * The player to add.
+ */
 void add_party_member(party_struct *party, object *op)
 {
     objectlink *ol;
@@ -95,8 +104,11 @@ void add_party_member(party_struct *party, object *op)
 
 /**
  * Remove player from party's member list.
- * @param party Party to remove the player from.
- * @param op The player to remove. */
+ * @param party
+ * Party to remove the player from.
+ * @param op
+ * The player to remove.
+ */
 void remove_party_member(party_struct *party, object *op)
 {
     objectlink *ol;
@@ -150,8 +162,11 @@ void remove_party_member(party_struct *party, object *op)
 
 /**
  * Initialize a new party structure.
- * @param name Name of the new party.
- * @return The initialized party structure. */
+ * @param name
+ * Name of the new party.
+ * @return
+ * The initialized party structure.
+ */
 static party_struct *make_party(const char *name)
 {
     party_struct *party = mempool_get(pool_party);
@@ -166,8 +181,11 @@ static party_struct *make_party(const char *name)
 
 /**
  * Form a new party.
- * @param op Object forming the party.
- * @param name Name of the party. */
+ * @param op
+ * Object forming the party.
+ * @param name
+ * Name of the party.
+ */
 void form_party(object *op, const char *name)
 {
     party_struct *party = make_party(name);
@@ -180,8 +198,11 @@ void form_party(object *op, const char *name)
 
 /**
  * Find a party by name.
- * @param name Party name to find.
- * @return Party if found, NULL otherwise. */
+ * @param name
+ * Party name to find.
+ * @return
+ * Party if found, NULL otherwise.
+ */
 party_struct *find_party(const char *name)
 {
     party_struct *tmp;
@@ -197,9 +218,13 @@ party_struct *find_party(const char *name)
 
 /**
  * Check if player can open a party corpse.
- * @param pl Player trying to open the corpse.
- * @param corpse The corpse.
- * @return 1 if we can open the corpse, 0 otherwise. */
+ * @param pl
+ * Player trying to open the corpse.
+ * @param corpse
+ * The corpse.
+ * @return
+ * 1 if we can open the corpse, 0 otherwise.
+ */
 int party_can_open_corpse(object *pl, object *corpse)
 {
     /* Check if the player is in the same party. */
@@ -228,8 +253,11 @@ int party_can_open_corpse(object *pl, object *corpse)
 
 /**
  * Randomly split corpse's loot between party's members.
- * @param pl Player that opened the corpse.
- * @param corpse The corpse. */
+ * @param pl
+ * Player that opened the corpse.
+ * @param corpse
+ * The corpse.
+ */
 static void party_loot_random(object *pl, object *corpse)
 {
     int count = 0, pl_id;
@@ -280,8 +308,11 @@ static void party_loot_random(object *pl, object *corpse)
 
 /**
  * Evenly split corpse's loot between party's members.
- * @param pl Player that opened the corpse.
- * @param corpse The corpse. */
+ * @param pl
+ * Player that opened the corpse.
+ * @param corpse
+ * The corpse.
+ */
 static void party_loot_split(object *pl, object *corpse)
 {
     party_struct *party;
@@ -383,8 +414,11 @@ static void party_loot_split(object *pl, object *corpse)
 
 /**
  * Do any special handling after a party corpse has been opened.
- * @param pl Player who opened the corpse.
- * @param corpse The corpse. */
+ * @param pl
+ * Player who opened the corpse.
+ * @param corpse
+ * The corpse.
+ */
 void party_handle_corpse(object *pl, object *corpse)
 {
     object *tmp, *next;
@@ -420,11 +454,16 @@ void party_handle_corpse(object *pl, object *corpse)
 
 /**
  * Send a message to party.
- * @param party Party to send the message to.
- * @param msg Message to send.
- * @param flag One of @ref PARTY_MESSAGE_xxx "party message flags".
- * @param op Player sending the message.
- * @param except If not NULL, this player will not receive the message.
+ * @param party
+ * Party to send the message to.
+ * @param msg
+ * Message to send.
+ * @param flag
+ * One of @ref PARTY_MESSAGE_xxx "party message flags".
+ * @param op
+ * Player sending the message.
+ * @param except
+ * If not NULL, this player will not receive the message.
  */
 void send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except)
 {
@@ -451,7 +490,9 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
 
 /**
  * Remove a party.
- * @param party The party to remove. */
+ * @param party
+ * The party to remove.
+ */
 void remove_party(party_struct *party)
 {
     party_struct *tmp, *prev = NULL;
@@ -481,7 +522,9 @@ void remove_party(party_struct *party)
 
 /**
  * Update player's hp/sp/etc in the party widget of all party members.
- * @param pl Player. */
+ * @param pl
+ * Player.
+ */
 void party_update_who(player *pl)
 {
     uint8_t hp, sp;

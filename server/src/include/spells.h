@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Spells header file. */
+ * Spells header file.
+ */
 
 #ifndef SPELLS_H
 #define SPELLS_H
@@ -32,7 +33,8 @@
 /**
  * @defgroup spell_path_defines Spell paths
  * Spell path defines.
- *@{*/
+ *@{
+ */
 /** Protection. */
 #define PATH_PROT       0x00000001
 /** Fire. */
@@ -81,7 +83,8 @@
 /**
  * @defgroup SPELL_USE_xxx Spell use flags
  * Spell use flags.
- *@{*/
+ *@{
+ */
 /** Spell can be cast. */
 #define SPELL_USE_CAST   0x01
 /** Spell can be found in balms. */
@@ -102,13 +105,15 @@
 
 /**
  * Number of different spell types, should be have value of the highest
- * spell type. */
+ * spell type.
+ */
 #define SPELL_TYPE_NROF    2
 
 /**
  * @defgroup SPELL_DESC_xxx Spell flags
  * Spell flags.
- *@{*/
+ *@{
+ */
 
 /** Spell is safe to cast in town. */
 #define SPELL_DESC_TOWN         0x01
@@ -149,7 +154,8 @@ typedef struct spell_struct {
      * A magic potion has value x.
      *
      * We do: (x * value_mul) * level to increase the value.
-     * @see object::value */
+     * @see object::value
+ */
     float value_mul;
 
     /** Base damage or hp of spell or summoned monster. */
@@ -172,7 +178,8 @@ typedef struct spell_struct {
      * increase by 2 per level.
      *
      * If base cost is 5 and spl is 10, cost increases by 1 every 2
-     * levels. */
+     * levels.
+ */
     int spl;
 
     /** Sound the spell produces when cast. */
@@ -206,7 +213,8 @@ typedef struct spell_struct {
  * Some archetypes and treasures require the spell numbers to be as they
  * are.
  *
- * @anchor spell_numbers */
+ * @anchor spell_numbers
+ */
 enum spellnrs {
     SP_FIRESTORM,
     SP_ICESTORM,
@@ -265,7 +273,8 @@ enum spellnrs {
 /**
  * @defgroup CAST_xxx Casting modes
  * Various casting modes.
- *@{*/
+ *@{
+ */
 /** Normal cast. */
 #define CAST_NORMAL 0
 /** Casting from a wand. */
@@ -278,12 +287,14 @@ enum spellnrs {
 #define CAST_POTION 5
 /**
  * NPC is doing the casting, can cast no matter what (even in areas that
- * block magic). */
+ * block magic).
+ */
 #define CAST_NPC 6
 /*@}*/
 
 /**
- * 20% sacrifice of money when casting the 'transform wealth' spell. */
+ * 20% sacrifice of money when casting the 'transform wealth' spell.
+ */
 #define TRANSFORM_WEALTH_SACRIFICE 0.80f
 
 /** Minimum number for rolls in spell_attack_missed(). */

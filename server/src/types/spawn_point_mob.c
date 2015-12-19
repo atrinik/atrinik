@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref SPAWN_POINT_MOB "spawn point mobs".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the spawn point mob type object methods. */
+ * Initialize the spawn point mob type object methods.
+ */
 void object_type_init_spawn_point_mob(void)
 {
 }

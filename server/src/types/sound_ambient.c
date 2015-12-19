@@ -426,7 +426,8 @@ void sound_ambient_match_parse(object *ob, const char *str)
 
 /**
  * Initialize ambient sound effect object.
- * @param ob The object to initialize.
+ * @param ob
+ * The object to initialize.
  */
 void sound_ambient_init(object *ob)
 {
@@ -454,7 +455,8 @@ void sound_ambient_init(object *ob)
 
 /**
  * Deinitialize ambient sound effect object.
- * @param ob The object to deinitialize.
+ * @param ob
+ * The object to deinitialize.
  */
 void sound_ambient_deinit(object *ob)
 {
@@ -466,7 +468,8 @@ void sound_ambient_deinit(object *ob)
 }
 
 /**
- * Initialize the ambient sound type object methods. */
+ * Initialize the ambient sound type object methods.
+ */
 void object_type_init_sound_ambient(void)
 {
 }

@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref HELMET "helmets".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the helmet type object methods. */
+ * Initialize the helmet type object methods.
+ */
 void object_type_init_helmet(void)
 {
     object_type_methods[HELMET].apply_func = object_apply_item;

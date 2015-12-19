@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Object link related functions. */
+ * Object link related functions.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * Objectlink memory pool. */
+ * Objectlink memory pool.
+ */
 mempool_struct *pool_objectlink;
 
 /** @copydoc chunk_debugger */
@@ -45,7 +47,8 @@ static void objectlink_debugger(objectlink *ol, char *buf, size_t size)
 }
 
 /**
- * Initialize the objectlink API. */
+ * Initialize the objectlink API.
+ */
 void objectlink_init(void)
 {
     pool_objectlink = mempool_create("object links", 500, sizeof(objectlink),
@@ -54,14 +57,17 @@ void objectlink_init(void)
 }
 
 /**
- * Deinitialize the objectlink API. */
+ * Deinitialize the objectlink API.
+ */
 void objectlink_deinit(void)
 {
 }
 
 /**
  * Allocate a new objectlink structure and initialize it.
- * @return Pointer to the new objectlink */
+ * @return
+ * Pointer to the new objectlink
+ */
 objectlink *get_objectlink(void)
 {
     objectlink *ol = mempool_get(pool_objectlink);
@@ -71,7 +77,9 @@ objectlink *get_objectlink(void)
 
 /**
  * Free an object link.
- * @param ol Object link to free. */
+ * @param ol
+ * Object link to free.
+ */
 void free_objectlink(objectlink *ol)
 {
     if (OBJECT_VALID(ol->objlink.ob, ol->id)) {
@@ -83,7 +91,9 @@ void free_objectlink(objectlink *ol)
 
 /**
  * Recursively free all objectlinks.
- * @param ol The objectlink. */
+ * @param ol
+ * The objectlink.
+ */
 static void free_objectlink_recursive(objectlink *ol)
 {
     if (ol->next) {
@@ -101,7 +111,9 @@ static void free_objectlink_recursive(objectlink *ol)
  * Recursively free all linked lists of objectlink pointers
  * @warning Only call for lists with FLAG_IS_LINKED - friendly lists
  * and some others handle their own objectlink malloc/free.
- * @param obp The oblinkpt */
+ * @param obp
+ * The oblinkpt
+ */
 void free_objectlinkpt(objectlink *obp)
 {
     if (obp->next) {
@@ -116,7 +128,8 @@ void free_objectlinkpt(objectlink *obp)
 }
 
 /**
- * Generic link function for object links. */
+ * Generic link function for object links.
+ */
 objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectlink *afterptr, objectlink *beforeptr, objectlink *objptr)
 {
     /* Link it behind afterptr */
@@ -168,7 +181,8 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
 }
 
 /**
- * Unlink object link from a list. */
+ * Unlink object link from a list.
+ */
 objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr)
 {
     if (startptr && *startptr == objptr) {

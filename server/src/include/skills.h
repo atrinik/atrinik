@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Skills header. */
+ * Skills header.
+ */
 
 #ifndef SKILLS_H
 #define SKILLS_H

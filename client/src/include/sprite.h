@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Sprite header file. */
+ * Sprite header file.
+ */
 
 #ifndef SPRITE_H
 #define SPRITE_H
@@ -64,7 +65,8 @@ typedef struct sprite_effects {
 /**
  * @defgroup SPRITE_FLAG_xxx Sprite drawing flags
  * Sprite drawing flags.
- *@{*/
+ *@{
+ */
 /** Use darkness. */
 #define SPRITE_FLAG_DARK 0
 /** Fog of war. */

@@ -26,7 +26,8 @@
  * @file
  * Implements the /me command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Header file for the cURL module. */
+ * Header file for the cURL module.
+ */
 
 #ifndef CURL_H
 #define CURL_H
@@ -61,7 +62,8 @@ typedef struct curl_data {
 
     /**
      * Mutex to protect the data in this structure when accessed across
-     * threads. */
+     * threads.
+ */
     SDL_mutex *mutex;
 
     /** The thread. */
@@ -69,15 +71,18 @@ typedef struct curl_data {
 
     /**
      * State of the data.
-     */
+
+ */
     curl_state_t state;
 
     /**
-     * Will contain HTTP code. */
+     * Will contain HTTP code.
+ */
     int http_code;
 
     /**
-     * cURL handle being used. */
+     * cURL handle being used.
+ */
     CURL *handle;
 } curl_data;
 

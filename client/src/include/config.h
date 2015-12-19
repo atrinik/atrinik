@@ -24,7 +24,8 @@
 
 /**
  * @file
- * This is the config file for the client. */
+ * This is the config file for the client.
+ */
 
 #ifndef CONFIG_H
 #define CONFIG_H
@@ -66,7 +67,8 @@
 /**
  * The number of our dark levels.
  *
- * For each level we store an own bitmap copy. */
+ * For each level we store an own bitmap copy.
+ */
 #define DARK_LEVELS 7
 
 #define DIRECTORY_SFX "sound/effects"

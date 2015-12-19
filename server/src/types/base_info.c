@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref BASE_INFO "base info".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the base info type object methods. */
+ * Initialize the base info type object methods.
+ */
 void object_type_init_base_info(void)
 {
 }

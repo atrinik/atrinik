@@ -26,7 +26,8 @@
  * @file
  * Handles code related to @ref SIGN "signs".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -189,7 +190,8 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the sign type object methods. */
+ * Initialize the sign type object methods.
+ */
 void object_type_init_sign(void)
 {
     object_type_methods[SIGN].apply_func = apply_func;

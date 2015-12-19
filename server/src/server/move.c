@@ -24,13 +24,16 @@
 
 /**
  * @file
- * Handles object moving and pushing. */
+ * Handles object moving and pushing.
+ */
 
 #include <global.h>
 
 /**
  * Returns a random direction (1..8).
- * @return The random direction. */
+ * @return
+ * The random direction.
+ */
 int get_random_dir(void)
 {
     return rndm(1, 8);
@@ -38,8 +41,11 @@ int get_random_dir(void)
 
 /**
  * Returns a random direction (1..8) similar to a given direction.
- * @param dir The exact direction.
- * @return The randomized direction. */
+ * @param dir
+ * The exact direction.
+ * @return
+ * The randomized direction.
+ */
 int get_randomized_dir(int dir)
 {
     return absdir(dir + rndm(0, 2) + rndm(0, 2) - 2);
@@ -49,13 +55,20 @@ int get_randomized_dir(int dir)
  * Move the object to the specified coordinates.
  *
  * Will update the object's sub-layer if necessary.
- * @param op Object.
- * @param dir Direction the object is moving into.
- * @param originator What caused the object to move.
- * @param m Map.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @return 1 on success, 0 on failure.
+ * @param op
+ * Object.
+ * @param dir
+ * Direction the object is moving into.
+ * @param originator
+ * What caused the object to move.
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int object_move_to(object *op, int dir, object *originator, mapstruct *m,
         int x, int y)
@@ -122,11 +135,15 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
 
 /**
  * Try to move object in specified direction.
- * @param op What to move.
- * @param dir Direction to move the object to.
- * @param originator Typically the same as op, but can be different if
+ * @param op
+ * What to move.
+ * @param dir
+ * Direction to move the object to.
+ * @param originator
+ * Typically the same as op, but can be different if
  * originator is causing op to move (originator is pushing op).
- * @return 0 if the object is not able to move to the desired space, -1 if the
+ * @return
+ * 0 if the object is not able to move to the desired space, -1 if the
  * object was not able to move there yet but some sort of action was performed
  * that might allow us to move there (door opening for example), direction
  * number that the object ended up moving in otherwise.
@@ -183,14 +200,22 @@ int move_ob(object *op, int dir, object *originator)
  * Move an object (even linked objects) to another spot on the same map.
  *
  * Does nothing if there is no free spot.
- * @param op What to move.
- * @param x New X coordinate.
- * @param y New Y coordinate.
- * @param randomly If 1, use find_free_spot() to find the destination,
+ * @param op
+ * What to move.
+ * @param x
+ * New X coordinate.
+ * @param y
+ * New Y coordinate.
+ * @param randomly
+ * If 1, use find_free_spot() to find the destination,
  * otherwise use find_first_free_spot().
- * @param originator What is causing op to move.
- * @param trap Trap.
- * @return 1 if the object was destroyed, 0 otherwise. */
+ * @param originator
+ * What is causing op to move.
+ * @param trap
+ * Trap.
+ * @return
+ * 1 if the object was destroyed, 0 otherwise.
+ */
 int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap)
 {
     int i, ret;
@@ -229,10 +254,15 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 
 /**
  * An object is being pushed.
- * @param op What is being pushed.
- * @param dir Pushing direction.
- * @param pusher What is pushing op.
- * @return 0 if the object couldn't be pushed, 1 otherwise. */
+ * @param op
+ * What is being pushed.
+ * @param dir
+ * Pushing direction.
+ * @param pusher
+ * What is pushing op.
+ * @return
+ * 0 if the object couldn't be pushed, 1 otherwise.
+ */
 int push_ob(object *op, int dir, object *pusher)
 {
     object *tmp, *floor_ob;

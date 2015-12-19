@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Spell related helper functions. */
+ * Spell related helper functions.
+ */
 
 #include <global.h>
 #include <spellist.h>
@@ -34,11 +35,13 @@
 
 /**
  * Array of pointers to archetypes used by the spells for quick
- * access. */
+ * access.
+ */
 struct archetype *spellarch[NROFREALSPELLS];
 
 /**
- * Initialize spells. */
+ * Initialize spells.
+ */
 void init_spells(void)
 {
     static int init_spells_done = 0;
@@ -85,11 +88,17 @@ void init_spells(void)
 
 /**
  * Inserts a spell effect on map.
- * @param archname Spell effect arch.
- * @param m Map.
- * @param x X position on map.
- * @param y Y position on map.
- * @return 1 on failure, 0 otherwise. */
+ * @param archname
+ * Spell effect arch.
+ * @param m
+ * Map.
+ * @param x
+ * X position on map.
+ * @param y
+ * Y position on map.
+ * @return
+ * 1 on failure, 0 otherwise.
+ */
 int insert_spell_effect(const char *archname, mapstruct *m, int x, int y)
 {
     archetype_t *effect_arch;
@@ -127,8 +136,11 @@ int insert_spell_effect(const char *archname, mapstruct *m, int x, int y)
 
 /**
  * Find a spell in the ::spells array.
- * @param spelltype ID of the spell to find.
- * @return The spell from the ::spells array, NULL if not found. */
+ * @param spelltype
+ * ID of the spell to find.
+ * @return
+ * The spell from the ::spells array, NULL if not found.
+ */
 spell_struct *find_spell(int spelltype)
 {
     if (spelltype < 0 || spelltype >= NROFREALSPELLS) {
@@ -140,18 +152,27 @@ spell_struct *find_spell(int spelltype)
 
 /**
  * Cast a spell.
- * @param op The creature that is owner of the object that is casting the
+ * @param op
+ * The creature that is owner of the object that is casting the
  * spell.
- * @param caster The actual object (wand, potion) casting the spell. Can
+ * @param caster
+ * The actual object (wand, potion) casting the spell. Can
  * be same as op.
- * @param dir Direction to cast in.
- * @param type Spell ID.
- * @param ability If true, the spell is the innate ability of a monster
+ * @param dir
+ * Direction to cast in.
+ * @param type
+ * Spell ID.
+ * @param ability
+ * If true, the spell is the innate ability of a monster
  * (ie, don't check for blocks_magic(), and don't add AT_MAGIC to attacktype).
- * @param item The type of object that is casting the spell.
- * @param stringarg Any options that are being used.
- * @return 0 on failure, non-zero on success and is used by caller to
- * drain mana. */
+ * @param item
+ * The type of object that is casting the spell.
+ * @param stringarg
+ * Any options that are being used.
+ * @return
+ * 0 on failure, non-zero on success and is used by caller to
+ * drain mana.
+ */
 int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg)
 {
     spell_struct *s;
@@ -452,10 +473,15 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 /**
  * Creates object new_op in direction dir or if that is blocked, beneath
  * the player (op).
- * @param op Who is casting.
- * @param new_op Object to insert.
- * @param dir Direction to insert into. Can be 0.
- * @return Direction that the object was actually placed in. */
+ * @param op
+ * Who is casting.
+ * @param new_op
+ * Object to insert.
+ * @param dir
+ * Direction to insert into. Can be 0.
+ * @return
+ * Direction that the object was actually placed in.
+ */
 int cast_create_obj(object *op, object *new_op, int dir)
 {
     mapstruct *mt;
@@ -489,12 +515,17 @@ int cast_create_obj(object *op, object *new_op, int dir)
 
 /**
  * Cast a bolt-like spell.
- * @param op Who is casting the spell.
- * @param caster What object is casting the spell (rod, ...).
- * @param dir Firing direction.
- * @param type Spell ID.
+ * @param op
+ * Who is casting the spell.
+ * @param caster
+ * What object is casting the spell (rod, ...).
+ * @param dir
+ * Firing direction.
+ * @param type
+ * Spell ID.
  * @retval 0 No bolt could be fired.
- * @retval 1 Bolt was fired (but may have been destroyed already). */
+ * @retval 1 Bolt was fired (but may have been destroyed already).
+ */
 int fire_bolt(object *op, object *caster, int dir, int type)
 {
     object *tmp;
@@ -546,14 +577,23 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 /**
  * Fires an archetype.
- * @param op Person firing the object.
- * @param caster Object casting the spell.
- * @param x X position where to fire the spell.
- * @param y Y position where to fire the spell.
- * @param dir Direction to fire in.
- * @param at The archetype to fire.
- * @param type Spell ID.
- * @return 0 on failure, 1 on success. */
+ * @param op
+ * Person firing the object.
+ * @param caster
+ * Object casting the spell.
+ * @param x
+ * X position where to fire the spell.
+ * @param y
+ * Y position where to fire the spell.
+ * @param dir
+ * Direction to fire in.
+ * @param at
+ * The archetype to fire.
+ * @param type
+ * Spell ID.
+ * @return
+ * 0 on failure, 1 on success.
+ */
 int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, struct archetype *at, int type, object *target)
 {
     object *tmp, *env;
@@ -609,14 +649,21 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
 
 /**
  * Casts a cone spell.
- * @param op Person firing the object.
- * @param caster Object casting the spell.
- * @param dir Direction to fire in.
- * @param strength Strength of the spell.
- * @param spell_type ID of the spell.
- * @param spell_arch Spell's arch.
+ * @param op
+ * Person firing the object.
+ * @param caster
+ * Object casting the spell.
+ * @param dir
+ * Direction to fire in.
+ * @param strength
+ * Strength of the spell.
+ * @param spell_type
+ * ID of the spell.
+ * @param spell_arch
+ * Spell's arch.
  * @retval 0 Couldn't cast.
- * @retval 1 Successful cast. */
+ * @retval 1 Successful cast.
+ */
 int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, struct archetype *spell_arch)
 {
     object *tmp;
@@ -702,7 +749,9 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 
 /**
  * Drops an object based on what is in the cone's "other_arch".
- * @param op The object. */
+ * @param op
+ * The object.
+ */
 void cone_drop(object *op)
 {
     object *new_ob = arch_to_object(op->other_arch);
@@ -722,7 +771,9 @@ void cone_drop(object *op)
 
 /**
  * Causes an object to explode, eg, a firebullet, poison cloud ball, etc.
- * @param op The object to explode. */
+ * @param op
+ * The object to explode.
+ */
 void explode_object(object *op)
 {
     tag_t op_tag = op->count;
@@ -752,7 +803,9 @@ void explode_object(object *op)
  * place. wall() has failed, including reflection checking.
  *
  * Look for a target.
- * @param op The spell object. */
+ * @param op
+ * The spell object.
+ */
 void check_fired_arch(object *op)
 {
     tag_t op_tag = op->count, tmp_tag;
@@ -809,11 +862,15 @@ void check_fired_arch(object *op)
 
 /**
  * Detect target for casting a spell.
- * @param op Caster.
+ * @param op
+ * Caster.
  * @param[out] target Will contain target for the spell we're casting.
- * @param flags Spell flags.
- * @return 1 if the object can cast the spell on the target, 0
- * otherwise. */
+ * @param flags
+ * Spell flags.
+ * @return
+ * 1 if the object can cast the spell on the target, 0
+ * otherwise.
+ */
 int find_target_for_spell(object *op, object **target, uint32_t flags)
 {
     object *tmp;
@@ -900,11 +957,17 @@ int find_target_for_spell(object *op, object **target, uint32_t flags)
 
 /**
  * Returns adjusted damage based on the caster.
- * @param caster Who is casting.
- * @param spell_type Spell ID we're adjusting.
- * @param base_dam Base damage.
- * @param exact Return exact damage, unadjusted by random percent?
- * @return Adjusted damage. */
+ * @param caster
+ * Who is casting.
+ * @param spell_type
+ * Spell ID we're adjusting.
+ * @param base_dam
+ * Base damage.
+ * @param exact
+ * Return exact damage, unadjusted by random percent?
+ * @return
+ * Adjusted damage.
+ */
 int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 {
     int level = SK_level(caster);
@@ -938,9 +1001,13 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 
 /**
  * Adjust the strength of the spell based on level.
- * @param caster Who is casting.
- * @param spell_type Spell ID we're adjusting.
- * @return Adjusted strength. */
+ * @param caster
+ * Who is casting.
+ * @param spell_type
+ * Spell ID we're adjusting.
+ * @return
+ * Adjusted strength.
+ */
 int SP_level_strength_adjust(object *caster, int spell_type)
 {
     int level = SK_level(caster);
@@ -964,11 +1031,16 @@ int SP_level_strength_adjust(object *caster, int spell_type)
  * Some of the lower level spells become incredibly vicious at high
  * levels. Very cheap mass destruction. This function is intended to keep
  * the sp cost related to the effectiveness.
- * @param caster What is casting the spell.
- * @param spell_type Spell ID.
- * @param caster_level Level of caster. If -1, will use SK_level() to
+ * @param caster
+ * What is casting the spell.
+ * @param spell_type
+ * Spell ID.
+ * @param caster_level
+ * Level of caster. If -1, will use SK_level() to
  * determine caster's level. Will also avoid affecting the cost with paths.
- * @return Spell points cost. */
+ * @return
+ * Spell points cost.
+ */
 int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 {
     spell_struct *s = find_spell(spell_type);
@@ -991,13 +1063,21 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
  * The following routine creates a swarm of objects. It actually sets up
  * a specific swarm object, which then fires off all the parts of the
  * swarm.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param dir Cast direction.
- * @param swarm_type Archetype of the swarm.
- * @param spell_type ID of the spell.
- * @param n The number to be fired.
- * @param magic Magic. */
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What object is casting.
+ * @param dir
+ * Cast direction.
+ * @param swarm_type
+ * Archetype of the swarm.
+ * @param spell_type
+ * ID of the spell.
+ * @param n
+ * The number to be fired.
+ * @param magic
+ * Magic.
+ */
 void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_type, int spell_type, int n, int magic)
 {
     object *tmp = arch_get("swarm_spell");
@@ -1024,8 +1104,10 @@ void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_typ
 /**
  * Punish player for failure in casting a spell by summoning a blast of
  * uncontrollable raw mana.
- * @param caster The caster.
- * @param level Level of the spell.
+ * @param caster
+ * The caster.
+ * @param level
+ * Level of the spell.
  */
 void spell_failure_raw_mana(object *caster, int level)
 {
@@ -1060,8 +1142,10 @@ void spell_failure_raw_mana(object *caster, int level)
 
 /**
  * Punish player for failure in casting a spell.
- * @param caster The caster.
- * @param level Level of the spell.
+ * @param caster
+ * The caster.
+ * @param level
+ * Level of the spell.
  */
 void spell_failure(object *caster, int level)
 {

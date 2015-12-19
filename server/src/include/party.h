@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Party code header file. */
+ * Party code header file.
+ */
 
 #ifndef PARTY_H
 #define PARTY_H
@@ -32,97 +33,123 @@
 /**
  * @defgroup PARTY_MESSAGE_xxx Party message types
  * Party message types.
- *@{*/
+ *@{
+ */
 /**
  * Status is used for party messages like password change, join/leave,
- * etc. */
+ * etc.
+ */
 #define PARTY_MESSAGE_STATUS 1
 /**
- * Chat is used for party chat messages from party members. */
+ * Chat is used for party chat messages from party members.
+ */
 #define PARTY_MESSAGE_CHAT 2
 /*@}*/
 
 /**
  * Party looting modes.
- * @anchor PARTY_LOOT_xxx */
+ * @anchor PARTY_LOOT_xxx
+ */
 enum {
     /**
-     * Normal looting: any party member can loot the corpse. */
+     * Normal looting: any party member can loot the corpse.
+ */
     PARTY_LOOT_NORMAL,
     /**
-     * Only leader can loot the corpse. */
+     * Only leader can loot the corpse.
+ */
     PARTY_LOOT_LEADER,
     /**
-     * Only corpse owner can loot the corpse. */
+     * Only corpse owner can loot the corpse.
+ */
     PARTY_LOOT_OWNER,
     /**
      * Loot is randomly split between party members when the corpse is
-     * opened. */
+     * opened.
+ */
     PARTY_LOOT_RANDOM,
     /**
-     * Loot is evenly split between party members when the corpse is opened. */
+     * Loot is evenly split between party members when the corpse is opened.
+ */
     PARTY_LOOT_SPLIT,
     /**
-     * Total number of the modes. */
+     * Total number of the modes.
+ */
     PARTY_LOOT_MAX
 };
 
 /**
- * Party structure. */
+ * Party structure.
+ */
 typedef struct party_struct {
     /**
-     * Name of the party leader. */
+     * Name of the party leader.
+ */
     shstr *leader;
 
     /**
-     * Name of the party. */
+     * Name of the party.
+ */
     shstr *name;
 
     /**
-     * Password this party requires. */
+     * Password this party requires.
+ */
     char passwd[9];
 
     /**
-     * Looting mode. One of @ref PARTY_LOOT_xxx. */
+     * Looting mode. One of @ref PARTY_LOOT_xxx.
+ */
     uint8_t loot;
 
     /**
-     * Index for some looting modes. */
+     * Index for some looting modes.
+ */
     uint32_t loot_idx;
 
     /**
-     * Party members. */
+     * Party members.
+ */
     objectlink *members;
 
     /**
-     * Next party in the list. */
+     * Next party in the list.
+ */
     struct party_struct *next;
 } party_struct;
 
 /**
  * @defgroup CMD_PARTY_xxx Party socket command types
  * Various types of the CLIENT_CMD_PARTY socket command.
- *@{*/
+ *@{
+ */
 /**
- * Show a list of all parties in the game. */
+ * Show a list of all parties in the game.
+ */
 #define CMD_PARTY_LIST 1
 /**
- * Show current members of your party. */
+ * Show current members of your party.
+ */
 #define CMD_PARTY_WHO 2
 /**
- * Successfully joined a party. */
+ * Successfully joined a party.
+ */
 #define CMD_PARTY_JOIN 3
 /**
- * Joining a party requires a password. */
+ * Joining a party requires a password.
+ */
 #define CMD_PARTY_PASSWORD 4
 /**
- * We're leaving a party. */
+ * We're leaving a party.
+ */
 #define CMD_PARTY_LEAVE 5
 /**
- * Update party's who list. */
+ * Update party's who list.
+ */
 #define CMD_PARTY_UPDATE 6
 /**
- * Remove memebr from party's who list. */
+ * Remove memebr from party's who list.
+ */
 #define CMD_PARTY_REMOVE_MEMBER 7
 /*@}*/
 

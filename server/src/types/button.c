@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref BUTTON "button".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -98,7 +99,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the button type object methods. */
+ * Initialize the button type object methods.
+ */
 void object_type_init_button(void)
 {
     object_type_methods[BUTTON].move_on_func = move_on_func;

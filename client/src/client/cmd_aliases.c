@@ -26,39 +26,48 @@
  * @file
  * Handles command aliases system.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * One command alias. */
+ * One command alias.
+ */
 typedef struct cmd_alias_struct {
     /**
-     * Name of the command alias. */
+     * Name of the command alias.
+ */
     char *name;
 
     /**
-     * What to execute when there is an argument for the command. */
+     * What to execute when there is an argument for the command.
+ */
     char *arg;
 
     /**
      * What to execute when there isn't an argument for the command, or
-     * if there is but cmd_alias_struct::arg is not set. */
+     * if there is but cmd_alias_struct::arg is not set.
+ */
     char *noarg;
 
     /**
-     * Hash handle. */
+     * Hash handle.
+ */
     UT_hash_handle hh;
 } cmd_alias_struct;
 
 /**
- * All the possible command aliases. */
+ * All the possible command aliases.
+ */
 static cmd_alias_struct *cmd_aliases = NULL;
 
 /**
  * Load command aliases file.
- * @param path Where to load the file from. */
+ * @param path
+ * Where to load the file from.
+ */
 static void cmd_aliases_load(const char *path)
 {
     FILE *fp = fopen_wrapper(path, "r");
@@ -150,7 +159,8 @@ error:
 }
 
 /**
- * Initialize the command aliases system. */
+ * Initialize the command aliases system.
+ */
 void cmd_aliases_init(void)
 {
     cmd_aliases_load("data/cmd_aliases.cfg");
@@ -158,7 +168,8 @@ void cmd_aliases_init(void)
 }
 
 /**
- * Deinitialize the command aliases system. */
+ * Deinitialize the command aliases system.
+ */
 void cmd_aliases_deinit(void)
 {
     cmd_alias_struct *curr, *tmp;
@@ -183,8 +194,11 @@ void cmd_aliases_deinit(void)
 
 /**
  * Execute the specified command alias.
- * @param cmd What to execute.
- * @param params Parameters passed by the player. NULL if none. */
+ * @param cmd
+ * What to execute.
+ * @param params
+ * Parameters passed by the player. NULL if none.
+ */
 static void cmd_aliases_execute(const char *cmd, const char *params)
 {
     char word[MAX_BUF], *cp, *func_end;
@@ -294,8 +308,11 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
 
 /**
  * Try to handle player's command.
- * @param cmd Command to handle.
- * @return 1 if it was handled, 0 otherwise. */
+ * @param cmd
+ * Command to handle.
+ * @return
+ * 1 if it was handled, 0 otherwise.
+ */
 int cmd_aliases_handle(const char *cmd)
 {
     if (cmd[0] == '/' && cmd[1] != '\0') {

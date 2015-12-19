@@ -24,18 +24,25 @@
 
 /**
  * @file
- * Handles code related to @ref BULLET "bullet". */
+ * Handles code related to @ref BULLET "bullet".
+ */
 
 #include <global.h>
 
 /**
  * Attempt to reflect a bullet object by an object with @ref FLAG_REFL_SPELL
  * on the specified square.
- * @param op The bullet object.
- * @param m Map.
- * @param x X position.
- * @param y Y position.
- * @return 1 if the bullet was reflected, 0 otherwise. */
+ * @param op
+ * The bullet object.
+ * @param m
+ * Map.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @return
+ * 1 if the bullet was reflected, 0 otherwise.
+ */
 int bullet_reflect(object *op, mapstruct *m, int x, int y)
 {
     int sub_layer;
@@ -100,7 +107,8 @@ static int projectile_hit_func(object *op, object *victim)
 }
 
 /**
- * Initialize the bullet type object methods. */
+ * Initialize the bullet type object methods.
+ */
 void object_type_init_bullet(void)
 {
     object_type_methods[BULLET].process_func = process_func;

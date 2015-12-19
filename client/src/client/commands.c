@@ -25,7 +25,8 @@
 /**
  * @file
  * Handles commands received by the server. This does not necessarily
- * handle all the commands - some might be in other files. */
+ * handle all the commands - some might be in other files.
+ */
 
 #include <global.h>
 #include <region_map.h>
@@ -339,7 +340,9 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
 
 /**
  * Sends a reply to the server.
- * @param text Null terminated string of text to send. */
+ * @param text
+ * Null terminated string of text to send.
+ */
 void send_reply(char *text)
 {
     packet_struct *packet;
@@ -600,7 +603,8 @@ void socket_command_item_delete(uint8_t *data, size_t len, size_t pos)
 }
 
 /**
- * Plays the footstep sounds when moving on the map. */
+ * Plays the footstep sounds when moving on the map.
+ */
 static void map_play_footstep(void)
 {
     static int step = 0;

@@ -27,7 +27,8 @@
  * Implements label type widgets.
  *
  * @author Alex Tokar
- * @author Daniel Liptrot */
+ * @author Daniel Liptrot
+ */
 
 #include <global.h>
 
@@ -58,7 +59,8 @@ static void widget_deinit(widgetdata *widget)
 }
 
 /**
- * Initialize one label widget. */
+ * Initialize one label widget.
+ */
 void widget_label_init(widgetdata *widget)
 {
     _widget_label *label;

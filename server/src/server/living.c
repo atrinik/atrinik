@@ -25,7 +25,8 @@
 /**
  * @file
  * Functions related to attributes, weight, experience, which concern
- * only living things. */
+ * only living things.
+ */
 
 #include <global.h>
 #include <monster_data.h>
@@ -36,7 +37,8 @@
 #define ENCUMBRANCE_LIMIT 65.0f
 
 /**
- * dam_bonus, thaco_bonus, weight limit all are based on strength. */
+ * dam_bonus, thaco_bonus, weight limit all are based on strength.
+ */
 int dam_bonus[MAX_STAT + 1] = {
     -5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
     0, 0, 0, 0, 0,
@@ -51,7 +53,8 @@ int thaco_bonus[MAX_STAT + 1] = {
 };
 
 /**
- * Constitution bonus. */
+ * Constitution bonus.
+ */
 static float con_bonus[MAX_STAT + 1] = {
     -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
     0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -59,7 +62,8 @@ static float con_bonus[MAX_STAT + 1] = {
 };
 
 /**
- * Power bonus. */
+ * Power bonus.
+ */
 static float pow_bonus[MAX_STAT + 1] = {
     -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
     0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -67,7 +71,8 @@ static float pow_bonus[MAX_STAT + 1] = {
 };
 
 /**
- * Speed bonus. Uses dexterity as its stat. */
+ * Speed bonus. Uses dexterity as its stat.
+ */
 float speed_bonus[MAX_STAT + 1] = {
     -0.4f, -0.4f, -0.3f, -0.3f, -0.2f,
     -0.2f, -0.2f, -0.1f, -0.1f, -0.1f,
@@ -97,7 +102,8 @@ double falling_mitigation[MAX_STAT + 1] = {
  * Value is in grams, so we don't need to do conversion later
  *
  * These limits are probably overly generous, but being there were no
- * values before, you need to start someplace. */
+ * values before, you need to start someplace.
+ */
 uint32_t weight_limit[MAX_STAT + 1] = {
     20000,
     25000,  30000,  35000,  40000,  50000,
@@ -110,7 +116,8 @@ uint32_t weight_limit[MAX_STAT + 1] = {
 
 /**
  * Probability to learn a spell or skill, based on intelligence or
- * wisdom. */
+ * wisdom.
+ */
 int learn_spell[MAX_STAT + 1] = {
     0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
     100, 100, 100, 100, 100, 100
@@ -131,7 +138,8 @@ int monster_signal_chance[MAX_STAT + 1] = {
 };
 
 /**
- * Probability to avoid something. */
+ * Probability to avoid something.
+ */
 int savethrow[MAXLEVEL + 1] = {
     18,
     18, 17, 16, 15, 14, 14, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9,
@@ -199,9 +207,13 @@ const char *const short_stat_name[NUM_STATS] = {
 /**
  * Sets Str/Dex/con/Wis/Cha/Int/Pow in stats to value, depending on what
  * attr is (STR to POW).
- * @param stats Item to modify. Must not be NULL.
- * @param attr Attribute to change.
- * @param value New value. */
+ * @param stats
+ * Item to modify. Must not be NULL.
+ * @param attr
+ * Attribute to change.
+ * @param value
+ * New value.
+ */
 void set_attr_value(living *stats, int attr, int8_t value)
 {
     switch (attr) {
@@ -233,9 +245,13 @@ void set_attr_value(living *stats, int attr, int8_t value)
  *
  * Checking is performed to make sure old value + new value doesn't overflow
  * the stat integer.
- * @param stats Item to modify. Must not be NULL.
- * @param attr Attribute to change.
- * @param value Delta (can be positive). */
+ * @param stats
+ * Item to modify. Must not be NULL.
+ * @param attr
+ * Attribute to change.
+ * @param value
+ * Delta (can be positive).
+ */
 void change_attr_value(living *stats, int attr, int8_t value)
 {
     int16_t result;
@@ -256,10 +272,14 @@ void change_attr_value(living *stats, int attr, int8_t value)
 
 /**
  * Gets the value of a stat.
- * @param stats Item from which to get stat.
- * @param attr Attribute to get.
- * @return Specified attribute, 0 if not found.
- * @see set_attr_value(). */
+ * @param stats
+ * Item from which to get stat.
+ * @param attr
+ * Attribute to get.
+ * @return
+ * Specified attribute, 0 if not found.
+ * @see set_attr_value().
+ */
 int8_t get_attr_value(const living *stats, int attr)
 {
     switch (attr) {
@@ -285,7 +305,9 @@ int8_t get_attr_value(const living *stats, int attr)
 /**
  * Ensures that all stats (str/dex/con/wis/cha/int) are within the
  * passed in range of MIN_STAT and MAX_STAT.
- * @param stats Attributes to check. */
+ * @param stats
+ * Attributes to check.
+ */
 void check_stat_bounds(living *stats)
 {
     int i, v;
@@ -303,7 +325,9 @@ void check_stat_bounds(living *stats)
 
 /**
  * Drains a random stat from op.
- * @param op Object to drain. */
+ * @param op
+ * Object to drain.
+ */
 void drain_stat(object *op)
 {
     drain_specific_stat(op, rndm(1, NUM_STATS) - 1);
@@ -311,8 +335,11 @@ void drain_stat(object *op)
 
 /**
  * Drain a specified stat from op.
- * @param op Victim to drain.
- * @param deplete_stats Statistic to drain. */
+ * @param op
+ * Victim to drain.
+ * @param deplete_stats
+ * Statistic to drain.
+ */
 void drain_specific_stat(object *op, int deplete_stats)
 {
     object *tmp;
@@ -338,8 +365,10 @@ void drain_specific_stat(object *op, int deplete_stats)
 
 /**
  * Propagate stats an item gives to a living object, eg, a player.
- * @param op Living object.
- * @param item Item with the stats to give.
+ * @param op
+ * Living object.
+ * @param item
+ * Item with the stats to give.
  */
 static void
 living_apply_flags (object       *op,
@@ -427,9 +456,12 @@ living_apply_flags (object       *op,
 /**
  * Update player's stats that are acquired from the specified item.
  *
- * @param pl Player.
- * @param op Player object.
- * @param item Item the stats are acquired from.
+ * @param pl
+ * Player.
+ * @param op
+ * Player object.
+ * @param item
+ * Item the stats are acquired from.
  * @param[out] attacks Attack types.
  * @param[out] protect_bonus Protection bonuses.
  * @param[out] protect_malus Protection maluses.
@@ -541,7 +573,8 @@ living_update_player_item (player       *pl,
 
 /**
  * Updates player object based on the applied items in their inventory.
- * @param op Player to update.
+ * @param op
+ * Player to update.
  */
 void living_update_player(object *op)
 {
@@ -1077,7 +1110,8 @@ void living_update_player(object *op)
 
 /**
  * Like living_update_player(), but for monsters.
- * @param op The monster.
+ * @param op
+ * The monster.
  */
 void living_update_monster(object *op)
 {
@@ -1207,10 +1241,14 @@ void living_update_monster(object *op)
 
 /**
  * Displays information about the object's updated stats.
- * @param op Object.
- * @param refop Old state of the object.
- * @param refpl Old state of the player.
- * @return Number of stats changed (approximate).
+ * @param op
+ * Object.
+ * @param refop
+ * Old state of the object.
+ * @param refpl
+ * Old state of the player.
+ * @return
+ * Number of stats changed (approximate).
  */
 static int living_update_display(object *op, object *refop, player *refpl)
 {
@@ -1539,8 +1577,10 @@ static int living_update_display(object *op, object *refop, player *refpl)
 /**
  * Updates all abilities given by applied objects in the inventory of the given
  * object.
- * @param op Object to update.
- * @return Approximate number of changed stats.
+ * @param op
+ * Object to update.
+ * @return
+ * Approximate number of changed stats.
  */
 int living_update(object *op)
 {
@@ -1580,9 +1620,11 @@ int living_update(object *op)
 
 /**
  * Find the base info object in the specified monster.
- * @param op Monster object. Must not be NULL, cannot be a tail part and must
+ * @param op
+ * Monster object. Must not be NULL, cannot be a tail part and must
  * be of type MONSTER.
- * @return Pointer to the base info if found, NULL otherwise.
+ * @return
+ * Pointer to the base info if found, NULL otherwise.
  */
 object *living_find_base_info(object *op)
 {
@@ -1605,9 +1647,11 @@ object *living_find_base_info(object *op)
 /**
  * Acquire the base info object of the specified monster object. If the base
  * info doesn't exist yet, it is created automatically.
- * @param op Monster. Must not be NULL, cannot be a tail part and must be of
+ * @param op
+ * Monster. Must not be NULL, cannot be a tail part and must be of
  * type MONSTER.
- * @return Pointer to the base info object, NULL on failure.
+ * @return
+ * Pointer to the base info object, NULL on failure.
  */
 object *living_get_base_info(object *op)
 {
@@ -1657,8 +1701,11 @@ object *living_get_base_info(object *op)
  * 3/5 = mob is moving fast
  * 4/5 = mov is running/attack speed
  * 5/5 = mob is hasted and moving full speed
- * @param op Monster.
- * @param idx Index. */
+ * @param op
+ * Monster.
+ * @param idx
+ * Index.
+ */
 void set_mobile_speed(object *op, int idx)
 {
     object *base;

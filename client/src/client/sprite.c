@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Sprite related functions. */
+ * Sprite related functions.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -54,7 +55,8 @@ static int dark_alpha[DARK_LEVELS] = {
 static sprite_cache_t *sprites_cache = NULL;
 
 /**
- * Initialize the sprite system. */
+ * Initialize the sprite system.
+ */
 void sprite_init_system(void)
 {
     FormatHolder = SDL_CreateRGBSurface(SDL_SRCALPHA, 1, 1, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
@@ -63,9 +65,13 @@ void sprite_init_system(void)
 
 /**
  * Load sprite file.
- * @param fname Sprite filename.
- * @param flags Flags for the sprite.
- * @return NULL if failed, the sprite otherwise. */
+ * @param fname
+ * Sprite filename.
+ * @param flags
+ * Flags for the sprite.
+ * @return
+ * NULL if failed, the sprite otherwise.
+ */
 sprite_struct *sprite_load_file(char *fname, uint32_t flags)
 {
     sprite_struct *sprite = sprite_tryload_file(fname, flags, NULL);
@@ -80,10 +86,15 @@ sprite_struct *sprite_load_file(char *fname, uint32_t flags)
 
 /**
  * Try to load a sprite image file.
- * @param fname Sprite filename
- * @param flag Flags
- * @param rwop Pointer to memory for the image
- * @return The sprite if success, NULL otherwise */
+ * @param fname
+ * Sprite filename
+ * @param flag
+ * Flags
+ * @param rwop
+ * Pointer to memory for the image
+ * @return
+ * The sprite if success, NULL otherwise
+ */
 sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop)
 {
     sprite_struct *sprite;
@@ -131,7 +142,9 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop)
 
 /**
  * Free a sprite.
- * @param sprite Sprite to free. */
+ * @param sprite
+ * Sprite to free.
+ */
 void sprite_free_sprite(sprite_struct *sprite)
 {
     if (!sprite) {
@@ -230,8 +243,10 @@ void sprite_cache_gc(void)
 /**
  * Creates a red version of the specified sprite surface. Used for the
  * infravision effect.
- * @param surface Surface.
- * @return New surface.
+ * @param surface
+ * Surface.
+ * @return
+ * New surface.
  */
 static SDL_Surface *sprite_effect_red(SDL_Surface *surface)
 {
@@ -259,8 +274,10 @@ static SDL_Surface *sprite_effect_red(SDL_Surface *surface)
 /**
  * Creates a gray version of the specified sprite surface. Used for the
  * invisible effect.
- * @param surface Surface.
- * @return New surface.
+ * @param surface
+ * Surface.
+ * @return
+ * New surface.
  */
 static SDL_Surface *sprite_effect_gray(SDL_Surface *surface)
 {
@@ -287,8 +304,10 @@ static SDL_Surface *sprite_effect_gray(SDL_Surface *surface)
 /**
  * Creates somewhat gray version of the specified sprite surface. Used for the
  * fog of war effect.
- * @param surface Surface.
- * @return New surface.
+ * @param surface
+ * Surface.
+ * @return
+ * New surface.
  */
 static SDL_Surface *sprite_effect_fow(SDL_Surface *surface)
 {
@@ -316,11 +335,16 @@ static SDL_Surface *sprite_effect_fow(SDL_Surface *surface)
 
 /**
  * Creates a glowing effect for the specified sprite surface.
- * @param surface Surface.
- * @param color Glow color.
- * @param speed Animation speed of the glow.
- * @param state Current animation state of the glow.
- * @return New surface.
+ * @param surface
+ * Surface.
+ * @param color
+ * Glow color.
+ * @param speed
+ * Animation speed of the glow.
+ * @param state
+ * Current animation state of the glow.
+ * @return
+ * New surface.
  */
 static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
         const SDL_Color *color, double speed, double state)
@@ -657,10 +681,15 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
 
 /**
  * Get pixel from an SDL surface at specified X/Y position
- * @param surface SDL surface to get the pixel from.
- * @param x X position.
- * @param y Y position.
- * @return The pixel. */
+ * @param surface
+ * SDL surface to get the pixel from.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @return
+ * The pixel.
+ */
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
     int bpp = surface->format->BytesPerPixel;
@@ -691,10 +720,15 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
 
 /**
  * Puts a pixel to specified X/Y position on SDL surface.
- * @param surface The surface.
- * @param x X position.
- * @param y Y position.
- * @param pixel Pixel to put. */
+ * @param surface
+ * The surface.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param pixel
+ * Pixel to put.
+ */
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
     int bpp = surface->format->BytesPerPixel;
@@ -733,10 +767,14 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 /**
  * Calculate the left border in the surface - this is the position of
  * the first pixel from the left that that does not match 'color'.
- * @param surface Surface.
+ * @param surface
+ * Surface.
  * @param[out] pos Where to store the position.
- * @param color Color to check for.
- * @return 1 if the border was found, 0 otherwise. */
+ * @param color
+ * Color to check for.
+ * @return
+ * 1 if the border was found, 0 otherwise.
+ */
 static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32_t ckey)
 {
     int x, y;
@@ -756,10 +794,14 @@ static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32_t ckey
 /**
  * Calculate the right border in the surface - this is the position of
  * the first pixel from the right that that does not match 'color'.
- * @param surface Surface.
+ * @param surface
+ * Surface.
  * @param[out] pos Where to store the position.
- * @param color Color to check for.
- * @return 1 if the border was found, 0 otherwise. */
+ * @param color
+ * Color to check for.
+ * @return
+ * 1 if the border was found, 0 otherwise.
+ */
 static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32_t ckey)
 {
     int x, y;
@@ -779,10 +821,14 @@ static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32_t cke
 /**
  * Calculate the top border in the surface - this is the position of
  * the first pixel from the top that that does not match 'color'.
- * @param surface Surface.
+ * @param surface
+ * Surface.
  * @param[out] pos Where to store the position.
- * @param color Color to check for.
- * @return 1 if the border was found, 0 otherwise. */
+ * @param color
+ * Color to check for.
+ * @return
+ * 1 if the border was found, 0 otherwise.
+ */
 static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32_t ckey)
 {
     int x, y;
@@ -802,10 +848,14 @@ static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32_t ckey)
 /**
  * Calculate the bottom border in the surface - this is the position of
  * the first pixel from the bottom that that does not match 'color'.
- * @param surface Surface.
+ * @param surface
+ * Surface.
  * @param[out] pos Where to store the position.
- * @param color Color to check for.
- * @return 1 if the border was found, 0 otherwise. */
+ * @param color
+ * Color to check for.
+ * @return
+ * 1 if the border was found, 0 otherwise.
+ */
 static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32_t color)
 {
     int x, y;
@@ -825,14 +875,18 @@ static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32_t co
 /**
  * Get borders from SDL_surface. The borders indicate the first pixel
  * from the border's side that does not match 'color'.
- * @param surface Surface to get borders from.
+ * @param surface
+ * Surface to get borders from.
  * @param[out] top Where to store the top border.
  * @param[out] bottom Where to store the bottom border.
  * @param[out] left Where to store the left border.
  * @param[out] right Where to store the right border.
- * @param color Color to check for.
- * @return 1 if the borders were found, 0 otherwise (image is all filled
- * with 'color' color). */
+ * @param color
+ * Color to check for.
+ * @return
+ * 1 if the borders were found, 0 otherwise (image is all filled
+ * with 'color' color).
+ */
 int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32_t color)
 {
     *top = 0;
@@ -858,12 +912,20 @@ int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, 
  *
  * Used to make the player overlapping objects transparent.
  * @param x1
+ *
  * @param y1
+ *
  * @param x2
+ *
  * @param y2
+ *
  * @param sprite1
+ *
  * @param sprite2
- * @return  */
+ *
+ * @return
+ *
+ */
 int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2)
 {
     int left1, left2;
@@ -904,8 +966,11 @@ int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprit
 
 /**
  * Pans the surface.
- * @param surface Surface.
- * @param box Coordinates. */
+ * @param surface
+ * Surface.
+ * @param box
+ * Coordinates.
+ */
 void surface_pan(SDL_Surface *surface, SDL_Rect *box)
 {
     if (box->x >= surface->w - box->w) {
@@ -927,11 +992,17 @@ void surface_pan(SDL_Surface *surface, SDL_Rect *box)
 
 /**
  * Draw a single frame.
- * @param surface Surface to draw on.
- * @param x X position.
- * @param y Y position.
- * @param w Width of the frame.
- * @param h Height of the frame. */
+ * @param surface
+ * Surface to draw on.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param w
+ * Width of the frame.
+ * @param h
+ * Height of the frame.
+ */
 void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
 {
     SDL_Rect box;
@@ -956,13 +1027,21 @@ void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
 
 /**
  * Create a border around the specified coordinates.
- * @param surface Surface to use.
- * @param x X start of the border.
- * @param y Y start of the border.
- * @param w Maximum border width.
- * @param h Maximum border height.
- * @param color Color to use for the border.
- * @param size Border's size. */
+ * @param surface
+ * Surface to use.
+ * @param x
+ * X start of the border.
+ * @param y
+ * Y start of the border.
+ * @param w
+ * Maximum border width.
+ * @param h
+ * Maximum border height.
+ * @param color
+ * Color to use for the border.
+ * @param size
+ * Border's size.
+ */
 void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size)
 {
     SDL_Rect box;
@@ -1055,8 +1134,10 @@ void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const ch
 /**
  * Changes alpha value of the specified surface. If the surface is per-pixel
  * alpha, changes every pixel on the surface to match the specified alpha value.
- * @param surface Surface to change alpha value of.
- * @param alpha Alpha value to set.
+ * @param surface
+ * Surface to change alpha value of.
+ * @param alpha
+ * Alpha value to set.
  */
 void surface_set_alpha(SDL_Surface *surface, uint8_t alpha)
 {
@@ -1092,12 +1173,18 @@ void surface_set_alpha(SDL_Surface *surface, uint8_t alpha)
  *
  * The arrays corners_x/corners_y should contain every single corner point of
  * the polygon that you want to test.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @param corners_x Array of X corner coordinates.
- * @param corners_y Array of Y corner coordinates.
- * @param corners_num Number of corner coordinate entries.
- * @return 1 if the coordinates are in the polygon, 0 otherwise.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @param corners_x
+ * Array of X corner coordinates.
+ * @param corners_y
+ * Array of Y corner coordinates.
+ * @param corners_num
+ * Number of corner coordinate entries.
+ * @return
+ * 1 if the coordinates are in the polygon, 0 otherwise.
  */
 int polygon_check_coords(double x, double y,
         double corners_x[], double corners_y[], int corners_num)

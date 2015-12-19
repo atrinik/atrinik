@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref SHOP_FLOOR "shop floor".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the shop floor type object methods. */
+ * Initialize the shop floor type object methods.
+ */
 void object_type_init_shop_floor(void)
 {
 }

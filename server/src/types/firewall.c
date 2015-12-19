@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref FIREWALL "firewall".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -56,7 +57,8 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the firewall type object methods. */
+ * Initialize the firewall type object methods.
+ */
 void object_type_init_firewall(void)
 {
     object_type_methods[FIREWALL].process_func = process_func;

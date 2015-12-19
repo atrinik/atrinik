@@ -26,7 +26,8 @@
  * @file
  * Commands API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -34,7 +35,8 @@
 static command_struct *commands;
 
 /**
- * Hash table containing all permission groups. */
+ * Hash table containing all permission groups.
+ */
 static permission_group_struct *permission_groups;
 
 static void commands_permission_group_free(permission_group_struct *tmp);
@@ -128,7 +130,9 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Free a single permission group structure.
- * @param tmp What to free. */
+ * @param tmp
+ * What to free.
+ */
 static void commands_permission_group_free(permission_group_struct *tmp)
 {
     size_t i;
@@ -149,7 +153,9 @@ static void commands_permission_group_free(permission_group_struct *tmp)
 /**
  * Add a single permission group structure to the hash table of
  * permission groups.
- * @param tmp What to add. */
+ * @param tmp
+ * What to add.
+ */
 static void commands_permission_group_add(permission_group_struct *tmp)
 {
     permission_group_struct *curr;
@@ -167,7 +173,9 @@ static void commands_permission_group_add(permission_group_struct *tmp)
 
 /**
  * Read command permissions config file.
- * @param path File to read. */
+ * @param path
+ * File to read.
+ */
 static void commands_permissions_read(const char *path)
 {
     FILE *fp;

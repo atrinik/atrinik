@@ -26,7 +26,8 @@
  * @file
  * Handles code related to @ref CLOCK "clocks".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -85,7 +86,8 @@ static void insert_map_func(object *op)
 }
 
 /**
- * Initialize the clock type object methods. */
+ * Initialize the clock type object methods.
+ */
 void object_type_init_clock(void)
 {
     object_type_methods[CLOCK].process_func = process_func;

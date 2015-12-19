@@ -26,7 +26,8 @@
  * @file
  * Datastructures for representing a subset of regular expressions.
  *
- * Author: Kjetil T. Homme (kjetilho@ifi.uio.no) May 1993 */
+ * Author: Kjetil T. Homme (kjetilho@ifi.uio.no) May 1993
+ */
 
 /* Regexp's with syntax errors will core dump if
  * this is undefined. */

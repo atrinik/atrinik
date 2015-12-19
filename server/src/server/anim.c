@@ -24,7 +24,8 @@
 
 /**
  * @file
- * This file contains animation related code. */
+ * This file contains animation related code.
+ */
 
 #include <global.h>
 
@@ -32,7 +33,8 @@ Animations *animations = NULL;
 int num_animations = 0, animations_allocated;
 
 /**
- * Free all animations loaded */
+ * Free all animations loaded
+ */
 void free_all_anim(void)
 {
     int i;
@@ -49,7 +51,8 @@ void free_all_anim(void)
 
 /**
  * Initialize animations structure, read the animations
- * data from a file. */
+ * data from a file.
+ */
 void init_anim(void)
 {
     char buf[MAX_BUF];
@@ -149,9 +152,13 @@ void init_anim(void)
  * Compare two animations.
  *
  * Used for bsearch in find_animation().
- * @param a First animation to compare
- * @param b Second animation to compare
- * @return Return value of strcmp for the animation names */
+ * @param a
+ * First animation to compare
+ * @param b
+ * Second animation to compare
+ * @return
+ * Return value of strcmp for the animation names
+ */
 static int anim_compare(const void *a, const void *b)
 {
     return strcmp(((const Animations *) a)->name, ((const Animations *) b)->name);
@@ -159,9 +166,12 @@ static int anim_compare(const void *a, const void *b)
 
 /**
  * Tries to find the animation ID that matches name.
- * @param name Animation name to find
- * @return ID of the animation if found, 0 otherwise (animation 0 is
- * initialized as the 'bug' face). */
+ * @param name
+ * Animation name to find
+ * @return
+ * ID of the animation if found, 0 otherwise (animation 0 is
+ * initialized as the 'bug' face).
+ */
 int find_animation(const char *name)
 {
     Animations search, *match;
@@ -180,7 +190,9 @@ int find_animation(const char *name)
 
 /**
  * Update the object's animation state.
- * @param op Object. */
+ * @param op
+ * Object.
+ */
 void animate_object(object *op)
 {
     if (op->animation_id == 0 || NUM_ANIMATIONS(op) == 0 || op->head != NULL) {
@@ -197,7 +209,9 @@ void animate_object(object *op)
 
 /**
  * Animates one step of object.
- * @param op Object to animate. */
+ * @param op
+ * Object to animate.
+ */
 void animate_turning(object *op)
 {
     SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->state);

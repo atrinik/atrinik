@@ -31,7 +31,8 @@
  * any player structure - for example when an outdated client logs in and
  * we send "update your client" directly to the info windows.
  *
- * But if the player is logged in, all DRAWINFO are generated here. */
+ * But if the player is logged in, all DRAWINFO are generated here.
+ */
 
 #include <global.h>
 #include <stdarg.h>
@@ -70,11 +71,15 @@ void draw_info_send(uint8_t type, const char *name, const char *color,
 
 /**
  * Draw a message in the text windows for player's client.
- * @param flags Various @ref NDI_xxx "flags". Mostly color, but also some
+ * @param flags
+ * Various @ref NDI_xxx "flags". Mostly color, but also some
  * others.
- * @param pl The player object to write the information to - if flags has
+ * @param pl
+ * The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
- * @param buf The message to draw. */
+ * @param buf
+ * The message to draw.
+ */
 void draw_info_full(uint8_t type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *buf)
 {
     /* Handle global messages. */
@@ -107,10 +112,14 @@ void draw_info_full(uint8_t type, const char *name, const char *color, StringBuf
 /**
  * Similar to draw_info_full but allows using printf style
  * formatting.
- * @param flags Flags.
- * @param pl Player.
- * @param format Format.
- * @see draw_info_full */
+ * @param flags
+ * Flags.
+ * @param pl
+ * Player.
+ * @param format
+ * Format.
+ * @see draw_info_full
+ */
 void draw_info_full_format(uint8_t type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...)
 {
     DRAW_INFO_FORMAT_CONSTRUCT();
@@ -161,16 +170,26 @@ static int draw_info_map_internal(mapstruct *tiled, mapstruct *map, uint8_t type
  * Writes to everyone on the specified map.
  *
  * Tiled maps will be considered.
- * @param flags A combination of @ref NDI_xxx.
- * @param color One of @ref COLOR_xxx.
- * @param map Map to write on.
- * @param x X position where the message is coming from.
- * @param x Y position where the message is coming from.
- * @param dist Maximum distance from xy a player may be in order to see
+ * @param flags
+ * A combination of @ref NDI_xxx.
+ * @param color
+ * One of @ref COLOR_xxx.
+ * @param map
+ * Map to write on.
+ * @param x
+ * X position where the message is coming from.
+ * @param x
+ * Y position where the message is coming from.
+ * @param dist
+ * Maximum distance from xy a player may be in order to see
  * the message.
- * @param op Will not write to this player.
- * @param op2 Will not write to this player either.
- * @param buf What to write. */
+ * @param op
+ * Will not write to this player.
+ * @param op2
+ * Will not write to this player either.
+ * @param buf
+ * What to write.
+ */
 void draw_info_map(uint8_t type, const char *name, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf)
 {
     int distance;

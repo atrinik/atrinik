@@ -24,18 +24,24 @@
 
 /**
  * @file
- * Monster placement for random maps. */
+ * Monster placement for random maps.
+ */
 
 #include <global.h>
 
 /**
  * Place some monsters into the map.
- * @param map Where to put monsters on.
- * @param monsterstyle Monster style. Can be NULL, in which case a random
+ * @param map
+ * Where to put monsters on.
+ * @param monsterstyle
+ * Monster style. Can be NULL, in which case a random
  * one is used.
- * @param difficulty How difficult the monsters should be, and how many
+ * @param difficulty
+ * How difficult the monsters should be, and how many
  * there should be.
- * @param RP Random map parameters. */
+ * @param RP
+ * Random map parameters.
+ */
 void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP)
 {
     mapstruct *style_map = NULL;

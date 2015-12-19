@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref GLOVES "gloves".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the gloves type object methods. */
+ * Initialize the gloves type object methods.
+ */
 void object_type_init_gloves(void)
 {
     object_type_methods[GLOVES].apply_func = object_apply_item;

@@ -34,9 +34,13 @@
 
 /**
  * Check whether pedestal matches the specified object.
- * @param op Pedestal.
- * @param tmp Object to check.
- * @return 1 if the object matches, 0 otherwise. */
+ * @param op
+ * Pedestal.
+ * @param tmp
+ * Object to check.
+ * @return
+ * 1 if the object matches, 0 otherwise.
+ */
 int pedestal_matches_obj(object *op, object *tmp)
 {
     /* Check type. */
@@ -79,7 +83,8 @@ static int trigger_button_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the pedestal type object methods. */
+ * Initialize the pedestal type object methods.
+ */
 void object_type_init_pedestal(void)
 {
     object_type_methods[PEDESTAL].trigger_button_func = trigger_button_func;

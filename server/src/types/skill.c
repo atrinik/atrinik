@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref SKILL "skills".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -40,7 +41,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 }
 
 /**
- * Initialize the skill type object methods. */
+ * Initialize the skill type object methods.
+ */
 void object_type_init_skill(void)
 {
     object_type_methods[SKILL].apply_func = object_apply_item;

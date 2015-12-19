@@ -24,14 +24,18 @@
 
 /**
  * @file
- * Handles code related to @ref LIGHTNING "lightning". */
+ * Handles code related to @ref LIGHTNING "lightning".
+ */
 
 #include <global.h>
 
 /**
  * Causes lightning to fork.
- * @param op Original bolt.
- * @param tmp First piece of the fork. */
+ * @param op
+ * Original bolt.
+ * @param tmp
+ * First piece of the fork.
+ */
 static void lightning_fork(object *op, object *tmp)
 {
     mapstruct *m;
@@ -132,7 +136,8 @@ static object *projectile_stop_func(object *op, int reason)
 }
 
 /**
- * Initialize the lightning type object methods. */
+ * Initialize the lightning type object methods.
+ */
 void object_type_init_lightning(void)
 {
     object_type_methods[LIGHTNING].projectile_move_func = projectile_move_func;

@@ -26,7 +26,8 @@
  * @file
  * Atrinik plugin support header file.
  *
- * @author Yann Chachkoff */
+ * @author Yann Chachkoff
+ */
 
 #ifndef PLUGIN_H
 #define PLUGIN_H
@@ -50,10 +51,12 @@
 /**
  * @defgroup PLUGIN_EVENT_xxx Plugin event types
  * The plugin event types.
- *@{*/
+ *@{
+ */
 /**
  * Normal event: the event is attached directly to the object in
- * question. */
+ * question.
+ */
 #define PLUGIN_EVENT_NORMAL 1
 /** Map-wide event. */
 #define PLUGIN_EVENT_MAP 2
@@ -66,7 +69,8 @@
 /**
  * @defgroup event_numbers Event number codes
  * Event ID codes.
- *@{*/
+ *@{
+ */
 /** No event. */
 #define EVENT_NONE 0
 /** Object applied/unapplied. */
@@ -102,7 +106,8 @@
 /**
  * @defgroup EVENT_AI_xxx AI events
  * AI related events.
- *@{*/
+ *@{
+ */
 /** Random movement. */
 #define EVENT_AI_RANDOM_MOVE 1
 /** Guard stops someone with a bounty. */
@@ -112,7 +117,8 @@
 /**
  * @defgroup MEVENT_xxx Map event numbers
  * Map-wide events.
- *@{*/
+ *@{
+ */
 /** A player entered a map. */
 #define MEVENT_ENTER 1
 /** A player left a map. */
@@ -144,7 +150,8 @@
 /**
  * @defgroup GEVENT_xxx Global event numbers
  * Global event IDs.
- *@{*/
+ *@{
+ */
 /** A new character has been created. */
 #define GEVENT_BORN 0
 /** Player login. */
@@ -163,13 +170,17 @@
 
 /**
  * Get an event flag from event number code.
- * @see event_numbers */
+ * @see event_numbers
+ */
 #define EVENT_FLAG(x) (1U << (x - 1))
 
 /**
  * Check to see if object has an event in its object::event_flags.
- * @param ob Object.
- * @param event Event to check. */
+ * @param ob
+ * Object.
+ * @param event
+ * Event to check.
+ */
 #define HAS_EVENT(ob, event) (ob->event_flags & EVENT_FLAG(event))
 
 struct plugin_hooklist;
@@ -231,31 +242,42 @@ typedef struct atrinik_plugin {
 /**
  * @defgroup exportable_plugin_functions Exportable plugin functions
  * Exportable functions. Any plugin should define all these.
- *@{*/
+ *@{
+ */
 /**
  * Called when the plugin initialization process starts.
- * @param hooklist Plugin hooklist to register. */
+ * @param hooklist
+ * Plugin hooklist to register.
+ */
 extern MODULEAPI void initPlugin(struct plugin_hooklist *hooklist);
 
 /**
  * Called to ask various information about the plugin.
- * @param type Integer pointer for va_start().
- * @return Return value depends on the type of information requested.
- * Can be NULL. */
+ * @param type
+ * Integer pointer for va_start().
+ * @return
+ * Return value depends on the type of information requested.
+ * Can be NULL.
+ */
 extern MODULEAPI void getPluginProperty(int *type, ...);
 
 /**
  * Called whenever an event occurs.
- * @param type Integer pointer for va_start().
- * @return Integer containing the event's return value. */
+ * @param type
+ * Integer pointer for va_start().
+ * @return
+ * Integer containing the event's return value.
+ */
 extern MODULEAPI void *triggerEvent(int *type, ...);
 
 /**
- * Called by the server when the plugin loading is completed. */
+ * Called by the server when the plugin loading is completed.
+ */
 extern MODULEAPI void postinitPlugin(void);
 
 /**
- * Called when the plugin is about to be unloaded. */
+ * Called when the plugin is about to be unloaded.
+ */
 extern MODULEAPI void closePlugin(void);
 /*@}*/
 

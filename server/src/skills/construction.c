@@ -24,18 +24,25 @@
 
 /**
  * @file
- * Handles code for the construction skill. */
+ * Handles code for the construction skill.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
  * Check if objects on a square interfere with building.
- * @param m Map we're building on.
- * @param new_item Item the player is trying to build.
- * @param x X coordinate where to build.
- * @param y Y coordinate where to build.
- * @return 1 if 'new_item' can be built on the spot, 0 otherwise. */
+ * @param m
+ * Map we're building on.
+ * @param new_item
+ * Item the player is trying to build.
+ * @param x
+ * X coordinate where to build.
+ * @param y
+ * Y coordinate where to build.
+ * @return
+ * 1 if 'new_item' can be built on the spot, 0 otherwise.
+ */
 static int can_build_over(mapstruct *m, object *new_item, int x, int y)
 {
     object *tmp;
@@ -72,10 +79,15 @@ static int can_build_over(mapstruct *m, object *new_item, int x, int y)
 
 /**
  * Find wall on the specified square.
- * @param m Map where to look.
- * @param x X where to look.
- * @param y Y where to look.
- * @return The wall if found, NULL otherwise. */
+ * @param m
+ * Map where to look.
+ * @param x
+ * X where to look.
+ * @param y
+ * Y where to look.
+ * @return
+ * The wall if found, NULL otherwise.
+ */
 static object *get_wall(mapstruct *m, int x, int y)
 {
     object *tmp;
@@ -91,11 +103,17 @@ static object *get_wall(mapstruct *m, int x, int y)
 
 /**
  * Floor building function.
- * @param op Player building.
- * @param new_floor New floor object
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the floor was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param new_floor
+ * New floor object
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the floor was built, 0 otherwise.
+ */
 static int builder_floor(object *op, object *new_floor, int x, int y)
 {
     object *tmp;
@@ -128,11 +146,17 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 
 /**
  * Build an item like sign, wall mask (fireplace), etc.
- * @param op Player building.
- * @param new_item What to build.
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the item was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param new_item
+ * What to build.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the item was built, 0 otherwise.
+ */
 static int builder_item(object *op, object *new_item, int x, int y)
 {
     object *floor_ob;
@@ -226,12 +250,19 @@ static int builder_item(object *op, object *new_item, int x, int y)
 
 /**
  * Split wall's name from the orientation.
- * @param wall Wall to get the name with orientation from.
- * @param wall_name Where the wall's name will go.
- * @param wall_name_size Size of 'wall_name'.
- * @param orientation Where the wall's orientation will go.
- * @param orientation_size Size of 'orientation'.
- * @return 1 on success, 0 on failure. */
+ * @param wall
+ * Wall to get the name with orientation from.
+ * @param wall_name
+ * Where the wall's name will go.
+ * @param wall_name_size
+ * Size of 'wall_name'.
+ * @param orientation
+ * Where the wall's orientation will go.
+ * @param orientation_size
+ * Size of 'orientation'.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 static int wall_split_orientation(const object *wall_ob, char *wall_name, size_t wall_name_size, char *orientation, size_t orientation_size)
 {
     int l;
@@ -256,9 +287,13 @@ static int wall_split_orientation(const object *wall_ob, char *wall_name, size_t
  *
  * Basically it ensures the correct wall is put where needed.
  * @note x and y must be valid map coordinates.
- * @param map Map where to fix.
- * @param x X where to fix.
- * @param y Y where to fix. */
+ * @param map
+ * Map where to fix.
+ * @param x
+ * X where to fix.
+ * @param y
+ * Y where to fix.
+ */
 static void fix_walls(mapstruct *map, int x, int y)
 {
     int connect_val;
@@ -358,11 +393,17 @@ static void fix_walls(mapstruct *map, int x, int y)
 
 /**
  * Build a wall.
- * @param op Player building.
- * @param new_wall New wall object.
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the wall was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param new_wall
+ * New wall object.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the wall was built, 0 otherwise.
+ */
 static int builder_wall(object *op, object *new_wall, int x, int y)
 {
     object *wall_ob = get_wall(op->map, x, y);
@@ -418,10 +459,15 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 
 /**
  * Window building function.
- * @param op Player building.
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the window was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the window was built, 0 otherwise.
+ */
 static int builder_window(object *op, int x, int y)
 {
     object *wall_ob;
@@ -482,9 +528,13 @@ static int builder_window(object *op, int x, int y)
 
 /**
  * Generic function for handling the construction builder skill item.
- * @param op Player building.
- * @param x X where to build.
- * @param y Y where to build. */
+ * @param op
+ * Player building.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ */
 static void construction_builder(object *op, int x, int y)
 {
     object *material, *new_item;
@@ -554,9 +604,13 @@ static void construction_builder(object *op, int x, int y)
  * Item remover.
  *
  * Removes first buildable item except floor.
- * @param op Player removing an item.
- * @param x X Where to remove.
- * @param y Y where to remove. */
+ * @param op
+ * Player removing an item.
+ * @param x
+ * X Where to remove.
+ * @param y
+ * Y where to remove.
+ */
 static void construction_destroyer(object *op, int x, int y)
 {
     object *item;
@@ -608,7 +662,9 @@ static void construction_destroyer(object *op, int x, int y)
 /**
  * Main point of construction skill. From here, we decide what to do
  * with skill item we have equipped.
- * @param op Player. */
+ * @param op
+ * Player.
+ */
 void construction_do(object *op, int dir)
 {
     object *skill_item, *floor_ob, *tmp;

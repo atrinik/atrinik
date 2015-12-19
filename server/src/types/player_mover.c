@@ -26,15 +26,19 @@
  * @file
  * Handles code used for @ref PLAYER_MOVER "player movers".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Handle an object triggering a player mover.
- * @param op Player mover.
- * @param victim Victim.
- * @param process If true, this is called as part of periodic processing (from
+ * @param op
+ * Player mover.
+ * @param victim
+ * Victim.
+ * @param process
+ * If true, this is called as part of periodic processing (from
  * process_func()).
  */
 static void player_mover_handle(object *op, object *victim, bool process)
@@ -153,7 +157,8 @@ static int move_on_func(object *op, object *victim, object *originator,
 }
 
 /**
- * Initialize the player mover type object methods. */
+ * Initialize the player mover type object methods.
+ */
 void object_type_init_player_mover(void)
 {
     object_type_methods[PLAYER_MOVER].process_func = process_func;

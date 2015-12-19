@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Player related functions. */
+ * Player related functions.
+ */
 
 #include <global.h>
 #include <loader.h>
@@ -38,11 +39,13 @@ static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
 
 /**
- * Player memory pool. */
+ * Player memory pool.
+ */
 mempool_struct *pool_player;
 
 /**
- * Initialize the player API. */
+ * Initialize the player API.
+ */
 void player_init(void)
 {
     pool_player = mempool_create("players", 25, sizeof(player),
@@ -50,7 +53,8 @@ void player_init(void)
 }
 
 /**
- * Deinitialize the player API. */
+ * Deinitialize the player API.
+ */
 void player_deinit(void)
 {
     while (first_player) {
@@ -59,7 +63,8 @@ void player_deinit(void)
 }
 
 /**
- * Disconnect all currently connected players. */
+ * Disconnect all currently connected players.
+ */
 void player_disconnect_all(void)
 {
     while (first_player) {
@@ -70,8 +75,11 @@ void player_disconnect_all(void)
 
 /**
  * Loop through the player list and find player specified by plname.
- * @param plname The player name to find.
- * @return Player structure if found, NULL otherwise. */
+ * @param plname
+ * The player name to find.
+ * @return
+ * Player structure if found, NULL otherwise.
+ */
 player *find_player(const char *plname)
 {
     player *pl;
@@ -90,7 +98,9 @@ player *find_player(const char *plname)
  *
  * First motd_custom is tried, and if that doesn't exist, motd is used
  * instead.
- * @param op Player object to print the message to. */
+ * @param op
+ * Player object to print the message to.
+ */
 void display_motd(object *op)
 {
     char buf[MAX_BUF];
@@ -129,8 +139,11 @@ void display_motd(object *op)
 /**
  * Returns the player structure. If 'p' is null, we create a new one.
  * Otherwise, we recycle the one that is passed.
- * @param p Player structure to recycle or NULL for new structure.
- * @return The player structure. */
+ * @param p
+ * Player structure to recycle or NULL for new structure.
+ * @return
+ * The player structure.
+ */
 static player *get_player(player *p)
 {
     if (!p) {
@@ -166,7 +179,9 @@ static player *get_player(player *p)
 /**
  * Free a player structure. Takes care of removing this player from the
  * list of players, and frees the socket for this player.
- * @param pl The player structure to free. */
+ * @param pl
+ * The player structure to free.
+ */
 void free_player(player *pl)
 {
     /* If this player is in a party, leave the party */
@@ -226,8 +241,11 @@ void free_player(player *pl)
 /**
  * Give initial items to object pl. This is used when player creates a
  * new character.
- * @param pl The player object.
- * @param items Treasure list of items to give. */
+ * @param pl
+ * The player object.
+ * @param items
+ * Treasure list of items to give.
+ */
 void give_initial_items(object *pl, treasurelist *items)
 {
     object *op, *next = NULL;
@@ -276,10 +294,12 @@ void give_initial_items(object *pl, treasurelist *items)
  *
  * This is sort of special, in that the new client/server actually uses
  * the new speed values for commands.
- * @param pl Player to handle.
+ * @param pl
+ * Player to handle.
  * @retval -1 Player is invalid.
  * @retval 0 No more actions to do.
- * @retval 1 There are more actions we can do. */
+ * @retval 1 There are more actions we can do.
+ */
 int handle_newcs_player(player *pl)
 {
     if (!pl->ob || !OBJECT_ACTIVE(pl->ob)) {
@@ -317,10 +337,12 @@ int handle_newcs_player(player *pl)
 
 /**
  * Can the player be saved by an item?
- * @param op Player to try to save.
+ * @param op
+ * Player to try to save.
  * @retval 1 Player had his life saved by an item, first item saving life
  * is removed.
- * @retval 0 Player had no life-saving item. */
+ * @retval 0 Player had no life-saving item.
+ */
 static int save_life(object *op)
 {
     object *tmp;
@@ -366,8 +388,11 @@ static int save_life(object *op)
  * This goes through the inventory and removes unpaid objects, and puts
  * them back in the map (location and map determined by values of env).
  * This function will descend into containers.
- * @param op Object to start the search from.
- * @param env Map location determined by this object. */
+ * @param op
+ * Object to start the search from.
+ * @param env
+ * Map location determined by this object.
+ */
 static void remove_unpaid_objects(object *op, object *env)
 {
     object *next;
@@ -392,11 +417,15 @@ static void remove_unpaid_objects(object *op, object *env)
 
 /**
  * Figures out how much hp/mana points to regenerate.
- * @param regen Regeneration value used for client (for example,
+ * @param regen
+ * Regeneration value used for client (for example,
  * player::gen_client_hp).
- * @param regen_remainder Pointer to regen remainder (for example,
+ * @param regen_remainder
+ * Pointer to regen remainder (for example,
  * player::gen_hp_remainder).
- * @return How much to regenerate. */
+ * @return
+ * How much to regenerate.
+ */
 static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 {
     int ret = 0;
@@ -430,9 +459,12 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 /**
  * Calculate HP/SP regeneration value.
  *
- * @param speed Regeneration speed.
- * @param rate Regeneration rate.
- * @return Calculated regeneration value.
+ * @param speed
+ * Regeneration speed.
+ * @param rate
+ * Regeneration rate.
+ * @return
+ * Calculated regeneration value.
  */
 static inline uint16_t
 get_regen_value (double speed, double rate)
@@ -449,7 +481,8 @@ get_regen_value (double speed, double rate)
  * We will only regenerate HP and mana if the player has some food in their
  * stomach.
  *
- * @param op Player.
+ * @param op
+ * Player.
  */
 static void
 player_do_some_living (object *op)
@@ -596,7 +629,8 @@ player_do_some_living (object *op)
 /**
  * Deplete player's stats due to dying.
  *
- * @param op Player.
+ * @param op
+ * Player.
  */
 static void
 player_death_deplete_stats (object *op)
@@ -667,7 +701,9 @@ player_death_deplete_stats (object *op)
  * If the player should die (lack of hp, food, etc), we call this.
  *
  * Will remove diseases, apply death penalties, and so on.
- * @param op The player in jeopardy. */
+ * @param op
+ * The player in jeopardy.
+ */
 void kill_player(object *op)
 {
     char buf[HUGE_BUF];
@@ -777,9 +813,13 @@ void kill_player(object *op)
  * Handles object throwing objects of type "DUST".
  * @todo This function needs to be rewritten. Works for area effect
  * spells only now.
- * @param op Object throwing.
- * @param throw_ob What to throw.
- * @param dir Direction to throw into. */
+ * @param op
+ * Object throwing.
+ * @param throw_ob
+ * What to throw.
+ * @param dir
+ * Direction to throw into.
+ */
 void cast_dust(object *op, object *throw_ob, int dir)
 {
     archetype_t *arch = NULL;
@@ -831,9 +871,13 @@ void cast_dust(object *op, object *throw_ob, int dir)
  * objects are given, both objects must be in PVP area.
  *
  * Considers parties.
- * @param attacker First object.
- * @param victim Second object.
- * @return 1 if PVP is possible, 0 otherwise. */
+ * @param attacker
+ * First object.
+ * @param victim
+ * Second object.
+ * @return
+ * 1 if PVP is possible, 0 otherwise.
+ */
 int pvp_area(object *attacker, object *victim)
 {
     /* No attacking of party members. */
@@ -862,9 +906,13 @@ int pvp_area(object *attacker, object *victim)
 
 /**
  * Looks for the skill and returns a pointer to it if found.
- * @param op The object to look for the skill in.
- * @param skillnr Skill ID.
- * @return The skill if found, NULL otherwise. */
+ * @param op
+ * The object to look for the skill in.
+ * @param skillnr
+ * Skill ID.
+ * @return
+ * The skill if found, NULL otherwise.
+ */
 object *find_skill(object *op, int skillnr)
 {
     object *tmp;
@@ -880,9 +928,13 @@ object *find_skill(object *op, int skillnr)
 
 /**
  * Check whether player can carry the specified weight.
- * @param pl Player.
- * @param weight Weight to check.
- * @return 1 if the player can carry that weight, 0 otherwise. */
+ * @param pl
+ * Player.
+ * @param weight
+ * Weight to check.
+ * @return
+ * 1 if the player can carry that weight, 0 otherwise.
+ */
 int player_can_carry(object *pl, uint32_t weight)
 {
     uint32_t effective_weight_limit;
@@ -898,10 +950,15 @@ int player_can_carry(object *pl, uint32_t weight)
 
 /**
  * Add a new path to player's paths queue.
- * @param pl Player to add the path for.
- * @param map Map we want to reach.
- * @param x X we want to reach.
- * @param y Y we want to reach. */
+ * @param pl
+ * Player to add the path for.
+ * @param map
+ * Map we want to reach.
+ * @param x
+ * X we want to reach.
+ * @param y
+ * Y we want to reach.
+ */
 void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y)
 {
     player_path *path = emalloc(sizeof(player_path));
@@ -923,7 +980,9 @@ void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y)
 
 /**
  * Clear all queued paths.
- * @param pl Player to clear paths for. */
+ * @param pl
+ * Player to clear paths for.
+ */
 void player_path_clear(player *pl)
 {
     player_path *path, *next;
@@ -943,7 +1002,9 @@ void player_path_clear(player *pl)
 
 /**
  * Handle player moving along pre-calculated path.
- * @param pl Player. */
+ * @param pl
+ * Player.
+ */
 void player_path_handle(player *pl)
 {
     while (pl->ob->speed_left >= 0.0f && pl->move_path) {
@@ -1029,9 +1090,12 @@ void player_path_handle(player *pl)
 /**
  * Creates a new ::player_faction_t structure and adds it to the specified
  * player.
- * @param pl Player.
- * @param name Name of the faction to create a structure for.
- * @return New ::player_faction_t structure.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction to create a structure for.
+ * @return
+ * New ::player_faction_t structure.
  */
 player_faction_t *player_faction_create(player *pl, shstr *name)
 {
@@ -1048,8 +1112,10 @@ player_faction_t *player_faction_create(player *pl, shstr *name)
 /**
  * Frees the specified ::player_faction_t structure, removing it from the
  * player's hash table of factions.
- * @param pl Player.
- * @param faction ::player_faction_t to free.
+ * @param pl
+ * Player.
+ * @param faction
+ * ::player_faction_t to free.
  */
 void player_faction_free(player *pl, player_faction_t *faction)
 {
@@ -1063,9 +1129,12 @@ void player_faction_free(player *pl, player_faction_t *faction)
 
 /**
  * Find the specified faction name in the player's factions hash table.
- * @param pl Player.
- * @param name Name of the faction to find.
- * @return ::player_faction_t if found, NULL otherwise.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction to find.
+ * @return
+ * ::player_faction_t if found, NULL otherwise.
  */
 player_faction_t *player_faction_find(player *pl, shstr *name)
 {
@@ -1079,9 +1148,12 @@ player_faction_t *player_faction_find(player *pl, shstr *name)
 
 /**
  * Update the player's reputation with a particular faction.
- * @param pl Player.
- * @param name Name of the faction to update.
- * @param reputation Reputation to add/subtract.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction to update.
+ * @param reputation
+ * Reputation to add/subtract.
  */
 void player_faction_update(player *pl, shstr *name, double reputation)
 {
@@ -1099,9 +1171,12 @@ void player_faction_update(player *pl, shstr *name, double reputation)
 
 /**
  * Get player's reputation with a particular faction.
- * @param pl Player.
- * @param name Name of the faction.
- * @return Player's reputation with the specified faction.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction.
+ * @return
+ * Player's reputation with the specified faction.
  */
 double player_faction_reputation(player *pl, shstr *name)
 {
@@ -1120,9 +1195,12 @@ double player_faction_reputation(player *pl, shstr *name)
 /**
  * Sanitize player's text input, removing extraneous whitespace,
  * unprintable characters, etc.
- * @param str Input to sanitize.
- * @return Sanitized input; can be NULL if there's nothing in the string
- * left. */
+ * @param str
+ * Input to sanitize.
+ * @return
+ * Sanitized input; can be NULL if there's nothing in the string
+ * left.
+ */
 char *player_sanitize_input(char *str)
 {
     if (!str) {
@@ -1138,7 +1216,9 @@ char *player_sanitize_input(char *str)
 
 /**
  * Cleans up a string that is, presumably, a player name.
- * @param str The player name to clean up. */
+ * @param str
+ * The player name to clean up.
+ */
 void player_cleanup_name(char *str)
 {
     string_whitespace_trim(str);
@@ -1148,10 +1228,15 @@ void player_cleanup_name(char *str)
 /**
  * Recursive helper function for find_marked_object() to search for
  * marked object in containers.
- * @param op Object. Should be a player.
- * @param marked Marked object.
- * @param marked_count Marked count.
- * @return The object if found, NULL otherwise. */
+ * @param op
+ * Object. Should be a player.
+ * @param marked
+ * Marked object.
+ * @param marked_count
+ * Marked count.
+ * @return
+ * The object if found, NULL otherwise.
+ */
 static object *find_marked_object_rec(object *op, object **marked, uint32_t *marked_count)
 {
     object *tmp, *tmp2;
@@ -1190,8 +1275,11 @@ static object *find_marked_object_rec(object *op, object **marked, uint32_t *mar
 
 /**
  * Return the object the player has marked.
- * @param op Object. Should be a player.
- * @return Marked object if still valid, NULL otherwise. */
+ * @param op
+ * Object. Should be a player.
+ * @return
+ * Marked object if still valid, NULL otherwise.
+ */
 object *find_marked_object(object *op)
 {
     if (op->type != PLAYER || !op || !CONTR(op) || !CONTR(op)->mark) {
@@ -1203,8 +1291,11 @@ object *find_marked_object(object *op)
 
 /**
  * Player examines a living object.
- * @param op Player.
- * @param tmp Object being examined. */
+ * @param op
+ * Player.
+ * @param tmp
+ * Object being examined.
+ */
 static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 {
     tmp = HEAD(tmp);
@@ -1310,8 +1401,11 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 
 /**
  * Player examines some object.
- * @param op Player.
- * @param tmp Object to examine. */
+ * @param op
+ * Player.
+ * @param tmp
+ * Object to examine.
+ */
 void examine(object *op, object *tmp, StringBuffer *sb_capture)
 {
     int i;
@@ -1625,11 +1719,17 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 /**
  * Check if an item op can be put into a sack. If pl exists then tell
  * a player the reason of failure.
- * @param pl Player object.
- * @param sack The sack.
- * @param op The object to check.
- * @param nrof Number of objects we want to put in.
- * @return 1 if the object will fit, 0 if it will not. */
+ * @param pl
+ * Player object.
+ * @param sack
+ * The sack.
+ * @param op
+ * The object to check.
+ * @param nrof
+ * Number of objects we want to put in.
+ * @return
+ * 1 if the object will fit, 0 if it will not.
+ */
 int sack_can_hold(object *pl, object *sack, object *op, int nrof)
 {
     if (!QUERY_FLAG(sack, FLAG_APPLIED)) {
@@ -1713,11 +1813,17 @@ static object *get_pickup_object(object *pl, object *op, int nrof)
 
 /**
  * Pick up object.
- * @param pl Object that is picking up the object.
- * @param op Object to put tmp into.
- * @param tmp Object to pick up.
- * @param nrof Number to pick up (0 means all of them).
- * @param no_mevent If 1, no map-wide pickup event will be triggered. */
+ * @param pl
+ * Object that is picking up the object.
+ * @param op
+ * Object to put tmp into.
+ * @param tmp
+ * Object to pick up.
+ * @param nrof
+ * Number to pick up (0 means all of them).
+ * @param no_mevent
+ * If 1, no map-wide pickup event will be triggered.
+ */
 static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no_mevent)
 {
     int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
@@ -1764,10 +1870,14 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
 /**
  * Try to pick up an item.
- * @param op Object trying to pick up.
- * @param alt Optional object op is trying to pick. If NULL, try to pick
+ * @param op
+ * Object trying to pick up.
+ * @param alt
+ * Optional object op is trying to pick. If NULL, try to pick
  * first item under op.
- * @param no_mevent If 1, no map-wide pickup event will be triggered. */
+ * @param no_mevent
+ * If 1, no map-wide pickup event will be triggered.
+ */
 void pick_up(object *op, object *alt, int no_mevent)
 {
     int count;
@@ -1861,10 +1971,15 @@ void pick_up(object *op, object *alt, int no_mevent)
 /**
  * Player tries to put object into sack, if nrof is non zero, then
  * nrof objects is tried to put into sack.
- * @param op Player object.
- * @param sack The sack.
- * @param tmp The object to put into sack.
- * @param nrof Number of items to put into sack (0 for all). */
+ * @param op
+ * Player object.
+ * @param sack
+ * The sack.
+ * @param tmp
+ * The object to put into sack.
+ * @param nrof
+ * Number of items to put into sack (0 for all).
+ */
 void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 {
     int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
@@ -1928,10 +2043,15 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
 
 /**
  * Drop an object onto the floor.
- * @param op Player object.
- * @param tmp The object to drop.
- * @param nrof Number of items to drop (0 for all).
- * @param no_mevent If 1, no map-wide event will be triggered. */
+ * @param op
+ * Player object.
+ * @param tmp
+ * The object to drop.
+ * @param nrof
+ * Number of items to drop (0 for all).
+ * @param no_mevent
+ * If 1, no map-wide event will be triggered.
+ */
 void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 {
     object *floor_ob;
@@ -2033,9 +2153,13 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
 /**
  * Drop an item, either on the floor or in a container.
- * @param op Who is dropping an item.
- * @param tmp What object to drop.
- * @param no_mevent If 1, no drop map-wide event will be triggered. */
+ * @param op
+ * Who is dropping an item.
+ * @param tmp
+ * What object to drop.
+ * @param no_mevent
+ * If 1, no drop map-wide event will be triggered.
+ */
 void drop(object *op, object *tmp, int no_mevent)
 {
     if (tmp == NULL) {
@@ -2105,7 +2229,8 @@ int player_exists(const char *name)
 /**
  * Saves the specified player.
  *
- * @param op Player object to save.
+ * @param op
+ * Player object to save.
  */
 void
 player_save (object *op)
@@ -2201,8 +2326,10 @@ out:
 /**
  * Loads player data from the specified file into the player.
  *
- * @param pl Player.
- * @param path Path to load the data from.
+ * @param pl
+ * Player.
+ * @param path
+ * Path to load the data from.
  */
 static void
 player_load (player *pl, FILE *fp)
@@ -2270,9 +2397,12 @@ player_load (player *pl, FILE *fp)
 /**
  * Create a new player character.
  *
- * @param pl Player.
- * @param at Character's archetype.
- * @param name Name of the player character.
+ * @param pl
+ * Player.
+ * @param at
+ * Character's archetype.
+ * @param name
+ * Name of the player character.
  */
 static void
 player_create (player *pl, archetype_t *at, const char *name)
@@ -2298,9 +2428,12 @@ player_create (player *pl, archetype_t *at, const char *name)
 /**
  * Creates a dummy player structure and returns a pointer to the player's
  * object.
- * @param name Name of the player to create.
- * @param host IP address of the player.
- * @return Created player object, never NULL. Will abort() in case of failure.
+ * @param name
+ * Name of the player to create.
+ * @param host
+ * IP address of the player.
+ * @return
+ * Created player object, never NULL. Will abort() in case of failure.
  */
 object *player_get_dummy(const char *name, const char *host)
 {
@@ -2354,8 +2487,10 @@ object *player_find_spell(object *op, spell_struct *spell)
 
 /**
  * Updates who the player is talking to.
- * @param pl Player.
- * @param npc NPC the player is now talking to.
+ * @param pl
+ * Player.
+ * @param npc
+ * NPC the player is now talking to.
  */
 void player_set_talking_to(player *pl, object *npc)
 {
@@ -2380,9 +2515,12 @@ void player_set_talking_to(player *pl, object *npc)
 /**
  * Perform player login.
  *
- * @param ns Client that wants to log in.
- * @param name Character name to log in to.
- * @param at Character archetype. Will be used to perform new character
+ * @param ns
+ * Client that wants to log in.
+ * @param name
+ * Character name to log in to.
+ * @param at
+ * Character archetype. Will be used to perform new character
  * creation if this is the first time the player is logging in to this
  * character.
  */
@@ -2531,7 +2669,8 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
  * Handle negative effects caused by equipping items with an item power sum
  * higher than player's maximum item power.
  *
- * @param op Player.
+ * @param op
+ * Player.
  */
 static void
 player_item_power_effects (object *op)
@@ -2796,7 +2935,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the player type object methods. */
+ * Initialize the player type object methods.
+ */
 void object_type_init_player(void)
 {
     object_type_methods[PLAYER].remove_map_func = remove_map_func;

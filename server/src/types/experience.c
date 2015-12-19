@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref EXPERIENCE "experience".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the experience type object methods. */
+ * Initialize the experience type object methods.
+ */
 void object_type_init_experience(void)
 {
 }

@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref JEWEL "jewels".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the jewel type object methods. */
+ * Initialize the jewel type object methods.
+ */
 void object_type_init_jewel(void)
 {
 }

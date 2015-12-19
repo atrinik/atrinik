@@ -26,7 +26,8 @@
  * @file
  * Implements the /take command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <plugin.h>

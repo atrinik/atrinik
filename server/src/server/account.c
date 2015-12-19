@@ -26,7 +26,8 @@
  * @file
  * Account system.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>

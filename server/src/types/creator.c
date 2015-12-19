@@ -26,16 +26,21 @@
  * @file
  * Handles code used for @ref CREATOR "creators".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Check whether creator has already created the specified object on its
  * square.
- * @param op The creator.
- * @param check The object to check for.
- * @return 1 if such object already exists, 0 otherwise. */
+ * @param op
+ * The creator.
+ * @param check
+ * The object to check for.
+ * @return
+ * 1 if such object already exists, 0 otherwise.
+ */
 static int creator_obj_exists(object *op, object *check)
 {
     object *tmp;
@@ -115,7 +120,8 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the creator type object methods. */
+ * Initialize the creator type object methods.
+ */
 void object_type_init_creator(void)
 {
     object_type_methods[CREATOR].trigger_func = trigger_func;

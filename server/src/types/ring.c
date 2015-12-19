@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref RING "rings".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the ring type object methods. */
+ * Initialize the ring type object methods.
+ */
 void object_type_init_ring(void)
 {
     object_type_methods[RING].apply_func = object_apply_item;

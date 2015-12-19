@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref SYMPTOM "symptom".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the symptom type object methods. */
+ * Initialize the symptom type object methods.
+ */
 void object_type_init_symptom(void)
 {
 }

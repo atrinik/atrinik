@@ -864,9 +864,12 @@ static PyMethodDef MapMethods[] = {
 
 /**
  * Get map's attribute.
- * @param map Python map wrapper.
- * @param context Void pointer to the field.
- * @return Python object with the attribute value, NULL on failure.
+ * @param map
+ * Python map wrapper.
+ * @param context
+ * Void pointer to the field.
+ * @return
+ * Python object with the attribute value, NULL on failure.
  */
 static PyObject *get_attribute(Atrinik_Map *map, void *context)
 {
@@ -875,10 +878,14 @@ static PyObject *get_attribute(Atrinik_Map *map, void *context)
 
 /**
  * Set attribute of a map.
- * @param map Python map wrapper.
- * @param value Value to set.
- * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure.
+ * @param map
+ * Python map wrapper.
+ * @param value
+ * Value to set.
+ * @param context
+ * Void pointer to the field.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
 {
@@ -895,8 +902,10 @@ static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
 
 /**
  * Get map's flag.
- * @param map Python map wrapper.
- * @param context Void pointer to the flag ID.
+ * @param map
+ * Python map wrapper.
+ * @param context
+ * Void pointer to the flag ID.
  * @retval Py_True The map has the flag set.
  * @retval Py_False The map doesn't have the flag set.
  * @retval NULL An error occurred.
@@ -916,10 +925,14 @@ static PyObject *Map_GetFlag(Atrinik_Map *map, void *context)
 
 /**
  * Set map's flag.
- * @param map Python map wrapper.
- * @param val Value to set. Should be either Py_True or Py_False.
- * @param context Void pointer to the flag ID.
- * @return 0 on success, -1 on failure.
+ * @param map
+ * Python map wrapper.
+ * @param val
+ * Value to set. Should be either Py_True or Py_False.
+ * @param context
+ * Void pointer to the flag ID.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int Map_SetFlag(Atrinik_Map *map, PyObject *val, void *context)
 {
@@ -946,10 +959,14 @@ static int Map_SetFlag(Atrinik_Map *map, PyObject *val, void *context)
 
 /**
  * Create a new map wrapper.
- * @param type Type object.
- * @param args Unused.
- * @param kwds Unused.
- * @return The new wrapper.
+ * @param type
+ * Type object.
+ * @param args
+ * Unused.
+ * @param kwds
+ * Unused.
+ * @return
+ * The new wrapper.
  */
 static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args,
         PyObject *kwds)
@@ -964,7 +981,8 @@ static PyObject *Atrinik_Map_new(PyTypeObject *type, PyObject *args,
 
 /**
  * Free a map wrapper.
- * @param self The wrapper to free.
+ * @param self
+ * The wrapper to free.
  */
 static void Atrinik_Map_dealloc(Atrinik_Map *self)
 {
@@ -978,8 +996,10 @@ static void Atrinik_Map_dealloc(Atrinik_Map *self)
 
 /**
  * Return a string representation of a map.
- * @param self The map object.
- * @return Python object containing the map path and name of the map.
+ * @param self
+ * The map object.
+ * @return
+ * Python object containing the map path and name of the map.
  */
 static PyObject *Atrinik_Map_str(Atrinik_Map *self)
 {
@@ -1051,8 +1071,10 @@ PyTypeObject Atrinik_MapType = {
 
 /**
  * Initialize the map wrapper.
- * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure.
+ * @param module
+ * The Atrinik Python module.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int Atrinik_Map_init(PyObject *module)
 {
@@ -1102,8 +1124,10 @@ int Atrinik_Map_init(PyObject *module)
 
 /**
  * Utility method to wrap a map.
- * @param what Map to wrap.
- * @return Python object wrapping the real map.
+ * @param what
+ * Map to wrap.
+ * @return
+ * Python object wrapping the real map.
  */
 PyObject *wrap_map(mapstruct *what)
 {

@@ -25,7 +25,8 @@
 /**
  * @file
  * This file controls weather functions, like ticking the clock
- * and initializing the world darkness. */
+ * and initializing the world darkness.
+ */
 
 #include <global.h>
 
@@ -37,7 +38,8 @@ const int season_timechange[SEASONS_PER_YEAR][HOURS_PER_DAY] = {
 };
 
 /**
- * Initializes the world darkness value. */
+ * Initializes the world darkness value.
+ */
 void init_world_darkness(void)
 {
     int i;
@@ -60,7 +62,8 @@ void init_world_darkness(void)
  * forward. Every 20 ticks, the clock is saved to disk. It is also
  * saved on shutdown. Any time dependant functions should be called
  * from this function, and probably be passed tod as an argument.
- * Please don't modify tod in the dependant function. */
+ * Please don't modify tod in the dependant function.
+ */
 void tick_the_clock(void)
 {
     timeofday_t tod;

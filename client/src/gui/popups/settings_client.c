@@ -26,50 +26,64 @@
  * @file
  * Client settings GUI.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 typedef union list_settings_graphic_union {
     /**
-     * Button buffer. */
+     * Button buffer.
+ */
     button_struct button[2];
 
     /**
-     * Text-related buffers. */
+     * Text-related buffers.
+ */
     struct {
         /**
-         * Text input buffer. */
+         * Text input buffer.
+ */
         text_input_struct text_input;
 
         /**
-         * Button buffer. */
+         * Button buffer.
+ */
         button_struct button;
     } text;
 } list_settings_graphic_union;
 
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct button_category_left, button_category_right, button_apply, button_done;
 /**
- * Selected setting category. */
+ * Selected setting category.
+ */
 static size_t setting_category_selected;
 /**
- * The settings list. */
+ * The settings list.
+ */
 static list_struct *list_settings;
 /**
- * Currently focused text input. */
+ * Currently focused text input.
+ */
 static text_input_struct *text_input_focused;
 /**
- * Currently selected text input for color picker. */
+ * Currently selected text input for color picker.
+ */
 static text_input_struct *text_input_selected;
 
 /**
  * Change setting value.
- * @param cat Category.
- * @param set Setting.
- * @param val Modifier. */
+ * @param cat
+ * Category.
+ * @param set
+ * Setting.
+ * @param val
+ * Modifier.
+ */
 static void setting_change_value(int cat, int set, int64_t val)
 {
     setting_struct *setting = setting_categories[cat]->settings[set];
@@ -112,8 +126,11 @@ static void setting_change_value(int cat, int set, int64_t val)
 
 /**
  * Figure out setting ID by text input structure pointer.
- * @param text_input Text input to find.
- * @return The setting ID if found, -1 otherwise. */
+ * @param text_input
+ * Text input to find.
+ * @return
+ * The setting ID if found, -1 otherwise.
+ */
 static int setting_find_by_text_input(text_input_struct *text_input)
 {
     uint32_t row;
@@ -205,7 +222,8 @@ static void settings_list_clear(void)
 }
 
 /**
- * Reload the client settings list. */
+ * Reload the client settings list.
+ */
 static void settings_list_reload(void)
 {
     size_t i;

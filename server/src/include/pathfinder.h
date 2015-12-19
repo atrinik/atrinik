@@ -33,7 +33,8 @@
 /**
  * @defgroup PATH_NODE_xxx Path node flags
  * Flags for individual tiles in the path.
- *@{*/
+ *@{
+ */
 /**
  * The path node has an exit.
  */

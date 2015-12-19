@@ -26,52 +26,65 @@
  * @file
  * Sound related functions.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
 
 /**
- * Path to the background music file being played. */
+ * Path to the background music file being played.
+ */
 static char *sound_background;
 /**
- * If 1, will not allow music change based on map. */
+ * If 1, will not allow music change based on map.
+ */
 static uint8_t sound_map_background_disabled = 0;
 /**
- * Whether the sound system is active. */
+ * Whether the sound system is active.
+ */
 static uint8_t enabled = 0;
 /**
- * Doubly-linked list of all playing ambient sound effects. */
+ * Doubly-linked list of all playing ambient sound effects.
+ */
 static sound_ambient_struct *sound_ambient_head = NULL;
 
 #ifdef HAVE_SDL_MIXER
 
 /**
- * When the background music started playing. */
+ * When the background music started playing.
+ */
 static uint32_t sound_background_started;
 /**
- * Duration of this background music. */
+ * Duration of this background music.
+ */
 static uint32_t sound_background_duration;
 /**
- * Whether to try to update the background music's duration in database. */
+ * Whether to try to update the background music's duration in database.
+ */
 static uint8_t sound_background_update_duration;
 /**
  * How many times to loop the currently playing background music, -1
- * to loopy infinitely. */
+ * to loopy infinitely.
+ */
 static int sound_background_loop;
 /**
- * Volume the background music was started at. */
+ * Volume the background music was started at.
+ */
 static int sound_background_volume;
 /**
- * Loaded sounds. */
+ * Loaded sounds.
+ */
 static sound_data_struct *sound_data;
 /**
- * Hook function calle whenever ::sound_background changes its value. */
+ * Hook function calle whenever ::sound_background changes its value.
+ */
 static void (*sound_background_hook)(void) ;
 
 /**
- * Execute the ::sound_background_hook callback. */
+ * Execute the ::sound_background_hook callback.
+ */
 static void sound_background_hook_execute(void)
 {
     if (sound_background_hook) {
@@ -81,10 +94,15 @@ static void sound_background_hook_execute(void)
 
 /**
  * Add a sound entry to the ::sound_data array.
- * @param type Type of the sound, one of @ref SOUND_TYPE_xxx.
- * @param filename Sound's file name.
- * @param data Loaded sound data to store.
- * @return Pointer to the entry in ::sound_data. */
+ * @param type
+ * Type of the sound, one of @ref SOUND_TYPE_xxx.
+ * @param filename
+ * Sound's file name.
+ * @param data
+ * Loaded sound data to store.
+ * @return
+ * Pointer to the entry in ::sound_data.
+ */
 static sound_data_struct *sound_new(int type, const char *filename, void *data)
 {
     sound_data_struct *tmp;
@@ -100,7 +118,9 @@ static sound_data_struct *sound_new(int type, const char *filename, void *data)
 
 /**
  * Free one sound data entry.
- * @param tmp What to free. */
+ * @param tmp
+ * What to free.
+ */
 static void sound_free(sound_data_struct *tmp)
 {
     switch (tmp->type) {
@@ -123,8 +143,11 @@ static void sound_free(sound_data_struct *tmp)
 
 /**
  * Get duration of a music file.
- * @param filename The music file.
- * @return The duration. */
+ * @param filename
+ * The music file.
+ * @return
+ * The duration.
+ */
 static uint32_t sound_music_file_get_duration(const char *filename)
 {
     char path[HUGE_BUF], *contents, *cp;
@@ -147,8 +170,11 @@ static uint32_t sound_music_file_get_duration(const char *filename)
 
 /**
  * Update duration of a music file.
- * @param filename The music file.
- * @param duration Duration to set. */
+ * @param filename
+ * The music file.
+ * @param duration
+ * Duration to set.
+ */
 static void sound_music_file_set_duration(const char *filename, uint32_t duration)
 {
     char path[HUGE_BUF];
@@ -167,7 +193,8 @@ static void sound_music_file_set_duration(const char *filename, uint32_t duratio
 }
 
 /**
- * Hook called when music has finished playing. */
+ * Hook called when music has finished playing.
+ */
 static void sound_music_finished(void)
 {
     uint32_t duration;
@@ -204,7 +231,9 @@ static void sound_music_finished(void)
 
 /**
  * Register a new ::sound_background_hook callback.
- * @param ptr New callback to register. */
+ * @param ptr
+ * New callback to register.
+ */
 void sound_background_hook_register(void *ptr)
 {
 #ifdef HAVE_SDL_MIXER
@@ -213,7 +242,8 @@ void sound_background_hook_register(void *ptr)
 }
 
 /**
- * Initialize the sound system. */
+ * Initialize the sound system.
+ */
 void sound_init(void)
 {
     sound_background = NULL;
@@ -235,7 +265,8 @@ void sound_init(void)
 }
 
 /**
- * Free the sound cache. */
+ * Free the sound cache.
+ */
 static void sound_cache_free(void)
 {
 #ifdef HAVE_SDL_MIXER
@@ -250,7 +281,8 @@ static void sound_cache_free(void)
 }
 
 /**
- * Deinitialize the sound system. */
+ * Deinitialize the sound system.
+ */
 void sound_deinit(void)
 {
     sound_cache_free();
@@ -267,7 +299,8 @@ void sound_deinit(void)
 }
 
 /**
- * Hook for clearing the sound API cache. */
+ * Hook for clearing the sound API cache.
+ */
 void sound_clear_cache(void)
 {
     sound_cache_free();
@@ -275,10 +308,15 @@ void sound_clear_cache(void)
 
 /**
  * Add sound effect to the playing queue.
- * @param filename Sound file name to play. Will be loaded as needed.
- * @param volume Volume to play at.
- * @param loop How many times to loop, -1 for infinite number.
- * @return Channel the sound effect is being played on, -1 on failure. */
+ * @param filename
+ * Sound file name to play. Will be loaded as needed.
+ * @param volume
+ * Volume to play at.
+ * @param loop
+ * How many times to loop, -1 for infinite number.
+ * @return
+ * Channel the sound effect is being played on, -1 on failure.
+ */
 static int sound_add_effect(const char *filename, int volume, int loop)
 {
 #ifdef HAVE_SDL_MIXER
@@ -320,8 +358,11 @@ static int sound_add_effect(const char *filename, int volume, int loop)
 
 /**
  * Play a sound effect.
- * @param filename Sound file name to play.
- * @param volume Volume to play at. */
+ * @param filename
+ * Sound file name to play.
+ * @param volume
+ * Volume to play at.
+ */
 void sound_play_effect(const char *filename, int volume)
 {
     char path[HUGE_BUF], *cp;
@@ -335,11 +376,16 @@ void sound_play_effect(const char *filename, int volume)
 /**
  * Same as sound_play_effect(), but allows specifying how many times to
  * loop the sound effect.
- * @param filename Sound file name to play.
- * @param volume Volume to play at.
- * @param loop How many times to loop the sound effect, -1 to loop it
+ * @param filename
+ * Sound file name to play.
+ * @param volume
+ * Volume to play at.
+ * @param loop
+ * How many times to loop the sound effect, -1 to loop it
  * infinitely.
- * @return Channel the sound effect will be playing on, -1 on failure. */
+ * @return
+ * Channel the sound effect will be playing on, -1 on failure.
+ */
 int sound_play_effect_loop(const char *filename, int volume, int loop)
 {
     char path[HUGE_BUF], *cp;
@@ -355,9 +401,13 @@ int sound_play_effect_loop(const char *filename, int volume, int loop)
 
 /**
  * Start background music.
- * @param filename Filename of the music to start.
- * @param volume Volume to use.
- * @param loop How many times to loop, -1 for infinite number. */
+ * @param filename
+ * Filename of the music to start.
+ * @param volume
+ * Volume to use.
+ * @param loop
+ * How many times to loop, -1 for infinite number.
+ */
 void sound_start_bg_music(const char *filename, int volume, int loop)
 {
 #ifdef HAVE_SDL_MIXER
@@ -425,7 +475,8 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 }
 
 /**
- * Stop the background music, if there is any. */
+ * Stop the background music, if there is any.
+ */
 void sound_stop_bg_music(void)
 {
     if (!enabled) {
@@ -443,7 +494,8 @@ void sound_stop_bg_music(void)
 }
 
 /**
- * Pause playing background music. */
+ * Pause playing background music.
+ */
 void sound_pause_music(void)
 {
 #ifdef HAVE_SDL_MIXER
@@ -453,7 +505,8 @@ void sound_pause_music(void)
 }
 
 /**
- * Resume playing background music. */
+ * Resume playing background music.
+ */
 void sound_resume_music(void)
 {
 #ifdef HAVE_SDL_MIXER
@@ -463,7 +516,9 @@ void sound_resume_music(void)
 
 /**
  * Update map's background music.
- * @param bg_music New background music. */
+ * @param bg_music
+ * New background music.
+ */
 void update_map_bg_music(const char *bg_music)
 {
     if (sound_map_background_disabled) {
@@ -486,7 +541,8 @@ void update_map_bg_music(const char *bg_music)
 }
 
 /**
- * Update volume of the background sound being played. */
+ * Update volume of the background sound being played.
+ */
 void sound_update_volume(void)
 {
     if (!enabled) {
@@ -514,7 +570,9 @@ void sound_update_volume(void)
 
 /**
  * Get the currently playing background music, if any.
- * @return Background music file name, NULL if no music is playing. */
+ * @return
+ * Background music file name, NULL if no music is playing.
+ */
 const char *sound_get_bg_music(void)
 {
     return sound_background;
@@ -522,7 +580,9 @@ const char *sound_get_bg_music(void)
 
 /**
  * Get the background music base file name.
- * @return The background music base file name, if any. NULL otherwise. */
+ * @return
+ * The background music base file name, if any. NULL otherwise.
+ */
 const char *sound_get_bg_music_basename(void)
 {
     const char *bg_music = sound_background;
@@ -537,10 +597,13 @@ const char *sound_get_bg_music_basename(void)
 
 /**
  * Get or set ::sound_map_background_disabled.
- * @param val If -1, will return the current value of
+ * @param val
+ * If -1, will return the current value of
  * ::sound_map_background_disabled;
  * any other value will set ::sound_map_background_disabled to that value.
- * @return Value of ::sound_map_background_disabled. */
+ * @return
+ * Value of ::sound_map_background_disabled.
+ */
 uint8_t sound_map_background(int val)
 {
     if (val == -1) {
@@ -553,7 +616,9 @@ uint8_t sound_map_background(int val)
 
 /**
  * Get the offset of the background music that is being played.
- * @return The offset. */
+ * @return
+ * The offset.
+ */
 uint32_t sound_music_get_offset(void)
 {
     if (!sound_background) {
@@ -570,7 +635,9 @@ uint32_t sound_music_get_offset(void)
 /**
  * Check whether the currently playing music can seek to a different
  * position.
- * @return 1 if the music can have playing position changed, 0 otherwise. */
+ * @return
+ * 1 if the music can have playing position changed, 0 otherwise.
+ */
 int sound_music_can_seek(void)
 {
     if (!sound_background) {
@@ -595,7 +662,9 @@ int sound_music_can_seek(void)
 /**
  * Seek the currently playing background music to the specified offset
  * (in seconds).
- * @param offset Offset to seek to. */
+ * @param offset
+ * Offset to seek to.
+ */
 void sound_music_seek(uint32_t offset)
 {
     if (!sound_music_can_seek()) {
@@ -615,7 +684,9 @@ void sound_music_seek(uint32_t offset)
 
 /**
  * Get duration of the currently playing background music.
- * @return The duration. */
+ * @return
+ * The duration.
+ */
 uint32_t sound_music_get_duration()
 {
 #ifdef HAVE_SDL_MIXER
@@ -677,7 +748,9 @@ void socket_command_sound(uint8_t *data, size_t len, size_t pos)
  * Free an ambient sound effect.
  *
  * The sound effect
- * @param tmp Sound effect to free. */
+ * @param tmp
+ * Sound effect to free.
+ */
 static void sound_ambient_free(sound_ambient_struct *tmp)
 {
     DL_DELETE(sound_ambient_head, tmp);
@@ -689,7 +762,9 @@ static void sound_ambient_free(sound_ambient_struct *tmp)
 
 /**
  * Set distance and angle of an ambient sound effect.
- * @param tmp Sound effect. */
+ * @param tmp
+ * Sound effect.
+ */
 static void sound_ambient_set_position(sound_ambient_struct *tmp)
 {
 #ifdef HAVE_SDL_MIXER
@@ -725,8 +800,11 @@ static void sound_ambient_set_position(sound_ambient_struct *tmp)
  * the sound effect is now off-screen and if so, remove it. We also need
  * to adjust the angle and distance effects of the channel the sound
  * effect is playing on.
- * @param xoff X offset.
- * @param yoff Y offset. */
+ * @param xoff
+ * X offset.
+ * @param yoff
+ * Y offset.
+ */
 void sound_ambient_mapcroll(int xoff, int yoff)
 {
     sound_ambient_struct *sound_ambient, *tmp;
@@ -749,7 +827,8 @@ void sound_ambient_mapcroll(int xoff, int yoff)
 }
 
 /**
- * Stop all ambient sound effects. */
+ * Stop all ambient sound effects.
+ */
 void sound_ambient_clear(void)
 {
     sound_ambient_struct *sound_ambient, *tmp;
@@ -817,7 +896,9 @@ void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos)
 
 /**
  * Check whether background music is being played.
- * @return 1 if background music is being played, 0 otherwise. */
+ * @return
+ * 1 if background music is being played, 0 otherwise.
+ */
 int sound_playing_music(void)
 {
 #ifdef HAVE_SDL_MIXER

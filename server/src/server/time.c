@@ -24,7 +24,8 @@
 
 /**
  * @file
- * In-game time functions. */
+ * In-game time functions.
+ */
 
 #include <global.h>
 
@@ -98,7 +99,8 @@ const char *periodsofday[PERIODS_PER_DAY] = {
 };
 
 /**
- * Period of the day at each hour in the day. */
+ * Period of the day at each hour in the day.
+ */
 const int periodsofday_hours[HOURS_PER_DAY] = {
     /* 24: Midnight */
     0,
@@ -123,7 +125,8 @@ const int periodsofday_hours[HOURS_PER_DAY] = {
 };
 
 /**
- * Initialize all variables used in the timing routines. */
+ * Initialize all variables used in the timing routines.
+ */
 void reset_sleep(void)
 {
     int i;
@@ -142,7 +145,8 @@ void reset_sleep(void)
 }
 
 /**
- * Adds time to our history list. */
+ * Adds time to our history list.
+ */
 static void log_time(long process_utime)
 {
     if (++psaveind >= PBUFLEN) {
@@ -165,7 +169,8 @@ static void log_time(long process_utime)
 /**
  * Checks how much time has elapsed since last tick.
  * If it is less than max_time, the remaining time is slept with
- * select(). */
+ * select().
+ */
 void sleep_delta(void)
 {
     static struct timeval new_time;
@@ -228,7 +233,9 @@ void sleep_delta(void)
 /**
  * Sets the max speed. Can be called by a DM through the /speed
  * command.
- * @param t New speed. */
+ * @param t
+ * New speed.
+ */
 void set_max_time(long t)
 {
     max_time = t;
@@ -236,7 +243,8 @@ void set_max_time(long t)
 
 /**
  * Sets the max speed multiplier.
- * @param t New speed multiplier.
+ * @param t
+ * New speed multiplier.
  */
 void set_max_time_multiplier(long t)
 {
@@ -245,7 +253,9 @@ void set_max_time_multiplier(long t)
 
 /**
  * Computes the in-game time of the day.
- * @param tod Where to store information. Must not be NULL. */
+ * @param tod
+ * Where to store information. Must not be NULL.
+ */
 void get_tod(timeofday_t *tod)
 {
     tod->year = todtick / HOURS_PER_YEAR;
@@ -265,7 +275,9 @@ void get_tod(timeofday_t *tod)
 
 /**
  * Prints the time.
- * @param op Player who requested time. */
+ * @param op
+ * Player who requested time.
+ */
 void print_tod(object *op)
 {
     timeofday_t tod;
@@ -290,7 +302,9 @@ void print_tod(object *op)
 
 /**
  * Players wants to know the time. Called through the /time command.
- * @param op Player who requested time. */
+ * @param op
+ * Player who requested time.
+ */
 void time_info(object *op)
 {
     print_tod(op);
@@ -298,7 +312,9 @@ void time_info(object *op)
 
 /**
  * Gets the seconds.
- * @return Seconds. */
+ * @return
+ * Seconds.
+ */
 long seconds(void)
 {
     struct timeval now;

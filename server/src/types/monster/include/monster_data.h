@@ -64,7 +64,8 @@ typedef struct monster_data_dialog {
 
     /**
      * When the dialog expires and is considered stale (in ticks).
-     */
+
+ */
     long expire;
 } monster_data_dialog_t;
 
@@ -74,7 +75,8 @@ typedef struct monster_data_dialog {
 typedef struct monster_data {
     /**
      * Last coordinates the monster's enemy was spotted at.
-     */
+
+ */
     struct {
         uint16_t x; ///< X.
         uint16_t y; ///< Y.
@@ -83,12 +85,14 @@ typedef struct monster_data {
 
     /**
      * All the conversations the NPC is having.
-     */
+
+ */
     monster_data_dialog_t *dialogs;
 
     /**
      * Last time a cleanup was performed.
-     */
+
+ */
     long last_cleanup;
 } monster_data_t;
 

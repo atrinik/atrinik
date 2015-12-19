@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Defines are needed by @ref living.h, so they must be loaded early. */
+ * Defines are needed by @ref living.h, so they must be loaded early.
+ */
 
 #ifndef MATERIAL_H
 #define MATERIAL_H
@@ -40,7 +41,8 @@
 /**
  * @defgroup material_types Material types
  * Material types.
- *@{*/
+ *@{
+ */
 
 /** No material. */
 #define M_NONE          0

@@ -204,9 +204,12 @@ static PyMethodDef PartyMethods[] = {
 
 /**
  * Get party's attribute.
- * @param party Python party wrapper.
- * @param context Void pointer to the field.
- * @return Python object with the attribute value, NULL on failure.
+ * @param party
+ * Python party wrapper.
+ * @param context
+ * Void pointer to the field.
+ * @return
+ * Python object with the attribute value, NULL on failure.
  */
 static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
 {
@@ -215,10 +218,14 @@ static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
 
 /**
  * Set attribute of a party.
- * @param party Python party wrapper.
- * @param value Value to set.
- * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure.
+ * @param party
+ * Python party wrapper.
+ * @param value
+ * Value to set.
+ * @param context
+ * Void pointer to the field.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int Party_SetAttribute(Atrinik_Party *party, PyObject *value,
         void *context)
@@ -232,10 +239,14 @@ static int Party_SetAttribute(Atrinik_Party *party, PyObject *value,
 
 /**
  * Create a new party wrapper.
- * @param type Type object.
- * @param args Unused.
- * @param kwds Unused.
- * @return The new wrapper.
+ * @param type
+ * Type object.
+ * @param args
+ * Unused.
+ * @param kwds
+ * Unused.
+ * @return
+ * The new wrapper.
  */
 static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args,
         PyObject *kwds)
@@ -250,7 +261,8 @@ static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args,
 
 /**
  * Free a party wrapper.
- * @param self The wrapper to free.
+ * @param self
+ * The wrapper to free.
  */
 static void Atrinik_Party_dealloc(Atrinik_Party *self)
 {
@@ -264,8 +276,10 @@ static void Atrinik_Party_dealloc(Atrinik_Party *self)
 
 /**
  * Return a string representation of a party.
- * @param self The party object.
- * @return Python object containing the name of the party.
+ * @param self
+ * The party object.
+ * @return
+ * Python object containing the name of the party.
  */
 static PyObject *Atrinik_Party_str(Atrinik_Party *self)
 {
@@ -337,8 +351,10 @@ PyTypeObject Atrinik_PartyType = {
 
 /**
  * Initialize the party wrapper.
- * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure.
+ * @param module
+ * The Atrinik Python module.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int Atrinik_Party_init(PyObject *module)
 {
@@ -371,8 +387,10 @@ int Atrinik_Party_init(PyObject *module)
 
 /**
  * Utility method to wrap a party.
- * @param what Party to wrap.
- * @return Python object wrapping the real party.
+ * @param what
+ * Party to wrap.
+ * @return
+ * Python object wrapping the real party.
  */
 PyObject *wrap_party(party_struct *what)
 {

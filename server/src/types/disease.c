@@ -45,9 +45,13 @@ static void grant_immunity(object *disease);
 
 /**
  * Check if victim is susceptible to disease.
- * @param victim Victim.
- * @param disease Disease to check.
- * @return 1 if the victim can be infected, 0 otherwise. */
+ * @param victim
+ * Victim.
+ * @param disease
+ * Disease to check.
+ * @return
+ * 1 if the victim can be infected, 0 otherwise.
+ */
 static int is_susceptible_to_disease(object *victim, object *disease)
 {
     if (!IS_LIVE(victim)) {
@@ -71,8 +75,11 @@ static int is_susceptible_to_disease(object *victim, object *disease)
 
 /**
  * Ticks the clock for disease: infect, do symptoms, etc.
- * @param disease The disease.
- * @return 1 if the disease was removed, 0 otherwise. */
+ * @param disease
+ * The disease.
+ * @return
+ * 1 if the disease was removed, 0 otherwise.
+ */
 int move_disease(object *disease)
 {
     /* first task is to determine if the disease is inside or outside of
@@ -118,7 +125,9 @@ int move_disease(object *disease)
 
 /**
  * Remove any symptoms of disease.
- * @param disease The disease. */
+ * @param disease
+ * The disease.
+ */
 static void remove_symptoms(object *disease)
 {
     object *symptom = find_symptom(disease);
@@ -130,8 +139,11 @@ static void remove_symptoms(object *disease)
 
 /**
  * Find a symptom for a disease in disease's env.
- * @param disease The disease.
- * @return Matching symptom object, NULL if not found. */
+ * @param disease
+ * The disease.
+ * @return
+ * Matching symptom object, NULL if not found.
+ */
 static object *find_symptom(object *disease)
 {
     object *walk;
@@ -148,7 +160,9 @@ static object *find_symptom(object *disease)
 
 /**
  * Searches around for more victims to infect.
- * @param disease Disease infecting. */
+ * @param disease
+ * Disease infecting.
+ */
 static void check_infection(object *disease)
 {
     int x, y, i, j, range, xt, yt;
@@ -206,11 +220,16 @@ static void check_infection(object *disease)
  * - Objects already infected aren't infectable.
  * - Dead objects aren't infectable.
  * - Undead objects are infectible only if specifically named.
- * @param victim Victim to try infect.
- * @param disease The disease.
- * @param force Don't do a random check for infection. Other checks
+ * @param victim
+ * Victim to try infect.
+ * @param disease
+ * The disease.
+ * @param force
+ * Don't do a random check for infection. Other checks
  * (susceptible to disease, not immune, and so on) are still done.
- * @return 1 if the victim was infected, 0 otherwise. */
+ * @return
+ * 1 if the victim was infected, 0 otherwise.
+ */
 int infect_object(object *victim, object *disease, int force)
 {
     object *tmp, *new_disease, *owner;
@@ -296,7 +315,9 @@ int infect_object(object *victim, object *disease, int force)
  * This function monitors the symptoms caused by the disease (if any),
  * causes symptoms, and modifies existing symptoms in the case of
  * existing diseases.
- * @param disease The disease. */
+ * @param disease
+ * The disease.
+ */
 static void do_symptoms(object *disease)
 {
     object *symptom, *victim = disease->env, *tmp;
@@ -428,7 +449,9 @@ static void do_symptoms(object *disease)
 
 /**
  * Grants immunity to a disease.
- * @param disease disease to grant immunity to. */
+ * @param disease
+ * disease to grant immunity to.
+ */
 static void grant_immunity(object *disease)
 {
     object *immunity, *walk;
@@ -456,7 +479,9 @@ static void grant_immunity(object *disease)
 
 /**
  * Make the symptom do the nasty things it does.
- * @param symptom Symptom to move. */
+ * @param symptom
+ * Symptom to move.
+ */
 void move_symptom(object *symptom)
 {
     object *victim = symptom->env;
@@ -518,8 +543,11 @@ void move_symptom(object *symptom)
  * Possibly infect due to direct physical contact.
  *
  * Called from doing physical attack in hit_player_attacktype().
- * @param victim The victim.
- * @param hitter The hitter. */
+ * @param victim
+ * The victim.
+ * @param hitter
+ * The hitter.
+ */
 void check_physically_infect(object *victim, object *hitter)
 {
     object *walk;
@@ -534,11 +562,15 @@ void check_physically_infect(object *victim, object *hitter)
 
 /**
  * Do the cure disease stuff, from the spell "cure disease".
- * @param sufferer Who is getting cured.
- * @param caster Spell object used for curing. If NULL all diseases are
+ * @param sufferer
+ * Who is getting cured.
+ * @param caster
+ * Spell object used for curing. If NULL all diseases are
  * removed, otherwise only those of lower level than caster or randomly
  * chosen.
- * @return 1 if at least one disease was cured, 0 otherwise. */
+ * @return
+ * 1 if at least one disease was cured, 0 otherwise.
+ */
 int cure_disease(object *sufferer, object *caster)
 {
     object *disease, *next;
@@ -612,9 +644,13 @@ int cure_disease(object *sufferer, object *caster)
 
 /**
  * Reduces disease progression.
- * @param sufferer The sufferer.
- * @param reduction How much to reduce the disease progression.
- * @return 1 if we actually reduce a disease, 0 otherwise. */
+ * @param sufferer
+ * The sufferer.
+ * @param reduction
+ * How much to reduce the disease progression.
+ * @return
+ * 1 if we actually reduce a disease, 0 otherwise.
+ */
 int reduce_symptoms(object *sufferer, int reduction)
 {
     object *walk;
@@ -640,7 +676,8 @@ int reduce_symptoms(object *sufferer, int reduction)
 }
 
 /**
- * Initialize the disease type object methods. */
+ * Initialize the disease type object methods.
+ */
 void object_type_init_disease(void)
 {
 }

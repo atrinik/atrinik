@@ -26,18 +26,22 @@
  * @file
  * Texture management.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * All the textures. */
+ * All the textures.
+ */
 static texture_struct *textures[TEXTURE_TYPE_NUM];
 
 /**
  * Free texture's data (ie, its surface).
- * @param tmp Texture. */
+ * @param tmp
+ * Texture.
+ */
 static void texture_data_free(texture_struct *tmp)
 {
     if (tmp->surface) {
@@ -48,8 +52,11 @@ static void texture_data_free(texture_struct *tmp)
 
 /**
  * (Re-)create texture's data (the surface).
- * @param tmp Texture.
- * @return 1 on success, 0 on failure. */
+ * @param tmp
+ * Texture.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 static int texture_data_new(texture_struct *tmp)
 {
     if (tmp->type == TEXTURE_TYPE_SOFTWARE) {
@@ -125,7 +132,9 @@ static int texture_data_new(texture_struct *tmp)
 
 /**
  * Free a texture.
- * @param tmp Texture to free. */
+ * @param tmp
+ * Texture to free.
+ */
 static void texture_free(texture_struct *tmp)
 {
     efree(tmp->name);
@@ -135,9 +144,13 @@ static void texture_free(texture_struct *tmp)
 
 /**
  * Allocate a new texture structure.
- * @param type Type of the texture, one of ::texture_type_t.
- * @param name Name of the texture.
- * @return The allocated texture; NULL on failure. */
+ * @param type
+ * Type of the texture, one of ::texture_type_t.
+ * @param name
+ * Name of the texture.
+ * @return
+ * The allocated texture; NULL on failure.
+ */
 static texture_struct *texture_new(texture_type_t type, const char *name)
 {
     texture_struct *tmp;
@@ -158,7 +171,8 @@ static texture_struct *texture_new(texture_type_t type, const char *name)
 }
 
 /**
- * Initialize the texture API. */
+ * Initialize the texture API.
+ */
 void texture_init(void)
 {
     texture_type_t type;
@@ -171,7 +185,8 @@ void texture_init(void)
 }
 
 /**
- * Deinitialize the texture API. */
+ * Deinitialize the texture API.
+ */
 void texture_deinit(void)
 {
     texture_type_t type;
@@ -188,7 +203,8 @@ void texture_deinit(void)
 }
 
 /**
- * Delete the specified texture. */
+ * Delete the specified texture.
+ */
 void texture_delete(texture_struct *texture)
 {
     if (texture == NULL) {
@@ -200,7 +216,8 @@ void texture_delete(texture_struct *texture)
 }
 
 /**
- * Reload all textures. */
+ * Reload all textures.
+ */
 void texture_reload(void)
 {
     texture_type_t type;
@@ -216,7 +233,8 @@ void texture_reload(void)
 }
 
 /**
- * Garbage-collect textures. */
+ * Garbage-collect textures.
+ */
 void texture_gc(void)
 {
     time_t now;
@@ -251,9 +269,13 @@ void texture_gc(void)
 
 /**
  * Find specified texture in the hash table, allocating it if necessary.
- * @param type Type of the texture to look for.
- * @param name Name of the texture.
- * @return The texture; never NULL. */
+ * @param type
+ * Type of the texture to look for.
+ * @param name
+ * Name of the texture.
+ * @return
+ * The texture; never NULL.
+ */
 texture_struct *texture_get(texture_type_t type, const char *name)
 {
     texture_struct *tmp;
@@ -273,8 +295,11 @@ texture_struct *texture_get(texture_type_t type, const char *name)
 
 /**
  * Acquire texture's surface.
- * @param texture Texture.
- * @return Texture's surface, never NULL. */
+ * @param texture
+ * Texture.
+ * @return
+ * Texture's surface, never NULL.
+ */
 SDL_Surface *texture_surface(texture_struct *texture)
 {
     texture->last_used = time(NULL);

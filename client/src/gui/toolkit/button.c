@@ -26,12 +26,14 @@
  * @file
  * Button API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the button API. */
+ * Initialize the button API.
+ */
 void button_init()
 {
 }
@@ -39,8 +41,11 @@ void button_init()
 /**
  * Determine button's texture, based on its texture settings and whether
  * it is currently pressed, or mouse is over it.
- * @param button Button.
- * @return Texture to use. */
+ * @param button
+ * Button.
+ * @return
+ * Texture to use.
+ */
 static texture_struct *button_determine_texture(button_struct *button)
 {
     if (button->pressed && button->texture_pressed) {
@@ -54,7 +59,9 @@ static texture_struct *button_determine_texture(button_struct *button)
 
 /**
  * Initialize a button's default values.
- * @param button Button. */
+ * @param button
+ * Button.
+ */
 void button_create(button_struct *button)
 {
     memset(button, 0, sizeof(*button));
@@ -81,7 +88,8 @@ void button_create(button_struct *button)
 /**
  * Destroy data associated with the specified button. The button structure
  * itself is not freed.
- * @param button Button to destroy.
+ * @param button
+ * Button to destroy.
  */
 void button_destroy(button_struct *button)
 {
@@ -98,8 +106,10 @@ void button_set_parent(button_struct *button, int px, int py)
 
 /**
  * Set font of the specified button.
- * @param button Button.
- * @param font Font to set.
+ * @param button
+ * Button.
+ * @param font
+ * Font to set.
  */
 void button_set_font(button_struct *button, font_struct *font)
 {
@@ -143,8 +153,11 @@ int button_need_redraw(button_struct *button)
 
 /**
  * Render a button.
- * @param button Button to render.
- * @param text Optional text to render. */
+ * @param button
+ * Button to render.
+ * @param text
+ * Optional text to render.
+ */
 void button_show(button_struct *button, const char *text)
 {
     SDL_Surface *texture;
@@ -196,9 +209,13 @@ void button_show(button_struct *button, const char *text)
 
 /**
  * Handle SDL event for a button.
- * @param button Button to handle.
- * @param event The event.
- * @return 1 if the event makes the button pressed, 0 otherwise. */
+ * @param button
+ * Button to handle.
+ * @param event
+ * The event.
+ * @return
+ * 1 if the event makes the button pressed, 0 otherwise.
+ */
 int button_event(button_struct *button, SDL_Event *event)
 {
     SDL_Surface *texture;

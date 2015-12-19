@@ -29,13 +29,16 @@
  * Magic mirrors are objects that mirror contents of another tile,
  * effectively creating a map stacking effect. It is also possible to
  * make the magic mirrors zoom out/in mirrored objects to create a depth
- * effect. */
+ * effect.
+ */
 
 #include <global.h>
 
 /**
  * Initializes a magic mirror object after it has been placed on map.
- * @param mirror The magic mirror to initialize. */
+ * @param mirror
+ * The magic mirror to initialize.
+ */
 void magic_mirror_init(object *mirror)
 {
     int16_t mirror_x, mirror_y;
@@ -85,7 +88,9 @@ void magic_mirror_init(object *mirror)
  * Deinitialize a magic mirror object.
  *
  * Mostly used to free object::custom_attrset of the mirror.
- * @param mirror Magic mirror to deinitialize. */
+ * @param mirror
+ * Magic mirror to deinitialize.
+ */
 void magic_mirror_deinit(object *mirror)
 {
     efree(mirror->custom_attrset);
@@ -95,8 +100,11 @@ void magic_mirror_deinit(object *mirror)
  * Get map to which a magic mirror is pointing to. Almost always this
  * should be used instead of accessing magic_mirror_struct::map directly,
  * as it will make sure the map is loaded and will reset the swap timeout.
- * @param mirror Magic mirror to get map of.
- * @return The map. Can be NULL in case of loading error. */
+ * @param mirror
+ * Magic mirror to get map of.
+ * @return
+ * The map. Can be NULL in case of loading error.
+ */
 mapstruct *magic_mirror_get_map(object *mirror)
 {
     magic_mirror_struct *data = MMIRROR(mirror);
@@ -120,7 +128,8 @@ mapstruct *magic_mirror_get_map(object *mirror)
 }
 
 /**
- * Initialize the magic mirror type object methods. */
+ * Initialize the magic mirror type object methods.
+ */
 void object_type_init_magic_mirror(void)
 {
 }

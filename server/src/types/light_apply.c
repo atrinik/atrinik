@@ -113,7 +113,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the applyable light type object methods. */
+ * Initialize the applyable light type object methods.
+ */
 void object_type_init_light_apply(void)
 {
     object_type_methods[LIGHT_APPLY].apply_func = apply_func;

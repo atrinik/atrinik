@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref SCROLL "scrolls".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -74,7 +75,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the scroll type object methods. */
+ * Initialize the scroll type object methods.
+ */
 void object_type_init_scroll(void)
 {
     object_type_methods[SCROLL].apply_func = apply_func;

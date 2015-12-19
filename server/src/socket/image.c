@@ -24,7 +24,8 @@
 
 /**
  * @file
- * This file deals with the image related communication to the client. */
+ * This file deals with the image related communication to the client.
+ */
 
 #include <global.h>
 #include <loader.h>
@@ -73,8 +74,11 @@ static FaceSets facesets[MAX_FACE_SETS];
 
 /**
  * Check if a face set is valid.
- * @param fsn The face set number to check
- * @return 1 if the face set is valid, 0 otherwise */
+ * @param fsn
+ * The face set number to check
+ * @return
+ * 1 if the face set is valid, 0 otherwise
+ */
 int is_valid_faceset(int fsn)
 {
     if (fsn >= 0 && fsn < MAX_FACE_SETS && facesets[fsn].prefix) {
@@ -85,7 +89,8 @@ int is_valid_faceset(int fsn)
 }
 
 /**
- * Free all the information in face sets. */
+ * Free all the information in face sets.
+ */
 void free_socket_images(void)
 {
     int num, q;
@@ -119,7 +124,8 @@ void free_socket_images(void)
  * This function also generates client_bmaps file here.
  *
  * At the moment, Atrinik only uses one face set file, no files like
- * atrinik.1, atrinik.2, etc. */
+ * atrinik.1, atrinik.2, etc.
+ */
 void read_client_images(void)
 {
     char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
@@ -257,10 +263,12 @@ void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data,
 
 /**
  * Get face's data.
- * @param face The face.
+ * @param face
+ * The face.
  * @param[out] ptr Pointer that will contain the image data, can be NULL.
  * @param[out] len Pointer that will contain the image data length, can
- * be NULL. */
+ * be NULL.
+ */
 void face_get_data(int face, uint8_t **ptr, uint16_t *len)
 {
     if (ptr) {

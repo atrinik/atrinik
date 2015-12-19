@@ -26,7 +26,8 @@
  * @file
  * Implements the /tls command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

@@ -34,8 +34,11 @@
 
 /**
  * Try matching an object for duplicator.
- * @param op Duplicator.
- * @param tmp The object to try to match. */
+ * @param op
+ * Duplicator.
+ * @param tmp
+ * The object to try to match.
+ */
 static void duplicator_match_obj(object *op, object *tmp)
 {
     if (op->slaying != tmp->arch->name) {
@@ -79,7 +82,8 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the duplicator type object methods. */
+ * Initialize the duplicator type object methods.
+ */
 void object_type_init_duplicator(void)
 {
     object_type_methods[DUPLICATOR].move_on_func = move_on_func;

@@ -26,7 +26,8 @@
  * @file
  * Implements the /tp command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>

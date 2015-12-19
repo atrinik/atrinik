@@ -26,7 +26,8 @@
  * @file
  * Toolkit system header file.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifndef TOOLKIT_H
 #define TOOLKIT_H
@@ -54,7 +55,8 @@
 #include <utlist.h>
 
 /**
- * Toolkit (de)initialization function. */
+ * Toolkit (de)initialization function.
+ */
 typedef void (*toolkit_func)(void);
 
 typedef struct toolkit_dependency {
@@ -63,10 +65,12 @@ typedef struct toolkit_dependency {
 } toolkit_dependency_t;
 
 /**
- * Check if the specified API has been imported yet. */
+ * Check if the specified API has been imported yet.
+ */
 #define toolkit_imported(__api_name) toolkit_check_imported(toolkit_ ## __api_name ## _deinit)
 /**
- * Import the specified API (if it has not been imported yet). */
+ * Import the specified API (if it has not been imported yet).
+ */
 #define toolkit_import(__api_name) toolkit_ ## __api_name ## _init()
 
 #define DEPENDS(__api_name) { toolkit_ ## __api_name ## _init, true}
@@ -147,7 +151,8 @@ typedef struct toolkit_dependency {
 #endif
 
 /**
- * Takes a variable and returns the variable and its size. */
+ * Takes a variable and returns the variable and its size.
+ */
 #define VS(var) (var), sizeof((var))
 
 /**
@@ -163,7 +168,8 @@ typedef struct toolkit_dependency {
  *
  * You can have multiple timers by changing the 1 to 2 or anything else (note
  * that this is a compile-time feature).
- *@{*/
+ *@{
+ */
 
 #define TIMER_VAR(__var, __id) (__var##_##__id)
 #define TIMER_START(__id)                                                      \

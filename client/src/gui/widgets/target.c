@@ -186,7 +186,8 @@ static void widget_deinit(widgetdata *widget)
 
 /**
  * Initialize the target type widget.
- * @param widget Widget.
+ * @param widget
+ * Widget.
  */
 void widget_target_init(widgetdata *widget)
 {

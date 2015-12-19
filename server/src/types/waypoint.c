@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles the code for @ref WAYPOINT_OBJECT "waypoint objects". */
+ * Handles the code for @ref WAYPOINT_OBJECT "waypoint objects".
+ */
 
 #include <global.h>
 #include <plugin.h>
@@ -32,8 +33,11 @@
 
 /**
  * Find a monster's currently active waypoint, if any.
- * @param op The monster.
- * @return Active waypoint of this monster, NULL if none found. */
+ * @param op
+ * The monster.
+ * @return
+ * Active waypoint of this monster, NULL if none found.
+ */
 object *get_active_waypoint(object *op)
 {
     object *wp;
@@ -49,8 +53,11 @@ object *get_active_waypoint(object *op)
 
 /**
  * Find a monster's current aggro waypoint, if any.
- * @param op The monster.
- * @return Aggro waypoint of this monster, NULL if none found. */
+ * @param op
+ * The monster.
+ * @return
+ * Aggro waypoint of this monster, NULL if none found.
+ */
 object *get_aggro_waypoint(object *op)
 {
     object *wp;
@@ -66,9 +73,12 @@ object *get_aggro_waypoint(object *op)
 
 /**
  * Find a monster's current return-home waypoint, if any.
- * @param op The monster.
- * @return Return-home waypoint of this monster, NULL if none
- * found. */
+ * @param op
+ * The monster.
+ * @return
+ * Return-home waypoint of this monster, NULL if none
+ * found.
+ */
 object *get_return_waypoint(object *op)
 {
     object *wp;
@@ -84,9 +94,13 @@ object *get_return_waypoint(object *op)
 
 /**
  * Find a monster's waypoint by name (used for getting the next waypoint).
- * @param op The monster.
- * @param name The waypoint name to find.
- * @return The waypoint object if found, NULL otherwise. */
+ * @param op
+ * The monster.
+ * @param name
+ * The waypoint name to find.
+ * @return
+ * The waypoint object if found, NULL otherwise.
+ */
 static object *find_waypoint(object *op, shstr *name)
 {
     object *wp;
@@ -107,9 +121,13 @@ static object *find_waypoint(object *op, shstr *name)
 /**
  * Find the destination map if specified in waypoint, otherwise use current
  * map.
- * @param op Monster.
- * @param waypoint Waypoint.
- * @return Destination map. */
+ * @param op
+ * Monster.
+ * @param waypoint
+ * Waypoint.
+ * @return
+ * Destination map.
+ */
 static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 {
     mapstruct *destmap;
@@ -135,7 +153,9 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
  * Perform a path computation for the waypoint object.
  *
  * This function is called whenever our path request is dequeued.
- * @param waypoint The waypoint object. */
+ * @param waypoint
+ * The waypoint object.
+ */
 void waypoint_compute_path(object *waypoint)
 {
     object *op = waypoint->env;
@@ -207,8 +227,11 @@ void waypoint_compute_path(object *waypoint)
 
 /**
  * Move towards waypoint target.
- * @param op Object to move.
- * @param waypoint The waypoint object. */
+ * @param op
+ * Object to move.
+ * @param waypoint
+ * The waypoint object.
+ */
 void waypoint_move(object *op, object *waypoint)
 {
     mapstruct *destmap;
@@ -457,7 +480,8 @@ void waypoint_move(object *op, object *waypoint)
 }
 
 /**
- * Initialize the waypoint type object methods. */
+ * Initialize the waypoint type object methods.
+ */
 void object_type_init_waypoint(void)
 {
 }

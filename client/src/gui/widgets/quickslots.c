@@ -59,8 +59,10 @@ void quickslots_init(void)
 /**
  * Tell the server to set quickslot with ID 'slot' to the item with ID
  * 'tag'.
- * @param slot Quickslot ID.
- * @param tag ID of the item to set. Zero will clear any item from the slot.
+ * @param slot
+ * Quickslot ID.
+ * @param tag
+ * ID of the item to set. Zero will clear any item from the slot.
  */
 static void quickslots_set(widgetdata *widget, uint32_t row, uint32_t col,
         tag_t tag)
@@ -86,9 +88,13 @@ static void quickslots_set(widgetdata *widget, uint32_t row, uint32_t col,
 
 /**
  * Scroll the quickslots list.
- * @param widget Quickslots widget.
- * @param up If 1, scroll upwards, otherwise scroll downwards.
- * @param scroll Scroll amount. */
+ * @param widget
+ * Quickslots widget.
+ * @param up
+ * If 1, scroll upwards, otherwise scroll downwards.
+ * @param scroll
+ * Scroll amount.
+ */
 void quickslots_scroll(widgetdata *widget, int up, int scroll)
 {
     widget_quickslots_t *tmp = widget->subwidget;
@@ -99,7 +105,9 @@ void quickslots_scroll(widgetdata *widget, int up, int scroll)
 
 /**
  * Cycle the quickslots list.
- * @param widget Quickslots widget. */
+ * @param widget
+ * Quickslots widget.
+ */
 void quickslots_cycle(widgetdata *widget)
 {
     widget_quickslots_t *tmp = widget->subwidget;
@@ -115,7 +123,8 @@ void quickslots_cycle(widgetdata *widget)
 
 /**
  * Remove item from the quickslots by tag.
- * @param tag Item tag to remove from quickslots.
+ * @param tag
+ * Item tag to remove from quickslots.
  */
 static void quickslots_remove(widgetdata *widget, tag_t tag)
 {
@@ -138,10 +147,14 @@ static void quickslots_remove(widgetdata *widget, tag_t tag)
 
 /**
  * Trigger the specified quickslot.
- * @param widget Quickslots widget.
- * @param row Row.
- * @param col Column.
- * @return 1 if the trigger was handled, 0 otherwise.
+ * @param widget
+ * Quickslots widget.
+ * @param row
+ * Row.
+ * @param col
+ * Column.
+ * @return
+ * 1 if the trigger was handled, 0 otherwise.
  */
 static int quickslots_trigger(widgetdata *widget, uint32_t row, uint32_t col)
 {
@@ -176,10 +189,14 @@ static int quickslots_trigger(widgetdata *widget, uint32_t row, uint32_t col)
 
 /**
  * Changes the specified quickslot.
- * @param widget Quickslots widget.
- * @param row Row.
- * @param col Column.
- * @return 1 if the change was handled, 0 otherwise.
+ * @param widget
+ * Quickslots widget.
+ * @param row
+ * Row.
+ * @param col
+ * Column.
+ * @return
+ * 1 if the change was handled, 0 otherwise.
  */
 static int quickslots_change(widgetdata *widget, uint32_t row, uint32_t col)
 {
@@ -207,7 +224,8 @@ static int quickslots_change(widgetdata *widget, uint32_t row, uint32_t col)
 
 /**
  * Handle quickslot key event.
- * @param slot The quickslot to handle.
+ * @param slot
+ * The quickslot to handle.
  */
 void quickslots_handle_key(int slot)
 {
@@ -352,7 +370,8 @@ static void widget_deinit(widgetdata *widget)
 
 /**
  * Initialize one quickslots widget.
- * @param widget The widget to initialize.
+ * @param widget
+ * The widget to initialize.
  */
 void widget_quickslots_init(widgetdata *widget)
 {

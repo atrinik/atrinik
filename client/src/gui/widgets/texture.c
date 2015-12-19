@@ -27,7 +27,8 @@
  * Implements texture type widgets.
  *
  * @author Alex Tokar
- * @author Daniel Liptrot */
+ * @author Daniel Liptrot
+ */
 
 #include <global.h>
 
@@ -44,7 +45,8 @@ static void widget_draw(widgetdata *widget)
 }
 
 /**
- * Initialize one texture widget. */
+ * Initialize one texture widget.
+ */
 void widget_texture_init(widgetdata *widget)
 {
     _widget_texture *texture;

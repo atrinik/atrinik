@@ -26,7 +26,8 @@
  * @file
  * Date and time API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -44,7 +45,9 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Get the current UTC time as UNIX timestamp.
- * @return UTC time as UNIX timestamp. */
+ * @return
+ * UTC time as UNIX timestamp.
+ */
 time_t datetime_getutc(void)
 {
     time_t t;
@@ -60,8 +63,11 @@ time_t datetime_getutc(void)
 
 /**
  * Converts UTC time to local time.
- * @param t UTC time.
- * @return Converted local time. */
+ * @param t
+ * UTC time.
+ * @return
+ * Converted local time.
+ */
 time_t datetime_utctolocal(time_t t)
 {
     TOOLKIT_PROTECT();

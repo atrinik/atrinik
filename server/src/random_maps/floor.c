@@ -24,16 +24,21 @@
 
 /**
  * @file
- * Random map floor handling. */
+ * Random map floor handling.
+ */
 
 #include <global.h>
 
 /**
  * Creates the Atrinik map structure from the layout, and adds the floor.
- * @param floorstyle floor style. Can be NULL, in which case a random one
+ * @param floorstyle
+ * floor style. Can be NULL, in which case a random one
  * is chosen.
- * @param RP Random map parameters.
- * @return Atrinik map structure. */
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Atrinik map structure.
+ */
 mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
 {
     char styledirname[256], stylefilepath[256];

@@ -34,7 +34,9 @@
 
 /**
  * Process a changing object.
- * @param op The object to process. */
+ * @param op
+ * The object to process.
+ */
 static void common_object_process_changing(object *op)
 {
     object *tmp, *env;
@@ -112,9 +114,12 @@ static void common_object_process_changing(object *op)
 
 /**
  * Pre-processing for object_process() function.
- * @param op Object to pre-process.
- * @return 1 if the object was processed and should not continue
- * processing it normally, 0 otherwise. */
+ * @param op
+ * Object to pre-process.
+ * @return
+ * 1 if the object was processed and should not continue
+ * processing it normally, 0 otherwise.
+ */
 int common_object_process_pre(object *op)
 {
     if (QUERY_FLAG(op, FLAG_CHANGING) && !op->state) {

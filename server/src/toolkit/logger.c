@@ -143,7 +143,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Open the specified path as a log file.
- * @param path File to open.
+ * @param path
+ * File to open.
  */
 void logger_open_log(const char *path)
 {
@@ -158,7 +159,8 @@ void logger_open_log(const char *path)
 
 /**
  * Acquire the log file pointer.
- * @return Log file pointer. In the case that no log file is currently open,
+ * @return
+ * Log file pointer. In the case that no log file is currently open,
  * stdout is returned.
  */
 FILE *logger_get_logfile(void)
@@ -169,8 +171,10 @@ FILE *logger_get_logfile(void)
 
 /**
  * Get log level ID from its name.
- * @param name Name of the log level.
- * @return Log level. Can be LOG_MAX, in which case no log level has been
+ * @param name
+ * Name of the log level.
+ * @return
+ * Log level. Can be LOG_MAX, in which case no log level has been
  * found.
  */
 logger_level logger_get_level(const char *name)
@@ -192,7 +196,8 @@ logger_level logger_get_level(const char *name)
  * The individual levels CAN start with - or + to indicate whether to remove
  * or add the level.
  * @param[out] filter Which filter to update.
- * @param str String with the log filter levels.
+ * @param str
+ * String with the log filter levels.
  */
 static void logger_set_filter(uint64_t *filter, const char *str)
 {
@@ -261,7 +266,8 @@ void logger_set_filter_logfile(const char *str)
 
 /**
  * Set the logger's printing function.
- * @param func Function to use.
+ * @param func
+ * Function to use.
  */
 void logger_set_print_func(logger_print_func func)
 {
@@ -271,7 +277,8 @@ void logger_set_print_func(logger_print_func func)
 
 /**
  * Default logger printing function, uses fputs to write to stdout.
- * @param str String to print.
+ * @param str
+ * String to print.
  */
 void logger_do_print(const char *str)
 {
@@ -286,11 +293,16 @@ void logger_do_print(const char *str)
 
 /**
  * Print a message to the console/stdout/log file/etc.
- * @param level Log level to use.
- * @param function Name of the function that is calling this.
- * @param line Line in the code that is calling this.
- * @param format Format string.
- * @param ... Format arguments.
+ * @param level
+ * Log level to use.
+ * @param function
+ * Name of the function that is calling this.
+ * @param line
+ * Line in the code that is calling this.
+ * @param format
+ * Format string.
+ * @param ...
+ * Format arguments.
  */
 void logger_print(logger_level level, const char *function, uint64_t line,
         const char *format, ...)
@@ -372,7 +384,8 @@ void logger_traceback(void)
 
 /**
  * Determine whether stdout is a TTY.
- * @return Whether stdout is a TTY.
+ * @return
+ * Whether stdout is a TTY.
  */
 static bool logger_isatty(void)
 {
@@ -392,7 +405,8 @@ static bool logger_isatty(void)
 
 /**
  * Determine whether the currently used terminal supports ANSI colors.
- * @return Whether the terminal supports ANSI colors.
+ * @return
+ * Whether the terminal supports ANSI colors.
  */
 static bool logger_term_has_ansi_colors(void)
 {

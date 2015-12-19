@@ -46,17 +46,24 @@
  * # #                  #  #     #       #  #    #       #
  * # ####################  #     #   #   #  #            #
  * #                       #     #   #   #  #    #       #
- * #########################     ######################### */
+ * #########################     #########################
+ */
 
 #include <global.h>
 
 /**
  * Generates an onion layout.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @param option Combination of @ref OPT_xxx "OPT_xxx" values.
- * @param layers Number of layers the onion should have.
- * @return The generated layout. */
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @param option
+ * Combination of @ref OPT_xxx "OPT_xxx" values.
+ * @param layers
+ * Number of layers the onion should have.
+ * @return
+ * The generated layout.
+ */
 char **map_gen_onion(int xsize, int ysize, int option, int layers)
 {
     int i, j;
@@ -122,11 +129,17 @@ char **map_gen_onion(int xsize, int ysize, int option, int layers)
 
 /**
  * Creates a centered onion layout.
- * @param maze Maze layout.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @param option Combination of @ref OPT_xxx "OPT_xxx" values.
- * @param layers Number of layers to create. */
+ * @param maze
+ * Maze layout.
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @param option
+ * Combination of @ref OPT_xxx "OPT_xxx" values.
+ * @param layers
+ * Number of layers to create.
+ */
 void centered_onion(char **maze, int xsize, int ysize, int option, int layers)
 {
     int i, maxlayers;
@@ -204,11 +217,17 @@ void centered_onion(char **maze, int xsize, int ysize, int option, int layers)
 
 /**
  * Create a bottom-centered layout.
- * @param maze Maze layout.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @param option Combination of @ref OPT_xxx "OPT_xxx" values.
- * @param layers Number of layers to create. */
+ * @param maze
+ * Maze layout.
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @param option
+ * Combination of @ref OPT_xxx "OPT_xxx" values.
+ * @param layers
+ * Number of layers to create.
+ */
 void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers)
 {
     int i, maxlayers;
@@ -296,10 +315,15 @@ void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int la
 
 /**
  * Draws the lines in the maze defining the onion layers.
- * @param maze Nap to draw to.
- * @param xlocations Array of X coordinate locations.
- * @param ylocations Array of Y coordinate locations.
- * @param layers Number of layers. */
+ * @param maze
+ * Nap to draw to.
+ * @param xlocations
+ * Array of X coordinate locations.
+ * @param ylocations
+ * Array of Y coordinate locations.
+ * @param layers
+ * Number of layers.
+ */
 void draw_onion(char **maze, float *xlocations, float *ylocations, int layers)
 {
     int i, j, l;
@@ -329,11 +353,17 @@ void draw_onion(char **maze, float *xlocations, float *ylocations, int layers)
 
 /**
  * Add doors to the layout.
- * @param maze Map to draw to.
- * @param xlocations Array of X coordinate locations.
- * @param ylocations Array of Y coordinate locations.
- * @param layers Number of layers.
- * @param options Combination of @ref OPT_xxx "OPT_xxx" values. */
+ * @param maze
+ * Map to draw to.
+ * @param xlocations
+ * Array of X coordinate locations.
+ * @param ylocations
+ * Array of Y coordinate locations.
+ * @param layers
+ * Number of layers.
+ * @param options
+ * Combination of @ref OPT_xxx "OPT_xxx" values.
+ */
 void make_doors(char **maze, float *xlocations, float *ylocations, int layers, int options)
 {
     /* number of different walls on which we could place a door */
@@ -477,11 +507,17 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 
 /**
  * Create a bottom-right-centered layout.
- * @param maze Maze layout.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @param option Combination of @ref OPT_xxx "OPT_xxx" values.
- * @param layers Number of layers to create. */
+ * @param maze
+ * Maze layout.
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @param option
+ * Combination of @ref OPT_xxx "OPT_xxx" values.
+ * @param layers
+ * Number of layers to create.
+ */
 void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, int layers)
 {
     int i, maxlayers;

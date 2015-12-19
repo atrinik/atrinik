@@ -183,7 +183,8 @@ int set_random_map_variable(RMParms *rp, const char *buf)
 }
 
 /**
- * Frees all memory allocated by the random map loader. */
+ * Frees all memory allocated by the random map loader. 
+ */
 void free_random_map_loader(void)
 {
 #ifndef WIN32

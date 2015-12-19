@@ -24,14 +24,18 @@
 
 /**
  * @file
- * Handles code related to @ref GRAVESTONE "gravestones". */
+ * Handles code related to @ref GRAVESTONE "gravestones".
+ */
 
 #include <global.h>
 
 /**
  * Create text for a gravestone object.
- * @param op Object that died.
- * @return Pointer to a static string containing the gravestone text. */
+ * @param op
+ * Object that died.
+ * @return
+ * Pointer to a static string containing the gravestone text.
+ */
 const char *gravestone_text(object *op)
 {
     static char buf2[MAX_BUF];
@@ -63,7 +67,8 @@ const char *gravestone_text(object *op)
 }
 
 /**
- * Initialize the gravestone type object methods. */
+ * Initialize the gravestone type object methods.
+ */
 void object_type_init_gravestone(void)
 {
 }

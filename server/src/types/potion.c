@@ -195,7 +195,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the potion type object methods. */
+ * Initialize the potion type object methods.
+ */
 void object_type_init_potion(void)
 {
     object_type_methods[POTION].apply_func = apply_func;

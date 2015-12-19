@@ -25,7 +25,8 @@
 /**
  * @file
  * This file controls various event functions, like character mouse movement,
- * parsing macro keys etc. */
+ * parsing macro keys etc.
+ */
 
 #include <global.h>
 
@@ -106,8 +107,11 @@ static void event_dragging_stop_internal(void)
  * Sets new width/height of the screen, storing the size in options.
  *
  * Does not actually do the resizing.
- * @param width Width to set.
- * @param height Height to set. */
+ * @param width
+ * Width to set.
+ * @param height
+ * Height to set.
+ */
 void resize_window(int width, int height)
 {
     setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X, width);
@@ -120,7 +124,9 @@ void resize_window(int width, int height)
 
 /**
  * Poll input device like mouse, keys, etc.
- * @return 1 if the the quit key was pressed, 0 otherwise */
+ * @return
+ * 1 if the the quit key was pressed, 0 otherwise
+ */
 int Event_PollInputDevice(void)
 {
     SDL_Event event;

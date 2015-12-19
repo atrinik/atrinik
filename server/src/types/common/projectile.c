@@ -33,9 +33,13 @@
 
 /**
  * Attempts to stick a projectile such as an arrow into the victim.
- * @param op Projectile.
- * @param victim Victim.
- * @return Pointer to the projectile, which may or may not have merged. */
+ * @param op
+ * Projectile.
+ * @param victim
+ * Victim.
+ * @return
+ * Pointer to the projectile, which may or may not have merged.
+ */
 static object *projectile_stick(object *op, object *victim)
 {
     object *owner;

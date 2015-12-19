@@ -36,7 +36,8 @@
 /**
  * @defgroup BANK_STRING_xxx Bank info string modes
  * Modes used for #bank_info_t and bank_parse_string().
- *@{*/
+ *@{
+ */
 /** Invalid string (did not include any valid amount). */
 #define BANK_STRING_NONE 0
 /** Got a valid amount of money from string. */
@@ -74,8 +75,10 @@ typedef struct bank_info {
 
 /**
  * Parse a string into the bank into structure.
- * @param str Text to get money from.
- * @param info Bank info structure.
+ * @param str
+ * Text to get money from.
+ * @param info
+ * Bank info structure.
  */
 static void bank_parse_string(const char *str, bank_info_t *info)
 {
@@ -131,9 +134,12 @@ static void bank_parse_string(const char *str, bank_info_t *info)
 
 /**
  * Get number of specific coins in the object's inventory.
- * @param op Object to search in.
- * @param at Archetype the coins must match.
- * @return Number of coins in the object's inventory.
+ * @param op
+ * Object to search in.
+ * @param at
+ * Archetype the coins must match.
+ * @return
+ * Number of coins in the object's inventory.
  */
 static uint32_t bank_get_coins_num(object *op, archetype_t *at)
 {
@@ -152,10 +158,14 @@ static uint32_t bank_get_coins_num(object *op, archetype_t *at)
 
 /**
  * Remove money by the specified coin type.
- * @param op Object we're removing from.
- * @param at Archetype the coins must match.
- * @param nrof Amount of money to remove. Has no effect if 'at' is NULL.
- * @return Removed amount.
+ * @param op
+ * Object we're removing from.
+ * @param at
+ * Archetype the coins must match.
+ * @param nrof
+ * Amount of money to remove. Has no effect if 'at' is NULL.
+ * @return
+ * Removed amount.
  */
 static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof)
 {
@@ -191,9 +201,12 @@ static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof)
 
 /**
  * Insert coins into the object.
- * @param op Object.
- * @param at Money arch to insert.
- * @param nrof Number of coins.
+ * @param op
+ * Object.
+ * @param at
+ * Money arch to insert.
+ * @param nrof
+ * Number of coins.
  */
 static void bank_insert_coins(object *op, archetype_t *at, uint32_t nrof)
 {
@@ -205,8 +218,10 @@ static void bank_insert_coins(object *op, archetype_t *at, uint32_t nrof)
 
 /**
  * Find bank player info object in player's inventory.
- * @param op Where to look for the player info object.
- * @return The player info object if found, NULL otherwise.
+ * @param op
+ * Where to look for the player info object.
+ * @return
+ * The player info object if found, NULL otherwise.
  */
 object *bank_find_info(object *op)
 {
@@ -222,8 +237,11 @@ object *bank_find_info(object *op)
 
 /**
  * Create a new bank player info object and insert it to 'op'.
- * @param op Player.
- * @return The created player info object. */
+ * @param op
+ * Player.
+ * @return
+ * The created player info object.
+ */
 static object *bank_create_info(object *op)
 {
     object *bank = arch_get(shstr_cons.player_info);
@@ -235,8 +253,10 @@ static object *bank_create_info(object *op)
 /**
  * Convenience function to either find a bank player info object and if
  * not found, create a new one.
- * @param op Player object.
- * @return The bank player info object. Never NULL.
+ * @param op
+ * Player object.
+ * @return
+ * The bank player info object. Never NULL.
  */
 static object *bank_get_info(object *op)
 {
@@ -249,8 +269,10 @@ static object *bank_get_info(object *op)
 
 /**
  * Query how much money player has stored in bank.
- * @param op Player to query for.
- * @return The money stored.
+ * @param op
+ * Player to query for.
+ * @return
+ * The money stored.
  */
 int64_t bank_get_balance(object *op)
 {
@@ -266,10 +288,13 @@ int64_t bank_get_balance(object *op)
 
 /**
  * Deposit money to player's bank object.
- * @param op Player.
- * @param text What was said to trigger this.
+ * @param op
+ * Player.
+ * @param text
+ * What was said to trigger this.
  * @param[out] value Will contain the deposited amount.
- * @return One of @ref BANK_xxx.
+ * @return
+ * One of @ref BANK_xxx.
  */
 int bank_deposit(object *op, const char *text, int64_t *value)
 {
@@ -363,11 +388,15 @@ int bank_deposit(object *op, const char *text, int64_t *value)
 
 /**
  * Withdraw money player previously stored in bank object.
- * @param op Player.
- * @param bank Bank object in player's inventory.
- * @param text What was said to trigger this.
+ * @param op
+ * Player.
+ * @param bank
+ * Bank object in player's inventory.
+ * @param text
+ * What was said to trigger this.
  * @param[out] value Will contain the withdrawn amount.
- * @return One of @ref BANK_xxx.
+ * @return
+ * One of @ref BANK_xxx.
  */
 int bank_withdraw(object *op, const char *text, int64_t *value)
 {

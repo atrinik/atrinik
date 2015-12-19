@@ -25,7 +25,8 @@
 /**
  * @file
  * Defines various structures and values that are used for the new client
- * server communication method. */
+ * server communication method.
+ */
 
 #ifndef NEWSERVER_H
 #define NEWSERVER_H
@@ -38,7 +39,8 @@
 
 /**
  * One map cell. Used to hold 'cache' of faces we already sent
- * to the client. */
+ * to the client.
+ */
 typedef struct MapCell_struct {
     /** Cache of last sent ambient sound. */
     tag_t sound_ambient_count;
@@ -68,11 +70,13 @@ typedef struct MapCell_struct {
 
     /**
      * Probe cache. No need for an array, since this only appears
-     * for players or monsters, both on layer 6. */
+     * for players or monsters, both on layer 6.
+ */
     uint8_t probe;
 
     /**
-     * Possible target object UID cache. */
+     * Possible target object UID cache.
+ */
     tag_t target_object_count;
 
     uint8_t ext_flags; ///< Last ext flags.
@@ -107,7 +111,8 @@ typedef struct socket_struct {
 
     /**
      * If someone is too long idle in the login, he will get
-     * disconnected. */
+     * disconnected.
+ */
     int login_count;
 
     /** X size of the map the client wants. */
@@ -149,7 +154,8 @@ typedef struct socket_struct {
 
     /**
      * How many times the player has failed to provide the right
-     * password. */
+     * password.
+ */
     uint8_t password_fails;
 
     /** Send ext title to client. */
@@ -167,7 +173,8 @@ typedef struct socket_struct {
     /**
      * Buffer for how many ticks have passed since the last keep alive
      * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the
-     * socket is disconnected. */
+     * socket is disconnected.
+ */
     uint32_t keepalive;
 
     char *account;
@@ -178,7 +185,8 @@ typedef struct socket_struct {
 
 /**
  * How many seconds must pass since the last keep alive command for the
- * socket to be disconnected. */
+ * socket to be disconnected.
+ */
 #define SOCKET_KEEPALIVE_TIMEOUT (uint32_t) ((60 * 10) * MAX_TICKS_MULTIPLIER)
 
 /** Holds some system related information. */
@@ -198,7 +206,8 @@ typedef struct Socket_Info_struct {
 
 /**
  * A single file loaded from the updates directory that the client can
- * request. */
+ * request.
+ */
 typedef struct update_file_struct {
     /** File's CRC32. */
     unsigned long checksum;
@@ -223,12 +232,14 @@ typedef struct update_file_struct {
 #define UPDATES_FILE_NAME "updates"
 /**
  * Directory to recursively traverse, looking for files that the client
- * can request for an update. */
+ * can request for an update.
+ */
 #define UPDATES_DIR_NAME "updates"
 
 /**
  * Maximum password failures allowed before the server kills the
- * socket. */
+ * socket.
+ */
 #define MAX_PASSWORD_FAILURES 3
 
 #endif

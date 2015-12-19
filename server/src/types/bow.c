@@ -26,15 +26,19 @@
  * @file
  * Handles code for @ref BOW "bows".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Calculate how quickly bow fires its arrow.
- * @param bow The bow.
- * @param arrow Arrow.
- * @return Firing speed.
+ * @param bow
+ * The bow.
+ * @param arrow
+ * Arrow.
+ * @return
+ * Firing speed.
  */
 float bow_get_ws(object *bow, object *arrow)
 {
@@ -43,8 +47,11 @@ float bow_get_ws(object *bow, object *arrow)
 
 /**
  * Get skill required to use the specified bow object.
- * @param bow The bow (could actually be a crossbow/sling/etc).
- * @return Required skill to use the object. */
+ * @param bow
+ * The bow (could actually be a crossbow/sling/etc).
+ * @return
+ * Required skill to use the object.
+ */
 int bow_get_skill(object *bow)
 {
     if (bow->item_skill) {
@@ -129,7 +136,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 }
 
 /**
- * Initialize the bow type object methods. */
+ * Initialize the bow type object methods.
+ */
 void object_type_init_bow(void)
 {
     object_type_methods[BOW].apply_func = object_apply_item;

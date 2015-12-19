@@ -26,7 +26,8 @@
  * @file
  * Handles connection to the metaserver and receiving data from it.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -45,7 +46,8 @@ static SDL_mutex *server_head_mutex;
 static uint8_t enabled = 1;
 
 /**
- * Initialize the metaserver data. */
+ * Initialize the metaserver data.
+ */
 void metaserver_init(void)
 {
     /* Initialize the data. */
@@ -58,7 +60,8 @@ void metaserver_init(void)
 }
 
 /**
- * Disable the metaserver. */
+ * Disable the metaserver.
+ */
 void metaserver_disable(void)
 {
     enabled = 0;
@@ -67,7 +70,9 @@ void metaserver_disable(void)
 
 /**
  * Parse data returned from HTTP metaserver and add it to the list of servers.
- * @param info The data to parse. */
+ * @param info
+ * The data to parse.
+ */
 static void parse_metaserver_data(char *info)
 {
     char *tmp[6];
@@ -81,8 +86,11 @@ static void parse_metaserver_data(char *info)
 
 /**
  * Get server from the servers list by its ID.
- * @param num ID of the server to find.
- * @return The server if found, NULL otherwise. */
+ * @param num
+ * ID of the server to find.
+ * @return
+ * The server if found, NULL otherwise.
+ */
 server_struct *server_get_id(size_t num)
 {
     server_struct *node;
@@ -102,7 +110,9 @@ server_struct *server_get_id(size_t num)
 
 /**
  * Get number of the servers in the list.
- * @return The number. */
+ * @return
+ * The number.
+ */
 size_t server_get_count(void)
 {
     size_t count;
@@ -115,8 +125,11 @@ size_t server_get_count(void)
 
 /**
  * Check if we're connecting to the metaserver.
- * @param val If not -1, set the metaserver connecting value to this.
- * @return 1 if we're connecting to the metaserver, 0 otherwise. */
+ * @param val
+ * If not -1, set the metaserver connecting value to this.
+ * @return
+ * 1 if we're connecting to the metaserver, 0 otherwise.
+ */
 int ms_connecting(int val)
 {
     int connecting;
@@ -134,7 +147,8 @@ int ms_connecting(int val)
 }
 
 /**
- * Clear all data in the linked list of servers reported by metaserver. */
+ * Clear all data in the linked list of servers reported by metaserver.
+ */
 void metaserver_clear_data(void)
 {
     server_struct *node, *tmp;
@@ -158,12 +172,19 @@ void metaserver_clear_data(void)
 /**
  * Add a server entry to the linked list of available servers reported by
  * metaserver.
- * @param hostname Server's hostname.
- * @param port Server port.
- * @param name Server's name.
- * @param player Number of players.
- * @param version Server version.
- * @param desc Description of the server. */
+ * @param hostname
+ * Server's hostname.
+ * @param port
+ * Server port.
+ * @param name
+ * Server's name.
+ * @param player
+ * Number of players.
+ * @param version
+ * Server version.
+ * @param desc
+ * Description of the server.
+ */
 void metaserver_add(const char *hostname, int port, const char *name,
         int player, const char *version, const char *desc)
 {
@@ -189,8 +210,11 @@ void metaserver_add(const char *hostname, int port, const char *name,
  * Goes through the list of metaservers and calls metaserver_connect()
  * until it gets a return value of 1. If if goes through all the
  * metaservers and still fails, show an info to the user.
- * @param dummy Unused.
- * @return Always returns 0. */
+ * @param dummy
+ * Unused.
+ * @return
+ * Always returns 0.
+ */
 int metaserver_thread(void *dummy)
 {
     size_t i;
@@ -228,7 +252,8 @@ int metaserver_thread(void *dummy)
 /**
  * Connect to metaserver and get the available servers.
  *
- * Works in a thread using SDL_CreateThread(). */
+ * Works in a thread using SDL_CreateThread().
+ */
 void metaserver_get_servers(void)
 {
     SDL_Thread *thread;

@@ -69,10 +69,14 @@ static void rand_move(object *ob);
  * If rv is given, it will be filled out with the vector to enemy
  *
  * enemy and/or rv may be NULL.
- * @param npc The NPC object we're setting enemy for.
- * @param enemy The enemy object, NULL if we're clearing the enemy
+ * @param npc
+ * The NPC object we're setting enemy for.
+ * @param enemy
+ * The enemy object, NULL if we're clearing the enemy
  * for this NPC.
- * @param rv Range vector of the enemy. */
+ * @param rv
+ * Range vector of the enemy.
+ */
 void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 {
     object *aggro_wp;
@@ -203,10 +207,14 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 
 /**
  * Signal all linked monsters on the specified map about a possible enemy.
- * @param npc Monster that is signaling.
- * @param map Map to signal on.
- * @param spawn_point NPC's spawn point.
- * @param dist Maximum distance for non-linked spawn points.
+ * @param npc
+ * Monster that is signaling.
+ * @param map
+ * Map to signal on.
+ * @param spawn_point
+ * NPC's spawn point.
+ * @param dist
+ * Maximum distance for non-linked spawn points.
  */
 static void monster_enemy_signal_map(object *npc, mapstruct *map,
         object *spawn_point, uint32_t dist)
@@ -249,8 +257,10 @@ static void monster_enemy_signal_map(object *npc, mapstruct *map,
 
 /**
  * Signal a change in monster's enemy.
- * @param npc Monster/NPC.
- * @param enemy New enemy.
+ * @param npc
+ * Monster/NPC.
+ * @param enemy
+ * New enemy.
  */
 void monster_enemy_signal(object *npc, object *enemy)
 {
@@ -301,9 +311,13 @@ void monster_enemy_signal(object *npc, object *enemy)
 
 /**
  * Checks if NPC's enemy is still valid.
- * @param npc The NPC object.
- * @param rv Range vector of the enemy.
- * @return Enemy object if valid, NULL otherwise. */
+ * @param npc
+ * The NPC object.
+ * @param rv
+ * Range vector of the enemy.
+ * @return
+ * Enemy object if valid, NULL otherwise.
+ */
 object *check_enemy(object *npc, rv_vector *rv)
 {
     if (npc->enemy == NULL) {
@@ -321,9 +335,13 @@ object *check_enemy(object *npc, rv_vector *rv)
 /**
  * Tries to find an enemy for NPC. We pass the range vector since
  * our caller will find the information useful.
- * @param npc The NPC object.
- * @param rv Range vector.
- * @return Enemy object if found, NULL otherwise. */
+ * @param npc
+ * The NPC object.
+ * @param rv
+ * Range vector.
+ * @return
+ * Enemy object if found, NULL otherwise.
+ */
 object *find_enemy(object *npc, rv_vector *rv)
 {
     object *tmp = NULL;
@@ -389,10 +407,15 @@ object *find_enemy(object *npc, rv_vector *rv)
  * Controls if monster still can see/detect its enemy.
  *
  * Includes visibility but also map and area control.
- * @param op The monster object.
- * @param enemy Monster object's enemy.
- * @param rv Range vector.
- * @return 1 if can see/detect, 0 otherwise. */
+ * @param op
+ * The monster object.
+ * @param enemy
+ * Monster object's enemy.
+ * @param rv
+ * Range vector.
+ * @return
+ * 1 if can see/detect, 0 otherwise.
+ */
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
 {
     /* Will check for legal maps too */
@@ -429,8 +452,10 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
  * may disable normal movement, such as player talking to the monster,
  * and the monster responding to the player and setting a period of time
  * to wait for until resuming movement.
- * @param op Monster.
- * @return Whether the monster can move.
+ * @param op
+ * Monster.
+ * @return
+ * Whether the monster can move.
  */
 static bool monster_can_move(object *op)
 {
@@ -770,7 +795,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the monster type object methods. */
+ * Initialize the monster type object methods.
+ */
 void object_type_init_monster(void)
 {
     object_type_methods[MONSTER].process_func = process_func;
@@ -778,12 +804,19 @@ void object_type_init_monster(void)
 
 /**
  * Check if monster can detect target (invisibility and being in range).
- * @param op Monster.
- * @param target The target to check.
- * @param range Range this object can see.
- * @param srange Stealth range this object can see.
- * @param rv Range vector.
- * @return 1 if can detect target, 0 otherwise. */
+ * @param op
+ * Monster.
+ * @param target
+ * The target to check.
+ * @param range
+ * Range this object can see.
+ * @param srange
+ * Stealth range this object can see.
+ * @param rv
+ * Range vector.
+ * @return
+ * 1 if can detect target, 0 otherwise.
+ */
 static int can_detect_target(object *op, object *target, unsigned int range,
         unsigned int srange, rv_vector *rv)
 {
@@ -811,8 +844,11 @@ static int can_detect_target(object *op, object *target, unsigned int range,
 
 /**
  * Finds nearest enemy for a monster.
- * @param ob The monster.
- * @return Nearest enemy, NULL if none. */
+ * @param ob
+ * The monster.
+ * @return
+ * Nearest enemy, NULL if none.
+ */
 static object *find_nearest_enemy(object *ob)
 {
     object *tmp;
@@ -888,8 +924,11 @@ static object *find_nearest_enemy(object *ob)
 
 /**
  * Randomly move a monster.
- * @param op The monster object to move.
- * @return 1 if the monster was moved, 0 otherwise. */
+ * @param op
+ * The monster object to move.
+ * @return
+ * 1 if the monster was moved, 0 otherwise.
+ */
 static int move_randomly(object *op)
 {
     int i, r;
@@ -954,9 +993,13 @@ static int move_randomly(object *op)
 
 /**
  * Check if object can hit another object.
- * @param ob1 Monster object.
- * @param rv Range vector.
- * @return 1 if can hit, 0 otherwise. */
+ * @param ob1
+ * Monster object.
+ * @param rv
+ * Range vector.
+ * @return
+ * 1 if can hit, 0 otherwise.
+ */
 static int can_hit(object *ob1, rv_vector *rv)
 {
     if (QUERY_FLAG(ob1, FLAG_CONFUSED) && !rndm_chance(3)) {
@@ -971,9 +1014,13 @@ static int can_hit(object *ob1, rv_vector *rv)
 
 /**
  * Choose a random spell this monster could cast.
- * @param monster The monster object.
- * @param flags Flags the spell must have.
- * @return Random spell object, NULL if no spell found. */
+ * @param monster
+ * The monster object.
+ * @param flags
+ * Flags the spell must have.
+ * @return
+ * Random spell object, NULL if no spell found.
+ */
 static object *monster_choose_random_spell(object *monster, uint32_t flags)
 {
     object * altern[MAX_KNOWN_SPELLS], *tmp;
@@ -1009,9 +1056,13 @@ static object *monster_choose_random_spell(object *monster, uint32_t flags)
 
 /**
  * Check if it's worth it for monster to cast a spell, based on the target.
- * @param target Target.
- * @param spell_id Spell ID being checked.
- * @return 1 if it's worth it, 0 otherwise. */
+ * @param target
+ * Target.
+ * @param spell_id
+ * Spell ID being checked.
+ * @return
+ * 1 if it's worth it, 0 otherwise.
+ */
 static int monster_spell_useful(object *target, int spell_id)
 {
     switch (spell_id) {
@@ -1025,13 +1076,20 @@ static int monster_spell_useful(object *target, int spell_id)
 
 /**
  * Tries to make a monster cast a spell.
- * @param head Head of the monster.
- * @param part Part of the monster that we use to cast.
- * @param dir Direction to cast.
- * @param rv Range vector describing where the enemy is. If NULL, will attempt
+ * @param head
+ * Head of the monster.
+ * @param part
+ * Part of the monster that we use to cast.
+ * @param dir
+ * Direction to cast.
+ * @param rv
+ * Range vector describing where the enemy is. If NULL, will attempt
  * to find a friendly object to cast the spell on.
- * @param flags Flags the spell must have.
- * @return 1 if monster casted a spell, 0 otherwise. */
+ * @param flags
+ * Flags the spell must have.
+ * @return
+ * 1 if monster casted a spell, 0 otherwise.
+ */
 static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32_t flags)
 {
     object *spell_item, *target = NULL;
@@ -1143,10 +1201,15 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
 
 /**
  * Tries to make a (part of a) monster fire a bow.
- * @param head Head of the monster.
- * @param part Part of the monster that we use to fire.
- * @param dir Direction to cast.
- * @return 1 if monster fired something, 0 otherwise. */
+ * @param head
+ * Head of the monster.
+ * @param part
+ * Part of the monster that we use to fire.
+ * @param dir
+ * Direction to cast.
+ * @return
+ * 1 if monster fired something, 0 otherwise.
+ */
 static int monster_use_bow(object *head, object *part, int dir)
 {
     FOR_INV_PREPARE(head, tmp) {
@@ -1164,10 +1227,15 @@ static int monster_use_bow(object *head, object *part, int dir)
 
 /**
  * Monster does a distance attack.
- * @param dir Direction.
- * @param part Part of the object.
- * @param rv Range vector.
- * @return New direction. */
+ * @param dir
+ * Direction.
+ * @param part
+ * Part of the object.
+ * @param rv
+ * Range vector.
+ * @return
+ * New direction.
+ */
 static int dist_att(int dir, object *part, rv_vector *rv)
 {
     if (can_hit(part, rv)) {
@@ -1185,11 +1253,17 @@ static int dist_att(int dir, object *part, rv_vector *rv)
 
 /**
  * Monster runs.
- * @param dir Direction.
- * @param ob The monster.
- * @param part Part of the monster.
- * @param rv Range vector.
- * @return New direction. */
+ * @param dir
+ * Direction.
+ * @param ob
+ * The monster.
+ * @param part
+ * Part of the monster.
+ * @param rv
+ * Range vector.
+ * @return
+ * New direction.
+ */
 static int run_att(int dir, object *ob, object *part, rv_vector *rv)
 {
     if ((can_hit(part, rv) && ob->move_status < 20) || ob->move_status < 20) {
@@ -1204,9 +1278,13 @@ static int run_att(int dir, object *ob, object *part, rv_vector *rv)
 
 /**
  * Hit and run type of attack.
- * @param dir Direction.
- * @param ob Monster.
- * @return New direction. */
+ * @param dir
+ * Direction.
+ * @param ob
+ * Monster.
+ * @return
+ * New direction.
+ */
 static int hitrun_att(int dir, object *ob)
 {
     if (ob->move_status++ < 25) {
@@ -1222,11 +1300,17 @@ static int hitrun_att(int dir, object *ob)
 
 /**
  * Wait, and attack.
- * @param dir Direction.
- * @param ob Monster.
- * @param part Part of the monster.
- * @param rv Range vector.
- * @return New direction. */
+ * @param dir
+ * Direction.
+ * @param ob
+ * Monster.
+ * @param part
+ * Part of the monster.
+ * @param rv
+ * Range vector.
+ * @return
+ * New direction.
+ */
 static int wait_att(int dir, object *ob, object *part, rv_vector *rv)
 {
     if (ob->move_status || can_hit(part, rv)) {
@@ -1247,11 +1331,17 @@ static int wait_att(int dir, object *ob, object *part, rv_vector *rv)
 
 /**
  * Distance hit attack.
- * @param dir Direction.
- * @param ob Monster.
- * @param part Part of the monster.
- * @param rv Range vector.
- * @return New direction. */
+ * @param dir
+ * Direction.
+ * @param ob
+ * Monster.
+ * @param part
+ * Part of the monster.
+ * @param rv
+ * Range vector.
+ * @return
+ * New direction.
+ */
 static int disthit_att(int dir, object *ob, object *part, rv_vector *rv)
 {
     if (ob->stats.maxhp && (ob->stats.hp * 100) / ob->stats.maxhp < ob->run_away) {
@@ -1263,9 +1353,13 @@ static int disthit_att(int dir, object *ob, object *part, rv_vector *rv)
 
 /**
  * Wait and attack.
- * @param dir Direction.
- * @param rv Range vector.
- * @return New direction. */
+ * @param dir
+ * Direction.
+ * @param rv
+ * Range vector.
+ * @return
+ * New direction.
+ */
 static int wait_att2(int dir, rv_vector *rv)
 {
     if (rv->distance < 9) {
@@ -1277,7 +1371,9 @@ static int wait_att2(int dir, rv_vector *rv)
 
 /**
  * Circle type of move.
- * @param ob Monster. */
+ * @param ob
+ * Monster.
+ */
 static void circ1_move(object *ob)
 {
     static const int circle[12] = {3, 3, 4, 5, 5, 6, 7, 7, 8, 1, 1, 2};
@@ -1293,7 +1389,9 @@ static void circ1_move(object *ob)
 
 /**
  * Different type of circle type move.
- * @param ob Monster. */
+ * @param ob
+ * Monster.
+ */
 static void circ2_move(object *ob)
 {
     static const int circle[20] = {3, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8, 1, 1, 1, 2, 2};
@@ -1309,7 +1407,9 @@ static void circ2_move(object *ob)
 
 /**
  * Vertical pace movement.
- * @param ob Monster. */
+ * @param ob
+ * Monster.
+ */
 static void pace_movev(object *ob)
 {
     if (ob->move_status++ > 6) {
@@ -1325,7 +1425,9 @@ static void pace_movev(object *ob)
 
 /**
  * Horizontal pace movement.
- * @param ob Monster. */
+ * @param ob
+ * Monster.
+ */
 static void pace_moveh(object *ob)
 {
     if (ob->move_status++ > 6) {
@@ -1341,7 +1443,9 @@ static void pace_moveh(object *ob)
 
 /**
  * Another type of vertical pace movement.
- * @param ob Monster. */
+ * @param ob
+ * Monster.
+ */
 static void pace2_movev(object *ob)
 {
     if (ob->move_status++ > 16) {
@@ -1359,7 +1463,9 @@ static void pace2_movev(object *ob)
 
 /**
  * Another type of horizontal pace movement.
- * @param ob Monster. */
+ * @param ob
+ * Monster.
+ */
 static void pace2_moveh(object *ob)
 {
     if (ob->move_status++ > 16) {
@@ -1377,7 +1483,9 @@ static void pace2_moveh(object *ob)
 
 /**
  * Random movement.
- * @param ob Monster. */
+ * @param ob
+ * Monster.
+ */
 static void rand_move(object *ob)
 {
     int i;
@@ -1394,10 +1502,14 @@ static void rand_move(object *ob)
 /**
  * This function takes the message to be parsed in 'msg', the text to
  * match in 'match', and returns the portion of the message.
- * @param msg Message to parse.
- * @param match Text to try to match.
- * @return Returned portion which should be freed later, NULL if there
- * was no match. */
+ * @param msg
+ * Message to parse.
+ * @param match
+ * Text to try to match.
+ * @return
+ * Returned portion which should be freed later, NULL if there
+ * was no match.
+ */
 static char *find_matching_message(const char *msg, const char *match)
 {
     const char *cp = msg, *cp1, *cp2;
@@ -1474,10 +1586,15 @@ static char *find_matching_message(const char *msg, const char *match)
  * Give an object the chance to handle something being said.
  *
  * Plugin hooks will be called.
- * @param op Who is talking.
- * @param npc Object to try to talk to.
- * @param txt What op is saying.
- * @return 1 if the NPC replied to the player, 0 otherwise. */
+ * @param op
+ * Who is talking.
+ * @param npc
+ * Object to try to talk to.
+ * @param txt
+ * What op is saying.
+ * @return
+ * 1 if the NPC replied to the player, 0 otherwise.
+ */
 int talk_to_npc(object *op, object *npc, char *txt)
 {
     size_t ret = 0;
@@ -1542,9 +1659,13 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
 /**
  * Check if object op is friend of obj.
- * @param op The first object
- * @param obj The second object to check against the first one
- * @return 1 if both objects are friends, 0 otherwise */
+ * @param op
+ * The first object
+ * @param obj
+ * The second object to check against the first one
+ * @return
+ * 1 if both objects are friends, 0 otherwise
+ */
 int is_friend_of(object *op, object *obj)
 {
     if (op == NULL || obj == NULL) {
@@ -1611,9 +1732,13 @@ int is_friend_of(object *op, object *obj)
 
 /**
  * Checks if using weapon 'item' would be better for 'who'.
- * @param who Creature considering to apply item.
- * @param item Item to check.
- * @return 1 if item is a better object, 0 otherwise. */
+ * @param who
+ * Creature considering to apply item.
+ * @param item
+ * Item to check.
+ * @return
+ * 1 if item is a better object, 0 otherwise.
+ */
 int check_good_weapon(object *who, object *item)
 {
     object *other_weap;
@@ -1654,9 +1779,13 @@ int check_good_weapon(object *who, object *item)
 
 /**
  * Checks if using armor 'item' would be better for 'who'.
- * @param who Creature considering to apply item.
- * @param item Item to check.
- * @return 1 if item is a better object, 0 otherwise. */
+ * @param who
+ * Creature considering to apply item.
+ * @param item
+ * Item to check.
+ * @return
+ * 1 if item is a better object, 0 otherwise.
+ */
 int check_good_armour(object *who, object *item)
 {
     object *other_armour;

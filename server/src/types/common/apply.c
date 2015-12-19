@@ -35,10 +35,14 @@
 /**
  * Handle generic object applying.
  *
- * @param op Object being applied.
- * @param applier Who is applying the object.
- * @param aflags Apply flags.
- * @return One of @ref OBJECT_METHOD_xxx.
+ * @param op
+ * Object being applied.
+ * @param applier
+ * Who is applying the object.
+ * @param aflags
+ * Apply flags.
+ * @return
+ * One of @ref OBJECT_METHOD_xxx.
  */
 int
 common_object_apply (object *op, object *applier, int aflags)
@@ -55,9 +59,12 @@ common_object_apply (object *op, object *applier, int aflags)
  * Check if the specified object matches the type of the one being applied,
  * and whether it's applied.
  *
- * @param op Object being applied.
- * @param tmp Object to check.
- * @return True if the object matches, false otherwise.
+ * @param op
+ * Object being applied.
+ * @param tmp
+ * Object to check.
+ * @return
+ * True if the object matches, false otherwise.
  */
 static bool
 object_apply_item_check_type (object *op, object *tmp)
@@ -87,10 +94,14 @@ object_apply_item_check_type (object *op, object *tmp)
  * Generic handler for applying equipment-like items, such as armour, weapons,
  * trinkets, jewelry, etc.
  *
- * @param op Object being applied.
- * @param applier Who is applying the object.
- * @param aflags Apply flags.
- * @return One of @ref OBJECT_METHOD_xxx.
+ * @param op
+ * Object being applied.
+ * @param applier
+ * Who is applying the object.
+ * @param aflags
+ * Apply flags.
+ * @return
+ * One of @ref OBJECT_METHOD_xxx.
  */
 int
 object_apply_item (object *op, object *applier, int aflags)

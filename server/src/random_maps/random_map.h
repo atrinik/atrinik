@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Random map related variables. */
+ * Random map related variables.
+ */
 
 #ifndef RANDOM_MAP_H
 #define RANDOM_MAP_H
@@ -135,7 +136,8 @@ typedef struct {
 
 /**
  * @defgroup RM_LAYOUT Random map layout
- *@{*/
+ *@{
+ */
 #define ONION_LAYOUT          1
 #define MAZE_LAYOUT           2
 #define SPIRAL_LAYOUT         3
@@ -147,7 +149,8 @@ typedef struct {
 
 /**
  * @defgroup OPT_xxx Random map layout options.
- *@{*/
+ *@{
+ */
 /** Random option. */
 #define OPT_RANDOM     0
 /** Centered. */
@@ -172,7 +175,8 @@ typedef struct {
  * @defgroup SYM_xxx Random map symmetry
  * Symmetry definitions -- used in this file AND in @ref treasure.c, the
  * numerical values matter so don't change them.
- *@{*/
+ *@{
+ */
 
 /** Random symmetry. */
 #define RANDOM_SYM  0
@@ -188,7 +192,8 @@ typedef struct {
 
 /**
  * Macro to get a strongly centered random distribution, from 0 to x,
- * centered at x / 2. */
+ * centered at x / 2.
+ */
 #define BC_RANDOM(x) ((int) ((RANDOM() % (x) + RANDOM() % (x) + RANDOM() % (x)) / 3.))
 
 #endif

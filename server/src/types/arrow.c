@@ -24,16 +24,22 @@
 
 /**
  * @file
- * @ref ARROW "Arrow" and @ref BOW "bow" related code. */
+ * @ref ARROW "Arrow" and @ref BOW "bow" related code.
+ */
 
 #include <global.h>
 
 /**
  * Calculate arrow's wc.
- * @param op Player.
- * @param bow Bow used.
- * @param arrow Arrow.
- * @return The arrow's wc. */
+ * @param op
+ * Player.
+ * @param bow
+ * Bow used.
+ * @param arrow
+ * Arrow.
+ * @return
+ * The arrow's wc.
+ */
 int16_t arrow_get_wc(object *op, object *bow, object *arrow)
 {
     int level;
@@ -59,10 +65,15 @@ int16_t arrow_get_wc(object *op, object *bow, object *arrow)
 
 /**
  * Calculate arrow's damage.
- * @param op Player.
- * @param bow Bow used.
- * @param arrow Arrow.
- * @return The arrow's damage. */
+ * @param op
+ * Player.
+ * @param bow
+ * Bow used.
+ * @param arrow
+ * Arrow.
+ * @return
+ * The arrow's damage.
+ */
 int16_t arrow_get_damage(object *op, object *bow, object *arrow)
 {
     op = HEAD(op);
@@ -102,9 +113,13 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
  *
  * Find an arrow in the inventory and after that in the right type
  * container (quiver).
- * @param op Player.
- * @param type Type of the ammunition (arrows, bolts, etc).
- * @return Pointer to the arrow, NULL if not found. */
+ * @param op
+ * Player.
+ * @param type
+ * Type of the ammunition (arrows, bolts, etc).
+ * @return
+ * Pointer to the arrow, NULL if not found.
+ */
 object *arrow_find(object *op, shstr *type)
 {
     object *tmp;
@@ -238,7 +253,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 }
 
 /**
- * Initialize the arrow type object methods. */
+ * Initialize the arrow type object methods.
+ */
 void object_type_init_arrow(void)
 {
     object_type_methods[ARROW].apply_func = object_apply_item;

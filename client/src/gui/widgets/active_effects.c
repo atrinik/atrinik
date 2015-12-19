@@ -26,7 +26,8 @@
  * @file
  * Implements active effects type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -37,32 +38,38 @@
 typedef struct active_effect_struct {
     /**
      * Next active effect in a doubly-linked list.
-     */
+
+ */
     struct active_effect_struct *next;
 
     /**
      * Previous active effect in a doubly-linked list.
-     */
+
+ */
     struct active_effect_struct *prev;
 
     /**
      * Pointer to the actual active effect force object.
-     */
+
+ */
     object *op;
 
     /**
      * Seconds remaining before the effect expires. -1 does not expire.
-     */
+
+ */
     int32_t sec;
 
     /**
      * Explanation of the active effect.
-     */
+
+ */
     char *msg;
 } active_effect_struct;
 
 /**
- * Active effects widget data. */
+ * Active effects widget data.
+ */
 typedef struct widget_active_effects_struct {
     active_effect_struct *active_effects;
 
@@ -258,7 +265,8 @@ void widget_active_effects_remove(widgetdata *widget, object *op)
 }
 
 /**
- * Initialize one active effects widget. */
+ * Initialize one active effects widget.
+ */
 void widget_active_effects_init(widgetdata *widget)
 {
     widget_active_effects_struct *tmp;

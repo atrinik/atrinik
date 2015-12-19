@@ -35,9 +35,12 @@
 
 /**
  * Check if both objects are magical containers.
- * @param op Object being put into the container.
- * @param container The container.
- * @return 1 if both op and container are magical containers, 0 otherwise.
+ * @param op
+ * Object being put into the container.
+ * @param container
+ * The container.
+ * @return
+ * 1 if both op and container are magical containers, 0 otherwise.
  */
 int check_magical_container(object *op, object *container)
 {
@@ -53,8 +56,10 @@ int check_magical_container(object *op, object *container)
 /**
  * Actually open a container, springing traps/monsters, and doing the
  * linked list linking.
- * @param applier Player that is opening the container.
- * @param op The container.
+ * @param applier
+ * Player that is opening the container.
+ * @param op
+ * The container.
  */
 static void container_open(object *applier, object *op)
 {
@@ -147,11 +152,14 @@ static void container_open(object *applier, object *op)
 /**
  * Close a container and remove player from the container's linked list.
  *
- * @param applier The player. If NULL, we will unlink all players from
+ * @param applier
+ * The player. If NULL, we will unlink all players from
  * the container 'op'.
- * @param op The container object. If NULL, unlink the applier's current
+ * @param op
+ * The container object. If NULL, unlink the applier's current
  * container.
- * @return 1 if the container was closed and has no players left looking
+ * @return
+ * 1 if the container was closed and has no players left looking
  * into the container, 0 otherwise.
  */
 int container_close(object *applier, object *op)

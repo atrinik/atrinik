@@ -24,16 +24,21 @@
 
 /**
  * @file
- * Various spell effects. */
+ * Various spell effects.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
  * This is really used mostly for spell fumbles at the like.
- * @param op What is casting this.
- * @param tmp Object to propagate.
- * @param lvl How nasty should the propagation be. */
+ * @param op
+ * What is casting this.
+ * @param tmp
+ * Object to propagate.
+ * @param lvl
+ * How nasty should the propagation be.
+ */
 void cast_magic_storm(object *op, object *tmp, int lvl)
 {
     /* Error */
@@ -55,9 +60,11 @@ void cast_magic_storm(object *op, object *tmp, int lvl)
 
 /**
  * Recharge wands.
- * @param op Who is casting.
+ * @param op
+ * Who is casting.
  * @retval 0 Nothing happened.
- * @retval 1 Wand was recharged, or destroyed. */
+ * @retval 1 Wand was recharged, or destroyed.
+ */
 int recharge(object *op)
 {
     object *wand = find_marked_object(op);
@@ -111,10 +118,14 @@ int recharge(object *op)
  *
  * Allows the choice of what sort of food object to make.
  * If stringarg is NULL, it will create food dependent on level.
- * @param op Who is casting.
- * @param caster What is casting.
- * @param dir Casting direction.
- * @param stringarg Optional parameter specifying what kind of items to
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What is casting.
+ * @param dir
+ * Casting direction.
+ * @param stringarg
+ * Optional parameter specifying what kind of items to
  * create.
  * @retval 0 No food created.
  * @retval 1 Food was created.
@@ -187,9 +198,13 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
  *
  * We put a force into the player object, so that there is a time delay
  * effect.
- * @param op Who is casting.
- * @param caster What is casting.
- * @return 1 on success, 0 otherwise. */
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What is casting.
+ * @return
+ * 1 on success, 0 otherwise.
+ */
 int cast_wor(object *op, object *caster)
 {
     object *dummy;
@@ -229,10 +244,15 @@ int cast_wor(object *op, object *caster)
 
 /**
  * Hit all enemies around the caster.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param dam Base damage to do.
- * @param attacktype Attacktype. */
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What object is casting.
+ * @param dam
+ * Base damage to do.
+ * @param attacktype
+ * Attacktype.
+ */
 void cast_destruction(object *op, object *caster, int dam)
 {
     int i, j, range, xt, yt;
@@ -291,10 +311,15 @@ void cast_destruction(object *op, object *caster, int dam)
 
 /**
  * Cast an area of effect healing spell.
- * @param op Object.
- * @param level Level of the spell being cast.
- * @param type ID of the spell.
- * @return 1 on success, 0 on failure. */
+ * @param op
+ * Object.
+ * @param level
+ * Level of the spell being cast.
+ * @param type
+ * ID of the spell.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int cast_heal_around(object *op, int level, int type)
 {
     int success = 0;
@@ -360,10 +385,15 @@ int cast_heal_around(object *op, int level, int type)
 
 /**
  * Heals something.
- * @param op Who is casting.
- * @param level Level of the skill.
- * @param target Target.
- * @param spell_type ID of the spell. */
+ * @param op
+ * Who is casting.
+ * @param level
+ * Level of the skill.
+ * @param target
+ * Target.
+ * @param spell_type
+ * ID of the spell.
+ */
 int cast_heal(object *op, int level, object *target, int spell_type)
 {
     archetype_t *at;
@@ -583,10 +613,14 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 /**
  * Cast some stat-improving spell.
- * @param op Who is casting.
- * @param caster What is casting.
- * @param target Target of the caster; who is receiving the spell.
- * @param spell_type ID of the spell.
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What is casting.
+ * @param target
+ * Target of the caster; who is receiving the spell.
+ * @param spell_type
+ * ID of the spell.
  * @retval 0 Spell failed.
  * @retval 1 Spell was successful.
  */
@@ -701,9 +735,12 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 /**
  * Cast remove depletion spell.
  *
- * @param op Object casting this.
- * @param target Target.
- * @return 0 on failure or if there's no depletion, number of stats cured
+ * @param op
+ * Object casting this.
+ * @param target
+ * Target.
+ * @return
+ * 0 on failure or if there's no depletion, number of stats cured
  * otherwise.
  */
 int
@@ -784,12 +821,18 @@ cast_remove_depletion (object *op, object *target)
 
 /**
  * Cast remove curse or remove damnation.
- * @param op Caster object.
- * @param target Target.
- * @param type ID of the spell.
- * @param src Where the spell comes from.
- * @return 0 on failure / no cursed items, number of objects uncursed
- * otherwise. */
+ * @param op
+ * Caster object.
+ * @param target
+ * Target.
+ * @param type
+ * ID of the spell.
+ * @param src
+ * Where the spell comes from.
+ * @return
+ * 0 on failure / no cursed items, number of objects uncursed
+ * otherwise.
+ */
 int remove_curse(object *op, object *target, int type, int src)
 {
     object *tmp;
@@ -875,12 +918,18 @@ int remove_curse(object *op, object *target, int type, int src)
 
 /**
  * Actually identify an object when casting identify.
- * @param tmp What to identify.
- * @param op Who is receiving the spell effect.
- * @param mode One of @ref identify_modes.
+ * @param tmp
+ * What to identify.
+ * @param op
+ * Who is receiving the spell effect.
+ * @param mode
+ * One of @ref identify_modes.
  * @param[out] done Contains the number of objects identified so far.
- * @param level Maximum level of items we can identify.
- * @return 1 if we can keep identifying items, 0 otherwise. */
+ * @param level
+ * Maximum level of items we can identify.
+ * @return
+ * 1 if we can keep identifying items, 0 otherwise.
+ */
 int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 {
     if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) || IS_SYS_INVISIBLE(tmp) || !need_identify(tmp)) {
@@ -920,13 +969,19 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 
 /**
  * Cast identify spell.
- * @param op Object receiving the spell effects.
- * @param level Level of the identification.
- * @param single_ob If set, and mode is @ref IDENTIFY_MARKED, only
+ * @param op
+ * Object receiving the spell effects.
+ * @param level
+ * Level of the identification.
+ * @param single_ob
+ * If set, and mode is @ref IDENTIFY_MARKED, only
  * this object will be identified, otherwise contents of this object.
  * If NULL, the inventory of 'op' will be identified.
- * @param mode One of @ref identify_modes.
- * @return Number of objects identified. */
+ * @param mode
+ * One of @ref identify_modes.
+ * @return
+ * Number of objects identified.
+ */
 int cast_identify(object *op, int level, object *single_ob, int mode)
 {
     int done = 0;
@@ -960,9 +1015,11 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 
 /**
  * A spell to make an altar your god's.
- * @param op Who is casting.
+ * @param op
+ * Who is casting.
  * @retval 0 No consecration happened.
- * @retval 1 An altar was consecrated. */
+ * @retval 1 An altar was consecrated.
+ */
 int cast_consecrate(object *op)
 {
     object *tmp, *god = find_god(determine_god(op));
@@ -1029,9 +1086,13 @@ int cast_consecrate(object *op)
  *
  * If target is undead, the spell will restore target to max health
  * instead of damaging it.
- * @param op Caster.
- * @param target Target.
- * @return 1. */
+ * @param op
+ * Caster.
+ * @param target
+ * Target.
+ * @return
+ * 1.
+ */
 int finger_of_death(object *op, object *target)
 {
     object *hitter;
@@ -1067,13 +1128,19 @@ int finger_of_death(object *op, object *target)
 
 /**
  * Let's try to infect something.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param dir Cast direction.
- * @param disease_arch Archetype of the disease.
- * @param type ID of the spell.
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What object is casting.
+ * @param dir
+ * Cast direction.
+ * @param disease_arch
+ * Archetype of the disease.
+ * @param type
+ * ID of the spell.
  * @retval 0 No one caught anything.
- * @retval 1 At least one living was affected. */
+ * @retval 1 At least one living was affected.
+ */
 int cast_cause_disease(object *op, object *caster, int dir, struct archetype *disease_arch, int type)
 {
     int x = op->x, y = op->y, i, xt, yt;
@@ -1185,8 +1252,11 @@ int cast_cause_disease(object *op, object *caster, int dir, struct archetype *di
 
 /**
  * Transform wealth spell.
- * @param op Who is casting.
- * @return 1 on success, 0 otherwise. */
+ * @param op
+ * Who is casting.
+ * @return
+ * 1 on success, 0 otherwise.
+ */
 int cast_transform_wealth(object *op)
 {
     object *marked;

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Book GUI header. */
+ * Book GUI header.
+ */
 
 #ifndef BOOK_H
 #define BOOK_H
@@ -32,7 +33,8 @@
 /**
  * @defgroup BOOK_TEXT_xxx Book text coords
  * Book text coordinates.
- *@{*/
+ *@{
+ */
 /** X position of the text. */
 #define BOOK_TEXT_STARTX 27
 /** Y position of the text. */
@@ -46,7 +48,8 @@
 /**
  * @defgroup BOOK_TITLE_xxx Book title coords
  * Book title coordinates.
- *@{*/
+ *@{
+ */
 /** X position of the title. */
 #define BOOK_TITLE_STARTX 63
 /** Y position of the title. */
@@ -60,7 +63,8 @@
 /**
  * @defgroup BOOK_SCROLLBAR_xxx Book scrollbar coords
  * Book scrollbar coordinates.
- *@{*/
+ *@{
+ */
 /** X position of the scrollbar. */
 #define BOOK_SCROLLBAR_STARTX 660
 /** Y position of the scrollbar. */

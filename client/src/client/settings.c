@@ -26,7 +26,8 @@
  * @file
  * Handles client settings.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -43,13 +44,17 @@ setting_category **setting_categories = NULL;
 size_t setting_categories_num = 0;
 /**
  * Whether we need to send a setup command to server to request mapsize
- * change. */
+ * change.
+ */
 static uint8_t setting_update_mapsize = 0;
 
 /**
  * Load a setting value from file.
- * @param setting The setting to load the value into.
- * @param str The value to load. */
+ * @param setting
+ * The setting to load the value into.
+ * @param str
+ * The value to load.
+ */
 static void setting_load_value(setting_struct *setting, const char *str)
 {
     switch (setting->type) {
@@ -85,7 +90,8 @@ static void setting_load_value(setting_struct *setting, const char *str)
 }
 
 /**
- * Initialize the setting defaults. */
+ * Initialize the setting defaults.
+ */
 void settings_init(void)
 {
     FILE *fp;
@@ -205,7 +211,8 @@ void settings_init(void)
 }
 
 /**
- * Load user's settings (if any). */
+ * Load user's settings (if any).
+ */
 void settings_load(void)
 {
     FILE *fp;
@@ -260,7 +267,8 @@ void settings_load(void)
 }
 
 /**
- * Save the user's settings to file. */
+ * Save the user's settings to file.
+ */
 void settings_save(void)
 {
     FILE *fp;
@@ -296,7 +304,8 @@ void settings_save(void)
 /**
  * Deinitialize the settings.
  *
- * User's settings are also saved to file using settings_save(). */
+ * User's settings are also saved to file using settings_save().
+ */
 void settings_deinit(void)
 {
     size_t cat, setting;
@@ -355,8 +364,11 @@ void settings_deinit(void)
 
 /**
  * Get pointer to a setting's value.
- * @param setting The setting.
- * @return Pointer to the setting's value. */
+ * @param setting
+ * The setting.
+ * @return
+ * Pointer to the setting's value.
+ */
 void *setting_get(setting_struct *setting)
 {
     switch (setting->type) {
@@ -377,9 +389,13 @@ void *setting_get(setting_struct *setting)
 
 /**
  * Get setting's string value.
- * @param cat ID of the category the setting is in.
- * @param setting Setting ID inside the category.
- * @return The setting's string value. */
+ * @param cat
+ * ID of the category the setting is in.
+ * @param setting
+ * Setting ID inside the category.
+ * @return
+ * The setting's string value.
+ */
 const char *setting_get_str(int cat, int setting)
 {
     return setting_get(setting_categories[cat]->settings[setting]);
@@ -387,9 +403,13 @@ const char *setting_get_str(int cat, int setting)
 
 /**
  * Get setting's integer value.
- * @param cat ID of the category the setting is in.
- * @param setting Setting ID inside the category.
- * @return The setting's integer value. */
+ * @param cat
+ * ID of the category the setting is in.
+ * @param setting
+ * Setting ID inside the category.
+ * @return
+ * The setting's integer value.
+ */
 int64_t setting_get_int(int cat, int setting)
 {
     return *(int64_t *) setting_get(setting_categories[cat]->settings[setting]);
@@ -398,9 +418,13 @@ int64_t setting_get_int(int cat, int setting)
 /**
  * Apply a setting change, which needs to be handled regardless of
  * whether it's changed at runtime or at startup.
- * @param cat ID of the category the setting is in.
- * @param setting Setting ID inside the category.
- * @return 1 if the change was handled, 0 otherwise. */
+ * @param cat
+ * ID of the category the setting is in.
+ * @param setting
+ * Setting ID inside the category.
+ * @return
+ * 1 if the change was handled, 0 otherwise.
+ */
 static int setting_apply_always(int cat, int setting)
 {
     switch (cat) {
@@ -434,8 +458,11 @@ static int setting_apply_always(int cat, int setting)
 
 /**
  * Apply a setting change at run-time.
- * @param cat ID of the category the setting is in.
- * @param setting Setting ID inside the category. */
+ * @param cat
+ * ID of the category the setting is in.
+ * @param setting
+ * Setting ID inside the category.
+ */
 static void setting_apply_runtime(int cat, int setting)
 {
     /* Try both run-time and startup-time changes first. */
@@ -524,7 +551,8 @@ static void setting_apply_runtime(int cat, int setting)
 
 /**
  * Apply all settings that need to be applied at start-time (after
- * everything has been initialized successfully). */
+ * everything has been initialized successfully).
+ */
 void settings_apply(void)
 {
     size_t i, j;
@@ -538,7 +566,8 @@ void settings_apply(void)
 
 /**
  * Apply a change of settings at run-time (through the settings GUI, for
- * example). */
+ * example).
+ */
 void settings_apply_change(void)
 {
     size_t cat, setting;
@@ -552,9 +581,13 @@ void settings_apply_change(void)
 
 /**
  * Set setting's integer value.
- * @param cat ID of the category the setting is in.
- * @param setting Setting ID inside the category.
- * @param val Value to set. */
+ * @param cat
+ * ID of the category the setting is in.
+ * @param setting
+ * Setting ID inside the category.
+ * @param val
+ * Value to set.
+ */
 void setting_set_int(int cat, int setting, int64_t val)
 {
     void *dst = setting_get(setting_categories[cat]->settings[setting]);
@@ -572,9 +605,13 @@ void setting_set_int(int cat, int setting, int64_t val)
 
 /**
  * Set settings's string value.
- * @param cat ID of the category the setting is in.
- * @param setting Setting ID inside the category.
- * @param val Value to set. */
+ * @param cat
+ * ID of the category the setting is in.
+ * @param setting
+ * Setting ID inside the category.
+ * @param val
+ * Value to set.
+ */
 void setting_set_str(int cat, int setting, const char *val)
 {
     setting_struct *set;
@@ -590,8 +627,11 @@ void setting_set_str(int cat, int setting, const char *val)
 
 /**
  * Check if the specified setting has a string value.
- * @param setting The setting.
- * @return 1 if it has a string value, 0 otherwise. */
+ * @param setting
+ * The setting.
+ * @return
+ * 1 if it has a string value, 0 otherwise.
+ */
 int setting_is_text(setting_struct *setting)
 {
     switch (setting->type) {
@@ -605,8 +645,11 @@ int setting_is_text(setting_struct *setting)
 
 /**
  * Find a category ID by its name.
- * @param name The name.
- * @return Category ID if found, -1 otherwise. */
+ * @param name
+ * The name.
+ * @return
+ * Category ID if found, -1 otherwise.
+ */
 int64_t category_from_name(const char *name)
 {
     size_t cat;
@@ -624,8 +667,11 @@ int64_t category_from_name(const char *name)
  * Find a setting ID by its name.
  *
  * @note All categories are checked.
- * @param name The name.
- * @return Setting ID if found, -1 otherwise. */
+ * @param name
+ * The name.
+ * @return
+ * Setting ID if found, -1 otherwise.
+ */
 int64_t setting_from_name(const char *name)
 {
     size_t cat, setting;

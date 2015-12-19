@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Inventory header file. */
+ * Inventory header file.
+ */
 
 #ifndef INVENTORY_H
 #define INVENTORY_H
@@ -32,7 +33,8 @@
 /**
  * @defgroup INVENTORY_FILTER_xxx Inventory filters
  * Various inventory filters.
- *@{*/
+ *@{
+ */
 /** All objects. */
 #define INVENTORY_FILTER_ALL 0
 /** Applied objects. */
@@ -80,7 +82,8 @@ typedef enum inventory_display {
 } inventory_display_t;
 
 /**
- * The inventory data. */
+ * The inventory data.
+ */
 typedef struct inventory_struct {
     /** Index of the selected object. */
     uint32_t selected;

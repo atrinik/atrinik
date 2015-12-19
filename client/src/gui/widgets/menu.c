@@ -27,7 +27,8 @@
  * Implements menu type widgets.
  *
  * @author Alex Tokar
- * @author Daniel Liptrot */
+ * @author Daniel Liptrot
+ */
 
 #include <global.h>
 

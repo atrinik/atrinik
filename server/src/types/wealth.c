@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref WEALTH "wealth".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the wealth type object methods. */
+ * Initialize the wealth type object methods.
+ */
 void object_type_init_wealth(void)
 {
 }

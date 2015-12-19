@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Client main related functions. */
+ * Client main related functions.
+ */
 
 #include <global.h>
 #include <gitversion.h>
@@ -71,7 +72,8 @@ struct msg_anim_struct msg_anim;
 static uint32_t last_keepalive;
 
 /**
- * Command line option settings. */
+ * Command line option settings.
+ */
 clioption_settings_struct clioption_settings;
 
 /**
@@ -171,7 +173,8 @@ void socket_command_keepalive(uint8_t *data, size_t len, size_t pos)
 }
 
 /**
- * Initialize game data. */
+ * Initialize game data.
+ */
 static void init_game_data(void)
 {
     init_map_data(0, 0, 0, 0);
@@ -197,7 +200,9 @@ static void init_game_data(void)
 
 /**
  * Game status chain.
- * @return 1. */
+ * @return
+ * 1.
+ */
 static int game_status_chain(void)
 {
     if (cpl.state == ST_INIT) {
@@ -293,7 +298,8 @@ static int game_status_chain(void)
 }
 
 /**
- * Play various action sounds. */
+ * Play various action sounds.
+ */
 static void play_action_sounds(void)
 {
     if (cpl.warn_statdown) {
@@ -318,7 +324,8 @@ static void play_action_sounds(void)
 }
 
 /**
- * List video modes available. */
+ * List video modes available.
+ */
 void list_vid_modes(void)
 {
     SDL_Rect **modes;
@@ -334,7 +341,8 @@ void list_vid_modes(void)
 }
 
 /**
- * Hook for detecting background music changes. */
+ * Hook for detecting background music changes.
+ */
 static void sound_background_hook(void)
 {
     WIDGET_REDRAW_ALL(MPLAYER_ID);
@@ -436,9 +444,13 @@ static void clioptions_option_logger_filter_logfile(const char *arg)
 
 /**
  * The main function.
- * @param argc Number of arguments.
- * @param argv[] Arguments.
- * @return 0 */
+ * @param argc
+ * Number of arguments.
+ * @param argv[]
+ * Arguments.
+ * @return
+ * 0
+ */
 int main(int argc, char *argv[])
 {
     char *path;

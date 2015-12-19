@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref HANDLE "handles".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -116,7 +117,8 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the handle type object methods. */
+ * Initialize the handle type object methods.
+ */
 void object_type_init_handle(void)
 {
     object_type_methods[TYPE_HANDLE].apply_func = apply_func;

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Server initialization. */
+ * Server initialization.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -36,7 +37,8 @@
 #include <loader.h>
 
 /**
- * The server's settings. */
+ * The server's settings.
+ */
 struct settings_struct settings;
 
 /** The shared constants. */
@@ -65,7 +67,8 @@ static void init_dynamic(void);
 static void init_clocks(void);
 
 /**
- * Initialize the ::shstr_cons structure. */
+ * Initialize the ::shstr_cons structure.
+ */
 static void init_strings(void)
 {
     shstr_cons.none = add_string("none");
@@ -82,7 +85,8 @@ static void init_strings(void)
 }
 
 /**
- * Free the string constants. */
+ * Free the string constants.
+ */
 void free_strings(void)
 {
     int nrof_strings = sizeof(shstr_cons) / sizeof(const char *);
@@ -133,7 +137,8 @@ static void console_command_speed_multiplier(const char *params)
 /**
  * Dump the active objects list, or just the number of objects on the list.
  *
- * @param params Parameters from the console.
+ * @param params
+ * Parameters from the console.
  */
 static void
 console_command_active_objects (const char *params)
@@ -155,7 +160,8 @@ console_command_active_objects (const char *params)
 }
 
 /**
- * Free all data before exiting. */
+ * Free all data before exiting.
+ */
 void cleanup(void)
 {
     cache_remove_all();
@@ -443,7 +449,8 @@ static void clioptions_option_speed_multiplier(const char *arg)
  * If you want to lessen the size of the program using the library, you
  * can replace the call to init_library() with init_globals() and
  * init_function_pointers(). Good idea to also call init_vars() and
- * init_hash_table() if you are doing any object loading. */
+ * init_hash_table() if you are doing any object loading.
+ */
 static void init_library(int argc, char *argv[])
 {
     toolkit_import(memory);
@@ -802,7 +809,8 @@ static void init_library(int argc, char *argv[])
 
 /**
  * Initializes all global variables.
- * Might use environment variables as default for some of them. */
+ * Might use environment variables as default for some of them.
+ */
 void init_globals(void)
 {
     /* Global round ticker */
@@ -823,7 +831,8 @@ void init_globals(void)
 }
 
 /**
- * Initializes first_map_path from the archetype collection. */
+ * Initializes first_map_path from the archetype collection.
+ */
 static void init_dynamic(void)
 {
     archetype_t *at, *tmp;
@@ -843,7 +852,8 @@ static void init_dynamic(void)
 
 /**
  * Write out the current time to a file so time does not reset every
- * time the server reboots. */
+ * time the server reboots.
+ */
 void write_todclock(void)
 {
     char filename[MAX_BUF];
@@ -863,7 +873,8 @@ void write_todclock(void)
 /**
  * Initializes the gametime and TOD counters.
  *
- * Called by init_library(). */
+ * Called by init_library().
+ */
 static void init_clocks(void)
 {
     char filename[MAX_BUF];
@@ -895,8 +906,11 @@ static void init_clocks(void)
  * This is the main server initialization function.
  *
  * Called only once, when starting the program.
- * @param argc Length of argv.
- * @param argv Arguments. */
+ * @param argc
+ * Length of argv.
+ * @param argv
+ * Arguments.
+ */
 void init(int argc, char **argv)
 {
     /* We don't want to be affected by players' umask */
@@ -920,7 +934,8 @@ void init(int argc, char **argv)
 }
 
 /**
- * Initialize before playing. */
+ * Initialize before playing.
+ */
 static void init_beforeplay(void)
 {
     init_spells();

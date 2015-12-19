@@ -26,12 +26,14 @@
  * @file
  * Handles code for @ref CLIENT_MAP_INFO "client map info".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the client map info type object methods. */
+ * Initialize the client map info type object methods.
+ */
 void object_type_init_client_map_info(void)
 {
 }

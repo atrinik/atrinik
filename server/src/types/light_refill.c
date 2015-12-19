@@ -26,7 +26,8 @@
  * @file
  * Handles code related to @ref LIGHT_REFILL "light refills".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -90,7 +91,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the light refill type object methods. */
+ * Initialize the light refill type object methods.
+ */
 void object_type_init_light_refill(void)
 {
     object_type_methods[LIGHT_REFILL].apply_func = apply_func;

@@ -26,7 +26,8 @@
  * @file
  * Handles code related to @ref HOLY_ALTAR "holy altars".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -45,7 +46,8 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the holy altar type object methods. */
+ * Initialize the holy altar type object methods.
+ */
 void object_type_init_holy_altar(void)
 {
     object_type_methods[HOLY_ALTAR].apply_func = apply_func;

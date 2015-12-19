@@ -26,7 +26,8 @@
  * @file
  * Keybinding settings GUI.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -37,19 +38,24 @@ enum {
 } ;
 
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct button_new, button_remove, button_apply;
 /**
- * Text input buffer. */
+ * Text input buffer.
+ */
 static text_input_struct text_input_command, text_input_key;
 /**
- * What is being done in the keybinding GUI. */
+ * What is being done in the keybinding GUI.
+ */
 static int keybinding_state;
 /**
- * Keybinding ID that is being edited, if applicable. */
+ * Keybinding ID that is being edited, if applicable.
+ */
 static size_t keybinding_id;
 /**
- * The keybindings list. */
+ * The keybindings list.
+ */
 static list_struct *list_keybindings;
 
 static void keybinding_list_reload(void)
@@ -93,8 +99,11 @@ static void keybinding_apply(void)
 
 /**
  * Try to handle keybinding action.
- * @param key The key to try to handle.
- * @return 1 if the key was handled, 0 otherwise. */
+ * @param key
+ * The key to try to handle.
+ * @return
+ * 1 if the key was handled, 0 otherwise.
+ */
 static int keybinding_action(SDLKey key)
 {
     if (key == SDLK_n) {
@@ -316,7 +325,7 @@ static int popup_destroy_callback(popup_struct *popup)
 
     text_input_destroy(&text_input_command);
     text_input_destroy(&text_input_key);
-    
+
     return 1;
 }
 

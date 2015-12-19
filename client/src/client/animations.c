@@ -24,7 +24,8 @@
 
 /**
  * @file
- *  */
+ *
+ */
 
 #include <global.h>
 
@@ -132,7 +133,8 @@ void anims_deinit(void)
 
 /**
  * Reset the necessary values in animations table instead of reloading
- * them from file. */
+ * them from file.
+ */
 void anims_reset(void)
 {
     size_t i;

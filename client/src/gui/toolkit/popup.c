@@ -26,19 +26,24 @@
  * @file
  * Popup API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * Doubly-linked list of the visible popups. */
+ * Doubly-linked list of the visible popups.
+ */
 static popup_struct *popup_head = NULL;
 
 /**
  * Create a new popup.
- * @param texture The texture to use.
- * @return The created popup. */
+ * @param texture
+ * The texture to use.
+ * @return
+ * The created popup.
+ */
 popup_struct *popup_create(texture_struct *texture)
 {
     popup_struct *popup;
@@ -77,7 +82,9 @@ popup_struct *popup_create(texture_struct *texture)
 
 /**
  * Free the data used by a popup button.
- * @param button The button. */
+ * @param button
+ * The button.
+ */
 static void popup_button_free(popup_button *button)
 {
     if (button->text) {
@@ -88,7 +95,8 @@ static void popup_button_free(popup_button *button)
 }
 
 /**
- * Destroy the visible popup, freeing it. */
+ * Destroy the visible popup, freeing it.
+ */
 void popup_destroy(popup_struct *popup)
 {
     if (popup->destroy_callback_func && !popup->destroy_callback_func(popup)) {
@@ -115,7 +123,8 @@ void popup_destroy(popup_struct *popup)
 }
 
 /**
- * Destroy all visible popups. */
+ * Destroy all visible popups.
+ */
 void popup_destroy_all(void)
 {
     popup_struct *popup, *tmp;
@@ -128,8 +137,11 @@ void popup_destroy_all(void)
 
 /**
  * Render a single popup button.
- * @param popup Popup.
- * @param button The button to render. */
+ * @param popup
+ * Popup.
+ * @param button
+ * The button to render.
+ */
 static void popup_button_show(popup_struct *popup, popup_button *button)
 {
     if (button->button.texture) {
@@ -141,7 +153,9 @@ static void popup_button_show(popup_struct *popup, popup_button *button)
 
 /**
  * Render the specified popup.
- * @param popup The popup to render. */
+ * @param popup
+ * The popup to render.
+ */
 void popup_render(popup_struct *popup)
 {
     SDL_Rect box;
@@ -184,7 +198,8 @@ void popup_render(popup_struct *popup)
 }
 
 /**
- * Render the visible popups. */
+ * Render the visible popups.
+ */
 void popup_render_all(void)
 {
     popup_struct *popup, *tmp;
@@ -197,12 +212,15 @@ void popup_render_all(void)
 
 /**
  * Handle popup button event.
- * @param button The button.
- * @param event The event.
+ * @param button
+ * The button.
+ * @param event
+ * The event.
  * @retval 1 Handled the event.
  * @retval -1 Handled the event and the button was handled by callback
  * function.
- * @retval 0 Did not handle the event. */
+ * @retval 0 Did not handle the event.
+ */
 static int popup_button_handle_event(popup_button *button, SDL_Event *event)
 {
     if (button->text && button_event(&button->button, event)) {
@@ -218,8 +236,11 @@ static int popup_button_handle_event(popup_button *button, SDL_Event *event)
 
 /**
  * Handle mouse and keyboard events when a popup is active.
- * @param event Event.
- * @return 1 to disable any other mouse/keyboard actions, 0 otherwise. */
+ * @param event
+ * Event.
+ * @return
+ * 1 to disable any other mouse/keyboard actions, 0 otherwise.
+ */
 int popup_handle_event(SDL_Event *event)
 {
     int ret;
@@ -319,7 +340,9 @@ int popup_handle_event(SDL_Event *event)
 
 /**
  * Get the currently visible popup.
- * @return The visible popup, or NULL if there isn't any. */
+ * @return
+ * The visible popup, or NULL if there isn't any.
+ */
 popup_struct *popup_get_head(void)
 {
     return popup_head;
@@ -327,8 +350,11 @@ popup_struct *popup_get_head(void)
 
 /**
  * Set the text of a generic popup button.
- * @param button The button.
- * @param text Text to set. */
+ * @param button
+ * The button.
+ * @param text
+ * Text to set.
+ */
 void popup_button_set_text(popup_button *button, const char *text)
 {
     if (button->text) {
@@ -340,7 +366,8 @@ void popup_button_set_text(popup_button *button, const char *text)
 
 /**
  * Check whether any popup needs redrawing.
- * @return 1 if any popup needs redrawing, 0 otherwise.
+ * @return
+ * 1 if any popup needs redrawing, 0 otherwise.
  * @todo Actual redrawing logic in popups.
  */
 int popup_need_redraw(void)

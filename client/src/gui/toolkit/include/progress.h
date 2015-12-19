@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Header file for progress indicators. */
+ * Header file for progress indicators.
+ */
 
 #ifndef PROGRESS_H
 #define PROGRESS_H
 
 /**
- * Dots progress indicator. */
+ * Dots progress indicator.
+ */
 typedef struct progress_dots {
     /** Last time when one of the dots was lit. */
     uint32_t ticks;

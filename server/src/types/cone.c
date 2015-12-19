@@ -35,10 +35,15 @@
 /**
  * Check whether a part of the cone already exists on the specified
  * position.
- * @param op The cone.
- * @param m Map.
- * @param x X position.
- * @param y Y position. */
+ * @param op
+ * The cone.
+ * @param m
+ * Map.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ */
 static int cone_exists(object *op, mapstruct *m, int x, int y)
 {
     object *tmp;
@@ -136,7 +141,8 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 }
 
 /**
- * Initialize the cone type object methods. */
+ * Initialize the cone type object methods.
+ */
 void object_type_init_cone(void)
 {
     object_type_methods[CONE].move_on_func = move_on_func;

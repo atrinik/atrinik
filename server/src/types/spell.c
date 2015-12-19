@@ -26,7 +26,8 @@
  * @file
  * Handles code for @ref SPELL "spells".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -51,7 +52,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 }
 
 /**
- * Initialize the spell type object methods. */
+ * Initialize the spell type object methods.
+ */
 void object_type_init_spell(void)
 {
     object_type_methods[SPELL].apply_func = object_apply_item;

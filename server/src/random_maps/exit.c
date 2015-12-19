@@ -24,22 +24,28 @@
 
 /**
  * @file
- * Handle exit placement in map. */
+ * Handle exit placement in map.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
  * Find a character in the layout.
- * @param mode How to look:
+ * @param mode
+ * How to look:
  * - <b>1</b>: From top/left to bottom/right.
  * - <b>2</b>: From top/right to bottom/left.
  * - <b>3</b>: From bottom/left to top/right.
  * - <b>4</b>: From bottom/right to top/left.
  * - <b>Other</b>: One random order is chosen.
- * @param target Character to search.
- * @param layout Maze layout.
- * @param RP Random map parameters. */
+ * @param target
+ * Character to search.
+ * @param layout
+ * Maze layout.
+ * @param RP
+ * Random map parameters.
+ */
 void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMParms *RP)
 {
     int M, x, y;
@@ -130,16 +136,22 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
 
 /**
  * Place exits in the map.
- * @param map Map to put exits into.
- * @param maze Map layout.
- * @param exitstyle What style to use. If NULL uses a random one.
- * @param orientation How exits should be oriented:
+ * @param map
+ * Map to put exits into.
+ * @param maze
+ * Map layout.
+ * @param exitstyle
+ * What style to use. If NULL uses a random one.
+ * @param orientation
+ * How exits should be oriented:
  * - <b>0</b>: Random.
  * - <b>1</b>: Descending dungeon.
  * - <b>2</b>: Ascending dungeon.
- * @param RP Random map parameters.
+ * @param RP
+ * Random map parameters.
  * @note unblock_exits() should be called at some point, as exits will be
- * blocking everything to avoid putting other objects on them. */
+ * blocking everything to avoid putting other objects on them.
+ */
 void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, RMParms *RP)
 {
     mapstruct *style_map_down = NULL, *style_map_up = NULL;
@@ -384,9 +396,13 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 /**
  * This function unblocks the exits. We blocked them to keep things from
  * being dumped on them during the other phases of random map generation.
- * @param map Map to alter.
- * @param maze Map layout.
- * @param RP Random map parameters. */
+ * @param map
+ * Map to alter.
+ * @param maze
+ * Map layout.
+ * @param RP
+ * Random map parameters.
+ */
 void unblock_exits(mapstruct *map, char **maze, RMParms *RP)
 {
     int x, y;

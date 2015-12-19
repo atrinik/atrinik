@@ -56,8 +56,10 @@ TOOLKIT_DEINIT_FUNC_FINISH
 /**
  * Computes the integer square root.
  *
- * @param n Number of which to compute the root.
- * @return Integer square root.
+ * @param n
+ * Number of which to compute the root.
+ * @return
+ * Integer square root.
  */
 unsigned long
 isqrt (unsigned long n)
@@ -96,9 +98,12 @@ isqrt (unsigned long n)
  *
  * This should also prevent SIGFPE.
  *
- * @param min Starting range.
- * @param max Ending range.
- * @return The random number.
+ * @param min
+ * Starting range.
+ * @param max
+ * Ending range.
+ * @return
+ * The random number.
  */
 int
 rndm (int min, int max)
@@ -120,8 +125,10 @@ rndm (int min, int max)
 /**
  * Calculates a chance of 1 in 'n'.
  *
- * @param n Number.
- * @return 1 if the chance of 1/n was successful, 0 otherwise.
+ * @param n
+ * Number.
+ * @return
+ * 1 if the chance of 1/n was successful, 0 otherwise.
  */
 int
 rndm_chance (uint32_t n)
@@ -301,14 +308,22 @@ nearest_pow_two_exp (size_t n)
 /**
  * Determine whether the specified point X,Y is in an ellipse.
  *
- * @param x X of the point.
- * @param y Y of the point.
- * @param cx X center of the ellipse.
- * @param cy Y center of the ellipse.
- * @param dx X diameter of the ellipse.
- * @param dy Y diameter of the ellipse.
- * @param angle Angle of the ellipse.
- * @return True if the point is inside the ellipse, false otherwise.
+ * @param x
+ * X of the point.
+ * @param y
+ * Y of the point.
+ * @param cx
+ * X center of the ellipse.
+ * @param cy
+ * Y center of the ellipse.
+ * @param dx
+ * X diameter of the ellipse.
+ * @param dy
+ * Y diameter of the ellipse.
+ * @param angle
+ * Angle of the ellipse.
+ * @return
+ * True if the point is inside the ellipse, false otherwise.
  */
 bool
 math_point_in_ellipse (int    x,
@@ -331,17 +346,25 @@ math_point_in_ellipse (int    x,
 /**
  * Determine whether the specified point X,Y is on the edge of an ellipse.
  *
- * @param x X of the point.
- * @param y Y of the point.
- * @param cx X center of the ellipse.
- * @param cy Y center of the ellipse.
- * @param dx X diameter of the ellipse.
- * @param dy Y diameter of the ellipse.
- * @param angle Angle of the ellipse.
+ * @param x
+ * X of the point.
+ * @param y
+ * Y of the point.
+ * @param cx
+ * X center of the ellipse.
+ * @param cy
+ * Y center of the ellipse.
+ * @param dx
+ * X diameter of the ellipse.
+ * @param dy
+ * Y diameter of the ellipse.
+ * @param angle
+ * Angle of the ellipse.
  * @param[out] deg On success, will contain the angle the point is at in
  * relation to the center of the ellipse, in degrees (0-359), with up=0,
  * right=90, etc. Can be NULL. Undefined if the function returns false.
- * @return True if the point is on the edge of the ellipse, false otherwise.
+ * @return
+ * True if the point is on the edge of the ellipse, false otherwise.
  */
 bool
 math_point_edge_ellipse (int    x,

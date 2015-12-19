@@ -24,16 +24,21 @@
 
 /**
  * @file
- * Those functions deal with style for random maps. */
+ * Those functions deal with style for random maps.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
  * Char comparison for sorting purposes.
- * @param p1 First pointer to compare.
- * @param p2 Second pointer to compare.
- * @return Return of strcmp() on pointed strings. */
+ * @param p1
+ * First pointer to compare.
+ * @param p2
+ * Second pointer to compare.
+ * @return
+ * Return of strcmp() on pointed strings.
+ */
 static int pointer_strcmp(const void *p1, const void *p2)
 {
     const char *s1 = *(const char * const *) p1;
@@ -50,13 +55,18 @@ static int pointer_strcmp(const void *p1, const void *p2)
  * through the normal dirent entry. So instead, we do our own where we do
  * have the full directory path so can do stat calls to see if in fact it
  * is a directory.
- * @param dir Name of the directory to scan.
- * @param namelist Array of file names returned. It needs to be freed by
+ * @param dir
+ * Name of the directory to scan.
+ * @param namelist
+ * Array of file names returned. It needs to be freed by
  * the caller.
- * @param skip_dirs If nonzero, we don't skip any subdirectories - if
+ * @param skip_dirs
+ * If nonzero, we don't skip any subdirectories - if
  * zero, we store those away, since there are cases where we want to
  * choose a random directory.
- * @return -1 if directory is invalid, number of files otherwise. */
+ * @return
+ * -1 if directory is invalid, number of files otherwise.
+ */
 int load_dir(const char *dir, char ***namelist, int skip_dirs)
 {
     DIR *dp;
@@ -100,13 +110,17 @@ int load_dir(const char *dir, char ***namelist, int skip_dirs)
 }
 
 /**
- * Loaded styles maps cache, to avoid having to load all the time. */
+ * Loaded styles maps cache, to avoid having to load all the time.
+ */
 mapstruct *styles = NULL;
 
 /**
  * Loads specified map (or take it from cache list).
- * @param style_name Map to load.
- * @return The loaded map. */
+ * @param style_name
+ * Map to load.
+ * @return
+ * The loaded map.
+ */
 mapstruct *load_style_map(char *style_name)
 {
     mapstruct *style_map;
@@ -143,10 +157,15 @@ mapstruct *load_style_map(char *style_name)
  *
  * Otherwise, it tries to match the difficulty given with a style file,
  * named style_name_# where # is an integer.
- * @param dirname Where to look.
- * @param stylename Style to use, can be NULL.
- * @param difficulty Style difficulty.
- * @return Style, or NULL if none suitable. */
+ * @param dirname
+ * Where to look.
+ * @param stylename
+ * Style to use, can be NULL.
+ * @param difficulty
+ * Style difficulty.
+ * @return
+ * Style, or NULL if none suitable.
+ */
 mapstruct *find_style(const char *dirname, const char *stylename, int difficulty)
 {
     char style_file_path[256], style_file_full_path[256];
@@ -259,8 +278,11 @@ mapstruct *find_style(const char *dirname, const char *stylename, int difficulty
 
 /**
  * Picks a random object from a style map.
- * @param style Map to pick from.
- * @return The random object. Can be NULL. */
+ * @param style
+ * Map to pick from.
+ * @return
+ * The random object. Can be NULL.
+ */
 object *pick_random_object(mapstruct *style)
 {
     int x, y, i;
@@ -285,7 +307,8 @@ object *pick_random_object(mapstruct *style)
 }
 
 /**
- * Frees cached style maps. */
+ * Frees cached style maps.
+ */
 void free_style_maps(void)
 {
     mapstruct *map, *tmp;

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Map related functions. */
+ * Map related functions.
+ */
 
 #include <global.h>
 #include <loader.h>
@@ -149,9 +150,13 @@ void map_init(void)
 
 /**
  * Try loading the connected map tile with the given number.
- * @param orig_map Base map.
- * @param tile_num Tile number to connect to.
- * @return NULL if loading or tiling fails, loaded neighbor map otherwise. */
+ * @param orig_map
+ * Base map.
+ * @param tile_num
+ * Tile number to connect to.
+ * @return
+ * NULL if loading or tiling fails, loaded neighbor map otherwise.
+ */
 static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
 {
     mapstruct *map;
@@ -186,14 +191,23 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
 /**
  * Recursive part of the relative_tile_position() function.
  * @param map1
+ *
  * @param map2
+ *
  * @param x
+ *
  * @param y
+ *
  * @param z
+ *
  * @param id
- * @param level Recursion level.
+ *
+ * @param level
+ * Recursion level.
  * @return
- * @todo A bidirectional breadth-first search would be more efficient. */
+ *
+ * @todo A bidirectional breadth-first search would be more efficient.
+ */
 static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, uint32_t id, int level, int flags)
 {
     int i;
@@ -311,11 +325,18 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
  * considering that all tiles are of equal size, and that we might be
  * able to parse their coordinates from their names...
  * @param map1
+ *
  * @param map2
+ *
  * @param x
+ *
  * @param y
+ *
  * @param z
- * @return 1 if the two tiles are part of the same map, 0 otherwise. */
+ *
+ * @return
+ * 1 if the two tiles are part of the same map, 0 otherwise.
+ */
 static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, int flags)
 {
     static uint32_t traversal_id = 0;
@@ -351,9 +372,12 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 /**
  * Check whether a specified map has been loaded already.
  * Returns the mapstruct which has a name matching the given argument.
- * @param name Shared string of the map path name.
- * @return ::mapstruct which has a name matching the given argument,
- * NULL if no such map. */
+ * @param name
+ * Shared string of the map path name.
+ * @return
+ * ::mapstruct which has a name matching the given argument,
+ * NULL if no such map.
+ */
 mapstruct *has_been_loaded_sh(shstr *name)
 {
     mapstruct *map;
@@ -382,8 +406,11 @@ mapstruct *has_been_loaded_sh(shstr *name)
  *
  * In other words, it prepends LIBDIR/MAPDIR/ to the given path and
  * returns the pointer to a static array containing the result.
- * @param name Path of the map.
- * @return The full path. */
+ * @param name
+ * Path of the map.
+ * @return
+ * The full path.
+ */
 char *create_pathname(const char *name)
 {
     static char buf[MAX_BUF];
@@ -402,8 +429,11 @@ char *create_pathname(const char *name)
  * saved.
  *
  * Converts '/' to '@'.
- * @param s Path of the map for the items.
- * @return The absolute path. */
+ * @param s
+ * Path of the map for the items.
+ * @return
+ * The absolute path.
+ */
 static char *create_items_path(shstr *s)
 {
     static char buf[MAX_BUF];
@@ -436,10 +466,15 @@ static char *create_items_path(shstr *s)
  * The @ref P_PLAYER_ONLY flag here is analyzed without checking the
  * caller type. That is possible because player movement related
  * functions should always used blocked().
- * @param m Map we're checking for.
- * @param x X position where to check.
- * @param y Y position where to check.
- * @return 1 if a wall is present at the given location. */
+ * @param m
+ * Map we're checking for.
+ * @param x
+ * X position where to check.
+ * @param y
+ * Y position where to check.
+ * @return
+ * 1 if a wall is present at the given location.
+ */
 int wall(mapstruct *m, int x, int y)
 {
     if (!(m = get_map_from_coord(m, &x, &y))) {
@@ -452,10 +487,15 @@ int wall(mapstruct *m, int x, int y)
 /**
  * Check if it's impossible to see through the given coordinate on the
  * given map.
- * @param m Map.
- * @param x X position on the map.
- * @param y Y position on the map.
- * @return 1 if the given location blocks view. */
+ * @param m
+ * Map.
+ * @param x
+ * X position on the map.
+ * @param y
+ * Y position on the map.
+ * @return
+ * 1 if the given location blocks view.
+ */
 int blocks_view(mapstruct *m, int x, int y)
 {
     mapstruct *nm;
@@ -469,10 +509,15 @@ int blocks_view(mapstruct *m, int x, int y)
 
 /**
  * Check if given coordinates on the given map block magic.
- * @param m Map.
- * @param x X position on the map.
- * @param y Y position on the map.
- * @return 1 if the given location blocks magic. */
+ * @param m
+ * Map.
+ * @param x
+ * X position on the map.
+ * @param y
+ * Y position on the map.
+ * @return
+ * 1 if the given location blocks magic.
+ */
 int blocks_magic(mapstruct *m, int x, int y)
 {
     if (!(m = get_map_from_coord(m, &x, &y))) {
@@ -488,11 +533,16 @@ int blocks_magic(mapstruct *m, int x, int y)
  * otherwise, what ends up happening is that all the tiles the monster's
  * tails are on will be considered impassable.
  *
- * @param op Object that is being checked. Cannot be NULL.
- * @param m Map position to check. Cannot be NULL.
- * @param x X coordinate to check.
- * @param y Y coordinate to check.
- * @return Whether the object is blocked by itself on the specified square.
+ * @param op
+ * Object that is being checked. Cannot be NULL.
+ * @param m
+ * Map position to check. Cannot be NULL.
+ * @param x
+ * X coordinate to check.
+ * @param y
+ * Y coordinate to check.
+ * @return
+ * Whether the object is blocked by itself on the specified square.
  */
 static bool
 blocked_self (object *op, mapstruct *m, int x, int y)
@@ -523,13 +573,20 @@ blocked_self (object *op, mapstruct *m, int x, int y)
 /**
  * Check if specified object cannot move onto x, y on the given map and
  * terrain.
- * @param op Object.
- * @param m The map.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @param terrain Terrain type.
- * @return 0 if not blocked by anything, combination of
- * @ref map_look_flags otherwise. */
+ * @param op
+ * Object.
+ * @param m
+ * The map.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @param terrain
+ * Terrain type.
+ * @return
+ * 0 if not blocked by anything, combination of
+ * @ref map_look_flags otherwise.
+ */
 int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 {
     int flags;
@@ -597,11 +654,17 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 /**
  * This is used for any action which needs to browse through the objects
  * of the tile node, for special objects like inventory checkers.
- * @param op Object trying to move to map at x, y.
- * @param m Map we want to check.
- * @param x X position to check for.
- * @param y Y position to check for.
- * @return 1 if the tile is blocked, 0 otherwise. */
+ * @param op
+ * Object trying to move to map at x, y.
+ * @param m
+ * Map we want to check.
+ * @param x
+ * X position to check for.
+ * @param y
+ * Y position to check for.
+ * @return
+ * 1 if the tile is blocked, 0 otherwise.
+ */
 int blocked_tile(object *op, mapstruct *m, int x, int y)
 {
     object *tmp;
@@ -640,13 +703,20 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
 
 /**
  * Check if an archetype can fit to a position.
- * @param at Archetype to check.
- * @param op Object. If not NULL, will check for terrain as well.
- * @param m Map.
- * @param x X position.
- * @param y Y position.
- * @return 0 if the space to check is not blocked, return value of blocked()
- * otherwise. */
+ * @param at
+ * Archetype to check.
+ * @param op
+ * Object. If not NULL, will check for terrain as well.
+ * @param m
+ * Map.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @return
+ * 0 if the space to check is not blocked, return value of blocked()
+ * otherwise.
+ */
 int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
 {
     archetype_t *tmp;
@@ -686,9 +756,13 @@ int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
 /**
  * Loads (and parses) the objects into a given map from the specified
  * file pointer.
- * @param m Map being loaded.
- * @param fp File to read from.
- * @param mapflags The same as we get with load_original_map(). */
+ * @param m
+ * Map being loaded.
+ * @param fp
+ * File to read from.
+ * @param mapflags
+ * The same as we get with load_original_map().
+ */
 static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 {
     object *op = get_object();
@@ -752,9 +826,13 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 
 /**
  * This saves all the objects on the map in a non destructive fashion.
- * @param m Map to save.
- * @param fp File where regular objects are saved.
- * @param fp2 File to save unique objects. */
+ * @param m
+ * Map to save.
+ * @param fp
+ * File where regular objects are saved.
+ * @param fp2
+ * File to save unique objects.
+ */
 static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
     int x, y;
@@ -832,8 +910,11 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
  * Sets darkness for map, both light_value and darkness.
  *
  * Takes care of checking the passed value.
- * @param m Pointer to the map's structure.
- * @param value The darkness value. */
+ * @param m
+ * Pointer to the map's structure.
+ * @param value
+ * The darkness value.
+ */
 void set_map_darkness(mapstruct *m, int value)
 {
     if (value < 0 || value > MAX_DARKNESS) {
@@ -846,7 +927,9 @@ void set_map_darkness(mapstruct *m, int value)
 
 /**
  * Allocates, initializes, and returns a pointer to a mapstruct.
- * @return The new map structure. */
+ * @return
+ * The new map structure.
+ */
 mapstruct *get_linked_map(void)
 {
     return mempool_get(pool_map);
@@ -855,7 +938,9 @@ mapstruct *get_linked_map(void)
 /**
  * This basically allocates the dynamic array of spaces for the
  * map.
- * @param m Map to allocate spaces for. */
+ * @param m
+ * Map to allocate spaces for.
+ */
 static void allocate_map(mapstruct *m)
 {
     SOFT_ASSERT(m->spaces == NULL, "Map spaces are not NULL: %s", m->path);
@@ -875,9 +960,13 @@ static void allocate_map(mapstruct *m)
  * Creates and returns a map of the specified size.
  *
  * Used in random maps code.
- * @param sizex X size of the map.
- * @param sizey Y size of the map.
- * @return The new map structure. */
+ * @param sizex
+ * X size of the map.
+ * @param sizey
+ * Y size of the map.
+ * @return
+ * The new map structure.
+ */
 mapstruct *get_empty_map(int sizex, int sizey)
 {
     mapstruct *m = get_linked_map();
@@ -936,14 +1025,18 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname)
  * Opens the file "filename" and reads information about the map
  * from the given file, and stores it in a newly allocated
  * mapstruct.
- * @param filename Map path.
- * @param flags One of (or combination of):
+ * @param filename
+ * Map path.
+ * @param flags
+ * One of (or combination of):
  * - @ref MAP_PLAYER_UNIQUE: We don't do any name changes.
  * - @ref MAP_BLOCK: We block on this load. This happens in all cases, no
  *   matter if this flag is set or not.
  * - @ref MAP_STYLE: Style map - don't add active objects, don't add to
  *   server managed map list.
- * @return The loaded map structure, NULL on failure. */
+ * @return
+ * The loaded map structure, NULL on failure.
+ */
 mapstruct *load_original_map(const char *filename, mapstruct *originator,
         int flags)
 {
@@ -1108,9 +1201,12 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
 
 /**
  * Loads a map, which has been loaded earlier, from file.
- * @param m Map we want to reload.
- * @return The map object we load into (this can change from the passed
- * option if we can't find the original map). */
+ * @param m
+ * Map we want to reload.
+ * @return
+ * The map object we load into (this can change from the passed
+ * option if we can't find the original map).
+ */
 static mapstruct *load_temporary_map(mapstruct *m)
 {
     FILE *fp;
@@ -1157,7 +1253,9 @@ static mapstruct *load_temporary_map(mapstruct *m)
 
 /**
  * Goes through a map and removes any unique items on the map.
- * @param m The map to go through. */
+ * @param m
+ * The map to go through.
+ */
 static void delete_unique_items(mapstruct *m)
 {
     int i, j, unique = 0;
@@ -1189,7 +1287,9 @@ static void delete_unique_items(mapstruct *m)
 
 /**
  * Loads unique objects from file(s) into the map which is in memory.
- * @param m The map to load unique items into. */
+ * @param m
+ * The map to load unique items into.
+ */
 static void load_unique_objects(mapstruct *m)
 {
     FILE *fp;
@@ -1228,9 +1328,13 @@ static void load_unique_objects(mapstruct *m)
  * The temporary filename will be stored in the mapstructure.
  * If the map is unique, we also save to the filename in the map
  * (this should have been updated when first loaded).
- * @param m The map to save.
- * @param flag Save flag.
- * @return  */
+ * @param m
+ * The map to save.
+ * @param flag
+ * Save flag.
+ * @return
+ *
+ */
 int new_save_map(mapstruct *m, int flag)
 {
     FILE *fp, *fp2;
@@ -1332,7 +1436,9 @@ int new_save_map(mapstruct *m, int flag)
 
 /**
  * Remove and free all objects in the given map.
- * @param m The map. */
+ * @param m
+ * The map.
+ */
 static void free_all_objects(mapstruct *m)
 {
     int x, y;
@@ -1354,8 +1460,11 @@ static void free_all_objects(mapstruct *m)
  * Frees everything allocated by the given map structure.
  *
  * Don't free tmpname - our caller is left to do that.
- * @param m Map to free.
- * @param flag If set, free all objects on the map. */
+ * @param m
+ * Map to free.
+ * @param flag
+ * If set, free all objects on the map.
+ */
 void free_map(mapstruct *m, int flag)
 {
     int i;
@@ -1415,7 +1524,9 @@ void free_map(mapstruct *m, int flag)
 /**
  * Deletes all the data on the map (freeing pointers) and then removes
  * this map from the global linked list of maps.
- * @param m The map to delete. */
+ * @param m
+ * The map to delete.
+ */
 void delete_map(mapstruct *m)
 {
     HARD_ASSERT(m != NULL);
@@ -1434,13 +1545,17 @@ void delete_map(mapstruct *m)
 
 /**
  * Makes sure the given map is loaded and swapped in.
- * @param name Path name of the map.
- * @param flags Possible flags:
+ * @param name
+ * Path name of the map.
+ * @param flags
+ * Possible flags:
  * - @ref MAP_FLUSH: Flush the map - always load from the map directory,
  *   and don't do unique items or the like.
  *  - @ref MAP_PLAYER_UNIQUE: This is an unique map for each player.
  *    Don't do any more name translation on it.
- * @return Pointer to the given map. */
+ * @return
+ * Pointer to the given map.
+ */
 mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags)
 {
     mapstruct *m;
@@ -1516,7 +1631,9 @@ mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags)
 
 /**
  * Remove the temporary file used by the map.
- * @param m Map. */
+ * @param m
+ * Map.
+ */
 void clean_tmp_map(mapstruct *m)
 {
     if (m->tmpname == NULL) {
@@ -1530,7 +1647,8 @@ void clean_tmp_map(mapstruct *m)
 }
 
 /**
- * Free all allocated maps. */
+ * Free all allocated maps.
+ */
 void free_all_maps(void)
 {
     mapstruct *map, *tmp;
@@ -1551,9 +1669,13 @@ void free_all_maps(void)
  * This function updates various attributes about a specific space on the
  * map (what it looks like, whether it blocks magic, has a living
  * creatures, prevents people from passing through, etc).
- * @param m Map to update.
- * @param x X position on the given map.
- * @param y Y position on the given map. */
+ * @param m
+ * Map to update.
+ * @param x
+ * X position on the given map.
+ * @param y
+ * Y position on the given map.
+ */
 void update_position(mapstruct *m, int x, int y)
 {
     object *tmp;
@@ -1679,7 +1801,9 @@ void update_position(mapstruct *m, int x, int y)
 
 /**
  * Updates the map's timeout.
- * @param map Map to update. */
+ * @param map
+ * Map to update.
+ */
 void set_map_reset_time(mapstruct *map)
 {
     uint32_t timeout = MAP_RESET_TIMEOUT(map);
@@ -1697,9 +1821,12 @@ void set_map_reset_time(mapstruct *map)
 
 /**
  * Get tiled map, loading it if necessary.
- * @param m Map.
- * @param tiled Tile ID to get.
- * @return Tiled map on success, NULL on failure.
+ * @param m
+ * Map.
+ * @param tiled
+ * Tile ID to get.
+ * @return
+ * Tiled map on success, NULL on failure.
  */
 mapstruct *get_map_from_tiled(mapstruct *m, int tiled)
 {
@@ -1724,11 +1851,14 @@ mapstruct *get_map_from_tiled(mapstruct *m, int tiled)
  * Return NULL if no map is valid (coordinates out of bounds and no tiled
  * map), otherwise it returns the map the coordinates are really on, and
  * updates x and y to be the localized coordinates.
- * @param m Map to consider.
+ * @param m
+ * Map to consider.
  * @param[out] x Will contain the real X position that was checked.
  * @param[out] y Will contain the real Y position that was checked.
- * @return Map that is at specified location. Will be NULL if not on any
- * map. */
+ * @return
+ * Map that is at specified location. Will be NULL if not on any
+ * map.
+ */
 mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 {
     /* m should never be null, but if a tiled map fails to load below, it
@@ -1850,13 +1980,16 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 /**
  * Same as get_map_from_coord(), but this version doesn't load tiled maps
  * into memory, if they are not already.
- * @param m Map to consider.
+ * @param m
+ * Map to consider.
  * @param[out] x Will contain the real X position that was checked. If
  * coordinates are not in a map this is set to 0, or to -1 if there is a
  * tiled map but it's not loaded.
  * @param[out] y Will contain the real Y position that was checked.
- * @return Map that is at specified location. Will be NULL if not on any
- * map. */
+ * @return
+ * Map that is at specified location. Will be NULL if not on any
+ * map.
+ */
 mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
 {
     if (!m) {
@@ -2034,7 +2167,8 @@ mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
  * + any flags accepted by get_rangevector_from_mapcoords() below.
  *
  * Returns TRUE if successful, or FALSE otherwise.
- * @todo Document. */
+ * @todo Document.
+ */
 int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 {
     if (!get_rangevector_from_mapcoords(op1->map, op1->x, op1->y, op2->map, op2->x, op2->y, retval, flags | RV_NO_DISTANCE)) {
@@ -2092,7 +2226,8 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
  *   0x4 - calculate euclidean (straight line) distance (slow)
  *   0x8 - calculate diagonal  (max(dx + dy)) distance   (fast)
  *   0x8|0x04 - don't calculate distance (or direction) (fastest)
- * @todo Document. */
+ * @todo Document.
+ */
 int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags)
 {
     retval->part = NULL;
@@ -2203,9 +2338,13 @@ static int on_same_map_exits(mapstruct *map1, mapstruct *map2)
 /**
  * Checks whether two objects are on the same map, taking map tiling
  * into account.
- * @param op1 First object to check for.
- * @param op2 Second object to check against the first.
- * @return 1 if both objects are on same map, 0 otherwise. */
+ * @param op1
+ * First object to check for.
+ * @param op2
+ * Second object to check against the first.
+ * @return
+ * 1 if both objects are on same map, 0 otherwise.
+ */
 int on_same_map(object *op1, object *op2)
 {
     int i;
@@ -2242,8 +2381,11 @@ int on_same_map(object *op1, object *op2)
 
 /**
  * Count the players on a map, using the local map player list.
- * @param m The map.
- * @return Number of players on this map. */
+ * @param m
+ * The map.
+ * @return
+ * Number of players on this map.
+ */
 int players_on_map(mapstruct *m)
 {
     object *tmp;
@@ -2259,10 +2401,15 @@ int players_on_map(mapstruct *m)
 /**
  * Returns true if square x, y has P_NO_PASS set, which is true for walls
  * and doors but not monsters.
- * @param m Map to check for
- * @param x X coordinate to check for
- * @param y Y coordinate to check for
- * @return Non zero if blocked, 0 otherwise. */
+ * @param m
+ * Map to check for
+ * @param x
+ * X coordinate to check for
+ * @param y
+ * Y coordinate to check for
+ * @return
+ * Non zero if blocked, 0 otherwise.
+ */
 int wall_blocked(mapstruct *m, int x, int y)
 {
     int r;
@@ -2470,8 +2617,11 @@ char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *n
 /**
  * Force the reset of a map, removing any players on it, swapping it out
  * and reloading it.
- * @param m Map to reset.
- * @return Reset map on success, NULL on failure. */
+ * @param m
+ * Map to reset.
+ * @return
+ * Reset map on success, NULL on failure.
+ */
 mapstruct *map_force_reset(mapstruct *m)
 {
     object *tmp, *next, **players;
@@ -2524,13 +2674,20 @@ mapstruct *map_force_reset(mapstruct *m)
 
 /**
  * Internal function used by map_redraw().
- * @param tiled Tiled map.
- * @param map Map.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @param layer Layer to redraw, defaults to all.
- * @param sub_layer Sub-layer to redraw, defaults to all.
- * @return 0.
+ * @param tiled
+ * Tiled map.
+ * @param map
+ * Map.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @param layer
+ * Layer to redraw, defaults to all.
+ * @param sub_layer
+ * Sub-layer to redraw, defaults to all.
+ * @return
+ * 0.
  */
 static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
         int layer, int sub_layer)
@@ -2584,11 +2741,16 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
 /**
  * Force redrawing of all objects on the specified tile, for all players that
  * can see it.
- * @param m Map.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @param layer Layer to redraw, -1 for all.
- * @param sub_layer Sub-layer to redraw, -1 for all.
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @param layer
+ * Layer to redraw, -1 for all.
+ * @param sub_layer
+ * Sub-layer to redraw, -1 for all.
  * @warning This is a costly function, and should only be called sparingly, and
  * only if it's really necessary. Do not EVER call it from code that is called
  * very often (combat code for example).
