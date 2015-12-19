@@ -563,7 +563,9 @@ int fire_bolt(object *op, object *caster, int dir, int type)
         return 0;
     }
 
-    tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
+    int dam = SP_level_dam_adjust(caster, type, false);
+    dam = MIN(dam, INT16_MAX);
+    tmp->stats.dam = (int16_t) dam;
     tmp->last_sp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
     tmp->direction = dir;
@@ -629,7 +631,9 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
     }
 
     tmp->stats.sp = type;
-    tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
+    int dam = SP_level_dam_adjust(caster, type, false);
+    dam = MIN(dam, INT16_MAX);
+    tmp->stats.dam = (int16_t) dam;
     tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
     tmp->x = x, tmp->y = y;
     tmp->direction = dir;
@@ -725,7 +729,9 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         }
 
         tmp->stats.hp = strength;
-        tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam, 0);
+        int dam = SP_level_dam_adjust(caster, spell_type, false);
+        dam = MIN(dam, INT16_MAX);
+        tmp->stats.dam = (int16_t) dam;
         tmp->stats.maxhp = tmp->count;
 
         if (!QUERY_FLAG(tmp, FLAG_FLYING)) {
@@ -800,8 +806,13 @@ void explode_object(object *op)
         return;
     }
 
-    cast_cone(op, op, 0, spells[op->stats.sp].bdur, op->stats.sp,
-            op->other_arch);
+    object *caster = get_owner(op);
+    if (caster == NULL) {
+        caster = op;
+    }
+
+    cast_cone(op, caster, 0, spells[op->stats.sp].bdur, op->stats.sp,
+              op->other_arch);
     hit_map(op, 0, 0);
 
     /* remove the firebullet */
@@ -974,17 +985,15 @@ int find_target_for_spell(object *op, object **target, uint32_t flags)
  * Who is casting.
  * @param spell_type
  * Spell ID we're adjusting.
- * @param base_dam
- * Base damage.
  * @param exact
- * Return exact damage, unadjusted by random percent?
+ * Return exact damage, unadjusted by random percentage.
  * @return
  * Adjusted damage.
  */
-int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
+int
+SP_level_dam_adjust (object *caster, int spell_type, bool exact)
 {
     int level = SK_level(caster);
-    int16_t dam;
 
     /* Sanity check */
     if (level <= 0 || level > MAXLEVEL) {
@@ -998,19 +1007,23 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
         }
     }
 
-    /* get a base damage when we don't have one from caller */
-    if (base_dam == -1) {
-        base_dam = spells[spell_type].bdam;
+    double dam = spells[spell_type].bdam;
+    dam *= LEVEL_DAMAGE(level);
+    dam *= PATH_DMG_MULT(caster, find_spell(spell_type));
+
+    if (caster->type == PLAYER) {
+        dam += dam * spell_dam_bonus[caster->stats.Pow];
     }
 
-    dam = (int16_t) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
-    dam += dam * spell_dam_bonus[caster->stats.Pow];
-
-    if (exact || !dam) {
-        return dam;
+    if (dam < 1.0) {
+        dam = 1.0;
     }
 
-    return rndm(dam * 0.8 + 1, dam);
+    if (exact) {
+        return (int) dam;
+    }
+
+    return rndm(dam * 0.8 + 1.0, dam);
 }
 
 /**

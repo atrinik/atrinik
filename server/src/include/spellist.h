@@ -34,13 +34,13 @@
 spell_struct spells[NROFREALSPELLS] = {
     {"firestorm",
         5, 8, 3, 6, 0, 1.0,
-        4, 5, 4, 4, 9, "magic_fire.ogg",
+        3, 5, 4, 4, 9, "magic_fire.ogg",
         SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_DUST | SPELL_USE_POTION, SPELL_DESC_DIRECTION,
         PATH_FIRE, "firebreath", NULL},
 
     {"icestorm",
         5, 8, 3, 6, 0, 1.0,
-        4, 5, 4, 4, 9, "magic_ice.ogg",
+        3, 5, 4, 4, 9, "magic_ice.ogg",
         SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD | SPELL_USE_POTION | SPELL_USE_DUST, SPELL_DESC_DIRECTION,
         PATH_FROST, "icestorm", NULL},
 
@@ -100,7 +100,7 @@ spell_struct spells[NROFREALSPELLS] = {
 
     {"cause light wounds",
         4, 8, 3, 6, 0, 1.0,
-        4, 5, 4, 4, 9, "magic_wound.ogg",
+        5, 5, 4, 4, 9, "magic_wound.ogg",
         SPELL_USE_CAST | SPELL_USE_SCROLL, SPELL_DESC_DIRECTION,
         PATH_WOUNDING, "cause_wounds", NULL},
 
@@ -112,7 +112,7 @@ spell_struct spells[NROFREALSPELLS] = {
 
     {"magic bullet",
         4, 8, 3, 6, 0, 1.0,
-        4, 5, 4, 4, 9, "magic_bullet1.ogg",
+        7, 5, 4, 4, 9, "magic_bullet1.ogg",
         SPELL_USE_CAST | SPELL_USE_SCROLL | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
         PATH_MISSILE, "bullet", NULL},
 
@@ -292,7 +292,7 @@ spell_struct spells[NROFREALSPELLS] = {
 
     {"magic missile",
         3, 8, 3, 6, 9, 1.0,
-        4, 5, 4, 4, 9, "magic_missile.ogg",
+        5, 5, 4, 4, 9, "magic_missile.ogg",
         SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_ENEMY,
         PATH_MISSILE, "magic_missile", NULL},
 
@@ -310,37 +310,37 @@ spell_struct spells[NROFREALSPELLS] = {
 
     {"frostbolt",
         5, 8, 3, 6, 0, 1.0,
-        4, 7, 4, 0, 9, "magic_ice.ogg",
+        5, 7, 4, 0, 9, "magic_ice.ogg",
         SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
         PATH_FROST, "frostbolt", NULL},
 
     {"firebolt",
         5, 8, 3, 6, 0, 1.0,
-        4, 7, 4, 0, 9, "magic_fire.ogg",
+        5, 7, 4, 0, 9, "magic_fire.ogg",
         SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
         PATH_FIRE, "firebolt", NULL},
 
     {"lightning",
         5, 8, 3, 6, 0, 1.0,
-        4, 7, 4, 0, 9, "magic_elec.ogg",
+        5, 7, 4, 0, 9, "magic_elec.ogg",
         SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
         PATH_ELEC, "lightning", NULL},
 
     {"forked lightning",
         5, 8, 3, 6, 0, 1.0,
-        4, 4, 4, 8, 9, "magic_elec.ogg",
+        5, 4, 4, 8, 9, "magic_elec.ogg",
         SPELL_USE_CAST | SPELL_USE_WAND | SPELL_USE_ROD, SPELL_DESC_DIRECTION,
         PATH_ELEC, "forked_lightning", NULL},
 
     {"negative energy bolt",
         5, 8, 3, 6, 0, 1.0,
-        4, 5, 4, 8, 9, "magic_elec.ogg",
+        12, 5, 4, 8, 9, "magic_elec.ogg",
         SPELL_USE_CAST, SPELL_DESC_DIRECTION,
         PATH_DEATH, "negabolt", NULL},
 
     {"holy word",
         6, 12, 0, 0, 0, 1.0,
-        4, 6, 4, 4, 9, "magic_hword.ogg",
+        3, 6, 4, 4, 9, "magic_hword.ogg",
         SPELL_USE_CAST, SPELL_DESC_DIRECTION,
         PATH_TURNING, "holyword", NULL}
 };

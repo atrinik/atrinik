@@ -21,7 +21,6 @@ reflecting 1
 speed 1
 wc 200
 wc_range 20
-dam 5
 flying 1
 dex 30
 con 50

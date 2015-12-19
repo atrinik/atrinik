@@ -134,7 +134,7 @@ int recharge(object *op)
  */
 int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 {
-    int food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
+    int food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, false);
 
     archetype_t *at = NULL;
     if (stringarg != NULL) {
@@ -266,7 +266,7 @@ void cast_destruction(object *op, object *caster, int dam)
 
     /* Calculate maximum range of the spell */
     range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
-    dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1, 0);
+    dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, false);
 
     for (i = -range; i < range + 1; i++) {
         for (j = -range; j < range + 1; j++) {
@@ -704,7 +704,8 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
     if (i) {
         draw_info_format(COLOR_WHITE, op, "Your protection to %s grows.", attack_name[i]);
-        force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type, -1, 0), 50);
+        force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type,
+                                                       false), 50);
     }
 
     force->speed_left = -1 - SP_level_strength_adjust(caster, spell_type) * 0.1f;
@@ -1119,7 +1120,7 @@ int finger_of_death(object *op, object *target)
     hitter->y = target->y;
     insert_ob_in_map(hitter, target->map, op, 0);
 
-    dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam, 0);
+    dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, false);
     hit_player(target, dam, hitter);
     object_remove(hitter, 0);
 
@@ -1174,7 +1175,7 @@ int cast_cause_disease(object *op, object *caster, int dir, struct archetype *di
             }
 
             disease = arch_to_object(disease_arch);
-            dam = SP_level_dam_adjust(caster, type, spells[type].bdam, 0);
+            dam = SP_level_dam_adjust(caster, type, false);
             strength = SP_level_strength_adjust(caster, type);
 
             set_owner(disease, op);

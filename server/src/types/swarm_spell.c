@@ -76,7 +76,11 @@ static void process_func(object *op)
     }
 
     if (!wall(op->map, x, y)) {
-        fire_arch_from_position(op, op, x, y, basedir, op->other_arch, op->stats.sp, NULL);
+        object *caster = get_owner(op);
+        if (caster == NULL) {
+            caster = op;
+        }
+        fire_arch_from_position(op, caster, x, y, basedir, op->other_arch, op->stats.sp, NULL);
     }
 }
 
