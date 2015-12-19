@@ -240,22 +240,23 @@ void esrv_update_stats(player *pl)
     AddIf(pl->last_path_denied, pl->ob->path_denied,
             CS_STAT_PATH_DENIED, uint32);
 
+    object *ranged_weapon = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
     object *arrow = NULL;
-    if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] != NULL &&
-            pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->type == BOW) {
-        arrow = arrow_find(pl->ob,
-                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->race);
+    if (ranged_weapon != NULL && ranged_weapon->type == BOW) {
+        arrow = arrow_find(pl->ob, ranged_weapon->race);
     }
 
     int16_t ranged_dam, ranged_wc;
     float ranged_ws;
     if (arrow != NULL) {
-        ranged_dam = arrow_get_damage(pl->ob,
-                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
-        ranged_wc = arrow_get_wc(pl->ob,
-                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
-        ranged_ws = bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED],
-                arrow);
+        HARD_ASSERT(ranged_weapon != NULL);
+        ranged_dam = arrow_get_damage(pl->ob, ranged_weapon, arrow);
+        ranged_wc = arrow_get_wc(pl->ob, ranged_weapon, arrow);
+        ranged_ws = bow_get_ws(ranged_weapon, arrow);
+    } else if (ranged_weapon != NULL && ranged_weapon->type == SPELL) {
+        ranged_dam = SP_level_dam_adjust(pl->ob, ranged_weapon->stats.sp, true);
+        ranged_wc = 200;
+        ranged_ws = spells[ranged_weapon->stats.sp].time / MAX_TICKS;
     } else {
         ranged_dam = ranged_wc = ranged_ws = 0;
     }
