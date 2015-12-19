@@ -34,7 +34,7 @@
 #include <plugin.h>
 
 /** When we carry more than this of our weight_limit, we get encumbered. */
-#define ENCUMBRANCE_LIMIT 65.0f
+#define ENCUMBRANCE_LIMIT 65.0
 
 /**
  * Bonus to melee/ranged damage. Based on strength.
@@ -63,46 +63,56 @@ int wc_bonus[MAX_STAT + 1] = {
 };
 
 /**
- * Constitution bonus.
+ * Maximum health points bonus. Based on constitution.
  */
-static float con_bonus[MAX_STAT + 1] = {
-    -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
-    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-    0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f
+static double hp_bonus[MAX_STAT + 1] = {
+    -0.8,                               // 0
+    -0.6, -0.5, -0.4, -0.35, -0.3,      // 1-5
+    -0.25, -0.2, -0.15, -0.11, -0.07,   // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
+    0.1, 0.15, 0.2, 0.25, 0.3,          // 16-20
+    0.35, 0.4, 0.45, 0.5, 0.55,         // 21-25
+    0.6, 0.7, 0.8, 0.9, 1.0             // 26-30
 };
 
 /**
- * Power bonus.
+ * Maximum spell points bonus. Primarily based on intelligence, secondarily on
+ * power.
  */
-static float pow_bonus[MAX_STAT + 1] = {
-    -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
-    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-    0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
+static double sp_bonus[MAX_STAT + 1] = {
+    -0.8,                               // 0
+    -0.6, -0.5, -0.4, -0.35, -0.3,      // 1-5
+    -0.25, -0.2, -0.15, -0.11, -0.07,   // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
+    0.1, 0.2, 0.3, 0.4, 0.5,            // 16-20
+    0.6, 0.7, 0.8, 0.9, 1.0,            // 21-25
+    1.1, 1.4, 1.6, 1.8, 2.0,            // 26-30
 };
 
 /**
- * Speed bonus. Uses dexterity as its stat.
+ * Speed bonus. Based on dexterity.
  */
 float speed_bonus[MAX_STAT + 1] = {
-    -0.4f, -0.4f, -0.3f, -0.3f, -0.2f,
-    -0.2f, -0.2f, -0.1f, -0.1f, -0.1f,
-    -0.05f, 0.0, 0.0f, 0.0f, 0.025f, 0.05f,
-    0.075f, 0.1f, 0.125f, 0.15f, 0.175f, 0.2f,
-    0.225f, 0.25f, 0.275f, 0.3f,
-    0.325f, 0.35f, 0.4f, 0.45f, 0.5f
+    -0.4,                                   // 0
+    -0.4, -0.3, -0.3, -0.2,                 // 1-5
+    -0.2, -0.2, -0.1, -0.1, -0.1,           // 6-10
+    -0.05, 0.0, 0.0, 0.0, 0.025, 0.05,      // 11-15
+    0.075, 0.1, 0.125, 0.15, 0.175, 0.2,    // 16-20
+    0.225, 0.25, 0.275, 0.3,                // 21-25
+    0.325, 0.35, 0.4, 0.45, 0.5,            // 26-30
 };
 
 /**
- * Falling damage mitigation. Uses dexterity.
+ * Falling damage mitigation. Based on dexterity.
  */
 double falling_mitigation[MAX_STAT + 1] = {
-    2.0f, // 0
-    1.9f, 1.8f, 1.7f, 1.6f, 1.5f, // 1-5
-    1.4f, 1.3f, 1.2f, 1.1f, 1.0f, // 6-10
-    1.05f, 1.0f, 1.0f, 1.0f, 1.0f, // 11-15
-    0.98f, 0.96f, 0.94f, 0.92f, 0.9f, // 16-20
-    0.88f, 0.84f, 0.80f, 0.77f, 0.73f, // 21-25
-    0.7f, 0.65f, 0.6f, 0.55f, 0.5f // 26-30
+    2.0,                            // 0
+    1.9, 1.8, 1.7, 1.6, 1.5,        // 1-5
+    1.4, 1.3, 1.2, 1.1, 1.0,        // 6-10
+    1.05, 1.0, 1.0, 1.0, 1.0,       // 11-15
+    0.98, 0.96, 0.94, 0.92, 0.9,    // 16-20
+    0.88, 0.84, 0.80, 0.77, 0.73,   // 21-25
+    0.7, 0.65, 0.6, 0.55, 0.5,      // 26-30
 };
 
 /**
@@ -1054,9 +1064,12 @@ void living_update_player(object *op)
                         pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1) + 3;
 
     /* Now adjust with the % of the stats malus/bonus. */
-    op->stats.maxhp += op->stats.maxhp * con_bonus[op->stats.Con];
+    op->stats.maxhp += op->stats.maxhp * hp_bonus[op->stats.Con];
     op->stats.maxhp += max_bonus_hp;
-    op->stats.maxsp += op->stats.maxsp * pow_bonus[op->stats.Pow];
+
+    double maxsp = op->stats.maxsp;
+    op->stats.maxsp += maxsp * sp_bonus[op->stats.Int];
+    op->stats.maxsp += maxsp * (sp_bonus[op->stats.Pow] / 2.5);
     op->stats.maxsp += max_bonus_sp;
 
     if (op->stats.maxhp < 1) {
