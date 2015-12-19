@@ -228,7 +228,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT(cond, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             assert(cond); \
             return; \
@@ -237,7 +237,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_RC(cond, rc, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             assert(cond); \
             return (rc); \
@@ -246,7 +246,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_LABEL(cond, label, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             assert(cond); \
             goto label; \
@@ -257,7 +257,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT(cond, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             return; \
         } \
@@ -265,7 +265,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_RC(cond, rc, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             return (rc); \
         } \
@@ -273,7 +273,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_LABEL(cond, label, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             goto label; \
         } \
