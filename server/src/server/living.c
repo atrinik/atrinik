@@ -682,6 +682,10 @@ void living_update_player(object *op)
         CLEAR_FLAG(op, FLAG_BLIND);
     }
 
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_IS_ASSASSINATION)) {
+        CLEAR_FLAG(op, FLAG_IS_ASSASSINATION);
+    }
+
     /* Initializing player arrays from the values in player archetype clone */
     memset(&pl->equipment, 0, sizeof(pl->equipment));
     memset(&pl->skill_ptr, 0, sizeof(pl->skill_ptr));
@@ -715,7 +719,7 @@ void living_update_player(object *op)
 
     FOR_INV_PREPARE(op, tmp) {
         if (tmp->type == QUEST_CONTAINER) {
-            if (pl->quest_container == NULL) {
+            if (likely(pl->quest_container == NULL)) {
                 pl->quest_container = tmp;
             } else {
                 LOG(ERROR, "Found duplicate quest container object %s",
@@ -742,7 +746,7 @@ void living_update_player(object *op)
         }
 
         if (tmp->type == SKILL) {
-            if (pl->skill_ptr[tmp->stats.sp] == NULL) {
+            if (likely(pl->skill_ptr[tmp->stats.sp] == NULL)) {
                 pl->skill_ptr[tmp->stats.sp] = tmp;
             } else {
                 LOG(ERROR, "Found duplicate skill object %s",
@@ -1065,12 +1069,16 @@ void living_update_player(object *op)
     object *weapon = pl->equipment[PLAYER_EQUIP_WEAPON];
     if (weapon != NULL && weapon->type == WEAPON && weapon->item_skill != 0) {
         op->weapon_speed = weapon->last_grace;
-        op->stats.wc += SKILL_LEVEL(pl,
-                weapon->item_skill - 1);
+        op->stats.wc += SKILL_LEVEL(pl, weapon->item_skill - 1);
         double dam = op->stats.dam;
         dam *= LEVEL_DAMAGE(SKILL_LEVEL(pl, weapon->item_skill - 1));
         dam *= weapon->item_condition / 100.0;
         op->stats.dam = dam;
+
+        FREE_AND_ADD_REF_HASH(op->slaying, weapon->slaying);
+        if (QUERY_FLAG(weapon, FLAG_IS_ASSASSINATION)) {
+            SET_FLAG(op, FLAG_IS_ASSASSINATION);
+        }
     } else {
         if (pl->skill_ptr[SK_UNARMED] != NULL) {
             op->weapon_speed = pl->skill_ptr[SK_UNARMED]->last_grace;
