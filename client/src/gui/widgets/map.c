@@ -2146,6 +2146,38 @@ mouse_to_tile_coords (int mx, int my, int *tx, int *ty)
 }
 
 /**
+ * Handle the mouse firing gesture.
+ *
+ * @return
+ * True if the gesture was handled, false otherwise.
+ */
+bool
+map_mouse_fire (void)
+{
+    int x, y;
+    Uint8 state = SDL_GetMouseState(&x, &y);
+
+    if ((state != (SDL_BUTTON(SDL_BUTTON_RIGHT) |
+                   SDL_BUTTON(SDL_BUTTON_LEFT)) &&
+         state != SDL_BUTTON(SDL_BUTTON_MIDDLE))) {
+        return false;
+    }
+
+    int tx, ty;
+    if (!mouse_to_tile_coords(x, y, &tx, &ty)) {
+        return false;
+    }
+
+    int rx = tx - map_width * (MAP_FOW_SIZE / 2);
+    int ry = ty - map_height * (MAP_FOW_SIZE / 2);
+
+    cpl.fire_on = 1;
+    move_keys(dir_from_tile_coords(rx, ry));
+    cpl.fire_on = 0;
+    return true;
+}
+
+/**
  * Handle the "Walk Here" option in map widget menu.
  * @param widget
  * Map widget.

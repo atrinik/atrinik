@@ -132,7 +132,6 @@ int Event_PollInputDevice(void)
     SDL_Event event;
     int x, y, done = 0;
     static Uint32 Ticks = 0;
-    int tx, ty;
     SDLKey key;
 
     /* Execute mouse actions, even if mouse button is being held. */
@@ -141,13 +140,8 @@ int Event_PollInputDevice(void)
             /* Mouse gesture: hold right+left buttons or middle button
              * to fire. */
             if (widget_mouse_event.owner == cur_widget[MAP_ID]) {
-                int state = SDL_GetMouseState(&x, &y);
-
-                if ((state == (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) || state == SDL_BUTTON(SDL_BUTTON_MIDDLE)) && mouse_to_tile_coords(x, y, &tx, &ty)) {
+                if (map_mouse_fire()) {
                     Ticks = SDL_GetTicks();
-                    cpl.fire_on = 1;
-                    move_keys(dir_from_tile_coords(tx, ty));
-                    cpl.fire_on = 0;
                 }
             }
         }
