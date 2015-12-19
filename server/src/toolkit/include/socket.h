@@ -113,8 +113,7 @@ enum {
  * @defgroup CMD_TARGET_xxx Target command types
  * Target command types; informs the client about whether the target is a
  * friend, enemy, etc.
- *@{
- */
+ *@{*/
 /** Self (the player). */
 #define CMD_TARGET_SELF 0
 /** Enemy. */
@@ -128,8 +127,7 @@ enum {
 /**
  * @defgroup CMD_INTERFACE_xxx Interface command types
  * Interface command types.
- *@{
- */
+ *@{*/
 /** Text; the NPC message contents. */
 #define CMD_INTERFACE_TEXT 0
 /**
@@ -174,8 +172,7 @@ enum {
 /**
  * @defgroup CMD_NOTIFICATION_xxx Notification command types
  * Notification command types.
- *@{
- */
+ *@{*/
 /** The notification contents. */
 #define CMD_NOTIFICATION_TEXT 0
 /** What macro or command to execute. */
@@ -192,8 +189,7 @@ enum {
 /**
  * @defgroup CMD_SETUP_xxx Setup command types
  * Setup command types
- *@{
- */
+ *@{*/
 /** Enable/disable sound. */
 #define CMD_SETUP_SOUND 0
 /**  Set the map size. */
@@ -207,8 +203,7 @@ enum {
 /**
  * @defgroup CMD_QUERY_xxx Query command types
  * Query command types.
- *@{
- */
+ *@{*/
 /** Get character name. */
 #define CMD_QUERY_GET_NAME 1
 /** Get character password. */
@@ -221,8 +216,7 @@ enum {
  * @defgroup MAP2_FLAG_xxx Map2 layer flags
  * Flags used to mark what kind of data there is on layers
  * in map2 protocol.
- *@{
- */
+ *@{*/
 /** Multi-arch object. */
 #define MAP2_FLAG_MULTI      1
 /** Player name. */
@@ -245,8 +239,7 @@ enum {
  * @defgroup MAP2_FLAG2_xxx Extended map2 layer flags
  * Extended flags used to mark what kind of data there is on layers
  * in map2 protocol.
- *@{
- */
+ *@{*/
 /** Custom alpha value. */
 #define MAP2_FLAG2_ALPHA 1
 /** Custom rotate value in degrees. */
@@ -269,8 +262,7 @@ enum {
  * @defgroup MAP2_FLAG_EXT_xxx Map2 tile flags
  * Flags used to mark what kind of data there is on different
  * tiles in map2 protocol.
- *@{
- */
+ *@{*/
 /** An animation. */
 #define MAP2_FLAG_EXT_ANIM   1
 /*@}*/
@@ -278,8 +270,7 @@ enum {
 /**
  * @defgroup ANIM_xxx Animation types
  * Animation types.
- *@{
- */
+ *@{*/
 /** Damage animation. */
 #define ANIM_DAMAGE     1
 /** Kill animation. */
@@ -289,8 +280,7 @@ enum {
 /**
  * @defgroup MAP2_MASK_xxx Map2 mask flags
  * Flags used for masks in map2 protocol.
- *@{
- */
+ *@{*/
 /** Clear cell, with all layers. */
 #define MAP2_MASK_CLEAR      0x2
 #define MAP2_MASK_DARKNESS 0x4
@@ -299,8 +289,7 @@ enum {
 
 /**
  * @defgroup MAP2_LAYER_xxx Map2 layer types
- *@{
- */
+ *@{*/
 /** Clear this layer. */
 #define MAP2_LAYER_CLEAR    255
 /*@}*/
@@ -308,8 +297,7 @@ enum {
 /**
  * @defgroup CMD_MAPSTATS_xxx Mapstats command types
  * Mapstats command types.
- *@{
- */
+ *@{*/
 /** Change map name. */
 #define CMD_MAPSTATS_NAME 1
 /** Change map music. */
@@ -323,8 +311,7 @@ enum {
 /**
  * @defgroup CMD_SOUND_xxx Sound command types
  * The sound command types.
- *@{
- */
+ *@{*/
 /** A sound effect, like poison, melee/range hit, spell sound, etc. */
 #define CMD_SOUND_EFFECT 1
 /** Background music. */
@@ -336,8 +323,7 @@ enum {
 /**
  * @defgroup CMD_TARGET_xxx Target command types
  * Target command types.
- *@{
- */
+ *@{*/
 /**
  * Target something at the specified X/Y position on the map.
  */
@@ -351,8 +337,7 @@ enum {
 /**
  * @defgroup CMD_ACCOUNT_xxx Account command types
  * Account command types.
- *@{
- */
+ *@{*/
 /**
  * Login as the specified account.
  */
@@ -378,8 +363,7 @@ enum {
 /**
  * @defgroup COLOR_xxx Color HTML notations
  * HTML notations of various common collors.
- *@{
- */
+ *@{*/
 /** White. */
 #define COLOR_WHITE "ffffff"
 /** Orange. */
@@ -421,8 +405,7 @@ enum {
 /**
  * @defgroup NDI_xxx New draw info flags
  * Various flags for draw_info().
- *@{
- */
+ *@{*/
 /** Say command. */
 #define NDI_SAY 0x0100
 /** The message is a shout. */
@@ -445,8 +428,7 @@ enum {
 /**
  * @defgroup CS_FLAG_xxx Client/server item flags
  * Flags for the item command. Used in query_flags().
- *@{
- */
+ *@{*/
 /**
  * The item is applied.
  */
@@ -488,8 +470,7 @@ enum {
 /**
  * @defgroup UPD_XXX Item update flags
  * Client/server item update flags.
- *@{
- */
+ *@{*/
 /** Update ID location where this object is. */
 #define UPD_LOCATION 1
 /** Update object's flags. */
@@ -519,8 +500,7 @@ enum {
 /**
  * @defgroup CS_STAT_xx Client/server stats
  * IDs for the various stats that get sent across.
- *@{
- */
+ *@{*/
 #define CS_STAT_HP              1
 #define CS_STAT_MAXHP           2
 #define CS_STAT_SP              3
@@ -588,8 +568,7 @@ enum {
  * @defgroup cs_state_flags Client/server state flags
  * These are used with @ref CS_STAT_FLAGS to determine the
  * server thinks the fire-on and run-on states are.
- *@{
- */
+ *@{*/
 #define SF_FIREON           1
 #define SF_RUNON            2
 #define SF_BLIND            4
@@ -605,8 +584,7 @@ enum {
  * We use a macro to get them from the object, doing it fast AND to mask the
  * bigger
  * object flags to uint8.
- *@{
- */
+ *@{*/
 
 /** Object is sleeping */
 #define FFLAG_SLEEP     0x01
@@ -629,8 +607,7 @@ enum {
 /**
  * @defgroup anim_flags Animation flags
  * Used to indicate what stage the animation is in.
- *@{
- */
+ *@{*/
 #define ANIM_FLAG_MOVING 0x01 ///< Moving.
 #define ANIM_FLAG_ATTACKING 0x02 ///< Attacking.
 #define ANIM_FLAG_STOP_MOVING 0x04 ///< Stop moving.
@@ -640,8 +617,7 @@ enum {
 /**
  * @defgroup CHAT_TYPE_xxx Chat types
  * Chat types.
- *@{
- */
+ *@{*/
 #define CHAT_TYPE_ALL 1 ///< Goes to the 'all' tab window.
 #define CHAT_TYPE_GAME 2 ///< Game-related messages (eg, examine output)
 #define CHAT_TYPE_CHAT 3 ///< Player chat.
@@ -661,8 +637,7 @@ enum {
 
 /**
  * @defgroup CMD_CONTROL_xxx Control command types
- *@{
- */
+ *@{*/
 /**
  * Control command concerning a map.
  */
@@ -676,8 +651,7 @@ enum {
 
 /**
  * @defgroup CMD_CONTROL_MAP_xxx Map control command types
- *@{
- */
+ *@{*/
 /**
  * Reset the specified map.
  */
@@ -686,8 +660,7 @@ enum {
 
 /**
  * @defgroup CMD_CONTROL_PLAYER_xxx Player control command types
- *@{
- */
+ *@{*/
 /**
  * Teleport player to the specified map.
  */
@@ -697,8 +670,7 @@ enum {
 /**
  * @defgroup CMD_APPLY_ACTION_xxx Apply action types
  * Used for special handling of the apply command.
- *@{
- */
+ *@{*/
 #define CMD_APPLY_ACTION_NORMAL 0 ///< Normal apply. Not transmitted.
 #define CMD_APPLY_ACTION_NONE 1 ///< No action.
 #define CMD_APPLY_ACTION_BELOW_NEXT 2 ///< Next group of items.
@@ -712,67 +684,67 @@ enum {
 enum {
     /**
      * Ammunition.
- */
+     */
     PLAYER_EQUIP_AMMO,
     /**
      * Amulet.
- */
+     */
     PLAYER_EQUIP_AMULET,
     /**
      * Weapon.
- */
+     */
     PLAYER_EQUIP_WEAPON,
     /**
      * Shield.
- */
+     */
     PLAYER_EQUIP_SHIELD,
     /**
      * Gauntlets.
- */
+     */
     PLAYER_EQUIP_GAUNTLETS,
     /**
      * Right ring.
- */
+     */
     PLAYER_EQUIP_RING_RIGHT,
     /**
      * Helm.
- */
+     */
     PLAYER_EQUIP_HELM,
     /**
      * Armor.
- */
+     */
     PLAYER_EQUIP_ARMOUR,
     /**
      * Belt.
- */
+     */
     PLAYER_EQUIP_BELT,
     /**
      * Pants.
- */
+     */
     PLAYER_EQUIP_PANTS,
     /**
      * Boots.
- */
+     */
     PLAYER_EQUIP_BOOTS,
     /**
      * Cloak.
- */
+     */
     PLAYER_EQUIP_CLOAK,
     /**
      * Bracers.
- */
+     */
     PLAYER_EQUIP_BRACERS,
     /**
      * Ranged weapon.
- */
+     */
     PLAYER_EQUIP_WEAPON_RANGED,
     /**
      * Light (lantern, torch).
- */
+     */
     PLAYER_EQUIP_LIGHT,
     /**
      * Left ring.
- */
+     */
     PLAYER_EQUIP_RING_LEFT,
     /**
      * Skill item.
@@ -782,7 +754,7 @@ enum {
 
     /**
      * Maximum number of equipment.
- */
+     */
     PLAYER_EQUIP_MAX
 };
 

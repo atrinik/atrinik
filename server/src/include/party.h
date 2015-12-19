@@ -33,8 +33,7 @@
 /**
  * @defgroup PARTY_MESSAGE_xxx Party message types
  * Party message types.
- *@{
- */
+ *@{*/
 /**
  * Status is used for party messages like password change, join/leave,
  * etc.
@@ -53,28 +52,28 @@
 enum {
     /**
      * Normal looting: any party member can loot the corpse.
- */
+     */
     PARTY_LOOT_NORMAL,
     /**
      * Only leader can loot the corpse.
- */
+     */
     PARTY_LOOT_LEADER,
     /**
      * Only corpse owner can loot the corpse.
- */
+     */
     PARTY_LOOT_OWNER,
     /**
      * Loot is randomly split between party members when the corpse is
      * opened.
- */
+     */
     PARTY_LOOT_RANDOM,
     /**
      * Loot is evenly split between party members when the corpse is opened.
- */
+     */
     PARTY_LOOT_SPLIT,
     /**
      * Total number of the modes.
- */
+     */
     PARTY_LOOT_MAX
 };
 
@@ -84,45 +83,44 @@ enum {
 typedef struct party_struct {
     /**
      * Name of the party leader.
- */
+     */
     shstr *leader;
 
     /**
      * Name of the party.
- */
+     */
     shstr *name;
 
     /**
      * Password this party requires.
- */
+     */
     char passwd[9];
 
     /**
      * Looting mode. One of @ref PARTY_LOOT_xxx.
- */
+     */
     uint8_t loot;
 
     /**
      * Index for some looting modes.
- */
+     */
     uint32_t loot_idx;
 
     /**
      * Party members.
- */
+     */
     objectlink *members;
 
     /**
      * Next party in the list.
- */
+     */
     struct party_struct *next;
 } party_struct;
 
 /**
  * @defgroup CMD_PARTY_xxx Party socket command types
  * Various types of the CLIENT_CMD_PARTY socket command.
- *@{
- */
+ *@{*/
 /**
  * Show a list of all parties in the game.
  */

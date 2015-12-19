@@ -71,12 +71,12 @@ typedef struct MapCell_struct {
     /**
      * Probe cache. No need for an array, since this only appears
      * for players or monsters, both on layer 6.
- */
+     */
     uint8_t probe;
 
     /**
      * Possible target object UID cache.
- */
+     */
     tag_t target_object_count;
 
     uint8_t ext_flags; ///< Last ext flags.
@@ -112,7 +112,7 @@ typedef struct socket_struct {
     /**
      * If someone is too long idle in the login, he will get
      * disconnected.
- */
+     */
     int login_count;
 
     /** X size of the map the client wants. */
@@ -155,7 +155,7 @@ typedef struct socket_struct {
     /**
      * How many times the player has failed to provide the right
      * password.
- */
+     */
     uint8_t password_fails;
 
     /** Send ext title to client. */
@@ -174,7 +174,7 @@ typedef struct socket_struct {
      * Buffer for how many ticks have passed since the last keep alive
      * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the
      * socket is disconnected.
- */
+     */
     uint32_t keepalive;
 
     char *account;

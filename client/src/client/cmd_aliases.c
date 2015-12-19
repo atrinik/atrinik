@@ -38,23 +38,23 @@
 typedef struct cmd_alias_struct {
     /**
      * Name of the command alias.
- */
+     */
     char *name;
 
     /**
      * What to execute when there is an argument for the command.
- */
+     */
     char *arg;
 
     /**
      * What to execute when there isn't an argument for the command, or
      * if there is but cmd_alias_struct::arg is not set.
- */
+     */
     char *noarg;
 
     /**
      * Hash handle.
- */
+     */
     UT_hash_handle hh;
 } cmd_alias_struct;
 

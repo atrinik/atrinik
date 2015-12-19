@@ -33,8 +33,7 @@
 /**
  * @defgroup GENDER_xxx Gender IDs.
  * IDs of the various genders.
- *@{
- */
+ *@{*/
 /** Neuter: no gender. */
 #define GENDER_NEUTER 0
 /** Male. */
@@ -179,22 +178,22 @@ typedef struct Player_Struct {
     /**
      * Buffer for party name the player is joining, but has to enter
      * password first.
- */
+     */
     char partyjoin[MAX_BUF];
 
     /**
      * Which item is being dragged.
- */
+     */
     tag_t dragging_tag;
 
     /**
      * X position where the item was dragged from.
- */
+     */
     int dragging_startx;
 
     /**
      * Y position where the item was dragged from.
- */
+     */
     int dragging_starty;
 
     /** Which inventory widget has the focus. */
@@ -209,7 +208,7 @@ typedef struct Player_Struct {
 
     /**
      * Player's gender.
- */
+     */
     uint8_t gender;
 
     tag_t equipment[PLAYER_EQUIP_MAX];
@@ -224,27 +223,27 @@ typedef struct Player_Struct {
 
     /**
      * Account name that we are logged into.
- */
+     */
     char account[MAX_BUF];
 
     /**
      * Password that was used to log in.
- */
+     */
     char password[MAX_BUF];
 
     /**
      * Current IP.
- */
+     */
     char host[MAX_BUF];
 
     /**
      * Last IP that the account was used from.
- */
+     */
     char last_host[MAX_BUF];
 
     /**
      * Last time the account was used.
- */
+     */
     time_t last_time;
 
     /**

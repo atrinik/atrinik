@@ -76,8 +76,7 @@
  * <pre>sign|/arena/arena</pre>
  * The above will show players currently in the /arena/arena
  * arena map. The "sign|" part is necessary for the sign to work.
- *@{
- */
+ *@{*/
 
 /**
  * @file
@@ -143,8 +142,7 @@ typedef struct arena_maps_struct {
 /**
  * @defgroup arena_map_flags Arena map flags
  * Flags used to determine various usages of the Arena plugin.
- *@{
- */
+ *@{*/
 /** No flags. */
 #define ARENA_FLAG_NONE             0
 /** The arena is a party arena. */

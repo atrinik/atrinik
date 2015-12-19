@@ -41,8 +41,7 @@
 /**
  * @defgroup material_types Material types
  * Material types.
- *@{
- */
+ *@{*/
 
 /** No material. */
 #define M_NONE          0

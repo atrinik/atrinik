@@ -46,7 +46,7 @@ typedef struct mempool_chunk_struct {
     /**
      * Used for the free list and the limbo list. NULL if this memory chunk has
      * been allocated and is in use.
- */
+     */
     struct mempool_chunk_struct *next;
 } mempool_chunk_struct;
 
@@ -172,8 +172,7 @@ typedef struct mempool_struct {
 /**
  * @defgroup mempool_flags Mempool flags
  * Mempool flags.
- *@{
- */
+ *@{*/
 
 /** Don't use pooling, but only malloc/free instead */
 #define MEMPOOL_BYPASS_POOLS  1

@@ -31,8 +31,7 @@
 
 /**
  * @defgroup SPIRAL_xxx Random spiral map options
- *@{
- */
+ *@{*/
 /** Pick random options below */
 #define RANDOM_OPTIONS  0
 /** Regular spiral--distance increases constantly */

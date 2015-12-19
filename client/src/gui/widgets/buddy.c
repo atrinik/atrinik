@@ -47,27 +47,27 @@ enum {
 typedef struct buddy_struct {
     /**
      * The character names.
- */
+     */
     UT_array *names;
 
     /**
      * Path where to load/save the character names.
- */
+     */
     char *path;
 
     /**
      * Button buffer.
- */
+     */
     button_struct buttons[BUTTON_NUM];
 
     /**
      * The list.
- */
+     */
     list_struct *list;
 
     /**
      * Text input buffer.
- */
+     */
     text_input_struct text_input;
 } buddy_struct;
 

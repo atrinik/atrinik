@@ -495,8 +495,7 @@ char *file_path_server(const char *path)
  * For GNU/Linux, they call file_path() to determine the path to the file
  * to open in ~/.atrinik, and if the file doesn't exist there, copy it
  * there from the directory the client is running in.
- *@{
- */
+ *@{*/
 
 /**
  * fopen wrapper.

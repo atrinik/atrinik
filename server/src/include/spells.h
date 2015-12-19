@@ -33,8 +33,7 @@
 /**
  * @defgroup spell_path_defines Spell paths
  * Spell path defines.
- *@{
- */
+ *@{*/
 /** Protection. */
 #define PATH_PROT       0x00000001
 /** Fire. */
@@ -83,8 +82,7 @@
 /**
  * @defgroup SPELL_USE_xxx Spell use flags
  * Spell use flags.
- *@{
- */
+ *@{*/
 /** Spell can be cast. */
 #define SPELL_USE_CAST   0x01
 /** Spell can be found in balms. */
@@ -112,8 +110,7 @@
 /**
  * @defgroup SPELL_DESC_xxx Spell flags
  * Spell flags.
- *@{
- */
+ *@{*/
 
 /** Spell is safe to cast in town. */
 #define SPELL_DESC_TOWN         0x01
@@ -155,7 +152,7 @@ typedef struct spell_struct {
      *
      * We do: (x * value_mul) * level to increase the value.
      * @see object::value
- */
+     */
     float value_mul;
 
     /** Base damage or hp of spell or summoned monster. */
@@ -179,7 +176,7 @@ typedef struct spell_struct {
      *
      * If base cost is 5 and spl is 10, cost increases by 1 every 2
      * levels.
- */
+     */
     int spl;
 
     /** Sound the spell produces when cast. */
@@ -273,8 +270,7 @@ enum spellnrs {
 /**
  * @defgroup CAST_xxx Casting modes
  * Various casting modes.
- *@{
- */
+ *@{*/
 /** Normal cast. */
 #define CAST_NORMAL 0
 /** Casting from a wand. */

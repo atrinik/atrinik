@@ -33,8 +33,7 @@
 /**
  * @defgroup INVENTORY_FILTER_xxx Inventory filters
  * Various inventory filters.
- *@{
- */
+ *@{*/
 /** All objects. */
 #define INVENTORY_FILTER_ALL 0
 /** Applied objects. */

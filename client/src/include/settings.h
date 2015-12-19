@@ -50,8 +50,7 @@ enum {
 /**
  * @defgroup OPT_xxx Option IDs
  * Options IDs.
- *@{
- */
+ *@{*/
 
 /**
  * Options in the ::OPT_CAT_GENERAL category.

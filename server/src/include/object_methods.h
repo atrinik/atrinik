@@ -74,7 +74,7 @@ typedef struct object_methods {
      * @param state
  * 1 if the object is moving onto a square, 0 if moving
      * off a square.
- */
+     */
     int (*move_on_func)(object *op, object *victim, object *originator, int state);
 
     /**
@@ -143,7 +143,7 @@ typedef struct object_methods {
      * @return
  * The fired object, NULL if it was destroyed for some
      * reason.
- */
+     */
     object *(*projectile_move_func)(object *op);
 
     /**
@@ -160,7 +160,7 @@ typedef struct object_methods {
      * @retval OBJECT_METHOD_UNHANDLED Did not handle the event, should
      * continue trying to look for another alive object.
      * @retval OBJECT_METHOD_ERROR 'op' was destroyed.
- */
+     */
     int (*projectile_hit_func)(object *op, object *victim);
 
     /**
@@ -192,15 +192,14 @@ typedef struct object_methods {
 
     /**
      * Fallback method.
- */
+     */
     struct object_methods *fallback;
 } object_methods;
 
 /**
  * @defgroup OBJECT_METHOD_xxx Object method return values
  * Object method return values.
- *@{
- */
+ *@{*/
 /** The object was not handled. */
 #define OBJECT_METHOD_UNHANDLED 0
 /** Successfully handled. */
@@ -212,8 +211,7 @@ typedef struct object_methods {
 /**
  * @defgroup OBJECT_PROJECTILE_STOP_xxx Projectile stop reasons
  * Reasons for projectile to stop.
- *@{
- */
+ *@{*/
 /** Projectile has reached its end of the line. */
 #define OBJECT_PROJECTILE_STOP_EOL 1
 /** Project has hit an alive object. */

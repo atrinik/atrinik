@@ -96,7 +96,7 @@ typedef struct liv {
      * Random value range we add to wc value of attacker:
      * wc + (random() % wc_range). If it's higher than
      * defender's AC then we can hit our enemy.
- */
+     */
     uint8_t wc_range;
 
     /** Strength. */

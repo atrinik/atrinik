@@ -51,8 +51,7 @@
 /**
  * @defgroup LAYER_xxx Layer types
  * The layer types used for different objects.
- *@{
- */
+ *@{*/
 /** System objects. */
 #define LAYER_SYS 0
 /** Floor. */
@@ -299,8 +298,7 @@ typedef struct map_target_struct {
 /**
  * @defgroup ANIM_xxx Animation types
  * Animation types.
- *@{
- */
+ *@{*/
 /** Damage animation. */
 #define ANIM_DAMAGE     1
 /** Kill animation. */

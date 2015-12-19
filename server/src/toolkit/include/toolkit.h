@@ -168,8 +168,7 @@ typedef struct toolkit_dependency {
  *
  * You can have multiple timers by changing the 1 to 2 or anything else (note
  * that this is a compile-time feature).
- *@{
- */
+ *@{*/
 
 #define TIMER_VAR(__var, __id) (__var##_##__id)
 #define TIMER_START(__id)                                                      \

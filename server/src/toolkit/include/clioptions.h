@@ -45,32 +45,32 @@ typedef void (*clioptions_handler_func)(const char *arg);
 typedef struct clioptions_struct {
     /**
      * Long option name, eg, 'verbose'.
- */
+     */
     char *longname;
 
     /**
      * Short option name, eg, 'v'.
- */
+     */
     char *shortname;
 
     /**
      * Handler function for the option.
- */
+     */
     clioptions_handler_func handle_func;
 
     /**
      * Whether this option accepts an argument.
- */
+     */
     uint8_t argument;
 
     /**
      * Brief description.
- */
+     */
     char *desc_brief;
 
     /**
      * More detailed description.
- */
+     */
     char *desc;
 } clioptions_struct;
 

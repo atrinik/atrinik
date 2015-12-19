@@ -111,8 +111,7 @@ extern struct plugin_hooklist *hooks;
  * @defgroup AROUND_xxx Types for object.SquaresAround()
  * The various types of squares returned by object.SquaresAround().
  * @note These are bitmasks.
- *@{
- */
+ *@{*/
 /** All squares around the object. */
 #define AROUND_ALL 0
 /** Ignore squares that have a wall. */
@@ -126,8 +125,7 @@ extern struct plugin_hooklist *hooks;
 /**
  * @defgroup INVENTORY_xxx Modes for object.FindObject()
  * Different modes for object.FindObject().
- *@{
- */
+ *@{*/
 /** Search only inside the inventory of the object. */
 #define INVENTORY_ONLY 0
 /**
@@ -322,7 +320,7 @@ typedef enum {
     /**
      * Animation ID. The field is actually uint16, but the result is a
      * tuple containing the animation name and the animation ID.
- */
+     */
     FIELDTYPE_ANIMATION,
     /** uint8 that only accepts True/False. */
     FIELDTYPE_BOOLEAN,
@@ -347,8 +345,7 @@ typedef enum {
 /**
  * @defgroup FIELDFLAG_xxx Field flags
  * Special flags for object attribute access.
- *@{
- */
+ *@{*/
 /** Changing value not allowed. */
 #define FIELDFLAG_READONLY 1
 /** Changing value is not allowed if object is a player. */
@@ -366,8 +363,7 @@ int Atrinik_Object_init(PyObject *module);
 /**
  * @defgroup OBJ_ITER_TYPE_xxx Object iteration types
  * These determine how we're iterating over an object.
- *@{
- */
+ *@{*/
 /** Nothing to iterate over. */
 #define OBJ_ITER_TYPE_NONE 0
 /** Using object::below. */
@@ -478,7 +474,7 @@ typedef struct {
     /**
      * Type of the array being handled; for example,
      * @ref FIELDTYPE_FACTIONS.
- */
+     */
     field_type field;
 
     /** Used to keep track of iteration index. */
@@ -509,27 +505,27 @@ typedef struct python_cache_entry {
 typedef struct {
     /**
      * Name of the field.
- */
+     */
     char *name;
 
     /**
      * Field type.
- */
+     */
     field_type type;
 
     /**
      * Offset in player structure.
- */
+     */
     size_t offset;
 
     /**
      * Flags for special handling.
- */
+     */
     uint32_t flags;
 
     /**
      * Extra data for some special fields.
- */
+     */
     uint32_t extra_data;
 
     /**

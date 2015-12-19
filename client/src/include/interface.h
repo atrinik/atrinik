@@ -71,7 +71,7 @@ typedef struct interface_struct {
      * If progressed, how long until another progression may happen
      * (unless a new dialog has been opened of course, in which case this
      * is reset).
- */
+     */
     uint32_t progressed_ticks;
 
     /** Whether to allow entering tabs. */
@@ -89,7 +89,7 @@ typedef struct interface_struct {
     /**
      * Text to prefix for autocompleting text. If NULL, autocompletion
      * will be disabled.
- */
+     */
     char *text_autocomplete;
 
     /**
@@ -114,8 +114,7 @@ typedef struct interface_struct {
 /**
  * @defgroup INTERFACE_ICON_xxx Interface icon coords
  * Interface icon coordinates.
- *@{
- */
+ *@{*/
 /** X position of the icon. */
 #define INTERFACE_ICON_STARTX 8
 /** Y position of the icon. */
@@ -129,8 +128,7 @@ typedef struct interface_struct {
 /**
  * @defgroup INTERFACE_TEXT_xxx Interface text coords
  * Interface text coordinates.
- *@{
- */
+ *@{*/
 /** X position of the text. */
 #define INTERFACE_TEXT_STARTX 10
 /** Y position of the text. */
@@ -144,8 +142,7 @@ typedef struct interface_struct {
 /**
  * @defgroup INTERFACE_TITLE_xxx Interface title coords
  * Interface title coordinates.
- *@{
- */
+ *@{*/
 /** X position of the title. */
 #define INTERFACE_TITLE_STARTX 80
 /** Y position of the title. */
@@ -159,8 +156,7 @@ typedef struct interface_struct {
 /**
  * @defgroup INTERFACE_BUTTON_xxx Interface button coords
  * Interface button coordinates.
- *@{
- */
+ *@{*/
 /** X position of the 'hello' button. */
 #define INTERFACE_BUTTON_HELLO_STARTX 7
 /** Y position of the 'hello' button. */

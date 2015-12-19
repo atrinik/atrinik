@@ -42,27 +42,23 @@ typedef struct artifact {
 
     /**
      * Memory block with artifacts parse commands for loader.l.
-
- */
+     */
     char *parse_text;
 
     /**
      * The base archetype object.
-
- */
+     */
     struct archetype *def_at;
 
     /**
      * Name from the def_arch attribute.
-
- */
+     */
     shstr *def_at_name;
 
     /**
      * Treasure style.
      * @see @ref treasure_style
-
- */
+     */
     int t_style;
 
     uint16_t chance; ///< Chance.
@@ -71,14 +67,12 @@ typedef struct artifact {
     /**
      * If set, the artifact will be directly copied to the object,
      * instead of just having the extra attributes added.
-
- */
+     */
     bool copy_artifact:1;
 
     /**
      * If true, artifact::allowed is a list of disallowed archetypes.
-
- */
+     */
     bool disallowed:1;
 } artifact_t;
 
@@ -94,8 +88,7 @@ typedef struct artifact_list {
     /**
      * Object type that this list represents. 0 represents unique artifacts
      * (defined with 'Allowed none').
-
- */
+     */
     uint8_t type;
 } artifact_list_t;
 

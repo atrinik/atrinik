@@ -42,7 +42,7 @@
 typedef struct button_struct {
     /**
      * Surface to use for rendering.
- */
+     */
     SDL_Surface *surface;
 
     /** X position. */
@@ -57,19 +57,19 @@ typedef struct button_struct {
 
     /**
      * Texture to normally use for the button.
- */
+     */
     texture_struct *texture;
 
     /**
      * Texture to use if the mouse is over the button, NULL to use regular
      * one.
- */
+     */
     texture_struct *texture_over;
 
     /**
      * Texture to use if the button is being pressed, NULL to use regular
      * one.
- */
+     */
     texture_struct *texture_pressed;
 
     /** Font used for the text. */
@@ -80,7 +80,7 @@ typedef struct button_struct {
 
     /**
      * Whether to center the text vertically and horizontally.
- */
+     */
     uint8_t center;
 
     /** Color of the text. */
@@ -101,7 +101,7 @@ typedef struct button_struct {
     /**
      * 1 if the button is being pressed.
      * @private
- */
+     */
     int pressed;
 
     /** 1 if the button should be forced to be pressed. */
@@ -128,7 +128,7 @@ typedef struct button_struct {
 
     /**
      * Whether the button needs redrawing.
- */
+     */
     uint8_t redraw;
 } button_struct;
 

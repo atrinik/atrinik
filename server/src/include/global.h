@@ -40,8 +40,7 @@
  * BANK_WITHDRAW_xxx constants can only be returned by bank_withdraw(),
  * while BANK_DEPOSIT_xxx constants can only be returned by bank_deposit().
  * Any other constants can be returned by both functions.
- *@{
- */
+ *@{*/
 /** Syntax error: did not get text in expected format. */
 #define BANK_SYNTAX_ERROR -1
 /** Successfully withdrawn/deposited money. */
@@ -73,8 +72,7 @@
 /**
  * @defgroup MAP_INFO_xxx Map info modes
  * Modes used for new_info_map().
- *@{
- */
+ *@{*/
 
 /** Normal map info, to everyone in range of 12 tiles. */
 #define MAP_INFO_NORMAL 12
@@ -85,8 +83,7 @@
 /**
  * @defgroup shared_string_macros Shared string macros
  * Common macros used for manipulating shared strings.
- *@{
- */
+ *@{*/
 
 /**
  * Free old shared string and add new string.
@@ -95,13 +92,13 @@
  * @param _nv_
  * String to copy to the shared string.
  */
-#define FREE_AND_COPY_HASH(_sv_, _nv_) \
+#define FREE_AND_COPY_HASH(_sv_, _nv_)     \
     {                                      \
         if (_sv_)                          \
         {                                  \
             free_string_shared(_sv_);      \
         }                                  \
-                                       \
+                                           \
         _sv_ = add_string(_nv_);           \
     }
 /**
@@ -111,13 +108,13 @@
  * @param _nv_
  * String to add reference to. Must be a shared string.
  */
-#define FREE_AND_ADD_REF_HASH(_sv_, _nv_) \
+#define FREE_AND_ADD_REF_HASH(_sv_, _nv_)     \
     {                                         \
         if (_sv_)                             \
         {                                     \
             free_string_shared(_sv_);         \
         }                                     \
-                                          \
+                                              \
         _sv_ = add_refcount(_nv_);            \
     }
 /**
@@ -138,7 +135,7 @@
  * @param _nv_
  * Shared string to free.
  */
-#define FREE_ONLY_HASH(_nv_)  \
+#define FREE_ONLY_HASH(_nv_)      \
     if (_nv_)                     \
     {                             \
         free_string_shared(_nv_); \
@@ -148,7 +145,7 @@
  * @param _nv_
  * Pointer to shared string.
  */
-#define ADD_REF_NOT_NULL_HASH(_nv_) \
+#define ADD_REF_NOT_NULL_HASH(_nv_)     \
     if (_nv_)                           \
     {                                   \
         add_refcount(_nv_);             \
@@ -157,7 +154,7 @@
  * @copydoc FREE_AND_CLEAR_HASH
  * @warning Like FREE_AND_CLEAR_HASH(), but without { and }.
  */
-#define FREE_AND_CLEAR_HASH2(_nv_) \
+#define FREE_AND_CLEAR_HASH2(_nv_)     \
     if (_nv_)                          \
     {                                  \
         free_string_shared(_nv_);      \
@@ -180,8 +177,7 @@
 /**
  * @defgroup TILED_xxx Tiled map constants
  * Constants of tiled map IDs.
- *@{
- */
+ *@{*/
 /** North. */
 #define TILED_NORTH 0
 /** East. */
@@ -272,11 +268,14 @@ typedef struct linked_char {
 #define STRING_ARCH_NAME(__arch__) ((__arch__)->name ? (__arch__)->name : ">NULL<")
 /** Use to get a safe name of object, even if the object name is NULL. */
 #define STRING_OBJ_NAME(__ob__) ((__ob__) && (__ob__)->name ? (__ob__)->name : ">NULL<")
-/** Use to get a safe arch name of object, even if the object arch name is NULL.
- * */
+/**
+ * Use to get a safe arch name of object, even if the object arch name is NULL.
+ */
 #define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch ? ((__ob__)->arch->name ? (__ob__)->arch->name : ">NULL<") : ">NULL<")
-/** Use to get a safe slaying value of an object, even if the slaying value is
- * NULL. */
+/**
+ * Use to get a safe slaying value of an object, even if the slaying value is
+ * NULL.
+ */
 #define STRING_OBJ_SLAYING(__ob__) ((__ob__)->slaying ? (__ob__)->slaying : ">NULL<")
 
 /**
@@ -331,57 +330,57 @@ enum {
 typedef struct settings_struct {
     /**
      * Port to use for client/server communication.
- */
+     */
     uint16_t port;
 
     /**
      * Read only data files, such as the collected archetypes.
- */
+     */
     char libpath[MAX_BUF];
 
     /**
      * Player data, unique maps, etc.
- */
+     */
     char datapath[MAX_BUF];
 
     /**
      * Where the map files are.
- */
+     */
     char mapspath[MAX_BUF];
 
     /**
      * Where the HTTP files are.
- */
+     */
     char httppath[MAX_BUF];
 
     /**
      * HTTP URL of the metaserver.
- */
+     */
     char metaserver_url[MAX_BUF];
 
     /**
      * Hostname of this server.
- */
+     */
     char server_host[MAX_BUF];
 
     /**
      * Name of this server.
- */
+     */
     char server_name[MAX_BUF];
 
     /**
      * Comment about the server we send to the metaserver.
- */
+     */
     char server_desc[MAX_BUF];
 
     /**
      * Executing the world maker?
- */
+     */
     uint8_t world_maker;
 
     /**
      * Running unit tests?
- */
+     */
     bool unit_tests;
 
     /**
@@ -398,53 +397,53 @@ typedef struct settings_struct {
 
     /**
      * Adjustment to maximum magical device level the player may use.
- */
+     */
     int8_t magic_devices_level;
 
     /**
      * See note in server.cfg.
- */
+     */
     double item_power_factor;
 
     /**
      * Whether to reload Python modules whenever Python script executes.
- */
+     */
     uint8_t python_reload_modules;
 
     /**
      * Comma-delimited list of permission groups each player
      * automatically has.
- */
+     */
     char default_permission_groups[MAX_BUF];
 
     /**
      * Allowed characters for certain strings.
- */
+     */
     char allowed_chars[ALLOWED_CHARS_NUM][MAX_BUF];
 
     /**
      * Limits on the allowed characters.
- */
+     */
     size_t limits[ALLOWED_CHARS_NUM][2];
 
     /**
      * IPs allowed to remotely control the client.
- */
+     */
     char control_allowed_ips[HUGE_BUF];
 
     /**
      * Which player the remote command goes through, if applicable.
- */
+     */
     char control_player[MAX_BUF];
 
     /**
      * Whether to recycle tmp maps or not.
- */
+     */
     uint8_t recycle_tmp_maps;
 
     /**
      * URL to the HTTP server.
- */
+     */
     char http_url[MAX_BUF];
 } settings_struct;
 
@@ -467,8 +466,7 @@ typedef struct shstr_constants {
 /**
  * @defgroup CACHE_FLAG_xxx Cache flags
  * The various cache flag bitmasks.
- *@{
- */
+ *@{*/
 /** The cache contains pointer to a PyObject. */
 #define CACHE_FLAG_PYOBJ 1
 /** Automatically free() the pointer in the cache entry. */
@@ -502,8 +500,7 @@ typedef struct cache_struct {
 /**
  * @defgroup SCRIPT_FIX_xxx For plugin events
  * These are used by plugin events.
- *@{
- */
+ *@{*/
 /** Fix the event activator. */
 #define SCRIPT_FIX_ACTIVATOR 2
 /** Fix all objects related to the event. */

@@ -43,8 +43,7 @@
 /**
  * @defgroup RM_MAP_xxx Region map content coords
  * Region map content coordinates.
- *@{
- */
+ *@{*/
 /** The map X position. */
 #define RM_MAP_STARTX 25
 /** The map Y position. */
@@ -58,8 +57,7 @@
 /**
  * @defgroup RM_BUTTON_LEFT_xxx Region map left button coords
  * Region map left button coordinates.
- *@{
- */
+ *@{*/
 /** X position of the left button. */
 #define RM_BUTTON_LEFT_STARTX 25
 /** Y position of the left button. */
@@ -69,8 +67,7 @@
 /**
  * @defgroup RM_BUTTON_RIGHT_xxx Region map right button coords
  * Region map right button coordinates.
- *@{
- */
+ *@{*/
 /** X position of the right button. */
 #define RM_BUTTON_RIGHT_STARTX 649
 /** Y position of the right button. */
@@ -80,8 +77,7 @@
 /**
  * @defgroup RM_TITLE_xxx Region map title coords
  * Region map title coordinates.
- *@{
- */
+ *@{*/
 /** X position of the title text. */
 #define RM_TITLE_STARTX 60
 /** Y position of the title text. */
@@ -95,8 +91,7 @@
 /**
  * @defgroup RM_SCROLLBAR_xxx Region map scrollbar coords
  * Region map scrollbar coordinates.
- *@{
- */
+ *@{*/
 /** X position of the vertical scrollbar. */
 #define RM_SCROLLBAR_STARTX 662
 /** Y position of the vertical scrollbar. */
@@ -110,8 +105,7 @@
 /**
  * @defgroup RM_SCROLLBARH_xxx Region map horizontal scrollbar coords
  * Region map horizontal scrollbar coordinates.
- *@{
- */
+ *@{*/
 /** X position of the horizontal scrollbar. */
 #define RM_SCROLLBARH_STARTX 25
 /** Y position of the horizontal scrollbar. */

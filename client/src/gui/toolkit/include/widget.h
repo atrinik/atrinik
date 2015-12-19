@@ -79,7 +79,7 @@ typedef struct widgetdata {
 
     /**
      * If 0, will not save this widget.
- */
+     */
     uint8_t save;
 
     /** Next widget. */
@@ -136,7 +136,7 @@ typedef struct widgetdata {
     /**
      * If 1, this widget will not be rendered, but any items it contains
      * will still get processed and rendered.
- */
+     */
     int hidden;
 
     double zoom; ///< Zoom factor of the widget.

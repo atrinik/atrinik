@@ -33,8 +33,7 @@
 /**
  * @defgroup SOUND_TYPE_xxx Sound mixer type
  * Sound mixer types.
- *@{
- */
+ *@{*/
 /** Sound chunk, OGG/WAV, no MIDI. */
 #define SOUND_TYPE_CHUNK 1
 /** Music, OGG/MIDI/etc. */

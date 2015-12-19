@@ -35,21 +35,21 @@
 typedef union list_settings_graphic_union {
     /**
      * Button buffer.
- */
+     */
     button_struct button[2];
 
     /**
      * Text-related buffers.
- */
+     */
     struct {
         /**
          * Text input buffer.
- */
+     */
         text_input_struct text_input;
 
         /**
          * Button buffer.
- */
+     */
         button_struct button;
     } text;
 } list_settings_graphic_union;

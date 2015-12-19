@@ -83,7 +83,7 @@ typedef struct scrollbar_struct {
      * Pointer that will be updated if redraw should be done due to
      * scroll offset change. Can be NULL, in which case it will not be
      * updated.
- */
+     */
     uint8_t *redraw;
 
     /** X position of the scrollbar. */
@@ -144,8 +144,7 @@ typedef struct scrollbar_info_struct {
 /**
  * @defgroup SCROLL_DIRECTION_xxx Scroll directions
  * Scroll directions.
- *@{
- */
+ *@{*/
 /** No direction. */
 #define SCROLL_DIRECTION_NONE 0
 /** Scrolling up. */

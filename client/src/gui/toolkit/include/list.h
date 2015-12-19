@@ -41,13 +41,13 @@ typedef struct list_struct {
     /**
      * Parent X position, ie, X position of the surface the list is being
      * drawn on.
- */
+     */
     int px;
 
     /**
      * Parent Y position, ie, Y position of the surface the list is being
      * drawn on.
- */
+     */
     int py;
 
     /** List's maximum width. */
@@ -81,7 +81,7 @@ typedef struct list_struct {
      * Array of arrays of pointers to the text. In other words:
      *
      * row -> col -> text.
- */
+     */
     char ***text;
 
     /** How many pixels to adjust the height of a row by. */
@@ -90,7 +90,7 @@ typedef struct list_struct {
     /**
      * Frame offset (used when drawing the frame around the rows and when
      * coloring the row entries).
- */
+     */
     int16_t frame_offset;
 
     /** Height of the header with column names. */
@@ -99,13 +99,13 @@ typedef struct list_struct {
     /**
      * Currently highlighted row ID + 1, therefore, 0 means no
      * highlighted row.
- */
+     */
     uint32_t row_highlighted;
 
     /**
      * Currently selected row ID + 1, therefore, 0 means no selected
      * row.
- */
+     */
     uint32_t row_selected;
 
     /**
@@ -113,13 +113,13 @@ typedef struct list_struct {
      *
      * - 0 = Row #0 is shown first in the list.
      * - 10 = Row #10 is shown first in the list.
- */
+     */
     uint32_t row_offset;
 
     /**
      * Used for figuring out whether a double click occurred (keeps last
      * ticks value).
- */
+     */
     uint32_t click_tick;
 
     /** If 1, this list has the active focus. */
@@ -143,7 +143,7 @@ typedef struct list_struct {
     /**
      * Pointer to some custom data. If non-NULL, will be freed when list
      * is destroyed.
- */
+     */
     void *data;
 
     /**
@@ -210,7 +210,7 @@ typedef struct list_struct {
      * handle generic list events (eg, scrolling with arrow keys).
      * @retval 0 Did not handle the event.
      * @retval 1 Handled the event.
- */
+     */
     int (*key_event_func)(struct list_struct *list, SDLKey key);
 
     /**
@@ -224,7 +224,7 @@ typedef struct list_struct {
      * @param[out] color What color to use.
      * @param[out] color_shadow What color to use for the text's shadow,
      * NULL to disable shadow.
- */
+     */
     void (*text_color_hook)(struct list_struct *list, uint32_t row, uint32_t col, const char **color, const char **color_shadow);
 
     /**
@@ -248,7 +248,7 @@ typedef struct list_struct {
      * @param event
  * Event that triggered this - can be used to figure out
      * whether the event was a click, a motion, etc.
- */
+     */
     void (*handle_mouse_row_func)(struct list_struct *list, uint32_t row, SDL_Event *event);
 } list_struct;
 
@@ -280,8 +280,7 @@ typedef struct list_struct {
 /**
  * @defgroup LIST_SORT_xxx List sort types
  * List sort types.
- *@{
- */
+ *@{*/
 /** Alphabetical sort. */
 #define LIST_SORT_ALPHA 1
 /*@}*/

@@ -42,7 +42,7 @@ typedef struct new_face_struct {
     /**
      * This is the image ID. It should be the same value as its position
      * in the array.
- */
+     */
     uint16_t number;
 } New_Face;
 
@@ -69,8 +69,10 @@ typedef struct {
     /** How many different faces to animate. */
     uint8_t num_animations;
 
-    /** How many facings (9 and 25 are allowed only with the new ext anim
-     * system). */
+    /**
+     * How many facings (9 and 25 are allowed only with the new ext anim
+     * system).
+     */
     uint8_t facings;
 } Animations;
 

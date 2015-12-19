@@ -43,8 +43,7 @@ static object marker;
 
 /**
  * @defgroup first_xxx Beginnings of linked lists.
- *@{
- */
+ *@{*/
 /** First player. */
 player *first_player;
 /** First map. */

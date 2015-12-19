@@ -49,15 +49,14 @@ typedef struct notification_struct {
     /**
      * Milliseconds that must pass before the notification is
      * dismissed.
- */
+     */
     uint32_t delay;
 } notification_struct;
 
 /**
  * @defgroup CMD_NOTIFICATION_xxx Notification command types
  * Notification command types.
- *@{
- */
+ *@{*/
 /** The notification contents. */
 #define CMD_NOTIFICATION_TEXT 0
 /** What macro or command to execute. */
@@ -74,8 +73,7 @@ typedef struct notification_struct {
 /**
  * @defgroup NOTIFICATION_DEFAULT_xxx Notification defaults
  * Default notification values.
- *@{
- */
+ *@{*/
 /** The maximum width of the notification. */
 #define NOTIFICATION_DEFAULT_WIDTH 200
 /** The font of the notification's message. */

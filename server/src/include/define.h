@@ -49,8 +49,7 @@
 
 /**
  * @defgroup buffer_sizes Buffer sizes
- *@{
- */
+ *@{*/
 /** Used for all kinds of things. */
 #define MAX_BUF             256
 #define VERY_BIG_BUF        1024
@@ -67,8 +66,7 @@
 /**
  * @defgroup identify_modes Identify modes
  * Modes for cast_identify().
- *@{
- */
+ *@{*/
 /** Normal identification. */
 #define IDENTIFY_NORMAL    0
 /** Identify everything. */
@@ -80,8 +78,7 @@
 /**
  * @defgroup spelllist_modes Spell list modes
  * Spell list commands for client spell list.
- *@{
- */
+ *@{*/
 /** Add a spell to the spell list */
 #define SPLIST_MODE_ADD     0
 /** Remove a spell from the spell list */
@@ -100,8 +97,7 @@
 /**
  * @defgroup los_blocked_modes LoS blocked modes
  * Line of Sight (los.c) defines
- *@{
- */
+ *@{*/
 /** It's visible. */
 #define BLOCKED_LOS_VISIBLE     0x00
 /** Ignore this tile for blocksview/visible changes. */
@@ -132,8 +128,7 @@
  * 131, 132, 133, 134, 135, 136, 137, 140, 142, 143, 144, 145, 146, 147,
  * 148, 149, 150, 155, 151, 141, 107, 89, 61, 57,
  * 46, 24.
- *@{
- */
+ *@{*/
 /**
  * The object is a player object.
  */
@@ -565,8 +560,7 @@
 /**
  * @defgroup sub_type_defines Sub type defines
  * The sub type defines.
- *@{
- */
+ *@{*/
 
 /**
  * @defgroup container_sub_types Container sub types
@@ -580,8 +574,7 @@
  * All containers with sub_type higher or equal to 128 are party
  * containers and have the party name stored in the slaying field. Only
  * the party members can open it.
- *@{
- */
+ *@{*/
 /** Normal container */
 #define ST1_CONTAINER_NORMAL           0
 /** Corpse container */
@@ -605,8 +598,7 @@
 /**
  * @defgroup door_sub_types Door sub types
  * Sub types for DOOR objects.
- *@{
- */
+ *@{*/
 /** Normal door */
 #define ST1_DOOR_NORMAL     0
 /** Different sound */
@@ -616,8 +608,7 @@
 /**
  * @defgroup ST_BD_xxx Construction sub types
  * Sub types used for construction skill items.
- *@{
- */
+ *@{*/
 /** Destroys a previously built item. */
 #define ST_BD_REMOVE 1
 /** Builds marked material. */
@@ -627,8 +618,7 @@
 /**
  * @defgroup ST_MAT_xxx Material sub types
  * Sub types used for construction materials.
- *@{
- */
+ *@{*/
 /** Floor material. */
 #define ST_MAT_FLOOR 1
 /** Wall material. */
@@ -642,8 +632,7 @@
 /**
  * @defgroup CLIENT_MAP_xxx Client map info types.
  * Sub types used for @ref CLIENT_MAP_INFO.
- *@{
- */
+ *@{*/
 /** Map label. */
 #define CLIENT_MAP_LABEL 1
 /** Tooltip. */
@@ -661,8 +650,7 @@
  *  - <= SIZEOFFREE1 will get you within 1 space.
  *  - <= SIZEOFFREE2 will get you within 2 spaces.
  *  - <= SIZEOFFREE3 will get you within 3 spaces.
- *@{
- */
+ *@{*/
 /** Up to one space when searching around a spot. */
 #define SIZEOFFREE1     8
 /** Up to two spaces when searching around a spot. */
@@ -684,8 +672,7 @@
  * These values are used from terrain_type and terrain_flag
  * Arches without terrain flags become AIRBREATH as default.
  * These values also define the environment of the map tile position
- *@{
- */
+ *@{*/
 /** No terrain. */
 #define TERRAIN_NOTHING         0
 /** Walk on earth. */
@@ -735,14 +722,12 @@
  * flags[1] is 32 to 63
  * flags[2] is 64 to 95
  * flags[3] is 96 to 127
- *@{
- */
+ *@{*/
 
 /**
  * @defgroup object_flag_macros Object flag macros
  * Basic macros to do the above.
- *@{
- */
+ *@{*/
 
 /** Macro for getting flag's bitmask value. */
 #define FLAG_BITMASK(p) BIT_MASK(p % 32)
@@ -809,8 +794,7 @@
  * some core functions like object_remove() use this, it will be better
  * we set this ONE time outside instead of every time in object_remove():
  * we skip the call for the head in this way.
- *@{
- */
+ *@{*/
 #define SET_MULTI_FLAG(xyz, p)                                                 \
     do {                                                                       \
         for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) {                \
@@ -849,8 +833,7 @@
 /**
  * @defgroup item_types Item types
  * Convenience macros to determine what kind of things we are dealing with.
- *@{
- */
+ *@{*/
 /** Is this a weapon? */
 #define IS_WEAPON(op) (op->type == ARROW || op->type == BOW || op->type == WEAPON)
 /** Is this some kind of armor (shield, helmet, cloak, etc)? */
@@ -1383,8 +1366,7 @@
 /**
  * @defgroup COST_xxx Cost modes
  * Cost modes.
- *@{
- */
+ *@{*/
 /** Value for buying the item. */
 #define COST_BUY 0
 /** Value for selling the item. */
@@ -1415,8 +1397,7 @@
  *                                      -------------------
  *                      attack_movement = 33
  * @author kholland@sunlab.cit.cornell.edu
- *@{
- */
+ *@{*/
 /**
  * Move toward a player if far, but maintain some space,
  * attack from a distance - good for missile users only
@@ -1532,8 +1513,7 @@ enum apply_flag {
 /**
  * @defgroup quest_statuses Quest statuses
  * Quest statuses. Stored in object::magic.
- *@{
- */
+ *@{*/
 
 /** Quest status is invalid. */
 #define QUEST_STATUS_INVALID -1
@@ -1548,8 +1528,7 @@ enum apply_flag {
 /**
  * @defgroup quest_types Quest types
  * All the possible quest types.
- *@{
- */
+ *@{*/
 /** Used for containers. */
 #define QUEST_TYPE_NONE 0
 /** The quest requires you to kill X monsters. */
@@ -1583,8 +1562,7 @@ enum apply_flag {
  * movement certain amount of time when they respond to player's message.
  *
  * The length of the message affects the timeout value.
- *@{
- */
+ *@{*/
 /**
  * After this many characters in the message, for each X characters,
  * @ref INTERFACE_TIMEOUT_SECONDS will be added to the timeout, where X =
@@ -1620,8 +1598,7 @@ enum apply_flag {
 /**
  * @defgroup SPAWN_RELATIVE_LEVEL_xxx Spawn point relative levels
  * Constants used to define spawn point relative level colors.
- *@{
- */
+ *@{*/
 /** Green. */
 #define SPAWN_RELATIVE_LEVEL_GREEN 1
 /** Blue. */
@@ -1644,8 +1621,7 @@ enum apply_flag {
 /**
  * @defgroup FOR_MAP_LAYER_xxx Map layer looping macros
  * Macros used for looping through objects on a specific map square and layer.
- *@{
- */
+ *@{*/
 /**
  * The loop constructor.
  * @param _m
@@ -1707,8 +1683,7 @@ enum apply_flag {
  * @defgroup FOR_xxx Object looping macros
  * Macros used for looping through objects in various locations.
  * @author Andreas Kirschbaum
- *@{
- */
+ *@{*/
 /**
  * Constructs a loop iterating over the inventory of an object. Example:
  * <pre>

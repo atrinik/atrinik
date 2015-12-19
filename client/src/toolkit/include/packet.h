@@ -40,47 +40,47 @@ struct StringBuffer_struct;
 typedef struct packet_struct {
     /**
      * Next packet to send.
- */
+     */
     struct packet_struct *next;
 
     /**
      * Previous packet.
- */
+     */
     struct packet_struct *prev;
 
     /**
      * The data.
- */
+     */
     uint8_t *data;
 
     /**
      * Length of 'data'.
- */
+     */
     size_t len;
 
     /**
      * Current size of 'data'.
- */
+     */
     size_t size;
 
     /**
      * Expand size.
- */
+     */
     size_t expand;
 
     /**
      * Position in 'data'.
- */
+     */
     size_t pos;
 
     /**
      * Whether to enable NDELAY on this packet.
- */
+     */
     uint8_t ndelay;
 
     /**
      * The packet's command type.
- */
+     */
     uint8_t type;
 
 #ifndef NDEBUG

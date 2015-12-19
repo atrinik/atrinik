@@ -102,27 +102,27 @@ typedef struct _face_struct {
 typedef struct spell_entry_struct {
     /**
      * The spell object in player's inventory.
- */
+     */
     object *spell;
 
     /**
      * Cost of spell.
- */
+     */
     uint16_t cost;
 
     /**
      * Spell's flags.
- */
+     */
     uint32_t flags;
 
     /**
      * Spell's path.
- */
+     */
     uint32_t path;
 
     /**
      * Description of the spell.
- */
+     */
     char msg[MAX_BUF];
 } spell_entry_struct;
 
@@ -182,87 +182,87 @@ typedef struct hfile_struct {
 typedef enum player_state_t {
     /**
      * Just initialized the client.
- */
+     */
     ST_INIT,
 
     /**
      * Re-download metaserver list.
- */
+     */
     ST_META,
 
     /**
      * Close opened socket if any, prepare for connection.
- */
+     */
     ST_START,
 
     /**
      * Waiting to select a server to play on.
- */
+     */
     ST_WAITLOOP,
 
     /**
      * Selected a server, so start the connection procedure.
- */
+     */
     ST_STARTCONNECT,
 
     /**
      * Open a connection to the server.
- */
+     */
     ST_CONNECT,
 
     /**
      * Wait for version information from the server.
- */
+     */
     ST_WAITVERSION,
 
     /**
      * Server version received.
- */
+     */
     ST_VERSION,
 
     /**
      * Wait for setup command from the server.
- */
+     */
     ST_WAITSETUP,
 
     /**
      * Request files listing.
- */
+     */
     ST_REQUEST_FILES_LISTING,
 
     /**
      * Wait for files listing request to complete.
- */
+     */
     ST_WAITREQUEST_FILES_LISTING,
 
     /**
      * Request files as necessary.
- */
+     */
     ST_REQUEST_FILES,
 
     /**
      * Choosing which account to login with.
- */
+     */
     ST_LOGIN,
 
     /**
      * Wait for login response.
- */
+     */
     ST_WAITLOGIN,
 
     /**
      * Choosing which character to play with.
- */
+     */
     ST_CHARACTERS,
 
     /**
      * Waiting for the relevant data packets to start playing.
- */
+     */
     ST_WAITFORPLAY,
 
     /**
      * Playing.
- */
+     */
     ST_PLAY
 } player_state_t;
 

@@ -52,7 +52,7 @@ typedef struct popup_button {
  * The clicked button.
      * @retval 1 Handled the event, should not do generic handling.
      * @retval 0 Did not handle the event.
- */
+     */
     int (*event_func)(struct popup_button *button);
 } popup_button;
 
@@ -61,17 +61,17 @@ typedef struct popup_struct {
     /**
      * Surface the popup uses for drawing. This surface is then copied
      * to ::ScreenSurface.
- */
+     */
     SDL_Surface *surface;
 
     /**
      * Texture to use.
- */
+     */
     texture_struct *texture;
 
     /**
      * Disable automatically drawing the texture on the popup surface?
- */
+     */
     uint8_t disable_texture_drawing;
 
     /** Custom data. */
@@ -144,7 +144,7 @@ typedef struct popup_struct {
      * @retval 0 Did not handle the event, but allow other keyboard
      * events.
      * @retval 1 Handled the event.
- */
+     */
     int (*event_func)(struct popup_struct *popup, SDL_Event *event);
 
     /**
@@ -155,7 +155,7 @@ typedef struct popup_struct {
      * @return
  * 1 to proceed with the destruction of the popup, 0
      * otherwise.
- */
+     */
     int (*destroy_callback_func)(struct popup_struct *popup);
 
     /**

@@ -41,7 +41,7 @@ typedef struct recipestruct {
     /**
      * Chance that recipe for this item will appear in an alchemical
      * grimoire
- */
+     */
     int chance;
 
     /** An index value derived from formula ingredients */
@@ -50,7 +50,7 @@ typedef struct recipestruct {
     /**
      * If defined, one of the formula ingredients is used as the basis
      * for the product object
- */
+     */
     int transmute;
 
     /** The maximum number of items produced by the recipe */

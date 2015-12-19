@@ -40,8 +40,7 @@
 /**
  * @defgroup LAYER_xxx Layer types
  * The layer types used for different objects.
- *@{
- */
+ *@{*/
 /** System objects. */
 #define LAYER_SYS 0
 /** Floor. */
@@ -77,8 +76,7 @@
  * @defgroup map_struct_macros Map structure macros
  * These macros are used to access flags of a map, the map reset time,
  * the map owner, etc.
- *@{
- */
+ *@{*/
 
 /** This is when the map will reset */
 #define MAP_WHEN_RESET(m)      ((m)->reset_time)
@@ -135,8 +133,7 @@
  * @defgroup map_load_flags Map loading flags
  * Flags passed to map loading functions such as ready_map_name() and
  * load_original_map().
- *@{
- */
+ *@{*/
 
 /**
  * Always load map from the map directory, and don't do unique items or
@@ -165,8 +162,7 @@
 /**
  * @defgroup map_memory_flags Map memory flags
  * Map memory flags, used from @ref mapstruct::in_memory.
- *@{
- */
+ *@{*/
 
 /** Map is fully loaded. */
 #define MAP_IN_MEMORY   1
@@ -246,8 +242,7 @@
  * @defgroup map_look_flags Map look flags
  * These are used in the MapLook flags element.  They are not used in
  * in the object flags structure.
- *@{
- */
+ *@{*/
 
 /** Blocks the view. */
 #define P_BLOCKSVIEW          0x01
@@ -327,8 +322,7 @@
 /**
  * @defgroup MSP_EXTRA_xxx Map space extra flags
  * Map space extra flags
- *@{
- */
+ *@{*/
 /** No harmful spells. */
 #define MSP_EXTRA_NO_HARM 1
 /** No PvP. */
@@ -384,13 +378,13 @@ typedef struct MapSpace_s {
     /**
      * How much light is on this tile. 0 = total dark
      * 255+ = full daylight.
- */
+     */
     int32_t light_value;
 
     /**
      * Flags about this space
      * @see map_look_flags
- */
+     */
     int flags;
 
     /** last_damage tmp backbuffer */
@@ -406,8 +400,7 @@ typedef struct MapSpace_s {
 /**
  * @defgroup map_flags Map flags
  * Map flags for global map settings, used in @ref mapstruct::map_flags.
- *@{
- */
+ *@{*/
 /** Map is outdoor map - daytime effects are on */
 #define MAP_FLAG_OUTDOOR 1
 /** Special unique map  */
@@ -450,8 +443,7 @@ typedef struct MapSpace_s {
 /**
  * @defgroup map_default_values Default map values
  * Nonzero default map values.
- *@{
- */
+ *@{*/
 
 /** Default darkness */
 #define MAP_DEFAULT_DARKNESS    0
@@ -471,7 +463,7 @@ typedef struct region_struct {
      * Pointer to the region that is a parent of the current
      * region, if a value isn't defined in the current region
      * we traverse this series of pointers until it is.
- */
+     */
     struct region_struct *parent;
 
     /** Shortened name of the region as maps refer to it */
@@ -483,13 +475,13 @@ typedef struct region_struct {
      * initialization, and the children get assigned to their
      * parents later. (before runtime on the server though)
      * nothing outside the init code should ever use this value.
- */
+     */
     char *parent_name;
 
     /**
      * Official title of the region, this might be defined
      * to be the same as name
- */
+     */
     char *longname;
 
     /** The description of the region. */
@@ -525,7 +517,7 @@ typedef struct map_event {
 
     /**
      * Plugin the map event object is using.
- */
+     */
     struct atrinik_plugin *plugin;
 } map_event;
 
@@ -627,7 +619,7 @@ typedef struct mapdef {
     /**
      * How many seconds must elapse before this map
      * should be reset
- */
+     */
     uint32_t reset_timeout;
 
     /** When this reaches 0, the map will be swapped out. */
@@ -640,7 +632,7 @@ typedef struct mapdef {
      * If not true, the map has been freed and must
      * be loaded before used. The map, omap and map_ob
      * arrays will be allocated when the map is loaded
- */
+     */
     uint32_t in_memory;
 
     /** Used by relative_tile_position() to mark visited maps */
@@ -651,19 +643,19 @@ typedef struct mapdef {
      *
      * This value is only used when the map is not marked as outdoor.
      * @see MAP_DEFAULT_DARKNESS
- */
+     */
     int darkness;
 
     /**
      * The real light_value, built out from darkness and possible other
      * factors.
- */
+     */
     int light_value;
 
     /**
      * What level the player should be to play here. Affects treasures,
      * random shops and various other things.
- */
+     */
     int difficulty;
 
     /** Height of the map. */
@@ -679,7 +671,7 @@ typedef struct mapdef {
      * Also used by exits as the default X location if the exit doesn't
      * have one set.
      * @see MAP_FLAG_FIXED_LOGIN
- */
+     */
     int enter_x;
 
     /**
@@ -689,7 +681,7 @@ typedef struct mapdef {
      * Also used by exits as the default Y location if the exit doesn't
      * have one set.
      * @see MAP_FLAG_FIXED_LOGIN
- */
+     */
     int enter_y;
 
     int16_t coords[3]; ///< X, Y and Z coordinates.
@@ -811,8 +803,7 @@ typedef struct rv_vector_s {
  * @defgroup range_vector_flags Range Vector Flags
  * Range vector flags, used by functions like get_rangevector() and
  * get_rangevector_from_mapcoords().
- *@{
- */
+ *@{*/
 /**
  * Calculate Manhattan distance.
  */
@@ -850,8 +841,7 @@ typedef struct rv_vector_s {
 /**
  * @defgroup direction_constants Direction constants
  * The direction constants.
- *@{
- */
+ *@{*/
 /** North. */
 #define NORTH 1
 /** Northeast. */

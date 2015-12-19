@@ -98,7 +98,7 @@ typedef struct line_and_slope {
      * Vertical distance per horizontal, e.g. 2 means y moves by 2 for
      * each x; 1/2 means x means 2 for each y (zero if the line is
      * vertical).
- */
+     */
     double slope;
 } line_and_slope;
 

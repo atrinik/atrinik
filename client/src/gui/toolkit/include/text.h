@@ -176,7 +176,7 @@ typedef struct text_info_struct {
     /**
      *  If 1, the character is not being drawn due to line skip (due to
      * scroll value for example).
- */
+     */
     uint8_t obscured;
 
     /** Whether bold width is being calculated. */
@@ -185,12 +185,12 @@ typedef struct text_info_struct {
     /**
      * Whether font width (font changed using a tag) is being
      * calculated.
- */
+     */
     font_struct *calc_font;
 
     /**
      * Used for calculations by the 'hcenter' tag.
- */
+     */
     int hcenter_y;
 
     int height;
@@ -219,8 +219,7 @@ typedef struct text_info_struct {
 /**
  * @defgroup TEXT_xxx Text flags
  * Various text flags for controlling behavior of text_show().
- *@{
- */
+ *@{*/
 /** Parse markup, otherwise it will be rendered as normal text. */
 #define TEXT_MARKUP 1
 /** Wrap words, otherwise only newlines. */
@@ -285,8 +284,7 @@ typedef struct text_info_struct {
 /**
  * @defgroup COLOR_xxx Color HTML notations
  * HTML notations of various common collors.
- *@{
- */
+ *@{*/
 /** White. */
 #define COLOR_WHITE "ffffff"
 /** Orange. */

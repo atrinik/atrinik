@@ -33,8 +33,7 @@
 /**
  * @defgroup CMD_PARTY_xxx Party socket command types
  * Various types of the BINARY_CMD_PARTY socket command.
- *@{
- */
+ *@{*/
 /**
  * Show a list of all parties in the game.
  */

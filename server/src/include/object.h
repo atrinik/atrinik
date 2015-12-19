@@ -96,7 +96,7 @@ typedef struct obj {
      * This is used in process_events
      * so that the entire object list does not
      * need to be gone through.
- */
+     */
     struct obj *active_next;
 
     /**
@@ -104,7 +104,7 @@ typedef struct obj {
      * This is used in process_events
      * so that the entire object list does not
      * need to be gone through.
- */
+     */
     struct obj *active_prev;
 
     /** Pointer to the object stacked below this one */
@@ -113,7 +113,7 @@ typedef struct obj {
     /**
      * Pointer to the object stacked above this one
      * Note: stacked in the *same* environment
- */
+     */
     struct obj *above;
 
     /** Pointer to the first object in the inventory */
@@ -123,7 +123,7 @@ typedef struct obj {
      * Pointer to the object which is the environment.
      * This is typically the container that the object is in.
      * If env == NULL then the object is on a map or in the nirvana.
- */
+     */
     struct obj *env;
 
     /** Pointer to the rest of a large body of objects */
@@ -142,7 +142,7 @@ typedef struct obj {
      * Needed for the damage info for client in map2. Also used for
      * unmodified carrying weight of magical containers to prevent rounding
      * errors.
- */
+     */
     uint32_t damage_round_tag;
 
     /**
@@ -150,7 +150,7 @@ typedef struct obj {
      * is not copied by memcpy(), since the memcpy() doesn't actually
      * copy over the inventory either, so it would create bogus carrying
      * weight in some cases.
- */
+     */
     uint32_t carrying;
 
     /** Type-dependant extra data. */
@@ -173,7 +173,7 @@ typedef struct obj {
     /**
      * Which race to do double damage to.
      * If this is an exit, this is the filename
- */
+     */
     const char *slaying;
 
     /** If this is a book/sign/magic mouth/etc */
@@ -200,7 +200,7 @@ typedef struct obj {
      *
      * Owner should not be referred to directly - get_owner() should be
      * used instead.
- */
+     */
     struct obj *owner;
 
     /** The skill chosen to use */
@@ -245,7 +245,7 @@ typedef struct obj {
     /**
      * Weight-limit of object - player and container should have this...
      * perhaps we can substitute it?
- */
+     */
     uint32_t weight_limit;
 
     /** Paths the object is attuned to */
@@ -279,7 +279,7 @@ typedef struct obj {
      * other objects get Y position (height) adjustment on the map (100 = the
      * object moves 100 pixels further to the top, -50 = the object moves
      * 50 pixels to the bottom).
- */
+     */
     int16_t z;
 
     /** Needed to target the nearest enemy */
@@ -291,7 +291,7 @@ typedef struct obj {
     /**
      * type flags for different environment (tile is under water, firewalk,...)
      * A object which can be applied GIVES this terrain flags to his owner
- */
+     */
     uint16_t terrain_type;
 
     /** The object can move over/is unaffected from this terrain type */
@@ -325,7 +325,7 @@ typedef struct obj {
      * X align of the object on the actual map. Similar to object::z,
      * a value of 100 = object is moved 100 pixels to the right, -50 and
      * the object is moved 50 pixels to the left.
- */
+     */
     int16_t align;
 
     /** Object's rotation value in degrees. */
@@ -350,7 +350,7 @@ typedef struct obj {
      * quick pos is 0 for single arch, xxxx0000 for a head
      * or x/y offset packed to 4 bits for a tail
      * warning: change this when include > 15x15 monster
- */
+     */
     uint8_t quick_pos;
 
     /** PLAYER, BULLET, etc. See define.h */
@@ -419,7 +419,7 @@ typedef struct obj {
      * The "125% max border" should work nice and the 25% over 100%
      * should give a little boost. I think about to give player crafters
      * the power to boost items to 100%+.
- */
+     */
     uint8_t attack[NROFATTACKS];
 
     /** Resistance against attacks in % - range from -125 to 125 */
@@ -434,7 +434,7 @@ typedef struct obj {
      * 0 = 100 = 100% zoom of the object, which means the original (no
      * actual zooming is done). 50 = 50% of the original object's size,
      * 200 = 200% of the original object's size.
- */
+     */
     int16_t zoom_x;
 
     /**
@@ -443,7 +443,7 @@ typedef struct obj {
      * 0 = 100 = 100% zoom of the object, which means the original (no
      * actual zooming is done). 50 = 50% of the original object's size,
      * 200 = 200% of the original object's size.
- */
+     */
     int16_t zoom_y;
 
     /** Object's alpha value. */
@@ -571,8 +571,7 @@ typedef struct oblnk {
 /**
  * @defgroup REMOVAL_xxx Object removal flags.
  * Flags used for object_remove()>@
- *@{
- */
+ *@{*/
 /**
  * Do not adjust weight.
  */
@@ -586,8 +585,7 @@ typedef struct oblnk {
 /**
  * @defgroup BEHAVIOR_xxx Behavior flags
  * These control what behavior the monster can do.
- *@{
- */
+ *@{*/
 /**
  * The monster will look for other friendly monsters to cast friendly spells
  * on.
@@ -621,8 +619,7 @@ typedef struct oblnk {
 /**
  * @defgroup GENDER_xxx Gender IDs.
  * IDs of the various genders.
- *@{
- */
+ *@{*/
 /** Neuter: no gender. */
 #define GENDER_NEUTER 0
 /** Male. */

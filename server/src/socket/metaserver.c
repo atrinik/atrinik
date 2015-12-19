@@ -39,17 +39,17 @@ static void *metaserver_thread(void *junk);
 typedef struct ms_update_info {
     /**
      * Number of players in the game.
- */
+     */
     char num_players[MAX_BUF];
 
     /**
      * The port the server is using.
- */
+     */
     char port[MAX_BUF];
 
     /**
      * Players currently in the game, separated by colons (':').
- */
+     */
     char *players;
 } ms_update_info;
 

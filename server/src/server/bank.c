@@ -36,8 +36,7 @@
 /**
  * @defgroup BANK_STRING_xxx Bank info string modes
  * Modes used for #bank_info_t and bank_parse_string().
- *@{
- */
+ *@{*/
 /** Invalid string (did not include any valid amount). */
 #define BANK_STRING_NONE 0
 /** Got a valid amount of money from string. */

@@ -37,12 +37,12 @@
 typedef struct widget_fps_struct {
     /**
      * Last time the FPS was calculated.
- */
+     */
     uint32_t lasttime;
 
     /**
      * Current FPS.
- */
+     */
     uint32_t current;
 
     /**
@@ -53,7 +53,7 @@ typedef struct widget_fps_struct {
 
     /**
      * Number of main loop iterations since last calculation.
- */
+     */
     uint32_t frames;
 
     /**

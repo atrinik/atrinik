@@ -121,8 +121,7 @@ typedef struct socket_command_struct {
 /**
  * @defgroup SPELL_DESC_xxx Spell flags
  * Spell flags.
- *@{
- */
+ *@{*/
 /** Spell is safe to cast in town. */
 #define SPELL_DESC_TOWN         0x01
 /** Spell is fired in a direction (bullet, bolt, ...). */

@@ -49,27 +49,27 @@ typedef void (*command_func)(object *op, const char *command, char *params);
 typedef struct command_struct {
     /**
      * Name of the command.
- */
+     */
     char *name;
 
     /**
      * Handler function.
- */
+     */
     command_func handle_func;
 
     /**
      * Time the player must wait before doing another command.
- */
+     */
     double delay;
 
     /**
      * A combination of @ref COMMAND_xxx.
- */
+     */
     uint64_t flags;
 
     /**
      * Hash handle.
- */
+     */
     UT_hash_handle hh;
 } command_struct;
 
@@ -79,30 +79,29 @@ typedef struct command_struct {
 typedef struct permission_group_struct {
     /**
      * Name, eg, '[OP]'.
- */
+     */
     char *name;
 
     /**
      * The command permissions for this group.
- */
+     */
     char **cmd_permissions;
 
     /**
      * Number of command permissions.
- */
+     */
     size_t cmd_permissions_num;
 
     /**
      * Hash handle.
- */
+     */
     UT_hash_handle hh;
 } permission_group_struct;
 
 /**
  * @defgroup COMMAND_xxx Command flags
  * Command flags.
- *@{
- */
+ *@{*/
 /**
  * The command requires a permission.
  */

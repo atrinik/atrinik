@@ -34,8 +34,7 @@
  * @defgroup LL_xxx Lexical loader return codes
  *
  * Codes returned by the lexical loader functions.
- *@{
- */
+ *@{*/
 #define LL_EOF      0 ///< End of file reached.
 #define LL_MORE     1 ///< Object has more parts that need loading
 #define LL_NORMAL   2 ///< Object was successfully loaded.

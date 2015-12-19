@@ -78,7 +78,7 @@ typedef enum _attacks {
     /**
      * Confusion. Affected object will move in random directions until
      * the effect wears off.
- */
+     */
     ATNR_CONFUSION,
 
     /** Used for internal calculations. */

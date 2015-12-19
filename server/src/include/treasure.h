@@ -49,8 +49,7 @@
 /**
  * @defgroup GT_xxx Treasure generation flags
  * Treasure generation flags.
- *@{
- */
+ *@{*/
 /**
  * Put generated treasure below the object instead of inside the object's
  * inventory.
@@ -128,7 +127,7 @@ typedef struct treasurestruct {
     /**
      * Local t_style (will overrule global one) - used from artifacts.
      * @see @ref treasure_style
- */
+     */
     int t_style;
 
     /** Value from 0 - 1000. Chance of item is magic. */
@@ -137,7 +136,7 @@ typedef struct treasurestruct {
     /**
      * If this value is not 0, use this as fixed magic value.
      * if it 0, look at magic to generate perhaps a random magic value
- */
+     */
     int magic_fix;
 
     /**
@@ -149,7 +148,7 @@ typedef struct treasurestruct {
      * - <b>0</b>: NEVER make an artifact for this treasure.
      * - <b>1 - 100</b>: % chance of making an artifact from this
      *   treasure.
- */
+     */
     int artifact_chance;
 
     /** Max magic bonus to item */
@@ -158,7 +157,7 @@ typedef struct treasurestruct {
     /**
      * If the entry is a list transition, it contains the difficulty
      * required to go to the new list
- */
+     */
     int difficulty;
 
     /** Random 1 to nrof items are generated */
@@ -183,7 +182,7 @@ typedef struct treasureliststruct {
     /**
      * Global style (used from artifacts file).
      * @see @ref treasure_style
- */
+     */
     int t_style;
 
     /** Artifact chance */
@@ -196,7 +195,7 @@ typedef struct treasureliststruct {
      * If non zero, only 1 item on this list should be generated.
      *
      * The total_chance contains the sum of the chance for this list.
- */
+     */
     int16_t total_chance;
 
     /** Next treasure-item in linked list */

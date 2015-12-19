@@ -100,14 +100,14 @@ typedef struct _shared_string {
     /**
      * The top bit of "refcount" is used to signify that "u.array" points
      * at the array entry.
- */
+     */
     unsigned REFCOUNT_TYPE refcount;
 
     /**
      * Padding will be unused memory, since we can't know how large the
      * padding when allocating memory. We assume here that sizeof(long)
      * is a good boundary.
- */
+     */
     char string[PADDING];
 } shared_string;
 
@@ -126,8 +126,7 @@ typedef struct shstr_list {
  * Macros used for manipulation of shared string lists, such as prepending,
  * clearing, looping, etc.
  * @author Alex Tokar
- *@{
- */
+ *@{*/
 
 /**
  * Prepends the specified string value to the shared string list.
