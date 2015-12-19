@@ -467,7 +467,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
         if (op->type == PLAYER) {
             if (heal > 0) {
-                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : target->name, heal);
             } else {
                 draw_info(COLOR_WHITE, op, "The healing spell fails!");
             }
@@ -489,7 +489,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
         if (op->type == PLAYER) {
             if (heal > 0) {
-                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : target->name, heal);
             } else {
                 draw_info(COLOR_WHITE, op, "The healing spell fails!");
             }
