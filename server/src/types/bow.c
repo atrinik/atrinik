@@ -113,6 +113,10 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     /* Add WC and damage bonuses. */
     arrow->stats.wc = arrow_get_wc(shooter, op, arrow);
     arrow->stats.dam = arrow_get_damage(shooter, op, arrow);
+    arrow->stats.dam = rndm(arrow->stats.dam * 0.8 + 1, arrow->stats.dam);
+    if (arrow->stats.dam < 1) {
+        arrow->stats.dam = 1;
+    }
 
     /* Use the bow's WC range. */
     arrow->stats.wc_range = op->stats.wc_range;
