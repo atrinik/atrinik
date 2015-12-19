@@ -5,7 +5,6 @@ identified 1
 layer 3
 type 114
 no_drop 1
-speed 1.0
 is_used_up 1
 speed 0.05
 applied 1
