@@ -67,6 +67,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
             if (op->stats.food) {
                 force->speed = 0.01;
                 force->speed_left = -op->stats.food;
+                SET_FLAG(force, FLAG_IS_USED_UP);
             }
 
             update_ob_speed(force);
