@@ -131,6 +131,30 @@ static void console_command_speed_multiplier(const char *params)
 }
 
 /**
+ * Dump the active objects list, or just the number of objects on the list.
+ *
+ * @param params Parameters from the console.
+ */
+static void
+console_command_active_objects (const char *params)
+{
+    bool show_list = params != NULL && strcmp(params, "list") == 0;
+    if (show_list) {
+        LOG(INFO, "=== Active objects list ===");
+    }
+
+    uint64_t num = 0;
+    for (object *tmp = active_objects; tmp != NULL; tmp = tmp->active_next) {
+        num++;
+        if (show_list) {
+            LOG(INFO, "%s", object_get_str(tmp));
+        }
+    }
+
+    LOG(INFO, "Total number of active objects: %" PRIu64, num);
+}
+
+/**
  * Free all data before exiting. */
 void cleanup(void)
 {
@@ -462,6 +486,15 @@ static void init_library(int argc, char *argv[])
             "Changes the server's speed multiplier.",
             "Changes the speed multiplier of the server, which in turn affects how quickly everything is processed."
             "Without an argument, shows the current speed multiplier and the default speed multiplier."
+            );
+
+    console_command_add(
+            "active_objects",
+            console_command_active_objects,
+            "Show the number of active objects.",
+            "Show the number of active objects in the game world. Use "
+            "'list' to show a string representation of each object (and "
+            "where it is)."
             );
 
     /* Add command-line options. */
