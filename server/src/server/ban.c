@@ -486,7 +486,7 @@ void ban_reset(void)
  */
 const char *ban_strerror(ban_error_t errnum)
 {
-    SOFT_ASSERT_RC(errnum > 0 && errnum < BAN_MAX, "unknown error",
+    SOFT_ASSERT_RC(errnum >= BAN_OK && errnum < BAN_MAX, "unknown error",
             "Invalid error number: %d", errnum);
 
     switch (errnum) {
@@ -514,7 +514,7 @@ const char *ban_strerror(ban_error_t errnum)
     case BAN_BADSYNTAX:
         return "invalid syntax";
 
-    case BAN_MAX:
+    default:
         break;
     }
 
