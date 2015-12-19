@@ -2622,6 +2622,8 @@ player_item_power_effects (object *op)
                     set_attr_value(&force->stats, num, stat);
                     done = true;
                 }
+
+                break;
             }
 
             case 6:
