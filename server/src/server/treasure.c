@@ -1903,6 +1903,8 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 /* For library, chained books! */
                 if (creator->type != MONSTER && QUERY_FLAG(creator, FLAG_NO_PICK)) {
                     SET_FLAG(op, FLAG_NO_PICK);
+                } else {
+                    CLEAR_FLAG(op, FLAG_IDENTIFIED);
                 }
 
                 /* For check_inv floors */
