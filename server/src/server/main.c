@@ -127,8 +127,9 @@ void set_map_timeout(mapstruct *map)
 
 /**
  * Process objects with speed, like teleporters, players, etc.
- * @param map If not NULL, only process objects on that map. */
-void process_events(mapstruct *map)
+ */
+void
+process_events (void)
 {
     object *op;
     tag_t tag;
@@ -166,35 +167,43 @@ void process_events(mapstruct *map)
         op->active_next = &marker;
 
         /* Now process op */
-        if (OBJECT_FREE(op)) {
+        if (unlikely(OBJECT_FREE(op))) {
             LOG(ERROR, "Free object on active list");
             op->speed = 0;
             update_ob_speed(op);
             continue;
         }
 
-        if (QUERY_FLAG(op, FLAG_REMOVED)) {
+        if (unlikely(QUERY_FLAG(op, FLAG_REMOVED))) {
+            /*
+             * This is not actually an error; object_remove() doesn't remove
+             * active objects from the active list, since the two most common
+             * next steps are to either: re-insert the object elsewhere (for
+             * which we would have to re-add it to the active list), or destroy
+             * the object altogether (which does remove it from the active
+             * list).
+             *
+             * For now, just drop a DEVEL message about this case, so we can
+             * get a better idea of the objects that rely on this behavior.
+             */
+            LOG(DEVEL, "Removed object on active list: %s", object_get_str(op));
             op->speed = 0;
             update_ob_speed(op);
             continue;
         }
 
-        if (DBL_EQUAL(op->speed, 0.0)) {
+        if (unlikely(DBL_EQUAL(op->speed, 0.0))) {
             LOG(ERROR, "Object has no speed, but is on active list: %s",
-                    object_get_str(op));
+                object_get_str(op));
             update_ob_speed(op);
             continue;
         }
 
-        if (op->map == NULL && op->env == NULL) {
+        if (unlikely(op->map == NULL && op->env == NULL)) {
             LOG(ERROR, "Object without map or inventory is on active list: %s",
-                    object_get_str(op));
+                object_get_str(op));
             op->speed = 0;
             update_ob_speed(op);
-            continue;
-        }
-
-        if (map && op->map != map) {
             continue;
         }
 
@@ -525,7 +534,7 @@ void main_process(void)
     pticks++;
 
     /* "do" something with objects with speed */
-    process_events(NULL);
+    process_events();
 
     /* Removes unused maps after a certain timeout */
     check_active_maps();
@@ -594,12 +603,11 @@ int main(int argc, char **argv)
     LOG(INFO, "Server ready. Waiting for connections...");
 
     for (; ; ) {
-        if (shutdown_timer_check()) {
+        if (unlikely(shutdown_timer_check())) {
             break;
         }
 
         console_command_handle();
-
 
         doeric_server();
 

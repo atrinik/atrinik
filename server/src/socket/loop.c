@@ -257,8 +257,8 @@ void doeric_server(void)
     FD_ZERO(&tmp_exceptions);
 
     for (i = 0; i < socket_info.allocated_sockets; i++) {
-        if (init_sockets[i].state == ST_LOGIN &&
-                !socket_is_fd_valid(init_sockets[i].sc)) {
+        if (unlikely(init_sockets[i].state == ST_LOGIN &&
+                     !socket_is_fd_valid(init_sockets[i].sc))) {
             LOG(DEBUG, "Invalid waiting fd %d", i);
             init_sockets[i].state = ST_DEAD;
         }
@@ -291,7 +291,8 @@ void doeric_server(void)
     for (pl = first_player; pl != NULL; pl = next) {
         next = pl->next;
 
-        if (pl->socket.state != ST_DEAD && !socket_is_fd_valid(pl->socket.sc)) {
+        if (unlikely(pl->socket.state != ST_DEAD &&
+                     !socket_is_fd_valid(pl->socket.sc))) {
             LOG(DEBUG, "Invalid file descriptor for player %s [%s]: %d",
                     object_get_str(pl->ob), socket_get_str(pl->socket.sc),
                     socket_fd(pl->socket.sc));
@@ -324,7 +325,7 @@ void doeric_server(void)
 
     pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write,
             &tmp_exceptions, &socket_info.timeout);
-    if (pollret == -1) {
+    if (unlikely(pollret == -1)) {
         LOG(ERROR, "Cannot select(): %s (%d)", s_strerror(s_errno), s_errno);
         return;
     }

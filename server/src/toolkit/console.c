@@ -406,7 +406,7 @@ void console_command_handle(void)
     line = (char **) utarray_front(command_process_queue);
     pthread_mutex_unlock(&command_process_queue_mutex);
 
-    if (!line) {
+    if (likely(line == NULL)) {
         return;
     }
 

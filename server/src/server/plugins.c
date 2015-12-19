@@ -406,20 +406,23 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
 /**
  * Handles triggering global events like EVENT_BORN, EVENT_MAPRESET,
  * etc.
+ *
  * @param event_type The event type.
- * @param parm1 First parameter.
- * @param parm2 Second parameter. */
-void trigger_global_event(int event_type, void *parm1, void *parm2)
+ * @param parm1 First data parameter.
+ * @param parm2 Second data parameter.
+ */
+void
+trigger_global_event (int event_type, void *parm1, void *parm2)
 {
-    atrinik_plugin *plugin;
-
-    if (!plugins_list) {
-        return;
-    }
-
-    for (plugin = plugins_list; plugin; plugin = plugin->next) {
+    for (atrinik_plugin *plugin = plugins_list;
+         plugin != NULL;
+         plugin = plugin->next) {
         if (plugin->gevent[event_type]) {
-            (plugin->eventfunc)(0, PLUGIN_EVENT_GLOBAL, event_type, parm1, parm2);
+            (plugin->eventfunc)(0,
+                                PLUGIN_EVENT_GLOBAL,
+                                event_type,
+                                parm1,
+                                parm2);
         }
     }
 }

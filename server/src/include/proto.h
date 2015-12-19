@@ -340,7 +340,7 @@ extern int process_delay;
 extern void version(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
-extern void process_events(mapstruct *map);
+extern void process_events(void);
 extern void clean_tmp_files(void);
 extern void server_shutdown(void);
 extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
