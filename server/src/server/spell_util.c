@@ -40,6 +40,19 @@
 struct archetype *spellarch[NROFREALSPELLS];
 
 /**
+ * Bonus to spell damage. Based on power.
+ */
+static double spell_dam_bonus[MAX_STAT + 1] = {
+    -2.5,                               // 0
+    -2.0, -1.75, -1.5, -1.25, -1.0,     // 1-5
+    -0.5, -0.5, -0.5, -0.25, -0.25,     // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
+    0.15, 0.25, 0.4, 0.5, 0.65,         // 16-20
+    0.75, 0.85, 0.95, 1.10, 1.30,       // 21-25
+    1.45, 1.55, 1.65, 1.80, 2.0,        // 26-30
+};
+
+/**
  * Initialize spells.
  */
 void init_spells(void)
@@ -991,12 +1004,13 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
     }
 
     dam = (int16_t) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
+    dam += dam * spell_dam_bonus[caster->stats.Pow];
 
     if (exact || !dam) {
         return dam;
     }
 
-    return rndm(dam * 0.8f + 1, dam);
+    return rndm(dam * 0.8 + 1, dam);
 }
 
 /**
