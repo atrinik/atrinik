@@ -129,6 +129,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 
     if (shooter->type == PLAYER) {
         CONTR(shooter)->stat_arrows_fired++;
+        CONTR(shooter)->last_combat = pticks;
     }
 
     play_sound_map(shooter->map, CMD_SOUND_EFFECT, "bow1.ogg", shooter->x, shooter->y, 0, 0);
