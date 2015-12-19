@@ -507,6 +507,8 @@ typedef struct pl_player {
     /** Last ranged wc sent. */
     int16_t last_ranged_wc;
 
+    int16_t dam_bonus; ///< Damage bonuses from equipment (not melee weapon).
+
     /** Table of protections last sent to the client. */
     int8_t last_protection[NROFATTACKS];
 

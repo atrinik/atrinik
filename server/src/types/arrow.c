@@ -60,7 +60,8 @@ int16_t arrow_get_wc(object *op, object *bow, object *arrow)
         level = op->level;
     }
 
-    return arrow->stats.wc + bow->magic + arrow->magic + level + thaco_bonus[op->stats.Dex] + bow->stats.wc;
+    return arrow->stats.wc + bow->magic + arrow->magic + level +
+           wc_bonus[op->stats.Dex] + bow->stats.wc;
 }
 
 /**
@@ -92,9 +93,12 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
 
     double dam = arrow->stats.dam + arrow->magic;
     dam += bow->stats.dam + bow->magic;
+    if (op->type == PLAYER) {
+        dam += CONTR(op)->dam_bonus;
+    }
     dam *= LEVEL_DAMAGE(level);
     dam = ABS(dam);
-    dam += dam * (dam_bonus[op->stats.Str] / 2.0) / 10.0;
+    dam += dam * dam_bonus[op->stats.Str] / 10.0;
 
     uint8_t item_condition;
     if (bow->item_condition > arrow->item_condition) {
@@ -222,7 +226,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 
     if (shooter->type == PLAYER) {
         op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
-        op->stats.wc += thaco_bonus[shooter->stats.Dex];
+        op->stats.wc += wc_bonus[shooter->stats.Dex];
     } else {
         op->stats.wc += 5;
     }

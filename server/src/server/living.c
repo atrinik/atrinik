@@ -37,19 +37,29 @@
 #define ENCUMBRANCE_LIMIT 65.0f
 
 /**
- * dam_bonus, thaco_bonus, weight limit all are based on strength.
+ * Bonus to melee/ranged damage. Based on strength.
  */
-int dam_bonus[MAX_STAT + 1] = {
-    -5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
-    0, 0, 0, 0, 0,
-    1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 10, 12
+double dam_bonus[MAX_STAT + 1] = {
+    -2.5,                           // 0
+    -2.0, -2.0, -1.5, -1.5, -1.5,   // 1-5
+    -1.0, -1.0, -1.0, -0.5, -0.5,   // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,        // 11-15
+    0.5, 0.5, 1.0, 1.0, 1.5,        // 16-20
+    1.5, 1.5, 2.0, 2.0, 2.5,        // 21-25
+    3.0, 3.5, 4.0, 4.5, 5.0,        // 26-30
 };
 
-/** THAC0 bonus - WC bonus */
-int thaco_bonus[MAX_STAT + 1] = {
-    -5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
-    0, 0, 0, 0, 0,
-    1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8
+/**
+ * WC bonus. Based on dexterity.
+ */
+int wc_bonus[MAX_STAT + 1] = {
+    -5,                     // 0
+    -4, -4, -3, -3, -3,     // 1-5
+    -2, -2, -2, -1, -1,     // 6-10
+    0, 0, 0, 0, 0,          // 11-15
+    1, 1, 2, 2, 3,          // 16-20
+    3, 3, 4, 4, 5,          // 21-25
+    5, 5, 6, 7, 8,          // 26-30
 };
 
 /**
@@ -515,7 +525,12 @@ living_update_player_item (player       *pl,
         /* Add the damage, factoring in the item's magic. This affects melee
          * weapons damage. */
         if (item->stats.dam) {
-            op->stats.dam += item->stats.dam + item->magic;
+            int16_t dam = item->stats.dam + item->magic;
+            op->stats.dam += dam;
+
+            if (!IS_WEAPON(item)) {
+                pl->dam_bonus += dam;
+            }
         }
 
         for (int i = 0; i < NROFATTACKS; i++) {
@@ -597,6 +612,7 @@ void living_update_player(object *op)
     pl->gen_sp_armour = 0;
     pl->item_power = 0;
     pl->quest_container = NULL;
+    pl->dam_bonus = 0;
 
     for (int i = 0; i < NUM_STATS; i++) {
         int8_t value = get_attr_value(&op->arch->clone.stats, i);
@@ -804,7 +820,9 @@ void living_update_player(object *op)
                 }
 
                 if (tmp->stats.dam != 0) {
-                    op->stats.dam += tmp->stats.dam + tmp->magic;
+                    int16_t dam = tmp->stats.dam + tmp->magic;
+                    op->stats.dam += dam;
+                    pl->dam_bonus += dam;
                 }
 
                 if (tmp->stats.ac != 0) {
@@ -1075,7 +1093,10 @@ void living_update_player(object *op)
         dam *= weapon->item_condition / 100.0;
         op->stats.dam = dam;
 
-        FREE_AND_ADD_REF_HASH(op->slaying, weapon->slaying);
+        if (weapon->slaying != NULL) {
+            FREE_AND_ADD_REF_HASH(op->slaying, weapon->slaying);
+        }
+
         if (QUERY_FLAG(weapon, FLAG_IS_ASSASSINATION)) {
             SET_FLAG(op, FLAG_IS_ASSASSINATION);
         }
@@ -1098,14 +1119,14 @@ void living_update_player(object *op)
         op->stats.dam *= LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED)) / 2.0;
     }
 
-    /* Now the last adds - stat bonus to damage and WC */
-    op->stats.dam += dam_bonus[op->stats.Str];
-
-    if (op->stats.dam < 0) {
-        op->stats.dam = 0;
+    /* Add damage bonus based on strength. */
+    op->stats.dam += op->stats.dam * dam_bonus[op->stats.Str] / 10.0;
+    if (op->stats.dam < 1) {
+        op->stats.dam = 1;
     }
 
-    op->stats.wc += thaco_bonus[op->stats.Dex];
+    /* Add WC bonus based on dexterity. */
+    op->stats.wc += wc_bonus[op->stats.Dex];
 
     if (pl->quest_container == NULL) {
         LOG(ERROR, "Player %s has no quest container, fixing.",
