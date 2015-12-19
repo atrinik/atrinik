@@ -207,7 +207,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
             }
         }
 
-        dam = hit_player(op, rndm(hitdam / 2 + 1, hitdam), hitter);
+        dam = hit_player(op, rndm(hitdam * 0.8 + 1, hitdam), hitter);
 
         if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack)) {
             return dam;
