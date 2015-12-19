@@ -71,8 +71,7 @@ typedef struct curl_data {
 
     /**
      * State of the data.
-
- */
+     */
     curl_state_t state;
 
     /**

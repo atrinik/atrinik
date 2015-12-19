@@ -41,32 +41,27 @@
 struct sock_struct {
     /**
      * Actual socket handle, as returned by socket() call.
-
- */
+     */
     int handle;
 
     /**
      * The socket address.
-
- */
+     */
     struct sockaddr_storage addr;
 
     /**
      * Hostname that the socket connection will use.
-
- */
+     */
     char *host;
 
     /**
      * Port that the socket connection will use.
-
- */
+     */
     uint16_t port;
 
     /**
      * SSL socket handle.
-
- */
+     */
     SSL *ssl_handle;
 };
 

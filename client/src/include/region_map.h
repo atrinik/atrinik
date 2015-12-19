@@ -176,16 +176,14 @@ typedef struct region_map {
      * Region map image.
      *
      * @internal
-
- */
+     */
     SDL_Surface *surface;
 
     /**
      * Zoomed version of the region map image.
      *
      * @internal
-
- */
+     */
     SDL_Surface *zoomed;
 
     /**
@@ -195,16 +193,14 @@ typedef struct region_map {
      * refcounted, and different GUI elements may have different zoom levels.
      *
      * @internal
-
- */
+     */
     SDL_Surface *fow_zoomed;
 
     /**
      * Parsed definitions.
      *
      * @warning This structure is refcounted.
-
- */
+     */
     region_map_def_t *def;
 
     /*
@@ -217,26 +213,22 @@ typedef struct region_map {
 
     /**
      * Current zoom levels.
-
- */
+     */
     int zoom;
 
     /**
      * Coordinates for the region map image.
-
- */
+     */
     SDL_Rect pos;
 
     /**
      * cURL pointer for downloading the region map image.
-
- */
+     */
     curl_data *data_png;
 
     /**
      * cURL pointer for downloading the region definitions.
-
- */
+     */
     curl_data *data_def;
 } region_map_t;
 

@@ -44,8 +44,7 @@ typedef struct faction_parent {
      * The actual faction parent. During factions file reading, 'name' is used,
      * and afterwards faction_assign_names() is called which sets the ptr
      * instead (by looking up the faction pointer from the name.
-
- */
+     */
     union {
         shstr *name; ///< Parent faction name.
         faction_t ptr; ///< Pointer to the parent faction.
@@ -55,21 +54,18 @@ typedef struct faction_parent {
      * When a player's reputation with this faction changes, how much reputation
      * spills over to this parent (as a percentage, eg, 50 for half of the
      * reputation).
-
- */
+     */
     int16_t spill;
 
     /**
      * Percentage of how much reputation from this parent affects friendliness
      * checks.
-
- */
+     */
     int16_t attention;
 
     /**
      * If true, will force spill value usage.
-
- */
+     */
     bool spill_force:1;
 } faction_parent_t;
 
@@ -81,8 +77,7 @@ typedef struct faction_enemy {
      * The actual faction enemy. Behavior is same as faction_parent_t::faction;
      * during factions file reading, 'name' is used, and afterwards
      * faction_assign_names() is called which sets the ptr instead.
-
- */
+     */
     union {
         shstr *name; ///< Enemy faction name.
         faction_t ptr; ///< Pointer to the enemy faction.
@@ -109,27 +104,23 @@ struct faction {
     /**
      * Percentage modifier of reputation gains/losses that spill from children
      * to this faction.
-
- */
+     */
     int16_t modifier;
 
     /**
      * Penalty for killing an NPC that belongs to this faction.
-
- */
+     */
     double penalty;
 
     /**
      * When below this threshold, NPCs that belong to this faction will attack
      * on sight.
-
- */
+     */
     double threshold;
 
     /**
      * Whether this faction is an alliance.
-
- */
+     */
     bool alliance:1;
 };
 

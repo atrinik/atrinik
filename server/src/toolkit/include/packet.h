@@ -86,8 +86,7 @@ typedef struct packet_struct {
 #ifndef NDEBUG
     /**
      * StringBuffer instance used to describe the packet contents.
-
- */
+     */
     struct StringBuffer_struct *sb;
 #endif
 } packet_struct;
@@ -98,15 +97,13 @@ typedef struct packet_struct {
 typedef struct packet_save {
     /**
      * Position to save.
-
- */
+     */
     size_t pos;
 
 #ifndef NDEBUG
     /**
      * StringBuffer instance position to save.
-
- */
+     */
     size_t sb_pos;
 #endif
 } packet_save_t;

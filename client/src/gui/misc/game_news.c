@@ -51,44 +51,37 @@
 typedef struct game_news {
     /**
      * Title of the game news entry to read about.
-
- */
+     */
     char *title;
 
     /**
      * cURL data for downloading the game news message.
-
- */
+     */
     curl_data *data;
 
     /**
      * cURL data state.
-
- */
+     */
     curl_state_t state;
 
     /**
      * The downloaded message; NULL while still downloading.
-
- */
+     */
     char *msg;
 
     /**
      * Scrollbar buffer.
-
- */
+     */
     scrollbar_struct scrollbar;
 
     /**
      * Scroll offset.
-
- */
+     */
     uint32_t scroll_offset;
 
     /**
      * Number of lines.
-
- */
+     */
     uint32_t num_lines;
 } game_news_t;
 

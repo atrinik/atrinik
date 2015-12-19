@@ -150,26 +150,22 @@ typedef struct _mapdata {
     /**
      * If set, height difference will be taken into account when rendering
      * tiles (even if they are not FoW tiles).
-
- */
+     */
     int height_diff : 1;
 
     /**
      * If 1, the player is currently in a building.
-
- */
+     */
     int in_building : 1;
 
     /**
      * Player's current sub-layer.
-
- */
+     */
     uint8_t player_sub_layer;
 
     /**
      * Region map.
-
- */
+     */
     struct region_map *region_map;
 } _mapdata;
 
@@ -227,14 +223,12 @@ typedef struct MapCell {
 
     /**
      * Target object.
-
- */
+     */
     uint32_t target_object_count[NUM_REAL_LAYERS];
 
     /**
      * Whether the target is a friend.
-
- */
+     */
     uint8_t target_is_friend[NUM_REAL_LAYERS];
 
     uint8_t anim_last[NUM_REAL_LAYERS];
@@ -249,8 +243,7 @@ typedef struct MapCell {
 
     /**
      * Whether Fog of War is enabled on this cell.
-
- */
+     */
     uint8_t fow;
 
     uint8_t priority[NUM_SUB_LAYERS];

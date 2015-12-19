@@ -38,32 +38,27 @@
 typedef struct active_effect_struct {
     /**
      * Next active effect in a doubly-linked list.
-
- */
+     */
     struct active_effect_struct *next;
 
     /**
      * Previous active effect in a doubly-linked list.
-
- */
+     */
     struct active_effect_struct *prev;
 
     /**
      * Pointer to the actual active effect force object.
-
- */
+     */
     object *op;
 
     /**
      * Seconds remaining before the effect expires. -1 does not expire.
-
- */
+     */
     int32_t sec;
 
     /**
      * Explanation of the active effect.
-
- */
+     */
     char *msg;
 } active_effect_struct;
 

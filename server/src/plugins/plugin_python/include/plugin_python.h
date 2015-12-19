@@ -530,8 +530,7 @@ typedef struct {
 
     /**
      * Documentation for the field.
-
- */
+     */
     char *doc;
 } fields_struct;
 

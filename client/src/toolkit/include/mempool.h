@@ -95,50 +95,42 @@ typedef bool (*chunk_validator)(void *ptr);
 typedef struct mempool_struct {
     /**
      * Description of chunks. Mostly for debugging.
-
- */
+     */
     const char *chunk_description;
 
     /**
      * How many chunks to allocate at each expansion.
-
- */
+     */
     size_t expand_size;
 
     /**
      * Size of chunks, excluding sizeof(mempool_chunk) and padding.
-
- */
+     */
     size_t chunksize;
 
     /**
      * Special handling flags. See @ref mempool_flags
-
- */
+     */
     uint32_t flags;
 
     /**
      * First free chunk.
-
- */
+     */
     mempool_chunk_struct *freelist[MEMPOOL_NROF_FREELISTS];
 
     /**
      * Number of free.
-
- */
+     */
     size_t nrof_free[MEMPOOL_NROF_FREELISTS];
 
     /**
      * Number of allocated.
-
- */
+     */
     size_t nrof_allocated[MEMPOOL_NROF_FREELISTS];
 
     /**
      * List of puddles used for chunk tracking.
-
- */
+     */
     mempool_puddle_struct *puddlelist[MEMPOOL_NROF_FREELISTS];
 
     uint64_t calls_expand; ///< Number of calls to expand the pool.

@@ -385,14 +385,12 @@ typedef struct settings_struct {
 
     /**
      * Running plugin unit tests?
-
- */
+     */
     bool plugin_unit_tests;
 
     /**
      * Only run specific plugin unit test(s).
-
- */
+     */
     char plugin_unit_test[MAX_BUF];
 
     /**

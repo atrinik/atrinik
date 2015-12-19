@@ -544,15 +544,13 @@ typedef struct mapdef {
     /**
      * Next map in a doubly-linked list.
      * @private
-
- */
+     */
     struct mapdef *next;
 
     /**
      * Previous map in a doubly-linked list.
      * @private
-
- */
+     */
     struct mapdef *prev;
 
     /** Any maps tiled together to this one */

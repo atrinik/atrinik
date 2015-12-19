@@ -748,8 +748,7 @@ enum {
     PLAYER_EQUIP_RING_LEFT,
     /**
      * Skill item.
-
- */
+     */
     PLAYER_EQUIP_SKILL_ITEM,
 
     /**

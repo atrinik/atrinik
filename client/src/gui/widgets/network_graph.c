@@ -52,20 +52,17 @@ typedef struct network_graph_data {
 typedef struct network_graph_widget {
     /**
      * The data type sources.
-
- */
+     */
     network_graph_data_t data[NETWORK_GRAPH_TYPE_MAX];
 
     /**
      * Currently displayed type.
-
- */
+     */
     int type;
 
     /**
      * Which traffic types to display.
-
- */
+     */
     uint32_t filters;
 } network_graph_widget_t;
 

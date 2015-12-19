@@ -47,8 +47,7 @@ typedef struct widget_fps_struct {
 
     /**
      * Real number of frames rendered in the last second.
-
- */
+     */
     uint32_t current_real;
 
     /**
@@ -58,8 +57,7 @@ typedef struct widget_fps_struct {
 
     /**
      * Real number of frames drawn since last calculation.
-
- */
+     */
     uint32_t frames_real;
 } widget_fps_struct;
 

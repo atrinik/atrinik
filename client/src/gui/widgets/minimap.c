@@ -66,20 +66,17 @@ typedef enum {
 typedef struct minimap_widget {
     /**
      * Surface used when rendering dynamic maps.
-
- */
+     */
     SDL_Surface *surface;
 
     /**
      * Cached minimap textures.
-
- */
+     */
     SDL_Surface *textures[MINIMAP_TEXTURE_NUM];
 
     /**
      * Display type.
-
- */
+     */
     minimap_type_t type;
 } minimap_widget_t;
 
