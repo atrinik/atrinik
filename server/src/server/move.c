@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Returns a random direction (1..8).
@@ -185,7 +186,21 @@ int move_ob(object *op, int dir, object *originator)
         }
     }
 
-    if (door_try_open(op, m, xt, yt, 0)) {
+    bool opened_door = false;
+    for (object *tmp = op; tmp != NULL; tmp = tmp->more) {
+        int tmp_x = xt + tmp->arch->clone.x;
+        int tmp_y = yt + tmp->arch->clone.y;
+        mapstruct *tmp_map = get_map_from_coord(m, &tmp_x, &tmp_y);
+        if (tmp_map == NULL) {
+            return 0;
+        }
+
+        if (door_try_open(op, tmp_map, tmp_x, tmp_y, 0)) {
+            opened_door = true;
+        }
+    }
+
+    if (opened_door) {
         return -1;
     }
 
