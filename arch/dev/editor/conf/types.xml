@@ -3088,7 +3088,7 @@
 			then the creature will pick up the matching items even if
 			this is not set here.
 		</attribute>
-		<attribute arch="wis" editor="sensing range" type="int">
+		<attribute arch="item_power" editor="sensing range" type="int">
 			&lt;sensing range&gt; determines how close a player needs to
 			be before the creature notices him. This is done as a square,
 			for reasons of speed. If the player has stealth, the size of
