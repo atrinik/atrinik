@@ -1497,6 +1497,30 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
         break;
     }
 
+    case BOOK_SPELL:
+        if (tmp->stats.sp >= 0 && tmp->stats.sp < NROFREALSPELLS) {
+            int level = spells[tmp->stats.sp].at->clone.level;
+            draw_info_full_format(CHAT_TYPE_GAME,
+                                  NULL,
+                                  COLOR_WHITE,
+                                  sb_capture,
+                                  op,
+                                  "It contains a level %d wizardry spell.",
+                                  level);
+            int learn_level = spells[tmp->stats.sp].at->clone.level - 15;
+            learn_level = MAX(1, learn_level);
+            draw_info_full_format(CHAT_TYPE_GAME,
+                                  NULL,
+                                  COLOR_WHITE,
+                                  sb_capture,
+                                  op,
+                                  "It requires a minimum level of %d in "
+                                  "literacy to learn.",
+                                  learn_level);
+        }
+
+        break;
+
     case CONTAINER:
     {
         if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
