@@ -720,6 +720,9 @@ void text_show_character_init(text_info_struct *info)
     info->highlight = 0;
     info->highlight_color.r = info->highlight_color.g = info->highlight_color.b = 0;
     info->tooltip_text[0] = '\0';
+    info->tooltip_font = NULL;
+    info->tooltip_delay = 0;
+    info->tooltip_width = 0;
     info->flip = 0;
 }
 
