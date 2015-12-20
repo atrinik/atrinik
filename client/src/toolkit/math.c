@@ -31,6 +31,21 @@
 
 #include <global.h>
 
+#if defined(__GNUC__) && defined(__x86_64__)
+/**
+ * @defgroup DRNG_xxx Intel DRNG support flags
+ *
+ * Flags that determine which DRNG instructions are available.
+ *@{*/
+#define DRNG_NO_SUPPORT	0x0 ///< DRNG is not supported.
+#define DRNG_HAS_RDRAND	0x1 ///< RDRAND is available.
+#define DRNG_HAS_RDSEED	0x2 ///< RDSEED is available.
+/*@}*/
+
+#define INTEL_DRNG
+
+#endif
+
 /**
  * Used by nearest_pow_two_exp() for a fast lookup.
  */
@@ -40,11 +55,62 @@ static const size_t exp_lookup[65] = {
     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
 };
 
-TOOLKIT_API();
+#ifdef INTEL_DRNG
+/**
+ * Combination of @ref DRNG_xxx.
+ */
+static int drng_features;
+#endif
+
+/* Prototypes */
+#ifdef __GNUC__
+static uint64_t
+rdtsc(void);
+#endif
+
+#ifdef INTEL_DRNG
+static int
+get_drng_features(void);
+static bool
+rdseed64_step(uint64_t *seed);
+#endif
+
+TOOLKIT_API(DEPENDS(logger));
 
 TOOLKIT_INIT_FUNC(math)
 {
-    SRANDOM(time(NULL));
+    uint64_t seed = time(NULL);
+
+#ifdef __GNUC__
+#   ifdef INTEL_DRNG
+    drng_features = get_drng_features();
+    if (drng_features & DRNG_HAS_RDSEED) {
+        LOG(DEVEL, "CPU supports RDSEED opcode, attempting to generate a seed");
+        uint64_t new_seed;
+        /* Give it ten tries... */
+        for (int i = 0; i < 10; i++) {
+            if (rdseed64_step(&new_seed)) {
+                seed = new_seed;
+                LOG(DEVEL, "RDSEED generated seed: %" PRIu64, seed);
+                break;
+            }
+        }
+    } else
+#   endif
+    {
+        LOG(DEVEL, "CPU supports RDTSC opcode, attempting to generate a seed");
+        seed = rdtsc();
+        LOG(DEVEL, "RDTSC generated seed: %" PRIu64, seed);
+    }
+#endif
+
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        LOG(DEVEL, "CPU supports RDRAND opcode, will use DRNG for RNG");
+    }
+#endif
+
+    SRANDOM(seed);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -52,6 +118,163 @@ TOOLKIT_DEINIT_FUNC(math)
 {
 }
 TOOLKIT_DEINIT_FUNC_FINISH
+
+#ifdef __GNUC__
+/**
+ * Acquire the processor time stamp using the rdtsc opcode.
+ *
+ * @return
+ * Processor time stamp.
+ */
+static uint64_t
+rdtsc (void)
+{
+    unsigned int lo, hi;
+    asm volatile ("rdtsc"
+                  : "=a" (lo), "=d" (hi));
+    return ((uint64_t) hi << 32) | lo;
+}
+#endif
+
+#ifdef INTEL_DRNG
+/**
+ * CPU ID information structure.
+ */
+typedef struct cpuid {
+    unsigned int eax;
+    unsigned int ebx;
+    unsigned int ecx;
+    unsigned int edx;
+} cpuid_t;
+
+/**
+ * Executes the cpuid opcode, acquiring information about the current CPU
+ * into the specified cpuid_t structure.
+ *
+ * @param info
+ * Where to store the information.
+ * @param leaf
+ * Leaf information (the EAX register).
+ * @param subleaf
+ * Sub-leaf information (the ECX register).
+ */
+static void
+cpuid (cpuid_t *info, unsigned int leaf, unsigned int subleaf)
+{
+    HARD_ASSERT(info != NULL);
+    asm volatile ("cpuid"
+                  : "=a" (info->eax),
+                    "=b" (info->ebx),
+                    "=c" (info->ecx),
+                    "=d" (info->edx)
+                  : "a" (leaf),
+                    "c" (subleaf));
+}
+
+/**
+ * Determine if the system is running under an Intel CPU.
+ *
+ * @return
+ * Whether the system is running under an Intel CPU.
+ */
+static bool
+is_intel_cpu (void)
+{
+    cpuid_t info;
+    cpuid(&info, 0, 0);
+
+    if (memcmp((char *) &info.ebx, "Genu", 4) == 0 &&
+        memcmp((char *) &info.edx, "ineI", 4) == 0 &&
+        memcmp((char *) &info.ecx, "ntel", 4) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Acquire the DRNG features supported by the CPU.
+ *
+ * @return
+ * A combination of @ref DRNG_xxx "DRNG flags".
+ */
+static int
+get_drng_features (void)
+{
+    if (!is_intel_cpu()) {
+        /* Not an Intel CPU; no support for DRNG. */
+        return DRNG_NO_SUPPORT;
+    }
+
+    int features = DRNG_NO_SUPPORT;
+
+    cpuid_t info;
+    /* Get the feature bits leaf */
+    cpuid(&info, 1, 0);
+
+    /* RDRAND instruction is bit #30 in the ECX register */
+    if (BIT_QUERY(info.ecx, 30)) {
+        features |= DRNG_HAS_RDRAND;
+    }
+
+    /* Get the extended feature flags leaf */
+    cpuid(&info, 7, 0);
+
+    /* RDSEED instruction is bit #18 in the EBX register */
+    if (BIT_QUERY(info.ebx, 18)) {
+        features |= DRNG_HAS_RDSEED;
+    }
+
+    return features;
+}
+
+/**
+ * Seeds the Intel DRNG number generator.
+ *
+ * @param seed
+ * The seed to seed with.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+rdseed64_step (uint64_t *seed)
+{
+    HARD_ASSERT(seed != NULL);
+
+    unsigned char ok;
+    asm volatile ("rdseed %0; setc %1"
+                  : "=r" (*seed), "=qm" (ok));
+    return !!ok;
+}
+
+/**
+ * Generates a random number using the Intel rdrand opcode.
+ *
+ * @param number
+ * Will contain the random number on success.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+rdrand64_step (unsigned long long int *number)
+{
+    HARD_ASSERT(number != NULL);
+
+    unsigned long long int i;
+    int cf_error_status;
+
+    asm volatile ("rdrand %%rax; \
+                   mov $1,%%edx; \
+                   cmovae %%rax,%%rdx; \
+                   mov %%edx,%1; \
+                   mov %%rax, %0;"
+                  : "=r" (i), "=r" (cf_error_status)
+                  :: "%rax", "%rdx");
+    *number = i;
+    return !!cf_error_status;
+}
+
+#endif
 
 /**
  * Computes the integer square root.
@@ -119,6 +342,15 @@ rndm (int min, int max)
         return min;
     }
 
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        unsigned long long int i;
+        if (rdrand64_step(&i)) {
+            return min + i % (max - min + 1);
+        }
+    }
+#endif
+
     return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
 }
 
@@ -139,6 +371,15 @@ rndm_chance (uint32_t n)
         log_error("Calling rndm_chance() with n=0.");
         return 0;
     }
+
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        unsigned long long int i;
+        if (rdrand64_step(&i)) {
+            return (i % n) == 0;
+        }
+    }
+#endif
 
     return (uint32_t) RANDOM() < (RAND_MAX + 1U) / n;
 }
