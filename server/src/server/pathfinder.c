@@ -47,6 +47,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 /**
  * Selects algorithm to use for path-finding.
@@ -428,14 +429,15 @@ static void path_node_insert_priority(path_node_t *node, path_node_t **list)
  * @return
  * 0 if the tile is not blocked, non-zero otherwise.
  */
-static int tile_is_blocked(object *op, mapstruct *map, int x, int y)
+static int
+tile_is_blocked (object *op, mapstruct *map, int x, int y)
 {
     int block;
 
     if (op->type == PLAYER && CONTR(op)->tcl) {
         block = 0;
     } else {
-        block = blocked(op, map, x, y, op->terrain_flag);
+        block = object_blocked(op, map, x, y);
     }
 
     return block;
@@ -797,7 +799,29 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         node = open_list;
         path_node_remove(node, &open_list);
 
-        if (node->heuristic <= 1.2) {
+        bool reached_goal = node->heuristic <= 1.2;
+        if (op->more != NULL && !reached_goal &&
+            node->heuristic <= (op->quick_pos >> 4) + 1) {
+            for (object *tmp = op; tmp != NULL; tmp = tmp->more) {
+                int tmp_x = node->x + tmp->arch->clone.x;
+                int tmp_y = node->y + tmp->arch->clone.y;
+                mapstruct *tmp_map = get_map_from_coord(node->map,
+                                                        &tmp_x,
+                                                        &tmp_y);
+                if (tmp_map == NULL) {
+                    continue;
+                }
+
+                get_rangevector_from_mapcoords(tmp_map, tmp_x, tmp_y, goal.map,
+                                               goal.x, goal.y, &rv, 0);
+                if (rv.distance <= 1) {
+                    reached_goal = true;
+                    break;
+                }
+            }
+        }
+
+        if (reached_goal) {
             if (visualizer != NULL) {
                 PATHFINDING_SET_CLOSED(node->map, node->x, node->y,
                         traversal_id, visualizer);
