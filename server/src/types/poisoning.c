@@ -43,6 +43,10 @@ static void process_func(object *op)
     object *target = op->env;
     tag_t target_count = target->count;
 
+    if (op->owner != NULL && !get_owner(op)) {
+        clear_owner(op);
+    }
+
     if (!hit_player(target, op->stats.dam, op)) {
         return;
     }
