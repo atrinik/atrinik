@@ -1674,6 +1674,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
     }
 
     if (op->type != POTION && op->type != SCROLL && op->type != FOOD) {
+        if (creator->type == 0) {
+            max_magic /= 2;
+        }
+
         if ((!op->magic && max_magic) || fix_magic) {
             set_magic(difficulty, op, max_magic, fix_magic, chance_magic, flags);
         }
