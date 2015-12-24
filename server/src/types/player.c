@@ -2324,7 +2324,7 @@ player_save (object *op)
     }
 
     /* Rename the file, removing the .tmp extension. */
-    if (unlikely(rename(path_tmp, path) != 0)) {
+    if (unlikely(path_rename(path_tmp, path) != 0)) {
         LOG(ERROR, "Failure renaming %s to %s: %s",
             path_tmp, path, strerror(errno));
         goto error;
