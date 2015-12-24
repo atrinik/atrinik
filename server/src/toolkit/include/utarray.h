@@ -213,7 +213,6 @@ typedef struct {
 #define utarray_eltidx(a,e) (((char*)(e) >= (char*)((a)->d)) ? (ssize_t) (((char*)(e) - (char*)((a)->d))/(a)->icd->sz) : -1)
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
 #ifdef __GNU__
 #pragma GCC diagnostic ignored "-fpermissive"
 #endif
