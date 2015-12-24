@@ -31,7 +31,6 @@
 
 #include <global.h>
 
-#if defined(__GNUC__) && defined(__x86_64__)
 /**
  * @defgroup DRNG_xxx Intel DRNG support flags
  *
@@ -42,9 +41,10 @@
 #define DRNG_HAS_RDSEED	0x2 ///< RDSEED is available.
 /*@}*/
 
+/**
+ * When defined, Intel's DRNG is compiled.
+ */
 #define INTEL_DRNG
-
-#endif
 
 /**
  * Used by nearest_pow_two_exp() for a fast lookup.
@@ -63,10 +63,8 @@ static int drng_features;
 #endif
 
 /* Prototypes */
-#ifdef __GNUC__
 static uint64_t
 rdtsc(void);
-#endif
 
 #ifdef INTEL_DRNG
 static int
@@ -81,8 +79,7 @@ TOOLKIT_INIT_FUNC(math)
 {
     uint64_t seed = time(NULL);
 
-#ifdef __GNUC__
-#   ifdef INTEL_DRNG
+#ifdef INTEL_DRNG
     drng_features = get_drng_features();
     if (drng_features & DRNG_HAS_RDSEED) {
         LOG(DEVEL, "CPU supports RDSEED opcode, attempting to generate a seed");
@@ -96,13 +93,12 @@ TOOLKIT_INIT_FUNC(math)
             }
         }
     } else
-#   endif
+#endif
     {
         LOG(DEVEL, "CPU supports RDTSC opcode, attempting to generate a seed");
         seed = rdtsc();
         LOG(DEVEL, "RDTSC generated seed: %" PRIu64, seed);
     }
-#endif
 
 #ifdef INTEL_DRNG
     if (drng_features & DRNG_HAS_RDRAND) {
@@ -119,7 +115,6 @@ TOOLKIT_DEINIT_FUNC(math)
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
-#ifdef __GNUC__
 /**
  * Acquire the processor time stamp using the rdtsc opcode.
  *
@@ -134,7 +129,6 @@ rdtsc (void)
                   : "=a" (lo), "=d" (hi));
     return ((uint64_t) hi << 32) | lo;
 }
-#endif
 
 #ifdef INTEL_DRNG
 /**
@@ -260,18 +254,25 @@ rdrand64_step (unsigned long long int *number)
 {
     HARD_ASSERT(number != NULL);
 
+#if !defined(__x86_64__)
+    unsigned char ok;
+    asm volatile ("rdrand %0; setc %1"
+                  : "=r" (*number), "=qm" (ok));
+    return !!ok;
+#else
     unsigned long long int i;
-    int cf_error_status;
+    int ok;
 
     asm volatile ("rdrand %%rax; \
                    mov $1,%%edx; \
                    cmovae %%rax,%%rdx; \
                    mov %%edx,%1; \
                    mov %%rax, %0;"
-                  : "=r" (i), "=r" (cf_error_status)
+                  : "=r" (i), "=r" (ok)
                   :: "%rax", "%rdx");
     *number = i;
-    return !!cf_error_status;
+    return !!ok;
+#endif
 }
 
 #endif
