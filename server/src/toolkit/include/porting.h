@@ -81,9 +81,6 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#ifndef HAVE_STRUCT_TIMESPEC
-#   define HAVE_STRUCT_TIMESPEC
-#endif
 #endif
 
 #ifdef HAVE_SYS_TIME_H
