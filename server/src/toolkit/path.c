@@ -399,3 +399,30 @@ char *path_file_contents(const char *path)
 
     return stringbuffer_finish(sb);
 }
+
+/**
+ * Changes name of the specified file in an atomic manner.
+ *
+ * On POSIX systems, rename() is used; on Windows, the MoveFileEx() API is
+ * used.
+ *
+ * @param old
+ * File that is to be renamed.
+ * @param new
+ * New path for the file.
+ * @return
+ * 0 on success, an error number otherwise.
+ */
+int
+path_rename (const char *old, const char *new)
+{
+#ifdef WIN32
+    if (!MoveFileEx(old, new, MOVEFILE_REPLACE_EXISTING)) {
+        return GetLastError();
+    }
+
+    return 0;
+#else
+    return rename(old, new);
+#endif
+}

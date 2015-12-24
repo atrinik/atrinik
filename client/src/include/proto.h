@@ -871,6 +871,7 @@ extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
 extern char *path_file_contents(const char *path);
+extern int path_rename(const char *old, const char *new);
 /* src/toolkit/pbkdf2.c */
 extern void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */
