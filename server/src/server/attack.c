@@ -56,14 +56,9 @@ const char *const attack_name[NROFATTACKS] = {
     "internal"
 };
 
-#define ATTACK_HIT_DAMAGE(_op, _anum)       dam = dam * ((double) _op->attack[_anum] * (double) 0.01); dam >= 1.0f ? (damage = (int) dam) : (damage = 1)
-#define ATTACK_PROTECT_DAMAGE(_op, _anum)   dam = dam * ((double) (100 - _op->protection[_anum]) * (double) 0.01)
-
 static int get_attack_mode(object **target, object **hitter, int *simple_attack);
 static int abort_attack(object *target, object *hitter, int simple_attack);
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc);
-static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage);
-static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_t attacknum);
 static void poison_player(object *op, object *hitter, float dam);
 static void slow_living(object *op);
 static int adj_attackroll(object *hitter, object *target);
@@ -234,6 +229,237 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 }
 
 /**
+ * Attempt to block a hit using a melee weapon or a shield.
+ *
+ * @param op
+ * Victim of the attacker.
+ * @param hitter
+ * The attacker.
+ * @param[out] damage
+ * The damage to do; may be modified.
+ * @return
+ * True if the attack was completely blocked, false otherwise.
+ */
+static bool
+attack_block_hit (object *op, object *hitter, double *damage)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(hitter != NULL);
+    HARD_ASSERT(damage != NULL);
+
+    /* Only melee hits from living attackers and projectiles can be blocked. */
+    if (!IS_LIVE(hitter) && !OBJECT_IS_PROJECTILE(hitter)) {
+        return false;
+    }
+
+    /* Players must have a melee weapon skill readied. */
+    if (op->type == PLAYER && op->chosen_skill != NULL &&
+        !SKILL_IS_MELEE(op->chosen_skill->stats.sp)) {
+        return false;
+    }
+
+    if (op->block != 0) {
+        object *hit_obj = get_owner(hitter);
+        if (hit_obj == NULL) {
+            hit_obj = hitter;
+        }
+
+        int chance = 20 + hit_obj->level - op->level;
+        chance -= rndm(op->block / 2.0 + 0.5, op->block);
+        chance = MAX(3, chance);
+
+        if (rndm_chance(chance)) {
+            return true;
+        }
+    }
+
+    if (op->absorb == 0) {
+        return false;
+    }
+
+    /* Absorb some of the damage. */
+    double absorb = (100.0 - MIN(90, op->absorb)) / 100.0;
+    (*damage) *= absorb;
+    return false;
+}
+
+/**
+ * Send message about an attack for the involved players.
+ *
+ * @param op
+ * Victim of the attack.
+ * @param hitter
+ * Attacker.
+ * @param atnr
+ * ID of the attack type.
+ * @param dam_done
+ * Actual damage done.
+ * @param dam_orig
+ * How much damage should have been done, not counting protections.
+ */
+static void
+send_attack_msg (object  *op,
+                 object  *hitter,
+                 _attacks atnr,
+                 int      dam_done,
+                 int      dam_orig)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(hitter != NULL);
+
+    if (op->type == PLAYER) {
+        draw_info_format(COLOR_PURPLE, op,
+                         "%s hit you for %d (%d) damage.",
+                         hitter->name, dam_done, dam_done - dam_orig);
+    }
+
+    const char *hitter_name =
+        atnr == ATNR_INTERNAL ? hitter->name : attack_name[atnr];
+    if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) != NULL &&
+                                   hitter->type == PLAYER)) {
+        draw_info_format(COLOR_ORANGE, hitter,
+                         "You hit %s for %d (%d) with %s.",
+                         op->name, dam_done, dam_done - dam_orig, hitter_name);
+    }
+}
+
+/**
+ * Handles one attacktype's damage.
+ *
+ * This doesn't damage the creature, but returns how much it should
+ * take. However, it will do other effects (paralyzation, slow, etc).
+ *
+ * @param op
+ * Victim of the attack.
+ * @param hitter
+ * Attacker.
+ * @param dam
+ * Damage to deal.
+ * @param dam_orig
+ * Original damage that ought to have been done (not counting
+ * protections/blocking/etc).
+ * @param atnr
+ * ID of the attacktype of the attack.
+ * @return
+ * Damage to actually do.
+ */
+static double
+hit_player_attacktype (object  *op,
+                       object  *hitter,
+                       double   dam,
+                       double   dam_orig,
+                       _attacks atnr)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(hitter != NULL);
+    HARD_ASSERT(dam >= 0.0);
+
+    /* Adjust the damage based on the attacker's attack type value. */
+    dam *= hitter->attack[atnr] / 100.0;
+    if (dam_orig > 0 && dam < 1.0) {
+        dam = 1.0;
+    }
+
+#define ATTACK_PROTECT_DAMAGE()                         \
+    do {                                                \
+        dam *= (100.0 - op->protection[atnr]) / 100.0;  \
+    } while (0)
+
+    /* AT_INTERNAL is supposed to do exactly 'dam' amount of damage. */
+    if (atnr == ATNR_INTERNAL) {
+        /* Handle the poisoning object type. */
+        if (hitter->type == POISONING) {
+            /* Map to poison... */
+            atnr = ATNR_POISON;
+
+            if (op->protection[atnr] == 100) {
+                send_attack_msg(op, hitter, atnr, 0.0, dam_orig);
+                return 0.0;
+            }
+
+            ATTACK_PROTECT_DAMAGE();
+        }
+
+        send_attack_msg(op, hitter, atnr, dam, dam_orig);
+        return dam;
+    }
+
+    /* Check for complete immunity. */
+    if (op->protection[atnr] == 100) {
+        send_attack_msg(op, hitter, atnr, 0, dam_orig);
+        return 0.0;
+    }
+
+    switch (atnr) {
+    case ATNR_IMPACT:
+    case ATNR_SLASH:
+    case ATNR_CLEAVE:
+    case ATNR_PIERCE:
+        check_physically_infect(op, hitter);
+        ATTACK_PROTECT_DAMAGE();
+        send_attack_msg(op, hitter, atnr, dam, dam_orig);
+        break;
+
+    case ATNR_POISON:
+        ATTACK_PROTECT_DAMAGE();
+        send_attack_msg(op, hitter, atnr, dam, dam_orig);
+
+        if (dam > 0.0 && IS_LIVE(op)) {
+            poison_player(op, hitter, dam);
+        }
+
+        break;
+
+    case ATNR_CONFUSION:
+    case ATNR_SLOW:
+    case ATNR_PARALYZE:
+    case ATNR_BLIND: {
+        int ldiff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
+
+        if (!DBL_EQUAL(op->speed, 0.0) && IS_LIVE(op) &&
+            rndm_chance(atnr == ATNR_SLOW ? 6 : 3) &&
+            ((rndm(1, 20) + op->protection[atnr] / 10) < savethrow[ldiff])) {
+            if (atnr == ATNR_CONFUSION) {
+                draw_info_format(COLOR_ORANGE, hitter,
+                                 "You confuse %s!", op->name);
+                draw_info_format(COLOR_PURPLE, op,
+                                 "%s confused you!", hitter->name);
+                confuse_living(op);
+            } else if (atnr == ATNR_SLOW) {
+                draw_info_format(COLOR_ORANGE, hitter,
+                                 "You slow %s!", op->name);
+                draw_info_format(COLOR_PURPLE, op,
+                                 "%s slowed you!", hitter->name);
+                slow_living(op);
+            } else if (atnr == ATNR_PARALYZE) {
+                draw_info_format(COLOR_ORANGE, hitter,
+                                 "You paralyze %s!", op->name);
+                draw_info_format(COLOR_PURPLE, op,
+                                 "%s paralyzed you!", hitter->name);
+                paralyze_living(op, dam);
+            } else if (atnr == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD)) {
+                draw_info_format(COLOR_ORANGE, hitter,
+                                 "You blind %s!", op->name);
+                draw_info_format(COLOR_PURPLE, op,
+                                 "%s blinded you!", hitter->name);
+                blind_living(op, hitter, dam);
+            }
+        }
+
+        dam = 0.0;
+        break;
+    }
+
+    default:
+        ATTACK_PROTECT_DAMAGE();
+        send_attack_msg(op, hitter, atnr, dam, dam_orig);
+        break;
+    }
+
+    return dam;
+}
+
+/**
  * Object is attacked by something.
  *
  * This isn't used just for players, but in fact most objects.
@@ -250,8 +476,6 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 int hit_player(object *op, int dam, object *hitter)
 {
     object *hit_obj, *hitter_owner, *target_obj;
-    int maxdam = 0;
-    int attacknum;
     int simple_attack;
 
     /* If our target has no_damage 1 set, we can't hurt him. */
@@ -313,13 +537,37 @@ int hit_player(object *op, int dam, object *hitter)
         return 0;
     }
 
-    /* Go through and hit the player with each attacktype, one by one.
-     * hit_player_attacktype only figures out the damage, doesn't inflict
-     * it. It will do the appropriate action for attacktypes with
-     * effects (slow, paralization, etc). */
-    for (attacknum = 0; attacknum < NROFATTACKS; attacknum++) {
-        if (hitter->attack[attacknum]) {
-            maxdam += hit_player_attacktype(op, hitter, dam, attacknum);
+    double damage = dam;
+    if (hitter->slaying != NULL && hitter->slaying == op->race) {
+        if (QUERY_FLAG(hitter, FLAG_IS_ASSASSINATION)) {
+            damage *= 2.25;
+        } else {
+            damage *= 1.75;
+        }
+    }
+
+    double dam_orig = damage;
+    double maxdam = 0.0;
+
+    /* Try to block the attack. */
+    if (attack_block_hit(op, hitter, &damage)) {
+        draw_info_format(COLOR_PURPLE, hitter, "%s blocked your attack!",
+                         op->name);
+        draw_info_format(COLOR_ORANGE, op, "You block %s!",
+                         hitter->name);
+    } else if (damage > 0.0) {
+        /* Go through and hit the player with each attacktype, one by one.
+         * hit_player_attacktype only figures out the damage, doesn't inflict
+         * it. It will do the appropriate action for attacktypes with
+         * effects (slow, paralization, etc). */
+        for (_attacks atnr = 0; atnr < NROFATTACKS; atnr++) {
+            if (hitter->attack[atnr] != 0) {
+                maxdam += hit_player_attacktype(op,
+                                                hitter,
+                                                damage,
+                                                dam_orig,
+                                                atnr);
+            }
         }
     }
 
@@ -443,212 +691,6 @@ void hit_map(object *op, int dir, int reduce)
         hit_player(tmp, dam, op);
     }
     FOR_MAP_LAYER_END
-}
-
-/**
- * Handles one attacktype's damage.
- *
- * This doesn't damage the creature, but returns how much it should
- * take. However, it will do other effects (paralyzation, slow, etc).
- * @param op
- * Victim of the attack.
- * @param hitter
- * Attacker.
- * @param damage
- * Maximum dealt damage.
- * @param attacknum
- * Number of the attacktype of the attack.
- * @return
- * Damage to actually do.
- */
-static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_t attacknum)
-{
-    double dam = (double) damage;
-
-    /* Sanity check */
-    if (dam < 0) {
-        return 0;
-    }
-
-    if (hitter->slaying) {
-        if (((op->race != NULL) && strstr(hitter->slaying, op->race)) || (op->arch && (op->arch->name != NULL) &&  strstr(op->arch->name, hitter->slaying))) {
-            if (QUERY_FLAG(hitter, FLAG_IS_ASSASSINATION)) {
-                damage = (int) ((double) damage * 2.25);
-            } else {
-                damage = (int) ((double) damage * 1.75);
-            }
-
-            dam = (double) damage;
-        }
-    }
-
-    /* AT_INTERNAL is supposed to do exactly dam. Put a case here so
-     * people can't mess with that or it otherwise get confused. */
-    if (attacknum == ATNR_INTERNAL) {
-        /* Adjust damage */
-        dam = dam * ((double) hitter->attack[ATNR_INTERNAL] / 100.0);
-
-        /* handle special object attacks */
-        /* we have a poison force object (that's the poison we had inserted) */
-        if (hitter->type == POISONING) {
-            /* Map to poison... */
-            attacknum = ATNR_POISON;
-
-            if (op->protection[attacknum] == 100) {
-                dam = 0;
-                send_attack_msg(op, hitter, attacknum, (int) dam, damage);
-                return 0;
-            }
-
-            /* Reduce to % protection */
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
-        }
-
-        if (damage && dam < 1.0) {
-            dam = 1.0;
-        }
-
-        send_attack_msg(op, hitter, attacknum, (int) dam, damage);
-        return (int) dam;
-    }
-
-    /* Quick check for immunity - if so, we skip here.
-     * Our formula is (100 - resist) / 100 - so test for 100 = zero division */
-    if (op->protection[attacknum] == 100) {
-        ATTACK_HIT_DAMAGE(hitter, attacknum);
-        send_attack_msg(op, hitter, attacknum, 0, dam);
-        return 0;
-    }
-
-    switch (attacknum) {
-    case ATNR_IMPACT:
-    case ATNR_SLASH:
-    case ATNR_CLEAVE:
-    case ATNR_PIERCE:
-        check_physically_infect(op, hitter);
-
-        ATTACK_HIT_DAMAGE(hitter, attacknum);
-        ATTACK_PROTECT_DAMAGE(op, attacknum);
-
-        if (damage && dam < 1.0) {
-            dam = 1.0;
-        }
-
-        send_attack_msg(op, hitter, attacknum, (int) dam, damage);
-        break;
-
-    case ATNR_POISON:
-        ATTACK_HIT_DAMAGE(hitter, attacknum);
-        ATTACK_PROTECT_DAMAGE(op, attacknum);
-
-        if (damage && dam < 1.0) {
-            dam = 1.0;
-        }
-
-        send_attack_msg(op, hitter, attacknum, (int) dam, damage);
-
-        if (dam > 0.0 && IS_LIVE(op)) {
-            poison_player(op, hitter, (float) dam);
-        }
-
-        break;
-
-    case ATNR_CONFUSION:
-    case ATNR_SLOW:
-    case ATNR_PARALYZE:
-    case ATNR_BLIND:
-    {
-        int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
-
-        if (!DBL_EQUAL(op->speed, 0.0) && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((rndm(1, 20) + op->protection[attacknum] / 10) < savethrow[level_diff])) {
-            if (attacknum == ATNR_CONFUSION) {
-                if (hitter->type == PLAYER) {
-                    draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", op->name);
-                }
-
-                if (op->type == PLAYER) {
-                    draw_info_format(COLOR_PURPLE, op, "%s confused you!", hitter->name);
-                }
-
-                confuse_living(op);
-            } else if (attacknum == ATNR_SLOW) {
-                if (hitter->type == PLAYER) {
-                    draw_info_format(COLOR_ORANGE, hitter, "You slow %s!", op->name);
-                }
-
-                if (op->type == PLAYER) {
-                    draw_info_format(COLOR_PURPLE, op, "%s slowed you!", hitter->name);
-                }
-
-                slow_living(op);
-            } else if (attacknum == ATNR_PARALYZE) {
-                if (hitter->type == PLAYER) {
-                    draw_info_format(COLOR_ORANGE, hitter, "You paralyze %s!", op->name);
-                }
-
-                if (op->type == PLAYER) {
-                    draw_info_format(COLOR_PURPLE, op, "%s paralyzed you!", hitter->name);
-                }
-
-                paralyze_living(op, (int) dam);
-            } else if (attacknum == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD)) {
-                if (hitter->type == PLAYER) {
-                    draw_info_format(COLOR_ORANGE, hitter, "You blind %s!", op->name);
-                }
-
-                if (op->type == PLAYER) {
-                    draw_info_format(COLOR_PURPLE, op, "%s blinded you!", hitter->name);
-                }
-
-                blind_living(op, hitter, (int) dam);
-            }
-        }
-
-        dam = 0;
-    }
-
-        break;
-
-    default:
-        ATTACK_HIT_DAMAGE(hitter, attacknum);
-        ATTACK_PROTECT_DAMAGE(op, attacknum);
-
-        if (damage && dam < 1.0) {
-            dam = 1.0;
-        }
-
-        send_attack_msg(op, hitter, attacknum, (int) dam, damage);
-        break;
-    }
-
-    return (int) dam;
-}
-
-/**
- * Send attack message for players.
- * @param op
- * Victim of the attack.
- * @param hitter
- * Attacker.
- * @param attacknum
- * ID of the attack type.
- * @param dam
- * Actual damage done.
- * @param damage
- * How much damage should have been done, not counting
- * resists/protections/etc.
- */
-static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage)
-{
-    object *orig_hitter = hitter;
-
-    if (op->type == PLAYER) {
-        draw_info_format(COLOR_PURPLE, op, "%s hit you for %d (%d) damage.", hitter->name, dam, dam - damage);
-    }
-
-    if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) && hitter->type == PLAYER)) {
-        draw_info_format(COLOR_ORANGE, hitter, "You hit %s for %d (%d) with %s.", op->name, dam, dam - damage, attacknum == ATNR_INTERNAL ? orig_hitter->name : attack_name[attacknum]);
-    }
 }
 
 /**

@@ -88,6 +88,19 @@ enum skillnrs {
     NROFSKILLS
 };
 
+/**
+ * Checks if the specified skill number is a melee weapons skill.
+ *
+ * @param nr
+ * The skill number to check.
+ * @return
+ * Whether the skill number is a melee weapons skill.
+ */
+#define SKILL_IS_MELEE(nr)                                      \
+    ((nr) == SK_SLASH_WEAPONS || (nr) == SK_CLEAVE_WEAPONS ||   \
+     (nr) == SK_PIERCE_WEAPONS || (nr) == SK_IMPACT_WEAPONS ||  \
+     (nr) == SK_UNARMED || (nr) == SK_KARATE)
+
 struct archetype;
 
 /** Skill structure for the skills array. */
