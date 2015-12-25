@@ -105,7 +105,7 @@ void monster_data_enemy_update(object *op, object *enemy)
 
 /**
  * Acquire last coordinates the monster's enemy was spotted at.
- * @warning If this function returns true, the out parameters will NOT be
+ * @warning If this function returns false, the out parameters will NOT be
  * modified!
  * @param op
  * Monster.
