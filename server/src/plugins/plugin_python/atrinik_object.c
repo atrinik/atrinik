@@ -198,6 +198,12 @@ static fields_struct fields[] = {
             0, 0, "Weapon speed left this round.; float"},
     {"exp", FIELDTYPE_INT64, offsetof(object, stats.exp), 0, 0,
             "Experience of the object.; int"},
+    {"block", FIELDTYPE_UINT8, offsetof(object, block),
+            FIELDFLAG_PLAYER_READONLY, 0,
+            "Block attribute of the object.; int (player readonly)"},
+    {"absorb", FIELDTYPE_UINT8, offsetof(object, absorb),
+            FIELDFLAG_PLAYER_READONLY, 0,
+            "Absorb attribute of the object.; int (player readonly)"},
 
     {"hp", FIELDTYPE_INT32, offsetof(object, stats.hp), 0, 0,
             "Object's current HP.; int"},

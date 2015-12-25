@@ -782,6 +782,10 @@ lex_error = 0;
 ^match{S}            {
     sound_ambient_match_parse(op, yval());
 }
+^block{S}            op->block = IVAL;
+^block_add{S}        op->block += IVAL;
+^absorb{S}           op->absorb = IVAL;
+^absorb_add{S}       op->absorb += IVAL;
 
 <*>(^{WS})|{NL}      {}
 #.*{NL}              {}
@@ -1543,6 +1547,14 @@ get_ob_diff (StringBuffer *sb, object *op, object *op2)
 
     if (op->item_power != op2->item_power) {
         SAVE_INT(sb, "item_power", op->item_power);
+    }
+
+    if (op->block != op2->block) {
+        SAVE_INT(sb, "block", op->block);
+    }
+
+    if (op->absorb != op2->absorb) {
+        SAVE_INT(sb, "absorb", op->absorb);
     }
 
     for (int tmp = 0; tmp <= NUM_FLAGS; tmp++) {

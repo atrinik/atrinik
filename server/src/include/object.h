@@ -408,6 +408,16 @@ typedef struct obj {
     uint8_t quickslot;
 
     /**
+     * Chance to block a blow.
+     */
+    uint8_t block;
+
+    /**
+     * Amount of damage that is absorbed by this item.
+     */
+    uint8_t absorb;
+
+    /**
      * our attack values - range from 0%-125%. (negative values makes no sense).
      * Note: we can in theory allow 300% damage for a attacktype.
      * all we need is to increase sint8 to sint16. That's true for

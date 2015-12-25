@@ -1108,6 +1108,14 @@ StringBuffer *object_get_description(const object *op, const object *caller,
             stringbuffer_append_printf(sb, "(speed%+" PRId64 ") ",
                     op->stats.exp);
         }
+
+        if (op->block != 0) {
+            stringbuffer_append_printf(sb, "(block%+d) ", op->block);
+        }
+
+        if (op->absorb != 0) {
+            stringbuffer_append_printf(sb, "(absorb%+d%%) ", op->absorb);
+        }
     }
 
     /* Here we deal with all the special flags */

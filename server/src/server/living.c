@@ -525,6 +525,14 @@ living_update_player_item (player       *pl,
         op->stats.ac += item->stats.ac + item->magic;
     }
 
+    if (item->block != 0) {
+        op->block += item->block + item->magic;
+    }
+
+    if (item->absorb != 0) {
+        op->absorb += item->absorb + item->magic;
+    }
+
     /* Add stats for non-ranged items. */
     if (!OBJECT_IS_RANGED(item)) {
         /* Add the weapon class, factoring in the item's magic. */
@@ -632,6 +640,9 @@ void living_update_player(object *op)
     op->stats.wc = op->arch->clone.stats.wc;
     op->stats.ac = op->arch->clone.stats.ac;
     op->stats.dam = op->arch->clone.stats.dam;
+
+    op->block = op->arch->clone.block;
+    op->absorb = op->arch->clone.absorb;
 
     op->stats.maxhp = op->arch->clone.stats.maxhp;
     op->stats.maxsp = op->arch->clone.stats.maxsp;
@@ -1233,18 +1244,32 @@ void living_update_monster(object *op)
         }
 
         if (QUERY_FLAG(tmp, FLAG_APPLIED)) {
-            int i;
-
             if (tmp->type == WEAPON) {
-                op->stats.dam += tmp->stats.dam;
-                op->stats.wc += tmp->stats.wc;
-            } else if (IS_ARMOR(tmp)) {
-                for (i = 0; i < NROFATTACKS; i++) {
-                    op->protection[i] = MIN(op->protection[i] +
-                            tmp->protection[i], 15);
+                if (tmp->stats.dam != 0) {
+                    op->stats.dam += tmp->stats.dam + tmp->magic;
                 }
 
-                op->stats.ac += tmp->stats.ac;
+                if (tmp->stats.wc != 0) {
+                    op->stats.wc += tmp->stats.wc + tmp->magic;
+                }
+            } else if (IS_ARMOR(tmp)) {
+                for (int i = 0; i < NROFATTACKS; i++) {
+                    int protect = op->protection[i] + tmp->protection[i];
+                    protect = MIN(100, protect);
+                    op->protection[i] = protect;
+                }
+
+                if (tmp->stats.ac != 0) {
+                    op->stats.ac += tmp->stats.ac + tmp->magic;
+                }
+            }
+
+            if (tmp->block != 0) {
+                op->block += tmp->block + tmp->magic;
+            }
+
+            if (tmp->absorb != 0) {
+                op->absorb += tmp->absorb + tmp->magic;
             }
         }
     }

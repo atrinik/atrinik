@@ -1753,6 +1753,12 @@ class ObjectFieldsSuite(TestSuite):
     def test_exp(self):
         self.field_test_int("exp", 64)
 
+    def test_block(self):
+        self.field_test_int("block", 8, True)
+
+    def test_absorb(self):
+        self.field_test_int("absorb", 8, True)
+
     def test_hp(self):
         self.field_test_int("hp", 32)
 
