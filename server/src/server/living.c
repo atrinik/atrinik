@@ -1201,9 +1201,9 @@ void living_update_monster(object *op)
     }
 
     op->stats.ac = base->stats.ac + op->level;
-    /* + level / 4 to catch up the equipment improvements of
+    /* + level / 3 to catch up the equipment improvements of
      * the players in armour items. */
-    op->stats.wc = base->stats.wc + op->level + (op->level / 4);
+    op->stats.wc = base->stats.wc + op->level + (op->level / 3);
     op->stats.dam = base->stats.dam;
 
     if (base->stats.wc_range) {
