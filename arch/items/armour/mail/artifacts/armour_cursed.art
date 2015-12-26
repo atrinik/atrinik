@@ -1,0 +1,51 @@
+# Armour of mass
+Allowed !crystal_mail, !mithril_armour, !mithril_ring, !mithril_coat, all
+chance 20
+artifact armour_mass
+def_arch chain_mail
+Object
+title of mass
+type 16
+is_magical 1
+value 5
+cursed_perm 1
+cursed 1
+weight 65000
+item_power 1
+end
+
+# Armour of Doom
+Allowed !crystal_mail, !mithril_armour, !mithril_ring, !mithril_coat, all
+chance 5
+artifact armour_doom
+def_arch chain_mail
+Object
+title of Doom
+type 16
+is_magical 1
+damned 1
+damned_perm 1
+str -5
+con -5
+dex -5
+int -5
+pow -5
+value 40
+item_power 1
+end
+
+# Armour of Clumsiness
+Allowed !crystal_mail, !mithril_armour, !mithril_ring, !mithril_coat, all
+chance 6
+artifact armour_clumsiness
+def_arch chain_mail
+Object
+title of Clumsiness
+type 16
+is_magical 1
+cursed 1
+cursed_perm 1
+value 15
+dex -1
+item_power 1
+end

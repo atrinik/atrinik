@@ -1,0 +1,73 @@
+# Cape of fire protection
+Allowed cape
+chance 20
+difficulty 10
+artifact cape_protect_fire
+def_arch cape
+Object
+title of fire protection
+type 87
+is_magical 1
+face cape_red.101
+item_level_art 8
+protect_fire 15
+protect_impact -15
+protect_pierce -15
+value 6000
+item_power 2
+end
+
+# Cape of cold protection
+Allowed cape
+chance 20
+difficulty 10
+artifact cape_protect_cold
+def_arch cape
+Object
+title of cold protection
+type 87
+item_level_art 8
+is_magical 1
+protect_cold 15
+protect_slash -15
+protect_cleave -15
+value 6000
+item_power 2
+end
+
+# Cape of greater fire protection
+Allowed cape
+chance 20
+difficulty 20
+artifact cape_protect_greater_fire
+def_arch cape
+Object
+title of greater fire protection
+type 87
+is_magical 1
+face cape_red.101
+item_level_art 8
+protect_fire 25
+protect_impact -15
+protect_pierce -15
+value 6000
+item_power 2
+end
+
+# Cape of greater cold protection
+Allowed cape
+chance 20
+difficulty 20
+artifact cape_protect_greater_cold
+def_arch cape
+Object
+title of greater cold protection
+type 87
+item_level_art 8
+is_magical 1
+protect_cold 25
+protect_slash -15
+protect_cleave -15
+value 6000
+item_power 2
+end

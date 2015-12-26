@@ -1,0 +1,79 @@
+# Shield of absorption
+Allowed all
+chance 10
+difficulty 20
+artifact shield_absorb
+def_arch shield
+Object
+title of absorption
+absorb_add 1
+type 33
+is_magical 1
+value 9300
+item_power 3
+item_level_art 15
+end
+
+# Shield of greater absorption
+Allowed all
+chance 9
+difficulty 40
+artifact shield_greater_absorb
+def_arch shield
+Object
+title of greater absorption
+absorb_add 2
+type 33
+is_magical 1
+value 13300
+item_power 5
+item_level_art 35
+end
+
+# Shield of extraordinary absorption
+Allowed all
+chance 8
+difficulty 60
+artifact shield_extraordinary_absorb
+def_arch shield
+Object
+title of extraordinary absorption
+absorb_add 3
+type 33
+is_magical 1
+value 17300
+item_power 7
+item_level_art 55
+end
+
+# Shield of superior absorption
+Allowed all
+chance 7
+difficulty 80
+artifact shield_superior_absorb
+def_arch shield
+Object
+title of superior absorption
+absorb_add 4
+type 33
+is_magical 1
+value 29300
+item_power 10
+item_level_art 75
+end
+
+# Shield of supreme absorption
+Allowed all
+chance 5
+difficulty 100
+artifact shield_supreme_absorb
+def_arch shield
+Object
+title of supreme absorption
+absorb_add 5
+type 33
+is_magical 1
+value 87300
+item_power 15
+item_level_art 95
+end

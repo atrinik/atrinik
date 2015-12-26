@@ -1,0 +1,254 @@
+# Sword of fire
+Allowed all
+chance 20
+t_style 1
+difficulty 7
+artifact weapon_fire
+def_arch sword
+Object
+title of fire
+attack_fire 10
+item_level_art 7
+type 15
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Sword of cold
+Allowed all
+chance 20
+t_style 2
+difficulty 7
+artifact weapon_cold
+def_arch sword
+Object
+title of cold
+attack_cold 10
+type 15
+item_level_art 7
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Sword of electricity
+Allowed all
+chance 20
+t_style 3
+difficulty 7
+artifact weapon_electricity
+def_arch sword
+Object
+title of electricity
+attack_electricity 10
+type 15
+is_magical 1
+item_level_art 7
+value 5000
+item_power 1
+end
+
+# Sword of greater fire
+Allowed all
+chance 15
+t_style 1
+difficulty 25
+artifact weapon_greater_fire
+def_arch sword
+Object
+title of greater fire
+attack_fire 15
+item_level_art 15
+type 15
+is_magical 1
+value 11500
+item_power 3
+end
+
+# Sword of greater cold
+Allowed all
+chance 15
+t_style 2
+difficulty 25
+artifact weapon_greater_cold
+def_arch sword
+Object
+title of greater cold
+attack_cold 15
+type 15
+item_level_art 15
+is_magical 1
+value 11500
+item_power 3
+end
+
+# Sword of greater electricity
+Allowed all
+chance 15
+t_style 3
+difficulty 25
+artifact weapon_greater_electricity
+def_arch sword
+Object
+title of greater electricity
+attack_electricity 15
+type 15
+is_magical 1
+item_level_art 15
+value 11500
+item_power 3
+end
+
+# Sword of extraordinary fire
+Allowed all
+chance 12
+t_style 1
+difficulty 50
+artifact weapon_extraordinary_fire
+def_arch sword
+Object
+title of extraordinary fire
+attack_fire 20
+item_level_art 40
+type 15
+is_magical 1
+value 40520
+item_power 7
+end
+
+# Sword of extraordinary cold
+Allowed all
+chance 12
+t_style 2
+difficulty 50
+artifact weapon_extraordinary_cold
+def_arch sword
+Object
+title of extraordinary cold
+attack_cold 20
+type 15
+item_level_art 40
+is_magical 1
+value 40520
+item_power 7
+end
+
+# Sword of extraordinary electricity
+Allowed all
+chance 12
+t_style 3
+difficulty 50
+artifact weapon_extraordinary_electricity
+def_arch sword
+Object
+title of extraordinary electricity
+attack_electricity 20
+type 15
+is_magical 1
+item_level_art 40
+value 40520
+item_power 7
+end
+
+# Sword of superior fire
+Allowed all
+chance 7
+t_style 1
+difficulty 75
+artifact weapon_superior_fire
+def_arch sword
+Object
+title of superior fire
+attack_fire 25
+item_level_art 65
+type 15
+is_magical 1
+value 92750
+item_power 10
+end
+
+# Sword of superior cold
+Allowed all
+chance 7
+t_style 2
+difficulty 75
+artifact weapon_superior_cold
+def_arch sword
+Object
+title of superior cold
+attack_cold 25
+type 15
+item_level_art 65
+is_magical 1
+value 92750
+item_power 10
+end
+
+# Sword of superior electricity
+Allowed all
+chance 7
+t_style 3
+difficulty 75
+artifact weapon_superior_electricity
+def_arch sword
+Object
+title of superior electricity
+attack_electricity 25
+type 15
+is_magical 1
+item_level_art 65
+value 92750
+item_power 10
+end
+
+# Sword of supreme fire
+Allowed all
+chance 7
+t_style 1
+difficulty 95
+artifact weapon_supreme_fire
+def_arch sword
+Object
+title of supreme fire
+attack_fire 30
+item_level_art 85
+type 15
+is_magical 1
+value 151750
+item_power 15
+end
+
+# Sword of supreme cold
+Allowed all
+chance 7
+t_style 2
+difficulty 95
+artifact weapon_supreme_cold
+def_arch sword
+Object
+title of supreme cold
+attack_cold 30
+type 15
+item_level_art 85
+is_magical 1
+value 151750
+item_power 15
+end
+
+# Sword of supreme electricity
+Allowed all
+chance 7
+t_style 3
+difficulty 95
+artifact weapon_supreme_electricity
+def_arch sword
+Object
+title of supreme electricity
+attack_electricity 30
+type 15
+is_magical 1
+item_level_art 85
+value 151750
+item_power 15
+end

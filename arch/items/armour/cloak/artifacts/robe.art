@@ -1,0 +1,82 @@
+# Robe of Displacement
+Allowed robe
+chance 20
+difficulty 20
+artifact robe_displacement
+def_arch robe
+Object
+title of Displacement
+type 87
+ac_add 2
+is_magical 1
+msg
+This robe blurs the vision of those trying to attack, making the wearer more difficult to hit.
+endmsg
+item_power 3
+item_level_art 10
+value 6000
+end
+
+# Robe of Acid Proofing
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_acid_proofing
+def_arch robe
+Object
+title of Acid Proofing
+type 87
+protect_acid 25
+face robe_black.101
+is_magical 1
+value 4500
+item_power 3
+end
+
+# Robe of Warmth
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_warmth
+def_arch robe
+Object
+title of Warmth
+type 87
+protect_cold 20
+face robe_blue.101
+is_magical 1
+value 4500
+item_power 3
+end
+
+# Robe of Insulation
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_insulation
+def_arch robe
+Object
+title of Insulation
+type 87
+protect_electricity 20
+face robe_white.101
+is_magical 1
+value 4500
+item_power 3
+end
+
+# Robe of Asbestos
+Allowed robe
+chance 30
+difficulty 7
+artifact robe_asbestos
+def_arch robe
+Object
+title of Asbestos
+type 87
+protect_fire 20
+face robe_red.101
+is_magical 1
+value 4500
+item_power 3
+end

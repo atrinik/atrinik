@@ -1,0 +1,79 @@
+# Girdle of health
+Allowed all
+chance 10
+difficulty 3
+artifact girdle_health
+def_arch girdle
+Object
+title of health
+type 113
+item_level_art 3
+maxhp 10
+is_magical 1
+value 8500
+item_power 1
+end
+
+# Girdle of greater health
+Allowed all
+chance 10
+difficulty 20
+artifact girdle_greater_health
+def_arch girdle
+Object
+title of greater health
+item_level_art 12
+type 113
+maxhp 20
+is_magical 1
+value 13500
+item_power 1
+end
+
+# Girdle of extraordinary health
+Allowed all
+chance 10
+difficulty 30
+artifact girdle_extraordinary_health
+def_arch girdle
+Object
+title of extraordinary health
+type 113
+item_level_art 20
+maxhp 35
+is_magical 1
+value 30500
+item_power 2
+end
+
+# Girdle of superior health
+Allowed all
+chance 8
+difficulty 50
+artifact girdle_superior_health
+def_arch girdle
+Object
+title of superior health
+type 113
+item_level_art 30
+maxhp 50
+is_magical 1
+value 55500
+item_power 3
+end
+
+# Girdle of supreme health
+Allowed all
+chance 8
+difficulty 75
+artifact girdle_supreme_health
+def_arch girdle
+Object
+title of supreme health
+type 113
+item_level_art 50
+maxhp 75
+is_magical 1
+value 85500
+item_power 4
+end

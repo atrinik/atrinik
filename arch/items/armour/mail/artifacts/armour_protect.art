@@ -1,0 +1,74 @@
+# Armour of fire protection
+Allowed all
+chance 20
+t_style 1
+artifact armour_protect_fire
+def_arch chain_mail
+Object
+title of fire protection
+type 16
+protect_fire 25
+is_magical 1
+value 9500
+item_power 1
+end
+
+# Armour of cold protection
+Allowed all
+chance 20
+t_style 2
+artifact armour_protect_cold
+def_arch chain_mail
+Object
+title of cold protection
+type 16
+protect_cold 25
+is_magical 1
+value 9500
+item_power 1
+end
+
+# Armour of electricity protection
+Allowed all
+chance 20
+t_style 3
+artifact armour_protect_electricity
+def_arch chain_mail
+Object
+title of electricity protection
+type 16
+protect_electricity 25
+is_magical 1
+value 9500
+item_power 1
+end
+
+# Armour of poison protection
+Allowed all
+chance 20
+t_style 4
+artifact armour_protect_poison
+def_arch chain_mail
+Object
+title of poison protection
+type 16
+protect_poison 25
+is_magical 1
+value 9500
+item_power 1
+end
+
+# Armour of acid protection
+Allowed all
+chance 20
+t_style 5
+artifact armour_protect_acid
+def_arch chain_mail
+Object
+title of acid protection
+type 16
+protect_acid 25
+is_magical 1
+value 9500
+item_power 1
+end

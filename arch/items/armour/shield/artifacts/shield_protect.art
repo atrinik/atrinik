@@ -1,0 +1,74 @@
+# Shield of fire protection
+Allowed all
+chance 20
+t_style 1
+artifact shield_protect_fire
+def_arch shield
+Object
+title of fire protection
+type 33
+is_magical 1
+protect_fire 15
+value 2400
+item_power 1
+end
+
+# Shield of cold protection
+Allowed all
+chance 20
+t_style 2
+artifact shield_protect_cold
+def_arch shield
+Object
+title of cold protection
+type 33
+is_magical 1
+protect_cold 15
+value 2400
+item_power 1
+end
+
+# Shield of electricity protection
+Allowed all
+chance 20
+t_style 3
+artifact shield_protect_electricity
+def_arch shield
+Object
+title of electricity protection
+type 33
+is_magical 1
+protect_electricity 15
+value 2400
+item_power 1
+end
+
+# Shield of poison protection
+Allowed all
+chance 20
+t_style 4
+artifact shield_protect_poison
+def_arch shield
+Object
+title of poison protection
+type 33
+is_magical 1
+protect_poison 15
+value 2400
+item_power 1
+end
+
+# Shield of acid protection
+Allowed all
+chance 20
+t_style 5
+artifact shield_protect_acid
+def_arch shield
+Object
+title of acid protection
+type 33
+is_magical 1
+protect_acid 15
+value 2400
+item_power 1
+end

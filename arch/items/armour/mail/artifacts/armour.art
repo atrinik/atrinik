@@ -1,0 +1,59 @@
+# Armour of protection
+Allowed all
+chance 15
+difficulty 35
+artifact armour_protection
+def_arch chain_mail
+Object
+title of protection
+type 16
+ac_add 2
+is_magical 1
+msg
+The quality of this superb armour is extreme; it gives much more protection than any made today.
+
+It is very old, probably from some lost civilization who had much better skills, but it doesn't look worn at all. It is obviously highly enchanted.
+endmsg
+item_level_art 35
+item_power 5
+value 11500
+end
+
+# Armour of Berwean
+Allowed all
+chance 15
+difficulty 20
+artifact armour_berwean
+def_arch chain_mail
+Object
+title of Berwean
+type 16
+ac 0
+is_magical 1
+last_sp 0
+last_heal 0
+exp 1
+msg
+This armour is made of very light and expensive material. As a result you can move much faster in it, but it gives worse protection than normal armour.
+endmsg
+item_level_art 20
+value 14500
+end
+
+# Armour of Irial
+Allowed all
+chance 15
+difficulty 10
+artifact armour_irial
+def_arch chain_mail
+Object
+title of Irial
+type 16
+dex 1
+is_magical 1
+msg
+This armour, which is of elven origin, is beautifully decorated with ancient emblems.
+endmsg
+item_power 1
+value 15500
+end

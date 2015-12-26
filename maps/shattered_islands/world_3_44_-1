@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2011-10-07 Alex Tokar
-Modified: 2015-05-24 Alex Tokar
+Modified: 2015-12-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -692,7 +692,7 @@ arch table_wood1.111
 x 11
 y 23
 end
-arch bracers_int
+arch bracers_intelligence
 layer 4
 sub_layer 1
 z 22
