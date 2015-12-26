@@ -58,7 +58,7 @@ static object *find_best_object_match(object *pl, const char *params)
             continue;
         }
 
-        tmpmatch = item_matched_string(pl, tmp, params);
+        tmpmatch = object_matches_string(tmp, pl, params);
 
         if (tmpmatch > match_val) {
             match_val = tmpmatch;

@@ -3039,147 +3039,152 @@ void init_object_initializers(void)
 }
 
 /**
- * This is a subset of the parse_id command. Basically, name can be a
- * string separated lists of things to match, with certain keywords.
+ * Checks if the specified object matches one of the keywords in the specified
+ * string. This is used for example by the /drop and /take commands, but also
+ * by the /apply command.
  *
  * Calling function takes care of what action might need to be done and
  * if it is valid (pickup, drop, etc).
  *
- * Brief outline of the procedure:
- *
- * We take apart the name variable into the individual components.
- * cases for 'all' and unpaid are pretty obvious.
- *
- * Next, we check for a count (either specified in name, or in the
- * player object). If count is 1, make a quick check on the name. If
- * count is >1, we need to make plural name.  Return if match.
- *
- * Last, make a check on the full name.
- * @param pl
- * Player (only needed to set count properly).
  * @param op
  * The item we're trying to match.
- * @param name
+ * @param caller
+ * Who is trying to match the objects, for the purposes of functions like
+ * object_get_name_s(). Can be NULL.
+ * @param str
  * String we're searching.
  * @return
  * Non-zero if we have a match. A higher value means a better
  * match. Zero means no match.
  */
-int item_matched_string(object *pl, object *op, const char *name)
+int
+object_matches_string (object *op, object *caller, const char *str)
 {
-    char *cp, local_name[MAX_BUF];
-    int count, retval = 0, book_level, book_level2;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(str != NULL);
 
-    /* strtok is destructive to name */
-    snprintf(VS(local_name), "%s", name);
-
-    if (pl->type == PLAYER) {
-        CONTR(pl)->count = op->nrof;
+    if (caller->type == PLAYER) {
+        CONTR(caller)->count = op->nrof;
     }
 
-    for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ",")) {
-        /* Get rid of spaces */
-        while (cp[0] == ' ') {
-            cp++;
-        }
+    char word[MAX_BUF];
+    size_t pos = 0;
+    while (string_get_word(str, &pos, ',', VS(word), 0)) {
+        char *cp = word;
 
         /* All is a very generic match - low match value */
-        if (!strcasecmp(cp, "all")) {
+        if (strcasecmp(cp, "all") == 0) {
             return 1;
         }
 
         /* Unpaid is a little more specific */
-        if (!strcasecmp(cp, "unpaid") && QUERY_FLAG(op, FLAG_UNPAID)) {
+        if (QUERY_FLAG(op, FLAG_UNPAID) && strcasecmp(cp, "unpaid") == 0) {
             return 2;
         }
 
-        if (!strcasecmp(cp, "cursed") && QUERY_FLAG(op, FLAG_IDENTIFIED) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))) {
+        bool identified = QUERY_FLAG(op, FLAG_IDENTIFIED);
+        if (identified) {
+            if ((QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) &&
+                strcasecmp(cp, "cursed") == 0) {
+                return 2;
+            }
+
+            if (QUERY_FLAG(op, FLAG_IS_MAGICAL) &&
+                strcasecmp(cp, "magical") == 0) {
+                return 2;
+            }
+
+            if (op->artifact != NULL &&
+                strcasecmp(cp, "artifact") == 0) {
+                return 2;
+            }
+        }
+
+        if (!QUERY_FLAG(op, FLAG_INV_LOCKED) &&
+            strcasecmp(cp, "unlocked") == 0) {
             return 2;
         }
 
-        if (!strcasecmp(cp, "unlocked") && !QUERY_FLAG(op, FLAG_INV_LOCKED)) {
+        if (identified && strcasecmp(cp, "identified") == 0) {
             return 2;
         }
 
-        if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && strcasecmp(cp, "magical") == 0) {
+        if (!identified && strcasecmp(cp, "unidentified") == 0) {
             return 2;
         }
 
-        if (op->artifact != NULL && strcasecmp(cp, "artifact") == 0) {
+        if ((op->type == FOOD || op->type == DRINK) &&
+            strcasecmp(cp, "food") == 0) {
             return 2;
         }
 
-        if (QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcasecmp(cp, "identified")) {
-            return 2;
-        }
-
-        if (!QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcasecmp(cp, "unidentified")) {
-            return 2;
-        }
-
-        if ((op->type == FOOD || op->type == DRINK) && !strcasecmp(cp, "food")) {
-            return 2;
-        }
-
-        if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) && !strcasecmp(cp, "valuables")) {
+        if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET ||
+             op->type == PEARL) && strcasecmp(cp, "valuables") == 0) {
             return 2;
         }
 
         if (op->type == WEAPON) {
             if (op->item_skill - 1 == SK_IMPACT_WEAPONS) {
-                if (!strcasecmp(cp, "impact weapons")) {
+                if (strcasecmp(cp, "impact weapons") == 0) {
                     return 2;
                 }
             } else if (op->item_skill - 1 == SK_SLASH_WEAPONS) {
-                if (!strcasecmp(cp, "slash weapons")) {
+                if (strcasecmp(cp, "slash weapons") == 0) {
                     return 2;
                 }
             } else if (op->item_skill - 1 == SK_CLEAVE_WEAPONS) {
-                if (!strcasecmp(cp, "cleave weapons")) {
+                if (strcasecmp(cp, "cleave weapons") == 0) {
                     return 2;
                 }
             } else if (op->item_skill - 1 == SK_PIERCE_WEAPONS) {
-                if (!strcasecmp(cp, "pierce weapons")) {
+                if (strcasecmp(cp, "pierce weapons") == 0) {
                     return 2;
                 }
             }
         } else if (op->type == BOOK) {
-            if (!strcasecmp(cp, "books")) {
+            if (strcasecmp(cp, "books") == 0) {
                 return 2;
             }
 
-            if (!op->msg && !strcasecmp(cp, "empty books")) {
+            if (op->msg == NULL && strcasecmp(cp, "empty books") == 0) {
                 return 2;
             }
 
+            int book_level[2];
             if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
-                if (!strcasecmp(cp, "unread books")) {
+                if (strcasecmp(cp, "unread books") == 0) {
                     return 2;
                 }
 
-                if (sscanf(cp, "unread level %d books", &book_level) == 1 && op->level == book_level) {
+                if (sscanf(cp, "unread level %d books", &book_level[0]) == 1 &&
+                    op->level == book_level[0]) {
                     return 2;
                 }
 
-                if (sscanf(cp, "unread level %d-%d books", &book_level, &book_level2) == 2 && op->level >= book_level && op->level <= book_level2) {
+                if (sscanf(cp, "unread level %d-%d books", &book_level[0],
+                           &book_level[1]) == 2 &&
+                    op->level >= book_level[0] && op->level <= book_level[1]) {
                     return 2;
                 }
             } else {
-                if (!strcasecmp(cp, "read books")) {
+                if (strcasecmp(cp, "read books") == 0) {
                     return 2;
                 }
 
-                if (sscanf(cp, "read level %d books", &book_level) == 1 && op->level == book_level) {
+                if (sscanf(cp, "read level %d books", &book_level[0]) == 1 &&
+                    op->level == book_level[0]) {
                     return 2;
                 }
 
-                if (sscanf(cp, "read level %d-%d books", &book_level, &book_level2) == 2 && op->level >= book_level && op->level <= book_level2) {
+                if (sscanf(cp, "read level %d-%d books", &book_level[0],
+                           &book_level[1]) == 2 &&
+                    op->level >= book_level[0] && op->level <= book_level[1]) {
                     return 2;
                 }
             }
         }
 
-        count = 0;
+        int count = 0;
 
         /* Allow for things like '100 arrows', but don't accept
          * strings like '+2', '-1' as numbers. */
@@ -3187,38 +3192,20 @@ int item_matched_string(object *pl, object *op, const char *name)
             cp = strchr(cp, ' ');
 
             /* Get rid of spaces */
-            while (cp && cp[0] == ' ') {
+            while (cp != NULL && cp[0] == ' ') {
                 cp++;
             }
         }
 
-        if (!cp || cp[0] == '\0' || count < 0) {
+        if (cp == NULL || cp[0] == '\0' || count < 0) {
             return 0;
         }
 
-        /* Base name matched - not bad */
-        if (strcasecmp(cp, op->name) == 0 && !count) {
-            retval = 4;
-        } else if (count > 1) {
-            char newname[MAX_BUF];
+        char *obj_name = object_get_name_s(op, caller);
+        char *base_name = object_get_base_name_s(op, caller);
+        char *short_name = object_get_short_name_s(op, caller);
 
-            /* Need to plurify name for proper match */
-
-            snprintf(VS(newname), "%s", op->name);
-
-            if (!strcasecmp(newname, cp)) {
-                retval = 6;
-            }
-        } else if (count == 1) {
-            if (!strcasecmp(op->name, cp)) {
-                retval = 6;
-            }
-        }
-
-        char *obj_name = object_get_name_s(op, pl);
-        char *base_name = object_get_base_name_s(op, pl);
-        char *short_name = object_get_short_name_s(op, pl);
-
+        int retval;
         if (strcasecmp(cp, obj_name) == 0) {
             retval = 20;
         } else if (strcasecmp(cp, short_name) == 0) {
@@ -3226,7 +3213,7 @@ int item_matched_string(object *pl, object *op, const char *name)
         } else if (strcasecmp(cp, base_name) == 0) {
             retval = 16;
         } else if (op->custom_name != NULL &&
-                strcasecmp(cp, op->custom_name) == 0) {
+                   strcasecmp(cp, op->custom_name) == 0) {
             retval = 15;
         } else if (strncasecmp(cp, base_name, strlen(cp)) == 0) {
             retval = 14;
@@ -3239,9 +3226,11 @@ int item_matched_string(object *pl, object *op, const char *name)
         } else if (strstr(short_name, cp) != NULL) {
             retval = 12;
         } else if (op->custom_name != NULL &&
-                strstr(op->custom_name, cp) != NULL) {
+                   strstr(op->custom_name, cp) != NULL) {
             /* Check for partial custom name, but give a really low priority. */
             retval = 3;
+        } else {
+            retval = 0;
         }
 
         efree(obj_name);
@@ -3249,8 +3238,8 @@ int item_matched_string(object *pl, object *op, const char *name)
         efree(short_name);
 
         if (retval != 0) {
-            if (pl->type == PLAYER) {
-                CONTR(pl)->count = count;
+            if (caller->type == PLAYER) {
+                CONTR(caller)->count = count;
             }
 
             return retval;

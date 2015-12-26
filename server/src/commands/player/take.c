@@ -68,7 +68,7 @@ void command_take(object *op, const char *command, char *params)
             continue;
         }
 
-        ival = item_matched_string(op, tmp, params);
+        ival = object_matches_string(tmp, op, params);
 
         if (ival > 0) {
             if (ival <= 2 && !can_pick(op, tmp)) {

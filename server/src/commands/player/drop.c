@@ -56,7 +56,7 @@ void command_drop(object *op, const char *command, char *params)
             continue;
         }
 
-        ival = item_matched_string(op, tmp, params);
+        ival = object_matches_string(tmp, op, params);
 
         if (ival > 0) {
             if (ival <= 2 && QUERY_FLAG(tmp, FLAG_INV_LOCKED)) {

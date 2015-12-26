@@ -468,7 +468,7 @@ extern key_value *object_get_key_link(const object *ob, const char *key);
 extern const char *object_get_value(const object *op, const char *const key);
 extern int object_set_value(object *op, const char *key, const char *value, int add_key);
 extern void init_object_initializers(void);
-extern int item_matched_string(object *pl, object *op, const char *name);
+extern int object_matches_string(object *op, object *pl, const char *name);
 extern int object_get_gender(object *op);
 extern void object_reverse_inventory(object *op);
 extern int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8_t fixed_pos);
