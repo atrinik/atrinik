@@ -1262,13 +1262,13 @@ class ObjectMethodsSuite(unittest.TestCase):
         self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
                           "beer_charob")
 
-        self.obj.Artificate("weapon_less_fire")
-        self.assertEqual(self.obj.artifact, "weapon_less_fire")
+        self.obj.Artificate("weapon_fire")
+        self.assertEqual(self.obj.artifact, "weapon_fire")
         self.assertGreater(self.obj.Attack(Atrinik.ATNR_FIRE), 0)
         self.assertTrue(self.obj.f_is_magical)
         self.assertGreater(self.obj.value, self.obj.arch.clone.value)
         self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
-                          "weapon_less_fire")
+                          "weapon_fire")
         self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
                           "xxx")
 
