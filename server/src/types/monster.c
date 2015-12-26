@@ -1709,25 +1709,31 @@ int is_friend_of(object *op, object *obj)
         return 0;
     }
 
-    shstr *name = NULL;
+    if (op->type == MONSTER) {
+        shstr *name = object_get_value(op, "faction");
+        if (name == NULL) {
+            return 0;
+        }
+
+        faction_t faction = faction_find(name);
+        if (faction == NULL || !faction_is_friend(faction, obj)) {
+            return 0;
+        }
+    }
 
     if (obj->type == MONSTER) {
-        name = object_get_value(obj, "faction");
-    } else if (op->type == MONSTER) {
-        name = object_get_value(op, "faction");
+        shstr *name = object_get_value(obj, "faction");
+        if (name == NULL) {
+            return 0;
+        }
+
+        faction_t faction = faction_find(name);
+        if (faction == NULL || !faction_is_friend(faction, op)) {
+            return 0;
+        }
     }
 
-    if (name == NULL) {
-        return 0;
-    }
-
-    faction_t faction = faction_find(name);
-
-    if (faction == NULL) {
-        return 0;
-    }
-
-    return faction_is_friend(faction, obj->type == MONSTER ? op : obj);
+    return 1;
 }
 
 /**
