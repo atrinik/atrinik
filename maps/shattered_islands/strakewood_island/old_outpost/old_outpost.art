@@ -1,0 +1,21 @@
+Allowed none
+chance 1
+artifact helm_chrordir
+def_arch helm_strength
+Object
+name Chrordir's helm
+ac_add 1
+item_level_art 35
+is_named 1
+end
+
+Allowed none
+chance 1
+artifact bracers_relurgh
+def_arch bracers_constitution
+Object
+name Relurgh's bracers
+ac_add 1
+item_level_art 35
+is_named 1
+end
