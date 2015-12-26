@@ -12,4 +12,6 @@ protect_cleave 6
 protect_pierce 6
 weight 940
 value 25
+block 2
+absorb 4
 end
