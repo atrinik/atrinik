@@ -281,6 +281,10 @@ class Game:
             "mpart_nr": INTEGER,
             "item_power": INTEGER,
             "glow_speed": INTEGER,
+            "block": INTEGER,
+            "absorb": INTEGER,
+            "block_add": INTEGER,
+            "absorb_add": INTEGER,
 
             "speed": FLOAT,
             "speed_left": FLOAT,
