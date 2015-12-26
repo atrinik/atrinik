@@ -952,7 +952,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
             draw_info_format(COLOR_WHITE, op, "You have %s.", name);
             efree(name);
 
-            if (tmp->msg != NULL) {
+            if (tmp->msg != NULL && tmp->type != BOOK) {
                 draw_info(COLOR_WHITE, op, "The item has a story:");
                 draw_info(COLOR_WHITE, op, tmp->msg);
             }
