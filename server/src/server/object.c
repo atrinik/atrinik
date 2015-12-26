@@ -3101,6 +3101,14 @@ int item_matched_string(object *pl, object *op, const char *name)
             return 2;
         }
 
+        if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && strcasecmp(cp, "magical") == 0) {
+            return 2;
+        }
+
+        if (op->artifact != NULL && strcasecmp(cp, "artifact") == 0) {
+            return 2;
+        }
+
         if (QUERY_FLAG(op, FLAG_IDENTIFIED) && !strcasecmp(cp, "identified")) {
             return 2;
         }
