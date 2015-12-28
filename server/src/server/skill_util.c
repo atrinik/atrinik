@@ -437,7 +437,7 @@ static int do_skill_attack(object *tmp, object *op, char *string)
         }
     }
 
-    success = attack_ob(tmp, op);
+    success = attack_object(tmp, op);
 
     /* Print appropriate messages to the player. */
     if (success && string != NULL) {

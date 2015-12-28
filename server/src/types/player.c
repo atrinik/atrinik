@@ -2902,7 +2902,7 @@ static void process_func(object *op)
 
             if (!OBJECT_VALID(pl->ob->enemy, pl->ob->enemy_count) || pl->ob->enemy->owner == pl->ob) {
                 pl->ob->enemy = NULL;
-            } else if (is_melee_range(pl->ob, pl->ob->enemy)) {
+            } else if (attack_is_melee_range(pl->ob, pl->ob->enemy)) {
                 if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count)) {
                     set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
                 } else {

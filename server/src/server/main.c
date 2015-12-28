@@ -244,7 +244,7 @@ process_events (void)
         }
 
         if (op->anim_flags & ANIM_FLAG_STOP_ATTACKING) {
-            if (op->enemy == NULL || !is_melee_range(op, op->enemy)) {
+            if (op->enemy == NULL || !attack_is_melee_range(op, op->enemy)) {
                 op->anim_flags &= ~ANIM_FLAG_ATTACKING;
             }
 

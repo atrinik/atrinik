@@ -47,7 +47,7 @@ static void process_func(object *op)
         clear_owner(op);
     }
 
-    if (!hit_player(target, op->stats.dam, op)) {
+    if (!attack_hit(target, op, op->stats.dam)) {
         return;
     }
 

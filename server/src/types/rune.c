@@ -33,16 +33,18 @@
 
 /**
  * Springs a rune.
+ *
  * @param op
  * The rune.
  * @param victim
  * Victim of the rune.
  */
-void rune_spring(object *op, object *victim)
+void
+rune_spring (object *op, object *victim)
 {
     object *env;
 
-    if (!op || !victim) {
+    if (op == NULL || victim == NULL) {
         return;
     }
 
@@ -55,7 +57,7 @@ void rune_spring(object *op, object *victim)
         return;
     }
 
-    if (op->msg) {
+    if (op->msg != NULL) {
         draw_info(COLOR_WHITE, victim, op->msg);
     }
 
@@ -68,36 +70,51 @@ void rune_spring(object *op, object *victim)
 
     /* Direct damage. */
     if (op->stats.sp == -1) {
-        OBJ_DESTROYED_BEGIN(op) {
-            OBJ_DESTROYED_BEGIN(victim) {
-                hit_player(victim, (int16_t) ((float) op->stats.dam * (LEVEL_DAMAGE(op->level) * 0.925f)), op);
+        OBJECTS_DESTROYED_BEGIN(op, victim) {
+            int dam = op->stats.dam * (LEVEL_DAMAGE(op->level) * 0.925f);
+            attack_hit(victim, op, dam);
 
-                if (!OBJ_DESTROYED(victim)) {
-                    object *tmp, *next;
-
-                    if (op->randomitems) {
-                        create_treasure(op->randomitems, op, 0, op->level ? op->level : env->map->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+            if (!OBJECTS_DESTROYED(victim)) {
+                if (op->randomitems != NULL) {
+                    int level = op->level;
+                    if (level == 0) {
+                        level = env->map->difficulty;
                     }
 
-                    for (tmp = op->inv; tmp; tmp = next) {
-                        next = tmp->below;
+                    create_treasure(op->randomitems,
+                                    op,
+                                    0,
+                                    level,
+                                    T_STYLE_UNSET,
+                                    ART_CHANCE_UNSET,
+                                    0,
+                                    NULL);
+                }
 
-                        if (tmp->type == DISEASE) {
-                            infect_object(victim, tmp, 1);
-                            object_remove(tmp, 0);
-                            object_destroy(tmp);
-                        }
+                FOR_INV_PREPARE(op, tmp) {
+                    if (tmp->type != DISEASE) {
+                        continue;
                     }
-                }
 
-                if (OBJ_DESTROYED(op)) {
-                    return;
-                }
-            } OBJ_DESTROYED_END();
-        } OBJ_DESTROYED_END();
+                    infect_object(victim, tmp, 1);
+                    object_remove(tmp, 0);
+                    object_destroy(tmp);
+                } FOR_INV_FINISH();
+            }
+
+            if (OBJECTS_DESTROYED(op)) {
+                return;
+            }
+        } OBJECTS_DESTROYED_END();
     } else {
         /* Spell. */
-        cast_spell(env, op, op->stats.maxsp, op->stats.sp, 1, CAST_NORMAL, NULL);
+        cast_spell(env,
+                   op,
+                   op->stats.maxsp,
+                   op->stats.sp,
+                   1,
+                   CAST_NORMAL,
+                   NULL);
     }
 
     /* Decrement detonation count and see if it's the last one, but only
@@ -119,11 +136,9 @@ void rune_spring(object *op, object *victim)
 }
 
 /** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator, int state)
+static int
+move_on_func (object *op, object *victim, object *originator, int state)
 {
-    (void) originator;
-    (void) state;
-
     rune_spring(op, victim);
     return OBJECT_METHOD_OK;
 }

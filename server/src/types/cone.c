@@ -69,11 +69,11 @@ static void process_func(object *op)
     }
 
     if (QUERY_FLAG(op, FLAG_LIFESAVE)) {
-        hit_map(op, 0, 0);
+        attack_hit_map(op, 0, false);
         return;
     }
 
-    hit_map(op, 0, 1);
+    attack_hit_map(op, 0, true);
 
     if ((op->stats.hp -= 2) < 0) {
         object_remove(op, 0);
@@ -134,7 +134,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
     }
 
     if (IS_LIVE(victim)) {
-        hit_player(victim, op->stats.dam, op);
+        attack_hit(victim, op, op->stats.dam);
     }
 
     return OBJECT_METHOD_OK;

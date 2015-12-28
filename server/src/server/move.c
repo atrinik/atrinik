@@ -118,7 +118,7 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
 
         if (fall_floors > 0 && IS_LIVE(op)) {
             OBJ_DESTROYED_BEGIN(op) {
-                fall_damage_living(op, fall_floors);
+                attack_perform_fall(op, fall_floors);
 
                 if (OBJ_DESTROYED(op)) {
                     return 1;

@@ -1901,7 +1901,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
     if (fall_floors != 0 && IS_LIVE(op)) {
         OBJ_DESTROYED_BEGIN(op) {
-            fall_damage_living(op, fall_floors);
+            attack_perform_fall(op, fall_floors);
 
             if (OBJ_DESTROYED(op)) {
                 return NULL;
@@ -3440,7 +3440,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     }
 
     if (exit_ob != NULL && exit_ob->stats.dam && op->type == PLAYER) {
-        hit_player(op, exit_ob->stats.dam, exit_ob);
+        attack_hit(op, exit_ob, exit_ob->stats.dam);
     }
 
     return 1;

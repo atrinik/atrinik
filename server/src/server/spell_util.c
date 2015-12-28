@@ -813,7 +813,7 @@ void explode_object(object *op)
 
     cast_cone(op, caster, 0, spells[op->stats.sp].bdur, op->stats.sp,
               op->other_arch);
-    hit_map(op, 0, 0);
+    attack_hit_map(op, 0, false);
 
     /* remove the firebullet */
     if (!was_destroyed(op, op_tag)) {
@@ -872,7 +872,7 @@ void check_fired_arch(object *op)
 
         tmp_tag = tmp->count;
 
-        dam = hit_player(tmp, op->stats.dam, op);
+        dam = attack_hit(tmp, op, op->stats.dam);
 
         if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0) {
             if (!QUERY_FLAG(op, FLAG_REMOVED)) {
@@ -1181,19 +1181,19 @@ void spell_failure(object *caster, int level)
     if (level >= 15) {
         if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.05) / 2))) {
             draw_info(COLOR_RED, caster, "The wild magic confuses you!");
-            confuse_living(caster);
+            attack_perform_confusion(caster);
             punished = true;
         }
 
         if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.10) / 3))) {
             draw_info(COLOR_RED, caster, "The wild magic paralyzes you!");
-            paralyze_living(caster, level * 2);
+            attack_peform_paralyze(caster, level * 2);
             punished = true;
         }
 
         if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.15) / 4))) {
             draw_info(COLOR_RED, caster, "The wild magic blinds you!");
-            blind_living(caster, caster, level * 2);
+            attack_perform_blind(caster, caster, level * 2);
             punished = true;
         }
 

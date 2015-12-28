@@ -230,7 +230,6 @@ typedef struct linked_char {
 } linked_char;
 
 #include <face.h>
-#include <attack.h>
 #include <material.h>
 #include <living.h>
 #include <object.h>

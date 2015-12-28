@@ -496,9 +496,10 @@ void move_symptom(object *symptom)
     }
 
     if (symptom->stats.dam > 0) {
-        hit_player(victim, symptom->stats.dam, symptom);
+        attack_hit(victim, symptom, symptom->stats.dam);
     } else {
-        hit_player(victim, (int) MAX(1.0, (double) -victim->stats.maxhp * (double) symptom->stats.dam / 100.0), symptom);
+        attack_hit(victim, symptom,
+                   MAX(1.0, -victim->stats.maxhp * symptom->stats.dam / 100.0));
     }
 
     if (symptom->stats.maxsp > 0) {

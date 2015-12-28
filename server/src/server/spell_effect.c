@@ -301,7 +301,7 @@ void cast_destruction(object *op, object *caster, int dam)
                         damage /= (tmp->quick_pos >> 4) + 1;
                     }
 
-                    hit_player(tmp, damage, hitter);
+                    attack_hit(tmp, hitter, damage);
                     break;
                 }
             }
@@ -1121,7 +1121,7 @@ int finger_of_death(object *op, object *target)
     insert_ob_in_map(hitter, target->map, op, 0);
 
     dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, false);
-    hit_player(target, dam, hitter);
+    attack_hit(target, hitter, dam);
     object_remove(hitter, 0);
 
     return 1;

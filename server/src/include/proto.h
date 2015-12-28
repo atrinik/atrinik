@@ -192,17 +192,6 @@ extern int player_apply(object *pl, object *op, int aflag, int quiet);
 extern void player_apply_below(object *pl);
 /* src/server/arch.c */
 /* src/server/attack.c */
-extern const char *const attack_save[NROFATTACKS];
-extern const char *const attack_name[NROFATTACKS];
-extern int attack_ob(object *op, object *hitter);
-extern int hit_player(object *op, int dam, object *hitter);
-extern void hit_map(object *op, int dir, int reduce);
-extern _Bool kill_object(object *op, object *hitter);
-extern void confuse_living(object *op);
-extern void blind_living(object *op, object *hitter, int dam);
-extern void paralyze_living(object *op, int dam);
-extern void fall_damage_living(object *op, int fall_floors);
-extern _Bool is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
 /* src/server/cache.c */
 extern cache_struct *cache_find(shstr *key);

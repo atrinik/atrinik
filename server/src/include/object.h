@@ -30,6 +30,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include <attack.h>
+
 /**
  * Get the weight of an object. If the object is a container or doesn't
  * have nrof, include the weight it is carrying.
