@@ -660,6 +660,17 @@ typedef struct oblnk {
 #define HEAD(op) ((op)->head || (op))
 
 /**
+ * Returns the owner of the specified object. If there is no object,
+ * the originally passed object pointer is returned instead.
+ *
+ * @param op
+ * The object.
+ * @return
+ * Owner of the object (may be the same object).
+ */
+#define OWNER(op) (get_owner(op) || (op))
+
+/**
  * Structure used for object::custom_attrset of magic mirrors.
  */
 typedef struct magic_mirror_struct {
