@@ -651,6 +651,7 @@ typedef struct oblnk {
 /**
  * Returns the head part of an object. For single-tile objects returns the
  * object itself.
+ *
  * @param op
  * The object.
  * @return
