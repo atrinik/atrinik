@@ -656,7 +656,7 @@ typedef struct oblnk {
  * @return
  * The head object.
  */
-#define HEAD(op) ((op)->head ? (op)->head : (op))
+#define HEAD(op) ((op)->head || (op))
 
 /**
  * Structure used for object::custom_attrset of magic mirrors.
@@ -691,12 +691,122 @@ typedef struct magic_mirror_struct {
  */
 #define OBJECT_CURSED(ob) (QUERY_FLAG((ob), FLAG_CURSED) || QUERY_FLAG((ob), FLAG_DAMNED))
 
+/**
+ * @deprecated
+ */
 #define OBJ_DESTROYED_BEGIN(_op) \
     do { \
         tag_t __tag_ ## _op = (_op)->count;
+/**
+ * @deprecated
+ */
 #define OBJ_DESTROYED(_op) (!OBJECT_VALID((_op), __tag_ ## _op))
+/**
+ * @deprecated
+ */
 #define OBJ_DESTROYED_END() \
     } while (0)
+
+/**
+ * @defgroup OBJECTS_DESTROYED_xxx Destroyed objects check
+ * Macro that tracks and checks the destroyed state of multiple objects
+ * simultaneously.
+ *
+ * Example usage:
+ * @code
+ * OBJECTS_DESTROYED_BEGIN(op, hitter) {
+ *     // Do something with op and/or hitter
+ *     if (OBJECTS_DESTROYED_ANY(op, hitter)) {
+ *         // End processing
+ *         return;
+ *     }
+ *
+ *     // Do something more with op and/or hitter
+ * } OBJECTS_DESTROYED_END();
+ * @endcode
+ *@{*/
+/**
+ * Helper macro for OBJECTS_DESTROYED_BEGIN(); used internally.
+ */
+#define _OBJECTS_DESTROYED_DEFINE(obj)      \
+    HARD_ASSERT(!OBJECT_FREE(obj));         \
+    tag_t __tag_ ## obj = obj->count;
+/**
+ * Helper macro for OBJECTS_DESTROYED(); used internally.
+ */
+#define _OBJECTS_DESTROYED(obj) \
+    (OBJECT_FREE(obj) || obj->count != __tag_ ## obj)
+/**
+ * Helper macro for OBJECTS_DESTROYED_ANY(); used internally.
+ */
+#define _OBJECTS_DESTROYED_ANY(obj) \
+    _OBJECTS_DESTROYED(obj) ||
+/**
+ * Helper macro for OBJECTS_DESTROYED_ALL(); used internally.
+ */
+#define _OBJECTS_DESTROYED_ALL(obj) \
+    _OBJECTS_DESTROYED(obj) &&
+
+/**
+ * Begin tracking objects for destruction checks. This creates a new scope,
+ * which MUST be closed with OBJECTS_DESTROYED_END().
+ *
+ * @param ... The objects to track.
+ */
+#define OBJECTS_DESTROYED_BEGIN(...) \
+    do { \
+        FOR_EACH(_OBJECTS_DESTROYED_DEFINE, __VA_ARGS__)
+/**
+ * Check if any of the objects tracked by OBJECTS_DESTROYED_BEGIN() have
+ * been destroyed.
+ *
+ * When specifying all of the objects that were tracked by a previous use
+ * of OBJECTS_DESTROYED_BEGIN(), it is recommended that they be in the same
+ * order.
+ *
+ * @param ...
+ * The objects to check. MUST be one (or more) of the objects that were
+ * tracked by a previous OBJECTS_DESTROYED_BEGIN(). The specified order
+ * does not have to be the same as the one defined previously for
+ * OBJECTS_DESTROYED_BEGIN().
+ */
+#define OBJECTS_DESTROYED_ANY(...) \
+    (FOR_EACH(_OBJECTS_DESTROYED_ANY, __VA_ARGS__) 0)
+/**
+ * Check if all of the objects tracked by OBJECTS_DESTROYED_BEGIN() have
+ * been destroyed.
+ *
+ * When specifying all of the objects that were tracked by a previous use
+ * of OBJECTS_DESTROYED_BEGIN(), it is recommended that they be in the same
+ * order.
+ *
+ * @param ...
+ * The objects to check. MUST be one (or more) of the objects that were
+ * tracked by a previous OBJECTS_DESTROYED_BEGIN(). The specified order
+ * does not have to be the same as the one defined previously for
+ * OBJECTS_DESTROYED_BEGIN().
+ */
+#define OBJECTS_DESTROYED_ALL(...) \
+    (FOR_EACH(_OBJECTS_DESTROYED_ALL, __VA_ARGS__) 1)
+/**
+ * Check if the specified object tracked by a previous use of
+ * OBJECTS_DESTROYED_BEGIN() has been destroyed.
+ *
+ * It is preferable to use this macro when checking a single object,
+ * instead of using OBJECTS_DESTROYED_ALL/OBJECTS_DESTROYED_ANY with a
+ * single argument.
+ *
+ * @param obj
+ * The object to check.
+ */
+#define OBJECTS_DESTROYED(obj) \
+    (_OBJECTS_DESTROYED(obj))
+/**
+ * Closes the scope created by OBJECTS_DESTROYED_BEGIN().
+ */
+#define OBJECTS_DESTROYED_END() \
+    } while (0)
+/*@}*/
 
 /**
  * Check whether the object is a flying projectile.
