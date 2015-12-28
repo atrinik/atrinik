@@ -35,6 +35,8 @@
 #include <artifact.h>
 #include <packet.h>
 #include <faction.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * All the possible fields of an object.

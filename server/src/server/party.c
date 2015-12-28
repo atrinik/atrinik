@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * String representations of the party looting modes.

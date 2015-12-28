@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Place some monsters into the map.

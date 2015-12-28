@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <object.h>
 
 /**
  * Char comparison for sorting purposes.

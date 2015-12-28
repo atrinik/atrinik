@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /** Word representations of numbers used by get_number() */
 static char numbers[21][20] = {

@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /** @copydoc object_methods::ranged_fire_func */
 static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)

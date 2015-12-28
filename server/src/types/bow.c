@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Calculate how quickly bow fires its arrow.

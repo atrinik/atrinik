@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)

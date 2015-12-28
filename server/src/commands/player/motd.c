@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <player.h>
 
 /** @copydoc command_func */
 void command_motd(object *op, const char *command, char *params)

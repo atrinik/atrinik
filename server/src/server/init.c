@@ -35,6 +35,7 @@
 #include <artifact.h>
 #include <ban.h>
 #include <loader.h>
+#include <player.h>
 
 /**
  * The server's settings.

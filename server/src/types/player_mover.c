@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <object.h>
+#include <player.h>
 
 /**
  * Handle an object triggering a player mover.

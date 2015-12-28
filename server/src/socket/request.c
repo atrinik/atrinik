@@ -39,6 +39,9 @@
 #include <monster_data.h>
 #include <plugin.h>
 #include <monster_guard.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)

@@ -875,4 +875,176 @@ typedef struct magic_mirror_struct {
         (_ob)->race != NULL && (_ob)->sub_type == ST1_CONTAINER_QUIVER) || \
         ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
+/* Prototypes */
+object *active_objects;
+const char *gender_noun[GENDER_MAX];
+const char *gender_subjective[GENDER_MAX];
+const char *gender_subjective_upper[GENDER_MAX];
+const char *gender_objective[GENDER_MAX];
+const char *gender_possessive[GENDER_MAX];
+const char *gender_reflexive[GENDER_MAX];
+materialtype materials[NROFMATERIALS];
+material_real_struct material_real[NUM_MATERIALS_REAL];
+int freearr_x[SIZEOFFREE];
+int freearr_y[SIZEOFFREE];
+int maxfree[SIZEOFFREE];
+int freedir[SIZEOFFREE];
+void (*object_initializers[256])(object *);
+const char *object_flag_names[NUM_FLAGS + 1];
+
+void
+init_materials(void);
+int
+CAN_MERGE(object *ob1, object *ob2);
+object *
+object_merge(object *op);
+signed long
+sum_weight(object *op);
+void
+add_weight(object *op, uint32_t weight);
+void
+sub_weight(object *op, uint32_t weight);
+object *
+get_env_recursive(object *op);
+object *
+is_player_inv(object *op);
+void
+dump_object(object *op, StringBuffer *sb);
+void
+dump_object_rec(object *op, StringBuffer *sb);
+void
+clear_owner(object *op);
+void
+set_owner(object *op, object *owner);
+void
+copy_owner(object *op, object *clone_ob);
+void
+copy_object(object *op2, object *op, int no_speed);
+void
+copy_object_with_inv(object *src_ob, object *dest_ob);
+void
+object_init(void);
+void
+object_deinit(void);
+object *
+get_object(void);
+void
+update_turn_face(object *op);
+void
+update_ob_speed(object *op);
+void
+update_object(object *op, int action);
+void
+drop_ob_inv(object *ob);
+void
+object_destroy_inv(object *ob);
+void
+object_destroy(object *ob);
+void
+destruct_ob(object *op);
+void
+object_remove(object *op, int flags);
+object *
+insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
+int
+object_check_move_on(object *op, object *originator);
+void
+replace_insert_ob_in_map(char *arch_string, object *op);
+object *
+object_stack_get(object *op, uint32_t nrof);
+object *
+object_stack_get_reinsert(object *op, uint32_t nrof);
+object *
+object_stack_get_removed(object *op, uint32_t nrof);
+object *
+decrease_ob_nr(object *op, uint32_t i);
+object *
+object_insert_into(object *op, object *where, int flag);
+object *
+insert_ob_in_ob(object *op, object *where);
+object *
+present_arch(struct archetype *at, mapstruct *m, int x, int y);
+object *
+present(uint8_t type, mapstruct *m, int x, int y);
+object *
+present_in_ob(uint8_t type, object *op);
+object *
+present_arch_in_ob(struct archetype *at, object *op);
+int
+find_free_spot(struct archetype *at,
+               object           *op,
+               mapstruct        *m,
+               int               x,
+               int               y,
+               int               start,
+               int               stop);
+int
+find_first_free_spot(struct archetype *at,
+                     object           *op,
+                     mapstruct        *m,
+                     int               x,
+                     int               y);
+int
+find_first_free_spot2(struct archetype *at,
+                      mapstruct        *m,
+                      int               x,
+                      int               y,
+                      int               start,
+                      int               range);
+void
+permute(int *arr, int begin, int end);
+void
+get_search_arr(int *search_arr);
+int
+find_dir_2(int x, int y);
+int
+absdir(int d);
+int
+dirdiff(int dir1, int dir2);
+int
+get_dir_to_target(object *op, object *target, rv_vector *range_vector);
+int
+can_pick(object *who, object *item);
+object *
+object_create_clone(object *asrc);
+int
+was_destroyed(object *op, tag_t old_tag);
+object *
+load_object_str(const char *obstr);
+int
+auto_apply(object *op);
+void
+free_key_values(object *op);
+key_value *
+object_get_key_link(const object *ob, const char *key);
+const char *
+object_get_value(const object *op, const char *const key);
+int
+object_set_value(object *op, const char *key, const char *value, int add_key);
+void
+init_object_initializers(void);
+int
+object_matches_string(object *op, object *caller, const char *str);
+int
+object_get_gender(object *op);
+void
+object_reverse_inventory(object *op);
+int
+object_enter_map(object    *op,
+                 object    *exit_ob,
+                 mapstruct *m,
+                 int        x,
+                 int        y,
+                 uint8_t    fixed_pos);
+const char *
+object_get_str(object *op);
+char *
+object_get_str_r(object *op, char *buf, size_t bufsize);
+int
+object_blocked(object *op, mapstruct *m, int x, int y);
+object *
+object_create_singularity(const char *name);
+void
+object_save(object *op, FILE *fp);
+
 #endif

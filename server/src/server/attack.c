@@ -33,6 +33,9 @@
 #include <plugin.h>
 #include <arch.h>
 #include <attack.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
 
 /**
  * Names of attack types to use when saving them to file.

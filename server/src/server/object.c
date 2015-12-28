@@ -33,6 +33,8 @@
 #include <monster_data.h>
 #include <plugin.h>
 #include <arch.h>
+#include <object.h>
+#include <player.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;
@@ -100,7 +102,8 @@ material_real_struct material_real[NUM_MATERIALS_REAL];
 /**
  * Initialize materials from file.
  */
-void init_materials(void)
+void
+init_materials (void)
 {
     int i;
     char filename[MAX_BUF], buf[MAX_BUF];
@@ -245,6 +248,7 @@ const char *object_flag_names[NUM_FLAGS + 1] = {
 
 /**
  * Compares value lists.
+ *
  * @param wants
  * What to search.
  * @param has
@@ -253,7 +257,8 @@ const char *object_flag_names[NUM_FLAGS + 1] = {
  * 1 if every key_values in wants has a partner with the same
  * value in has.
  */
-static int compare_ob_value_lists_one(const object *wants, const object *has)
+static int
+compare_ob_value_lists_one (const object *wants, const object *has)
 {
     key_value *wants_field;
 
@@ -276,6 +281,7 @@ static int compare_ob_value_lists_one(const object *wants, const object *has)
 
 /**
  * Compares two object lists.
+ *
  * @param ob1
  * Object to compare.
  * @param ob2
@@ -283,9 +289,11 @@ static int compare_ob_value_lists_one(const object *wants, const object *has)
  * @return
  * 1 if ob1 has the same key_values as ob2.
  */
-static int compare_ob_value_lists(const object *ob1, const object *ob2)
+static int
+compare_ob_value_lists (const object *ob1, const object *ob2)
 {
-    return compare_ob_value_lists_one(ob1, ob2) && compare_ob_value_lists_one(ob2, ob1);
+    return (compare_ob_value_lists_one(ob1, ob2) &&
+            compare_ob_value_lists_one(ob2, ob1));
 }
 
 /**
@@ -311,7 +319,8 @@ static int compare_ob_value_lists(const object *ob1, const object *ob2)
  * @return
  * 1 if the two object can merge, 0 otherwise
  */
-int CAN_MERGE(object *ob1, object *ob2)
+int
+CAN_MERGE (object *ob1, object *ob2)
 {
     if (!QUERY_FLAG(ob1, FLAG_CAN_STACK) && ob1->type != EVENT_OBJECT) {
         return 0;
@@ -482,7 +491,8 @@ int CAN_MERGE(object *ob1, object *ob2)
  * @return
  * 'op', or the object 'op' was merged into.
  */
-object *object_merge(object *op)
+object *
+object_merge (object *op)
 {
     object *tmp;
 
@@ -523,7 +533,8 @@ object *object_merge(object *op)
  * @return
  * The calculated weight
  */
-signed long sum_weight(object *op)
+signed long
+sum_weight (object *op)
 {
     if (QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
         return 0;
@@ -564,7 +575,8 @@ signed long sum_weight(object *op)
  * @param weight
  * The weight to add
  */
-void add_weight(object *op, uint32_t weight)
+void
+add_weight (object *op, uint32_t weight)
 {
     while (op != NULL) {
         if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
@@ -592,7 +604,8 @@ void add_weight(object *op, uint32_t weight)
  * @param weight
  * The weight to subtract
  */
-void sub_weight(object *op, uint32_t weight)
+void
+sub_weight (object *op, uint32_t weight)
 {
     while (op != NULL) {
         if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
@@ -620,7 +633,8 @@ void sub_weight(object *op, uint32_t weight)
  * The outermost environment object for a given object. Will not be
  * NULL.
  */
-object *get_env_recursive(object *op)
+object *
+get_env_recursive (object *op)
 {
     while (op->env) {
         op = op->env;
@@ -636,7 +650,8 @@ object *get_env_recursive(object *op)
  * @return
  * The player, or NULL if not in an inventory.
  */
-object *is_player_inv(object *op)
+object *
+is_player_inv (object *op)
 {
     for (; op != NULL && op->type != PLAYER; op = op->env) {
         if (op->env == op) {
@@ -655,7 +670,8 @@ object *is_player_inv(object *op)
  * Buffer that will contain object information. Must not be
  * NULL.
  */
-void dump_object(object *op, StringBuffer *sb)
+void
+dump_object (object *op, StringBuffer *sb)
 {
     if (op == NULL) {
         stringbuffer_append_string(sb, "[NULL pointer]");
@@ -680,7 +696,8 @@ void dump_object(object *op, StringBuffer *sb)
  * @param sb
  * Buffer that will contain object information.
  */
-void dump_object_rec(object *op, StringBuffer *sb)
+void
+dump_object_rec (object *op, StringBuffer *sb)
 {
     archetype_t *at;
     object *tmp;
@@ -713,7 +730,8 @@ void dump_object_rec(object *op, StringBuffer *sb)
  * @param op
  * The object to clear the owner for
  */
-void clear_owner(object *op)
+void
+clear_owner (object *op)
 {
     if (!op) {
         return;
@@ -734,7 +752,8 @@ void clear_owner(object *op)
  * The owner
  * @see get_owner()
  */
-static void set_owner_simple(object *op, object *owner)
+static void
+set_owner_simple (object *op, object *owner)
 {
     /* next line added to allow objects which own objects */
     /* Add a check for ownercounts in here, as I got into an endless loop
@@ -756,7 +775,8 @@ static void set_owner_simple(object *op, object *owner)
     op->ownercount = owner->count;
 }
 
-static void set_skill_pointers(object *op, object *chosen_skill)
+static void
+set_skill_pointers (object *op, object *chosen_skill)
 {
     op->chosen_skill = chosen_skill;
 }
@@ -769,7 +789,8 @@ static void set_skill_pointers(object *op, object *chosen_skill)
  * @param owner
  * The owner.
  */
-void set_owner(object *op, object *owner)
+void
+set_owner (object *op, object *owner)
 {
     if (owner == NULL || op == NULL) {
         return;
@@ -799,7 +820,8 @@ void set_owner(object *op, object *owner)
  * @param clone_ob
  * The clone.
  */
-void copy_owner(object *op, object *clone_ob)
+void
+copy_owner (object *op, object *clone_ob)
 {
     object *owner = get_owner(clone_ob);
 
@@ -831,7 +853,8 @@ void copy_owner(object *op, object *clone_ob)
  * @param no_speed
  * If set, do not touch the active list.
  */
-void copy_object(object *op2, object *op, int no_speed)
+void
+copy_object (object *op2, object *op, int no_speed)
 {
     int is_removed = QUERY_FLAG(op, FLAG_REMOVED);
 
@@ -908,7 +931,8 @@ void copy_object(object *op2, object *op, int no_speed)
  * @param dest_ob
  * Where to copy.
  */
-void copy_object_with_inv(object *src_ob, object *dest_ob)
+void
+copy_object_with_inv (object *src_ob, object *dest_ob)
 {
     object *walk, *tmp;
 
@@ -922,7 +946,8 @@ void copy_object_with_inv(object *src_ob, object *dest_ob)
 }
 
 /** @copydoc chunk_debugger */
-static void object_debugger(object *op, char *buf, size_t size)
+static void
+object_debugger (object *op, char *buf, size_t size)
 {
     snprintf(buf, size, "count: %d", op->count);
 
@@ -937,7 +962,8 @@ static void object_debugger(object *op, char *buf, size_t size)
 }
 
 /** @copydoc chunk_validator */
-static bool object_validator(object *op)
+static bool
+object_validator (object *op)
 {
     return op->count != 0 && !QUERY_FLAG(op, FLAG_REMOVED);
 }
@@ -945,7 +971,8 @@ static bool object_validator(object *op)
 /**
  * Initialize the object API.
  */
-void object_init(void)
+void
+object_init (void)
 {
     pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object),
             MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
@@ -956,7 +983,8 @@ void object_init(void)
 /**
  * Deinitialize the object API.
  */
-void object_deinit(void)
+void
+object_deinit (void)
 {
 }
 
@@ -968,7 +996,8 @@ void object_deinit(void)
  * @return
  * The new object.
  */
-object *get_object(void)
+object *
+get_object (void)
 {
     static New_Face *blank_face = NULL;
     if (blank_face == NULL) {
@@ -993,7 +1022,8 @@ object *get_object(void)
  * @param op
  * The object to update.
  */
-void update_turn_face(object *op)
+void
+update_turn_face (object *op)
 {
     if (!QUERY_FLAG(op, FLAG_IS_TURNABLE) || op->arch == NULL) {
         return;
@@ -1010,7 +1040,8 @@ void update_turn_face(object *op)
  * @param op
  * The object
  */
-void update_ob_speed(object *op)
+void
+update_ob_speed (object *op)
 {
     /* No reason putting the archetypes objects on the speed list,
      * since they never really need to be updated. */
@@ -1086,7 +1117,8 @@ void update_ob_speed(object *op)
  * Hint of what the caller believes need to be done. One of
  * @ref UP_OBJ_xxx values.
  */
-void update_object(object *op, int action)
+void
+update_object (object *op, int action)
 {
     MapSpace *msp;
     int flags, newflags;
@@ -1248,7 +1280,8 @@ void update_object(object *op, int action)
  * @param ob
  * The object to drop the inventory for.
  */
-void drop_ob_inv(object *ob)
+void
+drop_ob_inv (object *ob)
 {
     object *corpse = NULL, *enemy = NULL, *tmp_op = NULL, *tmp = NULL;
 
@@ -1362,7 +1395,8 @@ void drop_ob_inv(object *ob)
  * @param ob
  * Object to free the inventory of.
  */
-void object_destroy_inv(object *ob)
+void
+object_destroy_inv (object *ob)
 {
     object *tmp, *next;
 
@@ -1388,7 +1422,8 @@ void object_destroy_inv(object *ob)
  * @param ob
  * The object to destroy (free).
  */
-void object_destroy(object *ob)
+void
+object_destroy (object *ob)
 {
     if (!QUERY_FLAG(ob, FLAG_REMOVED)) {
         char buf[HUGE_BUF];
@@ -1470,7 +1505,8 @@ void object_destroy(object *ob)
  * @param op
  * Object to destruct.
  */
-void destruct_ob(object *op)
+void
+destruct_ob (object *op)
 {
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 
@@ -1482,7 +1518,8 @@ void destruct_ob(object *op)
     object_destroy(op);
 }
 
-static void object_check_move_off(object *op)
+static void
+object_check_move_off (object *op)
 {
     MapSpace *msp;
     object *tmp, *next;
@@ -1543,7 +1580,8 @@ static void object_check_move_off(object *op)
  * @param flags
  * Combination of @ref REMOVAL_xxx.
  */
-void object_remove(object *op, int flags)
+void
+object_remove (object *op, int flags)
 {
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
         log_error("Tried to remove an already removed object %s.",
@@ -1658,7 +1696,8 @@ void object_remove(object *op, int flags)
  * @return
  * NULL if 'op' was destroyed, 'op' otherwise.
  */
-object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
+object *
+insert_ob_in_map (object *op, mapstruct *m, object *originator, int flag)
 {
     object *tmp, *top;
     MapSpace *mc;
@@ -1924,7 +1963,8 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
  * @return
  * 1 if 'op' was destroyed, 0 otherwise.
  */
-int object_check_move_on(object *op, object *originator)
+int
+object_check_move_on (object *op, object *originator)
 {
     object *tmp;
     tag_t tag;
@@ -1974,7 +2014,8 @@ int object_check_move_on(object *op, object *originator)
  * @param op
  * Object to insert under, supplies coordinates and the map.
  */
-void replace_insert_ob_in_map(char *arch_string, object *op)
+void
+replace_insert_ob_in_map (char *arch_string, object *op)
 {
     object *tmp, *tmp1;
 
@@ -1994,7 +2035,8 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
     insert_ob_in_map(tmp1, op->map, op, 0);
 }
 
-object *object_stack_get(object *op, uint32_t nrof)
+object *
+object_stack_get (object *op, uint32_t nrof)
 {
     object *split;
 
@@ -2020,7 +2062,8 @@ object *object_stack_get(object *op, uint32_t nrof)
     return split;
 }
 
-object *object_stack_get_reinsert(object *op, uint32_t nrof)
+object *
+object_stack_get_reinsert (object *op, uint32_t nrof)
 {
     object *split;
 
@@ -2037,7 +2080,8 @@ object *object_stack_get_reinsert(object *op, uint32_t nrof)
     return split;
 }
 
-object *object_stack_get_removed(object *op, uint32_t nrof)
+object *
+object_stack_get_removed (object *op, uint32_t nrof)
 {
     object *split;
 
@@ -2063,7 +2107,8 @@ object *object_stack_get_removed(object *op, uint32_t nrof)
  * @return
  * 'op' if something is left, NULL if the amount reached 0.
  */
-object *decrease_ob_nr(object *op, uint32_t i)
+object *
+decrease_ob_nr (object *op, uint32_t i)
 {
     /* Objects with op->nrof require this check */
     if (i == 0) {
@@ -2100,7 +2145,8 @@ object *decrease_ob_nr(object *op, uint32_t i)
     return NULL;
 }
 
-object *object_insert_into(object *op, object *where, int flag)
+object *
+object_insert_into (object *op, object *where, int flag)
 {
     object *env;
 
@@ -2206,7 +2252,8 @@ object *object_insert_into(object *op, object *where, int flag)
  * Pointer to inserted item, which will be different than op if
  * object was merged.
  */
-object *insert_ob_in_ob(object *op, object *where)
+object *
+insert_ob_in_ob (object *op, object *where)
 {
     return object_insert_into(op, where, 0);
 }
@@ -2225,7 +2272,8 @@ object *insert_ob_in_ob(object *op, object *where)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *present_arch(struct archetype *at, mapstruct *m, int x, int y)
+object *
+present_arch (struct archetype *at, mapstruct *m, int x, int y)
 {
     object *tmp;
 
@@ -2256,7 +2304,8 @@ object *present_arch(struct archetype *at, mapstruct *m, int x, int y)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *present(uint8_t type, mapstruct *m, int x, int y)
+object *
+present (uint8_t type, mapstruct *m, int x, int y)
 {
     object *tmp;
 
@@ -2283,7 +2332,8 @@ object *present(uint8_t type, mapstruct *m, int x, int y)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *present_in_ob(uint8_t type, object *op)
+object *
+present_in_ob (uint8_t type, object *op)
 {
     object *tmp;
 
@@ -2306,7 +2356,8 @@ object *present_in_ob(uint8_t type, object *op)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *present_arch_in_ob(struct archetype *at, object *op)
+object *
+present_arch_in_ob (struct archetype *at, object *op)
 {
     object *tmp;
 
@@ -2334,7 +2385,14 @@ object *present_arch_in_ob(struct archetype *at, object *op)
  * pieces.
  * @todo Document.
  */
-int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
+int
+find_free_spot (struct archetype *at,
+                object           *op,
+                mapstruct        *m,
+                int               x,
+                int               y,
+                int               start,
+                int               stop)
 {
     int i, inx = 0;
     static int altern[SIZEOFFREE];
@@ -2367,7 +2425,12 @@ int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y,
  * It will return the first available spot, not a random choice.
  * @todo Document.
  */
-int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y)
+int
+find_first_free_spot (struct archetype *at,
+                      object           *op,
+                      mapstruct        *m,
+                      int               x,
+                      int               y)
 {
     int i;
 
@@ -2383,7 +2446,13 @@ int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, 
 /**
  * @todo Document.
  */
-int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int start, int range)
+int
+find_first_free_spot2 (struct archetype *at,
+                       mapstruct        *m,
+                       int               x,
+                       int               y,
+                       int               start,
+                       int               range)
 {
     int i;
 
@@ -2405,7 +2474,8 @@ int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int 
  * @param end
  * Second index to permute.
  */
-void permute(int *arr, int begin, int end)
+void
+permute (int *arr, int begin, int end)
 {
     int i, j, tmp, len;
 
@@ -2431,7 +2501,8 @@ void permute(int *arr, int begin, int end)
  * Array that will be initialized. Must contain at
  * least SIZEOFFREE elements.
  */
-void get_search_arr(int *search_arr)
+void
+get_search_arr (int *search_arr)
 {
     int i;
 
@@ -2453,7 +2524,8 @@ void get_search_arr(int *search_arr)
  * @return
  * Direction
  */
-int find_dir_2(int x, int y)
+int
+find_dir_2 (int x, int y)
 {
     int q;
 
@@ -2511,7 +2583,8 @@ int find_dir_2(int x, int y)
  * of a number (it actually takes care of "overflow" in previous calculations
  * of a direction).
  */
-int absdir(int d)
+int
+absdir (int d)
 {
     while (d < 1) {
         d += 8;
@@ -2534,7 +2607,8 @@ int absdir(int d)
  * How many 45-degrees differences there is between two directions
  * (which are expected to be absolute (see absdir()).
  */
-int dirdiff(int dir1, int dir2)
+int
+dirdiff (int dir1, int dir2)
 {
     int d = abs(dir1 - dir2);
 
@@ -2559,7 +2633,8 @@ int dirdiff(int dir1, int dir2)
  * @return
  * The direction
  */
-int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
+int
+get_dir_to_target (object *op, object *target, rv_vector *range_vector)
 {
     if (!get_rangevector(op, target, range_vector, 0)) {
         return 0;
@@ -2578,7 +2653,8 @@ int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
  * 1 if it can be picked up, 0 otherwise.
  * @note This introduces a weight limitation for monsters.
  */
-int can_pick(object *who, object *item)
+int
+can_pick (object *who, object *item)
 {
     if (item->weight <= 0) {
         return 0;
@@ -2618,7 +2694,8 @@ int can_pick(object *who, object *item)
  * @return
  * Clone of asrc, including inventory and 'more' body parts.
  */
-object *object_create_clone(object *asrc)
+object *
+object_create_clone (object *asrc)
 {
     object *dst = NULL, *tmp, *src, *part, *prev, *item;
 
@@ -2674,7 +2751,8 @@ object *object_create_clone(object *asrc)
  * 1 if it was destroyed (removed from map, old_tag does not match
  * object's count or it is freed), 0 otherwise.
  */
-int was_destroyed(object *op, tag_t old_tag)
+int
+was_destroyed (object *op, tag_t old_tag)
 {
     return op->count != old_tag || OBJECT_FREE(op);
 }
@@ -2686,7 +2764,8 @@ int was_destroyed(object *op, tag_t old_tag)
  * @return
  * The newly created object, NULL on failure.
  */
-object *load_object_str(const char *obstr)
+object *
+load_object_str (const char *obstr)
 {
     object *ob = get_object();
 
@@ -2710,7 +2789,8 @@ object *load_object_str(const char *obstr)
  * @return
  * 1 if a new object was generated, 0 otherwise.
  */
-int auto_apply(object *op)
+int
+auto_apply (object *op)
 {
     object *tmp = NULL, *tmp2;
     int i, level, a_chance;
@@ -2802,7 +2882,8 @@ int auto_apply(object *op)
  * @param op
  * Object to clear.
  */
-void free_key_values(object *op)
+void
+free_key_values (object *op)
 {
     key_value *i, *next = NULL;
 
@@ -2839,7 +2920,8 @@ void free_key_values(object *op)
  * The link from the list if ob has a field named key, NULL
  * otherwise.
  */
-key_value *object_get_key_link(const object *ob, const char *key)
+key_value *
+object_get_key_link (const object *ob, const char *key)
 {
     key_value *field;
 
@@ -2863,7 +2945,8 @@ key_value *object_get_key_link(const object *ob, const char *key)
  * The value if found, NULL otherwise.
  * @note The returned string is shared.
  */
-const char *object_get_value(const object *op, const char *const key)
+const char *
+object_get_value (const object *op, const char *const key)
 {
     key_value *field;
     const char *canonical_key = find_string(key);
@@ -2896,7 +2979,11 @@ const char *object_get_value(const object *op, const char *const key)
  * @return
  * 1 if key was updated or added, 0 otherwise.
  */
-static int object_set_value_s(object *op, const char *canonical_key, const char *value, int add_key)
+static int
+object_set_value_s (object     *op,
+                    const char *canonical_key,
+                    const char *value,
+                    int         add_key)
 {
     key_value *field = NULL, *last = NULL;
 
@@ -2980,7 +3067,8 @@ static int object_set_value_s(object *op, const char *canonical_key, const char 
  * @note This function is merely a wrapper to object_set_value_s() to
  * ensure the key is a shared string.
  */
-int object_set_value(object *op, const char *key, const char *value, int add_key)
+int
+object_set_value (object *op, const char *key, const char *value, int add_key)
 {
     const char *canonical_key = find_string(key);
     int floating_ref = 0, ret;
@@ -3002,7 +3090,8 @@ int object_set_value(object *op, const char *key, const char *value, int add_key
 /**
  * Initialize the table of object initializers.
  */
-void init_object_initializers(void)
+void
+init_object_initializers (void)
 {
     object_initializers[BEACON] = beacon_add;
     object_initializers[MAGIC_MIRROR] = magic_mirror_init;
@@ -3228,7 +3317,8 @@ object_matches_string (object *op, object *caller, const char *str)
  * @return
  * The gender ID.
  */
-int object_get_gender(object *op)
+int
+object_get_gender (object *op)
 {
     if (QUERY_FLAG(op, FLAG_IS_MALE)) {
         return QUERY_FLAG(op, FLAG_IS_FEMALE) ? GENDER_HERMAPHRODITE : GENDER_MALE;
@@ -3239,7 +3329,8 @@ int object_get_gender(object *op)
     return GENDER_NEUTER;
 }
 
-void object_reverse_inventory(object *op)
+void
+object_reverse_inventory (object *op)
 {
     object *tmp, *next;
 
@@ -3270,7 +3361,13 @@ void object_reverse_inventory(object *op)
     }
 }
 
-int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8_t fixed_pos)
+int
+object_enter_map (object    *op,
+                  object    *exit_ob,
+                  mapstruct *m,
+                  int        x,
+                  int        y,
+                  uint8_t    fixed_pos)
 {
     mapstruct *oldmap;
 
@@ -3458,7 +3555,8 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
  * @return
  * String representation of the object.
  */
-const char *object_get_str(object *op)
+const char *
+object_get_str (object *op)
 {
     static char buf[10][HUGE_BUF * 16];
     static int buf_idx = 0;
@@ -3480,7 +3578,8 @@ const char *object_get_str(object *op)
  * @return
  * 'buf'.
  */
-char *object_get_str_r(object *op, char *buf, size_t bufsize)
+char *
+object_get_str_r (object *op, char *buf, size_t bufsize)
 {
     HARD_ASSERT(buf != NULL);
 
@@ -3527,7 +3626,8 @@ char *object_get_str_r(object *op, char *buf, size_t bufsize)
  * 0 if the tile is not blocked, a combination of @ref map_look_flags
  * otherwise.
  */
-int object_blocked(object *op, mapstruct *m, int x, int y)
+int
+object_blocked (object *op, mapstruct *m, int x, int y)
 {
     object *tmp, *tmp2;
     int xt, yt, flags;
@@ -3584,7 +3684,8 @@ int object_blocked(object *op, mapstruct *m, int x, int y)
  * Object of specified name. It fill have the ::FLAG_NO_PICK flag
  * set.
  */
-object *object_create_singularity(const char *name)
+object *
+object_create_singularity (const char *name)
 {
     char buf[MAX_BUF];
     snprintf(VS(buf), "singularity");
@@ -3605,7 +3706,8 @@ object *object_create_singularity(const char *name)
  * @param fp
  * Where to save the object's text representation. Can be NULL.
  */
-void object_save(object *op, FILE *fp)
+void
+object_save (object *op, FILE *fp)
 {
     HARD_ASSERT(op != NULL);
 

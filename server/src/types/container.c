@@ -32,6 +32,8 @@
 #include <global.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Check if both objects are magical containers.

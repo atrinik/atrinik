@@ -27,6 +27,8 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 START_TEST(test_put_object_in_sack)
 {

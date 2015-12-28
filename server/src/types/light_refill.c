@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <object.h>
+#include <player.h>
 
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)

@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <bresenham.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Distance must be less than this for the object to be blocked.

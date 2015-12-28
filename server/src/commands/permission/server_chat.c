@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_server_chat(object *op, const char *command, char *params)

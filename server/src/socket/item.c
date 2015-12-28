@@ -32,6 +32,8 @@
 #include <global.h>
 #include <packet.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 static int check_container(object *pl, object *con);
 

@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <plugin.h>
+#include <object.h>
+#include <player.h>
 
 /**
  * Main apply handler.

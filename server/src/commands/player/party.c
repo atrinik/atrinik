@@ -32,6 +32,8 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_party(object *op, const char *command, char *params)

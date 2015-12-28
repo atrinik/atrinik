@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Create text for a gravestone object.

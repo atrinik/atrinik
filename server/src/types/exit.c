@@ -37,6 +37,7 @@
 
 #include <global.h>
 #include <plugin.h>
+#include <object.h>
 
 static object *exit_find(object *op, int do_load)
 {

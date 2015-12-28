@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Check whether creator has already created the specified object on its

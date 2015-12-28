@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Should op see trap?

@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_push(object *op, const char *command, char *params)

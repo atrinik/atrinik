@@ -34,6 +34,9 @@
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
 
 /** Table for stat modification of exp */
 float stat_exp_mult[MAX_STAT + 1] = {

@@ -28,6 +28,8 @@
 #include <check_proto.h>
 #include <stdarg.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /*
  * Player applies a torch on the ground. Ensure the torch is lit and not

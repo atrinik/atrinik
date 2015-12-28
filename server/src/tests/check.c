@@ -30,6 +30,8 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 static int saved_argc; ///< Stored argc.
 static char **saved_argv; ///< Stored argv.

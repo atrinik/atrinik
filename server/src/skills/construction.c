@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Check if objects on a square interfere with building.

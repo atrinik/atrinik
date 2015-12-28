@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Calculate arrow's wc.

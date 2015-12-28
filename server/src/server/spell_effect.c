@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * This is really used mostly for spell fumbles at the like.

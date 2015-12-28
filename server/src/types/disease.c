@@ -35,6 +35,8 @@
 
 #include <global.h>
 #include <arch.h>
+#include <exp.h>
+#include <object.h>
 
 static int is_susceptible_to_disease(object *victim, object *disease);
 static void remove_symptoms(object *disease);

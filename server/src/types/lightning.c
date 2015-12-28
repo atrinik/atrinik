@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Causes lightning to fork.

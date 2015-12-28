@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <object.h>
+#include <player.h>
 
 /**
  * Attempt to reflect a bullet object by an object with @ref FLAG_REFL_SPELL

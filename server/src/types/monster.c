@@ -37,6 +37,9 @@
 #include <plugin.h>
 #include <monster_guard.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <player.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);

@@ -37,6 +37,8 @@
 #include <plugin.h>
 #include <monster_data.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Make the monster activate a gate by applying a lever/switch/etc under

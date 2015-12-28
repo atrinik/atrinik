@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <object.h>
 
 enum {
     SA_OPER_TYPE_HOUR, ///< In-game hours.

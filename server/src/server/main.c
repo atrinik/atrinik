@@ -32,6 +32,9 @@
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <player.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>

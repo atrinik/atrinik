@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Springs a rune.

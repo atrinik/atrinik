@@ -27,10 +27,12 @@
  * Socket initialization related code.
  */
 
+#include "zlib.h"
+
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
-#include "zlib.h"
+#include <exp.h>
 
 /** Socket information. */
 Socket_Info socket_info;

@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <book.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Write message into a book object.

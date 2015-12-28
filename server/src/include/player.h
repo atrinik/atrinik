@@ -30,6 +30,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <attack.h>
+
 /** Level color structure. */
 typedef struct _level_color {
     /** Green level. */
@@ -578,5 +580,86 @@ typedef struct pl_player {
 
     long item_power_effects; ///< Next time of item power effects.
 } player;
+
+/* Prototypes */
+
+mempool_struct *pool_player;
+
+void
+player_init(void);
+void
+player_deinit(void);
+void
+player_disconnect_all(void);
+player *
+find_player(const char *plname);
+void
+display_motd(object *op);
+void
+free_player(player *pl);
+void
+give_initial_items(object *pl, treasurelist *items);
+int
+handle_newcs_player(player *pl);
+void
+kill_player(object *op);
+void
+cast_dust(object *op, object *throw_ob, int dir);
+int
+pvp_area(object *attacker, object *victim);
+object *
+find_skill(object *op, int skillnr);
+int
+player_can_carry(object *pl, uint32_t weight);
+void
+player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y);
+void
+player_path_clear(player *pl);
+void
+player_path_handle(player *pl);
+player_faction_t *
+player_faction_create(player *pl, shstr *name);
+void
+player_faction_free(player *pl, player_faction_t *faction);
+player_faction_t *
+player_faction_find(player *pl, shstr *name);
+void
+player_faction_update(player *pl, shstr *name, double reputation);
+double
+player_faction_reputation(player *pl, shstr *name);
+char *
+player_sanitize_input(char *str);
+void
+player_cleanup_name(char *str);
+object *
+find_marked_object(object *op);
+void
+examine(object *op, object *tmp, StringBuffer *sb_capture);
+int
+sack_can_hold(object *pl, object *sack, object *op, int nrof);
+void
+pick_up(object *op, object *alt, int no_mevent);
+void
+put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
+void
+drop_object(object *op, object *tmp, long nrof, int no_mevent);
+void
+drop(object *op, object *tmp, int no_mevent);
+char *
+player_make_path(const char *name, const char *ext);
+int
+player_exists(const char *name);
+void
+player_save(object *op);
+object *
+player_get_dummy(const char *name, const char *host);
+object *
+player_find_spell(object *op, spell_struct *spell);
+void
+player_set_talking_to(player *pl, object *npc);
+void
+player_login(socket_struct *ns, const char *name, struct archetype *at);
+void
+object_type_init_player(void);
 
 #endif

@@ -46,9 +46,15 @@
 #ifndef PLUGIN_HOOK_NONE
 
 #if defined(PLUGIN_HOOK_DEFINITIONS)
+#include <player.h>
+#include <object.h>
+#include <exp.h>
+
 /** The actual hooklist. */
 static struct plugin_hooklist hooklist =
 #else
+#include <decls.h>
+
 /**
  * The plugin hook list.
  *

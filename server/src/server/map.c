@@ -31,6 +31,8 @@
 #include <loader.h>
 #include <toolkit_string.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280

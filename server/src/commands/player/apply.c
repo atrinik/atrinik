@@ -31,6 +31,8 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Search the inventory of 'pl' for what matches best with params.

@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Returns a random direction (1..8).

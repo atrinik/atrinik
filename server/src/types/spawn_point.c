@@ -32,6 +32,8 @@
 #include <global.h>
 #include <monster_guard.h>
 #include <arch.h>
+#include <object.h>
+#include <exp.h>
 
 /**
  * Generate a monster from the spawn point.

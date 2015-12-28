@@ -31,6 +31,8 @@
  */
 
 #include <global.h>
+#include <object.h>
+#include <player.h>
 
 /**
  * Handle generic object applying.

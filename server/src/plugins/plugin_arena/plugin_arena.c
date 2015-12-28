@@ -88,6 +88,8 @@
 #include <plugin.h>
 #include <plugin_hooklist.h>
 #include <stdarg.h>
+#include <player.h>
+#include <object.h>
 
 /** Plugin name */
 #define PLUGIN_NAME "Arena"

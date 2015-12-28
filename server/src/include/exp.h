@@ -24,27 +24,48 @@
 
 /**
  * @file
- * Implements the /my command.
+ * Experience related header file.
  *
  * @author Alex Tokar
  */
 
+#ifndef EXP_H
+#define EXP_H
+
 #include <global.h>
-#include <player.h>
-#include <object.h>
 
-/** @copydoc command_func */
-void command_my(object *op, const char *command, char *params)
-{
-    char buf[HUGE_BUF];
+/** Level color structure. */
+typedef struct level_color {
+    /** Green level. */
+    int green;
 
-    params = player_sanitize_input(params);
+    /** Blue level. */
+    int blue;
 
-    if (!params) {
-        return;
-    }
+    /** Yellow level. */
+    int yellow;
 
-    LOG(CHAT, "[MY] [%s] %s", op->name, params);
-    snprintf(buf, sizeof(buf), "[a=#charname]%s[/a]'s %s", op->name, params);
-    draw_info_map(CHAT_TYPE_LOCAL, NULL, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
-}
+    /** Orange level. */
+    int orange;
+
+    /** Red level. */
+    int red;
+
+    /** Purple level. */
+    int purple;
+} level_color_t;
+
+/* Prototypes */
+uint64_t new_levels[MAXLEVEL + 2];
+level_color_t level_color[201];
+
+uint64_t
+level_exp(int level, double expmul);
+int64_t
+add_exp(object *op, int64_t exp_gain, int skill_nr, int exact);
+int
+exp_lvl_adj(object *who, object *op);
+float
+calc_level_difference(int who_lvl, int op_lvl);
+
+#endif

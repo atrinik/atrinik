@@ -29,6 +29,9 @@
 
 #include <global.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
 
 /**
  * Maximum amount of difference in levels between the book's level and

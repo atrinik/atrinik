@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 Animations *animations = NULL;
 int num_animations = 0, animations_allocated;

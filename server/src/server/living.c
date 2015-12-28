@@ -32,6 +32,8 @@
 #include <monster_data.h>
 #include <arch.h>
 #include <plugin.h>
+#include <player.h>
+#include <object.h>
 
 /** When we carry more than this of our weight_limit, we get encumbered. */
 #define ENCUMBRANCE_LIMIT 65.0

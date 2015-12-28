@@ -33,6 +33,8 @@
 #include <monster_data.h>
 #include <packet.h>
 #include <monster_guard.h>
+#include <player.h>
+#include <object.h>
 
 #ifndef __CPROTO__
 

@@ -33,6 +33,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Initializes a magic mirror object after it has been placed on map.

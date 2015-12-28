@@ -30,6 +30,8 @@
 
 #include <global.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /** Maximum allowed food value. */
 #define FOOD_MAX 999

@@ -97,8 +97,6 @@ typedef enum atnr {
 const char *const attack_save[NROFATTACKS];
 const char *const attack_name[NROFATTACKS];
 
-typedef struct obj object;
-
 int
 attack_object(object *op, object *hitter);
 int

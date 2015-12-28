@@ -34,6 +34,8 @@
 #include <global.h>
 #include <faction.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Faction parent structure. Holds information about the parent faction,

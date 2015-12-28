@@ -36,6 +36,8 @@
 
 #include <global.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
 
 /** File descriptor used for sending datagrams. */
 static int fd = -1;

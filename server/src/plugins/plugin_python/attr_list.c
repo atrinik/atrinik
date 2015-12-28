@@ -50,6 +50,7 @@
 #include <plugin_python.h>
 #include <plugin.h>
 #include <packet.h>
+#include <player.h>
 
 /**
  * Operations supported by attr_list_oper().

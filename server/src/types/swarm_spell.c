@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)

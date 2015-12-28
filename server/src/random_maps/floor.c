@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Creates the Atrinik map structure from the layout, and adds the floor.

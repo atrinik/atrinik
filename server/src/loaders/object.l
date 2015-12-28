@@ -34,6 +34,7 @@
 #include <arch.h>
 #include <artifact.h>
 #include <toolkit_string.h>
+#include <object.h>
 
 #define YY_DECL                 \
 static int                      \

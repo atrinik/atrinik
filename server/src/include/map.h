@@ -530,6 +530,7 @@ typedef struct map_exit {
 } map_exit_t;
 
 struct path_node;
+typedef struct oblnk objectlink;
 
 /**
  * In general, code should always use the macros above (or functions in

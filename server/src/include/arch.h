@@ -30,6 +30,8 @@
 #ifndef ARCH_H
 #define ARCH_H
 
+#include <object.h>
+
 /**
  * The archetype structure is a set of rules on how to generate and manipulate
  * objects which point to archetypes.

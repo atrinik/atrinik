@@ -30,6 +30,7 @@
 #include <global.h>
 #include <plugin.h>
 #include <monster_guard.h>
+#include <object.h>
 
 /**
  * Find a monster's currently active waypoint, if any.

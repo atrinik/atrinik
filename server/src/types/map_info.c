@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Initialize a map info object.

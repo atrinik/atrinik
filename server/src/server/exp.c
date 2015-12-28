@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <arch.h>
+#include <exp.h>
+#include <player.h>
 
 /**
  * Experience needed for each level.
@@ -62,7 +64,7 @@ uint64_t new_levels[MAXLEVEL + 2] = {
 /**
  * Level colors.
  */
-_level_color level_color[201] = {
+level_color_t level_color[201] = {
     {-2, -1, 0, 1, 2, 3},
     {-1, 0, 1, 2, 3, 4},
     {0, 1, 2, 3, 4, 5},
@@ -278,7 +280,8 @@ _level_color level_color[201] = {
  * @todo Remove, since the param expmul seems to always be passed as
  * '1.0'?
  */
-uint64_t level_exp(int level, double expmul)
+uint64_t
+level_exp (int level, double expmul)
 {
     return (uint64_t) (expmul * (double) new_levels[level]);
 }
@@ -297,7 +300,8 @@ uint64_t level_exp(int level, double expmul)
  * @return
  * 0 on failure, experience gained on success.
  */
-int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact)
+int64_t
+add_exp (object *op, int64_t exp_gain, int skill_nr, int exact)
 {
     object *exp_skill;
 
@@ -414,7 +418,8 @@ int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact)
  * @return
  * Amount of levels affected. 0 if no change.
  */
-int exp_lvl_adj(object *who, object *op)
+int
+exp_lvl_adj (object *who, object *op)
 {
     if (who == NULL) {
         return 0;
@@ -481,7 +486,8 @@ int exp_lvl_adj(object *who, object *op)
  * @return
  * Level difference.
  */
-float calc_level_difference(int who_lvl, int op_lvl)
+float
+calc_level_difference (int who_lvl, int op_lvl)
 {
     int r;
     float v, tmp = 1.0f;

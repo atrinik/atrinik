@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * The score structure is used when treating new high-scores

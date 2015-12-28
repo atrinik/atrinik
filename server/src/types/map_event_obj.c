@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /** @copydoc object_methods::remove_map_func */
 static void remove_map_func(object *op)

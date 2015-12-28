@@ -29,6 +29,8 @@
 
 #include <global.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Maximum distance a player may hear a sound from.

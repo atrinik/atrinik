@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <player.h>
 
 /** @copydoc command_func */
 void command_shutdown(object *op, const char *command, char *params)

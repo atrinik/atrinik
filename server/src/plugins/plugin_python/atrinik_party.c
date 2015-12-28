@@ -30,6 +30,7 @@
  */
 
 #include <plugin_python.h>
+#include <player.h>
 
 /**
  * Party fields.

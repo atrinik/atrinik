@@ -31,6 +31,8 @@
 
 #include <global.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Open the specified door.

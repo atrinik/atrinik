@@ -24,27 +24,15 @@
 
 /**
  * @file
- * Implements the /my command.
- *
- * @author Alex Tokar
+ * Forward declarations.
  */
 
-#include <global.h>
-#include <player.h>
-#include <object.h>
+#ifndef DECLS_H
+#define DECLS_H
 
-/** @copydoc command_func */
-void command_my(object *op, const char *command, char *params)
-{
-    char buf[HUGE_BUF];
+typedef struct obj object;
+typedef struct oblnk objectlink;
+typedef struct player_faction player_faction_t;
+typedef struct pl_player player;
 
-    params = player_sanitize_input(params);
-
-    if (!params) {
-        return;
-    }
-
-    LOG(CHAT, "[MY] [%s] %s", op->name, params);
-    snprintf(buf, sizeof(buf), "[a=#charname]%s[/a]'s %s", op->name, params);
-    draw_info_map(CHAT_TYPE_LOCAL, NULL, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
-}
+#endif

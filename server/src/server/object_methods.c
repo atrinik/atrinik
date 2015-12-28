@@ -30,6 +30,8 @@
 #include <global.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Registered method handlers.

@@ -30,6 +30,7 @@
 #include <global.h>
 #include <book.h>
 #include <skillist.h>
+#include <object.h>
 
 /**
  * Checks for traps on the spaces around the player or in certain

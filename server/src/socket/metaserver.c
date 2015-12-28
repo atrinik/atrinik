@@ -30,6 +30,7 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <curl/curl.h>
+#include <player.h>
 
 static void *metaserver_thread(void *junk);
 

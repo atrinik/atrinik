@@ -33,6 +33,7 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <arch.h>
+#include <object.h>
 
 START_TEST(test_cursed_amulet_shielding)
 {

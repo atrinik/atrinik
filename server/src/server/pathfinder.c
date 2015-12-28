@@ -48,6 +48,8 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Selects algorithm to use for path-finding.

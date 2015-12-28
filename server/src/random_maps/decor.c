@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Put the decor into the map.

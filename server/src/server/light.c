@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 #define MAX_MASK_SIZE 81
 #define NR_LIGHT_MASK 10

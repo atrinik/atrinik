@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Internally used by command_resetmaps() to create an array of the maps to

@@ -27,6 +27,8 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <ban.h>
+#include <player.h>
+#include <object.h>
 
 START_TEST(test_ban_add)
 {
