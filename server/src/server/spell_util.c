@@ -995,18 +995,21 @@ int find_target_for_spell(object *op, object **target, uint32_t flags)
 int
 SP_level_dam_adjust (object *caster, int spell_type, bool exact)
 {
+    HARD_ASSERT(caster != NULL);
+    SOFT_ASSERT_RC(spell_type >= 0 && spell_type < NROFREALSPELLS, 0,
+                   "Invalid spell ID: %d", spell_type);
+
     int level = SK_level(caster);
 
     /* Sanity check */
-    if (level <= 0 || level > MAXLEVEL) {
-        log_error("Object %s has invalid level %d", object_get_str(caster),
-                level);
+    if (unlikely(level <= 0 || level > MAXLEVEL)) {
+        log_error("Object %s has invalid level %d",
+                  object_get_str(caster), level);
+        level = MAX(1, MIN(MAXLEVEL, level));
+    }
 
-        if (level <= 0) {
-            level = 1;
-        } else {
-            level = MAXLEVEL;
-        }
+    if (spells[spell_type].bdam == 0) {
+        return 0;
     }
 
     double dam = spells[spell_type].bdam;
