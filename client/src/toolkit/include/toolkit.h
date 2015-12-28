@@ -313,4 +313,46 @@ typedef struct toolkit_dependency {
         (_val) ^= ((-(_x)) ^ (_val)) & (_mask);           \
     } while (0)
 
+/**@cond*/
+/* Helper functions for FOR_EACH(). */
+#define _FOR_EACH_1(what, x, ...) what(x)
+#define _FOR_EACH_2(what, x, ...) what(x) _FOR_EACH_1(what, __VA_ARGS__)
+#define _FOR_EACH_3(what, x, ...) what(x) _FOR_EACH_2(what, __VA_ARGS__)
+#define _FOR_EACH_4(what, x, ...) what(x) _FOR_EACH_3(what, __VA_ARGS__)
+#define _FOR_EACH_5(what, x, ...) what(x) _FOR_EACH_4(what, __VA_ARGS__)
+#define _FOR_EACH_6(what, x, ...) what(x) _FOR_EACH_5(what, __VA_ARGS__)
+#define _FOR_EACH_7(what, x, ...) what(x) _FOR_EACH_6(what, __VA_ARGS__)
+#define _FOR_EACH_8(what, x, ...) what(x) _FOR_EACH_7(what, __VA_ARGS__)
+
+#define _FOR_EACH_NARG(...) _FOR_EACH_NARG_(__VA_ARGS__, _FOR_EACH_RSEQ_N())
+#define _FOR_EACH_NARG_(...) _FOR_EACH_ARG_N(__VA_ARGS__)
+#define _FOR_EACH_ARG_N(_1, _2, _3, _4, _5, _6, _7, _8, N, ...) N
+#define _FOR_EACH_RSEQ_N() 8, 7, 6, 5, 4, 3, 2, 1, 0
+
+#define _FOR_EACH(N, what, x, ...) \
+    CONCAT(_FOR_EACH_, N)(what, x, __VA_ARGS__)
+/**@endcond*/
+
+/**
+ * Applies a callable expression specified by 'what' to each element
+ * following it, including x.
+ *
+ * @param what
+ * The callable expression (eg, a macro or a function).
+ * @param x
+ * @param ...
+ * Elements to apply the expression to.
+ * @example
+ * @code
+ * #define print_obj(obj) printf("%s\n", obj->name);
+ * // Assumes obj1 and obj2 are defined as object*
+ * FOR_EACH(print_obj, obj1, obj2)
+ * // The above would be translated into:
+ * // print_obj(obj1);
+ * // print_obj(obj2);
+ * @endcode
+ */
+#define FOR_EACH(what, x, ...) \
+    _FOR_EACH(_FOR_EACH_NARG(x, __VA_ARGS__), what, x, __VA_ARGS__)
+
 #endif
