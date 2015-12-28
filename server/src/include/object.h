@@ -657,7 +657,34 @@ typedef struct oblnk {
  * @return
  * The head object.
  */
-#define HEAD(op) ((op)->head || (op))
+#define HEAD(op) ((op)->head ? (op)->head : (op))
+
+/**
+ * Returns the object which this object marks as being the owner.
+ *
+ * An ID scheme is used to avoid pointing to objects which have been
+ * freed and are now reused. If this is detected, the owner is
+ * set to NULL, and NULL is returned.
+ *
+ * @param op
+ * The object to get owner for.
+ * @return
+ * Owner of the object if any, NULL if no owner.
+ */
+static inline object *
+get_owner (object *op)
+{
+    if (op == NULL || op->owner == NULL) {
+        return NULL;
+    }
+
+    if (OBJECT_FREE(op) || op->owner->count != op->ownercount) {
+        op->owner = NULL;
+        return NULL;
+    }
+
+    return op->owner;
+}
 
 /**
  * Returns the owner of the specified object. If there is no object,
@@ -668,7 +695,16 @@ typedef struct oblnk {
  * @return
  * Owner of the object (may be the same object).
  */
-#define OWNER(op) (get_owner(op) || (op))
+static inline object *
+OWNER (object *op)
+{
+    object *owner = get_owner(op);
+    if (owner != NULL) {
+        return owner;
+    }
+
+    return op;
+}
 
 /**
  * Structure used for object::custom_attrset of magic mirrors.

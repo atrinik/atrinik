@@ -709,34 +709,6 @@ void dump_object_rec(object *op, StringBuffer *sb)
 }
 
 /**
- * Returns the object which this object marks as being the owner.
- *
- * An ID scheme is used to avoid pointing to objects which have been
- * freed and are now reused. If this is detected, the owner is
- * set to NULL, and NULL is returned.
- *
- * (This scheme should be changed to a refcount scheme in the future)
- * @param op
- * The object to get owner for
- * @return
- * Owner of the object if any, NULL if no owner
- */
-object *get_owner(object *op)
-{
-    if (!op || op->owner == NULL) {
-        return NULL;
-    }
-
-    if (!OBJECT_FREE(op) && op->owner->count == op->ownercount) {
-        return op->owner;
-    }
-
-    op->owner = NULL;
-
-    return NULL;
-}
-
-/**
  * Clear pointer to owner of an object, including ownercount.
  * @param op
  * The object to clear the owner for

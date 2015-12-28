@@ -419,7 +419,6 @@ extern object *get_env_recursive(object *op);
 extern object *is_player_inv(object *op);
 extern void dump_object(object *op, StringBuffer *sb);
 extern void dump_object_rec(object *op, StringBuffer *sb);
-extern object *get_owner(object *op);
 extern void clear_owner(object *op);
 extern void set_owner(object *op, object *owner);
 extern void copy_owner(object *op, object *clone_ob);
