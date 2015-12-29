@@ -513,7 +513,7 @@ send_attack_msg (object  *op,
  * Damage to actually do.
  */
 static double
-hit_player_attacktype (object  *op,
+attack_hit_attacktype (object  *op,
                        object  *hitter,
                        double   dam,
                        double   dam_orig,
@@ -747,7 +747,7 @@ attack_hit (object *op, object *hitter, int dam)
          * effects (slow, paralization, etc). */
         for (atnr_t atnr = 0; atnr < NROFATTACKS; atnr++) {
             if (hitter->attack[atnr] != 0) {
-                maxdam += hit_player_attacktype(op,
+                maxdam += attack_hit_attacktype(op,
                                                 hitter,
                                                 damage,
                                                 dam_orig,
