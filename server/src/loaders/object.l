@@ -133,16 +133,6 @@ static void add_key_value(object *op)
     object_set_value(op, key, value, 1);
 }
 
-static void set_random_protection(object *op, int val)
-{
-    op->protection[rndm(0, NROFATTACKS - 1)] = val;
-}
-
-static void set_random_attack(object *op, int val)
-{
-    op->attack[rndm(0, NROFATTACKS - 1)] = val;
-}
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 %}
@@ -596,22 +586,6 @@ lex_error = 0;
 ^attack_confusion{S} SET_ATTACK(op, ATNR_CONFUSION, IVAL);
 
 ^attack_internal{S}  SET_ATTACK(op, ATNR_INTERNAL, IVAL);
-
-    /* The following attack types are deprecated and are here
-     * for backwards compatibility.
-     * TODO remove these at some point. */
-^attack_psionic{S}   set_random_attack(op, IVAL);
-^attack_sonic{S}     set_random_attack(op, IVAL);
-^attack_demonic{S}   set_random_attack(op, IVAL);
-^attack_counterspell{S} set_random_attack(op, IVAL);
-^attack_purity{S}    set_random_attack(op, IVAL);
-^attack_life_steal{S} set_random_attack(op, IVAL);
-^attack_death{S}     set_random_attack(op, IVAL);
-^attack_time{S}      set_random_attack(op, IVAL);
-^attack_fear{S}      set_random_attack(op, IVAL);
-^attack_cancellation{S} set_random_attack(op, IVAL);
-^attack_depletion{S} set_random_attack(op, IVAL);
-^attack_ghosthit{S}  set_random_attack(op, IVAL);
 
     /* Start of various protections */
 ^protect_impact{S}   SET_PROTECTION(op, ATNR_IMPACT, IVAL);
