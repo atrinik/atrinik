@@ -49,6 +49,22 @@ value 5000
 item_power 1
 end
 
+# Sword of lifesteal
+Allowed all
+chance 15
+difficulty 15
+artifact weapon_lifesteal
+def_arch sword
+Object
+title of lifesteal
+attack_lifesteal 10
+item_level_art 11
+type 15
+is_magical 1
+value 7500
+item_power 2
+end
+
 # Sword of greater fire
 Allowed all
 chance 15
@@ -98,6 +114,22 @@ is_magical 1
 item_level_art 15
 value 11500
 item_power 3
+end
+
+# Sword of greater lifesteal
+Allowed all
+chance 13
+difficulty 30
+artifact weapon_greater_lifesteal
+def_arch sword
+Object
+title of greater lifesteal
+attack_lifesteal 15
+item_level_art 20
+type 15
+is_magical 1
+value 13500
+item_power 4
 end
 
 # Sword of extraordinary fire
@@ -151,6 +183,22 @@ value 40520
 item_power 7
 end
 
+# Sword of extraordinary lifesteal
+Allowed all
+chance 11
+difficulty 55
+artifact weapon_extraordinary_lifesteal
+def_arch sword
+Object
+title of extraordinary lifesteal
+attack_lifesteal 20
+item_level_art 45
+type 15
+is_magical 1
+value 46520
+item_power 8
+end
+
 # Sword of superior fire
 Allowed all
 chance 7
@@ -202,6 +250,22 @@ value 92750
 item_power 10
 end
 
+# Sword of superior lifesteal
+Allowed all
+chance 6
+difficulty 80
+artifact weapon_superior_lifesteal
+def_arch sword
+Object
+title of superior lifesteal
+attack_lifesteal 25
+item_level_art 70
+type 15
+is_magical 1
+value 103750
+item_power 11
+end
+
 # Sword of supreme fire
 Allowed all
 chance 7
@@ -251,4 +315,20 @@ is_magical 1
 item_level_art 85
 value 151750
 item_power 15
+end
+
+# Sword of supreme lifesteal
+Allowed all
+chance 6
+difficulty 100
+artifact weapon_supreme_lifesteal
+def_arch sword
+Object
+title of supreme lifesteal
+attack_lifesteal 30
+item_level_art 90
+type 15
+is_magical 1
+value 185750
+item_power 16
 end
