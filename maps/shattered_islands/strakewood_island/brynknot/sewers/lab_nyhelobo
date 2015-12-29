@@ -1497,7 +1497,7 @@ ac 12
 con 5
 hitback 1
 attack_pierce 70
-attack_mind 20
+attack_chaos 20
 attack_paralyze 5
 attack_confusion 5
 maxsp 15
