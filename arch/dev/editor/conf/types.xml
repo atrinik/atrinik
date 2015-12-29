@@ -701,7 +701,7 @@
 		<attribute arch="protect_acid" editor="acid protect %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="protect_magic" editor="magic protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_mind" editor="mind protect %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="protect_lifesteal" editor="lifesteal protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_blind" editor="blinding protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_paralyze" editor="paralyze protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_force" editor="force protect %" length="15" type="int" min="-100" max="100" />
@@ -720,8 +720,6 @@
 		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
 		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
 		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 
 	<section name="quality">
@@ -1564,7 +1562,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -1583,8 +1581,6 @@
 		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
 		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
 		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<attribute arch_begin="msg" arch_end="endmsg" editor="message" type="text">
 		This text is displayed to the player every time the symptoms
@@ -1716,7 +1712,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -1778,7 +1774,7 @@
 		<attribute arch="protect_acid" editor="acid protect %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="protect_magic" editor="magic protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_mind" editor="mind protect %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="protect_lifesteal" editor="lifesteal protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_blind" editor="blinding protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_paralyze" editor="paralyze protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_force" editor="force protect %" length="15" type="int" min="-100" max="100" />
@@ -1955,8 +1951,6 @@
 		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
 		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
 		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 		<attribute arch="protect_impact" editor="impact protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_slash" editor="slash protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_cleave" editor="cleave protect %" length="15" type="int" min="-100" max="100" />
@@ -1970,7 +1964,7 @@
 		<attribute arch="protect_acid" editor="acid protect %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="protect_magic" editor="magic protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_mind" editor="mind protect %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="protect_lifesteal" editor="lifesteal protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_blind" editor="blinding protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_paralyze" editor="paralyze protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_force" editor="force protect %" length="15" type="int" min="-100" max="100" />
@@ -2144,7 +2138,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -2344,7 +2338,7 @@
 		<attribute arch="protect_acid" editor="acid protect %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="protect_magic" editor="magic protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_mind" editor="mind protect %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="protect_lifesteal" editor="lifesteal protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_blind" editor="blinding protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_paralyze" editor="paralyze protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_force" editor="force protect %" length="15" type="int" min="-100" max="100" />
@@ -2921,7 +2915,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -3143,7 +3137,7 @@
 		<attribute arch="protect_acid" editor="acid protect %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="protect_magic" editor="magic protect %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="protect_mind" editor="mind protect %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="protect_lifesteal" editor="lifesteal protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_blind" editor="blinding protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_paralyze" editor="paralyze protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_force" editor="force protect %" length="15" type="int" min="-100" max="100" />
@@ -3603,8 +3597,6 @@
 		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
 		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
 		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<section name="attack">
 		<attribute arch="attack_impact" editor="impact attack %" length="15" type="int" min="-100" max="100" />
@@ -3620,7 +3612,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -3755,7 +3747,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -3832,7 +3824,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -4008,8 +4000,6 @@
 		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
 		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
 		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<section name="bonus">
 		<attribute arch="magic" editor="magic bonus" type="int">
@@ -4076,7 +4066,7 @@
 
 		When a player drops an item onto shop floor, the item becomes
 		unpaid and the player receives payment according to the item's
-		value, calculated by various factors, like the player's charisma.
+		value, calculated by various factors.
 		Usually the value is 20% of the item's real value.
 
 		Shop floor always prevents magic (to hinder players from burning
@@ -4567,7 +4557,7 @@
 		<attribute arch="attack_acid" editor="acid attack %" length="15" type="int" min="-100" max="100" />
 
 		<attribute arch="attack_magic" editor="magic attack %" length="15" type="int" min="-100" max="100" />
-		<attribute arch="attack_mind" editor="mind attack %" length="15" type="int" min="-100" max="100" />
+		<attribute arch="attack_lifesteal" editor="lifesteal attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_blind" editor="blinding attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_paralyze" editor="paralyze attack %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="attack_force" editor="force attack %" length="15" type="int" min="-100" max="100" />
@@ -4586,8 +4576,6 @@
 		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
 		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
 		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<section name="misc">
 		<attribute arch="exp" editor="speed bonus" type="int">
