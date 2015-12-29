@@ -1433,7 +1433,7 @@ attack_perform_fall (object *op, int fall_floors)
     object *damager = arch_get("falling");
     damager->level = op->level;
 
-    double dam = (op->weight + op->carrying) / 250.00 * MIN(10.0, fall_floors);
+    double dam = (op->weight + op->carrying) / 1250.00 * MIN(10.0, fall_floors);
     dam *= falling_mitigation[dex];
     if (dam < 1.0) {
         dam = 1.0;
