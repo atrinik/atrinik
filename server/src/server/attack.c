@@ -43,10 +43,10 @@
  * @warning Cannot contain spaces. Use underscores instead.
  */
 const char *const attack_save[NROFATTACKS] = {
-    "impact",   "slash", "cleave",      "pierce",    "weaponmagic",
-    "fire",     "cold",  "electricity", "poison",    "acid",
-    "magic",    "mind",  "blind",       "paralyze",  "force",
-    "godpower", "chaos", "drain",       "slow",      "confusion",
+    "impact",   "slash",     "cleave",      "pierce",    "weaponmagic",
+    "fire",     "cold",      "electricity", "poison",    "acid",
+    "magic",    "lifesteal", "blind",       "paralyze",  "force",
+    "godpower", "chaos",     "drain",       "slow",      "confusion",
     "internal"
 };
 
@@ -54,10 +54,10 @@ const char *const attack_save[NROFATTACKS] = {
  * Short description of names of the attack types.
  */
 const char *const attack_name[NROFATTACKS] = {
-    "impact",   "slash", "cleave",      "pierce",    "weapon magic",
-    "fire",     "cold",  "electricity", "poison",    "acid",
-    "magic",    "mind",  "blind",       "paralyze",  "force",
-    "godpower", "chaos", "drain",       "slow",      "confusion",
+    "impact",   "slash",     "cleave",      "pierce",    "weapon magic",
+    "fire",     "cold",      "electricity", "poison",    "acid",
+    "magic",    "lifesteal", "blind",       "paralyze",  "force",
+    "godpower", "chaos",     "drain",       "slow",      "confusion",
     "internal"
 };
 
@@ -621,6 +621,19 @@ hit_player_attacktype (object  *op,
         break;
     }
 
+    case ATNR_LIFESTEAL: {
+        ATTACK_PROTECT_DAMAGE();
+        send_attack_msg(op, hitter, atnr, dam, dam_orig);
+
+        object *owner = OWNER(hitter);
+        owner->stats.hp += dam;
+        if (owner->stats.hp > owner->stats.maxhp) {
+            owner->stats.hp = owner->stats.maxhp;
+        }
+
+        break;
+    }
+
     default:
         ATTACK_PROTECT_DAMAGE();
         send_attack_msg(op, hitter, atnr, dam, dam_orig);
@@ -628,6 +641,8 @@ hit_player_attacktype (object  *op,
     }
 
     return dam;
+
+#undef ATTACK_PROTECT_DAMAGE
 }
 
 /**

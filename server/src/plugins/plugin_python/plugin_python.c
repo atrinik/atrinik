@@ -223,7 +223,7 @@ static const Atrinik_Constant constants[] = {
     {"ATNR_POISON", ATNR_POISON},
     {"ATNR_ACID", ATNR_ACID},
     {"ATNR_MAGIC", ATNR_MAGIC},
-    {"ATNR_MIND", ATNR_MIND},
+    {"ATNR_LIFESTEAL", ATNR_LIFESTEAL},
     {"ATNR_BLIND", ATNR_BLIND},
     {"ATNR_PARALYZE", ATNR_PARALYZE},
     {"ATNR_FORCE", ATNR_FORCE},

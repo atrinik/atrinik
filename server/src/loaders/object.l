@@ -584,7 +584,7 @@ lex_error = 0;
 ^attack_acid{S}      SET_ATTACK(op, ATNR_ACID, IVAL);
 
 ^attack_magic{S}     SET_ATTACK(op, ATNR_MAGIC, IVAL);
-^attack_mind{S}      SET_ATTACK(op, ATNR_MIND, IVAL);
+^attack_lifesteal{S} SET_ATTACK(op, ATNR_LIFESTEAL, IVAL);
 ^attack_blind{S}     SET_ATTACK(op, ATNR_BLIND, IVAL);
 ^attack_paralyze{S}  SET_ATTACK(op, ATNR_PARALYZE, IVAL);
 ^attack_force{S}     SET_ATTACK(op, ATNR_FORCE, IVAL);
@@ -627,7 +627,7 @@ lex_error = 0;
 ^protect_acid{S}     SET_PROTECTION(op, ATNR_ACID, IVAL);
 
 ^protect_magic{S}    SET_PROTECTION(op, ATNR_MAGIC, IVAL);
-^protect_mind{S}     SET_PROTECTION(op, ATNR_MIND, IVAL);
+^protect_lifesteal{S} SET_PROTECTION(op, ATNR_LIFESTEAL, IVAL);
 ^protect_blind{S}    SET_PROTECTION(op, ATNR_BLIND, IVAL);
 ^protect_paralyze{S} SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
 ^protect_force{S}    SET_PROTECTION(op, ATNR_FORCE, IVAL);

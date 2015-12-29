@@ -59,7 +59,7 @@ typedef enum atnr {
     /** Magic. */
     ATNR_MAGIC,
     /** Mind. */
-    ATNR_MIND,
+    ATNR_LIFESTEAL,
     /** Blind. */
     ATNR_BLIND,
     /** Paralyze. Affected object will be rooted to the spot. */
