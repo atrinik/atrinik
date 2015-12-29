@@ -622,7 +622,10 @@ int main(int argc, char **argv)
 #endif
     }
 
-    console_start_thread();
+    if (!settings.no_console) {
+        console_start_thread();
+    }
+
     process_delay = 0;
 
     LOG(INFO, "Server ready. Waiting for connections...");

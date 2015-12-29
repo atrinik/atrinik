@@ -386,6 +386,11 @@ typedef struct settings_struct {
     bool plugin_unit_tests;
 
     /**
+     * Do not start a console.
+     */
+    bool no_console;
+
+    /**
      * Only run specific plugin unit test(s).
      */
     char plugin_unit_test[MAX_BUF];

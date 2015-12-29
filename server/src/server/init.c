@@ -210,6 +210,11 @@ static void clioptions_option_worldmaker(const char *arg)
     settings.world_maker = 1;
 }
 
+static void clioptions_option_no_console(const char *arg)
+{
+    settings.no_console = true;
+}
+
 static void clioptions_option_version(const char *arg)
 {
     version(NULL);
@@ -532,6 +537,16 @@ static void init_library(int argc, char *argv[])
             0,
             "Generates the region maps.",
             "Generates the region maps using the world maker module.\n\n"
+            );
+
+    clioptions_add(
+            "no_console",
+            NULL,
+            clioptions_option_no_console,
+            0,
+            "Disables the interactive console.",
+            "Disables the interactive console. Useful when debugging or "
+            "running the server non-interactively.\n\n"
             );
 
     clioptions_add(
