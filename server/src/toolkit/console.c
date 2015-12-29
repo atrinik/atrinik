@@ -90,6 +90,8 @@ TOOLKIT_INIT_FUNC(console)
     console_commands = NULL;
     console_commands_num = 0;
 
+    pthread_mutex_init(&command_process_queue_mutex, NULL);
+
     utarray_new(command_process_queue, &ut_str_icd);
 
     /* Add the 'help' command. */
@@ -373,7 +375,6 @@ int console_start_thread(void)
     pthread_mutex_init(&rl_mutex, NULL);
 #endif
 
-    pthread_mutex_init(&command_process_queue_mutex, NULL);
     ret = pthread_create(&thread_id, NULL, do_thread, NULL);
 
     if (ret != 0) {
