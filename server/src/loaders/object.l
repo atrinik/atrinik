@@ -613,42 +613,6 @@ lex_error = 0;
 ^attack_depletion{S} set_random_attack(op, IVAL);
 ^attack_ghosthit{S}  set_random_attack(op, IVAL);
 
-    /* All these resists are deprecated and are here for
-     * backwards compatibility.
-     * TODO remove these at some point. */
-^resist_impact{S}    SET_PROTECTION(op, ATNR_IMPACT, IVAL);
-^resist_magic{S}     SET_PROTECTION(op, ATNR_MAGIC, IVAL);
-^resist_fire{S}      SET_PROTECTION(op, ATNR_FIRE, IVAL);
-^resist_electricity{S} SET_PROTECTION(op, ATNR_ELECTRICITY, IVAL);
-^resist_cold{S}      SET_PROTECTION(op, ATNR_COLD, IVAL);
-^resist_confusion{S} SET_PROTECTION(op, ATNR_CONFUSION, IVAL);
-^resist_acid{S}      SET_PROTECTION(op, ATNR_ACID, IVAL);
-^resist_drain{S}     SET_PROTECTION(op, ATNR_DRAIN, IVAL);
-^resist_weaponmagic{S} SET_PROTECTION(op, ATNR_WEAPON_MAGIC, IVAL);
-^resist_ghosthit{S}  set_random_protection(op, IVAL);
-^resist_poison{S}    SET_PROTECTION(op, ATNR_POISON, IVAL);
-^resist_slow{S}      set_random_protection(op, IVAL);
-^resist_paralyze{S}  SET_PROTECTION(op, ATNR_PARALYZE, IVAL);
-^resist_time{S}      set_random_protection(op, IVAL);
-^resist_fear{S}      set_random_protection(op, IVAL);
-^resist_cancellation{S} set_random_protection(op, IVAL);
-^resist_depletion{S} set_random_protection(op, IVAL);
-^resist_death{S}     set_random_protection(op, IVAL);
-^resist_chaos{S}     SET_PROTECTION(op, ATNR_CHAOS, IVAL);
-^resist_counterspell{S} set_random_protection(op, IVAL);
-^resist_godpower{S}  SET_PROTECTION(op, ATNR_GODPOWER, IVAL);
-^resist_purity{S}    set_random_protection(op, IVAL);
-^resist_blind{S}     SET_PROTECTION(op, ATNR_BLIND, IVAL);
-^resist_internal{S}  set_random_protection(op, IVAL);
-^resist_life_steal{S} set_random_protection(op, IVAL);
-^resist_slash{S}     SET_PROTECTION(op, ATNR_SLASH, IVAL);
-^resist_cleave{S}    SET_PROTECTION(op, ATNR_CLEAVE, IVAL);
-^resist_pierce{S}    SET_PROTECTION(op, ATNR_PIERCE, IVAL);
-^resist_nether{S}    set_random_protection(op, IVAL);
-^resist_sonic{S}     set_random_protection(op, IVAL);
-^resist_demonic{S}   set_random_protection(op, IVAL);
-^resist_psionic{S}   set_random_protection(op, IVAL);
-
     /* Start of various protections */
 ^protect_impact{S}   SET_PROTECTION(op, ATNR_IMPACT, IVAL);
 ^protect_slash{S}    SET_PROTECTION(op, ATNR_SLASH, IVAL);
