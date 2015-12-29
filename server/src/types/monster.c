@@ -975,8 +975,15 @@ static int move_randomly(object *op)
         }
 
         if (HAS_EVENT(op, EVENT_AI)) {
-            int ret = trigger_event(EVENT_AI, NULL, op, NULL, NULL,
-                    EVENT_AI_RANDOM_MOVE, r, 0, SCRIPT_FIX_NOTHING);
+            int ret = trigger_event(EVENT_AI,
+                                    NULL,
+                                    op,
+                                    NULL,
+                                    NULL,
+                                    EVENT_AI_RANDOM_MOVE,
+                                    r,
+                                    0,
+                                    0);
             if (ret == 1) {
                 /* Cancel random movement. */
                 return 0;
@@ -1604,8 +1611,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
     if (HAS_EVENT(npc, EVENT_SAY)) {
         /* Trigger the SAY event */
-        ret = trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0,
-                SCRIPT_FIX_ACTIVATOR);
+        ret = trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, 0);
     } else if (npc->msg != NULL && *npc->msg == '@') {
         char *cp = find_matching_message(npc->msg, txt);
 

@@ -292,7 +292,15 @@ void waypoint_move(object *op, object *waypoint)
 #endif
 
             /* Trigger the TRIGGER event */
-            if (trigger_event(EVENT_TRIGGER, op, waypoint, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
+            if (trigger_event(EVENT_TRIGGER,
+                              op,
+                              waypoint,
+                              NULL,
+                              NULL,
+                              0,
+                              0,
+                              0,
+                              0) != 0) {
                 return;
             }
         }
@@ -339,7 +347,8 @@ void waypoint_move(object *op, object *waypoint)
         return;
     }
 
-    if (HAS_EVENT(waypoint, EVENT_CLOSE) && trigger_event(EVENT_CLOSE, op, waypoint, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
+    if (HAS_EVENT(waypoint, EVENT_CLOSE) &&
+        trigger_event(EVENT_CLOSE, op, waypoint, NULL, NULL, 0, 0, 0, 0) != 0) {
         return;
     }
 

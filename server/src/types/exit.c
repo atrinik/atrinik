@@ -301,8 +301,7 @@ static void process_func(object *op)
         if (HAS_EVENT(op, EVENT_TRIGGER)) {
             int ret;
 
-            ret = trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0,
-                    SCRIPT_FIX_NOTHING);
+            ret = trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, 0);
 
             if (ret == 1) {
                 return;

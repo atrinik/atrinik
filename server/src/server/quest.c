@@ -326,8 +326,15 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
             "Invalid quest_pl supplied: %p", quest_pl);
 
     /* Trigger the TRIGGER event */
-    if (trigger_event(EVENT_TRIGGER, op, quest, quest_pl, NULL, 0, 0, 0,
-            SCRIPT_FIX_NOTHING)) {
+    if (trigger_event(EVENT_TRIGGER,
+                      op,
+                      quest,
+                      quest_pl,
+                      NULL,
+                      0,
+                      0,
+                      0,
+                      0) != 0) {
         return;
     }
 

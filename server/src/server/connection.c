@@ -222,9 +222,16 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
                     continue;
                 }
 
-                if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(
-                        EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0,
-                        SCRIPT_FIX_NOTHING)) {
+                if (HAS_EVENT(tmp, EVENT_TRIGGER) &&
+                    trigger_event(EVENT_TRIGGER,
+                                  tmp,
+                                  op,
+                                  NULL,
+                                  NULL,
+                                  0,
+                                  0,
+                                  0,
+                                  0) != 0) {
                     continue;
                 }
 

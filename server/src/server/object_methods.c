@@ -216,10 +216,9 @@ void object_process(object *op)
         return;
     }
 
-    if (HAS_EVENT(op, EVENT_TIME)) {
-        if (trigger_event(EVENT_TIME, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
-            return;
-        }
+    if (HAS_EVENT(op, EVENT_TIME) &&
+        trigger_event(EVENT_TIME, NULL, op, NULL, NULL, 0, 0, 0, 0) != 0) {
+        return;
     }
 
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
@@ -255,7 +254,15 @@ int object_move_on(object *op, object *victim, object *originator, int state)
     op = HEAD(op);
     victim = HEAD(victim);
 
-    if (trigger_event(EVENT_TRIGGER, victim, op, originator, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
+    if (trigger_event(EVENT_TRIGGER,
+                      victim,
+                      op,
+                      originator,
+                      NULL,
+                      0,
+                      0,
+                      0,
+                      0) != 0) {
         return OBJECT_METHOD_OK;
     }
 
@@ -378,7 +385,7 @@ object *object_projectile_stop(object *op, int reason)
 {
     object_methods *methods;
 
-    if (trigger_event(EVENT_STOP, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
+    if (trigger_event(EVENT_STOP, NULL, op, NULL, NULL, 0, 0, 0, 0) != 0) {
         return op;
     }
 

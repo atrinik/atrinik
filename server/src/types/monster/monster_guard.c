@@ -193,9 +193,15 @@ bool monster_guard_check(object *op, object *target, const char *msg,
     pl->socket.packet_recv_cmd->len = 0;
     player_set_talking_to(pl, op);
 
-    int ret = trigger_event(EVENT_AI, target, op, NULL,
-            msg != NULL ? msg : "hello", EVENT_AI_GUARD_STOP, 0, 0,
-            SCRIPT_FIX_NOTHING);
+    int ret = trigger_event(EVENT_AI,
+                            target,
+                            op,
+                            NULL,
+                            msg != NULL ? msg : "hello",
+                            EVENT_AI_GUARD_STOP,
+                            0,
+                            0,
+                            0);
     uint32_t secs = INTERFACE_TIMEOUT(ret);
     monster_data_dialogs_add(op, target, MIN(secs, INTERFACE_TIMEOUT_MAX));
 

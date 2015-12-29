@@ -278,8 +278,15 @@ static int apply_func(object *op, object *applier, int aflags)
      * open another container. */
     if (container) {
         /* Trigger the CLOSE event. */
-        if (trigger_event(EVENT_CLOSE, applier, container, NULL, NULL, 0, 0, 0,
-                SCRIPT_FIX_ALL)) {
+        if (trigger_event(EVENT_CLOSE,
+                          applier,
+                          container,
+                          NULL,
+                          NULL,
+                          0,
+                          0,
+                          0,
+                          0) != 0) {
             return OBJECT_METHOD_OK;
         }
 

@@ -492,18 +492,6 @@ typedef struct cache_struct {
 #define MAX_TICKS (1000000.0 / max_time)
 #define MAX_TICKS_MULTIPLIER (MAX_TICKS * max_time_multiplier)
 
-/**
- * @defgroup SCRIPT_FIX_xxx For plugin events
- * These are used by plugin events.
- *@{*/
-/** Fix the event activator. */
-#define SCRIPT_FIX_ACTIVATOR 2
-/** Fix all objects related to the event. */
-#define SCRIPT_FIX_ALL 1
-/** Don't do any fixing. */
-#define SCRIPT_FIX_NOTHING 0
-/*@}*/
-
 #ifdef HAVE_WORLD_MAKER
 void world_maker(void);
 #endif

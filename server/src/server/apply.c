@@ -68,7 +68,7 @@ int manual_apply(object *op, object *tmp, int aflag)
     }
 
     /* Trigger the APPLY event */
-    if (!(aflag & APPLY_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (!(aflag & APPLY_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, 0)) {
         return OBJECT_METHOD_OK;
     }
 

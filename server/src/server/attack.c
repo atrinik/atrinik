@@ -278,7 +278,7 @@ attack_object (object *op, object *hitter)
                             0,
                             hitter->stats.dam,
                             hitter->stats.wc,
-                            SCRIPT_FIX_NOTHING);
+                            0);
     if (ret != 0) {
         return MAX(0, ret);
     }

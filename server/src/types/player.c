@@ -766,7 +766,7 @@ kill_player (object *op)
     }
 
     /* Trigger the DEATH event */
-    if (trigger_event(EVENT_DEATH, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL)) {
+    if (trigger_event(EVENT_DEATH, NULL, op, NULL, NULL, 0, 0, 0, 0) != 0) {
         return;
     }
 
@@ -1912,7 +1912,7 @@ pick_up_object (object *pl, object *op, object *tmp, int nrof, int no_mevent)
     }
 
     /* Trigger the PICKUP event */
-    if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, nrof, 0, 0, 0)) {
         return;
     }
 
@@ -2069,7 +2069,7 @@ put_object_in_sack (object *op, object *sack, object *tmp, long nrof)
     }
 
     if (tmp->map && sack->env) {
-        if (trigger_event(EVENT_PICKUP, op, tmp, sack, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+        if (trigger_event(EVENT_PICKUP, op, tmp, sack, NULL, nrof, 0, 0, 0)) {
             return;
         }
     }
@@ -2138,7 +2138,7 @@ drop_object (object *op, object *tmp, long nrof, int no_mevent)
     }
 
     /* Trigger the DROP event */
-    if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, nrof, 0, 0, 0)) {
         return;
     }
 
