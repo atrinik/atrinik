@@ -1718,7 +1718,7 @@ int is_friend_of(object *op, object *obj)
         return 0;
     }
 
-    if (op->type == MONSTER) {
+    if (op->type != PLAYER) {
         shstr *name = object_get_value(op, "faction");
         if (name == NULL) {
             return 0;
@@ -1730,7 +1730,7 @@ int is_friend_of(object *op, object *obj)
         }
     }
 
-    if (obj->type == MONSTER) {
+    if (obj->type != PLAYER) {
         shstr *name = object_get_value(obj, "faction");
         if (name == NULL) {
             return 0;
