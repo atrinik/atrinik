@@ -2425,7 +2425,6 @@ type 39
 material 256
 protect_confusion 35
 protect_paralyze 35
-protect_mind 20
 value 34500
 item_quality 90
 item_condition 90
