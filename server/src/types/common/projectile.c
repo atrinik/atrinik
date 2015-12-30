@@ -241,8 +241,14 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 
         update_ob_speed(op);
 
-        if (op->map != NULL) {
+        bool insert_map = op->map != NULL;
+        if (insert_map) {
             object_remove(op, 0);
+        }
+
+        op->layer = op->arch->clone.layer;
+
+        if (insert_map) {
             op = insert_ob_in_map(op, op->map, op, INS_FALL_THROUGH);
         } else {
             op = object_merge(op);
@@ -320,6 +326,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 
     op->x = shooter->x;
     op->y = shooter->y;
+    op->layer = LAYER_EFFECT;
     op->sub_layer = shooter->sub_layer;
     op = insert_ob_in_map(op, shooter->map, op, 0);
 
