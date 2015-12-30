@@ -100,7 +100,9 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
     }
     dam *= LEVEL_DAMAGE(level);
     dam = ABS(dam);
-    dam += dam * dam_bonus[op->stats.Str] / 10.0;
+    if (op->type == PLAYER) {
+        dam += dam * dam_bonus[op->stats.Str] / 10.0;
+    }
 
     uint8_t item_condition;
     if (bow->item_condition > arrow->item_condition) {
