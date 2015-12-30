@@ -108,6 +108,7 @@ static void create_food_force(object *who, object *food, object *force)
     }
 
     SET_FLAG(force, FLAG_APPLIED);
+    SET_FLAG(force, FLAG_IS_USED_UP);
 
     force = insert_ob_in_ob(force, who);
     if (force == NULL) {
