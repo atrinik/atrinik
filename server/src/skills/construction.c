@@ -489,7 +489,8 @@ static int builder_window(object *op, int x, int y)
     if (!wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation))) {
         draw_info(COLOR_WHITE, op, "You don't see a way to build a window in that wall.");
         return 0;
-    } else if (!strcmp(orientation, "_1") && !strcmp(orientation, "_3")) {
+    } else if (strcmp(orientation, "_1") != 0 &&
+               strcmp(orientation, "_3") != 0) {
         draw_info(COLOR_WHITE, op, "You cannot build a window in that wall.");
         return 0;
     }
