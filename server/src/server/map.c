@@ -1058,13 +1058,14 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
             *filename != '/' && *filename != '.' ? "/" : "",
             flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename));
 
-    if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname)) {
-        char *path;
+    char *real_path = NULL;
+    if (flags & MAP_PLAYER_UNIQUE) {
+        real_path = path_basename(pathname);
+        string_replace_char(real_path, "$", '/');
+    }
 
-        path = path_basename(pathname);
-        string_replace_char(path, "$", '/');
-        fp = fopen(create_pathname(path), "rb");
-        efree(path);
+    if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname)) {
+        fp = fopen(create_pathname(real_path), "rb");
     } else {
         fp = fopen(pathname, "rb");
     }
@@ -1090,7 +1091,7 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
         return NULL;
     }
 
-    basename = strrchr(filename, '/');
+    basename = strrchr(filename, flags & MAP_PLAYER_UNIQUE ? '$' : '/');
     if (basename == NULL) {
         basename = filename;
     } else {
@@ -1126,7 +1127,11 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
         size_t i;
         char *cp, *cp2, path[HUGE_BUF];
 
-        cp = string_sub(pathname, 0, -coords_len);
+        const char *path_cp = pathname;
+        if (real_path != NULL) {
+            path_cp = create_pathname(real_path);
+        }
+        cp = string_sub(path_cp, 0, -coords_len);
 
         for (i = 0; i < TILED_NUM; i++) {
             if (m->tile_path[i] != NULL) {
@@ -1198,6 +1203,11 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
     }
 
     set_map_reset_time(m);
+
+    if (real_path != NULL) {
+        efree(real_path);
+    }
+
     return m;
 }
 
