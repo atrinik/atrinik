@@ -85,9 +85,8 @@ int load_dir(const char *dir, char ***namelist, int skip_dirs)
     while ((d = readdir(dp)) != NULL) {
         if (skip_dirs) {
             snprintf(name, sizeof(name), "%s/%s", dir, d->d_name);
-            stat(name, &sb);
 
-            if (S_ISDIR(sb.st_mode)) {
+            if (stat(name, &sb) == 0 && S_ISDIR(sb.st_mode)) {
                 continue;
             }
         }
