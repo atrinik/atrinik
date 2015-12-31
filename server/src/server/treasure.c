@@ -2094,6 +2094,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         }
     }
 
+    if (op == NULL) {
+        return retval;
+    }
+
     if ((flags & GT_NO_VALUE) && op->type != MONEY) {
         op->value = 0;
     }
