@@ -2,7 +2,7 @@ arch map
 name Greyton Luxury House
 msg
 Created:  2010-07-13 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-12-31 Alex Tokar
 endmsg
 width 48
 height 34
@@ -1126,6 +1126,7 @@ level 60
 behavior 0
 movement_type 176
 type 83
+invulnerable 1
 arch waypoint
 name wp1
 title wp2
@@ -1261,6 +1262,14 @@ x 7
 y 7
 end
 arch wall_wood_8
+x 7
+y 7
+end
+arch map_info
+name greyton_luxury_house
+hp 33
+sp 15
+cursed 1
 x 7
 y 7
 end
@@ -2398,6 +2407,8 @@ friendly 1
 movement_type 176
 type 83
 direction 7
+faction npcs
+invulnerable 1
 arch waypoint
 name wp1
 title wp2
