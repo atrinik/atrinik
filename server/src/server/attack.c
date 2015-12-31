@@ -1074,7 +1074,7 @@ attack_kill (object *op, object *hitter)
         char *hitter_name = object_get_name_s(hitter, NULL);
         char *owner_name = object_get_name_s(owner, NULL);
 
-        if (owner != NULL) {
+        if (owner != hitter) {
             draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.",
                              owner_name,
                              name,
