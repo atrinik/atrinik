@@ -988,12 +988,15 @@ StringBuffer *object_get_description(const object *op, const object *caller,
                             -ARMOUR_SPELLS(op));
                 }
 
+                /* Fall through */
+
             case WEAPON:
             case RING:
             case AMULET:
             case FORCE:
             case TRINKET:
                 more_info = 1;
+                /* Fall through */
 
             case BOW:
             case ARROW:
