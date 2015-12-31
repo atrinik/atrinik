@@ -2634,8 +2634,7 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
                        "Could not open your player file; contact an "
                        "administrator.");
-        efree(path);
-        return;
+        goto out;
     }
 
     struct stat statbuf;
@@ -2647,11 +2646,8 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
                        "Could not stat your player file; contact an "
                        "administrator.");
-        efree(path);
-        return;
+        goto out;
     }
-
-    efree(path);
 
     LOG(INFO, "Login %s from IP %s", name, socket_get_str(ns->sc));
 
@@ -2683,8 +2679,6 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
     } else {
         player_load(pl, fp);
     }
-
-    fclose(fp);
 
     pl->ob->custom_attrset = pl;
     pl->ob->speed_left = 0.5;
@@ -2734,6 +2728,13 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
     if (pl->ob->map && pl->ob->map->events) {
         trigger_map_event(MEVENT_LOGIN, pl->ob->map, pl->ob, NULL, NULL, NULL, 0);
     }
+
+out:
+    if (fp != NULL) {
+        fclose(fp);
+    }
+
+    efree(path);
 }
 
 /**
