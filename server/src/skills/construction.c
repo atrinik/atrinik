@@ -119,22 +119,24 @@ static object *get_wall(mapstruct *m, int x, int y)
 static int builder_floor(object *op, object *new_floor, int x, int y)
 {
     object *tmp;
-
-    for (tmp = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR, 0); tmp && tmp->layer == LAYER_FLOOR; tmp = tmp->above) {
-        if (tmp->type == FLOOR || QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
-            if (tmp->arch == new_floor->arch) {
-                draw_info(COLOR_WHITE, op, "You feel too lazy to redo the exact same floor.");
-                return 0;
-            }
-
-            object_remove(tmp, 0);
-            break;
+    FOR_MAP_LAYER_BEGIN(op->map, x, y, LAYER_FLOOR, -1, tmp) {
+        if (tmp->type != FLOOR && !QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
+            continue;
         }
-    }
 
-    if (tmp && QUERY_FLAG(tmp, FLAG_UNIQUE)) {
-        SET_FLAG(new_floor, FLAG_UNIQUE);
-    }
+        if (tmp->arch == new_floor->arch) {
+            draw_info(COLOR_WHITE, op,
+                      "You feel too lazy to redo the exact same floor.");
+            return 0;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_UNIQUE)) {
+            SET_FLAG(new_floor, FLAG_UNIQUE);
+        }
+
+        object_remove(tmp, 0);
+        object_destroy(tmp);
+    } FOR_MAP_LAYER_END
 
     SET_FLAG(new_floor, FLAG_IS_FLOOR);
     new_floor->type = FLOOR;
@@ -231,6 +233,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
         }
 
         object_remove(book, 0);
+        object_destroy(book);
     }
 
     /* If the item is turnable, adjust direction. */
@@ -381,6 +384,7 @@ static void fix_walls(mapstruct *map, int x, int y)
     }
 
     object_remove(wall_ob, 0);
+    object_destroy(wall_ob);
 
     wall_ob = arch_to_object(new_arch);
     wall_ob->type = WALL;
@@ -429,6 +433,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
     /* If existing wall, replace it, no need to fix other walls */
     if (wall_ob) {
         object_remove(wall_ob, 0);
+        object_destroy(wall_ob);
         new_wall->x = x;
         new_wall->y = y;
         insert_ob_in_map(new_wall, op->map, NULL, 0);
@@ -513,6 +518,7 @@ static int builder_window(object *op, int x, int y)
     }
 
     object_remove(wall_ob, 0);
+    object_destroy(wall_ob);
 
     window = arch_to_object(new_arch);
     window->type = WALL;
@@ -570,6 +576,7 @@ static void construction_builder(object *op, int x, int y)
 
     if (!can_build_over(op->map, new_item, x, y)) {
         draw_info(COLOR_WHITE, op, "You can't build there.");
+        object_destroy(new_item);
         return;
     }
 
@@ -589,6 +596,7 @@ static void construction_builder(object *op, int x, int y)
 
     case ST_MAT_WIN:
         built = builder_window(op, x, y);
+        object_destroy(new_item);
         break;
 
     default:
@@ -660,6 +668,8 @@ static void construction_destroyer(object *op, int x, int y)
     char *name = object_get_name_s(item, op);
     draw_info_format(COLOR_WHITE, op, "You remove the %s.", name);
     efree(name);
+
+    object_destroy(item);
 }
 
 /**
