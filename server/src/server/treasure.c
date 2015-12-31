@@ -1791,6 +1791,8 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 op->value *= 5;
             }
 
+            /* Fall through */
+
         case RING:
 
             if (op->arch == NULL) {
