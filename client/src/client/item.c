@@ -617,7 +617,7 @@ void object_show_centered (SDL_Surface *surface,
         if (ylen2 != ylen) {
             zoom_y = ((double) ylen2 + 0.5) / ylen;
             ylen = ylen2;
-            border_up *= zoom_x;
+            border_up *= zoom_y;
         }
     }
 
