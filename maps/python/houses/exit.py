@@ -37,7 +37,8 @@ def main():
             pl.DrawInfo("You don't own a house here!", COLOR_RED)
 
     # Actually do the teleport.
-    activator.TeleportTo(activator.map.GetPath(pos[0], pos[3]), pos[1], pos[2])
+    path = activator.map.GetPath(pos[0], pos[3], activator.name)
+    activator.TeleportTo(path, pos[1], pos[2])
 
 main()
 SetReturnValue(1)
