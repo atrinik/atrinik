@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the misc object type object methods.
  */
-void object_type_init_misc_object(void)
+OBJECT_TYPE_INIT_DEFINE(misc_object)
 {
 }

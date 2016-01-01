@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the inorganic type object methods.
  */
-void object_type_init_inorganic(void)
+OBJECT_TYPE_INIT_DEFINE(inorganic)
 {
 }

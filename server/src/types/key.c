@@ -30,10 +30,46 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
+#include <object.h>
+#include <key.h>
+
+/**
+ * Search object for the needed key to open a door/container.
+ *
+ * @param op
+ * Object to search in.
+ * @param locked
+ * The object to find the key for.
+ * @return
+ * The key pointer if found, NULL otherwise.
+ */
+object *
+key_match (object *op, const object *locked)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(locked != NULL);
+
+    FOR_INV_PREPARE(op, tmp) {
+        if ((tmp->type == KEY || tmp->type == FORCE) &&
+            tmp->slaying == locked->slaying) {
+            return tmp;
+        }
+
+        if (tmp->type == CONTAINER && tmp->inv != NULL) {
+            object *key = key_match(tmp, locked);
+            if (key != NULL) {
+                return key;
+            }
+        }
+    } FOR_INV_FINISH();
+
+    return NULL;
+}
 
 /**
  * Initialize the key type object methods.
  */
-void object_type_init_key(void)
+OBJECT_TYPE_INIT_DEFINE(key)
 {
 }

@@ -30,52 +30,21 @@
 #include <global.h>
 #include <object.h>
 #include <player.h>
+#include <object_methods.h>
 
-/**
- * Attempt to reflect a bullet object by an object with @ref FLAG_REFL_SPELL
- * on the specified square.
- * @param op
- * The bullet object.
- * @param m
- * Map.
- * @param x
- * X position.
- * @param y
- * Y position.
- * @return
- * 1 if the bullet was reflected, 0 otherwise.
- */
-int bullet_reflect(object *op, mapstruct *m, int x, int y)
+/** @copydoc object_methods_t::process_func */
+static void
+process_func (object *op)
 {
-    int sub_layer;
-    object *tmp;
+    HARD_ASSERT(op != NULL);
 
-    m = get_map_from_coord(m, &x, &y);
-
-    if (!m) {
-        return 0;
-    }
-
-    for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-        for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING, sub_layer); tmp && tmp->layer == LAYER_LIVING && tmp->sub_layer == sub_layer; tmp = tmp->above) {
-            /* Try to reflect the bullet. */
-            if (QUERY_FLAG(HEAD(tmp), FLAG_REFL_SPELL) && rndm(0, 99) < 90 - (op->level / 10)) {
-                op->direction = absdir(op->direction + 4);
-                return 1;
-            }
-        }
-    }
-
-    return 0;
-}
-
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
-{
+    /* Custom handling for the magic missile spell bullets, so that they
+     * follow the target. */
     if (op->stats.sp == SP_MAGIC_MISSILE) {
         rv_vector rv;
 
-        if (!OBJECT_VALID(op->enemy, op->enemy_count) || !get_rangevector(op, op->enemy, &rv, 0)) {
+        if (!OBJECT_VALID(op->enemy, op->enemy_count) ||
+            !get_rangevector(op, op->enemy, &rv, 0)) {
             object_remove(op, 0);
             object_destroy(op);
             return;
@@ -88,17 +57,20 @@ static void process_func(object *op)
     common_object_projectile_process(op);
 }
 
-/** @copydoc object_methods::projectile_hit_func */
-static int projectile_hit_func(object *op, object *victim)
+/** @copydoc object_methods_t::projectile_hit_func */
+static int
+projectile_hit_func (object *op, object *victim)
 {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
+
     /* Handle probe. */
     if (op->stats.sp == SP_PROBE && IS_LIVE(victim)) {
-        object *owner;
-
-        owner = get_owner(op);
-
-        if (owner) {
-            draw_info_format(COLOR_WHITE, owner, "Your probe analyzes %s.", victim->name);
+        object *owner = get_owner(op);
+        if (owner != NULL) {
+            draw_info_format(COLOR_WHITE, owner,
+                             "Your probe analyzes %s.",
+                             victim->name);
             examine(owner, victim, NULL);
         }
 
@@ -111,12 +83,16 @@ static int projectile_hit_func(object *op, object *victim)
 /**
  * Initialize the bullet type object methods.
  */
-void object_type_init_bullet(void)
+OBJECT_TYPE_INIT_DEFINE(bullet)
 {
-    object_type_methods[BULLET].process_func = process_func;
-
-    object_type_methods[BULLET].projectile_move_func = common_object_projectile_move;
-    object_type_methods[BULLET].projectile_stop_func = common_object_projectile_stop_spell;
-    object_type_methods[BULLET].projectile_hit_func = projectile_hit_func;
-    object_type_methods[BULLET].move_on_func = common_object_projectile_move_on;
+    OBJECT_METHODS(BULLET)->process_func =
+        process_func;
+    OBJECT_METHODS(BULLET)->projectile_move_func =
+        common_object_projectile_move;
+    OBJECT_METHODS(BULLET)->projectile_stop_func =
+        common_object_projectile_stop_spell;
+    OBJECT_METHODS(BULLET)->projectile_hit_func =
+        projectile_hit_func;
+    OBJECT_METHODS(BULLET)->move_on_func =
+        common_object_projectile_move_on;
 }

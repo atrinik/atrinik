@@ -30,6 +30,7 @@
 #include <global.h>
 #include <player.h>
 #include <object.h>
+#include <rune.h>
 
 /**
  * Should op see trap?

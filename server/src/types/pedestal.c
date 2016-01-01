@@ -31,53 +31,39 @@
 
 #include <global.h>
 #include <arch.h>
+#include <object_methods.h>
+#include <pedestal.h>
 
-/**
- * Check whether pedestal matches the specified object.
- * @param op
- * Pedestal.
- * @param tmp
- * Object to check.
- * @return
- * 1 if the object matches, 0 otherwise.
- */
-int pedestal_matches_obj(object *op, object *tmp)
+/** @copydoc object_methods_t::trigger_button_func */
+static int
+trigger_button_func (object *op, object *cause, int state)
 {
-    /* Check type. */
-    if (op->stats.hp && tmp->type != op->stats.hp) {
-        return 0;
-    }
-
-    /* Check name. */
-    if (op->slaying && tmp->name != op->slaying) {
-        return 0;
-    }
-
-    /* Check archname. */
-    if (op->race && tmp->arch->name != op->race) {
-        return 0;
-    }
-
-    return 1;
-}
-
-/** @copydoc object_methods::trigger_button_func */
-static int trigger_button_func(object *op, object *cause, int state)
-{
-    object *tmp, *head;
-
-    (void) cause;
-    (void) state;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(cause != NULL);
 
     op->value = 0;
 
-    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = tmp->above) {
-        head = HEAD(tmp);
-
-        if (head != op && (QUERY_FLAG(head, FLAG_FLYING) ? QUERY_FLAG(op, FLAG_FLY_ON) : QUERY_FLAG(op, FLAG_WALK_ON)) && pedestal_matches_obj(op, head)) {
-            op->value = 1;
+    FOR_MAP_PREPARE(op->map, op->x, op->y, tmp) {
+        tmp = HEAD(tmp);
+        if (tmp == op) {
+            continue;
         }
-    }
+
+        if (QUERY_FLAG(tmp, FLAG_FLYING)) {
+            if (!QUERY_FLAG(op, FLAG_FLY_ON)) {
+                continue;
+            }
+        } else if (!QUERY_FLAG(op, FLAG_WALK_ON)) {
+            continue;
+        }
+
+        if (!pedestal_matches_obj(op, tmp)) {
+            continue;
+        }
+
+        op->value = 1;
+        break;
+    } FOR_MAP_FINISH();
 
     return OBJECT_METHOD_OK;
 }
@@ -85,8 +71,42 @@ static int trigger_button_func(object *op, object *cause, int state)
 /**
  * Initialize the pedestal type object methods.
  */
-void object_type_init_pedestal(void)
+OBJECT_TYPE_INIT_DEFINE(pedestal)
 {
-    object_type_methods[PEDESTAL].trigger_button_func = trigger_button_func;
-    object_type_methods[PEDESTAL].fallback = &object_type_methods[BUTTON];
+    OBJECT_METHODS(PEDESTAL)->trigger_button_func = trigger_button_func;
+    OBJECT_METHODS(PEDESTAL)->fallback = object_methods_get(BUTTON);
+}
+
+/**
+ * Check whether pedestal matches the specified object.
+ *
+ * @param op
+ * Pedestal.
+ * @param tmp
+ * Object to check.
+ * @return
+ * true if the object matches, false otherwise.
+ */
+bool
+pedestal_matches_obj (object *op, object *tmp)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(tmp != NULL);
+
+    /* Check type. */
+    if (op->stats.hp != 0 && tmp->type != op->stats.hp) {
+        return false;
+    }
+
+    /* Check name. */
+    if (op->slaying != NULL && tmp->name != op->slaying) {
+        return false;
+    }
+
+    /* Check archname. */
+    if (op->race != NULL && tmp->arch->name != op->race) {
+        return false;
+    }
+
+    return true;
 }

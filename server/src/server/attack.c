@@ -36,6 +36,7 @@
 #include <player.h>
 #include <object.h>
 #include <exp.h>
+#include <disease.h>
 
 /**
  * Names of attack types to use when saving them to file.
@@ -567,7 +568,7 @@ attack_hit_attacktype (object *op,
     case ATNR_SLASH:
     case ATNR_CLEAVE:
     case ATNR_PIERCE:
-        check_physically_infect(op, hitter);
+        disease_physically_infect(op, hitter);
         ATTACK_PROTECT_DAMAGE();
         send_attack_msg(op, hitter, atnr, dam, dam_orig);
         break;

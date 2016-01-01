@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the bracers type object methods.
  */
-void object_type_init_bracers(void)
+OBJECT_TYPE_INIT_DEFINE(bracers)
 {
-    object_type_methods[BRACERS].apply_func = object_apply_item;
+    OBJECT_METHODS(BRACERS)->apply_func = object_apply_item;
 }

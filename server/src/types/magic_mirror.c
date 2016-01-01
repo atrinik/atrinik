@@ -30,85 +30,95 @@
  * effectively creating a map stacking effect. It is also possible to
  * make the magic mirrors zoom out/in mirrored objects to create a depth
  * effect.
+ *
+ * @author Alex Tokar
  */
 
 #include <global.h>
 #include <object.h>
+#include <object_methods.h>
+#include <magic_mirror.h>
 
-/**
- * Initializes a magic mirror object after it has been placed on map.
- * @param mirror
- * The magic mirror to initialize.
- */
-void magic_mirror_init(object *mirror)
+/** @copydoc object_methods_t::init_func */
+static void
+init_func (object *op)
 {
-    int16_t mirror_x, mirror_y;
+    HARD_ASSERT(op != NULL);
 
-    if (!mirror->map) {
-        LOG(BUG, "Magic mirror not on map.");
+    if (op->map == NULL) {
+        LOG(ERROR, "Magic mirror not on map.");
         return;
     }
 
-    mirror_x = (mirror->stats.hp == -1 ? mirror->x : mirror->stats.hp);
-    mirror_y = (mirror->stats.sp == -1 ? mirror->y : mirror->stats.sp);
+    int mirror_x = (op->stats.hp == -1 ? op->x : op->stats.hp);
+    int mirror_y = (op->stats.sp == -1 ? op->y : op->stats.sp);
 
     /* X/Y adjust. */
-    if (mirror->stats.maxhp) {
-        mirror_x += mirror->stats.maxhp;
+    if (op->stats.maxhp != 0) {
+        mirror_x += op->stats.maxhp;
     }
 
-    if (mirror->stats.maxsp) {
-        mirror_y += mirror->stats.maxsp;
+    if (op->stats.maxsp != 0) {
+        mirror_y += op->stats.maxsp;
     }
 
     /* No point in doing anything special if we're mirroring the same map. */
-    if (!mirror->slaying && mirror_x == mirror->x && mirror_y == mirror->y) {
+    if (op->slaying == NULL && mirror_x == op->x && mirror_y == op->y) {
         return;
     }
 
     /* No map path specified, use mirror's map path. */
-    if (!mirror->slaying) {
-        FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
-    } else if (!map_path_isabs(mirror->slaying)) {
-        char *path;
-
-        path = map_get_path(mirror->map, mirror->slaying, MAP_UNIQUE(mirror->map), NULL);
-        FREE_AND_COPY_HASH(mirror->slaying, path);
+    if (op->slaying == NULL) {
+        FREE_AND_ADD_REF_HASH(op->slaying, op->map->path);
+    } else if (!map_path_isabs(op->slaying)) {
+        char *path = map_get_path(op->map,
+                                  op->slaying,
+                                  MAP_UNIQUE(op->map),
+                                  NULL);
+        FREE_AND_COPY_HASH(op->slaying, path);
         efree(path);
     }
 
-    /* Initialize custom_attrset. */
-    mirror->custom_attrset = emalloc(sizeof(magic_mirror_struct));
+    op->custom_attrset = emalloc(sizeof(magic_mirror_struct));
     /* Save x/y and clear map. */
-    MMIRROR(mirror)->x = mirror_x;
-    MMIRROR(mirror)->y = mirror_y;
-    MMIRROR(mirror)->map = NULL;
+    MMIRROR(op)->x = mirror_x;
+    MMIRROR(op)->y = mirror_y;
+    MMIRROR(op)->map = NULL;
+}
+
+/** @copydoc object_methods_t::deinit_func */
+static void
+deinit_func (object *op)
+{
+    HARD_ASSERT(op != NULL);
+    efree(op->custom_attrset);
 }
 
 /**
- * Deinitialize a magic mirror object.
- *
- * Mostly used to free object::custom_attrset of the mirror.
- * @param mirror
- * Magic mirror to deinitialize.
+ * Initialize the magic mirror type object methods.
  */
-void magic_mirror_deinit(object *mirror)
+OBJECT_TYPE_INIT_DEFINE(magic_mirror)
 {
-    efree(mirror->custom_attrset);
+    OBJECT_METHODS(MAGIC_MIRROR)->init_func = init_func;
+    OBJECT_METHODS(MAGIC_MIRROR)->deinit_func = deinit_func;
 }
 
 /**
  * Get map to which a magic mirror is pointing to. Almost always this
  * should be used instead of accessing magic_mirror_struct::map directly,
  * as it will make sure the map is loaded and will reset the swap timeout.
- * @param mirror
+ *
+ * @param op
  * Magic mirror to get map of.
  * @return
  * The map. Can be NULL in case of loading error.
  */
-mapstruct *magic_mirror_get_map(object *mirror)
+mapstruct *
+magic_mirror_get_map (object *op)
 {
-    magic_mirror_struct *data = MMIRROR(mirror);
+    HARD_ASSERT(op != NULL);
+
+    magic_mirror_struct *data = MMIRROR(op);
 
     /* Map good to go? */
     if (data->map && data->map->in_memory == MAP_IN_MEMORY) {
@@ -118,19 +128,13 @@ mapstruct *magic_mirror_get_map(object *mirror)
     }
 
     /* Try to load the map. */
-    data->map = ready_map_name(mirror->slaying, NULL, MAP_NAME_SHARED);
-
-    if (!data->map) {
-        LOG(BUG, "Could not load map '%s'.", mirror->slaying);
+    data->map = ready_map_name(op->slaying, NULL, MAP_NAME_SHARED);
+    if (data->map == NULL) {
+        LOG(ERROR, "Could not load map '%s': %s",
+            op->slaying,
+            object_get_str(op));
         return NULL;
     }
 
     return data->map;
-}
-
-/**
- * Initialize the magic mirror type object methods.
- */
-void object_type_init_magic_mirror(void)
-{
 }

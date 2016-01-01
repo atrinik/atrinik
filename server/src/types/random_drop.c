@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the random drop type object methods.
  */
-void object_type_init_random_drop(void)
+OBJECT_TYPE_INIT_DEFINE(random_drop)
 {
 }

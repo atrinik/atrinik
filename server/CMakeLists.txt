@@ -26,6 +26,7 @@ include_directories(src/include)
 include_directories(src/random_maps)
 include_directories(src/tests)
 include_directories(src/types/monster/include)
+include_directories(src/types/include)
 
 # Scan for lexers.
 set(LEXERS

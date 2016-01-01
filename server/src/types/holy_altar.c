@@ -31,25 +31,27 @@
 
 #include <global.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    (void) aflags;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_OK;
     }
 
     draw_info_format(COLOR_WHITE, applier, "You touch the %s.", op->name);
-
     return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the holy altar type object methods.
  */
-void object_type_init_holy_altar(void)
+OBJECT_TYPE_INIT_DEFINE(holy_altar)
 {
-    object_type_methods[HOLY_ALTAR].apply_func = apply_func;
+    OBJECT_METHODS(HOLY_ALTAR)->apply_func = apply_func;
 }

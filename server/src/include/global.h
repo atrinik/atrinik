@@ -232,7 +232,6 @@ typedef struct linked_char {
 #include <face.h>
 #include <material.h>
 #include <living.h>
-#include <object_methods.h>
 #include <map.h>
 #include <tod.h>
 #include <pathfinder.h>

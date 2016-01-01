@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <arch.h>
+#include <object_methods.h>
 
 /**
  * Attempts to stick a projectile such as an arrow into the victim.
@@ -63,7 +64,7 @@ static object *projectile_stick(object *op, object *victim)
     return op;
 }
 
-/** @copydoc object_methods::process_func */
+/** @copydoc object_methods_t::process_func */
 void common_object_projectile_process(object *op)
 {
     mapstruct *m;
@@ -147,7 +148,7 @@ void common_object_projectile_process(object *op)
     }
 }
 
-/** @copydoc object_methods::projectile_move_func */
+/** @copydoc object_methods_t::projectile_move_func */
 object *common_object_projectile_move(object *op)
 {
     mapstruct *m;
@@ -177,7 +178,7 @@ object *common_object_projectile_move(object *op)
     return op;
 }
 
-/** @copydoc object_methods::projectile_stop_func */
+/** @copydoc object_methods_t::projectile_stop_func */
 object *common_object_projectile_stop_missile(object *op, int reason)
 {
     /* Reset 'owner' when picking it up. */
@@ -279,7 +280,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
     return op;
 }
 
-/** @copydoc object_methods::projectile_stop_func */
+/** @copydoc object_methods_t::projectile_stop_func */
 object *common_object_projectile_stop_spell(object *op, int reason)
 {
     if (reason == OBJECT_PROJECTILE_STOP_HIT && op->stats.dam > 0) {
@@ -296,7 +297,7 @@ object *common_object_projectile_stop_spell(object *op, int reason)
     return NULL;
 }
 
-/** @copydoc object_methods::projectile_fire_func */
+/** @copydoc object_methods_t::projectile_fire_func */
 object *common_object_projectile_fire_missile(object *op, object *shooter, int dir)
 {
     set_owner(op, shooter);
@@ -339,7 +340,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
     return op;
 }
 
-/** @copydoc object_methods::projectile_hit_func */
+/** @copydoc object_methods_t::projectile_hit_func */
 int common_object_projectile_hit(object *op, object *victim)
 {
     object *owner;
@@ -371,7 +372,7 @@ int common_object_projectile_hit(object *op, object *victim)
     return OBJECT_METHOD_OK;
 }
 
-/** @copydoc object_methods::move_on_func */
+/** @copydoc object_methods_t::move_on_func */
 int common_object_projectile_move_on(object *op, object *victim, object *originator, int state)
 {
     int ret;

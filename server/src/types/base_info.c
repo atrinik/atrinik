@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the base info type object methods.
  */
-void object_type_init_base_info(void)
+OBJECT_TYPE_INIT_DEFINE(base_info)
 {
 }

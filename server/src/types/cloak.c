@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the cloak type object methods.
  */
-void object_type_init_cloak(void)
+OBJECT_TYPE_INIT_DEFINE(cloak)
 {
-    object_type_methods[CLOAK].apply_func = object_apply_item;
+    OBJECT_METHODS(CLOAK)->apply_func = object_apply_item;
 }

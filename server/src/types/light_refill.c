@@ -32,50 +32,57 @@
 #include <global.h>
 #include <object.h>
 #include <player.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    object *light;
-    int capacity_missing, capacity_received;
-
-    (void) aflags;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_UNHANDLED;
     }
 
-    light = find_marked_object(applier);
-
-    if (!light) {
-        draw_info_format(COLOR_WHITE, applier, "You need to mark a light source that you want to refill.");
+    object *light = find_marked_object(applier);
+    if (light == NULL) {
+        draw_info_format(COLOR_WHITE, applier,
+                         "You need to mark a light source that you "
+                         "want to refill.");
         return OBJECT_METHOD_OK;
     }
 
     char *light_name = object_get_name_s(light, applier);
 
-    if (light->type != LIGHT_APPLY || !light->race || light->race != op->race) {
+    if (light->type != LIGHT_APPLY ||
+        light->race == NULL ||
+        light->race != op->race) {
         char *name = object_get_name_s(op, applier);
-        draw_info_format(COLOR_WHITE, applier, "You can't refill the %s with the %s.", light_name, name);
+        draw_info_format(COLOR_WHITE, applier,
+                         "You can't refill the %s with the %s.",
+                         light_name,
+                         name);
         efree(name);
-        efree(light_name);
-        return OBJECT_METHOD_OK;
+        goto out;
     }
 
-    capacity_missing = light->stats.maxhp - light->stats.food;
-
+    int capacity_missing = light->stats.maxhp - light->stats.food;
     if (capacity_missing == 0) {
-        draw_info_format(COLOR_WHITE, applier, "The %s is full and can't be refilled.", light_name);
-        efree(light_name);
-        return OBJECT_METHOD_OK;
+        draw_info_format(COLOR_WHITE, applier,
+                         "The %s is full and can't be refilled.",
+                         light_name);
+        goto out;
     }
 
-    capacity_received = MIN(capacity_missing, op->stats.food);
+    int capacity_received = MIN(capacity_missing, op->stats.food);
     light->stats.food += capacity_received;
 
-    draw_info_format(COLOR_WHITE, applier, "You refill the %s and it's now at "
-            "%d%% of its capacity.", light_name,
-            (int) ((double) light->stats.food / light->stats.maxhp * 100.0));
+    int percent = (double) light->stats.food / light->stats.maxhp * 100.0;
+    draw_info_format(COLOR_WHITE, applier,
+                     "You refill the %s and it's now at %d%% of its capacity.",
+                     light_name,
+                     percent);
 
     /* Check whether the refilling object was all used up. If so,
      * decrease it, otherwise split it from the stack (if any) and
@@ -87,15 +94,15 @@ static int apply_func(object *op, object *applier, int aflags)
         op->stats.food -= capacity_received;
     }
 
+out:
     efree(light_name);
-
     return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the light refill type object methods.
  */
-void object_type_init_light_refill(void)
+OBJECT_TYPE_INIT_DEFINE(light_refill)
 {
-    object_type_methods[LIGHT_REFILL].apply_func = apply_func;
+    OBJECT_METHODS(LIGHT_REFILL)->apply_func = apply_func;
 }

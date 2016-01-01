@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the experience type object methods.
  */
-void object_type_init_experience(void)
+OBJECT_TYPE_INIT_DEFINE(experience)
 {
 }

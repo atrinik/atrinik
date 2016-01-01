@@ -339,7 +339,6 @@ typedef struct toolkit_dependency {
  *
  * @param what
  * The callable expression (eg, a macro or a function).
- * @param x
  * @param ...
  * Elements to apply the expression to.
  * @example
@@ -352,7 +351,7 @@ typedef struct toolkit_dependency {
  * // print_obj(obj2);
  * @endcode
  */
-#define FOR_EACH(what, x, ...) \
-    _FOR_EACH(_FOR_EACH_NARG(x, __VA_ARGS__), what, x, __VA_ARGS__)
+#define FOR_EACH(what, ...) \
+    _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
 
 #endif

@@ -24,16 +24,15 @@
 
 /**
  * @file
- * Handles code for @ref CLASS "classes".
- *
- * @author Alex Tokar
+ * Pedestal related header file.
  */
 
-#include <global.h>
+#ifndef PEDESTAL_H
+#define PEDESTAL_H
 
-/**
- * Initialize the class type object methods.
- */
-void object_type_init_class(void)
-{
-}
+/* Prototypes */
+
+bool
+pedestal_matches_obj(object *op, object *tmp);
+
+#endif

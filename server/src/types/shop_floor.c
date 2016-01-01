@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the shop floor type object methods.
  */
-void object_type_init_shop_floor(void)
+OBJECT_TYPE_INIT_DEFINE(shop_floor)
 {
 }

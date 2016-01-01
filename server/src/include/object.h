@@ -889,7 +889,6 @@ int freearr_x[SIZEOFFREE];
 int freearr_y[SIZEOFFREE];
 int maxfree[SIZEOFFREE];
 int freedir[SIZEOFFREE];
-void (*object_initializers[256])(object *);
 const char *object_flag_names[NUM_FLAGS + 1];
 
 void
@@ -1021,8 +1020,6 @@ const char *
 object_get_value(const object *op, const char *const key);
 int
 object_set_value(object *op, const char *key, const char *value, int add_key);
-void
-init_object_initializers(void);
 int
 object_matches_string(object *op, object *caller, const char *str);
 int

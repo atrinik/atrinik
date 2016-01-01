@@ -161,7 +161,7 @@ int common_object_process_pre(object *op)
     return 0;
 }
 
-/** @copydoc object_methods::process_func */
+/** @copydoc object_methods_t::process_func */
 void common_object_process(object *op)
 {
     if (OBJECT_IS_PROJECTILE(op)) {

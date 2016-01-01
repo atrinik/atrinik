@@ -31,6 +31,8 @@
 #ifndef MAP_H
 #define MAP_H
 
+typedef struct obj object;
+
 /** Number of darkness level. Add +1 for "total dark" */
 #define MAX_DARKNESS 7
 

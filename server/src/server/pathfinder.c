@@ -50,6 +50,7 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
+#include <exit.h>
 
 /**
  * Selects algorithm to use for path-finding.
@@ -853,7 +854,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             for (tmp = GET_MAP_OB(node_map, node_x, node_y); tmp != NULL;
                     tmp = tmp->above) {
                 if (tmp->type == EXIT) {
-                    m = exit_get_destination(tmp, &nx, &ny, 1);
+                    m = exit_get_destination(tmp, &nx, &ny, true);
 
                     /* Do not enter exits that have worse z distance than the
                      * current node. */
@@ -1072,7 +1073,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
                     for (exit = GET_MAP_OB(node->map, node->x, node->y);
                             exit != NULL; exit = exit->above) {
                         if (exit->type == EXIT) {
-                            m = exit_get_destination(exit, &nx, &ny, 1);
+                            m = exit_get_destination(exit, &nx, &ny, true);
                         }
                     }
                 }

@@ -40,6 +40,8 @@
 #include <player.h>
 #include <object.h>
 #include <player.h>
+#include <object_methods.h>
+#include <waypoint.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
@@ -124,10 +126,10 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
         }
     } else {
         object *base = living_get_base_info(npc);
-        object *wp = get_active_waypoint(npc);
+        object *wp = waypoint_get_active(npc);
 
         if (base && !wp) {
-            object *return_wp = get_return_waypoint(npc);
+            object *return_wp = waypoint_get_home(npc);
 
 #ifdef DEBUG_PATHFINDING
             LOG(DEBUG, "%s lost aggro and is returning home (%s:%d,%d)", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
@@ -168,7 +170,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
     set_mobile_speed(npc, 0);
 
     /* TODO: check intelligence against lower limit to allow pathfind */
-    aggro_wp = get_aggro_waypoint(npc);
+    aggro_wp = waypoint_get_aggro(npc);
 
     /* Create a new aggro wp for npc? */
     if (!aggro_wp && enemy) {
@@ -469,7 +471,7 @@ static bool monster_can_move(object *op)
     return true;
 }
 
-/** @copydoc object_methods::process_func */
+/** @copydoc object_methods_t::process_func */
 static void process_func(object *op)
 {
     HARD_ASSERT(op != NULL);
@@ -619,9 +621,13 @@ static void process_func(object *op)
                     move_randomly(op);
                     break;
 
-                case WPOINT:
-                    waypoint_move(op, get_active_waypoint(op));
+                case WPOINT: {
+                    object *wp = waypoint_get_active(op);
+                    if (wp != NULL) {
+                        waypoint_move(wp, op);
+                    }
                     break;
+                }
                 }
 
                 return;
@@ -717,7 +723,7 @@ static void process_func(object *op)
     /* Try to move closer to enemy, or follow whatever special attack behavior
      * is */
     if (!QUERY_FLAG(op, FLAG_STAND_STILL) && (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY) || !can_hit(part, &rv) || ((op->attack_move_type & LO4) && special_dir != dir))) {
-        object *aggro_wp = get_aggro_waypoint(op);
+        object *aggro_wp = waypoint_get_aggro(op);
 
         /* TODO: make (intelligent) monsters go to last known position of enemy
          * if out of range/sight */
@@ -731,7 +737,7 @@ static void process_func(object *op)
         /* If valid aggro wp (and no special attack), and not scared, use it for
          * movement */
         if (aggro_wp && aggro_wp->enemy && aggro_wp->enemy == op->enemy && (rv.distance_z != 0 || rv.distance > 1) && !QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(op, FLAG_RUN_AWAY)) {
-            waypoint_move(op, aggro_wp);
+            waypoint_move(aggro_wp, op);
             return;
         } else {
             int maxdiff = (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || rndm_chance(2)) ? 1 : 2;
@@ -800,9 +806,9 @@ static void process_func(object *op)
 /**
  * Initialize the monster type object methods.
  */
-void object_type_init_monster(void)
+OBJECT_TYPE_INIT_DEFINE(monster)
 {
-    object_type_methods[MONSTER].process_func = process_func;
+    OBJECT_METHODS(MONSTER)->process_func = process_func;
 }
 
 /**

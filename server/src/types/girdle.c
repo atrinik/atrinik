@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the girdle type object methods.
  */
-void object_type_init_girdle(void)
+OBJECT_TYPE_INIT_DEFINE(girdle)
 {
-    object_type_methods[GIRDLE].apply_func = object_apply_item;
+    OBJECT_METHODS(GIRDLE)->apply_func = object_apply_item;
 }

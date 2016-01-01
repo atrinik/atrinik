@@ -33,11 +33,14 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    (void) aflags;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_UNHANDLED;
@@ -55,13 +58,11 @@ static int apply_func(object *op, object *applier, int aflags)
 
     CONTR(applier)->stat_potions_used++;
 
-    /* Potions with temporary effects. */
     if (op->last_eat == -1) {
-        object *force;
-        int i, val;
+        /* Potions with temporary effects. */
 
         /* Create a force and copy the effects in. */
-        force = arch_get("force");
+        object *force = arch_get("force");
         force->type = POTION_EFFECT;
         /* Copy the amount of time the effect should last. */
         force->stats.food = op->stats.food;
@@ -80,10 +81,10 @@ static int apply_func(object *op, object *applier, int aflags)
             force->stats.food *= 3;
 
             /* Copy over protection values to the force from the potion, but
-             * reverse them first. Attacks are ignored, as it's not actually
+             * negate them first. Attacks are ignored, as it's not actually
              * possible to store negative attack values in objects. */
-            for (i = 0; i < NROFATTACKS; i++) {
-                protection = op->protection[i] > 0 ? -op->protection[i] : op->protection[i];
+            for (int i = 0; i < NROFATTACKS; i++) {
+                protection = -ABS(op->protection[i]);
 
                 /* If the potion is damned, the effects worsen... */
                 if (QUERY_FLAG(op, FLAG_DAMNED)) {
@@ -95,23 +96,40 @@ static int apply_func(object *op, object *applier, int aflags)
                 force->protection[i] = MIN(100, MAX(-100, protection));
             }
 
-            insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
-            play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
+            insert_spell_effect("meffect_purple",
+                                applier->map,
+                                applier->x,
+                                applier->y);
+            play_sound_map(applier->map,
+                           CMD_SOUND_EFFECT,
+                           "poison.ogg",
+                           applier->x,
+                           applier->y,
+                           0,
+                           0);
         } else {
             memcpy(force->protection, op->protection, sizeof(op->protection));
             memcpy(force->attack, op->attack, sizeof(op->attack));
 
-            insert_spell_effect("meffect_green", applier->map, applier->x, applier->y);
-            play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
+            insert_spell_effect("meffect_green",
+                                applier->map,
+                                applier->x,
+                                applier->y);
+            play_sound_map(applier->map,
+                           CMD_SOUND_EFFECT,
+                           "magic_default.ogg",
+                           applier->x,
+                           applier->y,
+                           0,
+                           0);
         }
 
         /* Copy over stat values. */
-        for (i = 0; i < NUM_STATS; i++) {
+        for (int i = 0; i < NUM_STATS; i++) {
             /* Get the stat value from the potion. */
-            val = get_attr_value(&op->stats, i);
-
+            int val = get_attr_value(&op->stats, i);
             /* No value, nothing to do. */
-            if (!val) {
+            if (val == 0) {
                 continue;
             }
 
@@ -128,32 +146,45 @@ static int apply_func(object *op, object *applier, int aflags)
 
             /* Now set the stat value of the force to the one calculcated
              * above, but make sure it doesn't overflow sint8. */
-            change_attr_value(&force->stats, i, MIN(INT8_MAX, MAX(INT8_MIN, val)));
+            change_attr_value(&force->stats,
+                              i,
+                              MIN(INT8_MAX, MAX(INT8_MIN, val)));
         }
 
         /* Insert the force into the player and apply it. */
         force->speed_left = -1;
         force = insert_ob_in_ob(force, applier);
+        SOFT_ASSERT_RC(force != NULL,
+                       OBJECT_METHOD_OK,
+                       "Failed to insert potion effect force into %s",
+                       object_get_str(applier));
         SET_FLAG(force, FLAG_APPLIED);
 
         if (!living_update(applier)) {
             draw_info(COLOR_WHITE, applier, "Nothing happened.");
         }
     } else if (op->last_eat == 1) {
-        int i;
-
         /* Potion of minor restoration (removes depletion). */
 
         /* Cursed potion of minor restoration; reverse effects (stats are
          * depleted). */
         if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) {
             /* Drain 2 stats if the potion is cursed, 4 if it's damned. */
-            for (i = QUERY_FLAG(op, FLAG_DAMNED) ? 0 : 2; i < 4; i++) {
+            for (int i = QUERY_FLAG(op, FLAG_DAMNED) ? 0 : 2; i < 4; i++) {
                 drain_stat(applier);
             }
 
-            insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
-            play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
+            insert_spell_effect("meffect_purple",
+                                applier->map,
+                                applier->x,
+                                applier->y);
+            play_sound_map(applier->map,
+                           CMD_SOUND_EFFECT,
+                           "poison.ogg",
+                           applier->x,
+                           applier->y,
+                           0,
+                           0);
         } else {
             archetype_t *at;
             object *depletion;
@@ -163,7 +194,7 @@ static int apply_func(object *op, object *applier, int aflags)
             depletion = present_arch_in_ob(at, applier);
 
             if (depletion) {
-                for (i = 0; i < NUM_STATS; i++) {
+                for (int i = 0; i < NUM_STATS; i++) {
                     if (get_attr_value(&depletion->stats, i)) {
                         draw_info(COLOR_WHITE, applier, restore_msg[i]);
                     }
@@ -178,28 +209,53 @@ static int apply_func(object *op, object *applier, int aflags)
                 draw_info(COLOR_WHITE, applier, "You are not depleted.");
             }
 
-            insert_spell_effect("meffect_green", applier->map, applier->x, applier->y);
-            play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
+            insert_spell_effect("meffect_green",
+                                applier->map,
+                                applier->x,
+                                applier->y);
+            play_sound_map(applier->map,
+                           CMD_SOUND_EFFECT,
+                           "magic_default.ogg",
+                           applier->x,
+                           applier->y,
+                           0,
+                           0);
         }
     } else if (op->stats.sp != SP_NO_SPELL) {
         /* Spell potion. */
 
+        SOFT_ASSERT_RC(op->stats.sp >= 0 && op->stats.sp < NROFREALSPELLS,
+                       OBJECT_METHOD_OK,
+                       "Potion with invalid spell ID %d: %s, applier: %s",
+                       op->stats.sp,
+                       object_get_str(op),
+                       object_get_str(applier));
+
         /* Fire in the player's facing direction, unless the spell is
          * something like healing or cure disease. */
-        cast_spell(applier, op, spells[op->stats.sp].flags & SPELL_DESC_SELF ? 0 : applier->direction, op->stats.sp, 1, CAST_POTION, NULL);
+        int direction = 0;
+        if (!(spells[op->stats.sp].flags & SPELL_DESC_SELF)) {
+            direction = applier->direction;
+        }
+        cast_spell(applier,
+                   op,
+                   direction,
+                   op->stats.sp,
+                   1,
+                   CAST_POTION,
+                   NULL);
     } else {
         draw_info(COLOR_WHITE, applier, "Nothing happens as you apply it.");
     }
 
     decrease_ob(op);
-
     return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the potion type object methods.
  */
-void object_type_init_potion(void)
+OBJECT_TYPE_INIT_DEFINE(potion)
 {
-    object_type_methods[POTION].apply_func = apply_func;
+    OBJECT_METHODS(POTION)->apply_func = apply_func;
 }

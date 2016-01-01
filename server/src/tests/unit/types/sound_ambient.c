@@ -29,6 +29,7 @@
 #include <stdarg.h>
 #include <arch.h>
 #include <object.h>
+#include <sound_ambient.h>
 
 START_TEST(test_sound_ambient_match_parse)
 {

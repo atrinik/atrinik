@@ -31,19 +31,24 @@
 
 #include <global.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::remove_map_func */
-static void remove_map_func(object *op)
+/** @copydoc object_methods_t::remove_map_func */
+static void
+remove_map_func (object *op)
 {
-    map_event *tmp, *prev = NULL;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(op->map != NULL);
 
     if (op->map->in_memory == MAP_SAVING) {
         return;
     }
 
-    for (tmp = op->map->events; tmp; prev = tmp, tmp = tmp->next) {
+    for (map_event *tmp = op->map->events, *prev = NULL;
+         tmp != NULL;
+         prev = tmp, tmp = tmp->next) {
         if (tmp->event == op) {
-            if (!prev) {
+            if (prev == NULL) {
                 op->map->events = tmp->next;
             } else {
                 prev->next = tmp->next;
@@ -58,7 +63,7 @@ static void remove_map_func(object *op)
 /**
  * Initialize the map event object type object methods.
  */
-void object_type_init_map_event_obj(void)
+OBJECT_TYPE_INIT_DEFINE(map_event_obj)
 {
-    object_type_methods[MAP_EVENT_OBJ].remove_map_func = remove_map_func;
+    OBJECT_METHODS(MAP_EVENT_OBJ)->remove_map_func = remove_map_func;
 }

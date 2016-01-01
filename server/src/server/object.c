@@ -35,6 +35,8 @@
 #include <arch.h>
 #include <object.h>
 #include <player.h>
+#include <object_methods.h>
+#include <door.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;
@@ -201,11 +203,6 @@ static mempool_struct *pool_object;
  * if that object is later removed).
  */
 static long ob_count = 0;
-
-/**
- * Object type-specific functions to call when initializing objects.
- */
-void (*object_initializers[256]) (object *);
 
 /**
  * This is a list of pointers that correspond to the FLAG_.. values.
@@ -1450,6 +1447,8 @@ object_destroy (object *ob)
     ob->speed = 0;
     update_ob_speed(ob);
 
+    object_cb_deinit(ob);
+
     /* Free attached attrsets */
     if (ob->custom_attrset) {
         switch (ob->type) {
@@ -1457,14 +1456,6 @@ object_destroy (object *ob)
             /* Players are changed into DEAD_OBJECTs when they logout */
         case DEAD_OBJECT:
             mempool_return(pool_player, ob->custom_attrset);
-            break;
-
-        case MAGIC_MIRROR:
-            magic_mirror_deinit(ob);
-            break;
-
-        case SOUND_AMBIENT:
-            sound_ambient_deinit(ob);
             break;
 
         case MONSTER:
@@ -1476,10 +1467,6 @@ object_destroy (object *ob)
         }
 
         ob->custom_attrset = NULL;
-    }
-
-    if (ob->type == BEACON) {
-        beacon_remove(ob);
     }
 
     FREE_AND_CLEAR_HASH2(ob->name);
@@ -1625,7 +1612,7 @@ object_remove (object *op, int flags)
         op->map = op->env->map;
 
         esrv_del_item(op);
-        object_callback_remove_inv(op);
+        object_cb_remove_inv(op);
 
         op->above = NULL, op->below = NULL;
         op->env = NULL;
@@ -1674,7 +1661,7 @@ object_remove (object *op, int flags)
             update_object(op, UP_OBJ_REMOVE);
         }
 
-        object_callback_remove_map(op);
+        object_cb_remove_map(op);
 
         if (!(flags & REMOVE_NO_WALK_OFF)) {
             object_check_move_off(op);
@@ -1918,8 +1905,8 @@ insert_ob_in_map (object *op, mapstruct *m, object *originator, int flag)
         op->map->player_first = op;
     } else if (op->type == MAP_EVENT_OBJ) {
         map_event_obj_init(op);
-    } else if (object_type_methods[op->type].insert_map_func) {
-        object_type_methods[op->type].insert_map_func(op);
+    } else {
+        object_cb_insert_map(op);
     }
 
     /* Mark this tile as changed. */
@@ -1928,7 +1915,7 @@ insert_ob_in_map (object *op, mapstruct *m, object *originator, int flag)
     update_object(op, UP_OBJ_INSERT);
 
     /* Attempt to open doors. */
-    door_try_open(op, op->map, op->x, op->y, 0);
+    door_try_open(op, op->map, op->x, op->y, false);
 
     if (!(flag & INS_NO_WALK_ON) && (mc->flags & (P_WALK_ON | P_FLY_ON) || op->more) && !op->head) {
         for (tmp = op; tmp; tmp = tmp->more) {
@@ -3085,18 +3072,6 @@ object_set_value (object *op, const char *key, const char *value, int add_key)
     }
 
     return ret;
-}
-
-/**
- * Initialize the table of object initializers.
- */
-void
-init_object_initializers (void)
-{
-    object_initializers[BEACON] = beacon_add;
-    object_initializers[MAGIC_MIRROR] = magic_mirror_init;
-    object_initializers[MAP_INFO] = map_info_init;
-    object_initializers[SOUND_AMBIENT] = sound_ambient_init;
 }
 
 /**

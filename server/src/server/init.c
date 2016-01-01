@@ -36,6 +36,7 @@
 #include <ban.h>
 #include <loader.h>
 #include <player.h>
+#include <object_methods.h>
 
 /**
  * The server's settings.
@@ -839,7 +840,6 @@ void init_globals(void)
     first_artifactlist = NULL;
     first_region = NULL;
     init_strings();
-    init_object_initializers();
     num_animations = 0;
     animations = NULL;
     animations_allocated = 0;

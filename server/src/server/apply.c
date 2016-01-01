@@ -31,6 +31,7 @@
 #include <plugin.h>
 #include <object.h>
 #include <player.h>
+#include <object_methods.h>
 
 /**
  * Main apply handler.

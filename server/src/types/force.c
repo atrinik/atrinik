@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the force type object methods.
  */
-void object_type_init_force(void)
+OBJECT_TYPE_INIT_DEFINE(force)
 {
 }

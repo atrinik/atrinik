@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the armour type object methods.
  */
-void object_type_init_armour(void)
+OBJECT_TYPE_INIT_DEFINE(armour)
 {
-    object_type_methods[ARMOUR].apply_func = object_apply_item;
+    OBJECT_METHODS(ARMOUR)->apply_func = object_apply_item;
 }

@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the skill item type object methods.
  */
-void object_type_init_skill_item(void)
+OBJECT_TYPE_INIT_DEFINE(skill_item)
 {
-    object_type_methods[SKILL_ITEM].apply_func = object_apply_item;
+    OBJECT_METHODS(SKILL_ITEM)->apply_func = object_apply_item;
 }

@@ -35,17 +35,18 @@
 
 #include <global.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    int power_available, power_space, power_grab;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
-    (void) aflags;
-
-    power_available = applier->stats.sp - applier->stats.maxsp;
-    power_space = op->stats.maxsp - op->stats.sp;
-    power_grab = 0;
+    int power_available = applier->stats.sp - applier->stats.maxsp;
+    int power_space = op->stats.maxsp - op->stats.sp;
+    int power_grab = 0;
 
     if (power_available >= 0 && power_space > 0) {
         power_grab = MIN(power_space, applier->stats.sp / 2);
@@ -64,7 +65,7 @@ static int apply_func(object *op, object *applier, int aflags)
 /**
  * Initialize the power crystal type object methods.
  */
-void object_type_init_power_crystal(void)
+OBJECT_TYPE_INIT_DEFINE(power_crystal)
 {
-    object_type_methods[POWER_CRYSTAL].apply_func = apply_func;
+    OBJECT_METHODS(POWER_CRYSTAL)->apply_func = apply_func;
 }

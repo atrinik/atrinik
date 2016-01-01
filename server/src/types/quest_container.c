@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the quest container type object methods.
  */
-void object_type_init_quest_container(void)
+OBJECT_TYPE_INIT_DEFINE(quest_container)
 {
 }

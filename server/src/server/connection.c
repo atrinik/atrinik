@@ -30,6 +30,7 @@
 #include <global.h>
 #include <plugin.h>
 #include <object.h>
+#include <object_methods.h>
 
 /**
  * Creates a new connection.

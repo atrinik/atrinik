@@ -31,10 +31,12 @@
 
 #include <global.h>
 #include <arch.h>
+#include <object_methods.h>
 
 /**
  * Check whether a part of the cone already exists on the specified
  * position.
+ *
  * @param op
  * The cone.
  * @param m
@@ -43,28 +45,27 @@
  * X position.
  * @param y
  * Y position.
+ * @return
+ * Whether the cone exists.
  */
-static int cone_exists(object *op, mapstruct *m, int x, int y)
+static bool
+cone_exists (object *op, mapstruct *m, int x, int y)
 {
-    object *tmp;
-
-    for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above) {
+    FOR_MAP_PREPARE(m, x, y, tmp) {
         if (op->type == tmp->type && op->weight_limit == tmp->weight_limit) {
-            return 1;
+            return true;
         }
-    }
+    } FOR_MAP_FINISH();
 
-    return 0;
+    return false;
 }
 
-/** @copydoc object_methods::process_func */
+/** @copydoc object_methods_t::process_func */
 static void process_func(object *op)
 {
-    int i, x, y;
-    mapstruct *m;
-    object *tmp;
+    HARD_ASSERT(op != NULL);
 
-    if (!op->map) {
+    if (op->map == NULL) {
         return;
     }
 
@@ -75,24 +76,24 @@ static void process_func(object *op)
 
     attack_hit_map(op, 0, true);
 
-    if ((op->stats.hp -= 2) < 0) {
+    op->stats.hp -= 2;
+    if (op->stats.hp < 0) {
         object_remove(op, 0);
         object_destroy(op);
         return;
     }
 
-    if (op->stats.food) {
+    if (op->stats.food != 0) {
         return;
     }
 
     op->stats.food = 1;
 
-    for (i = -1; i < 2; i++) {
-        x = op->x + freearr_x[absdir(op->stats.sp + i)];
-        y = op->y + freearr_y[absdir(op->stats.sp + i)];
-        m = get_map_from_coord(op->map, &x, &y);
-
-        if (!m) {
+    for (int i = -1; i < 2; i++) {
+        int x = op->x + freearr_x[absdir(op->stats.sp + i)];
+        int y = op->y + freearr_y[absdir(op->stats.sp + i)];
+        mapstruct *m = get_map_from_coord(op->map, &x, &y);
+        if (m == NULL) {
             continue;
         }
 
@@ -101,7 +102,7 @@ static void process_func(object *op)
         }
 
         /* Create the next part of the cone. */
-        tmp = arch_to_object(op->arch);
+        object *tmp = arch_to_object(op->arch);
         copy_owner(tmp, op);
         tmp->weight_limit = op->weight_limit;
         tmp->x = x;
@@ -113,19 +114,20 @@ static void process_func(object *op)
         tmp->stats.dam = op->stats.dam;
 
         tmp = insert_ob_in_map(tmp, m, op, 0);
-
-        if (!tmp) {
+        if (tmp == NULL) {
             continue;
         }
     }
 }
 
-/** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator, int state)
+/** @copydoc object_methods_t::move_on_func */
+static int
+move_on_func (object *op, object *victim, object *originator, int state)
 {
-    (void) originator;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
 
-    if (!state) {
+    if (state == 0) {
         return OBJECT_METHOD_OK;
     }
 
@@ -143,8 +145,8 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 /**
  * Initialize the cone type object methods.
  */
-void object_type_init_cone(void)
+OBJECT_TYPE_INIT_DEFINE(cone)
 {
-    object_type_methods[CONE].move_on_func = move_on_func;
-    object_type_methods[CONE].process_func = process_func;
+    OBJECT_METHODS(CONE)->move_on_func = move_on_func;
+    OBJECT_METHODS(CONE)->process_func = process_func;
 }

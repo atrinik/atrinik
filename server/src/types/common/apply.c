@@ -33,6 +33,7 @@
 #include <global.h>
 #include <object.h>
 #include <player.h>
+#include <object_methods.h>
 
 /**
  * Handle generic object applying.

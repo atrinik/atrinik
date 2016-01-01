@@ -32,45 +32,67 @@
 #include <global.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
+/** @copydoc object_methods_t::process_func */
+static void
+process_func (object *op)
 {
+    HARD_ASSERT(op != NULL);
+
     if (op->stats.hp < op->stats.maxhp) {
         op->stats.hp++;
     }
 }
 
-/** @copydoc object_methods::ranged_fire_func */
-static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
+/** @copydoc object_methods_t::ranged_fire_func */
+static int
+ranged_fire_func (object *op, object *shooter, int dir, double *delay)
 {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(shooter != NULL);
+
     if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS) {
-        draw_info_format(COLOR_WHITE, shooter, "The %s is broken.", op->name);
+        draw_info_format(COLOR_WHITE, shooter,
+                         "The %s is broken.",
+                         op->name);
         return OBJECT_METHOD_UNHANDLED;
     }
 
-    /* If the device level is higher than player's magic skill,
-     * don't allow using the device. */
-    if (shooter->type == PLAYER && op->level > CONTR(shooter)->skill_ptr[SK_WIZARDRY_SPELLS]->level + settings.magic_devices_level) {
-        draw_info_format(COLOR_WHITE, shooter, "The %s is impossible to handle for you.", op->name);
+    /* If the device level is higher than player's magic skill, don't allow
+     * using the device. */
+    if (shooter->type == PLAYER &&
+        op->level > (CONTR(shooter)->skill_ptr[SK_WIZARDRY_SPELLS]->level +
+                     settings.magic_devices_level)) {
+        draw_info_format(COLOR_WHITE, shooter,
+                         "The %s is impossible to handle for you.",
+                         op->name);
         return OBJECT_METHOD_UNHANDLED;
     }
 
     if (op->stats.maxhp && op->stats.hp <= 0) {
-        play_sound_player_only(CONTR(shooter), CMD_SOUND_EFFECT, "rod.ogg", 0, 0, 0, 0);
-        draw_info_format(COLOR_WHITE, shooter, "The %s whines for a while, but nothing happens.", op->name);
+        play_sound_player_only(CONTR(shooter),
+                               CMD_SOUND_EFFECT,
+                               "rod.ogg",
+                               0,
+                               0,
+                               0,
+                               0);
+        draw_info_format(COLOR_WHITE, shooter,
+                         "The %s whines for a while, but nothing happens.",
+                         op->name);
         return OBJECT_METHOD_UNHANDLED;
     }
 
     if (cast_spell(shooter, op, dir, op->stats.sp, 0, CAST_ROD, NULL)) {
         SET_FLAG(op, FLAG_BEEN_APPLIED);
 
-        if (op->stats.maxhp) {
+        if (op->stats.maxhp != 0) {
             op->stats.hp--;
         }
     }
 
-    if (delay) {
+    if (delay != NULL) {
         *delay = op->last_grace;
     }
 
@@ -80,9 +102,9 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 /**
  * Initialize the rod type object methods.
  */
-void object_type_init_rod(void)
+OBJECT_TYPE_INIT_DEFINE(rod)
 {
-    object_type_methods[ROD].apply_func = object_apply_item;
-    object_type_methods[ROD].process_func = process_func;
-    object_type_methods[ROD].ranged_fire_func = ranged_fire_func;
+    OBJECT_METHODS(ROD)->apply_func = object_apply_item;
+    OBJECT_METHODS(ROD)->process_func = process_func;
+    OBJECT_METHODS(ROD)->ranged_fire_func = ranged_fire_func;
 }

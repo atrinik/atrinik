@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the flesh type object methods.
  */
-void object_type_init_flesh(void)
+OBJECT_TYPE_INIT_DEFINE(flesh)
 {
-    object_type_methods[FLESH].fallback = &object_type_methods[FOOD];
+    OBJECT_METHODS(FLESH)->fallback = object_methods_get(FOOD);
 }

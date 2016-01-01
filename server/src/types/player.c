@@ -37,6 +37,9 @@
 #include <player.h>
 #include <object.h>
 #include <exp.h>
+#include <object_methods.h>
+#include <disease.h>
+#include <container.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
@@ -731,7 +734,7 @@ kill_player (object *op)
         /* Restore player */
         cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
         /* Remove any disease */
-        cure_disease(op, NULL);
+        disease_cure(op, NULL);
         op->stats.hp = op->stats.maxhp;
         op->stats.sp = op->stats.maxsp;
 
@@ -779,9 +782,24 @@ kill_player (object *op)
 
     /* Put a gravestone up where the character 'almost' died. */
     tmp = arch_to_object(arch_find("gravestone"));
-    snprintf(buf, sizeof(buf), "%s's gravestone", op->name);
+    snprintf(VS(buf), "%s's gravestone", op->name);
     FREE_AND_COPY_HASH(tmp->name, buf);
-    FREE_AND_COPY_HASH(tmp->msg, gravestone_text(op));
+    StringBuffer *sb = stringbuffer_new();
+    const char *killer = CONTR(op)->killer;
+    if (*killer == '\0') {
+        killer = "something nasty";
+    }
+    stringbuffer_append_printf(sb,
+                               "R.I.P.\n\nHerein rests the hero %s the %s "
+                               "who was killed at level %d by %s.",
+                               op->name,
+                               op->race,
+                               op->level,
+                               killer);
+    time_t now = time(NULL);
+    strftime(VS(buf), "\n\n%b %d %Y", localtime(&now));
+    stringbuffer_append_string(sb, buf);
+    tmp->msg = stringbuffer_finish_shared(sb);
     tmp->x = op->x;
     tmp->y = op->y;
     insert_ob_in_map(tmp, op->map, NULL, 0);
@@ -791,7 +809,7 @@ kill_player (object *op)
     /* Remove any poisoning the character may be suffering. */
     cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
     /* Remove any disease */
-    cure_disease(op, NULL);
+    disease_cure(op, NULL);
 
     /* If the player starved to death, give them some food back... */
     if (op->stats.food <= 0) {
@@ -1981,7 +1999,7 @@ pick_up (object *op, object *alt, int no_mevent)
             CONTR(op)->container != tmp && CONTR(op)->container != tmp->env) {
         alt = CONTR(op)->container;
 
-        if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !check_magical_container(tmp, alt)) {
+        if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !container_check_magical(tmp, alt)) {
             return;
         }
     } else {
@@ -1991,7 +2009,7 @@ pick_up (object *op, object *alt, int no_mevent)
 
         if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
             for (alt = op->inv; alt; alt = alt->below) {
-                if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt)) {
+                if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count) && !container_check_magical(tmp, alt)) {
                     /* Perfect match */
                     break;
                 }
@@ -2000,7 +2018,7 @@ pick_up (object *op, object *alt, int no_mevent)
 
         if (!alt) {
             for (alt = op->inv; alt; alt = alt->below) {
-                if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt)) {
+                if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && sack_can_hold(NULL, alt, tmp, count) && !container_check_magical(tmp, alt)) {
                     /* General container comes next */
                     break;
                 }
@@ -2063,7 +2081,7 @@ put_object_in_sack (object *op, object *sack, object *tmp, long nrof)
         return;
     }
 
-    if (check_magical_container(tmp, sack)) {
+    if (container_check_magical(tmp, sack)) {
         draw_info(COLOR_WHITE, op, "You can't put a magical container into another magical container.");
         return;
     }
@@ -2873,26 +2891,27 @@ player_item_power_effects (object *op)
     }
 }
 
-/** @copydoc object_methods::remove_map_func */
+/** @copydoc object_methods_t::remove_map_func */
 static void
 remove_map_func (object *op)
 {
-    player *pl;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(op->map != NULL);
 
     if (op->map->in_memory == MAP_SAVING) {
         return;
     }
 
-    pl = CONTR(op);
+    player *pl = CONTR(op);
 
     /* Remove player from the map's linked list of players. */
-    if (pl->map_below) {
+    if (pl->map_below != NULL) {
         CONTR(pl->map_below)->map_above = pl->map_above;
     } else {
         op->map->player_first = pl->map_above;
     }
 
-    if (pl->map_above) {
+    if (pl->map_above != NULL) {
         CONTR(pl->map_above)->map_below = pl->map_below;
     }
 
@@ -2901,15 +2920,17 @@ remove_map_func (object *op)
 
     /* If the player has a container open that is not in their inventory,
      * close it. */
-    if (pl->container && pl->container->env != op) {
+    if (pl->container != NULL && pl->container->env != op) {
         container_close(op, NULL);
     }
 }
 
-/** @copydoc object_methods::process_func */
+/** @copydoc object_methods_t::process_func */
 static void
 process_func (object *op)
 {
+    HARD_ASSERT(op != NULL);
+
     player *pl = CONTR(op);
     int retval;
 
@@ -3011,9 +3032,8 @@ process_func (object *op)
 /**
  * Initialize the player type object methods.
  */
-void
-object_type_init_player (void)
+OBJECT_TYPE_INIT_DEFINE(player)
 {
-    object_type_methods[PLAYER].remove_map_func = remove_map_func;
-    object_type_methods[PLAYER].process_func = process_func;
+    OBJECT_METHODS(PLAYER)->remove_map_func = remove_map_func;
+    OBJECT_METHODS(PLAYER)->process_func = process_func;
 }

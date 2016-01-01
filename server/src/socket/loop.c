@@ -35,6 +35,7 @@
 #include <ban.h>
 #include <player.h>
 #include <object.h>
+#include <container.h>
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 

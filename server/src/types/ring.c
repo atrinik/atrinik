@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the ring type object methods.
  */
-void object_type_init_ring(void)
+OBJECT_TYPE_INIT_DEFINE(ring)
 {
-    object_type_methods[RING].apply_func = object_apply_item;
+    OBJECT_METHODS(RING)->apply_func = object_apply_item;
 }

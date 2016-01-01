@@ -29,63 +29,62 @@
 
 #include <global.h>
 #include <arch.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator, int state)
+/** @copydoc object_methods_t::move_on_func */
+static int
+move_on_func (object *op, object *victim, object *originator, int state)
 {
-    object *tmp;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
 
-    (void) originator;
-
-    if (victim->type != PLAYER || !state) {
+    if (victim->type != PLAYER || state == 0) {
         return OBJECT_METHOD_OK;
     }
 
-    if (op->slaying) {
-        for (tmp = victim->inv; tmp; tmp = tmp->below) {
+    if (op->slaying != NULL) {
+        FOR_INV_PREPARE(victim, tmp) {
             if (tmp->type == FORCE && tmp->slaying == op->slaying) {
                 object_remove(tmp, 0);
                 object_destroy(tmp);
                 break;
             }
-        }
+        } FOR_INV_FINISH();
     }
 
-    if (op->race) {
-        for (tmp = victim->inv; tmp; tmp = tmp->below) {
-            if (tmp->type == FORCE && tmp->slaying == op->race) {
-                break;
-            }
+    if (op->race == NULL) {
+        return OBJECT_METHOD_OK;
+    }
+
+    FOR_INV_PREPARE(victim, tmp) {
+        if (tmp->type == FORCE && tmp->slaying == op->race) {
+            return OBJECT_METHOD_OK;
         }
+    } FOR_INV_FINISH();
 
-        if (!tmp) {
-            object *force;
+    object *force = arch_get("force");
+    force->speed = 0;
 
-            force = arch_get("force");
-            force->speed = 0;
+    if (op->stats.food != 0) {
+        force->speed = 0.01;
+        force->speed_left = -op->stats.food;
+        SET_FLAG(force, FLAG_IS_USED_UP);
+    }
 
-            if (op->stats.food) {
-                force->speed = 0.01;
-                force->speed_left = -op->stats.food;
-                SET_FLAG(force, FLAG_IS_USED_UP);
-            }
+    update_ob_speed(force);
+    FREE_AND_COPY_HASH(force->slaying, op->race);
+    insert_ob_in_ob(force, victim);
 
-            update_ob_speed(force);
-            FREE_AND_COPY_HASH(force->slaying, op->race);
-            insert_ob_in_ob(force, victim);
+    if (op->msg != NULL) {
+        draw_info(COLOR_NAVY, victim, op->msg);
+    }
 
-            if (op->msg) {
-                draw_info(COLOR_NAVY, victim, op->msg);
-            }
+    if (op->stats.hp > 0) {
+        op->stats.hp--;
 
-            if (op->stats.hp > 0) {
-                op->stats.hp--;
-
-                if (op->stats.hp == 0) {
-                    destruct_ob(op);
-                    return OBJECT_METHOD_OK;
-                }
-            }
+        if (op->stats.hp == 0) {
+            destruct_ob(op);
+            return OBJECT_METHOD_OK;
         }
     }
 
@@ -95,7 +94,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 /**
  * Initialize the marker type object methods.
  */
-void object_type_init_marker(void)
+OBJECT_TYPE_INIT_DEFINE(marker)
 {
-    object_type_methods[MARKER].move_on_func = move_on_func;
+    OBJECT_METHODS(MARKER)->move_on_func = move_on_func;
 }

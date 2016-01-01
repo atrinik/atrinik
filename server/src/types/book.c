@@ -32,6 +32,7 @@
 #include <player.h>
 #include <object.h>
 #include <exp.h>
+#include <object_methods.h>
 
 /**
  * Maximum amount of difference in levels between the book's level and
@@ -71,14 +72,14 @@ static double book_exp_mod[MAX_STAT + 1] = {
     1.70f, 1.75f, 1.85f, 1.90f, 2.00f
 };
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    int lev_diff;
-    packet_struct *packet;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
-    (void) aflags;
-
+    /* Non-players cannot apply books. */
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_OK;
     }
@@ -89,40 +90,51 @@ static int apply_func(object *op, object *applier, int aflags)
     }
 
     if (op->msg == NULL) {
-        draw_info_format(COLOR_WHITE, applier, "You open the %s and find it empty.", op->name);
+        draw_info_format(COLOR_WHITE, applier,
+                         "You open the %s and find it empty.", op->name);
         return OBJECT_METHOD_OK;
     }
 
     /* Need a literacy skill to read stuff! */
     if (!change_skill(applier, SK_LITERACY)) {
-        draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
+        draw_info(COLOR_WHITE, applier,
+                  "You are unable to decipher the strange symbols.");
         return OBJECT_METHOD_OK;
     }
 
-    lev_diff = op->level - (SK_level(applier) + BOOK_LEVEL_DIFF + book_level_mod[applier->stats.Int]);
-
+    int lev_diff = op->level - (SK_level(applier) +
+                                BOOK_LEVEL_DIFF +
+                                book_level_mod[applier->stats.Int]);
     if (lev_diff > 0) {
         if (lev_diff < 2) {
-            draw_info(COLOR_WHITE, applier, "This book is just barely beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is just barely beyond your comprehension.");
         } else if (lev_diff < 3) {
-            draw_info(COLOR_WHITE, applier, "This book is slightly beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is slightly beyond your comprehension.");
         } else if (lev_diff < 5) {
-            draw_info(COLOR_WHITE, applier, "This book is beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is beyond your comprehension.");
         } else if (lev_diff < 8) {
-            draw_info(COLOR_WHITE, applier, "This book is quite a bit beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is quite a bit beyond your comprehension.");
         } else if (lev_diff < 15) {
-            draw_info(COLOR_WHITE, applier, "This book is way beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is way beyond your comprehension.");
         } else {
-            draw_info(COLOR_WHITE, applier, "This book is totally beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is totally beyond your comprehension.");
         }
 
         return OBJECT_METHOD_OK;
     }
 
-    draw_info_format(COLOR_WHITE, applier, "You open the %s and start reading.", op->name);
+    draw_info_format(COLOR_WHITE, applier,
+                     "You open the %s and start reading.",
+                     op->name);
     CONTR(applier)->stat_books_read++;
 
-    packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
+    packet_struct *packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
     packet_debug_data(packet, 0, "Book interface header");
     packet_append_string(packet, "[book]");
     StringBuffer *sb = object_get_base_name(op, applier, NULL);
@@ -167,7 +179,7 @@ static int apply_func(object *op, object *applier, int aflags)
 /**
  * Initialize the book type object methods.
  */
-void object_type_init_book(void)
+OBJECT_TYPE_INIT_DEFINE(book)
 {
-    object_type_methods[BOOK].apply_func = apply_func;
+    OBJECT_METHODS(BOOK)->apply_func = apply_func;
 }

@@ -31,10 +31,15 @@
 
 #include <global.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::ranged_fire_func */
-static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
+/** @copydoc object_methods_t::ranged_fire_func */
+static int
+ranged_fire_func (object *op, object *shooter, int dir, double *delay)
 {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(shooter != NULL);
+
     shooter->chosen_skill = op;
     do_skill(shooter, dir, NULL);
 
@@ -44,8 +49,8 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
 /**
  * Initialize the skill type object methods.
  */
-void object_type_init_skill(void)
+OBJECT_TYPE_INIT_DEFINE(skill)
 {
-    object_type_methods[SKILL].apply_func = object_apply_item;
-    object_type_methods[SKILL].ranged_fire_func = ranged_fire_func;
+    OBJECT_METHODS(SKILL)->apply_func = object_apply_item;
+    OBJECT_METHODS(SKILL)->ranged_fire_func = ranged_fire_func;
 }

@@ -31,16 +31,20 @@
 
 #include <global.h>
 #include <object.h>
+#include <object_methods.h>
+#include <pedestal.h>
 
-/** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator, int state)
+/** @copydoc object_methods_t::move_on_func */
+static int
+move_on_func (object *op, object *victim, object *originator, int state)
 {
-    (void) originator;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
 
     if (pedestal_matches_obj(op, victim)) {
         connection_trigger(op, state);
 
-        if (op->last_heal) {
+        if (op->last_heal != 0) {
             decrease_ob(victim);
         }
     }
@@ -51,7 +55,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 /**
  * Initialize the detector type object methods.
  */
-void object_type_init_detector(void)
+OBJECT_TYPE_INIT_DEFINE(detector)
 {
-    object_type_methods[DETECTOR].move_on_func = move_on_func;
+    OBJECT_METHODS(DETECTOR)->move_on_func = move_on_func;
 }

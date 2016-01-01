@@ -31,27 +31,37 @@
 
 #include <global.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/**
+ * String representations of the in-game directions.
+ */
+static const char *const direction_names[] = {
+    "north", "northeast", "east", "southeast",
+    "south", "southwest", "west", "northwest",
+};
+
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    const char *direction_names[] = {"north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"};
-
-    (void) op;
-    (void) aflags;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_OK;
     }
 
-    draw_info_format(COLOR_WHITE, applier, "You are facing %s.", direction_names[absdir(applier->direction) - 1]);
+    draw_info_format(COLOR_WHITE, applier,
+                     "You are facing %s.",
+                     direction_names[absdir(applier->direction) - 1]);
     return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the compass type object methods.
  */
-void object_type_init_compass(void)
+OBJECT_TYPE_INIT_DEFINE(compass)
 {
-    object_type_methods[COMPASS].apply_func = apply_func;
+    OBJECT_METHODS(COMPASS)->apply_func = apply_func;
 }

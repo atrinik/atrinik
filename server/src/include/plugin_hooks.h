@@ -49,6 +49,8 @@
 #include <player.h>
 #include <object.h>
 #include <exp.h>
+#include <rune.h>
+#include <beacon.h>
 
 /** The actual hooklist. */
 static struct plugin_hooklist hooklist =

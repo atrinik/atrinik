@@ -38,6 +38,7 @@
 #include <packet.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
 
 #include <compile.h>
 #include <eval.h>
@@ -384,7 +385,6 @@ static const Atrinik_Constant constants_types[] = {
     {"HELMET", HELMET},
     {"PANTS", PANTS},
     {"MONEY", MONEY},
-    {"GRAVESTONE", GRAVESTONE},
     {"AMULET", AMULET},
     {"PLAYER_MOVER", PLAYER_MOVER},
     {"CREATOR", CREATOR},

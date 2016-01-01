@@ -35,6 +35,8 @@
 #include <player.h>
 #include <object.h>
 #include <player.h>
+#include <object_methods.h>
+#include <waypoint.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>

@@ -31,16 +31,22 @@
 
 #include <global.h>
 #include <arch.h>
+#include <object_methods.h>
 
 /**
  * Try matching an object for duplicator.
+ *
  * @param op
  * Duplicator.
  * @param tmp
  * The object to try to match.
  */
-static void duplicator_match_obj(object *op, object *tmp)
+static void
+duplicator_match_obj (object *op, object *tmp)
 {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(tmp != NULL);
+
     if (op->slaying != tmp->arch->name) {
         return;
     }
@@ -48,35 +54,34 @@ static void duplicator_match_obj(object *op, object *tmp)
     if (op->level <= 0) {
         destruct_ob(tmp);
     } else {
-        tmp->nrof = MIN(INT32_MAX, (uint64_t) tmp->nrof * op->level);
+        tmp->nrof = MIN(UINT32_MAX, (uint64_t) tmp->nrof * op->level);
     }
 }
 
-/** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator, int state)
+/** @copydoc object_methods_t::move_on_func */
+static int
+move_on_func (object *op, object *victim, object *originator, int state)
 {
-    (void) originator;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
 
-    if (state) {
+    if (state != 0) {
         duplicator_match_obj(op, victim);
     }
 
     return OBJECT_METHOD_OK;
 }
 
-/** @copydoc object_methods::trigger_func */
-static int trigger_func(object *op, object *cause, int state)
+/** @copydoc object_methods_t::trigger_func */
+static int
+trigger_func (object *op, object *cause, int state)
 {
-    object *tmp, *next;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(cause != NULL);
 
-    (void) cause;
-    (void) state;
-
-    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next) {
-        next = tmp->above;
-
+    FOR_MAP_PREPARE(op->map, op->x, op->y, tmp) {
         duplicator_match_obj(op, tmp);
-    }
+    } FOR_MAP_FINISH();
 
     return OBJECT_METHOD_OK;
 }
@@ -84,8 +89,8 @@ static int trigger_func(object *op, object *cause, int state)
 /**
  * Initialize the duplicator type object methods.
  */
-void object_type_init_duplicator(void)
+OBJECT_TYPE_INIT_DEFINE(duplicator)
 {
-    object_type_methods[DUPLICATOR].move_on_func = move_on_func;
-    object_type_methods[DUPLICATOR].trigger_func = trigger_func;
+    OBJECT_METHODS(DUPLICATOR)->move_on_func = move_on_func;
+    OBJECT_METHODS(DUPLICATOR)->trigger_func = trigger_func;
 }

@@ -27,14 +27,21 @@
  * Handles code for @ref DRINK "drink".
  *
  * @author Alex Tokar
+ *
+ * @todo
+ * Since drinks are basically just food objects with different messages,
+ * they should really be merged into one type, using sub-types to
+ * differentiate them. Merging in flesh object types at the same time might
+ * make sense as well.
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the drink type object methods.
  */
-void object_type_init_drink(void)
+OBJECT_TYPE_INIT_DEFINE(drink)
 {
-    object_type_methods[DRINK].fallback = &object_type_methods[FOOD];
+    OBJECT_METHODS(DRINK)->fallback = object_methods_get(FOOD);
 }

@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the dead object type object methods.
  */
-void object_type_init_dead_object(void)
+OBJECT_TYPE_INIT_DEFINE(dead_object)
 {
 }

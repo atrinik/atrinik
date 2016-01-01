@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the trinket type object methods.
  */
-void object_type_init_trinket(void)
+OBJECT_TYPE_INIT_DEFINE(trinket)
 {
-    object_type_methods[TRINKET].apply_func = object_apply_item;
+    OBJECT_METHODS(TRINKET)->apply_func = object_apply_item;
 }

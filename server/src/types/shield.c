@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the shield type object methods.
  */
-void object_type_init_shield(void)
+OBJECT_TYPE_INIT_DEFINE(shield)
 {
-    object_type_methods[SHIELD].apply_func = object_apply_item;
+    OBJECT_METHODS(SHIELD)->apply_func = object_apply_item;
 }

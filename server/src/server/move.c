@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
+#include <door.h>
 
 /**
  * Returns a random direction (1..8).
@@ -197,7 +198,7 @@ int move_ob(object *op, int dir, object *originator)
             return 0;
         }
 
-        if (door_try_open(op, tmp_map, tmp_x, tmp_y, 0)) {
+        if (door_try_open(op, tmp_map, tmp_x, tmp_y, false)) {
             opened_door = true;
         }
     }

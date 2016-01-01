@@ -32,11 +32,14 @@
 #include <global.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    (void) aflags;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
     if (QUERY_FLAG(applier, FLAG_BLIND)) {
         draw_info(COLOR_WHITE, applier, "You are unable to read while blind.");
@@ -48,29 +51,41 @@ static int apply_func(object *op, object *applier, int aflags)
     }
 
     if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS) {
-        draw_info(COLOR_WHITE, applier, "The scroll just doesn't make sense!");
+        draw_info(COLOR_WHITE, applier,
+                  "The scroll just doesn't make sense!");
         return OBJECT_METHOD_OK;
     }
 
     if (applier->type == PLAYER) {
         /* Players need a literacy skill to read scrolls. */
         if (!change_skill(applier, SK_LITERACY)) {
-            draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
+            draw_info(COLOR_WHITE, applier,
+                      "You are unable to decipher the strange symbols.");
             return OBJECT_METHOD_OK;
         }
 
         /* Also need the appropriate skill for the scroll's spell. */
         if (!change_skill(applier, SK_WIZARDRY_SPELLS)) {
-            draw_info(COLOR_WHITE, applier, "You can read the scroll but you don't understand it.");
+            draw_info(COLOR_WHITE, applier,
+                      "You can read the scroll but you don't understand it.");
             return OBJECT_METHOD_OK;
         }
 
         CONTR(applier)->stat_scrolls_used++;
     }
 
-    draw_info_format(COLOR_WHITE, applier, "The scroll of %s turns to dust.", spells[op->stats.sp].name);
+    draw_info_format(COLOR_WHITE, applier,
+                     "The scroll of %s turns to dust.",
+                     spells[op->stats.sp].name);
 
-    cast_spell(applier, op, applier->direction ? applier->direction : SOUTHEAST, op->stats.sp, 0, CAST_SCROLL, NULL);
+    int direction = applier->direction ? applier->direction : SOUTHEAST;
+    cast_spell(applier,
+               op,
+               direction,
+               op->stats.sp,
+               0,
+               CAST_SCROLL,
+               NULL);
     decrease_ob(op);
 
     return OBJECT_METHOD_OK;
@@ -79,7 +94,7 @@ static int apply_func(object *op, object *applier, int aflags)
 /**
  * Initialize the scroll type object methods.
  */
-void object_type_init_scroll(void)
+OBJECT_TYPE_INIT_DEFINE(scroll)
 {
-    object_type_methods[SCROLL].apply_func = apply_func;
+    OBJECT_METHODS(SCROLL)->apply_func = apply_func;
 }

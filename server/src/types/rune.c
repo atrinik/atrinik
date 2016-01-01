@@ -32,6 +32,9 @@
 #include <global.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
+#include <disease.h>
+#include <rune.h>
 
 /**
  * Springs a rune.
@@ -44,11 +47,8 @@
 void
 rune_spring (object *op, object *victim)
 {
-    object *env;
-
-    if (op == NULL || victim == NULL) {
-        return;
-    }
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
 
     if (op->stats.hp == 0) {
         return;
@@ -63,7 +63,7 @@ rune_spring (object *op, object *victim)
         draw_info(COLOR_WHITE, victim, op->msg);
     }
 
-    env = get_env_recursive(op);
+    object *env = get_env_recursive(op);
     trap_show(op, env);
 
     if (victim->type == PLAYER) {
@@ -98,7 +98,7 @@ rune_spring (object *op, object *victim)
                         continue;
                     }
 
-                    infect_object(victim, tmp, 1);
+                    disease_infect(tmp, victim, 1);
                     object_remove(tmp, 0);
                     object_destroy(tmp);
                 } FOR_INV_FINISH();
@@ -130,17 +130,20 @@ rune_spring (object *op, object *victim)
         /* Make it stick around until its spells are gone */
         op->stats.food = 20;
         SET_FLAG(op, FLAG_IS_USED_UP);
-        op->speed = op->speed_left = 1.0f;
+        op->speed = op->speed_left = 1.0;
         update_ob_speed(op);
         /* Clear trapped flag. */
         set_trapped_flag(env);
     }
 }
 
-/** @copydoc object_methods::move_on_func */
+/** @copydoc object_methods_t::move_on_func */
 static int
 move_on_func (object *op, object *victim, object *originator, int state)
 {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
+
     rune_spring(op, victim);
     return OBJECT_METHOD_OK;
 }
@@ -148,7 +151,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
 /**
  * Initialize the rune type object methods.
  */
-void object_type_init_rune(void)
+OBJECT_TYPE_INIT_DEFINE(rune)
 {
-    object_type_methods[RUNE].move_on_func = move_on_func;
+    OBJECT_METHODS(RUNE)->move_on_func = move_on_func;
 }

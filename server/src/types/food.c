@@ -32,6 +32,7 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
 
 /** Maximum allowed food value. */
 #define FOOD_MAX 999
@@ -39,6 +40,7 @@
 /**
  * Create a food force to include buff/debuff effects of stats and
  * protections to the player.
+ *
  * @param who
  * The player object.
  * @param food
@@ -46,60 +48,39 @@
  * @param force
  * The force object.
  */
-static void create_food_force(object *who, object *food, object *force)
+static void
+food_create_force (object *who, object *food, object *force)
 {
-    int i;
+    HARD_ASSERT(who != NULL);
+    HARD_ASSERT(food != NULL);
+    HARD_ASSERT(force != NULL);
 
-    force->stats.Str = food->stats.Str;
-    force->stats.Pow = food->stats.Pow;
-    force->stats.Dex = food->stats.Dex;
-    force->stats.Con = food->stats.Con;
-    force->stats.Int = food->stats.Int;
-
-    for (i = 0; i < NROFATTACKS; i++) {
-        force->protection[i] = food->protection[i];
+    for (int i = 0; i < NUM_STATS; i++) {
+        set_attr_value(&force->stats, i, get_attr_value(&food->stats, i));
     }
 
-    /* if damned, set all negative if not and double or triple them */
+    memcpy(force->protection, food->protection, sizeof(force->protection));
+
+    /* Negate all stats for cursed food */
     if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED)) {
-        int stat_multiplier = QUERY_FLAG(food, FLAG_CURSED) ? 2 : 3;
+        int mult = QUERY_FLAG(food, FLAG_CURSED) ? 2 : 3;
 
-        if (force->stats.Str > 0) {
-            force->stats.Str = -force->stats.Str;
+        for (int i = 0; i < NUM_STATS; i++) {
+            int val = get_attr_value(&force->stats, i);
+            if (val > 0) {
+                val = -val;
+            }
+
+            val *= mult;
+            set_attr_value(&force->stats, i, val);
         }
 
-        force->stats.Str *= stat_multiplier;
-
-        if (force->stats.Dex > 0) {
-            force->stats.Dex = -force->stats.Dex;
-        }
-
-        force->stats.Dex *= stat_multiplier;
-
-        if (force->stats.Con > 0) {
-            force->stats.Con = -force->stats.Con;
-        }
-
-        force->stats.Con *= stat_multiplier;
-
-        if (force->stats.Int > 0) {
-            force->stats.Int = -force->stats.Int;
-        }
-
-        force->stats.Int *= stat_multiplier;
-
-        if (force->stats.Pow > 0) {
-            force->stats.Pow = -force->stats.Pow;
-        }
-
-        force->stats.Pow *= stat_multiplier;
-
-        for (i = 0; i < NROFATTACKS; i++) {
+        for (int i = 0; i < NROFATTACKS; i++) {
             if (force->protection[i] > 0) {
                 force->protection[i] = -force->protection[i];
             }
 
-            force->protection[i] *= stat_multiplier;
+            force->protection[i] *= mult;
         }
     }
 
@@ -110,11 +91,11 @@ static void create_food_force(object *who, object *food, object *force)
     SET_FLAG(force, FLAG_APPLIED);
     SET_FLAG(force, FLAG_IS_USED_UP);
 
-    force = insert_ob_in_ob(force, who);
-    if (force == NULL) {
-        log_error("Failed to insert force from food %s into %s.",
-                object_get_str(food), object_get_str(who));
-    }
+    force = object_insert_into(force, who, 0);
+    SOFT_ASSERT(force != NULL,
+                "Failed to insert force from food %s into %s.",
+                object_get_str(food),
+                object_get_str(who));
 }
 
 /**
@@ -134,38 +115,46 @@ static void create_food_force(object *who, object *food, object *force)
  * Food effects can stack. For really powerful food, a high food value
  * should be set, so the player can't eat a lot of such food, as his
  * stomach will be full.
+ *
  * @param who
  * Object eating the food.
  * @param food
  * The food object.
  */
-static void eat_special_food(object *who, object *food)
+static void
+food_eat_special (object *who, object *food)
 {
-    /* if there is any stat or protection value - create force for the object!
-     * */
-    if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int) {
-        create_food_force(who, food, arch_get("force"));
-    } else {
-        int i;
+    HARD_ASSERT(who != NULL);
+    HARD_ASSERT(food != NULL);
 
-        for (i = 0; i < NROFATTACKS; i++) {
-            if (food->protection[i] > 0) {
-                create_food_force(who, food, arch_get("force"));
-                break;
-            }
+    /* Check if we need to create a special force to hold stat
+     * modifications. */
+    bool create_force = false;
+    for (int i = 0; i < NUM_STATS && !create_force; i++) {
+        if (get_attr_value(&food->stats, i) != 0) {
+            create_force = true;
         }
     }
 
-    /* Check for hp, sp change */
+    for (int i = 0; i < NROFATTACKS && !create_force; i++) {
+        if (food->protection[i] != 0) {
+            create_force = true;
+        }
+    }
+
+    if (create_force) {
+        food_create_force(who, food, arch_get("force"));
+    }
+
+    /* Check for HP change */
     if (food->stats.hp) {
         if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED)) {
             int tmp = food->stats.hp;
-
             if (tmp > 0) {
                 tmp = -tmp;
             }
 
-            snprintf(CONTR(who)->killer, sizeof(CONTR(who)->killer), "%s", food->name);
+            snprintf(VS(CONTR(who)->killer), "%s", food->name);
 
             if (QUERY_FLAG(food, FLAG_CURSED)) {
                 who->stats.hp += tmp * 2;
@@ -177,17 +166,16 @@ static void eat_special_food(object *who, object *food)
         } else {
             draw_info(COLOR_WHITE, who, "You begin to feel better.");
             who->stats.hp += food->stats.hp;
-
             if (who->stats.hp > who->stats.maxhp) {
                 who->stats.hp = who->stats.maxhp;
             }
         }
     }
 
+    /* Check for SP change */
     if (food->stats.sp) {
         if (QUERY_FLAG(food, FLAG_CURSED) || QUERY_FLAG(food, FLAG_DAMNED)) {
             int tmp = food->stats.sp;
-
             if (tmp > 0) {
                 tmp = -tmp;
             }
@@ -206,7 +194,6 @@ static void eat_special_food(object *who, object *food)
         } else {
             draw_info(COLOR_WHITE, who, "You feel a rush of magical energy!");
             who->stats.sp += food->stats.sp;
-
             if (who->stats.sp > who->stats.maxsp) {
                 who->stats.sp = who->stats.maxsp;
             }
@@ -214,56 +201,71 @@ static void eat_special_food(object *who, object *food)
     }
 }
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    (void) aflags;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_UNHANDLED;
     }
 
     if (applier->stats.food + op->stats.food > FOOD_MAX) {
-        if ((applier->stats.food + op->stats.food) - FOOD_MAX > op->stats.food / 5) {
-            draw_info_format(COLOR_WHITE, applier, "You are too full to %s this right now!", op->type == DRINK ? "drink" : "eat");
+        if ((applier->stats.food + op->stats.food) - FOOD_MAX >
+            op->stats.food / 5) {
+            draw_info_format(COLOR_WHITE, applier,
+                             "You are too full to %s this right now!",
+                             op->type == DRINK ? "drink" : "eat");
             return OBJECT_METHOD_OK;
         }
 
         if (op->type == FOOD || op->type == FLESH) {
-            draw_info(COLOR_WHITE, applier, "You feel full, but what a waste of food!");
+            draw_info(COLOR_WHITE, applier,
+                      "You feel full, but what a waste of food!");
         } else {
-            draw_info(COLOR_WHITE, applier, "Most of the drink goes down your face not your throat!");
+            draw_info(COLOR_WHITE, applier,
+                      "Most of the drink goes down your face not your throat!");
         }
     }
 
     if (!QUERY_FLAG(op, FLAG_CURSED) && !QUERY_FLAG(op, FLAG_DAMNED)) {
-        int capacity_remaining;
-
-        capacity_remaining = FOOD_MAX - applier->stats.food;
-
+        int capacity_remaining = FOOD_MAX - applier->stats.food;
         if (op->type == DRINK) {
-            draw_info_format(COLOR_WHITE, applier, "Ahhh... that %s tasted good.", op->name);
+            draw_info_format(COLOR_WHITE, applier,
+                             "Ahhh... that %s tasted good.",
+                             op->name);
         } else {
-            draw_info_format(COLOR_WHITE, applier, "The %s tasted %s", op->name, op->type == FLESH ? "terrible!" : "good.");
+            draw_info_format(COLOR_WHITE, applier,
+                             "The %s tasted %s",
+                             op->name,
+                             op->type == FLESH ? "terrible!" : "good.");
         }
 
-        applier->stats.food = MAX(0, MIN(FOOD_MAX, applier->stats.food + ABS(op->stats.food)));
+        applier->stats.food =
+            MAX(0, MIN(FOOD_MAX, applier->stats.food + ABS(op->stats.food)));
         CONTR(applier)->stat_food_consumed += op->stats.food;
 
+        /* Heal for a bit */
         applier->stats.hp += MIN(capacity_remaining, op->stats.food) / 50;
-
         if (applier->stats.hp > applier->stats.maxhp) {
             applier->stats.hp = applier->stats.maxhp;
         }
     } else {
-        draw_info_format(COLOR_WHITE, applier, "The %s tasted terrible!", op->name);
-        applier->stats.food = MAX(0, MIN(FOOD_MAX, applier->stats.food - ABS(op->stats.food)));
+        draw_info_format(COLOR_WHITE, applier,
+                         "The %s tasted terrible!",
+                         op->name);
+        applier->stats.food =
+            MAX(0, MIN(FOOD_MAX, applier->stats.food - ABS(op->stats.food)));
     }
 
     CONTR(applier)->stat_food_num_consumed++;
 
-    if (op->title || QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) {
-        eat_special_food(applier, op);
+    if (op->title != NULL ||
+        QUERY_FLAG(op, FLAG_CURSED) ||
+        QUERY_FLAG(op, FLAG_DAMNED)) {
+        food_eat_special(applier, op);
     }
 
     decrease_ob(op);
@@ -273,7 +275,7 @@ static int apply_func(object *op, object *applier, int aflags)
 /**
  * Initialize the food type object methods.
  */
-void object_type_init_food(void)
+OBJECT_TYPE_INIT_DEFINE(food)
 {
-    object_type_methods[FOOD].apply_func = apply_func;
+    OBJECT_METHODS(FOOD)->apply_func = apply_func;
 }

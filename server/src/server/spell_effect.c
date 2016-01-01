@@ -31,6 +31,7 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
+#include <disease.h>
 
 /**
  * This is really used mostly for spell fumbles at the like.
@@ -411,7 +412,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     switch (spell_type) {
     case SP_CURE_DISEASE:
 
-        if (cure_disease(target, op)) {
+        if (disease_cure(target, op)) {
             success = 1;
         }
 
@@ -564,7 +565,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     }
 
     if (heal > 0) {
-        if (reduce_symptoms(target, heal)) {
+        if (disease_reduce_symptoms(target, heal)) {
             success = 1;
         }
 
@@ -1237,7 +1238,7 @@ int cast_cause_disease(object *op, object *caster, int dir, struct archetype *di
                 disease->stats.sp -= dam;
             }
 
-            if (infect_object(walk, disease, 1)) {
+            if (disease_infect(disease, walk, 1)) {
                 draw_info_format(COLOR_WHITE, op, "You inflict %s on %s!", disease->name, walk->name);
                 return 1;
             }

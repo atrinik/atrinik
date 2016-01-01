@@ -42,6 +42,11 @@
 #include <player.h>
 #include <object.h>
 #include <exp.h>
+#include <arrow.h>
+#include <bow.h>
+#include <magic_mirror.h>
+#include <sound_ambient.h>
+#include <object_methods.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)

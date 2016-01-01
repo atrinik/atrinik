@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the map type object methods.
  */
-void object_type_init_map(void)
+OBJECT_TYPE_INIT_DEFINE(map)
 {
 }

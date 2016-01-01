@@ -24,15 +24,135 @@
 
 /**
  * @file
- * @ref ARROW "Arrow" and @ref BOW "bow" related code.
+ * @ref ARROW "Arrow" related code.
  */
 
 #include <global.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
+#include <arrow.h>
+#include <bow.h>
+
+/** @copydoc object_methods_t::ranged_fire_func */
+static int
+ranged_fire_func (object *op, object *shooter, int dir, double *delay)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(shooter != NULL);
+
+    if (dir == 0) {
+        draw_info(COLOR_WHITE, shooter, "You can't throw that at yourself.");
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (QUERY_FLAG(op, FLAG_STARTEQUIP)) {
+        draw_info(COLOR_WHITE, shooter, "The gods won't let you throw that.");
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (op->weight <= 0 || QUERY_FLAG(op, FLAG_NO_DROP)) {
+        char *name = object_get_base_name_s(op, shooter);
+        draw_info_format(COLOR_WHITE, shooter, "You can't throw %s.", name);
+        efree(name);
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (QUERY_FLAG(op, FLAG_APPLIED) && OBJECT_CURSED(op)) {
+        char *name = object_get_base_name_s(op, shooter);
+        draw_info_format(COLOR_WHITE, shooter, "The %s sticks to your hand!",
+                         name);
+        efree(name);
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    op = object_stack_get_removed(op, 1);
+
+    /* Save original WC, damage and range. */
+    op->last_heal = op->stats.wc;
+    op->stats.hp = op->stats.dam;
+    op->stats.sp = op->last_sp;
+
+    /* Calculate moving speed. */
+    int str = shooter->type == PLAYER ? shooter->stats.Str : MAX_STAT / 2;
+    op->speed = MIN(1.0f, (speed_bonus[str] + 1.0) / 1.5);
+
+    /* Get the used skill. */
+    object *skill = SK_skill(shooter);
+    /* If we got the skill, add in the skill's modifiers. */
+    if (skill != NULL) {
+        /* Add WC. */
+        op->stats.wc += skill->last_heal;
+        /* Add tiles range. */
+        op->last_sp += skill->last_sp;
+    }
+
+    op->stats.dam += op->magic;
+    op->stats.wc += SK_level(shooter);
+    op->stats.wc += op->magic;
+
+    if (shooter->type == PLAYER) {
+        op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
+        op->stats.wc += wc_bonus[shooter->stats.Dex];
+    } else {
+        op->stats.wc += 5;
+    }
+
+    double dam = op->stats.dam * LEVEL_DAMAGE(SK_level(shooter));
+    if (op->item_quality) {
+        dam *= op->item_condition / 100.0;
+    }
+    op->stats.dam = MAX(1.0, dam);
+
+    if (delay != NULL) {
+        *delay = op->last_grace;
+    }
+
+    op = object_projectile_fire(op, shooter, dir);
+    if (op == NULL) {
+        return OBJECT_METHOD_OK;
+    }
+
+    if (shooter->type == PLAYER) {
+        CONTR(shooter)->stat_missiles_thrown++;
+    }
+
+    play_sound_map(shooter->map,
+                   CMD_SOUND_EFFECT,
+                   "throw.ogg",
+                   shooter->x,
+                   shooter->y,
+                   0,
+                   0);
+    return OBJECT_METHOD_OK;
+}
+
+/**
+ * Initialize the arrow type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(arrow)
+{
+    OBJECT_METHODS(ARROW)->apply_func =
+        object_apply_item;
+    OBJECT_METHODS(ARROW)->ranged_fire_func =
+        ranged_fire_func;
+    OBJECT_METHODS(ARROW)->projectile_stop_func =
+        common_object_projectile_stop_missile;
+    OBJECT_METHODS(ARROW)->process_func =
+        common_object_projectile_process;
+    OBJECT_METHODS(ARROW)->projectile_move_func =
+        common_object_projectile_move;
+    OBJECT_METHODS(ARROW)->projectile_fire_func =
+        common_object_projectile_fire_missile;
+    OBJECT_METHODS(ARROW)->projectile_hit_func =
+        common_object_projectile_hit;
+    OBJECT_METHODS(ARROW)->move_on_func =
+        common_object_projectile_move_on;
+}
 
 /**
  * Calculate arrow's wc.
+ *
  * @param op
  * Player.
  * @param bow
@@ -42,18 +162,19 @@
  * @return
  * The arrow's wc.
  */
-int16_t arrow_get_wc(object *op, object *bow, object *arrow)
+int16_t
+arrow_get_wc (object *op, object *bow, object *arrow)
 {
-    int level;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(bow != NULL);
+    HARD_ASSERT(arrow != NULL);
 
     op = HEAD(op);
 
+    int level;
     if (op->type == PLAYER) {
-        object *skill;
-
-        skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
-
-        if (!skill) {
+        object *skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
+        if (skill == NULL) {
             return 0;
         }
 
@@ -62,12 +183,13 @@ int16_t arrow_get_wc(object *op, object *bow, object *arrow)
         level = op->level;
     }
 
-    return arrow->stats.wc + bow->magic + arrow->magic + level +
-           wc_bonus[op->stats.Dex] + bow->stats.wc;
+    return (arrow->stats.wc + bow->magic + arrow->magic + level +
+            wc_bonus[op->stats.Dex] + bow->stats.wc);
 }
 
 /**
  * Calculate arrow's damage.
+ *
  * @param op
  * Player.
  * @param bow
@@ -77,11 +199,16 @@ int16_t arrow_get_wc(object *op, object *bow, object *arrow)
  * @return
  * The arrow's damage.
  */
-int16_t arrow_get_damage(object *op, object *bow, object *arrow)
+int16_t
+arrow_get_damage (object *op, object *bow, object *arrow)
 {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(bow != NULL);
+    HARD_ASSERT(arrow != NULL);
+
     op = HEAD(op);
 
-    int8_t level;
+    int level;
     if (op->type == PLAYER) {
         object *skill = CONTR(op)->skill_ptr[bow_get_skill(bow)];
         if (skill == NULL) {
@@ -104,7 +231,7 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
         dam += dam * dam_bonus[op->stats.Str] / 10.0;
     }
 
-    uint8_t item_condition;
+    int item_condition;
     if (bow->item_condition > arrow->item_condition) {
         item_condition = bow->item_condition;
     } else {
@@ -113,7 +240,7 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
 
     dam = dam / 100.0 * item_condition;
 
-    return (int16_t) dam;
+    return dam;
 }
 
 /**
@@ -121,39 +248,40 @@ int16_t arrow_get_damage(object *op, object *bow, object *arrow)
  *
  * Find an arrow in the inventory and after that in the right type
  * container (quiver).
+ *
  * @param op
  * Player.
  * @param type
- * Type of the ammunition (arrows, bolts, etc).
+ * Type of the ammunition (arrows, bolts, etc). Can be NULL.
  * @return
  * Pointer to the arrow, NULL if not found.
  */
-object *arrow_find(object *op, shstr *type)
+object *
+arrow_find (object *op, shstr *type)
 {
-    object *tmp;
+    HARD_ASSERT(op != NULL);
 
+    /* For non-players, little more work is necessary to find an arrow. */
     if (op->type != PLAYER) {
-        object *tmp2;
-
-        for (tmp = op->inv; tmp; tmp = tmp->below) {
+        FOR_INV_PREPARE(op, tmp) {
             if (tmp->type == ARROW && tmp->race == type) {
                 return tmp;
-            } else if (tmp->type == CONTAINER && tmp->race == type && QUERY_FLAG(tmp, FLAG_APPLIED)) {
-                tmp2 = arrow_find(tmp, type);
+            }
 
-                if (tmp2) {
-                    return tmp2;
+            if (tmp->type == CONTAINER && tmp->race == type) {
+                object *arrow = arrow_find(tmp, type);
+                if (arrow != NULL) {
+                    return arrow;
                 }
             }
-        }
+        } FOR_INV_FINISH();
 
         return NULL;
     }
 
-    tmp = CONTR(op)->equipment[PLAYER_EQUIP_AMMO];
-
+    object *tmp = CONTR(op)->equipment[PLAYER_EQUIP_AMMO];
     /* Nothing readied. */
-    if (!tmp) {
+    if (tmp == NULL) {
         return NULL;
     }
 
@@ -171,106 +299,4 @@ object *arrow_find(object *op, shstr *type)
     }
 
     return NULL;
-}
-
-/** @copydoc object_methods::ranged_fire_func */
-static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
-{
-    object *skill;
-
-    if (dir == 0) {
-        draw_info(COLOR_WHITE, shooter, "You can't throw that at yourself.");
-        return OBJECT_METHOD_UNHANDLED;
-    }
-
-    if (QUERY_FLAG(op, FLAG_STARTEQUIP)) {
-        draw_info(COLOR_WHITE, shooter, "The gods won't let you throw that.");
-        return OBJECT_METHOD_UNHANDLED;
-    }
-
-    if (op->weight <= 0 || QUERY_FLAG(op, FLAG_NO_DROP)) {
-        char *name = object_get_base_name_s(op, shooter);
-        draw_info_format(COLOR_WHITE, shooter, "You can't throw %s.", name);
-        efree(name);
-        return OBJECT_METHOD_UNHANDLED;
-    }
-
-    if (QUERY_FLAG(op, FLAG_APPLIED) && OBJECT_CURSED(op)) {
-        char *name = object_get_base_name_s(op, shooter);
-        draw_info_format(COLOR_WHITE, shooter, "The %s sticks to your hand!",
-                name);
-        efree(name);
-        return OBJECT_METHOD_UNHANDLED;
-    }
-
-    op = object_stack_get_removed(op, 1);
-
-    /* Save original WC, damage and range. */
-    op->last_heal = op->stats.wc;
-    op->stats.hp = op->stats.dam;
-    op->stats.sp = op->last_sp;
-
-    /* Calculate moving speed. */
-    op->speed = MIN(1.0f, ((shooter->type == PLAYER ? speed_bonus[shooter->stats.Str] : 0.0f) + 1.0f) / 1.5f);
-
-    /* Get the used skill. */
-    skill = SK_skill(shooter);
-
-    /* If we got the skill, add in the skill's modifiers. */
-    if (skill) {
-        /* Add WC. */
-        op->stats.wc += skill->last_heal;
-        /* Add tiles range. */
-        op->last_sp += skill->last_sp;
-    }
-
-    op->stats.dam += op->magic;
-    op->stats.wc += SK_level(shooter);
-    op->stats.wc += op->magic;
-
-    if (shooter->type == PLAYER) {
-        op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
-        op->stats.wc += wc_bonus[shooter->stats.Dex];
-    } else {
-        op->stats.wc += 5;
-    }
-
-    op->stats.dam = (int16_t) ((double) op->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
-
-    if (op->item_quality) {
-        op->stats.dam = MAX(0, (int16_t) (((double) op->stats.dam / 100.0f) * (double) op->item_condition));
-    }
-
-    if (delay) {
-        *delay = op->last_grace;
-    }
-
-    op = object_projectile_fire(op, shooter, dir);
-
-    if (op == NULL) {
-        return OBJECT_METHOD_OK;
-    }
-
-    if (shooter->type == PLAYER) {
-        CONTR(shooter)->stat_missiles_thrown++;
-    }
-
-    play_sound_map(shooter->map, CMD_SOUND_EFFECT, "throw.ogg", shooter->x, shooter->y, 0, 0);
-
-    return OBJECT_METHOD_OK;
-}
-
-/**
- * Initialize the arrow type object methods.
- */
-void object_type_init_arrow(void)
-{
-    object_type_methods[ARROW].apply_func = object_apply_item;
-    object_type_methods[ARROW].ranged_fire_func = ranged_fire_func;
-    object_type_methods[ARROW].projectile_stop_func = common_object_projectile_stop_missile;
-    object_type_methods[ARROW].process_func = common_object_projectile_process;
-    object_type_methods[ARROW].projectile_move_func = common_object_projectile_move;
-    object_type_methods[ARROW].projectile_fire_func = common_object_projectile_fire_missile;
-    object_type_methods[ARROW].projectile_hit_func = common_object_projectile_hit;
-    object_type_methods[ARROW].move_on_func = common_object_projectile_move_on;
 }

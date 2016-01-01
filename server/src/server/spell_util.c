@@ -34,6 +34,7 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
+#include <object_methods.h>
 
 /**
  * Array of pointers to archetypes used by the spells for quick

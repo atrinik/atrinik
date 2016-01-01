@@ -238,10 +238,6 @@
  */
 #define MONEY 36
 /**
- * Objects that appear on place of player's death.
- */
-#define GRAVESTONE 38
-/**
  * An amulet.
  */
 #define AMULET 39

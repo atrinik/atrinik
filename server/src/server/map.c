@@ -33,6 +33,10 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
+#include <exit.h>
+#include <door.h>
+#include <check_inv.h>
+#include <magic_mirror.h>
 
 int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280
@@ -229,7 +233,7 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
 
     DL_FOREACH(map1->exits, exit)
     {
-        m = exit_get_destination(exit->obj, NULL, NULL, 0);
+        m = exit_get_destination(exit->obj, NULL, NULL, false);
 
         if (m == NULL) {
             continue;
@@ -616,7 +620,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
         /* If the tile is either no_pass or a closed door that we cannot open,
          * then we cannot enter the tile. */
         if (flags & P_NO_PASS || (flags & P_DOOR_CLOSED &&
-                !door_try_open(op, m, x, y, 1))) {
+                !door_try_open(op, m, x, y, true))) {
             return flags;
         }
     }
@@ -2327,7 +2331,7 @@ static int on_same_map_exits(mapstruct *map1, mapstruct *map2)
 
     DL_FOREACH(map1->exits, exit)
     {
-        m = exit_get_destination(exit->obj, NULL, NULL, 0);
+        m = exit_get_destination(exit->obj, NULL, NULL, false);
 
         if (m == NULL) {
             continue;

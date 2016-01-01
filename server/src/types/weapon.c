@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the weapon type object methods.
  */
-void object_type_init_weapon(void)
+OBJECT_TYPE_INIT_DEFINE(weapon)
 {
-    object_type_methods[WEAPON].apply_func = object_apply_item;
+    OBJECT_METHODS(WEAPON)->apply_func = object_apply_item;
 }

@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the corpse type object methods.
  */
-void object_type_init_corpse(void)
+OBJECT_TYPE_INIT_DEFINE(corpse)
 {
 }

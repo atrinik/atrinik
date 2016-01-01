@@ -30,10 +30,11 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the spawn point info type object methods.
  */
-void object_type_init_spawn_point_info(void)
+OBJECT_TYPE_INIT_DEFINE(spawn_point_info)
 {
 }
