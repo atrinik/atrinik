@@ -513,23 +513,24 @@ send_attack_msg (object  *op,
  * Damage to actually do.
  */
 static double
-attack_hit_attacktype (object  *op,
-                       object  *hitter,
-                       double   dam,
-                       double   dam_orig,
-                       atnr_t atnr)
+attack_hit_attacktype (object *op,
+                       object *hitter,
+                       double  dam,
+                       double  dam_orig,
+                       atnr_t  atnr)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
     HARD_ASSERT(dam >= 0.0);
 
     /* Adjust the damage based on the attacker's attack type value. */
-    dam *= hitter->attack[atnr] / 100.0;
+    double modifier = hitter->attack[atnr] / 100.0;
+    dam *= modifier;
     if (dam_orig > 0 && dam < 1.0) {
         dam = 1.0;
     }
 
-    dam_orig = dam;
+    dam_orig *= modifier;
 
 #define ATTACK_PROTECT_DAMAGE()                         \
     do {                                                \
