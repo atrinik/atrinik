@@ -101,6 +101,17 @@ enum skillnrs {
      (nr) == SK_PIERCE_WEAPONS || (nr) == SK_IMPACT_WEAPONS ||  \
      (nr) == SK_UNARMED || (nr) == SK_KARATE)
 
+/**
+ * Checks if the specified skill is an archery skill.
+ *
+ * @param nr
+ * The skill number to check.
+ * @return
+ * Whether the skill number is an archery skill.
+ */
+#define SKILL_IS_ARCHERY(nr) \
+    ((nr) >= SK_BOW_ARCHERY && (nr) <= SK_SLING_ARCHERY)
+
 struct archetype;
 
 /** Skill structure for the skills array. */
