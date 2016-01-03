@@ -1447,7 +1447,9 @@ object_destroy (object *ob)
     ob->speed = 0;
     update_ob_speed(ob);
 
-    object_cb_deinit(ob);
+    if (ob->head == NULL) {
+        object_cb_deinit(ob);
+    }
 
     /* Free attached attrsets */
     if (ob->custom_attrset) {

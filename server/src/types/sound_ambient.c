@@ -155,8 +155,10 @@ deinit_func (object *op)
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(op->type == SOUND_AMBIENT);
 
-    sound_ambient_match_free(op->custom_attrset);
-    op->custom_attrset = NULL;
+    if (op->custom_attrset != NULL) {
+        sound_ambient_match_free(op->custom_attrset);
+        op->custom_attrset = NULL;
+    }
 }
 
 /**
@@ -419,8 +421,10 @@ sound_ambient_match_parse (object *op, const char *str)
         return;
     }
 
-    sound_ambient_match_free(op->custom_attrset);
-    op->custom_attrset = NULL;
+    if (op->custom_attrset != NULL) {
+        sound_ambient_match_free(op->custom_attrset);
+        op->custom_attrset = NULL;
+    }
 
     sound_ambient_match_t *match = NULL;
     sound_ambient_match_t *match_stack[10];
