@@ -1191,6 +1191,10 @@ void living_update_monster(object *op)
     base = living_get_base_info(op);
 
     CLEAR_FLAG(op, FLAG_READY_BOW);
+    op->absorb = 0;
+    op->block = 0;
+    memcpy(&op->protection, &op->arch->clone.protection,
+           sizeof(op->protection));
 
     op->stats.maxhp = (base->stats.maxhp * (op->level + 3) + (op->level / 2) *
             base->stats.maxhp) / 10;
