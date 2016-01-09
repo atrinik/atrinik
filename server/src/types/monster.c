@@ -577,6 +577,7 @@ static void process_func(object *op)
         object *spawn_point_info;
 
         if (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || ((spawn_point_info = present_in_ob(SPAWN_POINT_INFO, op)) && spawn_point_info->owner && !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount))) {
+            monster_drop_arrows(op);
             object_remove(op, 0);
             object_destroy(op);
             return;
@@ -1875,4 +1876,27 @@ bool monster_is_ally_of(object *op, object *target)
     }
 
     return faction_is_alliance(op_faction, target_faction);
+}
+
+/**
+ * Makes the specified monster drop the arrows that were stuck into it.
+ *
+ * @param op Monster. Must be on a map.
+ */
+void
+monster_drop_arrows (object *op)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(op->type == MONSTER);
+    SOFT_ASSERT(op->map != NULL, "Monster is not on a map: %s",
+                object_get_str(op));
+
+    FOR_INV_PREPARE(op, tmp) {
+        if (tmp->type == ARROW && tmp->attacked_by_count != 0) {
+            object_remove(tmp, 0);
+            tmp->x = op->x;
+            tmp->y = op->y;
+            insert_ob_in_map(tmp, op->map, op, 0);
+        }
+    } FOR_INV_FINISH();
 }

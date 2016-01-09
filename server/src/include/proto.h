@@ -674,6 +674,7 @@ extern int is_friend_of(object *op, object *obj);
 extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
 extern _Bool monster_is_ally_of(object *op, object *target);
+extern void monster_drop_arrows(object *op);
 /* src/toolkit/binreloc.c */
 extern void toolkit_binreloc_init(void);
 extern void toolkit_binreloc_deinit(void);

@@ -871,8 +871,16 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
                                 tmp->owner->speed_left += 1.0f;
                                 tmp->owner->enemy = NULL;
                             }
+                        } else if (tmp->type == ARROW &&
+                                   tmp->attacked_by_count != 0) {
+                            tmp->x = head->x;
+                            tmp->y = head->y;
 
-                            break;
+                            if (unique || QUERY_FLAG(tmp, FLAG_UNIQUE)) {
+                                object_save(tmp, fp2);
+                            } else {
+                                object_save(tmp, fp);
+                            }
                         }
                     }
 
