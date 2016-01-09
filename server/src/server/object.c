@@ -1383,6 +1383,8 @@ drop_ob_inv (object *ob)
         } else {
             insert_ob_in_map(corpse, ob->map, NULL, 0);
         }
+
+        object_reverse_inventory(corpse);
     }
 }
 
