@@ -30,7 +30,7 @@
 #ifndef OBJECT_METHODS_H
 #define OBJECT_METHODS_H
 
-typedef struct obj object;
+#include <decls.h>
 
 typedef struct object_methods {
     /**

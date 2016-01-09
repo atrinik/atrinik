@@ -30,6 +30,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include <decls.h>
 #include <attack.h>
 
 /**
@@ -90,7 +91,7 @@ typedef struct key_value_struct {
 /**
  * Object structure.
  */
-typedef struct obj {
+struct obj {
     /* These variables are not changed by copy_object(): */
 
     /**
@@ -481,10 +482,10 @@ typedef struct obj {
 
     /** Fields not explicitly known by the loader. */
     key_value *key_values;
-} object;
+};
 
 /** Used to link together several objects. */
-typedef struct oblnk {
+struct oblnk {
 
     /** The object link. */
     union {
@@ -506,7 +507,7 @@ typedef struct oblnk {
 
     /** Used as connected value in buttons/gates. */
     long value;
-} objectlink;
+};
 
 #define free_objectlink_simple(_chunk_) mempool_return(pool_objectlink, (_chunk_));
 

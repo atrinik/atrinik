@@ -31,7 +31,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-typedef struct obj object;
+#include <decls.h>
 
 /** Number of darkness level. Add +1 for "total dark" */
 #define MAX_DARKNESS 7
@@ -532,7 +532,6 @@ typedef struct map_exit {
 } map_exit_t;
 
 struct path_node;
-typedef struct oblnk objectlink;
 
 /**
  * In general, code should always use the macros above (or functions in

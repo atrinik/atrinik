@@ -30,6 +30,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <decls.h>
 #include <attack.h>
 
 /** Level color structure. */
@@ -129,14 +130,14 @@ typedef struct player_path {
  * Player faction structure. Holds information about the player's affiliation
  * with a particular faction.
  */
-typedef struct player_faction {
+struct player_faction {
     shstr *name; ///< Name of the faction.
     double reputation; ///< Reputation.
     UT_hash_handle hh; ///< Hash handle.
-} player_faction_t;
+};
 
 /** The player structure. */
-typedef struct pl_player {
+struct pl_player {
     /** Pointer to previous player, NULL if this is first. */
     struct pl_player *prev;
 
@@ -579,7 +580,7 @@ typedef struct pl_player {
     player_faction_t *factions;
 
     long item_power_effects; ///< Next time of item power effects.
-} player;
+};
 
 /* Prototypes */
 
