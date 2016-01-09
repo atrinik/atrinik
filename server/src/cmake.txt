@@ -88,6 +88,7 @@ set(SOURCES
 	src/server/los.c
 	src/server/main.c
 	src/server/map.c
+	src/server/material.c
 	src/server/move.c
 	src/server/object.c
 	src/server/object_methods.c

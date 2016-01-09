@@ -2250,13 +2250,13 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
             if (m_tmp == M_START_IRON || m_tmp == M_START_WOOD || m_tmp == M_START_LEATHER) {
                 for (i = 0; i < NROFMATERIALS_REAL; i++) {
                     /* We have a full hit */
-                    if (material_real[m_tmp + i].quality == m_range) {
+                    if (materials_real[m_tmp + i].quality == m_range) {
                         op->material_real = m_tmp + i;
                         goto set_material_real;
                     }
 
                     /* Find nearest quality we want */
-                    if (material_real[m_tmp + i].quality >= change_arch->material_quality && material_real[m_tmp + i].quality <= m_range && material_real[m_tmp + i].quality > q_tmp) {
+                    if (materials_real[m_tmp + i].quality >= change_arch->material_quality && materials_real[m_tmp + i].quality <= m_range && materials_real[m_tmp + i].quality > q_tmp) {
                         q_tmp = m_tmp + i;
                     }
                 }
@@ -2295,7 +2295,7 @@ set_material_real:
     if (change_arch->quality != -1) {
         op->item_quality = change_arch->quality;
     } else {
-        op->item_quality = material_real[op->material_real].quality;
+        op->item_quality = materials_real[op->material_real].quality;
     }
 
     if (change_arch->quality_range > 0) {

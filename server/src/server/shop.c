@@ -166,7 +166,7 @@ const char *shop_get_cost_string(int64_t cost)
     cost -= num * coin->clone.value;
 
     snprintf(VS(buf), "%" PRId64 " %s%s%s", num,
-            material_real[coin->clone.material_real].name,
+            materials_real[coin->clone.material_real].name,
             coin->clone.name, num == 1 ? "" : "s");
 
     archetype_t *next_coin = shop_get_next_coin(cost, &cointype);
@@ -194,7 +194,7 @@ const char *shop_get_cost_string(int64_t cost)
         }
 
         snprintfcat(VS(buf), "%" PRId64 " %s%s%s", num,
-                material_real[coin->clone.material_real].name,
+                materials_real[coin->clone.material_real].name,
                 coin->clone.name, num == 1 ? "" : "s");
     } while (next_coin != NULL);
 

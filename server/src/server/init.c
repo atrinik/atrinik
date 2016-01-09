@@ -814,7 +814,7 @@ static void init_library(int argc, char *argv[])
     party_init();
     init_block();
     read_bmap_names();
-    init_materials();
+    material_init();
     /* Must be after we read in the bitmaps */
     init_anim();
     /* Reads all archetypes from file */

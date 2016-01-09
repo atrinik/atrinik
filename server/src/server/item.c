@@ -89,7 +89,7 @@ StringBuffer *object_get_material(const object *op, const object *caller,
 
     if (op->material_real > 0 && op->material_real < NUM_MATERIALS_REAL &&
             QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-        stringbuffer_append_string(sb, material_real[op->material_real].name);
+        stringbuffer_append_string(sb, materials_real[op->material_real].name);
     }
 
     return sb;

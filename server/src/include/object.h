@@ -884,16 +884,12 @@ const char *gender_subjective_upper[GENDER_MAX];
 const char *gender_objective[GENDER_MAX];
 const char *gender_possessive[GENDER_MAX];
 const char *gender_reflexive[GENDER_MAX];
-materialtype materials[NROFMATERIALS];
-material_real_struct material_real[NUM_MATERIALS_REAL];
 int freearr_x[SIZEOFFREE];
 int freearr_y[SIZEOFFREE];
 int maxfree[SIZEOFFREE];
 int freedir[SIZEOFFREE];
 const char *object_flag_names[NUM_FLAGS + 1];
 
-void
-init_materials(void);
 int
 CAN_MERGE(object *ob1, object *ob2);
 object *

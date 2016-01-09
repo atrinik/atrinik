@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Defines are needed by @ref living.h, so they must be loaded early.
+ * Material-related defines and functions.
  */
 
 #ifndef MATERIAL_H
@@ -42,7 +42,6 @@
  * @defgroup material_types Material types
  * Material types.
  *@{*/
-
 /** No material. */
 #define M_NONE          0
 /** Paper */
@@ -100,14 +99,18 @@
 /** 769 - 832 */
 #define M_START_ICE             12 * 64 + 1
 
-/** A single material. */
-typedef struct {
+/**
+ * A single material.
+ */
+typedef struct material {
     /** Name of the material. */
     const char *name;
-} materialtype;
+} material_t;
 
-/** A real material. */
-typedef struct _material_real_struct {
+/**
+ * A real material.
+ */
+typedef struct material_real {
     /** Name of this material. */
     char name[MAX_BUF];
 
@@ -119,6 +122,14 @@ typedef struct _material_real_struct {
 
     /** We can assign a default race for this material. */
     int def_race;
-} material_real_struct;
+} material_real_t;
+
+/* Prototypes */
+
+material_t materials[NROFMATERIALS];
+material_real_t materials_real[NUM_MATERIALS_REAL];
+
+void
+material_init(void);
 
 #endif
