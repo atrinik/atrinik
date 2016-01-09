@@ -91,7 +91,10 @@ static void
 deinit_func (object *op)
 {
     HARD_ASSERT(op != NULL);
-    efree(op->custom_attrset);
+
+    if (op->custom_attrset != NULL) {
+        efree(op->custom_attrset);
+    }
 }
 
 /**
