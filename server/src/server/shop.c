@@ -356,7 +356,7 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
             continue;
         }
 
-        insert_ob_in_ob(coins_objects[i], obj);
+        object_insert_into(coins_objects[i], obj, 0);
     }
 
     return remain;
@@ -603,11 +603,11 @@ void shop_insert_coins(object *op, int64_t value)
                 nrof = (tmp->weight_limit - tmp->carrying) / weight;
             }
 
-            object *coin = get_object();
-            copy_object(&at->clone, coin, 0);
+            object *coin = object_get();
+            object_copy(coin, &at->clone, false);
             coin->nrof = nrof;
             value -= coin->nrof * coin->value;
-            insert_ob_in_ob(coin, tmp);
+            object_insert_into(coin, tmp, 0);
         } FOR_INV_FINISH();
 
         if (value / at->clone.value > 0) {
@@ -619,22 +619,22 @@ void shop_insert_coins(object *op, int64_t value)
                     nrof = (weight_max - op->carrying) / at->clone.weight;
                 }
 
-                object *coin = get_object();
-                copy_object(&at->clone, coin, 0);
+                object *coin = object_get();
+                object_copy(coin, &at->clone, false);
                 coin->nrof = nrof;
                 value -= coin->nrof * coin->value;
-                insert_ob_in_ob(coin, op);
+                object_insert_into(coin, op, 0);
             }
         }
 
         if (value / at->clone.value > 0) {
-            object *coin = get_object();
-            copy_object(&at->clone, coin, 0);
+            object *coin = object_get();
+            object_copy(coin, &at->clone, false);
             coin->nrof = (uint32_t) (value / at->clone.value);
             value -= coin->nrof * coin->value;
             coin->x = op->x;
             coin->y = op->y;
-            insert_ob_in_map(coin, op->map, NULL, 0);
+            object_insert_map(coin, op->map, NULL, 0);
         }
     }
 

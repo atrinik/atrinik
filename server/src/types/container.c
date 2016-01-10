@@ -116,7 +116,7 @@ container_open (object *applier, object *op)
             esrv_update_item(UPD_FLAGS, op);
         }
 
-        update_object(op, UP_OBJ_FACE);
+        object_update(op, UP_OBJ_FACE);
 
         FOR_INV_PREPARE(op, tmp) {
             if (tmp->type == RUNE) {
@@ -126,19 +126,18 @@ container_open (object *applier, object *op)
                 tmp->x = op->x;
                 tmp->y = op->y;
 
-                int i = find_free_spot(tmp->arch,
-                                       tmp,
-                                       op->map,
+                int i = map_free_spot(op->map,
                                        tmp->x,
                                        tmp->y,
                                        0,
-                                       SIZEOFFREE1);
+                                       SIZEOFFREE1, tmp->arch,
+                                       tmp);
                 if (i != -1) {
                     tmp->x += freearr_x[i];
                     tmp->y += freearr_y[i];
                 }
 
-                tmp = insert_ob_in_map(tmp, op->map, tmp, 0);
+                tmp = object_insert_map(tmp, op->map, tmp, 0);
                 if (tmp != NULL) {
                     living_update_monster(tmp);
                     char *name = object_get_base_name_s(op, applier);
@@ -234,7 +233,7 @@ container_close (object *applier, object *op)
             esrv_update_item(UPD_FLAGS, op);
         }
 
-        update_object(op, UP_OBJ_FACE);
+        object_update(op, UP_OBJ_FACE);
 
         for (object *tmp = op->attacked_by, *next; tmp != NULL; tmp = next) {
             next = CONTR(tmp)->container_above;
@@ -393,7 +392,7 @@ apply_func (object *op, object *applier, int aflags)
                 draw_info_format(COLOR_WHITE, applier, "You ready %s.", name);
                 SET_FLAG(op, FLAG_APPLIED);
 
-                update_object(op, UP_OBJ_FACE);
+                object_update(op, UP_OBJ_FACE);
                 esrv_update_item(UPD_FLAGS, op);
             }
         }

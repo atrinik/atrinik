@@ -71,5 +71,5 @@ void command_tp(object *op, const char *command, char *params)
     object_remove(who->ob, 0);
     who->ob->x = dst->ob->x;
     who->ob->y = dst->ob->y;
-    insert_ob_in_map(who->ob, dst->ob->map, NULL, INS_NO_MERGE);
+    object_insert_map(who->ob, dst->ob->map, NULL, INS_NO_MERGE);
 }

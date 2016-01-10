@@ -123,7 +123,7 @@ exit_activate (object *op, object *applier)
     HARD_ASSERT(applier != NULL);
 
     if (EXIT_PATH(op) != NULL) {
-        return object_enter_map(applier, op, NULL, 0, 0, 0);
+        return object_enter_map(applier, op, NULL, 0, 0, false);
     }
 
     int x, y;
@@ -132,7 +132,7 @@ exit_activate (object *op, object *applier)
         return false;
     }
 
-    int i = find_free_spot(applier->arch, applier, m, x, y, 1, SIZEOFFREE1);
+    int i = map_free_spot(m, x, y, 1, SIZEOFFREE1, applier->arch, applier);
     if (i == -1) {
         return false;
     }
@@ -143,7 +143,7 @@ exit_activate (object *op, object *applier)
     object_remove(applier, 0);
     applier->x = x + freearr_x[i];
     applier->y = y + freearr_y[i];
-    insert_ob_in_map(applier, m, NULL, 0);
+    object_insert_map(applier, m, NULL, 0);
 
     return true;
 }
@@ -184,18 +184,17 @@ apply_func (object *op, object *applier, int aflags)
     /* It's a shop exit, don't let the player out until they've paid for
      * all the items they want to buy (if any). */
     if (is_shop && applier->type == PLAYER && !shop_pay_items(applier)) {
-        int i = find_free_spot(applier->arch,
-                               NULL,
-                               applier->map,
+        int i = map_free_spot(applier->map,
                                applier->x,
                                applier->y,
                                1,
-                               SIZEOFFREE1);
+                               SIZEOFFREE1, applier->arch,
+                               NULL);
         if (i != -1) {
             object_remove(applier, 0);
             applier->x += freearr_x[i];
             applier->y += freearr_y[i];
-            insert_ob_in_map(applier, applier->map, op, 0);
+            object_insert_map(applier, applier->map, op, 0);
         }
 
         return OBJECT_METHOD_OK;

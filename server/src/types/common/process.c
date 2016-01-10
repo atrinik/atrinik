@@ -83,7 +83,7 @@ static void common_object_process_changing(object *op)
 
                 /* Remove light mask from map. */
                 adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
-                update_object(op, UP_OBJ_FACE);
+                object_update(op, UP_OBJ_FACE);
                 op->glow_radius = 0;
             }
 
@@ -102,11 +102,11 @@ static void common_object_process_changing(object *op)
     tmp = arch_to_object(op->other_arch);
 
     if (env) {
-        insert_ob_in_ob(tmp, env);
+        object_insert_into(tmp, env, 0);
     } else {
         tmp->x = op->x;
         tmp->y = op->y;
-        insert_ob_in_map(tmp, op->map, op, 0);
+        object_insert_map(tmp, op->map, op, 0);
     }
 
     object_destroy(op);

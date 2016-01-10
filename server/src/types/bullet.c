@@ -66,7 +66,7 @@ projectile_hit_func (object *op, object *victim)
 
     /* Handle probe. */
     if (op->stats.sp == SP_PROBE && IS_LIVE(victim)) {
-        object *owner = get_owner(op);
+        object *owner = object_owner(op);
         if (owner != NULL) {
             draw_info_format(COLOR_WHITE, owner,
                              "Your probe analyzes %s.",

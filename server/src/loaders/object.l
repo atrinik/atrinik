@@ -172,13 +172,13 @@ lex_error = 0;
     object *tmp = op;
 
     if (tmp->arch != NULL) {
-        tmp = get_object();
+        tmp = object_get();
     }
 
     const char *archname = yval();
     tmp->arch = arch_find(archname);
     if (tmp->arch != NULL) {
-        copy_object(&tmp->arch->clone, tmp, 1);
+        object_copy(tmp, &tmp->arch->clone, true);
     }
 
     if (tmp != op) {
@@ -200,7 +200,7 @@ lex_error = 0;
             lex_load(depth, items, maxdepth, map_flags, linemode);
 
             if (tmp->arch != NULL) {
-                tmp = insert_ob_in_ob(tmp, op);
+                tmp = object_insert_into(tmp, op, 0);
             } else {
                 if (!arch_in_init) {
                     LOG(DEBUG, "Discarding object without arch: %s", archname);
@@ -224,24 +224,18 @@ lex_error = 0;
                         rndm(0, 90) / 100.0f;
             }
 
-            update_ob_speed(tmp);
+            object_update_speed(tmp);
+            object_cb_init(tmp);
 
-            /* We must do this after the insert_ob_in_ob().
-             * We look if we have a treasure or something else.
-             * If so, we transform it now to real items.
-             * This here only handles inventory items, the "base"
-             * items are handled in load_objects(). */
+            /* Process auto-apply items or generate treasure. */
             if (QUERY_FLAG(tmp, FLAG_AUTO_APPLY)) {
-                /* auto_apply() will clear FLAG_AUTO_APPLY */
-                auto_apply(tmp);
+                object_auto_apply(tmp);
             } else if (tmp->randomitems != NULL && (map_flags & MAP_ORIGINAL) &&
                     op->type != SPAWN_POINT) {
                 create_treasure(tmp->randomitems, tmp, 0,
                         get_environment_level(tmp), T_STYLE_UNSET,
                         ART_CHANCE_UNSET, 0, NULL);
             }
-
-            object_cb_init(tmp);
         }
     }
 }
@@ -366,7 +360,7 @@ lex_error = 0;
     if (linemode) {
         /* Linemode is only set for artifact loading. */
         if ((*depth) > 0) {
-            insert_ob_in_ob(items[*depth], items[(*depth) - 1]);
+            object_insert_into(items[*depth], items[(*depth) - 1], 0);
         }
 
         return LL_NORMAL;
@@ -707,7 +701,7 @@ lex_error = 0;
     op->material_real = IVAL;
 
     if (op->item_quality == 0) {
-        op->item_quality = material_real[op->material_real].quality;
+        op->item_quality = materials_real[op->material_real].quality;
         op->item_condition = op->item_quality;
     }
 }
@@ -862,7 +856,7 @@ load_object_finish (object *op, int map_flags)
             artifact_change_object(art_amask, op);
         }
 
-        update_ob_speed(op);
+        object_update_speed(op);
         object_cb_init(op);
     }
 }
@@ -1088,7 +1082,7 @@ set_variable (object *op, const char *buf)
  * Object's original archetype.
  */
 void
-get_ob_diff (StringBuffer *sb, object *op, object *op2)
+get_ob_diff (StringBuffer *sb, const object *op, const object *op2)
 {
     HARD_ASSERT(sb != NULL);
     HARD_ASSERT(op != NULL);
@@ -1096,20 +1090,19 @@ get_ob_diff (StringBuffer *sb, object *op, object *op2)
 
     /* This saves the key/value lists. We do it first so that any
      * keys that match field names will be overwritten by the loader. */
-    for (key_value *my_field = op->key_values;
-         my_field != NULL;
-         my_field = my_field->next) {
+    key_value_t *field;
+    LL_FOREACH(op->key_values, field) {
         /* Find the field in the opposing member. */
-        key_value *arch_field = object_get_key_link(op2, my_field->key);
+        key_value_t *arch_field = object_get_key_link(op2, field->key);
 
         /* If there's no partnering field, or it's got a different value,
          * save our field. */
-        if (arch_field == NULL || my_field->value != arch_field->value) {
-            stringbuffer_append_string(sb, my_field->key);
+        if (arch_field == NULL || field->value != arch_field->value) {
+            stringbuffer_append_string(sb, field->key);
             stringbuffer_append_string(sb, " ");
 
-            if (my_field->value != NULL) {
-                stringbuffer_append_string(sb, my_field->value);
+            if (field->value != NULL) {
+                stringbuffer_append_string(sb, field->value);
             }
 
             stringbuffer_append_string(sb, "\n");

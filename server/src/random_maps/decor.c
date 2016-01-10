@@ -66,9 +66,9 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP)
             new_decor_object = pick_random_object(decor_map);
 
             if (layout[i][j] == (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) ? '#' : '\0')) {
-                object *this_object = get_object();
+                object *this_object = object_get();
 
-                copy_object(new_decor_object, this_object, 0);
+                object_copy(this_object, new_decor_object, false);
                 this_object->x = i;
                 this_object->y = j;
 
@@ -77,7 +77,7 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP)
                     SET_ANIMATION(this_object, (NUM_ANIMATIONS(this_object) / NUM_FACINGS(this_object)) * this_object->direction);
                 }
 
-                insert_ob_in_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                object_insert_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
             }
         }
     }

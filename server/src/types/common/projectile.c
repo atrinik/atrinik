@@ -51,7 +51,7 @@ static object *projectile_stick(object *op, object *victim)
         return op;
     }
 
-    owner = get_owner(op);
+    owner = object_owner(op);
 
     if (owner) {
         op->attacked_by = owner;
@@ -59,7 +59,7 @@ static object *projectile_stick(object *op, object *victim)
     }
 
     object_remove(op, 0);
-    op = insert_ob_in_ob(op, victim);
+    op = object_insert_into(op, victim, 0);
 
     return op;
 }
@@ -203,8 +203,8 @@ object *common_object_projectile_stop_missile(object *op, int reason)
     if (op->type == ARROW) {
         object *owner;
 
-        owner = get_owner(op);
-        clear_owner(op);
+        owner = object_owner(op);
+        object_owner_clear(op);
 
         op->direction = 0;
         SET_ANIMATION_STATE(op);
@@ -240,7 +240,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
             op->stats.food = 20;
         }
 
-        update_ob_speed(op);
+        object_update_speed(op);
 
         bool insert_map = op->map != NULL;
         if (insert_map) {
@@ -250,7 +250,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         op->layer = op->arch->clone.layer;
 
         if (insert_map) {
-            op = insert_ob_in_map(op, op->map, op, INS_FALL_THROUGH);
+            op = object_insert_map(op, op->map, op, INS_FALL_THROUGH);
         } else {
             op = object_merge(op);
         }
@@ -266,7 +266,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         object_destroy(op);
         payload->x = op->x;
         payload->y = op->y;
-        payload = insert_ob_in_map(payload, op->map, op, INS_FALL_THROUGH);
+        payload = object_insert_map(payload, op->map, op, INS_FALL_THROUGH);
 
         return payload;
     } else {
@@ -300,7 +300,7 @@ object *common_object_projectile_stop_spell(object *op, int reason)
 /** @copydoc object_methods_t::projectile_fire_func */
 object *common_object_projectile_fire_missile(object *op, object *shooter, int dir)
 {
-    set_owner(op, shooter);
+    object_owner_set(op, shooter);
     op->direction = dir;
     SET_ANIMATION_STATE(op);
 
@@ -314,7 +314,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
     }
 
     op->speed_left = 0;
-    update_ob_speed(op);
+    object_update_speed(op);
 
     SET_FLAG(op, FLAG_FLYING);
     SET_FLAG(op, FLAG_IS_MISSILE);
@@ -329,7 +329,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
     op->y = shooter->y;
     op->layer = LAYER_EFFECT;
     op->sub_layer = shooter->sub_layer;
-    op = insert_ob_in_map(op, shooter->map, op, 0);
+    op = object_insert_map(op, shooter->map, op, 0);
 
     if (!op) {
         return NULL;
@@ -345,7 +345,7 @@ int common_object_projectile_hit(object *op, object *victim)
 {
     object *owner;
 
-    owner = get_owner(op);
+    owner = object_owner(op);
 
     /* Victim is not an alive object or we're friends with the victim,
      * pass... */

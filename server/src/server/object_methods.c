@@ -433,8 +433,7 @@ object_ranged_fire (object *op, object *shooter, int dir, double *delay)
         shooter->type == PLAYER &&
         OBJECT_VALID(CONTR(shooter)->target_object,
                      CONTR(shooter)->target_object_count)) {
-        rv_vector rv;
-        dir = get_dir_to_target(shooter, CONTR(shooter)->target_object, &rv);
+        dir = object_dir_to_target(shooter, CONTR(shooter)->target_object);
     }
 
     if (dir == 0) {
@@ -461,4 +460,34 @@ object_ranged_fire (object *op, object *shooter, int dir, double *delay)
     }
 
     return OBJECT_METHOD_UNHANDLED;
+}
+
+/** @copydoc object_methods_t::auto_apply_func */
+void
+object_auto_apply (object *op)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(QUERY_FLAG(op, FLAG_AUTO_APPLY));
+
+    CLEAR_FLAG(op, FLAG_AUTO_APPLY);
+
+    if (op->env != NULL && op->env->type == PLAYER) {
+        LOG(ERROR,
+            "Object with auto_apply (%s) found in %s.",
+            object_get_str(op),
+            object_get_str(op->env));
+        return;
+    }
+
+    for (object_methods_t *methods = &object_type_methods[op->type];
+         methods != NULL;
+         methods = methods->fallback) {
+        if (methods->auto_apply_func != NULL) {
+            methods->auto_apply_func(op);
+            return;
+        }
+    }
+
+    log_error("Object with auto_apply flag was not handled: %s",
+              object_get_str(op));
 }

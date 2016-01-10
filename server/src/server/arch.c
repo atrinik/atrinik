@@ -79,7 +79,7 @@ void arch_init(void)
 {
     HARD_ASSERT(arch_table == NULL);
 
-    clone_op = get_object();
+    clone_op = object_get();
     arch_in_init = true;
     arch_load();
     arch_in_init = false;
@@ -147,7 +147,7 @@ static void arch_free(archetype_t *at)
     FREE_AND_CLEAR_HASH(at->clone.msg);
     FREE_AND_CLEAR_HASH(at->clone.custom_name);
     FREE_AND_CLEAR_HASH(at->clone.glow);
-    free_key_values(&at->clone);
+    object_free_key_values(&at->clone);
     efree(at);
 }
 
@@ -268,7 +268,7 @@ static void arch_pass_second(FILE *fp, const char *filename)
         } else if (strcmp(key, "arch") == 0) {
             object *inv = arch_get(value);
             load_object_fp(fp, inv, 0);
-            insert_ob_in_ob(inv, &at->clone);
+            object_insert_into(inv, &at->clone, 0);
         }
     }
 
@@ -447,8 +447,8 @@ object *arch_to_object(archetype_t *at)
 {
     HARD_ASSERT(at != NULL);
 
-    object *op = get_object();
-    copy_object_with_inv(&at->clone, op);
+    object *op = object_get();
+    object_copy_full(op, &at->clone);
     op->arch = at;
     return op;
 }

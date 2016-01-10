@@ -300,8 +300,8 @@ void link_player_skills(object *pl)
         }
 
         if (!CONTR(pl)->skill_ptr[i]) {
-            tmp = object_create_clone(&skills[i].at->clone);
-            insert_ob_in_ob(tmp, pl);
+            tmp = object_clone(&skills[i].at->clone);
+            object_insert_into(tmp, pl, 0);
             CONTR(pl)->skill_ptr[i] = tmp;
         }
 

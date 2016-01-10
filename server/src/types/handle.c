@@ -66,7 +66,7 @@ apply_func (object *op, object *applier, int aflags)
     op->state = op->value;
     SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
                         op->direction) + op->value));
-    update_object(op, UP_OBJ_FACE);
+    object_update(op, UP_OBJ_FACE);
 
     /* Inform the applier. */
     if (op->msg != NULL) {
@@ -93,7 +93,7 @@ apply_func (object *op, object *applier, int aflags)
         op->speed = 0;
     }
 
-    update_ob_speed(op);
+    object_update_speed(op);
     return OBJECT_METHOD_OK;
 }
 
@@ -113,7 +113,7 @@ trigger_func (object *op, object *cause, int state)
     op->state = op->value;
     SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
                         op->direction) + op->value));
-    update_object(op, UP_OBJ_FACE);
+    object_update(op, UP_OBJ_FACE);
 
     return OBJECT_METHOD_OK;
 }
@@ -125,7 +125,7 @@ process_func (object *op)
     HARD_ASSERT(op != NULL);
 
     op->speed = 0;
-    update_ob_speed(op);
+    object_update_speed(op);
 
     if (op->stats.exp == -1) {
         return;
@@ -135,7 +135,7 @@ process_func (object *op)
     op->state = op->value;
     SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
                         op->direction) + op->value));
-    update_object(op, UP_OBJ_FACE);
+    object_update(op, UP_OBJ_FACE);
 
     connection_trigger(op, op->value);
 }

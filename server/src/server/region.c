@@ -369,7 +369,12 @@ int region_enter_jail(object *op)
             return 0;
         }
 
-        return object_enter_map(op, NULL, m, region->jailx, region->jaily, 1);
+        return object_enter_map(op,
+                                NULL,
+                                m,
+                                region->jailx,
+                                region->jaily,
+                                true);
     }
 
     LOG(BUG, "No suitable jailmap for region %s was found.",

@@ -57,7 +57,7 @@ process_func (object *op)
                 op->stats.hp = op->stats.maxhp;
             } else {
                 op->speed = 0;
-                update_ob_speed(op);
+                object_update_speed(op);
             }
         }
 
@@ -67,7 +67,7 @@ process_func (object *op)
             }
 
             CLEAR_FLAG(op, FLAG_NO_PASS);
-            update_object(op, UP_OBJ_FLAGS);
+            object_update(op, UP_OBJ_FLAGS);
         }
     } else {
         /* Going up. */
@@ -86,19 +86,18 @@ process_func (object *op)
                                      op->name);
                 }
 
-                int i = find_free_spot(tmp->arch,
-                                       tmp,
-                                       op->map,
+                int i = map_free_spot(op->map,
                                        op->x,
                                        op->y,
                                        1,
-                                       SIZEOFFREE1);
+                                       SIZEOFFREE1, tmp->arch,
+                                       tmp);
                 /* If there is a free spot, move the object someplace. */
                 if (i != -1) {
                     object_remove(tmp, 0);
                     tmp->x += freearr_x[i];
                     tmp->y += freearr_y[i];
-                    insert_ob_in_map(tmp, op->map, op, 0);
+                    object_insert_map(tmp, op->map, op, 0);
                 } else {
                     /* No free spot, so the gate is blocked. */
                     is_blocked = true;
@@ -113,7 +112,7 @@ process_func (object *op)
                 }
 
                 SET_FLAG(op, FLAG_NO_PASS);
-                update_object(op, UP_OBJ_FLAGS);
+                object_update(op, UP_OBJ_FLAGS);
             }
 
             if (op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) - 1) {
@@ -123,7 +122,7 @@ process_func (object *op)
                     op->stats.hp = op->stats.maxhp;
                 } else {
                     op->speed = 0;
-                    update_ob_speed(op);
+                    object_update_speed(op);
                 }
             }
         }
@@ -132,7 +131,7 @@ process_func (object *op)
     op->state = op->stats.wc;
     SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
                        op->direction + op->stats.wc));
-    update_object(op, UP_OBJ_FACE);
+    object_update(op, UP_OBJ_FACE);
 }
 
 /** @copydoc object_methods_t::trigger_func */
@@ -147,7 +146,7 @@ trigger_func (object *op, object *cause, int state)
     }
 
     op->speed = 0.5;
-    update_ob_speed(op);
+    object_update_speed(op);
 
     if (op->stats.maxhp != 0) {
         op->stats.food = 1;

@@ -303,17 +303,8 @@
  * the get_map_from_coord() fails to grab a valid map or tile.
  */
 #define P_OUT_OF_MAP          0x4000000
-/** Skip the layer update, do flags only */
-#define P_FLAGS_ONLY          0x8000000
-/** If set, update the flags by looping the map objects */
-#define P_FLAGS_UPDATE        0x10000000
-/** Resort the layer when updating */
-#define P_NEED_UPDATE         0x20000000
-/**
- * Purely temporary - if set, update_position
- * does not complain if the flags are different.
- */
-#define P_NO_ERROR            0x40000000
+/** Update all the map square flags by looping the map objects. */
+#define P_NEED_UPDATE         0x40000000
 /**
  * Do <b>NOT</b> use this with SET_MAP_FLAGS(). This is just to mark for
  * return values of blocked().
@@ -873,5 +864,99 @@ typedef struct rv_vector_s {
  * Darkness of building interiors.
  */
 #define MAP_BUILDING_DARKNESS 3
+
+/* Prototypes */
+
+extern int global_darkness_table[MAX_DARKNESS + 1];
+extern int map_tiled_reverse[TILED_NUM];
+
+void
+map_init(void);
+mapstruct *
+has_been_loaded_sh(shstr *name);
+char *
+create_pathname(const char *name);
+int
+wall(mapstruct *m, int x, int y);
+int
+blocks_view(mapstruct *m, int x, int y);
+int
+blocks_magic(mapstruct *m, int x, int y);
+int
+blocked(object *op, mapstruct *m, int x, int y, int terrain);
+int
+blocked_tile(object *op, mapstruct *m, int x, int y);
+int
+arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y);
+void
+set_map_darkness(mapstruct *m, int value);
+mapstruct *
+get_linked_map(void);
+mapstruct *
+get_empty_map(int sizex, int sizey);
+void
+map_set_tile(mapstruct *m, int tile, const char *pathname);
+mapstruct *
+load_original_map(const char *filename, mapstruct *originator, int flags);
+int
+new_save_map(mapstruct *m, int flag);
+void
+free_map(mapstruct *m, int flag);
+void
+delete_map(mapstruct *m);
+mapstruct *
+ready_map_name(const char *name, mapstruct *originator, int flags);
+void
+clean_tmp_map(mapstruct *m);
+void
+free_all_maps(void);
+void
+update_position(mapstruct *m, int x, int y);
+void
+set_map_reset_time(mapstruct *map);
+mapstruct *
+get_map_from_tiled(mapstruct *m, int tiled);
+mapstruct *
+get_map_from_coord(mapstruct *m, int *x, int *y);
+mapstruct *
+get_map_from_coord2(mapstruct *m, int *x, int *y);
+int
+get_rangevector(object *op1, object *op2, rv_vector *retval, int flags);
+int
+get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags);
+int
+on_same_map(object *op1, object *op2);
+int
+players_on_map(mapstruct *m);
+int
+wall_blocked(mapstruct *m, int x, int y);
+int
+map_get_darkness(mapstruct *m, int x, int y, object **mirror);
+int
+map_path_isabs(const char *path);
+char *
+map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *name);
+mapstruct *
+map_force_reset(mapstruct *m);
+void
+map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer);
+object *
+map_find_arch(mapstruct *m, int x, int y, archetype_t *at);
+object *
+map_find_type(mapstruct *m, int x, int y, uint8_t type);
+int
+map_free_spot(mapstruct   *m,
+              int          x,
+              int          y,
+              int          start,
+              int          stop,
+              archetype_t *at,
+              object      *op);
+int
+map_free_spot_first(mapstruct   *m,
+                    int          x,
+                    int          y,
+                    archetype_t *at,
+                    object      *op);
 
 #endif

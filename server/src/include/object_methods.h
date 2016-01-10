@@ -242,6 +242,14 @@ typedef struct object_methods {
                             double *delay);
 
     /**
+     * Processes an object with #FLAG_AUTO_APPLY.
+     *
+     * @param op
+     * The object to process.
+     */
+    void (*auto_apply_func)(object *op);
+
+    /**
      * Fallback methods.
      */
     struct object_methods *fallback;
@@ -329,5 +337,7 @@ object *
 object_projectile_stop(object *op, int reason);
 int
 object_ranged_fire(object *op, object *shooter, int dir, double *delay);
+void
+object_auto_apply(object *op);
 
 #endif

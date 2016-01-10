@@ -115,14 +115,18 @@ void connection_object_remove(object *op)
 
 /**
  * Acquire the connection ID of the specified object.
+ *
  * @param op
  * Object to get the connection ID of.
  * @return
  * Connection ID, or 0 if not connected.
  */
-int connection_object_get_value(object *op)
+int
+connection_object_get_value (const object *op)
 {
-    if (!op || !op->map || !QUERY_FLAG(op, FLAG_IS_LINKED)) {
+    HARD_ASSERT(op != NULL);
+
+    if (op->map == NULL || !QUERY_FLAG(op, FLAG_IS_LINKED)) {
         return 0;
     }
 

@@ -38,13 +38,13 @@ START_TEST(test_put_object_in_sack)
     check_setup_env_pl(&map, &pl);
 
     sack = arch_get("sack");
-    insert_ob_in_map(sack, map, NULL, 0);
+    object_insert_map(sack, map, NULL, 0);
     ck_assert_ptr_eq(GET_MAP_OB(map, 0, 0), sack);
 
     obj = arch_get("letter");
     obj->nrof = 1;
     obj->x = 1;
-    insert_ob_in_map(obj, map, NULL, 0);
+    object_insert_map(obj, map, NULL, 0);
     put_object_in_sack(pl, sack, obj, 1);
     ck_assert_ptr_eq(GET_MAP_OB(map, 1, 0), obj);
     ck_assert_ptr_eq(sack->inv, NULL);
@@ -55,7 +55,7 @@ START_TEST(test_put_object_in_sack)
     sack = arch_get("sack");
     sack->nrof = 1;
     ck_assert_uint_eq(sack->type, CONTAINER);
-    insert_ob_in_map(sack, map, NULL, 0);
+    object_insert_map(sack, map, NULL, 0);
     ck_assert_ptr_eq(GET_MAP_OB(map, 0, 0), sack);
 
     SET_FLAG(sack, FLAG_APPLIED);
@@ -65,7 +65,7 @@ START_TEST(test_put_object_in_sack)
 
     object_remove(obj, 0);
     obj->x = 1;
-    insert_ob_in_map(obj, map, NULL, 0);
+    object_insert_map(obj, map, NULL, 0);
     sack->weight_limit = 1;
     obj->weight = 5;
 

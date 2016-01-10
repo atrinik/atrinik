@@ -424,7 +424,7 @@ treasurelist *find_treasurelist(const char *name)
  */
 object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 {
-    object *ob = get_object(), *tmp;
+    object *ob = object_get(), *tmp;
 
     create_treasure(t, ob, 0, difficulty, t->t_style, a_chance, 0, NULL);
 
@@ -558,8 +558,8 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 
                 for (i = 0; i < NUM_COINS; i++) {
                     if (value / coins_arch[i]->clone.value > 0) {
-                        tmp = get_object();
-                        copy_object(&coins_arch[i]->clone, tmp, 0);
+                        tmp = object_get();
+                        object_copy(tmp, &coins_arch[i]->clone, false);
                         tmp->nrof = value / tmp->value;
                         value -= tmp->nrof * tmp->value;
                         put_treasure(tmp, op, flag);
@@ -723,8 +723,8 @@ create_one_treasure_again_jmp:
 
         for (i = 0; i < NUM_COINS; i++) {
             if (value / coins_arch[i]->clone.value > 0) {
-                tmp = get_object();
-                copy_object(&coins_arch[i]->clone, tmp, 0);
+                tmp = object_get();
+                object_copy(tmp, &coins_arch[i]->clone, false);
                 tmp->nrof = value / tmp->value;
                 value -= tmp->nrof * tmp->value;
                 put_treasure(tmp, op, flag);
@@ -747,9 +747,9 @@ static void put_treasure(object *op, object *creator, int flags)
     if (flags & GT_ENVIRONMENT) {
         op->x = creator->x;
         op->y = creator->y;
-        insert_ob_in_map(op, creator->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+        object_insert_map(op, creator->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
     } else {
-        insert_ob_in_ob(op, creator);
+        object_insert_into(op, creator, 0);
     }
 }
 

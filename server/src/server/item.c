@@ -1370,7 +1370,7 @@ void identify(object *op)
 
     /* The shop identifies items before they hit the ground */
     if (op->map) {
-        update_object(op, UP_OBJ_FACE);
+        object_update(op, UP_OBJ_FACE);
     } else {
         esrv_send_item(op);
     }
@@ -1411,7 +1411,7 @@ void set_trapped_flag(object *op)
         if (op->env) {
             esrv_update_item(UPD_FLAGS, op);
         } else {
-            update_object(op, UP_OBJ_FACE);
+            object_update(op, UP_OBJ_FACE);
         }
     }
 }

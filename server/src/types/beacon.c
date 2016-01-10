@@ -56,7 +56,7 @@ init_func (object *op)
     HARD_ASSERT(op != NULL);
 
     /* Figure out where the beacon is. */
-    object *env = get_env_recursive(op);
+    object *env = object_get_env(op);
 
     /* If the beacon is on a unique map, we need to make the beacon name
      * unique to the player that owns the unique map. */

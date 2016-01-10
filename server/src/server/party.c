@@ -281,7 +281,7 @@ static void party_loot_random(object *pl, object *corpse)
         tmp_next = tmp->below;
 
         /* Skip unpickable objects. */
-        if (!can_pick(pl, tmp)) {
+        if (!object_can_pick(pl, tmp)) {
             continue;
         }
 
@@ -296,7 +296,7 @@ static void party_loot_random(object *pl, object *corpse)
                                 "You receive the %s.", name);
                         efree(name);
                         object_remove(tmp, 0);
-                        insert_ob_in_ob(tmp, ol->objlink.ob);
+                        object_insert_into(tmp, ol->objlink.ob, 0);
                     }
 
                     break;
@@ -352,7 +352,7 @@ static void party_loot_split(object *pl, object *corpse)
         next = tmp->below;
 
         /* Skip unpickable objects. */
-        if (!can_pick(pl, tmp)) {
+        if (!object_can_pick(pl, tmp)) {
             continue;
         }
 
@@ -375,7 +375,7 @@ static void party_loot_split(object *pl, object *corpse)
                         "%s.", name);
                 efree(name);
                 object_remove(tmp, 0);
-                insert_ob_in_ob(tmp, ol->objlink.ob);
+                object_insert_into(tmp, ol->objlink.ob, 0);
                 break;
             }
 
@@ -437,7 +437,7 @@ void party_handle_corpse(object *pl, object *corpse)
         if (tmp->type == ARROW && OBJECT_VALID(tmp->attacked_by, tmp->attacked_by_count) &&
                 tmp->attacked_by->type == PLAYER && CONTR(tmp->attacked_by)->party == CONTR(pl)->party &&
                 on_same_map(tmp->attacked_by, pl)) {
-            if (can_pick(tmp->attacked_by, tmp) && player_can_carry(tmp->attacked_by, WEIGHT_NROF(tmp, tmp->nrof))) {
+            if (object_can_pick(tmp->attacked_by, tmp) && player_can_carry(tmp->attacked_by, WEIGHT_NROF(tmp, tmp->nrof))) {
                 pick_up(tmp->attacked_by, tmp, 0);
             }
         }

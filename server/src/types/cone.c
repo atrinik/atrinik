@@ -103,7 +103,7 @@ static void process_func(object *op)
 
         /* Create the next part of the cone. */
         object *tmp = arch_to_object(op->arch);
-        copy_owner(tmp, op);
+        object_owner_copy(tmp, op);
         tmp->weight_limit = op->weight_limit;
         tmp->x = x;
         tmp->y = y;
@@ -113,7 +113,7 @@ static void process_func(object *op)
         tmp->stats.maxhp = op->stats.maxhp;
         tmp->stats.dam = op->stats.dam;
 
-        tmp = insert_ob_in_map(tmp, m, op, 0);
+        tmp = object_insert_map(tmp, m, op, 0);
         if (tmp == NULL) {
             continue;
         }

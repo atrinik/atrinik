@@ -31,20 +31,21 @@
 #define ARCH_H
 
 #include <object.h>
+#include <decls.h>
 
 /**
  * The archetype structure is a set of rules on how to generate and manipulate
  * objects which point to archetypes.
  */
-typedef struct archetype {
+struct archetype {
     struct archetype *head; ///< The main part of a linked object.
     struct archetype *more; ///< Next part of a linked object.
 
     UT_hash_handle hh; ///< Hash handle.
 
     shstr *name; ///< More definite name, like "kobold".
-    object clone; ///< An object from which to do copy_object().
-} archetype_t;
+    object clone; ///< An object from which to do object_copy().
+};
 
 /**
  * IDs of archetype pointers cached in #arches.

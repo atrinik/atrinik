@@ -388,7 +388,12 @@ save_life (object *op)
             }
 
             /* Bring him home. */
-            object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+            object_enter_map(op,
+                             NULL,
+                             ready_map_name(CONTR(op)->savebed_map, NULL, 0),
+                             CONTR(op)->bed_x,
+                             CONTR(op)->bed_y,
+                             true);
             return 1;
         }
     }
@@ -396,7 +401,12 @@ save_life (object *op)
     LOG(BUG, "LIFESAVE set without applied object.");
     CLEAR_FLAG(op, FLAG_LIFESAVE);
     /* Bring him home. */
-    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+    object_enter_map(op,
+                     NULL,
+                     ready_map_name(CONTR(op)->savebed_map, NULL, 0),
+                     CONTR(op)->bed_x,
+                     CONTR(op)->bed_y,
+                     true);
     return 0;
 }
 
@@ -423,7 +433,7 @@ remove_unpaid_objects (object *op, object *env)
             object_remove(op, 0);
             op->x = env->x;
             op->y = env->y;
-            insert_ob_in_map(op, env->map, NULL, 0);
+            object_insert_map(op, env->map, NULL, 0);
         } else if (op->inv) {
             remove_unpaid_objects(op->inv, env);
         }
@@ -672,7 +682,7 @@ player_death_deplete_stats (object *op)
         }
 
         if (depletion == NULL) {
-            depletion = present_arch_in_ob(at, op);
+            depletion = object_find_arch(op, at);
             if (depletion == NULL) {
                 depletion = arch_to_object(at);
                 depletion = object_insert_into(depletion, op, 0);
@@ -754,7 +764,7 @@ kill_player (object *op)
             tmp->material = 0;
             tmp->type = 0;
             tmp->x = op->x, tmp->y = op->y;
-            insert_ob_in_map(tmp, op->map, op, 0);
+            object_insert_map(tmp, op->map, op, 0);
         }
 
         CONTR(op)->killer[0] = '\0';
@@ -802,7 +812,7 @@ kill_player (object *op)
     tmp->msg = stringbuffer_finish_shared(sb);
     tmp->x = op->x;
     tmp->y = op->y;
-    insert_ob_in_map(tmp, op->map, NULL, 0);
+    object_insert_map(tmp, op->map, NULL, 0);
 
     player_death_deplete_stats(op);
 
@@ -836,7 +846,12 @@ kill_player (object *op)
     }
 
     /* Move player to his current respawn position (last savebed). */
-    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+    object_enter_map(op,
+                     NULL,
+                     ready_map_name(CONTR(op)->savebed_map, NULL, 0),
+                     CONTR(op)->bed_x,
+                     CONTR(op)->bed_y,
+                     true);
 
     /* Show a nasty message */
     draw_info(COLOR_WHITE, op, "YOU HAVE DIED.");
@@ -895,7 +910,7 @@ cast_dust (object *op, object *throw_ob, int dir)
     }
 
     if (!QUERY_FLAG(throw_ob, FLAG_REMOVED)) {
-        destruct_ob(throw_ob);
+        object_destruct(throw_ob);
     }
 }
 
@@ -1444,7 +1459,7 @@ examine_living (object *op, object *tmp, StringBuffer *sb_capture)
         break;
     }
 
-    if (present_in_ob(POISONING, tmp) != NULL) {
+    if (object_find_type(tmp, POISONING) != NULL) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
                 "%s looks very ill.", gender_subjective_upper[gender]);
     }
@@ -1865,7 +1880,7 @@ get_pickup_object (object *pl, object *op, int nrof)
     char *name = object_get_name_s(op, pl);
 
     if (QUERY_FLAG(op, FLAG_UNPAID) && QUERY_FLAG(op, FLAG_NO_PICK)) {
-        op = object_create_clone(op);
+        op = object_clone(op);
         CLEAR_FLAG(op, FLAG_NO_PICK);
         SET_FLAG(op, FLAG_STARTEQUIP);
         op->nrof = nrof;
@@ -1907,11 +1922,9 @@ pick_up_object (object *pl, object *op, object *tmp, int nrof, int no_mevent)
 {
     int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
-    /* IF the player is flying & trying to take the item out of a container
-     * that is in his inventory, let him.  tmp->env points to the container
-     * (sack, luggage, etc), tmp->env->env then points to the player (nested
-     * containers not allowed as of now) */
-    if (QUERY_FLAG(pl, FLAG_FLYING) && is_player_inv(tmp) != pl) {
+    /* IF the player is flying and trying to take the item out of a container
+     * that is in his inventory, let him. */
+    if (QUERY_FLAG(pl, FLAG_FLYING) && !object_is_in_inventory(tmp, pl)) {
         draw_info(COLOR_WHITE, pl, "You are levitating, you can't reach the ground!");
         return;
     }
@@ -1944,7 +1957,7 @@ pick_up_object (object *pl, object *op, object *tmp, int nrof, int no_mevent)
     }
 
     tmp = get_pickup_object(pl, tmp, nrof);
-    insert_ob_in_ob(tmp, op);
+    object_insert_into(tmp, op, 0);
 }
 
 /**
@@ -1965,14 +1978,14 @@ pick_up (object *op, object *alt, int no_mevent)
 
     /* Decide which object to pick. */
     if (alt) {
-        if (!can_pick(op, alt)) {
+        if (!object_can_pick(op, alt)) {
             draw_info_format(COLOR_WHITE, op, "You can't pick up %s.", alt->name);
             return;
         }
 
         tmp = alt;
     } else {
-        if (op->below == NULL || !can_pick(op, op->below)) {
+        if (op->below == NULL || !object_can_pick(op, op->below)) {
             draw_info(COLOR_WHITE, op, "There is nothing to pick up here.");
             return;
         }
@@ -1980,7 +1993,7 @@ pick_up (object *op, object *alt, int no_mevent)
         tmp = op->below;
     }
 
-    if (!can_pick(op, tmp)) {
+    if (!object_can_pick(op, tmp)) {
         return;
     }
 
@@ -2119,7 +2132,7 @@ put_object_in_sack (object *op, object *sack, object *tmp, long nrof)
     efree(name);
     efree(tmp_name);
 
-    insert_ob_in_ob(tmp, sack);
+    object_insert_into(tmp, sack, 0);
 }
 
 /**
@@ -2182,7 +2195,7 @@ drop_object (object *op, object *tmp, long nrof, int no_mevent)
                 if (floor_ob && floor_ob->type == SHOP_FLOOR && (QUERY_FLAG(floor_ob, FLAG_IS_MAGICAL) || (floor_ob->randomitems && QUERY_FLAG(floor_ob, FLAG_CURSED)))) {
                     tmp->x = op->x;
                     tmp->y = op->y;
-                    insert_ob_in_map(tmp, op->map, op, 0);
+                    object_insert_map(tmp, op->map, op, 0);
                     return;
                 }
             } else {
@@ -2225,11 +2238,11 @@ drop_object (object *op, object *tmp, long nrof, int no_mevent)
     tmp->y = op->y;
     tmp->sub_layer = op->sub_layer;
 
-    insert_ob_in_map(tmp, op->map, op, 0);
+    object_insert_map(tmp, op->map, op, 0);
 
     SET_FLAG(op, FLAG_NO_APPLY);
     object_remove(op, 0);
-    insert_ob_in_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+    object_insert_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
     CLEAR_FLAG(op, FLAG_NO_APPLY);
 }
 
@@ -2496,7 +2509,7 @@ player_create (player *pl, archetype_t *at, const char *name)
     HARD_ASSERT(at != NULL);
     HARD_ASSERT(name != NULL);
 
-    copy_object(&at->clone, pl->ob, 0);
+    object_copy(pl->ob, &at->clone, false);
     pl->ob->custom_attrset = pl;
     FREE_AND_COPY_HASH(pl->ob->name, name);
 
@@ -2556,7 +2569,7 @@ player_get_dummy (const char *name, const char *host)
     pl->socket.account = estrdup(ACCOUNT_TESTING_NAME);
     pl->socket.sound = 1;
 
-    object_enter_map(pl->ob, NULL, NULL, 0, 0, 0);
+    object_enter_map(pl->ob, NULL, NULL, 0, 0, false);
 
     return pl->ob;
 }
@@ -2681,7 +2694,7 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
     ns->state = ST_AVAILABLE;
 
     /* Create a new object for the player object data. */
-    pl->ob = get_object();
+    pl->ob = object_get();
 
 #ifdef SAVE_INTERVAL
     pl->last_save_time = time(NULL);
@@ -2701,7 +2714,7 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
     pl->ob->custom_attrset = pl;
     pl->ob->speed_left = 0.5;
 
-    sum_weight(pl->ob);
+    object_weight_sum(pl->ob);
     living_update_player(pl->ob);
     link_player_skills(pl->ob);
 
@@ -2714,9 +2727,19 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
     mapstruct *m = ready_map_name(pl->maplevel, NULL, 0);
 
     if (!m && strncmp(pl->maplevel, "/random/", 8) == 0) {
-        object_enter_map(pl->ob, NULL, ready_map_name(pl->savebed_map, NULL, 0), pl->bed_x, pl->bed_y, 1);
+        object_enter_map(pl->ob,
+                         NULL,
+                         ready_map_name(pl->savebed_map, NULL, 0),
+                         pl->bed_x,
+                         pl->bed_y,
+                         true);
     } else {
-        object_enter_map(pl->ob, NULL, m, pl->ob->x, pl->ob->y, 1);
+        object_enter_map(pl->ob,
+                         NULL,
+                         m,
+                         pl->ob->x,
+                         pl->ob->y,
+                         true);
     }
 
     /* No savebed map yet, initialize it. */
@@ -2799,7 +2822,7 @@ player_item_power_effects (object *op)
             SOFT_ASSERT(at != NULL, "Failed to find soul_depletion arch");
         }
 
-        object *force = present_arch_in_ob(at, op);
+        object *force = object_find_arch(op, at);
         if (force == NULL) {
             force = arch_to_object(at);
             force->speed_left = -1.0;
@@ -2811,7 +2834,7 @@ player_item_power_effects (object *op)
                 force->stats.food = 0;
             }
 
-            force = insert_ob_in_ob(force, op);
+            force = object_insert_into(force, op, 0);
             SOFT_ASSERT(force != NULL, "Failed to insert force into player %s",
                         object_get_str(op));
         }
@@ -2948,13 +2971,13 @@ process_func (object *op)
             rv_vector rv;
 
             if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && (rv.distance > 4 || rv.distance_z != 0))) {
-                int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2);
+                int space = map_free_spot(followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2, pl->ob->arch, pl->ob);
 
                 if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map)) {
                     object_remove(pl->ob, 0);
                     pl->ob->x = followed->ob->x + freearr_x[space];
                     pl->ob->y = followed->ob->y + freearr_y[space];
-                    insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
+                    object_insert_map(pl->ob, followed->ob->map, NULL, 0);
                 }
             }
         } else {

@@ -436,7 +436,7 @@ artifact_t *artifact_find_type(const char *name, uint8_t type)
 void artifact_change_object(artifact_t *art, object *op)
 {
     if (art->copy_artifact) {
-        copy_object_with_inv(&art->def_at->clone, op);
+        object_copy_full(op, &art->def_at->clone);
         return;
     }
 

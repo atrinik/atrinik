@@ -165,7 +165,7 @@ attack_roll_adjust (object *op, object *hitter)
     }
 
     if (OBJECT_IS_PROJECTILE(hitter)) {
-        object *owner = get_owner(hitter);
+        object *owner = object_owner(hitter);
         if (owner != NULL) {
             hitter = owner;
         }
@@ -485,7 +485,7 @@ send_attack_msg (object  *op,
 
     const char *hitter_name =
         atnr == ATNR_INTERNAL ? hitter->name : attack_name[atnr];
-    if (hitter->type == PLAYER || ((hitter = get_owner(hitter)) != NULL &&
+    if (hitter->type == PLAYER || ((hitter = object_owner(hitter)) != NULL &&
                                    hitter->type == PLAYER)) {
         draw_info_format(COLOR_ORANGE, hitter,
                          "You hit %s for %d (%d) with %s.",
@@ -684,7 +684,7 @@ attack_hit (object *op, object *hitter, int dam)
         return 0;
     }
 
-    object *hitter_owner = get_owner(hitter);
+    object *hitter_owner = object_owner(hitter);
 
     /* Sanity check: If the hitter has ownercount (so it had an owner)
      * but the owner itself is no longer valid, we won't do any damage,
@@ -1109,7 +1109,7 @@ attack_kill (object *op, object *hitter)
         /* Monster or something else has been killed, so remove it from the
          * active list. */
         op->speed = 0.0;
-        update_ob_speed(op);
+        object_update_speed(op);
 
         /*
          * Rules:
@@ -1136,7 +1136,7 @@ attack_kill (object *op, object *hitter)
             SET_FLAG(op, FLAG_STARTEQUIP);
         }
 
-        destruct_ob(op);
+        object_destruct(op);
     }
 
     return true;
@@ -1186,7 +1186,7 @@ attack_perform_poison (object *op, object *hitter, double dam)
         dam2 = 1;
     }
 
-    object *tmp = present_arch_in_ob(at, op);
+    object *tmp = object_find_arch(op, at);
     if (tmp == NULL) {
         tmp = arch_to_object(at);
         tmp->level = hitter->level;
@@ -1194,11 +1194,11 @@ attack_perform_poison (object *op, object *hitter, double dam)
 
         /* So we get credit for poisoning kills */
         if (IS_LIVE(hitter)) {
-            set_owner(tmp, hitter);
+            object_owner_set(tmp, hitter);
         }
 
         SET_FLAG(tmp, FLAG_APPLIED);
-        tmp = insert_ob_in_ob(tmp, op);
+        tmp = object_insert_into(tmp, op, 0);
         SOFT_ASSERT(tmp != NULL, "Failed to insert poisoning into %s",
                     object_get_str(op));
 
@@ -1211,7 +1211,7 @@ attack_perform_poison (object *op, object *hitter, double dam)
                 char *name = object_get_name_s(op, hitter);
                 draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", name);
                 efree(name);
-            } else if (get_owner(hitter) != NULL &&
+            } else if (object_owner(hitter) != NULL &&
                        hitter->owner->type == PLAYER) {
                 char *name = object_get_name_s(op, hitter->owner);
                 char *hitter_name = object_get_name_s(hitter, hitter->owner);
@@ -1255,11 +1255,11 @@ attack_perform_slow (object *op)
         return;
     }
 
-    object *tmp = present_arch_in_ob(at, op);
+    object *tmp = object_find_arch(op, at);
     if (tmp == NULL) {
         tmp = arch_to_object(at);
         SET_FLAG(tmp, FLAG_APPLIED);
-        tmp = insert_ob_in_ob(tmp, op);
+        tmp = object_insert_into(tmp, op, 0);
         SOFT_ASSERT(tmp != NULL, "Failed to insert slowness into %s",
                     object_get_str(op));
         draw_info(COLOR_WHITE, op, "The world suddenly moves very fast!");
@@ -1293,11 +1293,11 @@ attack_perform_confusion (object *op)
         return;
     }
 
-    object *tmp = present_arch_in_ob(at, op);
+    object *tmp = object_find_arch(op, at);
     if (tmp == NULL) {
         tmp = arch_to_object(at);
         SET_FLAG(tmp, FLAG_APPLIED);
-        tmp = insert_ob_in_ob(tmp, op);
+        tmp = object_insert_into(tmp, op, 0);
         SOFT_ASSERT(tmp != NULL, "Could not insert confusion into %s",
                     object_get_str(op));
     }
@@ -1342,17 +1342,17 @@ attack_perform_blind (object *op, object *hitter, double dam)
         return;
     }
 
-    object *tmp = present_arch_in_ob(at, op);
+    object *tmp = object_find_arch(op, at);
     if (tmp == NULL) {
         tmp = arch_to_object(at);
         SET_FLAG(tmp, FLAG_APPLIED);
         tmp->speed = tmp->speed * (100.0 - op->protection[ATNR_BLIND]) / 100.0;
-        tmp = insert_ob_in_ob(tmp, op);
+        tmp = object_insert_into(tmp, op, 0);
         SOFT_ASSERT(tmp != NULL, "Failed to insert blindness into %s",
                     object_get_str(op));
 
         if (hitter != op) {
-            object *owner = get_owner(hitter);
+            object *owner = object_owner(hitter);
             if (owner == NULL) {
                 owner = hitter;
             }

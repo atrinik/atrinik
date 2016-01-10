@@ -43,7 +43,7 @@ START_TEST(test_attack_is_melee_range)
 
     tmp->x = pl->x + 1;
     tmp->y = pl->y + 1;
-    tmp = insert_ob_in_map(tmp, pl->map, NULL, 0);
+    tmp = object_insert_map(tmp, pl->map, NULL, 0);
     ck_assert(attack_is_melee_range(tmp, tmp));
     ck_assert(attack_is_melee_range(pl, tmp));
     ck_assert(attack_is_melee_range(tmp, pl));
@@ -55,7 +55,7 @@ START_TEST(test_attack_is_melee_range)
 
     tmp2->x = pl->x + 2;
     tmp2->y = pl->y + 2;
-    tmp2 = insert_ob_in_map(tmp2, pl->map, NULL, 0);
+    tmp2 = object_insert_map(tmp2, pl->map, NULL, 0);
     ck_assert(attack_is_melee_range(tmp2, tmp2));
     ck_assert(!attack_is_melee_range(pl, tmp2));
     ck_assert(!attack_is_melee_range(tmp2, pl));

@@ -396,7 +396,7 @@ add_exp (object *op, int64_t exp_gain, int skill_nr, int exact)
             effect_ob->x = op->x;
             effect_ob->y = op->y;
 
-            insert_ob_in_map(effect_ob, effect_ob->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(effect_ob, effect_ob->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
         }
     }
 

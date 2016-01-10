@@ -108,7 +108,7 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
     op->sub_layer = sub_layer;
     op->x = x;
     op->y = y;
-    op = insert_ob_in_map(op, m, originator, INS_FALL_THROUGH);
+    op = object_insert_map(op, m, originator, INS_FALL_THROUGH);
 
     if (op == NULL) {
         return 1;
@@ -225,8 +225,8 @@ int move_ob(object *op, int dir, object *originator)
  * @param y
  * New Y coordinate.
  * @param randomly
- * If 1, use find_free_spot() to find the destination,
- * otherwise use find_first_free_spot().
+ * If 1, use map_free_spot() to find the destination, otherwise use
+ * map_free_spot_first().
  * @param originator
  * What is causing op to move.
  * @param trap
@@ -243,12 +243,12 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
             draw_info(COLOR_NAVY, op, trap->msg);
         }
 
-        object_enter_map(op, trap, NULL, 0, 0, 0);
+        object_enter_map(op, trap, NULL, 0, 0, false);
         return 1;
     } else if (randomly) {
-        i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE3);
+        i = map_free_spot(op->map, x, y, 0, SIZEOFFREE3, op->arch, NULL);
     } else {
-        i = find_first_free_spot(op->arch, op, op->map, x, y);
+        i = map_free_spot_first(op->map, x, y, op->arch, op);
     }
 
     /* No free spot */
@@ -265,7 +265,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
     op->x = x + freearr_x[i];
     op->y = y + freearr_y[i];
 
-    ret = (insert_ob_in_map(op, op->map, originator, 0) == NULL);
+    ret = (object_insert_map(op, op->map, originator, 0) == NULL);
 
     return ret;
 }
@@ -326,6 +326,6 @@ int push_ob(object *op, int dir, object *pusher)
 
     op->x = op->x + freearr_x[dir];
     op->y = op->y + freearr_y[dir];
-    insert_ob_in_map(op, op->map, pusher, 0);
+    object_insert_map(op, op->map, pusher, 0);
     return 1;
 }

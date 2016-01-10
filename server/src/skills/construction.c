@@ -142,7 +142,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
     new_floor->type = FLOOR;
     new_floor->x = x;
     new_floor->y = y;
-    insert_ob_in_map(new_floor, op->map, NULL, 0);
+    object_insert_map(new_floor, op->map, NULL, 0);
     draw_info(COLOR_WHITE, op, "You change the floor to better suit your tastes.");
 
     return 1;
@@ -245,7 +245,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
     SET_FLAG(new_item, FLAG_NO_PICK);
     new_item->x = x;
     new_item->y = y;
-    insert_ob_in_map(new_item, op->map, NULL, 0);
+    object_insert_map(new_item, op->map, NULL, 0);
     char *name = object_get_name_s(new_item, op);
     draw_info_format(COLOR_WHITE, op, "You build the %s.", name);
     efree(name);
@@ -390,7 +390,7 @@ static void fix_walls(mapstruct *map, int x, int y)
     wall_ob->type = WALL;
     wall_ob->x = x;
     wall_ob->y = y;
-    insert_ob_in_map(wall_ob, map, NULL, 0);
+    object_insert_map(wall_ob, map, NULL, 0);
 
     for (flag = 0; flag < NUM_FLAGS_32; flag++) {
         wall_ob->flags[flag] = old_flags[flag];
@@ -436,7 +436,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
         object_destroy(wall_ob);
         new_wall->x = x;
         new_wall->y = y;
-        insert_ob_in_map(new_wall, op->map, NULL, 0);
+        object_insert_map(new_wall, op->map, NULL, 0);
         fix_walls(op->map, x, y);
         draw_info(COLOR_WHITE, op, "You redecorate the wall to better suit your tastes.");
     } else {
@@ -446,7 +446,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 
         new_wall->x = x;
         new_wall->y = y;
-        insert_ob_in_map(new_wall, op->map, NULL, 0);
+        object_insert_map(new_wall, op->map, NULL, 0);
 
         for (xt = x - 1; xt < x + 1 + 1; xt++) {
             for (yt = y - 1; yt < y + 1 + 1; yt++) {
@@ -524,7 +524,7 @@ static int builder_window(object *op, int x, int y)
     window->type = WALL;
     window->x = x;
     window->y = y;
-    insert_ob_in_map(window, op->map, NULL, 0);
+    object_insert_map(window, op->map, NULL, 0);
 
     for (flag = 0; flag < NUM_FLAGS_32; flag++) {
         window->flags[flag] = old_flags[flag];

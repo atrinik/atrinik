@@ -137,7 +137,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 
             if (!return_wp) {
                 return_wp = arch_to_object(arches[ARCH_WAYPOINT]);
-                insert_ob_in_ob(return_wp, npc);
+                object_insert_into(return_wp, npc, 0);
                 return_wp->owner = npc;
                 return_wp->ownercount = npc->count;
                 FREE_AND_ADD_REF_HASH(return_wp->name, shstr_cons.home);
@@ -175,7 +175,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
     /* Create a new aggro wp for npc? */
     if (!aggro_wp && enemy) {
         aggro_wp = arch_to_object(arches[ARCH_WAYPOINT]);
-        insert_ob_in_ob(aggro_wp, npc);
+        object_insert_into(aggro_wp, npc, 0);
         /* Mark as aggro WP */
         SET_FLAG(aggro_wp, FLAG_DAMNED);
         aggro_wp->owner = npc;
@@ -283,7 +283,7 @@ void monster_enemy_signal(object *npc, object *enemy)
         return;
     }
 
-    spawn_point_info = present_in_ob(SPAWN_POINT_INFO, npc);
+    spawn_point_info = object_find_type(npc, SPAWN_POINT_INFO);
 
     if (spawn_point_info == NULL || !OBJECT_VALID(spawn_point_info->owner,
             spawn_point_info->ownercount)) {
@@ -576,7 +576,7 @@ static void process_func(object *op)
     if (enemy == NULL) {
         object *spawn_point_info;
 
-        if (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || ((spawn_point_info = present_in_ob(SPAWN_POINT_INFO, op)) && spawn_point_info->owner && !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount))) {
+        if (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || ((spawn_point_info = object_find_type(op, SPAWN_POINT_INFO)) && spawn_point_info->owner && !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount))) {
             monster_drop_arrows(op);
             object_remove(op, 0);
             object_destroy(op);
@@ -797,7 +797,7 @@ static void process_func(object *op)
     }
 
     if (QUERY_FLAG(op, FLAG_ONLY_ATTACK)) {
-        destruct_ob(op);
+        object_destruct(op);
         return;
     }
 
@@ -1896,7 +1896,7 @@ monster_drop_arrows (object *op)
             object_remove(tmp, 0);
             tmp->x = op->x;
             tmp->y = op->y;
-            insert_ob_in_map(tmp, op->map, op, 0);
+            object_insert_map(tmp, op->map, op, 0);
         }
     } FOR_INV_FINISH();
 }

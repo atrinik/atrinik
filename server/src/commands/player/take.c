@@ -73,7 +73,7 @@ void command_take(object *op, const char *command, char *params)
         ival = object_matches_string(tmp, op, params);
 
         if (ival > 0) {
-            if (ival <= 2 && !can_pick(op, tmp)) {
+            if (ival <= 2 && !object_can_pick(op, tmp)) {
                 missed++;
             } else {
                 pick_up(op, tmp, 1);

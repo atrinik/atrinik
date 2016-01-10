@@ -50,7 +50,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
     }
 
     victim->direction = dir;
-    update_turn_face(victim);
+    object_update_turnable(victim);
 
     return OBJECT_METHOD_OK;
 }

@@ -80,7 +80,7 @@ process_func (object *op)
             new_ob->x = tmp->x;
             new_ob->y = tmp->y;
             new_ob->map = victim->map;
-            insert_ob_in_map(new_ob,
+            object_insert_map(new_ob,
                              victim->map,
                              victim,
                              INS_NO_MERGE | INS_NO_WALK_ON);

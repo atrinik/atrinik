@@ -290,7 +290,7 @@ typedef struct linked_char {
     if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) \
     { \
         SET_ANIMATION((ob), (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) * (QUERY_FLAG((ob), FLAG_IS_TURNABLE) ? (ob)->direction : 0) + (ob)->state); \
-        update_object((ob), UP_OBJ_FACE); \
+        object_update((ob), UP_OBJ_FACE); \
     }
 /** Get object's animation ID. */
 #define GET_ANIM_ID(ob) (ob->animation_id)

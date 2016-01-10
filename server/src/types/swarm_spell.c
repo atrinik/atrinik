@@ -51,7 +51,7 @@ process_func (object *op)
 {
     HARD_ASSERT(op != NULL);
 
-    if (op->stats.hp == 0 || get_owner(op) == NULL) {
+    if (op->stats.hp == 0 || object_owner(op) == NULL) {
         object_remove(op, 0);
         object_destroy(op);
         return;
@@ -94,7 +94,7 @@ process_func (object *op)
         return;
     }
 
-    object *caster = get_owner(op);
+    object *caster = object_owner(op);
     if (caster == NULL) {
         caster = op;
     }

@@ -61,13 +61,13 @@ mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
     /* Fill up the map with the given floor style */
     for (x = 0; x < RP->Xsize; x++) {
         for (y = 0; y < RP->Ysize; y++) {
-            object *the_floor = pick_random_object(style_map), *thisfloor = get_object();
+            object *the_floor = pick_random_object(style_map), *thisfloor = object_get();
 
-            copy_object(the_floor, thisfloor, 0);
+            object_copy(thisfloor, the_floor, false);
             thisfloor->x = x;
             thisfloor->y = y;
 
-            insert_ob_in_map(thisfloor, newMap, thisfloor, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(thisfloor, newMap, thisfloor, INS_NO_MERGE | INS_NO_WALK_ON);
         }
     }
 

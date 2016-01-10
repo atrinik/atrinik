@@ -58,7 +58,7 @@ static void player_mover_handle(object *op, object *victim, bool process)
     }
 
     if (QUERY_FLAG(op, FLAG_LIFESAVE) && op->stats.hp-- < 0) {
-        destruct_ob(op);
+        object_destruct(op);
         return;
     }
 

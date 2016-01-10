@@ -148,12 +148,12 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
     }
 
     /* Create the one-drop item. */
-    clone = get_object();
-    copy_object_with_inv(item, clone);
+    clone = object_get();
+    object_copy_full(clone, item);
     SET_FLAG(clone, FLAG_IDENTIFIED);
 
     /* Insert the quest item inside the player. */
-    insert_ob_in_ob(clone, op);
+    object_insert_into(clone, op, 0);
 
     if (QUERY_FLAG(item, FLAG_ONE_DROP)) {
         /* Create a quest object in the player's container, so that the item
@@ -166,7 +166,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
         FREE_AND_COPY_HASH(quest_pl->name, quest->name);
         FREE_AND_COPY_HASH(quest_pl->race, QUEST_NAME(quest));
         /* Insert it inside player's quest container. */
-        insert_ob_in_ob(quest_pl, CONTR(op)->quest_container);
+        object_insert_into(quest_pl, CONTR(op)->quest_container, 0);
 
         snprintf(VS(buf), "You solved the one drop quest %s!\n",
                 QUEST_NAME(quest_pl));
@@ -275,8 +275,8 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     }
 
     /* Create a new quest item. */
-    clone = get_object();
-    copy_object_with_inv(item, clone);
+    clone = object_get();
+    object_copy_full(clone, item);
     SET_FLAG(clone, FLAG_QUEST_ITEM);
     SET_FLAG(clone, FLAG_STARTEQUIP);
     CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
@@ -297,7 +297,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     draw_info(COLOR_NAVY, op, buf);
 
     /* Insert the quest item inside the player. */
-    insert_ob_in_ob(clone, op);
+    object_insert_into(clone, op, 0);
     play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg",
             0, 0, 0, 0);
 }

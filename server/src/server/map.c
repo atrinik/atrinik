@@ -37,6 +37,7 @@
 #include <door.h>
 #include <check_inv.h>
 #include <magic_mirror.h>
+#include <object_methods.h>
 
 int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280
@@ -48,16 +49,16 @@ int global_darkness_table[MAX_DARKNESS + 1] = {
  * For example: TILED_NORTH -> TILED_SOUTH
  */
 int map_tiled_reverse[TILED_NUM] = {
-    TILED_SOUTH, /* TILED_NORTH */
-    TILED_WEST, /* TILED_EAST */
-    TILED_NORTH, /* TILED_SOUTH */
-    TILED_EAST, /* TILED_WEST */
+    TILED_SOUTH,     /* TILED_NORTH */
+    TILED_WEST,      /* TILED_EAST */
+    TILED_NORTH,     /* TILED_SOUTH */
+    TILED_EAST,      /* TILED_WEST */
     TILED_SOUTHWEST, /* TILED_NORTHEAST */
     TILED_NORTHWEST, /* TILED_SOUTHEAST */
     TILED_NORTHEAST, /* TILED_SOUTHWEST */
     TILED_SOUTHEAST, /* TILED_NORTHWEST */
-    TILED_DOWN, /* TILED_UP */
-    TILED_UP /* TILED_DOWN */
+    TILED_DOWN,      /* TILED_UP */
+    TILED_UP,        /* TILED_DOWN */
 };
 
 static int map_tiled_coords[TILED_NUM][3] = {
@@ -76,7 +77,7 @@ static int map_tiled_coords[TILED_NUM][3] = {
 static mempool_struct *pool_map; ///< Map structures pool.
 static uint32_t map_count;
 
-#define DEBUG_OLDFLAGS 1
+#define DEBUG_OLDFLAGS 0
 
 static void load_objects(mapstruct *m, FILE *fp, int mapflags);
 static void save_objects(mapstruct *m, FILE *fp, FILE *fp2);
@@ -771,7 +772,7 @@ int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
  */
 static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 {
-    object *op = get_object();
+    object *op = object_get();
     /* To handle buttons correctly */
     op->map = m;
 
@@ -797,7 +798,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
             /* Used for containers as link to players viewing it */
             op->attacked_by = NULL;
             op->attacked_by_count = 0;
-            sum_weight(op);
+            object_weight_sum(op);
         }
 
         if (op->type == MONSTER) {
@@ -809,17 +810,16 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
             SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state);
         }
 
-        insert_ob_in_map(op, m, op, INS_NO_MERGE | INS_NO_WALK_ON);
+        object_insert_map(op, m, op, INS_NO_MERGE | INS_NO_WALK_ON);
 
-        /* auto_apply() will remove FLAG_AUTO_APPLY after first use */
         if (QUERY_FLAG(op, FLAG_AUTO_APPLY)) {
-            auto_apply(op);
+            object_auto_apply(op);
         } else if ((mapflags & MAP_ORIGINAL) && op->randomitems) {
             /* For fresh maps, create treasures */
             create_treasure(op->randomitems, op, op->type != TREASURE ? GT_APPLY : 0, op->level ? op->level : m->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
         }
 
-        op = get_object();
+        op = object_get();
         op->map = m;
     }
 
@@ -900,10 +900,10 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
                     continue;
                 }
 
-                owner = get_owner(head);
+                owner = object_owner(head);
 
                 if (owner) {
-                    clear_owner(head);
+                    object_owner_clear(head);
                 }
 
                 if (QUERY_FLAG(head, FLAG_IS_FLOOR) && QUERY_FLAG(head, FLAG_UNIQUE)) {
@@ -1693,6 +1693,7 @@ void free_all_maps(void)
  * This function updates various attributes about a specific space on the
  * map (what it looks like, whether it blocks magic, has a living
  * creatures, prevents people from passing through, etc).
+ *
  * @param m
  * Map to update.
  * @param x
@@ -1700,127 +1701,108 @@ void free_all_maps(void)
  * @param y
  * Y position on the given map.
  */
-void update_position(mapstruct *m, int x, int y)
+void
+update_position (mapstruct *m, int x, int y)
 {
-    object *tmp;
-    int flags, move_flags;
+    HARD_ASSERT(m != NULL);
+    HARD_ASSERT(GET_MAP_FLAGS(m, x, y) & P_NEED_UPDATE);
 
-#ifdef DEBUG_OLDFLAGS
-    int oldflags;
+#if DEBUG_OLDFLAGS
+    int old_flags = GET_MAP_FLAGS(m, x, y) & ~P_NEED_UPDATE;
+    int old_move_flags = GET_MAP_MOVE_FLAGS(m, x, y);
+#endif
 
-    if (!((oldflags = GET_MAP_FLAGS(m, x, y)) & (P_NEED_UPDATE | P_FLAGS_UPDATE))) {
-        LOG(DEBUG, "called with P_NEED_UPDATE|P_FLAGS_UPDATE not set: %s (%d, %d)", m->path, x, y);
+    int flags = 0;
+    int move_flags = 0;
+
+    for (object *tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above) {
+        if (QUERY_FLAG(tmp, FLAG_PLAYER_ONLY)) {
+            flags |= P_PLAYER_ONLY;
+        }
+
+        if (tmp->type == CHECK_INV) {
+            flags |= P_CHECK_INV;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_IS_PLAYER)) {
+            flags |= P_IS_PLAYER;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_DOOR_CLOSED)) {
+            flags |= P_DOOR_CLOSED;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_MONSTER)) {
+            flags |= P_IS_MONSTER;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_NO_MAGIC)) {
+            flags |= P_NO_MAGIC;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_BLOCKSVIEW)) {
+            flags |= P_BLOCKSVIEW;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_WALK_ON)) {
+            flags |= P_WALK_ON;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_WALK_OFF)) {
+            flags |= P_WALK_OFF;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_FLY_ON)) {
+            flags |= P_FLY_ON;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_FLY_OFF)) {
+            flags |= P_FLY_OFF;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_NO_PASS)) {
+            flags |= P_NO_PASS;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
+            move_flags |= tmp->terrain_type;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_NO_PVP)) {
+            flags |= P_NO_PVP;
+        }
+
+        if (tmp->type == MAGIC_MIRROR) {
+            flags |= P_MAGIC_MIRROR;
+        }
+
+        if (tmp->type == EXIT) {
+            flags |= P_IS_EXIT;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_OUTDOOR)) {
+            flags |= P_OUTDOOR;
+        }
+
+        if (flags & (P_NO_PASS | P_DOOR_CLOSED)) {
+            if (!QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
+                flags &= ~P_PASS_THRU;
+            } else {
+                flags |= P_PASS_THRU;
+            }
+        }
+    }
+
+#if DEBUG_OLDFLAGS
+    if (flags == old_flags && move_flags == old_move_flags) {
+        LOG(DEVEL,
+            "New flags (%x, %x) are the same as old ones (%x, %x): %s %d,%d",
+            flags, move_flags, old_flags, old_move_flags, m->path, x, y);
     }
 #endif
 
-    /* save our update flag */
-    flags = oldflags & P_NEED_UPDATE;
-
-    /* update our flags */
-    if (oldflags & P_FLAGS_UPDATE) {
-        move_flags = 0;
-
-        /* This is a key function and highly often called - every saved tick is
-         * good. */
-        for (tmp = GET_MAP_OB (m, x, y); tmp; tmp = tmp->above) {
-            if (QUERY_FLAG(tmp, FLAG_PLAYER_ONLY)) {
-                flags |= P_PLAYER_ONLY;
-            }
-
-            if (tmp->type == CHECK_INV) {
-                flags |= P_CHECK_INV;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_IS_PLAYER)) {
-                flags |= P_IS_PLAYER;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_DOOR_CLOSED)) {
-                flags |= P_DOOR_CLOSED;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_MONSTER)) {
-                flags |= P_IS_MONSTER;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_NO_MAGIC)) {
-                flags |= P_NO_MAGIC;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_BLOCKSVIEW)) {
-                flags |= P_BLOCKSVIEW;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_WALK_ON)) {
-                flags |= P_WALK_ON;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_WALK_OFF)) {
-                flags |= P_WALK_OFF;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_FLY_ON)) {
-                flags |= P_FLY_ON;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_FLY_OFF)) {
-                flags |= P_FLY_OFF;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_NO_PASS)) {
-                flags |= P_NO_PASS;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
-                move_flags |= tmp->terrain_type;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_NO_PVP)) {
-                flags |= P_NO_PVP;
-            }
-
-            if (tmp->type == MAGIC_MIRROR) {
-                flags |= P_MAGIC_MIRROR;
-            }
-
-            if (tmp->type == EXIT) {
-                flags |= P_IS_EXIT;
-            }
-
-            if (QUERY_FLAG(tmp, FLAG_OUTDOOR)) {
-                flags |= P_OUTDOOR;
-            }
-
-            if (flags & (P_NO_PASS | P_DOOR_CLOSED)) {
-                if (!QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
-                    flags &= ~P_PASS_THRU;
-                } else {
-                    flags |= P_PASS_THRU;
-                }
-            }
-        }
-
-#ifdef DEBUG_OLDFLAGS
-
-        /* We don't want to rely on this function to have accurate flags, but
-         * since we're already doing the work, we calculate them here.
-         * if they don't match, logic is broken someplace. */
-        if (((oldflags & ~(P_FLAGS_UPDATE | P_FLAGS_ONLY | P_NO_ERROR)) != flags) && (!(oldflags & P_NO_ERROR))) {
-            LOG(DEBUG, "updated flags do not match old flags: %s (%d,%d) old:%x != %x", m->path, x, y, (oldflags & ~P_NEED_UPDATE), flags);
-        }
-#endif
-
-        SET_MAP_FLAGS(m, x, y, flags);
-        SET_MAP_MOVE_FLAGS(m, x, y, move_flags);
-    }
-
-    /* Check if we must rebuild the map layers for client view */
-    if ((oldflags & P_FLAGS_ONLY) || !(oldflags & P_NEED_UPDATE)) {
-        return;
-    }
-
-    /* Clear out need update flag */
-    SET_MAP_FLAGS(m, x, y, GET_MAP_FLAGS(m, x, y) & ~P_NEED_UPDATE);
+    SET_MAP_FLAGS(m, x, y, flags);
+    SET_MAP_MOVE_FLAGS(m, x, y, move_flags);
 }
 
 /**
@@ -2170,6 +2152,65 @@ mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
 }
 
 /**
+ * Computes a direction from delta X/Y.
+ *
+ * @param x
+ * Delta X.
+ * @param y
+ * Delta Y.
+ * @return
+ * Direction.
+ */
+static int
+coords_distance_to_dir (int x, int y)
+{
+    int q;
+    if (!y) {
+        q = -300 * x;
+    } else {
+        q = x * 100 / y;
+    }
+
+    if (y > 0) {
+        if (q < -242) {
+            return EAST;
+        }
+
+        if (q < -41) {
+            return NORTHEAST;
+        }
+
+        if (q < 41) {
+            return NORTH;
+        }
+
+        if (q < 242) {
+            return NORTHWEST;
+        }
+
+        return WEST;
+    }
+
+    if (q < -242) {
+        return WEST;
+    }
+
+    if (q < -41) {
+        return SOUTHWEST;
+    }
+
+    if (q < 41) {
+        return SOUTH;
+    }
+
+    if (q < 242) {
+        return SOUTHEAST;
+    }
+
+    return EAST;
+}
+
+/**
  * This is used by get_player to determine where the other
  * creature is.  get_rangevector takes into account map tiling,
  * so you just can not look the the map coordinates and get the
@@ -2228,7 +2269,7 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
     }
 
     retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
-    retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
+    retval->direction = coords_distance_to_dir(-retval->distance_x, -retval->distance_y);
 
     return 1;
 }
@@ -2327,7 +2368,7 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
         return 1;
     }
 
-    retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
+    retval->direction = coords_distance_to_dir(-retval->distance_x, -retval->distance_y);
     return 1;
 }
 
@@ -2686,7 +2727,7 @@ mapstruct *map_force_reset(mapstruct *m)
     free_string_shared(path);
 
     for (i = 0; i < players_num; i++) {
-        insert_ob_in_map(players[i], m, NULL, INS_NO_MERGE);
+        object_insert_map(players[i], m, NULL, INS_NO_MERGE);
     }
 
     if (players) {
@@ -2793,4 +2834,191 @@ void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer)
     {
     }
     MAP_TILES_WALK_END
+}
+
+/**
+ * Searches for any object with a matching archetype at the given map
+ * and coordinates.
+ *
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate on map.
+ * @param y
+ * Y coordinate on map.
+ * @param at
+ * Archetype to look for.
+ * @return
+ * First matching object, or NULL if none matches.
+ */
+object *
+map_find_arch (mapstruct *m, int x, int y, archetype_t *at)
+{
+    HARD_ASSERT(m != NULL);
+    HARD_ASSERT(at != NULL);
+
+    m = get_map_from_coord(m, &x, &y);
+    if (m == NULL) {
+        return NULL;
+    }
+
+    for (object *tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above) {
+        if (tmp->arch == at) {
+            return tmp;
+        }
+    }
+
+    return NULL;
+}
+
+/**
+ * Searches for any object with a matching type at the given map and
+ * coordinates.
+ *
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate on map.
+ * @param y
+ * Y coordinate on map.
+ * @param type
+ * Type to find.
+ * @return
+ * First matching object, or NULL if none matches.
+ */
+object *
+map_find_type (mapstruct *m, int x, int y, uint8_t type)
+{
+    HARD_ASSERT(m != NULL);
+
+    m = get_map_from_coord(m, &x, &y);
+    if (m == NULL) {
+        return NULL;
+    }
+
+    for (object *tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above) {
+        if (tmp->type == type) {
+            return tmp;
+        }
+    }
+
+    return NULL;
+}
+
+/**
+ * Will search for a spot at the given map and coordinates which will be
+ * able to contain the given archetype, and returns a random choice among
+ * the alternatives found (if any).
+ *
+ * 'start' and 'stop' specify how many squares to search (see the
+ * #freearr_x/#freearr_y definitions); 1-9 would search the 8 immediately
+ * adjacent tiles.
+ *
+ * @note This only checks to see if there is space for the head of the
+ * object - if it is a multi-part object, this should be called for all
+ * pieces.
+ * @param m
+ * Map to search on.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @param start
+ * Starting index in the #freearr_x/#freearr_y arrays; at least 0, and
+ * less than #SIZEOFFREE.
+ * @param stop
+ * Last index in the #freearr_x/#freearr_y arrays; at least 0, less
+ * than #SIZEOFFREE and greater than 'start'.
+ * @param at
+ * Archetype to use for blocking checks.
+ * @param op
+ * Object to use for blocking checks; can be NULL.
+ * @return
+ * An index usable in the #freearr_x/#freearr_y arrays, -1 if there is no
+ * usable spot.
+ */
+int
+map_free_spot (mapstruct   *m,
+               int          x,
+               int          y,
+               int          start,
+               int          stop,
+               archetype_t *at,
+               object      *op)
+{
+    HARD_ASSERT(m != NULL);
+    HARD_ASSERT(at != NULL);
+
+    SOFT_ASSERT_RC(start >= 0 && start < SIZEOFFREE,
+                   -1,
+                   "Invalid start value: %d", start);
+    SOFT_ASSERT_RC(stop >= 0 && stop < SIZEOFFREE,
+                   -1,
+                   "Invalid stop value: %d", start);
+    SOFT_ASSERT_RC(stop > start,
+                   -1,
+                   "Stop (%d) is not higher than start (%d)",
+                   stop, start);
+
+    int num_altern = 0;
+    static int altern[SIZEOFFREE];
+    for (int i = start; i <= stop; i++) {
+        if (!arch_blocked(at,
+                          op,
+                          m,
+                          x + freearr_x[i],
+                          y + freearr_y[i])) {
+            altern[num_altern++] = i;
+        } else if (wall(m,
+                        x + freearr_x[i],
+                        y + freearr_y[i]) &&
+                   maxfree[i] < stop) {
+            stop = maxfree[i];
+        }
+    }
+
+    if (num_altern == 0) {
+        return -1;
+    }
+
+    return altern[rndm(0, num_altern - 1)];
+}
+
+/**
+ * Works like map_free_spot(), but it will search maximum possible number
+ * of squares (#SIZEOFFREE3).
+ *
+ * It will return the first available spot, not a random choice.
+ *
+ * @param m
+ * Map to search on.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @param at
+ * Archetype to use for blocking checks.
+ * @param op
+ * Object to use for blocking checks; can be NULL.
+ * @return
+ * An index usable in the #freearr_x/#freearr_y arrays, -1 if there is no
+ * usable spot.
+ */
+int
+map_free_spot_first (mapstruct   *m,
+                     int          x,
+                     int          y,
+                     archetype_t *at,
+                     object      *op)
+{
+    HARD_ASSERT(m != NULL);
+    HARD_ASSERT(at != NULL);
+
+    for (int i = 0; i <= SIZEOFFREE3; i++) {
+        if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i])) {
+            return i;
+        }
+    }
+
+    return -1;
 }

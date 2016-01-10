@@ -371,11 +371,11 @@ void drain_specific_stat(object *op, int deplete_stats)
         LOG(BUG, "Couldn't find archetype depletion.");
         return;
     } else {
-        tmp = present_arch_in_ob(at, op);
+        tmp = object_find_arch(op, at);
 
         if (!tmp) {
             tmp = arch_to_object(at);
-            tmp = insert_ob_in_ob(tmp, op);
+            tmp = object_insert_into(tmp, op, 0);
             SET_FLAG(tmp, FLAG_APPLIED);
         }
     }
@@ -1057,7 +1057,7 @@ void living_update_player(object *op)
         }
     }
 
-    update_ob_speed(op);
+    object_update_speed(op);
 
     /* The player is invisible; shouldn't emit any light. */
     if (QUERY_FLAG(op, FLAG_IS_INVISIBLE)) {
@@ -1158,7 +1158,7 @@ void living_update_player(object *op)
         LOG(ERROR, "Player %s has no quest container, fixing.",
             object_get_str(op));
         object *quest_container = arch_get(QUEST_CONTAINER_ARCHETYPE);
-        insert_ob_in_ob(quest_container, op);
+        object_insert_into(quest_container, op, 0);
         pl->quest_container = quest_container;
     }
 }
@@ -1740,10 +1740,10 @@ object *living_get_base_info(object *op)
         return tmp;
     }
 
-    tmp = get_object();
+    tmp = object_get();
     tmp->arch = op->arch;
     /* Copy without putting it on active list */
-    copy_object(op, tmp, 1);
+    object_copy(tmp, op, true);
     tmp->type = BASE_INFO;
     tmp->speed_left = tmp->speed;
     /* Ensure this object will not be active in any way */
@@ -1754,10 +1754,10 @@ object *living_get_base_info(object *op)
     CLEAR_FLAG(tmp, FLAG_FRIENDLY);
     CLEAR_FLAG(tmp, FLAG_MONSTER);
     /* And put it in the monster. */
-    tmp = insert_ob_in_ob(tmp, op);
+    tmp = object_insert_into(tmp, op, 0);
 
     /* Store position (for returning home after aggro is lost). */
-    object *env = get_env_recursive(op);
+    object *env = object_get_env(op);
     if (env->map != NULL) {
         tmp->x = env->x;
         tmp->y = env->y;
@@ -1809,6 +1809,6 @@ void set_mobile_speed(object *op, int idx)
 
     /* Update speed if needed */
     if (DBL_EQUAL(tmp, 0.0) != DBL_EQUAL(op->speed, 0.0)) {
-        update_ob_speed(op);
+        object_update_speed(op);
     }
 }

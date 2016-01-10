@@ -60,7 +60,7 @@ trigger_func (object *op, object *cause, int state)
 
     if (state != 0 && cause->stats.exp != 0) {
         op->speed = 1.0 / cause->stats.exp;
-        update_ob_speed(op);
+        object_update_speed(op);
         op->speed_left = -1;
     }
 
@@ -106,7 +106,7 @@ process_func (object *op)
     HARD_ASSERT(op != NULL);
 
     op->speed = 0;
-    update_ob_speed(op);
+    object_update_speed(op);
 
     if (op->stats.exp == -1) {
         return;

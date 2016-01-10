@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
@@ -1810,7 +1811,7 @@ enum apply_flag {
  * Constructs a loop iterating over a set of objects. This function should not
  * be used at all. Use FOR_OB_PREPARE() instead.
  * @param op_
- * the object start start with
+ * the object to start with
  * @param field_
  * the field that holds the "next" pointer within op_
  * @param suffix_
@@ -1821,7 +1822,7 @@ enum apply_flag {
         object *next##suffix_ = (op_);                        \
         tag_t next_tag##suffix_ = next##suffix_ == NULL ? 0 : next##suffix_->count;\
         while (((op_) = next##suffix_) != NULL) {              \
-            if (was_destroyed(next##suffix_, next_tag##suffix_)) {\
+            if (OBJECT_DESTROYED(next##suffix_, next_tag##suffix_)) {\
                 break;                                          \
             }                                                   \
             next##suffix_ = next##suffix_->field_;                               \
@@ -1834,5 +1835,29 @@ enum apply_flag {
     } while(0)
 
 /*@}*/
+
+/**
+ * Computes an absolute direction.
+ *
+ * @param d
+ * Direction to convert.
+ * @return
+ * Number between 1 and 8, which represent the "absolute" direction
+ * of a number (it actually takes care of "overflow" in previous calculations
+ * of a direction).
+ */
+static inline int
+absdir (int d)
+{
+    while (d < 1) {
+        d += 8;
+    }
+
+    while (d > 8) {
+        d -= 8;
+    }
+
+    return d;
+}
 
 #endif

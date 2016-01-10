@@ -105,7 +105,7 @@ void check_setup_env_pl(mapstruct **map, object **pl)
 
     object_remove(*pl, 0);
 
-    *pl = insert_ob_in_map(*pl, *map, NULL, 0);
+    *pl = object_insert_map(*pl, *map, NULL, 0);
     ck_assert(*pl != NULL);
 }
 

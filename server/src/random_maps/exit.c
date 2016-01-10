@@ -264,13 +264,13 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 
             snprintf(buf, sizeof(buf), "This is a random map.\nLevel: %d\n", RP->dungeon_level);
             FREE_AND_COPY_HASH(random_sign->msg, buf);
-            insert_ob_in_map(random_sign, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(random_sign, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
         }
     }
 
     /* Block the exit so things don't get dumped on top of it. */
     SET_FLAG(the_exit_up, FLAG_NO_PASS);
-    insert_ob_in_map(the_exit_up, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+    object_insert_map(the_exit_up, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
     maze[the_exit_up->x][the_exit_up->y] = '<';
 
     /* Set the starting x, y for this map */
@@ -319,8 +319,8 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     }
 
     if (the_exit_down != NULL) {
-        int i = find_first_free_spot(the_exit_down->arch, NULL, map, downx,
-                downy);
+        int i = map_free_spot_first(map, downx,
+                downy, the_exit_down->arch, NULL);
         if (i == -1) {
             LOG(ERROR, "Could not find a free spot for exit going down.");
             the_exit_down = NULL;
@@ -370,7 +370,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
             the_exit_back->x = MAP_ENTER_X(new_map);
             the_exit_back->y = MAP_ENTER_Y(new_map);
 
-            insert_ob_in_map(the_exit_back, new_map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(the_exit_back, new_map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
 
             /* So it gets swapped out */
             set_map_timeout(new_map);
@@ -387,7 +387,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
         /* Block the exit so things don't get dumped on top of it. */
         SET_FLAG(the_exit_down, FLAG_NO_PASS);
 
-        insert_ob_in_map(the_exit_down, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+        object_insert_map(the_exit_down, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
 
         maze[the_exit_down->x][the_exit_down->y] = '>';
     }
@@ -414,7 +414,7 @@ void unblock_exits(mapstruct *map, char **maze, RMParms *RP)
                 for (walk = GET_MAP_OB(map, x, y); walk != NULL; walk = walk->above) {
                     if (QUERY_FLAG(walk, FLAG_NO_PASS) && walk->type != DOOR) {
                         CLEAR_FLAG(walk, FLAG_NO_PASS);
-                        update_object(walk, UP_OBJ_FLAGS);
+                        object_update(walk, UP_OBJ_FLAGS);
                     }
                 }
             }

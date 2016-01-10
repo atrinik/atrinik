@@ -71,9 +71,9 @@ move_on_func (object *op, object *victim, object *originator, int state)
         SET_FLAG(force, FLAG_IS_USED_UP);
     }
 
-    update_ob_speed(force);
+    object_update_speed(force);
     FREE_AND_COPY_HASH(force->slaying, op->race);
-    insert_ob_in_ob(force, victim);
+    object_insert_into(force, victim, 0);
 
     if (op->msg != NULL) {
         draw_info(COLOR_NAVY, victim, op->msg);
@@ -83,7 +83,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
         op->stats.hp--;
 
         if (op->stats.hp == 0) {
-            destruct_ob(op);
+            object_destruct(op);
             return OBJECT_METHOD_OK;
         }
     }

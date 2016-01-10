@@ -119,11 +119,11 @@ void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP)
                 }
 
                 new_door = arch_to_object(this_door->arch);
-                copy_object(this_door, new_door, 0);
+                object_copy(new_door, this_door, false);
                 new_door->x = x;
                 new_door->y = y;
 
-                insert_ob_in_map(new_door, the_map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                object_insert_map(new_door, the_map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
             }
         }
     }

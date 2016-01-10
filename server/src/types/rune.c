@@ -63,7 +63,7 @@ rune_spring (object *op, object *victim)
         draw_info(COLOR_WHITE, victim, op->msg);
     }
 
-    object *env = get_env_recursive(op);
+    object *env = object_get_env(op);
     trap_show(op, env);
 
     if (victim->type == PLAYER) {
@@ -131,7 +131,7 @@ rune_spring (object *op, object *victim)
         op->stats.food = 20;
         SET_FLAG(op, FLAG_IS_USED_UP);
         op->speed = op->speed_left = 1.0;
-        update_ob_speed(op);
+        object_update_speed(op);
         /* Clear trapped flag. */
         set_trapped_flag(env);
     }

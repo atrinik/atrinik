@@ -77,22 +77,22 @@
  * This structure allows any object to have extra fields the Flex loader
  * does not know about.
  */
-typedef struct key_value_struct {
+typedef struct key_value {
     /** Name of this extra field. Shared string. */
-    const char *key;
+    shstr *key;
 
     /** Value of this extra field. Shared string. */
-    const char *value;
+    shstr *value;
 
     /** Next value in the list. */
-    struct key_value_struct *next;
-} key_value;
+    struct key_value *next;
+} key_value_t;
 
 /**
  * Object structure.
  */
 struct obj {
-    /* These variables are not changed by copy_object(): */
+    /* These variables are not changed by object_copy(): */
 
     /**
      * Next object in the 'active' list
@@ -162,7 +162,7 @@ struct obj {
     /* These get an extra add_refcount(), after having been copied by memcpy().
      * All fields below this point are automatically copied by memcpy. If
      * adding something that needs a refcount updated, make sure you modify
-     * copy_object to do so. */
+     * object_copy() to do so. */
 
     /** The name of the object, obviously... */
     const char *name;
@@ -481,7 +481,7 @@ struct obj {
     living stats;
 
     /** Fields not explicitly known by the loader. */
-    key_value *key_values;
+    key_value_t *key_values;
 };
 
 /** Used to link together several objects. */
@@ -539,11 +539,6 @@ struct oblnk {
 #define UP_OBJ_FLAGFACE 5
 /** Force full update */
 #define UP_OBJ_ALL      6
-/**
- * Object layer was changed, rebuild layer systen - used from invisible
- * for example
- */
-#define UP_OBJ_LAYER    7
 /*@}*/
 
 /**
@@ -561,9 +556,8 @@ struct oblnk {
 /**
  * @defgroup INS_xxx Object insertion flags.
  *
- * These are flags passed to insert_ob_in_map() and
- * insert_ob_in_ob(). Note that all flags may not be meaningful
- * for both functions.
+ * These are flags passed to object_insert_map() and object_insert_into().
+ * Note that all flags may not be meaningful for both functions.
  */
 /*@{*/
 /** Don't try to merge inserted object with ones already on space. */
@@ -627,7 +621,7 @@ struct oblnk {
 /*@}*/
 
 /** Decrease an object by one. */
-#define decrease_ob(xyz) decrease_ob_nr(xyz, 1)
+#define decrease_ob(xyz) object_decrease(xyz, 1)
 
 /**
  * @defgroup GENDER_xxx Gender IDs.
@@ -661,53 +655,6 @@ struct oblnk {
  * The head object.
  */
 #define HEAD(op) ((op)->head ? (op)->head : (op))
-
-/**
- * Returns the object which this object marks as being the owner.
- *
- * An ID scheme is used to avoid pointing to objects which have been
- * freed and are now reused. If this is detected, the owner is
- * set to NULL, and NULL is returned.
- *
- * @param op
- * The object to get owner for.
- * @return
- * Owner of the object if any, NULL if no owner.
- */
-static inline object *
-get_owner (object *op)
-{
-    if (op == NULL || op->owner == NULL) {
-        return NULL;
-    }
-
-    if (OBJECT_FREE(op) || op->owner->count != op->ownercount) {
-        op->owner = NULL;
-        return NULL;
-    }
-
-    return op->owner;
-}
-
-/**
- * Returns the owner of the specified object. If there is no object,
- * the originally passed object pointer is returned instead.
- *
- * @param op
- * The object.
- * @return
- * Owner of the object (may be the same object).
- */
-static inline object *
-OWNER (object *op)
-{
-    object *owner = get_owner(op);
-    if (owner != NULL) {
-        return owner;
-    }
-
-    return op;
-}
 
 /**
  * Structure used for object::custom_attrset of magic mirrors.
@@ -759,6 +706,17 @@ typedef struct magic_mirror_struct {
     } while (0)
 
 /**
+ * Check if the specified object has been destroyed.
+ *
+ * @param obj
+ * The object to check.
+ * @param tag
+ * Tag to check against.
+ */
+#define OBJECT_DESTROYED(obj, tag) \
+    (OBJECT_FREE(obj) || (obj)->count != (tag))
+
+/**
  * @defgroup OBJECTS_DESTROYED_xxx Destroyed objects check
  * Macro that tracks and checks the destroyed state of multiple objects
  * simultaneously.
@@ -781,12 +739,12 @@ typedef struct magic_mirror_struct {
  */
 #define _OBJECTS_DESTROYED_DEFINE(obj)      \
     HARD_ASSERT(!OBJECT_FREE(obj));         \
-    tag_t __tag_ ## obj = obj->count;
+    tag_t __tag_##obj = obj->count;
 /**
  * Helper macro for OBJECTS_DESTROYED(); used internally.
  */
 #define _OBJECTS_DESTROYED(obj) \
-    (OBJECT_FREE(obj) || obj->count != __tag_ ## obj)
+    (OBJECT_DESTROYED(obj, __tag_##obj))
 /**
  * Helper macro for OBJECTS_DESTROYED_ANY(); used internally.
  */
@@ -877,75 +835,73 @@ typedef struct magic_mirror_struct {
         ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
 /* Prototypes */
-object *active_objects;
-const char *gender_noun[GENDER_MAX];
-const char *gender_subjective[GENDER_MAX];
-const char *gender_subjective_upper[GENDER_MAX];
-const char *gender_objective[GENDER_MAX];
-const char *gender_possessive[GENDER_MAX];
-const char *gender_reflexive[GENDER_MAX];
-int freearr_x[SIZEOFFREE];
-int freearr_y[SIZEOFFREE];
-int maxfree[SIZEOFFREE];
-int freedir[SIZEOFFREE];
-const char *object_flag_names[NUM_FLAGS + 1];
+extern object *active_objects;
+extern const char *gender_noun[GENDER_MAX];
+extern const char *gender_subjective[GENDER_MAX];
+extern const char *gender_subjective_upper[GENDER_MAX];
+extern const char *gender_objective[GENDER_MAX];
+extern const char *gender_possessive[GENDER_MAX];
+extern const char *gender_reflexive[GENDER_MAX];
+extern int freearr_x[SIZEOFFREE];
+extern int freearr_y[SIZEOFFREE];
+extern int maxfree[SIZEOFFREE];
+extern int freedir[SIZEOFFREE];
+extern const char *object_flag_names[NUM_FLAGS + 1];
 
-int
-CAN_MERGE(object *ob1, object *ob2);
+bool
+object_can_merge(object *ob1, object *ob2);
 object *
 object_merge(object *op);
-signed long
-sum_weight(object *op);
+uint32_t
+object_weight_sum(object *op);
 void
-add_weight(object *op, uint32_t weight);
+object_weight_add(object *op, uint32_t weight);
 void
-sub_weight(object *op, uint32_t weight);
+object_weight_sub(object *op, uint32_t weight);
 object *
-get_env_recursive(object *op);
+object_get_env(object *op);
+bool
+object_is_in_inventory(const object *op, const object *inv);
+void
+object_dump(const object *op, StringBuffer *sb);
+void
+object_dump_rec(const object *op, StringBuffer *sb);
+void
+object_owner_clear(object *op);
+void
+object_owner_set(object *op, object *owner);
+void
+object_owner_copy(object *op, object *clone_ob);
 object *
-is_player_inv(object *op);
+object_owner(object *op);
 void
-dump_object(object *op, StringBuffer *sb);
+object_copy(object *op, const object *src, bool no_speed);
 void
-dump_object_rec(object *op, StringBuffer *sb);
-void
-clear_owner(object *op);
-void
-set_owner(object *op, object *owner);
-void
-copy_owner(object *op, object *clone_ob);
-void
-copy_object(object *op2, object *op, int no_speed);
-void
-copy_object_with_inv(object *src_ob, object *dest_ob);
+object_copy_full(object *op, const object *src);
 void
 object_init(void);
 void
 object_deinit(void);
 object *
-get_object(void);
+object_get(void);
 void
-update_turn_face(object *op);
+object_update_turnable(object *op);
 void
-update_ob_speed(object *op);
+object_update_speed(object *op);
 void
-update_object(object *op, int action);
+object_update(object *op, int action);
 void
-drop_ob_inv(object *ob);
+object_drop_inventory(object *op);
 void
 object_destroy_inv(object *ob);
 void
 object_destroy(object *ob);
 void
-destruct_ob(object *op);
+object_destruct(object *op);
 void
 object_remove(object *op, int flags);
 object *
-insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
-int
-object_check_move_on(object *op, object *originator);
-void
-replace_insert_ob_in_map(char *arch_string, object *op);
+object_insert_map(object *op, mapstruct *m, object *originator, int flag);
 object *
 object_stack_get(object *op, uint32_t nrof);
 object *
@@ -953,92 +909,73 @@ object_stack_get_reinsert(object *op, uint32_t nrof);
 object *
 object_stack_get_removed(object *op, uint32_t nrof);
 object *
-decrease_ob_nr(object *op, uint32_t i);
+object_decrease(object *op, uint32_t i);
 object *
 object_insert_into(object *op, object *where, int flag);
 object *
-insert_ob_in_ob(object *op, object *where);
+object_find_arch(object *op, archetype_t *at);
 object *
-present_arch(struct archetype *at, mapstruct *m, int x, int y);
-object *
-present(uint8_t type, mapstruct *m, int x, int y);
-object *
-present_in_ob(uint8_t type, object *op);
-object *
-present_arch_in_ob(struct archetype *at, object *op);
+object_find_type(object *op, uint8_t type);
 int
-find_free_spot(struct archetype *at,
-               object           *op,
-               mapstruct        *m,
-               int               x,
-               int               y,
-               int               start,
-               int               stop);
-int
-find_first_free_spot(struct archetype *at,
-                     object           *op,
-                     mapstruct        *m,
-                     int               x,
-                     int               y);
-int
-find_first_free_spot2(struct archetype *at,
-                      mapstruct        *m,
-                      int               x,
-                      int               y,
-                      int               start,
-                      int               range);
+object_dir_to_target(object *op, object *target);
+bool
+object_can_pick(const object *op, const object *item);
+object *
+object_clone(const object *op);
+object *
+object_load_str(const char *obstr);
 void
-permute(int *arr, int begin, int end);
-void
-get_search_arr(int *search_arr);
-int
-find_dir_2(int x, int y);
-int
-absdir(int d);
-int
-dirdiff(int dir1, int dir2);
-int
-get_dir_to_target(object *op, object *target, rv_vector *range_vector);
-int
-can_pick(object *who, object *item);
-object *
-object_create_clone(object *asrc);
-int
-was_destroyed(object *op, tag_t old_tag);
-object *
-load_object_str(const char *obstr);
-int
-auto_apply(object *op);
-void
-free_key_values(object *op);
-key_value *
-object_get_key_link(const object *ob, const char *key);
-const char *
+object_free_key_values(object *op);
+key_value_t *
+object_get_key_link(const object *op, shstr *key);
+shstr *
 object_get_value(const object *op, const char *const key);
-int
-object_set_value(object *op, const char *key, const char *value, int add_key);
+bool
+object_set_value(object *op, const char *key, const char *value, bool add_key);
 int
 object_matches_string(object *op, object *caller, const char *str);
 int
-object_get_gender(object *op);
+object_get_gender(const object *op);
 void
 object_reverse_inventory(object *op);
-int
+bool
 object_enter_map(object    *op,
-                 object    *exit_ob,
+                 object    *exit,
                  mapstruct *m,
                  int        x,
                  int        y,
-                 uint8_t    fixed_pos);
+                 bool       fixed_pos);
 const char *
-object_get_str(object *op);
+object_get_str(const object *op);
 char *
-object_get_str_r(object *op, char *buf, size_t bufsize);
+object_get_str_r(const object *op, char *buf, size_t bufsize);
 int
 object_blocked(object *op, mapstruct *m, int x, int y);
 object *
 object_create_singularity(const char *name);
 void
-object_save(object *op, FILE *fp);
+object_save(const object *op, FILE *fp);
+
+/**
+ * Returns the owner of the specified object. If there is no object,
+ * the originally passed object pointer is returned instead.
+ *
+ * @param op
+ * The object.
+ * @return
+ * Owner of the object (may be the same object).
+ */
+static inline object *
+OWNER (object *op)
+{
+    HARD_ASSERT(op != NULL);
+
+    object *owner = object_owner(op);
+    if (owner != NULL) {
+        return owner;
+    }
+
+    return op;
+}
 
 #endif

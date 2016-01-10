@@ -415,7 +415,7 @@ static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *self, PyObject *args)
     object *newobj = hooks->arch_to_object(arch);
     newobj->x = x;
     newobj->y = y;
-    newobj = hooks->insert_ob_in_map(newobj, self->map, NULL, 0);
+    newobj = hooks->object_insert_map(newobj, self->map, NULL, 0);
 
     return wrap_object(newobj);
 }
@@ -494,7 +494,7 @@ static PyObject *Atrinik_Map_Insert(Atrinik_Map *self, PyObject *args)
 
     obj->obj->x = x;
     obj->obj->y = y;
-    return wrap_object(hooks->insert_ob_in_map(obj->obj, self->map, NULL, 0));
+    return wrap_object(hooks->object_insert_map(obj->obj, self->map, NULL, 0));
 }
 
 /** Documentation for Atrinik_Map_Wall(). */
@@ -627,8 +627,14 @@ static PyObject *Atrinik_Map_FreeSpot(Atrinik_Map *self, PyObject *args)
         return Py_BuildValue("i", -1);
     }
 
-    return Py_BuildValue("i", hooks->find_free_spot(obj->obj->arch, obj->obj,
-            m, x, y, start, stop));
+    return Py_BuildValue("i",
+                         hooks->map_free_spot(m,
+                                              x,
+                                              y,
+                                              start,
+                                              stop,
+                                              obj->obj->arch,
+                                              obj->obj));
 }
 
 /** Documentation for Atrinik_Map_GetDarkness(). */

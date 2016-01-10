@@ -111,7 +111,7 @@ disease_remove_symptoms (object *op)
 
     object *symptom = disease_find_symptom(op);
     if (symptom != NULL) {
-        destruct_ob(symptom);
+        object_destruct(symptom);
     }
 }
 
@@ -254,14 +254,14 @@ disease_do_symptoms (object *op)
             }
         }
 
-        set_owner(new_symptom, op->owner);
+        object_owner_set(new_symptom, op->owner);
 
         /* Unfortunately, set_owner does the wrong thing to the skills pointers
          * resulting in exp going into the owners *current* chosen skill. */
         new_symptom->chosen_skill = op->chosen_skill;
 
         CLEAR_FLAG(new_symptom, FLAG_NO_PASS);
-        insert_ob_in_ob(new_symptom, victim);
+        object_insert_into(new_symptom, victim, 0);
         return;
     }
 
@@ -320,7 +320,7 @@ disease_grant_immunity (object *op)
     FREE_AND_COPY_HASH(immunity->name, op->name);
     immunity->level = op->level;
     CLEAR_FLAG(immunity, FLAG_NO_PASS);
-    insert_ob_in_ob(immunity, op->env);
+    object_insert_into(immunity, op->env, 0);
 }
 
 /** @copydoc object_methods_t::process_func */
@@ -336,7 +336,7 @@ process_func (object *op)
 
         if (op->value == 0) {
             /* Drop inv since disease may carry secondary infections. */
-            destruct_ob(op);
+            object_destruct(op);
             return;
         }
     } else {
@@ -350,7 +350,7 @@ process_func (object *op)
                 disease_remove_symptoms(op);
                 disease_grant_immunity(op);
                 /* Drop inv since disease may carry secondary infections. */
-                destruct_ob(op);
+                object_destruct(op);
                 return;
             }
         }
@@ -402,7 +402,7 @@ disease_infect (object *op, object *victim, bool force)
         return false;
     }
 
-    object *owner = get_owner(op);
+    object *owner = object_owner(op);
     if (owner != NULL && is_friend_of(owner, victim)) {
         return false;
     }
@@ -424,8 +424,8 @@ disease_infect (object *op, object *victim, bool force)
     } FOR_INV_FINISH();
 
     /* If we've gotten this far, go ahead and infect the victim. */
-    object *new_disease = get_object();
-    copy_object(op, new_disease, 0);
+    object *new_disease = object_get();
+    object_copy(new_disease, op, false);
     new_disease->stats.food = -1;
     new_disease->value = op->stats.maxhp;
     /* self-limiting factor */
@@ -434,7 +434,7 @@ disease_infect (object *op, object *victim, bool force)
     /* Unfortunately, set_owner does the wrong thing to the skills pointers
      * resulting in exp going into the owners *current* chosen skill. */
     if (owner != NULL) {
-        set_owner(new_disease, op->owner);
+        object_owner_set(new_disease, op->owner);
         new_disease->chosen_skill = op->chosen_skill;
     }
 

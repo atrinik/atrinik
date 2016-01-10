@@ -64,7 +64,7 @@ process_func (object *op)
     /* Remove from active list. */
     op->speed = 0.0;
     op->speed_left = 0.0;
-    update_ob_speed(op);
+    object_update_speed(op);
 
     op->state = 0;
 
@@ -90,7 +90,7 @@ process_func (object *op)
                        0);
     }
 
-    update_object(op, UP_OBJ_FLAGS);
+    object_update(op, UP_OBJ_FLAGS);
 }
 
 /** @copydoc object_methods_t::apply_func */
@@ -140,7 +140,7 @@ door_open (object *op, object *opener, bool nearby)
     op->last_eat = 1;
     /* Put it on the active list, so it will close automatically. */
     op->speed = 0.1;
-    update_ob_speed(op);
+    object_update_speed(op);
     op->speed_left = -0.2;
     op->state = 1;
     /* Initialize counter that controls how long to allow the door to
@@ -166,7 +166,7 @@ door_open (object *op, object *opener, bool nearby)
                        0);
     }
 
-    update_object(op, UP_OBJ_FLAGS);
+    object_update(op, UP_OBJ_FLAGS);
 }
 
 /**

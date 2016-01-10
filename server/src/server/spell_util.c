@@ -136,7 +136,7 @@ int insert_spell_effect(const char *archname, mapstruct *m, int x, int y)
     effect_ob->x = x;
     effect_ob->y = y;
 
-    if (!insert_ob_in_map(effect_ob, m, NULL, 0)) {
+    if (!object_insert_map(effect_ob, m, NULL, 0)) {
         LOG(BUG, "effect arch (%s) out of map (%s) (%d,%d) or failed insertion.", archname, effect_ob->map->name, x, y);
 
         /* Something is wrong - kill object */
@@ -525,7 +525,7 @@ int cast_create_obj(object *op, object *new_op, int dir)
     new_op->x = xt;
     new_op->y = yt;
     new_op->map = mt;
-    insert_ob_in_map(new_op, mt, op, 0);
+    object_insert_map(new_op, mt, op, 0);
     return dir;
 }
 
@@ -575,14 +575,14 @@ int fire_bolt(object *op, object *caster, int dir, int type)
     tmp->x = op->x;
     tmp->y = op->y;
 
-    set_owner(tmp, op);
+    object_owner_set(tmp, op);
     tmp->level = SK_level(caster);
 
     if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE)) {
         SET_ANIMATION(tmp, (NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction);
     }
 
-    tmp = insert_ob_in_map(tmp, op->map, op, 0);
+    tmp = object_insert_map(tmp, op->map, op, 0);
 
     if (!tmp) {
         return 0;
@@ -646,10 +646,10 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
         tmp->enemy_count = target->count;
     }
 
-    if (get_owner(op) != NULL) {
-        copy_owner(tmp, op);
+    if (object_owner(op) != NULL) {
+        object_owner_copy(tmp, op);
     } else {
-        set_owner(tmp, op);
+        object_owner_set(tmp, op);
     }
 
     tmp->level = SK_level(caster);
@@ -658,7 +658,7 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
         SET_ANIMATION(tmp, (NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * dir);
     }
 
-    if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) == NULL) {
+    if ((tmp = object_insert_map(tmp, op->map, op, 0)) == NULL) {
         return 1;
     }
 
@@ -717,8 +717,8 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
             tmp = arch_to_object(spell_arch);
         }
 
-        set_owner(tmp, op);
-        copy_owner(tmp, op);
+        object_owner_set(tmp, op);
+        object_owner_copy(tmp, op);
         /* *very* important - miss this and the spells go really wild! */
         tmp->weight_limit = count_ref;
 
@@ -745,7 +745,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
             LOG(DEBUG, "arch %s doesn't have walk_on 1 and fly_on 1", spell_arch->name);
         }
 
-        if (!insert_ob_in_map(tmp, op->map, op, 0)) {
+        if (!object_insert_map(tmp, op->map, op, 0)) {
             return 0;
         }
 
@@ -782,13 +782,13 @@ void cone_drop(object *op)
     new_ob->y = op->y;
     new_ob->stats.food = op->stats.hp;
     new_ob->level = op->level;
-    set_owner(new_ob, op->owner);
+    object_owner_set(new_ob, op->owner);
 
     if (op->chosen_skill) {
         new_ob->chosen_skill = op->chosen_skill;
     }
 
-    insert_ob_in_map(new_ob, op->map, op, 0);
+    object_insert_map(new_ob, op->map, op, 0);
 }
 
 /**
@@ -798,7 +798,7 @@ void cone_drop(object *op)
  */
 void explode_object(object *op)
 {
-    tag_t op_tag = op->count;
+    HARD_ASSERT(op != NULL);
 
     play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 
@@ -809,20 +809,27 @@ void explode_object(object *op)
         return;
     }
 
-    object *caster = get_owner(op);
+    object *caster = object_owner(op);
     if (caster == NULL) {
         caster = op;
     }
 
-    cast_cone(op, caster, 0, spells[op->stats.sp].bdur, op->stats.sp,
+    cast_cone(op,
+              caster,
+              0,
+              spells[op->stats.sp].bdur,
+              op->stats.sp,
               op->other_arch);
-    attack_hit_map(op, 0, false);
 
-    /* remove the firebullet */
-    if (!was_destroyed(op, op_tag)) {
-        object_remove(op, 0);
-        object_destroy(op);
-    }
+    OBJECTS_DESTROYED_BEGIN(op) {
+        attack_hit_map(op, 0, false);
+        if (OBJECTS_DESTROYED(op)) {
+            return;
+        }
+    } OBJECTS_DESTROYED_END();
+
+    object_remove(op, 0);
+    object_destroy(op);
 }
 
 /**
@@ -835,56 +842,44 @@ void explode_object(object *op)
  */
 void check_fired_arch(object *op)
 {
-    tag_t op_tag = op->count, tmp_tag;
-    object *tmp, *hitter, *head;
-    int dam;
+    HARD_ASSERT(op != NULL);
 
-    /* we return here if we have NOTHING blocking here */
     if (!blocked(op, op->map, op->x, op->y, op->terrain_flag)) {
         return;
     }
 
-    if (op->other_arch) {
+    if (op->other_arch != NULL) {
         explode_object(op);
         return;
     }
 
-    hitter = get_owner(op);
+    object *hitter = OWNER(op);
+    hitter = HEAD(hitter);
 
-    if (!hitter) {
-        hitter = op;
-    } else if (hitter->head) {
-        hitter = hitter->head;
-    }
-
-    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above) {
-        head = tmp->head;
-
-        if (!head) {
-            head = tmp;
-        }
-
+    FOR_MAP_PREPARE(op->map, op->x, op->y, tmp) {
+        tmp = HEAD(tmp);
         if (!IS_LIVE(tmp)) {
             continue;
         }
 
-        /* Let friends fire through friends */
-        if (is_friend_of(hitter, head) || head == hitter) {
+        if (hitter == tmp || is_friend_of(hitter, tmp)) {
             continue;
         }
 
-        tmp_tag = tmp->count;
+        OBJECTS_DESTROYED_BEGIN(op) {
+            int dam = attack_hit(tmp, op, op->stats.dam);
+            if (OBJECTS_DESTROYED(op)) {
+                return;
+            }
 
-        dam = attack_hit(tmp, op, op->stats.dam);
-
-        if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0) {
-            if (!QUERY_FLAG(op, FLAG_REMOVED)) {
+            op->stats.dam -= dam;
+            if (op->stats.dam < 0) {
                 object_remove(op, 0);
                 object_destroy(op);
                 return;
             }
-        }
-    }
+        } OBJECTS_DESTROYED_END();
+    } FOR_MAP_FINISH();
 }
 
 /**
@@ -1118,7 +1113,7 @@ void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_typ
     tmp->x = op->x;
     tmp->y = op->y;
     /* Needed so that if swarm elements kill, caster gets xp. */
-    set_owner(tmp, op);
+    object_owner_set(tmp, op);
     /* Needed later, to get level dep. right.*/
     tmp->level = SK_level(caster);
     /* Needed later, see move_swarm_spell */
@@ -1131,7 +1126,7 @@ void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_typ
     tmp->other_arch = swarm_type;
     tmp->direction = dir;
 
-    insert_ob_in_map(tmp, op->map, op, 0);
+    object_insert_map(tmp, op->map, op, 0);
 }
 
 /**
@@ -1165,7 +1160,7 @@ void spell_failure_raw_mana(object *caster, int level)
         tmp->x = caster->x + freearr_x[i];
         tmp->y = caster->y + freearr_y[i];
 
-        if (!insert_ob_in_map(tmp, caster->map, caster, 0)) {
+        if (!object_insert_map(tmp, caster->map, caster, 0)) {
             continue;
         }
 

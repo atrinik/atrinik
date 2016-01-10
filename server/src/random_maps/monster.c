@@ -64,16 +64,16 @@ void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms 
 
         x = rndm(0, RP->Xsize - 1);
         y = rndm(0, RP->Ysize - 1);
-        freeindex = find_first_free_spot(this_monster->arch, NULL, map, x, y);
+        freeindex = map_free_spot_first(map, x, y, this_monster->arch, NULL);
 
         if (freeindex != -1) {
-            object *new_monster = object_create_clone(this_monster);
+            object *new_monster = object_clone(this_monster);
 
             x += freearr_x[freeindex];
             y += freearr_y[freeindex];
             new_monster->x = x;
             new_monster->y = y;
-            insert_ob_in_map(new_monster, map, new_monster, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(new_monster, map, new_monster, INS_NO_MERGE | INS_NO_WALK_ON);
             number_monsters++;
         } else {
             failed_placements++;

@@ -263,10 +263,7 @@ static const Atrinik_Constant constants[] = {
     {"P_MAGIC_MIRROR", P_MAGIC_MIRROR},
     {"P_OUTDOOR", P_OUTDOOR},
     {"P_OUT_OF_MAP", P_OUT_OF_MAP},
-    {"P_FLAGS_ONLY", P_FLAGS_ONLY},
-    {"P_FLAGS_UPDATE", P_FLAGS_UPDATE},
     {"P_NEED_UPDATE", P_NEED_UPDATE},
-    {"P_NO_ERROR", P_NO_ERROR},
     {"P_NO_TERRAIN", P_NO_TERRAIN},
 
     {"CMD_SOUND_EFFECT", CMD_SOUND_EFFECT},
@@ -753,7 +750,7 @@ static int do_script(PythonContext *context, const char *filename)
         char *path;
         object *env;
 
-        env = hooks->get_env_recursive(context->event);
+        env = hooks->object_get_env(context->event);
 
         path = hooks->map_get_path(env->map, filename, 0, NULL);
         FREE_AND_COPY_HASH(context->event->race, path);
@@ -926,7 +923,7 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    return wrap_object(hooks->load_object_str(dumpob));
+    return wrap_object(hooks->object_load_str(dumpob));
 }
 
 /** Documentation for Atrinik_ReadyMap(). */

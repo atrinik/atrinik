@@ -30,6 +30,7 @@
 #ifndef DECLS_H
 #define DECLS_H
 
+typedef struct archetype archetype_t;
 typedef struct obj object;
 typedef struct oblnk objectlink;
 typedef struct player_faction player_faction_t;

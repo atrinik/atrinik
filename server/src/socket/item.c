@@ -855,7 +855,7 @@ void socket_command_item_examine(socket_struct *ns, player *pl, uint8_t *data, s
         char *cp;
 
         sb = stringbuffer_new();
-        dump_object(op, sb);
+        object_dump(op, sb);
         cp = stringbuffer_finish(sb);
         draw_info(COLOR_WHITE, pl->ob, cp);
         efree(cp);
@@ -984,7 +984,7 @@ void socket_command_item_lock(socket_struct *ns, player *pl, uint8_t *data, size
     }
 
     /* Only lock item inside the player's own inventory */
-    if (is_player_inv(op) != pl->ob) {
+    if (!object_is_in_inventory(op, pl->ob)) {
         draw_info(COLOR_WHITE, pl->ob, "You can't lock items outside your inventory!");
         return;
     }
@@ -1091,7 +1091,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
      * already been done (eg, it can be picked up and fits in in a sack,
      * so check for those things. We should also check and make sure env
      * is in fact a container for that matter. */
-    if (env->type == CONTAINER && can_pick(pl, op) && sack_can_hold(pl, env, op, nrof)) {
+    if (env->type == CONTAINER && object_can_pick(pl, op) && sack_can_hold(pl, env, op, nrof)) {
         CLEAR_FLAG(pl, FLAG_INV_LOCKED);
         tmp = check_container(pl, op);
 

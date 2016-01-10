@@ -64,6 +64,6 @@ load_object_buffer(void *buffer, object *op, int map_flags);
 int
 set_variable(object *op, const char *buf);
 void
-get_ob_diff(StringBuffer *sb, object *op, object *op2);
+get_ob_diff(StringBuffer *sb, const object *op, const object *op2);
 
 #endif

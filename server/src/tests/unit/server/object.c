@@ -30,31 +30,30 @@
 #include <arch.h>
 #include <object.h>
 
-START_TEST(test_CAN_MERGE)
+START_TEST(test_object_can_merge)
 {
     object *ob1, *ob2;
 
     ob1 = arch_get("bolt");
     ob2 = arch_get("bolt");
-    ck_assert(CAN_MERGE(ob1, ob2));
+    ck_assert(object_can_merge(ob1, ob2));
     FREE_AND_COPY_HASH(ob2->name, "Not same name");
-    ck_assert(!CAN_MERGE(ob1, ob2));
+    ck_assert(!object_can_merge(ob1, ob2));
     object_destroy(ob2);
     ob2 = arch_get("bolt");
     ob2->type++;
-    ck_assert(!CAN_MERGE(ob1, ob2));
+    ck_assert(!object_can_merge(ob1, ob2));
     object_destroy(ob2);
     ob2 = arch_get("bolt");
     ob1->nrof = INT32_MAX;
     ob2->nrof = 1;
-    ck_assert(!CAN_MERGE(ob1, ob2));
+    ck_assert(!object_can_merge(ob1, ob2));
     object_destroy(ob1);
     object_destroy(ob2);
 }
-
 END_TEST
 
-START_TEST(test_sum_weight)
+START_TEST(test_object_weight_sum)
 {
     object *ob1, *ob2, *ob3, *ob4;
     unsigned long sum;
@@ -71,17 +70,16 @@ START_TEST(test_sum_weight)
     ob2->nrof = 10;
     ob3->weight = 7;
     ob4->weight = 8;
-    insert_ob_in_ob(ob2, ob1);
-    insert_ob_in_ob(ob3, ob1);
-    insert_ob_in_ob(ob4, ob1);
-    sum = sum_weight(ob1);
+    object_insert_into(ob2, ob1, 0);
+    object_insert_into(ob3, ob1, 0);
+    object_insert_into(ob4, ob1, 0);
+    sum = object_weight_sum(ob1);
     ck_assert_uint_eq(sum, 45);
     object_destroy(ob1);
 }
-
 END_TEST
 
-START_TEST(test_add_weight)
+START_TEST(test_object_weight_add)
 {
     object *ob1, *ob2, *ob3, *ob4;
     unsigned long sum;
@@ -99,19 +97,18 @@ START_TEST(test_add_weight)
     ob2->weight = 10;
     ob3->weight = 10;
     ob4->weight = 10;
-    insert_ob_in_ob(ob2, ob1);
-    insert_ob_in_ob(ob3, ob2);
-    insert_ob_in_ob(ob4, ob3);
-    sum = sum_weight(ob1);
+    object_insert_into(ob2, ob1, 0);
+    object_insert_into(ob3, ob2, 0);
+    object_insert_into(ob4, ob3, 0);
+    sum = object_weight_sum(ob1);
     ck_assert_uint_eq(sum, 18);
-    add_weight(ob4, 10);
+    object_weight_add(ob4, 10);
     ck_assert_int_eq(ob1->carrying, 24);
     object_destroy(ob1);
 }
-
 END_TEST
 
-START_TEST(test_sub_weight)
+START_TEST(test_object_weight_sub)
 {
     object *ob1, *ob2, *ob3, *ob4;
     unsigned long sum;
@@ -129,19 +126,18 @@ START_TEST(test_sub_weight)
     ob2->weight = 10;
     ob3->weight = 10;
     ob4->weight = 10;
-    insert_ob_in_ob(ob2, ob1);
-    insert_ob_in_ob(ob3, ob2);
-    insert_ob_in_ob(ob4, ob3);
-    sum = sum_weight(ob1);
+    object_insert_into(ob2, ob1, 0);
+    object_insert_into(ob3, ob2, 0);
+    object_insert_into(ob4, ob3, 0);
+    sum = object_weight_sum(ob1);
     ck_assert_uint_eq(sum, 18);
-    sub_weight(ob4, 10);
+    object_weight_sub(ob4, 10);
     ck_assert_int_eq(ob1->carrying, 12);
     object_destroy(ob1);
 }
-
 END_TEST
 
-START_TEST(test_get_env_recursive)
+START_TEST(test_object_get_env)
 {
     object *ob1, *ob2, *ob3, *ob4, *result;
 
@@ -149,39 +145,48 @@ START_TEST(test_get_env_recursive)
     ob2 = arch_get("sack");
     ob3 = arch_get("sack");
     ob4 = arch_get("sack");
-    insert_ob_in_ob(ob2, ob1);
-    insert_ob_in_ob(ob3, ob2);
-    insert_ob_in_ob(ob4, ob3);
-    result = get_env_recursive(ob4);
+    object_insert_into(ob2, ob1, 0);
+    object_insert_into(ob3, ob2, 0);
+    object_insert_into(ob4, ob3, 0);
+    result = object_get_env(ob4);
     ck_assert_ptr_eq(result, ob1);
     object_destroy(ob1);
 }
-
 END_TEST
 
-START_TEST(test_is_player_inv)
+START_TEST(test_object_is_in_inventory)
 {
-    object *ob1, *ob2, *ob3, *ob4, *result;
+    object *ob1, *ob2, *ob3, *ob4;
 
     ob1 = arch_get("sack");
     ob2 = arch_get("sack");
     ob3 = arch_get("sack");
     ob4 = arch_get("sack");
-    insert_ob_in_ob(ob2, ob1);
-    insert_ob_in_ob(ob3, ob2);
-    insert_ob_in_ob(ob4, ob3);
-    result = is_player_inv(ob4);
-    ck_assert_ptr_eq(result, NULL);
-    ob1->type = PLAYER;
-    result = is_player_inv(ob4);
-    ck_assert_ptr_eq(result, ob1);
-    ob1->type = CONTAINER;
+    object_insert_into(ob2, ob1, 0);
+    object_insert_into(ob3, ob2, 0);
+    object_insert_into(ob4, ob3, 0);
+
+    ck_assert(object_is_in_inventory(ob2, ob1));
+    ck_assert(object_is_in_inventory(ob3, ob1));
+    ck_assert(object_is_in_inventory(ob3, ob2));
+    ck_assert(object_is_in_inventory(ob4, ob1));
+    ck_assert(object_is_in_inventory(ob4, ob2));
+    ck_assert(object_is_in_inventory(ob4, ob3));
+
+    ck_assert(!object_is_in_inventory(ob1, ob1));
+    ck_assert(!object_is_in_inventory(ob2, ob2));
+    ck_assert(!object_is_in_inventory(ob3, ob3));
+    ck_assert(!object_is_in_inventory(ob4, ob4));
+
+    ck_assert(!object_is_in_inventory(ob1, ob2));
+    ck_assert(!object_is_in_inventory(ob2, ob3));
+    ck_assert(!object_is_in_inventory(ob3, ob4));
+
     object_destroy(ob1);
 }
-
 END_TEST
 
-START_TEST(test_dump_object)
+START_TEST(test_object_dump)
 {
     object *ob1, *ob2, *ob3;
     StringBuffer *sb;
@@ -190,19 +195,18 @@ START_TEST(test_dump_object)
     ob1 = arch_get("sack");
     ob2 = arch_get("sack");
     ob3 = arch_get("sack");
-    insert_ob_in_ob(ob2, ob1);
-    insert_ob_in_ob(ob3, ob2);
+    object_insert_into(ob2, ob1, 0);
+    object_insert_into(ob3, ob2, 0);
     sb = stringbuffer_new();
-    dump_object(ob1, sb);
+    object_dump(ob1, sb);
     result = stringbuffer_finish(sb);
     ck_assert(string_startswith(result, "arch"));
     efree(result);
     object_destroy(ob1);
 }
-
 END_TEST
 
-START_TEST(test_insert_ob_in_map)
+START_TEST(test_object_insert_map)
 {
     mapstruct *map;
     object *first, *second, *third, *floor_ob, *got;
@@ -214,14 +218,14 @@ START_TEST(test_insert_ob_in_map)
     floor_ob = arch_get("water_still");
     floor_ob->x = 3;
     floor_ob->y = 3;
-    got = insert_ob_in_map(floor_ob, map, NULL, 0);
+    got = object_insert_map(floor_ob, map, NULL, 0);
     ck_assert_ptr_eq(floor_ob, got);
     ck_assert_ptr_eq(floor_ob, GET_MAP_OB(map, 3, 3));
 
     first = arch_get("letter");
     first->x = 3;
     first->y = 3;
-    got = insert_ob_in_map(first, map, NULL, 0);
+    got = object_insert_map(first, map, NULL, 0);
     ck_assert_ptr_eq(got, first);
     ck_assert_ptr_eq(floor_ob, GET_MAP_OB(map, 3, 3));
     ck_assert_ptr_eq(floor_ob->above, first);
@@ -230,7 +234,7 @@ START_TEST(test_insert_ob_in_map)
     second->nrof = 1;
     second->x = 3;
     second->y = 3;
-    got = insert_ob_in_map(second, map, NULL, 0);
+    got = object_insert_map(second, map, NULL, 0);
     ck_assert_ptr_eq(got, second);
     ck_assert_ptr_eq(floor_ob, GET_MAP_OB(map, 3, 3));
     ck_assert_ptr_eq(floor_ob->above, second);
@@ -241,7 +245,7 @@ START_TEST(test_insert_ob_in_map)
     third->nrof = 1;
     third->x = 3;
     third->y = 3;
-    got = insert_ob_in_map(third, map, NULL, 0);
+    got = object_insert_map(third, map, NULL, 0);
     ck_assert_ptr_eq(got, third);
     ck_assert(OBJECT_FREE(second));
     ck_assert_uint_eq(third->nrof, 2);
@@ -251,47 +255,45 @@ START_TEST(test_insert_ob_in_map)
     second->x = 3;
     second->y = 3;
     second->value = 1;
-    got = insert_ob_in_map(second, map, NULL, 0);
+    got = object_insert_map(second, map, NULL, 0);
     ck_assert_ptr_eq(got, second);
     ck_assert_uint_eq(second->nrof, 1);
     ck_assert_uint_eq(third->nrof, 2);
 }
-
 END_TEST
 
-START_TEST(test_decrease_ob_nr)
+START_TEST(test_object_decrease)
 {
     object *first, *second;
 
     first = arch_get("bolt");
     first->nrof = 5;
 
-    second = decrease_ob_nr(first, 3);
+    second = object_decrease(first, 3);
     ck_assert_ptr_eq(second, first);
     ck_assert(!OBJECT_FREE(first));
 
-    second = decrease_ob_nr(first, 2);
+    second = object_decrease(first, 2);
     ck_assert_ptr_eq(second, NULL);
     ck_assert(OBJECT_FREE(first));
 
     first = arch_get("bolt");
     first->nrof = 5;
 
-    second = decrease_ob_nr(first, 5);
+    second = object_decrease(first, 5);
     ck_assert_ptr_eq(second, NULL);
     ck_assert(OBJECT_FREE(first));
 
     first = arch_get("bolt");
     first->nrof = 5;
 
-    second = decrease_ob_nr(first, 50);
+    second = object_decrease(first, 50);
     ck_assert_ptr_eq(second, NULL);
     ck_assert(OBJECT_FREE(first));
 }
-
 END_TEST
 
-START_TEST(test_insert_ob_in_ob)
+START_TEST(test_object_insert_into)
 {
     object *container, *item;
 
@@ -299,7 +301,7 @@ START_TEST(test_insert_ob_in_ob)
     item->weight = 50;
 
     container = arch_get("sack");
-    insert_ob_in_ob(item, container);
+    object_insert_into(item, container, 0);
     ck_assert_ptr_eq(container->inv, item);
     ck_assert_int_eq(container->carrying, 50);
 
@@ -309,16 +311,15 @@ START_TEST(test_insert_ob_in_ob)
     /* 50% weight reduction. */
     container->weapon_speed = 0.5f;
 
-    insert_ob_in_ob(item, container);
+    object_insert_into(item, container, 0);
     ck_assert_ptr_eq(container->inv, item);
     ck_assert_int_eq(container->carrying, 25);
 
     object_destroy(container);
 }
-
 END_TEST
 
-START_TEST(test_can_pick)
+START_TEST(test_object_can_pick)
 {
     mapstruct *map;
     object *pl, *ob;
@@ -326,37 +327,36 @@ START_TEST(test_can_pick)
     check_setup_env_pl(&map, &pl);
 
     ob = arch_get("sack");
-    ck_assert(can_pick(pl, ob));
+    ck_assert(object_can_pick(pl, ob));
     ob->weight = 0;
-    ck_assert(!can_pick(pl, ob));
+    ck_assert(!object_can_pick(pl, ob));
     object_destroy(ob);
 
     ob = arch_get("sack");
     SET_FLAG(ob, FLAG_NO_PICK);
-    ck_assert(!can_pick(pl, ob));
+    ck_assert(!object_can_pick(pl, ob));
     SET_FLAG(ob, FLAG_UNPAID);
-    ck_assert(can_pick(pl, ob));
+    ck_assert(object_can_pick(pl, ob));
     object_destroy(ob);
 
     ob = arch_get("sack");
     SET_FLAG(ob, FLAG_IS_INVISIBLE);
-    ck_assert(!can_pick(pl, ob));
+    ck_assert(!object_can_pick(pl, ob));
     object_destroy(ob);
 
     ob = arch_get("raas");
-    ck_assert(!can_pick(pl, ob));
+    ck_assert(!object_can_pick(pl, ob));
     object_destroy(ob);
 }
-
 END_TEST
 
-START_TEST(test_object_create_clone)
+START_TEST(test_object_clone)
 {
     object *ob, *clone_ob;
 
     ob = arch_get("raas");
-    insert_ob_in_ob(arch_get("sack"), ob);
-    clone_ob = object_create_clone(ob);
+    object_insert_into(arch_get("sack"), ob, 0);
+    clone_ob = object_clone(ob);
     ck_assert_str_eq(clone_ob->name, ob->name);
     ck_assert_ptr_ne(clone_ob->inv, NULL);
     ck_assert_str_eq(clone_ob->inv->name, ob->inv->name);
@@ -364,51 +364,24 @@ START_TEST(test_object_create_clone)
     object_destroy(ob);
     object_destroy(clone_ob);
 }
-
 END_TEST
 
-START_TEST(test_was_destroyed)
-{
-    object *ob, *ob2;
-    tag_t ob_tag, ob2_tag;
-    mapstruct *m;
-
-    m = get_empty_map(1, 1);
-    ck_assert_ptr_ne(m, NULL);
-
-    ob = arch_get("sack");
-    ob_tag = ob->count;
-    insert_ob_in_map(ob, m, ob, 0);
-    ck_assert(!was_destroyed(ob, ob_tag));
-    ob2 = arch_get("bolt");
-    ob2_tag = ob2->count;
-    insert_ob_in_ob(ob2, ob);
-    ck_assert(!was_destroyed(ob2, ob2_tag));
-    object_remove(ob, 0);
-    ck_assert(!was_destroyed(ob, ob_tag));
-    object_destroy(ob);
-    ck_assert(was_destroyed(ob, ob_tag));
-    ck_assert(was_destroyed(ob2, ob2_tag));
-}
-
-END_TEST
-
-START_TEST(test_load_object_str)
+START_TEST(test_object_load_str)
 {
     object *ob;
 
-    ob = load_object_str("arch sack\nend\n");
+    ob = object_load_str("arch sack\nend\n");
     ck_assert_ptr_ne(ob, NULL);
     ck_assert_str_eq(ob->arch->name, "sack");
     object_destroy(ob);
 
-    ob = load_object_str("arch sack\nname magic sack\nweight 129\nend\n");
+    ob = object_load_str("arch sack\nname magic sack\nweight 129\nend\n");
     ck_assert_ptr_ne(ob, NULL);
     ck_assert_str_eq(ob->name, "magic sack");
     ck_assert_int_eq(ob->weight, 129);
     object_destroy(ob);
 
-    ob = load_object_str("arch sack\narch sword\narch sword\ntitle of swords\n"
+    ob = object_load_str("arch sack\narch sword\narch sword\ntitle of swords\n"
                          "end\nend\nend\n");
     ck_assert_ptr_ne(ob, NULL);
     ck_assert_str_eq(ob->arch->name, "sack");
@@ -420,7 +393,6 @@ START_TEST(test_load_object_str)
     ck_assert_str_eq(ob->inv->inv->title, "of swords");
     object_destroy(ob);
 }
-
 END_TEST
 
 START_TEST(test_object_reverse_inventory)
@@ -430,12 +402,12 @@ START_TEST(test_object_reverse_inventory)
     StringBuffer *sb;
 
     cp = path_file_contents("src/tests/data/test_object_reverse_inventory.arc");
-    ob = load_object_str(cp);
+    ob = object_load_str(cp);
 
     object_reverse_inventory(ob);
 
     sb = stringbuffer_new();
-    dump_object_rec(ob, sb);
+    object_dump_rec(ob, sb);
     cp2 = stringbuffer_finish(sb);
 
     ck_assert_str_eq(cp, cp2);
@@ -464,6 +436,31 @@ START_TEST(test_object_create_singularity)
 }
 END_TEST
 
+START_TEST(test_OBJECT_DESTROYED)
+{
+    object *ob, *ob2;
+    tag_t ob_tag, ob2_tag;
+    mapstruct *m;
+
+    m = get_empty_map(1, 1);
+    ck_assert_ptr_ne(m, NULL);
+
+    ob = arch_get("sack");
+    ob_tag = ob->count;
+    object_insert_map(ob, m, ob, 0);
+    ck_assert(!OBJECT_DESTROYED(ob, ob_tag));
+    ob2 = arch_get("bolt");
+    ob2_tag = ob2->count;
+    object_insert_into(ob2, ob, 0);
+    ck_assert(!OBJECT_DESTROYED(ob2, ob2_tag));
+    object_remove(ob, 0);
+    ck_assert(!OBJECT_DESTROYED(ob, ob_tag));
+    object_destroy(ob);
+    ck_assert(OBJECT_DESTROYED(ob, ob_tag));
+    ck_assert(OBJECT_DESTROYED(ob2, ob2_tag));
+}
+END_TEST
+
 static Suite *suite(void)
 {
     Suite *s = suite_create("object");
@@ -473,22 +470,22 @@ static Suite *suite(void)
     tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
-    tcase_add_test(tc_core, test_CAN_MERGE);
-    tcase_add_test(tc_core, test_sum_weight);
-    tcase_add_test(tc_core, test_add_weight);
-    tcase_add_test(tc_core, test_sub_weight);
-    tcase_add_test(tc_core, test_get_env_recursive);
-    tcase_add_test(tc_core, test_is_player_inv);
-    tcase_add_test(tc_core, test_dump_object);
-    tcase_add_test(tc_core, test_insert_ob_in_map);
-    tcase_add_test(tc_core, test_decrease_ob_nr);
-    tcase_add_test(tc_core, test_insert_ob_in_ob);
-    tcase_add_test(tc_core, test_can_pick);
-    tcase_add_test(tc_core, test_object_create_clone);
-    tcase_add_test(tc_core, test_was_destroyed);
-    tcase_add_test(tc_core, test_load_object_str);
+    tcase_add_test(tc_core, test_object_can_merge);
+    tcase_add_test(tc_core, test_object_weight_sum);
+    tcase_add_test(tc_core, test_object_weight_add);
+    tcase_add_test(tc_core, test_object_weight_sub);
+    tcase_add_test(tc_core, test_object_get_env);
+    tcase_add_test(tc_core, test_object_is_in_inventory);
+    tcase_add_test(tc_core, test_object_dump);
+    tcase_add_test(tc_core, test_object_insert_map);
+    tcase_add_test(tc_core, test_object_decrease);
+    tcase_add_test(tc_core, test_object_insert_into);
+    tcase_add_test(tc_core, test_object_can_pick);
+    tcase_add_test(tc_core, test_object_clone);
+    tcase_add_test(tc_core, test_object_load_str);
     tcase_add_test(tc_core, test_object_reverse_inventory);
     tcase_add_test(tc_core, test_object_create_singularity);
+    tcase_add_test(tc_core, test_OBJECT_DESTROYED);
 
     return s;
 }

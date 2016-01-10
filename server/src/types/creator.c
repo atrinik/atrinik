@@ -100,10 +100,10 @@ trigger_func (object *op, object *cause, int state)
             continue;
         }
 
-        object *clone = object_create_clone(tmp);
+        object *clone = object_clone(tmp);
         clone->x = op->x;
         clone->y = op->y;
-        clone = insert_ob_in_map(clone, op->map, op, 0);
+        clone = object_insert_map(clone, op->map, op, 0);
         if (clone != NULL) {
             created = true;
         }

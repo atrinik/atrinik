@@ -96,10 +96,10 @@ int trap_show(object *trap, object *where)
 
     if (env && env->type != PLAYER && env->type != MONSTER &&
             env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS)) {
-        insert_ob_in_ob(trap, env);
+        object_insert_into(trap, env, 0);
         set_trapped_flag(env);
     } else if (where->map != NULL) {
-        insert_ob_in_map(trap, where->map, NULL, 0);
+        object_insert_map(trap, where->map, NULL, 0);
     }
 
     return 1;

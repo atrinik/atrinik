@@ -58,7 +58,7 @@ void cast_magic_storm(object *op, object *tmp, int lvl)
     /* nasty recoils! */
     tmp->stats.dam = lvl;
     tmp->stats.maxhp = tmp->count;
-    insert_ob_in_map(tmp, op->map, op, 0);
+    object_insert_map(tmp, op->map, op, 0);
 }
 
 /**
@@ -109,7 +109,7 @@ int recharge(object *op)
     if (wand->arch && QUERY_FLAG(&wand->arch->clone, FLAG_ANIMATE)) {
         SET_FLAG(wand, FLAG_ANIMATE);
         wand->speed = wand->arch->clone.speed;
-        update_ob_speed(wand);
+        object_update_speed(wand);
     }
 
     efree(name);
@@ -180,8 +180,8 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
     }
 
     food_value /= at->clone.stats.food;
-    object *new_op = get_object();
-    copy_object(&at->clone, new_op, 0);
+    object *new_op = object_get();
+    object_copy(new_op, &at->clone, false);
     new_op->nrof = food_value;
 
     new_op->value = 0;
@@ -231,7 +231,7 @@ int cast_wor(object *op, object *caster)
     }
 
     dummy->speed = 0.002f * ((float) (spells[SP_WOR].bdur + SP_level_strength_adjust(caster, SP_WOR)));
-    update_ob_speed(dummy);
+    object_update_speed(dummy);
     dummy->speed_left = -1;
     dummy->type = WORD_OF_RECALL;
 
@@ -239,7 +239,7 @@ int cast_wor(object *op, object *caster)
     EXIT_X(dummy) = CONTR(op)->bed_x;
     EXIT_Y(dummy) = CONTR(op)->bed_y;
 
-    insert_ob_in_ob(dummy, op);
+    object_insert_into(dummy, op, 0);
     draw_info(COLOR_WHITE, op, "You feel a force starting to build up inside you.");
 
     return 1;
@@ -264,7 +264,7 @@ void cast_destruction(object *op, object *caster, int dam)
 
     /* The hitter object. */
     hitter = arch_to_object(spellarch[SP_DESTRUCTION]);
-    set_owner(hitter, op);
+    object_owner_set(hitter, op);
     hitter->level = SK_level(caster);
 
     /* Calculate maximum range of the spell */
@@ -723,7 +723,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
             FREE_AND_COPY_HASH(force->msg, spells[spell_type].at->clone.msg);
         }
 
-        force = insert_ob_in_ob(force, tmp);
+        force = object_insert_into(force, tmp, 0);
         if (force == NULL) {
             log_error("Failed to create force for spell %d, op: %s, "
                     "caster: %s, target: %s", spell_type, object_get_str(op),
@@ -787,7 +787,7 @@ cast_remove_depletion (object *op, object *target)
 
     int success = 0;
 
-    object *depletion = present_arch_in_ob(at, target);
+    object *depletion = object_find_arch(target, at);
     if (depletion != NULL) {
         for (int i = 0; i < NUM_STATS; i++) {
             if (get_attr_value(&depletion->stats, i) != 0) {
@@ -1072,7 +1072,7 @@ int cast_consecrate(object *op)
                     SET_FLAG(new_altar, FLAG_IS_BUILDABLE);
                 }
 
-                insert_ob_in_map(new_altar, tmp->map, NULL, 0);
+                object_insert_map(new_altar, tmp->map, NULL, 0);
                 object_remove(tmp, 0);
 
                 draw_info_format(COLOR_WHITE, op, "You consecrated the altar to %s!", god->name);
@@ -1118,10 +1118,10 @@ int finger_of_death(object *op, object *target)
     /* We create a hitter object -- the spell */
     hitter = arch_to_object(spellarch[SP_FINGER_DEATH]);
     hitter->level = SK_level(op);
-    set_owner(hitter, op);
+    object_owner_set(hitter, op);
     hitter->x = target->x;
     hitter->y = target->y;
-    insert_ob_in_map(hitter, target->map, op, 0);
+    object_insert_map(hitter, target->map, op, 0);
 
     dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, false);
     attack_hit(target, hitter, dam);
@@ -1181,7 +1181,7 @@ int cast_cause_disease(object *op, object *caster, int dir, struct archetype *di
             dam = SP_level_dam_adjust(caster, type, false);
             strength = SP_level_strength_adjust(caster, type);
 
-            set_owner(disease, op);
+            object_owner_set(disease, op);
             disease->stats.exp = 0;
             disease->level = SK_level(caster);
 

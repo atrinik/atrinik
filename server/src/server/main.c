@@ -182,7 +182,7 @@ process_events (void)
         if (unlikely(OBJECT_FREE(op))) {
             LOG(ERROR, "Free object on active list");
             op->speed = 0;
-            update_ob_speed(op);
+            object_update_speed(op);
             continue;
         }
 
@@ -200,14 +200,14 @@ process_events (void)
              */
             LOG(DEVEL, "Removed object on active list: %s", object_get_str(op));
             op->speed = 0;
-            update_ob_speed(op);
+            object_update_speed(op);
             continue;
         }
 
         if (unlikely(DBL_EQUAL(op->speed, 0.0))) {
             LOG(ERROR, "Object has no speed, but is on active list: %s",
                 object_get_str(op));
-            update_ob_speed(op);
+            object_update_speed(op);
             continue;
         }
 
@@ -215,7 +215,7 @@ process_events (void)
             LOG(ERROR, "Object without map or inventory is on active list: %s",
                 object_get_str(op));
             op->speed = 0;
-            update_ob_speed(op);
+            object_update_speed(op);
             continue;
         }
 
@@ -239,7 +239,7 @@ process_events (void)
 
             object_process(op);
 
-            if (was_destroyed(op, tag)) {
+            if (OBJECT_DESTROYED(op, tag)) {
                 continue;
             }
         }
@@ -430,7 +430,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 
                 /* We teleport any possible players here to emergency map. */
                 if (ob->type == PLAYER) {
-                    object_enter_map(ob, NULL, NULL, 0, 0, 0);
+                    object_enter_map(ob, NULL, NULL, 0, 0, false);
                     continue;
                 }
 
@@ -444,7 +444,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
                     object_remove(ob, 0);
                     ob->x = x;
                     ob->y = y;
-                    insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                    object_insert_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
                 } else {
                     /* Fixed part of map */
 
@@ -461,7 +461,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
                         object_remove(tmp, 0);
                         tmp->x = x;
                         tmp->y = y;
-                        insert_ob_in_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                        object_insert_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
                     }
                 }
             }

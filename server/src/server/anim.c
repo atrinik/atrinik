@@ -216,5 +216,5 @@ void animate_object(object *op)
 void animate_turning(object *op)
 {
     SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->state);
-    update_object(op, UP_OBJ_FACE);
+    object_update(op, UP_OBJ_FACE);
 }

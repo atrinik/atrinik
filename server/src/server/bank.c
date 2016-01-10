@@ -211,10 +211,10 @@ static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof)
  */
 static void bank_insert_coins(object *op, archetype_t *at, uint32_t nrof)
 {
-    object *tmp = get_object();
-    copy_object(&at->clone, tmp, 0);
+    object *tmp = object_get();
+    object_copy(tmp, &at->clone, false);
     tmp->nrof = nrof;
-    insert_ob_in_ob(tmp, op);
+    object_insert_into(tmp, op, 0);
 }
 
 /**

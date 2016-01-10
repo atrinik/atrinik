@@ -47,8 +47,8 @@ process_func (object *op)
 
     object *target = op->env;
 
-    if (op->owner != NULL && !get_owner(op)) {
-        clear_owner(op);
+    if (op->owner != NULL && !object_owner(op)) {
+        object_owner_clear(op);
     }
 
     OBJECTS_DESTROYED_BEGIN(target) {

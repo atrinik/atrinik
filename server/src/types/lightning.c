@@ -67,8 +67,8 @@ lightning_fork (object *op, object *tmp)
         return;
     }
 
-    object *bolt = get_object();
-    copy_object(tmp, bolt, 0);
+    object *bolt = object_get();
+    object_copy(bolt, tmp, false);
 
     bolt->stats.food = 0;
     /* Reduce chances of subsequent forking. */
@@ -90,7 +90,7 @@ lightning_fork (object *op, object *tmp)
     tmp->stats.dam /= 2;
     tmp->stats.dam++;
 
-    bolt = insert_ob_in_map(bolt, m, op, 0);
+    bolt = object_insert_map(bolt, m, op, 0);
     SOFT_ASSERT(bolt != NULL,
                 "Failed to insert bolt from %s",
                 object_get_str(op));
@@ -110,12 +110,12 @@ projectile_move_func (object *op)
 
         op->stats.food = 1;
     } else if (op->stats.food == 1) {
-        object *tmp = get_object();
-        copy_object(op, tmp, 0);
+        object *tmp = object_get();
+        object_copy(tmp, op, false);
         tmp->speed_left = -0.1f;
         tmp->x = op->x;
         tmp->y = op->y;
-        tmp = insert_ob_in_map(tmp, op->map, op, 0);
+        tmp = object_insert_map(tmp, op->map, op, 0);
         if (tmp == NULL) {
             return NULL;
         }

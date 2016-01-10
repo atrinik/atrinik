@@ -100,7 +100,7 @@ apply_func (object *op, object *applier, int aflags)
             }
         }
 
-        op = decrease_ob_nr(op, 1);
+        op = object_decrease(op, 1);
         if (op != NULL && !QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             identify(op);
         }
@@ -153,7 +153,7 @@ apply_func (object *op, object *applier, int aflags)
                          spell->at->clone.name);
     }
 
-    decrease_ob_nr(op, 1);
+    object_decrease(op, 1);
 
     return OBJECT_METHOD_OK;
 }

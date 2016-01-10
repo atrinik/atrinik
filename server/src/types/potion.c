@@ -153,7 +153,7 @@ apply_func (object *op, object *applier, int aflags)
 
         /* Insert the force into the player and apply it. */
         force->speed_left = -1;
-        force = insert_ob_in_ob(force, applier);
+        force = object_insert_into(force, applier, 0);
         SOFT_ASSERT_RC(force != NULL,
                        OBJECT_METHOD_OK,
                        "Failed to insert potion effect force into %s",
@@ -191,7 +191,7 @@ apply_func (object *op, object *applier, int aflags)
 
             at = arch_find("depletion");
 
-            depletion = present_arch_in_ob(at, applier);
+            depletion = object_find_arch(applier, at);
 
             if (depletion) {
                 for (int i = 0; i < NUM_STATS; i++) {

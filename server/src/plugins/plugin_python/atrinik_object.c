@@ -541,7 +541,7 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *self, PyObject *args)
         hooks->object_remove(self->obj, 0);
     }
 
-    object *ret = hooks->insert_ob_in_ob(self->obj, where->obj);
+    object *ret = hooks->object_insert_into(self->obj, where->obj, 0);
     if (ret == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
@@ -925,10 +925,10 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *self,
         force->speed = 0.0;
     }
 
-    hooks->update_ob_speed(force);
+    hooks->object_update_speed(force);
     FREE_AND_COPY_HASH(force->name, name);
 
-    return wrap_object(hooks->insert_ob_in_ob(force, self->obj));
+    return wrap_object(hooks->object_insert_into(force, self->obj, 0));
 }
 
 /** Documentation for Atrinik_Object_CreateObject(). */
@@ -992,7 +992,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *self,
         SET_FLAG(tmp, FLAG_IDENTIFIED);
     }
 
-    tmp = hooks->insert_ob_in_ob(tmp, self->obj);
+    tmp = hooks->object_insert_into(tmp, self->obj, 0);
 
     return wrap_object(tmp);
 }
@@ -1329,7 +1329,7 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *self)
     OBJEXISTCHECK(self);
 
     StringBuffer *sb = hooks->stringbuffer_new();
-    hooks->dump_object_rec(self->obj, sb);
+    hooks->object_dump_rec(self->obj, sb);
     char *result = hooks->stringbuffer_finish(sb);
     PyObject *ret = Py_BuildValue("s", result);
     efree(result);
@@ -1433,20 +1433,20 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *self, PyObject *args)
 
     OBJEXISTCHECK(self);
 
-    object *clone_ob;
+    object *clone;
     if (inventory) {
-        clone_ob = hooks->object_create_clone(self->obj);
+        clone = hooks->object_clone(self->obj);
     } else {
-        clone_ob = hooks->get_object();
-        hooks->copy_object(self->obj, clone_ob, 0);
+        clone = hooks->object_get();
+        hooks->object_copy(clone, self->obj, false);
     }
 
-    if (clone_ob->type == PLAYER || QUERY_FLAG(clone_ob, FLAG_IS_PLAYER)) {
-        clone_ob->type = MONSTER;
-        CLEAR_FLAG(clone_ob, FLAG_IS_PLAYER);
+    if (clone->type == PLAYER || QUERY_FLAG(clone, FLAG_IS_PLAYER)) {
+        clone->type = MONSTER;
+        CLEAR_FLAG(clone, FLAG_IS_PLAYER);
     }
 
-    return wrap_object(clone_ob);
+    return wrap_object(clone);
 }
 
 /** Documentation for Atrinik_Object_ReadKey(). */
@@ -1731,7 +1731,7 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *self, PyObject *args)
 
     OBJEXISTCHECK(self);
 
-    return wrap_object(hooks->decrease_ob_nr(self->obj, num));
+    return wrap_object(hooks->object_decrease(self->obj, num));
 }
 
 /** Documentation for Atrinik_Object_SquaresAround(). */
@@ -2410,7 +2410,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
         obj->obj->sub_layer = MIN(NUM_SUB_LAYERS - 1, obj->obj->sub_layer);
 
         if (obj->obj->map != NULL) {
-            hooks->insert_ob_in_map(obj->obj, obj->obj->map, NULL, 0);
+            hooks->object_insert_map(obj->obj, obj->obj->map, NULL, 0);
         }
     }
 
@@ -2433,7 +2433,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
 
     /* Update object's speed. */
     if (field->offset == offsetof(object, speed)) {
-        hooks->update_ob_speed(obj->obj);
+        hooks->object_update_speed(obj->obj);
     } else if (field->offset == offsetof(object, type)) {
         /* Handle object's type changing. */
 
@@ -2451,7 +2451,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
             obj->obj->speed = 0.0f;
             obj->obj->type = MONSTER;
             /* Remove it from the active list. */
-            hooks->update_ob_speed(obj->obj);
+            hooks->object_update_speed(obj->obj);
 
             /* Restore original speed and type info. */
             obj->obj->speed = old_speed;

@@ -52,14 +52,14 @@ spawn_point_generate (object *op, object *monster)
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(monster != NULL);
 
-    int i = find_first_free_spot(monster->arch, monster, op->map, op->x, op->y);
+    int i = map_free_spot_first(op->map, op->x, op->y, monster->arch, monster);
     if (i == -1) {
         return NULL;
     }
 
-    object *tmp = get_object();
+    object *tmp = object_get();
     monster->type = MONSTER;
-    copy_object(monster, tmp, 0);
+    object_copy(tmp, monster, false);
     monster->type = SPAWN_POINT_MOB;
 
     tmp->x = op->x + freearr_x[i];
@@ -269,14 +269,14 @@ process_func (object *op)
             }
 
             FOR_INV_PREPARE(tmp, tmp2) {
-                object *copy = get_object();
-                copy_object_with_inv(tmp2, copy);
-                insert_ob_in_ob(copy, monster);
+                object *copy = object_get();
+                object_copy_full(copy, tmp2);
+                object_insert_into(copy, monster, 0);
             } FOR_INV_FINISH();
         } else {
-            object *copy = get_object();
-            copy_object_with_inv(tmp, copy);
-            insert_ob_in_ob(copy, monster);
+            object *copy = object_get();
+            object_copy_full(copy, tmp);
+            object_insert_into(copy, monster, 0);
         }
     } FOR_INV_FINISH();
 
@@ -285,10 +285,10 @@ process_func (object *op)
     /* Link the spawn point to the spawn info. */
     tmp->owner = op;
     tmp->ownercount = op->count;
-    insert_ob_in_ob(tmp, monster);
+    object_insert_into(tmp, monster, 0);
 
     /* Insert the generated monster into the map. */
-    monster = insert_ob_in_map(monster, op->map, op, 0);
+    monster = object_insert_map(monster, op->map, op, 0);
     SOFT_ASSERT(monster != NULL,
                 "Failed to insert monster, spawn point: %s",
                 object_get_str(op));
