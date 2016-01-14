@@ -788,7 +788,11 @@ void
 object_owner_set (object *op, object *owner)
 {
     HARD_ASSERT(op != NULL);
-    HARD_ASSERT(owner != NULL);
+
+    if (unlikely(owner == NULL)) {
+        log_error("Called with NULL owner, object: %s", object_get_str(op));
+        return;
+    }
 
     /* Ensure we have a head. */
     owner = HEAD(owner);
