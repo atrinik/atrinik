@@ -254,7 +254,9 @@ disease_do_symptoms (object *op)
             }
         }
 
-        object_owner_set(new_symptom, op->owner);
+        if (object_owner(op) != NULL) {
+            object_owner_set(new_symptom, op->owner);
+        }
 
         /* Unfortunately, set_owner does the wrong thing to the skills pointers
          * resulting in exp going into the owners *current* chosen skill. */
