@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 emperorbma
-Modified: 2015-04-25 emperorbma
+Modified: 2016-01-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -187,6 +187,31 @@ arch wall_stone3_4
 x 1
 y 23
 end
+arch roof_brick_gray
+direction 3
+x 2
+y 1
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 2
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 3
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 4
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 5
+end
 arch trans
 x 2
 y 11
@@ -282,6 +307,31 @@ end
 arch wall_stone2_1
 x 2
 y 23
+end
+arch roof_brick_gray
+direction 5
+x 3
+end
+arch roof_brick_gray
+direction 8
+x 3
+y 1
+end
+arch roof_brick_gray
+x 3
+y 2
+end
+arch roof_brick_gray
+x 3
+y 3
+end
+arch roof_brick_gray
+x 3
+y 4
+end
+arch roof_brick_gray
+x 3
+y 5
 end
 arch trans
 x 3
@@ -391,6 +441,32 @@ arch wall_stone3_1
 x 3
 y 23
 end
+arch roof_brick_gray
+direction 5
+x 4
+end
+arch roof_brick_gray
+direction 7
+x 4
+y 1
+end
+arch roof_brick_gray
+direction 8
+x 4
+y 2
+end
+arch roof_brick_gray
+x 4
+y 3
+end
+arch roof_brick_gray
+x 4
+y 4
+end
+arch roof_brick_gray
+x 4
+y 5
+end
 arch trans
 x 4
 y 11
@@ -458,6 +534,33 @@ end
 arch wall_stone3_1
 x 4
 y 23
+end
+arch roof_brick_gray
+direction 5
+x 5
+end
+arch roof_brick_gray
+direction 7
+x 5
+y 1
+end
+arch roof_brick_gray
+direction 7
+x 5
+y 2
+end
+arch roof_brick_gray
+direction 8
+x 5
+y 3
+end
+arch roof_brick_gray
+x 5
+y 4
+end
+arch roof_brick_gray
+x 5
+y 5
 end
 arch trans
 x 5
@@ -536,6 +639,34 @@ arch wall_stone2_1
 x 5
 y 23
 end
+arch roof_brick_gray
+direction 5
+x 6
+end
+arch roof_brick_gray
+direction 7
+x 6
+y 1
+end
+arch roof_brick_gray
+direction 7
+x 6
+y 2
+end
+arch roof_brick_gray
+direction 7
+x 6
+y 3
+end
+arch roof_brick_gray
+direction 8
+x 6
+y 4
+end
+arch roof_brick_gray
+x 6
+y 5
+end
 arch trans
 x 6
 y 11
@@ -605,6 +736,35 @@ arch wall_stone3_1
 x 6
 y 23
 end
+arch roof_brick_gray
+direction 5
+x 7
+end
+arch roof_brick_gray
+direction 7
+x 7
+y 1
+end
+arch roof_brick_gray
+direction 7
+x 7
+y 2
+end
+arch roof_brick_gray
+direction 7
+x 7
+y 3
+end
+arch roof_brick_gray
+direction 7
+x 7
+y 4
+end
+arch roof_brick_gray
+direction 8
+x 7
+y 5
+end
 arch trans
 x 7
 y 11
@@ -708,4 +868,204 @@ end
 arch wall_stone3_4
 x 7
 y 23
+end
+arch roof_thatch
+direction 4
+x 16
+y 4
+end
+arch roof_thatch
+direction 3
+x 16
+y 5
+end
+arch roof_thatch
+direction 3
+x 16
+y 6
+end
+arch roof_thatch
+direction 3
+x 16
+y 7
+end
+arch roof_thatch
+direction 3
+x 16
+y 8
+end
+arch roof_thatch
+direction 3
+x 16
+y 9
+end
+arch roof_thatch
+direction 3
+x 16
+y 10
+end
+arch roof_thatch
+direction 5
+x 17
+y 4
+end
+arch roof_thatch
+direction 7
+x 17
+y 5
+end
+arch roof_thatch
+direction 8
+x 17
+y 6
+end
+arch roof_thatch
+x 17
+y 7
+end
+arch roof_thatch
+x 17
+y 8
+end
+arch roof_thatch
+x 17
+y 9
+end
+arch roof_thatch
+x 17
+y 10
+end
+arch roof_thatch
+direction 5
+x 18
+y 4
+end
+arch roof_thatch
+direction 7
+x 18
+y 5
+end
+arch roof_thatch
+direction 7
+x 18
+y 6
+end
+arch roof_thatch
+direction 8
+x 18
+y 7
+end
+arch roof_thatch
+x 18
+y 8
+end
+arch roof_thatch
+x 18
+y 9
+end
+arch roof_thatch
+x 18
+y 10
+end
+arch roof_thatch
+direction 5
+x 19
+y 4
+end
+arch roof_thatch
+direction 7
+x 19
+y 5
+end
+arch roof_thatch
+direction 7
+x 19
+y 6
+end
+arch roof_thatch
+direction 7
+x 19
+y 7
+end
+arch roof_thatch
+direction 8
+x 19
+y 8
+end
+arch roof_thatch
+x 19
+y 9
+end
+arch roof_thatch
+x 19
+y 10
+end
+arch roof_thatch
+direction 5
+x 20
+y 4
+end
+arch roof_thatch
+direction 7
+x 20
+y 5
+end
+arch roof_thatch
+direction 7
+x 20
+y 6
+end
+arch roof_thatch
+direction 7
+x 20
+y 7
+end
+arch roof_thatch
+direction 7
+x 20
+y 8
+end
+arch roof_thatch
+direction 8
+x 20
+y 9
+end
+arch roof_thatch
+x 20
+y 10
+end
+arch roof_thatch
+direction 5
+x 21
+y 4
+end
+arch roof_thatch
+direction 7
+x 21
+y 5
+end
+arch roof_thatch
+direction 7
+x 21
+y 6
+end
+arch roof_thatch
+direction 7
+x 21
+y 7
+end
+arch roof_thatch
+direction 7
+x 21
+y 8
+end
+arch roof_thatch
+direction 7
+x 21
+y 9
+end
+arch roof_thatch
+direction 8
+x 21
+y 10
 end

@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-05-24 Alex Tokar
+Modified: 2016-01-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -150,6 +150,13 @@ endmsg
 name asteria_parliament
 sub_type 2
 stand_still 1
+y 22
+end
+arch map_info
+name asteria_parliament
+hp 10
+sp 1
+cursed 1
 y 22
 end
 arch grassd_4
@@ -827,6 +834,13 @@ z 50
 x 5
 end
 arch wall_blue1.131
+x 5
+end
+arch map_info
+name asteria_temple_drolaxi
+hp 7
+sp 4
+cursed 1
 x 5
 end
 arch floor_fs_grey1b

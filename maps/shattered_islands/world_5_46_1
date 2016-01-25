@@ -1,0 +1,977 @@
+arch map
+name Asteria
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2016-01-24 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music chether.mid
+region asteria
+end
+arch roof_sandstone
+direction 5
+y 10
+end
+arch roof_sandstone
+direction 8
+y 11
+end
+arch roof_sandstone
+y 12
+end
+arch roof_sandstone
+y 13
+end
+arch roof_sandstone
+y 14
+end
+arch roof_sandstone
+y 15
+end
+arch roof_sandstone
+y 16
+end
+arch roof_sandstone
+y 17
+end
+arch roof_sandstone
+y 18
+end
+arch roof_sandstone
+y 19
+end
+arch roof_sandstone
+y 20
+end
+arch roof_sandstone
+direction 5
+x 1
+y 10
+end
+arch roof_sandstone
+direction 7
+x 1
+y 11
+end
+arch roof_sandstone
+direction 8
+x 1
+y 12
+end
+arch roof_sandstone
+x 1
+y 13
+end
+arch roof_sandstone
+x 1
+y 14
+end
+arch roof_sandstone
+x 1
+y 15
+end
+arch roof_sandstone
+x 1
+y 16
+end
+arch roof_sandstone
+x 1
+y 17
+end
+arch roof_sandstone
+x 1
+y 18
+end
+arch roof_sandstone
+x 1
+y 19
+end
+arch roof_sandstone
+x 1
+y 20
+end
+arch roof_sandstone
+direction 5
+x 2
+y 10
+end
+arch roof_sandstone
+direction 7
+x 2
+y 11
+end
+arch roof_sandstone
+direction 7
+x 2
+y 12
+end
+arch roof_sandstone
+direction 8
+x 2
+y 13
+end
+arch roof_sandstone
+x 2
+y 14
+end
+arch roof_sandstone
+x 2
+y 15
+end
+arch roof_sandstone
+x 2
+y 16
+end
+arch roof_sandstone
+x 2
+y 17
+end
+arch roof_sandstone
+x 2
+y 18
+end
+arch roof_sandstone
+x 2
+y 19
+end
+arch roof_sandstone
+x 2
+y 20
+end
+arch roof_sandstone
+direction 5
+x 3
+y 10
+end
+arch roof_sandstone
+direction 7
+x 3
+y 11
+end
+arch roof_sandstone
+direction 7
+x 3
+y 12
+end
+arch roof_sandstone
+direction 7
+x 3
+y 13
+end
+arch roof_sandstone
+direction 8
+x 3
+y 14
+end
+arch roof_sandstone
+x 3
+y 15
+end
+arch roof_sandstone
+x 3
+y 16
+end
+arch roof_sandstone
+x 3
+y 17
+end
+arch roof_sandstone
+x 3
+y 18
+end
+arch roof_sandstone
+x 3
+y 19
+end
+arch roof_sandstone
+direction 8
+x 3
+y 20
+end
+arch roof_sandstone
+direction 5
+x 4
+y 11
+end
+arch roof_sandstone
+direction 7
+x 4
+y 12
+end
+arch roof_sandstone
+direction 7
+x 4
+y 13
+end
+arch roof_sandstone
+direction 7
+x 4
+y 14
+end
+arch roof_sandstone
+direction 8
+x 4
+y 15
+end
+arch roof_sandstone
+x 4
+y 16
+end
+arch roof_sandstone
+x 4
+y 17
+end
+arch roof_sandstone
+x 4
+y 18
+end
+arch roof_sandstone
+direction 8
+x 4
+y 19
+end
+arch roof_sandstone
+direction 5
+x 5
+y 12
+end
+arch roof_sandstone
+direction 7
+x 5
+y 13
+end
+arch roof_sandstone
+direction 7
+x 5
+y 14
+end
+arch roof_sandstone
+direction 7
+x 5
+y 15
+end
+arch roof_sandstone
+direction 8
+x 5
+y 16
+end
+arch roof_sandstone
+x 5
+y 17
+end
+arch roof_sandstone
+x 5
+y 18
+end
+arch roof_sandstone
+direction 5
+x 6
+y 12
+end
+arch roof_sandstone
+direction 7
+x 6
+y 13
+end
+arch roof_sandstone
+direction 7
+x 6
+y 14
+end
+arch roof_sandstone
+direction 7
+x 6
+y 15
+end
+arch roof_sandstone
+direction 7
+x 6
+y 16
+end
+arch roof_sandstone
+direction 8
+x 6
+y 17
+end
+arch roof_sandstone
+x 6
+y 18
+end
+arch roof_sandstone
+direction 5
+x 7
+y 12
+end
+arch roof_sandstone
+direction 7
+x 7
+y 13
+end
+arch roof_sandstone
+direction 7
+x 7
+y 14
+end
+arch roof_sandstone
+direction 7
+x 7
+y 15
+end
+arch roof_sandstone
+direction 7
+x 7
+y 16
+end
+arch roof_sandstone
+direction 7
+x 7
+y 17
+end
+arch roof_sandstone
+direction 8
+x 7
+y 18
+end
+arch roof_wood
+direction 3
+x 13
+y 10
+end
+arch roof_wood
+direction 3
+x 13
+y 11
+end
+arch roof_wood
+direction 3
+x 13
+y 12
+end
+arch roof_wood
+direction 3
+x 13
+y 13
+end
+arch roof_wood
+direction 3
+x 13
+y 14
+end
+arch roof_wood
+direction 5
+x 14
+y 9
+end
+arch roof_wood
+direction 8
+x 14
+y 10
+end
+arch roof_wood
+x 14
+y 11
+end
+arch roof_wood
+x 14
+y 12
+end
+arch roof_wood
+x 14
+y 13
+end
+arch roof_wood
+x 14
+y 14
+end
+arch roof_wood
+direction 3
+x 15
+y 1
+end
+arch roof_wood
+direction 3
+x 15
+y 2
+end
+arch roof_wood
+direction 3
+x 15
+y 3
+end
+arch roof_wood
+direction 3
+x 15
+y 4
+end
+arch roof_wood
+direction 3
+x 15
+y 5
+end
+arch roof_wood
+direction 3
+x 15
+y 6
+end
+arch roof_wood
+direction 3
+x 15
+y 7
+end
+arch roof_wood
+direction 5
+x 15
+y 9
+end
+arch roof_wood
+direction 7
+x 15
+y 10
+end
+arch roof_wood
+direction 8
+x 15
+y 11
+end
+arch roof_wood
+x 15
+y 12
+end
+arch roof_wood
+x 15
+y 13
+end
+arch roof_wood
+x 15
+y 14
+end
+arch roof_wood
+direction 5
+x 16
+end
+arch roof_wood
+direction 8
+x 16
+y 1
+end
+arch roof_wood
+x 16
+y 2
+end
+arch roof_wood
+x 16
+y 3
+end
+arch roof_wood
+x 16
+y 4
+end
+arch roof_wood
+x 16
+y 5
+end
+arch roof_wood
+x 16
+y 6
+end
+arch roof_wood
+x 16
+y 7
+end
+arch roof_wood
+direction 5
+x 16
+y 9
+end
+arch roof_wood
+direction 7
+x 16
+y 10
+end
+arch roof_wood
+direction 7
+x 16
+y 11
+end
+arch roof_wood
+direction 8
+x 16
+y 12
+end
+arch roof_wood
+x 16
+y 13
+end
+arch roof_wood
+x 16
+y 14
+end
+arch roof_wood
+direction 5
+x 17
+end
+arch roof_wood
+direction 7
+x 17
+y 1
+end
+arch roof_wood
+direction 8
+x 17
+y 2
+end
+arch roof_wood
+x 17
+y 3
+end
+arch roof_wood
+x 17
+y 4
+end
+arch roof_wood
+x 17
+y 5
+end
+arch roof_wood
+x 17
+y 6
+end
+arch roof_wood
+x 17
+y 7
+end
+arch roof_wood
+direction 5
+x 17
+y 9
+end
+arch roof_wood
+direction 7
+x 17
+y 10
+end
+arch roof_wood
+direction 7
+x 17
+y 11
+end
+arch roof_wood
+direction 7
+x 17
+y 12
+end
+arch roof_wood
+direction 8
+x 17
+y 13
+end
+arch roof_wood
+x 17
+y 14
+end
+arch roof_wood
+direction 5
+x 18
+end
+arch roof_wood
+direction 7
+x 18
+y 1
+end
+arch roof_wood
+direction 7
+x 18
+y 2
+end
+arch roof_wood
+direction 8
+x 18
+y 3
+end
+arch roof_wood
+x 18
+y 4
+end
+arch roof_wood
+x 18
+y 5
+end
+arch roof_wood
+x 18
+y 6
+end
+arch roof_wood
+x 18
+y 7
+end
+arch roof_wood
+direction 5
+x 18
+y 9
+end
+arch roof_wood
+direction 7
+x 18
+y 10
+end
+arch roof_wood
+direction 7
+x 18
+y 11
+end
+arch roof_wood
+direction 7
+x 18
+y 12
+end
+arch roof_wood
+direction 7
+x 18
+y 13
+end
+arch roof_wood
+direction 8
+x 18
+y 14
+end
+arch roof_wood
+direction 3
+x 18
+y 15
+end
+arch roof_wood
+direction 3
+x 18
+y 16
+end
+arch roof_wood
+direction 3
+x 18
+y 17
+end
+arch roof_wood
+direction 5
+x 19
+end
+arch roof_wood
+direction 7
+x 19
+y 1
+end
+arch roof_wood
+direction 7
+x 19
+y 2
+end
+arch roof_wood
+direction 7
+x 19
+y 3
+end
+arch roof_wood
+direction 8
+x 19
+y 4
+end
+arch roof_wood
+x 19
+y 5
+end
+arch roof_wood
+x 19
+y 6
+end
+arch roof_wood
+x 19
+y 7
+end
+arch roof_wood
+direction 5
+x 19
+y 9
+end
+arch roof_wood
+direction 7
+x 19
+y 10
+end
+arch roof_wood
+direction 7
+x 19
+y 11
+end
+arch roof_wood
+direction 7
+x 19
+y 12
+end
+arch roof_wood
+direction 7
+x 19
+y 13
+end
+arch roof_wood
+direction 7
+x 19
+y 14
+end
+arch roof_wood
+direction 8
+x 19
+y 15
+end
+arch roof_wood
+x 19
+y 16
+end
+arch roof_wood
+x 19
+y 17
+end
+arch roof_wood
+direction 5
+x 20
+end
+arch roof_wood
+direction 7
+x 20
+y 1
+end
+arch roof_wood
+direction 7
+x 20
+y 2
+end
+arch roof_wood
+direction 7
+x 20
+y 3
+end
+arch roof_wood
+direction 7
+x 20
+y 4
+end
+arch roof_wood
+direction 8
+x 20
+y 5
+end
+arch roof_wood
+x 20
+y 6
+end
+arch roof_wood
+x 20
+y 7
+end
+arch roof_wood
+direction 5
+x 20
+y 9
+end
+arch roof_wood
+direction 7
+x 20
+y 10
+end
+arch roof_wood
+direction 7
+x 20
+y 11
+end
+arch roof_wood
+direction 7
+x 20
+y 12
+end
+arch roof_wood
+direction 7
+x 20
+y 13
+end
+arch roof_wood
+direction 7
+x 20
+y 14
+end
+arch roof_wood
+direction 7
+x 20
+y 15
+end
+arch roof_wood
+direction 8
+x 20
+y 16
+end
+arch roof_wood
+x 20
+y 17
+end
+arch roof_wood
+direction 5
+x 21
+end
+arch roof_wood
+direction 7
+x 21
+y 1
+end
+arch roof_wood
+direction 7
+x 21
+y 2
+end
+arch roof_wood
+direction 7
+x 21
+y 3
+end
+arch roof_wood
+direction 7
+x 21
+y 4
+end
+arch roof_wood
+direction 7
+x 21
+y 5
+end
+arch roof_wood
+direction 8
+x 21
+y 6
+end
+arch roof_wood
+x 21
+y 7
+end
+arch roof_wood
+direction 5
+x 21
+y 9
+end
+arch roof_wood
+direction 7
+x 21
+y 10
+end
+arch roof_wood
+direction 7
+x 21
+y 11
+end
+arch roof_wood
+direction 7
+x 21
+y 12
+end
+arch roof_wood
+direction 7
+x 21
+y 13
+end
+arch roof_wood
+direction 7
+x 21
+y 14
+end
+arch roof_wood
+direction 7
+x 21
+y 15
+end
+arch roof_wood
+direction 7
+x 21
+y 16
+end
+arch roof_wood
+direction 8
+x 21
+y 17
+end
+arch roof_wood
+direction 5
+x 22
+end
+arch roof_wood
+direction 7
+x 22
+y 1
+end
+arch roof_wood
+direction 7
+x 22
+y 2
+end
+arch roof_wood
+direction 7
+x 22
+y 3
+end
+arch roof_wood
+direction 7
+x 22
+y 4
+end
+arch roof_wood
+direction 7
+x 22
+y 5
+end
+arch roof_wood
+direction 7
+x 22
+y 6
+end
+arch roof_wood
+direction 8
+x 22
+y 7
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 11
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 12
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 13
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 14
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 15
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 16
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 17
+end
+arch roof_brick_gray
+direction 3
+x 23
+y 18
+end
