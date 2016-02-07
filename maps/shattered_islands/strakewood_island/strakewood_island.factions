@@ -46,3 +46,8 @@ end
 faction guild_quick_wolves
     parent npcs
 end
+
+faction silmedsen
+    parent npcs
+end
+

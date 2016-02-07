@@ -1033,7 +1033,7 @@ name Silmedsen
 level 30
 invulnerable 1
 no_attack 1
-friendly 1
+faction silmedsen
 type 83
 arch silmedsen_branches
 end
