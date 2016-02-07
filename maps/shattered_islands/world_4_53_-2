@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2015-12-15 Alex Tokar
+Modified: 2016-02-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -137,6 +137,17 @@ direction 1
 x 1
 y 12
 end
+arch well_bucket
+slaying world_4_53
+hp 3
+sp 18
+x 1
+y 12
+end
+arch light2
+x 1
+y 12
+end
 arch floor_sand_d4
 x 1
 y 13
@@ -267,14 +278,6 @@ arch floor_sand_d1
 x 2
 y 14
 end
-arch spawn_point
-x 2
-y 14
-arch spider
-level 11
-type 83
-end
-end
 arch floor_sand_d3
 x 2
 y 15
@@ -320,17 +323,6 @@ y 2
 end
 arch water_lt2_m
 direction 7
-x 3
-y 2
-end
-arch well_bucket
-slaying world_4_53
-hp 3
-sp 2
-x 3
-y 2
-end
-arch light2
 x 3
 y 2
 end
@@ -2920,17 +2912,6 @@ y 1
 end
 arch water_lt2_m
 direction 3
-x 22
-y 1
-end
-arch well_bucket
-slaying world_4_53
-hp 22
-sp 1
-x 22
-y 1
-end
-arch light2
 x 22
 y 1
 end

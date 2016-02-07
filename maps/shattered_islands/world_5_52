@@ -2,7 +2,7 @@ arch map
 name Fort Sether
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-12-20 Alex Tokar
+Modified: 2016-02-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -57,6 +57,12 @@ end
 arch wall_flagstone1.111
 y 10
 end
+arch map_info
+name fort_sether_walls
+sp 3
+cursed 1
+y 10
+end
 arch floor_grey9
 y 11
 end
@@ -103,6 +109,12 @@ arch grassd_1
 y 20
 end
 arch wall_flagstone1.111
+y 20
+end
+arch map_info
+name fort_sether_walls
+sp 3
+cursed 1
 y 20
 end
 arch floor_grey9
@@ -233,7 +245,14 @@ arch grassd_1
 x 1
 y 22
 end
-arch wall_flagstone1.111
+arch fwall_fstone2
+x 1
+y 22
+end
+arch map_info
+name fort_sether_walls
+hp 3
+cursed 1
 x 1
 y 22
 end
@@ -371,7 +390,7 @@ arch grassd_1
 x 2
 y 22
 end
-arch wall_flagstone1.111
+arch fwall_fstone2
 x 2
 y 22
 end
@@ -505,7 +524,7 @@ arch grassd_3
 x 3
 y 22
 end
-arch wall_flagstone1.111
+arch fwall_fstone2
 x 3
 y 22
 end
@@ -639,7 +658,7 @@ arch grassd_4
 x 4
 y 22
 end
-arch wall_flagstone1.111
+arch fwall_fstone2
 x 4
 y 22
 end
@@ -777,6 +796,14 @@ arch wall_flagstone1.181
 x 5
 y 20
 end
+arch map_info
+name fort_sether_walls
+hp 3
+sp 3
+cursed 1
+x 5
+y 20
+end
 arch grassd_8
 x 5
 y 21
@@ -789,7 +816,7 @@ arch grassd_7
 x 5
 y 22
 end
-arch wall_flagstone1.141
+arch fwall_fstone2
 x 5
 y 22
 end

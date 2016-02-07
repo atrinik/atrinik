@@ -1,0 +1,1577 @@
+arch map
+name Fort Sether
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2016-02-07 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 25
+outdoor 1
+bg_music solemn.mid
+region fort_sether
+end
+arch trans
+x 11
+y 21
+end
+arch wall_fstone_half.101
+draw_double 0
+blocksview 0
+z -3
+x 11
+y 21
+end
+arch map_info
+name fort_sether_walls
+hp 3
+sp 2
+is_magical 1
+x 11
+y 21
+end
+arch trans
+x 11
+y 22
+end
+arch wall_fortified_low.111
+x 11
+y 22
+end
+arch trans
+x 11
+y 23
+end
+arch wall_fortified_low.111
+x 11
+y 23
+end
+arch floor_fs_grey1b
+z 3
+x 12
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+end
+arch map_info
+name fort_sether_walls
+sp 20
+is_magical 1
+x 12
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 1
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 1
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 1
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 2
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 2
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 2
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 3
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 3
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 3
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 4
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 4
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 4
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 5
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 5
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 5
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 6
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 6
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 6
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 7
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 7
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 7
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 8
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 8
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 8
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 9
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 9
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 9
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 10
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 10
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 10
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 11
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 11
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 11
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 12
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 12
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 12
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 13
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 13
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 13
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 14
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 14
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 14
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 15
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 15
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 15
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 16
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 16
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 16
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 17
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 17
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 17
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 18
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 18
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 18
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 19
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 19
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 20
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 20
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 20
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 21
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 12
+y 21
+end
+arch wall_fortified_low_b.111
+align -15
+z 6
+no_pass 0
+layer 4
+x 12
+y 21
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 22
+end
+arch floor_fs_grey1b
+z 3
+x 12
+y 23
+end
+arch trans
+x 13
+y 21
+end
+arch wall_fortified_low.131
+x 13
+y 21
+end
+arch floor_fs_grey1b
+z 3
+x 13
+y 22
+end
+arch floor_fs_grey1b
+z 3
+x 13
+y 23
+end
+arch spawn_point
+x 13
+y 23
+arch archer
+level 25
+stand_still 1
+item_power 12
+type 83
+faction fort_sether_guards
+arch ability_stone_throw
+race haxarrows
+sp 1
+wc 300
+wc_range 150
+magic 5
+end
+arch arrow_fey
+name elemental arrow
+no_pick 1
+sys_object 1
+dam 100
+last_grace 1
+last_sp 7
+wc 200
+magic 5
+attack_fire 100
+attack_electricity 100
+attack_cold 100
+attack_poison 100
+race haxarrows
+end
+end
+end
+arch roof_thatch
+direction 4
+x 14
+y 2
+end
+arch roof_thatch
+direction 3
+x 14
+y 3
+end
+arch roof_thatch
+direction 3
+x 14
+y 4
+end
+arch roof_thatch
+direction 3
+x 14
+y 5
+end
+arch roof_thatch
+direction 3
+x 14
+y 6
+end
+arch roof_thatch
+direction 3
+x 14
+y 7
+end
+arch roof_thatch
+direction 3
+x 14
+y 8
+end
+arch roof_thatch
+direction 3
+x 14
+y 9
+end
+arch roof_thatch
+direction 3
+x 14
+y 10
+end
+arch roof_thatch
+direction 3
+x 14
+y 11
+end
+arch roof_thatch
+direction 3
+x 14
+y 12
+end
+arch roof_thatch
+direction 3
+x 14
+y 13
+end
+arch roof_thatch
+direction 3
+x 14
+y 14
+end
+arch roof_thatch
+direction 3
+x 14
+y 15
+end
+arch roof_thatch
+direction 3
+x 14
+y 16
+end
+arch roof_thatch
+direction 3
+x 14
+y 17
+end
+arch roof_thatch
+direction 3
+x 14
+y 18
+end
+arch roof_thatch
+direction 3
+x 14
+y 19
+end
+arch trans
+x 14
+y 21
+end
+arch wall_fortified_low.131
+x 14
+y 21
+end
+arch floor_fs_grey1b
+z 3
+x 14
+y 22
+end
+arch wall_fortified_low_b.111
+z -3
+no_pass 0
+x 14
+y 22
+end
+arch floor_fs_grey1b
+z 3
+x 14
+y 23
+end
+arch roof_thatch
+direction 5
+x 15
+y 2
+end
+arch roof_thatch
+direction 7
+x 15
+y 3
+end
+arch roof_thatch
+direction 7
+x 15
+y 4
+end
+arch roof_thatch
+direction 7
+x 15
+y 5
+end
+arch roof_thatch
+direction 7
+x 15
+y 6
+end
+arch roof_thatch
+direction 7
+x 15
+y 7
+end
+arch roof_thatch
+direction 8
+x 15
+y 8
+end
+arch roof_thatch
+x 15
+y 9
+end
+arch roof_thatch
+x 15
+y 10
+end
+arch roof_thatch
+x 15
+y 11
+end
+arch roof_thatch
+x 15
+y 12
+end
+arch roof_thatch
+x 15
+y 13
+end
+arch roof_thatch
+x 15
+y 14
+end
+arch roof_thatch
+x 15
+y 15
+end
+arch roof_thatch
+x 15
+y 16
+end
+arch roof_thatch
+x 15
+y 17
+end
+arch roof_thatch
+x 15
+y 18
+end
+arch roof_thatch
+x 15
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 15
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 15
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 15
+y 23
+end
+arch map_info
+name fort_sether_walls
+hp 8
+is_magical 1
+x 15
+y 23
+end
+arch roof_thatch
+direction 5
+x 16
+y 2
+end
+arch roof_thatch
+direction 7
+x 16
+y 3
+end
+arch roof_thatch
+direction 7
+x 16
+y 4
+end
+arch roof_thatch
+direction 7
+x 16
+y 5
+end
+arch roof_thatch
+direction 7
+x 16
+y 6
+end
+arch roof_thatch
+direction 7
+x 16
+y 7
+end
+arch roof_thatch
+direction 7
+x 16
+y 8
+end
+arch roof_thatch
+direction 8
+x 16
+y 9
+end
+arch roof_thatch
+x 16
+y 10
+end
+arch roof_thatch
+x 16
+y 11
+end
+arch roof_thatch
+x 16
+y 12
+end
+arch roof_thatch
+x 16
+y 13
+end
+arch roof_thatch
+x 16
+y 14
+end
+arch roof_thatch
+x 16
+y 15
+end
+arch roof_thatch
+x 16
+y 16
+end
+arch roof_thatch
+x 16
+y 17
+end
+arch roof_thatch
+x 16
+y 18
+end
+arch roof_thatch
+x 16
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 16
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 16
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 16
+y 23
+end
+arch roof_thatch
+direction 5
+x 17
+y 2
+end
+arch roof_thatch
+direction 7
+x 17
+y 3
+end
+arch roof_thatch
+direction 7
+x 17
+y 4
+end
+arch roof_thatch
+direction 7
+x 17
+y 5
+end
+arch roof_thatch
+direction 7
+x 17
+y 6
+end
+arch roof_thatch
+direction 7
+x 17
+y 7
+end
+arch roof_thatch
+direction 7
+x 17
+y 8
+end
+arch roof_thatch
+direction 7
+x 17
+y 9
+end
+arch roof_thatch
+direction 8
+x 17
+y 10
+end
+arch roof_thatch
+x 17
+y 11
+end
+arch roof_thatch
+x 17
+y 12
+end
+arch roof_thatch
+x 17
+y 13
+end
+arch roof_thatch
+x 17
+y 14
+end
+arch roof_thatch
+x 17
+y 15
+end
+arch roof_thatch
+x 17
+y 16
+end
+arch roof_thatch
+x 17
+y 17
+end
+arch roof_thatch
+x 17
+y 18
+end
+arch roof_thatch
+x 17
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 17
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 17
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 17
+y 23
+end
+arch roof_thatch
+direction 5
+x 18
+y 2
+end
+arch roof_thatch
+direction 7
+x 18
+y 3
+end
+arch roof_thatch
+direction 7
+x 18
+y 4
+end
+arch roof_thatch
+direction 7
+x 18
+y 5
+end
+arch roof_thatch
+direction 7
+x 18
+y 6
+end
+arch roof_thatch
+direction 7
+x 18
+y 7
+end
+arch roof_thatch
+direction 7
+x 18
+y 8
+end
+arch roof_thatch
+direction 7
+x 18
+y 9
+end
+arch roof_thatch
+direction 7
+x 18
+y 10
+end
+arch roof_thatch
+direction 8
+x 18
+y 11
+end
+arch roof_thatch
+x 18
+y 12
+end
+arch roof_thatch
+x 18
+y 13
+end
+arch roof_thatch
+x 18
+y 14
+end
+arch roof_thatch
+x 18
+y 15
+end
+arch roof_thatch
+x 18
+y 16
+end
+arch roof_thatch
+x 18
+y 17
+end
+arch roof_thatch
+x 18
+y 18
+end
+arch roof_thatch
+x 18
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 18
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 18
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 18
+y 23
+end
+arch light2
+x 18
+y 23
+end
+arch roof_thatch
+direction 5
+x 19
+y 2
+end
+arch roof_thatch
+direction 7
+x 19
+y 3
+end
+arch roof_thatch
+direction 7
+x 19
+y 4
+end
+arch roof_thatch
+direction 7
+x 19
+y 5
+end
+arch roof_thatch
+direction 7
+x 19
+y 6
+end
+arch roof_thatch
+direction 7
+x 19
+y 7
+end
+arch roof_thatch
+direction 7
+x 19
+y 8
+end
+arch roof_thatch
+direction 7
+x 19
+y 9
+end
+arch roof_thatch
+direction 7
+x 19
+y 10
+end
+arch roof_thatch
+direction 7
+x 19
+y 11
+end
+arch roof_thatch
+direction 8
+x 19
+y 12
+end
+arch roof_thatch
+x 19
+y 13
+end
+arch roof_thatch
+x 19
+y 14
+end
+arch roof_thatch
+x 19
+y 15
+end
+arch roof_thatch
+x 19
+y 16
+end
+arch roof_thatch
+x 19
+y 17
+end
+arch roof_thatch
+x 19
+y 18
+end
+arch roof_thatch
+x 19
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 19
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 19
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 19
+y 23
+end
+arch roof_thatch
+direction 5
+x 20
+y 2
+end
+arch roof_thatch
+direction 7
+x 20
+y 3
+end
+arch roof_thatch
+direction 7
+x 20
+y 4
+end
+arch roof_thatch
+direction 7
+x 20
+y 5
+end
+arch roof_thatch
+direction 7
+x 20
+y 6
+end
+arch roof_thatch
+direction 7
+x 20
+y 7
+end
+arch roof_thatch
+direction 7
+x 20
+y 8
+end
+arch roof_thatch
+direction 7
+x 20
+y 9
+end
+arch roof_thatch
+direction 7
+x 20
+y 10
+end
+arch roof_thatch
+direction 7
+x 20
+y 11
+end
+arch roof_thatch
+direction 7
+x 20
+y 12
+end
+arch roof_thatch
+direction 8
+x 20
+y 13
+end
+arch roof_thatch
+x 20
+y 14
+end
+arch roof_thatch
+x 20
+y 15
+end
+arch roof_thatch
+x 20
+y 16
+end
+arch roof_thatch
+x 20
+y 17
+end
+arch roof_thatch
+x 20
+y 18
+end
+arch roof_thatch
+x 20
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 20
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 20
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 20
+y 23
+end
+arch light2
+x 20
+y 23
+end
+arch roof_thatch
+direction 5
+x 21
+y 2
+end
+arch roof_thatch
+direction 7
+x 21
+y 3
+end
+arch roof_thatch
+direction 7
+x 21
+y 4
+end
+arch roof_thatch
+direction 7
+x 21
+y 5
+end
+arch roof_thatch
+direction 7
+x 21
+y 6
+end
+arch roof_thatch
+direction 7
+x 21
+y 7
+end
+arch roof_thatch
+direction 7
+x 21
+y 8
+end
+arch roof_thatch
+direction 7
+x 21
+y 9
+end
+arch roof_thatch
+direction 7
+x 21
+y 10
+end
+arch roof_thatch
+direction 7
+x 21
+y 11
+end
+arch roof_thatch
+direction 7
+x 21
+y 12
+end
+arch roof_thatch
+direction 7
+x 21
+y 13
+end
+arch roof_thatch
+direction 8
+x 21
+y 14
+end
+arch roof_thatch
+x 21
+y 15
+end
+arch roof_thatch
+x 21
+y 16
+end
+arch roof_thatch
+x 21
+y 17
+end
+arch roof_thatch
+x 21
+y 18
+end
+arch roof_thatch
+x 21
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 21
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 21
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 21
+y 23
+end
+arch roof_thatch
+direction 5
+x 22
+y 2
+end
+arch roof_thatch
+direction 7
+x 22
+y 3
+end
+arch roof_thatch
+direction 7
+x 22
+y 4
+end
+arch roof_thatch
+direction 7
+x 22
+y 5
+end
+arch roof_thatch
+direction 7
+x 22
+y 6
+end
+arch roof_thatch
+direction 7
+x 22
+y 7
+end
+arch roof_thatch
+direction 7
+x 22
+y 8
+end
+arch roof_thatch
+direction 7
+x 22
+y 9
+end
+arch roof_thatch
+direction 7
+x 22
+y 10
+end
+arch roof_thatch
+direction 7
+x 22
+y 11
+end
+arch roof_thatch
+direction 7
+x 22
+y 12
+end
+arch roof_thatch
+direction 7
+x 22
+y 13
+end
+arch roof_thatch
+direction 7
+x 22
+y 14
+end
+arch roof_thatch
+direction 8
+x 22
+y 15
+end
+arch roof_thatch
+x 22
+y 16
+end
+arch roof_thatch
+x 22
+y 17
+end
+arch roof_thatch
+x 22
+y 18
+end
+arch roof_thatch
+x 22
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 22
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 22
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 22
+y 23
+end
+arch roof_thatch
+direction 5
+x 23
+y 2
+end
+arch roof_thatch
+direction 7
+x 23
+y 3
+end
+arch roof_thatch
+direction 7
+x 23
+y 4
+end
+arch roof_thatch
+direction 7
+x 23
+y 5
+end
+arch roof_thatch
+direction 7
+x 23
+y 6
+end
+arch roof_thatch
+direction 7
+x 23
+y 7
+end
+arch roof_thatch
+direction 7
+x 23
+y 8
+end
+arch roof_thatch
+direction 7
+x 23
+y 9
+end
+arch roof_thatch
+direction 7
+x 23
+y 10
+end
+arch roof_thatch
+direction 7
+x 23
+y 11
+end
+arch roof_thatch
+direction 7
+x 23
+y 12
+end
+arch roof_thatch
+direction 7
+x 23
+y 13
+end
+arch roof_thatch
+direction 7
+x 23
+y 14
+end
+arch roof_thatch
+direction 7
+x 23
+y 15
+end
+arch roof_thatch
+direction 8
+x 23
+y 16
+end
+arch roof_thatch
+x 23
+y 17
+end
+arch roof_thatch
+x 23
+y 18
+end
+arch roof_thatch
+x 23
+y 19
+end
+arch floor_fs_grey1b
+z 3
+x 23
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+z -3
+x 23
+y 23
+end
+arch wall_fortified_low.131
+no_pass 0
+align 15
+z 6
+layer 4
+x 23
+y 23
+end
