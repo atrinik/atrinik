@@ -94,6 +94,7 @@ deinit_func (object *op)
 
     if (op->custom_attrset != NULL) {
         efree(op->custom_attrset);
+        op->custom_attrset = NULL;
     }
 }
 
