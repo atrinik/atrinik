@@ -1583,7 +1583,7 @@ map_draw_map (SDL_Surface *surface)
                  data.sub_layer++) {
                 uint8_t map_layer = GET_MAP_LAYER(LAYER_FLOOR,
                                                   data.sub_layer);
-                if (data.cell->height[map_layer] >=
+                if (data.cell->height[map_layer] >
                     data.cell->height[floor_layer_pl]) {
                     continue;
                 }
@@ -1648,7 +1648,7 @@ map_draw_map (SDL_Surface *surface)
                  data.sub_layer++) {
                 uint8_t map_layer = GET_MAP_LAYER(LAYER_FLOOR,
                                                   data.sub_layer);
-                if (data.cell->height[map_layer] <
+                if (data.cell->height[map_layer] <=
                     data.cell->height[floor_layer_pl]) {
                     continue;
                 }
@@ -1696,6 +1696,13 @@ map_draw_map (SDL_Surface *surface)
                     continue;
                 }
 
+                draw_map_object(surface, &data);
+            }
+
+            if (data.cell->priority[0] & (1 << (LAYER_WALL - 1)) &&
+                data.cell->height[GET_MAP_LAYER(LAYER_WALL, 0)] > 0) {
+                data.layer = LAYER_WALL;
+                data.sub_layer = 0;
                 draw_map_object(surface, &data);
             }
         }
