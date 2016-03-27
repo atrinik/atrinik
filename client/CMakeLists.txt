@@ -120,7 +120,7 @@ else ()
     set(INSTALL_SUBDIR_DOC "share/doc/atrinik")
 
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/atrinik.desktop DESTINATION "share/applications")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/bitmaps/icon.png DESTINATION "share/pixmaps" RENAME "atrinik.png")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/textures/icon.png DESTINATION "share/pixmaps" RENAME "atrinik.png")
 endif ()
 
 install(TARGETS atrinik DESTINATION ${INSTALL_SUBDIR_BIN})
