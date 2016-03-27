@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE interfaces
+  PUBLIC '-//Atrinik//ADS-1 1.1.2//EN'
+  'ads-1.dtd'>
+<interfaces>
+    <interface inherit="Merchant.SpellSeller">
+        <dialog name="hello">
+            <message>Oh, what's that? Sorry, I'm afraid my hearing isn't what it used to be.</message>
+            <message>You know, back in my days I used to be an adventurer like you... I traveled across the land, learned many of the different trades, visited all the brothels on the way... ah, a time long past.</message>
+            <message>I still remember some of the more basic spells though... If you like, I can teach them to you.</message>
+            <inherit name="::spells"/>
+        </dialog>
+    </interface>
+</interfaces>
