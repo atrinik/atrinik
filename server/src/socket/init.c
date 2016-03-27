@@ -24,12 +24,15 @@
 
 /**
  * @file
- * Socket initialization related code. */
+ * Socket initialization related code.
+ */
+
+#include "zlib.h"
 
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
-#include "zlib.h"
+#include <exp.h>
 
 /** Socket information. */
 Socket_Info socket_info;
@@ -41,7 +44,8 @@ socket_struct *init_sockets;
  * socket setup is handled elsewhere.
  *
  * Sends server version to the client.
- * @param ns Client's socket.
+ * @param ns
+ * Client's socket.
  * @todo Remove version sending legacy support for older clients at some
  * point.
  */
@@ -81,7 +85,8 @@ bool init_connection(socket_struct *ns)
 
 /**
  * This sets up the socket and reads all the image information into
- * memory. */
+ * memory.
+ */
 void init_ericserver(void)
 {
 #ifndef WIN32
@@ -128,7 +133,8 @@ void init_ericserver(void)
 }
 
 /**
- * Frees all the memory that ericserver allocates. */
+ * Frees all the memory that ericserver allocates.
+ */
 void free_all_newserver(void)
 {
     int i;
@@ -150,7 +156,9 @@ void free_all_newserver(void)
  * might be associated with the socket.
  *
  * It is up to the caller to update the list.
- * @param ns The socket. */
+ * @param ns
+ * The socket.
+ */
 void free_newsocket(socket_struct *ns)
 {
     socket_destroy(ns->sc);
@@ -174,9 +182,12 @@ void free_newsocket(socket_struct *ns)
 
 /**
  * Load server file.
- * @param fname Filename of the server file.
- * @param listing Open file pointer to the listings file.
- * @param cmd The data command.
+ * @param fname
+ * Filename of the server file.
+ * @param listing
+ * Open file pointer to the listings file.
+ * @param cmd
+ * The data command.
  */
 static void load_srv_file(char *fname, FILE *listing)
 {
@@ -236,7 +247,8 @@ static void load_srv_file(char *fname, FILE *listing)
 
 /**
  * Get the lib/server_settings default file and create the
- * data/server_settings file from it. */
+ * data/server_settings file from it.
+ */
 static void create_server_settings(void)
 {
     char buf[MAX_BUF];
@@ -276,7 +288,8 @@ static void create_server_settings(void)
 }
 
 /**
- * Initialize animations file for the client. */
+ * Initialize animations file for the client.
+ */
 static void create_server_animations(void)
 {
     char buf[MAX_BUF];
@@ -319,7 +332,8 @@ static void create_server_animations(void)
  * Load all the server files we can send to client.
  *
  * client_bmaps is generated from the server at startup out of the
- * Atrinik png file. */
+ * Atrinik png file.
+ */
 void init_srv_files(void)
 {
     char buf[MAX_BUF];

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Deals with wall management in random maps. */
+ * Deals with wall management in random maps.
+ */
 
 #include <global.h>
 #include <arch.h>
@@ -32,12 +33,15 @@
 /**
  * Given a layout and a coordinate, tell me which squares
  * up/down/right/left are occupied.
- * @param RP Random map parameters.
- * @return Combination of:
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Combination of:
  * - <b>1</b>: Something on left.
  * - <b>2</b>: Something on right.
  * - <b>4</b>: Something on above.
- * - <b>8</b>: Something on below. */
+ * - <b>8</b>: Something on below.
+ */
 int surround_flag(char **layout, int i, int j, RMParms *RP)
 {
     int surround_index = 0;
@@ -64,12 +68,15 @@ int surround_flag(char **layout, int i, int j, RMParms *RP)
 /**
  * Given a layout and a coordinate, tell me which squares
  * up/down/right/left are occupied by walls or doors.
- * @param RP Random map parameters.
- * @return Combination of:
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Combination of:
  * - <b>1</b>: Wall/door on left.
  * - <b>2</b>: Wall/door on right.
  * - <b>4</b>: Wall/door on above.
- * - <b>8</b>: Wall/door on below. */
+ * - <b>8</b>: Wall/door on below.
+ */
 int surround_flag2(char **layout, int i, int j, RMParms *RP)
 {
     int surround_index = 0;
@@ -100,12 +107,15 @@ int surround_flag2(char **layout, int i, int j, RMParms *RP)
  * is not a tiled map.
  *
  * What is considered blocking and not is somewhat hard coded.
- * @param RP Random map parameters.
- * @return Combination of:
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Combination of:
  * - <b>1</b>: Blocked on left.
  * - <b>2</b>: Blocked on right.
  * - <b>4</b>: Blocked on above.
- * - <b>8</b>: Blocked on below. */
+ * - <b>8</b>: Blocked on below.
+ */
 int surround_flag3(mapstruct *map, int i, int j, RMParms *RP)
 {
     int surround_index = 0;
@@ -136,12 +146,15 @@ int surround_flag3(mapstruct *map, int i, int j, RMParms *RP)
  * is not a tiled map.
  *
  * What is considered blocking and not is somewhat hard coded.
- * @param RP Random map parameters.
- * @return Combination of:
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Combination of:
  * - <b>1</b>: Wall on left.
  * - <b>2</b>: Wall on right.
  * - <b>4</b>: Wall on above.
- * - <b>8</b>: Wall on below. */
+ * - <b>8</b>: Wall on below.
+ */
 int surround_flag4(mapstruct *map, int i, int j, RMParms *RP)
 {
     int surround_index = 0;
@@ -168,10 +181,15 @@ int surround_flag4(mapstruct *map, int i, int j, RMParms *RP)
 /**
  * Takes a map and a layout, and puts walls in the map (picked from
  * w_style) at '#' marks.
- * @param map Map where walls will be put.
- * @param layout Layout containing walls and such.
- * @param w_style Wall style.
- * @param RP Random map parameters. */
+ * @param map
+ * Map where walls will be put.
+ * @param layout
+ * Layout containing walls and such.
+ * @param w_style
+ * Wall style.
+ * @param RP
+ * Random map parameters.
+ */
 void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP)
 {
     char styledirname[256], stylefilepath[256];
@@ -214,7 +232,7 @@ void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP)
                     /* Make SURE it's a wall */
                     SET_FLAG(thiswall, FLAG_NO_PASS);
 
-                    insert_ob_in_map(thiswall, map, thiswall, INS_NO_MERGE | INS_NO_WALK_ON);
+                    object_insert_map(thiswall, map, thiswall, INS_NO_MERGE | INS_NO_WALK_ON);
                 }
             }
         }
@@ -226,9 +244,13 @@ void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP)
  * have everything nicely joined.
  *
  * It uses the layout.
- * @param the_wall Wall we want to insert.
- * @param RP Random map parameters.
- * @return Correct wall archetype to fit on the square. */
+ * @param the_wall
+ * Wall we want to insert.
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Correct wall archetype to fit on the square.
+ */
 object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms *RP)
 {
     int surround_index = 0, l;
@@ -299,11 +321,15 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
 /**
  * This takes a map, and changes an existing wall to match what's blocked
  * around it, counting only doors and walls as blocked.
- * @param insert_flag If 1, insert the correct wall into the map,
+ * @param insert_flag
+ * If 1, insert the correct wall into the map,
  * otherwise don't insert.
- * @param RP Random map parameters.
- * @return Correct wall for spot.
- * @todo Merge with pick_joined_wall()? */
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Correct wall for spot.
+ * @todo Merge with pick_joined_wall()?
+ */
 object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP)
 {
     int surround_index = 0, l;
@@ -388,7 +414,7 @@ object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, 
 
         /* Make SURE it's a wall */
         SET_FLAG(new_wall, FLAG_NO_PASS);
-        insert_ob_in_map(new_wall, the_map, new_wall, INS_NO_MERGE | INS_NO_WALK_ON);
+        object_insert_map(new_wall, the_map, new_wall, INS_NO_MERGE | INS_NO_WALK_ON);
     }
 
     return new_wall;

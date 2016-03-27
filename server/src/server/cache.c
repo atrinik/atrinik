@@ -51,7 +51,8 @@
  * memory,
  *    // since CACHE_FLAG_AUTOFREE was set.
  *    cache_remove(find_string("cache_test"));
- * @endcode */
+ * @endcode
+ */
 
 #include <global.h>
 #include <plugin.h>
@@ -62,7 +63,8 @@ static cache_struct *cache = NULL;
 static size_t num_cache = 0;
 
 /**
- * Comparison function for binary search in cache_find(). */
+ * Comparison function for binary search in cache_find().
+ */
 static int cache_compare(const void *one, const void *two)
 {
     const cache_struct *one_cache = one;
@@ -85,8 +87,11 @@ static int cache_compare(const void *one, const void *two)
 
 /**
  * Attempt to find a cache entry, identified by 'key'.
- * @param key Cache entry to find.
- * @return Pointer to the cache entry, NULL if there is no such entry. */
+ * @param key
+ * Cache entry to find.
+ * @return
+ * Pointer to the cache entry, NULL if there is no such entry.
+ */
 cache_struct *cache_find(shstr *key)
 {
     cache_struct bkey;
@@ -103,11 +108,16 @@ cache_struct *cache_find(shstr *key)
 
 /**
  * Add an entry to the cache.
- * @param key Unique identified for the cache entry.
- * @param ptr Pointer to store; must not be freed.
- * @param flags A combination of @ref CACHE_FLAG_xxx.
- * @return 1 on success, 0 on failure (NULL ptr, or cache entry with name
- * 'key' already exists). */
+ * @param key
+ * Unique identified for the cache entry.
+ * @param ptr
+ * Pointer to store; must not be freed.
+ * @param flags
+ * A combination of @ref CACHE_FLAG_xxx.
+ * @return
+ * 1 on success, 0 on failure (NULL ptr, or cache entry with name
+ * 'key' already exists).
+ */
 int cache_add(const char *key, void *ptr, uint32_t flags)
 {
     size_t i, ii;
@@ -149,8 +159,11 @@ int cache_add(const char *key, void *ptr, uint32_t flags)
 
 /**
  * Remove a cache entry identified by 'key'.
- * @param key What cache entry to remove.
- * @return 1 on success, 0 on failure (cache entry not found). */
+ * @param key
+ * What cache entry to remove.
+ * @return
+ * 1 on success, 0 on failure (cache entry not found).
+ */
 int cache_remove(shstr *key)
 {
     cache_struct *entry = cache_find(key);
@@ -187,7 +200,8 @@ int cache_remove(shstr *key)
 }
 
 /**
- * Remove all cache entries. */
+ * Remove all cache entries.
+ */
 void cache_remove_all(void)
 {
     /* Keep removing until there's nothing left. */
@@ -202,7 +216,9 @@ void cache_remove_all(void)
 
 /**
  * Remove all cache entries identified by (a combination of) 'flags'.
- * @param flags One or a combination of @ref CACHE_FLAG_xxx. */
+ * @param flags
+ * One or a combination of @ref CACHE_FLAG_xxx.
+ */
 void cache_remove_by_flags(uint32_t flags)
 {
     size_t i;

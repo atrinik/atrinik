@@ -12,4 +12,6 @@ material 8
 material_real 193
 weight 1750
 value 350
+block 1
+absorb 2
 end

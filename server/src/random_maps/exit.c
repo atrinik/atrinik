@@ -24,22 +24,28 @@
 
 /**
  * @file
- * Handle exit placement in map. */
+ * Handle exit placement in map.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
  * Find a character in the layout.
- * @param mode How to look:
+ * @param mode
+ * How to look:
  * - <b>1</b>: From top/left to bottom/right.
  * - <b>2</b>: From top/right to bottom/left.
  * - <b>3</b>: From bottom/left to top/right.
  * - <b>4</b>: From bottom/right to top/left.
  * - <b>Other</b>: One random order is chosen.
- * @param target Character to search.
- * @param layout Maze layout.
- * @param RP Random map parameters. */
+ * @param target
+ * Character to search.
+ * @param layout
+ * Maze layout.
+ * @param RP
+ * Random map parameters.
+ */
 void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMParms *RP)
 {
     int M, x, y;
@@ -130,16 +136,22 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
 
 /**
  * Place exits in the map.
- * @param map Map to put exits into.
- * @param maze Map layout.
- * @param exitstyle What style to use. If NULL uses a random one.
- * @param orientation How exits should be oriented:
+ * @param map
+ * Map to put exits into.
+ * @param maze
+ * Map layout.
+ * @param exitstyle
+ * What style to use. If NULL uses a random one.
+ * @param orientation
+ * How exits should be oriented:
  * - <b>0</b>: Random.
  * - <b>1</b>: Descending dungeon.
  * - <b>2</b>: Ascending dungeon.
- * @param RP Random map parameters.
+ * @param RP
+ * Random map parameters.
  * @note unblock_exits() should be called at some point, as exits will be
- * blocking everything to avoid putting other objects on them. */
+ * blocking everything to avoid putting other objects on them.
+ */
 void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, RMParms *RP)
 {
     mapstruct *style_map_down = NULL, *style_map_up = NULL;
@@ -252,13 +264,13 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 
             snprintf(buf, sizeof(buf), "This is a random map.\nLevel: %d\n", RP->dungeon_level);
             FREE_AND_COPY_HASH(random_sign->msg, buf);
-            insert_ob_in_map(random_sign, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(random_sign, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
         }
     }
 
     /* Block the exit so things don't get dumped on top of it. */
     SET_FLAG(the_exit_up, FLAG_NO_PASS);
-    insert_ob_in_map(the_exit_up, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+    object_insert_map(the_exit_up, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
     maze[the_exit_up->x][the_exit_up->y] = '<';
 
     /* Set the starting x, y for this map */
@@ -307,8 +319,8 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     }
 
     if (the_exit_down != NULL) {
-        int i = find_first_free_spot(the_exit_down->arch, NULL, map, downx,
-                downy);
+        int i = map_free_spot_first(map, downx,
+                downy, the_exit_down->arch, NULL);
         if (i == -1) {
             LOG(ERROR, "Could not find a free spot for exit going down.");
             the_exit_down = NULL;
@@ -358,7 +370,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
             the_exit_back->x = MAP_ENTER_X(new_map);
             the_exit_back->y = MAP_ENTER_Y(new_map);
 
-            insert_ob_in_map(the_exit_back, new_map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(the_exit_back, new_map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
 
             /* So it gets swapped out */
             set_map_timeout(new_map);
@@ -375,7 +387,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
         /* Block the exit so things don't get dumped on top of it. */
         SET_FLAG(the_exit_down, FLAG_NO_PASS);
 
-        insert_ob_in_map(the_exit_down, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+        object_insert_map(the_exit_down, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
 
         maze[the_exit_down->x][the_exit_down->y] = '>';
     }
@@ -384,9 +396,13 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 /**
  * This function unblocks the exits. We blocked them to keep things from
  * being dumped on them during the other phases of random map generation.
- * @param map Map to alter.
- * @param maze Map layout.
- * @param RP Random map parameters. */
+ * @param map
+ * Map to alter.
+ * @param maze
+ * Map layout.
+ * @param RP
+ * Random map parameters.
+ */
 void unblock_exits(mapstruct *map, char **maze, RMParms *RP)
 {
     int x, y;
@@ -398,7 +414,7 @@ void unblock_exits(mapstruct *map, char **maze, RMParms *RP)
                 for (walk = GET_MAP_OB(map, x, y); walk != NULL; walk = walk->above) {
                     if (QUERY_FLAG(walk, FLAG_NO_PASS) && walk->type != DOOR) {
                         CLEAR_FLAG(walk, FLAG_NO_PASS);
-                        update_object(walk, UP_OBJ_FLAGS);
+                        object_update(walk, UP_OBJ_FLAGS);
                     }
                 }
             }

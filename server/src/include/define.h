@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
@@ -32,7 +33,8 @@
  * around, this file should be better split between them - things
  * that deal with objects should be in objects.h, things dealing
  * with players in player.h, etc. As it is, everything just seems
- * to be dumped in here. */
+ * to be dumped in here.
+ */
 
 #ifndef DEFINE_H
 #define DEFINE_H
@@ -129,331 +131,424 @@
  * 46, 24.
  *@{*/
 /**
- * The object is a player object. */
+ * The object is a player object.
+ */
 #define PLAYER 1
 /**
- * A fired spell bullet. */
+ * A fired spell bullet.
+ */
 #define BULLET 2
 /**
- * Rod. */
+ * Rod.
+ */
 #define ROD 3
 /**
- * An object that will generate treasure. */
+ * An object that will generate treasure.
+ */
 #define TREASURE 4
 /**
- * Potion. */
+ * Potion.
+ */
 #define POTION 5
 /**
- * Food. */
+ * Food.
+ */
 #define FOOD 6
 /**
  * Region map.
  */
 #define REGION_MAP 7
 /**
- * Book. */
+ * Book.
+ */
 #define BOOK 8
 /**
- * Clock. Shows the in-game time. */
+ * Clock. Shows the in-game time.
+ */
 #define CLOCK 9
 /**
- * Material used for the construction skill. */
+ * Material used for the construction skill.
+ */
 #define MATERIAL 10
 /**
- * Duplicator. */
+ * Duplicator.
+ */
 #define DUPLICATOR 11
 /**
- * Lightning. */
+ * Lightning.
+ */
 #define LIGHTNING 12
 /**
- * An arrow. */
+ * An arrow.
+ */
 #define ARROW 13
 /**
- * Bow. */
+ * Bow.
+ */
 #define BOW 14
 /**
- * Weapon. */
+ * Weapon.
+ */
 #define WEAPON 15
 /**
- * Armour. */
+ * Armour.
+ */
 #define ARMOUR 16
 /**
- * Pedestal. */
+ * Pedestal.
+ */
 #define PEDESTAL 17
 /**
- * Confusion force. */
+ * Confusion force.
+ */
 #define CONFUSION 19
 /**
- * Door. */
+ * Door.
+ */
 #define DOOR 20
 /**
- * Key to unlock @ref DOOR "a locked door". */
+ * Key to unlock @ref DOOR "a locked door".
+ */
 #define KEY 21
 /**
  * Map object. Used internally.
  */
 #define MAP 22
 /**
- * A magic mirror which allows you to see objects on a different coordinate. */
+ * A magic mirror which allows you to see objects on a different coordinate.
+ */
 #define MAGIC_MIRROR 28
 /**
- * Spell information object. */
+ * Spell information object.
+ */
 #define SPELL 29
 /**
- * Shield. */
+ * Shield.
+ */
 #define SHIELD 33
 /**
- * Helmet. */
+ * Helmet.
+ */
 #define HELMET 34
 /**
- * Pants. */
+ * Pants.
+ */
 #define PANTS 35
 /**
- * Money (copper, silver, etc). */
+ * Money (copper, silver, etc).
+ */
 #define MONEY 36
 /**
- * Object for applying character class modifications to someone. */
-#define CLASS 37
-/**
- * Objects that appear on place of player's death. */
-#define GRAVESTONE 38
-/**
- * An amulet. */
+ * An amulet.
+ */
 #define AMULET 39
 /**
- * Player mover. */
+ * Player mover.
+ */
 #define PLAYER_MOVER 40
 /**
- * Creator object. */
+ * Creator object.
+ */
 #define CREATOR 42
 /**
- * Skill object. */
+ * Skill object.
+ */
 #define SKILL 43
 /**
- * An experience object. */
+ * An experience object.
+ */
 #define EXPERIENCE 44
 /*
  * A trinket.
  */
 #define TRINKET 45
 /**
- * Blindness force object. */
+ * Blindness force object.
+ */
 #define BLINDNESS 49
 /**
- * God. */
+ * God.
+ */
 #define GOD 50
 /**
  * Detector is an object which notices the presence of another object and
- * is triggered like buttons. */
+ * is triggered like buttons.
+ */
 #define DETECTOR 51
 /**
- * Item required to be equipped in order to use a skill. */
+ * Item required to be equipped in order to use a skill.
+ */
 #define SKILL_ITEM 52
 /**
- * Players become a DEAD_OBJECT when they logout. */
+ * Players become a DEAD_OBJECT when they logout.
+ */
 #define DEAD_OBJECT 53
 /**
- * Drink. */
+ * Drink.
+ */
 #define DRINK 54
 /**
  * Inserts an invisible, weightless force into a player with a specified
- * string. */
+ * string.
+ */
 #define MARKER 55
 /**
- * Holy altar. */
+ * Holy altar.
+ */
 #define HOLY_ALTAR 56
 /**
- * Pearl. */
+ * Pearl.
+ */
 #define PEARL 59
 /**
- * Gem. */
+ * Gem.
+ */
 #define GEM 60
 /**
- * Ambient sound effect. */
+ * Ambient sound effect.
+ */
 #define SOUND_AMBIENT 61
 /**
- * Fire wall. */
+ * Fire wall.
+ */
 #define FIREWALL 62
 /**
- * Inventory checker. */
+ * Inventory checker.
+ */
 #define CHECK_INV 64
 /**
- * Stairs, holes, portals, etc. */
+ * Stairs, holes, portals, etc.
+ */
 #define EXIT 66
 /**
- * Shop floor. */
+ * Shop floor.
+ */
 #define SHOP_FLOOR 68
 /**
- * A ring. */
+ * A ring.
+ */
 #define RING 70
 /**
- * This is a floor tile. */
+ * This is a floor tile.
+ */
 #define FLOOR 71
 /**
- * Animal body parts. */
+ * Animal body parts.
+ */
 #define FLESH 72
 /**
- * Metals and minerals. */
+ * Metals and minerals.
+ */
 #define INORGANIC 73
 /**
- * Light source for players - torch, lantern, etc. */
+ * Light source for players - torch, lantern, etc.
+ */
 #define LIGHT_APPLY 74
 /**
- * This is a wall. */
+ * This is a wall.
+ */
 #define WALL 77
 /**
- * Light source on a map (invisible light). */
+ * Light source on a map (invisible light).
+ */
 #define LIGHT_SOURCE 78
 /**
  * Miscellaneous objects are for objects without a function in the
- * engine, like statues, clocks, chairs, etc. */
+ * engine, like statues, clocks, chairs, etc.
+ */
 #define MISC_OBJECT 79
 /**
- * A real living creature. */
+ * A real living creature.
+ */
 #define MONSTER 80
 /**
- * A spawn point object. */
+ * A spawn point object.
+ */
 #define SPAWN_POINT 81
 /**
- * Refilling item for @ref LIGHT_APPLY. */
+ * Refilling item for @ref LIGHT_APPLY.
+ */
 #define LIGHT_REFILL 82
 /**
- * Monster inside a spawn point. */
+ * Monster inside a spawn point.
+ */
 #define SPAWN_POINT_MOB 83
 /**
- * Used to find spawn point where monster came from. */
+ * Used to find spawn point where monster came from.
+ */
 #define SPAWN_POINT_INFO 84
 /**
  * Spell book.
  */
 #define BOOK_SPELL 85
 /**
- * Body parts which can't be eaten - dragon scales for example */
+ * Body parts which can't be eaten - dragon scales for example
+ */
 #define ORGANIC 86
 /**
- * A cloak. */
+ * A cloak.
+ */
 #define CLOAK 87
 /**
- * Cone spell. */
+ * Cone spell.
+ */
 #define CONE 88
 /**
- * Spinner. */
+ * Spinner.
+ */
 #define SPINNER 90
 /**
- * Gate. */
+ * Gate.
+ */
 #define GATE 91
 /**
- * Button. */
+ * Button.
+ */
 #define BUTTON 92
 /**
- * Handle. */
+ * Handle.
+ */
 #define TYPE_HANDLE 93
 /**
- * Special force for word of recall. */
+ * Special force for word of recall.
+ */
 #define WORD_OF_RECALL 96
 /**
- * Sign. */
+ * Sign.
+ */
 #define SIGN 98
 /**
- * Boots. */
+ * Boots.
+ */
 #define BOOTS 99
 /**
- * Gloves. */
+ * Gloves.
+ */
 #define GLOVES 100
 /**
- * This object holds the real base stats of monsters. */
+ * This object holds the real base stats of monsters.
+ */
 #define BASE_INFO 101
 /**
  * Only used for spawn point monsters:
  *
  * If found inside the monster, there is a random chance based on the
  * object's weight limit to drop the object's inventory into the
- * monster. */
+ * monster.
+ */
 #define RANDOM_DROP 102
 /**
- * Bracers. */
+ * Bracers.
+ */
 #define BRACERS 104
 /**
- * Poison force. */
+ * Poison force.
+ */
 #define POISONING 105
 /**
- * A savebed. */
+ * A savebed.
+ */
 #define SAVEBED 106
 /**
- * Wand. */
+ * Wand.
+ */
 #define WAND 109
 /**
- * Ability. */
+ * Ability.
+ */
 #define ABILITY 110
 /**
- * Scroll. */
+ * Scroll.
+ */
 #define SCROLL 111
 /**
- * Director. */
+ * Director.
+ */
 #define DIRECTOR 112
 /**
- * Girdle. */
+ * Girdle.
+ */
 #define GIRDLE 113
 /**
- * A generic force object. */
+ * A generic force object.
+ */
 #define FORCE 114
 /**
- * A force, holding the effect of a potion. */
+ * A force, holding the effect of a potion.
+ */
 #define POTION_EFFECT 115
 /**
- * A jewel. */
+ * A jewel.
+ */
 #define JEWEL 116
 /**
- * Nugget. */
+ * Nugget.
+ */
 #define NUGGET 117
 /**
- * Event/script object. */
+ * Event/script object.
+ */
 #define EVENT_OBJECT 118
 /**
- * Waypoint object. */
+ * Waypoint object.
+ */
 #define WAYPOINT_OBJECT 119
 /**
- * Used to store quest information in players. */
+ * Used to store quest information in players.
+ */
 #define QUEST_CONTAINER 120
 /**
- * A container. */
+ * A container.
+ */
 #define CONTAINER 122
 /**
  * This is a raw wealth object. When generated it's transformed into real
- * money depending on the environment where it's generated. */
+ * money depending on the environment where it's generated.
+ */
 #define WEALTH 125
 /**
- * A beacon. */
+ * A beacon.
+ */
 #define BEACON 126
 /**
- * Map event object. */
+ * Map event object.
+ */
 #define MAP_EVENT_OBJ 127
 /**
- * Compass. */
+ * Compass.
+ */
 #define COMPASS 151
 /**
- * Map information object. */
+ * Map information object.
+ */
 #define MAP_INFO 152
 /**
- * A swarm spell. */
+ * A swarm spell.
+ */
 #define SWARM_SPELL 153
 /**
- * Rune. */
+ * Rune.
+ */
 #define RUNE 154
 /**
- * Client map information. */
+ * Client map information.
+ */
 #define CLIENT_MAP_INFO 155
 /**
- * Power crystal. */
+ * Power crystal.
+ */
 #define POWER_CRYSTAL 156
 /**
- * Corpse. */
+ * Corpse.
+ */
 #define CORPSE 157
 /**
- * Disease. */
+ * Disease.
+ */
 #define DISEASE 158
 /**
- * Disease symptom. */
+ * Disease symptom.
+ */
 #define SYMPTOM 159
 
 #define OBJECT_TYPE_MAX 160
@@ -636,32 +731,40 @@
 
 /**
  * Set flag of of an object.
- * @param xyz The object
- * @param p The flag to set
+ * @param xyz
+ * The object
+ * @param p
+ * The flag to set
  */
 #define SET_FLAG(xyz, p) \
     BIT_SET((xyz)->flags[p / 32], p % 32)
 
 /**
  * Clear flag of an object.
- * @param xyz The object
- * @param p The flag to clear
+ * @param xyz
+ * The object
+ * @param p
+ * The flag to clear
  */
 #define CLEAR_FLAG(xyz, p) \
     BIT_CLEAR((xyz)->flags[p / 32], p % 32)
 
 /**
  * Query flag of an object.
- * @param xyz The object
- * @param p The flag to query
+ * @param xyz
+ * The object
+ * @param p
+ * The flag to query
  */
 #define QUERY_FLAG(xyz, p) \
     BIT_QUERY((xyz)->flags[p / 32], p % 32)
 
 /**
  * Flip flag of an object.
- * @param xyz The object.
- * @param p The flag to flip.
+ * @param xyz
+ * The object.
+ * @param p
+ * The flag to flip.
  */
 #define FLIP_FLAG(xyz, p) \
     BIT_FLIP((xyz)->flags[p / 32], p % 32)
@@ -669,9 +772,12 @@
 /**
  * Utility macro to set or clear an object's flag depending on whether the cond
  * evaluates to true or false.
- * @param op Object to set or clear the flag for
- * @param flag The flag we're setting/clearing
- * @param cond If true, will set the flag, will clear otherwise.
+ * @param op
+ * Object to set or clear the flag for
+ * @param flag
+ * The flag we're setting/clearing
+ * @param cond
+ * If true, will set the flag, will clear otherwise.
  */
 #define CHANGE_FLAG(op, flag, cond) \
     BIT_CHANGE((op)->flags[flag / 32], flag % 32, cond)
@@ -751,141 +857,184 @@
  * @warning
  * The first 8 bit are used from the map2 cmd as direct mapped data.
  * The order must stay as it is here!
- * @{*/
+ * @{
+ */
 /**
  * Monster is sleeping. While active, the monster's visibility range is
- * reduced. */
+ * reduced.
+ */
 #define FLAG_SLEEP 0
 /**
- * Confused. Random direction when moving. */
+ * Confused. Random direction when moving.
+ */
 #define FLAG_CONFUSED 1
 /**
- * Paralyzed, cannot do various movement-related actions. */
+ * Paralyzed, cannot do various movement-related actions.
+ */
 #define FLAG_PARALYZED 2
 /**
- * Monster is scared. */
+ * Monster is scared.
+ */
 #define FLAG_SCARED 3
 /**
- * Object cannot see the map with eyes, and cannot read books/scrolls/etc. */
+ * Object cannot see the map with eyes, and cannot read books/scrolls/etc.
+ */
 #define FLAG_BLIND 4
 /**
- * Can only be see by objects with @ref FLAG_SEE_INVISIBLE. */
+ * Can only be see by objects with @ref FLAG_SEE_INVISIBLE.
+ */
 #define FLAG_IS_INVISIBLE 5
 /**
- * Object is ethereal. */
+ * Object is ethereal.
+ */
 #define FLAG_IS_ETHEREAL 6
 /**
- * Alignment flag. */
+ * Alignment flag.
+ */
 #define FLAG_IS_GOOD 7
 /**
- * Object can't be picked up. */
+ * Object can't be picked up.
+ */
 #define FLAG_NO_PICK 8
 /**
- * Applied when it's walked upon. */
+ * Applied when it's walked upon.
+ */
 #define FLAG_WALK_ON 9
 /**
- * Nothing can pass. */
+ * Nothing can pass.
+ */
 #define FLAG_NO_PASS 10
 /**
- * The object is animated. */
+ * The object is animated.
+ */
 #define FLAG_ANIMATE 11
 /**
- * Uses the living::exp to slow down movement. */
+ * Uses the living::exp to slow down movement.
+ */
 #define FLAG_SLOW_MOVE 12
 /** The object is flying. */
 #define FLAG_FLYING 13
 /**
- * The object is a monster, golem, etc. */
+ * The object is a monster, golem, etc.
+ */
 #define FLAG_MONSTER 14
 /**
- * The monster is friendly and will not attack other friendly objects. */
+ * The monster is friendly and will not attack other friendly objects.
+ */
 #define FLAG_FRIENDLY 15
 /**
- * Object is not in any map or inventory. */
+ * Object is not in any map or inventory.
+ */
 #define FLAG_REMOVED 16
 /**
- * The object has been applied before. */
+ * The object has been applied before.
+ */
 #define FLAG_BEEN_APPLIED 17
 /**
- * Will be applied when created (treasure chest for example). */
+ * Will be applied when created (treasure chest for example).
+ */
 #define FLAG_AUTO_APPLY 18
 /**
- * Neutrally aligned object. */
+ * Neutrally aligned object.
+ */
 #define FLAG_IS_NEUTRAL 20
 /**
- * Can see invisible objects. */
+ * Can see invisible objects.
+ */
 #define FLAG_SEE_INVISIBLE 21
 /**
- * Object can be pushed. */
+ * Object can be pushed.
+ */
 #define FLAG_CAN_ROLL 22
 /**
  * If set and when connected object is triggered, the object will have
  * the connection reset, so it doesn't need to wait for object that
- * triggered the connection to move off. */
+ * triggered the connection to move off.
+ */
 #define FLAG_CONNECT_RESET 23
 /**
- * Object will change face with direction. */
+ * Object will change face with direction.
+ */
 #define FLAG_IS_TURNABLE 24
 /**
- * Object is applied when left. */
+ * Object is applied when left.
+ */
 #define FLAG_WALK_OFF 25
 /**
- * Object is applied when flying object enters the tile. */
+ * Object is applied when flying object enters the tile.
+ */
 #define FLAG_FLY_ON 26
 /**
- * Object is applied when flying object leaves the tile. */
+ * Object is applied when flying object leaves the tile.
+ */
 #define FLAG_FLY_OFF 27
 /**
- * The object will be removed when object::food reaches 0. */
+ * The object will be removed when object::food reaches 0.
+ */
 #define FLAG_IS_USED_UP 28
 /**
- * The object is identified. */
+ * The object is identified.
+ */
 #define FLAG_IDENTIFIED 29
 /**
- * Object reflects from walls (lightning, missiles). */
+ * Object reflects from walls (lightning, missiles).
+ */
 #define FLAG_REFLECTING 30
 /**
- * Changes to other_arch when anim is done. */
+ * Changes to other_arch when anim is done.
+ */
 #define FLAG_CHANGING 31
 
 /* Start of values in flags[1] */
 
 /**
  * Object splits into stats.food other objs.
- * @todo Remove? */
+ * @todo Remove?
+ */
 #define FLAG_SPLITTING 32
 /**
- * Object will hit back when hit. */
+ * Object will hit back when hit.
+ */
 #define FLAG_HITBACK 33
 /**
- * Object will disappear when dropped. */
+ * Object will disappear when dropped.
+ */
 #define FLAG_STARTEQUIP 34
 /**
- * Object blocks view. */
+ * Object blocks view.
+ */
 #define FLAG_BLOCKSVIEW 35
 /**
- * Monster is undead. */
+ * Monster is undead.
+ */
 #define FLAG_UNDEAD 36
 /**
- * The object can stack. */
+ * The object can stack.
+ */
 #define FLAG_CAN_STACK 37
 /**
- * Monster doesn't attack enemies, only if it's attacked first. */
+ * Monster doesn't attack enemies, only if it's attacked first.
+ */
 #define FLAG_UNAGGRESSIVE 38
 /**
- * Object will reflect missiles. */
+ * Object will reflect missiles.
+ */
 #define FLAG_REFL_MISSILE 39
 /**
- * Object will reflect spells. */
+ * Object will reflect spells.
+ */
 #define FLAG_REFL_SPELL 40
 /**
- * Wizard-like spells cannot pass this tile. */
+ * Wizard-like spells cannot pass this tile.
+ */
 #define FLAG_NO_MAGIC 41
 /**
- * living_update() won't be called. */
+ * living_update() won't be called.
+ */
 #define FLAG_NO_FIX_PLAYER 42
 /**
- * The object is evil. */
+ * The object is evil.
+ */
 #define FLAG_IS_EVIL 43
 /**
  * The object is soulbound to the player.
@@ -893,232 +1042,302 @@
 #define FLAG_SOULBOUND 44
 /**
  * Object runs away from nearest player but can still attack
- * from distance. */
+ * from distance.
+ */
 #define FLAG_RUN_AWAY 45
 /**
  * Objects with can_pass_thru can pass through this object as if it
- * wasn't there. */
+ * wasn't there.
+ */
 #define FLAG_PASS_THRU 46
 /**
- * Object can pass through objects with @ref FLAG_PASS_THRU set. */
+ * Object can pass through objects with @ref FLAG_PASS_THRU set.
+ */
 #define FLAG_CAN_PASS_THRU 47
 /**
- * Outdoor tile. */
+ * Outdoor tile.
+ */
 #define FLAG_OUTDOOR 48
 /**
- * Item is unique. */
+ * Item is unique.
+ */
 #define FLAG_UNIQUE 49
 /**
- * Object can't be dropped. */
+ * Object can't be dropped.
+ */
 #define FLAG_NO_DROP 50
 /**
- * The item cannot be damaged. */
+ * The item cannot be damaged.
+ */
 #define FLAG_INDESTRUCTIBLE 51
 /**
- * Monster can cast spells. */
+ * Monster can cast spells.
+ */
 #define FLAG_CAST_SPELL 52
 /**
- * Item requires two hands to wield. */
+ * Item requires two hands to wield.
+ */
 #define FLAG_TWO_HANDED 54
 /**
- * Monster can fire bows. */
+ * Monster can fire bows.
+ */
 #define FLAG_USE_BOW 55
 /**
- * Monster can wear armour like shields, plate mails, helms, etc. */
+ * Monster can wear armour like shields, plate mails, helms, etc.
+ */
 #define FLAG_USE_ARMOUR 56
 /**
- * Monster can wield weapons. */
+ * Monster can wield weapons.
+ */
 #define FLAG_USE_WEAPON 57
 /**
- * Connected object is not activated when 'pushed'. */
+ * Connected object is not activated when 'pushed'.
+ */
 #define FLAG_CONNECT_NO_PUSH 58
 /**
- * Connected object is not activated when 'released'. */
+ * Connected object is not activated when 'released'.
+ */
 #define FLAG_CONNECT_NO_RELEASE 59
 /**
- * Monster has a readied bow. */
+ * Monster has a readied bow.
+ */
 #define FLAG_READY_BOW 60
 /**
- * X-ray vision. */
+ * X-ray vision.
+ */
 #define FLAG_XRAYS 61
 /**
- * Avoids walk_on/fly_on events for this object. */
+ * Avoids walk_on/fly_on events for this object.
+ */
 #define FLAG_NO_APPLY 62
 /**
- * The object is a floor. */
+ * The object is a floor.
+ */
 #define FLAG_IS_FLOOR 63
 
 /* Start of values in flags[2] */
 
 /**
- * Saves a player's life once, then destructs itself. */
+ * Saves a player's life once, then destructs itself.
+ */
 #define FLAG_LIFESAVE 64
 /**
- * Item is magical. */
+ * Item is magical.
+ */
 #define FLAG_IS_MAGICAL 65
 /**
- * Monster will never, ever move. */
+ * Monster will never, ever move.
+ */
 #define FLAG_STAND_STILL 67
 /**
- * Monster will move randomly. */
+ * Monster will move randomly.
+ */
 #define FLAG_RANDOM_MOVE 68
 /**
- * Monster will evaporate if there is no enemy. */
+ * Monster will evaporate if there is no enemy.
+ */
 #define FLAG_ONLY_ATTACK 69
 /**
  * Allows players to pass quietly past monsters, with less chance of
- * the monsters noticing the player. */
+ * the monsters noticing the player.
+ */
 #define FLAG_STEALTH 71
 /**
- * The object is linked with other objects. */
+ * The object is linked with other objects.
+ */
 #define FLAG_IS_LINKED 73
 /**
- * The object is cursed. */
+ * The object is cursed.
+ */
 #define FLAG_CURSED 74
 /**
- * The object is _very_ cursed. */
+ * The object is _very_ cursed.
+ */
 #define FLAG_DAMNED 75
 /**
- * Used for floor: is the floor buildable? */
+ * Used for floor: is the floor buildable?
+ */
 #define FLAG_IS_BUILDABLE 76
 /**
- * PvP is disabled on the tile this object is on. */
+ * PvP is disabled on the tile this object is on.
+ */
 #define FLAG_NO_PVP 77
 /**
- * Object is designed to be thrown. */
+ * Object is designed to be thrown.
+ */
 #define FLAG_IS_THROWN 80
 /**
- * Object is male. */
+ * Object is male.
+ */
 #define FLAG_IS_MALE 83
 /**
- * Object is female. */
+ * Object is female.
+ */
 #define FLAG_IS_FEMALE 84
 /**
- * Object is ready for use by living objects. */
+ * Object is ready for use by living objects.
+ */
 #define FLAG_APPLIED 85
 /**
- * Item will not be dropped from inventory. */
+ * Item will not be dropped from inventory.
+ */
 #define FLAG_INV_LOCKED 86
 /**
- * Player has a weapon readied. */
+ * Player has a weapon readied.
+ */
 #define FLAG_READY_WEAPON 90
 /**
- * If set, won't get exp for reading the book. */
+ * If set, won't get exp for reading the book.
+ */
 #define FLAG_NO_SKILL_IDENT 91
 /**
- * If set object can see even in darkness. */
+ * If set object can see even in darkness.
+ */
 #define FLAG_SEE_IN_DARK 93
 /**
- * Container can make alchemical stuff. */
+ * Container can make alchemical stuff.
+ */
 #define FLAG_IS_CAULDRON 94
 /**
- * Item is a powder. */
+ * Item is a powder.
+ */
 #define FLAG_DUST 95
 
 /* Start of values in flags[3] */
 
 /**
- * Monster can only hit once, then evaporates. */
+ * Monster can only hit once, then evaporates.
+ */
 #define FLAG_ONE_HIT 97
 /**
- * Always draw the object twice. */
+ * Always draw the object twice.
+ */
 #define FLAG_DRAW_DOUBLE_ALWAYS 98
 /**
- * Monster will attack closest living object, even friends. */
+ * Monster will attack closest living object, even friends.
+ */
 #define FLAG_BERSERK 99
 /**
- * Object will never attack. */
+ * Object will never attack.
+ */
 #define FLAG_NO_ATTACK 100
 /**
- * Monster can't be killed, and enemies will not consider it for attacking. */
+ * Monster can't be killed, and enemies will not consider it for attacking.
+ */
 #define FLAG_INVULNERABLE 101
 /**
- * Special quest object. */
+ * Special quest object.
+ */
 #define FLAG_QUEST_ITEM 102
 /**
  * Object is trapped, ie, there is a known trap inside the object's
  * inventory. Used for map and below inventory, to mark containers
- * like corpses where player found traps. */
+ * like corpses where player found traps.
+ */
 #define FLAG_IS_TRAPPED 103
 /**
- * The object cannot be seen by anyone except DMs. */
+ * The object cannot be seen by anyone except DMs.
+ */
 #define FLAG_SYS_OBJECT 110
 /**
- * When putting an object on map, do it exactly on position. */
+ * When putting an object on map, do it exactly on position.
+ */
 #define FLAG_USE_FIX_POS 111
 /**
- * Object hasn't been paid for yet. */
+ * Object hasn't been paid for yet.
+ */
 #define FLAG_UNPAID 112
 /**
- * The object cannot be seen even with @ref FLAG_SEE_INVISIBLE. */
+ * The object cannot be seen even with @ref FLAG_SEE_INVISIBLE.
+ */
 #define FLAG_HIDDEN 113
 /**
- * Makes the wearer invisible. */
+ * Makes the wearer invisible.
+ */
 #define FLAG_MAKE_INVISIBLE 114
 /**
- * Makes the wearer ethereal. */
+ * Makes the wearer ethereal.
+ */
 #define FLAG_MAKE_ETHEREAL 115
 /**
- * Object is a player. */
+ * Object is a player.
+ */
 #define FLAG_IS_PLAYER 116
 /**
  * Object name is "unique"- for artifacts like Stormbringer.
  *
  * Unique objects don't have a race or material (no "elven iron Stormbringer")
- * */
+ *
+ */
 #define FLAG_IS_NAMED 117
 /**
  * Monsters with this flag are created by spawn point and have a spawn
- * info object inside inventory. */
+ * info object inside inventory.
+ */
 #define FLAG_SPAWN_MOB 118
 /**
  * Objects with this flag will not be teleported by teleporters unless
- * they are in inventory of an object without this flag. */
+ * they are in inventory of an object without this flag.
+ */
 #define FLAG_NO_TELEPORT 119
 /**
- * If set, this monster will drop a corpse. */
+ * If set, this monster will drop a corpse.
+ */
 #define FLAG_CORPSE 120
 /**
  * Force a corpse, even if the object that killed the monster was too
- * high level for any experience. */
+ * high level for any experience.
+ */
 #define FLAG_CORPSE_FORCED 121
 /**
- * Only players can enter the tile with object that has this flag. */
+ * Only players can enter the tile with object that has this flag.
+ */
 #define FLAG_PLAYER_ONLY 122
 /**
  * One drop item. Used for quests, where the quest item with this flag
- * set will never drop more than once for one player. */
+ * set will never drop more than once for one player.
+ */
 #define FLAG_ONE_DROP 124
 /**
- * Object is permanently cursed. */
+ * Object is permanently cursed.
+ */
 #define FLAG_PERM_CURSED 125
 /**
- * Object is permanently damned. */
+ * Object is permanently damned.
+ */
 #define FLAG_PERM_DAMNED 126
 /**
- * The object is a closer door. */
+ * The object is a closer door.
+ */
 #define FLAG_DOOR_CLOSED 127
 /**
- * Object is a spell. */
+ * Object is a spell.
+ */
 #define FLAG_IS_SPELL 128
 /**
- * Object is a missile. */
+ * Object is a missile.
+ */
 #define FLAG_IS_MISSILE 129
 /**
- * The object is shown based on its direction and the player's position. */
+ * The object is shown based on its direction and the player's position.
+ */
 #define FLAG_DRAW_DIRECTION 130
 /**
- * The object is drawn twice. */
+ * The object is drawn twice.
+ */
 #define FLAG_DRAW_DOUBLE 131
 /**
  * If this and slaying field is set, the object does 2.25 times more damage
- * to race that of the 'slaying' field. */
+ * to race that of the 'slaying' field.
+ */
 #define FLAG_IS_ASSASSINATION 132
 /**
- * Internally used from object_remove() and insert_xx(). */
+ * Internally used from object_remove() and insert_xx().
+ */
 #define FLAG_OBJECT_WAS_MOVED 133
 /**
- * Don't save this object - remove it before we save. */
+ * Don't save this object - remove it before we save.
+ */
 #define FLAG_NO_SAVE 134
 /*@}*/
 
@@ -1178,7 +1397,8 @@
  *@{*/
 /**
  * Move toward a player if far, but maintain some space,
- * attack from a distance - good for missile users only */
+ * attack from a distance - good for missile users only
+ */
 #define DISTATT  1
 /** Run but attack if player catches up to object */
 #define RUNATT   2
@@ -1201,7 +1421,8 @@
  * if the upper four bits of move_type / attack_movement
  * are set to this number, the monster will move in a
  * circle until it is attacked, or the enemy field is
- * set, this is good for non-aggressive monsters and NPC */
+ * set, this is good for non-aggressive monsters and NPC
+ */
 #define CIRCLE1 32
 
 /** Same as above but a larger circle is used */
@@ -1209,20 +1430,23 @@
 
 /**
  * The Monster will pace back and forth until attacked
- * this is HORIZONTAL movement */
+ * this is HORIZONTAL movement
+ */
 #define PACEH   64
 
 /**
  * the monster will pace as above but the length of the
  * pace area is longer and the monster stops before
  * changing directions
- * this is HORIZONTAL movement */
+ * this is HORIZONTAL movement
+ */
 #define PACEH2  80
 
 /**
  * the monster will go in a random direction until
  * it is stopped by an obstacle, then it chooses another
- * direction. */
+ * direction.
+ */
 #define RANDO   96
 
 /** constantly move in a different random direction */
@@ -1230,14 +1454,16 @@
 
 /**
  * The Monster will pace back and forth until attacked
- * this is VERTICAL movement */
+ * this is VERTICAL movement
+ */
 #define PACEV  128
 
 /**
  * the monster will pace as above but the length of the
  * pace area is longer and the monster stops before
  * changing directions
- * this is VERTICAL movement */
+ * this is VERTICAL movement
+ */
 #define PACEV2 144
 
 /** The monster uses waypoints (if it has any) */
@@ -1254,7 +1480,8 @@
 /**
  * Flags for object_apply_item().
  *
- * @anchor AP_xxx */
+ * @anchor AP_xxx
+ */
 enum apply_flag {
     /* Basic flags, always use one of these */
     APPLY_NORMAL = 0, ///< Regular apply.
@@ -1307,18 +1534,23 @@ enum apply_flag {
 #define QUEST_TYPE_ITEM 2
 /**
  * The quest is automatically started by giving the player an item (one-drop
- * quest item, keys from killing a monster/opening a chest, etc). */
+ * quest item, keys from killing a monster/opening a chest, etc).
+ */
 #define QUEST_TYPE_ITEM_DROP 3
 /**
  * The quest is not handled by the server quest module; instead, it
- * is handled specially by scripts. */
+ * is handled specially by scripts.
+ */
 #define QUEST_TYPE_SPECIAL 4
 /*@}*/
 
 /**
  * Returns the element size of an array.
- * @param arrayname The array's name.
- * @return The number of elements. */
+ * @param arrayname
+ * The array's name.
+ * @return
+ * The number of elements.
+ */
 #define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
 
 /**
@@ -1331,17 +1563,21 @@ enum apply_flag {
 /**
  * After this many characters in the message, for each X characters,
  * @ref INTERFACE_TIMEOUT_SECONDS will be added to the timeout, where X =
- * the value of this constant. */
+ * the value of this constant.
+ */
 #define INTERFACE_TIMEOUT_CHARS 50
 /**
- * @see INTERFACE_TIMEOUT_CHARS */
+ * @see INTERFACE_TIMEOUT_CHARS
+ */
 #define INTERFACE_TIMEOUT_SECONDS 5
 /**
- * Initial number of seconds for the timeout. */
+ * Initial number of seconds for the timeout.
+ */
 #define INTERFACE_TIMEOUT_INITIAL 5
 /**
  * Maximum number of seconds the NPC may stop moving for, regardless of
- * message length. */
+ * message length.
+ */
 #define INTERFACE_TIMEOUT_MAX 60 * 5
 /**
  * Calculates number of seconds for the interface timeout.
@@ -1385,17 +1621,24 @@ enum apply_flag {
  *@{*/
 /**
  * The loop constructor.
- * @param _m Map.
- * @param _x X position.
- * @param _y Y position.
- * @param _layer Layer, one of @ref LAYER_xxx.
- * @param _sub_layer Which sub-layer to look for. If -1, will search all
+ * @param _m
+ * Map.
+ * @param _x
+ * X position.
+ * @param _y
+ * Y position.
+ * @param _layer
+ * Layer, one of @ref LAYER_xxx.
+ * @param _sub_layer
+ * Which sub-layer to look for. If -1, will search all
  * sub-layers.
- * @param _obj Variable of an object pointer (does not need to be
+ * @param _obj
+ * Variable of an object pointer (does not need to be
  * initialized); will contain the found object, if any.
  * @warning Does not support stacking.
  * @note Use @ref FOR_MAP_LAYER_BREAK to break out, instead of the
- * traditional 'break'.  */
+ * traditional 'break'.
+ */
 #define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _sub_layer, _obj) \
     { \
         int __sub_layer; \
@@ -1414,13 +1657,15 @@ enum apply_flag {
                 (_obj) = __tmp;
 
 /**
- * Break out of the loop. */
+ * Break out of the loop.
+ */
 #define FOR_MAP_LAYER_BREAK \
     __sub_layer = NUM_SUB_LAYERS; \
     break; \
 
 /**
- * End the loop. */
+ * End the loop.
+ */
 #define FOR_MAP_LAYER_END \
     if (__next && !OBJECT_VALID(__next, __next_tag)) \
     { \
@@ -1449,8 +1694,10 @@ enum apply_flag {
  *     LOG(INFO, "%s\n", inv->name);
  * } FOR_INV_FINISH();
  * </pre>
- * @param op_ the object to iterate over
- * @param it_ a variable name that holds the inventory objects; a new variable
+ * @param op_
+ * the object to iterate over
+ * @param it_
+ * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
 #define FOR_INV_PREPARE(op_, it_)                               \
@@ -1466,8 +1713,10 @@ enum apply_flag {
 
 /**
  * Constructs a loop iterating over all objects above an object.
- * @param op_ the object to iterate over
- * @param it_ a variable name that holds the inventory objects; a new variable
+ * @param op_
+ * the object to iterate over
+ * @param it_
+ * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
 #define FOR_ABOVE_PREPARE(op_, it_)                             \
@@ -1483,8 +1732,10 @@ enum apply_flag {
 
 /**
  * Constructs a loop iterating over all objects below an object.
- * @param op_ the object to iterate over
- * @param it_ a variable name that holds the inventory objects; a new variable
+ * @param op_
+ * the object to iterate over
+ * @param it_
+ * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
 #define FOR_BELOW_PREPARE(op_, it_)                             \
@@ -1500,10 +1751,14 @@ enum apply_flag {
 
 /**
  * Constructs a loop iterating over all objects of a map tile.
- * @param map_ the map to iterate over
- * @param mx_ the map's x-coordinate to iterate over
- * @param my_ the map's y-coordinate to iterate over
- * @param it_ a variable name that holds the inventory objects; a new variable
+ * @param map_
+ * the map to iterate over
+ * @param mx_
+ * the map's x-coordinate to iterate over
+ * @param my_
+ * the map's y-coordinate to iterate over
+ * @param it_
+ * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
 #define FOR_MAP_PREPARE(map_, mx_, my_, it_)                    \
@@ -1520,7 +1775,8 @@ enum apply_flag {
 /**
  * Constructs a loop iterating over an object and all objects above it in the
  * same pile.
- * @param op_ the object to start with
+ * @param op_
+ * the object to start with
  */
 #define FOR_OB_AND_ABOVE_PREPARE(op_) FOR_OB_PREPARE(op_, above, __LINE__)
 /**
@@ -1531,7 +1787,8 @@ enum apply_flag {
 /**
  * Constructs a loop iterating over an object and all objects below it in the
  * same pile.
- * @param op_ the object to start with
+ * @param op_
+ * the object to start with
  */
 #define FOR_OB_AND_BELOW_PREPARE(op_) FOR_OB_PREPARE(op_, below, __LINE__)
 /**
@@ -1542,24 +1799,30 @@ enum apply_flag {
 /**
  * Constructs a loop iterating over a set of objects. This function should not
  * be used directly in client code.
- * @param op_ the object start start with
- * @param field_ the field that holds the "next" pointer within op_
- * @param suffix_ a suffix for constructing unique variable names
+ * @param op_
+ * the object start start with
+ * @param field_
+ * the field that holds the "next" pointer within op_
+ * @param suffix_
+ * a suffix for constructing unique variable names
  */
 #define FOR_OB_PREPARE(op_, field_, suffix_) FOR_OB_PREPARE2(op_, field_, suffix_)
 /**
  * Constructs a loop iterating over a set of objects. This function should not
  * be used at all. Use FOR_OB_PREPARE() instead.
- * @param op_ the object start start with
- * @param field_ the field that holds the "next" pointer within op_
- * @param suffix_ a suffix for constructing unique variable names
+ * @param op_
+ * the object to start with
+ * @param field_
+ * the field that holds the "next" pointer within op_
+ * @param suffix_
+ * a suffix for constructing unique variable names
  */
 #define FOR_OB_PREPARE2(op_, field_, suffix_)                     \
     do {                                                        \
         object *next##suffix_ = (op_);                        \
         tag_t next_tag##suffix_ = next##suffix_ == NULL ? 0 : next##suffix_->count;\
         while (((op_) = next##suffix_) != NULL) {              \
-            if (was_destroyed(next##suffix_, next_tag##suffix_)) {\
+            if (OBJECT_DESTROYED(next##suffix_, next_tag##suffix_)) {\
                 break;                                          \
             }                                                   \
             next##suffix_ = next##suffix_->field_;                               \
@@ -1572,5 +1835,29 @@ enum apply_flag {
     } while(0)
 
 /*@}*/
+
+/**
+ * Computes an absolute direction.
+ *
+ * @param d
+ * Direction to convert.
+ * @return
+ * Number between 1 and 8, which represent the "absolute" direction
+ * of a number (it actually takes care of "overflow" in previous calculations
+ * of a direction).
+ */
+static inline int
+absdir (int d)
+{
+    while (d < 1) {
+        d += 8;
+    }
+
+    while (d > 8) {
+        d -= 8;
+    }
+
+    return d;
+}
 
 #endif

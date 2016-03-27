@@ -38,7 +38,8 @@
  * only they don't require going through RPCgen, and it's easy to get
  * variable length lists. They are just lists of longs, strings,
  * characters, and byte arrays that can be converted to a machine
- * independent format. */
+ * independent format.
+ */
 
 #include <global.h>
 
@@ -80,7 +81,8 @@ static socket_command_struct commands[CLIENT_CMD_NROF] = {
 
 /**
  * Do client. The main loop for commands. From this, the data and
- * commands from server are received. */
+ * commands from server are received.
+ */
 void DoClient(void)
 {
     command_buffer *cmd;
@@ -99,7 +101,9 @@ void DoClient(void)
 
 /**
  * Check animation status.
- * @param anum Animation ID. */
+ * @param anum
+ * Animation ID.
+ */
 void check_animation_status(int anum)
 {
     /* Check if it has been loaded. */

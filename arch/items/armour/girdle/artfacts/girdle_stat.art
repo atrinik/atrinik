@@ -1,0 +1,84 @@
+# Girdle of strength
+Allowed all
+chance 20
+difficulty 2
+artifact girdle_strength
+def_arch girdle
+Object
+title of strength
+str 1
+item_level_art 2
+face girdle2.101
+type 113
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Girdle of dexterity
+Allowed all
+chance 20
+difficulty 2
+artifact girdle_dexterity
+def_arch girdle
+Object
+title of dexterity
+dex 1
+face girdle2.101
+item_level_art 2
+type 113
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Girdle of constitution
+Allowed all
+chance 20
+difficulty 2
+artifact girdle_constitution
+def_arch girdle
+Object
+title of constitution
+face girdle2.101
+con 1
+item_level_art 2
+type 113
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Girdle of intelligence
+Allowed all
+chance 20
+difficulty 2
+artifact girdle_intelligence
+def_arch girdle
+Object
+title of intelligence
+int 1
+item_level_art 2
+face girdle_yellow.101
+type 113
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Girdle of power
+Allowed all
+chance 20
+difficulty 2
+artifact girdle_power
+def_arch girdle
+Object
+title of power
+pow 1
+item_level_art 2
+face girdle_yellow.101
+type 113
+is_magical 1
+value 5000
+item_power 1
+end

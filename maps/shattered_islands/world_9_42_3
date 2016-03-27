@@ -1,0 +1,258 @@
+arch map
+name Asteria Docks
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2016-02-20 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music chether.mid
+region asteria
+end
+arch trans
+x 20
+y 17
+end
+arch wall_fortified_low.181
+x 20
+y 17
+end
+arch map_info
+name asteria_lighthouse
+sp 5
+is_magical 1
+x 20
+y 17
+end
+arch trans
+x 20
+y 18
+end
+arch wall_fortified_low.111
+x 20
+y 18
+end
+arch trans
+x 20
+y 19
+end
+arch wall_fortified_low.111
+x 20
+y 19
+end
+arch trans
+x 20
+y 20
+end
+arch wall_fortified_low.111
+x 20
+y 20
+end
+arch trans
+x 20
+y 21
+end
+arch wall_fortified_low.111
+x 20
+y 21
+end
+arch trans
+x 20
+y 22
+end
+arch wall_fortified_low.111
+x 20
+y 22
+end
+arch trans
+x 21
+y 16
+end
+arch wall_fortified_low.181
+x 21
+y 16
+end
+arch map_info
+name asteria_lighthouse
+hp 2
+sp 6
+is_magical 1
+x 21
+y 16
+end
+arch trans
+x 21
+y 17
+end
+arch wall_fortified_low.141
+x 21
+y 17
+end
+arch floor_white2d
+z 3
+x 21
+y 18
+end
+arch water_floor
+x 21
+y 18
+end
+arch floor_white2d
+z 3
+x 21
+y 19
+end
+arch floor_white2d
+z 3
+x 21
+y 20
+end
+arch floor_white2c
+z 3
+x 21
+y 21
+end
+arch floor_white1e
+z 3
+x 21
+y 22
+end
+arch wall_fortified_low.131
+z -3
+x 21
+y 22
+end
+arch trans
+x 21
+y 23
+end
+arch wall_fortified_low.111
+x 21
+y 23
+end
+arch map_info
+name asteria_lighthouse
+hp 2
+is_magical 1
+x 21
+y 23
+end
+arch trans
+x 22
+y 16
+end
+arch wall_fortified_low.131
+x 22
+y 16
+end
+arch floor_white2d
+z 3
+x 22
+y 17
+end
+arch floor_white2d
+z 3
+x 22
+y 18
+end
+arch floor_white2d
+z 3
+x 22
+y 19
+end
+arch floor_white1e
+z 3
+x 22
+y 20
+end
+arch floor_white2d
+z 3
+x 22
+y 21
+end
+arch floor_white2d
+z 3
+x 22
+y 22
+end
+arch floor_white1c
+z 3
+x 22
+y 23
+end
+arch wall_fortified_low.131
+z -3
+x 22
+y 23
+end
+arch trans
+x 23
+y 16
+end
+arch wall_fortified_low.131
+x 23
+y 16
+end
+arch floor_white2a
+z 3
+x 23
+y 17
+end
+arch ladder_down3
+x 23
+y 17
+end
+arch floor_white2d
+z 3
+x 23
+y 18
+end
+arch floor_white2a
+z 3
+x 23
+y 19
+end
+arch brazier_lit
+x 23
+y 19
+end
+arch light9
+x 23
+y 19
+end
+arch floor_white2d
+z 3
+x 23
+y 20
+end
+arch brazier_lit
+x 23
+y 20
+end
+arch light9
+x 23
+y 20
+end
+arch floor_white2c
+z 3
+x 23
+y 21
+end
+arch floor_white1e
+z 3
+x 23
+y 22
+end
+arch floor_white2d
+z 3
+x 23
+y 23
+end
+arch wall_fortified_low.131
+z -3
+x 23
+y 23
+end

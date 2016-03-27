@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Widget header file. */
+ * Widget header file.
+ */
 
 #ifndef WIDGET_H
 #define WIDGET_H
@@ -55,6 +56,12 @@ typedef struct widgetdata {
     /** Height. */
     int h;
 
+    /** X position with zooming taken into account. */
+    int zoom_x;
+
+    /** Y position with zooming taken into account. */
+    int zoom_y;
+
     /** Is the widget moveable? */
     uint8_t moveable;
 
@@ -71,7 +78,8 @@ typedef struct widgetdata {
     uint8_t required;
 
     /**
-     * If 0, will not save this widget. */
+     * If 0, will not save this widget.
+     */
     uint8_t save;
 
     /** Next widget. */
@@ -127,8 +135,11 @@ typedef struct widgetdata {
 
     /**
      * If 1, this widget will not be rendered, but any items it contains
-     * will still get processed and rendered. */
+     * will still get processed and rendered.
+     */
     int hidden;
+
+    double zoom; ///< Zoom factor of the widget.
 
     void (*draw_func)(struct widgetdata *widget);
 
@@ -143,6 +154,8 @@ typedef struct widgetdata {
     void (*save_func)(struct widgetdata *widget, FILE *fp, const char *padding);
 
     int (*menu_handle_func)(struct widgetdata *widget, SDL_Event *event);
+
+    void (*padding_func)(struct widgetdata *widget, int *x, int *y);
 } widgetdata;
 
 /** Information about a widget container. Containers can hold widgets inside
@@ -250,7 +263,8 @@ typedef struct _menu {
  * clicked on.
  * It is a special strip container that contains the string inside.
  * This allows the menu to detect how long the string is so that it can resize
- * itself to fit it on the fly. */
+ * itself to fit it on the fly.
+ */
 typedef struct _menuitem {
     /** Pointer to the function that performs the relevant operation when the
      * menuitem is clicked. */

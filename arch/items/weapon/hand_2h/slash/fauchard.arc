@@ -14,4 +14,7 @@ dam 8
 wc 5
 weight 4500
 value 875
+ac 2
+block 13
+absorb 17
 end

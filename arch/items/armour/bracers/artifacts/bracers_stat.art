@@ -1,0 +1,84 @@
+# Bracers of strength
+Allowed all
+chance 20
+difficulty 2
+artifact bracers_strength
+def_arch bracers_ac
+Object
+title of strength
+face bracers3.101
+item_level_art 2
+str 1
+type 104
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Bracers of dexterity
+Allowed all
+chance 20
+difficulty 2
+artifact bracers_dexterity
+def_arch bracers_ac
+Object
+title of dexterity
+face bracers2.101
+item_level_art 2
+type 104
+dex 1
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Bracers of constitution
+Allowed all
+chance 20
+difficulty 2
+artifact bracers_constitution
+def_arch bracers_ac
+Object
+title of constitution
+face bracers4.101
+item_level_art 2
+con 1
+type 104
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Bracers of intelligence
+Allowed all
+chance 20
+difficulty 2
+artifact bracers_intelligence
+def_arch bracers_ac
+Object
+title of intelligence
+face bracers5.101
+item_level_art 2
+int 1
+type 104
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Bracers of power
+Allowed all
+chance 20
+difficulty 2
+artifact bracers_power
+def_arch bracers_ac
+Object
+title of power
+face bracers6.101
+item_level_art 2
+pow 1
+type 104
+is_magical 1
+value 5000
+item_power 1
+end

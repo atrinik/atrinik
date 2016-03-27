@@ -43,6 +43,35 @@
 #define estrndup(_s, _n) string_estrndup(_s, _n)
 #endif
 
+/**
+ * Skip whitespace in the specified string.
+ *
+ * @param str
+ * The string. Cannot be NULL.
+ */
+#define string_skip_whitespace(str)     \
+do {                                    \
+    HARD_ASSERT(str != NULL);           \
+    while (isspace(*(str))) {           \
+        (str)++;                        \
+    }                                   \
+} while (0)
+
+/**
+ * Strip the trailing newline in the specified string, if any.
+ *
+ * @param str
+ * The string. Cannot be NULL.
+ */
+#define string_strip_newline(str)                       \
+do {                                                    \
+    HARD_ASSERT(str != NULL);                           \
+    char *CONCAT(end, __LINE__) = strchr(str, '\n');    \
+    if (CONCAT(end, __LINE__) != NULL) {                \
+        *CONCAT(end, __LINE__) = '\0';                  \
+    }                                                   \
+} while (0)
+
 /* Prototypes */
 
 void toolkit_string_init(void);
@@ -77,15 +106,14 @@ int string_contains(const char *str, const char *key);
 int string_contains_other(const char *str, const char *key);
 char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO);
 char *string_join(const char *delim, ...);
-char *string_join_array(const char *delim, char **array, size_t arraysize);
+char *string_join_array(const char *delim, const char *const *array, size_t arraysize);
 char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO);
 size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
         __attribute__((format(printf, 3, 4)));
 size_t string_tohex(const unsigned char *str, size_t len, char *result,
         size_t resultsize, bool sep);
-size_t string_fromhex(char *str, size_t len, unsigned char *result,
+size_t string_fromhex(const char *str, size_t len, unsigned char *result,
         size_t resultsize);
-char *string_skip_whitespace(char *str);
 char *string_last(const char *haystack, const char *needle);
 
 #ifndef NDEBUG

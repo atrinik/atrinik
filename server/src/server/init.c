@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Server initialization. */
+ * Server initialization.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -33,9 +34,13 @@
 #include <arch.h>
 #include <artifact.h>
 #include <ban.h>
+#include <loader.h>
+#include <player.h>
+#include <object_methods.h>
 
 /**
- * The server's settings. */
+ * The server's settings.
+ */
 struct settings_struct settings;
 
 /** The shared constants. */
@@ -64,7 +69,8 @@ static void init_dynamic(void);
 static void init_clocks(void);
 
 /**
- * Initialize the ::shstr_cons structure. */
+ * Initialize the ::shstr_cons structure.
+ */
 static void init_strings(void)
 {
     shstr_cons.none = add_string("none");
@@ -81,7 +87,8 @@ static void init_strings(void)
 }
 
 /**
- * Free the string constants. */
+ * Free the string constants.
+ */
 void free_strings(void)
 {
     int nrof_strings = sizeof(shstr_cons) / sizeof(const char *);
@@ -130,7 +137,33 @@ static void console_command_speed_multiplier(const char *params)
 }
 
 /**
- * Free all data before exiting. */
+ * Dump the active objects list, or just the number of objects on the list.
+ *
+ * @param params
+ * Parameters from the console.
+ */
+static void
+console_command_active_objects (const char *params)
+{
+    bool show_list = params != NULL && strcmp(params, "list") == 0;
+    if (show_list) {
+        LOG(INFO, "=== Active objects list ===");
+    }
+
+    uint64_t num = 0;
+    for (object *tmp = active_objects; tmp != NULL; tmp = tmp->active_next) {
+        num++;
+        if (show_list) {
+            LOG(INFO, "%s", object_get_str(tmp));
+        }
+    }
+
+    LOG(INFO, "Total number of active objects: %" PRIu64, num);
+}
+
+/**
+ * Free all data before exiting.
+ */
 void cleanup(void)
 {
     cache_remove_all();
@@ -176,6 +209,11 @@ static void clioptions_option_plugin_unit(const char *arg)
 static void clioptions_option_worldmaker(const char *arg)
 {
     settings.world_maker = 1;
+}
+
+static void clioptions_option_no_console(const char *arg)
+{
+    settings.no_console = true;
 }
 
 static void clioptions_option_version(const char *arg)
@@ -418,7 +456,8 @@ static void clioptions_option_speed_multiplier(const char *arg)
  * If you want to lessen the size of the program using the library, you
  * can replace the call to init_library() with init_globals() and
  * init_function_pointers(). Good idea to also call init_vars() and
- * init_hash_table() if you are doing any object loading. */
+ * init_hash_table() if you are doing any object loading.
+ */
 static void init_library(int argc, char *argv[])
 {
     toolkit_import(memory);
@@ -463,6 +502,15 @@ static void init_library(int argc, char *argv[])
             "Without an argument, shows the current speed multiplier and the default speed multiplier."
             );
 
+    console_command_add(
+            "active_objects",
+            console_command_active_objects,
+            "Show the number of active objects.",
+            "Show the number of active objects in the game world. Use "
+            "'list' to show a string representation of each object (and "
+            "where it is)."
+            );
+
     /* Add command-line options. */
     clioptions_add(
             "unit",
@@ -490,6 +538,16 @@ static void init_library(int argc, char *argv[])
             0,
             "Generates the region maps.",
             "Generates the region maps using the world maker module.\n\n"
+            );
+
+    clioptions_add(
+            "no_console",
+            NULL,
+            clioptions_option_no_console,
+            0,
+            "Disables the interactive console.",
+            "Disables the interactive console. Useful when debugging or "
+            "running the server non-interactively.\n\n"
             );
 
     clioptions_add(
@@ -756,7 +814,7 @@ static void init_library(int argc, char *argv[])
     party_init();
     init_block();
     read_bmap_names();
-    init_materials();
+    material_init();
     /* Must be after we read in the bitmaps */
     init_anim();
     /* Reads all archetypes from file */
@@ -768,7 +826,8 @@ static void init_library(int argc, char *argv[])
 
 /**
  * Initializes all global variables.
- * Might use environment variables as default for some of them. */
+ * Might use environment variables as default for some of them.
+ */
 void init_globals(void)
 {
     /* Global round ticker */
@@ -781,7 +840,6 @@ void init_globals(void)
     first_artifactlist = NULL;
     first_region = NULL;
     init_strings();
-    init_object_initializers();
     num_animations = 0;
     animations = NULL;
     animations_allocated = 0;
@@ -789,7 +847,8 @@ void init_globals(void)
 }
 
 /**
- * Initializes first_map_path from the archetype collection. */
+ * Initializes first_map_path from the archetype collection.
+ */
 static void init_dynamic(void)
 {
     archetype_t *at, *tmp;
@@ -809,7 +868,8 @@ static void init_dynamic(void)
 
 /**
  * Write out the current time to a file so time does not reset every
- * time the server reboots. */
+ * time the server reboots.
+ */
 void write_todclock(void)
 {
     char filename[MAX_BUF];
@@ -829,7 +889,8 @@ void write_todclock(void)
 /**
  * Initializes the gametime and TOD counters.
  *
- * Called by init_library(). */
+ * Called by init_library().
+ */
 static void init_clocks(void)
 {
     char filename[MAX_BUF];
@@ -861,8 +922,11 @@ static void init_clocks(void)
  * This is the main server initialization function.
  *
  * Called only once, when starting the program.
- * @param argc Length of argv.
- * @param argv Arguments. */
+ * @param argc
+ * Length of argv.
+ * @param argv
+ * Arguments.
+ */
 void init(int argc, char **argv)
 {
     /* We don't want to be affected by players' umask */
@@ -886,7 +950,8 @@ void init(int argc, char **argv)
 }
 
 /**
- * Initialize before playing. */
+ * Initialize before playing.
+ */
 static void init_beforeplay(void)
 {
     init_spells();

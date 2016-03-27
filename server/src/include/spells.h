@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Spells header file. */
+ * Spells header file.
+ */
 
 #ifndef SPELLS_H
 #define SPELLS_H
@@ -102,7 +103,8 @@
 
 /**
  * Number of different spell types, should be have value of the highest
- * spell type. */
+ * spell type.
+ */
 #define SPELL_TYPE_NROF    2
 
 /**
@@ -127,7 +129,7 @@ struct archetype;
 /** Spell structure. */
 typedef struct spell_struct {
     /** Name of this spell. */
-    char name[BIG_NAME];
+    const char *name;
 
     /** Spellpoint cost to cast it. */
     int sp;
@@ -149,7 +151,8 @@ typedef struct spell_struct {
      * A magic potion has value x.
      *
      * We do: (x * value_mul) * level to increase the value.
-     * @see object::value */
+     * @see object::value
+     */
     float value_mul;
 
     /** Base damage or hp of spell or summoned monster. */
@@ -172,7 +175,8 @@ typedef struct spell_struct {
      * increase by 2 per level.
      *
      * If base cost is 5 and spl is 10, cost increases by 1 every 2
-     * levels. */
+     * levels.
+     */
     int spl;
 
     /** Sound the spell produces when cast. */
@@ -188,7 +192,7 @@ typedef struct spell_struct {
     uint32_t path;
 
     /** Name of the archetype used by the spell. */
-    char *archname;
+    const char *archname;
 
     /** Pointer to archetype used by spell. */
     struct archetype *at;
@@ -206,7 +210,8 @@ typedef struct spell_struct {
  * Some archetypes and treasures require the spell numbers to be as they
  * are.
  *
- * @anchor spell_numbers */
+ * @anchor spell_numbers
+ */
 enum spellnrs {
     SP_FIRESTORM,
     SP_ICESTORM,
@@ -278,12 +283,14 @@ enum spellnrs {
 #define CAST_POTION 5
 /**
  * NPC is doing the casting, can cast no matter what (even in areas that
- * block magic). */
+ * block magic).
+ */
 #define CAST_NPC 6
 /*@}*/
 
 /**
- * 20% sacrifice of money when casting the 'transform wealth' spell. */
+ * 20% sacrifice of money when casting the 'transform wealth' spell.
+ */
 #define TRANSFORM_WEALTH_SACRIFICE 0.80f
 
 /** Minimum number for rolls in spell_attack_missed(). */

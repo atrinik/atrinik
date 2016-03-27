@@ -1,0 +1,74 @@
+# Boots of fire protection
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
+artifact boots_protect_fire
+chance 20
+t_style 1
+def_arch low_boots
+Object
+title of fire protection
+type 99
+is_magical 1
+protect_fire 9
+value 2000
+item_power 1
+end
+
+# Boots of cold protection
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
+artifact boots_protect_cold
+chance 20
+t_style 2
+def_arch low_boots
+Object
+title of cold protection
+type 99
+is_magical 1
+protect_cold 9
+value 2000
+item_power 1
+end
+
+# Boots of electricity protection
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
+artifact boots_protect_electricity
+chance 20
+t_style 3
+def_arch low_boots
+Object
+title of electricity protection
+type 99
+is_magical 1
+protect_electricity 9
+value 2000
+item_power 1
+end
+
+# Boots of poison protection
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
+artifact boots_protect_poison
+chance 20
+t_style 4
+def_arch low_boots
+Object
+title of poison protection
+type 99
+is_magical 1
+protect_poison 9
+value 2000
+item_power 1
+end
+
+# Boots of acid protection
+Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
+artifact boots_protect_acid
+chance 20
+t_style 5
+def_arch low_boots
+Object
+title of acid protection
+type 99
+is_magical 1
+protect_acid 9
+value 2000
+item_power 1
+end

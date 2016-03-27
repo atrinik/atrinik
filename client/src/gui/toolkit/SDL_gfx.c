@@ -2128,9 +2128,7 @@ static int _clipLine(SDL_Surface * dst, Sint16 * x, Sint16 * y, Sint16 * x2, Sin
                 swaptmp = *y2;
                 *y2 = *y;
                 *y = swaptmp;
-                swaptmp = code2;
-                code2 = code1;
-                code1 = swaptmp;
+                code1 = code2;
             }
             if (*x2 != *x) {
                 m = (*y2 - *y) / (float) (*x2 - *x);
@@ -6177,7 +6175,7 @@ static void _murphyWideline(SDL_gfxMurphyIterator *m, Sint16 x, Sint16 y, Sint16
         x2 = temp;
         temp = y;
         y = y2;
-        y = temp;
+        y2 = temp;
         m->u *= -1;
         m->v *= -1;
     }

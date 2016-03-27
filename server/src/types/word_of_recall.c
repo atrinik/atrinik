@@ -26,18 +26,24 @@
  * @file
  * Handles code for @ref WORD_OF_RECALL "word of recall" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
+/** @copydoc object_methods_t::process_func */
+static void
+process_func (object *op)
 {
-    if (op->env && op->env->map && op->env->type == PLAYER) {
+    HARD_ASSERT(op != NULL);
+
+    if (op->env != NULL && op->env->map && op->env->type == PLAYER) {
         if (blocks_magic(op->env->map, op->env->x, op->env->y)) {
             draw_info(COLOR_WHITE, op, "You feel something fizzle inside you.");
         } else {
-            object_enter_map(op->env, op, NULL, 0, 0, 0);
+            object_enter_map(op->env, op, NULL, 0, 0, false);
         }
     }
 
@@ -46,8 +52,9 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the word of recall type object methods. */
-void object_type_init_word_of_recall(void)
+ * Initialize the word of recall type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(word_of_recall)
 {
-    object_type_methods[WORD_OF_RECALL].process_func = process_func;
+    OBJECT_METHODS(WORD_OF_RECALL)->process_func = process_func;
 }

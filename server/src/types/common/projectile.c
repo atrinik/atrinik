@@ -30,12 +30,17 @@
 
 #include <global.h>
 #include <arch.h>
+#include <object_methods.h>
 
 /**
  * Attempts to stick a projectile such as an arrow into the victim.
- * @param op Projectile.
- * @param victim Victim.
- * @return Pointer to the projectile, which may or may not have merged. */
+ * @param op
+ * Projectile.
+ * @param victim
+ * Victim.
+ * @return
+ * Pointer to the projectile, which may or may not have merged.
+ */
 static object *projectile_stick(object *op, object *victim)
 {
     object *owner;
@@ -46,7 +51,7 @@ static object *projectile_stick(object *op, object *victim)
         return op;
     }
 
-    owner = get_owner(op);
+    owner = object_owner(op);
 
     if (owner) {
         op->attacked_by = owner;
@@ -54,12 +59,12 @@ static object *projectile_stick(object *op, object *victim)
     }
 
     object_remove(op, 0);
-    op = insert_ob_in_ob(op, victim);
+    op = object_insert_into(op, victim, 0);
 
     return op;
 }
 
-/** @copydoc object_methods::process_func */
+/** @copydoc object_methods_t::process_func */
 void common_object_projectile_process(object *op)
 {
     mapstruct *m;
@@ -143,7 +148,7 @@ void common_object_projectile_process(object *op)
     }
 }
 
-/** @copydoc object_methods::projectile_move_func */
+/** @copydoc object_methods_t::projectile_move_func */
 object *common_object_projectile_move(object *op)
 {
     mapstruct *m;
@@ -173,7 +178,7 @@ object *common_object_projectile_move(object *op)
     return op;
 }
 
-/** @copydoc object_methods::projectile_stop_func */
+/** @copydoc object_methods_t::projectile_stop_func */
 object *common_object_projectile_stop_missile(object *op, int reason)
 {
     /* Reset 'owner' when picking it up. */
@@ -198,8 +203,8 @@ object *common_object_projectile_stop_missile(object *op, int reason)
     if (op->type == ARROW) {
         object *owner;
 
-        owner = get_owner(op);
-        clear_owner(op);
+        owner = object_owner(op);
+        object_owner_clear(op);
 
         op->direction = 0;
         SET_ANIMATION_STATE(op);
@@ -235,11 +240,19 @@ object *common_object_projectile_stop_missile(object *op, int reason)
             op->stats.food = 20;
         }
 
-        update_ob_speed(op);
+        object_update_speed(op);
 
-        if (op->map != NULL) {
+        bool insert_map = op->map != NULL;
+        if (insert_map) {
             object_remove(op, 0);
-            op = insert_ob_in_map(op, op->map, op, INS_FALL_THROUGH);
+        }
+
+        op->layer = op->arch->clone.layer;
+
+        if (insert_map) {
+            op = object_insert_map(op, op->map, op, INS_FALL_THROUGH);
+        } else {
+            op = object_merge(op);
         }
     } else if (op->inv) {
         object *payload;
@@ -253,7 +266,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         object_destroy(op);
         payload->x = op->x;
         payload->y = op->y;
-        payload = insert_ob_in_map(payload, op->map, op, INS_FALL_THROUGH);
+        payload = object_insert_map(payload, op->map, op, INS_FALL_THROUGH);
 
         return payload;
     } else {
@@ -267,7 +280,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
     return op;
 }
 
-/** @copydoc object_methods::projectile_stop_func */
+/** @copydoc object_methods_t::projectile_stop_func */
 object *common_object_projectile_stop_spell(object *op, int reason)
 {
     if (reason == OBJECT_PROJECTILE_STOP_HIT && op->stats.dam > 0) {
@@ -284,10 +297,10 @@ object *common_object_projectile_stop_spell(object *op, int reason)
     return NULL;
 }
 
-/** @copydoc object_methods::projectile_fire_func */
+/** @copydoc object_methods_t::projectile_fire_func */
 object *common_object_projectile_fire_missile(object *op, object *shooter, int dir)
 {
-    set_owner(op, shooter);
+    object_owner_set(op, shooter);
     op->direction = dir;
     SET_ANIMATION_STATE(op);
 
@@ -301,7 +314,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
     }
 
     op->speed_left = 0;
-    update_ob_speed(op);
+    object_update_speed(op);
 
     SET_FLAG(op, FLAG_FLYING);
     SET_FLAG(op, FLAG_IS_MISSILE);
@@ -314,8 +327,9 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 
     op->x = shooter->x;
     op->y = shooter->y;
+    op->layer = LAYER_EFFECT;
     op->sub_layer = shooter->sub_layer;
-    op = insert_ob_in_map(op, shooter->map, op, 0);
+    op = object_insert_map(op, shooter->map, op, 0);
 
     if (!op) {
         return NULL;
@@ -326,12 +340,12 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
     return op;
 }
 
-/** @copydoc object_methods::projectile_hit_func */
+/** @copydoc object_methods_t::projectile_hit_func */
 int common_object_projectile_hit(object *op, object *victim)
 {
     object *owner;
 
-    owner = get_owner(op);
+    owner = object_owner(op);
 
     /* Victim is not an alive object or we're friends with the victim,
      * pass... */
@@ -345,7 +359,7 @@ int common_object_projectile_hit(object *op, object *victim)
         op = projectile_stick(op, victim);
 
         OBJ_DESTROYED_BEGIN(op) {
-            dam = hit_player(victim, op->stats.dam, op);
+            dam = attack_hit(victim, op, op->stats.dam);
 
             if (OBJ_DESTROYED(op)) {
                 return OBJECT_METHOD_ERROR;
@@ -358,7 +372,7 @@ int common_object_projectile_hit(object *op, object *victim)
     return OBJECT_METHOD_OK;
 }
 
-/** @copydoc object_methods::move_on_func */
+/** @copydoc object_methods_t::move_on_func */
 int common_object_projectile_move_on(object *op, object *victim, object *originator, int state)
 {
     int ret;

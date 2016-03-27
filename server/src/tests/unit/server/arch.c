@@ -28,7 +28,7 @@
 #include <check_proto.h>
 #include <arch.h>
 
-START_TEST(test_item_matched_string)
+START_TEST(test_object_matches_string)
 {
     mapstruct *map;
     object *pl, *o1, *o2;
@@ -40,18 +40,18 @@ START_TEST(test_item_matched_string)
     FREE_AND_COPY_HASH(o1->title, "of Moroch");
     CLEAR_FLAG(o1, FLAG_IDENTIFIED);
 
-    ck_assert_int_eq(item_matched_string(pl, o1, "all"), 1);
-    ck_assert_int_eq(item_matched_string(pl, o1, "Moroch"), 0);
-    ck_assert_int_eq(item_matched_string(pl, o1, "random"), 0);
+    ck_assert_int_eq(object_matches_string(o1, pl, "all"), 1);
+    ck_assert_int_eq(object_matches_string(o1, pl, "Moroch"), 0);
+    ck_assert_int_eq(object_matches_string(o1, pl, "random"), 0);
 
     SET_FLAG(o1, FLAG_IDENTIFIED);
-    ck_assert_int_ne(item_matched_string(pl, o1, "Moroch"), 0);
+    ck_assert_int_ne(object_matches_string(o1, pl, "Moroch"), 0);
 
     o2 = arch_get("cloak");
     SET_FLAG(o2, FLAG_UNPAID);
-    ck_assert_int_eq(item_matched_string(pl, o2, "unpaid"), 2);
-    ck_assert_int_ne(item_matched_string(pl, o2, "cloak"), 0);
-    ck_assert_int_eq(item_matched_string(pl, o2, "wrong"), 0);
+    ck_assert_int_eq(object_matches_string(o2, pl, "unpaid"), 2);
+    ck_assert_int_ne(object_matches_string(o2, pl, "cloak"), 0);
+    ck_assert_int_eq(object_matches_string(o2, pl, "wrong"), 0);
 
     object_destroy(o1);
     object_destroy(o2);
@@ -102,7 +102,7 @@ static Suite *suite(void)
     tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
-    tcase_add_test(tc_core, test_item_matched_string);
+    tcase_add_test(tc_core, test_object_matches_string);
     tcase_add_test(tc_core, test_arch_to_object);
     tcase_add_test(tc_core, test_arch_get);
     tcase_add_test(tc_core, test_arch_find);

@@ -1,0 +1,74 @@
+# Cloak of fire protection
+Allowed cloak
+chance 49
+t_style 1
+artifact cloak_protect_fire
+def_arch cloak
+Object
+title of fire protection
+type 87
+protect_fire 15
+is_magical 1
+value 2100
+item_power 1
+end
+
+# Cloak of cold protection
+Allowed cloak
+chance 49
+t_style 2
+artifact cloak_protect_cold
+def_arch cloak
+Object
+title of cold protection
+type 87
+protect_cold 15
+is_magical 1
+value 2100
+item_power 1
+end
+
+# Cloak of electricity protection
+Allowed cloak
+chance 49
+t_style 3
+artifact cloak_protect_electricity
+def_arch cloak
+Object
+title of electricity protection
+type 87
+protect_electricity 15
+is_magical 1
+value 2100
+item_power 1
+end
+
+# Cloak of poison protection
+Allowed cloak
+chance 49
+t_style 4
+artifact cloak_protect_poison
+def_arch cloak
+Object
+title of poison protection
+type 87
+protect_poison 15
+is_magical 1
+value 2100
+item_power 1
+end
+
+# Cloak of acid protection
+Allowed cloak
+chance 49
+t_style 5
+artifact cloak_protect_acid
+def_arch cloak
+Object
+title of acid protection
+type 87
+protect_acid 15
+is_magical 1
+value 2100
+item_power 1
+end

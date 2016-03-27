@@ -24,7 +24,8 @@
 
 /**
  * @file
- * The main include file, included by most C files. */
+ * The main include file, included by most C files.
+ */
 
 #ifndef GLOBAL_H
 #define GLOBAL_H

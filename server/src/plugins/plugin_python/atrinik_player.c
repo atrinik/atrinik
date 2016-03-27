@@ -32,6 +32,8 @@
 #include <plugin_python.h>
 #include <packet.h>
 #include <faction.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Player fields.
@@ -46,12 +48,6 @@ static fields_struct fields[] = {
     {"party", FIELDTYPE_PARTY, offsetof(player, party), FIELDFLAG_READONLY, 0,
             "Party the player is a member of.; Atrinik.Party.Party or None "
             "(readonly)"},
-    {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob),
-            FIELDFLAG_READONLY, 0, "Class object of the player. Cannot be set, "
-            "as it's always set to the last CLASS type object that is found in "
-            "the player's inventory after calling "
-            ":meth:`Atrinik.Object.Object.Update`.; Atrinik.Object.Object or "
-            "None (readonly)"},
     {"savebed_map", FIELDTYPE_CARY, offsetof(player, savebed_map), 0,
             sizeof(((player *) NULL)->savebed_map),
             "Path to the player's savebed map.; str"},
@@ -962,9 +958,12 @@ static PyMethodDef methods[] = {
 
 /**
  * Get player's attribute.
- * @param pl Python player wrapper.
- * @param context Void pointer to the field ID.
- * @return Python object with the attribute value, NULL on failure.
+ * @param pl
+ * Python player wrapper.
+ * @param context
+ * Void pointer to the field ID.
+ * @return
+ * Python object with the attribute value, NULL on failure.
  */
 static PyObject *get_attribute(Atrinik_Player *pl, void *context)
 {
@@ -973,10 +972,14 @@ static PyObject *get_attribute(Atrinik_Player *pl, void *context)
 
 /**
  * Set attribute of a player.
- * @param whoptr Python player wrapper.
- * @param value Value to set.
- * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure.
+ * @param whoptr
+ * Python player wrapper.
+ * @param value
+ * Value to set.
+ * @param context
+ * Void pointer to the field.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int set_attribute(Atrinik_Player *pl, PyObject *value, void *context)
 {
@@ -995,10 +998,14 @@ static int set_attribute(Atrinik_Player *pl, PyObject *value, void *context)
 
 /**
  * Create a new player wrapper.
- * @param type Type object.
- * @param args Unused.
- * @param kwds Unused.
- * @return The new wrapper.
+ * @param type
+ * Type object.
+ * @param args
+ * Unused.
+ * @param kwds
+ * Unused.
+ * @return
+ * The new wrapper.
  */
 static PyObject *Atrinik_Player_new(PyTypeObject *type, PyObject *args,
         PyObject *kwds)
@@ -1013,7 +1020,8 @@ static PyObject *Atrinik_Player_new(PyTypeObject *type, PyObject *args,
 
 /**
  * Free a player wrapper.
- * @param pl The wrapper to free.
+ * @param pl
+ * The wrapper to free.
  */
 static void Atrinik_Player_dealloc(Atrinik_Player *pl)
 {
@@ -1027,8 +1035,10 @@ static void Atrinik_Player_dealloc(Atrinik_Player *pl)
 
 /**
  * Return a string representation of a player.
- * @param pl The player.
- * @return Python object containing the name of the player.
+ * @param pl
+ * The player.
+ * @return
+ * Python object containing the name of the player.
  */
 static PyObject *Atrinik_Player_str(Atrinik_Player *pl)
 {
@@ -1112,8 +1122,10 @@ PyTypeObject Atrinik_PlayerType = {
 
 /**
  * Initialize the Atrinik.Player module.
- * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure.
+ * @param module
+ * The Atrinik Python module.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int Atrinik_Player_init(PyObject *module)
 {
@@ -1146,8 +1158,10 @@ int Atrinik_Player_init(PyObject *module)
 
 /**
  * Utility method to wrap a player.
- * @param what Player to wrap.
- * @return Python object wrapping the real player.
+ * @param what
+ * Player to wrap.
+ * @return
+ * Python object wrapping the real player.
  */
 PyObject *wrap_player(player *pl)
 {

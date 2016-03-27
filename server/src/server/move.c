@@ -24,13 +24,20 @@
 
 /**
  * @file
- * Handles object moving and pushing. */
+ * Handles object moving and pushing.
+ */
 
 #include <global.h>
+#include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <door.h>
 
 /**
  * Returns a random direction (1..8).
- * @return The random direction. */
+ * @return
+ * The random direction.
+ */
 int get_random_dir(void)
 {
     return rndm(1, 8);
@@ -38,8 +45,11 @@ int get_random_dir(void)
 
 /**
  * Returns a random direction (1..8) similar to a given direction.
- * @param dir The exact direction.
- * @return The randomized direction. */
+ * @param dir
+ * The exact direction.
+ * @return
+ * The randomized direction.
+ */
 int get_randomized_dir(int dir)
 {
     return absdir(dir + rndm(0, 2) + rndm(0, 2) - 2);
@@ -49,13 +59,20 @@ int get_randomized_dir(int dir)
  * Move the object to the specified coordinates.
  *
  * Will update the object's sub-layer if necessary.
- * @param op Object.
- * @param dir Direction the object is moving into.
- * @param originator What caused the object to move.
- * @param m Map.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @return 1 on success, 0 on failure.
+ * @param op
+ * Object.
+ * @param dir
+ * Direction the object is moving into.
+ * @param originator
+ * What caused the object to move.
+ * @param m
+ * Map.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int object_move_to(object *op, int dir, object *originator, mapstruct *m,
         int x, int y)
@@ -91,7 +108,7 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
     op->sub_layer = sub_layer;
     op->x = x;
     op->y = y;
-    op = insert_ob_in_map(op, m, originator, INS_FALL_THROUGH);
+    op = object_insert_map(op, m, originator, INS_FALL_THROUGH);
 
     if (op == NULL) {
         return 1;
@@ -104,7 +121,7 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
 
         if (fall_floors > 0 && IS_LIVE(op)) {
             OBJ_DESTROYED_BEGIN(op) {
-                fall_damage_living(op, fall_floors);
+                attack_perform_fall(op, fall_floors);
 
                 if (OBJ_DESTROYED(op)) {
                     return 1;
@@ -122,11 +139,15 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
 
 /**
  * Try to move object in specified direction.
- * @param op What to move.
- * @param dir Direction to move the object to.
- * @param originator Typically the same as op, but can be different if
+ * @param op
+ * What to move.
+ * @param dir
+ * Direction to move the object to.
+ * @param originator
+ * Typically the same as op, but can be different if
  * originator is causing op to move (originator is pushing op).
- * @return 0 if the object is not able to move to the desired space, -1 if the
+ * @return
+ * 0 if the object is not able to move to the desired space, -1 if the
  * object was not able to move there yet but some sort of action was performed
  * that might allow us to move there (door opening for example), direction
  * number that the object ended up moving in otherwise.
@@ -137,15 +158,6 @@ int move_ob(object *op, int dir, object *originator)
 
     SOFT_ASSERT_RC(!QUERY_FLAG(op, FLAG_REMOVED), 0, "Trying to move a removed "
             "object: %s", object_get_str(op));
-
-    if (op == NULL) {
-        return 0;
-    }
-
-    if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        LOG(ERROR, "Trying to move removed object: %s", object_get_str(op));
-        return 0;
-    }
 
     op = HEAD(op);
 
@@ -177,7 +189,21 @@ int move_ob(object *op, int dir, object *originator)
         }
     }
 
-    if (door_try_open(op, m, xt, yt, 0)) {
+    bool opened_door = false;
+    for (object *tmp = op; tmp != NULL; tmp = tmp->more) {
+        int tmp_x = xt + tmp->arch->clone.x;
+        int tmp_y = yt + tmp->arch->clone.y;
+        mapstruct *tmp_map = get_map_from_coord(m, &tmp_x, &tmp_y);
+        if (tmp_map == NULL) {
+            return 0;
+        }
+
+        if (door_try_open(op, tmp_map, tmp_x, tmp_y, false)) {
+            opened_door = true;
+        }
+    }
+
+    if (opened_door) {
         return -1;
     }
 
@@ -192,14 +218,22 @@ int move_ob(object *op, int dir, object *originator)
  * Move an object (even linked objects) to another spot on the same map.
  *
  * Does nothing if there is no free spot.
- * @param op What to move.
- * @param x New X coordinate.
- * @param y New Y coordinate.
- * @param randomly If 1, use find_free_spot() to find the destination,
- * otherwise use find_first_free_spot().
- * @param originator What is causing op to move.
- * @param trap Trap.
- * @return 1 if the object was destroyed, 0 otherwise. */
+ * @param op
+ * What to move.
+ * @param x
+ * New X coordinate.
+ * @param y
+ * New Y coordinate.
+ * @param randomly
+ * If 1, use map_free_spot() to find the destination, otherwise use
+ * map_free_spot_first().
+ * @param originator
+ * What is causing op to move.
+ * @param trap
+ * Trap.
+ * @return
+ * 1 if the object was destroyed, 0 otherwise.
+ */
 int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap)
 {
     int i, ret;
@@ -209,12 +243,12 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
             draw_info(COLOR_NAVY, op, trap->msg);
         }
 
-        object_enter_map(op, trap, NULL, 0, 0, 0);
+        object_enter_map(op, trap, NULL, 0, 0, false);
         return 1;
     } else if (randomly) {
-        i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE3);
+        i = map_free_spot(op->map, x, y, 0, SIZEOFFREE3, op->arch, NULL);
     } else {
-        i = find_first_free_spot(op->arch, op, op->map, x, y);
+        i = map_free_spot_first(op->map, x, y, op->arch, op);
     }
 
     /* No free spot */
@@ -231,17 +265,22 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
     op->x = x + freearr_x[i];
     op->y = y + freearr_y[i];
 
-    ret = (insert_ob_in_map(op, op->map, originator, 0) == NULL);
+    ret = (object_insert_map(op, op->map, originator, 0) == NULL);
 
     return ret;
 }
 
 /**
  * An object is being pushed.
- * @param op What is being pushed.
- * @param dir Pushing direction.
- * @param pusher What is pushing op.
- * @return 0 if the object couldn't be pushed, 1 otherwise. */
+ * @param op
+ * What is being pushed.
+ * @param dir
+ * Pushing direction.
+ * @param pusher
+ * What is pushing op.
+ * @return
+ * 0 if the object couldn't be pushed, 1 otherwise.
+ */
 int push_ob(object *op, int dir, object *pusher)
 {
     object *tmp, *floor_ob;
@@ -287,6 +326,6 @@ int push_ob(object *op, int dir, object *pusher)
 
     op->x = op->x + freearr_x[dir];
     op->y = op->y + freearr_y[dir];
-    insert_ob_in_map(op, op->map, pusher, 0);
+    object_insert_map(op, op->map, pusher, 0);
     return 1;
 }

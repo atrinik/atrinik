@@ -26,24 +26,16 @@
  * @file
  * Handles code for @ref BLINDNESS "blindness" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
-
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
-{
-    if (--op->stats.food > 0) {
-        return;
-    }
-
-    object_remove(op, 0);
-    object_destroy(op);
-}
+#include <object.h>
+#include <object_methods.h>
 
 /**
- * Initialize the blindness type object methods. */
-void object_type_init_blindness(void)
+ * Initialize the blindness type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(blindness)
 {
-    object_type_methods[BLINDNESS].process_func = process_func;
 }

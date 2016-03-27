@@ -51,9 +51,13 @@ static fields_struct fields[] = {
 
 /**
  * Get archetype's attribute.
- * @param at Python archetype wrapper.
- * @param context Void pointer to the field ID.
- * @return Python object with the attribute value, NULL on failure. */
+ * @param at
+ * Python archetype wrapper.
+ * @param context
+ * Void pointer to the field ID.
+ * @return
+ * Python object with the attribute value, NULL on failure.
+ */
 static PyObject *get_attribute(Atrinik_Archetype *at, void *context)
 {
     return generic_field_getter(context, at->at);
@@ -61,10 +65,14 @@ static PyObject *get_attribute(Atrinik_Archetype *at, void *context)
 
 /**
  * Create a new archetype wrapper.
- * @param type Type object.
- * @param args Unused.
- * @param kwds Unused.
- * @return The new wrapper.
+ * @param type
+ * Type object.
+ * @param args
+ * Unused.
+ * @param kwds
+ * Unused.
+ * @return
+ * The new wrapper.
  */
 static PyObject *Atrinik_Archetype_new(PyTypeObject *type, PyObject *args,
         PyObject *kwds)
@@ -79,7 +87,8 @@ static PyObject *Atrinik_Archetype_new(PyTypeObject *type, PyObject *args,
 
 /**
  * Free an archetype wrapper.
- * @param pl The wrapper to free.
+ * @param pl
+ * The wrapper to free.
  */
 static void Atrinik_Archetype_dealloc(Atrinik_Archetype *at)
 {
@@ -93,8 +102,10 @@ static void Atrinik_Archetype_dealloc(Atrinik_Archetype *at)
 
 /**
  * Return a string representation of an archetype.
- * @param at The archetype.
- * @return Python object containing the name of the archetype.
+ * @param at
+ * The archetype.
+ * @return
+ * Python object containing the name of the archetype.
  */
 static PyObject *Atrinik_Archetype_str(Atrinik_Archetype *at)
 {
@@ -168,8 +179,10 @@ PyTypeObject Atrinik_ArchetypeType = {
 
 /**
  * Initialize the archetype wrapper.
- * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure.
+ * @param module
+ * The Atrinik Python module.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int Atrinik_Archetype_init(PyObject *module)
 {
@@ -203,8 +216,10 @@ int Atrinik_Archetype_init(PyObject *module)
 
 /**
  * Utility method to wrap an archetype.
- * @param what Archetype to wrap.
- * @return Python object wrapping the real archetype.
+ * @param what
+ * Archetype to wrap.
+ * @return
+ * Python object wrapping the real archetype.
  */
 PyObject *wrap_archetype(archetype_t *at)
 {

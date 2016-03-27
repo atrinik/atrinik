@@ -1,0 +1,79 @@
+# Gauntlets of strength
+Allowed all
+chance 20
+difficulty 2
+artifact gauntlet_strength
+def_arch gauntlets
+Object
+title of strength
+str 1
+item_level_art 2
+type 100
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Gauntlets of dexterity
+Allowed all
+chance 20
+difficulty 2
+artifact gauntlet_dexterity
+def_arch gauntlets
+Object
+item_level_art 2
+title of dexterity
+dex 1
+type 100
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Gauntlets of constitution
+Allowed all
+chance 20
+difficulty 2
+artifact gauntlet_constitution
+def_arch gauntlets
+Object
+title of constitution
+con 1
+item_level_art 2
+type 100
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Gauntlets of intelligence
+Allowed all
+chance 20
+difficulty 2
+artifact gauntlet_intelligence
+def_arch gauntlets
+Object
+title of intelligence
+int 1
+type 100
+item_level_art 2
+is_magical 1
+value 5000
+item_power 1
+end
+
+# Gauntlets of power
+Allowed all
+chance 20
+difficulty 2
+artifact gauntlet_power
+def_arch gauntlets
+Object
+title of power
+pow 1
+item_level_art 2
+type 100
+is_magical 1
+value 5000
+item_power 1
+end

@@ -22,7 +22,7 @@ attack_magic 60
 attack_cold 50
 protect_fire -30
 type 80
-wis 3
+item_power 3
 animation elvish_sylph
 is_animated 1
 anim_speed 4

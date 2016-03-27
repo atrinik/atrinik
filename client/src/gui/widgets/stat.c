@@ -48,11 +48,13 @@ static const char *const display_modes[] = {
 
 /**
  * Get data for the stat widget.
- * @param widget The widget.
+ * @param widget
+ * The widget.
  * @param[out] curr Will contain the current stat value.
  * @param[out] max Will contain the maximum stat value.
  * @param[out] regen Will contain the regen speed of the stat.
- * @return True on success, false on failure.
+ * @return
+ * True on success, false on failure.
  */
 static bool stat_get_data(widgetdata *widget, int64_t *curr, int64_t *max,
         double *regen)
@@ -274,7 +276,8 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 
 /**
  * Initialize one stat widget.
- * @param widget The widget to initialize.
+ * @param widget
+ * The widget to initialize.
  */
 void widget_stat_init(widgetdata *widget)
 {

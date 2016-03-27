@@ -1,0 +1,78 @@
+# Crown of Xebinon
+Allowed crown_generic
+chance 15
+difficulty 40
+artifact crown_xebinon
+def_arch crown_generic
+Object
+title of Xebinon
+face crown2.101
+item_level_art 40
+type 34
+is_magical 1
+last_heal 2
+path_attuned 1024
+sp 1
+value 3500
+msg
+This valuable item created by the Archdaemonist Xebinon enhances the mind of its wearer and channels the powers of magic.
+
+It has a small influence on its wearer's ability to regenerate spell points.
+endmsg
+item_power 8
+end
+
+# Crown of the Magi
+Allowed crown_generic
+chance 15
+difficulty 70
+artifact crown_magi
+def_arch crown_generic
+Object
+title of the Magi
+face crown_mage.101
+item_level_art 70
+type 34
+is_magical 1
+value 5000
+sp 2
+int 2
+pow 2
+item_power 15
+end
+
+# Crown of Lordliness
+Allowed crown_generic
+chance 15
+difficulty 15
+artifact crown_lordliness
+def_arch crown_generic
+Object
+title of Lordliness
+face crown_dark.101
+item_level_art 10
+type 34
+is_magical 1
+value 1000
+pow 1
+int 1
+item_power 2
+end
+
+# Crown of Rulership
+Allowed crown_generic
+chance 25
+difficulty 30
+artifact crown_rulership
+def_arch crown_generic
+Object
+title of Rulership
+face crown_gold.101
+item_level_art 25
+type 34
+is_magical 1
+value 6400
+int 2
+pow 2
+item_power 5
+end

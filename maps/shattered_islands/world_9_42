@@ -2,11 +2,11 @@ arch map
 name Asteria Docks
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2016-02-21 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 40
 outdoor 1
 no_harm 1
 bg_music chether.mid
@@ -52,8 +52,14 @@ arch floor_ruin1
 z 4
 y 11
 end
+arch grassd_m14
+y 11
+end
 arch floor_ruin1
 z 8
+y 12
+end
+arch grassd_m3
 y 12
 end
 arch grassd_4
@@ -65,18 +71,18 @@ z 20
 y 14
 end
 arch grassd_6
-z 26
+z 25
 y 15
 end
 arch plant10
 y 15
 end
 arch grassd_8
-z 32
+z 29
 y 16
 end
 arch grassd_7
-z 38
+z 36
 y 17
 end
 arch grassd_6
@@ -173,8 +179,16 @@ z 4
 x 1
 y 12
 end
+arch grassd_m14
+x 1
+y 12
+end
 arch floor_ruin1
 z 8
+x 1
+y 13
+end
+arch grassd_m3
 x 1
 y 13
 end
@@ -305,8 +319,16 @@ z 4
 x 2
 y 13
 end
+arch grassd_m14
+x 2
+y 13
+end
 arch floor_ruin1
 z 8
+x 2
+y 14
+end
+arch grassd_m3
 x 2
 y 14
 end
@@ -433,6 +455,10 @@ y 13
 end
 arch floor_ruin1
 z 4
+x 3
+y 14
+end
+arch grassd_m14
 x 3
 y 14
 end
@@ -2239,12 +2265,12 @@ arch plant_mushroom1
 x 15
 y 19
 end
-arch grassd_6
+arch grassd_5
 z 50
 x 15
 y 20
 end
-arch grassd_6
+arch grassd_5
 z 50
 x 15
 y 21
@@ -2256,6 +2282,10 @@ y 22
 end
 arch grassd_6
 z 50
+x 15
+y 23
+end
+arch tree_branch2
 x 15
 y 23
 end
@@ -2403,22 +2433,22 @@ z 50
 x 16
 y 19
 end
-arch grass_stone3
+arch grassd_6
 z 50
 x 16
 y 20
 end
-arch grass_stone5
+arch grassd_4
 z 50
 x 16
 y 21
 end
-arch grass_stone1
+arch grassd_7
 z 50
 x 16
 y 22
 end
-arch grass_stone3
+arch grassd_4
 z 50
 x 16
 y 23
@@ -2549,8 +2579,12 @@ z 50
 x 17
 y 19
 end
-arch grass_stone5
+arch grassd_5
 z 50
+x 17
+y 20
+end
+arch plant9
 x 17
 y 20
 end
@@ -2561,6 +2595,10 @@ y 21
 end
 arch grassd_2
 z 50
+x 17
+y 22
+end
+arch rock_big7
 x 17
 y 22
 end
@@ -2706,7 +2744,7 @@ z 50
 x 18
 y 19
 end
-arch grass_stone3
+arch grassd_6
 z 50
 x 18
 y 20
@@ -2862,7 +2900,7 @@ z 50
 x 19
 y 19
 end
-arch grass_stone1
+arch grassd_2
 z 50
 x 19
 y 20
@@ -3010,6 +3048,13 @@ arch wall_white2_8
 x 20
 y 17
 end
+arch map_info
+name asteria_lighthouse
+sp 5
+cursed 1
+x 20
+y 17
+end
 arch grassd_8
 z 50
 x 20
@@ -3024,17 +3069,16 @@ z 50
 x 20
 y 19
 end
-arch wall_white2_w.3
+arch wall_white2_3
 x 20
 y 19
 end
-arch grass_stone3
+arch grassd_2
 z 50
 x 20
 y 20
 end
-arch door1_locked
-direction 3
+arch wall_white2_3
 x 20
 y 20
 end
@@ -3043,7 +3087,7 @@ z 50
 x 20
 y 21
 end
-arch wall_white2_w.3
+arch wall_white2_3
 x 20
 y 21
 end
@@ -3172,6 +3216,14 @@ arch wall_white2_8
 x 21
 y 16
 end
+arch map_info
+name asteria_lighthouse
+hp 2
+sp 6
+cursed 1
+x 21
+y 16
+end
 arch grassd_5
 z 50
 x 21
@@ -3186,8 +3238,7 @@ z 50
 x 21
 y 18
 end
-arch clock
-direction 7
+arch wall_white2_4
 x 21
 y 18
 end
@@ -3196,7 +3247,8 @@ z 50
 x 21
 y 19
 end
-arch carpet2.131
+arch stairs_wood_up2
+direction 5
 x 21
 y 19
 end
@@ -3205,12 +3257,18 @@ z 50
 x 21
 y 20
 end
-arch carpet2.131
+arch stairs_wood_up
+direction 5
 x 21
 y 20
 end
 arch floor_wood3g
 z 50
+x 21
+y 21
+end
+arch torch_wall_1
+direction 7
 x 21
 y 21
 end
@@ -3229,6 +3287,13 @@ x 21
 y 23
 end
 arch wall_white2_3
+x 21
+y 23
+end
+arch map_info
+name asteria_lighthouse
+hp 2
+cursed 1
 x 21
 y 23
 end
@@ -3357,8 +3422,8 @@ z 50
 x 22
 y 17
 end
-arch broom.111
-direction 3
+arch clock
+direction 7
 x 22
 y 17
 end
@@ -3367,12 +3432,16 @@ z 50
 x 22
 y 18
 end
+arch wall_white2_1
+x 22
+y 18
+end
 arch floor_wood3h
 z 50
 x 22
 y 19
 end
-arch carpet2d
+arch wall_white2_3
 x 22
 y 19
 end
@@ -3381,7 +3450,7 @@ z 50
 x 22
 y 20
 end
-arch carpet2d
+arch wall_white2_3
 x 22
 y 20
 end
@@ -3390,8 +3459,17 @@ z 50
 x 22
 y 21
 end
+arch door_wood2
+direction 3
+x 22
+y 21
+end
 arch floor_wood3f
 z 50
+x 22
+y 22
+end
+arch wall_white2_4
 x 22
 y 22
 end
@@ -3404,7 +3482,7 @@ z 50
 x 22
 y 23
 end
-arch wall_white2_1
+arch wall_white2_4
 x 22
 y 23
 end
@@ -3523,21 +3601,41 @@ z 50
 x 23
 y 18
 end
+arch desk1.111
+x 23
+y 18
+end
 arch floor_wood3g
 z 50
 x 23
 y 19
 end
-arch carpet2d
+arch carpet2.131
 x 23
 y 19
+end
+arch chair2_111
+direction 5
+x 23
+y 19
+end
+arch spawn_point
+x 23
+y 19
+arch peasant
+name Rolun West
+direction 1
+level 26
+faction asteria_citizens
+type 83
+end
 end
 arch floor_wood3g
 z 50
 x 23
 y 20
 end
-arch carpet2d
+arch carpet2.131
 x 23
 y 20
 end
@@ -3547,6 +3645,18 @@ x 23
 y 21
 end
 arch floor_wood3f
+z 50
+x 23
+y 22
+end
+arch broom.111
+direction 7
+x 23
+y 22
+end
+arch cupboard
+direction 7
+sub_layer 1
 z 50
 x 23
 y 22

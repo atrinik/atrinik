@@ -34,6 +34,8 @@
 #include <global.h>
 #include <faction.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Faction parent structure. Holds information about the parent faction,
@@ -161,11 +163,9 @@ TOOLKIT_INIT_FUNC(faction)
     while (fgets(VS(buf), fp)) {
         linenum++;
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         char *cps[2];
 
@@ -314,9 +314,12 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * Create a new faction with the specified name, adding it to the ::factions
  * hash table.
  * @warning Make sure this is NEVER called with duplicate names.
- * @param name Name of the faction.
- * @param parent Faction's parent. May be NULL.
- * @return The created faction.
+ * @param name
+ * Name of the faction.
+ * @param parent
+ * Faction's parent. May be NULL.
+ * @return
+ * The created faction.
  */
 static faction_t faction_create(const char *name, faction_t parent)
 {
@@ -342,7 +345,8 @@ static faction_t faction_create(const char *name, faction_t parent)
 /**
  * Frees data associated with the specified faction structure, removing it from
  * the ::factions hash table.
- * @param faction Faction to free.
+ * @param faction
+ * Faction to free.
  */
 static void faction_free(faction_t faction)
 {
@@ -370,8 +374,10 @@ static void faction_free(faction_t faction)
 
 /**
  * Find a faction in the ::factions hash table, identified by its name.
- * @param name Name to find.
- * @return Faction if found, NULL otherwise.
+ * @param name
+ * Name to find.
+ * @return
+ * Faction if found, NULL otherwise.
  */
 faction_t faction_find(shstr *name)
 {
@@ -386,8 +392,10 @@ faction_t faction_find(shstr *name)
 
 /**
  * Add a parent to the specified faction.
- * @param faction Faction.
- * @param name Name of the parent.
+ * @param faction
+ * Faction.
+ * @param name
+ * Name of the parent.
  */
 static void faction_add_parent(faction_t faction, const char *name)
 {
@@ -452,10 +460,14 @@ static void faction_assign_names(void)
 
 /**
  * Updates player's reputation with the specified faction and all its parents.
- * @param faction Faction.
- * @param pl Player.
- * @param reputation Reputation value to add.
- * @param override_spill If true, spill value of parents will not be considered.
+ * @param faction
+ * Faction.
+ * @param pl
+ * Player.
+ * @param reputation
+ * Reputation value to add.
+ * @param override_spill
+ * If true, spill value of parents will not be considered.
  */
 static void _faction_update(faction_t faction, player *pl, double reputation,
         bool override_spill)
@@ -487,9 +499,12 @@ static void _faction_update(faction_t faction, player *pl, double reputation,
 
 /**
  * Update player's reputation with the specified faction.
- * @param faction Faction.
- * @param pl Player.
- * @param reputation Reputation value to add.
+ * @param faction
+ * Faction.
+ * @param pl
+ * Player.
+ * @param reputation
+ * Reputation value to add.
  */
 void faction_update(faction_t faction, player *pl, double reputation)
 {
@@ -504,8 +519,10 @@ void faction_update(faction_t faction, player *pl, double reputation)
 /**
  * Update player's reputation with the specified faction, triggered by
  * killing a member of the faction.
- * @param faction Faction.
- * @param pl Player.
+ * @param faction
+ * Faction.
+ * @param pl
+ * Player.
  */
 void faction_update_kill(faction_t faction, player *pl)
 {
@@ -519,11 +536,16 @@ void faction_update_kill(faction_t faction, player *pl)
 
 /**
  * Checks whether the specified object is a friend of the specified faction.
- * @param faction Faction.
- * @param op Object to check.
- * @param check_enemies If true, check faction's enemies as well.
- * @param attention Parent's attention value.
- * @return Whether the object is a friend of the faction.
+ * @param faction
+ * Faction.
+ * @param op
+ * Object to check.
+ * @param check_enemies
+ * If true, check faction's enemies as well.
+ * @param attention
+ * Parent's attention value.
+ * @return
+ * Whether the object is a friend of the faction.
  */
 static bool _faction_is_friend(faction_t faction, object *op,
         bool check_enemies, double attention)
@@ -539,14 +561,23 @@ static bool _faction_is_friend(faction_t faction, object *op,
         reputation = fabs(faction->threshold) + 1;
     } else {
         reputation = 0;
+
+        if (faction->name == object_get_value(op, "faction")) {
+            return true;
+        }
     }
 
     if (check_enemies) {
         for (size_t i = 0; i < faction->enemies_num; i++) {
-            if (_faction_is_friend(faction->enemies[i].faction.ptr, op, false,
-                    attention)) {
-                reputation -= fabs(faction->threshold) + 1.0;
-                break;
+            if (_faction_is_friend(faction->enemies[i].faction.ptr,
+                                   op,
+                                   false,
+                                   attention)) {
+                double value = fabs(faction->threshold) + 1.0;
+                if (op->type != PLAYER) {
+                    value *= 2.0;
+                }
+                reputation -= value;
             }
         }
     }
@@ -577,9 +608,12 @@ static bool _faction_is_friend(faction_t faction, object *op,
 
 /**
  * Checks whether the specified object is a friend of the given faction.
- * @param faction Faction.
- * @param op Object to check.
- * @return Whether the object is a friend of the faction.
+ * @param faction
+ * Faction.
+ * @param op
+ * Object to check.
+ * @return
+ * Whether the object is a friend of the faction.
  */
 bool faction_is_friend(faction_t faction, object *op)
 {
@@ -594,8 +628,10 @@ bool faction_is_friend(faction_t faction, object *op)
 /**
  * Acquire the first faction alliance, recursively iterating its primary
  * parents.
- * @param faction Faction.
- * @return Faction with the alliance flag. Can be NULL.
+ * @param faction
+ * Faction.
+ * @return
+ * Faction with the alliance flag. Can be NULL.
  */
 static faction_t faction_get_alliance(faction_t faction)
 {
@@ -617,9 +653,12 @@ static faction_t faction_get_alliance(faction_t faction)
  *
  * In order to be in an alliance, the first parent with an alliance flag must
  * be the same for both factions.
- * @param faction First faction.
- * @param faction2 Second faction.
- * @return True if the two factions are in an alliance, false otherwise.
+ * @param faction
+ * First faction.
+ * @param faction2
+ * Second faction.
+ * @return
+ * True if the two factions are in an alliance, false otherwise.
  */
 bool faction_is_alliance(faction_t faction, faction_t faction2)
 {
@@ -644,9 +683,12 @@ bool faction_is_alliance(faction_t faction, faction_t faction2)
 
 /**
  * Helper function for faction_get_bounty().
- * @param faction Faction.
- * @param pl Player.
- * @return Bounty.
+ * @param faction
+ * Faction.
+ * @param pl
+ * Player.
+ * @return
+ * Bounty.
  */
 static double _faction_get_bounty(faction_t faction, player *pl)
 {
@@ -682,9 +724,12 @@ static double _faction_get_bounty(faction_t faction, player *pl)
  *
  * If the faction is part of an alliance, the entire alliance will be checked
  * instead.
- * @param faction Faction.
- * @param pl Player.
- * @return Bounty.
+ * @param faction
+ * Faction.
+ * @param pl
+ * Player.
+ * @return
+ * Bounty.
  */
 double faction_get_bounty(faction_t faction, player *pl)
 {
@@ -703,8 +748,10 @@ double faction_get_bounty(faction_t faction, player *pl)
 
 /**
  * Helper function for faction_clear_bounty().
- * @param faction Faction.
- * @param pl Player.
+ * @param faction
+ * Faction.
+ * @param pl
+ * Player.
  */
 static void _faction_clear_bounty(faction_t faction, player *pl)
 {
@@ -735,8 +782,10 @@ static void _faction_clear_bounty(faction_t faction, player *pl)
  *
  * If the faction is part of an alliance, the bounty will be cleared in the
  * entire alliance.
- * @param faction Faction.
- * @param pl Player.
+ * @param faction
+ * Faction.
+ * @param pl
+ * Player.
  */
 void faction_clear_bounty(faction_t faction, player *pl)
 {

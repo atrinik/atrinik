@@ -26,7 +26,8 @@
  * @file
  * Implements the login popup.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -43,16 +44,20 @@ enum {
 #define LOGIN_TEXT_INPUT_MAX ((button_tab_login.pressed_forced ? LOGIN_TEXT_INPUT_PASSWORD : LOGIN_TEXT_INPUT_PASSWORD2) + 1)
 
 /**
- * Progress dots buffer. */
+ * Progress dots buffer.
+ */
 static progress_dots progress;
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct button_tab_login, button_tab_register, button_done;
 /**
- * Text input buffers. */
+ * Text input buffers.
+ */
 static text_input_struct text_inputs[LOGIN_TEXT_INPUT_NUM];
 /**
- * Currently selected text input. */
+ * Currently selected text input.
+ */
 static size_t text_input_current;
 
 /** @copydoc text_input_struct::character_check_func */
@@ -271,7 +276,8 @@ static int popup_destroy_callback(popup_struct *popup)
 }
 
 /**
- * Start the login procedure. */
+ * Start the login procedure.
+ */
 void login_start(void)
 {
     popup_struct *popup;

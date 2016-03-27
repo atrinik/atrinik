@@ -25,69 +25,96 @@
 /**
  * @file
  * Functions related to attributes, weight, experience, which concern
- * only living things. */
+ * only living things.
+ */
 
 #include <global.h>
 #include <monster_data.h>
 #include <arch.h>
 #include <plugin.h>
+#include <player.h>
+#include <object.h>
 
 /** When we carry more than this of our weight_limit, we get encumbered. */
-#define ENCUMBRANCE_LIMIT 65.0f
+#define ENCUMBRANCE_LIMIT 65.0
 
 /**
- * dam_bonus, thaco_bonus, weight limit all are based on strength. */
-int dam_bonus[MAX_STAT + 1] = {
-    -5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
-    0, 0, 0, 0, 0,
-    1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 10, 12
-};
-
-/** THAC0 bonus - WC bonus */
-int thaco_bonus[MAX_STAT + 1] = {
-    -5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
-    0, 0, 0, 0, 0,
-    1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8
-};
-
-/**
- * Constitution bonus. */
-static float con_bonus[MAX_STAT + 1] = {
-    -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
-    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-    0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f
+ * Bonus to melee/ranged damage. Based on strength.
+ */
+double dam_bonus[MAX_STAT + 1] = {
+    -2.5,                           // 0
+    -2.0, -2.0, -1.5, -1.5, -1.5,   // 1-5
+    -1.0, -1.0, -1.0, -0.5, -0.5,   // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,        // 11-15
+    0.5, 0.5, 1.0, 1.0, 1.5,        // 16-20
+    1.5, 1.5, 2.0, 2.0, 2.5,        // 21-25
+    3.0, 3.5, 4.0, 4.5, 5.0,        // 26-30
 };
 
 /**
- * Power bonus. */
-static float pow_bonus[MAX_STAT + 1] = {
-    -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
-    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-    0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
+ * WC bonus. Based on dexterity.
+ */
+int wc_bonus[MAX_STAT + 1] = {
+    -5,                     // 0
+    -4, -4, -3, -3, -3,     // 1-5
+    -2, -2, -2, -1, -1,     // 6-10
+    0, 0, 0, 0, 0,          // 11-15
+    1, 1, 2, 2, 3,          // 16-20
+    3, 3, 4, 4, 5,          // 21-25
+    5, 5, 6, 7, 8,          // 26-30
 };
 
 /**
- * Speed bonus. Uses dexterity as its stat. */
+ * Maximum health points bonus. Based on constitution.
+ */
+static double hp_bonus[MAX_STAT + 1] = {
+    -0.8,                               // 0
+    -0.6, -0.5, -0.4, -0.35, -0.3,      // 1-5
+    -0.25, -0.2, -0.15, -0.11, -0.07,   // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
+    0.1, 0.15, 0.2, 0.25, 0.3,          // 16-20
+    0.35, 0.4, 0.45, 0.5, 0.55,         // 21-25
+    0.6, 0.7, 0.8, 0.9, 1.0             // 26-30
+};
+
+/**
+ * Maximum spell points bonus. Primarily based on intelligence, secondarily on
+ * power.
+ */
+static double sp_bonus[MAX_STAT + 1] = {
+    -0.8,                               // 0
+    -0.6, -0.5, -0.4, -0.35, -0.3,      // 1-5
+    -0.25, -0.2, -0.15, -0.11, -0.07,   // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
+    0.1, 0.2, 0.3, 0.4, 0.5,            // 16-20
+    0.6, 0.7, 0.8, 0.9, 1.0,            // 21-25
+    1.1, 1.4, 1.6, 1.8, 2.0,            // 26-30
+};
+
+/**
+ * Speed bonus. Based on dexterity.
+ */
 float speed_bonus[MAX_STAT + 1] = {
-    -0.4f, -0.4f, -0.3f, -0.3f, -0.2f,
-    -0.2f, -0.2f, -0.1f, -0.1f, -0.1f,
-    -0.05f, 0.0, 0.0f, 0.0f, 0.025f, 0.05f,
-    0.075f, 0.1f, 0.125f, 0.15f, 0.175f, 0.2f,
-    0.225f, 0.25f, 0.275f, 0.3f,
-    0.325f, 0.35f, 0.4f, 0.45f, 0.5f
+    -0.4,                                   // 0
+    -0.4, -0.3, -0.3, -0.2,                 // 1-5
+    -0.2, -0.2, -0.1, -0.1, -0.1,           // 6-10
+    -0.05, 0.0, 0.0, 0.0, 0.025, 0.05,      // 11-15
+    0.075, 0.1, 0.125, 0.15, 0.175, 0.2,    // 16-20
+    0.225, 0.25, 0.275, 0.3,                // 21-25
+    0.325, 0.35, 0.4, 0.45, 0.5,            // 26-30
 };
 
 /**
- * Falling damage mitigation. Uses dexterity.
+ * Falling damage mitigation. Based on dexterity.
  */
 double falling_mitigation[MAX_STAT + 1] = {
-    2.0f, // 0
-    1.9f, 1.8f, 1.7f, 1.6f, 1.5f, // 1-5
-    1.4f, 1.3f, 1.2f, 1.1f, 1.0f, // 6-10
-    1.05f, 1.0f, 1.0f, 1.0f, 1.0f, // 11-15
-    0.98f, 0.96f, 0.94f, 0.92f, 0.9f, // 16-20
-    0.88f, 0.84f, 0.80f, 0.77f, 0.73f, // 21-25
-    0.7f, 0.65f, 0.6f, 0.55f, 0.5f // 26-30
+    2.0,                            // 0
+    1.9, 1.8, 1.7, 1.6, 1.5,        // 1-5
+    1.4, 1.3, 1.2, 1.1, 1.0,        // 6-10
+    1.05, 1.0, 1.0, 1.0, 1.0,       // 11-15
+    0.98, 0.96, 0.94, 0.92, 0.9,    // 16-20
+    0.88, 0.84, 0.80, 0.77, 0.73,   // 21-25
+    0.7, 0.65, 0.6, 0.55, 0.5,      // 26-30
 };
 
 /**
@@ -97,7 +124,8 @@ double falling_mitigation[MAX_STAT + 1] = {
  * Value is in grams, so we don't need to do conversion later
  *
  * These limits are probably overly generous, but being there were no
- * values before, you need to start someplace. */
+ * values before, you need to start someplace.
+ */
 uint32_t weight_limit[MAX_STAT + 1] = {
     20000,
     25000,  30000,  35000,  40000,  50000,
@@ -110,7 +138,8 @@ uint32_t weight_limit[MAX_STAT + 1] = {
 
 /**
  * Probability to learn a spell or skill, based on intelligence or
- * wisdom. */
+ * wisdom.
+ */
 int learn_spell[MAX_STAT + 1] = {
     0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
     100, 100, 100, 100, 100, 100
@@ -131,7 +160,8 @@ int monster_signal_chance[MAX_STAT + 1] = {
 };
 
 /**
- * Probability to avoid something. */
+ * Probability to avoid something.
+ */
 int savethrow[MAXLEVEL + 1] = {
     18,
     18, 17, 16, 15, 14, 14, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9,
@@ -147,8 +177,6 @@ static const char *const drain_msg[NUM_STATS] = {
     "Oh no! You are weakened!",
     "You're feeling clumsy!",
     "You feel less healthy",
-    "You suddenly begin to lose your memory!",
-    "Your face gets distorted!",
     "Watch out, your mind is going!",
     "Your spirit feels drained!"
 };
@@ -158,8 +186,6 @@ const char *const restore_msg[NUM_STATS] = {
     "You feel your strength return.",
     "You feel your agility return.",
     "You feel your health return.",
-    "You feel your wisdom return.",
-    "You feel your charisma return.",
     "You feel your memory return.",
     "You feel your spirits return."
 };
@@ -169,8 +195,6 @@ static const char *const gain_msg[NUM_STATS] = {
     "You feel stronger.",
     "You feel more agile.",
     "You feel healthy.",
-    "You feel wiser.",
-    "You seem to look better.",
     "You feel smarter.",
     "You feel more potent."
 };
@@ -180,8 +204,6 @@ const char *const lose_msg[NUM_STATS] = {
     "You feel weaker!",
     "You feel clumsy!",
     "You feel less healthy!",
-    "You lose some of your memory!",
-    "You look ugly!",
     "You feel stupid!",
     "You feel less potent!"
 };
@@ -191,8 +213,6 @@ const char *const statname[NUM_STATS] = {
     "strength",
     "dexterity",
     "constitution",
-    "wisdom",
-    "charisma",
     "intelligence",
     "power"
 };
@@ -202,8 +222,6 @@ const char *const short_stat_name[NUM_STATS] = {
     "Str",
     "Dex",
     "Con",
-    "Wis",
-    "Cha",
     "Int",
     "Pow"
 };
@@ -211,9 +229,13 @@ const char *const short_stat_name[NUM_STATS] = {
 /**
  * Sets Str/Dex/con/Wis/Cha/Int/Pow in stats to value, depending on what
  * attr is (STR to POW).
- * @param stats Item to modify. Must not be NULL.
- * @param attr Attribute to change.
- * @param value New value. */
+ * @param stats
+ * Item to modify. Must not be NULL.
+ * @param attr
+ * Attribute to change.
+ * @param value
+ * New value.
+ */
 void set_attr_value(living *stats, int attr, int8_t value)
 {
     switch (attr) {
@@ -229,16 +251,8 @@ void set_attr_value(living *stats, int attr, int8_t value)
         stats->Con = value;
         break;
 
-    case WIS:
-        stats->Wis = value;
-        break;
-
     case POW:
         stats->Pow = value;
-        break;
-
-    case CHA:
-        stats->Cha = value;
         break;
 
     case INT:
@@ -253,9 +267,13 @@ void set_attr_value(living *stats, int attr, int8_t value)
  *
  * Checking is performed to make sure old value + new value doesn't overflow
  * the stat integer.
- * @param stats Item to modify. Must not be NULL.
- * @param attr Attribute to change.
- * @param value Delta (can be positive). */
+ * @param stats
+ * Item to modify. Must not be NULL.
+ * @param attr
+ * Attribute to change.
+ * @param value
+ * Delta (can be positive).
+ */
 void change_attr_value(living *stats, int attr, int8_t value)
 {
     int16_t result;
@@ -276,10 +294,14 @@ void change_attr_value(living *stats, int attr, int8_t value)
 
 /**
  * Gets the value of a stat.
- * @param stats Item from which to get stat.
- * @param attr Attribute to get.
- * @return Specified attribute, 0 if not found.
- * @see set_attr_value(). */
+ * @param stats
+ * Item from which to get stat.
+ * @param attr
+ * Attribute to get.
+ * @return
+ * Specified attribute, 0 if not found.
+ * @see set_attr_value().
+ */
 int8_t get_attr_value(const living *stats, int attr)
 {
     switch (attr) {
@@ -291,12 +313,6 @@ int8_t get_attr_value(const living *stats, int attr)
 
     case CON:
         return stats->Con;
-
-    case WIS:
-        return stats->Wis;
-
-    case CHA:
-        return stats->Cha;
 
     case INT:
         return stats->Int;
@@ -311,7 +327,9 @@ int8_t get_attr_value(const living *stats, int attr)
 /**
  * Ensures that all stats (str/dex/con/wis/cha/int) are within the
  * passed in range of MIN_STAT and MAX_STAT.
- * @param stats Attributes to check. */
+ * @param stats
+ * Attributes to check.
+ */
 void check_stat_bounds(living *stats)
 {
     int i, v;
@@ -329,7 +347,9 @@ void check_stat_bounds(living *stats)
 
 /**
  * Drains a random stat from op.
- * @param op Object to drain. */
+ * @param op
+ * Object to drain.
+ */
 void drain_stat(object *op)
 {
     drain_specific_stat(op, rndm(1, NUM_STATS) - 1);
@@ -337,8 +357,11 @@ void drain_stat(object *op)
 
 /**
  * Drain a specified stat from op.
- * @param op Victim to drain.
- * @param deplete_stats Statistic to drain. */
+ * @param op
+ * Victim to drain.
+ * @param deplete_stats
+ * Statistic to drain.
+ */
 void drain_specific_stat(object *op, int deplete_stats)
 {
     object *tmp;
@@ -348,24 +371,26 @@ void drain_specific_stat(object *op, int deplete_stats)
         LOG(BUG, "Couldn't find archetype depletion.");
         return;
     } else {
-        tmp = present_arch_in_ob(at, op);
+        tmp = object_find_arch(op, at);
 
         if (!tmp) {
             tmp = arch_to_object(at);
-            tmp = insert_ob_in_ob(tmp, op);
+            tmp = object_insert_into(tmp, op, 0);
             SET_FLAG(tmp, FLAG_APPLIED);
         }
     }
 
-    draw_info(COLOR_WHITE, op, drain_msg[deplete_stats]);
+    draw_info(COLOR_GRAY, op, drain_msg[deplete_stats]);
     change_attr_value(&tmp->stats, deplete_stats, -1);
-    living_update(op);
+    living_update_player(op);
 }
 
 /**
  * Propagate stats an item gives to a living object, eg, a player.
- * @param op Living object.
- * @param item Item with the stats to give.
+ * @param op
+ * Living object.
+ * @param item
+ * Item with the stats to give.
  */
 static void
 living_apply_flags (object       *op,
@@ -444,14 +469,21 @@ living_apply_flags (object       *op,
     if (QUERY_FLAG(item, FLAG_UNDEAD)) {
         SET_FLAG(op, FLAG_UNDEAD);
     }
+
+    if (QUERY_FLAG(item, FLAG_CONFUSED)) {
+        SET_FLAG(op, FLAG_CONFUSED);
+    }
 }
 
 /**
  * Update player's stats that are acquired from the specified item.
  *
- * @param pl Player.
- * @param op Player object.
- * @param item Item the stats are acquired from.
+ * @param pl
+ * Player.
+ * @param op
+ * Player object.
+ * @param item
+ * Item the stats are acquired from.
  * @param[out] attacks Attack types.
  * @param[out] protect_bonus Protection bonuses.
  * @param[out] protect_malus Protection maluses.
@@ -495,6 +527,14 @@ living_update_player_item (player       *pl,
         op->stats.ac += item->stats.ac + item->magic;
     }
 
+    if (item->block != 0) {
+        op->block += item->block + item->magic;
+    }
+
+    if (item->absorb != 0) {
+        op->absorb += item->absorb + item->magic;
+    }
+
     /* Add stats for non-ranged items. */
     if (!OBJECT_IS_RANGED(item)) {
         /* Add the weapon class, factoring in the item's magic. */
@@ -505,7 +545,12 @@ living_update_player_item (player       *pl,
         /* Add the damage, factoring in the item's magic. This affects melee
          * weapons damage. */
         if (item->stats.dam) {
-            op->stats.dam += item->stats.dam + item->magic;
+            int16_t dam = item->stats.dam + item->magic;
+            op->stats.dam += dam;
+
+            if (!IS_WEAPON(item)) {
+                pl->dam_bonus += dam;
+            }
         }
 
         for (int i = 0; i < NROFATTACKS; i++) {
@@ -563,7 +608,8 @@ living_update_player_item (player       *pl,
 
 /**
  * Updates player object based on the applied items in their inventory.
- * @param op Player to update.
+ * @param op
+ * Player to update.
  */
 void living_update_player(object *op)
 {
@@ -586,7 +632,7 @@ void living_update_player(object *op)
     pl->gen_sp_armour = 0;
     pl->item_power = 0;
     pl->quest_container = NULL;
-    pl->class_ob = NULL;
+    pl->dam_bonus = 0;
 
     for (int i = 0; i < NUM_STATS; i++) {
         int8_t value = get_attr_value(&op->arch->clone.stats, i);
@@ -596,6 +642,9 @@ void living_update_player(object *op)
     op->stats.wc = op->arch->clone.stats.wc;
     op->stats.ac = op->arch->clone.stats.ac;
     op->stats.dam = op->arch->clone.stats.dam;
+
+    op->block = op->arch->clone.block;
+    op->absorb = op->arch->clone.absorb;
 
     op->stats.maxhp = op->arch->clone.stats.maxhp;
     op->stats.maxsp = op->arch->clone.stats.maxsp;
@@ -672,6 +721,10 @@ void living_update_player(object *op)
         CLEAR_FLAG(op, FLAG_BLIND);
     }
 
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_IS_ASSASSINATION)) {
+        CLEAR_FLAG(op, FLAG_IS_ASSASSINATION);
+    }
+
     /* Initializing player arrays from the values in player archetype clone */
     memset(&pl->equipment, 0, sizeof(pl->equipment));
     memset(&pl->skill_ptr, 0, sizeof(pl->skill_ptr));
@@ -705,7 +758,7 @@ void living_update_player(object *op)
 
     FOR_INV_PREPARE(op, tmp) {
         if (tmp->type == QUEST_CONTAINER) {
-            if (pl->quest_container == NULL) {
+            if (likely(pl->quest_container == NULL)) {
                 pl->quest_container = tmp;
             } else {
                 LOG(ERROR, "Found duplicate quest container object %s",
@@ -732,7 +785,7 @@ void living_update_player(object *op)
         }
 
         if (tmp->type == SKILL) {
-            if (pl->skill_ptr[tmp->stats.sp] == NULL) {
+            if (likely(pl->skill_ptr[tmp->stats.sp] == NULL)) {
                 pl->skill_ptr[tmp->stats.sp] = tmp;
             } else {
                 LOG(ERROR, "Found duplicate skill object %s",
@@ -769,13 +822,10 @@ void living_update_player(object *op)
             }
 
             living_apply_flags(op, tmp);
-        } else if (tmp->type == CLASS || tmp->type == FORCE ||
-                   tmp->type == POISONING || tmp->type == DISEASE ||
+        } else if (tmp->type == FORCE ||
+                   tmp->type == POISONING ||
+                   tmp->type == DISEASE ||
                    tmp->type == SYMPTOM) {
-            if (tmp->type == CLASS) {
-                pl->class_ob = tmp;
-            }
-
             if (ARMOUR_SPEED(tmp) != 0 &&
                 max_speed > ARMOUR_SPEED(tmp) / 10.0) {
                 max_speed = ARMOUR_SPEED(tmp) / 10.0;
@@ -793,7 +843,9 @@ void living_update_player(object *op)
                 }
 
                 if (tmp->stats.dam != 0) {
-                    op->stats.dam += tmp->stats.dam + tmp->magic;
+                    int16_t dam = tmp->stats.dam + tmp->magic;
+                    op->stats.dam += dam;
+                    pl->dam_bonus += dam;
                 }
 
                 if (tmp->stats.ac != 0) {
@@ -806,6 +858,13 @@ void living_update_player(object *op)
 
             if (tmp->type == DISEASE || tmp->type == SYMPTOM) {
                 speed_reduce_from_disease = tmp->last_sp / 100.0;
+            } else if (tmp->stats.exp != 0) {
+                if (tmp->stats.exp > 0) {
+                    added_speed += tmp->stats.exp / 3.0;
+                    bonus_speed += 1.0 + tmp->stats.exp / 3.0;
+                } else {
+                    added_speed += tmp->stats.exp;
+                }
             }
 
             for (int i = 0; i < NROFATTACKS; i++) {
@@ -922,12 +981,7 @@ void living_update_player(object *op)
     }
 
     for (int i = 0; i < NROFATTACKS; i++) {
-        if (potion_attack[i] != 0) {
-            attacks[i] += potion_attack[i];
-            attacks[i] = MIN(UINT8_MAX, op->attack[i] + potion_attack[i]);
-        }
-
-        unsigned int attack = op->attack[i] + attacks[i];
+        unsigned int attack = op->attack[i] + attacks[i] + potion_attack[i];
         op->attack[i] = MIN(UINT8_MAX, attack);
 
         /* Add in the potion protections. */
@@ -1003,7 +1057,7 @@ void living_update_player(object *op)
         }
     }
 
-    update_ob_speed(op);
+    object_update_speed(op);
 
     /* The player is invisible; shouldn't emit any light. */
     if (QUERY_FLAG(op, FLAG_IS_INVISIBLE)) {
@@ -1023,22 +1077,13 @@ void living_update_player(object *op)
                         pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1) + 3;
 
     /* Now adjust with the % of the stats malus/bonus. */
-    op->stats.maxhp += op->stats.maxhp * con_bonus[op->stats.Con];
+    op->stats.maxhp += op->stats.maxhp * hp_bonus[op->stats.Con];
     op->stats.maxhp += max_bonus_hp;
-    op->stats.maxsp += op->stats.maxsp * pow_bonus[op->stats.Pow];
+
+    double maxsp = op->stats.maxsp;
+    op->stats.maxsp += maxsp * sp_bonus[op->stats.Int];
+    op->stats.maxsp += maxsp * (sp_bonus[op->stats.Pow] / 2.5);
     op->stats.maxsp += max_bonus_sp;
-
-    /* HP/SP adjustments coming from class-defining object; these should
-     * always be last, since they add a percentage based on the max. */
-    if (CONTR(op)->class_ob != NULL) {
-        if (CONTR(op)->class_ob->stats.hp != 0) {
-            op->stats.maxhp *= 1.0 + CONTR(op)->class_ob->stats.hp / 100.0;
-        }
-
-        if (CONTR(op)->class_ob->stats.sp != 0) {
-            op->stats.maxsp *= 1.0 + CONTR(op)->class_ob->stats.sp / 100.0;
-        }
-    }
 
     if (op->stats.maxhp < 1) {
         op->stats.maxhp = 1;
@@ -1068,12 +1113,19 @@ void living_update_player(object *op)
     object *weapon = pl->equipment[PLAYER_EQUIP_WEAPON];
     if (weapon != NULL && weapon->type == WEAPON && weapon->item_skill != 0) {
         op->weapon_speed = weapon->last_grace;
-        op->stats.wc += SKILL_LEVEL(pl,
-                weapon->item_skill - 1);
+        op->stats.wc += SKILL_LEVEL(pl, weapon->item_skill - 1);
         double dam = op->stats.dam;
         dam *= LEVEL_DAMAGE(SKILL_LEVEL(pl, weapon->item_skill - 1));
         dam *= weapon->item_condition / 100.0;
         op->stats.dam = dam;
+
+        if (weapon->slaying != NULL) {
+            FREE_AND_ADD_REF_HASH(op->slaying, weapon->slaying);
+        }
+
+        if (QUERY_FLAG(weapon, FLAG_IS_ASSASSINATION)) {
+            SET_FLAG(op, FLAG_IS_ASSASSINATION);
+        }
     } else {
         if (pl->skill_ptr[SK_UNARMED] != NULL) {
             op->weapon_speed = pl->skill_ptr[SK_UNARMED]->last_grace;
@@ -1093,27 +1145,28 @@ void living_update_player(object *op)
         op->stats.dam *= LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED)) / 2.0;
     }
 
-    /* Now the last adds - stat bonus to damage and WC */
-    op->stats.dam += dam_bonus[op->stats.Str];
-
-    if (op->stats.dam < 0) {
-        op->stats.dam = 0;
+    /* Add damage bonus based on strength. */
+    op->stats.dam += op->stats.dam * dam_bonus[op->stats.Str] / 10.0;
+    if (op->stats.dam < 1) {
+        op->stats.dam = 1;
     }
 
-    op->stats.wc += thaco_bonus[op->stats.Dex];
+    /* Add WC bonus based on dexterity. */
+    op->stats.wc += wc_bonus[op->stats.Dex];
 
     if (pl->quest_container == NULL) {
         LOG(ERROR, "Player %s has no quest container, fixing.",
             object_get_str(op));
         object *quest_container = arch_get(QUEST_CONTAINER_ARCHETYPE);
-        insert_ob_in_ob(quest_container, op);
+        object_insert_into(quest_container, op, 0);
         pl->quest_container = quest_container;
     }
 }
 
 /**
  * Like living_update_player(), but for monsters.
- * @param op The monster.
+ * @param op
+ * The monster.
  */
 void living_update_monster(object *op)
 {
@@ -1138,6 +1191,10 @@ void living_update_monster(object *op)
     base = living_get_base_info(op);
 
     CLEAR_FLAG(op, FLAG_READY_BOW);
+    op->absorb = 0;
+    op->block = 0;
+    memcpy(&op->protection, &op->arch->clone.protection,
+           sizeof(op->protection));
 
     op->stats.maxhp = (base->stats.maxhp * (op->level + 3) + (op->level / 2) *
             base->stats.maxhp) / 10;
@@ -1161,9 +1218,9 @@ void living_update_monster(object *op)
     }
 
     op->stats.ac = base->stats.ac + op->level;
-    /* + level / 4 to catch up the equipment improvements of
+    /* + level / 3 to catch up the equipment improvements of
      * the players in armour items. */
-    op->stats.wc = base->stats.wc + op->level + (op->level / 4);
+    op->stats.wc = base->stats.wc + op->level + (op->level / 3);
     op->stats.dam = base->stats.dam;
 
     if (base->stats.wc_range) {
@@ -1193,18 +1250,32 @@ void living_update_monster(object *op)
         }
 
         if (QUERY_FLAG(tmp, FLAG_APPLIED)) {
-            int i;
-
             if (tmp->type == WEAPON) {
-                op->stats.dam += tmp->stats.dam;
-                op->stats.wc += tmp->stats.wc;
-            } else if (IS_ARMOR(tmp)) {
-                for (i = 0; i < NROFATTACKS; i++) {
-                    op->protection[i] = MIN(op->protection[i] +
-                            tmp->protection[i], 15);
+                if (tmp->stats.dam != 0) {
+                    op->stats.dam += tmp->stats.dam + tmp->magic;
                 }
 
-                op->stats.ac += tmp->stats.ac;
+                if (tmp->stats.wc != 0) {
+                    op->stats.wc += tmp->stats.wc + tmp->magic;
+                }
+            } else if (IS_ARMOR(tmp)) {
+                for (int i = 0; i < NROFATTACKS; i++) {
+                    int protect = op->protection[i] + tmp->protection[i];
+                    protect = MIN(100, protect);
+                    op->protection[i] = protect;
+                }
+
+                if (tmp->stats.ac != 0) {
+                    op->stats.ac += tmp->stats.ac + tmp->magic;
+                }
+            }
+
+            if (tmp->block != 0) {
+                op->block += tmp->block + tmp->magic;
+            }
+
+            if (tmp->absorb != 0) {
+                op->absorb += tmp->absorb + tmp->magic;
             }
         }
     }
@@ -1243,10 +1314,14 @@ void living_update_monster(object *op)
 
 /**
  * Displays information about the object's updated stats.
- * @param op Object.
- * @param refop Old state of the object.
- * @param refpl Old state of the player.
- * @return Number of stats changed (approximate).
+ * @param op
+ * Object.
+ * @param refop
+ * Old state of the object.
+ * @param refpl
+ * Old state of the player.
+ * @return
+ * Number of stats changed (approximate).
  */
 static int living_update_display(object *op, object *refop, player *refpl)
 {
@@ -1554,14 +1629,31 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
+    if (pl->item_power != refpl->item_power &&
+        (pl->item_power > settings.item_power_factor * op->level ||
+         refpl->item_power > settings.item_power_factor * op->level)) {
+        if (pl->item_power > refpl->item_power) {
+            draw_info(COLOR_GRAY, op, "You feel the combined power of your "
+                                      "equipped items begin gnawing on your "
+                                      "soul!");
+        } else if (pl->item_power > settings.item_power_factor * op->level) {
+            draw_info(COLOR_GRAY, op, "You feel your soul return closer to "
+                                      "normal.");
+        } else {
+            draw_info(COLOR_WHITE, op, "You feel your soul return to normal.");
+        }
+    }
+
     return ret;
 }
 
 /**
  * Updates all abilities given by applied objects in the inventory of the given
  * object.
- * @param op Object to update.
- * @return Approximate number of changed stats.
+ * @param op
+ * Object to update.
+ * @return
+ * Approximate number of changed stats.
  */
 int living_update(object *op)
 {
@@ -1601,9 +1693,11 @@ int living_update(object *op)
 
 /**
  * Find the base info object in the specified monster.
- * @param op Monster object. Must not be NULL, cannot be a tail part and must
+ * @param op
+ * Monster object. Must not be NULL, cannot be a tail part and must
  * be of type MONSTER.
- * @return Pointer to the base info if found, NULL otherwise.
+ * @return
+ * Pointer to the base info if found, NULL otherwise.
  */
 object *living_find_base_info(object *op)
 {
@@ -1626,9 +1720,11 @@ object *living_find_base_info(object *op)
 /**
  * Acquire the base info object of the specified monster object. If the base
  * info doesn't exist yet, it is created automatically.
- * @param op Monster. Must not be NULL, cannot be a tail part and must be of
+ * @param op
+ * Monster. Must not be NULL, cannot be a tail part and must be of
  * type MONSTER.
- * @return Pointer to the base info object, NULL on failure.
+ * @return
+ * Pointer to the base info object, NULL on failure.
  */
 object *living_get_base_info(object *op)
 {
@@ -1644,10 +1740,10 @@ object *living_get_base_info(object *op)
         return tmp;
     }
 
-    tmp = get_object();
+    tmp = object_get();
     tmp->arch = op->arch;
     /* Copy without putting it on active list */
-    copy_object(op, tmp, 1);
+    object_copy(tmp, op, true);
     tmp->type = BASE_INFO;
     tmp->speed_left = tmp->speed;
     /* Ensure this object will not be active in any way */
@@ -1658,10 +1754,10 @@ object *living_get_base_info(object *op)
     CLEAR_FLAG(tmp, FLAG_FRIENDLY);
     CLEAR_FLAG(tmp, FLAG_MONSTER);
     /* And put it in the monster. */
-    tmp = insert_ob_in_ob(tmp, op);
+    tmp = object_insert_into(tmp, op, 0);
 
     /* Store position (for returning home after aggro is lost). */
-    object *env = get_env_recursive(op);
+    object *env = object_get_env(op);
     if (env->map != NULL) {
         tmp->x = env->x;
         tmp->y = env->y;
@@ -1678,8 +1774,11 @@ object *living_get_base_info(object *op)
  * 3/5 = mob is moving fast
  * 4/5 = mov is running/attack speed
  * 5/5 = mob is hasted and moving full speed
- * @param op Monster.
- * @param idx Index. */
+ * @param op
+ * Monster.
+ * @param idx
+ * Index.
+ */
 void set_mobile_speed(object *op, int idx)
 {
     object *base;
@@ -1710,6 +1809,6 @@ void set_mobile_speed(object *op, int idx)
 
     /* Update speed if needed */
     if (DBL_EQUAL(tmp, 0.0) != DBL_EQUAL(op->speed, 0.0)) {
-        update_ob_speed(op);
+        object_update_speed(op);
     }
 }

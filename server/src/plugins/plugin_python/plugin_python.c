@@ -36,6 +36,9 @@
 
 #include <plugin_python.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
+#include <object_methods.h>
 
 #include <compile.h>
 #include <eval.h>
@@ -56,7 +59,8 @@ static PythonContext *context_stack;
 /** Current context. */
 PythonContext *current_context;
 /**
- * The global variables dictionary. */
+ * The global variables dictionary.
+ */
 static PyObject *py_globals_dict = NULL;
 
 /**
@@ -220,7 +224,7 @@ static const Atrinik_Constant constants[] = {
     {"ATNR_POISON", ATNR_POISON},
     {"ATNR_ACID", ATNR_ACID},
     {"ATNR_MAGIC", ATNR_MAGIC},
-    {"ATNR_MIND", ATNR_MIND},
+    {"ATNR_LIFESTEAL", ATNR_LIFESTEAL},
     {"ATNR_BLIND", ATNR_BLIND},
     {"ATNR_PARALYZE", ATNR_PARALYZE},
     {"ATNR_FORCE", ATNR_FORCE},
@@ -259,10 +263,7 @@ static const Atrinik_Constant constants[] = {
     {"P_MAGIC_MIRROR", P_MAGIC_MIRROR},
     {"P_OUTDOOR", P_OUTDOOR},
     {"P_OUT_OF_MAP", P_OUT_OF_MAP},
-    {"P_FLAGS_ONLY", P_FLAGS_ONLY},
-    {"P_FLAGS_UPDATE", P_FLAGS_UPDATE},
     {"P_NEED_UPDATE", P_NEED_UPDATE},
-    {"P_NO_ERROR", P_NO_ERROR},
     {"P_NO_TERRAIN", P_NO_TERRAIN},
 
     {"CMD_SOUND_EFFECT", CMD_SOUND_EFFECT},
@@ -381,8 +382,6 @@ static const Atrinik_Constant constants_types[] = {
     {"HELMET", HELMET},
     {"PANTS", PANTS},
     {"MONEY", MONEY},
-    {"CLASS", CLASS},
-    {"GRAVESTONE", GRAVESTONE},
     {"AMULET", AMULET},
     {"PLAYER_MOVER", PLAYER_MOVER},
     {"CREATOR", CREATOR},
@@ -511,7 +510,8 @@ static void initContextStack(void)
 
 /**
  * Push context to the context stack and to current context.
- * @param context The context to push.
+ * @param context
+ * The context to push.
  */
 static void pushContext(PythonContext *context)
 {
@@ -528,7 +528,8 @@ static void pushContext(PythonContext *context)
 /**
  * Pop the first context from the current context, replacing it by the
  * next one in the list.
- * @return NULL if there is no current context, the previous current
+ * @return
+ * NULL if there is no current context, the previous current
  * context otherwise.
  */
 static PythonContext *popContext(void)
@@ -546,7 +547,8 @@ static PythonContext *popContext(void)
 
 /**
  * Free a context.
- * @param context Context to free.
+ * @param context
+ * Context to free.
  */
 static void freeContext(PythonContext *context)
 {
@@ -556,10 +558,14 @@ static void freeContext(PythonContext *context)
 /**
  * Run a Python file. 'path' is automatically resolved to the current
  * maps directory.
- * @param path The Python file in the maps directory to run (absolute).
- * @param globals Globals dictionary.
- * @param locals Locals dictionary. May be NULL.
- * @return The returned object, if any.
+ * @param path
+ * The Python file in the maps directory to run (absolute).
+ * @param globals
+ * Globals dictionary.
+ * @param locals
+ * Locals dictionary. May be NULL.
+ * @return
+ * The returned object, if any.
  */
 static PyObject *py_runfile(const char *path, PyObject *globals,
         PyObject *locals)
@@ -599,8 +605,10 @@ static PyObject *py_runfile(const char *path, PyObject *globals,
 /**
  * Simplified interface to py_runfile(); automatically constructs the
  * globals dictionary with the Python builtins.
- * @param path The Python file in the maps directory to run (absolute).
- * @param locals Locals dictionary. May be NULL.
+ * @param path
+ * The Python file in the maps directory to run (absolute).
+ * @param locals
+ * Locals dictionary. May be NULL.
  */
 static void py_runfile_simple(const char *path, PyObject *locals)
 {
@@ -742,7 +750,7 @@ static int do_script(PythonContext *context, const char *filename)
         char *path;
         object *env;
 
-        env = hooks->get_env_recursive(context->event);
+        env = hooks->object_get_env(context->event);
 
         path = hooks->map_get_path(env->map, filename, 0, NULL);
         FREE_AND_COPY_HASH(context->event->race, path);
@@ -915,7 +923,7 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    return wrap_object(hooks->load_object_str(dumpob));
+    return wrap_object(hooks->object_load_str(dumpob));
 }
 
 /** Documentation for Atrinik_ReadyMap(). */
@@ -2084,8 +2092,10 @@ static PyMethodDef AtrinikMethods[] = {
 
 /**
  * Handles normal events.
- * @param args List of arguments for context.
- * @return 0 on failure, script's return value otherwise.
+ * @param args
+ * List of arguments for context.
+ * @return
+ * 0 on failure, script's return value otherwise.
  */
 static int handle_event(va_list args)
 {
@@ -2113,23 +2123,6 @@ static int handle_event(va_list args)
 
     context = popContext();
 
-    if (context->parms[3] == SCRIPT_FIX_ALL) {
-        if (context->other && IS_LIVE(context->other)) {
-            hooks->living_update(context->other);
-        }
-
-        if (context->who && IS_LIVE(context->who)) {
-            hooks->living_update(context->who);
-        }
-
-        if (context->activator && IS_LIVE(context->activator)) {
-            hooks->living_update(context->activator);
-        }
-    } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR &&
-            IS_LIVE(context->activator)) {
-        hooks->living_update(context->activator);
-    }
-
     rv = context->returnvalue;
     freeContext(context);
 
@@ -2138,8 +2131,10 @@ static int handle_event(va_list args)
 
 /**
  * Handles map events.
- * @param args List of arguments for context.
- * @return 0 on failure, script's return value otherwise.
+ * @param args
+ * List of arguments for context.
+ * @return
+ * 0 on failure, script's return value otherwise.
  */
 static int handle_map_event(va_list args)
 {
@@ -2170,9 +2165,12 @@ static int handle_map_event(va_list args)
 
 /**
  * Handles global event.
- * @param event_type The event ID.
- * @param args List of arguments for context.
- * @return 0.
+ * @param event_type
+ * The event ID.
+ * @param args
+ * List of arguments for context.
+ * @return
+ * 0.
  */
 static int handle_global_event(int event_type, va_list args)
 {
@@ -2304,8 +2302,10 @@ static int handle_global_event(int event_type, va_list args)
 
 /**
  * Handles unit test event.
- * @param args List of arguments for context.
- * @return 0.
+ * @param args
+ * List of arguments for context.
+ * @return
+ * 0.
  */
 static int handle_unit_event(va_list args)
 {
@@ -2433,9 +2433,12 @@ static PyObject *PyInit_Atrinik(void)
 
 /**
  * Create a module.
- * @param parent Parent module.
- * @param name Name of the module.
- * @return The new module created using PyModule_New().
+ * @param parent
+ * Parent module.
+ * @param name
+ * Name of the module.
+ * @return
+ * The new module created using PyModule_New().
  */
 static PyObject *module_create(PyObject *parent, const char *name)
 {
@@ -2449,10 +2452,14 @@ static PyObject *module_create(PyObject *parent, const char *name)
 /**
  * Creates a new module containing integer constants, and adds it to the
  * specified module.
- * @param module Module to add to.
- * @param name Name of the created module.
- * @param constants Constants to add.
- * @param doc Docstring for the created module.
+ * @param module
+ * Module to add to.
+ * @param name
+ * Name of the created module.
+ * @param constants
+ * Constants to add.
+ * @param doc
+ * Docstring for the created module.
  */
 static void module_add_constants(PyObject *module, const char *name,
         const Atrinik_Constant *consts, const char *doc)
@@ -2473,11 +2480,16 @@ static void module_add_constants(PyObject *module, const char *name,
 
 /**
  * Construct a list from C array and add it to the specified module.
- * @param module Module to add to.
- * @param name Name of the list.
- * @param array Pointer to the C array.
- * @param array_size Number of entries in the C array.
- * @param type Type of the entries in the C array.
+ * @param module
+ * Module to add to.
+ * @param name
+ * Name of the list.
+ * @param array
+ * Pointer to the C array.
+ * @param array_size
+ * Number of entries in the C array.
+ * @param type
+ * Type of the entries in the C array.
  */
 static void module_add_array(PyObject *module, const char *name, void *array,
         size_t array_size, field_type type)
@@ -2623,9 +2635,12 @@ MODULEAPI void closePlugin(void)
 
 /**
  * Sets face field.
- * @param ptr Pointer to ::New_Face structure.
- * @param face_id ID of the face to set.
- * @return 0 on success, -1 on failure.
+ * @param ptr
+ * Pointer to ::New_Face structure.
+ * @param face_id
+ * ID of the face to set.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int set_face_field(void *ptr, long face_id)
 {
@@ -2641,9 +2656,12 @@ static int set_face_field(void *ptr, long face_id)
 
 /**
  * Sets animation field.
- * @param ptr Pointer to ::uint16 structure member.
- * @param anim_id ID of the animation to set.
- * @return 0 on success, -1 on failure.
+ * @param ptr
+ * Pointer to ::uint16 structure member.
+ * @param anim_id
+ * ID of the animation to set.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int set_animation_field(void *ptr, long anim_id)
 {
@@ -2659,10 +2677,13 @@ static int set_animation_field(void *ptr, long anim_id)
 
 /**
  * A generic field setter for all interfaces.
- * @param type Type of the field.
+ * @param type
+ * Type of the field.
  * @param[out] field_ptr Field pointer.
- * @param value Value to set for the field pointer.
- * @return 0 on success, -1 on failure.
+ * @param value
+ * Value to set for the field pointer.
+ * @return
+ * 0 on success, -1 on failure.
  */
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 {
@@ -3092,10 +3113,14 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
 /**
  * A generic field getter for all interfaces.
- * @param type Type of the field.
- * @param field_ptr Field pointer.
- * @param field_ptr2 Field pointer for extra data.
- * @return Python object containing value of field_ptr (and field_ptr2, if
+ * @param type
+ * Type of the field.
+ * @param field_ptr
+ * Field pointer.
+ * @param field_ptr2
+ * Field pointer for extra data.
+ * @return
+ * Python object containing value of field_ptr (and field_ptr2, if
  * applicable).
  */
 PyObject *generic_field_getter(fields_struct *field, void *ptr)
@@ -3229,8 +3254,11 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 /**
  * Generic rich comparison function.
  * @param op
+ *
  * @param result
+ *
  * @return
+ *
  */
 PyObject *generic_rich_compare(int op, int result)
 {
@@ -3262,10 +3290,13 @@ PyObject *generic_rich_compare(int op, int result)
 
 /**
  * Call a function defined in Python script with the specified arguments.
- * @param callable What to call.
- * @param arglist Arguments to call the function with. Will have reference
+ * @param callable
+ * What to call.
+ * @param arglist
+ * Arguments to call the function with. Will have reference
  * decreased.
- * @return Integer value the function returned.
+ * @return
+ * Integer value the function returned.
  */
 int python_call_int(PyObject *callable, PyObject *arglist)
 {

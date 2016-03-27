@@ -21,7 +21,7 @@ weapon_speed 0.038
 attack_impact 80
 attack_magic 20
 type 80
-wis 3
+item_power 3
 animation elvish_shaman
 is_animated 1
 anim_speed 4

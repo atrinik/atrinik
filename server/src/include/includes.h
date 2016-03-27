@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Standard includes. */
+ * Standard includes.
+ */
 
 #ifndef INCLUDES_H
 #define INCLUDES_H

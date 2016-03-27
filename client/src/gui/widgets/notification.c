@@ -32,7 +32,8 @@
  * to it, when the shortcut key is pressed (thus overriding normal
  * behavior of that particular shortcut).
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <notification.h>
@@ -40,11 +41,13 @@
 #include <toolkit_string.h>
 
 /**
- * The notification data. */
+ * The notification data.
+ */
 static notification_struct *notification = NULL;
 
 /**
- * Destroy notification data. */
+ * Destroy notification data.
+ */
 void notification_destroy(void)
 {
     if (!notification) {
@@ -65,7 +68,8 @@ void notification_destroy(void)
 }
 
 /**
- * Process notification's action, if any. */
+ * Process notification's action, if any.
+ */
 static void notification_action_do(void)
 {
     if (notification && notification->action) {
@@ -83,8 +87,11 @@ static void notification_action_do(void)
 
 /**
  * Check whether notification should handle keybinding macro.
- * @param cmd Macro to check.
- * @return 1 if the notification handled the keybinding, 0 otherwise. */
+ * @param cmd
+ * Macro to check.
+ * @return
+ * 1 if the notification handled the keybinding, 0 otherwise.
+ */
 int notification_keybind_check(const char *cmd)
 {
     if (notification && notification->action && notification->shortcut && !strcmp(notification->shortcut, cmd)) {
@@ -275,7 +282,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /**
- * Initialize one notification widget. */
+ * Initialize one notification widget.
+ */
 void widget_notification_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;

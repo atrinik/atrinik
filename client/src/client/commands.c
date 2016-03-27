@@ -25,7 +25,8 @@
 /**
  * @file
  * Handles commands received by the server. This does not necessarily
- * handle all the commands - some might be in other files. */
+ * handle all the commands - some might be in other files.
+ */
 
 #include <global.h>
 #include <region_map.h>
@@ -339,7 +340,9 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
 
 /**
  * Sends a reply to the server.
- * @param text Null terminated string of text to send. */
+ * @param text
+ * Null terminated string of text to send.
+ */
 void send_reply(char *text)
 {
     packet_struct *packet;
@@ -462,13 +465,12 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
 
             spells_update(tmp, spell_cost, spell_path, spell_flags, spell_msg);
         } else if (tmp->itype == TYPE_SKILL) {
-            uint8_t skill_level;
-            int64_t skill_exp;
+            uint8_t skill_level = packet_to_uint8(data, len, pos);
+            int64_t skill_exp = packet_to_int64(data, len, pos);
+            char skill_msg[MAX_BUF];
+            packet_to_string(data, len, pos, VS(skill_msg));
 
-            skill_level = packet_to_uint8(data, len, pos);
-            skill_exp = packet_to_int64(data, len, pos);
-
-            skills_update(tmp, skill_level, skill_exp);
+            skills_update(tmp, skill_level, skill_exp, skill_msg);
         } else if (tmp->itype == TYPE_FORCE || tmp->itype == TYPE_POISONING) {
             int32_t sec;
             char msg[HUGE_BUF];
@@ -601,7 +603,8 @@ void socket_command_item_delete(uint8_t *data, size_t len, size_t pos)
 }
 
 /**
- * Plays the footstep sounds when moving on the map. */
+ * Plays the footstep sounds when moving on the map.
+ */
 static void map_play_footstep(void)
 {
     static int step = 0;

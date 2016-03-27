@@ -24,7 +24,8 @@
 
 /**
  * @file
- * The spiral room generator. */
+ * The spiral room generator.
+ */
 
 #include <global.h>
 
@@ -49,10 +50,15 @@
 
 /**
  * Generates a spiral layout.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @param option Combination of @ref SPIRAL_xxx "SPIRAL_xxx" values.
- * @return The generated layout. */
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @param option
+ * Combination of @ref SPIRAL_xxx "SPIRAL_xxx" values.
+ * @return
+ * The generated layout.
+ */
 char **map_gen_spiral(int xsize, int ysize, int option)
 {
     int i, j, ic, jc;
@@ -141,10 +147,15 @@ char **map_gen_spiral(int xsize, int ysize, int option)
 /**
  * Connects disjoint spirals which may result from the symmetrization
  * process.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @param sym One of the @ref SYM_xxx "SYM_xxx" values.
- * @param layout Layout to alter. */
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @param sym
+ * One of the @ref SYM_xxx "SYM_xxx" values.
+ * @param layout
+ * Layout to alter.
+ */
 void connect_spirals(int xsize, int ysize, int sym, char **layout)
 {
     int i, j, ic = xsize / 2, jc = ysize / 2;

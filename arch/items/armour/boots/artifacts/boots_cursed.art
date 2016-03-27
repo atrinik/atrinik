@@ -1,0 +1,32 @@
+# Boots of granite
+Allowed !sandals, !low_boots, all
+chance 20
+artifact boots_granite
+def_arch high_boots
+difficulty 4
+Object
+title of granite
+type 99
+item_level_art 4
+is_magical 1
+protect_impact 10
+protect_slash 10
+protect_pierce 10
+protect_cleave 10
+protect_fire 6
+protect_cold 6
+protect_acid 6
+protect_electricity 6
+protect_poison 6
+value 13400
+weight 35000
+ac_add 3
+msg
+What strange boots, they look very protective, but amazingly heavy.
+
+There also don't appear to be any laces, you wonder how you're ever going to take them off.
+endmsg
+cursed_perm 1
+cursed 1
+item_power 3
+end

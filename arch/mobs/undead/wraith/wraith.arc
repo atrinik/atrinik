@@ -15,7 +15,7 @@ weapon_speed 0.035
 attack_slash 65
 attack_drain 25
 type 80
-wis 3
+item_power 3
 randomitems mob_wraith
 animation wraith
 is_animated 1

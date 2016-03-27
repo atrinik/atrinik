@@ -26,7 +26,8 @@
  * @file
  * Implements the characters chooser.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -42,30 +43,39 @@ enum {
 } ;
 
 /**
- * Progress dots buffer. */
+ * Progress dots buffer.
+ */
 static progress_dots progress;
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct button_tab_characters, button_tab_new, button_tab_password, button_character_male, button_character_female, button_character_left, button_character_right, button_login, button_done;
 /**
- * Text input buffers. */
+ * Text input buffers.
+ */
 static text_input_struct text_inputs[TEXT_INPUT_NUM];
 /**
- * Characters list. */
+ * Characters list.
+ */
 static list_struct *list_characters;
 /**
- * Currently selected text input. */
+ * Currently selected text input.
+ */
 static size_t text_input_current;
 /**
- * Which character race is selected in the character creation tab. */
+ * Which character race is selected in the character creation tab.
+ */
 static size_t character_race;
 /**
- * Which gender is selected in the character creation tab. */
+ * Which gender is selected in the character creation tab.
+ */
 static size_t character_gender;
 
 /**
  * Switch to the specified tab in the characters GUI.
- * @param button The button tab to switch to. */
+ * @param button
+ * The button tab to switch to.
+ */
 static void button_tab_switch(button_struct *button)
 {
     if (button == &button_tab_characters) {
@@ -485,7 +495,8 @@ static int popup_destroy_callback(popup_struct *popup)
 }
 
 /**
- * Open the characters chooser popup. */
+ * Open the characters chooser popup.
+ */
 void characters_open(void)
 {
     popup_struct *popup;
@@ -547,10 +558,13 @@ void characters_open(void)
 /**
  * Resolves an archname to race ID and gender ID, using the information
  * in ::s_settings.
- * @param archname Archname.
+ * @param archname
+ * Archname.
  * @param[out] race Will contain race ID.
  * @param[out] gender Will contain gender ID.
- * @return 1 on success, 0 on failure. */
+ * @return
+ * 1 on success, 0 on failure.
+ */
 static int archname_to_character(const char *archname, size_t *race, size_t *gender)
 {
     for (*race = 0; *race < s_settings->num_characters; (*race)++) {

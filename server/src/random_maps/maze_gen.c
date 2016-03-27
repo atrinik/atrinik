@@ -28,7 +28,8 @@
  *
  * We need to maintain a list of wall points to generate reasonable
  * mazes: a straightforward recursive random walk maze generator would
- * generate a map with a trivial circle-the-outer-wall solution */
+ * generate a map with a trivial circle-the-outer-wall solution
+ */
 
 #include <global.h>
 
@@ -54,12 +55,17 @@ static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsiz
  * This function generates a random blocked maze with the property that
  * there is only one path from one spot to any other, and there is always
  * a path from one spot to any other.
- * @param xsize X wanted map size
- * @param ysize Y wanted map size
- * @param option If 0, maze will be sparse (sizeable rooms), otherwise
+ * @param xsize
+ * X wanted map size
+ * @param ysize
+ * Y wanted map size
+ * @param option
+ * If 0, maze will be sparse (sizeable rooms), otherwise
  * totally filled.
- * @return a char ** array with # and . for closed and open respectively.
- * a char value of 0 represents a blank space:  a '#' is a wall. */
+ * @return
+ * a char ** array with # and . for closed and open respectively.
+ * a char value of 0 represents a blank space:  a '#' is a wall.
+ */
 char **maze_gen(int xsize, int ysize, int option)
 {
     int i, j;
@@ -117,10 +123,14 @@ char **maze_gen(int xsize, int ysize, int option)
  *
  * The free wall points are those outer points which aren't corners or
  * near corners, and don't have a maze wall growing out of them already.
- * @param xsize X size of the map.
- * @param ysize Y size of the map.
- * @param free_walls Structure to initialize.
- * free_walls_struct::wall_free_size must be initialized. */
+ * @param xsize
+ * X size of the map.
+ * @param ysize
+ * Y size of the map.
+ * @param free_walls
+ * Structure to initialize.
+ * free_walls_struct::wall_free_size must be initialized.
+ */
 static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_walls)
 {
     int i, j, count = 0;
@@ -158,9 +168,13 @@ static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_wa
 
 /**
  * Randomly returns one of the elements from the wall point list.
- * @param x X coordinate of the point.
- * @param y Y coordinate of the point.
- * @param free_walls Free walls list. */
+ * @param x
+ * X coordinate of the point.
+ * @param y
+ * Y coordinate of the point.
+ * @param free_walls
+ * Free walls list.
+ */
 static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls)
 {
     int i = rndm(0, free_walls->wall_free_size - 1);
@@ -180,14 +194,23 @@ static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls)
  * new block without closing a path.
  *
  * We may only look up, down, right, or left.
- * @param maze Current maze layout.
- * @param x X coordinate of the found point.
- * @param y Y coordinate of the found point.
- * @param xc X coordinate from where to look.
- * @param yc Y coordinate from where to look.
- * @param xsize X size of the maze.
- * @param ysize Y size of the maze.
- * @return -1 if no free spot, 0 otherwise. */
+ * @param maze
+ * Current maze layout.
+ * @param x
+ * X coordinate of the found point.
+ * @param y
+ * Y coordinate of the found point.
+ * @param xc
+ * X coordinate from where to look.
+ * @param yc
+ * Y coordinate from where to look.
+ * @param xsize
+ * X size of the maze.
+ * @param ysize
+ * Y size of the maze.
+ * @return
+ * -1 if no free spot, 0 otherwise.
+ */
 static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsize, int ysize)
 {
     /* we will randomly pick from this list, 1=up,2=down,3=right,4=left */
@@ -291,12 +314,19 @@ static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsiz
  * Recursive routine which will fill every available space in the maze
  * with walls.
  *
- * @param maze The maze layout.
- * @param x X position where to put a wall.
- * @param y Y position where to put a wall.
- * @param xsize X maze size.
- * @param ysize Y maze size.
- * @param free_walls Free walls list. */
+ * @param maze
+ * The maze layout.
+ * @param x
+ * X position where to put a wall.
+ * @param y
+ * Y position where to put a wall.
+ * @param xsize
+ * X maze size.
+ * @param ysize
+ * Y maze size.
+ * @param free_walls
+ * Free walls list.
+ */
 static void fill_maze_full(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls)
 {
     int xc, yc;
@@ -319,12 +349,19 @@ static void fill_maze_full(char **maze, int x, int y, int xsize, int ysize, free
 /**
  * Recursive routine which will fill much of the maze, but will leave
  * some free spots (possibly large) toward the center.
- * @param maze Maze layout.
- * @param x X position where to put a wall.
- * @param y Y position where to put a wall.
- * @param xsize X size of the maze.
- * @param ysize Y size of the maze.
- * @param free_walls Free walls list. */
+ * @param maze
+ * Maze layout.
+ * @param x
+ * X position where to put a wall.
+ * @param y
+ * Y position where to put a wall.
+ * @param xsize
+ * X size of the maze.
+ * @param ysize
+ * Y size of the maze.
+ * @param free_walls
+ * Free walls list.
+ */
 static void fill_maze_sparse(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls)
 {
     int xc, yc;

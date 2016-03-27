@@ -26,7 +26,8 @@
  * @file
  * Tooltip API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -47,10 +48,15 @@ static uint8_t tooltip_opacity = 0;
 /**
  * Creates a new tooltip. This must be called every frame in order for
  * the tooltip to remain shown.
- * @param mx Mouse X.
- * @param my Mouse Y.
- * @param font Font to use, one of @ref FONT_xxx.
- * @param text The text to show in the tooltip. */
+ * @param mx
+ * Mouse X.
+ * @param my
+ * Mouse Y.
+ * @param font
+ * Font to use, one of @ref FONT_xxx.
+ * @param text
+ * The text to show in the tooltip.
+ */
 void tooltip_create(int mx, int my, font_struct *font, const char *text)
 {
     if (tooltip_font != NULL) {
@@ -62,13 +68,17 @@ void tooltip_create(int mx, int my, font_struct *font, const char *text)
     tooltip_font = font;
     tooltip_x = mx;
     tooltip_y = my;
+    tooltip_w = -1;
+    tooltip_h = -1;
     strncpy(tooltip_text, text, sizeof(tooltip_text) - 1);
     tooltip_text[sizeof(tooltip_text) - 1] = '\0';
 }
 
 /**
  * Adds a delay before the tooltip is shown.
- * @param delay Delay in milliseconds. */
+ * @param delay
+ * Delay in milliseconds.
+ */
 void tooltip_enable_delay(uint32_t delay)
 {
     tooltip_delay = delay;
@@ -80,7 +90,9 @@ void tooltip_enable_delay(uint32_t delay)
 
 /**
  * Calculate multi-line tooltip height and width.
- * @param max_width Maximum width of the tooltip. */
+ * @param max_width
+ * Maximum width of the tooltip.
+ */
 void tooltip_multiline(int max_width)
 {
     SDL_Rect box;
@@ -99,7 +111,8 @@ void tooltip_multiline(int max_width)
 }
 
 /**
- * Actually show the tooltip. */
+ * Actually show the tooltip.
+ */
 void tooltip_show(void)
 {
     SDL_Rect box, text_box;
@@ -123,8 +136,14 @@ void tooltip_show(void)
     text_box.w = tooltip_w;
     text_box.h = tooltip_h;
 
-    text_get_width_height(tooltip_font, tooltip_text, TEXT_MARKUP, &text_box,
-            &text_box.w, &text_box.h);
+    if (tooltip_w == -1 || tooltip_h == -1) {
+        text_get_width_height(tooltip_font,
+                              tooltip_text,
+                              TEXT_MARKUP,
+                              &text_box,
+                              tooltip_w == -1 ? &text_box.w : NULL,
+                              tooltip_h == -1 ? &text_box.h : NULL);
+    }
 
     /* Generate the tooltip's background. */
     box.x = tooltip_x + 9;
@@ -151,7 +170,8 @@ void tooltip_show(void)
 }
 
 /**
- * Dismiss the currently shown tooltip. */
+ * Dismiss the currently shown tooltip.
+ */
 void tooltip_dismiss(void)
 {
     tooltip_x = -1;
@@ -167,7 +187,8 @@ void tooltip_dismiss(void)
 
 /**
  * Check whether the tooltip needs redrawing.
- * @return 1 if the tooltip needs redrawing, 0 otherwise.
+ * @return
+ * 1 if the tooltip needs redrawing, 0 otherwise.
  * @todo This needs some actual redrawing check logic. Need various checks like
  * whether the x/y is the same, text/font is the same (in other words, reset
  * old x/y when creating if text/font has changed)

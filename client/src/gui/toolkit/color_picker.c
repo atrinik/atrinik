@@ -25,15 +25,19 @@
 /**
  * Color picker API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Create a new color picker.
- * @param color_picker Color picker that will be initialized.
- * @param size Size of the color picker. For best results, use a nice
- * round number such as 50, 100, 150, etc. */
+ * @param color_picker
+ * Color picker that will be initialized.
+ * @param size
+ * Size of the color picker. For best results, use a nice
+ * round number such as 50, 100, 150, etc.
+ */
 void color_picker_create(color_picker_struct *color_picker, int size)
 {
     size_t i;
@@ -60,9 +64,13 @@ void color_picker_create(color_picker_struct *color_picker, int size)
 
 /**
  * Set the color picker's parent x/y positions.
- * @param color_picker Color picker.
- * @param px Parent X.
- * @param py Parent Y. */
+ * @param color_picker
+ * Color picker.
+ * @param px
+ * Parent X.
+ * @param py
+ * Parent Y.
+ */
 void color_picker_set_parent(color_picker_struct *color_picker, int px, int py)
 {
     color_picker->px = px;
@@ -71,8 +79,11 @@ void color_picker_set_parent(color_picker_struct *color_picker, int px, int py)
 
 /**
  * Set color picker's color, using HTML color notation.
- * @param color_picker Color picker.
- * @param color_notation The notation to set. */
+ * @param color_picker
+ * Color picker.
+ * @param color_notation
+ * The notation to set.
+ */
 void color_picker_set_notation(color_picker_struct *color_picker, const char *color_notation)
 {
     SDL_Color color;
@@ -91,10 +102,12 @@ void color_picker_set_notation(color_picker_struct *color_picker, const char *co
 
 /**
  * Get color picker's currently selected color as RGB.
- * @param color_picker Color picker.
+ * @param color_picker
+ * Color picker.
  * @param[out] r Will contain the red value.
  * @param[out] g Will contain the green value.
- * @param[out] b Will contain the blue value. */
+ * @param[out] b Will contain the blue value.
+ */
 void color_picker_get_rgb(color_picker_struct *color_picker, uint8_t *r, uint8_t *g, uint8_t *b)
 {
     double rgb[3];
@@ -108,14 +121,20 @@ void color_picker_get_rgb(color_picker_struct *color_picker, uint8_t *r, uint8_t
 
 /**
  * Show one color picker element.
- * @param surface Surface to use. Can be NULL in the case that 'event' is
+ * @param surface
+ * Surface to use. Can be NULL in the case that 'event' is
  * non-NULL.
- * @param color_picker The color picker.
- * @param type Which element to show.
- * @param event If non-NULL, will check for mouse events inside the color
+ * @param color_picker
+ * The color picker.
+ * @param type
+ * Which element to show.
+ * @param event
+ * If non-NULL, will check for mouse events inside the color
  * picker element.
- * @return 1 if event is non-NULL and a mouse event was handled, 0
- * otherwise. */
+ * @return
+ * 1 if event is non-NULL and a mouse event was handled, 0
+ * otherwise.
+ */
 static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *color_picker, size_t type, SDL_Event *event)
 {
     SDL_Rect box;
@@ -277,8 +296,11 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 
 /**
  * Show the specified color picker.
- * @param surface Surface to use.
- * @param color_picker Color picker to show. */
+ * @param surface
+ * Surface to use.
+ * @param color_picker
+ * Color picker to show.
+ */
 void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker)
 {
     size_t i;
@@ -290,9 +312,13 @@ void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker)
 
 /**
  * Handle an event inside the specified color picker.
- * @param color_picker Color picker.
- * @param event Event to handle.
- * @return 1 if the event was handled, 0 otherwise. */
+ * @param color_picker
+ * Color picker.
+ * @param event
+ * Event to handle.
+ * @return
+ * 1 if the event was handled, 0 otherwise.
+ */
 int color_picker_event(color_picker_struct *color_picker, SDL_Event *event)
 {
     if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION) && event->button.button == SDL_BUTTON_LEFT) {
@@ -315,10 +341,15 @@ int color_picker_event(color_picker_struct *color_picker, SDL_Event *event)
 
 /**
  * Check if mouse is over the specified color picker.
- * @param color_picker Color picker.
- * @param mx Mouse X.
- * @param my Mouse Y.
- * @return 1 if mx,my is over the color picker, 0 otherwise. */
+ * @param color_picker
+ * Color picker.
+ * @param mx
+ * Mouse X.
+ * @param my
+ * Mouse Y.
+ * @return
+ * 1 if mx,my is over the color picker, 0 otherwise.
+ */
 int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my)
 {
     size_t i;

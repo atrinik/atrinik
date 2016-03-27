@@ -474,7 +474,7 @@ level 6
 object_int1 90
 spawn_time 19:00 - 7:00
 terrain_flag 3
-wis 4
+item_power 4
 type 83
 end
 arch lost_soul
@@ -488,7 +488,7 @@ dam 6
 wc 6
 ac 8
 terrain_flag 3
-wis 4
+item_power 4
 arch rand_drop
 container 30
 arch ring_ghost
@@ -671,7 +671,7 @@ type 83
 level 6
 spawn_time 19:00 - 7:00
 terrain_flag 3
-wis 4
+item_power 4
 end
 end
 arch grassd_3

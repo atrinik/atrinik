@@ -47,6 +47,10 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <exit.h>
 
 /**
  * Selects algorithm to use for path-finding.
@@ -123,8 +127,10 @@ static int pathfinder_nodebuf_next = 0;
 
 /**
  * Enqueue a waypoint for path computation.
- * @param waypoint Waypoint.
- * @return 1 on success, 0 on failure.
+ * @param waypoint
+ * Waypoint.
+ * @return
+ * 1 on success, 0 on failure.
  */
 static int pathfinder_queue_enqueue(object *waypoint)
 {
@@ -150,7 +156,8 @@ static int pathfinder_queue_enqueue(object *waypoint)
 /**
  * Get the first waypoint from the queue.
  * @param[out] count Waypoint's ID if there is a valid waypoint.
- * @return The waypoint, NULL if the queue is empty.
+ * @return
+ * The waypoint, NULL if the queue is empty.
  */
 static object *pathfinder_queue_dequeue(tag_t *count)
 {
@@ -175,7 +182,8 @@ static object *pathfinder_queue_dequeue(tag_t *count)
 
 /**
  * Request a new path.
- * @param waypoint Waypoint.
+ * @param waypoint
+ * Waypoint.
  */
 void path_request(object *waypoint)
 {
@@ -199,7 +207,8 @@ void path_request(object *waypoint)
 
 /**
  * Get the next (valid) waypoint for which a path is requested.
- * @return Waypoint, NULL if there isn't any left.
+ * @return
+ * Waypoint, NULL if there isn't any left.
  */
 object *path_get_next_request(void)
 {
@@ -237,14 +246,22 @@ object *path_get_next_request(void)
  *
  * Also calculates the appropriate heuristics from 'start' and 'goal'
  * parameters.
- * @param map Map.
- * @param x X position.
- * @param y Y position.
- * @param cost Cost.
- * @param start Starting node.
- * @param goal Goal node.
- * @param parent Parent node.
- * @return New node.
+ * @param map
+ * Map.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param cost
+ * Cost.
+ * @param start
+ * Starting node.
+ * @param goal
+ * Goal node.
+ * @param parent
+ * Parent node.
+ * @return
+ * New node.
  */
 static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
         double cost, path_node_t *start, path_node_t *goal, path_node_t *parent)
@@ -306,7 +323,8 @@ static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
 
 /**
  * Remove a node from a list.
- * @param node Node to remove.
+ * @param node
+ * Node to remove.
  * @param[out] list List to remove from.
  */
 static void path_node_remove(path_node_t *node, path_node_t **list)
@@ -335,7 +353,8 @@ static void path_node_remove(path_node_t *node, path_node_t **list)
 
 /**
  * Insert a node into a list.
- * @param node Node to insert.
+ * @param node
+ * Node to insert.
  * @param[out] list List to insert into.
  */
 static void path_node_insert(path_node_t *node, path_node_t **list)
@@ -355,8 +374,10 @@ static void path_node_insert(path_node_t *node, path_node_t **list)
 
 /**
  * Insert a node in a sorted list (lowest path_node_t::sum first in list).
- * @param node Node to insert.
- * @param list List to insert into.
+ * @param node
+ * Node to insert.
+ * @param list
+ * List to insert into.
  * @todo Make more efficient by using skip list or heaps.
  */
 static void path_node_insert_priority(path_node_t *node, path_node_t **list)
@@ -400,13 +421,19 @@ static void path_node_insert_priority(path_node_t *node, path_node_t **list)
 
 /**
  * Check if the specified tile is blocked.
- * @param op Object.
- * @param map Map.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @return 0 if the tile is not blocked, non-zero otherwise.
+ * @param op
+ * Object.
+ * @param map
+ * Map.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @return
+ * 0 if the tile is not blocked, non-zero otherwise.
  */
-static int tile_is_blocked(object *op, mapstruct *map, int x, int y)
+static int
+tile_is_blocked (object *op, mapstruct *map, int x, int y)
 {
     int block;
 
@@ -436,8 +463,10 @@ static int tile_is_blocked(object *op, mapstruct *map, int x, int y)
  * more compact)
  *               Approx: 1000 steps in one 4096 bytes msg field
  *
- * @param path Path node.
- * @return Encoded path as a shared string.
+ * @param path
+ * Path node.
+ * @return
+ * Encoded path as a shared string.
  */
 shstr *path_encode(path_node_t *path)
 {
@@ -481,18 +510,27 @@ shstr *path_encode(path_node_t *path)
  * - /dev/testmaps/testmap_waypoints2 8,22
  * - /dev/testmaps/testmap_waypoints3 0,22 1,23
  * - /dev/testmaps/testmap_waypoints4 1,1 2,2
- * @param buf Buffer.
- * @param off Offset.
- * @param mappath Map path.
- * @param map Map. Should be initialized with whatever map the object we are
+ * @param buf
+ * Buffer.
+ * @param off
+ * Offset.
+ * @param mappath
+ * Map path.
+ * @param map
+ * Map. Should be initialized with whatever map the object we are
  * working on currently lives on (to handle paths without map strings).
- * @param x X position.
- * @param y Y position.
- * @param flags Flags.
- * @return If a location is found, will return 1 and update map, x, y and off
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param flags
+ * Flags.
+ * @return
+ * If a location is found, will return 1 and update map, x, y and off
  * (off will be set to the index to use for the next call to this function).
  * Otherwise 0 will be returned and the values of map, x and y will be undefined
- * and off will not be touched. */
+ * and off will not be touched.
+ */
 int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
         int *x, int *y, uint32_t *flags)
 {
@@ -594,8 +632,10 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
  *  - always leave first and last path nodes
  *  - if the movement direction of node n to n+1 is the same
  *    as for n-1 to n, then remove node n.
- * @param path Path node.
- * @return 'path' with redundant segments removed.
+ * @param path
+ * Path node.
+ * @return
+ * 'path' with redundant segments removed.
  */
 path_node_t *path_compress(path_node_t *path)
 {
@@ -677,16 +717,25 @@ void path_visualize(path_visualization_t **visualization,
 
 /**
  * Find a path for op from location on map1 to location on map2.
- * @param op Object.
- * @param map1 From map.
- * @param x1 From X position.
- * @param y1 From Y position.
- * @param map2 To map.
- * @param x2 To X position.
- * @param y2 To Y position.
- * @param visualizer[out] Visualizer pointer where to store visited/closed
+ * @param op
+ * Object.
+ * @param map1
+ * From map.
+ * @param x1
+ * From X position.
+ * @param y1
+ * From Y position.
+ * @param map2
+ * To map.
+ * @param x2
+ * To X position.
+ * @param y2
+ * To Y position.
+ * @param visualizer[out]
+ * Visualizer pointer where to store visited/closed
  * nodes. Can be NULL, otherwise the pointer MUST be initialized to NULL.
- * @return Found path.
+ * @return
+ * Found path.
  */
 path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer)
@@ -753,7 +802,29 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         node = open_list;
         path_node_remove(node, &open_list);
 
-        if (node->heuristic <= 1.2) {
+        bool reached_goal = node->heuristic <= 1.2;
+        if (op->more != NULL && !reached_goal &&
+            node->heuristic <= (op->quick_pos >> 4) + 1) {
+            for (object *tmp = op; tmp != NULL; tmp = tmp->more) {
+                int tmp_x = node->x + tmp->arch->clone.x;
+                int tmp_y = node->y + tmp->arch->clone.y;
+                mapstruct *tmp_map = get_map_from_coord(node->map,
+                                                        &tmp_x,
+                                                        &tmp_y);
+                if (tmp_map == NULL) {
+                    continue;
+                }
+
+                get_rangevector_from_mapcoords(tmp_map, tmp_x, tmp_y, goal.map,
+                                               goal.x, goal.y, &rv, 0);
+                if (rv.distance <= 1) {
+                    reached_goal = true;
+                    break;
+                }
+            }
+        }
+
+        if (reached_goal) {
             if (visualizer != NULL) {
                 PATHFINDING_SET_CLOSED(node->map, node->x, node->y,
                         traversal_id, visualizer);
@@ -783,7 +854,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             for (tmp = GET_MAP_OB(node_map, node_x, node_y); tmp != NULL;
                     tmp = tmp->above) {
                 if (tmp->type == EXIT) {
-                    m = exit_get_destination(tmp, &nx, &ny, 1);
+                    m = exit_get_destination(tmp, &nx, &ny, true);
 
                     /* Do not enter exits that have worse z distance than the
                      * current node. */
@@ -1002,7 +1073,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
                     for (exit = GET_MAP_OB(node->map, node->x, node->y);
                             exit != NULL; exit = exit->above) {
                         if (exit->type == EXIT) {
-                            m = exit_get_destination(exit, &nx, &ny, 1);
+                            m = exit_get_destination(exit, &nx, &ny, true);
                         }
                     }
                 }

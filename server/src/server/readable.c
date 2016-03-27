@@ -28,7 +28,8 @@
  * messages in non-magical texts.
  *
  * @author b.t. thomas@astro.psu.edu
- * @date December 1995 */
+ * @date December 1995
+ */
 
 #include <global.h>
 #include <book.h>
@@ -42,24 +43,28 @@
 /** special structure, used only by art_name_array[] */
 typedef struct namebytype {
     /** Generic name to call artifacts of this type */
-    char *name;
+    const char *name;
 
     /** Matching type */
     int type;
 } arttypename;
 
 /**
- * Array of all the monsters. */
+ * Array of all the monsters.
+ */
 static object **monsters = NULL;
 /**
- * Number of the monsters. */
+ * Number of the monsters.
+ */
 static size_t num_monsters = 0;
 
 /**
- * Array of the messages as read from the messages file. */
+ * Array of the messages as read from the messages file.
+ */
 static char **msgs = NULL;
 /**
- * Number of msgs. */
+ * Number of msgs.
+ */
 static size_t num_msgs = 0;
 
 /** Spellpath information */
@@ -87,7 +92,7 @@ static uint32_t spellpathdef[NRSPELLPATHS] = {
 };
 
 /** Path book information */
-static char *path_book_name[] = {
+static const char *const path_book_name[] = {
     "codex",
     "compendium",
     "exposition",
@@ -106,7 +111,7 @@ static char *path_book_name[] = {
 };
 
 /** Used by spellpath texts */
-static char *path_author[] = {
+static const char *const path_author[] = {
     "aether",
     "astral byways",
     "connections",
@@ -139,7 +144,8 @@ static char *path_author[] = {
  * Artifact/item information
  *
  * If it isn't listed here, then art_attr_msg will never generate
- * a message for this type of artifact. */
+ * a message for this type of artifact.
+ */
 static arttypename art_name_array[] = {
     {"Helmet", HELMET},
     {"Amulet", AMULET},
@@ -160,7 +166,7 @@ static arttypename art_name_array[] = {
 };
 
 /** Artifact book information */
-static char *art_book_name[] = {
+static const char *const art_book_name[] = {
     "collection",
     "file",
     "files",
@@ -175,7 +181,7 @@ static char *art_book_name[] = {
 };
 
 /** Used by artifact texts */
-static char *art_author[] = {
+static const char *const art_author[] = {
     "ancient things",
     "artifacts",
     "Havlor",
@@ -186,7 +192,7 @@ static char *art_author[] = {
 };
 
 /** Monster book information */
-static char *mon_book_name[] = {
+static const char *const mon_book_name[] = {
     "bestiary",
     "catalog",
     "compilation",
@@ -203,7 +209,7 @@ static char *mon_book_name[] = {
 };
 
 /** Used by monster bestiary texts */
-static char *mon_author[] = {
+static const char *const mon_author[] = {
     "beasts",
     "creatures",
     "dezidens",
@@ -220,8 +226,9 @@ static char *mon_author[] = {
 };
 
 /**
- * Generic book information. */
-static char *book_name[] = {
+ * Generic book information.
+ */
+static const char *const book_name[] = {
     "calendar",
     "datebook",
     "diary",
@@ -247,7 +254,7 @@ static char *book_name[] = {
 };
 
 /** Used by 'generic' books */
-static char *book_author[] = {
+static const char *const book_author[] = {
     "Abdulah",
     "Al'hezred",
     "Alywn",
@@ -296,10 +303,15 @@ static char *book_author[] = {
 /**
  * We don't want to exceed the buffer size of buf1 by adding on buf2!
  * @param buf1
+ *
  * @param buf2
+ *
  * Buffers we plan on concatenating. Can be NULL.
- * @param bufsize Size of buf1. Can be 0.
- * @return 1 if overflow will occur, 0 otherwise. */
+ * @param bufsize
+ * Size of buf1. Can be 0.
+ * @return
+ * 1 if overflow will occur, 0 otherwise.
+ */
 static int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
 {
     size_t len1 = 0, len2 = 0;
@@ -322,10 +334,15 @@ static int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
 /**
  * Checks if book will overflow.
  * @param buf1
+ *
  * @param buf2
+ *
  * Buffers we plan on combining.
- * @param booksize Maximum book size.
- * @return 1 if it will overflow, 0 otherwise. */
+ * @param booksize
+ * Maximum book size.
+ * @return
+ * 1 if it will overflow, 0 otherwise.
+ */
 int book_overflow(const char *buf1, const char *buf2, size_t booksize)
 {
     /* 2 less so always room for trailing \n */
@@ -337,7 +354,8 @@ int book_overflow(const char *buf1, const char *buf2, size_t booksize)
 }
 
 /**
- * Reads the messages file into the list pointed to by first_msg. */
+ * Reads the messages file into the list pointed to by first_msg.
+ */
 static void init_msgfile(void)
 {
     FILE *fp;
@@ -400,7 +418,8 @@ static void init_msgfile(void)
 }
 
 /**
- * Initialize array of ::monsters. */
+ * Initialize array of ::monsters.
+ */
 static void init_mon_info(void)
 {
     monsters = NULL;
@@ -423,7 +442,8 @@ static void init_mon_info(void)
  * in tailor_readable_ob().
  *
  * This is the function called by the main routine to initialize
- * all the readable information. */
+ * all the readable information.
+ */
 void init_readable(void)
 {
     init_msgfile();
@@ -437,8 +457,11 @@ void init_readable(void)
  *
  * This sets book book->name based on msgtype given. What name
  * is given is based on various criteria.
- * @param book The book object.
- * @param msgtype Message type. */
+ * @param book
+ * The book object.
+ * @param msgtype
+ * Message type.
+ */
 static void new_text_name(object *book, int msgtype)
 {
     const char *name;
@@ -472,8 +495,11 @@ static void new_text_name(object *book, int msgtype)
 /**
  * A lot like new_text_name(), but instead chooses an author and
  * sets op->title to that value.
- * @param op The book object.
- * @param msgtype Message type. */
+ * @param op
+ * The book object.
+ * @param msgtype
+ * Message type.
+ */
 static void add_author(object *op, int msgtype)
 {
     char title[MAX_BUF];
@@ -512,8 +538,11 @@ static void add_author(object *op, int msgtype)
  * Will attempt to create consistent author/title and message content for
  * BOOKs. Also, will alter books that match archive entries to the
  * archival levels and archetypes.
- * @param book The book object to alter.
- * @param msgtype Message type to make. */
+ * @param book
+ * The book object to alter.
+ * @param msgtype
+ * Message type to make.
+ */
 static void change_book(object *book, int msgtype)
 {
     if (book->type != BOOK || book->title) {
@@ -528,7 +557,9 @@ static void change_book(object *book, int msgtype)
 
 /**
  * Returns a random monster from all the monsters in the game.
- * @return The monster object */
+ * @return
+ * The monster object
+ */
 object *get_random_mon(void)
 {
     /* Safety. */
@@ -541,10 +572,15 @@ object *get_random_mon(void)
 
 /**
  * Returns a description of the monster.
- * @param mon Monster to describe.
- * @param buf Buffer that will contain the description.
- * @param size Size of 'buf'.
- * @return 'buf'. */
+ * @param mon
+ * Monster to describe.
+ * @param buf
+ * Buffer that will contain the description.
+ * @param size
+ * Size of 'buf'.
+ * @return
+ * 'buf'.
+ */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
     char *desc = object_get_description_s(mon, NULL);
@@ -556,9 +592,13 @@ static char *mon_desc(object *mon, char *buf, size_t size)
 /**
  * Generate a message detailing the properties of randomly selected
  * monsters.
- * @param buf Buffer that will contain the message.
- * @param booksize Size (in characters) of the book we want.
- * @return 'buf'. */
+ * @param buf
+ * Buffer that will contain the message.
+ * @param booksize
+ * Size (in characters) of the book we want.
+ * @return
+ * 'buf'.
+ */
 static char *mon_info_msg(char *buf, size_t booksize)
 {
     char tmpbuf[HUGE_BUF], desc[MAX_BUF];
@@ -585,10 +625,15 @@ static char *mon_info_msg(char *buf, size_t booksize)
 /**
  * Generate a message detailing the properties of 1-6 artifacts drawn
  * sequentially from the artifact list.
- * @param level Level of the book
- * @param buf Buffer to contain the description.
- * @param booksize Length of the book.
- * @return 'buf'. */
+ * @param level
+ * Level of the book
+ * @param buf
+ * Buffer to contain the description.
+ * @param booksize
+ * Length of the book.
+ * @return
+ * 'buf'.
+ */
 static char *artifact_msg(int level, char *buf, size_t booksize)
 {
     artifact_list_t *al;
@@ -700,10 +745,15 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 /**
  * Generate a message detailing the member incantations (and some of their
  * properties) belonging to a random spellpath.
- * @param level Level of the book.
- * @param buf Buffer to write the description into.
- * @param booksize Length of the book.
- * @return 'buf'. */
+ * @param level
+ * Level of the book.
+ * @param buf
+ * Buffer to write the description into.
+ * @param booksize
+ * Length of the book.
+ * @return
+ * 'buf'.
+ */
 static char *spellpath_msg(int level, char *buf, size_t booksize)
 {
     int path = rndm(1, NRSPELLPATHS) - 1;
@@ -752,8 +802,11 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 
 /**
  * Generate a message drawn randomly from a file in lib/.
- * @param booksize Maximum book size.
- * @return Pointer to the generated message. */
+ * @param booksize
+ * Maximum book size.
+ * @return
+ * Pointer to the generated message.
+ */
 static char *msgfile_msg(size_t booksize)
 {
     static char buf[BOOK_BUF];
@@ -783,11 +836,14 @@ static char *msgfile_msg(size_t booksize)
  * "Book" name/content length are based on the weight of the
  * document. If the value of msg_type is negative, we will randomly
  * choose the kind of message to generate.
- * @param book The object we are creating into.
+ * @param book
+ * The object we are creating into.
  * @param msg_type
+ *
  * If this is a positive value, we use it to determine the
  * message type - otherwise a random value is used.
- * @author b.t. thomas@astro.psu.edu */
+ * @author b.t. thomas@astro.psu.edu
+ */
 void tailor_readable_ob(object *book, int msg_type)
 {
     char msgbuf[BOOK_BUF];
@@ -835,7 +891,8 @@ void tailor_readable_ob(object *book, int msg_type)
 }
 
 /**
- * Cleanup routine for readable stuff. */
+ * Cleanup routine for readable stuff.
+ */
 void free_all_readable(void)
 {
     size_t i;

@@ -230,7 +230,7 @@ y 5
 arch lost_soul
 type 83
 level 40
-wis 4
+item_power 4
 direction 3
 end
 end
@@ -264,7 +264,7 @@ y 10
 arch wraith
 type 83
 level 40
-wis 4
+item_power 4
 direction 3
 end
 end
@@ -699,7 +699,7 @@ y 2
 arch wraith
 type 83
 level 38
-wis 4
+item_power 4
 end
 end
 arch floor_earth1d
@@ -871,7 +871,7 @@ y 15
 arch skel_fighter1
 type 83
 level 39
-wis 4
+item_power 4
 end
 end
 arch floor_earth1c
@@ -1507,7 +1507,7 @@ y 19
 arch skel_fighter1
 type 83
 level 39
-wis 4
+item_power 4
 end
 end
 arch floor_earth1a
@@ -1846,7 +1846,7 @@ y 11
 arch skel_fighter2
 type 83
 level 40
-wis 4
+item_power 4
 end
 end
 arch floor_earth1c
@@ -1952,7 +1952,7 @@ y 2
 arch skel_fighter2
 type 83
 level 40
-wis 4
+item_power 4
 end
 end
 arch floor_earth1e
@@ -2338,7 +2338,7 @@ y 5
 arch skel_mage
 type 83
 level 41
-wis 4
+item_power 4
 arch ability_mbullet
 end
 arch ability_icestorm

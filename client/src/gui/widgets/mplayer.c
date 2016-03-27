@@ -26,16 +26,19 @@
  * @file
  * Implements mplayer type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * File where the blacklist data is stored. */
+ * File where the blacklist data is stored.
+ */
 #define FILE_MPLAYER_BLACKLIST "mplayer.blacklist"
 /**
  * How many milliseconds the blacklist button must be held in order to
- * mass-change blacklist status. */
+ * mass-change blacklist status.
+ */
 #define BLACKLIST_ALL_DELAY 1500
 
 enum {
@@ -49,27 +52,35 @@ enum {
 } ;
 
 /**
- * Is shuffle enabled? */
+ * Is shuffle enabled?
+ */
 static uint8_t shuffle = 0;
 /**
- * Blacklisted music files. */
+ * Blacklisted music files.
+ */
 static uint8_t *shuffle_blacklist = NULL;
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct buttons[BUTTON_NUM];
 /**
- * Scrollbar buffer. */
+ * Scrollbar buffer.
+ */
 static scrollbar_struct scrollbar_progress;
 /**
- * Scrollbar info buffer. */
+ * Scrollbar info buffer.
+ */
 static scrollbar_info_struct scrollbar_progress_info;
 /**
- * The music player list. */
+ * The music player list.
+ */
 static list_struct *list_mplayer = NULL;
 
 /**
  * Handle music list double-click and "Play" button.
- * @param list The music list. */
+ * @param list
+ * The music list.
+ */
 static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
     sound_start_bg_music(list->text[list->row_selected - 1][0], setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC), -1);
@@ -88,7 +99,9 @@ static void list_text_color_hook(list_struct *list, uint32_t row, uint32_t col, 
 /**
  * Perform a shuffle of the selected row in the music list and start
  * playing the shuffled music.
- * @param list The music list. */
+ * @param list
+ * The music list.
+ */
 static void mplayer_do_shuffle(list_struct *list)
 {
     size_t i;
@@ -129,7 +142,8 @@ static void mplayer_do_shuffle(list_struct *list)
 }
 
 /**
- * Check whether we need to start another song. */
+ * Check whether we need to start another song.
+ */
 static void mplayer_check_shuffle(void)
 {
     if (!sound_playing_music()) {
@@ -140,8 +154,11 @@ static void mplayer_check_shuffle(void)
 /**
  * Check whether the currently selected row in the music list is
  * blacklisted.
- * @param list The music list.
- * @return 1 if the selected row is blacklisted, 0 otherwise. */
+ * @param list
+ * The music list.
+ * @return
+ * 1 if the selected row is blacklisted, 0 otherwise.
+ */
 static int mplayer_blacklisted(list_struct *list)
 {
     if (list && shuffle_blacklist && shuffle_blacklist[list->row_selected - 1]) {
@@ -153,7 +170,9 @@ static int mplayer_blacklisted(list_struct *list)
 
 /**
  * Toggle blacklist status on the selected row.
- * @param list The music list. */
+ * @param list
+ * The music list.
+ */
 static void mplayer_blacklist_toggle(list_struct *list)
 {
     if (list && shuffle_blacklist) {
@@ -178,8 +197,11 @@ static void mplayer_blacklist_toggle(list_struct *list)
 
 /**
  * Change blacklist status of all the music files at once.
- * @param list The music list.
- * @param state 1 to blacklist all, 0 to clear blacklist status. */
+ * @param list
+ * The music list.
+ * @param state
+ * 1 to blacklist all, 0 to clear blacklist status.
+ */
 static void mplayer_blacklist_mass_toggle(list_struct *list, uint8_t state)
 {
     if (list && shuffle_blacklist) {
@@ -200,7 +222,9 @@ static void mplayer_blacklist_mass_toggle(list_struct *list, uint8_t state)
 
 /**
  * Save the blacklist data to file.
- * @param list The music list. */
+ * @param list
+ * The music list.
+ */
 static void mplayer_blacklist_save(list_struct *list)
 {
     FILE *fp;
@@ -225,10 +249,14 @@ static void mplayer_blacklist_save(list_struct *list)
 
 /**
  * Initialize music player list by reading the directory 'path'.
- * @param list The music player list.
- * @param path The directory to read.
- * @param duplicates Whether to check for and ignore duplicates in the
- * directory (entries already in the list). */
+ * @param list
+ * The music player list.
+ * @param path
+ * The directory to read.
+ * @param duplicates
+ * Whether to check for and ignore duplicates in the
+ * directory (entries already in the list).
+ */
 static void mplayer_list_init(list_struct *list, const char *path, uint8_t duplicates)
 {
     DIR *dir;
@@ -561,7 +589,8 @@ static void widget_deinit(widgetdata *widget)
 }
 
 /**
- * Initialize one mplayer widget. */
+ * Initialize one mplayer widget.
+ */
 void widget_mplayer_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;

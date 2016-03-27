@@ -26,23 +26,26 @@
  * @file
  * Implements the /who command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_who(object *op, const char *command, char *params)
 {
     player *pl;
     int ip = 0;
-    char buf[MAX_BUF], race[MAX_BUF];
+    char buf[MAX_BUF];
 
     draw_info(COLOR_WHITE, op, " ");
 
     for (pl = first_player; pl; pl = pl->next) {
         ip++;
 
-        snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, gender_noun[object_get_gender(pl->ob)], player_get_race_class(pl->ob, race, sizeof(race)), pl->ob->level);
+        snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, gender_noun[object_get_gender(pl->ob)], pl->ob->race, pl->ob->level);
 
         if (pl->afk) {
             strncat(buf, " [AFK]", sizeof(buf) - strlen(buf) - 1);
@@ -50,11 +53,6 @@ void command_who(object *op, const char *command, char *params)
 
         if (pl->socket.is_bot) {
             strncat(buf, " [BOT]", sizeof(buf) - strlen(buf) - 1);
-        }
-
-        if (pl->class_ob && pl->class_ob->title) {
-            strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
-            strncat(buf, pl->class_ob->title, sizeof(buf) - strlen(buf) - 1);
         }
 
         draw_info(COLOR_WHITE, op, buf);

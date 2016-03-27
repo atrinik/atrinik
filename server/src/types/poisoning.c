@@ -26,29 +26,40 @@
  * @file
  * Handles code for @ref POISONING "poisoning" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
+/** @copydoc object_methods_t::process_func */
+static void
+process_func (object *op)
 {
-    if (!op->env || !IS_LIVE(op->env) || op->env->stats.hp < 0) {
+    HARD_ASSERT(op != NULL);
+
+    if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0) {
         object_remove(op, 0);
         object_destroy(op);
         return;
     }
 
     object *target = op->env;
-    tag_t target_count = target->count;
 
-    if (!hit_player(target, op->stats.dam, op)) {
-        return;
+    if (op->owner != NULL && !object_owner(op)) {
+        object_owner_clear(op);
     }
 
-    if (was_destroyed(target, target_count)) {
-        return;
-    }
+    OBJECTS_DESTROYED_BEGIN(target) {
+        if (!attack_hit(target, op, op->stats.dam)) {
+            return;
+        }
+
+        if (OBJECTS_DESTROYED(target)) {
+            return;
+        }
+    } OBJECTS_DESTROYED_END();
 
     if (target->type != PLAYER) {
         return;
@@ -60,7 +71,6 @@ static void process_func(object *op)
             /* Now deplete the stat. Relatively small chance that the
              * depletion will be worse than usual. */
             change_attr_value(&op->stats, i, rndm_chance(6) ? -2 : -1);
-            draw_info(COLOR_GRAY, target, lose_msg[i]);
         }
     }
 
@@ -68,8 +78,9 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the poisoning type object methods. */
-void object_type_init_poisoning(void)
+ * Initialize the poisoning type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(poisoning)
 {
-    object_type_methods[POISONING].process_func = process_func;
+    OBJECT_METHODS(POISONING)->process_func = process_func;
 }

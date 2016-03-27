@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Player related header file. */
+ * Player related header file.
+ */
 
 #ifndef PLAYER_H
 #define PLAYER_H
@@ -176,19 +177,23 @@ typedef struct Player_Struct {
 
     /**
      * Buffer for party name the player is joining, but has to enter
-     * password first. */
+     * password first.
+     */
     char partyjoin[MAX_BUF];
 
     /**
-     * Which item is being dragged. */
+     * Which item is being dragged.
+     */
     tag_t dragging_tag;
 
     /**
-     * X position where the item was dragged from. */
+     * X position where the item was dragged from.
+     */
     int dragging_startx;
 
     /**
-     * Y position where the item was dragged from. */
+     * Y position where the item was dragged from.
+     */
     int dragging_starty;
 
     /** Which inventory widget has the focus. */
@@ -202,7 +207,8 @@ typedef struct Player_Struct {
     uint8_t target_is_friend;
 
     /**
-     * Player's gender. */
+     * Player's gender.
+     */
     uint8_t gender;
 
     tag_t equipment[PLAYER_EQUIP_MAX];
@@ -216,23 +222,28 @@ typedef struct Player_Struct {
     player_state_t state;
 
     /**
-     * Account name that we are logged into. */
+     * Account name that we are logged into.
+     */
     char account[MAX_BUF];
 
     /**
-     * Password that was used to log in. */
+     * Password that was used to log in.
+     */
     char password[MAX_BUF];
 
     /**
-     * Current IP. */
+     * Current IP.
+     */
     char host[MAX_BUF];
 
     /**
-     * Last IP that the account was used from. */
+     * Last IP that the account was used from.
+     */
     char last_host[MAX_BUF];
 
     /**
-     * Last time the account was used. */
+     * Last time the account was used.
+     */
     time_t last_time;
 
     /**

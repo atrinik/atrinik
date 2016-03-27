@@ -24,23 +24,31 @@
 
 /**
  * @file
- * Handles objects being applied, and their effect. */
+ * Handles objects being applied, and their effect.
+ */
 
 #include <global.h>
 #include <plugin.h>
+#include <object.h>
+#include <player.h>
+#include <object_methods.h>
 
 /**
  * Main apply handler.
  *
  * Checks for unpaid items before applying.
- * @param op ::object causing tmp to be applied.
- * @param tmp ::object being applied.
- * @param aflag Special (always apply/unapply) flags. Nothing is done
+ * @param op
+ * ::object causing tmp to be applied.
+ * @param tmp
+ * ::object being applied.
+ * @param aflag
+ * Special (always apply/unapply) flags. Nothing is done
  * with them in this function - they are passed to apply_special().
  * @retval 0 Player or monster can't apply objects of that type.
  * @retval 1 Has been applied, or there was an error applying the object.
  * @retval 2 Objects of that type can't be applied if not in
- * inventory. */
+ * inventory.
+ */
 int manual_apply(object *op, object *tmp, int aflag)
 {
     tmp = HEAD(tmp);
@@ -61,7 +69,7 @@ int manual_apply(object *op, object *tmp, int aflag)
     }
 
     /* Trigger the APPLY event */
-    if (!(aflag & APPLY_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (!(aflag & APPLY_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, 0)) {
         return OBJECT_METHOD_OK;
     }
 
@@ -96,17 +104,22 @@ int manual_apply(object *op, object *tmp, int aflag)
 
 /**
  * Living thing is applying an object.
- * @param pl ::object causing op to be applied.
- * @param op ::object being applied.
- * @param aflag Special (always apply/unapply) flags. Nothing is done
+ * @param pl
+ * ::object causing op to be applied.
+ * @param op
+ * ::object being applied.
+ * @param aflag
+ * Special (always apply/unapply) flags. Nothing is done
  * with them in this function - they are passed to apply_special().
- * @param quiet If 1, suppresses the "don't know how to apply" and "you
+ * @param quiet
+ * If 1, suppresses the "don't know how to apply" and "you
  * must get it first" messages as needed by player_apply_below(). There
  * can still be "but you are floating high above the ground" messages.
  * @retval 0 Player or monster can't apply objects of that type.
  * @retval 1 Has been applied, or there was an error applying the object.
  * @retval 2 Objects of that type can't be applied if not in
- * inventory. */
+ * inventory.
+ */
 int player_apply(object *pl, object *op, int aflag, int quiet)
 {
     int tmp;
@@ -142,7 +155,9 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
  *
  * If the player has an open container, we use that for below, otherwise
  * we use the ground.
- * @param pl Player. */
+ * @param pl
+ * Player.
+ */
 void player_apply_below(object *pl)
 {
     object *tmp, *next;

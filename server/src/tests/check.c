@@ -30,6 +30,8 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 static int saved_argc; ///< Stored argc.
 static char **saved_argv; ///< Stored argv.
@@ -103,7 +105,7 @@ void check_setup_env_pl(mapstruct **map, object **pl)
 
     object_remove(*pl, 0);
 
-    *pl = insert_ob_in_map(*pl, *map, NULL, 0);
+    *pl = object_insert_map(*pl, *map, NULL, 0);
     ck_assert(*pl != NULL);
 }
 
@@ -183,6 +185,7 @@ void check_main(int argc, char **argv)
     check_server_shop();
 
     /* unit/toolkit */
+    check_server_math();
     check_server_memory();
     check_server_packet();
     check_server_pbkdf2();

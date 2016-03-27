@@ -79,7 +79,7 @@ void arch_init(void)
 {
     HARD_ASSERT(arch_table == NULL);
 
-    clone_op = get_object();
+    clone_op = object_get();
     arch_in_init = true;
     arch_load();
     arch_in_init = false;
@@ -116,7 +116,8 @@ void arch_deinit(void)
 
 /**
  * Allocates, initializes and returns the pointer to an archetype structure.
- * @return New archetype structure, never NULL.
+ * @return
+ * New archetype structure, never NULL.
  */
 static archetype_t *arch_new(void)
 {
@@ -130,7 +131,8 @@ static archetype_t *arch_new(void)
 
 /**
  * Frees the specified archetype structure.
- * @param at Archetype to free.
+ * @param at
+ * Archetype to free.
  */
 static void arch_free(archetype_t *at)
 {
@@ -145,30 +147,31 @@ static void arch_free(archetype_t *at)
     FREE_AND_CLEAR_HASH(at->clone.msg);
     FREE_AND_CLEAR_HASH(at->clone.custom_name);
     FREE_AND_CLEAR_HASH(at->clone.glow);
-    free_key_values(&at->clone);
+    object_free_key_values(&at->clone);
     efree(at);
 }
 
 /**
  * Reads/parses the archetype-file, and copies into a linked list
  * of archetype structures.
- * @param fp Opened file descriptor which will be used to read the
+ * @param fp
+ * Opened file descriptor which will be used to read the
  * archetypes.
  */
 static void arch_pass_first(FILE *fp)
 {
-    archetype_t *at, *prev = NULL, *last_more = NULL;
-    at = arch_new();
+    HARD_ASSERT(fp != NULL);
+
+    archetype_t *at = arch_new();
     at->clone.arch = at;
 
-    void *mybuffer = create_loader_buffer(fp);
-    int i, first = LO_NEWFILE;
+    void *buffer = create_loader_buffer(fp);
+    archetype_t *prev = NULL, *last_more = NULL;
 
-    while ((i = load_object(fp, &at->clone, mybuffer, first, MAP_STYLE)) !=
-            LL_EOF) {
-        first = LO_REPEAT;
-
-        switch (i) {
+    for (int rc = load_object_fp(fp, &at->clone, MAP_STYLE);
+         rc != LL_EOF;
+         rc = load_object_buffer(buffer, &at->clone, MAP_STYLE)) {
+        switch (rc) {
         /* A new archetype, add it to the arch table. */
         case LL_NORMAL:
             arch_add(at);
@@ -193,15 +196,17 @@ static void arch_pass_first(FILE *fp)
         at->clone.arch = at;
     }
 
-    delete_loader_buffer(mybuffer);
+    delete_loader_buffer(buffer);
     efree(at);
 }
 
 /**
  * Reads the archetype file once more, and links all pointers between
  * archetypes and treasure lists. Must be called after first_arch_pass().
- * @param fp File from which to read. Won't be rewinded.
- * @param filename Filename fp is being read from.
+ * @param fp
+ * File from which to read. Won't be rewinded.
+ * @param filename
+ * Filename fp is being read from.
  */
 static void arch_pass_second(FILE *fp, const char *filename)
 {
@@ -214,10 +219,9 @@ static void arch_pass_second(FILE *fp, const char *filename)
     while (fgets(VS(buf), fp) != NULL) {
         linenum++;
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         char *cps[2];
         if (string_split(cp, cps, arraysize(cps), ' ') < 1) {
@@ -263,8 +267,8 @@ static void arch_pass_second(FILE *fp, const char *filename)
             at->clone.randomitems = tl;
         } else if (strcmp(key, "arch") == 0) {
             object *inv = arch_get(value);
-            load_object(fp, inv, NULL, LO_LINEMODE, 0);
-            insert_ob_in_ob(inv, &at->clone);
+            load_object_fp(fp, inv, 0);
+            object_insert_into(inv, &at->clone, 0);
         }
     }
 
@@ -283,10 +287,9 @@ static void arch_pass_second(FILE *fp, const char *filename)
     while (fgets(VS(buf), fp) != NULL) {
         linenum++;
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         char *cps[2];
         if (string_split(cp, cps, arraysize(cps), ' ') < 1) {
@@ -381,7 +384,8 @@ static void arch_load(void)
  *
  * Must be called within archetypes initialization time-frame
  * (arch_in_init == true).
- * @param at Archetype to add.
+ * @param at
+ * Archetype to add.
  */
 void arch_add(archetype_t *at)
 {
@@ -395,8 +399,10 @@ void arch_add(archetype_t *at)
 
 /**
  * Finds, using the hashtable, which archetype matches the given name.
- * @param name Archetype name to find. Can be NULL.
- * @return Pointer to the found archetype, otherwise NULL.
+ * @param name
+ * Archetype name to find. Can be NULL.
+ * @return
+ * Pointer to the found archetype, otherwise NULL.
  */
 archetype_t *arch_find(const char *name)
 {
@@ -415,8 +421,10 @@ archetype_t *arch_find(const char *name)
  *
  * If the archetype cannot be found, object_create_singularity() is used to
  * create a singularity. Thus the return value is never NULL.
- * @param name Archetype name. Can be NULL.
- * @return Object of specified archetype, or a singularity. Will never be
+ * @param name
+ * Archetype name. Can be NULL.
+ * @return
+ * Object of specified archetype, or a singularity. Will never be
  * NULL.
  */
 object *arch_get(const char *name)
@@ -430,23 +438,27 @@ object *arch_get(const char *name)
 
 /**
  * Creates and returns a new object which is a copy of the given archetype.
- * @param at Archetype from which to get an object.
- * @return New object, never NULL.
+ * @param at
+ * Archetype from which to get an object.
+ * @return
+ * New object, never NULL.
  */
 object *arch_to_object(archetype_t *at)
 {
     HARD_ASSERT(at != NULL);
 
-    object *op = get_object();
-    copy_object_with_inv(&at->clone, op);
+    object *op = object_get();
+    object_copy_full(op, &at->clone);
     op->arch = at;
     return op;
 }
 
 /**
  * Clones the specified archetype.
- * @param at The archetype to clone.
- * @return New archetype.
+ * @param at
+ * The archetype to clone.
+ * @return
+ * New archetype.
  * @warning The archetype's name is not cloned.
  */
 archetype_t *arch_clone(archetype_t *at)

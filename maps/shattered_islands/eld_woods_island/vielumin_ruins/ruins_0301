@@ -1583,7 +1583,7 @@ dex 3
 see_invisible 1
 can_use_weapon 1
 can_use_armour 1
-wis 6
+item_power 6
 type 83
 arch ability_cause_lig_wound
 end

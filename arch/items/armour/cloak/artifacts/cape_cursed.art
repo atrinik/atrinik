@@ -1,0 +1,19 @@
+# Cape of Woe
+Allowed cape
+chance 50
+artifact cape_woe
+def_arch cape
+Object
+title of Woe
+type 87
+is_magical 1
+cursed_perm 1
+cursed 1
+str -1
+con -1
+dex -1
+int -1
+pow -1
+value 50
+item_power 1
+end

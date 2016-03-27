@@ -14,4 +14,6 @@ material 2048
 material_real 705
 weight 1100
 value 130
+block 5
+absorb 8
 end

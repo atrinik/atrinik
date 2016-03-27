@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Socket API. */
+ * Socket API.
+ */
 
 #ifndef SOCKET_H
 #define SOCKET_H
 
 /**
- * Commands used for sending data from client to server. */
+ * Commands used for sending data from client to server.
+ */
 enum {
     SERVER_CMD_CONTROL,
     SERVER_CMD_ASK_FACE,
@@ -63,7 +65,8 @@ enum {
 };
 
 /**
- * All the possible socket commands. */
+ * All the possible socket commands.
+ */
 enum {
     CLIENT_CMD_MAP,
     CLIENT_CMD_DRAWINFO,
@@ -129,7 +132,8 @@ enum {
 #define CMD_INTERFACE_TEXT 0
 /**
  * Link, follows the actual text, but is a special command in order to
- * support link shortcuts. */
+ * support link shortcuts.
+ */
 #define CMD_INTERFACE_LINK 1
 /** Icon; the image in the upper left corner square. */
 #define CMD_INTERFACE_ICON 2
@@ -137,11 +141,13 @@ enum {
 #define CMD_INTERFACE_TITLE 3
 /**
  * If found in the command, will open the console with any text followed
- * by this. */
+ * by this.
+ */
 #define CMD_INTERFACE_INPUT 4
 /**
  * Hidden text to prepend to the final text input string, when sent to
- * the NPC. */
+ * the NPC.
+ */
 #define CMD_INTERFACE_INPUT_PREPEND 5
 /** Allow tabs to be entered. */
 #define CMD_INTERFACE_ALLOW_TAB 6
@@ -175,7 +181,8 @@ enum {
 #define CMD_NOTIFICATION_SHORTCUT 2
 /**
  * How many milliseconds must pass before the notification is
- * dismissed. */
+ * dismissed.
+ */
 #define CMD_NOTIFICATION_DELAY 3
 /*@}*/
 
@@ -318,10 +325,12 @@ enum {
  * Target command types.
  *@{*/
 /**
- * Target something at the specified X/Y position on the map. */
+ * Target something at the specified X/Y position on the map.
+ */
 #define CMD_TARGET_MAPXY 1
 /**
- * Clear target. */
+ * Clear target.
+ */
 #define CMD_TARGET_CLEAR 2
 /*@}*/
 
@@ -330,19 +339,24 @@ enum {
  * Account command types.
  *@{*/
 /**
- * Login as the specified account. */
+ * Login as the specified account.
+ */
 #define CMD_ACCOUNT_LOGIN 1
 /**
- * Create the specified account. */
+ * Create the specified account.
+ */
 #define CMD_ACCOUNT_REGISTER 2
 /**
- * Login with a character. */
+ * Login with a character.
+ */
 #define CMD_ACCOUNT_LOGIN_CHAR 3
 /**
- * Create a new character. */
+ * Create a new character.
+ */
 #define CMD_ACCOUNT_NEW_CHAR 4
 /**
- * Change the current account's password. */
+ * Change the current account's password.
+ */
 #define CMD_ACCOUNT_PSWD 5
 /*@}*/
 
@@ -404,7 +418,8 @@ enum {
 #define NDI_EMOTE 0x01000
 /**
  * Message will be played as animation in the middle of the client
- * screen. */
+ * screen.
+ */
 #define NDI_ANIM 0x02000
 /** Inform all players of this message. */
 #define NDI_ALL 0x20000
@@ -415,31 +430,40 @@ enum {
  * Flags for the item command. Used in query_flags().
  *@{*/
 /**
- * The item is applied. */
+ * The item is applied.
+ */
 #define CS_FLAG_APPLIED 1
 /**
- * The item is unpaid. */
+ * The item is unpaid.
+ */
 #define CS_FLAG_UNPAID 2
 /**
- * The item is magical. */
+ * The item is magical.
+ */
 #define CS_FLAG_IS_MAGICAL 4
 /**
- * The item is cursed. */
+ * The item is cursed.
+ */
 #define CS_FLAG_CURSED 8
 /**
- * The item is damned. */
+ * The item is damned.
+ */
 #define CS_FLAG_DAMNED 16
 /**
- * The item is an opened container. */
+ * The item is an opened container.
+ */
 #define CS_FLAG_CONTAINER_OPEN 32
 /**
- * The item is locked. */
+ * The item is locked.
+ */
 #define CS_FLAG_LOCKED 64
 /**
- * The item is trapped. */
+ * The item is trapped.
+ */
 #define CS_FLAG_IS_TRAPPED 128
 /**
- * The item is a two-handed weapon. */
+ * The item is a two-handed weapon.
+ */
 #define CS_FLAG_WEAPON_2H 256
 /*@}*/
 
@@ -615,10 +639,12 @@ enum {
  * @defgroup CMD_CONTROL_xxx Control command types
  *@{*/
 /**
- * Control command concerning a map. */
+ * Control command concerning a map.
+ */
 #define CMD_CONTROL_MAP 1
 /**
- * Control command concerning a player. */
+ * Control command concerning a player.
+ */
 #define CMD_CONTROL_PLAYER 2
 /*@}*/
 
@@ -627,7 +653,8 @@ enum {
  * @defgroup CMD_CONTROL_MAP_xxx Map control command types
  *@{*/
 /**
- * Reset the specified map. */
+ * Reset the specified map.
+ */
 #define CMD_CONTROL_MAP_RESET 1
 /*@}*/
 
@@ -635,7 +662,8 @@ enum {
  * @defgroup CMD_CONTROL_PLAYER_xxx Player control command types
  *@{*/
 /**
- * Teleport player to the specified map. */
+ * Teleport player to the specified map.
+ */
 #define CMD_CONTROL_PLAYER_TELEPORT 1
 /*@}*/
 
@@ -651,55 +679,72 @@ enum {
 
 /**
  * Player equipment.
- * @anchor PLAYER_EQUIP_xxx */
+ * @anchor PLAYER_EQUIP_xxx
+ */
 enum {
     /**
-     * Ammunition. */
+     * Ammunition.
+     */
     PLAYER_EQUIP_AMMO,
     /**
-     * Amulet. */
+     * Amulet.
+     */
     PLAYER_EQUIP_AMULET,
     /**
-     * Weapon. */
+     * Weapon.
+     */
     PLAYER_EQUIP_WEAPON,
     /**
-     * Shield. */
+     * Shield.
+     */
     PLAYER_EQUIP_SHIELD,
     /**
-     * Gauntlets. */
+     * Gauntlets.
+     */
     PLAYER_EQUIP_GAUNTLETS,
     /**
-     * Right ring. */
+     * Right ring.
+     */
     PLAYER_EQUIP_RING_RIGHT,
     /**
-     * Helm. */
+     * Helm.
+     */
     PLAYER_EQUIP_HELM,
     /**
-     * Armor. */
+     * Armor.
+     */
     PLAYER_EQUIP_ARMOUR,
     /**
-     * Belt. */
+     * Belt.
+     */
     PLAYER_EQUIP_BELT,
     /**
-     * Pants. */
+     * Pants.
+     */
     PLAYER_EQUIP_PANTS,
     /**
-     * Boots. */
+     * Boots.
+     */
     PLAYER_EQUIP_BOOTS,
     /**
-     * Cloak. */
+     * Cloak.
+     */
     PLAYER_EQUIP_CLOAK,
     /**
-     * Bracers. */
+     * Bracers.
+     */
     PLAYER_EQUIP_BRACERS,
     /**
-     * Ranged weapon. */
+     * Ranged weapon.
+     */
     PLAYER_EQUIP_WEAPON_RANGED,
     /**
-     * Light (lantern, torch). */
+     * Light (lantern, torch).
+     */
     PLAYER_EQUIP_LIGHT,
     /**
-     * Left ring. */
+     * Left ring.
+     */
     PLAYER_EQUIP_RING_LEFT,
     /**
      * Skill item.
@@ -707,7 +752,8 @@ enum {
     PLAYER_EQUIP_SKILL_ITEM,
 
     /**
-     * Maximum number of equipment. */
+     * Maximum number of equipment.
+     */
     PLAYER_EQUIP_MAX
 };
 

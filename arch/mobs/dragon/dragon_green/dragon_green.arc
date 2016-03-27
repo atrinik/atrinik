@@ -19,7 +19,7 @@ protect_pierce 10
 protect_fire 10
 protect_cold 10
 type 80
-wis 3
+item_power 3
 mpart_id 3
 animation dragon_green
 is_animated 1

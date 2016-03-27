@@ -24,18 +24,27 @@
 
 /**
  * @file
- * Handles code for the construction skill. */
+ * Handles code for the construction skill.
+ */
 
 #include <global.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Check if objects on a square interfere with building.
- * @param m Map we're building on.
- * @param new_item Item the player is trying to build.
- * @param x X coordinate where to build.
- * @param y Y coordinate where to build.
- * @return 1 if 'new_item' can be built on the spot, 0 otherwise. */
+ * @param m
+ * Map we're building on.
+ * @param new_item
+ * Item the player is trying to build.
+ * @param x
+ * X coordinate where to build.
+ * @param y
+ * Y coordinate where to build.
+ * @return
+ * 1 if 'new_item' can be built on the spot, 0 otherwise.
+ */
 static int can_build_over(mapstruct *m, object *new_item, int x, int y)
 {
     object *tmp;
@@ -72,10 +81,15 @@ static int can_build_over(mapstruct *m, object *new_item, int x, int y)
 
 /**
  * Find wall on the specified square.
- * @param m Map where to look.
- * @param x X where to look.
- * @param y Y where to look.
- * @return The wall if found, NULL otherwise. */
+ * @param m
+ * Map where to look.
+ * @param x
+ * X where to look.
+ * @param y
+ * Y where to look.
+ * @return
+ * The wall if found, NULL otherwise.
+ */
 static object *get_wall(mapstruct *m, int x, int y)
 {
     object *tmp;
@@ -91,36 +105,44 @@ static object *get_wall(mapstruct *m, int x, int y)
 
 /**
  * Floor building function.
- * @param op Player building.
- * @param new_floor New floor object
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the floor was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param new_floor
+ * New floor object
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the floor was built, 0 otherwise.
+ */
 static int builder_floor(object *op, object *new_floor, int x, int y)
 {
     object *tmp;
-
-    for (tmp = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR, 0); tmp && tmp->layer == LAYER_FLOOR; tmp = tmp->above) {
-        if (tmp->type == FLOOR || QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
-            if (tmp->arch == new_floor->arch) {
-                draw_info(COLOR_WHITE, op, "You feel too lazy to redo the exact same floor.");
-                return 0;
-            }
-
-            object_remove(tmp, 0);
-            break;
+    FOR_MAP_LAYER_BEGIN(op->map, x, y, LAYER_FLOOR, -1, tmp) {
+        if (tmp->type != FLOOR && !QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
+            continue;
         }
-    }
 
-    if (tmp && QUERY_FLAG(tmp, FLAG_UNIQUE)) {
-        SET_FLAG(new_floor, FLAG_UNIQUE);
-    }
+        if (tmp->arch == new_floor->arch) {
+            draw_info(COLOR_WHITE, op,
+                      "You feel too lazy to redo the exact same floor.");
+            return 0;
+        }
+
+        if (QUERY_FLAG(tmp, FLAG_UNIQUE)) {
+            SET_FLAG(new_floor, FLAG_UNIQUE);
+        }
+
+        object_remove(tmp, 0);
+        object_destroy(tmp);
+    } FOR_MAP_LAYER_END
 
     SET_FLAG(new_floor, FLAG_IS_FLOOR);
     new_floor->type = FLOOR;
     new_floor->x = x;
     new_floor->y = y;
-    insert_ob_in_map(new_floor, op->map, NULL, 0);
+    object_insert_map(new_floor, op->map, NULL, 0);
     draw_info(COLOR_WHITE, op, "You change the floor to better suit your tastes.");
 
     return 1;
@@ -128,11 +150,17 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 
 /**
  * Build an item like sign, wall mask (fireplace), etc.
- * @param op Player building.
- * @param new_item What to build.
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the item was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param new_item
+ * What to build.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the item was built, 0 otherwise.
+ */
 static int builder_item(object *op, object *new_item, int x, int y)
 {
     object *floor_ob;
@@ -205,6 +233,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
         }
 
         object_remove(book, 0);
+        object_destroy(book);
     }
 
     /* If the item is turnable, adjust direction. */
@@ -216,7 +245,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
     SET_FLAG(new_item, FLAG_NO_PICK);
     new_item->x = x;
     new_item->y = y;
-    insert_ob_in_map(new_item, op->map, NULL, 0);
+    object_insert_map(new_item, op->map, NULL, 0);
     char *name = object_get_name_s(new_item, op);
     draw_info_format(COLOR_WHITE, op, "You build the %s.", name);
     efree(name);
@@ -226,12 +255,19 @@ static int builder_item(object *op, object *new_item, int x, int y)
 
 /**
  * Split wall's name from the orientation.
- * @param wall Wall to get the name with orientation from.
- * @param wall_name Where the wall's name will go.
- * @param wall_name_size Size of 'wall_name'.
- * @param orientation Where the wall's orientation will go.
- * @param orientation_size Size of 'orientation'.
- * @return 1 on success, 0 on failure. */
+ * @param wall
+ * Wall to get the name with orientation from.
+ * @param wall_name
+ * Where the wall's name will go.
+ * @param wall_name_size
+ * Size of 'wall_name'.
+ * @param orientation
+ * Where the wall's orientation will go.
+ * @param orientation_size
+ * Size of 'orientation'.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 static int wall_split_orientation(const object *wall_ob, char *wall_name, size_t wall_name_size, char *orientation, size_t orientation_size)
 {
     int l;
@@ -256,9 +292,13 @@ static int wall_split_orientation(const object *wall_ob, char *wall_name, size_t
  *
  * Basically it ensures the correct wall is put where needed.
  * @note x and y must be valid map coordinates.
- * @param map Map where to fix.
- * @param x X where to fix.
- * @param y Y where to fix. */
+ * @param map
+ * Map where to fix.
+ * @param x
+ * X where to fix.
+ * @param y
+ * Y where to fix.
+ */
 static void fix_walls(mapstruct *map, int x, int y)
 {
     int connect_val;
@@ -344,12 +384,13 @@ static void fix_walls(mapstruct *map, int x, int y)
     }
 
     object_remove(wall_ob, 0);
+    object_destroy(wall_ob);
 
     wall_ob = arch_to_object(new_arch);
     wall_ob->type = WALL;
     wall_ob->x = x;
     wall_ob->y = y;
-    insert_ob_in_map(wall_ob, map, NULL, 0);
+    object_insert_map(wall_ob, map, NULL, 0);
 
     for (flag = 0; flag < NUM_FLAGS_32; flag++) {
         wall_ob->flags[flag] = old_flags[flag];
@@ -358,11 +399,17 @@ static void fix_walls(mapstruct *map, int x, int y)
 
 /**
  * Build a wall.
- * @param op Player building.
- * @param new_wall New wall object.
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the wall was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param new_wall
+ * New wall object.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the wall was built, 0 otherwise.
+ */
 static int builder_wall(object *op, object *new_wall, int x, int y)
 {
     object *wall_ob = get_wall(op->map, x, y);
@@ -386,9 +433,10 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
     /* If existing wall, replace it, no need to fix other walls */
     if (wall_ob) {
         object_remove(wall_ob, 0);
+        object_destroy(wall_ob);
         new_wall->x = x;
         new_wall->y = y;
-        insert_ob_in_map(new_wall, op->map, NULL, 0);
+        object_insert_map(new_wall, op->map, NULL, 0);
         fix_walls(op->map, x, y);
         draw_info(COLOR_WHITE, op, "You redecorate the wall to better suit your tastes.");
     } else {
@@ -398,7 +446,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 
         new_wall->x = x;
         new_wall->y = y;
-        insert_ob_in_map(new_wall, op->map, NULL, 0);
+        object_insert_map(new_wall, op->map, NULL, 0);
 
         for (xt = x - 1; xt < x + 1 + 1; xt++) {
             for (yt = y - 1; yt < y + 1 + 1; yt++) {
@@ -418,10 +466,15 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
 
 /**
  * Window building function.
- * @param op Player building.
- * @param x X where to build.
- * @param y Y where to build.
- * @return 1 if the window was built, 0 otherwise. */
+ * @param op
+ * Player building.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ * @return
+ * 1 if the window was built, 0 otherwise.
+ */
 static int builder_window(object *op, int x, int y)
 {
     object *wall_ob;
@@ -441,7 +494,8 @@ static int builder_window(object *op, int x, int y)
     if (!wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation))) {
         draw_info(COLOR_WHITE, op, "You don't see a way to build a window in that wall.");
         return 0;
-    } else if (!strcmp(orientation, "_1") && !strcmp(orientation, "_3")) {
+    } else if (strcmp(orientation, "_1") != 0 &&
+               strcmp(orientation, "_3") != 0) {
         draw_info(COLOR_WHITE, op, "You cannot build a window in that wall.");
         return 0;
     }
@@ -464,12 +518,13 @@ static int builder_window(object *op, int x, int y)
     }
 
     object_remove(wall_ob, 0);
+    object_destroy(wall_ob);
 
     window = arch_to_object(new_arch);
     window->type = WALL;
     window->x = x;
     window->y = y;
-    insert_ob_in_map(window, op->map, NULL, 0);
+    object_insert_map(window, op->map, NULL, 0);
 
     for (flag = 0; flag < NUM_FLAGS_32; flag++) {
         window->flags[flag] = old_flags[flag];
@@ -482,9 +537,13 @@ static int builder_window(object *op, int x, int y)
 
 /**
  * Generic function for handling the construction builder skill item.
- * @param op Player building.
- * @param x X where to build.
- * @param y Y where to build. */
+ * @param op
+ * Player building.
+ * @param x
+ * X where to build.
+ * @param y
+ * Y where to build.
+ */
 static void construction_builder(object *op, int x, int y)
 {
     object *material, *new_item;
@@ -517,6 +576,7 @@ static void construction_builder(object *op, int x, int y)
 
     if (!can_build_over(op->map, new_item, x, y)) {
         draw_info(COLOR_WHITE, op, "You can't build there.");
+        object_destroy(new_item);
         return;
     }
 
@@ -536,6 +596,7 @@ static void construction_builder(object *op, int x, int y)
 
     case ST_MAT_WIN:
         built = builder_window(op, x, y);
+        object_destroy(new_item);
         break;
 
     default:
@@ -554,9 +615,13 @@ static void construction_builder(object *op, int x, int y)
  * Item remover.
  *
  * Removes first buildable item except floor.
- * @param op Player removing an item.
- * @param x X Where to remove.
- * @param y Y where to remove. */
+ * @param op
+ * Player removing an item.
+ * @param x
+ * X Where to remove.
+ * @param y
+ * Y where to remove.
+ */
 static void construction_destroyer(object *op, int x, int y)
 {
     object *item;
@@ -603,12 +668,16 @@ static void construction_destroyer(object *op, int x, int y)
     char *name = object_get_name_s(item, op);
     draw_info_format(COLOR_WHITE, op, "You remove the %s.", name);
     efree(name);
+
+    object_destroy(item);
 }
 
 /**
  * Main point of construction skill. From here, we decide what to do
  * with skill item we have equipped.
- * @param op Player. */
+ * @param op
+ * Player.
+ */
 void construction_do(object *op, int dir)
 {
     object *skill_item, *floor_ob, *tmp;

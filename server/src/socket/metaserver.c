@@ -24,36 +24,44 @@
 
 /**
  * @file
- * Metaserver updating related code. */
+ * Metaserver updating related code.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 #include <curl/curl.h>
+#include <player.h>
 
 static void *metaserver_thread(void *junk);
 
 /**
- * Metaserver update information structure. */
+ * Metaserver update information structure.
+ */
 typedef struct ms_update_info {
     /**
-     * Number of players in the game. */
+     * Number of players in the game.
+     */
     char num_players[MAX_BUF];
 
     /**
-     * The port the server is using. */
+     * The port the server is using.
+     */
     char port[MAX_BUF];
 
     /**
-     * Players currently in the game, separated by colons (':'). */
+     * Players currently in the game, separated by colons (':').
+     */
     char *players;
 } ms_update_info;
 
 /**
- * Mutex for protecting metaserver information. */
+ * Mutex for protecting metaserver information.
+ */
 static pthread_mutex_t ms_info_mutex;
 
 /**
- * The actual metaserver information. */
+ * The actual metaserver information.
+ */
 static ms_update_info metaserver_info;
 
 /**
@@ -70,7 +78,8 @@ static struct {
 } stats;
 
 /**
- * Updates the ::metaserver_info. */
+ * Updates the ::metaserver_info.
+ */
 void metaserver_info_update(void)
 {
     player *pl;
@@ -98,7 +107,8 @@ void metaserver_info_update(void)
 }
 
 /**
- * Initialize the metaserver. */
+ * Initialize the metaserver.
+ */
 void metaserver_init(void)
 {
     int ret;
@@ -146,7 +156,8 @@ void metaserver_deinit(void)
 /**
  * Construct metaserver statistics.
  * @param[out] buf Buffer to use for writing. Must end with a NUL.
- * @param size Size of 'buf'.
+ * @param size
+ * Size of 'buf'.
  */
 void metaserver_stats(char *buf, size_t size)
 {
@@ -168,11 +179,17 @@ void metaserver_stats(char *buf, size_t size)
 
 /**
  * Function to call when receiving data from the metaserver.
- * @param ptr Pointer to the actual data
- * @param size Size of the data
+ * @param ptr
+ * Pointer to the actual data
+ * @param size
+ * Size of the data
  * @param nmemb
- * @param data Unused
- * @return The real size of the data */
+ *
+ * @param data
+ * Unused
+ * @return
+ * The real size of the data
+ */
 static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;
@@ -185,7 +202,8 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
 }
 
 /**
- * Do the metaserver updating. */
+ * Do the metaserver updating.
+ */
 static void metaserver_update(void)
 {
     struct curl_httppost *formpost = NULL, *lastptr = NULL;
@@ -251,7 +269,9 @@ static void metaserver_update(void)
 
 /**
  * Send metaserver updates in a thread.
- * @return NULL. */
+ * @return
+ * NULL.
+ */
 static void *metaserver_thread(void *junk)
 {
     (void) junk;

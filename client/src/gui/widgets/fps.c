@@ -26,19 +26,23 @@
  * @file
  * Implements FPS type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * FPS widget data. */
+ * FPS widget data.
+ */
 typedef struct widget_fps_struct {
     /**
-     * Last time the FPS was calculated. */
+     * Last time the FPS was calculated.
+     */
     uint32_t lasttime;
 
     /**
-     * Current FPS. */
+     * Current FPS.
+     */
     uint32_t current;
 
     /**
@@ -47,7 +51,8 @@ typedef struct widget_fps_struct {
     uint32_t current_real;
 
     /**
-     * Number of main loop iterations since last calculation. */
+     * Number of main loop iterations since last calculation.
+     */
     uint32_t frames;
 
     /**
@@ -97,7 +102,8 @@ static void widget_background(widgetdata *widget, int draw)
 }
 
 /**
- * Initialize one FPS widget. */
+ * Initialize one FPS widget.
+ */
 void widget_fps_init(widgetdata *widget)
 {
     widget_fps_struct *tmp;

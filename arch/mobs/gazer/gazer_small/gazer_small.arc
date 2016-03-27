@@ -14,7 +14,7 @@ terrain_flag 65
 weapon_speed 0.037
 attack_pierce 85
 type 80
-wis 3
+item_power 3
 animation gazer_small
 is_animated 1
 anim_speed 4

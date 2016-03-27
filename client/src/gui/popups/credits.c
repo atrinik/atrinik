@@ -26,7 +26,8 @@
  * @file
  * Implements the credits popup.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -35,16 +36,20 @@
 #define CREDITS_SCROLL_TICKS 80
 
 /**
- * The contributors help file. */
+ * The contributors help file.
+ */
 static hfile_struct *hfile_contributors;
 /**
- * Scroll value of the credits. */
+ * Scroll value of the credits.
+ */
 static int credits_scroll;
 /**
- * Height of the credits text. */
+ * Height of the credits text.
+ */
 static int credits_height;
 /**
- * Last scrolled ticks. */
+ * Last scrolled ticks.
+ */
 static uint32_t credits_ticks;
 
 /** @copydoc popup_struct::draw_func */
@@ -71,7 +76,8 @@ static int popup_draw_func(popup_struct *popup)
 }
 
 /**
- * Show the credits popup. */
+ * Show the credits popup.
+ */
 void credits_show(void)
 {
     SDL_Rect box;

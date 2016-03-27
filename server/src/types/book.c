@@ -24,21 +24,28 @@
 
 /**
  * @file
- * Handles code related to @ref BOOK "books". */
+ * Handles code related to @ref BOOK "books".
+ */
 
 #include <global.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
+#include <object_methods.h>
 
 /**
  * Maximum amount of difference in levels between the book's level and
- * the player's literacy skill. */
+ * the player's literacy skill.
+ */
 #define BOOK_LEVEL_DIFF 12
 
 /**
  * Affects @ref BOOK_LEVEL_DIFF, depending on the player's intelligence
  * stat. If the player is intelligent enough, they may be able to read
  * higher level books; if their intelligence is too low, the maximum level
- * books they can read will decrease. */
+ * books they can read will decrease.
+ */
 static int book_level_mod[MAX_STAT + 1] = {
     -9,
     -8, -7, -6, -5, -4,
@@ -50,10 +57,11 @@ static int book_level_mod[MAX_STAT + 1] = {
 };
 
 /**
- * The higher your wisdom, the more you are able to make use of the
+ * The higher your intelligence, the more you are able to make use of the
  * knowledge you read from books. Thus, you get more experience by
- * reading books the more wisdom you have, and less experience if you
- * have unnaturally low wisdom. */
+ * reading books the more intelligence you have, and less experience if you
+ * have unnaturally low intelligence.
+ */
 static double book_exp_mod[MAX_STAT + 1] = {
     -3.00f,
     -2.00f, -1.90f, -1.80f, -1.70f, -1.60f,
@@ -64,14 +72,14 @@ static double book_exp_mod[MAX_STAT + 1] = {
     1.70f, 1.75f, 1.85f, 1.90f, 2.00f
 };
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
-    int lev_diff;
-    packet_struct *packet;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
 
-    (void) aflags;
-
+    /* Non-players cannot apply books. */
     if (applier->type != PLAYER) {
         return OBJECT_METHOD_OK;
     }
@@ -82,45 +90,57 @@ static int apply_func(object *op, object *applier, int aflags)
     }
 
     if (op->msg == NULL) {
-        draw_info_format(COLOR_WHITE, applier, "You open the %s and find it empty.", op->name);
+        draw_info_format(COLOR_WHITE, applier,
+                         "You open the %s and find it empty.", op->name);
         return OBJECT_METHOD_OK;
     }
 
     /* Need a literacy skill to read stuff! */
     if (!change_skill(applier, SK_LITERACY)) {
-        draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
+        draw_info(COLOR_WHITE, applier,
+                  "You are unable to decipher the strange symbols.");
         return OBJECT_METHOD_OK;
     }
 
-    lev_diff = op->level - (SK_level(applier) + BOOK_LEVEL_DIFF + book_level_mod[applier->stats.Int]);
-
+    int lev_diff = op->level - (SK_level(applier) +
+                                BOOK_LEVEL_DIFF +
+                                book_level_mod[applier->stats.Int]);
     if (lev_diff > 0) {
         if (lev_diff < 2) {
-            draw_info(COLOR_WHITE, applier, "This book is just barely beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is just barely beyond your comprehension.");
         } else if (lev_diff < 3) {
-            draw_info(COLOR_WHITE, applier, "This book is slightly beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is slightly beyond your comprehension.");
         } else if (lev_diff < 5) {
-            draw_info(COLOR_WHITE, applier, "This book is beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is beyond your comprehension.");
         } else if (lev_diff < 8) {
-            draw_info(COLOR_WHITE, applier, "This book is quite a bit beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is quite a bit beyond your comprehension.");
         } else if (lev_diff < 15) {
-            draw_info(COLOR_WHITE, applier, "This book is way beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is way beyond your comprehension.");
         } else {
-            draw_info(COLOR_WHITE, applier, "This book is totally beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier,
+                      "This book is totally beyond your comprehension.");
         }
 
         return OBJECT_METHOD_OK;
     }
 
-    draw_info_format(COLOR_WHITE, applier, "You open the %s and start reading.", op->name);
+    draw_info_format(COLOR_WHITE, applier,
+                     "You open the %s and start reading.",
+                     op->name);
     CONTR(applier)->stat_books_read++;
 
-    packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
+    packet_struct *packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
     packet_debug_data(packet, 0, "Book interface header");
     packet_append_string(packet, "[book]");
     StringBuffer *sb = object_get_base_name(op, applier, NULL);
-    packet_append_string_len_terminated(packet, stringbuffer_data(sb),
-            stringbuffer_length(sb));
+    packet_append_string_len(packet,
+                             stringbuffer_data(sb),
+                             stringbuffer_length(sb));
     stringbuffer_free(sb);
     packet_append_string(packet, "[/book]");
     packet_debug_data(packet, 0, "Book message");
@@ -129,16 +149,14 @@ static int apply_func(object *op, object *applier, int aflags)
 
     /* Gain xp from reading but only if not read before. */
     if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
-        int64_t exp_gain, old_exp;
-
         CONTR(applier)->stat_unique_books_read++;
 
         /* Store original exp value. We want to keep the experience cap
          * from calc_skill_exp() below, so we temporarily adjust the exp
          * of the book, instead of adjusting the return value. */
-        old_exp = op->stats.exp;
-        /* Adjust the experience based on player's wisdom. */
-        op->stats.exp = (int64_t) ((double) op->stats.exp * book_exp_mod[applier->stats.Wis]);
+        int64_t old_exp = op->stats.exp;
+        /* Adjust the experience based on player's intelligence. */
+        op->stats.exp *= book_exp_mod[applier->stats.Int];
 
         if (!QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             /* Because they just identified it too. */
@@ -146,7 +164,7 @@ static int apply_func(object *op, object *applier, int aflags)
             identify(op);
         }
 
-        exp_gain = calc_skill_exp(applier, op, -1);
+        int64_t exp_gain = calc_skill_exp(applier, op, -1);
         add_exp(applier, exp_gain, applier->chosen_skill->stats.sp, 0);
 
         /* So no more exp gained from this book. */
@@ -159,8 +177,9 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the book type object methods. */
-void object_type_init_book(void)
+ * Initialize the book type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(book)
 {
-    object_type_methods[BOOK].apply_func = apply_func;
+    OBJECT_METHODS(BOOK)->apply_func = apply_func;
 }

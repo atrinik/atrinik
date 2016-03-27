@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref WALL "walls".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the wall type object methods. */
-void object_type_init_wall(void)
+ * Initialize the wall type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(wall)
 {
 }

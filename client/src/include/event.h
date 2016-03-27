@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Event related header file. */
+ * Event related header file.
+ */
 
 #ifndef EVENT_H
 #define EVENT_H
@@ -42,7 +43,8 @@ enum {
 typedef void (*event_drag_cb_fnc)(void);
 
 /**
- * Key information. */
+ * Key information.
+ */
 typedef struct key_struct {
     /** If 1, the key is pressed. */
     uint8_t pressed;

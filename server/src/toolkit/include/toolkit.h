@@ -26,7 +26,8 @@
  * @file
  * Toolkit system header file.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifndef TOOLKIT_H
 #define TOOLKIT_H
@@ -54,7 +55,8 @@
 #include <utlist.h>
 
 /**
- * Toolkit (de)initialization function. */
+ * Toolkit (de)initialization function.
+ */
 typedef void (*toolkit_func)(void);
 
 typedef struct toolkit_dependency {
@@ -63,10 +65,12 @@ typedef struct toolkit_dependency {
 } toolkit_dependency_t;
 
 /**
- * Check if the specified API has been imported yet. */
+ * Check if the specified API has been imported yet.
+ */
 #define toolkit_imported(__api_name) toolkit_check_imported(toolkit_ ## __api_name ## _deinit)
 /**
- * Import the specified API (if it has not been imported yet). */
+ * Import the specified API (if it has not been imported yet).
+ */
 #define toolkit_import(__api_name) toolkit_ ## __api_name ## _init()
 
 #define DEPENDS(__api_name) { toolkit_ ## __api_name ## _init, true}
@@ -147,7 +151,8 @@ typedef struct toolkit_dependency {
 #endif
 
 /**
- * Takes a variable and returns the variable and its size. */
+ * Takes a variable and returns the variable and its size.
+ */
 #define VS(var) (var), sizeof((var))
 
 /**
@@ -222,7 +227,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT(cond, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             assert(cond); \
             return; \
@@ -231,7 +236,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_RC(cond, rc, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             assert(cond); \
             return (rc); \
@@ -240,7 +245,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_LABEL(cond, label, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             assert(cond); \
             goto label; \
@@ -251,7 +256,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT(cond, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             return; \
         } \
@@ -259,7 +264,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_RC(cond, rc, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             return (rc); \
         } \
@@ -267,7 +272,7 @@ typedef struct toolkit_dependency {
 
 #define SOFT_ASSERT_LABEL(cond, label, msg, ...) \
     do { \
-        if (!(cond)) { \
+        if (unlikely(!(cond))) { \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             goto label; \
         } \
@@ -307,5 +312,46 @@ typedef struct toolkit_dependency {
     do {                                                  \
         (_val) ^= ((-(_x)) ^ (_val)) & (_mask);           \
     } while (0)
+
+/**@cond*/
+/* Helper functions for FOR_EACH(). */
+#define _FOR_EACH_1(what, x, ...) what(x)
+#define _FOR_EACH_2(what, x, ...) what(x) _FOR_EACH_1(what, __VA_ARGS__)
+#define _FOR_EACH_3(what, x, ...) what(x) _FOR_EACH_2(what, __VA_ARGS__)
+#define _FOR_EACH_4(what, x, ...) what(x) _FOR_EACH_3(what, __VA_ARGS__)
+#define _FOR_EACH_5(what, x, ...) what(x) _FOR_EACH_4(what, __VA_ARGS__)
+#define _FOR_EACH_6(what, x, ...) what(x) _FOR_EACH_5(what, __VA_ARGS__)
+#define _FOR_EACH_7(what, x, ...) what(x) _FOR_EACH_6(what, __VA_ARGS__)
+#define _FOR_EACH_8(what, x, ...) what(x) _FOR_EACH_7(what, __VA_ARGS__)
+
+#define _FOR_EACH_NARG(...) _FOR_EACH_NARG_(__VA_ARGS__, _FOR_EACH_RSEQ_N())
+#define _FOR_EACH_NARG_(...) _FOR_EACH_ARG_N(__VA_ARGS__)
+#define _FOR_EACH_ARG_N(_1, _2, _3, _4, _5, _6, _7, _8, N, ...) N
+#define _FOR_EACH_RSEQ_N() 8, 7, 6, 5, 4, 3, 2, 1, 0
+
+#define _FOR_EACH(N, what, x, ...) \
+    CONCAT(_FOR_EACH_, N)(what, x, __VA_ARGS__)
+/**@endcond*/
+
+/**
+ * Applies a callable expression specified by 'what' to each element
+ * following it, including x.
+ *
+ * @param what
+ * The callable expression (eg, a macro or a function).
+ * @param ...
+ * Elements to apply the expression to.
+ * @example
+ * @code
+ * #define print_obj(obj) printf("%s\n", obj->name);
+ * // Assumes obj1 and obj2 are defined as object*
+ * FOR_EACH(print_obj, obj1, obj2)
+ * // The above would be translated into:
+ * // print_obj(obj1);
+ * // print_obj(obj2);
+ * @endcode
+ */
+#define FOR_EACH(what, ...) \
+    _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
 
 #endif

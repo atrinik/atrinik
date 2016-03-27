@@ -1,0 +1,48 @@
+# Shield of deflection
+Allowed all
+chance 10
+difficulty 20
+artifact shield_deflection
+def_arch shield
+Object
+title of deflection
+type 33
+ac_add 1
+is_magical 1
+msg
+This highly enchanted shield is craftfully made to give more protection than usual.
+endmsg
+value 2400
+item_power 2
+item_level_art 20
+end
+
+# Shield of Valhalla
+Allowed blade_stopper,shield_battle,shield_defender,shield_protector,shield_war
+chance 5
+difficulty 40
+artifact shield_valhalla
+def_arch shield
+Object
+title of Valhalla
+absorb_add 2
+block_add 2
+ac_add 1
+str 1
+con 1
+type 33
+is_magical 1
+is_named 1
+value 27500
+item_power 8
+item_level_art 35
+item_condition 90
+item_quality 90
+protect_cold 10
+protect_fire 10
+msg
+The making of these shields is shrouded in mystery. Some say that blacksmiths of ages long gone still make them in the great beyond and ferry them to this land.
+
+Whatever the case may be, it's difficult to find an equal to these kinds of shields.
+endmsg
+end

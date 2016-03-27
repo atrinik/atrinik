@@ -34,7 +34,9 @@
 
 /**
  * Process a changing object.
- * @param op The object to process. */
+ * @param op
+ * The object to process.
+ */
 static void common_object_process_changing(object *op)
 {
     object *tmp, *env;
@@ -81,7 +83,7 @@ static void common_object_process_changing(object *op)
 
                 /* Remove light mask from map. */
                 adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
-                update_object(op, UP_OBJ_FACE);
+                object_update(op, UP_OBJ_FACE);
                 op->glow_radius = 0;
             }
 
@@ -100,11 +102,11 @@ static void common_object_process_changing(object *op)
     tmp = arch_to_object(op->other_arch);
 
     if (env) {
-        insert_ob_in_ob(tmp, env);
+        object_insert_into(tmp, env, 0);
     } else {
         tmp->x = op->x;
         tmp->y = op->y;
-        insert_ob_in_map(tmp, op->map, op, 0);
+        object_insert_map(tmp, op->map, op, 0);
     }
 
     object_destroy(op);
@@ -112,9 +114,12 @@ static void common_object_process_changing(object *op)
 
 /**
  * Pre-processing for object_process() function.
- * @param op Object to pre-process.
- * @return 1 if the object was processed and should not continue
- * processing it normally, 0 otherwise. */
+ * @param op
+ * Object to pre-process.
+ * @return
+ * 1 if the object was processed and should not continue
+ * processing it normally, 0 otherwise.
+ */
 int common_object_process_pre(object *op)
 {
     if (QUERY_FLAG(op, FLAG_CHANGING) && !op->state) {
@@ -124,7 +129,7 @@ int common_object_process_pre(object *op)
 
     if (QUERY_FLAG(op, FLAG_IS_USED_UP) && --op->stats.food <= 0) {
         /* Handle corpses specially. */
-        if (op->type == CONTAINER && (op->sub_type & 1) == ST1_CONTAINER_CORPSE) {
+        if (op->type == CONTAINER && op->sub_type == ST1_CONTAINER_CORPSE) {
             /* If the corpse is currently open by someone, delay the
              * corpse removal for a bit longer. */
             if (op->attacked_by) {
@@ -156,7 +161,7 @@ int common_object_process_pre(object *op)
     return 0;
 }
 
-/** @copydoc object_methods::process_func */
+/** @copydoc object_methods_t::process_func */
 void common_object_process(object *op)
 {
     if (OBJECT_IS_PROJECTILE(op)) {

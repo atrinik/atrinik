@@ -35,6 +35,8 @@
 #include <artifact.h>
 #include <packet.h>
 #include <faction.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * All the possible fields of an object.
@@ -198,6 +200,12 @@ static fields_struct fields[] = {
             0, 0, "Weapon speed left this round.; float"},
     {"exp", FIELDTYPE_INT64, offsetof(object, stats.exp), 0, 0,
             "Experience of the object.; int"},
+    {"block", FIELDTYPE_UINT8, offsetof(object, block),
+            FIELDFLAG_PLAYER_READONLY, 0,
+            "Block attribute of the object.; int (player readonly)"},
+    {"absorb", FIELDTYPE_UINT8, offsetof(object, absorb),
+            FIELDFLAG_PLAYER_READONLY, 0,
+            "Absorb attribute of the object.; int (player readonly)"},
 
     {"hp", FIELDTYPE_INT32, offsetof(object, stats.hp), 0, 0,
             "Object's current HP.; int"},
@@ -233,12 +241,6 @@ static fields_struct fields[] = {
     {"Con", FIELDTYPE_INT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX,
             0, "Constitution of the object (or how much it gives when "
             "equipped).; int"},
-    {"Wis", FIELDTYPE_INT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX,
-            0, "Wisdom of the object (or how much it gives when equipped).; "
-            "int"},
-    {"Cha", FIELDTYPE_INT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX,
-            0, "Charisma of the object (or how much it gives when equipped).; "
-            "int"},
     {"Int", FIELDTYPE_INT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX,
             0, "Intelligence of the object (or how much it gives when "
             "equipped).; int"},
@@ -539,7 +541,7 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *self, PyObject *args)
         hooks->object_remove(self->obj, 0);
     }
 
-    object *ret = hooks->insert_ob_in_ob(self->obj, where->obj);
+    object *ret = hooks->object_insert_into(self->obj, where->obj, 0);
     if (ret == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
@@ -793,10 +795,10 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *self, PyObject *args)
 
     /* Kill the target. */
     if (damage == -1) {
-        hooks->kill_object(target->obj, self->obj);
+        hooks->attack_kill(target->obj, self->obj);
     } else {
         /* Do damage. */
-        hooks->hit_player(target->obj, damage, self->obj);
+        hooks->attack_hit(target->obj, self->obj, damage);
     }
 
     Py_INCREF(Py_None);
@@ -923,10 +925,10 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *self,
         force->speed = 0.0;
     }
 
-    hooks->update_ob_speed(force);
+    hooks->object_update_speed(force);
     FREE_AND_COPY_HASH(force->name, name);
 
-    return wrap_object(hooks->insert_ob_in_ob(force, self->obj));
+    return wrap_object(hooks->object_insert_into(force, self->obj, 0));
 }
 
 /** Documentation for Atrinik_Object_CreateObject(). */
@@ -990,7 +992,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *self,
         SET_FLAG(tmp, FLAG_IDENTIFIED);
     }
 
-    tmp = hooks->insert_ob_in_ob(tmp, self->obj);
+    tmp = hooks->object_insert_into(tmp, self->obj, 0);
 
     return wrap_object(tmp);
 }
@@ -999,7 +1001,8 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *self,
 
 /**
  * Helper function for Atrinik_Object_FindObject() to recursively
- * check inventories. */
+ * check inventories.
+ */
 static object *object_find_object(object *tmp, int mode, shstr *archname,
         shstr *name, shstr *title, int type, PyObject *list, bool unpaid)
 {
@@ -1034,7 +1037,8 @@ static object *object_find_object(object *tmp, int mode, shstr *archname,
  * Common implementation for both Atrinik_Object_FindObject() and
  * Atrinik_Object_FindObjects().
  * @copydoc PyMethod_VARARGS_KEYWORDS
- * @param multiple If true, will always return a list object.
+ * @param multiple
+ * If true, will always return a list object.
  */
 static PyObject *common_Atrinik_Object_FindObject(Atrinik_Object *self,
         PyObject *args, PyObject *keywds, bool multiple)
@@ -1325,7 +1329,7 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *self)
     OBJEXISTCHECK(self);
 
     StringBuffer *sb = hooks->stringbuffer_new();
-    hooks->dump_object_rec(self->obj, sb);
+    hooks->object_dump_rec(self->obj, sb);
     char *result = hooks->stringbuffer_finish(sb);
     PyObject *ret = Py_BuildValue("s", result);
     efree(result);
@@ -1429,20 +1433,20 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *self, PyObject *args)
 
     OBJEXISTCHECK(self);
 
-    object *clone_ob;
+    object *clone;
     if (inventory) {
-        clone_ob = hooks->object_create_clone(self->obj);
+        clone = hooks->object_clone(self->obj);
     } else {
-        clone_ob = hooks->get_object();
-        hooks->copy_object(self->obj, clone_ob, 0);
+        clone = hooks->object_get();
+        hooks->object_copy(clone, self->obj, false);
     }
 
-    if (clone_ob->type == PLAYER || QUERY_FLAG(clone_ob, FLAG_IS_PLAYER)) {
-        clone_ob->type = MONSTER;
-        CLEAR_FLAG(clone_ob, FLAG_IS_PLAYER);
+    if (clone->type == PLAYER || QUERY_FLAG(clone, FLAG_IS_PLAYER)) {
+        clone->type = MONSTER;
+        CLEAR_FLAG(clone, FLAG_IS_PLAYER);
     }
 
-    return wrap_object(clone_ob);
+    return wrap_object(clone);
 }
 
 /** Documentation for Atrinik_Object_ReadKey(). */
@@ -1727,7 +1731,7 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *self, PyObject *args)
 
     OBJEXISTCHECK(self);
 
-    return wrap_object(hooks->decrease_ob_nr(self->obj, num));
+    return wrap_object(hooks->object_decrease(self->obj, num));
 }
 
 /** Documentation for Atrinik_Object_SquaresAround(). */
@@ -2344,9 +2348,12 @@ static PyMethodDef methods[] = {
 
 /**
  * Get object's attribute.
- * @param obj Python object wrapper.
- * @param context Void pointer to the field.
- * @return Python object with the attribute value, NULL on failure.
+ * @param obj
+ * Python object wrapper.
+ * @param context
+ * Void pointer to the field.
+ * @return
+ * Python object with the attribute value, NULL on failure.
  */
 static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
 {
@@ -2362,10 +2369,14 @@ static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
 
 /**
  * Set attribute of an object.
- * @param obj Python object wrapper.
- * @param value Value to set.
- * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure.
+ * @param obj
+ * Python object wrapper.
+ * @param value
+ * Value to set.
+ * @param context
+ * Void pointer to the field.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
         void *context)
@@ -2399,7 +2410,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
         obj->obj->sub_layer = MIN(NUM_SUB_LAYERS - 1, obj->obj->sub_layer);
 
         if (obj->obj->map != NULL) {
-            hooks->insert_ob_in_map(obj->obj, obj->obj->map, NULL, 0);
+            hooks->object_insert_map(obj->obj, obj->obj->map, NULL, 0);
         }
     }
 
@@ -2422,7 +2433,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
 
     /* Update object's speed. */
     if (field->offset == offsetof(object, speed)) {
-        hooks->update_ob_speed(obj->obj);
+        hooks->object_update_speed(obj->obj);
     } else if (field->offset == offsetof(object, type)) {
         /* Handle object's type changing. */
 
@@ -2440,7 +2451,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
             obj->obj->speed = 0.0f;
             obj->obj->type = MONSTER;
             /* Remove it from the active list. */
-            hooks->update_ob_speed(obj->obj);
+            hooks->object_update_speed(obj->obj);
 
             /* Restore original speed and type info. */
             obj->obj->speed = old_speed;
@@ -2466,8 +2477,10 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
 
 /**
  * Get object's flag.
- * @param obj Python object wrapper.
- * @param context Void pointer to the flag ID.
+ * @param obj
+ * Python object wrapper.
+ * @param context
+ * Void pointer to the flag ID.
  * @retval Py_True The object has the flag set.
  * @retval Py_False The object doesn't have the flag set.
  * @retval NULL An error occurred.
@@ -2489,10 +2502,14 @@ static PyObject *Object_GetFlag(Atrinik_Object *obj, void *context)
 
 /**
  * Set flag for an object.
- * @param obj Python object wrapper.
- * @param val Value to set. Should be either Py_True or Py_False.
- * @param context Void pointer to the flag ID.
- * @return 0 on success, -1 on failure.
+ * @param obj
+ * Python object wrapper.
+ * @param val
+ * Value to set. Should be either Py_True or Py_False.
+ * @param context
+ * Void pointer to the flag ID.
+ * @return
+ * 0 on success, -1 on failure.
  */
 static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 {
@@ -2522,10 +2539,14 @@ static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 
 /**
  * Create a new object wrapper.
- * @param type Type object.
- * @param args Unused.
- * @param kwds Unused.
- * @return The new wrapper.
+ * @param type
+ * Type object.
+ * @param args
+ * Unused.
+ * @param kwds
+ * Unused.
+ * @return
+ * The new wrapper.
  */
 static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args,
         PyObject *kwds)
@@ -2542,7 +2563,8 @@ static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args,
 
 /**
  * Free an object wrapper.
- * @param self The wrapper to free.
+ * @param self
+ * The wrapper to free.
  */
 static void Atrinik_Object_dealloc(PyObject *self)
 {
@@ -2557,8 +2579,10 @@ static void Atrinik_Object_dealloc(PyObject *self)
 
 /**
  * Return a string representation of an object.
- * @param self The object type.
- * @return Python object containing the arch name and name of the object.
+ * @param self
+ * The object type.
+ * @return
+ * Python object containing the arch name and name of the object.
  */
 static PyObject *Atrinik_Object_str(Atrinik_Object *self)
 {
@@ -2597,7 +2621,8 @@ static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left,
 
 /**
  * Atrinik object bool check.
- * @param obj The object.
+ * @param obj
+ * The object.
  */
 static int atrinik_object_bool(Atrinik_Object *obj)
 {
@@ -2613,7 +2638,8 @@ static int atrinik_object_bool(Atrinik_Object *obj)
 static PyGetSetDef getseters[NUM_FIELDS + NUM_FLAGS + 1];
 
 /**
- * The number protocol for Atrinik objects. */
+ * The number protocol for Atrinik objects.
+ */
 static PyNumberMethods AtrinikObjectNumber = {
     NULL,
     NULL,
@@ -2712,7 +2738,8 @@ PyTypeObject Atrinik_ObjectType = {
 
 /**
  * Free an object iterator wrapper.
- * @param self The wrapper to free.
+ * @param self
+ * The wrapper to free.
  */
 static void Atrinik_ObjectIterator_dealloc(PyObject *self)
 {
@@ -2725,8 +2752,10 @@ static void Atrinik_ObjectIterator_dealloc(PyObject *self)
 
 /**
  * Return a string representation of an object iterator.
- * @param self The object iterator.
- * @return Python object containing some data about the iterator.
+ * @param self
+ * The object iterator.
+ * @return
+ * Python object containing some data about the iterator.
  */
 static PyObject *Atrinik_ObjectIterator_str(Atrinik_ObjectIterator *self)
 {
@@ -2738,8 +2767,10 @@ static PyObject *Atrinik_ObjectIterator_str(Atrinik_ObjectIterator *self)
 
 /**
  * Implements Atrinik.Object.ObjectIterator.__iter__() Python method.
- * @param self The iterator object.
- * @return self.
+ * @param self
+ * The iterator object.
+ * @return
+ * self.
  */
 static PyObject *Atrinik_ObjectIterator_iter(PyObject *self)
 {
@@ -2749,8 +2780,10 @@ static PyObject *Atrinik_ObjectIterator_iter(PyObject *self)
 
 /**
  * Implements Atrinik.Object.ObjectIterator.__bool__() Python method.
- * @param self The iterator object.
- * @return Whether there are objects in the iterator.
+ * @param self
+ * The iterator object.
+ * @return
+ * Whether there are objects in the iterator.
  */
 static int Atrinik_ObjectIterator_bool(Atrinik_ObjectIterator *self)
 {
@@ -2759,8 +2792,10 @@ static int Atrinik_ObjectIterator_bool(Atrinik_ObjectIterator *self)
 
 /**
  * Implements Atrinik.Object.ObjectIterator.__len__() Python method.
- * @param self The iterator object.
- * @return Number of items in the iterator.
+ * @param self
+ * The iterator object.
+ * @return
+ * Number of items in the iterator.
  */
 static Py_ssize_t Atrinik_ObjectIterator_len(Atrinik_ObjectIterator *self)
 {
@@ -2780,9 +2815,12 @@ static Py_ssize_t Atrinik_ObjectIterator_len(Atrinik_ObjectIterator *self)
 
 /**
  * Implements Atrinik.Object.ObjectIterator.__getitem__() Python method.
- * @param self The iterator object.
- * @param idx Index to access.
- * @return Object at the specified index, NULL on failure.
+ * @param self
+ * The iterator object.
+ * @param idx
+ * Index to access.
+ * @return
+ * Object at the specified index, NULL on failure.
  */
 static PyObject *Atrinik_ObjectIterator_getitem(Atrinik_ObjectIterator *self,
         Py_ssize_t idx)
@@ -2806,9 +2844,12 @@ static PyObject *Atrinik_ObjectIterator_getitem(Atrinik_ObjectIterator *self,
 
 /**
  * Implements Atrinik.Object.ObjectIterator.__contains__() Python method.
- * @param self The iterator object.
- * @param what Object to check.
- * @return 1 if the specified obj is inside the iterated inventory, 0 otherwise.
+ * @param self
+ * The iterator object.
+ * @param what
+ * Object to check.
+ * @return
+ * 1 if the specified obj is inside the iterated inventory, 0 otherwise.
  */
 static int Atrinik_ObjectIterator_contains(Atrinik_ObjectIterator *self,
         PyObject *what)
@@ -2838,8 +2879,10 @@ static int Atrinik_ObjectIterator_contains(Atrinik_ObjectIterator *self,
 
 /**
  * Implements Atrinik.Object.ObjectIterator.next() Python method.
- * @param self The iterator object.
- * @return Next object, NULL if there is nothing left.
+ * @param self
+ * The iterator object.
+ * @return
+ * Next object, NULL if there is nothing left.
  */
 static PyObject *Atrinik_ObjectIterator_iternext(PyObject *self)
 {
@@ -2984,8 +3027,10 @@ PyTypeObject Atrinik_ObjectIteratorType = {
 
 /**
  * Initialize the Atrinik.Object module.
- * @param module The Atrinik.Object module.
- * @return 1 on success, 0 on failure.
+ * @param module
+ * The Atrinik.Object module.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int Atrinik_Object_init(PyObject *module)
 {
@@ -3043,8 +3088,10 @@ int Atrinik_Object_init(PyObject *module)
 
 /**
  * Utility method to wrap an object.
- * @param what Object to wrap.
- * @return Python object wrapping the real object.
+ * @param what
+ * Object to wrap.
+ * @return
+ * Python object wrapping the real object.
  */
 PyObject *wrap_object(object *what)
 {
@@ -3065,8 +3112,10 @@ PyObject *wrap_object(object *what)
 
 /**
  * Utility method to wrap an object inside an object iterator.
- * @param what Object to wrap.
- * @return Atrinik.Object.ObjectIterator instance wrapping the object.
+ * @param what
+ * Object to wrap.
+ * @return
+ * Atrinik.Object.ObjectIterator instance wrapping the object.
  */
 PyObject *wrap_object_iterator(object *what)
 {

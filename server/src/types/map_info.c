@@ -24,56 +24,62 @@
 
 /**
  * @file
- * Handles @ref MAP_INFO "map info" objects. */
+ * Handles @ref MAP_INFO "map info" objects.
+ *
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
-/**
- * Initialize a map info object.
- * @param info The info object. */
-void map_info_init(object *info)
+/** @copydoc object_methods_t::init_func */
+static void
+init_func (object *op)
 {
-    int x, y;
-    MapSpace *msp;
+    HARD_ASSERT(op != NULL);
 
-    if (!info->map) {
-        LOG(BUG, "Map info object not on map.");
+    if (op->map == NULL) {
+        LOG(ERROR,
+            "Map info object not on map: %s",
+            object_get_str(op));
         return;
     }
 
-    for (x = info->x; x <= info->x + info->stats.hp; x++) {
-        for (y = info->y; y <= info->y + info->stats.sp; y++) {
-            if (OUT_OF_MAP(info->map, x, y)) {
-                LOG(ERROR, "Map info object spans invalid area: %s",
-                        object_get_str(info));
+    for (int x = op->x; x <= op->x + op->stats.hp; x++) {
+        for (int y = op->y; y <= op->y + op->stats.sp; y++) {
+            if (OUT_OF_MAP(op->map, x, y)) {
+                LOG(ERROR,
+                    "Map info object spans invalid area: %s",
+                    object_get_str(op));
                 return;
             }
 
-            msp = GET_MAP_SPACE_PTR(info->map, x, y);
-            msp->map_info = info;
-            msp->map_info_count = info->count;
+            MapSpace *msp = GET_MAP_SPACE_PTR(op->map, x, y);
+            msp->map_info = op;
+            msp->map_info_count = op->count;
 
-            if (QUERY_FLAG(info, FLAG_NO_MAGIC)) {
+            if (QUERY_FLAG(op, FLAG_NO_MAGIC)) {
                 msp->extra_flags |= MSP_EXTRA_NO_MAGIC;
             }
 
-            if (QUERY_FLAG(info, FLAG_NO_PVP)) {
+            if (QUERY_FLAG(op, FLAG_NO_PVP)) {
                 msp->extra_flags |= MSP_EXTRA_NO_PVP;
             }
 
-            if (QUERY_FLAG(info, FLAG_STAND_STILL)) {
+            if (QUERY_FLAG(op, FLAG_STAND_STILL)) {
                 msp->extra_flags |= MSP_EXTRA_NO_HARM;
             }
 
-            if (QUERY_FLAG(info, FLAG_CURSED)) {
+            if (QUERY_FLAG(op, FLAG_CURSED)) {
                 msp->extra_flags ^= MSP_EXTRA_IS_BUILDING;
             }
 
-            if (QUERY_FLAG(info, FLAG_IS_MAGICAL)) {
+            if (QUERY_FLAG(op, FLAG_IS_MAGICAL)) {
                 msp->extra_flags ^= MSP_EXTRA_IS_BALCONY;
             }
 
-            if (QUERY_FLAG(info, FLAG_DAMNED)) {
+            if (QUERY_FLAG(op, FLAG_DAMNED)) {
                 msp->extra_flags ^= MSP_EXTRA_IS_OVERLOOK;
             }
         }
@@ -81,7 +87,9 @@ void map_info_init(object *info)
 }
 
 /**
- * Initialize the map info type object methods. */
-void object_type_init_map_info(void)
+ * Initialize the map info type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(map_info)
 {
+    OBJECT_METHODS(MAP_INFO)->init_func = init_func;
 }

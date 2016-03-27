@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <object.h>
 
 /** First region. */
 region_struct *first_region = NULL;
@@ -187,7 +188,8 @@ void regions_free(void)
 
 /**
  * Allocates and zeros a region struct.
- * @return Initialized region structure.
+ * @return
+ * Initialized region structure.
  */
 static region_struct *region_get(void)
 {
@@ -196,7 +198,8 @@ static region_struct *region_get(void)
 
 /**
  * Frees the specified region and all the data associated with it.
- * @param region Region to free.
+ * @param region
+ * Region to free.
  */
 static void region_free(region_struct *region)
 {
@@ -216,7 +219,8 @@ static void region_free(region_struct *region)
 
 /**
  * Add the specified region to the linked list of all regions.
- * @param region Region to add.
+ * @param region
+ * Region to add.
  */
 static void region_add(region_struct *region)
 {
@@ -252,8 +256,10 @@ static void region_assign_parents(void)
  * Finds a region by name.
  *
  * Used by the map parsing code.
- * @param region_name Name of region.
- * @return Matching region, NULL if it can't be found.
+ * @param region_name
+ * Name of region.
+ * @return
+ * Matching region, NULL if it can't be found.
  */
 region_struct *region_find_by_name(const char *region_name)
 {
@@ -271,8 +277,10 @@ region_struct *region_find_by_name(const char *region_name)
 
 /**
  * Find a region that has a generated client map, searching parents as well.
- * @param region Region to start at.
- * @return Region or NULL if none found.
+ * @param region
+ * Region to start at.
+ * @return
+ * Region or NULL if none found.
  */
 const region_struct *region_find_with_map(const region_struct *region)
 {
@@ -292,11 +300,13 @@ const region_struct *region_find_with_map(const region_struct *region)
  *
  * The longname of a region is not a required field, any given region may want
  * to not set it and use the parent's one instead.
- * @param region Region we're searching the longname.
- * @return Long name of a region if found. Will also search recursively in
+ * @param region
+ * Region we're searching the longname.
+ * @return
+ * Long name of a region if found. Will also search recursively in
  * parents. NULL is never returned, instead a fake region name is returned.
  */
-char *region_get_longname(const region_struct *region)
+const char *region_get_longname(const region_struct *region)
 {
     if (region->longname) {
         return region->longname;
@@ -311,11 +321,13 @@ char *region_get_longname(const region_struct *region)
 
 /**
  * Gets a message for a region.
- * @param region Region. Can't be NULL.
- * @return Message of a region if found. Will also search recursively in
+ * @param region
+ * Region. Can't be NULL.
+ * @return
+ * Message of a region if found. Will also search recursively in
  * parents. NULL is never returned, instead a fake region message is returned.
  */
-char *region_get_msg(const region_struct *region)
+const char *region_get_msg(const region_struct *region)
 {
     if (region->msg) {
         return region->msg;
@@ -330,8 +342,10 @@ char *region_get_msg(const region_struct *region)
 
 /**
  * Attempts to jail the specified object.
- * @param op Object we want to jail.
- * @return 1 if jailed successfully, 0 otherwise.
+ * @param op
+ * Object we want to jail.
+ * @return
+ * 1 if jailed successfully, 0 otherwise.
  */
 int region_enter_jail(object *op)
 {
@@ -355,7 +369,12 @@ int region_enter_jail(object *op)
             return 0;
         }
 
-        return object_enter_map(op, NULL, m, region->jailx, region->jaily, 1);
+        return object_enter_map(op,
+                                NULL,
+                                m,
+                                region->jailx,
+                                region->jaily,
+                                true);
     }
 
     LOG(BUG, "No suitable jailmap for region %s was found.",

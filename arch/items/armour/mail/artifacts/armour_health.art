@@ -1,0 +1,77 @@
+# Armour of health
+Allowed all
+chance 10
+artifact armour_health
+def_arch chain_mail
+Object
+title of health
+type 16
+maxhp 15
+is_magical 1
+value 9500
+item_power 1
+end
+
+# Armour of greater health
+Allowed all
+chance 10
+difficulty 20
+artifact armour_greater_health
+def_arch chain_mail
+Object
+title of greater health
+item_level_art 16
+type 16
+maxhp 30
+is_magical 1
+value 15500
+item_power 1
+end
+
+# Armour of extraordinary health
+Allowed all
+chance 10
+difficulty 30
+artifact armour_extraordinary_health
+def_arch chain_mail
+Object
+title of extraordinary health
+type 16
+item_level_art 24
+maxhp 40
+is_magical 1
+value 35500
+item_power 2
+end
+
+# Armour of superior health
+Allowed all
+chance 8
+difficulty 50
+artifact armour_superior_health
+def_arch chain_mail
+Object
+title of superior health
+type 16
+item_level_art 40
+maxhp 60
+is_magical 1
+value 65500
+item_power 3
+end
+
+# Armour of supreme health
+Allowed all
+chance 8
+difficulty 75
+artifact armour_supreme_health
+def_arch chain_mail
+Object
+title of supreme health
+type 16
+item_level_art 60
+maxhp 100
+is_magical 1
+value 105500
+item_power 4
+end

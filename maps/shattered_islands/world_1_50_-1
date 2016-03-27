@@ -2,7 +2,7 @@ arch map
 name Caverns
 msg
 Created:  2011-03-17 emperorbma
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-12-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -458,7 +458,7 @@ arch spawn_point
 x 4
 y 2
 arch slime_blue
-level 20
+level 24
 type 83
 end
 end
@@ -1570,7 +1570,7 @@ arch spawn_point
 x 13
 y 16
 arch blob_quivering
-level 22
+level 24
 type 83
 end
 end
@@ -2230,7 +2230,7 @@ arch spawn_point
 x 19
 y 6
 arch slime
-level 25
+level 24
 type 83
 end
 end

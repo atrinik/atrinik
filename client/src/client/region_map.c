@@ -47,7 +47,8 @@ static void region_map_fow_reset(region_map_t *region_map);
 
 /**
  * Allocates and initializes a new region map structure.
- * @return Region map.
+ * @return
+ * Region map.
  */
 region_map_t *region_map_create(void)
 {
@@ -64,7 +65,9 @@ region_map_t *region_map_create(void)
 /**
  * Clone a region map structure.
  * @param region_map
+ *
  * @return
+ *
  */
 region_map_t *region_map_clone(region_map_t *region_map)
 {
@@ -83,7 +86,8 @@ region_map_t *region_map_clone(region_map_t *region_map)
 
 /**
  * Frees a region map and all data associated with it.
- * @param region_map Region map.
+ * @param region_map
+ * Region map.
  */
 void region_map_free(region_map_t *region_map)
 {
@@ -99,7 +103,8 @@ void region_map_free(region_map_t *region_map)
 
 /**
  * Resets data associated with the region map.
- * @param region_map Region map.
+ * @param region_map
+ * Region map.
  */
 void region_map_reset(region_map_t *region_map)
 {
@@ -149,8 +154,10 @@ void region_map_reset(region_map_t *region_map)
 /*
  * Updates the specified region map, resetting it and scheduling
  * a re-download of the image and definition files.
- * @param region_map Region map.
- * @param region_name Region name.
+ * @param region_map
+ * Region map.
+ * @param region_name
+ * Region name.
  */
 void region_map_update(region_map_t *region_map, const char *region_name)
 {
@@ -178,8 +185,10 @@ void region_map_update(region_map_t *region_map, const char *region_name)
 
 /**
  * Checks if the specified region map is ready to be rendered.
- * @param region_map Region map.
- * @return Whether the region map is ready to be rendered.
+ * @param region_map
+ * Region map.
+ * @return
+ * Whether the region map is ready to be rendered.
  */
 bool region_map_ready(region_map_t *region_map)
 {
@@ -199,11 +208,11 @@ bool region_map_ready(region_map_t *region_map)
     SOFT_ASSERT_RC(region_map->zoomed == NULL, false,
             "Region map already has a zoomed surface.");
 
-    if (curl_download_finished(region_map->data_png) != 1) {
+    if (curl_download_get_state(region_map->data_png) != CURL_STATE_OK) {
         return false;
     }
 
-    if (curl_download_finished(region_map->data_def) != 1) {
+    if (curl_download_get_state(region_map->data_def) != CURL_STATE_OK) {
         return false;
     }
 
@@ -258,9 +267,12 @@ bool region_map_ready(region_map_t *region_map)
 
 /**
  * Find a map identified by its path in the region map's definitions.
- * @param region_map Region map to search in.
- * @param map_path Map path to find.
- * @return Pointer to the map if found, NULL otherwise.
+ * @param region_map
+ * Region map to search in.
+ * @param map_path
+ * Map path to find.
+ * @return
+ * Pointer to the map if found, NULL otherwise.
  */
 region_map_def_map_t *region_map_find_map(region_map_t *region_map,
         const char *map_path)
@@ -281,8 +293,10 @@ region_map_def_map_t *region_map_find_map(region_map_t *region_map,
 
 /**
  * Get the region map image surface.
- * @param region_map Region map.
- * @return Image surface, never NULL.
+ * @param region_map
+ * Region map.
+ * @return
+ * Image surface, never NULL.
  */
 SDL_Surface *region_map_surface(region_map_t *region_map)
 {
@@ -322,8 +336,10 @@ void region_map_pan(region_map_t *region_map)
 
 /**
  * Resize the region map.
- * @param region_map Region map to resize.
- * @param adjust How much to zoom by.
+ * @param region_map
+ * Region map to resize.
+ * @param adjust
+ * How much to zoom by.
  */
 void region_map_resize(region_map_t *region_map, int adjust)
 {
@@ -371,10 +387,14 @@ void region_map_resize(region_map_t *region_map, int adjust)
 
 /**
  * Render a region map marker, showing the player's position on the region map.
- * @param region_map Region map.
- * @param surface Where to render.
- * @param x X coordinate.
- * @param y Y coordinate.
+ * @param region_map
+ * Region map.
+ * @param surface
+ * Where to render.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
  */
 void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
         int x, int y)
@@ -430,7 +450,8 @@ void region_map_render_fow(region_map_t *region_map, SDL_Surface *surface,
 
 /**
  * Allocates a new ::region_map_def_t structure.
- * @return The allocated structure.
+ * @return
+ * The allocated structure.
  */
 static region_map_def_t *region_map_def_new(void)
 {
@@ -444,8 +465,10 @@ static region_map_def_t *region_map_def_new(void)
 
 /**
  * Loads region map definitions from a string.
- * @param def Definitions structure to load into.
- * @param str String to load from.
+ * @param def
+ * Definitions structure to load into.
+ * @param str
+ * String to load from.
  */
 static void region_map_def_load(region_map_def_t *def, const char *str)
 {
@@ -576,7 +599,8 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
  * Frees data inside a region_map_def_t structure.
  *
  * Note that the structure itself is not freed.
- * @param def Region map definitions structure.
+ * @param def
+ * Region map definitions structure.
  */
 static void region_map_def_free(region_map_def_t *def)
 {
@@ -630,7 +654,8 @@ static void region_map_def_free(region_map_def_t *def)
 
 /**
  * Allocates a new ::region_map_fow_t structure.
- * @return The allocated structure.
+ * @return
+ * The allocated structure.
  */
 static region_map_fow_t *region_map_fow_new(void)
 {
@@ -974,8 +999,10 @@ bool region_map_fow_is_visible(region_map_t *region_map, int x, int y)
 
 /**
  * Get the region map fow image surface.
- * @param region_map Region map.
- * @return Image surface, never NULL.
+ * @param region_map
+ * Region map.
+ * @return
+ * Image surface, never NULL.
  */
 SDL_Surface *region_map_fow_surface(region_map_t *region_map)
 {

@@ -26,13 +26,16 @@
  * @file
  * Implements progress indicators.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Create progress dots indicator.
- * @param progress Where to store indicator data. */
+ * @param progress
+ * Where to store indicator data.
+ */
 void progress_dots_create(progress_dots *progress)
 {
     progress->ticks = SDL_GetTicks();
@@ -42,10 +45,15 @@ void progress_dots_create(progress_dots *progress)
 
 /**
  * Show the progress dots.
- * @param progress The progress dots indicator data.
- * @param surface Surface to draw on.
- * @param x X position.
- * @param y Y position. */
+ * @param progress
+ * The progress dots indicator data.
+ * @param surface
+ * Surface to draw on.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ */
 void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y)
 {
     uint8_t i;
@@ -70,8 +78,11 @@ void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, in
 
 /**
  * Calculate the width of progress dots.
- * @param progress The progress dots indicator data.
- * @return The width. */
+ * @param progress
+ * The progress dots indicator data.
+ * @return
+ * The width.
+ */
 int progress_dots_width(progress_dots *progress)
 {
     (void) progress;

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Cross-platform support. */
+ * Cross-platform support.
+ */
 
 #include <global.h>
 
@@ -46,7 +47,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Re-entrant string tokenizer; glibc version, licensed under GNU LGPL
- * version 2.1. */
+ * version 2.1.
+ */
 char *strtok_r(char *s, const char *delim, char **save_ptr)
 {
     char *token;
@@ -419,6 +421,20 @@ int mkstemp(char *tmpl)
     /* We got out of the loop because we ran out of combinations to try.  */
     errno = EEXIST;
     return -1;
+}
+#endif
+
+#ifndef HAVE_SINCOS
+void
+sincos (double x, double *s, double *c)
+{
+    if (s != NULL) {
+        *s = sin(x);
+    }
+
+    if (c != NULL) {
+        *c = cos(x);
+    }
 }
 #endif
 

@@ -24,10 +24,14 @@
 
 /**
  * @file
- * Handles player related structures, enums and defines. */
+ * Handles player related structures, enums and defines.
+ */
 
 #ifndef PLAYER_H
 #define PLAYER_H
+
+#include <decls.h>
+#include <attack.h>
 
 /** Level color structure. */
 typedef struct _level_color {
@@ -74,7 +78,8 @@ enum {
 /**
  * If set at the end of an animation, set fighting flag and clear this
  * flag. It is set in attack_ob_simple() when the player swings at an
- * enemy. */
+ * enemy.
+ */
 #define PLAYER_AFLAG_ENEMY      2
 /** Whether to add an extra frame to do one more swing animation. */
 #define PLAYER_AFLAG_ADDFRAME   4
@@ -114,7 +119,8 @@ typedef struct player_path {
     /**
      * How many times we failed trying to reach this destination. If more
      * than @ref PLAYER_PATH_MAX_FAILS, will abort trying to reach the
-     * destination. */
+     * destination.
+     */
     uint8_t fails;
 } player_path;
 
@@ -124,14 +130,14 @@ typedef struct player_path {
  * Player faction structure. Holds information about the player's affiliation
  * with a particular faction.
  */
-typedef struct player_faction {
+struct player_faction {
     shstr *name; ///< Name of the faction.
     double reputation; ///< Reputation.
     UT_hash_handle hh; ///< Hash handle.
-} player_faction_t;
+};
 
 /** The player structure. */
-typedef struct pl_player {
+struct pl_player {
     /** Pointer to previous player, NULL if this is first. */
     struct pl_player *prev;
 
@@ -177,7 +183,8 @@ typedef struct pl_player {
     char map_info_weather[MAX_BUF];
 
     /**
-     * Last sent map. */
+     * Last sent map.
+     */
     struct mapdef *last_update;
 
     /** The object representing the player. */
@@ -210,10 +217,6 @@ typedef struct pl_player {
     /** Last player accessing player::container. */
     object *container_below;
 
-    /**
-     * Object defining player's class. Can be NULL. */
-    object *class_ob;
-
     /** Player's quest container. */
     object *quest_container;
 
@@ -228,7 +231,8 @@ typedef struct pl_player {
 
     /**
      * Array showing what spaces the player can see. For maps smaller
-     * than MAP_CLIENT_.., the upper left is used. */
+     * than MAP_CLIENT_.., the upper left is used.
+     */
     int blocked_los[MAP_CLIENT_X][MAP_CLIENT_Y];
 
     /** This is initialized from init_player_exp(). */
@@ -428,7 +432,8 @@ typedef struct pl_player {
 
     /**
      * Number of times the player used inscription skill to write in a
-     * book. */
+     * book.
+     */
     uint64_t stat_books_inscribed;
 
     /** Count of target. */
@@ -450,19 +455,23 @@ typedef struct pl_player {
     float last_ranged_ws;
 
     /**
-     * Last attuned spell path sent to client. */
+     * Last attuned spell path sent to client.
+     */
     uint32_t last_path_attuned;
 
     /**
-     * Last repelled spell path sent to client. */
+     * Last repelled spell path sent to client.
+     */
     uint32_t last_path_repelled;
 
     /**
-     * Last denied spell path sent to client. */
+     * Last denied spell path sent to client.
+     */
     uint32_t last_path_denied;
 
     /**
-     * Last sent UIDs of player's equipment. */
+     * Last sent UIDs of player's equipment.
+     */
     uint32_t last_equipment[PLAYER_EQUIP_MAX];
 
     /** Last fire/run on flags sent to client. */
@@ -500,6 +509,8 @@ typedef struct pl_player {
 
     /** Last ranged wc sent. */
     int16_t last_ranged_wc;
+
+    int16_t dam_bonus; ///< Damage bonuses from equipment (not melee weapon).
 
     /** Table of protections last sent to the client. */
     int8_t last_protection[NROFATTACKS];
@@ -556,7 +567,8 @@ typedef struct pl_player {
     player_path *move_path_end;
 
     /**
-     * Player name to reply to. */
+     * Player name to reply to.
+     */
     char player_reply[64];
 
     /** Auto-reply message when AFK */
@@ -566,6 +578,89 @@ typedef struct pl_player {
     tag_t talking_to_count; ///< ID of ::talking_to.
 
     player_faction_t *factions;
-} player;
+
+    long item_power_effects; ///< Next time of item power effects.
+};
+
+/* Prototypes */
+
+mempool_struct *pool_player;
+
+void
+player_init(void);
+void
+player_deinit(void);
+void
+player_disconnect_all(void);
+player *
+find_player(const char *plname);
+void
+display_motd(object *op);
+void
+free_player(player *pl);
+void
+give_initial_items(object *pl, treasurelist *items);
+int
+handle_newcs_player(player *pl);
+void
+kill_player(object *op);
+void
+cast_dust(object *op, object *throw_ob, int dir);
+int
+pvp_area(object *attacker, object *victim);
+object *
+find_skill(object *op, int skillnr);
+int
+player_can_carry(object *pl, uint32_t weight);
+void
+player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y);
+void
+player_path_clear(player *pl);
+void
+player_path_handle(player *pl);
+player_faction_t *
+player_faction_create(player *pl, shstr *name);
+void
+player_faction_free(player *pl, player_faction_t *faction);
+player_faction_t *
+player_faction_find(player *pl, shstr *name);
+void
+player_faction_update(player *pl, shstr *name, double reputation);
+double
+player_faction_reputation(player *pl, shstr *name);
+char *
+player_sanitize_input(char *str);
+void
+player_cleanup_name(char *str);
+object *
+find_marked_object(object *op);
+void
+examine(object *op, object *tmp, StringBuffer *sb_capture);
+int
+sack_can_hold(object *pl, object *sack, object *op, int nrof);
+void
+pick_up(object *op, object *alt, int no_mevent);
+void
+put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
+void
+drop_object(object *op, object *tmp, long nrof, int no_mevent);
+void
+drop(object *op, object *tmp, int no_mevent);
+char *
+player_make_path(const char *name, const char *ext);
+int
+player_exists(const char *name);
+void
+player_save(object *op);
+object *
+player_get_dummy(const char *name, const char *host);
+object *
+player_find_spell(object *op, spell_struct *spell);
+void
+player_set_talking_to(player *pl, object *npc);
+void
+player_login(socket_struct *ns, const char *name, struct archetype *at);
+void
+object_type_init_player(void);
 
 #endif

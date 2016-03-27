@@ -26,41 +26,51 @@
  * @file
  * Command-line options API header file.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifndef CLIOPTIONS_H
 #define CLIOPTIONS_H
 
 /**
  * Command line option handler function.
- * @param arg Argument, if any. */
+ * @param arg
+ * Argument, if any.
+ */
 typedef void (*clioptions_handler_func)(const char *arg);
 
 /**
- * A single command line option. */
+ * A single command line option.
+ */
 typedef struct clioptions_struct {
     /**
-     * Long option name, eg, 'verbose'. */
+     * Long option name, eg, 'verbose'.
+     */
     char *longname;
 
     /**
-     * Short option name, eg, 'v'. */
+     * Short option name, eg, 'v'.
+     */
     char *shortname;
 
     /**
-     * Handler function for the option. */
+     * Handler function for the option.
+     */
     clioptions_handler_func handle_func;
 
     /**
-     * Whether this option accepts an argument. */
+     * Whether this option accepts an argument.
+     */
     uint8_t argument;
 
     /**
-     * Brief description. */
+     * Brief description.
+     */
     char *desc_brief;
 
     /**
-     * More detailed description. */
+     * More detailed description.
+     */
     char *desc;
 } clioptions_struct;
 

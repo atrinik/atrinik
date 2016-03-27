@@ -26,18 +26,22 @@
  * @file
  * Handles code for @ref CONFUSION "confusion" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
+/** @copydoc object_methods_t::process_func */
+static void
+process_func (object *op)
 {
     if (--op->stats.food > 0) {
         return;
     }
 
-    if (op->env) {
+    if (op->env != NULL) {
         CLEAR_FLAG(op->env, FLAG_CONFUSED);
         draw_info(COLOR_WHITE, op->env, "You regain your senses.");
     }
@@ -47,8 +51,9 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the confusion type object methods. */
-void object_type_init_confusion(void)
+ * Initialize the confusion type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(confusion)
 {
-    object_type_methods[CONFUSION].process_func = process_func;
+    OBJECT_METHODS(CONFUSION)->process_func = process_func;
 }

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Ignore list related header. */
+ * Ignore list related header.
+ */
 
 #ifndef IGNORE_H
 #define IGNORE_H

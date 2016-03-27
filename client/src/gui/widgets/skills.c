@@ -26,7 +26,8 @@
  * @file
  * Implements skills type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -39,19 +40,24 @@ enum {
 } ;
 
 /**
- * Button buffer. */
+ * Button buffer.
+ */
 static button_struct buttons[BUTTON_NUM];
 /**
- * The skills list. */
+ * The skills list.
+ */
 static skill_entry_struct **skill_list;
 /**
- * Number of skills contained in ::skill_list. */
+ * Number of skills contained in ::skill_list.
+ */
 static size_t skill_list_num;
 /**
- * The skills list. */
+ * The skills list.
+ */
 static list_struct *list_skills = NULL;
 /**
- * Currently selected skill in the skills list. */
+ * Currently selected skill in the skills list.
+ */
 static size_t selected_skill;
 
 /**
@@ -103,23 +109,64 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 
     surface_show(list->surface, box.x, box.y, NULL, FaceList[skill_list[skill_id]->skill->face].sprite->bitmap);
 
-    if (selected_skill == skill_id) {
-        char buf[MAX_BUF];
-
-        border_create_color(list->surface, &box, 1, "ff0000");
-
-        strncpy(buf, skill_list[skill_id]->skill->s_name, sizeof(buf) - 1);
-        buf[sizeof(buf) - 1] = '\0';
-        string_title(buf);
-
-        box.w = 170;
-        text_show(list->surface, FONT_SERIF12, buf, 147, 25, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
-
-        text_show_format(list->surface, FONT_ARIAL11, 165, 45, COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Current level[/b]: %d", skill_list[skill_id]->level);
-        text_show(list->surface, FONT_ARIAL11, "[b]Skill progress[/b]:", 165, 60, COLOR_WHITE, TEXT_MARKUP, NULL);
-
-        player_draw_exp_progress(list->surface, 165, 80, skill_list[skill_id]->exp, skill_list[skill_id]->level);
+    if (selected_skill != skill_id) {
+        return;
     }
+    border_create_color(list->surface, &box, 1, "ff0000");
+
+    char buf[MAX_BUF];
+    snprintf(VS(buf), "%s", skill_list[skill_id]->skill->s_name);
+    string_title(buf);
+
+    box.w = 160;
+    text_show(list->surface,
+              FONT_SERIF12,
+              buf,
+              150,
+              18,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_OUTLINE,
+              &box);
+
+    box.h = 100;
+    text_show(list->surface,
+              FONT_ARIAL11,
+              skill_list[skill_id]->msg,
+              150,
+              38,
+              COLOR_WHITE,
+              TEXT_WORD_WRAP,
+              &box);
+
+    if (skill_list[skill_id]->level == 0) {
+        return;
+    }
+
+    widgetdata *widget = widget_find(NULL, -1, NULL, list->surface);
+    SOFT_ASSERT(widget != NULL, "Could not find widget");
+
+    text_show(list->surface, FONT("arial", 10), "[b]Experience[/b]", 167, widget->h - 47, COLOR_WHITE, TEXT_MARKUP, NULL);
+    player_draw_exp_progress(list->surface, 160, widget->h - 32, skill_list[skill_id]->exp, skill_list[skill_id]->level);
+
+    box.h = 30;
+    box.w = 35;
+    text_show(list->surface,
+              FONT("arial", 10),
+              "[b]Level[/b]",
+              widget->w - 45,
+              widget->h - 47,
+              COLOR_WHITE,
+              TEXT_MARKUP | TEXT_ALIGN_CENTER,
+              &box);
+    text_show_format(list->surface,
+                     FONT_SERIF18,
+                     widget->w - 45,
+                     widget->h - 30,
+                     COLOR_HGOLD,
+                     TEXT_MARKUP | TEXT_OUTLINE | TEXT_ALIGN_CENTER,
+                     &box,
+                     "%" PRIu8,
+                     skill_list[skill_id]->level);
 }
 
 /** @copydoc list_struct::row_color_func */
@@ -129,7 +176,8 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 }
 
 /**
- * Reload the skills list, due to a change of the skill type, for example. */
+ * Reload the skills list, due to a change of the skill type, for example.
+ */
 static void skill_list_reload(void)
 {
     size_t i;
@@ -160,9 +208,12 @@ static void skill_list_reload(void)
  * Find a skill in the ::skill_list based on its name.
  *
  * Partial skill names will be matched.
- * @param name Skill name to find.
+ * @param name
+ * Skill name to find.
  * @param[out] id Will contain the skill's ID.
- * @return 1 if the skill was found, 0 otherwise. */
+ * @return
+ * 1 if the skill was found, 0 otherwise.
+ */
 int skill_find(const char *name, size_t *id)
 {
     for (*id = 0; *id < skill_list_num; *id += 1) {
@@ -187,14 +238,21 @@ int skill_find_object(object *op, size_t *id)
 
 /**
  * Get skill from the ::skill_list structure.
- * @param id Skill ID.
- * @return The skill. */
+ * @param id
+ * Skill ID.
+ * @return
+ * The skill.
+ */
 skill_entry_struct *skill_get(size_t id)
 {
     return skill_list[id];
 }
 
-void skills_update(object *op, uint8_t level, int64_t xp)
+void
+skills_update (object     *op,
+               uint8_t     level,
+               int64_t     xp,
+               const char *msg)
 {
     size_t skill_id;
     skill_entry_struct *skill;
@@ -212,6 +270,7 @@ void skills_update(object *op, uint8_t level, int64_t xp)
 
     skill->level = level;
     skill->exp = xp;
+    snprintf(VS(skill->msg), "%s", msg);
 
     skill_list_reload();
 }
@@ -380,7 +439,8 @@ static void widget_deinit(widgetdata *widget)
 }
 
 /**
- * Initialize one skills widget. */
+ * Initialize one skills widget.
+ */
 void widget_skills_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;

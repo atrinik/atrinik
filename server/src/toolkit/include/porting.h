@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Cross-platform support header file. */
+ * Cross-platform support header file.
+ */
 
 #ifndef PORTING_H
 #define PORTING_H
@@ -33,9 +34,15 @@
 #define _GNU_SOURCE
 #endif
 
+#ifdef __GNUC__
+#define likely(x)           __builtin_expect(!!(x), 1)
+#define unlikely(x)         __builtin_expect(!!(x), 0)
+#else
 /* If we're not using GNU C, ignore __attribute__ */
-#ifndef __GNUC__
 #define  __attribute__(x)
+/* Ignore likely/unlikely branch prediction when not using GNU C.*/
+#define likely(x)           (x)
+#define unlikely(x)         (x)
 #endif
 
 #ifdef WIN32
@@ -74,9 +81,6 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#ifndef HAVE_STRUCT_TIMESPEC
-#   define HAVE_STRUCT_TIMESPEC
-#endif
 #endif
 
 #ifdef HAVE_SYS_TIME_H
@@ -304,6 +308,10 @@ extern size_t strnlen(const char *s, size_t max);
 
 #ifndef HAVE_MKSTEMP
 int mkstemp(char *tmpl);
+#endif
+
+#ifndef HAVE_SINCOS
+void sincos(double x, double *s, double *c);
 #endif
 
 #endif

@@ -40,11 +40,13 @@ static SDL_mutex *output_buffer_mutex;
 static SDL_cond *output_buffer_cond;
 
 /**
- * Mutex to protect socket deinitialization. */
+ * Mutex to protect socket deinitialization.
+ */
 static SDL_mutex *socket_mutex;
 
 /**
- * All socket threads will exit if they see this flag set. */
+ * All socket threads will exit if they see this flag set.
+ */
 static int abort_thread = 0;
 
 /* start is the first waiting item in queue, end is the most recent enqueued */
@@ -55,9 +57,13 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * Create a new command buffer of the given size, copying the data buffer
  * if not NULL. The buffer will always be null-terminated for safety (and
  * one byte larger than requested).
- * @param len Requested buffer size in bytes.
- * @param data Buffer data to copy (len bytes), or NULL.
- * @return A new command buffer or NULL in case of an error. */
+ * @param len
+ * Requested buffer size in bytes.
+ * @param data
+ * Buffer data to copy (len bytes), or NULL.
+ * @return
+ * A new command buffer or NULL in case of an error.
+ */
 command_buffer *command_buffer_new(size_t len, uint8_t *data)
 {
     command_buffer *buf = emalloc(sizeof(command_buffer) + len + 1);
@@ -75,14 +81,17 @@ command_buffer *command_buffer_new(size_t len, uint8_t *data)
 
 /**
  * Free all memory related to a single command buffer.
- * @param buf Buffer to free. */
+ * @param buf
+ * Buffer to free.
+ */
 void command_buffer_free(command_buffer *buf)
 {
     efree(buf);
 }
 
 /**
- * Enqueue a command buffer last in a queue. */
+ * Enqueue a command buffer last in a queue.
+ */
 static void command_buffer_enqueue(command_buffer *buf, command_buffer **queue_start, command_buffer **queue_end)
 {
     buf->next = NULL;
@@ -100,7 +109,8 @@ static void command_buffer_enqueue(command_buffer *buf, command_buffer **queue_s
 }
 
 /**
- * Enqueue a command buffer first in a queue. */
+ * Enqueue a command buffer first in a queue.
+ */
 static void command_buffer_enqueue_first(command_buffer *buf, command_buffer **queue_start, command_buffer **queue_end)
 {
     buf->next = *queue_start;
@@ -118,7 +128,8 @@ static void command_buffer_enqueue_first(command_buffer *buf, command_buffer **q
 }
 
 /**
- * Remove the first command buffer from a queue. */
+ * Remove the first command buffer from a queue.
+ */
 static command_buffer *command_buffer_dequeue(command_buffer **queue_start, command_buffer **queue_end)
 {
     command_buffer *buf = *queue_start;
@@ -163,8 +174,10 @@ void socket_send_packet(struct packet_struct *packet)
 
 /**
  * Get a command from the queue.
- * @return The command (being removed from queue), NULL if there is no
- * command. */
+ * @return
+ * The command (being removed from queue), NULL if there is no
+ * command.
+ */
 command_buffer *get_next_input_command(void)
 {
     command_buffer *buf;
@@ -278,7 +291,8 @@ static int reader_thread_loop(void *dummy)
  * and sends them to the server as fast as it can.
  *
  * If any error is detected, the socket is closed and the thread exits. It is
- * up to them main thread to detect this and join() the worker threads. */
+ * up to them main thread to detect this and join() the worker threads.
+ */
 static int writer_thread_loop(void *dummy)
 {
     command_buffer *buf = NULL;
@@ -393,7 +407,8 @@ int handle_socket_shutdown(void)
 
 /**
  * Close a client socket.
- * @param csock Socket to close.
+ * @param csock
+ * Socket to close.
  */
 void client_socket_close(client_socket_t *csock)
 {
@@ -431,10 +446,14 @@ void client_socket_deinitialize(void)
 
 /**
  * Open a new socket.
- * @param csock Socket to open.
- * @param host Host to connect to.
- * @param port Port to connect to.
- * @return True on success, false on failure.
+ * @param csock
+ * Socket to open.
+ * @param host
+ * Host to connect to.
+ * @param port
+ * Port to connect to.
+ * @return
+ * True on success, false on failure.
  */
 bool client_socket_open(client_socket_t *csock, const char *host, int port)
 {

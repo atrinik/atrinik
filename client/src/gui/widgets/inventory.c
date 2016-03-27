@@ -47,8 +47,10 @@ const char *inventory_filter_names[INVENTORY_FILTER_MAX] = {
 
 /**
  * Check if an object matches one of the active inventory filters.
- * @param op Object to check.
- * @return 1 if there is a match, 0 otherwise.
+ * @param op
+ * Object to check.
+ * @return
+ * 1 if there is a match, 0 otherwise.
  */
 static int inventory_matches_filter(object *op)
 {
@@ -108,7 +110,8 @@ static int inventory_matches_filter(object *op)
 
 /**
  * Set an inventory filter to the passed value.
- * @param filter The value to set.
+ * @param filter
+ * The value to set.
  */
 void inventory_filter_set(uint64_t filter)
 {
@@ -123,7 +126,8 @@ void inventory_filter_set(uint64_t filter)
 
 /**
  * Toggle one inventory filter.
- * @param filter Filter to toggle.
+ * @param filter
+ * Filter to toggle.
  */
 void inventory_filter_toggle(uint64_t filter)
 {
@@ -143,7 +147,8 @@ void inventory_filter_toggle(uint64_t filter)
 
 /**
  * Set one or more filters.
- * @param filter Filter(s) to toggle.
+ * @param filter
+ * Filter(s) to toggle.
  */
 void inventory_filter_set_names(const char *filter)
 {
@@ -174,13 +179,19 @@ void inventory_filter_set_names(const char *filter)
  * If 'mx' and 'my' are not -1, no rendering is done and instead the
  * return value indicates whether the mx/my coordinates are over the
  * object.
- * @param widget The widget.
- * @param ob Object to render.
- * @param i Integer index of the object in the linked list.
+ * @param widget
+ * The widget.
+ * @param ob
+ * Object to render.
+ * @param i
+ * Integer index of the object in the linked list.
  * @param[out] r Rendering index of the object.
- * @param mx Mouse X. Can be -1.
- * @param my Mouse Y. Can be -1.
- * @return 1 if the object was rendered, 0 otherwise.
+ * @param mx
+ * Mouse X. Can be -1.
+ * @param my
+ * Mouse Y. Can be -1.
+ * @return
+ * 1 if the object was rendered, 0 otherwise.
  */
 static int inventory_render_object(widgetdata *widget, object *ob, uint32_t i,
         uint32_t *r, int mx, int my)
@@ -694,8 +705,10 @@ void widget_inventory_init(widgetdata *widget)
 
 /**
  * Calculate number of items in the inventory widget.
- * @param widget The widget.
- * @return Number of items in the inventory widget.
+ * @param widget
+ * The widget.
+ * @return
+ * Number of items in the inventory widget.
  */
 uint32_t widget_inventory_num_items(widgetdata *widget)
 {
@@ -729,8 +742,10 @@ uint32_t widget_inventory_num_items(widgetdata *widget)
 
 /**
  * Get the selected object from the inventory widget.
- * @param widget The inventory object.
- * @return The selected object, if any.
+ * @param widget
+ * The inventory object.
+ * @return
+ * The selected object, if any.
  */
 object *widget_inventory_get_selected(widgetdata *widget)
 {
@@ -772,8 +787,10 @@ object *widget_inventory_get_selected(widgetdata *widget)
 
 /**
  * Handle the arrow keys in the inventory widget.
- * @param widget The inventory widget.
- * @param key The key.
+ * @param widget
+ * The inventory widget.
+ * @param key
+ * The key.
  */
 void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
@@ -843,9 +860,12 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
  * Uses object_show_centered() to draw the item's face and center it.
  * Draws any additional flags (like magical, cursed, damned) as icons
  * and draws nrof (if higher than 1) of items near the bottom.
- * @param tmp Pointer to the inventory item
- * @param x X position of the item
- * @param y Y position of the item
+ * @param tmp
+ * Pointer to the inventory item
+ * @param x
+ * X position of the item
+ * @param y
+ * Y position of the item
  */
 void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
 {
@@ -908,9 +928,12 @@ void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
 
 /**
  * The 'Drop' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -971,9 +994,12 @@ void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Drop all' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -983,9 +1009,12 @@ void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Get' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1065,9 +1094,12 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Get all' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1077,9 +1109,12 @@ void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Examine' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1098,9 +1133,12 @@ void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Load to console' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1121,9 +1159,12 @@ void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Patch' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1143,9 +1184,12 @@ void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Mark' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1169,9 +1213,12 @@ void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Lock' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1195,9 +1242,12 @@ void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * The 'Drag' menu action for inventory windows.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1217,7 +1267,8 @@ void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * Handle the 'apply' operation for objects inside inventory widget.
- * @param widget The widget.
+ * @param widget
+ * The widget.
  */
 void widget_inventory_handle_apply(widgetdata *widget)
 {
@@ -1235,9 +1286,12 @@ void widget_inventory_handle_apply(widgetdata *widget)
 
 /**
  * Handle clicking a specific inventory filter.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
@@ -1268,9 +1322,12 @@ void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 
 /**
  * Construct the inventory filters submenu.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)
@@ -1295,9 +1352,12 @@ void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem,
 
 /**
  * Construct the "More" inventory submenu.
- * @param widget The widget.
- * @param menuitem The menu item.
- * @param event Event.
+ * @param widget
+ * The widget.
+ * @param menuitem
+ * The menu item.
+ * @param event
+ * Event.
  */
 void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem,
         SDL_Event *event)

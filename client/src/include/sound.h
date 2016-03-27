@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Sound related header file. */
+ * Sound related header file.
+ */
 
 #ifndef SOUND_H
 #define SOUND_H
@@ -40,7 +41,8 @@
 /*@}*/
 
 /**
- * One 'cached' sound. */
+ * One 'cached' sound.
+ */
 typedef struct sound_data_struct {
     /** The sound's data. */
     void *data;
@@ -61,7 +63,8 @@ typedef struct sound_data_struct {
 #define MAX_SOUND_DISTANCE 12
 
 /**
- * One ambient sound effect. */
+ * One ambient sound effect.
+ */
 typedef struct sound_ambient_struct {
     /** Next ambient sound effect in a doubly-linked list. */
     struct sound_ambient_struct *next;

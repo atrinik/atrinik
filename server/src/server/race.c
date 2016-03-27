@@ -24,30 +24,37 @@
 
 /**
  * @file
- * Handles code related to races. */
+ * Handles code related to races.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
  * This list is used for the item prefixes ('dwarven bolt', 'elven arrow',
- * etc). */
+ * etc).
+ */
 const char *item_races[NROF_ITEM_RACES] = {
     "", "dwarven ", "elven ", "gnomish ", "drow ", "orcish ", "goblin ",
     "kobold ", "giant ", "tiny ", "demonish ", "draconish ", "ogre "
 };
 
 /**
- * Array of all the monster races. */
+ * Array of all the monster races.
+ */
 static ob_race *races = NULL;
 /**
- * Number of all the monster races. */
+ * Number of all the monster races.
+ */
 static size_t num_races = 0;
 
 /**
  * Link corpse to a race.
- * @param race_name Race name.
- * @param at Archetype of the corpse. */
+ * @param race_name
+ * Race name.
+ * @param at
+ * Archetype of the corpse.
+ */
 static void race_add_corpse(shstr *race_name, archetype_t *at)
 {
     ob_race *race;
@@ -67,8 +74,11 @@ static void race_add_corpse(shstr *race_name, archetype_t *at)
 
 /**
  * Add an object to the racelist.
- * @param race_name Race name.
- * @param ob What object to add to the race. */
+ * @param race_name
+ * Race name.
+ * @param ob
+ * What object to add to the race.
+ */
 static void race_add(shstr *race_name, object *ob)
 {
     ob_race *race;
@@ -115,7 +125,8 @@ static void race_add(shstr *race_name, object *ob)
 }
 
 /**
- * Comparison function for binary search in race_find(). */
+ * Comparison function for binary search in race_find().
+ */
 static int race_compare(const void *one, const void *two)
 {
     const ob_race *one_race = one;
@@ -138,8 +149,11 @@ static int race_compare(const void *one, const void *two)
 
 /**
  * Find a race.
- * @param name The name of the race to look for.
- * @return The race if found, NULL otherwise. */
+ * @param name
+ * The name of the race to look for.
+ * @return
+ * The race if found, NULL otherwise.
+ */
 ob_race *race_find(shstr *name)
 {
     ob_race key;
@@ -155,7 +169,9 @@ ob_race *race_find(shstr *name)
 
 /**
  * Randomly select a race.
- * @return Race, NULL if there are no races available. */
+ * @return
+ * Race, NULL if there are no races available.
+ */
 ob_race *race_get_random(void)
 {
     if (!races || !num_races) {
@@ -167,7 +183,8 @@ ob_race *race_get_random(void)
 
 /**
  * Initialize races by looking through all the archetypes and checking if
- * the archetype is a @ref MONSTER or @ref PLAYER. */
+ * the archetype is a @ref MONSTER or @ref PLAYER.
+ */
 void race_init(void)
 {
     size_t i;
@@ -203,7 +220,8 @@ void race_init(void)
 }
 
 /**
- * Frees all race related information. */
+ * Frees all race related information.
+ */
 void race_free(void)
 {
     size_t i;

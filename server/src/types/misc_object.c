@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref MISC_OBJECT "misc objects".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the misc object type object methods. */
-void object_type_init_misc_object(void)
+ * Initialize the misc object type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(misc_object)
 {
 }

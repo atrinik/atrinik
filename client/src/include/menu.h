@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Menus header file. */
+ * Menus header file.
+ */
 
 #ifndef MENU_H
 #define MENU_H

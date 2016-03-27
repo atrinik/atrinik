@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref NUGGET "nuggets".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the nugget type object methods. */
-void object_type_init_nugget(void)
+ * Initialize the nugget type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(nugget)
 {
 }

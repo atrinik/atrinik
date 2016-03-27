@@ -35,7 +35,8 @@
  *    matches the RE, not the longest string which would be the proper
  *    behavior for a RE-matcher.
  *
- * Author: Kjetil T. Homme (kjetilho@ifi.uio.no) May 1993 */
+ * Author: Kjetil T. Homme (kjetilho@ifi.uio.no) May 1993
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,11 +64,15 @@ static unsigned int re_token_depth;
 
 /**
  * Get regular expression match.
- * @param str String that will be matched against the regexp.
- * @param regexp Regular expression.
+ * @param str
+ * String that will be matched against the regexp.
+ * @param regexp
+ * Regular expression.
  * @return
+ *
  * - No match or error in regexp.
- * - Pointer to beginning of matching string */
+ * - Pointer to beginning of matching string
+ */
 const char *re_cmp(const char *str, const char *regexp)
 {
     const char *next_regexp;
@@ -200,11 +205,17 @@ const char *re_cmp(const char *str, const char *regexp)
 
 /**
  * Tries to match a string with a regexp.
- * @param str String to match.
- * @param regexp Pattern.
- * @param slot Number of the token which under consideration.
- * @param matches How many times the token has matched.
- * @return 1 if match, 0 otherwise. */
+ * @param str
+ * String to match.
+ * @param regexp
+ * Pattern.
+ * @param slot
+ * Number of the token which under consideration.
+ * @param matches
+ * How many times the token has matched.
+ * @return
+ * 1 if match, 0 otherwise.
+ */
 static int re_cmp_step(const char *str, const char *regexp, int slot, int matches)
 {
     const char *next_regexp;
@@ -300,7 +311,8 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
 }
 
 /**
- * Init the regular expression structures. */
+ * Init the regular expression structures.
+ */
 static void re_init(void)
 {
     int i;
@@ -316,9 +328,13 @@ static void re_init(void)
 
 /**
  * Tests if a char matches a token.
- * @param c Char to test.
- * @param sel Token to test.
- * @return 1 if matches, 0 otherwise. */
+ * @param c
+ * Char to test.
+ * @param sel
+ * Token to test.
+ * @return
+ * 1 if matches, 0 otherwise.
+ */
 static int re_match_token(unsigned char c, selection *sel)
 {
     switch (sel->type) {
@@ -350,10 +366,13 @@ static int re_match_token(unsigned char c, selection *sel)
 /**
  * Get the first regular expression token found in regexp in sel.
  * @param[out] sel Where to store the token.
- * @param regexp Regular expression.
+ * @param regexp
+ * Regular expression.
  * @return
+ *
  * - NULL: syntax error
- * - Pointer to first character past token. */
+ * - Pointer to first character past token.
+ */
 static const char *re_get_token(selection *sel, const char *regexp)
 {
 #ifdef SAFE_CHECKS
@@ -575,7 +594,9 @@ static const char *re_get_token(selection *sel, const char *regexp)
 
 /**
  * Dumps specified selection to stdout.
- * @param sel Token to dump. */
+ * @param sel
+ * Token to dump.
+ */
 static void re_dump_sel(selection *sel)
 {
     switch (sel->type) {

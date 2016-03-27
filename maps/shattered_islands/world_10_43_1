@@ -1,0 +1,106 @@
+arch map
+name Asteria
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2016-02-20 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music chether.mid
+region asteria
+end
+arch roof_wood
+direction 7
+end
+arch roof_wood
+direction 7
+y 1
+end
+arch roof_wood
+direction 7
+y 2
+end
+arch roof_wood
+direction 7
+y 3
+end
+arch roof_wood
+direction 8
+y 4
+end
+arch roof_wood
+y 5
+end
+arch roof_wood
+y 6
+end
+arch roof_wood
+direction 7
+x 1
+end
+arch roof_wood
+direction 7
+x 1
+y 1
+end
+arch roof_wood
+direction 7
+x 1
+y 2
+end
+arch roof_wood
+direction 7
+x 1
+y 3
+end
+arch roof_wood
+direction 7
+x 1
+y 4
+end
+arch roof_wood
+direction 8
+x 1
+y 5
+end
+arch roof_wood
+x 1
+y 6
+end
+arch roof_wood
+direction 7
+x 2
+end
+arch roof_wood
+direction 7
+x 2
+y 1
+end
+arch roof_wood
+direction 7
+x 2
+y 2
+end
+arch roof_wood
+direction 7
+x 2
+y 3
+end
+arch roof_wood
+direction 7
+x 2
+y 4
+end
+arch roof_wood
+direction 7
+x 2
+y 5
+end
+arch roof_wood
+direction 8
+x 2
+y 6
+end

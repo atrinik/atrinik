@@ -86,7 +86,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Create a new string buffer.
- * @return The newly allocated string buffer.
+ * @return
+ * The newly allocated string buffer.
  */
 StringBuffer *stringbuffer_new(void)
 {
@@ -103,7 +104,8 @@ StringBuffer *stringbuffer_new(void)
 
 /**
  * Frees the specified string buffer instance and all data associated with it.
- * @param sb The string buffer instance to free.
+ * @param sb
+ * The string buffer instance to free.
  */
 void stringbuffer_free(StringBuffer *sb)
 {
@@ -118,8 +120,10 @@ void stringbuffer_free(StringBuffer *sb)
  * Deallocate the string buffer instance and return the string.
  *
  * The passed string buffer must not be accessed afterwards.
- * @param sb The string buffer to deallocate.
- * @return The result string; to free it, call efree() on it.
+ * @param sb
+ * The string buffer to deallocate.
+ * @return
+ * The result string; to free it, call efree() on it.
  */
 char *stringbuffer_finish(StringBuffer *sb)
 {
@@ -140,8 +144,10 @@ char *stringbuffer_finish(StringBuffer *sb)
  * string.
  *
  * The passed string buffer must not be accessed afterwards.
- * @param sb The string buffer to deallocate.
- * @return The result shared string; to free it, use
+ * @param sb
+ * The string buffer to deallocate.
+ * @return
+ * The result shared string; to free it, use
  * FREE_AND_CLEAR_HASH().
  */
 const char *stringbuffer_finish_shared(StringBuffer *sb)
@@ -161,9 +167,12 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
 
 /**
  * Append a string of the specified length to a string buffer instance.
- * @param sb The string buffer to modify.
- * @param str The string to append.
- * @param len Length of the string.
+ * @param sb
+ * The string buffer to modify.
+ * @param str
+ * The string to append.
+ * @param len
+ * Length of the string.
  */
 void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
         size_t len)
@@ -180,8 +189,10 @@ void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
 
 /**
  * Append a string to a string buffer instance.
- * @param sb The string buffer to modify.
- * @param str The string to append.
+ * @param sb
+ * The string buffer to modify.
+ * @param str
+ * The string to append.
  */
 void stringbuffer_append_string(StringBuffer *sb, const char *str)
 {
@@ -194,8 +205,10 @@ void stringbuffer_append_string(StringBuffer *sb, const char *str)
 
 /**
  * Append a formatted string to a string buffer instance.
- * @param sb The string buffer to modify.
- * @param format The format string to append.
+ * @param sb
+ * The string buffer to modify.
+ * @param format
+ * The format string to append.
  */
 void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 {
@@ -234,8 +247,10 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 /**
  * Append the contents of a string buffer instance to another string
  * buffer instance.
- * @param sb The string buffer to modify.
- * @param sb2 The string buffer to append; it must be different from sb.
+ * @param sb
+ * The string buffer to modify.
+ * @param sb2
+ * The string buffer to append; it must be different from sb.
  */
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 {
@@ -253,8 +268,10 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 
 /**
  * Append a single character to the specified string buffer instance.
- * @param sb The string buffer to modify.
- * @param c The character to append.
+ * @param sb
+ * The string buffer to modify.
+ * @param c
+ * The character to append.
  */
 void stringbuffer_append_char(StringBuffer *sb, const char c)
 {
@@ -269,8 +286,10 @@ void stringbuffer_append_char(StringBuffer *sb, const char c)
 /**
  * Make sure that at least len bytes are available in the passed string
  * buffer.
- * @param sb The string buffer to modify.
- * @param len The number of bytes to allocate.
+ * @param sb
+ * The string buffer to modify.
+ * @param len
+ * The number of bytes to allocate.
  */
 static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 {
@@ -294,8 +313,10 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 
 /**
  * Acquire a pointer to the buffer used by the string buffer instance.
- * @param sb The string buffer instance.
- * @return Pointer to the buffer.
+ * @param sb
+ * The string buffer instance.
+ * @return
+ * Pointer to the buffer.
  * @warning The buffer is NOT NUL-terminated!
  */
 const char *stringbuffer_data(StringBuffer *sb)
@@ -307,8 +328,10 @@ const char *stringbuffer_data(StringBuffer *sb)
 
 /**
  * Return the current length of the buffer.
- * @param sb The string buffer to check.
- * @return Current length of 'sb'.
+ * @param sb
+ * The string buffer to check.
+ * @return
+ * Current length of 'sb'.
  */
 size_t stringbuffer_length(StringBuffer *sb)
 {
@@ -319,8 +342,10 @@ size_t stringbuffer_length(StringBuffer *sb)
 
 /**
  * Seeks to the specified position in the buffer.
- * @param sb The string buffer.
- * @param pos Position.
+ * @param sb
+ * The string buffer.
+ * @param pos
+ * Position.
  */
 void stringbuffer_seek(StringBuffer *sb, const size_t pos)
 {
@@ -335,9 +360,12 @@ void stringbuffer_seek(StringBuffer *sb, const size_t pos)
 /**
  * Find character 'c' in the specified StringBuffer instance, searching
  * left-to-right.
- * @param sb The StringBuffer instance to search in.
- * @param c Character to look for.
- * @return Index in the StringBuffer's buffer, -1 if the character was
+ * @param sb
+ * The StringBuffer instance to search in.
+ * @param c
+ * Character to look for.
+ * @return
+ * Index in the StringBuffer's buffer, -1 if the character was
  * not found.
  */
 ssize_t stringbuffer_index(StringBuffer *sb, char c)
@@ -359,9 +387,12 @@ ssize_t stringbuffer_index(StringBuffer *sb, char c)
 /**
  * Find character 'c' in the specified StringBuffer instance, searching
  * right-to-left.
- * @param sb The StringBuffer instance to search in.
- * @param c Character to look for.
- * @return Index in the StringBuffer's buffer, -1 if the character was
+ * @param sb
+ * The StringBuffer instance to search in.
+ * @param c
+ * Character to look for.
+ * @return
+ * Index in the StringBuffer's buffer, -1 if the character was
  * not found.
  */
 ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
@@ -384,10 +415,14 @@ ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
  * Creates a substring from the specified StringBuffer instance.
  *
  * Special values for start/end indexes can be used just like in string_sub().
- * @param sb StringBuffer instance.
- * @param start Starting index, eg, 0 for the beginning.
- * @param end Ending index, eg, strlen(end) for the end.
- * @return Substring. Must be freed.
+ * @param sb
+ * StringBuffer instance.
+ * @param start
+ * Starting index, eg, 0 for the beginning.
+ * @param end
+ * Ending index, eg, strlen(end) for the end.
+ * @return
+ * Substring. Must be freed.
  */
 char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end)
 {

@@ -26,7 +26,8 @@
  * @file
  * Packet construction/management.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifndef __CPROTO__
 
@@ -36,7 +37,8 @@
 #include <toolkit_string.h>
 
 /**
- * The packets memory pool. */
+ * The packets memory pool.
+ */
 static mempool_struct *pool_packet;
 
 static void packet_debugger(packet_struct *packet, char *buf, size_t size);
@@ -80,12 +82,17 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
 
 /**
  * Allocates a new packet.
- * @param type The packet's command type.
- * @param size Initial number of bytes to allocate for the packet's
+ * @param type
+ * The packet's command type.
+ * @param size
+ * Initial number of bytes to allocate for the packet's
  * data.
- * @param expand The minimum size to expand by when there is not enough
+ * @param expand
+ * The minimum size to expand by when there is not enough
  * bytes allocated.
- * @return The allocated packet. */
+ * @return
+ * The allocated packet.
+ */
 packet_struct *packet_new(uint8_t type, size_t size, size_t expand)
 {
     packet_struct *packet;
@@ -112,7 +119,9 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand)
 
 /**
  * Free a previously allocated data packet.
- * @param packet Packet to free. */
+ * @param packet
+ * Packet to free.
+ */
 void packet_free(packet_struct *packet)
 {
     TOOLKIT_PROTECT();
@@ -132,7 +141,9 @@ void packet_free(packet_struct *packet)
 
 /**
  * Compress a data packet, if possible.
- * @param packet Packet to try to compress. */
+ * @param packet
+ * Packet to try to compress.
+ */
 void packet_compress(packet_struct *packet)
 {
     TOOLKIT_PROTECT();
@@ -165,7 +176,8 @@ void packet_compress(packet_struct *packet)
 }
 
 /**
- * Enables NDELAY on the specified packet. */
+ * Enables NDELAY on the specified packet.
+ */
 void packet_enable_ndelay(packet_struct *packet)
 {
     TOOLKIT_PROTECT();
@@ -242,8 +254,11 @@ void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
 /**
  * Ensure 'size' bytes are available for writing in the packet. If not,
  * will allocate more.
- * @param packet Packet.
- * @param size How many bytes we need. */
+ * @param packet
+ * Packet.
+ * @param size
+ * How many bytes we need.
+ */
 static void packet_ensure(packet_struct *packet, size_t size)
 {
     TOOLKIT_PROTECT();
@@ -470,7 +485,7 @@ void packet_append_string_len(packet_struct *packet, const char *data,
     packet_ensure(packet, len);
     memcpy(packet->data + packet->len, data, len);
     packet->len += len;
-    packet_debug(packet, 0, "%s", data);
+    packet_debug(packet, 0, "%.*s", (int) len, data);
 }
 
 void packet_append_string(packet_struct *packet, const char *data)

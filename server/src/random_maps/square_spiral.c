@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Square-spiral layout generator. */
+ * Square-spiral layout generator.
+ */
 
 #include <global.h>
 
@@ -33,7 +34,9 @@
  * and looks up until it finds a wall, and then looks right until it
  * finds a vertical wall, i.e., the corner.  It sets cx and cy to that.
  * It also starts from cx and cy.
- * @param maze Where to look. */
+ * @param maze
+ * Where to look.
+ */
 void find_top_left_corner(char **maze, int *cx, int *cy)
 {
     (*cy)--;
@@ -53,9 +56,13 @@ void find_top_left_corner(char **maze, int *cx, int *cy)
 
 /**
  * Generates a square-spiral layout.
- * @param xsize X size of the layout.
- * @param ysize Y size of the layout.
- * @return The generated layout. */
+ * @param xsize
+ * X size of the layout.
+ * @param ysize
+ * Y size of the layout.
+ * @return
+ * The generated layout.
+ */
 char **make_square_spiral_layout(int xsize, int ysize)
 {
     int i, j;

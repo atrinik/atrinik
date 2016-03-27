@@ -1,0 +1,73 @@
+# Robe of strength
+Allowed robe
+chance 50
+artifact robe_strength
+def_arch robe
+Object
+title of strength
+type 87
+str 1
+face robe_red.101
+is_magical 1
+value 2500
+item_power 1
+end
+
+# Robe of dexterity
+Allowed robe
+chance 50
+artifact robe_dexterity
+def_arch robe
+Object
+title of dexterity
+type 87
+dex 1
+face robe_black.101
+is_magical 1
+value 2500
+item_power 1
+end
+
+# Robe of constitution
+Allowed robe
+chance 50
+artifact robe_constitution
+def_arch robe
+Object
+title of constitution
+type 87
+is_magical 1
+face robe_purple.101
+con 1
+value 2500
+item_power 1
+end
+
+# Robe of intelligence
+Allowed robe
+chance 50
+artifact robe_intelligence
+def_arch robe
+Object
+title of intelligence
+type 87
+int 1
+face robe_white.101
+is_magical 1
+value 2500
+item_power 1
+end
+
+# Robe of power
+Allowed robe
+chance 50
+artifact robe_power
+def_arch robe
+Object
+title of power
+type 87
+pow 1
+is_magical 1
+value 2500
+item_power 1
+end

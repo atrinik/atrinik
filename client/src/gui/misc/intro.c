@@ -26,7 +26,8 @@
  * @file
  * The intro screen.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -39,7 +40,8 @@
 /**
  * Last server count to see when to re-create the servers list. Since the
  * metaserver code uses threading so the whole program doesn't lock up,
- * we need to do it like this. */
+ * we need to do it like this.
+ */
 static size_t last_server_count = 0;
 
 /** Data buffer used when downloading news from the site. */
@@ -59,7 +61,9 @@ static list_struct *list_servers = NULL;
 
 /**
  * Handle enter key being pressed in the servers list.
- * @param list The servers list. */
+ * @param list
+ * The servers list.
+ */
 static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
     /* Servers list? */
@@ -127,7 +131,8 @@ void intro_deinit(void)
 
 /**
  * Show the main GUI after starting the client -- servers list, chat box,
- * connecting to server, etc. */
+ * connecting to server, etc.
+ */
 void intro_show(void)
 {
     SDL_Surface *texture;
@@ -278,11 +283,10 @@ void intro_show(void)
 
     /* Download in progress? */
     if (news_data) {
-        /* Get the status. */
-        int ret = curl_download_finished(news_data);
+        curl_state_t state = curl_download_get_state(news_data);
 
         /* Finished downloading, parse the data. */
-        if (ret == 1) {
+        if (state == CURL_STATE_OK) {
             char *mem = estrdup(news_data->memory ? news_data->memory : "???"), *cp;
             size_t i = 0;
 
@@ -299,7 +303,7 @@ void intro_show(void)
 
         /* Finished downloading or there was an error: clean up in either
          * case. */
-        if (ret != 0) {
+        if (state != CURL_STATE_DOWNLOAD) {
             curl_data_free(news_data);
             news_data = NULL;
         }
@@ -361,8 +365,11 @@ void intro_show(void)
 
 /**
  * Handle event in the main screen.
- * @param event The event to handle.
- * @return 1 if the event was handled, 0 otherwise. */
+ * @param event
+ * The event to handle.
+ * @return
+ * 1 if the event was handled, 0 otherwise.
+ */
 int intro_event(SDL_Event *event)
 {
     if (!list_servers) {

@@ -26,9 +26,11 @@
  * @file
  * Implements the /resetmap command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_resetmap(object *op, const char *command, char *params)

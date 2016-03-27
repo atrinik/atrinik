@@ -15,7 +15,6 @@ fly_on 1
 speed 1
 wc 200
 wc_range 20
-dam 4
 level 1
 attack_fire 100
 terrain_flag 32767

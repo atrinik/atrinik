@@ -25,13 +25,15 @@
 /**
  * @file
  * Structures and defines related to living objects, including stats
- * of objects. */
+ * of objects.
+ */
 
 #ifndef LIVING_H
 #define LIVING_H
 
 /**
- * @defgroup STATS Object statistics */
+ * @defgroup STATS Object statistics
+ */
 /*@{*/
 /** Strength. */
 #define STR             0
@@ -39,16 +41,12 @@
 #define DEX             1
 /** Constitution. */
 #define CON             2
-/** Wisdom. */
-#define WIS             3
-/** Charisma. */
-#define CHA             4
 /** Intelligence. */
-#define INT 5
+#define INT             3
 /** Power. */
-#define POW             6
+#define POW             4
 /** Number of stats. */
-#define NUM_STATS       7
+#define NUM_STATS       5
 /*@}*/
 
 /* Changed from NO_STAT to NO_STAT_VAL to fix conflict on
@@ -58,12 +56,14 @@
 #define NO_STAT_VAL 99
 
 /**
- * Calculates damage based on level. */
+ * Calculates damage based on level.
+ */
 #define LEVEL_DAMAGE(level) (float) ((level) > 0 ? 0.75 + (level) * 0.25 : 1.0)
 
 /**
  * Mostly used by "alive" objects, but also by other objects like gates,
- * buttons, waypoints and a number of other objects. */
+ * buttons, waypoints and a number of other objects.
+ */
 typedef struct liv {
     /** Experience. */
     int64_t exp;
@@ -95,7 +95,8 @@ typedef struct liv {
     /**
      * Random value range we add to wc value of attacker:
      * wc + (random() % wc_range). If it's higher than
-     * defender's AC then we can hit our enemy. */
+     * defender's AC then we can hit our enemy.
+     */
     uint8_t wc_range;
 
     /** Strength. */
@@ -106,12 +107,6 @@ typedef struct liv {
 
     /** Constitution. */
     int8_t Con;
-
-    /** Wisdom. */
-    int8_t Wis;
-
-    /** Charisma. */
-    int8_t Cha;
 
     /** Intelligence. */
     int8_t Int;

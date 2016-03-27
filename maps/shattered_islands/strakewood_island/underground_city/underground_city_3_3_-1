@@ -1987,7 +1987,7 @@ maxhp 124
 ac 9
 con 3
 unaggressive 1
-wis 1
+item_power 1
 movement_type 176
 type 83
 arch waypoint

@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref ORGANIC "organics".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the organic type object methods. */
-void object_type_init_organic(void)
+ * Initialize the organic type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(organic)
 {
 }

@@ -26,13 +26,16 @@
  * @file
  * Handles code for @ref BOOTS "boots".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the boots type object methods. */
-void object_type_init_boots(void)
+ * Initialize the boots type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(boots)
 {
-    object_type_methods[BOOTS].apply_func = object_apply_item;
+    OBJECT_METHODS(BOOTS)->apply_func = object_apply_item;
 }

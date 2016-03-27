@@ -26,23 +26,31 @@
  * @file
  * Range buttons API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Last clicked ticks to prevent single button click from triggering many
- * actions at once. */
+ * actions at once.
+ */
 static uint32_t ticks = 0;
 
 /**
  * Show the range buttons.
- * @param x X position.
- * @param y Y position.
- * @param val Pointer to integer to update when one of the range buttons
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param val
+ * Pointer to integer to update when one of the range buttons
  * is clicked.
- * @param advance How much to advance 'val' by.
- * @return 1 if one of the buttons was clicked, 0 otherwise. */
+ * @param advance
+ * How much to advance 'val' by.
+ * @return
+ * 1 if one of the buttons was clicked, 0 otherwise.
+ */
 int range_buttons_show(int x, int y, int *val, int advance)
 {
     int state, mx, my;

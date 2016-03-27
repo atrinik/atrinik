@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref FORCE "forces".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the force type object methods. */
-void object_type_init_force(void)
+ * Initialize the force type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(force)
 {
 }

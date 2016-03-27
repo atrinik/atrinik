@@ -26,56 +26,40 @@
  * @file
  * Handles code for @ref BOW "bows".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
+#include <object_methods.h>
+#include <bow.h>
+#include <arrow.h>
 
-/**
- * Calculate how quickly bow fires its arrow.
- * @param bow The bow.
- * @param arrow Arrow.
- * @return Firing speed.
- */
-float bow_get_ws(object *bow, object *arrow)
+/** @copydoc object_methods_t::ranged_fire_func */
+static int
+ranged_fire_func (object *op, object *shooter, int dir, double *delay)
 {
-    return (((float) bow->stats.sp / MAX_TICKS) + ((float) arrow->last_grace / MAX_TICKS));
-}
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(shooter != NULL);
 
-/**
- * Get skill required to use the specified bow object.
- * @param bow The bow (could actually be a crossbow/sling/etc).
- * @return Required skill to use the object. */
-int bow_get_skill(object *bow)
-{
-    if (bow->item_skill) {
-        return bow->item_skill - 1;
-    }
-
-    return SK_BOW_ARCHERY;
-}
-
-/** @copydoc object_methods::ranged_fire_func */
-static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
-{
-    object *arrow, *skill;
-
-    arrow = arrow_find(shooter, op->race);
-
-    if (!arrow) {
-        draw_info_format(COLOR_WHITE, shooter, "You have no %s left.", op->race);
+    object *arrow = arrow_find(shooter, op->race);
+    if (arrow == NULL) {
+        draw_info_format(COLOR_WHITE, shooter, "You have no %s left.",
+                         op->race);
         return OBJECT_METHOD_OK;
     }
 
-    if (wall(shooter->map, shooter->x + freearr_x[dir], shooter->y + freearr_y[dir])) {
+    if (wall(shooter->map,
+             shooter->x + freearr_x[dir],
+             shooter->y + freearr_y[dir])) {
         draw_info(COLOR_WHITE, shooter, "Something is in the way.");
         return OBJECT_METHOD_OK;
     }
 
     if (shooter->type == MONSTER || QUERY_FLAG(arrow, FLAG_SYS_OBJECT)) {
-        object *copy;
-
-        copy = get_object();
-        copy_object(arrow, copy, 0);
+        object *copy = object_get();
+        object_copy(copy, arrow, false);
         CLEAR_FLAG(copy, FLAG_SYS_OBJECT);
         SET_FLAG(copy, FLAG_NO_PICK);
         copy->nrof = 0;
@@ -93,10 +77,9 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     arrow->last_sp = op->last_sp + arrow->last_sp;
 
     /* Get the used skill. */
-    skill = SK_skill(shooter);
-
+    object *skill = SK_skill(shooter);
     /* If we got the skill, add in the skill's modifiers. */
-    if (skill) {
+    if (skill != NULL) {
         /* Add WC. */
         arrow->stats.wc += skill->last_heal;
         /* Add tiles range. */
@@ -106,32 +89,77 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     /* Add WC and damage bonuses. */
     arrow->stats.wc = arrow_get_wc(shooter, op, arrow);
     arrow->stats.dam = arrow_get_damage(shooter, op, arrow);
+    arrow->stats.dam = rndm(arrow->stats.dam * 0.8 + 1, arrow->stats.dam);
+    if (arrow->stats.dam < 1) {
+        arrow->stats.dam = 1;
+    }
 
     /* Use the bow's WC range. */
     arrow->stats.wc_range = op->stats.wc_range;
 
-    if (delay) {
+    if (delay != NULL) {
         *delay = op->stats.sp + arrow->last_grace;
     }
 
     arrow = object_projectile_fire(arrow, shooter, dir);
-
-    if (!arrow) {
+    if (arrow == NULL) {
         return OBJECT_METHOD_OK;
     }
 
     if (shooter->type == PLAYER) {
         CONTR(shooter)->stat_arrows_fired++;
+        CONTR(shooter)->last_combat = pticks;
     }
 
-    play_sound_map(shooter->map, CMD_SOUND_EFFECT, "bow1.ogg", shooter->x, shooter->y, 0, 0);
+    play_sound_map(shooter->map,
+                   CMD_SOUND_EFFECT,
+                   "bow1.ogg",
+                   shooter->x,
+                   shooter->y,
+                   0,
+                   0);
     return OBJECT_METHOD_OK;
 }
 
 /**
- * Initialize the bow type object methods. */
-void object_type_init_bow(void)
+ * Initialize the bow type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(bow)
 {
-    object_type_methods[BOW].apply_func = object_apply_item;
-    object_type_methods[BOW].ranged_fire_func = ranged_fire_func;
+    OBJECT_METHODS(BOW)->apply_func = object_apply_item;
+    OBJECT_METHODS(BOW)->ranged_fire_func = ranged_fire_func;
+}
+
+/**
+ * Calculate how quickly bow fires its arrows.
+ *
+ * @param bow
+ * The bow.
+ * @param arrow
+ * Arrow.
+ * @return
+ * Firing speed.
+ */
+double
+bow_get_ws (object *bow, object *arrow)
+{
+    return bow->stats.sp / MAX_TICKS + arrow->last_grace / MAX_TICKS;
+}
+
+/**
+ * Get skill required to use the specified bow object.
+ *
+ * @param bow
+ * The bow (could actually be a crossbow/sling/etc).
+ * @return
+ * Required skill to use the object.
+ */
+int
+bow_get_skill (object *bow)
+{
+    if (bow->item_skill != 0 && SKILL_IS_ARCHERY(bow->item_skill - 1)) {
+        return bow->item_skill - 1;
+    }
+
+    return SK_BOW_ARCHERY;
 }

@@ -26,7 +26,8 @@
  * @file
  * Implements active effects type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -62,7 +63,8 @@ typedef struct active_effect_struct {
 } active_effect_struct;
 
 /**
- * Active effects widget data. */
+ * Active effects widget data.
+ */
 typedef struct widget_active_effects_struct {
     active_effect_struct *active_effects;
 
@@ -258,7 +260,8 @@ void widget_active_effects_remove(widgetdata *widget, object *op)
 }
 
 /**
- * Initialize one active effects widget. */
+ * Initialize one active effects widget.
+ */
 void widget_active_effects_init(widgetdata *widget)
 {
     widget_active_effects_struct *tmp;

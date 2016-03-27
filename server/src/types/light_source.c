@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref LIGHT_SOURCE "light sources".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the light source type object methods. */
-void object_type_init_light_source(void)
+ * Initialize the light source type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(light_source)
 {
 }

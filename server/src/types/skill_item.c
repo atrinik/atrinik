@@ -26,13 +26,16 @@
  * @file
  * Handles code for @ref SKILL_ITEM "skill items".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the skill item type object methods. */
-void object_type_init_skill_item(void)
+ * Initialize the skill item type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(skill_item)
 {
-    object_type_methods[SKILL_ITEM].apply_func = object_apply_item;
+    OBJECT_METHODS(SKILL_ITEM)->apply_func = object_apply_item;
 }

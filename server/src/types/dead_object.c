@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref DEAD_OBJECT "dead object".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the dead object type object methods. */
-void object_type_init_dead_object(void)
+ * Initialize the dead object type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(dead_object)
 {
 }

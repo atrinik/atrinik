@@ -26,7 +26,8 @@
  * @file
  * Atrinik plugin support header file.
  *
- * @author Yann Chachkoff */
+ * @author Yann Chachkoff
+ */
 
 #ifndef PLUGIN_H
 #define PLUGIN_H
@@ -53,7 +54,8 @@
  *@{*/
 /**
  * Normal event: the event is attached directly to the object in
- * question. */
+ * question.
+ */
 #define PLUGIN_EVENT_NORMAL 1
 /** Map-wide event. */
 #define PLUGIN_EVENT_MAP 2
@@ -163,13 +165,17 @@
 
 /**
  * Get an event flag from event number code.
- * @see event_numbers */
+ * @see event_numbers
+ */
 #define EVENT_FLAG(x) (1U << (x - 1))
 
 /**
  * Check to see if object has an event in its object::event_flags.
- * @param ob Object.
- * @param event Event to check. */
+ * @param ob
+ * Object.
+ * @param event
+ * Event to check.
+ */
 #define HAS_EVENT(ob, event) (ob->event_flags & EVENT_FLAG(event))
 
 struct plugin_hooklist;
@@ -234,28 +240,38 @@ typedef struct atrinik_plugin {
  *@{*/
 /**
  * Called when the plugin initialization process starts.
- * @param hooklist Plugin hooklist to register. */
+ * @param hooklist
+ * Plugin hooklist to register.
+ */
 extern MODULEAPI void initPlugin(struct plugin_hooklist *hooklist);
 
 /**
  * Called to ask various information about the plugin.
- * @param type Integer pointer for va_start().
- * @return Return value depends on the type of information requested.
- * Can be NULL. */
+ * @param type
+ * Integer pointer for va_start().
+ * @return
+ * Return value depends on the type of information requested.
+ * Can be NULL.
+ */
 extern MODULEAPI void getPluginProperty(int *type, ...);
 
 /**
  * Called whenever an event occurs.
- * @param type Integer pointer for va_start().
- * @return Integer containing the event's return value. */
+ * @param type
+ * Integer pointer for va_start().
+ * @return
+ * Integer containing the event's return value.
+ */
 extern MODULEAPI void *triggerEvent(int *type, ...);
 
 /**
- * Called by the server when the plugin loading is completed. */
+ * Called by the server when the plugin loading is completed.
+ */
 extern MODULEAPI void postinitPlugin(void);
 
 /**
- * Called when the plugin is about to be unloaded. */
+ * Called when the plugin is about to be unloaded.
+ */
 extern MODULEAPI void closePlugin(void);
 /*@}*/
 

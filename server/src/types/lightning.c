@@ -24,44 +24,51 @@
 
 /**
  * @file
- * Handles code related to @ref LIGHTNING "lightning". */
+ * Handles code related to @ref LIGHTNING "lightning".
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
 /**
  * Causes lightning to fork.
- * @param op Original bolt.
- * @param tmp First piece of the fork. */
-static void lightning_fork(object *op, object *tmp)
+ *
+ * @param op
+ * Original bolt.
+ * @param tmp
+ * First piece of the fork.
+ */
+static void
+lightning_fork (object *op, object *tmp)
 {
-    mapstruct *m;
-    int x, y, dir, dir_adjust;
-    object *bolt;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(tmp != NULL);
 
-    if (!tmp->stats.Dex || rndm(1, 100) > tmp->stats.Dex) {
+    if (tmp->stats.Dex == 0 || rndm(1, 100) > tmp->stats.Dex) {
         return;
     }
 
-    /* Fork left. */
+    int dir_adjust;
     if (rndm(0, 99) < tmp->stats.Con) {
+        /* Fork left. */
         dir_adjust = -1;
     } else {
         /* Fork right. */
         dir_adjust = 1;
     }
 
-    dir = absdir(tmp->direction + dir_adjust);
+    int dir = absdir(tmp->direction + dir_adjust);
 
-    x = tmp->x + freearr_x[dir];
-    y = tmp->y + freearr_y[dir];
-    m = get_map_from_coord(tmp->map, &x, &y);
-
-    if (!m || wall(m, x, y)) {
+    int x = tmp->x + freearr_x[dir];
+    int y = tmp->y + freearr_y[dir];
+    mapstruct *m = get_map_from_coord(tmp->map, &x, &y);
+    if (m == NULL || wall(m, x, y)) {
         return;
     }
 
-    bolt = get_object();
-    copy_object(tmp, bolt, 0);
+    object *bolt = object_get();
+    object_copy(bolt, tmp, false);
 
     bolt->stats.food = 0;
     /* Reduce chances of subsequent forking. */
@@ -83,31 +90,33 @@ static void lightning_fork(object *op, object *tmp)
     tmp->stats.dam /= 2;
     tmp->stats.dam++;
 
-    insert_ob_in_map(bolt, m, op, 0);
+    bolt = object_insert_map(bolt, m, op, 0);
+    SOFT_ASSERT(bolt != NULL,
+                "Failed to insert bolt from %s",
+                object_get_str(op));
 }
 
-/** @copydoc object_methods::projectile_move_func */
-static object *projectile_move_func(object *op)
+/** @copydoc object_methods_t::projectile_move_func */
+static object *
+projectile_move_func (object *op)
 {
+    HARD_ASSERT(op != NULL);
+
     if (op->stats.food == 0) {
         op = common_object_projectile_move(op);
-
-        if (!op) {
+        if (op == NULL) {
             return NULL;
         }
 
         op->stats.food = 1;
     } else if (op->stats.food == 1) {
-        object *tmp;
-
-        tmp = get_object();
-        copy_object(op, tmp, 0);
+        object *tmp = object_get();
+        object_copy(tmp, op, false);
         tmp->speed_left = -0.1f;
         tmp->x = op->x;
         tmp->y = op->y;
-        tmp = insert_ob_in_map(tmp, op->map, op, 0);
-
-        if (!tmp) {
+        tmp = object_insert_map(tmp, op->map, op, 0);
+        if (tmp == NULL) {
             return NULL;
         }
 
@@ -121,9 +130,12 @@ static object *projectile_move_func(object *op)
     return op;
 }
 
-/** @copydoc object_methods::projectile_stop_func */
-static object *projectile_stop_func(object *op, int reason)
+/** @copydoc object_methods_t::projectile_stop_func */
+static object *
+projectile_stop_func (object *op, int reason)
 {
+    HARD_ASSERT(op != NULL);
+
     if (reason == OBJECT_PROJECTILE_STOP_EOL) {
         return common_object_projectile_stop_spell(op, reason);
     }
@@ -132,13 +144,18 @@ static object *projectile_stop_func(object *op, int reason)
 }
 
 /**
- * Initialize the lightning type object methods. */
-void object_type_init_lightning(void)
+ * Initialize the lightning type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(lightning)
 {
-    object_type_methods[LIGHTNING].projectile_move_func = projectile_move_func;
-    object_type_methods[LIGHTNING].projectile_stop_func = projectile_stop_func;
-
-    object_type_methods[LIGHTNING].process_func = common_object_projectile_process;
-    object_type_methods[LIGHTNING].projectile_hit_func = common_object_projectile_hit;
-    object_type_methods[LIGHTNING].move_on_func = common_object_projectile_move_on;
+    OBJECT_METHODS(LIGHTNING)->projectile_move_func =
+        projectile_move_func;
+    OBJECT_METHODS(LIGHTNING)->projectile_stop_func =
+        projectile_stop_func;
+    OBJECT_METHODS(LIGHTNING)->process_func =
+        common_object_projectile_process;
+    OBJECT_METHODS(LIGHTNING)->projectile_hit_func =
+        common_object_projectile_hit;
+    OBJECT_METHODS(LIGHTNING)->move_on_func =
+        common_object_projectile_move_on;
 }

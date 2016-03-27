@@ -17,7 +17,7 @@ is_animated 1
 anim_speed 4
 speed -0.047
 monster 1
-wis 4
+item_power 4
 see_invisible 1
 protect_impact 75
 protect_cleave 75

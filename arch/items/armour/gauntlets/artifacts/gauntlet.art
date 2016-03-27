@@ -1,0 +1,99 @@
+# Gauntlets of damage
+Allowed !gloves, all
+chance 20
+difficulty 21
+artifact gauntlet_dam
+def_arch gauntlets
+Object
+title of damage
+dam_add 1
+item_level_art 19
+type 100
+is_magical 1
+value 6500
+item_power 5
+end
+
+# Gauntlets of precision
+Allowed !gloves, all
+chance 20
+difficulty 14
+artifact gauntlet_precision
+def_arch gauntlets
+Object
+title of precision
+wc_add 1
+item_level_art 7
+type 100
+is_magical 1
+value 6500
+item_power 2
+end
+
+# Gauntlets of greater precision
+Allowed !gloves, all
+chance 20
+difficulty 24
+artifact gauntlet_greater_precision
+def_arch gauntlets
+Object
+title of greater precision
+face gauntlets_gold.101
+wc_add 2
+item_level_art 12
+type 100
+is_magical 1
+value 82500
+item_power 3
+end
+
+# Gauntlets of extraordinary precision
+Allowed !gloves, all
+chance 15
+difficulty 48
+artifact gauntlet_extraordinary_precision
+def_arch gauntlets
+Object
+title of extraordinary precision
+face gauntlets_gold.101
+wc_add 3
+item_level_art 36
+type 100
+is_magical 1
+value 121500
+item_power 5
+end
+
+# Gauntlets of superior precision
+Allowed !gloves, all
+chance 10
+difficulty 80
+artifact gauntlet_superior_precision
+def_arch gauntlets
+Object
+title of superior precision
+face gauntlets_gold.101
+wc_add 4
+item_level_art 72
+type 100
+is_magical 1
+value 161500
+item_power 7
+end
+
+# Gauntlets of supreme precision
+Allowed !gloves, all
+chance 5
+difficulty 100
+artifact gauntlet_supreme_precision
+def_arch gauntlets
+Object
+title of supreme precision
+face gauntlets_gold.101
+wc_add 5
+item_level_art 92
+type 100
+is_magical 1
+value 261500
+item_power 10
+end

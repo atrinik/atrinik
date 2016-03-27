@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Everything concerning treasures. */
+ * Everything concerning treasures.
+ */
 
 /* TREASURE_DEBUG does some checking on the treasurelists after loading.
  * It is useful for finding bugs in the treasures file.  Since it only
@@ -41,7 +42,7 @@
 #include <artifact.h>
 
 /** All the coin arches. */
-char *coins[NUM_COINS + 1] = {
+const char *const coins[NUM_COINS + 1] = {
     "ambercoin",
     "mithrilcoin",
     "jadecoin",
@@ -74,7 +75,8 @@ static void free_treasurestruct(treasure *t);
 /**
  * Opens LIBDIR/treasure and reads all treasure declarations from it.
  *
- * Each treasure is parsed with the help of load_treasure(). */
+ * Each treasure is parsed with the help of load_treasure().
+ */
 void load_treasures(void)
 {
     FILE *fp;
@@ -158,7 +160,8 @@ void load_treasures(void)
 /**
  * Create money table, setting up pointers to the archetypes.
  *
- * This is done for faster access of the coins archetypes. */
+ * This is done for faster access of the coins archetypes.
+ */
 static void create_money_table(void)
 {
     int i;
@@ -176,10 +179,15 @@ static void create_money_table(void)
 /**
  * Reads one treasure from the file, including the 'yes', 'no' and 'more'
  * options.
- * @param fp File to read from.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @return Read structure, never NULL. */
+ * @param fp
+ * File to read from.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @return
+ * Read structure, never NULL.
+ */
 static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 {
     char buf[MAX_BUF], *cp = NULL, variable[MAX_BUF];
@@ -312,7 +320,9 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 
 /**
  * Allocate and return the pointer to an empty treasurelist structure.
- * @return New structure, blanked, never NULL. */
+ * @return
+ * New structure, blanked, never NULL.
+ */
 static treasurelist *get_empty_treasurelist(void)
 {
     treasurelist *tl = emalloc(sizeof(treasurelist));
@@ -332,7 +342,9 @@ static treasurelist *get_empty_treasurelist(void)
 
 /**
  * Allocate and return the pointer to an empty treasure structure.
- * @return New structure, blanked, never NULL. */
+ * @return
+ * New structure, blanked, never NULL.
+ */
 static treasure *get_empty_treasure(void)
 {
     treasure *t = emalloc(sizeof(treasure));
@@ -369,7 +381,9 @@ static treasure *get_empty_treasure(void)
 /**
  * Searches for the given treasurelist in the globally linked list of
  * treasure lists which has been built by load_treasures().
- * @param name Treasure list to search for. */
+ * @param name
+ * Treasure list to search for.
+ */
 treasurelist *find_treasurelist(const char *name)
 {
     const char *tmp = find_string(name);
@@ -400,13 +414,17 @@ treasurelist *find_treasurelist(const char *name)
  * instead takes a treasurelist. It is really just a wrapper around
  * create_treasure(). We create a dummy object that the treasure gets
  * inserted into, and then return that treasure.
- * @param t Treasure list to generate from.
- * @param difficulty Treasure difficulty.
- * @return Generated treasure. Can be NULL if no suitable treasure was
- * found. */
+ * @param t
+ * Treasure list to generate from.
+ * @param difficulty
+ * Treasure difficulty.
+ * @return
+ * Generated treasure. Can be NULL if no suitable treasure was
+ * found.
+ */
 object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 {
-    object *ob = get_object(), *tmp;
+    object *ob = object_get(), *tmp;
 
     create_treasure(t, ob, 0, difficulty, t->t_style, a_chance, 0, NULL);
 
@@ -429,14 +447,23 @@ object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 
 /**
  * This calls the appropriate treasure creation function.
- * @param t What to generate.
- * @param op For who to generate the treasure.
- * @param flag Combination of @ref GT_xxx values.
- * @param difficulty Map difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @param tries To avoid infinite recursion.
- * @param arch_change Arch change. */
+ * @param t
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param arch_change
+ * Arch change.
+ */
 void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *arch_change)
 {
     if (tries++ > 100) {
@@ -461,14 +488,23 @@ void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int 
 
 /**
  * Creates all the treasures.
- * @param t What to generate.
- * @param op For who to generate the treasure.
- * @param flag Combination of @ref GT_xxx values.
- * @param difficulty Map difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @param tries To avoid infinite recursion.
- * @param change_arch Arch change. */
+ * @param t
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param change_arch
+ * Arch change.
+ */
 static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {
     object *tmp;
@@ -522,8 +558,8 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 
                 for (i = 0; i < NUM_COINS; i++) {
                     if (value / coins_arch[i]->clone.value > 0) {
-                        tmp = get_object();
-                        copy_object(&coins_arch[i]->clone, tmp, 0);
+                        tmp = object_get();
+                        object_copy(tmp, &coins_arch[i]->clone, false);
                         tmp->nrof = value / tmp->value;
                         value -= tmp->nrof * tmp->value;
                         put_treasure(tmp, op, flag);
@@ -546,15 +582,24 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
 
 /**
  * Creates one treasure from the list.
- * @param tl What to generate.
- * @param op For who to generate the treasure.
- * @param flag Combination of @ref GT_xxx values.
- * @param difficulty Map difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @param tries To avoid infinite recursion.
- * @param change_arch Arch change.
- * @todo Get rid of the goto. */
+ * @param tl
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param change_arch
+ * Arch change.
+ * @todo Get rid of the goto.
+ */
 static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
 {
     int value, diff_tries = 0;
@@ -678,8 +723,8 @@ create_one_treasure_again_jmp:
 
         for (i = 0; i < NUM_COINS; i++) {
             if (value / coins_arch[i]->clone.value > 0) {
-                tmp = get_object();
-                copy_object(&coins_arch[i]->clone, tmp, 0);
+                tmp = object_get();
+                object_copy(tmp, &coins_arch[i]->clone, false);
                 tmp->nrof = value / tmp->value;
                 value -= tmp->nrof * tmp->value;
                 put_treasure(tmp, op, flag);
@@ -690,25 +735,32 @@ create_one_treasure_again_jmp:
 
 /**
  * Inserts generated treasure where it should go.
- * @param op Treasure just generated.
- * @param creator For which object the treasure is being generated.
- * @param flags Combination of @ref GT_xxx values. */
+ * @param op
+ * Treasure just generated.
+ * @param creator
+ * For which object the treasure is being generated.
+ * @param flags
+ * Combination of @ref GT_xxx values.
+ */
 static void put_treasure(object *op, object *creator, int flags)
 {
     if (flags & GT_ENVIRONMENT) {
         op->x = creator->x;
         op->y = creator->y;
-        insert_ob_in_map(op, creator->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+        object_insert_map(op, creator->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
     } else {
-        insert_ob_in_ob(op, creator);
+        object_insert_into(op, creator, 0);
     }
 }
 
 /**
  * If there are change_xxx commands in the treasure, we include the
  * changes in the generated object.
- * @param ca Arch to change to.
- * @param op Actual generated treasure. */
+ * @param ca
+ * Arch to change to.
+ * @param op
+ * Actual generated treasure.
+ */
 static void change_treasure(struct _change_arch *ca, object *op)
 {
     if (ca->name) {
@@ -725,47 +777,303 @@ static void change_treasure(struct _change_arch *ca, object *op)
 }
 
 /**
+ * Difficulty to magic chance list.
+ */
+static const int difftomagic_list[DIFFLEVELS][MAXMAGIC + 1] = {
+    /* Chance of magic  Difficulty */
+    /* +0 +1 +2 +3 +4 */
+    {94, 3, 2, 1, 0},   /*1*/
+    {94, 3, 2, 1, 0},   /*2*/
+    {94, 3, 2, 1, 0},   /*3*/
+    {94, 3, 2, 1, 0},   /*4*/
+    {94, 3, 2, 1, 0},   /*5*/
+    {90, 4, 3, 2, 1},   /*6*/
+    {90, 4, 3, 2, 1},   /*7*/
+    {90, 4, 3, 2, 1},   /*8*/
+    {90, 4, 3, 2, 1},   /*9*/
+    {90, 4, 3, 2, 1},   /*10*/
+    {85, 6, 4, 3, 2},   /*11*/
+    {85, 6, 4, 3, 2},   /*12*/
+    {85, 6, 4, 3, 2},   /*13*/
+    {85, 6, 4, 3, 2},   /*14*/
+    {85, 6, 4, 3, 2},   /*15*/
+    {80, 8, 5, 4, 3},   /*16*/
+    {80, 8, 5, 4, 3},   /*17*/
+    {80, 8, 5, 4, 3},   /*18*/
+    {80, 8, 5, 4, 3},   /*19*/
+    {80, 8, 5, 4, 3},   /*20*/
+    {75, 10, 6, 5, 4},  /*21*/
+    {75, 10, 6, 5, 4},  /*22*/
+    {75, 10, 6, 5, 4},  /*23*/
+    {75, 10, 6, 5, 4},  /*24*/
+    {75, 10, 6, 5, 4},  /*25*/
+    {70, 12, 7, 6, 5},  /*26*/
+    {70, 12, 7, 6, 5},  /*27*/
+    {70, 12, 7, 6, 5},  /*28*/
+    {70, 12, 7, 6, 5},  /*29*/
+    {70, 12, 7, 6, 5},  /*30*/
+    {70, 9, 8, 7, 6},   /*31*/
+    {70, 9, 8, 7, 6},   /*32*/
+    {70, 9, 8, 7, 6},   /*33*/
+    {70, 9, 8, 7, 6},   /*34*/
+    {70, 9, 8, 7, 6},   /*35*/
+    {70, 6, 9, 8, 7},   /*36*/
+    {70, 6, 9, 8, 7},   /*37*/
+    {70, 6, 9, 8, 7},   /*38*/
+    {70, 6, 9, 8, 7},   /*39*/
+    {70, 6, 9, 8, 7},   /*40*/
+    {70, 3, 10, 9, 8},  /*41*/
+    {70, 3, 10, 9, 8},  /*42*/
+    {70, 3, 10, 9, 8},  /*43*/
+    {70, 3, 10, 9, 8},  /*44*/
+    {70, 3, 10, 9, 8},  /*45*/
+    {70, 2, 9, 10, 9},  /*46*/
+    {70, 2, 9, 10, 9},  /*47*/
+    {70, 2, 9, 10, 9},  /*48*/
+    {70, 2, 9, 10, 9},  /*49*/
+    {70, 2, 9, 10, 9},  /*50*/
+    {70, 2, 7, 11, 10}, /*51*/
+    {70, 2, 7, 11, 10}, /*52*/
+    {70, 2, 7, 11, 10}, /*53*/
+    {70, 2, 7, 11, 10}, /*54*/
+    {70, 2, 7, 11, 10}, /*55*/
+    {70, 2, 5, 12, 11}, /*56*/
+    {70, 2, 5, 12, 11}, /*57*/
+    {70, 2, 5, 12, 11}, /*58*/
+    {70, 2, 5, 12, 11}, /*59*/
+    {70, 2, 5, 12, 11}, /*60*/
+    {70, 2, 3, 13, 12}, /*61*/
+    {70, 2, 3, 13, 12}, /*62*/
+    {70, 2, 3, 13, 12}, /*63*/
+    {70, 2, 3, 13, 12}, /*64*/
+    {70, 2, 3, 13, 12}, /*65*/
+    {70, 2, 3, 12, 13}, /*66*/
+    {70, 2, 3, 12, 13}, /*67*/
+    {70, 2, 3, 12, 13}, /*68*/
+    {70, 2, 3, 12, 13}, /*69*/
+    {70, 2, 3, 12, 13}, /*70*/
+    {70, 2, 3, 11, 14}, /*71*/
+    {70, 2, 3, 11, 14}, /*72*/
+    {70, 2, 3, 11, 14}, /*73*/
+    {70, 2, 3, 11, 14}, /*74*/
+    {70, 2, 3, 11, 14}, /*75*/
+    {70, 2, 3, 10, 15}, /*76*/
+    {70, 2, 3, 10, 15}, /*77*/
+    {70, 2, 3, 10, 15}, /*78*/
+    {70, 2, 3, 10, 15}, /*79*/
+    {70, 2, 3, 10, 15}, /*80*/
+    {70, 2, 3, 9, 16},  /*81*/
+    {70, 2, 3, 9, 16},  /*82*/
+    {70, 2, 3, 9, 16},  /*83*/
+    {70, 2, 3, 9, 16},  /*84*/
+    {70, 2, 3, 9, 16},  /*85*/
+    {70, 2, 3, 8, 17},  /*86*/
+    {70, 2, 3, 8, 17},  /*87*/
+    {70, 2, 3, 8, 17},  /*88*/
+    {70, 2, 3, 8, 17},  /*89*/
+    {70, 2, 3, 8, 17},  /*90*/
+    {70, 2, 3, 7, 18},  /*91*/
+    {70, 2, 3, 7, 18},  /*92*/
+    {70, 2, 3, 7, 18},  /*93*/
+    {70, 2, 3, 7, 18},  /*94*/
+    {70, 2, 3, 7, 18},  /*95*/
+    {70, 2, 3, 6, 19},  /*96*/
+    {70, 2, 3, 6, 19},  /*97*/
+    {70, 2, 3, 6, 19},  /*98*/
+    {70, 2, 3, 6, 19},  /*99*/
+    {70, 2, 3, 6, 19},  /*100*/
+    {70, 2, 3, 6, 19},  /*101*/
+    {70, 2, 3, 6, 19},  /*101*/
+    {70, 2, 3, 6, 19},  /*102*/
+    {70, 2, 3, 6, 19},  /*103*/
+    {70, 2, 3, 6, 19},  /*104*/
+    {70, 2, 3, 6, 19},  /*105*/
+    {70, 2, 3, 6, 19},  /*106*/
+    {70, 2, 3, 6, 19},  /*107*/
+    {70, 2, 3, 6, 19},  /*108*/
+    {70, 2, 3, 6, 19},  /*109*/
+    {70, 2, 3, 6, 19},  /*110*/
+    {70, 2, 3, 6, 19},  /*111*/
+    {70, 2, 3, 6, 19},  /*112*/
+    {70, 2, 3, 6, 19},  /*113*/
+    {70, 2, 3, 6, 19},  /*114*/
+    {70, 2, 3, 6, 19},  /*115*/
+    {70, 2, 3, 6, 19},  /*116*/
+    {70, 2, 3, 6, 19},  /*117*/
+    {70, 2, 3, 6, 19},  /*118*/
+    {70, 2, 3, 6, 19},  /*119*/
+    {70, 2, 3, 6, 19},  /*120*/
+    {70, 2, 3, 6, 19},  /*121*/
+    {70, 2, 3, 6, 19},  /*122*/
+    {70, 2, 3, 6, 19},  /*123*/
+    {70, 2, 3, 6, 19},  /*124*/
+    {70, 2, 3, 6, 19},  /*125*/
+    {70, 2, 3, 6, 19},  /*126*/
+    {70, 2, 3, 6, 19},  /*127*/
+    {70, 2, 3, 6, 19},  /*128*/
+    {70, 2, 3, 6, 19},  /*129*/
+    {70, 2, 3, 6, 19},  /*130*/
+    {70, 2, 3, 6, 19},  /*131*/
+    {70, 2, 3, 6, 19},  /*132*/
+    {70, 2, 3, 6, 19},  /*133*/
+    {70, 2, 3, 6, 19},  /*134*/
+    {70, 2, 3, 6, 19},  /*135*/
+    {70, 2, 3, 6, 19},  /*136*/
+    {70, 2, 3, 6, 19},  /*137*/
+    {70, 2, 3, 6, 19},  /*138*/
+    {70, 2, 3, 6, 19},  /*139*/
+    {70, 2, 3, 6, 19},  /*140*/
+    {70, 2, 3, 6, 19},  /*141*/
+    {70, 2, 3, 6, 19},  /*142*/
+    {70, 2, 3, 6, 19},  /*143*/
+    {70, 2, 3, 6, 19},  /*144*/
+    {70, 2, 3, 6, 19},  /*145*/
+    {70, 2, 3, 6, 19},  /*146*/
+    {70, 2, 3, 6, 19},  /*147*/
+    {70, 2, 3, 6, 19},  /*148*/
+    {70, 2, 3, 6, 19},  /*149*/
+    {70, 2, 3, 6, 19},  /*150*/
+    {70, 2, 3, 6, 19},  /*151*/
+    {70, 2, 3, 6, 19},  /*152*/
+    {70, 2, 3, 6, 19},  /*153*/
+    {70, 2, 3, 6, 19},  /*154*/
+    {70, 2, 3, 6, 19},  /*155*/
+    {70, 2, 3, 6, 19},  /*156*/
+    {70, 2, 3, 6, 19},  /*157*/
+    {70, 2, 3, 6, 19},  /*158*/
+    {70, 2, 3, 6, 19},  /*159*/
+    {70, 2, 3, 6, 19},  /*160*/
+    {70, 2, 3, 6, 19},  /*161*/
+    {70, 2, 3, 6, 19},  /*162*/
+    {70, 2, 3, 6, 19},  /*163*/
+    {70, 2, 3, 6, 19},  /*164*/
+    {70, 2, 3, 6, 19},  /*165*/
+    {70, 2, 3, 6, 19},  /*166*/
+    {70, 2, 3, 6, 19},  /*167*/
+    {70, 2, 3, 6, 19},  /*168*/
+    {70, 2, 3, 6, 19},  /*169*/
+    {70, 2, 3, 6, 19},  /*170*/
+    {70, 2, 3, 6, 19},  /*171*/
+    {70, 2, 3, 6, 19},  /*172*/
+    {70, 2, 3, 6, 19},  /*173*/
+    {70, 2, 3, 6, 19},  /*174*/
+    {70, 2, 3, 6, 19},  /*175*/
+    {70, 2, 3, 6, 19},  /*176*/
+    {70, 2, 3, 6, 19},  /*177*/
+    {70, 2, 3, 6, 19},  /*178*/
+    {70, 2, 3, 6, 19},  /*179*/
+    {70, 2, 3, 6, 19},  /*180*/
+    {70, 2, 3, 6, 19},  /*181*/
+    {70, 2, 3, 6, 19},  /*182*/
+    {70, 2, 3, 6, 19},  /*183*/
+    {70, 2, 3, 6, 19},  /*184*/
+    {70, 2, 3, 6, 19},  /*185*/
+    {70, 2, 3, 6, 19},  /*186*/
+    {70, 2, 3, 6, 19},  /*187*/
+    {70, 2, 3, 6, 19},  /*188*/
+    {70, 2, 3, 6, 19},  /*189*/
+    {70, 2, 3, 6, 19},  /*190*/
+    {70, 2, 3, 6, 19},  /*191*/
+    {70, 2, 3, 6, 19},  /*192*/
+    {70, 2, 3, 6, 19},  /*193*/
+    {70, 2, 3, 6, 19},  /*194*/
+    {70, 2, 3, 6, 19},  /*195*/
+    {70, 2, 3, 6, 19},  /*196*/
+    {70, 2, 3, 6, 19},  /*197*/
+    {70, 2, 3, 6, 19},  /*198*/
+    {70, 2, 3, 6, 19},  /*199*/
+    {70, 2, 3, 6, 19},  /*200*/
+};
+
+/**
+ * Calculate a magic value from the specified difficulty.
+ *
+ * @param difficulty
+ *
+ * @return
+ * Magic value.
+ */
+static int
+magic_from_difficulty (int difficulty)
+{
+    difficulty--;
+    if (difficulty < 0) {
+        difficulty = 0;
+    } else if (difficulty >= DIFFLEVELS) {
+        difficulty = DIFFLEVELS - 1;
+    }
+
+    for (int i = 0; i < DIFFLEVELS; i++) {
+        int sum = 0;
+        for (int j = 0; j < MAXMAGIC+1; j++) {
+            sum += difftomagic_list[i][j];
+        }
+        if (sum != 100) {
+            LOG(ERROR, "%d", i);
+        }
+    }
+
+    int roll = rndm(0, 99);
+
+    int magic;
+    for (magic = 0; magic < MAXMAGIC + 1; magic++) {
+        roll -= difftomagic_list[difficulty][magic];
+        if (roll < 0) {
+            break;
+        }
+    }
+
+    if (magic == MAXMAGIC + 1) {
+        log_error("Table for difficulty %d bad", difficulty);
+        magic = 0;
+    }
+
+    return rndm_chance(20) ? -magic : magic;
+}
+
+/**
  * Sets a random magical bonus in the given object based upon the given
  * difficulty, and the given max possible bonus.
  *
  * Item will be cursed if magic is negative.
- * @param difficulty Difficulty we want the item to be.
- * @param op The object.
- * @param max_magic What should be the maximum magic of the item.
- * @param fix_magic Fixed value of magic for the object.
- * @param chance_magic Chance to get a magic bonus.
- * @param flags Combination of @ref GT_xxx flags. */
+ * @param difficulty
+ * Difficulty we want the item to be.
+ * @param op
+ * The object.
+ * @param max_magic
+ * What should be the maximum magic of the item.
+ * @param fix_magic
+ * Fixed value of magic for the object.
+ * @param chance_magic
+ * Chance to get a magic bonus.
+ * @param flags
+ * Combination of @ref GT_xxx flags.
+ */
 static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, int chance_magic, int flags)
 {
-    int i;
+    int magic;
 
     /* If we have a fixed value, force it */
     if (fix_magic) {
-        i = fix_magic;
+        magic = fix_magic;
     } else {
-        i = 0;
-
-        /* chance_magic 0 means always no magic bonus */
-        if (rndm(1, 100) <= chance_magic || rndm(1, 200) <= difficulty) {
-            i = rndm(1, abs(max_magic));
-
-            if (max_magic < 0) {
-                i = -i;
-            }
+        magic = magic_from_difficulty(difficulty);
+        if (magic > max_magic) {
+            magic = max_magic;
         }
     }
 
-    if ((flags & GT_ONLY_GOOD) && i < 0) {
-        i = 0;
+    if ((flags & GT_ONLY_GOOD) && magic < 0) {
+        magic = 0;
     }
 
-    set_abs_magic(op, i);
+    set_abs_magic(op, magic);
 
-    if (i < 0) {
+    if (magic < 0) {
         SET_FLAG(op, FLAG_CURSED);
     }
 
-    if (i != 0) {
+    if (magic != 0) {
         SET_FLAG(op, FLAG_IS_MAGICAL);
     }
 }
@@ -776,8 +1084,11 @@ static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, 
  *
  * This function doesn't work properly, should add use of archetypes to
  * make it truly absolute.
- * @param op Object we're modifying.
- * @param magic Magic modifier. */
+ * @param op
+ * Object we're modifying.
+ * @param magic
+ * Magic modifier.
+ */
 void set_abs_magic(object *op, int magic)
 {
     if (!magic) {
@@ -835,11 +1146,17 @@ void set_abs_magic(object *op, int magic)
  * -# Add code to deal with new PR method.
  *
  * Changes the item's value.
- * @param op Ring or amulet to change.
- * @param bonus Bonus to add to item.
- * @param level Level.
- * @return 1.
- * @todo Get rid of the gotos in here. */
+ * @param op
+ * Ring or amulet to change.
+ * @param bonus
+ * Bonus to add to item.
+ * @param level
+ * Level.
+ * @return
+ * 1.
+ * @todo Extract this ugly piece of crap into subroutines. Use separate logic
+ * for determining stats based on type (amulet/ring).
+ */
 static int set_ring_bonus(object *op, int bonus, int level)
 {
     int tmp, r, off;
@@ -847,35 +1164,28 @@ static int set_ring_bonus(object *op, int bonus, int level)
 
     /* Let's repeat, too lazy for a loop */
 set_ring_bonus_jump1:
-    r = rndm(0, bonus > 0 ? 20 : 13);
 
     SET_FLAG(op, FLAG_IS_MAGICAL);
 
     if (op->type == AMULET) {
         if (rndm_chance(20)) {
-            r = 20 + rndm(0, 1);
+            r = 18 + rndm(0, 1);
         } else if (rndm_chance(20)) {
-            tmp = rndm(0, 2);
-
-            if (tmp == 2) {
-                r = 0;
-            } else if (tmp == 1) {
-                r = 12;
-            } else {
-                r = 11;
-            }
+            r = rndm_chance(2) ? 0 : 10;
         } else if (rndm_chance(2)) {
             if (rndm_chance(2)) {
-                r = 10;
+                r = 9;
             } else {
-                r = 8;
+                r = 7;
             }
         } else {
-            r = 13 + rndm(0, 6);
+            r = 11;
         }
+    } else {
+        r = rndm(0, bonus > 0 ? 20 : 11);
     }
 
-    switch (r % 25) {
+    switch (r) {
     /* Health */
     case 0:
         tmp = 5;
@@ -944,13 +1254,21 @@ set_ring_bonus_jump1:
     case 2:
     case 3:
     case 4:
-    case 5:
-    case 6:
-        set_attr_value(&op->stats, r, (int8_t) (bonus + get_attr_value(&op->stats, r)));
+    case 5: {
+        int stat = rndm(0, NUM_STATS - 1);
+        int value = get_attr_value(&op->stats, stat) + bonus;
+        if (value > MAX_STAT) {
+            value = MAX_STAT;
+        } else if (value < -MAX_STAT) {
+            value = -MAX_STAT;
+        }
+
+        set_attr_value(&op->stats, stat, value);
         break;
+    }
 
     /* Damage */
-    case 7:
+    case 6:
         op->stats.dam += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -961,7 +1279,7 @@ set_ring_bonus_jump1:
         break;
 
     /* WC*/
-    case 8:
+    case 7:
         op->stats.wc += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -972,7 +1290,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Hunger/sustenance */
-    case 9:
+    case 8:
         op->stats.food += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -983,7 +1301,7 @@ set_ring_bonus_jump1:
         break;
 
     /* AC */
-    case 10:
+    case 9:
         op->stats.ac += bonus;
 
         if (bonus > 0 && rndm(0, 20) > 16) {
@@ -994,12 +1312,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Mana */
-    case 11:
-    case 12:
-        if (!rndm_chance(3)) {
-            goto make_prot_items;
-        }
-
+    case 10:
         tmp = 3;
 
         if (level < 5) {
@@ -1062,14 +1375,13 @@ set_ring_bonus_jump1:
         break;
 
     /* Protections */
+    case 11:
+    case 12:
     case 13:
-        make_prot_items:
     case 14:
     case 15:
     case 16:
     case 17:
-    case 18:
-    case 19:
     {
         int b = 5 + FABS(bonus), val;
 
@@ -1094,7 +1406,7 @@ set_ring_bonus_jump1:
         }
 
         b = 0;
-        int protect = rndm(0, LAST_PROTECTION - 4 + off);
+        int protect = rndm(0, LAST_PROTECTION - 1 - 4 + off);
 
         while (op->protection[protect] != 0) {
             /* Not able to find a free protection */
@@ -1102,7 +1414,7 @@ set_ring_bonus_jump1:
                 goto set_ring_bonus_jump1;
             }
 
-            protect = rndm(0, LAST_PROTECTION - 4 + off);
+            protect = rndm(0, LAST_PROTECTION - 1 - 4 + off);
         }
 
         op->protection[protect] = val;
@@ -1110,7 +1422,7 @@ set_ring_bonus_jump1:
     }
 
     /* Reflect spells for amulets, health regeneration for rings */
-    case 20:
+    case 18:
         if (op->type == AMULET) {
             /* Reflect spells */
             SET_FLAG(op, FLAG_REFL_SPELL);
@@ -1129,7 +1441,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Reflect missiles for amulets, mana regeneration for rings */
-    case 21:
+    case 19:
         if (op->type == AMULET) {
             /* Reflect missiles */
             SET_FLAG(op, FLAG_REFL_MISSILE);
@@ -1148,7 +1460,7 @@ set_ring_bonus_jump1:
         break;
 
     /* Speed */
-    default:
+    case 20:
         if (bonus == 0) {
             bonus = 1;
         }
@@ -1156,6 +1468,9 @@ set_ring_bonus_jump1:
         op->stats.exp += bonus;
         op->value = (int64_t) ((double) op->value * 1.4f);
         break;
+
+    default:
+        SOFT_ASSERT_RC(false, 0, "Reached impossible code branch");
     }
 
     if (bonus > 0) {
@@ -1174,7 +1489,9 @@ set_ring_bonus_jump1:
 
 /**
  * Calculate the item power of the given ring/amulet.
- * @param ob The ring/amulet. */
+ * @param ob
+ * The ring/amulet.
+ */
 static void set_ring_item_power(object *ob)
 {
     int tmp, i;
@@ -1244,9 +1561,12 @@ static void set_ring_item_power(object *ob)
  * It is only used in fix_generated_treasure() to set bonuses on rings
  * and amulets. Another scheme is used to calculate the magic of weapons
  * and armours.
- * @param diff Any value above 2. The higher the value, the higher is the
+ * @param diff
+ * Any value above 2. The higher the value, the higher is the
  * chance of returning a low number.
- * @return The random number. */
+ * @return
+ * The random number.
+ */
 static int get_magic(int diff)
 {
     int i;
@@ -1268,10 +1588,14 @@ static int get_magic(int diff)
  * Get a random spell from the spell list.
  *
  * Used for item generation which uses spells like wands, rods, etc.
- * @param level Level of the spell.
- * @param flags @ref SPELL_USE_xxx to check for.
- * @return SP_NO_SPELL if no valid spell matches, ID of the spell
- * otherwise. */
+ * @param level
+ * Level of the spell.
+ * @param flags
+ * @ref SPELL_USE_xxx to check for.
+ * @return
+ * SP_NO_SPELL if no valid spell matches, ID of the spell
+ * otherwise.
+ */
 static int get_random_spell(int level, int flags)
 {
     int i, num_spells = 0, possible_spells[NROFREALSPELLS];
@@ -1296,7 +1620,9 @@ static int get_random_spell(int level, int flags)
 /**
  * Assign a random slaying race to an object, for weapons, arrows
  * and such.
- * @param op Object. */
+ * @param op
+ * Object.
+ */
 static void add_random_race(object *op)
 {
     ob_race *race = race_get_random();
@@ -1312,15 +1638,25 @@ static void add_random_race(object *op)
  * This is called after an item is generated, in order to set it up
  * right. This produced magical bonuses, puts spells into
  * scrolls/books/wands, makes it unidentified, hides the value, etc.
- * @param op_ptr Object to fix.
- * @param creator For who op was created. Can be NULL.
- * @param difficulty Difficulty level.
- * @param a_chance Artifact chance.
- * @param t_style Treasure style.
- * @param max_magic Maximum magic for the item.
- * @param fix_magic Fixed magic value.
- * @param chance_magic Chance of magic.
- * @param flags One of @ref GT_xxx */
+ * @param op_ptr
+ * Object to fix.
+ * @param creator
+ * For who op was created. Can be NULL.
+ * @param difficulty
+ * Difficulty level.
+ * @param a_chance
+ * Artifact chance.
+ * @param t_style
+ * Treasure style.
+ * @param max_magic
+ * Maximum magic for the item.
+ * @param fix_magic
+ * Fixed magic value.
+ * @param chance_magic
+ * Chance of magic.
+ * @param flags
+ * One of @ref GT_xxx
+ */
 int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags)
 {
     /* Just to make things easy */
@@ -1338,6 +1674,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
     }
 
     if (op->type != POTION && op->type != SCROLL && op->type != FOOD) {
+        if (creator->type == 0) {
+            max_magic /= 2;
+        }
+
         if ((!op->magic && max_magic) || fix_magic) {
             set_magic(difficulty, op, max_magic, fix_magic, chance_magic, flags);
         }
@@ -1450,6 +1790,8 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             if (op->arch == arches[ARCH_AMULET_GENERIC]) {
                 op->value *= 5;
             }
+
+            /* Fall through */
 
         case RING:
 
@@ -1567,6 +1909,8 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 /* For library, chained books! */
                 if (creator->type != MONSTER && QUERY_FLAG(creator, FLAG_NO_PICK)) {
                     SET_FLAG(op, FLAG_NO_PICK);
+                } else {
+                    CLEAR_FLAG(op, FLAG_IDENTIFIED);
                 }
 
                 /* For check_inv floors */
@@ -1752,6 +2096,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         }
     }
 
+    if (op == NULL) {
+        return retval;
+    }
+
     if ((flags & GT_NO_VALUE) && op->type != MONEY) {
         op->value = 0;
     }
@@ -1769,8 +2117,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
 /**
  * Frees a treasure, including its yes, no and next items.
- * @param t Treasure to free. Pointer is efree()d too, so becomes
- * invalid. */
+ * @param t
+ * Treasure to free. Pointer is efree()d too, so becomes
+ * invalid.
+ */
 static void free_treasurestruct(treasure *t)
 {
     if (t->next) {
@@ -1793,7 +2143,8 @@ static void free_treasurestruct(treasure *t)
 }
 
 /**
- * Free all treasure related memory. */
+ * Free all treasure related memory.
+ */
 void free_all_treasures(void)
 {
     treasurelist *tl, *next;
@@ -1812,8 +2163,11 @@ void free_all_treasures(void)
 
 /**
  * Set object's object::material_real.
- * @param op Object to set material_real for.
- * @param change_arch Change arch. */
+ * @param op
+ * Object to set material_real for.
+ * @param change_arch
+ * Change arch.
+ */
 static void set_material_real(object *op, struct _change_arch *change_arch)
 {
     if (op->type == MONEY) {
@@ -1896,13 +2250,13 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
             if (m_tmp == M_START_IRON || m_tmp == M_START_WOOD || m_tmp == M_START_LEATHER) {
                 for (i = 0; i < NROFMATERIALS_REAL; i++) {
                     /* We have a full hit */
-                    if (material_real[m_tmp + i].quality == m_range) {
+                    if (materials_real[m_tmp + i].quality == m_range) {
                         op->material_real = m_tmp + i;
                         goto set_material_real;
                     }
 
                     /* Find nearest quality we want */
-                    if (material_real[m_tmp + i].quality >= change_arch->material_quality && material_real[m_tmp + i].quality <= m_range && material_real[m_tmp + i].quality > q_tmp) {
+                    if (materials_real[m_tmp + i].quality >= change_arch->material_quality && materials_real[m_tmp + i].quality <= m_range && materials_real[m_tmp + i].quality > q_tmp) {
                         q_tmp = m_tmp + i;
                     }
                 }
@@ -1941,7 +2295,7 @@ set_material_real:
     if (change_arch->quality != -1) {
         op->item_quality = change_arch->quality;
     } else {
-        op->item_quality = material_real[op->material_real].quality;
+        op->item_quality = materials_real[op->material_real].quality;
     }
 
     if (change_arch->quality_range > 0) {
@@ -1958,8 +2312,11 @@ set_material_real:
 /**
  * Gets the environment level for treasure generation for the given
  * object.
- * @param op Object to get environment level of.
- * @return The environment level, always at least 1. */
+ * @param op
+ * Object to get environment level of.
+ * @return
+ * The environment level, always at least 1.
+ */
 int get_environment_level(object *op)
 {
     object *env;
@@ -1999,8 +2356,11 @@ int get_environment_level(object *op)
 
 /**
  * Checks if a treasure if valid. Will also check its yes and no options.
- * @param t Treasure to check.
- * @param tl Needed only so that the treasure name can be printed out. */
+ * @param t
+ * Treasure to check.
+ * @param tl
+ * Needed only so that the treasure name can be printed out.
+ */
 static void check_treasurelist(treasure *t, treasurelist *tl)
 {
     if (t->item == NULL && t->name == NULL) {

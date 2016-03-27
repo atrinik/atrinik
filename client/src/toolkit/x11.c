@@ -29,7 +29,8 @@
  * Clipboard support is based on the works of Sam Lantinga (SDL_scrap) and
  * Eric Wing (SDL_Clipboard). Some X11 logic courtesy of Tomas Styblo (wmctrl).
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -48,9 +49,13 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Get the parent window.
- * @param display Display.
- * @param win Window.
- * @return Parent window. */
+ * @param display
+ * Display.
+ * @param win
+ * Window.
+ * @return
+ * Parent window.
+ */
 x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win)
 {
 #if defined(HAVE_X11)
@@ -69,16 +74,26 @@ x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type 
 
 /**
  * Sends event to X11.
- * @param display Display to send event to.
- * @param win Window to sent event to.
- * @param msg Event name.
- * @param data0 Data.
- * @param data1 Data.
- * @param data2 Data.
- * @param data3 Data.
- * @param data4 Data.
- * @return 1 on success, 0 on failure.
- * @author Tomas Styblo (wmctrl - GPLv2) */
+ * @param display
+ * Display to send event to.
+ * @param win
+ * Window to sent event to.
+ * @param msg
+ * Event name.
+ * @param data0
+ * Data.
+ * @param data1
+ * Data.
+ * @param data2
+ * Data.
+ * @param data3
+ * Data.
+ * @param data4
+ * Data.
+ * @return
+ * 1 on success, 0 on failure.
+ * @author Tomas Styblo (wmctrl - GPLv2)
+ */
 static int x11_send_event(Display *display, Window win, char *msg, unsigned long data0, unsigned long data1, unsigned long data2, unsigned long data3, unsigned long data4)
 {
     XEvent event;
@@ -106,14 +121,21 @@ static int x11_send_event(Display *display, Window win, char *msg, unsigned long
 
 /**
  * Acquires X11 window's property.
- * @param display Display.
- * @param win Window to get the property of.
- * @param xa_prop_type Property type.
- * @param prop_name Property name.
- * @param size If not NULL, will contain the size of the returned property's
+ * @param display
+ * Display.
+ * @param win
+ * Window to get the property of.
+ * @param xa_prop_type
+ * Property type.
+ * @param prop_name
+ * Property name.
+ * @param size
+ * If not NULL, will contain the size of the returned property's
  * value.
- * @return The property value.
- * @author Tomas Styblo (wmctrl - GPLv2) */
+ * @return
+ * The property value.
+ * @author Tomas Styblo (wmctrl - GPLv2)
+ */
 static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, char *prop_name, unsigned long *size)
 {
     Atom xa_prop_name;
@@ -162,11 +184,15 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
 
 /**
  * Raises the specified window.
- * @param display Display.
- * @param win Window to raise.
- * @param switch_desktop If 1, will also switch the desktop to that of
+ * @param display
+ * Display.
+ * @param win
+ * Window to raise.
+ * @param switch_desktop
+ * If 1, will also switch the desktop to that of
  * the window's desktop.
- * @author Tomas Styblo (wmctrl - GPLv2) */
+ * @author Tomas Styblo (wmctrl - GPLv2)
+ */
 void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop)
 {
     TOOLKIT_PROTECT();
@@ -257,7 +283,9 @@ static int x11_clipboard_filter(const SDL_Event *event)
 
 /**
  * Register clipboard events.
- * @return 1 on success, 0 on failure. */
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int x11_clipboard_register_events(void)
 {
     TOOLKIT_PROTECT();
@@ -278,10 +306,15 @@ int x11_clipboard_register_events(void)
 
 /**
  * Set the contents of the clipboard.
- * @param display Display.
- * @param win Window.
- * @param str String to set contents of the clipboard to.
- * @return 1 on success, 0 on failure. */
+ * @param display
+ * Display.
+ * @param win
+ * Window.
+ * @param str
+ * String to set contents of the clipboard to.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str)
 {
     TOOLKIT_PROTECT();
@@ -368,10 +401,14 @@ int x11_clipboard_set(x11_display_type display, x11_window_type win, const char 
 
 /**
  * Get the contents of the clipboard.
- * @param display Display.
- * @param window Window.
- * @return Clipboard contents, must be freed. May be NULL in case of
- * failure to acquire the clipboard contents. */
+ * @param display
+ * Display.
+ * @param window
+ * Window.
+ * @return
+ * Clipboard contents, must be freed. May be NULL in case of
+ * failure to acquire the clipboard contents.
+ */
 char *x11_clipboard_get(x11_display_type display, x11_window_type win)
 {
     char *result;

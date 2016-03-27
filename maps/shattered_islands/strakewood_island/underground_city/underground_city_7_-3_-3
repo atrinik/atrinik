@@ -271,7 +271,7 @@ sp 0
 maxsp 0
 pow 0
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_weaponmagic 10
 protect_fire 10
@@ -760,7 +760,7 @@ attack_weaponmagic 10
 maxsp 30
 pow 10
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_impact 5
 protect_slash 5
@@ -1039,7 +1039,7 @@ attack_weaponmagic 10
 maxsp 30
 pow 10
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_impact 5
 protect_slash 5
@@ -1316,7 +1316,7 @@ attack_weaponmagic 10
 maxsp 30
 pow 10
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_impact 5
 protect_slash 5
@@ -2232,7 +2232,7 @@ attack_weaponmagic 10
 maxsp 30
 pow 10
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_impact 5
 protect_slash 5
@@ -2566,7 +2566,7 @@ attack_weaponmagic 10
 maxsp 30
 pow 10
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_impact 5
 protect_slash 5
@@ -2655,7 +2655,7 @@ attack_weaponmagic 10
 maxsp 30
 pow 10
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_impact 5
 protect_slash 5
@@ -3629,7 +3629,7 @@ sp 0
 maxsp 0
 pow 0
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_weaponmagic 10
 protect_fire 10
@@ -3694,7 +3694,7 @@ attack_weaponmagic 10
 maxsp 30
 pow 10
 dex 2
-wis 3
+item_power 3
 run_away 0
 protect_impact 5
 protect_slash 5

@@ -28,7 +28,8 @@
  * by shortcuts instead of atrinik.exe in order to handle extracting
  * update patches.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <stdio.h>
 #include <windows.h>

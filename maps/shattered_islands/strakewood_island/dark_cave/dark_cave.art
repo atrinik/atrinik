@@ -1,0 +1,11 @@
+Allowed none
+chance 1
+artifact bracers_fire_wyvern
+def_arch bracers_strength
+Object
+title of the fire wyvern
+material_real 75
+protect_fire 6
+item_quality 90
+item_condition 90
+end

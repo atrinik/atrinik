@@ -30,11 +30,16 @@ static void expand_door(char **newlayout, int i, int j, char **layout, int xsize
 
 /**
  * Expands the layout be a factor 2. Doors and walls are taken care of.
- * @param layout Layout to expand. Memory is freed at the end, so pointer
+ * @param layout
+ * Layout to expand. Memory is freed at the end, so pointer
  * becomes invalid.
- * @param xsize X layout size
- * @param ysize Y layout size
- * @return New layout. Must be freed by caller. */
+ * @param xsize
+ * X layout size
+ * @param ysize
+ * Y layout size
+ * @return
+ * New layout. Must be freed by caller.
+ */
 char **expand2x(char **layout, int xsize, int ysize)
 {
     int i, j;
@@ -80,12 +85,17 @@ char **expand2x(char **layout, int xsize, int ysize)
  * fill up the rest of the 2x2 result with 0:
  * X ---> X  0
  *        0  0
- * @param newlayout Nap layout.
- * @param i X spot to expand.
- * @param j Y spot to expand.
- * @param layout Map layout.
+ * @param newlayout
+ * Nap layout.
+ * @param i
+ * X spot to expand.
+ * @param j
+ * Y spot to expand.
+ * @param layout
+ * Map layout.
  * @note No need to reset rest of 2x2 area to \0 because calloc does that
- * for us.*/
+ * for us.
+ */
 static void expand_misc(char **newlayout, int i, int j, char **layout)
 {
     newlayout[i * 2][j * 2] = layout[i][j];
@@ -94,16 +104,24 @@ static void expand_misc(char **newlayout, int i, int j, char **layout)
 /**
  * Returns a bitmap that represents which squares on the right and bottom
  * edges of a square (i, j) match the given character.
- * @param ch Character to look for.
- * @param layout Map layout.
- * @param i X spot where to look.
- * @param j Y spot where to look.
- * @param xsize X layout size.
- * @param ysize Y layout size.
- * @return Combination of the following values:
+ * @param ch
+ * Character to look for.
+ * @param layout
+ * Map layout.
+ * @param i
+ * X spot where to look.
+ * @param j
+ * Y spot where to look.
+ * @param xsize
+ * X layout size.
+ * @param ysize
+ * Y layout size.
+ * @return
+ * Combination of the following values:
  * - <b>1</b>: Match on (i + 1, j).
  * - <b>2</b>: Match on (i, j + 1).
- * - <b>4</b>: Match on (i + 1, j + 1). */
+ * - <b>4</b>: Match on (i + 1, j + 1).
+ */
 static int calc_pattern(char ch, char **layout, int i, int j, int xsize, int ysize)
 {
     int pattern = 0;
@@ -129,12 +147,19 @@ static int calc_pattern(char ch, char **layout, int i, int j, int xsize, int ysi
  * Expand a wall. This function will try to sensibly connect the
  * resulting wall to adjacent wall squares, so that the result won't have
  * disconnected walls.
- * @param newlayout Nap layout.
- * @param i X coordinate of wall to expand in non expanded layout.
- * @param j Y coordinate of wall to expand in non expanded layout.
- * @param layout Current (non expanded) layout.
- * @param xsize X size of layout.
- * @param ysize Y size of layout. */
+ * @param newlayout
+ * Nap layout.
+ * @param i
+ * X coordinate of wall to expand in non expanded layout.
+ * @param j
+ * Y coordinate of wall to expand in non expanded layout.
+ * @param layout
+ * Current (non expanded) layout.
+ * @param xsize
+ * X size of layout.
+ * @param ysize
+ * Y size of layout.
+ */
 static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize, int ysize)
 {
     int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);
@@ -169,12 +194,19 @@ static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize
  * that they meet up with adjacent walls. Note that it will also
  * presumptuously delete (ignore) doors that it doesn't know how to
  * correctly expand.
- * @param newlayout Expanded layout.
- * @param i X coordinate of door to expand in non expanded layout.
- * @param j Y coordinate of door to expand in non expanded layout.
- * @param layout Non expanded layout.
- * @param xsize X size of the non expanded layout
- * @param ysize Y size of the non expanded layout */
+ * @param newlayout
+ * Expanded layout.
+ * @param i
+ * X coordinate of door to expand in non expanded layout.
+ * @param j
+ * Y coordinate of door to expand in non expanded layout.
+ * @param layout
+ * Non expanded layout.
+ * @param xsize
+ * X size of the non expanded layout
+ * @param ysize
+ * Y size of the non expanded layout
+ */
 static void expand_door(char **newlayout, int i, int j, char **layout, int xsize, int ysize)
 {
     int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);

@@ -14,7 +14,7 @@ behavior 10
 type 80
 is_male 1
 is_evil 1
-wis 4
+item_power 4
 dex 13
 terrain_flag 65
 mpart_id 3

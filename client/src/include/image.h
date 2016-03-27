@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Image related structures. */
+ * Image related structures.
+ */
 
 #ifndef IMAGE_H
 #define IMAGE_H

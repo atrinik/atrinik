@@ -343,10 +343,14 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 
 /**
  * Actually performs updating for the specified network graph widget.
- * @param widget The widget.
- * @param type The network graph type.
- * @param traffic The traffic type (tx/rx).
- * @param bytes Bytes.
+ * @param widget
+ * The widget.
+ * @param type
+ * The network graph type.
+ * @param traffic
+ * The traffic type (tx/rx).
+ * @param bytes
+ * Bytes.
  */
 static void widget_network_graph_update(widgetdata *widget, int type,
         int traffic, size_t bytes)
@@ -425,9 +429,12 @@ static void widget_network_graph_update(widgetdata *widget, int type,
 
 /**
  * Updates all network graph widgets with new data.
- * @param type The network graph type.
- * @param traffic The traffic type (tx/rx).
- * @param bytes Bytes.
+ * @param type
+ * The network graph type.
+ * @param traffic
+ * The traffic type (tx/rx).
+ * @param bytes
+ * Bytes.
  * @note This function is thread-safe.
  */
 void network_graph_update(int type, int traffic, size_t bytes)
@@ -451,7 +458,8 @@ void network_graph_update(int type, int traffic, size_t bytes)
 
 /**
  * Initializes one network graph widget.
- * @param widget The widget.
+ * @param widget
+ * The widget.
  */
 void widget_network_graph_init(widgetdata *widget)
 {

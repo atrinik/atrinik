@@ -54,7 +54,8 @@ typedef struct server_files_struct {
      * - 0: Not being updated, or just finished updating.
      * - 1: Start updating the file the next time server_files_updating()
      *      is called.
-     * - -1: The file is being updated. */
+     * - -1: The file is being updated.
+     */
     int8_t update;
 
     /** Size of the file. */

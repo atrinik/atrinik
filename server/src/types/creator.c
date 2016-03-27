@@ -26,65 +26,68 @@
  * @file
  * Handles code used for @ref CREATOR "creators".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
 /**
  * Check whether creator has already created the specified object on its
  * square.
- * @param op The creator.
- * @param check The object to check for.
- * @return 1 if such object already exists, 0 otherwise. */
-static int creator_obj_exists(object *op, object *check)
+ *
+ * @param op
+ * The creator.
+ * @param check
+ * The object to check for.
+ * @return
+ * True if such object already exists, false otherwise.
+ */
+static bool
+creator_obj_exists (object *op, object *check)
 {
     object *tmp;
-
-    FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, check->layer, -1, tmp)
-    {
-        if (tmp->arch == check->arch && tmp->name == check->name && tmp->type == check->type) {
-            return 1;
+    FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, check->layer, -1, tmp) {
+        if (tmp->arch == check->arch &&
+            tmp->name == check->name &&
+            tmp->type == check->type) {
+            return true;
         }
-    }
-    FOR_MAP_LAYER_END
+    } FOR_MAP_LAYER_END
 
-    return 0;
+    return false;
 }
 
-/** @copydoc object_methods::trigger_func */
-static int trigger_func(object *op, object *cause, int state)
+/** @copydoc object_methods_t::trigger_func */
+static int
+trigger_func (object *op, object *cause, int state)
 {
-    int idx, roll;
-    object *tmp, *clone_ob;
-    uint8_t created;
-
-    (void) cause;
-    (void) state;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(cause != NULL);
 
     if (op->stats.hp <= 0 && !QUERY_FLAG(op, FLAG_LIFESAVE)) {
         return OBJECT_METHOD_OK;
     }
 
-    created = 0;
-    roll = -1;
-
+    bool created = false;
+    int roll = -1;
     if (QUERY_FLAG(op, FLAG_SPLITTING)) {
-        int num_obs;
+        int num_objs = 0;
 
-        num_obs = 0;
-
-        for (tmp = op->inv; tmp; tmp = tmp->below) {
+        FOR_INV_PREPARE(op, tmp) {
             if (tmp->type == EVENT_OBJECT) {
                 continue;
             }
 
-            num_obs++;
-        }
+            num_objs++;
+        } FOR_INV_FINISH();
 
-        roll = rndm(1, num_obs) - 1;
+        roll = rndm(0, num_objs - 1);
     }
 
-    for (tmp = op->inv, idx = 0; tmp; tmp = tmp->below) {
+    int idx = 0;
+    FOR_INV_PREPARE(op, tmp) {
         if (tmp->type == EVENT_OBJECT) {
             continue;
         }
@@ -97,15 +100,14 @@ static int trigger_func(object *op, object *cause, int state)
             continue;
         }
 
-        clone_ob = object_create_clone(tmp);
-        clone_ob->x = op->x;
-        clone_ob->y = op->y;
-        clone_ob = insert_ob_in_map(clone_ob, op->map, op, 0);
-
-        if (clone_ob) {
-            created = 1;
+        object *clone = object_clone(tmp);
+        clone->x = op->x;
+        clone->y = op->y;
+        clone = object_insert_map(clone, op->map, op, 0);
+        if (clone != NULL) {
+            created = true;
         }
-    }
+    } FOR_INV_FINISH();
 
     if (created && !QUERY_FLAG(op, FLAG_LIFESAVE)) {
         op->stats.hp--;
@@ -115,8 +117,9 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the creator type object methods. */
-void object_type_init_creator(void)
+ * Initialize the creator type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(creator)
 {
-    object_type_methods[CREATOR].trigger_func = trigger_func;
+    OBJECT_METHODS(CREATOR)->trigger_func = trigger_func;
 }

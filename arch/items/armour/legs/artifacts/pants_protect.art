@@ -1,0 +1,84 @@
+# Pants of fire protection
+Allowed all
+chance 30
+difficulty 2
+t_style 1
+artifact pants_protect_fire
+def_arch pants_black
+Object
+title of fire protection
+item_level_art 2
+type 35
+is_magical 1
+protect_fire 15
+value 2100
+item_power 1
+end
+
+# Pants of cold protection
+Allowed all
+chance 30
+difficulty 2
+t_style 2
+artifact pants_protect_cold
+def_arch pants_black
+Object
+title of cold protection
+item_level_art 2
+type 35
+is_magical 1
+protect_cold 15
+value 2100
+item_power 1
+end
+
+# Pants of electricity protection
+Allowed all
+chance 30
+t_style 3
+difficulty 2
+artifact pants_protect_electricity
+def_arch pants_black
+Object
+title of electricity protection
+item_level_art 2
+type 35
+is_magical 1
+protect_electricity 15
+value 2100
+item_power 1
+end
+
+# Pants of poison protection
+Allowed all
+chance 30
+t_style 4
+difficulty 2
+artifact pants_protect_poison
+def_arch pants_black
+Object
+title of poison protection
+item_level_art 2
+type 35
+is_magical 1
+protect_poison 15
+value 2100
+item_power 1
+end
+
+# Pants of acid protection
+Allowed all
+chance 30
+t_style 5
+difficulty 2
+artifact pants_protect_acid
+def_arch pants_black
+Object
+title of acid protection
+item_level_art 2
+type 35
+is_magical 1
+protect_acid 15
+value 2100
+item_power 1
+end

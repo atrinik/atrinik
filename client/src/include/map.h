@@ -24,16 +24,11 @@
 
 /**
  * @file
- * Map header file. */
+ * Map header file.
+ */
 
 #ifndef MAP_H
 #define MAP_H
-
-/** Map start X offset */
-#define MAP_START_XOFF 386
-
-/** Map start Y offset */
-#define MAP_START_YOFF 143
 
 /** Map tile position Y offset */
 #define MAP_TILE_POS_YOFF 23
@@ -76,13 +71,16 @@
 /*@}*/
 
 /**
- * The number of object layers. */
+ * The number of object layers.
+ */
 #define NUM_LAYERS 7
 /**
- * Number of sub-layers. */
+ * Number of sub-layers.
+ */
 #define NUM_SUB_LAYERS 7
 /**
- * Effective number of all the visible layers. */
+ * Effective number of all the visible layers.
+ */
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
 
 #define GET_MAP_LAYER(_layer, _sub_layer) \
@@ -313,8 +311,6 @@ typedef struct map_anim {
     int mapx; ///< Map position X.
     int mapy; ///< Map position Y.
 
-    int x; ///< X position.
-    int y; ///< Y position.
     double xoff; ///< Movement in X per tick.
     double yoff; ///< Movement in Y per tick.
 

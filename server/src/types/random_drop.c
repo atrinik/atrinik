@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref RANDOM_DROP "random drops".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the random drop type object methods. */
-void object_type_init_random_drop(void)
+ * Initialize the random drop type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(random_drop)
 {
 }

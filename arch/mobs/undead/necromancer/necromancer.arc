@@ -18,7 +18,7 @@ weapon_speed 0.035
 attack_pierce 70
 attack_cold 15
 type 80
-wis 3
+item_power 3
 randomitems mob_skeleton_mage
 animation necromancer
 is_animated 1

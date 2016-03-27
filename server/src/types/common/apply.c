@@ -31,14 +31,21 @@
  */
 
 #include <global.h>
+#include <object.h>
+#include <player.h>
+#include <object_methods.h>
 
 /**
  * Handle generic object applying.
  *
- * @param op Object being applied.
- * @param applier Who is applying the object.
- * @param aflags Apply flags.
- * @return One of @ref OBJECT_METHOD_xxx.
+ * @param op
+ * Object being applied.
+ * @param applier
+ * Who is applying the object.
+ * @param aflags
+ * Apply flags.
+ * @return
+ * One of @ref OBJECT_METHOD_xxx.
  */
 int
 common_object_apply (object *op, object *applier, int aflags)
@@ -55,9 +62,12 @@ common_object_apply (object *op, object *applier, int aflags)
  * Check if the specified object matches the type of the one being applied,
  * and whether it's applied.
  *
- * @param op Object being applied.
- * @param tmp Object to check.
- * @return True if the object matches, false otherwise.
+ * @param op
+ * Object being applied.
+ * @param tmp
+ * Object to check.
+ * @return
+ * True if the object matches, false otherwise.
  */
 static bool
 object_apply_item_check_type (object *op, object *tmp)
@@ -66,7 +76,8 @@ object_apply_item_check_type (object *op, object *tmp)
         return false;
     }
 
-    if (op->type == tmp->type &&
+    if (op->type != CONTAINER &&
+        op->type == tmp->type &&
         QUERY_FLAG(op, FLAG_IS_THROWN) == QUERY_FLAG(tmp, FLAG_IS_THROWN)) {
         return true;
     }
@@ -86,10 +97,14 @@ object_apply_item_check_type (object *op, object *tmp)
  * Generic handler for applying equipment-like items, such as armour, weapons,
  * trinkets, jewelry, etc.
  *
- * @param op Object being applied.
- * @param applier Who is applying the object.
- * @param aflags Apply flags.
- * @return One of @ref OBJECT_METHOD_xxx.
+ * @param op
+ * Object being applied.
+ * @param applier
+ * Who is applying the object.
+ * @param aflags
+ * Apply flags.
+ * @return
+ * One of @ref OBJECT_METHOD_xxx.
  */
 int
 object_apply_item (object *op, object *applier, int aflags)
@@ -111,15 +126,6 @@ object_apply_item (object *op, object *applier, int aflags)
     int basic_aflag = aflags & APPLY_BASIC_FLAGS;
 
     if (!QUERY_FLAG(op, FLAG_APPLIED)) {
-        if (op->item_power != 0 &&
-            op->item_power + CONTR(applier)->item_power >
-                settings.item_power_factor * applier->level) {
-            draw_info(COLOR_WHITE, applier,
-                      "Equipping that combined with other items would consume "
-                      "your soul!");
-            return OBJECT_METHOD_ERROR;
-        }
-
         if (QUERY_FLAG(op, FLAG_QUEST_ITEM)) {
             draw_info(COLOR_WHITE, applier,
                       "You feel you should turn it in first...");

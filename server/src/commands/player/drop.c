@@ -26,10 +26,13 @@
  * @file
  * Implements the /drop command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <plugin.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_drop(object *op, const char *command, char *params)
@@ -55,7 +58,7 @@ void command_drop(object *op, const char *command, char *params)
             continue;
         }
 
-        ival = item_matched_string(op, tmp, params);
+        ival = object_matches_string(tmp, op, params);
 
         if (ival > 0) {
             if (ival <= 2 && QUERY_FLAG(tmp, FLAG_INV_LOCKED)) {

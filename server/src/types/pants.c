@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
  * Initialize the pants type object methods.
  */
-void object_type_init_pants(void)
+OBJECT_TYPE_INIT_DEFINE(pants)
 {
-    object_type_methods[PANTS].apply_func = object_apply_item;
+    OBJECT_METHODS(PANTS)->apply_func = object_apply_item;
 }

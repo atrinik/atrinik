@@ -80,13 +80,16 @@
 
 /**
  * @file
- * This file handles the @ref plugin_arena "Arena plugin" functions. */
+ * This file handles the @ref plugin_arena "Arena plugin" functions.
+ */
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>
 #include <plugin.h>
 #include <plugin_hooklist.h>
 #include <stdarg.h>
+#include <player.h>
+#include <object.h>
 
 /** Plugin name */
 #define PLUGIN_NAME "Arena"
@@ -197,9 +200,13 @@ MODULEAPI void postinitPlugin(void)
 
 /**
  * Check a player list to see if player is in it.
- * @param op The player object to check for.
- * @param player_list Player list to check.
- * @return 1 if the player is in the list, 0 otherwise. */
+ * @param op
+ * The player object to check for.
+ * @param player_list
+ * Player list to check.
+ * @return
+ * 1 if the player is in the list, 0 otherwise.
+ */
 static int check_arena_player(object *op, arena_map_players *player_list)
 {
     arena_map_players *player_list_tmp;
@@ -216,8 +223,11 @@ static int check_arena_player(object *op, arena_map_players *player_list)
 
 /**
  * Remove player from arena map's list of players.
- * @param op The player object to find and remove.
- * @param player_list The player list from where to remove. */
+ * @param op
+ * The player object to find and remove.
+ * @param player_list
+ * The player list from where to remove.
+ */
 static void remove_arena_player(object *op, arena_map_players **player_list)
 {
     arena_map_players *currP, *prevP = NULL;
@@ -238,8 +248,11 @@ static void remove_arena_player(object *op, arena_map_players **player_list)
 
 /**
  * Parse a single line inside an .arena config script.
- * @param arena_map The arena map structure.
- * @param line The line to parse. */
+ * @param arena_map
+ * The arena map structure.
+ * @param line
+ * The line to parse.
+ */
 static void arena_map_parse_line(arena_maps_struct *arena_map, const char *line)
 {
     /* Maximum number of players */
@@ -273,9 +286,13 @@ static void arena_map_parse_line(arena_maps_struct *arena_map, const char *line)
 
 /**
  * Parse an .arena script for the arena map.
- * @param arena_script The script path
- * @param exit_ob The exit object used to trigger the event
- * @param arena_map The arena map structure */
+ * @param arena_script
+ * The script path
+ * @param exit_ob
+ * The exit object used to trigger the event
+ * @param arena_map
+ * The arena map structure
+ */
 static void arena_map_parse_script(const char *arena_script, object *exit_ob, arena_maps_struct *arena_map)
 {
     FILE *fh;
@@ -319,8 +336,11 @@ static void arena_map_parse_script(const char *arena_script, object *exit_ob, ar
  * Check if an arena map is full or not.
  *
  * Does checking for party arena, party player arenas, etc.
- * @param arena_map The arena map structure.
- * @return 1 if the arena is full, 0 otherwise. */
+ * @param arena_map
+ * The arena map structure.
+ * @return
+ * 1 if the arena is full, 0 otherwise.
+ */
 static int arena_full(arena_maps_struct *arena_map)
 {
     /* Simple case: The map has nothing to do with parties. */
@@ -346,10 +366,15 @@ static int arena_full(arena_maps_struct *arena_map)
 
 /**
  * Enter an arena entrance.
- * @param who The object entering this arena entrance.
- * @param exit_ob The entrance object.
- * @param arena_script Configuration script for this arena.
- * @return 0 to operate the entrance (teleport the player), 1 otherwise. */
+ * @param who
+ * The object entering this arena entrance.
+ * @param exit_ob
+ * The entrance object.
+ * @param arena_script
+ * Configuration script for this arena.
+ * @return
+ * 0 to operate the entrance (teleport the player), 1 otherwise.
+ */
 static int arena_enter(object *who, object *exit_ob, const char *arena_script)
 {
     char *path;
@@ -462,9 +487,13 @@ static int arena_enter(object *who, object *exit_ob, const char *arena_script)
 
 /**
  * Apply or trigger an arena sign.
- * @param who The object applying this sign.
- * @param path The map path of the arena.
- * @return Always returns 1, to never output sign message. */
+ * @param who
+ * The object applying this sign.
+ * @param path
+ * The map path of the arena.
+ * @return
+ * Always returns 1, to never output sign message.
+ */
 static int arena_sign(object *who, const char *path)
 {
     arena_maps_struct *arena_maps_tmp;
@@ -504,7 +533,9 @@ static int arena_sign(object *who, const char *path)
 
 /**
  * Handles APPLY and TRIGGER events for the Arena.
- * @return 1 to stop normal execution of the object, 0 to continue. */
+ * @return
+ * 1 to stop normal execution of the object, 0 to continue.
+ */
 static int arena_event(object *who, object *exit_ob, const char *event_options, const char *arena_script)
 {
     /* If the first 5 characters are "sign|", this is an arena sign */
@@ -521,7 +552,9 @@ static int arena_event(object *who, object *exit_ob, const char *event_options, 
  * Leave arena map. Decreases number of players for the arena map, but
  * first validates that the player is in the list of that arena map's
  * players.
- * @return Always returns 0. */
+ * @return
+ * Always returns 0.
+ */
 static int arena_leave(object *who)
 {
     arena_maps_struct *arena_maps_tmp;

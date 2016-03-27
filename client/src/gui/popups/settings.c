@@ -26,13 +26,15 @@
  * @file
  * Settings GUI.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
- * The different buttons of the settings popup. */
+ * The different buttons of the settings popup.
+ */
 enum {
     BUTTON_SETTINGS,
     BUTTON_KEY_SETTINGS,
@@ -43,19 +45,24 @@ enum {
 } ;
 
 /**
- * Names of the buttons. */
+ * Names of the buttons.
+ */
 static const char *const button_names[BUTTON_NUM] = {
     "Client Settings", "Key Settings", "Logout", "Disconnect"
 };
 
 /**
- * Currently selected button. */
+ * Currently selected button.
+ */
 static size_t button_selected;
 
 /**
  * Handle pressing a button in the settings popup.
- * @param popup The popup.
- * @param button The button ID. */
+ * @param popup
+ * The popup.
+ * @param button
+ * The button ID.
+ */
 static void settings_button_handle(popup_struct *popup, size_t button)
 {
     if (button == BUTTON_SETTINGS) {
@@ -165,7 +172,8 @@ static int popup_button_event(popup_button *button)
 }
 
 /**
- * Open the settings popup. */
+ * Open the settings popup.
+ */
 void settings_open(void)
 {
     popup_struct *popup;

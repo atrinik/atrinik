@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref PEARL "pearl".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the pearl type object methods. */
-void object_type_init_pearl(void)
+ * Initialize the pearl type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(pearl)
 {
 }

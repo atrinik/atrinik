@@ -26,7 +26,8 @@
  * @file
  * Book GUI related code.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -50,8 +51,11 @@ static scrollbar_struct scrollbar;
 
 /**
  * Change the book's displayed name.
- * @param name The name to change to.
- * @param len Length of the name. */
+ * @param name
+ * The name to change to.
+ * @param len
+ * Length of the name.
+ */
 void book_name_change(const char *name, size_t len)
 {
     len = MIN(sizeof(book_name) - 1, len);
@@ -197,8 +201,11 @@ static const char *popup_clipboard_copy_func(popup_struct *popup)
 
 /**
  * Load the book interface.
- * @param data Book's content.
- * @param len Length of 'data'. */
+ * @param data
+ * Book's content.
+ * @param len
+ * Length of 'data'.
+ */
 void book_load(const char *data, int len)
 {
     SDL_Rect box;
@@ -274,7 +281,8 @@ void book_load(const char *data, int len)
 }
 
 /**
- * Redraw the book GUI. */
+ * Redraw the book GUI.
+ */
 void book_redraw(void)
 {
     if (popup_get_head() && popup_get_head()->texture == texture_get(TEXTURE_TYPE_CLIENT, "book")) {
@@ -283,7 +291,8 @@ void book_redraw(void)
 }
 
 /**
- * Enable book help history. */
+ * Enable book help history.
+ */
 void book_add_help_history(const char *name)
 {
     if (!book_help_history_enabled) {

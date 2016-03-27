@@ -278,7 +278,7 @@ wc 5
 maxhp 75
 ac 13
 can_see_in_dark 1
-wis 5
+item_power 5
 protect_impact 10
 protect_slash 7
 protect_cleave 5

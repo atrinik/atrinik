@@ -24,16 +24,24 @@
 
 /**
  * @file
- * Various spell effects. */
+ * Various spell effects.
+ */
 
 #include <global.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <disease.h>
 
 /**
  * This is really used mostly for spell fumbles at the like.
- * @param op What is casting this.
- * @param tmp Object to propagate.
- * @param lvl How nasty should the propagation be. */
+ * @param op
+ * What is casting this.
+ * @param tmp
+ * Object to propagate.
+ * @param lvl
+ * How nasty should the propagation be.
+ */
 void cast_magic_storm(object *op, object *tmp, int lvl)
 {
     /* Error */
@@ -50,14 +58,16 @@ void cast_magic_storm(object *op, object *tmp, int lvl)
     /* nasty recoils! */
     tmp->stats.dam = lvl;
     tmp->stats.maxhp = tmp->count;
-    insert_ob_in_map(tmp, op->map, op, 0);
+    object_insert_map(tmp, op->map, op, 0);
 }
 
 /**
  * Recharge wands.
- * @param op Who is casting.
+ * @param op
+ * Who is casting.
  * @retval 0 Nothing happened.
- * @retval 1 Wand was recharged, or destroyed. */
+ * @retval 1 Wand was recharged, or destroyed.
+ */
 int recharge(object *op)
 {
     object *wand = find_marked_object(op);
@@ -99,7 +109,7 @@ int recharge(object *op)
     if (wand->arch && QUERY_FLAG(&wand->arch->clone, FLAG_ANIMATE)) {
         SET_FLAG(wand, FLAG_ANIMATE);
         wand->speed = wand->arch->clone.speed;
-        update_ob_speed(wand);
+        object_update_speed(wand);
     }
 
     efree(name);
@@ -111,10 +121,14 @@ int recharge(object *op)
  *
  * Allows the choice of what sort of food object to make.
  * If stringarg is NULL, it will create food dependent on level.
- * @param op Who is casting.
- * @param caster What is casting.
- * @param dir Casting direction.
- * @param stringarg Optional parameter specifying what kind of items to
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What is casting.
+ * @param dir
+ * Casting direction.
+ * @param stringarg
+ * Optional parameter specifying what kind of items to
  * create.
  * @retval 0 No food created.
  * @retval 1 Food was created.
@@ -123,7 +137,7 @@ int recharge(object *op)
  */
 int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 {
-    int food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
+    int food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, false);
 
     archetype_t *at = NULL;
     if (stringarg != NULL) {
@@ -166,8 +180,8 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
     }
 
     food_value /= at->clone.stats.food;
-    object *new_op = get_object();
-    copy_object(&at->clone, new_op, 0);
+    object *new_op = object_get();
+    object_copy(new_op, &at->clone, false);
     new_op->nrof = food_value;
 
     new_op->value = 0;
@@ -187,9 +201,13 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
  *
  * We put a force into the player object, so that there is a time delay
  * effect.
- * @param op Who is casting.
- * @param caster What is casting.
- * @return 1 on success, 0 otherwise. */
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What is casting.
+ * @return
+ * 1 on success, 0 otherwise.
+ */
 int cast_wor(object *op, object *caster)
 {
     object *dummy;
@@ -213,7 +231,7 @@ int cast_wor(object *op, object *caster)
     }
 
     dummy->speed = 0.002f * ((float) (spells[SP_WOR].bdur + SP_level_strength_adjust(caster, SP_WOR)));
-    update_ob_speed(dummy);
+    object_update_speed(dummy);
     dummy->speed_left = -1;
     dummy->type = WORD_OF_RECALL;
 
@@ -221,7 +239,7 @@ int cast_wor(object *op, object *caster)
     EXIT_X(dummy) = CONTR(op)->bed_x;
     EXIT_Y(dummy) = CONTR(op)->bed_y;
 
-    insert_ob_in_ob(dummy, op);
+    object_insert_into(dummy, op, 0);
     draw_info(COLOR_WHITE, op, "You feel a force starting to build up inside you.");
 
     return 1;
@@ -229,10 +247,15 @@ int cast_wor(object *op, object *caster)
 
 /**
  * Hit all enemies around the caster.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param dam Base damage to do.
- * @param attacktype Attacktype. */
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What object is casting.
+ * @param dam
+ * Base damage to do.
+ * @param attacktype
+ * Attacktype.
+ */
 void cast_destruction(object *op, object *caster, int dam)
 {
     int i, j, range, xt, yt;
@@ -241,12 +264,12 @@ void cast_destruction(object *op, object *caster, int dam)
 
     /* The hitter object. */
     hitter = arch_to_object(spellarch[SP_DESTRUCTION]);
-    set_owner(hitter, op);
+    object_owner_set(hitter, op);
     hitter->level = SK_level(caster);
 
     /* Calculate maximum range of the spell */
     range = MAX(SP_level_strength_adjust(caster, SP_DESTRUCTION), spells[SP_DESTRUCTION].bdur);
-    dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, -1, 0);
+    dam += SP_level_dam_adjust(caster, SP_DESTRUCTION, false);
 
     for (i = -range; i < range + 1; i++) {
         for (j = -range; j < range + 1; j++) {
@@ -281,7 +304,7 @@ void cast_destruction(object *op, object *caster, int dam)
                         damage /= (tmp->quick_pos >> 4) + 1;
                     }
 
-                    hit_player(tmp, damage, hitter);
+                    attack_hit(tmp, hitter, damage);
                     break;
                 }
             }
@@ -291,10 +314,15 @@ void cast_destruction(object *op, object *caster, int dam)
 
 /**
  * Cast an area of effect healing spell.
- * @param op Object.
- * @param level Level of the spell being cast.
- * @param type ID of the spell.
- * @return 1 on success, 0 on failure. */
+ * @param op
+ * Object.
+ * @param level
+ * Level of the spell being cast.
+ * @param type
+ * ID of the spell.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int cast_heal_around(object *op, int level, int type)
 {
     int success = 0;
@@ -360,10 +388,15 @@ int cast_heal_around(object *op, int level, int type)
 
 /**
  * Heals something.
- * @param op Who is casting.
- * @param level Level of the skill.
- * @param target Target.
- * @param spell_type ID of the spell. */
+ * @param op
+ * Who is casting.
+ * @param level
+ * Level of the skill.
+ * @param target
+ * Target.
+ * @param spell_type
+ * ID of the spell.
+ */
 int cast_heal(object *op, int level, object *target, int spell_type)
 {
     archetype_t *at;
@@ -379,7 +412,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     switch (spell_type) {
     case SP_CURE_DISEASE:
 
-        if (cure_disease(target, op)) {
+        if (disease_cure(target, op)) {
             success = 1;
         }
 
@@ -467,7 +500,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
         if (op->type == PLAYER) {
             if (heal > 0) {
-                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : target->name, heal);
             } else {
                 draw_info(COLOR_WHITE, op, "The healing spell fails!");
             }
@@ -489,7 +522,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
         if (op->type == PLAYER) {
             if (heal > 0) {
-                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : target->name, heal);
             } else {
                 draw_info(COLOR_WHITE, op, "The healing spell fails!");
             }
@@ -532,7 +565,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     }
 
     if (heal > 0) {
-        if (reduce_symptoms(target, heal)) {
+        if (disease_reduce_symptoms(target, heal)) {
             success = 1;
         }
 
@@ -583,10 +616,14 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
 /**
  * Cast some stat-improving spell.
- * @param op Who is casting.
- * @param caster What is casting.
- * @param target Target of the caster; who is receiving the spell.
- * @param spell_type ID of the spell.
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What is casting.
+ * @param target
+ * Target of the caster; who is receiving the spell.
+ * @param spell_type
+ * ID of the spell.
  * @retval 0 Spell failed.
  * @retval 1 Spell was successful.
  */
@@ -670,7 +707,8 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 
     if (i) {
         draw_info_format(COLOR_WHITE, op, "Your protection to %s grows.", attack_name[i]);
-        force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type, -1, 0), 50);
+        force->protection[i] = MIN(SP_level_dam_adjust(caster, spell_type,
+                                                       false), 50);
     }
 
     force->speed_left = -1 - SP_level_strength_adjust(caster, spell_type) * 0.1f;
@@ -685,7 +723,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
             FREE_AND_COPY_HASH(force->msg, spells[spell_type].at->clone.msg);
         }
 
-        force = insert_ob_in_ob(force, tmp);
+        force = object_insert_into(force, tmp, 0);
         if (force == NULL) {
             log_error("Failed to create force for spell %d, op: %s, "
                     "caster: %s, target: %s", spell_type, object_get_str(op),
@@ -699,13 +737,106 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 }
 
 /**
+ * Cast remove depletion spell.
+ *
+ * @param op
+ * Object casting this.
+ * @param target
+ * Target.
+ * @return
+ * 0 on failure or if there's no depletion, number of stats cured
+ * otherwise.
+ */
+int
+cast_remove_depletion (object *op, object *target)
+{
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT_RC(target != NULL, 0, "Target is NULL");
+
+    static archetype_t *at = NULL;
+    if (at == NULL) {
+        at = arch_find("depletion");
+        if (at == NULL) {
+            LOG(ERROR, "Could not find depletion archetype");
+            return 0;
+        }
+    }
+
+    if (target->type != PLAYER) {
+        char *name = object_get_base_name_s(target, op);
+        draw_info_format(COLOR_WHITE, op, "You cast remove depletion on %s.",
+                         name);
+        efree(name);
+        draw_info(COLOR_WHITE, op, "There is no depletion.");
+        return 0;
+    }
+
+    if (op != target) {
+        if (op->type == PLAYER) {
+            char *name = object_get_base_name_s(target, op);
+            draw_info_format(COLOR_WHITE, op,
+                             "You cast remove depletion on %s.", name);
+            efree(name);
+        } else if (target->type == PLAYER) {
+            char *name = object_get_base_name_s(op, target);
+            draw_info_format(COLOR_WHITE, target,
+                             "%s casts remove depletion on you.", name);
+            efree(name);
+        }
+    }
+
+    int success = 0;
+
+    object *depletion = object_find_arch(target, at);
+    if (depletion != NULL) {
+        for (int i = 0; i < NUM_STATS; i++) {
+            if (get_attr_value(&depletion->stats, i) != 0) {
+                success++;
+                draw_info(COLOR_WHITE, target, restore_msg[i]);
+            }
+        }
+
+        SET_FLAG(target, FLAG_NO_FIX_PLAYER);
+        object_remove(depletion, 0);
+        object_destroy(depletion);
+        CLEAR_FLAG(target, FLAG_NO_FIX_PLAYER);
+        living_update_player(target);
+    }
+
+    if (op != target && op->type == PLAYER) {
+        if (success != 0) {
+            draw_info(COLOR_WHITE, op, "Your spell removes some depletion.");
+        } else {
+            draw_info(COLOR_WHITE, op, "There is no depletion.");
+        }
+    }
+
+    if (op != target && target->type == PLAYER && success == 0) {
+        draw_info(COLOR_WHITE, target, "There is no depletion.");
+    }
+
+    insert_spell_effect(spells[SP_REMOVE_DEPLETION].archname,
+                        target->map,
+                        target->x,
+                        target->y);
+
+    return success;
+}
+
+/**
  * Cast remove curse or remove damnation.
- * @param op Caster object.
- * @param target Target.
- * @param type ID of the spell.
- * @param src Where the spell comes from.
- * @return 0 on failure / no cursed items, number of objects uncursed
- * otherwise. */
+ * @param op
+ * Caster object.
+ * @param target
+ * Target.
+ * @param type
+ * ID of the spell.
+ * @param src
+ * Where the spell comes from.
+ * @return
+ * 0 on failure / no cursed items, number of objects uncursed
+ * otherwise.
+ */
 int remove_curse(object *op, object *target, int type, int src)
 {
     object *tmp;
@@ -791,12 +922,18 @@ int remove_curse(object *op, object *target, int type, int src)
 
 /**
  * Actually identify an object when casting identify.
- * @param tmp What to identify.
- * @param op Who is receiving the spell effect.
- * @param mode One of @ref identify_modes.
+ * @param tmp
+ * What to identify.
+ * @param op
+ * Who is receiving the spell effect.
+ * @param mode
+ * One of @ref identify_modes.
  * @param[out] done Contains the number of objects identified so far.
- * @param level Maximum level of items we can identify.
- * @return 1 if we can keep identifying items, 0 otherwise. */
+ * @param level
+ * Maximum level of items we can identify.
+ * @return
+ * 1 if we can keep identifying items, 0 otherwise.
+ */
 int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 {
     if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) || IS_SYS_INVISIBLE(tmp) || !need_identify(tmp)) {
@@ -818,7 +955,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
             draw_info_format(COLOR_WHITE, op, "You have %s.", name);
             efree(name);
 
-            if (tmp->msg != NULL) {
+            if (tmp->msg != NULL && tmp->type != BOOK) {
                 draw_info(COLOR_WHITE, op, "The item has a story:");
                 draw_info(COLOR_WHITE, op, tmp->msg);
             }
@@ -836,13 +973,19 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
 
 /**
  * Cast identify spell.
- * @param op Object receiving the spell effects.
- * @param level Level of the identification.
- * @param single_ob If set, and mode is @ref IDENTIFY_MARKED, only
+ * @param op
+ * Object receiving the spell effects.
+ * @param level
+ * Level of the identification.
+ * @param single_ob
+ * If set, and mode is @ref IDENTIFY_MARKED, only
  * this object will be identified, otherwise contents of this object.
  * If NULL, the inventory of 'op' will be identified.
- * @param mode One of @ref identify_modes.
- * @return Number of objects identified. */
+ * @param mode
+ * One of @ref identify_modes.
+ * @return
+ * Number of objects identified.
+ */
 int cast_identify(object *op, int level, object *single_ob, int mode)
 {
     int done = 0;
@@ -876,9 +1019,11 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 
 /**
  * A spell to make an altar your god's.
- * @param op Who is casting.
+ * @param op
+ * Who is casting.
  * @retval 0 No consecration happened.
- * @retval 1 An altar was consecrated. */
+ * @retval 1 An altar was consecrated.
+ */
 int cast_consecrate(object *op)
 {
     object *tmp, *god = find_god(determine_god(op));
@@ -927,7 +1072,7 @@ int cast_consecrate(object *op)
                     SET_FLAG(new_altar, FLAG_IS_BUILDABLE);
                 }
 
-                insert_ob_in_map(new_altar, tmp->map, NULL, 0);
+                object_insert_map(new_altar, tmp->map, NULL, 0);
                 object_remove(tmp, 0);
 
                 draw_info_format(COLOR_WHITE, op, "You consecrated the altar to %s!", god->name);
@@ -945,9 +1090,13 @@ int cast_consecrate(object *op)
  *
  * If target is undead, the spell will restore target to max health
  * instead of damaging it.
- * @param op Caster.
- * @param target Target.
- * @return 1. */
+ * @param op
+ * Caster.
+ * @param target
+ * Target.
+ * @return
+ * 1.
+ */
 int finger_of_death(object *op, object *target)
 {
     object *hitter;
@@ -969,13 +1118,13 @@ int finger_of_death(object *op, object *target)
     /* We create a hitter object -- the spell */
     hitter = arch_to_object(spellarch[SP_FINGER_DEATH]);
     hitter->level = SK_level(op);
-    set_owner(hitter, op);
+    object_owner_set(hitter, op);
     hitter->x = target->x;
     hitter->y = target->y;
-    insert_ob_in_map(hitter, target->map, op, 0);
+    object_insert_map(hitter, target->map, op, 0);
 
-    dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam, 0);
-    hit_player(target, dam, hitter);
+    dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, false);
+    attack_hit(target, hitter, dam);
     object_remove(hitter, 0);
 
     return 1;
@@ -983,13 +1132,19 @@ int finger_of_death(object *op, object *target)
 
 /**
  * Let's try to infect something.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param dir Cast direction.
- * @param disease_arch Archetype of the disease.
- * @param type ID of the spell.
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What object is casting.
+ * @param dir
+ * Cast direction.
+ * @param disease_arch
+ * Archetype of the disease.
+ * @param type
+ * ID of the spell.
  * @retval 0 No one caught anything.
- * @retval 1 At least one living was affected. */
+ * @retval 1 At least one living was affected.
+ */
 int cast_cause_disease(object *op, object *caster, int dir, struct archetype *disease_arch, int type)
 {
     int x = op->x, y = op->y, i, xt, yt;
@@ -1023,10 +1178,10 @@ int cast_cause_disease(object *op, object *caster, int dir, struct archetype *di
             }
 
             disease = arch_to_object(disease_arch);
-            dam = SP_level_dam_adjust(caster, type, spells[type].bdam, 0);
+            dam = SP_level_dam_adjust(caster, type, false);
             strength = SP_level_strength_adjust(caster, type);
 
-            set_owner(disease, op);
+            object_owner_set(disease, op);
             disease->stats.exp = 0;
             disease->level = SK_level(caster);
 
@@ -1083,7 +1238,7 @@ int cast_cause_disease(object *op, object *caster, int dir, struct archetype *di
                 disease->stats.sp -= dam;
             }
 
-            if (infect_object(walk, disease, 1)) {
+            if (disease_infect(disease, walk, 1)) {
                 draw_info_format(COLOR_WHITE, op, "You inflict %s on %s!", disease->name, walk->name);
                 return 1;
             }
@@ -1101,8 +1256,11 @@ int cast_cause_disease(object *op, object *caster, int dir, struct archetype *di
 
 /**
  * Transform wealth spell.
- * @param op Who is casting.
- * @return 1 on success, 0 otherwise. */
+ * @param op
+ * Who is casting.
+ * @return
+ * 1 on success, 0 otherwise.
+ */
 int cast_transform_wealth(object *op)
 {
     object *marked;

@@ -1,0 +1,253 @@
+arch map
+name Asteria Docks
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2016-02-20 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music chether.mid
+region asteria
+end
+arch trans
+y 16
+end
+arch wall_white2_w.1
+y 16
+end
+arch map_info
+name asteria_lighthouse
+hp 2
+sp 7
+cursed 1
+y 16
+end
+arch floor_wood3a
+y 17
+end
+arch wood_pile.101
+y 17
+end
+arch floor_wood3h
+y 18
+end
+arch trash_wood1.101
+y 18
+end
+arch floor_wood3h
+y 19
+end
+arch barrel_water.101
+y 19
+end
+arch floor_wood3a
+y 20
+end
+arch table_small1b
+y 20
+end
+arch floor_wood3h
+y 21
+end
+arch floor_wood3a
+y 22
+end
+arch box_big.101
+y 22
+end
+arch floor_wood3h
+y 23
+end
+arch wall_white2_1
+y 23
+end
+arch trans
+x 1
+y 16
+end
+arch wall_white2_1
+x 1
+y 16
+end
+arch floor_wood3a
+x 1
+y 17
+end
+arch beer_barrel.101
+x 1
+y 17
+end
+arch floor_wood3h
+x 1
+y 18
+end
+arch wall_white2_8
+x 1
+y 18
+end
+arch floor_wood3h
+x 1
+y 19
+end
+arch wall_white2_3
+x 1
+y 19
+end
+arch floor_wood3h
+x 1
+y 20
+end
+arch wall_white2_3
+x 1
+y 20
+end
+arch floor_wood3f
+x 1
+y 21
+end
+arch door_wood2
+direction 3
+x 1
+y 21
+end
+arch floor_wood3a
+x 1
+y 22
+end
+arch wall_white2_3
+x 1
+y 22
+end
+arch floor_wood3h
+x 1
+y 23
+end
+arch wall_white2_4
+x 1
+y 23
+end
+arch trans
+x 2
+y 16
+end
+arch wall_white2_1
+x 2
+y 16
+end
+arch floor_wood3g
+x 2
+y 17
+end
+arch wall_white2_3
+x 2
+y 17
+end
+arch floor_wood3a
+x 2
+y 18
+end
+arch wall_white2_4
+x 2
+y 18
+end
+arch floor_wood3h
+x 2
+y 19
+end
+arch stairs_down
+x 2
+y 19
+end
+arch floor_wood3a
+x 2
+y 20
+end
+arch stairs_wood_down
+direction 1
+x 2
+y 20
+end
+arch torch_wall_1
+direction 7
+sub_layer 1
+x 2
+y 20
+end
+arch floor_wood3a
+x 2
+y 21
+end
+arch floor_wood3h
+x 2
+y 22
+end
+arch wall_white2_1
+x 2
+y 22
+end
+arch floor_wood3h
+x 2
+y 23
+end
+arch wall_white2_4
+x 2
+y 23
+end
+arch trans
+x 3
+y 17
+end
+arch wall_white2_1
+x 3
+y 17
+end
+arch map_info
+name asteria_lighthouse
+sp 5
+cursed 1
+x 3
+y 17
+end
+arch floor_wood3h
+x 3
+y 18
+end
+arch wall_white2_4
+x 3
+y 18
+end
+arch floor_wood3h
+x 3
+y 19
+end
+arch wall_white2_3
+x 3
+y 19
+end
+arch floor_wood3h
+x 3
+y 20
+end
+arch wall_white2_w.3
+x 3
+y 20
+end
+arch floor_wood3h
+x 3
+y 21
+end
+arch wall_white2_3
+x 3
+y 21
+end
+arch floor_wood3h
+x 3
+y 22
+end
+arch wall_white2_4
+x 3
+y 22
+end

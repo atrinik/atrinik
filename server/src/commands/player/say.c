@@ -26,9 +26,12 @@
  * @file
  * Implements the /say command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_say(object *op, const char *command, char *params)

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Text window header file. */
+ * Text window header file.
+ */
 
 #ifndef TEXTWIN_H
 #define TEXTWIN_H

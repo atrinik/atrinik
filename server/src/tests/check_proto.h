@@ -21,6 +21,8 @@ extern void check_server_ban(void);
 extern void check_server_bank(void);
 /* src/tests/unit/server/cache.c */
 extern void check_server_cache(void);
+/* src/tests/unit/server/math.c */
+extern void check_server_math(void);
 /* src/tests/unit/server/memory.c */
 extern void check_server_memory(void);
 /* src/tests/unit/server/object.c */

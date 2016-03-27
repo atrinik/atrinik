@@ -18,7 +18,7 @@ dam 64
 hp -1
 maxhp 74
 terrain_flag 65
-wis 3
+item_power 3
 face giant_stone.131
 animation giant_stone
 is_animated 1

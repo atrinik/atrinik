@@ -26,9 +26,12 @@
  * @file
  * Implements the /opsay command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_opsay(object *op, const char *command, char *params)

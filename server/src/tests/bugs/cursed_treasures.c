@@ -33,6 +33,7 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <arch.h>
+#include <object.h>
 
 START_TEST(test_cursed_amulet_shielding)
 {
@@ -62,7 +63,7 @@ START_TEST(test_cursed_starting_items)
     ck_assert_msg(list != NULL, "Couldn't find 'player_male' treasure list "
             "to start the test.");
 
-    object *inv = get_object();
+    object *inv = object_get();
 
     for (int i = 0; i < 2000; i++) {
         object_destroy_inv(inv);

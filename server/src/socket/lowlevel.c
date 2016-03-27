@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Low level socket related functions. */
+ * Low level socket related functions.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -65,7 +66,9 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 
 /**
  * Dequeue all socket buffers in the queue.
- * @param ns Socket to clear the socket buffers for. */
+ * @param ns
+ * Socket to clear the socket buffers for.
+ */
 void socket_buffer_clear(socket_struct *ns)
 {
     packet_struct *packet, *tmp;
@@ -78,7 +81,9 @@ void socket_buffer_clear(socket_struct *ns)
 
 /**
  * Write data to socket.
- * @param ns The socket we are writing to. */
+ * @param ns
+ * The socket we are writing to.
+ */
 void socket_buffer_write(socket_struct *ns)
 {
     while (ns->packets != NULL) {

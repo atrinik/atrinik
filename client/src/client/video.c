@@ -24,19 +24,23 @@
 
 /**
  * @file
- * Video-related code. */
+ * Video-related code.
+ */
 
 #include <global.h>
 
 /**
- * The display. */
+ * The display.
+ */
 x11_display_type SDL_display;
 /**
- * The window. */
+ * The window.
+ */
 x11_window_type SDL_window;
 
 /**
- * Initialize the video system. */
+ * Initialize the video system.
+ */
 void video_init(void)
 {
     SDL_SysWMinfo info;
@@ -71,7 +75,9 @@ void video_init(void)
 
 /**
  * Get the bits per pixel value to use
- * @return Bits per pixel. */
+ * @return
+ * Bits per pixel.
+ */
 int video_get_bpp(void)
 {
     return SDL_GetVideoInfo()->vfmt->BitsPerPixel;
@@ -79,7 +85,9 @@ int video_get_bpp(void)
 
 /**
  * Sets the screen surface to a new size, after updating ::Screensize.
- * @return 1 on success, 0 on failure. */
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int video_set_size(void)
 {
     SDL_Surface *new;
@@ -98,7 +106,9 @@ int video_set_size(void)
 /**
  * Calculate the video flags from the settings.
  * When settings are changed at runtime, this MUST be called again.
- * @return The flags */
+ * @return
+ * The flags
+ */
 uint32_t get_video_flags(void)
 {
     if (setting_get_int(OPT_CAT_CLIENT, OPT_FULLSCREEN)) {
@@ -115,13 +125,17 @@ uint32_t get_video_flags(void)
  * that pointers (i.e., the surface's pixels field) will be the same
  * after this call.
  *
- * @param surface Pointer to surface ptr to toggle. May be different
+ * @param surface
+ * Pointer to surface ptr to toggle. May be different
  * pointer on return. May be NULL on return due to failure.
- * @param flags Pointer to flags to set on surface. The value pointed
+ * @param flags
+ * Pointer to flags to set on surface. The value pointed
  * to will be XOR'd with SDL_FULLSCREEN before use. Actual flags set
  * will be filled into pointer. Contents are undefined on failure. Can
  * be NULL, in which case the surface's current flags are used.
- *  @return Non-zero on success, zero on failure. */
+ *  @return
+ * Non-zero on success, zero on failure.
+ */
 int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags)
 {
     size_t framesize = 0;

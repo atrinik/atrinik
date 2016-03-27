@@ -26,10 +26,13 @@
  * @file
  * Implements the /take command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <plugin.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_take(object *op, const char *command, char *params)
@@ -67,10 +70,10 @@ void command_take(object *op, const char *command, char *params)
             continue;
         }
 
-        ival = item_matched_string(op, tmp, params);
+        ival = object_matches_string(tmp, op, params);
 
         if (ival > 0) {
-            if (ival <= 2 && !can_pick(op, tmp)) {
+            if (ival <= 2 && !object_can_pick(op, tmp)) {
                 missed++;
             } else {
                 pick_up(op, tmp, 1);

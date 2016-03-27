@@ -1,0 +1,55 @@
+# Helm of infravision
+Allowed all
+chance 10
+difficulty 30
+artifact helm_infravision
+def_arch helm_iron
+Object
+title of infravision
+type 34
+item_level_art 30
+is_magical 1
+can_see_in_dark 1
+value 113000
+item_power 5
+end
+
+# Helm of demon eyes
+Allowed all
+chance 10
+difficulty 40
+artifact helm_xray
+def_arch helm_iron
+Object
+title of demon eyes
+type 34
+item_level_art 40
+is_magical 1
+xrays 1
+value 213000
+item_power 7
+end
+
+# Helm of Argoth
+Allowed !crown_generic, all
+chance 20
+difficulty 35
+artifact helm_argoth
+def_arch helm_iron
+Object
+title of Argoth
+item_level_art 35
+type 34
+is_magical 1
+ac_add 1
+con 1
+str 1
+protect_fire 17
+value 2500
+msg
+Argoth was an ancient dwarven city in a mountain which was infested with dragons.
+
+The dwarves specialized in equipment which helped them survive their environment.
+endmsg
+item_power 4
+end

@@ -25,7 +25,8 @@
 /**
  * @file
  * This is a simple shared strings package with a simple interface.
- * @author Kjetil T. Homme, Oslo 1992. */
+ * @author Kjetil T. Homme, Oslo 1992.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -65,8 +66,11 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Hashing function used by the shared string library.
- * @param str String to hash.
- * @return Hash of string, suitable for use in ::hash_table. */
+ * @param str
+ * String to hash.
+ * @return
+ * Hash of string, suitable for use in ::hash_table.
+ */
 static unsigned long hashstr(const char *str)
 {
     unsigned long hash = 0;
@@ -93,8 +97,11 @@ static unsigned long hashstr(const char *str)
 /**
  * Allocates and initializes a new shared_string structure, containing
  * the string str.
- * @param str String to store.
- * @return Sharing structure. */
+ * @param str
+ * String to store.
+ * @return
+ * Sharing structure.
+ */
 static shared_string *new_shared_string(const char *str)
 {
     shared_string *ss;
@@ -119,8 +126,11 @@ static shared_string *new_shared_string(const char *str)
 /**
  * This will add 'str' to the hash table. If there's no entry for this
  * string, a copy will be allocated, and a pointer to that is returned.
- * @param str String to share.
- * @return Pointer to string identical to str, but shared. */
+ * @param str
+ * String to share.
+ * @return
+ * Pointer to string identical to str, but shared.
+ */
 shstr *add_string(const char *str)
 {
     shared_string *ss;
@@ -200,9 +210,12 @@ shstr *add_string(const char *str)
 
 /**
  * This will increase the refcount of the string str.
- * @param str String which <b>must</b> have been returned from a previous
+ * @param str
+ * String which <b>must</b> have been returned from a previous
  * add_string().
- * @return str. */
+ * @return
+ * str.
+ */
 shstr *add_refcount(shstr *str)
 {
     TOOLKIT_PROTECT();
@@ -214,9 +227,12 @@ shstr *add_refcount(shstr *str)
 
 /**
  * This will return the refcount of the string str.
- * @param str String which <b>must</b> have been returned from a previous
+ * @param str
+ * String which <b>must</b> have been returned from a previous
  * add_string().
- * @return Refcount of the string. */
+ * @return
+ * Refcount of the string.
+ */
 int query_refcount(shstr *str)
 {
     TOOLKIT_PROTECT();
@@ -225,8 +241,11 @@ int query_refcount(shstr *str)
 
 /**
  * Searches a string in the shared strings.
- * @param str String to search for.
- * @return Pointer to identical string or NULL. */
+ * @param str
+ * String to search for.
+ * @return
+ * Pointer to identical string or NULL.
+ */
 shstr *find_string(const char *str)
 {
     shared_string *ss;
@@ -270,8 +289,10 @@ shstr *find_string(const char *str)
 /**
  * This will reduce the refcount, and if it has reached 0, str will be
  * freed.
- * @param str String to release, which <b>must</b> have been returned
- * from a previous add_string(). */
+ * @param str
+ * String to release, which <b>must</b> have been returned
+ * from a previous add_string().
+ */
 void free_string_shared(shstr *str)
 {
     shared_string *ss;
@@ -310,7 +331,8 @@ void free_string_shared(shstr *str)
  * A call to this function will cause the shstr API statistics to be dumped into
  * specified buffer.
  * @param[out] buf Buffer to use for writing. Must end with a NUL.
- * @param size Size of 'buf'.
+ * @param size
+ * Size of 'buf'.
  */
 void shstr_stats(char *buf, size_t size)
 {

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Header file for generic lists implementation. */
+ * Header file for generic lists implementation.
+ */
 
 #ifndef LIST_H
 #define LIST_H
@@ -39,12 +40,14 @@ typedef struct list_struct {
 
     /**
      * Parent X position, ie, X position of the surface the list is being
-     * drawn on. */
+     * drawn on.
+     */
     int px;
 
     /**
      * Parent Y position, ie, Y position of the surface the list is being
-     * drawn on. */
+     * drawn on.
+     */
     int py;
 
     /** List's maximum width. */
@@ -77,7 +80,8 @@ typedef struct list_struct {
     /**
      * Array of arrays of pointers to the text. In other words:
      *
-     * row -> col -> text. */
+     * row -> col -> text.
+     */
     char ***text;
 
     /** How many pixels to adjust the height of a row by. */
@@ -85,7 +89,8 @@ typedef struct list_struct {
 
     /**
      * Frame offset (used when drawing the frame around the rows and when
-     * coloring the row entries). */
+     * coloring the row entries).
+     */
     int16_t frame_offset;
 
     /** Height of the header with column names. */
@@ -93,24 +98,28 @@ typedef struct list_struct {
 
     /**
      * Currently highlighted row ID + 1, therefore, 0 means no
-     * highlighted row. */
+     * highlighted row.
+     */
     uint32_t row_highlighted;
 
     /**
      * Currently selected row ID + 1, therefore, 0 means no selected
-     * row. */
+     * row.
+     */
     uint32_t row_selected;
 
     /**
      * Row offset used for scrolling.
      *
      * - 0 = Row #0 is shown first in the list.
-     * - 10 = Row #10 is shown first in the list. */
+     * - 10 = Row #10 is shown first in the list.
+     */
     uint32_t row_offset;
 
     /**
      * Used for figuring out whether a double click occurred (keeps last
-     * ticks value). */
+     * ticks value).
+     */
     uint32_t click_tick;
 
     /** If 1, this list has the active focus. */
@@ -133,80 +142,113 @@ typedef struct list_struct {
 
     /**
      * Pointer to some custom data. If non-NULL, will be freed when list
-     * is destroyed. */
+     * is destroyed.
+     */
     void *data;
 
     /**
      * Function that will draw frame (and/or other effects) right before
      * the column names and the actual rows.
-     * @param list List. */
+     * @param list
+ * List.
+ */
     void (*draw_frame_func)(struct list_struct *list);
 
     /**
      * Function that will color the specified row.
-     * @param list List.
-     * @param row Row number, 0-[max visible rows].
-     * @param box Contains base x/y/width/height information to use. */
+     * @param list
+ * List.
+     * @param row
+ * Row number, 0-[max visible rows].
+     * @param box
+ * Contains base x/y/width/height information to use.
+ */
     void (*row_color_func)(struct list_struct *list, int row, SDL_Rect box);
 
     /**
      * Function to highlight a row (due to mouse being over it).
-     * @param list List.
-     * @param box Contains base x/y/width/height information to use. */
+     * @param list
+ * List.
+     * @param box
+ * Contains base x/y/width/height information to use.
+ */
     void (*row_highlight_func)(struct list_struct *list, SDL_Rect box);
 
     /**
      * Function to color a selected row.
-     * @param list List.
-     * @param box Contains base x/y/width/height information to use. */
+     * @param list
+ * List.
+     * @param box
+ * Contains base x/y/width/height information to use.
+ */
     void (*row_selected_func)(struct list_struct *list, SDL_Rect box);
 
     /**
      * Function to handle ESC key being pressed while the list had focus.
-     * @param list List. */
+     * @param list
+ * List.
+ */
     void (*handle_esc_func)(struct list_struct *list);
 
     /**
      * Function to handle enter key being pressed on a selected row, or
      * a row being double clicked.
-     * @param list List.
-     * @param Event Event that triggered this. */
+     * @param list
+ * List.
+     * @param Event
+ * Event that triggered this.
+ */
     void (*handle_enter_func)(struct list_struct *list, SDL_Event *event);
 
     /**
      * Custom function to call for handling keyboard events.
-     * @param list List.
-     * @param key Key ID.
+     * @param list
+ * List.
+     * @param key
+ * Key ID.
      * @retval -1 Did not handle the event, but should still attempt to
      * handle generic list events (eg, scrolling with arrow keys).
      * @retval 0 Did not handle the event.
-     * @retval 1 Handled the event. */
+     * @retval 1 Handled the event.
+     */
     int (*key_event_func)(struct list_struct *list, SDLKey key);
 
     /**
      * Hook to use for setting text color based on row/column.
-     * @param list List.
-     * @param row Text row.
-     * @param col Column.
+     * @param list
+ * List.
+     * @param row
+ * Text row.
+     * @param col
+ * Column.
      * @param[out] color What color to use.
      * @param[out] color_shadow What color to use for the text's shadow,
-     * NULL to disable shadow. */
+     * NULL to disable shadow.
+     */
     void (*text_color_hook)(struct list_struct *list, uint32_t row, uint32_t col, const char **color, const char **color_shadow);
 
     /**
      * Callback function to call after drawing one column in a list.
-     * @param list The list.
-     * @param row The row of the column that was drawn.
-     * @param col The column. */
+     * @param list
+ * The list.
+     * @param row
+ * The row of the column that was drawn.
+     * @param col
+ * The column.
+ */
     void (*post_column_func)(struct list_struct *list, uint32_t row, uint32_t col);
 
     /**
      * Callback function to call when a mouse has been detected to be
      * located over a list row.
-     * @param list The list.
-     * @param row The row in the list the mouse is over.
-     * @param event Event that triggered this - can be used to figure out
-     * whether the event was a click, a motion, etc. */
+     * @param list
+ * The list.
+     * @param row
+ * The row in the list the mouse is over.
+     * @param event
+ * Event that triggered this - can be used to figure out
+     * whether the event was a click, a motion, etc.
+     */
     void (*handle_mouse_row_func)(struct list_struct *list, uint32_t row, SDL_Event *event);
 } list_struct;
 
@@ -220,14 +262,17 @@ typedef struct list_struct {
 #define LIST_ROWS_HEIGHT(list) (LIST_ROW_HEIGHT((list)) * (list)->max_rows)
 /**
  * Adjust row ID by the row offset, thus transforming row ID to
- * 0-[max visible rows]. */
+ * 0-[max visible rows].
+ */
 #define LIST_ROW_OFFSET(row, list) ((row) - (list)->row_offset)
 /**
- * Figure out full height of the list, including its header. */
+ * Figure out full height of the list, including its header.
+ */
 #define LIST_HEIGHT_FULL(list) ((int) LIST_ROWS_HEIGHT((list)) + (list)->spacing + (list)->header_height)
 /**
  * Figure out the full width of the list, including its scrollbar, if it
- * has one. */
+ * has one.
+ */
 #define LIST_WIDTH_FULL(list) ((list)->width + ((list)->scrollbar_enabled ? (list)->scrollbar.background.w : 0))
 /** Calculate whether mouse is over the specified list. */
 #define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + LIST_WIDTH_FULL((list)) && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))

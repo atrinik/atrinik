@@ -13,7 +13,7 @@ is_evil 1
 direction 5
 terrain_flag 65
 randomitems mob_treant
-wis 3
+item_power 3
 animation treant_evil
 is_animated 1
 anim_speed 4

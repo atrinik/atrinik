@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Various skill related functions. */
+ * Various skill related functions.
+ */
 
 /* define the following for skills utility debugging */
 /* #define SKILL_UTIL_DEBUG */
@@ -33,6 +34,9 @@
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
 
 /** Table for stat modification of exp */
 float stat_exp_mult[MAX_STAT + 1] = {
@@ -46,7 +50,8 @@ float stat_exp_mult[MAX_STAT + 1] = {
 };
 
 /**
- * Used for calculating experience gained in calc_skill_exp(). */
+ * Used for calculating experience gained in calc_skill_exp().
+ */
 static float lev_exp[MAXLEVEL + 1] = {
     0.0f,     1.0f,     1.11f,    1.75f,    3.2f,
     5.5f,     10.0f,    20.0f,    35.25f,   66.1f,
@@ -82,10 +87,15 @@ static int do_skill_attack(object *tmp, object *op, char *string);
  * We handle all requests for skill use outside of some combat here.
  * We require a separate routine outside of fire() so as to allow monsters
  * to utilize skills.
- * @param op The object actually using the skill.
- * @param dir The direction in which the skill is used.
- * @param params String option for the skill.
- * @return 0 on failure of using the skill, non-zero otherwise. */
+ * @param op
+ * The object actually using the skill.
+ * @param dir
+ * The direction in which the skill is used.
+ * @param params
+ * String option for the skill.
+ * @return
+ * 0 on failure of using the skill, non-zero otherwise.
+ */
 int64_t do_skill(object *op, int dir, const char *params)
 {
     int64_t success = 0;
@@ -135,11 +145,15 @@ int64_t do_skill(object *op, int dir, const char *params)
 
 /**
  * Calculates amount of experience can be gained for successful use of a skill.
- * @param who Who used the skill. Cannot be NULL, and must be a player.
- * @param op Object that was 'defeated'.
- * @param level Level of the skill. If -1, will get level of who's chosen
+ * @param who
+ * Who used the skill. Cannot be NULL, and must be a player.
+ * @param op
+ * Object that was 'defeated'.
+ * @param level
+ * Level of the skill. If -1, will get level of who's chosen
  * skill.
- * @return Experience for the skill use.
+ * @return
+ * Experience for the skill use.
  */
 int64_t calc_skill_exp(object *who, object *op, int level)
 {
@@ -200,7 +214,8 @@ int64_t calc_skill_exp(object *who, object *op, int level)
 }
 
 /**
- * Initialize the experience system. */
+ * Initialize the experience system.
+ */
 void init_new_exp_system(void)
 {
     int i;
@@ -221,16 +236,19 @@ void init_new_exp_system(void)
 
         /* Set some default values for the archetype. */
         at->clone.stats.sp = i;
-        at->clone.level = 1;
         at->clone.stats.exp = 0;
     }
 }
 
 /**
  * Check skill for firing.
- * @param op Who is firing.
- * @param weapon Weapon that is being fired.
- * @return 1 on success, 0 on failure. */
+ * @param op
+ * Who is firing.
+ * @param weapon
+ * Weapon that is being fired.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int check_skill_to_fire(object *op, object *weapon)
 {
     int skillnr;
@@ -263,7 +281,9 @@ int check_skill_to_fire(object *op, object *weapon)
 /**
  * Linking skills with experience objects and creating a linked list of
  * skills for later fast access.
- * @param pl Player. */
+ * @param pl
+ * Player.
+ */
 void link_player_skills(object *pl)
 {
     bool fix;
@@ -280,8 +300,8 @@ void link_player_skills(object *pl)
         }
 
         if (!CONTR(pl)->skill_ptr[i]) {
-            tmp = object_create_clone(&skills[i].at->clone);
-            insert_ob_in_ob(tmp, pl);
+            tmp = object_clone(&skills[i].at->clone);
+            object_insert_into(tmp, pl, 0);
             CONTR(pl)->skill_ptr[i] = tmp;
         }
 
@@ -309,9 +329,13 @@ void link_player_skills(object *pl)
 
 /**
  * This changes the object's skill.
- * @param who Living to change skill for.
- * @param sk_index ID of the skill.
- * @return 0 on failure, 1 on success. */
+ * @param who
+ * Living to change skill for.
+ * @param sk_index
+ * ID of the skill.
+ * @return
+ * 0 on failure, 1 on success.
+ */
 int change_skill(object *who, int sk_index)
 {
     if (who->type != PLAYER) {
@@ -338,11 +362,17 @@ int change_skill(object *who, int sk_index)
  * an opponent is already supplied by move_object(), we move right onto
  * do_skill_attack(), otherwise we find if an appropriate opponent
  * exists.
- * @param tmp Targetted monster.
- * @param pl What is attacking.
- * @param dir Attack direction.
- * @param string Describes the attack ("karate-chop", "punch", ...).
- * @return 1 if the attack damaged the opponent. */
+ * @param tmp
+ * Targetted monster.
+ * @param pl
+ * What is attacking.
+ * @param dir
+ * Attack direction.
+ * @param string
+ * Describes the attack ("karate-chop", "punch", ...).
+ * @return
+ * 1 if the attack damaged the opponent.
+ */
 int skill_attack(object *tmp, object *pl, int dir, char *string)
 {
     int xt, yt;
@@ -389,10 +419,15 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
  * skill_attack(). In this part we get on with attacking, take care of
  * messages from the attack and changes in invisible.
  * Returns true if the attack damaged the opponent.
- * @param tmp Targetted monster.
- * @param op What is attacking.
- * @param string Describes the attack ("karate-chop", "punch", ...).
- * @return 1 if the attack damaged the opponent. */
+ * @param tmp
+ * Targetted monster.
+ * @param op
+ * What is attacking.
+ * @param string
+ * Describes the attack ("karate-chop", "punch", ...).
+ * @return
+ * 1 if the attack damaged the opponent.
+ */
 static int do_skill_attack(object *tmp, object *op, char *string)
 {
     int success;
@@ -405,7 +440,7 @@ static int do_skill_attack(object *tmp, object *op, char *string)
         }
     }
 
-    success = attack_ob(tmp, op);
+    success = attack_object(tmp, op);
 
     /* Print appropriate messages to the player. */
     if (success && string != NULL) {
@@ -425,9 +460,12 @@ static int do_skill_attack(object *tmp, object *op, char *string)
 
 /**
  * Get the level of player's chosen skill.
- * @param op Player.
- * @return The level of the chosen skill, level of the player if no
- * chosen skill. */
+ * @param op
+ * Player.
+ * @return
+ * The level of the chosen skill, level of the player if no
+ * chosen skill.
+ */
 int SK_level(object *op)
 {
     object *head = op->head ? op->head : op;
@@ -449,8 +487,11 @@ int SK_level(object *op)
 
 /**
  * Get pointer to player's chosen skill object.
- * @param op Player.
- * @return Chosen skill object, NULL if no chosen skill. */
+ * @param op
+ * Player.
+ * @return
+ * Chosen skill object, NULL if no chosen skill.
+ */
 object *SK_skill(object *op)
 {
     object *head = op->head ? op->head : op;

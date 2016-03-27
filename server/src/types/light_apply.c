@@ -31,20 +31,27 @@
 
 #include <global.h>
 #include <arch.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::apply_func */
-static int apply_func(object *op, object *applier, int aflags)
+/** @copydoc object_methods_t::apply_func */
+static int
+apply_func (object *op, object *applier, int aflags)
 {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(applier != NULL);
+
     char *name = object_get_name_s(op, applier);
 
     if (op->glow_radius != 0 && op->env != NULL && op->env->type == PLAYER &&
-            !QUERY_FLAG(op, FLAG_APPLIED)) {
+        !QUERY_FLAG(op, FLAG_APPLIED)) {
         /* The object is lit and in player's inventory but it's not yet applied,
          * so we just fall through and let the player equip the object. */
-    } else if (op->glow_radius) {
+    } else if (op->glow_radius != 0) {
         op = object_stack_get_reinsert(op, 1);
 
-        draw_info_format(COLOR_WHITE, applier, "You extinguish the %s.", name);
+        draw_info_format(COLOR_WHITE, applier,
+                         "You extinguish the %s.",
+                         name);
 
         CLEAR_FLAG(op, FLAG_CHANGING);
 
@@ -56,9 +63,9 @@ static int apply_func(object *op, object *applier, int aflags)
             esrv_update_item(UPD_FACE | UPD_ANIMSPEED, op);
         }
 
-        if (op->map) {
-            adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
-            update_object(op, UP_OBJ_FACE);
+        if (op->map != NULL) {
+            adjust_light_source(op->map, op->x, op->y, -op->glow_radius);
+            object_update(op, UP_OBJ_FACE);
         }
 
         op->glow_radius = 0;
@@ -68,17 +75,19 @@ static int apply_func(object *op, object *applier, int aflags)
             efree(name);
             return OBJECT_METHOD_OK;
         }
-    } else if (op->last_sp) {
+    } else if (op->last_sp != 0) {
         op = object_stack_get_reinsert(op, 1);
 
-        draw_info_format(COLOR_WHITE, applier, "You light the %s.", name);
+        draw_info_format(COLOR_WHITE, applier,
+                         "You light the %s.",
+                         name);
 
         /* Light source that burns out... */
-        if (op->last_eat) {
+        if (op->last_eat != 0) {
             SET_FLAG(op, FLAG_CHANGING);
         }
 
-        if (op->anim_speed) {
+        if (op->anim_speed != 0) {
             SET_FLAG(op, FLAG_ANIMATE);
             op->animation_id = op->arch->clone.animation_id;
             esrv_update_item(UPD_FACE | UPD_ANIM | UPD_ANIMSPEED, op);
@@ -86,9 +95,9 @@ static int apply_func(object *op, object *applier, int aflags)
 
         op->glow_radius = op->last_sp;
 
-        if (op->map) {
+        if (op->map != NULL) {
             adjust_light_source(op->map, op->x, op->y, op->glow_radius);
-            update_object(op, UP_OBJ_FACE);
+            object_update(op, UP_OBJ_FACE);
         }
 
         /* It's already applied, nothing else to do. */
@@ -97,7 +106,9 @@ static int apply_func(object *op, object *applier, int aflags)
             return OBJECT_METHOD_OK;
         }
     } else {
-        draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", name);
+        draw_info_format(COLOR_WHITE, applier,
+                         "The %s can't be lit.",
+                         name);
         efree(name);
         return OBJECT_METHOD_OK;
     }
@@ -113,8 +124,9 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /**
- * Initialize the applyable light type object methods. */
-void object_type_init_light_apply(void)
+ * Initialize the applyable light type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(light_apply)
 {
-    object_type_methods[LIGHT_APPLY].apply_func = apply_func;
+    OBJECT_METHODS(LIGHT_APPLY)->apply_func = apply_func;
 }

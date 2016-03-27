@@ -15,7 +15,7 @@ terrain_flag 65
 weapon_speed 0.035
 attack_impact 90
 type 80
-wis 3
+item_power 3
 animation elvish_lady
 is_animated 1
 anim_speed 4

@@ -14,7 +14,7 @@ attack_fire 80
 protect_fire 100
 protect_cold -25
 type 80
-wis 3
+item_power 3
 animation elemental_fire
 is_animated 1
 anim_speed 4

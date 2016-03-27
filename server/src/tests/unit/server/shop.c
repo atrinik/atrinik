@@ -28,6 +28,8 @@
 #include <check_proto.h>
 #include <toolkit_string.h>
 #include <arch.h>
+#include <object.h>
+#include <object_methods.h>
 
 START_TEST(test_shop_get_cost)
 {

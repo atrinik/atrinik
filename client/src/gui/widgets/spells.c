@@ -26,7 +26,8 @@
  * @file
  * Implements spells type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -75,7 +76,7 @@ void spells_init(void)
     memset(&spell_list, 0, sizeof(*spell_list) * arraysize(spell_list));
     memset(&spell_list_num, 0,
             sizeof(*spell_list_num) * arraysize(spell_list_num));
-    spell_list_path = 0;
+    spell_list_path = SPELL_PATH_NUM - 1;
 }
 
 /**
@@ -97,7 +98,8 @@ void spells_deinit(void)
 
 /**
  * Handle double click inside the spells list.
- * @param list The spells list.
+ * @param list
+ * The spells list.
  */
 static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
@@ -159,7 +161,8 @@ static void spell_list_reload(void)
 
 /**
  * Handle button repeating (and actual pressing).
- * @param button The button.
+ * @param button
+ * The button.
  */
 static void button_repeat_func(button_struct *button)
 {
@@ -185,10 +188,12 @@ static void button_repeat_func(button_struct *button)
  * Find a spell in the ::spell_list based on its name.
  *
  * Partial spell names will be matched.
- * @param name Spell name to find.
+ * @param name
+ * Spell name to find.
  * @param[out] spell_path Will contain the spell's path.
  * @param[out] spell_id Will contain the spell's ID.
- * @return 1 if the spell was found, 0 otherwise.
+ * @return
+ * 1 if the spell was found, 0 otherwise.
  */
 int spell_find(const char *name, size_t *spell_path, size_t *spell_id)
 {
@@ -215,10 +220,12 @@ int spell_find(const char *name, size_t *spell_path, size_t *spell_id)
 
 /**
  * Find a spell in the ::spell_list, based on a matching object.
- * @param op Object to find.
+ * @param op
+ * Object to find.
  * @param[out] spell_path Will contain the spell's path.
  * @param[out] spell_id Will contain the spell's ID.
- * @return 1 if the spell was found, 0 otherwise.
+ * @return
+ * 1 if the spell was found, 0 otherwise.
  */
 int spell_find_object(object *op, size_t *spell_path, size_t *spell_id)
 {
@@ -239,8 +246,10 @@ int spell_find_object(object *op, size_t *spell_path, size_t *spell_id)
  * inside the currently selected spell path list.
  *
  * Partial spell names will be matched.
- * @param name Spell name to find.
- * @return The spell if found, NULL otherwise.
+ * @param name
+ * Spell name to find.
+ * @return
+ * The spell if found, NULL otherwise.
  */
 static spell_entry_struct *spell_find_path_selected(const char *name)
 {
@@ -275,9 +284,12 @@ static spell_entry_struct *spell_find_path_selected(const char *name)
 
 /**
  * Get spell from the ::spell_list structure.
- * @param spell_path Spell path.
- * @param spell_id Spell ID.
- * @return The spell.
+ * @param spell_path
+ * Spell path.
+ * @param spell_id
+ * Spell ID.
+ * @return
+ * The spell.
  */
 spell_entry_struct *spell_get(size_t spell_path, size_t spell_id)
 {
@@ -411,6 +423,17 @@ static void widget_draw(widgetdata *widget)
     if (spell != NULL) {
         SDL_Surface *icon;
         const char *status;
+
+        box.h = 30;
+        box.w = 150;
+        text_show(widget->surface,
+                  FONT_SERIF12,
+                  spell->spell->s_name,
+                  160,
+                  20,
+                  COLOR_HGOLD,
+                  TEXT_OUTLINE | TEXT_WORD_WRAP | TEXT_ALIGN_CENTER,
+                  &box);
 
         box.h = 120;
         box.w = 150;

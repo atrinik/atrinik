@@ -24,13 +24,16 @@
 
 /**
  * @file
- * Miscellaneous functions. */
+ * Miscellaneous functions.
+ */
 
 #include <global.h>
 
 /**
  * Opens an url in the system's default browser.
- * @param url URL to open. */
+ * @param url
+ * URL to open.
+ */
 void browser_open(const char *url)
 {
 #if defined(WIN32)
@@ -56,9 +59,13 @@ void browser_open(const char *url)
  * Get the full package version as string.
  *
  * If patch version is 0, it will not be appended to the version string.
- * @param dst Where to store the version.
- * @param dstlen Size of dst.
- * @return 'dst'. */
+ * @param dst
+ * Where to store the version.
+ * @param dstlen
+ * Size of dst.
+ * @return
+ * 'dst'.
+ */
 char *package_get_version_full(char *dst, size_t dstlen)
 {
 #if PACKAGE_VERSION_PATCH == 0
@@ -72,9 +79,13 @@ char *package_get_version_full(char *dst, size_t dstlen)
 /**
  * Get the partial package version. This means that the patch version
  * will not be included, even if it's not 0.
- * @param dst Where to store the version.
- * @param dstlen Size of dst.
- * @return 'dst' */
+ * @param dst
+ * Where to store the version.
+ * @param dstlen
+ * Size of dst.
+ * @return
+ * 'dst'
+ */
 char *package_get_version_partial(char *dst, size_t dstlen)
 {
     /* Upgrader version will overrule the package version if the upgrader
@@ -89,8 +100,11 @@ char *package_get_version_partial(char *dst, size_t dstlen)
 
 /**
  * Convert BMP file to PNG, if supported by the platform.
- * @param path File to convert.
- * @return 1 if the file was converted to PNG, 0 otherwise. */
+ * @param path
+ * File to convert.
+ * @return
+ * 1 if the file was converted to PNG, 0 otherwise.
+ */
 int bmp2png(const char *path)
 {
 #if defined(__GNUC__) && !defined(WIN32)
@@ -112,7 +126,9 @@ int bmp2png(const char *path)
 
 /**
  * Create a screenshot of the specified surface.
- * @param surface The surface to take a screenshot of. */
+ * @param surface
+ * The surface to take a screenshot of.
+ */
 void screenshot_create(SDL_Surface *surface)
 {
     char path[HUGE_BUF], timebuf[MAX_BUF];

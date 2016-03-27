@@ -24,15 +24,19 @@
 
 /**
  * @file
- * Handles god related code. */
+ * Handles god related code.
+ */
 
 #include <global.h>
 #include <arch.h>
 
 /**
  * Returns pointer to specified god's object through pntr_to_god_obj().
- * @param name God's name.
- * @return Pointer to god's object, NULL if doesn't match any god. */
+ * @param name
+ * God's name.
+ * @return
+ * Pointer to god's object, NULL if doesn't match any god.
+ */
 object *find_god(const char *name)
 {
     archetype_t *at;
@@ -50,8 +54,11 @@ object *find_god(const char *name)
  * Determines if op worships a god. Returns the godname if they do or
  * "none" if they have no god. In the case of an NPC, if they have no
  * god, we give them a random one.
- * @param op Object to get name of.
- * @return God name, "none" if nothing suitable. */
+ * @param op
+ * Object to get name of.
+ * @return
+ * God name, "none" if nothing suitable.
+ */
 const char *determine_god(object *op)
 {
     /* spells */

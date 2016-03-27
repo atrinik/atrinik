@@ -618,7 +618,7 @@ pow 20
 magic 5
 path_attuned 131104
 dex 2
-wis 5
+item_power 5
 type 83
 arch ability_cause_lig_wound
 end
@@ -669,7 +669,7 @@ name elven ranger
 level 36
 race half-elf
 dex 3
-wis 7
+item_power 7
 type 83
 end
 end
@@ -957,7 +957,7 @@ name elven ranger
 level 38
 race half-elf
 dex 3
-wis 7
+item_power 7
 type 83
 end
 end
@@ -1034,7 +1034,7 @@ maxsp 16
 pow 20
 magic 5
 dex 2
-wis 8
+item_power 8
 type 83
 arch ability_mbullet
 end
@@ -1723,7 +1723,7 @@ level 36
 race half-elf
 dex 3
 can_use_weapon 1
-wis 7
+item_power 7
 type 83
 end
 end
@@ -1922,7 +1922,7 @@ maxsp 16
 pow 20
 magic 5
 dex 2
-wis 5
+item_power 5
 type 83
 direction 3
 arch ability_cause_lig_wound
@@ -2172,7 +2172,7 @@ name elven ranger
 level 37
 race half-elf
 dex 3
-wis 8
+item_power 8
 type 83
 end
 end

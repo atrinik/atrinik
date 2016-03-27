@@ -2594,7 +2594,7 @@ level 50
 maxsp 16
 pow 20
 dex 2
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 end

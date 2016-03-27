@@ -26,14 +26,17 @@
  * @file
  * Generic lists implementation.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
  * Draw a frame in which the rows will be drawn.
- * @param list List to draw the frame for. */
+ * @param list
+ * List to draw the frame for.
+ */
 static void list_draw_frame(list_struct *list)
 {
     draw_frame(list->surface, list->x + list->frame_offset, LIST_ROWS_START(list), list->width, LIST_ROWS_HEIGHT(list));
@@ -41,9 +44,13 @@ static void list_draw_frame(list_struct *list)
 
 /**
  * Colorize a row.
- * @param list List.
- * @param row Row number, 0-[max visible rows].
- * @param box Contains base x/y/width/height information to use. */
+ * @param list
+ * List.
+ * @param row
+ * Row number, 0-[max visible rows].
+ * @param box
+ * Contains base x/y/width/height information to use.
+ */
 static void list_row_color(list_struct *list, int row, SDL_Rect box)
 {
     if (row & 1) {
@@ -55,8 +62,11 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 
 /**
  * Highlight a row (due to mouse being over it).
- * @param list List.
- * @param box Contains base x/y/width/height information to use. */
+ * @param list
+ * List.
+ * @param box
+ * Contains base x/y/width/height information to use.
+ */
 static void list_row_highlight(list_struct *list, SDL_Rect box)
 {
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x80, 0x00));
@@ -64,8 +74,11 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
 
 /**
  * Color a selected row.
- * @param list List.
- * @param box Contains base x/y/width/height information to use. */
+ * @param list
+ * List.
+ * @param box
+ * Contains base x/y/width/height information to use.
+ */
 static void list_row_selected(list_struct *list, SDL_Rect box)
 {
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
@@ -73,9 +86,13 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
 
 /**
  * Update list's parent X/Y coordinates.
- * @param list The list.
- * @param px Parent X.
- * @param py Parent Y. */
+ * @param list
+ * The list.
+ * @param px
+ * Parent X.
+ * @param py
+ * Parent Y.
+ */
 void list_set_parent(list_struct *list, int px, int py)
 {
     list->px = px;
@@ -84,10 +101,15 @@ void list_set_parent(list_struct *list, int px, int py)
 
 /**
  * Create new list.
- * @param max_rows Maximum number of visible rows to show.
- * @param cols How many columns per row.
- * @param spacing Spacing between column names and the actual rows start.
- * @return The created list. */
+ * @param max_rows
+ * Maximum number of visible rows to show.
+ * @param cols
+ * How many columns per row.
+ * @param spacing
+ * Spacing between column names and the actual rows start.
+ * @return
+ * The created list.
+ */
 list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing)
 {
     list_struct *list = ecalloc(1, sizeof(list_struct));
@@ -128,11 +150,16 @@ list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing)
 
 /**
  * Add text to list.
- * @param list List to add to.
- * @param row Row ID to add to. If it doesn't exist yet, it will be
+ * @param list
+ * List to add to.
+ * @param row
+ * Row ID to add to. If it doesn't exist yet, it will be
  * allocated.
- * @param col Column ID.
- * @param str Text to add. */
+ * @param col
+ * Column ID.
+ * @param str
+ * Text to add.
+ */
 void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str)
 {
     if (!list) {
@@ -163,8 +190,11 @@ void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str)
 
 /**
  * Remove row from a list.
- * @param list List.
- * @param row Row ID to remove. */
+ * @param list
+ * List.
+ * @param row
+ * Row ID to remove.
+ */
 void list_remove_row(list_struct *list, uint32_t row)
 {
     uint32_t col, row2;
@@ -195,13 +225,20 @@ void list_remove_row(list_struct *list, uint32_t row)
 
 /**
  * Set options for one column.
- * @param list List.
- * @param col Column ID.
- * @param width The column's ID. -1 to leave default (0).
- * @param spacing Spacing between columns. -1 to leave default (0).
- * @param name Name of the column. NULL to leave default (no name shown).
- * @param centered Whether to center the drawn name/text in the column.
- * -1 to leave default (not centered). */
+ * @param list
+ * List.
+ * @param col
+ * Column ID.
+ * @param width
+ * The column's ID. -1 to leave default (0).
+ * @param spacing
+ * Spacing between columns. -1 to leave default (0).
+ * @param name
+ * Name of the column. NULL to leave default (no name shown).
+ * @param centered
+ * Whether to center the drawn name/text in the column.
+ * -1 to leave default (not centered).
+ */
 void list_set_column(list_struct *list, uint32_t col, int width, int spacing, const char *name, int centered)
 {
     if (col > list->cols) {
@@ -239,8 +276,11 @@ void list_set_column(list_struct *list, uint32_t col, int width, int spacing, co
 
 /**
  * Change list's font.
- * @param list Which list to change font for.
- * @param font Font to use. */
+ * @param list
+ * Which list to change font for.
+ * @param font
+ * Font to use.
+ */
 void list_set_font(list_struct *list, font_struct *font)
 {
     if (list->font != NULL) {
@@ -256,7 +296,9 @@ void list_set_font(list_struct *list, font_struct *font)
 
 /**
  * Enable scrollbar.
- * @param list List to enable scrollbar on. */
+ * @param list
+ * List to enable scrollbar on.
+ */
 void list_scrollbar_enable(list_struct *list)
 {
     list->scrollbar_enabled = 1;
@@ -265,8 +307,11 @@ void list_scrollbar_enable(list_struct *list)
 
 /**
  * Check whether the list needs redrawing.
- * @param list List to check.
- * @return 1 if the list needs redrawing, 0 otherwise. */
+ * @param list
+ * List to check.
+ * @return
+ * 1 if the list needs redrawing, 0 otherwise.
+ */
 int list_need_redraw(list_struct *list)
 {
     if (!list) {
@@ -282,9 +327,13 @@ int list_need_redraw(list_struct *list)
 
 /**
  * Show one list.
- * @param list List to show.
- * @param x X position.
- * @param y Y position. */
+ * @param list
+ * List to show.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ */
 void list_show(list_struct *list, int x, int y)
 {
     uint32_t row, col;
@@ -402,7 +451,9 @@ void list_show(list_struct *list, int x, int y)
 
 /**
  * Clear the list's rows.
- * @param list The list. */
+ * @param list
+ * The list.
+ */
 void list_clear_rows(list_struct *list)
 {
     uint32_t row, col;
@@ -429,7 +480,9 @@ void list_clear_rows(list_struct *list)
 
 /**
  * Clear and free list's entries.
- * @param list List. */
+ * @param list
+ * List.
+ */
 void list_clear(list_struct *list)
 {
     list_clear_rows(list);
@@ -442,7 +495,9 @@ void list_clear(list_struct *list)
 /**
  * Ensure the list's offsets are in a valid range. The offsets could be
  * invalid due to a row removal, for example.
- * @param list List to ensure for. */
+ * @param list
+ * List to ensure for.
+ */
 void list_offsets_ensure(list_struct *list)
 {
     if (list->row_selected <= 1) {
@@ -461,7 +516,9 @@ void list_offsets_ensure(list_struct *list)
 /**
  * Remove the specified list from the linked list of visible lists and
  * deinitialize it.
- * @param list List to remove. */
+ * @param list
+ * List to remove.
+ */
 void list_remove(list_struct *list)
 {
     uint32_t col;
@@ -497,9 +554,13 @@ void list_remove(list_struct *list)
 
 /**
  * Scroll the list in the specified direction by the specified amount.
- * @param list List to scroll.
- * @param up If 1, scroll the list upwards, otherwise downwards.
- * @param scroll Amount to scroll by. */
+ * @param list
+ * List to scroll.
+ * @param up
+ * If 1, scroll the list upwards, otherwise downwards.
+ * @param scroll
+ * Amount to scroll by.
+ */
 void list_scroll(list_struct *list, int up, int scroll)
 {
     /* The actual values are unsigned. Changing them to signed here
@@ -551,9 +612,13 @@ void list_scroll(list_struct *list, int up, int scroll)
 
 /**
  * Handle keyboard event for the specified list.
- * @param list List.
- * @param event The event.
- * @return 1 if we handled the event, 0 otherwise. */
+ * @param list
+ * List.
+ * @param event
+ * The event.
+ * @return
+ * 1 if we handled the event, 0 otherwise.
+ */
 int list_handle_keyboard(list_struct *list, SDL_Event *event)
 {
     if (!list) {
@@ -623,9 +688,13 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
 /**
  * Handle mouse events for one list. Checking whether the mouse is over
  * the list should have been done before calling this.
- * @param list The list.
- * @param event Event.
- * @return 1 if the event was handled, 0 otherwise. */
+ * @param list
+ * The list.
+ * @param event
+ * Event.
+ * @return
+ * 1 if the event was handled, 0 otherwise.
+ */
 int list_handle_mouse(list_struct *list, SDL_Event *event)
 {
     uint32_t row, col, old_highlighted, old_selected;
@@ -740,9 +809,13 @@ int list_mouse_get_pos(list_struct *list, int mx, int my, uint32_t *row, uint32_
 
 /**
  * Used for alphabetical sorting in list_sort().
- * @param a What to compare.
- * @param b What to compare against.
- * @return Return value of strcmp() against the two entries. */
+ * @param a
+ * What to compare.
+ * @param b
+ * What to compare against.
+ * @return
+ * Return value of strcmp() against the two entries.
+ */
 static int list_compare_alpha(const void *a, const void *b)
 {
     return strcmp(((char ***) a)[0][0], ((char ***) b)[0][0]);
@@ -750,9 +823,12 @@ static int list_compare_alpha(const void *a, const void *b)
 
 /**
  * Sort a list's entries.
- * @param list List to sort.
- * @param type How to sort, one of @ref LIST_SORT_xxx.
- * @note Sorting is done by looking at the first column of each row. */
+ * @param list
+ * List to sort.
+ * @param type
+ * How to sort, one of @ref LIST_SORT_xxx.
+ * @note Sorting is done by looking at the first column of each row.
+ */
 void list_sort(list_struct *list, int type)
 {
     if (!list->text) {
@@ -767,10 +843,15 @@ void list_sort(list_struct *list, int type)
 
 /**
  * Set the selected row based on column's text.
- * @param list The list.
- * @param str Text to search for in all the rows.
- * @param col The column to check value of in each row.
- * @return 1 if new selected row was set, 0 otherwise. */
+ * @param list
+ * The list.
+ * @param str
+ * Text to search for in all the rows.
+ * @param col
+ * The column to check value of in each row.
+ * @return
+ * 1 if new selected row was set, 0 otherwise.
+ */
 int list_set_selected(list_struct *list, const char *str, uint32_t col)
 {
     uint32_t row;
@@ -788,9 +869,12 @@ int list_set_selected(list_struct *list, const char *str, uint32_t col)
 
 /**
  * Acquire text at the specified column of the currently selected row.
- * @param list List.
- * @param col Column to get text at.
- * @return Pointer to column's text, NULL if there is no row selected.
+ * @param list
+ * List.
+ * @param col
+ * Column to get text at.
+ * @return
+ * Pointer to column's text, NULL if there is no row selected.
  */
 const char *list_get_selected(list_struct *list, uint32_t col)
 {

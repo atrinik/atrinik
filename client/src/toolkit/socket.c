@@ -146,10 +146,13 @@ TOOLKIT_DEINIT_FUNC_FINISH
 /**
  * Creates a new socket structure, complete with a socket for the specified
  * host/port.
- * @param host The host(name). Can be an IP address (either IPv4 or IPv6) or
+ * @param host
+ * The host(name). Can be an IP address (either IPv4 or IPv6) or
  * a hostname. Can be NULL.
- * @param port Port to connec to.
- * @return Newly allocated socket, NULL in case of failure.
+ * @param port
+ * Port to connec to.
+ * @return
+ * Newly allocated socket, NULL in case of failure.
  */
 socket_t *socket_create(const char *host, uint16_t port)
 {
@@ -196,12 +199,13 @@ socket_t *socket_create(const char *host, uint16_t port)
                 LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)",
                         s_strerror(s_errno), s_errno);
                 socket_close(sc);
+                freeaddrinfo(res);
                 goto error;
             }
         }
 #endif
 
-        memcpy(&sc->addr, ai->ai_addr, sizeof(sc->addr));
+        memcpy(&sc->addr, ai->ai_addr, res->ai_addrlen);
         break;
     }
 
@@ -253,8 +257,10 @@ error:
 
 /**
  * Acquire the socket's address as a string representation.
- * @param sc Socket.
- * @return Pointer to a static buffer containing the socket's address. Will be
+ * @param sc
+ * Socket.
+ * @return
+ * Pointer to a static buffer containing the socket's address. Will be
  * overwritten with the next call.
  */
 char *socket_get_addr(socket_t *sc)
@@ -268,8 +274,10 @@ char *socket_get_addr(socket_t *sc)
 
 /**
  * Acquire a string representation of the socket (its address and port).
- * @param sc Socket.
- * @return Pointer to a static buffer containing the socket's string
+ * @param sc
+ * Socket.
+ * @return
+ * Pointer to a static buffer containing the socket's string
  * representation. Will be overwritten with the next call.
  */
 char *socket_get_str(socket_t *sc)
@@ -281,10 +289,14 @@ char *socket_get_str(socket_t *sc)
 
 /**
  * Compare the socket's address to another address/subnet.
- * @param sc Socket to compare.
- * @param addr Address. IPv4 or IPv6.
- * @param plen Prefix length; the subnet.
- * @return 0 if the socket's address matches the supplied address/subnet,
+ * @param sc
+ * Socket to compare.
+ * @param addr
+ * Address. IPv4 or IPv6.
+ * @param plen
+ * Prefix length; the subnet.
+ * @return
+ * 0 if the socket's address matches the supplied address/subnet,
  * anything else otherwise.
  */
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
@@ -339,8 +351,10 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
 
 /**
  * Acquire the socket's file descriptor.
- * @param sc Socket.
- * @return The file descriptor.
+ * @param sc
+ * Socket.
+ * @return
+ * The file descriptor.
  */
 int socket_fd(socket_t *sc)
 {
@@ -353,8 +367,10 @@ int socket_fd(socket_t *sc)
 /**
  * Connect the specified socket to the host/port specified during the socket
  * structure's creation (using socket_create()).
- * @param sc The socket.
- * @return True on success, false on failure.
+ * @param sc
+ * The socket.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_connect(socket_t *sc)
 {
@@ -412,8 +428,10 @@ done:
 
 /**
  * Begin listening on the specified socket.
- * @param sc Socket.
- * @return True on success, false on failure.
+ * @param sc
+ * Socket.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_bind(socket_t *sc)
 {
@@ -437,8 +455,10 @@ bool socket_bind(socket_t *sc)
 
 /**
  * Accept an incoming connection on the specified socket.
- * @param sc Socket.
- * @return Newly allocated socket structure containing a valid handle, NULL
+ * @param sc
+ * Socket.
+ * @return
+ * Newly allocated socket structure containing a valid handle, NULL
  * on failure.
  */
 socket_t *socket_accept(socket_t *sc)
@@ -461,11 +481,15 @@ socket_t *socket_accept(socket_t *sc)
 
 /**
  * Read data from the socket into a buffer.
- * @param sc Socket to read from.
- * @param buf Buffer to read into.
- * @param len Maximum number of bytes to read into the buffer.
+ * @param sc
+ * Socket to read from.
+ * @param buf
+ * Buffer to read into.
+ * @param len
+ * Maximum number of bytes to read into the buffer.
  * @param[out] amt Will contain the number of bytes written into the buffer.
- * @return True on success, false if there was an error and the connection
+ * @return
+ * True on success, false if there was an error and the connection
  * should be closed.
  */
 bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
@@ -512,11 +536,16 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
 
 /**
  * Write data to the socket.
- * @param sc Socket to write to.
- * @param buf Data to write.
- * @param len Maximum number of bytes to write.
- * @param amt Total amount of bytes written.
- * @return True on success, false if there was an error and the connection
+ * @param sc
+ * Socket to write to.
+ * @param buf
+ * Data to write.
+ * @param len
+ * Maximum number of bytes to write.
+ * @param amt
+ * Total amount of bytes written.
+ * @return
+ * True on success, false if there was an error and the connection
  * should be closed.
  */
 bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
@@ -561,8 +590,10 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
 
 /**
  * Checks if socket's file descriptor is valid.
- * @param sc Socket to check.
- * @return True if the socket's file descriptor is valid, false otherwise.
+ * @param sc
+ * Socket to check.
+ * @return
+ * True if the socket's file descriptor is valid, false otherwise.
  */
 bool socket_is_fd_valid(socket_t *sc)
 {
@@ -579,10 +610,14 @@ bool socket_is_fd_valid(socket_t *sc)
 
 /**
  * Changes the socket's linger option.
- * @param sc Socket.
- * @param enable Whether to enable linger.
- * @param linger Linger value.
- * @return True on success, false on failure.
+ * @param sc
+ * Socket.
+ * @param enable
+ * Whether to enable linger.
+ * @param linger
+ * Linger value.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger)
 {
@@ -606,9 +641,12 @@ bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger)
 
 /**
  * Changes the socket's reuse address option.
- * @param sc Socket.
- * @param enable Whether to enable address reuse.
- * @return True on success, false on failure.
+ * @param sc
+ * Socket.
+ * @param enable
+ * Whether to enable address reuse.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_opt_reuse_addr(socket_t *sc, bool enable)
 {
@@ -629,10 +667,13 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable)
 
 /**
  * Makes the socket blocking/non-blocking.
- * @param sc Socket.
- * @param enable If true, socket will be changed to non-blocking, otherwise it
+ * @param sc
+ * Socket.
+ * @param enable
+ * If true, socket will be changed to non-blocking, otherwise it
  * will be changed to blocking.
- * @return True on success, false on failure.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_opt_non_blocking(socket_t *sc, bool enable)
 {
@@ -671,9 +712,12 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable)
 
 /**
  * Turns TCP_NODELAY socket option on/off.
- * @param sc Socket.
- * @param enable Whether to enable or disable TCP_NODELAY.
- * @return True on success, false on failure.
+ * @param sc
+ * Socket.
+ * @param enable
+ * Whether to enable or disable TCP_NODELAY.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_opt_ndelay(socket_t *sc, bool enable)
 {
@@ -694,10 +738,13 @@ bool socket_opt_ndelay(socket_t *sc, bool enable)
 
 /**
  * Changes the socket's send buffer size option.
- * @param sc Socket.
- * @param bufsize New send buffer size. If smaller than existing buffer size,
+ * @param sc
+ * Socket.
+ * @param bufsize
+ * New send buffer size. If smaller than existing buffer size,
  * nothing is done.
- * @return True on success, false on failure.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_opt_send_buffer(socket_t *sc, int bufsize)
 {
@@ -727,10 +774,13 @@ bool socket_opt_send_buffer(socket_t *sc, int bufsize)
 
 /**
  * Changes the socket's receive buffer size option.
- * @param sc Socket.
- * @param bufsize New receive buffer size. If smaller than existing buffer size,
+ * @param sc
+ * Socket.
+ * @param bufsize
+ * New receive buffer size. If smaller than existing buffer size,
  * nothing is done.
- * @return True on success, false on failure.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_opt_recv_buffer(socket_t *sc, int bufsize)
 {
@@ -761,7 +811,8 @@ bool socket_opt_recv_buffer(socket_t *sc, int bufsize)
 /**
  * Destroys the specified socket, freeing all data associated with it and
  * closing any file descriptors.
- * @param sc Socket.
+ * @param sc
+ * Socket.
  */
 void socket_destroy(socket_t *sc)
 {
@@ -777,7 +828,8 @@ void socket_destroy(socket_t *sc)
 
 /**
  * Closes file descriptor associated with the socket.
- * @param sc Socket.
+ * @param sc
+ * Socket.
  */
 void socket_close(socket_t *sc)
 {
@@ -796,9 +848,11 @@ void socket_close(socket_t *sc)
 
 /**
  * Convert an IPv4/IPv6 address to a binary representation.
- * @param host IP address.
+ * @param host
+ * IP address.
  * @param[out] addr Where to store the binary representation.
- * @return True on success, false on failure.
+ * @return
+ * True on success, false on failure.
  */
 bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
 {
@@ -901,10 +955,14 @@ static const char *inet_ntop(int af, const void *src, char *dst, size_t size)
 /**
  * Convert a binary representation of an IP (either IPv4 or IPv6) address into
  * text form.
- * @param addr Binary representation of the IP.
- * @param buf Where to store the text representation.
- * @param bufsize Size of 'buf'.
- * @return 'buf' on success, NULL on failure.
+ * @param addr
+ * Binary representation of the IP.
+ * @param buf
+ * Where to store the text representation.
+ * @param bufsize
+ * Size of 'buf'.
+ * @return
+ * 'buf' on success, NULL on failure.
  */
 const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
         size_t bufsize)
@@ -932,8 +990,10 @@ const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
 /**
  * Acquire the default (maximum) prefix length (the subnet) for the specified
  * address, ie, 32 for IPv4 and 128 for IPv6.
- * @param addr The address.
- * @return Default prefix length.
+ * @param addr
+ * The address.
+ * @return
+ * Default prefix length.
  */
 unsigned short socket_addr_plen(const struct sockaddr_storage *addr)
 {
@@ -956,10 +1016,14 @@ unsigned short socket_addr_plen(const struct sockaddr_storage *addr)
 
 /**
  * Compare the specified address to another address/subnet.
- * @param a Address to compare against.
- * @param b Address to compare.
- * @param plen Prefix length; the subnet.
- * @return 0 if the s address matches the supplied address/subnet, anything
+ * @param a
+ * Address to compare against.
+ * @param b
+ * Address to compare.
+ * @param plen
+ * Prefix length; the subnet.
+ * @return
+ * 0 if the s address matches the supplied address/subnet, anything
  * else otherwise.
  */
 int socket_addr_cmp(const struct sockaddr_storage *a,
@@ -1033,8 +1097,10 @@ int socket_addr_cmp(const struct sockaddr_storage *a,
 /**
  * Selects the best cipher from the list of available ciphers, which is
  * obtained by creating a dummy SSL session.
- * @param ctx Context to select the best cipher for.
- * @return 1 on success, 0 on failure.
+ * @param ctx
+ * Context to select the best cipher for.
+ * @return
+ * 1 on success, 0 on failure.
  */
 static int socket_ssl_ctx_select_cipher(SSL_CTX *ctx)
 {

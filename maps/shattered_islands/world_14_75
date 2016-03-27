@@ -349,7 +349,7 @@ arch skel_fighter2
 type 83
 level 17
 spawn_time 19:00 - 7:00
-wis 2
+item_power 2
 end
 end
 arch floor_earth1b
@@ -387,7 +387,7 @@ arch skel_fighter1
 type 83
 level 18
 spawn_time 19:00 - 7:00
-wis 2
+item_power 2
 end
 end
 arch floor_earth1c
@@ -1060,7 +1060,7 @@ arch skel_fighter3
 type 83
 level 18
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1d
@@ -1323,7 +1323,7 @@ arch skel_fighter1
 type 83
 level 17
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1d
@@ -1371,7 +1371,7 @@ arch skel_mage
 type 83
 level 21
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 direction 1
 arch ability_icestorm
 end
@@ -1788,7 +1788,7 @@ arch skel_fighter3
 type 83
 level 20
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1a
@@ -2084,7 +2084,7 @@ arch skel_mage
 type 83
 level 21
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 direction 1
 arch ability_mbullet
 end
@@ -2179,7 +2179,7 @@ arch skel_fighter3
 type 83
 level 18
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1d
@@ -2205,7 +2205,7 @@ arch skel_fighter2
 type 83
 level 20
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 end
 end
 arch floor_earth1c
@@ -2399,7 +2399,7 @@ arch skel_mage
 type 83
 level 22
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 arch ability_mbullet
 end
 arch ability_icestorm
@@ -2726,7 +2726,7 @@ arch skel_mage
 type 83
 level 21
 spawn_time 19:00 - 7:00
-wis 5
+item_power 5
 direction 7
 arch ability_mbullet
 end

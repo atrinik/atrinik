@@ -24,16 +24,22 @@
 
 /**
  * @file
- * Random map floor handling. */
+ * Random map floor handling.
+ */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Creates the Atrinik map structure from the layout, and adds the floor.
- * @param floorstyle floor style. Can be NULL, in which case a random one
+ * @param floorstyle
+ * floor style. Can be NULL, in which case a random one
  * is chosen.
- * @param RP Random map parameters.
- * @return Atrinik map structure. */
+ * @param RP
+ * Random map parameters.
+ * @return
+ * Atrinik map structure.
+ */
 mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
 {
     char styledirname[256], stylefilepath[256];
@@ -55,13 +61,13 @@ mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
     /* Fill up the map with the given floor style */
     for (x = 0; x < RP->Xsize; x++) {
         for (y = 0; y < RP->Ysize; y++) {
-            object *the_floor = pick_random_object(style_map), *thisfloor = get_object();
+            object *the_floor = pick_random_object(style_map), *thisfloor = object_get();
 
-            copy_object(the_floor, thisfloor, 0);
+            object_copy(thisfloor, the_floor, false);
             thisfloor->x = x;
             thisfloor->y = y;
 
-            insert_ob_in_map(thisfloor, newMap, thisfloor, INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(thisfloor, newMap, thisfloor, INS_NO_MERGE | INS_NO_WALK_ON);
         }
     }
 

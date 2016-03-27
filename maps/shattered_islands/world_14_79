@@ -25,7 +25,7 @@ arch quickwood
 type 83
 level 12
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_8
@@ -623,7 +623,7 @@ arch quickwood
 type 83
 level 11
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_2
@@ -803,7 +803,7 @@ arch quickwood
 type 83
 level 11
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_3
@@ -841,7 +841,7 @@ arch quickwood
 type 83
 level 11
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_2
@@ -1335,7 +1335,7 @@ arch treant_evil
 type 83
 level 11
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_6
@@ -1515,7 +1515,7 @@ arch treant_evil
 type 83
 level 12
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_8
@@ -1775,7 +1775,7 @@ arch quickwood
 type 83
 level 11
 unaggressive 1
-wis 4
+item_power 4
 end
 end
 arch grassd_4

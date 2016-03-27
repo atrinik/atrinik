@@ -24,21 +24,40 @@
 
 /**
  * @file
- * Spell related helper functions. */
+ * Spell related helper functions.
+ */
 
 #include <global.h>
 #include <spellist.h>
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <object_methods.h>
 
 /**
  * Array of pointers to archetypes used by the spells for quick
- * access. */
+ * access.
+ */
 struct archetype *spellarch[NROFREALSPELLS];
 
 /**
- * Initialize spells. */
+ * Bonus to spell damage. Based on power.
+ */
+static double spell_dam_bonus[MAX_STAT + 1] = {
+    -2.5,                               // 0
+    -2.0, -1.75, -1.5, -1.25, -1.0,     // 1-5
+    -0.5, -0.5, -0.5, -0.25, -0.25,     // 6-10
+    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
+    0.15, 0.25, 0.4, 0.5, 0.65,         // 16-20
+    0.75, 0.85, 0.95, 1.10, 1.30,       // 21-25
+    1.45, 1.55, 1.65, 1.80, 2.0,        // 26-30
+};
+
+/**
+ * Initialize spells.
+ */
 void init_spells(void)
 {
     static int init_spells_done = 0;
@@ -85,12 +104,18 @@ void init_spells(void)
 
 /**
  * Inserts a spell effect on map.
- * @param archname Spell effect arch.
- * @param m Map.
- * @param x X position on map.
- * @param y Y position on map.
- * @return 1 on failure, 0 otherwise. */
-int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
+ * @param archname
+ * Spell effect arch.
+ * @param m
+ * Map.
+ * @param x
+ * X position on map.
+ * @param y
+ * Y position on map.
+ * @return
+ * 1 on failure, 0 otherwise.
+ */
+int insert_spell_effect(const char *archname, mapstruct *m, int x, int y)
 {
     archetype_t *effect_arch;
     object *effect_ob;
@@ -111,7 +136,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
     effect_ob->x = x;
     effect_ob->y = y;
 
-    if (!insert_ob_in_map(effect_ob, m, NULL, 0)) {
+    if (!object_insert_map(effect_ob, m, NULL, 0)) {
         LOG(BUG, "effect arch (%s) out of map (%s) (%d,%d) or failed insertion.", archname, effect_ob->map->name, x, y);
 
         /* Something is wrong - kill object */
@@ -127,8 +152,11 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 
 /**
  * Find a spell in the ::spells array.
- * @param spelltype ID of the spell to find.
- * @return The spell from the ::spells array, NULL if not found. */
+ * @param spelltype
+ * ID of the spell to find.
+ * @return
+ * The spell from the ::spells array, NULL if not found.
+ */
 spell_struct *find_spell(int spelltype)
 {
     if (spelltype < 0 || spelltype >= NROFREALSPELLS) {
@@ -140,18 +168,27 @@ spell_struct *find_spell(int spelltype)
 
 /**
  * Cast a spell.
- * @param op The creature that is owner of the object that is casting the
+ * @param op
+ * The creature that is owner of the object that is casting the
  * spell.
- * @param caster The actual object (wand, potion) casting the spell. Can
+ * @param caster
+ * The actual object (wand, potion) casting the spell. Can
  * be same as op.
- * @param dir Direction to cast in.
- * @param type Spell ID.
- * @param ability If true, the spell is the innate ability of a monster
+ * @param dir
+ * Direction to cast in.
+ * @param type
+ * Spell ID.
+ * @param ability
+ * If true, the spell is the innate ability of a monster
  * (ie, don't check for blocks_magic(), and don't add AT_MAGIC to attacktype).
- * @param item The type of object that is casting the spell.
- * @param stringarg Any options that are being used.
- * @return 0 on failure, non-zero on success and is used by caller to
- * drain mana. */
+ * @param item
+ * The type of object that is casting the spell.
+ * @param stringarg
+ * Any options that are being used.
+ * @return
+ * 0 on failure, non-zero on success and is used by caller to
+ * drain mana.
+ */
 int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg)
 {
     spell_struct *s;
@@ -287,6 +324,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
     if (caster->type == PLAYER) {
         CONTR(caster)->stat_spells_cast++;
+        CONTR(caster)->last_combat = pticks;
     }
 
     /* We need to calculate the spell point cost before the spell actually
@@ -311,6 +349,10 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     case SP_CURE_POISON:
     case SP_CURE_DISEASE:
         success = cast_heal(op, SK_level(caster), target, type);
+        break;
+
+    case SP_REMOVE_DEPLETION:
+        success = cast_remove_depletion(op, target);
         break;
 
     case SP_REMOVE_CURSE:
@@ -447,10 +489,15 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 /**
  * Creates object new_op in direction dir or if that is blocked, beneath
  * the player (op).
- * @param op Who is casting.
- * @param new_op Object to insert.
- * @param dir Direction to insert into. Can be 0.
- * @return Direction that the object was actually placed in. */
+ * @param op
+ * Who is casting.
+ * @param new_op
+ * Object to insert.
+ * @param dir
+ * Direction to insert into. Can be 0.
+ * @return
+ * Direction that the object was actually placed in.
+ */
 int cast_create_obj(object *op, object *new_op, int dir)
 {
     mapstruct *mt;
@@ -478,18 +525,23 @@ int cast_create_obj(object *op, object *new_op, int dir)
     new_op->x = xt;
     new_op->y = yt;
     new_op->map = mt;
-    insert_ob_in_map(new_op, mt, op, 0);
+    object_insert_map(new_op, mt, op, 0);
     return dir;
 }
 
 /**
  * Cast a bolt-like spell.
- * @param op Who is casting the spell.
- * @param caster What object is casting the spell (rod, ...).
- * @param dir Firing direction.
- * @param type Spell ID.
+ * @param op
+ * Who is casting the spell.
+ * @param caster
+ * What object is casting the spell (rod, ...).
+ * @param dir
+ * Firing direction.
+ * @param type
+ * Spell ID.
  * @retval 0 No bolt could be fired.
- * @retval 1 Bolt was fired (but may have been destroyed already). */
+ * @retval 1 Bolt was fired (but may have been destroyed already).
+ */
 int fire_bolt(object *op, object *caster, int dir, int type)
 {
     object *tmp;
@@ -514,21 +566,23 @@ int fire_bolt(object *op, object *caster, int dir, int type)
         return 0;
     }
 
-    tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
+    int dam = SP_level_dam_adjust(caster, type, false);
+    dam = MIN(dam, INT16_MAX);
+    tmp->stats.dam = (int16_t) dam;
     tmp->last_sp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
     tmp->direction = dir;
     tmp->x = op->x;
     tmp->y = op->y;
 
-    set_owner(tmp, op);
+    object_owner_set(tmp, op);
     tmp->level = SK_level(caster);
 
     if (QUERY_FLAG(tmp, FLAG_IS_TURNABLE)) {
         SET_ANIMATION(tmp, (NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * tmp->direction);
     }
 
-    tmp = insert_ob_in_map(tmp, op->map, op, 0);
+    tmp = object_insert_map(tmp, op->map, op, 0);
 
     if (!tmp) {
         return 0;
@@ -541,14 +595,23 @@ int fire_bolt(object *op, object *caster, int dir, int type)
 
 /**
  * Fires an archetype.
- * @param op Person firing the object.
- * @param caster Object casting the spell.
- * @param x X position where to fire the spell.
- * @param y Y position where to fire the spell.
- * @param dir Direction to fire in.
- * @param at The archetype to fire.
- * @param type Spell ID.
- * @return 0 on failure, 1 on success. */
+ * @param op
+ * Person firing the object.
+ * @param caster
+ * Object casting the spell.
+ * @param x
+ * X position where to fire the spell.
+ * @param y
+ * Y position where to fire the spell.
+ * @param dir
+ * Direction to fire in.
+ * @param at
+ * The archetype to fire.
+ * @param type
+ * Spell ID.
+ * @return
+ * 0 on failure, 1 on success.
+ */
 int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, struct archetype *at, int type, object *target)
 {
     object *tmp, *env;
@@ -571,7 +634,9 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
     }
 
     tmp->stats.sp = type;
-    tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
+    int dam = SP_level_dam_adjust(caster, type, false);
+    dam = MIN(dam, INT16_MAX);
+    tmp->stats.dam = (int16_t) dam;
     tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
     tmp->x = x, tmp->y = y;
     tmp->direction = dir;
@@ -581,10 +646,10 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
         tmp->enemy_count = target->count;
     }
 
-    if (get_owner(op) != NULL) {
-        copy_owner(tmp, op);
+    if (object_owner(op) != NULL) {
+        object_owner_copy(tmp, op);
     } else {
-        set_owner(tmp, op);
+        object_owner_set(tmp, op);
     }
 
     tmp->level = SK_level(caster);
@@ -593,7 +658,7 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
         SET_ANIMATION(tmp, (NUM_ANIMATIONS(tmp) / NUM_FACINGS(tmp)) * dir);
     }
 
-    if ((tmp = insert_ob_in_map(tmp, op->map, op, 0)) == NULL) {
+    if ((tmp = object_insert_map(tmp, op->map, op, 0)) == NULL) {
         return 1;
     }
 
@@ -604,14 +669,21 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
 
 /**
  * Casts a cone spell.
- * @param op Person firing the object.
- * @param caster Object casting the spell.
- * @param dir Direction to fire in.
- * @param strength Strength of the spell.
- * @param spell_type ID of the spell.
- * @param spell_arch Spell's arch.
+ * @param op
+ * Person firing the object.
+ * @param caster
+ * Object casting the spell.
+ * @param dir
+ * Direction to fire in.
+ * @param strength
+ * Strength of the spell.
+ * @param spell_type
+ * ID of the spell.
+ * @param spell_arch
+ * Spell's arch.
  * @retval 0 Couldn't cast.
- * @retval 1 Successful cast. */
+ * @retval 1 Successful cast.
+ */
 int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, struct archetype *spell_arch)
 {
     object *tmp;
@@ -645,8 +717,8 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
             tmp = arch_to_object(spell_arch);
         }
 
-        set_owner(tmp, op);
-        copy_owner(tmp, op);
+        object_owner_set(tmp, op);
+        object_owner_copy(tmp, op);
         /* *very* important - miss this and the spells go really wild! */
         tmp->weight_limit = count_ref;
 
@@ -660,7 +732,9 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         }
 
         tmp->stats.hp = strength;
-        tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam, 0);
+        int dam = SP_level_dam_adjust(caster, spell_type, false);
+        dam = MIN(dam, INT16_MAX);
+        tmp->stats.dam = (int16_t) dam;
         tmp->stats.maxhp = tmp->count;
 
         if (!QUERY_FLAG(tmp, FLAG_FLYING)) {
@@ -671,7 +745,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
             LOG(DEBUG, "arch %s doesn't have walk_on 1 and fly_on 1", spell_arch->name);
         }
 
-        if (!insert_ob_in_map(tmp, op->map, op, 0)) {
+        if (!object_insert_map(tmp, op->map, op, 0)) {
             return 0;
         }
 
@@ -697,7 +771,9 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 
 /**
  * Drops an object based on what is in the cone's "other_arch".
- * @param op The object. */
+ * @param op
+ * The object.
+ */
 void cone_drop(object *op)
 {
     object *new_ob = arch_to_object(op->other_arch);
@@ -706,21 +782,23 @@ void cone_drop(object *op)
     new_ob->y = op->y;
     new_ob->stats.food = op->stats.hp;
     new_ob->level = op->level;
-    set_owner(new_ob, op->owner);
+    object_owner_set(new_ob, op->owner);
 
     if (op->chosen_skill) {
         new_ob->chosen_skill = op->chosen_skill;
     }
 
-    insert_ob_in_map(new_ob, op->map, op, 0);
+    object_insert_map(new_ob, op->map, op, 0);
 }
 
 /**
  * Causes an object to explode, eg, a firebullet, poison cloud ball, etc.
- * @param op The object to explode. */
+ * @param op
+ * The object to explode.
+ */
 void explode_object(object *op)
 {
-    tag_t op_tag = op->count;
+    HARD_ASSERT(op != NULL);
 
     play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 
@@ -731,15 +809,27 @@ void explode_object(object *op)
         return;
     }
 
-    cast_cone(op, op, 0, spells[op->stats.sp].bdur, op->stats.sp,
-            op->other_arch);
-    hit_map(op, 0, 0);
-
-    /* remove the firebullet */
-    if (!was_destroyed(op, op_tag)) {
-        object_remove(op, 0);
-        object_destroy(op);
+    object *caster = object_owner(op);
+    if (caster == NULL) {
+        caster = op;
     }
+
+    cast_cone(op,
+              caster,
+              0,
+              spells[op->stats.sp].bdur,
+              op->stats.sp,
+              op->other_arch);
+
+    OBJECTS_DESTROYED_BEGIN(op) {
+        attack_hit_map(op, 0, false);
+        if (OBJECTS_DESTROYED(op)) {
+            return;
+        }
+    } OBJECTS_DESTROYED_END();
+
+    object_remove(op, 0);
+    object_destroy(op);
 }
 
 /**
@@ -747,68 +837,62 @@ void explode_object(object *op)
  * place. wall() has failed, including reflection checking.
  *
  * Look for a target.
- * @param op The spell object. */
+ * @param op
+ * The spell object.
+ */
 void check_fired_arch(object *op)
 {
-    tag_t op_tag = op->count, tmp_tag;
-    object *tmp, *hitter, *head;
-    int dam;
+    HARD_ASSERT(op != NULL);
 
-    /* we return here if we have NOTHING blocking here */
     if (!blocked(op, op->map, op->x, op->y, op->terrain_flag)) {
         return;
     }
 
-    if (op->other_arch) {
+    if (op->other_arch != NULL) {
         explode_object(op);
         return;
     }
 
-    hitter = get_owner(op);
+    object *hitter = OWNER(op);
+    hitter = HEAD(hitter);
 
-    if (!hitter) {
-        hitter = op;
-    } else if (hitter->head) {
-        hitter = hitter->head;
-    }
-
-    for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL; tmp = tmp->above) {
-        head = tmp->head;
-
-        if (!head) {
-            head = tmp;
-        }
-
+    FOR_MAP_PREPARE(op->map, op->x, op->y, tmp) {
+        tmp = HEAD(tmp);
         if (!IS_LIVE(tmp)) {
             continue;
         }
 
-        /* Let friends fire through friends */
-        if (is_friend_of(hitter, head) || head == hitter) {
+        if (hitter == tmp || is_friend_of(hitter, tmp)) {
             continue;
         }
 
-        tmp_tag = tmp->count;
+        OBJECTS_DESTROYED_BEGIN(op) {
+            int dam = attack_hit(tmp, op, op->stats.dam);
+            if (OBJECTS_DESTROYED(op)) {
+                return;
+            }
 
-        dam = hit_player(tmp, op->stats.dam, op);
-
-        if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0) {
-            if (!QUERY_FLAG(op, FLAG_REMOVED)) {
+            op->stats.dam -= dam;
+            if (op->stats.dam < 0) {
                 object_remove(op, 0);
                 object_destroy(op);
                 return;
             }
-        }
-    }
+        } OBJECTS_DESTROYED_END();
+    } FOR_MAP_FINISH();
 }
 
 /**
  * Detect target for casting a spell.
- * @param op Caster.
+ * @param op
+ * Caster.
  * @param[out] target Will contain target for the spell we're casting.
- * @param flags Spell flags.
- * @return 1 if the object can cast the spell on the target, 0
- * otherwise. */
+ * @param flags
+ * Spell flags.
+ * @return
+ * 1 if the object can cast the spell on the target, 0
+ * otherwise.
+ */
 int find_target_for_spell(object *op, object **target, uint32_t flags)
 {
     object *tmp;
@@ -895,47 +979,63 @@ int find_target_for_spell(object *op, object **target, uint32_t flags)
 
 /**
  * Returns adjusted damage based on the caster.
- * @param caster Who is casting.
- * @param spell_type Spell ID we're adjusting.
- * @param base_dam Base damage.
- * @param exact Return exact damage, unadjusted by random percent?
- * @return Adjusted damage. */
-int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
+ * @param caster
+ * Who is casting.
+ * @param spell_type
+ * Spell ID we're adjusting.
+ * @param exact
+ * Return exact damage, unadjusted by random percentage.
+ * @return
+ * Adjusted damage.
+ */
+int
+SP_level_dam_adjust (object *caster, int spell_type, bool exact)
 {
+    HARD_ASSERT(caster != NULL);
+    SOFT_ASSERT_RC(spell_type >= 0 && spell_type < NROFREALSPELLS, 0,
+                   "Invalid spell ID: %d", spell_type);
+
     int level = SK_level(caster);
-    int16_t dam;
 
     /* Sanity check */
-    if (level <= 0 || level > MAXLEVEL) {
-        log_error("Object %s has invalid level %d", object_get_str(caster),
-                level);
-
-        if (level <= 0) {
-            level = 1;
-        } else {
-            level = MAXLEVEL;
-        }
+    if (unlikely(level <= 0 || level > MAXLEVEL)) {
+        log_error("Object %s has invalid level %d",
+                  object_get_str(caster), level);
+        level = MAX(1, MIN(MAXLEVEL, level));
     }
 
-    /* get a base damage when we don't have one from caller */
-    if (base_dam == -1) {
-        base_dam = spells[spell_type].bdam;
+    if (spells[spell_type].bdam == 0) {
+        return 0;
     }
 
-    dam = (int16_t) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
+    double dam = spells[spell_type].bdam;
+    dam *= LEVEL_DAMAGE(level);
+    dam *= PATH_DMG_MULT(caster, find_spell(spell_type));
 
-    if (exact || !dam) {
-        return dam;
+    if (caster->type == PLAYER) {
+        dam += dam * spell_dam_bonus[caster->stats.Pow];
     }
 
-    return rndm(dam * 0.8f + 1, dam);
+    if (dam < 1.0) {
+        dam = 1.0;
+    }
+
+    if (exact) {
+        return (int) dam;
+    }
+
+    return rndm(dam * 0.8 + 1.0, dam);
 }
 
 /**
  * Adjust the strength of the spell based on level.
- * @param caster Who is casting.
- * @param spell_type Spell ID we're adjusting.
- * @return Adjusted strength. */
+ * @param caster
+ * Who is casting.
+ * @param spell_type
+ * Spell ID we're adjusting.
+ * @return
+ * Adjusted strength.
+ */
 int SP_level_strength_adjust(object *caster, int spell_type)
 {
     int level = SK_level(caster);
@@ -959,11 +1059,16 @@ int SP_level_strength_adjust(object *caster, int spell_type)
  * Some of the lower level spells become incredibly vicious at high
  * levels. Very cheap mass destruction. This function is intended to keep
  * the sp cost related to the effectiveness.
- * @param caster What is casting the spell.
- * @param spell_type Spell ID.
- * @param caster_level Level of caster. If -1, will use SK_level() to
+ * @param caster
+ * What is casting the spell.
+ * @param spell_type
+ * Spell ID.
+ * @param caster_level
+ * Level of caster. If -1, will use SK_level() to
  * determine caster's level. Will also avoid affecting the cost with paths.
- * @return Spell points cost. */
+ * @return
+ * Spell points cost.
+ */
 int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 {
     spell_struct *s = find_spell(spell_type);
@@ -986,13 +1091,21 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
  * The following routine creates a swarm of objects. It actually sets up
  * a specific swarm object, which then fires off all the parts of the
  * swarm.
- * @param op Who is casting.
- * @param caster What object is casting.
- * @param dir Cast direction.
- * @param swarm_type Archetype of the swarm.
- * @param spell_type ID of the spell.
- * @param n The number to be fired.
- * @param magic Magic. */
+ * @param op
+ * Who is casting.
+ * @param caster
+ * What object is casting.
+ * @param dir
+ * Cast direction.
+ * @param swarm_type
+ * Archetype of the swarm.
+ * @param spell_type
+ * ID of the spell.
+ * @param n
+ * The number to be fired.
+ * @param magic
+ * Magic.
+ */
 void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_type, int spell_type, int n, int magic)
 {
     object *tmp = arch_get("swarm_spell");
@@ -1000,7 +1113,7 @@ void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_typ
     tmp->x = op->x;
     tmp->y = op->y;
     /* Needed so that if swarm elements kill, caster gets xp. */
-    set_owner(tmp, op);
+    object_owner_set(tmp, op);
     /* Needed later, to get level dep. right.*/
     tmp->level = SK_level(caster);
     /* Needed later, see move_swarm_spell */
@@ -1013,14 +1126,16 @@ void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_typ
     tmp->other_arch = swarm_type;
     tmp->direction = dir;
 
-    insert_ob_in_map(tmp, op->map, op, 0);
+    object_insert_map(tmp, op->map, op, 0);
 }
 
 /**
  * Punish player for failure in casting a spell by summoning a blast of
  * uncontrollable raw mana.
- * @param caster The caster.
- * @param level Level of the spell.
+ * @param caster
+ * The caster.
+ * @param level
+ * Level of the spell.
  */
 void spell_failure_raw_mana(object *caster, int level)
 {
@@ -1045,7 +1160,7 @@ void spell_failure_raw_mana(object *caster, int level)
         tmp->x = caster->x + freearr_x[i];
         tmp->y = caster->y + freearr_y[i];
 
-        if (!insert_ob_in_map(tmp, caster->map, caster, 0)) {
+        if (!object_insert_map(tmp, caster->map, caster, 0)) {
             continue;
         }
 
@@ -1055,8 +1170,10 @@ void spell_failure_raw_mana(object *caster, int level)
 
 /**
  * Punish player for failure in casting a spell.
- * @param caster The caster.
- * @param level Level of the spell.
+ * @param caster
+ * The caster.
+ * @param level
+ * Level of the spell.
  */
 void spell_failure(object *caster, int level)
 {
@@ -1065,19 +1182,19 @@ void spell_failure(object *caster, int level)
     if (level >= 15) {
         if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.05) / 2))) {
             draw_info(COLOR_RED, caster, "The wild magic confuses you!");
-            confuse_living(caster);
+            attack_perform_confusion(caster);
             punished = true;
         }
 
         if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.10) / 3))) {
             draw_info(COLOR_RED, caster, "The wild magic paralyzes you!");
-            paralyze_living(caster, level * 2);
+            attack_peform_paralyze(caster, level * 2);
             punished = true;
         }
 
         if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.15) / 4))) {
             draw_info(COLOR_RED, caster, "The wild magic blinds you!");
-            blind_living(caster, caster, level * 2);
+            attack_perform_blind(caster, caster, level * 2);
             punished = true;
         }
 

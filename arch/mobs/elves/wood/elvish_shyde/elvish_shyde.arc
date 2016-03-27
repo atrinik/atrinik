@@ -20,7 +20,7 @@ terrain_flag 65
 weapon_speed 0.038
 attack_magic 100
 type 80
-wis 3
+item_power 3
 animation elvish_shyde
 is_animated 1
 anim_speed 4

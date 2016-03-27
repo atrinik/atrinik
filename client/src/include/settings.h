@@ -24,14 +24,16 @@
 
 /**
  * @file
- * Client settings header files. */
+ * Client settings header files.
+ */
 
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
 /**
  * The different option categories.
- * @anchor OPT_CAT_xxx. */
+ * @anchor OPT_CAT_xxx.
+ */
 enum {
     /** General. */
     OPT_CAT_GENERAL,
@@ -51,7 +53,8 @@ enum {
  *@{*/
 
 /**
- * Options in the ::OPT_CAT_GENERAL category. */
+ * Options in the ::OPT_CAT_GENERAL category.
+ */
 enum {
     /** Whether to target self if no target is selected. */
     OPT_TARGET_SELF,
@@ -70,7 +73,8 @@ enum {
 };
 
 /**
- * Options in the ::OPT_CAT_CLIENT category. */
+ * Options in the ::OPT_CAT_CLIENT category.
+ */
 enum {
     /** Resolution. */
     OPT_RESOLUTION,
@@ -94,6 +98,8 @@ enum {
     OPT_TEXT_WINDOW_BG_COLOR,
     /** Transparency of text windows. */
     OPT_TEXT_WINDOW_TRANSPARENCY,
+    /** Whether to use the system cursor. */
+    OPT_SYSTEM_CURSOR,
 
     /** Internal: stores the current resolution width. */
     OPT_RESOLUTION_X,
@@ -102,7 +108,8 @@ enum {
 };
 
 /**
- * Options in the ::OPT_CAT_MAP category. */
+ * Options in the ::OPT_CAT_MAP category.
+ */
 enum {
     /** Which player names to show. */
     OPT_PLAYER_NAMES,
@@ -119,7 +126,8 @@ enum {
 };
 
 /**
- * Options in the ::OPT_CAT_SOUND category. */
+ * Options in the ::OPT_CAT_SOUND category.
+ */
 enum {
     /** Music volume. */
     OPT_VOLUME_MUSIC,
@@ -130,7 +138,8 @@ enum {
 };
 
 /**
- * Options in the ::OPT_CAT_DEVEL category. */
+ * Options in the ::OPT_CAT_DEVEL category.
+ */
 enum {
     /** Whether to show FPS. */
     OPT_SHOW_FPS,
@@ -146,7 +155,8 @@ enum {
 
 /**
  * Various setting types.
- * @anchor OPT_TYPE_xxx */
+ * @anchor OPT_TYPE_xxx
+ */
 enum {
     /** Bool (checkbox). */
     OPT_TYPE_BOOL,
@@ -181,7 +191,8 @@ typedef struct setting_range {
 
 /**
  * Select setting - contains a list of text options the user may choose
- * from. */
+ * from.
+ */
 typedef struct setting_select {
     /** Array of the options. */
     char **options;
@@ -191,7 +202,8 @@ typedef struct setting_select {
 } setting_select;
 
 /**
- * A single setting. */
+ * A single setting.
+ */
 typedef struct setting_struct {
     /** Name of the setting. */
     char *name;
@@ -219,7 +231,8 @@ typedef struct setting_struct {
 } setting_struct;
 
 /**
- * One setting category. */
+ * One setting category.
+ */
 typedef struct setting_category {
     /** Name of the category. */
     char *name;
@@ -237,7 +250,8 @@ typedef struct setting_category {
 #define SETTING_RANGE(_setting) ((setting_range *) (_setting)->custom_attrset)
 
 /**
- * Step in the keybinding settings. */
+ * Step in the keybinding settings.
+ */
 enum {
     /** Entering a command. */
     KEYBIND_STEP_COMMAND,

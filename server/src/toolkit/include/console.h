@@ -26,17 +26,20 @@
  * @file
  * Console API header file.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
 /**
- * Console command handler function. */
+ * Console command handler function.
+ */
 typedef void (*console_command_func)(const char *params);
 
 /**
- * One console command. */
+ * One console command.
+ */
 typedef struct console_command_struct {
     /** Name of the command. */
     char *command;

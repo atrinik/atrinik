@@ -1,0 +1,252 @@
+# Armour of Dalosha
+Allowed all
+chance 5
+difficulty 45
+artifact armour_dalosha
+def_arch chain_mail
+Object
+title of Dalosha
+type 16
+dex 1
+can_see_in_dark 1
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the Queen of the Drow and Spider Goddess, Dalosha.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Drolaxi
+Allowed all
+chance 5
+difficulty 45
+artifact armour_drolaxi
+def_arch chain_mail
+Object
+title of Drolaxi
+type 16
+int 1
+pow 1
+protect_cold 25
+msg
+This piece of armour has been enchanted with the grace of the Queen of the Chaotic Seas and the Goddess of Water, Drolaxi.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Elathiel
+Allowed all
+chance 5
+difficulty 45
+artifact armour_elathiel
+def_arch chain_mail
+Object
+title of Elathiel
+type 16
+int 2
+glow_radius 1
+msg
+This piece of armour has been enchanted with the grace of the God of Light and King of the Angels, Elathiel.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Grumthar
+Allowed all
+chance 5
+difficulty 45
+artifact armour_grumthar
+def_arch chain_mail
+Object
+title of Grumthar
+type 16
+str 2
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the First Dwarven Lord and the God of Smithery, Grumthar.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Grunhilde
+Allowed all
+chance 5
+difficulty 45
+artifact armour_grunhilde
+def_arch chain_mail
+Object
+title of Grunhilde
+type 16
+str 1
+con 1
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the Valkyrie Queen and the Goddess of Victory.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Jotarl
+Allowed all
+chance 5
+difficulty 45
+artifact armour_jotarl
+def_arch chain_mail
+Object
+title of Jotarl
+type 16
+str 2
+con 1
+pow -1
+int -1
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the Titan King and the God of the Giants, Jotarl.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Rashindel
+Allowed all
+chance 5
+difficulty 45
+artifact armour_rashindel
+def_arch chain_mail
+Object
+title of Rashindel
+type 16
+pow 2
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the Demonic King and the Overlord of Hell, Rashindel.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Rogroth
+Allowed all
+chance 5
+difficulty 45
+artifact armour_rogroth
+def_arch chain_mail
+Object
+title of Rogroth
+type 16
+int 1
+pow 1
+protect_electricity 25
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the King of the Stormy Skies and the God of Lightning, Rogroth.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Shaligar
+Allowed all
+chance 5
+difficulty 45
+artifact armour_shaligar
+def_arch chain_mail
+Object
+title of Shaligar
+type 16
+int 1
+pow 1
+protect_fire 25
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the King of the Lava and the God of Flame, Shaligar.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Terria
+Allowed all
+chance 5
+difficulty 45
+artifact armour_terria
+def_arch chain_mail
+Object
+title of Terria
+type 16
+int 1
+pow 1
+protect_poison 20
+protect_acid 10
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the Mother Earth and the Goddess of Life, Terria.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Tylowyn
+Allowed all
+chance 10
+difficulty 45
+artifact armour_tylowyn
+def_arch chain_mail
+Object
+title of Tylowyn
+type 16
+dex 2
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the Queen of Elven Kind and Elven Goddess of Luck, Tylowyn.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end
+
+# Armour of Zechna
+Allowed all
+chance 10
+difficulty 45
+artifact armour_zechna
+def_arch chain_mail
+Object
+title of Zechna
+type 16
+int 1
+pow 2
+con -2
+ac_add 1
+is_magical 1
+msg
+This piece of armour has been enchanted with the grace of the Lord of the Grave and King of Undeath, Zechna.
+endmsg
+item_power 5
+value 75500
+item_level_art 30
+end

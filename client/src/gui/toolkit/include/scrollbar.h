@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Scrollbar header file. */
+ * Scrollbar header file.
+ */
 
 #ifndef SCROLLBAR_H
 #define SCROLLBAR_H
 
 /**
- * Scrollbar element. */
+ * Scrollbar element.
+ */
 typedef struct scrollbar_element {
     /** X position. */
     int x;
@@ -49,15 +51,21 @@ typedef struct scrollbar_element {
 
     /**
      * Rendering function of this element.
-     * @param surface Surface to render on.
-     * @param box Where to draw.
-     * @param elem The element.
-     * @param horizontal Whether the scrollbar is horizontal. */
+     * @param surface
+ * Surface to render on.
+     * @param box
+ * Where to draw.
+     * @param elem
+ * The element.
+     * @param horizontal
+ * Whether the scrollbar is horizontal.
+ */
     void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element, uint8_t horizontal);
 } scrollbar_element;
 
 /**
- * Holds scrollbar information. */
+ * Holds scrollbar information.
+ */
 typedef struct scrollbar_struct {
     /** Pointer to the scroll offset. */
     uint32_t *scroll_offset;
@@ -74,7 +82,8 @@ typedef struct scrollbar_struct {
     /**
      * Pointer that will be updated if redraw should be done due to
      * scroll offset change. Can be NULL, in which case it will not be
-     * updated. */
+     * updated.
+     */
     uint8_t *redraw;
 
     /** X position of the scrollbar. */
@@ -119,7 +128,8 @@ typedef struct scrollbar_struct {
 
 /**
  * Optional structure that can be used for storing scrollbar
- * information. */
+ * information.
+ */
 typedef struct scrollbar_info_struct {
     /** @copydoc scrollbar_struct::scroll_offset */
     uint32_t scroll_offset;

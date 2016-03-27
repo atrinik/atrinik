@@ -1,4 +1,5 @@
 #ifndef __CPROTO__
+#include <decls.h>
 /* src/commands/permission/arrest.c */
 extern void command_arrest(object *op, const char *command, char *params);
 /* src/commands/permission/ban.c */
@@ -100,14 +101,6 @@ extern void free_map_header_loader(void);
 extern int load_map_header(mapstruct *m, FILE *fp);
 extern void save_map_header(mapstruct *m, FILE *fp, int flag);
 /* src/loaders/object.c */
-extern int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode);
-extern int yyerror(char *s);
-extern void free_object_loader(void);
-extern void delete_loader_buffer(void *buffer);
-extern void *create_loader_buffer(void *fp);
-extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
-extern int set_variable(object *op, const char *buf);
-extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 /* src/loaders/random_map.c */
 extern int rmap_lex_read(RMParms *RP);
 extern int load_parameters(FILE *fp, int bufstate, RMParms *RP);
@@ -163,7 +156,7 @@ extern char **make_square_spiral_layout(int xsize, int ysize);
 extern int load_dir(const char *dir, char ***namelist, int skip_dirs);
 extern mapstruct *styles;
 extern mapstruct *load_style_map(char *style_name);
-extern mapstruct *find_style(char *dirname, char *stylename, int difficulty);
+extern mapstruct *find_style(const char *dirname, const char *stylename, int difficulty);
 extern object *pick_random_object(mapstruct *style);
 extern void free_style_maps(void);
 /* src/random_maps/wall.c */
@@ -191,7 +184,7 @@ extern int num_animations;
 extern int animations_allocated;
 extern void free_all_anim(void);
 extern void init_anim(void);
-extern int find_animation(char *name);
+extern int find_animation(const char *name);
 extern void animate_object(object *op);
 extern void animate_turning(object *op);
 /* src/server/apply.c */
@@ -200,17 +193,6 @@ extern int player_apply(object *pl, object *op, int aflag, int quiet);
 extern void player_apply_below(object *pl);
 /* src/server/arch.c */
 /* src/server/attack.c */
-extern char *attack_save[NROFATTACKS];
-extern char *attack_name[NROFATTACKS];
-extern int attack_ob(object *op, object *hitter);
-extern int hit_player(object *op, int dam, object *hitter);
-extern void hit_map(object *op, int dir, int reduce);
-extern _Bool kill_object(object *op, object *hitter);
-extern void confuse_living(object *op);
-extern void blind_living(object *op, object *hitter, int dam);
-extern void paralyze_living(object *op, int dam);
-extern void fall_damage_living(object *op, int fall_floors);
-extern _Bool is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
 /* src/server/cache.c */
 extern cache_struct *cache_find(shstr *key);
@@ -227,16 +209,10 @@ extern void commands_handle(object *op, char *cmd);
 /* src/server/connection.c */
 extern void connection_object_add(object *op, mapstruct *map, int connected);
 extern void connection_object_remove(object *op);
-extern int connection_object_get_value(object *op);
+extern int connection_object_get_value(const object *op);
 extern void connection_trigger(object *op, int state);
 extern void connection_trigger_button(object *op, int state);
 /* src/server/exp.c */
-extern uint64_t new_levels[115 + 2];
-extern _level_color level_color[201];
-extern uint64_t level_exp(int level, double expmul);
-extern int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact);
-extern int exp_lvl_adj(object *who, object *op);
-extern float calc_level_difference(int who_lvl, int op_lvl);
 /* src/server/faction.c */
 /* src/server/gods.c */
 extern object *find_god(const char *name);
@@ -250,7 +226,7 @@ extern New_Face *new_faces;
 extern int nroffiles;
 extern int nrofpixmaps;
 extern int read_bmap_names(void);
-extern int find_face(char *name, int error);
+extern int find_face(const char *name, int error);
 extern void free_all_images(void);
 /* src/server/init.c */
 extern struct settings_struct settings;
@@ -307,18 +283,18 @@ extern void free_objectlinkpt(objectlink *obp);
 extern objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectlink *afterptr, objectlink *beforeptr, objectlink *objptr);
 extern objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr);
 /* src/server/living.c */
-extern int dam_bonus[30 + 1];
-extern int thaco_bonus[30 + 1];
+extern double dam_bonus[30 + 1];
+extern int wc_bonus[30 + 1];
 extern float speed_bonus[30 + 1];
 extern double falling_mitigation[30 + 1];
 extern uint32_t weight_limit[30 + 1];
 extern int learn_spell[30 + 1];
 extern int monster_signal_chance[30 + 1];
 extern int savethrow[115 + 1];
-extern const char *const restore_msg[7];
-extern const char *const lose_msg[7];
-extern const char *const statname[7];
-extern const char *const short_stat_name[7];
+extern const char *const restore_msg[5];
+extern const char *const lose_msg[5];
+extern const char *const statname[5];
+extern const char *const short_stat_name[5];
 extern void set_attr_value(living *stats, int attr, int8_t value);
 extern void change_attr_value(living *stats, int attr, int8_t value);
 extern int8_t get_attr_value(const living *stats, int attr);
@@ -348,7 +324,7 @@ extern int process_delay;
 extern void version(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
-extern void process_events(mapstruct *map);
+extern void process_events(void);
 extern void clean_tmp_files(void);
 extern void server_shutdown(void);
 extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
@@ -357,43 +333,6 @@ extern void shutdown_timer_stop(void);
 extern int main(int argc, char **argv);
 extern void main_process(void);
 /* src/server/map.c */
-extern int global_darkness_table[7 + 1];
-extern int map_tiled_reverse[10];
-extern void map_init(void);
-extern mapstruct *has_been_loaded_sh(shstr *name);
-extern char *create_pathname(const char *name);
-extern int wall(mapstruct *m, int x, int y);
-extern int blocks_view(mapstruct *m, int x, int y);
-extern int blocks_magic(mapstruct *m, int x, int y);
-extern int blocked(object *op, mapstruct *m, int x, int y, int terrain);
-extern int blocked_tile(object *op, mapstruct *m, int x, int y);
-extern int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y);
-extern void set_map_darkness(mapstruct *m, int value);
-extern mapstruct *get_linked_map(void);
-extern mapstruct *get_empty_map(int sizex, int sizey);
-extern void map_set_tile(mapstruct *m, int tile, const char *pathname);
-extern mapstruct *load_original_map(const char *filename, mapstruct *originator, int flags);
-extern int new_save_map(mapstruct *m, int flag);
-extern void free_map(mapstruct *m, int flag);
-extern void delete_map(mapstruct *m);
-extern mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags);
-extern void clean_tmp_map(mapstruct *m);
-extern void free_all_maps(void);
-extern void update_position(mapstruct *m, int x, int y);
-extern void set_map_reset_time(mapstruct *map);
-extern mapstruct *get_map_from_tiled(mapstruct *m, int tiled);
-extern mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y);
-extern mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y);
-extern int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags);
-extern int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags);
-extern int on_same_map(object *op1, object *op2);
-extern int players_on_map(mapstruct *m);
-extern int wall_blocked(mapstruct *m, int x, int y);
-extern int map_get_darkness(mapstruct *m, int x, int y, object **mirror);
-extern int map_path_isabs(const char *path);
-extern char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *name);
-extern mapstruct *map_force_reset(mapstruct *m);
-extern void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer);
 /* src/server/move.c */
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);
@@ -402,106 +341,7 @@ extern int move_ob(object *op, int dir, object *originator);
 extern int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
 extern int push_ob(object *op, int dir, object *pusher);
 /* src/server/object.c */
-extern object *active_objects;
-extern const char *gender_noun[4];
-extern const char *gender_subjective[4];
-extern const char *gender_subjective_upper[4];
-extern const char *gender_objective[4];
-extern const char *gender_possessive[4];
-extern const char *gender_reflexive[4];
-extern materialtype materials[13];
-extern material_real_struct material_real[13 * 64 + 1];
-extern void init_materials(void);
-extern int freearr_x[49];
-extern int freearr_y[49];
-extern int maxfree[49];
-extern int freedir[49];
-extern void (*object_initializers[256])(object *);
-extern const char *object_flag_names[135 + 1];
-extern int CAN_MERGE(object *ob1, object *ob2);
-extern object *object_merge(object *op);
-extern signed long sum_weight(object *op);
-extern void add_weight(object *op, uint32_t weight);
-extern void sub_weight(object *op, uint32_t weight);
-extern object *get_env_recursive(object *op);
-extern object *is_player_inv(object *op);
-extern void dump_object(object *op, StringBuffer *sb);
-extern void dump_object_rec(object *op, StringBuffer *sb);
-extern object *get_owner(object *op);
-extern void clear_owner(object *op);
-extern void set_owner(object *op, object *owner);
-extern void copy_owner(object *op, object *clone_ob);
-extern void copy_object(object *op2, object *op, int no_speed);
-extern void copy_object_with_inv(object *src_ob, object *dest_ob);
-extern void object_init(void);
-extern void object_deinit(void);
-extern object *get_object(void);
-extern void update_turn_face(object *op);
-extern void update_ob_speed(object *op);
-extern void update_object(object *op, int action);
-extern void drop_ob_inv(object *ob);
-extern void object_destroy_inv(object *ob);
-extern void object_destroy(object *ob);
-extern void destruct_ob(object *op);
-extern void object_remove(object *op, int flags);
-extern object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag);
-extern int object_check_move_on(object *op, object *originator);
-extern void replace_insert_ob_in_map(char *arch_string, object *op);
-extern object *object_stack_get(object *op, uint32_t nrof);
-extern object *object_stack_get_reinsert(object *op, uint32_t nrof);
-extern object *object_stack_get_removed(object *op, uint32_t nrof);
-extern object *decrease_ob_nr(object *op, uint32_t i);
-extern object *object_insert_into(object *op, object *where, int flag);
-extern object *insert_ob_in_ob(object *op, object *where);
-extern object *present_arch(struct archetype *at, mapstruct *m, int x, int y);
-extern object *present(uint8_t type, mapstruct *m, int x, int y);
-extern object *present_in_ob(uint8_t type, object *op);
-extern object *present_arch_in_ob(struct archetype *at, object *op);
-extern int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop);
-extern int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y);
-extern int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int start, int range);
-extern void permute(int *arr, int begin, int end);
-extern void get_search_arr(int *search_arr);
-extern int find_dir_2(int x, int y);
-extern int absdir(int d);
-extern int dirdiff(int dir1, int dir2);
-extern int get_dir_to_target(object *op, object *target, rv_vector *range_vector);
-extern int can_pick(object *who, object *item);
-extern object *object_create_clone(object *asrc);
-extern int was_destroyed(object *op, tag_t old_tag);
-extern object *load_object_str(char *obstr);
-extern int auto_apply(object *op);
-extern void free_key_values(object *op);
-extern key_value *object_get_key_link(const object *ob, const char *key);
-extern const char *object_get_value(const object *op, const char *const key);
-extern int object_set_value(object *op, const char *key, const char *value, int add_key);
-extern void init_object_initializers(void);
-extern int item_matched_string(object *pl, object *op, const char *name);
-extern int object_get_gender(object *op);
-extern void object_reverse_inventory(object *op);
-extern int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8_t fixed_pos);
-extern const char *object_get_str(object *op);
-extern char *object_get_str_r(object *op, char *buf, size_t bufsize);
-extern int object_blocked(object *op, mapstruct *m, int x, int y);
-extern object *object_create_singularity(const char *name);
-extern void object_save(object *op, FILE *fp);
 /* src/server/object_methods.c */
-extern object_methods object_type_methods[160];
-extern object_methods object_methods_base;
-extern void object_methods_init(void);
-extern int object_apply(object *op, object *applier, int aflags);
-extern void object_process(object *op);
-extern char *object_describe(object *op, object *observer, char *buf, size_t size);
-extern int object_move_on(object *op, object *victim, object *originator, int state);
-extern int object_trigger(object *op, object *cause, int state);
-extern int object_trigger_button(object *op, object *cause, int state);
-extern void object_callback_remove_map(object *op);
-extern void object_callback_remove_inv(object *op);
-extern object *object_projectile_fire(object *op, object *shooter, int dir);
-extern object *object_projectile_move(object *op);
-extern int object_projectile_hit(object *op, object *victim);
-extern object *object_projectile_stop(object *op, int reason);
-extern int object_ranged_fire(object *op, object *shooter, int dir, double *delay);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -560,8 +400,8 @@ extern void regions_init(void);
 extern void regions_free(void);
 extern region_struct *region_find_by_name(const char *region_name);
 extern const region_struct *region_find_with_map(const region_struct *region);
-extern char *region_get_longname(const region_struct *region);
-extern char *region_get_msg(const region_struct *region);
+extern const char *region_get_longname(const region_struct *region);
+extern const char *region_get_msg(const region_struct *region);
 extern int region_enter_jail(object *op);
 /* src/server/rune.c */
 extern int trap_see(object *op, object *trap, int level);
@@ -570,8 +410,8 @@ extern int trap_disarm(object *disarmer, object *trap);
 extern void trap_adjust(object *trap, int difficulty);
 /* src/server/shop.c */
 extern int64_t shop_get_cost(object *op, int mode);
-extern char *shop_get_cost_string(int64_t cost);
-extern char *shop_get_cost_string_item(object *op, int flag);
+extern const char *shop_get_cost_string(int64_t cost);
+extern const char *shop_get_cost_string_item(object *op, int flag);
 extern int64_t shop_get_money(object *op);
 extern bool shop_pay(object *op, int64_t to_pay);
 extern bool shop_pay_item(object *op, object *item);
@@ -606,6 +446,7 @@ extern void cast_destruction(object *op, object *caster, int dam);
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
+extern int cast_remove_depletion(object *op, object *target);
 extern int remove_curse(object *op, object *target, int type, int src);
 extern int do_cast_identify(object *tmp, object *op, int mode, int *done, int level);
 extern int cast_identify(object *op, int level, object *single_ob, int mode);
@@ -615,10 +456,10 @@ extern int cast_cause_disease(object *op, object *caster, int dir, struct archet
 extern int cast_transform_wealth(object *op);
 /* src/server/spell_util.c */
 extern spell_struct spells[52];
-extern char *spellpathnames[20];
+extern const char *const spellpathnames[20];
 extern struct archetype *spellarch[52];
 extern void init_spells(void);
-extern int insert_spell_effect(char *archname, mapstruct *m, int x, int y);
+extern int insert_spell_effect(const char *archname, mapstruct *m, int x, int y);
 extern spell_struct *find_spell(int spelltype);
 extern int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg);
 extern int cast_create_obj(object *op, object *new_op, int dir);
@@ -629,7 +470,7 @@ extern void cone_drop(object *op);
 extern void explode_object(object *op);
 extern void check_fired_arch(object *op);
 extern int find_target_for_spell(object *op, object **target, uint32_t flags);
-extern int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact);
+extern int SP_level_dam_adjust(object *caster, int spell_type, bool exact);
 extern int SP_level_strength_adjust(object *caster, int spell_type);
 extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 extern void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_type, int spell_type, int n, int magic);
@@ -664,7 +505,7 @@ extern void print_tod(object *op);
 extern void time_info(object *op);
 extern long seconds(void);
 /* src/server/treasure.c */
-extern char *coins[6 + 1];
+extern const char *const coins[6 + 1];
 extern struct archetype *coins_arch[6];
 extern void load_treasures(void);
 extern treasurelist *find_treasurelist(const char *name);
@@ -768,56 +609,6 @@ extern void play_sound_map(mapstruct *map, int type, const char *filename, int x
 /* src/socket/updates.c */
 extern void updates_init(void);
 extern void socket_command_request_update(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-/* src/types/monster/monster_data.c */
-/* src/types/monster/monster_guard.c */
-/* src/types/ability.c */
-extern void object_type_init_ability(void);
-/* src/types/amulet.c */
-extern void object_type_init_amulet(void);
-/* src/types/armour.c */
-extern void object_type_init_armour(void);
-/* src/types/arrow.c */
-extern int16_t arrow_get_wc(object *op, object *bow, object *arrow);
-extern int16_t arrow_get_damage(object *op, object *bow, object *arrow);
-extern object *arrow_find(object *op, shstr *type);
-extern void object_type_init_arrow(void);
-/* src/types/base_info.c */
-extern void object_type_init_base_info(void);
-/* src/types/beacon.c */
-extern void beacon_add(object *ob);
-extern void beacon_remove(object *ob);
-extern object *beacon_locate(shstr *name);
-extern void object_type_init_beacon(void);
-/* src/types/blindness.c */
-extern void object_type_init_blindness(void);
-/* src/types/book.c */
-extern void object_type_init_book(void);
-/* src/types/book_spell.c */
-extern void object_type_init_book_spell(void);
-/* src/types/boots.c */
-extern void object_type_init_boots(void);
-/* src/types/bow.c */
-extern float bow_get_ws(object *bow, object *arrow);
-extern int bow_get_skill(object *bow);
-extern void object_type_init_bow(void);
-/* src/types/bracers.c */
-extern void object_type_init_bracers(void);
-/* src/types/bullet.c */
-extern int bullet_reflect(object *op, mapstruct *m, int x, int y);
-extern void object_type_init_bullet(void);
-/* src/types/button.c */
-extern void object_type_init_button(void);
-/* src/types/check_inv.c */
-extern object *check_inv(object *op, object *ob);
-extern void object_type_init_check_inv(void);
-/* src/types/class.c */
-extern void object_type_init_class(void);
-/* src/types/client_map_info.c */
-extern void object_type_init_client_map_info(void);
-/* src/types/cloak.c */
-extern void object_type_init_cloak(void);
-/* src/types/clock.c */
-extern void object_type_init_clock(void);
 /* src/types/common/apply.c */
 extern int common_object_apply(object *op, object *applier, int aflags);
 extern int object_apply_item(object *op, object *applier, int aflags);
@@ -836,254 +627,17 @@ extern object *common_object_projectile_stop_spell(object *op, int reason);
 extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
 extern int common_object_projectile_hit(object *op, object *victim);
 extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
-/* src/types/compass.c */
-extern void object_type_init_compass(void);
-/* src/types/cone.c */
-extern void object_type_init_cone(void);
-/* src/types/confusion.c */
-extern void object_type_init_confusion(void);
-/* src/types/container.c */
-extern int check_magical_container(object *op, object *container);
-extern int container_close(object *applier, object *op);
-extern void object_type_init_container(void);
-/* src/types/corpse.c */
-extern void object_type_init_corpse(void);
-/* src/types/creator.c */
-extern void object_type_init_creator(void);
-/* src/types/dead_object.c */
-extern void object_type_init_dead_object(void);
-/* src/types/detector.c */
-extern void object_type_init_detector(void);
-/* src/types/director.c */
-extern void object_type_init_director(void);
-/* src/types/disease.c */
-extern int move_disease(object *disease);
-extern int infect_object(object *victim, object *disease, int force);
-extern void move_symptom(object *symptom);
-extern void check_physically_infect(object *victim, object *hitter);
-extern int cure_disease(object *sufferer, object *caster);
-extern int reduce_symptoms(object *sufferer, int reduction);
-extern void object_type_init_disease(void);
-/* src/types/door.c */
-extern int door_try_open(object *op, mapstruct *m, int x, int y, int test);
-extern object *find_key(object *op, object *door);
-extern void door_show_message(object *op, mapstruct *m, int x, int y);
-extern void object_type_init_door(void);
-/* src/types/drink.c */
-extern void object_type_init_drink(void);
-/* src/types/duplicator.c */
-extern void object_type_init_duplicator(void);
-/* src/types/event_obj.c */
-extern void object_type_init_event_obj(void);
-/* src/types/exit.c */
-extern mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load);
-extern void object_type_init_exit(void);
-/* src/types/experience.c */
-extern void object_type_init_experience(void);
-/* src/types/firewall.c */
-extern void object_type_init_firewall(void);
-/* src/types/flesh.c */
-extern void object_type_init_flesh(void);
-/* src/types/floor.c */
-extern void object_type_init_floor(void);
-/* src/types/food.c */
-extern void object_type_init_food(void);
-/* src/types/force.c */
-extern void object_type_init_force(void);
-/* src/types/gate.c */
-extern void object_type_init_gate(void);
-/* src/types/gem.c */
-extern void object_type_init_gem(void);
-/* src/types/girdle.c */
-extern void object_type_init_girdle(void);
-/* src/types/gloves.c */
-extern void object_type_init_gloves(void);
-/* src/types/god.c */
-extern void object_type_init_god(void);
-/* src/types/gravestone.c */
-extern const char *gravestone_text(object *op);
-extern void object_type_init_gravestone(void);
-/* src/types/handle.c */
-extern void object_type_init_handle(void);
-/* src/types/helmet.c */
-extern void object_type_init_helmet(void);
-/* src/types/holy_altar.c */
-extern void object_type_init_holy_altar(void);
-/* src/types/inorganic.c */
-extern void object_type_init_inorganic(void);
-/* src/types/jewel.c */
-extern void object_type_init_jewel(void);
-/* src/types/key.c */
-extern void object_type_init_key(void);
-/* src/types/light_apply.c */
-extern void object_type_init_light_apply(void);
-/* src/types/light_refill.c */
-extern void object_type_init_light_refill(void);
-/* src/types/light_source.c */
-extern void object_type_init_light_source(void);
-/* src/types/lightning.c */
-extern void object_type_init_lightning(void);
-/* src/types/magic_mirror.c */
-extern void magic_mirror_init(object *mirror);
-extern void magic_mirror_deinit(object *mirror);
-extern mapstruct *magic_mirror_get_map(object *mirror);
-extern void object_type_init_magic_mirror(void);
-/* src/types/map.c */
-extern void object_type_init_map(void);
-/* src/types/map_event_obj.c */
-extern void object_type_init_map_event_obj(void);
-/* src/types/map_info.c */
-extern void map_info_init(object *info);
-extern void object_type_init_map_info(void);
-/* src/types/marker.c */
-extern void object_type_init_marker(void);
-/* src/types/material.c */
-extern void object_type_init_material(void);
-/* src/types/misc_object.c */
-extern void object_type_init_misc_object(void);
-/* src/types/money.c */
-extern void object_type_init_money(void);
 /* src/types/monster.c */
 extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
 extern void monster_enemy_signal(object *npc, object *enemy);
 extern object *check_enemy(object *npc, rv_vector *rv);
 extern object *find_enemy(object *npc, rv_vector *rv);
-extern void object_type_init_monster(void);
 extern int talk_to_npc(object *op, object *npc, char *txt);
 extern int is_friend_of(object *op, object *obj);
 extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
 extern _Bool monster_is_ally_of(object *op, object *target);
-/* src/types/nugget.c */
-extern void object_type_init_nugget(void);
-/* src/types/organic.c */
-extern void object_type_init_organic(void);
-/* src/types/pants.c */
-extern void object_type_init_pants(void);
-/* src/types/pearl.c */
-extern void object_type_init_pearl(void);
-/* src/types/pedestal.c */
-extern int pedestal_matches_obj(object *op, object *tmp);
-extern void object_type_init_pedestal(void);
-/* src/types/player.c */
-extern mempool_struct *pool_player;
-extern void player_init(void);
-extern void player_deinit(void);
-extern void player_disconnect_all(void);
-extern player *find_player(const char *plname);
-extern void display_motd(object *op);
-extern void free_player(player *pl);
-extern void give_initial_items(object *pl, treasurelist *items);
-extern int handle_newcs_player(player *pl);
-extern void do_some_living(object *op);
-extern void kill_player(object *op);
-extern void cast_dust(object *op, object *throw_ob, int dir);
-extern int pvp_area(object *attacker, object *victim);
-extern object *find_skill(object *op, int skillnr);
-extern int player_can_carry(object *pl, uint32_t weight);
-extern char *player_get_race_class(object *op, char *buf, size_t size);
-extern void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y);
-extern void player_path_clear(player *pl);
-extern void player_path_handle(player *pl);
-extern player_faction_t *player_faction_create(player *pl, shstr *name);
-extern void player_faction_free(player *pl, player_faction_t *faction);
-extern player_faction_t *player_faction_find(player *pl, shstr *name);
-extern void player_faction_update(player *pl, shstr *name, double reputation);
-extern double player_faction_reputation(player *pl, shstr *name);
-extern char *player_sanitize_input(char *str);
-extern void player_cleanup_name(char *str);
-extern object *find_marked_object(object *op);
-extern void examine(object *op, object *tmp, StringBuffer *sb_capture);
-extern int sack_can_hold(object *pl, object *sack, object *op, int nrof);
-extern void pick_up(object *op, object *alt, int no_mevent);
-extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
-extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
-extern void drop(object *op, object *tmp, int no_mevent);
-extern char *player_make_path(const char *name, const char *ext);
-extern int player_exists(const char *name);
-extern void player_save(object *op);
-extern object *player_get_dummy(const char *name, const char *host);
-extern object *player_find_spell(object *op, spell_struct *spell);
-extern void player_set_talking_to(player *pl, object *npc);
-extern void player_login(socket_struct *ns, const char *name, struct archetype *at);
-extern void object_type_init_player(void);
-/* src/types/player_mover.c */
-extern void object_type_init_player_mover(void);
-/* src/types/poisoning.c */
-extern void object_type_init_poisoning(void);
-/* src/types/potion.c */
-extern void object_type_init_potion(void);
-/* src/types/potion_effect.c */
-extern void object_type_init_potion_effect(void);
-/* src/types/power_crystal.c */
-extern void object_type_init_power_crystal(void);
-/* src/types/quest_container.c */
-extern void object_type_init_quest_container(void);
-/* src/types/random_drop.c */
-extern void object_type_init_random_drop(void);
-/* src/types/ring.c */
-extern void object_type_init_ring(void);
-/* src/types/rod.c */
-extern void object_type_init_rod(void);
-/* src/types/rune.c */
-extern void rune_spring(object *op, object *victim);
-extern void object_type_init_rune(void);
-/* src/types/savebed.c */
-extern void object_type_init_savebed(void);
-/* src/types/scroll.c */
-extern void object_type_init_scroll(void);
-/* src/types/shield.c */
-extern void object_type_init_shield(void);
-/* src/types/shop_floor.c */
-extern void object_type_init_shop_floor(void);
-/* src/types/sign.c */
-extern void object_type_init_sign(void);
-/* src/types/skill.c */
-extern void object_type_init_skill(void);
-/* src/types/skill_item.c */
-extern void object_type_init_skill_item(void);
-/* src/types/sound_ambient.c */
-extern const char *sound_ambient_match_str(object *ob);
-extern int sound_ambient_match(object *ob);
-extern void sound_ambient_match_parse(object *ob, const char *str);
-extern void sound_ambient_init(object *ob);
-extern void sound_ambient_deinit(object *ob);
-extern void object_type_init_sound_ambient(void);
-/* src/types/spawn_point.c */
-extern void object_type_init_spawn_point(void);
-/* src/types/spawn_point_info.c */
-extern void object_type_init_spawn_point_info(void);
-/* src/types/spawn_point_mob.c */
-extern void object_type_init_spawn_point_mob(void);
-/* src/types/spell.c */
-extern void object_type_init_spell(void);
-/* src/types/spinner.c */
-extern void object_type_init_spinner(void);
-/* src/types/swarm_spell.c */
-extern void object_type_init_swarm_spell(void);
-/* src/types/symptom.c */
-extern void object_type_init_symptom(void);
-/* src/types/treasure.c */
-extern void object_type_init_treasure(void);
-/* src/types/trinket.c */
-extern void object_type_init_trinket(void);
-/* src/types/wall.c */
-extern void object_type_init_wall(void);
-/* src/types/wand.c */
-extern void object_type_init_wand(void);
-/* src/types/waypoint.c */
-extern object *get_active_waypoint(object *op);
-extern object *get_aggro_waypoint(object *op);
-extern object *get_return_waypoint(object *op);
-extern void waypoint_compute_path(object *waypoint);
-extern void waypoint_move(object *op, object *waypoint);
-extern void object_type_init_waypoint(void);
-/* src/types/wealth.c */
-extern void object_type_init_wealth(void);
-/* src/types/weapon.c */
-extern void object_type_init_weapon(void);
-/* src/types/word_of_recall.c */
-extern void object_type_init_word_of_recall(void);
+extern void monster_drop_arrows(object *op);
 /* src/toolkit/binreloc.c */
 extern void toolkit_binreloc_init(void);
 extern void toolkit_binreloc_deinit(void);
@@ -1130,6 +684,8 @@ extern int rndm(int min, int max);
 extern int rndm_chance(uint32_t n);
 extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
 extern size_t nearest_pow_two_exp(size_t n);
+extern bool math_point_in_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle);
+extern bool math_point_edge_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle, int *deg);
 /* src/toolkit/memory.c */
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);
@@ -1157,6 +713,7 @@ extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
 extern char *path_file_contents(const char *path);
+extern int path_rename(const char *old, const char *new);
 /* src/toolkit/pbkdf2.c */
 extern void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */

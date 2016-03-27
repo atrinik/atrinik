@@ -1,0 +1,18 @@
+# Sword of fools
+Allowed all
+chance 20
+artifact weapon_fools
+def_arch sword
+Object
+title of fools
+ac -1
+dam 3
+wc -1
+wc_range 15
+type 15
+is_magical 1
+cursed_perm 1
+cursed 1
+value 500
+item_power 1
+end

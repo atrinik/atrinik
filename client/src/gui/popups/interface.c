@@ -26,34 +26,43 @@
  * @file
  * Implements the interface used by NPCs and the like.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
 
 /**
- * The current interface data. */
+ * The current interface data.
+ */
 static interface_struct *interface_data = NULL;
 /**
- * The interface popup. */
+ * The interface popup.
+ */
 static popup_struct *interface_popup = NULL;
 /**
- * Button buffers. */
+ * Button buffers.
+ */
 static button_struct button_hello, button_close;
 /**
- * Character shortcuts for links. */
+ * Character shortcuts for links.
+ */
 static const char character_shortcuts[] = "123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM{}<>/?~!@#$%^&*()";
 /**
- * Text input history. */
+ * Text input history.
+ */
 static text_input_history_struct *text_input_history = NULL;
 /**
- * Text input in the interface. */
+ * Text input in the interface.
+ */
 static text_input_struct text_input;
 
 /**
  * Destroy the specified interface data.
- * @param data Interface data to destroy. */
+ * @param data
+ * Interface data to destroy.
+ */
 static void interface_destroy(interface_struct *data)
 {
     if (!data) {
@@ -230,7 +239,8 @@ static int popup_button_event_func(popup_button *button)
 }
 
 /**
- * Handles clicking the 'hello' button. */
+ * Handles clicking the 'hello' button.
+ */
 static void button_hello_event(void)
 {
     if (!interface_data->progressed || SDL_GetTicks() >= interface_data->progressed_ticks) {
@@ -639,7 +649,8 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 }
 
 /**
- * Redraw the interface. */
+ * Redraw the interface.
+ */
 void interface_redraw(void)
 {
     if (interface_popup) {

@@ -24,13 +24,19 @@
 
 /**
  * @file
- * Server main related functions. */
+ * Server main related functions.
+ */
 
 #include <global.h>
 #include <gitversion.h>
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <player.h>
+#include <object_methods.h>
+#include <waypoint.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>
@@ -67,8 +73,10 @@ static void do_specials(void);
 
 /**
  * Shows version information.
- * @param op If NULL the version is logged using LOG(), otherwise it is
- * shown to the player object using draw_info_format(). */
+ * @param op
+ * If NULL the version is logged using LOG(), otherwise it is
+ * shown to the player object using draw_info_format().
+ */
 void version(object *op)
 {
     char buf[HUGE_BUF];
@@ -89,7 +97,9 @@ void version(object *op)
 /**
  * All this really is is a glorified object_removeject that also updates the
  * counts on the map if needed and sets map timeout if needed.
- * @param op The object leaving the map. */
+ * @param op
+ * The object leaving the map.
+ */
 void leave_map(object *op)
 {
     object_remove(op, 0);
@@ -104,7 +114,9 @@ void leave_map(object *op)
 
 /**
  * Sets map timeout value.
- * @param map The map to set the timeout for. */
+ * @param map
+ * The map to set the timeout for.
+ */
 void set_map_timeout(mapstruct *map)
 {
 #if MAP_DEFAULTTIMEOUT
@@ -127,8 +139,9 @@ void set_map_timeout(mapstruct *map)
 
 /**
  * Process objects with speed, like teleporters, players, etc.
- * @param map If not NULL, only process objects on that map. */
-void process_events(mapstruct *map)
+ */
+void
+process_events (void)
 {
     object *op;
     tag_t tag;
@@ -166,35 +179,43 @@ void process_events(mapstruct *map)
         op->active_next = &marker;
 
         /* Now process op */
-        if (OBJECT_FREE(op)) {
+        if (unlikely(OBJECT_FREE(op))) {
             LOG(ERROR, "Free object on active list");
             op->speed = 0;
-            update_ob_speed(op);
+            object_update_speed(op);
             continue;
         }
 
-        if (QUERY_FLAG(op, FLAG_REMOVED)) {
+        if (unlikely(QUERY_FLAG(op, FLAG_REMOVED))) {
+            /*
+             * This is not actually an error; object_remove() doesn't remove
+             * active objects from the active list, since the two most common
+             * next steps are to either: re-insert the object elsewhere (for
+             * which we would have to re-add it to the active list), or destroy
+             * the object altogether (which does remove it from the active
+             * list).
+             *
+             * For now, just drop a DEVEL message about this case, so we can
+             * get a better idea of the objects that rely on this behavior.
+             */
+            LOG(DEVEL, "Removed object on active list: %s", object_get_str(op));
             op->speed = 0;
-            update_ob_speed(op);
+            object_update_speed(op);
             continue;
         }
 
-        if (DBL_EQUAL(op->speed, 0.0)) {
+        if (unlikely(DBL_EQUAL(op->speed, 0.0))) {
             LOG(ERROR, "Object has no speed, but is on active list: %s",
-                    object_get_str(op));
-            update_ob_speed(op);
+                object_get_str(op));
+            object_update_speed(op);
             continue;
         }
 
-        if (op->map == NULL && op->env == NULL) {
+        if (unlikely(op->map == NULL && op->env == NULL)) {
             LOG(ERROR, "Object without map or inventory is on active list: %s",
-                    object_get_str(op));
+                object_get_str(op));
             op->speed = 0;
-            update_ob_speed(op);
-            continue;
-        }
-
-        if (map && op->map != map) {
+            object_update_speed(op);
             continue;
         }
 
@@ -218,7 +239,7 @@ void process_events(mapstruct *map)
 
             object_process(op);
 
-            if (was_destroyed(op, tag)) {
+            if (OBJECT_DESTROYED(op, tag)) {
                 continue;
             }
         }
@@ -228,7 +249,7 @@ void process_events(mapstruct *map)
         }
 
         if (op->anim_flags & ANIM_FLAG_STOP_ATTACKING) {
-            if (op->enemy == NULL || !is_melee_range(op, op->enemy)) {
+            if (op->enemy == NULL || !attack_is_melee_range(op, op->enemy)) {
                 op->anim_flags &= ~ANIM_FLAG_ATTACKING;
             }
 
@@ -270,7 +291,8 @@ void process_events(mapstruct *map)
 }
 
 /**
- * Clean temporary map files. */
+ * Clean temporary map files.
+ */
 void clean_tmp_files(void)
 {
     mapstruct *m, *tmp;
@@ -298,7 +320,8 @@ void clean_tmp_files(void)
 }
 
 /**
- * Shut down the server, saving and freeing all data. */
+ * Shut down the server, saving and freeing all data.
+ */
 void server_shutdown(void)
 {
     player_disconnect_all();
@@ -309,7 +332,8 @@ void server_shutdown(void)
 /**
  * Dequeue path requests.
  * @todo Only compute time if there is something more in the queue,
- * something like if (path_request_queue_empty()) { break; } */
+ * something like if (path_request_queue_empty()) { break; }
+ */
 static void dequeue_path_requests(void)
 {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING
@@ -351,12 +375,19 @@ static void dequeue_path_requests(void)
 
 /**
  * Swap one apartment (unique) map for another.
- * @param mapold Old map path.
- * @param mapnew Map to switch for.
- * @param x X position where player's items from old map will go to.
- * @param y Y position where player's items from old map will go to.
- * @param op Player we're doing the switching for.
- * @return 1 on success, 0 on failure. */
+ * @param mapold
+ * Old map path.
+ * @param mapnew
+ * Map to switch for.
+ * @param x
+ * X position where player's items from old map will go to.
+ * @param y
+ * Y position where player's items from old map will go to.
+ * @param op
+ * Player we're doing the switching for.
+ * @return
+ * 1 on success, 0 on failure.
+ */
 int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op)
 {
     char *cleanpath, *path;
@@ -399,7 +430,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 
                 /* We teleport any possible players here to emergency map. */
                 if (ob->type == PLAYER) {
-                    object_enter_map(ob, NULL, NULL, 0, 0, 0);
+                    object_enter_map(ob, NULL, NULL, 0, 0, false);
                     continue;
                 }
 
@@ -413,7 +444,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
                     object_remove(ob, 0);
                     ob->x = x;
                     ob->y = y;
-                    insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                    object_insert_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
                 } else {
                     /* Fixed part of map */
 
@@ -430,7 +461,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
                         object_remove(tmp, 0);
                         tmp->x = x;
                         tmp->y = y;
-                        insert_ob_in_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+                        object_insert_map(tmp, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
                     }
                 }
             }
@@ -457,7 +488,8 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 }
 
 /**
- * Collection of functions to call from time to time. */
+ * Collection of functions to call from time to time.
+ */
 static void do_specials(void)
 {
     if (!(pticks % 2)) {
@@ -525,7 +557,7 @@ void main_process(void)
     pticks++;
 
     /* "do" something with objects with speed */
-    process_events(NULL);
+    process_events();
 
     /* Removes unused maps after a certain timeout */
     check_active_maps();
@@ -538,9 +570,13 @@ void main_process(void)
 
 /**
  * The main function.
- * @param argc Number of arguments.
- * @param argv Arguments.
- * @return 0. */
+ * @param argc
+ * Number of arguments.
+ * @param argv
+ * Arguments.
+ * @return
+ * 0.
+ */
 int main(int argc, char **argv)
 {
 #ifdef WIN32
@@ -588,18 +624,20 @@ int main(int argc, char **argv)
 #endif
     }
 
-    console_start_thread();
+    if (!settings.no_console) {
+        console_start_thread();
+    }
+
     process_delay = 0;
 
     LOG(INFO, "Server ready. Waiting for connections...");
 
     for (; ; ) {
-        if (shutdown_timer_check()) {
+        if (unlikely(shutdown_timer_check())) {
             break;
         }
 
         console_command_handle();
-
 
         doeric_server();
 

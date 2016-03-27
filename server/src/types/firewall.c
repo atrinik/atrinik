@@ -26,28 +26,36 @@
  * @file
  * Handles code for @ref FIREWALL "firewall".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
+/** @copydoc object_methods_t::process_func */
+static void
+process_func (object *op)
 {
-    if (!op->last_eat || !op->map) {
+    HARD_ASSERT(op != NULL);
+
+    if (op->last_eat == 0 || op->map == NULL) {
         return;
     }
 
     cast_spell(op, op, op->direction, op->stats.dam, 1, CAST_NPC, op->race);
 }
 
-/** @copydoc object_methods::trigger_func */
-static int trigger_func(object *op, object *cause, int state)
+/** @copydoc object_methods_t::trigger_func */
+static int
+trigger_func (object *op, object *cause, int state)
 {
-    (void) state;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(cause != NULL);
 
-    if (cause->last_eat) {
+    if (cause->last_eat != 0) {
         op->last_eat = !op->last_eat;
-    } else if (op->stats.maxsp) {
+    } else if (op->stats.maxsp != 0) {
         op->direction = absdir(op->direction + op->stats.maxsp);
         animate_turning(op);
     }
@@ -56,9 +64,10 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the firewall type object methods. */
-void object_type_init_firewall(void)
+ * Initialize the firewall type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(firewall)
 {
-    object_type_methods[FIREWALL].process_func = process_func;
-    object_type_methods[FIREWALL].trigger_func = trigger_func;
+    OBJECT_METHODS(FIREWALL)->process_func = process_func;
+    OBJECT_METHODS(FIREWALL)->trigger_func = trigger_func;
 }

@@ -1,0 +1,84 @@
+# Leggings of fire protection
+Allowed leggings_plate, leggings_chain, leggings_leather
+artifact leggings_protect_fire
+chance 20
+difficulty 3
+t_style 1
+def_arch leggings_leather
+Object
+title of fire protection
+type 99
+item_level_art 3
+is_magical 1
+protect_fire 15
+value 3000
+item_power 1
+end
+
+# Leggings of cold protection
+Allowed leggings_plate, leggings_chain, leggings_leather
+artifact leggings_protect_cold
+chance 20
+difficulty 3
+t_style 2
+def_arch leggings_leather
+Object
+title of cold protection
+type 99
+item_level_art 3
+is_magical 1
+protect_cold 15
+value 3000
+item_power 1
+end
+
+# Leggings of electricity protection
+Allowed leggings_plate, leggings_chain, leggings_leather
+artifact leggings_protect_electricity
+chance 20
+difficulty 3
+t_style 3
+def_arch leggings_leather
+Object
+title of electricity protection
+type 99
+item_level_art 3
+is_magical 1
+protect_electricity 15
+value 3000
+item_power 1
+end
+
+# Leggings of poison protection
+Allowed leggings_plate, leggings_chain, leggings_leather
+artifact leggings_protect_poison
+chance 20
+difficulty 3
+t_style 4
+def_arch leggings_leather
+Object
+item_level_art 3
+title of poison protection
+type 99
+is_magical 1
+protect_poison 15
+value 3000
+item_power 1
+end
+
+# Leggings of acid protection
+Allowed leggings_plate, leggings_chain, leggings_leather
+artifact leggings_protect_acid
+chance 20
+difficulty 3
+t_style 5
+def_arch leggings_leather
+Object
+title of acid protection
+type 99
+item_level_art 3
+is_magical 1
+protect_acid 15
+value 3000
+item_power 1
+end

@@ -109,7 +109,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * The --config command-line option.
- * @param arg The file to open for reading.
+ * @param arg
+ * The file to open for reading.
  */
 static void clioptions_option_config(const char *arg)
 {
@@ -121,7 +122,8 @@ static void clioptions_option_config(const char *arg)
 
 /**
  * The --help command-line option.
- * @param arg Optional argument.
+ * @param arg
+ * Optional argument.
  */
 static void clioptions_option_help(const char *arg)
 {
@@ -200,12 +202,18 @@ static void clioptions_option_help(const char *arg)
 
 /**
  * Add a command line option.
- * @param longname Long name of the option, can be NULL.
- * @param shortname Short name of the option, can be NULL.
- * @param handle_func The handler function for the option.
- * @param argument Whether the option accepts an argument or not. Can be NULL.
- * @param desc_brief Brief description of the option.
- * @param desc More detailed description of the option.
+ * @param longname
+ * Long name of the option, can be NULL.
+ * @param shortname
+ * Short name of the option, can be NULL.
+ * @param handle_func
+ * The handler function for the option.
+ * @param argument
+ * Whether the option accepts an argument or not. Can be NULL.
+ * @param desc_brief
+ * Brief description of the option.
+ * @param desc
+ * More detailed description of the option.
  */
 void clioptions_add(const char *longname, const char *shortname,
         clioptions_handler_func handle_func, uint8_t argument,
@@ -260,8 +268,10 @@ void clioptions_add(const char *longname, const char *shortname,
 
 /**
  * Parse CLI options from argv array.
- * @param argc Number of elements in argv.
- * @param argv Variable length array of character pointers with the
+ * @param argc
+ * Number of elements in argv.
+ * @param argv
+ * Variable length array of character pointers with the
  * option/argument combinations.
  */
 void clioptions_parse(int argc, char *argv[])
@@ -341,9 +351,12 @@ void clioptions_parse(int argc, char *argv[])
 
 /**
  * Load command-line options from config file.
- * @param path File to load from.
- * @param category Category of options to read; NULL for all.
- * @return 1 on success, 0 on failure.
+ * @param path
+ * File to load from.
+ * @param category
+ * Category of options to read; NULL for all.
+ * @return
+ * 1 on success, 0 on failure.
  */
 int clioptions_load_config(const char *path, const char *category)
 {

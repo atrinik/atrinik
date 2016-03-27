@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Defines and variables used by the artifact generation routines. */
+ * Defines and variables used by the artifact generation routines.
+ */
 
 #ifndef TREASURE_H
 #define TREASURE_H
@@ -36,12 +37,23 @@
 #define NUM_COINS 6
 
 /**
+ * Maximum difficulty levels.
+ */
+#define DIFFLEVELS 201
+
+/**
+ * Maximum magic.
+ */
+#define MAXMAGIC 4
+
+/**
  * @defgroup GT_xxx Treasure generation flags
  * Treasure generation flags.
  *@{*/
 /**
  * Put generated treasure below the object instead of inside the object's
- * inventory. */
+ * inventory.
+ */
 #define GT_ENVIRONMENT 0x0001
 /** Generated items have ::FLAG_STARTEQUIP set */
 #define GT_STARTEQUIP 0x0004
@@ -58,7 +70,8 @@
 /**
  * When a treasure got cloned from archlist, we want to perhaps change
  * some default values. All values in this structure will override the
- * default arch. */
+ * default arch.
+ */
 typedef struct _change_arch {
     /** If not NULL, copy this over the original arch name. */
     const char *name;
@@ -93,7 +106,8 @@ typedef struct _change_arch {
  * complete treasurelist.
  *
  * Any arch can point to a treasurelist to get generated standard
- * treasure when an archetype of that type is generated. */
+ * treasure when an archetype of that type is generated.
+ */
 typedef struct treasurestruct {
     /** Which item this link can be */
     struct archetype *item;
@@ -112,7 +126,8 @@ typedef struct treasurestruct {
 
     /**
      * Local t_style (will overrule global one) - used from artifacts.
-     * @see @ref treasure_style */
+     * @see @ref treasure_style
+     */
     int t_style;
 
     /** Value from 0 - 1000. Chance of item is magic. */
@@ -120,7 +135,8 @@ typedef struct treasurestruct {
 
     /**
      * If this value is not 0, use this as fixed magic value.
-     * if it 0, look at magic to generate perhaps a random magic value */
+     * if it 0, look at magic to generate perhaps a random magic value
+     */
     int magic_fix;
 
     /**
@@ -131,7 +147,8 @@ typedef struct treasurestruct {
      * - <b>-1</b>: Ignore this value (<b>default</b>)
      * - <b>0</b>: NEVER make an artifact for this treasure.
      * - <b>1 - 100</b>: % chance of making an artifact from this
-     *   treasure. */
+     *   treasure.
+     */
     int artifact_chance;
 
     /** Max magic bonus to item */
@@ -139,7 +156,8 @@ typedef struct treasurestruct {
 
     /**
      * If the entry is a list transition, it contains the difficulty
-     * required to go to the new list */
+     * required to go to the new list
+     */
     int difficulty;
 
     /** Random 1 to nrof items are generated */
@@ -163,7 +181,8 @@ typedef struct treasureliststruct {
 
     /**
      * Global style (used from artifacts file).
-     * @see @ref treasure_style */
+     * @see @ref treasure_style
+     */
     int t_style;
 
     /** Artifact chance */
@@ -175,7 +194,8 @@ typedef struct treasureliststruct {
     /**
      * If non zero, only 1 item on this list should be generated.
      *
-     * The total_chance contains the sum of the chance for this list. */
+     * The total_chance contains the sum of the chance for this list.
+     */
     int16_t total_chance;
 
     /** Next treasure-item in linked list */

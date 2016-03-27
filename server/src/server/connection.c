@@ -29,12 +29,17 @@
 
 #include <global.h>
 #include <plugin.h>
+#include <object.h>
+#include <object_methods.h>
 
 /**
  * Creates a new connection.
- * @param op Object to connect.
- * @param map Map to create the connection on.
- * @param connected Connection ID of the object.
+ * @param op
+ * Object to connect.
+ * @param map
+ * Map to create the connection on.
+ * @param connected
+ * Connection ID of the object.
  */
 void connection_object_add(object *op, mapstruct *map, int connected)
 {
@@ -80,7 +85,8 @@ void connection_object_add(object *op, mapstruct *map, int connected)
 
 /**
  * Remove a connection.
- * @param op Object to remove. Must be on a map, and connected.
+ * @param op
+ * Object to remove. Must be on a map, and connected.
  */
 void connection_object_remove(object *op)
 {
@@ -109,12 +115,18 @@ void connection_object_remove(object *op)
 
 /**
  * Acquire the connection ID of the specified object.
- * @param op Object to get the connection ID of.
- * @return Connection ID, or 0 if not connected.
+ *
+ * @param op
+ * Object to get the connection ID of.
+ * @return
+ * Connection ID, or 0 if not connected.
  */
-int connection_object_get_value(object *op)
+int
+connection_object_get_value (const object *op)
 {
-    if (!op || !op->map || !QUERY_FLAG(op, FLAG_IS_LINKED)) {
+    HARD_ASSERT(op != NULL);
+
+    if (op->map == NULL || !QUERY_FLAG(op, FLAG_IS_LINKED)) {
         return 0;
     }
 
@@ -123,9 +135,12 @@ int connection_object_get_value(object *op)
 
 /**
  * Return the first objectlink in the objects linked to this one.
- * @param op Object to get the link for.
- * @param map Map to look at.
- * @return ::objectlink for this object, or NULL.
+ * @param op
+ * Object to get the link for.
+ * @param map
+ * Map to look at.
+ * @return
+ * ::objectlink for this object, or NULL.
  */
 static objectlink *connection_object_links(object *op, mapstruct *map)
 {
@@ -148,11 +163,15 @@ static objectlink *connection_object_links(object *op, mapstruct *map)
 
 /**
  * Actually does the logic behind triggering a connection.
- * @param op The object.
- * @param state Trigger state.
- * @param button If true, we're triggering a button (called from
+ * @param op
+ * The object.
+ * @param state
+ * Trigger state.
+ * @param button
+ * If true, we're triggering a button (called from
  * connection_trigger_button())
- * @return If @p button is true, returns new state of the button, otherwise 0
+ * @return
+ * If @p button is true, returns new state of the button, otherwise 0
  * is returned.
  */
 static int64_t connection_trigger_do(object *op, int state, bool button)
@@ -208,9 +227,16 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
                     continue;
                 }
 
-                if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(
-                        EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0,
-                        SCRIPT_FIX_NOTHING)) {
+                if (HAS_EVENT(tmp, EVENT_TRIGGER) &&
+                    trigger_event(EVENT_TRIGGER,
+                                  tmp,
+                                  op,
+                                  NULL,
+                                  NULL,
+                                  0,
+                                  0,
+                                  0,
+                                  0) != 0) {
                     continue;
                 }
 
@@ -224,8 +250,10 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
 
 /**
  * Trigger an object.
- * @param op The object.
- * @param state The trigger state.
+ * @param op
+ * The object.
+ * @param state
+ * The trigger state.
  */
 void connection_trigger(object *op, int state)
 {
@@ -236,8 +264,10 @@ void connection_trigger(object *op, int state)
 
 /**
  * Trigger a button-like object.
- * @param op The button-like object.
- * @param state The trigger state.
+ * @param op
+ * The button-like object.
+ * @param state
+ * The trigger state.
  */
 void connection_trigger_button(object *op, int state)
 {

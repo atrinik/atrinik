@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Sprite header file. */
+ * Sprite header file.
+ */
 
 #ifndef SPRITE_H
 #define SPRITE_H

@@ -36,7 +36,7 @@ def main():
     if marked.f_cursed or marked.f_damned:
         pl.DrawInfo("Ack, that was some rotten pipeweed!", COLOR_RED)
         force.Int = -5
-        force.Wis = -5
+        force.Pow = -5
     else:
         force.SetProtection(ATNR_CONFUSION, 25)
         force.SetProtection(ATNR_WEAPON_MAGIC, 20)

@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref MONEY "money".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the money type object methods. */
-void object_type_init_money(void)
+ * Initialize the money type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(money)
 {
 }

@@ -24,26 +24,34 @@
 
 /**
  * @file
- * All rune related functions. */
+ * All rune related functions.
+ */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
+#include <rune.h>
 
 /**
  * Should op see trap?
- * @param op Living that could spot the trap.
- * @param trap Trap that is invisible.
- * @param level Level.
+ * @param op
+ * Living that could spot the trap.
+ * @param trap
+ * Trap that is invisible.
+ * @param level
+ * Level.
  * @retval 0 Trap wasn't spotted.
- * @retval 1 Trap was spotted. */
+ * @retval 1 Trap was spotted.
+ */
 int trap_see(object *op, object *trap, int level)
 {
     int chance = rndm(0, 99);
 
     /* Decide if we can see the rune or not */
-    if ((trap->level <= level && rndm_chance(10)) || trap->stats.Cha == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Cha - op->level) / 10.0 * 50.0)))))) {
+    if ((trap->level <= level && rndm_chance(10)) || trap->stats.Int == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Int - op->level) / 10.0 * 50.0)))))) {
         draw_info_format(COLOR_WHITE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
 
-        if (trap->stats.Cha != 1) {
+        if (trap->stats.Int != 1) {
             CONTR(op)->stat_traps_found++;
         }
 
@@ -55,9 +63,13 @@ int trap_see(object *op, object *trap, int level)
 
 /**
  * Handles showing of a trap.
- * @param trap The trap.
- * @param where Where.
- * @return 1 if the trap was shown, 0 otherwise. */
+ * @param trap
+ * The trap.
+ * @param where
+ * Where.
+ * @return
+ * 1 if the trap was shown, 0 otherwise.
+ */
 int trap_show(object *trap, object *where)
 {
     object *env;
@@ -78,16 +90,16 @@ int trap_show(object *trap, object *where)
     trap->layer = LAYER_EFFECT;
 
     /* The trap is not hidden anymore. */
-    if (trap->stats.Cha > 1) {
-        trap->stats.Cha = 1;
+    if (trap->stats.Int > 1) {
+        trap->stats.Int = 1;
     }
 
     if (env && env->type != PLAYER && env->type != MONSTER &&
             env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS)) {
-        insert_ob_in_ob(trap, env);
+        object_insert_into(trap, env, 0);
         set_trapped_flag(env);
     } else if (where->map != NULL) {
-        insert_ob_in_map(trap, where->map, NULL, 0);
+        object_insert_map(trap, where->map, NULL, 0);
     }
 
     return 1;
@@ -95,9 +107,13 @@ int trap_show(object *trap, object *where)
 
 /**
  * Try to disarm a trap.
- * @param disarmer Player disarming the trap.
- * @param trap Trap to disarm.
- * @return 1 if trap was disarmed, 0 otherwise. */
+ * @param disarmer
+ * Player disarming the trap.
+ * @param trap
+ * Trap to disarm.
+ * @return
+ * 1 if trap was disarmed, 0 otherwise.
+ */
 int trap_disarm(object *disarmer, object *trap)
 {
     object *env = trap->env;
@@ -126,8 +142,11 @@ int trap_disarm(object *disarmer, object *trap)
 /**
  * Adjust trap difficulty to the map. The default traps are too strong
  * for wimpy level 1 players, and unthreatening to anyone of high level.
- * @param trap Trap to adjust.
- * @param difficulty Map difficulty. */
+ * @param trap
+ * Trap to adjust.
+ * @param difficulty
+ * Map difficulty.
+ */
 void trap_adjust(object *trap, int difficulty)
 {
     int off, level, hide;
@@ -143,5 +162,5 @@ void trap_adjust(object *trap, int difficulty)
     hide = MAX(1, MIN(hide, INT8_MAX));
 
     trap->level = level;
-    trap->stats.Cha = hide;
+    trap->stats.Int = hide;
 }

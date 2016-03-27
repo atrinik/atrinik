@@ -26,9 +26,11 @@
  * @file
  * Implements the /push command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_push(object *op, const char *command, char *params)

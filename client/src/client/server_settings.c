@@ -57,17 +57,17 @@ void server_settings_init(void)
     while (fgets(VS(buf), fp) != NULL) {
         linenum++;
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         char *cps[2];
         if (string_split(cp, cps, arraysize(cps), ' ') < 1) {
             continue;
         }
 
-        char *key = cps[0], *value = cps[1], *error_str;
+        const char *key = cps[0], *error_str;
+        char *value = cps[1];
 
         if (strcmp(key, "char") == 0) {
             if (cur_char != NULL) {

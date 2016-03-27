@@ -38,7 +38,8 @@
  *
  * @author Alex Tokar
  * @author Daniel Liptrot
- * @author Dantee */
+ * @author Dantee
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -67,14 +68,16 @@ static widgetdata *widget_list_foot;
 
 /**
  * The head and foot node for each widget type.
- * The nodes in this linked list do not change until a node is deleted. */
+ * The nodes in this linked list do not change until a node is deleted.
+ */
 /* TODO: change cur_widget to type_list_head */
 widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 static widgetdata *type_list_foot[TOTAL_SUBWIDGETS];
 
 /**
  * Determines which widget has mouse focus
- * This value is determined in the mouse routines for the widgets */
+ * This value is determined in the mouse routines for the widgets
+ */
 widgetevent widget_mouse_event = {
     NULL, 0, 0
 };
@@ -92,7 +95,8 @@ static widgetresize widget_event_resize = {
 /**
  * A way to steal the mouse, and to prevent widgets from using mouse events
  * Example: Prevents widgets from using mouse events during dragging procedure
- * */
+ *
+ */
 static int IsMouseExclusive = 0;
 
 /**
@@ -233,7 +237,8 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
 
 /**
  * Try to load the main interface file and initialize the priority list
- * On failure, initialize the widgets with init_widgets_fromDefault() */
+ * On failure, initialize the widgets with init_widgets_fromDefault()
+ */
 void toolkit_widget_init(void)
 {
     widgetdata * widgets[100];
@@ -467,7 +472,8 @@ void remove_widget_object(widgetdata *widget)
  * killing the linked list altogether.
  * Please do not use, this should only be explicitly called by
  * kill_widget_tree() and remove_widget_object().
- * Use remove_widget_object() for everything else. */
+ * Use remove_widget_object() for everything else.
+ */
 void remove_widget_object_intern(widgetdata *widget)
 {
     widgetdata *tmp;
@@ -541,7 +547,8 @@ void remove_widget_object_intern(widgetdata *widget)
  * Any widgets that can't be deleted should end up on the top level.
  * This function is already automatically handled with the delete_inv flag,
  * so it shouldn't be called explicitly apart from in
- * remove_widget_object_intern(). */
+ * remove_widget_object_intern().
+ */
 void remove_widget_inv(widgetdata *widget)
 {
     widgetdata *tmp;
@@ -560,7 +567,8 @@ void remove_widget_inv(widgetdata *widget)
 }
 
 /**
- * Deinitialize all widgets, and free their SDL surfaces. */
+ * Deinitialize all widgets, and free their SDL surfaces.
+ */
 void kill_widgets(void)
 {
     /* get rid of the pointer to the widgets first */
@@ -595,8 +603,165 @@ void widgets_reset(void)
 }
 
 /**
+ * Acquire the specified widget's X coordinate.
+ *
+ * @param widget
+ * Widget.
+ * @return
+ * X coordinate.
+ */
+int
+widget_x (const widgetdata *widget)
+{
+    if (!DBL_EQUAL(widget->zoom, 1.0)) {
+        return widget->zoom_x;
+    }
+
+    return widget->x;
+}
+
+/**
+ * Acquire the specified widget's Y coordinate.
+ *
+ * @param widget
+ * Widget.
+ * @return
+ * Y coordinate.
+ */
+int
+widget_y (const widgetdata *widget)
+{
+    if (!DBL_EQUAL(widget->zoom, 1.0)) {
+        return widget->zoom_y;
+    }
+
+    return widget->y;
+}
+
+/**
+ * Acquire the specified widget's width.
+ *
+ * @param widget
+ * Widget.
+ * @return
+ * Width.
+ */
+int
+widget_w (const widgetdata *widget)
+{
+    return widget->w * widget->zoom;
+}
+
+/**
+ * Acquire the specified widget's height.
+ *
+ * @param widget
+ * Widget.
+ * @return
+ * Height.
+ */
+int
+widget_h (const widgetdata *widget)
+{
+    return widget->h * widget->zoom;
+}
+
+/**
+ * Set the widget's zoom value.
+ *
+ * @param widget
+ * Widget.
+ * @param zoom
+ * New zoom value.
+ * @return
+ * Whether the widget's zoom value changed.
+ */
+bool
+widget_set_zoom (widgetdata *widget, double zoom)
+{
+    if (DBL_EQUAL(widget->zoom, zoom)) {
+        /* Zoom values are the same; nothing to do. */
+        return false;
+    }
+
+    widget->zoom = zoom;
+
+    int w, h;
+    zoomSurfaceSize(widget->w, widget->h, zoom, zoom, &w, &h);
+
+    widget->zoom_x = widget->x - (w - widget->w) / 2;
+    widget->zoom_y = widget->y - (h - widget->h) / 2;
+
+    return true;
+}
+
+/**
+ * Determine if the widget is an ellipse.
+ *
+ * @param widget
+ * Widget.
+ * @return
+ * Whether the widget is an ellipse.
+ */
+static bool
+widget_is_ellipse (widgetdata *widget)
+{
+    switch (widget->type) {
+    case MINIMAP_ID:
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+/**
+ * Determine whether the specified coordinates are over the widget.
+ *
+ * @param widget
+ * Widget.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @return
+ * Whether the coordinates are over the widget.
+ */
+static bool
+widget_mouse_over (widgetdata *widget, int x, int y)
+{
+    if (x < widget_x(widget) ||
+        y < widget_y(widget) ||
+        x > widget_x(widget) + widget_w(widget) ||
+        y > widget_y(widget) + widget_h(widget)) {
+        return false;
+    }
+
+    if (widget_is_ellipse(widget)) {
+        int xpad = 0, ypad = 0;
+        if (widget->padding_func != NULL) {
+            widget->padding_func(widget, &xpad, &ypad);
+        }
+
+        if (!math_point_in_ellipse(x - widget_x(widget) - xpad,
+                                   y - widget_y(widget) - ypad,
+                                   (widget_w(widget) - xpad * 2) / 2.0,
+                                   (widget_h(widget) - ypad * 2) / 2.0,
+                                   widget_w(widget) - xpad * 2,
+                                   widget_h(widget) - ypad * 2,
+                                   0.0)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
  * Ensures a single widget is on-screen.
- * @param widget The widget. */
+ * @param widget
+ * The widget.
+ */
 static void widget_ensure_onscreen(widgetdata *widget)
 {
     int dx = 0, dy = 0;
@@ -633,7 +798,8 @@ static void widget_ensure_onscreen(widgetdata *widget)
 }
 
 /**
- * Ensures all widgets are on-screen. */
+ * Ensures all widgets are on-screen.
+ */
 void widgets_ensure_onscreen(void)
 {
     widgetdata *tmp;
@@ -673,7 +839,8 @@ void kill_widget_tree(widgetdata *widget)
  * the widget tree.
  * This should always be the first function called by create_widget_object() in
  * order to get the pointer
- * to the new node so we can link it to other new nodes that depend on it. */
+ * to the new node so we can link it to other new nodes that depend on it.
+ */
 widgetdata *create_widget(int widget_id)
 {
     widgetdata *node;
@@ -688,6 +855,7 @@ widgetdata *create_widget(int widget_id)
     /* set the members */
     memcpy(node, &def_widget[widget_id], sizeof(*node));
     node->sub_type = widget_id;
+    node->zoom = 1.0;
 
     /* link it up to the tree if the root exists */
     if (widget_list_head) {
@@ -1028,8 +1196,11 @@ void toolkit_widget_deinit(void)
 
 /**
  * Make widgets try to handle an event.
- * @param event Event to handle.
- * @return 1 if the event was handled, 0 otherwise. */
+ * @param event
+ * Event to handle.
+ * @return
+ * 1 if the event was handled, 0 otherwise.
+ */
 int widgets_event(SDL_Event *event)
 {
     widgetdata *widget;
@@ -1205,31 +1376,79 @@ int widgets_event(SDL_Event *event)
 
         if (ret == 0 && event->type == SDL_MOUSEMOTION && widget->resizeable) {
 #define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj)      \
-    (event->motion.coord >= widget->coord + (upper_adj) &&    \
-    event->motion.coord <= widget->coord + (lower_adj))
-            if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
-                widget->resize_flags = RESIZE_TOP;
-            } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
-                widget->resize_flags = RESIZE_BOTTOM;
-            } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
-                widget->resize_flags = RESIZE_LEFT;
-            } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
-                widget->resize_flags = RESIZE_RIGHT;
-            }
-
-            if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
-                if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
-                    widget->resize_flags |= RESIZE_LEFT;
-                } else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05,
-                        widget->w)) {
-                    widget->resize_flags |= RESIZE_RIGHT;
+    (event->motion.coord >= widget_##coord(widget) + (upper_adj) &&    \
+    event->motion.coord <= widget_##coord(widget) + (lower_adj))
+            if (widget_is_ellipse(widget)) {
+                int xpad = 0, ypad = 0;
+                if (widget->padding_func != NULL) {
+                    widget->padding_func(widget, &xpad, &ypad);
                 }
-            } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
-                if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
-                    widget->resize_flags |= RESIZE_TOP;
-                } else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05,
-                        widget->h)) {
-                    widget->resize_flags |= RESIZE_BOTTOM;
+                int x = event->motion.x - widget_x(widget) - xpad;
+                int y = event->motion.y - widget_y(widget) - ypad;
+                int deg;
+                if (math_point_edge_ellipse(x,
+                                            y,
+                                            (widget_w(widget) - xpad * 2) / 2.0,
+                                            (widget_h(widget) - ypad * 2) / 2.0,
+                                            widget_w(widget) - xpad * 2,
+                                            widget_h(widget) - ypad * 2,
+                                            0.0,
+                                            &deg)) {
+                    if (deg >= 5 && deg < 175) {
+                        widget->resize_flags |= RESIZE_RIGHT;
+                    } else if (deg >= 185 && deg < 355) {
+                        widget->resize_flags |= RESIZE_LEFT;
+                    }
+
+                    if (deg >= 95 && deg < 265) {
+                        widget->resize_flags |= RESIZE_BOTTOM;
+                    } else if (deg >= 275 || deg < 85) {
+                        widget->resize_flags |= RESIZE_TOP;
+                    }
+                }
+            } else {
+                if (WIDGET_RESIZE_CHECK(y,
+                                        0,
+                                        2)) {
+                    widget->resize_flags = RESIZE_TOP;
+                } else if (WIDGET_RESIZE_CHECK(y,
+                                               widget_h(widget) - 2,
+                                               widget_h(widget))) {
+                    widget->resize_flags = RESIZE_BOTTOM;
+                } else if (WIDGET_RESIZE_CHECK(x,
+                                               0,
+                                               2)) {
+                    widget->resize_flags = RESIZE_LEFT;
+                } else if (WIDGET_RESIZE_CHECK(x,
+                                               widget_w(widget) - 2,
+                                               widget_w(widget))) {
+                    widget->resize_flags = RESIZE_RIGHT;
+                }
+
+                if (widget->resize_flags & (RESIZE_TOP |
+                                            RESIZE_BOTTOM)) {
+                    if (WIDGET_RESIZE_CHECK(x,
+                                            0,
+                                            widget_w(widget) * 0.05)) {
+                        widget->resize_flags |= RESIZE_LEFT;
+                    } else if (WIDGET_RESIZE_CHECK(x,
+                                                   widget_w(widget) -
+                                                       widget_w(widget) * 0.05,
+                                                   widget_w(widget))) {
+                        widget->resize_flags |= RESIZE_RIGHT;
+                    }
+                } else if (widget->resize_flags & (RESIZE_LEFT |
+                                                   RESIZE_RIGHT)) {
+                    if (WIDGET_RESIZE_CHECK(y,
+                                            0,
+                                            widget_h(widget) * 0.05)) {
+                        widget->resize_flags |= RESIZE_TOP;
+                    } else if (WIDGET_RESIZE_CHECK(y,
+                                                   widget_h(widget) -
+                                                       widget_h(widget) * 0.05,
+                                                   widget_h(widget))) {
+                        widget->resize_flags |= RESIZE_BOTTOM;
+                    }
                 }
             }
 #undef WIDGET_RESIZE_CHECK
@@ -1271,9 +1490,12 @@ int widget_event_start_move(widgetdata *widget)
         return 0;
     }
 
-    x = widget->x + widget->w / 2;
-    y = widget->y + widget->h / 2;
-    SDL_WarpMouse(x, y);
+    SDL_GetMouseState(&x, &y);
+    if (!widget_mouse_over(widget, x, y)) {
+        x = widget_x(widget) + widget_w(widget) / 2;
+        y = widget_y(widget) + widget_h(widget) / 2;
+        SDL_WarpMouse(x, y);
+    }
 
     /* we know this widget owns the mouse.. */
     widget_event_move.active = 1;
@@ -1394,12 +1616,8 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
             }
         }
 
-        switch (widget->type) {
-        default:
-
-            if (x >= widget->x && x <= (widget->x + widget->w) && y >= widget->y && y <= (widget->y + widget->h)) {
-                return widget;
-            }
+        if (widget_mouse_over(widget, x, y)) {
+            return widget;
         }
 
         /* get the next sibling for our next loop */
@@ -1411,8 +1629,10 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 
 /**
  * Used by widgets_need_redraw() to check if any widget needs redrawing.
- * @param widget Widget.
- * @return 1 if any widget needs redrawing, 0 otherwise.
+ * @param widget
+ * Widget.
+ * @return
+ * 1 if any widget needs redrawing, 0 otherwise.
  */
 static int widgets_need_redraw_rec(widgetdata *widget)
 {
@@ -1434,7 +1654,8 @@ static int widgets_need_redraw_rec(widgetdata *widget)
 
 /**
  * Check if any widget need redrawing.
- * @return 1 if any widget needs redrawing, 0 otherwise.
+ * @return
+ * 1 if any widget needs redrawing, 0 otherwise.
  */
 int widgets_need_redraw(void)
 {
@@ -1446,7 +1667,8 @@ int widgets_need_redraw(void)
  * recursions.
  * We actually only need to recurse for every child node. When we traverse the
  * siblings, we can just do a simple loop.
- * This makes it as fast as a linear linked list if there are no child nodes. */
+ * This makes it as fast as a linear linked list if there are no child nodes.
+ */
 static void process_widgets_rec(int draw, widgetdata *widget)
 {
     uint8_t redraw;
@@ -1458,7 +1680,8 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 
         if (draw && widget->show && !widget->hidden && widget->draw_func) {
             if (widget->resize_flags) {
-                if (cursor_x < widget->x || cursor_x > widget->x + widget->w || cursor_y < widget->y || cursor_y > widget->y + widget->h) {
+                if (!widget_event_resize.active &&
+                    !widget_mouse_over(widget, cursor_x, cursor_y)) {
                     widget->resize_flags = 0;
                 }
 
@@ -1541,7 +1764,8 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 /**
  * Traverse through all the widgets and call the corresponding handlers.
  * This is now a wrapper function just to make the sanity checks before
- * continuing with the actual handling. */
+ * continuing with the actual handling.
+ */
 void process_widgets(int draw)
 {
     if (draw && widget_event_move.active) {
@@ -1558,7 +1782,8 @@ void process_widgets(int draw)
  * In order to do this, we need to recurse backwards up the tree to the top
  * node,
  * and then work our way back down again, bringing each node in front of its
- * siblings. */
+ * siblings.
+ */
 void SetPriorityWidget(widgetdata *node)
 {
 #ifdef DEBUG_WIDGET
@@ -1670,7 +1895,9 @@ void SetPriorityWidget(widgetdata *node)
 
 /**
  * Like SetPriorityWidget(), but in reverse.
- * @param node The widget. */
+ * @param node
+ * The widget.
+ */
 void SetPriorityWidget_reverse(widgetdata *node)
 {
     if (!node) {
@@ -1849,11 +2076,17 @@ widgetdata *get_innermost_container(widgetdata *widget)
 
 /**
  * Find the first widget in the priority list.
- * @param where Where to look for.
- * @param type Widget type to look for. -1 for any type.
- * @param id Identifier to look for. NULL for any identifier.
- * @param surface Surface to look for. NULL for any surface.
- * @return Widget if found, NULL otherwise. */
+ * @param where
+ * Where to look for.
+ * @param type
+ * Widget type to look for. -1 for any type.
+ * @param id
+ * Identifier to look for. NULL for any identifier.
+ * @param surface
+ * Surface to look for. NULL for any surface.
+ * @return
+ * Widget if found, NULL otherwise.
+ */
 widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface *surface)
 {
     widgetdata *tmp, *tmp2;
@@ -1896,9 +2129,12 @@ widgetdata *widget_find_create_id(int type, const char *id)
 /**
  * Actually switches focus to the backmost widget; used by
  * widget_switch_focus().
- * @param widget Where to start.
- * @param type Widget type.
- * @param id UID. Can be NULL.
+ * @param widget
+ * Where to start.
+ * @param type
+ * Widget type.
+ * @param id
+ * UID. Can be NULL.
  */
 static void widget_switch_focus_do(widgetdata *widget, int type, const char *id)
 {
@@ -1920,8 +2156,10 @@ static void widget_switch_focus_do(widgetdata *widget, int type, const char *id)
 
 /**
  * Switches focus to the backmost widget of the given type and UID.
- * @param type Widget type.
- * @param id UID. Can be NULL.
+ * @param type
+ * Widget type.
+ * @param id
+ * UID. Can be NULL.
  */
 void widget_switch_focus(int type, const char *id)
 {
@@ -2279,7 +2517,9 @@ void add_separator(widgetdata *widget)
  *
  * Makes sure the menu does not go over the screen size by adding x/y,
  * using standard GUI behavior.
- * @param widget The menu to finalize. */
+ * @param widget
+ * The menu to finalize.
+ */
 void menu_finalize(widgetdata *widget)
 {
     int xoff = 0, yoff = 0;
@@ -2333,8 +2573,10 @@ void widget_redraw_type_id(int type, const char *id)
 
 /**
  * Sets visibility of the specified widget.
- * @param widget Widget to show.
- * @param show 1 to show the widget, 0 to hide it.
+ * @param widget
+ * Widget to show.
+ * @param show
+ * 1 to show the widget, 0 to hide it.
  */
 void widget_show(widgetdata *widget, int show)
 {
@@ -2368,7 +2610,9 @@ void widget_show(widgetdata *widget, int show)
 
 /**
  * Toggles visibility of all widgets of a particular type.
- * @param type_id The type. */
+ * @param type_id
+ * The type.
+ */
 void widget_show_toggle_all(int type_id)
 {
     widgetdata *widget;
@@ -2410,7 +2654,8 @@ void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem,
 }
 
 /**
- * Enable widget rendering debugging. */
+ * Enable widget rendering debugging.
+ */
 void widget_render_enable_debug(void)
 {
     widget_render_debug = 1;

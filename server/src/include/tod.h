@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Defines for in-game clock and ticks management. */
+ * Defines for in-game clock and ticks management.
+ */
 
 #ifndef TOD_H
 #define TOD_H

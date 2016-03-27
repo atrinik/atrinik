@@ -2387,7 +2387,7 @@ level 35
 maxsp 30
 pow 20
 dex 2
-wis 6
+item_power 6
 attack_move_type 1
 run_away 10
 protect_weaponmagic 100

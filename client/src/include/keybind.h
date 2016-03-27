@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Keybindings header file. */
+ * Keybindings header file.
+ */
 
 #ifndef KEYBIND_H
 #define KEYBIND_H
@@ -33,7 +34,8 @@
 #define FILE_KEYBIND "settings/keys.dat"
 
 /**
- * One keybind. */
+ * One keybind.
+ */
 typedef struct keybind_struct {
     /** Command to execute. */
     char *command;

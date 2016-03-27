@@ -13,7 +13,7 @@ is_evil 1
 direction 5
 terrain_flag 65
 randomitems mob_quickwood
-wis 3
+item_power 3
 animation quickwood
 is_animated 1
 anim_speed 4

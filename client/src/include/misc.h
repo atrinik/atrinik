@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Misc definitions. */
+ * Misc definitions.
+ */
 
 #ifndef MISC_H
 #define MISC_H
@@ -33,8 +34,11 @@
 
 /**
  * Returns the element size of an array.
- * @param arrayname The array's name.
- * @return The number of elements. */
+ * @param arrayname
+ * The array's name.
+ * @return
+ * The number of elements.
+ */
 #define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
 
 #endif

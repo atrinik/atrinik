@@ -24,14 +24,16 @@
 
 /**
  * @file
- *  */
+ *
+ */
 
 #include <global.h>
 
 key_struct keys[SDLK_LAST];
 
 /**
- * Initialize keys. */
+ * Initialize keys.
+ */
 void init_keys(void)
 {
     memset(keys, 0, sizeof(*keys) * arraysize(keys));
@@ -39,7 +41,9 @@ void init_keys(void)
 
 /**
  * Handle a keyboard event.
- * @param event The event to handle. */
+ * @param event
+ * The event to handle.
+ */
 void key_handle_event(SDL_KeyboardEvent *event)
 {
     if (event->type == SDL_KEYDOWN) {

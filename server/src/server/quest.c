@@ -33,12 +33,17 @@
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Find a quest inside the specified quest object.
- * @param quest The quest object.
- * @param quest_name Name of the quest.
- * @return The object that is used to represent the quest in the quest
+ * @param quest
+ * The quest object.
+ * @param quest_name
+ * Name of the quest.
+ * @return
+ * The object that is used to represent the quest in the quest
  * object, NULL if no matching quest found.
  */
 static object *quest_find(object *quest, shstr *quest_name)
@@ -60,13 +65,17 @@ static object *quest_find(object *quest, shstr *quest_name)
  * (name and arch name are compared).
  * @note This function is recursive and will call itself on any
  * non-system inventories inside the player until it finds a matching item.
- * @param op The player object.
- * @param quest_item The quest item we'll be comparing values from.
- * @param flag Flag to compare the quest item against, -1 for no flag
+ * @param op
+ * The player object.
+ * @param quest_item
+ * The quest item we'll be comparing values from.
+ * @param flag
+ * Flag to compare the quest item against, -1 for no flag
  * comparison.
  * @param[out] num If not NULL, will contain number of matching objects
  * found and the return value will always be 0.
- * @return 1 if the player has the quest item, 0 otherwise.
+ * @return
+ * 1 if the player has the quest item, 0 otherwise.
  */
 static int quest_item_check(object *op, object *quest_item, int flag,
         int64_t *num)
@@ -107,10 +116,14 @@ static int quest_item_check(object *op, object *quest_item, int flag,
 
 /**
  * Handle the item drop quest type.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
- * @param item Quest item.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
+ * @param item
+ * Quest item.
  */
 static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
         object *item)
@@ -135,12 +148,12 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
     }
 
     /* Create the one-drop item. */
-    clone = get_object();
-    copy_object_with_inv(item, clone);
+    clone = object_get();
+    object_copy_full(clone, item);
     SET_FLAG(clone, FLAG_IDENTIFIED);
 
     /* Insert the quest item inside the player. */
-    insert_ob_in_ob(clone, op);
+    object_insert_into(clone, op, 0);
 
     if (QUERY_FLAG(item, FLAG_ONE_DROP)) {
         /* Create a quest object in the player's container, so that the item
@@ -153,7 +166,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
         FREE_AND_COPY_HASH(quest_pl->name, quest->name);
         FREE_AND_COPY_HASH(quest_pl->race, QUEST_NAME(quest));
         /* Insert it inside player's quest container. */
-        insert_ob_in_ob(quest_pl, CONTR(op)->quest_container);
+        object_insert_into(quest_pl, CONTR(op)->quest_container, 0);
 
         snprintf(VS(buf), "You solved the one drop quest %s!\n",
                 QUEST_NAME(quest_pl));
@@ -171,10 +184,14 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
 
 /**
  * Handle the kill quest type.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
- * @param item Quest item.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
+ * @param item
+ * Quest item.
  */
 static void quest_check_kill(object *op, object *quest, object *quest_pl,
         object *item)
@@ -217,10 +234,14 @@ static void quest_check_kill(object *op, object *quest, object *quest_pl,
 
 /**
  * Handle the item quest type.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
- * @param item Quest item.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
+ * @param item
+ * Quest item.
  */
 static void quest_check_item(object *op, object *quest, object *quest_pl,
         object *item)
@@ -254,8 +275,8 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     }
 
     /* Create a new quest item. */
-    clone = get_object();
-    copy_object_with_inv(item, clone);
+    clone = object_get();
+    object_copy_full(clone, item);
     SET_FLAG(clone, FLAG_QUEST_ITEM);
     SET_FLAG(clone, FLAG_STARTEQUIP);
     CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
@@ -276,16 +297,19 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     draw_info(COLOR_NAVY, op, buf);
 
     /* Insert the quest item inside the player. */
-    insert_ob_in_ob(clone, op);
+    object_insert_into(clone, op, 0);
     play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg",
             0, 0, 0, 0);
 }
 
 /**
  * Called from quest_handle(). Handles the parsing of a specific quest object.
- * @param op Player object.
- * @param quest Quest object.
- * @param quest_pl Quest object in the player, can be NULL.
+ * @param op
+ * Player object.
+ * @param quest
+ * Quest object.
+ * @param quest_pl
+ * Quest object in the player, can be NULL.
  */
 static void quest_object_handle(object *op, object *quest, object *quest_pl)
 {
@@ -302,8 +326,15 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
             "Invalid quest_pl supplied: %p", quest_pl);
 
     /* Trigger the TRIGGER event */
-    if (trigger_event(EVENT_TRIGGER, op, quest, quest_pl, NULL, 0, 0, 0,
-            SCRIPT_FIX_NOTHING)) {
+    if (trigger_event(EVENT_TRIGGER,
+                      op,
+                      quest,
+                      quest_pl,
+                      NULL,
+                      0,
+                      0,
+                      0,
+                      0) != 0) {
         return;
     }
 
@@ -338,8 +369,10 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
  * function is called to parse the quest object and its contents for any
  * possible quests the player may be running.
  * @warning <b>ONLY</b> call on player objects.
- * @param op The player object.
- * @param quest The quest.
+ * @param op
+ * The player object.
+ * @param quest
+ * The quest.
  */
 void quest_handle(object *op, object *quest)
 {

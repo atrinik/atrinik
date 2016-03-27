@@ -41,7 +41,8 @@
  * regardless of the current keyboard modifier state, it would not be
  * possible to do actions such as alt+numpad, or ctrl+numpad.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -53,7 +54,8 @@ keybind_struct **keybindings = NULL;
 size_t keybindings_num = 0;
 
 /**
- * Load keybindings. */
+ * Load keybindings.
+ */
 void keybind_load(void)
 {
     FILE *fp;
@@ -150,7 +152,9 @@ void keybind_save(void)
 
 /**
  * Free a single keybinding entry.
- * @param keybind Keybinding to free. */
+ * @param keybind
+ * Keybinding to free.
+ */
 void keybind_free(keybind_struct *keybind)
 {
     efree(keybind->command);
@@ -158,7 +162,8 @@ void keybind_free(keybind_struct *keybind)
 }
 
 /**
- * Deinitialize all keybindings. */
+ * Deinitialize all keybindings.
+ */
 void keybind_deinit(void)
 {
     size_t i;
@@ -182,8 +187,11 @@ void keybind_deinit(void)
  * Adjust SDLMod state value. This is done because the state may have
  * other flags we do not care about, and we do not want to save those
  * to file. It also simplifies keyboard modifier state checks.
- * @param mod State to adjust.
- * @return Adjusted state. */
+ * @param mod
+ * State to adjust.
+ * @return
+ * Adjusted state.
+ */
 static SDLMod keybind_adjust_kmod(SDLMod mod)
 {
     /* We only care about left/right shift, ctrl, alt, and super
@@ -215,11 +223,16 @@ static SDLMod keybind_adjust_kmod(SDLMod mod)
 
 /**
  * Add a keybinding to the ::keybindings array.
- * @param key Key the keybinding uses.
- * @param mod Modifier for the keybinding shortcut. Will be adjusted by
+ * @param key
+ * Key the keybinding uses.
+ * @param mod
+ * Modifier for the keybinding shortcut. Will be adjusted by
  * keybind_adjust_kmod().
- * @param command Command to execute when the keybinding is activated.
- * @return The added keybinding. */
+ * @param command
+ * Command to execute when the keybinding is activated.
+ * @return
+ * The added keybinding.
+ */
 keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command)
 {
     keybind_struct *keybind;
@@ -240,10 +253,15 @@ keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command)
 
 /**
  * Edit the specified keybinding.
- * @param i Index inside the ::keybindings array to edit.
- * @param key Key to change.
- * @param mod Modifier to change.
- * @param command Command to change. */
+ * @param i
+ * Index inside the ::keybindings array to edit.
+ * @param key
+ * Key to change.
+ * @param mod
+ * Modifier to change.
+ * @param command
+ * Command to change.
+ */
 void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command)
 {
     /* Sanity check. */
@@ -260,7 +278,9 @@ void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command)
 
 /**
  * Remove a keybinding from ::keybindings.
- * @param i Index in the ::keybindings array to remove. */
+ * @param i
+ * Index in the ::keybindings array to remove.
+ */
 void keybind_remove(size_t i)
 {
     size_t j;
@@ -285,8 +305,10 @@ void keybind_remove(size_t i)
 
 /**
  * Toggle the repeat state of a keybinding.
- * @param i Index in the ::keybindings array to toggle the repeat state
- * of. */
+ * @param i
+ * Index in the ::keybindings array to toggle the repeat state
+ * of.
+ */
 void keybind_repeat_toggle(size_t i)
 {
     /* Sanity check. */
@@ -299,11 +321,17 @@ void keybind_repeat_toggle(size_t i)
 
 /**
  * Construct a text representation of a keybinding shortcut.
- * @param key Key of the shortcut.
- * @param mod Keyboard modifier.
- * @param buf Where to store the result.
- * @param len Size of 'buf'.
- * @return 'buf'. */
+ * @param key
+ * Key of the shortcut.
+ * @param mod
+ * Keyboard modifier.
+ * @param buf
+ * Where to store the result.
+ * @param len
+ * Size of 'buf'.
+ * @return
+ * 'buf'.
+ */
 char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len)
 {
     buf[0] = '\0';
@@ -334,8 +362,11 @@ char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len)
 
 /**
  * Finds keybinding structure by command name.
- * @param cmd The command to find.
- * @return Keybinding if found, NULL otherwise. */
+ * @param cmd
+ * The command to find.
+ * @return
+ * Keybinding if found, NULL otherwise.
+ */
 keybind_struct *keybind_find_by_command(const char *cmd)
 {
     size_t i;
@@ -351,8 +382,11 @@ keybind_struct *keybind_find_by_command(const char *cmd)
 
 /**
  * Check if the specified keybinding command matches a keyboard event.
- * @param cmd The keybinding command.
- * @return 1 if it matches, 0 otherwise. */
+ * @param cmd
+ * The keybinding command.
+ * @return
+ * 1 if it matches, 0 otherwise.
+ */
 int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event)
 {
     keybind_struct *keybind = keybind_find_by_command(cmd);
@@ -371,8 +405,11 @@ int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event)
 /**
  * Check if the specified keybinding command matches the current keyboard
  * state.
- * @param cmd The keybinding command.
- * @return 1 if it matches, 0 otherwise. */
+ * @param cmd
+ * The keybinding command.
+ * @return
+ * 1 if it matches, 0 otherwise.
+ */
 int keybind_command_matches_state(const char *cmd)
 {
     size_t i;
@@ -390,8 +427,11 @@ int keybind_command_matches_state(const char *cmd)
 
 /**
  * Attempt to process a keyboard event.
- * @param event The event to process.
- * @return 1 if the event was handled, 0 otherwise. */
+ * @param event
+ * The event to process.
+ * @return
+ * 1 if the event was handled, 0 otherwise.
+ */
 int keybind_process_event(SDL_KeyboardEvent *event)
 {
     size_t i;
@@ -418,8 +458,11 @@ int keybind_process_event(SDL_KeyboardEvent *event)
 
 /**
  * Process a keybinding.
- * @param keybind The keybinding to process.
- * @param type Either SDL_KEYDOWN or SDL_KEYUP. */
+ * @param keybind
+ * The keybinding to process.
+ * @param type
+ * Either SDL_KEYDOWN or SDL_KEYUP.
+ */
 void keybind_process(keybind_struct *keybind, uint8_t type)
 {
     char command[MAX_BUF], *cp;
@@ -451,8 +494,11 @@ void keybind_process(keybind_struct *keybind, uint8_t type)
 
 /**
  * Handle keybinding 'key up' event.
- * @param cmd Keybinding command to handle.
- * @return 1 if the command was handled, 0 otherwise. */
+ * @param cmd
+ * Keybinding command to handle.
+ * @return
+ * 1 if the command was handled, 0 otherwise.
+ */
 int keybind_process_command_up(const char *cmd)
 {
     const char *cmd_orig = cmd;
@@ -483,7 +529,8 @@ int keybind_process_command_up(const char *cmd)
 
 /**
  * Ensure that keybindings which should trigger on 'key up' event have
- * done so, even if the 'key up' event was handled by something else. */
+ * done so, even if the 'key up' event was handled by something else.
+ */
 void keybind_state_ensure(void)
 {
     if (cpl.run_on && !keybind_command_matches_state("?RUNON")) {
@@ -497,8 +544,11 @@ void keybind_state_ensure(void)
 
 /**
  * Handle keybinding 'key down' event.
- * @param cmd Keybinding command to handle.
- * @return 1 if the command was handled, 0 otherwise. */
+ * @param cmd
+ * Keybinding command to handle.
+ * @return
+ * 1 if the command was handled, 0 otherwise.
+ */
 int keybind_process_command(const char *cmd)
 {
     if (notification_keybind_check(cmd)) {

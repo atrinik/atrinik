@@ -138,7 +138,7 @@ treasureone small_things
       chance 25
   more
     arch axe_small
-      magic 1
+      magic 4
       chance 10
       material_quality 80
       material_range 15
@@ -148,83 +148,83 @@ treasureone small_things
     chance 10
   more
   arch torch
-    magic 1
+    magic 4
     chance 15
   more
   arch club
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch dagger_small
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch shortsword
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch sandals
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch robe
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch gloves
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch girdle
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch hat_feather
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch dress
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch buckler
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch coat
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch padded_armour
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
   more
   arch leather_armour
-    magic 1
+    magic 4
     chance 5
     material_quality 80
     material_range 15
@@ -350,7 +350,7 @@ end
 treasureone random_arrows
   arch arrow
     magic_chance 25
-    magic 3
+    magic 4
     chance 50
     nrof 3
     material_quality 80
@@ -359,7 +359,7 @@ treasureone random_arrows
   more
   arch arrow_woodlanders
     magic_chance 20
-    magic 3
+    magic 4
     chance 30
     nrof 3
     material_quality 80
@@ -368,7 +368,7 @@ treasureone random_arrows
   more
   arch arrow_fey
     magic_chance 15
-    magic 3
+    magic 4
     chance 20
     nrof 2
     material_quality 80
@@ -377,7 +377,7 @@ treasureone random_arrows
   more
   arch arrow_elven
     magic_chance 10
-    magic 3
+    magic 4
     chance 10
     nrof 2
     material_quality 80
@@ -388,7 +388,7 @@ end
 treasureone random_bolts
   arch bolt
     magic_chance 25
-    magic 3
+    magic 4
     chance 50
     nrof 3
     material_quality 80
@@ -397,7 +397,7 @@ treasureone random_bolts
   more
   arch bolt_woodlanders
     magic_chance 20
-    magic 3
+    magic 4
     chance 30
     nrof 3
     material_quality 80
@@ -406,7 +406,7 @@ treasureone random_bolts
   more
   arch bolt_fey
     magic_chance 15
-    magic 3
+    magic 4
     chance 20
     nrof 2
     material_quality 80
@@ -415,7 +415,7 @@ treasureone random_bolts
   more
   arch bolt_dwarven
     magic_chance 10
-    magic 3
+    magic 4
     chance 10
     nrof 2
     material_quality 80
@@ -426,7 +426,7 @@ end
 treasureone random_sstones
   arch sstone
     magic_chance 25
-    magic 3
+    magic 4
     chance 50
     nrof 3
     material_quality 80
@@ -435,7 +435,7 @@ treasureone random_sstones
   more
   arch sstone_woodlanders
     magic_chance 20
-    magic 3
+    magic 4
     chance 30
     nrof 3
     material_quality 80
@@ -444,7 +444,7 @@ treasureone random_sstones
   more
   arch sstone_fey
     magic_chance 15
-    magic 3
+    magic 4
     chance 20
     nrof 2
     material_quality 80
@@ -453,7 +453,7 @@ treasureone random_sstones
   more
   arch sstone_iron
     magic_chance 10
-    magic 3
+    magic 4
     chance 10
     nrof 2
     material_quality 80
@@ -513,21 +513,21 @@ end
 treasureone random_weapons_missile_bow
   arch bow_short
     chance 12
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch bow
     chance 10
     difficulty 6
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch bow_long
     chance 5
     difficulty 18
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
 end
@@ -535,21 +535,21 @@ end
 treasureone random_weapons_missile_sling
   arch sling_small
     chance 12
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch sling
     chance 10
     difficulty 6
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch sling_heavy
     chance 5
     difficulty 18
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
 end
@@ -557,21 +557,21 @@ end
 treasureone random_weapons_missile_crossbow
   arch crossbow_small
     chance 12
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch crossbow
     chance 10
     difficulty 6
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch crossbow_large
     chance 5
     difficulty 18
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
 end
@@ -667,109 +667,109 @@ end
 treasureone random_weapons_cleave_1h
   arch axe_hand2
     difficulty 3
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch axe
     difficulty 3
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch axe_battle
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch axe_battle2
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch axe_battle3
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch axe_broad
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch axe_double
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch axe_great
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch axe_hand
     difficulty 3
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch axe_small
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch axe_war
     difficulty 3
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch cleaver_battle
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch cleaver_war
     difficulty 3
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch pick_axe
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch whip
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch whip_war
     difficulty 6
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
@@ -777,43 +777,43 @@ end
 
 treasureone random_weapons_cleave_2h
   arch axe_2h
-    magic 1
+    magic 4
     chance 30
     material_quality 80
     material_range 15
   more
   arch axe_2h_battle
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch axe_2h_great
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch axe_2h_war
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch axe_2h_war2
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch axe_broad2
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mattock
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
@@ -821,25 +821,25 @@ end
 
 treasureone random_weapons_cleave_pole
   arch bardiche
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch halberd
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch spetum
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch voulge
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -860,110 +860,110 @@ end
 
 treasureone random_weapons_slash_1h
   arch baselard
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch bastardsword
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch broadsword
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch falchion
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch gladius
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch katana
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch longsword
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch ninjato
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch scimitar
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch scythe_military
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shortsword
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch sword
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch sword_curved
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch tsurugi
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch tulwar
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch wakizashi
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -971,43 +971,43 @@ end
 
 treasureone random_weapons_slash_2h
   arch claymore
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch no_dachi
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch panzerstecher
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch scythe_war
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch sword_double
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch sword_great
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
     arch sword2h
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1015,19 +1015,19 @@ end
 
 treasureone random_weapons_slash_pole
   arch fauchard
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch glaive
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
     arch naginata
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1049,109 +1049,109 @@ end
 treasureone random_weapons_impact_1h
   arch ancus
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch club
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch club_spiked
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch flail_war
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer_battle
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer_military
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer_small
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer_war
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mace_spiked
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mace_spiked_war
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mace_war
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mstar
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mstar_large
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mstar_small
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shootingstar
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1159,43 +1159,43 @@ end
 
 treasureone random_weapons_impact_2h
   arch club_giant
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch club_giant_spiked
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer_giant
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer_swar_giant
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch hammer_war_giant
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch mstar_2h
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch quaterstaff
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1203,13 +1203,13 @@ end
 
 treasureone random_weapons_impact_pole
   arch bec_de_corbin
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch lucern_hammer
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1231,109 +1231,109 @@ end
 treasureone random_weapons_pierce_1h
   arch athame
     difficulty 3
-    magic 1
+    magic 4
     chance 14
     material_quality 80
     material_range 15
   more
   arch cutlass
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch dagger
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch dagger2
     difficulty 3
-    magic 1
+    magic 4
     chance 14
     material_quality 80
     material_range 15
   more
   arch dagger_large
-    magic 1
+    magic 4
     chance 12
     material_quality 80
     material_range 15
   more
   arch dagger_small
-    magic 1
+    magic 4
     chance 8
     material_quality 80
     material_range 15
   more
   arch degen
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch flamberge
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch pallasch
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch rapier
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch rapier2
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch saber
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch saber2
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch saber3
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shiavona
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch tanto
     difficulty 3
-    magic 1
+    magic 4
     chance 14
     material_quality 80
     material_range 15
@@ -1341,43 +1341,43 @@ end
 
 treasureone random_weapons_pierce_2h
   arch forc
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch forc_military
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch lance
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch spear
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch spear_black
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch trident
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch pike
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1385,25 +1385,25 @@ end
 
 treasureone random_weapons_pierce_pole
   arch bill_guisarme
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch guisarme
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch partisan
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch ranseur
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1505,14 +1505,14 @@ end
 
 treasureone random_armour_mail
   arch banded_mail
-    magic 1
+    magic 4
     difficulty 9
     chance 20
     material_quality 80
     material_range 15
   more
   arch bone_armour
-    magic 1
+    magic 4
     difficulty 6
     chance 30
     material_quality 80
@@ -1520,129 +1520,129 @@ treasureone random_armour_mail
   more
   arch bplate_mail
     difficulty 12
-    magic 1
+    magic 4
     chance 30
     material_quality 80
     material_range 15
   more
   arch breastplate
-    magic 1
+    magic 4
     difficulty 19
     chance 15
     material_quality 80
     material_range 15
   more
   arch brigandine
-    magic 1
+    magic 4
     difficulty 6
     chance 25
     material_quality 80
     material_range 15
   more
   arch chain_hauberk
-    magic 1
+    magic 4
     difficulty 9
     chance 20
     material_quality 80
     material_range 15
   more
   arch chain_mail
-    magic 1
+    magic 4
     difficulty 6
     chance 25
     material_quality 80
     material_range 15
   more
   arch chitin_mail
-    magic 1
+    magic 4
     difficulty 9
     chance 25
     material_quality 80
     material_range 15
   more
   arch crystal_mail
-    magic 1
+    magic 4
     difficulty 48
     chance 4
     material_quality 80
     material_range 15
   more
   arch lamellar_mail
-    magic 1
+    magic 4
     difficulty 6
     chance 20
     material_quality 80
     material_range 15
   more
   arch leather_armour
-    magic 1
+    magic 4
     chance 30
     material_quality 80
     material_range 15
   more
   arch leather_cuirass
-    magic 1
+    magic 4
     difficulty 6
     chance 20
     material_quality 80
     material_range 15
   more
   arch padded_armour
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch leather_spiked
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch leather_studded
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch ring_mail
     difficulty 3
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch mithril_armour
     difficulty 29
-    magic 1
+    magic 4
     chance 4
     material_quality 80
     material_range 15
   more
   arch mithril_coat
-    magic 1
+    magic 4
     difficulty 49
     chance 4
     material_quality 80
     material_range 15
   more
   arch mithril_ring
-    magic 1
+    magic 4
     difficulty 14
     chance 4
     material_quality 80
     material_range 15
   more
   arch plate_field
-    magic 1
+    magic 4
     difficulty 19
     chance 15
     material_quality 80
     material_range 15
   more
   arch plate_full
-    magic 1
+    magic 4
     difficulty 19
     chance 15
     material_quality 80
@@ -1650,28 +1650,28 @@ treasureone random_armour_mail
   more
   arch plate_mail
     difficulty 19
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch scale_armour
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch scale_mail
     difficulty 9
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch splint_mail
     difficulty 9
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1679,110 +1679,110 @@ end
 
 treasureone random_armour_mail_l9
   arch banded_mail
-    magic 1
+    magic 4
     difficulty 9
     chance 20
     material_quality 80
     material_range 15
   more
   arch bone_armour
-    magic 1
+    magic 4
     difficulty 6
     chance 30
     material_quality 80
     material_range 15
   more
   arch brigandine
-    magic 1
+    magic 4
     difficulty 6
     chance 25
     material_quality 80
     material_range 15
   more
   arch chain_hauberk
-    magic 1
+    magic 4
     difficulty 9
     chance 20
     material_quality 80
     material_range 15
   more
   arch chain_mail
-    magic 1
+    magic 4
     difficulty 6
     chance 25
     material_quality 80
     material_range 15
   more
   arch chitin_mail
-    magic 1
+    magic 4
     difficulty 9
     chance 25
     material_quality 80
     material_range 15
   more
   arch lamellar_mail
-    magic 1
+    magic 4
     difficulty 6
     chance 20
     material_quality 80
     material_range 15
   more
   arch leather_armour
-    magic 1
+    magic 4
     chance 30
     material_quality 80
     material_range 15
   more
   arch leather_cuirass
-    magic 1
+    magic 4
     difficulty 6
     chance 20
     material_quality 80
     material_range 15
   more
   arch padded_armour
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch leather_spiked
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch leather_studded
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch ring_mail
     difficulty 3
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch scale_armour
     difficulty 6
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch scale_mail
     difficulty 9
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch splint_mail
     difficulty 9
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
@@ -1790,7 +1790,7 @@ end
 
 treasureone random_armour_bracers
   arch bracers_ac
-    magic 1
+    magic 4
     chance 35
     material_quality 80
     material_range 15
@@ -1799,68 +1799,68 @@ end
 treasureone random_armour_boots
   arch sandals
     chance 20
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch low_boots
     chance 25
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch high_boots
     chance 20
-    magic 1
+    magic 4
     difficulty 2
     material_quality 80
     material_range 15
   more
   arch fencing_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch combat_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch kicking_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch fighting_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch leggings_leather
     chance 15
-    magic 1
+    magic 4
     difficulty 6
     material_quality 80
     material_range 15
   more
   arch leggings_chain
     chance 10
-    magic 1
+    magic 4
     difficulty 12
     material_quality 80
     material_range 15
   more
   arch leggings_plate
     difficulty 19
-    magic 1
+    magic 4
     chance 8
     material_quality 80
     material_range 15
@@ -1869,54 +1869,54 @@ end
 treasureone random_armour_boots_l9
   arch sandals
     chance 20
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch low_boots
     chance 25
-    magic 1
+    magic 4
     material_quality 80
     material_range 15
   more
   arch high_boots
     chance 20
-    magic 1
+    magic 4
     difficulty 2
     material_quality 80
     material_range 15
   more
   arch fencing_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch combat_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch kicking_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch fighting_boots
     chance 15
-    magic 1
+    magic 4
     difficulty 3
     material_quality 80
     material_range 15
   more
   arch leggings_leather
     chance 15
-    magic 1
+    magic 4
     difficulty 6
     material_quality 80
     material_range 15
@@ -1924,47 +1924,47 @@ end
 
 treasureone random_armour_shield
   arch buckler
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shield_round
     difficulty 3
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch small_shield
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shield
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shield_battle
-    magic 1
+    magic 4
     difficulty 18
     chance 15
     material_quality 80
     material_range 15
   more
   arch shield_defender
-    magic 1
+    magic 4
     difficulty 18
     chance 15
     material_quality 80
     material_range 15
   more
   arch shield_heater
-    magic 1
+    magic 4
     difficulty 8
     chance 15
     material_quality 80
@@ -1972,41 +1972,41 @@ treasureone random_armour_shield
   more
   arch shield_high
     difficulty 7
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch shield_kite
-    magic 1
+    magic 4
     difficulty 3
     chance 15
     material_quality 80
     material_range 15
   more
   arch shield_protector
-    magic 1
+    magic 4
     difficulty 18
     chance 15
     material_quality 80
     material_range 15
   more
   arch shield_war
-    magic 1
+    magic 4
     difficulty 18
     chance 15
     material_quality 80
     material_range 15
   more
   arch blade_stopper
-    magic 1
+    magic 4
     difficulty 18
     chance 10
     material_quality 80
     material_range 15
   more
   arch shield_chitin
-    magic 1
+    magic 4
     difficulty 8
     chance 10
     material_quality 80
@@ -2014,34 +2014,34 @@ treasureone random_armour_shield
   more
   arch shield_bone
     difficulty 8
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch shield_scale
-    magic 1
+    magic 4
     difficulty 8
     chance 10
     material_quality 80
     material_range 15
   more
   arch ball_and_chain
-    magic 1
+    magic 4
     difficulty 3
     chance 10
     material_quality 80
     material_range 15
   more
   arch shield_demon
-    magic 1
+    magic 4
     difficulty 18
     chance 5
     material_quality 80
     material_range 15
   more
   arch shield_eye
-    magic 1
+    magic 4
     difficulty 8
     chance 5
     material_quality 80
@@ -2050,33 +2050,33 @@ end
 
 treasureone random_armour_shield_l9
   arch buckler
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shield_round
     difficulty 3
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch small_shield
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shield
     difficulty 3
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch shield_heater
-    magic 1
+    magic 4
     difficulty 8
     chance 15
     material_quality 80
@@ -2084,20 +2084,20 @@ treasureone random_armour_shield_l9
   more
   arch shield_high
     difficulty 7
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch shield_kite
-    magic 1
+    magic 4
     difficulty 3
     chance 15
     material_quality 80
     material_range 15
   more
   arch shield_chitin
-    magic 1
+    magic 4
     difficulty 8
     chance 10
     material_quality 80
@@ -2105,27 +2105,27 @@ treasureone random_armour_shield_l9
   more
   arch shield_bone
     difficulty 8
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch shield_scale
-    magic 1
+    magic 4
     difficulty 8
     chance 10
     material_quality 80
     material_range 15
   more
   arch ball_and_chain
-    magic 1
+    magic 4
     difficulty 3
     chance 10
     material_quality 80
     material_range 15
   more
   arch shield_eye
-    magic 1
+    magic 4
     difficulty 8
     chance 5
     material_quality 80
@@ -2134,20 +2134,20 @@ end
 
 treasureone random_armour_cloak
   arch cloak
-    magic 1
+    magic 4
     difficulty 3
     chance 30
     material_quality 80
     material_range 15
   more
   arch cape
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch robe
-    magic 1
+    magic 4
    chance 25
     material_quality 80
     material_range 15
@@ -2155,27 +2155,27 @@ end
 
 treasureone random_armour_gauntlet
   arch gloves
-    magic 1
+    magic 4
     chance 40
     material_quality 80
     material_range 15
   more
   arch gauntlets
-    magic 1
+    magic 4
     difficulty 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch gauntlets_leather
-    magic 1
+    magic 4
     chance 25
     material_quality 80
     material_range 15
   more
   arch gauntlets_plate
     difficulty 9
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
@@ -2189,7 +2189,7 @@ treasureone random_armour_girdle
   more
   arch belt
     difficulty 9
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
@@ -2198,92 +2198,92 @@ end
 treasureone random_armour_helm
   arch helm_field
     difficulty 9
-    magic 1
+    magic 4
     chance 12
     material_quality 80
     material_range 15
   more
   arch helm_plate
     difficulty 9
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch helm_war
     difficulty 9
-    magic 1
+    magic 4
     chance 12
     material_quality 80
     material_range 15
   more
   arch full_helmet
     difficulty 9
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch helm_battle
     difficulty 9
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch helm_guard
     difficulty 9
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch coif_scale
     difficulty 4
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch coif_chain
     difficulty 4
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch helm_iron
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch helm_leather
-    magic 1
+    magic 4
     chance 20
     material_quality 80
     material_range 15
   more
   arch helm_horn
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch crown_generic
-    magic 1
+    magic 4
     chance 15
     material_quality 80
     material_range 15
   more
   arch hat_feather
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch hat_blue
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
@@ -2292,93 +2292,93 @@ end
 treasureone random_armour_pants
   arch chainpants
     difficulty 15
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch chaps
     difficulty 9
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch chausses
     difficulty 21
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch miniskirt_magenta
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch miniskirt_red
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch miniskirt_yellow
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch pants2_brown
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch pants2_red
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch pants_black
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch pants_blue
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch pants_brown
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch shorts_brown
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch skirt_magenta
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch skirt_red
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
   more
   arch skirt_yellow
-    magic 1
+    magic 4
     chance 10
     material_quality 80
     material_range 15
@@ -2985,11 +2985,6 @@ treasure mob_slime
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3038,11 +3033,6 @@ treasure mob_wyvern
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3091,11 +3081,6 @@ treasure mob_ogre
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3144,11 +3129,6 @@ treasure mob_giant_hill
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3197,11 +3177,6 @@ treasure mob_giant_stone
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3250,11 +3225,6 @@ treasure mob_dragon_water
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3303,11 +3273,6 @@ treasure mob_kobold_big
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3356,11 +3321,6 @@ treasure mob_kobold
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 299
-        end
     end
 end
 
@@ -3409,11 +3369,6 @@ treasure mob_worm_purple
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3462,11 +3417,6 @@ treasure mob_ettin
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3515,11 +3465,6 @@ treasure mob_wraith
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 125
-        end
     end
 end
 
@@ -3568,11 +3513,6 @@ treasure mob_lost_soul
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3621,11 +3561,6 @@ treasure mob_slugs
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3674,11 +3609,6 @@ treasure mob_dragon_skeletal
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 120
-        end
     end
 end
 
@@ -3727,11 +3657,6 @@ treasure mob_gazer_dread
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -3780,11 +3705,6 @@ treasure mob_demilich
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -3833,11 +3753,6 @@ treasure mob_troll
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 110
-        end
     end
 end
 
@@ -3886,11 +3801,6 @@ treasure mob_skeleton1
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3939,11 +3849,6 @@ treasure mob_skeleton2
     no
       list random_potion
         chance_fix 55
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -3992,11 +3897,6 @@ treasure mob_skeleton_mage
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4045,11 +3945,6 @@ treasure mob_vampire_lord
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4098,11 +3993,6 @@ treasure mob_vampire
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4161,11 +4051,6 @@ treasure mob_dragon_green
       list random_potion
         t_style 4
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4224,11 +4109,6 @@ treasure mob_dragon_fire
       list random_potion
         t_style 1
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4287,11 +4167,6 @@ treasure mob_dragon_blue
       list random_potion
         t_style 2
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4350,11 +4225,6 @@ treasure mob_dragon_black
       list random_potion
         t_style 3
         chance_fix 44
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4403,11 +4273,6 @@ treasure mob_lich_lord
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4456,11 +4321,6 @@ treasure mob_lom_lobon
     no
       list random_potion
         chance_fix 40
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 101
-        end
     end
 end
 
@@ -4509,11 +4369,6 @@ treasure mob_raas
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4562,11 +4417,6 @@ treasure mob_cat_black
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4615,11 +4465,6 @@ treasure mob_chicken_large
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4668,11 +4513,6 @@ treasure mob_tiger
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4721,11 +4561,6 @@ treasure mob_wolf
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
   more
   arch wolf_pelt
@@ -4777,11 +4612,6 @@ treasure mob_crocodile
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4830,11 +4660,6 @@ treasure mob_horse_white
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4883,11 +4708,6 @@ treasure mob_rooster
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4936,11 +4756,6 @@ treasure mob_snake
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -4989,11 +4804,6 @@ treasure mob_deer
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5042,11 +4852,6 @@ treasure mob_orc
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5095,11 +4900,6 @@ treasure mob_orc_mage
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 250
-        end
     end
 end
 
@@ -5148,11 +4948,6 @@ treasure mob_hobgoblin
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5201,11 +4996,6 @@ treasure mob_goblin
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5254,11 +5044,6 @@ treasure mob_gnoll
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5307,11 +5092,6 @@ treasure mob_drow
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 125
-        end
     end
 end
 
@@ -5360,11 +5140,6 @@ treasure mob_drow_mage
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 120
-        end
     end
 end
 
@@ -5413,11 +5188,6 @@ treasure mob_ghoul
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5478,11 +5248,6 @@ treasure mob_fire
       list random_potion
         t_style 1
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5543,11 +5308,6 @@ treasure mob_ice
       list random_potion
         t_style 2
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5596,11 +5356,6 @@ treasure mob_mud_hand
     no
       list random_potion
         chance_fix 75
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5652,11 +5407,6 @@ treasure mob_quickwood
     no
       list random_potion
         chance_fix 65
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5708,11 +5458,6 @@ treasure mob_treant
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5805,11 +5550,6 @@ treasure mob_frog
     no
       list random_potion
         chance_fix 75
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -5858,11 +5598,6 @@ treasure mob_spider
     no
       list random_potion
         chance_fix 75
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -6007,11 +5742,6 @@ treasure mob_default
     no
       list random_potion
         chance_fix 145
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 199
-        end
     end
 end
 
@@ -6084,11 +5814,6 @@ treasure random_testx
     no
       list random_potion
         chance_fix 45
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 99
-        end
     end
 end
 
@@ -6155,10 +5880,5 @@ treasure mob_balrog
       list random_potion
         t_style 1
         chance_fix 54
-        no
-          arch potion_improve
-            difficulty 6
-            chance_fix 132
-        end
     end
 end

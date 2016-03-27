@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref EVENT_OBJ "event objects".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the event object type object methods. */
-void object_type_init_event_obj(void)
+ * Initialize the event object type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(event_obj)
 {
 }

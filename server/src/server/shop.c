@@ -33,9 +33,12 @@
 
 /**
  * Calculate the price of an item.
- * @param tmp Object we're querying the price of.
- * @param mode One of @ref COST_xxx.
- * @return The price of the item.
+ * @param tmp
+ * Object we're querying the price of.
+ * @param mode
+ * One of @ref COST_xxx.
+ * @return
+ * The price of the item.
  */
 int64_t shop_get_cost(object *op, int mode)
 {
@@ -114,10 +117,12 @@ int64_t shop_get_cost(object *op, int mode)
 /**
  * Find the coin type that is worth more than 'cost'. Starts at the 'cointype'
  * placement.
- * @param cost Value we're searching.
+ * @param cost
+ * Value we're searching.
  * @param[in,out] cointype First coin type to search. Will contain the next
  * coin ID.
- * @return Coin archetype, NULL if none found.
+ * @return
+ * Coin archetype, NULL if none found.
  */
 static archetype_t *shop_get_next_coin(int64_t cost, int *cointype)
 {
@@ -141,11 +146,13 @@ static archetype_t *shop_get_next_coin(int64_t cost, int *cointype)
 
 /**
  * Converts a price to number of coins.
- * @param cost Value to transform to currency.
- * @return Static buffer containing the price. Will be overwritten with the next
+ * @param cost
+ * Value to transform to currency.
+ * @return
+ * Static buffer containing the price. Will be overwritten with the next
  * call to this function.
  */
-char *shop_get_cost_string(int64_t cost)
+const char *shop_get_cost_string(int64_t cost)
 {
     static char buf[MAX_BUF];
 
@@ -159,7 +166,7 @@ char *shop_get_cost_string(int64_t cost)
     cost -= num * coin->clone.value;
 
     snprintf(VS(buf), "%" PRId64 " %s%s%s", num,
-            material_real[coin->clone.material_real].name,
+            materials_real[coin->clone.material_real].name,
             coin->clone.name, num == 1 ? "" : "s");
 
     archetype_t *next_coin = shop_get_next_coin(cost, &cointype);
@@ -187,7 +194,7 @@ char *shop_get_cost_string(int64_t cost)
         }
 
         snprintfcat(VS(buf), "%" PRId64 " %s%s%s", num,
-                material_real[coin->clone.material_real].name,
+                materials_real[coin->clone.material_real].name,
                 coin->clone.name, num == 1 ? "" : "s");
     } while (next_coin != NULL);
 
@@ -198,11 +205,14 @@ char *shop_get_cost_string(int64_t cost)
  * Query the cost of an item.
  *
  * This is really a wrapper for shop_get_cost_string() and shop_get_cost().
- * @param op Object we're querying the price of.
- * @param mode One of @ref COST_xxx.
- * @return The cost string.
+ * @param op
+ * Object we're querying the price of.
+ * @param mode
+ * One of @ref COST_xxx.
+ * @return
+ * The cost string.
  */
-char *shop_get_cost_string_item(object *op, int mode)
+const char *shop_get_cost_string_item(object *op, int mode)
 {
     return shop_get_cost_string(shop_get_cost(op, mode));
 }
@@ -210,8 +220,10 @@ char *shop_get_cost_string_item(object *op, int mode)
 /**
  * Finds out how much money the player is carrying, including what is in
  * containers and in bank.
- * @param op Item to get money for. Must be a player or a container.
- * @return Total money the player is carrying.
+ * @param op
+ * Item to get money for. Must be a player or a container.
+ * @return
+ * Total money the player is carrying.
  */
 int64_t shop_get_money(object *op)
 {
@@ -239,9 +251,12 @@ int64_t shop_get_money(object *op)
 /**
  * Pays the specified amount, taking the proper amount of money from the
  * object's inventory.
- * @param obj Object to remove the money for.
- * @param to_pay Required amount.
- * @return Amount still left to pay.
+ * @param obj
+ * Object to remove the money for.
+ * @param to_pay
+ * Required amount.
+ * @return
+ * Amount still left to pay.
  */
 static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
 {
@@ -336,7 +351,12 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
             continue;
         }
 
-        insert_ob_in_ob(coins_objects[i], obj);
+        if (coins_objects[i]->nrof == 0) {
+            object_destroy(coins_objects[i]);
+            continue;
+        }
+
+        object_insert_into(coins_objects[i], obj, 0);
     }
 
     return remain;
@@ -344,9 +364,12 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
 
 /**
  * Recursively attempts to pay the specified amount of money.
- * @param op Who is paying.
- * @param to_pay Amount to pay.
- * @return Amount left to pay.
+ * @param op
+ * Who is paying.
+ * @param to_pay
+ * Amount to pay.
+ * @return
+ * Amount left to pay.
  */
 static int64_t shop_pay_amount(object *op, int64_t to_pay)
 {
@@ -371,9 +394,12 @@ static int64_t shop_pay_amount(object *op, int64_t to_pay)
 
 /**
  * Pays the specified amount of money.
- * @param op Object paying.
- * @param to_pay Amount to pay.
- * @return False if not enough money, in which case nothing is removed, true
+ * @param op
+ * Object paying.
+ * @param to_pay
+ * Amount to pay.
+ * @return
+ * False if not enough money, in which case nothing is removed, true
  * if money was removed.
  */
 bool shop_pay(object *op, int64_t to_pay)
@@ -406,9 +432,12 @@ bool shop_pay(object *op, int64_t to_pay)
 
 /**
  * Attempts to pay for the specified item.
- * @param op Object buying.
- * @param item Item to buy.
- * @return Whether the object was purchased successfully (and money removed).
+ * @param op
+ * Object buying.
+ * @param item
+ * Item to buy.
+ * @return
+ * Whether the object was purchased successfully (and money removed).
  */
 bool shop_pay_item(object *op, object *item)
 {
@@ -417,9 +446,12 @@ bool shop_pay_item(object *op, object *item)
 
 /**
  * Recursively pay for items in inventories. Used by shop_pay_items().
- * @param op Object buying the stuff.
- * @param where Where to look.
- * @return True if everything has been paid for, false otherwise.
+ * @param op
+ * Object buying the stuff.
+ * @param where
+ * Where to look.
+ * @return
+ * True if everything has been paid for, false otherwise.
  */
 static bool shop_pay_items_rec(object *op, object *where)
 {
@@ -479,8 +511,10 @@ static bool shop_pay_items_rec(object *op, object *where)
 
 /**
  * Descends inventories looking for unpaid items, and pays for them.
- * @param op Object buying the stuff.
- * @return True if everything has been paid for, false otherwise.
+ * @param op
+ * Object buying the stuff.
+ * @return
+ * True if everything has been paid for, false otherwise.
  */
 bool shop_pay_items(object *op)
 {
@@ -489,8 +523,10 @@ bool shop_pay_items(object *op)
 
 /**
  * Sell an item.
- * @param op Who is selling the item.
- * @param item The item to sell.
+ * @param op
+ * Who is selling the item.
+ * @param item
+ * The item to sell.
  */
 void shop_sell_item(object *op, object *item)
 {
@@ -519,8 +555,10 @@ void shop_sell_item(object *op, object *item)
 
 /**
  * Insert coins into an object.
- * @param op Object to receive the coins.
- * @param value Value of coins to insert (for example, 120 for 1 silver and 20
+ * @param op
+ * Object to receive the coins.
+ * @param value
+ * Value of coins to insert (for example, 120 for 1 silver and 20
  * copper).
  */
 void shop_insert_coins(object *op, int64_t value)
@@ -565,11 +603,11 @@ void shop_insert_coins(object *op, int64_t value)
                 nrof = (tmp->weight_limit - tmp->carrying) / weight;
             }
 
-            object *coin = get_object();
-            copy_object(&at->clone, coin, 0);
+            object *coin = object_get();
+            object_copy(coin, &at->clone, false);
             coin->nrof = nrof;
             value -= coin->nrof * coin->value;
-            insert_ob_in_ob(coin, tmp);
+            object_insert_into(coin, tmp, 0);
         } FOR_INV_FINISH();
 
         if (value / at->clone.value > 0) {
@@ -581,22 +619,22 @@ void shop_insert_coins(object *op, int64_t value)
                     nrof = (weight_max - op->carrying) / at->clone.weight;
                 }
 
-                object *coin = get_object();
-                copy_object(&at->clone, coin, 0);
+                object *coin = object_get();
+                object_copy(coin, &at->clone, false);
                 coin->nrof = nrof;
                 value -= coin->nrof * coin->value;
-                insert_ob_in_ob(coin, op);
+                object_insert_into(coin, op, 0);
             }
         }
 
         if (value / at->clone.value > 0) {
-            object *coin = get_object();
-            copy_object(&at->clone, coin, 0);
+            object *coin = object_get();
+            object_copy(coin, &at->clone, false);
             coin->nrof = (uint32_t) (value / at->clone.value);
             value -= coin->nrof * coin->value;
             coin->x = op->x;
             coin->y = op->y;
-            insert_ob_in_map(coin, op->map, NULL, 0);
+            object_insert_map(coin, op->map, NULL, 0);
         }
     }
 

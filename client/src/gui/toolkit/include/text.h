@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Header file for text drawing API. */
+ * Header file for text drawing API.
+ */
 
 #ifndef TEXT_H
 #define TEXT_H
@@ -139,7 +140,8 @@ typedef struct font_struct {
 
 /**
  * Structure that holds information about markup and other things when
- * drawing. */
+ * drawing.
+ */
 typedef struct text_info_struct {
     /** Anchor tag position. */
     const char *anchor_tag;
@@ -173,7 +175,8 @@ typedef struct text_info_struct {
 
     /**
      *  If 1, the character is not being drawn due to line skip (due to
-     * scroll value for example). */
+     * scroll value for example).
+     */
     uint8_t obscured;
 
     /** Whether bold width is being calculated. */
@@ -181,11 +184,13 @@ typedef struct text_info_struct {
 
     /**
      * Whether font width (font changed using a tag) is being
-     * calculated. */
+     * calculated.
+     */
     font_struct *calc_font;
 
     /**
-     * Used for calculations by the 'hcenter' tag. */
+     * Used for calculations by the 'hcenter' tag.
+     */
     int hcenter_y;
 
     int height;
@@ -203,6 +208,12 @@ typedef struct text_info_struct {
     SDL_Color highlight_color;
 
     char tooltip_text[MAX_BUF * 2];
+
+    font_struct *tooltip_font;
+
+    uint32_t tooltip_delay;
+
+    int tooltip_width;
 } text_info_struct;
 
 /**
@@ -225,35 +236,44 @@ typedef struct text_info_struct {
  * If this flag is passed, you can also specify skipping # of rows in
  * the box's 'y'. Even if you don't want to skip any rows, you must still
  * initialize the y member of the box structure to 0, in order to avoid
- * uninitialized reads. */
+ * uninitialized reads.
+ */
 #define TEXT_HEIGHT 16
 /**
  * Vertically center the text to that of the passed box's height. Note
- * that this will NOT take font tag changing into account. */
+ * that this will NOT take font tag changing into account.
+ */
 #define TEXT_VALIGN_CENTER 32
 /**
- * Do not allow color changing using markup. */
+ * Do not allow color changing using markup.
+ */
 #define TEXT_NO_COLOR_CHANGE 64
 /**
  * Show a black outline around the text (can be changed to different
- * color using \<o\> markup. */
+ * color using \<o\> markup.
+ */
 #define TEXT_OUTLINE 128
 /**
- * Store number of lines in box->h. */
+ * Store number of lines in box->h.
+ */
 #define TEXT_LINES_CALC 256
 /**
- * Skip first box->y lines. */
+ * Skip first box->y lines.
+ */
 #define TEXT_LINES_SKIP 512
 /**
- * Do not allow font changing using markup. */
+ * Do not allow font changing using markup.
+ */
 #define TEXT_NO_FONT_CHANGE 1024
 /**
  * Like @ref TEXT_WORD_WRAP, but will stop drawing when the characters
- * width would be more than box->w. */
+ * width would be more than box->w.
+ */
 #define TEXT_WIDTH 2048
 /**
  * Calculate maximum width of the text, taking multi-line text into
- * consideration. */
+ * consideration.
+ */
 #define TEXT_MAX_WIDTH 4096
 /*@}*/
 
@@ -310,15 +330,21 @@ typedef struct text_info_struct {
 
 /**
  * Anchor handler function to try and execute before the defaults.
- * @param anchor_action The action to execute, which can be empty (but
+ * @param anchor_action
+ * The action to execute, which can be empty (but
  * not NULL) - for example, 'help'.
- * @param buf Text to pass to the action decided by the anchor action; in
+ * @param buf
+ * Text to pass to the action decided by the anchor action; in
  * case of links, the URL to open, for example. Will not contain any
  * markup, and should not be freed.
- * @param len Length of 'buf'.
- * @param custom_data User-supplied data. Can be NULL.
- * @return 1 if handled the action and should not handle it using default
- * actions, 0 otherwise. */
+ * @param len
+ * Length of 'buf'.
+ * @param custom_data
+ * User-supplied data. Can be NULL.
+ * @return
+ * 1 if handled the action and should not handle it using default
+ * actions, 0 otherwise.
+ */
 typedef int (*text_anchor_handle_func)(const char *anchor_action, const char *buf, size_t len, void *custom_data);
 
 #endif

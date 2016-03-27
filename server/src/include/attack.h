@@ -24,14 +24,16 @@
 
 /**
  * @file
- * Attack and defense system macros, defines, etc. */
+ * Attack and defense system macros, defines, etc.
+ */
 
 #ifndef ATTACK_H
 #define ATTACK_H
 
 /**
- * The attack IDs. */
-typedef enum _attacks {
+ * The attack IDs.
+ */
+typedef enum atnr {
     /** Impact. */
     ATNR_IMPACT,
     /** Slash. */
@@ -57,7 +59,7 @@ typedef enum _attacks {
     /** Magic. */
     ATNR_MAGIC,
     /** Mind. */
-    ATNR_MIND,
+    ATNR_LIFESTEAL,
     /** Blind. */
     ATNR_BLIND,
     /** Paralyze. Affected object will be rooted to the spot. */
@@ -75,7 +77,8 @@ typedef enum _attacks {
     ATNR_SLOW,
     /**
      * Confusion. Affected object will move in random directions until
-     * the effect wears off. */
+     * the effect wears off.
+     */
     ATNR_CONFUSION,
 
     /** Used for internal calculations. */
@@ -83,11 +86,38 @@ typedef enum _attacks {
 
     /** Number of the attacks. */
     NROFATTACKS
-} _attacks;
+} atnr_t;
 
 /**
  * Last valid protection, used for treasure generation.
  */
 #define LAST_PROTECTION (ATNR_CONFUSION + 1)
+
+/* Prototypes */
+const char *const attack_save[NROFATTACKS];
+const char *const attack_name[NROFATTACKS];
+
+int
+attack_object(object *op, object *hitter);
+int
+attack_hit(object *op, object *hitter, int dam);
+void
+attack_hit_map(object *op, int dir, bool multi_reduce);
+bool
+attack_kill(object *op, object *hitter);
+void
+attack_perform_poison(object *op, object *hitter, double dam);
+void
+attack_perform_slow(object *op);
+void
+attack_perform_confusion(object *op);
+void
+attack_perform_blind(object *op, object *hitter, double dam);
+void
+attack_peform_paralyze(object *op, double dam);
+void
+attack_perform_fall(object *op, int fall_floors);
+bool
+attack_is_melee_range(object *hitter, object *enemy);
 
 #endif

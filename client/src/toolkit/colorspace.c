@@ -26,7 +26,8 @@
  * @file
  * Colorspace related API.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
@@ -109,7 +110,8 @@ void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
 
 /**
  * Converts HSV (hue,saturation,value) colorspace to RGB (red,green,blue).
- * @author LIBGIMP (GNU LGPL 3.0) */
+ * @author LIBGIMP (GNU LGPL 3.0)
+ */
 void colorspace_hsv2rgb(const double hsv[3], double rgb[3])
 {
     int i;

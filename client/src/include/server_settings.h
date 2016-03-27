@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Header file for server settings information. */
+ * Header file for server settings information.
+ */
 
 #ifndef SERVER_SETTINGS_H
 #define SERVER_SETTINGS_H
@@ -62,7 +63,8 @@ typedef struct char_struct {
 
 /**
  * Server settings structure, initialized from the server_settings srv
- * file. */
+ * file.
+ */
 typedef struct server_settings {
     /** Maximum reachable level. */
     uint8_t max_level;

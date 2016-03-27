@@ -26,7 +26,8 @@
  * @file
  * Implements the /gsay command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 

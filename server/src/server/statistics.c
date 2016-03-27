@@ -31,10 +31,13 @@
  * statistic update each time the player plays for another second, or
  * casts a spell, or regenerates some health/mana. Thus, such
  * statistics are only updated in statistics_player_logout(), which is
- * called when the player logs out. */
+ * called when the player logs out.
+ */
 
 #include <global.h>
 #include <packet.h>
+#include <player.h>
+#include <object.h>
 
 /** File descriptor used for sending datagrams. */
 static int fd = -1;
@@ -42,7 +45,8 @@ static int fd = -1;
 static struct sockaddr_in insock;
 
 /**
- * Initialize statistics; sets up the datagram file descriptor, etc. */
+ * Initialize statistics; sets up the datagram file descriptor, etc.
+ */
 void statistics_init(void)
 {
     struct protoent *protoent;
@@ -66,11 +70,16 @@ void statistics_init(void)
 
 /**
  * Update a particular statistic of a player.
- * @param type The statistic type - a string that will be recognized by
+ * @param type
+ * The statistic type - a string that will be recognized by
  * the statistics server and stored appropriately.
- * @param op The player.
- * @param i Integer value to store. If 0, will not do any updating.
- * @param buf Optional string buffer to send. */
+ * @param op
+ * The player.
+ * @param i
+ * Integer value to store. If 0, will not do any updating.
+ * @param buf
+ * Optional string buffer to send.
+ */
 void statistic_update(const char *type, object *op, int64_t i, const char *buf)
 {
     packet_struct *packet;
@@ -96,7 +105,9 @@ void statistic_update(const char *type, object *op, int64_t i, const char *buf)
 /**
  * Handle player logging out, in order to update cached statistics from
  * the player's data structure.
- * @param pl The player. */
+ * @param pl
+ * The player.
+ */
 void statistics_player_logout(player *pl)
 {
     statistic_update("deaths", pl->ob, pl->stat_deaths, NULL);

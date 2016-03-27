@@ -45,7 +45,8 @@ typedef struct mempool_chunk_struct {
 
     /**
      * Used for the free list and the limbo list. NULL if this memory chunk has
-     * been allocated and is in use. */
+     * been allocated and is in use.
+     */
     struct mempool_chunk_struct *next;
 } mempool_chunk_struct;
 

@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-06-20 Alex Tokar
+Modified: 2015-12-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -572,7 +572,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -580,6 +580,13 @@ protect_pierce 5
 protect_magic 10
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
+arch ability_stone_throw
+race arrows
+end
+arch arrow
+sys_object 1
+end
 end
 end
 arch grassd_6
@@ -907,7 +914,7 @@ x 6
 y 4
 arch orc_outlaw
 type 83
-wis 6
+item_power 6
 level 29
 end
 end
@@ -956,7 +963,7 @@ level 28
 random_move 1
 item_race 5
 item_level 2
-wis 6
+item_power 6
 type 83
 end
 end
@@ -1138,7 +1145,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -1146,6 +1153,13 @@ protect_pierce 5
 protect_magic 10
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
+arch ability_stone_throw
+race arrows
+end
+arch arrow
+sys_object 1
+end
 end
 end
 arch grassd_8
@@ -1185,7 +1199,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -1193,6 +1207,13 @@ protect_pierce 5
 protect_magic 10
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
+arch ability_stone_throw
+race arrows
+end
+arch arrow
+sys_object 1
+end
 end
 end
 arch grassd_3
@@ -1216,7 +1237,7 @@ y 2
 arch orc_warlord
 level 30
 object_int1 80
-wis 6
+item_power 6
 type 83
 end
 arch orc_warlord
@@ -1228,7 +1249,7 @@ dam 100
 wc 14
 maxhp 110
 ac 14
-wis 6
+item_power 6
 type 83
 arch rand_drop
 container 150
@@ -1414,7 +1435,7 @@ maxsp 16
 pow 20
 dex 2
 stand_still 1
-wis 9
+item_power 9
 type 83
 arch ability_cause_lig_wound
 sp 1
@@ -1484,13 +1505,14 @@ dex 2
 see_invisible 0
 can_see_in_dark 1
 stand_still 1
-wis 9
+item_power 9
 protect_impact 0
 protect_slash 0
 protect_cleave 0
 protect_pierce 0
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
 arch ability_mbullet
 sp 0
 end
@@ -1814,7 +1836,7 @@ arch orc_outlaw
 level 29
 dex 3
 can_use_bow 1
-wis 6
+item_power 6
 type 83
 arch ability_stone_throw
 race arrows
@@ -1908,7 +1930,7 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 5
 protect_slash 0
 protect_cleave 0
@@ -1916,6 +1938,7 @@ protect_pierce 0
 protect_magic -50
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
 end
 end
 arch grassd_2
@@ -2039,7 +2062,7 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 5
 protect_slash 0
 protect_cleave 0
@@ -2047,6 +2070,7 @@ protect_pierce 0
 protect_magic -50
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
 end
 end
 arch grassd_2
@@ -2558,7 +2582,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -2566,6 +2590,13 @@ protect_pierce 5
 protect_magic 10
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
+arch ability_stone_throw
+race arrows
+end
+arch arrow
+sys_object 1
+end
 end
 end
 arch grassd_2
@@ -2681,7 +2712,7 @@ level 28
 random_move 1
 item_race 5
 item_level 2
-wis 6
+item_power 6
 type 83
 end
 end
@@ -2887,7 +2918,7 @@ con 5
 attack_cleave 75
 attack_weaponmagic 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 5
 protect_slash 0
 protect_cleave 0
@@ -2895,6 +2926,7 @@ protect_pierce 5
 protect_magic -50
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
 end
 end
 arch grassd_5
@@ -3021,7 +3053,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3029,6 +3061,13 @@ protect_pierce 5
 protect_magic 10
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
+arch ability_stone_throw
+race arrows
+end
+arch arrow
+sys_object 1
+end
 end
 end
 arch grassd_2
@@ -3362,7 +3401,7 @@ attack_weaponmagic 0
 dex 3
 see_invisible 0
 can_see_in_dark 1
-wis 7
+item_power 7
 protect_impact 0
 protect_slash 0
 protect_cleave 0
@@ -3370,6 +3409,13 @@ protect_pierce 5
 protect_magic 10
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
+arch ability_stone_throw
+race arrows
+end
+arch arrow
+sys_object 1
+end
 end
 end
 arch floor_sand_d2
@@ -3450,7 +3496,7 @@ arch orc_outlaw
 level 29
 dex 3
 can_use_bow 1
-wis 6
+item_power 6
 type 83
 arch ability_stone_throw
 race arrows

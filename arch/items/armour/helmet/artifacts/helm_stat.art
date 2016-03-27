@@ -1,0 +1,79 @@
+# Helm of strength
+Allowed all
+chance 30
+difficulty 5
+artifact helm_strength
+def_arch helm_iron
+Object
+title of strength
+type 34
+is_magical 1
+str 1
+item_level_art 3
+value 3000
+item_power 1
+end
+
+# Helm of dexterity
+Allowed all
+chance 30
+difficulty 5
+artifact helm_dexterity
+def_arch helm_iron
+Object
+title of dexterity
+type 34
+is_magical 1
+item_level_art 3
+dex 1
+value 3000
+item_power 1
+end
+
+# Helm of intelligence
+Allowed all
+chance 30
+difficulty 5
+artifact helm_intelligence
+def_arch helm_iron
+Object
+title of intelligence
+item_level_art 3
+type 34
+is_magical 1
+int 1
+value 3000
+item_power 1
+end
+
+# Helm of power
+Allowed all
+chance 30
+difficulty 5
+artifact helm_power
+def_arch helm_iron
+Object
+title of power
+item_level_art 3
+type 34
+is_magical 1
+pow 1
+value 3000
+item_power 1
+end
+
+# Helm of constitution
+Allowed all
+chance 30
+difficulty 5
+artifact helm_constitution
+def_arch helm_iron
+Object
+title of constitution
+item_level_art 3
+type 34
+is_magical 1
+con 1
+value 3000
+item_power 1
+end

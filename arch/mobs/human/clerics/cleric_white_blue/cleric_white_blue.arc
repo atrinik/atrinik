@@ -18,7 +18,7 @@ is_animated 1
 anim_speed 4
 speed -0.048
 monster 1
-wis 6
+item_power 6
 no_pick 1
 con 15
 exp 100

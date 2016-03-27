@@ -26,16 +26,23 @@
  * @file
  * Implements the /apply command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Search the inventory of 'pl' for what matches best with params.
- * @param pl Player object.
- * @param params Parameters string.
- * @return Best match, or NULL if no match. */
+ * @param pl
+ * Player object.
+ * @param params
+ * Parameters string.
+ * @return
+ * Best match, or NULL if no match.
+ */
 static object *find_best_object_match(object *pl, const char *params)
 {
     object *tmp, *best;
@@ -53,7 +60,7 @@ static object *find_best_object_match(object *pl, const char *params)
             continue;
         }
 
-        tmpmatch = item_matched_string(pl, tmp, params);
+        tmpmatch = object_matches_string(tmp, pl, params);
 
         if (tmpmatch > match_val) {
             match_val = tmpmatch;

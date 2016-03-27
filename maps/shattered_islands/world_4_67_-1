@@ -449,7 +449,7 @@ x 3
 y 2
 arch troll
 level 10
-wis 3
+item_power 3
 type 83
 end
 end

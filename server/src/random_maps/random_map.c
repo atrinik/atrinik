@@ -25,15 +25,19 @@
 /**
  * @file
  * Random map generation main routines.
- * @todo Explain process, layout signs (# C D < >) and such. */
+ * @todo Explain process, layout signs (# C D < >) and such.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
  * Dumps specified layout using printf().
- * @param layout The layout to dump.
- * @param RP Layout parameters. */
+ * @param layout
+ * The layout to dump.
+ * @param RP
+ * Layout parameters.
+ */
 void dump_layout(char **layout, RMParms *RP)
 {
     int i, j;
@@ -58,9 +62,13 @@ void dump_layout(char **layout, RMParms *RP)
 /**
  * Main random map routine. Generates a random map based on specified
  * parameters.
- * @param OutFileName The path the map should have.
- * @param RP Parameters for generation.
- * @return Pointer to the generated map. */
+ * @param OutFileName
+ * The path the map should have.
+ * @param RP
+ * Parameters for generation.
+ * @return
+ * Pointer to the generated map.
+ */
 mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 {
     char **layout;
@@ -142,8 +150,11 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
  * This function builds the actual layout.
  * Selects the layout based on parameters and gives it whatever
  * arguments it needs.
- * @param RP Random map parameters.
- * @return The built layout, must be freed by caller. */
+ * @param RP
+ * Random map parameters.
+ * @return
+ * The built layout, must be freed by caller.
+ */
 char **layoutgen(RMParms *RP)
 {
     char **maze = NULL;
@@ -321,10 +332,15 @@ char **layoutgen(RMParms *RP)
 /**
  * Takes a map and makes it symmetric: adjusts Xsize and Ysize to produce
  * a symmetric map.
- * @param maze Layout to symmetrize. Will be freed by this function.
- * @param sym how to make symmetric, a @ref SYM_xxx value.
- * @param RP Random map parameters.
- * @return New layout, must be freed by caller. */
+ * @param maze
+ * Layout to symmetrize. Will be freed by this function.
+ * @param sym
+ * how to make symmetric, a @ref SYM_xxx value.
+ * @param RP
+ * Random map parameters.
+ * @return
+ * New layout, must be freed by caller.
+ */
 char **symmetrize_layout(char **maze, int sym, RMParms *RP)
 {
     int i, j, Xsize_orig = RP->Xsize, Ysize_orig = RP->Ysize;
@@ -406,15 +422,20 @@ char **symmetrize_layout(char **maze, int sym, RMParms *RP)
  * them possibly centered on any wall.
  *
  * It'll modify Xsize and Ysize if they're swapped.
- * @param maze Layout to rotate, will be freed by this function.
- * @param rotation How to rotate:
+ * @param maze
+ * Layout to rotate, will be freed by this function.
+ * @param rotation
+ * How to rotate:
  * - <b>0</b>: Don't do anything.
  * - <b>1</b>: Rotate 90 degrees clockwise.
  * - <b>2</b>: Rotate 180 degrees.
  * - <b>3</b>: Rotate 90 degrees counter-clockwise.
- * @param RP Random map parameters.
- * @return New layout, must be freed be caller. NULL if invalid
- * rotation. */
+ * @param RP
+ * Random map parameters.
+ * @return
+ * New layout, must be freed be caller. NULL if invalid
+ * rotation.
+ */
 char **rotate_layout(char **maze, int rotation, RMParms *RP)
 {
     char **new_maze;
@@ -498,8 +519,11 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP)
 
 /**
  * Take a layout and make some rooms in it. Works best on onions.
- * @param maze Layout to alter.
- * @param RP Random map parameters. */
+ * @param maze
+ * Layout to alter.
+ * @param RP
+ * Random map parameters.
+ */
 void roomify_layout(char **maze, RMParms *RP)
 {
     int tries = RP->Xsize * RP->Ysize / 30, ti;
@@ -544,14 +568,21 @@ void roomify_layout(char **maze, RMParms *RP)
 /**
  * Checks the layout to see if we can stick a horizontal (dir = 0) wall
  * (or vertical, dir == 1) here which ends up on other walls sensibly.
- * @param maze Layout.
- * @param dx X coordinate to check
- * @param dy Y coordinate to check
- * @param dir Direction:
+ * @param maze
+ * Layout.
+ * @param dx
+ * X coordinate to check
+ * @param dy
+ * Y coordinate to check
+ * @param dir
+ * Direction:
  * - <b>0</b>: Horizontally.
  * - <b>1</b>: Vertically.
- * @param RP Random map parameters.
- * @return -1 if wall can't be made, possibly wall length otherwise. */
+ * @param RP
+ * Random map parameters.
+ * @return
+ * -1 if wall can't be made, possibly wall length otherwise.
+ */
 int can_make_wall(char **maze, int dx, int dy, int dir, RMParms *RP)
 {
     int i1, length = 0;
@@ -662,13 +693,19 @@ int can_make_wall(char **maze, int dx, int dy, int dir, RMParms *RP)
 
 /**
  * Cuts the layout horizontally or vertically by a wall with a door.
- * @param maze Layout.
- * @param x X position where to put the door.
- * @param y Y position where to put the door.
- * @param dir Wall direction:
+ * @param maze
+ * Layout.
+ * @param x
+ * X position where to put the door.
+ * @param y
+ * Y position where to put the door.
+ * @param dir
+ * Wall direction:
  * - <b>0</b>: Horizontally.
  * - <b>1</b>: Vertically.
- * @return Always returns 0. */
+ * @return
+ * Always returns 0.
+ */
 int make_wall(char **maze, int x, int y, int dir)
 {
     int i1;
@@ -707,8 +744,11 @@ int make_wall(char **maze, int x, int y, int dir)
 
 /**
  * Puts doors at appropriate locations in a layout.
- * @param maze Layout.
- * @param RP Random map parameters. */
+ * @param maze
+ * Layout.
+ * @param RP
+ * Random map parameters.
+ */
 void doorify_layout(char **maze, RMParms *RP)
 {
     /* reasonable number of doors. */
@@ -763,8 +803,11 @@ void doorify_layout(char **maze, RMParms *RP)
 
 /**
  * Creates a suitable message for exit from RP.
- * @param buf Buffer that will contain RP's values.
- * @param RP Parameters to convert to message. */
+ * @param buf
+ * Buffer that will contain RP's values.
+ * @param RP
+ * Parameters to convert to message.
+ */
 void write_map_parameters_to_string(char *buf, RMParms *RP)
 {
     char small_buf[256];

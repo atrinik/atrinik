@@ -1042,7 +1042,7 @@ void rotozoomSurfaceSizeXY(int width, int height, double angle, double zoomx, do
 {
     double dummy_sanglezoom, dummy_canglezoom;
 
-    _rotozoomSurfaceSizeTrig(width, height, angle, zoomx, zoomy, dstwidth, dstheight, &dummy_sanglezoom, &dummy_canglezoom);
+    _rotozoomSurfaceSizeTrig(width, height, angle, zoomx, zoomy, dstwidth, dstheight, &dummy_canglezoom, &dummy_sanglezoom);
 }
 
 /*!
@@ -1062,7 +1062,7 @@ void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *
 {
     double dummy_sanglezoom, dummy_canglezoom;
 
-    _rotozoomSurfaceSizeTrig(width, height, angle, zoom, zoom, dstwidth, dstheight, &dummy_sanglezoom, &dummy_canglezoom);
+    _rotozoomSurfaceSizeTrig(width, height, angle, zoom, zoom, dstwidth, dstheight, &dummy_canglezoom, &dummy_sanglezoom);
 }
 
 /*!

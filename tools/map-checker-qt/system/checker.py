@@ -182,6 +182,24 @@ class CheckerObject(AbstractChecker):
                           "0 is usually preferable.",
                           obj=obj)
 
+        if obj.getAttribute("cha"):
+            self.addError("warning", "Object with deprecated attribute 'cha'",
+                          "The charisma attribute has been removed.",
+                          obj=obj)
+
+        if obj.getAttribute("wis"):
+            obj_type = obj.getAttributeInt("type")
+            is_monster = obj_type in (Game.Types.spawn_point_mob,
+                                      Game.Types.monster)
+            if is_monster and self.fix:
+                val = obj.getAttribute("wis")
+                obj.replaceAttribute("wis", "item_power", val)
+
+            self.addError("warning", "Object with deprecated attribute 'wis'",
+                          "The wisdom attribute has been removed. For "
+                          "monsters, it was replaced by item_power.",
+                          obj=obj, fixed=self.fix and is_monster)
+
         if not obj.arch:
             return
 

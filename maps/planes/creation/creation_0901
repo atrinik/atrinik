@@ -645,7 +645,7 @@ arch raas
 direction 3
 level 30
 stand_still 1
-wis 1
+item_power 1
 type 83
 end
 end
@@ -664,7 +664,7 @@ arch raas
 direction 3
 level 30
 stand_still 1
-wis 1
+item_power 1
 type 83
 end
 end
@@ -769,7 +769,7 @@ level 30
 dam 50
 maxhp 1000
 con 100
-wis 1
+item_power 1
 type 83
 end
 end
@@ -801,7 +801,7 @@ level 30
 dam 50
 maxhp 1000
 con 100
-wis 1
+item_power 1
 type 83
 end
 end
@@ -821,7 +821,7 @@ level 30
 dam 50
 maxhp 1000
 con 100
-wis 1
+item_power 1
 type 83
 end
 end
@@ -912,7 +912,7 @@ pow 20
 magic 5
 dex 2
 stand_still 1
-wis 3
+item_power 3
 type 83
 arch ability_firestorm
 end

@@ -26,10 +26,13 @@
  * @file
  * Implements the /tp command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_tp(object *op, const char *command, char *params)
@@ -68,5 +71,5 @@ void command_tp(object *op, const char *command, char *params)
     object_remove(who->ob, 0);
     who->ob->x = dst->ob->x;
     who->ob->y = dst->ob->y;
-    insert_ob_in_map(who->ob, dst->ob->map, NULL, INS_NO_MERGE);
+    object_insert_map(who->ob, dst->ob->map, NULL, INS_NO_MERGE);
 }

@@ -1,0 +1,389 @@
+# Sword of strength
+Allowed all
+chance 20
+artifact weapon_strength
+def_arch sword
+Object
+title of strength
+str 1
+type 15
+is_magical 1
+value 4500
+item_power 1
+end
+
+# Sword of strength
+Allowed all
+chance 20
+artifact weapon_dexterity
+def_arch sword
+Object
+title of dexterity
+dex 1
+type 15
+is_magical 1
+value 4500
+item_power 1
+end
+
+# Sword of strength
+Allowed all
+chance 20
+artifact weapon_constitution
+def_arch sword
+Object
+title of constitution
+con 1
+type 15
+is_magical 1
+value 4500
+item_power 1
+end
+
+# Sword of strength
+Allowed all
+chance 20
+artifact weapon_intelligence
+def_arch sword
+Object
+title of intelligence
+int 1
+type 15
+is_magical 1
+value 4500
+item_power 1
+end
+
+# Sword of strength
+Allowed all
+chance 20
+artifact weapon_power
+def_arch sword
+Object
+title of power
+pow 1
+type 15
+is_magical 1
+value 4500
+item_power 1
+end
+
+# Sword of strength
+Allowed all
+chance 10
+difficulty 31
+artifact weapon_greater_strength
+def_arch sword
+Object
+title of greater strength
+str 2
+type 15
+is_magical 1
+value 11500
+item_power 3
+item_level_art 21
+end
+
+# Sword of strength
+Allowed all
+chance 10
+difficulty 31
+artifact weapon_greater_dexterity
+def_arch sword
+Object
+title of greater dexterity
+dex 2
+type 15
+is_magical 1
+value 11500
+item_power 3
+item_level_art 21
+end
+
+# Sword of strength
+Allowed all
+chance 10
+difficulty 31
+artifact weapon_greater_constitution
+def_arch sword
+Object
+title of greater constitution
+con 2
+type 15
+is_magical 1
+value 11500
+item_power 3
+item_level_art 21
+end
+
+# Sword of strength
+Allowed all
+chance 10
+difficulty 31
+artifact weapon_greater_intelligence
+def_arch sword
+Object
+title of greater intelligence
+int 2
+type 15
+is_magical 1
+value 11500
+item_power 3
+item_level_art 21
+end
+
+# Sword of strength
+Allowed all
+chance 10
+difficulty 31
+artifact weapon_greater_power
+def_arch sword
+Object
+title of greater power
+pow 2
+type 15
+is_magical 1
+value 11500
+item_power 3
+item_level_art 21
+end
+
+# Sword of extraordinary strength
+Allowed all
+chance 7
+difficulty 55
+artifact weapon_extraordinary_strength
+def_arch sword
+Object
+title of extraordinary strength
+str 3
+type 15
+is_magical 1
+value 17500
+item_power 5
+item_level_art 45
+end
+
+# Sword of extraordinary strength
+Allowed all
+chance 7
+difficulty 55
+artifact weapon_extraordinary_dexterity
+def_arch sword
+Object
+title of extraordinary dexterity
+dex 3
+type 15
+is_magical 1
+value 17500
+item_power 5
+item_level_art 45
+end
+
+# Sword of extraordinary strength
+Allowed all
+chance 7
+difficulty 55
+artifact weapon_extraordinary_constitution
+def_arch sword
+Object
+title of extraordinary constitution
+con 3
+type 15
+is_magical 1
+value 17500
+item_power 5
+item_level_art 45
+end
+
+# Sword of extraordinary strength
+Allowed all
+chance 7
+difficulty 55
+artifact weapon_extraordinary_intelligence
+def_arch sword
+Object
+title of extraordinary intelligence
+int 3
+type 15
+is_magical 1
+value 17500
+item_power 5
+item_level_art 45
+end
+
+# Sword of extraordinary strength
+Allowed all
+chance 7
+difficulty 55
+artifact weapon_extraordinary_power
+def_arch sword
+Object
+title of extraordinary power
+pow 3
+type 15
+is_magical 1
+value 17500
+item_power 5
+item_level_art 45
+end
+
+# Sword of superior strength
+Allowed all
+chance 5
+difficulty 80
+artifact weapon_superior_strength
+def_arch sword
+Object
+title of superior strength
+str 4
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 70
+end
+
+# Sword of superior dexterity
+Allowed all
+chance 5
+difficulty 80
+artifact weapon_superior_dexterity
+def_arch sword
+Object
+title of superior dexterity
+dex 4
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 70
+end
+
+# Sword of superior constitution
+Allowed all
+chance 5
+difficulty 80
+artifact weapon_superior_constitution
+def_arch sword
+Object
+title of superior constitution
+con 4
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 70
+end
+
+# Sword of superior intelligence
+Allowed all
+chance 5
+difficulty 80
+artifact weapon_superior_intelligence
+def_arch sword
+Object
+title of superior intelligence
+int 4
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 70
+end
+
+# Sword of superior power
+Allowed all
+chance 5
+difficulty 80
+artifact weapon_superior_power
+def_arch sword
+Object
+title of superior power
+pow 4
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 70
+end
+
+# Sword of supreme strength
+Allowed all
+chance 5
+difficulty 100
+artifact weapon_supreme_strength
+def_arch sword
+Object
+title of supreme strength
+str 5
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 90
+end
+
+# Sword of supreme dexterity
+Allowed all
+chance 5
+difficulty 100
+artifact weapon_supreme_dexterity
+def_arch sword
+Object
+title of supreme dexterity
+dex 5
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 90
+end
+
+# Sword of supreme constitution
+Allowed all
+chance 5
+difficulty 100
+artifact weapon_supreme_constitution
+def_arch sword
+Object
+title of supreme constitution
+con 5
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 90
+end
+
+# Sword of supreme intelligence
+Allowed all
+chance 5
+difficulty 100
+artifact weapon_supreme_intelligence
+def_arch sword
+Object
+title of supreme intelligence
+int 5
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 90
+end
+
+# Sword of supreme power
+Allowed all
+chance 5
+difficulty 100
+artifact weapon_supreme_power
+def_arch sword
+Object
+title of supreme power
+pow 5
+type 15
+is_magical 1
+value 27500
+item_power 10
+item_level_art 90
+end

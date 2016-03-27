@@ -97,7 +97,8 @@ typedef struct line_and_slope {
     /**
      * Vertical distance per horizontal, e.g. 2 means y moves by 2 for
      * each x; 1/2 means x means 2 for each y (zero if the line is
-     * vertical). */
+     * vertical).
+     */
     double slope;
 } line_and_slope;
 
@@ -105,11 +106,16 @@ typedef struct line_and_slope {
  * Calculate line information given its start and end co-ordinates.
  *
  * This populates a ::line_and_slope structure.
- * @param dest What line information structure to populate.
- * @param sx Starting X.
- * @param sy Starting Y.
- * @param ex Ending X.
- * @param ey Ending Y.
+ * @param dest
+ * What line information structure to populate.
+ * @param sx
+ * Starting X.
+ * @param sy
+ * Starting Y.
+ * @param ex
+ * Ending X.
+ * @param ey
+ * Ending Y.
  */
 static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
 {
@@ -158,10 +164,14 @@ static void determine_lines(line_and_slope *dest, int n, int e, int s, int w)
  * Checks whether the supplied coordinates (relative to the tile size, so for
  * example: 0,0, 47,0, etc) are inside the (possibly stretched) isometric map
  * tile shape.
- * @param stretch Calculated stretch factor.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @return 1 if the supplied coordinates are within the isometric map tile
+ * @param stretch
+ * Calculated stretch factor.
+ * @param x
+ * X coordinate.
+ * @param y
+ * Y coordinate.
+ * @return
+ * 1 if the supplied coordinates are within the isometric map tile
  * shape, 0 otherwise.
  */
 int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y)

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Handles the plugins code. */
+ * Handles the plugins code.
+ */
 
 #include <global.h>
 #include <loader.h>
@@ -47,8 +48,11 @@ static atrinik_plugin *plugins_list = NULL;
 
 /**
  * Find a plugin by its identification string.
- * @param id Plugin's identification string.
- * @return Pointer to the found plugin, NULL if not found. */
+ * @param id
+ * Plugin's identification string.
+ * @return
+ * Pointer to the found plugin, NULL if not found.
+ */
 static atrinik_plugin *find_plugin(const char *id)
 {
     atrinik_plugin *plugin;
@@ -68,8 +72,11 @@ static atrinik_plugin *find_plugin(const char *id)
 
 /**
  * Register a global event.
- * @param plugin_name Plugin's name.
- * @param event_nr Event ID to register. */
+ * @param plugin_name
+ * Plugin's name.
+ * @param event_nr
+ * Event ID to register.
+ */
 static void register_global_event(const char *plugin_name, int event_nr)
 {
     atrinik_plugin *plugin = find_plugin(plugin_name);
@@ -84,8 +91,11 @@ static void register_global_event(const char *plugin_name, int event_nr)
 
 /**
  * Unregister a global event.
- * @param plugin_name Plugin's name.
- * @param event_nr Event ID to unregister. */
+ * @param plugin_name
+ * Plugin's name.
+ * @param event_nr
+ * Event ID to unregister.
+ */
 static void unregister_global_event(const char *plugin_name, int event_nr)
 {
     atrinik_plugin *plugin = find_plugin(plugin_name);
@@ -101,9 +111,13 @@ static void unregister_global_event(const char *plugin_name, int event_nr)
 /**
  * Browse through the inventory of an object to find first event that
  * matches the event type of event_nr.
- * @param op The object to search in.
- * @param event_nr The @ref event_numbers "event number".
- * @return Script object matching the event type. */
+ * @param op
+ * The object to search in.
+ * @param event_nr
+ * The @ref event_numbers "event number".
+ * @return
+ * Script object matching the event type.
+ */
 object *get_event_object(object *op, int event_nr)
 {
     object *tmp;
@@ -119,7 +133,9 @@ object *get_event_object(object *op, int event_nr)
 
 /**
  * Display a list of loaded and loadable plugins in player's window.
- * @param op The player to print the plugins to. */
+ * @param op
+ * The player to print the plugins to.
+ */
 void display_plugins_list(object *op)
 {
     char buf[MAX_BUF];
@@ -157,7 +173,8 @@ void display_plugins_list(object *op)
 /**
  * Initializes plugins. Browses the plugins directory and calls
  * init_plugin() for each plugin file found with the extension being
- * @ref PLUGIN_SUFFIX. */
+ * @ref PLUGIN_SUFFIX.
+ */
 void init_plugins(void)
 {
     struct dirent *currentfile;
@@ -182,7 +199,9 @@ void init_plugins(void)
 
 /**
  * There is no dlerror() on Win32, so we make our own.
- * @return Returned error from loading a plugin. */
+ * @return
+ * Returned error from loading a plugin.
+ */
 static const char *plugins_dlerror(void)
 {
     static char buf[MAX_BUF];
@@ -206,7 +225,9 @@ static const char *plugins_dlerror(void)
 
 /**
  * Initializes a plugin known by its filename.
- * @param pluginfile The plugin filename. */
+ * @param pluginfile
+ * The plugin filename.
+ */
 void init_plugin(const char *pluginfile)
 {
     int i;
@@ -291,7 +312,9 @@ void init_plugin(const char *pluginfile)
 
 /**
  * Removes one plugin from memory. The plugin is identified by its keyname.
- * @param id The plugin keyname. */
+ * @param id
+ * The plugin keyname.
+ */
 void remove_plugin(const char *id)
 {
     atrinik_plugin *plugin, *prev = NULL;
@@ -317,7 +340,8 @@ void remove_plugin(const char *id)
 }
 
 /**
- * Deinitialize all plugins. */
+ * Deinitialize all plugins.
+ */
 void remove_plugins(void)
 {
     atrinik_plugin *plugin;
@@ -340,7 +364,9 @@ void remove_plugins(void)
 
 /**
  * Initialize map event object.
- * @param ob What to initialize. */
+ * @param ob
+ * What to initialize.
+ */
 void map_event_obj_init(object *ob)
 {
     map_event *tmp;
@@ -360,7 +386,9 @@ void map_event_obj_init(object *ob)
 
 /**
  * Free a ::map_event.
- * @param tmp What to free. */
+ * @param tmp
+ * What to free.
+ */
 void map_event_free(map_event *tmp)
 {
     efree(tmp);
@@ -368,14 +396,23 @@ void map_event_free(map_event *tmp)
 
 /**
  * Triggers a map-wide event.
- * @param event_id Event ID to trigger.
- * @param m Map we're working on.
- * @param activator Activator.
- * @param other Some other object related to this event.
- * @param other2 Another object related to this event.
- * @param text String related to this event.
- * @param parm Integer related to this event.
- * @return 1 if the event returns an event value, 0 otherwise. */
+ * @param event_id
+ * Event ID to trigger.
+ * @param m
+ * Map we're working on.
+ * @param activator
+ * Activator.
+ * @param other
+ * Some other object related to this event.
+ * @param other2
+ * Another object related to this event.
+ * @param text
+ * String related to this event.
+ * @param parm
+ * Integer related to this event.
+ * @return
+ * 1 if the event returns an event value, 0 otherwise.
+ */
 int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm)
 {
     map_event *tmp;
@@ -406,28 +443,36 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
 /**
  * Handles triggering global events like EVENT_BORN, EVENT_MAPRESET,
  * etc.
- * @param event_type The event type.
- * @param parm1 First parameter.
- * @param parm2 Second parameter. */
-void trigger_global_event(int event_type, void *parm1, void *parm2)
+ *
+ * @param event_type
+ * The event type.
+ * @param parm1
+ * First data parameter.
+ * @param parm2
+ * Second data parameter.
+ */
+void
+trigger_global_event (int event_type, void *parm1, void *parm2)
 {
-    atrinik_plugin *plugin;
-
-    if (!plugins_list) {
-        return;
-    }
-
-    for (plugin = plugins_list; plugin; plugin = plugin->next) {
+    for (atrinik_plugin *plugin = plugins_list;
+         plugin != NULL;
+         plugin = plugin->next) {
         if (plugin->gevent[event_type]) {
-            (plugin->eventfunc)(0, PLUGIN_EVENT_GLOBAL, event_type, parm1, parm2);
+            (plugin->eventfunc)(0,
+                                PLUGIN_EVENT_GLOBAL,
+                                event_type,
+                                parm1,
+                                parm2);
         }
     }
 }
 
 /**
  * Triggers the unit tests event for all plugins.
- * @param activator Player object.
- * @param me Another player object.
+ * @param activator
+ * Player object.
+ * @param me
+ * Another player object.
  */
 void trigger_unit_event(object *const activator, object *const me)
 {
@@ -441,16 +486,27 @@ void trigger_unit_event(object *const activator, object *const me)
 /**
  * Handles triggering normal events like EVENT_ATTACK, EVENT_STOP,
  * etc.
- * @param event_type The event type.
- * @param activator Activator object.
- * @param me Object the event object is in.
- * @param other Other object.
- * @param msg Message.
- * @param parm1 First parameter.
- * @param parm2 Second parameter.
- * @param parm3 Third parameter.
- * @param flags Event flags.
- * @return 1 if the event returns an event value, 0 otherwise. */
+ * @param event_type
+ * The event type.
+ * @param activator
+ * Activator object.
+ * @param me
+ * Object the event object is in.
+ * @param other
+ * Other object.
+ * @param msg
+ * Message.
+ * @param parm1
+ * First parameter.
+ * @param parm2
+ * Second parameter.
+ * @param parm3
+ * Third parameter.
+ * @param flags
+ * Event flags.
+ * @return
+ * 1 if the event returns an event value, 0 otherwise.
+ */
 int trigger_event(int event_type, object * const activator, object * const me, object * const other, const char *msg, int parm1, int parm2, int parm3, int flags)
 {
     object *event_obj;

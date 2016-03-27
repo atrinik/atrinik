@@ -14,4 +14,6 @@ material_real 65
 material 2
 weight 1350
 value 115
+block 3
+absorb 5
 end

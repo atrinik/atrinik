@@ -26,11 +26,14 @@
  * @file
  * Common code for objects moving onto/from another object.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::move_on_func */
+/** @copydoc object_methods_t::move_on_func */
 int common_object_move_on(object *op, object *victim, object *originator, int state)
 {
     if (OBJECT_IS_PROJECTILE(op)) {

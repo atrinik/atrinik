@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Global definitions, u/sint8, things like that. */
+ * Global definitions, u/sint8, things like that.
+ */
 
 #ifndef GLOBAL_H
 #define GLOBAL_H
@@ -86,33 +87,41 @@
 
 /**
  * Free old shared string and add new string.
- * @param _sv_ Shared string.
- * @param _nv_ String to copy to the shared string. */
-#define FREE_AND_COPY_HASH(_sv_, _nv_) \
+ * @param _sv_
+ * Shared string.
+ * @param _nv_
+ * String to copy to the shared string.
+ */
+#define FREE_AND_COPY_HASH(_sv_, _nv_)     \
     {                                      \
         if (_sv_)                          \
         {                                  \
             free_string_shared(_sv_);      \
         }                                  \
-                                       \
+                                           \
         _sv_ = add_string(_nv_);           \
     }
 /**
  * Free old hash and add a reference to the new one.
- * @param _sv_ Pointer to shared string.
- * @param _nv_ String to add reference to. Must be a shared string. */
-#define FREE_AND_ADD_REF_HASH(_sv_, _nv_) \
+ * @param _sv_
+ * Pointer to shared string.
+ * @param _nv_
+ * String to add reference to. Must be a shared string.
+ */
+#define FREE_AND_ADD_REF_HASH(_sv_, _nv_)     \
     {                                         \
         if (_sv_)                             \
         {                                     \
             free_string_shared(_sv_);         \
         }                                     \
-                                          \
+                                              \
         _sv_ = add_refcount(_nv_);            \
     }
 /**
  * Free and NULL a shared string.
- * @param _nv_ Shared string to free and NULL. */
+ * @param _nv_
+ * Shared string to free and NULL.
+ */
 #define FREE_AND_CLEAR_HASH(_nv_) \
     {                                 \
         if (_nv_)                     \
@@ -123,24 +132,29 @@
     }
 /**
  * Free a shared string.
- * @param _nv_ Shared string to free. */
-#define FREE_ONLY_HASH(_nv_)  \
+ * @param _nv_
+ * Shared string to free.
+ */
+#define FREE_ONLY_HASH(_nv_)      \
     if (_nv_)                     \
     {                             \
         free_string_shared(_nv_); \
     }
 /**
  * Add reference to a non-null hash.
- * @param _nv_ Pointer to shared string. */
-#define ADD_REF_NOT_NULL_HASH(_nv_) \
+ * @param _nv_
+ * Pointer to shared string.
+ */
+#define ADD_REF_NOT_NULL_HASH(_nv_)     \
     if (_nv_)                           \
     {                                   \
         add_refcount(_nv_);             \
     }
 /**
  * @copydoc FREE_AND_CLEAR_HASH
- * @warning Like FREE_AND_CLEAR_HASH(), but without { and }. */
-#define FREE_AND_CLEAR_HASH2(_nv_) \
+ * @warning Like FREE_AND_CLEAR_HASH(), but without { and }.
+ */
+#define FREE_AND_CLEAR_HASH2(_nv_)     \
     if (_nv_)                          \
     {                                  \
         free_string_shared(_nv_);      \
@@ -205,7 +219,8 @@
 #define MAX_EXPERIENCE new_levels[MAXLEVEL]
 
 /**
- * Used to link together shared strings. */
+ * Used to link together shared strings.
+ */
 typedef struct linked_char {
     /** Shared string. */
     shstr *name;
@@ -215,18 +230,14 @@ typedef struct linked_char {
 } linked_char;
 
 #include <face.h>
-#include <attack.h>
 #include <material.h>
 #include <living.h>
-#include <object.h>
-#include <object_methods.h>
 #include <map.h>
 #include <tod.h>
 #include <pathfinder.h>
 #include <newserver.h>
 #include <skills.h>
 #include <party.h>
-#include <player.h>
 #include <treasure.h>
 #include <commands.h>
 #include <race.h>
@@ -236,7 +247,8 @@ typedef struct linked_char {
 /**
  * Special potions are identified by the last_eat value.
  * last_eat == 0 is no special potion - means they are used
- * as spell effect carrier. */
+ * as spell effect carrier.
+ */
 #define special_potion(__op_sp) (__op_sp)->last_eat
 
 /** Move an object. */
@@ -252,26 +264,33 @@ typedef struct linked_char {
 #define STRING_ARCH_NAME(__arch__) ((__arch__)->name ? (__arch__)->name : ">NULL<")
 /** Use to get a safe name of object, even if the object name is NULL. */
 #define STRING_OBJ_NAME(__ob__) ((__ob__) && (__ob__)->name ? (__ob__)->name : ">NULL<")
-/** Use to get a safe arch name of object, even if the object arch name is NULL.
- * */
+/**
+ * Use to get a safe arch name of object, even if the object arch name is NULL.
+ */
 #define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch ? ((__ob__)->arch->name ? (__ob__)->arch->name : ">NULL<") : ">NULL<")
-/** Use to get a safe slaying value of an object, even if the slaying value is
- * NULL. */
+/**
+ * Use to get a safe slaying value of an object, even if the slaying value is
+ * NULL.
+ */
 #define STRING_OBJ_SLAYING(__ob__) ((__ob__)->slaying ? (__ob__)->slaying : ">NULL<")
 
 /**
  * Set object's face by its animation ID.
- * @param ob Object.
- * @param newanim Animation ID to set. */
+ * @param ob
+ * Object.
+ * @param newanim
+ * Animation ID to set.
+ */
 #define SET_ANIMATION(ob, newanim) (ob)->face = &new_faces[animations[(ob)->animation_id].faces[(newanim)]]
 /**
  * Set object's animation depending on its number of animations/facings,
- * direction and animation state. */
+ * direction and animation state.
+ */
 #define SET_ANIMATION_STATE(ob) \
     if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) \
     { \
         SET_ANIMATION((ob), (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) * (QUERY_FLAG((ob), FLAG_IS_TURNABLE) ? (ob)->direction : 0) + (ob)->state); \
-        update_object((ob), UP_OBJ_FACE); \
+        object_update((ob), UP_OBJ_FACE); \
     }
 /** Get object's animation ID. */
 #define GET_ANIM_ID(ob) (ob->animation_id)
@@ -302,50 +321,62 @@ enum {
 };
 
 /**
- * The server settings. */
+ * The server settings.
+ */
 typedef struct settings_struct {
     /**
-     * Port to use for client/server communication. */
+     * Port to use for client/server communication.
+     */
     uint16_t port;
 
     /**
-     * Read only data files, such as the collected archetypes. */
+     * Read only data files, such as the collected archetypes.
+     */
     char libpath[MAX_BUF];
 
     /**
-     * Player data, unique maps, etc. */
+     * Player data, unique maps, etc.
+     */
     char datapath[MAX_BUF];
 
     /**
-     * Where the map files are. */
+     * Where the map files are.
+     */
     char mapspath[MAX_BUF];
 
     /**
-     * Where the HTTP files are. */
+     * Where the HTTP files are.
+     */
     char httppath[MAX_BUF];
 
     /**
-     * HTTP URL of the metaserver. */
+     * HTTP URL of the metaserver.
+     */
     char metaserver_url[MAX_BUF];
 
     /**
-     * Hostname of this server. */
+     * Hostname of this server.
+     */
     char server_host[MAX_BUF];
 
     /**
-     * Name of this server. */
+     * Name of this server.
+     */
     char server_name[MAX_BUF];
 
     /**
-     * Comment about the server we send to the metaserver. */
+     * Comment about the server we send to the metaserver.
+     */
     char server_desc[MAX_BUF];
 
     /**
-     * Executing the world maker? */
+     * Executing the world maker?
+     */
     uint8_t world_maker;
 
     /**
-     * Running unit tests? */
+     * Running unit tests?
+     */
     bool unit_tests;
 
     /**
@@ -354,49 +385,64 @@ typedef struct settings_struct {
     bool plugin_unit_tests;
 
     /**
+     * Do not start a console.
+     */
+    bool no_console;
+
+    /**
      * Only run specific plugin unit test(s).
      */
     char plugin_unit_test[MAX_BUF];
 
     /**
-     * Adjustment to maximum magical device level the player may use. */
+     * Adjustment to maximum magical device level the player may use.
+     */
     int8_t magic_devices_level;
 
     /**
-     * See note in server.cfg. */
+     * See note in server.cfg.
+     */
     double item_power_factor;
 
     /**
-     * Whether to reload Python modules whenever Python script executes. */
+     * Whether to reload Python modules whenever Python script executes.
+     */
     uint8_t python_reload_modules;
 
     /**
      * Comma-delimited list of permission groups each player
-     * automatically has. */
+     * automatically has.
+     */
     char default_permission_groups[MAX_BUF];
 
     /**
-     * Allowed characters for certain strings. */
+     * Allowed characters for certain strings.
+     */
     char allowed_chars[ALLOWED_CHARS_NUM][MAX_BUF];
 
     /**
-     * Limits on the allowed characters. */
+     * Limits on the allowed characters.
+     */
     size_t limits[ALLOWED_CHARS_NUM][2];
 
     /**
-     * IPs allowed to remotely control the client. */
+     * IPs allowed to remotely control the client.
+     */
     char control_allowed_ips[HUGE_BUF];
 
     /**
-     * Which player the remote command goes through, if applicable. */
+     * Which player the remote command goes through, if applicable.
+     */
     char control_player[MAX_BUF];
 
     /**
-     * Whether to recycle tmp maps or not. */
+     * Whether to recycle tmp maps or not.
+     */
     uint8_t recycle_tmp_maps;
 
     /**
-     * URL to the HTTP server. */
+     * URL to the HTTP server.
+     */
     char http_url[MAX_BUF];
 } settings_struct;
 
@@ -449,18 +495,6 @@ typedef struct cache_struct {
 
 #define MAX_TICKS (1000000.0 / max_time)
 #define MAX_TICKS_MULTIPLIER (MAX_TICKS * max_time_multiplier)
-
-/**
- * @defgroup SCRIPT_FIX_xxx For plugin events
- * These are used by plugin events.
- *@{*/
-/** Fix the event activator. */
-#define SCRIPT_FIX_ACTIVATOR 2
-/** Fix all objects related to the event. */
-#define SCRIPT_FIX_ALL 1
-/** Don't do any fixing. */
-#define SCRIPT_FIX_NOTHING 0
-/*@}*/
 
 #ifdef HAVE_WORLD_MAKER
 void world_maker(void);

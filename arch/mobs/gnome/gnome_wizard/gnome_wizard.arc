@@ -19,7 +19,7 @@ weapon_speed 0.035
 attack_impact 75
 attack_fire 25
 type 80
-wis 3
+item_power 3
 randomitems mob_mage_l9
 animation gnome_wizard
 is_animated 1

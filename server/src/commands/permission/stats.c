@@ -56,7 +56,9 @@ void command_stats(object *op, const char *command, char *params)
         }
 
         if (strcmp(stats[i], "mempool") == 0) {
-            mempool_stats(string_skip_whitespace(params + pos), VS(buf));
+            params += pos;
+            string_skip_whitespace(params);
+            mempool_stats(params, VS(buf));
         } else if (strcmp(stats[i], "shstr") == 0) {
             shstr_stats(VS(buf));
         } else if (strcmp(stats[i], "metaserver") == 0) {

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Skills header. */
+ * Skills header.
+ */
 
 #ifndef SKILLS_H
 #define SKILLS_H
@@ -51,8 +52,8 @@ enum skillnrs {
     SK_WIZARDRY_SPELLS,
     /** Player use wands/horns/rods */
     SK_MAGIC_DEVICES,
-    /** @deprecated */
-    SK_PRAYING,
+    /** Passively increases HP/SP regeneration when out of combat. */
+    SK_MEDITATION,
 
     /** Player can find traps better */
     SK_FIND_TRAPS,
@@ -87,12 +88,36 @@ enum skillnrs {
     NROFSKILLS
 };
 
+/**
+ * Checks if the specified skill number is a melee weapons skill.
+ *
+ * @param nr
+ * The skill number to check.
+ * @return
+ * Whether the skill number is a melee weapons skill.
+ */
+#define SKILL_IS_MELEE(nr)                                      \
+    ((nr) == SK_SLASH_WEAPONS || (nr) == SK_CLEAVE_WEAPONS ||   \
+     (nr) == SK_PIERCE_WEAPONS || (nr) == SK_IMPACT_WEAPONS ||  \
+     (nr) == SK_UNARMED || (nr) == SK_KARATE)
+
+/**
+ * Checks if the specified skill is an archery skill.
+ *
+ * @param nr
+ * The skill number to check.
+ * @return
+ * Whether the skill number is an archery skill.
+ */
+#define SKILL_IS_ARCHERY(nr) \
+    ((nr) >= SK_BOW_ARCHERY && (nr) <= SK_SLING_ARCHERY)
+
 struct archetype;
 
 /** Skill structure for the skills array. */
 typedef struct skill_struct {
     /** How to describe it to the player */
-    char *name;
+    const char *name;
 
     /** Pointer to the skill archetype in the archlist */
     struct archetype *at;

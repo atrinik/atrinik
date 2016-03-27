@@ -12,7 +12,7 @@ corpse 1
 type 80
 is_male 1
 is_evil 1
-wis 4
+item_power 4
 terrain_flag 65
 mpart_id 3
 animation troll

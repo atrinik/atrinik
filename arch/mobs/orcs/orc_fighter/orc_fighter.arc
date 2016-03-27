@@ -13,7 +13,7 @@ terrain_flag 65
 weapon_speed 0.035
 attack_pierce 75
 type 80
-wis 3
+item_power 3
 randomitems mob_orc
 animation orc_fighter
 is_animated 1

@@ -25,13 +25,17 @@
 /**
  * @file
  * Mainly deals with initialization and higher level socket maintenance
- * (checking for lost connections and if data has arrived). */
+ * (checking for lost connections and if data has arrived).
+ */
 
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <ban.h>
+#include <player.h>
+#include <object.h>
+#include <container.h>
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
@@ -108,7 +112,9 @@ static int socket_command_check(socket_struct *ns, player *pl, uint8_t *data,
 
 /**
  * Fill a command buffer with data we read from socket.
- * @param ns Socket. */
+ * @param ns
+ * Socket.
+ */
 static void fill_command_buffer(socket_struct *ns)
 {
     size_t toread;
@@ -139,9 +145,12 @@ static void fill_command_buffer(socket_struct *ns)
  *
  * We only get here once there is input, and only do basic connection
  * checking.
- * @param ns Socket sending the command.
- * @param pl Player associated to the socket. If NULL, only commands in
- * client_commands will be checked. */
+ * @param ns
+ * Socket sending the command.
+ * @param pl
+ * Player associated to the socket. If NULL, only commands in
+ * client_commands will be checked.
+ */
 void handle_client(socket_struct *ns, player *pl)
 {
     size_t len;
@@ -183,7 +192,9 @@ void handle_client(socket_struct *ns, player *pl)
 /**
  * Remove a player from the game that has been disconnected by logging
  * out, the socket connection was interrupted, etc.
- * @param pl The player to remove. */
+ * @param pl
+ * The player to remove.
+ */
 void remove_ns_dead_player(player *pl)
 {
     if (pl == NULL || pl->ob->type == DEAD_OBJECT) {
@@ -216,7 +227,8 @@ void remove_ns_dead_player(player *pl)
 
 /**
  * Common way to free a socket. Frees the socket from ::init_sockets,
- * sets its status to Ns_Avail and decrements number of connections. */
+ * sets its status to Ns_Avail and decrements number of connections.
+ */
 #define FREE_SOCKET(i) \
     free_newsocket(&init_sockets[(i)]); \
     init_sockets[(i)].state = ST_AVAILABLE; \
@@ -224,8 +236,10 @@ void remove_ns_dead_player(player *pl)
 
 /**
  * Reads player socket.
- * @param ns Socket.
- * @return True on success, false on failure.
+ * @param ns
+ * Socket.
+ * @return
+ * True on success, false on failure.
  */
 static bool player_socket_read(socket_struct *ns)
 {
@@ -246,7 +260,8 @@ static bool player_socket_read(socket_struct *ns)
  * This checks the sockets for input and exceptions, does the right
  * thing.
  *
- * There are 2 lists we need to look through - init_sockets is a list */
+ * There are 2 lists we need to look through - init_sockets is a list
+ */
 void doeric_server(void)
 {
     int i, pollret;
@@ -257,8 +272,8 @@ void doeric_server(void)
     FD_ZERO(&tmp_exceptions);
 
     for (i = 0; i < socket_info.allocated_sockets; i++) {
-        if (init_sockets[i].state == ST_LOGIN &&
-                !socket_is_fd_valid(init_sockets[i].sc)) {
+        if (unlikely(init_sockets[i].state == ST_LOGIN &&
+                     !socket_is_fd_valid(init_sockets[i].sc))) {
             LOG(DEBUG, "Invalid waiting fd %d", i);
             init_sockets[i].state = ST_DEAD;
         }
@@ -291,7 +306,8 @@ void doeric_server(void)
     for (pl = first_player; pl != NULL; pl = next) {
         next = pl->next;
 
-        if (pl->socket.state != ST_DEAD && !socket_is_fd_valid(pl->socket.sc)) {
+        if (unlikely(pl->socket.state != ST_DEAD &&
+                     !socket_is_fd_valid(pl->socket.sc))) {
             LOG(DEBUG, "Invalid file descriptor for player %s [%s]: %d",
                     object_get_str(pl->ob), socket_get_str(pl->socket.sc),
                     socket_fd(pl->socket.sc));
@@ -324,7 +340,7 @@ void doeric_server(void)
 
     pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write,
             &tmp_exceptions, &socket_info.timeout);
-    if (pollret == -1) {
+    if (unlikely(pollret == -1)) {
         LOG(ERROR, "Cannot select(): %s (%d)", s_strerror(s_errno), s_errno);
         return;
     }
@@ -441,7 +457,8 @@ void doeric_server(void)
 }
 
 /**
- * Write to players' sockets. */
+ * Write to players' sockets.
+ */
 void doeric_server_write(void)
 {
     player *pl, *next;

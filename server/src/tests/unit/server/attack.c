@@ -28,39 +28,39 @@
 #include <check_proto.h>
 #include <arch.h>
 
-START_TEST(test_is_melee_range)
+START_TEST(test_attack_is_melee_range)
 {
     mapstruct *map;
     object *pl, *tmp, *tmp2;
 
     check_setup_env_pl(&map, &pl);
-    ck_assert(is_melee_range(pl, pl));
+    ck_assert(attack_is_melee_range(pl, pl));
 
     tmp = arch_get("gazer_dread");
-    ck_assert(!is_melee_range(tmp, tmp));
-    ck_assert(!is_melee_range(pl, tmp));
-    ck_assert(!is_melee_range(tmp, pl));
+    ck_assert(!attack_is_melee_range(tmp, tmp));
+    ck_assert(!attack_is_melee_range(pl, tmp));
+    ck_assert(!attack_is_melee_range(tmp, pl));
 
     tmp->x = pl->x + 1;
     tmp->y = pl->y + 1;
-    tmp = insert_ob_in_map(tmp, pl->map, NULL, 0);
-    ck_assert(is_melee_range(tmp, tmp));
-    ck_assert(is_melee_range(pl, tmp));
-    ck_assert(is_melee_range(tmp, pl));
+    tmp = object_insert_map(tmp, pl->map, NULL, 0);
+    ck_assert(attack_is_melee_range(tmp, tmp));
+    ck_assert(attack_is_melee_range(pl, tmp));
+    ck_assert(attack_is_melee_range(tmp, pl));
 
     tmp2 = arch_get("raas");
-    ck_assert(!is_melee_range(tmp2, tmp2));
-    ck_assert(!is_melee_range(pl, tmp2));
-    ck_assert(!is_melee_range(tmp2, pl));
+    ck_assert(!attack_is_melee_range(tmp2, tmp2));
+    ck_assert(!attack_is_melee_range(pl, tmp2));
+    ck_assert(!attack_is_melee_range(tmp2, pl));
 
     tmp2->x = pl->x + 2;
     tmp2->y = pl->y + 2;
-    tmp2 = insert_ob_in_map(tmp2, pl->map, NULL, 0);
-    ck_assert(is_melee_range(tmp2, tmp2));
-    ck_assert(!is_melee_range(pl, tmp2));
-    ck_assert(!is_melee_range(tmp2, pl));
-    ck_assert(is_melee_range(tmp, tmp2));
-    ck_assert(is_melee_range(tmp2, tmp));
+    tmp2 = object_insert_map(tmp2, pl->map, NULL, 0);
+    ck_assert(attack_is_melee_range(tmp2, tmp2));
+    ck_assert(!attack_is_melee_range(pl, tmp2));
+    ck_assert(!attack_is_melee_range(tmp2, pl));
+    ck_assert(attack_is_melee_range(tmp, tmp2));
+    ck_assert(attack_is_melee_range(tmp2, tmp));
 }
 END_TEST
 
@@ -73,7 +73,7 @@ static Suite *suite(void)
     tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
-    tcase_add_test(tc_core, test_is_melee_range);
+    tcase_add_test(tc_core, test_attack_is_melee_range);
 
     return s;
 }

@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Player related functions. */
+ * Player related functions.
+ */
 
 #include <global.h>
 #include <loader.h>
@@ -33,25 +34,36 @@
 #include <monster_data.h>
 #include <arch.h>
 #include <ban.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
+#include <object_methods.h>
+#include <disease.h>
+#include <container.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
 
 /**
- * Player memory pool. */
+ * Player memory pool.
+ */
 mempool_struct *pool_player;
 
 /**
- * Initialize the player API. */
-void player_init(void)
+ * Initialize the player API.
+ */
+void
+player_init (void)
 {
     pool_player = mempool_create("players", 25, sizeof(player),
             MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
 }
 
 /**
- * Deinitialize the player API. */
-void player_deinit(void)
+ * Deinitialize the player API.
+ */
+void
+player_deinit (void)
 {
     while (first_player) {
         free_player(first_player);
@@ -59,8 +71,10 @@ void player_deinit(void)
 }
 
 /**
- * Disconnect all currently connected players. */
-void player_disconnect_all(void)
+ * Disconnect all currently connected players.
+ */
+void
+player_disconnect_all (void)
 {
     while (first_player) {
         first_player->socket.state = ST_DEAD;
@@ -70,9 +84,13 @@ void player_disconnect_all(void)
 
 /**
  * Loop through the player list and find player specified by plname.
- * @param plname The player name to find.
- * @return Player structure if found, NULL otherwise. */
-player *find_player(const char *plname)
+ * @param plname
+ * The player name to find.
+ * @return
+ * Player structure if found, NULL otherwise.
+ */
+player *
+find_player (const char *plname)
 {
     player *pl;
 
@@ -90,8 +108,11 @@ player *find_player(const char *plname)
  *
  * First motd_custom is tried, and if that doesn't exist, motd is used
  * instead.
- * @param op Player object to print the message to. */
-void display_motd(object *op)
+ * @param op
+ * Player object to print the message to.
+ */
+void
+display_motd (object *op)
 {
     char buf[MAX_BUF];
     FILE *fp;
@@ -129,9 +150,13 @@ void display_motd(object *op)
 /**
  * Returns the player structure. If 'p' is null, we create a new one.
  * Otherwise, we recycle the one that is passed.
- * @param p Player structure to recycle or NULL for new structure.
- * @return The player structure. */
-static player *get_player(player *p)
+ * @param p
+ * Player structure to recycle or NULL for new structure.
+ * @return
+ * The player structure.
+ */
+static player *
+get_player (player *p)
 {
     if (!p) {
         p = mempool_get(pool_player);
@@ -166,8 +191,11 @@ static player *get_player(player *p)
 /**
  * Free a player structure. Takes care of removing this player from the
  * list of players, and frees the socket for this player.
- * @param pl The player structure to free. */
-void free_player(player *pl)
+ * @param pl
+ * The player structure to free.
+ */
+void
+free_player (player *pl)
 {
     /* If this player is in a party, leave the party */
     if (pl->party) {
@@ -226,9 +254,13 @@ void free_player(player *pl)
 /**
  * Give initial items to object pl. This is used when player creates a
  * new character.
- * @param pl The player object.
- * @param items Treasure list of items to give. */
-void give_initial_items(object *pl, treasurelist *items)
+ * @param pl
+ * The player object.
+ * @param items
+ * Treasure list of items to give.
+ */
+void
+give_initial_items (object *pl, treasurelist *items)
 {
     object *op, *next = NULL;
 
@@ -276,11 +308,14 @@ void give_initial_items(object *pl, treasurelist *items)
  *
  * This is sort of special, in that the new client/server actually uses
  * the new speed values for commands.
- * @param pl Player to handle.
+ * @param pl
+ * Player to handle.
  * @retval -1 Player is invalid.
  * @retval 0 No more actions to do.
- * @retval 1 There are more actions we can do. */
-int handle_newcs_player(player *pl)
+ * @retval 1 There are more actions we can do.
+ */
+int
+handle_newcs_player (player *pl)
 {
     if (!pl->ob || !OBJECT_ACTIVE(pl->ob)) {
         return -1;
@@ -317,11 +352,14 @@ int handle_newcs_player(player *pl)
 
 /**
  * Can the player be saved by an item?
- * @param op Player to try to save.
+ * @param op
+ * Player to try to save.
  * @retval 1 Player had his life saved by an item, first item saving life
  * is removed.
- * @retval 0 Player had no life-saving item. */
-static int save_life(object *op)
+ * @retval 0 Player had no life-saving item.
+ */
+static int
+save_life (object *op)
 {
     object *tmp;
 
@@ -350,7 +388,12 @@ static int save_life(object *op)
             }
 
             /* Bring him home. */
-            object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+            object_enter_map(op,
+                             NULL,
+                             ready_map_name(CONTR(op)->savebed_map, NULL, 0),
+                             CONTR(op)->bed_x,
+                             CONTR(op)->bed_y,
+                             true);
             return 1;
         }
     }
@@ -358,7 +401,12 @@ static int save_life(object *op)
     LOG(BUG, "LIFESAVE set without applied object.");
     CLEAR_FLAG(op, FLAG_LIFESAVE);
     /* Bring him home. */
-    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+    object_enter_map(op,
+                     NULL,
+                     ready_map_name(CONTR(op)->savebed_map, NULL, 0),
+                     CONTR(op)->bed_x,
+                     CONTR(op)->bed_y,
+                     true);
     return 0;
 }
 
@@ -366,9 +414,13 @@ static int save_life(object *op)
  * This goes through the inventory and removes unpaid objects, and puts
  * them back in the map (location and map determined by values of env).
  * This function will descend into containers.
- * @param op Object to start the search from.
- * @param env Map location determined by this object. */
-static void remove_unpaid_objects(object *op, object *env)
+ * @param op
+ * Object to start the search from.
+ * @param env
+ * Map location determined by this object.
+ */
+static void
+remove_unpaid_objects (object *op, object *env)
 {
     object *next;
 
@@ -381,7 +433,7 @@ static void remove_unpaid_objects(object *op, object *env)
             object_remove(op, 0);
             op->x = env->x;
             op->y = env->y;
-            insert_ob_in_map(op, env->map, NULL, 0);
+            object_insert_map(op, env->map, NULL, 0);
         } else if (op->inv) {
             remove_unpaid_objects(op->inv, env);
         }
@@ -392,12 +444,17 @@ static void remove_unpaid_objects(object *op, object *env)
 
 /**
  * Figures out how much hp/mana points to regenerate.
- * @param regen Regeneration value used for client (for example,
+ * @param regen
+ * Regeneration value used for client (for example,
  * player::gen_client_hp).
- * @param regen_remainder Pointer to regen remainder (for example,
+ * @param regen_remainder
+ * Pointer to regen remainder (for example,
  * player::gen_hp_remainder).
- * @return How much to regenerate. */
-static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
+ * @return
+ * How much to regenerate.
+ */
+static inline int
+get_regen_amount (uint16_t regen, uint16_t *regen_remainder)
 {
     int ret = 0;
     double division;
@@ -428,140 +485,243 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 }
 
 /**
+ * Calculate HP/SP regeneration value.
+ *
+ * @param speed
+ * Regeneration speed.
+ * @param rate
+ * Regeneration rate.
+ * @return
+ * Calculated regeneration value.
+ */
+static inline uint16_t
+get_regen_value (double speed, double rate)
+{
+    double value = MAX_TICKS;
+    value /= rate / (MAX(speed, 20.0) + 10.0);
+    value *= 10.0;
+    return value;
+}
+
+/**
  * Regenerate player's hp/mana, decrease food, etc.
  *
  * We will only regenerate HP and mana if the player has some food in their
  * stomach.
- * @param op Player. */
-void do_some_living(object *op)
+ *
+ * @param op
+ * Player.
+ */
+static void
+player_do_some_living (object *op)
 {
-    int last_food = op->stats.food;
-    double gen_hp, gen_sp;
-    int add;
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT(op->type == PLAYER, "Not a player object: %s",
+                object_get_str(op));
 
-    double modifier = (pticks - CONTR(op)->last_combat) / MAX_TICKS;
-    modifier /= PLAYER_REGEN_MODIFIER;
-    modifier += 1.0;
-    modifier = MIN(PLAYER_REGEN_MODIFIER_MAX, modifier);
+    player *pl = CONTR(op);
 
-    gen_hp = (CONTR(op)->gen_hp * (PLAYER_REGEN_HP_RATE / 20.0)) +
-            (op->stats.maxhp / 4.0);
-    gen_hp *= modifier;
+    double gen_hp = (pl->gen_hp * (PLAYER_REGEN_HP_RATE / 20.0)) +
+                    (op->stats.maxhp / 4.0);
 
-    gen_sp = (CONTR(op)->gen_sp * (PLAYER_REGEN_SP_RATE / 20.0)) +
-            op->stats.maxsp;
-    gen_sp *= modifier;
-    gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
+    double gen_sp = (pl->gen_sp * (PLAYER_REGEN_SP_RATE / 20.0)) +
+                    op->stats.maxsp;
+    gen_sp = gen_sp * 10 / MAX(pl->gen_sp_armour, 10);
 
     /* Update client's regen rates. */
-    CONTR(op)->gen_client_hp = (MAX_TICKS / (PLAYER_REGEN_HP_RATE /
-            (MAX(gen_hp, 20.0) + 10.0))) * 10.0;
-    CONTR(op)->gen_client_sp = (MAX_TICKS / (PLAYER_REGEN_SP_RATE /
-            (MAX(gen_sp, 20.0) + 10.0))) * 10.0;
+    pl->gen_client_hp = get_regen_value(gen_hp, PLAYER_REGEN_HP_RATE);
+    pl->gen_client_sp = get_regen_value(gen_sp, PLAYER_REGEN_SP_RATE);
+
+    if (pl->skill_ptr[SK_MEDITATION] != NULL) {
+        double modifier = (pticks - pl->last_combat) / MAX_TICKS;
+        modifier /= PLAYER_REGEN_MODIFIER;
+        modifier += 1.0;
+        modifier = MIN(PLAYER_REGEN_MODIFIER_MAX, modifier);
+        gen_hp *= modifier;
+        gen_sp *= modifier;
+    }
+
+    uint16_t gen_real_hp = get_regen_value(gen_hp, PLAYER_REGEN_HP_RATE);
+    uint16_t gen_real_sp = get_regen_value(gen_sp, PLAYER_REGEN_SP_RATE);
+
+    int16_t last_food = op->stats.food;
 
     /* Regenerate hit points. */
     if (op->stats.hp < op->stats.maxhp && op->stats.food) {
-        add = get_regen_amount(CONTR(op)->gen_client_hp, &CONTR(op)->gen_hp_remainder);
-
-        if (add) {
+        int add = get_regen_amount(gen_real_hp, &pl->gen_hp_remainder);
+        if (add != 0) {
             op->stats.hp += add;
-            CONTR(op)->stat_hp_regen += add;
+            pl->stat_hp_regen += add;
 
             if (op->stats.hp > op->stats.maxhp) {
                 op->stats.hp = op->stats.maxhp;
             }
 
-            if (!CONTR(op)->tgm) {
+            if (!pl->tgm) {
                 op->stats.food--;
 
-                if (CONTR(op)->digestion < 0) {
-                    op->stats.food += CONTR(op)->digestion;
-                } else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
+                if (pl->digestion < 0) {
+                    op->stats.food += pl->digestion;
+                } else if (pl->digestion > 0 && rndm(0, pl->digestion)) {
                     op->stats.food = last_food;
                 }
             }
         }
     } else {
-        CONTR(op)->gen_hp_remainder = 0;
+        pl->gen_hp_remainder = 0;
     }
 
     /* Regenerate mana. */
     if (op->stats.sp < op->stats.maxsp && op->stats.food) {
-        add = get_regen_amount(CONTR(op)->gen_client_sp, &CONTR(op)->gen_sp_remainder);
-
-        if (add) {
+        int add = get_regen_amount(gen_real_sp, &pl->gen_sp_remainder);
+        if (add != 0) {
             op->stats.sp += add;
-            CONTR(op)->stat_sp_regen += add;
+            pl->stat_sp_regen += add;
 
             if (op->stats.sp > op->stats.maxsp) {
                 op->stats.sp = op->stats.maxsp;
             }
 
-            if (!CONTR(op)->tgm) {
+            if (!pl->tgm) {
                 op->stats.food--;
 
-                if (CONTR(op)->digestion < 0) {
-                    op->stats.food += CONTR(op)->digestion;
-                } else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
+                if (pl->digestion < 0) {
+                    op->stats.food += pl->digestion;
+                } else if (pl->digestion > 0 && rndm(0, pl->digestion)) {
                     op->stats.food = last_food;
                 }
             }
         }
     } else {
-        CONTR(op)->gen_sp_remainder = 0;
+        pl->gen_sp_remainder = 0;
     }
 
     /* Digestion */
     if (--op->last_eat < 0) {
-        int bonus = MAX(CONTR(op)->digestion, 0);
-        int penalty = MAX(-CONTR(op)->digestion, 0);
+        int bonus = MAX(pl->digestion, 0);
+        int penalty = MAX(-pl->digestion, 0);
 
-        if (CONTR(op)->gen_hp > 0) {
-            op->last_eat = 25 * (1 + bonus) / (CONTR(op)->gen_hp + penalty + 1);
+        if (pl->gen_hp > 0) {
+            op->last_eat = 25 * (1 + bonus) / (pl->gen_hp + penalty + 1);
         } else {
             op->last_eat = 25 * (1 + bonus) / (penalty + 1);
         }
 
-        if (!CONTR(op)->tgm) {
+        if (!pl->tgm) {
             op->stats.food--;
         }
     }
 
     if (op->stats.food < 0 && op->stats.hp >= 0) {
-        object *tmp, *flesh = NULL;
+        object *flesh = NULL;
 
-        for (tmp = op->inv; tmp; tmp = tmp->below) {
-            if (!QUERY_FLAG(tmp, FLAG_UNPAID)) {
-                if (tmp->type == FOOD || tmp->type == DRINK) {
-                    draw_info(COLOR_WHITE, op, "You blindly grab for a bite of food.");
-                    manual_apply(op, tmp, 0);
-
-                    if (op->stats.food >= 0 || op->stats.hp < 0) {
-                        break;
-                    }
-                } else if (tmp->type == FLESH) {
-                    flesh = tmp;
-                }
+        FOR_INV_PREPARE(op, tmp) {
+            if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
+                continue;
             }
-        }
+
+            if (tmp->type == FOOD || tmp->type == DRINK) {
+                draw_info(COLOR_WHITE, op,
+                          "You blindly grab for a bite of food.");
+                manual_apply(op, tmp, 0);
+
+                if (op->stats.food >= 0 || op->stats.hp < 0) {
+                    break;
+                }
+            } else if (tmp->type == FLESH && flesh == NULL) {
+                flesh = tmp;
+            }
+        } FOR_INV_FINISH();
 
         /* If player is still starving, it means they don't have any food, so
          * eat flesh instead. */
-        if (op->stats.food < 0 && op->stats.hp >= 0 && flesh) {
+        if (op->stats.food < 0 && op->stats.hp >= 0 && flesh != NULL) {
             draw_info(COLOR_WHITE, op, "You blindly grab for a bite of food.");
             manual_apply(op, flesh, 0);
         }
     }
 
+    /* Lose hitpoints for lack of food. */
     while (op->stats.food < 0 && op->stats.hp > 0) {
         op->stats.food++;
         op->stats.hp--;
     }
 
-    if ((op->stats.hp <= 0 || op->stats.food < 0) && !CONTR(op)->tgm) {
+    if ((op->stats.hp <= 0 || op->stats.food < 0) && !pl->tgm) {
         draw_info_format(COLOR_WHITE, NULL, "%s starved to death.", op->name);
-        snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "starvation");
+        snprintf(VS(pl->killer), "starvation");
         kill_player(op);
+    }
+}
+
+/**
+ * Deplete player's stats due to dying.
+ *
+ * @param op
+ * Player.
+ */
+static void
+player_death_deplete_stats (object *op)
+{
+    HARD_ASSERT(op != NULL);
+
+    int num_lose = 1 + op->level / BALSL_NUMBER_LOSSES_RATIO;
+    bool lost_stat = false;
+
+    /* Protect low level players for a little while. */
+    if (op->level <= 3) {
+        num_lose = 0;
+    }
+
+    object *depletion = NULL;
+    for (int i = 0; i < num_lose; i++) {
+        static archetype_t *at = NULL;
+        if (at == NULL) {
+            at = arch_find("depletion");
+            SOFT_ASSERT(at != NULL, "Could not find depletion archetype");
+        }
+
+        if (depletion == NULL) {
+            depletion = object_find_arch(op, at);
+            if (depletion == NULL) {
+                depletion = arch_to_object(at);
+                depletion = object_insert_into(depletion, op, 0);
+                SOFT_ASSERT(depletion != NULL, "Could not insert depletion");
+            }
+        }
+
+        int stat = rndm(0, NUM_STATS - 1);
+        bool lose = true;
+
+        int8_t value = get_attr_value(&depletion->stats, stat);
+        if (value < 0) {
+            int loss_chance = 1 + op->level / BALSL_LOSS_CHANCE_RATIO;
+            int keep_chance = value * value;
+
+            /* There is a maximum depletion total per level. */
+            if (value < -1 - op->level / BALSL_MAX_LOSS_RATIO) {
+                lose = false;
+            } else if (rndm(0, loss_chance + keep_chance - 1) < keep_chance) {
+                lose = false;
+            }
+        }
+
+        if (!lose || value < -50) {
+            continue;
+        }
+
+        change_attr_value(&depletion->stats, stat, -1);
+        SET_FLAG(depletion, FLAG_APPLIED);
+        lost_stat = true;
+        draw_info(COLOR_GRAY, op, lose_msg[stat]);
+    }
+
+    if (lost_stat) {
+        living_update_player(op);
+    } else {
+        draw_info(COLOR_WHITE, op,
+                  "For a brief moment you feel a holy presence "
+                  "protecting you.");
     }
 }
 
@@ -569,8 +729,11 @@ void do_some_living(object *op)
  * If the player should die (lack of hp, food, etc), we call this.
  *
  * Will remove diseases, apply death penalties, and so on.
- * @param op The player in jeopardy. */
-void kill_player(object *op)
+ * @param op
+ * The player in jeopardy.
+ */
+void
+kill_player (object *op)
 {
     char buf[HUGE_BUF];
     object *tmp;
@@ -581,7 +744,7 @@ void kill_player(object *op)
         /* Restore player */
         cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
         /* Remove any disease */
-        cure_disease(op, NULL);
+        disease_cure(op, NULL);
         op->stats.hp = op->stats.maxhp;
         op->stats.sp = op->stats.maxsp;
 
@@ -593,17 +756,15 @@ void kill_player(object *op)
         tmp = arch_to_object(arch_find("finger"));
 
         if (tmp) {
-            char race[MAX_BUF];
-
             snprintf(buf, sizeof(buf), "%s's finger", op->name);
             FREE_AND_COPY_HASH(tmp->name, buf);
-            snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, player_get_race_class(op, race, sizeof(race)), gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
+            snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, op->race, gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
             FREE_AND_COPY_HASH(tmp->msg, buf);
             tmp->value = 0;
             tmp->material = 0;
             tmp->type = 0;
             tmp->x = op->x, tmp->y = op->y;
-            insert_ob_in_map(tmp, op->map, op, 0);
+            object_insert_map(tmp, op->map, op, 0);
         }
 
         CONTR(op)->killer[0] = '\0';
@@ -618,7 +779,7 @@ void kill_player(object *op)
     }
 
     /* Trigger the DEATH event */
-    if (trigger_event(EVENT_DEATH, NULL, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL)) {
+    if (trigger_event(EVENT_DEATH, NULL, op, NULL, NULL, 0, 0, 0, 0) != 0) {
         return;
     }
 
@@ -631,25 +792,41 @@ void kill_player(object *op)
 
     /* Put a gravestone up where the character 'almost' died. */
     tmp = arch_to_object(arch_find("gravestone"));
-    snprintf(buf, sizeof(buf), "%s's gravestone", op->name);
+    snprintf(VS(buf), "%s's gravestone", op->name);
     FREE_AND_COPY_HASH(tmp->name, buf);
-    FREE_AND_COPY_HASH(tmp->msg, gravestone_text(op));
+    StringBuffer *sb = stringbuffer_new();
+    const char *killer = CONTR(op)->killer;
+    if (*killer == '\0') {
+        killer = "something nasty";
+    }
+    stringbuffer_append_printf(sb,
+                               "R.I.P.\n\nHerein rests the hero %s the %s "
+                               "who was killed at level %d by %s.",
+                               op->name,
+                               op->race,
+                               op->level,
+                               killer);
+    time_t now = time(NULL);
+    strftime(VS(buf), "\n\n%b %d %Y", localtime(&now));
+    stringbuffer_append_string(sb, buf);
+    tmp->msg = stringbuffer_finish_shared(sb);
     tmp->x = op->x;
     tmp->y = op->y;
-    insert_ob_in_map(tmp, op->map, NULL, 0);
+    object_insert_map(tmp, op->map, NULL, 0);
 
-    /* Subtract the experience points, if we died because of food give us
-     * food, and reset HP... */
+    player_death_deplete_stats(op);
 
     /* Remove any poisoning the character may be suffering. */
     cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
     /* Remove any disease */
-    cure_disease(op, NULL);
+    disease_cure(op, NULL);
 
+    /* If the player starved to death, give them some food back... */
     if (op->stats.food <= 0) {
-        op->stats.food = 999;
+        op->stats.food = 500;
     }
 
+    /* Reset HP/SP */
     op->stats.hp = op->stats.maxhp;
     op->stats.sp = op->stats.maxsp;
 
@@ -659,7 +836,7 @@ void kill_player(object *op)
      * on map Wilderness' even if they were killed in a dungeon. */
     CONTR(op)->killer[0] = '\0';
 
-    /* Check to see if the player is in a shop. Ii so, then check to see
+    /* Check to see if the player is in a shop. If so, then check to see
      * if the player has any unpaid items. If so, remove them and put
      * them back in the map. */
     tmp = GET_MAP_OB(op->map, op->x, op->y);
@@ -669,7 +846,12 @@ void kill_player(object *op)
     }
 
     /* Move player to his current respawn position (last savebed). */
-    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+    object_enter_map(op,
+                     NULL,
+                     ready_map_name(CONTR(op)->savebed_map, NULL, 0),
+                     CONTR(op)->bed_x,
+                     CONTR(op)->bed_y,
+                     true);
 
     /* Show a nasty message */
     draw_info(COLOR_WHITE, op, "YOU HAVE DIED.");
@@ -680,10 +862,15 @@ void kill_player(object *op)
  * Handles object throwing objects of type "DUST".
  * @todo This function needs to be rewritten. Works for area effect
  * spells only now.
- * @param op Object throwing.
- * @param throw_ob What to throw.
- * @param dir Direction to throw into. */
-void cast_dust(object *op, object *throw_ob, int dir)
+ * @param op
+ * Object throwing.
+ * @param throw_ob
+ * What to throw.
+ * @param dir
+ * Direction to throw into.
+ */
+void
+cast_dust (object *op, object *throw_ob, int dir)
 {
     archetype_t *arch = NULL;
 
@@ -723,7 +910,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
     }
 
     if (!QUERY_FLAG(throw_ob, FLAG_REMOVED)) {
-        destruct_ob(throw_ob);
+        object_destruct(throw_ob);
     }
 }
 
@@ -734,10 +921,15 @@ void cast_dust(object *op, object *throw_ob, int dir)
  * objects are given, both objects must be in PVP area.
  *
  * Considers parties.
- * @param attacker First object.
- * @param victim Second object.
- * @return 1 if PVP is possible, 0 otherwise. */
-int pvp_area(object *attacker, object *victim)
+ * @param attacker
+ * First object.
+ * @param victim
+ * Second object.
+ * @return
+ * 1 if PVP is possible, 0 otherwise.
+ */
+int
+pvp_area (object *attacker, object *victim)
 {
     /* No attacking of party members. */
     if (attacker && victim && attacker->type == PLAYER && victim->type == PLAYER && CONTR(attacker)->party != NULL && CONTR(victim)->party != NULL && CONTR(attacker)->party == CONTR(victim)->party) {
@@ -765,10 +957,15 @@ int pvp_area(object *attacker, object *victim)
 
 /**
  * Looks for the skill and returns a pointer to it if found.
- * @param op The object to look for the skill in.
- * @param skillnr Skill ID.
- * @return The skill if found, NULL otherwise. */
-object *find_skill(object *op, int skillnr)
+ * @param op
+ * The object to look for the skill in.
+ * @param skillnr
+ * Skill ID.
+ * @return
+ * The skill if found, NULL otherwise.
+ */
+object *
+find_skill (object *op, int skillnr)
 {
     object *tmp;
 
@@ -783,10 +980,15 @@ object *find_skill(object *op, int skillnr)
 
 /**
  * Check whether player can carry the specified weight.
- * @param pl Player.
- * @param weight Weight to check.
- * @return 1 if the player can carry that weight, 0 otherwise. */
-int player_can_carry(object *pl, uint32_t weight)
+ * @param pl
+ * Player.
+ * @param weight
+ * Weight to check.
+ * @return
+ * 1 if the player can carry that weight, 0 otherwise.
+ */
+int
+player_can_carry (object *pl, uint32_t weight)
 {
     uint32_t effective_weight_limit;
 
@@ -800,37 +1002,18 @@ int player_can_carry(object *pl, uint32_t weight)
 }
 
 /**
- * Combine player's race with their class (if there is one).
- * @param op Player.
- * @param buf Buffer to write into.
- * @param size Size of 'buf'.
- * @return 'buf'. */
-char *player_get_race_class(object *op, char *buf, size_t size)
-{
-    strncpy(buf, op->race, size - 1);
-
-    if (CONTR(op)->class_ob) {
-        shstr *name_female;
-
-        strncat(buf, " ", size - strlen(buf) - 1);
-
-        if (object_get_gender(op) == GENDER_FEMALE && (name_female = object_get_value(CONTR(op)->class_ob, "name_female"))) {
-            strncat(buf, name_female, size - strlen(buf) - 1);
-        } else {
-            strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
-        }
-    }
-
-    return buf;
-}
-
-/**
  * Add a new path to player's paths queue.
- * @param pl Player to add the path for.
- * @param map Map we want to reach.
- * @param x X we want to reach.
- * @param y Y we want to reach. */
-void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y)
+ * @param pl
+ * Player to add the path for.
+ * @param map
+ * Map we want to reach.
+ * @param x
+ * X we want to reach.
+ * @param y
+ * Y we want to reach.
+ */
+void
+player_path_add (player *pl, mapstruct *map, int16_t x, int16_t y)
 {
     player_path *path = emalloc(sizeof(player_path));
 
@@ -851,8 +1034,11 @@ void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y)
 
 /**
  * Clear all queued paths.
- * @param pl Player to clear paths for. */
-void player_path_clear(player *pl)
+ * @param pl
+ * Player to clear paths for.
+ */
+void
+player_path_clear (player *pl)
 {
     player_path *path, *next;
 
@@ -871,8 +1057,11 @@ void player_path_clear(player *pl)
 
 /**
  * Handle player moving along pre-calculated path.
- * @param pl Player. */
-void player_path_handle(player *pl)
+ * @param pl
+ * Player.
+ */
+void
+player_path_handle (player *pl)
 {
     while (pl->ob->speed_left >= 0.0f && pl->move_path) {
         player_path *tmp = pl->move_path;
@@ -957,11 +1146,15 @@ void player_path_handle(player *pl)
 /**
  * Creates a new ::player_faction_t structure and adds it to the specified
  * player.
- * @param pl Player.
- * @param name Name of the faction to create a structure for.
- * @return New ::player_faction_t structure.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction to create a structure for.
+ * @return
+ * New ::player_faction_t structure.
  */
-player_faction_t *player_faction_create(player *pl, shstr *name)
+player_faction_t *
+player_faction_create (player *pl, shstr *name)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(name != NULL);
@@ -976,10 +1169,13 @@ player_faction_t *player_faction_create(player *pl, shstr *name)
 /**
  * Frees the specified ::player_faction_t structure, removing it from the
  * player's hash table of factions.
- * @param pl Player.
- * @param faction ::player_faction_t to free.
+ * @param pl
+ * Player.
+ * @param faction
+ * ::player_faction_t to free.
  */
-void player_faction_free(player *pl, player_faction_t *faction)
+void
+player_faction_free (player *pl, player_faction_t *faction)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(faction != NULL);
@@ -991,11 +1187,15 @@ void player_faction_free(player *pl, player_faction_t *faction)
 
 /**
  * Find the specified faction name in the player's factions hash table.
- * @param pl Player.
- * @param name Name of the faction to find.
- * @return ::player_faction_t if found, NULL otherwise.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction to find.
+ * @return
+ * ::player_faction_t if found, NULL otherwise.
  */
-player_faction_t *player_faction_find(player *pl, shstr *name)
+player_faction_t *
+player_faction_find (player *pl, shstr *name)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(name != NULL);
@@ -1007,11 +1207,15 @@ player_faction_t *player_faction_find(player *pl, shstr *name)
 
 /**
  * Update the player's reputation with a particular faction.
- * @param pl Player.
- * @param name Name of the faction to update.
- * @param reputation Reputation to add/subtract.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction to update.
+ * @param reputation
+ * Reputation to add/subtract.
  */
-void player_faction_update(player *pl, shstr *name, double reputation)
+void
+player_faction_update (player *pl, shstr *name, double reputation)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(name != NULL);
@@ -1027,11 +1231,15 @@ void player_faction_update(player *pl, shstr *name, double reputation)
 
 /**
  * Get player's reputation with a particular faction.
- * @param pl Player.
- * @param name Name of the faction.
- * @return Player's reputation with the specified faction.
+ * @param pl
+ * Player.
+ * @param name
+ * Name of the faction.
+ * @return
+ * Player's reputation with the specified faction.
  */
-double player_faction_reputation(player *pl, shstr *name)
+double
+player_faction_reputation (player *pl, shstr *name)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(name != NULL);
@@ -1048,10 +1256,14 @@ double player_faction_reputation(player *pl, shstr *name)
 /**
  * Sanitize player's text input, removing extraneous whitespace,
  * unprintable characters, etc.
- * @param str Input to sanitize.
- * @return Sanitized input; can be NULL if there's nothing in the string
- * left. */
-char *player_sanitize_input(char *str)
+ * @param str
+ * Input to sanitize.
+ * @return
+ * Sanitized input; can be NULL if there's nothing in the string
+ * left.
+ */
+char *
+player_sanitize_input (char *str)
 {
     if (!str) {
         return NULL;
@@ -1066,8 +1278,11 @@ char *player_sanitize_input(char *str)
 
 /**
  * Cleans up a string that is, presumably, a player name.
- * @param str The player name to clean up. */
-void player_cleanup_name(char *str)
+ * @param str
+ * The player name to clean up.
+ */
+void
+player_cleanup_name (char *str)
 {
     string_whitespace_trim(str);
     string_capitalize(str);
@@ -1076,11 +1291,17 @@ void player_cleanup_name(char *str)
 /**
  * Recursive helper function for find_marked_object() to search for
  * marked object in containers.
- * @param op Object. Should be a player.
- * @param marked Marked object.
- * @param marked_count Marked count.
- * @return The object if found, NULL otherwise. */
-static object *find_marked_object_rec(object *op, object **marked, uint32_t *marked_count)
+ * @param op
+ * Object. Should be a player.
+ * @param marked
+ * Marked object.
+ * @param marked_count
+ * Marked count.
+ * @return
+ * The object if found, NULL otherwise.
+ */
+static object *
+find_marked_object_rec (object *op, object **marked, uint32_t *marked_count)
 {
     object *tmp, *tmp2;
 
@@ -1118,9 +1339,13 @@ static object *find_marked_object_rec(object *op, object **marked, uint32_t *mar
 
 /**
  * Return the object the player has marked.
- * @param op Object. Should be a player.
- * @return Marked object if still valid, NULL otherwise. */
-object *find_marked_object(object *op)
+ * @param op
+ * Object. Should be a player.
+ * @return
+ * Marked object if still valid, NULL otherwise.
+ */
+object *
+find_marked_object (object *op)
 {
     if (op->type != PLAYER || !op || !CONTR(op) || !CONTR(op)->mark) {
         return NULL;
@@ -1131,9 +1356,13 @@ object *find_marked_object(object *op)
 
 /**
  * Player examines a living object.
- * @param op Player.
- * @param tmp Object being examined. */
-static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
+ * @param op
+ * Player.
+ * @param tmp
+ * Object being examined.
+ */
+static void
+examine_living (object *op, object *tmp, StringBuffer *sb_capture)
 {
     tmp = HEAD(tmp);
 
@@ -1230,7 +1459,7 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
         break;
     }
 
-    if (present_in_ob(POISONING, tmp) != NULL) {
+    if (object_find_type(tmp, POISONING) != NULL) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op,
                 "%s looks very ill.", gender_subjective_upper[gender]);
     }
@@ -1238,9 +1467,13 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 
 /**
  * Player examines some object.
- * @param op Player.
- * @param tmp Object to examine. */
-void examine(object *op, object *tmp, StringBuffer *sb_capture)
+ * @param op
+ * Player.
+ * @param tmp
+ * Object to examine.
+ */
+void
+examine (object *op, object *tmp, StringBuffer *sb_capture)
 {
     int i;
 
@@ -1330,6 +1563,30 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 
         break;
     }
+
+    case BOOK_SPELL:
+        if (tmp->stats.sp >= 0 && tmp->stats.sp < NROFREALSPELLS) {
+            int level = spells[tmp->stats.sp].at->clone.level;
+            draw_info_full_format(CHAT_TYPE_GAME,
+                                  NULL,
+                                  COLOR_WHITE,
+                                  sb_capture,
+                                  op,
+                                  "It contains a level %d wizardry spell.",
+                                  level);
+            int learn_level = spells[tmp->stats.sp].at->clone.level - 15;
+            learn_level = MAX(1, learn_level);
+            draw_info_full_format(CHAT_TYPE_GAME,
+                                  NULL,
+                                  COLOR_WHITE,
+                                  sb_capture,
+                                  op,
+                                  "It requires a minimum level of %d in "
+                                  "literacy to learn.",
+                                  learn_level);
+        }
+
+        break;
 
     case CONTAINER:
     {
@@ -1553,12 +1810,19 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 /**
  * Check if an item op can be put into a sack. If pl exists then tell
  * a player the reason of failure.
- * @param pl Player object.
- * @param sack The sack.
- * @param op The object to check.
- * @param nrof Number of objects we want to put in.
- * @return 1 if the object will fit, 0 if it will not. */
-int sack_can_hold(object *pl, object *sack, object *op, int nrof)
+ * @param pl
+ * Player object.
+ * @param sack
+ * The sack.
+ * @param op
+ * The object to check.
+ * @param nrof
+ * Number of objects we want to put in.
+ * @return
+ * 1 if the object will fit, 0 if it will not.
+ */
+int
+sack_can_hold (object *pl, object *sack, object *op, int nrof)
 {
     if (!QUERY_FLAG(sack, FLAG_APPLIED)) {
         if (pl != NULL) {
@@ -1581,7 +1845,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
         return 0;
     }
 
-    if ((sack->race && (sack->sub_type & 1) != ST1_CONTAINER_CORPSE) &&
+    if ((sack->race && sack->sub_type != ST1_CONTAINER_CORPSE) &&
             (sack->race != op->race || op->type == CONTAINER ||
             (sack->stats.food && sack->stats.food != op->type))) {
         if (pl != NULL) {
@@ -1610,12 +1874,13 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
     return 1;
 }
 
-static object *get_pickup_object(object *pl, object *op, int nrof)
+static object *
+get_pickup_object (object *pl, object *op, int nrof)
 {
     char *name = object_get_name_s(op, pl);
 
     if (QUERY_FLAG(op, FLAG_UNPAID) && QUERY_FLAG(op, FLAG_NO_PICK)) {
-        op = object_create_clone(op);
+        op = object_clone(op);
         CLEAR_FLAG(op, FLAG_NO_PICK);
         SET_FLAG(op, FLAG_STARTEQUIP);
         op->nrof = nrof;
@@ -1641,20 +1906,25 @@ static object *get_pickup_object(object *pl, object *op, int nrof)
 
 /**
  * Pick up object.
- * @param pl Object that is picking up the object.
- * @param op Object to put tmp into.
- * @param tmp Object to pick up.
- * @param nrof Number to pick up (0 means all of them).
- * @param no_mevent If 1, no map-wide pickup event will be triggered. */
-static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no_mevent)
+ * @param pl
+ * Object that is picking up the object.
+ * @param op
+ * Object to put tmp into.
+ * @param tmp
+ * Object to pick up.
+ * @param nrof
+ * Number to pick up (0 means all of them).
+ * @param no_mevent
+ * If 1, no map-wide pickup event will be triggered.
+ */
+static void
+pick_up_object (object *pl, object *op, object *tmp, int nrof, int no_mevent)
 {
     int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
-    /* IF the player is flying & trying to take the item out of a container
-     * that is in his inventory, let him.  tmp->env points to the container
-     * (sack, luggage, etc), tmp->env->env then points to the player (nested
-     * containers not allowed as of now) */
-    if (QUERY_FLAG(pl, FLAG_FLYING) && is_player_inv(tmp) != pl) {
+    /* IF the player is flying and trying to take the item out of a container
+     * that is in his inventory, let him. */
+    if (QUERY_FLAG(pl, FLAG_FLYING) && !object_is_in_inventory(tmp, pl)) {
         draw_info(COLOR_WHITE, pl, "You are levitating, you can't reach the ground!");
         return;
     }
@@ -1673,7 +1943,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
     }
 
     /* Trigger the PICKUP event */
-    if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, nrof, 0, 0, 0)) {
         return;
     }
 
@@ -1687,30 +1957,35 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
     }
 
     tmp = get_pickup_object(pl, tmp, nrof);
-    insert_ob_in_ob(tmp, op);
+    object_insert_into(tmp, op, 0);
 }
 
 /**
  * Try to pick up an item.
- * @param op Object trying to pick up.
- * @param alt Optional object op is trying to pick. If NULL, try to pick
+ * @param op
+ * Object trying to pick up.
+ * @param alt
+ * Optional object op is trying to pick. If NULL, try to pick
  * first item under op.
- * @param no_mevent If 1, no map-wide pickup event will be triggered. */
-void pick_up(object *op, object *alt, int no_mevent)
+ * @param no_mevent
+ * If 1, no map-wide pickup event will be triggered.
+ */
+void
+pick_up (object *op, object *alt, int no_mevent)
 {
     int count;
     object *tmp = NULL;
 
     /* Decide which object to pick. */
     if (alt) {
-        if (!can_pick(op, alt)) {
+        if (!object_can_pick(op, alt)) {
             draw_info_format(COLOR_WHITE, op, "You can't pick up %s.", alt->name);
             return;
         }
 
         tmp = alt;
     } else {
-        if (op->below == NULL || !can_pick(op, op->below)) {
+        if (op->below == NULL || !object_can_pick(op, op->below)) {
             draw_info(COLOR_WHITE, op, "There is nothing to pick up here.");
             return;
         }
@@ -1718,7 +1993,7 @@ void pick_up(object *op, object *alt, int no_mevent)
         tmp = op->below;
     }
 
-    if (!can_pick(op, tmp)) {
+    if (!object_can_pick(op, tmp)) {
         return;
     }
 
@@ -1734,25 +2009,29 @@ void pick_up(object *op, object *alt, int no_mevent)
 
     /* Container is open, so use it */
     if (op->type == PLAYER && CONTR(op)->container != NULL &&
-            CONTR(op)->container != tmp) {
+            CONTR(op)->container != tmp && CONTR(op)->container != tmp->env) {
         alt = CONTR(op)->container;
 
-        if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !check_magical_container(tmp, alt)) {
+        if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !container_check_magical(tmp, alt)) {
             return;
         }
     } else {
         /* Con container pickup */
 
-        for (alt = op->inv; alt; alt = alt->below) {
-            if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt)) {
-                /* Perfect match */
-                break;
+        alt = NULL;
+
+        if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
+            for (alt = op->inv; alt; alt = alt->below) {
+                if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count) && !container_check_magical(tmp, alt)) {
+                    /* Perfect match */
+                    break;
+                }
             }
         }
 
         if (!alt) {
             for (alt = op->inv; alt; alt = alt->below) {
-                if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt)) {
+                if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && sack_can_hold(NULL, alt, tmp, count) && !container_check_magical(tmp, alt)) {
                     /* General container comes next */
                     break;
                 }
@@ -1785,11 +2064,17 @@ void pick_up(object *op, object *alt, int no_mevent)
 /**
  * Player tries to put object into sack, if nrof is non zero, then
  * nrof objects is tried to put into sack.
- * @param op Player object.
- * @param sack The sack.
- * @param tmp The object to put into sack.
- * @param nrof Number of items to put into sack (0 for all). */
-void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
+ * @param op
+ * Player object.
+ * @param sack
+ * The sack.
+ * @param tmp
+ * The object to put into sack.
+ * @param nrof
+ * Number of items to put into sack (0 for all).
+ */
+void
+put_object_in_sack (object *op, object *sack, object *tmp, long nrof)
 {
     int tmp_nrof = tmp->nrof ? tmp->nrof : 1;
 
@@ -1809,13 +2094,13 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
         return;
     }
 
-    if (check_magical_container(tmp, sack)) {
+    if (container_check_magical(tmp, sack)) {
         draw_info(COLOR_WHITE, op, "You can't put a magical container into another magical container.");
         return;
     }
 
     if (tmp->map && sack->env) {
-        if (trigger_event(EVENT_PICKUP, op, tmp, sack, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+        if (trigger_event(EVENT_PICKUP, op, tmp, sack, NULL, nrof, 0, 0, 0)) {
             return;
         }
     }
@@ -1847,16 +2132,22 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
     efree(name);
     efree(tmp_name);
 
-    insert_ob_in_ob(tmp, sack);
+    object_insert_into(tmp, sack, 0);
 }
 
 /**
  * Drop an object onto the floor.
- * @param op Player object.
- * @param tmp The object to drop.
- * @param nrof Number of items to drop (0 for all).
- * @param no_mevent If 1, no map-wide event will be triggered. */
-void drop_object(object *op, object *tmp, long nrof, int no_mevent)
+ * @param op
+ * Player object.
+ * @param tmp
+ * The object to drop.
+ * @param nrof
+ * Number of items to drop (0 for all).
+ * @param no_mevent
+ * If 1, no map-wide event will be triggered.
+ */
+void
+drop_object (object *op, object *tmp, long nrof, int no_mevent)
 {
     object *floor_ob;
 
@@ -1878,7 +2169,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
     }
 
     /* Trigger the DROP event */
-    if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (trigger_event(EVENT_DROP, op, tmp, NULL, NULL, nrof, 0, 0, 0)) {
         return;
     }
 
@@ -1904,7 +2195,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
                 if (floor_ob && floor_ob->type == SHOP_FLOOR && (QUERY_FLAG(floor_ob, FLAG_IS_MAGICAL) || (floor_ob->randomitems && QUERY_FLAG(floor_ob, FLAG_CURSED)))) {
                     tmp->x = op->x;
                     tmp->y = op->y;
-                    insert_ob_in_map(tmp, op->map, op, 0);
+                    object_insert_map(tmp, op->map, op, 0);
                     return;
                 }
             } else {
@@ -1947,20 +2238,25 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
     tmp->y = op->y;
     tmp->sub_layer = op->sub_layer;
 
-    insert_ob_in_map(tmp, op->map, op, 0);
+    object_insert_map(tmp, op->map, op, 0);
 
     SET_FLAG(op, FLAG_NO_APPLY);
     object_remove(op, 0);
-    insert_ob_in_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+    object_insert_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
     CLEAR_FLAG(op, FLAG_NO_APPLY);
 }
 
 /**
  * Drop an item, either on the floor or in a container.
- * @param op Who is dropping an item.
- * @param tmp What object to drop.
- * @param no_mevent If 1, no drop map-wide event will be triggered. */
-void drop(object *op, object *tmp, int no_mevent)
+ * @param op
+ * Who is dropping an item.
+ * @param tmp
+ * What object to drop.
+ * @param no_mevent
+ * If 1, no drop map-wide event will be triggered.
+ */
+void
+drop (object *op, object *tmp, int no_mevent)
 {
     if (tmp == NULL) {
         draw_info(COLOR_WHITE, op, "You don't have anything to drop.");
@@ -1990,7 +2286,8 @@ void drop(object *op, object *tmp, int no_mevent)
     }
 }
 
-char *player_make_path(const char *name, const char *ext)
+char *
+player_make_path (const char *name, const char *ext)
 {
     StringBuffer *sb;
     char *name_lower, *cp;
@@ -2014,7 +2311,8 @@ char *player_make_path(const char *name, const char *ext)
     return cp;
 }
 
-int player_exists(const char *name)
+int
+player_exists (const char *name)
 {
     char *path;
     int ret;
@@ -2026,33 +2324,33 @@ int player_exists(const char *name)
     return ret;
 }
 
-void player_save(object *op)
+/**
+ * Saves the specified player.
+ *
+ * @param op
+ * Player object to save.
+ */
+void
+player_save (object *op)
 {
-    player *pl;
-    char *path, pathtmp[HUGE_BUF];
-    FILE *fp;
-    int i;
+    HARD_ASSERT(op != NULL);
 
     /* Is this a map players can't save on? */
-    if (op->map && MAP_PLAYER_NO_SAVE(op->map)) {
+    if (op->map != NULL && MAP_PLAYER_NO_SAVE(op->map)) {
         return;
     }
 
-    pl = CONTR(op);
-    path = player_make_path(op->name, "player.dat");
+    char *path = player_make_path(op->name, "player.dat");
+    char *path_tmp = player_make_path(op->name, "player.dat.tmp");
 
-    path_ensure_directories(path);
-    snprintf(pathtmp, sizeof(pathtmp), "%s.tmp", path);
-    rename(path, pathtmp);
+    player *pl = CONTR(op);
 
-    fp = fopen(path, "w");
-
-    if (!fp) {
-        draw_info(COLOR_WHITE, op, "Can't open file for saving.");
-        LOG(BUG, "Can't open file for saving: %s.", path);
-        rename(pathtmp, path);
-        efree(path);
-        return;
+    path_ensure_directories(path_tmp);
+    FILE *fp = fopen(path_tmp, "w");
+    if (unlikely(fp == NULL)) {
+        LOG(ERROR, "Failure opening %s for writing: %s",
+            path_tmp, strerror(errno));
+        goto error;
     }
 
     fprintf(fp, "no_chat %d\n", pl->no_chat);
@@ -2061,21 +2359,19 @@ void player_save(object *op)
     fprintf(fp, "tsi %d\n", pl->tsi);
     fprintf(fp, "tli %d\n", pl->tli);
     fprintf(fp, "tls %d\n", pl->tls);
-    fprintf(fp, "gen_hp %d\n", pl->gen_hp);
-    fprintf(fp, "gen_sp %d\n", pl->gen_sp);
-    fprintf(fp, "digestion %d\n", pl->digestion);
     fprintf(fp, "map %s\n", op->map ? op->map->path : EMERGENCY_MAPPATH);
     fprintf(fp, "bed_map %s\n", pl->savebed_map);
     fprintf(fp, "bed_x %d\nbed_y %d\n", pl->bed_x, pl->bed_y);
 
-    for (i = 0; i < pl->num_cmd_permissions; i++) {
-        if (pl->cmd_permissions[i]) {
-            fprintf(fp, "cmd_permission %s\n", pl->cmd_permissions[i]);
+    for (int i = 0; i < pl->num_cmd_permissions; i++) {
+        if (unlikely(pl->cmd_permissions[i] == NULL)) {
+            continue;
         }
+
+        fprintf(fp, "cmd_permission %s\n", pl->cmd_permissions[i]);
     }
 
     player_faction_t *faction, *tmp;
-
     HASH_ITER(hh, pl->factions, faction, tmp) {
         fprintf(fp, "faction %s %e\n", faction->name, faction->reputation);
     }
@@ -2087,41 +2383,62 @@ void player_save(object *op)
     object_save(op, fp);
     CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
-    /* Make sure the write succeeded */
-    if (fclose(fp) == EOF) {
-        draw_info(COLOR_WHITE, op, "Can't save character.");
-        rename(pathtmp, path);
-        efree(path);
-        return;
+    /* Make sure the write succeeded. */
+    if (unlikely(fclose(fp) == EOF)) {
+        LOG(ERROR, "Failure closing file %s: %s",
+            path_tmp, strerror(errno));
+        goto error;
     }
 
-    chmod(path, SAVE_MODE);
-    unlink(pathtmp);
+    /* Set the correct permissions. */
+    if (unlikely(chmod(path_tmp, SAVE_MODE) != 0)) {
+        LOG(ERROR, "Failure setting permissions of %s: %s",
+            path_tmp, strerror(errno));
+        goto error;
+    }
+
+    /* Rename the file, removing the .tmp extension. */
+    if (unlikely(path_rename(path_tmp, path) != 0)) {
+        LOG(ERROR, "Failure renaming %s to %s: %s",
+            path_tmp, path, strerror(errno));
+        goto error;
+    }
+
+    goto out;
+
+error:
+    /* Handle errors. */
+    draw_info(COLOR_RED, op, "Your character couldn't be saved.");
+
+    /* Try to remove the temporary file if it was created. */
+    if (fp != NULL && unlink(path_tmp) != 0) {
+        LOG(ERROR, "Failure removing temporary file %s: %s",
+            path_tmp, strerror(errno));
+    }
+
+out:
     efree(path);
+    efree(path_tmp);
 }
 
-static int player_load(player *pl, const char *path)
+/**
+ * Loads player data from the specified file into the player.
+ *
+ * @param pl
+ * Player.
+ * @param path
+ * Path to load the data from.
+ */
+static void
+player_load (player *pl, FILE *fp)
 {
-    FILE *fp;
-    char buf[MAX_BUF], *end;
-    void *loaderbuf;
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(fp != NULL);
 
-    if (path_size(path) == 0) {
-        return 0;
-    }
-
-    fp = fopen(path, "rb");
-
-    if (!fp) {
-        return 0;
-    }
-
-    while (fgets(buf, sizeof(buf), fp)) {
-        end = strchr(buf, '\n');
-
-        if (end) {
-            *end = '\0';
-        }
+    char buf[HUGE_BUF];
+    while (fgets(VS(buf), fp)) {
+        char *cp = buf;
+        string_strip_newline(cp);
 
         if (strcmp(buf, "endplst") == 0) {
             break;
@@ -2138,52 +2455,61 @@ static int player_load(player *pl, const char *path)
         } else if (strncmp(buf, "tls ", 4) == 0) {
             pl->tls = atoi(buf + 4);
         } else if (strncmp(buf, "map ", 4) == 0) {
-            strncpy(pl->maplevel, buf + 4, sizeof(pl->maplevel) - 1);
-            pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
+            snprintf(VS(pl->maplevel), "%s", buf + 4);
         } else if (strncmp(buf, "bed_map ", 8) == 0) {
-            strncpy(pl->savebed_map, buf + 8, sizeof(pl->savebed_map) - 1);
-            pl->savebed_map[sizeof(pl->savebed_map) - 1] = '\0';
+            snprintf(VS(pl->savebed_map), "%s", buf + 8);
         } else if (strncmp(buf, "bed_x ", 5) == 0) {
             pl->bed_x = atoi(buf + 5);
         } else if (strncmp(buf, "bed_y ", 5) == 0) {
             pl->bed_y = atoi(buf + 5);
         } else if (strncmp(buf, "cmd_permission ", 15) == 0) {
-            pl->cmd_permissions = erealloc(pl->cmd_permissions, sizeof(char *) * (pl->num_cmd_permissions + 1));
+            pl->cmd_permissions =
+                erealloc(pl->cmd_permissions,
+                         sizeof(char *) * (pl->num_cmd_permissions + 1));
             pl->cmd_permissions[pl->num_cmd_permissions] = estrdup(buf + 15);
             pl->num_cmd_permissions++;
         } else if (strncmp(buf, "faction ", 8) == 0) {
-            size_t pos;
+            size_t pos = 8;
             char faction_name[MAX_BUF];
-
-            pos = 8;
-
             if (string_get_word(buf, &pos, ' ', VS(faction_name), 0)) {
                 player_faction_t *faction =
-                        player_faction_create(pl, faction_name);
+                    player_faction_create(pl, faction_name);
                 faction->reputation = atof(buf + pos);
             }
         } else if (strncmp(buf, "fame ", 5) == 0) {
-            pl->fame = atoi(buf + 5);
+            pl->fame = atoll(buf + 5);
         }
     }
 
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
-    loaderbuf = create_loader_buffer(fp);
-    load_object(fp, pl->ob, loaderbuf, LO_REPEAT, 0);
-    delete_loader_buffer(loaderbuf);
+    void *buffer = create_loader_buffer(fp);
+    load_object_buffer(buffer, pl->ob, 0);
+    delete_loader_buffer(buffer);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
-    fclose(fp);
 
     /* The inventory of players is loaded in reverse order, so we need to
      * reorder it. */
     object_reverse_inventory(pl->ob);
-
-    return 1;
 }
 
-static void player_create(player *pl, const char *path, archetype_t *at, const char *name)
+/**
+ * Create a new player character.
+ *
+ * @param pl
+ * Player.
+ * @param at
+ * Character's archetype.
+ * @param name
+ * Name of the player character.
+ */
+static void
+player_create (player *pl, archetype_t *at, const char *name)
 {
-    copy_object(&at->clone, pl->ob, 0);
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(at != NULL);
+    HARD_ASSERT(name != NULL);
+
+    object_copy(pl->ob, &at->clone, false);
     pl->ob->custom_attrset = pl;
     FREE_AND_COPY_HASH(pl->ob->name, name);
 
@@ -2192,8 +2518,7 @@ static void player_create(player *pl, const char *path, archetype_t *at, const c
     trigger_global_event(GEVENT_BORN, pl->ob, NULL);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
 
-    strncpy(pl->maplevel, first_map_path, sizeof(pl->maplevel) - 1);
-    pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
+    snprintf(VS(pl->maplevel), "%s", first_map_path);
     pl->ob->x = first_map_x;
     pl->ob->y = first_map_y;
 }
@@ -2201,11 +2526,16 @@ static void player_create(player *pl, const char *path, archetype_t *at, const c
 /**
  * Creates a dummy player structure and returns a pointer to the player's
  * object.
- * @param name Name of the player to create.
- * @param host IP address of the player.
- * @return Created player object, never NULL. Will abort() in case of failure.
+ *
+ * @param name
+ * Name of the player to create.
+ * @param host
+ * IP address of the player.
+ * @return
+ * Created player object, never NULL. Will abort() in case of failure.
  */
-object *player_get_dummy(const char *name, const char *host)
+object *
+player_get_dummy (const char *name, const char *host)
 {
     player *pl;
 
@@ -2239,12 +2569,13 @@ object *player_get_dummy(const char *name, const char *host)
     pl->socket.account = estrdup(ACCOUNT_TESTING_NAME);
     pl->socket.sound = 1;
 
-    object_enter_map(pl->ob, NULL, NULL, 0, 0, 0);
+    object_enter_map(pl->ob, NULL, NULL, 0, 0, false);
 
     return pl->ob;
 }
 
-object *player_find_spell(object *op, spell_struct *spell)
+object *
+player_find_spell (object *op, spell_struct *spell)
 {
     for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
         if (tmp->type == SPELL && tmp->name == spell->at->clone.name) {
@@ -2257,10 +2588,13 @@ object *player_find_spell(object *op, spell_struct *spell)
 
 /**
  * Updates who the player is talking to.
- * @param pl Player.
- * @param npc NPC the player is now talking to.
+ * @param pl
+ * Player.
+ * @param npc
+ * NPC the player is now talking to.
  */
-void player_set_talking_to(player *pl, object *npc)
+void
+player_set_talking_to (player *pl, object *npc)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(npc != NULL);
@@ -2280,30 +2614,70 @@ void player_set_talking_to(player *pl, object *npc)
     }
 }
 
-void player_login(socket_struct *ns, const char *name, struct archetype *at)
+/**
+ * Perform player login.
+ *
+ * @param ns
+ * Client that wants to log in.
+ * @param name
+ * Character name to log in to.
+ * @param at
+ * Character archetype. Will be used to perform new character
+ * creation if this is the first time the player is logging in to this
+ * character.
+ */
+void
+player_login (socket_struct *ns, const char *name, struct archetype *at)
 {
-    player *pl;
-    char *path;
-    mapstruct *m;
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(name != NULL);
+    HARD_ASSERT(at != NULL);
 
     /* Not in the login procedure, can't login. */
     if (ns->state != ST_LOGIN) {
         return;
     }
 
-    pl = find_player(name);
-
-    if (pl) {
+    player *pl = find_player(name);
+    if (pl != NULL) {
         pl->socket.state = ST_DEAD;
         remove_ns_dead_player(pl);
     }
 
     if (ban_check(ns, name)) {
-        LOG(SYSTEM, "Ban: Banned player tried to login. [%s, %s]", name,
-                socket_get_addr(ns->sc));
-        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Connection refused due to a ban.");
+        LOG(SYSTEM, "Ban: Banned player tried to login. [%s, %s]",
+            name, socket_get_addr(ns->sc));
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                       "Connection refused due to a ban.");
         ns->state = ST_ZOMBIE;
         return;
+    }
+
+    char *path = player_make_path(name, "player.dat");
+    FILE *fp = fopen(path, "rb");
+    /* This shouldn't happen, because creating a new character creates an
+     * empty file (to reserve the character name until the player actually
+     * logs in with the character). */
+    if (unlikely(fp == NULL)) {
+        LOG(ERROR, "Failed to open player data file %s: %s",
+            path, strerror(errno));
+        ns->state = ST_ZOMBIE;
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                       "Could not open your player file; contact an "
+                       "administrator.");
+        goto out;
+    }
+
+    struct stat statbuf;
+    /* Similar to above. */
+    if (unlikely(fstat(fileno(fp), &statbuf) != 0)) {
+        LOG(ERROR, "Failed to stat player data file %s: %s",
+            path, strerror(errno));
+        ns->state = ST_ZOMBIE;
+        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
+                       "Could not stat your player file; contact an "
+                       "administrator.");
+        goto out;
     }
 
     LOG(INFO, "Login %s from IP %s", name, socket_get_str(ns->sc));
@@ -2320,7 +2694,7 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
     ns->state = ST_AVAILABLE;
 
     /* Create a new object for the player object data. */
-    pl->ob = get_object();
+    pl->ob = object_get();
 
 #ifdef SAVE_INTERVAL
     pl->last_save_time = time(NULL);
@@ -2330,16 +2704,17 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
     pl->last_save_tick = pticks;
 #endif
 
-    path = player_make_path(name, "player.dat");
-
-    if (!player_load(pl, path)) {
-        player_create(pl, path, at, name);
+    /* If the file is empty, it's a new character. */
+    if (statbuf.st_size == 0) {
+        player_create(pl, at, name);
+    } else {
+        player_load(pl, fp);
     }
 
     pl->ob->custom_attrset = pl;
     pl->ob->speed_left = 0.5;
 
-    sum_weight(pl->ob);
+    object_weight_sum(pl->ob);
     living_update_player(pl->ob);
     link_player_skills(pl->ob);
 
@@ -2349,12 +2724,22 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
     trigger_global_event(GEVENT_LOGIN, pl, socket_get_addr(pl->socket.sc));
 
-    m = ready_map_name(pl->maplevel, NULL, 0);
+    mapstruct *m = ready_map_name(pl->maplevel, NULL, 0);
 
     if (!m && strncmp(pl->maplevel, "/random/", 8) == 0) {
-        object_enter_map(pl->ob, NULL, ready_map_name(pl->savebed_map, NULL, 0), pl->bed_x, pl->bed_y, 1);
+        object_enter_map(pl->ob,
+                         NULL,
+                         ready_map_name(pl->savebed_map, NULL, 0),
+                         pl->bed_x,
+                         pl->bed_y,
+                         true);
     } else {
-        object_enter_map(pl->ob, NULL, m, pl->ob->x, pl->ob->y, 1);
+        object_enter_map(pl->ob,
+                         NULL,
+                         m,
+                         pl->ob->x,
+                         pl->ob->y,
+                         true);
     }
 
     /* No savebed map yet, initialize it. */
@@ -2385,28 +2770,171 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at)
         trigger_map_event(MEVENT_LOGIN, pl->ob->map, pl->ob, NULL, NULL, NULL, 0);
     }
 
+out:
+    if (fp != NULL) {
+        fclose(fp);
+    }
+
     efree(path);
 }
 
-/** @copydoc object_methods::remove_map_func */
-static void remove_map_func(object *op)
+/**
+ * Handle negative effects caused by equipping items with an item power sum
+ * higher than player's maximum item power.
+ *
+ * @param op
+ * Player.
+ */
+static void
+player_item_power_effects (object *op)
 {
-    player *pl;
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT(op->type == PLAYER, "Not a player: %s", object_get_str(op));
+
+    player *pl = CONTR(op);
+    if (pl->tgm) {
+        /* God mode, no negative effects. */
+        return;
+    }
+
+    int max = settings.item_power_factor * op->level;
+    if (pl->item_power <= max) {
+        /* If we're within the maximum item power, nothing to do. */
+        return;
+    }
+
+    int diff = pl->item_power - max;
+    int chance = MAX(1, 100 - diff);
+    if (!rndm_chance(MAX_TICKS + 5 + chance)) {
+        return;
+    }
+
+    if (pticks < pl->item_power_effects) {
+        return;
+    }
+
+    pl->item_power_effects = pticks + rndm(50, 100) * MAX_TICKS;
+
+    if (diff <= 15 || rndm_chance(diff / 3)) {
+        static archetype_t *at = NULL;
+        if (at == NULL) {
+            at = arch_find("soul_depletion");
+            SOFT_ASSERT(at != NULL, "Failed to find soul_depletion arch");
+        }
+
+        object *force = object_find_arch(op, at);
+        if (force == NULL) {
+            force = arch_to_object(at);
+            force->speed_left = -1.0;
+            force->stats.food = rndm(1, 5) + rndm(0, MAX(1, diff / 3));
+            force->stats.food *= rndm(2, 6);
+            force->stats.food *= MAX_TICKS;
+            force->stats.food *= force->speed;
+            if (force->stats.food < 0) {
+                force->stats.food = 0;
+            }
+
+            force = object_insert_into(force, op, 0);
+            SOFT_ASSERT(force != NULL, "Failed to insert force into player %s",
+                        object_get_str(op));
+        }
+
+        /* Try to pick a random protection/stat/etc to decrease. */
+        int tries = 0;
+        bool done = false;
+        while (!done && tries < 5) {
+            switch (rndm(0, 7)) {
+            case 0:
+            case 1:
+            case 2: {
+                int num = rndm(0, LAST_PROTECTION - 1);
+                if (force->protection[num] > -100) {
+                    int prot = force->protection[num];
+                    prot -= rndm(1, 5 + diff / 2);
+                    if (prot < -100) {
+                        prot = -100;
+                    }
+                    force->protection[num] = prot;
+                    done = true;
+                }
+
+                break;
+            }
+
+            case 3:
+            case 4:
+            case 5: {
+                int num = rndm(0, NUM_STATS - 1);
+                int8_t val = get_attr_value(&force->stats, num);
+                if (val > -MAX_STAT) {
+                    int stat = val - rndm(1, MAX(1, diff / 5));
+                    if (stat < -MAX_STAT) {
+                        stat = -MAX_STAT;
+                    }
+                    set_attr_value(&force->stats, num, stat);
+                    done = true;
+                }
+
+                break;
+            }
+
+            case 6:
+                if (force->stats.ac > -10) {
+                    force->stats.ac--;
+                    done = true;
+                }
+
+                break;
+
+            case 7:
+                if (force->stats.wc > -10) {
+                    force->stats.wc--;
+                    done = true;
+                }
+
+                break;
+            }
+
+            tries++;
+        }
+
+        if (done) {
+            draw_info(COLOR_RED, op, "The combined power of your equipped "
+                                     "items begins to sicken your soul!");
+            living_update(op);
+        }
+    } else if (diff > 50 && rndm_chance(MAX(25, 100 - diff))) {
+        draw_info(COLOR_RED, op, "The combined power of your equipped items "
+                                 "begins to consume your soul!");
+        drain_stat(op);
+    }  else {
+        draw_info(COLOR_RED, op, "The combined power of your equipped items "
+                                 "releases wild magic!");
+        spell_failure(op, diff);
+    }
+}
+
+/** @copydoc object_methods_t::remove_map_func */
+static void
+remove_map_func (object *op)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(op->map != NULL);
 
     if (op->map->in_memory == MAP_SAVING) {
         return;
     }
 
-    pl = CONTR(op);
+    player *pl = CONTR(op);
 
     /* Remove player from the map's linked list of players. */
-    if (pl->map_below) {
+    if (pl->map_below != NULL) {
         CONTR(pl->map_below)->map_above = pl->map_above;
     } else {
         op->map->player_first = pl->map_above;
     }
 
-    if (pl->map_above) {
+    if (pl->map_above != NULL) {
         CONTR(pl->map_above)->map_below = pl->map_below;
     }
 
@@ -2415,14 +2943,17 @@ static void remove_map_func(object *op)
 
     /* If the player has a container open that is not in their inventory,
      * close it. */
-    if (pl->container && pl->container->env != op) {
+    if (pl->container != NULL && pl->container->env != op) {
         container_close(op, NULL);
     }
 }
 
-/** @copydoc object_methods::process_func */
-static void process_func(object *op)
+/** @copydoc object_methods_t::process_func */
+static void
+process_func (object *op)
 {
+    HARD_ASSERT(op != NULL);
+
     player *pl = CONTR(op);
     int retval;
 
@@ -2440,13 +2971,13 @@ static void process_func(object *op)
             rv_vector rv;
 
             if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && (rv.distance > 4 || rv.distance_z != 0))) {
-                int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2);
+                int space = map_free_spot(followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2, pl->ob->arch, pl->ob);
 
                 if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map)) {
                     object_remove(pl->ob, 0);
                     pl->ob->x = followed->ob->x + freearr_x[space];
                     pl->ob->y = followed->ob->y + freearr_y[space];
-                    insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
+                    object_insert_map(pl->ob, followed->ob->map, NULL, 0);
                 }
             }
         } else {
@@ -2465,7 +2996,7 @@ static void process_func(object *op)
 
             if (!OBJECT_VALID(pl->ob->enemy, pl->ob->enemy_count) || pl->ob->enemy->owner == pl->ob) {
                 pl->ob->enemy = NULL;
-            } else if (is_melee_range(pl->ob, pl->ob->enemy)) {
+            } else if (attack_is_melee_range(pl->ob, pl->ob->enemy)) {
                 if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count)) {
                     set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
                 } else {
@@ -2490,7 +3021,8 @@ static void process_func(object *op)
         player_path_handle(pl);
     }
 
-    do_some_living(pl->ob);
+    player_do_some_living(pl->ob);
+    player_item_power_effects(pl->ob);
 
 #ifdef AUTOSAVE
 
@@ -2521,9 +3053,10 @@ static void process_func(object *op)
 }
 
 /**
- * Initialize the player type object methods. */
-void object_type_init_player(void)
+ * Initialize the player type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(player)
 {
-    object_type_methods[PLAYER].remove_map_func = remove_map_func;
-    object_type_methods[PLAYER].process_func = process_func;
+    OBJECT_METHODS(PLAYER)->remove_map_func = remove_map_func;
+    OBJECT_METHODS(PLAYER)->process_func = process_func;
 }

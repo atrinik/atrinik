@@ -919,7 +919,7 @@ arch orc_outlaw
 level 29
 dex 3
 can_use_bow 1
-wis 6
+item_power 6
 type 83
 arch ability_stone_throw
 race arrows

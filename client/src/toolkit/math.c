@@ -26,9 +26,25 @@
  * @file
  * Math related functions.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+
+/**
+ * @defgroup DRNG_xxx Intel DRNG support flags
+ *
+ * Flags that determine which DRNG instructions are available.
+ *@{*/
+#define DRNG_NO_SUPPORT	0x0 ///< DRNG is not supported.
+#define DRNG_HAS_RDRAND	0x1 ///< RDRAND is available.
+#define DRNG_HAS_RDSEED	0x2 ///< RDSEED is available.
+/*@}*/
+
+/**
+ * When defined, Intel's DRNG is compiled.
+ */
+#define INTEL_DRNG
 
 /**
  * Used by nearest_pow_two_exp() for a fast lookup.
@@ -39,11 +55,58 @@ static const size_t exp_lookup[65] = {
     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
 };
 
-TOOLKIT_API();
+#ifdef INTEL_DRNG
+/**
+ * Combination of @ref DRNG_xxx.
+ */
+static int drng_features;
+#endif
+
+/* Prototypes */
+static uint64_t
+rdtsc(void);
+
+#ifdef INTEL_DRNG
+static int
+get_drng_features(void);
+static bool
+rdseed64_step(uint64_t *seed);
+#endif
+
+TOOLKIT_API(DEPENDS(logger));
 
 TOOLKIT_INIT_FUNC(math)
 {
-    SRANDOM(time(NULL));
+    uint64_t seed = time(NULL);
+
+#ifdef INTEL_DRNG
+    drng_features = get_drng_features();
+    if (drng_features & DRNG_HAS_RDSEED) {
+        LOG(DEVEL, "CPU supports RDSEED opcode, attempting to generate a seed");
+        uint64_t new_seed;
+        /* Give it ten tries... */
+        for (int i = 0; i < 10; i++) {
+            if (rdseed64_step(&new_seed)) {
+                seed = new_seed;
+                LOG(DEVEL, "RDSEED generated seed: %" PRIu64, seed);
+                break;
+            }
+        }
+    } else
+#endif
+    {
+        LOG(DEVEL, "CPU supports RDTSC opcode, attempting to generate a seed");
+        seed = rdtsc();
+        LOG(DEVEL, "RDTSC generated seed: %" PRIu64, seed);
+    }
+
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        LOG(DEVEL, "CPU supports RDRAND opcode, will use DRNG for RNG");
+    }
+#endif
+
+    SRANDOM(seed);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -53,22 +116,189 @@ TOOLKIT_DEINIT_FUNC(math)
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
- * Computes the integer square root.
- * @param n Number of which to compute the root.
- * @return Integer square root. */
-unsigned long isqrt(unsigned long n)
+ * Acquire the processor time stamp using the rdtsc opcode.
+ *
+ * @return
+ * Processor time stamp.
+ */
+static uint64_t
+rdtsc (void)
 {
-    unsigned long op = n, res = 0, one;
+    unsigned int lo, hi;
+    asm volatile ("rdtsc"
+                  : "=a" (lo), "=d" (hi));
+    return ((uint64_t) hi << 32) | lo;
+}
 
+#ifdef INTEL_DRNG
+/**
+ * CPU ID information structure.
+ */
+typedef struct cpuid {
+    unsigned int eax;
+    unsigned int ebx;
+    unsigned int ecx;
+    unsigned int edx;
+} cpuid_t;
+
+/**
+ * Executes the cpuid opcode, acquiring information about the current CPU
+ * into the specified cpuid_t structure.
+ *
+ * @param info
+ * Where to store the information.
+ * @param leaf
+ * Leaf information (the EAX register).
+ * @param subleaf
+ * Sub-leaf information (the ECX register).
+ */
+static void
+cpuid (cpuid_t *info, unsigned int leaf, unsigned int subleaf)
+{
+    HARD_ASSERT(info != NULL);
+    asm volatile ("cpuid"
+                  : "=a" (info->eax),
+                    "=b" (info->ebx),
+                    "=c" (info->ecx),
+                    "=d" (info->edx)
+                  : "a" (leaf),
+                    "c" (subleaf));
+}
+
+/**
+ * Determine if the system is running under an Intel CPU.
+ *
+ * @return
+ * Whether the system is running under an Intel CPU.
+ */
+static bool
+is_intel_cpu (void)
+{
+    cpuid_t info;
+    cpuid(&info, 0, 0);
+
+    if (memcmp((char *) &info.ebx, "Genu", 4) == 0 &&
+        memcmp((char *) &info.edx, "ineI", 4) == 0 &&
+        memcmp((char *) &info.ecx, "ntel", 4) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Acquire the DRNG features supported by the CPU.
+ *
+ * @return
+ * A combination of @ref DRNG_xxx "DRNG flags".
+ */
+static int
+get_drng_features (void)
+{
+    if (!is_intel_cpu()) {
+        /* Not an Intel CPU; no support for DRNG. */
+        return DRNG_NO_SUPPORT;
+    }
+
+    int features = DRNG_NO_SUPPORT;
+
+    cpuid_t info;
+    /* Get the feature bits leaf */
+    cpuid(&info, 1, 0);
+
+    /* RDRAND instruction is bit #30 in the ECX register */
+    if (BIT_QUERY(info.ecx, 30)) {
+        features |= DRNG_HAS_RDRAND;
+    }
+
+    /* Get the extended feature flags leaf */
+    cpuid(&info, 7, 0);
+
+    /* RDSEED instruction is bit #18 in the EBX register */
+    if (BIT_QUERY(info.ebx, 18)) {
+        features |= DRNG_HAS_RDSEED;
+    }
+
+    return features;
+}
+
+/**
+ * Seeds the Intel DRNG number generator.
+ *
+ * @param seed
+ * The seed to seed with.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+rdseed64_step (uint64_t *seed)
+{
+    HARD_ASSERT(seed != NULL);
+
+    unsigned char ok;
+    asm volatile ("rdseed %0; setc %1"
+                  : "=r" (*seed), "=qm" (ok));
+    return !!ok;
+}
+
+/**
+ * Generates a random number using the Intel rdrand opcode.
+ *
+ * @param number
+ * Will contain the random number on success.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+rdrand64_step (unsigned long long int *number)
+{
+    HARD_ASSERT(number != NULL);
+
+#if !defined(__x86_64__)
+    unsigned char ok;
+    asm volatile ("rdrand %0; setc %1"
+                  : "=r" (*number), "=qm" (ok));
+    return !!ok;
+#else
+    unsigned long long int i;
+    int ok;
+
+    asm volatile ("rdrand %%rax; \
+                   mov $1,%%edx; \
+                   cmovae %%rax,%%rdx; \
+                   mov %%edx,%1; \
+                   mov %%rax, %0;"
+                  : "=r" (i), "=r" (ok)
+                  :: "%rax", "%rdx");
+    *number = i;
+    return !!ok;
+#endif
+}
+
+#endif
+
+/**
+ * Computes the integer square root.
+ *
+ * @param n
+ * Number of which to compute the root.
+ * @return
+ * Integer square root.
+ */
+unsigned long
+isqrt (unsigned long n)
+{
     TOOLKIT_PROTECT();
 
     /* "one" starts at the highest power of four <= than the argument. */
-    one = 1 << 30;
+    unsigned long one = 1 << 30;
 
+    unsigned long op = n;
     while (one > op) {
         one >>= 2;
     }
 
+    unsigned long res = 0;
     while (one != 0) {
         if (op >= res + one) {
             op -= res + one;
@@ -91,10 +321,16 @@ unsigned long isqrt(unsigned long n)
  * use of %.
  *
  * This should also prevent SIGFPE.
- * @param min Starting range.
- * @param max Ending range.
- * @return The random number. */
-int rndm(int min, int max)
+ *
+ * @param min
+ * Starting range.
+ * @param max
+ * Ending range.
+ * @return
+ * The random number.
+ */
+int
+rndm (int min, int max)
 {
     TOOLKIT_PROTECT();
 
@@ -107,21 +343,44 @@ int rndm(int min, int max)
         return min;
     }
 
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        unsigned long long int i;
+        if (rdrand64_step(&i)) {
+            return min + i % (max - min + 1);
+        }
+    }
+#endif
+
     return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
 }
 
 /**
  * Calculates a chance of 1 in 'n'.
- * @param n Number.
- * @return 1 if the chance of 1/n was successful, 0 otherwise. */
-int rndm_chance(uint32_t n)
+ *
+ * @param n
+ * Number.
+ * @return
+ * 1 if the chance of 1/n was successful, 0 otherwise.
+ */
+int
+rndm_chance (uint32_t n)
 {
     TOOLKIT_PROTECT();
 
-    if (!n) {
+    if (n == 0) {
         log_error("Calling rndm_chance() with n=0.");
         return 0;
     }
+
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        unsigned long long int i;
+        if (rdrand64_step(&i)) {
+            return (i % n) == 0;
+        }
+    }
+#endif
 
     return (uint32_t) RANDOM() < (RAND_MAX + 1U) / n;
 }
@@ -167,9 +426,13 @@ int rndm_chance(uint32_t n)
  * It is permissible to sort an empty list. If first == end_marker, the returned
  * value will also be end_marker.
  */
-void *sort_linked_list(void *p, unsigned index,
-        int (*compare) (void *, void *, void *) , void *pointer,
-        unsigned long *pcount, void *end_marker)
+void *
+sort_linked_list (void          *p,
+                  unsigned      index,
+                  int          (*compare)(void *, void *, void *),
+                  void          *pointer,
+                  unsigned long *pcount,
+                  void          *end_marker)
 {
     unsigned base;
     unsigned long block_size;
@@ -199,7 +462,7 @@ void *sort_linked_list(void *p, unsigned index,
     /* If the list is empty or contains only a single record, then */
     /* tape[1].count == 0L and this part is vacuous.               */
     for (base = 0, block_size = 1L; tape[base + 1].count != 0L;
-            base ^= 2, block_size <<= 1) {
+         base ^= 2, block_size <<= 1) {
         int dest;
         struct tape *tape0, *tape1;
 
@@ -228,8 +491,8 @@ void *sort_linked_list(void *p, unsigned index,
                 } else if (n1 == 0 || tape1->count == 0) {
                     chosen_tape = tape0;
                     n0--;
-                } else if ((*compare) (tape0->first, tape1->first,
-                        pointer) > 0) {
+                } else if ((*compare)(tape0->first, tape1->first,
+                                      pointer) > 0) {
                     chosen_tape = tape1;
                     n1--;
                 } else {
@@ -268,18 +531,109 @@ void *sort_linked_list(void *p, unsigned index,
  * Return the exponent exp needed to round n up to the nearest power of two, so
  * that (1 << exp) >= n and (1 << (exp - 1)) \< n
  */
-size_t nearest_pow_two_exp(size_t n)
+size_t
+nearest_pow_two_exp (size_t n)
 {
-    size_t i;
-
     TOOLKIT_PROTECT();
 
     if (n <= 64) {
         return exp_lookup[n];
     }
 
+    size_t i;
     for (i = 7; (1U << i) < n; i++) {
     }
 
     return i;
+}
+
+/**
+ * Determine whether the specified point X,Y is in an ellipse.
+ *
+ * @param x
+ * X of the point.
+ * @param y
+ * Y of the point.
+ * @param cx
+ * X center of the ellipse.
+ * @param cy
+ * Y center of the ellipse.
+ * @param dx
+ * X diameter of the ellipse.
+ * @param dy
+ * Y diameter of the ellipse.
+ * @param angle
+ * Angle of the ellipse.
+ * @return
+ * True if the point is inside the ellipse, false otherwise.
+ */
+bool
+math_point_in_ellipse (int    x,
+                       int    y,
+                       double cx,
+                       double cy,
+                       int    dx,
+                       int    dy,
+                       double angle)
+{
+    double sin_angle, cos_angle;
+    sincos(angle, &sin_angle, &cos_angle);
+
+    double a = pow(cos_angle * (x - cx) + sin_angle * (y - cy), 2.0);
+    double b = pow(sin_angle * (x - cx) + cos_angle * (y - cy), 2.0);
+
+    return a / (dx / 2.0 * dx / 2.0) + b / (dy / 2.0 * dy / 2.0) < 1.0;
+}
+
+/**
+ * Determine whether the specified point X,Y is on the edge of an ellipse.
+ *
+ * @param x
+ * X of the point.
+ * @param y
+ * Y of the point.
+ * @param cx
+ * X center of the ellipse.
+ * @param cy
+ * Y center of the ellipse.
+ * @param dx
+ * X diameter of the ellipse.
+ * @param dy
+ * Y diameter of the ellipse.
+ * @param angle
+ * Angle of the ellipse.
+ * @param[out] deg On success, will contain the angle the point is at in
+ * relation to the center of the ellipse, in degrees (0-359), with up=0,
+ * right=90, etc. Can be NULL. Undefined if the function returns false.
+ * @return
+ * True if the point is on the edge of the ellipse, false otherwise.
+ */
+bool
+math_point_edge_ellipse (int    x,
+                         int    y,
+                         double cx,
+                         double cy,
+                         int    dx,
+                         int    dy,
+                         double angle,
+                         int   *deg)
+{
+    double sin_angle, cos_angle;
+    sincos(angle, &sin_angle, &cos_angle);
+
+    double a = pow(cos_angle * (x - cx) + sin_angle * (y - cy), 2.0);
+    double b = pow(sin_angle * (x - cx) + cos_angle * (y - cy), 2.0);
+    double r = a / (dx / 2.0 * dx / 2.0) + b / (dy / 2.0 * dy / 2.0);
+
+    if (r >= 1.0 || r <= 0.9) {
+        return false;
+    }
+
+    if (deg != NULL) {
+        double rad = atan2(y - cy, x - cx);
+        *deg = rad * (180.0 / M_PI) + 90.0;
+        *deg = (*deg + 360) % 360;
+    }
+
+    return true;
 }

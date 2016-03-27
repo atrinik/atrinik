@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Notification header file. */
+ * Notification header file.
+ */
 
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
 
 /**
- * The notification data. */
+ * The notification data.
+ */
 typedef struct notification_struct {
     /** Current alpha value of the notification surface. */
     int alpha;
@@ -46,7 +48,8 @@ typedef struct notification_struct {
 
     /**
      * Milliseconds that must pass before the notification is
-     * dismissed. */
+     * dismissed.
+     */
     uint32_t delay;
 } notification_struct;
 
@@ -62,7 +65,8 @@ typedef struct notification_struct {
 #define CMD_NOTIFICATION_SHORTCUT 2
 /**
  * How many milliseconds must pass before the notification is
- * dismissed. */
+ * dismissed.
+ */
 #define CMD_NOTIFICATION_DELAY 3
 /*@}*/
 

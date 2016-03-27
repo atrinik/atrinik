@@ -14,7 +14,7 @@ terrain_flag 65
 can_see_in_dark 1
 can_use_weapon 1
 can_use_armour 1
-wis 3
+item_power 3
 con 20
 exp 120
 hp -1

@@ -435,22 +435,6 @@ class PlayerFieldsSuite(PlayerCommonSuite):
         self.assertEqual(self.pl.party, Atrinik.GetFirst("party"))
         self.pl.ExecuteCommand("/party leave")
 
-    def test_class_ob(self):
-        with self.assertRaises(TypeError):
-            self.pl.class_ob = None
-
-        self.assertIsNone(self.pl.class_ob)
-        self.pl.ob.f_no_fix_player = True
-        ob = self.pl.ob.CreateObject("class_warrior")
-        self.pl.ob.f_no_fix_player = False
-        self.assertIsNone(self.pl.class_ob)
-        self.pl.ob.Update()
-        self.assertEqual(self.pl.class_ob, ob)
-        class_ob = self.pl.class_ob
-        ob.Destroy()
-        self.assertIsNone(self.pl.class_ob)
-        self.assertRaises(ReferenceError, class_ob.Destroy)
-
     def test_savebed_map(self):
         orig = self.pl.savebed_map
         self.pl.savebed_map = ""

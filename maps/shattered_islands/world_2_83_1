@@ -1,0 +1,33 @@
+arch map
+name Incuna
+msg
+Created:  2010-08-22 Edwin Miltenburg
+Modified: 2015-11-28 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+outdoor 1
+bg_music tutorialisland.mid
+region incuna
+end
+arch roof_wood
+direction 3
+x 23
+y 17
+end
+arch roof_wood
+direction 3
+x 23
+y 18
+end
+arch roof_wood
+direction 3
+x 23
+y 19
+end
+arch roof_wood
+direction 3
+x 23
+y 20
+end

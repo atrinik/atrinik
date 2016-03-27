@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Random map related variables. */
+ * Random map related variables.
+ */
 
 #ifndef RANDOM_MAP_H
 #define RANDOM_MAP_H
@@ -188,7 +189,8 @@ typedef struct {
 
 /**
  * Macro to get a strongly centered random distribution, from 0 to x,
- * centered at x / 2. */
+ * centered at x / 2.
+ */
 #define BC_RANDOM(x) ((int) ((RANDOM() % (x) + RANDOM() % (x) + RANDOM() % (x)) / 3.))
 
 #endif

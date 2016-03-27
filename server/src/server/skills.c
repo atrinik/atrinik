@@ -24,17 +24,21 @@
 
 /**
  * @file
- * This file contains core skill handling. */
+ * This file contains core skill handling.
+ */
 
 #include <global.h>
 #include <book.h>
 #include <skillist.h>
+#include <object.h>
 
 /**
  * Checks for traps on the spaces around the player or in certain
  * objects.
- * @param pl Player searching.
- * @param level Level of the find traps skill.
+ * @param pl
+ * Player searching.
+ * @param level
+ * Level of the find traps skill.
  */
 void find_traps(object *pl, int level)
 {
@@ -105,7 +109,8 @@ void find_traps(object *pl, int level)
 
 /**
  * This skill will disarm any previously discovered trap.
- * @param op Player disarming.
+ * @param op
+ * Player disarming.
  */
 void remove_trap(object *op)
 {
@@ -126,7 +131,7 @@ void remove_trap(object *op)
             /* And now we'd better do an inventory traversal of each
              * of these objects' inventory */
             for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below) {
-                if (tmp2->type == RUNE && tmp2->stats.Cha <= 1) {
+                if (tmp2->type == RUNE && tmp2->stats.Int <= 1) {
                     if (QUERY_FLAG(tmp2, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp2, FLAG_IS_INVISIBLE)) {
                         trap_show(tmp2, tmp);
                     }
@@ -136,7 +141,7 @@ void remove_trap(object *op)
                 }
             }
 
-            if (tmp->type == RUNE && tmp->stats.Cha <= 1) {
+            if (tmp->type == RUNE && tmp->stats.Int <= 1) {
                 if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp, FLAG_IS_INVISIBLE)) {
                     trap_show(tmp, tmp);
                 }

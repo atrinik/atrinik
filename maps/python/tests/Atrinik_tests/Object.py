@@ -1262,13 +1262,13 @@ class ObjectMethodsSuite(unittest.TestCase):
         self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
                           "beer_charob")
 
-        self.obj.Artificate("weapon_less_fire")
-        self.assertEqual(self.obj.artifact, "weapon_less_fire")
+        self.obj.Artificate("weapon_fire")
+        self.assertEqual(self.obj.artifact, "weapon_fire")
         self.assertGreater(self.obj.Attack(Atrinik.ATNR_FIRE), 0)
         self.assertTrue(self.obj.f_is_magical)
         self.assertGreater(self.obj.value, self.obj.arch.clone.value)
         self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
-                          "weapon_less_fire")
+                          "weapon_fire")
         self.assertRaises(Atrinik.AtrinikError, self.obj.Artificate,
                           "xxx")
 
@@ -1753,6 +1753,12 @@ class ObjectFieldsSuite(TestSuite):
     def test_exp(self):
         self.field_test_int("exp", 64)
 
+    def test_block(self):
+        self.field_test_int("block", 8, True)
+
+    def test_absorb(self):
+        self.field_test_int("absorb", 8, True)
+
     def test_hp(self):
         self.field_test_int("hp", 32)
 
@@ -1788,12 +1794,6 @@ class ObjectFieldsSuite(TestSuite):
 
     def test_Con(self):
         self.field_test_int("Con", 8)
-
-    def test_Wis(self):
-        self.field_test_int("Wis", 8)
-
-    def test_Cha(self):
-        self.field_test_int("Cha", 8)
 
     def test_Int(self):
         self.field_test_int("Int", 8)

@@ -24,14 +24,16 @@
 
 /**
  * @file
- * Controls map swap functions. */
+ * Controls map swap functions.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 #include <plugin.h>
 
 /**
- * Write maps log. */
+ * Write maps log.
+ */
 void write_map_log(void)
 {
     FILE *fp;
@@ -59,7 +61,8 @@ void write_map_log(void)
 }
 
 /**
- * Read map log. */
+ * Read map log.
+ */
 void read_map_log(void)
 {
     FILE *fp;
@@ -103,9 +106,12 @@ void read_map_log(void)
 
 /**
  * Checks if the specified map can be swapped.
- * @param tiled The tiled map.
- * @param map Map on the Z axis.
- * @return 1 if the map cannot be swapped, 0 otherwise.
+ * @param tiled
+ * The tiled map.
+ * @param map
+ * Map on the Z axis.
+ * @return
+ * 1 if the map cannot be swapped, 0 otherwise.
  */
 static int swap_map_check(mapstruct *tiled, mapstruct *map)
 {
@@ -114,8 +120,11 @@ static int swap_map_check(mapstruct *tiled, mapstruct *map)
 
 /**
  * Swaps a map to disk.
- * @param map Map to swap.
- * @param force_flag Force flag. If set, will not check for players. */
+ * @param map
+ * Map to swap.
+ * @param force_flag
+ * Force flag. If set, will not check for players.
+ */
 void swap_map(mapstruct *map, int force_flag)
 {
     if (map->in_memory != MAP_IN_MEMORY) {
@@ -162,7 +171,8 @@ void swap_map(mapstruct *map, int force_flag)
 }
 
 /**
- * Check active maps and swap them out. */
+ * Check active maps and swap them out.
+ */
 void check_active_maps(void)
 {
     mapstruct *map, *tmp;
@@ -193,7 +203,8 @@ void check_active_maps(void)
  * Removes temporary files of maps which are going to be reset next time
  * they are visited.
  *
- * This is very useful if the tmp-disk is very full. */
+ * This is very useful if the tmp-disk is very full.
+ */
 void flush_old_maps(void)
 {
     mapstruct *m, *tmp;

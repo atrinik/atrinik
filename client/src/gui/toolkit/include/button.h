@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Button header file. */
+ * Button header file.
+ */
 
 #ifndef BUTTON_H
 #define BUTTON_H
@@ -40,7 +41,8 @@
 /** Button structure. */
 typedef struct button_struct {
     /**
-     * Surface to use for rendering. */
+     * Surface to use for rendering.
+     */
     SDL_Surface *surface;
 
     /** X position. */
@@ -54,17 +56,20 @@ typedef struct button_struct {
     int py;
 
     /**
-     * Texture to normally use for the button. */
+     * Texture to normally use for the button.
+     */
     texture_struct *texture;
 
     /**
      * Texture to use if the mouse is over the button, NULL to use regular
-     * one. */
+     * one.
+     */
     texture_struct *texture_over;
 
     /**
      * Texture to use if the button is being pressed, NULL to use regular
-     * one. */
+     * one.
+     */
     texture_struct *texture_pressed;
 
     /** Font used for the text. */
@@ -74,7 +79,8 @@ typedef struct button_struct {
     uint64_t flags;
 
     /**
-     * Whether to center the text vertically and horizontally. */
+     * Whether to center the text vertically and horizontally.
+     */
     uint8_t center;
 
     /** Color of the text. */
@@ -94,7 +100,8 @@ typedef struct button_struct {
 
     /**
      * 1 if the button is being pressed.
-     * @private */
+     * @private
+     */
     int pressed;
 
     /** 1 if the button should be forced to be pressed. */
@@ -114,11 +121,14 @@ typedef struct button_struct {
 
     /**
      * Function called on button repeat
-     * @param button The button. */
+     * @param button
+ * The button.
+ */
     void (*repeat_func)(struct button_struct *button);
 
     /**
-     * Whether the button needs redrawing. */
+     * Whether the button needs redrawing.
+     */
     uint8_t redraw;
 } button_struct;
 

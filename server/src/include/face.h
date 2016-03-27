@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Face related structures. */
+ * Face related structures.
+ */
 
 #ifndef FACE_H
 #define FACE_H
@@ -32,14 +33,16 @@
 /**
  * Face structure - this enforces the notion that data is face by
  * face only - you can not change the color of an item - you need to instead
- * create a new face with that color. */
+ * create a new face with that color.
+ */
 typedef struct new_face_struct {
     /** Name of the face. */
-    char *name;
+    const char *name;
 
     /**
      * This is the image ID. It should be the same value as its position
-     * in the array. */
+     * in the array.
+     */
     uint16_t number;
 } New_Face;
 
@@ -66,8 +69,10 @@ typedef struct {
     /** How many different faces to animate. */
     uint8_t num_animations;
 
-    /** How many facings (9 and 25 are allowed only with the new ext anim
-     * system). */
+    /**
+     * How many facings (9 and 25 are allowed only with the new ext anim
+     * system).
+     */
     uint8_t facings;
 } Animations;
 

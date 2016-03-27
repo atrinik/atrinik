@@ -26,14 +26,16 @@
  * @file
  * Text drawing API. Uses SDL_ttf for rendering.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 
 /**
  * If 1, all text shown using 'box' parameter of text_show() for max
- * width/height will have a frame around it. */
+ * width/height will have a frame around it.
+ */
 static uint8_t text_debug = 0;
 
 /**
@@ -41,7 +43,8 @@ static uint8_t text_debug = 0;
  * finishing drawing.
  *
  * This is used so the text being drawn is not changed in the middle of
- * the drawing by clicking on a link. */
+ * the drawing by clicking on a link.
+ */
 static uint8_t text_anchor_help_clicked = 0;
 
 /** Help GUI to open if ::text_anchor_help_clicked is 1. */
@@ -70,7 +73,8 @@ static text_anchor_handle_func text_anchor_handle = NULL;
 /**
  * If non-NULL, when blitting text inside an anchor tag, anchor execution
  * function will be called with this pointer as the optional custom data
- * argument. */
+ * argument.
+ */
 static void *text_anchor_info_ptr = NULL;
 
 /**
@@ -80,11 +84,16 @@ static font_struct *fonts;
 
 /**
  * Get a hash table key for a font.
- * @param name Name of the font.
- * @param size Size of the font.
- * @param buf Where to store the result.
- * @param buf_size Size of 'buf'.
- * @return 'buf'.
+ * @param name
+ * Name of the font.
+ * @param size
+ * Size of the font.
+ * @param buf
+ * Where to store the result.
+ * @param buf_size
+ * Size of 'buf'.
+ * @return
+ * 'buf'.
  */
 static char *font_get_hash_key(const char *name, uint8_t size, char *buf,
         size_t buf_size)
@@ -96,9 +105,12 @@ static char *font_get_hash_key(const char *name, uint8_t size, char *buf,
 /**
  * Attempt to open a TTF font. Will attempt various paths/extensions until
  * giving up.
- * @param name Name of the font.
- * @param size Size of the font.
- * @return Opened font on success, NULL on failure.
+ * @param name
+ * Name of the font.
+ * @param size
+ * Size of the font.
+ * @return
+ * Opened font on success, NULL on failure.
  */
 static TTF_Font *font_open(const char *name, uint8_t size)
 {
@@ -123,9 +135,13 @@ static TTF_Font *font_open(const char *name, uint8_t size)
 
 /**
  * Allocate a new font structure.
- * @param name Name of the font.
- * @param size Size of the font.
- * @return The allocated font; NULL on failure. */
+ * @param name
+ * Name of the font.
+ * @param size
+ * Size of the font.
+ * @return
+ * The allocated font; NULL on failure.
+ */
 static font_struct *font_new(const char *name, uint8_t size)
 {
     TTF_Font *ttf_font;
@@ -160,9 +176,12 @@ static font_struct *font_new(const char *name, uint8_t size)
  * This function will attempt to find the specified font with the specified
  * size in a hash table, and, failing that, it will attempt to initialized
  * such font.
- * @param name Name of the font to get.
- * @param size Size of the font to get.
- * @return Font; can be NULL in case of failure.
+ * @param name
+ * Name of the font to get.
+ * @param size
+ * Size of the font to get.
+ * @return
+ * Font; can be NULL in case of failure.
  */
 font_struct *font_get_weak(const char *name, uint8_t size)
 {
@@ -187,9 +206,12 @@ font_struct *font_get_weak(const char *name, uint8_t size)
 /**
  * Like font_get_weak(), but the returned pointer will have increased reference
  * count, so remember to use font_free() in your cleanup function.
- * @param name Name of the font to get.
- * @param size Size of the font to get.
- * @return Font; can be NULL in case of failure.
+ * @param name
+ * Name of the font to get.
+ * @param size
+ * Size of the font to get.
+ * @return
+ * Font; can be NULL in case of failure.
  */
 font_struct *font_get(const char *name, uint8_t size)
 {
@@ -209,9 +231,12 @@ font_struct *font_get(const char *name, uint8_t size)
 
 /**
  * Acquire a weak reference to a font of a larger or smaller size.
- * @param font Font.
- * @param size Size adjustment; 1 for a bigger one, -1 for a smaller one.
- * @return The font. NULL if the size is not in an acceptable range or some
+ * @param font
+ * Font.
+ * @param size
+ * Size adjustment; 1 for a bigger one, -1 for a smaller one.
+ * @return
+ * The font. NULL if the size is not in an acceptable range or some
  * other failure occurs.
  */
 font_struct *font_get_size(font_struct *font, int8_t size)
@@ -231,7 +256,9 @@ font_struct *font_get_size(font_struct *font, int8_t size)
 
 /**
  * Free a font.
- * @param font Font to free. */
+ * @param font
+ * Font to free.
+ */
 void font_free(font_struct *font)
 {
     HARD_ASSERT(font != NULL);
@@ -304,7 +331,8 @@ void font_gc(void)
 }
 
 /**
- * Initialize the text API. Should only be done once. */
+ * Initialize the text API. Should only be done once.
+ */
 void text_init(void)
 {
     TTF_Init();
@@ -314,7 +342,8 @@ void text_init(void)
 }
 
 /**
- * Deinitialize the text API. */
+ * Deinitialize the text API.
+ */
 void text_deinit(void)
 {
     font_struct *font, *next;
@@ -344,8 +373,11 @@ void text_deinit(void)
  * Note that this is not required for widget surfaces, as it's done
  * automatically by searching the widgets for the surface that is being
  * used.
- * @param x X position of the surface.
- * @param y Y position of the surface. */
+ * @param x
+ * X position of the surface.
+ * @param y
+ * Y position of the surface.
+ */
 void text_offset_set(int x, int y)
 {
     text_offset_mx = x;
@@ -354,7 +386,8 @@ void text_offset_set(int x, int y)
 
 /**
  * Reset the text offset. This must be done after text_offset_set() and
- * text_show() calls eventually, */
+ * text_show() calls eventually,
+ */
 void text_offset_reset(void)
 {
     text_offset_mx = text_offset_my = -1;
@@ -363,9 +396,13 @@ void text_offset_reset(void)
 /**
  * Set color to use for links. Will be reset to default color after the
  * next call to string rendering is done.
- * @param r Red.
- * @param g Green.
- * @param b Blue. */
+ * @param r
+ * Red.
+ * @param g
+ * Green.
+ * @param b
+ * Blue.
+ */
 void text_color_set(int r, int g, int b)
 {
     text_link_color.r = r;
@@ -375,12 +412,16 @@ void text_color_set(int r, int g, int b)
 
 /**
  * Allow grabbing a text selection.
- * @param start Pointer that will be used to store start of selection.
- * @param end Pointer that will be used to store start of selection.
- * @param started Pointer that is used to determine whether to store
+ * @param start
+ * Pointer that will be used to store start of selection.
+ * @param end
+ * Pointer that will be used to store start of selection.
+ * @param started
+ * Pointer that is used to determine whether to store
  * selection data in start or end.
  * @note You must call this with all arguments set to NULL after your
- * call to string drawing routines. */
+ * call to string drawing routines.
+ */
 void text_set_selection(int64_t *start, int64_t *end, uint8_t *started)
 {
     selection_start = start;
@@ -390,7 +431,9 @@ void text_set_selection(int64_t *start, int64_t *end, uint8_t *started)
 
 /**
  * Set the anchor handler function.
- * @param func The function. */
+ * @param func
+ * The function.
+ */
 void text_set_anchor_handle(text_anchor_handle_func func)
 {
     text_anchor_handle = func;
@@ -398,7 +441,9 @@ void text_set_anchor_handle(text_anchor_handle_func func)
 
 /**
  * Set the value of ::text_anchor_info_ptr.
- * @param ptr Value to set. */
+ * @param ptr
+ * Value to set.
+ */
 void text_set_anchor_info(void *ptr)
 {
     text_anchor_info_ptr = ptr;
@@ -408,14 +453,18 @@ void text_set_anchor_info(void *ptr)
  * Remove all markup tags, including their contents.
  *
  * Entities will also be replaced with their proper replacements.
- * @param buf Buffer containing the text with markup, from which to
+ * @param buf
+ * Buffer containing the text with markup, from which to
  * remove tags.
  * @param[out] len Length of 'buf'. This will contain the length of the
  * new string, without markup tags. Can be NULL, in which case length of
  * the original string will be calculated automatically.
- * @param do_free If 1, will automatically free 'buf'.
- * @return Newly allocated string with markup removed, and entities
- * replaced. */
+ * @param do_free
+ * If 1, will automatically free 'buf'.
+ * @return
+ * Newly allocated string with markup removed, and entities
+ * replaced.
+ */
 char *text_strip_markup(char *buf, size_t *buf_len, uint8_t do_free)
 {
     char *cp;
@@ -475,8 +524,11 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8_t do_free)
 
 /**
  * Escapes markup in 'buf'.
- * @param buf String to escape markup in.
- * @return New string with markup escaped; never NULL. Must be freed. */
+ * @param buf
+ * String to escape markup in.
+ * @return
+ * New string with markup escaped; never NULL. Must be freed.
+ */
 char *text_escape_markup(const char *buf)
 {
     StringBuffer *sb;
@@ -501,10 +553,13 @@ char *text_escape_markup(const char *buf)
 /**
  * Adjust mouse X/Y coordinates for mouse-related checks based on which
  * surface we're using.
- * @param surface The surface.
+ * @param surface
+ * The surface.
  * @param[out] mx Mouse X, may be modified.
  * @param[out] my Mouse Y, may be modified.
- * @return 1 if mouse-related checks can happen, 0 otherwise. */
+ * @return
+ * 1 if mouse-related checks can happen, 0 otherwise.
+ */
 static int text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
 {
     if (popup_get_head() && surface != popup_get_head()->surface) {
@@ -538,9 +593,13 @@ static int text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
 /**
  * Parse the given string as a HTML notation color, and store the RGB
  * values in 'color'.
- * @param color_notation The HTML notation to parse.
- * @param color Where the RGB values will be stored.
- * @return 1 if the notation was parsed successfully, 0 otherwise. */
+ * @param color_notation
+ * The HTML notation to parse.
+ * @param color
+ * Where the RGB values will be stored.
+ * @return
+ * 1 if the notation was parsed successfully, 0 otherwise.
+ */
 int text_color_parse(const char *color_notation, SDL_Color *color)
 {
     uint32_t r, g, b;
@@ -564,9 +623,12 @@ int text_color_parse(const char *color_notation, SDL_Color *color)
 
 /**
  * Execute anchor.
- * @param info Text info, should contain the anchor action and tag
+ * @param info
+ * Text info, should contain the anchor action and tag
  * position.
- * @param custom_data User-supplied data. Can be NULL. */
+ * @param custom_data
+ * User-supplied data. Can be NULL.
+ */
 void text_anchor_execute(text_info_struct *info, void *custom_data)
 {
     size_t len;
@@ -636,7 +698,9 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
 /**
  * Initialize the 'info' argument of text_show_character(). Should only be
  * called once.
- * @param info The text information to initialize. */
+ * @param info
+ * The text information to initialize.
+ */
 void text_show_character_init(text_info_struct *info)
 {
     info->anchor_tag = NULL;
@@ -656,24 +720,36 @@ void text_show_character_init(text_info_struct *info)
     info->highlight = 0;
     info->highlight_color.r = info->highlight_color.g = info->highlight_color.b = 0;
     info->tooltip_text[0] = '\0';
+    info->tooltip_font = NULL;
+    info->tooltip_delay = 0;
+    info->tooltip_width = 0;
     info->flip = 0;
 }
 
 /**
  * Draw one character on the screen or parse markup (if applicable).
  * @param[out] font Font to use. One of @ref FONT_xxx.
- * @param orig_font Original font, used for the font tag.
- * @param surface Surface to draw on. If NULL, there is no drawing done,
+ * @param orig_font
+ * Original font, used for the font tag.
+ * @param surface
+ * Surface to draw on. If NULL, there is no drawing done,
  * but the return value is still calculated along with dest->w.
- * @param dest Destination, will have width (and x, if surface wasn't
+ * @param dest
+ * Destination, will have width (and x, if surface wasn't
  * NULL) updated.
- * @param cp String we are working on, cp[0] is the character to draw.
- * @param color Color to use.
- * @param orig_color Original color.
- * @param flags Flags as passed to text_show().
- * @return How many characters to jump. Usually 1, but can be more in
+ * @param cp
+ * String we are working on, cp[0] is the character to draw.
+ * @param color
+ * Color to use.
+ * @param orig_color
+ * Original color.
+ * @param flags
+ * Flags as passed to text_show().
+ * @return
+ * How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
- * actually drawn. */
+ * actually drawn.
+ */
 int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64_t flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
 {
     int width, minx, ret = 1, new_style;
@@ -1208,8 +1284,9 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                 wd = ht = -1;
                 fit_to_size = flip = 0;
                 show_percentage = 1.0;
+                int rotate = 0;
 
-                if (sscanf(tag + 5, "%255[^] >] %d %d %d %d %f", face, &wd, &ht, &fit_to_size, &flip, &show_percentage) >= 1) {
+                if (sscanf(tag + 5, "%255[^] >] %d %d %d %d %f %d", face, &wd, &ht, &fit_to_size, &flip, &show_percentage, &rotate) >= 1) {
                     int id;
                     sprite_struct *icon_sprite;
                     SDL_Surface *icon_surface;
@@ -1329,10 +1406,39 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                             }
                         }
 
-                        if (icon_w != icon_orig_w || icon_h != icon_orig_h || flip != 0) {
+                        if (rotate != 0) {
+                            int dstwd, dstht;
+                            rotozoomSurfaceSizeXY(icon_w,
+                                                  icon_h,
+                                                  rotate, 1.0, 1.0,
+                                                  &dstwd, &dstht);
+                            int xoff = (dstwd - icon_w) / 2;
+                            icon_dst.x -= xoff;
+                            icon_box.w += xoff;
+                            int yoff = (dstht - icon_h) / 2;
+                            icon_dst.y -= yoff;
+                            icon_box.h += yoff;
+                        }
+
+                        if (icon_w != icon_orig_w ||
+                            icon_h != icon_orig_h ||
+                            flip != 0 ||
+                            rotate != 0) {
                             SDL_Surface *tmp_icon;
 
-                            tmp_icon = zoomSurface(icon_surface, zoom_x, zoom_y, icon_w != icon_orig_w || icon_h != icon_orig_h ? setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH) : 0);
+                            bool smooth = false;
+                            if (icon_w != icon_orig_w ||
+                                icon_h != icon_orig_h ||
+                                rotate != 0) {
+                                smooth = setting_get_int(OPT_CAT_CLIENT,
+                                                         OPT_ZOOM_SMOOTH);
+                            }
+
+                            tmp_icon = rotozoomSurfaceXY(icon_surface,
+                                                         rotate,
+                                                         zoom_x,
+                                                         zoom_y,
+                                                         smooth);
 
                             SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
                             SDL_FreeSurface(tmp_icon);
@@ -1410,6 +1516,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         } else if (tag_len >= 8 && strncmp(tag, "tooltip=", 8) == 0) {
             if (surface || info->obscured) {
                 if (sscanf(tag + 8, "%512[^]>]", info->tooltip_text) == 1) {
+                    info->tooltip_font = *font;
                 }
             }
         } else if (tag_len == 8 && strncmp(tag, "/tooltip", tag_len) == 0) {
@@ -1472,9 +1579,17 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     }
                 }
             }
-        } else if (tag_len == 4 && strncmp(tag, "/flip", tag_len) == 0) {
+        } else if (tag_len == 5 && strncmp(tag, "/flip", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->flip = 0;
+            }
+        } else if (tag_len >= 13 && strncmp(tag, "tooltip_conf=", 13) == 0) {
+            if (surface || info->obscured) {
+                if (sscanf(tag + 13,
+                           "%" SCNu32 " %d",
+                           &info->tooltip_delay,
+                           &info->tooltip_width) >= 1) {
+                }
             }
         } else {
             char *cp2;
@@ -1615,8 +1730,14 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     }
 
                     if (*info->tooltip_text != '\0') {
-                        tooltip_create(orig_mx, orig_my, *font, info->tooltip_text);
-                        tooltip_multiline(0);
+                        tooltip_create(orig_mx,
+                                       orig_my,
+                                       info->tooltip_font,
+                                       info->tooltip_text);
+                        tooltip_multiline(info->tooltip_width);
+                        if (info->tooltip_delay != 0) {
+                            tooltip_enable_delay(info->tooltip_delay);
+                        }
                     }
                 }
 
@@ -1726,9 +1847,13 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
 
 /**
  * Get glyph's width.
- * @param font Font of the glyph.
- * @param c The glyph.
- * @return The width. */
+ * @param font
+ * Font of the glyph.
+ * @param c
+ * The glyph.
+ * @return
+ * The width.
+ */
 int glyph_get_width(font_struct *font, char c)
 {
     int minx, width;
@@ -1750,9 +1875,13 @@ int glyph_get_width(font_struct *font, char c)
 
 /**
  * Get glyph's height.
- * @param font Font of the glyph.
- * @param c The glyph.
- * @return The height. */
+ * @param font
+ * Font of the glyph.
+ * @param c
+ * The glyph.
+ * @return
+ * The height.
+ */
 int glyph_get_height(font_struct *font, char c)
 {
     int miny, maxy;
@@ -1769,7 +1898,8 @@ int glyph_get_height(font_struct *font, char c)
 }
 
 /**
- * Begin handling text mouse-based selection. */
+ * Begin handling text mouse-based selection.
+ */
 #define TEXT_SHOW_SELECT_BEGIN() \
     { \
         if (!skip && selection_start && selection_end && surface != NULL) \
@@ -1805,7 +1935,8 @@ int glyph_get_height(font_struct *font, char c)
     }
 
 /**
- * End handling text mouse-based selection. */
+ * End handling text mouse-based selection.
+ */
 #define TEXT_SHOW_SELECT_END() \
     { \
         if (select_color_changed) \
@@ -1831,17 +1962,26 @@ int glyph_get_height(font_struct *font, char c)
 
 /**
  * Draw a string on the specified surface.
- * @param surface Surface to draw on.
- * @param font Font to use. One of @ref FONT_xxx.
- * @param text The string to draw.
- * @param x X position.
- * @param y Y position.
- * @param color_notation Color to use.
- * @param flags One or a combination of @ref TEXT_xxx.
- * @param box If word wrap was enabled by passing @ref TEXT_WORD_WRAP as
+ * @param surface
+ * Surface to draw on.
+ * @param font
+ * Font to use. One of @ref FONT_xxx.
+ * @param text
+ * The string to draw.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param color_notation
+ * Color to use.
+ * @param flags
+ * One or a combination of @ref TEXT_xxx.
+ * @param box
+ * If word wrap was enabled by passing @ref TEXT_WORD_WRAP as
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
- * set (both box->w and box->h can be 0 to indicate unlimited). */
+ * set (both box->w and box->h can be 0 to indicate unlimited).
+ */
 void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, uint64_t flags, SDL_Rect *box)
 {
     const char *cp = text;
@@ -2115,18 +2255,28 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
 
 /**
  * Draw a string with a shadow.
- * @param surface Surface to draw on.
- * @param font Font to use. One of @ref FONT_xxx.
- * @param text The string to draw.
- * @param x X position.
- * @param y Y position.
- * @param color_notation Color to use.
- * @param color_shadow_notation Color to use for the shadow.
- * @param flags One or a combination of @ref TEXT_xxx.
- * @param box If word wrap was enabled by passing @ref TEXT_WORD_WRAP as
+ * @param surface
+ * Surface to draw on.
+ * @param font
+ * Font to use. One of @ref FONT_xxx.
+ * @param text
+ * The string to draw.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param color_notation
+ * Color to use.
+ * @param color_shadow_notation
+ * Color to use for the shadow.
+ * @param flags
+ * One or a combination of @ref TEXT_xxx.
+ * @param box
+ * If word wrap was enabled by passing @ref TEXT_WORD_WRAP as
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
- * set (both box->w and box->h can be 0 to indicate unlimited). */
+ * set (both box->w and box->h can be 0 to indicate unlimited).
+ */
 void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64_t flags, SDL_Rect *box)
 {
     text_show(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
@@ -2136,7 +2286,8 @@ void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text,
 /**
  * Like text_show(), but allows using printf-like format specifiers.
  *
- * @copydoc text_show() */
+ * @copydoc text_show()
+ */
 void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, uint64_t flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
@@ -2151,7 +2302,8 @@ void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, con
 /**
  * Like text_show_shadow(), but allows using printf-like format specifiers.
  *
- * @copydoc text_show_shadow() */
+ * @copydoc text_show_shadow()
+ */
 void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64_t flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
@@ -2166,10 +2318,15 @@ void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int
 /**
  * Calculate string's pixel width, taking into account markup, if
  * applicable.
- * @param font Font. One of @ref FONT_xxx.
- * @param text String to get width of.
- * @param flags One or a combination of @ref TEXT_xxx.
- * @return The string's width. */
+ * @param font
+ * Font. One of @ref FONT_xxx.
+ * @param text
+ * String to get width of.
+ * @param flags
+ * One or a combination of @ref TEXT_xxx.
+ * @return
+ * The string's width.
+ */
 int text_get_width(font_struct *font, const char *text, uint64_t flags)
 {
     SDL_Rect dest;
@@ -2197,10 +2354,15 @@ int text_get_width(font_struct *font, const char *text, uint64_t flags)
  * It is usually enough to use FONT_HEIGHT() to get the string's
  * font height, unless markup is allowed, in which case the maximum used
  * height might be different.
- * @param font Font. One of @ref FONT_xxx.
- * @param text String to get height of.
- * @param flags One or a combination of @ref TEXT_xxx.
- * @return The string's height. */
+ * @param font
+ * Font. One of @ref FONT_xxx.
+ * @param text
+ * String to get height of.
+ * @param flags
+ * One or a combination of @ref TEXT_xxx.
+ * @return
+ * The string's height.
+ */
 int text_get_height(font_struct *font, const char *text, uint64_t flags)
 {
     SDL_Rect dest;
@@ -2235,13 +2397,18 @@ int text_get_height(font_struct *font, const char *text, uint64_t flags)
 
 /**
  * Calculate text's pixel height and width.
- * @param font Font. One of @ref FONT_xxx.
- * @param text Text to get width and height of.
- * @param flags Combination of @ref TEXT_xxx flags.
- * @param box Optional, may contain maximum width/height (for word wrap,
+ * @param font
+ * Font. One of @ref FONT_xxx.
+ * @param text
+ * Text to get width and height of.
+ * @param flags
+ * Combination of @ref TEXT_xxx flags.
+ * @param box
+ * Optional, may contain maximum width/height (for word wrap,
  * for example).
  * @param[out] w Will contain the calculated width.
- * @param[out] h Will contain the calculated height. */
+ * @param[out] h Will contain the calculated height.
+ */
 void text_get_width_height(font_struct *font, const char *text, uint64_t flags, SDL_Rect *box, uint16_t *w, uint16_t *h)
 {
     SDL_Rect box2;
@@ -2271,9 +2438,13 @@ void text_get_width_height(font_struct *font, const char *text, uint64_t flags, 
 
 /**
  * Truncate a text string if overflow would occur when rendering it.
- * @param font Font used for the text.
- * @param text The text.
- * @param max_width Maximum possible width. */
+ * @param font
+ * Font used for the text.
+ * @param text
+ * The text.
+ * @param max_width
+ * Maximum possible width.
+ */
 void text_truncate_overflow(font_struct *font, char *text, int max_width)
 {
     size_t pos = 0;
@@ -2294,8 +2465,11 @@ void text_truncate_overflow(font_struct *font, char *text, int max_width)
 /**
  * Utility function to parse text and store information about anchor tag,
  * if any.
- * @param info Where to store the information.
- * @param text The text to parse. */
+ * @param info
+ * Where to store the information.
+ * @param text
+ * The text to parse.
+ */
 void text_anchor_parse(text_info_struct *info, const char *text)
 {
     const char *cp = text;
@@ -2317,7 +2491,8 @@ void text_anchor_parse(text_info_struct *info, const char *text)
 }
 
 /**
- * Enable text debugging. */
+ * Enable text debugging.
+ */
 void text_enable_debug(void)
 {
     text_debug = 1;

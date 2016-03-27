@@ -26,12 +26,15 @@
  * @file
  * Handles code for @ref GOD "gods".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object_methods.h>
 
 /**
- * Initialize the god type object methods. */
-void object_type_init_god(void)
+ * Initialize the god type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(god)
 {
 }

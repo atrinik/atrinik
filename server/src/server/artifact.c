@@ -65,7 +65,8 @@ void artifact_deinit(void)
 
 /**
  * Allocate and return the pointer to an empty artifact structure.
- * @return New structure.
+ * @return
+ * New structure.
  */
 static artifact_t *artifact_new(void)
 {
@@ -75,7 +76,8 @@ static artifact_t *artifact_new(void)
 
 /**
  * Frees an artifact structures.
- * @param art Artifact to free.
+ * @param art
+ * Artifact to free.
  */
 static void artifact_free(artifact_t *art)
 {
@@ -94,7 +96,8 @@ static void artifact_free(artifact_t *art)
 
 /**
  * Allocate and return the pointer to an empty artifact_list_t structure.
- * @return New structure.
+ * @return
+ * New structure.
  */
 static artifact_list_t *artifact_list_new(void)
 {
@@ -105,7 +108,8 @@ static artifact_list_t *artifact_list_new(void)
 /**
  * Frees the specified artifact list, its artifacts, and all linked artifact
  * lists.
- * @param al Artifact list.
+ * @param al
+ * Artifact list.
  */
 static void artifact_list_free(artifact_list_t *al)
 {
@@ -139,10 +143,9 @@ void artifact_load(void)
     while (fgets(VS(buf), fp) != NULL) {
         linenum++;
 
-        char *cp = string_skip_whitespace(buf), *end = strchr(cp, '\n');
-        if (end != NULL) {
-            *end = '\0';
-        }
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         char *cps[2];
         if (string_split(cp, cps, arraysize(cps), ' ') < 1) {
@@ -269,8 +272,9 @@ void artifact_load(void)
                 goto error;
             }
 
-            if (load_object(fp, &art->def_at->clone, NULL, LO_LINEMODE,
-                    MAP_STYLE) == LL_EOF) {
+            if (load_object_fp(fp,
+                               &art->def_at->clone,
+                               MAP_STYLE) != LL_NORMAL) {
                 error_str = "could not load object";
                 goto error;
             }
@@ -377,8 +381,10 @@ error:
 /**
  * Searches the artifact lists and returns one that has the same type of
  * objects on it.
- * @param type Type to search for.
- * @return NULL if no suitable list found.
+ * @param type
+ * Type to search for.
+ * @return
+ * NULL if no suitable list found.
  */
 artifact_list_t *artifact_list_find(uint8_t type)
 {
@@ -394,9 +400,12 @@ artifact_list_t *artifact_list_find(uint8_t type)
 /**
  * Find an artifact by its name and type (as there are several lists of
  * artifacts, depending on their types).
- * @param name Name of the artifact to find.
- * @param type Type of the artifact to find.
- * @return The artifact if found, NULL otherwise.
+ * @param name
+ * Name of the artifact to find.
+ * @param type
+ * Type of the artifact to find.
+ * @return
+ * The artifact if found, NULL otherwise.
  */
 artifact_t *artifact_find_type(const char *name, uint8_t type)
 {
@@ -419,23 +428,24 @@ artifact_t *artifact_find_type(const char *name, uint8_t type)
 /**
  * Fixes the given object, giving it the abilities and titles it should
  * have due to the artifact template.
- * @param art The artifact.
- * @param op The object to change.
+ * @param art
+ * The artifact.
+ * @param op
+ * The object to change.
  */
 void artifact_change_object(artifact_t *art, object *op)
 {
     if (art->copy_artifact) {
-        copy_object_with_inv(&art->def_at->clone, op);
+        object_copy_full(op, &art->def_at->clone);
         return;
     }
 
     int64_t tmp_value = op->value;
     op->value = 0;
 
-    if (load_object(art->parse_text, op, NULL, LO_MEMORYMODE, MAP_ARTIFACT) ==
-            LL_EOF) {
+    if (load_object(art->parse_text, op, MAP_ARTIFACT) != LL_NORMAL) {
         LOG(ERROR, "load_object() error, art: %s, object: %s",
-                art->def_at->name, object_get_str(op));
+            art->def_at->name, object_get_str(op));
     }
 
     FREE_AND_ADD_REF_HASH(op->artifact, art->def_at->name);
@@ -453,11 +463,16 @@ void artifact_change_object(artifact_t *art, object *op)
 /**
  * Checks if op can be combined with art, depending on 'Allowed xxx' from
  * the artifacts file (stored in artifact::allowed), the difficulty, etc.
- * @param art Artifact.
- * @param op The object to check.
- * @param difficulty Difficulty.
- * @param t_style Treasure style value to check.
- * @return Whether the object can be combined with the artifact.
+ * @param art
+ * Artifact.
+ * @param op
+ * The object to check.
+ * @param difficulty
+ * Difficulty.
+ * @param t_style
+ * Treasure style value to check.
+ * @return
+ * Whether the object can be combined with the artifact.
  */
 static bool artifact_can_combine(artifact_t *art, object *op, int difficulty,
         int t_style)
@@ -499,11 +514,16 @@ static bool artifact_can_combine(artifact_t *art, object *op, int difficulty,
  * Makes sure that the item can become that artifact (means magic, difficulty,
  * and Allowed fields properly). Then calls artifact_change_object() in order
  * to actually create the artifact.
- * @param op Object.
- * @param difficulty Difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @return Whether the object was turned into an artifact.
+ * @param op
+ * Object.
+ * @param difficulty
+ * Difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @return
+ * Whether the object was turned into an artifact.
  */
 bool artifact_generate(object *op, int difficulty, int t_style, int a_chance)
 {

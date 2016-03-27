@@ -24,13 +24,17 @@
 
 /**
  * @file
- * Includes high score related functions. */
+ * Includes high score related functions.
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <player.h>
+#include <object.h>
 
 /**
- * The score structure is used when treating new high-scores */
+ * The score structure is used when treating new high-scores
+ */
 typedef struct scr {
     /** Name. */
     char name[BIG_NAME];
@@ -55,7 +59,8 @@ typedef struct scr {
 } score;
 
 /**
- * The highscore table. */
+ * The highscore table.
+ */
 typedef struct {
     /** Filename of the backing file. */
     char fname[MAX_BUF];
@@ -65,14 +70,19 @@ typedef struct {
 } score_table;
 
 /**
- * The highscore table. Unused entries are set to zero (except for position). */
+ * The highscore table. Unused entries are set to zero (except for position).
+ */
 static score_table hiscore_table;
 
 /**
  * Writes the given score structure to the given buffer.
- * @param sc Score.
- * @param buf The buffer.
- * @param size Size of the buffer. */
+ * @param sc
+ * Score.
+ * @param buf
+ * The buffer.
+ * @param size
+ * Size of the buffer.
+ */
 static void put_score(const score *sc, char *buf, int size)
 {
     snprintf(buf, size, "%s:%s:%"PRIu64 ":%s:%s:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp);
@@ -80,7 +90,9 @@ static void put_score(const score *sc, char *buf, int size)
 
 /**
  * Saves the highscore_table into the highscore file.
- * @param table The highscore table to save. */
+ * @param table
+ * The highscore table to save.
+ */
 static void hiscore_save(const score_table *table)
 {
     FILE *fp;
@@ -114,9 +126,13 @@ static void hiscore_save(const score_table *table)
 /**
  * The opposite of put_score(), get_score reads from the given buffer into
  * a given score structure.
- * @param bp String to parse.
- * @param sc Includes the parsed score.
- * @return Whether parsing was successful. */
+ * @param bp
+ * String to parse.
+ * @param sc
+ * Includes the parsed score.
+ * @return
+ * Whether parsing was successful.
+ */
 static int get_score(char *bp, score *sc)
 {
     char *cp, *tmp[7];
@@ -152,10 +168,15 @@ static int get_score(char *bp, score *sc)
 
 /**
  * Formats one score to display to a player.
- * @param sc Score to format.
- * @param buf Buffer to write to. Will contain suitably formatted score.
- * @param size Length of buf.
- * @return buf. */
+ * @param sc
+ * Score to format.
+ * @param buf
+ * Buffer to write to. Will contain suitably formatted score.
+ * @param size
+ * Length of buf.
+ * @return
+ * buf.
+ */
 static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
     if (sc->killer[0] == '\0') {
@@ -180,9 +201,13 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 /**
  * Adds the given score-structure to the high-score list, but only if it
  * was good enough to deserve a place.
- * @param table The highscore table to add to.
- * @param new_score Score to add.
- * @param old_score Returns the old player score. */
+ * @param table
+ * The highscore table to add to.
+ * @param new_score
+ * Score to add.
+ * @param old_score
+ * Returns the old player score.
+ */
 static void add_score(score_table *table, score *new_score, score *old_score)
 {
     size_t i;
@@ -244,7 +269,9 @@ static void add_score(score_table *table, score *new_score, score *old_score)
 
 /**
  * Loads the hiscore_table from the highscore file.
- * @param table The highscore table to load. */
+ * @param table
+ * The highscore table to load.
+ */
 static void hiscore_load(score_table *table)
 {
     FILE *fp;
@@ -283,7 +310,8 @@ static void hiscore_load(score_table *table)
 }
 
 /**
- * Initializes the module. */
+ * Initializes the module.
+ */
 void hiscore_init(void)
 {
     snprintf(hiscore_table.fname, sizeof(hiscore_table.fname), "%s/highscore", settings.datapath);
@@ -293,15 +321,18 @@ void hiscore_init(void)
 /**
  * Checks if player should enter the hiscore, and if so writes them into the
  * list.
- * @param op Player to check.
- * @param quiet If set, don't print anything out - used for periodic updates
+ * @param op
+ * Player to check.
+ * @param quiet
+ * If set, don't print anything out - used for periodic updates
  * during
  * game play or when player unexpectedly quits - don't need to print anything in
- * those cases. */
+ * those cases.
+ */
 void hiscore_check(object *op, int quiet)
 {
     score new_score, old_score;
-    char bufscore[MAX_BUF], race[MAX_BUF];
+    char bufscore[MAX_BUF];
     const char *message;
 
     if (!op->stats.exp) {
@@ -311,7 +342,7 @@ void hiscore_check(object *op, int quiet)
     strncpy(new_score.name, op->name, sizeof(new_score.name));
     new_score.name[sizeof(new_score.name) - 1] = '\0';
 
-    strncpy(new_score.title, player_get_race_class(op, race, sizeof(race)), sizeof(new_score.title));
+    strncpy(new_score.title, op->race, sizeof(new_score.title));
     new_score.title[sizeof(new_score.title) - 1] = '\0';
 
     strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));
@@ -374,10 +405,14 @@ void hiscore_check(object *op, int quiet)
 
 /**
  * Displays the high score file.
- * @param op Player asking for the score file.
- * @param max Maximum number of scores to display.
- * @param match If non-empty, will only print players with name or title
- * containing the string (non case-sensitive). */
+ * @param op
+ * Player asking for the score file.
+ * @param max
+ * Maximum number of scores to display.
+ * @param match
+ * If non-empty, will only print players with name or title
+ * containing the string (non case-sensitive).
+ */
 void hiscore_display(object *op, int max, const char *match)
 {
     int printed_entries = 0;

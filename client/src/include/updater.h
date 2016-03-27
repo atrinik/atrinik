@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Header file for the updater GUI. */
+ * Header file for the updater GUI.
+ */
 
 #ifndef UPDATER_H
 #define UPDATER_H
@@ -32,16 +33,19 @@
 /**
  * URL where the updater will check for updates. "&version=VERSION" will
  * be appended to this URL, replacing VERSION with the current client's
- * version number. */
+ * version number.
+ */
 #define UPDATER_CHECK_URL "https://www.atrinik.org/page/client_update"
 /**
  * Base directory of all the updates. This is where the updates will be
  * downloaded from, as the updater server will only tell us the
- * filenames. */
+ * filenames.
+ */
 #define UPDATER_PATH_URL "https://www.atrinik.org/cms/uploads"
 
 /**
- * A single update file that is to be downloaded. */
+ * A single update file that is to be downloaded.
+ */
 typedef struct update_file_struct {
     /** File name to download. */
     char *filename;

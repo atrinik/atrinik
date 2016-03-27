@@ -1,0 +1,162 @@
+# Sword of defense
+Allowed all
+chance 15
+difficulty 3
+artifact weapon_defense
+def_arch sword
+Object
+title of defense
+ac_add 1
+item_level_art 3
+type 15
+is_magical 1
+value 4500
+item_power 2
+end
+
+# Sword of accuracy
+Allowed all
+chance 15
+difficulty 6
+artifact weapon_accuracy
+def_arch sword
+Object
+title of accuracy
+wc_add 1
+type 15
+item_level_art 3
+is_magical 1
+value 5500
+item_power 2
+end
+
+# Sword of precision
+Allowed all
+chance 15
+difficulty 14
+artifact weapon_precision
+def_arch sword
+Object
+title of precision
+wc_range_add 5
+item_level_art 7
+wc_add 1
+type 15
+is_magical 1
+value 5500
+item_power 3
+end
+
+# Sword of damage
+Allowed all
+chance 10
+difficulty 10
+artifact weapon_damage
+def_arch sword
+Object
+title of damage
+dam_add 1
+item_level_art 5
+type 15
+is_magical 1
+value 7500
+item_power 2
+end
+
+# Sword of slay <xxx>
+Allowed all
+chance 15
+difficulty 30
+artifact weapon_slaying
+def_arch sword
+Object
+title of slay
+item_level_art 20
+type 15
+is_magical 1
+value 8500
+slaying none
+item_power 4
+end
+
+# Sword of assassinating <xxx>
+Allowed all
+chance 10
+difficulty 40
+artifact weapon_assassin
+def_arch sword
+Object
+title of assassinating
+item_level_art 30
+type 15
+is_magical 1
+value 8500
+slaying none
+is_assassin 1
+msg
+This weapon is inscribed with powerful runes for the bane of its victims.
+endmsg
+item_power 6
+end
+
+# Sword of Crolmi
+Allowed all
+chance 20
+difficulty 14
+artifact weapon_crolmi
+def_arch sword
+Object
+title of Crolmi
+attack_weaponmagic 5
+type 15
+is_magical 1
+str 1
+msg
+This weapon shares with its owner a bit of the strength of Crolmi, the Dwarven Spirit of Rocks and Mountains.
+endmsg
+value 5000
+item_power 3
+item_level_art 10
+end
+
+# Sword of Rhyz
+Allowed all
+chance 14
+difficulty 14
+artifact weapon_rhyz
+def_arch sword
+Object
+title of Rhyz
+type 15
+is_magical 1
+str 1
+dex 1
+msg
+The Archmage Rhyz devised many items that increased the strength and dexterity of their owners.
+endmsg
+value 6000
+item_power 3
+item_level_art 10
+end
+
+# Sword of Odin
+Allowed all
+chance 10
+difficulty 27
+artifact weapon_odin
+def_arch sword
+Object
+title of Odin
+type 15
+is_magical 1
+str 1
+block_add 2
+absorb_add 2
+ac_add 1
+msg
+Enchanted with the almighty spirit of Odin, this weapon has exceptional defensive capabilities, combined with a tiny bit of extra strength.
+endmsg
+value 11500
+item_power 6
+item_level_art 24
+end

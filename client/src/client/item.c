@@ -58,7 +58,9 @@ void object_deinit(void)
 
 /**
  * Frees all objects in a list.
- * @param op Start of the list. */
+ * @param op
+ * Start of the list.
+ */
 void objects_free(object *op)
 {
     object *next;
@@ -68,6 +70,8 @@ void objects_free(object *op)
             spells_remove(op);
         } else if (op->itype == TYPE_SKILL) {
             skills_remove(op);
+        } else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
+            widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
         }
 
         if (op->inv) {
@@ -82,9 +86,13 @@ void objects_free(object *op)
 
 /**
  * Find an object inside another object, but not inside inventories.
- * @param op Object to search in.
- * @param tag ID of the object we're looking for.
- * @return Matching object if found, NULL otherwise. */
+ * @param op
+ * Object to search in.
+ * @param tag
+ * ID of the object we're looking for.
+ * @return
+ * Matching object if found, NULL otherwise.
+ */
 object *object_find_object_inv(object *op, tag_t tag)
 {
     for (object *tmp = op->inv; tmp != NULL; tmp = tmp->next) {
@@ -98,9 +106,13 @@ object *object_find_object_inv(object *op, tag_t tag)
 
 /**
  * Find an object inside another object by its tag.
- * @param op Object to search in.
- * @param tag ID of the object we're looking for.
- * @return Matching object if found, NULL otherwise. */
+ * @param op
+ * Object to search in.
+ * @param tag
+ * ID of the object we're looking for.
+ * @return
+ * Matching object if found, NULL otherwise.
+ */
 object *object_find_object(object *op, tag_t tag)
 {
     for ( ; op != NULL; op = op->next) {
@@ -119,8 +131,10 @@ object *object_find_object(object *op, tag_t tag)
 
 /**
  * Attempts to find an object by its tag, wherever it may be.
- * @param tag Tag to look for.
- * @return Matching object if found, NULL otherwise.
+ * @param tag
+ * Tag to look for.
+ * @return
+ * Matching object if found, NULL otherwise.
  */
 object *object_find(tag_t tag)
 {
@@ -154,7 +168,9 @@ object *object_find(tag_t tag)
 
 /**
  * Remove an object.
- * @param op What to remove. */
+ * @param op
+ * What to remove.
+ */
 void object_remove(object *op)
 {
     if (op == NULL || op == cpl.ob || op == cpl.below) {
@@ -195,7 +211,9 @@ void object_remove(object *op)
 
 /**
  * Remove all items in object's inventory.
- * @param op The object to remove inventory of. */
+ * @param op
+ * The object to remove inventory of.
+ */
 void object_remove_inventory(object *op)
 {
     if (!op) {
@@ -221,10 +239,14 @@ void object_remove_inventory(object *op)
 
 /**
  * Adds an object to inventory of 'env'.
- * @param env Which object to add to.
- * @param op Object to add.
- * @param bflag If 1, the object will be added to the end of the
- * inventory instead of the start. */
+ * @param env
+ * Which object to add to.
+ * @param op
+ * Object to add.
+ * @param bflag
+ * If 1, the object will be added to the end of the
+ * inventory instead of the start.
+ */
 static void object_add(object *env, object *op, int bflag)
 {
     object *tmp;
@@ -265,8 +287,10 @@ static void object_add(object *env, object *op, int bflag)
 
 /**
  * Transfer the entire inventory of 'op' into 'to'.
- * @param op Object to transfer the inventory of.
- * @param to Object to receive the items.
+ * @param op
+ * Object to transfer the inventory of.
+ * @param to
+ * Object to receive the items.
  */
 void object_transfer_inventory(object *op, object *to)
 {
@@ -289,12 +313,17 @@ void object_transfer_inventory(object *op, object *to)
 
 /**
  * Creates a new object and inserts it into 'env'.
- * @param env Which object to insert the created object into. Can be NULL
+ * @param env
+ * Which object to insert the created object into. Can be NULL
  * not to insert the created object anywhere.
- * @param tag The object's ID.
- * @param bflag If 1, the object will be added to the end of the
+ * @param tag
+ * The object's ID.
+ * @param bflag
+ * If 1, the object will be added to the end of the
  * inventory instead of the start.
- * @return The created object. */
+ * @return
+ * The created object.
+ */
 object *object_create(object *env, tag_t tag, int bflag)
 {
     object *op = mempool_get(pool_object);
@@ -312,7 +341,9 @@ object *object_create(object *env, tag_t tag, int bflag)
 
 /**
  * Toggle the locked status of an object.
- * @param op Object. */
+ * @param op
+ * Object.
+ */
 void toggle_locked(object *op)
 {
     packet_struct *packet;
@@ -329,7 +360,9 @@ void toggle_locked(object *op)
 
 /**
  * Update the marked object.
- * @param op The object. */
+ * @param op
+ * The object.
+ */
 void object_send_mark(object *op)
 {
     packet_struct *packet;
@@ -401,8 +434,11 @@ void objects_init(void)
 
 /**
  * Animate one object.
- * @param ob The object to animate.
- * @return 1 if the object changed face, 0 otherwise. */
+ * @param ob
+ * The object to animate.
+ * @return
+ * 1 if the object changed face, 0 otherwise.
+ */
 int object_animate(object *ob)
 {
     bool ret = false;
@@ -446,7 +482,8 @@ int object_animate(object *ob)
 
 /**
  * Animate the inventory of an object.
- * @param op The object, such as cpl.ob, cpl.below, etc.
+ * @param op
+ * The object, such as cpl.ob, cpl.below, etc.
  */
 static void animate_inventory(object *op)
 {
@@ -468,7 +505,8 @@ static void animate_inventory(object *op)
 }
 
 /**
- * Animate all possible objects. */
+ * Animate all possible objects.
+ */
 void animate_objects(void)
 {
     animate_inventory(cpl.ob);
@@ -488,13 +526,20 @@ void animate_objects(void)
  * account for perfect centering, even with different image sizes in
  * animation.
  *
- * @param surface Surface to render on.
- * @param tmp Object to show.
- * @param x X position.
- * @param y Y position.
- * @param w Maximum width.
- * @param h Maximum height.
- * @param fit Whether to fit the object into the maximum width/height by
+ * @param surface
+ * Surface to render on.
+ * @param tmp
+ * Object to show.
+ * @param x
+ * X position.
+ * @param y
+ * Y position.
+ * @param w
+ * Maximum width.
+ * @param h
+ * Maximum height.
+ * @param fit
+ * Whether to fit the object into the maximum width/height by
  * zooming it as necessary.
  */
 void object_show_centered (SDL_Surface *surface,
@@ -572,7 +617,7 @@ void object_show_centered (SDL_Surface *surface,
         if (ylen2 != ylen) {
             zoom_y = ((double) ylen2 + 0.5) / ylen;
             ylen = ylen2;
-            border_up *= zoom_x;
+            border_up *= zoom_y;
         }
     }
 

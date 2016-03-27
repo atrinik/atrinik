@@ -26,13 +26,15 @@
  * @file
  * Migrates the settings from an older installation.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Client versions we know about. The process how these are checked is
- * explained in upgrader_init(). */
+ * explained in upgrader_init().
+ */
 static const char *const client_versions[] = {
     "2.0", "2.5", "3.0"
 };
@@ -45,8 +47,11 @@ static int64_t version_id_migrating = -1;
  *
  * This handles upgrading settings/keybindings from the old (2.0 and
  * earlier) format to the new (2.5 and later) format.
- * @param from The old settings directory.
- * @param to The new setting directory. */
+ * @param from
+ * The old settings directory.
+ * @param to
+ * The new setting directory.
+ */
 static void upgrade_20_to_25(const char *from, const char *to)
 {
     char src[MAX_BUF], buf[HUGE_BUF];
@@ -246,8 +251,11 @@ static void upgrade_20_to_25(const char *from, const char *to)
 
 /**
  * Upgrade 2.5 settings to 3.0.
- * @param from The old settings directory.
- * @param to The new setting directory. */
+ * @param from
+ * The old settings directory.
+ * @param to
+ * The new setting directory.
+ */
 static void upgrade_25_to_30(const char *from, const char *to)
 {
     copy_if_exists(from, to, "settings", "settings");
@@ -255,7 +263,8 @@ static void upgrade_25_to_30(const char *from, const char *to)
 
 /**
  * Called before anything else on start, to check if we need to migrate
- * settings. */
+ * settings.
+ */
 void upgrader_init(void)
 {
     char tmp[HUGE_BUF], tmp2[HUGE_BUF], version[MAX_BUF];
@@ -313,9 +322,13 @@ void upgrader_init(void)
 
 /**
  * Get the version the upgrader is currently working on.
- * @param dst Where to store the version.
- * @param dstlen Size of dst.
- * @return 'dst' or NULL if the upgrader is not working on any version. */
+ * @param dst
+ * Where to store the version.
+ * @param dstlen
+ * Size of dst.
+ * @return
+ * 'dst' or NULL if the upgrader is not working on any version.
+ */
 char *upgrader_get_version_partial(char *dst, size_t dstlen)
 {
     /* No version is being migrated. */

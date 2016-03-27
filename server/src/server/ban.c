@@ -169,10 +169,14 @@ static void ban_free(void)
 
 /**
  * Creates a new ban entry.
- * @param name Player name. Can be NULL.
- * @param account Account name. Can be NULL.
- * @param addr Binary representation of an IP address.
- * @param plen Prefix length (the subnet).
+ * @param name
+ * Player name. Can be NULL.
+ * @param account
+ * Account name. Can be NULL.
+ * @param addr
+ * Binary representation of an IP address.
+ * @param plen
+ * Prefix length (the subnet).
  */
 static void ban_entry_new(const char *name, const char *account,
         const struct sockaddr_storage *addr, unsigned short plen)
@@ -190,11 +194,16 @@ static void ban_entry_new(const char *name, const char *account,
 
 /**
  * Find an existing ban entry.
- * @param name Player name, * for any match.
- * @param account Account name, * for any match.
- * @param addr Binary representation of an IP address.
- * @param plen Prefix length (the subnet).
- * @return Pointer to the found ban structure, NULL otherwise.
+ * @param name
+ * Player name, * for any match.
+ * @param account
+ * Account name, * for any match.
+ * @param addr
+ * Binary representation of an IP address.
+ * @param plen
+ * Prefix length (the subnet).
+ * @return
+ * Pointer to the found ban structure, NULL otherwise.
  */
 static ban_t *ban_entry_find(const char *name, const char *account,
         const struct sockaddr_storage *addr, unsigned short plen)
@@ -233,7 +242,8 @@ static ban_t *ban_entry_find(const char *name, const char *account,
 
 /**
  * Frees the specified ban entry.
- * @param ban Ban entry to free.
+ * @param ban
+ * Ban entry to free.
  */
 static void ban_entry_free(ban_t *ban)
 {
@@ -250,10 +260,14 @@ static void ban_entry_free(ban_t *ban)
 
 /**
  * Create a text representation of a single ban entry.
- * @param ban Pointer to the ban entry.
- * @param buf Where to store the text representation.
- * @param len Size of 'buf'.
- * @return 'buf' on success, NULL on failure.
+ * @param ban
+ * Pointer to the ban entry.
+ * @param buf
+ * Where to store the text representation.
+ * @param len
+ * Size of 'buf'.
+ * @return
+ * 'buf' on success, NULL on failure.
  */
 static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len)
 {
@@ -282,14 +296,18 @@ static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len)
 
 /**
  * Parse ban command parameters into supported components.
- * @param str The command parameters.
+ * @param str
+ * The command parameters.
  * @param[out] name Where to store player name.
- * @param name_len Size of 'name'.
+ * @param name_len
+ * Size of 'name'.
  * @param[out] account Where to store account name.
- * @param account_len Size of 'account'.
+ * @param account_len
+ * Size of 'account'.
  * @param[out] addr Where to store binary representation of an IP address.
  * @param[out] plen Prefix length (the subnet).
- * @return #BAN_OK on success, one of the errors defined in #ban_error_t on
+ * @return
+ * #BAN_OK on success, one of the errors defined in #ban_error_t on
  * failure.
  */
 static ban_error_t ban_parse(const char *str, char *name, size_t name_len,
@@ -336,8 +354,10 @@ static ban_error_t ban_parse(const char *str, char *name, size_t name_len,
 
 /**
  * Adds a new ban.
- * @param str Ban command parameters.
- * @return #BAN_OK on success, one of the errors defined in #ban_error_t on
+ * @param str
+ * Ban command parameters.
+ * @return
+ * #BAN_OK on success, one of the errors defined in #ban_error_t on
  * failure.
  */
 ban_error_t ban_add(const char *str)
@@ -364,8 +384,10 @@ ban_error_t ban_add(const char *str)
 
 /**
  * Remove an existing ban.
- * @param str Ban command parameters.
- * @return #BAN_OK on success, one of the errors defined in #ban_error_t on
+ * @param str
+ * Ban command parameters.
+ * @return
+ * #BAN_OK on success, one of the errors defined in #ban_error_t on
  * failure.
  */
 ban_error_t ban_remove(const char *str)
@@ -409,9 +431,12 @@ ban_error_t ban_remove(const char *str)
 
 /**
  * Checks if the specified connection is banned from the game.
- * @param ns The connection.
- * @param name Player name to check. Can be NULL.
- * @return True if the connection is banned, false otherwise.
+ * @param ns
+ * The connection.
+ * @param name
+ * Player name to check. Can be NULL.
+ * @return
+ * True if the connection is banned, false otherwise.
  */
 bool ban_check(socket_struct *ns, const char *name)
 {
@@ -448,7 +473,8 @@ bool ban_check(socket_struct *ns, const char *name)
 
 /**
  * List existing bans to the specified player.
- * @param op Player.
+ * @param op
+ * Player.
  */
 void ban_list(object *op)
 {
@@ -481,12 +507,14 @@ void ban_reset(void)
 
 /**
  * Create string representation of an error code.
- * @param errnum Error code. Cannot be #BAN_OK.
- * @return String representation, never NULL.
+ * @param errnum
+ * Error code. Cannot be #BAN_OK.
+ * @return
+ * String representation, never NULL.
  */
 const char *ban_strerror(ban_error_t errnum)
 {
-    SOFT_ASSERT_RC(errnum > 0 && errnum < BAN_MAX, "unknown error",
+    SOFT_ASSERT_RC(errnum >= BAN_OK && errnum < BAN_MAX, "unknown error",
             "Invalid error number: %d", errnum);
 
     switch (errnum) {
@@ -514,7 +542,7 @@ const char *ban_strerror(ban_error_t errnum)
     case BAN_BADSYNTAX:
         return "invalid syntax";
 
-    case BAN_MAX:
+    default:
         break;
     }
 

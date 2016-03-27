@@ -16,7 +16,7 @@
                 <response action="close" message="Not yet. See you."/>
             </dialog>
             <dialog name="ready">
-                <action teleport="/shattered_islands/incuna/ship_lower_deck_to_strakewood 2 11 savebed"/>
+                <action teleport="/shattered_islands/world_0_83 8 17"/>
                 <close/>
             </dialog>
         </interface>
@@ -917,7 +917,7 @@ if talisman and not talisman.f_applied:
                         <action fail="archery"/>
                     </and>
                     <action complete="the_journey"/>
-                    <action teleport="/shattered_islands/incuna/ship_lower_deck_to_strakewood 2 11 savebed"/>
+                    <action teleport="/shattered_islands/world_0_83 8 17 savebed"/>
                     <close/>
                 </dialog>
             </interface>

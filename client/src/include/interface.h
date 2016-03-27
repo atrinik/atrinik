@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Interface header file. */
+ * Interface header file.
+ */
 
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
 /**
- * Interface data. */
+ * Interface data.
+ */
 typedef struct interface_struct {
     /** Message contents. */
     char *message;
@@ -68,7 +70,8 @@ typedef struct interface_struct {
     /**
      * If progressed, how long until another progression may happen
      * (unless a new dialog has been opened of course, in which case this
-     * is reset). */
+     * is reset).
+     */
     uint32_t progressed_ticks;
 
     /** Whether to allow entering tabs. */
@@ -85,7 +88,8 @@ typedef struct interface_struct {
 
     /**
      * Text to prefix for autocompleting text. If NULL, autocompletion
-     * will be disabled. */
+     * will be disabled.
+     */
     char *text_autocomplete;
 
     /**
@@ -163,7 +167,8 @@ typedef struct interface_struct {
 
 /**
  * How many ticks must pass before the user may use the hello button
- * again or click a link again in the same dialog. */
+ * again or click a link again in the same dialog.
+ */
 #define INTERFACE_PROGRESSED_TICKS 125
 
 #endif

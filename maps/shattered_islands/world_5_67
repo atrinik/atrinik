@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-06-20 Alex Tokar
+Modified: 2015-12-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -930,6 +930,7 @@ protect_pierce 15
 protect_magic 50
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
 end
 end
 arch light7
@@ -1906,6 +1907,13 @@ protect_pierce 15
 protect_magic 10
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
+arch ability_stone_throw
+race arrows
+end
+arch arrow
+sys_object 1
+end
 end
 end
 arch light7
@@ -2580,6 +2588,7 @@ protect_pierce 15
 protect_magic 50
 type 83
 faction fort_ghzal_guards
+randomitems mob_default
 end
 end
 arch light7

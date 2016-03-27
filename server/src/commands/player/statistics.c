@@ -26,11 +26,15 @@
  * @file
  * Implements the /statistics command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
 #include <arch.h>
+#include <player.h>
+#include <object.h>
+#include <exp.h>
 
 /** @copydoc command_func */
 void command_statistics(object *op, const char *command, char *params)

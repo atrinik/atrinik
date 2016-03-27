@@ -2683,7 +2683,7 @@ y 2
 arch troll
 name wounded troll
 level 7
-wis 3
+item_power 3
 type 83
 end
 end

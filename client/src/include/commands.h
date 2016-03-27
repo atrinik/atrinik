@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Commands header file. */
+ * Commands header file.
+ */
 
 #ifndef COMMANDS_H
 #define COMMANDS_H

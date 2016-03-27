@@ -33,6 +33,8 @@
 #include <monster_data.h>
 #include <packet.h>
 #include <monster_guard.h>
+#include <player.h>
+#include <object.h>
 
 #ifndef __CPROTO__
 
@@ -40,7 +42,8 @@ static void monster_data_dialogs_free(monster_data_dialog_t *dialog);
 
 /**
  * Initialize monster data for the specified object.
- * @param op Monster.
+ * @param op
+ * Monster.
  */
 void monster_data_init(object *op)
 {
@@ -53,7 +56,8 @@ void monster_data_init(object *op)
 
 /**
  * Deinitialize monster data for the specified object.
- * @param op Monster.
+ * @param op
+ * Monster.
  */
 void monster_data_deinit(object *op)
 {
@@ -76,8 +80,10 @@ void monster_data_deinit(object *op)
 
 /**
  * Update the monster's remembered enemy coordinates.
- * @param op Monster.
- * @param enemy Enemy. Can be NULL, in which case the coordinates will be
+ * @param op
+ * Monster.
+ * @param enemy
+ * Enemy. Can be NULL, in which case the coordinates will be
  * cleared.
  */
 void monster_data_enemy_update(object *op, object *enemy)
@@ -101,13 +107,15 @@ void monster_data_enemy_update(object *op, object *enemy)
 
 /**
  * Acquire last coordinates the monster's enemy was spotted at.
- * @warning If this function returns true, the out parameters will NOT be
+ * @warning If this function returns false, the out parameters will NOT be
  * modified!
- * @param op Monster.
+ * @param op
+ * Monster.
  * @param[out] map Enemy's map.
  * @param[out] x Enemy's X.
  * @param[out] y Enemy's Y.
- * @return True if the coordinates were acquired, false otherwise.
+ * @return
+ * True if the coordinates were acquired, false otherwise.
  */
 bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x,
         uint16_t *y)
@@ -133,7 +141,8 @@ bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x,
 
 /**
  * Frees the data associated with the specified ::monster_data_dialog_t.
- * @param dialog The dialog.
+ * @param dialog
+ * The dialog.
  */
 static void monster_data_dialogs_free(monster_data_dialog_t *dialog)
 {
@@ -143,7 +152,8 @@ static void monster_data_dialogs_free(monster_data_dialog_t *dialog)
 
 /**
  * Closes the specified dialog (for players).
- * @param dialog Dialog.
+ * @param dialog
+ * Dialog.
  */
 static void monster_data_dialogs_close(monster_data_dialog_t *dialog)
 {
@@ -160,9 +170,12 @@ static void monster_data_dialogs_close(monster_data_dialog_t *dialog)
 /**
  * Verify that the specified dialog is still valid (the activator wasn't
  * destroyed, the dialog hasn't expired, etc).
- * @param monster_data Monster's data.
- * @param dialog Interface to verify.
- * @return True if the dialog is still OK, false otherwise.
+ * @param monster_data
+ * Monster's data.
+ * @param dialog
+ * Interface to verify.
+ * @return
+ * True if the dialog is still OK, false otherwise.
  */
 static bool monster_data_dialogs_verify(monster_data_t *monster_data,
         monster_data_dialog_t *dialog)
@@ -190,9 +203,12 @@ invalid:
 
 /**
  * Add a dialog to the monster's database of open dialogs.
- * @param op Monster.
- * @param activator Who opened the dialog with the monster.
- * @param secs Seconds the dialog should remain open for.
+ * @param op
+ * Monster.
+ * @param activator
+ * Who opened the dialog with the monster.
+ * @param secs
+ * Seconds the dialog should remain open for.
  * @ref MONSTER_DATA_INTERFACE_TIMEOUT is added to this value automatically.
  */
 void monster_data_dialogs_add(object *op, object *activator, uint32_t secs)
@@ -230,8 +246,10 @@ void monster_data_dialogs_add(object *op, object *activator, uint32_t secs)
  * that was opened by the @p activator.
  *
  * It's NOT an error if there is no dialog for the specified object.
- * @param op Monster.
- * @param activator Interface activator to try and remove.
+ * @param op
+ * Monster.
+ * @param activator
+ * Interface activator to try and remove.
  */
 void monster_data_dialogs_remove(object *op, object *activator)
 {
@@ -261,9 +279,12 @@ void monster_data_dialogs_remove(object *op, object *activator)
 /**
  * Determine whether the monster has a dialog open with the specified @p
  * activator.
- * @param op Monster.
- * @param activator Interface activator to attempt to find.
- * @return True if there is a dialog open with the specified object,
+ * @param op
+ * Monster.
+ * @param activator
+ * Interface activator to attempt to find.
+ * @return
+ * True if there is a dialog open with the specified object,
  * false otherwise.
  */
 bool monster_data_dialogs_check(object *op, object *activator)
@@ -292,8 +313,10 @@ bool monster_data_dialogs_check(object *op, object *activator)
 
 /**
  * Determine the number of dialogs that the specified monster has open.
- * @param op Monster.
- * @return Number of open dialogs.
+ * @param op
+ * Monster.
+ * @return
+ * Number of open dialogs.
  */
 size_t monster_data_dialogs_num(object *op)
 {
@@ -320,7 +343,8 @@ size_t monster_data_dialogs_num(object *op)
 /**
  * Cleanup stale and invalid dialogs for the specified monster. Only executes
  * if @ref MONSTER_DATA_INTERFACE_CLEANUP number of seconds have passed.
- * @param op Monster.
+ * @param op
+ * Monster.
  */
 void monster_data_dialogs_cleanup(object *op)
 {
@@ -359,7 +383,8 @@ void monster_data_dialogs_cleanup(object *op)
 
 /**
  * Purge all the dialogs the monster has open.
- * @param op Monster.
+ * @param op
+ * Monster.
  */
 void monster_data_dialogs_purge(object *op)
 {

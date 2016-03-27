@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Book GUI header. */
+ * Book GUI header.
+ */
 
 #ifndef BOOK_H
 #define BOOK_H

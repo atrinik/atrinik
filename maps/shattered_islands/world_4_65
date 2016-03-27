@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-06-20 Alex Tokar
+Modified: 2016-01-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -709,6 +709,13 @@ endmsg
 name guild_quick_wolves
 sub_type 2
 stand_still 1
+x 4
+end
+arch map_info
+name guild_quick_wolves
+hp 16
+sp 16
+cursed 1
 x 4
 end
 arch grassd_8

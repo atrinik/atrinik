@@ -107,7 +107,8 @@
  * }
  * @endcode
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
@@ -120,12 +121,18 @@ static SDL_mutex *handle_share_mutex = NULL;
 
 /**
  * Function to call when receiving data from cURL.
- * @param ptr Pointer to data to process.
- * @param size The size of each piece of data.
- * @param nmemb Number of data elements.
- * @param data User supplied data pointer - points to ::curl_data that
+ * @param ptr
+ * Pointer to data to process.
+ * @param size
+ * The size of each piece of data.
+ * @param nmemb
+ * Number of data elements.
+ * @param data
+ * User supplied data pointer - points to ::curl_data that
  * holds the data returned from the url.
- * @return Number of bytes processed. */
+ * @return
+ * Number of bytes processed.
+ */
 static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;
@@ -150,12 +157,18 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 
 /**
  * Function to call when receiving header data from cURL.
- * @param ptr Pointer to data to process.
- * @param size The size of each piece of data.
- * @param nmemb Number of data elements.
- * @param data User supplied data pointer - points to ::curl_data that
+ * @param ptr
+ * Pointer to data to process.
+ * @param size
+ * The size of each piece of data.
+ * @param nmemb
+ * Number of data elements.
+ * @param data
+ * User supplied data pointer - points to ::curl_data that
  * holds the data returned from the url.
- * @return Number of bytes processed. */
+ * @return
+ * Number of bytes processed.
+ */
 static size_t curl_header_callback(void *ptr, size_t size, size_t nmemb,
         void *data)
 {
@@ -181,8 +194,10 @@ static size_t curl_header_callback(void *ptr, size_t size, size_t nmemb,
 
 /**
  * Attempts to load an ETag for the requested file.
- * @param data cURL data structure.
- * @return ETag on success, NULL on failure. Must be freed.
+ * @param data
+ * cURL data structure.
+ * @return
+ * ETag on success, NULL on failure. Must be freed.
  */
 static char *curl_load_etag(curl_data *data)
 {
@@ -239,8 +254,10 @@ done:
 
 /**
  * Fills up the cURL data structure from cached data.
- * @param data cURL data structure.
- * @return True on success, false on failure.
+ * @param data
+ * cURL data structure.
+ * @return
+ * True on success, false on failure.
  */
 static bool curl_load_cache(curl_data *data)
 {
@@ -309,19 +326,24 @@ done:
 }
 
 /**
- * Use cURL to download the url we specified in curl_data structure
+ * Use cURL to download the URL we specified in curl_data structure
  * (c_data).
- * @param c_data ::curl_data structure that will receive the data (and
- * has url of what to download).
- * @return -1 on failure, 1 on success. */
-int curl_connect(void *c_data)
+ *
+ * @param c_data
+ * ::curl_data structure that will receive the data (and
+ * has URL of what to download).
+ * @return
+ * One of ::curl_state_t.
+ */
+int
+curl_connect (void *c_data)
 {
     curl_data *data = c_data;
     char user_agent[MAX_BUF], version[MAX_BUF], *etag;
     CURLcode res;
     long http_code;
     struct curl_slist *chunk;
-    int8_t status;
+    curl_state_t state;
 
     HARD_ASSERT(c_data != NULL);
 
@@ -346,7 +368,7 @@ int curl_connect(void *c_data)
     data->handle = curl_easy_init();
 
     if (data->handle == NULL) {
-        status = -1;
+        state = CURL_STATE_ERROR;
         goto done;
     }
 
@@ -403,7 +425,7 @@ int curl_connect(void *c_data)
     if (res) {
         LOG(BUG, "curl_easy_perform() got error %d (%s).", res,
                 curl_easy_strerror(res));
-        status = -1;
+        state = CURL_STATE_ERROR;
         goto done;
     }
 
@@ -413,7 +435,7 @@ int curl_connect(void *c_data)
     SDL_UnlockMutex(data->mutex);
 
     if (http_code != 200 && http_code != 304) {
-        status = -1;
+        state = CURL_STATE_ERROR;
         goto done;
     }
 
@@ -482,16 +504,16 @@ int curl_connect(void *c_data)
         SDL_UnlockMutex(data->mutex);
     } else if (http_code == 304) {
         if (!curl_load_cache(data)) {
-            status = -1;
+            state = CURL_STATE_ERROR;
             goto done;
         }
     }
 
-    status = 1;
+    state = CURL_STATE_OK;
 
 done:
     SDL_LockMutex(data->mutex);
-    data->status = status;
+    data->state = state;
     SDL_UnlockMutex(data->mutex);
 
     if (data->handle != NULL) {
@@ -502,14 +524,18 @@ done:
         curl_slist_free_all(chunk);
     }
 
-    return status;
+    return state;
 }
 
 /**
  * Initialize new ::curl_data structure.
- * @param url Url to connect to.
- * @param path Path to cached file. Can be NULL.
- * @return The new structure. */
+ * @param url
+ * Url to connect to.
+ * @param path
+ * Path to cached file. Can be NULL.
+ * @return
+ * The new structure.
+ */
 curl_data *curl_data_new(const char *url, const char *path)
 {
     curl_data *data;
@@ -521,6 +547,7 @@ curl_data *curl_data_new(const char *url, const char *path)
     data->http_code = -1;
     /* Create a mutex to protect the structure. */
     data->mutex = SDL_CreateMutex();
+    data->state = CURL_STATE_DOWNLOAD;
 
     if (path != NULL) {
         data->path = estrdup(path);
@@ -531,13 +558,17 @@ curl_data *curl_data_new(const char *url, const char *path)
 
 /**
  * Start downloading an url.
- * @param url What to download.
- * @param path Path to cached file. Can be NULL.
- * @return cURL data structure. You should store this somehow, and the
+ * @param url
+ * What to download.
+ * @param path
+ * Path to cached file. Can be NULL.
+ * @return
+ * cURL data structure. You should store this somehow, and the
  * next tick see if it has finished by using curl_download_finished(). If
  * so, you can access its members such as curl_data::memory. Do not
  * forget to clean up with curl_data_free() at some point (even if an
- * error occurred). */
+ * error occurred).
+ */
 curl_data *curl_download_start(const char *url, const char *path)
 {
     curl_data *data;
@@ -558,26 +589,31 @@ curl_data *curl_download_start(const char *url, const char *path)
 }
 
 /**
- * Check if cURL has finished downloading the previously supplied url.
- * @param data cURL data structure that was returned by a previous
+ * Acquire state of the cURL download.
+ *
+ * @param data
+ * cURL data structure that was returned by a previous
  * curl_download_start() call.
- * @return @copydoc curl_data::status */
-int8_t curl_download_finished(curl_data *data)
+ * @return
+ * State of the data.
+ */
+curl_state_t
+curl_download_get_state (curl_data *data)
 {
-    int8_t status;
-
     HARD_ASSERT(data != NULL);
 
     SDL_LockMutex(data->mutex);
-    status = data->status;
+    curl_state_t state = data->state;
     SDL_UnlockMutex(data->mutex);
 
-    return status;
+    return state;
 }
 
 /**
- * @param data cURL data structure.
- * @param info Type of information to acquire. One of:
+ * @param data
+ * cURL data structure.
+ * @param info
+ * Type of information to acquire. One of:
  * - CURLINFO_CONTENT_LENGTH_DOWNLOAD; size of the download in bytes, can
  *   be -1 if the size is not known.
  * - CURLINFO_SPEED_DOWNLOAD; speed in bytes that the file is being
@@ -588,7 +624,8 @@ int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info)
 {
     HARD_ASSERT(data != NULL);
 
-    if (curl_download_finished(data) != 0 || data->handle == NULL) {
+    if (curl_download_get_state(data) != CURL_STATE_DOWNLOAD ||
+        data->handle == NULL) {
         return 0;
     }
 
@@ -606,10 +643,14 @@ int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info)
 
 /**
  * Construct speed information string.
- * @param data cURL data structure.
- * @param buf Where to store the information.
- * @param bufsize Size of 'buf'.
- * @return 'buf'.
+ * @param data
+ * cURL data structure.
+ * @param buf
+ * Where to store the information.
+ * @param bufsize
+ * Size of 'buf'.
+ * @return
+ * 'buf'.
  */
 char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
 {
@@ -637,13 +678,15 @@ char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
 
 /**
  * Frees previously created ::curl_data structure.
- * @param data What to free. */
+ * @param data
+ * What to free.
+ */
 void curl_data_free(curl_data *data)
 {
     HARD_ASSERT(data != NULL);
 
     /* Still downloading? Kill the thread. */
-    if (curl_download_finished(data) == 0) {
+    if (curl_download_get_state(data) == CURL_STATE_DOWNLOAD) {
         SDL_LockMutex(data->mutex);
         SDL_KillThread(data->thread);
         SDL_UnlockMutex(data->mutex);
@@ -667,7 +710,8 @@ void curl_data_free(curl_data *data)
 }
 
 /**
- * Lock the share handle. */
+ * Lock the share handle.
+ */
 static void curl_share_lock(CURL *handle, curl_lock_data data,
         curl_lock_access lock_access, void *userptr)
 {
@@ -678,7 +722,8 @@ static void curl_share_lock(CURL *handle, curl_lock_data data,
 }
 
 /**
- * Unlock the share handle. */
+ * Unlock the share handle.
+ */
 static void curl_share_unlock(CURL *handle, curl_lock_data data, void *userptr)
 {
     (void) handle;
@@ -687,7 +732,8 @@ static void curl_share_unlock(CURL *handle, curl_lock_data data, void *userptr)
 }
 
 /**
- * Initialize cURL module. */
+ * Initialize cURL module.
+ */
 void curl_init(void)
 {
     curl_global_init(CURL_GLOBAL_ALL);
@@ -701,7 +747,8 @@ void curl_init(void)
 }
 
 /**
- * Deinitialize cURL module. */
+ * Deinitialize cURL module.
+ */
 void curl_deinit(void)
 {
     curl_share_cleanup(handle_share);

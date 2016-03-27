@@ -24,17 +24,25 @@
 
 /**
  * @file
- * Inscription skill code. */
+ * Inscription skill code.
+ */
 
 #include <global.h>
 #include <book.h>
+#include <player.h>
+#include <object.h>
 
 /**
  * Write message into a book object.
- * @param op Player writing the message.
- * @param msg The message to write.
- * @param marked Book to write into.
- * @return Experience gained. */
+ * @param op
+ * Player writing the message.
+ * @param msg
+ * The message to write.
+ * @param marked
+ * Book to write into.
+ * @return
+ * Experience gained.
+ */
 static int inscribe_book(object *op, const char *msg, object *marked)
 {
     char buf[BOOK_BUF];
@@ -76,9 +84,13 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 
 /**
  * Execute the inscription skill.
- * @param op Player.
- * @param params String option for the skill [the message to write].
- * @return Experience gained. */
+ * @param op
+ * Player.
+ * @param params
+ * String option for the skill [the message to write].
+ * @return
+ * Experience gained.
+ */
 int skill_inscription(object *op, const char *params)
 {
     object *skill_item, *marked;

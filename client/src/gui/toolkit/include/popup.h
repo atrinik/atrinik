@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Header file for popup API. */
+ * Header file for popup API.
+ */
 
 #ifndef POPUP_H
 #define POPUP_H
 
 /**
- * A single "generic" button in a popup. */
+ * A single "generic" button in a popup.
+ */
 typedef struct popup_button {
     /** X position in the popup of the button. */
     int x;
@@ -46,9 +48,11 @@ typedef struct popup_button {
 
     /**
      * Callback function to call when the button is clicked.
-     * @param button The clicked button.
+     * @param button
+ * The clicked button.
      * @retval 1 Handled the event, should not do generic handling.
-     * @retval 0 Did not handle the event. */
+     * @retval 0 Did not handle the event.
+     */
     int (*event_func)(struct popup_button *button);
 } popup_button;
 
@@ -56,15 +60,18 @@ typedef struct popup_button {
 typedef struct popup_struct {
     /**
      * Surface the popup uses for drawing. This surface is then copied
-     * to ::ScreenSurface. */
+     * to ::ScreenSurface.
+     */
     SDL_Surface *surface;
 
     /**
-     * Texture to use. */
+     * Texture to use.
+     */
     texture_struct *texture;
 
     /**
-     * Disable automatically drawing the texture on the popup surface? */
+     * Disable automatically drawing the texture on the popup surface?
+     */
     uint8_t disable_texture_drawing;
 
     /** Custom data. */
@@ -112,38 +119,52 @@ typedef struct popup_struct {
 
     /**
      * Function used for drawing on the popup's surface.
-     * @param popup The popup.
-     * @return 0 to destroy the popup, 1 otherwise. */
+     * @param popup
+ * The popup.
+     * @return
+ * 0 to destroy the popup, 1 otherwise.
+ */
     int (*draw_func)(struct popup_struct *popup);
 
     /**
      * Function used for drawing after drawing the popup's surface on
      * the main surface.
-     * @param popup The popup.
-     * @return 0 to destroy the popup, 1 otherwise. */
+     * @param popup
+ * The popup.
+     * @return
+ * 0 to destroy the popup, 1 otherwise.
+ */
     int (*draw_post_func)(struct popup_struct *popup);
 
     /**
      * Function used for handling mouse/key events when popup is visible.
-     * @param event SDL event.
+     * @param event
+ * SDL event.
      * @retval -1 Did not handle the event.
      * @retval 0 Did not handle the event, but allow other keyboard
      * events.
-     * @retval 1 Handled the event. */
+     * @retval 1 Handled the event.
+     */
     int (*event_func)(struct popup_struct *popup, SDL_Event *event);
 
     /**
      * Function used right before the visible popup is destroyed using
      * popup_destroy_visible().
-     * @param popup The popup.
-     * @return 1 to proceed with the destruction of the popup, 0
-     * otherwise. */
+     * @param popup
+ * The popup.
+     * @return
+ * 1 to proceed with the destruction of the popup, 0
+     * otherwise.
+     */
     int (*destroy_callback_func)(struct popup_struct *popup);
 
     /**
      * Function used to get contents for clipboard copy operation.
-     * @param popup Popup.
-     * @return Contents to copy. */
+     * @param popup
+ * Popup.
+     * @return
+ * Contents to copy.
+ */
     const char *(*clipboard_copy_func)(struct popup_struct *popup);
 } popup_struct;
 

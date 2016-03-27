@@ -26,18 +26,23 @@
  * @file
  * Implements the /resetmaps command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
 
 /**
  * Internally used by command_resetmaps() to create an array of the maps to
  * reset.
- * @param tiled Tiled map.
- * @param map Map.
+ * @param tiled
+ * Tiled map.
+ * @param map
+ * Map.
  * @param[out] maps Array of maps that will be reset.
  * @param[out] maps_num Number of maps in 'maps'.
- * @return 0.
+ * @return
+ * 0.
  */
 static int command_resetmaps_internal(mapstruct *tiled, mapstruct *map,
         mapstruct ***maps, size_t *maps_num)

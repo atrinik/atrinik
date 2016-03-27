@@ -399,7 +399,7 @@ y 4
 arch drow_captain
 name rebel drow commander
 level 57
-wis 4
+item_power 4
 type 83
 end
 end
@@ -449,7 +449,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 type 83
 arch ability_icestorm
 end
@@ -593,7 +593,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 type 83
 arch ability_icestorm
 end
@@ -892,7 +892,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-wis 4
+item_power 4
 type 83
 end
 end
@@ -934,7 +934,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 type 83
 arch ability_firestorm
 end
@@ -1618,7 +1618,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 type 83
 arch ability_mbullet
 end
@@ -1685,7 +1685,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 attack_move_type 1
 type 83
 arch ability_icestorm
@@ -2095,7 +2095,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-wis 4
+item_power 4
 type 83
 end
 end
@@ -2263,7 +2263,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 type 83
 arch ability_mbullet
 end
@@ -2772,7 +2772,7 @@ y 3
 arch drow_captain
 name rebel drow commander
 level 58
-wis 4
+item_power 4
 type 83
 end
 end
@@ -2822,7 +2822,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 type 83
 arch ability_icestorm
 end
@@ -2872,7 +2872,7 @@ maxsp 16
 pow 20
 magic 3
 dex 3
-wis 4
+item_power 4
 type 83
 arch ability_icestorm
 end

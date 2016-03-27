@@ -26,9 +26,12 @@
  * @file
  * Implements the /tgm command.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <player.h>
+#include <object.h>
 
 /** @copydoc command_func */
 void command_tgm(object *op, const char *command, char *params)

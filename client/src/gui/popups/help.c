@@ -197,8 +197,10 @@ void hfiles_init(void)
 
 /**
  * Find a help file by its name.
- * @param name Name of the help file to find.
- * @return Help file if found, NULL otherwise.
+ * @param name
+ * Name of the help file to find.
+ * @return
+ * Help file if found, NULL otherwise.
  */
 hfile_struct *help_find(const char *name)
 {
@@ -211,7 +213,8 @@ hfile_struct *help_find(const char *name)
 
 /**
  * Show a help GUI.
- * @param name Name of the help file entry to show.
+ * @param name
+ * Name of the help file entry to show.
  */
 void help_show(const char *name)
 {

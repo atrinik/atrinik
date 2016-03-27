@@ -16,7 +16,7 @@ attack_cleave 30
 protect_fire 100
 protect_cold -40
 type 80
-wis 3
+item_power 3
 animation demon_fire
 is_animated 1
 anim_speed 4

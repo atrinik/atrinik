@@ -10,7 +10,7 @@ speed -0.0611
 corpse 1
 type 80
 is_neutral 1
-wis 4
+item_power 4
 terrain_flag 65
 mpart_id 3
 animation worm_purple

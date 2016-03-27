@@ -24,13 +24,15 @@
 
 /**
  * @file
- * Texture system header file. */
+ * Texture system header file.
+ */
 
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
 /**
- * Texture types. */
+ * Texture types.
+ */
 typedef enum texture_type_t {
     TEXTURE_TYPE_SOFTWARE,
     TEXTURE_TYPE_CLIENT,

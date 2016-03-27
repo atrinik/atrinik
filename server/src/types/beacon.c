@@ -26,89 +26,100 @@
  * @file
  * @ref BEACON "Beacon" related code.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <object.h>
+#include <object_methods.h>
+#include <beacon.h>
 
 /**
- * One beacon. */
-typedef struct beacon_struct {
+ * One beacon.
+ */
+typedef struct beacon {
     /** The beacon object. */
-    object *ob;
+    object *obj;
 
     /** Hash handle. */
     UT_hash_handle hh;
-} beacon_struct;
+} beacon_t;
 
 /** Beacons hashtable. */
-static beacon_struct *beacons = NULL;
+static beacon_t *beacons = NULL;
 
-/**
- * Add a beacon to ::beacons_list.
- * @param ob Beacon to add. */
-void beacon_add(object *ob)
+/** @copydoc object_methods_t::init_func */
+static void
+init_func (object *op)
 {
-    beacon_struct *beacon;
-    object *env;
+    HARD_ASSERT(op != NULL);
 
-    env = get_env_recursive(ob);
+    /* Figure out where the beacon is. */
+    object *env = object_get_env(op);
 
-    if (MAP_UNIQUE(env->map) && !map_path_isabs(ob->name)) {
-        char *filedir, *pl_name, *joined;
+    /* If the beacon is on a unique map, we need to make the beacon name
+     * unique to the player that owns the unique map. */
+    if (MAP_UNIQUE(env->map) && !map_path_isabs(op->name)) {
+        char *filedir = path_dirname(env->map->path);
+        char *pl_name = path_basename(filedir);
+        char *joined = string_join("-", "/", pl_name, op->name, NULL);
 
-        filedir = path_dirname(env->map->path);
-        pl_name = path_basename(filedir);
-        joined = string_join("-", "/", pl_name, ob->name, NULL);
-
-        FREE_AND_COPY_HASH(ob->name, joined);
+        FREE_AND_COPY_HASH(op->name, joined);
 
         efree(joined);
         efree(pl_name);
         efree(filedir);
     }
 
-    beacon = emalloc(sizeof(beacon_struct));
-    beacon->ob = ob;
-    HASH_ADD(hh, beacons, ob->name, sizeof(shstr *), beacon);
+    beacon_t *beacon = emalloc(sizeof(*beacon));
+    beacon->obj = op;
+    HASH_ADD(hh, beacons, obj->name, sizeof(shstr *), beacon);
 }
 
-/**
- * Remove a beacon from ::beacons_list.
- * @param ob Beacon to remove. */
-void beacon_remove(object *ob)
+/** @copydoc object_methods_t::deinit_func */
+static void
+deinit_func (object *op)
 {
-    beacon_struct *beacon;
-
-    HASH_FIND(hh, beacons, &ob->name, sizeof(shstr *), beacon);
-
-    if (beacon) {
-        HASH_DEL(beacons, beacon);
-        efree(beacon);
-    } else {
-        LOG(BUG, "Could not remove beacon %s from hashtable.", ob->name);
+    beacon_t *beacon;
+    HASH_FIND(hh, beacons, &op->name, sizeof(shstr *), beacon);
+    if (unlikely(beacon == NULL)) {
+        LOG(ERROR, "Beacon %s not found in hashtable", op->name);
+        return;
     }
+
+    HASH_DEL(beacons, beacon);
+    efree(beacon);
 }
 
 /**
- * Locate a beacon object in ::beacons_list.
- * @param name Name of the beacon to locate. Must be a shared string.
- * @return The beacon object if found, NULL otherwise. */
-object *beacon_locate(shstr *name)
+ * Initialize the beacon type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(beacon)
 {
-    beacon_struct *beacon;
+    OBJECT_METHODS(BEACON)->init_func = init_func;
+    OBJECT_METHODS(BEACON)->deinit_func = deinit_func;
+}
 
+/**
+ * Locate a beacon object.
+ *
+ * @param name
+ * Name of the beacon to locate. Must be a shared string.
+ * @return
+ * The beacon object if found, NULL otherwise.
+ */
+object *
+beacon_locate (shstr *name)
+{
+    HARD_ASSERT(name != NULL);
+
+    beacon_t *beacon;
     HASH_FIND(hh, beacons, &name, sizeof(shstr *), beacon);
 
-    if (beacon) {
-        return beacon->ob;
+    if (beacon != NULL) {
+        return beacon->obj;
     }
 
     return NULL;
-}
-
-/**
- * Initialize the beacon type object methods. */
-void object_type_init_beacon(void)
-{
 }

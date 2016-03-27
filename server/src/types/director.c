@@ -26,40 +26,43 @@
  * @file
  * Handles code for @ref DIRECTOR "directors".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <object.h>
+#include <object_methods.h>
 
-/** @copydoc object_methods::move_on_func */
-static int move_on_func(object *op, object *victim, object *originator, int state)
+/** @copydoc object_methods_t::move_on_func */
+static int
+move_on_func (object *op, object *victim, object *originator, int state)
 {
-    int dir;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(victim != NULL);
 
-    (void) originator;
-
-    if (!victim->direction || !state) {
+    if (victim->direction == 0 || state == 0) {
         return OBJECT_METHOD_OK;
     }
 
-    dir = op->direction;
-
-    if (!dir) {
+    int dir = op->direction;
+    if (dir == 0) {
         dir = get_random_dir();
     }
 
     victim->direction = dir;
-    update_turn_face(victim);
+    object_update_turnable(victim);
 
     return OBJECT_METHOD_OK;
 }
 
-/** @copydoc object_methods::trigger_func */
-static int trigger_func(object *op, object *cause, int state)
+/** @copydoc object_methods_t::trigger_func */
+static int
+trigger_func (object *op, object *cause, int state)
 {
-    (void) cause;
-    (void) state;
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(cause != NULL);
 
-    if (!op->stats.maxsp) {
+    if (op->stats.maxsp == 0) {
         return OBJECT_METHOD_OK;
     }
 
@@ -70,9 +73,10 @@ static int trigger_func(object *op, object *cause, int state)
 }
 
 /**
- * Initialize the director type object methods. */
-void object_type_init_director(void)
+ * Initialize the director type object methods.
+ */
+OBJECT_TYPE_INIT_DEFINE(director)
 {
-    object_type_methods[DIRECTOR].move_on_func = move_on_func;
-    object_type_methods[DIRECTOR].trigger_func = trigger_func;
+    OBJECT_METHODS(DIRECTOR)->move_on_func = move_on_func;
+    OBJECT_METHODS(DIRECTOR)->trigger_func = trigger_func;
 }

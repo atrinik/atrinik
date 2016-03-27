@@ -25,7 +25,8 @@
 /**
  * @file
  * File with common definitions/macros/calculations/algorithms for both the
- * server and the client. */
+ * server and the client.
+ */
 
 #ifndef COMMON_H
 #define COMMON_H

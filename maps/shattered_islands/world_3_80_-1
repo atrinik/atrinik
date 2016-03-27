@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2015-11-23 Alex Tokar
+Modified: 2015-12-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -154,6 +154,16 @@ arch floor_sand_d1
 x 8
 y 21
 end
+arch spawn_point
+x 8
+y 21
+arch kobold_fighter
+direction 3
+item_condition 5
+item_power 2
+type 83
+end
+end
 arch floor_sand_d2
 x 8
 y 22
@@ -193,16 +203,6 @@ end
 arch floor_sand_d4
 x 9
 y 21
-end
-arch spawn_point
-x 9
-y 21
-arch kobold_fighter
-direction 3
-level 5
-wis 2
-type 83
-end
 end
 arch floor_sand_d4
 x 9
@@ -403,15 +403,6 @@ end
 arch dirt_floor1
 x 14
 y 19
-end
-arch spawn_point
-x 14
-y 19
-arch kobold_fighter
-level 5
-wis 2
-type 83
-end
 end
 arch floor_sand_d2
 x 14
@@ -630,9 +621,9 @@ x 19
 y 18
 arch kobold
 name kobold hunter
-level 4
+item_condition 5
 unaggressive 1
-wis 2
+item_power 2
 type 83
 end
 end

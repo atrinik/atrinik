@@ -34,7 +34,7 @@ extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
 extern int curl_connect(void *c_data);
 extern curl_data *curl_data_new(const char *url, const char *path);
 extern curl_data *curl_download_start(const char *url, const char *path);
-extern int8_t curl_download_finished(curl_data *data);
+extern curl_state_t curl_download_get_state(curl_data *data);
 extern int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info);
 extern char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize);
 extern void curl_data_free(curl_data *data);
@@ -597,6 +597,11 @@ extern void remove_widget_object_intern(widgetdata *widget);
 extern void remove_widget_inv(widgetdata *widget);
 extern void kill_widgets(void);
 extern void widgets_reset(void);
+extern int widget_x(const widgetdata *widget);
+extern int widget_y(const widgetdata *widget);
+extern int widget_w(const widgetdata *widget);
+extern int widget_h(const widgetdata *widget);
+extern bool widget_set_zoom(widgetdata *widget, double zoom);
 extern void widgets_ensure_onscreen(void);
 extern void kill_widget_tree(widgetdata *widget);
 extern widgetdata *create_widget(int widget_id);
@@ -713,7 +718,8 @@ extern void map_animate(void);
 extern void map_draw_map(SDL_Surface *surface);
 extern void map_draw_one(int x, int y, SDL_Surface *surface);
 extern void map_target_handle(uint8_t is_friend);
-extern int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
+extern bool mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
+extern bool map_mouse_fire(void);
 extern void widget_map_init(widgetdata *widget);
 /* src/gui/widgets/mapname.c */
 extern void widget_mapname_init(widgetdata *widget);
@@ -753,7 +759,7 @@ extern void skills_deinit(void);
 extern int skill_find(const char *name, size_t *id);
 extern int skill_find_object(object *op, size_t *id);
 extern skill_entry_struct *skill_get(size_t id);
-extern void skills_update(object *op, uint8_t level, int64_t xp);
+extern void skills_update(object *op, uint8_t level, int64_t xp, const char *msg);
 extern void skills_remove(object *op);
 extern void widget_skills_init(widgetdata *widget);
 /* src/gui/widgets/spells.c */
@@ -782,7 +788,7 @@ extern void textwin_tab_add(widgetdata *widget, const char *name);
 extern int textwin_tab_find(widgetdata *widget, uint8_t type, const char *name, size_t *id);
 extern void textwin_tab_open(widgetdata *widget, const char *name);
 extern void draw_info_tab(size_t type, const char *color, const char *str);
-extern void draw_info_format(const char *color, char *format, ...) __attribute__((format(printf, 2, 3)));
+extern void draw_info_format(const char *color, const char *format, ...) __attribute__((format(printf, 2, 3)));
 extern void draw_info(const char *color, const char *str);
 extern void textwin_handle_copy(widgetdata *widget);
 extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);
@@ -836,6 +842,8 @@ extern int rndm(int min, int max);
 extern int rndm_chance(uint32_t n);
 extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
 extern size_t nearest_pow_two_exp(size_t n);
+extern bool math_point_in_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle);
+extern bool math_point_edge_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle, int *deg);
 /* src/toolkit/memory.c */
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);
@@ -863,6 +871,7 @@ extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
 extern char *path_file_contents(const char *path);
+extern int path_rename(const char *old, const char *new);
 /* src/toolkit/pbkdf2.c */
 extern void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */
