@@ -758,7 +758,7 @@ void map_set_data(int x, int y, int layer, int16_t face,
     if (anim_speed != 0) {
         check_animation_status(face);
     } else {
-        request_face(face);
+        image_request_face(face);
     }
 }
 

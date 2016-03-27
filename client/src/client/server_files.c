@@ -48,7 +48,7 @@ void server_files_init(void)
     server_files = NULL;
 
     tmp = server_files_create(SERVER_FILE_BMAPS);
-    tmp->parse_func = read_bmaps;
+    tmp->parse_func = image_bmaps_init;
 
     tmp = server_files_create(SERVER_FILE_UPDATES);
     tmp->parse_func = file_updates_parse;

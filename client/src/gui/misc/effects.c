@@ -215,7 +215,7 @@ void effects_init(void)
             else if (!strncmp(buf, "sprite ", 7)) {
                 sprite_def = ecalloc(1, sizeof(*sprite_def));
                 /* Store the sprite ID and name. */
-                sprite_def->id = get_bmap_id(buf + 7);
+                sprite_def->id = image_get_id(buf + 7);
                 sprite_def->name = estrdup(buf + 7);
                 /* Initialize default values. */
                 sprite_def->chance = 1;
@@ -298,7 +298,7 @@ void effects_reinit(void)
 
     for (effect = effects; effect; effect = effect->next) {
         for (sprite_def = effect->sprite_defs; sprite_def; sprite_def = sprite_def->next) {
-            sprite_def->id = get_bmap_id(sprite_def->name);
+            sprite_def->id = image_get_id(sprite_def->name);
         }
     }
 }

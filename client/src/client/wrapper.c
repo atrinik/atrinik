@@ -72,12 +72,13 @@ void system_end(void)
     hfiles_deinit();
     settings_deinit();
     keybind_deinit();
-    bmaps_deinit();
+    image_bmaps_deinit();
     anims_deinit();
     skills_deinit();
     spells_deinit();
     clioption_settings_deinit();
     server_files_deinit();
+    image_deinit();
     toolkit_deinit();
     SDL_Quit();
 }

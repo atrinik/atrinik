@@ -31,138 +31,56 @@
 #include <packet.h>
 #include <toolkit_string.h>
 
-/** Default bmaps loaded from atrinik.p0. */
-static bmap_struct *bmaps_default[BMAPS_MAX];
-/** Bmaps loaded from the server bmaps file. */
-static bmap_struct *bmaps = NULL;
-/** Number of entries in ::bmaps. */
-static size_t bmaps_size = 0;
+/**
+ * Bitmaps loaded from image packs.
+ */
+static bmap_hash_t *image_bmap_packs = NULL;
+/**
+ * Bitmaps loaded from the server bmaps file.
+ */
+static bmap_t *image_bmaps = NULL;
+/**
+ * Number of entries in ::image_bmaps.
+ */
+static size_t image_bmaps_size = 0;
 
 /**
- * Hash string to find it in the ::bmaps array.
- * @param str
- * The string to hash.
- * @return
- * Hashed string.
+ * Free data associated with a bmap_t structure.
  */
-static unsigned long bmap_hash(const char *str)
+static void
+bmap_free (bmap_t *bmap)
 {
-    unsigned long hash = 0;
-    int i = 0;
-    unsigned int rot = 0;
-    const char *p;
-
-    for (p = str; i < MAXSTRING && *p; p++, i++) {
-        hash ^= (unsigned long) *p << rot;
-        rot += 2;
-
-        if (rot >= (sizeof(unsigned long) - sizeof(char)) * CHAR_BIT) {
-            rot = 0;
-        }
-    }
-
-    return hash % BMAPS_MAX;
+    HARD_ASSERT(bmap != NULL);
+    efree(bmap->name);
 }
 
 /**
- * Find a bmap by name.
- * @param name
- * The bmap name to find.
- * @return
- * NULL if not found, pointer to the bmap otherwise.
+ * Read bmaps from image packs, calculate checksums, etc.
  */
-bmap_struct *bmap_find(const char *name)
+void
+image_init (void)
 {
-    bmap_struct *bmap;
-    unsigned long idx;
-
-    if (name == NULL) {
-        return NULL;
-    }
-
-    idx = bmap_hash(name);
-
-    for (; ; ) {
-        bmap = bmaps_default[idx];
-
-        /* Not in the array. */
-        if (!bmap) {
-            return NULL;
-        }
-
-        if (!strcmp(bmap->name, name)) {
-            return bmap;
-        }
-
-        if (++idx >= BMAPS_MAX) {
-            idx = 0;
-        }
-    }
-}
-
-/**
- * Add a bmap to the ::bmaps array.
- * @param at
- * The bitmap to add.
- */
-void bmap_add(bmap_struct *bmap)
-{
-    unsigned long idx = bmap_hash(bmap->name), orig_idx = idx;
-
-    for (; ; ) {
-        if (bmaps_default[idx] && !strcmp(bmaps_default[idx]->name, bmap->name)) {
-            LOG(BUG, "Double use of bmap name %s.", bmap->name);
-        }
-
-        if (!bmaps_default[idx]) {
-            bmaps_default[idx] = bmap;
-            return;
-        }
-
-        if (++idx == BMAPS_MAX) {
-            idx = 0;
-        }
-
-        if (idx == orig_idx) {
-            LOG(BUG, "bmaps array is too small for %s.", bmap->name);
-            return;
-        }
-    }
-}
-
-/**
- * Read bmaps from atrinik.p0, calculate checksums, etc.
- */
-void read_bmaps_p0(void)
-{
-    FILE *fp;
-    size_t tmp_buf_size, pos;
-    char *tmp_buf, buf[MAX_BUF], *cp, *end;
-    size_t len;
-    bmap_struct *bmap;
-
-    memset(bmaps_default, 0, BMAPS_MAX * sizeof(bmap_struct *));
-
-    fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
-
-    if (!fp) {
+    FILE *fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
+    if (fp == NULL) {
         return;
     }
 
-    tmp_buf_size = 24 * 1024;
-    tmp_buf = emalloc(tmp_buf_size);
+    size_t tmp_buf_size = 24 * 1024;
+    char *tmp_buf = emalloc(tmp_buf_size);
 
-    while (fgets(buf, sizeof(buf) - 1, fp) != NULL) {
+    char buf[HUGE_BUF];
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
         if (strncmp(buf, "IMAGE ", 6)) {
             LOG(ERROR, "The file %s is corrupted.", FILE_ATRINIK_P0);
             exit(1);
         }
 
+        char *cp;
         /* Skip across the image ID data. */
         for (cp = buf + 6; *cp != ' '; cp++) {
         }
 
-        len = atoi(cp);
+        size_t len = atoi(cp);
 
         /* Skip across the length data. */
         for (cp = cp + 1; *cp != ' '; cp++) {
@@ -174,79 +92,92 @@ void read_bmaps_p0(void)
             tmp_buf = erealloc(tmp_buf, tmp_buf_size);
         }
 
-        pos = ftell(fp);
-
+        long pos = ftell(fp);
         if (fread(tmp_buf, 1, len, fp) != len) {
             break;
         }
 
-        /* Eliminate newline. */
-        end = strchr(cp, '\n');
-
-        if (end) {
-            *end = '\0';
-        }
+        string_strip_newline(cp);
 
         /* Trim left whitespace. */
         while (*cp == ' ') {
             cp++;
         }
 
-        bmap = emalloc(sizeof(bmap_struct));
-        bmap->name = estrdup(cp);
-        bmap->crc32 = crc32(1L, (const unsigned char FAR *) tmp_buf, len);
-        bmap->len = len;
-        bmap->pos = pos;
-        bmap_add(bmap);
+        bmap_hash_t *bmap = ecalloc(1, sizeof(*bmap));
+        bmap->bmap.name = estrdup(cp);
+        bmap->bmap.crc32 = crc32(1L, (const unsigned char FAR *) tmp_buf, len);
+        bmap->bmap.len = len;
+        bmap->bmap.pos = pos;
+        HASH_ADD_KEYPTR(hh,
+                        image_bmap_packs,
+                        bmap->bmap.name,
+                        strlen(bmap->bmap.name),
+                        bmap);
     }
 
     efree(tmp_buf);
     fclose(fp);
 }
 
+/*
+ * Deinitialize the image packs.
+ */
+void
+image_deinit (void)
+{
+    bmap_hash_t *curr, *tmp;
+
+    HASH_ITER(hh, image_bmap_packs, curr, tmp) {
+        HASH_DEL(image_bmap_packs, curr);
+        bmap_free(&curr->bmap);
+        efree(curr);
+    }
+}
+
 /**
  * Read bmaps server file.
  */
-void read_bmaps(void)
+void
+image_bmaps_init (void)
 {
-    FILE *fp;
-    char buf[HUGE_BUF], name[MAX_BUF];
-    uint32_t len, crc;
-    bmap_struct *bmap;
-
-    fp = server_file_open_name(SERVER_FILE_BMAPS);
-
-    if (!fp) {
+    FILE *fp = server_file_open_name(SERVER_FILE_BMAPS);
+    if (fp == NULL) {
         return;
     }
 
     /* Free previously allocated bmaps. */
-    bmaps_deinit();
+    image_bmaps_deinit();
 
-    while (fgets(buf, sizeof(buf) - 1, fp)) {
+    char buf[HUGE_BUF];
+    while (fgets(buf, sizeof(buf), fp)) {
+        uint32_t len, crc;
+        char name[HUGE_BUF];
         if (sscanf(buf, "%x %x %s", &len, &crc, name) != 3) {
             LOG(BUG, "Syntax error in server bmaps file: %s", buf);
             break;
         }
 
-        /* Find the bmap. */
-        bmap = bmap_find(name);
+        bmap_hash_t *bmap;
+        HASH_FIND_STR(image_bmap_packs, name, bmap);
+
         /* Expand the array. */
-        bmaps = erealloc(bmaps, sizeof(*bmaps) * (bmaps_size + 1));
+        image_bmaps = erealloc(image_bmaps,
+                               sizeof(*image_bmaps) * (image_bmaps_size + 1));
 
         /* Does it exist, and the lengths and checksums match? */
-        if (bmap && bmap->len == len && bmap->crc32 == crc) {
-            bmaps[bmaps_size].pos = bmap->pos;
+        if (bmap != NULL && bmap->bmap.len == len && bmap->bmap.crc32 == crc) {
+            image_bmaps[image_bmaps_size].pos = bmap->bmap.pos;
         } else {
             /* It doesn't exist in the atrinik.p0 file. */
-            bmaps[bmaps_size].pos = -1;
+            image_bmaps[image_bmaps_size].pos = -1;
         }
 
-        bmaps[bmaps_size].len = len;
-        bmaps[bmaps_size].crc32 = crc;
-        bmaps[bmaps_size].name = estrdup(name);
+        image_bmaps[image_bmaps_size].len = len;
+        image_bmaps[image_bmaps_size].crc32 = crc;
+        image_bmaps[image_bmaps_size].name = estrdup(name);
 
-        bmaps_size++;
+        image_bmaps_size++;
     }
 
     fclose(fp);
@@ -255,22 +186,21 @@ void read_bmaps(void)
 /**
  * Deinitialize the bmaps.
  */
-void bmaps_deinit(void)
+void
+image_bmaps_deinit (void)
 {
-    size_t i;
-
-    if (bmaps != NULL) {
-        for (i = 0; i < bmaps_size; i++) {
-            efree(bmaps[i].name);
+    if (image_bmaps != NULL) {
+        for (size_t i = 0; i < image_bmaps_size; i++) {
+            efree(image_bmaps[i].name);
         }
 
-        efree(bmaps);
-        bmaps_size = 0;
-        bmaps = NULL;
+        efree(image_bmaps);
+        image_bmaps = NULL;
+        image_bmaps_size = 0;
     }
 
-    for (i = 0; i < MAX_FACE_TILES; i++) {
-        if (FaceList[i].name) {
+    for (size_t i = 0; i < MAX_FACE_TILES; i++) {
+        if (FaceList[i].name != NULL) {
             efree(FaceList[i].name);
             FaceList[i].name = NULL;
             sprite_free_sprite(FaceList[i].sprite);
@@ -285,6 +215,7 @@ void bmaps_deinit(void)
 
 /**
  * Finish face command.
+ *
  * @param pnum
  * ID of the face.
  * @param checksum
@@ -292,21 +223,17 @@ void bmaps_deinit(void)
  * @param face
  * Face name.
  */
-void finish_face_cmd(int facenum, uint32_t checksum, char *face)
+void
+finish_face_cmd (int facenum, uint32_t checksum, const char *face)
 {
-    FILE *fp;
-    struct stat statbuf;
-    size_t len;
-    static uint32_t newsum = 0;
-    char buf[HUGE_BUF];
-    unsigned char *data;
-    packet_struct *packet;
+    HARD_ASSERT(facenum >= 0);
+    HARD_ASSERT(face != NULL);
 
     /* Loaded or requested. */
-    if (FaceList[facenum].name) {
-        /* Let's check the name, checksum and sprite. Only if all is ok,
-         * we stay with it */
-        if (!strcmp(face, FaceList[facenum].name) && checksum == FaceList[facenum].checksum && FaceList[facenum].sprite) {
+    if (FaceList[facenum].name != NULL) {
+        if (strcmp(face, FaceList[facenum].name) == 0 &&
+            checksum == FaceList[facenum].checksum &&
+            FaceList[facenum].sprite != NULL) {
             return;
         }
 
@@ -317,23 +244,26 @@ void finish_face_cmd(int facenum, uint32_t checksum, char *face)
         FaceList[facenum].sprite = NULL;
     }
 
-    snprintf(buf, sizeof(buf), "%s.png", face);
+    char buf[HUGE_BUF];
+    snprintf(VS(buf), "%s.png", face);
     FaceList[facenum].name = estrdup(buf);
     FaceList[facenum].checksum = checksum;
 
     /* Check private cache first */
-    snprintf(buf, sizeof(buf), DIRECTORY_CACHE "/%s", FaceList[facenum].name);
+    snprintf(VS(buf), DIRECTORY_CACHE "/%s", FaceList[facenum].name);
 
-    if ((fp = fopen_wrapper(buf, "rb")) != NULL) {
-        fstat(fileno (fp), &statbuf);
-        len = statbuf.st_size;
-        data = emalloc(len);
+    FILE *fp = fopen_wrapper(buf, "rb");
+    if (fp != NULL) {
+        struct stat statbuf;
+        fstat(fileno(fp), &statbuf);
+        size_t len = statbuf.st_size;
+        unsigned char *data = emalloc(len);
         len = fread(data, 1, len, fp);
         fclose(fp);
-        newsum = 0;
+        uint32_t newsum = 0;
 
         /* Something is wrong... Unlink the file and let it reload. */
-        if (len <= 0) {
+        if (len == 0) {
             unlink(buf);
             checksum = 1;
         } else {
@@ -345,204 +275,193 @@ void finish_face_cmd(int facenum, uint32_t checksum, char *face)
 
         if (newsum == checksum) {
             FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
-
-            if (FaceList[facenum].sprite) {
+            if (FaceList[facenum].sprite != NULL) {
                 return;
             }
         }
     }
 
-    packet = packet_new(SERVER_CMD_ASK_FACE, 16, 0);
+    packet_struct *packet = packet_new(SERVER_CMD_ASK_FACE, 16, 0);
     packet_append_uint16(packet, facenum);
     socket_send_packet(packet);
 }
 
 /**
- * Load picture from atrinik.p0 file.
+ * Load picture from the image pack file.
+ *
  * @param num
  * ID of the picture to load.
- * @return
- * 1 if the file does not exist, 0 otherwise.
  */
-static int load_picture_from_pack(int num)
+static void
+load_picture_from_pack (int num)
 {
-    FILE *stream;
-    char *pbuf;
-    SDL_RWops *rwop;
-
-    if ((stream = fopen_wrapper(FILE_ATRINIK_P0, "rb")) == NULL) {
-        return 1;
+    FILE *fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
+    if (fp == NULL) {
+        LOG(ERROR, "Failed to open %s", FILE_ATRINIK_P0);
+        return;
     }
 
-    lseek(fileno(stream), bmaps[num].pos, SEEK_SET);
-
-    pbuf = emalloc(bmaps[num].len);
-
-    if (fread(pbuf, bmaps[num].len, 1, stream) != bmaps[num].len) {
-        efree(pbuf);
-        fclose(stream);
-        return 0;
+    if (lseek(fileno(fp), image_bmaps[num].pos, SEEK_SET) == -1) {
+        LOG(ERROR, "Failed to seek to %ld: %s",
+            image_bmaps[num].pos, strerror(errno));
+        fclose(fp);
+        return;
     }
 
-    fclose(stream);
+    char *buf = emalloc(image_bmaps[num].len);
+    size_t num_read = fread(buf, 1, image_bmaps[num].len, fp);
+    if (num_read != image_bmaps[num].len) {
+        LOG(ERROR, "Expected %" PRIu64 " bytes but read %" PRIu64 " bytes",
+            (uint64_t) image_bmaps[num].len,
+            (uint64_t) num_read);
+        efree(buf);
+        fclose(fp);
+        return;
+    }
 
-    rwop = SDL_RWFromMem(pbuf, bmaps[num].len);
+    fclose(fp);
 
-    FaceList[num].sprite = sprite_tryload_file(NULL, 0, rwop);
+    SDL_RWops *rwop = SDL_RWFromMem(buf, image_bmaps[num].len);
+    if (rwop == NULL) {
+        LOG(ERROR, "Failed to load image from pack using SDL_RWFromMem(): %s",
+            SDL_GetError());
+    } else {
+        FaceList[num].sprite = sprite_tryload_file(NULL, 0, rwop);
+        SDL_FreeRW(rwop);
+    }
 
-    SDL_FreeRW(rwop);
-    efree(pbuf);
-
-    return 0;
+    efree(buf);
 }
 
 /**
  * Load face from user's graphics directory.
+ *
  * @param num
  * ID of the face to load.
  * @return
- * 1 on success, 0 on failure.
+ * True on success, false on failure.
  */
-static int load_gfx_user_face(uint16_t num)
+static bool
+load_gfx_user_face (uint16_t num)
 {
-    char buf[MAX_BUF];
-    FILE *stream;
-    struct stat statbuf;
-    size_t len;
-    unsigned char *data;
-
     /* First check for this image in gfx_user directory. */
-    snprintf(buf, sizeof(buf), DIRECTORY_GFX_USER "/%s.png", bmaps[num].name);
+    char buf[MAX_BUF];
+    snprintf(VS(buf), DIRECTORY_GFX_USER "/%s.png", image_bmaps[num].name);
 
-    if ((stream = fopen_wrapper(buf, "rb")) != NULL) {
-        fstat(fileno(stream), &statbuf);
-        len = statbuf.st_size;
-        data = emalloc(len);
-        len = fread(data, 1, len, stream);
-        fclose(stream);
-
-        if (len > 0) {
-            if (FaceList[num].sprite) {
-                sprite_free_sprite(FaceList[num].sprite);
-            }
-
-            if (FaceList[num].name) {
-                efree(FaceList[num].name);
-                FaceList[num].name = NULL;
-            }
-
-            /* Try to load it. */
-            FaceList[num].sprite = sprite_tryload_file(buf, 0, NULL);
-
-            if (FaceList[num].sprite) {
-                snprintf(buf, sizeof(buf), DIRECTORY_GFX_USER "/%s.png", bmaps[num].name);
-                FaceList[num].name = estrdup(buf);
-                FaceList[num].checksum = crc32(1L, data, len);
-                efree(data);
-                return 1;
-            }
-        }
-
-        /* If we are here something was wrong with the file. */
-        efree(data);
+    FILE *fp = fopen_wrapper(buf, "rb");
+    if (fp == NULL) {
+        return false;
     }
 
-    return 0;
+    struct stat statbuf;
+    fstat(fileno(fp), &statbuf);
+    size_t len = statbuf.st_size;
+    unsigned char *data = emalloc(len);
+    len = fread(data, 1, len, fp);
+
+    bool ret = false;
+    if (len == 0) {
+        goto out;
+    }
+
+    if (FaceList[num].sprite != NULL) {
+        sprite_free_sprite(FaceList[num].sprite);
+    }
+
+    if (FaceList[num].name != NULL) {
+        efree(FaceList[num].name);
+        FaceList[num].name = NULL;
+    }
+
+    /* Try to load it. */
+    FaceList[num].sprite = sprite_tryload_file(buf, 0, NULL);
+    if (FaceList[num].sprite == NULL) {
+        goto out;
+    }
+
+    FaceList[num].name = estrdup(buf);
+    FaceList[num].checksum = crc32(1L, data, len);
+    ret = true;
+
+out:
+    efree(data);
+    fclose(fp);
+
+    return ret;
 }
 
 /**
  * We got a face - test if we have it loaded. If not, ask the server to
  * send us face command.
+ *
  * @param pnum
  * Face ID.
- * @return
- * 0 if face is not there, 1 if face was requested or loaded.
  */
-int request_face(int pnum)
+void
+image_request_face (int pnum)
 {
     char buf[MAX_BUF];
     uint16_t num = (uint16_t) (pnum &~0x8000);
 
-    if (setting_get_int(OPT_CAT_DEVEL, OPT_RELOAD_GFX) && load_gfx_user_face(num)) {
-        return 1;
+    if (setting_get_int(OPT_CAT_DEVEL, OPT_RELOAD_GFX) &&
+        load_gfx_user_face(num)) {
+        return;
     }
 
     /* Loaded or requested */
-    if (FaceList[num].name || FaceList[num].flags & FACE_REQUESTED) {
-        return 1;
+    if (FaceList[num].name != NULL || FaceList[num].flags & FACE_REQUESTED) {
+        return;
     }
 
-    if (num >= bmaps_size) {
-        LOG(BUG, "Server sent picture ID too big (%d, max: %"PRIu64 ")", num, (uint64_t) bmaps_size);
-        return 0;
+    if (num >= image_bmaps_size) {
+        LOG(ERROR, "Server sent picture ID too loarge (%d, max: %" PRIu64 ")",
+            num, (uint64_t) image_bmaps_size);
+        return;
     }
 
     if (load_gfx_user_face(num)) {
-        return 1;
+        return;
     }
 
-    if (bmaps[num].pos != -1) {
-        /* Best case - we have it in atrinik.p0 */
-        snprintf(buf, sizeof(buf), "%s.png", bmaps[num].name);
+    if (image_bmaps[num].pos != -1) {
+        snprintf(VS(buf), "%s.png", image_bmaps[num].name);
         FaceList[num].name = estrdup(buf);
-        FaceList[num].checksum = bmaps[num].crc32;
+        FaceList[num].checksum = image_bmaps[num].crc32;
         load_picture_from_pack(num);
     } else {
-        /* Second best case - check the cache for it, or request it. */
         FaceList[num].flags |= FACE_REQUESTED;
-        finish_face_cmd(num, bmaps[num].crc32, bmaps[num].name);
+        finish_face_cmd(num, image_bmaps[num].crc32, image_bmaps[num].name);
     }
-
-    return 1;
 }
 
 /**
  * Find a face ID by name. Request the face by finding it, loading it or
  * requesting it.
+ *
  * @param name
- * Face name to find
+ * Face name to find.
  * @return
- * Face ID if found, -1 otherwise
+ * Face ID if found, -1 otherwise.
  */
-int get_bmap_id(char *name)
+int
+image_get_id (const char *name)
 {
-    int l = 0, r = bmaps_size - 1, x, cmp;
+    int l = 0, r = image_bmaps_size - 1;
 
-    /* All the faces in ::bmaps are already sorted, so we can use a
+    /* All the faces in ::image_bmaps are already sorted, so we can use a
      * binary search here. */
     while (r >= l) {
-        x = (l + r) / 2;
-        cmp = strcmp(name, bmaps[x].name);
-
+        int x = (l + r) / 2;
+        int cmp = strcmp(name, image_bmaps[x].name);
         if (cmp < 0) {
             r = x - 1;
         } else if (cmp > 0) {
             l = x + 1;
         } else {
-            request_face(x);
+            image_request_face(x);
             return x;
         }
     }
 
     return -1;
-}
-
-/**
- * Draw a face.
- * @param surface
- * Surface to draw on.
- * @param x
- * X position.
- * @param y
- * Y position.
- * @param id
- * ID of the face.
- */
-void face_show(SDL_Surface *surface, int x, int y, int id)
-{
-    if (id == -1 || !FaceList[id].sprite) {
-        return;
-    }
-
-    surface_show(surface, x, y, NULL, FaceList[id].sprite->bitmap);
 }

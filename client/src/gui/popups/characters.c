@@ -154,7 +154,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
             face = animations[anim_id].faces[(animations[anim_id].num_animations / animations[anim_id].facings) * 5 + state[idx]];
         }
 
-        request_face(face);
+        image_request_face(face);
 
         if (FaceList[face].name) {
             char *facename;

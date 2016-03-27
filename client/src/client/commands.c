@@ -89,7 +89,7 @@ void socket_command_anim(uint8_t *data, size_t len, size_t pos)
 
     for (i = 0; pos < len; i++) {
         animations[anim_id].faces[i] = packet_to_uint16(data, len, &pos);
-        request_face(animations[anim_id].faces[i]);
+        image_request_face(animations[anim_id].faces[i]);
     }
 }
 
@@ -360,7 +360,7 @@ void socket_command_player(uint8_t *data, size_t len, size_t pos)
     tag = packet_to_uint32(data, len, &pos);
     weight = packet_to_uint32(data, len, &pos);
     face = packet_to_uint32(data, len, &pos);
-    request_face(face);
+    image_request_face(face);
     packet_to_string(data, len, &pos, cpl.name, sizeof(cpl.name));
 
     new_player(tag, weight, face);
@@ -394,7 +394,7 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
 
     if (flags & UPD_FACE) {
         tmp->face = packet_to_uint16(data, len, pos);
-        request_face(tmp->face);
+        image_request_face(tmp->face);
     }
 
     if (flags & UPD_DIRECTION) {

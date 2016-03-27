@@ -167,7 +167,7 @@ static int popup_draw_func(popup_struct *popup)
                     TEXT_MARKUP, NULL, "[icon=%s %d %d]", interface_data->icon,
                     INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
         } else if (interface_data->anim != NULL) {
-            request_face(interface_data->anim->face);
+            image_request_face(interface_data->anim->face);
             object_show_centered(popup->surface, interface_data->anim,
                     INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY,
                     INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT, false);

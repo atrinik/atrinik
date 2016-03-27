@@ -41,15 +41,6 @@ extern void curl_data_free(curl_data *data);
 extern void curl_init(void);
 extern void curl_deinit(void);
 /* src/client/image.c */
-extern bmap_struct *bmap_find(const char *name);
-extern void bmap_add(bmap_struct *bmap);
-extern void read_bmaps_p0(void);
-extern void read_bmaps(void);
-extern void bmaps_deinit(void);
-extern void finish_face_cmd(int facenum, uint32_t checksum, char *face);
-extern int request_face(int pnum);
-extern int get_bmap_id(char *name);
-extern void face_show(SDL_Surface *surface, int x, int y, int id);
 /* src/client/item.c */
 extern void object_init(void);
 extern void object_deinit(void);

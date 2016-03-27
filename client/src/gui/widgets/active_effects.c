@@ -139,7 +139,11 @@ static void widget_draw(widgetdata *widget)
                 widget->redraw++;
             }
 
-            face_show(widget->surface, x, y, effect->op->face);
+            if (effect->op->face != -1 &&
+                FaceList[effect->op->face].sprite != NULL) {
+                surface_show(widget->surface, x, y, NULL,
+                             FaceList[effect->op->face].sprite->bitmap);
+            }
 
             if (effect->sec != -1) {
                 SDL_Rect textbox;

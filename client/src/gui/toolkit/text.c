@@ -1033,7 +1033,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                         &wd, &ht) >= 1) {
                     int id;
 
-                    id = get_bmap_id(face);
+                    id = image_get_id(face);
                     sprite_effects.dark_level = dark_level;
                     sprite_effects.alpha = alpha;
 
@@ -1291,7 +1291,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     sprite_struct *icon_sprite;
                     SDL_Surface *icon_surface;
 
-                    id = get_bmap_id(face);
+                    id = image_get_id(face);
                     icon_sprite = NULL;
                     icon_surface = NULL;
 
