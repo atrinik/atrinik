@@ -2,7 +2,7 @@ arch map
 name Forgotten Tunnels
 msg
 Created:  2011-03-19 Alex Tokar
-Modified: 2015-12-06 Alex Tokar
+Modified: 2016-03-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2930,7 +2930,7 @@ end
 arch rand_drop
 container 15
 arch robe
-amask robe_min_dex
+amask robe_dexterity
 magic 1
 is_magical 1
 end
