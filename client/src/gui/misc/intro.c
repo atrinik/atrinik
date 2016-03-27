@@ -52,7 +52,7 @@ static uint32_t eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
 static uint8_t eyes_draw = 1;
 /** Button buffer. */
-static button_struct button_play, button_refresh, button_server, button_settings, button_update, button_help, button_credits, button_quit, button_crash;
+static button_struct button_play, button_refresh, button_server, button_settings, button_update, button_help, button_credits, button_quit;
 
 /** The news list. */
 static list_struct *list_news = NULL;
@@ -120,7 +120,6 @@ void intro_deinit(void)
     button_destroy(&button_help);
     button_destroy(&button_credits);
     button_destroy(&button_quit);
-    button_destroy(&button_crash);
 
     list_remove(list_servers);
     list_servers = NULL;
@@ -193,7 +192,6 @@ void intro_show(void)
         button_create(&button_help);
         button_create(&button_credits);
         button_create(&button_quit);
-        button_create(&button_crash);
     }
 
     /* List doesn't exist or the count changed? Create new list. */
@@ -312,7 +310,7 @@ void intro_show(void)
     /* Show the news list. */
     list_show(list_news, x + 13, y + 10);
 
-    button_play.x = button_refresh.x = button_server.x = button_settings.x = button_update.x = button_help.x = button_credits.x = button_quit.x = button_crash.x = 489;
+    button_play.x = button_refresh.x = button_server.x = button_settings.x = button_update.x = button_help.x = button_credits.x = button_quit.x = 489;
     y += 2;
 
     button_play.y = y + 10;
@@ -338,9 +336,6 @@ void intro_show(void)
 
     button_quit.y = y + 224;
     button_show(&button_quit, "Quit");
-
-    button_crash.y = y + 185;
-    button_show(&button_crash, "Crash me!");
 
     if (clioption_settings.connect[0] && cpl.state < ST_STARTCONNECT) {
         size_t i;
@@ -412,10 +407,6 @@ int intro_event(SDL_Event *event)
         return 1;
     } else if (button_event(&button_quit, event)) {
         exit(0);
-        return 1;
-    } else if (button_event(&button_crash, event)) {
-        int *xx = NULL;
-        *xx = 10;
         return 1;
     } else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news) {
         int news_focus = 0;

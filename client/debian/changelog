@@ -1,3 +1,8 @@
+atrinik-client (4.0.0-1) unstable; urgency=low
+  * New upstream release.
+
+ -- Alex Tokar <admin@atokar.net>  Sun, 27 Mar 2016 16:35:05 +0100
+
 atrinik-client (3.0.0-1) unstable; urgency=low
   * New upstream release.
 
