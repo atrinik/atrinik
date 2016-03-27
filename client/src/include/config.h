@@ -81,6 +81,6 @@
  * hexadecimal and backwards. Thus, 0x0503 requires at least 3.5, and 0x010503
  * requires at least 3.5.1.
  */
-#define SERVER_VERSION 0x0503
+#define SERVER_VERSION 0x04
 
 #endif
