@@ -32,46 +32,99 @@
 #ifndef CLIOPTIONS_H
 #define CLIOPTIONS_H
 
+#include <toolkit.h>
+
+/**
+ * Macro to simplify CLI option creation.
+ *
+ * Uses clioptions_create() to create the CLI and store it in 'cli'. Variable
+ * to use for the handler function will be constructed from the name in the
+ * form of 'clioptions_option_name' and the variable to use for the detailed
+ * description from 'clioptions_option_name_desc'.
+ *
+ * @param[out] cli
+ * Will contain the created CLI.
+ * @param name
+ * CLI option name; NOT a string.
+ * @param desc_brief
+ * Brief description about the CLI.
+ */
+#define CLIOPTIONS_CREATE(cli, name, desc_brief)                            \
+do {                                                                        \
+    cli = clioptions_create(STRINGIFY(name),                                \
+                            CONCAT(clioptions_option_, name));              \
+    clioptions_set_description(cli,                                         \
+                               desc_brief,                                  \
+                               CONCAT(CONCAT(clioptions_option_, name),     \
+                                      _desc));                              \
+} while (0)
+
+/**
+ * Like CLIOPTIONS_CREATE(), but will enable passing a required argument using
+ * clioptions_enable_argument().
+ *
+ * @param[out] cli
+ * Will contain the created CLI.
+ * @param name
+ * CLI option name; NOT a string.
+ * @param desc_brief
+ * Brief description about the CLI.
+ */
+#define CLIOPTIONS_CREATE_ARGUMENT(cli, name, desc_brief)                   \
+do {                                                                        \
+    cli = clioptions_create(STRINGIFY(name),                                \
+                            CONCAT(clioptions_option_, name));              \
+    clioptions_set_description(cli,                                         \
+                               desc_brief,                                  \
+                               CONCAT(CONCAT(clioptions_option_, name),     \
+                                      _desc));                              \
+    clioptions_enable_argument(cli);                                        \
+} while (0)
+
 /**
  * Command line option handler function.
+ *
  * @param arg
  * Argument, if any.
+ * @param errmsg
+ * On failure, should contain an error message explaining the error. Will be
+ * freed.
+ * @return
+ * True on success, false on failure.
  */
-typedef void (*clioptions_handler_func)(const char *arg);
+typedef bool (*clioptions_handler_func)(const char *arg,
+                                        char      **errmsg);
 
-/**
- * A single command line option.
+/*
+ * Opaque typedef for a single CLI option structure.
  */
-typedef struct clioptions_struct {
-    /**
-     * Long option name, eg, 'verbose'.
-     */
-    char *longname;
+typedef struct clioption clioption_t;
 
-    /**
-     * Short option name, eg, 'v'.
-     */
-    char *shortname;
+/* Prototypes */
 
-    /**
-     * Handler function for the option.
-     */
-    clioptions_handler_func handle_func;
+TOOLKIT_FUNCS_DECLARE(clioptions);
 
-    /**
-     * Whether this option accepts an argument.
-     */
-    uint8_t argument;
-
-    /**
-     * Brief description.
-     */
-    char *desc_brief;
-
-    /**
-     * More detailed description.
-     */
-    char *desc;
-} clioptions_struct;
+clioption_t *
+clioptions_create(const char             *name,
+                  clioptions_handler_func handler_func);
+const char *
+clioptions_get(const char *name);
+void
+clioptions_set_short_name(clioption_t *cli,
+                          const char  *short_name);
+void
+clioptions_set_description(clioption_t *cli,
+                           const char  *desc_brief,
+                           const char  *desc);
+void
+clioptions_enable_argument(clioption_t *cli);
+void
+clioptions_enable_changeable(clioption_t *cli);
+void
+clioptions_parse(int argc, char *argv[]);
+bool
+clioptions_load(const char *path, const char *category);
+bool
+clioptions_load_str(const char *str, char **errmsg);
 
 #endif

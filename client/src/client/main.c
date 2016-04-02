@@ -32,6 +32,7 @@
 #include <region_map.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <clioptions.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -379,67 +380,152 @@ void clioption_settings_deinit(void)
     }
 }
 
-static void clioptions_option_server(const char *arg)
+/**
+ * Description of the --server command.
+ */
+static const char *const clioptions_option_server_desc =
+"Adds a server to the list of servers.\n\n"
+"Usage:\n"
+" --server=example.com";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server (const char *arg,
+                          char      **errmsg)
 {
-    clioption_settings.servers = erealloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
-    clioption_settings.servers[clioption_settings.servers_num] = estrdup(arg);
+    clioption_settings.servers =
+        erealloc(clioption_settings.servers,
+                 sizeof(*clioption_settings.servers) *
+                     (clioption_settings.servers_num + 1));
+    clioption_settings.servers[clioption_settings.servers_num] =
+        estrdup(arg);
     clioption_settings.servers_num++;
+    return true;
 }
 
-static void clioptions_option_metaserver(const char *arg)
+/**
+ * Description of the --metaserver command.
+ */
+static const char *const clioptions_option_metaserver_desc =
+"Adds a metaserver to the list of metaserver that will be tried.\n\n"
+"Usage:\n"
+" --metaserver=example.com";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_metaserver (const char *arg,
+                              char      **errmsg)
 {
-    clioption_settings.metaservers = erealloc(clioption_settings.metaservers, sizeof(*clioption_settings.metaservers) * (clioption_settings.metaservers_num + 1));
-    clioption_settings.metaservers[clioption_settings.metaservers_num] = estrdup(arg);
+    clioption_settings.metaservers =
+        erealloc(clioption_settings.metaservers,
+                 sizeof(*clioption_settings.metaservers) *
+                     (clioption_settings.metaservers_num + 1));
+    clioption_settings.metaservers[clioption_settings.metaservers_num] =
+        estrdup(arg);
     clioption_settings.metaservers_num++;
+    return true;
 }
 
-static void clioptions_option_connect(const char *arg)
+/**
+ * Description of the --connect command.
+ */
+static const char *const clioptions_option_connect_desc =
+"Automatically connects to a server.\n\n"
+"Usage:\n"
+" --connect=<server>:<account>:<password>:<character>\n\n"
+"Everything past the server is optional; you could for example only specify "
+"the account, or specify everything but leave the password field empty to "
+"still get a prompt for the password but still select the character "
+"automatically.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_connect (const char *arg,
+                           char      **errmsg)
 {
-    size_t pos, idx;
-    char word[MAX_BUF];
+    char *cp = estrdup(arg);
+    char *cps[4];
+    size_t num = string_split(cp, cps, arraysize(cps), ':');
 
-    pos = idx = 0;
+    for (size_t i = 0; i < num; i++) {
+        if (*cps[i] == '\0') {
+            continue;
+        }
 
-    while (string_get_word(arg, &pos, ':', word, sizeof(word), 0)) {
-        clioption_settings.connect[idx] = estrdup(word);
-        string_whitespace_trim(clioption_settings.connect[idx]);
-        idx++;
+        clioption_settings.connect[i] = estrdup(cps[i]);
     }
+
+    efree(cp);
+    return true;
 }
 
-static void clioptions_option_nometa(const char *arg)
+/**
+ * Description of the --nometa command.
+ */
+static const char *clioptions_option_nometa_desc =
+"Do not query the metaserver.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_nometa (const char *arg,
+                          char      **errmsg)
 {
     metaserver_disable();
+    return true;
 }
 
-static void clioptions_option_text_debug(const char *arg)
+/**
+ * Description of the --text_debug command.
+ */
+static const char *clioptions_option_text_debug_desc =
+"Enable text API debugging (shows bounding boxes for text that uses them).";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_text_debug (const char *arg,
+                              char      **errmsg)
 {
     text_enable_debug();
+    return true;
 }
 
-static void clioptions_option_widget_render_debug(const char *arg)
+/**
+ * Description of the --widget_render_debug command.
+ */
+static const char *clioptions_option_widget_render_debug_desc =
+"Enable widget rendering debugging (highlights widgets whenever they get "
+"re-rendered).";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_widget_render_debug (const char *arg,
+                                       char      **errmsg)
 {
     widget_render_enable_debug();
+    return true;
 }
 
-static void clioptions_option_game_news_url(const char *arg)
+/**
+ * Description of the --game_news_url command.
+ */
+static const char *clioptions_option_game_news_url_desc =
+"Sets the game news URL. Typically this doesn't need to be changed.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_game_news_url (const char *arg,
+                                 char      **errmsg)
 {
     clioption_settings.game_news_url = estrdup(arg);
+    return true;
 }
 
-static void clioptions_option_reconnect(const char *arg)
+/**
+ * Description of the --reconnect command.
+ */
+static const char *clioptions_option_reconnect_desc =
+"On disconnect, will automatically attempt to reconnect to the "
+"server/account/etc as specified with --connect.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_reconnect (const char *arg,
+                             char      **errmsg)
 {
     clioption_settings.reconnect = 1;
-}
-
-static void clioptions_option_logger_filter_stdout(const char *arg)
-{
-    logger_set_filter_stdout(arg);
-}
-
-static void clioptions_option_logger_filter_logfile(const char *arg)
-{
-    logger_set_filter_logfile(arg);
+    return true;
 }
 
 /**
@@ -477,115 +563,27 @@ int main(int argc, char *argv[])
     toolkit_import(stringbuffer);
     toolkit_import(x11);
 
-    clioptions_add(
-            "server",
-            NULL,
-            clioptions_option_server,
-            1,
-            "",
-            ""
-            );
+    clioption_t *cli;
 
-    clioptions_add(
-            "metaserver",
-            NULL,
-            clioptions_option_metaserver,
-            1,
-            "",
-            ""
-            );
+    /* Non-argument options */
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server, "Add a server to the list");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver, "Add a metaserver to the list");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, connect, "Connect to the specified server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, game_news_url, "Set game news URL");
 
-    clioptions_add(
-            "connect",
-            NULL,
-            clioptions_option_connect,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "nometa",
-            NULL,
-            clioptions_option_nometa,
-            0,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "text_debug",
-            NULL,
-            clioptions_option_text_debug,
-            0,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "widget_render_debug",
-            NULL,
-            clioptions_option_widget_render_debug,
-            0,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "tiles_debug",
-            NULL,
-            clioptions_option_tiles_debug,
-            0,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "game_news_url",
-            NULL,
-            clioptions_option_game_news_url,
-            0,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "reconnect",
-            NULL,
-            clioptions_option_reconnect,
-            0,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "logger_filter_stdout",
-            NULL,
-            clioptions_option_logger_filter_stdout,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "logger_filter_logfile",
-            NULL,
-            clioptions_option_logger_filter_logfile,
-            1,
-            "",
-            ""
-            );
+    /* Argument options*/
+    CLIOPTIONS_CREATE(cli, nometa, "Disable querying the metaserver");
+    CLIOPTIONS_CREATE(cli, text_debug, "Enable text API debugging");
+    CLIOPTIONS_CREATE(cli, widget_render_debug,  "Enable widget debugging");
+    CLIOPTIONS_CREATE(cli, reconnect,  "Reconnect automatically");
 
     memset(&clioption_settings, 0, sizeof(clioption_settings));
+
     path = file_path("client.cfg", "r");
-    clioptions_load_config(path, "[General]");
+    clioptions_load(path, NULL);
     efree(path);
     path = file_path("client-custom.cfg", "r");
-
-    if (path_exists(path)) {
-        clioptions_load_config(path, "[General]");
-    }
-
+    clioptions_load(path, NULL);
     efree(path);
 
     clioptions_parse(argc, argv);

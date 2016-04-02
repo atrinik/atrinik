@@ -31,74 +31,275 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <clioptions.h>
+
+/**
+ * Iterate over all the CLI options.
+ *
+ * @param[out] _var Will contain the currently iterated CLI option.
+ */
+#define FOR_CLIOPTIONS_BEGIN(_var)                              \
+do {                                                            \
+    size_t _var##_i;                                            \
+    clioption_t *_var;                                         \
+    for (_var##_i = 0; _var##_i < clioptions_num; _var##_i++) { \
+        _var = &clioptions[_var##_i];
+
+/**
+ * End iterating the CLI options.
+ */
+#define FOR_CLIOPTIONS_END()                            \
+    }                                                   \
+} while (0)
+
+/**
+ * A single command line option.
+ */
+struct clioption {
+    /**
+     * Option name, eg, 'verbose'.
+     */
+    const char *name;
+
+    /**
+     * Short option name, eg, 'v'.
+     */
+    const char *short_name;
+
+    /**
+     * Handler function for the option.
+     */
+    clioptions_handler_func handler_func;
+
+    /**
+     * Whether this option accepts an argument.
+     */
+    bool argument:1;
+
+    /**
+     * Whether the option is changeable at run-time.
+     */
+    bool changeable:1;
+
+    /**
+     * Brief description.
+     */
+    const char *desc_brief;
+
+    /**
+     * More detailed description.
+     */
+    const char *desc;
+
+    /**
+     * Last value configured.
+     */
+    char *value;
+};
 
 /**
  * All of the available command line options.
  */
-static clioptions_struct *clioptions;
-
+static clioption_t *clioptions;
 /**
  * Number of ::clioptions.
  */
 static size_t clioptions_num;
+/**
+ * If true, process initialization has finished.
+ */
+static bool clioptions_runtime;
 
-static void clioptions_option_config(const char *arg);
-static void clioptions_option_help(const char *arg);
+TOOLKIT_API(DEPENDS(logger), IMPORTS(string), IMPORTS(stringbuffer));
 
-TOOLKIT_API(DEPENDS(logger), DEPENDS(string), DEPENDS(stringbuffer));
+/**
+ * Description of the --config command.
+ */
+static const char *clioptions_option_config_desc =
+"Instead of specifying your options on the command line each time "
+"you run the server, you can create a text file containing the "
+"options, in the format of:\n\n"
+"option = argument\n"
+"help = True\n\n"
+"Each option must be on its own line. Empty lines and lines "
+"beginning with '#' are ignored. '\\n' strings in the argument "
+"will be converted into literal newline characters.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_config (const char *arg,
+                          char      **errmsg)
+{
+    if (!clioptions_load(arg, NULL)) {
+        string_fmt(*errmsg, "Could not open configuration file: %s", arg);
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Description of the --logfile command.
+ */
+static const char *clioptions_option_help_desc =
+"Displays the help, listing available options, etc.\n\n"
+"'--help=argument' can be used to get more detailed help about "
+"specified option.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_help (const char *arg,
+                        char      **errmsg)
+{
+    /* If we got an argument, try to look for the option and
+     * display detailed info about it. */
+    if (arg != NULL) {
+        FOR_CLIOPTIONS_BEGIN(cli) {
+            if (cli->desc == NULL) {
+                continue;
+            }
+
+            if (strcmp(cli->name, arg) != 0) {
+                continue;
+            }
+
+            LOG(INFO, "##### Option: --%s #####", cli->name);
+            LOG(INFO, " ");
+
+            for (const char *curr = cli->desc, *next;
+                 (curr != NULL && (next = strchr(curr, '\n'))) || curr != NULL;
+                 curr = next != NULL ? next + 1 : NULL) {
+                char *cp = estrndup(curr, next - curr);
+                LOG(INFO, "%s", cp);
+                efree(cp);
+            }
+
+            exit(0);
+        } FOR_CLIOPTIONS_END();
+
+        LOG(INFO, "No such option '--%s'.", arg);
+        exit(0);
+    }
+
+     /* Otherwise show brief information about all available options. */
+    LOG(INFO, "List of available options:");
+    LOG(INFO, " ");
+
+    FOR_CLIOPTIONS_BEGIN(cli) {
+        StringBuffer *sb = stringbuffer_new();
+
+        if (cli->desc_brief == NULL) {
+            continue;
+        }
+
+        if (cli->short_name != NULL) {
+            stringbuffer_append_printf(sb, "-%s%s",
+                                       cli->short_name,
+                                       cli->argument ? " arg" : "");
+        }
+
+        if (cli->name != NULL) {
+            if (stringbuffer_length(sb) > 0) {
+                stringbuffer_append_string(sb, ", ");
+            }
+
+            stringbuffer_append_printf(sb, "--%s%s",
+                                       cli->name,
+                                       cli->argument ? "=arg" : "");
+        }
+
+        char *desc = stringbuffer_finish(sb);
+        LOG(INFO, "    %s: %s", desc, cli->desc_brief);
+        efree(desc);
+    } FOR_CLIOPTIONS_END();
+
+    LOG(INFO, " ");
+    LOG(INFO, "Use '--help=option' to learn more about the specified option.");
+    exit(0);
+
+    /* Not reached */
+    return true;
+}
+
+/**
+ * Description of the --logfile command.
+ */
+static const char *clioptions_option_logfile_desc =
+"All of the output that is normally written to stdout will also be "
+"written to the specified file.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_logfile (const char *arg,
+                           char      **errmsg)
+{
+    logger_open_log(arg);
+    return true;
+}
+
+/**
+ * Description of the --logger_filter_stdout command.
+ */
+static const char *clioptions_option_logger_filter_stdout_desc =
+"All of the output that is normally written to stdout will also be "
+"written to the specified file.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_logger_filter_stdout (const char *arg,
+                                        char      **errmsg)
+{
+    logger_set_filter_stdout(arg);
+    return true;
+}
+
+/**
+ * Description of the --logger_filter_logfile command.
+ */
+static const char *clioptions_option_logger_filter_logfile_desc =
+"All of the output that is normally written to stdout will also be "
+"written to the specified file.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_logger_filter_logfile (const char *arg,
+                                         char      **errmsg)
+{
+    logger_set_filter_logfile(arg);
+    return true;
+}
 
 TOOLKIT_INIT_FUNC(clioptions)
 {
     clioptions = NULL;
     clioptions_num = 0;
+    clioptions_runtime = false;
 
-    clioptions_add(
-            "config",
-            NULL,
-            clioptions_option_config,
-            1,
-            "Reads configuration from a text file.",
-            "Instead of specifying your options on the command line each time"
-            " you run the server, you can create a text file containing the "
-            "options, in the format of:\n\n"
-            "option = argument\n"
-            "help = True\n\n"
-            "Each option must be on its own line. Empty lines and lines "
-            "beginning with '#' are ignored. '\\n' strings in the argument "
-            "will be converted into literal newline characters."
-            );
+    clioption_t *cli;
+    CLIOPTIONS_CREATE_ARGUMENT(cli, config, "Read configuration from file");
+    clioptions_enable_changeable(cli);
 
-    clioptions_add(
-            "help",
-            "h",
-            clioptions_option_help,
-            0,
-            "Displays this help.",
-            "Displays the help, listing available options, etc.\n\n"
-            "'--help=argument' can be used to get more detailed help about "
-            "specified option."
-            );
+    CLIOPTIONS_CREATE(cli, help, "Displays this help");
+    clioptions_set_short_name(cli, "h");
+
+    CLIOPTIONS_CREATE_ARGUMENT(cli, logfile, "Sets the file to write log to.");
+    clioptions_enable_changeable(cli);
+
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               logger_filter_stdout,
+                               "Specify log levels filtering for stdout.");
+    clioptions_enable_changeable(cli);
+
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               logger_filter_logfile,
+                               "Specify log levels filtering for the logfile.");
+    clioptions_enable_changeable(cli);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
 TOOLKIT_DEINIT_FUNC(clioptions)
 {
-    size_t i;
-
-    for (i = 0; i < clioptions_num; i++) {
-        if (clioptions[i].longname) {
-            efree(clioptions[i].longname);
+    FOR_CLIOPTIONS_BEGIN(cli) {
+        if (cli->value != NULL) {
+            efree(cli->value);
         }
-
-        if (clioptions[i].shortname) {
-            efree(clioptions[i].shortname);
-        }
-
-        efree(clioptions[i].desc_brief);
-        efree(clioptions[i].desc);
-    }
-
-    if (clioptions) {
+    } FOR_CLIOPTIONS_END();
+    if (clioptions != NULL) {
         efree(clioptions);
         clioptions = NULL;
     }
@@ -108,323 +309,420 @@ TOOLKIT_DEINIT_FUNC(clioptions)
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
- * The --config command-line option.
- * @param arg
- * The file to open for reading.
+ * Creates a new CLI option.
+ *
+ * @param name
+ * Name of the option. Must not be destroyed.
+ * @param handler_func
+ * The handler function for the option. Can be NULL.
+ * @return
+ * Created CLI option.
  */
-static void clioptions_option_config(const char *arg)
+clioption_t *
+clioptions_create (const char             *name,
+                   clioptions_handler_func handler_func)
 {
-    if (!clioptions_load_config(arg, "[General]")) {
-        LOG(ERROR, "Could not open file for reading: %s", arg);
-        exit(1);
-    }
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(name != NULL);
+
+    /* Ensure that no option with the same long/short name exists. */
+    FOR_CLIOPTIONS_BEGIN(cli) {
+        if (strcmp(cli->name, name) == 0) {
+            LOG(ERROR, "Attempting to add duplicate CLI option: %s",
+                name);
+            exit(1);
+        }
+    } FOR_CLIOPTIONS_END();
+
+    clioptions = ereallocz(clioptions,
+                           sizeof(*clioptions) * clioptions_num,
+                           sizeof(*clioptions) * (clioptions_num + 1));
+    clioption_t *cli = &clioptions[clioptions_num++];
+    cli->name = name;
+    cli->handler_func = handler_func;
+    return cli;
 }
 
 /**
- * The --help command-line option.
- * @param arg
- * Optional argument.
+ * Get the value of the specified CLI option.
+ *
+ * @param name
+ * CLI option name.
+ * @return
+ * Value of the option.
  */
-static void clioptions_option_help(const char *arg)
+const char *
+clioptions_get (const char *name)
 {
-    size_t i;
+    HARD_ASSERT(name != NULL);
 
-    if (arg) {
-        char *curr, *next, *cp;
+    FOR_CLIOPTIONS_BEGIN(cli) {
+        if (strcmp(cli->name, name) == 0) {
+            return cli->value;
+        }
+    } FOR_CLIOPTIONS_END();
 
-        for (i = 0; i < clioptions_num; i++) {
-            if (strcmp(clioptions[i].longname, arg) != 0) {
+    return NULL;
+}
+
+/**
+ * Sets short name for the specified CLI.
+ *
+ * @param cli
+ * CLI.
+ * @param short_name
+ * Short name to set. Must not be destroyed.
+ */
+void
+clioptions_set_short_name (clioption_t *cli,
+                           const char  *short_name)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(cli != NULL);
+    HARD_ASSERT(short_name != NULL);
+
+    /* Ensure the CLI doesn't have a short name yet */
+    HARD_ASSERT(cli->short_name == NULL);
+
+    cli->short_name = short_name;
+}
+
+/**
+ * Sets description text for the specified CLI.
+ *
+ * This makes the CLI visible in the list of commands when using --help.
+ *
+ * @param cli
+ * CLI.
+ * @param desc_brief
+ * Brief description text. Must not be destroyed.
+ * @param desc
+ * Description text. Must not be destroyed.
+ */
+void
+clioptions_set_description (clioption_t *cli,
+                            const char  *desc_brief,
+                            const char  *desc)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(cli != NULL);
+    HARD_ASSERT(desc_brief != NULL);
+    HARD_ASSERT(desc != NULL);
+
+    /* Ensure the CLI doesn't have descriptions yet */
+    HARD_ASSERT(cli->desc_brief == NULL);
+    HARD_ASSERT(cli->desc == NULL);
+
+    cli->desc_brief = desc_brief;
+    cli->desc = desc;
+}
+
+/**
+ * Marks the CLI as requiring an argument.
+ *
+ * @param cli
+ * CLI.
+ */
+void
+clioptions_enable_argument (clioption_t *cli)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(cli != NULL);
+    HARD_ASSERT(!cli->argument);
+    cli->argument = true;
+}
+
+/**
+ * Marks the CLI as changeable at runtime.
+ *
+ * @param cli
+ * CLI.
+ */
+void
+clioptions_enable_changeable (clioption_t *cli)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(cli != NULL);
+    HARD_ASSERT(!cli->changeable);
+    cli->changeable = true;
+}
+
+/**
+ * Looks up a CLI option for the purposes of CLI arguments parsing.
+ *
+ * @param argc
+ * Number of elements in argv.
+ * @param argv
+ * Variable length array of character pointers with the option/argument
+ * combinations.
+ * @param[out] idx
+ * Current index inside argv[]. May be modified.
+ * @param[out] cli_arg
+ * Will contain argument if supplied and supported by the CLI option.
+ * @return
+ * CLI if found, NULL otherwise.
+ */
+static clioption_t *
+clioptions_parse_find (int argc, char *argv[], int *idx, const char **cli_arg)
+{
+    *cli_arg = NULL;
+
+    bool is_short_opt = strncmp(argv[*idx], "--", 2) != 0;
+    FOR_CLIOPTIONS_BEGIN(cli) {
+        char *arg = argv[*idx];
+
+        if (is_short_opt) {
+            if (cli->short_name == NULL) {
                 continue;
             }
 
-            LOG(INFO, "##### Option: --%s #####",
-                    clioptions[i].longname);
-            LOG(INFO, " ");
-
-            for (curr = clioptions[i].desc;
-                    (curr && (next = strchr(curr, '\n'))) || curr;
-                    curr = next ? next + 1 : NULL) {
-                cp = estrndup(curr, next - curr);
-                LOG(INFO, "%s", cp);
-                efree(cp);
+            arg += 1;
+            if (strcmp(cli->short_name, arg) != 0) {
+                continue;
             }
 
-            break;
-        }
+            if (cli->argument && (*idx) + 1 < argc) {
+                *cli_arg = argv[++(*idx)];
+            }
+        } else {
+            arg += 2;
+            char *equals_loc = strchr(arg, '=');
 
-        /* Didn't find the option. */
-        if (i == clioptions_num) {
-            LOG(INFO, "No such option '--%s'.", arg);
-        }
-    } else {
-        StringBuffer *sb;
-        char *desc;
-
-        /* Otherwise brief information about all available options. */
-
-        LOG(INFO, "List of available options:");
-        LOG(INFO, " ");
-
-        for (i = 0; i < clioptions_num; i++) {
-            sb = stringbuffer_new();
-
-            if (clioptions[i].shortname) {
-                stringbuffer_append_printf(
-                        sb, "-%s%s", clioptions[i].shortname,
-                        clioptions[i].argument ? " arg" : ""
-                        );
+            size_t end;
+            if (equals_loc != NULL) {
+                end = equals_loc - arg;
+                *cli_arg = equals_loc + 1;
+            } else {
+                end = strlen(arg);
             }
 
-            if (clioptions[i].longname) {
-                if (stringbuffer_length(sb) > 0) {
-                    stringbuffer_append_string(sb, ", ");
-                }
-
-                stringbuffer_append_printf(
-                        sb, "--%s%s", clioptions[i].longname,
-                        clioptions[i].argument ? "=arg" : ""
-                        );
+            if (strncmp(cli->name, arg, end) != 0) {
+                continue;
             }
-
-            desc = stringbuffer_finish(sb);
-            LOG(INFO, "    %s: %s",
-                    desc, clioptions[i].desc_brief);
-            efree(desc);
         }
 
-        LOG(INFO, " ");
-        LOG(INFO, "Use '--help=option' to learn more about the "
-                "specified option.");
-    }
+        if (cli->argument && (*cli_arg == NULL || **cli_arg == '\0')) {
+            LOG(ERROR, "Option %s requires an argument.", argv[*idx]);
+            exit(1);
+        }
 
-    exit(0);
+        return cli;
+    } FOR_CLIOPTIONS_END();
+
+    return NULL;
 }
 
 /**
- * Add a command line option.
- * @param longname
- * Long name of the option, can be NULL.
- * @param shortname
- * Short name of the option, can be NULL.
- * @param handle_func
- * The handler function for the option.
- * @param argument
- * Whether the option accepts an argument or not. Can be NULL.
- * @param desc_brief
- * Brief description of the option.
- * @param desc
- * More detailed description of the option.
+ * Call the CLI handler.
+ *
+ * @param cli
+ * CLI to call the handler for.
+ * @param cli_arg
+ * CLI argument.
+ * @param[out] errmsg
+ * Where to store the error message on failure.
+ * @return
+ * True on success, false on failure.
  */
-void clioptions_add(const char *longname, const char *shortname,
-        clioptions_handler_func handle_func, uint8_t argument,
-        const char *desc_brief, const char *desc)
+static bool
+clioptions_call_handler (clioption_t *cli, const char *cli_arg, char **errmsg)
 {
-    size_t i;
+    HARD_ASSERT(cli != NULL);
+    HARD_ASSERT(errmsg != NULL);
 
-    TOOLKIT_PROTECT();
-
-    if (longname == NULL && shortname == NULL) {
-        LOG(BUG, "Tried adding an option with neither longname "
-                "nor shortname.");
-        return;
+    if (!cli->handler_func(cli_arg, errmsg)) {
+        return false;
     }
 
-    if (desc_brief == NULL) {
-        LOG(BUG, "Brief description must be set.");
-        return;
+    if (cli->value != NULL) {
+        efree(cli->value);
     }
 
-    if (desc == NULL) {
-        LOG(BUG, "Description must be set.");
-        return;
+    if (cli_arg != NULL) {
+        cli->value = estrdup(cli_arg);
     }
 
-    /* Ensure that no option with the same long/short name exists. */
-    for (i = 0; i < clioptions_num; i++) {
-        if ((clioptions[i].longname != NULL && longname != NULL &&
-                strcmp(clioptions[i].longname, longname) == 0) ||
-                (clioptions[i].shortname != NULL && shortname != NULL &&
-                strcmp(clioptions[i].shortname, shortname) == 0)) {
-            LOG(BUG, "Option already exists (longname: %s, "
-                    "shortname: %s).",
-                    longname  != NULL ? longname  : "none",
-                    shortname != NULL ? shortname : "none");
-            return;
-        }
-    }
-
-    clioptions = erealloc(
-            clioptions, sizeof(*clioptions) * (clioptions_num + 1));
-    clioptions[clioptions_num].longname =
-            longname ? estrdup(longname) : NULL;
-    clioptions[clioptions_num].shortname =
-            shortname ? estrdup(shortname) : NULL;
-    clioptions[clioptions_num].handle_func = handle_func;
-    clioptions[clioptions_num].argument = argument;
-    clioptions[clioptions_num].desc_brief = estrdup(desc_brief);
-    clioptions[clioptions_num].desc = estrdup(desc);
-    clioptions_num++;
+    return true;
 }
 
 /**
  * Parse CLI options from argv array.
+ *
  * @param argc
  * Number of elements in argv.
  * @param argv
- * Variable length array of character pointers with the
- * option/argument combinations.
+ * Variable length array of character pointers with the option/argument
+ * combinations.
  */
-void clioptions_parse(int argc, char *argv[])
+void
+clioptions_parse (int argc, char *argv[])
 {
-    int i;
-    size_t opt;
-    char *arg;
-
     TOOLKIT_PROTECT();
 
     /* Start at 1, as 0 is the program's name. */
-    for (i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (*argv[i] == '\0') {
             continue;
         }
 
-        for (opt = 0; opt < clioptions_num; opt++) {
-            /* Try to match long name CLI first. */
-            if (strncmp(argv[i], "--", 2) == 0) {
-                char *equals_loc;
+        const char *cli_arg;
+        int old_i = i;
+        clioption_t *cli = clioptions_parse_find(argc, argv, &i, &cli_arg);
+        if (cli == NULL) {
+            LOG(ERROR, "Unknown option: %s", argv[i]);
+            exit(1);
+        }
 
-                if (clioptions[opt].longname == NULL) {
-                    continue;
-                }
+        if (cli->handler_func != NULL) {
+            char *errmsg = NULL;
 
-                equals_loc = strchr(argv[i] + 2, '=');
+            if (!clioptions_call_handler(cli, cli_arg, &errmsg)) {
+                LOG(ERROR, "%s: %s %s",
+                    errmsg != NULL ? errmsg : "Failed to parse option",
+                    argv[old_i],
+                    i != old_i ? argv[i] : "");
 
-                if (strncmp(argv[i] + 2, clioptions[opt].longname,
-                        equals_loc == NULL ? strlen(argv[1] + 2) : (size_t)
-                        (equals_loc - (argv[i] + 2))) == 0) {
-                    arg = equals_loc ? equals_loc + 1 : NULL;
-
-                    if (clioptions[opt].argument && (!arg || *arg == '\0')) {
-                        LOG(ERROR, "Option --%s requires an argument.",
-                            clioptions[opt].longname);
-                        exit(1);
-                    }
-
-                    if (clioptions[opt].handle_func != NULL) {
-                        clioptions[opt].handle_func(arg);
-                    }
-
-                    break;
-                }
-            } else if (strncmp(argv[i], "-", 1) == 0) {
-                /* Then short name CLI. */
-
-                if (clioptions[opt].shortname == NULL) {
-                    continue;
-                }
-
-                if (strcmp(argv[i] + 1, clioptions[opt].shortname) == 0) {
-                    arg = clioptions[opt].argument &&
-                            i + 1 < argc ? argv[++i] : NULL;
-
-                    if (clioptions[opt].argument && (!arg || *arg == '\0')) {
-                        LOG(ERROR, "Option -%s requires an argument.",
-                            clioptions[opt].shortname);
-                        exit(1);
-                    }
-
-                    if (clioptions[opt].handle_func != NULL) {
-                        clioptions[opt].handle_func(arg);
-                    }
-
-                    break;
+                if (errmsg != NULL) {
+                    efree(errmsg);
                 }
             }
         }
-
-        if (opt == clioptions_num) {
-            LOG(ERROR, "Unknown option %s.", argv[i]);
-            exit(1);
-        }
     }
+
+    clioptions_runtime = true;
 }
 
 /**
- * Load command-line options from config file.
+ * Load CLI options from config file.
+ *
  * @param path
  * File to load from.
  * @param category
  * Category of options to read; NULL for all.
  * @return
- * 1 on success, 0 on failure.
+ * True on success, false on failure.
  */
-int clioptions_load_config(const char *path, const char *category)
+bool
+clioptions_load (const char *path, const char *category)
 {
-    FILE *fp;
-    char buf[HUGE_BUF], *end, category_cur[MAX_BUF], **argv;
-    int argc, i;
+    HARD_ASSERT(path != NULL);
 
     TOOLKIT_PROTECT();
 
-    fp = fopen(path, "r");
-
+    FILE *fp = fopen(path, "r");
     if (fp == NULL) {
-        return 0;
+        return false;
     }
 
-    argv = NULL;
-    argc = 0;
+    LOG(INFO, "Loading configuration from %s", path);
 
-    argv = erealloc(argv, sizeof(*argv) * (argc + 1));
-    argv[argc] = estrdup("");
-    argc++;
-
+    char category_cur[MAX_BUF];
     category_cur[0] = '\0';
 
-    while (fgets(buf, sizeof(buf) - 1, fp)) {
-        end = strchr(buf, '\n');
-
-        if (end) {
-            *end = '\0';
-        }
+    char buf[HUGE_BUF];
+    while (fgets(buf, sizeof(buf), fp)) {
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
 
         /* Comment or blank line, skip. */
-        if (*buf == '#' || *buf == '\0') {
+        if (*cp == '#' || *cp == '\0') {
             continue;
         }
 
-        if (string_startswith(buf, "[") && string_endswith(buf, "]")) {
-            strncpy(category_cur, buf, sizeof(category_cur) - 1);
-            category_cur[sizeof(category_cur) - 1] = '\0';
-        } else if (!category || strcasecmp(category, category_cur) == 0) {
-            char *cps[2], cp[HUGE_BUF];
+        if (string_startswith(cp, "[") && string_endswith(cp, "]")) {
+            snprintf(VS(category_cur), "%s", cp);
+        } else if (category == NULL ||
+                   strcasecmp(category, category_cur) == 0) {
+            char *errmsg = NULL;
+            if (!clioptions_load_str(cp, &errmsg)) {
+                LOG(ERROR, "%s, file %s: %s",
+                    errmsg != NULL ? errmsg : "Failed to load option",
+                    path,
+                    cp);
 
-            if (string_split(buf, cps, arraysize(cps), '=') !=
-                    arraysize(cps)) {
-                LOG(BUG, "Invalid line: %s", buf);
-                continue;
+                if (errmsg != NULL) {
+                    efree(errmsg);
+                }
             }
-
-            string_whitespace_trim(cps[0]);
-            string_whitespace_trim(cps[1]);
-            string_newline_to_literal(cps[1]);
-
-            snprintf(cp, sizeof(cp), "--%s=%s", cps[0], cps[1]);
-            argv = erealloc(argv, sizeof(*argv) * (argc + 1));
-            argv[argc] = estrdup(cp);
-            argc++;
         }
     }
 
     fclose(fp);
 
-    clioptions_parse(argc, argv);
+    return true;
+}
 
-    for (i = 0; i < argc; i++) {
-        efree(argv[i]);
+/**
+ * Load a string as a CLI option, eg, "port = 13327".
+ *
+ * @param str
+ * String to load.
+ * @param errmsg
+ * May contain an error message on failure; must be freed.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+clioptions_load_str (const char *str, char **errmsg)
+{
+    HARD_ASSERT(str != NULL);
+    HARD_ASSERT(errmsg != NULL);
+
+    char *cp = estrdup(str);
+    bool ret = false;
+    *errmsg = NULL;
+
+    char *cps[2];
+    if (string_split(cp, cps, arraysize(cps), '=') != arraysize(cps)) {
+        *errmsg = estrdup("Option must be in the form of '<name> = <value>'");
+        goto out;
     }
 
+    string_whitespace_trim(cps[0]);
+    string_whitespace_trim(cps[1]);
+    string_newline_to_literal(cps[1]);
+
+    char buf[HUGE_BUF];
+    snprintf(buf, sizeof(buf), "--%s=%s", cps[0], cps[1]);
+
+    char **argv = emalloc(sizeof(*argv) * 2);
+    argv[1] = estrdup(buf);
+
+    const char *cli_arg;
+    int idx = 1;
+    clioption_t *cli = clioptions_parse_find(2, argv, &idx, &cli_arg);
+    if (cli == NULL) {
+        *errmsg = estrdup("No such option");
+        goto out;
+    }
+
+    if (cli->handler_func == NULL) {
+        if (!clioptions_runtime) {
+            ret = true;
+        } else {
+            *errmsg = estrdup("Option doesn't have a handler function");
+        }
+
+        goto out;
+    }
+
+    if (clioptions_runtime && !cli->changeable) {
+        *errmsg = estrdup("Option is not changeable at runtime");
+        goto out;
+    }
+
+    ret = clioptions_call_handler(cli, cli_arg, errmsg);
+
+out:
+    efree(cp);
+    efree(argv[1]);
     efree(argv);
 
-    return 1;
+    return ret;
 }

@@ -40,7 +40,6 @@
 
 /* Now all the other header files that are part of the toolkit. */
 #include <binreloc.h>
-#include <clioptions.h>
 #include <common.h>
 #include <console.h>
 #include <logger.h>
@@ -89,7 +88,7 @@ typedef struct toolkit_dependency {
 #define TOOLKIT_FUNC(__api_name, _x) CONCAT(toolkit_, CONCAT(__api_name, _x))
 
 /**
- * Declares an initialization function.
+ * Defines an initialization function.
  */
 #define TOOLKIT_INIT_FUNC(__api_name) \
     void TOOLKIT_FUNC(__api_name, _init)(void) \
@@ -108,7 +107,7 @@ typedef struct toolkit_dependency {
         toolkit_import_register(_api_name_, _deinit_func_);
 
 /**
- * Finishes a previously declared initialization function.
+ * Finishes a previously defined initialization function.
  */
 #define TOOLKIT_INIT_FUNC_FINISH \
         for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
@@ -119,18 +118,25 @@ typedef struct toolkit_dependency {
     }
 
 /**
- * Declares a deinitialization function.
+ * Defines a deinitialization function.
  */
 #define TOOLKIT_DEINIT_FUNC(__api_name) \
     void TOOLKIT_FUNC(__api_name, _deinit)(void) \
     {
 
 /**
- * Finishes a previously declared deinitialization function.
+ * Finishes a previously defined deinitialization function.
  */
 #define TOOLKIT_DEINIT_FUNC_FINISH \
         _did_init_ = false; \
     }
+
+/**
+ * Declares API functions.
+ */
+#define TOOLKIT_FUNCS_DECLARE(__api_name)                       \
+    void TOOLKIT_FUNC(__api_name, _init)(void);                 \
+    void TOOLKIT_FUNC(__api_name, _deinit)(void);
 
 #ifndef NDEBUG
 #define TOOLKIT_PROTECT() \
@@ -139,10 +145,10 @@ typedef struct toolkit_dependency {
             static bool did_warn = false; \
             if (!did_warn) { \
                 toolkit_import(logger); \
+                did_warn = true; \
                 log_error("Toolkit API function used, but the API was not " \
                           "initialized - this could result in undefined " \
                           "behavior."); \
-                did_warn = true; \
             } \
         } \
     } while (0)
@@ -220,8 +226,17 @@ typedef struct toolkit_dependency {
 
 #define _CONCAT(_X_, _Y_) _X_ ## _Y_
 #define CONCAT(_X_, _Y_) _CONCAT(_X_, _Y_)
+#define UNIQUE_VAR(_X_) CONCAT(_X_, __LINE__)
 
 #define SOFT_ASSERT_MSG(msg, ...) log_error((msg), ## __VA_ARGS__)
+
+#define _CASSERT(_test, _var)                                       \
+    typedef char _var[2*!!(_test) - 1] __attribute__((unused))
+#define CASSERT(_test)                                              \
+    _CASSERT(_test, UNIQUE_VAR(assertion_failed));
+#define CASSERT_ARRAY(_array, _size)                                \
+    _CASSERT(arraysize(_array) == (_size),                          \
+             array_ ## _array ## _missing_or_extra_elements);
 
 #ifndef NDEBUG
 

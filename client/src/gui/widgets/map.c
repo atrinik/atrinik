@@ -34,6 +34,7 @@
 #include <packet.h>
 #include <toolkit_string.h>
 #include <bresenham.h>
+#include <clioptions.h>
 
 /**
  * Map cells.
@@ -81,18 +82,24 @@ static bool map_show_mouse = false;
 static int right_click_ticks = -1;
 
 /**
- * If 1, will print tile coordinates.
+ * If true, will print tile coordinates.
  */
-static int tiles_debug = 0;
+static bool tiles_debug = false;
 
 static int get_top_floor_height(struct MapCell *cell, int sub_layer);
 
 /**
- * Enable map tiles debug.
+ * Description of the --tiles_debug command.
  */
-void clioptions_option_tiles_debug(const char *arg)
+static const char *clioptions_option_tiles_debug_desc =
+"Enable map tiles debugging (shows tile coordinates).";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_tiles_debug (const char *arg,
+                               char      **errmsg)
 {
-    tiles_debug = 1;
+    tiles_debug = true;
+    return true;
 }
 
 /**
@@ -103,6 +110,9 @@ void load_mapdef_dat(void)
     FILE *stream;
     int i, ii, x, y, d[32];
     char line[MAX_BUF];
+
+    clioption_t *cli;
+    CLIOPTIONS_CREATE(cli, tiles_debug, "Enable map tiles debugging");
 
     stream = fopen_wrapper(ARCHDEF_FILE, "r");
 

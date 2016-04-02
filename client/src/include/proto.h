@@ -680,7 +680,6 @@ extern void widget_label_init(widgetdata *widget);
 /* src/gui/widgets/map.c */
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
-extern void clioptions_option_tiles_debug(const char *arg);
 extern struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int value);
 extern void maps_anims_remove(map_anim_t *anim);
 extern void map_anims_mapscroll(int xoff, int yoff);
@@ -801,11 +800,6 @@ extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
 /* src/toolkit/clioptions.c */
-extern void toolkit_clioptions_init(void);
-extern void toolkit_clioptions_deinit(void);
-extern void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8_t argument, const char *desc_brief, const char *desc);
-extern void clioptions_parse(int argc, char *argv[]);
-extern int clioptions_load_config(const char *path, const char *category);
 /* src/toolkit/colorspace.c */
 extern void toolkit_colorspace_init(void);
 extern void toolkit_colorspace_deinit(void);

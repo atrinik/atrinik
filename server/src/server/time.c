@@ -238,6 +238,16 @@ void sleep_delta(void)
  */
 void set_max_time(long t)
 {
+    if (max_time == t) {
+        return;
+    }
+
+    LOG(INFO,
+        "The speed has been changed from %ld to %ld.",
+        max_time, t);
+    draw_info(COLOR_GRAY, NULL,
+              "You feel a sudden and inexplicable change in the fabric of "
+              "time and space...");
     max_time = t;
 }
 
@@ -246,8 +256,18 @@ void set_max_time(long t)
  * @param t
  * New speed multiplier.
  */
-void set_max_time_multiplier(long t)
+void set_max_time_multiplier(int t)
 {
+    if (max_time_multiplier == t) {
+        return;
+    }
+
+    LOG(INFO,
+        "The speed multiplier has been changed from %d to %d.",
+        max_time_multiplier, t);
+    draw_info(COLOR_GRAY, NULL,
+              "You feel a sudden and inexplicable change in the fabric of "
+              "time and space...");
     max_time_multiplier = t;
 }
 

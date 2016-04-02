@@ -438,7 +438,7 @@ typedef struct settings_struct {
     /**
      * Whether to recycle tmp maps or not.
      */
-    uint8_t recycle_tmp_maps;
+    bool recycle_tmp_maps:1;
 
     /**
      * URL to the HTTP server.

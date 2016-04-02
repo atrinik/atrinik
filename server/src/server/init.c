@@ -37,6 +37,7 @@
 #include <loader.h>
 #include <player.h>
 #include <object_methods.h>
+#include <clioptions.h>
 
 /**
  * The server's settings.
@@ -105,34 +106,34 @@ static void console_command_shutdown(const char *params)
     server_shutdown();
 }
 
-static void console_command_speed(const char *params)
+static void
+console_command_config (const char *params)
 {
-    long int new_speed;
-
-    if (params && sscanf(params, "%ld", &new_speed) == 1) {
-        set_max_time(new_speed);
-        reset_sleep();
-        LOG(INFO, "The speed has been changed to %ld.", max_time);
-        draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change in the fabric of time and space...");
-    } else {
-        LOG(INFO, "Current speed is: %ld, default speed is: %d.", max_time, MAX_TIME);
+    if (params == NULL) {
+        LOG(INFO,
+            "Usage: 'config <name> = <value>' to write config, "
+            "'config <name>' to read config");
+        return;
     }
-}
 
-static void console_command_speed_multiplier(const char *params)
-{
-    int new_speed_multiplier;
-
-    if (params != NULL && sscanf(params, "%d", &new_speed_multiplier) == 1) {
-        set_max_time_multiplier(new_speed_multiplier);
-        LOG(INFO, "The speed multiplier has been changed to %d.",
-                max_time_multiplier);
-        draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change "
-                "in the fabric of time and space...");
+    if (strchr(params, '=') == NULL) {
+        const char *value = clioptions_get(params);
+        if (value == NULL) {
+            LOG(INFO, "No such option: %s", params);
+        } else {
+            LOG(INFO, "Configuration: %s = %s", params, value);
+        }
     } else {
-        LOG(INFO, "Current speed multiplier is: %d, default "
-                "speed multiplier is: %d.", max_time_multiplier,
-                MAX_TIME_MULTIPLIER);
+        char *errmsg;
+        if (clioptions_load_str(params, &errmsg)) {
+            LOG(INFO, "Configuration successful.");
+        } else {
+            LOG(INFO, "Configuration failed: %s",
+                errmsg != NULL ? errmsg : "<no error message>");
+            if (errmsg != NULL) {
+                efree(errmsg);
+            }
+        }
     }
 }
 
@@ -192,132 +193,308 @@ void cleanup(void)
     free_map_header_loader();
 }
 
-static void clioptions_option_unit(const char *arg)
+/**
+ * Description of the --unit command.
+ */
+static const char *clioptions_option_unit_desc =
+"Runs the unit tests. Resulting logs will be stored in 'tests/**/*.out', with "
+"XML results in 'tests/**/*.xml'.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_unit (const char *arg,
+                        char      **errmsg)
 {
     settings.unit_tests = 1;
+    return true;
 }
 
-static void clioptions_option_plugin_unit(const char *arg)
+/**
+ * Description of the --plugin_unit command.
+ */
+static const char *clioptions_option_plugin_unit_desc =
+"Runs the plugin unit tests. Resulting XMLs will be stored in "
+"'tests/unit/plugins/**/*.xml'.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_plugin_unit (const char *arg,
+                               char      **errmsg)
 {
     settings.plugin_unit_tests = 1;
 
     if (arg != NULL) {
         snprintf(VS(settings.plugin_unit_test), "%s", arg);
     }
+
+    return true;
 }
 
-static void clioptions_option_worldmaker(const char *arg)
+/**
+ * Description of the --worldmaker command.
+ */
+static const char *clioptions_option_worldmaker_desc =
+"Generates the region maps using the world maker module.\n\n"
+"This should be done before starting up production servers.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_worldmaker (const char *arg,
+                              char      **errmsg)
 {
     settings.world_maker = 1;
+    return true;
 }
 
-static void clioptions_option_no_console(const char *arg)
+/**
+ * Description of the --no_console command.
+ */
+static const char *clioptions_option_no_console_desc =
+"Disables the interactive console. Useful when debugging or "
+"running the server non-interactively.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_no_console (const char *arg,
+                              char      **errmsg)
 {
     settings.no_console = true;
+    return true;
 }
 
-static void clioptions_option_version(const char *arg)
+/**
+ * Description of the --version command.
+ */
+static const char *clioptions_option_version_desc =
+"Displays the server version and exits.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_version (const char *arg,
+                           char      **errmsg)
 {
     version(NULL);
     exit(0);
+
+    /* Not reached */
+    return true;
 }
 
-static void clioptions_option_port(const char *arg)
+/**
+ * Description of the --port command.
+ */
+static const char *clioptions_option_port_desc =
+"Sets the port to use for server/client communication.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_port (const char *arg,
+                        char      **errmsg)
 {
-    int val;
-
-    val = atoi(arg);
-
+    int val = atoi(arg);
     if (val <= 0 || val > UINT16_MAX) {
-        LOG(ERROR, "%d is an invalid port number.", val);
-        exit(1);
+        string_fmt(*errmsg,
+                   "%d is an invalid port number, must be 1-%d",
+                   val,
+                   UINT16_MAX);
+        return false;
     }
 
     settings.port = val;
+    return true;
 }
 
-static void clioptions_option_logfile(const char *arg)
+
+/**
+ * Description of the --libpath command.
+ */
+static const char *clioptions_option_libpath_desc =
+"Where the read-only files such as the collected treasures, artifacts,"
+"archetypes etc reside.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_libpath (const char *arg,
+                           char      **errmsg)
 {
-    logger_open_log(arg);
+    snprintf(VS(settings.libpath), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_libpath(const char *arg)
+/**
+ * Description of the --datapath command.
+ */
+static const char *clioptions_option_datapath_desc =
+"Where to read and write player data, unique maps, etc.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_datapath (const char *arg,
+                            char      **errmsg)
 {
-    strncpy(settings.libpath, arg, sizeof(settings.libpath) - 1);
-    settings.libpath[sizeof(settings.libpath) - 1] = '\0';
+    snprintf(VS(settings.datapath), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_datapath(const char *arg)
+/**
+ * Description of the --mapspath command.
+ */
+static const char *clioptions_option_mapspath_desc =
+"Where the maps, Python scripts, etc reside.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_mapspath (const char *arg,
+                            char      **errmsg)
 {
-    strncpy(settings.datapath, arg, sizeof(settings.datapath) - 1);
-    settings.datapath[sizeof(settings.datapath) - 1] = '\0';
+    snprintf(VS(settings.mapspath), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_mapspath(const char *arg)
+/**
+ * Description of the --httppath command.
+ */
+static const char *clioptions_option_httppath_desc =
+"Where the HTTP server data files reside.\n\n"
+"The server must have read/write access to this directory, as it will create "
+"files inside it.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_httppath (const char *arg,
+                            char      **errmsg)
 {
-    strncpy(settings.mapspath, arg, sizeof(settings.mapspath) - 1);
-    settings.mapspath[sizeof(settings.mapspath) - 1] = '\0';
+    snprintf(VS(settings.httppath), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_httppath(const char *arg)
+/**
+ * Description of the --metaserver_url command.
+ */
+static const char *clioptions_option_metaserver_url_desc =
+"URL of the metaserver. The server will send POST requests to this URL to "
+"update the metaserver data.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_metaserver_url (const char *arg,
+                                  char      **errmsg)
 {
-    strncpy(settings.httppath, arg, sizeof(settings.httppath) - 1);
-    settings.httppath[sizeof(settings.httppath) - 1] = '\0';
+    snprintf(VS(settings.metaserver_url), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_metaserver_url(const char *arg)
+/**
+ * Description of the --server_host command.
+ */
+static const char *clioptions_option_server_host_desc =
+"Hostname of the server. If set, the server will send regular updates to the "
+"metaserver (using the URL specified with --metaserver_url).\n\n"
+"Updates will be refused if the hostname does not resolve to the incoming IP.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server_host (const char *arg,
+                               char      **errmsg)
 {
-    strncpy(settings.metaserver_url, arg, sizeof(settings.metaserver_url) - 1);
-    settings.metaserver_url[sizeof(settings.metaserver_url) - 1] = '\0';
+    snprintf(VS(settings.server_host), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_server_host(const char *arg)
+/**
+ * Description of the --server_name command.
+ */
+static const char *clioptions_option_server_name_desc =
+"Name of the server. This is how the server will be named in the list of "
+"servers (the metaserver)";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server_name (const char *arg,
+                               char      **errmsg)
 {
-    strncpy(settings.server_host, arg, sizeof(settings.server_host) - 1);
-    settings.server_host[sizeof(settings.server_host) - 1] = '\0';
+    snprintf(VS(settings.server_name), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_server_name(const char *arg)
+/**
+ * Description of the --server_desc command.
+ */
+static const char *clioptions_option_server_desc_desc =
+"Description of the server. This should describe the server to players.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server_desc (const char *arg,
+                               char      **errmsg)
 {
-    strncpy(settings.server_name, arg, sizeof(settings.server_name) - 1);
-    settings.server_name[sizeof(settings.server_name) - 1] = '\0';
+    snprintf(VS(settings.server_desc), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_server_desc(const char *arg)
+/**
+ * Description of the --magic_devices_level command.
+ */
+static const char *clioptions_option_magic_devices_level_desc =
+"Adjustment to maximum magical device level the player may use.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_magic_devices_level (const char *arg,
+                                       char      **errmsg)
 {
-    strncpy(settings.server_desc, arg, sizeof(settings.server_desc) - 1);
-    settings.server_desc[sizeof(settings.server_desc) - 1] = '\0';
-}
-
-static void clioptions_option_magic_devices_level(const char *arg)
-{
-    int val;
-
-    val = atoi(arg);
-
+    int val = atoi(arg);
     if (val < INT8_MIN || val > INT8_MAX) {
-        LOG(ERROR, "Invalid value for argument of --magic_devices_level (%d).", val);
-        exit(1);
+        string_fmt(*errmsg,
+                   "Invalid value: %d; must be %d-%d",
+                   val, INT8_MIN, INT8_MAX);
+        return false;
     }
 
     settings.magic_devices_level = val;
+    return true;
 }
 
-static void clioptions_option_item_power_factor(const char *arg)
+/**
+ * Description of the --item_power_factor command.
+ */
+static const char *clioptions_option_item_power_factor_desc =
+"Item power factor is the relation of how the player's equipped item_power "
+"total relates to their overall level. If 1.0, then sum of the character's "
+"equipped item's item_power can not be greater than their overall level. "
+"If 2.0, then that sum can not exceed twice the character's overall level. "
+"By setting this to a high enough value, you can effectively disable "
+"the item_power code.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_item_power_factor (const char *arg,
+                                     char      **errmsg)
 {
     settings.item_power_factor = atof(arg);
+    return true;
 }
 
-static void clioptions_option_python_reload_modules(const char *arg)
+/**
+ * Description of the --python_reload_modules command.
+ */
+static const char *clioptions_option_python_reload_modules_desc =
+"Whether to reload Python user modules (eg Interface.py and the like) "
+"each time a Python script executes. If enabled, executing scripts will "
+"be slower, but allows for easy development of modules. This should not "
+"be enabled on production servers.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_python_reload_modules (const char *arg,
+                                         char      **errmsg)
 {
     if (KEYWORD_IS_TRUE(arg)) {
         settings.python_reload_modules = 1;
     } else if (KEYWORD_IS_FALSE(arg)) {
         settings.python_reload_modules = 0;
+    } else {
+        string_fmt(*errmsg, "Invalid value: %s", arg);
+        return false;
     }
+
+    return true;
 }
 
-static void clioptions_option_default_permission_groups(const char *arg)
+/**
+ * Description of the --default_permission_groups command.
+ */
+static const char *clioptions_option_default_permission_groups_desc =
+"Comma-delimited list of permission groups that every player will be "
+"able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using "
+"the option in the first place, ie, no default permission groups.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_default_permission_groups (const char *arg,
+                                             char      **errmsg)
 {
     if (strcmp(arg, "None") == 0) {
         settings.default_permission_groups[0] = '\0';
@@ -325,27 +502,69 @@ static void clioptions_option_default_permission_groups(const char *arg)
         strncpy(settings.default_permission_groups, arg, sizeof(settings.default_permission_groups) - 1);
         settings.default_permission_groups[sizeof(settings.default_permission_groups) - 1] = '\0';
     }
+
+    return true;
 }
 
-static void clioptions_option_allowed_chars(const char *arg)
+/**
+ * Description of the --allowed_chars command.
+ */
+static const char *clioptions_option_allowed_chars_desc =
+"Sets limits for allowed characters in account names/passwords, character "
+"names, and their maximum length.\n\n"
+"!!! DO NOT CHANGE FROM THE DEFAULTS UNLESS YOU ARE ABSOLUTELY SURE OF THE "
+"CONSEQUENCES !!!\n\n"
+"Removing characters from the sets will make players using the characters "
+"unable to log in.\n\n"
+"Adding special characters to account/character name limitations could pose "
+"a security risk depending on the file-system you're using (eg, dots and "
+"slashes or colons on Windows)."
+"The syntax is:\n"
+"<limit name>:<min>-<max> [characters] [characters2] ...\n\n"
+"For example:\n"
+"charname:4-20 [:alphaupper:] [:alphalower:] [:numeric:] [:space:] ['-]\n\n"
+"The above sets the following rules for character names:\n"
+" - Length must be at least four"
+" - Length must be no more than twenty"
+" - Characters may contain upper/lower-case letters, digits, spaces, "
+"single-quotes and dashes.\n\n"
+"The recognized values for the 'limit name' are: account, charname and "
+"password\n"
+"The special syntax allowed in the characters list expands to:\n"
+" - :alphalower: All lower-case letters in ASCII\n"
+" - :alphaupper: All upper-case letters in ASCII\n"
+" - :numeric: All digits\n"
+" - :print: All printable characters (does not include whitespace)\n"
+" - :space: Space (you can't use a regular space in the list since spaces are "
+"used to separate the entries)";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_allowed_chars (const char *arg,
+                                 char      **errmsg)
 {
-    char word[MAX_BUF], *cps[2], *cmd;
-    size_t type, pos;
-    const char *allowed_chars_names[ALLOWED_CHARS_NUM] = {"account", "charname", "password"};
-    int lower, upper;
+    static const char *allowed_chars_names[] = {
+        "account", "charname", "password",
+    };
+    CASSERT_ARRAY(allowed_chars_names, ALLOWED_CHARS_NUM);
 
-    pos = 0;
-
+    char word[MAX_BUF];
+    size_t pos = 0;
     if (!string_get_word(arg, &pos, ' ', word, sizeof(word), 0)) {
-        LOG(ERROR, "Invalid argument for allowed_chars option: %s", arg);
-        return;
+        string_fmt(*errmsg,
+                   "Invalid argument for allowed_chars option: %s",
+                   arg);
+        return false;
     }
 
+    char *cps[2];
     if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps)) {
-        LOG(ERROR, "Invalid word in allowed_chars option: %s", word);
-        return;
+        string_fmt(*errmsg,
+                   "Invalid word in allowed_chars option: %s",
+                   word);
+        return false;
     }
 
+    size_t type;
     for (type = 0; type < ALLOWED_CHARS_NUM; type++) {
         if (strcmp(cps[0], allowed_chars_names[type]) == 0) {
             break;
@@ -353,13 +572,19 @@ static void clioptions_option_allowed_chars(const char *arg)
     }
 
     if (type == ALLOWED_CHARS_NUM) {
-        LOG(ERROR, "Invalid allowed_chars option type: %s", cps[0]);
-        return;
+        string_fmt(*errmsg,
+                   "Invalid allowed_chars option type: %s",
+                   cps[0]);
+        return false;
     }
 
+    int lower, upper;
     if (sscanf(cps[1], "%d-%d", &lower, &upper) != 2) {
-        LOG(ERROR, "Lower/upper bounds for allowed_chars option in invalid format: %s", cps[1]);
-        return;
+        string_fmt(*errmsg,
+                   "Lower/upper bounds for allowed_chars option in invalid "
+                   "format: %s",
+                   cps[1]);
+        return false;
     }
 
     settings.limits[type][0] = lower;
@@ -367,86 +592,143 @@ static void clioptions_option_allowed_chars(const char *arg)
     settings.allowed_chars[type][0] = '\0';
 
     while (string_get_word(arg, &pos, ' ', word, sizeof(word), 0)) {
-        if (string_startswith(word, "[") && string_endswith(word, "]")) {
-            cmd = string_sub(word, 1, -1);
+        if (!string_startswith(word, "[") || !string_endswith(word, "]")) {
+            continue;
+        }
 
-            if (string_startswith(cmd, ":") && string_endswith(cmd, ":")) {
-                char start, end;
+        char *cmd = string_sub(word, 1, -1);
 
-                if (strcmp(cmd, ":alphalower:") == 0) {
-                    start = 'a';
-                    end = 'z';
-                } else if (strcmp(cmd, ":alphaupper:") == 0) {
-                    start = 'A';
-                    end = 'Z';
-                } else if (strcmp(cmd, ":numeric:") == 0) {
-                    start = '0';
-                    end = '9';
-                } else if (strcmp(cmd, ":print:") == 0) {
-                    start = '!';
-                    end = '}';
-                } else if (strcmp(cmd, ":space:") == 0) {
-                    start = end = ' ';
-                } else {
-                    start = end = '\0';
-                }
-
-                if (start != '\0' && end != '\0') {
-                    char *chars;
-
-                    chars = string_create_char_range(start, end);
-                    strncat(settings.allowed_chars[type], chars, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
-                    efree(chars);
-                }
+        if (string_startswith(cmd, ":") && string_endswith(cmd, ":")) {
+            char start, end;
+            if (strcmp(cmd, ":alphalower:") == 0) {
+                start = 'a';
+                end = 'z';
+            } else if (strcmp(cmd, ":alphaupper:") == 0) {
+                start = 'A';
+                end = 'Z';
+            } else if (strcmp(cmd, ":numeric:") == 0) {
+                start = '0';
+                end = '9';
+            } else if (strcmp(cmd, ":print:") == 0) {
+                start = '!';
+                end = '}';
+            } else if (strcmp(cmd, ":space:") == 0) {
+                start = end = ' ';
             } else {
-                strncat(settings.allowed_chars[type], cmd, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
+                start = end = '\0';
             }
 
-            efree(cmd);
+            if (start != '\0' && end != '\0') {
+                char *chars = string_create_char_range(start, end);
+                snprintfcat(VS(settings.allowed_chars[type]), "%s", chars);
+                efree(chars);
+            }
+        } else {
+            snprintfcat(VS(settings.allowed_chars[type]), "%s", cmd);
         }
+
+        efree(cmd);
     }
+
+    return true;
 }
 
-static void clioptions_option_control_allowed_ips(const char *arg)
+/**
+ * Description of the --control_allowed_ips command.
+ */
+static const char *clioptions_option_control_allowed_ips_desc =
+"Comma-separated list of IPs that are allowed to send special control-related "
+"commands to the server.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_control_allowed_ips (const char *arg,
+                                       char      **errmsg)
 {
-    strncpy(settings.control_allowed_ips, arg, sizeof(settings.control_allowed_ips) - 1);
-    settings.control_allowed_ips[sizeof(settings.control_allowed_ips) - 1] = '\0';
+    snprintf(VS(settings.control_allowed_ips), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_control_player(const char *arg)
+/**
+ * Description of the --control_player command.
+ */
+static const char *clioptions_option_control_player_desc =
+"Player name that will be used to perform specific control-related operations "
+"if none is supplied in the control commands sent to the server.\n\n"
+"The first player is used if this option is not specified.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_control_player (const char *arg,
+                                  char      **errmsg)
 {
-    strncpy(settings.control_player, arg, sizeof(settings.control_player) - 1);
-    settings.control_player[sizeof(settings.control_player) - 1] = '\0';
+    snprintf(VS(settings.control_player), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_recycle_tmp_maps(const char *arg)
+/**
+ * Description of the --recycle_tmp_maps command.
+ */
+static const char *clioptions_option_recycle_tmp_maps_desc =
+"If set, will preserve temporary maps across restarts.\n\n"
+"This effectively means the state of maps (eg, items dropped on the ground) is "
+"preserved across server restarts.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_recycle_tmp_maps (const char *arg,
+                                    char      **errmsg)
 {
-    settings.recycle_tmp_maps = 1;
+    settings.recycle_tmp_maps = true;
+    return true;
 }
 
-static void clioptions_option_http_url(const char *arg)
+/**
+ * Description of the --http_url command.
+ */
+static const char *clioptions_option_http_url_desc =
+"Specifies the URL to use for data HTTP requests. The files under the "
+"directory specified by --httppath must be reachable using this URL.\n\n"
+"If this URL is incorrect or inaccessible from the public network, clients "
+"will be unable to connect to the server.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_http_url (const char *arg,
+                            char      **errmsg)
 {
-    snprintf(settings.http_url, sizeof(settings.http_url), "%s", arg);
+    snprintf(VS(settings.http_url), "%s", arg);
+    return true;
 }
 
-static void clioptions_option_logger_filter_stdout(const char *arg)
-{
-    logger_set_filter_stdout(arg);
-}
-
-static void clioptions_option_logger_filter_logfile(const char *arg)
-{
-    logger_set_filter_logfile(arg);
-}
-
-static void clioptions_option_speed(const char *arg)
+/**
+ * Description of the --speed command.
+ */
+static const char *clioptions_option_speed_desc =
+"Specifies the number of microseconds each tick lasts for, eg, a value of "
+"125000 results in an effective server tick rate of 8 ticks per second.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_speed (const char *arg,
+                         char      **errmsg)
 {
     set_max_time(atol(arg));
+    return true;
 }
 
-static void clioptions_option_speed_multiplier(const char *arg)
+/**
+ * Description of the --speed_multiplier command.
+ */
+static const char *clioptions_option_speed_multiplier_desc =
+"This command is used to increase the server processing speed, without "
+"affecting the effective game tick-rate. This means the server will be able "
+"to send out priority packets with slightly less delay, possibly improving "
+"network latency.\n\n"
+"For example, a value of two doubles the amount of processing, three triples "
+"it and so on.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_speed_multiplier (const char *arg,
+                                    char      **errmsg)
 {
     set_max_time_multiplier(atoi(arg));
+    return true;
 }
 
 /**
@@ -478,325 +760,85 @@ static void init_library(int argc, char *argv[])
     toolkit_import(stringbuffer);
 
     /* Add console commands. */
-    console_command_add(
-            "shutdown",
-            console_command_shutdown,
-            "Shuts down the server.",
-            "Shuts down the server, saving all the data and disconnecting all players.\n\n"
-            "All of the used memory is freed, if possible."
-            );
+    console_command_add("shutdown",
+                        console_command_shutdown,
+                        "Shuts down the server.",
+                        "Shuts down the server, saving all the data and "
+                        "disconnecting all players.\n\n"
+                        "All of the used memory is freed, if possible.");
 
-    console_command_add(
-            "speed",
-            console_command_speed,
-            "Changes the server's speed.",
-            "Changes the speed of the server, which in turn affects how quickly everything is processed."
-            "Without an argument, shows the current speed and the default speed."
-            );
+    console_command_add("config",
+                        console_command_config,
+                        "Changes server configuration.",
+                        "Configuration that is marked as changeable can be "
+                        "modified with this command, and any applied "
+                        "configuration can be read.");
 
-    console_command_add(
-            "speed_multiplier",
-            console_command_speed_multiplier,
-            "Changes the server's speed multiplier.",
-            "Changes the speed multiplier of the server, which in turn affects how quickly everything is processed."
-            "Without an argument, shows the current speed multiplier and the default speed multiplier."
-            );
+    console_command_add("active_objects",
+                        console_command_active_objects,
+                        "Show the number of active objects.",
+                        "Show the number of active objects in the game world. "
+                        "Use 'list' to show a string representation of each "
+                        "object (and where it is).");
 
-    console_command_add(
-            "active_objects",
-            console_command_active_objects,
-            "Show the number of active objects.",
-            "Show the number of active objects in the game world. Use "
-            "'list' to show a string representation of each object (and "
-            "where it is)."
-            );
+    clioption_t *cli;
 
-    /* Add command-line options. */
-    clioptions_add(
-            "unit",
-            NULL,
-            clioptions_option_unit,
-            0,
-            "Runs the unit tests.",
-            "Runs the unit tests."
-            );
+    /* Non-argument options */
+    CLIOPTIONS_CREATE(cli, unit, "Runs the unit tests");
+    CLIOPTIONS_CREATE(cli, plugin_unit, "Runs the plugin unit tests");
+    CLIOPTIONS_CREATE(cli, worldmaker, "Generates the region maps");
+    CLIOPTIONS_CREATE(cli, no_console, "Disables the interactive console");
+    CLIOPTIONS_CREATE(cli, version, "Displays the server version");
 
-    /* Add command-line options. */
-    clioptions_add(
-            "plugin_unit",
-            NULL,
-            clioptions_option_plugin_unit,
-            0,
-            "Runs the plugin unit tests.",
-            "Runs the plugin unit tests."
-            );
+    /* Argument options */
+    CLIOPTIONS_CREATE_ARGUMENT(cli, port, "Sets the port to use");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, libpath, "Read-only data files location");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, datapath, "Read/write data files location");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, mapspath, "Map files location");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, httppath, "HTTP data files location");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver_url, "URL of the metaserver");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, http_url, "URL of the HTTP server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_name, "Name of the server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_desc, "Description of the server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, allowed_chars, "Limits for accounts/names");
 
-    clioptions_add(
-            "worldmaker",
-            NULL,
-            clioptions_option_worldmaker,
-            0,
-            "Generates the region maps.",
-            "Generates the region maps using the world maker module.\n\n"
-            );
+    /* Changeable options */
+    CLIOPTIONS_CREATE_ARGUMENT(cli, magic_devices_level, "Magic devices level");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli, item_power_factor, "Item power factor");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               python_reload_modules,
+                               "Whether to reload Python modules");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               default_permission_groups,
+                               "Permission groups applied to all players");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               control_allowed_ips,
+                               "IP allowed to control the server");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               control_player,
+                               "Default player for control commands");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE(cli,
+                      recycle_tmp_maps,
+                      "Preserve loaded map state across restarts");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli, speed, "Server speed");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli, speed_multiplier, "Speed multiplier");
+    clioptions_enable_changeable(cli);
 
-    clioptions_add(
-            "no_console",
-            NULL,
-            clioptions_option_no_console,
-            0,
-            "Disables the interactive console.",
-            "Disables the interactive console. Useful when debugging or "
-            "running the server non-interactively.\n\n"
-            );
-
-    clioptions_add(
-            "version",
-            NULL,
-            clioptions_option_version,
-            0,
-            "Displays the server version.",
-            "Displays the server version."
-            );
-
-    clioptions_add(
-            "logfile",
-            NULL,
-            clioptions_option_logfile,
-            1,
-            "Sets the file to write log to.",
-            "All of the output that is normally written to stdout will also be written to the specified file."
-            );
-
-    clioptions_add(
-            "port",
-            NULL,
-            clioptions_option_port,
-            1,
-            "Sets the port to use.",
-            "Sets the port to use for server/client communication."
-            );
-
-    clioptions_add(
-            "libpath",
-            NULL,
-            clioptions_option_libpath,
-            1,
-            "Read-only data files location.",
-            "Where the read-only files such as the collected treasures, artifacts,"
-            "archetypes etc reside."
-            );
-
-    clioptions_add(
-            "datapath",
-            NULL,
-            clioptions_option_datapath,
-            1,
-            "Read and write data files location.",
-            "Where to read and write player data, unique maps, etc."
-            );
-
-    clioptions_add(
-            "mapspath",
-            NULL,
-            clioptions_option_mapspath,
-            1,
-            "Map files location.",
-            "Where the maps are."
-            );
-
-    clioptions_add(
-            "httppath",
-            NULL,
-            clioptions_option_httppath,
-            1,
-            "HTTP files location.",
-            "Where the HTTP server files are."
-            );
-
-    clioptions_add(
-            "metaserver_url",
-            NULL,
-            clioptions_option_metaserver_url,
-            1,
-            "URL of the metaserver.",
-            "URL of the metaserver."
-            );
-
-    clioptions_add(
-            "server_host",
-            NULL,
-            clioptions_option_server_host,
-            1,
-            "Hostname of the server.",
-            "Hostname of the server."
-            );
-
-    clioptions_add(
-            "server_name",
-            NULL,
-            clioptions_option_server_name,
-            1,
-            "Name of the server.",
-            "Name of the server."
-            );
-
-    clioptions_add(
-            "server_desc",
-            NULL,
-            clioptions_option_server_desc,
-            1,
-            "Description about the server.",
-            "Text that describes the server in a few sentences."
-            );
-
-    clioptions_add(
-            "magic_devices_level",
-            NULL,
-            clioptions_option_magic_devices_level,
-            1,
-            "Magic devices level for players.",
-            "Adjustment to maximum magical device level the player may use."
-            );
-
-    clioptions_add(
-            "item_power_factor",
-            NULL,
-            clioptions_option_item_power_factor,
-            1,
-            "Item power factor.",
-            "item_power_factor is the relation of how the players equipped item_power"
-            "total relates to their overall level. If 1.0, then sum of the character's"
-            "equipped item's item_power can not be greater than their overall level."
-            "If 2.0, then that sum can not exceed twice the character's overall level."
-            "By setting this to a high enough value, you can effectively disable"
-            "the item_power code."
-            );
-
-    clioptions_add(
-            "python_reload_modules",
-            NULL,
-            clioptions_option_python_reload_modules,
-            1,
-            "Whether to reload Python modules.",
-            "Whether to reload Python user modules (eg Interface.py and the like)"
-            "each time a Python script executes. If enabled, executing scripts will"
-            "be slower, but allows for easy development of modules. This should not"
-            "be enabled on a production server."
-            );
-
-    clioptions_add(
-            "default_permission_groups",
-            NULL,
-            clioptions_option_default_permission_groups,
-            1,
-            "Permission groups applied to all players.",
-            "Comma-delimited list of permission groups that every player will be"
-            "able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using"
-            "the option in the first place, ie, no default permission groups."
-            );
-
-    clioptions_add(
-            "allowed_chars",
-            NULL,
-            clioptions_option_allowed_chars,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "control_allowed_ips",
-            NULL,
-            clioptions_option_control_allowed_ips,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "control_player",
-            NULL,
-            clioptions_option_control_player,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "recycle_tmp_maps",
-            NULL,
-            clioptions_option_recycle_tmp_maps,
-            0,
-            "If enabled, reuse temporary map files across server runs.",
-            "Set this if you want the temporary maps to be saved and reused "
-            "across Atrinik runs. This can be especially useful for single player "
-            "servers, but even holds use for multiplayer servers."
-            );
-
-    clioptions_add(
-            "http_server",
-            NULL,
-            NULL,
-            1,
-            "Whether to bring up the simple HTTP server.",
-            "If 'on', will bring up the simple HTTP server for serving the game "
-            "server's data files to clients. Use 'off' to disable and configure "
-            "http_url option to your own HTTP server as you see fit."
-            );
-
-    clioptions_add(
-            "http_url",
-            NULL,
-            clioptions_option_http_url,
-            1,
-            "URL of the HTTP server.",
-            "URL pointing to the HTTP server."
-            );
-
-    clioptions_add(
-            "logger_filter_stdout",
-            NULL,
-            clioptions_option_logger_filter_stdout,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "logger_filter_logfile",
-            NULL,
-            clioptions_option_logger_filter_logfile,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "speed",
-            NULL,
-            clioptions_option_speed,
-            1,
-            "",
-            ""
-            );
-
-    clioptions_add(
-            "speed_multiplier",
-            NULL,
-            clioptions_option_speed_multiplier,
-            1,
-            "",
-            ""
-            );
+    cli = clioptions_create("http_server", NULL);
 
     memset(&settings, 0, sizeof(settings));
 
-    clioptions_load_config("server.cfg", "[General]");
-
-    if (path_exists("server-custom.cfg")) {
-        clioptions_load_config("server-custom.cfg", "[General]");
-    }
+    clioptions_load("server.cfg", NULL);
+    clioptions_load("server-custom.cfg", NULL);
 
     if (argv != NULL) {
         clioptions_parse(argc, argv);

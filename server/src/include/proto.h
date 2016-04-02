@@ -499,7 +499,7 @@ extern const int periodsofday_hours[24];
 extern void reset_sleep(void);
 extern void sleep_delta(void);
 extern void set_max_time(long t);
-extern void set_max_time_multiplier(long t);
+extern void set_max_time_multiplier(int t);
 extern void get_tod(timeofday_t *tod);
 extern void print_tod(object *op);
 extern void time_info(object *op);
@@ -652,11 +652,6 @@ extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
 /* src/toolkit/clioptions.c */
-extern void toolkit_clioptions_init(void);
-extern void toolkit_clioptions_deinit(void);
-extern void clioptions_add(const char *longname, const char *shortname, clioptions_handler_func handle_func, uint8_t argument, const char *desc_brief, const char *desc);
-extern void clioptions_parse(int argc, char *argv[]);
-extern int clioptions_load_config(const char *path, const char *category);
 /* src/toolkit/colorspace.c */
 extern void toolkit_colorspace_init(void);
 extern void toolkit_colorspace_deinit(void);
