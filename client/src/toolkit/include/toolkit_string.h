@@ -72,6 +72,23 @@ do {                                                    \
     }                                                   \
 } while (0)
 
+/**
+ * Create a new string from the specified format specifier and arguments.
+ *
+ * @param[out] str
+ * Will contain the formatted string.
+ * @param fmt
+ * Format specifier.
+ * @param ...
+ * Format arguments.
+ */
+#define string_fmt(str, fmt, ...)                       \
+do {                                                    \
+    StringBuffer *_sb_ = stringbuffer_new();            \
+    stringbuffer_append_printf(_sb_, fmt, __VA_ARGS__); \
+    str = stringbuffer_finish(_sb_);                    \
+} while (0)
+
 /* Prototypes */
 
 void toolkit_string_init(void);
