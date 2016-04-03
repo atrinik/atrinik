@@ -30,6 +30,8 @@
 #ifndef PATHFINDER_H
 #define PATHFINDER_H
 
+#include <toolkit.h>
+
 /**
  * @defgroup PATH_NODE_xxx Path node flags
  * Flags for individual tiles in the path.
@@ -157,9 +159,6 @@ typedef struct path_visualization {
 
 /* Prototypes */
 
-bool
-path_set_algorithm(path_algo_t new_algo);
-bool
-path_set_greed(double new_greed);
+TOOLKIT_FUNCS_DECLARE(pathfinder);
 
 #endif

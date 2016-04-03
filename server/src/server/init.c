@@ -835,6 +835,10 @@ static void init_library(int argc, char *argv[])
 
     cli = clioptions_create("http_server", NULL);
 
+    /* Import game APIs that don't need settings */
+    toolkit_import(commands);
+    toolkit_import(pathfinder);
+
     memset(&settings, 0, sizeof(settings));
 
     clioptions_load("server.cfg", NULL);
@@ -844,9 +848,9 @@ static void init_library(int argc, char *argv[])
         clioptions_parse(argc, argv);
     }
 
-    toolkit_import(commands);
-    toolkit_import(faction);
+    /* Import game APIs that need settings */
     toolkit_import(ban);
+    toolkit_import(faction);
 
     map_init();
     init_globals();

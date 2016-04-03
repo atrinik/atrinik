@@ -43,6 +43,7 @@
 #include <player.h>
 #include <object.h>
 #include <exit.h>
+#include <clioptions.h>
 
 /**
  * Turns pathfinding profiling on/off.
@@ -125,12 +126,88 @@ CASSERT_ARRAY(algo_strs, PATH_ALGO_NUM);
 /**
  * Currently selected algorithm.
  */
-static path_algo_t algo = PATH_ALGO_ASTAR;
+static path_algo_t path_algo = PATH_ALGO_ASTAR;
 
 /**
  * Heuristic greed modifier.
  */
-static double greed = 1.0;
+static double path_greed = 1.0;
+TOOLKIT_API(IMPORTS(clioptions), DEPENDS(logger));
+
+/**
+ * Description of the --pathfinder_algorithm command.
+ */
+static const char *clioptions_option_pathfinder_algorithm_desc =
+"Changes the algorithm used for pathfinding.\n\n"
+"Available algorithms: BFS, A*, Dijkstra";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_pathfinder_algorithm (const char *arg,
+                                        char      **errmsg)
+{
+    path_algo_t algo;
+    for (algo = 0; algo < PATH_ALGO_NUM; algo++) {
+        if (strcasecmp(algo_strs[algo], arg) == 0) {
+            break;
+        }
+    }
+
+    if (algo == PATH_ALGO_NUM) {
+        *errmsg = estrdup("Unknown algorithm");
+        return false;
+    }
+
+    if (path_algo == algo) {
+        *errmsg = estrdup("Algorithm unchanged");
+        return false;
+    }
+
+    LOG(INFO, "Pathfinding algorithm changed from %s to %s",
+        algo_strs[path_algo], algo_strs[algo]);
+    path_algo = algo;
+    return true;
+}
+
+/**
+ * Description of the --pathfinder_greed command.
+ */
+static const char *clioptions_option_pathfinder_greed_desc =
+"Sets the pathfinding heuristics greed modifier.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_pathfinder_greed (const char *arg,
+                                    char      **errmsg)
+{
+    double greed = atof(arg);
+    if (DBL_EQUAL(path_greed, greed)) {
+        *errmsg = estrdup("Greed modifier unchanged");
+        return false;
+    }
+
+    LOG(INFO, "Pathfinding greed modifier changed from %f to %f",
+        path_greed, greed);
+    path_greed = greed;
+    return true;
+}
+
+TOOLKIT_INIT_FUNC(pathfinder)
+{
+    clioption_t *cli;
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               pathfinder_algorithm,
+                               "Set pathfinding algorithm");
+    clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               pathfinder_greed,
+                               "Set pathfinding greed modifier");
+    clioptions_enable_changeable(cli);
+}
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(pathfinder)
+{
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Enqueue a waypoint for path computation.
@@ -348,9 +425,9 @@ static path_node_t *path_node_new (mapstruct   *map,
     node->distance_z = abs(rv.distance_z);
     node->heuristic = straight + PATH_COST_DIAG * diagonal + cross * 0.001 +
                       abs(rv.distance_z) * PATH_COST_LEVEL;
-    node->heuristic *= greed;
+    node->heuristic *= path_greed;
 
-    const double modifier = algo_modifiers[algo];
+    const double modifier = algo_modifiers[path_algo];
     node->sum = (modifier * node->cost + (1 - modifier) * node->heuristic) /
                 MAX(modifier, 1 - modifier);
 
@@ -1157,48 +1234,4 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 #endif
 
     return found_path;
-}
-
-/**
- * Sets the currently chosen algorithm.
- *
- * @param new_algo
- * Algorithm to set. One of ::path_algo_t.
- * @return
- * True if the algorithm was changed, false if the new algorithm is the same
- * as the old one.
- */
-bool
-path_set_algorithm (path_algo_t new_algo)
-{
-    if (algo == new_algo) {
-        return false;
-    }
-
-    LOG(INFO, "Pathfinder algorithm changed to %s from %s",
-        algo_strs[new_algo], algo_strs[algo]);
-    algo = new_algo;
-    return true;
-}
-
-/**
- * Sets the heuristics greed modifier.
- *
- * @param new_greed
- * New greed value.
- * @return
- * True if the greed modifier was changed, false if the new greed modifier is
- * the same as the old one.
- */
-bool
-path_set_greed (double new_greed)
-{
-    if (DBL_EQUAL(greed, new_greed)) {
-        return false;
-    }
-
-    LOG(INFO, "Pathfinder greed modifier changed to %f from %f",
-        new_greed, greed);
-    greed = new_greed;
-    return true;
 }
