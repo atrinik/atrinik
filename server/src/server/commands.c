@@ -60,6 +60,7 @@ TOOLKIT_INIT_FUNC(commands)
     /* [operator] */
     commands_add(COMMAND(arrest), 0.0, COMMAND_PERMISSION);
     commands_add(COMMAND(ban), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(config), 0.0, COMMAND_PERMISSION);
     commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
     commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
     commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);

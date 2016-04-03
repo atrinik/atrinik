@@ -4,6 +4,8 @@
 extern void command_arrest(object *op, const char *command, char *params);
 /* src/commands/permission/ban.c */
 extern void command_ban(object *op, const char *command, char *params);
+/* src/commands/permission/config.c */
+extern void command_config(object *op, const char *command, char *params);
 /* src/commands/permission/follow.c */
 extern void command_follow(object *op, const char *command, char *params);
 /* src/commands/permission/freeze.c */

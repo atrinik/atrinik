@@ -32,14 +32,6 @@
  * - Smart Moves: Intelligent Pathfinding
  * http://www.gamasutra.com/view/feature/3317/smart_move_intelligent_.php
  *
- * Possible enhancements (profile and identify need before spending time on):
- *  - Replace the open list with a binary heap or skip list. Will enhance
- * insertion performance.
- *
- * About monster-to-player paths:
- *  - use smaller max-number-of-nodes value (we don't want a mob running away
- * across the map)
- *
  * @author Alex Tokar - new A* algorithm and heuristics
  * @author Bjorn Axelsson (gecko@acc.umu.se) - original algorithm, functions and
  * structures
@@ -51,18 +43,6 @@
 #include <player.h>
 #include <object.h>
 #include <exit.h>
-
-/**
- * Selects algorithm to use for path-finding.
- *
- * 0 = BFS, 0.5 = A*, 1.0 = Dijkstra's
- */
-#define ALGORITHM 0.5
-
-/**
- * Greed modifier.
- */
-#define GREED 1.
 
 /**
  * Turns pathfinding profiling on/off.
@@ -126,21 +106,50 @@ static path_node_t pathfinder_nodebuf[PATHFINDER_NODEBUF];
 static int pathfinder_nodebuf_next = 0;
 
 /**
+ * Used to avoid branching when computing sum of node cost/heuristic
+ * depending on selected algorithm.
+ */
+static const double algo_modifiers[] = {
+    0, 0.5, 1.0,
+};
+CASSERT_ARRAY(algo_modifiers, PATH_ALGO_NUM);
+
+/**
+ * Text representation of the algorithms.
+ */
+static const char *const algo_strs[] = {
+    "BFS", "A*", "Dijkstra",
+};
+CASSERT_ARRAY(algo_strs, PATH_ALGO_NUM);
+
+/**
+ * Currently selected algorithm.
+ */
+static path_algo_t algo = PATH_ALGO_ASTAR;
+
+/**
+ * Heuristic greed modifier.
+ */
+static double greed = 1.0;
+
+/**
  * Enqueue a waypoint for path computation.
+ *
  * @param waypoint
  * Waypoint.
  * @return
- * 1 on success, 0 on failure.
+ * True on success, false on failure.
  */
-static int pathfinder_queue_enqueue(object *waypoint)
+static bool
+pathfinder_queue_enqueue (object *waypoint)
 {
     HARD_ASSERT(waypoint != NULL);
 
     /* Queue full? */
     if (pathfinder_queue_last == pathfinder_queue_first - 1 ||
-            (pathfinder_queue_first == 0 &&
-            pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1)) {
-        return 0;
+        (pathfinder_queue_first == 0 &&
+         pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1)) {
+        return false;
     }
 
     pathfinder_queue[pathfinder_queue_last].waypoint = waypoint;
@@ -150,19 +159,19 @@ static int pathfinder_queue_enqueue(object *waypoint)
         pathfinder_queue_last = 0;
     }
 
-    return 1;
+    return true;
 }
 
 /**
  * Get the first waypoint from the queue.
+ *
  * @param[out] count Waypoint's ID if there is a valid waypoint.
  * @return
  * The waypoint, NULL if the queue is empty.
  */
-static object *pathfinder_queue_dequeue(tag_t *count)
+static object *
+pathfinder_queue_dequeue (tag_t *count)
 {
-    object *waypoint;
-
     HARD_ASSERT(count != NULL);
 
     /* Queue empty? */
@@ -170,7 +179,7 @@ static object *pathfinder_queue_dequeue(tag_t *count)
         return NULL;
     }
 
-    waypoint = pathfinder_queue[pathfinder_queue_first].waypoint;
+    object *waypoint = pathfinder_queue[pathfinder_queue_first].waypoint;
     *count = pathfinder_queue[pathfinder_queue_first].wp_count;
 
     if (++pathfinder_queue_first >= PATHFINDER_QUEUE_SIZE) {
@@ -182,6 +191,7 @@ static object *pathfinder_queue_dequeue(tag_t *count)
 
 /**
  * Request a new path.
+ *
  * @param waypoint
  * Waypoint.
  */
@@ -195,7 +205,8 @@ void path_request(object *waypoint)
 
 #ifdef DEBUG_PATHFINDING
     LOG(DEBUG, "enqueuing path request for >%s< -> >%s<",
-            waypoint->env->name, waypoint->name);
+        waypoint->env->name,
+        waypoint->name);
 #endif
 
     if (pathfinder_queue_enqueue(waypoint)) {
@@ -207,15 +218,17 @@ void path_request(object *waypoint)
 
 /**
  * Get the next (valid) waypoint for which a path is requested.
+ *
  * @return
  * Waypoint, NULL if there isn't any left.
  */
-object *path_get_next_request(void)
+object *
+path_get_next_request (void)
 {
     object *waypoint;
-    tag_t count;
 
     do {
+        tag_t count;
         waypoint = pathfinder_queue_dequeue(&count);
 
         if (waypoint == NULL) {
@@ -223,18 +236,20 @@ object *path_get_next_request(void)
         }
 
         /* Verify the waypoint and its monster. */
-        if (!OBJECT_VALID(waypoint, count) || !OBJECT_VALID(waypoint->owner,
-                waypoint->ownercount) || !(QUERY_FLAG(waypoint, FLAG_CURSED) ||
-                QUERY_FLAG(waypoint, FLAG_DAMNED)) || (QUERY_FLAG(waypoint,
-                FLAG_DAMNED) && !OBJECT_VALID(waypoint->enemy,
-                waypoint->enemy_count))) {
+        if (!OBJECT_VALID(waypoint, count) ||
+            !OBJECT_VALID(waypoint->owner, waypoint->ownercount) ||
+            !(QUERY_FLAG(waypoint, FLAG_CURSED) ||
+              QUERY_FLAG(waypoint, FLAG_DAMNED)) ||
+            (QUERY_FLAG(waypoint, FLAG_DAMNED) &&
+             !OBJECT_VALID(waypoint->enemy, waypoint->enemy_count))) {
             waypoint = NULL;
         }
     } while (waypoint == NULL);
 
 #ifdef DEBUG_PATHFINDING
-    LOG(DEBUG, "dequeued '%s' -> '%s'", waypoint->owner->name,
-            waypoint->name);
+    LOG(DEBUG, "dequeued '%s' -> '%s'",
+        waypoint->owner->name,
+        waypoint->name);
 #endif
 
     CLEAR_FLAG(waypoint, FLAG_WP_PATH_REQUESTED);
@@ -246,6 +261,7 @@ object *path_get_next_request(void)
  *
  * Also calculates the appropriate heuristics from 'start' and 'goal'
  * parameters.
+ *
  * @param map
  * Map.
  * @param x
@@ -263,45 +279,63 @@ object *path_get_next_request(void)
  * @return
  * New node.
  */
-static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
-        double cost, path_node_t *start, path_node_t *goal, path_node_t *parent)
+static path_node_t *path_node_new (mapstruct   *map,
+                                   int16_t      x,
+                                   int16_t      y,
+                                   double       cost,
+                                   path_node_t *start,
+                                   path_node_t *goal,
+                                   path_node_t *parent)
 {
-    path_node_t *node;
-    rv_vector rv, rv2;
-    int cross, straight, diagonal;
-
     HARD_ASSERT(map != NULL);
     HARD_ASSERT(start != NULL);
     HARD_ASSERT(goal != NULL);
 
-    SOFT_ASSERT_RC(!OUT_OF_MAP(map, x, y), NULL, "Out of map: %s %d,%d",
-            map->path, x, y);
+    SOFT_ASSERT_RC(!OUT_OF_MAP(map, x, y),
+                   NULL,
+                   "Out of map: %s %d,%d",
+                   map->path,
+                   x,
+                   y);
 
     /* Out of memory? */
-    if (pathfinder_nodebuf_next == PATHFINDER_NODEBUF) {
+    if (unlikely(pathfinder_nodebuf_next == PATHFINDER_NODEBUF)) {
 #ifdef DEBUG_PATHFINDING
         LOG(DEBUG, "Out of static buffer memory");
 #endif
         return NULL;
     }
 
-    if (!get_rangevector_from_mapcoords(map, x, y, goal->map, goal->x, goal->y,
-            &rv, RV_RECURSIVE_SEARCH | RV_NO_DISTANCE)) {
+    rv_vector rv;
+    if (!get_rangevector_from_mapcoords(map,
+                                        x,
+                                        y,
+                                        goal->map,
+                                        goal->x,
+                                        goal->y,
+                                        &rv,
+                                        RV_RECURSIVE_SEARCH | RV_NO_DISTANCE)) {
         return NULL;
     }
 
-    if (!get_rangevector_from_mapcoords(start->map, start->x, start->y,
-            goal->map, goal->x, goal->y, &rv2, RV_RECURSIVE_SEARCH |
-            RV_NO_DISTANCE)) {
+    rv_vector rv2;
+    if (!get_rangevector_from_mapcoords(start->map,
+                                        start->x,
+                                        start->y,
+                                        goal->map,
+                                        goal->x,
+                                        goal->y,
+                                        &rv2,
+                                        RV_RECURSIVE_SEARCH | RV_NO_DISTANCE)) {
         return NULL;
     }
 
-    cross = abs(rv.distance_x * rv2.distance_y - rv2.distance_x *
-            rv.distance_y);
-    straight = abs(abs(rv.distance_x) - abs(rv.distance_y));
-    diagonal = MAX(abs(rv.distance_x), abs(rv.distance_y)) - straight;
+    int cross = abs(rv.distance_x * rv2.distance_y -
+                    rv2.distance_x * rv.distance_y);
+    int straight = abs(abs(rv.distance_x) - abs(rv.distance_y));
+    int diagonal = MAX(abs(rv.distance_x), abs(rv.distance_y)) - straight;
 
-    node = &pathfinder_nodebuf[pathfinder_nodebuf_next++];
+    path_node_t *node = &pathfinder_nodebuf[pathfinder_nodebuf_next++];
 
     node->next = NULL;
     node->prev = NULL;
@@ -313,30 +347,34 @@ static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
     node->flags = 0;
     node->distance_z = abs(rv.distance_z);
     node->heuristic = straight + PATH_COST_DIAG * diagonal + cross * 0.001 +
-            abs(rv.distance_z) * PATH_COST_LEVEL;
-    node->heuristic *= GREED;
-    node->sum = (ALGORITHM * node->cost + (1 - ALGORITHM) *
-            node->heuristic) / MAX(ALGORITHM, 1 - ALGORITHM);
+                      abs(rv.distance_z) * PATH_COST_LEVEL;
+    node->heuristic *= greed;
+
+    const double modifier = algo_modifiers[algo];
+    node->sum = (modifier * node->cost + (1 - modifier) * node->heuristic) /
+                MAX(modifier, 1 - modifier);
 
     return node;
 }
 
 /**
  * Remove a node from a list.
+ *
  * @param node
  * Node to remove.
  * @param[out] list List to remove from.
  */
-static void path_node_remove(path_node_t *node, path_node_t **list)
+static void
+path_node_remove (path_node_t *node, path_node_t **list)
 {
     HARD_ASSERT(node != NULL);
     HARD_ASSERT(list != NULL);
 
-    if (*list == NULL) {
-        LOG(ERROR, "Removing node from an empty list: %s, %d, %d",
-                node->map->path, node->x, node->y);
-        return;
-    }
+    SOFT_ASSERT(*list != NULL,
+                "Removing node from an empty list: %s, %d, %d",
+                node->map->path,
+                node->x,
+                node->y);
 
     if (node->prev != NULL) {
         node->prev->next = node->next;
@@ -353,11 +391,13 @@ static void path_node_remove(path_node_t *node, path_node_t **list)
 
 /**
  * Insert a node into a list.
+ *
  * @param node
  * Node to insert.
  * @param[out] list List to insert into.
  */
-static void path_node_insert(path_node_t *node, path_node_t **list)
+static void
+path_node_insert (path_node_t *node, path_node_t **list)
 {
     HARD_ASSERT(node != NULL);
     HARD_ASSERT(list != NULL);
@@ -374,23 +414,23 @@ static void path_node_insert(path_node_t *node, path_node_t **list)
 
 /**
  * Insert a node in a sorted list (lowest path_node_t::sum first in list).
+ *
  * @param node
  * Node to insert.
  * @param list
  * List to insert into.
  * @todo Make more efficient by using skip list or heaps.
  */
-static void path_node_insert_priority(path_node_t *node, path_node_t **list)
+static void
+path_node_insert_priority (path_node_t *node, path_node_t **list)
 {
-    path_node_t *tmp, *last, *insert_before;
-
     HARD_ASSERT(node != NULL);
     HARD_ASSERT(list != NULL);
 
-    insert_before = NULL;
-
     /* Figure out which node to insert in front of. */
-    for (tmp = *list; tmp != NULL; tmp = tmp->next) {
+    path_node_t *insert_before = NULL;
+    path_node_t *last;
+    for (path_node_t *tmp = *list; tmp != NULL; tmp = tmp->next) {
         last = tmp;
 
         if (node->sum <= tmp->sum) {
@@ -421,6 +461,7 @@ static void path_node_insert_priority(path_node_t *node, path_node_t **list)
 
 /**
  * Check if the specified tile is blocked.
+ *
  * @param op
  * Object.
  * @param map
@@ -436,7 +477,6 @@ static int
 tile_is_blocked (object *op, mapstruct *map, int x, int y)
 {
     int block;
-
     if (op->type == PLAYER && CONTR(op)->tcl) {
         block = 0;
     } else {
@@ -468,7 +508,8 @@ tile_is_blocked (object *op, mapstruct *map, int x, int y)
  * @return
  * Encoded path as a shared string.
  */
-shstr *path_encode(path_node_t *path)
+shstr *
+path_encode (path_node_t *path)
 {
     mapstruct *last_map;
     StringBuffer *sb;
@@ -622,16 +663,17 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
 /**
  * Compress a path by removing redundant segments.
  *
- * Current implementation removes segments that can be traversed by walking in a
- * single direction.
+ * Current implementation removes segments that can be traversed by
+ * walking in a single direction.
  *
- * Something advanced could be to use a hughes transform / or something smart
+ * Something advanced could be to use a Hough transform / or something smart
  * with cross products.
  *
  * Rules:
  *  - always leave first and last path nodes
  *  - if the movement direction of node n to n+1 is the same
  *    as for n-1 to n, then remove node n.
+ *
  * @param path
  * Path node.
  * @return
@@ -765,8 +807,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
     /* Avoid overflow of traversal_id */
     if (traversal_id == UINT32_MAX) {
-        DL_FOREACH(first_map, m)
-        {
+        DL_FOREACH(first_map, m) {
             m->pathfinding_id = 0;
         }
 
@@ -793,7 +834,6 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
     /* The initial tile. */
     open_list = best = path_node_new(map1, x, y, 0.0, &start, &goal, NULL);
-
     if (open_list == NULL) {
         return NULL;
     }
@@ -1117,4 +1157,48 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 #endif
 
     return found_path;
+}
+
+/**
+ * Sets the currently chosen algorithm.
+ *
+ * @param new_algo
+ * Algorithm to set. One of ::path_algo_t.
+ * @return
+ * True if the algorithm was changed, false if the new algorithm is the same
+ * as the old one.
+ */
+bool
+path_set_algorithm (path_algo_t new_algo)
+{
+    if (algo == new_algo) {
+        return false;
+    }
+
+    LOG(INFO, "Pathfinder algorithm changed to %s from %s",
+        algo_strs[new_algo], algo_strs[algo]);
+    algo = new_algo;
+    return true;
+}
+
+/**
+ * Sets the heuristics greed modifier.
+ *
+ * @param new_greed
+ * New greed value.
+ * @return
+ * True if the greed modifier was changed, false if the new greed modifier is
+ * the same as the old one.
+ */
+bool
+path_set_greed (double new_greed)
+{
+    if (DBL_EQUAL(greed, new_greed)) {
+        return false;
+    }
+
+    LOG(INFO, "Pathfinder greed modifier changed to %f from %f",
+        new_greed, greed);
+    greed = new_greed;
+    return true;
 }

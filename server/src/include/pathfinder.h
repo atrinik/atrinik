@@ -40,6 +40,14 @@
 #define PATH_NODE_EXIT 0x01
 /*@}*/
 
+typedef enum path_algo {
+    PATH_ALGO_BFS, ///< BFS
+    PATH_ALGO_ASTAR, ///< A*
+    PATH_ALGO_DIJKSTRA, ///< Dijkstra
+
+    PATH_ALGO_NUM /// Total number of algorithms.
+} path_algo_t;
+
 /**
  * Path node.
  */
@@ -146,5 +154,12 @@ typedef struct path_visualization {
  * Enable more intelligent use of CPU time for path finding?
  */
 #define LEFTOVER_CPU_FOR_PATHFINDING
+
+/* Prototypes */
+
+bool
+path_set_algorithm(path_algo_t new_algo);
+bool
+path_set_greed(double new_greed);
 
 #endif
