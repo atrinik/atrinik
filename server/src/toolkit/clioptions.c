@@ -675,6 +675,7 @@ clioptions_load_str (const char *str, char **errmsg)
     HARD_ASSERT(errmsg != NULL);
 
     char *cp = estrdup(str);
+    char **argv = NULL;
     bool ret = false;
     *errmsg = NULL;
 
@@ -691,7 +692,7 @@ clioptions_load_str (const char *str, char **errmsg)
     char buf[HUGE_BUF];
     snprintf(buf, sizeof(buf), "--%s=%s", cps[0], cps[1]);
 
-    char **argv = emalloc(sizeof(*argv) * 2);
+    argv = emalloc(sizeof(*argv) * 2);
     argv[1] = estrdup(buf);
 
     const char *cli_arg;
@@ -721,8 +722,11 @@ clioptions_load_str (const char *str, char **errmsg)
 
 out:
     efree(cp);
-    efree(argv[1]);
-    efree(argv);
+
+    if (argv != NULL) {
+        efree(argv[1]);
+        efree(argv);
+    }
 
     return ret;
 }
