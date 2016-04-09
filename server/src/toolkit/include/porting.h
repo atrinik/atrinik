@@ -72,7 +72,6 @@
 #include <openssl/rand.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include <openssl/x509.h>
 #include <openssl/conf.h>
 
 #ifdef HAVE_FCNTL_H
@@ -167,6 +166,8 @@
         }
 #endif
 #endif
+
+#include <openssl/x509.h>
 
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, NULL);
 
