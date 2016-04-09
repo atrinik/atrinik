@@ -29,40 +29,8 @@
 
 #include <global.h>
 #include <toolkit_string.h>
-#include <curl/curl.h>
+#include <curl.h>
 #include <player.h>
-
-static void *metaserver_thread(void *junk);
-
-/**
- * Metaserver update information structure.
- */
-typedef struct ms_update_info {
-    /**
-     * Number of players in the game.
-     */
-    char num_players[MAX_BUF];
-
-    /**
-     * The port the server is using.
-     */
-    char port[MAX_BUF];
-
-    /**
-     * Players currently in the game, separated by colons (':').
-     */
-    char *players;
-} ms_update_info;
-
-/**
- * Mutex for protecting metaserver information.
- */
-static pthread_mutex_t ms_info_mutex;
-
-/**
- * The actual metaserver information.
- */
-static ms_update_info metaserver_info;
 
 /**
  * Used to hold metaserver statistics.
@@ -78,16 +46,79 @@ static struct {
 } stats;
 
 /**
- * Updates the ::metaserver_info.
+ * cURL request structure.
  */
-void metaserver_info_update(void)
+static curl_request_t *request = NULL;
+
+/**
+ * Initialize the metaserver.
+ */
+void
+metaserver_init (void)
 {
-    player *pl;
+    if (*settings.server_host == '\0') {
+        return;
+    }
+
+    metaserver_info_update();
+}
+
+/**
+ * Deinitialize the metaserver.
+ */
+void
+metaserver_deinit (void)
+{
+    if (*settings.server_host == '\0') {
+        return;
+    }
+
+    if (request != NULL) {
+        curl_request_free(request);
+    }
+}
+
+/**
+ * Updates the metaserver information.
+ */
+void
+metaserver_info_update (void)
+{
+    if (*settings.server_host == '\0') {
+        return;
+    }
+
+    if (request != NULL) {
+        curl_state_t state = curl_request_get_state(request);
+        if (state == CURL_STATE_INPROGRESS) {
+            return;
+        }
+
+        int http_code = curl_request_get_http_code(request);
+        LOG(INFO, "%d", http_code);
+        if (state == CURL_STATE_ERROR ||
+            http_code != 200) {
+            char *body = curl_request_get_body(request, NULL);
+            LOG(SYSTEM,
+                "Failed to update metaserver information "
+                "(HTTP code: %d), response: %s",
+                http_code,
+                body != NULL ? body : "<empty>");
+
+            stats.last_failed = time(NULL);
+            stats.num_failed++;
+        } else if (state == CURL_STATE_OK) {
+            stats.last = time(NULL);
+            stats.num++;
+        }
+
+        curl_request_free(request);
+    }
+
     uint32_t num_players = 0;
     StringBuffer *sb = stringbuffer_new();
-
-    for (pl = first_player; pl; pl = pl->next) {
-        if (stringbuffer_length(sb)) {
+    for (player *pl = first_player; pl != NULL; pl = pl->next) {
+        if (stringbuffer_length(sb) != 0) {
             stringbuffer_append_string(sb, ":");
         }
 
@@ -95,193 +126,52 @@ void metaserver_info_update(void)
         num_players++;
     }
 
-    pthread_mutex_lock(&ms_info_mutex);
+    request = curl_request_create(settings.metaserver_url,
+                                  CURL_PKEY_TRUST_ULTIMATE);
+    curl_request_form_add(request, "hostname", settings.server_host);
+    curl_request_form_add(request, "version", PACKAGE_VERSION);
+    curl_request_form_add(request, "text_comment", settings.server_desc);
+    curl_request_form_add(request, "name", settings.server_name);
 
-    if (metaserver_info.players) {
-        efree(metaserver_info.players);
-    }
+    char *players = stringbuffer_finish(sb);
+    curl_request_form_add(request, "players", players);
+    efree(players);
 
-    snprintf(metaserver_info.num_players, sizeof(metaserver_info.num_players), "%u", num_players);
-    metaserver_info.players = stringbuffer_finish(sb);
-    pthread_mutex_unlock(&ms_info_mutex);
-}
+    char buf[32];
+    snprintf(VS(buf), "%" PRIu32, num_players);
+    curl_request_form_add(request, "num_players", buf);
 
-/**
- * Initialize the metaserver.
- */
-void metaserver_init(void)
-{
-    int ret;
-    pthread_t thread_id;
+    snprintf(VS(buf), "%" PRIu16, settings.port);
+    curl_request_form_add(request, "port", buf);
 
-    if (*settings.server_host == '\0') {
-        return;
-    }
-
-    pthread_mutex_init(&ms_info_mutex, NULL);
-
-    memset(&metaserver_info, 0, sizeof(metaserver_info));
-    /* Store the port number. */
-    snprintf(metaserver_info.port, sizeof(metaserver_info.port), "%d", settings.port);
-    metaserver_info_update();
-
-    /* Init global cURL */
-    curl_global_init(CURL_GLOBAL_ALL);
-    ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
-
-    if (ret) {
-        LOG(ERROR, "Failed to create thread: %d.", ret);
-        exit(1);
-    }
-}
-
-/**
- * Deinitialize the metaserver.
- */
-void metaserver_deinit(void)
-{
-    if (*settings.server_host == '\0') {
-        return;
-    }
-
-    pthread_mutex_lock(&ms_info_mutex);
-
-    if (metaserver_info.players != NULL) {
-        efree(metaserver_info.players);
-    }
-
-    pthread_mutex_unlock(&ms_info_mutex);
+    /* Send off the POST request */
+    curl_request_start_post(request);
 }
 
 /**
  * Construct metaserver statistics.
- * @param[out] buf Buffer to use for writing. Must end with a NUL.
+ *
+ * @param[out] buf
+ * Buffer to use for writing. Must end with a NUL.
  * @param size
  * Size of 'buf'.
  */
-void metaserver_stats(char *buf, size_t size)
+void
+metaserver_stats (char *buf, size_t size)
 {
     snprintfcat(buf, size, "\n=== METASERVER ===\n");
-    snprintfcat(buf, size, "\nUpdates: %"PRIu64, stats.num);
-    snprintfcat(buf, size, "\nFailed: %"PRIu64, stats.num_failed);
+    snprintfcat(buf, size, "\nUpdates: %" PRIu64, stats.num);
+    snprintfcat(buf, size, "\nFailed: %" PRIu64, stats.num_failed);
 
     if (stats.last != 0) {
         snprintfcat(buf, size, "\nLast update: %.19s", ctime(&stats.last));
     }
 
     if (stats.last_failed != 0) {
-        snprintfcat(buf, size, "\nLast failure: %.19s",
-                ctime(&stats.last_failed));
+        snprintfcat(buf, size,
+                    "\nLast failure: %.19s",
+                    ctime(&stats.last_failed));
     }
 
     snprintfcat(buf, size, "\n");
-}
-
-/**
- * Function to call when receiving data from the metaserver.
- * @param ptr
- * Pointer to the actual data
- * @param size
- * Size of the data
- * @param nmemb
- *
- * @param data
- * Unused
- * @return
- * The real size of the data
- */
-static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data)
-{
-    size_t realsize = size * nmemb;
-
-    (void) data;
-
-    LOG(INFO, "Returned data: %s", (const char *) ptr);
-
-    return realsize;
-}
-
-/**
- * Do the metaserver updating.
- */
-static void metaserver_update(void)
-{
-    struct curl_httppost *formpost = NULL, *lastptr = NULL;
-    CURL *curl;
-    CURLcode res = 0;
-
-    /* Hostname. */
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "hostname", CURLFORM_COPYCONTENTS, settings.server_host, CURLFORM_END);
-
-    /* Server version. */
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS, PACKAGE_VERSION, CURLFORM_END);
-
-    /* Server comment. */
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "text_comment", CURLFORM_COPYCONTENTS, settings.server_desc, CURLFORM_END);
-
-    /* Server name. */
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "name", CURLFORM_COPYCONTENTS, settings.server_name, CURLFORM_END);
-
-    pthread_mutex_lock(&ms_info_mutex);
-    /* Number of players. */
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "num_players", CURLFORM_COPYCONTENTS, metaserver_info.num_players, CURLFORM_END);
-
-    /* Player names. */
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "players", CURLFORM_COPYCONTENTS, metaserver_info.players, CURLFORM_END);
-
-    /* Port number. */
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "port", CURLFORM_COPYCONTENTS, metaserver_info.port, CURLFORM_END);
-    pthread_mutex_unlock(&ms_info_mutex);
-
-    /* Init "easy" cURL */
-    curl = curl_easy_init();
-
-    if (curl) {
-        /* What URL that receives this POST */
-        curl_easy_setopt(curl, CURLOPT_URL, settings.metaserver_url);
-        curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-
-        /* Almost always, we will get HTTP data returned
-         * to us - instead of it going to stderr,
-         * we want to take care of it ourselves. */
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, metaserver_writer);
-        res = curl_easy_perform(curl);
-
-        if (res != 0) {
-            LOG(ERROR, "easy_perform got error %d (%s).", res, curl_easy_strerror(res));
-            stats.last_failed = time(NULL);
-            stats.num_failed++;
-        }
-
-        /* Always cleanup */
-        curl_easy_cleanup(curl);
-    }
-
-    /* Free the form */
-    curl_formfree(formpost);
-
-    /* Output info that the data was updated. */
-    if (res == 0) {
-        stats.last = time(NULL);
-        stats.num++;
-    }
-}
-
-/**
- * Send metaserver updates in a thread.
- * @return
- * NULL.
- */
-static void *metaserver_thread(void *junk)
-{
-    (void) junk;
-
-    while (1) {
-        metaserver_update();
-        sleep(300);
-    }
-
-    LOG(INFO, "Metaserver thread exiting.");
-
-    return NULL;
 }
