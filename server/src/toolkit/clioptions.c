@@ -535,7 +535,22 @@ clioptions_call_handler (clioption_t *cli, const char *cli_arg, char **errmsg)
     HARD_ASSERT(cli != NULL);
     HARD_ASSERT(errmsg != NULL);
 
+    char *contents = NULL;
+    if (cli_arg != NULL && *cli_arg == '<') {
+        contents = path_file_contents(cli_arg + 1);
+        if (contents == NULL) {
+            string_fmt(*errmsg, "Cannot open %s", cli_arg + 1);
+            return false;
+        }
+
+        cli_arg = contents;
+    }
+
     if (!cli->handler_func(cli_arg, errmsg)) {
+        if (contents != NULL) {
+            efree(contents);
+        }
+
         return false;
     }
 
@@ -543,7 +558,9 @@ clioptions_call_handler (clioption_t *cli, const char *cli_arg, char **errmsg)
         efree(cli->value);
     }
 
-    if (cli_arg != NULL) {
+    if (contents != NULL) {
+        cli->value = contents;
+    } else if (cli_arg != NULL) {
         cli->value = estrdup(cli_arg);
     }
 
