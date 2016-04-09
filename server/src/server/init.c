@@ -38,6 +38,7 @@
 #include <player.h>
 #include <object_methods.h>
 #include <clioptions.h>
+#include <curl.h>
 
 /**
  * The server's settings.
@@ -747,6 +748,7 @@ static void init_library(int argc, char *argv[])
 
     toolkit_import(clioptions);
     toolkit_import(console);
+    toolkit_import(curl);
     toolkit_import(datetime);
     toolkit_import(logger);
     toolkit_import(math);

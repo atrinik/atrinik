@@ -27,18 +27,11 @@
  * Header file for the cURL module.
  */
 
-#ifndef CURL_H
-#define CURL_H
+#ifndef OLD_CURL_H
+#define OLD_CURL_H
 
-/**
- * Possible cURL data states.
- */
-typedef enum curl_state {
-    CURL_STATE_NONE, ///< No state.
-    CURL_STATE_DOWNLOAD, ///< Downloading the data.
-    CURL_STATE_OK, ///< cURL thread finished and the data is ready to be used.
-    CURL_STATE_ERROR, ///< An error occurred trying to get the data
-} curl_state_t;
+#include_next <curl.h>
+#define CURL_STATE_DOWNLOAD CURL_STATE_INPROGRESS
 
 /** cURL data. */
 typedef struct curl_data {
@@ -84,7 +77,5 @@ typedef struct curl_data {
      */
     CURL *handle;
 } curl_data;
-
-#define CURL_TIMEOUT 15
 
 #endif

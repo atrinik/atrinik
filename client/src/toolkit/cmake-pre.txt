@@ -195,6 +195,7 @@ set(SOURCES_TOOLKIT
     src/toolkit/clioptions.c
     src/toolkit/colorspace.c
     src/toolkit/console.c
+    src/toolkit/curl.c
     src/toolkit/datetime.c
     src/toolkit/logger.c
     src/toolkit/math.c
