@@ -335,10 +335,14 @@ TOOLKIT_DEINIT_FUNC(curl)
         LL_FOREACH_SAFE(curl_trust_pkeys[trust], store, tmp) {
             curl_free_store(store);
         }
+
+        curl_trust_pkeys[trust] = NULL;
     }
 
     efree(curl_user_agent);
+    curl_user_agent = NULL;
     efree(curl_data_dir);
+    curl_data_dir = NULL;
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 

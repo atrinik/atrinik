@@ -75,6 +75,7 @@ metaserver_deinit (void)
 
     if (request != NULL) {
         curl_request_free(request);
+        request = NULL;
     }
 }
 
