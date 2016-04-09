@@ -95,7 +95,6 @@ metaserver_info_update (void)
         }
 
         int http_code = curl_request_get_http_code(request);
-        LOG(INFO, "%d", http_code);
         if (state == CURL_STATE_ERROR ||
             http_code != 200) {
             char *body = curl_request_get_body(request, NULL);
