@@ -35,6 +35,10 @@
 #include <toolkit_string.h>
 #include <sys/types.h>
 
+#include <openssl/rand.h>
+#include <openssl/ssl.h>
+#include <openssl/conf.h>
+
 /**
  * The socket structure.
  */
