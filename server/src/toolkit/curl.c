@@ -242,6 +242,7 @@ curl_load_pem (const char *pubkey, curl_pkey_trust_t trust, char **errmsg)
     store = ecalloc(1, sizeof(*store));
     store->key = EVP_PKEY_new();
     if (store->key == NULL) {
+        *errmsg = estrdup("Failed to create an EVP_PKEY");
         goto out;
     }
 
@@ -255,7 +256,7 @@ curl_load_pem (const char *pubkey, curl_pkey_trust_t trust, char **errmsg)
     if (!EVP_PKEY_set1_RSA(store->key, key)) {
         string_fmt(*errmsg, "Setting RSA key to trusted store %d failed",
                    trust);
-        return false;
+        goto out;
     }
 
     LL_APPEND(curl_trust_pkeys[trust], store);
