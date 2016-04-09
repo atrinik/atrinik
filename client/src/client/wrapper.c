@@ -29,6 +29,10 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <path.h>
+
+static FILE *
+fopen_wrapper(const char *fname, const char *mode);
 
 /**
  * Start the base system, setting caption name and window icon.
@@ -45,6 +49,8 @@ void system_start(void)
     }
 
     SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
+
+    path_fopen = fopen_wrapper;
 }
 
 /**
@@ -521,13 +527,11 @@ char *file_path_server(const char *path)
  * @return
  * Return value of fopen().
  */
-FILE *fopen_wrapper(const char *fname, const char *mode)
+static FILE *
+fopen_wrapper (const char *fname, const char *mode)
 {
-    char *path;
-    FILE *fp;
-
-    path = file_path(fname, mode);
-    fp = fopen(path, mode);
+    char *path = file_path(fname, mode);
+    FILE *fp = fopen(path, mode);
     efree(path);
 
     return fp;

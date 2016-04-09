@@ -31,6 +31,7 @@
 #include <global.h>
 #include <region_map.h>
 #include <packet.h>
+#include <path.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8_t *data, size_t len, size_t pos)
@@ -106,7 +107,7 @@ void socket_command_image(uint8_t *data, size_t len, size_t pos)
     /* Save picture to cache and load it to FaceList. */
     snprintf(buf, sizeof(buf), DIRECTORY_CACHE "/%s", FaceList[facenum].name);
 
-    fp = fopen_wrapper(buf, "wb+");
+    fp = path_fopen(buf, "wb+");
 
     if (fp) {
         fwrite(data + pos, 1, filesize, fp);

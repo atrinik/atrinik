@@ -32,6 +32,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 /** Text representations of the setting types. */
 static const char *const opt_types[OPT_TYPE_NUM] = {
@@ -99,7 +100,7 @@ void settings_init(void)
     setting_category *category;
     setting_struct *setting;
 
-    fp = fopen_wrapper(FILE_SETTINGS_TXT, "r");
+    fp = path_fopen(FILE_SETTINGS_TXT, "r");
 
     if (!fp) {
         LOG(ERROR, "Missing "FILE_SETTINGS_TXT ", cannot continue.");
@@ -220,7 +221,7 @@ void settings_load(void)
     int64_t cat = 0, setting = 0;
     uint8_t is_setting_name = 1;
 
-    fp = fopen_wrapper(FILE_SETTINGS_DAT, "r");
+    fp = path_fopen(FILE_SETTINGS_DAT, "r");
 
     /* No user settings yet. */
     if (!fp) {
@@ -275,7 +276,7 @@ void settings_save(void)
     size_t cat, set;
     setting_struct *setting;
 
-    fp = fopen_wrapper(FILE_SETTINGS_DAT, "w");
+    fp = path_fopen(FILE_SETTINGS_DAT, "w");
 
     if (!fp) {
         LOG(BUG, "Could not open settings file ("FILE_SETTINGS_DAT ").");

@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 enum {
     BUTTON_ADD,
@@ -195,7 +196,7 @@ static void widget_buddy_load(widgetdata *widget)
     snprintf(buf, sizeof(buf), "%s.dat", widget->id);
     tmp->path = file_path_player(buf);
 
-    fp = fopen_wrapper(tmp->path, "r");
+    fp = path_fopen(tmp->path, "r");
 
     if (!fp) {
         return;
@@ -231,7 +232,7 @@ static void widget_buddy_save(widgetdata *widget)
         return;
     }
 
-    fp = fopen_wrapper(tmp->path, "w");
+    fp = path_fopen(tmp->path, "w");
 
     if (!fp) {
         LOG(BUG, "Could not open file for writing: %s",

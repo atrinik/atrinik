@@ -47,6 +47,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 /** The keybindings. */
 keybind_struct **keybindings = NULL;
@@ -62,7 +63,7 @@ void keybind_load(void)
     char buf[HUGE_BUF], *cp;
     keybind_struct *keybind = NULL;
 
-    fp = fopen_wrapper(FILE_KEYBIND, "r");
+    fp = path_fopen(FILE_KEYBIND, "r");
 
     if (fp == NULL) {
         LOG(ERROR, "Failed to open file: %s", FILE_KEYBIND);
@@ -120,7 +121,7 @@ void keybind_load(void)
  */
 void keybind_save(void)
 {
-    FILE *fp = fopen_wrapper(FILE_KEYBIND, "w");
+    FILE *fp = path_fopen(FILE_KEYBIND, "w");
     if (fp == NULL) {
         LOG(ERROR, "Could not open %s for writing: %s (%d)", FILE_KEYBIND,
                 strerror(errno), errno);

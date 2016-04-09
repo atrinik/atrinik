@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 /** The server files. */
 static server_files_struct *server_files;
@@ -407,7 +408,7 @@ FILE *server_file_open(server_files_struct *tmp)
     }
 
     server_file_path(tmp, buf, sizeof(buf));
-    return fopen_wrapper(buf, "rb");
+    return path_fopen(buf, "rb");
 }
 
 /**
@@ -439,7 +440,7 @@ bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
     char path[MAX_BUF];
     server_file_path(tmp, VS(path));
 
-    FILE *fp = fopen_wrapper(path, "wb");
+    FILE *fp = path_fopen(path, "wb");
     if (fp == NULL) {
         LOG(ERROR, "Could not open %s for writing.", path);
         return false;

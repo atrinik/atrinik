@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <path.h>
 
 /**
  * File where the blacklist data is stored.
@@ -230,7 +231,7 @@ static void mplayer_blacklist_save(list_struct *list)
     FILE *fp;
     size_t row;
 
-    fp = fopen_wrapper(FILE_MPLAYER_BLACKLIST, "w");
+    fp = path_fopen(FILE_MPLAYER_BLACKLIST, "w");
 
     if (fp == NULL) {
         LOG(ERROR, "Failed to open file: %s",
@@ -348,7 +349,7 @@ static void widget_draw(widgetdata *widget)
             list_sort(list_mplayer, LIST_SORT_ALPHA);
 
             /* Read the blacklist file contents. */
-            fp = fopen_wrapper(FILE_MPLAYER_BLACKLIST, "r");
+            fp = path_fopen(FILE_MPLAYER_BLACKLIST, "r");
 
             if (fp) {
                 size_t row;

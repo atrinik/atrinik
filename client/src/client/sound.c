@@ -32,6 +32,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 /**
  * Path to the background music file being played.
@@ -181,7 +182,7 @@ static void sound_music_file_set_duration(const char *filename, uint32_t duratio
     FILE *fp;
 
     snprintf(path, sizeof(path), DIRECTORY_MEDIA "/durations/%s", filename);
-    fp = fopen_wrapper(path, "w");
+    fp = path_fopen(path, "w");
 
     if (!fp) {
         LOG(BUG, "Could not open file for writing: %s", path);

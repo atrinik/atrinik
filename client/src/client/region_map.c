@@ -32,6 +32,7 @@
 #include <global.h>
 #include <region_map.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 #ifndef __CPROTO__
 
@@ -676,7 +677,7 @@ static void region_map_fow_create(region_map_t *region_map)
     HARD_ASSERT(region_map->fow->path != NULL);
     HARD_ASSERT(region_map->fow->bitmap == NULL);
 
-    fp = fopen_wrapper(region_map->fow->path, "r");
+    fp = path_fopen(region_map->fow->path, "r");
 
     if (fp != NULL) {
         struct stat statbuf;
@@ -757,7 +758,7 @@ static void region_map_fow_reset(region_map_t *region_map)
         HARD_ASSERT(region_map->surface != NULL);
         HARD_ASSERT(region_map->fow->path != NULL);
 
-        fp = fopen_wrapper(region_map->fow->path, "w");
+        fp = path_fopen(region_map->fow->path, "w");
 
         if (fp != NULL) {
             fwrite(region_map->fow->bitmap, 1,

@@ -113,6 +113,7 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <network_graph.h>
+#include <path.h>
 
 /** Shared handle. */
 static CURLSH *handle_share = NULL;
@@ -213,7 +214,7 @@ static char *curl_load_etag(curl_data *data)
     }
 
     snprintf(VS(path), "%s.etag", data->path);
-    fp = fopen_wrapper(path, "r");
+    fp = path_fopen(path, "r");
     etag = NULL;
 
     if (fp == NULL) {
@@ -278,7 +279,7 @@ static bool curl_load_cache(curl_data *data)
         goto fail;
     }
 
-    fp = fopen_wrapper(data->path, "rb");
+    fp = path_fopen(data->path, "rb");
 
     if (fp == NULL) {
         LOG(BUG, "Could not open %s: %d (%s)", data->path, errno,
@@ -467,7 +468,7 @@ curl_connect (void *c_data)
                 }
             }
 
-            fp = fopen_wrapper(data->path, "wb");
+            fp = path_fopen(data->path, "wb");
 
             if (fp != NULL) {
                 if (fwrite(data->memory, 1, data->size, fp) != data->size) {
@@ -485,7 +486,7 @@ curl_connect (void *c_data)
                 char path[HUGE_BUF];
 
                 snprintf(VS(path), "%s.etag", data->path);
-                fp = fopen_wrapper(path, "w");
+                fp = path_fopen(path, "w");
 
                 if (fp != NULL) {
                     if (fputs(etag, fp) == EOF) {

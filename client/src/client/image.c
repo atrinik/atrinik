@@ -30,6 +30,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 /**
  * Bitmaps loaded from image packs.
@@ -60,7 +61,7 @@ bmap_free (bmap_t *bmap)
 void
 image_init (void)
 {
-    FILE *fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
+    FILE *fp = path_fopen(FILE_ATRINIK_P0, "rb");
     if (fp == NULL) {
         return;
     }
@@ -252,7 +253,7 @@ finish_face_cmd (int facenum, uint32_t checksum, const char *face)
     /* Check private cache first */
     snprintf(VS(buf), DIRECTORY_CACHE "/%s", FaceList[facenum].name);
 
-    FILE *fp = fopen_wrapper(buf, "rb");
+    FILE *fp = path_fopen(buf, "rb");
     if (fp != NULL) {
         struct stat statbuf;
         fstat(fileno(fp), &statbuf);
@@ -295,7 +296,7 @@ finish_face_cmd (int facenum, uint32_t checksum, const char *face)
 static void
 load_picture_from_pack (int num)
 {
-    FILE *fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
+    FILE *fp = path_fopen(FILE_ATRINIK_P0, "rb");
     if (fp == NULL) {
         LOG(ERROR, "Failed to open %s", FILE_ATRINIK_P0);
         return;
@@ -348,7 +349,7 @@ load_gfx_user_face (uint16_t num)
     char buf[MAX_BUF];
     snprintf(VS(buf), DIRECTORY_GFX_USER "/%s.png", image_bmaps[num].name);
 
-    FILE *fp = fopen_wrapper(buf, "rb");
+    FILE *fp = path_fopen(buf, "rb");
     if (fp == NULL) {
         return false;
     }

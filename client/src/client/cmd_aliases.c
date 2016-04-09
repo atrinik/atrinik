@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 /**
  * One command alias.
@@ -70,7 +71,7 @@ static cmd_alias_struct *cmd_aliases = NULL;
  */
 static void cmd_aliases_load(const char *path)
 {
-    FILE *fp = fopen_wrapper(path, "r");
+    FILE *fp = path_fopen(path, "r");
     if (fp == NULL) {
         return;
     }

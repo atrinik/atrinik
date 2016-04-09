@@ -44,6 +44,7 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <network_graph.h>
+#include <path.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {
@@ -124,7 +125,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
     widgetdata *widget;
     int depth, old_depth;
 
-    fp = fopen_wrapper(path, "r");
+    fp = path_fopen(path, "r");
 
     if (!fp) {
         return 0;
@@ -1178,7 +1179,7 @@ static void widget_save(void)
 {
     FILE *fp;
 
-    fp = fopen_wrapper("settings/interface.cfg", "w");
+    fp = path_fopen("settings/interface.cfg", "w");
 
     if (!fp) {
         return;

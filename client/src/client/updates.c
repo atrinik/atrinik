@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <path.h>
 
 /**
  * How many file updates have been requested. This is used to block the
@@ -78,7 +79,7 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos)
     data = dest;
     len = ucomp_len;
 
-    fp = fopen_wrapper(filename, "wb");
+    fp = path_fopen(filename, "wb");
 
     if (!fp) {
         LOG(BUG, "Could not open file '%s' for writing.", filename);
@@ -133,7 +134,7 @@ void file_updates_parse(void)
             continue;
         }
 
-        fp2 = fopen_wrapper(filename, "rb");
+        fp2 = path_fopen(filename, "rb");
 
         /* No such file? Then we'll want to update this. */
         if (!fp2) {

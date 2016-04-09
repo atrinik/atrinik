@@ -35,6 +35,7 @@
 #include <toolkit_string.h>
 #include <bresenham.h>
 #include <clioptions.h>
+#include <path.h>
 
 /**
  * Map cells.
@@ -114,7 +115,7 @@ void load_mapdef_dat(void)
     clioption_t *cli;
     CLIOPTIONS_CREATE(cli, tiles_debug, "Enable map tiles debugging");
 
-    stream = fopen_wrapper(ARCHDEF_FILE, "r");
+    stream = path_fopen(ARCHDEF_FILE, "r");
 
     if (stream == NULL) {
         LOG(BUG, "Can't open file %s", ARCHDEF_FILE);

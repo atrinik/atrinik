@@ -277,7 +277,6 @@ extern void get_data_dir_file(char *buf, size_t len, const char *fname);
 extern char *file_path(const char *path, const char *mode);
 extern char *file_path_player(const char *path);
 extern char *file_path_server(const char *path);
-extern FILE *fopen_wrapper(const char *fname, const char *mode);
 extern SDL_Surface *IMG_Load_wrapper(const char *file);
 extern TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
 /* src/events/event.c */
