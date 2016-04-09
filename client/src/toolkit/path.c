@@ -29,11 +29,36 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 TOOLKIT_API(DEPENDS(logger), DEPENDS(string), DEPENDS(stringbuffer));
 
+/**
+ * Function to use for path_fopen(). Can be overriden.
+ */
+path_fopen_t path_fopen;
+
+/**
+ * Simple wrapper for fopen(); ensures directories leading up to path 'path'
+ * exist and are accessible.
+ *
+ * @param path
+ * Path.
+ * @param modes
+ * Modes.
+ * @return
+ * Opened file, NULL on failure.
+ */
+static FILE *
+fopen_wrapper (const char *path, const char *modes)
+{
+    path_ensure_directories(path);
+    return fopen(path, modes);
+}
+
 TOOLKIT_INIT_FUNC(path)
 {
+    path_fopen = fopen_wrapper;
 }
 TOOLKIT_INIT_FUNC_FINISH
 
