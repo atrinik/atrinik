@@ -30,6 +30,8 @@
 #ifndef SERVER_FILES_H
 #define SERVER_FILES_H
 
+#include <curl.h>
+
 #define SERVER_FILES_HTTP_DIR       "data"
 #define SERVER_FILES_HTTP_LISTING   "listing.txt"
 
@@ -64,8 +66,8 @@ typedef struct server_files_struct {
     /** Calculated checksum. */
     unsigned long crc32;
 
-    /** cURL data. */
-    curl_data *dl_data;
+    /** cURL request. */
+    curl_request_t *request;
 
     /** Init-time function. */
     void (*init_func)(void);

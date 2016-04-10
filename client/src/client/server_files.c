@@ -32,17 +32,19 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <path.h>
+#include <curl.h>
 
 /** The server files. */
 static server_files_struct *server_files;
 
-/** Listing file data. */
-static curl_data *listing_data = NULL;
+/** Listing file request. */
+static curl_request_t *listing_request = NULL;
 
 /**
  * Initialize the server files API.
  */
-void server_files_init(void)
+void
+server_files_init (void)
 {
     server_files_struct *tmp;
 
@@ -75,12 +77,11 @@ void server_files_init(void)
 /**
  * De-initialize the server files API.
  */
-void server_files_deinit(void)
+void
+server_files_deinit (void)
 {
     server_files_struct *curr, *tmp;
-
-    HASH_ITER(hh, server_files, curr, tmp)
-    {
+    HASH_ITER(hh, server_files, curr, tmp) {
         HASH_DEL(server_files, curr);
         efree(curr->name);
         efree(curr);
@@ -90,12 +91,11 @@ void server_files_deinit(void)
 /**
  * Init all of the available server files.
  */
-void server_files_init_all(void)
+void
+server_files_init_all (void)
 {
     server_files_struct *curr, *tmp;
-
-    HASH_ITER(hh, server_files, curr, tmp)
-    {
+    HASH_ITER(hh, server_files, curr, tmp) {
         if (curr->init_func) {
             curr->init_func();
         }
@@ -106,12 +106,14 @@ void server_files_init_all(void)
  * Create a server file with the specified name.
  *
  * The server file will be added to a hash table automatically.
+ *
  * @param name
  * Name of the server file.
  * @return
  * Created server file.
  */
-server_files_struct *server_files_create(const char *name)
+server_files_struct *
+server_files_create (const char *name)
 {
     server_files_struct *tmp;
 
@@ -124,27 +126,29 @@ server_files_struct *server_files_create(const char *name)
 
 /**
  * Find the specified server file in the hash table.
+ *
  * @param name
  * Name of the server file.
  * @return
  * Server file if found, NULL otherwise.
  */
-server_files_struct *server_files_find(const char *name)
+server_files_struct *
+server_files_find (const char *name)
 {
     server_files_struct *tmp;
-
     HASH_FIND(hh, server_files, name, strlen(name), tmp);
-
     return tmp;
 }
 
 /**
  * Load the server files. If they haven't changed since last load, no
  * loading will be done.
+ *
  * @param post_load
  * Unless 1, (re-)parsing the server files will not be done.
  */
-void server_files_load(int post_load)
+void
+server_files_load (int post_load)
 {
     server_files_struct *curr, *tmp;
     FILE *fp;
@@ -152,8 +156,7 @@ void server_files_load(int post_load)
     size_t st_size, numread;
     char *contents;
 
-    HASH_ITER(hh, server_files, curr, tmp)
-    {
+    HASH_ITER(hh, server_files, curr, tmp) {
         curr->update = 0;
 
         if (post_load && curr->loaded) {
@@ -200,18 +203,20 @@ void server_files_load(int post_load)
 /**
  * Begin downloading the listing file.
  */
-void server_files_listing_retrieve(void)
+void
+server_files_listing_retrieve (void)
 {
-    char url[HUGE_BUF];
-
-    snprintf(url, sizeof(url), "%s/%s/%s", cpl.http_url, SERVER_FILES_HTTP_DIR,
-            SERVER_FILES_HTTP_LISTING);
-
-    if (listing_data != NULL) {
-        curl_data_free(listing_data);
+    if (listing_request != NULL) {
+        curl_request_free(listing_request);
     }
 
-    listing_data = curl_download_start(url, NULL);
+    char url[HUGE_BUF];
+    snprintf(VS(url), "%s/%s/%s",
+             cpl.http_url,
+             SERVER_FILES_HTTP_DIR,
+             SERVER_FILES_HTTP_LISTING);
+    listing_request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
+    curl_request_start_get(listing_request);
 }
 
 /**
@@ -219,76 +224,73 @@ void server_files_listing_retrieve(void)
  * @return
  * 1 if it has been processed, 0 otherwise.
  */
-int server_files_listing_processed(void)
+int
+server_files_listing_processed (void)
 {
-    if (listing_data == NULL) {
+    if (listing_request == NULL) {
         return 0;
     }
 
-    curl_state_t state = curl_download_get_state(listing_data);
-
+    curl_state_t state = curl_request_get_state(listing_request);
     if (state == CURL_STATE_ERROR) {
         cpl.state = ST_INIT;
         return 0;
     }
 
-    if (state == CURL_STATE_DOWNLOAD) {
+    if (state == CURL_STATE_INPROGRESS) {
         return 0;
     }
 
-    if (listing_data->memory) {
-        char word[HUGE_BUF], *split[3];
-        size_t pos;
-        server_files_struct *tmp;
-        unsigned long crc;
-        size_t fsize;
-
-        pos = 0;
-
-        while (string_get_word(listing_data->memory, &pos, '\n', word,
-                sizeof(word), 0)) {
-            if (string_split(word, split, arraysize(split),
-                    ':') != arraysize(split)) {
-                continue;
-            }
-
-            tmp = server_files_find(split[0]);
-
-            if (tmp == NULL) {
-                continue;
-            }
-
-            crc = strtoul(split[1], NULL, 16);
-            fsize = strtoul(split[2], NULL, 16);
-
-            if (tmp->crc32 != crc || tmp->size != fsize) {
-                tmp->update = 1;
-            }
-
-            LOG(DEVEL,
-                    "%-10s CRC32: %lu (local: %lu) Size: %"PRIu64" ("
-                    "local: %"PRIu64") Update: %d", tmp->name, crc, tmp->crc32,
-                    (uint64_t) fsize, (uint64_t) tmp->size, tmp->update);
-
-            tmp->crc32 = crc;
-            tmp->size = fsize;
-        }
+    char *body = curl_request_get_body(listing_request, NULL);
+    if (body == NULL) {
+        cpl.state = ST_INIT;
+        return 0;
     }
 
-    curl_data_free(listing_data);
-    listing_data = NULL;
+    char word[HUGE_BUF];
+    size_t pos = 0;
+    while (string_get_word(body, &pos, '\n', VS(word), 0)) {
+        char *cps[3];
+        if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps)) {
+            continue;
+        }
+
+        server_files_struct *tmp = server_files_find(cps[0]);
+        if (tmp == NULL) {
+            continue;
+        }
+
+        unsigned long crc = strtoul(cps[1], NULL, 16);
+        size_t fsize = strtoul(cps[2], NULL, 16);
+
+        if (tmp->crc32 != crc || tmp->size != fsize) {
+            tmp->update = 1;
+        }
+
+        LOG(DEVEL,
+            "%-10s CRC32: %lu (local: %lu) Size: %zu (local: %zu) Update: %d",
+            tmp->name, crc, tmp->crc32, fsize, tmp->size, tmp->update);
+
+        tmp->crc32 = crc;
+        tmp->size = fsize;
+    }
+
+    curl_request_free(listing_request);
+    listing_request = NULL;
 
     return 1;
 }
 
 /**
  * Process a single server file.
+ *
  * @param tmp
  * What to process.
  * @return
  * 1 if the file is being processed, 0 otherwise.
  */
-static int server_file_process(server_files_struct *tmp)
+static int
+server_file_process (server_files_struct *tmp)
 {
     if (tmp->update == 0) {
         return 0;
@@ -296,77 +298,80 @@ static int server_file_process(server_files_struct *tmp)
 
     if (tmp->update == 1) {
         char url[MAX_BUF];
+        snprintf(VS(url), "%s/%s/%s.zz",
+                 cpl.http_url,
+                 SERVER_FILES_HTTP_DIR,
+                 tmp->name);
 
-        snprintf(VS(url), "%s/%s/%s.zz", cpl.http_url, SERVER_FILES_HTTP_DIR,
-                tmp->name);
-
-        if (tmp->dl_data != NULL) {
-            curl_data_free(tmp->dl_data);
+        if (tmp->request != NULL) {
+            curl_request_free(tmp->request);
         }
 
         LOG(DEVEL, "Beginning download: %s, URL: %s", tmp->name, url);
 
-        tmp->dl_data = curl_download_start(url, NULL);
+        tmp->request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
         tmp->update = -1;
         return 1;
     }
 
-    curl_state_t state = curl_download_get_state(tmp->dl_data);
-    /* In progress. */
-    if (state == CURL_STATE_DOWNLOAD) {
+    curl_state_t state = curl_request_get_state(tmp->request);
+    if (state == CURL_STATE_INPROGRESS) {
         return 1;
     }
 
-    LOG(DEVEL, "Download finished: %s, state: %d, http_code: %d, size: %"PRIu64,
+    size_t body_size;
+    char *body = curl_request_get_body(tmp->request, &body_size);
+
+    int http_code = curl_request_get_http_code(tmp->request);
+    LOG(DEVEL,
+        "Download finished: %s, state: %d, http_code: %d, size: %zu",
         tmp->name,
         state,
-        tmp->dl_data->http_code,
-        (uint64_t) tmp->dl_data->size);
+        http_code,
+        body_size);
 
     /* Done. */
     if (state == CURL_STATE_OK) {
-        unsigned char *dest;
-        unsigned long len_ucomp;
+        if (body != NULL) {
+            unsigned long len_ucomp = tmp->size;
+            unsigned char *dest = emalloc(len_ucomp);
+            uncompress((Bytef *) dest,
+                       (uLongf *) &len_ucomp,
+                       (const Bytef *) body,
+                       (uLong) body_size);
 
-        len_ucomp = tmp->size;
+            LOG(DEVEL, "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
 
-        dest = emalloc(len_ucomp);
-        uncompress((Bytef *) dest, (uLongf *) & len_ucomp,
-                (const Bytef *) tmp->dl_data->memory,
-                (uLong) tmp->dl_data->size);
+            if (server_file_save(tmp, dest, len_ucomp)) {
+                tmp->loaded = 0;
+            }
 
-        LOG(DEVEL, "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
-
-        if (server_file_save(tmp, dest, len_ucomp)) {
-            tmp->loaded = 0;
+            efree(dest);
         }
-
-        efree(dest);
     } else if (state == CURL_STATE_ERROR) {
         /* Error occurred. */
-        LOG(BUG, "Could not download %s: %d", tmp->name,
-                tmp->dl_data->http_code);
+        LOG(ERROR, "Could not download %s: %d", tmp->name, http_code);
     }
 
     tmp->update = 0;
-    curl_data_free(tmp->dl_data);
-    tmp->dl_data = NULL;
+    curl_request_free(tmp->request);
+    tmp->request = NULL;
 
     return 0;
 }
 
 /**
  * Check if all of the server files have been processed.
+ *
  * @return
  * 1 if they all have been processed, 0 otherwise.
  */
-int server_files_processed(void)
+int
+server_files_processed (void)
 {
     server_files_struct *curr, *tmp;
-
     /* Check all files. */
-    HASH_ITER(hh, server_files, curr, tmp)
-    {
+    HASH_ITER(hh, server_files, curr, tmp) {
         if (server_file_process(curr)) {
             return 0;
         }
@@ -377,6 +382,7 @@ int server_files_processed(void)
 
 /**
  * Construct a path to the specified server file.
+ *
  * @param tmp
  * Server file.
  * @param[out] buf Will contain the constructed path.
@@ -385,8 +391,8 @@ int server_files_processed(void)
  * @return
  * 'buf'.
  */
-static char *server_file_path(server_files_struct *tmp, char *buf,
-        size_t buf_size)
+static char
+*server_file_path (server_files_struct *tmp, char *buf, size_t buf_size)
 {
     snprintf(buf, buf_size, "srv_files/%s", tmp->name);
     return buf;
@@ -394,20 +400,21 @@ static char *server_file_path(server_files_struct *tmp, char *buf,
 
 /**
  * Open a server file for reading.
+ *
  * @param tmp
  * Server file.
  * @return
  * The file pointer, or NULL on failure of opening the file.
  */
-FILE *server_file_open(server_files_struct *tmp)
+FILE *
+server_file_open (server_files_struct *tmp)
 {
-    char buf[MAX_BUF];
-
     if (tmp == NULL) {
         return NULL;
     }
 
-    server_file_path(tmp, buf, sizeof(buf));
+    char buf[MAX_BUF];
+    server_file_path(tmp, VS(buf));
     return path_fopen(buf, "rb");
 }
 
@@ -419,13 +426,15 @@ FILE *server_file_open(server_files_struct *tmp)
  * @return
  * Opened file pointer, NULL on failure.
  */
-FILE *server_file_open_name(const char *name)
+FILE *
+server_file_open_name (const char *name)
 {
     return server_file_open(server_files_find(name));
 }
 
 /**
  * We have received the server file we asked for, so save it to disk.
+ *
  * @param tmp
  * Server file.
  * @param data
@@ -435,7 +444,8 @@ FILE *server_file_open_name(const char *name)
  * @return
  * True on success, false on failure.
  */
-bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
+bool
+server_file_save (server_files_struct *tmp, unsigned char *data, size_t len)
 {
     char path[MAX_BUF];
     server_file_path(tmp, VS(path));
