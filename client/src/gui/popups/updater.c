@@ -351,9 +351,10 @@ popup_draw_post (popup_struct *popup)
                                     COLOR_BLACK,
                                     TEXT_ALIGN_CENTER,
                                     &box,
-                                    "Downloading update #%zu out of %zu...",
-                                    download_package_next,
-                                    download_packages_num);
+                                    "Downloading update #%" PRIu64 " out of %"
+                                    PRIu64 "...",
+                                    (uint64_t) download_package_next,
+                                    (uint64_t) download_packages_num);
         }
     }
 
@@ -388,8 +389,9 @@ popup_draw_post (popup_struct *popup)
                                     COLOR_BLACK,
                                     TEXT_ALIGN_CENTER,
                                     &box,
-                                    "%zu update(s) downloaded successfully.",
-                                    download_packages_downloaded);
+                                    "%" PRIu64 " update(s) downloaded "
+                                    "successfully.",
+                                    (uint64_t) download_packages_downloaded);
             box.y += 20;
             text_show_shadow(ScreenSurface,
                              FONT_ARIAL11,
@@ -410,11 +412,11 @@ popup_draw_post (popup_struct *popup)
                                         COLOR_BLACK,
                                         TEXT_ALIGN_CENTER,
                                         &box,
-                                        "%zu update(s) failed to download "
-                                        "(possibly due to a connection "
-                                        "failure).",
-                                        download_packages_num -
-                                            download_packages_downloaded);
+                                        "%" PRIu64 " update(s) failed to "
+                                        "download (possibly due to a "
+                                        "connection failure).",
+                                        (uint64_t) (download_packages_num -
+                                            download_packages_downloaded));
                 text_show_shadow(ScreenSurface,
                                  FONT_ARIAL11,
                                  "You may need to retry updating after "

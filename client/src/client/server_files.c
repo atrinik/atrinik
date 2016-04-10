@@ -268,8 +268,14 @@ server_files_listing_processed (void)
         }
 
         LOG(DEVEL,
-            "%-10s CRC32: %lu (local: %lu) Size: %zu (local: %zu) Update: %d",
-            tmp->name, crc, tmp->crc32, fsize, tmp->size, tmp->update);
+            "%-10s CRC32: %lu (local: %lu) Size: %" PRIu64 " (local: %" PRIu64
+            ") Update: %d",
+            tmp->name,
+            crc,
+            tmp->crc32,
+            (uint64_t) fsize,
+            (uint64_t) tmp->size,
+            tmp->update);
 
         tmp->crc32 = crc;
         tmp->size = fsize;
@@ -324,11 +330,11 @@ server_file_process (server_files_struct *tmp)
 
     int http_code = curl_request_get_http_code(tmp->request);
     LOG(DEVEL,
-        "Download finished: %s, state: %d, http_code: %d, size: %zu",
+        "Download finished: %s, state: %d, http_code: %d, size: %" PRIu64,
         tmp->name,
         state,
         http_code,
-        body_size);
+        (uint64_t) body_size);
 
     /* Done. */
     if (state == CURL_STATE_OK) {
