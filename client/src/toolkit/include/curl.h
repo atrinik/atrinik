@@ -111,6 +111,8 @@ char *
 curl_request_get_header(curl_request_t *request, size_t *header_size);
 int
 curl_request_get_http_code(curl_request_t *request);
+const char *
+curl_request_get_url(curl_request_t *request);
 int64_t
 curl_request_sizeinfo(curl_request_t *request, curl_info_t info);
 char *

@@ -802,6 +802,22 @@ curl_request_get_http_code (curl_request_t *request)
 }
 
 /**
+ * Acquire the URL of the specified cURL request.
+ *
+ * @param request
+ * cURL request.
+ * @return
+ * URL of the request.
+ */
+const char *
+curl_request_get_url (curl_request_t *request)
+{
+    HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
+    return request->url;
+}
+
+/**
  * Acquire size information about the specified cURL request instance.
  *
  * @param request
