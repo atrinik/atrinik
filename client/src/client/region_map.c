@@ -115,14 +115,14 @@ void region_map_reset(region_map_t *region_map)
 
     memset(&region_map->pos, 0, sizeof(region_map->pos));
 
-    if (region_map->data_png != NULL) {
-        curl_data_free(region_map->data_png);
-        region_map->data_png = NULL;
+    if (region_map->request_png != NULL) {
+        curl_request_free(region_map->request_png);
+        region_map->request_png = NULL;
     }
 
-    if (region_map->data_def != NULL) {
-        curl_data_free(region_map->data_def);
-        region_map->data_def = NULL;
+    if (region_map->request_def != NULL) {
+        curl_request_free(region_map->request_def);
+        region_map->request_def = NULL;
     }
 
     /* The fog of war freeing makes use of region_map->surface, so it must
@@ -170,14 +170,20 @@ void region_map_update(region_map_t *region_map, const char *region_name)
     snprintf(VS(url), "%s/client-maps/%s.png", cpl.http_url, region_name);
     snprintf(VS(buf), "client-maps/%s.png", region_name);
     path = file_path_server(buf);
-    region_map->data_png = curl_download_start(url, path);
+    region_map->request_png = curl_request_create(url,
+                                                  CURL_PKEY_TRUST_APPLICATION);
+    curl_request_set_path(region_map->request_png, path);
+    curl_request_start_get(region_map->request_png);
     efree(path);
 
     /* Download the definitions. */
     snprintf(VS(url), "%s/client-maps/%s.def", cpl.http_url, region_name);
     snprintf(VS(buf), "client-maps/%s.def", region_name);
     path = file_path_server(buf);
-    region_map->data_def = curl_download_start(url, path);
+    region_map->request_def = curl_request_create(url,
+                                                  CURL_PKEY_TRUST_APPLICATION);
+    curl_request_set_path(region_map->request_def, path);
+    curl_request_start_get(region_map->request_def);
     efree(path);
 
     snprintf(VS(buf), "client-maps/%s.tiles", region_name);
@@ -202,28 +208,39 @@ bool region_map_ready(region_map_t *region_map)
         return true;
     }
 
-    if (region_map->data_png == NULL || region_map->data_def == NULL) {
+    if (region_map->request_png == NULL || region_map->request_def == NULL) {
         return false;
     }
 
     SOFT_ASSERT_RC(region_map->zoomed == NULL, false,
             "Region map already has a zoomed surface.");
 
-    if (curl_download_get_state(region_map->data_png) != CURL_STATE_OK) {
+    if (curl_request_get_state(region_map->request_png) != CURL_STATE_OK) {
         return false;
     }
 
-    if (curl_download_get_state(region_map->data_def) != CURL_STATE_OK) {
+    if (curl_request_get_state(region_map->request_def) != CURL_STATE_OK) {
         return false;
     }
 
-    img = IMG_Load_RW(SDL_RWFromMem(region_map->data_png->memory,
-            region_map->data_png->size), 1);
+    size_t body_png_size;
+    char *body_png = curl_request_get_body(region_map->request_png,
+                                           &body_png_size);
+    if (body_png == NULL) {
+        return false;
+    }
+
+    char *body_def = curl_request_get_body(region_map->request_def, NULL);
+    if (body_def == NULL) {
+        return false;
+    }
+
+    img = IMG_Load_RW(SDL_RWFromMem(body_png, body_png_size), 1);
     region_map->surface = SDL_DisplayFormat(img);
     SDL_FreeSurface(img);
 
     region_map_pan(region_map);
-    region_map_def_load(region_map->def, region_map->data_def->memory);
+    region_map_def_load(region_map->def, body_def);
 
     /* Draw the labels. */
     for (i = 0; i < region_map->def->num_labels; i++) {
@@ -255,11 +272,11 @@ bool region_map_ready(region_map_t *region_map)
         region_map_fow_create(region_map);
     }
 
-    curl_data_free(region_map->data_png);
-    region_map->data_png = NULL;
+    curl_request_free(region_map->request_png);
+    region_map->request_png = NULL;
 
-    curl_data_free(region_map->data_def);
-    region_map->data_def = NULL;
+    curl_request_free(region_map->request_def);
+    region_map->request_def = NULL;
 
     minimap_redraw_flag = 1;
 

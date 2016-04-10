@@ -32,6 +32,8 @@
 #ifndef REGION_MAP_H
 #define REGION_MAP_H
 
+#include <curl.h>
+
 /** Default zoom level. */
 #define RM_ZOOM_DEFAULT 100
 /** Minimum zoom level. */
@@ -222,14 +224,14 @@ typedef struct region_map {
     SDL_Rect pos;
 
     /**
-     * cURL pointer for downloading the region map image.
+     * cURL request for downloading the region map image.
      */
-    curl_data *data_png;
+    curl_request_t *request_png;
 
     /**
-     * cURL pointer for downloading the region definitions.
+     * cURL request for downloading the region definitions.
      */
-    curl_data *data_def;
+    curl_request_t *request_def;
 } region_map_t;
 
 #define RM_MAP_FOW_BITMAP_SIZE(region_map) \

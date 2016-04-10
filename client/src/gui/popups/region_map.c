@@ -181,24 +181,25 @@ static int popup_draw_post_func(popup_struct *popup)
     if (!region_map_ready(MapData.region_map)) {
         /* Check the status of the downloads. */
         curl_state_t state_png =
-            curl_download_get_state(MapData.region_map->data_png);
+            curl_request_get_state(MapData.region_map->request_png);
         curl_state_t state_def =
-            curl_download_get_state(MapData.region_map->data_def);
+            curl_request_get_state(MapData.region_map->request_def);
 
         /* We failed. */
         if (state_png == CURL_STATE_ERROR || state_def == CURL_STATE_ERROR) {
-            curl_data *tmp;
+            curl_request_t *request;
             if (state_png == CURL_STATE_ERROR) {
-                tmp = MapData.region_map->data_png;
+                request = MapData.region_map->request_png;
             } else {
-                tmp = MapData.region_map->data_def;
+                request = MapData.region_map->request_def;
             }
 
-            if (tmp->http_code != -1) {
+            int http_code = curl_request_get_http_code(request);
+            if (http_code != -1) {
                 text_show_format(ScreenSurface, FONT_SERIF14,
                         box.x, box.y,  COLOR_WHITE,
                         TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE,
-                        &box, "Error: %d", tmp->http_code);
+                        &box, "Error: %d", http_code);
             } else {
                 text_show(ScreenSurface, FONT_SERIF14,
                         "Connection timed out.", box.x, box.y, COLOR_WHITE,
@@ -207,11 +208,11 @@ static int popup_draw_post_func(popup_struct *popup)
             }
         } else if (state_png == CURL_STATE_DOWNLOAD ||
                    state_def == CURL_STATE_DOWNLOAD) {
-            curl_data *tmp;
+            curl_request_t *request;
             if (state_png == CURL_STATE_DOWNLOAD) {
-                tmp = MapData.region_map->data_png;
+                request = MapData.region_map->request_png;
             } else {
-                tmp = MapData.region_map->data_def;
+                request = MapData.region_map->request_def;
             }
 
             char buf[MAX_BUF];
@@ -219,7 +220,7 @@ static int popup_draw_post_func(popup_struct *popup)
                     box.x, box.y, COLOR_WHITE,
                     TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box,
                     "Downloading the map, please wait...\n%s",
-                    curl_download_speedinfo(tmp, VS(buf)));
+                    curl_request_speedinfo(request, VS(buf)));
         }
 
         return 1;
