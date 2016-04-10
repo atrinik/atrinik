@@ -371,6 +371,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
 void
 curl_set_user_agent (const char *user_agent)
 {
+    TOOLKIT_PROTECT();
+
     HARD_ASSERT(user_agent != NULL);
 
     if (curl_user_agent != NULL) {
@@ -389,6 +391,8 @@ curl_set_user_agent (const char *user_agent)
 void
 curl_set_data_dir (const char *dir)
 {
+    TOOLKIT_PROTECT();
+
     HARD_ASSERT(dir != NULL);
 
     if (curl_data_dir != NULL) {
@@ -410,6 +414,8 @@ curl_set_data_dir (const char *dir)
 bool
 curl_set_trust_application (const char *pubkey)
 {
+    TOOLKIT_PROTECT();
+
     if (curl_trust_pkeys[CURL_PKEY_TRUST_APPLICATION] != NULL) {
         curl_free_store(curl_trust_pkeys[CURL_PKEY_TRUST_APPLICATION]);
         curl_trust_pkeys[CURL_PKEY_TRUST_APPLICATION] = NULL;
@@ -645,6 +651,7 @@ curl_request_t *
 curl_request_create (const char *url, curl_pkey_trust_t trust)
 {
     HARD_ASSERT(url != NULL);
+    TOOLKIT_PROTECT();
 
     curl_request_t *request = ecalloc(1, sizeof(*request));
     request->url = estrdup(url);
@@ -676,6 +683,7 @@ curl_request_form_add (curl_request_t *request,
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(key != NULL);
     HARD_ASSERT(value != NULL);
+    TOOLKIT_PROTECT();
 
     curl_formadd(&request->form_post,
                  &request->form_post_last,
@@ -698,6 +706,7 @@ void
 curl_request_set_path (curl_request_t *request, const char *path)
 {
     HARD_ASSERT(path != NULL);
+    TOOLKIT_PROTECT();
 
     if (request->path != NULL) {
         efree(request->path);
@@ -718,6 +727,7 @@ curl_state_t
 curl_request_get_state (curl_request_t *request)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     pthread_mutex_lock(&request->mutex);
     curl_state_t state = request->state;
@@ -741,6 +751,7 @@ char *
 curl_request_get_body (curl_request_t *request, size_t *body_size)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     if (curl_request_get_state(request) == CURL_STATE_INPROGRESS) {
         return NULL;
@@ -768,6 +779,7 @@ char *
 curl_request_get_header (curl_request_t *request, size_t *header_size)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     if (curl_request_get_state(request) == CURL_STATE_INPROGRESS) {
         return NULL;
@@ -792,6 +804,7 @@ int
 curl_request_get_http_code (curl_request_t *request)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     if (curl_request_get_state(request) == CURL_STATE_INPROGRESS) {
         return -1;
@@ -814,6 +827,7 @@ int64_t
 curl_request_sizeinfo (curl_request_t *request, curl_info_t info)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     if (curl_request_get_state(request) != CURL_STATE_INPROGRESS ||
         request->handle == NULL) {
@@ -868,6 +882,7 @@ curl_request_speedinfo (curl_request_t *request, char *buf, size_t bufsize)
 {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(buf != NULL);
+    TOOLKIT_PROTECT();
 
     int64_t speed = curl_request_sizeinfo(request, CURL_INFO_DL_SPEED);
     int64_t received = curl_request_sizeinfo(request, CURL_INFO_DL_SIZE);
@@ -902,6 +917,7 @@ void
 curl_request_free (curl_request_t *request)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     /* Still downloading? Kill the thread. */
     if (curl_request_get_state(request) == CURL_STATE_INPROGRESS) {
@@ -1386,6 +1402,7 @@ curl_request_do_get (void *user_data)
 {
     curl_request_t *request = user_data;
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     struct curl_slist *chunk = NULL;
     curl_state_t state;
@@ -1439,6 +1456,7 @@ void
 curl_request_start_get (curl_request_t *request)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     int rc = pthread_create(&request->thread_id,
                             NULL,
@@ -1462,6 +1480,7 @@ curl_request_do_post (void *user_data)
 {
     curl_request_t *request = user_data;
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     curl_state_t state;
 
@@ -1503,6 +1522,7 @@ void
 curl_request_start_post (curl_request_t *request)
 {
     HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
 
     int rc = pthread_create(&request->thread_id,
                             NULL,
