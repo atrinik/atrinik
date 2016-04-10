@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <curl.h>
 
 /** Are we connecting to the metaserver? */
 static int metaserver_connecting = 1;
@@ -217,29 +218,29 @@ void metaserver_add(const char *hostname, int port, const char *name,
  */
 int metaserver_thread(void *dummy)
 {
-    size_t i;
-    curl_data *data;
-
     /* Go through all the metaservers in the list */
-    for (i = clioption_settings.metaservers_num; i > 0; i--) {
-        data = curl_data_new(clioption_settings.metaservers[i - 1], NULL);
+    for (size_t i = clioption_settings.metaservers_num; i > 0; i--) {
+        /* Send a GET request to the metaserver */
+        curl_request_t *request =
+            curl_request_create(clioption_settings.metaservers[i - 1],
+                                CURL_PKEY_TRUST_ULTIMATE);
+        curl_request_do_get(request);
 
-        /* If the connection succeeded, break out. */
-        if (curl_connect(data) == CURL_STATE_OK && data->memory) {
+        /* If the request succeeded, parse the metaserver data and break out. */
+        int http_code = curl_request_get_http_code(request);
+        char *body = curl_request_get_body(request, NULL);
+        if (http_code == 200 && body != NULL) {
             char word[HUGE_BUF];
-            size_t pos;
-
-            pos = 0;
-
-            while (string_get_word(data->memory, &pos, '\n', word, sizeof(word), 0)) {
+            size_t pos = 0;
+            while (string_get_word(body, &pos, '\n', VS(word), 0)) {
                 parse_metaserver_data(word);
             }
 
-            curl_data_free(data);
+            curl_request_free(request);
             break;
         }
 
-        curl_data_free(data);
+        curl_request_free(request);
     }
 
     SDL_LockMutex(metaserver_connecting_mutex);
