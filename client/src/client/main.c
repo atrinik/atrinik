@@ -551,6 +551,7 @@ int main(int argc, char *argv[])
     toolkit_import(binreloc);
     toolkit_import(clioptions);
     toolkit_import(colorspace);
+    toolkit_import(curl);
     toolkit_import(datetime);
     toolkit_import(logger);
     toolkit_import(math);
