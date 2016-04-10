@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <curl.h>
 
 /** How often to blink the eyes in ticks. */
 #define EYES_BLINK_TIME (15 * 1000)
@@ -44,8 +45,8 @@
  */
 static size_t last_server_count = 0;
 
-/** Data buffer used when downloading news from the site. */
-static curl_data *news_data = NULL;
+/** cURL request when downloading news from the site. */
+static curl_request_t *news_request = NULL;
 
 /** Last time the eyes blinked. */
 static uint32_t eyes_blink_ticks = 0;
@@ -269,7 +270,9 @@ void intro_show(void)
     /* No list yet, make one and start downloading the data. */
     if (!list_news) {
         /* Start downloading. */
-        news_data = curl_download_start(clioption_settings.game_news_url, NULL);
+        news_request = curl_request_create(clioption_settings.game_news_url,
+                                           CURL_PKEY_TRUST_ULTIMATE);
+        curl_request_start_get(news_request);
 
         list_news = list_create(18, 1, 8);
         list_news->focus = 0;
@@ -280,30 +283,26 @@ void intro_show(void)
     }
 
     /* Download in progress? */
-    if (news_data) {
-        curl_state_t state = curl_download_get_state(news_data);
-
+    if (news_request != NULL) {
+        curl_state_t state = curl_request_get_state(news_request);
         /* Finished downloading, parse the data. */
         if (state == CURL_STATE_OK) {
-            char *mem = estrdup(news_data->memory ? news_data->memory : "???"), *cp;
-            size_t i = 0;
-
-            cp = strtok(mem, "\n");
-
-            while (cp) {
-                list_add(list_news, i, 0, cp);
-                i++;
-                cp = strtok(NULL, "\n");
+            char *body = curl_request_get_body(news_request, NULL);
+            if (body != NULL) {
+                uint32_t i = 0;
+                char *cp = strtok(body, "\n");
+                while (cp != NULL) {
+                    list_add(list_news, i++, 0, cp);
+                    cp = strtok(NULL, "\n");
+                }
             }
-
-            efree(mem);
         }
 
         /* Finished downloading or there was an error: clean up in either
          * case. */
-        if (state != CURL_STATE_DOWNLOAD) {
-            curl_data_free(news_data);
-            news_data = NULL;
+        if (state != CURL_STATE_INPROGRESS) {
+            curl_request_free(news_request);
+            news_request = NULL;
         }
     }
 
