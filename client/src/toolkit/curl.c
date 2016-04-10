@@ -171,8 +171,6 @@ static char *curl_user_agent = NULL;
 static curl_trust_store_t *curl_trust_pkeys[CURL_PKEY_TRUST_NUM] = {};
 /** cURL data directory. */
 static char *curl_data_dir = NULL;
-/** Whether deinitialization is in progress. */
-static bool deinit = false;
 
 /**
  * Lock the share handle.
@@ -183,10 +181,6 @@ curl_share_lock (CURL            *handle,
                  curl_lock_access lock_access,
                  void            *userptr)
 {
-    if (deinit) {
-        return;
-    }
-
     pthread_mutex_lock(userptr);
 }
 
@@ -198,10 +192,6 @@ curl_share_unlock (CURL          *handle,
                    curl_lock_data data,
                    void          *userptr)
 {
-    if (deinit) {
-        return;
-    }
-
     pthread_mutex_unlock(userptr);
 }
 
@@ -316,13 +306,12 @@ clioptions_option_trusted_pin (const char *arg,
  */
 TOOLKIT_INIT_FUNC(curl)
 {
-    deinit = false;
     curl_global_init(CURL_GLOBAL_ALL);
     pthread_mutex_init(&handle_share_mutex, NULL);
 
     handle_share = curl_share_init();
     curl_share_setopt(handle_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
-    curl_share_setopt(handle_share, CURLSHOPT_USERDATA, handle_share_mutex);
+    curl_share_setopt(handle_share, CURLSHOPT_USERDATA, &handle_share_mutex);
     curl_share_setopt(handle_share, CURLSHOPT_LOCKFUNC, curl_share_lock);
     curl_share_setopt(handle_share, CURLSHOPT_UNLOCKFUNC, curl_share_unlock);
 
@@ -341,7 +330,6 @@ TOOLKIT_INIT_FUNC_FINISH
  */
 TOOLKIT_DEINIT_FUNC(curl)
 {
-    deinit = true;
     curl_share_cleanup(handle_share);
     pthread_mutex_destroy(&handle_share_mutex);
     curl_global_cleanup();
