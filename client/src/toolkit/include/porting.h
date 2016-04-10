@@ -69,6 +69,8 @@
 #include <sys/param.h>
 #include <inttypes.h>
 
+#include <openssl/ssl.h>
+
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -160,9 +162,9 @@
             _fmode = (_mode); \
         }
 #endif
-#endif
 
-#include <openssl/x509.h>
+#undef X509_NAME
+#endif
 
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, NULL);
 
