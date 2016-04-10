@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <curl.h>
 
 /**
  * Maximum width of the text.
@@ -55,9 +56,9 @@ typedef struct game_news {
     char *title;
 
     /**
-     * cURL data for downloading the game news message.
+     * cURL request for downloading the game news message.
      */
-    curl_data *data;
+    curl_request_t *request;
 
     /**
      * cURL data state.
@@ -91,7 +92,7 @@ popup_draw (popup_struct *popup)
 {
     game_news_t *game_news = popup->custom_data;
 
-    curl_state_t state = curl_download_get_state(game_news->data);
+    curl_state_t state = curl_request_get_state(game_news->request);
     if (game_news->state != state) {
         game_news->state = state;
         popup->redraw = 1;
@@ -117,18 +118,15 @@ popup_draw (popup_struct *popup)
         text_show(popup->surface, FONT_SERIF12, "Connection timed out.", 0, 0,
                   COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    } else if (state == CURL_STATE_DOWNLOAD) {
+    } else if (state == CURL_STATE_INPROGRESS) {
         text_show(popup->surface, FONT_SERIF12,
                   "Downloading news, please wait...", 0, 0, COLOR_WHITE,
                   TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
     } else if (state == CURL_STATE_OK) {
         if (game_news->msg == NULL) {
-            if (game_news->data->memory != NULL) {
-                game_news->msg = estrdup(game_news->data->memory);
-            } else {
-                game_news->msg = estrdup("???");
-            }
+            char *body = curl_request_get_body(game_news->request, NULL);
+            game_news->msg = estrdup(body != NULL ? body : "???");
 
             box.w = NEWS_MAX_WIDTH;
             box.h = NEWS_MAX_HEIGHT;
@@ -213,7 +211,7 @@ popup_destroy_callback (popup_struct *popup)
 {
     game_news_t *game_news = popup->custom_data;
     efree(game_news->title);
-    curl_data_free(game_news->data);
+    curl_request_free(game_news->request);
 
     if (game_news->msg != NULL) {
         efree(game_news->msg);
@@ -252,6 +250,7 @@ game_news_open (const char *title)
     curl_easy_cleanup(curl);
 
     /* Start downloading. */
-    game_news->data = curl_download_start(url, NULL);
+    game_news->request = curl_request_create(url, CURL_PKEY_TRUST_ULTIMATE);
+    curl_request_start_get(game_news->request);
     game_news->state = CURL_STATE_NONE;
 }
