@@ -63,7 +63,6 @@ void system_end(void)
     notification_destroy();
     popup_destroy_all();
     toolkit_widget_deinit();
-    curl_deinit();
     client_socket_deinitialize();
     metaserver_clear_data();
     effects_deinit();

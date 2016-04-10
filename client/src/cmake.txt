@@ -3,7 +3,6 @@ set(SOURCES
 	src/client/client.c
 	src/client/cmd_aliases.c
 	src/client/commands.c
-	src/client/curl_old.c
 	src/client/image.c
 	src/client/item.c
 	src/client/keybind.c

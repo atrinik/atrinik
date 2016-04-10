@@ -612,7 +612,6 @@ int main(int argc, char *argv[])
     upgrader_init();
     settings_init();
     init_game_data();
-    curl_init();
 
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0) {
         LOG(ERROR, "Couldn't initialize SDL: %s", SDL_GetError());
