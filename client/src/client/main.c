@@ -544,7 +544,6 @@ int main(int argc, char *argv[])
     uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit,
             last_frame_ticks, last_memory_check;
     int fps_limits[] = {30, 60, 120, 0};
-    char version[MAX_BUF], buf[HUGE_BUF];
 
     toolkit_import(signals);
 
@@ -563,6 +562,25 @@ int main(int argc, char *argv[])
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);
+
+    char version[MAX_BUF];
+    package_get_version_full(VS(version));
+
+    /* Store user agent for cURL, including if this is a GNU/Linux build of
+     * the client or a Windows one. */
+    char user_agent[MAX_BUF];
+#if defined(WIN32)
+    snprintf(VS(user_agent), "Atrinik Client (Win32)/%s (%d)",
+             version, SOCKET_VERSION);
+#elif defined(__GNUC__)
+    snprintf(VS(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)",
+             version, SOCKET_VERSION);
+#else
+    snprintf(VS(user_agent), "Atrinik Client (Unknown)/%s (%d)",
+             version, SOCKET_VERSION);
+#endif
+
+    curl_set_user_agent(user_agent);
 
     clioption_t *cli;
 
@@ -616,11 +634,12 @@ int main(int argc, char *argv[])
     server_files_init();
     toolkit_widget_init();
 
-    snprintf(VS(buf), "Welcome to Atrinik version %s",
-            package_get_version_full(version, sizeof(version)));
+    char buf[HUGE_BUF];
+    snprintf(VS(buf), "Welcome to Atrinik version %s", version);
 #ifdef GITVERSION
-    snprintfcat(VS(buf), "%s", " (" STRINGIFY(GITBRANCH) "/"
-            STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
+    snprintfcat(VS(buf), "%s",
+                " (" STRINGIFY(GITBRANCH) "/" STRINGIFY(GITVERSION)
+                " by " STRINGIFY(GITAUTHOR) ")");
 #endif
     draw_info(COLOR_HGOLD, buf);
 

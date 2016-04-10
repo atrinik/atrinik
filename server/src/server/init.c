@@ -761,6 +761,22 @@ static void init_library(int argc, char *argv[])
     toolkit_import(string);
     toolkit_import(stringbuffer);
 
+    /* Store user agent for cURL, including if this is a GNU/Linux build of
+     * the server or a Windows one. */
+    char user_agent[MAX_BUF];
+#if defined(WIN32)
+    snprintf(VS(user_agent), "Atrinik Server (Win32)/%s (%d)",
+             PACKAGE_VERSION, SOCKET_VERSION);
+#elif defined(__GNUC__)
+    snprintf(VS(user_agent), "Atrinik Server (GNU/Linux)/%s (%d)",
+             PACKAGE_VERSION, SOCKET_VERSION);
+#else
+    snprintf(VS(user_agent), "Atrinik Server (Unknown)/%s (%d)",
+             PACKAGE_VERSION, SOCKET_VERSION);
+#endif
+
+    curl_set_user_agent(user_agent);
+
     /* Add console commands. */
     console_command_add("shutdown",
                         console_command_shutdown,
