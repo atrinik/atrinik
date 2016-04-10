@@ -964,7 +964,7 @@ curl_ssl_verify (int preverify_ok, X509_STORE_CTX *ctx)
     pthread_mutex_lock(&request->mutex);
 
     if (curl_trust_pkeys[request->trust] == NULL) {
-        SOFT_ASSERT_RC(request->trust == CURL_PKEY_TRUST_ULTIMATE, 0,
+        SOFT_ASSERT_RC(request->trust != CURL_PKEY_TRUST_ULTIMATE, 0,
                        "Ultimate trust check requested but store is NULL");
         request->untrusted = true;
         pthread_mutex_unlock(&request->mutex);
