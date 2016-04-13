@@ -416,8 +416,7 @@ void string_newline_to_literal(char *str)
 }
 
 /**
- * Returns a single word from a string, free from left and right
- * whitespace.
+ * Returns a single word from a string.
  *
  * Effectively allows looping through all the words in a string.
  * @param str
