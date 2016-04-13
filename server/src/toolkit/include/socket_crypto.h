@@ -38,4 +38,11 @@
 
 TOOLKIT_FUNCS_DECLARE(socket_crypto);
 
+bool
+socket_crypto_enabled(void);
+bool
+socket_crypto_has_curves(void);
+bool
+socket_crypto_curve_supported(const char *name, int *nid);
+
 #endif

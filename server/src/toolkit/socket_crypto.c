@@ -48,6 +48,45 @@ typedef struct crypto_curve {
 
 /** All the supported crypto curves. */
 static crypto_curve_t *crypto_curves = NULL;
+/** Whether socket cryptography is enabled. */
+static bool crypto_enabled = false;
+
+/**
+ * Frees the crypto curves.
+ */
+static void
+socket_crypto_curves_free (void)
+{
+    crypto_curve_t *curve, *tmp;
+    LL_FOREACH_SAFE(crypto_curves, curve, tmp) {
+        efree(curve->name);
+        efree(curve);
+    }
+
+    crypto_curves = NULL;
+}
+
+/**
+ * Description of the --crypto command.
+ */
+static const char *clioptions_option_crypto_desc =
+"Enables/disables socket cryptography.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_crypto (const char *arg,
+                          char      **errmsg)
+{
+    if (KEYWORD_IS_TRUE(arg)) {
+        crypto_enabled = true;
+    } else if (KEYWORD_IS_FALSE(arg)) {
+        crypto_enabled = false;
+    } else {
+        *errmsg = estrdup("Invalid value supplied");
+        return false;
+    }
+
+    return true;
+}
 
 /**
  * Description of the --crypto_curves command.
@@ -61,31 +100,12 @@ static bool
 clioptions_option_crypto_curves (const char *arg,
                                  char      **errmsg)
 {
-    return true;
-}
-
-/**
- * Initialize the socket crypto API.
- */
-TOOLKIT_INIT_FUNC(socket_crypto)
-{
-    clioption_t *cli;
-    CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_curves, "Select crypto curves");
-#if 0
-    if (!true) { // TODO: check if crypto is enabled
-        return;
-    }
-#endif
-
-    const char *crypto_curves_str = "prime256v1,curve25519"; // TODO: options
+    socket_crypto_curves_free();
 
     char name[MAX_BUF];
     size_t pos = 0;
-    while (string_get_word(crypto_curves_str,
-                           &pos,
-                           ',',
-                           VS(name),
-                           0) != NULL) {
+    while (string_get_word(arg, &pos, ',', VS(name), 0) != NULL) {
+        string_whitespace_trim(name);
         int nid = OBJ_txt2nid(name);
         if (nid == NID_undef) {
             continue;
@@ -95,11 +115,6 @@ TOOLKIT_INIT_FUNC(socket_crypto)
         curve->name = estrdup(name);
         curve->nid = nid;
         LL_APPEND(crypto_curves, curve);
-    }
-
-    if (crypto_curves == NULL) {
-        LOG(ERROR, "Your system does not support any crypto curves. Aborting.");
-        exit(1);
     }
 
     StringBuffer *sb = stringbuffer_new();
@@ -113,6 +128,18 @@ TOOLKIT_INIT_FUNC(socket_crypto)
     char *cp = stringbuffer_finish(sb);
     LOG(INFO, "Determined supported crypto curves: %s", cp);
     efree(cp);
+
+    return true;
+}
+
+/**
+ * Initialize the socket crypto API.
+ */
+TOOLKIT_INIT_FUNC(socket_crypto)
+{
+    clioption_t *cli;
+    CLIOPTIONS_CREATE_ARGUMENT(cli, crypto, "Enable/disable socket crypto");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_curves, "Select crypto curves");
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -121,12 +148,60 @@ TOOLKIT_INIT_FUNC_FINISH
  */
 TOOLKIT_DEINIT_FUNC(socket_crypto)
 {
-    crypto_curve_t *curve, *tmp;
-    LL_FOREACH_SAFE(crypto_curves, curve, tmp) {
-        efree(curve->name);
-        efree(curve);
-    }
-
-    crypto_curves = NULL;
+    socket_crypto_curves_free();
 }
 TOOLKIT_DEINIT_FUNC_FINISH
+
+/**
+ * Check whether the socket crypto sub-system is enabled.
+ *
+ * @return
+ * Whether the socket crypto sub-system is enabled.
+ */
+bool
+socket_crypto_enabled (void)
+{
+    return crypto_enabled;
+}
+
+/**
+ * Check whether the socket crypto sub-system is aware of any supported
+ * crypto curves.
+ *
+ * @return
+ * Whether any crypto curves are available.
+ */
+bool
+socket_crypto_has_curves (void)
+{
+    return crypto_curves != NULL;
+}
+
+/**
+ * Figure out whether the specified curve is supported.
+ *
+ * @param name
+ * Name of the curve to check.
+ * @param[out] nid
+ * Will contain NID of the curve on success. Can be NULL.
+ * @return
+ * True if the specified curve is supported, false otherwise.
+ */
+bool
+socket_crypto_curve_supported (const char *name, int *nid)
+{
+    HARD_ASSERT(name != NULL);
+
+    crypto_curve_t *curve;
+    LL_FOREACH(crypto_curves, curve) {
+        if (strcmp(curve->name, name) == 0) {
+            if (nid != NULL) {
+                *nid = curve->nid;
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
