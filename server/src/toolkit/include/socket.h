@@ -815,6 +815,8 @@ static inline const char *s_strerror(int val)
 #define s_errno errno
 #endif
 
+#include <socket_crypto.h>
+
 /* Prototypes */
 void toolkit_socket_init(void);
 void toolkit_socket_deinit(void);
@@ -844,6 +846,8 @@ const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
 unsigned short socket_addr_plen(const struct sockaddr_storage *addr);
 int socket_addr_cmp(const struct sockaddr_storage *a,
         const struct sockaddr_storage *b, unsigned short plen);
+void
+socket_set_crypto(socket_t *sc, socket_crypto_t *crypto);
 SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 void socket_ssl_destroy(SSL *ssl);
 

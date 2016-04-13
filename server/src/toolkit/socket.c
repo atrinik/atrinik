@@ -67,6 +67,11 @@ struct sock_struct {
      * SSL socket handle.
      */
     SSL *ssl_handle;
+
+    /**
+     * Socket crypto pointer.
+     */
+    socket_crypto_t *crypto;
 };
 
 /** Helper structure used in socket_cmp_addr(). */
@@ -826,6 +831,10 @@ void socket_destroy(socket_t *sc)
         efree(sc->host);
     }
 
+    if (sc->crypto != NULL) {
+        socket_crypto_destroy(sc->crypto);
+    }
+
     socket_close(sc);
     efree(sc);
 }
@@ -1096,6 +1105,22 @@ int socket_addr_cmp(const struct sockaddr_storage *a,
     }
 
     return -1;
+}
+
+/**
+ * Installs the specified crypto pointer into the specified socket.
+ *
+ * @param sc
+ * Socket.
+ * @param crypto
+ * Socket crypto pointer.
+ */
+void
+socket_set_crypto (socket_t *sc, socket_crypto_t *crypto)
+{
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(crypto != NULL);
+    sc->crypto = crypto;
 }
 
 /**

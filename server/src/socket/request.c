@@ -2685,10 +2685,20 @@ socket_crypto_hello (socket_struct *ns,
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
 
-    char curve[MAX_BUF];
-    while (packet_to_string(data, len, &pos, VS(curve)) != NULL) {
-
+    char name[MAX_BUF];
+    while (packet_to_string(data, len, &pos, VS(name)) != NULL) {
+        int nid;
+        if (socket_crypto_curve_supported(name, &nid) &&
+            socket_crypto_create(ns->sc, nid)) {
+            return;
+        }
     }
+
+    LOG(SYSTEM,
+        "Client requested crypto but failed to provide a compatible "
+        "crypto curve: %s",
+        socket_get_str(ns->sc));
+    ns->state = ST_DEAD;
 }
 
 /**

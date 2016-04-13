@@ -32,10 +32,19 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <socket.h>
 #include <socket_crypto.h>
 #include <clioptions.h>
 
 TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
+
+/**
+ * Structure that contains all the necessary information for the  crypto
+ * extension of sockets.
+ */
+struct socket_crypto {
+    int foo;
+};
 
 /**
  * Structure representing a single supported crypto curve.
@@ -204,4 +213,37 @@ socket_crypto_curve_supported (const char *name, int *nid)
     }
 
     return false;
+}
+
+/**
+ * Creates crypto on the specified socket.
+ *
+ * @param sc
+ * Socket.
+ * @param nid
+ * NID of the crypto curve to set up. Can be obtained from
+ * socket_crypto_curve_supported().
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_create (socket_t *sc, int nid)
+{
+    HARD_ASSERT(sc != NULL);
+    socket_crypto_t *crypto = ecalloc(1, sizeof(*crypto));
+    socket_set_crypto(sc, crypto);
+    return true;
+}
+
+/**
+ * Destroys the specified socket crypto.
+ *
+ * @param crypto
+ * Socket crypto to destroy.
+ */
+void
+socket_crypto_destroy (socket_crypto_t *crypto)
+{
+    HARD_ASSERT(crypto != NULL);
+    efree(crypto);
 }

@@ -34,6 +34,9 @@
 
 #include <toolkit.h>
 
+/** Opaque typedef for the ::socket_crypto structure. */
+typedef struct socket_crypto socket_crypto_t;
+
 /* Prototypes */
 
 TOOLKIT_FUNCS_DECLARE(socket_crypto);
@@ -44,5 +47,9 @@ bool
 socket_crypto_has_curves(void);
 bool
 socket_crypto_curve_supported(const char *name, int *nid);
+bool
+socket_crypto_create(socket_t *sc, int nid);
+void
+socket_crypto_destroy(socket_crypto_t *crypto);
 
 #endif
