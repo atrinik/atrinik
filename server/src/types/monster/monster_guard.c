@@ -191,7 +191,7 @@ bool monster_guard_check(object *op, object *target, const char *msg,
     pl->combat_force = false;
 
     player_path_clear(pl);
-    pl->socket.packet_recv_cmd->len = 0;
+    pl->cs->packet_recv_cmd->len = 0;
     player_set_talking_to(pl, op);
 
     int ret = trigger_event(EVENT_AI,

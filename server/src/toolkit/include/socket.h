@@ -38,8 +38,7 @@ enum {
     SERVER_CMD_ASK_FACE,
     SERVER_CMD_SETUP,
     SERVER_CMD_VERSION,
-    /** @deprecated */
-    SERVER_CMD_REQUEST_FILE,
+    SERVER_CMD_SECURITY,
     SERVER_CMD_CLEAR,
     SERVER_CMD_REQUEST_UPDATE,
     SERVER_CMD_KEEPALIVE,
@@ -675,6 +674,30 @@ enum {
 #define CMD_APPLY_ACTION_NONE 1 ///< No action.
 #define CMD_APPLY_ACTION_BELOW_NEXT 2 ///< Next group of items.
 #define CMD_APPLY_ACTION_BELOW_PREV 3 ///< Previous group of items.
+/*@}*/
+
+/**
+ * @defgroup CMD_SECURITY_xxx Security command types
+ * Used to create different sub-commands for the security command.
+ *@{*/
+/**
+ * The hello sub-command.
+ *
+ * This is the ONLY command in the exchange that is not encrypted, as all
+ * the supported curves are cryptographically in the realm of unbreakable.
+ *
+ * The client uses this to inform the server about the list of curves it
+ * supports. It is an error if the server receives an empty set, and MUST
+ * close the connection immediately. The server MUST choose one of the
+ * curves to use; if it doesn't support any in the set, the connection MUST
+ * be terminated immediately.
+ *
+ * In turn, the server sends the chosen curve to use to the client. The
+ * client MUST verify that it supports the given curve, and that a curve
+ * was, in fact, provided in the hello message. It is an error if the client
+ * cannot select a usable curve and MUST terminate the connection immediately.
+ */
+#define CMD_SECURITY_HELLO 1
 /*@}*/
 
 /**

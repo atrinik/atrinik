@@ -51,7 +51,7 @@ void command_who(object *op, const char *command, char *params)
             strncat(buf, " [AFK]", sizeof(buf) - strlen(buf) - 1);
         }
 
-        if (pl->socket.is_bot) {
+        if (pl->cs->is_bot) {
             strncat(buf, " [BOT]", sizeof(buf) - strlen(buf) - 1);
         }
 

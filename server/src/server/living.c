@@ -454,7 +454,7 @@ living_apply_flags (object       *op,
         SET_FLAG(op, FLAG_IS_INVISIBLE);
 
         if (op->type == PLAYER) {
-            CONTR(op)->socket.ext_title_flag = 1;
+            CONTR(op)->cs->ext_title_flag = 1;
         }
     }
 

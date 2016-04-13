@@ -2782,11 +2782,11 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
             continue;
         }
 
-        ax = CONTR(pl)->socket.mapx_2 + rv.distance_x;
-        ay = CONTR(pl)->socket.mapy_2 + rv.distance_y;
+        ax = CONTR(pl)->cs->mapx_2 + rv.distance_x;
+        ay = CONTR(pl)->cs->mapy_2 + rv.distance_y;
 
-        if (ax < 0 || ax >= CONTR(pl)->socket.mapx ||
-                ay < 0 || ay >= CONTR(pl)->socket.mapy) {
+        if (ax < 0 || ax >= CONTR(pl)->cs->mapx ||
+                ay < 0 || ay >= CONTR(pl)->cs->mapy) {
             continue;
         }
 
@@ -2795,7 +2795,7 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
                     sub_layer++) {
                 socket_layer = NUM_LAYERS * sub_layer + layer - 1;
 
-                CONTR(pl)->socket.lastmap.cells[ax][ay].faces[socket_layer] = 0;
+                CONTR(pl)->cs->lastmap.cells[ax][ay].faces[socket_layer] = 0;
             }
         }
     }

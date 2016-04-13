@@ -197,7 +197,7 @@ socket_t *socket_create(const char *host, uint16_t port)
 
 #ifdef HAVE_IPV6
         if (ai->ai_family == AF_INET6) {
-            int flag = 0;
+            int flag = 1;
             if (setsockopt(sc->handle, IPPROTO_IPV6, IPV6_V6ONLY,
                     (const char *) &flag, sizeof(flag)) != 0) {
                 LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)",

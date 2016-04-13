@@ -24,20 +24,23 @@
 
 /**
  * @file
- * Implements the /tsi command.
- *
- * @author Alex Tokar
+ * Socket security header file.
  */
 
-#include <global.h>
-#include <player.h>
-#include <object.h>
+#ifndef SOCKET_SECURITY_H
+#define SOCKET_SECURITY_H
 
-/** @copydoc command_func */
-void command_tsi(object *op, const char *command, char *params)
-{
-    CONTR(op)->tsi = !CONTR(op)->tsi;
-    CONTR(op)->cs->update_tile = 0;
-    esrv_send_inventory(op, op);
-    draw_info_format(COLOR_WHITE, op, "Toggled seeing invisible objects %s.", CONTR(op)->tsi ? "on" : "off");
-}
+#include <toolkit.h>
+
+/* Prototypes */
+
+TOOLKIT_FUNCS_DECLARE(socket_security);
+
+void
+socket_command_security(socket_struct *ns,
+                        player        *pl,
+                        uint8_t       *data,
+                        size_t         len,
+                        size_t         pos);
+
+#endif

@@ -145,7 +145,7 @@ apply_func (object *op, object *applier, int aflags)
     packet_append_string(packet, "[/book]");
     packet_debug_data(packet, 0, "Book message");
     packet_append_string_terminated(packet, op->msg);
-    socket_send_packet(&CONTR(applier)->socket, packet);
+    socket_send_packet(CONTR(applier)->cs, packet);
 
     /* Gain xp from reading but only if not read before. */
     if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {

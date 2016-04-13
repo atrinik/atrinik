@@ -173,6 +173,7 @@ check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(mkstemp HAVE_MKSTEMP)
 check_function_exists(sincos HAVE_SINCOS)
+check_function_exists(pselect HAVE_PSELECT)
 
 if (WIN32)
     check_include_files(wspiapi.h HAVE_WSPIAPI_H)

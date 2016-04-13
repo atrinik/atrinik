@@ -154,7 +154,7 @@ apply_func (object *op, object *applier, int aflags)
             packet_append_uint32(packet, atoi(notification_delay));
         }
 
-        socket_send_packet(&CONTR(applier)->socket, packet);
+        socket_send_packet(CONTR(applier)->cs, packet);
     }
 
     return OBJECT_METHOD_OK;

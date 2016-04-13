@@ -127,9 +127,6 @@ void init_ericserver(void)
     }
 
     init_sockets[0].state = ST_WAITING;
-    read_client_images();
-    updates_init();
-    init_srv_files();
 }
 
 /**
@@ -176,8 +173,7 @@ void free_newsocket(socket_struct *ns)
     }
 
     socket_buffer_clear(ns);
-
-    memset(ns, 0, sizeof(socket_struct));
+    efree(ns);
 }
 
 /**

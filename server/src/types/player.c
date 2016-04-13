@@ -40,6 +40,7 @@
 #include <object_methods.h>
 #include <disease.h>
 #include <container.h>
+#include <server.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
@@ -77,8 +78,8 @@ void
 player_disconnect_all (void)
 {
     while (first_player) {
-        first_player->socket.state = ST_DEAD;
-        remove_ns_dead_player(first_player);
+        first_player->cs->state = ST_DEAD;
+        player_logout(first_player);
     }
 }
 
@@ -202,7 +203,7 @@ free_player (player *pl)
         command_party(pl->ob, "party", "leave");
     }
 
-    pl->socket.state = ST_DEAD;
+    pl->cs->state = ST_DEAD;
 
     /* Free command permissions. */
     if (pl->cmd_permissions) {
@@ -248,7 +249,7 @@ free_player (player *pl)
         object_destroy(pl->ob);
     }
 
-    free_newsocket(&pl->socket);
+    free_newsocket(pl->cs);
 }
 
 /**
@@ -321,9 +322,9 @@ handle_newcs_player (player *pl)
         return -1;
     }
 
-    handle_client(&pl->socket, pl);
+    socket_server_handle_client(pl);
 
-    if (!pl->ob || !OBJECT_ACTIVE(pl->ob) || pl->socket.state == ST_DEAD) {
+    if (!pl->ob || !OBJECT_ACTIVE(pl->ob) || pl->cs->state == ST_DEAD) {
         return -1;
     }
 
@@ -2540,12 +2541,13 @@ player_get_dummy (const char *name, const char *host)
     player *pl;
 
     pl = get_player(NULL);
-    pl->socket.sc = socket_create(host != NULL ? host : "127.0.0.1", 13327);
-    if (pl->socket.sc == NULL) {
+    pl->cs = ecalloc(1, sizeof(*pl->cs));
+    pl->cs->sc = socket_create(host != NULL ? host : "127.0.0.1", 13327);
+    if (pl->cs->sc == NULL) {
         abort();
     }
 
-    init_connection(&pl->socket);
+    init_connection(pl->cs);
 
     pl->ob = arch_get("human_male");
     pl->ob->custom_attrset = pl;
@@ -2564,10 +2566,10 @@ player_get_dummy (const char *name, const char *host)
     living_update_player(pl->ob);
     link_player_skills(pl->ob);
 
-    pl->socket.state = ST_PLAYING;
-    pl->socket.socket_version = SOCKET_VERSION;
-    pl->socket.account = estrdup(ACCOUNT_TESTING_NAME);
-    pl->socket.sound = 1;
+    pl->cs->state = ST_PLAYING;
+    pl->cs->socket_version = SOCKET_VERSION;
+    pl->cs->account = estrdup(ACCOUNT_TESTING_NAME);
+    pl->cs->sound = 1;
 
     object_enter_map(pl->ob, NULL, NULL, 0, 0, false);
 
@@ -2640,8 +2642,8 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
 
     player *pl = find_player(name);
     if (pl != NULL) {
-        pl->socket.state = ST_DEAD;
-        remove_ns_dead_player(pl);
+        pl->cs->state = ST_DEAD;
+        player_logout(pl);
     }
 
     if (ban_check(ns, name)) {
@@ -2680,18 +2682,16 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
         goto out;
     }
 
+    if (!socket_server_remove(ns)) {
+        LOG(ERROR, "Failed to remove socket from managed list: %s",
+            socket_get_str(ns->sc));
+        goto out;
+    }
+
     LOG(INFO, "Login %s from IP %s", name, socket_get_str(ns->sc));
 
     pl = get_player(NULL);
-    memcpy(&pl->socket, ns, sizeof(socket_struct));
-
-    /* Basically, the add_player copies the socket structure into
-     * the player structure, so this one (which is from init_sockets)
-     * is not needed anymore. */
-    ns->login_count = 0;
-    ns->keepalive = 0;
-    socket_info.nconns--;
-    ns->state = ST_AVAILABLE;
+    pl->cs = ns;
 
     /* Create a new object for the player object data. */
     pl->ob = object_get();
@@ -2718,11 +2718,11 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
     living_update_player(pl->ob);
     link_player_skills(pl->ob);
 
-    pl->socket.state = ST_PLAYING;
+    pl->cs->state = ST_PLAYING;
 
     display_motd(pl->ob);
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
-    trigger_global_event(GEVENT_LOGIN, pl, socket_get_addr(pl->socket.sc));
+    trigger_global_event(GEVENT_LOGIN, pl, socket_get_addr(pl->cs->sc));
 
     mapstruct *m = ready_map_name(pl->maplevel, NULL, 0);
 
@@ -2751,9 +2751,9 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
         pl->bed_y = pl->ob->y;
     }
 
-    pl->socket.update_tile = 0;
-    pl->socket.look_position = 0;
-    pl->socket.ext_title_flag = 1;
+    pl->cs->update_tile = 0;
+    pl->cs->look_position = 0;
+    pl->cs->ext_title_flag = 1;
 
     /* No direction; default to southeast. */
     if (!pl->ob->direction) {
@@ -2776,6 +2776,50 @@ out:
     }
 
     efree(path);
+}
+
+/**
+ * Remove a player from the game that has been disconnected by logging
+ * out, the socket connection was interrupted, etc.
+ *
+ * @param pl
+ * The player to remove.
+ */
+void
+player_logout (player *pl)
+{
+    HARD_ASSERT(pl != NULL);
+    SOFT_ASSERT(pl->cs->state == ST_DEAD,
+                "Player socket state is: %d",
+                pl->cs->state);
+
+    if (pl->ob->type == DEAD_OBJECT) {
+        return;
+    }
+
+    /* Trigger the global LOGOUT event */
+    trigger_global_event(GEVENT_LOGOUT, pl->ob, socket_get_addr(pl->cs->sc));
+    statistics_player_logout(pl);
+
+    draw_info_format(COLOR_DK_ORANGE, NULL, "%s left the game.", pl->ob->name);
+
+    snprintf(VS(pl->killer), "left");
+    hiscore_check(pl->ob, 1);
+
+    /* Be sure we have closed container when we leave */
+    container_close(pl->ob, NULL);
+
+    player_save(pl->ob);
+    account_logout_char(pl->cs, pl);
+    leave_map(pl->ob);
+
+    LOG(SYSTEM, "Connection: dropping connection: %s (%s)",
+        socket_get_str(pl->cs->sc),
+        pl->ob->name);
+
+    /* To avoid problems with inventory window */
+    pl->ob->type = DEAD_OBJECT;
+    free_player(pl);
 }
 
 /**
@@ -3028,7 +3072,7 @@ process_func (object *op)
 
     /* Check for ST_PLAYING state so that we don't try to save off when
      * the player is logging in. */
-    if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->socket.state == ST_PLAYING) {
+    if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->cs->state == ST_PLAYING) {
         player_save(pl->ob);
         pl->last_save_tick = pticks;
         hiscore_check(pl->ob, 1);
@@ -3036,7 +3080,7 @@ process_func (object *op)
 #endif
 
     /* Update total playing time. */
-    if (pl->socket.state == ST_PLAYING && time(NULL) > pl->last_stat_time_played) {
+    if (pl->cs->state == ST_PLAYING && time(NULL) > pl->last_stat_time_played) {
         pl->last_stat_time_played = time(NULL);
 
         if (pl->afk) {

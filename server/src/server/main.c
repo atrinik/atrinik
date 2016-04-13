@@ -37,6 +37,7 @@
 #include <player.h>
 #include <object_methods.h>
 #include <waypoint.h>
+#include <server.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>
@@ -638,15 +639,14 @@ int main(int argc, char **argv)
         }
 
         console_command_handle();
-
-        doeric_server();
+        socket_server_process();
 
         if (++process_delay >= max_time_multiplier) {
             process_delay = 0;
             main_process();
         }
 
-        doeric_server_write();
+        socket_server_post_process();
 
         /* Sleep proper amount of time before next tick */
         sleep_delta();

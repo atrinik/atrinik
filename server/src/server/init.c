@@ -39,6 +39,8 @@
 #include <object_methods.h>
 #include <clioptions.h>
 #include <curl.h>
+#include <server.h>
+#include <security.h>
 
 /**
  * The server's settings.
@@ -178,7 +180,7 @@ void cleanup(void)
     free_all_treasures();
     artifact_deinit();
     free_all_images();
-    free_all_newserver();
+    free_socket_images();
     free_all_readable();
     free_all_anim();
     free_strings();
@@ -869,6 +871,8 @@ static void init_library(int argc, char *argv[])
     /* Import game APIs that need settings */
     toolkit_import(ban);
     toolkit_import(faction);
+    toolkit_import(socket_security);
+    toolkit_import(socket_server);
 
     map_init();
     init_globals();
@@ -1006,7 +1010,9 @@ void init(int argc, char **argv)
     hiscore_init();
 
     init_beforeplay();
-    init_ericserver();
+    read_client_images();
+    updates_init();
+    init_srv_files();
     metaserver_init();
     statistics_init();
     reset_sleep();

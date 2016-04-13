@@ -24,20 +24,46 @@
 
 /**
  * @file
- * Implements the /tsi command.
- *
- * @author Alex Tokar
+ * Socket server header file.
  */
 
-#include <global.h>
-#include <player.h>
-#include <object.h>
+#ifndef SOCKET_SERVER_H
+#define SOCKET_SERVER_H
 
-/** @copydoc command_func */
-void command_tsi(object *op, const char *command, char *params)
-{
-    CONTR(op)->tsi = !CONTR(op)->tsi;
-    CONTR(op)->cs->update_tile = 0;
-    esrv_send_inventory(op, op);
-    draw_info_format(COLOR_WHITE, op, "Toggled seeing invisible objects %s.", CONTR(op)->tsi ? "on" : "off");
-}
+#include <toolkit.h>
+
+/**
+ * Function to call when a specific command type is received.
+ *
+ * @param cs
+ * Client socket.
+ * @param pl
+ * Player associated with the client. May be NULL if the client has not
+ * logged in yet.
+ * @param data
+ * Network data buffer that contains the command.
+ * @param len
+ * Number of bytes in the command.
+ * @param pos
+ * Position where to start parsing command-specific data.
+ */
+typedef void (*socket_command_func)(socket_struct *cs,
+                                    player        *pl,
+                                    uint8_t       *data,
+                                    size_t         len,
+                                    size_t         pos);
+
+/* Prototypes */
+
+TOOLKIT_FUNCS_DECLARE(socket_server);
+
+void
+socket_server_handle_client(player *pl);
+bool
+socket_server_remove(socket_struct *cs);
+void
+socket_server_process(void);
+void
+socket_server_post_process(void);
+
+#endif

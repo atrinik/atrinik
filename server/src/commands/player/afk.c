@@ -64,5 +64,5 @@ void command_afk(object *op, const char *command, char *params)
         CONTR(op)->afk_auto_reply[sizeof(CONTR(op)->afk_auto_reply) - 1] = '\0';
     }
 
-    CONTR(op)->socket.ext_title_flag = 1;
+    CONTR(op)->cs->ext_title_flag = 1;
 }

@@ -565,11 +565,6 @@ extern void socket_command_item_apply(socket_struct *ns, player *pl, uint8_t *da
 extern void socket_command_item_lock(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void socket_command_item_mark(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
-/* src/socket/loop.c */
-extern void handle_client(socket_struct *ns, player *pl);
-extern void remove_ns_dead_player(player *pl);
-extern void doeric_server(void);
-extern void doeric_server_write(void);
 /* src/socket/lowlevel.c */
 extern void socket_buffer_clear(socket_struct *ns);
 extern void socket_buffer_write(socket_struct *ns);

@@ -98,7 +98,7 @@ void add_party_member(party_struct *party, object *op)
     packet_append_uint8(packet, CMD_PARTY_JOIN);
     packet_debug_data(packet, 0, "Party name");
     packet_append_string_terminated(packet, party->name);
-    socket_send_packet(&CONTR(op)->socket, packet);
+    socket_send_packet(CONTR(op)->cs, packet);
 
     CONTR(op)->last_party_hp = 0;
     CONTR(op)->last_party_sp = 0;
@@ -137,7 +137,7 @@ void remove_party_member(party_struct *party, object *op)
         packet_append_string_terminated(packet, op->name);
 
         for (ol = party->members; ol; ol = ol->next) {
-            socket_send_packet(&CONTR(ol->objlink.ob)->socket,
+            socket_send_packet(CONTR(ol->objlink.ob)->cs,
                     packet_dup(packet));
         }
 
@@ -157,7 +157,7 @@ void remove_party_member(party_struct *party, object *op)
     packet = packet_new(CLIENT_CMD_PARTY, 4, 0);
     packet_debug_data(packet, 0, "Party command type");
     packet_append_uint8(packet, CMD_PARTY_LEAVE);
-    socket_send_packet(&CONTR(op)->socket, packet);
+    socket_send_packet(CONTR(op)->cs, packet);
 
     CONTR(op)->party = NULL;
 }
@@ -555,7 +555,7 @@ void party_update_who(player *pl)
         packet_append_uint8(packet, sp);
 
         for (ol = pl->party->members; ol; ol = ol->next) {
-            socket_send_packet(&CONTR(ol->objlink.ob)->socket,
+            socket_send_packet(CONTR(ol->objlink.ob)->cs,
                     packet_dup(packet));
         }
 

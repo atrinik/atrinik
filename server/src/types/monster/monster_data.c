@@ -164,7 +164,7 @@ static void monster_data_dialogs_close(monster_data_dialog_t *dialog)
     }
 
     packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 32, 0);
-    socket_send_packet(&CONTR(dialog->ob)->socket, packet);
+    socket_send_packet(CONTR(dialog->ob)->cs, packet);
 }
 
 /**

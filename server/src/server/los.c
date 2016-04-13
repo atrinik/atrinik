@@ -178,8 +178,8 @@ static void set_wall(object *op, int x, int y)
 {
     int i, xt, yt;
 
-    xt = (MAP_CLIENT_X - CONTR(op)->socket.mapx) / 2;
-    yt = (MAP_CLIENT_Y - CONTR(op)->socket.mapy) / 2;
+    xt = (MAP_CLIENT_X - CONTR(op)->cs->mapx) / 2;
+    yt = (MAP_CLIENT_Y - CONTR(op)->cs->mapy) / 2;
 
     for (i = 0; i < block[x][y].index; i++) {
         int dx = block[x][y].x[i], dy = block[x][y].y[i], ax, ay;
@@ -189,7 +189,7 @@ static void set_wall(object *op, int x, int y)
         ax = dx - xt;
         ay = dy - yt;
 
-        if (ax < 0 || ax >= CONTR(op)->socket.mapx || ay < 0 || ay >= CONTR(op)->socket.mapy) {
+        if (ax < 0 || ax >= CONTR(op)->cs->mapx || ay < 0 || ay >= CONTR(op)->cs->mapy) {
             continue;
         }
 
@@ -223,8 +223,8 @@ static void check_wall(object *op, int x, int y)
     int ax, ay, flags;
 
     /* ax, ay are coordinates as indexed into the look window */
-    ax = x - (MAP_CLIENT_X - CONTR(op)->socket.mapx) / 2;
-    ay = y - (MAP_CLIENT_Y - CONTR(op)->socket.mapy) / 2;
+    ax = x - (MAP_CLIENT_X - CONTR(op)->cs->mapx) / 2;
+    ay = y - (MAP_CLIENT_Y - CONTR(op)->cs->mapy) / 2;
 
     /* this skips the "edges" of view area, the border tiles.
      * Naturally, this tiles can't block any view - there is
@@ -248,7 +248,7 @@ static void check_wall(object *op, int x, int y)
 
     /* If the converted coordinates are outside the viewable
      * area for the client, return now. */
-    if (ax < 0 || ay < 0 || ax >= CONTR(op)->socket.mapx || ay >= CONTR(op)->socket.mapy) {
+    if (ax < 0 || ay < 0 || ax >= CONTR(op)->cs->mapx || ay >= CONTR(op)->cs->mapy) {
         return;
     }
 
@@ -296,13 +296,13 @@ static void blinded_sight(object *op)
 {
     int x, y;
 
-    for (x = 0; x < CONTR(op)->socket.mapx; x++) {
-        for (y = 0; y < CONTR(op)->socket.mapy; y++) {
+    for (x = 0; x < CONTR(op)->cs->mapx; x++) {
+        for (y = 0; y < CONTR(op)->cs->mapy; y++) {
             CONTR(op)->blocked_los[x][y] |= BLOCKED_LOS_BLOCKED;
         }
     }
 
-    CONTR(op)->blocked_los[CONTR(op)->socket.mapx / 2][CONTR(op)->socket.mapy / 2] &= ~BLOCKED_LOS_BLOCKED;
+    CONTR(op)->blocked_los[CONTR(op)->cs->mapx / 2][CONTR(op)->cs->mapy / 2] &= ~BLOCKED_LOS_BLOCKED;
 }
 
 /**
@@ -313,7 +313,7 @@ static void blinded_sight(object *op)
  */
 void update_los(object *op)
 {
-    int dx = CONTR(op)->socket.mapx_2, dy = CONTR(op)->socket.mapy_2, x, y;
+    int dx = CONTR(op)->cs->mapx_2, dy = CONTR(op)->cs->mapy_2, x, y;
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
         return;
@@ -329,8 +329,8 @@ void update_los(object *op)
      * used the chaining of the block array.  Since many space views could
      * be blocked by different spaces in front, this mean that a lot of spaces
      * could be examined multile times, as each path would be looked at. */
-    for (x = (MAP_CLIENT_X - CONTR(op)->socket.mapx) / 2; x < (MAP_CLIENT_X + CONTR(op)->socket.mapx) / 2; x++) {
-        for (y = (MAP_CLIENT_Y - CONTR(op)->socket.mapy) / 2; y < (MAP_CLIENT_Y + CONTR(op)->socket.mapy) / 2; y++) {
+    for (x = (MAP_CLIENT_X - CONTR(op)->cs->mapx) / 2; x < (MAP_CLIENT_X + CONTR(op)->cs->mapx) / 2; x++) {
+        for (y = (MAP_CLIENT_Y - CONTR(op)->cs->mapy) / 2; y < (MAP_CLIENT_Y + CONTR(op)->cs->mapy) / 2; y++) {
             check_wall(op, x, y);
         }
     }
@@ -382,8 +382,8 @@ static void expand_sight(object *op)
     int i, x, y, dx, dy;
 
     /* loop over inner squares */
-    for (x = 1; x < CONTR(op)->socket.mapx - 1; x++) {
-        for (y = 1; y < CONTR(op)->socket.mapy - 1; y++) {
+    for (x = 1; x < CONTR(op)->cs->mapx - 1; x++) {
+        for (y = 1; y < CONTR(op)->cs->mapy - 1; y++) {
             /* if visible and not blocksview */
             if (CONTR(op)->blocked_los[x][y] <= BLOCKED_LOS_BLOCKSVIEW && !(CONTR(op)->blocked_los[x][y] & BLOCKED_LOS_BLOCKSVIEW)) {
                 /* mark all directions */
@@ -391,7 +391,7 @@ static void expand_sight(object *op)
                     dx = x + freearr_x[i];
                     dy = y + freearr_y[i];
 
-                    if (dx < 0 || dy < 0 || dx > CONTR(op)->socket.mapx || dy > CONTR(op)->socket.mapy) {
+                    if (dx < 0 || dy < 0 || dx > CONTR(op)->cs->mapx || dy > CONTR(op)->cs->mapy) {
                         continue;
                     }
 
@@ -403,8 +403,8 @@ static void expand_sight(object *op)
         }
     }
 
-    for (x = 0; x < CONTR(op)->socket.mapx; x++) {
-        for (y = 0; y < CONTR(op)->socket.mapy; y++) {
+    for (x = 0; x < CONTR(op)->cs->mapx; x++) {
+        for (y = 0; y < CONTR(op)->cs->mapy; y++) {
             if (CONTR(op)->blocked_los[x][y] & BLOCKED_LOS_EXPAND) {
                 CONTR(op)->blocked_los[x][y] &= ~(BLOCKED_LOS_BLOCKED | BLOCKED_LOS_EXPAND);
             }

@@ -99,7 +99,7 @@ void draw_info_full(uint8_t type, const char *name, const char *color, StringBuf
         return;
     }
 
-    if (CONTR(pl)->socket.state != ST_PLAYING) {
+    if (CONTR(pl)->cs->state != ST_PLAYING) {
         return;
     }
 
@@ -107,7 +107,7 @@ void draw_info_full(uint8_t type, const char *name, const char *color, StringBuf
         stringbuffer_append_string(sb_capture, buf);
         stringbuffer_append_string(sb_capture, "\n");
     } else {
-        draw_info_send(type, name, color, &CONTR(pl)->socket, buf);
+        draw_info_send(type, name, color, CONTR(pl)->cs, buf);
     }
 }
 

@@ -262,7 +262,7 @@ void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
             packet_debug_data(packet, level + 1, "Experience");
             packet_append_int64(packet, op->stats.exp);
 
-            if (CONTR(pl)->socket.socket_version >= 1065) {
+            if (CONTR(pl)->cs->socket_version >= 1065) {
                 packet_debug_data(packet, level + 1, "Message");
                 packet_append_string_terminated(packet, op->msg ? op->msg : "");
             }
@@ -290,7 +290,7 @@ void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
         }
     }
 
-    if (flags & UPD_GLOW && CONTR(pl)->socket.socket_version >= 1060) {
+    if (flags & UPD_GLOW && CONTR(pl)->cs->socket_version >= 1060) {
         packet_debug_data(packet, level, "Glow color");
         packet_append_string_terminated(packet,
                 op->glow != NULL ? op->glow : "");
@@ -318,7 +318,7 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
 
     packet_debug(packet, level, "Inventory:");
 
-    if (CONTR(pl)->socket.socket_version >= 1062) {
+    if (CONTR(pl)->cs->socket_version >= 1062) {
         add_object_to_packet(packet, &arches[ARCH_INV_START]->clone, pl,
                 CMD_APPLY_ACTION_NONE, flags, level + 1);
     } else {
@@ -356,7 +356,7 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
         }
     }
 
-    if (CONTR(pl)->socket.socket_version >= 1062) {
+    if (CONTR(pl)->cs->socket_version >= 1062) {
         add_object_to_packet(packet, &arches[ARCH_INV_END]->clone, pl,
                 CMD_APPLY_ACTION_NONE, flags, level + 1);
     } else {
@@ -417,14 +417,14 @@ void esrv_draw_look(object *pl)
 
     packet_debug(packet, 0, "Below inventory:\n");
 
-    if (CONTR(pl)->socket.look_position) {
-        if (CONTR(pl)->socket.socket_version >= 1062) {
+    if (CONTR(pl)->cs->look_position) {
+        if (CONTR(pl)->cs->socket_version >= 1062) {
             add_object_to_packet(packet, &arches[ARCH_INV_GROUP_PREV]->clone,
                     pl, CMD_APPLY_ACTION_BELOW_PREV, flags, 1);
         } else {
             packet_debug_data(packet, 1, "\nTag");
             packet_append_uint32(packet, 0x80000000 |
-                    (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
+                    (CONTR(pl)->cs->look_position - NUM_LOOK_OBJECTS));
             packet_debug_data(packet, 1, "Flags");
             packet_append_uint32(packet, 0);
             packet_debug_data(packet, 1, "Weight");
@@ -464,19 +464,19 @@ void esrv_draw_look(object *pl)
             continue;
         }
 
-        if (++start_look < CONTR(pl)->socket.look_position) {
+        if (++start_look < CONTR(pl)->cs->look_position) {
             continue;
         }
 
         if (++end_look > NUM_LOOK_OBJECTS) {
-            if (CONTR(pl)->socket.socket_version >= 1062) {
+            if (CONTR(pl)->cs->socket_version >= 1062) {
                 add_object_to_packet(packet,
                         &arches[ARCH_INV_GROUP_NEXT]->clone, pl,
                         CMD_APPLY_ACTION_BELOW_NEXT, flags, 1);
             } else {
                 packet_debug_data(packet, 1, "\nTag");
                 packet_append_uint32(packet, 0x80000000 |
-                        (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
+                        (CONTR(pl)->cs->look_position + NUM_LOOK_OBJECTS));
                 packet_debug_data(packet, 1, "Flags");
                 packet_append_uint32(packet, 0);
                 packet_debug_data(packet, 1, "Weight");
@@ -511,7 +511,7 @@ void esrv_draw_look(object *pl)
         }
     }
 
-    socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(CONTR(pl)->cs, packet);
 }
 
 /**
@@ -531,7 +531,7 @@ void esrv_close_container(object *pl, object *op)
     packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
     packet_enable_ndelay(packet);
 
-    if (CONTR(pl)->socket.socket_version >= 1061) {
+    if (CONTR(pl)->cs->socket_version >= 1061) {
         packet_debug_data(packet, 0, "Delete inventory flag");
         packet_append_uint8(packet, 1);
         packet_debug_data(packet, 0, "Inventory to delete ID");
@@ -543,7 +543,7 @@ void esrv_close_container(object *pl, object *op)
         packet_append_int32(packet, -1);
     }
 
-    socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(CONTR(pl)->cs, packet);
 }
 
 /**
@@ -562,7 +562,7 @@ void esrv_send_inventory(object *pl, object *op)
     packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
     packet_enable_ndelay(packet);
 
-    if (CONTR(pl)->socket.socket_version >= 1061) {
+    if (CONTR(pl)->cs->socket_version >= 1061) {
         packet_debug_data(packet, 0, "Delete inventory flag");
         packet_append_uint8(packet, 1);
         packet_debug_data(packet, 0, "Inventory to delete ID");
@@ -595,7 +595,7 @@ void esrv_send_inventory(object *pl, object *op)
                 UPD_GLOW, 0);
     }
 
-    socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(CONTR(pl)->cs, packet);
 }
 
 /**
@@ -625,7 +625,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
     packet_debug_data(packet, 0, "Flags");
     packet_append_uint16(packet, flags);
     add_object_to_packet(packet, op, pl, CMD_APPLY_ACTION_NORMAL, flags, 0);
-    socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(CONTR(pl)->cs, packet);
 }
 
 /**
@@ -664,7 +664,7 @@ static void esrv_send_item_send(object *pl, object *op)
 {
     packet_struct *packet;
 
-    if (!CONTR(pl) || CONTR(pl)->socket.state != ST_PLAYING) {
+    if (!CONTR(pl) || CONTR(pl)->cs->state != ST_PLAYING) {
         return;
     }
 
@@ -676,7 +676,7 @@ static void esrv_send_item_send(object *pl, object *op)
     packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
     packet_enable_ndelay(packet);
 
-    if (CONTR(pl)->socket.socket_version >= 1061) {
+    if (CONTR(pl)->cs->socket_version >= 1061) {
         packet_debug_data(packet, 0, "Delete inventory flag");
         packet_append_uint8(packet, 0);
     } else {
@@ -692,7 +692,7 @@ static void esrv_send_item_send(object *pl, object *op)
             UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE |
             UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA |
             UPD_GLOW, 0);
-    socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(CONTR(pl)->cs, packet);
 }
 
 /**
@@ -744,7 +744,7 @@ static void esrv_del_item_send(object *pl, object *op)
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Object ID");
     packet_append_uint32(packet, op->count);
-    socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(CONTR(pl)->cs, packet);
 }
 
 /**
@@ -887,7 +887,7 @@ void send_quickslots(player *pl)
     }
 
     if (packet != NULL) {
-        socket_send_packet(&pl->socket, packet);
+        socket_send_packet(pl->cs, packet);
     }
 }
 
@@ -935,11 +935,11 @@ void socket_command_item_apply(socket_struct *ns, player *pl, uint8_t *data,
         if (apply_action == CMD_APPLY_ACTION_BELOW_NEXT) {
             ns->look_position += MIN(UINT32_MAX - ns->look_position,
                     NUM_LOOK_OBJECTS);
-            pl->socket.update_tile = 0;
+            pl->cs->update_tile = 0;
             return;
         } else if (apply_action == CMD_APPLY_ACTION_BELOW_PREV) {
             ns->look_position -= MIN(ns->look_position, NUM_LOOK_OBJECTS);
-            pl->socket.update_tile = 0;
+            pl->cs->update_tile = 0;
             return;
         } else {
             return;
@@ -948,8 +948,8 @@ void socket_command_item_apply(socket_struct *ns, player *pl, uint8_t *data,
 
     if (ns->socket_version < 1062) {
         if (tag & 0x80000000) {
-            pl->socket.look_position = tag & 0x7fffffff;
-            pl->socket.update_tile = 0;
+            pl->cs->look_position = tag & 0x7fffffff;
+            pl->cs->update_tile = 0;
             return;
         }
     }
