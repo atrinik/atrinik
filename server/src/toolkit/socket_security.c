@@ -33,8 +33,9 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <socket_security.h>
+#include <clioptions.h>
 
-TOOLKIT_API(DEPENDS(logger), DEPENDS(memory));
+TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
 
 /**
  * Structure representing a single supported security curve.
@@ -49,10 +50,27 @@ typedef struct security_curve {
 static security_curve_t *security_curves = NULL;
 
 /**
+ * Description of the --crypto_curves command.
+ */
+static const char *clioptions_option_crypto_curves_desc =
+"Select crypto curves to support in the crypto exchange. You can acquire a "
+"list of supported curves on your system by running "
+"'openssl ecparam -list_curves'.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_crypto_curves (const char *arg,
+                                 char      **errmsg)
+{
+    return true;
+}
+
+/**
  * Initialize the socket security API.
  */
 TOOLKIT_INIT_FUNC(socket_security)
 {
+    clioption_t *cli;
+    CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_curves, "Select crypto curves");
 #if 0
     if (!true) { // TODO: check if security is enabled
         return;
