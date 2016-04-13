@@ -40,7 +40,7 @@
 #include <clioptions.h>
 #include <curl.h>
 #include <server.h>
-#include <security.h>
+#include <socket_security.h>
 
 /**
  * The server's settings.
@@ -760,6 +760,7 @@ static void init_library(int argc, char *argv[])
     toolkit_import(porting);
     toolkit_import(shstr);
     toolkit_import(socket);
+    toolkit_import(socket_security);
     toolkit_import(string);
     toolkit_import(stringbuffer);
 
@@ -871,7 +872,6 @@ static void init_library(int argc, char *argv[])
     /* Import game APIs that need settings */
     toolkit_import(ban);
     toolkit_import(faction);
-    toolkit_import(socket_security);
     toolkit_import(socket_server);
 
     map_init();

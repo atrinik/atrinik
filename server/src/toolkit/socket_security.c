@@ -32,10 +32,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
-#include <packet.h>
-#include <security.h>
-#include <player.h>
-#include <object.h>
+#include <socket_security.h>
 
 TOOLKIT_API(DEPENDS(logger), DEPENDS(memory));
 
@@ -62,7 +59,7 @@ TOOLKIT_INIT_FUNC(socket_security)
     }
 #endif
 
-    const char *security_curves_str = "prime256v1"; // TODO: server options
+    const char *security_curves_str = "prime256v1,curve25519"; // TODO: options
 
     char name[MAX_BUF];
     size_t pos = 0;
@@ -81,6 +78,23 @@ TOOLKIT_INIT_FUNC(socket_security)
         curve->nid = nid;
         LL_APPEND(security_curves, curve);
     }
+
+    if (security_curves == NULL) {
+        LOG(ERROR, "Your system does not support any crypto curves. Aborting.");
+        exit(1);
+    }
+
+    StringBuffer *sb = stringbuffer_new();
+    security_curve_t *curve;
+    LL_FOREACH(security_curves, curve) {
+        stringbuffer_append_printf(sb, "%s%s",
+                                   stringbuffer_length(sb) != 0 ? ", " : "",
+                                   curve->name);
+    }
+
+    char *cp = stringbuffer_finish(sb);
+    LOG(INFO, "Determined supported crypto curves: %s", cp);
+    efree(cp);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -98,60 +112,3 @@ TOOLKIT_DEINIT_FUNC(socket_security)
     security_curves = NULL;
 }
 TOOLKIT_DEINIT_FUNC_FINISH
-
-/**
- * Handler for the security hello sub-command.
- *
- * @copydoc socket_command_func
- */
-static void
-socket_security_hello (socket_struct *ns,
-                       player        *pl,
-                       uint8_t       *data,
-                       size_t         len,
-                       size_t         pos)
-{
-    HARD_ASSERT(ns != NULL);
-    HARD_ASSERT(pl == NULL);
-    HARD_ASSERT(data != NULL);
-
-    char curve[MAX_BUF];
-    while (packet_to_string(data, len, &pos, VS(curve)) != NULL) {
-
-    }
-}
-
-/**
- * Handler for the security socket command.
- *
- * @copydoc socket_command_func
- */
-void
-socket_command_security (socket_struct *ns,
-                         player        *pl,
-                         uint8_t       *data,
-                         size_t         len,
-                         size_t         pos)
-{
-    HARD_ASSERT(ns != NULL);
-    HARD_ASSERT(data != NULL);
-    /* TODO: Check if received before on the socket */
-
-    /* Don't let clients initiate a handshake when they're already logged in.
-     * In practice, this should never happen. */
-    if (pl != NULL) {
-        LOG(PACKET, "Received while logged in: %s", pl->ob->name);
-        return;
-    }
-
-    uint8_t type = packet_to_uint8(data, len, &pos);
-    switch (type) {
-    case CMD_SECURITY_HELLO:
-        socket_security_hello(ns, pl, data, len, pos);
-        break;
-
-    default:
-        LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
-        break;
-    }
-}

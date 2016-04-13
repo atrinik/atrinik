@@ -2669,3 +2669,59 @@ void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data,
     send_target_command(pl);
 }
 
+/**
+ * Handler for the security hello sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_security_hello (socket_struct *ns,
+                       player        *pl,
+                       uint8_t       *data,
+                       size_t         len,
+                       size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    char curve[MAX_BUF];
+    while (packet_to_string(data, len, &pos, VS(curve)) != NULL) {
+
+    }
+}
+
+/**
+ * Handler for the security socket command.
+ *
+ * @copydoc socket_command_func
+ */
+void
+socket_command_security (socket_struct *ns,
+                         player        *pl,
+                         uint8_t       *data,
+                         size_t         len,
+                         size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(data != NULL);
+    /* TODO: Check if received before on the socket */
+
+    /* Don't let clients initiate a handshake when they're already logged in.
+     * In practice, this should never happen. */
+    if (pl != NULL) {
+        LOG(PACKET, "Received while logged in: %s", pl->ob->name);
+        return;
+    }
+
+    uint8_t type = packet_to_uint8(data, len, &pos);
+    switch (type) {
+    case CMD_SECURITY_HELLO:
+        socket_security_hello(ns, pl, data, len, pos);
+        break;
+
+    default:
+        LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
+        break;
+    }
+}

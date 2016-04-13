@@ -37,7 +37,6 @@
 #include <player.h>
 #include <object.h>
 #include <ban.h>
-#include <security.h>
 
 TOOLKIT_API(DEPENDS(socket), IMPORTS(logger));
 

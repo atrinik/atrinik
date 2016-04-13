@@ -121,7 +121,6 @@ set(SOURCES
 	src/socket/lowlevel.c
 	src/socket/metaserver.c
 	src/socket/request.c
-	src/socket/security.c
 	src/socket/server.c
 	src/socket/sounds.c
 	src/socket/updates.c

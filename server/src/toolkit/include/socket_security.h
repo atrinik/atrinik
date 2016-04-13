@@ -25,6 +25,8 @@
 /**
  * @file
  * Socket security header file.
+ *
+ * @author Alex Tokar
  */
 
 #ifndef SOCKET_SECURITY_H
@@ -35,12 +37,5 @@
 /* Prototypes */
 
 TOOLKIT_FUNCS_DECLARE(socket_security);
-
-void
-socket_command_security(socket_struct *ns,
-                        player        *pl,
-                        uint8_t       *data,
-                        size_t         len,
-                        size_t         pos);
 
 #endif
