@@ -40,7 +40,7 @@
 #include <clioptions.h>
 #include <curl.h>
 #include <server.h>
-#include <socket_security.h>
+#include <socket_crypto.h>
 
 /**
  * The server's settings.
@@ -760,7 +760,7 @@ static void init_library(int argc, char *argv[])
     toolkit_import(porting);
     toolkit_import(shstr);
     toolkit_import(socket);
-    toolkit_import(socket_security);
+    toolkit_import(socket_crypto);
     toolkit_import(string);
     toolkit_import(stringbuffer);
 

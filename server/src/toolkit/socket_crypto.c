@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Socket security implementation.
+ * Socket crypto implementation.
  *
  * @author
  * Alex Tokar
@@ -32,22 +32,22 @@
 
 #include <global.h>
 #include <toolkit_string.h>
-#include <socket_security.h>
+#include <socket_crypto.h>
 #include <clioptions.h>
 
 TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
 
 /**
- * Structure representing a single supported security curve.
+ * Structure representing a single supported crypto curve.
  */
-typedef struct security_curve {
-    struct security_curve *next; ///< Next security curve.
+typedef struct crypto_curve {
+    struct crypto_curve *next; ///< Next crypto curve.
     char *name; ///< Curve name.
     int nid; ///< OpenSSL NID.
-} security_curve_t;
+} crypto_curve_t;
 
-/** All the supported security curves. */
-static security_curve_t *security_curves = NULL;
+/** All the supported crypto curves. */
+static crypto_curve_t *crypto_curves = NULL;
 
 /**
  * Description of the --crypto_curves command.
@@ -65,23 +65,23 @@ clioptions_option_crypto_curves (const char *arg,
 }
 
 /**
- * Initialize the socket security API.
+ * Initialize the socket crypto API.
  */
-TOOLKIT_INIT_FUNC(socket_security)
+TOOLKIT_INIT_FUNC(socket_crypto)
 {
     clioption_t *cli;
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_curves, "Select crypto curves");
 #if 0
-    if (!true) { // TODO: check if security is enabled
+    if (!true) { // TODO: check if crypto is enabled
         return;
     }
 #endif
 
-    const char *security_curves_str = "prime256v1,curve25519"; // TODO: options
+    const char *crypto_curves_str = "prime256v1,curve25519"; // TODO: options
 
     char name[MAX_BUF];
     size_t pos = 0;
-    while (string_get_word(security_curves_str,
+    while (string_get_word(crypto_curves_str,
                            &pos,
                            ',',
                            VS(name),
@@ -91,20 +91,20 @@ TOOLKIT_INIT_FUNC(socket_security)
             continue;
         }
 
-        security_curve_t *curve = ecalloc(1, sizeof(*curve));
+        crypto_curve_t *curve = ecalloc(1, sizeof(*curve));
         curve->name = estrdup(name);
         curve->nid = nid;
-        LL_APPEND(security_curves, curve);
+        LL_APPEND(crypto_curves, curve);
     }
 
-    if (security_curves == NULL) {
+    if (crypto_curves == NULL) {
         LOG(ERROR, "Your system does not support any crypto curves. Aborting.");
         exit(1);
     }
 
     StringBuffer *sb = stringbuffer_new();
-    security_curve_t *curve;
-    LL_FOREACH(security_curves, curve) {
+    crypto_curve_t *curve;
+    LL_FOREACH(crypto_curves, curve) {
         stringbuffer_append_printf(sb, "%s%s",
                                    stringbuffer_length(sb) != 0 ? ", " : "",
                                    curve->name);
@@ -117,16 +117,16 @@ TOOLKIT_INIT_FUNC(socket_security)
 TOOLKIT_INIT_FUNC_FINISH
 
 /**
- * Deinitialize the socket security API.
+ * Deinitialize the socket crypto API.
  */
-TOOLKIT_DEINIT_FUNC(socket_security)
+TOOLKIT_DEINIT_FUNC(socket_crypto)
 {
-    security_curve_t *curve, *tmp;
-    LL_FOREACH_SAFE(security_curves, curve, tmp) {
+    crypto_curve_t *curve, *tmp;
+    LL_FOREACH_SAFE(crypto_curves, curve, tmp) {
         efree(curve->name);
         efree(curve);
     }
 
-    security_curves = NULL;
+    crypto_curves = NULL;
 }
 TOOLKIT_DEINIT_FUNC_FINISH

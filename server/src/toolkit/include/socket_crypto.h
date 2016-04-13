@@ -24,18 +24,18 @@
 
 /**
  * @file
- * Socket security header file.
+ * Socket crypto header file.
  *
  * @author Alex Tokar
  */
 
-#ifndef SOCKET_SECURITY_H
-#define SOCKET_SECURITY_H
+#ifndef SOCKET_CRYPTO_H
+#define SOCKET_CRYPTO_H
 
 #include <toolkit.h>
 
 /* Prototypes */
 
-TOOLKIT_FUNCS_DECLARE(socket_security);
+TOOLKIT_FUNCS_DECLARE(socket_crypto);
 
 #endif

@@ -38,7 +38,7 @@ enum {
     SERVER_CMD_ASK_FACE,
     SERVER_CMD_SETUP,
     SERVER_CMD_VERSION,
-    SERVER_CMD_SECURITY,
+    SERVER_CMD_CRYPTO,
     SERVER_CMD_CLEAR,
     SERVER_CMD_REQUEST_UPDATE,
     SERVER_CMD_KEEPALIVE,
@@ -677,8 +677,8 @@ enum {
 /*@}*/
 
 /**
- * @defgroup CMD_SECURITY_xxx Security command types
- * Used to create different sub-commands for the security command.
+ * @defgroup CMD_CRYPTO_xxx Crypto command types
+ * Used to create different sub-commands for the crypto command.
  *@{*/
 /**
  * The hello sub-command.
@@ -697,7 +697,7 @@ enum {
  * was, in fact, provided in the hello message. It is an error if the client
  * cannot select a usable curve and MUST terminate the connection immediately.
  */
-#define CMD_SECURITY_HELLO 1
+#define CMD_CRYPTO_HELLO 1
 /*@}*/
 
 /**

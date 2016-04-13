@@ -601,11 +601,11 @@ extern void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, si
 extern void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 void
-socket_command_security(socket_struct *ns,
-                        player        *pl,
-                        uint8_t       *data,
-                        size_t         len,
-                        size_t         pos);
+socket_command_crypto(socket_struct *ns,
+                      player        *pl,
+                      uint8_t       *data,
+                      size_t         len,
+                      size_t         pos);
 /* src/socket/sounds.c */
 extern void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
 extern void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume);

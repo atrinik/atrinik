@@ -2670,16 +2670,16 @@ void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data,
 }
 
 /**
- * Handler for the security hello sub-command.
+ * Handler for the crypto hello sub-command.
  *
  * @copydoc socket_command_func
  */
 static void
-socket_security_hello (socket_struct *ns,
-                       player        *pl,
-                       uint8_t       *data,
-                       size_t         len,
-                       size_t         pos)
+socket_crypto_hello (socket_struct *ns,
+                     player        *pl,
+                     uint8_t       *data,
+                     size_t         len,
+                     size_t         pos)
 {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(pl == NULL);
@@ -2692,16 +2692,16 @@ socket_security_hello (socket_struct *ns,
 }
 
 /**
- * Handler for the security socket command.
+ * Handler for the crypto socket command.
  *
  * @copydoc socket_command_func
  */
 void
-socket_command_security (socket_struct *ns,
-                         player        *pl,
-                         uint8_t       *data,
-                         size_t         len,
-                         size_t         pos)
+socket_command_crypto (socket_struct *ns,
+                       player        *pl,
+                       uint8_t       *data,
+                       size_t         len,
+                       size_t         pos)
 {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(data != NULL);
@@ -2716,8 +2716,8 @@ socket_command_security (socket_struct *ns,
 
     uint8_t type = packet_to_uint8(data, len, &pos);
     switch (type) {
-    case CMD_SECURITY_HELLO:
-        socket_security_hello(ns, pl, data, len, pos);
+    case CMD_CRYPTO_HELLO:
+        socket_crypto_hello(ns, pl, data, len, pos);
         break;
 
     default:

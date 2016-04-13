@@ -118,7 +118,7 @@ static const socket_command_t socket_commands[] = {
     {socket_command_ask_face, 0},
     {socket_command_setup, 0},
     {socket_command_version, 0},
-    {socket_command_security, 0},
+    {socket_command_crypto, 0},
     {socket_command_clear, 0},
     {socket_command_request_update, 0},
     {socket_command_keepalive, 0},
