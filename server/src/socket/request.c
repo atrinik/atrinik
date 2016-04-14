@@ -2688,8 +2688,8 @@ socket_crypto_hello (socket_struct *ns,
     char name[MAX_BUF];
     while (packet_to_string(data, len, &pos, VS(name)) != NULL) {
         int nid;
-        if (socket_crypto_curve_supported(name, &nid) &&
-            socket_crypto_create(ns->sc, nid)) {
+        if (socket_crypto_curve_supported(name, &nid)) {
+            socket_crypto_create(ns->sc, nid);
             return;
         }
     }

@@ -47,9 +47,15 @@ bool
 socket_crypto_has_curves(void);
 bool
 socket_crypto_curve_supported(const char *name, int *nid);
-bool
+void
 socket_crypto_create(socket_t *sc, int nid);
 void
 socket_crypto_destroy(socket_crypto_t *crypto);
+bool
+socket_crypto_load_pub_key(socket_crypto_t *crypto, char *buf, size_t len);
+char *
+socket_crypto_gen_pub_key(socket_crypto_t *crypto, size_t *len);
+bool
+socket_crypto_derive(socket_crypto_t *crypto);
 
 #endif

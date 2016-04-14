@@ -43,7 +43,8 @@ TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
  * extension of sockets.
  */
 struct socket_crypto {
-    int foo;
+    EVP_PKEY *pkey; ///< Public key.
+    int nid; ///< NID to use.
 };
 
 /**
@@ -216,23 +217,22 @@ socket_crypto_curve_supported (const char *name, int *nid)
 }
 
 /**
- * Creates crypto on the specified socket.
+ * Sets up crypto on the specified socket.
  *
  * @param sc
  * Socket.
  * @param nid
  * NID of the crypto curve to set up. Can be obtained from
  * socket_crypto_curve_supported().
- * @return
- * True on success, false on failure.
  */
-bool
+void
 socket_crypto_create (socket_t *sc, int nid)
 {
     HARD_ASSERT(sc != NULL);
+
     socket_crypto_t *crypto = ecalloc(1, sizeof(*crypto));
+    crypto->nid = nid;
     socket_set_crypto(sc, crypto);
-    return true;
 }
 
 /**
@@ -245,5 +245,168 @@ void
 socket_crypto_destroy (socket_crypto_t *crypto)
 {
     HARD_ASSERT(crypto != NULL);
+
+    if (crypto->pkey != NULL) {
+        EVP_PKEY_free(crypto->pkey);
+    }
+
     efree(crypto);
+}
+
+/**
+ * Load a public key in PEM format.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param buf
+ * Public key data.
+ * @param len
+ * Length of the data.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_load_pub_key (socket_crypto_t *crypto, char *buf, size_t len)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(buf != NULL);
+    SOFT_ASSERT_RC(crypto->pkey == NULL, false,
+                   "Crypto socket already has a public key");
+
+    BIO *bio = BIO_new_mem_buf(buf, len);
+    if (bio == NULL) {
+        LOG(ERROR, "BIO_new_mem_buf() failed");
+        return false;
+    }
+
+    EVP_PKEY *pkey = NULL;
+    if (PEM_read_bio_PUBKEY(bio, &pkey, NULL, NULL) == NULL) {
+        LOG(ERROR, "PEM_read_bio_PUBKEY() failed");
+        BIO_free(bio);
+        return false;
+    }
+
+    crypto->pkey = pkey;
+
+    BIO_free(bio);
+    return true;
+}
+
+/**
+ * Generate a new public key.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param[out] len
+ * Will contain the public key's length on success, undefined on failure.
+ * @return
+ * Public key in PEM format on success, NULL on failure.
+ */
+char *
+socket_crypto_gen_pub_key (socket_crypto_t *crypto, size_t *len)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(len != NULL);
+    SOFT_ASSERT_RC(crypto->pkey == NULL, NULL,
+                   "Crypto socket already has a public key");
+
+    EVP_PKEY_CTX *pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+    if (pctx == NULL) {
+        LOG(ERROR, "EVP_PKEY_CTX_new_id() failed");
+        return NULL;
+    }
+
+    if (EVP_PKEY_paramgen_init(pctx) != 1) {
+        LOG(ERROR, "EVP_PKEY_paramgen_init() failed");
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, crypto->nid) != 1) {
+        LOG(ERROR, "EVP_PKEY_CTX_set_ec_paramgen_curve_nid() failed");
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    EVP_PKEY *params = NULL;
+    if (EVP_PKEY_paramgen(pctx, &params) != 1) {
+        LOG(ERROR, "EVP_PKEY_paramgen() failed");
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    EVP_PKEY_CTX *kctx = EVP_PKEY_CTX_new(params, NULL);
+    if (kctx == NULL) {
+        LOG(ERROR, "EVP_PKEY_CTX_new() failed");
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    if (EVP_PKEY_keygen_init(kctx) != 1) {
+        LOG(ERROR, "EVP_PKEY_keygen_init() failed");
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    EVP_PKEY *pkey = NULL;
+    if (EVP_PKEY_keygen(kctx, &pkey) != 1) {
+        LOG(ERROR, "EVP_PKEY_keygen() failed");
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    BIO *bio = BIO_new(BIO_s_mem());
+    if (bio == NULL) {
+        LOG(ERROR, "BIO_new() failed");
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    if (PEM_write_bio_PUBKEY(bio, pkey) != 1){
+        LOG(ERROR, "PEM_write_bio_PUBKEY() failed");
+        BIO_free(bio);
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        return NULL;
+    }
+
+    crypto->pkey = pkey;
+
+    BUF_MEM *buf;
+    BIO_get_mem_ptr(bio, &buf);
+
+    char *cp = ecalloc(1, buf->length);
+    memcpy(cp, buf->data, buf->length);
+    *len = buf->length;
+
+    BIO_free(bio);
+    EVP_PKEY_CTX_free(kctx);
+    EVP_PKEY_free(params);
+    EVP_PKEY_CTX_free(pctx);
+
+    return cp;
+}
+
+/**
+ * Derive a secret key from the specified crypto socket.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_derive (socket_crypto_t *crypto)
+{
+    return true;
 }

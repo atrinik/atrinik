@@ -348,7 +348,7 @@ socket_server_csocket_free (csocket_entry_t *entry)
     HARD_ASSERT(entry != NULL);
     free_newsocket(entry->cs);
     DL_DELETE(client_sockets, entry);
-    free(entry);
+    efree(entry);
 }
 
 /**
