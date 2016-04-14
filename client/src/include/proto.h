@@ -30,6 +30,8 @@ extern void socket_command_map(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_version(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_compressed(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
+void
+socket_command_crypto(uint8_t *data, size_t len, size_t pos);
 /* src/client/image.c */
 /* src/client/item.c */
 extern void object_init(void);

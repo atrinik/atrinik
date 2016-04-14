@@ -78,8 +78,7 @@ enum {
     CLIENT_CMD_STATS,
     CLIENT_CMD_IMAGE,
     CLIENT_CMD_ANIM,
-    /** @deprecated */
-    CLIENT_CMD_SKILL_READY,
+    CLIENT_CMD_CRYPTO,
     CLIENT_CMD_PLAYER,
     CLIENT_CMD_MAPSTATS,
     /** @deprecated */
@@ -683,8 +682,15 @@ enum {
 /**
  * The hello sub-command.
  *
- * This is the ONLY command in the exchange that is not encrypted, as all
- * the supported curves are cryptographically in the realm of unbreakable.
+ * This is the ONLY command in the exchange that is not encrypted, and is
+ * merely used to begin the crypto exchange.
+ *
+ * The client sends this command, containing zero bytes of data, to the
+ * server, which responds with its X509 certificate.
+ */
+#define CMD_CRYPTO_HELLO 1
+/**
+ * The curves sub-command. Establishes elliptic curve to use.
  *
  * The client uses this to inform the server about the list of curves it
  * supports. It is an error if the server receives an empty set, and MUST
@@ -697,7 +703,7 @@ enum {
  * was, in fact, provided in the hello message. It is an error if the client
  * cannot select a usable curve and MUST terminate the connection immediately.
  */
-#define CMD_CRYPTO_HELLO 1
+#define CMD_CRYPTO_CURVES 2
 /*@}*/
 
 /**
@@ -848,6 +854,8 @@ int socket_addr_cmp(const struct sockaddr_storage *a,
         const struct sockaddr_storage *b, unsigned short plen);
 void
 socket_set_crypto(socket_t *sc, socket_crypto_t *crypto);
+socket_crypto_t *
+socket_get_crypto(socket_t *sc);
 SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 void socket_ssl_destroy(SSL *ssl);
 

@@ -211,6 +211,21 @@ typedef enum player_state_t {
     ST_CONNECT,
 
     /**
+     * Wait for crypto hello from the server.
+     */
+    ST_WAITCRYPTO_HELLO,
+
+    /**
+     * Server crypto hello received.
+     */
+    ST_CRYPTO_HELLO,
+
+    /**
+     * Start sending game data.
+     */
+    ST_START_DATA,
+
+    /**
      * Wait for version information from the server.
      */
     ST_WAITVERSION,

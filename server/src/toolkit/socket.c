@@ -1124,6 +1124,21 @@ socket_set_crypto (socket_t *sc, socket_crypto_t *crypto)
 }
 
 /**
+ * Returns the installed crypto pointer on the specified socket, if any.
+ *
+ * @param sc
+ * Socket.
+ * @return
+ * Crypto socket. Can be NULL.
+ */
+socket_crypto_t *
+socket_get_crypto (socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+    return sc->crypto;
+}
+
+/**
  * Selects the best cipher from the list of available ciphers, which is
  * obtained by creating a dummy SSL session.
  * @param ctx

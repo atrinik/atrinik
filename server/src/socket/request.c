@@ -2685,11 +2685,62 @@ socket_crypto_hello (socket_struct *ns,
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
 
+    /* Ensure there's no bytes left. */
+    if (pos != len) {
+        LOG(PACKET, "Client sent malformed crypto hello command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    const char *cert = socket_crypto_get_cert();
+    if (cert == NULL) {
+        LOG(SYSTEM, "Crypto hello received but no cert loaded: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    const char *cert_chain = socket_crypto_get_cert_chain();
+    if (cert == NULL) {
+        LOG(SYSTEM, "Crypto hello received but no cert chain loaded: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    socket_crypto_create(ns->sc);
+
+    packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 512, 256);
+    packet_append_uint8(packet, CMD_CRYPTO_HELLO);
+    packet_debug(packet, 0, "Certificate");
+    packet_append_string_terminated(packet, cert);
+    packet_debug(packet, 0, "Certificate chain");
+    packet_append_string_terminated(packet, cert_chain);
+    socket_send_packet(ns, packet);
+}
+
+/**
+ * Handler for the crypto curves sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_curves (socket_struct *ns,
+                      player        *pl,
+                      uint8_t       *data,
+                      size_t         len,
+                      size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
     char name[MAX_BUF];
     while (packet_to_string(data, len, &pos, VS(name)) != NULL) {
         int nid;
         if (socket_crypto_curve_supported(name, &nid)) {
-            socket_crypto_create(ns->sc, nid);
+            socket_crypto_set_nid(socket_get_crypto(ns->sc), nid);
             return;
         }
     }
@@ -2715,23 +2766,36 @@ socket_command_crypto (socket_struct *ns,
 {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(data != NULL);
+
+    uint8_t type = packet_to_uint8(data, len, &pos);
+    if (!socket_crypto_check_cmd(type, socket_get_crypto(ns->sc))) {
+        LOG(PACKET, "Received crypto command in invalid state: %u", type);
+        ns->state = ST_DEAD;
+        return;
+    }
+
     /* TODO: Check if received before on the socket */
 
     /* Don't let clients initiate a handshake when they're already logged in.
      * In practice, this should never happen. */
     if (pl != NULL) {
         LOG(PACKET, "Received while logged in: %s", pl->ob->name);
+        ns->state = ST_DEAD;
         return;
     }
 
-    uint8_t type = packet_to_uint8(data, len, &pos);
     switch (type) {
     case CMD_CRYPTO_HELLO:
         socket_crypto_hello(ns, pl, data, len, pos);
         break;
 
+    case CMD_CRYPTO_CURVES:
+        socket_crypto_curves(ns, pl, data, len, pos);
+        break;
+
     default:
         LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
+        ns->state = ST_DEAD;
         break;
     }
 }

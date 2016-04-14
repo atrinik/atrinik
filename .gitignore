@@ -99,7 +99,6 @@ client/timidity/
 *.rpm
 *.exe
 *.dll
-*.crt
 *.a
 *.jar
 *.tar.gz

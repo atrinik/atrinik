@@ -217,7 +217,8 @@ static int game_status_chain(void)
 
         metaserver_clear_data();
 
-        metaserver_add("localhost", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
+        // TODO: change port back
+        metaserver_add("localhost", 14000, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
         for (i = 0; i < clioption_settings.servers_num; i++) {
             pos = 0;
@@ -244,8 +245,6 @@ static int game_status_chain(void)
         keepalive_reset();
         cpl.state = ST_CONNECT;
     } else if (cpl.state == ST_CONNECT) {
-        packet_struct *packet;
-
         if (!client_socket_open(&csocket, selected_server->hostname, selected_server->port)) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
@@ -255,12 +254,22 @@ static int game_status_chain(void)
         socket_thread_start();
         clear_player();
 
-        packet = packet_new(SERVER_CMD_VERSION, 16, 0);
+        /* TODO: check metaserver data for crypto port */
+        if (selected_server->port == 14000) {
+            socket_crypto_create(csocket.sc);
+            packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 16, 0);
+            packet_append_uint8(packet, CMD_CRYPTO_HELLO);
+            socket_send_packet(packet);
+            cpl.state = ST_WAITCRYPTO_HELLO;
+        } else {
+            cpl.state = ST_START_DATA;
+        }
+    } else if (cpl.state == ST_START_DATA) {
+        packet_struct *packet = packet_new(SERVER_CMD_VERSION, 16, 0);
         packet_append_uint32(packet, SOCKET_VERSION);
         socket_send_packet(packet);
 
         keepalive_send();
-
         cpl.state = ST_WAITVERSION;
     } else if (cpl.state == ST_VERSION) {
         packet_struct *packet;
@@ -559,6 +568,7 @@ int main(int argc, char *argv[])
     toolkit_import(porting);
     toolkit_import(sha1);
     toolkit_import(socket);
+    toolkit_import(socket_crypto);
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);

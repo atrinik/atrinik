@@ -977,3 +977,50 @@ void socket_command_control(uint8_t *data, size_t len, size_t pos)
         x11_window_activate(SDL_display, x11_window_get_parent(SDL_display, SDL_window), 1);
     }
 }
+
+/**
+ * Handler for the crypto hello sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
+{
+    StringBuffer *sb = stringbuffer_new();
+    packet_to_stringbuffer(data, len, &pos, sb);
+    char *cert = stringbuffer_finish(sb);
+    sb = stringbuffer_new();
+    packet_to_stringbuffer(data, len, &pos, sb);
+    char *chain = stringbuffer_finish(sb);
+    if (!socket_crypto_load_cert(socket_get_crypto(csocket.sc), cert, chain)) {
+        efree(cert);
+        efree(chain);
+        cpl.state = ST_START;
+        return;
+    }
+}
+
+/**
+ * Handler for the crypto client command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+void
+socket_command_crypto (uint8_t *data, size_t len, size_t pos)
+{
+    uint8_t type = packet_to_uint8(data, len, &pos);
+    if (!socket_crypto_check_cmd(type, socket_get_crypto(csocket.sc))) {
+        LOG(PACKET, "Received crypto command in invalid state: %u", type);
+        return;
+    }
+
+    switch (type) {
+    case CMD_CRYPTO_HELLO:
+        socket_command_crypto_hello(data, len, pos);
+        break;
+
+    default:
+        LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
+        break;
+    }
+}

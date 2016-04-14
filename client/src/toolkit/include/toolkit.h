@@ -47,7 +47,6 @@
 #include <mempool.h>
 #include <sha1.h>
 #include <shstr.h>
-#include <socket.h>
 #include <stringbuffer.h>
 #include <utarray.h>
 #include <uthash.h>
@@ -368,5 +367,7 @@ typedef struct toolkit_dependency {
  */
 #define FOR_EACH(what, ...) \
     _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
+
+#include <socket.h>
 
 #endif

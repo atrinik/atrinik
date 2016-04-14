@@ -38,8 +38,7 @@ enum {
     SERVER_CMD_ASK_FACE,
     SERVER_CMD_SETUP,
     SERVER_CMD_VERSION,
-    /** @deprecated */
-    SERVER_CMD_REQUEST_FILE,
+    SERVER_CMD_CRYPTO,
     SERVER_CMD_CLEAR,
     SERVER_CMD_REQUEST_UPDATE,
     SERVER_CMD_KEEPALIVE,
@@ -79,8 +78,7 @@ enum {
     CLIENT_CMD_STATS,
     CLIENT_CMD_IMAGE,
     CLIENT_CMD_ANIM,
-    /** @deprecated */
-    CLIENT_CMD_SKILL_READY,
+    CLIENT_CMD_CRYPTO,
     CLIENT_CMD_PLAYER,
     CLIENT_CMD_MAPSTATS,
     /** @deprecated */
@@ -678,6 +676,37 @@ enum {
 /*@}*/
 
 /**
+ * @defgroup CMD_CRYPTO_xxx Crypto command types
+ * Used to create different sub-commands for the crypto command.
+ *@{*/
+/**
+ * The hello sub-command.
+ *
+ * This is the ONLY command in the exchange that is not encrypted, and is
+ * merely used to begin the crypto exchange.
+ *
+ * The client sends this command, containing zero bytes of data, to the
+ * server, which responds with its X509 certificate.
+ */
+#define CMD_CRYPTO_HELLO 1
+/**
+ * The curves sub-command. Establishes elliptic curve to use.
+ *
+ * The client uses this to inform the server about the list of curves it
+ * supports. It is an error if the server receives an empty set, and MUST
+ * close the connection immediately. The server MUST choose one of the
+ * curves to use; if it doesn't support any in the set, the connection MUST
+ * be terminated immediately.
+ *
+ * In turn, the server sends the chosen curve to use to the client. The
+ * client MUST verify that it supports the given curve, and that a curve
+ * was, in fact, provided in the hello message. It is an error if the client
+ * cannot select a usable curve and MUST terminate the connection immediately.
+ */
+#define CMD_CRYPTO_CURVES 2
+/*@}*/
+
+/**
  * Player equipment.
  * @anchor PLAYER_EQUIP_xxx
  */
@@ -792,6 +821,8 @@ static inline const char *s_strerror(int val)
 #define s_errno errno
 #endif
 
+#include <socket_crypto.h>
+
 /* Prototypes */
 void toolkit_socket_init(void);
 void toolkit_socket_deinit(void);
@@ -821,6 +852,10 @@ const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
 unsigned short socket_addr_plen(const struct sockaddr_storage *addr);
 int socket_addr_cmp(const struct sockaddr_storage *a,
         const struct sockaddr_storage *b, unsigned short plen);
+void
+socket_set_crypto(socket_t *sc, socket_crypto_t *crypto);
+socket_crypto_t *
+socket_get_crypto(socket_t *sc);
 SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 void socket_ssl_destroy(SSL *ssl);
 

@@ -719,16 +719,18 @@ char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_
     }
 
     dest[i] = '\0';
-    return dest;
+    return dest[0] != '\0' ? dest : NULL;
 }
 
 void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer *sb)
 {
-    char *str;
-
     TOOLKIT_PROTECT();
 
-    str = (char *) (data + *pos);
+    if (*pos >= len) {
+        return;
+    }
+
+    char *str = (char *) (data + *pos);
     stringbuffer_append_string_len(sb, str, strnlen(str, len - *pos));
     *pos += strlen(str) + 1;
 }
