@@ -182,6 +182,8 @@ clioptions_option_crypto_cert (const char *arg,
         return false;
     }
 
+    X509_free(cert);
+
     if (crypto_cert != NULL) {
         efree(crypto_cert);
     }
