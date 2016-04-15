@@ -256,19 +256,6 @@ static int game_status_chain(void)
 
         /* TODO: check metaserver data for crypto port */
         if (selected_server->port == 14000) {
-            socket_crypto_t *crypto = socket_crypto_create(csocket.sc);
-            /* TODO: replace with loading from metaserver */
-            const char *pubkey = "-----BEGIN PUBLIC KEY-----\n"
-"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsIz9wdWX0w6S2/VhOikO\n"
-"qbwIu5Ph7GInw2kVft6w4VDQj/qzYffTBDE46qKMnir12uhOldFk2zFL+LPF7sDa\n"
-"8rdPE5V12BYlsDg/z08ybRcyVG6BrO9LnHg/PH7JzDJ/dDsJ9+sDJA97sA7rn4ss\n"
-"vd7FmPzPLgItH3m0xRpzoHPwJY6BJmbAlk+QqM6DSGAcL2axQ1OrGl7NXM9ufjV1\n"
-"R6sTH+U36udrUX8C36SJ3mC3w+ZGBT/vTKDj0GEdZr/P7PoimnibbDXlMvF9oTRZ\n"
-"u/kcupJ/CmLPUSHw0V/Nc7epnG7gXg+NqSdzf52N/R57Js9eytDFGJpm4SyxTWgJ\n"
-"VQIDAQAB\n"
-"-----END PUBLIC KEY-----\n";
-            socket_crypto_load_pub_key(crypto, pubkey);
-
             packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 16, 0);
             packet_append_uint8(packet, CMD_CRYPTO_HELLO);
             socket_send_packet(packet);

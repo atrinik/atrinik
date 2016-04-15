@@ -685,10 +685,24 @@ enum {
  * This is the ONLY command in the exchange that is not encrypted, and is
  * merely used to begin the crypto exchange.
  *
- * The client sends this command, containing zero bytes of data, to the
- * server, which responds with its X509 certificate.
+ * The client sends this command, containing zero bytes of data *or* an X509
+ * certificate to be authenticated against, to the server, which responds
+ * with its own X509 certificate.
  */
 #define CMD_CRYPTO_HELLO 1
+/**
+ * The key sub-command.
+ *
+ * Client exchanges key to use for AES encryption with the server, until such
+ * a time as the ECDH keys are derived.
+ *
+ * The client will also include a string of random bytes of variable size that
+ * the server must replicate in its key response (which will be encrypted with
+ * the received key).
+ *
+ * Client encrypts this with the server's public key.
+ */
+#define CMD_CRYPTO_KEY 2
 /**
  * The curves sub-command. Establishes elliptic curve to use.
  *
@@ -698,12 +712,24 @@ enum {
  * curves to use; if it doesn't support any in the set, the connection MUST
  * be terminated immediately.
  *
- * In turn, the server sends the chosen curve to use to the client. The
- * client MUST verify that it supports the given curve, and that a curve
- * was, in fact, provided in the hello message. It is an error if the client
- * cannot select a usable curve and MUST terminate the connection immediately.
+ * In turn, the server sends the chosen curve(s) to use to the client, ordered
+ * by preference. The client MUST verify that it supports the given curve, and
+ * that a curve was, in fact, provided in the hello message. It is an error if
+ * the client cannot select a usable curve and MUST terminate the connection
+ * immediately.
+ *
+ * Encrypted with AES.
  */
-#define CMD_CRYPTO_CURVES 2
+#define CMD_CRYPTO_CURVES 3
+/**
+ * The pubkey sub-command. Exchanges ECDH public keys.
+ *
+ * Client and server both use this command to exchange their public keys with
+ * each other, and to subsequently derive the shared secret key.
+ *
+ * This communication is also encrypted with AES.
+ */
+#define CMD_CRYPTO_PUBKEY 4
 /*@}*/
 
 /**

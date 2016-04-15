@@ -216,9 +216,9 @@ typedef enum player_state_t {
     ST_WAITCRYPTO_HELLO,
 
     /**
-     * Server crypto hello received.
+     * Wait for AES key confirmation.
      */
-    ST_CRYPTO_HELLO,
+    ST_WAITCRYPTO_KEY,
 
     /**
      * Start sending game data.

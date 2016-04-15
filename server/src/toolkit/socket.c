@@ -832,7 +832,7 @@ void socket_destroy(socket_t *sc)
     }
 
     if (sc->crypto != NULL) {
-        socket_crypto_destroy(sc->crypto);
+        socket_crypto_free(sc->crypto);
     }
 
     socket_close(sc);

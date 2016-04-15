@@ -680,6 +680,8 @@ extern void toolkit_math_deinit(void);
 extern unsigned long isqrt(unsigned long n);
 extern int rndm(int min, int max);
 extern int rndm_chance(uint32_t n);
+uint64_t
+rndm_u64(void);
 extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
 extern size_t nearest_pow_two_exp(size_t n);
 extern bool math_point_in_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle);

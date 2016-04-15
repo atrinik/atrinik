@@ -992,7 +992,27 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
     sb = stringbuffer_new();
     packet_to_stringbuffer(data, len, &pos, sb);
     char *chain = stringbuffer_finish(sb);
-    if (!socket_crypto_load_cert(socket_get_crypto(csocket.sc), cert, chain)) {
+
+    if (*cert == '\0') {
+        LOG(ERROR, "Received empty certificate from server");
+        cpl.state = ST_START;
+        return;
+    }
+
+    socket_crypto_t *crypto = socket_crypto_create(csocket.sc);
+    /* TODO: replace with loading from metaserver */
+    const char *pubkey = "-----BEGIN PUBLIC KEY-----\n"
+"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsIz9wdWX0w6S2/VhOikO\n"
+"qbwIu5Ph7GInw2kVft6w4VDQj/qzYffTBDE46qKMnir12uhOldFk2zFL+LPF7sDa\n"
+"8rdPE5V12BYlsDg/z08ybRcyVG6BrO9LnHg/PH7JzDJ/dDsJ9+sDJA97sA7rn4ss\n"
+"vd7FmPzPLgItH3m0xRpzoHPwJY6BJmbAlk+QqM6DSGAcL2axQ1OrGl7NXM9ufjV1\n"
+"R6sTH+U36udrUX8C36SJ3mC3w+ZGBT/vTKDj0GEdZr/P7PoimnibbDXlMvF9oTRZ\n"
+"u/kcupJ/CmLPUSHw0V/Nc7epnG7gXg+NqSdzf52N/R57Js9eytDFGJpm4SyxTWgJ\n"
+"VQIDAQAB\n"
+"-----END PUBLIC KEY-----\n";
+    socket_crypto_load_pubkey(crypto, pubkey);
+
+    if (!socket_crypto_load_cert(crypto, cert, chain)) {
         efree(cert);
         efree(chain);
         cpl.state = ST_START;
@@ -1001,6 +1021,158 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
 
     efree(cert);
     efree(chain);
+
+    uint8_t key_len;
+    const unsigned char *key = socket_crypto_create_key(crypto, &key_len);
+    if (key == NULL) {
+        cpl.state = ST_START;
+        return;
+    }
+
+    /* Send the generated key to the server. */
+    packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 128, 128);
+    packet_append_uint8(packet, CMD_CRYPTO_KEY);
+    packet_append_uint8(packet, key_len);
+    packet_append_data_len(packet, key, key_len);
+
+    for (size_t i = 0; i < arraysize(csocket.key_data); i++) {
+        csocket.key_data[i] = rndm_u64();
+        packet_append_uint64(packet, csocket.key_data[i]);
+    }
+
+    socket_send_packet(packet);
+    cpl.state = ST_WAITCRYPTO_KEY;
+}
+
+/**
+ * Handler for the crypto key sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Server sent malformed crypto key command: %s",
+            socket_get_str(csocket.sc));
+        cpl.state = ST_START;
+        return;
+    }
+
+    for (size_t i = 0; i < arraysize(csocket.key_data); i++) {
+        uint64_t num = packet_to_uint64(data, len, &pos);
+        if (num != csocket.key_data[i]) {
+            LOG(PACKET, "Server sent malformed crypto key command: %s",
+                socket_get_str(csocket.sc));
+            cpl.state = ST_START;
+            return;
+        }
+    }
+
+    if (len != pos) {
+        LOG(PACKET, "Server sent malformed crypto key command: %s",
+            socket_get_str(csocket.sc));
+        cpl.state = ST_START;
+        return;
+    }
+
+    packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 128, 128);
+    packet_append_uint8(packet, CMD_CRYPTO_CURVES);
+    socket_crypto_packet_append_curves(packet);
+    socket_send_packet(packet);
+}
+
+/**
+ * Handler for the crypto curves sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    char name[MAX_BUF];
+    while (packet_to_string(data, len, &pos, VS(name)) != NULL) {
+        int nid;
+        if (socket_crypto_curve_supported(name, &nid)) {
+            socket_crypto_set_nid(crypto, nid);
+
+            size_t pubkey_len;
+            unsigned char *pubkey = socket_crypto_gen_pubkey(crypto,
+                                                             &pubkey_len);
+            if (pubkey == NULL) {
+                LOG(SYSTEM, "Failed to generate a public key: %s",
+                    socket_get_str(csocket.sc));
+                cpl.state = ST_START;
+                return;
+            }
+
+            if (pubkey_len > INT16_MAX) {
+                LOG(SYSTEM, "Public key too long: %s",
+                    socket_get_str(csocket.sc));
+                cpl.state = ST_START;
+                efree(pubkey);
+                return;
+            }
+
+            packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 512, 0);
+            packet_append_uint8(packet, CMD_CRYPTO_PUBKEY);
+            packet_append_uint16(packet, (uint16_t) pubkey_len);
+            packet_append_data_len(packet, pubkey, pubkey_len);
+            socket_send_packet(packet);
+            efree(pubkey);
+            return;
+        }
+    }
+
+    LOG(SYSTEM,
+        "Server requested crypto but failed to provide a compatible "
+        "crypto elliptic curve: %s",
+        socket_get_str(csocket.sc));
+    cpl.state = ST_START;
+}
+
+/**
+ * Handler for the crypto pubkey sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Server sent malformed crypto key command: %s",
+            socket_get_str(csocket.sc));
+        cpl.state = ST_START;
+        return;
+    }
+
+    uint16_t pubkey_len = packet_to_uint16(data, len, &pos);
+    pubkey_len = MIN(pubkey_len, len - pos);
+
+    if (!socket_crypto_derive(crypto, data + pos, pubkey_len)) {
+        LOG(SYSTEM, "Couldn't derive shared secret key: %s",
+            socket_get_str(csocket.sc));
+        cpl.state = ST_START;
+        return;
+    }
+
+    pos += pubkey_len;
+
+    if (len != pos) {
+        LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
+            socket_get_str(csocket.sc));
+        cpl.state = ST_START;
+        return;
+    }
 }
 
 /**
@@ -1020,6 +1192,18 @@ socket_command_crypto (uint8_t *data, size_t len, size_t pos)
     switch (type) {
     case CMD_CRYPTO_HELLO:
         socket_command_crypto_hello(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_KEY:
+        socket_command_crypto_key(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_CURVES:
+        socket_command_crypto_curves(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_PUBKEY:
+        socket_command_crypto_pubkey(data, len, pos);
         break;
 
     default:

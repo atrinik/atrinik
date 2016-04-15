@@ -36,6 +36,7 @@
 #include <socket_crypto.h>
 #include <clioptions.h>
 
+#include <openssl/engine.h>
 #include <openssl/err.h>
 
 TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
@@ -45,10 +46,14 @@ TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
  * extension of sockets.
  */
 struct socket_crypto {
-    EVP_PKEY *pkey; ///< Public key.
+    EVP_PKEY *pubkey; ///< Public key.
+    EVP_PKEY *privkey; ///< Private key.
+    EVP_PKEY_CTX *pkey_ctx; ///< Public key encryption context.
     int nid; ///< NID to use.
     uint8_t last_cmd; ///< Last received crypto sub-command.
     socket_t *sc; ///< Socket this was created for.
+    unsigned char *key; ///< The secret key.
+    uint8_t key_len; ///< Length of the secret key.
 };
 
 /**
@@ -359,6 +364,10 @@ TOOLKIT_INIT_FUNC(socket_crypto)
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_chain, "Certificate chain");
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_key, "Certificate key");
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_bundle, "Certificate bundle");
+
+    OPENSSL_init();
+    OpenSSL_add_all_ciphers();
+    ERR_load_crypto_strings();
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -415,14 +424,14 @@ socket_crypto_has_curves (void)
 }
 
 /**
- * Figure out whether the specified curve is supported.
+ * Figure out whether the specified elliptic curve is supported.
  *
  * @param name
- * Name of the curve to check.
+ * Name of the elliptic curve to check.
  * @param[out] nid
- * Will contain NID of the curve on success. Can be NULL.
+ * Will contain NID of the elliptic curve on success. Can be NULL.
  * @return
- * True if the specified curve is supported, false otherwise.
+ * True if the specified elliptic curve is supported, false otherwise.
  */
 bool
 socket_crypto_curve_supported (const char *name, int *nid)
@@ -442,6 +451,24 @@ socket_crypto_curve_supported (const char *name, int *nid)
     }
 
     return false;
+}
+
+/**
+ * Append supported elliptic curves to the specified packet.
+ *
+ * @param packet
+ * Packet to append to.
+ */
+void
+socket_crypto_packet_append_curves (packet_struct *packet)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(packet != NULL);
+
+    crypto_curve_t *curve;
+    LL_FOREACH(crypto_curves, curve) {
+        packet_append_string_terminated(packet, curve->name);
+    }
 }
 
 /**
@@ -524,6 +551,7 @@ socket_crypto_create (socket_t *sc)
     socket_crypto_t *crypto = ecalloc(1, sizeof(*crypto));
     crypto->nid = NID_undef;
     crypto->sc = sc;
+    crypto->last_cmd = CMD_CRYPTO_HELLO;
     socket_set_crypto(sc, crypto);
 
     return crypto;
@@ -549,19 +577,27 @@ socket_crypto_set_nid (socket_crypto_t *crypto, int nid)
 }
 
 /**
- * Destroys the specified socket crypto.
+ * Frees the specified socket crypto.
  *
  * @param crypto
- * Socket crypto to destroy.
+ * Socket crypto to free.
  */
 void
-socket_crypto_destroy (socket_crypto_t *crypto)
+socket_crypto_free (socket_crypto_t *crypto)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(crypto != NULL);
 
-    if (crypto->pkey != NULL) {
-        EVP_PKEY_free(crypto->pkey);
+    if (crypto->pubkey != NULL) {
+        EVP_PKEY_free(crypto->pubkey);
+    }
+
+    if (crypto->privkey != NULL) {
+        EVP_PKEY_free(crypto->privkey);
+    }
+
+    if (crypto->key != NULL) {
+        efree(crypto->key);
     }
 
     efree(crypto);
@@ -611,8 +647,6 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
     HARD_ASSERT(crypto != NULL);
     HARD_ASSERT(cert_str != NULL);
     HARD_ASSERT(chain_str != NULL);
-    SOFT_ASSERT_RC(crypto->pkey != NULL, false,
-                   "Trusted public key not loaded");
 
     X509 *cert = NULL;
     STACK_OF(X509) *chains = NULL;
@@ -686,19 +720,21 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
         goto error;
     }
 
-    EVP_PKEY *pubkey = X509_get_pubkey(cert);;
-    SOFT_ASSERT_LABEL(pubkey != NULL, error,
-                      "Failed to get EVP_PKEY pointer");
-    int res = EVP_PKEY_cmp(pubkey, crypto->pkey);
-    EVP_PKEY_free(pubkey);
+    if (crypto->pubkey != NULL) {
+        EVP_PKEY *pubkey = X509_get_pubkey(cert);
+        SOFT_ASSERT_LABEL(pubkey != NULL, error,
+                          "Failed to get EVP_PKEY pointer");
+        int res = EVP_PKEY_cmp(pubkey, crypto->pubkey);
+        EVP_PKEY_free(pubkey);
 
-    if (res != 1) {
-        LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
-        LOG(SYSTEM,
-            "Certificate's public key doesn't match public "
-            "metaserver record: %s",
-            socket_get_str(crypto->sc));
-        goto error;
+        if (res != 1) {
+            LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
+            LOG(SYSTEM,
+                "Certificate's public key doesn't match public "
+                "metaserver record: %s",
+                socket_get_str(crypto->sc));
+            goto error;
+        }
     }
 
     bool ret = true;
@@ -726,6 +762,11 @@ out:
         sk_X509_free(chains);
     }
 
+    if (crypto->pubkey != NULL) {
+        EVP_PKEY_free(crypto->pubkey);
+        crypto->pubkey = NULL;
+    }
+
     return ret;
 }
 
@@ -740,31 +781,60 @@ out:
  * True on success, false on failure.
  */
 bool
-socket_crypto_load_pub_key (socket_crypto_t *crypto, const char *buf)
+socket_crypto_load_pubkey (socket_crypto_t *crypto, const char *buf)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(crypto != NULL);
     HARD_ASSERT(buf != NULL);
-    SOFT_ASSERT_RC(crypto->pkey == NULL, false,
+    SOFT_ASSERT_RC(crypto->pubkey == NULL, false,
                    "Crypto socket already has a public key");
+    SOFT_ASSERT_RC(crypto->pkey_ctx == NULL, false,
+                   "Crypto socket already has a public key context");
 
     char *cp = estrdup(buf);
     BIO *bio = BIO_new_mem_buf(cp, -1);
     if (bio == NULL) {
-        LOG(ERROR, "BIO_new_mem_buf() failed");
+        LOG(ERROR, "BIO_new_mem_buf() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         efree(cp);
         return false;
     }
 
     EVP_PKEY *pkey = NULL;
     if (PEM_read_bio_PUBKEY(bio, &pkey, NULL, NULL) == NULL) {
-        LOG(ERROR, "PEM_read_bio_PUBKEY() failed");
+        LOG(ERROR, "PEM_read_bio_PUBKEY() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         BIO_free(bio);
         efree(cp);
         return false;
     }
 
-    crypto->pkey = pkey;
+    EVP_PKEY_CTX *pkey_ctx = EVP_PKEY_CTX_new(pkey, NULL);
+    if (pkey_ctx == NULL) {
+        LOG(ERROR, "EVP_PKEY_CTX_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    EVP_PKEY_free(pkey);
+
+    if (EVP_PKEY_encrypt_init(pkey_ctx) != 1) {
+        LOG(ERROR, "EVP_PKEY_encrypt_init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(pkey_ctx);
+        return false;
+    }
+
+    if (EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_OAEP_PADDING) != 1) {
+        LOG(ERROR, "EVP_PKEY_CTX_set_rsa_padding() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(pkey_ctx);
+        return false;
+    }
+
+    crypto->pubkey = pkey;
+    crypto->pkey_ctx = pkey_ctx;
 
     BIO_free(bio);
     efree(cp);
@@ -776,57 +846,65 @@ socket_crypto_load_pub_key (socket_crypto_t *crypto, const char *buf)
  *
  * @param crypto
  * Crypto socket.
- * @param[out] len
- * Will contain the public key's length on success, undefined on failure.
+ * @param[out] pubkey_len
+ * Will contain the public key's length on success.
  * @return
- * Public key in PEM format on success, NULL on failure.
+ * Public key in EC format on success, NULL on failure.
  */
-char *
-socket_crypto_gen_pub_key (socket_crypto_t *crypto, size_t *len)
+unsigned char *
+socket_crypto_gen_pubkey (socket_crypto_t *crypto,
+                          size_t          *pubkey_len)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(crypto != NULL);
-    HARD_ASSERT(len != NULL);
-    SOFT_ASSERT_RC(crypto->pkey == NULL, NULL,
+    SOFT_ASSERT_RC(crypto->pubkey == NULL, NULL,
                    "Crypto socket already has a public key");
+    SOFT_ASSERT_RC(crypto->privkey == NULL, NULL,
+                   "Crypto socket already has a private key");
     SOFT_ASSERT_RC(crypto->nid != NID_undef, NULL,
                    "Undefined NID");
 
     EVP_PKEY_CTX *pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
     if (pctx == NULL) {
-        LOG(ERROR, "EVP_PKEY_CTX_new_id() failed");
+        LOG(ERROR, "EVP_PKEY_CTX_new_id() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         return NULL;
     }
 
     if (EVP_PKEY_paramgen_init(pctx) != 1) {
-        LOG(ERROR, "EVP_PKEY_paramgen_init() failed");
+        LOG(ERROR, "EVP_PKEY_paramgen_init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
 
     if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, crypto->nid) != 1) {
-        LOG(ERROR, "EVP_PKEY_CTX_set_ec_paramgen_curve_nid() failed");
+        LOG(ERROR, "EVP_PKEY_CTX_set_ec_paramgen_curve_nid() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
 
     EVP_PKEY *params = NULL;
     if (EVP_PKEY_paramgen(pctx, &params) != 1) {
-        LOG(ERROR, "EVP_PKEY_paramgen() failed");
+        LOG(ERROR, "EVP_PKEY_paramgen() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
 
     EVP_PKEY_CTX *kctx = EVP_PKEY_CTX_new(params, NULL);
     if (kctx == NULL) {
-        LOG(ERROR, "EVP_PKEY_CTX_new() failed");
+        LOG(ERROR, "EVP_PKEY_CTX_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         EVP_PKEY_free(params);
         EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
 
     if (EVP_PKEY_keygen_init(kctx) != 1) {
-        LOG(ERROR, "EVP_PKEY_keygen_init() failed");
+        LOG(ERROR, "EVP_PKEY_keygen_init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         EVP_PKEY_CTX_free(kctx);
         EVP_PKEY_free(params);
         EVP_PKEY_CTX_free(pctx);
@@ -835,48 +913,154 @@ socket_crypto_gen_pub_key (socket_crypto_t *crypto, size_t *len)
 
     EVP_PKEY *pkey = NULL;
     if (EVP_PKEY_keygen(kctx, &pkey) != 1) {
-        LOG(ERROR, "EVP_PKEY_keygen() failed");
+        LOG(ERROR, "EVP_PKEY_keygen() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
         EVP_PKEY_CTX_free(kctx);
         EVP_PKEY_free(params);
         EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
 
-    BIO *bio = BIO_new(BIO_s_mem());
-    if (bio == NULL) {
-        LOG(ERROR, "BIO_new() failed");
+    EC_KEY *eckey = EVP_PKEY_get1_EC_KEY(pkey);
+    if (eckey == NULL) {
+        LOG(ERROR, "EVP_PKEY_get1_EC_KEY() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
         EVP_PKEY_free(pkey);
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
 
-    if (PEM_write_bio_PUBKEY(bio, pkey) != 1){
-        LOG(ERROR, "PEM_write_bio_PUBKEY() failed");
-        BIO_free(bio);
+    const EC_GROUP *ecgroup = EC_KEY_get0_group(eckey);
+    if (ecgroup == NULL) {
+        LOG(ERROR, "EC_KEY_get0_group() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
         EVP_PKEY_free(pkey);
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
+        EC_KEY_free(eckey);
         return NULL;
     }
 
-    crypto->pkey = pkey;
+    const EC_POINT *ecpoint = EC_KEY_get0_public_key(eckey);
+    if (ecpoint == NULL) {
+        LOG(ERROR, "EC_KEY_get0_public_key() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        EVP_PKEY_free(pkey);
+        EC_KEY_free(eckey);
+        return NULL;
+    }
 
-    BUF_MEM *buf;
-    BIO_get_mem_ptr(bio, &buf);
+    *pubkey_len = EC_POINT_point2oct(ecgroup,
+                                     ecpoint,
+                                     POINT_CONVERSION_COMPRESSED,
+                                     NULL,
+                                     0,
+                                     NULL);
+    if (*pubkey_len == 0) {
+        LOG(ERROR, "EC_POINT_point2oct() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        EVP_PKEY_free(pkey);
+        EC_KEY_free(eckey);
+        return NULL;
+    }
 
-    char *cp = ecalloc(1, buf->length);
-    memcpy(cp, buf->data, buf->length);
-    *len = buf->length;
+    unsigned char *pubkey = emalloc(*pubkey_len);
+    if (EC_POINT_point2oct(ecgroup,
+                           ecpoint,
+                           POINT_CONVERSION_COMPRESSED,
+                           pubkey,
+                           *pubkey_len,
+                           NULL) != *pubkey_len) {
+        LOG(ERROR, "EC_POINT_point2oct() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(kctx);
+        EVP_PKEY_free(params);
+        EVP_PKEY_CTX_free(pctx);
+        EVP_PKEY_free(pkey);
+        EC_KEY_free(eckey);
+        return NULL;
+    }
 
-    BIO_free(bio);
+    crypto->privkey = pkey;
+
     EVP_PKEY_CTX_free(kctx);
     EVP_PKEY_free(params);
     EVP_PKEY_CTX_free(pctx);
+    EC_KEY_free(eckey);
 
-    return cp;
+    return pubkey;
+}
+
+/**
+ * Creates a key to use for AES encryption which will be used until ECDH
+ * secret keys are derived.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param[out] len
+ * Will contain the key's length on success.
+ * @return
+ * Created key on success, NULLon failure.
+ */
+const unsigned char *
+socket_crypto_create_key (socket_crypto_t *crypto, uint8_t *len)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(len != NULL);
+    SOFT_ASSERT_RC(crypto->key == NULL, NULL,
+                   "Crypto socket already has a key: %s",
+                   socket_get_str(crypto->sc));
+
+    union {
+        uint64_t u64[8];
+        uint8_t  u8[64 / CHAR_BIT * 8];
+    } num;
+
+    for (size_t i = 0; i < arraysize(num.u64); i++) {
+        num.u64[i] = rndm_u64();
+    }
+
+    crypto->key_len = *len = SHA512_DIGEST_LENGTH;
+    crypto->key = emalloc(crypto->key_len);
+    SHA512(num.u8, sizeof(num.u8), crypto->key);
+    return crypto->key;
+}
+
+/**
+ * Stores a crypto key to use for AES encryption.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param key
+ * The key to set.
+ * @param key_len
+ * Length of the key.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_set_key (socket_crypto_t *crypto,
+                       const uint8_t   *key,
+                       uint8_t          key_len)
+{
+    HARD_ASSERT(crypto != NULL);
+    SOFT_ASSERT_RC(crypto->key == NULL, false,
+                   "Crypto socket already has a key: %s",
+                   socket_get_str(crypto->sc));
+
+    crypto->key = emalloc(key_len);
+    memcpy(crypto->key, key, key_len);
+
+    return true;
 }
 
 /**
@@ -884,12 +1068,172 @@ socket_crypto_gen_pub_key (socket_crypto_t *crypto, size_t *len)
  *
  * @param crypto
  * Crypto socket.
+ * @param pubkey
+ * Public key to derive from.
+ * @param pubkey_len
+ * Length of the public key.
  * @return
  * True on success, false on failure.
  */
 bool
-socket_crypto_derive (socket_crypto_t *crypto)
+socket_crypto_derive (socket_crypto_t     *crypto,
+                      const unsigned char *pubkey,
+                      size_t               pubkey_len)
 {
     TOOLKIT_PROTECT();
+    HARD_ASSERT(crypto != NULL);
+    SOFT_ASSERT_RC(crypto->key != NULL, false,
+                   "Crypto socket doesn't have an AES key: %s",
+                   socket_get_str(crypto->sc));
+    SOFT_ASSERT_RC(crypto->privkey != NULL, false,
+                   "Crypto socket doesn't have private key: %s",
+                   socket_get_str(crypto->sc));
+
+    EC_KEY *ecprivkey = NULL;
+    const EC_GROUP *ecgroup = NULL;
+    EC_POINT *ecpoint = NULL;
+    EC_KEY *eckey = NULL;
+    EVP_PKEY *pkey = NULL;
+    EVP_PKEY_CTX *ctx = NULL;
+
+    ecprivkey = EVP_PKEY_get1_EC_KEY(crypto->privkey);
+    if (ecprivkey == NULL) {
+        LOG(ERROR, "EVP_PKEY_get1_EC_KEY() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    ecgroup = EC_KEY_get0_group(ecprivkey);
+    if (ecgroup == NULL) {
+        LOG(ERROR, "EC_KEY_get0_group() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    ecpoint = EC_POINT_new(ecgroup);
+    if (ecpoint == NULL) {
+        LOG(ERROR, "EC_POINT_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EC_POINT_oct2point(ecgroup, ecpoint, pubkey, pubkey_len, NULL) != 1) {
+        LOG(ERROR, "EC_POINT_oct2point() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    eckey = EC_KEY_new();
+    if (eckey == NULL) {
+        LOG(ERROR, "EC_KEY_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    EC_KEY_set_group(eckey, ecgroup);
+
+    if (EC_KEY_set_public_key(eckey, ecpoint) != 1) {
+        LOG(ERROR, "EC_KEY_set_public_key() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    pkey = EVP_PKEY_new();
+    if (pkey == NULL) {
+        LOG(ERROR, "EVP_PKEY_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EVP_PKEY_set1_EC_KEY(pkey, eckey) != 1) {
+        LOG(ERROR, "EVP_PKEY_set1_EC_KEY() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    ctx = EVP_PKEY_CTX_new(crypto->privkey, NULL);
+    if (ctx == NULL) {
+        LOG(ERROR, "EVP_PKEY_CTX_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EVP_PKEY_derive_init(ctx) != 1) {
+        LOG(ERROR, "EVP_PKEY_derive_init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EVP_PKEY_derive_set_peer(ctx, pkey) != 1) {
+        LOG(ERROR, "EVP_PKEY_derive_set_peer() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    size_t keylen;
+    if (EVP_PKEY_derive(ctx, NULL, &keylen) != 1){
+        LOG(ERROR, "EVP_PKEY_derive() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    unsigned char *key = emalloc(keylen);
+    if (EVP_PKEY_derive(ctx, key, &keylen) != 1){
+        LOG(ERROR, "EVP_PKEY_derive() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        efree(key);
+        goto error;
+    }
+
+    size_t asciilen = keylen * 10;
+    char *ascii = emalloc(asciilen);
+    string_tohex(key, keylen, ascii, asciilen, true);
+    LOG(INFO, "%s", ascii);
+    //PKCS5_PBKDF2_HMAC
+
+    efree(ascii);
+    efree(key);
+
+    bool ret = true;
+    goto out;
+error:
+    ret = false;
+
+out:
+    if (ecprivkey != NULL) {
+        EC_KEY_free(ecprivkey);
+    }
+
+    if (ecpoint != NULL) {
+        EC_POINT_free(ecpoint);
+    }
+
+    if (eckey != NULL) {
+        EC_KEY_free(eckey);
+    }
+
+    if (pkey != NULL) {
+        EVP_PKEY_free(pkey);
+    }
+
+    if (ctx != NULL) {
+        EVP_PKEY_CTX_free(ctx);
+    }
+
+    return ret;
+
+}
+
+#if 0
+bool
+socket_crypto_encrypt (socket_crypto_t *crypto)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(crypto != NULL);
+
+    if (crypto->pkey != NULL) {
+    }
+
     return true;
 }
+#endif

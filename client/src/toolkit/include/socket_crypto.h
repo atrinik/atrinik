@@ -33,6 +33,7 @@
 #define SOCKET_CRYPTO_H
 
 #include <toolkit.h>
+#include <packet.h>
 
 /** Opaque typedef for the ::socket_crypto structure. */
 typedef struct socket_crypto socket_crypto_t;
@@ -47,6 +48,8 @@ bool
 socket_crypto_has_curves(void);
 bool
 socket_crypto_curve_supported(const char *name, int *nid);
+void
+socket_crypto_packet_append_curves(packet_struct *packet);
 const char *
 socket_crypto_get_cert(void);
 const char *
@@ -58,16 +61,25 @@ socket_crypto_create(socket_t *sc);
 void
 socket_crypto_set_nid(socket_crypto_t *crypto, int nid);
 void
-socket_crypto_destroy(socket_crypto_t *crypto);
+socket_crypto_free(socket_crypto_t *crypto);
 bool
 socket_crypto_load_cert(socket_crypto_t *crypto,
                         const char      *cert_str,
                         const char      *chain_str);
 bool
-socket_crypto_load_pub_key(socket_crypto_t *crypto, const char *buf);
-char *
-socket_crypto_gen_pub_key(socket_crypto_t *crypto, size_t *len);
+socket_crypto_load_pubkey(socket_crypto_t *crypto, const char *buf);
+unsigned char *
+socket_crypto_gen_pubkey(socket_crypto_t *crypto,
+                         size_t          *pubkey_len);
+const unsigned char *
+socket_crypto_create_key(socket_crypto_t *crypto, uint8_t *len);
 bool
-socket_crypto_derive(socket_crypto_t *crypto);
+socket_crypto_set_key(socket_crypto_t *crypto,
+                      const uint8_t   *key,
+                      uint8_t          key_len);
+bool
+socket_crypto_derive(socket_crypto_t     *crypto,
+                     const unsigned char *pubkey,
+                     size_t               pubkey_len);
 
 #endif

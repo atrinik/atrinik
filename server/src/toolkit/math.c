@@ -386,6 +386,36 @@ rndm_chance (uint32_t n)
 }
 
 /**
+ * Generate a random 64-bit unsigned number.
+ *
+ * @return
+ * 64-bit unsigned number.
+ */
+uint64_t
+rndm_u64 (void)
+{
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        unsigned long long int i;
+        if (rdrand64_step(&i)) {
+            return i;
+        }
+    }
+#endif
+
+    union {
+        uint64_t u64;
+        uint8_t  u8[64 / CHAR_BIT];
+    } num;
+
+    for (size_t i = 0; i < arraysize(num.u8); i++) {
+        num.u8[i] = rndm(0, UINT8_MAX);
+    }
+
+    return num.u64;
+}
+
+/**
  * A Linked-List Memory Sort
  * by Philip J. Erdelsky <pje@efgh.com>
  * http://www.alumni.caltech.edu/~pje/
