@@ -1139,6 +1139,21 @@ socket_get_crypto (socket_t *sc)
 }
 
 /**
+ * Get the hostname of the specified socket.
+ *
+ * @param sc
+ * Socket.
+ * @return
+ * Hostname. Can be NULL if the socket was created with NULL hostname.
+ */
+const char *
+socket_get_host (socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+    return sc->host;
+}
+
+/**
  * Selects the best cipher from the list of available ciphers, which is
  * obtained by creating a dummy SSL session.
  * @param ctx

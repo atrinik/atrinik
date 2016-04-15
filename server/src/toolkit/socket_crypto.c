@@ -48,7 +48,7 @@ struct socket_crypto {
     EVP_PKEY *pkey; ///< Public key.
     int nid; ///< NID to use.
     uint8_t last_cmd; ///< Last received crypto sub-command.
-    X509 *cert; ///< X509 certificate.
+    socket_t *sc; ///< Socket this was created for.
 };
 
 /**
@@ -86,6 +86,38 @@ socket_crypto_curves_free (void)
     }
 
     crypto_curves = NULL;
+}
+
+/**
+ * Reads an X509 certificate in PEM format.
+ *
+ * @param pem
+ * Certificate PEM data. Must be NUL-terminated.
+ * @return
+ * Certificate on success, NULL on failure.
+ */
+static X509 *
+crypto_read_pem_x509 (const char *pem)
+{
+    char *cp = estrdup(pem);
+    BIO *bio = BIO_new_mem_buf(cp, -1);
+    if (bio == NULL) {
+        LOG(ERROR, "BIO_new_mem_buf() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        efree(cp);
+        return false;
+    }
+
+    X509 *cert = NULL;
+    if (PEM_read_bio_X509(bio, &cert, 0, NULL) == NULL) {
+        cert = NULL;
+        LOG(ERROR, "PEM_read_bio_X509() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+    }
+
+    BIO_free(bio);
+    efree(cp);
+    return cert;
 }
 
 /**
@@ -164,33 +196,22 @@ static bool
 clioptions_option_crypto_cert (const char *arg,
                                char      **errmsg)
 {
-    char *cp = estrdup(arg);
-    BIO *bio = BIO_new_mem_buf(cp, -1);
-    if (bio == NULL) {
-        *errmsg = estrdup("BIO_new_mem_buf() failed");
-        efree(cp);
+    X509 *cert = crypto_read_pem_x509(arg);
+    if (cert == NULL) {
+        *errmsg = estrdup("Failed to read certificate; ensure it's in "
+                          "PEM format");
         return false;
     }
 
-    X509 *cert = NULL;
-    if (PEM_read_bio_X509(bio, &cert, 0, NULL) == NULL) {
-        string_fmt(*errmsg,
-                   "Failed to read certificate; ensure it's in PEM format: %s",
-                   ERR_error_string(ERR_get_error(), NULL));
-        BIO_free(bio);
-        efree(cp);
-        return false;
-    }
-
+    /* We don't actually need the cert; we just needed to validate the
+     * format. */
     X509_free(cert);
 
     if (crypto_cert != NULL) {
         efree(crypto_cert);
     }
 
-    crypto_cert = cp;
-    BIO_free(bio);
-
+    crypto_cert = estrdup(arg);
     return true;
 }
 
@@ -491,8 +512,10 @@ socket_crypto_check_cmd (uint8_t type, socket_crypto_t *crypto)
  *
  * @param sc
  * Socket.
+ * @return
+ * Created crypto socket.
  */
-void
+socket_crypto_t *
 socket_crypto_create (socket_t *sc)
 {
     TOOLKIT_PROTECT();
@@ -500,7 +523,10 @@ socket_crypto_create (socket_t *sc)
 
     socket_crypto_t *crypto = ecalloc(1, sizeof(*crypto));
     crypto->nid = NID_undef;
+    crypto->sc = sc;
     socket_set_crypto(sc, crypto);
+
+    return crypto;
 }
 
 /**
@@ -538,11 +564,29 @@ socket_crypto_destroy (socket_crypto_t *crypto)
         EVP_PKEY_free(crypto->pkey);
     }
 
-    if (crypto->cert != NULL) {
-        X509_free(crypto->cert);
+    efree(crypto);
+}
+
+/**
+ * Certificate verify callback.
+ *
+ * @param ok
+ * What to return on verification success.
+ * @param ctx
+ * X509 store context that is being verified.
+ * @return
+ * Verification state.
+ */
+static int
+crypto_cert_verify_callback (int ok, X509_STORE_CTX *ctx)
+{
+    // TODO: only accept previously trusted self-signed certificates
+    if (X509_STORE_CTX_get_error(ctx) ==
+        X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
+        return 1;
     }
 
-    efree(crypto);
+    return ok;
 }
 
 /**
@@ -552,115 +596,137 @@ socket_crypto_destroy (socket_crypto_t *crypto)
  * @param crypto
  * Crypto socket.
  * @param cert_str
- * Certificate in PEM format. Will be freed on success.
+ * Certificate in PEM format. Must be NUL-terminated.
  * @param chain_str
- * Certificate chain in PEM format. Will be freed on success.
+ * Certificate chain in PEM format. Must be NUL-terminated.
  * @return
  * True on success, false on failure.
  */
 bool
 socket_crypto_load_cert (socket_crypto_t *crypto,
-                         char            *cert_str,
-                         char            *chain_str)
+                         const char      *cert_str,
+                         const char      *chain_str)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(crypto != NULL);
     HARD_ASSERT(cert_str != NULL);
     HARD_ASSERT(chain_str != NULL);
-    SOFT_ASSERT_RC(crypto->cert == NULL, false, "Cert already loaded");
-
-    BIO *bio = BIO_new_mem_buf(cert_str, -1);
-    if (bio == NULL) {
-        LOG(ERROR, "BIO_new_mem_buf() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
-        return false;
-    }
+    SOFT_ASSERT_RC(crypto->pkey != NULL, false,
+                   "Trusted public key not loaded");
 
     X509 *cert = NULL;
-    if (PEM_read_bio_X509(bio, &cert, 0, NULL) == NULL) {
-        LOG(ERROR, "PEM_read_bio_X509() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
-        BIO_free(bio);
-        return false;
+    STACK_OF(X509) *chains = NULL;
+    X509_STORE_CTX *store_ctx = NULL;
+
+    cert = crypto_read_pem_x509(cert_str);
+    if (cert == NULL) {
+        /* Logging already done */
+        goto error;
     }
 
-    BIO_free(bio);
+    store_ctx = X509_STORE_CTX_new();
+    if (store_ctx == NULL) {
+        LOG(ERROR, "X509_STORE_CTX_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
 
-    STACK_OF(X509) *chains = sk_X509_new(NULL);
+    chains = sk_X509_new(NULL);
     if (chains == NULL) {
         LOG(ERROR, "sk_X509_new() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
-        X509_free(cert);
-        return false;
+        goto error;
     }
 
     if (*chain_str != '\0') {
-        bio = BIO_new_mem_buf(chain_str, -1);
-        if (bio == NULL) {
-            LOG(ERROR, "BIO_new_mem_buf() failed: %s",
-                ERR_error_string(ERR_get_error(), NULL));
-            X509_free(cert);
-            sk_X509_free(chains);
-            return false;
+        X509 *chain = crypto_read_pem_x509(chain_str);
+        if (chain == NULL) {
+            /* Logging already done */
+            goto error;
         }
-
-        X509 *chain = NULL;
-        if (PEM_read_bio_X509(bio, &chain, 0, NULL) == NULL) {
-            LOG(ERROR, "PEM_read_bio_X509() failed: %s",
-                ERR_error_string(ERR_get_error(), NULL));
-            X509_free(cert);
-            BIO_free(bio);
-            sk_X509_free(chains);
-            return false;
-        }
-
-        BIO_free(bio);
 
         if (sk_X509_push(chains, chain) != 1) {
             LOG(ERROR, "sk_X509_push() failed: %s",
                 ERR_error_string(ERR_get_error(), NULL));
-            X509_free(cert);
             X509_free(chain);
-            sk_X509_free(chains);
-            return false;
+            goto error;
         }
-    }
-
-    X509_STORE_CTX *store_ctx = X509_STORE_CTX_new();
-    if (store_ctx == NULL) {
-        LOG(ERROR, "X509_STORE_CTX_new() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
-        X509_free(cert);
-        sk_X509_free(chains);
-        return false;
     }
 
     if (X509_STORE_CTX_init(store_ctx, crypto_store, cert, chains) != 1) {
         LOG(ERROR, "X509_STORE_CTX_init() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
-        X509_free(cert);
-        X509_STORE_CTX_free(store_ctx);
-        sk_X509_free(chains);
-        return false;
+        goto error;
     }
 
+    X509_STORE_CTX_set_verify_cb(store_ctx, crypto_cert_verify_callback);
+
+    /* Perform the verification. */
     if (X509_verify_cert(store_ctx) != 1) {
         LOG(ERROR, "X509_verify_cert() failed: %s",
             X509_verify_cert_error_string(store_ctx->error));
-        X509_free(cert);
-        X509_STORE_CTX_free(store_ctx);
-        sk_X509_free(chains);
-        return false;
+        goto error;
     }
 
-    X509_STORE_CTX_free(store_ctx);
-    sk_X509_free(chains);
+    /* Acquire the certificate's common name. */
+    X509_NAME *subject_name = X509_get_subject_name(cert);
+    SOFT_ASSERT_LABEL(subject_name != NULL, error,
+                      "Failed to get X509_NAME pointer");
+    char cn[256];
+    X509_NAME_get_text_by_NID(subject_name, NID_commonName, VS(cn));
 
-    crypto->cert = cert;
+    const char *host = socket_get_host(crypto->sc);
+    SOFT_ASSERT_LABEL(host != NULL, error,
+                      "Failed to get host from socket");
 
-    efree(cert_str);
-    efree(chain_str);
-    return true;
+    if (strcmp(host, cn) != 0) {
+        LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
+        LOG(SYSTEM, "Certificate CN (%s) doesn't match host (%s): %s",
+            cn, host, socket_get_str(crypto->sc));
+        goto error;
+    }
+
+    EVP_PKEY *pubkey = X509_get_pubkey(cert);;
+    SOFT_ASSERT_LABEL(pubkey != NULL, error,
+                      "Failed to get EVP_PKEY pointer");
+    int res = EVP_PKEY_cmp(pubkey, crypto->pkey);
+    EVP_PKEY_free(pubkey);
+
+    if (res != 1) {
+        LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
+        LOG(SYSTEM,
+            "Certificate's public key doesn't match public "
+            "metaserver record: %s",
+            socket_get_str(crypto->sc));
+        goto error;
+    }
+
+    bool ret = true;
+    goto out;
+
+error:
+    ret = false;
+
+out:
+    if (cert != NULL) {
+        X509_free(cert);
+    }
+
+    if (store_ctx != NULL) {
+        X509_STORE_CTX_free(store_ctx);
+    }
+
+    /* Free certificates in the chain. */
+    if (chains != NULL) {
+        while ((cert = sk_X509_pop(chains)) != NULL) {
+            X509_free(cert);
+        }
+
+        /* Free the stack of chains. */
+        sk_X509_free(chains);
+    }
+
+    return ret;
 }
 
 /**
@@ -669,14 +735,12 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
  * @param crypto
  * Crypto socket.
  * @param buf
- * Public key data. Will be freed on success.
- * @param len
- * Length of the data.
+ * Public key data. Must be NUL-terminated.
  * @return
  * True on success, false on failure.
  */
 bool
-socket_crypto_load_pub_key (socket_crypto_t *crypto, char *buf, size_t len)
+socket_crypto_load_pub_key (socket_crypto_t *crypto, const char *buf)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(crypto != NULL);
@@ -684,9 +748,11 @@ socket_crypto_load_pub_key (socket_crypto_t *crypto, char *buf, size_t len)
     SOFT_ASSERT_RC(crypto->pkey == NULL, false,
                    "Crypto socket already has a public key");
 
-    BIO *bio = BIO_new_mem_buf(buf, len);
+    char *cp = estrdup(buf);
+    BIO *bio = BIO_new_mem_buf(cp, -1);
     if (bio == NULL) {
         LOG(ERROR, "BIO_new_mem_buf() failed");
+        efree(cp);
         return false;
     }
 
@@ -694,13 +760,14 @@ socket_crypto_load_pub_key (socket_crypto_t *crypto, char *buf, size_t len)
     if (PEM_read_bio_PUBKEY(bio, &pkey, NULL, NULL) == NULL) {
         LOG(ERROR, "PEM_read_bio_PUBKEY() failed");
         BIO_free(bio);
+        efree(cp);
         return false;
     }
 
     crypto->pkey = pkey;
 
     BIO_free(bio);
-    efree(buf);
+    efree(cp);
     return true;
 }
 

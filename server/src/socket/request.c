@@ -2701,22 +2701,17 @@ socket_crypto_hello (socket_struct *ns,
         return;
     }
 
-    const char *cert_chain = socket_crypto_get_cert_chain();
-    if (cert == NULL) {
-        LOG(SYSTEM, "Crypto hello received but no cert chain loaded: %s",
-            socket_get_str(ns->sc));
-        ns->state = ST_DEAD;
-        return;
-    }
-
     socket_crypto_create(ns->sc);
 
     packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 512, 256);
+    packet_debug_data(packet, 0, "Crypto sub-command");
     packet_append_uint8(packet, CMD_CRYPTO_HELLO);
-    packet_debug(packet, 0, "Certificate");
+    packet_debug_data(packet, 0, "Certificate");
     packet_append_string_terminated(packet, cert);
-    packet_debug(packet, 0, "Certificate chain");
-    packet_append_string_terminated(packet, cert_chain);
+    packet_debug_data(packet, 0, "Certificate chain");
+    const char *cert_chain = socket_crypto_get_cert_chain();
+    packet_append_string_terminated(packet,
+                                    cert_chain != NULL ? cert_chain : "");
     socket_send_packet(ns, packet);
 }
 

@@ -856,6 +856,8 @@ void
 socket_set_crypto(socket_t *sc, socket_crypto_t *crypto);
 socket_crypto_t *
 socket_get_crypto(socket_t *sc);
+const char *
+socket_get_host(socket_t *sc);
 SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 void socket_ssl_destroy(SSL *ssl);
 

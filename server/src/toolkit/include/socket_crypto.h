@@ -53,7 +53,7 @@ const char *
 socket_crypto_get_cert_chain(void);
 bool
 socket_crypto_check_cmd(uint8_t type, socket_crypto_t *crypto);
-void
+socket_crypto_t *
 socket_crypto_create(socket_t *sc);
 void
 socket_crypto_set_nid(socket_crypto_t *crypto, int nid);
@@ -61,10 +61,10 @@ void
 socket_crypto_destroy(socket_crypto_t *crypto);
 bool
 socket_crypto_load_cert(socket_crypto_t *crypto,
-                        char            *cert_str,
-                        char            *chain_str);
+                        const char      *cert_str,
+                        const char      *chain_str);
 bool
-socket_crypto_load_pub_key(socket_crypto_t *crypto, char *buf, size_t len);
+socket_crypto_load_pub_key(socket_crypto_t *crypto, const char *buf);
 char *
 socket_crypto_gen_pub_key(socket_crypto_t *crypto, size_t *len);
 bool

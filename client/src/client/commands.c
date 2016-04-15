@@ -998,6 +998,9 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
         cpl.state = ST_START;
         return;
     }
+
+    efree(cert);
+    efree(chain);
 }
 
 /**
