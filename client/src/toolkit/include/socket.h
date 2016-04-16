@@ -696,9 +696,9 @@ enum {
  * Client exchanges key to use for AES encryption with the server, until such
  * a time as the ECDH keys are derived.
  *
- * The client will also include a string of random bytes of variable size that
- * the server must replicate in its key response (which will be encrypted with
- * the received key).
+ * The client will also include an IV buffer of variable size that the server
+ * must store (for its own AES encryption/decryption) and replicate in its key
+ * response (which will be encrypted with the received key).
  *
  * Client encrypts this with the server's public key.
  */
@@ -712,13 +712,12 @@ enum {
  * curves to use; if it doesn't support any in the set, the connection MUST
  * be terminated immediately.
  *
- * In turn, the server sends the chosen curve(s) to use to the client, ordered
- * by preference. The client MUST verify that it supports the given curve, and
- * that a curve was, in fact, provided in the hello message. It is an error if
- * the client cannot select a usable curve and MUST terminate the connection
- * immediately.
+ * In turn, the server sends the chosen curve to use to the client. The client
+ * MUST verify that it supports the given curve, and that a curve was, in fact,
+ * provided in the hello message. It is an error if the client cannot select a
+ * usable curve and MUST terminate the connection immediately.
  *
- * Encrypted with AES.
+ * Encrypted with AES and the previously agreed-upon key.
  */
 #define CMD_CRYPTO_CURVES 3
 /**
@@ -727,9 +726,25 @@ enum {
  * Client and server both use this command to exchange their public keys with
  * each other, and to subsequently derive the shared secret key.
  *
- * This communication is also encrypted with AES.
+ * Both sides also exchange IV buffers to use for AES and they locally combine
+ * them.
+ *
+ * This communication is also encrypted with AES and the previously
+ * agreed-upon key.
  */
 #define CMD_CRYPTO_PUBKEY 4
+/**
+ * The secret sub-command. Sets a secret key to use for checksums.
+ *
+ * The client uses this to inform the server about the secret key (a salt)
+ * to use for protocol message checksums, and the other way around.
+ */
+#define CMD_CRYPTO_SECRET 5
+/**
+ * The done sub-command. This command indicates a successful crypto handshake,
+ * and marks the connection ready for receiving/sending Atrinik game data.
+ */
+#define CMD_CRYPTO_DONE 6
 /*@}*/
 
 /**

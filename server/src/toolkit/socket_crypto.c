@@ -36,6 +36,7 @@
 #include <socket_crypto.h>
 #include <clioptions.h>
 
+#include <openssl/aes.h>
 #include <openssl/engine.h>
 #include <openssl/err.h>
 
@@ -54,6 +55,12 @@ struct socket_crypto {
     socket_t *sc; ///< Socket this was created for.
     unsigned char *key; ///< The secret key.
     uint8_t key_len; ///< Length of the secret key.
+    EVP_CIPHER_CTX *cipher_ctx; ///< Cipher context used for AES.
+    unsigned char iv[AES_BLOCK_SIZE]; ///< AES IV buffer.
+    unsigned char iv2[AES_BLOCK_SIZE]; ///< AES IV buffer.
+    unsigned char secret[SHA512_DIGEST_LENGTH]; ///< Secret for checksums.
+    unsigned char secret2[SHA512_DIGEST_LENGTH]; ///< Secret for checksums.
+    bool done:1; ///< Whether the handshake has been completed.
 };
 
 /**
@@ -64,6 +71,16 @@ typedef struct crypto_curve {
     char *name; ///< Curve name.
     int nid; ///< OpenSSL NID.
 } crypto_curve_t;
+
+/**
+ * Possible encrypted packet command types.
+ */
+enum {
+    CRYPTO_CMD_ENCRYPTED = 1, ///< Encrypted data.
+    CRYPTO_CMD_CHECKSUM, ///< Checksummed data.
+
+    CRYPTO_CMD_MAX ///< Total number of known crypto commands.
+};
 
 /** All the supported crypto curves. */
 static crypto_curve_t *crypto_curves = NULL;
@@ -520,6 +537,11 @@ socket_crypto_check_cmd (uint8_t type, socket_crypto_t *crypto)
 {
     TOOLKIT_PROTECT();
 
+    /* No more crypto commands if the handshake is done. */
+    if (socket_crypto_is_done(crypto)) {
+        return false;
+    }
+
     if (crypto == NULL) {
         /* The hello sub-command is legal only when the exchange hasn't
          * begun yet, anything else is invalid. */
@@ -821,8 +843,6 @@ socket_crypto_load_pubkey (socket_crypto_t *crypto, const char *buf)
         return false;
     }
 
-    EVP_PKEY_free(pkey);
-
     if (EVP_PKEY_encrypt_init(pkey_ctx) != 1) {
         LOG(ERROR, "EVP_PKEY_encrypt_init() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
@@ -1005,15 +1025,45 @@ socket_crypto_gen_pubkey (socket_crypto_t *crypto,
 }
 
 /**
+ * Generate an IV buffer.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param[out] iv_size
+ * Will contain the IV buffer size.
+ * @return
+ * IV buffer on success, NULL on failure.
+ */
+const unsigned char *
+socket_crypto_gen_iv (socket_crypto_t *crypto,
+                      uint8_t         *iv_size)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(iv_size != NULL);
+
+    *iv_size = sizeof(crypto->iv2);
+
+    if (RAND_bytes(crypto->iv2, *iv_size) != 1) {
+        LOG(ERROR, "RAND_bytes() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return NULL;
+    }
+
+    return crypto->iv2;
+}
+
+/**
  * Creates a key to use for AES encryption which will be used until ECDH
  * secret keys are derived.
+ *
+ * Also generates the IV buffer.
  *
  * @param crypto
  * Crypto socket.
  * @param[out] len
  * Will contain the key's length on success.
  * @return
- * Created key on success, NULLon failure.
+ * Created key on success, NULL on failure.
  */
 const unsigned char *
 socket_crypto_create_key (socket_crypto_t *crypto, uint8_t *len)
@@ -1024,18 +1074,25 @@ socket_crypto_create_key (socket_crypto_t *crypto, uint8_t *len)
                    "Crypto socket already has a key: %s",
                    socket_get_str(crypto->sc));
 
-    union {
-        uint64_t u64[8];
-        uint8_t  u8[64 / CHAR_BIT * 8];
-    } num;
-
-    for (size_t i = 0; i < arraysize(num.u64); i++) {
-        num.u64[i] = rndm_u64();
+    unsigned char buf[128];
+    if (RAND_bytes(VS(buf)) != 1) {
+        LOG(ERROR, "RAND_bytes() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return NULL;
     }
 
-    crypto->key_len = *len = SHA512_DIGEST_LENGTH;
-    crypto->key = emalloc(crypto->key_len);
-    SHA512(num.u8, sizeof(num.u8), crypto->key);
+    *len = SHA256_DIGEST_LENGTH;
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+    if (SHA256(VS(buf), digest) == NULL) {
+        LOG(ERROR, "SHA256() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return NULL;
+    }
+
+    if (!socket_crypto_set_key(crypto, VS(digest), true)) {
+        return NULL;
+    }
+
     return crypto->key;
 }
 
@@ -1048,13 +1105,16 @@ socket_crypto_create_key (socket_crypto_t *crypto, uint8_t *len)
  * The key to set.
  * @param key_len
  * Length of the key.
+ * @param reset_iv
+ * If true, will reset the IV buffer.
  * @return
  * True on success, false on failure.
  */
 bool
 socket_crypto_set_key (socket_crypto_t *crypto,
                        const uint8_t   *key,
-                       uint8_t          key_len)
+                       uint8_t          key_len,
+                       bool             reset_iv)
 {
     HARD_ASSERT(crypto != NULL);
     SOFT_ASSERT_RC(crypto->key == NULL, false,
@@ -1064,7 +1124,210 @@ socket_crypto_set_key (socket_crypto_t *crypto,
     crypto->key = emalloc(key_len);
     memcpy(crypto->key, key, key_len);
 
+    if (crypto->cipher_ctx != NULL) {
+        EVP_CIPHER_CTX_free(crypto->cipher_ctx);
+    }
+
+    crypto->cipher_ctx = EVP_CIPHER_CTX_new();
+    if (crypto->cipher_ctx == NULL) {
+        LOG(ERROR, "EVP_CIPHER_CTX_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (reset_iv) {
+        if (RAND_bytes(crypto->iv, AES_BLOCK_SIZE) != 1) {
+            LOG(ERROR, "RAND_bytes() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+    }
+
     return true;
+
+error:
+    if (crypto->key != NULL) {
+        efree(crypto->key);
+        crypto->key = NULL;
+    }
+
+    if (crypto->cipher_ctx != NULL) {
+        EVP_CIPHER_CTX_free(crypto->cipher_ctx);
+        crypto->cipher_ctx = NULL;
+    }
+
+    return false;
+}
+
+/**
+ * Acquire the IV buffer.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param[out] len
+ * Will contain the length of the IV buffer.
+ * @return
+ * IV buffer on success, NULL on failure.
+ */
+const unsigned char *
+socket_crypto_get_iv (socket_crypto_t *crypto, uint8_t *len)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(len != NULL);
+    SOFT_ASSERT_RC(crypto->key != NULL, NULL,
+                   "Crypto socket doesn't have a key: %s",
+                   socket_get_str(crypto->sc));
+
+    *len = sizeof(crypto->iv);
+    return crypto->iv;
+}
+
+/**
+ * Stores an IV buffer to use for AES encryption.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param iv
+ * The IV buffer to set.
+ * @param iv_len
+ * Length of the IV buffer.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_set_iv (socket_crypto_t *crypto,
+                      const uint8_t   *iv,
+                      uint8_t          iv_len)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(iv != NULL);
+    SOFT_ASSERT_RC(crypto->key != NULL, false,
+                   "Crypto socket doesn't have a key: %s",
+                   socket_get_str(crypto->sc));
+
+    if (sizeof(crypto->iv) != (size_t) iv_len) {
+        LOG(ERROR, "Mismatched IV buffer sizes");
+        return false;
+    }
+
+    memcpy(crypto->iv, iv, sizeof(crypto->iv));
+    return true;
+}
+
+/**
+ * Creates a new secret to use for checksums.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param[out] secret_len
+ * Will contain the length of the created secret on success.
+ * @return
+ * Created secret, NULL on failure.
+ */
+const unsigned char *
+socket_crypto_create_secret (socket_crypto_t *crypto,
+                             uint8_t         *secret_len)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(secret_len != NULL);
+
+    unsigned char buf[128];
+    if (RAND_bytes(VS(buf)) != 1) {
+        LOG(ERROR, "RAND_bytes() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return NULL;
+    }
+
+    *secret_len = SHA512_DIGEST_LENGTH;
+    if (SHA512(VS(buf), crypto->secret) == NULL) {
+        LOG(ERROR, "SHA512() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return NULL;
+    }
+
+    return crypto->secret;
+}
+
+/**
+ * Sets the secret to use for checksums to the specified value.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param secret
+ * Secret to use.
+ * @param secret_len
+ * Length of the secret.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_set_secret (socket_crypto_t *crypto,
+                          uint8_t         *secret,
+                          uint8_t          secret_len)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(secret != NULL);
+
+    if (sizeof(crypto->secret2) != (size_t) secret_len) {
+        LOG(ERROR, "Secret size mismatch");
+        return false;
+    }
+
+    memcpy(crypto->secret2, secret, sizeof(crypto->secret2));
+
+    return true;
+}
+
+/**
+ * Marks the crypto handshake as completed.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_set_done (socket_crypto_t *crypto)
+{
+    HARD_ASSERT(crypto != NULL);
+    SOFT_ASSERT_RC(!crypto->done, false, "Crypto is already done!");
+    crypto->done = true;
+
+    /* Extend the received secret with our own, and then re-hash
+     * our own secret. */
+    CASSERT(sizeof(crypto->secret) == sizeof(crypto->secret2));
+    for (size_t i = 0; i < sizeof(crypto->secret2); i++) {
+        crypto->secret2[i] |= crypto->secret[i];
+    }
+
+    /* Re-hash the secret. */
+    if (SHA512(VS(crypto->secret2), crypto->secret) == NULL) {
+        LOG(ERROR, "SHA512() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return false;
+    }
+
+    /* Clear the received secret. Just to be safe. */
+    memset(crypto->secret2, 0, sizeof(crypto->secret2));
+    return true;
+}
+
+/**
+ * Checks if the crypto handshake has been completed.
+ *
+ * @param crypto
+ * Crypto socket. Can be NULL.
+ * @return
+ * Whether the handshake is completed.
+ */
+bool
+socket_crypto_is_done (socket_crypto_t *crypto)
+{
+    if (crypto == NULL) {
+        return false;
+    }
+
+    return crypto->done;
 }
 
 /**
@@ -1076,13 +1339,19 @@ socket_crypto_set_key (socket_crypto_t *crypto,
  * Public key to derive from.
  * @param pubkey_len
  * Length of the public key.
+ * @param iv
+ * IV buffer.
+ * @param iv_size
+ * IV buffer size.
  * @return
  * True on success, false on failure.
  */
 bool
 socket_crypto_derive (socket_crypto_t     *crypto,
                       const unsigned char *pubkey,
-                      size_t               pubkey_len)
+                      size_t               pubkey_len,
+                      const unsigned char *iv,
+                      size_t               iv_size)
 {
     TOOLKIT_PROTECT();
     HARD_ASSERT(crypto != NULL);
@@ -1099,6 +1368,11 @@ socket_crypto_derive (socket_crypto_t     *crypto,
     EC_KEY *eckey = NULL;
     EVP_PKEY *pkey = NULL;
     EVP_PKEY_CTX *ctx = NULL;
+
+    if (pubkey_len == 0 || iv_size != sizeof(crypto->iv2)) {
+        LOG(DEVEL, "Mismatched lengths");
+        goto error;
+    }
 
     ecprivkey = EVP_PKEY_get1_EC_KEY(crypto->privkey);
     if (ecprivkey == NULL) {
@@ -1174,29 +1448,52 @@ socket_crypto_derive (socket_crypto_t     *crypto,
         goto error;
     }
 
-    size_t keylen;
-    if (EVP_PKEY_derive(ctx, NULL, &keylen) != 1){
+    size_t key_len;
+    if (EVP_PKEY_derive(ctx, NULL, &key_len) != 1){
         LOG(ERROR, "EVP_PKEY_derive() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
-    unsigned char *key = emalloc(keylen);
-    if (EVP_PKEY_derive(ctx, key, &keylen) != 1){
+    unsigned char *key = emalloc(key_len);
+    if (EVP_PKEY_derive(ctx, key, &key_len) != 1){
         LOG(ERROR, "EVP_PKEY_derive() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
         efree(key);
         goto error;
     }
 
-    size_t asciilen = keylen * 10;
-    char *ascii = emalloc(asciilen);
-    string_tohex(key, keylen, ascii, asciilen, true);
-    LOG(INFO, "%s", ascii);
-    //PKCS5_PBKDF2_HMAC
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+    if (PKCS5_PBKDF2_HMAC((const char *) key,
+                          key_len,
+                          crypto->key,
+                          crypto->key_len,
+                          1000,
+                          EVP_sha256(),
+                          sizeof(digest),
+                          digest) != 1) {
+        LOG(ERROR, "PKCS5_PBKDF2_HMAC() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        efree(key);
+        goto error;
+    }
 
-    efree(ascii);
+    /* Extend our own IV buffer with the incoming one. */
+    for (size_t i = 0; i < iv_size; i++) {
+        crypto->iv2[i] |= iv[i];
+    }
+
+    CASSERT(sizeof(crypto->iv) == sizeof(crypto->iv2));
+    memcpy(crypto->iv, crypto->iv2, sizeof(crypto->iv));
+    memset(crypto->iv2, 0, sizeof(crypto->iv2));
+
     efree(key);
+    efree(crypto->key);
+    crypto->key = NULL;
+
+    if (!socket_crypto_set_key(crypto, VS(digest), false)) {
+        goto error;
+    }
 
     bool ret = true;
     goto out;
@@ -1228,16 +1525,463 @@ out:
 
 }
 
-#if 0
-bool
-socket_crypto_encrypt (socket_crypto_t *crypto)
+/**
+ * Encrypts the specified packet.
+ *
+ * @param sc
+ * Socket.
+ * @param packet_orig
+ * Packet to encrypt. Will be freed (even in error cases); use the returned
+ * packet.
+ * @param packet_meta
+ * Meta-data packet (length and command type).
+ * @param checksum_only
+ * If true, only generate checksums and do not encrypt the packet.
+ * @return
+ * Encrypted packet, NULL on failure.
+ */
+packet_struct *
+socket_crypto_encrypt (socket_t      *sc,
+                       packet_struct *packet_orig,
+                       packet_struct *packet_meta,
+                       bool           checksum_only)
 {
     TOOLKIT_PROTECT();
-    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(packet_orig != NULL);
+    HARD_ASSERT(packet_meta != NULL);
 
-    if (crypto->pkey != NULL) {
+    socket_crypto_t *crypto = socket_get_crypto(sc);
+    /* Force checksumming until we're past the hello exchange. */
+    if (crypto == NULL || crypto->last_cmd == CMD_CRYPTO_HELLO) {
+        checksum_only = true;
     }
 
-    return true;
+    /* SHA256 digest length + 1 byte for crypto command type */
+    size_t packet_len = SHA256_DIGEST_LENGTH + 1;
+    size_t enc_len;
+    packet_struct *packet = NULL;
+    uint8_t packet_orig_type = packet_orig->type;
+    uint16_t packet_orig_len = packet_orig->len;
+
+    if (checksum_only) {
+        /* Original packet + 1 byte for original packet type */
+        packet_len += packet_orig->len + 1;
+        packet = packet_orig;
+        packet_orig = NULL;
+    } else if (crypto->key != NULL) {
+        /* We need to include the Atrinik command type as well. */
+        packet_orig_len += 1;
+        enc_len = (((packet_orig_len + AES_BLOCK_SIZE) / AES_BLOCK_SIZE) *
+                   AES_BLOCK_SIZE);
+        packet_len += enc_len;
+        packet = packet_new(0, packet_len, 0);
+        packet_len += 2 + 128 / CHAR_BIT;
+    } else if (crypto->pkey_ctx != NULL) {
+        if (EVP_PKEY_encrypt(crypto->pkey_ctx,
+                             NULL,
+                             &enc_len,
+                             packet->data,
+                             packet->len) != 1) {
+            LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
+                ERR_error_string(ERR_get_error(), NULL),
+                socket_get_str(crypto->sc));
+            goto error;
+        }
+
+        packet_len += enc_len;
+        packet = packet_new(0, packet_len, 0);
+    } else {
+        LOG(ERROR, "Cannot encrypt packet!");
+        goto error;
+    }
+
+    if (unlikely(packet_len > UINT16_MAX)) {
+        LOG(ERROR, "Crypto packet is too large: %" PRIu64,
+            (uint64_t) packet_len);
+        goto error;
+    }
+
+    /* Construct the crypto packet metadata header */
+    packet_debug_data(packet_meta, 0, "Crypto packet length");
+    packet_append_uint16(packet_meta, (uint16_t) packet_len);
+    packet_debug_data(packet_meta, 0, "Crypto packet type");
+    if (checksum_only) {
+        packet_append_uint8(packet_meta, CRYPTO_CMD_CHECKSUM);
+    } else {
+        packet_append_uint8(packet_meta, CRYPTO_CMD_ENCRYPTED);
+    }
+
+    if (checksum_only || crypto->key == NULL) {
+        packet_debug_data(packet_meta, 0, "Atrinik packet type");
+        packet_append_uint8(packet_meta, packet_orig_type);
+    } else {
+        packet_debug_data(packet_meta, 0, "Decrypted length");
+        packet_append_uint16(packet_meta, packet_orig_len);
+    }
+
+    if (checksum_only) {
+    } else if (crypto->key != NULL) {
+        if (EVP_EncryptInit_ex(crypto->cipher_ctx,
+                               EVP_aes_256_gcm(),
+                               NULL,
+                               crypto->key,
+                               crypto->iv) != 1) {
+            LOG(ERROR, "EVP_EncryptInit_ex() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+
+        packet->len += enc_len;
+        enc_len = 0;
+
+        int new_len = 0;
+        if (EVP_EncryptUpdate(crypto->cipher_ctx,
+                              packet->data,
+                              &new_len,
+                              &packet_orig_type,
+                              sizeof(packet_orig_type)) != 1) {
+            LOG(ERROR, "EVP_EncryptUpdate() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+        enc_len += new_len;
+
+        if (packet_orig->len != 0) {
+            if (EVP_EncryptUpdate(crypto->cipher_ctx,
+                                  packet->data + enc_len,
+                                  &new_len,
+                                  packet_orig->data,
+                                  packet_orig->len) != 1) {
+                LOG(ERROR, "EVP_EncryptUpdate() failed: %s",
+                    ERR_error_string(ERR_get_error(), NULL));
+                goto error;
+            }
+            enc_len += new_len;
+        }
+
+        if (EVP_EncryptFinal_ex(crypto->cipher_ctx,
+                                packet->data + enc_len,
+                                &new_len) != 1) {
+            log_error("xxx");
+            LOG(ERROR, "EVP_EncryptFinal_ex() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+        enc_len += new_len;
+
+        /* Zero out the rest of the packet. */
+        memset(packet->data + enc_len, 0, packet->len - enc_len);
+
+        /* Get the tag */
+        unsigned char tag[128 / CHAR_BIT];
+	if (EVP_CIPHER_CTX_ctrl(crypto->cipher_ctx,
+                                EVP_CTRL_GCM_GET_TAG,
+                                sizeof(tag),
+                                tag) != 1) {
+            LOG(ERROR, "EVP_CIPHER_CTX_ctrl() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+
+        packet_append_data_len(packet, tag, sizeof(tag));
+    } else if (crypto->pkey_ctx != NULL) {
+        size_t new_len;
+        if (EVP_PKEY_encrypt(crypto->pkey_ctx,
+                             packet->data,
+                             &new_len,
+                             packet_orig->data,
+                             packet_orig->len) != 1 ||
+            enc_len != new_len) {
+            LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
+                ERR_error_string(ERR_get_error(), NULL),
+                socket_get_str(crypto->sc));
+            goto error;
+        }
+
+        packet->len += new_len;
+    } else {
+        LOG(ERROR, "Cannot encrypt packet!");
+        goto error;
+    }
+
+    SHA256_CTX ctx;
+    if (SHA256_Init(&ctx) != 1) {
+        LOG(ERROR, "SHA256_Init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (checksum_only || crypto->key == NULL) {
+        /* Checksum the Atrinik packet type */
+        if (SHA256_Update(&ctx,
+                          &packet_orig_type,
+                          sizeof(packet_orig_type)) != 1) {
+            LOG(ERROR, "SHA256_Update() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+    } else {
+        /* Checksum the original packet length */
+        if (SHA256_Update(&ctx,
+                          &packet_orig_len,
+                          sizeof(packet_orig_len)) != 1) {
+            LOG(ERROR, "SHA256_Update() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+    }
+
+    /* Checksum the payload */
+    if (SHA256_Update(&ctx, packet->data, packet->len) != 1) {
+        LOG(ERROR, "SHA256_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    /* Checksum the secret */
+    if (crypto != NULL &&
+        crypto->done &&
+        SHA256_Update(&ctx,
+                      crypto->secret,
+                      sizeof(crypto->secret)) != 1) {
+        LOG(ERROR, "SHA256_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+    if (SHA256_Final(digest, &ctx) != 1) {
+        LOG(ERROR, "SHA256_Final() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    packet_debug_data(packet, 0, "SHA256 checksum");
+    packet_append_data_len(packet, digest, sizeof(digest));
+
+    goto out;
+
+error:
+    if (packet != NULL) {
+        packet_free(packet);
+        packet = NULL;
+    }
+
+out:
+    if (packet_orig != NULL) {
+        packet_free(packet_orig);
+    }
+
+    return packet;
 }
-#endif
+
+/**
+ * Decrypts the specified packet data.
+ *
+ * @param sc
+ * Socket.
+ * @param data
+ * Buffer with the packet data.
+ * @param len
+ * Length of the encrypted packet.
+ * @param[out] data_out
+ * Will contain decrypted packet on success. Must be freed.
+ * @param[out] len_out
+ * Length of the decrypted packet.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_decrypt (socket_t *sc,
+                       uint8_t  *data,
+                       size_t    len,
+                       uint8_t **data_out,
+                       size_t   *len_out)
+{
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(data != NULL);
+    HARD_ASSERT(data_out != NULL);
+    HARD_ASSERT(len_out != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(sc);
+
+    unsigned char *decrypted = NULL;
+    *data_out = NULL;
+    *len_out = 0;
+
+    if (len < SHA256_DIGEST_LENGTH + 1) {
+        LOG(ERROR,
+            "Crypto packet length is too short, %" PRIu64 " bytes from %s",
+            (uint64_t) len, socket_get_str(sc));
+        goto error;
+    }
+
+    size_t pos = 0;
+    uint8_t type = packet_to_uint8(data, len, &pos);
+    if (type == 0 || type >= CRYPTO_CMD_MAX) {
+        LOG(ERROR, "Invalid crypto packet %" PRIu8 " from %s",
+            type, socket_get_str(sc));
+        goto error;
+    }
+
+    uint16_t decrypted_len;
+    if (crypto != NULL && type == CRYPTO_CMD_ENCRYPTED && crypto->key != NULL) {
+        decrypted_len = packet_to_uint16(data, len, &pos);
+    }
+
+    *len_out = len - pos - SHA256_DIGEST_LENGTH;
+    *data_out = emalloc(*len_out);
+    memcpy(*data_out, data + pos, *len_out);
+    pos += *len_out;
+
+    SHA256_CTX ctx;
+    if (SHA256_Init(&ctx) != 1) {
+        LOG(ERROR, "SHA256_Init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (crypto != NULL && type == CRYPTO_CMD_ENCRYPTED && crypto->key != NULL) {
+        if (SHA256_Update(&ctx, &decrypted_len, sizeof(decrypted_len)) != 1) {
+            LOG(ERROR, "SHA256_Update() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+    }
+
+    /* Checksum the payload */
+    if (SHA256_Update(&ctx, *data_out, *len_out) != 1) {
+        LOG(ERROR, "SHA256_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    /* Checksum the secret */
+    if (crypto != NULL &&
+        crypto->done &&
+        SHA256_Update(&ctx,
+                      crypto->secret,
+                      sizeof(crypto->secret)) != 1) {
+        LOG(ERROR, "SHA256_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+    if (SHA256_Final(digest, &ctx) != 1) {
+        LOG(ERROR, "SHA256_Final() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (memcmp(digest, data + pos, sizeof(digest)) != 0) {
+        LOG(SYSTEM, "!!! SHA256 DIGEST OF PACKET IS INVALID !!!");
+        LOG(SYSTEM, "It is highly probable someone is hijacking your "
+                    "connection (MITM attack).");
+        LOG(SYSTEM, "Packet of size %" PRIu64 " from %s",
+            (uint64_t) len, socket_get_str(sc));
+
+        char digest_ascii[SHA256_DIGEST_LENGTH * 3 + 1];
+        string_tohex(data + pos,
+                     sizeof(digest),
+                     digest_ascii,
+                     sizeof(digest_ascii),
+                     true);
+        LOG(SYSTEM, "SHA256 digest received: %s", digest_ascii);
+        string_tohex(digest,
+                     sizeof(digest),
+                     digest_ascii,
+                     sizeof(digest_ascii),
+                     true);
+        LOG(SYSTEM, "SHA256 digest computed: %s", digest_ascii);
+        goto error;
+    }
+
+    /* Only wanted to verify the checksum, so stop right here. */
+    if (crypto == NULL || type == CRYPTO_CMD_CHECKSUM) {
+        return true;
+    }
+
+    if (crypto->key == NULL) {
+        LOG(ERROR, "Crypto key hasn't been generated!");
+        goto error;
+    }
+
+    size_t tag_len = 128 / CHAR_BIT;
+    pos = 0;
+    if (*len_out < tag_len) {
+        LOG(PACKET, "Malformed packet detected: %s",
+            socket_get_str(sc));
+        goto error;
+    }
+
+    unsigned char *tag = *data_out + (*len_out - tag_len);
+    *len_out -= tag_len;
+
+    if (EVP_DecryptInit_ex(crypto->cipher_ctx,
+                           EVP_aes_256_gcm(),
+                           NULL,
+                           crypto->key,
+                           crypto->iv) != 1) {
+        LOG(ERROR, "EVP_DecryptInit_ex() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    size_t enc_len = (((decrypted_len + AES_BLOCK_SIZE) / AES_BLOCK_SIZE) *
+                      AES_BLOCK_SIZE);
+    decrypted = emalloc(enc_len);
+
+    int new_len = 0;
+    size_t dec_len = 0;
+    if (EVP_DecryptUpdate(crypto->cipher_ctx,
+                          decrypted,
+                          &new_len,
+                          *data_out,
+                          *len_out) != 1) {
+        LOG(ERROR, "EVP_DecryptUpdate() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+    dec_len += new_len;
+
+    /* Set expected tag value. Works in OpenSSL 1.0.1d and later */
+    if (EVP_CIPHER_CTX_ctrl(crypto->cipher_ctx,
+                            EVP_CTRL_GCM_SET_TAG,
+                            tag_len,
+                            tag) != 1) {
+        LOG(ERROR, "EVP_CIPHER_CTX_ctrl() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    new_len = 0;
+    if (EVP_DecryptFinal_ex(crypto->cipher_ctx,
+                            decrypted + dec_len,
+                            &new_len) > 0) {
+        LOG(ERROR, "EVP_DecryptFinal_ex() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+    dec_len += new_len;
+
+    efree(*data_out);
+    *data_out = decrypted;
+    *len_out = decrypted_len;
+
+    return true;
+
+error:
+    if (*data_out != NULL) {
+        efree(*data_out);
+    }
+
+    if (decrypted != NULL) {
+        efree(decrypted);
+    }
+
+    *len_out = 0;
+
+    return false;
+}

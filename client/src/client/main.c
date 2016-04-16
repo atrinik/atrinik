@@ -259,7 +259,7 @@ static int game_status_chain(void)
             packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 16, 0);
             packet_append_uint8(packet, CMD_CRYPTO_HELLO);
             socket_send_packet(packet);
-            cpl.state = ST_WAITCRYPTO_HELLO;
+            cpl.state = ST_WAITCRYPTO;
         } else {
             cpl.state = ST_START_DATA;
         }

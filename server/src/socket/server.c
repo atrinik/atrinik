@@ -279,10 +279,19 @@ socket_server_handle_command (socket_struct *cs,
                               uint8_t       *data,
                               size_t         len)
 {
-    /* Skip the length data, because we already have it from the function
-     * arguments. */
-    size_t pos = 2;
+    size_t pos = 0;
     uint8_t type = packet_to_uint8(data, len, &pos);
+
+    // TODO: check if on secure port
+    if (1 &&
+        type != SERVER_CMD_CRYPTO &&
+        !socket_crypto_is_done(socket_get_crypto(cs->sc))) {
+        LOG(PACKET,
+            "Received non-crypto packet before crypto exchange from %s",
+            socket_get_str(cs->sc));
+        cs->state = ST_DEAD;
+        return false;
+    }
 
 #ifndef DEBUG
     char *cp;
@@ -410,8 +419,8 @@ socket_server_handle_client (player *pl)
 
         socket_server_handle_command(pl->cs,
                                      pl,
-                                     pl->cs->packet_recv_cmd->data,
-                                     len);
+                                     pl->cs->packet_recv_cmd->data + 2,
+                                     len - 2);
         packet_delete(pl->cs->packet_recv_cmd, 0, len);
     }
 }
@@ -503,16 +512,43 @@ socket_server_csocket_read (socket_struct *cs)
             break;
         }
 
+        uint8_t *data = cs->packet_recv->data;
+        size_t len = size;
+
+        uint8_t *decrypted_data;
+        size_t decrypted_len;
+        bool was_decrypted = true;
+        // TODO: check if on secure port
+        if (1) {
+            if (!socket_crypto_decrypt(cs->sc,
+                                       data + 2,
+                                       len - 2,
+                                       &decrypted_data,
+                                       &decrypted_len)) {
+                cs->state = ST_DEAD;
+                break;
+            }
+        } else {
+            decrypted_data = data + 2;
+            decrypted_len = len - 2;
+            was_decrypted = false;
+        }
+
         /* Try to handle the command. */
         if (!socket_server_handle_command(cs,
                                           NULL,
-                                          cs->packet_recv->data,
-                                          size)) {
+                                          decrypted_data,
+                                          decrypted_len)) {
             /* Couldn't handle it immediately, add it to the commands
              * packet. */
+            packet_append_uint16(cs->packet_recv_cmd, decrypted_len);
             packet_append_data_len(cs->packet_recv_cmd,
-                                   cs->packet_recv->data,
-                                   size);
+                                   decrypted_data,
+                                   decrypted_len);
+        }
+
+        if (was_decrypted) {
+            efree(decrypted_data);
         }
 
         packet_delete(cs->packet_recv, 0, size);

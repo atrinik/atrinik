@@ -72,14 +72,48 @@ unsigned char *
 socket_crypto_gen_pubkey(socket_crypto_t *crypto,
                          size_t          *pubkey_len);
 const unsigned char *
+socket_crypto_gen_iv(socket_crypto_t *crypto,
+                     uint8_t         *iv_size);
+const unsigned char *
 socket_crypto_create_key(socket_crypto_t *crypto, uint8_t *len);
 bool
 socket_crypto_set_key(socket_crypto_t *crypto,
                       const uint8_t   *key,
-                      uint8_t          key_len);
+                      uint8_t          key_len,
+                      bool             reset_iv);
+const unsigned char *
+socket_crypto_get_iv(socket_crypto_t *crypto, uint8_t *len);
+bool
+socket_crypto_set_iv(socket_crypto_t *crypto,
+                     const uint8_t   *iv,
+                     uint8_t          iv_len);
+const unsigned char *
+socket_crypto_create_secret(socket_crypto_t *crypto,
+                            uint8_t         *secret_len);
+bool
+socket_crypto_set_secret(socket_crypto_t *crypto,
+                         uint8_t         *secret,
+                         uint8_t          secret_len);
+bool
+socket_crypto_set_done(socket_crypto_t *crypto);
+bool
+socket_crypto_is_done(socket_crypto_t *crypto);
 bool
 socket_crypto_derive(socket_crypto_t     *crypto,
                      const unsigned char *pubkey,
-                     size_t               pubkey_len);
+                     size_t               pubkey_len,
+                     const unsigned char *iv,
+                     size_t               iv_size);
+packet_struct *
+socket_crypto_encrypt(socket_t      *sc,
+                      packet_struct *packet_orig,
+                      packet_struct *packet_meta,
+                      bool           checksum_only);
+bool
+socket_crypto_decrypt(socket_t *sc,
+                      uint8_t  *data,
+                      size_t    len,
+                      uint8_t **data_out,
+                      size_t   *len_out);
 
 #endif

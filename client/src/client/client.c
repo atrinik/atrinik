@@ -86,13 +86,55 @@ static socket_command_struct commands[CLIENT_CMD_NROF] = {
 void DoClient(void)
 {
     command_buffer *cmd;
-
     /* Handle all enqueued commands */
-    while ((cmd = get_next_input_command())) {
-        if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func) {
-            LOG(BUG, "Bad command from server (%d)", cmd->data[0]);
+    while ((cmd = get_next_input_command()) != NULL) {
+        uint8_t *data = cmd->data;
+        size_t len = cmd->len;
+
+        uint8_t *decrypted_data;
+        size_t decrypted_len;
+        bool was_decrypted = true;
+        // TODO: check if on secure port
+        if (1) {
+            if (!socket_crypto_decrypt(csocket.sc,
+                                       data,
+                                       len,
+                                       &decrypted_data,
+                                       &decrypted_len)) {
+                draw_info(COLOR_RED,
+                          "!!! Cryptography decryption failed; someone is "
+                          "likely hijacking your connection (MITM attack) !!!");
+                cpl.state = ST_START;
+                break;
+            }
         } else {
-            commands[cmd->data[0]].handle_func(cmd->data + 1, cmd->len - 1, 0);
+            decrypted_data = data;
+            decrypted_len = len;
+            was_decrypted = false;
+        }
+
+        size_t pos = 0;
+        uint8_t type = packet_to_uint8(decrypted_data, decrypted_len, &pos);
+
+        // TODO: check if on secure port
+        if (1 &&
+            type != CLIENT_CMD_CRYPTO &&
+            !socket_crypto_is_done(socket_get_crypto(csocket.sc))) {
+            LOG(PACKET,
+                "Received non-crypto packet before crypto exchange from %s",
+                socket_get_str(csocket.sc));
+            cpl.state = ST_START;
+            break;
+        }
+
+        if (type >= CLIENT_CMD_NROF || commands[type].handle_func == NULL) {
+            LOG(ERROR, "Bad command from server (%d)", type);
+        } else {
+            commands[type].handle_func(decrypted_data, decrypted_len, pos);
+        }
+
+        if (was_decrypted) {
+            efree(decrypted_data);
         }
 
         command_buffer_free(cmd);

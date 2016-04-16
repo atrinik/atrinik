@@ -149,25 +149,33 @@ static command_buffer *command_buffer_dequeue(command_buffer **queue_start, comm
 
 void socket_send_packet(struct packet_struct *packet)
 {
-    command_buffer *buf;
-    size_t len;
+    HARD_ASSERT(packet != NULL);
 
-    buf = command_buffer_new(packet->len + 3, NULL);
-
-    if (!buf) {
-        client_socket_close(&csocket);
-        return;
+    packet_struct *packet_meta = packet_new(0, 4, 0);
+    // TODO: check if on secure port
+    if (1) {
+        // TODO: figure out checksum_only flag
+        packet = socket_crypto_encrypt(csocket.sc, packet, packet_meta, false);
+        if (packet == NULL) {
+            /* Logging already done. */
+            cpl.state = ST_START;
+            return;
+        }
+    } else {
+        packet_append_uint16(packet_meta, packet->len + 1);
+        packet_append_uint8(packet_meta, packet->type);
     }
 
-    len = packet->len + 1;
-    buf->data[0] = (len >> 8) & 0xff;
-    buf->data[1] = len & 0xff;
-    buf->data[2] = packet->type;
-    memcpy(buf->data + 3, packet->data, packet->len);
+    command_buffer *buf1 = command_buffer_new(packet_meta->len,
+                                              packet_meta->data);
+    packet_free(packet_meta);
+    command_buffer *buf2 = command_buffer_new(packet->len,
+                                              packet->data);
     packet_free(packet);
 
     SDL_LockMutex(output_buffer_mutex);
-    command_buffer_enqueue(buf, &output_queue_start, &output_queue_end);
+    command_buffer_enqueue(buf1, &output_queue_start, &output_queue_end);
+    command_buffer_enqueue(buf2, &output_queue_start, &output_queue_end);
     SDL_CondSignal(output_buffer_cond);
     SDL_UnlockMutex(output_buffer_mutex);
 }

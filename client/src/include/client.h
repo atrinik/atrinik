@@ -88,8 +88,6 @@ typedef struct command_buffer {
  * of globals. */
 typedef struct client_socket {
     socket_t *sc;
-
-    uint64_t key_data[8];
 } client_socket_t;
 
 /** Check if the keyword represents a true value. */

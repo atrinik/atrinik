@@ -2760,7 +2760,8 @@ socket_crypto_key (socket_struct *ns,
 
     uint8_t key_len = packet_to_uint8(data, len, &pos);
     key_len = MIN(key_len, len - pos);
-    socket_crypto_set_key(crypto, data + pos, key_len);
+    /* No need to reset the IV buffer; it will be changed below anyway. */
+    socket_crypto_set_key(crypto, data + pos, key_len, false);
     pos += key_len;
 
     if (pos == len) {
@@ -2770,11 +2771,31 @@ socket_crypto_key (socket_struct *ns,
         return;
     }
 
+    uint8_t iv_len = packet_to_uint8(data, len, &pos);
+    iv_len = MIN(iv_len, len - pos);
+    socket_crypto_set_iv(crypto, data + pos, iv_len);
+    pos += iv_len;
+
+    if (pos != len) {
+        LOG(PACKET, "Client sent malformed crypto key command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    const unsigned char *iv = socket_crypto_get_iv(crypto, &iv_len);
+    if (iv == NULL) {
+        LOG(ERROR, "IV is NULL but it was just set");
+        ns->state = ST_DEAD;
+        return;
+    }
+
     packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 64, 64);
     packet_debug_data(packet, 0, "Crypto sub-command");
     packet_append_uint8(packet, CMD_CRYPTO_KEY);
-    packet_debug_data(packet, 0, "Key exchange confirmation");
-    packet_append_data_len(packet, data + pos, len - pos);
+    packet_debug_data(packet, 0, "IV buffer");
+    packet_append_uint8(packet, iv_len);
+    packet_append_data_len(packet, iv, iv_len);
     socket_send_packet(ns, packet);
 }
 
@@ -2802,6 +2823,15 @@ socket_crypto_curves (socket_struct *ns,
         int nid;
         if (socket_crypto_curve_supported(name, &nid)) {
             socket_crypto_set_nid(crypto, nid);
+
+            uint8_t iv_size;
+            const unsigned char *iv = socket_crypto_gen_iv(crypto, &iv_size);
+            if (iv == NULL) {
+                LOG(SYSTEM, "Failed to generate IV buffer: %s",
+                    socket_get_str(ns->sc));
+                ns->state = ST_DEAD;
+                return;
+            }
 
             packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 64, 64);
             packet_debug_data(packet, 0, "Crypto sub-command");
@@ -2835,6 +2865,10 @@ socket_crypto_curves (socket_struct *ns,
             packet_append_uint16(packet, (uint16_t) pubkey_len);
             packet_debug_data(packet, 0, "ECDH public key");
             packet_append_data_len(packet, pubkey, pubkey_len);
+            packet_debug_data(packet, 0, "IV buffer size");
+            packet_append_uint8(packet, iv_size);
+            packet_debug_data(packet, 0, "IV buffer");
+            packet_append_data_len(packet, iv, iv_size);
             socket_send_packet(ns, packet);
             efree(pubkey);
             return;
@@ -2849,7 +2883,7 @@ socket_crypto_curves (socket_struct *ns,
 }
 
 /**
- * Handler for the crypto pub-key sub-command.
+ * Handler for the crypto pubkey sub-command.
  *
  * @copydoc socket_command_func
  */
@@ -2875,20 +2909,123 @@ socket_crypto_pubkey (socket_struct *ns,
     }
 
     uint16_t pubkey_len = packet_to_uint16(data, len, &pos);
+    unsigned char *pubkey = data + pos;
     pubkey_len = MIN(pubkey_len, len - pos);
+    pos += pubkey_len;
+    uint8_t iv_len = packet_to_uint8(data, len, &pos);
+    unsigned char *iv = data + pos;
+    iv_len = MIN(iv_len, len - pos);
+    pos += iv_len;
 
-    if (!socket_crypto_derive(crypto, data + pos, pubkey_len)) {
+    if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
         LOG(SYSTEM, "Couldn't derive shared secret key: %s",
             socket_get_str(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
 
-    pos += pubkey_len;
-
     if (len != pos) {
         LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
             socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+}
+
+/**
+ * Handler for the crypto secret sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_secret (socket_struct *ns,
+                      player        *pl,
+                      uint8_t       *data,
+                      size_t         len,
+                      size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(ns->sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    uint8_t secret_len = packet_to_uint8(data, len, &pos);
+    secret_len = MIN(secret_len, len - pos);
+
+    if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    pos += secret_len;
+
+    if (len != pos) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    const unsigned char *secret = socket_crypto_create_secret(crypto,
+                                                              &secret_len);
+    if (secret == NULL) {
+        LOG(ERROR, "Failed to generate a secret");
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 32, 0);
+    packet_debug_data(packet, 0, "Crypto sub-command");
+    packet_append_uint8(packet, CMD_CRYPTO_SECRET);
+    packet_debug_data(packet, 0, "Secret salt length");
+    packet_append_uint8(packet, secret_len);
+    packet_append_data_len(packet, secret, secret_len);
+    socket_send_packet(ns, packet);
+}
+
+/**
+ * Handler for the crypto done sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_done (socket_struct *ns,
+                    player        *pl,
+                    uint8_t       *data,
+                    size_t         len,
+                    size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(ns->sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len != pos) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 8, 0);
+    packet_append_uint8(packet, CMD_CRYPTO_DONE);
+    socket_send_packet(ns, packet);
+
+    if (!socket_crypto_set_done(crypto)) {
+        /* Logging already done */
         ns->state = ST_DEAD;
         return;
     }
@@ -2916,8 +3053,6 @@ socket_command_crypto (socket_struct *ns,
         return;
     }
 
-    /* TODO: Check if received before on the socket */
-
     /* Don't let clients initiate a handshake when they're already logged in.
      * In practice, this should never happen. */
     if (pl != NULL) {
@@ -2941,6 +3076,14 @@ socket_command_crypto (socket_struct *ns,
 
     case CMD_CRYPTO_PUBKEY:
         socket_crypto_pubkey(ns, pl, data, len, pos);
+        break;
+
+    case CMD_CRYPTO_SECRET:
+        socket_crypto_secret(ns, pl, data, len, pos);
+        break;
+
+    case CMD_CRYPTO_DONE:
+        socket_crypto_done(ns, pl, data, len, pos);
         break;
 
     default:
