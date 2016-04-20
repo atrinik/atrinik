@@ -72,6 +72,11 @@ struct sock_struct {
      * Socket crypto pointer.
      */
     socket_crypto_t *crypto;
+
+    /**
+     * Whether the socket is on the secure port.
+     */
+    bool secure:1;
 };
 
 /** Helper structure used in socket_cmp_addr(). */
@@ -160,12 +165,16 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * a hostname. Can be NULL.
  * @param port
  * Port to connec to.
+ * @param secure
+ * Whether the connection is over the secure port.
  * @return
  * Newly allocated socket, NULL in case of failure.
  */
-socket_t *socket_create(const char *host, uint16_t port)
+socket_t *
+socket_create (const char *host, uint16_t port, bool secure)
 {
     socket_t *sc = ecalloc(1, sizeof(*sc));
+    sc->secure = !!secure;
 
 #ifdef HAVE_GETADDRINFO
     char port_str[6];
@@ -485,6 +494,8 @@ socket_t *socket_accept(socket_t *sc)
     }
 
     tmp->port = ((struct sockaddr_in *) &tmp->addr)->sin_port;
+    /* Copy over the secure flag from the accepting socket. */
+    tmp->secure = sc->secure;
     return tmp;
 }
 
@@ -1151,6 +1162,21 @@ socket_get_host (socket_t *sc)
 {
     HARD_ASSERT(sc != NULL);
     return sc->host;
+}
+
+/**
+ * Check if the specified socket was created on the secure port.
+ *
+ * @param sc
+ * Socket.
+ * @return
+ * True if on secure port, false otherwise.
+ */
+bool
+socket_is_secure (socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+    return sc->secure;
 }
 
 /**

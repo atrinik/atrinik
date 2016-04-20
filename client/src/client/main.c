@@ -245,7 +245,8 @@ static int game_status_chain(void)
         keepalive_reset();
         cpl.state = ST_CONNECT;
     } else if (cpl.state == ST_CONNECT) {
-        if (!client_socket_open(&csocket, selected_server->hostname, selected_server->port)) {
+        // TODO: figure out the secure flag
+        if (!client_socket_open(&csocket, selected_server->hostname, selected_server->port, true)) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;

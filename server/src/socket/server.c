@@ -204,7 +204,8 @@ TOOLKIT_INIT_FUNC(socket_server)
 {
     for (socket_server_id_t i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
         uint16_t port;
-        if (server_socket_id_is_secure(i)) {
+        bool secure = server_socket_id_is_secure(i);
+        if (secure) {
             port = 14000; // TODO: config
         } else {
             port = settings.port;
@@ -221,7 +222,7 @@ TOOLKIT_INIT_FUNC(socket_server)
             continue;
         }
 
-        server_sockets[i] = socket_create(host, port);
+        server_sockets[i] = socket_create(host, port, secure);
         if (server_sockets[i] == NULL) {
             exit(1);
         }
@@ -282,8 +283,7 @@ socket_server_handle_command (socket_struct *cs,
     size_t pos = 0;
     uint8_t type = packet_to_uint8(data, len, &pos);
 
-    // TODO: check if on secure port
-    if (1 &&
+    if (socket_is_secure(cs->sc) &&
         type != SERVER_CMD_CRYPTO &&
         !socket_crypto_is_done(socket_get_crypto(cs->sc))) {
         LOG(PACKET,
@@ -518,8 +518,7 @@ socket_server_csocket_read (socket_struct *cs)
         uint8_t *decrypted_data;
         size_t decrypted_len;
         bool was_decrypted = true;
-        // TODO: check if on secure port
-        if (1) {
+        if (socket_is_secure(cs->sc)) {
             if (!socket_crypto_decrypt(cs->sc,
                                        data + 2,
                                        len - 2,

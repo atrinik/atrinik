@@ -1297,7 +1297,7 @@ socket_crypto_set_done (socket_crypto_t *crypto)
      * our own secret. */
     CASSERT(sizeof(crypto->secret) == sizeof(crypto->secret2));
     for (size_t i = 0; i < sizeof(crypto->secret2); i++) {
-        crypto->secret2[i] |= crypto->secret[i];
+        crypto->secret2[i] += crypto->secret[i];
     }
 
     /* Re-hash the secret. */
@@ -1480,7 +1480,7 @@ socket_crypto_derive (socket_crypto_t     *crypto,
 
     /* Extend our own IV buffer with the incoming one. */
     for (size_t i = 0; i < iv_size; i++) {
-        crypto->iv2[i] |= iv[i];
+        crypto->iv2[i] += iv[i];
     }
 
     CASSERT(sizeof(crypto->iv) == sizeof(crypto->iv2));
@@ -1663,7 +1663,6 @@ socket_crypto_encrypt (socket_t      *sc,
         if (EVP_EncryptFinal_ex(crypto->cipher_ctx,
                                 packet->data + enc_len,
                                 &new_len) != 1) {
-            log_error("xxx");
             LOG(ERROR, "EVP_EncryptFinal_ex() failed: %s",
                 ERR_error_string(ERR_get_error(), NULL));
             goto error;

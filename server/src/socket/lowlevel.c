@@ -142,8 +142,7 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
     packet_struct *packet_meta = packet_new(0, 4, 0);
     packet_meta->ndelay = packet->ndelay;
 
-    // TODO: check if on secure port
-    if (1) {
+    if (socket_is_secure(ns->sc)) {
         // TODO: figure out checksum_only flag
         packet = socket_crypto_encrypt(ns->sc, packet, packet_meta, false);
         if (packet == NULL) {

@@ -176,7 +176,7 @@ extern void socket_thread_stop(void);
 extern int handle_socket_shutdown(void);
 extern void client_socket_close(client_socket_t *csock);
 extern void client_socket_deinitialize(void);
-extern bool client_socket_open(client_socket_t *csock, const char *host, int port);
+extern bool client_socket_open(client_socket_t *csock, const char *host, int port, bool secure);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);

@@ -116,8 +116,7 @@ void DoClient(void)
         size_t pos = 0;
         uint8_t type = packet_to_uint8(decrypted_data, decrypted_len, &pos);
 
-        // TODO: check if on secure port
-        if (1 &&
+        if (socket_is_secure(csocket.sc) &&
             type != CLIENT_CMD_CRYPTO &&
             !socket_crypto_is_done(socket_get_crypto(csocket.sc))) {
             LOG(PACKET,

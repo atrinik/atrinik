@@ -84,52 +84,6 @@ bool init_connection(socket_struct *ns)
 }
 
 /**
- * This sets up the socket and reads all the image information into
- * memory.
- */
-void init_ericserver(void)
-{
-#ifndef WIN32
-#ifdef HAVE_SYSCONF
-    socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
-#else
-#ifdef HAVE_GETDTABLESIZE
-    socket_info.max_filedescriptor = getdtablesize();
-#else
-    "Unable to find usable function to get max filedescriptors";
-#endif
-#endif
-#else
-    /* Used in select, ignored in winsockets */
-    socket_info.max_filedescriptor = 1;
-#endif
-
-    socket_info.timeout.tv_sec = 0;
-    socket_info.timeout.tv_usec = 0;
-    socket_info.nconns = 0;
-
-    socket_info.nconns = 1;
-    init_sockets = emalloc(sizeof(socket_struct));
-    socket_info.allocated_sockets = 1;
-
-    init_sockets[0].sc = socket_create(NULL, settings.port);
-    if (init_sockets[0].sc == NULL) {
-        exit(1);
-    }
-    if (!socket_opt_linger(init_sockets[0].sc, false, 0)) {
-        exit(1);
-    }
-    if (!socket_opt_reuse_addr(init_sockets[0].sc, true)) {
-        exit(1);
-    }
-    if (!socket_bind(init_sockets[0].sc)) {
-        exit(1);
-    }
-
-    init_sockets[0].state = ST_WAITING;
-}
-
-/**
  * Frees all the memory that ericserver allocates.
  */
 void free_all_newserver(void)

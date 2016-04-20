@@ -152,8 +152,7 @@ void socket_send_packet(struct packet_struct *packet)
     HARD_ASSERT(packet != NULL);
 
     packet_struct *packet_meta = packet_new(0, 4, 0);
-    // TODO: check if on secure port
-    if (1) {
+    if (socket_is_secure(csocket.sc)) {
         // TODO: figure out checksum_only flag
         packet = socket_crypto_encrypt(csocket.sc, packet, packet_meta, false);
         if (packet == NULL) {
@@ -460,12 +459,21 @@ void client_socket_deinitialize(void)
  * Host to connect to.
  * @param port
  * Port to connect to.
+ * @param secure
+ * Whether the port is the secure port.
  * @return
  * True on success, false on failure.
  */
-bool client_socket_open(client_socket_t *csock, const char *host, int port)
+bool
+client_socket_open (client_socket_t *csock,
+                    const char      *host,
+                    int              port,
+                    bool             secure)
 {
-    csock->sc = socket_create(host, port);
+    HARD_ASSERT(csock != NULL);
+    HARD_ASSERT(host != NULL);
+
+    csock->sc = socket_create(host, port, secure);
     if (csock->sc == NULL) {
         return false;
     }

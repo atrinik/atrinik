@@ -867,7 +867,8 @@ static inline const char *s_strerror(int val)
 /* Prototypes */
 void toolkit_socket_init(void);
 void toolkit_socket_deinit(void);
-socket_t *socket_create(const char *host, uint16_t port);
+socket_t *
+socket_create(const char *host, uint16_t port, bool secure);
 char *socket_get_addr(socket_t *sc);
 char *socket_get_str(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
@@ -899,6 +900,8 @@ socket_crypto_t *
 socket_get_crypto(socket_t *sc);
 const char *
 socket_get_host(socket_t *sc);
+bool
+socket_is_secure(socket_t *sc);
 SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 void socket_ssl_destroy(SSL *ssl);
 

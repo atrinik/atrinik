@@ -1292,6 +1292,8 @@ socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
 
     /* Begin game data communications */
     cpl.state = ST_START_DATA;
+    LOG(SYSTEM, "Connection: established a secure channel with %s",
+        socket_get_str(csocket.sc));
 }
 
 /**

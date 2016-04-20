@@ -3029,6 +3029,9 @@ socket_crypto_done (socket_struct *ns,
         ns->state = ST_DEAD;
         return;
     }
+    
+    LOG(SYSTEM, "Connection: established a secure channel with %s",
+        socket_get_str(ns->sc));
 }
 
 /**
