@@ -103,6 +103,14 @@ enum {
     CLIENT_CMD_NROF
 };
 
+/**
+ * Possible socket roles.
+ */
+typedef enum socket_role {
+    SOCKET_ROLE_SERVER, ///< Client socket.
+    SOCKET_ROLE_CLIENT, ///< Server socket.
+} socket_role_t;
+
 #define MAP_UPDATE_CMD_SAME 0
 #define MAP_UPDATE_CMD_NEW 1
 #define MAP_UPDATE_CMD_CONNECTED 2
@@ -868,7 +876,7 @@ static inline const char *s_strerror(int val)
 void toolkit_socket_init(void);
 void toolkit_socket_deinit(void);
 socket_t *
-socket_create(const char *host, uint16_t port, bool secure);
+socket_create(const char *host, uint16_t port, bool secure, socket_role_t role);
 char *socket_get_addr(socket_t *sc);
 char *socket_get_str(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
@@ -902,6 +910,8 @@ const char *
 socket_get_host(socket_t *sc);
 bool
 socket_is_secure(socket_t *sc);
+socket_role_t
+socket_get_role(socket_t *sc);
 SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 void socket_ssl_destroy(SSL *ssl);
 

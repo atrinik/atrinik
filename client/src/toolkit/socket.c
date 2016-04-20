@@ -77,6 +77,11 @@ struct sock_struct {
      * Whether the socket is on the secure port.
      */
     bool secure:1;
+
+    /**
+     * Socket's role.
+     */
+    socket_role_t role;
 };
 
 /** Helper structure used in socket_cmp_addr(). */
@@ -167,14 +172,17 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * Port to connec to.
  * @param secure
  * Whether the connection is over the secure port.
+ * @param role
+ * Role of the socket.
  * @return
  * Newly allocated socket, NULL in case of failure.
  */
 socket_t *
-socket_create (const char *host, uint16_t port, bool secure)
+socket_create (const char *host, uint16_t port, bool secure, socket_role_t role)
 {
     socket_t *sc = ecalloc(1, sizeof(*sc));
     sc->secure = !!secure;
+    sc->role = role;
 
 #ifdef HAVE_GETADDRINFO
     char port_str[6];
@@ -496,6 +504,8 @@ socket_t *socket_accept(socket_t *sc)
     tmp->port = ((struct sockaddr_in *) &tmp->addr)->sin_port;
     /* Copy over the secure flag from the accepting socket. */
     tmp->secure = sc->secure;
+    /* And the role. */
+    tmp->role = sc->role;
     return tmp;
 }
 
@@ -1177,6 +1187,21 @@ socket_is_secure (socket_t *sc)
 {
     HARD_ASSERT(sc != NULL);
     return sc->secure;
+}
+
+/**
+ * Acquire the socket's role.
+ *
+ * @param sc
+ * Socket.
+ * @return
+ * Socket's role.
+ */
+socket_role_t
+socket_get_role (socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+    return sc->role;
 }
 
 /**

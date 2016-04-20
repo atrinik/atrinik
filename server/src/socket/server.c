@@ -222,7 +222,10 @@ TOOLKIT_INIT_FUNC(socket_server)
             continue;
         }
 
-        server_sockets[i] = socket_create(host, port, secure);
+        server_sockets[i] = socket_create(host,
+                                          port,
+                                          secure,
+                                          SOCKET_ROLE_SERVER);
         if (server_sockets[i] == NULL) {
             exit(1);
         }

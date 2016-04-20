@@ -115,5 +115,9 @@ socket_crypto_decrypt(socket_t *sc,
                       size_t    len,
                       uint8_t **data_out,
                       size_t   *len_out);
+bool
+socket_crypto_client_should_encrypt(int type);
+bool
+socket_crypto_server_should_encrypt(int type);
 
 #endif

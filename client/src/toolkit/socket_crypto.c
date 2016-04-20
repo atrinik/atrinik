@@ -90,8 +90,8 @@ static bool crypto_enabled = false;
 static char *crypto_cert = NULL;
 /** Currently used certificate chain in PEM format. */
 static char *crypto_cert_chain = NULL;
-/** Private key of the certificate. */
-static EVP_PKEY *crypto_cert_key = NULL;
+/** Private key context for the certificate. */
+static EVP_PKEY_CTX *crypto_cert_ctx = NULL;
 /** Certificate store. */
 static X509_STORE *crypto_store = NULL;
 
@@ -306,17 +306,52 @@ clioptions_option_crypto_cert_key (const char *arg,
         BIO_free(bio);
         efree(cp);
         return false;
+
     }
 
-    if (crypto_cert_key != NULL) {
-        EVP_PKEY_free(crypto_cert_key);
-    }
-
-    crypto_cert_key = cert_key;
     BIO_free(bio);
     efree(cp);
 
-    return true;
+    if (crypto_cert_ctx != NULL) {
+        EVP_PKEY_CTX_free(crypto_cert_ctx);
+    }
+
+    crypto_cert_ctx = EVP_PKEY_CTX_new(cert_key, NULL);
+    if (crypto_cert_ctx == NULL) {
+        LOG(ERROR, "EVP_PKEY_CTX_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EVP_PKEY_decrypt_init(crypto_cert_ctx) != 1) {
+        LOG(ERROR, "EVP_PKEY_encrypt_init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EVP_PKEY_CTX_set_rsa_padding(crypto_cert_ctx,
+                                     RSA_PKCS1_OAEP_PADDING) != 1) {
+        LOG(ERROR, "EVP_PKEY_CTX_set_rsa_padding() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    bool ret = true;
+    goto out;
+error:
+    ret = false;
+
+    if (crypto_cert_ctx != NULL) {
+        EVP_PKEY_CTX_free(crypto_cert_ctx);
+        crypto_cert_ctx = NULL;
+    }
+
+out:
+    if (cert_key != NULL) {
+        EVP_PKEY_free(cert_key);
+    }
+
+    return ret;
 }
 
 /**
@@ -403,8 +438,8 @@ TOOLKIT_DEINIT_FUNC(socket_crypto)
         efree(crypto_cert_chain);
     }
 
-    if (crypto_cert_key != NULL) {
-        EVP_PKEY_free(crypto_cert_key);
+    if (crypto_cert_ctx != NULL) {
+        EVP_PKEY_CTX_free(crypto_cert_ctx);
     }
 
     if (crypto_store != NULL) {
@@ -816,6 +851,10 @@ socket_crypto_load_pubkey (socket_crypto_t *crypto, const char *buf)
                    "Crypto socket already has a public key");
     SOFT_ASSERT_RC(crypto->pkey_ctx == NULL, false,
                    "Crypto socket already has a public key context");
+    SOFT_ASSERT_RC(crypto->key == NULL, false,
+                   "Crypto socket already has a key");
+    SOFT_ASSERT_RC(crypto->cipher_ctx == NULL, false,
+                   "Crypto socket already has a cipher context");
 
     char *cp = estrdup(buf);
     BIO *bio = BIO_new_mem_buf(cp, -1);
@@ -1552,8 +1591,11 @@ socket_crypto_encrypt (socket_t      *sc,
     HARD_ASSERT(packet_meta != NULL);
 
     socket_crypto_t *crypto = socket_get_crypto(sc);
+
     /* Force checksumming until we're past the hello exchange. */
-    if (crypto == NULL || crypto->last_cmd == CMD_CRYPTO_HELLO) {
+    if (crypto == NULL ||
+        (crypto->last_cmd == CMD_CRYPTO_HELLO &&
+         socket_get_role(sc) == SOCKET_ROLE_SERVER)) {
         checksum_only = true;
     }
 
@@ -1569,6 +1611,20 @@ socket_crypto_encrypt (socket_t      *sc,
         packet_len += packet_orig->len + 1;
         packet = packet_orig;
         packet_orig = NULL;
+    } else if (crypto->pkey_ctx != NULL && crypto->last_cmd < CMD_CRYPTO_KEY) {
+        if (EVP_PKEY_encrypt(crypto->pkey_ctx,
+                             NULL,
+                             &enc_len,
+                             packet_orig->data,
+                             packet_orig->len) != 1) {
+            LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
+                ERR_error_string(ERR_get_error(), NULL),
+                socket_get_str(crypto->sc));
+            goto error;
+        }
+
+        packet_len += enc_len + 1;
+        packet = packet_new(0, packet_len, 0);
     } else if (crypto->key != NULL) {
         /* We need to include the Atrinik command type as well. */
         packet_orig_len += 1;
@@ -1577,20 +1633,6 @@ socket_crypto_encrypt (socket_t      *sc,
         packet_len += enc_len;
         packet = packet_new(0, packet_len, 0);
         packet_len += 2 + 128 / CHAR_BIT;
-    } else if (crypto->pkey_ctx != NULL) {
-        if (EVP_PKEY_encrypt(crypto->pkey_ctx,
-                             NULL,
-                             &enc_len,
-                             packet->data,
-                             packet->len) != 1) {
-            LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
-                ERR_error_string(ERR_get_error(), NULL),
-                socket_get_str(crypto->sc));
-            goto error;
-        }
-
-        packet_len += enc_len;
-        packet = packet_new(0, packet_len, 0);
     } else {
         LOG(ERROR, "Cannot encrypt packet!");
         goto error;
@@ -1612,7 +1654,7 @@ socket_crypto_encrypt (socket_t      *sc,
         packet_append_uint8(packet_meta, CRYPTO_CMD_ENCRYPTED);
     }
 
-    if (checksum_only || crypto->key == NULL) {
+    if (checksum_only || crypto->last_cmd < CMD_CRYPTO_KEY) {
         packet_debug_data(packet_meta, 0, "Atrinik packet type");
         packet_append_uint8(packet_meta, packet_orig_type);
     } else {
@@ -1621,6 +1663,21 @@ socket_crypto_encrypt (socket_t      *sc,
     }
 
     if (checksum_only) {
+    } else if (crypto->pkey_ctx != NULL && crypto->last_cmd < CMD_CRYPTO_KEY) {
+        size_t new_len = enc_len;
+        if (EVP_PKEY_encrypt(crypto->pkey_ctx,
+                             packet->data,
+                             &new_len,
+                             packet_orig->data,
+                             packet_orig->len) != 1 ||
+            new_len != enc_len) {
+            LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
+                ERR_error_string(ERR_get_error(), NULL),
+                socket_get_str(crypto->sc));
+            goto error;
+        }
+
+        packet->len += new_len;
     } else if (crypto->key != NULL) {
         if (EVP_EncryptInit_ex(crypto->cipher_ctx,
                                EVP_aes_256_gcm(),
@@ -1684,21 +1741,6 @@ socket_crypto_encrypt (socket_t      *sc,
         }
 
         packet_append_data_len(packet, tag, sizeof(tag));
-    } else if (crypto->pkey_ctx != NULL) {
-        size_t new_len;
-        if (EVP_PKEY_encrypt(crypto->pkey_ctx,
-                             packet->data,
-                             &new_len,
-                             packet_orig->data,
-                             packet_orig->len) != 1 ||
-            enc_len != new_len) {
-            LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
-                ERR_error_string(ERR_get_error(), NULL),
-                socket_get_str(crypto->sc));
-            goto error;
-        }
-
-        packet->len += new_len;
     } else {
         LOG(ERROR, "Cannot encrypt packet!");
         goto error;
@@ -1711,7 +1753,7 @@ socket_crypto_encrypt (socket_t      *sc,
         goto error;
     }
 
-    if (checksum_only || crypto->key == NULL) {
+    if (checksum_only || crypto->last_cmd < CMD_CRYPTO_KEY) {
         /* Checksum the Atrinik packet type */
         if (SHA256_Update(&ctx,
                           &packet_orig_type,
@@ -1809,7 +1851,9 @@ socket_crypto_decrypt (socket_t *sc,
     *data_out = NULL;
     *len_out = 0;
 
-    if (len < SHA256_DIGEST_LENGTH + 1) {
+    /* Require packets to always have the SHA256 checksum + 1 byte for
+     * crypto command type + 1 byte for Atrinik command type */
+    if (len < SHA256_DIGEST_LENGTH + 2) {
         LOG(ERROR,
             "Crypto packet length is too short, %" PRIu64 " bytes from %s",
             (uint64_t) len, socket_get_str(sc));
@@ -1822,6 +1866,36 @@ socket_crypto_decrypt (socket_t *sc,
         LOG(ERROR, "Invalid crypto packet %" PRIu8 " from %s",
             type, socket_get_str(sc));
         goto error;
+    }
+
+    /* Ensure that checksum-only packets that we receive are actually
+     * supposed to be checksum-only, and not encrypted. */
+    if (type == CRYPTO_CMD_CHECKSUM) {
+        bool checksum_only;
+        uint8_t data_type = data[pos];
+        bool is_type_crypto;
+        switch (socket_get_role(sc)) {
+        case SOCKET_ROLE_CLIENT:
+            checksum_only = !socket_crypto_server_should_encrypt(data_type);
+            is_type_crypto = data_type == CLIENT_CMD_CRYPTO;
+            break;
+
+        case SOCKET_ROLE_SERVER:
+            checksum_only = !socket_crypto_client_should_encrypt(data_type);
+            is_type_crypto = data_type == SERVER_CMD_CRYPTO;
+            break;
+        }
+
+        if (is_type_crypto && crypto == NULL) {
+            checksum_only = true;
+        }
+
+        if (!checksum_only) {
+            LOG(ERROR, "Received checksum-only packet %" PRIu8 " that should "
+                "have been encrypted from %s",
+                data_type, socket_get_str(sc));
+            goto error;
+        }
     }
 
     uint16_t decrypted_len;
@@ -1902,7 +1976,42 @@ socket_crypto_decrypt (socket_t *sc,
         return true;
     }
 
-    if (crypto->key == NULL) {
+    if (crypto->key == NULL && crypto_cert_ctx != NULL) {
+        if (*len_out < 1) {
+            LOG(PACKET, "Malformed packet detected: %s",
+                socket_get_str(sc));
+            goto error;
+        }
+
+        size_t enc_len;
+        if (EVP_PKEY_decrypt(crypto_cert_ctx,
+                             NULL,
+                             &enc_len,
+                             (*data_out) + 1,
+                             (*len_out) - 1) != 1) {
+            LOG(ERROR, "EVP_PKEY_decrypt() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+
+        decrypted = emalloc(enc_len + 1);
+        if (EVP_PKEY_decrypt(crypto_cert_ctx,
+                             decrypted + 1,
+                             &enc_len,
+                             (*data_out) + 1,
+                             (*len_out) - 1) != 1) {
+            LOG(ERROR, "EVP_PKEY_decrypt() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+
+        decrypted[0] = *data_out[0];
+        efree(*data_out);
+        *data_out = decrypted;
+        *len_out = enc_len + 1;
+
+        return true;
+    } else if (crypto->key == NULL) {
         LOG(ERROR, "Crypto key hasn't been generated!");
         goto error;
     }
@@ -1983,4 +2092,73 @@ error:
     *len_out = 0;
 
     return false;
+}
+
+/**
+ * Figure out whether a client should encrypt the specified server command.
+ *
+ * @param type
+ * Command type to check.
+ * @return
+ * True if the command should be encrypted, false otherwise.
+ */
+bool
+socket_crypto_client_should_encrypt (int type)
+{
+    switch (type) {
+    case SERVER_CMD_ASK_FACE:
+    case SERVER_CMD_CLEAR:
+    case SERVER_CMD_KEEPALIVE:
+    case SERVER_CMD_ITEM_EXAMINE:
+    case SERVER_CMD_ITEM_APPLY:
+    case SERVER_CMD_ITEM_MOVE:
+    case SERVER_CMD_PLAYER_CMD:
+    case SERVER_CMD_ITEM_LOCK:
+    case SERVER_CMD_ITEM_MARK:
+    case SERVER_CMD_FIRE:
+    case SERVER_CMD_QUICKSLOT:
+    case SERVER_CMD_QUESTLIST:
+    case SERVER_CMD_MOVE_PATH:
+    case SERVER_CMD_COMBAT:
+    case SERVER_CMD_MOVE:
+    case SERVER_CMD_TARGET:
+        return false;
+    }
+
+    /* Everything else should be encrypted. */
+    return true;
+}
+
+/**
+ * Figure out whether a server should encrypt the specified client command.
+ *
+ * @param type
+ * Command type to check.
+ * @return
+ * True if the command should be encrypted, false otherwise.
+ */
+bool
+socket_crypto_server_should_encrypt (int type)
+{
+    switch (type) {
+    case CLIENT_CMD_MAP:
+    case CLIENT_CMD_ITEM:
+    case CLIENT_CMD_SOUND:
+    case CLIENT_CMD_TARGET:
+    case CLIENT_CMD_ITEM_UPDATE:
+    case CLIENT_CMD_ITEM_DELETE:
+    case CLIENT_CMD_STATS:
+    case CLIENT_CMD_IMAGE:
+    case CLIENT_CMD_ANIM:
+    case CLIENT_CMD_PLAYER:
+    case CLIENT_CMD_MAPSTATS:
+    case CLIENT_CMD_QUICKSLOT:
+    case CLIENT_CMD_SOUND_AMBIENT:
+    case CLIENT_CMD_NOTIFICATION:
+    case CLIENT_CMD_KEEPALIVE:
+        return false;
+    }
+
+    /* Everything else should be encrypted. */
+    return true;
 }

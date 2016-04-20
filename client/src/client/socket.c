@@ -151,10 +151,18 @@ void socket_send_packet(struct packet_struct *packet)
 {
     HARD_ASSERT(packet != NULL);
 
+    if (csocket.sc == NULL) {
+        packet_free(packet);
+        return;
+    }
+
     packet_struct *packet_meta = packet_new(0, 4, 0);
     if (socket_is_secure(csocket.sc)) {
-        // TODO: figure out checksum_only flag
-        packet = socket_crypto_encrypt(csocket.sc, packet, packet_meta, false);
+        bool checksum_only = !socket_crypto_client_should_encrypt(packet->type);
+        packet = socket_crypto_encrypt(csocket.sc,
+                                       packet,
+                                       packet_meta,
+                                       checksum_only);
         if (packet == NULL) {
             /* Logging already done. */
             cpl.state = ST_START;
@@ -473,7 +481,7 @@ client_socket_open (client_socket_t *csock,
     HARD_ASSERT(csock != NULL);
     HARD_ASSERT(host != NULL);
 
-    csock->sc = socket_create(host, port, secure);
+    csock->sc = socket_create(host, port, secure, SOCKET_ROLE_CLIENT);
     if (csock->sc == NULL) {
         return false;
     }

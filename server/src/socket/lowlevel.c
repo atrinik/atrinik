@@ -131,26 +131,22 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
         return;
     }
 
-    packet_compress(packet);
-
-    if (packet->len + 1 > UINT16_MAX) {
-        log_error("Sending packet with size >%u", UINT16_MAX);
-        packet_free(packet);
-        return;
-    }
-
     packet_struct *packet_meta = packet_new(0, 4, 0);
     packet_meta->ndelay = packet->ndelay;
 
     if (socket_is_secure(ns->sc)) {
-        // TODO: figure out checksum_only flag
-        packet = socket_crypto_encrypt(ns->sc, packet, packet_meta, false);
+        bool checksum_only = !socket_crypto_server_should_encrypt(packet->type);
+        packet = socket_crypto_encrypt(ns->sc,
+                                       packet,
+                                       packet_meta,
+                                       checksum_only);
         if (packet == NULL) {
             /* Logging already done. */
             ns->state = ST_DEAD;
             return;
         }
     } else {
+        packet_compress(packet);
         packet_append_uint16(packet_meta, (uint16_t) packet->len + 1);
         packet_append_uint8(packet_meta, packet->type);
     }

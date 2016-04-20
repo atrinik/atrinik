@@ -94,8 +94,7 @@ void DoClient(void)
         uint8_t *decrypted_data;
         size_t decrypted_len;
         bool was_decrypted = true;
-        // TODO: check if on secure port
-        if (1) {
+        if (socket_is_secure(csocket.sc)) {
             if (!socket_crypto_decrypt(csocket.sc,
                                        data,
                                        len,
