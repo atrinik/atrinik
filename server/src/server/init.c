@@ -282,14 +282,14 @@ clioptions_option_version (const char *arg,
  * Description of the --port command.
  */
 static const char *clioptions_option_port_desc =
-"Sets the port to use for server/client communication.";
+"Sets the port to use for server/client communication. Set to zero to disable.";
 /** @copydoc clioptions_handler_func */
 static bool
 clioptions_option_port (const char *arg,
                         char      **errmsg)
 {
     int val = atoi(arg);
-    if (val <= 0 || val > UINT16_MAX) {
+    if (val < 0 || val > UINT16_MAX) {
         string_fmt(*errmsg,
                    "%d is an invalid port number, must be 1-%d",
                    val,
@@ -301,6 +301,29 @@ clioptions_option_port (const char *arg,
     return true;
 }
 
+/**
+ * Description of the --port_crypto command.
+ */
+static const char *clioptions_option_port_crypto_desc =
+"Sets the port to use for crypto server/client communication. Set to zero to "
+"disable.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_port_crypto (const char *arg,
+                               char      **errmsg)
+{
+    int val = atoi(arg);
+    if (val < 0 || val > UINT16_MAX) {
+        string_fmt(*errmsg,
+                   "%d is an invalid port number, must be 1-%d",
+                   val,
+                   UINT16_MAX);
+        return false;
+    }
+
+    settings.port_crypto = val;
+    return true;
+}
 
 /**
  * Description of the --libpath command.
@@ -735,6 +758,25 @@ clioptions_option_speed_multiplier (const char *arg,
 }
 
 /**
+ * Description of the --network_stack command.
+ */
+static const char *clioptions_option_network_stack_desc =
+"Selects the network stack to use. This is a comma-separated list of address "
+"families to listen on, for example: ipv4, ipv6\n\n"
+"It is also possible to specify IP addresses to bind to, for example: "
+"ipv4=127.0.0.1, ipv6=::1\n\n"
+"A value of 'dual' can be used to enable dual-stack IPv6 system with IPv4 "
+"tunneling (this may not be supported on all systems).";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_network_stack (const char *arg,
+                                 char      **errmsg)
+{
+    snprintf(VS(settings.network_stack), "%s", arg);
+    return true;
+}
+
+/**
  * It is vital that init_library() is called by any functions using this
  * library.
  *
@@ -813,6 +855,7 @@ static void init_library(int argc, char *argv[])
 
     /* Argument options */
     CLIOPTIONS_CREATE_ARGUMENT(cli, port, "Sets the port to use");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, port_crypto, "Sets the crypto port to use");
     CLIOPTIONS_CREATE_ARGUMENT(cli, libpath, "Read-only data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, datapath, "Read/write data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, mapspath, "Map files location");
@@ -853,6 +896,7 @@ static void init_library(int argc, char *argv[])
     clioptions_enable_changeable(cli);
     CLIOPTIONS_CREATE_ARGUMENT(cli, speed_multiplier, "Speed multiplier");
     clioptions_enable_changeable(cli);
+    CLIOPTIONS_CREATE_ARGUMENT(cli, network_stack, "Configure network stack");
 
     cli = clioptions_create("http_server", NULL);
 

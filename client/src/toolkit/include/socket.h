@@ -876,7 +876,11 @@ static inline const char *s_strerror(int val)
 void toolkit_socket_init(void);
 void toolkit_socket_deinit(void);
 socket_t *
-socket_create(const char *host, uint16_t port, bool secure, socket_role_t role);
+socket_create(const char   *host,
+              uint16_t      port,
+              bool          secure,
+              socket_role_t role,
+              bool          dual_stack);
 char *socket_get_addr(socket_t *sc);
 char *socket_get_str(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,

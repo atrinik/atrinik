@@ -174,11 +174,17 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * Whether the connection is over the secure port.
  * @param role
  * Role of the socket.
+ * @param dual_stack
+ * If true, create a dual-stack socket.
  * @return
  * Newly allocated socket, NULL in case of failure.
  */
 socket_t *
-socket_create (const char *host, uint16_t port, bool secure, socket_role_t role)
+socket_create (const char   *host,
+               uint16_t      port,
+               bool          secure,
+               socket_role_t role,
+               bool          dual_stack)
 {
     socket_t *sc = ecalloc(1, sizeof(*sc));
     sc->secure = !!secure;
@@ -219,7 +225,7 @@ socket_create (const char *host, uint16_t port, bool secure, socket_role_t role)
 
 #ifdef HAVE_IPV6
         if (ai->ai_family == AF_INET6) {
-            int flag = 1;
+            int flag = !dual_stack;
             if (setsockopt(sc->handle, IPPROTO_IPV6, IPV6_V6ONLY,
                     (const char *) &flag, sizeof(flag)) != 0) {
                 LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)",

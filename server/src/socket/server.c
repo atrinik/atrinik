@@ -202,30 +202,131 @@ server_socket_id_is_v4 (socket_server_id_t id)
  */
 TOOLKIT_INIT_FUNC(socket_server)
 {
+    /* Used to store the parsed network stack setting. */
+    struct {
+        /* Type of the network stack; some of these can be combined. */
+        enum {
+            STACK_IPV4,
+            STACK_IPV6,
+            STACK_DUAL,
+        } type;
+
+        /* IP addresses to bind to in non-dual-stack configurations. */
+        struct sockaddr_storage v4;
+        struct sockaddr_storage v6;
+    } stack_setting;
+    memset(&stack_setting, 0, sizeof(stack_setting));
+
+    char word[MAX_BUF];
+    size_t pos = 0;
+    while (string_get_word(settings.network_stack, &pos, ',', VS(word), 0)) {
+        string_whitespace_trim(word);
+
+        char *cps[2];
+        if (string_split(word, cps, arraysize(cps), '=') < 1) {
+            LOG(ERROR, "Failed to split string: %s", word);
+            exit(1);
+        }
+
+        if (strcasecmp(cps[0], "dual") == 0) {
+            stack_setting.type = 0;
+            BIT_SET(stack_setting.type, STACK_DUAL);
+            break;
+        }
+
+        BIT_CLEAR(stack_setting.type, STACK_DUAL);
+
+        struct sockaddr_storage *addr;
+        if (strcasecmp(cps[0], "ipv4") == 0 ||
+            strcasecmp(cps[0], "v4") == 0) {
+            BIT_SET(stack_setting.type, STACK_IPV4);
+            addr = &stack_setting.v4;
+            struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+            saddr->sin_family = AF_INET;
+        } else if (strcasecmp(cps[0], "ipv6") == 0 ||
+                   strcasecmp(cps[0], "v6") == 0) {
+#ifdef HAVE_IPV6
+            BIT_SET(stack_setting.type, STACK_IPV6);
+            addr = &stack_setting.v6;
+            struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+            saddr->sin_family = AF_INET6;
+#endif
+        } else {
+            LOG(ERROR, "Invalid value in network stack setting: %s", cps[0]);
+            exit(1);
+        }
+
+        if (cps[1] != NULL && !socket_host2addr(cps[1], addr)) {
+            LOG(ERROR,
+                "Invalid IP address in network stack configuration: %s",
+                cps[1]);
+            exit(1);
+        }
+    }
+
+    if (stack_setting.type == 0) {
+        LOG(ERROR, "No network stack configuration selected");
+        exit(1);
+    }
+
+    if (settings.port_crypto == 0 || settings.port == 0) {
+        LOG(ERROR, "No port configured");
+        exit(1);
+    }
+
     for (socket_server_id_t i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
         uint16_t port;
         bool secure = server_socket_id_is_secure(i);
         if (secure) {
-            port = 14000; // TODO: config
+            port = settings.port_crypto;
         } else {
             port = settings.port;
         }
 
-        // TODO: stack config (v6/v4/dual-stack)
-        const char *host;
-        if (server_socket_id_is_v6(i)) {
-            host = "::";
-        } else if (server_socket_id_is_v4(i)) {
-            host = "0.0.0.0";
-        } else {
-            LOG(ERROR, "Reached impossible code branch");
+        if (port == 0) {
             continue;
         }
 
+        const char *host = NULL;
+        if (BIT_QUERY(stack_setting.type, STACK_DUAL)) {
+            /* Avoid binding more than once. */
+            if (server_socket_id_is_v4(i)) {
+                continue;
+            }
+        } else {
+            struct sockaddr_storage *addr;
+            if (server_socket_id_is_v4(i)) {
+                if (!BIT_QUERY(stack_setting.type, STACK_IPV4)) {
+                    continue;
+                }
+
+                addr = &stack_setting.v4;
+            } else if (server_socket_id_is_v6(i)) {
+                if (!BIT_QUERY(stack_setting.type, STACK_IPV6)) {
+                    continue;
+                }
+
+                addr = &stack_setting.v6;
+            } else {
+                LOG(ERROR, "Reached impossible code branch");
+                exit(1);
+            }
+
+            char hostname[MAX_BUF];
+            if (socket_addr2host(addr, VS(hostname)) == NULL) {
+                LOG(ERROR, "Failed to convert address to host");
+                exit(1);
+            }
+
+            host = hostname;
+        }
+
+        bool dual_stack = BIT_QUERY(stack_setting.type, STACK_DUAL);
         server_sockets[i] = socket_create(host,
                                           port,
                                           secure,
-                                          SOCKET_ROLE_SERVER);
+                                          SOCKET_ROLE_SERVER,
+                                          dual_stack);
         if (server_sockets[i] == NULL) {
             exit(1);
         }

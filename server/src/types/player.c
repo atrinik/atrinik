@@ -2545,7 +2545,8 @@ player_get_dummy (const char *name, const char *host)
     pl->cs->sc = socket_create(host != NULL ? host : "127.0.0.1",
                                13327,
                                false,
-                               SOCKET_ROLE_SERVER);
+                               SOCKET_ROLE_SERVER,
+                               false);
     if (pl->cs->sc == NULL) {
         abort();
     }

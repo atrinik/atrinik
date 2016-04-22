@@ -481,7 +481,7 @@ client_socket_open (client_socket_t *csock,
     HARD_ASSERT(csock != NULL);
     HARD_ASSERT(host != NULL);
 
-    csock->sc = socket_create(host, port, secure, SOCKET_ROLE_CLIENT);
+    csock->sc = socket_create(host, port, secure, SOCKET_ROLE_CLIENT, false);
     if (csock->sc == NULL) {
         return false;
     }

@@ -330,6 +330,11 @@ typedef struct settings_struct {
     uint16_t port;
 
     /**
+     * Port to use for crypto client/server communication.
+     */
+    uint16_t port_crypto;
+
+    /**
      * Read only data files, such as the collected archetypes.
      */
     char libpath[MAX_BUF];
@@ -444,6 +449,11 @@ typedef struct settings_struct {
      * URL to the HTTP server.
      */
     char http_url[MAX_BUF];
+
+    /**
+     * Desired network stack to use.
+     */
+    char network_stack[MAX_BUF];
 } settings_struct;
 
 /** Constant shared string pointers. */

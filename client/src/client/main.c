@@ -218,7 +218,7 @@ static int game_status_chain(void)
         metaserver_clear_data();
 
         // TODO: change port back
-        metaserver_add("localhost", 14000, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
+        metaserver_add("localhost", 1729, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
         for (i = 0; i < clioption_settings.servers_num; i++) {
             pos = 0;
@@ -256,7 +256,7 @@ static int game_status_chain(void)
         clear_player();
 
         /* TODO: check metaserver data for crypto port */
-        if (selected_server->port == 14000) {
+        if (selected_server->port == 1729) {
             packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 16, 0);
             packet_append_uint8(packet, CMD_CRYPTO_HELLO);
             socket_send_packet(packet);

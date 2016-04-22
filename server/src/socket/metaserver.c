@@ -144,6 +144,9 @@ metaserver_info_update (void)
     snprintf(VS(buf), "%" PRIu16, settings.port);
     curl_request_form_add(request, "port", buf);
 
+    snprintf(VS(buf), "%" PRIu16, settings.port_crypto);
+    curl_request_form_add(request, "port_crypto", buf);
+
     /* Send off the POST request */
     curl_request_start_post(request);
 }
