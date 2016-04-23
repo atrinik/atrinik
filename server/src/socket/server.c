@@ -387,6 +387,14 @@ socket_server_handle_command (socket_struct *cs,
     size_t pos = 0;
     uint8_t type = packet_to_uint8(data, len, &pos);
 
+    bool is_secure = socket_is_secure(cs->sc);
+    if (!is_secure && type == SERVER_CMD_CRYPTO) {
+        LOG(PACKET, "Received crypto packet on wrong port from %s",
+            socket_get_str(cs->sc));
+        cs->state = ST_DEAD;
+        return false;
+    }
+
     if (socket_is_secure(cs->sc) &&
         type != SERVER_CMD_CRYPTO &&
         !socket_crypto_is_done(socket_get_crypto(cs->sc))) {
