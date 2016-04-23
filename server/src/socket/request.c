@@ -2088,14 +2088,15 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
 void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint32_t id;
-    packet_struct *packet;
-
     ns->keepalive = 0;
 
-    id = packet_to_uint32(data, len, &pos);
+    if (len == 0) {
+        return;
+    }
 
-    packet = packet_new(CLIENT_CMD_KEEPALIVE, 20, 0);
+    uint32_t id = packet_to_uint32(data, len, &pos);
+
+    packet_struct *packet = packet_new(CLIENT_CMD_KEEPALIVE, 20, 0);
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Keepalive ID");
     packet_append_uint32(packet, id);
@@ -3029,7 +3030,7 @@ socket_crypto_done (socket_struct *ns,
         ns->state = ST_DEAD;
         return;
     }
-    
+
     LOG(SYSTEM, "Connection: established a secure channel with %s",
         socket_get_str(ns->sc));
 }
