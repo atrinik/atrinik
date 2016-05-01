@@ -36,6 +36,8 @@
 #include <socket_crypto.h>
 #include <clioptions.h>
 
+#include <openssl/ssl.h>
+#include <openssl/conf.h>
 #include <openssl/aes.h>
 #include <openssl/engine.h>
 #include <openssl/err.h>
@@ -417,7 +419,9 @@ TOOLKIT_INIT_FUNC(socket_crypto)
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_key, "Certificate key");
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_bundle, "Certificate bundle");
 
-    OPENSSL_init();
+    OPENSSL_config(NULL);
+    SSL_load_error_strings();
+    SSL_library_init();
     OpenSSL_add_all_ciphers();
     ERR_load_crypto_strings();
 }
@@ -1883,6 +1887,11 @@ socket_crypto_decrypt (socket_t *sc,
         case SOCKET_ROLE_SERVER:
             checksum_only = !socket_crypto_client_should_encrypt(data_type);
             is_type_crypto = data_type == SERVER_CMD_CRYPTO;
+            break;
+
+        default:
+            log_error("Impossible code branch reached");
+            abort();
             break;
         }
 

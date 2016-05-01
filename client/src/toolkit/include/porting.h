@@ -69,8 +69,6 @@
 #include <sys/param.h>
 #include <inttypes.h>
 
-#include <openssl/ssl.h>
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif

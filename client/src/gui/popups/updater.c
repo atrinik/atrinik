@@ -264,9 +264,9 @@ updater_process_packages (void)
 
             /* Construct the path. */
             char filename[HUGE_BUF];
-            snprintf(VS(filename), "%s/client_patch_%09zu.tar.gz",
+            snprintf(VS(filename), "%s/client_patch_%09" PRIu64 ".tar.gz",
                      dir_path,
-                     download_package_next - 1);
+                     (uint64_t) download_package_next - 1);
 
             path_ensure_directories(filename);
             FILE *fp = fopen(filename, "wb");

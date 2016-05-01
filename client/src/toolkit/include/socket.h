@@ -916,7 +916,5 @@ bool
 socket_is_secure(socket_t *sc);
 socket_role_t
 socket_get_role(socket_t *sc);
-SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
-void socket_ssl_destroy(SSL *ssl);
 
 #endif
