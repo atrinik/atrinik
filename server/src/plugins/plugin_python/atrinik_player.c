@@ -681,7 +681,17 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
         } else if (format[i] == 's') {
             if (PyString_Check(value)) {
                 Py_ssize_t size;
+#ifdef IS_PY3K
                 char *data = PyUnicode_AsUTF8AndSize(value, &size);
+#else
+                char *data = NULL;
+                if (PyString_AsStringAndSize(value, &data, &size) == -1 ||
+                    data == NULL) {
+                    PyErr_Format(PyExc_ValueError,
+                                 "PyString_AsStringAndSize() failed for "
+                                 "format '%c'.", format[i]);
+                }
+#endif
                 hooks->packet_append_string_len_terminated(packet, data, size);
                 continue;
             }
