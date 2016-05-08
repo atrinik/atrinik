@@ -913,6 +913,8 @@ static void init_library(int argc, char *argv[])
         clioptions_parse(argc, argv);
     }
 
+    curl_set_data_dir(settings.datapath);
+
     /* Import game APIs that need settings */
     toolkit_import(ban);
     toolkit_import(faction);

@@ -141,6 +141,16 @@ struct curl_request {
     char *cert_cn;
 
     /**
+     * Callback function.
+     */
+    curl_request_cb cb;
+
+    /**
+     * Pointer supplied to the callback function.
+     */
+    void *cb_user_data;
+
+    /**
      * True if the thread is quitting.
      */
     bool finished:1;
@@ -693,6 +703,7 @@ curl_request_form_add (curl_request_t *request,
 void
 curl_request_set_path (curl_request_t *request, const char *path)
 {
+    HARD_ASSERT(request != NULL);
     HARD_ASSERT(path != NULL);
     TOOLKIT_PROTECT();
 
@@ -701,6 +712,24 @@ curl_request_set_path (curl_request_t *request, const char *path)
     }
 
     request->path = estrdup(path);
+}
+
+/**
+ * Install a function to call when the cURL request is complete. Do note
+ * that in most cases, the callback function will be called from the thread
+ * used to process the HTTP request.
+ */
+void
+curl_request_set_cb (curl_request_t *request,
+                     curl_request_cb cb,
+                     void           *user_data)
+{
+    HARD_ASSERT(request != NULL);
+    HARD_ASSERT(cb != NULL);
+    TOOLKIT_PROTECT();
+
+    request->cb = cb;
+    request->cb_user_data = user_data;
 }
 
 /**
@@ -1447,6 +1476,10 @@ done:
         curl_slist_free_all(chunk);
     }
 
+    if (request->cb != NULL) {
+        request->cb(request, request->cb_user_data);
+    }
+
     return NULL;
 }
 
@@ -1511,6 +1544,10 @@ done:
 
     if (request->handle != NULL) {
         curl_easy_cleanup(request->handle);
+    }
+
+    if (request->cb != NULL) {
+        request->cb(request, request->cb_user_data);
     }
 
     return NULL;

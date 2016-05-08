@@ -85,6 +85,8 @@ typedef void (*curl_request_process_cb)(curl_request_process_t type,
  */
 typedef struct curl_request curl_request_t;
 
+typedef void (*curl_request_cb)(curl_request_t *request, void *user_data);
+
 /* Prototypes */
 
 TOOLKIT_FUNCS_DECLARE(curl);
@@ -103,6 +105,10 @@ curl_request_form_add(curl_request_t *request,
                       const char     *value);
 void
 curl_request_set_path(curl_request_t *request, const char *path);
+void
+curl_request_set_cb(curl_request_t *request,
+                    curl_request_cb cb,
+                    void           *user_data);
 curl_state_t
 curl_request_get_state(curl_request_t *request);
 char *

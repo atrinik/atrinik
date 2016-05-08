@@ -46,9 +46,26 @@ static struct {
 } stats;
 
 /**
+ * Mutex for the metaserver stats.
+ */
+static pthread_mutex_t stats_lock;
+
+/**
  * cURL request structure.
  */
-static curl_request_t *request = NULL;
+static curl_request_t *current_request = NULL;
+/**
+ * Mutex for the current request pointer.
+ */
+static pthread_mutex_t request_lock;
+/**
+ * Temporary string used to send a list of players to the metaserver.
+ */
+static char *request_players = NULL;
+/**
+ * Number of players.
+ */
+static uint32_t request_num_players = 0;
 
 /**
  * Initialize the metaserver.
@@ -61,6 +78,8 @@ metaserver_init (void)
     }
 
     metaserver_info_update();
+    pthread_mutex_init(&stats_lock, NULL);
+    pthread_mutex_init(&request_lock, NULL);
 }
 
 /**
@@ -73,10 +92,141 @@ metaserver_deinit (void)
         return;
     }
 
-    if (request != NULL) {
-        curl_request_free(request);
-        request = NULL;
+    if (current_request != NULL) {
+        curl_request_free(current_request);
+        current_request = NULL;
     }
+
+    if (request_players != NULL) {
+        efree(request_players);
+        request_players = NULL;
+    }
+
+    pthread_mutex_destroy(&stats_lock);
+    pthread_mutex_destroy(&request_lock);
+}
+
+static bool
+metaserver_request_process_error (curl_request_t *request)
+{
+    HARD_ASSERT(request != NULL);
+
+    curl_state_t state = curl_request_get_state(request);
+    int http_code = curl_request_get_http_code(request);
+    if (state == CURL_STATE_OK && http_code == 200) {
+        return false;
+    }
+
+    char *body = curl_request_get_body(request, NULL);
+    LOG(SYSTEM,
+        "Failed to update metaserver information "
+        "(HTTP code: %d), response: %s",
+        http_code,
+        body != NULL ? body : "<empty>");
+
+    pthread_mutex_lock(&stats_lock);
+    stats.last_failed = time(NULL);
+    stats.num_failed++;
+    pthread_mutex_unlock(&stats_lock);
+    return true;
+}
+
+static void
+metaserver_update_request (curl_request_t *request, void *user_data)
+{
+    pthread_mutex_lock(&request_lock);
+    current_request = NULL;
+
+    if (metaserver_request_process_error(request)) {
+        goto out;
+    }
+
+    pthread_mutex_lock(&stats_lock);
+    stats.last = time(NULL);
+    stats.num++;
+    pthread_mutex_unlock(&stats_lock);
+
+out:
+    curl_request_free(request);
+    pthread_mutex_unlock(&request_lock);
+}
+
+static void
+metaserver_otp_request (curl_request_t *request, void *user_data)
+{
+    pthread_mutex_lock(&request_lock);
+    current_request = NULL;
+
+    if (metaserver_request_process_error(request)) {
+        goto out;
+    }
+
+    char *body = curl_request_get_body(request, NULL);
+    if (body == NULL) {
+        LOG(ERROR, "Failed to receive an OTP from metaserver");
+        goto out;
+    }
+
+    const char *otp_identifier = "\"otp\": \"";
+    const char *otp_pos = strstr(body, otp_identifier);
+    if (otp_pos == NULL) {
+        LOG(ERROR, "Malformed OTP response");
+        goto out;
+    }
+
+    /* Jump over the OTP identifier */
+    otp_pos += strlen(otp_identifier);
+
+    const char *otp_end_pos = strstr(otp_pos, "\"");
+    if (otp_end_pos == NULL) {
+        LOG(ERROR, "Malformed OTP response");
+        goto out;
+    }
+
+    size_t otp_length = otp_end_pos - otp_pos;
+    if (otp_length == 0) {
+        LOG(ERROR, "Malformed OTP response");
+        goto out;
+    }
+
+    char *otp = estrndup(body + (otp_pos - body), otp_length);
+
+    char url[MAX_BUF];
+    snprintf(VS(url), "%s/update", settings.metaserver_url);
+    current_request = curl_request_create(url, CURL_PKEY_TRUST_ULTIMATE);
+    curl_request_set_cb(current_request, metaserver_update_request, NULL);
+
+    curl_request_form_add(current_request, "hostname",
+                          settings.server_host);
+    curl_request_form_add(current_request, "version",
+                          PACKAGE_VERSION);
+    curl_request_form_add(current_request, "text_comment",
+                          settings.server_desc);
+    curl_request_form_add(current_request, "name",
+                          settings.server_name);
+    curl_request_form_add(current_request, "otp",
+                          otp);
+    curl_request_form_add(current_request, "players",
+                          request_players);
+
+    char buf[32];
+    snprintf(VS(buf), "%" PRIu32, request_num_players);
+    curl_request_form_add(current_request, "num_players", buf);
+
+    snprintf(VS(buf), "%" PRIu16, settings.port);
+    curl_request_form_add(current_request, "port", buf);
+
+    snprintf(VS(buf), "%" PRIu16, settings.port_crypto);
+    curl_request_form_add(current_request, "port_crypto", buf);
+
+    /* Send off the POST request */
+    curl_request_start_post(current_request);
+
+    efree(otp);
+
+out:
+    curl_request_free(request);
+    pthread_mutex_unlock(&request_lock);
 }
 
 /**
@@ -89,33 +239,16 @@ metaserver_info_update (void)
         return;
     }
 
-    if (request != NULL) {
-        curl_state_t state = curl_request_get_state(request);
+    if (current_request != NULL) {
+        curl_state_t state = curl_request_get_state(current_request);
         if (state == CURL_STATE_INPROGRESS) {
             return;
         }
 
-        int http_code = curl_request_get_http_code(request);
-        if (state == CURL_STATE_ERROR ||
-            http_code != 200) {
-            char *body = curl_request_get_body(request, NULL);
-            LOG(SYSTEM,
-                "Failed to update metaserver information "
-                "(HTTP code: %d), response: %s",
-                http_code,
-                body != NULL ? body : "<empty>");
-
-            stats.last_failed = time(NULL);
-            stats.num_failed++;
-        } else if (state == CURL_STATE_OK) {
-            stats.last = time(NULL);
-            stats.num++;
-        }
-
-        curl_request_free(request);
+        curl_request_free(current_request);
     }
 
-    uint32_t num_players = 0;
+    request_num_players = 0;
     StringBuffer *sb = stringbuffer_new();
     for (player *pl = first_player; pl != NULL; pl = pl->next) {
         if (stringbuffer_length(sb) != 0) {
@@ -123,32 +256,19 @@ metaserver_info_update (void)
         }
 
         stringbuffer_append_string(sb, pl->quick_name);
-        num_players++;
+        request_num_players++;
     }
 
-    request = curl_request_create(settings.metaserver_url,
-                                  CURL_PKEY_TRUST_ULTIMATE);
-    curl_request_form_add(request, "hostname", settings.server_host);
-    curl_request_form_add(request, "version", PACKAGE_VERSION);
-    curl_request_form_add(request, "text_comment", settings.server_desc);
-    curl_request_form_add(request, "name", settings.server_name);
+    if (request_players != NULL) {
+        efree(request_players);
+    }
+    request_players = stringbuffer_finish(sb);
 
-    char *players = stringbuffer_finish(sb);
-    curl_request_form_add(request, "players", players);
-    efree(players);
-
-    char buf[32];
-    snprintf(VS(buf), "%" PRIu32, num_players);
-    curl_request_form_add(request, "num_players", buf);
-
-    snprintf(VS(buf), "%" PRIu16, settings.port);
-    curl_request_form_add(request, "port", buf);
-
-    snprintf(VS(buf), "%" PRIu16, settings.port_crypto);
-    curl_request_form_add(request, "port_crypto", buf);
-
-    /* Send off the POST request */
-    curl_request_start_post(request);
+    char url[MAX_BUF];
+    snprintf(VS(url), "%s/otp", settings.metaserver_url);
+    current_request = curl_request_create(url, CURL_PKEY_TRUST_ULTIMATE);
+    curl_request_set_cb(current_request, metaserver_otp_request, NULL);
+    curl_request_start_get(current_request);
 }
 
 /**
@@ -162,6 +282,7 @@ metaserver_info_update (void)
 void
 metaserver_stats (char *buf, size_t size)
 {
+    pthread_mutex_lock(&stats_lock);
     snprintfcat(buf, size, "\n=== METASERVER ===\n");
     snprintfcat(buf, size, "\nUpdates: %" PRIu64, stats.num);
     snprintfcat(buf, size, "\nFailed: %" PRIu64, stats.num_failed);
@@ -177,4 +298,5 @@ metaserver_stats (char *buf, size_t size)
     }
 
     snprintfcat(buf, size, "\n");
+    pthread_mutex_unlock(&stats_lock);
 }
