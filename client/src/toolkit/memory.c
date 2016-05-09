@@ -73,7 +73,6 @@ typedef struct memory_chunk {
  * consideration.
  *
  * @param _n
- *
  * The memory block size.
  */
 #define MEM_CHUNK_SIZE(_n) \
@@ -82,7 +81,6 @@ typedef struct memory_chunk {
  * Acquire a pointer to the memory block part of the specified memory chunk.
  *
  * @param _chunk
- *
  * The memory chunk.
  */
 #define MEM_DATA(_chunk) ((void *) &((_chunk)->data[0]))
@@ -91,7 +89,6 @@ typedef struct memory_chunk {
  * the pointer was not returned by this API, the dragons will come after you.
  *
  * @param _ptr
- *
  * Memory block pointer.
  */
 #define MEM_CHUNK(_ptr) \
@@ -202,11 +199,9 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * Create a string representation of the specified memory chunk.
  *
  * @param chunk
- *
  * The memory chunk.
  * @return
- * String
- * representation of the memory chunk as a static-storage string.
+ * String representation of the memory chunk as a static-storage string.
  */
 static const char *
 chunk_get_str (memory_chunk_t *chunk)
@@ -219,10 +214,25 @@ chunk_get_str (memory_chunk_t *chunk)
 }
 
 /**
+ * Get the magic number value after the specified chunk.
+ *
+ * @param chunk
+ * The memory chunk.
+ * @return
+ * The magic value.
+ */
+static inline uint64_t
+chunk_after (memory_chunk_t *chunk)
+{
+    uint64_t after;
+    memcpy(&after, &chunk->data[chunk->size], sizeof(after));
+    return after;
+}
+
+/**
  * Check the specified memory chunk for overruns/underruns.
  *
  * @param chunk
- *
  * The memory chunk.
  */
 static void
@@ -235,8 +245,7 @@ chunk_check (memory_chunk_t *chunk)
     }
 
     /* Check for overrun */
-    if (unlikely(*(uint64_t *) (&chunk->data[chunk->size]) !=
-                 CHUNK_AFTER_VAL)) {
+    if (unlikely(chunk_after(chunk) != CHUNK_AFTER_VAL)) {
         log_error("Pointer overrun detected: %s", chunk_get_str(chunk));
         abort();
     }
@@ -248,10 +257,8 @@ chunk_check (memory_chunk_t *chunk)
  * and underruns and returned; otherwise NULL is returned.
  *
  * @param ptr
- *
  * The pointer to check.
  * @return
- *
  * Memory chunk the pointer belongs to; NULL if it's not a memory
  * chunk pointer.
  */
@@ -279,7 +286,6 @@ chunk_checkptr (void *ptr)
  * all the allocated bytes to 0x7A.
  *
  * @param chunk
- *
  * The chunk to check.
  */
 static void
@@ -309,10 +315,8 @@ chunk_freed_check (memory_chunk_t *chunk)
  * modifications after freeing and returned; otherwise NULL is returned.
  *
  * @param ptr
- *
  * The pointer to check.
  * @return
- *
  * Memory chunk the pointer belongs to; NULL if it's not a memory
  * chunk pointer.
  */
@@ -383,16 +387,12 @@ chunk_check_all (void)
  * metadata about the chunk, plus the requested number of bytes.
  *
  * @param size
- *
  * Number of bytes to allocate.
  * @param file
- *
  * File the allocation is being done from.
  * @param line
- *
  * Line the allocation is being done from.
  * @return
- *
  * Pointer to an allocated memory block; never NULL.
  */
 static void *
@@ -416,7 +416,8 @@ _malloc (size_t size, const char *file, uint32_t line)
     chunk->before = CHUNK_BEFORE_VAL;
     chunk->next = NULL;
     chunk->prev = NULL;
-    *(uint64_t *) (&chunk->data[chunk->size]) = CHUNK_AFTER_VAL;
+    uint64_t after = CHUNK_AFTER_VAL;
+    memcpy(&chunk->data[chunk->size], &after, sizeof(after));
 
     pthread_mutex_lock(&memory_chunks_mutex);
 
@@ -454,13 +455,10 @@ _malloc (size_t size, const char *file, uint32_t line)
  * previous call to _malloc().
  *
  * @param ptr
- *
  * Pointer to free.
  * @param file
- *
  * File freeing is done from.
  * @param line
- *
  * Line freeing is done from.
  */
 static void
@@ -503,8 +501,7 @@ _free (void *ptr, const char *file, uint32_t line)
     }
 
     /* Check for overrun */
-    if (unlikely(*(uint64_t *) (&chunk->data[chunk->size]) !=
-                 CHUNK_AFTER_VAL)) {
+    if (unlikely(chunk_after(chunk) != CHUNK_AFTER_VAL)) {
         log_error("Pointer overrun detected: %s, free called from: %s:%u",
                   chunk_get_str(chunk), file, line);
         abort();
@@ -545,19 +542,14 @@ _free (void *ptr, const char *file, uint32_t line)
  * and zero-initializes them.
  *
  * @param nmemb
- *
  * Number of elements.
  * @param size
- *
  * Size of each element.
  * @param file
- *
  * File allocation is being done from.
  * @param line
- *
  * Line allocation is being done from.
  * @return
- *
  * Pointer to an allocated zero-initialized memory block; never NULL.
  */
 static void *
@@ -576,19 +568,14 @@ _calloc (size_t nmemb, size_t size, const char *file, uint32_t line)
  * (if any) is not initialized.
  *
  * @param ptr
- *
  * Memory block that is being resized.
  * @param size
- *
  * New size for the memory block.
  * @param file
- *
  * File reallocation was called from.
  * @param line
- *
  * Line reallocation was called from.
  * @return
- *
  * Resized memory block; NULL in case size was zero.
  */
 static void *
@@ -638,10 +625,8 @@ memory_check_all (void)
  * Check the specified memory block.
  *
  * @param ptr
- *
  * Pointer to the memory block.
  * @return
- *
  * True on success, false on failure (memory checking API is disabled or the
  * pointer was not allocated by this API).
  */
@@ -673,13 +658,10 @@ memory_check (void *ptr)
  * Acquire status of the specified memory block.
  *
  * @param ptr
- *
  * Pointer to the memory block; must have been allocated through this API.
  * @param status
- *
  * Where to store the status.
  * @return
- *
  * True on success (status contains a valid value), false otherwise.
  */
 bool
@@ -724,13 +706,10 @@ memory_get_status (void *ptr, memory_status_t *status)
  * Acquire the allocation size of the specified memory block.
  *
  * @param ptr
- *
  * Pointer to the memory block.
  * @param size
- *
  * Where to store the size of the memory block.
  * @return
- *
  * True on success (size contains a valid value), false otherwise (the pointer
  * was not returned by this API or the API is disabled).
  */
@@ -769,10 +748,8 @@ memory_get_size (void *ptr, size_t *size)
  * tests).
  *
  * @param verbose
- *
  * If true, print all the chunks that are still allocated.
  * @return
- *
  * Number of allocated chunks.
  */
 size_t
@@ -807,10 +784,8 @@ memory_check_leak (bool verbose)
  * Like malloc(), but performs error checking.
  *
  * @param size
- *
  * Number of bytes to allocate.
  * @return
- *
  * Allocated pointer, never NULL.
  * @note
  * Will abort() in case the pointer can't be allocated.
@@ -833,7 +808,6 @@ memory_emalloc (size_t size MEMORY_DEBUG_PROTO)
  * Like free(), but performs error checking.
  *
  * @param ptr
- *
  * Pointer to free.
  * @note
  * Will abort() in case the pointer is NULL.
@@ -851,13 +825,10 @@ memory_efree (void *ptr MEMORY_DEBUG_PROTO)
  * Like calloc(), but performs error checking.
  *
  * @param nmemb
- *
  * Number of elements.
  * @param size
- *
  * Number of bytes.
  * @return
- *
  * Allocated pointer, never NULL.
  * @note
  * Will abort() in case the pointer can't be allocated.
@@ -880,13 +851,10 @@ void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO)
  * Like realloc(), but performs error checking.
  *
  * @param ptr
- *
  * Pointer to resize.
  * @param size
- *
  * New number of bytes.
  * @return
- *
  * Resized pointer, never NULL.
  * @note
  * Will abort() in case the pointer can't be resized.
@@ -911,16 +879,12 @@ memory_erealloc (void *ptr, size_t size MEMORY_DEBUG_PROTO)
  * 0 using memset().
  *
  * @param ptr
- *
  * Original pointer.
  * @param old_size
- *
  * Size of the pointer.
  * @param new_size
- *
  * New size the pointer should have.
  * @return
- *
  * Resized pointer, NULL on failure.
  */
 void *
