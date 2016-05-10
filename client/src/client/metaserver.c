@@ -32,6 +32,26 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <curl.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+
+/**
+ * Macro to check for XML string equality without the annoying xmlChar
+ * pointer casts.
+ *
+ * @param s1
+ * First string to compare.
+ * @param s2
+ * Second string to compare.
+ * @return
+ * 1 if both strings are equal, 0 otherwise.
+ */
+#define XML_STR_EQUAL(s1, s2) \
+    xmlStrEqual((const xmlChar *) s1, (const xmlChar *) s2)
+
+#ifdef __MINGW32__
+#   define xmlFree free
+#endif
 
 /** Are we connecting to the metaserver? */
 static int metaserver_connecting = 1;
@@ -58,6 +78,9 @@ void metaserver_init(void)
     /* Initialize mutexes. */
     metaserver_connecting_mutex = SDL_CreateMutex();
     server_head_mutex = SDL_CreateMutex();
+
+    /* Initialize libxml2 */
+    LIBXML_TEST_VERSION
 }
 
 /**
@@ -70,19 +93,181 @@ void metaserver_disable(void)
 }
 
 /**
- * Parse data returned from HTTP metaserver and add it to the list of servers.
- * @param info
- * The data to parse.
+ * Free the specified metaserver server node.
+ *
+ * @param server
+ * Node to free.
  */
-static void parse_metaserver_data(char *info)
+static void
+metaserver_free (server_struct *server)
 {
-    char *tmp[6];
+    HARD_ASSERT(server != NULL);
 
-    if (!info || string_split(info, tmp, arraysize(tmp), '\t') != 6) {
-        return;
+    if (server->hostname != NULL) {
+        efree(server->hostname);
     }
 
-    metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], atoi(tmp[3]), tmp[4], tmp[5]);
+    if (server->name != NULL) {
+        efree(server->name);
+    }
+
+    if (server->version != NULL) {
+        efree(server->version);
+    }
+
+    if (server->desc != NULL) {
+        efree(server->desc);
+    }
+
+    if (server->cert_pubkey != NULL) {
+        efree(server->cert_pubkey);
+    }
+
+    efree(server);
+}
+
+/**
+ * Parse a single metaserver data node within a 'server' node.
+ *
+ * @param node
+ * The data node.
+ * @param server
+ * Allocated server structure.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+parse_metaserver_data_node (xmlNodePtr node, server_struct *server)
+{
+    HARD_ASSERT(node != NULL);
+    HARD_ASSERT(server != NULL);
+
+    xmlChar *content = xmlNodeGetContent(node);
+    SOFT_ASSERT_LABEL(content != NULL && *content != '\0',
+                      error,
+                      "Parsing error");
+
+    if (XML_STR_EQUAL(node->name, "hostname")) {
+        SOFT_ASSERT_LABEL(server->hostname == NULL, error, "Parsing error");
+        server->hostname = estrdup((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "port")) {
+        SOFT_ASSERT_LABEL(server->port == 0, error, "Parsing error");
+        server->port = atoi((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "port_crypto")) {
+        SOFT_ASSERT_LABEL(server->port_crypto == -1, error, "Parsing error");
+        server->port_crypto = atoi((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "name")) {
+        SOFT_ASSERT_LABEL(server->name == NULL, error, "Parsing error");
+        server->name = estrdup((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "num_players")) {
+        SOFT_ASSERT_LABEL(server->player == 0, error, "Parsing error");
+        server->player = atoi((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "version")) {
+        SOFT_ASSERT_LABEL(server->version == NULL, error, "Parsing error");
+        server->version = estrdup((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "text_comment")) {
+        SOFT_ASSERT_LABEL(server->desc == NULL, error, "Parsing error");
+        server->desc = estrdup((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "cert_pubkey")) {
+        SOFT_ASSERT_LABEL(server->cert_pubkey == NULL, error, "Parsing error");
+        server->cert_pubkey = estrdup((const char *) content);
+    } else {
+        LOG(DEVEL, "Unrecognized node: %s", (const char *) node->name);
+    }
+
+    bool ret = true;
+    goto out;
+
+error:
+    ret = false;
+
+out:
+    if (content != NULL) {
+        xmlFree(content);
+    }
+
+    return ret;
+}
+
+/**
+ * Parse metaserver 'server' node.
+ *
+ * @param node
+ * Node to parse.
+ */
+static void
+parse_metaserver_node (xmlNodePtr node)
+{
+    HARD_ASSERT(node != NULL);
+
+    server_struct *server = ecalloc(1, sizeof(*server));
+    server->port_crypto = -1;
+
+    for (xmlNodePtr tmp = node->children; tmp != NULL; tmp = tmp->next) {
+        if (!parse_metaserver_data_node(tmp, server)) {
+            goto error;
+        }
+    }
+
+    if (server->hostname == NULL ||
+        server->port == 0 ||
+        server->name == NULL ||
+        server->version == NULL ||
+        server->desc == NULL) {
+        LOG(ERROR, "Incomplete data from metaserver");
+        goto error;
+    }
+
+    SDL_LockMutex(server_head_mutex);
+    DL_PREPEND(server_head, server);
+    server_count++;
+    SDL_UnlockMutex(server_head_mutex);
+    return;
+
+error:
+    metaserver_free(server);
+}
+
+/**
+ * Parse data returned from HTTP metaserver and add it to the list of servers.
+ *
+ * @param body
+ * The data to parse.
+ * @param body_size
+ * Length of the body.
+ */
+static void
+parse_metaserver_data (const char *body, size_t body_size)
+{
+    HARD_ASSERT(body != NULL);
+
+    xmlDocPtr doc = xmlReadMemory(body, body_size, "noname.xml", NULL, 0);
+    if (doc == NULL) {
+        LOG(ERROR, "Failed to parse data from metaserver");
+	goto out;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (root == NULL || !XML_STR_EQUAL(root->name, "servers")) {
+        LOG(ERROR, "No servers element found in metaserver XML");
+        goto out;
+    }
+
+    xmlNodePtr last = NULL;
+    for (xmlNodePtr node = root->children; node != NULL; node = node->next) {
+        last = node;
+    }
+
+    for (xmlNodePtr node = last; node != NULL; node = node->prev) {
+        if (!XML_STR_EQUAL(node->name, "server")) {
+            continue;
+        }
+
+        parse_metaserver_node(node);
+    }
+
+out:
+    xmlFreeDoc(doc);
 }
 
 /**
@@ -159,11 +344,7 @@ void metaserver_clear_data(void)
     DL_FOREACH_SAFE(server_head, node, tmp)
     {
         DL_DELETE(server_head, node);
-        efree(node->hostname);
-        efree(node->name);
-        efree(node->version);
-        efree(node->desc);
-        efree(node);
+        metaserver_free(node);
     }
 
     server_count = 0;
@@ -173,27 +354,32 @@ void metaserver_clear_data(void)
 /**
  * Add a server entry to the linked list of available servers reported by
  * metaserver.
+ *
  * @param hostname
  * Server's hostname.
  * @param port
  * Server port.
+ * @param port_crypto
+ * Secure port to use.
  * @param name
  * Server's name.
- * @param player
- * Number of players.
  * @param version
  * Server version.
  * @param desc
  * Description of the server.
  */
-void metaserver_add(const char *hostname, int port, const char *name,
-        int player, const char *version, const char *desc)
+server_struct *
+metaserver_add (const char *hostname,
+                int         port,
+                int         port_crypto,
+                const char *name,
+                const char *version,
+                const char *desc)
 {
-    server_struct *node;
-
-    node = ecalloc(1, sizeof(*node));
-    node->player = player;
+    server_struct *node = ecalloc(1, sizeof(*node));
+    node->player = -1;
     node->port = port;
+    node->port_crypto = port_crypto;
     node->hostname = estrdup(hostname);
     node->name = estrdup(name);
     node->version = estrdup(version);
@@ -203,6 +389,8 @@ void metaserver_add(const char *hostname, int port, const char *name,
     DL_PREPEND(server_head, node);
     server_count++;
     SDL_UnlockMutex(server_head_mutex);
+
+    return node;
 }
 
 /**
@@ -228,14 +416,10 @@ int metaserver_thread(void *dummy)
 
         /* If the request succeeded, parse the metaserver data and break out. */
         int http_code = curl_request_get_http_code(request);
-        char *body = curl_request_get_body(request, NULL);
+        size_t body_size;
+        char *body = curl_request_get_body(request, &body_size);
         if (http_code == 200 && body != NULL) {
-            char word[HUGE_BUF];
-            size_t pos = 0;
-            while (string_get_word(body, &pos, '\n', VS(word), 0)) {
-                parse_metaserver_data(word);
-            }
-
+            parse_metaserver_data(body, body_size);
             curl_request_free(request);
             break;
         }

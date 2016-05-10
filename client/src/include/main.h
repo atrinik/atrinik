@@ -62,6 +62,12 @@ typedef struct server_struct {
 
     /** Server port. */
     int port;
+
+    /** Crypto port. -1 if disabled. */
+    int port_crypto;
+
+    /** Certificate public key. */
+    char *cert_pubkey;
 } server_struct;
 
 /**

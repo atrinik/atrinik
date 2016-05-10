@@ -37,6 +37,10 @@ find_package(SDL_ttf REQUIRED)
 include_directories(${SDLTTF_INCLUDE_DIR})
 set(HAVE_SDL_TTF true)
 
+# LibXML2 is required.
+find_package(LibXml2 REQUIRED)
+include_directories(${LIBXML2_INCLUDE_DIR})
+
 # SDL_mixer is optional, as sound is not a must-have.
 find_package(SDL_mixer)
 
@@ -69,6 +73,7 @@ include(src/toolkit/cmake-post.txt)
 target_link_libraries(${EXECUTABLE} ${SDL_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${SDLIMAGE_LIBRARY})
 target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
+target_link_libraries(${EXECUTABLE} ${LIBXML2_LIBRARIES})
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)

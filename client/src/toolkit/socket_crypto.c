@@ -859,6 +859,9 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
         }
     }
 
+    /* TODO: verify public key from cache, refuse connection if it doesn't
+     * match */
+
     bool ret = true;
     goto out;
 

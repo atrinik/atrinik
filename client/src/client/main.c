@@ -211,23 +211,43 @@ static int game_status_chain(void)
         effect_stop();
         cpl.state = ST_META;
     } else if (cpl.state == ST_META) {
-        size_t i, pos;
-        char host[MAX_BUF], port[MAX_BUF];
-        uint16_t port_num;
-
         metaserver_clear_data();
 
-        // TODO: change port back
-        metaserver_add("localhost", 1729, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
+        metaserver_add("localhost",
+                       1728,
+                       -1,
+                       "Localhost",
+                       "local",
+                       "Localhost. Start server before you try to connect.");
 
-        for (i = 0; i < clioption_settings.servers_num; i++) {
-            pos = 0;
-            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(host), 0);
-            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(port), 0);
-            port_num = atoi(port);
-            metaserver_add(host, port_num != 0 ? port_num : 13327,
-                    host, -1, "user server",
-                    "Server from command line --server option.");
+        for (size_t i = 0; i < clioption_settings.servers_num; i++) {
+            size_t pos = 0;
+            char host[MAX_BUF];
+            string_get_word(clioption_settings.servers[i],
+                            &pos,
+                            ' ',
+                            VS(host),
+                            0);
+            char port[MAX_BUF];
+            string_get_word(clioption_settings.servers[i],
+                            &pos,
+                            ' ',
+                            VS(port),
+                            0);
+            char port_crypto[MAX_BUF];
+            string_get_word(clioption_settings.servers[i],
+                            &pos,
+                            ' ',
+                            VS(port_crypto),
+                            0);
+            int port_num = atoi(port);
+            int port_crypto_num = atoi(port_crypto);
+            metaserver_add(host,
+                           port_num != 0 ? port_num : 1728,
+                           port_crypto_num != 0 ? port_crypto_num : -1,
+                           host,
+                           "user server",
+                           "Server from command line --server option.");
         }
 
         metaserver_get_servers();
@@ -241,12 +261,34 @@ static int game_status_chain(void)
         map_redraw_flag = minimap_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
     } else if (cpl.state == ST_STARTCONNECT) {
-        draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
+        draw_info_format(COLOR_GREEN,
+                         "Trying server %s (%d)...",
+                         selected_server->name, selected_server->port);
         keepalive_reset();
         cpl.state = ST_CONNECT;
     } else if (cpl.state == ST_CONNECT) {
-        // TODO: figure out the secure flag
-        if (!client_socket_open(&csocket, selected_server->hostname, selected_server->port, true)) {
+        bool secure = false;
+        int port = selected_server->port;
+        if (selected_server->port_crypto != -1) {
+            secure = true;
+            port = selected_server->port_crypto;
+        }
+
+        /* Ensure we have a public key record. */
+        if (secure && selected_server->cert_pubkey == NULL) {
+            draw_info_format(COLOR_RED,
+                             "The server %s (%d) does not have a public key "
+                             "record, refusing to connect.",
+                             selected_server->name,
+                             selected_server->port);
+            cpl.state = ST_START;
+            return 1;
+        }
+
+        if (!client_socket_open(&csocket,
+                                selected_server->hostname,
+                                port,
+                                secure)) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;
@@ -255,8 +297,7 @@ static int game_status_chain(void)
         socket_thread_start();
         clear_player();
 
-        /* TODO: check metaserver data for crypto port */
-        if (selected_server->port == 1729) {
+        if (secure) {
             packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 16, 0);
             packet_append_uint8(packet, CMD_CRYPTO_HELLO);
             socket_send_packet(packet);

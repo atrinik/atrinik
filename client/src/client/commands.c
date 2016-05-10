@@ -999,18 +999,14 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
         return;
     }
 
+    if (selected_server->cert_pubkey == NULL) {
+        LOG(ERROR, " !!! Server has no public key record! !!!");
+        cpl.state = ST_START;
+        return;
+    }
+
     socket_crypto_t *crypto = socket_crypto_create(csocket.sc);
-    /* TODO: replace with loading from metaserver */
-    const char *pubkey = "-----BEGIN PUBLIC KEY-----\n"
-"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsIz9wdWX0w6S2/VhOikO\n"
-"qbwIu5Ph7GInw2kVft6w4VDQj/qzYffTBDE46qKMnir12uhOldFk2zFL+LPF7sDa\n"
-"8rdPE5V12BYlsDg/z08ybRcyVG6BrO9LnHg/PH7JzDJ/dDsJ9+sDJA97sA7rn4ss\n"
-"vd7FmPzPLgItH3m0xRpzoHPwJY6BJmbAlk+QqM6DSGAcL2axQ1OrGl7NXM9ufjV1\n"
-"R6sTH+U36udrUX8C36SJ3mC3w+ZGBT/vTKDj0GEdZr/P7PoimnibbDXlMvF9oTRZ\n"
-"u/kcupJ/CmLPUSHw0V/Nc7epnG7gXg+NqSdzf52N/R57Js9eytDFGJpm4SyxTWgJ\n"
-"VQIDAQAB\n"
-"-----END PUBLIC KEY-----\n";
-    socket_crypto_load_pubkey(crypto, pubkey);
+    socket_crypto_load_pubkey(crypto, selected_server->cert_pubkey);
 
     if (!socket_crypto_load_cert(crypto, cert, chain)) {
         efree(cert);
@@ -1044,8 +1040,8 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
 
     packet_append_uint8(packet, iv_len);
     packet_append_data_len(packet, iv, iv_len);
-
     socket_send_packet(packet);
+
     cpl.state = ST_WAITCRYPTO;
 }
 

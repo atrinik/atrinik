@@ -218,7 +218,9 @@ void intro_show(void)
             node = server_get_id(i);
 
             list_add(list_servers, i, 0, node->name);
-            snprintf(buf, sizeof(buf), "%d", node->port);
+            snprintf(VS(buf),
+                     "%d",
+                     node->port_crypto == -1 ? node->port : node->port_crypto);
             list_add(list_servers, i, 1, buf);
 
             if (node->player >= 0) {
