@@ -31,6 +31,9 @@
 #include <toolkit_string.h>
 #include <curl.h>
 #include <player.h>
+#include <openssl/rand.h>
+#include <openssl/sha.h>
+#include <openssl/err.h>
 
 /**
  * Used to hold metaserver statistics.
@@ -44,6 +47,11 @@ static struct {
 
     time_t last_failed; ///< Last failed update.
 } stats;
+
+/**
+ * Where the metaserver key file is located.
+ */
+#define METASERVER_KEY_FILE "metaserver_key"
 
 /**
  * Mutex for the metaserver stats.
@@ -66,6 +74,10 @@ static char *request_players = NULL;
  * Number of players.
  */
 static uint32_t request_num_players = 0;
+/**
+ * Keeps track of whether the generate metaserver key is new or not.
+ */
+static bool key_is_new = false;
 
 /**
  * Initialize the metaserver.
@@ -138,6 +150,18 @@ metaserver_update_request (curl_request_t *request, void *user_data)
     current_request = NULL;
 
     if (metaserver_request_process_error(request)) {
+        if (key_is_new) {
+            char path[HUGE_BUF];
+            snprintf(VS(path), "%s/" METASERVER_KEY_FILE, settings.datapath);
+
+            if (unlink(path) != 0) {
+                LOG(ERROR, "Failed to unlink %s: %s (%d)",
+                    path, strerror(errno), errno);
+            }
+
+            key_is_new = false;
+        }
+
         goto out;
     }
 
@@ -151,6 +175,203 @@ out:
     pthread_mutex_unlock(&request_lock);
 }
 
+static bool
+metaserver_get_key (char       *key,
+                    size_t      key_size,
+                    const char *otp,
+                    const char *cotp)
+{
+    HARD_ASSERT(key != NULL);
+    HARD_ASSERT(key_size == SHA512_DIGEST_LENGTH * 2 + 1);
+
+    unsigned char tmp_key[SHA512_DIGEST_LENGTH];
+
+    char path[HUGE_BUF];
+    snprintf(VS(path), "%s/" METASERVER_KEY_FILE, settings.datapath);
+    FILE *fp = fopen(path, "rb");
+    if (fp == NULL && errno == ENOENT) {
+        fp = fopen(path, "wb");
+        if (fp == NULL) {
+            LOG(ERROR, "Failed to open %s for writing: %s (%d)",
+                path, strerror(errno), errno);
+            return false;
+        }
+
+        unsigned char bytes[64];
+
+        if (chmod(path, S_IRUSR | S_IWUSR) != 0) {
+            LOG(ERROR, "Failed to chmod %s: %s (%d)",
+                path, strerror(errno), errno);
+            goto error_creating;
+        }
+
+        if (RAND_bytes(VS(bytes)) != 1) {
+            LOG(ERROR, "RAND_bytes() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error_creating;
+        }
+
+        if (SHA512(VS(bytes), tmp_key) == NULL) {
+            LOG(ERROR, "SHA512() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error_creating;
+        }
+
+        memset(&bytes, 0, sizeof(bytes));
+        key[SHA512_DIGEST_LENGTH] = '\0';
+
+        if (fwrite(VS(tmp_key), 1, fp) != 1) {
+            LOG(ERROR, "Failed to write to %s: %s (%d)",
+                path, strerror(errno), errno);
+            goto error_creating;
+        }
+
+        if (fclose(fp) != 0) {
+            LOG(ERROR, "Failed to close %s: %s (%d)",
+                path, strerror(errno), errno);
+            goto error_creating;
+        }
+
+        SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
+                                       key,
+                                       key_size,
+                                       false) == key_size - 1,
+                          error_creating,
+                          "string_tohex failed");
+        string_tolower(key);
+        key_is_new = true;
+
+        return true;
+
+error_creating:
+        if (unlink(path) != 0) {
+            LOG(ERROR, "Failed to unlink %s: %s (%d)",
+                path, strerror(errno), errno);
+        }
+
+        memset(&bytes, 0, sizeof(bytes));
+        memset(&tmp_key, 0, sizeof(tmp_key));
+        memset(key, 0, key_size);
+        return false;
+    } else if (fp == NULL) {
+        LOG(ERROR, "Failed to open %s for reading: %s (%d)",
+            path, strerror(errno), errno);
+        return false;
+    }
+
+    key_is_new = false;
+
+    if (fread(VS(tmp_key), 1, fp) != 1) {
+        LOG(ERROR, "Failed to read from %s: %s (%d)",
+            path, strerror(errno), errno);
+        goto error_reading;
+    }
+
+    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
+                                   key,
+                                   key_size,
+                                   false) == key_size - 1,
+                      error_reading,
+                      "string_tohex failed");
+    string_tolower(key);
+
+    SHA512_CTX ctx;
+    if (SHA512_Init(&ctx) != 1) {
+        LOG(ERROR, "SHA512_Init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    if (SHA512_Update(&ctx, key, key_size - 1) != 1) {
+        LOG(ERROR, "SHA512_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    if (SHA512_Update(&ctx,
+                      settings.server_host,
+                      strlen(settings.server_host)) != 1) {
+        LOG(ERROR, "SHA512_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    if (SHA512_Final(tmp_key, &ctx) != 1) {
+        LOG(ERROR, "SHA512_Final() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
+                                   key,
+                                   key_size,
+                                   false) == key_size - 1,
+                      error_reading,
+                      "string_tohex failed");
+    string_tolower(key);
+
+    if (fclose(fp) != 0) {
+        LOG(ERROR, "Failed to close %s: %s (%d)",
+            path, strerror(errno), errno);
+        goto error_reading;
+    }
+
+    if (SHA512_Init(&ctx) != 1) {
+        LOG(ERROR, "SHA512_Init() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    if (SHA512_Update(&ctx, otp, strlen(otp)) != 1) {
+        LOG(ERROR, "SHA512_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    if (SHA512_Update(&ctx, key, key_size - 1) != 1) {
+        LOG(ERROR, "SHA512_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    if (SHA512_Update(&ctx, cotp, strlen(cotp)) != 1) {
+        LOG(ERROR, "SHA512_Update() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    if (SHA512_Final(tmp_key, &ctx) != 1) {
+        LOG(ERROR, "SHA512_Final() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error_reading;
+    }
+
+    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
+                                   key,
+                                   key_size,
+                                   false) == key_size - 1,
+                      error_reading,
+                      "string_tohex failed");
+    string_tolower(key);
+
+    return true;
+
+error_reading:
+    memset(key, 0, key_size);
+    memset(&tmp_key, 0, sizeof(tmp_key));
+    memset(&ctx, 0, sizeof(ctx));
+
+    return false;
+}
+
+/**
+ * Process the OTP GET request reply.
+ *
+ * @param request
+ * cURL request.
+ * @param user_data
+ * NULL.
+ */
 static void
 metaserver_otp_request (curl_request_t *request, void *user_data)
 {
@@ -189,7 +410,35 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
         goto out;
     }
 
+    unsigned char cotp[32];
+    if (RAND_bytes(VS(cotp)) != 1) {
+        LOG(ERROR, "RAND_bytes() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto out;
+    }
+
+    unsigned char cotp_digest[SHA512_DIGEST_LENGTH];
+    if (SHA512(VS(cotp), cotp_digest) == NULL) {
+        LOG(ERROR, "SHA512() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto out;
+    }
+
+    char cotp_hash[SHA512_DIGEST_LENGTH * 2 + 1];
+    SOFT_ASSERT_LABEL(string_tohex(VS(cotp_digest),
+                                   VS(cotp_hash),
+                                   false) == sizeof(cotp_hash) - 1,
+                      out,
+                      "string_tohex failed");
+    string_tolower(cotp_hash);
+
     char *otp = estrndup(body + (otp_pos - body), otp_length);
+
+    char key[SHA512_DIGEST_LENGTH * 2 + 1];
+    if (!metaserver_get_key(VS(key), otp, cotp_hash)) {
+        efree(otp);
+        goto out;
+    }
 
     char url[MAX_BUF];
     snprintf(VS(url), "%s/update", settings.metaserver_url);
@@ -206,6 +455,12 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
                           settings.server_name);
     curl_request_form_add(current_request, "otp",
                           otp);
+    curl_request_form_add(current_request, "cotp",
+                          cotp_hash);
+    curl_request_form_add(current_request, "key",
+                          key);
+    curl_request_form_add(current_request, "ptr_check",
+                          "");
     curl_request_form_add(current_request, "players",
                           request_players);
 
