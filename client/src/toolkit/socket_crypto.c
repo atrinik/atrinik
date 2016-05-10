@@ -92,6 +92,8 @@ static bool crypto_enabled = false;
 static char *crypto_cert = NULL;
 /** Currently used certificate chain in PEM format. */
 static char *crypto_cert_chain = NULL;
+/** Currently used certificate's public key in PEM format. */
+static char *crypto_cert_pubkey = NULL;
 /** Private key context for the certificate. */
 static EVP_PKEY_CTX *crypto_cert_ctx = NULL;
 /** Certificate store. */
@@ -227,9 +229,47 @@ clioptions_option_crypto_cert (const char *arg,
         return false;
     }
 
+    EVP_PKEY *pubkey = X509_get_pubkey(cert);
+    if (pubkey == NULL) {
+        *errmsg = estrdup("Failed to get public key from the certificate");
+        X509_free(cert);
+        return false;
+    }
+
     /* We don't actually need the cert; we just needed to validate the
-     * format. */
+     * format and get the public key from it. */
     X509_free(cert);
+
+    BIO *bio = BIO_new(BIO_s_mem());
+    if (bio == NULL) {
+        *errmsg = estrdup("Failed to create a new BIO");
+        EVP_PKEY_free(pubkey);
+        return false;
+    }
+
+    if (PEM_write_bio_PUBKEY(bio, pubkey) != 1) {
+        *errmsg = estrdup("Failed to write out public key in PEM format");
+        EVP_PKEY_free(pubkey);
+        BIO_free(bio);
+        return false;
+    }
+
+    EVP_PKEY_free(pubkey);
+
+    char *pem = NULL;
+    long pem_len = BIO_get_mem_data(bio, &pem);
+    if (pem == NULL) {
+        *errmsg = estrdup("BIO_get_mem_data() failed");
+        BIO_free(bio);
+        return false;
+    }
+
+    if (crypto_cert_pubkey != NULL) {
+        efree(crypto_cert_pubkey);
+    }
+
+    crypto_cert_pubkey = estrndup(pem, pem_len);
+    BIO_free(bio);
 
     if (crypto_cert != NULL) {
         efree(crypto_cert);
@@ -442,6 +482,10 @@ TOOLKIT_DEINIT_FUNC(socket_crypto)
         efree(crypto_cert_chain);
     }
 
+    if (crypto_cert_pubkey != NULL) {
+        efree(crypto_cert_pubkey);
+    }
+
     if (crypto_cert_ctx != NULL) {
         EVP_PKEY_CTX_free(crypto_cert_ctx);
     }
@@ -551,6 +595,19 @@ socket_crypto_get_cert_chain (void)
 {
     TOOLKIT_PROTECT();
     return crypto_cert_chain;
+}
+
+/**
+ * Acquires the currently used certificate's public key in PEM format.
+ *
+ * @return
+ * Certificate's public key.
+ */
+const char *
+socket_crypto_get_cert_pubkey (void)
+{
+    TOOLKIT_PROTECT();
+    return crypto_cert_pubkey;
 }
 
 /**

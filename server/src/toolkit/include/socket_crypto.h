@@ -54,6 +54,8 @@ const char *
 socket_crypto_get_cert(void);
 const char *
 socket_crypto_get_cert_chain(void);
+const char *
+socket_crypto_get_cert_pubkey(void);
 bool
 socket_crypto_check_cmd(uint8_t type, socket_crypto_t *crypto);
 socket_crypto_t *

@@ -118,6 +118,14 @@ metaserver_deinit (void)
     pthread_mutex_destroy(&request_lock);
 }
 
+/**
+ * Check if the specified cURL request resulted in an error.
+ *
+ * @param request
+ * Request to check.
+ * @return
+ * True if an error was processed, false otherwise.
+ */
 static bool
 metaserver_request_process_error (curl_request_t *request)
 {
@@ -143,6 +151,14 @@ metaserver_request_process_error (curl_request_t *request)
     return true;
 }
 
+/**
+ * Callback received for publishing a metaserver update.
+ *
+ * @param request
+ * cURL request.
+ * @param user_data
+ * NULL.
+ */
 static void
 metaserver_update_request (curl_request_t *request, void *user_data)
 {
@@ -150,6 +166,8 @@ metaserver_update_request (curl_request_t *request, void *user_data)
     current_request = NULL;
 
     if (metaserver_request_process_error(request)) {
+        /* If we had a new key generated, remove it so that it will be
+         * re-created, since it was rejected. */
         if (key_is_new) {
             char path[HUGE_BUF];
             snprintf(VS(path), "%s/" METASERVER_KEY_FILE, settings.datapath);
@@ -175,6 +193,20 @@ out:
     pthread_mutex_unlock(&request_lock);
 }
 
+/**
+ * Acquires the key to use for metaserver authentication.
+ *
+ * @param[out] key
+ * Will contain the key on success.
+ * @param key_size
+ * Size of the 'key' buffer.
+ * @param otp
+ * OTP from the metaserver.
+ * @param cotp
+ * Generated COTP.
+ * @return
+ * True on success, false on failure.
+ */
 static bool
 metaserver_get_key (char       *key,
                     size_t      key_size,
@@ -471,8 +503,15 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
     snprintf(VS(buf), "%" PRIu16, settings.port);
     curl_request_form_add(current_request, "port", buf);
 
-    snprintf(VS(buf), "%" PRIu16, settings.port_crypto);
-    curl_request_form_add(current_request, "port_crypto", buf);
+    if (socket_crypto_enabled()) {
+        snprintf(VS(buf), "%" PRIu16, settings.port_crypto);
+        curl_request_form_add(current_request, "port_crypto", buf);
+
+        const char *cert_pubkey = socket_crypto_get_cert_pubkey();
+        if (cert_pubkey != NULL) {
+            curl_request_form_add(current_request, "cert_pubkey", cert_pubkey);
+        }
+    }
 
     /* Send off the POST request */
     curl_request_start_post(current_request);
