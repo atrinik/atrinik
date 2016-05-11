@@ -33,6 +33,7 @@
 #include <packet.h>
 #include <toolkit_string.h>
 #include <clioptions.h>
+#include <path.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -613,6 +614,8 @@ int main(int argc, char *argv[])
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);
+
+    path_fopen = client_fopen_wrapper;
 
     char version[MAX_BUF];
     package_get_version_full(VS(version));
