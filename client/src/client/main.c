@@ -209,7 +209,6 @@ static int game_status_chain(void)
 {
     if (cpl.state == ST_INIT) {
         clear_map(true);
-        effect_stop();
         cpl.state = ST_META;
     } else if (cpl.state == ST_META) {
         metaserver_clear_data();
@@ -258,13 +257,19 @@ static int game_status_chain(void)
             client_socket_close(&csocket);
         }
 
+        effect_stop();
         clear_map(true);
         map_redraw_flag = minimap_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
     } else if (cpl.state == ST_STARTCONNECT) {
+        int port = selected_server->port;
+        if (selected_server->port_crypto != -1) {
+            port = selected_server->port_crypto;
+        }
         draw_info_format(COLOR_GREEN,
                          "Trying server %s (%d)...",
-                         selected_server->name, selected_server->port);
+                         selected_server->name,
+                         port);
         keepalive_reset();
         cpl.state = ST_CONNECT;
     } else if (cpl.state == ST_CONNECT) {
@@ -687,6 +692,15 @@ int main(int argc, char *argv[])
     server_files_init();
     toolkit_widget_init();
 
+    StringBuffer *sb = stringbuffer_new();
+    stringbuffer_append_printf(sb,
+                               "%s/.atrinik/%s",
+                               get_config_dir(),
+                               version);
+    path = stringbuffer_finish(sb);
+    socket_crypto_set_path(path);
+    efree(path);
+
     char buf[HUGE_BUF];
     snprintf(VS(buf), "Welcome to Atrinik version %s", version);
 #ifdef GITVERSION
@@ -721,7 +735,7 @@ int main(int argc, char *argv[])
         /* Have we been shutdown? */
         if (handle_socket_shutdown()) {
             if (cpl.state != ST_STARTCONNECT) {
-                cpl.state = ST_INIT;
+                cpl.state = ST_START;
                 /* Make sure no popup is visible. */
                 popup_destroy_all();
             }

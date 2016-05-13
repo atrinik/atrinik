@@ -35,6 +35,7 @@
 #include <socket.h>
 #include <socket_crypto.h>
 #include <clioptions.h>
+#include <path.h>
 
 #include <openssl/ssl.h>
 #include <openssl/conf.h>
@@ -62,6 +63,7 @@ struct socket_crypto {
     unsigned char iv2[AES_BLOCK_SIZE]; ///< AES IV buffer.
     unsigned char secret[SHA512_DIGEST_LENGTH]; ///< Secret for checksums.
     unsigned char secret2[SHA512_DIGEST_LENGTH]; ///< Secret for checksums.
+    socket_crypto_cb_t cb; ///< Callback function.
     bool done:1; ///< Whether the handshake has been completed.
 };
 
@@ -84,6 +86,12 @@ enum {
     CRYPTO_CMD_MAX ///< Total number of known crypto commands.
 };
 
+/**
+ * Name of the directory with self-signed certificates that have been marked
+ * as trusted.
+ */
+#define SOCKET_CRYPTO_TRUSTED_DIR "self-trusted"
+
 /** All the supported crypto curves. */
 static crypto_curve_t *crypto_curves = NULL;
 /** Whether socket cryptography is enabled. */
@@ -98,6 +106,10 @@ static char *crypto_cert_pubkey = NULL;
 static EVP_PKEY_CTX *crypto_cert_ctx = NULL;
 /** Certificate store. */
 static X509_STORE *crypto_store = NULL;
+/** Path to crypto data files. */
+static char *crypto_data_path = NULL;
+/** Stack of trusted self-signed certificates. */
+static STACK_OF(X509) *crypto_trusted_certs = NULL;
 
 /**
  * Frees the crypto curves.
@@ -493,8 +505,173 @@ TOOLKIT_DEINIT_FUNC(socket_crypto)
     if (crypto_store != NULL) {
         X509_STORE_free(crypto_store);
     }
+
+    if (crypto_data_path != NULL) {
+        efree(crypto_data_path);
+        crypto_data_path = NULL;
+    }
+
+    if (crypto_trusted_certs != NULL) {
+        sk_X509_free(crypto_trusted_certs);
+        crypto_trusted_certs = NULL;
+    }
 }
 TOOLKIT_DEINIT_FUNC_FINISH
+
+/**
+ * Load the trusted self-signed certificates.
+ */
+static void
+socket_crypto_load_trusted (void)
+{
+    if (crypto_trusted_certs != NULL) {
+        sk_X509_free(crypto_trusted_certs);
+    }
+
+    crypto_trusted_certs = sk_X509_new(NULL);
+    if (crypto_trusted_certs == NULL) {
+        LOG(ERROR, "sk_X509_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return;
+    }
+
+    char path[HUGE_BUF];
+    snprintf(VS(path), "%s/" SOCKET_CRYPTO_TRUSTED_DIR, crypto_data_path);
+    DIR *dir = opendir(path);
+    if (dir == NULL) {
+        return;
+    }
+
+    struct dirent *d;
+    while ((d = readdir(dir)) != NULL) {
+        if (d->d_name[0] == '.') {
+            continue;
+        }
+
+        char fullpath[HUGE_BUF];
+        snprintf(VS(fullpath), "%s/%s", path, d->d_name);
+
+        char *contents = path_file_contents(fullpath);
+        if (contents == NULL) {
+            continue;
+        }
+
+        X509 *cert = crypto_read_pem_x509(contents);
+        if (cert == NULL) {
+            /* Logging already done */
+            continue;
+        }
+
+        if (sk_X509_push(crypto_trusted_certs, cert) != 1) {
+            LOG(ERROR, "sk_X509_push() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            X509_free(cert);
+            continue;
+        }
+    }
+
+    closedir(dir);
+}
+
+/**
+ * Check if the specified X509 certificate is in the self-signed trust store.
+ *
+ * @param cert
+ * Certificate to check.
+ * @return
+ * True if the certificate is trusted, false otherwise.
+ */
+static bool
+socket_crypto_is_trusted (X509 *cert)
+{
+    HARD_ASSERT(cert != NULL);
+
+    for (int i = 0, num = sk_X509_num(crypto_trusted_certs); i < num; i++) {
+        X509 *trusted = sk_X509_value(crypto_trusted_certs, i);
+        SOFT_ASSERT_RC(trusted != NULL, false, "NULL entry in DB");
+
+        if (X509_cmp(trusted, cert) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Add a new certificate to the store of trusted certificates.
+ */
+static bool
+socket_crypto_add_trusted (X509 *cert, const char *hostname, char **errmsg)
+{
+    char path[HUGE_BUF];
+    snprintf(VS(path),
+             "%s/" SOCKET_CRYPTO_TRUSTED_DIR "/%s.pem",
+             crypto_data_path,
+             hostname);
+    path_ensure_directories(path);
+    FILE *fp = fopen(path, "w");
+    if (fp == NULL) {
+        string_fmt(*errmsg,
+                   "Failed to open %s for writing: %s (%d)",
+                   path, strerror(errno), errno);
+        return false;
+    }
+
+    BIO *bio = BIO_new(BIO_s_mem());
+    if (bio == NULL) {
+        string_fmt(*errmsg,
+                   "Failed to create a BIO for %s: %s",
+                   path, ERR_error_string(ERR_get_error(), NULL));
+        fclose(fp);
+        return false;
+    }
+
+    if (PEM_write_bio_X509(bio, cert) != 1) {
+        string_fmt(*errmsg,
+                   "Failed to write certificate to BIO for %s: %s",
+                   path, ERR_error_string(ERR_get_error(), NULL));
+        fclose(fp);
+        BIO_free(bio);
+        return false;
+    }
+
+    char *pem = NULL;
+    size_t pem_len = BIO_get_mem_data(bio, &pem);
+    if (pem == NULL) {
+        *errmsg = estrdup("BIO_get_mem_data() failed");
+        fclose(fp);
+        BIO_free(bio);
+        return false;
+    }
+
+    if (fwrite(pem, 1, pem_len, fp) != pem_len) {
+        string_fmt(*errmsg,
+                   "Failed to write PEM to %s: %s (%d)",
+                   path, strerror(errno), errno);
+        fclose(fp);
+        BIO_free(bio);
+        return false;
+    }
+
+    BIO_free(bio);
+
+    if (fclose(fp) != 0) {
+        string_fmt(*errmsg,
+                   "Failed to close %s: %s (%d)",
+                   path, strerror(errno), errno);
+        return false;
+    }
+
+    /* Reload the trusted certificates, since one might have been
+     * overwritten by this new one.
+     *
+     * Also it's easier than trying to handle the lookup/push errors,
+     * and removing the created cert file in case of one. */
+    socket_crypto_load_trusted();
+
+    return true;
+}
 
 /**
  * Check whether the socket crypto sub-system is enabled.
@@ -611,6 +788,24 @@ socket_crypto_get_cert_pubkey (void)
 }
 
 /**
+ * Set the data path to use for crypto-related files.
+ *
+ * MUST NOT be called more than once.
+ *
+ * @param path
+ * The path to use.
+ */
+void
+socket_crypto_set_path (const char *path)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(path != NULL);
+    SOFT_ASSERT(crypto_data_path == NULL, "Path already set");
+    crypto_data_path = estrdup(path);
+    socket_crypto_load_trusted();
+}
+
+/**
  * Determines if the specified crypto sub-command type is legal depending
  * on the state of the crypto exchange.
  *
@@ -695,6 +890,88 @@ socket_crypto_set_nid (socket_crypto_t *crypto, int nid)
 }
 
 /**
+ * Sets the callback function to use for the specified crypto socket.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param cb
+ * Callback function to use.
+ */
+void
+socket_crypto_set_cb (socket_crypto_t *crypto, socket_crypto_cb_t cb)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(cb != NULL);
+    crypto->cb = cb;
+}
+
+/**
+ * Handle processing of the specified crypto callback context.
+ *
+ * @param ctx
+ * Context to handle.
+ * @param[out] errmsg
+ * Will contain an error message on failure. Must be freed.
+ * @return
+ * True on success, false on failure.
+ */
+bool
+socket_crypto_handle_cb (const socket_crypto_cb_ctx_t *ctx, char **errmsg)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(ctx != NULL);
+    HARD_ASSERT(errmsg != NULL);
+
+    switch (ctx->id) {
+    case SOCKET_CRYPTO_CB_SELFSIGNED:
+        return socket_crypto_add_trusted((X509 *) ctx->data.ptr,
+                                         ctx->hostname,
+                                         errmsg);
+
+    case SOCKET_CRYPTO_CB_PUBCHANGED:
+        /* TODO: implement */
+        break;
+
+    case SOCKET_CRYPTO_CB_MAX:
+        LOG(ERROR, "Invalid ID: %d", ctx->id);
+        break;
+    }
+
+    *errmsg = estrdup("Internal error");
+    return false;
+}
+
+/**
+ * Free the specified crypto callback context.
+ *
+ * @param ctx
+ * Context to free.
+ */
+void
+socket_crypto_free_cb (const socket_crypto_cb_ctx_t *ctx)
+{
+    TOOLKIT_PROTECT();
+    HARD_ASSERT(ctx != NULL);
+
+    efree(ctx->hostname);
+
+    switch (ctx->id) {
+    case SOCKET_CRYPTO_CB_SELFSIGNED:
+        X509_free((X509 *) ctx->data.ptr);
+        break;
+
+    case SOCKET_CRYPTO_CB_PUBCHANGED:
+        efree(ctx->data.str);
+        break;
+
+    case SOCKET_CRYPTO_CB_MAX:
+        LOG(ERROR, "Invalid ID: %d", ctx->id);
+        break;
+    }
+}
+
+/**
  * Frees the specified socket crypto.
  *
  * @param crypto
@@ -738,10 +1015,11 @@ socket_crypto_free (socket_crypto_t *crypto)
 static int
 crypto_cert_verify_callback (int ok, X509_STORE_CTX *ctx)
 {
-    // TODO: only accept previously trusted self-signed certificates
     if (X509_STORE_CTX_get_error(ctx) ==
         X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
-        return 1;
+        if (socket_crypto_is_trusted(X509_STORE_CTX_get_current_cert(ctx))) {
+            return 1;
+        }
     }
 
     return ok;
@@ -819,6 +1097,17 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
 
     /* Perform the verification. */
     if (X509_verify_cert(store_ctx) != 1) {
+        if (X509_STORE_CTX_get_error(store_ctx) ==
+            X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
+            if (crypto->cb != NULL) {
+                socket_crypto_cb_ctx_t ctx;
+                ctx.id = SOCKET_CRYPTO_CB_SELFSIGNED;
+                ctx.hostname = estrdup(socket_get_host(crypto->sc));
+                ctx.data.ptr = X509_dup(cert);
+                crypto->cb(crypto, &ctx);
+            }
+        }
+
         LOG(ERROR, "X509_verify_cert() failed: %s",
             X509_verify_cert_error_string(store_ctx->error));
         goto error;

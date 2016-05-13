@@ -32,6 +32,7 @@
 #include <region_map.h>
 #include <packet.h>
 #include <path.h>
+#include <toolkit_string.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8_t *data, size_t len, size_t pos)
@@ -979,6 +980,189 @@ void socket_command_control(uint8_t *data, size_t len, size_t pos)
 }
 
 /**
+ * Data associated with a single crypto warning popup.
+ */
+typedef struct socket_crypto_popup {
+    socket_crypto_cb_ctx_t ctx; ///< Context from the socket crypto API.
+    button_struct button_ok; ///< OK button.
+    button_struct button_close; ///< Close button.
+    uint32_t ticks; ///< When the popup appeared.
+    int seconds; ///< Seconds since the popup appeared.
+} socket_crypto_popup_t;
+
+/**
+ * Number of seconds that must pass before the user can click 'OK' in
+ * the crypto warning popup.
+ */
+#define SOCKET_CRYPTO_POPUP_OK_DELAY 60
+
+/**
+ * Text used in the crypto warning popup.
+ */
+static const char *const socket_crypto_popup_texts[] = {
+    "The selected server uses a self-signed certificate. This means that it's "
+    "impossible to verify the authenticity of the server, and someone could be "
+    "spying on your connection via a forged certificate.\n\n"
+    "It is strongly recommended NOT to proceed (especially if you've connected "
+    "to this server before and this warning did not appear then).\n\n"
+    "Do you want to proceed (and remember this choice)?",
+    "!!! THE PUBLIC KEY OF THE SERVER HAS CHANGED !!!\n\n"
+    "This is most likely an indication of an MITM (Man In The Middle) attack. "
+    "It is also possible the server's public key has just changed.\n\n"
+    "It is STRONGLY RECOMMENDED [b]NOT[/b] to connect unless you have solid "
+    "evidence that this is correct (eg, an announcement from the server "
+    "officials about the change, ideally if this announcement was at least a "
+    "month in advance).\n\n"
+    "Do you want to proceed (and remember this choice)?",
+};
+CASSERT_ARRAY(socket_crypto_popup_texts, SOCKET_CRYPTO_CB_MAX);
+
+/** @copydoc popup_struct::draw_func */
+static int
+popup_draw (popup_struct *popup)
+{
+    socket_crypto_popup_t *data = popup->custom_data;
+
+    if (data->seconds != SOCKET_CRYPTO_POPUP_OK_DELAY) {
+        uint32_t ticks_diff = SDL_GetTicks() - data->ticks;
+        int seconds = ticks_diff / 1000;
+        if (data->seconds != seconds) {
+            data->seconds = seconds;
+            popup->redraw = 1;
+
+            if (seconds == SOCKET_CRYPTO_POPUP_OK_DELAY) {
+                data->button_ok.disabled = false;
+            }
+        }
+    }
+
+    if (!popup->redraw) {
+        return 1;
+    }
+
+    popup->redraw = 0;
+    surface_show(popup->surface, 0, 0, NULL, texture_surface(popup->texture));
+
+    SDL_Rect box;
+    box.w = popup->surface->w;
+    box.h = 38;
+    text_show(popup->surface,
+              FONT_SERIF16,
+              "Suspicious connection!",
+              0,
+              0,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+              &box);
+
+    box.w = popup->surface->w - 10 * 2;
+    box.h = popup->surface->h - box.h;
+    text_show(popup->surface,
+              FONT_ARIAL12,
+              socket_crypto_popup_texts[data->ctx.id],
+              10,
+              0,
+              COLOR_WHITE,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_WORD_WRAP |
+                  TEXT_MARKUP,
+              &box);
+
+    char buf[MAX_BUF];
+    snprintf(VS(buf), "%s", "OK");
+    if (data->seconds != SOCKET_CRYPTO_POPUP_OK_DELAY) {
+        snprintfcat(VS(buf),
+                    " (%d)",
+                    SOCKET_CRYPTO_POPUP_OK_DELAY - data->seconds);
+    }
+
+    data->button_ok.x = popup->surface->w / 4 -
+                        data->button_ok.texture->surface->w;
+    data->button_ok.y = popup->surface->h -
+                        data->button_ok.texture->surface->h * 2;
+    data->button_ok.surface = popup->surface;
+    data->button_ok.px = popup->x;
+    data->button_ok.py = popup->y;
+    button_show(&data->button_ok, buf);
+
+    data->button_close.x = popup->surface->w - popup->surface->w / 4;
+    data->button_close.y = popup->surface->h -
+                           data->button_close.texture->surface->h * 2;
+    data->button_close.surface = popup->surface;
+    data->button_close.px = popup->x;
+    data->button_close.py = popup->y;
+    button_show(&data->button_close, "Close");
+
+    return 1;
+}
+
+/** @copydoc popup_struct::event_func */
+static int
+popup_event (popup_struct *popup, SDL_Event *event)
+{
+    socket_crypto_popup_t *data = popup->custom_data;
+
+    if (button_event(&data->button_ok, event) ||
+        (event->type == SDL_KEYDOWN &&
+         (event->key.keysym.sym == SDLK_RETURN ||
+          event->key.keysym.sym == SDLK_KP_ENTER))) {
+        char *errmsg;
+        if (!socket_crypto_handle_cb(&data->ctx, &errmsg)) {
+            draw_info(COLOR_RED, errmsg);
+            efree(errmsg);
+        }
+
+        popup_destroy(popup);
+        login_start();
+        return 1;
+    } else if (button_event(&data->button_close, event)) {
+        popup_destroy(popup);
+        return 1;
+    }
+
+    if (data->button_ok.redraw || data->button_close.redraw) {
+        popup->redraw = true;
+    }
+
+    return -1;
+}
+
+/** @copydoc popup_struct::destroy_callback_func */
+static int
+popup_destroy_callback (popup_struct *popup)
+{
+    if (cpl.state != ST_WAITLOOP) {
+        return 0;
+    }
+
+    socket_crypto_popup_t *data = popup->custom_data;
+    socket_crypto_free_cb(&data->ctx);
+    efree(data);
+    popup->custom_data = NULL;
+    return 1;
+}
+
+/** @copydoc socket_crypto_cb_t */
+static void
+socket_crypto_cb (socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx)
+{
+    socket_crypto_popup_t *data = ecalloc(1, sizeof(*data));
+    data->ctx = *ctx;
+    data->ticks = SDL_GetTicks();
+
+    button_create(&data->button_ok);
+    data->button_ok.disabled = true;
+    button_create(&data->button_close);
+
+    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT,
+                                                   "popup"));
+    popup->draw_func = popup_draw;
+    popup->event_func = popup_event;
+    popup->destroy_callback_func = popup_destroy_callback;
+    popup->disable_texture_drawing = 1;
+    popup->custom_data = data;
+}
+
+/**
  * Handler for the crypto hello sub-command.
  *
  * @copydoc socket_command_struct::handle_func
@@ -1007,6 +1191,7 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
 
     socket_crypto_t *crypto = socket_crypto_create(csocket.sc);
     socket_crypto_load_pubkey(crypto, selected_server->cert_pubkey);
+    socket_crypto_set_cb(crypto, socket_crypto_cb);
 
     if (!socket_crypto_load_cert(crypto, cert, chain)) {
         efree(cert);

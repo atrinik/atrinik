@@ -175,7 +175,10 @@ void button_show(button_struct *button, const char *text)
         const char *color, *color_shadow;
         int x, y;
 
-        if (button->mouse_over) {
+        if (button->disabled) {
+            color = COLOR_GRAY;
+            color_shadow = COLOR_BLACK;
+        } else if (button->mouse_over) {
             color = button->color_over;
             color_shadow = button->color_over_shadow;
         } else {
