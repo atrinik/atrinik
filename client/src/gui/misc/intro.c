@@ -108,6 +108,28 @@ static void list_handle_esc(list_struct *list)
     exit(0);
 }
 
+/** @copydoc list_struct::text_color_hook */
+static void
+list_text_color (struct list_struct *list,
+                 uint32_t            row,
+                 uint32_t            col,
+                 const char        **color,
+                 const char        **color_shadow)
+{
+    server_struct *server = server_get_id(row);
+    SOFT_ASSERT(server != NULL, "Server on row %u is NULL", row);
+
+    if (!server->is_meta) {
+        return;
+    }
+
+    if (server->port_crypto != -1) {
+        *color = COLOR_GREEN;
+    } else {
+        *color = COLOR_GRAY;
+    }
+}
+
 /**
  * Deinitialize data used by the intro screen.
  */
@@ -208,6 +230,7 @@ void intro_show(void)
         list_servers = list_create(11, 3, 8);
         list_servers->handle_enter_func = list_handle_enter;
         list_servers->handle_esc_func = list_handle_esc;
+        list_servers->text_color_hook = list_text_color;
         list_scrollbar_enable(list_servers);
         list_set_column(list_servers, 0, 295, 7, "Server", -1);
         list_set_column(list_servers, 1, 50, 9, "Port", 1);
@@ -255,7 +278,7 @@ void intro_show(void)
     if (ms_connecting(-1)) {
         text_show_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
     } else {
-        text_show_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
+        text_show_shadow(ScreenSurface, FONT_ARIAL10, "Select a secure server.", x + 196, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
     }
 
     texture = TEXTURE_CLIENT("servers_bg_over");
