@@ -914,6 +914,7 @@ static void init_library(int argc, char *argv[])
     }
 
     curl_set_data_dir(settings.datapath);
+    socket_crypto_set_path(settings.datapath);
 
     /* Import game APIs that need settings */
     toolkit_import(ban);

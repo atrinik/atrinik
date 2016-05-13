@@ -991,12 +991,6 @@ typedef struct socket_crypto_popup {
 } socket_crypto_popup_t;
 
 /**
- * Number of seconds that must pass before the user can click 'OK' in
- * the crypto warning popup.
- */
-#define SOCKET_CRYPTO_POPUP_OK_DELAY 60
-
-/**
  * Text used in the crypto warning popup.
  */
 static const char *const socket_crypto_popup_texts[] = {
@@ -1017,20 +1011,31 @@ static const char *const socket_crypto_popup_texts[] = {
 };
 CASSERT_ARRAY(socket_crypto_popup_texts, SOCKET_CRYPTO_CB_MAX);
 
+/**
+ * Number of seconds that must pass before the user can click 'OK' in
+ * the crypto warning popup.
+ */
+static const int socket_crypto_popup_delays[] = {
+    20, /* Self-signed certificate */
+    60, /* Public key has changed */
+};
+CASSERT_ARRAY(socket_crypto_popup_delays, SOCKET_CRYPTO_CB_MAX);
+
 /** @copydoc popup_struct::draw_func */
 static int
 popup_draw (popup_struct *popup)
 {
     socket_crypto_popup_t *data = popup->custom_data;
 
-    if (data->seconds != SOCKET_CRYPTO_POPUP_OK_DELAY) {
+    int delay = socket_crypto_popup_delays[data->ctx.id];
+    if (data->seconds != delay) {
         uint32_t ticks_diff = SDL_GetTicks() - data->ticks;
         int seconds = ticks_diff / 1000;
         if (data->seconds != seconds) {
             data->seconds = seconds;
             popup->redraw = 1;
 
-            if (seconds == SOCKET_CRYPTO_POPUP_OK_DELAY) {
+            if (seconds == delay) {
                 data->button_ok.disabled = false;
             }
         }
@@ -1061,18 +1066,34 @@ popup_draw (popup_struct *popup)
               FONT_ARIAL12,
               socket_crypto_popup_texts[data->ctx.id],
               10,
-              0,
+              50,
               COLOR_WHITE,
-              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_WORD_WRAP |
-                  TEXT_MARKUP,
+              TEXT_ALIGN_CENTER | TEXT_WORD_WRAP | TEXT_MARKUP,
               &box);
+
+    if (data->ctx.fingerprint != NULL) {
+        text_show(popup->surface,
+                  FONT_ARIAL12,
+                  "Certificate fingerprint:",
+                  0,
+                  90,
+                  COLOR_WHITE,
+                  TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+                  &box);
+        text_show(popup->surface,
+                  FONT_ARIAL12,
+                  data->ctx.fingerprint,
+                  0,
+                  110,
+                  COLOR_WHITE,
+                  TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+                  &box);
+    }
 
     char buf[MAX_BUF];
     snprintf(VS(buf), "%s", "OK");
-    if (data->seconds != SOCKET_CRYPTO_POPUP_OK_DELAY) {
-        snprintfcat(VS(buf),
-                    " (%d)",
-                    SOCKET_CRYPTO_POPUP_OK_DELAY - data->seconds);
+    if (data->seconds != delay) {
+        snprintfcat(VS(buf), " (%d)", delay - data->seconds);
     }
 
     data->button_ok.x = popup->surface->w / 4 -
@@ -1141,6 +1162,14 @@ popup_destroy_callback (popup_struct *popup)
     return 1;
 }
 
+/** @copydoc popup_struct::clipboard_copy_func */
+static const char *
+popup_clipboard_copy_func (popup_struct *popup)
+{
+    socket_crypto_popup_t *data = popup->custom_data;
+    return data->ctx.fingerprint != NULL ? data->ctx.fingerprint : "";
+}
+
 /** @copydoc socket_crypto_cb_t */
 static void
 socket_crypto_cb (socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx)
@@ -1158,8 +1187,22 @@ socket_crypto_cb (socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx)
     popup->draw_func = popup_draw;
     popup->event_func = popup_event;
     popup->destroy_callback_func = popup_destroy_callback;
+    popup->clipboard_copy_func = popup_clipboard_copy_func;
     popup->disable_texture_drawing = 1;
     popup->custom_data = data;
+}
+
+/**
+ * Aborts the connection due to a crypto error.
+ */
+static void
+socket_command_crypto_abort (void)
+{
+    cpl.state = ST_START;
+    draw_info_format(COLOR_RED,
+                     "Failed to establish a secure connection with %s; see the "
+                     "client log for details.",
+                     selected_server->hostname);
 }
 
 /**
@@ -1179,13 +1222,13 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
 
     if (*cert == '\0') {
         LOG(ERROR, "Received empty certificate from server");
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
     if (selected_server->cert_pubkey == NULL) {
         LOG(ERROR, " !!! Server has no public key record! !!!");
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1196,7 +1239,7 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
     if (!socket_crypto_load_cert(crypto, cert, chain)) {
         efree(cert);
         efree(chain);
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1206,7 +1249,7 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
     uint8_t key_len;
     const unsigned char *key = socket_crypto_create_key(crypto, &key_len);
     if (key == NULL) {
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1219,7 +1262,7 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
     uint8_t iv_len;
     const unsigned char *iv = socket_crypto_get_iv(crypto, &iv_len);
     if (iv == NULL) {
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1244,14 +1287,14 @@ socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
     if (len == pos) {
         LOG(PACKET, "Server sent malformed crypto key command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
     uint8_t iv_len;
     const unsigned char *iv = socket_crypto_get_iv(crypto, &iv_len);
     if (iv == NULL) {
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1263,19 +1306,19 @@ socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto key command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
     if (iv_len != recv_iv_len) {
         LOG(PACKET, "Server sent mismatching IV buffer length");
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
     if (memcmp(iv, recv_iv, iv_len) != 0) {
         LOG(PACKET, "Server sent mismatching IV buffer");
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1307,7 +1350,7 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
             if (iv == NULL) {
                 LOG(SYSTEM, "Failed to generate IV buffer: %s",
                     socket_get_str(csocket.sc));
-                cpl.state = ST_START;
+                socket_command_crypto_abort();
                 return;
             }
 
@@ -1317,14 +1360,14 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
             if (pubkey == NULL) {
                 LOG(SYSTEM, "Failed to generate a public key: %s",
                     socket_get_str(csocket.sc));
-                cpl.state = ST_START;
+                socket_command_crypto_abort();
                 return;
             }
 
             if (pubkey_len > INT16_MAX) {
                 LOG(SYSTEM, "Public key too long: %s",
                     socket_get_str(csocket.sc));
-                cpl.state = ST_START;
+                socket_command_crypto_abort();
                 efree(pubkey);
                 return;
             }
@@ -1345,7 +1388,7 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
         "Server requested crypto but failed to provide a compatible "
         "crypto elliptic curve: %s",
         socket_get_str(csocket.sc));
-    cpl.state = ST_START;
+    socket_command_crypto_abort();
 }
 
 /**
@@ -1362,7 +1405,7 @@ socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
     if (len == pos) {
         LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1378,14 +1421,14 @@ socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
     if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
         LOG(SYSTEM, "Couldn't derive shared secret key: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1394,7 +1437,7 @@ socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
                                                               &secret_len);
     if (secret == NULL) {
         LOG(ERROR, "Failed to generate a secret");
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1419,7 +1462,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
     if (len == pos) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1429,7 +1472,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
     if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1438,7 +1481,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
@@ -1461,13 +1504,13 @@ socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
             socket_get_str(csocket.sc));
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 
     if (!socket_crypto_set_done(crypto)) {
         /* Logging already done */
-        cpl.state = ST_START;
+        socket_command_crypto_abort();
         return;
     }
 

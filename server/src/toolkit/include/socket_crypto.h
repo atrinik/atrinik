@@ -38,6 +38,41 @@
 /** Opaque typedef for the ::socket_crypto structure. */
 typedef struct socket_crypto socket_crypto_t;
 
+/**
+ * Possible types for the callback context.
+ */
+typedef enum socket_crypto_cb_id {
+    SOCKET_CRYPTO_CB_SELFSIGNED, ///< Self-signed certificate.
+    SOCKET_CRYPTO_CB_PUBCHANGED, ///< Public key has changed.
+
+    SOCKET_CRYPTO_CB_MAX
+} socket_crypto_cb_id_t;
+
+/**
+ * The callback context structure.
+ */
+typedef struct socket_crypto_cb_ctx {
+    socket_crypto_cb_id_t id; ///< Type of the callback.
+    char *hostname; ///< Hostname associated with the callback.
+    char *fingerprint; ///< Fingerprint of associated certificate. May be NULL.
+    union {
+        void *ptr;
+        char *str;
+    } data; ///< Data associated with the callback.
+} socket_crypto_cb_ctx_t;
+
+/**
+ * Typedef for the callback function signature.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param ctx
+ * Context. This can be copied freely, but eventually you need to call
+ * socket_crypto_free_cb() on it.
+ */
+typedef void (*socket_crypto_cb_t)(socket_crypto_t              *crypto,
+                                   const socket_crypto_cb_ctx_t *ctx);
+
 /* Prototypes */
 
 TOOLKIT_FUNCS_DECLARE(socket_crypto);
@@ -56,12 +91,20 @@ const char *
 socket_crypto_get_cert_chain(void);
 const char *
 socket_crypto_get_cert_pubkey(void);
+void
+socket_crypto_set_path(const char *path);
 bool
 socket_crypto_check_cmd(uint8_t type, socket_crypto_t *crypto);
 socket_crypto_t *
 socket_crypto_create(socket_t *sc);
 void
 socket_crypto_set_nid(socket_crypto_t *crypto, int nid);
+void
+socket_crypto_set_cb(socket_crypto_t *crypto, socket_crypto_cb_t cb);
+bool
+socket_crypto_handle_cb(const socket_crypto_cb_ctx_t *ctx, char **errmsg);
+void
+socket_crypto_free_cb(const socket_crypto_cb_ctx_t *ctx);
 void
 socket_crypto_free(socket_crypto_t *crypto);
 bool

@@ -92,6 +92,11 @@ enum {
  */
 #define SOCKET_CRYPTO_TRUSTED_DIR "self-trusted"
 
+/**
+ * Name of the directory with cached public keys.
+ */
+#define SOCKET_CRYPTO_PKEYS_DIR "cached-pkeys"
+
 /** All the supported crypto curves. */
 static crypto_curve_t *crypto_curves = NULL;
 /** Whether socket cryptography is enabled. */
@@ -512,6 +517,11 @@ TOOLKIT_DEINIT_FUNC(socket_crypto)
     }
 
     if (crypto_trusted_certs != NULL) {
+        X509 *cert;
+        while ((cert = sk_X509_pop(crypto_trusted_certs)) != NULL) {
+            X509_free(cert);
+        }
+
         sk_X509_free(crypto_trusted_certs);
         crypto_trusted_certs = NULL;
     }
@@ -525,6 +535,11 @@ static void
 socket_crypto_load_trusted (void)
 {
     if (crypto_trusted_certs != NULL) {
+        X509 *cert;
+        while ((cert = sk_X509_pop(crypto_trusted_certs)) != NULL) {
+            X509_free(cert);
+        }
+
         sk_X509_free(crypto_trusted_certs);
     }
 
@@ -600,6 +615,15 @@ socket_crypto_is_trusted (X509 *cert)
 
 /**
  * Add a new certificate to the store of trusted certificates.
+ *
+ * @param cert
+ * Certificate to add.
+ * @param hostname
+ * CN associated with the certificate (the hostname).
+ * @param[out] errmsg
+ * Will contain an error message on failure. Must be freed.
+ * @return
+ * True on success, false on failure.
  */
 static bool
 socket_crypto_add_trusted (X509 *cert, const char *hostname, char **errmsg)
@@ -669,6 +693,218 @@ socket_crypto_add_trusted (X509 *cert, const char *hostname, char **errmsg)
      * Also it's easier than trying to handle the lookup/push errors,
      * and removing the created cert file in case of one. */
     socket_crypto_load_trusted();
+
+    return true;
+}
+
+/**
+ * Check if the specified pubkey is the same as the cached one for the
+ * specified hostname.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param pubkey
+ * Public key to check.
+ * @param hostname
+ * Host name to check.
+ * @return
+ * True if the public keys match, false otherwise.
+ */
+static bool
+socket_crypto_verify_pubkey (socket_crypto_t *crypto,
+                             EVP_PKEY        *pubkey,
+                             const char      *hostname)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(pubkey != NULL);
+    HARD_ASSERT(hostname != NULL);
+
+    char path[HUGE_BUF];
+    snprintf(VS(path),
+             "%s/" SOCKET_CRYPTO_PKEYS_DIR "/%s.pem",
+             crypto_data_path,
+             hostname);
+    FILE *fp = fopen(path, "r");
+    if (fp == NULL) {
+        /* No cached file yet. */
+        if (errno == ENOENT) {
+            return true;
+        }
+
+        /* Otherwise an error accessing the cached file; it's better to be
+         * safe than sorry, so let the user know there's a problem. */
+        LOG(ERROR, "Failed to open %s: %s (%d)",
+            path, strerror(errno), errno);
+        return false;
+    }
+
+    StringBuffer *sb = stringbuffer_new();
+    char buf[MAX_BUF];
+    while (fgets(VS(buf), fp) != NULL) {
+        stringbuffer_append_string(sb, buf);
+    }
+
+    char *cp = stringbuffer_finish(sb);
+
+    if (fclose(fp) != 0) {
+        LOG(ERROR, "Failed to close %s: %s (%d)",
+            path, strerror(errno), errno);
+        efree(cp);
+        return false;
+    }
+
+    BIO *bio = BIO_new_mem_buf(cp, -1);
+    if (bio == NULL) {
+        LOG(ERROR, "BIO_new_mem_buf() failed for %s: %s",
+            path, ERR_error_string(ERR_get_error(), NULL));
+        efree(cp);
+        return false;
+    }
+
+    EVP_PKEY *pubkey_cached = NULL;
+    if (PEM_read_bio_PUBKEY(bio, &pubkey_cached, NULL, NULL) == NULL) {
+        LOG(ERROR, "PEM_read_bio_PUBKEY() failed for %s: %s",
+            path, ERR_error_string(ERR_get_error(), NULL));
+        BIO_free(bio);
+        efree(cp);
+        return false;
+    }
+
+    BIO_free(bio);
+    efree(cp);
+
+    if (EVP_PKEY_cmp(pubkey_cached, pubkey) != 1) {
+        LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
+        LOG(SYSTEM,
+            "Certificate's public key doesn't match stored public "
+            "key record: %s",
+            socket_get_str(crypto->sc));
+        EVP_PKEY_free(pubkey_cached);
+        return false;
+    }
+
+    EVP_PKEY_free(pubkey_cached);
+    return true;
+}
+
+/**
+ * Store the specified public key in the public keys cache.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param pubkey
+ * Public key to store.
+ * @param hostname
+ * Hostname.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+socket_crypto_store_pubkey (socket_crypto_t *crypto,
+                            EVP_PKEY        *pubkey,
+                            const char      *hostname)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(pubkey != NULL);
+    HARD_ASSERT(hostname != NULL);
+
+    char path[HUGE_BUF];
+    snprintf(VS(path),
+             "%s/" SOCKET_CRYPTO_PKEYS_DIR "/%s.pem",
+             crypto_data_path,
+             hostname);
+    path_ensure_directories(path);
+
+    int fd = open(path, O_CREAT | O_WRONLY | O_EXCL, S_IRUSR | S_IWUSR);
+    if (fd < 0) {
+        /* File already exists; don't bother re-creating it. */
+        if (errno == EEXIST) {
+            return true;
+        }
+
+        LOG(ERROR, "Failed to open %s for writing: %s (%d)",
+            path, strerror(errno), errno);
+        return false;
+    }
+
+    FILE *fp = fdopen(fd, "w");
+    if (fp == NULL) {
+        LOG(ERROR, "Failed to open %s for writing: %s (%d)",
+            path, strerror(errno), errno);
+        close(fd);
+        return false;
+    }
+
+    BIO *bio = BIO_new(BIO_s_mem());
+    if (bio == NULL) {
+        LOG(ERROR, "Failed to create a BIO for %s: %s",
+            path, ERR_error_string(ERR_get_error(), NULL));
+        fclose(fp);
+        return false;
+    }
+
+    if (PEM_write_bio_PUBKEY(bio, pubkey) != 1) {
+        LOG(ERROR, "Failed to write public key to BIO for %s: %s",
+            path, ERR_error_string(ERR_get_error(), NULL));
+        fclose(fp);
+        BIO_free(bio);
+        return false;
+    }
+
+    char *pem = NULL;
+    size_t pem_len = BIO_get_mem_data(bio, &pem);
+    if (pem == NULL) {
+        LOG(ERROR, "BIO_get_mem_data() failed");
+        fclose(fp);
+        BIO_free(bio);
+        return false;
+    }
+
+    if (fwrite(pem, 1, pem_len, fp) != pem_len) {
+        LOG(ERROR, "Failed to write PEM to %s: %s (%d)",
+            path, strerror(errno), errno);
+        fclose(fp);
+        BIO_free(bio);
+        return false;
+    }
+
+    BIO_free(bio);
+
+    if (fclose(fp) != 0) {
+        LOG(ERROR, "Failed to close %s: %s (%d)",
+            path, strerror(errno), errno);
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Delete the stored public key associated with the specified hostname.
+ *
+ * @param hostname
+ * Hostname.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+socket_crypto_delete_pubkey (const char *hostname, char **errmsg)
+{
+    HARD_ASSERT(hostname != NULL);
+    HARD_ASSERT(errmsg != NULL);
+
+    char path[HUGE_BUF];
+    snprintf(VS(path),
+             "%s/" SOCKET_CRYPTO_PKEYS_DIR "/%s.pem",
+             crypto_data_path,
+             hostname);
+
+    if (unlink(path) != 0) {
+        string_fmt(*errmsg,
+                   "Failed to delete %s: %s (%d)",
+                   path, strerror(errno), errno);
+        return false;
+    }
 
     return true;
 }
@@ -930,8 +1166,7 @@ socket_crypto_handle_cb (const socket_crypto_cb_ctx_t *ctx, char **errmsg)
                                          errmsg);
 
     case SOCKET_CRYPTO_CB_PUBCHANGED:
-        /* TODO: implement */
-        break;
+        return socket_crypto_delete_pubkey(ctx->hostname, errmsg);
 
     case SOCKET_CRYPTO_CB_MAX:
         LOG(ERROR, "Invalid ID: %d", ctx->id);
@@ -956,13 +1191,16 @@ socket_crypto_free_cb (const socket_crypto_cb_ctx_t *ctx)
 
     efree(ctx->hostname);
 
+    if (ctx->fingerprint != NULL) {
+        efree(ctx->fingerprint);
+    }
+
     switch (ctx->id) {
     case SOCKET_CRYPTO_CB_SELFSIGNED:
         X509_free((X509 *) ctx->data.ptr);
         break;
 
     case SOCKET_CRYPTO_CB_PUBCHANGED:
-        efree(ctx->data.str);
         break;
 
     case SOCKET_CRYPTO_CB_MAX:
@@ -1026,6 +1264,49 @@ crypto_cert_verify_callback (int ok, X509_STORE_CTX *ctx)
 }
 
 /**
+ * Call the crypto socket callback function. A callback function MUST be set
+ * prior to this call.
+ *
+ * @param crypto
+ * Crypto socket.
+ * @param ctx
+ * Context to call the callback function with.
+ * @param cert
+ * Optional certificate to use to generate a fingerprint.
+ */
+static void
+socket_crypto_call_cb (socket_crypto_t        *crypto,
+                       socket_crypto_cb_ctx_t *ctx,
+                       X509                   *cert)
+{
+    HARD_ASSERT(crypto != NULL);
+    HARD_ASSERT(ctx != NULL);
+    HARD_ASSERT(crypto->cb != NULL);
+
+    ctx->fingerprint = NULL;
+
+    if (cert != NULL) {
+        const EVP_MD *digest = EVP_get_digestbyname("sha1");
+        unsigned char md[SHA_DIGEST_LENGTH];
+        unsigned int len = sizeof(md);
+        if (X509_digest(cert, digest, md, &len) != 1) {
+            LOG(ERROR,
+                "Failed to generate a SHA1 digest of the supplied"
+                "certificate: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+        } else {
+            char fingerprint[sizeof(md) * 3 + 1];
+            string_tohex(VS(md),
+                         VS(fingerprint),
+                         true);
+            ctx->fingerprint = estrdup(fingerprint);
+        }
+    }
+
+    crypto->cb(crypto, ctx);
+}
+
+/**
  * Load an X509 certificate, validating it and extracting the public key
  * from it.
  *
@@ -1051,6 +1332,7 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
     X509 *cert = NULL;
     STACK_OF(X509) *chains = NULL;
     X509_STORE_CTX *store_ctx = NULL;
+    EVP_PKEY *pubkey = NULL;
 
     cert = crypto_read_pem_x509(cert_str);
     if (cert == NULL) {
@@ -1095,6 +1377,10 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
 
     X509_STORE_CTX_set_verify_cb(store_ctx, crypto_cert_verify_callback);
 
+    const char *host = socket_get_host(crypto->sc);
+    SOFT_ASSERT_LABEL(host != NULL, error,
+                      "Failed to get host from socket");
+
     /* Perform the verification. */
     if (X509_verify_cert(store_ctx) != 1) {
         if (X509_STORE_CTX_get_error(store_ctx) ==
@@ -1102,9 +1388,11 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
             if (crypto->cb != NULL) {
                 socket_crypto_cb_ctx_t ctx;
                 ctx.id = SOCKET_CRYPTO_CB_SELFSIGNED;
-                ctx.hostname = estrdup(socket_get_host(crypto->sc));
+                ctx.hostname = estrdup(host);
                 ctx.data.ptr = X509_dup(cert);
-                crypto->cb(crypto, &ctx);
+                SOFT_ASSERT_LABEL(ctx.data.ptr != NULL, error,
+                                  "Failed to duplicate X509 certificate");
+                socket_crypto_call_cb(crypto, &ctx, cert);
             }
         }
 
@@ -1120,10 +1408,6 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
     char cn[256];
     X509_NAME_get_text_by_NID(subject_name, NID_commonName, VS(cn));
 
-    const char *host = socket_get_host(crypto->sc);
-    SOFT_ASSERT_LABEL(host != NULL, error,
-                      "Failed to get host from socket");
-
     if (strcmp(host, cn) != 0) {
         LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
         LOG(SYSTEM, "Certificate CN (%s) doesn't match host (%s): %s",
@@ -1131,12 +1415,15 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
         goto error;
     }
 
+    pubkey = X509_get_pubkey(cert);
+    SOFT_ASSERT_LABEL(pubkey != NULL, error,
+                      "Failed to get EVP_PKEY pointer");
+
+    /* If we have a public key loaded already, use it and compare it against
+     * the one in the certificate. Otherwise, load up the public key context
+     * using the provided certificate public key. */
     if (crypto->pubkey != NULL) {
-        EVP_PKEY *pubkey = X509_get_pubkey(cert);
-        SOFT_ASSERT_LABEL(pubkey != NULL, error,
-                          "Failed to get EVP_PKEY pointer");
         int res = EVP_PKEY_cmp(pubkey, crypto->pubkey);
-        EVP_PKEY_free(pubkey);
 
         if (res != 1) {
             LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
@@ -1146,10 +1433,54 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
                 socket_get_str(crypto->sc));
             goto error;
         }
+    } else {
+        EVP_PKEY_CTX *pkey_ctx = EVP_PKEY_CTX_new(pubkey, NULL);
+        if (pkey_ctx == NULL) {
+            LOG(ERROR, "EVP_PKEY_CTX_new() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+
+        if (EVP_PKEY_encrypt_init(pkey_ctx) != 1) {
+            LOG(ERROR, "EVP_PKEY_encrypt_init() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            EVP_PKEY_CTX_free(pkey_ctx);
+            goto error;
+        }
+
+        if (EVP_PKEY_CTX_set_rsa_padding(pkey_ctx,
+                                         RSA_PKCS1_OAEP_PADDING) != 1) {
+            LOG(ERROR, "EVP_PKEY_CTX_set_rsa_padding() failed: %s",
+                ERR_error_string(ERR_get_error(), NULL));
+            goto error;
+        }
+
+        crypto->pubkey = pubkey;
+        /* We don't want to free this one. */
+        pubkey = NULL;
+        crypto->pkey_ctx = pkey_ctx;
     }
 
-    /* TODO: verify public key from cache, refuse connection if it doesn't
-     * match */
+    if (!socket_crypto_verify_pubkey(crypto, crypto->pubkey, host)) {
+        if (crypto->cb != NULL) {
+            socket_crypto_cb_ctx_t ctx;
+            ctx.id = SOCKET_CRYPTO_CB_PUBCHANGED;
+            ctx.hostname = estrdup(host);
+            socket_crypto_call_cb(crypto, &ctx, cert);
+        }
+
+        /* Logging already done. */
+        goto error;
+    }
+
+    /* On a failure to store the public key, we don't want to continue with
+     * the connection, as it will weaken subsequent connections.
+     *
+     * Thus it's better to just abort here and let the user know. */
+    if (!socket_crypto_store_pubkey(crypto, crypto->pubkey, host)) {
+        /* Logging already done. */
+        goto error;
+    }
 
     bool ret = true;
     goto out;
@@ -1160,6 +1491,10 @@ error:
 out:
     if (cert != NULL) {
         X509_free(cert);
+    }
+
+    if (pubkey != NULL) {
+        EVP_PKEY_free(pubkey);
     }
 
     if (store_ctx != NULL) {
