@@ -202,6 +202,7 @@ parse_metaserver_node (xmlNodePtr node)
 
     server_struct *server = ecalloc(1, sizeof(*server));
     server->port_crypto = -1;
+    server->is_meta = true;
 
     for (xmlNodePtr tmp = node->children; tmp != NULL; tmp = tmp->next) {
         if (!parse_metaserver_data_node(tmp, server)) {

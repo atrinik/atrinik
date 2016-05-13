@@ -1226,15 +1226,20 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
         return;
     }
 
-    if (selected_server->cert_pubkey == NULL) {
-        LOG(ERROR, " !!! Server has no public key record! !!!");
-        socket_command_crypto_abort();
-        return;
-    }
-
     socket_crypto_t *crypto = socket_crypto_create(csocket.sc);
-    socket_crypto_load_pubkey(crypto, selected_server->cert_pubkey);
     socket_crypto_set_cb(crypto, socket_crypto_cb);
+
+    /* Meta-server servers must have a certificate public key record
+     * associated with them.*/
+    if (selected_server->is_meta) {
+        if (selected_server->cert_pubkey == NULL) {
+            LOG(ERROR, " !!! Server has no public key record! !!!");
+            socket_command_crypto_abort();
+            return;
+        }
+
+        socket_crypto_load_pubkey(crypto, selected_server->cert_pubkey);
+    }
 
     if (!socket_crypto_load_cert(crypto, cert, chain)) {
         efree(cert);

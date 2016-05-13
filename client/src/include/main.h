@@ -68,6 +68,9 @@ typedef struct server_struct {
 
     /** Certificate public key. */
     char *cert_pubkey;
+
+    /** Whether the entry was learned from the metaserver. */
+    bool is_meta:1;
 } server_struct;
 
 /**
