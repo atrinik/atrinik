@@ -984,7 +984,7 @@ class CheckerMap(AbstractChecker):
                     i < system.constants.Game.num_tiled_dir or (base.startswith(
                     "world_") and coords.getLevel() >= 0 and (
                     i == system.constants.Game.tiled_up or
-                    coords.getLevel() > 0))):
+                    coords.getLevel() > 0))) and coords.old_style:
                 if os.path.exists(os.path.join(dirname, tiled)):
                     tile_dst = val if val is not None else "nothing"
                     self.addError("high", "Map has {} tile pointing to "
