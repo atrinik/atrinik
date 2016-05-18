@@ -133,5 +133,11 @@ void *
 curl_request_do_post(void *user_data);
 void
 curl_request_start_post(curl_request_t *request);
+bool
+curl_verify(curl_pkey_trust_t    trust,
+            const char          *msg,
+            size_t               msg_len,
+            const unsigned char *sig,
+            size_t               sig_len);
 
 #endif

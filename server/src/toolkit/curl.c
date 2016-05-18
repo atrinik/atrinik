@@ -1110,7 +1110,10 @@ curl_verify_cert_chain (curl_request_t *request)
     FILE *fp = path_fopen(path, "rb");
     if (fp != NULL) {
         uint32_t cert_chain;
-        if (fread(&cert_chain, sizeof(cert_chain), 1, fp) != 1) {
+        if (fread(&cert_chain,
+                  1,
+                  sizeof(cert_chain),
+                  fp) != sizeof(cert_chain)) {
             LOG(ERROR, "Certificate chain file is corrupt: %s", path);
         } else if (cert_chain != request->cert_chain) {
             LOG(SYSTEM, "!!! CERTIFICATE CHAIN CHANGED !!!");
@@ -1128,9 +1131,9 @@ curl_verify_cert_chain (curl_request_t *request)
     fp = path_fopen(path, "wb");
     if (fp != NULL) {
         if (fwrite(&request->cert_chain,
-                   sizeof(request->cert_chain),
                    1,
-                   fp) != 1) {
+                   sizeof(request->cert_chain),
+                   fp) != sizeof(request->cert_chain)) {
             LOG(ERROR, "Failed to write data to file: %s", path);
         }
 
@@ -1138,7 +1141,6 @@ curl_verify_cert_chain (curl_request_t *request)
     } else {
         LOG(ERROR, "Failed to open file for saving: %s", path);
     }
-
 
     return true;
 }
@@ -1573,4 +1575,117 @@ curl_request_start_post (curl_request_t *request)
         LOG(ERROR, "Failed to create thread: %s (%d)", strerror(rc), rc);
         request->state = CURL_STATE_ERROR;
     }
+}
+
+/**
+ * Actually perform the verification aspect of curl_verify().
+ *
+ * @param key
+ * Key to use for a verification attempt.
+ * @param msg
+ * Message to verify.
+ * @param msg_len
+ * Length of the message.
+ * @param sig
+ * Signature to verify.
+ * @param sig_len
+ * Length of the signature.
+ * @return
+ * True if the signature matches the message, false otherwise.
+ */
+static bool
+curl_do_verify (EVP_PKEY            *key,
+                const char          *msg,
+                size_t               msg_len,
+                const unsigned char *sig,
+                size_t               sig_len)
+{
+    HARD_ASSERT(key != NULL);
+    HARD_ASSERT(msg != NULL);
+    HARD_ASSERT(sig != NULL);
+
+    EVP_MD_CTX *ctx = EVP_MD_CTX_create();
+    if (ctx == NULL) {
+        LOG(ERROR, "EVP_MD_CTX_create() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha512(), NULL, key) != 1) {
+        LOG(ERROR, "EVP_DigestSignInit() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    if (EVP_DigestVerifyUpdate(ctx, msg, msg_len) != 1) {
+        LOG(ERROR, "EVP_DigestVerifyUpdate() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    unsigned char *cp = emalloc(sig_len);
+    memcpy(cp, sig, sig_len);
+
+    if (EVP_DigestVerifyFinal(ctx, cp, sig_len) != 1) {
+        LOG(ERROR, "EVP_DigestVerifyFinal() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        efree(cp);
+        goto error;
+    }
+
+    efree(cp);
+
+    bool ret = true;
+    goto out;
+
+error:
+    ret = false;
+
+out:
+    if (ctx != NULL) {
+        EVP_MD_CTX_destroy(ctx);
+    }
+
+    return ret;
+}
+
+/**
+ * Verify the specified message using the provided signature.
+ *
+ * @param trust
+ * Trust store to use.
+ * @param msg
+ * Message to verify.
+ * @param msg_len
+ * Length of the message.
+ * @param sig
+ * Signature to verify.
+ * @param sig_len
+ * Length of the signature.
+ * @return
+ * True if the signature matches the message, false otherwise.
+ * @todo
+ * This should really go in a separate API, along with the trust store stuff.
+ */
+bool
+curl_verify (curl_pkey_trust_t    trust,
+             const char          *msg,
+             size_t               msg_len,
+             const unsigned char *sig,
+             size_t               sig_len)
+{
+    HARD_ASSERT(msg != NULL);
+    HARD_ASSERT(sig != NULL);
+
+    SOFT_ASSERT_RC(curl_trust_pkeys[trust], false,
+                   "Verification requested but no public key loaded");
+
+    curl_trust_store_t *store;
+    LL_FOREACH(curl_trust_pkeys[trust], store) {
+        if (curl_do_verify(store->key, msg, msg_len, sig, sig_len)) {
+            return true;
+        }
+    }
+
+    return false;
 }
