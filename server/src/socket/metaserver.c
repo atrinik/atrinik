@@ -80,12 +80,32 @@ static uint32_t request_num_players = 0;
 static bool key_is_new = false;
 
 /**
+ * Figure out whether the meta-server is enabled or not.
+ *
+ * @return
+ * True if the meta-server is enabled, false otherwise.
+ */
+static bool
+metaserver_enabled (void)
+{
+    if (*settings.server_host == '\0') {
+        return false;
+    }
+
+    if (settings.unit_tests) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Initialize the metaserver.
  */
 void
 metaserver_init (void)
 {
-    if (*settings.server_host == '\0') {
+    if (!metaserver_enabled()) {
         return;
     }
 
@@ -100,11 +120,17 @@ metaserver_init (void)
 void
 metaserver_deinit (void)
 {
-    if (*settings.server_host == '\0') {
+    if (!metaserver_enabled()) {
         return;
     }
 
     if (current_request != NULL) {
+        curl_state_t state;
+        do {
+            state = curl_request_get_state(current_request);
+            sleep(1);
+        } while (state == CURL_STATE_INPROGRESS);
+
         curl_request_free(current_request);
         current_request = NULL;
     }
@@ -529,18 +555,23 @@ out:
 void
 metaserver_info_update (void)
 {
-    if (*settings.server_host == '\0') {
+    if (!metaserver_enabled()) {
         return;
     }
+
+    pthread_mutex_lock(&request_lock);
 
     if (current_request != NULL) {
         curl_state_t state = curl_request_get_state(current_request);
         if (state == CURL_STATE_INPROGRESS) {
+            pthread_mutex_unlock(&request_lock);
             return;
         }
 
         curl_request_free(current_request);
     }
+
+    pthread_mutex_unlock(&request_lock);
 
     request_num_players = 0;
     StringBuffer *sb = stringbuffer_new();
