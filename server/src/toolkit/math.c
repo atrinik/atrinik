@@ -29,11 +29,12 @@
  * @author Alex Tokar
  */
 
-#include <global.h>
-#include <toolkit_string.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+
+#include <global.h>
+#include <toolkit_string.h>
 
 /**
  * @defgroup DRNG_xxx Intel DRNG support flags

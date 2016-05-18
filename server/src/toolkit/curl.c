@@ -29,16 +29,16 @@
  * @author Alex Tokar
  */
 
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/x509.h>
+
 #include <global.h>
 #include <toolkit_string.h>
 #include <curl.h>
 #include <curl/curl.h>
 #include <path.h>
 #include <clioptions.h>
-
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/x509.h>
 
 TOOLKIT_API(DEPENDS(clioptions), IMPORTS(memory));
 

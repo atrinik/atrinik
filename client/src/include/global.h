@@ -30,7 +30,9 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#ifndef WINVER
 #define WINVER 0x502
+#endif
 
 /* Include standard headers. */
 #include <SDL.h>
