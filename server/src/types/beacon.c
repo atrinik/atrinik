@@ -34,6 +34,7 @@
 #include <object.h>
 #include <object_methods.h>
 #include <beacon.h>
+#include <path.h>
 
 /**
  * One beacon.

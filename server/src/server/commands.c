@@ -33,6 +33,7 @@
 #include <toolkit_string.h>
 #include <player.h>
 #include <object.h>
+#include <path.h>
 
 static command_struct *commands;
 

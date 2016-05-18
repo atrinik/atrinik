@@ -29,16 +29,21 @@
  * @author Alex Tokar
  */
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
 
-#include <global.h>
+#include <toolkit.h>
 #include <toolkit_string.h>
 #include <curl.h>
 #include <curl/curl.h>
 #include <path.h>
 #include <clioptions.h>
+#include <sha1.h>
 
 TOOLKIT_API(DEPENDS(clioptions), IMPORTS(memory));
 

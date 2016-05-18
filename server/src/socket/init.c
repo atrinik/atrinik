@@ -33,6 +33,7 @@
 #include <packet.h>
 #include <toolkit_string.h>
 #include <exp.h>
+#include <path.h>
 
 /** Socket information. */
 Socket_Info socket_info;

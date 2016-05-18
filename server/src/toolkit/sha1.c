@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <sha1.h>
 
 TOOLKIT_API();
 

@@ -28,6 +28,7 @@
 #ifndef POLARSSL_SHA1_H
 #define POLARSSL_SHA1_H
 #include <string.h>
+#include <toolkit.h>
 
 /**
  * \brief          SHA-1 context structure
@@ -41,5 +42,20 @@ typedef struct {
     unsigned char opad[64]; /*!< HMAC: outer padding        */
 }
 sha1_context;
+
+/* Prototypes */
+
+TOOLKIT_FUNCS_DECLARE(sha1);
+
+void sha1_starts(sha1_context *ctx);
+void sha1_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+void sha1_finish(sha1_context *ctx, unsigned char output[20]);
+void sha1(const unsigned char *input, size_t ilen, unsigned char output[20]);
+int sha1_file(const char *path, unsigned char output[20]);
+void sha1_hmac_starts(sha1_context *ctx, const unsigned char *key, size_t keylen);
+void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
+void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
+void sha1_hmac_reset(sha1_context *ctx);
+void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 
 #endif

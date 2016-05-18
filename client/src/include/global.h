@@ -50,9 +50,6 @@
 #include <SDL_mixer.h>
 #endif
 
-#define HUGE_BUF 4096
-#define MAX_BUF 256
-
 #include <version.h>
 #include <scrollbar.h>
 #include <item.h>

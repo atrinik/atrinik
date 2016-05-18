@@ -87,6 +87,8 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <curl.h>
+#include <sha1.h>
+#include <path.h>
 
 /** Holds the current cURL request that is being processed. */
 static curl_request_t *request = NULL;

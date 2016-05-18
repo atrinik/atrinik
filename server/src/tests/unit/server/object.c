@@ -29,6 +29,7 @@
 #include <toolkit_string.h>
 #include <arch.h>
 #include <object.h>
+#include <path.h>
 
 START_TEST(test_object_can_merge)
 {

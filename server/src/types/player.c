@@ -41,6 +41,7 @@
 #include <disease.h>
 #include <container.h>
 #include <server.h>
+#include <path.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);

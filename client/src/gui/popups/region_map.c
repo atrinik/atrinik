@@ -206,10 +206,10 @@ static int popup_draw_post_func(popup_struct *popup)
                         TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE,
                         &box);
             }
-        } else if (state_png == CURL_STATE_DOWNLOAD ||
-                   state_def == CURL_STATE_DOWNLOAD) {
+        } else if (state_png == CURL_STATE_INPROGRESS ||
+                   state_def == CURL_STATE_INPROGRESS) {
             curl_request_t *request;
-            if (state_png == CURL_STATE_DOWNLOAD) {
+            if (state_png == CURL_STATE_INPROGRESS) {
                 request = MapData.region_map->request_png;
             } else {
                 request = MapData.region_map->request_def;

@@ -48,20 +48,6 @@
 /** The minimum legal value of any stat. */
 #define MIN_STAT            1
 
-/**
- * @defgroup buffer_sizes Buffer sizes
- *@{*/
-/** Used for all kinds of things. */
-#define MAX_BUF             256
-#define VERY_BIG_BUF        1024
-/** Used for messages - some can be quite long. */
-#define HUGE_BUF            4096
-/** Maximum size of player name. */
-#define MAX_NAME            16
-#define BIG_NAME            32
-#define MAX_EXT_TITLE       98
-/*@}*/
-
 #define MAX_ANIMATIONS      256
 
 /**
@@ -1545,15 +1531,6 @@ enum apply_flag {
 /*@}*/
 
 /**
- * Returns the element size of an array.
- * @param arrayname
- * The array's name.
- * @return
- * The number of elements.
- */
-#define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
-
-/**
  * @defgroup INTERFACE_TIMEOUT_xxx Interface timeout definitions
  * Settings for interface timeout, a setting which makes NPC stop
  * movement certain amount of time when they respond to player's message.
@@ -1586,11 +1563,6 @@ enum apply_flag {
         (ret)) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - \
         INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL)
 /*@}*/
-
-/** Check if the keyword represents a true value. */
-#define KEYWORD_IS_TRUE(_keyword) (!strcasecmp((_keyword), "yes") || !strcasecmp((_keyword), "on") || !strcasecmp((_keyword), "true"))
-/** Check if the keyword represents a false value. */
-#define KEYWORD_IS_FALSE(_keyword) (!strcasecmp((_keyword), "no") || !strcasecmp((_keyword), "off") || !strcasecmp((_keyword), "false"))
 
 /**
  * @defgroup SPAWN_RELATIVE_LEVEL_xxx Spawn point relative levels

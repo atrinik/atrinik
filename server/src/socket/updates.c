@@ -30,7 +30,8 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
-#include "zlib.h"
+#include <path.h>
+#include <zlib.h>
 
 /**
  * All the files the client can request an update for, sorted using

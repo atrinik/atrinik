@@ -24,58 +24,57 @@
 
 /**
  * @file
- * Header file for the cURL module.
+ * Toolkit math API header file.
+ *
+ * @author Alex Tokar
  */
 
-#ifndef OLD_CURL_H
-#define OLD_CURL_H
+#ifndef TOOLKIT_MATH_H
+#define	TOOLKIT_MATH_H
 
-#include_next <curl.h>
-#define CURL_STATE_DOWNLOAD CURL_STATE_INPROGRESS
+#include <toolkit.h>
 
-/** cURL data. */
-typedef struct curl_data {
-    /** The data. Can be NULL in case we got no data from the url. */
-    char *memory;
+/* Prototypes */
 
-    /** Size of the data. */
-    size_t size;
+TOOLKIT_FUNCS_DECLARE(math);
 
-    /** HTTP headers. */
-    char *header;
-
-    /** Size of HTTP headers. */
-    size_t header_size;
-
-    /** URL used. */
-    char *url;
-
-    /** Path to cached file. */
-    char *path;
-
-    /**
-     * Mutex to protect the data in this structure when accessed across
-     * threads.
-     */
-    SDL_mutex *mutex;
-
-    /** The thread. */
-    SDL_Thread *thread;
-
-    /**
-     * State of the data.
-     */
-    curl_state_t state;
-
-    /**
-     * Will contain HTTP code.
-     */
-    int http_code;
-
-    /**
-     * cURL handle being used.
-     */
-    CURL *handle;
-} curl_data;
+unsigned long
+isqrt (unsigned long n);
+int
+rndm(int min, int max);
+int
+rndm_chance(uint32_t n);
+uint64_t
+rndm_u64(void);
+void *
+sort_linked_list(void          *p,
+                 unsigned      index,
+                 int          (*compare)(void *, void *, void *),
+                 void          *pointer,
+                 unsigned long *pcount,
+                 void          *end_marker);
+size_t
+nearest_pow_two_exp(size_t n);
+bool
+math_point_in_ellipse(int    x,
+                      int    y,
+                      double cx,
+                      double cy,
+                      int    dx,
+                      int    dy,
+                      double angle);
+bool
+math_point_edge_ellipse(int    x,
+                        int    y,
+                        double cx,
+                        double cy,
+                        int    dx,
+                        int    dy,
+                        double angle,
+                        int   *deg);
+bool
+math_base64_decode(const char     *str,
+                   unsigned char **buf,
+                   size_t         *buf_len);
 
 #endif
