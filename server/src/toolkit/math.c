@@ -30,6 +30,10 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
 
 /**
  * @defgroup DRNG_xxx Intel DRNG support flags
@@ -666,4 +670,74 @@ math_point_edge_ellipse (int    x,
     }
 
     return true;
+}
+
+/**
+ * Decode the specified BASE64 encoded buffer.
+ *
+ * @param str
+ * What to decode.
+ * @param[out] buf
+ * On success, will contain a pointer to the decoded data. Must be freed.
+ * @param[out] buf_len
+ * Length of the decoded data.
+ * @return
+ * True on success, false on failure.
+ * @todo
+ * This should really go in a new API.
+ */
+bool
+math_base64_decode (const char     *str,
+                    unsigned char **buf,
+                    size_t         *buf_len)
+{
+    HARD_ASSERT(str != NULL);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(buf_len != NULL);
+
+    char *cp = estrdup(str);
+    size_t len = strlen(cp);
+
+    *buf_len = ((len * 3) + 3) / 4;
+    *buf = emalloc(*buf_len);
+
+    BIO *bio = BIO_new_mem_buf(cp, len);
+    if (bio == NULL) {
+        LOG(ERROR, "BIO_new_mem_buf() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    BIO *bio_base64 = BIO_new(BIO_f_base64());
+    if (bio_base64 == NULL) {
+        LOG(ERROR, "BIO_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    bio = BIO_push(bio_base64, bio);
+    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+
+    int num_read = BIO_read(bio, *buf, len);
+    if (num_read <= 0) {
+        goto error;
+    }
+
+    *buf_len = num_read;
+
+    bool ret = true;
+    goto out;
+
+error:
+    ret = false;
+
+    if (*buf != NULL) {
+        efree(*buf);
+    }
+
+out:
+    BIO_free_all(bio);
+    efree(cp);
+
+    return ret;
 }

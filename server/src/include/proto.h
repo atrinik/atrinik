@@ -685,6 +685,7 @@ extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, vo
 extern size_t nearest_pow_two_exp(size_t n);
 extern bool math_point_in_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle);
 extern bool math_point_edge_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle, int *deg);
+extern bool math_base64_decode(const char *str, unsigned char **buf, size_t *buf_len);
 /* src/toolkit/memory.c */
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);
