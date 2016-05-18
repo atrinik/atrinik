@@ -29,16 +29,12 @@
  * @author Alex Tokar
  */
 
-#ifdef WIN32
-#include <winsock2.h>
-#endif
+#include <toolkit.h>
+#include <toolkit_string.h>
 
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
-
-#include <toolkit.h>
-#include <toolkit_string.h>
 
 /**
  * @defgroup DRNG_xxx Intel DRNG support flags

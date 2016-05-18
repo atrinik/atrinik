@@ -61,6 +61,7 @@ endif ()
 
 if (MINGW)
     add_definitions(-DCURL_STATICLIB -DPTW32_STATIC_LIB -DBGDWIN32 -DNONDLL)
+    add_definitions(-DNOCRYPT)
     set(CURL_STATICLIB true)
     set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
     set(PLUGIN_SUFFIX ".dll")

@@ -30,22 +30,18 @@
  * Alex Tokar
  */
 
-#ifdef WIN32
-#include <winsock2.h>
-#endif
-
-#include <openssl/ssl.h>
-#include <openssl/conf.h>
-#include <openssl/aes.h>
-#include <openssl/engine.h>
-#include <openssl/err.h>
-
 #include <toolkit.h>
 #include <toolkit_string.h>
 #include <socket.h>
 #include <socket_crypto.h>
 #include <clioptions.h>
 #include <path.h>
+
+#include <openssl/ssl.h>
+#include <openssl/conf.h>
+#include <openssl/aes.h>
+#include <openssl/engine.h>
+#include <openssl/err.h>
 
 TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
 

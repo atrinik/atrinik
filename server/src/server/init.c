@@ -41,6 +41,7 @@
 #include <curl.h>
 #include <server.h>
 #include <socket_crypto.h>
+#include <path.h>
 
 /**
  * The server's settings.
