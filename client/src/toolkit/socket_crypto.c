@@ -493,22 +493,27 @@ TOOLKIT_DEINIT_FUNC(socket_crypto)
 
     if (crypto_cert != NULL) {
         efree(crypto_cert);
+        crypto_cert = NULL;
     }
 
     if (crypto_cert_chain != NULL) {
         efree(crypto_cert_chain);
+        crypto_cert_chain = NULL;
     }
 
     if (crypto_cert_pubkey != NULL) {
         efree(crypto_cert_pubkey);
+        crypto_cert_pubkey = NULL;
     }
 
     if (crypto_cert_ctx != NULL) {
         EVP_PKEY_CTX_free(crypto_cert_ctx);
+        crypto_cert_ctx = NULL;
     }
 
     if (crypto_store != NULL) {
         X509_STORE_free(crypto_store);
+        crypto_store = NULL;
     }
 
     if (crypto_data_path != NULL) {
