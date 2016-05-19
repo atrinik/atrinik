@@ -137,7 +137,6 @@
 #include <windowsx.h>
 #include <mmsystem.h>
 #include <shellapi.h>
-#include <imagehlp.h>
 
 #ifdef __MINGW32__
 #include <ws2tcpip.h>
