@@ -174,6 +174,8 @@ typedef struct curl_trust_store {
 static CURLSH *handle_share = NULL;
 /** Mutex to protect the shared handle. */
 static pthread_mutex_t handle_share_mutex;
+/** Mutex to protect the certificate chains file IO. */
+static pthread_mutex_t certchains_mutex;
 /** Data processing callback function. Can be used for statistics. */
 static curl_request_process_cb process_cb;
 /** User agent to use for cURL requests.. */
@@ -319,6 +321,7 @@ TOOLKIT_INIT_FUNC(curl)
 {
     curl_global_init(CURL_GLOBAL_ALL);
     pthread_mutex_init(&handle_share_mutex, NULL);
+    pthread_mutex_init(&certchains_mutex, NULL);
 
     handle_share = curl_share_init();
     curl_share_setopt(handle_share, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
@@ -343,6 +346,7 @@ TOOLKIT_DEINIT_FUNC(curl)
 {
     curl_share_cleanup(handle_share);
     pthread_mutex_destroy(&handle_share_mutex);
+    pthread_mutex_destroy(&certchains_mutex);
     curl_global_cleanup();
 
     for (curl_pkey_trust_t trust = 0; trust < CURL_PKEY_TRUST_NUM; trust++) {
@@ -1108,13 +1112,11 @@ curl_verify_cert_chain (curl_request_t *request)
     char path[HUGE_BUF];
     snprintf(VS(path), "%s/certchains/%s", curl_data_dir, sha1_output_ascii);
 
+    pthread_mutex_lock(&certchains_mutex);
     FILE *fp = path_fopen(path, "rb");
     if (fp != NULL) {
         uint32_t cert_chain;
-        if (fread(&cert_chain,
-                  1,
-                  sizeof(cert_chain),
-                  fp) != sizeof(cert_chain)) {
+        if (fread(&cert_chain, sizeof(cert_chain), 1, fp) != 1) {
             LOG(ERROR, "Certificate chain file is corrupt: %s", path);
         } else if (cert_chain != request->cert_chain) {
             LOG(SYSTEM, "!!! CERTIFICATE CHAIN CHANGED !!!");
@@ -1123,6 +1125,7 @@ curl_verify_cert_chain (curl_request_t *request)
             LOG(SYSTEM, "Aborting connection to URL: %s, CN: %s",
                 request->url, request->cert_cn);
             fclose(fp);
+            pthread_mutex_unlock(&certchains_mutex);
             return false;
         }
 
@@ -1132,9 +1135,9 @@ curl_verify_cert_chain (curl_request_t *request)
     fp = path_fopen(path, "wb");
     if (fp != NULL) {
         if (fwrite(&request->cert_chain,
-                   1,
                    sizeof(request->cert_chain),
-                   fp) != sizeof(request->cert_chain)) {
+                   1,
+                   fp) != 1) {
             LOG(ERROR, "Failed to write data to file: %s", path);
         }
 
@@ -1142,6 +1145,8 @@ curl_verify_cert_chain (curl_request_t *request)
     } else {
         LOG(ERROR, "Failed to open file for saving: %s", path);
     }
+
+    pthread_mutex_unlock(&certchains_mutex);
 
     return true;
 }
