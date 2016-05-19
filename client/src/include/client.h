@@ -90,22 +90,6 @@ typedef struct client_socket {
     socket_t *sc;
 } client_socket_t;
 
-/** Check if the keyword represents a true value. */
-#define KEYWORD_IS_TRUE(_keyword) (!strcmp((_keyword), "yes") || !strcmp((_keyword), "on") || !strcmp((_keyword), "true"))
-/** Check if the keyword represents a false value. */
-#define KEYWORD_IS_FALSE(_keyword) (!strcmp((_keyword), "no") || !strcmp((_keyword), "off") || !strcmp((_keyword), "false"))
-#define KEYWORD_TO_BOOLEAN(_keyword, _bool) \
-    { \
-        if (KEYWORD_IS_TRUE((_keyword))) \
-        { \
-            (_bool) = 1; \
-        } \
-        else if (KEYWORD_IS_FALSE((_keyword))) \
-        { \
-            (_bool) = 0; \
-        } \
-    }
-
 /** Copies information from one color structure into another. */
 #define SDL_color_copy(_color, _color2) \
     { \

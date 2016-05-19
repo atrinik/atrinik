@@ -9,9 +9,11 @@ import re
 import system.constants
 
 
-PATTERN_MAPNAME = re.compile(r"((?:(?!_(?:[\d]{1,2}|[a-z])_)[\w_])+)"
-                             r"(?:_([\d]{1,2}|[a-z]))?_(\d{2}|[a-z]{2})"
-                             r"(\d{2}|[a-z]{2})")
+PATTERN_MAPNAME_OLD = re.compile(r"((?:(?!_(?:[\d]{1,2}|[a-z])_)[\w_])+)"
+                                 r"(?:_([\d]{1,2}|[a-z]))?_(\d{2}|[a-z]{2})"
+                                 r"(\d{2}|[a-z]{2})")
+PATTERN_MAPNAME = re.compile(r"((?:(?!_(?:[\d]{1,2}|[a-z])_)[\w_])+)_"
+                             r"(?:([\d-]+))_(?:([\d-]+))(?:_([\d-]+))?")
 
 
 class HTMLTextExtractor(HTMLParser):
@@ -89,19 +91,26 @@ def itersubclasses(cls, _seen=None):
 class MapCoords(object):
     def __init__(self, name):
         match = PATTERN_MAPNAME.match(name)
+        match2 = PATTERN_MAPNAME_OLD.match(name)
+        self.old_style = False
 
-        if not match:
+        if not match and not match2:
             self.name = name
             self.pos = (1, 1, 0)
+        elif match:
+            self.name = match.group(1)
+            level = match.group(4) or 0
+            self.pos = (int(match.group(2)), int(match.group(3)), int(level))
         else:
-            if match.group(2) is not None:
-                level = self.str2coord(match.group(2))
+            self.old_style = True
+            if match2.group(2) is not None:
+                level = self.str2coord(match2.group(2))
             else:
                 level = 0
 
-            self.name = match.group(1)
-            self.pos = (self.str2coord(match.group(3)),
-                        self.str2coord(match.group(4)), level)
+            self.name = match2.group(1)
+            self.pos = (self.str2coord(match2.group(3)),
+                        self.str2coord(match2.group(4)), level)
 
     @staticmethod
     def str2coord(coord):
@@ -131,7 +140,10 @@ class MapCoords(object):
             return ret + 100
 
     @staticmethod
-    def coord2str(coord, simple=False):
+    def coord2str(coord, simple=False, old_style=False):
+        if not old_style:
+            return "{}".format(coord)
+
         if coord > 0:
             if simple:
                 return "{}".format(coord)
@@ -153,11 +165,17 @@ class MapCoords(object):
         pos = tuple(map(sum, zip(self.pos,
                                  system.constants.Game.tiled_coords[idx])))
 
-        if pos[2] != 0:
-            ret.append(self.coord2str(pos[2], True))
+        if self.old_style:
+            if pos[2] != 0:
+                ret.append(self.coord2str(pos[2], True))
 
-        ret.append("{}{}".format(self.coord2str(pos[0]),
-                                 self.coord2str(pos[1])))
+            ret.append("{}{}".format(self.coord2str(pos[0]),
+                                     self.coord2str(pos[1])))
+        else:
+            ret.append(self.coord2str(pos[0], old_style=self.old_style))
+            ret.append(self.coord2str(pos[1], old_style=self.old_style))
+            if pos[2] != 0:
+                ret.append(self.coord2str(pos[2], old_style=self.old_style))
 
         return "_".join(ret)
 

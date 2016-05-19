@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.1: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.2: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -12,7 +12,7 @@
     2.2  Server command ASK_FACE
     2.3  Server command SETUP
     2.4  Server command VERSION
-    2.5  Server command REQUEST_FILE
+    2.5  Server command CRYPTO
     2.6  Server command CLEAR
     2.7  Server command REQUEST_UPDATE
     2.8  Server command KEEPALIVE
@@ -28,7 +28,7 @@
     2.18 Server command QUICKSLOT
     2.19 Server command QUESTLIST
     2.20 Server command MOVE_PATH
-    2.21 Server command ITEM_READY
+    2.21 Server command COMBAT
     2.22 Server command TALK
     2.23 Server command MOVE
     2.24 Server command TARGET
@@ -70,15 +70,19 @@
  Atrinik uses a standard TCP/IP connection to establish a session. Once a
  session has been established, the client and the server are free to exchange
  data at will, in an asynchronous mode of data exchange. After this is done, it
- is recommended that the server and the client exchange version information,
+ is MANDATORY that the server and the client exchange version information,
  with the use of the version command (see section 2.4 and section 3.16).
- This allows both the client and the server to be aware of what commands the
- other side supports, and in what format, thus allowing backward compatibility.
+ This allows both sides to implement backward compatibility for older versions
+ of the protocol.
 
- Currently, only IPv4 sessions are supported, but IPv6 support is planned but
- not yet implemented in any way whatsoever.
+ Both IPv4 and IPv6 sessions are supported, and must be implemented in order
+ to be compliant with this document specification. Support for dual-stack
+ systems is optional.
 
  The network order is MSB (Most Significant Byte), also known as big-endian.
+
+ The default Atrinik port is 1728, however, it is recommended that server
+ implementations allow this to be changed.
 
  The implementation SHOULD use non-blocking sockets to receive and send data.
  Using threads for this is highly recommended.
@@ -87,7 +91,9 @@
  enabled by default but introduces artificial lag due to buffering data until
  some amount of data has been buffered, then flushing the buffer. This
  behaviour has no place in a real-time action RPG such as Atrinik, where player
- should get feedback to their actions as quickly as possible.
+ should get feedback to their actions as quickly as possible. HOWEVER, it is
+ recommended to enable Nagle's algorithm selectively for packets that do not
+ need to be sent out immediately (such as chat, player statistics, etc).
 
  The server implementation MUST use some sort of buffers for data to send and
  receive, in order to allow for cancellation/compression/prioritisation/etc.
@@ -163,7 +169,7 @@
   See section 2.3.
  VERSION:
   See section 2.4.
- REQUEST_FILE:
+ CRYPTO:
   See section 2.5.
  CLEAR:
   See section 2.6.
@@ -195,7 +201,7 @@
   See section 2.19.
  MOVE_PATH (player only):
   See section 2.20.
- ITEM_READY (player only):
+ COMBAT (player only):
   See section 2.21.
  TALK (player only):
   See section 2.22.
@@ -380,10 +386,14 @@
  client command VERSION (see section 3.16.) to the client.
 
 ===============================================================================
-= 2.5. Server command REQUEST_FILE                                            =
+= 2.5. Server command CRYPTO                                                  =
 ===============================================================================
- This is an obsolete command that is kept for backwards compatibility, but has
- no use and may be renamed in future versions of this document specification.
+ This command is used to establish a secure cryptographic session.
+
+ See ADS-6 for details about how this command works.
+
+ This command MUST not be sent over the classic non-crypto port that was
+ described in the beginning of this document.
 
 ===============================================================================
 = 2.6. Server command CLEAR                                                   =
@@ -411,6 +421,17 @@
 = 2.8. Server command KEEPALIVE                                               =
 ===============================================================================
  This command is used to inform the server that the connection is still alive.
+
+ An optional keepalive ID MAY be supplied, in order to identify the keepalive.
+ This ID will be sent as response to the client, using the client keepalive
+ command (see section TODO). No response is sent if the ID was not supplied.
+
+ The rest of this section does not apply if the packet is empty (ie, no
+ keepalive ID was supplied).
+
+ The packet MUST be constructed as thus, in the listed order:
+  - ID (uint32):
+     The keepalive ID.
 
 ===============================================================================
 = 2.9. Server command ACCOUNT                                                 =
@@ -587,25 +608,105 @@
  coordinates.
 
 ===============================================================================
-= 2.21. Server command ITEM_READY                                             =
+= 2.21. Server command COMBAT                                                 =
 ===============================================================================
- This is an obsolete command that is kept for backwards compatibility, but has
- no use and may be renamed in future versions of this document specification.
+ This command is used to switch between combat modes.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - combat (uint8):
+     Combat flag; 1 to swing at targeted enemies, 0 to hold attack.
+  - combat_force (uint8):
+     Combat force flag; if 1, friendlies will be treated as enemies.
 
 ===============================================================================
 = 2.22. Server command TALK                                                   =
 ===============================================================================
- This command is used to talk to a specified object, for example, an NPC.
+ This command is used to talk to a specific object, for example, an NPC.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - type (uint8):
+     Type of the talk command.
+
+ The following is a list of possible types, starting at an index of one.
+
+ NPC:
+  Talk to a nearby NPC.
+
+  The packet is extended with the following data, in the listed order:
+   - message (string):
+      Message that will be spoken to the NPC. MUST not be empty.
+ NPC_NAME:
+  Talk to an NPC with the specified name.
+
+  The packet is extended with the following data, in the listed order:
+   - npc_name (string):
+      Name of the NPC to talk to. MUST not be empty.
+   - message (string):
+      Message that will be spoken to the NPC. MUST not be empty.
+ INV:
+  Talk to an object inside the player's inventory.
+
+  The packet is extended with the following data, in the listed order:
+   - tag (uint32_t):
+      UID of the object to talk to.
+   - message (string):
+      Message that will be spoken to the object. MUST not be empty.
+ BELOW:
+  Talk to an object below the player's feet.
+
+  The packet is extended with the following data, in the listed order:
+   - tag (uint32_t):
+      UID of the object to talk to.
+   - message (string):
+      Message that will be spoken to the object. MUST not be empty.
+ CONTAINER:
+  Talk to an object inside the currently open container.
+
+  The packet is extended with the following data, in the listed order:
+   - tag (uint32_t):
+      UID of the object to talk to.
+   - message (string):
+      Message that will be spoken to the object. MUST not be empty.
+ CLOSE:
+  Stop talking to an NPC/object.
 
 ===============================================================================
 = 2.23. Server command MOVE                                                   =
 ===============================================================================
  This command is used to move in a particular direction.
 
+ The packet MUST be constructed as thus, in the listed order:
+  - dir (uint8):
+     Atrinik direction to move to.
+  - run_on (uint8):
+     If 1, enable running mode.
+
 ===============================================================================
 = 2.24. Server command TARGET                                             =
 ===============================================================================
- This command is used to target a specified monster/NPC/etc.
+ This command is used to target a specifi monster/NPC/etc.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - type (uint8):
+     Type of the target command.
+
+ The following is a list of possible types, starting at an index of one.
+
+ MAPXY:
+  Targets a monster/NPC on the specified square. Just like the move path
+  command, the coordinates are relative to the player's visible screen
+  and need to be resolved to real in-game coordinates.
+
+  The packet is extended with the following data, in the listed order:
+   - x (uint8):
+      X coordinate.
+   - y (uint8):
+      Y coordinate.
+   - count (uint32):
+      UID of the monster/NPC to target. Can be zero to target the first valid
+      monster/NPC on the square.
+ CLEAR:
+  Clears the player's target.
 
 ===============================================================================
 = 3. Client commands                                                          =

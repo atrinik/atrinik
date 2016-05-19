@@ -46,6 +46,10 @@
 #include <execinfo.h>
 #endif
 
+#ifdef WIN32
+#include <imagehlp.h>
+#endif
+
 /**
  * The signals to register.
  */

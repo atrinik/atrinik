@@ -1947,7 +1947,7 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
 
     /* Some object-type-specific adjustments/initialization. */
     if (op->type == PLAYER) {
-        CONTR(op)->socket.update_tile = 0;
+        CONTR(op)->cs->update_tile = 0;
         CONTR(op)->update_los = 1;
 
         if (op->map->player_first != NULL) {

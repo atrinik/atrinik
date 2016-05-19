@@ -69,8 +69,6 @@
 #include <sys/param.h>
 #include <inttypes.h>
 
-#include <openssl/ssl.h>
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -139,7 +137,6 @@
 #include <windowsx.h>
 #include <mmsystem.h>
 #include <shellapi.h>
-#include <imagehlp.h>
 
 #ifdef __MINGW32__
 #include <ws2tcpip.h>

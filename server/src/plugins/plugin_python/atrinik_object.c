@@ -732,7 +732,7 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *self, PyObject *args)
 
     /* Update the player's client if object was a player. */
     if (self->obj->type == PLAYER) {
-        CONTR(self->obj)->socket.ext_title_flag = 1;
+        CONTR(self->obj)->cs->ext_title_flag = 1;
     }
 
     Py_INCREF(Py_None);

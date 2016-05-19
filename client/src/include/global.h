@@ -30,7 +30,9 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#ifndef WINVER
 #define WINVER 0x502
+#endif
 
 /* Include standard headers. */
 #include <SDL.h>
@@ -47,9 +49,6 @@
 #ifdef HAVE_SDL_MIXER
 #include <SDL_mixer.h>
 #endif
-
-#define HUGE_BUF 4096
-#define MAX_BUF 256
 
 #include <version.h>
 #include <scrollbar.h>
@@ -91,6 +90,10 @@
 
 /* TODO: Remove from here eventually */
 struct packet_struct;
+
+/* TODO: move to appropriate header */
+FILE *
+client_fopen_wrapper(const char *fname, const char *mode);
 
 #ifndef __CPROTO__
 #include <proto.h>

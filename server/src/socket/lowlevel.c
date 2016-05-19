@@ -117,36 +117,41 @@ void socket_buffer_write(socket_struct *ns)
 
 void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
 {
-    packet_struct *tmp;
-    size_t toread;
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(packet != NULL);
 
     if (ns->state == ST_DEAD) {
         packet_free(packet);
         return;
     }
 
-    packet_compress(packet);
-
-    tmp = packet_new(0, 4, 0);
-    tmp->ndelay = packet->ndelay;
-    toread = packet->len + 1;
-
-    if (toread > 32 * 1024 - 1) {
-        LOG(PACKET, "Sending packet with size > 32KB: %"PRIu64", type: %d",
-                (uint64_t) toread, packet->type);
-        tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
-        tmp->data[1] = (toread >> 8) & 0xff;
-        tmp->data[2] = (toread) & 0xff;
-        tmp->len = 3;
-    } else {
-        tmp->data[0] = (toread >> 8) & 0xff;
-        tmp->data[1] = (toread) & 0xff;
-        tmp->len = 2;
+    if (packet->len + 1 > UINT16_MAX) {
+        log_error("Sending packet with size >%u", UINT16_MAX);
+        packet_free(packet);
+        return;
     }
 
-    packet_append_uint8(tmp, packet->type);
+    packet_struct *packet_meta = packet_new(0, 4, 0);
+    packet_meta->ndelay = packet->ndelay;
 
-    socket_packet_enqueue(ns, tmp);
+    if (socket_is_secure(ns->sc)) {
+        bool checksum_only = !socket_crypto_server_should_encrypt(packet->type);
+        packet = socket_crypto_encrypt(ns->sc,
+                                       packet,
+                                       packet_meta,
+                                       checksum_only);
+        if (packet == NULL) {
+            /* Logging already done. */
+            ns->state = ST_DEAD;
+            return;
+        }
+    } else {
+        packet_compress(packet);
+        packet_append_uint16(packet_meta, (uint16_t) packet->len + 1);
+        packet_append_uint8(packet_meta, packet->type);
+    }
+
+    socket_packet_enqueue(ns, packet_meta);
 
     if (packet->len != 0) {
         socket_packet_enqueue(ns, packet);

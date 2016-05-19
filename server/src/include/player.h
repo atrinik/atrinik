@@ -145,7 +145,7 @@ struct pl_player {
     struct pl_player *next;
 
     /** Socket information for this player. */
-    socket_struct socket;
+    socket_struct *cs;
 
     /* Everything below will be cleared by memset() in get_player(). */
 
@@ -660,6 +660,8 @@ void
 player_set_talking_to(player *pl, object *npc);
 void
 player_login(socket_struct *ns, const char *name, struct archetype *at);
+void
+player_logout(player *pl);
 void
 object_type_init_player(void);
 

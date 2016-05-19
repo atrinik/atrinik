@@ -194,6 +194,10 @@
 #cmakedefine HAVE_SINCOS
 #endif
 
+#ifndef HAVE_PSELECT
+#cmakedefine HAVE_PSELECT
+#endif
+
 /* Name of the generated executable. */
 #define EXECUTABLE "@EXECUTABLE@"
 

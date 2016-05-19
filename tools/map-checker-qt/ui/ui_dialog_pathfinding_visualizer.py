@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_dialog_pathfinding_visualizer.ui'
 #
-# Created: Wed Feb 11 15:36:09 2015
+# Created: Wed May 11 17:54:53 2016
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,6 +20,18 @@ class Ui_DialogPathfindingVisualizer(object):
         self.gridLayout.setObjectName("gridLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.comboBoxLevel = QtWidgets.QComboBox(DialogPathfindingVisualizer)
+        self.comboBoxLevel.setObjectName("comboBoxLevel")
+        self.comboBoxLevel.addItem("")
+        self.horizontalLayout.addWidget(self.comboBoxLevel)
+        self.checkBoxAutoAdvance = QtWidgets.QCheckBox(DialogPathfindingVisualizer)
+        self.checkBoxAutoAdvance.setChecked(True)
+        self.checkBoxAutoAdvance.setObjectName("checkBoxAutoAdvance")
+        self.horizontalLayout.addWidget(self.checkBoxAutoAdvance)
+        self.checkBoxOverlay = QtWidgets.QCheckBox(DialogPathfindingVisualizer)
+        self.checkBoxOverlay.setChecked(True)
+        self.checkBoxOverlay.setObjectName("checkBoxOverlay")
+        self.horizontalLayout.addWidget(self.checkBoxOverlay)
         self.buttonPrev = QtWidgets.QPushButton(DialogPathfindingVisualizer)
         self.buttonPrev.setEnabled(False)
         self.buttonPrev.setAutoRepeat(True)
@@ -44,12 +56,10 @@ class Ui_DialogPathfindingVisualizer(object):
         self.sliderDelay = QtWidgets.QSlider(DialogPathfindingVisualizer)
         self.sliderDelay.setMinimum(1)
         self.sliderDelay.setMaximum(1000)
-        self.sliderDelay.setProperty("value", 100)
+        self.sliderDelay.setProperty("value", 50)
         self.sliderDelay.setOrientation(QtCore.Qt.Horizontal)
         self.sliderDelay.setObjectName("sliderDelay")
         self.horizontalLayout.addWidget(self.sliderDelay)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
         self.buttonOpen = QtWidgets.QPushButton(DialogPathfindingVisualizer)
         self.buttonOpen.setObjectName("buttonOpen")
         self.horizontalLayout.addWidget(self.buttonOpen)
@@ -66,8 +76,8 @@ class Ui_DialogPathfindingVisualizer(object):
         self.timeTaken.setText("")
         self.timeTaken.setObjectName("timeTaken")
         self.horizontalLayout_2.addWidget(self.timeTaken)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem1)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
         self.gridLayout.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
 
@@ -77,6 +87,9 @@ class Ui_DialogPathfindingVisualizer(object):
     def retranslateUi(self, DialogPathfindingVisualizer):
         _translate = QtCore.QCoreApplication.translate
         DialogPathfindingVisualizer.setWindowTitle(_translate("DialogPathfindingVisualizer", "Pathfinding Visualizer"))
+        self.comboBoxLevel.setItemText(0, _translate("DialogPathfindingVisualizer", "Level"))
+        self.checkBoxAutoAdvance.setText(_translate("DialogPathfindingVisualizer", "Auto-advance"))
+        self.checkBoxOverlay.setText(_translate("DialogPathfindingVisualizer", "Overlay"))
         self.buttonPrev.setText(_translate("DialogPathfindingVisualizer", "Previous"))
         self.buttonPause.setText(_translate("DialogPathfindingVisualizer", "Pause"))
         self.buttonNext.setText(_translate("DialogPathfindingVisualizer", "Next"))

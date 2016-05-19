@@ -99,8 +99,8 @@ void command_take(object *op, const char *command, char *params)
                 continue;
             }
 
-            if (CONTR(tmp)->socket.look_position > ground_total) {
-                CONTR(tmp)->socket.look_position = ground_total;
+            if (CONTR(tmp)->cs->look_position > ground_total) {
+                CONTR(tmp)->cs->look_position = ground_total;
             }
         } FOR_MAP_LAYER_END
     } else if (!missed) {

@@ -118,10 +118,10 @@ set(SOURCES
 	src/socket/info.c
 	src/socket/init.c
 	src/socket/item.c
-	src/socket/loop.c
 	src/socket/lowlevel.c
 	src/socket/metaserver.c
 	src/socket/request.c
+	src/socket/server.c
 	src/socket/sounds.c
 	src/socket/updates.c
 	src/types/monster/monster_data.c

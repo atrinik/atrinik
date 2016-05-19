@@ -24,58 +24,46 @@
 
 /**
  * @file
- * Header file for the cURL module.
+ * Socket server header file.
  */
 
-#ifndef OLD_CURL_H
-#define OLD_CURL_H
+#ifndef SOCKET_SERVER_H
+#define SOCKET_SERVER_H
 
-#include_next <curl.h>
-#define CURL_STATE_DOWNLOAD CURL_STATE_INPROGRESS
+#include <toolkit.h>
 
-/** cURL data. */
-typedef struct curl_data {
-    /** The data. Can be NULL in case we got no data from the url. */
-    char *memory;
+/**
+ * Function to call when a specific command type is received.
+ *
+ * @param cs
+ * Client socket.
+ * @param pl
+ * Player associated with the client. May be NULL if the client has not
+ * logged in yet.
+ * @param data
+ * Network data buffer that contains the command.
+ * @param len
+ * Number of bytes in the command.
+ * @param pos
+ * Position where to start parsing command-specific data.
+ */
+typedef void (*socket_command_func)(socket_struct *cs,
+                                    player        *pl,
+                                    uint8_t       *data,
+                                    size_t         len,
+                                    size_t         pos);
 
-    /** Size of the data. */
-    size_t size;
+/* Prototypes */
 
-    /** HTTP headers. */
-    char *header;
+TOOLKIT_FUNCS_DECLARE(socket_server);
 
-    /** Size of HTTP headers. */
-    size_t header_size;
-
-    /** URL used. */
-    char *url;
-
-    /** Path to cached file. */
-    char *path;
-
-    /**
-     * Mutex to protect the data in this structure when accessed across
-     * threads.
-     */
-    SDL_mutex *mutex;
-
-    /** The thread. */
-    SDL_Thread *thread;
-
-    /**
-     * State of the data.
-     */
-    curl_state_t state;
-
-    /**
-     * Will contain HTTP code.
-     */
-    int http_code;
-
-    /**
-     * cURL handle being used.
-     */
-    CURL *handle;
-} curl_data;
+void
+socket_server_handle_client(player *pl);
+bool
+socket_server_remove(socket_struct *cs);
+void
+socket_server_process(void);
+void
+socket_server_post_process(void);
 
 #endif

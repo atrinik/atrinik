@@ -29,7 +29,12 @@
  * @author Alex Tokar
  */
 
-#include <global.h>
+#include <toolkit.h>
+#include <toolkit_string.h>
+
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
 
 /**
  * @defgroup DRNG_xxx Intel DRNG support flags
@@ -386,6 +391,36 @@ rndm_chance (uint32_t n)
 }
 
 /**
+ * Generate a random 64-bit unsigned number.
+ *
+ * @return
+ * 64-bit unsigned number.
+ */
+uint64_t
+rndm_u64 (void)
+{
+#ifdef INTEL_DRNG
+    if (drng_features & DRNG_HAS_RDRAND) {
+        unsigned long long int i;
+        if (rdrand64_step(&i)) {
+            return i;
+        }
+    }
+#endif
+
+    union {
+        uint64_t u64;
+        uint8_t  u8[64 / CHAR_BIT];
+    } num;
+
+    for (size_t i = 0; i < arraysize(num.u8); i++) {
+        num.u8[i] = rndm(0, UINT8_MAX);
+    }
+
+    return num.u64;
+}
+
+/**
  * A Linked-List Memory Sort
  * by Philip J. Erdelsky <pje@efgh.com>
  * http://www.alumni.caltech.edu/~pje/
@@ -636,4 +671,74 @@ math_point_edge_ellipse (int    x,
     }
 
     return true;
+}
+
+/**
+ * Decode the specified BASE64 encoded buffer.
+ *
+ * @param str
+ * What to decode.
+ * @param[out] buf
+ * On success, will contain a pointer to the decoded data. Must be freed.
+ * @param[out] buf_len
+ * Length of the decoded data.
+ * @return
+ * True on success, false on failure.
+ * @todo
+ * This should really go in a new API.
+ */
+bool
+math_base64_decode (const char     *str,
+                    unsigned char **buf,
+                    size_t         *buf_len)
+{
+    HARD_ASSERT(str != NULL);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(buf_len != NULL);
+
+    char *cp = estrdup(str);
+    size_t len = strlen(cp);
+
+    *buf_len = ((len * 3) + 3) / 4;
+    *buf = emalloc(*buf_len);
+
+    BIO *bio = BIO_new_mem_buf(cp, len);
+    if (bio == NULL) {
+        LOG(ERROR, "BIO_new_mem_buf() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    BIO *bio_base64 = BIO_new(BIO_f_base64());
+    if (bio_base64 == NULL) {
+        LOG(ERROR, "BIO_new() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        goto error;
+    }
+
+    bio = BIO_push(bio_base64, bio);
+    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+
+    int num_read = BIO_read(bio, *buf, len);
+    if (num_read <= 0) {
+        goto error;
+    }
+
+    *buf_len = num_read;
+
+    bool ret = true;
+    goto out;
+
+error:
+    ret = false;
+
+    if (*buf != NULL) {
+        efree(*buf);
+    }
+
+out:
+    BIO_free_all(bio);
+    efree(cp);
+
+    return ret;
 }

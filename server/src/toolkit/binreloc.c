@@ -36,6 +36,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <path.h>
 
 /**
  * Canonical filename of the executable. May be NULL.

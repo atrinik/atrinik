@@ -32,6 +32,7 @@
 #include <region_map.h>
 #include <packet.h>
 #include <path.h>
+#include <toolkit_string.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8_t *data, size_t len, size_t pos)
@@ -975,5 +976,596 @@ void socket_command_control(uint8_t *data, size_t len, size_t pos)
 
     if (type == CMD_CONTROL_PLAYER && sub_type == CMD_CONTROL_PLAYER_TELEPORT) {
         x11_window_activate(SDL_display, x11_window_get_parent(SDL_display, SDL_window), 1);
+    }
+}
+
+/**
+ * Data associated with a single crypto warning popup.
+ */
+typedef struct socket_crypto_popup {
+    socket_crypto_cb_ctx_t ctx; ///< Context from the socket crypto API.
+    button_struct button_ok; ///< OK button.
+    button_struct button_close; ///< Close button.
+    uint32_t ticks; ///< When the popup appeared.
+    int seconds; ///< Seconds since the popup appeared.
+} socket_crypto_popup_t;
+
+/**
+ * Text used in the crypto warning popup.
+ */
+static const char *const socket_crypto_popup_texts[] = {
+    "The selected server uses a self-signed certificate. This means that it's "
+    "impossible to verify the authenticity of the server, and someone could be "
+    "spying on your connection via a forged certificate.\n\n"
+    "It is strongly recommended NOT to proceed (especially if you've connected "
+    "to this server before and this warning did not appear then).\n\n"
+    "Do you want to proceed (and remember this choice)?",
+    "!!! THE PUBLIC KEY OF THE SERVER HAS CHANGED !!!\n\n"
+    "This is most likely an indication of an MITM (Man In The Middle) attack. "
+    "It is also possible the server's public key has just changed.\n\n"
+    "It is STRONGLY RECOMMENDED [b]NOT[/b] to connect unless you have solid "
+    "evidence that this is correct (eg, an announcement from the server "
+    "officials about the change, ideally if this announcement was at least a "
+    "month in advance).\n\n"
+    "Do you want to proceed (and remember this choice)?",
+};
+CASSERT_ARRAY(socket_crypto_popup_texts, SOCKET_CRYPTO_CB_MAX);
+
+/**
+ * Number of seconds that must pass before the user can click 'OK' in
+ * the crypto warning popup.
+ */
+static const int socket_crypto_popup_delays[] = {
+    20, /* Self-signed certificate */
+    60, /* Public key has changed */
+};
+CASSERT_ARRAY(socket_crypto_popup_delays, SOCKET_CRYPTO_CB_MAX);
+
+/** @copydoc popup_struct::draw_func */
+static int
+popup_draw (popup_struct *popup)
+{
+    socket_crypto_popup_t *data = popup->custom_data;
+
+    int delay = socket_crypto_popup_delays[data->ctx.id];
+    if (data->seconds != delay) {
+        uint32_t ticks_diff = SDL_GetTicks() - data->ticks;
+        int seconds = ticks_diff / 1000;
+        if (data->seconds != seconds) {
+            data->seconds = seconds;
+            popup->redraw = 1;
+
+            if (seconds == delay) {
+                data->button_ok.disabled = false;
+            }
+        }
+    }
+
+    if (!popup->redraw) {
+        return 1;
+    }
+
+    popup->redraw = 0;
+    surface_show(popup->surface, 0, 0, NULL, texture_surface(popup->texture));
+
+    SDL_Rect box;
+    box.w = popup->surface->w;
+    box.h = 38;
+    text_show(popup->surface,
+              FONT_SERIF16,
+              "Suspicious connection!",
+              0,
+              0,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+              &box);
+
+    box.w = popup->surface->w - 10 * 2;
+    box.h = popup->surface->h - box.h;
+    text_show(popup->surface,
+              FONT_ARIAL12,
+              socket_crypto_popup_texts[data->ctx.id],
+              10,
+              50,
+              COLOR_WHITE,
+              TEXT_ALIGN_CENTER | TEXT_WORD_WRAP | TEXT_MARKUP,
+              &box);
+
+    if (data->ctx.fingerprint != NULL) {
+        text_show(popup->surface,
+                  FONT_ARIAL12,
+                  "Certificate fingerprint:",
+                  0,
+                  90,
+                  COLOR_WHITE,
+                  TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+                  &box);
+        text_show(popup->surface,
+                  FONT_ARIAL12,
+                  data->ctx.fingerprint,
+                  0,
+                  110,
+                  COLOR_WHITE,
+                  TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+                  &box);
+    }
+
+    char buf[MAX_BUF];
+    snprintf(VS(buf), "%s", "OK");
+    if (data->seconds != delay) {
+        snprintfcat(VS(buf), " (%d)", delay - data->seconds);
+    }
+
+    data->button_ok.x = popup->surface->w / 4 -
+                        data->button_ok.texture->surface->w;
+    data->button_ok.y = popup->surface->h -
+                        data->button_ok.texture->surface->h * 2;
+    data->button_ok.surface = popup->surface;
+    data->button_ok.px = popup->x;
+    data->button_ok.py = popup->y;
+    button_show(&data->button_ok, buf);
+
+    data->button_close.x = popup->surface->w - popup->surface->w / 4;
+    data->button_close.y = popup->surface->h -
+                           data->button_close.texture->surface->h * 2;
+    data->button_close.surface = popup->surface;
+    data->button_close.px = popup->x;
+    data->button_close.py = popup->y;
+    button_show(&data->button_close, "Close");
+
+    return 1;
+}
+
+/** @copydoc popup_struct::event_func */
+static int
+popup_event (popup_struct *popup, SDL_Event *event)
+{
+    socket_crypto_popup_t *data = popup->custom_data;
+
+    if (button_event(&data->button_ok, event) ||
+        (event->type == SDL_KEYDOWN &&
+         (event->key.keysym.sym == SDLK_RETURN ||
+          event->key.keysym.sym == SDLK_KP_ENTER))) {
+        char *errmsg;
+        if (!socket_crypto_handle_cb(&data->ctx, &errmsg)) {
+            draw_info(COLOR_RED, errmsg);
+            efree(errmsg);
+        }
+
+        popup_destroy(popup);
+        login_start();
+        return 1;
+    } else if (button_event(&data->button_close, event)) {
+        popup_destroy(popup);
+        return 1;
+    }
+
+    if (data->button_ok.redraw || data->button_close.redraw) {
+        popup->redraw = true;
+    }
+
+    return -1;
+}
+
+/** @copydoc popup_struct::destroy_callback_func */
+static int
+popup_destroy_callback (popup_struct *popup)
+{
+    if (cpl.state != ST_WAITLOOP) {
+        return 0;
+    }
+
+    socket_crypto_popup_t *data = popup->custom_data;
+    socket_crypto_free_cb(&data->ctx);
+    efree(data);
+    popup->custom_data = NULL;
+    return 1;
+}
+
+/** @copydoc popup_struct::clipboard_copy_func */
+static const char *
+popup_clipboard_copy_func (popup_struct *popup)
+{
+    socket_crypto_popup_t *data = popup->custom_data;
+    return data->ctx.fingerprint != NULL ? data->ctx.fingerprint : "";
+}
+
+/** @copydoc socket_crypto_cb_t */
+static void
+socket_crypto_cb (socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx)
+{
+    socket_crypto_popup_t *data = ecalloc(1, sizeof(*data));
+    data->ctx = *ctx;
+    data->ticks = SDL_GetTicks();
+
+    button_create(&data->button_ok);
+    data->button_ok.disabled = true;
+    button_create(&data->button_close);
+
+    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT,
+                                                   "popup"));
+    popup->draw_func = popup_draw;
+    popup->event_func = popup_event;
+    popup->destroy_callback_func = popup_destroy_callback;
+    popup->clipboard_copy_func = popup_clipboard_copy_func;
+    popup->disable_texture_drawing = 1;
+    popup->custom_data = data;
+}
+
+/**
+ * Aborts the connection due to a crypto error.
+ */
+static void
+socket_command_crypto_abort (void)
+{
+    cpl.state = ST_START;
+    draw_info_format(COLOR_RED,
+                     "Failed to establish a secure connection with %s; see the "
+                     "client log for details.",
+                     selected_server->hostname);
+}
+
+/**
+ * Handler for the crypto hello sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
+{
+    StringBuffer *sb = stringbuffer_new();
+    packet_to_stringbuffer(data, len, &pos, sb);
+    char *cert = stringbuffer_finish(sb);
+    sb = stringbuffer_new();
+    packet_to_stringbuffer(data, len, &pos, sb);
+    char *chain = stringbuffer_finish(sb);
+
+    if (*cert == '\0') {
+        LOG(ERROR, "Received empty certificate from server");
+        socket_command_crypto_abort();
+        return;
+    }
+
+    socket_crypto_t *crypto = socket_crypto_create(csocket.sc);
+    socket_crypto_set_cb(crypto, socket_crypto_cb);
+
+    /* Meta-server servers must have a certificate public key record
+     * associated with them.*/
+    if (selected_server->is_meta) {
+        if (selected_server->cert_pubkey == NULL) {
+            LOG(ERROR, " !!! Server has no public key record! !!!");
+            socket_command_crypto_abort();
+            return;
+        }
+
+        socket_crypto_load_pubkey(crypto, selected_server->cert_pubkey);
+    }
+
+    if (!socket_crypto_load_cert(crypto, cert, chain)) {
+        efree(cert);
+        efree(chain);
+        socket_command_crypto_abort();
+        return;
+    }
+
+    efree(cert);
+    efree(chain);
+
+    uint8_t key_len;
+    const unsigned char *key = socket_crypto_create_key(crypto, &key_len);
+    if (key == NULL) {
+        socket_command_crypto_abort();
+        return;
+    }
+
+    /* Send the generated key to the server. */
+    packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 128, 128);
+    packet_append_uint8(packet, CMD_CRYPTO_KEY);
+    packet_append_uint8(packet, key_len);
+    packet_append_data_len(packet, key, key_len);
+
+    uint8_t iv_len;
+    const unsigned char *iv = socket_crypto_get_iv(crypto, &iv_len);
+    if (iv == NULL) {
+        socket_command_crypto_abort();
+        return;
+    }
+
+    packet_append_uint8(packet, iv_len);
+    packet_append_data_len(packet, iv, iv_len);
+    socket_send_packet(packet);
+
+    cpl.state = ST_WAITCRYPTO;
+}
+
+/**
+ * Handler for the crypto key sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Server sent malformed crypto key command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    uint8_t iv_len;
+    const unsigned char *iv = socket_crypto_get_iv(crypto, &iv_len);
+    if (iv == NULL) {
+        socket_command_crypto_abort();
+        return;
+    }
+
+    uint8_t recv_iv_len = packet_to_uint8(data, len, &pos);
+    recv_iv_len = MIN(recv_iv_len, len - pos);
+    const unsigned char *recv_iv = data + pos;
+    pos += recv_iv_len;
+
+    if (len != pos) {
+        LOG(PACKET, "Server sent malformed crypto key command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    if (iv_len != recv_iv_len) {
+        LOG(PACKET, "Server sent mismatching IV buffer length");
+        socket_command_crypto_abort();
+        return;
+    }
+
+    if (memcmp(iv, recv_iv, iv_len) != 0) {
+        LOG(PACKET, "Server sent mismatching IV buffer");
+        socket_command_crypto_abort();
+        return;
+    }
+
+    packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 128, 128);
+    packet_append_uint8(packet, CMD_CRYPTO_CURVES);
+    socket_crypto_packet_append_curves(packet);
+    socket_send_packet(packet);
+}
+
+/**
+ * Handler for the crypto curves sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    char name[MAX_BUF];
+    while (packet_to_string(data, len, &pos, VS(name)) != NULL) {
+        int nid;
+        if (socket_crypto_curve_supported(name, &nid)) {
+            socket_crypto_set_nid(crypto, nid);
+
+            uint8_t iv_size;
+            const unsigned char *iv = socket_crypto_gen_iv(crypto, &iv_size);
+            if (iv == NULL) {
+                LOG(SYSTEM, "Failed to generate IV buffer: %s",
+                    socket_get_str(csocket.sc));
+                socket_command_crypto_abort();
+                return;
+            }
+
+            size_t pubkey_len;
+            unsigned char *pubkey = socket_crypto_gen_pubkey(crypto,
+                                                             &pubkey_len);
+            if (pubkey == NULL) {
+                LOG(SYSTEM, "Failed to generate a public key: %s",
+                    socket_get_str(csocket.sc));
+                socket_command_crypto_abort();
+                return;
+            }
+
+            if (pubkey_len > INT16_MAX) {
+                LOG(SYSTEM, "Public key too long: %s",
+                    socket_get_str(csocket.sc));
+                socket_command_crypto_abort();
+                efree(pubkey);
+                return;
+            }
+
+            packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 512, 0);
+            packet_append_uint8(packet, CMD_CRYPTO_PUBKEY);
+            packet_append_uint16(packet, (uint16_t) pubkey_len);
+            packet_append_data_len(packet, pubkey, pubkey_len);
+            packet_append_uint8(packet, iv_size);
+            packet_append_data_len(packet, iv, iv_size);
+            socket_send_packet(packet);
+            efree(pubkey);
+            return;
+        }
+    }
+
+    LOG(SYSTEM,
+        "Server requested crypto but failed to provide a compatible "
+        "crypto elliptic curve: %s",
+        socket_get_str(csocket.sc));
+    socket_command_crypto_abort();
+}
+
+/**
+ * Handler for the crypto pubkey sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    uint16_t pubkey_len = packet_to_uint16(data, len, &pos);
+    unsigned char *pubkey = data + pos;
+    pubkey_len = MIN(pubkey_len, len - pos);
+    pos += pubkey_len;
+    uint8_t iv_len = packet_to_uint8(data, len, &pos);
+    unsigned char *iv = data + pos;
+    iv_len = MIN(iv_len, len - pos);
+    pos += iv_len;
+
+    if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
+        LOG(SYSTEM, "Couldn't derive shared secret key: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    if (len != pos) {
+        LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    uint8_t secret_len;
+    const unsigned char *secret = socket_crypto_create_secret(crypto,
+                                                              &secret_len);
+    if (secret == NULL) {
+        LOG(ERROR, "Failed to generate a secret");
+        socket_command_crypto_abort();
+        return;
+    }
+
+    packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 64, 0);
+    packet_append_uint8(packet, CMD_CRYPTO_SECRET);
+    packet_append_uint8(packet, secret_len);
+    packet_append_data_len(packet, secret, secret_len);
+    socket_send_packet(packet);
+}
+
+/**
+ * Handler for the crypto secret sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Server sent malformed crypto secret command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    uint8_t secret_len = packet_to_uint8(data, len, &pos);
+    secret_len = MIN(secret_len, len - pos);
+
+    if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
+        LOG(PACKET, "Server sent malformed crypto secret command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    pos += secret_len;
+
+    if (len != pos) {
+        LOG(PACKET, "Server sent malformed crypto secret command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 8, 0);
+    packet_append_uint8(packet, CMD_CRYPTO_DONE);
+    socket_send_packet(packet);
+}
+
+/**
+ * Handler for the crypto done sub-command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+static void
+socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
+{
+    socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len != pos) {
+        LOG(PACKET, "Server sent malformed crypto secret command: %s",
+            socket_get_str(csocket.sc));
+        socket_command_crypto_abort();
+        return;
+    }
+
+    if (!socket_crypto_set_done(crypto)) {
+        /* Logging already done */
+        socket_command_crypto_abort();
+        return;
+    }
+
+    /* Begin game data communications */
+    cpl.state = ST_START_DATA;
+    LOG(SYSTEM, "Connection: established a secure channel with %s",
+        socket_get_str(csocket.sc));
+}
+
+/**
+ * Handler for the crypto client command.
+ *
+ * @copydoc socket_command_struct::handle_func
+ */
+void
+socket_command_crypto (uint8_t *data, size_t len, size_t pos)
+{
+    uint8_t type = packet_to_uint8(data, len, &pos);
+    if (!socket_crypto_check_cmd(type, socket_get_crypto(csocket.sc))) {
+        LOG(PACKET, "Received crypto command in invalid state: %u", type);
+        return;
+    }
+
+    switch (type) {
+    case CMD_CRYPTO_HELLO:
+        socket_command_crypto_hello(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_KEY:
+        socket_command_crypto_key(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_CURVES:
+        socket_command_crypto_curves(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_PUBKEY:
+        socket_command_crypto_pubkey(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_SECRET:
+        socket_command_crypto_secret(data, len, pos);
+        break;
+
+    case CMD_CRYPTO_DONE:
+        socket_command_crypto_done(data, len, pos);
+        break;
+
+    default:
+        LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
+        break;
     }
 }

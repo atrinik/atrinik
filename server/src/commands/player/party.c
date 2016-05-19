@@ -238,7 +238,7 @@ void command_party(object *op, const char *command, char *params)
                 packet_append_string_terminated(packet, party->leader);
             }
 
-            socket_send_packet(&CONTR(op)->socket, packet);
+            socket_send_packet(CONTR(op)->cs, packet);
         } else if (!strcmp(params, "who")) {
             objectlink *ol;
 
@@ -264,7 +264,7 @@ void command_party(object *op, const char *command, char *params)
                         ol->objlink.ob->stats.maxsp * 100.0f, 100)));
             }
 
-            socket_send_packet(&CONTR(op)->socket, packet);
+            socket_send_packet(CONTR(op)->cs, packet);
         } else if (!strncmp(params, "join ", 5)) {
             char *cps[2];
 
@@ -301,7 +301,7 @@ void command_party(object *op, const char *command, char *params)
                 packet_append_uint8(packet, CMD_PARTY_PASSWORD);
                 packet_debug_data(packet, 0, "Party name");
                 packet_append_string_terminated(packet, party->name);
-                socket_send_packet(&CONTR(op)->socket, packet);
+                socket_send_packet(CONTR(op)->cs, packet);
             }
         }
     }

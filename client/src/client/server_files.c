@@ -316,6 +316,7 @@ server_file_process (server_files_struct *tmp)
         LOG(DEVEL, "Beginning download: %s, URL: %s", tmp->name, url);
 
         tmp->request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
+        curl_request_start_get(tmp->request);
         tmp->update = -1;
         return 1;
     }

@@ -120,7 +120,7 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, siz
 {
     char command[MAX_BUF];
 
-    if (pl->socket.state != ST_PLAYING) {
+    if (pl->cs->state != ST_PLAYING) {
         LOG(PACKET, "Received player command while not playing.");
         return;
     }
@@ -320,7 +320,7 @@ void esrv_update_stats(player *pl)
     AddIf(pl->last_gender, object_get_gender(pl->ob), CS_STAT_GENDER, uint8);
 
     if (packet != NULL) {
-        socket_send_packet(&pl->socket, packet);
+        socket_send_packet(pl->cs, packet);
     }
 
 #undef AddIf
@@ -345,7 +345,7 @@ void esrv_new_player(player *pl, uint32_t weight)
     packet_append_uint32(packet, pl->ob->face->number);
     packet_debug_data(packet, 0, "Name");
     packet_append_string_terminated(packet, pl->ob->name);
-    socket_send_packet(&pl->socket, packet);
+    socket_send_packet(pl->cs, packet);
 }
 
 /**
@@ -413,7 +413,7 @@ void draw_map_text_anim(object *pl, const char *color, const char *text)
     packet_append_string_terminated(packet, color);
     packet_debug_data(packet, 0, "Text");
     packet_append_string_terminated(packet, text);
-    socket_send_packet(&CONTR(pl)->socket, packet);
+    socket_send_packet(CONTR(pl)->cs, packet);
 }
 
 /**
@@ -446,7 +446,7 @@ void draw_client_map(object *pl)
         /* Are we on a new map? */
         if (!CONTR(pl)->last_update || !tile_map) {
             CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_NEW;
-            memset(&(CONTR(pl)->socket.lastmap), 0, sizeof(struct Map));
+            memset(&(CONTR(pl)->cs->lastmap), 0, sizeof(struct Map));
             CONTR(pl)->last_update = pl->map;
             redraw_below = 1;
         } else {
@@ -497,12 +497,12 @@ void draw_client_map(object *pl)
                 break;
             }
 
-            copy_lastmap(&CONTR(pl)->socket, CONTR(pl)->map_off_x, CONTR(pl)->map_off_y);
+            copy_lastmap(CONTR(pl)->cs, CONTR(pl)->map_off_x, CONTR(pl)->map_off_y);
             CONTR(pl)->last_update = pl->map;
         }
     } else {
         if (CONTR(pl)->map_tile_x != pl->x || CONTR(pl)->map_tile_y != pl->y) {
-            copy_lastmap(&CONTR(pl)->socket, pl->x - CONTR(pl)->map_tile_x, pl->y - CONTR(pl)->map_tile_y);
+            copy_lastmap(CONTR(pl)->cs, pl->x - CONTR(pl)->map_tile_x, pl->y - CONTR(pl)->map_tile_y);
             redraw_below = 1;
         }
     }
@@ -513,10 +513,10 @@ void draw_client_map(object *pl)
          * */
         CONTR(pl)->map_tile_x = pl->x;
         CONTR(pl)->map_tile_y = pl->y;
-        CONTR(pl)->socket.below_clear = 1;
+        CONTR(pl)->cs->below_clear = 1;
         /* Redraw it */
-        CONTR(pl)->socket.update_tile = 0;
-        CONTR(pl)->socket.look_position = 0;
+        CONTR(pl)->cs->update_tile = 0;
+        CONTR(pl)->cs->look_position = 0;
     }
 
     /* Do LOS after calls to update_position */
@@ -579,7 +579,7 @@ void draw_client_map(object *pl)
 
         /* Anything to send? */
         if (packet->len >= 1) {
-            socket_send_packet(&CONTR(pl)->socket, packet);
+            socket_send_packet(CONTR(pl)->cs, packet);
         } else {
             packet_free(packet);
         }
@@ -639,11 +639,11 @@ void packet_append_map_weather(struct packet_struct *packet, object *op, object 
 /** Clear a map cell, but only if it has not been cleared before. */
 #define map_if_clearcell() \
     { \
-        if (CONTR(pl)->socket.lastmap.cells[ax][ay].cleared != 1) \
+        if (CONTR(pl)->cs->lastmap.cells[ax][ay].cleared != 1) \
         { \
             packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay); \
             packet_append_uint16(packet, mask | MAP2_MASK_CLEAR); \
-            map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]); \
+            map_clearcell(&CONTR(pl)->cs->lastmap.cells[ax][ay]); \
         } \
     }
 
@@ -713,7 +713,7 @@ void draw_client_map2(object *pl)
         region = pl->map->region != NULL ?
             region_find_with_map(pl->map->region) : NULL;
 
-        if (CONTR(pl)->socket.socket_version >= 1059) {
+        if (CONTR(pl)->cs->socket_version >= 1059) {
             bool has_map;
 
             has_map = false;
@@ -775,14 +775,14 @@ void draw_client_map2(object *pl)
     packet_debug_data(packet, 0, "Player is in building");
     packet_append_uint8(packet, is_in_building);
 
-    for (ay = CONTR(pl)->socket.mapy - 1, y = (pl->y + (CONTR(pl)->socket.mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->socket.mapy_2; y--, ay--) {
-        ax = CONTR(pl)->socket.mapx - 1;
+    for (ay = CONTR(pl)->cs->mapy - 1, y = (pl->y + (CONTR(pl)->cs->mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->cs->mapy_2; y--, ay--) {
+        ax = CONTR(pl)->cs->mapx - 1;
 
-        for (x = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1; x >= pl->x - CONTR(pl)->socket.mapx_2; x--, ax--) {
+        for (x = (pl->x + (CONTR(pl)->cs->mapx + 1) / 2) - 1; x >= pl->x - CONTR(pl)->cs->mapx_2; x--, ax--) {
             d = CONTR(pl)->blocked_los[ax][ay];
             /* Form the data packet for x and y positions. */
             mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
-            mp = &(CONTR(pl)->socket.lastmap.cells[ax][ay]);
+            mp = &(CONTR(pl)->cs->lastmap.cells[ax][ay]);
 
             /* Space is out of map or blocked. Update space and clear values if
              * needed. */
@@ -1184,9 +1184,9 @@ void draw_client_map2(object *pl)
                         /* If the object is dir [0124568] and not in the top
                          * or right quadrant or on the central square, do not
                          * show it. */
-                        if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax > CONTR(pl)->socket.mapx_2) && (ay < CONTR(pl)->socket.mapy_2))) {
+                        if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->cs->mapx_2) && (ay <= CONTR(pl)->cs->mapy_2)) && !((ax > CONTR(pl)->cs->mapx_2) && (ay < CONTR(pl)->cs->mapy_2))) {
                             tmp = NULL;
-                        } else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2))) {
+                        } else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->cs->mapx_2) && (ay <= CONTR(pl)->cs->mapy_2)) && !((ax < CONTR(pl)->cs->mapx_2) && (ay > CONTR(pl)->cs->mapy_2))) {
                             /* If the object is dir [0234768] and not in the top
                              * or left quadrant or on the central square, do not
                              * show it. */
@@ -1458,7 +1458,7 @@ void draw_client_map2(object *pl)
 
                         /* Draw the object twice if set, but only if it's not
                          * in the bottom quadrant of the map. */
-                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (force_draw_double || (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2))) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
+                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (force_draw_double || (ax < CONTR(pl)->cs->mapx_2 || ay < CONTR(pl)->cs->mapy_2))) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
                             flags |= MAP2_FLAG_DOUBLE;
                         }
 
@@ -1495,7 +1495,7 @@ void draw_client_map2(object *pl)
                         }
 
                         if (head->glow != NULL &&
-                                CONTR(pl)->socket.socket_version >= 1060) {
+                                CONTR(pl)->cs->socket_version >= 1060) {
                             flags2 |= MAP2_FLAG2_GLOW;
                         }
 
@@ -1527,7 +1527,7 @@ void draw_client_map2(object *pl)
                                 (mp->anim_flags[sub_layer] == anim_flags &&
                                 mp->client_flags[sub_layer] == client_flags)) &&
                                 (!(flags & MAP2_FLAG_NAME) ||
-                                !CONTR(tmp)->socket.ext_title_flag) &&
+                                !CONTR(tmp)->cs->ext_title_flag) &&
                                 (!(flags2 & MAP2_FLAG2_TARGET) ||
                                 ((mp->is_friend & (1 << sub_layer)) != 0) ==
                                 is_friend)) {
@@ -1872,13 +1872,13 @@ void draw_client_map2(object *pl)
 
     /* Verify that we in fact do need to send this. */
     if (packet->len >= 6) {
-        socket_send_packet(&CONTR(pl)->socket, packet);
+        socket_send_packet(CONTR(pl)->cs, packet);
     } else {
         packet_free(packet);
     }
 
     if (packet_sound->len >= 1) {
-        socket_send_packet(&CONTR(pl)->socket, packet_sound);
+        socket_send_packet(CONTR(pl)->cs, packet_sound);
     } else {
         packet_free(packet_sound);
     }
@@ -1898,7 +1898,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
         packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
         packet_debug_data(packet, 0, "Quest list message");
         packet_append_string_terminated(packet, "[title]No quests to speak of.[/title]");
-        socket_send_packet(&pl->socket, packet);
+        socket_send_packet(pl->cs, packet);
         return;
     }
 
@@ -1958,7 +1958,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
     packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
     packet_debug_data(packet, 0, "Quest list message");
     packet_append_string_len(packet, cp, cp_len);
-    socket_send_packet(&pl->socket, packet);
+    socket_send_packet(pl->cs, packet);
     efree(cp);
 }
 
@@ -1978,14 +1978,14 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size
     y = packet_to_uint8(data, len, &pos);
 
     /* Validate the passed x/y. */
-    if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
+    if (x >= pl->cs->mapx || y >= pl->cs->mapy) {
         LOG(PACKET, "X/Y not in range: %d, %d", x, y);
         return;
     }
 
     /* If this is the middle of the screen where the player is already,
      * there isn't much to do. */
-    if (x == pl->socket.mapx_2 && y == pl->socket.mapy_2) {
+    if (x == pl->cs->mapx_2 && y == pl->cs->mapy_2) {
         return;
     }
 
@@ -1993,8 +1993,8 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size
      * actually topmost (northwest) corner of the map in the client,
      * and not 0,0 of the actual map, so we need to transform it to
      * actual map coordinates. */
-    xt = pl->ob->x + (x - pl->socket.mapx / 2);
-    yt = pl->ob->y + (y - pl->socket.mapy / 2);
+    xt = pl->ob->x + (x - pl->cs->mapx / 2);
+    yt = pl->ob->y + (y - pl->cs->mapy / 2);
     m = get_map_from_coord(pl->ob->map, &xt, &yt);
 
     /* Invalid x/y. */
@@ -2088,14 +2088,15 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
 void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint32_t id;
-    packet_struct *packet;
-
     ns->keepalive = 0;
 
-    id = packet_to_uint32(data, len, &pos);
+    if (len == 0) {
+        return;
+    }
 
-    packet = packet_new(CLIENT_CMD_KEEPALIVE, 20, 0);
+    uint32_t id = packet_to_uint32(data, len, &pos);
+
+    packet_struct *packet = packet_new(CLIENT_CMD_KEEPALIVE, 20, 0);
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Keepalive ID");
     packet_append_uint32(packet, id);
@@ -2220,7 +2221,7 @@ void send_target_command(player *pl)
     packet_debug_data(packet, 0, "Combat force mode");
     packet_append_uint8(packet, pl->combat_force);
 
-    socket_send_packet(&pl->socket, packet);
+    socket_send_packet(pl->cs, packet);
 }
 
 void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
@@ -2316,7 +2317,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
         count = packet_to_uint32(data, len, &pos);
 
         /* Validate the passed x/y. */
-        if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
+        if (x >= pl->cs->mapx || y >= pl->cs->mapy) {
             LOG(PACKET, "Invalid X/Y: %d, %d", x, y);
             return;
         }
@@ -2328,7 +2329,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
         for (i = 0; i <= SIZEOFFREE1 && !pl->target_object_count; i++) {
             /* Check whether we are still in range of the player's
              * viewport, and whether the player can see the square. */
-            if (x + freearr_x[i] < 0 || x + freearr_x[i] >= pl->socket.mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= pl->socket.mapy || pl->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW) {
+            if (x + freearr_x[i] < 0 || x + freearr_x[i] >= pl->cs->mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= pl->cs->mapy || pl->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW) {
                 continue;
             }
 
@@ -2336,8 +2337,8 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
              * actually topmost (northwest) corner of the map in the client,
              * and not 0,0 of the actual map, so we need to transform it to
              * actual map coordinates. */
-            xt = pl->ob->x + (x - pl->socket.mapx_2) + freearr_x[i];
-            yt = pl->ob->y + (y - pl->socket.mapy_2) + freearr_y[i];
+            xt = pl->ob->x + (x - pl->cs->mapx_2) + freearr_x[i];
+            yt = pl->ob->y + (y - pl->cs->mapy_2) + freearr_y[i];
             m = get_map_from_coord(pl->ob->map, &xt, &yt);
 
             /* Invalid x/y. */
@@ -2638,7 +2639,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
             packet_enable_ndelay(packet);
             packet_debug_data(packet, 0, "Forwarded data");
             packet_append_data_len(packet, data, len);
-            socket_send_packet(&control_player->socket, packet);
+            socket_send_packet(control_player->cs, packet);
 
             return;
         }
@@ -2669,3 +2670,429 @@ void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data,
     send_target_command(pl);
 }
 
+/**
+ * Handler for the crypto hello sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_hello (socket_struct *ns,
+                     player        *pl,
+                     uint8_t       *data,
+                     size_t         len,
+                     size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    /* Ensure there's no bytes left. */
+    if (pos != len) {
+        LOG(PACKET, "Client sent malformed crypto hello command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    const char *server_cert = socket_crypto_get_cert();
+    if (server_cert == NULL) {
+        LOG(SYSTEM, "Crypto hello received but no cert loaded: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    socket_crypto_t *crypto = socket_crypto_create(ns->sc);
+
+    StringBuffer *sb = stringbuffer_new();
+    packet_to_stringbuffer(data, len, &pos, sb);
+    char *cert = stringbuffer_finish(sb);
+    sb = stringbuffer_new();
+    packet_to_stringbuffer(data, len, &pos, sb);
+    char *chain = stringbuffer_finish(sb);
+
+    if (*cert != '\0' && !socket_crypto_load_cert(crypto, cert, chain)) {
+        efree(cert);
+        efree(chain);
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    efree(cert);
+    efree(chain);
+
+    packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 512, 256);
+    packet_debug_data(packet, 0, "Crypto sub-command");
+    packet_append_uint8(packet, CMD_CRYPTO_HELLO);
+    packet_debug_data(packet, 0, "Certificate");
+    packet_append_string_terminated(packet, server_cert);
+    packet_debug_data(packet, 0, "Certificate chain");
+    const char *cert_chain = socket_crypto_get_cert_chain();
+    packet_append_string_terminated(packet,
+                                    cert_chain != NULL ? cert_chain : "");
+    socket_send_packet(ns, packet);
+}
+
+/**
+ * Handler for the crypto key sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_key (socket_struct *ns,
+                   player        *pl,
+                   uint8_t       *data,
+                   size_t         len,
+                   size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(ns->sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (pos == len) {
+        LOG(PACKET, "Client sent malformed crypto key command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    uint8_t key_len = packet_to_uint8(data, len, &pos);
+    key_len = MIN(key_len, len - pos);
+    /* No need to reset the IV buffer; it will be changed below anyway. */
+    socket_crypto_set_key(crypto, data + pos, key_len, false);
+    pos += key_len;
+
+    if (pos == len) {
+        LOG(PACKET, "Client sent malformed crypto key command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    uint8_t iv_len = packet_to_uint8(data, len, &pos);
+    iv_len = MIN(iv_len, len - pos);
+    socket_crypto_set_iv(crypto, data + pos, iv_len);
+    pos += iv_len;
+
+    if (pos != len) {
+        LOG(PACKET, "Client sent malformed crypto key command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    const unsigned char *iv = socket_crypto_get_iv(crypto, &iv_len);
+    if (iv == NULL) {
+        LOG(ERROR, "IV is NULL but it was just set");
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 64, 64);
+    packet_debug_data(packet, 0, "Crypto sub-command");
+    packet_append_uint8(packet, CMD_CRYPTO_KEY);
+    packet_debug_data(packet, 0, "IV buffer");
+    packet_append_uint8(packet, iv_len);
+    packet_append_data_len(packet, iv, iv_len);
+    socket_send_packet(ns, packet);
+}
+
+/**
+ * Handler for the crypto curves sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_curves (socket_struct *ns,
+                      player        *pl,
+                      uint8_t       *data,
+                      size_t         len,
+                      size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(ns->sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    char name[MAX_BUF];
+    while (packet_to_string(data, len, &pos, VS(name)) != NULL) {
+        int nid;
+        if (socket_crypto_curve_supported(name, &nid)) {
+            socket_crypto_set_nid(crypto, nid);
+
+            uint8_t iv_size;
+            const unsigned char *iv = socket_crypto_gen_iv(crypto, &iv_size);
+            if (iv == NULL) {
+                LOG(SYSTEM, "Failed to generate IV buffer: %s",
+                    socket_get_str(ns->sc));
+                ns->state = ST_DEAD;
+                return;
+            }
+
+            packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 64, 64);
+            packet_debug_data(packet, 0, "Crypto sub-command");
+            packet_append_uint8(packet, CMD_CRYPTO_CURVES);
+            packet_debug_data(packet, 0, "Elliptic curve name");
+            packet_append_string_terminated(packet, name);
+            socket_send_packet(ns, packet);
+
+            size_t pubkey_len;
+            unsigned char *pubkey = socket_crypto_gen_pubkey(crypto,
+                                                             &pubkey_len);
+            if (pubkey == NULL) {
+                LOG(SYSTEM, "Failed to generate a public key: %s",
+                    socket_get_str(ns->sc));
+                ns->state = ST_DEAD;
+                return;
+            }
+
+            if (pubkey_len > INT16_MAX) {
+                LOG(SYSTEM, "Public key too long: %s",
+                    socket_get_str(ns->sc));
+                ns->state = ST_DEAD;
+                efree(pubkey);
+                return;
+            }
+
+            packet = packet_new(CLIENT_CMD_CRYPTO, 512, 0);
+            packet_debug_data(packet, 0, "Crypto sub-command");
+            packet_append_uint8(packet, CMD_CRYPTO_PUBKEY);
+            packet_debug_data(packet, 0, "ECDH public key length");
+            packet_append_uint16(packet, (uint16_t) pubkey_len);
+            packet_debug_data(packet, 0, "ECDH public key");
+            packet_append_data_len(packet, pubkey, pubkey_len);
+            packet_debug_data(packet, 0, "IV buffer size");
+            packet_append_uint8(packet, iv_size);
+            packet_debug_data(packet, 0, "IV buffer");
+            packet_append_data_len(packet, iv, iv_size);
+            socket_send_packet(ns, packet);
+            efree(pubkey);
+            return;
+        }
+    }
+
+    LOG(SYSTEM,
+        "Client requested crypto but failed to provide a compatible "
+        "crypto elliptic curve: %s",
+        socket_get_str(ns->sc));
+    ns->state = ST_DEAD;
+}
+
+/**
+ * Handler for the crypto pubkey sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_pubkey (socket_struct *ns,
+                      player        *pl,
+                      uint8_t       *data,
+                      size_t         len,
+                      size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(ns->sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    uint16_t pubkey_len = packet_to_uint16(data, len, &pos);
+    unsigned char *pubkey = data + pos;
+    pubkey_len = MIN(pubkey_len, len - pos);
+    pos += pubkey_len;
+    uint8_t iv_len = packet_to_uint8(data, len, &pos);
+    unsigned char *iv = data + pos;
+    iv_len = MIN(iv_len, len - pos);
+    pos += iv_len;
+
+    if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
+        LOG(SYSTEM, "Couldn't derive shared secret key: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    if (len != pos) {
+        LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+}
+
+/**
+ * Handler for the crypto secret sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_secret (socket_struct *ns,
+                      player        *pl,
+                      uint8_t       *data,
+                      size_t         len,
+                      size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(ns->sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len == pos) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    uint8_t secret_len = packet_to_uint8(data, len, &pos);
+    secret_len = MIN(secret_len, len - pos);
+
+    if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    pos += secret_len;
+
+    if (len != pos) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    const unsigned char *secret = socket_crypto_create_secret(crypto,
+                                                              &secret_len);
+    if (secret == NULL) {
+        LOG(ERROR, "Failed to generate a secret");
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 32, 0);
+    packet_debug_data(packet, 0, "Crypto sub-command");
+    packet_append_uint8(packet, CMD_CRYPTO_SECRET);
+    packet_debug_data(packet, 0, "Secret salt length");
+    packet_append_uint8(packet, secret_len);
+    packet_append_data_len(packet, secret, secret_len);
+    socket_send_packet(ns, packet);
+}
+
+/**
+ * Handler for the crypto done sub-command.
+ *
+ * @copydoc socket_command_func
+ */
+static void
+socket_crypto_done (socket_struct *ns,
+                    player        *pl,
+                    uint8_t       *data,
+                    size_t         len,
+                    size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(pl == NULL);
+    HARD_ASSERT(data != NULL);
+
+    socket_crypto_t *crypto = socket_get_crypto(ns->sc);
+    SOFT_ASSERT(crypto != NULL, "crypto is NULL");
+
+    if (len != pos) {
+        LOG(PACKET, "Client sent malformed crypto secret command: %s",
+            socket_get_str(ns->sc));
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 8, 0);
+    packet_append_uint8(packet, CMD_CRYPTO_DONE);
+    socket_send_packet(ns, packet);
+
+    if (!socket_crypto_set_done(crypto)) {
+        /* Logging already done */
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    LOG(SYSTEM, "Connection: established a secure channel with %s",
+        socket_get_str(ns->sc));
+}
+
+/**
+ * Handler for the crypto socket command.
+ *
+ * @copydoc socket_command_func
+ */
+void
+socket_command_crypto (socket_struct *ns,
+                       player        *pl,
+                       uint8_t       *data,
+                       size_t         len,
+                       size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(data != NULL);
+
+    uint8_t type = packet_to_uint8(data, len, &pos);
+    if (!socket_crypto_check_cmd(type, socket_get_crypto(ns->sc))) {
+        LOG(PACKET, "Received crypto command in invalid state: %u", type);
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    /* Don't let clients initiate a handshake when they're already logged in.
+     * In practice, this should never happen. */
+    if (pl != NULL) {
+        LOG(PACKET, "Received while logged in: %s", pl->ob->name);
+        ns->state = ST_DEAD;
+        return;
+    }
+
+    switch (type) {
+    case CMD_CRYPTO_HELLO:
+        socket_crypto_hello(ns, pl, data, len, pos);
+        break;
+
+    case CMD_CRYPTO_KEY:
+        socket_crypto_key(ns, pl, data, len, pos);
+        break;
+
+    case CMD_CRYPTO_CURVES:
+        socket_crypto_curves(ns, pl, data, len, pos);
+        break;
+
+    case CMD_CRYPTO_PUBKEY:
+        socket_crypto_pubkey(ns, pl, data, len, pos);
+        break;
+
+    case CMD_CRYPTO_SECRET:
+        socket_crypto_secret(ns, pl, data, len, pos);
+        break;
+
+    case CMD_CRYPTO_DONE:
+        socket_crypto_done(ns, pl, data, len, pos);
+        break;
+
+    default:
+        LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
+        ns->state = ST_DEAD;
+        break;
+    }
+}

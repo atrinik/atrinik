@@ -1649,7 +1649,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
                 packet_debug_data(packet, 0, "Title");
                 packet_append_string_terminated(packet, npc->name);
 
-                socket_send_packet(&CONTR(op)->socket, packet);
+                socket_send_packet(CONTR(op)->cs, packet);
             } else {
                 char buf[HUGE_BUF];
                 char *name = object_get_name_s(npc, NULL);

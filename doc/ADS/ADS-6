@@ -1,0 +1,29 @@
+===============================================================================
+= ADS-6, rev: 0.1: Atrinik Crypto Protocol Specification                      =
+===============================================================================
+ This document contains design specification for the Atrinik client<->server
+ cryptography protocol. The following sections exist:
+
+ 1. Prologue
+ 2. Session
+    2.1  Packets
+ 3. Server crypto command
+    3.1  Server crypto command HELLO
+ 4. Client commands
+    3.1  Client crypto command HELLO
+ 5. Example logic
+ 6. Reference documents
+ 7. Authors
+
+===============================================================================
+= 6. Reference documents                                                      =
+===============================================================================
+ List of document specifications referenced by this document:
+ - ADS-2: Atrinik Protocol Specification
+
+===============================================================================
+= 7. Authors                                                                  =
+===============================================================================
+ This document was written by:
+
+  Alex Tokar

@@ -62,6 +62,15 @@ typedef struct server_struct {
 
     /** Server port. */
     int port;
+
+    /** Crypto port. -1 if disabled. */
+    int port_crypto;
+
+    /** Certificate public key. */
+    char *cert_pubkey;
+
+    /** Whether the entry was learned from the metaserver. */
+    bool is_meta:1;
 } server_struct;
 
 /**
@@ -209,6 +218,16 @@ typedef enum player_state_t {
      * Open a connection to the server.
      */
     ST_CONNECT,
+
+    /**
+     * Wait for crypto handshake to complete.
+     */
+    ST_WAITCRYPTO,
+
+    /**
+     * Start sending game data.
+     */
+    ST_START_DATA,
 
     /**
      * Wait for version information from the server.

@@ -96,17 +96,21 @@ static fields_struct fields[] = {
             "target, be it friend or foe.; bool"},
 
     {"s_ext_title_flag", FIELDTYPE_BOOLEAN,
-            offsetof(player, socket.ext_title_flag), 0, 0,
+            offsetof(player, cs), 0,
+            offsetof(socket_struct, ext_title_flag),
             "If True, will force updating the player's map name.; bool"},
     {"s_socket_version", FIELDTYPE_UINT32,
-            offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0,
+            offsetof(player, cs), FIELDFLAG_READONLY,
+            offsetof(socket_struct, socket_version),
             "Socket version of the player's client.; int (readonly)"},
     {"s_packets", FIELDTYPE_LIST,
-            offsetof(player, socket.packets), 0, FIELDTYPE_PACKETS,
+            offsetof(player, cs), 0,
+            offsetof(socket_struct, packets),
             "Packets that have been enqueued to the player's client.; "
             "Atrinik.AttrList.AttrList"},
     {"s_packet_recv_cmd", FIELDTYPE_PACKET,
-            offsetof(player, socket.packet_recv_cmd), 0, 0,
+            offsetof(player, cs), 0,
+            offsetof(socket_struct, packet_recv_cmd),
             "Commands received from the player's client.; bytes"},
 };
 
@@ -391,7 +395,7 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *self,
         return NULL;
     }
 
-    if (self->pl->socket.state != ST_PLAYING) {
+    if (self->pl->cs->state != ST_PLAYING) {
         PyErr_SetString(AtrinikError,
                 "Player is not in a state to execute commands.");
         return NULL;
@@ -677,7 +681,17 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
         } else if (format[i] == 's') {
             if (PyString_Check(value)) {
                 Py_ssize_t size;
+#ifdef IS_PY3K
                 char *data = PyUnicode_AsUTF8AndSize(value, &size);
+#else
+                char *data = NULL;
+                if (PyString_AsStringAndSize(value, &data, &size) == -1 ||
+                    data == NULL) {
+                    PyErr_Format(PyExc_ValueError,
+                                 "PyString_AsStringAndSize() failed for "
+                                 "format '%c'.", format[i]);
+                }
+#endif
                 hooks->packet_append_string_len_terminated(packet, data, size);
                 continue;
             }
@@ -702,7 +716,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
 #undef CHECK_INT_RANGE
 #undef CHECK_UINT_RANGE
 
-    hooks->socket_send_packet(&self->pl->socket, packet);
+    hooks->socket_send_packet(self->pl->cs, packet);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -908,10 +922,10 @@ static PyObject *Atrinik_Player_Address(Atrinik_Player *self, PyObject *args)
     }
 
     if (!verbose) {
-        return Py_BuildValue("s", hooks->socket_get_addr(self->pl->socket.sc));
+        return Py_BuildValue("s", hooks->socket_get_addr(self->pl->cs->sc));
     }
 
-    return Py_BuildValue("s", hooks->socket_get_str(self->pl->socket.sc));
+    return Py_BuildValue("s", hooks->socket_get_str(self->pl->cs->sc));
 }
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -957,6 +971,31 @@ static PyMethodDef methods[] = {
 };
 
 /**
+ * Resolve offsets from data in the player fields to a temporary one that
+ * maps to the player's client socket structure.
+ *
+ * @param field
+ * Field to map to.
+ * @param field_orig
+ * Field to map from.
+ * @todo
+ * This should really be removed; instead we should wrap the player's
+ * client socket as a Python object.
+ */
+static void
+resolve_client_socket_field (fields_struct       *field,
+                             const fields_struct *field_orig)
+{
+    field->offset = field_orig->extra_data;
+
+    if (field->offset == offsetof(socket_struct, packets)) {
+        field->extra_data = FIELDTYPE_PACKETS;
+    } else {
+        field->extra_data = 0;
+    }
+}
+
+/**
  * Get player's attribute.
  * @param pl
  * Python player wrapper.
@@ -967,7 +1006,15 @@ static PyMethodDef methods[] = {
  */
 static PyObject *get_attribute(Atrinik_Player *pl, void *context)
 {
-    return generic_field_getter(context, pl->pl);
+    fields_struct *field = context;
+
+    if (field->offset == offsetof(player, cs)) {
+        fields_struct field_tmp = *field;
+        resolve_client_socket_field(&field_tmp, field);
+        return generic_field_getter(&field_tmp, pl->pl->cs);
+    }
+
+    return generic_field_getter(field, pl->pl);
 }
 
 /**
@@ -984,6 +1031,12 @@ static PyObject *get_attribute(Atrinik_Player *pl, void *context)
 static int set_attribute(Atrinik_Player *pl, PyObject *value, void *context)
 {
     fields_struct *field = context;
+
+    if (field->offset == offsetof(player, cs)) {
+        fields_struct field_tmp = *field;
+        resolve_client_socket_field(&field_tmp, field);
+        return generic_field_setter(&field_tmp, pl->pl->cs, value);
+    }
 
     if (generic_field_setter(field, pl->pl, value) == -1) {
         return -1;

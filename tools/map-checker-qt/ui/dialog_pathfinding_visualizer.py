@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QDialog, QGraphicsScene
 
 from ui.ui_dialog_pathfinding_visualizer import Ui_DialogPathfindingVisualizer
 from ui.model import Model
+import system.utils
 
 
 class DialogPathfindingVisualizer(Model, QDialog,
@@ -28,12 +29,15 @@ class DialogPathfindingVisualizer(Model, QDialog,
         self.last_path = None
         self.nodes = None
         self.maps = {}
+        self.level = None
 
         self.buttonPrev.clicked.connect(self.buttonPrevTrigger)
         self.buttonPause.clicked.connect(self.buttonPauseTrigger)
         self.buttonNext.clicked.connect(self.buttonNextTrigger)
         self.buttonRewind.clicked.connect(self.buttonRewindTrigger)
         self.buttonOpen.clicked.connect(self.buttonOpenTrigger)
+        self.comboBoxLevel.activated.connect(self.comboBoxLevelTrigger)
+        self.checkBoxOverlay.clicked.connect(self.comboBoxLevelTrigger)
 
         self.scene = QGraphicsScene()
         self.graphicsView.setScene(self.scene)
@@ -79,10 +83,16 @@ class DialogPathfindingVisualizer(Model, QDialog,
                 qpen = QtGui.QPen(color)
                 qpen.setWidth(3)
                 qpen.setCapStyle(Qt.RoundCap)
-                self.scene.addLine(x1, y1, x2, y2, qpen)
+                line = self.scene.addLine(x1, y1, x2, y2, qpen)
+                coords = system.utils.MapCoords(os.path.basename(node["map"]))
+                line.setZValue(coords.pos[2] + 0.10)
+                line.atrinik_level = coords.pos[2]
+                line.atrinik_z_adjust = 0.10
+                self.lines.append(line)
 
                 last_node = node
 
+            self.comboBoxLevelTrigger()
             return
 
         node = self.nodes[self.nodes_idx]
@@ -100,6 +110,12 @@ class DialogPathfindingVisualizer(Model, QDialog,
 
         self.maps[node["map"]][(node["x"], node["y"])].setBrush(brush)
 
+        if self.checkBoxAutoAdvance.isChecked():
+            coords = system.utils.MapCoords(os.path.basename(node["map"]))
+            if self.level != coords.pos[2]:
+                self.comboBoxLevel.setCurrentText(str(coords.pos[2]))
+                self.comboBoxLevelTrigger()
+
     def pathfindingVisualize(self, path):
         with open(path) as fp:
             self.data = json.load(fp)
@@ -107,29 +123,45 @@ class DialogPathfindingVisualizer(Model, QDialog,
         self.pathfindingVisualizeDraw()
 
     def pathfindingVisualizeDraw(self):
+        self.level = None
         self.scene.clear()
         self.nodes = []
         self.coords = {}
         self.nodes_idx = 0
-        x = 0
-        y = 0
+        self.ellipses = []
+        self.lines = []
+        self.rects = []
 
         num_visited = 0
         num_closed = 0
         nodes_unique = []
+        levels = {}
 
         for path in self.data["nodes"]:
+            coords = system.utils.MapCoords(os.path.basename(path))
+            levels[str(coords.pos[2])] = True
+            x = coords.pos[0]
+            x *= self.MAP_SIZE * self.TILE_SIZE
+            y = coords.pos[1]
+            y *= self.MAP_SIZE * self.TILE_SIZE
             self.maps[path] = {}
             self.coords[path] = (x, y)
             rect = self.scene.addRect(x, y, self.MAP_SIZE * self.TILE_SIZE,
                                       self.MAP_SIZE * self.TILE_SIZE)
+            rect.setZValue(coords.pos[2])
             rect.setToolTip(path)
+            rect.atrinik_level = coords.pos[2]
+            rect.atrinik_z_adjust = 0
+            self.rects.append(rect)
 
             for xt in range(self.MAP_SIZE):
                 for yt in range(self.MAP_SIZE):
                     self.maps[path][(xt, yt)] = self.scene.addRect(
                         x + xt * self.TILE_SIZE, y + yt * self.TILE_SIZE,
                         self.TILE_SIZE, self.TILE_SIZE)
+                    self.maps[path][(xt, yt)].setZValue(coords.pos[2] + 0.01)
+                    self.maps[path][(xt, yt)].atrinik_level = coords.pos[2]
+                    self.maps[path][(xt, yt)].atrinik_z_adjust = 0.01
 
             for node in self.data["nodes"][path]["walls"]:
                 node["map"] = path
@@ -149,11 +181,15 @@ class DialogPathfindingVisualizer(Model, QDialog,
 
                 if node["exit"]:
                     brush = QtGui.QBrush(QtGui.QColor(170, 60, 255))
-                    self.scene.addEllipse(x + node["x"] * self.TILE_SIZE + 5,
-                                          y + node["y"] * self.TILE_SIZE + 5,
-                                          self.TILE_SIZE - 5 * 2,
-                                          self.TILE_SIZE - 5 * 2,
-                                          brush=brush)
+                    e = self.scene.addEllipse(x + node["x"] * self.TILE_SIZE + 5,
+                                              y + node["y"] * self.TILE_SIZE + 5,
+                                              self.TILE_SIZE - 5 * 2,
+                                              self.TILE_SIZE - 5 * 2,
+                                              brush=brush)
+                    e.setZValue(coords.pos[2] + 0.05)
+                    e.atrinik_level = coords.pos[2]
+                    e.atrinik_z_adjust = 0.05
+                    self.ellipses.append(e)
 
                 rect = self.getNodeRect(node)
                 tooltip = rect.toolTip()
@@ -174,8 +210,6 @@ class DialogPathfindingVisualizer(Model, QDialog,
 
                 rect.setToolTip(tooltip)
 
-            x += self.MAP_SIZE * self.TILE_SIZE
-
         self.getNodeRect(self.data["start"]).setBrush(
             QtGui.QBrush(QtGui.QColor(0, 221, 0)))
         self.getNodeRect(self.data["goal"]).setBrush(
@@ -195,7 +229,7 @@ class DialogPathfindingVisualizer(Model, QDialog,
 
         if not math.isnan(self.data.get("time_taken", float("nan"))) and \
                 not math.isnan(self.data.get("num_searched", float("nan"))):
-            self.timeTaken.setText("{} seconds, searched <b>{}</b> nodes, "
+            self.timeTaken.setText("{:f} seconds, searched <b>{}</b> nodes, "
                                    "logged <b>{}</b> nodes, visited <b>{}</b>, closed <b>{}</b>, "
                                    "unique nodes <b>{}</b>, path length is <b>{}</b>".format(
                 self.data["time_taken"], self.data["num_searched"],
@@ -203,6 +237,12 @@ class DialogPathfindingVisualizer(Model, QDialog,
                 len(set(nodes_unique)), len(self.data["path"])))
         else:
             self.timeTaken.setText("")
+
+        self.comboBoxLevel.clear()
+        self.comboBoxLevel.addItem("Level")
+
+        if len(levels) > 1:
+            self.comboBoxLevel.addItems(sorted(levels.keys()))
 
     def buttonPrevTrigger(self):
         if self.nodes_idx <= 1:
@@ -243,3 +283,35 @@ class DialogPathfindingVisualizer(Model, QDialog,
         path = path[0]
         self.last_path = os.path.dirname(path)
         self.pathfindingVisualize(path)
+
+    def adjust_item_z(self, item):
+        level = item.atrinik_level
+        z = 1000000 if level == self.level else level
+        z += item.atrinik_z_adjust
+        item.setZValue(z)
+
+        if not self.checkBoxOverlay.isChecked():
+            visible = level == self.level or self.level is None
+        else:
+            visible = True
+
+        item.setVisible(visible)
+
+    def comboBoxLevelTrigger(self):
+        try:
+            self.level = int(self.comboBoxLevel.currentText())
+        except ValueError:
+            self.level = None
+
+        for path in self.maps:
+            for pos in self.maps[path]:
+                self.adjust_item_z(self.maps[path][pos])
+
+        for ellipse in self.ellipses:
+            self.adjust_item_z(ellipse)
+
+        for line in self.lines:
+            self.adjust_item_z(line)
+
+        for rect in self.rects:
+            self.adjust_item_z(rect)

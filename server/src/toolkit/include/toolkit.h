@@ -45,9 +45,7 @@
 #include <logger.h>
 #include <memory.h>
 #include <mempool.h>
-#include <sha1.h>
 #include <shstr.h>
-#include <socket.h>
 #include <stringbuffer.h>
 #include <utarray.h>
 #include <uthash.h>
@@ -160,6 +158,48 @@ typedef struct toolkit_dependency {
  * Takes a variable and returns the variable and its size.
  */
 #define VS(var) (var), sizeof((var))
+
+/**
+ * @defgroup buffer_sizes Buffer sizes
+ *@{*/
+/** Used for all kinds of things. */
+#define MAX_BUF             256
+/** Used for messages - some can be quite long. */
+#define HUGE_BUF            4096
+/**
+ * Maximum size of player name.
+ * @todo Get rid of this.
+ */
+#define MAX_NAME            16
+/**
+ * Used for other named things.
+ * @todo Get rid of this.
+ */
+#define BIG_NAME            32
+/*@}*/
+
+/**
+ * Returns the element size of an array.
+ *
+ * @param arrayname
+ * The array's name.
+ * @return
+ * The number of elements.
+ */
+#define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
+
+/** Check if the keyword represents a true value. */
+#define KEYWORD_IS_TRUE(_keyword) (!strcasecmp((_keyword), "yes") || !strcasecmp((_keyword), "on") || !strcasecmp((_keyword), "true"))
+/** Check if the keyword represents a false value. */
+#define KEYWORD_IS_FALSE(_keyword) (!strcasecmp((_keyword), "no") || !strcasecmp((_keyword), "off") || !strcasecmp((_keyword), "false"))
+#define KEYWORD_TO_BOOLEAN(_keyword, _bool)     \
+do {                                            \
+    if (KEYWORD_IS_TRUE((_keyword))) {          \
+        (_bool) = true;                         \
+    } else if (KEYWORD_IS_FALSE((_keyword))) {  \
+        (_bool) = false;                        \
+    }                                           \
+} while (0)
 
 /**
  * @defgroup TIMER_xxx Timer macros
@@ -368,5 +408,17 @@ typedef struct toolkit_dependency {
  */
 #define FOR_EACH(what, ...) \
     _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
+
+#include <socket.h>
+#include <toolkit_math.h> /* TODO: remove */
+
+/* Prototypes */
+
+void
+toolkit_import_register(const char *name, toolkit_func func);
+bool
+toolkit_check_imported(toolkit_func func);
+void
+toolkit_deinit(void);
 
 #endif

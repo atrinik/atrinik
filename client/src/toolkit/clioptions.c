@@ -32,6 +32,7 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <clioptions.h>
+#include <path.h>
 
 /**
  * Iterate over all the CLI options.

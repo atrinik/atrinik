@@ -32,13 +32,4 @@
 
 #define MAX_INPUT_STR 256
 
-/**
- * Returns the element size of an array.
- * @param arrayname
- * The array's name.
- * @return
- * The number of elements.
- */
-#define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
-
 #endif

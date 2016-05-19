@@ -30,6 +30,8 @@ extern void socket_command_map(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_version(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_compressed(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
+void
+socket_command_crypto(uint8_t *data, size_t len, size_t pos);
 /* src/client/image.c */
 /* src/client/item.c */
 extern void object_init(void);
@@ -103,7 +105,7 @@ extern server_struct *server_get_id(size_t num);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
-extern void metaserver_add(const char *hostname, int port, const char *name, int player, const char *version, const char *desc);
+extern server_struct *metaserver_add(const char *hostname, int port, int port_crypto, const char *name, const char *version, const char *desc);
 extern int metaserver_thread(void *dummy);
 extern void metaserver_get_servers(void);
 /* src/client/misc.c */
@@ -174,7 +176,7 @@ extern void socket_thread_stop(void);
 extern int handle_socket_shutdown(void);
 extern void client_socket_close(client_socket_t *csock);
 extern void client_socket_deinitialize(void);
-extern bool client_socket_open(client_socket_t *csock, const char *host, int port);
+extern bool client_socket_open(client_socket_t *csock, const char *host, int port, bool secure);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);
@@ -809,15 +811,6 @@ extern time_t datetime_getutc(void);
 extern time_t datetime_utctolocal(time_t t);
 /* src/toolkit/logger.c */
 /* src/toolkit/math.c */
-extern void toolkit_math_init(void);
-extern void toolkit_math_deinit(void);
-extern unsigned long isqrt(unsigned long n);
-extern int rndm(int min, int max);
-extern int rndm_chance(uint32_t n);
-extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
-extern size_t nearest_pow_two_exp(size_t n);
-extern bool math_point_in_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle);
-extern bool math_point_edge_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle, int *deg);
 /* src/toolkit/memory.c */
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);
@@ -833,37 +826,12 @@ extern size_t mempool_reclaim(mempool_struct *pool);
 extern void mempool_leak_info_all(StringBuffer *sb);
 /* src/toolkit/packet.c */
 /* src/toolkit/path.c */
-extern void toolkit_path_init(void);
-extern void toolkit_path_deinit(void);
-extern char *path_join(const char *path, const char *path2);
-extern char *path_dirname(const char *path);
-extern char *path_basename(const char *path);
-extern char *path_normalize(const char *path);
-extern void path_ensure_directories(const char *path);
-extern int path_copy_file(const char *src, FILE *dst, const char *mode);
-extern int path_exists(const char *path);
-extern int path_touch(const char *path);
-extern size_t path_size(const char *path);
-extern char *path_file_contents(const char *path);
-extern int path_rename(const char *old, const char *new);
 /* src/toolkit/pbkdf2.c */
 extern void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
 /* src/toolkit/sha1.c */
-extern void toolkit_sha1_init(void);
-extern void toolkit_sha1_deinit(void);
-extern void sha1_starts(sha1_context *ctx);
-extern void sha1_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
-extern void sha1_finish(sha1_context *ctx, unsigned char output[20]);
-extern void sha1(const unsigned char *input, size_t ilen, unsigned char output[20]);
-extern int sha1_file(const char *path, unsigned char output[20]);
-extern void sha1_hmac_starts(sha1_context *ctx, const unsigned char *key, size_t keylen);
-extern void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
-extern void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
-extern void sha1_hmac_reset(sha1_context *ctx);
-extern void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
 /* src/toolkit/shstr.c */
 extern void toolkit_shstr_init(void);
 extern void toolkit_shstr_deinit(void);
@@ -880,9 +848,6 @@ extern void toolkit_signals_deinit(void);
 /* src/toolkit/string.c */
 /* src/toolkit/stringbuffer.c */
 /* src/toolkit/toolkit.c */
-extern void toolkit_import_register(const char *name, toolkit_func func);
-extern _Bool toolkit_check_imported(toolkit_func func);
-extern void toolkit_deinit(void);
 /* src/toolkit/x11.c */
 extern void toolkit_x11_init(void);
 extern void toolkit_x11_deinit(void);

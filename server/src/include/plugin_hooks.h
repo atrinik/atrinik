@@ -51,6 +51,7 @@
 #include <exp.h>
 #include <rune.h>
 #include <beacon.h>
+#include <path.h>
 
 /** The actual hooklist. */
 static struct plugin_hooklist hooklist =

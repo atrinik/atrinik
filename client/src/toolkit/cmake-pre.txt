@@ -61,6 +61,7 @@ endif ()
 
 if (MINGW)
     add_definitions(-DCURL_STATICLIB -DPTW32_STATIC_LIB -DBGDWIN32 -DNONDLL)
+    add_definitions(-DNOCRYPT)
     set(CURL_STATICLIB true)
     set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
     set(PLUGIN_SUFFIX ".dll")
@@ -173,6 +174,7 @@ check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(mkstemp HAVE_MKSTEMP)
 check_function_exists(sincos HAVE_SINCOS)
+check_function_exists(pselect HAVE_PSELECT)
 
 if (WIN32)
     check_include_files(wspiapi.h HAVE_WSPIAPI_H)
@@ -209,6 +211,7 @@ set(SOURCES_TOOLKIT
     src/toolkit/shstr.c
     src/toolkit/signals.c
     src/toolkit/socket.c
+    src/toolkit/socket_crypto.c
     src/toolkit/string.c
     src/toolkit/stringbuffer.c
     src/toolkit/toolkit.c

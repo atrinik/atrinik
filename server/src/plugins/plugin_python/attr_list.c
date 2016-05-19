@@ -117,7 +117,7 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
     int *len = (int *) ((char *) al->ptr +
             offsetof(player, num_cmd_permissions));
     socket_struct *ns = (socket_struct *) ((char *) al->ptr +
-            offsetof(player, socket));
+            offsetof(player, cs));
 
     if (oper == AL_OPER_CLEAR) {
         if (*perms == NULL) {

@@ -68,7 +68,7 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
     packet_struct *packet;
 
     /* Player has disabled sound */
-    if (!pl->socket.sound) {
+    if (!pl->cs->sound) {
         return;
     }
 
@@ -90,7 +90,7 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
         packet_append_uint8(packet, y);
     }
 
-    socket_send_packet(&pl->socket, packet);
+    socket_send_packet(pl->cs, packet);
 }
 
 /**

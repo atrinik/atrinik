@@ -53,6 +53,6 @@ void command_kick(object *op, const char *command, char *params)
     draw_info_format(COLOR_WHITE, NULL, "%s was kicked out of the game.", pl->ob->name);
     LOG(CHAT, "[KICK] %s was kicked out of the game by %s.", pl->ob->name, op->name);
 
-    pl->socket.state = ST_DEAD;
-    remove_ns_dead_player(pl);
+    pl->cs->state = ST_DEAD;
+    player_logout(pl);
 }

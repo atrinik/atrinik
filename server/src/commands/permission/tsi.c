@@ -37,7 +37,7 @@
 void command_tsi(object *op, const char *command, char *params)
 {
     CONTR(op)->tsi = !CONTR(op)->tsi;
-    CONTR(op)->socket.update_tile = 0;
+    CONTR(op)->cs->update_tile = 0;
     esrv_send_inventory(op, op);
     draw_info_format(COLOR_WHITE, op, "Toggled seeing invisible objects %s.", CONTR(op)->tsi ? "on" : "off");
 }
