@@ -1,0 +1,18 @@
+===============================================================================
+= ADS-7, rev: 0.1: Atrinik Server Certificate Specification                   =
+===============================================================================
+ This document contains design specification for the Atrinik server certificate
+ format, which is used for the so-called "vetting" procedure. The following
+ sections exist:
+
+ 1. Prologue
+ 2. Certificate format
+ 3. Signing method
+ 4. Authors
+
+===============================================================================
+= 4. Authors                                                                  =
+===============================================================================
+ This document was written by:
+
+  Alex Tokar
