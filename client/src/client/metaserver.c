@@ -32,8 +32,12 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <curl.h>
+
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+
+#include <openssl/sha.h>
+#include <openssl/err.h>
 
 /**
  * Macro to check for XML string equality without the annoying xmlChar
@@ -65,6 +69,14 @@ static size_t server_count;
 static SDL_mutex *server_head_mutex;
 /** Is metaserver enabled? */
 static uint8_t enabled = 1;
+/** The string that begins certificate information. */
+static const char *cert_begin_str = "=========================="
+                                    "     BEGIN INFORMATION     "
+                                    "==========================";
+/** The string that ends certificate information. */
+static const char *cert_end_str = "=========================="
+                                  "      END INFORMATION      "
+                                  "==========================";
 
 /**
  * Initialize the metaserver data.
@@ -90,6 +102,40 @@ void metaserver_disable(void)
 {
     enabled = 0;
     metaserver_connecting = 0;
+}
+
+/**
+ * Free the specified server certificate information structure.
+ *
+ * @param info
+ * What to free.
+ */
+static void
+metaserver_cert_free (server_cert_info_t *info)
+{
+    HARD_ASSERT(info != NULL);
+
+    if (info->name != NULL) {
+        efree(info->name);
+    }
+
+    if (info->hostname != NULL) {
+        efree(info->hostname);
+    }
+
+    if (info->ipv4_address != NULL) {
+        efree(info->ipv4_address);
+    }
+
+    if (info->ipv6_address != NULL) {
+        efree(info->ipv6_address);
+    }
+
+    if (info->pubkey != NULL) {
+        efree(info->pubkey);
+    }
+
+    efree(info);
 }
 
 /**
@@ -123,7 +169,146 @@ metaserver_free (server_struct *server)
         efree(server->cert_pubkey);
     }
 
+    if (server->cert != NULL) {
+        efree(server->cert);
+    }
+
+    if (server->cert_sig != NULL) {
+        efree(server->cert_sig);
+    }
+
+    if (server->cert_info != NULL) {
+        metaserver_cert_free(server->cert_info);
+    }
+
     efree(server);
+}
+
+/**
+ * Parse the metaserver certificate information.
+ *
+ * @param server
+ * Metaserver entry.
+ * @return
+ * True on success, false on failure.
+ */
+static bool
+parse_metaserver_cert (server_struct *server)
+{
+    HARD_ASSERT(server != NULL);
+
+    if (server->cert == NULL || server->cert_sig == NULL) {
+        /* No certificate. */
+        return true;
+    }
+
+    /* Generate a SHA512 hash of the certificate's contents. */
+    unsigned char cert_digest[SHA512_DIGEST_LENGTH];
+    if (SHA512((unsigned char *) server->cert,
+               strlen(server->cert),
+               cert_digest) == NULL) {
+        LOG(ERROR, "SHA512() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return false;
+    }
+
+    char cert_hash[SHA512_DIGEST_LENGTH * 2 + 1];
+    SOFT_ASSERT_RC(string_tohex(VS(cert_digest),
+                                VS(cert_hash),
+                                false) == sizeof(cert_hash) - 1,
+                   false,
+                   "string_tohex failed");
+    string_tolower(cert_hash);
+
+    /* Verify the signature. */
+    if (!curl_verify(CURL_PKEY_TRUST_ULTIMATE,
+                     cert_hash,
+                     strlen(cert_hash),
+                     server->cert_sig,
+                     server->cert_sig_len)) {
+        LOG(ERROR, "Failed to verify signature");
+        return false;
+    }
+
+    server_cert_info_t *info = ecalloc(1, sizeof(*info));
+
+    char buf[MAX_BUF];
+    size_t pos = 0;
+    bool in_info = false;
+    while (string_get_word(server->cert, &pos, '\n', VS(buf), 0)) {
+        char *cp = buf;
+        string_skip_whitespace(cp);
+        string_strip_newline(cp);
+
+        if (*cp == '\0') {
+            continue;
+        }
+
+        if (strcmp(cp, cert_begin_str) == 0) {
+            in_info = true;
+            continue;
+        } else if (!in_info) {
+            continue;
+        } else if (strcmp(cp, cert_end_str) == 0) {
+            break;
+        }
+
+        char *cps[2];
+        if (string_split(cp, cps, arraysize(cps), ':') != arraysize(cps)) {
+            LOG(ERROR, "Parsing error");
+            continue;
+        }
+
+        string_tolower(cps[0]);
+        string_skip_whitespace(cps[1]);
+        const char *key = cps[0];
+        const char *value = cps[1];
+        char **content = NULL;
+        if (strcmp(key, "name") == 0) {
+            content = &info->name;
+        } else if (strcmp(key, "hostname") == 0) {
+            content = &info->hostname;
+        } else if (strcmp(key, "ipv4 address") == 0) {
+            content = &info->ipv4_address;
+        } else if (strcmp(key, "ipv6 address") == 0) {
+            content = &info->ipv6_address;
+        } else if (strcmp(key, "public key") == 0) {
+            content = &info->pubkey;
+        } else if (strcmp(key, "port") == 0) {
+            info->port = atoi(value);
+        } else if (strcmp(key, "crypto port") == 0) {
+            info->port_crypto = atoi(value);
+        } else {
+            LOG(DEVEL, "Unrecognized key: %s", key);
+            continue;
+        }
+
+        if (content != NULL) {
+            StringBuffer *sb = stringbuffer_new();
+
+            if (*content != NULL) {
+                stringbuffer_append_string(sb, *content);
+                efree(*content);
+            }
+
+            stringbuffer_append_string(sb, value);
+            *content = stringbuffer_finish(sb);
+        }
+    }
+
+    /* Ensure we got the data we need. */
+    if (info->name == NULL ||
+        info->hostname == NULL ||
+        info->pubkey == NULL ||
+        info->port_crypto <= 0 ||
+        (info->ipv4_address == NULL) != (info->ipv6_address == NULL)) {
+        metaserver_cert_free(info);
+        LOG(ERROR, "Certificate is missing required data.");
+        return false;
+    }
+
+    server->cert_info = info;
+    return true;
 }
 
 /**
@@ -171,6 +356,20 @@ parse_metaserver_data_node (xmlNodePtr node, server_struct *server)
     } else if (XML_STR_EQUAL(node->name, "cert_pubkey")) {
         SOFT_ASSERT_LABEL(server->cert_pubkey == NULL, error, "Parsing error");
         server->cert_pubkey = estrdup((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "cert")) {
+        SOFT_ASSERT_LABEL(server->cert == NULL, error, "Parsing error");
+        server->cert = estrdup((const char *) content);
+    } else if (XML_STR_EQUAL(node->name, "cert_sig")) {
+        SOFT_ASSERT_LABEL(server->cert_sig == NULL, error, "Parsing error");
+        unsigned char *sig;
+        size_t sig_len;
+        if (!math_base64_decode((const char *) content, &sig, &sig_len)) {
+            LOG(ERROR, "Error decoding BASE64 certificate signature");
+            goto error;
+        }
+
+        server->cert_sig = sig;
+        server->cert_sig_len = sig_len;
     } else {
         LOG(DEVEL, "Unrecognized node: %s", (const char *) node->name);
     }
@@ -216,6 +415,11 @@ parse_metaserver_node (xmlNodePtr node)
         server->version == NULL ||
         server->desc == NULL) {
         LOG(ERROR, "Incomplete data from metaserver");
+        goto error;
+    }
+
+    if (!parse_metaserver_cert(server)) {
+        /* Logging already done */
         goto error;
     }
 
