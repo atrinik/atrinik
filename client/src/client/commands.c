@@ -38,7 +38,7 @@
 void socket_command_book(uint8_t *data, size_t len, size_t pos)
 {
     sound_play_effect("book.ogg", 100);
-    book_load((char *) data, len);
+    book_load((char *) data + pos, len);
 }
 
 /** @copydoc socket_command_struct::handle_func */
