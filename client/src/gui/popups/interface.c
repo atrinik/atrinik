@@ -395,7 +395,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
     SDL_Rect box;
     interface_struct *old_interface_data;
 
-    if (len == 0) {
+    if (len == pos) {
         if (interface_data) {
             interface_data->destroy = 1;
         }

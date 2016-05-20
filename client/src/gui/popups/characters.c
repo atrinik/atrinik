@@ -586,7 +586,7 @@ void socket_command_characters(uint8_t *data, size_t len, size_t pos)
     uint8_t level;
     size_t race, gender;
 
-    if (len == 0) {
+    if (len == pos) {
         cpl.state = ST_LOGIN;
         clioption_settings.reconnect = 0;
         return;

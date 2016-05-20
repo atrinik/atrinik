@@ -2090,7 +2090,7 @@ void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size
 {
     ns->keepalive = 0;
 
-    if (len == 0) {
+    if (len == pos) {
         return;
     }
 
