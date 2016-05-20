@@ -303,6 +303,7 @@ void link_player_skills(object *pl)
             tmp = object_clone(&skills[i].at->clone);
             object_insert_into(tmp, pl, 0);
             CONTR(pl)->skill_ptr[i] = tmp;
+            fix = true;
         }
 
         if (!QUERY_FLAG(CONTR(pl)->skill_ptr[i], FLAG_STAND_STILL)) {
