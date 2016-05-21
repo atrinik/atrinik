@@ -1232,13 +1232,14 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
     /* Meta-server servers must have a certificate public key record
      * associated with them.*/
     if (selected_server->is_meta) {
-        if (selected_server->cert_pubkey == NULL) {
+        const char *pubkey = METASERVER_GET_PUBKEY(selected_server);
+        if (pubkey == NULL) {
             LOG(ERROR, " !!! Server has no public key record! !!!");
             socket_command_crypto_abort();
             return;
         }
 
-        socket_crypto_load_pubkey(crypto, selected_server->cert_pubkey);
+        socket_crypto_load_pubkey(crypto, pubkey);
     }
 
     if (!socket_crypto_load_cert(crypto, cert, chain)) {

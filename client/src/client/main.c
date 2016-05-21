@@ -281,7 +281,7 @@ static int game_status_chain(void)
         }
 
         /* Ensure we have a public key record. */
-        if (secure && selected_server->cert_pubkey == NULL) {
+        if (secure && METASERVER_GET_PUBKEY(selected_server) == NULL) {
             draw_info_format(COLOR_RED,
                              "The server %s (%d) does not have a public key "
                              "record, refusing to connect.",

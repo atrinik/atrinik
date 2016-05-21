@@ -107,6 +107,20 @@ typedef struct server_struct {
 } server_struct;
 
 /**
+ * Acquire public key to use for the specified server.
+ *
+ * @param server
+ * Server.
+ * @return
+ * Public key, NULL if there's no public key.
+ * @todo
+ * This should really be a function.
+ */
+#define METASERVER_GET_PUBKEY(server)                               \
+    ((server)->cert_info != NULL ? (server)->cert_info->pubkey :    \
+     (server)->cert_pubkey)
+
+/**
  * Message animation structure. Used when NDI_ANIM is passed to
  * DrawInfoCmd2().
  */
