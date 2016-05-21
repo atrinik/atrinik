@@ -290,6 +290,8 @@ metaserver_get_key (char       *key,
             goto error_creating;
         }
 
+        fp = NULL;
+
         SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
                                        key,
                                        key_size,
@@ -305,6 +307,10 @@ error_creating:
         if (unlink(path) != 0) {
             LOG(ERROR, "Failed to unlink %s: %s (%d)",
                 path, strerror(errno), errno);
+        }
+
+        if (fp != NULL) {
+            fclose(fp);
         }
 
         memset(&bytes, 0, sizeof(bytes));
