@@ -2735,9 +2735,7 @@ socket_crypto_decrypt (socket_t *sc,
         goto error;
     }
 
-    size_t enc_len = (((decrypted_len + AES_BLOCK_SIZE) / AES_BLOCK_SIZE) *
-                      AES_BLOCK_SIZE);
-    decrypted = emalloc(enc_len);
+    decrypted = emalloc(*len_out);
 
     int new_len = 0;
     size_t dec_len = 0;
@@ -2771,6 +2769,15 @@ socket_crypto_decrypt (socket_t *sc,
         goto error;
     }
     dec_len += new_len;
+
+    if (decrypted_len > dec_len) {
+        LOG(ERROR,
+            "Claimed decrypted length (%u) larger than decrypted bytes "
+            "(%" PRIu64 ")",
+            decrypted_len,
+            (uint64_t) dec_len);
+        goto error;
+    }
 
     efree(*data_out);
     *data_out = decrypted;
