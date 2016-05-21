@@ -659,6 +659,7 @@ curl_request_create (const char *url, curl_pkey_trust_t trust)
     curl_request_t *request = ecalloc(1, sizeof(*request));
     request->url = estrdup(url);
     request->http_code = -1;
+    /* coverity[missing_lock] */
     request->state = CURL_STATE_INPROGRESS;
     request->trust = trust;
 
@@ -1508,6 +1509,8 @@ curl_request_start_get (curl_request_t *request)
                             curl_request_do_get,
                             request);
     if (rc != 0) {
+        /* Thread creation failed; no lock necessary. */
+        /* coverity[missing_lock] */
         LOG(ERROR, "Failed to create thread: %s (%d)", strerror(rc), rc);
         request->state = CURL_STATE_ERROR;
     }
@@ -1578,6 +1581,8 @@ curl_request_start_post (curl_request_t *request)
                             curl_request_do_post,
                             request);
     if (rc != 0) {
+        /* Thread creation failed; no lock necessary. */
+        /* coverity[missing_lock] */
         LOG(ERROR, "Failed to create thread: %s (%d)", strerror(rc), rc);
         request->state = CURL_STATE_ERROR;
     }

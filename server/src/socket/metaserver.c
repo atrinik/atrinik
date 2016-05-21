@@ -124,15 +124,28 @@ metaserver_deinit (void)
         return;
     }
 
+    pthread_mutex_lock(&request_lock);
     if (current_request != NULL) {
+        pthread_mutex_unlock(&request_lock);
         curl_state_t state;
         do {
+            pthread_mutex_lock(&request_lock);
+            if (current_request == NULL) {
+                pthread_mutex_unlock(&request_lock);
+                break;
+            }
             state = curl_request_get_state(current_request);
+            pthread_mutex_unlock(&request_lock);
             sleep(1);
         } while (state == CURL_STATE_INPROGRESS);
 
+        /* No other thread is working with the current request at this
+         * point. */
         curl_request_free(current_request);
+        /* coverity[missing_lock] */
         current_request = NULL;
+    } else {
+        pthread_mutex_unlock(&request_lock);
     }
 
     if (request_players != NULL) {
