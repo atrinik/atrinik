@@ -591,6 +591,9 @@ metaserver_info_update (void)
 
     char url[MAX_BUF];
     snprintf(VS(url), "%s/otp", settings.metaserver_url);
+    /* If we're at this point, no other thread is currently working with
+     * the current request and thus a lock is not necessary. */
+    /* coverity[missing_lock] */
     current_request = curl_request_create(url, CURL_PKEY_TRUST_ULTIMATE);
     curl_request_set_cb(current_request, metaserver_otp_request, NULL);
     curl_request_start_get(current_request);

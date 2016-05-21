@@ -490,6 +490,9 @@ _free (void *ptr, const char *file, uint32_t line)
         abort();
     }
 #else
+    /* This is *NOT* an alias; we acquire a pointer to the structure
+     * preceding the user-specified pointer. */
+    /* coverity[var_assign_alias] */
     memory_chunk_t *chunk = MEM_CHUNK(ptr);
 #endif
 
