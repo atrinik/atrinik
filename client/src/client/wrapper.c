@@ -105,17 +105,15 @@ static int mkdir_recurse(const char *path)
             *p = '\0';
         }
 
-        if (access(copy, F_OK) == -1) {
-            if (mkdir(copy, 0755) == -1) {
-                efree(copy);
-                return -1;
-            }
+        if (mkdir(copy, 0755) == -1 && errno != EEXIST) {
+            efree(copy);
+            return -1;
         }
 
         if (p) {
             *p = '/';
         }
-    }    while (p);
+    } while (p);
 
     efree(copy);
 
@@ -272,24 +270,11 @@ void rmrf(const char *path)
  */
 void copy_rec(const char *src, const char *dst)
 {
-    struct stat st;
-
-    /* Does it exist? */
-    if (stat(src, &st) != 0) {
-        return;
-    }
-
     /* Copy directory contents. */
-    if (S_ISDIR(st.st_mode)) {
-        DIR *dir;
+    DIR *dir = opendir(src);
+    if (dir != NULL) {
         struct dirent *currentfile;
         char dir_src[HUGE_BUF], dir_dst[HUGE_BUF];
-
-        dir = opendir(src);
-
-        if (!dir) {
-            return;
-        }
 
         /* Try to make the new directory. */
         if (access(dst, R_OK) != 0) {
