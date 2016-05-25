@@ -858,6 +858,9 @@ void living_update_player(object *op)
 
             if (tmp->type == DISEASE || tmp->type == SYMPTOM) {
                 speed_reduce_from_disease = tmp->last_sp / 100.0;
+                if (DBL_EQUAL(speed_reduce_from_disease, 0.0)) {
+                    speed_reduce_from_disease = 1.0;
+                }
             } else if (tmp->stats.exp != 0) {
                 if (tmp->stats.exp > 0) {
                     added_speed += tmp->stats.exp / 3.0;
