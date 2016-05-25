@@ -348,7 +348,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     case SP_GREATER_HEAL:
     case SP_CURE_POISON:
     case SP_CURE_DISEASE:
-        success = cast_heal(op, SK_level(caster), target, type);
+        success = cast_heal(op, caster, SK_level(caster), target, type);
         break;
 
     case SP_REMOVE_DEPLETION:

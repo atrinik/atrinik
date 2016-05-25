@@ -446,7 +446,7 @@ extern int cast_create_food(object *op, object *caster, int dir, const char *str
 extern int cast_wor(object *op, object *caster);
 extern void cast_destruction(object *op, object *caster, int dam);
 extern int cast_heal_around(object *op, int level, int type);
-extern int cast_heal(object *op, int level, object *target, int spell_type);
+extern int cast_heal(object *op, object *caster, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
 extern int cast_remove_depletion(object *op, object *target);
 extern int remove_curse(object *op, object *target, int type, int src);
