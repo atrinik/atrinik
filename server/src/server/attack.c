@@ -468,11 +468,11 @@ attack_block_hit (object *op, object *hitter, double *damage)
  * How much damage should have been done, not counting protections.
  */
 static void
-send_attack_msg (object  *op,
-                 object  *hitter,
-                 atnr_t atnr,
-                 int      dam_done,
-                 int      dam_orig)
+send_attack_msg (object *op,
+                 object *hitter,
+                 atnr_t  atnr,
+                 double  dam_done,
+                 double  dam_orig)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
@@ -480,7 +480,9 @@ send_attack_msg (object  *op,
     if (op->type == PLAYER) {
         draw_info_format(COLOR_PURPLE, op,
                          "%s hit you for %d (%d) damage.",
-                         hitter->name, dam_done, dam_done - dam_orig);
+                         hitter->name,
+                         (int) (dam_done + 0.5),
+                         (int) (dam_done - dam_orig + 0.5));
     }
 
     const char *hitter_name =
@@ -489,7 +491,10 @@ send_attack_msg (object  *op,
                                    hitter->type == PLAYER)) {
         draw_info_format(COLOR_ORANGE, hitter,
                          "You hit %s for %d (%d) with %s.",
-                         op->name, dam_done, dam_done - dam_orig, hitter_name);
+                         op->name,
+                         (int) (dam_done + 0.5),
+                         (int) (dam_done - dam_orig + 0.5),
+                         hitter_name);
     }
 }
 
