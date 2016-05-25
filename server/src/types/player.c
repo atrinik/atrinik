@@ -742,7 +742,7 @@ kill_player (object *op)
         draw_info(COLOR_NAVY, op, "You have been defeated in combat!\nLocal medics have saved your life...");
 
         /* Restore player */
-        cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
+        cast_heal(op, op, MAXLEVEL, op, SP_CURE_POISON);
         /* Remove any disease */
         disease_cure(op, NULL);
         op->stats.hp = op->stats.maxhp;
@@ -817,7 +817,7 @@ kill_player (object *op)
     player_death_deplete_stats(op);
 
     /* Remove any poisoning the character may be suffering. */
-    cast_heal(op, MAXLEVEL, op, SP_CURE_POISON);
+    cast_heal(op, op, MAXLEVEL, op, SP_CURE_POISON);
     /* Remove any disease */
     disease_cure(op, NULL);
 

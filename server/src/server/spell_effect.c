@@ -353,7 +353,7 @@ int cast_heal_around(object *op, int level, int type)
                     continue;
                 }
 
-                cast_heal(op, level, tmp, SP_MINOR_HEAL);
+                cast_heal(op, op, level, tmp, SP_MINOR_HEAL);
                 success = 1;
             }
         }
@@ -374,7 +374,7 @@ int cast_heal_around(object *op, int level, int type)
 
         for (ol = CONTR(op)->party->members; ol; ol = ol->next) {
             if (on_same_map(ol->objlink.ob, op)) {
-                cast_heal(op, level, ol->objlink.ob, SP_MINOR_HEAL);
+                cast_heal(op, op, level, ol->objlink.ob, SP_MINOR_HEAL);
             }
         }
 
@@ -388,8 +388,11 @@ int cast_heal_around(object *op, int level, int type)
 
 /**
  * Heals something.
+ *
  * @param op
  * Who is casting.
+ * @param caster
+ * Object that is casting.
  * @param level
  * Level of the skill.
  * @param target
@@ -397,7 +400,12 @@ int cast_heal_around(object *op, int level, int type)
  * @param spell_type
  * ID of the spell.
  */
-int cast_heal(object *op, int level, object *target, int spell_type)
+int
+cast_heal (object *op,
+           object *caster,
+           int     level,
+           object *target,
+           int     spell_type)
 {
     archetype_t *at;
     object *temp;
@@ -412,7 +420,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     switch (spell_type) {
     case SP_CURE_DISEASE:
 
-        if (disease_cure(target, op)) {
+        if (disease_cure(target, caster)) {
             success = 1;
         }
 
@@ -540,15 +548,15 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 
     case SP_RESTORATION:
 
-        if (cast_heal(op, level, target, SP_CURE_POISON)) {
+        if (cast_heal(op, caster, level, target, SP_CURE_POISON)) {
             success = 1;
         }
 
-        if (cast_heal(op, level, target, SP_CURE_CONFUSION)) {
+        if (cast_heal(op, caster, level, target, SP_CURE_CONFUSION)) {
             success = 1;
         }
 
-        if (cast_heal(op, level, target, SP_CURE_DISEASE)) {
+        if (cast_heal(op, caster, level, target, SP_CURE_DISEASE)) {
             success = 1;
         }
 
@@ -557,7 +565,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
             target->stats.food = 999;
         }
 
-        if (cast_heal(op, level, target, SP_MINOR_HEAL)) {
+        if (cast_heal(op, caster, level, target, SP_MINOR_HEAL)) {
             success = 1;
         }
 
