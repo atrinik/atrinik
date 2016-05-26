@@ -226,13 +226,13 @@ if (GIT_SCM AND GITDIR)
     add_custom_command(OUTPUT ${GITVERSION_H}
         COMMAND ${CMAKE_COMMAND} -E echo "#ifndef GITVERSION_H" > ${GITVERSION_H}
         COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITVERSION " >> ${GITVERSION_H}
-        COMMAND ${GIT_SCM} log -1 "--pretty=format:%h" >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} --git-dir "${GITDIR}" log -1 "--pretty=format:%h" >> ${GITVERSION_H}
         COMMAND ${CMAKE_COMMAND} -E echo "" >> ${GITVERSION_H}
         COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITAUTHOR " >> ${GITVERSION_H}
-        COMMAND ${GIT_SCM} log -1 "--pretty=format:%an" >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} --git-dir "${GITDIR}" log -1 "--pretty=format:%an" >> ${GITVERSION_H}
         COMMAND ${CMAKE_COMMAND} -E echo "" >> ${GITVERSION_H}
         COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITBRANCH " >> ${GITVERSION_H}
-        COMMAND ${GIT_SCM} rev-parse --abbrev-ref HEAD >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} --git-dir "${GITDIR}" rev-parse --abbrev-ref HEAD >> ${GITVERSION_H}
         COMMAND ${CMAKE_COMMAND} -E echo "#endif" >> ${GITVERSION_H}
         DEPENDS ${GITDIR}/logs/HEAD
         VERBATIM
