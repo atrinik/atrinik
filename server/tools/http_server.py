@@ -82,6 +82,18 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
             f.close()
             raise
 
+    def copyfile(self, source, outputfile):
+        block_size = 16 * 1024
+        while True:
+            buf = source.read(block_size)
+            if not buf:
+                break
+
+            total = len(buf)
+            pos = 0
+            while pos < total:
+                pos += outputfile.write(buf[pos:])
+
 class ForkingHTTPServer(SocketServerMixIn, HTTPServer):
     def finish_request(self, request, client_address):
         request.settimeout(60)
