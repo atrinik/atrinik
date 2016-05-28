@@ -253,6 +253,7 @@ extern x11_display_type SDL_display;
 extern x11_window_type SDL_window;
 extern void video_init(void);
 extern int video_get_bpp(void);
+extern void video_set_icon(SDL_Surface *icon);
 extern int video_set_size(void);
 extern uint32_t get_video_flags(void);
 extern int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags);
