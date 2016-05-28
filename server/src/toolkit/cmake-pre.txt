@@ -245,3 +245,4 @@ else ()
 endif ()
 
 add_custom_target(git_branch DEPENDS ${GITVERSION_H})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
