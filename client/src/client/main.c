@@ -603,8 +603,8 @@ int main(int argc, char *argv[])
     }
 
     /* Start the system after starting SDL */
-    system_start();
     video_init();
+    system_start();
     sprite_init_system();
     SDL_EnableUNICODE(1);
     text_init();

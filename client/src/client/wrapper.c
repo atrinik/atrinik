@@ -35,13 +35,9 @@
  */
 void system_start(void)
 {
-    SDL_Surface *icon;
-
-    icon = IMG_Load_wrapper("textures/"CLIENT_ICON_NAME);
-
-    if (icon) {
-        SDL_WM_SetIcon(icon, NULL);
-        SDL_FreeSurface(icon);
+    SDL_Surface *icon = IMG_Load_wrapper("textures/"CLIENT_ICON_NAME);
+    if (icon != NULL) {
+        video_set_icon(icon);
     }
 
     SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
