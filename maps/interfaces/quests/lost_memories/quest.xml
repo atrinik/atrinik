@@ -280,7 +280,9 @@
                 </dialog>
                 <dialog name="::confirm_post">
                     <message>Come back to my shop if you need my services again!</message>
-                    <action complete="gear"/>
+                    <action complete="gear">for obj in [self._activator.FindObject(type=Type.WEAPON)]:
+    if obj and not obj.f_applied:
+        self._activator.Apply(obj)</action>
                 </dialog>
                 <dialog name="confirm_sword">
                     <inherit name="::confirm_pre"/>
@@ -389,23 +391,28 @@
                     <message>And that's pretty much it! No, no need to thank me, really!</message>
                     <message>However, if you were to see any wolves... I would be willing to pay for their pelts!</message>
                     <message>If you need any further practise, feel free to try shooting the target dummies!</message>
-                    <action complete="archery"/>
+                    <action complete="archery">for obj in [self._activator.FindObject(type=Type.BOW), self._activator.FindObject(type=Type.ARROW)]:
+    if obj and not obj.f_applied:
+        self._activator.Apply(obj)</action>
                 </dialog>
                 <dialog name="confirm_bow">
                     <inherit name="::confirm_pre"/>
                     <object arch="bow_short"/>
+                    <object arch="arrow"/>
                     <message>Now, let me teach you how to handle that bow properly...</message>
                     <inherit name="::confirm_post"/>
                 </dialog>
                 <dialog name="confirm_crossbow">
                     <inherit name="::confirm_pre"/>
                     <object arch="crossbow_small"/>
+                    <object arch="bolt"/>
                     <message>Now, let me teach you how to handle that crossbow properly...</message>
                     <inherit name="::confirm_post"/>
                 </dialog>
                 <dialog name="confirm_sling">
                     <inherit name="::confirm_pre"/>
                     <object arch="sling_small"/>
+                    <object arch="sstone"/>
                     <message>Now, let me teach you how to handle that sling properly...</message>
                     <inherit name="::confirm_post"/>
                 </dialog>
