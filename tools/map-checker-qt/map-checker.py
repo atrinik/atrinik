@@ -387,10 +387,12 @@ def main():
 
     if not cli:
         from PyQt5.QtWidgets import QApplication
+        from PyQt5.QtGui import QIcon
         from ui.window_main import WindowMain
 
         # Create a GUI window using Qt.
         app = QApplication(sys.argv)
+        app.setWindowIcon(QIcon('../../client/textures/icon.png'))
         window = WindowMain()
         window.setMapChecker(map_checker)
         window.set_config(config)
