@@ -319,6 +319,8 @@ video_set_icon (SDL_Surface *icon)
 
     SDL_WM_SetIcon(icon, NULL);
 
+    /* Avoid compilation warnings */
+    goto out;
 out:
     SDL_FreeSurface(icon);
 }
