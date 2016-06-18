@@ -225,6 +225,10 @@
  */
 #define MONEY 36
 /**
+ * A painting.
+ */
+#define PAINTING 37
+/**
  * An amulet.
  */
 #define AMULET 39

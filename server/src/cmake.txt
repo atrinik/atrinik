@@ -197,6 +197,7 @@ set(SOURCES
 	src/types/monster.c
 	src/types/nugget.c
 	src/types/organic.c
+	src/types/painting.c
 	src/types/pants.c
 	src/types/pearl.c
 	src/types/pedestal.c
