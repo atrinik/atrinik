@@ -7,6 +7,7 @@ try:
     from http.server import HTTPServer, SimpleHTTPRequestHandler
     import configparser
     from urllib.parse import urlparse
+    from urllib.parse import unquote
     import socketserver
 
     config = configparser.ConfigParser(strict = False)
@@ -15,6 +16,7 @@ except:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     import ConfigParser as configparser
     from urlparse import urlparse
+    from urllib import unquote
     import SocketServer as socketserver
 
     config = configparser.ConfigParser()
@@ -27,9 +29,29 @@ else:
 config.readfp(open("server.cfg"))
 config.read(["server-custom.cfg"])
 
+path_translations = {
+    "resources": config.get("general", "resourcespath"),
+}
+path_default = config.get("general", "httppath")
+
 class HTTPRequestHandler(SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
+
+    def translate_path(self, path):
+        if not path.startswith("/"):
+            raise ValueError("invalid path")
+
+        path = unquote(path)
+        path = path[1:]
+        prefix_end = path.find("/")
+        prefix = path if prefix_end == -1 else path[:prefix_end]
+
+        translated = path_translations.get(prefix)
+        if translated is not None:
+            return translated + "/" + path[len(prefix):]
+
+        return path_default + "/" + path
 
     def send_head(self):
         path = self.translate_path(self.path)
@@ -101,7 +123,6 @@ class ForkingHTTPServer(SocketServerMixIn, HTTPServer):
 
 if __name__ == '__main__':
     if config.getboolean("general", "http_server"):
-        os.chdir(config.get("general", "httppath"))
         o = urlparse(config.get("general", "http_url"))
         server = ForkingHTTPServer(("", o.port), HTTPRequestHandler)
         server.serve_forever()

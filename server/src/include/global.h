@@ -355,6 +355,11 @@ typedef struct settings_struct {
     char httppath[MAX_BUF];
 
     /**
+     * Where the resource files are.
+     */
+    char resourcespath[MAX_BUF];
+
+    /**
      * HTTP URL of the metaserver.
      */
     char metaserver_url[MAX_BUF];

@@ -42,6 +42,7 @@
 #include <server.h>
 #include <socket_crypto.h>
 #include <path.h>
+#include <resources.h>
 
 /**
  * The server's settings.
@@ -175,6 +176,7 @@ void cleanup(void)
     remove_plugins();
     player_deinit();
     account_deinit();
+    resources_deinit();
     free_all_maps();
     free_style_maps();
     arch_deinit();
@@ -382,6 +384,21 @@ clioptions_option_httppath (const char *arg,
                             char      **errmsg)
 {
     snprintf(VS(settings.httppath), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --resourcespath command.
+ */
+static const char *clioptions_option_resourcespath_desc =
+"Where the resource data files reside.\n\n"
+"The server must have read access to this directory.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_resourcespath (const char *arg,
+                                 char      **errmsg)
+{
+    snprintf(VS(settings.resourcespath), "%s", arg);
     return true;
 }
 
@@ -861,6 +878,7 @@ static void init_library(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, datapath, "Read/write data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, mapspath, "Map files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, httppath, "HTTP data files location");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, resourcespath, "Resource files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver_url, "URL of the metaserver");
     CLIOPTIONS_CREATE_ARGUMENT(cli, http_url, "URL of the HTTP server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
@@ -938,6 +956,7 @@ static void init_library(int argc, char *argv[])
     init_dynamic();
     init_clocks();
     account_init();
+    resources_init();
 }
 
 /**

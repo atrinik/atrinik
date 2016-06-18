@@ -47,6 +47,7 @@
 #include <magic_mirror.h>
 #include <sound_ambient.h>
 #include <object_methods.h>
+#include <resources.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
@@ -3095,4 +3096,39 @@ socket_command_crypto (socket_struct *ns,
         ns->state = ST_DEAD;
         break;
     }
+}
+
+/**
+ * Handler for the ask resource command.
+ *
+ * @copydoc socket_command_func
+ */
+void
+socket_command_ask_resource (socket_struct *ns,
+                             player        *pl,
+                             uint8_t       *data,
+                             size_t         len,
+                             size_t         pos)
+{
+    HARD_ASSERT(ns != NULL);
+    HARD_ASSERT(data != NULL);
+
+    char resource_name[HUGE_BUF];
+    packet_to_string(data, len, &pos, VS(resource_name));
+
+    if (string_isempty(resource_name)) {
+        LOG(PACKET, "Empty resource name from client %s",
+            socket_get_str(ns->sc));
+        return;
+    }
+
+    resource_t *resource = resources_find(resource_name);
+    if (resource == NULL) {
+        LOG(DEVEL, "Invalid resource '%s' from client %s",
+            resource_name,
+            socket_get_str(ns->sc));
+        return;
+    }
+
+    resources_send(resource, ns);
 }

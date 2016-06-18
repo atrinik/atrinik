@@ -101,6 +101,7 @@ set(SOURCES
 	src/server/re-cmp.c
 	src/server/readable.c
 	src/server/region.c
+	src/server/resources.c
 	src/server/rune.c
 	src/server/shop.c
 	src/server/skill_util.c

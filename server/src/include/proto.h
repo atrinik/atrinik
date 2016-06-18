@@ -605,6 +605,12 @@ socket_command_crypto(socket_struct *ns,
                       uint8_t       *data,
                       size_t         len,
                       size_t         pos);
+void
+socket_command_ask_resource(socket_struct *ns,
+                            player        *pl,
+                            uint8_t       *data,
+                            size_t         len,
+                            size_t         pos);
 /* src/socket/sounds.c */
 extern void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
 extern void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume);

@@ -126,7 +126,7 @@ static const socket_command_t socket_commands[] = {
     {socket_command_item_examine, SOCKET_COMMAND_PLAYER_ONLY},
     {socket_command_item_apply, SOCKET_COMMAND_PLAYER_ONLY},
     {socket_command_item_move, SOCKET_COMMAND_PLAYER_ONLY},
-    {NULL, SOCKET_COMMAND_PLAYER_ONLY},
+    {socket_command_ask_resource, SOCKET_COMMAND_PLAYER_ONLY},
     {socket_command_player_cmd, SOCKET_COMMAND_PLAYER_ONLY},
     {socket_command_item_lock, SOCKET_COMMAND_PLAYER_ONLY},
     {socket_command_item_mark, SOCKET_COMMAND_PLAYER_ONLY},
