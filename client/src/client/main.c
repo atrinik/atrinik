@@ -34,6 +34,7 @@
 #include <toolkit_string.h>
 #include <clioptions.h>
 #include <path.h>
+#include <resources.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -259,6 +260,7 @@ static int game_status_chain(void)
 
         effect_stop();
         clear_map(true);
+        resources_reload();
         map_redraw_flag = minimap_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
     } else if (cpl.state == ST_STARTCONNECT) {
@@ -691,6 +693,7 @@ int main(int argc, char *argv[])
     image_init();
     server_files_init();
     toolkit_widget_init();
+    resources_init();
 
     StringBuffer *sb = stringbuffer_new();
     stringbuffer_append_printf(sb,

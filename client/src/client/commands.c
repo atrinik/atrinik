@@ -340,20 +340,6 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
     }
 }
 
-/**
- * Sends a reply to the server.
- * @param text
- * Null terminated string of text to send.
- */
-void send_reply(char *text)
-{
-    packet_struct *packet;
-
-    packet = packet_new(SERVER_CMD_REPLY, 64, 0);
-    packet_append_string_terminated(packet, text);
-    socket_send_packet(packet);
-}
-
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_player(uint8_t *data, size_t len, size_t pos)
 {

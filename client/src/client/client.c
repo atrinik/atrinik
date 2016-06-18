@@ -62,7 +62,7 @@ static socket_command_struct commands[CLIENT_CMD_NROF] = {
     {socket_command_crypto},
     {socket_command_player},
     {socket_command_mapstats},
-    {NULL},
+    {socket_command_resource},
     {socket_command_version},
     {socket_command_setup},
     {socket_command_control},

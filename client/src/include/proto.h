@@ -19,7 +19,6 @@ extern void socket_command_image(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_target(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_stats(uint8_t *data, size_t len, size_t pos);
-extern void send_reply(char *text);
 extern void socket_command_player(uint8_t *data, size_t len, size_t pos);
 extern void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp);
 extern void socket_command_item(uint8_t *data, size_t len, size_t pos);
@@ -338,6 +337,9 @@ extern void interface_redraw(void);
 extern void interface_deinit(void);
 /* src/gui/popups/login.c */
 extern void login_start(void);
+/* src/gui/popups/painting.c */
+void
+socket_command_painting(uint8_t *data, size_t len, size_t pos);
 /* src/gui/popups/region_map.c */
 extern void region_map_open(void);
 /* src/gui/popups/server_add.c */

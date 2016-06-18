@@ -30,6 +30,7 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <path.h>
+#include <resources.h>
 
 /**
  * Start the base system, setting caption name and window icon.
@@ -53,6 +54,7 @@ void system_end(void)
     object_deinit();
     notification_destroy();
     popup_destroy_all();
+    resources_deinit();
     toolkit_widget_deinit();
     client_socket_deinitialize();
     metaserver_clear_data();
