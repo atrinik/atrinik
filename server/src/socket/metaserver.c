@@ -141,9 +141,10 @@ metaserver_deinit (void)
 
         /* No other thread is working with the current request at this
          * point. */
-        curl_request_free(current_request);
-        /* coverity[missing_lock] */
-        current_request = NULL;
+        if (current_request != NULL) {
+            curl_request_free(current_request);
+            current_request = NULL;
+        }
     } else {
         pthread_mutex_unlock(&request_lock);
     }
