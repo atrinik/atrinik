@@ -42,6 +42,7 @@
  */
 
 #include <global.h>
+#include <resources.h>
 
 /** Client player structure with things like stats, damage, etc */
 Client_Player cpl;
@@ -66,7 +67,7 @@ static socket_command_struct commands[CLIENT_CMD_NROF] = {
     {socket_command_version},
     {socket_command_setup},
     {socket_command_control},
-    {NULL},
+    {socket_command_painting},
     {socket_command_characters},
     {socket_command_book},
     {socket_command_party},
