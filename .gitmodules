@@ -1,0 +1,3 @@
+[submodule "server/resources"]
+	path = server/resources
+	url = https://github.com/atrinik/resources.git
