@@ -1,0 +1,15 @@
+Allowed all
+chance 100
+difficulty 7
+artifact painting_aris_waterfall
+def_arch painting
+Object
+name The Great Waterfall Of The River Of Aris
+slaying paintings/waterfall.png
+type 37
+value 35000
+msg
+This great waterfall flows into the swift currents of the river of Aris, and is simply stunning to behold at sunset. According to local folklore, the waterfall is magically enchanted and looked after by an Elvish shyde living nearby.
+[font=pecita][size=+10]August Rockhardy[/size][/font]
+endmsg
+end
