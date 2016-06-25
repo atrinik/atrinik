@@ -302,6 +302,15 @@ static int game_status_chain(void)
             return 1;
         }
 
+        if (!metaserver_cert_verify_host(selected_server,
+                                         socket_get_addr(csocket.sc))) {
+            draw_info(COLOR_RED, "Failed to verify the IP address of the "
+                                 "specified server - it is very likely the "
+                                 "server has been compromised!");
+            cpl.state = ST_START;
+            return 1;
+        }
+
         socket_thread_start();
         clear_player();
 

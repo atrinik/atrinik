@@ -302,13 +302,44 @@ parse_metaserver_cert (server_struct *server)
         info->pubkey == NULL ||
         info->port_crypto <= 0 ||
         (info->ipv4_address == NULL) != (info->ipv6_address == NULL)) {
-        metaserver_cert_free(info);
-        LOG(ERROR, "Certificate is missing required data.");
-        return false;
+        LOG(ERROR,
+            "Certificate is missing required data.");
+        goto error;
     }
+
+    /* Ensure certificate attributes match the advertised ones. */
+    if (strcmp(info->hostname, server->hostname) != 0) {
+        LOG(ERROR,
+            "Certificate hostname does not match advertised hostname.");
+        goto error;
+    }
+
+    if (strcmp(info->name, server->name) != 0) {
+        LOG(ERROR,
+            "Certificate name does not match advertised name.");
+        goto error;
+    }
+
+#if 0
+    if (info->port != server->port) {
+        LOG(ERROR,
+            "Certificate port does not match advertised port.");
+        goto error;
+    }
+
+    if (info->port_crypto != server->port_crypto) {
+        LOG(ERROR,
+            "Certificate crypto port does not match advertised crypto port.");
+        goto error;
+    }
+#endif
 
     server->cert_info = info;
     return true;
+
+error:
+    metaserver_cert_free(info);
+    return false;
 }
 
 /**
@@ -473,6 +504,60 @@ parse_metaserver_data (const char *body, size_t body_size)
 
 out:
     xmlFreeDoc(doc);
+}
+
+/**
+ * Verify resolved address of a server against the server's metaserver
+ * certificate.
+ *
+ * @param server
+ * Server to verify.
+ * @param host
+ * Host address.
+ * @return
+ * True if the resolved address is equal to the one in the certificate,
+ * false otherwise.
+ */
+bool
+metaserver_cert_verify_host (server_struct *server, const char *host)
+{
+    HARD_ASSERT(server != NULL);
+    HARD_ASSERT(host != NULL);
+
+    /* No certificate, nothing to verify. */
+    if (server->cert_info == NULL) {
+        return true;
+    }
+
+    struct sockaddr_storage addr;
+    SOFT_ASSERT_RC(socket_host2addr(host, &addr), false,
+                   "Failed to convert host to IP address");
+
+    switch (addr.ss_family) {
+    case AF_INET:
+        if (strcmp(host, server->cert_info->ipv4_address) != 0) {
+            LOG(ERROR, "!!! Certificate IPv4 address error: %s != %s !!!",
+                host, server->cert_info->ipv4_address);
+            return false;
+        }
+
+        break;
+
+    case AF_INET6:
+        if (strcmp(host, server->cert_info->ipv6_address) != 0) {
+            LOG(ERROR, "!!! Certificate IPv6 address error: %s != %s !!!",
+                host, server->cert_info->ipv6_address);
+            return false;
+        }
+
+        break;
+
+    default:
+        LOG(ERROR, "!!! Unknown address family %u !!!", addr.ss_family);
+        return false;
+    }
+
+    return true;
 }
 
 /**

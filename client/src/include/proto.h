@@ -101,6 +101,8 @@ extern int send_command_check(const char *cmd);
 extern void metaserver_init(void);
 extern void metaserver_disable(void);
 extern server_struct *server_get_id(size_t num);
+bool
+metaserver_cert_verify_host(server_struct *server, const char *host);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
