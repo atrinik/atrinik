@@ -1,14 +1,15 @@
 #!/usr/bin/python3
 
-import os, sys, hashlib, platform
+import os, sys, hashlib, platform, io
 
 # py3k
 try:
     from http.server import HTTPServer, SimpleHTTPRequestHandler
     import configparser
     from urllib.parse import urlparse
-    from urllib.parse import unquote
+    from urllib.parse import unquote, quote
     import socketserver
+    from html import escape
 
     config = configparser.ConfigParser(strict = False)
 except:
@@ -16,8 +17,9 @@ except:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     import ConfigParser as configparser
     from urlparse import urlparse
-    from urllib import unquote
+    from urllib import unquote, quote
     import SocketServer as socketserver
+    from cgi import escape
 
     config = configparser.ConfigParser()
 
@@ -53,9 +55,55 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
 
         return path_default + "/" + path
 
+    def list_directory(self, path):
+        try:
+            l = os.listdir(path)
+        except os.error:
+            self.send_error(404, "No permission to list directory")
+            return None
+
+        l = [entry for entry in l if not entry.startswith(".")]
+        l.sort(key=lambda a: a.lower())
+        r = []
+        displaypath = escape(unquote(self.path))
+        enc = sys.getfilesystemencoding()
+        title = 'Directory listing for %s' % displaypath
+        r.append('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" '
+                 '"http://www.w3.org/TR/html4/strict.dtd">')
+        r.append('<html>\n<head>')
+        r.append('<meta http-equiv="Content-Type" '
+                 'content="text/html; charset=%s">' % enc)
+        r.append('<title>%s</title>\n</head>' % title)
+        r.append('<body>\n<h1>%s</h1>' % title)
+        r.append('<hr>\n<ul>')
+        for name in l:
+            fullname = os.path.join(path, name)
+            displayname = linkname = name
+            if os.path.isdir(fullname):
+                displayname = name + "/"
+                linkname = name + "/"
+            if os.path.islink(fullname):
+                displayname = name + "@"
+            r.append('<li><a href="%s">%s</a></li>'
+                    % (quote(linkname), escape(displayname)))
+        r.append('</ul>\n<hr>\n</body>\n</html>\n')
+        encoded = '\n'.join(r).encode(enc)
+        f = io.BytesIO()
+        f.write(encoded)
+        f.seek(0)
+        self.send_response(200)
+        self.send_header("Content-type", "text/html; charset=%s" % enc)
+        self.send_header("Content-Length", str(len(encoded)))
+        self.end_headers()
+        return f
+
     def send_head(self):
         path = self.translate_path(self.path)
         f = None
+
+        if os.path.basename(path).startswith("."):
+            self.send_error(403, "Access denied")
+            return None
 
         if os.path.isdir(path):
             if not self.path.endswith('/'):
@@ -105,6 +153,9 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
             raise
 
     def copyfile(self, source, outputfile):
+        if isinstance(source, io.BytesIO):
+            return SimpleHTTPRequestHandler.copyfile(self, source, outputfile)
+
         block_size = 16 * 1024
         while True:
             buf = source.read(block_size)
