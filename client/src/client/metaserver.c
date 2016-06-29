@@ -321,7 +321,6 @@ parse_metaserver_cert (server_struct *server)
         goto error;
     }
 
-#if 0
     if (info->port != server->port) {
         LOG(ERROR,
             "Certificate port does not match advertised port.");
@@ -333,7 +332,6 @@ parse_metaserver_cert (server_struct *server)
             "Certificate crypto port does not match advertised crypto port.");
         goto error;
     }
-#endif
 
     server->cert_info = info;
     return true;
