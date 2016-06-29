@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE xs:schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "XMLSchema.dtd" >
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="Servers">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Server" type="ServerType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="ServerType">
+        <xs:sequence>
+            <xs:element name="Hostname" type="xs:string" />
+            <xs:element name="Port" type="xs:unsignedShort" />
+            <xs:element name="Name" type="xs:string" />
+            <xs:element name="PlayersCount" type="xs:unsignedInt" />
+            <xs:element name="Version" type="xs:string" />
+            <xs:element name="TextComment" type="xs:string" />
+            <xs:sequence minOccurs="0" maxOccurs="1">
+                <xs:element name="PortCrypto" type="xs:unsignedShort" />
+                <xs:choice>
+                    <xs:element name="CertificatePublicKey" type="xs:string" />
+                    <xs:sequence>
+                        <xs:element name="Certificate" type="xs:string" />
+                        <xs:element name="CertificateSignature" type="xs:string" />
+                    </xs:sequence>
+                </xs:choice>
+            </xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
