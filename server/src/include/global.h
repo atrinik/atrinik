@@ -459,6 +459,16 @@ typedef struct settings_struct {
      * Desired network stack to use.
      */
     char network_stack[MAX_BUF];
+
+    /**
+     * Server certificate, in the format specified by ADS-7.
+     */
+    char *server_cert;
+
+    /**
+     * Signature of the server certificate, as provided by Atrinik staff.
+     */
+    char *server_cert_sig;
 } settings_struct;
 
 /** Constant shared string pointers. */

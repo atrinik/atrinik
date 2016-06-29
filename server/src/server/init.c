@@ -106,6 +106,21 @@ void free_strings(void)
     }
 }
 
+/**
+ * Free the server settings.
+ */
+static void
+free_settings (void)
+{
+    if (settings.server_cert != NULL) {
+        efree(settings.server_cert);
+    }
+
+    if (settings.server_cert_sig != NULL) {
+        efree(settings.server_cert_sig);
+    }
+}
+
 static void console_command_shutdown(const char *params)
 {
     server_shutdown();
@@ -193,6 +208,7 @@ void cleanup(void)
     object_deinit();
     metaserver_deinit();
     party_deinit();
+    free_settings();
     toolkit_deinit();
     free_object_loader();
     free_random_map_loader();
@@ -459,6 +475,43 @@ clioptions_option_server_desc (const char *arg,
                                char      **errmsg)
 {
     snprintf(VS(settings.server_desc), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --server_cert command.
+ */
+static const char *clioptions_option_server_cert_desc =
+"Server certificate, in the format specified by ADS-7. Void unless signed by "
+"the Atrinik staff.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server_cert (const char *arg,
+                               char      **errmsg)
+{
+    if (settings.server_cert != NULL) {
+        efree(settings.server_cert);
+    }
+
+    settings.server_cert = estrdup(arg);
+    return true;
+}
+
+/**
+ * Description of the --server_cert_sig command.
+ */
+static const char *clioptions_option_server_cert_sig_desc =
+"Signature of the server certificate, as provided by the Atrinik staff.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server_cert_sig (const char *arg,
+                                   char      **errmsg)
+{
+    if (settings.server_cert_sig != NULL) {
+        efree(settings.server_cert_sig);
+    }
+
+    settings.server_cert_sig = estrdup(arg);
     return true;
 }
 
@@ -884,6 +937,8 @@ static void init_library(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_name, "Name of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_desc, "Description of the server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_cert, "Server certificate");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_cert_sig, "Certificate signature");
     CLIOPTIONS_CREATE_ARGUMENT(cli, allowed_chars, "Limits for accounts/names");
 
     /* Changeable options */
