@@ -35,6 +35,8 @@
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <libxml/valid.h>
+#include <libxml/xmlschemas.h>
 
 #include <openssl/sha.h>
 #include <openssl/err.h>
@@ -464,6 +466,28 @@ error:
 }
 
 /**
+ * Callback to display an error message when XML validation fails.
+ *
+ * @param ctx
+ * XML context.
+ * @param format
+ * Format specifier.
+ * @param ...
+ * Variable arguments.
+ */
+static void
+parse_metaserver_data_error (void *ctx, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    char formatted[HUGE_BUF * 32];
+    vsnprintf(VS(formatted), format, args);
+    string_strip_newline(formatted);
+    va_end(args);
+    LOG(ERROR, "%s", formatted);
+}
+
+/**
  * Parse data returned from HTTP metaserver and add it to the list of servers.
  *
  * @param body
@@ -476,9 +500,41 @@ parse_metaserver_data (const char *body, size_t body_size)
 {
     HARD_ASSERT(body != NULL);
 
+    xmlSchemaParserCtxtPtr parser_ctx = NULL;
+    xmlSchemaPtr schema = NULL;
+    xmlSchemaValidCtxtPtr valid_ctx = NULL;
+
     xmlDocPtr doc = xmlReadMemory(body, body_size, "noname.xml", NULL, 0);
     if (doc == NULL) {
         LOG(ERROR, "Failed to parse data from metaserver");
+        goto out;
+    }
+
+    parser_ctx = xmlSchemaNewParserCtxt("schemas/Atrinik-ADS-7.xsd");
+    if (parser_ctx == NULL) {
+        LOG(ERROR, "Failed to create a schema parser context");
+        goto out;
+    }
+
+    schema = xmlSchemaParse(parser_ctx);
+    if (schema == NULL) {
+        LOG(ERROR, "Failed to parse schema file");
+        goto out;
+    }
+
+    valid_ctx = xmlSchemaNewValidCtxt(schema);
+    if (valid_ctx == NULL) {
+        LOG(ERROR, "Failed to create a validation context");
+        goto out;
+    }
+
+    xmlSetStructuredErrorFunc(NULL, NULL);
+    xmlSetGenericErrorFunc(NULL, parse_metaserver_data_error);
+    xmlThrDefSetStructuredErrorFunc(NULL, NULL);
+    xmlThrDefSetGenericErrorFunc(NULL, parse_metaserver_data_error);
+
+    if (xmlSchemaValidateDoc(valid_ctx, doc) != 0) {
+        LOG(ERROR, "XML verification failed.");
         goto out;
     }
 
@@ -502,7 +558,21 @@ parse_metaserver_data (const char *body, size_t body_size)
     }
 
 out:
-    xmlFreeDoc(doc);
+    if (doc != NULL) {
+            xmlFreeDoc(doc);
+    }
+
+    if (parser_ctx != NULL) {
+        xmlSchemaFreeParserCtxt(parser_ctx);
+    }
+
+    if (schema != NULL) {
+        xmlSchemaFree(schema);
+    }
+
+    if (valid_ctx != NULL) {
+        xmlSchemaFreeValidCtxt(valid_ctx);
+    }
 }
 
 /**
