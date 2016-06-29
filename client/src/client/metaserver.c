@@ -479,7 +479,7 @@ parse_metaserver_data (const char *body, size_t body_size)
     xmlDocPtr doc = xmlReadMemory(body, body_size, "noname.xml", NULL, 0);
     if (doc == NULL) {
         LOG(ERROR, "Failed to parse data from metaserver");
-	goto out;
+        goto out;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
