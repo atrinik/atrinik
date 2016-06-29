@@ -557,6 +557,17 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
         if (cert_pubkey != NULL) {
             curl_request_form_add(current_request, "cert_pubkey", cert_pubkey);
         }
+
+        /* Add the server certificate and its signature, if configured. */
+        if (settings.server_cert != NULL &&
+            settings.server_cert_sig != NULL) {
+            curl_request_form_add(current_request,
+                                  "server_cert",
+                                  settings.server_cert);
+            curl_request_form_add(current_request,
+                                  "server_cert_sig",
+                                  settings.server_cert_sig);
+        }
     }
 
     /* Send off the POST request */
