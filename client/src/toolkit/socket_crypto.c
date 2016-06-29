@@ -578,9 +578,12 @@ socket_crypto_load_trusted (void)
 
         X509 *cert = crypto_read_pem_x509(contents);
         if (cert == NULL) {
+            efree(contents);
             /* Logging already done */
             continue;
         }
+
+        efree(contents);
 
         if (sk_X509_push(crypto_trusted_certs, cert) < 1) {
             LOG(ERROR, "sk_X509_push() failed: %s",
