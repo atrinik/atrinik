@@ -288,6 +288,7 @@ parse_metaserver_cert (server_struct *server)
 
             if (*content != NULL) {
                 stringbuffer_append_string(sb, *content);
+                stringbuffer_append_char(sb, '\n');
                 efree(*content);
             }
 
