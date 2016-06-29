@@ -582,7 +582,7 @@ socket_crypto_load_trusted (void)
             continue;
         }
 
-        if (sk_X509_push(crypto_trusted_certs, cert) != 1) {
+        if (sk_X509_push(crypto_trusted_certs, cert) < 1) {
             LOG(ERROR, "sk_X509_push() failed: %s",
                 ERR_error_string(ERR_get_error(), NULL));
             X509_free(cert);
