@@ -123,10 +123,26 @@ list_text_color (struct list_struct *list,
         return;
     }
 
+    /* Default to gray color for the server entry.*/
+    *color = COLOR_GRAY;
+
+    /* If the server has a crypto port, check its level of trustworthiness. */
     if (server->port_crypto != -1) {
-        *color = COLOR_GREEN;
-    } else {
-        *color = COLOR_GRAY;
+        /* Servers with a certificate have a higher level of trust. */
+        if (server->cert_info != NULL) {
+            /* However, check if the certificate has IP addresses; if it
+             * doesn't, we can't be quite sure that we're connecting to the
+             * right host (DNS spoofing is a possibility, albeit an unlikely
+             * one). */
+            if (server->cert_info->ipv4_address == NULL ||
+                server->cert_info->ipv6_address == NULL) {
+                *color = COLOR_YELLOW;
+            } else {
+                *color = COLOR_GREEN;
+            }
+        } else if (server->cert_pubkey != NULL) {
+            *color = COLOR_ORANGE;
+        }
     }
 }
 
