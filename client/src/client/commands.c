@@ -1225,7 +1225,11 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
             return;
         }
 
-        socket_crypto_load_pubkey(crypto, pubkey);
+        if (!socket_crypto_load_pubkey(crypto, pubkey)) {
+            LOG(ERROR, " !!! Failed to load metaserver public key: %s !!!", pubkey);
+            socket_command_crypto_abort();
+            return;
+        }
     }
 
     if (!socket_crypto_load_cert(crypto, cert, chain)) {
