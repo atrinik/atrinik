@@ -362,34 +362,34 @@ parse_metaserver_data_node (xmlNodePtr node, server_struct *server)
                       error,
                       "Parsing error");
 
-    if (XML_STR_EQUAL(node->name, "hostname")) {
+    if (XML_STR_EQUAL(node->name, "Hostname")) {
         SOFT_ASSERT_LABEL(server->hostname == NULL, error, "Parsing error");
         server->hostname = estrdup((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "port")) {
+    } else if (XML_STR_EQUAL(node->name, "Port")) {
         SOFT_ASSERT_LABEL(server->port == 0, error, "Parsing error");
         server->port = atoi((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "port_crypto")) {
+    } else if (XML_STR_EQUAL(node->name, "PortCrypto")) {
         SOFT_ASSERT_LABEL(server->port_crypto == -1, error, "Parsing error");
         server->port_crypto = atoi((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "name")) {
+    } else if (XML_STR_EQUAL(node->name, "Name")) {
         SOFT_ASSERT_LABEL(server->name == NULL, error, "Parsing error");
         server->name = estrdup((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "num_players")) {
+    } else if (XML_STR_EQUAL(node->name, "PlayersCount")) {
         SOFT_ASSERT_LABEL(server->player == 0, error, "Parsing error");
         server->player = atoi((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "version")) {
+    } else if (XML_STR_EQUAL(node->name, "Version")) {
         SOFT_ASSERT_LABEL(server->version == NULL, error, "Parsing error");
         server->version = estrdup((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "text_comment")) {
+    } else if (XML_STR_EQUAL(node->name, "TextComment")) {
         SOFT_ASSERT_LABEL(server->desc == NULL, error, "Parsing error");
         server->desc = estrdup((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "cert_pubkey")) {
+    } else if (XML_STR_EQUAL(node->name, "CertificatePublicKey")) {
         SOFT_ASSERT_LABEL(server->cert_pubkey == NULL, error, "Parsing error");
         server->cert_pubkey = estrdup((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "cert")) {
+    } else if (XML_STR_EQUAL(node->name, "Certificate")) {
         SOFT_ASSERT_LABEL(server->cert == NULL, error, "Parsing error");
         server->cert = estrdup((const char *) content);
-    } else if (XML_STR_EQUAL(node->name, "cert_sig")) {
+    } else if (XML_STR_EQUAL(node->name, "CertificateSignature")) {
         SOFT_ASSERT_LABEL(server->cert_sig == NULL, error, "Parsing error");
         unsigned char *sig;
         size_t sig_len;
@@ -483,7 +483,7 @@ parse_metaserver_data (const char *body, size_t body_size)
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
-    if (root == NULL || !XML_STR_EQUAL(root->name, "servers")) {
+    if (root == NULL || !XML_STR_EQUAL(root->name, "Servers")) {
         LOG(ERROR, "No servers element found in metaserver XML");
         goto out;
     }
@@ -494,7 +494,7 @@ parse_metaserver_data (const char *body, size_t body_size)
     }
 
     for (xmlNodePtr node = last; node != NULL; node = node->prev) {
-        if (!XML_STR_EQUAL(node->name, "server")) {
+        if (!XML_STR_EQUAL(node->name, "Server")) {
             continue;
         }
 
