@@ -1024,7 +1024,7 @@ SP_level_dam_adjust (object *caster, int spell_type, bool exact)
         return (int) dam;
     }
 
-    return rndm(dam * 0.8 + 1.0, dam);
+    return rndm(dam * 0.8 + 0.5, dam);
 }
 
 /**
