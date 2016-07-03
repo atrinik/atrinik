@@ -907,25 +907,23 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     }
                 }
             }
-        } else if (!(flags & TEXT_NO_FONT_CHANGE) && tag_len >= 5 &&
-                strncmp(tag, "size=", 5) == 0) {
-            int font_size;
-            font_struct *font_new;
-
-            font_new = NULL;
-
-            if (strncmp(tag + 5, "+", 1) == 0 ||
+        } else if (tag_len >= 5 && strncmp(tag, "size=", 5) == 0) {
+            if (!(flags & TEXT_NO_FONT_CHANGE)) {
+                int font_size;
+                font_struct *font_new = NULL;
+                if (strncmp(tag + 5, "+", 1) == 0 ||
                     strncmp(tag + 5, "-", 1) == 0) {
-                font_new = font_get_size(*font, atoi(tag + 5));
-            } else if (sscanf(tag + 5, "%d", &font_size) == 1) {
-                font_new = font_get_weak((*font)->name, font_size);
-            }
+                    font_new = font_get_size(*font, atoi(tag + 5));
+                } else if (sscanf(tag + 5, "%d", &font_size) == 1) {
+                    font_new = font_get_weak((*font)->name, font_size);
+                }
 
-            if (font_new != NULL) {
-                if (surface || info->obscured) {
-                    *font = font_new;
-                } else {
-                    info->calc_font = font_new;
+                if (font_new != NULL) {
+                    if (surface || info->obscured) {
+                        *font = font_new;
+                    } else {
+                        info->calc_font = font_new;
+                    }
                 }
             }
         } else if (tag_len == 5 && (strncmp(tag, "/font", tag_len) == 0 || strncmp(tag, "/size", tag_len) == 0)) {
