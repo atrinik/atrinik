@@ -1595,7 +1595,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             char *cp2;
 
             cp2 = text_escape_markup(cp);
-            draw_info_format(COLOR_RED, "Unknown tag found in message: %.100s", cp2);
+            log_error("Unknown tag found in message: %s", cp2);
             efree(cp2);
         }
 
