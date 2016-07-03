@@ -5,7 +5,7 @@ artifact painting_aris_waterfall
 def_arch painting
 Object
 name The Great Waterfall Of The River Of Aris
-slaying paintings/waterfall.png
+slaying paintings/waterfall.jpg
 type 37
 value 35000
 msg
