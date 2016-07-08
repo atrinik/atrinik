@@ -188,8 +188,19 @@ void init_player_data(void)
 {
     new_player(0, 0, 0);
 
-    cpl.inventory_focus = widget_find(NULL, INVENTORY_ID, "below", NULL);
-    SetPriorityWidget(cpl.inventory_focus);
+    /* Focus to the main inventory widget if it's open, otherwise focus to
+     * the below inventory one. */
+    widgetdata *widget = widget_find(NULL, INVENTORY_ID, "main", NULL);
+    if (widget != NULL) {
+        if (!widget->show) {
+            widget = widget_find(NULL, INVENTORY_ID, "below", NULL);
+            SOFT_ASSERT(widget != NULL,
+                        "Could not find the below inventory widget");
+        }
+
+        cpl.inventory_focus = widget;
+        SetPriorityWidget(cpl.inventory_focus);
+    }
 
     cpl.stats.maxsp = 1;
     cpl.stats.maxhp = 1;
