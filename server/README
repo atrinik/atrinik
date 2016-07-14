@@ -1,1 +1,267 @@
+=======================================
+=           Atrinik Server            =
+=======================================
+
+Website: http://www.atrinik.org/
+
+Server package for the Atrinik game.
+
+================================================
+= 1. Compiling the Atrinik server              =
+================================================
+
+See the INSTALL file for instructions on how to compile the server.
+
+================================================
+= 2. Running the server                        =
+================================================
+
+In order to start up the server, you will need to run the resource collection
+script, which can be located - from the root of the repository - here:
+./tools/collect.py
+
+The above script will collect various resources from the 'arch' directory and
+will compile the NPC interfaces definitions into executables, and should be
+ran from the tools directory. You should see output like:
+$ ./collect.py 
+Starting resource collection...
+Collecting factions...
+Collecting treasures...
+Collecting animations...
+Collecting archetypes...
+Collecting artifacts...
+Collecting images...
+Collecting interfaces...
+Done!
+
+You can use the -d option to specify the root directory of your Atrinik
+package, instead of running it from the tools directory, like so:
+$ ./tools/collect.py -d ~/atrinik
+
+The script should be executed every time you update the repository or make
+manual changes to archetypes/artifacts/images/interfaces/etc.
+
+Afterwards, you can start up the server with ./server.sh or ./server.bat
+(depending on your platform). Starting up the server using the binary is
+also possible, but generally not recommended, as the startup scripts take
+care of various aspects, such as first-time installation, starting up the
+HTTP server and so on.
+
+For example, you should see something like this:
+$ ./server.sh 
+[15:04:46.112927] INFO   [main:634] Server ready. Waiting for connections...
+
+The startup scripts will also pass any extra options straight to the
+binary, for example:
+$ ./server.sh --version
+[15:07:12.638483] INFO   [version:94] This is Atrinik v4.0 (master/7fc333e by Alex Tokar)
+
+However, if you want to do it yourself, you will need to do the
+following (working from the server directory):
+ - Create 'lib' directory if it doesn't exist
+ - If the 'data' directory doesn't exist, copy 'install_data' as 'data'
+   and create a 'data/tmp' directory
+ - Copy all files (not directories) from ../arch to the 'lib' directory;
+   this will need to be done every time you run the collect.py script.
+   Alternatively, you can run the collect script like this to automatically
+   copy the necessary files:
+   $ ./collect.py -o ../server/lib
+ - Start up the HTTP server (see section 2.2. for instructions how to run
+                             your own HTTP server):
+   ./tools/http_server.py
+ - Now you can launch the atrinik-server binary manually.
+
+================================================
+= 2.1. Configuring the server                  =
+================================================
+
+The server has a number of configuration options, optimized for local server
+play. However, if you feel like tweaking them, you will need to change the
+configuration file server.cfg, or create a new file called server-custom.cfg
+and put your custom settings there (this is the preferred way, especially when
+working from a Git repository).
+
+You can examine the server.cfg file to learn about most of the default settings
+and what they do. Additionally, you can use the -h or --help option when
+executing the server to learn about all the possible options (there is a 1:1
+mapping between the configuration files and arguments passed on the command line,
+so you can use the same options either way; eg, "port = 900" in a configuration
+file and ./atrinik-server --port=900 are the same thing).
+
+See section 3. for information about running a public server and the necessary
+configuration, and section 4. for enabling security extensions.
+
+================================================
+= 2.2. Running your own HTTP server            =
+================================================
+
+You can disable the bundled HTTP server with this configuration option:
+    http_server = off
+
+In this case, you will need to configure an HTTP server of your own, which
+will serve the necessary server files. Also, if you plan on using a different
+URL/port for the server files, you will have to change this configuration to
+suit your needs:
+    http_url = http://localhost:8080
+
+You will need to map the following URLs to their directory counterparts:
+ - http://localhost:8080/                     -> server/data/http/
+ - http://localhost:8080/resources            -> server/resources/
+
+================================================
+= 3. Running a public server                   =
+================================================
+
+!!!
+!!! WARNING:
+!!! READ ALL OF THIS CAREFULLY. FAILURE TO DO SO
+!!! MAY LOCK YOU OUT OF METASERVER ACCESS.
+!!!
+
+There are several security considerations for running your own server. First
+off, note that with default configuration, any player character is by default
+in development mode. You will want to disable this with the following
+configuration:
+    default_permission_groups = None
+
+Second, by default, the server listens on both IPv4 and IPv6 loopback
+interfaces (if present). It is generally recommended to disable the network
+stacks you don't need, or if you want to support both IPv4/IPv6 and you have
+a system with dual-stack network support, you may enable the configuration for
+that instead. Some examples:
+ - IPv4-only:
+    network_stack = ipv4=127.0.0.1
+ - IPv6-only:
+    network_stack = ipv6=::1
+ - Dual-stack:
+    network_stack = dual
+
+Third, it's STRONGLY recommended to enable the security extensions for secure
+password exchange and in-game communications, on top of establishing server
+trust and authenticity. See section 4. for details.
+
+The HTTP URL will need to be changed, otherwise outside clients will not be
+able to download the necessary data files. You will need to use either an IP
+address or a hostname (preferable), and you will need to have the specified
+port open, for example:
+    http_url = http://www.example.com:8080
+
+In order to advertise the server to the public, you will need to configure
+metaserver options. This will enable periodic flooding of your server details
+to the Atrinik metaserver (found at: https://meta.atrinik.org). See section
+3.1. for details about the sort of information this exposes. The necessary
+options are:
+    server_name = Your Server Name
+    server_host = www.example.com
+    server_desc = Description about your server.
+
+Adjust the above as necessary. The hostname MUST resolve to the IP address
+of the server. It's strongly discouraged to use PTR records, as they are used
+for a different purpose. If you don't have a static IP, dynamic DNS services
+or low-TTL DNS records are encouraged.
+
+Do note that for security reasons, the metaserver will block IP changes for
+up to an hour, so public servers with dynamic IPs are not encouraged due to
+the possible outage period.
+
+Make sure the Atrinik port (1728 by default, can be changed with port=xyz) is
+accessible from the outside (ie, set up your firewall accordingly). See section
+3.2. for detail about the various ports.
+
+After you have all of the above set up, the next time you launch the server,
+it should connect to the metaserver and update it with your server information,
+allowing players with a compatible client to connect.
+
+Be aware that the first time the server uploads the information to the
+metaserver, a secret key is generated. If you LOSE this key, you will be LOCKED
+out of updating the metaserver ever again (for the particular hostname). The
+key can be found in server/data/metaserver_key, once generated.
+
+================================================
+= 3.1. Metaserver-exposed information          =
+================================================
+
+Apart from the obvious identifying information exposed by any IP connection
+(such as the server IP address), the following information is exposed to the
+metaserver, and flooded in periodic intervals, if reporting to the metaserver
+has been enabled (as per section 3.):
+ - Configured server name, hostname and description
+ - Enabled game data ports (normal/security)
+ - Server version
+ - Atrinik HTTP client version and platform (Windows/Linux/other)
+ - Generated key (for metaserver authorization purposes)
+ - Number of players online
+ - List of online players (apart from hidden ones)
+ - ADS-7 compatible Atrinik server certificate, if configured
+ - RSA public key, if configured
+
+The above information is sent to https://meta.atrinik.org/ (unless otherwise
+specified), again, only if enabled as per section 3. Application-based HPKP is
+used to pin the signature of the outermost leaf certificate for security
+reasons. The ultimate-trust keys can be found in server/data/keys.
+
+================================================
+= 3.2. Ports used by Atrinik                   =
+================================================
+
+The following ports are used by the Atrinik server and need to be opened in
+order for other players to connect successfully (they can all be changed in
+the configuration).
+
+ - 1728: The main game data port
+ - 1729: The security extension port; clients will connect to this port
+         instead of the one above if the security extensions are enabled.
+ - 8080: The HTTP server port; used by clients to download large game data
+         files
+
+================================================
+= 4. Enabling security extensions              =
+================================================
+
+TBD
+
+================================================
+= 5. Licensing                                 =
+================================================
+
+Atrinik server
+===================
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+ The author can be reached at admin@atrinik.org
  
+uthash
+===================
+
+ Copyright (c) 2005-2011, Troy D. Hanson    http://uthash.sourceforge.net
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+     * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+ OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

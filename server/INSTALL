@@ -4,6 +4,12 @@
 
 This document explains how to compile the Atrinik server.
 
+!!!
+!!! If you're compiling from a Git repository, make sure you have
+!!! performed the following command beforehand:
+!!! $ git submodule init
+!!!
+
 For compiling on GNU/Linux, see section 1.1.
 For compiling on Windows, see section 1.2.
 
@@ -11,7 +17,34 @@ For compiling on Windows, see section 1.2.
 = 1.1 Compiling the Atrinik server (GNU/Linux) =
 ================================================
 
-TODO
+Several libraries and programs are needed in order to compile and/or run
+the Atrinik client:
+
+    Flex: Required
+    cURL: Required
+    zlib: Required
+    OpenSSL: Required
+    Check: Optional (only if you plan on doing development, required for
+                     running unit tests)
+    GD Graphics Library: Optional (if you want to generate region maps --
+                                   usually a good idea)
+    Python: Required (optional for merely compiling the server at this time,
+                      but not for playing)
+    Readline: Optional (nicer CLI console with history and auto-completion)
+
+In addition gcc and cmake are required to build the client. All the
+necessary packages may be installed on Debian-like systems using the
+following command:
+
+    apt-get install build-essential openssl-dev cmake zlib1g-dev \
+    libcurl4-openssl-dev python3-dev libgd-dev check libreadline6-dev
+
+After installing the necessary packages, you need to create the Makefiles
+for the project using 'cmake .'. Then you can use 'make' to compile the
+server. When the compilation is done, you can execute the 'atrinik-server'
+binary to start the server, however, it is recommended to use one of the
+startup scripts unless you know what you're doing. See the README file for
+more details.
 
 ==============================================
 = 1.2 Compiling the Atrinik server (Windows) =
