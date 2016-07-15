@@ -18,25 +18,25 @@ See the INSTALL file for instructions on how to compile the server.
 
 In order to start up the server, you will need to run the resource collection
 script, which can be located - from the root of the repository - here:
-./tools/collect.py
+    ./tools/collect.py
 
 The above script will collect various resources from the 'arch' directory and
 will compile the NPC interfaces definitions into executables, and should be
 ran from the tools directory. You should see output like:
-$ ./collect.py 
-Starting resource collection...
-Collecting factions...
-Collecting treasures...
-Collecting animations...
-Collecting archetypes...
-Collecting artifacts...
-Collecting images...
-Collecting interfaces...
-Done!
+    $ ./collect.py 
+    Starting resource collection...
+    Collecting factions...
+    Collecting treasures...
+    Collecting animations...
+    Collecting archetypes...
+    Collecting artifacts...
+    Collecting images...
+    Collecting interfaces...
+    Done!
 
 You can use the -d option to specify the root directory of your Atrinik
 package, instead of running it from the tools directory, like so:
-$ ./tools/collect.py -d ~/atrinik
+    $ ./tools/collect.py -d ~/atrinik
 
 The script should be executed every time you update the repository or make
 manual changes to archetypes/artifacts/images/interfaces/etc.
@@ -48,13 +48,15 @@ care of various aspects, such as first-time installation, starting up the
 HTTP server and so on.
 
 For example, you should see something like this:
-$ ./server.sh 
-[15:04:46.112927] INFO   [main:634] Server ready. Waiting for connections...
+    $ ./server.sh 
+    [15:04:46.112927] INFO   [main:634] Server ready. Waiting for
+    connections...
 
 The startup scripts will also pass any extra options straight to the
 binary, for example:
-$ ./server.sh --version
-[15:07:12.638483] INFO   [version:94] This is Atrinik v4.0 (master/7fc333e by Alex Tokar)
+    $ ./server.sh --version
+    [15:07:12.638483] INFO   [version:94] This is Atrinik v4.0 (master/7fc333e
+    by Alex Tokar)
 
 However, if you want to do it yourself, you will need to do the
 following (working from the server directory):
@@ -70,6 +72,15 @@ following (working from the server directory):
                              your own HTTP server):
    ./tools/http_server.py
  - Now you can launch the atrinik-server binary manually.
+
+It is recommended to generate the region maps prior to starting up the server.
+As this can take some time, they are not generated automatically, but you need
+to use the --worldmaker switch, eg, run this prior to starting up your server:
+    $ ./server.sh --worldmaker
+
+The region maps are not mandatory to play the game, however, some features may
+not work (specifically, the client will only be able to work with dynamic area
+maps and not the full region maps).
 
 ================================================
 = 2.1. Configuring the server                  =
