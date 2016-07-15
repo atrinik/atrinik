@@ -18,7 +18,7 @@ For compiling on Windows, see section 1.2.
 ================================================
 
 Several libraries and programs are needed in order to compile and/or run
-the Atrinik client:
+the Atrinik server:
 
     Flex: Required
     cURL: Required
@@ -32,7 +32,7 @@ the Atrinik client:
                       but not for playing)
     Readline: Optional (nicer CLI console with history and auto-completion)
 
-In addition gcc and cmake are required to build the client. All the
+In addition gcc and cmake are required to build the server. All the
 necessary packages may be installed on Debian-like systems using the
 following command:
 
@@ -40,11 +40,25 @@ following command:
     libcurl4-openssl-dev python3-dev libgd-dev check libreadline6-dev
 
 After installing the necessary packages, you need to create the Makefiles
-for the project using 'cmake .'. Then you can use 'make' to compile the
-server. When the compilation is done, you can execute the 'atrinik-server'
-binary to start the server, however, it is recommended to use one of the
-startup scripts unless you know what you're doing. See the README file for
-more details.
+for the project. Enter the server directory and execute CMake, eg:
+    $ cmake .
+
+Afterward, you can use make to compile the server:
+    $ make
+
+If you have a multi-core CPU, you can specify the number of threads to start:
+    $ make -j4
+
+When the complation is done, you can execute the 'atrinik-server' binary to
+start the server, however, it is recommended to use one of the startup scripts
+unless you know what you're doing. See the README file for more details.
+
+You can cleanup the compiled files with:
+    $ make clean
+
+Note that this does not remove the generated CMake project files. That can be
+done with:
+    $ rm -rf CMakeFiles CMakeCache.txt Makefile cmake_install.cmake
 
 ==============================================
 = 1.2 Compiling the Atrinik server (Windows) =
