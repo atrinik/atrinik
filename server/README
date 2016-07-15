@@ -100,7 +100,7 @@ so you can use the same options either way; eg, "port = 900" in a configuration
 file and ./atrinik-server --port=900 are the same thing).
 
 See section 3. for information about running a public server and the necessary
-configuration, and section 4. for enabling security extensions.
+configuration, and section 4. for enabling crypto extensions.
 
 ================================================
 = 2.2. Running your own HTTP server            =
@@ -147,7 +147,7 @@ that instead. Some examples:
  - Dual-stack:
     network_stack = dual
 
-Third, it's STRONGLY recommended to enable the security extensions for secure
+Third, it's STRONGLY recommended to enable the crypto extensions for secure
 password exchange and in-game communications, on top of establishing server
 trust and authenticity. See section 4. for details.
 
@@ -226,10 +226,162 @@ the configuration).
          files
 
 ================================================
-= 4. Enabling security extensions              =
+= 4. Enabling crypto extensions                =
 ================================================
 
-TBD
+Protecting player data and ensuring communication privacy is a crucial aspect
+of Atrinik. With the crypto extensions enabled, all text input commands and
+communications are encrypted using ECDHE-RSA. These keys are ephemeral; created
+for every new connection and destroyed on disconnect.
+
+An X509 certificate is used to validate the server's identity. It is strongly
+recommended to use a trusted CA; self-signed certificates are frowned upon and
+will generate a one-time warning when connecting to a server using one.
+
+See section 4.1. for generating an X509 certificate, and an RSA private key
+for it.
+
+Do NOT lose your RSA private key; the client deploys a public-key pinning
+technology which means if it ever sees your server using a different key, it
+will raise red flags and show a warning to the player before they can connect.
+
+You can enable the security extensions like this:
+    [crypto]
+    crypto = true
+    crypto_cert = </path/to/cert.pem
+    crypto_cert_key = </path/to/key.pem
+
+The cert.pem file should contain your X509 certificate, while the key.pem file
+should countain your RSA private key that was used to sign the certificate.
+Note that if you protected the private key with a passphrase, you will need to
+enter it every time you start up the server.
+
+If you need to specify a certificate chain file (eg, one provided by a CA of
+your choice), you can do so like this:
+    [crypto]
+    crypto_cert_chain = </path/to/chain.pem
+
+It is recommended to disable the regular port when using the crypto extensions,
+unless you need to support clients without crypto extensions support:
+    [general]
+    port = 0
+
+By default, the port used by the crypto extensions is 1729. You can change it
+like this:
+    [crypto]
+    port_crypto = 1729
+
+If you've set up everything correctly, the server should now be reporting its
+public key to the metaserver, and advertising crypto extension capabilities,
+which means that clients should be connecting via a secure channel.
+
+However, this is not the end of it; so far, all you have established is a
+secure channel between the server and its clients. While all the different
+security checks put in place should stop a rogue server takeover or a MITM
+attack, they require a client to connect at least once before any such
+attack (to pin the public key), and they do not completely thwart DNS
+spoofing attacks.
+
+Please see section 4.2. for the absolute way of establishing server trust
+and authenticity.
+
+================================================
+= 4.1. Generating an X509 certificate          =
+================================================
+
+You can create a self-signed X509 certificate using a command like this:
+    $ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days X
+
+Add -nodes if you don't want a passphrase for the RSA key (otherwise you will
+be prompted for it each time the server starts up), and change X to the number
+of days you want the certificate to remain valid for. Use the server's hostname
+for the CN.
+
+Keep the generated RSA key secure and backed up; if you lose access to it and
+generate an X509 certificate using a different one in the future, clients that
+previously connected to your server will first have to go through a warning
+sign due to public key pinning.
+
+The preferred alternative is to go through the process of generating an X509
+certificate signing request and getting the X509 certificate from a CA. Let's
+Encrypt provides a free service for trusted certificates, although they have a
+short expire time, and there's some manual work involved in making them use
+your own RSA key for the signing part. At any rate, the process is outside of
+the scope of this document; the only requirement is that the CN must match that
+of your configured server hostname.
+
+================================================
+= 4.2. Server vetting                          =
+================================================
+
+Server vetting is a process by which an Atrinik team member examines a
+server and confirms its identity, generating a signature that clients can
+verify to establish the server is who they claim to be.
+
+At its core is a specially designed certificate format (the design
+specification of which can be found in ADS-7). This certificate is something
+that the server owner must fill out and send to the Atrinik team for review;
+either via email to admin@atrinik.org, a post on the forums (www.atrinik.org)
+or a direct PM to one of the team members.
+
+The certificate looks like this:
+========================== BEGIN ATRINIK CERTIFICATE ==========================
+
+The purpose of this certificate is to establish authenticity of the
+below-described Atrinik server.
+
+This certificate comes with a SHA512 hash of the certificate's contents,
+signed with one of the ultimate trust Atrinik keys, and MUST be considered
+void if it can't be verified using one of those keys.
+
+==========================     BEGIN INFORMATION     ==========================
+Name:                                                          Your Server name
+Hostname:                                                       www.example.com
+Port:                                                                      1728
+Crypto port:                                                               1729
+IPv4 address:                                                         127.0.0.1
+IPv6 address:                                                               ::1
+Public key:    -----BEGIN PUBLIC KEY-----
+Public key:    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4v8dM+Hw1DfbRVGBITcy
+Public key:    t9AfxLGpHZrGPpZgyHXy0ZAEldT221BmqI3B1U7mm6lnbzRRwZ9E2yCZVt0ItVoj
+Public key:    uINkm3fsiQpKTuf0BmeolQ7ZJ/USe1hIhSG8cGhfC2fXa1RxKbJasyehgFsQY+JR
+Public key:    tIoKt0yTpAe7TnHF3FlWt/R+j7Slz3vVsjIDBSr5V8F+/9OjQBGZ86TM9vGHR7MI
+Public key:    MxzTFKuJWpY5l2gVz8fQDNepmqNqvKvgoyCt2lEXANQYDBhtKE0H6QorYuQu4zGj
+Public key:    EPhW+U84TgDA4bm7nY37fk2kNTgQKRaqnQ//cXJGpcrieqHiqeYCpzcTofeWtbE/
+Public key:    swIDAQAB
+Public key:    -----END PUBLIC KEY-----
+==========================      END INFORMATION      ==========================
+
+The above information MUST be validated whenever establishing a connection
+to the Atrinik server.
+
+==========================  END ATRINIK CERTIFICATE  ==========================
+
+The name, hostname and ports must match that of your server configuration. The
+public key is that of the RSA key you used to sign your X509 certificate.
+
+Now, the IPv4 andIPv6 addresses are optional. It is understood that there may
+be servers with dynamic IPs, and renewing the certificate for such servers may
+not be viable. However, a certificate with no IP addresses specified will have
+a weaker security rating in the client, and it's strongly recommended to use
+static IP addresses anyway.
+
+If you do specify the IP addresses, and you only have an IPv4 address, you must
+include the IPv6 address line as well, but leave it blank. The same applies
+vice-versa.
+
+Once you have a certificate like the one above, save it to a file (refer to it
+as server-cert.txt from now on) and send a copy to the Atrinik team, who will
+produce a signature, after the confirmation process (during which you may be
+contacted for more information). Save this signature to another file (refer to
+it as server-cert-sig.txt from now on), and adjust your configuration like so:
+    [crypto]
+    server_cert = </path/to/server-cert.txt
+    server_cert_sig = </path/to/servert-cert-sig.txt
+
+After (re-)starting the server, it should update the metaserver with the
+certificate contents and its signature, and your clients should be protected
+with the highest level of security available at this time.
 
 ================================================
 = 5. Licensing                                 =
