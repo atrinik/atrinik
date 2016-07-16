@@ -987,6 +987,38 @@ static void init_library(int argc, char *argv[])
         clioptions_parse(argc, argv);
     }
 
+    /* Verify the data directory is valid. */
+    DIR *dir = opendir(settings.datapath);
+    if (dir == NULL) {
+        if (errno == ENOENT) {
+#ifdef WIN32
+#   define STARTUP_SCRIPT "server.bat"
+#else
+#   define STARTUP_SCRIPT "./server.sh"
+#endif
+
+            LOG(ERROR,
+                "The data directory %s does not exist.",
+                settings.datapath);
+            LOG(ERROR,
+                "Please refer to the README file on the proper way of "
+                "launching the Atrinik server, or use " STARTUP_SCRIPT " to "
+                "launch the server.");
+            exit(EXIT_FAILURE);
+        } else {
+            LOG(ERROR,
+                "Failed to open the data directory %s: %s (%d)",
+                settings.datapath,
+                strerror(errno),
+                errno);
+            exit(EXIT_FAILURE);
+        }
+
+#undef STARTUP_SCRIPT
+    }
+
+    closedir(dir);
+
     curl_set_data_dir(settings.datapath);
     socket_crypto_set_path(settings.datapath);
 
