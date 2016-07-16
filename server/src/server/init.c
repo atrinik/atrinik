@@ -1017,6 +1017,37 @@ static void init_library(int argc, char *argv[])
 #undef STARTUP_SCRIPT
     }
 
+    /* Check if the data directory has the correct permissions and fix them if
+     * it doesn't. */
+#ifndef WIN32
+    struct stat statbuf;
+    if (stat(settings.datapath, &statbuf) != 0) {
+        LOG(ERROR, "Failed to stat the data directory %s: %s (%d)",
+            settings.datapath,
+            strerror(errno),
+            errno);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((statbuf.st_mode & 0777) != SAVE_MODE_DIR) {
+        LOG(INFO,
+            "Data directory %s has insecure permissions (%o), setting to %o...",
+            settings.datapath,
+            statbuf.st_mode & 0777,
+            SAVE_MODE_DIR);
+        if (chmod(settings.datapath, SAVE_MODE_DIR) != 0) {
+            LOG(ERROR,
+                "Failed to chmod %s, please adjust permissions "
+                "manually: %s (%d)",
+                settings.datapath,
+                strerror(errno),
+                errno);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+#endif
+
     closedir(dir);
 
     curl_set_data_dir(settings.datapath);

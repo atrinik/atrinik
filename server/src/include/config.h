@@ -152,7 +152,8 @@
  * If you are running the game set-gid (to a games-group, for instance),
  * you must remember to make it writeable for the group (ie 0660).
  */
-#define SAVE_MODE   0660
+#define SAVE_MODE      0600
+#define SAVE_MODE_DIR  0700
 
 /**
  * How often (in seconds) the player is saved if he drops things. If it is
