@@ -207,6 +207,7 @@ set(SOURCES_TOOLKIT
     src/toolkit/path.c
     src/toolkit/pbkdf2.c
     src/toolkit/porting.c
+    src/toolkit/process.c
     src/toolkit/sha1.c
     src/toolkit/shstr.c
     src/toolkit/signals.c
