@@ -451,6 +451,11 @@ typedef struct settings_struct {
     bool recycle_tmp_maps:1;
 
     /**
+     * Whether to start the bundled HTTP server.
+     */
+    bool http_server:1;
+
+    /**
      * URL to the HTTP server.
      */
     char http_url[MAX_BUF];

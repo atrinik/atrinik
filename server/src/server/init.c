@@ -848,6 +848,31 @@ clioptions_option_network_stack (const char *arg,
 }
 
 /**
+ * Description of the --http_server command.
+ */
+static const char *clioptions_option_http_server_desc =
+"Enables/disables the bundled HTTP server, which is required in order to "
+"connect to the server (by most clients). Refer to the README file for "
+"information related to running your own HTTP server instead of the bundled "
+"one.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_http_server (const char *arg,
+                               char      **errmsg)
+{
+    if (KEYWORD_IS_TRUE(arg)) {
+        settings.http_server = true;
+    } else if (KEYWORD_IS_FALSE(arg)) {
+        settings.http_server = false;
+    } else {
+        string_fmt(*errmsg, "Invalid value: %s", arg);
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * It is vital that init_library() is called by any functions using this
  * library.
  *
@@ -972,7 +997,7 @@ static void init_library(int argc, char *argv[])
     clioptions_enable_changeable(cli);
     CLIOPTIONS_CREATE_ARGUMENT(cli, network_stack, "Configure network stack");
 
-    cli = clioptions_create("http_server", NULL);
+    CLIOPTIONS_CREATE_ARGUMENT(cli, http_server, "Enable the HTTP server");
 
     /* Import game APIs that don't need settings */
     toolkit_import(commands);
