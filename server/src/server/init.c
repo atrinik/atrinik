@@ -43,6 +43,7 @@
 #include <socket_crypto.h>
 #include <path.h>
 #include <resources.h>
+#include <http_server.h>
 
 /**
  * The server's settings.
@@ -1082,6 +1083,7 @@ static void init_library(int argc, char *argv[])
     toolkit_import(ban);
     toolkit_import(faction);
     toolkit_import(socket_server);
+    toolkit_import(http_server);
 
     map_init();
     init_globals();

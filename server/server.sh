@@ -16,8 +16,6 @@ fi
 # Copy all files from 'arch' to the 'lib' directory.
 cp ../arch/* lib > /dev/null 2>&1
 
-./tools/http_server.py > /dev/null 2>&1 &
-
 # Start up the server. If running from a terminal, pass options to the
 # executable. Otherwise, start up the server with some sane options,
 # which includes redirecting the log to a file.
