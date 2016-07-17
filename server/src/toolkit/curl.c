@@ -152,6 +152,11 @@ struct curl_request {
     void *cb_user_data;
 
     /**
+     * Delay in microseconds.
+     */
+    uint32_t delay;
+
+    /**
      * True if the thread is quitting.
      */
     bool finished:1;
@@ -736,6 +741,24 @@ curl_request_set_cb (curl_request_t *request,
 
     request->cb = cb;
     request->cb_user_data = user_data;
+}
+
+/**
+ * Set a delay before executing the cURL request.
+ *
+ * @param request
+ * Request.
+ * @param delay
+ * Delay in microseconds.
+ */
+void
+curl_request_set_delay (curl_request_t *request,
+                        uint32_t        delay)
+{
+    HARD_ASSERT(request != NULL);
+    TOOLKIT_PROTECT();
+
+    request->delay = delay;
 }
 
 /**
@@ -1446,6 +1469,10 @@ curl_request_do_get (void *user_data)
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
+    if (request->delay != 0) {
+        usleep(request->delay);
+    }
+
     struct curl_slist *chunk = NULL;
     curl_state_t state;
 
@@ -1485,7 +1512,7 @@ done:
         curl_slist_free_all(chunk);
     }
 
-    if (request->cb != NULL) {
+    if (request->cb != NULL && !request->finished) {
         request->cb(request, request->cb_user_data);
     }
 
@@ -1530,6 +1557,10 @@ curl_request_do_post (void *user_data)
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
+    if (request->delay != 0) {
+        usleep(request->delay);
+    }
+
     curl_state_t state;
 
     /* Init "easy" cURL */
@@ -1557,7 +1588,7 @@ done:
         curl_easy_cleanup(request->handle);
     }
 
-    if (request->cb != NULL) {
+    if (request->cb != NULL && !request->finished) {
         request->cb(request, request->cb_user_data);
     }
 

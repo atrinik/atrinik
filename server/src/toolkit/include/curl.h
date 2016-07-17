@@ -109,6 +109,9 @@ void
 curl_request_set_cb(curl_request_t *request,
                     curl_request_cb cb,
                     void           *user_data);
+void
+curl_request_set_delay(curl_request_t *request,
+                       uint32_t        delay);
 curl_state_t
 curl_request_get_state(curl_request_t *request);
 char *
