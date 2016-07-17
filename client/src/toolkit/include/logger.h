@@ -48,6 +48,7 @@ typedef enum logger_level {
     LOG_PACKET,
     LOG_DUMPRX,
     LOG_DUMPTX,
+    LOG_HTTP,
 
     LOG_MAX
 } logger_level;

@@ -62,7 +62,8 @@ static const char *const logger_names[LOG_MAX] = {
     "DEVEL",
     "PACKET",
     "DUMPRX",
-    "DUMPTX"
+    "DUMPTX",
+    "HTTP",
 };
 
 /**
@@ -115,7 +116,7 @@ TOOLKIT_INIT_FUNC(logger)
 
     logger_filter_stdout = logger_filter_logfile = 0;
 
-    logger_set_filter_stdout("all,-dumptx,-dumprx");
+    logger_set_filter_stdout("all,-dumptx,-dumprx,-http");
     logger_set_filter_logfile("all,-dumptx,-dumprx");
 
     if (logger_term_has_ansi_colors()) {
