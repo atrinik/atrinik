@@ -307,6 +307,12 @@ do {                                            \
         } \
     } while (0)
 
+#define IMPOSSIBLE() \
+    do { \
+        SOFT_ASSERT_MSG("Reached impossible code branch"); \
+        assert(false); \
+    } while (0)
+
 #else
 
 #define SOFT_ASSERT(cond, msg, ...) \
@@ -331,6 +337,12 @@ do {                                            \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
             goto label; \
         } \
+    } while (0)
+
+#define IMPOSSIBLE() \
+    do { \
+        SOFT_ASSERT_MSG("Reached impossible code branch"); \
+        exit(EXIT_FAILURE); \
     } while (0)
 
 #endif
