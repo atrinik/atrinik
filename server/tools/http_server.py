@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os, sys, hashlib, platform, io
+from lockfile import LockFile
 
 # py3k
 try:
@@ -28,6 +29,8 @@ if any(platform.win32_ver()):
 else:
     SocketServerMixIn = socketserver.ForkingMixIn
 
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 config.readfp(open("server.cfg"))
 config.read(["server-custom.cfg"])
 
@@ -37,12 +40,14 @@ path_translations = {
 path_default = config.get("general", "httppath")
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler):
-    def log_message(self, format, *args):
-        pass
+    def log_message(self, fmt, *args):
+        sys.stdout.write(fmt % args)
+        sys.stdout.write("\0")
+        sys.stdout.flush()
 
     def translate_path(self, path):
         if not path.startswith("/"):
-            raise ValueError("invalid path")
+            raise ValueError("invalid path: %s" % path)
 
         path = unquote(path)
         path = path[1:]
@@ -165,7 +170,11 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
             total = len(buf)
             pos = 0
             while pos < total:
-                pos += outputfile.write(buf[pos:])
+                ret = outputfile.write(buf[pos:])
+                if ret is None:
+                    break
+
+                pos += ret
 
 class ForkingHTTPServer(SocketServerMixIn, HTTPServer):
     def finish_request(self, request, client_address):
@@ -173,7 +182,7 @@ class ForkingHTTPServer(SocketServerMixIn, HTTPServer):
         HTTPServer.finish_request(self, request, client_address)
 
 if __name__ == '__main__':
-    if config.getboolean("general", "http_server"):
+    with LockFile(__file__) as _:
         o = urlparse(config.get("general", "http_url"))
         server = ForkingHTTPServer(("", o.port), HTTPRequestHandler)
         server.serve_forever()
