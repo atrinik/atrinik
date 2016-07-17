@@ -9,6 +9,7 @@ build.user
 server/src/loaders/*.c
 timidity.cfg
 .idea
+*.pid
 
 # Metaserver config
 metaserver/db-cfg.php
