@@ -128,6 +128,24 @@ endif ()
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
+# This is very ugly. There is essentially a namespace clash between newer
+# MinGW and the Windows port of pthreads, and they both define a timespec
+# structure. This would be OK if both checked for its existence, but the
+# bigger problem is that the two definitions are *INCOMPATIBLE*. Indeed,
+# the pthread.h version uses a 32-bit integer for the seconds timestamp,
+# while the MinGW time.h one uses a 64-bit one.
+#
+# The solution below disables the pthread.h declaration. This means that
+# any code working with a timespec assumes the MinGW structure declaration,
+# and if there is any code involving pthreads that passes around a
+# timespec... tough luck.
+#
+# Also, we need it here, otherwise the threads check below will not set the
+# correct libraries to use.
+if (WIN32)
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -DHAVE_STRUCT_TIMESPEC)
+endif ()
+
 find_package(Threads REQUIRED)
 
 include(CheckIncludeFiles)
