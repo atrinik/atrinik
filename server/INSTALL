@@ -89,14 +89,21 @@ You will need to install the following prerequisites:
  - OpenSSL
     Atrinik requires OpenSSL. Download it here:
 
-    http://slproweb.com/download/Win32OpenSSL-1_0_1j.exe
+    https://slproweb.com/products/Win32OpenSSL.html
+
+    Make sure you get the full version for Windows 32-bit, and not the light
+    version. For example, this one is OK:
+    Win32 OpenSSL v1.0.2h
 
     The installer will ask where to copy OpenSSL DLL files. Make sure this is
     set to the system directory.
  - cURL
     Atrinik requires cURL. Download it here:
 
-    http://curl.haxx.se/gknw.net/7.39.0/dist-w32/curl-7.39.0-devel-mingw32.zip
+    https://curl.haxx.se/gknw.net/
+
+    Get the latest version for 32-bit MinGW, eg:
+    http://curl.haxx.se/gknw.net/7.40.0/dist-w32/curl-7.40.0-devel-mingw32.zip
 
     Extract the archive and copy "lib" and "include" directories into
     C:/MinGW (or where you installed MinGW).
