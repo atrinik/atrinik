@@ -144,6 +144,7 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 # correct libraries to use.
 if (MINGW)
     set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -DHAVE_STRUCT_TIMESPEC)
+    add_definitions(-DHAVE_STRUCT_TIMESPEC)
 endif ()
 
 find_package(Threads REQUIRED)
