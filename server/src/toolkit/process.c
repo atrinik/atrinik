@@ -35,8 +35,9 @@
 
 #include <sys/wait.h>
 #include <poll.h>
-#include <process.h>
 #include <spawn.h>
+
+#include "toolkit/process.h"
 
 TOOLKIT_API(IMPORTS(logger));
 

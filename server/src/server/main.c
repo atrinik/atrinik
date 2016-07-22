@@ -38,7 +38,8 @@
 #include <object_methods.h>
 #include <waypoint.h>
 #include <server.h>
-#include <process.h>
+
+#include "toolkit/process.h"
 
 #ifdef HAVE_CHECK
 #   include <check.h>

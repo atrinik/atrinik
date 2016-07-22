@@ -15,6 +15,7 @@ endif ()
 # Add our includes.
 include_directories(src/include)
 include_directories(src/gui/toolkit/include)
+include_directories(src)
 include(src/toolkit/cmake-pre.txt)
 
 if (MINGW)

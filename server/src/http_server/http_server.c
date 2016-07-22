@@ -32,7 +32,7 @@
 
 #include <global.h>
 #include <http_server.h>
-#include <process.h>
+#include "toolkit/process.h"
 #include <curl.h>
 
 TOOLKIT_API(DEPENDS(process), IMPORTS(logger));
