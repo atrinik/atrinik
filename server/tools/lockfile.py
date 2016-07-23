@@ -1,4 +1,15 @@
-import fcntl, sys, os, signal, time, atexit, signal
+import sys, os, signal, time, atexit, signal
+
+have_fcntl = False
+
+try:
+    import fcntl
+    have_fcntl = True
+except ImportError:
+    pass
+
+class LockError(Exception):
+    pass
 
 class LockFile(object):
     def __init__(self, file_path):
@@ -14,13 +25,22 @@ class LockFile(object):
         signal.signal(signal.SIGTERM, self.cleanup)
 
     def lock(self):
-        self.pid_file = open(self.path, "w")
+        if have_fcntl:
+            self.pid_file = open(self.path, "w")
 
-        try:
-            fcntl.lockf(self.pid_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except IOError:
-            self.pid_file.close()
-            raise
+            try:
+                fcntl.lockf(self.pid_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except IOError:
+                self.pid_file.close()
+                raise LockError()
+        else:
+            if os.path.exists(self.path):
+                try:
+                    os.unlink(self.path)
+                except IOError:
+                    raise LockError()
+
+            self.pid_file = open(self.path, "w")
 
         self.pid_file.write("%d\n" % os.getpid())
         self.pid_file.flush()
@@ -35,14 +55,14 @@ class LockFile(object):
 
         try:
             self.lock()
-        except IOError:
+        except LockError:
             # Ask politely first.
             os.kill(self.old_pid, signal.SIGTERM)
             time.sleep(0.5)
 
             try:
                 self.lock()
-            except IOError:
+            except LockError:
                 os.kill(self.old_pid, signal.SIGKILL)
                 time.sleep(0.5)
                 self.lock()
@@ -51,7 +71,7 @@ class LockFile(object):
         try:
             self.lock()
             os.unlink(self.path)
-        except IOError:
+        except LockError:
             pass
 
         self.pid_file.close()
