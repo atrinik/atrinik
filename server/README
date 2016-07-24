@@ -44,8 +44,7 @@ manual changes to archetypes/artifacts/images/interfaces/etc.
 Afterwards, you can start up the server with ./server.sh or ./server.bat
 (depending on your platform). Starting up the server using the binary is
 also possible, but generally not recommended, as the startup scripts take
-care of various aspects, such as first-time installation, starting up the
-HTTP server and so on.
+care of various aspects, such as first-time installation.
 
 For example, you should see something like this:
     $ ./server.sh 
@@ -68,9 +67,6 @@ following (working from the server directory):
    Alternatively, you can run the collect script like this to automatically
    copy the necessary files:
    $ ./collect.py -o ../server/lib
- - Start up the HTTP server (see section 2.2. for instructions how to run
-                             your own HTTP server):
-   ./tools/http_server.py
  - Now you can launch the atrinik-server binary manually.
 
 It is recommended to generate the region maps prior to starting up the server.
@@ -81,6 +77,10 @@ to use the --worldmaker switch, eg, run this prior to starting up your server:
 The region maps are not mandatory to play the game, however, some features may
 not work (specifically, the client will only be able to work with dynamic area
 maps and not the full region maps).
+
+Starting up the server will also start an HTTP server for serving the game data
+files. If you like, you can use any HTTP server of your choice instead, as long
+as it's properly configured. See section 2.2. for details.
 
 ================================================
 = 2.1. Configuring the server                  =
@@ -197,10 +197,10 @@ Apart from the obvious identifying information exposed by any IP connection
 metaserver, and flooded in periodic intervals, if reporting to the metaserver
 has been enabled (as per section 3.):
  - Configured server name, hostname and description
- - Enabled game data ports (normal/security)
+ - Enabled game data ports (normal/crypto)
  - Server version
  - Atrinik HTTP client version and platform (Windows/Linux/other)
- - Generated key (for metaserver authorization purposes)
+ - Generated metaserver key (for authentication purposes)
  - Number of players online
  - List of online players (apart from hidden ones)
  - ADS-7 compatible Atrinik server certificate, if configured
