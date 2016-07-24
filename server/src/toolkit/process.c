@@ -1057,7 +1057,7 @@ process_check_all (void)
     if (process_check_internal_poll(fds, nfds)) {
         /* It is important that this loop keeps the same logic/checks as the
          * one above, otherwise inconsistencies are bound to happen. */
-        nfds_t idx = 0;
+        size_t idx = 0;
         DL_FOREACH(processes, process) {
             if (!process->running) {
                 continue;
