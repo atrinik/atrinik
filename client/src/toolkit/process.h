@@ -68,6 +68,8 @@ void
 process_set_data_err_cb(process_t *process, process_data_callback_t cb);
 bool
 process_is_running(process_t *process);
+void
+process_send(process_t *process, packet_struct *packet);
 bool
 process_start(process_t *process);
 void
