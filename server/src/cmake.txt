@@ -47,6 +47,7 @@ set(SOURCES
 	src/commands/player/version.c
 	src/commands/player/whereami.c
 	src/commands/player/who.c
+	src/http_server/http_server.c
 	src/loaders/map_header.c
 	src/loaders/object.c
 	src/loaders/random_map.c

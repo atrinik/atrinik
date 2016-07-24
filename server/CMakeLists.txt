@@ -22,11 +22,13 @@ if (NOT DL_LIBRARY AND NOT MINGW)
 endif ()
 
 # Add our includes.
+include_directories(src/http_server)
 include_directories(src/include)
 include_directories(src/random_maps)
 include_directories(src/tests)
 include_directories(src/types/monster/include)
 include_directories(src/types/include)
+include_directories(src)
 
 # Scan for lexers.
 set(LEXERS

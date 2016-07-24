@@ -13,5 +13,4 @@ if not exist "data" (
 
 copy ..\arch\*.* lib\*.*
 
-start /B python ./tools/http_server.py
 atrinik-server.exe --logfile=logfile.log

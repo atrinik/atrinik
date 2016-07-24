@@ -24,58 +24,59 @@
 
 /**
  * @file
- * Logger API header file.
- *
- * @author Alex Tokar
+ * Process API header file.
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef PROCESS_H
+#define PROCESS_H
 
-typedef void (*logger_print_func)(const char *str);
+#include <toolkit.h>
+
+typedef struct process process_t;
 
 /**
- * Possible log levels.
+ * Callback definition used for acquiring data read from a process.
+ *
+ * @param process
+ * Process.
+ * @param data
+ * Data that was read.
+ * @param len
+ * Length of the data.
  */
-typedef enum logger_level {
-    LOG_CHAT,
-    LOG_INFO,
-    LOG_SYSTEM,
-    LOG_ERROR,
-    LOG_BUG,
-    LOG_DEBUG,
-    LOG_DEVEL,
-    LOG_PACKET,
-    LOG_DUMPRX,
-    LOG_DUMPTX,
-    LOG_HTTP,
-
-    LOG_MAX
-} logger_level;
-
-#define log_error(...) \
-    do { \
-        logger_traceback(); \
-        LOG(ERROR, ##__VA_ARGS__); \
-    } while (0)
-#define LOG(_level, ...) \
-    do { \
-        logger_print(LOG_ ## _level, __FUNCTION__, __LINE__, ## __VA_ARGS__); \
-    } while(0)
+typedef void (*process_data_callback_t)(process_t *process,
+                                        uint8_t   *data,
+                                        size_t     len);
 
 /* Prototypes */
 
-extern void toolkit_logger_init(void);
-extern void toolkit_logger_deinit(void);
-void logger_open_log(const char *path);
-FILE *logger_get_logfile(void);
-logger_level logger_get_level(const char *name);
-void logger_set_filter_stdout(const char *str);
-void logger_set_filter_logfile(const char *str);
-void logger_set_print_func(logger_print_func func);
-void logger_do_print(const char *str);
-void logger_print(logger_level level, const char *function, uint64_t line,
-        const char *format, ...) __attribute__((format(printf, 4, 5)));
-void logger_traceback(void);
+TOOLKIT_FUNCS_DECLARE(process);
+
+process_t *
+process_create(const char *executable);
+void
+process_free(process_t *process);
+void
+process_add_arg(process_t *process, const char *arg);
+const char *
+process_get_str(process_t *process);
+void
+process_set_restart(process_t *process, bool val);
+void
+process_set_data_out_cb(process_t *process, process_data_callback_t cb);
+void
+process_set_data_err_cb(process_t *process, process_data_callback_t cb);
+bool
+process_is_running(process_t *process);
+void
+process_send(process_t *process, packet_struct *packet);
+bool
+process_start(process_t *process);
+void
+process_stop(process_t *process);
+void
+process_check(process_t *process);
+void
+process_check_all(void);
 
 #endif

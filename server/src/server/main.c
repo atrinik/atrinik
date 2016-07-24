@@ -39,6 +39,8 @@
 #include <waypoint.h>
 #include <server.h>
 
+#include "toolkit/process.h"
+
 #ifdef HAVE_CHECK
 #   include <check.h>
 #   include <check_proto.h>
@@ -512,6 +514,10 @@ static void do_specials(void)
 
     if (!(pticks % 40)) {
         memory_check_all();
+    }
+
+    if (!(pticks % 80)) {
+        process_check_all();
     }
 }
 
