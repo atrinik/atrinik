@@ -589,6 +589,7 @@ process_start (process_t *process)
                        NULL,
                        &si,
                        &process->pi)) {
+        efree(cmdline);
         LOG(ERROR, "CreateProcess() failed");
         goto error;
     }
@@ -617,7 +618,6 @@ error:
 #ifndef WIN32
     process->pid = -1;
 #else
-    efree(cmdline);
     memset(&process->pi, 0, sizeof(process->pi));
 #endif
 
