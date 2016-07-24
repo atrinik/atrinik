@@ -890,7 +890,12 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
 
         retval = true;
         memcpy(addr, ai->ai_addr, sizeof(*addr));
+
+#ifndef WIN32
         close(handle);
+#else
+        closesocket(handle);
+#endif
         break;
     }
 
