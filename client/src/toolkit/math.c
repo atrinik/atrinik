@@ -46,10 +46,12 @@
 #define DRNG_HAS_RDSEED	0x2 ///< RDSEED is available.
 /*@}*/
 
+#ifndef __arm__
 /**
  * When defined, Intel's DRNG is compiled.
  */
 #define INTEL_DRNG
+#endif
 
 /**
  * Used by nearest_pow_two_exp() for a fast lookup.
@@ -67,9 +69,11 @@ static const size_t exp_lookup[65] = {
 static int drng_features;
 #endif
 
+#ifndef __arm__
 /* Prototypes */
 static uint64_t
 rdtsc(void);
+#endif
 
 #ifdef INTEL_DRNG
 static int
@@ -99,11 +103,13 @@ TOOLKIT_INIT_FUNC(math)
         }
     } else
 #endif
+#ifndef __arm__
     {
         LOG(DEVEL, "CPU supports RDTSC opcode, attempting to generate a seed");
         seed = rdtsc();
         LOG(DEVEL, "RDTSC generated seed: %" PRIu64, seed);
     }
+#endif
 
 #ifdef INTEL_DRNG
     if (drng_features & DRNG_HAS_RDRAND) {
@@ -120,6 +126,7 @@ TOOLKIT_DEINIT_FUNC(math)
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
+#ifndef __arm__
 /**
  * Acquire the processor time stamp using the rdtsc opcode.
  *
@@ -134,6 +141,7 @@ rdtsc (void)
                   : "=a" (lo), "=d" (hi));
     return ((uint64_t) hi << 32) | lo;
 }
+#endif
 
 #ifdef INTEL_DRNG
 /**
@@ -179,6 +187,7 @@ cpuid (cpuid_t *info, unsigned int leaf, unsigned int subleaf)
 static bool
 is_intel_cpu (void)
 {
+#ifndef __arm__
     cpuid_t info;
     cpuid(&info, 0, 0);
 
@@ -187,6 +196,7 @@ is_intel_cpu (void)
         memcmp((char *) &info.ecx, "ntel", 4) == 0) {
         return true;
     }
+#endif
 
     return false;
 }
