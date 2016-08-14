@@ -18,13 +18,11 @@ from compilers.interface_compiler import InterfaceCompiler
 import compilers
 import utils
 
-# Change the working directory to that of the script's own directory.
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # Adjust the recursion limit.
 sys.setrecursionlimit(50000)
 # Various paths.
 paths = {
-    "root": "../",
+    "root": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 }
 
 if any(platform.win32_ver()):
