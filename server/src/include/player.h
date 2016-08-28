@@ -152,9 +152,6 @@ struct pl_player {
     /** Name of the map the player is on. */
     char maplevel[MAX_BUF];
 
-    /** Skill used for fire mode. */
-    char firemode_name[BIG_NAME * 2];
-
     /** Rank + name +" the xxxx" */
     char quick_name[BIG_NAME * 3];
 
@@ -163,9 +160,6 @@ struct pl_player {
 
     /** Who killed this player. */
     char killer[BIG_NAME];
-
-    /** Holds arbitrary input from client. */
-    char write_buf[MAX_BUF];
 
     /** Player the DM is following. */
     char followed_player[BIG_NAME];
