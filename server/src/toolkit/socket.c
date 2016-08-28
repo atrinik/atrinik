@@ -663,6 +663,29 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable)
         return false;
     }
 
+#ifndef WIN32
+    int flags = fcntl(sc->handle, F_GETFL);
+    if (flags == -1) {
+        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", s_strerror(s_errno),
+                s_errno);
+        return false;
+    }
+
+    /* We want to reuse the socket's port/address, so we don't want it to be
+     * inherited by children created using exec(). */
+    if (enable) {
+        flags |= FD_CLOEXEC;
+    } else {
+        flags &= ~FD_CLOEXEC;
+    }
+
+    if (fcntl(sc->handle, F_SETFD, FD_CLOEXEC) == -1) {
+        LOG(ERROR, "Cannot fcntl(F_SETFD): %s (%d)",
+            s_strerror(s_errno), s_errno);
+        return false;
+    }
+#endif
+
     return true;
 }
 
