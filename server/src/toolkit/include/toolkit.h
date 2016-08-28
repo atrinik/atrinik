@@ -167,11 +167,6 @@ typedef struct toolkit_dependency {
 /** Used for messages - some can be quite long. */
 #define HUGE_BUF            4096
 /**
- * Maximum size of player name.
- * @todo Get rid of this.
- */
-#define MAX_NAME            16
-/**
  * Used for other named things.
  * @todo Get rid of this.
  */

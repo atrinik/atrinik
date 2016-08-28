@@ -97,7 +97,7 @@ find_player (const char *plname)
     player *pl;
 
     for (pl = first_player; pl; pl = pl->next) {
-        if (strncasecmp(pl->ob->name, plname, MAX_NAME) == 0) {
+        if (strcasecmp(pl->ob->name, plname) == 0) {
             return pl;
         }
     }

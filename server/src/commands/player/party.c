@@ -173,13 +173,13 @@ void command_party(object *op, const char *command, char *params)
             return;
         }
 
-        if (!strncasecmp(op->name, params, MAX_NAME)) {
+        if (strcasecmp(op->name, params) == 0) {
             draw_info(COLOR_RED, op, "You cannot kick yourself.");
             return;
         }
 
         for (ol = CONTR(op)->party->members; ol; ol = ol->next) {
-            if (!strncasecmp(ol->objlink.ob->name, params, MAX_NAME)) {
+            if (strcasecmp(ol->objlink.ob->name, params) == 0) {
                 remove_party_member(CONTR(op)->party, ol->objlink.ob);
                 snprintf(buf, sizeof(buf), "%s has been kicked from the party.", ol->objlink.ob->name);
                 send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
