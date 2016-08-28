@@ -166,11 +166,6 @@ typedef struct toolkit_dependency {
 #define MAX_BUF             256
 /** Used for messages - some can be quite long. */
 #define HUGE_BUF            4096
-/**
- * Used for other named things.
- * @todo Get rid of this.
- */
-#define BIG_NAME            32
 /*@}*/
 
 /**

@@ -86,6 +86,7 @@ player_disconnect_all (void)
 
 /**
  * Loop through the player list and find player specified by plname.
+ *
  * @param plname
  * The player name to find.
  * @return
@@ -94,10 +95,28 @@ player_disconnect_all (void)
 player *
 find_player (const char *plname)
 {
-    player *pl;
-
-    for (pl = first_player; pl; pl = pl->next) {
+    for (player *pl = first_player; pl != NULL; pl = pl->next) {
         if (strcasecmp(pl->ob->name, plname) == 0) {
+            return pl;
+        }
+    }
+
+    return NULL;
+}
+
+/**
+ * Loop through the player list and find player specified by plname.
+ *
+ * @param plname
+ * The player name to find. Must be a shared string.
+ * @return
+ * Player structure if found, NULL otherwise.
+ */
+player *
+find_player_sh (shstr *plname)
+{
+    for (player *pl = first_player; pl != NULL; pl = pl->next) {
+        if (pl->ob->name == plname) {
             return pl;
         }
     }
@@ -207,16 +226,24 @@ free_player (player *pl)
     pl->cs->state = ST_DEAD;
 
     /* Free command permissions. */
-    if (pl->cmd_permissions) {
+    if (pl->cmd_permissions != NULL) {
         int i;
 
         for (i = 0; i < pl->num_cmd_permissions; i++) {
-            if (pl->cmd_permissions[i]) {
+            if (pl->cmd_permissions[i] != NULL) {
                 efree(pl->cmd_permissions[i]);
             }
         }
 
         efree(pl->cmd_permissions);
+    }
+
+    if (pl->followed_player != NULL) {
+        FREE_AND_CLEAR_HASH(pl->followed_player);
+    }
+
+    if (pl->killer != NULL) {
+        efree(pl->killer);
     }
 
     player_faction_t *faction, *tmp;
@@ -651,7 +678,7 @@ player_do_some_living (object *op)
 
     if ((op->stats.hp <= 0 || op->stats.food < 0) && !pl->tgm) {
         draw_info_format(COLOR_WHITE, NULL, "%s starved to death.", op->name);
-        snprintf(VS(pl->killer), "starvation");
+        player_set_killer(pl, "starvation");
         kill_player(op);
     }
 }
@@ -741,7 +768,8 @@ kill_player (object *op)
     object *tmp;
 
     if (pvp_area(NULL, op)) {
-        draw_info(COLOR_NAVY, op, "You have been defeated in combat!\nLocal medics have saved your life...");
+        draw_info(COLOR_NAVY, op, "You have been defeated in combat!");
+        draw_info(COLOR_NAVY, op, "Local medics have saved your life...");
 
         /* Restore player */
         cast_heal(op, op, MAXLEVEL, op, SP_CURE_POISON);
@@ -756,12 +784,26 @@ kill_player (object *op)
 
         /* Create a bodypart-trophy to make the winner happy */
         tmp = arch_to_object(arch_find("finger"));
-
-        if (tmp) {
+        if (tmp != NULL) {
             snprintf(buf, sizeof(buf), "%s's finger", op->name);
             FREE_AND_COPY_HASH(tmp->name, buf);
-            snprintf(buf, sizeof(buf), "This finger has been cut off %s the %s, when %s was defeated at level %d by %s.", op->name, op->race, gender_subjective[object_get_gender(op)], op->level, CONTR(op)->killer[0] == '\0' ? "something nasty" : CONTR(op)->killer);
-            FREE_AND_COPY_HASH(tmp->msg, buf);
+
+            const char *killer = player_get_killer(CONTR(op));
+            if (killer == NULL) {
+                killer = "something nasty";
+            }
+
+            StringBuffer *sb = stringbuffer_new();
+            stringbuffer_append_printf(sb,
+                                       "This finger has been cut off %s the "
+                                       "%s, when %s was defeated at level %d "
+                                       "by %s.",
+                                       op->name,
+                                       op->race,
+                                       gender_subjective[object_get_gender(op)],
+                                       op->level,
+                                       killer);
+            FREE_AND_COPY_HASH(tmp->msg, stringbuffer_finish_shared(sb));
             tmp->value = 0;
             tmp->material = 0;
             tmp->type = 0;
@@ -769,7 +811,7 @@ kill_player (object *op)
             object_insert_map(tmp, op->map, op, 0);
         }
 
-        CONTR(op)->killer[0] = '\0';
+        player_clear_killer(CONTR(op));
 
         /* Teleport defeated player to new destination */
         transfer_ob(op, MAP_ENTER_X(op->map), MAP_ENTER_Y(op->map), 0, NULL, NULL);
@@ -797,8 +839,8 @@ kill_player (object *op)
     snprintf(VS(buf), "%s's gravestone", op->name);
     FREE_AND_COPY_HASH(tmp->name, buf);
     StringBuffer *sb = stringbuffer_new();
-    const char *killer = CONTR(op)->killer;
-    if (*killer == '\0') {
+    const char *killer = player_get_killer(CONTR(op));
+    if (killer == NULL) {
         killer = "something nasty";
     }
     stringbuffer_append_printf(sb,
@@ -834,9 +876,10 @@ kill_player (object *op)
 
     hiscore_check(op, 1);
 
-    /* Otherwise the highscore can get entries like 'xxx was killed by pudding
-     * on map Wilderness' even if they were killed in a dungeon. */
-    CONTR(op)->killer[0] = '\0';
+    /* Clear the killer, otherwise the highscore can get entries like
+     * 'xxx was killed by pudding on map Wilderness' even if they were
+     * killed in a dungeon. */
+    player_clear_killer(CONTR(op));
 
     /* Check to see if the player is in a shop. If so, then check to see
      * if the player has any unpaid items. If so, remove them and put
@@ -2622,6 +2665,64 @@ player_set_talking_to (player *pl, object *npc)
 }
 
 /**
+ * Acquire the name of the player's killer, if any.
+ *
+ * @param pl
+ * Player.
+ * @return
+ * Name of the killer, NULL if none.
+ */
+const char *
+player_get_killer (player *pl)
+{
+    SOFT_ASSERT_RC(pl != NULL, NULL, "pl is NULL");
+
+    if (string_isempty(pl->killer)) {
+        return NULL;
+    }
+
+    return pl->killer;
+}
+
+/**
+ * Store the name of the player's killer.
+ *
+ * @param pl
+ * Player.
+ * @param killer
+ * Name of the killer to store. Will be copied.
+ */
+void
+player_set_killer (player *pl, const char *killer)
+{
+    SOFT_ASSERT(pl != NULL, "pl is NULL");
+    SOFT_ASSERT(killer != NULL, "killer is NULL");
+
+    if (pl->killer != NULL) {
+        efree(pl->killer);
+    }
+
+    pl->killer = estrdup(killer);
+}
+
+/**
+ * Clear the specified player's killer, if any.
+ *
+ * @param pl
+ * Player.
+ */
+void
+player_clear_killer (player *pl)
+{
+    SOFT_ASSERT(pl != NULL, "pl is NULL");
+
+    if (pl->killer != NULL) {
+        efree(pl->killer);
+        pl->killer = NULL;
+    }
+}
+
+/**
  * Perform player login.
  *
  * @param ns
@@ -2808,7 +2909,7 @@ player_logout (player *pl)
 
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s left the game.", pl->ob->name);
 
-    snprintf(VS(pl->killer), "left");
+    player_set_killer(pl, "left");
     hiscore_check(pl->ob, 1);
 
     /* Be sure we have closed container when we leave */
@@ -3013,10 +3114,11 @@ process_func (object *op)
         return;
     }
 
-    if (pl->followed_player[0]) {
-        player *followed = find_player(pl->followed_player);
-
-        if (followed && followed->ob && followed->ob->map) {
+    if (pl->followed_player != NULL) {
+        player *followed = find_player_sh(pl->followed_player);
+        if (followed != NULL &&
+            followed->ob != NULL &&
+            followed->ob->map != NULL) {
             rv_vector rv;
 
             if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && (rv.distance > 4 || rv.distance_z != 0))) {
@@ -3030,8 +3132,10 @@ process_func (object *op)
                 }
             }
         } else {
-            draw_info_format(COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
-            pl->followed_player[0] = '\0';
+            draw_info_format(COLOR_RED, pl->ob,
+                             "Player %s left.",
+                             pl->followed_player);
+            FREE_AND_CLEAR_HASH(pl->followed_player);
         }
     }
 

@@ -37,13 +37,13 @@
  */
 typedef struct scr {
     /** Name. */
-    char name[BIG_NAME];
+    char name[MAX_BUF];
 
     /** Title. */
-    char title[BIG_NAME];
+    char title[MAX_BUF];
 
     /** Name (+ title) or "left". */
-    char killer[BIG_NAME];
+    char killer[MAX_BUF];
 
     /** Killed on what level. */
     char maplevel[MAX_BUF];
@@ -97,7 +97,7 @@ static void hiscore_save(const score_table *table)
 {
     FILE *fp;
     size_t i;
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
 
     fp = fopen(table->fname, "w");
 
@@ -285,7 +285,7 @@ static void hiscore_load(score_table *table)
         }
     } else {
         while (i < HIGHSCORE_LENGTH) {
-            char buf[MAX_BUF];
+            char buf[HUGE_BUF];
 
             if (!fgets(buf, sizeof(buf), fp)) {
                 break;
@@ -332,39 +332,35 @@ void hiscore_init(void)
 void hiscore_check(object *op, int quiet)
 {
     score new_score, old_score;
-    char bufscore[MAX_BUF];
+    char bufscore[HUGE_BUF];
     const char *message;
 
     if (!op->stats.exp) {
         return;
     }
 
-    strncpy(new_score.name, op->name, sizeof(new_score.name));
-    new_score.name[sizeof(new_score.name) - 1] = '\0';
+    snprintf(VS(new_score.name), "%s", op->name);
+    snprintf(VS(new_score.title), "%s", op->race);
 
-    strncpy(new_score.title, op->race, sizeof(new_score.title));
-    new_score.title[sizeof(new_score.title) - 1] = '\0';
-
-    strncpy(new_score.killer, CONTR(op)->killer, sizeof(new_score.killer));
-    new_score.killer[sizeof(new_score.killer) - 1] = '\0';
+    const char *killer = player_get_killer(CONTR(op));
+    if (killer != NULL) {
+        snprintf(VS(new_score.killer), "%s", killer);
+    } else {
+        *new_score.killer = '\0';
+    }
 
     new_score.exp = op->stats.exp;
 
     if (op->map == NULL) {
         *new_score.maplevel = '\0';
     } else {
-        size_t i;
+        snprintf(VS(new_score.maplevel),
+                 "%s",
+                 op->map->name != NULL ? op->map->name : op->map->path);
 
-        strncpy(new_score.maplevel, op->map->name ? op->map->name : op->map->path, sizeof(new_score.maplevel) - 1);
-        new_score.maplevel[sizeof(new_score.maplevel) - 1] = '\0';
-
-        /* Replace ':' in the map name with ' ' so it doesn't break the loading.
-         * */
-        for (i = 0; new_score.maplevel[i]; i++) {
-            if (new_score.maplevel[i] == ':') {
-                new_score.maplevel[i] = ' ';
-            }
-        }
+        /* Replace the colons in the map name with spaces, since the
+         * saving/loading mechanism uses colons to separate the values. */
+        string_replace_char(new_score.maplevel, ":", ' ');
     }
 
     new_score.maxhp = (int) op->stats.maxhp;

@@ -1094,15 +1094,23 @@ attack_kill (object *op, object *hitter)
                              is_pvp ? " (duel)" : "");
         }
 
+        StringBuffer *sb = stringbuffer_new();
+
         /* Update player's killer. */
         if (owner->type == PLAYER) {
-            snprintf(VS(CONTR(op)->killer),
-                     "%s the %s",
-                     owner_name,
-                     owner->race);
+            stringbuffer_append_printf(sb,
+                                       "%s the %s",
+                                       owner_name,
+                                       owner->race);
         } else {
-            snprintf(VS(CONTR(op)->killer), "%s", owner_name);
+            stringbuffer_append_printf(sb,
+                                       "%s",
+                                       owner_name);
         }
+
+        char *cp = stringbuffer_finish(sb);
+        player_set_killer(CONTR(op), cp);
+        efree(cp);
 
         efree(name);
         efree(hitter_name);

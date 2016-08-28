@@ -153,16 +153,16 @@ struct pl_player {
     char maplevel[MAX_BUF];
 
     /** Rank + name +" the xxxx" */
-    char quick_name[BIG_NAME * 3];
+    char quick_name[MAX_BUF];
 
     /** Map where player will respawn after death. */
     char savebed_map[MAX_BUF];
 
     /** Who killed this player. */
-    char killer[BIG_NAME];
+    char *killer;
 
-    /** Player the DM is following. */
-    char followed_player[BIG_NAME];
+    /** Player the operation is following. */
+    shstr *followed_player;
 
     /** DM command permissions. */
     char **cmd_permissions;
@@ -588,6 +588,8 @@ void
 player_disconnect_all(void);
 player *
 find_player(const char *plname);
+player *
+find_player_sh(shstr *plname);
 void
 display_motd(object *op);
 void
@@ -652,6 +654,12 @@ object *
 player_find_spell(object *op, spell_struct *spell);
 void
 player_set_talking_to(player *pl, object *npc);
+const char *
+player_get_killer(player *pl);
+void
+player_set_killer(player *pl, const char *killer);
+void
+player_clear_killer(player *pl);
 void
 player_login(socket_struct *ns, const char *name, struct archetype *at);
 void

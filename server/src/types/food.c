@@ -154,7 +154,7 @@ food_eat_special (object *who, object *food)
                 tmp = -tmp;
             }
 
-            snprintf(VS(CONTR(who)->killer), "%s", food->name);
+            player_set_killer(CONTR(who), food->name);
 
             if (QUERY_FLAG(food, FLAG_CURSED)) {
                 who->stats.hp += tmp * 2;
