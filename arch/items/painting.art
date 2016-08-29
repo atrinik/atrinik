@@ -3,6 +3,7 @@ chance 100
 difficulty 7
 artifact painting_aris_waterfall
 def_arch painting
+copy_artifact yes
 Object
 title of the Great Aris Waterfall
 slaying paintings/waterfall.jpg
@@ -19,6 +20,7 @@ chance 100
 difficulty 7
 artifact painting_white_wolf
 def_arch painting
+copy_artifact yes
 Object
 title of the White Wolf
 slaying paintings/wolf.jpg
@@ -35,6 +37,7 @@ chance 80
 difficulty 14
 artifact painting_adventure_forks
 def_arch painting
+copy_artifact yes
 Object
 title of the Road of Adventures
 slaying paintings/cave_entrance.jpg
@@ -51,6 +54,7 @@ chance 100
 difficulty 7
 artifact painting_canopy_trees
 def_arch painting
+copy_artifact yes
 Object
 title of the Canopy of Trees
 slaying paintings/canopy.jpg
@@ -67,6 +71,7 @@ chance 100
 difficulty 7
 artifact painting_giant_mountains_forest
 def_arch painting
+copy_artifact yes
 Object
 title of the Giant Mountains Forest
 slaying paintings/forest.jpg
@@ -83,6 +88,7 @@ chance 5
 difficulty 29
 artifact painting_other_moon
 def_arch painting
+copy_artifact yes
 Object
 title of the Other Moon
 slaying paintings/moon.jpg
