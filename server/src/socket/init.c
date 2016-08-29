@@ -47,14 +47,13 @@ socket_struct *init_sockets;
  * Sends server version to the client.
  * @param ns
  * Client's socket.
- * @todo Remove version sending legacy support for older clients at some
- * point.
  */
 bool init_connection(socket_struct *ns)
 {
     if (!socket_opt_non_blocking(ns->sc, true)) {
         return false;
     }
+
     if (!socket_opt_send_buffer(ns->sc, 65535)) {
         return false;
     }
