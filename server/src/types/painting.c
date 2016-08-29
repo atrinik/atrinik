@@ -65,7 +65,9 @@ apply_func (object *op, object *applier, int aflags)
 
     packet_struct *packet = packet_new(CLIENT_CMD_PAINTING, 256, 0);
     packet_append_string_terminated(packet, op->slaying);
-    packet_append_string_terminated(packet, op->name);
+    char *name = object_get_base_name_s(op, applier);
+    packet_append_string_terminated(packet, name);
+    efree(name);
 
     if (op->msg != NULL) {
         packet_append_string_terminated(packet, op->msg);
