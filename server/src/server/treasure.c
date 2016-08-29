@@ -2073,6 +2073,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             }
 
             break;
+
+        case PAINTING:
+            artifact_generate(op, difficulty, T_STYLE_UNSET, 100);
+            break;
         }
     } else {
         /* Title is not NULL. */
