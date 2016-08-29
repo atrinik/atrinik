@@ -1348,6 +1348,7 @@ bool need_identify(const object *op)
     case LIGHT_REFILL:
     case BOOK_SPELL:
     case TRINKET:
+    case PAINTING:
         return true;
     }
 
