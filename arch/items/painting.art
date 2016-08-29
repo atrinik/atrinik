@@ -4,12 +4,92 @@ difficulty 7
 artifact painting_aris_waterfall
 def_arch painting
 Object
-name The Great Waterfall Of The River Of Aris
+title the Great Aris Waterfall
 slaying paintings/waterfall.jpg
 type 37
 value 35000
 msg
 This great waterfall flows into the swift currents of the river of Aris, and is simply stunning to behold at sunset. According to local folklore, the waterfall is magically enchanted and looked after by an Elvish shyde living nearby.
 [font=pecita][size=+10]August Rockhardy[/size][/font]
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 7
+artifact painting_white_wolf
+def_arch painting
+Object
+title the White Wolf
+slaying paintings/wolf.jpg
+type 37
+value 35000
+msg
+The white wolf is a mysterious creature, often found in the far reaches of the cold North. It is said that ancient kings and famed warriors would often bond with these creatures, and fight alongside them in times of war.
+[font=pecita][size=+10]August Rockhardy[/size][/font]
+endmsg
+end
+
+Allowed all
+chance 80
+difficulty 14
+artifact painting_adventure_forks
+def_arch painting
+Object
+title the Road of Adventures
+slaying paintings/cave_entrance.jpg
+type 37
+value 47000
+msg
+[i]The Adventure goes ever on and on, past the cave mouth where it began, now far ahead the Adventure has gone, and I must decide whither next, if I can...[/i]
+[font=pecita][size=+10]May Rockhardy[/size][/font]
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 7
+artifact painting_canopy_trees
+def_arch painting
+Object
+title the Canopy of Trees
+slaying paintings/canopy.jpg
+type 37
+value 35000
+msg
+The are many rare wonders in this world, such as the Vanishing Crystals of Odin or the Well of Memories on Evertide Island, but often, the most wondrous of them all is Mother Nature, and you don't have to look far and wide for her works...
+[font=pecita][size=+10]May Rockhardy[/size][/font]
+endmsg
+end
+
+Allowed all
+chance 100
+difficulty 7
+artifact painting_giant_mountains_forest
+def_arch painting
+Object
+name The Forest of the Giant Mountains
+slaying paintings/forest.jpg
+type 37
+value 35000
+msg
+The enormous trees of the Giant Mountains are sometimes so clumped together, even the ogres and giants living there have trouble navigating past them and as such, they usually stick to their footpaths...
+[font=pecita][size=+10]August Rockhardy[/size][/font]
+endmsg
+end
+
+Allowed all
+chance 5
+difficulty 29
+artifact painting_other_moon
+def_arch painting
+Object
+name The Other Moon
+slaying paintings/moon.jpg
+type 37
+value 135000
+msg
+The history of this painting is shrouded in mystery. It is said a great magician brought this painting into this world from another dimension. As we know it, that's no moon...
+[font=pecita][size=+10]Unknown[/size][/font]
 endmsg
 end
