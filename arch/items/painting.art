@@ -4,7 +4,7 @@ difficulty 7
 artifact painting_aris_waterfall
 def_arch painting
 Object
-title the Great Aris Waterfall
+title of the Great Aris Waterfall
 slaying paintings/waterfall.jpg
 type 37
 value 35000
@@ -20,7 +20,7 @@ difficulty 7
 artifact painting_white_wolf
 def_arch painting
 Object
-title the White Wolf
+title of the White Wolf
 slaying paintings/wolf.jpg
 type 37
 value 35000
@@ -36,7 +36,7 @@ difficulty 14
 artifact painting_adventure_forks
 def_arch painting
 Object
-title the Road of Adventures
+title of the Road of Adventures
 slaying paintings/cave_entrance.jpg
 type 37
 value 47000
@@ -52,7 +52,7 @@ difficulty 7
 artifact painting_canopy_trees
 def_arch painting
 Object
-title the Canopy of Trees
+title of the Canopy of Trees
 slaying paintings/canopy.jpg
 type 37
 value 35000
@@ -68,7 +68,7 @@ difficulty 7
 artifact painting_giant_mountains_forest
 def_arch painting
 Object
-name The Forest of the Giant Mountains
+title of the Giant Mountains Forest
 slaying paintings/forest.jpg
 type 37
 value 35000
@@ -84,7 +84,7 @@ difficulty 29
 artifact painting_other_moon
 def_arch painting
 Object
-name The Other Moon
+title of the Other Moon
 slaying paintings/moon.jpg
 type 37
 value 135000
