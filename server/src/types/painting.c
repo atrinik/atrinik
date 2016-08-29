@@ -36,6 +36,13 @@
 
 #include "player.h"
 
+/**
+ * Message used in the painting UI when the painting is not identified.
+ */
+static const char *const painting_message_decipher =
+"[i][b]<You are unable to decipher the strange runes inscribed upon the "
+"frame of the painting...>[/b][/i]";
+
 /** @copydoc object_methods_t::apply_func */
 static int
 apply_func (object *op, object *applier, int aflags)
@@ -70,7 +77,11 @@ apply_func (object *op, object *applier, int aflags)
     efree(name);
 
     if (op->msg != NULL) {
-        packet_append_string_terminated(packet, op->msg);
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            packet_append_string_terminated(packet, op->msg);
+        } else {
+            packet_append_string_terminated(packet, painting_message_decipher);
+        }
     }
 
     socket_send_packet(CONTR(applier)->cs, packet);
