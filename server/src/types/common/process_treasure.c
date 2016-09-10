@@ -413,7 +413,7 @@ process_treasure_table (const process_treasure_table_t *table,
         bonus = -(bonus * 2);
     }
 
-    for (int i = 0; i < MAX_BONUS_TRIES; i++) {
+    for (int attempt = 0; attempt < MAX_BONUS_TRIES; attempt++) {
         int roll = rndm(0, total_chance - 1);
 
         for (size_t i = 0; i < table_size; i++) {
