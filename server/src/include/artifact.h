@@ -99,6 +99,6 @@ void artifact_deinit(void);
 artifact_list_t *artifact_list_find(uint8_t type);
 artifact_t *artifact_find_type(const char *name, uint8_t type);
 void artifact_change_object(artifact_t *art, object *op);
-bool artifact_generate(object *op, int difficulty, int t_style, int a_chance);
+bool artifact_generate(object *op, int difficulty, int t_style);
 
 #endif

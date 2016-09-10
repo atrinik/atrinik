@@ -1684,7 +1684,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
         if (a_chance != 0) {
             if ((!was_magic && rndm_chance(CHANCE_FOR_ARTIFACT)) || difficulty >= 999 || rndm(1, 100) <= a_chance) {
-                retval = artifact_generate(op, difficulty, t_style, a_chance);
+                retval = artifact_generate(op, difficulty, t_style);
             }
         }
     }
@@ -1695,7 +1695,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             /* We create scrolls now in artifacts file too */
         case SCROLL:
             while (op->stats.sp == SP_NO_SPELL) {
-                artifact_generate(op, difficulty, t_style, 100);
+                artifact_generate(op, difficulty, t_style);
 
                 if (too_many_tries++ > 3) {
                     break;
@@ -1748,7 +1748,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 op->value = (int64_t) (125.0f * spells[op->stats.sp].value_mul);
             } else {
                 while (!(is_special = special_potion(op)) && op->stats.sp == SP_NO_SPELL) {
-                    artifact_generate(op, difficulty, t_style, 100);
+                    artifact_generate(op, difficulty, t_style);
 
                     if (too_many_tries++ > 3) {
                         goto jump_break1;
@@ -1831,7 +1831,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 *op_ptr = op = arch_to_object(arches[ARCH_AMULET_NORMAL]);
             }
 
-            artifact_generate(op, difficulty, t_style, 99);
+            artifact_generate(op, difficulty, t_style);
 
             /* Now we add the random boni/mali to the item */
             if (!(flags & GT_ONLY_GOOD) && rndm_chance(4)) {
@@ -1896,7 +1896,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 op->level = level;
 
                 tailor_readable_ob(op, creator->stats.sp ? creator->stats.sp : -1);
-                artifact_generate(op, 1, T_STYLE_UNSET, 100);
+                artifact_generate(op, 1, T_STYLE_UNSET);
 
                 msg_len = op->msg ? strlen(op->msg) : 0;
 
@@ -2010,7 +2010,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         case FOOD:
 
             if (rndm_chance(4)) {
-                artifact_generate(op, difficulty, T_STYLE_UNSET, 100);
+                artifact_generate(op, difficulty, T_STYLE_UNSET);
             }
 
             /* Small chance to become cursed food */
@@ -2075,7 +2075,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             break;
 
         case PAINTING:
-            artifact_generate(op, difficulty, T_STYLE_UNSET, 100);
+            artifact_generate(op, difficulty, T_STYLE_UNSET);
             break;
         }
     } else {

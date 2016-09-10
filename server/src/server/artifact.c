@@ -520,12 +520,10 @@ static bool artifact_can_combine(artifact_t *art, object *op, int difficulty,
  * Difficulty.
  * @param t_style
  * Treasure style.
- * @param a_chance
- * Artifact chance.
  * @return
  * Whether the object was turned into an artifact.
  */
-bool artifact_generate(object *op, int difficulty, int t_style, int a_chance)
+bool artifact_generate(object *op, int difficulty, int t_style)
 {
     artifact_list_t *al = artifact_list_find(op->type);
     if (al == NULL) {
@@ -563,19 +561,17 @@ bool artifact_generate(object *op, int difficulty, int t_style, int a_chance)
     }
 
     /* If we are here then we failed to generate an artifact by chance. */
-    if (a_chance > 0) {
-        for (artifact_t *art = al->items; art != NULL; art = art->next) {
-            if (art->chance <= 0) {
-                continue;
-            }
-
-            if (!artifact_can_combine(art, op, difficulty, t_style)) {
-                continue;
-            }
-
-            artifact_change_object(art, op);
-            return true;
+    for (artifact_t *art = al->items; art != NULL; art = art->next) {
+        if (art->chance <= 0) {
+            continue;
         }
+
+        if (!artifact_can_combine(art, op, difficulty, t_style)) {
+            continue;
+        }
+
+        artifact_change_object(art, op);
+        return true;
     }
 
     return false;
