@@ -40,6 +40,7 @@
 #include <loader.h>
 #include <arch.h>
 #include <artifact.h>
+#include "object_methods.h"
 
 /** All the coin arches. */
 const char *const coins[NUM_COINS + 1] = {
@@ -1689,8 +1690,20 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         }
     }
 
-    /* Only modify object if not special */
-    if (!op->title || op->type == RUNE) {
+    object *new_obj;
+    int res = object_process_treasure(op,
+                                      &new_obj,
+                                      difficulty,
+                                      t_style,
+                                      flags);
+    if (res == OBJECT_METHOD_ERROR) {
+        /* TODO: return NULL */
+        return retval;
+    }
+
+    if (res == OBJECT_METHOD_OK) {
+        op = new_obj;
+    } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
             /* We create scrolls now in artifacts file too */
         case SCROLL:
