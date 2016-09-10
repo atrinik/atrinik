@@ -94,7 +94,7 @@ static const process_treasure_table_t amulet_treasure_table[] = {
 };
 
 /** @copydoc object_methods_t::process_treasure_func */
-int
+static int
 process_treasure_func (object  *op,
                        object **ret,
                        int      difficulty,
