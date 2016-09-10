@@ -75,6 +75,8 @@ jewelry_set_bonus_max_hpsp (object *op,
         op->item_level = MIN(level, MAXLEVEL);
 
         op->value *= 2.0 + (0.25 * bonus);
+
+        *item_power += tmp / 50.0;
     } else {
         tmp = -tmp;
     }
@@ -141,6 +143,8 @@ jewelry_set_bonus_ac (object *op,
     }
 
     op->stats.ac += tmp;
+    *item_power += tmp;
+
     return true;
 }
 
@@ -163,6 +167,8 @@ jewelry_set_bonus_wc (object *op,
     }
 
     op->stats.wc += tmp;
+    *item_power += tmp;
+
     return true;
 }
 
@@ -205,6 +211,11 @@ jewelry_set_bonus_protect (object *op,
         }
 
         op->protection[idx] = tmp;
+
+        if (tmp > 0) {
+            *item_power += (tmp + 10.0) / 20.0;
+        }
+
         return true;
     }
 

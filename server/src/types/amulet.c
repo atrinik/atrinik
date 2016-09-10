@@ -63,6 +63,7 @@ amulet_set_bonus_reflect_missiles (object *op,
 
     SET_FLAG(op, FLAG_REFL_MISSILE);
     op->value *= 9;
+    *item_power += 1.0;
 
     return true;
 }
@@ -80,6 +81,7 @@ amulet_set_bonus_reflect_spells (object *op,
 
     SET_FLAG(op, FLAG_REFL_SPELL);
     op->value *= 11;
+    *item_power += 2.0;
 
     return true;
 }
