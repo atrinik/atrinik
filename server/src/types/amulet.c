@@ -39,7 +39,7 @@
 /**
  * Chance for the amulet to become cursed - 1/x.
  */
-#define AMULET_CHANCE_CURSED 5
+#define AMULET_CHANCE_CURSED 7
 /**
  * Chance for the amulet to become damned, but only if it's already been
  * cursed - 1/x.
