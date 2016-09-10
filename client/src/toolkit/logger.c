@@ -336,7 +336,7 @@ void logger_print(logger_level level, const char *function, uint64_t line,
     if (tm != NULL) {
         char timebuf2[MAX_BUF];
 
-        strftime(VS(timebuf2), "%H:%M:%S", tm);
+        strftime(VS(timebuf2), "%Y/%m/%d %H:%M:%S", tm);
         snprintf(VS(timebuf), "[%s.%06"PRIu64 "] ", timebuf2,
                 (uint64_t) tv.tv_usec);
     } else {
