@@ -79,7 +79,7 @@ jewelry_set_bonus_max_hpsp (object *op,
         level += (double) difficulty * (0.3 + (rndm(0, 40) / 100.0));
         op->item_level = MIN(level, JEWELRY_MAX_LEVEL);
 
-        op->value *= 2.0 + (0.25 * bonus);
+        op->value *= 1.24 + (0.16 * bonus);
 
         *item_power += tmp / 50.0;
     } else {
@@ -148,7 +148,11 @@ jewelry_set_bonus_ac (object *op,
     }
 
     op->stats.ac += tmp;
-    *item_power += tmp;
+    op->value *= 1.0 + (0.1 * FABS(bonus));
+
+    if (tmp > 0) {
+        *item_power += tmp;
+    }
 
     return true;
 }
@@ -172,7 +176,11 @@ jewelry_set_bonus_wc (object *op,
     }
 
     op->stats.wc += tmp;
-    *item_power += tmp;
+    op->value *= 1.0 + (0.1 * FABS(bonus));
+
+    if (tmp > 0) {
+        *item_power += tmp;
+    }
 
     return true;
 }
@@ -361,10 +369,10 @@ process_treasure_table_set_bonus (const process_treasure_table_t *entry,
         return false;
     }
 
-    if (bonus > 0) {
-        op->value = (int64_t) ((double) op->value * 2.0 * (double) bonus);
-    } else {
-        op->value = -(op->value * 2.0 * bonus) / 2.0;
+    op->value = (double) op->value * 2.0 * (1.0 + 0.45 * FABS(bonus));
+
+    if (bonus < 0) {
+        op->value /= 2;
     }
 
     if (op->value < 0) {
