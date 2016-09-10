@@ -150,6 +150,7 @@ set(SOURCES
 	src/types/common/describe.c
 	src/types/common/move_on.c
 	src/types/common/process.c
+	src/types/common/process_treasure.c
 	src/types/common/projectile.c
 	src/types/compass.c
 	src/types/cone.c
