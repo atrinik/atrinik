@@ -491,3 +491,39 @@ object_auto_apply (object *op)
     log_error("Object with auto_apply flag was not handled: %s",
               object_get_str(op));
 }
+
+/** @copydoc object_methods_t::process_treasure_func */
+int
+object_process_treasure (object  *op,
+                         object **ret,
+                         int      difficulty,
+                         int      affinity,
+                         int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT_RC(difficulty > 0,
+                   OBJECT_METHOD_UNHANDLED,
+                   "Invalid difficulty: %d",
+                   difficulty);
+
+    if (op->arch == NULL) {
+        log_error("Object has no arch: %s", object_get_str(op));
+        object_remove(op, 0);
+        object_destroy(op);
+        return OBJECT_METHOD_ERROR;
+    }
+
+    for (object_methods_t *methods = &object_type_methods[op->type];
+         methods != NULL;
+         methods = methods->fallback) {
+        if (methods->process_treasure_func != NULL) {
+            return methods->process_treasure_func(op,
+                                                  ret,
+                                                  difficulty,
+                                                  affinity,
+                                                  flags);
+        }
+    }
+
+    return OBJECT_METHOD_UNHANDLED;
+}

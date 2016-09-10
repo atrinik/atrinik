@@ -250,6 +250,35 @@ typedef struct object_methods {
     void (*auto_apply_func)(object *op);
 
     /**
+     * Process generated treasure.
+     *
+     * @param op
+     * Object to process.
+     * @param[out] ret
+     * If the function returns OBJECT_METHOD_OK, this variable will
+     * contain the processed treasure object, which may be different
+     * from 'op' (which may be destroyed). Indeterminate on any other
+     * return value.
+     * @param difficulty
+     * Difficulty level.
+     * @param affinity
+     * Treasure affinity.
+     * @param flags
+     * A combination of @ret GT_xxx flags.
+     * @return
+     * One of @ref OBJECT_METHOD_xxx.
+     * @warning
+     * If OBJECT_METHOD_ERROR is returned from this function, it is
+     * possible that the original object has been destroyed and thus
+     * any further processing should stop.
+     */
+    int (*process_treasure_func)(object  *op,
+                                 object **ret,
+                                 int      difficulty,
+                                 int      affinity,
+                                 int      flags);
+
+    /**
      * Fallback methods.
      */
     struct object_methods *fallback;
@@ -339,5 +368,11 @@ int
 object_ranged_fire(object *op, object *shooter, int dir, double *delay);
 void
 object_auto_apply(object *op);
+int
+object_process_treasure(object  *op,
+                        object **ret,
+                        int      difficulty,
+                        int      affinity,
+                        int      flags);
 
 #endif
