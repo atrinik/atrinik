@@ -90,7 +90,6 @@ amulet_set_bonus_reflect_spells (object *op,
  * The amulet treasure table.
  */
 static const process_treasure_table_t amulet_treasure_table[] = {
-    {0,  NULL}, /* Total chance */
     {50, amulet_set_bonus_reflect_missiles},
     {60, amulet_set_bonus_reflect_spells},
 };
