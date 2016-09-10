@@ -35,6 +35,11 @@
 #include "process_treasure.h"
 
 /**
+ * Maximum level for jewelry items.
+ */
+#define JEWELRY_MAX_LEVEL 100
+
+/**
  * Set bonus max HP/SP.
  *
  * @param op
@@ -72,7 +77,7 @@ jewelry_set_bonus_max_hpsp (object *op,
         /* Adjust the item's level requirement. */
         uint32_t level = op->item_level;
         level += (double) difficulty * (0.3 + (rndm(0, 40) / 100.0));
-        op->item_level = MIN(level, MAXLEVEL);
+        op->item_level = MIN(level, JEWELRY_MAX_LEVEL);
 
         op->value *= 2.0 + (0.25 * bonus);
 
