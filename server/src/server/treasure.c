@@ -1252,41 +1252,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         op = new_obj;
     } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
-            /* We create scrolls now in artifacts file too */
-        case SCROLL:
-            while (op->stats.sp == SP_NO_SPELL) {
-                artifact_generate(op, difficulty, t_style);
-
-                if (too_many_tries++ > 3) {
-                    break;
-                }
-            }
-
-            /* Ok, forget it... */
-            if (op->stats.sp == SP_NO_SPELL) {
-                break;
-            }
-
-            /* Marks as magical */
-            SET_FLAG(op, FLAG_IS_MAGICAL);
-            /* Charges */
-            op->stats.food = rndm(1, spells[op->stats.sp].charges);
-            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-            if (temp < 1) {
-                temp = 1;
-            } else if (temp > MAXLEVEL) {
-                temp = MAXLEVEL;
-            }
-
-            op->level = temp;
-
-            if (temp < spells[op->stats.sp].at->clone.level) {
-                temp = spells[op->stats.sp].at->clone.level;
-            }
-
-            break;
-
         case POTION:
         {
             /* Balm */

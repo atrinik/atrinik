@@ -33,6 +33,9 @@
 #include <player.h>
 #include <object.h>
 #include <object_methods.h>
+#include <artifact.h>
+
+#include "common/process_treasure.h"
 
 /** @copydoc object_methods_t::apply_func */
 static int
@@ -91,10 +94,52 @@ apply_func (object *op, object *applier, int aflags)
     return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    /* Avoid processing if the item is already special. */
+    if (process_treasure_is_special(op)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    /* Attempt to generate an artifact. */
+    for (int tries = 0; op->stats.sp == SP_NO_SPELL; tries++) {
+        /* Give it a few tries. */
+        if (tries >= 5) {
+            log_error("Failed to generate a spell for scroll: %s",
+                      object_get_str(op));
+            object_remove(op, 0);
+            object_destroy(op);
+            return OBJECT_METHOD_ERROR;
+        }
+
+        artifact_generate(op, difficulty, affinity);
+    }
+
+    SET_FLAG(op, FLAG_IS_MAGICAL);
+
+    /* Calculate the level. Essentially -20 below the difficulty at worst, or
+     * +15 above the difficulty at best. */
+    int level = difficulty - 20 + rndm(0, 35);
+    level = MIN(MAX(level, 1), MAXLEVEL);
+    op->level = level;
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the scroll type object methods.
  */
 OBJECT_TYPE_INIT_DEFINE(scroll)
 {
     OBJECT_METHODS(SCROLL)->apply_func = apply_func;
+    OBJECT_METHODS(SCROLL)->process_treasure_func = process_treasure_func;
 }
