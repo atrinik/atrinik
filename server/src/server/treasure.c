@@ -1187,7 +1187,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         difficulty = 1;
     }
 
-    if (op->type != POTION && op->type != SCROLL && op->type != FOOD) {
+    if (!OBJECT_METHODS(op->type)->override_treasure_processing) {
         if (creator->type == 0) {
             max_magic /= 2;
         }
