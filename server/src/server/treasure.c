@@ -1209,7 +1209,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 {
     /* Just to make things easy */
     object *op = *op_ptr;
-    int temp, retval = 0, was_magic = op->magic;
+    int retval = 0, was_magic = op->magic;
 
     /* Safety and to prevent polymorphed objects giving attributes */
     if (!creator || creator->type == op->type) {
@@ -1251,39 +1251,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         op = new_obj;
     } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
-
-        case ROD:
-
-            if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_ROD)) == SP_NO_SPELL) {
-                break;
-            }
-
-            /* Marks as magical */
-            SET_FLAG(op, FLAG_IS_MAGICAL);
-
-            if (op->stats.maxhp) {
-                op->stats.maxhp += rndm(0, op->stats.maxhp);
-            }
-
-            op->stats.hp = op->stats.maxhp;
-            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-            if (temp < 1) {
-                temp = 1;
-            } else if (temp > MAXLEVEL) {
-                temp = MAXLEVEL;
-            }
-
-            op->level = temp;
-
-            if (temp < spells[op->stats.sp].at->clone.level) {
-                temp = spells[op->stats.sp].at->clone.level;
-            }
-
-            op->value = (int64_t) (1850.0f * spells[op->stats.sp].value_mul);
-
-            break;
-
         case BOOK_SPELL:
             if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BOOK)) == SP_NO_SPELL) {
                 break;

@@ -9,7 +9,7 @@ is_animated 1
 anim_speed 5
 speed 0.04
 type 3
-value 30
+value 1850
 weight 925
 material 70
 item_condition 100
