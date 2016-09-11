@@ -157,7 +157,7 @@ process_treasure_func (object  *op,
                        int      flags)
 {
     HARD_ASSERT(op != NULL);
-    HARD_ASSERT(difficulty > 1);
+    HARD_ASSERT(difficulty > 0);
 
     int off = (int) ((float) difficulty * 0.2f);
     int level = rndm(difficulty - off, difficulty + off);

@@ -138,7 +138,7 @@ process_treasure_func (object  *op,
                        int      flags)
 {
     HARD_ASSERT(op != NULL);
-    HARD_ASSERT(difficulty > 1);
+    HARD_ASSERT(difficulty > 0);
 
     /* Avoid processing if the item is not special. */
     if (!process_treasure_is_special(op)) {
