@@ -1135,21 +1135,6 @@ void set_abs_magic(object *op, int magic)
 }
 
 /**
- * Assign a random slaying race to an object, for weapons, arrows
- * and such.
- * @param op
- * Object.
- */
-static void add_random_race(object *op)
-{
-    ob_race *race = race_get_random();
-
-    if (race) {
-        FREE_AND_COPY_HASH(op->slaying, race->name);
-    }
-}
-
-/**
  * This is called after an item is generated, in order to set it up
  * right. This produced magical bonuses, puts spells into
  * scrolls/books/wands, makes it unidentified, hides the value, etc.
