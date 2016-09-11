@@ -199,9 +199,9 @@ process_treasure_func (object  *op,
 
     if (!(flags & GT_ONLY_GOOD) && rndm_chance(BOOK_SPELL_CHANCE_CURSED)) {
         if (rndm_chance(BOOK_SPELL_CHANCE_DAMNED)) {
-            SET_FLAG(op, FLAG_CURSED);
-        } else {
             SET_FLAG(op, FLAG_DAMNED);
+        } else {
+            SET_FLAG(op, FLAG_CURSED);
         }
     }
 
