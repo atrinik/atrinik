@@ -1210,7 +1210,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
     /* Just to make things easy */
     object *op = *op_ptr;
     int temp, retval = 0, was_magic = op->magic;
-    int too_many_tries = 0, is_special = 0;
 
     /* Safety and to prevent polymorphed objects giving attributes */
     if (!creator || creator->type == op->type) {
@@ -1252,63 +1251,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         op = new_obj;
     } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
-        case POTION:
-        {
-            /* Balm */
-            if (!op->sub_type) {
-                if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BALM)) == SP_NO_SPELL) {
-                    break;
-                }
-
-                SET_FLAG(op, FLAG_IS_MAGICAL);
-                op->value = (int64_t) (150.0f * spells[op->stats.sp].value_mul);
-            } else if (op->sub_type > 128) {
-                /* Dust */
-
-                if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_DUST)) == SP_NO_SPELL) {
-                    break;
-                }
-
-                SET_FLAG(op, FLAG_IS_MAGICAL);
-                op->value = (int64_t) (125.0f * spells[op->stats.sp].value_mul);
-            } else {
-                while (!(is_special = special_potion(op)) && op->stats.sp == SP_NO_SPELL) {
-                    artifact_generate(op, difficulty, t_style);
-
-                    if (too_many_tries++ > 3) {
-                        goto jump_break1;
-                    }
-                }
-            }
-
-            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-            if (temp < 1) {
-                temp = 1;
-            } else if (temp > MAXLEVEL) {
-                temp = MAXLEVEL;
-            }
-
-            if (!is_special && temp < spells[op->stats.sp].at->clone.level) {
-                temp = spells[op->stats.sp].at->clone.level;
-            }
-
-            op->level = temp;
-
-            /* Chance to make special potions damned or cursed. The
-             * chance is somewhat high to make the game more
-             * difficult. Applying this potions without identify is a
-             * great risk! */
-            if (is_special && !(flags & GT_ONLY_GOOD)) {
-                if (rndm_chance(2)) {
-                    SET_FLAG(op, (rndm_chance(2) ? FLAG_CURSED : FLAG_DAMNED));
-                }
-            }
-
-        jump_break1:
-            break;
-        }
-
         case BOOK:
 
             /* Is it an empty book? If yes let's make a special msg

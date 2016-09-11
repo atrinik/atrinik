@@ -2721,6 +2721,7 @@ chance 40
 artifact potion_minor_res_fire
 difficulty 3
 t_style 1
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor fire resistance
@@ -2730,7 +2731,6 @@ food 2
 type 5
 protect_fire 25
 is_magical 1
-last_eat -1
 value 145
 end
 
@@ -2739,6 +2739,7 @@ chance 40
 artifact potion_minor_res_cold
 t_style 2
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor cold resistance
@@ -2747,7 +2748,6 @@ type 5
 protect_cold 25
 food 2
 is_magical 1
-last_eat -1
 value 135
 end
 
@@ -2756,6 +2756,7 @@ chance 40
 t_style 3
 artifact potion_minor_res_elec
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor electricity resistance
@@ -2765,7 +2766,6 @@ food 2
 type 5
 protect_electricity 25
 is_magical 1
-last_eat -1
 value 135
 end
 
@@ -2774,6 +2774,7 @@ chance 40
 t_style 4
 artifact potion_minor_res_poison
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor poison resistance
@@ -2783,7 +2784,6 @@ food 2
 type 5
 protect_poison 25
 is_magical 1
-last_eat -1
 value 135
 end
 
@@ -2792,6 +2792,7 @@ chance 40
 t_style 5
 artifact potion_minor_res_acid
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor acid resistance
@@ -2801,7 +2802,6 @@ type 5
 food 2
 protect_acid 25
 is_magical 1
-last_eat -1
 value 135
 end
 
@@ -2809,6 +2809,7 @@ Allowed potion_generic
 chance 40
 artifact potion_minor_strength
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor strength
@@ -2817,7 +2818,6 @@ level 1
 type 5
 str 2
 is_magical 1
-last_eat -1
 value 135
 end
 
@@ -2825,6 +2825,7 @@ Allowed potion_generic
 chance 40
 artifact potion_minor_dex
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor dexterity
@@ -2833,7 +2834,6 @@ level 1
 type 5
 dex 2
 is_magical 1
-last_eat -1
 value 135
 end
 
@@ -2841,6 +2841,7 @@ Allowed potion_generic
 chance 40
 artifact potion_minor_con
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of minor constitution
@@ -2848,7 +2849,6 @@ level 1
 type 5
 con 2
 is_magical 1
-last_eat -1
 value 135
 end
 
@@ -2856,6 +2856,7 @@ Allowed potion_generic
 chance 40
 artifact potion_evil_liquid
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
 title of evil liquid
@@ -2869,35 +2870,35 @@ con -2
 protect_poison -50
 protect_acid -50
 is_magical 1
-last_eat -1
 value 35
 end
 
 Allowed potion_generic
 chance 20
-artifact potion_minor_res
+artifact potion_remove_depletion
 difficulty 3
+copy_artifact true
 def_arch potion_generic
 Object
-title of minor restoration
-face potion_silver.101
+title of remove depletion
+face potion_golden.101
 level 1
 type 5
 is_magical 1
-last_eat 1
+sp 15
 value 135
 end
 
 Allowed potion_generic
 chance 30
 artifact potion_firestorm
+copy_artifact true
 def_arch potion_generic
 Object
 title of firestorm
 face potion_puce.101
 level 1
 is_magical 1
-sub_type 138
 type 5
 value 170
 sp 0
@@ -2906,6 +2907,7 @@ end
 Allowed potion_generic
 chance 30
 artifact potion_freezing
+copy_artifact true
 def_arch potion_generic
 Object
 title of freezing
@@ -2913,7 +2915,6 @@ face potion_white.101
 level 1
 type 5
 is_magical 1
-sub_type 138
 sp 1
 value 170
 end
@@ -2921,6 +2922,7 @@ end
 Allowed potion_generic
 chance 35
 artifact potion_cure_sickness
+copy_artifact true
 def_arch potion_generic
 Object
 title of cure sickness
@@ -2936,6 +2938,7 @@ end
 Allowed potion_generic
 chance 35
 artifact potion_cure_illness
+copy_artifact true
 def_arch potion_generic
 Object
 title of cure illness
@@ -2948,21 +2951,9 @@ sp 4
 value 170
 end
 
-#########
-# Balms #
-#########
-Allowed balm_generic
-chance 40
-artifact balm_first_aid
-def_arch balm_generic
-Object
-title of first aid
-is_magical 1
-level 1
-type 5
-value 170
-sp 2
-end
+#############
+# Artifacts #
+#############
 
 Allowed none
 chance 1

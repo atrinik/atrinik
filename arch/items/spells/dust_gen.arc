@@ -7,13 +7,13 @@ face dust_gen.101
 type 5
 last_grace 13
 last_sp 7
-sub_type 129
+sub_type 2
 wc_range 20
 material 4
 item_condition 100
 item_quality 100
 is_dust 1
 weight 15
-value 3
+value 150
 can_stack 1
 end

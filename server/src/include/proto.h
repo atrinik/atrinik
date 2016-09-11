@@ -478,6 +478,7 @@ extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_l
 extern void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_type, int spell_type, int n, int magic);
 extern void spell_failure_raw_mana(object *caster, int level);
 extern void spell_failure(object *caster, int level);
+extern int spell_get_random(int level, int flags);
 /* src/server/statistics.c */
 extern void statistics_init(void);
 extern void statistic_update(const char *type, object *op, int64_t i, const char *buf);

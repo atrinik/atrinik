@@ -1215,3 +1215,40 @@ void spell_failure(object *caster, int level)
         }
     }
 }
+
+/**
+ * Get a random spell from the spell list.
+ *
+ * @param level
+ * Minimum level of the spell.
+ * @param flags
+ * @ref SPELL_USE_xxx "Spell flags" to check for.
+ * @return
+ * SP_NO_SPELL if no valid spell matches, ID of the spell otherwise.
+ */
+int
+spell_get_random (int level, int flags)
+{
+    int spell_choices[NROFREALSPELLS];
+    int num_spells = 0;
+
+    /* Collect the list of spells we can choose from. */
+    for (int i = 0; i < NROFREALSPELLS; i++) {
+        if (level < spells[i].at->clone.level) {
+            continue;
+        }
+
+        if (!(spells[i].spell_use & flags)) {
+            continue;
+        }
+
+        spell_choices[num_spells++] = i;
+    }
+
+    if (num_spells == 0) {
+        return SP_NO_SPELL;
+    }
+
+    /* Select a random spell from the list of choices. */
+    return spell_choices[rndm(0, num_spells - 1)];
+}

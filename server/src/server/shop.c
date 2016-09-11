@@ -86,8 +86,12 @@ int64_t shop_get_cost(object *op, int mode)
         val += (val * op->level) * op->stats.food;
     } else if (op->type == ROD || op->type == POTION || op->type == SCROLL) {
         val += val * op->level;
+
+        if (op->stats.sp > SP_NO_SPELL && op->stats.sp < NROFREALSPELLS) {
+            val *= spells[op->stats.sp].value_mul;
+        }
     } else if (op->type == BOOK_SPELL) {
-        if (op->stats.sp >= 0 && op->stats.sp < NROFREALSPELLS) {
+        if (op->stats.sp > SP_NO_SPELL && op->stats.sp < NROFREALSPELLS) {
             val += val * spells[op->stats.sp].at->clone.level;
             val += spells[op->stats.sp].at->clone.value;
         }

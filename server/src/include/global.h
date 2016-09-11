@@ -244,13 +244,6 @@ typedef struct linked_char {
 #include <recipe.h>
 #include <spells.h>
 
-/**
- * Special potions are identified by the last_eat value.
- * last_eat == 0 is no special potion - means they are used
- * as spell effect carrier.
- */
-#define special_potion(__op_sp) (__op_sp)->last_eat
-
 /** Move an object. */
 #define move_object(__op, __dir) move_ob(__op, __dir, __op)
 /** Is the object magical? */

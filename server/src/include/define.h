@@ -628,6 +628,18 @@
 #define CLIENT_MAP_HIDE 3
 /*@}*/
 
+/**
+ * @defgroup POTION_xxx Potion sub-types
+ * Sub types used by @ref POTION "potions".
+ *@{*/
+/** Regular potion. */
+#define POTION_NORMAL       0
+/** Balm. */
+#define POTION_BALM         1
+/** Dust. */
+#define POTION_DUST         2
+/*@}*/
+
 /*@}*/
 
 /**
