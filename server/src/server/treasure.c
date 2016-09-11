@@ -1216,12 +1216,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
     if (res == OBJECT_METHOD_OK) {
         op = new_obj;
-    } else if (!op->title || op->type == RUNE) {
-        switch (op->type) {
-        case PAINTING:
-            artifact_generate(op, difficulty, T_STYLE_UNSET);
-            break;
-        }
     } else {
         /* Title is not NULL. */
 

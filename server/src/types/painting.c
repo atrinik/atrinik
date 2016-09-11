@@ -33,8 +33,10 @@
 #include <object_methods.h>
 #include <object.h>
 #include <resources.h>
+#include <artifact.h>
+#include <player.h>
 
-#include "player.h"
+#include "common/process_treasure.h"
 
 /**
  * Message used in the painting UI when the painting is not identified.
@@ -89,10 +91,38 @@ apply_func (object *op, object *applier, int aflags)
     return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    /* Avoid processing if the item is already special. */
+    if (process_treasure_is_special(op)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (!artifact_generate(op, difficulty, affinity)) {
+        log_error("Failed to generate artifact for painting: %s",
+                  object_get_str(op));
+        object_remove(op, 0);
+        object_destroy(op);
+        return OBJECT_METHOD_ERROR;
+    }
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the pants type object methods.
  */
 OBJECT_TYPE_INIT_DEFINE(painting)
 {
     OBJECT_METHODS(PAINTING)->apply_func = apply_func;
+    OBJECT_METHODS(PAINTING)->process_treasure_func = process_treasure_func;
 }
