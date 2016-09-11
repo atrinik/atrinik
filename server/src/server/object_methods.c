@@ -108,7 +108,10 @@ object_methods_init (void)
 object_methods_t *
 object_methods_get (int type)
 {
-    HARD_ASSERT(type >= 0 && type < OBJECT_TYPE_MAX);
+    SOFT_ASSERT_RC(type >= 0 && type < OBJECT_TYPE_MAX,
+                   &object_methods_base,
+                   "Invalid object type: %d",
+                   type);
     return &object_type_methods[type];
 }
 
