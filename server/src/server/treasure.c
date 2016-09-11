@@ -1251,65 +1251,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         op = new_obj;
     } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
-        case BOOK:
-
-            /* Is it an empty book? If yes let's make a special msg
-             * for it, and tailor its properties based on the creator
-             * and/or map level we found it on. */
-            if (!op->msg && !rndm_chance(10)) {
-                int level = 5;
-                size_t msg_len = 0;
-
-                /* Set the book level properly. */
-                if (creator->level == 0 || IS_LIVE(creator)) {
-                    object *ob;
-
-                    for (ob = creator; ob && ob->env; ob = ob->env) {
-                    }
-
-                    if (ob->map && ob->map->difficulty) {
-                        level = ob->map->difficulty;
-                    }
-                } else {
-                    level = creator->level;
-                }
-
-                level = (((level * 100) - (level * 20)) + (level * rndm(0, 50))) / 100;
-
-                if (level < 1) {
-                    level = 1;
-                } else if (level > MAXLEVEL) {
-                    level = MAXLEVEL;
-                }
-
-                op->level = level;
-
-                tailor_readable_ob(op, creator->stats.sp ? creator->stats.sp : -1);
-                artifact_generate(op, 1, T_STYLE_UNSET);
-
-                msg_len = op->msg ? strlen(op->msg) : 0;
-
-                /* Books with info are worth more! */
-                if (msg_len) {
-                    op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((msg_len / 250) + 1));
-                    op->stats.exp = 105 + (msg_len / 25) + (rndm(0, 20) - 10);
-                }
-
-                /* For library, chained books! */
-                if (creator->type != MONSTER && QUERY_FLAG(creator, FLAG_NO_PICK)) {
-                    SET_FLAG(op, FLAG_NO_PICK);
-                } else {
-                    CLEAR_FLAG(op, FLAG_IDENTIFIED);
-                }
-
-                /* For check_inv floors */
-                if (creator->slaying && !op->slaying) {
-                    FREE_AND_COPY_HASH(op->slaying, creator->slaying);
-                }
-            }
-
-            break;
-
         case WAND:
 
             if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_WAND)) == SP_NO_SPELL) {
@@ -1503,6 +1444,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         } else if (op->type != MONEY) {
             op->value = 0;
         }
+    }
+
+    if (creator->type == TREASURE && QUERY_FLAG(creator, FLAG_NO_PICK)) {
+        SET_FLAG(op, FLAG_NO_PICK);
     }
 
     return retval;

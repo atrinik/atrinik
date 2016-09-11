@@ -33,12 +33,20 @@
 #include <object.h>
 #include <exp.h>
 #include <object_methods.h>
+#include <artifact.h>
+
+#include "common/process_treasure.h"
 
 /**
  * Maximum amount of difference in levels between the book's level and
  * the player's literacy skill.
  */
 #define BOOK_LEVEL_DIFF 12
+
+/**
+ * Chance for generated random books to be empty - 1/x.
+ */
+#define BOOK_CHANCE_EMPTY 15
 
 /**
  * Affects @ref BOOK_LEVEL_DIFF, depending on the player's intelligence
@@ -176,10 +184,59 @@ apply_func (object *op, object *applier, int aflags)
     return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    /* Avoid processing if the item is already special. */
+    if (process_treasure_is_special(op)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    /* If the book already has a message, don't overwrite it with a
+     * generated one. */
+    if (op->msg != NULL) {
+        return OBJECT_METHOD_OK;
+    }
+
+    /* Chance for the book to be empty. */
+    if (rndm_chance(BOOK_CHANCE_EMPTY)) {
+        return OBJECT_METHOD_OK;
+    }
+
+    /* Calculate the level. Essentially -20 below the difficulty at worst, or
+     * +20 above the difficulty at best. */
+    int level = difficulty - 20 + rndm(0, 40);
+    level = MIN(MAX(level, 1), MAXLEVEL);
+    op->level = level;
+
+    if (!artifact_generate(op, difficulty, T_STYLE_UNSET)) {
+        tailor_readable_ob(op, -1);
+    }
+
+    /* Adjust the value and experience gains based on the message length. */
+    size_t msg_len = op->msg != NULL ? strlen(op->msg) : 0;
+    if (msg_len != 0) {
+        int value_level = op->level > 10 ? op->level : (op->level + 1) / 2;
+        op->value *= value_level * ((msg_len / 250) + 1);
+        op->stats.exp = 105 + (msg_len / 25) + rndm(5, 15);
+    }
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the book type object methods.
  */
 OBJECT_TYPE_INIT_DEFINE(book)
 {
     OBJECT_METHODS(BOOK)->apply_func = apply_func;
+    OBJECT_METHODS(BOOK)->process_treasure_func = process_treasure_func;
 }
