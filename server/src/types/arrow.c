@@ -34,6 +34,8 @@
 #include <arrow.h>
 #include <bow.h>
 
+#include "common/process_treasure.h"
+
 /** @copydoc object_methods_t::ranged_fire_func */
 static int
 ranged_fire_func (object *op, object *shooter, int dir, double *delay)
@@ -127,6 +129,36 @@ ranged_fire_func (object *op, object *shooter, int dir, double *delay)
     return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    /* Avoid processing if the item is not special. */
+    if (!process_treasure_is_special(op)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    /* Only handle adding a slaying race for arrows of assassination or
+     * slaying. */
+    if (op->slaying != shstr_cons.none) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    ob_race *race = race_get_random();
+    if (race != NULL) {
+        FREE_AND_COPY_HASH(op->slaying, race->name);
+    }
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the arrow type object methods.
  */
@@ -148,6 +180,8 @@ OBJECT_TYPE_INIT_DEFINE(arrow)
         common_object_projectile_hit;
     OBJECT_METHODS(ARROW)->move_on_func =
         common_object_projectile_move_on;
+    OBJECT_METHODS(ARROW)->process_treasure_func =
+        process_treasure_func;
 }
 
 /**

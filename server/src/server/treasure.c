@@ -1220,14 +1220,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         /* Title is not NULL. */
 
         switch (op->type) {
-        case ARROW:
-
-            if (op->slaying == shstr_cons.none) {
-                add_random_race(op);
-            }
-
-            break;
-
         case WEAPON:
 
             if (op->slaying == shstr_cons.none) {
