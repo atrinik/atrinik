@@ -834,6 +834,16 @@ typedef struct magic_mirror_struct {
         (_ob)->race != NULL && (_ob)->sub_type == ST1_CONTAINER_QUIVER) || \
         ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
+/**
+ * Check whether the object is spell-related tool, eg, a wand, a potion, etc.
+ */
+#define OBJECT_IS_SPELL_TOOL(ob)            \
+    ((ob)->type == WAND ||                  \
+     (ob)->type == ROD ||                   \
+     (ob)->type == POTION ||                \
+     (ob)->type == SCROLL ||                \
+     (ob)->type == BOOK_SPELL)
+
 /* Prototypes */
 extern object *active_objects;
 extern const char *gender_noun[GENDER_MAX];
