@@ -2854,7 +2854,7 @@ object_matches_string (object *op, object *caller, const char *str)
         efree(short_name);
 
         if (retval != 0) {
-            if (caller->type == PLAYER) {
+            if (caller->type == PLAYER && count != 0) {
                 CONTR(caller)->count = count;
             }
 
