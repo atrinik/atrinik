@@ -483,6 +483,7 @@ typedef struct shstr_constants {
 
     const char *of_poison;
     const char *of_hideous_poison;
+    const char *of_vile_poison;
 } shstr_constants;
 
 /**

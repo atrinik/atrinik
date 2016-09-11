@@ -33,9 +33,27 @@
 #include <player.h>
 #include <object.h>
 #include <object_methods.h>
+#include <artifact.h>
+
+#include "common/process_treasure.h"
 
 /** Maximum allowed food value. */
 #define FOOD_MAX 999
+
+/**
+ * Chance for generated food to turn into artifacts - 1/x.
+ */
+#define FOOD_CHANCE_ARTIFACT 4
+
+/**
+ * Chance for generated food to become cursed - 1/x.
+ */
+#define FOOD_CHANCE_CURSED 25
+
+/**
+ * Chance to curse a unique attribute.
+ */
+#define FOOD_CHANCE_CURSE_ATTR 4
 
 /**
  * Create a food force to include buff/debuff effects of stats and
@@ -272,10 +290,88 @@ apply_func (object *op, object *applier, int aflags)
     return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    /* Avoid processing if the item is already special. */
+    if (process_treasure_is_special(op)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    if (rndm_chance(FOOD_CHANCE_ARTIFACT)) {
+        artifact_generate(op, difficulty, T_STYLE_UNSET);
+    }
+
+    /* Chance for the food to become cursed. */
+    if (!(flags & GT_ONLY_GOOD) && rndm_chance(FOOD_CHANCE_CURSED)) {
+        SET_FLAG(op, FLAG_CURSED);
+        SET_FLAG(op, FLAG_PERM_CURSED);
+
+        int curses = 0;
+
+        if (rndm_chance(FOOD_CHANCE_CURSE_ATTR)) {
+            op->stats.food = -((rndm(50, FOOD_MAX) / 10 + 0.5) * 10);
+            curses++;
+        } else {
+            op->stats.food = -op->stats.food;
+        }
+
+        if (rndm_chance(FOOD_CHANCE_CURSE_ATTR)) {
+            op->stats.hp = -(rndm(1, 5) * difficulty);
+            curses++;
+        }
+
+        if (rndm_chance(FOOD_CHANCE_CURSE_ATTR)) {
+            op->stats.sp = -(rndm(1, 5) * difficulty);
+            curses++;
+        }
+
+        for (int i = 0; i < NUM_STATS; i++) {
+            if (!rndm_chance(FOOD_CHANCE_CURSE_ATTR)) {
+                break;
+            }
+
+            set_attr_value(&op->stats, i, -rndm(1, 5));
+            curses++;
+        }
+
+        for (int i = 0; i < NROFATTACKS; i++) {
+            if (!rndm_chance(FOOD_CHANCE_CURSE_ATTR)) {
+                break;
+            }
+
+            op->protection[i] = -rndm(5, 30);
+            curses++;
+        }
+
+        if (op->title == NULL) {
+            if (curses >= 10) {
+                op->title = add_refcount(shstr_cons.of_vile_poison);
+            } else if (curses >= 5) {
+                op->title = add_refcount(shstr_cons.of_hideous_poison);
+            } else {
+                op->title = add_refcount(shstr_cons.of_poison);
+            }
+        }
+    }
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the food type object methods.
  */
 OBJECT_TYPE_INIT_DEFINE(food)
 {
     OBJECT_METHODS(FOOD)->apply_func = apply_func;
+    OBJECT_METHODS(FOOD)->process_treasure_func = process_treasure_func;
+    OBJECT_METHODS(FOOD)->override_treasure_processing = true;
 }

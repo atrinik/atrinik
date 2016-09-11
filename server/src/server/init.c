@@ -91,6 +91,7 @@ static void init_strings(void)
     shstr_cons.BANK_GENERAL = add_string("BANK_GENERAL");
     shstr_cons.of_poison = add_string("of poison");
     shstr_cons.of_hideous_poison = add_string("of hideous poison");
+    shstr_cons.of_vile_poison = add_string("of vile poison");
 }
 
 /**
