@@ -279,6 +279,12 @@ typedef struct object_methods {
                                  int      flags);
 
     /**
+     * If true, will override the standard treasure processing
+     * such as setting a magic bonus, generating artifacts, etc.
+     */
+    bool override_treasure_processing:1;
+
+    /**
      * Fallback methods.
      */
     struct object_methods *fallback;
