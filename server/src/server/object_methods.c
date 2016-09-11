@@ -514,6 +514,8 @@ object_process_treasure (object  *op,
         return OBJECT_METHOD_ERROR;
     }
 
+    *ret = op;
+
     for (object_methods_t *methods = &object_type_methods[op->type];
          methods != NULL;
          methods = methods->fallback) {
