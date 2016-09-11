@@ -148,10 +148,34 @@ move_on_func (object *op, object *victim, object *originator, int state)
     return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    int off = (int) ((float) difficulty * 0.2f);
+    int level = rndm(difficulty - off, difficulty + off);
+    level = MAX(1, MIN(level, MAXLEVEL));
+    int hide = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
+    hide = MAX(1, MIN(hide, INT8_MAX));
+
+    op->level = level;
+    op->stats.Int = hide;
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the rune type object methods.
  */
 OBJECT_TYPE_INIT_DEFINE(rune)
 {
     OBJECT_METHODS(RUNE)->move_on_func = move_on_func;
+    OBJECT_METHODS(RUNE)->process_treasure_func = process_treasure_func;
 }

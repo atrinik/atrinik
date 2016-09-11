@@ -1251,12 +1251,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         op = new_obj;
     } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
-
-        case RUNE:
-            /* Artifact AND normal treasure runes! */
-            trap_adjust(op, difficulty);
-            break;
-
             /* Generate some special food */
         case FOOD:
 

@@ -138,29 +138,3 @@ int trap_disarm(object *disarmer, object *trap)
         return 0;
     }
 }
-
-/**
- * Adjust trap difficulty to the map. The default traps are too strong
- * for wimpy level 1 players, and unthreatening to anyone of high level.
- * @param trap
- * Trap to adjust.
- * @param difficulty
- * Map difficulty.
- */
-void trap_adjust(object *trap, int difficulty)
-{
-    int off, level, hide;
-
-    if (difficulty < 1) {
-        difficulty = 1;
-    }
-
-    off = (int) ((float) difficulty * 0.2f);
-    level = rndm(difficulty - off, difficulty + off);
-    level = MAX(1, MIN(level, MAXLEVEL));
-    hide = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
-    hide = MAX(1, MIN(hide, INT8_MAX));
-
-    trap->level = level;
-    trap->stats.Int = hide;
-}
