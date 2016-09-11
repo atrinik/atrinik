@@ -1251,33 +1251,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         op = new_obj;
     } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
-        case WAND:
-
-            if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_WAND)) == SP_NO_SPELL) {
-                break;
-            }
-
-            /* Marks as magical */
-            SET_FLAG(op, FLAG_IS_MAGICAL);
-            /* Charges */
-            op->stats.food = rndm(1, spells[op->stats.sp].charges) + 12;
-
-            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-            if (temp < 1) {
-                temp = 1;
-            } else if (temp > MAXLEVEL) {
-                temp = MAXLEVEL;
-            }
-
-            if (temp < spells[op->stats.sp].at->clone.level) {
-                temp = spells[op->stats.sp].at->clone.level;
-            }
-
-            op->level = temp;
-            op->value = (int64_t) (16.3f * spells[op->stats.sp].value_mul);
-
-            break;
 
         case ROD:
 

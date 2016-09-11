@@ -7,7 +7,7 @@ is_animated 1
 last_grace 12
 anim_speed 5
 type 109
-value 7
+value 19
 weight 450
 material 16
 item_condition 100

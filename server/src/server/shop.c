@@ -84,6 +84,10 @@ int64_t shop_get_cost(object *op, int mode)
 
     if (op->type == WAND) {
         val += (val * op->level) * op->stats.food;
+
+        if (op->stats.sp > SP_NO_SPELL && op->stats.sp < NROFREALSPELLS) {
+            val *= spells[op->stats.sp].value_mul;
+        }
     } else if (op->type == ROD || op->type == POTION || op->type == SCROLL) {
         val += val * op->level;
 
