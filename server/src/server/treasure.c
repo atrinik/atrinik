@@ -1251,25 +1251,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         op = new_obj;
     } else if (!op->title || op->type == RUNE) {
         switch (op->type) {
-        case BOOK_SPELL:
-            if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BOOK)) == SP_NO_SPELL) {
-                break;
-            }
-
-            /* Marks as magical */
-            SET_FLAG(op, FLAG_IS_MAGICAL);
-
-            op->value = (int64_t) (1150.0f * spells[op->stats.sp].value_mul);
-
-            if (!(flags & GT_ONLY_GOOD) && rndm_chance(10)) {
-                if (rndm_chance(2)) {
-                    SET_FLAG(op, FLAG_CURSED);
-                } else {
-                    SET_FLAG(op, FLAG_DAMNED);
-                }
-            }
-
-            break;
 
         case RUNE:
             /* Artifact AND normal treasure runes! */

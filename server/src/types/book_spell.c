@@ -35,6 +35,18 @@
 #include <object.h>
 #include <object_methods.h>
 
+#include "common/process_treasure.h"
+
+/**
+ * Chance for spell books to become cursed - 1/x.
+ */
+#define BOOK_SPELL_CHANCE_CURSED 10
+
+/**
+ * Chance for spell books to become damned instead of cursed - 1/x.
+ */
+#define BOOK_SPELL_CHANCE_DAMNED 2
+
 /** @copydoc object_methods_t::apply_func */
 static int
 apply_func (object *op, object *applier, int aflags)
@@ -158,10 +170,49 @@ apply_func (object *op, object *applier, int aflags)
     return OBJECT_METHOD_OK;
 }
 
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    /* Avoid processing if the item is already special. */
+    if (process_treasure_is_special(op)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    op->stats.sp = spell_get_random(difficulty, SPELL_USE_BOOK);
+    if (op->stats.sp == SP_NO_SPELL) {
+        log_error("Failed to generate a spell for spell book: %s",
+                  object_get_str(op));
+        object_remove(op, 0);
+        object_destroy(op);
+        return OBJECT_METHOD_ERROR;
+    }
+
+    SET_FLAG(op, FLAG_IS_MAGICAL);
+
+    if (!(flags & GT_ONLY_GOOD) && rndm_chance(BOOK_SPELL_CHANCE_CURSED)) {
+        if (rndm_chance(BOOK_SPELL_CHANCE_DAMNED)) {
+            SET_FLAG(op, FLAG_CURSED);
+        } else {
+            SET_FLAG(op, FLAG_DAMNED);
+        }
+    }
+
+    return OBJECT_METHOD_OK;
+}
+
 /**
  * Initialize the spell book type object methods.
  */
 OBJECT_TYPE_INIT_DEFINE(book_spell)
 {
     OBJECT_METHODS(BOOK_SPELL)->apply_func = apply_func;
+    OBJECT_METHODS(BOOK_SPELL)->process_treasure_func = process_treasure_func;
 }

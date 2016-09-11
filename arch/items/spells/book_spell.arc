@@ -9,7 +9,7 @@ sub_type 2
 material 1
 item_condition 100
 item_quality 100
-value 150
+value 1150
 weight 950
 can_stack 1
 end
