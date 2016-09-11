@@ -82,22 +82,37 @@ int64_t shop_get_cost(object *op, int mode)
         }
     }
 
-    if (op->type == WAND) {
-        val += (val * op->level) * op->stats.food;
-
+    /* Handle spell tool items. */
+    if (OBJECT_IS_SPELL_TOOL(op)) {
+        int spell = SP_NO_SPELL;
         if (op->stats.sp > SP_NO_SPELL && op->stats.sp < NROFREALSPELLS) {
-            val *= spells[op->stats.sp].value_mul;
+            spell = op->stats.sp;
         }
-    } else if (op->type == ROD || op->type == POTION || op->type == SCROLL) {
-        val += val * op->level;
 
-        if (op->stats.sp > SP_NO_SPELL && op->stats.sp < NROFREALSPELLS) {
-            val *= spells[op->stats.sp].value_mul;
+        /* If we have a valid spell, increase the value using the value
+         * multiplier of the spell. */
+        if (spell != SP_NO_SPELL) {
+            val *= spells[spell].value_mul;
         }
-    } else if (op->type == BOOK_SPELL) {
-        if (op->stats.sp > SP_NO_SPELL && op->stats.sp < NROFREALSPELLS) {
-            val += val * spells[op->stats.sp].at->clone.level;
-            val += spells[op->stats.sp].at->clone.value;
+
+        int level = op->level;
+        if (op->type == BOOK_SPELL) {
+            /* Spell books don't have a level, so we need to use the base
+             * level of the spell instead. */
+            level = spells[spell].at->clone.level;
+        }
+
+        int level_value = val * level;
+        if (op->type == WAND) {
+            /* Wands have increased value for each charge they hold. */
+            level_value *= op->stats.food;
+        }
+
+        val += level_value;
+
+        /* For spell books, add the base value of the spell as well. */
+        if (op->type == BOOK_SPELL && spell != SP_NO_SPELL) {
+            val += spells[spell].at->clone.value;
         }
     }
 
