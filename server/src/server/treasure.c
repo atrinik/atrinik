@@ -1216,18 +1216,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
     if (res == OBJECT_METHOD_OK) {
         op = new_obj;
-    } else {
-        /* Title is not NULL. */
-
-        switch (op->type) {
-        case WEAPON:
-
-            if (op->slaying == shstr_cons.none) {
-                add_random_race(op);
-            }
-
-            break;
-        }
     }
 
     if (op == NULL) {

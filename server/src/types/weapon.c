@@ -31,6 +31,39 @@
 
 #include <global.h>
 #include <object_methods.h>
+#include <object.h>
+
+#include "common/process_treasure.h"
+
+/** @copydoc object_methods_t::process_treasure_func */
+static int
+process_treasure_func (object  *op,
+                       object **ret,
+                       int      difficulty,
+                       int      affinity,
+                       int      flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 1);
+
+    /* Avoid processing if the item is not special. */
+    if (!process_treasure_is_special(op)) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    /* Only handle adding a slaying race for weapons of assassination or
+     * slaying. */
+    if (op->slaying != shstr_cons.none) {
+        return OBJECT_METHOD_UNHANDLED;
+    }
+
+    ob_race *race = race_get_random();
+    if (race != NULL) {
+        FREE_AND_COPY_HASH(op->slaying, race->name);
+    }
+
+    return OBJECT_METHOD_OK;
+}
 
 /**
  * Initialize the weapon type object methods.
@@ -38,4 +71,5 @@
 OBJECT_TYPE_INIT_DEFINE(weapon)
 {
     OBJECT_METHODS(WEAPON)->apply_func = object_apply_item;
+    OBJECT_METHODS(WEAPON)->process_treasure_func = process_treasure_func;
 }
