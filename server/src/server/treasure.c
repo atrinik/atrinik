@@ -53,728 +53,6 @@ const char *const coins[NUM_COINS + 1] = {
     NULL
 };
 
-/** Pointers to coin archetypes. */
-struct archetype *coins_arch[NUM_COINS];
-
-/** Chance fix. */
-#define CHANCE_FIX (-1)
-
-static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance);
-static void change_treasure(struct _change_arch *ca, object *op);
-static treasurelist *get_empty_treasurelist(void);
-static treasure *get_empty_treasure(void);
-static void put_treasure(object *op, object *creator, int flags);
-static void check_treasurelist(treasure *t, treasurelist *tl);
-static void set_material_real(object *op, struct _change_arch *change_arch);
-static void create_money_table(void);
-static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
-static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch);
-static void free_treasurestruct(treasure *t);
-
-/**
- * Opens LIBDIR/treasure and reads all treasure declarations from it.
- *
- * Each treasure is parsed with the help of load_treasure().
- */
-void load_treasures(void)
-{
-    FILE *fp;
-    char filename[MAX_BUF], buf[MAX_BUF], name[MAX_BUF];
-    treasurelist *previous = NULL;
-    treasure *t;
-    int t_style, a_chance;
-
-    snprintf(filename, sizeof(filename), "%s/treasures", settings.libpath);
-    fp = fopen(filename, "rb");
-
-    if (!fp) {
-        LOG(ERROR, "Can't open treasures file: %s", filename);
-        exit(1);
-    }
-
-    while (fgets(buf, MAX_BUF, fp) != NULL) {
-        /* Ignore comments and blank lines */
-        if (*buf == '#' || *buf == '\n') {
-            continue;
-        }
-
-        if (sscanf(buf, "treasureone %s\n", name) || sscanf(buf, "treasure %s\n", name)) {
-            treasurelist *tl = get_empty_treasurelist();
-            FREE_AND_COPY_HASH(tl->name, name);
-
-            if (previous == NULL) {
-                first_treasurelist = tl;
-            } else {
-                previous->next = tl;
-            }
-
-            previous = tl;
-            t_style = T_STYLE_UNSET;
-            a_chance = ART_CHANCE_UNSET;
-            tl->items = load_treasure(fp, &t_style, &a_chance);
-
-            if (tl->t_style == T_STYLE_UNSET) {
-                tl->t_style = t_style;
-            }
-
-            if (tl->artifact_chance == ART_CHANCE_UNSET) {
-                tl->artifact_chance = a_chance;
-            }
-
-            /* This is a one of the many items on the list should be generated.
-             * Add up the chance total, and check to make sure the yes and no
-             * fields of the treasures are not being used. */
-            if (!strncmp(buf, "treasureone", 11)) {
-                for (t = tl->items; t != NULL; t = t->next) {
-#ifdef TREASURE_DEBUG
-
-                    if (t->next_yes || t->next_no) {
-                        LOG(BUG, "Treasure %s is one item, but on treasure %s the next_yes or next_no field is set", tl->name, t->item ? t->item->name : t->name);
-                    }
-#endif
-                    tl->total_chance += t->chance;
-                }
-            }
-        } else {
-            LOG(ERROR, "Treasure list didn't understand: %s", buf);
-            exit(1);
-        }
-    }
-
-    fclose(fp);
-
-#ifdef TREASURE_DEBUG
-    /* Perform some checks on how valid the treasure data actually is.
-     * Verify that list transitions work (ie, the list that it is
-     * supposed to transition to exists). Also, verify that at least the
-     * name or archetype is set for each treasure element. */
-    for (previous = first_treasurelist; previous != NULL; previous = previous->next) {
-        check_treasurelist(previous->items, previous);
-    }
-#endif
-
-    create_money_table();
-}
-
-/**
- * Create money table, setting up pointers to the archetypes.
- *
- * This is done for faster access of the coins archetypes.
- */
-static void create_money_table(void)
-{
-    int i;
-
-    for (i = 0; coins[i]; i++) {
-        coins_arch[i] = arch_find(coins[i]);
-
-        if (!coins_arch[i]) {
-            LOG(ERROR, "Can't find %s.", coins[i] ? coins[i] : "NULL");
-            exit(1);
-        }
-    }
-}
-
-/**
- * Reads one treasure from the file, including the 'yes', 'no' and 'more'
- * options.
- * @param fp
- * File to read from.
- * @param t_style
- * Treasure style.
- * @param a_chance
- * Artifact chance.
- * @return
- * Read structure, never NULL.
- */
-static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
-{
-    char buf[MAX_BUF], *cp = NULL, variable[MAX_BUF];
-    treasure *t = get_empty_treasure();
-    int value, start_marker = 0, t_style2, a_chance2;
-
-    while (fgets(buf, MAX_BUF, fp) != NULL) {
-        if (*buf == '#') {
-            continue;
-        }
-
-        if ((cp = strchr(buf, '\n')) != NULL) {
-            *cp = '\0';
-        }
-
-        cp = buf;
-
-        /* Skip blanks */
-        while (!isalpha(*cp)) {
-            cp++;
-        }
-
-        if (sscanf(cp, "t_style %d", &value)) {
-            if (start_marker) {
-                t->t_style = value;
-            } else {
-                /* No, it's global for the while treasure list entry */
-                *t_style = value;
-            }
-        } else if (sscanf(cp, "artifact_chance %d", &value)) {
-            if (start_marker) {
-                t->artifact_chance = value;
-            } else {
-                /* No, it's global for the while treasure list entry */
-                *a_chance = value;
-            }
-        } else if (sscanf(cp, "arch %s", variable)) {
-            if ((t->item = arch_find(variable)) == NULL) {
-                LOG(BUG, "Treasure lacks archetype: %s", variable);
-            }
-
-            start_marker = 1;
-        } else if (sscanf(cp, "list %s", variable)) {
-            start_marker = 1;
-            FREE_AND_COPY_HASH(t->name, variable);
-        } else if (sscanf(cp, "name %s", variable)) {
-            FREE_AND_COPY_HASH(t->change_arch.name, cp + 5);
-        } else if (sscanf(cp, "title %s", variable)) {
-            FREE_AND_COPY_HASH(t->change_arch.title, cp + 6);
-        } else if (sscanf(cp, "slaying %s", variable)) {
-            FREE_AND_COPY_HASH(t->change_arch.slaying, cp + 8);
-        } else if (sscanf(cp, "item_race %d", &value)) {
-            t->change_arch.item_race = value;
-        } else if (sscanf(cp, "quality %d", &value)) {
-            t->change_arch.quality = value;
-        } else if (sscanf(cp, "quality_range %d", &value)) {
-            t->change_arch.quality_range = value;
-        } else if (sscanf(cp, "material %d", &value)) {
-            t->change_arch.material = value;
-        } else if (sscanf(cp, "material_quality %d", &value)) {
-            t->change_arch.material_quality = value;
-        } else if (sscanf(cp, "material_range %d", &value)) {
-            t->change_arch.material_range = value;
-        } else if (sscanf(cp, "chance_fix %d", &value)) {
-            t->chance_fix = (int16_t) value;
-            /* Important or the chance will stay 100% when not set to 0
-             * in treasure list! */
-            t->chance = 0;
-        } else if (sscanf(cp, "chance %d", &value)) {
-            t->chance = (uint8_t) value;
-        } else if (sscanf(cp, "nrof %d", &value)) {
-            t->nrof = (uint16_t) value;
-        } else if (sscanf(cp, "magic %d", &value)) {
-            t->magic = value;
-        } else if (sscanf(cp, "magic_fix %d", &value)) {
-            t->magic_fix = value;
-        } else if (sscanf(cp, "magic_chance %d", &value)) {
-            t->magic_chance = value;
-        } else if (sscanf(cp, "difficulty %d", &value)) {
-            t->difficulty = value;
-        } else if (!strncmp(cp, "yes", 3)) {
-            t_style2 = T_STYLE_UNSET;
-            a_chance2 = ART_CHANCE_UNSET;
-            t->next_yes = load_treasure(fp, &t_style2, &a_chance2);
-
-            if (t->next_yes->artifact_chance == ART_CHANCE_UNSET) {
-                t->next_yes->artifact_chance = a_chance2;
-            }
-
-            if (t->next_yes->t_style == T_STYLE_UNSET) {
-                t->next_yes->t_style = t_style2;
-            }
-        } else if (!strncmp(cp, "no", 2)) {
-            t_style2 = T_STYLE_UNSET;
-            a_chance2 = ART_CHANCE_UNSET;
-            t->next_no = load_treasure(fp, &t_style2, &a_chance2);
-
-            if (t->next_no->artifact_chance == ART_CHANCE_UNSET) {
-                t->next_no->artifact_chance = a_chance2;
-            }
-
-            if (t->next_no->t_style == T_STYLE_UNSET) {
-                t->next_no->t_style = t_style2;
-            }
-        } else if (!strncmp(cp, "end", 3)) {
-            return t;
-        } else if (!strncmp(cp, "more", 4)) {
-            t_style2 = T_STYLE_UNSET;
-            a_chance2 = ART_CHANCE_UNSET;
-            t->next = load_treasure(fp, &t_style2, &a_chance2);
-
-            if (t->next->artifact_chance == ART_CHANCE_UNSET) {
-                t->next->artifact_chance = a_chance2;
-            }
-
-            if (t->next->t_style == T_STYLE_UNSET) {
-                t->next->t_style = t_style2;
-            }
-
-            return t;
-        } else {
-            LOG(BUG, "Unknown treasure command: '%s', last entry %s", cp, t->name ? t->name : "null");
-        }
-    }
-
-    LOG(BUG, "Treasure %s lacks 'end'.>%s<", t->name ? t->name : "NULL", cp ? cp : "NULL");
-
-    return t;
-}
-
-/**
- * Allocate and return the pointer to an empty treasurelist structure.
- * @return
- * New structure, blanked, never NULL.
- */
-static treasurelist *get_empty_treasurelist(void)
-{
-    treasurelist *tl = emalloc(sizeof(treasurelist));
-
-    tl->name = NULL;
-    tl->next = NULL;
-    tl->items = NULL;
-    /* -2 is the "unset" marker and will be virtually handled as 0 which
-     * can be overruled. */
-    tl->t_style = T_STYLE_UNSET;
-    tl->artifact_chance = ART_CHANCE_UNSET;
-    tl->chance_fix = CHANCE_FIX;
-    tl->total_chance = 0;
-
-    return tl;
-}
-
-/**
- * Allocate and return the pointer to an empty treasure structure.
- * @return
- * New structure, blanked, never NULL.
- */
-static treasure *get_empty_treasure(void)
-{
-    treasure *t = emalloc(sizeof(treasure));
-
-    t->change_arch.item_race = -1;
-    t->change_arch.name = NULL;
-    t->change_arch.slaying = NULL;
-    t->change_arch.title = NULL;
-    /* -2 is the "unset" marker and will be virtually handled as 0 which
-     * can be overruled. */
-    t->t_style = T_STYLE_UNSET;
-    t->change_arch.material = -1;
-    t->change_arch.material_quality = -1;
-    t->change_arch.material_range = -1;
-    t->change_arch.quality = -1;
-    t->change_arch.quality_range = -1;
-    t->chance_fix = CHANCE_FIX;
-    t->item = NULL;
-    t->name = NULL;
-    t->next = NULL;
-    t->next_yes = NULL;
-    t->next_no = NULL;
-    t->artifact_chance = ART_CHANCE_UNSET;
-    t->chance = 100;
-    t->magic_fix = 0;
-    t->difficulty = 0;
-    t->magic_chance = 3;
-    t->magic = 0;
-    t->nrof = 0;
-
-    return t;
-}
-
-/**
- * Searches for the given treasurelist in the globally linked list of
- * treasure lists which has been built by load_treasures().
- * @param name
- * Treasure list to search for.
- */
-treasurelist *find_treasurelist(const char *name)
-{
-    const char *tmp = find_string(name);
-    treasurelist *tl;
-
-    /* Special cases - randomitems of none is to override default.  If
-     * first_treasurelist is null, it means we are on the first pass of
-     * of loading archetyps, so for now, just return - second pass will
-     * init these values. */
-    if (!strcmp(name, "none") || !first_treasurelist) {
-        return NULL;
-    }
-
-    if (tmp != NULL) {
-        for (tl = first_treasurelist; tl != NULL; tl = tl->next) {
-            if (tmp == tl->name) {
-                return tl;
-            }
-        }
-    }
-
-    LOG(BUG, "Bug: Couldn't find treasurelist %s", name);
-    return NULL;
-}
-
-/**
- * This is similar to the old generate treasure function. However, it
- * instead takes a treasurelist. It is really just a wrapper around
- * create_treasure(). We create a dummy object that the treasure gets
- * inserted into, and then return that treasure.
- * @param t
- * Treasure list to generate from.
- * @param difficulty
- * Treasure difficulty.
- * @return
- * Generated treasure. Can be NULL if no suitable treasure was
- * found.
- */
-object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
-{
-    object *ob = object_get(), *tmp;
-
-    create_treasure(t, ob, 0, difficulty, t->t_style, a_chance, 0, NULL);
-
-    /* Don't want to free the object we are about to return */
-    tmp = ob->inv;
-
-    /* Remove from inv - no move off */
-    if (tmp != NULL) {
-        object_remove(tmp, 0);
-    }
-
-    if (ob->inv) {
-        LOG(BUG, "Created multiple objects.");
-    }
-
-    object_destroy(ob);
-
-    return tmp;
-}
-
-/**
- * This calls the appropriate treasure creation function.
- * @param t
- * What to generate.
- * @param op
- * For who to generate the treasure.
- * @param flag
- * Combination of @ref GT_xxx values.
- * @param difficulty
- * Map difficulty.
- * @param t_style
- * Treasure style.
- * @param a_chance
- * Artifact chance.
- * @param tries
- * To avoid infinite recursion.
- * @param arch_change
- * Arch change.
- */
-void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *arch_change)
-{
-    if (tries++ > 100) {
-        LOG(DEBUG, "create_treasure(): tries >100 for t-list %s.", t->name ? t->name : "<noname>");
-        return;
-    }
-
-    if (t->t_style != T_STYLE_UNSET) {
-        t_style = t->t_style;
-    }
-
-    if (t->artifact_chance != ART_CHANCE_UNSET) {
-        a_chance = t->artifact_chance;
-    }
-
-    if (t->total_chance) {
-        create_one_treasure(t, op, flag, difficulty, t_style, a_chance, tries, arch_change);
-    } else {
-        create_all_treasures(t->items, op, flag, difficulty, t_style, a_chance, tries, arch_change);
-    }
-}
-
-/**
- * Creates all the treasures.
- * @param t
- * What to generate.
- * @param op
- * For who to generate the treasure.
- * @param flag
- * Combination of @ref GT_xxx values.
- * @param difficulty
- * Map difficulty.
- * @param t_style
- * Treasure style.
- * @param a_chance
- * Artifact chance.
- * @param tries
- * To avoid infinite recursion.
- * @param change_arch
- * Arch change.
- */
-static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
-{
-    object *tmp;
-
-    if (t->t_style != T_STYLE_UNSET) {
-        t_style = t->t_style;
-    }
-
-    if (t->artifact_chance != ART_CHANCE_UNSET) {
-        a_chance = t->artifact_chance;
-    }
-
-    if ((t->chance_fix != CHANCE_FIX && rndm_chance(t->chance_fix)) || (int) t->chance >= 100 || (rndm(1, 100) < (int) t->chance)) {
-        if (t->name) {
-            if (t->name != shstr_cons.NONE && difficulty >= t->difficulty) {
-                create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, change_arch ? change_arch : &t->change_arch);
-            }
-        } else if (difficulty >= t->difficulty) {
-            if (t->item->clone.type != WEALTH) {
-                tmp = arch_to_object(t->item);
-
-                if (t->nrof && tmp->nrof <= 1) {
-                    tmp->nrof = rndm(1, t->nrof);
-                }
-
-                /* Ret 1 = artifact is generated - don't overwrite anything
-                 * here */
-                set_material_real(tmp, change_arch ? change_arch : &t->change_arch);
-
-                if (!fix_generated_item(&tmp, op, difficulty, a_chance, t_style, t->magic, t->magic_fix, t->magic_chance, flag)) {
-                    change_treasure(change_arch ? change_arch : &t->change_arch, tmp);
-                }
-
-                put_treasure(tmp, op, flag);
-
-                /* If treasure is "identified", created items are too */
-                if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                    SET_FLAG(tmp, FLAG_IDENTIFIED);
-                }
-            } else {
-                /* We have a wealth object - expand it to real money */
-
-                /* If t->magic is != 0, that's our value - if not use
-                 * default setting */
-                int i, value = t->magic ? t->magic : t->item->clone.value;
-
-                value *= (difficulty / 2) + 1;
-
-                /* So we have 80% to 120% of the fixed value */
-                value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
-
-                for (i = 0; i < NUM_COINS; i++) {
-                    if (value / coins_arch[i]->clone.value > 0) {
-                        tmp = object_get();
-                        object_copy(tmp, &coins_arch[i]->clone, false);
-                        tmp->nrof = value / tmp->value;
-                        value -= tmp->nrof * tmp->value;
-                        put_treasure(tmp, op, flag);
-                    }
-                }
-            }
-        }
-
-        if (t->next_yes != NULL) {
-            create_all_treasures(t->next_yes, op, flag, difficulty, (t->next_yes->t_style == T_STYLE_UNSET) ? t_style : t->next_yes->t_style, a_chance, tries, change_arch);
-        }
-    } else if (t->next_no != NULL) {
-        create_all_treasures(t->next_no, op, flag, difficulty, (t->next_no->t_style == T_STYLE_UNSET) ? t_style : t->next_no->t_style, a_chance, tries, change_arch);
-    }
-
-    if (t->next != NULL) {
-        create_all_treasures(t->next, op, flag, difficulty, (t->next->t_style == T_STYLE_UNSET) ? t_style : t->next->t_style, a_chance, tries, change_arch);
-    }
-}
-
-/**
- * Creates one treasure from the list.
- * @param tl
- * What to generate.
- * @param op
- * For who to generate the treasure.
- * @param flag
- * Combination of @ref GT_xxx values.
- * @param difficulty
- * Map difficulty.
- * @param t_style
- * Treasure style.
- * @param a_chance
- * Artifact chance.
- * @param tries
- * To avoid infinite recursion.
- * @param change_arch
- * Arch change.
- * @todo Get rid of the goto.
- */
-static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *change_arch)
-{
-    int value, diff_tries = 0;
-    treasure *t;
-    object *tmp;
-
-    if (tries++ > 100) {
-        return;
-    }
-
-    /* Well, at some point we should rework this whole system... */
-create_one_treasure_again_jmp:
-
-    if (diff_tries > 10) {
-        return;
-    }
-
-    value = rndm(1, tl->total_chance) - 1;
-
-    for (t = tl->items; t != NULL; t = t->next) {
-        /* chance_fix will overrule the normal chance stuff!. */
-        if (t->chance_fix != CHANCE_FIX) {
-            if (rndm_chance(t->chance_fix)) {
-                /* Only when allowed, we go on! */
-                if (difficulty >= t->difficulty) {
-                    value = 0;
-                    break;
-                }
-
-                /* Ok, difficulty is bad let's try again or break! */
-                if (tries++ > 100) {
-                    return;
-                }
-
-                diff_tries++;
-                goto create_one_treasure_again_jmp;
-            }
-
-            if (!t->chance) {
-                continue;
-            }
-        }
-
-        value -= t->chance;
-
-        /* We got one! */
-        if (value <= 0) {
-            /* Only when allowed, we go on! */
-            if (difficulty >= t->difficulty) {
-                break;
-            }
-
-            /* Ok, difficulty is bad let's try again or break! */
-            if (tries++ > 100) {
-                return;
-            }
-
-            diff_tries++;
-            goto create_one_treasure_again_jmp;
-        }
-    }
-
-    if (!t || value > 0) {
-        LOG(BUG, "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", tl ? tl->name : "(null)", op ? op->name : "(null)");
-        return;
-    }
-
-    if (t->t_style != T_STYLE_UNSET) {
-        t_style = t->t_style;
-    }
-
-    if (t->artifact_chance != ART_CHANCE_UNSET) {
-        a_chance = t->artifact_chance;
-    }
-
-    if (t->name) {
-        if (t->name == shstr_cons.NONE) {
-            return;
-        }
-
-        if (difficulty >= t->difficulty) {
-            create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, change_arch);
-        } else if (t->nrof) {
-            create_one_treasure(tl, op, flag, difficulty, t_style, a_chance, tries, change_arch);
-        }
-
-        return;
-    }
-
-    if (t->item->clone.type != WEALTH) {
-        tmp = arch_to_object(t->item);
-
-        if (t->nrof && tmp->nrof <= 1) {
-            tmp->nrof = rndm(1, t->nrof);
-        }
-
-        set_material_real(tmp, change_arch ? change_arch : &t->change_arch);
-
-        if (!fix_generated_item(&tmp, op, difficulty, a_chance, (t->t_style == T_STYLE_UNSET) ? t_style : t->t_style, t->magic, t->magic_fix, t->magic_chance, flag)) {
-            change_treasure(change_arch ? change_arch : &t->change_arch, tmp);
-        }
-
-        put_treasure(tmp, op, flag);
-
-        /* If treasure is "identified", created items are too */
-        if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-            SET_FLAG(tmp, FLAG_IDENTIFIED);
-        }
-    } else {
-        /* We have a wealth object - expand it to real money */
-
-        /* If t->magic is != 0, that's our value - if not use default
-         * setting */
-        int i;
-
-        value = t->magic ? t->magic : t->item->clone.value;
-        value *= difficulty;
-
-        /* So we have 80% to 120% of the fixed value */
-        value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
-
-        for (i = 0; i < NUM_COINS; i++) {
-            if (value / coins_arch[i]->clone.value > 0) {
-                tmp = object_get();
-                object_copy(tmp, &coins_arch[i]->clone, false);
-                tmp->nrof = value / tmp->value;
-                value -= tmp->nrof * tmp->value;
-                put_treasure(tmp, op, flag);
-            }
-        }
-    }
-}
-
-/**
- * Inserts generated treasure where it should go.
- * @param op
- * Treasure just generated.
- * @param creator
- * For which object the treasure is being generated.
- * @param flags
- * Combination of @ref GT_xxx values.
- */
-static void put_treasure(object *op, object *creator, int flags)
-{
-    if (flags & GT_ENVIRONMENT) {
-        op->x = creator->x;
-        op->y = creator->y;
-        object_insert_map(op, creator->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
-    } else {
-        object_insert_into(op, creator, 0);
-    }
-}
-
-/**
- * If there are change_xxx commands in the treasure, we include the
- * changes in the generated object.
- * @param ca
- * Arch to change to.
- * @param op
- * Actual generated treasure.
- */
-static void change_treasure(struct _change_arch *ca, object *op)
-{
-    if (ca->name) {
-        FREE_AND_COPY_HASH(op->name, ca->name);
-    }
-
-    if (ca->title) {
-        FREE_AND_COPY_HASH(op->title, ca->title);
-    }
-
-    if (ca->slaying) {
-        FREE_AND_COPY_HASH(op->slaying, ca->slaying);
-    }
-}
-
 /**
  * Difficulty to magic chance list.
  */
@@ -984,6 +262,447 @@ static const int difftomagic_list[DIFFLEVELS][MAXMAGIC + 1] = {
     {70, 2, 3, 6, 19},  /*200*/
 };
 
+/** Pointers to coin archetypes. */
+struct archetype *coins_arch[NUM_COINS];
+
+/** Chance fix. */
+#define CHANCE_FIX (-1)
+
+static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance);
+static treasurelist *get_empty_treasurelist(void);
+static treasure *get_empty_treasure(void);
+static void treasure_insert(object *op, object *creator, int flags);
+static void check_treasurelist(treasure *t, treasurelist *tl);
+static void create_money_table(void);
+static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct treasure_attrs *attrs);
+static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct treasure_attrs *attrs);
+static void free_treasurestruct(treasure *t);
+
+/**
+ * Opens LIBDIR/treasure and reads all treasure declarations from it.
+ *
+ * Each treasure is parsed with the help of load_treasure().
+ */
+void load_treasures(void)
+{
+    FILE *fp;
+    char filename[MAX_BUF], buf[MAX_BUF], name[MAX_BUF];
+    treasurelist *previous = NULL;
+    treasure *t;
+    int t_style, a_chance;
+
+    snprintf(filename, sizeof(filename), "%s/treasures", settings.libpath);
+    fp = fopen(filename, "rb");
+
+    if (!fp) {
+        LOG(ERROR, "Can't open treasures file: %s", filename);
+        exit(1);
+    }
+
+    while (fgets(buf, MAX_BUF, fp) != NULL) {
+        /* Ignore comments and blank lines */
+        if (*buf == '#' || *buf == '\n') {
+            continue;
+        }
+
+        if (sscanf(buf, "treasureone %s\n", name) || sscanf(buf, "treasure %s\n", name)) {
+            treasurelist *tl = get_empty_treasurelist();
+            FREE_AND_COPY_HASH(tl->name, name);
+
+            if (previous == NULL) {
+                first_treasurelist = tl;
+            } else {
+                previous->next = tl;
+            }
+
+            previous = tl;
+            t_style = T_STYLE_UNSET;
+            a_chance = ART_CHANCE_UNSET;
+            tl->items = load_treasure(fp, &t_style, &a_chance);
+
+            if (tl->t_style == T_STYLE_UNSET) {
+                tl->t_style = t_style;
+            }
+
+            if (tl->artifact_chance == ART_CHANCE_UNSET) {
+                tl->artifact_chance = a_chance;
+            }
+
+            /* This is a one of the many items on the list should be generated.
+             * Add up the chance total, and check to make sure the yes and no
+             * fields of the treasures are not being used. */
+            if (!strncmp(buf, "treasureone", 11)) {
+                for (t = tl->items; t != NULL; t = t->next) {
+#ifdef TREASURE_DEBUG
+
+                    if (t->next_yes || t->next_no) {
+                        LOG(BUG, "Treasure %s is one item, but on treasure %s the next_yes or next_no field is set", tl->name, t->item ? t->item->name : t->name);
+                    }
+#endif
+                    tl->total_chance += t->chance;
+                }
+            }
+        } else {
+            LOG(ERROR, "Treasure list didn't understand: %s", buf);
+            exit(1);
+        }
+    }
+
+    fclose(fp);
+
+#ifdef TREASURE_DEBUG
+    /* Perform some checks on how valid the treasure data actually is.
+     * Verify that list transitions work (ie, the list that it is
+     * supposed to transition to exists). Also, verify that at least the
+     * name or archetype is set for each treasure element. */
+    for (previous = first_treasurelist; previous != NULL; previous = previous->next) {
+        check_treasurelist(previous->items, previous);
+    }
+#endif
+
+    create_money_table();
+
+    for (int i = 0; i < DIFFLEVELS; i++) {
+        int sum = 0;
+        for (int j = 0; j < MAXMAGIC + 1; j++) {
+            sum += difftomagic_list[i][j];
+        }
+
+        if (sum != 100) {
+            log_error("Incorrect sum: %d", i);
+        }
+    }
+}
+
+/**
+ * Create money table, setting up pointers to the archetypes.
+ *
+ * This is done for faster access of the coins archetypes.
+ */
+static void create_money_table(void)
+{
+    int i;
+
+    for (i = 0; coins[i]; i++) {
+        coins_arch[i] = arch_find(coins[i]);
+
+        if (!coins_arch[i]) {
+            LOG(ERROR, "Can't find %s.", coins[i] ? coins[i] : "NULL");
+            exit(1);
+        }
+    }
+}
+
+/**
+ * Reads one treasure from the file, including the 'yes', 'no' and 'more'
+ * options.
+ * @param fp
+ * File to read from.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @return
+ * Read structure, never NULL.
+ */
+static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
+{
+    char buf[MAX_BUF], *cp = NULL, variable[MAX_BUF];
+    treasure *t = get_empty_treasure();
+    int value, start_marker = 0, t_style2, a_chance2;
+
+    while (fgets(buf, MAX_BUF, fp) != NULL) {
+        if (*buf == '#') {
+            continue;
+        }
+
+        if ((cp = strchr(buf, '\n')) != NULL) {
+            *cp = '\0';
+        }
+
+        cp = buf;
+
+        /* Skip blanks */
+        while (!isalpha(*cp)) {
+            cp++;
+        }
+
+        if (sscanf(cp, "t_style %d", &value)) {
+            if (start_marker) {
+                t->t_style = value;
+            } else {
+                /* No, it's global for the while treasure list entry */
+                *t_style = value;
+            }
+        } else if (sscanf(cp, "artifact_chance %d", &value)) {
+            if (start_marker) {
+                t->artifact_chance = value;
+            } else {
+                /* No, it's global for the while treasure list entry */
+                *a_chance = value;
+            }
+        } else if (sscanf(cp, "arch %s", variable)) {
+            if ((t->item = arch_find(variable)) == NULL) {
+                LOG(BUG, "Treasure lacks archetype: %s", variable);
+            }
+
+            start_marker = 1;
+        } else if (sscanf(cp, "list %s", variable)) {
+            start_marker = 1;
+            FREE_AND_COPY_HASH(t->name, variable);
+        } else if (sscanf(cp, "name %s", variable)) {
+            FREE_AND_COPY_HASH(t->attrs.name, cp + 5);
+        } else if (sscanf(cp, "title %s", variable)) {
+            FREE_AND_COPY_HASH(t->attrs.title, cp + 6);
+        } else if (sscanf(cp, "slaying %s", variable)) {
+            FREE_AND_COPY_HASH(t->attrs.slaying, cp + 8);
+        } else if (sscanf(cp, "item_race %d", &value)) {
+            t->attrs.item_race = value;
+        } else if (sscanf(cp, "quality %d", &value)) {
+            t->attrs.quality = value;
+        } else if (sscanf(cp, "quality_range %d", &value)) {
+            t->attrs.quality_range = value;
+        } else if (sscanf(cp, "material %d", &value)) {
+            t->attrs.material = value;
+        } else if (sscanf(cp, "material_quality %d", &value)) {
+            t->attrs.material_quality = value;
+        } else if (sscanf(cp, "material_range %d", &value)) {
+            t->attrs.material_range = value;
+        } else if (sscanf(cp, "chance_fix %d", &value)) {
+            t->chance_fix = (int16_t) value;
+            /* Important or the chance will stay 100% when not set to 0
+             * in treasure list! */
+            t->chance = 0;
+        } else if (sscanf(cp, "chance %d", &value)) {
+            t->chance = (uint8_t) value;
+        } else if (sscanf(cp, "nrof %d", &value)) {
+            t->nrof = (uint16_t) value;
+        } else if (sscanf(cp, "magic %d", &value)) {
+            t->magic = value;
+        } else if (sscanf(cp, "magic_fix %d", &value)) {
+            t->magic_fix = value;
+        } else if (sscanf(cp, "magic_chance %d", &value)) {
+            t->magic_chance = value;
+        } else if (sscanf(cp, "difficulty %d", &value)) {
+            t->difficulty = value;
+        } else if (!strncmp(cp, "yes", 3)) {
+            t_style2 = T_STYLE_UNSET;
+            a_chance2 = ART_CHANCE_UNSET;
+            t->next_yes = load_treasure(fp, &t_style2, &a_chance2);
+
+            if (t->next_yes->artifact_chance == ART_CHANCE_UNSET) {
+                t->next_yes->artifact_chance = a_chance2;
+            }
+
+            if (t->next_yes->t_style == T_STYLE_UNSET) {
+                t->next_yes->t_style = t_style2;
+            }
+        } else if (!strncmp(cp, "no", 2)) {
+            t_style2 = T_STYLE_UNSET;
+            a_chance2 = ART_CHANCE_UNSET;
+            t->next_no = load_treasure(fp, &t_style2, &a_chance2);
+
+            if (t->next_no->artifact_chance == ART_CHANCE_UNSET) {
+                t->next_no->artifact_chance = a_chance2;
+            }
+
+            if (t->next_no->t_style == T_STYLE_UNSET) {
+                t->next_no->t_style = t_style2;
+            }
+        } else if (!strncmp(cp, "end", 3)) {
+            return t;
+        } else if (!strncmp(cp, "more", 4)) {
+            t_style2 = T_STYLE_UNSET;
+            a_chance2 = ART_CHANCE_UNSET;
+            t->next = load_treasure(fp, &t_style2, &a_chance2);
+
+            if (t->next->artifact_chance == ART_CHANCE_UNSET) {
+                t->next->artifact_chance = a_chance2;
+            }
+
+            if (t->next->t_style == T_STYLE_UNSET) {
+                t->next->t_style = t_style2;
+            }
+
+            return t;
+        } else {
+            LOG(BUG, "Unknown treasure command: '%s', last entry %s", cp, t->name ? t->name : "null");
+        }
+    }
+
+    LOG(BUG, "Treasure %s lacks 'end'.>%s<", t->name ? t->name : "NULL", cp ? cp : "NULL");
+
+    return t;
+}
+
+/**
+ * Allocate and return the pointer to an empty treasurelist structure.
+ * @return
+ * New structure, blanked, never NULL.
+ */
+static treasurelist *get_empty_treasurelist(void)
+{
+    treasurelist *tl = emalloc(sizeof(treasurelist));
+
+    tl->name = NULL;
+    tl->next = NULL;
+    tl->items = NULL;
+    /* -2 is the "unset" marker and will be virtually handled as 0 which
+     * can be overruled. */
+    tl->t_style = T_STYLE_UNSET;
+    tl->artifact_chance = ART_CHANCE_UNSET;
+    tl->chance_fix = CHANCE_FIX;
+    tl->total_chance = 0;
+
+    return tl;
+}
+
+/**
+ * Allocate and return the pointer to an empty treasure structure.
+ * @return
+ * New structure, blanked, never NULL.
+ */
+static treasure *get_empty_treasure(void)
+{
+    treasure *t = emalloc(sizeof(treasure));
+
+    t->attrs.item_race = -1;
+    t->attrs.name = NULL;
+    t->attrs.slaying = NULL;
+    t->attrs.title = NULL;
+    /* -2 is the "unset" marker and will be virtually handled as 0 which
+     * can be overruled. */
+    t->t_style = T_STYLE_UNSET;
+    t->attrs.material = -1;
+    t->attrs.material_quality = -1;
+    t->attrs.material_range = -1;
+    t->attrs.quality = -1;
+    t->attrs.quality_range = -1;
+    t->chance_fix = CHANCE_FIX;
+    t->item = NULL;
+    t->name = NULL;
+    t->next = NULL;
+    t->next_yes = NULL;
+    t->next_no = NULL;
+    t->artifact_chance = ART_CHANCE_UNSET;
+    t->chance = 100;
+    t->magic_fix = 0;
+    t->difficulty = 0;
+    t->magic_chance = 3;
+    t->magic = 0;
+    t->nrof = 0;
+
+    return t;
+}
+
+/**
+ * Searches for the given treasurelist in the globally linked list of
+ * treasure lists which has been built by load_treasures().
+ * @param name
+ * Treasure list to search for.
+ */
+treasurelist *find_treasurelist(const char *name)
+{
+    const char *tmp = find_string(name);
+    treasurelist *tl;
+
+    /* Special cases - randomitems of none is to override default.  If
+     * first_treasurelist is null, it means we are on the first pass of
+     * of loading archetyps, so for now, just return - second pass will
+     * init these values. */
+    if (!strcmp(name, "none") || !first_treasurelist) {
+        return NULL;
+    }
+
+    if (tmp != NULL) {
+        for (tl = first_treasurelist; tl != NULL; tl = tl->next) {
+            if (tmp == tl->name) {
+                return tl;
+            }
+        }
+    }
+
+    LOG(BUG, "Bug: Couldn't find treasurelist %s", name);
+    return NULL;
+}
+
+/**
+ * This is similar to the old generate treasure function. However, it
+ * instead takes a treasurelist. It is really just a wrapper around
+ * create_treasure(). We create a dummy object that the treasure gets
+ * inserted into, and then return that treasure.
+ * @param t
+ * Treasure list to generate from.
+ * @param difficulty
+ * Treasure difficulty.
+ * @return
+ * Generated treasure. Can be NULL if no suitable treasure was
+ * found.
+ */
+object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
+{
+    object *ob = object_get(), *tmp;
+
+    create_treasure(t, ob, 0, difficulty, t->t_style, a_chance, 0, NULL);
+
+    /* Don't want to free the object we are about to return */
+    tmp = ob->inv;
+
+    /* Remove from inv - no move off */
+    if (tmp != NULL) {
+        object_remove(tmp, 0);
+    }
+
+    if (ob->inv) {
+        LOG(BUG, "Created multiple objects.");
+    }
+
+    object_destroy(ob);
+
+    return tmp;
+}
+
+/**
+ * This calls the appropriate treasure creation function.
+ * @param t
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param attrs
+ * Treasure attributes.
+ */
+void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct treasure_attrs *attrs)
+{
+    if (tries++ > 100) {
+        LOG(DEBUG, "create_treasure(): tries >100 for t-list %s.", t->name ? t->name : "<noname>");
+        return;
+    }
+
+    if (t->t_style != T_STYLE_UNSET) {
+        t_style = t->t_style;
+    }
+
+    if (t->artifact_chance != ART_CHANCE_UNSET) {
+        a_chance = t->artifact_chance;
+    }
+
+    if (t->total_chance) {
+        create_one_treasure(t, op, flag, difficulty, t_style, a_chance, tries, attrs);
+    } else {
+        create_all_treasures(t->items, op, flag, difficulty, t_style, a_chance, tries, attrs);
+    }
+}
+
 /**
  * Calculate a magic value from the specified difficulty.
  *
@@ -996,20 +715,11 @@ static int
 magic_from_difficulty (int difficulty)
 {
     difficulty--;
+
     if (difficulty < 0) {
         difficulty = 0;
     } else if (difficulty >= DIFFLEVELS) {
         difficulty = DIFFLEVELS - 1;
-    }
-
-    for (int i = 0; i < DIFFLEVELS; i++) {
-        int sum = 0;
-        for (int j = 0; j < MAXMAGIC+1; j++) {
-            sum += difftomagic_list[i][j];
-        }
-        if (sum != 100) {
-            LOG(ERROR, "%d", i);
-        }
     }
 
     int roll = rndm(0, 99);
@@ -1031,53 +741,6 @@ magic_from_difficulty (int difficulty)
 }
 
 /**
- * Sets a random magical bonus in the given object based upon the given
- * difficulty, and the given max possible bonus.
- *
- * Item will be cursed if magic is negative.
- * @param difficulty
- * Difficulty we want the item to be.
- * @param op
- * The object.
- * @param max_magic
- * What should be the maximum magic of the item.
- * @param fix_magic
- * Fixed value of magic for the object.
- * @param chance_magic
- * Chance to get a magic bonus.
- * @param flags
- * Combination of @ref GT_xxx flags.
- */
-static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, int chance_magic, int flags)
-{
-    int magic;
-
-    /* If we have a fixed value, force it */
-    if (fix_magic) {
-        magic = fix_magic;
-    } else {
-        magic = magic_from_difficulty(difficulty);
-        if (magic > max_magic) {
-            magic = max_magic;
-        }
-    }
-
-    if ((flags & GT_ONLY_GOOD) && magic < 0) {
-        magic = 0;
-    }
-
-    set_abs_magic(op, magic);
-
-    if (magic < 0) {
-        SET_FLAG(op, FLAG_CURSED);
-    }
-
-    if (magic != 0) {
-        SET_FLAG(op, FLAG_IS_MAGICAL);
-    }
-}
-
-/**
  * Sets magical bonus in an object, and recalculates the effect on the
  * armour variable, and the effect on speed of armour.
  *
@@ -1088,17 +751,20 @@ static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, 
  * @param magic
  * Magic modifier.
  */
-void set_abs_magic(object *op, int magic)
+static void
+treasure_set_magical_bonus (object *op, int magic)
 {
-    if (!magic) {
-        return;
-    }
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(magic != 0);
 
     SET_FLAG(op, FLAG_IS_MAGICAL);
-
     op->magic = magic;
 
-    if (op->arch) {
+    if (magic < 0) {
+        SET_FLAG(op, FLAG_CURSED);
+    }
+
+    if (op->arch != NULL) {
         if (magic == 1) {
             op->value += 5300;
         } else if (magic == 2) {
@@ -1112,11 +778,12 @@ void set_abs_magic(object *op, int magic)
         }
 
         if (op->type == ARMOUR) {
-            ARMOUR_SPEED(op) = (ARMOUR_SPEED(&op->arch->clone) * (100 + magic * 10)) / 100;
+            ARMOUR_SPEED(op) = (ARMOUR_SPEED(&op->arch->clone) *
+                                (100 + magic * 10)) / 100;
         }
 
         if (magic < 0 && rndm_chance(3)) {
-            magic = (-magic);
+            magic = -magic;
         }
 
         op->weight = (op->arch->clone.weight * (100 - magic * 10)) / 100;
@@ -1125,9 +792,8 @@ void set_abs_magic(object *op, int magic)
             ARMOUR_SPEED(op) = (ARMOUR_SPEED(op) * (100 + magic * 10)) / 100;
         }
 
-        /* You can't just check the weight always */
         if (magic < 0 && rndm_chance(3)) {
-            magic = (-magic);
+            magic = -magic;
         }
 
         op->weight = (op->weight * (100 - magic * 10)) / 100;
@@ -1135,36 +801,297 @@ void set_abs_magic(object *op, int magic)
 }
 
 /**
- * This is called after an item is generated, in order to set it up
- * right. This produced magical bonuses, puts spells into
- * scrolls/books/wands, makes it unidentified, hides the value, etc.
- * @param op_ptr
- * Object to fix.
+ * Sets a random magical bonus in the given object based upon the given
+ * difficulty, and the given max possible bonus.
+ *
+ * Item will be cursed if magic is negative.
+ *
+ * @param op
+ * The object.
+ * @param difficulty
+ * Difficulty we want the item to be.
+ * @param max_magic
+ * What should be the maximum magic of the item.
+ * @param fixed_magic
+ * Fixed value of magic for the object.
+ * @param chance_magic
+ * Chance to get a magic bonus.
+ * @param flags
+ * Combination of @ref GT_xxx flags.
+ */
+static void
+treasure_set_magic (object *op,
+                    int     difficulty,
+                    int     max_magic,
+                    int     fixed_magic,
+                    int     chance_magic,
+                    int     flags)
+{
+    int magic;
+
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(difficulty > 0);
+
+    /* If we have a fixed value, force it */
+    if (fixed_magic) {
+        magic = fixed_magic;
+    } else {
+        magic = magic_from_difficulty(difficulty);
+        if (magic > max_magic) {
+            magic = max_magic;
+        }
+    }
+
+    if ((flags & GT_ONLY_GOOD) && magic < 0) {
+        return;
+    }
+
+    if (magic != 0) {
+        treasure_set_magical_bonus(op, magic);
+    }
+}
+
+/**
+ * Inserts generated treasure where it should go.
+ *
+ * @param op
+ * Treasure just generated.
+ * @param creator
+ * For which object the treasure is being generated.
+ * @param flags
+ * Combination of @ref GT_xxx values.
+ */
+static void
+treasure_insert (object *op, object *creator, int flags)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(creator != NULL);
+
+    if (flags & GT_ENVIRONMENT) {
+        op->x = creator->x;
+        op->y = creator->y;
+        object_insert_map(op, creator->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
+    } else {
+        object_insert_into(op, creator, 0);
+    }
+}
+
+/**
+ * Apply treasure attributes to the specified object.
+ *
+ * @param op
+ * Generated treasure object.
+ * @param attrs
+ * Attributes to apply.
+ */
+static void
+treasure_apply_attrs (object *op, treasure_attrs_t *attrs)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(attrs != NULL);
+
+    if (attrs->name != NULL) {
+        FREE_AND_COPY_HASH(op->name, attrs->name);
+    }
+
+    if (attrs->title != NULL) {
+        FREE_AND_COPY_HASH(op->title, attrs->title);
+    }
+
+    if (attrs->slaying != NULL) {
+        FREE_AND_COPY_HASH(op->slaying, attrs->slaying);
+    }
+}
+
+/**
+ * Set treasure object's object::item_quality.
+ *
+ * @param op
+ * Object to set item_quality for.
+ * @param attrs
+ * Treasure attributes.
+ */
+static void
+treasure_set_quality (object *op, treasure_attrs_t *attrs)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(attrs != NULL);
+
+    if (attrs->quality != -1) {
+        op->item_quality = attrs->quality;
+    } else {
+        op->item_quality = materials_real[op->material_real].quality;
+    }
+
+    if (attrs->quality_range > 0) {
+        op->item_quality += rndm(0, attrs->quality_range);
+
+        if (op->item_quality > 100) {
+            op->item_quality = 100;
+        }
+    }
+
+    op->item_condition = op->item_quality;
+}
+
+/**
+ * Set treasure object's object::material_real.
+ *
+ * @param op
+ * Object to set material_real for.
+ * @param attrs
+ * Treasure attributes.
+ */
+static void
+treasure_set_material (object *op, treasure_attrs_t *attrs)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(attrs != NULL);
+
+    if (op->type == MONEY) {
+        return;
+    }
+
+    if (attrs->item_race != -1) {
+        op->item_race = (uint8_t) attrs->item_race;
+    }
+
+    if (op->material_real == -1) {
+        op->material_real = 0;
+        return;
+    }
+
+    if (attrs->material != -1) {
+        op->material_real = attrs->material;
+
+        if (attrs->material_range > 0 && attrs->material != 0) {
+            op->material_real += rndm(0, attrs->material_range);
+        }
+    } else if (op->material_real == 0 && op->material != M_NONE) {
+        if (op->material & M_PAPER) {
+            op->material_real = M_START_PAPER;
+        } else if (op->material & M_IRON) {
+            op->material_real = M_START_IRON;
+        } else if (op->material & M_GLASS) {
+            op->material_real = M_START_GLASS;
+        } else if (op->material & M_LEATHER) {
+            op->material_real = M_START_LEATHER;
+        } else if (op->material & M_WOOD) {
+            op->material_real = M_START_WOOD;
+        } else if (op->material & M_ORGANIC) {
+            op->material_real = M_START_ORGANIC;
+        } else if (op->material & M_STONE) {
+            op->material_real = M_START_STONE;
+        } else if (op->material & M_CLOTH) {
+            op->material_real = M_START_CLOTH;
+        } else if (op->material & M_ADAMANT) {
+            op->material_real = M_START_ADAMANT;
+        } else if (op->material & M_LIQUID) {
+            op->material_real = M_START_LIQUID;
+        } else if (op->material & M_SOFT_METAL) {
+            op->material_real = M_START_SOFT_METAL;
+        } else if (op->material & M_BONE) {
+            op->material_real = M_START_BONE;
+        } else if (op->material & M_ICE) {
+            op->material_real = M_START_ICE;
+        }
+    }
+
+    if (attrs->material_quality != -1) {
+        int best_material = -1;
+        int material_quality = attrs->material_quality;
+
+        /* Increase the material quality if there's a range. */
+        if (attrs->material_range > 0) {
+            material_quality += rndm(0, attrs->material_range);
+        }
+
+        if (op->material_real != 0) {
+            int material_tmp = op->material_real / NROFMATERIALS_REAL;
+
+            /* The first entry of the material_real of material table */
+            material_tmp = material_tmp * 64 + 1;
+
+            for (int i = 0; i < NROFMATERIALS_REAL; i++) {
+                if (materials_real[material_tmp + i].quality ==
+                        material_quality) {
+                    op->material_real = material_tmp + i;
+                    treasure_set_quality(op, attrs);
+                    return;
+                }
+
+                if (materials_real[material_tmp + i].quality >=
+                        attrs->material_quality &&
+                    materials_real[material_tmp + i].quality <=
+                        material_quality &&
+                    materials_real[material_tmp + i].quality >
+                        best_material) {
+                    best_material = material_tmp + i;
+                }
+            }
+
+            if (best_material == -1) {
+                op->material_real = material_tmp;
+                op->item_quality = attrs->material_quality;
+                op->item_condition = op->item_quality;
+                return;
+            }
+
+            /* That's now our best match! */
+            op->material_real = best_material;
+        } else {
+            op->item_quality = material_quality;
+            op->item_condition = op->item_quality;
+            return;
+        }
+    }
+
+    treasure_set_quality(op, attrs);
+}
+
+/**
+ * This is called after an item is generated, in order to set it up right.
+ *
+ * This produces magical bonuses, puts spells into scrolls/books/wands,
+ * makes it unidentified, generates artifacts, etc.
+ *
+ * @param op
+ * Generated treasure object.
  * @param creator
  * For who op was created. Can be NULL.
  * @param difficulty
  * Difficulty level.
- * @param a_chance
+ * @param artifact_chance
  * Artifact chance.
- * @param t_style
- * Treasure style.
+ * @param affinity
+ * Treasure affinity.
  * @param max_magic
  * Maximum magic for the item.
- * @param fix_magic
+ * @param fixed_magic
  * Fixed magic value.
  * @param chance_magic
  * Chance of magic.
+ * @param attrs
+ * Treasure attributes to apply.
  * @param flags
  * One of @ref GT_xxx
  */
-int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags)
+static void
+treasure_process_generated (object           *op,
+                            object           *creator,
+                            int               difficulty,
+                            int               artifact_chance,
+                            int               affinity,
+                            int               max_magic,
+                            int               fixed_magic,
+                            int               chance_magic,
+                            treasure_attrs_t *attrs,
+                            int               flags)
 {
-    /* Just to make things easy */
-    object *op = *op_ptr;
-    int retval = 0, was_magic = op->magic;
+    HARD_ASSERT(op != NULL);
 
-    /* Safety and to prevent polymorphed objects giving attributes */
-    if (!creator || creator->type == op->type) {
+    /* Safety and to prevent polymorphed objects giving attributes. */
+    if (creator == NULL || creator->type == op->type) {
         creator = op;
     }
 
@@ -1172,18 +1099,32 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         difficulty = 1;
     }
 
+    bool was_magical = op->magic != 0;
+    bool generated_artifact = false;
+
+    treasure_set_material(op, attrs);
+
     if (!OBJECT_METHODS(op->type)->override_treasure_processing) {
         if (creator->type == 0) {
             max_magic /= 2;
         }
 
-        if ((!op->magic && max_magic) || fix_magic) {
-            set_magic(difficulty, op, max_magic, fix_magic, chance_magic, flags);
+        if ((op->magic == 0 && max_magic != 0) || fixed_magic != 0) {
+            treasure_set_magic(op,
+                               difficulty,
+                               max_magic,
+                               fixed_magic,
+                               chance_magic,
+                               flags);
         }
 
-        if (a_chance != 0) {
-            if ((!was_magic && rndm_chance(CHANCE_FOR_ARTIFACT)) || difficulty >= 999 || rndm(1, 100) <= a_chance) {
-                retval = artifact_generate(op, difficulty, t_style);
+        if (artifact_chance != 0) {
+            if ((!was_magical && rndm_chance(CHANCE_FOR_ARTIFACT)) ||
+                difficulty >= 999 ||
+                rndm(1, 100) <= artifact_chance) {
+                generated_artifact = artifact_generate(op,
+                                                       difficulty,
+                                                       affinity);
             }
         }
     }
@@ -1192,38 +1133,288 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
     int res = object_process_treasure(op,
                                       &new_obj,
                                       difficulty,
-                                      t_style,
+                                      affinity,
                                       flags);
     if (res == OBJECT_METHOD_ERROR) {
-        /* TODO: return NULL */
-        return retval;
-    }
-
-    if (res == OBJECT_METHOD_OK) {
+        return;
+    } else if (res == OBJECT_METHOD_OK) {
         op = new_obj;
+    } else if (res == OBJECT_METHOD_UNHANDLED && !generated_artifact) {
+        treasure_apply_attrs(op, attrs);
     }
 
-    if (op == NULL) {
-        return retval;
-    }
+    SOFT_ASSERT(op != NULL, "Object is NULL");
 
     if ((flags & GT_NO_VALUE) && op->type != MONEY) {
         op->value = 0;
     }
 
     if (flags & GT_STARTEQUIP) {
-        if (op->nrof < 2 && op->type != CONTAINER && op->type != MONEY && !QUERY_FLAG(op, FLAG_IS_THROWN)) {
+        if (op->nrof < 2 &&
+            op->type != CONTAINER &&
+            op->type != MONEY &&
+            !QUERY_FLAG(op, FLAG_IS_THROWN)) {
             SET_FLAG(op, FLAG_STARTEQUIP);
         } else if (op->type != MONEY) {
             op->value = 0;
         }
     }
 
-    if (creator->type == TREASURE && QUERY_FLAG(creator, FLAG_NO_PICK)) {
-        SET_FLAG(op, FLAG_NO_PICK);
+    if (creator->type == TREASURE) {
+        /* If treasure is "identified", created items are too. */
+        if (QUERY_FLAG(creator, FLAG_IDENTIFIED)) {
+            SET_FLAG(op, FLAG_IDENTIFIED);
+        }
+
+        /* Same with the no-pick attribute. */
+        if (QUERY_FLAG(creator, FLAG_NO_PICK)) {
+            SET_FLAG(op, FLAG_NO_PICK);
+        }
     }
 
-    return retval;
+    treasure_insert(op, creator, flags);
+}
+
+/**
+ * Creates all the treasures.
+ * @param t
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param attrs
+ * Treasure attributes.
+ */
+static void create_all_treasures(treasure *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct treasure_attrs *attrs)
+{
+    object *tmp;
+
+    if (t->t_style != T_STYLE_UNSET) {
+        t_style = t->t_style;
+    }
+
+    if (t->artifact_chance != ART_CHANCE_UNSET) {
+        a_chance = t->artifact_chance;
+    }
+
+    if ((t->chance_fix != CHANCE_FIX && rndm_chance(t->chance_fix)) || (int) t->chance >= 100 || (rndm(1, 100) < (int) t->chance)) {
+        if (t->name) {
+            if (t->name != shstr_cons.NONE && difficulty >= t->difficulty) {
+                create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, attrs ? attrs : &t->attrs);
+            }
+        } else if (difficulty >= t->difficulty) {
+            if (t->item->clone.type != WEALTH) {
+                tmp = arch_to_object(t->item);
+
+                if (t->nrof && tmp->nrof <= 1) {
+                    tmp->nrof = rndm(1, t->nrof);
+                }
+
+                treasure_process_generated(tmp,
+                                           op,
+                                           difficulty,
+                                           a_chance,
+                                           t_style,
+                                           t->magic,
+                                           t->magic_fix,
+                                           t->magic_chance,
+                                           attrs != NULL ? attrs : &t->attrs,
+                                           flag);
+            } else {
+                /* We have a wealth object - expand it to real money */
+
+                /* If t->magic is != 0, that's our value - if not use
+                 * default setting */
+                int i, value = t->magic ? t->magic : t->item->clone.value;
+
+                value *= (difficulty / 2) + 1;
+
+                /* So we have 80% to 120% of the fixed value */
+                value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
+
+                for (i = 0; i < NUM_COINS; i++) {
+                    if (value / coins_arch[i]->clone.value > 0) {
+                        tmp = object_get();
+                        object_copy(tmp, &coins_arch[i]->clone, false);
+                        tmp->nrof = value / tmp->value;
+                        value -= tmp->nrof * tmp->value;
+                        treasure_insert(tmp, op, flag);
+                    }
+                }
+            }
+        }
+
+        if (t->next_yes != NULL) {
+            create_all_treasures(t->next_yes, op, flag, difficulty, (t->next_yes->t_style == T_STYLE_UNSET) ? t_style : t->next_yes->t_style, a_chance, tries, attrs);
+        }
+    } else if (t->next_no != NULL) {
+        create_all_treasures(t->next_no, op, flag, difficulty, (t->next_no->t_style == T_STYLE_UNSET) ? t_style : t->next_no->t_style, a_chance, tries, attrs);
+    }
+
+    if (t->next != NULL) {
+        create_all_treasures(t->next, op, flag, difficulty, (t->next->t_style == T_STYLE_UNSET) ? t_style : t->next->t_style, a_chance, tries, attrs);
+    }
+}
+
+/**
+ * Creates one treasure from the list.
+ * @param tl
+ * What to generate.
+ * @param op
+ * For who to generate the treasure.
+ * @param flag
+ * Combination of @ref GT_xxx values.
+ * @param difficulty
+ * Map difficulty.
+ * @param t_style
+ * Treasure style.
+ * @param a_chance
+ * Artifact chance.
+ * @param tries
+ * To avoid infinite recursion.
+ * @param attrs
+ * Treasure attributes.
+ * @todo Get rid of the goto.
+ */
+static void create_one_treasure(treasurelist *tl, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct treasure_attrs *attrs)
+{
+    int value, diff_tries = 0;
+    treasure *t;
+    object *tmp;
+
+    if (tries++ > 100) {
+        return;
+    }
+
+    /* Well, at some point we should rework this whole system... */
+create_one_treasure_again_jmp:
+
+    if (diff_tries > 10) {
+        return;
+    }
+
+    value = rndm(1, tl->total_chance) - 1;
+
+    for (t = tl->items; t != NULL; t = t->next) {
+        /* chance_fix will overrule the normal chance stuff!. */
+        if (t->chance_fix != CHANCE_FIX) {
+            if (rndm_chance(t->chance_fix)) {
+                /* Only when allowed, we go on! */
+                if (difficulty >= t->difficulty) {
+                    value = 0;
+                    break;
+                }
+
+                /* Ok, difficulty is bad let's try again or break! */
+                if (tries++ > 100) {
+                    return;
+                }
+
+                diff_tries++;
+                goto create_one_treasure_again_jmp;
+            }
+
+            if (!t->chance) {
+                continue;
+            }
+        }
+
+        value -= t->chance;
+
+        /* We got one! */
+        if (value <= 0) {
+            /* Only when allowed, we go on! */
+            if (difficulty >= t->difficulty) {
+                break;
+            }
+
+            /* Ok, difficulty is bad let's try again or break! */
+            if (tries++ > 100) {
+                return;
+            }
+
+            diff_tries++;
+            goto create_one_treasure_again_jmp;
+        }
+    }
+
+    if (!t || value > 0) {
+        LOG(BUG, "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", tl ? tl->name : "(null)", op ? op->name : "(null)");
+        return;
+    }
+
+    if (t->t_style != T_STYLE_UNSET) {
+        t_style = t->t_style;
+    }
+
+    if (t->artifact_chance != ART_CHANCE_UNSET) {
+        a_chance = t->artifact_chance;
+    }
+
+    if (t->name) {
+        if (t->name == shstr_cons.NONE) {
+            return;
+        }
+
+        if (difficulty >= t->difficulty) {
+            create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, attrs);
+        } else if (t->nrof) {
+            create_one_treasure(tl, op, flag, difficulty, t_style, a_chance, tries, attrs);
+        }
+
+        return;
+    }
+
+    if (t->item->clone.type != WEALTH) {
+        tmp = arch_to_object(t->item);
+
+        if (t->nrof && tmp->nrof <= 1) {
+            tmp->nrof = rndm(1, t->nrof);
+        }
+
+        int affinity = (t->t_style == T_STYLE_UNSET) ? t_style : t->t_style;
+        treasure_process_generated(tmp,
+                                   op,
+                                   difficulty,
+                                   a_chance,
+                                   affinity,
+                                   t->magic,
+                                   t->magic_fix,
+                                   t->magic_chance,
+                                   attrs != NULL ? attrs : &t->attrs,
+                                   flag);
+    } else {
+        /* We have a wealth object - expand it to real money */
+
+        /* If t->magic is != 0, that's our value - if not use default
+         * setting */
+        int i;
+
+        value = t->magic ? t->magic : t->item->clone.value;
+        value *= difficulty;
+
+        /* So we have 80% to 120% of the fixed value */
+        value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
+
+        for (i = 0; i < NUM_COINS; i++) {
+            if (value / coins_arch[i]->clone.value > 0) {
+                tmp = object_get();
+                object_copy(tmp, &coins_arch[i]->clone, false);
+                tmp->nrof = value / tmp->value;
+                value -= tmp->nrof * tmp->value;
+                treasure_insert(tmp, op, flag);
+            }
+        }
+    }
 }
 
 /**
@@ -1247,9 +1438,9 @@ static void free_treasurestruct(treasure *t)
     }
 
     FREE_AND_CLEAR_HASH2(t->name);
-    FREE_AND_CLEAR_HASH2(t->change_arch.name);
-    FREE_AND_CLEAR_HASH2(t->change_arch.slaying);
-    FREE_AND_CLEAR_HASH2(t->change_arch.title);
+    FREE_AND_CLEAR_HASH2(t->attrs.name);
+    FREE_AND_CLEAR_HASH2(t->attrs.slaying);
+    FREE_AND_CLEAR_HASH2(t->attrs.title);
     efree(t);
 }
 
@@ -1270,154 +1461,6 @@ void free_all_treasures(void)
 
         efree(tl);
     }
-}
-
-/**
- * Set object's object::material_real.
- * @param op
- * Object to set material_real for.
- * @param change_arch
- * Change arch.
- */
-static void set_material_real(object *op, struct _change_arch *change_arch)
-{
-    if (op->type == MONEY) {
-        return;
-    }
-
-    if (change_arch->item_race != -1) {
-        op->item_race = (uint8_t) change_arch->item_race;
-    }
-
-    /* This must be tested - perhaps we want that change_arch->material
-     * also overrule the material_real -1 marker? */
-    if (op->material_real == -1) {
-        /* WARNING: material_real == -1 skips also the quality modifier.
-         * this is really for objects which don't fit in the material/quality
-         * system (like system objects, forces, effects and stuff). */
-        op->material_real = 0;
-        return;
-    }
-
-    /* We overrule the material settings in any case when this is set */
-    if (change_arch->material != -1) {
-        op->material_real = change_arch->material;
-
-        /* Skip if material is 0 (aka neutralized material setting) */
-        if (change_arch->material_range > 0 && change_arch->material) {
-            op->material_real += rndm(0, change_arch->material_range);
-        }
-    }/* If 0, grab a valid material class. We should assign to all objects
-         * a valid material_real value to avoid problems here. */
-    else if (!op->material_real && op->material != M_ADAMANT) {
-        if (op->material & M_IRON) {
-            op->material_real = M_START_IRON;
-        } else if (op->material & M_LEATHER) {
-            op->material_real = M_START_LEATHER;
-        } else if (op->material & M_PAPER) {
-            op->material_real = M_START_PAPER;
-        } else if (op->material & M_GLASS) {
-            op->material_real = M_START_GLASS;
-        } else if (op->material & M_WOOD) {
-            op->material_real = M_START_WOOD;
-        } else if (op->material & M_ORGANIC) {
-            op->material_real = M_START_ORGANIC;
-        } else if (op->material & M_STONE) {
-            op->material_real = M_START_STONE;
-        } else if (op->material & M_CLOTH) {
-            op->material_real = M_START_CLOTH;
-        } else if (op->material & M_ADAMANT) {
-            op->material_real = M_START_ADAMANT;
-        } else if (op->material & M_LIQUID) {
-            op->material_real = M_START_LIQUID;
-        } else if (op->material & M_SOFT_METAL) {
-            op->material_real = M_START_SOFT_METAL;
-        } else if (op->material & M_BONE) {
-            op->material_real = M_START_BONE;
-        } else if (op->material & M_ICE) {
-            op->material_real = M_START_ICE;
-        }
-    }
-
-    /* Now we do some work: we define a (material) quality and try to
-     * find a best matching pre-set material_real for that item. This is
-     * a bit more complex but we are with that free to define different
-     * materials without having a strong fixed material table. */
-    if (change_arch->material_quality != -1) {
-        int i, q_tmp = -1;
-        int m_range = change_arch->material_quality;
-
-        if (change_arch->material_range > 0) {
-            m_range += rndm(0, change_arch->material_range);
-        }
-
-        if (op->material_real) {
-            int m_tmp = op->material_real / NROFMATERIALS_REAL;
-
-            /* The first entry of the material_real of material table */
-            m_tmp = m_tmp * 64 + 1;
-
-            /* We should add paper & cloth here too later */
-            if (m_tmp == M_START_IRON || m_tmp == M_START_WOOD || m_tmp == M_START_LEATHER) {
-                for (i = 0; i < NROFMATERIALS_REAL; i++) {
-                    /* We have a full hit */
-                    if (materials_real[m_tmp + i].quality == m_range) {
-                        op->material_real = m_tmp + i;
-                        goto set_material_real;
-                    }
-
-                    /* Find nearest quality we want */
-                    if (materials_real[m_tmp + i].quality >= change_arch->material_quality && materials_real[m_tmp + i].quality <= m_range && materials_real[m_tmp + i].quality > q_tmp) {
-                        q_tmp = m_tmp + i;
-                    }
-                }
-
-                /* If we have no match, we simply use the (always valid)
-                 * first material_real entry and forcing the
-                 * material_quality to quality! */
-                if (q_tmp >= 0) {
-                    op->material_real = m_tmp;
-                    op->item_quality = change_arch->material_quality;
-                    op->item_condition = op->item_quality;
-                    return;
-                }
-
-                /* That's now our best match! */
-                op->material_real = q_tmp;
-            } else {
-                /* Excluded material table! */
-
-                op->item_quality = m_range;
-                op->item_condition = op->item_quality;
-                return;
-            }
-        } else {
-            /* We have material_real 0 but we modify at least the quality! */
-
-            op->item_quality = m_range;
-            op->item_condition = op->item_quality;
-            return;
-        }
-    }
-
-set_material_real:
-
-    /* Adjust quality - use material default value or quality adjustment */
-    if (change_arch->quality != -1) {
-        op->item_quality = change_arch->quality;
-    } else {
-        op->item_quality = materials_real[op->material_real].quality;
-    }
-
-    if (change_arch->quality_range > 0) {
-        op->item_quality += rndm(0, change_arch->quality_range);
-
-        if (op->item_quality > 100) {
-            op->item_quality = 100;
-        }
-    }
-
-    op->item_condition = op->item_quality;
 }
 
 /**

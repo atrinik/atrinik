@@ -72,7 +72,7 @@
  * some default values. All values in this structure will override the
  * default arch.
  */
-typedef struct _change_arch {
+typedef struct treasure_attrs {
     /** If not NULL, copy this over the original arch name. */
     const char *name;
 
@@ -99,7 +99,7 @@ typedef struct _change_arch {
 
     /** Used for random quality range */
     int quality_range;
-} _change_arch;
+} treasure_attrs_t;
 
 /**
  * Treasure is one element in a linked list, which together consists of a
@@ -171,7 +171,7 @@ typedef struct treasurestruct {
     uint8_t chance;
 
     /** Override default arch values if set in treasure list */
-    struct _change_arch change_arch;
+    struct treasure_attrs attrs;
 } treasure;
 
 /** Treasure list structure */
