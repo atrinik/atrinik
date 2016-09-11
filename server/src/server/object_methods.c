@@ -501,6 +501,7 @@ object_process_treasure (object  *op,
                          int      flags)
 {
     HARD_ASSERT(op != NULL);
+    HARD_ASSERT(ret != NULL);
     SOFT_ASSERT_RC(difficulty > 0,
                    OBJECT_METHOD_UNHANDLED,
                    "Invalid difficulty: %d",
