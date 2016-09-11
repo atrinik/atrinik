@@ -1135,39 +1135,6 @@ void set_abs_magic(object *op, int magic)
 }
 
 /**
- * Get a random spell from the spell list.
- *
- * Used for item generation which uses spells like wands, rods, etc.
- * @param level
- * Level of the spell.
- * @param flags
- * @ref SPELL_USE_xxx to check for.
- * @return
- * SP_NO_SPELL if no valid spell matches, ID of the spell
- * otherwise.
- */
-static int get_random_spell(int level, int flags)
-{
-    int i, num_spells = 0, possible_spells[NROFREALSPELLS];
-
-    /* Collect the list of spells we can choose from. */
-    for (i = 0; i < NROFREALSPELLS; i++) {
-        if (level >= spells[i].at->clone.level && spells[i].spell_use & flags) {
-            possible_spells[num_spells] = i;
-            num_spells++;
-        }
-    }
-
-    /* If we found any spells we can use, select randomly. */
-    if (num_spells) {
-        return possible_spells[rndm(0, num_spells - 1)];
-    }
-
-    /* If we are here, there is no fitting spell. */
-    return SP_NO_SPELL;
-}
-
-/**
  * Assign a random slaying race to an object, for weapons, arrows
  * and such.
  * @param op
