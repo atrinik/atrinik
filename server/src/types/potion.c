@@ -335,4 +335,5 @@ OBJECT_TYPE_INIT_DEFINE(potion)
 {
     OBJECT_METHODS(POTION)->apply_func = apply_func;
     OBJECT_METHODS(POTION)->process_treasure_func = process_treasure_func;
+    OBJECT_METHODS(POTION)->override_treasure_processing = true;
 }

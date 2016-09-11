@@ -142,4 +142,5 @@ OBJECT_TYPE_INIT_DEFINE(scroll)
 {
     OBJECT_METHODS(SCROLL)->apply_func = apply_func;
     OBJECT_METHODS(SCROLL)->process_treasure_func = process_treasure_func;
+    OBJECT_METHODS(SCROLL)->override_treasure_processing = true;
 }

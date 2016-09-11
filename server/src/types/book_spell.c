@@ -215,4 +215,5 @@ OBJECT_TYPE_INIT_DEFINE(book_spell)
 {
     OBJECT_METHODS(BOOK_SPELL)->apply_func = apply_func;
     OBJECT_METHODS(BOOK_SPELL)->process_treasure_func = process_treasure_func;
+    OBJECT_METHODS(BOOK_SPELL)->override_treasure_processing = true;
 }
