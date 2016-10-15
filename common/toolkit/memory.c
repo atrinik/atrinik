@@ -31,7 +31,7 @@
 
 #ifndef __CPROTO__
 
-#include <global.h>
+#include "memory.h"
 
 #ifndef NDEBUG
 #ifdef HAVE_VALGRIND_H

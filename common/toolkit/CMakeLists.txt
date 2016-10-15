@@ -1,3 +1,9 @@
+# The Atrinik toolkit CMakeLists file.
+
+project(atrinik-toolkit C)
+cmake_minimum_required(VERSION 2.6)
+set(ATRINIK_TOOLKIT atrinik-toolkit)
+
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
 add_definitions(${CUSTOM_WARNINGS})
@@ -205,42 +211,16 @@ elseif (LINUX)
     check_function_exists(getaddrinfo HAVE_GETADDRINFO)
 endif ()
 
-try_compile(HAVE_IPV6 ${CMAKE_BINARY_DIR}/compile_tests ${CMAKE_SOURCE_DIR}/src/toolkit/cmake/ipv6test.c)
+try_compile(HAVE_IPV6 ${CMAKE_CURRENT_BINARY_DIR}/compile_tests ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ipv6test.c)
 
-configure_file(src/toolkit/include/toolkit_cmake.h.def src/toolkit/include/toolkit_cmake.h)
+# Generate the CMake configuration header file.
+configure_file(src/cmake.h.def src/cmake.h)
 
-include_directories(src/toolkit/include)
-
-set(SOURCES_TOOLKIT
-    src/toolkit/binreloc.c
-    src/toolkit/clioptions.c
-    src/toolkit/colorspace.c
-    src/toolkit/console.c
-    src/toolkit/curl.c
-    src/toolkit/datetime.c
-    src/toolkit/logger.c
-    src/toolkit/math.c
-    src/toolkit/memory.c
-    src/toolkit/mempool.c
-    src/toolkit/packet.c
-    src/toolkit/path.c
-    src/toolkit/pbkdf2.c
-    src/toolkit/porting.c
-    src/toolkit/process.c
-    src/toolkit/sha1.c
-    src/toolkit/shstr.c
-    src/toolkit/signals.c
-    src/toolkit/socket.c
-    src/toolkit/socket_crypto.c
-    src/toolkit/string.c
-    src/toolkit/stringbuffer.c
-    src/toolkit/toolkit.c
-    src/toolkit/x11.c)
-
+# Generate a header file with the Git version used to compile the library.
 find_program(GIT_SCM git DOC "Git version control")
 mark_as_advanced(GIT_SCM)
 find_file(GITDIR NAMES .git PATHS ../ NO_DEFAULT_PATH)
-set(GITVERSION_H src/toolkit/include/gitversion.h)
+set(GITVERSION_H src/gitversion.h)
 
 if (GIT_SCM AND GITDIR)
     add_custom_command(OUTPUT ${GITVERSION_H}
@@ -266,3 +246,61 @@ endif ()
 
 add_custom_target(git_branch DEPENDS ${GITVERSION_H})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(TOOLKIT_SOURCES
+    string.c
+    )
+
+add_library(${ATRINIK_TOOLKIT} ${TOOLKIT_SOURCES})
+
+target_link_libraries(${ATRINIK_TOOLKIT} ${CURL_LIBRARIES})
+target_link_libraries(${ATRINIK_TOOLKIT} ${CMAKE_THREAD_LIBS_INIT})
+
+if (MINGW)
+    target_link_libraries(${ATRINIK_TOOLKIT} wsock32 idn wldap32 ssh2 rtmp winmm
+            ws2_32 imagehlp)
+endif ()
+
+target_link_libraries(${ATRINIK_TOOLKIT} ${ZLIB_LIBRARIES})
+
+# Link math...
+if (MATH_LIBRARY)
+    target_link_libraries(${ATRINIK_TOOLKIT} ${MATH_LIBRARY})
+endif ()
+
+# Link crypt.
+if (CRYPT_LIBRARY)
+    target_link_libraries(${ATRINIK_TOOLKIT} ${CRYPT_LIBRARY})
+endif ()
+
+# Link readline if available.
+if (HAVE_READLINE)
+    target_link_libraries(${ATRINIK_TOOLKIT} ${READLINE_LIBRARY})
+endif ()
+
+# Link X11 if available.
+if (HAVE_X11)
+    target_link_libraries(${ATRINIK_TOOLKIT} ${X11_LIBRARIES})
+endif ()
+
+# Link X11 XMU if available.
+if (HAVE_X11_XMU)
+    target_link_libraries(${ATRINIK_TOOLKIT} ${X11_XMU_LIBRARY})
+endif ()
+
+target_link_libraries(${ATRINIK_TOOLKIT} ${OPENSSL_LIBRARIES})
+
+add_dependencies(${ATRINIK_TOOLKIT} git_branch)
+
+
+find_library(CHECK_LIBRARY check)
+
+if (CHECK_LIBRARY)
+#    target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
+
+#    if (UNIX AND NOT APPLE)
+#        target_link_libraries(${EXECUTABLE} rt)
+#    endif ()
+else ()
+    message(STATUS "Could not find check library, unit tests will not be compiled.")
+endif ()

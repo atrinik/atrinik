@@ -36,10 +36,12 @@
 #define _POSIX_C_SOURCE 200112L
 
 /* Porting API header file has extra priority. */
-#include <porting.h>
+#include "porting.h"
+
 
 /* Now all the other header files that are part of the toolkit. */
-#include <binreloc.h>
+#include "logger.h"
+/*#include <binreloc.h>
 #include <common.h>
 #include <console.h>
 #include <logger.h>
@@ -49,7 +51,7 @@
 #include <stringbuffer.h>
 #include <utarray.h>
 #include <uthash.h>
-#include <utlist.h>
+#include <utlist.h>*/
 
 /**
  * Toolkit (de)initialization function.
@@ -270,6 +272,8 @@ do {                                            \
 
 #ifndef NDEBUG
 
+#include <assert.h>
+
 #define SOFT_ASSERT(cond, msg, ...) \
     do { \
         if (unlikely(!(cond))) { \
@@ -411,8 +415,8 @@ do {                                            \
 #define FOR_EACH(what, ...) \
     _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
 
-#include <socket.h>
-#include <toolkit_math.h> /* TODO: remove */
+//#include <socket.h>
+//#include <toolkit_math.h> /* TODO: remove */
 
 /* Prototypes */
 

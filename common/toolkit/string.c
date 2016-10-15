@@ -27,9 +27,12 @@
  * String API.
  */
 
-#include <global.h>
 #include <stdarg.h>
-#include <toolkit_string.h>
+
+#include "toolkit.h"
+#include "string.h"
+#include "stringbuffer.h"
+#include "math.h"
 
 TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer), IMPORTS(memory));
 

@@ -51,8 +51,8 @@
 #endif
 #endif
 
-#include <cmake.h>
-#include <toolkit_cmake.h>
+#include "cmake.h"
+
 #include <math.h>
 #include <float.h>
 #include <stdio.h>
@@ -254,27 +254,33 @@ typedef void *x11_window_type;
 #endif
 
 #ifndef HAVE_STRTOK_R
-extern char *strtok_r(char *s, const char *delim, char **save_ptr);
+extern char *_strtok_r(char *s, const char *delim, char **save_ptr);
+#define strtok_r _strtok_r
 #endif
 
 #ifndef HAVE_TEMPNAM
-extern char *tempnam(const char *dir, const char *pfx);
+extern char *_tempnam(const char *dir, const char *pfx);
+#define tempnam _tempnam
 #endif
 
 #ifndef HAVE_STRDUP
-extern char *strdup(const char *s);
+extern char *_strdup(const char *s);
+#define strdup _strdup
 #endif
 
 #ifndef HAVE_STRNDUP
-extern char *strndup(const char *s, size_t n);
+extern char *_strndup(const char *s, size_t n);
+#define strndup _strndup
 #endif
 
 #ifndef HAVE_STRERROR
-extern char *strerror(int errnum);
+extern char *_strerror(int errnum);
+#define strerror _strerror
 #endif
 
 #ifndef HAVE_STRCASESTR
-extern const char *strcasestr(const char *haystack, const char *needle);
+extern const char *_strcasestr(const char *haystack, const char *needle);
+#define strcasestr _strcasestr
 #endif
 
 #ifndef HAVE_GETTIMEOFDAY
@@ -286,27 +292,33 @@ struct timezone {
     int tz_dsttime;
 };
 
-extern int gettimeofday(struct timeval *tv, struct timezone *tz);
+extern int _gettimeofday(struct timeval *tv, struct timezone *tz);
+#define gettimeofday _gettimeofday
 #endif
 
 #ifndef HAVE_GETLINE
-extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+extern ssize_t _getline(char **lineptr, size_t *n, FILE *stream);
+#define getline _getline
 #endif
 
 #ifndef HAVE_USLEEP
-extern int usleep(uint32_t usec);
+extern int _usleep(uint32_t usec);
+#define usleep _usleep
 #endif
 
 #ifndef HAVE_STRNLEN
-extern size_t strnlen(const char *s, size_t max);
+extern size_t _strnlen(const char *s, size_t max);
+#define strnlen _strnlen
 #endif
 
 #ifndef HAVE_MKSTEMP
-int mkstemp(char *tmpl);
+extern int _mkstemp(char *tmpl);
+#define mkstemp _mkstemp
 #endif
 
 #ifndef HAVE_SINCOS
-void sincos(double x, double *s, double *c);
+extern void _sincos(double x, double *s, double *c);
+#define sincos _sincos
 #endif
 
 #endif

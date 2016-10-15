@@ -32,7 +32,7 @@
 #ifndef TOOLKIT_MATH_H
 #define	TOOLKIT_MATH_H
 
-#include <toolkit.h>
+#include "toolkit.h"
 
 /* Prototypes */
 
