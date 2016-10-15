@@ -385,11 +385,6 @@ treasure_load_one (FILE                 *fp,
                 goto error;
             }
         } else if (strcmp(key, "affinity") == 0) {
-            if (!string_isdigit(value)) {
-                error_str = "affinity attribute expects a number";
-                goto error;
-            }
-
             if (start_marker) {
                 FREE_AND_COPY_HASH(treasure->affinity, value);
             } else {
