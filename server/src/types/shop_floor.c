@@ -63,7 +63,7 @@ auto_apply_func (object *op)
         /* Give it ten tries. */
         int i = 10;
         while (tmp == NULL && i != 0) {
-            tmp = generate_treasure(op->randomitems, level, a_chance);
+            tmp = treasure_generate_single(op->randomitems, level, a_chance);
             i--;
         }
 

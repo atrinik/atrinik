@@ -817,7 +817,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
             object_auto_apply(op);
         } else if ((mapflags & MAP_ORIGINAL) && op->randomitems) {
             /* For fresh maps, create treasures */
-            create_treasure(op->randomitems, op, op->type != TREASURE ? GT_APPLY : 0, op->level ? op->level : m->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+            treasure_generate(op->randomitems, op, op->level ? op->level : m->difficulty, op->type != TREASURE ? GT_APPLY : 0);
         }
 
         op = object_get();

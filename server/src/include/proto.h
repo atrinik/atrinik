@@ -318,7 +318,7 @@ extern int obj_in_line_of_sight(object *obj, rv_vector *rv);
 /* src/server/main.c */
 extern player *first_player;
 extern mapstruct *first_map;
-extern treasurelist *first_treasurelist;
+extern treasure_list_t *first_treasurelist;
 extern struct artifact_list *first_artifactlist;
 extern player *last_player;
 extern uint32_t global_round_tag;
@@ -510,11 +510,10 @@ extern long seconds(void);
 /* src/server/treasure.c */
 extern const char *const coins[6 + 1];
 extern struct archetype *coins_arch[6];
-extern void load_treasures(void);
-extern treasurelist *find_treasurelist(const char *name);
-extern object *generate_treasure(treasurelist *t, int difficulty, int a_chance);
-extern void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct treasure_attrs *arch_change);
-extern int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_chance, int t_style, int max_magic, int fix_magic, int chance_magic, int flags);
+extern void treasure_init(void);
+extern treasure_list_t *treasure_list_find(const char *name);
+extern object *treasure_generate_single(treasure_list_t *treasure_list, int difficulty, int artifact_chance);
+extern void treasure_generate(treasure_list_t *treasure_list, object *op, int difficulty, int flags);
 extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
 /* src/server/weather.c */

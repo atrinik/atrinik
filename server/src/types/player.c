@@ -289,12 +289,12 @@ free_player (player *pl)
  * Treasure list of items to give.
  */
 void
-give_initial_items (object *pl, treasurelist *items)
+give_initial_items (object *pl, treasure_list_t *items)
 {
     object *op, *next = NULL;
 
     if (pl->randomitems) {
-        create_treasure(items, pl, GT_ONLY_GOOD | GT_NO_VALUE, 1, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+        treasure_generate(items, pl, 1, GT_ONLY_GOOD | GT_NO_VALUE);
     }
 
     for (op = pl->inv; op; op = next) {

@@ -52,11 +52,11 @@
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
 static bool
-amulet_set_bonus_reflect_missiles (object *op,
-                                   int     difficulty,
-                                   int     affinity,
-                                   double *item_power,
-                                   int     bonus)
+amulet_set_bonus_reflect_missiles (object              *op,
+                                   int                  difficulty,
+                                   treasure_affinity_t *affinity,
+                                   double              *item_power,
+                                   int                  bonus)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -70,11 +70,11 @@ amulet_set_bonus_reflect_missiles (object *op,
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
 static bool
-amulet_set_bonus_reflect_spells (object *op,
-                                 int     difficulty,
-                                 int     affinity,
-                                 double *item_power,
-                                 int     bonus)
+amulet_set_bonus_reflect_spells (object              *op,
+                                 int                  difficulty,
+                                 treasure_affinity_t *affinity,
+                                 double              *item_power,
+                                 int                  bonus)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -96,11 +96,11 @@ static const process_treasure_table_t amulet_treasure_table[] = {
 
 /** @copydoc object_methods_t::process_treasure_func */
 static int
-process_treasure_func (object  *op,
-                       object **ret,
-                       int      difficulty,
-                       int      affinity,
-                       int      flags)
+process_treasure_func (object              *op,
+                       object             **ret,
+                       int                  difficulty,
+                       treasure_affinity_t *affinity,
+                       int                  flags)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);

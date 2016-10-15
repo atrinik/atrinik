@@ -50,14 +50,10 @@ auto_apply_func (object *op)
         level = get_environment_level(op);
     }
 
-    create_treasure(op->randomitems,
-                    op,
-                    op->map != NULL ? GT_ENVIRONMENT : 0,
-                    level,
-                    T_STYLE_UNSET,
-                    ART_CHANCE_UNSET,
-                    0,
-                    NULL);
+    treasure_generate(op->randomitems,
+                      op,
+                      level,
+                      op->map != NULL ? GT_ENVIRONMENT : 0);
 
     /* If we generated on object and put it in this object inventory,
      * move it to the parent object as the current object is about
@@ -108,7 +104,7 @@ apply_func (object *op, object *applier, int aflags)
 /**
  * Initialize the treasure type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(treasure)
+OBJECT_TYPE_INIT_DEFINE(treasure_t)
 {
     OBJECT_METHODS(TREASURE)->auto_apply_func = auto_apply_func;
     OBJECT_METHODS(TREASURE)->apply_func = apply_func;

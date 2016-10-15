@@ -56,10 +56,9 @@ typedef struct artifact {
     shstr *def_at_name;
 
     /**
-     * Treasure style.
-     * @see @ref treasure_style
+     * Treasure affinity.
      */
-    int t_style;
+    treasure_affinity_t *affinity;
 
     uint16_t chance; ///< Chance.
     uint8_t difficulty; ///< Difficulty.
@@ -94,11 +93,19 @@ typedef struct artifact_list {
 
 /* Prototypes */
 
-void artifact_init(void);
-void artifact_deinit(void);
-artifact_list_t *artifact_list_find(uint8_t type);
-artifact_t *artifact_find_type(const char *name, uint8_t type);
-void artifact_change_object(artifact_t *art, object *op);
-bool artifact_generate(object *op, int difficulty, int t_style);
+void
+artifact_init(void);
+void
+artifact_deinit(void);
+artifact_list_t *
+artifact_list_find(uint8_t type);
+artifact_t *
+artifact_find_type(const char *name, uint8_t type);
+void
+artifact_change_object(artifact_t *art, object *op);
+bool
+artifact_generate(object              *op,
+                  int                  difficulty,
+                  treasure_affinity_t *affinity);
 
 #endif

@@ -186,11 +186,11 @@ apply_func (object *op, object *applier, int aflags)
 
 /** @copydoc object_methods_t::process_treasure_func */
 static int
-process_treasure_func (object  *op,
-                       object **ret,
-                       int      difficulty,
-                       int      affinity,
-                       int      flags)
+process_treasure_func (object              *op,
+                       object             **ret,
+                       int                  difficulty,
+                       treasure_affinity_t *affinity,
+                       int                  flags)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
@@ -217,7 +217,7 @@ process_treasure_func (object  *op,
     level = MIN(MAX(level, 1), MAXLEVEL);
     op->level = level;
 
-    if (!artifact_generate(op, difficulty, T_STYLE_UNSET)) {
+    if (!artifact_generate(op, difficulty, affinity)) {
         tailor_readable_ob(op, -1);
     }
 

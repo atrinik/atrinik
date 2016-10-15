@@ -109,14 +109,7 @@ spawn_point_generate (object *op, object *monster)
     }
 
     if (tmp->randomitems != NULL) {
-        create_treasure(tmp->randomitems,
-                        tmp,
-                        0,
-                        tmp->level,
-                        T_STYLE_UNSET,
-                        ART_CHANCE_UNSET,
-                        0,
-                        NULL);
+        treasure_generate(tmp->randomitems, tmp, tmp->level, 0);
     }
 
     return tmp;

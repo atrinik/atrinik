@@ -802,7 +802,7 @@ end
 Allowed all
 chance 100
 difficulty 2
-t_style 2
+affinity cold
 artifact diamond_poor
 def_arch jewel_generic
 Object
@@ -818,7 +818,7 @@ end
 Allowed all
 chance 40
 difficulty 9
-t_style 2
+affinity cold
 artifact diamond_small
 def_arch jewel_generic
 Object
@@ -834,7 +834,7 @@ end
 Allowed all
 chance 30
 difficulty 20
-t_style 2
+affinity cold
 artifact diamond_great
 def_arch jewel_generic
 Object
@@ -850,7 +850,7 @@ end
 Allowed all
 chance 20
 difficulty 30
-t_style 2
+affinity cold
 artifact diamond_except
 def_arch jewel_generic
 Object
@@ -866,7 +866,7 @@ end
 Allowed all
 chance 5
 difficulty 50
-t_style 2
+affinity cold
 artifact diamond_flawless
 def_arch jewel_generic
 Object
@@ -882,7 +882,7 @@ end
 Allowed all
 chance 100
 difficulty 2
-t_style 1
+affinity fire
 artifact ruby_poor
 def_arch jewel_generic
 Object
@@ -898,7 +898,7 @@ end
 Allowed all
 chance 40
 difficulty 9
-t_style 1
+affinity fire
 artifact ruby_small
 def_arch jewel_generic
 Object
@@ -914,7 +914,7 @@ end
 Allowed all
 chance 30
 difficulty 20
-t_style 1
+affinity fire
 artifact ruby_great
 def_arch jewel_generic
 Object
@@ -930,7 +930,7 @@ end
 Allowed all
 chance 20
 difficulty 30
-t_style 1
+affinity fire
 artifact ruby_except
 def_arch jewel_generic
 Object
@@ -946,7 +946,7 @@ end
 Allowed all
 chance 5
 difficulty 50
-t_style 1
+affinity fire
 artifact ruby_flawless
 def_arch jewel_generic
 Object
@@ -2589,7 +2589,7 @@ Allowed all
 chance 30
 artifact scroll_firestorm
 difficulty 3
-t_style 1
+affinity fire
 def_arch scroll_generic
 Object
 level 1
@@ -2604,7 +2604,7 @@ Allowed all
 chance 30
 artifact scroll_icestorm
 difficulty 3
-t_style 2
+affinity cold
 def_arch scroll_generic
 Object
 level 1
@@ -2720,7 +2720,7 @@ Allowed potion_generic
 chance 40
 artifact potion_minor_res_fire
 difficulty 3
-t_style 1
+affinity fire
 copy_artifact true
 def_arch potion_generic
 Object
@@ -2737,7 +2737,7 @@ end
 Allowed potion_generic
 chance 40
 artifact potion_minor_res_cold
-t_style 2
+affinity cold
 difficulty 3
 copy_artifact true
 def_arch potion_generic
@@ -2753,7 +2753,7 @@ end
 
 Allowed potion_generic
 chance 40
-t_style 3
+affinity electricity
 artifact potion_minor_res_elec
 difficulty 3
 copy_artifact true
@@ -2771,7 +2771,7 @@ end
 
 Allowed potion_generic
 chance 40
-t_style 4
+affinity poison
 artifact potion_minor_res_poison
 difficulty 3
 copy_artifact true
@@ -2789,7 +2789,7 @@ end
 
 Allowed potion_generic
 chance 40
-t_style 5
+affinity acid
 artifact potion_minor_res_acid
 difficulty 3
 copy_artifact true

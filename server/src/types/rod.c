@@ -103,11 +103,11 @@ ranged_fire_func (object *op, object *shooter, int dir, double *delay)
 
 /** @copydoc object_methods_t::process_treasure_func */
 static int
-process_treasure_func (object  *op,
-                       object **ret,
-                       int      difficulty,
-                       int      affinity,
-                       int      flags)
+process_treasure_func (object              *op,
+                       object             **ret,
+                       int                  difficulty,
+                       treasure_affinity_t *affinity,
+                       int                  flags)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);

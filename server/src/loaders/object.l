@@ -232,9 +232,10 @@ lex_error = 0;
                 object_auto_apply(tmp);
             } else if (tmp->randomitems != NULL && (map_flags & MAP_ORIGINAL) &&
                     op->type != SPAWN_POINT) {
-                create_treasure(tmp->randomitems, tmp, 0,
-                        get_environment_level(tmp), T_STYLE_UNSET,
-                        ART_CHANCE_UNSET, 0, NULL);
+                treasure_generate(tmp->randomitems,
+                                  tmp,
+                                  get_environment_level(tmp),
+                                  0);
             }
         }
     }
@@ -658,7 +659,7 @@ lex_error = 0;
 ^is_blind{S}         CHANGE_FLAG(op, FLAG_BLIND, IVAL);
 ^can_see_in_dark{S}  CHANGE_FLAG(op, FLAG_SEE_IN_DARK, IVAL);
 ^is_cauldron{S}      CHANGE_FLAG(op, FLAG_IS_CAULDRON, IVAL);
-^randomitems{S}      op->randomitems = find_treasurelist(yval());
+^randomitems{S}      op->randomitems = treasure_list_find(yval());
 ^is_dust{S}          CHANGE_FLAG(op, FLAG_DUST, IVAL);
 ^no_steal{S}         {/* DEPRECATED */}
 ^one_hit{S}          CHANGE_FLAG(op, FLAG_ONE_HIT, IVAL);

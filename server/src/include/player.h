@@ -595,7 +595,7 @@ display_motd(object *op);
 void
 free_player(player *pl);
 void
-give_initial_items(object *pl, treasurelist *items);
+give_initial_items(object *pl, treasure_list_t *items);
 int
 handle_newcs_player(player *pl);
 void

@@ -37,12 +37,12 @@
 
 START_TEST(test_cursed_amulet_shielding)
 {
-    treasurelist *list = find_treasurelist("random_talisman");
+    treasure_list_t *list = treasure_list_find("random_talisman");
     ck_assert_msg(list != NULL, "Couldn't find 'random_talisman' treasure list "
             "to start the test.");
 
     for (int i = 0; i < 2000; i++) {
-        object *tmp = generate_treasure(list, 999, 100);
+        object *tmp = treasure_generate_single(list, 999, 100);
         ck_assert_msg(tmp != NULL, "Didn't generate anything: %d", i);
 
         if (strcmp(tmp->arch->name, "amulet_shielding") == 0) {
@@ -59,7 +59,7 @@ END_TEST
 
 START_TEST(test_cursed_starting_items)
 {
-    treasurelist *list = find_treasurelist("player_male");
+    treasure_list_t *list = treasure_list_find("player_male");
     ck_assert_msg(list != NULL, "Couldn't find 'player_male' treasure list "
             "to start the test.");
 
@@ -67,8 +67,7 @@ START_TEST(test_cursed_starting_items)
 
     for (int i = 0; i < 2000; i++) {
         object_destroy_inv(inv);
-        create_treasure(list, inv, GT_ONLY_GOOD, 1, T_STYLE_UNSET,
-                ART_CHANCE_UNSET, 0, NULL);
+        treasure_generate(list, inv, 1, GT_ONLY_GOOD);
         ck_assert_msg(inv->inv != NULL, "Didn't generate anything: %d", i);
 
         for (object *tmp = inv->inv; tmp != NULL; tmp = tmp->below) {

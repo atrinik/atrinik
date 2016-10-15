@@ -74,13 +74,13 @@
  */
 typedef struct treasure_attrs {
     /** If not NULL, copy this over the original arch name. */
-    const char *name;
+    shstr *name;
 
     /** If not NULL, copy this over the original arch title. */
-    const char *title;
+    shstr *title;
 
     /** If not NULL, copy this over the original arch slaying. */
-    const char *slaying;
+    shstr *slaying;
 
     /** Item's race */
     int item_race;
@@ -103,32 +103,29 @@ typedef struct treasure_attrs {
 
 /**
  * Treasure is one element in a linked list, which together consists of a
- * complete treasurelist.
+ * complete treasure list.
  *
- * Any arch can point to a treasurelist to get generated standard
- * treasure when an archetype of that type is generated.
+ * Any arch can point to a treasure list to get generated standard treasure
+ * when an archetype of that type is generated.
  */
-typedef struct treasurestruct {
+typedef struct treasure {
     /** Which item this link can be */
     struct archetype *item;
 
     /** If not NULL, name of list to use instead */
-    const char *name;
+    shstr *name;
 
     /** Next treasure item in a linked list */
-    struct treasurestruct *next;
+    struct treasure *next;
 
     /** If this item was generated, use this link instead of ->next */
-    struct treasurestruct *next_yes;
+    struct treasure *next_yes;
 
     /** If this item was not generated, then continue here */
-    struct treasurestruct *next_no;
+    struct treasure *next_no;
 
-    /**
-     * Local t_style (will overrule global one) - used from artifacts.
-     * @see @ref treasure_style
-     */
-    int t_style;
+    /** Treasure affinity. */
+    treasure_affinity_t *affinity;
 
     /** Value from 0 - 1000. Chance of item is magic. */
     int magic_chance;
@@ -172,20 +169,17 @@ typedef struct treasurestruct {
 
     /** Override default arch values if set in treasure list */
     struct treasure_attrs attrs;
-} treasure;
+} treasure_t;
 
-/** Treasure list structure */
-typedef struct treasureliststruct {
-    /** Usually monster name/combination */
-    const char *name;
+/** Treasure list structure. */
+typedef struct treasure_list {
+    /** Usually monster name/combination. */
+    shstr *name;
 
-    /**
-     * Global style (used from artifacts file).
-     * @see @ref treasure_style
-     */
-    int t_style;
+    /** Treasure affinity. */
+    treasure_affinity_t *affinity;
 
-    /** Artifact chance */
+    /** Artifact chance. */
     int artifact_chance;
 
     /** If set, this will overrule total_chance. */
@@ -199,10 +193,10 @@ typedef struct treasureliststruct {
     int16_t total_chance;
 
     /** Next treasure-item in linked list */
-    struct treasureliststruct *next;
+    struct treasure_list *next;
 
     /** Items in this list, linked */
-    struct treasurestruct *items;
-} treasurelist;
+    struct treasure *items;
+} treasure_list_t;
 
 #endif

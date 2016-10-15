@@ -55,11 +55,11 @@ typedef struct process_treasure_table {
      * @return
      * Whether a bonus was applied.
      */
-    bool (*set_bonus_func)(object *op,
-                           int     difficulty,
-                           int     affinity,
-                           double *item_power,
-                           int     bonus);
+    bool (*set_bonus_func)(object              *op,
+                           int                  difficulty,
+                           treasure_affinity_t *affinity,
+                           double              *item_power,
+                           int                  bonus);
 } process_treasure_table_t;
 
 /**
@@ -86,13 +86,13 @@ process_treasure_table(const process_treasure_table_t *table,
                        uint32_t                        total_chance,
                        object                         *op,
                        int                             difficulty,
-                       int                             affinity,
+                       treasure_affinity_t            *affinity,
                        double                         *item_power);
 bool
-process_treasure_table_jewelry(object *op,
-                               int     difficulty,
-                               int     affinity,
-                               double *item_power);
+process_treasure_table_jewelry(object              *op,
+                               int                  difficulty,
+                               treasure_affinity_t *affinity,
+                               double              *item_power);
 void
 process_treasure_set_item_power(object *op,
                                 double  item_power);

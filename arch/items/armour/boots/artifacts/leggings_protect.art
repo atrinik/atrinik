@@ -3,7 +3,7 @@ Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_protect_fire
 chance 20
 difficulty 3
-t_style 1
+affinity fire
 def_arch leggings_leather
 Object
 title of fire protection
@@ -20,7 +20,7 @@ Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_protect_cold
 chance 20
 difficulty 3
-t_style 2
+affinity cold
 def_arch leggings_leather
 Object
 title of cold protection
@@ -37,7 +37,7 @@ Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_protect_electricity
 chance 20
 difficulty 3
-t_style 3
+affinity electricity
 def_arch leggings_leather
 Object
 title of electricity protection
@@ -54,7 +54,7 @@ Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_protect_poison
 chance 20
 difficulty 3
-t_style 4
+affinity poison
 def_arch leggings_leather
 Object
 item_level_art 3
@@ -71,7 +71,7 @@ Allowed leggings_plate, leggings_chain, leggings_leather
 artifact leggings_protect_acid
 chance 20
 difficulty 3
-t_style 5
+affinity acid
 def_arch leggings_leather
 Object
 title of acid protection

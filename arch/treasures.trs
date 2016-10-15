@@ -2450,6 +2450,7 @@ treasureone random_potion
     chance 15
   more
   arch dust_generic
+    difficulty 15
     chance 10
 end
 
@@ -4003,15 +4004,15 @@ end
 
 treasure mob_dragon_green
   list traps
-    t_style 4
+    affinity poison
     chance 8
   more
   list default_loot
-    t_style 4
+    affinity poison
     chance 65
     no
       list small_things
-        t_style 4
+        affinity poison
         chance_fix 4
         no
           arch coppercoin
@@ -4021,55 +4022,55 @@ treasure mob_dragon_green
     end
   more
   list default_drop
-    t_style 4
+    affinity poison
     chance_fix 16
     material_quality 80
     material_range 15
   more
   list random_armour
-    t_style 4
+    affinity poison
     material_quality 80
     material_range 15
     chance_fix 102
     no
       list random_weapon
-        t_style 4
+        affinity poison
         material_quality 80
         material_range 15
         chance_fix 96
         no
           list random_mtools
-            t_style 4
+            affinity poison
             chance_fix 66
             no
               list random_talisman
-                t_style 4
+                affinity poison
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    t_style 4
+    affinity poison
     chance_fix 50
     no
       list random_potion
-        t_style 4
+        affinity poison
         chance_fix 44
     end
 end
 
 treasure mob_dragon_fire
   list traps
-    t_style 1
+    affinity fire
     chance 8
   more
   list default_loot
-    t_style 1
+    affinity fire
     chance 65
     no
       list small_things
-        t_style 1
+        affinity fire
         chance_fix 4
         no
           arch coppercoin
@@ -4079,55 +4080,55 @@ treasure mob_dragon_fire
     end
   more
   list default_drop
-    t_style 1
+    affinity fire
     chance_fix 16
     material_quality 80
     material_range 15
   more
   list random_armour
-    t_style 1
+    affinity fire
     material_quality 80
     material_range 15
     chance_fix 102
     no
       list random_weapon
-        t_style 1
+        affinity fire
         material_quality 80
         material_range 15
         chance_fix 96
         no
           list random_mtools
-            t_style 1
+            affinity fire
             chance_fix 66
             no
               list random_talisman
-                t_style 1
+                affinity fire
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    t_style 1
+    affinity fire
     chance_fix 50
     no
       list random_potion
-        t_style 1
+        affinity fire
         chance_fix 44
     end
 end
 
 treasure mob_dragon_blue
   list traps
-    t_style 2
+    affinity cold
     chance 8
   more
   list default_loot
-    t_style 2
+    affinity cold
     chance 65
     no
       list small_things
-        t_style 2
+        affinity cold
         chance_fix 4
         no
           arch coppercoin
@@ -4137,55 +4138,55 @@ treasure mob_dragon_blue
     end
   more
   list default_drop
-    t_style 2
+    affinity cold
     chance_fix 16
     material_quality 80
     material_range 15
   more
   list random_armour
-    t_style 2
+    affinity cold
     material_quality 80
     material_range 15
     chance_fix 102
     no
       list random_weapon
-        t_style 2
+        affinity cold
         material_quality 80
         material_range 15
         chance_fix 96
         no
           list random_mtools
-            t_style 2
+            affinity cold
             chance_fix 66
             no
               list random_talisman
-                t_style 2
+                affinity cold
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    t_style 2
+    affinity cold
     chance_fix 50
     no
       list random_potion
-        t_style 2
+        affinity cold
         chance_fix 44
     end
 end
 
 treasure mob_dragon_black
   list traps
-    t_style 3
+    affinity electricity
     chance 8
   more
   list default_loot
-    t_style 3
+    affinity electricity
     chance 65
     no
       list small_things
-        t_style 3
+        affinity electricity
         chance_fix 4
         no
           arch coppercoin
@@ -4195,40 +4196,40 @@ treasure mob_dragon_black
     end
   more
   list default_drop
-    t_style 3
+    affinity electricity
     chance_fix 16
     material_quality 80
     material_range 15
   more
   list random_armour
-    t_style 3
+    affinity electricity
     material_quality 80
     material_range 15
     chance_fix 102
     no
       list random_weapon
-        t_style 3
+        affinity electricity
         material_quality 80
         material_range 15
         chance_fix 96
         no
           list random_mtools
-            t_style 3
+            affinity electricity
             chance_fix 66
             no
               list random_talisman
-                t_style 3
+                affinity electricity
                 chance_fix 69
             end
         end
     end
   more
   list random_scroll
-    t_style 3
+    affinity electricity
     chance_fix 50
     no
       list random_potion
-        t_style 3
+        affinity electricity
         chance_fix 44
     end
 end
@@ -5198,15 +5199,15 @@ end
 
 treasure mob_fire
   list traps
-    t_style 1
+    affinity fire
     chance 8
   more
   list default_loot
-    t_style 1
+    affinity fire
     chance 60
     no
       list small_things
-        t_style 1
+        affinity fire
         chance_fix 4
         no
           arch coppercoin
@@ -5216,57 +5217,57 @@ treasure mob_fire
     end
   more
   list default_drop
-    t_style 1
+    affinity fire
     chance_fix 16
     material_quality 80
     material_range 15
   more
   list random_armour
-    t_style 1
+    affinity fire
     artifact_chance 25
     material_quality 80
     material_range 15
     chance_fix 42
     no
       list random_weapon
-        t_style 1
+        affinity fire
         artifact_chance 25
         material_quality 80
         material_range 15
         chance_fix 48
         no
           list random_mtools
-            t_style 1
+            affinity fire
             chance_fix 182
             no
               list random_talisman
-                t_style 1
+                affinity fire
                 chance_fix 266
             end
         end
     end
   more
   list random_scroll
-    t_style 1
+    affinity fire
     chance_fix 45
     no
       list random_potion
-        t_style 1
+        affinity fire
         chance_fix 45
     end
 end
 
 treasure mob_ice
   list traps
-    t_style 2
+    affinity cold
     chance 8
   more
   list default_loot
-    t_style 2
+    affinity cold
     chance 60
     no
       list small_things
-        t_style 2
+        affinity cold
         chance_fix 4
         no
           arch coppercoin
@@ -5276,42 +5277,42 @@ treasure mob_ice
     end
   more
   list default_drop
-    t_style 2
+    affinity cold
     chance_fix 16
     material_quality 80
     material_range 15
   more
   list random_armour
-    t_style 2
+    affinity cold
     artifact_chance 25
     material_quality 80
     material_range 15
     chance_fix 42
     no
       list random_weapon
-        t_style 2
+        affinity cold
         artifact_chance 25
         material_quality 80
         material_range 15
         chance_fix 48
         no
           list random_mtools
-            t_style 2
+            affinity cold
             chance_fix 182
             no
               list random_talisman
-                t_style 2
+                affinity cold
                 chance_fix 266
             end
         end
     end
   more
   list random_scroll
-    t_style 2
+    affinity cold
     chance_fix 45
     no
       list random_potion
-        t_style 2
+        affinity cold
         chance_fix 45
     end
 end
@@ -5832,15 +5833,15 @@ end
 
 treasure mob_balrog
   list traps
-    t_style 1
+    affinity fire
     chance 8
   more
   list default_loot
-    t_style 1
+    affinity fire
     chance 65
     no
       list small_things
-        t_style 1
+        affinity fire
         chance_fix 4
         no
           arch coppercoin
@@ -5850,40 +5851,40 @@ treasure mob_balrog
     end
   more
   list default_drop
-    t_style 1
+    affinity fire
     chance_fix 16
     material_quality 80
     material_range 15
   more
   list random_armour
-    t_style 1
+    affinity fire
     material_quality 80
     material_range 15
     chance_fix 73
     no
       list random_weapon
-        t_style 1
+        affinity fire
         material_quality 80
         material_range 15
         chance_fix 62
         no
           list random_mtools
-            t_style 1
+            affinity fire
             chance_fix 57
             no
               list random_talisman
-                t_style 1
+                affinity fire
                 chance_fix 63
             end
         end
     end
   more
   list random_scroll
-    t_style 1
+    affinity fire
     chance_fix 94
     no
       list random_potion
-        t_style 1
+        affinity fire
         chance_fix 54
     end
 end

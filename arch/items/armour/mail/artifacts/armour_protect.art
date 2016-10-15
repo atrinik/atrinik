@@ -1,7 +1,7 @@
 # Armour of fire protection
 Allowed all
 chance 20
-t_style 1
+affinity fire
 artifact armour_protect_fire
 def_arch chain_mail
 Object
@@ -16,7 +16,7 @@ end
 # Armour of cold protection
 Allowed all
 chance 20
-t_style 2
+affinity cold
 artifact armour_protect_cold
 def_arch chain_mail
 Object
@@ -31,7 +31,7 @@ end
 # Armour of electricity protection
 Allowed all
 chance 20
-t_style 3
+affinity electricity
 artifact armour_protect_electricity
 def_arch chain_mail
 Object
@@ -46,7 +46,7 @@ end
 # Armour of poison protection
 Allowed all
 chance 20
-t_style 4
+affinity poison
 artifact armour_protect_poison
 def_arch chain_mail
 Object
@@ -61,7 +61,7 @@ end
 # Armour of acid protection
 Allowed all
 chance 20
-t_style 5
+affinity acid
 artifact armour_protect_acid
 def_arch chain_mail
 Object

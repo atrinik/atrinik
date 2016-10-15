@@ -2,7 +2,7 @@
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_protect_fire
 chance 20
-t_style 1
+affinity fire
 def_arch low_boots
 Object
 title of fire protection
@@ -17,7 +17,7 @@ end
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_protect_cold
 chance 20
-t_style 2
+affinity cold
 def_arch low_boots
 Object
 title of cold protection
@@ -32,7 +32,7 @@ end
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_protect_electricity
 chance 20
-t_style 3
+affinity electricity
 def_arch low_boots
 Object
 title of electricity protection
@@ -47,7 +47,7 @@ end
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_protect_poison
 chance 20
-t_style 4
+affinity poison
 def_arch low_boots
 Object
 title of poison protection
@@ -62,7 +62,7 @@ end
 Allowed !sandals, !leggings_plate, !leggings_chain, !leggings_leather, all
 artifact boots_protect_acid
 chance 20
-t_style 5
+affinity acid
 def_arch low_boots
 Object
 title of acid protection

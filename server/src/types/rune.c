@@ -83,14 +83,7 @@ rune_spring (object *op, object *victim)
                         level = env->map->difficulty;
                     }
 
-                    create_treasure(op->randomitems,
-                                    op,
-                                    0,
-                                    level,
-                                    T_STYLE_UNSET,
-                                    ART_CHANCE_UNSET,
-                                    0,
-                                    NULL);
+                    treasure_generate(op->randomitems, op, level, 0);
                 }
 
                 FOR_INV_PREPARE(op, tmp) {
@@ -150,11 +143,11 @@ move_on_func (object *op, object *victim, object *originator, int state)
 
 /** @copydoc object_methods_t::process_treasure_func */
 static int
-process_treasure_func (object  *op,
-                       object **ret,
-                       int      difficulty,
-                       int      affinity,
-                       int      flags)
+process_treasure_func (object              *op,
+                       object             **ret,
+                       int                  difficulty,
+                       treasure_affinity_t *affinity,
+                       int                  flags)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);

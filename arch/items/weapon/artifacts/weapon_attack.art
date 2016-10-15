@@ -1,7 +1,7 @@
 # Sword of fire
 Allowed all
 chance 20
-t_style 1
+affinity fire
 difficulty 7
 artifact weapon_fire
 def_arch sword
@@ -18,7 +18,7 @@ end
 # Sword of cold
 Allowed all
 chance 20
-t_style 2
+affinity cold
 difficulty 7
 artifact weapon_cold
 def_arch sword
@@ -35,7 +35,7 @@ end
 # Sword of electricity
 Allowed all
 chance 20
-t_style 3
+affinity electricity
 difficulty 7
 artifact weapon_electricity
 def_arch sword
@@ -68,7 +68,7 @@ end
 # Sword of greater fire
 Allowed all
 chance 15
-t_style 1
+affinity fire
 difficulty 25
 artifact weapon_greater_fire
 def_arch sword
@@ -85,7 +85,7 @@ end
 # Sword of greater cold
 Allowed all
 chance 15
-t_style 2
+affinity cold
 difficulty 25
 artifact weapon_greater_cold
 def_arch sword
@@ -102,7 +102,7 @@ end
 # Sword of greater electricity
 Allowed all
 chance 15
-t_style 3
+affinity electricity
 difficulty 25
 artifact weapon_greater_electricity
 def_arch sword
@@ -135,7 +135,7 @@ end
 # Sword of extraordinary fire
 Allowed all
 chance 12
-t_style 1
+affinity fire
 difficulty 50
 artifact weapon_extraordinary_fire
 def_arch sword
@@ -152,7 +152,7 @@ end
 # Sword of extraordinary cold
 Allowed all
 chance 12
-t_style 2
+affinity cold
 difficulty 50
 artifact weapon_extraordinary_cold
 def_arch sword
@@ -169,7 +169,7 @@ end
 # Sword of extraordinary electricity
 Allowed all
 chance 12
-t_style 3
+affinity electricity
 difficulty 50
 artifact weapon_extraordinary_electricity
 def_arch sword
@@ -202,7 +202,7 @@ end
 # Sword of superior fire
 Allowed all
 chance 7
-t_style 1
+affinity fire
 difficulty 75
 artifact weapon_superior_fire
 def_arch sword
@@ -219,7 +219,7 @@ end
 # Sword of superior cold
 Allowed all
 chance 7
-t_style 2
+affinity cold
 difficulty 75
 artifact weapon_superior_cold
 def_arch sword
@@ -236,7 +236,7 @@ end
 # Sword of superior electricity
 Allowed all
 chance 7
-t_style 3
+affinity electricity
 difficulty 75
 artifact weapon_superior_electricity
 def_arch sword
@@ -269,7 +269,7 @@ end
 # Sword of supreme fire
 Allowed all
 chance 7
-t_style 1
+affinity fire
 difficulty 95
 artifact weapon_supreme_fire
 def_arch sword
@@ -286,7 +286,7 @@ end
 # Sword of supreme cold
 Allowed all
 chance 7
-t_style 2
+affinity cold
 difficulty 95
 artifact weapon_supreme_cold
 def_arch sword
@@ -303,7 +303,7 @@ end
 # Sword of supreme electricity
 Allowed all
 chance 7
-t_style 3
+affinity electricity
 difficulty 95
 artifact weapon_supreme_electricity
 def_arch sword

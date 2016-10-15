@@ -259,7 +259,7 @@ static void arch_pass_second(FILE *fp, const char *filename)
                 at->clone.other_arch = other;
             }
         } else if (strcmp(key, "randomitems") == 0) {
-            treasurelist *tl = find_treasurelist(value);
+            treasure_list_t *tl = treasure_list_find(value);
             if (tl == NULL) {
                 error_str = "failed to find treasure list";
                 goto error;
@@ -325,7 +325,7 @@ static void arch_pass_second(FILE *fp, const char *filename)
             }
             at->clone.other_arch = other;
         } else if (strcmp(key, "randomitems") == 0) {
-            treasurelist *tl = find_treasurelist(value);
+            treasure_list_t *tl = treasure_list_find(value);
             if (tl == NULL) {
                 error_str = "failed to find treasure list";
                 goto error;
@@ -370,7 +370,7 @@ static void arch_load(void)
 
     /* If not called before, reads all artifacts from file */
     artifact_init();
-    load_treasures();
+    treasure_init();
 
     arch_pass_second(fp, filename);
     fclose(fp);

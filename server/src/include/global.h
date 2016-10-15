@@ -164,8 +164,8 @@
 
 #define SPAWN_RANDOM_RANGE 10000
 
-#define T_STYLE_UNSET -2 ///< Treasure style value is not set.
-#define ART_CHANCE_UNSET -1 ///< Art chance value is not set.
+typedef shstr treasure_affinity_t;
+#define TREASURE_ARTIFACT_CHANCE -1 ///< Artifact chance value is not set.
 
 /** Minimum monster detection radius */
 #define MIN_MON_RADIUS 2

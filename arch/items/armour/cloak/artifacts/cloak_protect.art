@@ -1,7 +1,7 @@
 # Cloak of fire protection
 Allowed cloak
 chance 49
-t_style 1
+affinity fire
 artifact cloak_protect_fire
 def_arch cloak
 Object
@@ -16,7 +16,7 @@ end
 # Cloak of cold protection
 Allowed cloak
 chance 49
-t_style 2
+affinity cold
 artifact cloak_protect_cold
 def_arch cloak
 Object
@@ -31,7 +31,7 @@ end
 # Cloak of electricity protection
 Allowed cloak
 chance 49
-t_style 3
+affinity electricity
 artifact cloak_protect_electricity
 def_arch cloak
 Object
@@ -46,7 +46,7 @@ end
 # Cloak of poison protection
 Allowed cloak
 chance 49
-t_style 4
+affinity poison
 artifact cloak_protect_poison
 def_arch cloak
 Object
@@ -61,7 +61,7 @@ end
 # Cloak of acid protection
 Allowed cloak
 chance 49
-t_style 5
+affinity acid
 artifact cloak_protect_acid
 def_arch cloak
 Object

@@ -346,7 +346,7 @@ static const Atrinik_Constant constants[] = {
     {"RV_RECURSIVE_SEARCH", RV_RECURSIVE_SEARCH},
     {"RV_NO_LOAD", RV_NO_LOAD},
 
-    {"ART_CHANCE_UNSET", ART_CHANCE_UNSET},
+    {"TREASURE_ARTIFACT_CHANCE", TREASURE_ARTIFACT_CHANCE},
 
     {NULL, 0}
 };
@@ -3076,8 +3076,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
     case FIELDTYPE_TREASURELIST:
         if (PyString_Check(value)) {
-            *(treasurelist **) field_ptr =
-                    hooks->find_treasurelist(PyString_AsString(value));
+            *(treasure_list_t **) field_ptr =
+                    hooks->treasure_list_find(PyString_AsString(value));
         } else {
             INTRAISE("Illegal value for treasure list field.");
         }
@@ -3228,7 +3228,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
     case FIELDTYPE_TREASURELIST:
     {
-        treasurelist *tl = *(treasurelist **) field_ptr;
+        treasure_list_t *tl = *(treasure_list_t **) field_ptr;
         if (tl == NULL) {
             Py_INCREF(Py_None);
             return Py_None;

@@ -228,7 +228,7 @@ struct obj {
     struct archetype *other_arch;
 
     /** Items to be generated */
-    struct treasureliststruct *randomitems;
+    struct treasure_list *randomitems;
 
     /** Struct pointer to the 'face' - the picture(s) */
     New_Face *face;

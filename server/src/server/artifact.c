@@ -47,7 +47,8 @@ static void artifact_load(void);
 /**
  * Initializes artifacts code.
  */
-void artifact_init(void)
+void
+artifact_init (void)
 {
     artifact_load();
 }
@@ -55,7 +56,8 @@ void artifact_init(void)
 /**
  * Deinitializes artifacts code.
  */
-void artifact_deinit(void)
+void
+artifact_deinit (void)
 {
     artifact_list_t *al, *tmp;
     LL_FOREACH_SAFE(first_artifactlist, al, tmp) {
@@ -89,6 +91,10 @@ static void artifact_free(artifact_t *art)
 
     if (art->parse_text != NULL) {
         efree(art->parse_text);
+    }
+
+    if (art->affinity != NULL) {
+        free_string_shared(art->affinity);
     }
 
     efree(art);
@@ -186,13 +192,13 @@ void artifact_load(void)
         } else if (art == NULL) {
             error_str = "expected Allowed attribute";
             goto error;
-        } else if (strcmp(key, "t_style") == 0) {
-            if (!string_isdigit(value)) {
-                error_str = "t_style attribute expects a number";
+        } else if (strcmp(key, "affinity") == 0) {
+            if (art->affinity != NULL) {
+                error_str = "duplicated affinity attribute";
                 goto error;
             }
 
-            art->t_style = atoi(value);
+            art->affinity = add_string(value);
         } else if (strcmp(key, "chance") == 0) {
             if (!string_isdigit(value)) {
                 error_str = "chance attribute expects a number";
@@ -304,6 +310,7 @@ void artifact_load(void)
 
             StringBuffer *sb = stringbuffer_new();
             while (fgets(VS(buf), fp) != NULL) {
+                linenum++;
                 stringbuffer_append_string(sb, buf);
 
                 long pos = ftell(fp);
@@ -386,7 +393,8 @@ error:
  * @return
  * NULL if no suitable list found.
  */
-artifact_list_t *artifact_list_find(uint8_t type)
+artifact_list_t *
+artifact_list_find (uint8_t type)
 {
     for (artifact_list_t *al = first_artifactlist; al != NULL; al = al->next) {
         if (al->type == type) {
@@ -407,7 +415,8 @@ artifact_list_t *artifact_list_find(uint8_t type)
  * @return
  * The artifact if found, NULL otherwise.
  */
-artifact_t *artifact_find_type(const char *name, uint8_t type)
+artifact_t *
+artifact_find_type (const char *name, uint8_t type)
 {
     HARD_ASSERT(name != NULL);
 
@@ -433,7 +442,8 @@ artifact_t *artifact_find_type(const char *name, uint8_t type)
  * @param op
  * The object to change.
  */
-void artifact_change_object(artifact_t *art, object *op)
+void
+artifact_change_object (artifact_t *art, object *op)
 {
     if (art->copy_artifact) {
         object_copy_full(op, &art->def_at->clone);
@@ -463,30 +473,34 @@ void artifact_change_object(artifact_t *art, object *op)
 /**
  * Checks if op can be combined with art, depending on 'Allowed xxx' from
  * the artifacts file (stored in artifact::allowed), the difficulty, etc.
+ *
  * @param art
  * Artifact.
  * @param op
  * The object to check.
  * @param difficulty
  * Difficulty.
- * @param t_style
- * Treasure style value to check.
+ * @param affinity
+ * Treasure affinity to check.
  * @return
  * Whether the object can be combined with the artifact.
  */
-static bool artifact_can_combine(artifact_t *art, object *op, int difficulty,
-        int t_style)
+static bool
+artifact_can_combine (artifact_t          *art,
+                      object              *op,
+                      int                  difficulty,
+                      treasure_affinity_t *affinity)
 {
+    HARD_ASSERT(art != NULL);
+    HARD_ASSERT(op != NULL);
+
     if (difficulty < art->difficulty) {
         return false;
     }
 
-    if (t_style == -1 && art->t_style != 0 && art->t_style != T_STYLE_UNSET) {
-        return false;
-    }
-
-    if (t_style != 0 && art->t_style != 0 && art->t_style != t_style &&
-            art->t_style != T_STYLE_UNSET) {
+    if (affinity != NULL &&
+        art->affinity != NULL &&
+        art->affinity != affinity) {
         return false;
     }
 
@@ -518,21 +532,19 @@ static bool artifact_can_combine(artifact_t *art, object *op, int difficulty,
  * Object.
  * @param difficulty
  * Difficulty.
- * @param t_style
- * Treasure style.
+ * @param affinity
+ * Treasure affinity.
  * @return
  * Whether the object was turned into an artifact.
  */
-bool artifact_generate(object *op, int difficulty, int t_style)
+bool
+artifact_generate (object              *op,
+                   int                  difficulty,
+                   treasure_affinity_t *affinity)
 {
     artifact_list_t *al = artifact_list_find(op->type);
     if (al == NULL) {
         return 0;
-    }
-
-    /* Now we overrule unset to 0 */
-    if (t_style == T_STYLE_UNSET) {
-        t_style = 0;
     }
 
     for (int i = 0; i < ARTIFACT_TRIES; i++) {
@@ -552,7 +564,7 @@ bool artifact_generate(object *op, int difficulty, int t_style)
             return false;
         }
 
-        if (!artifact_can_combine(art, op, difficulty, t_style)) {
+        if (!artifact_can_combine(art, op, difficulty, affinity)) {
             continue;
         }
 
@@ -566,7 +578,7 @@ bool artifact_generate(object *op, int difficulty, int t_style)
             continue;
         }
 
-        if (!artifact_can_combine(art, op, difficulty, t_style)) {
+        if (!artifact_can_combine(art, op, difficulty, affinity)) {
             continue;
         }
 

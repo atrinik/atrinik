@@ -272,11 +272,11 @@ typedef struct object_methods {
      * possible that the original object has been destroyed and thus
      * any further processing should stop.
      */
-    int (*process_treasure_func)(object  *op,
-                                 object **ret,
-                                 int      difficulty,
-                                 int      affinity,
-                                 int      flags);
+    int (*process_treasure_func)(object               *op,
+                                 object             **ret,
+                                 int                  difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int                  flags);
 
     /**
      * If true, will override the standard treasure processing
@@ -375,10 +375,10 @@ object_ranged_fire(object *op, object *shooter, int dir, double *delay);
 void
 object_auto_apply(object *op);
 int
-object_process_treasure(object  *op,
-                        object **ret,
-                        int      difficulty,
-                        int      affinity,
-                        int      flags);
+object_process_treasure(object              *op,
+                        object             **ret,
+                        int                  difficulty,
+                        treasure_affinity_t *affinity,
+                        int                  flags);
 
 #endif

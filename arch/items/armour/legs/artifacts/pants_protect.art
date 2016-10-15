@@ -2,7 +2,7 @@
 Allowed all
 chance 30
 difficulty 2
-t_style 1
+affinity fire
 artifact pants_protect_fire
 def_arch pants_black
 Object
@@ -19,7 +19,7 @@ end
 Allowed all
 chance 30
 difficulty 2
-t_style 2
+affinity cold
 artifact pants_protect_cold
 def_arch pants_black
 Object
@@ -35,7 +35,7 @@ end
 # Pants of electricity protection
 Allowed all
 chance 30
-t_style 3
+affinity electricity
 difficulty 2
 artifact pants_protect_electricity
 def_arch pants_black
@@ -52,7 +52,7 @@ end
 # Pants of poison protection
 Allowed all
 chance 30
-t_style 4
+affinity poison
 difficulty 2
 artifact pants_protect_poison
 def_arch pants_black
@@ -69,7 +69,7 @@ end
 # Pants of acid protection
 Allowed all
 chance 30
-t_style 5
+affinity acid
 difficulty 2
 artifact pants_protect_acid
 def_arch pants_black

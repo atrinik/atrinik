@@ -58,12 +58,12 @@
  * Max HP/SP to set on the object.
  */
 static int
-jewelry_set_bonus_max_hpsp (object *op,
-                            int     difficulty,
-                            int     affinity,
-                            double *item_power,
-                            int     bonus,
-                            double  diff_scale)
+jewelry_set_bonus_max_hpsp (object              *op,
+                            int                  difficulty,
+                            treasure_affinity_t *affinity,
+                            double              *item_power,
+                            int                  bonus,
+                            double               diff_scale)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -91,11 +91,11 @@ jewelry_set_bonus_max_hpsp (object *op,
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
 static bool
-jewelry_set_bonus_maxhp (object *op,
-                         int     difficulty,
-                         int     affinity,
-                         double *item_power,
-                         int     bonus)
+jewelry_set_bonus_maxhp (object              *op,
+                         int                  difficulty,
+                         treasure_affinity_t *affinity,
+                         double              *item_power,
+                         int                  bonus)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -111,11 +111,11 @@ jewelry_set_bonus_maxhp (object *op,
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
 static bool
-jewelry_set_bonus_maxsp (object *op,
-                         int     difficulty,
-                         int     affinity,
-                         double *item_power,
-                         int     bonus)
+jewelry_set_bonus_maxsp (object              *op,
+                         int                  difficulty,
+                         treasure_affinity_t *affinity,
+                         double              *item_power,
+                         int                  bonus)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -131,11 +131,11 @@ jewelry_set_bonus_maxsp (object *op,
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
 static bool
-jewelry_set_bonus_ac (object *op,
-                      int     difficulty,
-                      int     affinity,
-                      double *item_power,
-                      int     bonus)
+jewelry_set_bonus_ac (object              *op,
+                      int                  difficulty,
+                      treasure_affinity_t *affinity,
+                      double              *item_power,
+                      int                  bonus)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -159,11 +159,11 @@ jewelry_set_bonus_ac (object *op,
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
 static bool
-jewelry_set_bonus_wc (object *op,
-                      int     difficulty,
-                      int     affinity,
-                      double *item_power,
-                      int     bonus)
+jewelry_set_bonus_wc (object              *op,
+                      int                  difficulty,
+                      treasure_affinity_t *affinity,
+                      double              *item_power,
+                      int                  bonus)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -187,11 +187,11 @@ jewelry_set_bonus_wc (object *op,
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
 static bool
-jewelry_set_bonus_protect (object *op,
-                           int     difficulty,
-                           int     affinity,
-                           double *item_power,
-                           int     bonus)
+jewelry_set_bonus_protect (object               *op,
+                           int                  difficulty,
+                           treasure_affinity_t *affinity,
+                           double              *item_power,
+                           int                  bonus)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
@@ -353,7 +353,7 @@ static bool
 process_treasure_table_set_bonus (const process_treasure_table_t *entry,
                                   object                         *op,
                                   int                             difficulty,
-                                  int                             affinity,
+                                  treasure_affinity_t            *affinity,
                                   double                         *item_power,
                                   int                             bonus)
 {
@@ -410,7 +410,7 @@ process_treasure_table (const process_treasure_table_t *table,
                         uint32_t                        total_chance,
                         object                         *op,
                         int                             difficulty,
-                        int                             affinity,
+                        treasure_affinity_t            *affinity,
                         double                         *item_power)
 {
 #define MAX_BONUS_TRIES 100
@@ -490,10 +490,10 @@ process_treasure_table (const process_treasure_table_t *table,
  * True if a bonus was applied, false otherwise.
  */
 bool
-process_treasure_table_jewelry (object *op,
-                                int     difficulty,
-                                int     affinity,
-                                double *item_power)
+process_treasure_table_jewelry (object              *op,
+                                int                  difficulty,
+                                treasure_affinity_t *affinity,
+                                double              *item_power)
 {
     static uint32_t total_chance = 0;
     if (total_chance == 0) {

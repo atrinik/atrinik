@@ -132,7 +132,7 @@ OBJECT_TYPE_INIT(spell);
 OBJECT_TYPE_INIT(spinner);
 OBJECT_TYPE_INIT(swarm_spell);
 OBJECT_TYPE_INIT(symptom);
-OBJECT_TYPE_INIT(treasure);
+OBJECT_TYPE_INIT(treasure_t);
 OBJECT_TYPE_INIT(trinket);
 OBJECT_TYPE_INIT(wall);
 OBJECT_TYPE_INIT(wand);

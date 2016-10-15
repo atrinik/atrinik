@@ -57,7 +57,7 @@ player *first_player;
 /** First map. */
 mapstruct *first_map;
 /** First treasure. */
-treasurelist *first_treasurelist;
+treasure_list_t *first_treasurelist;
 /** First artifact. */
 struct artifact_list *first_artifactlist;
 /*@}*/

@@ -497,11 +497,11 @@ object_auto_apply (object *op)
 
 /** @copydoc object_methods_t::process_treasure_func */
 int
-object_process_treasure (object  *op,
-                         object **ret,
-                         int      difficulty,
-                         int      affinity,
-                         int      flags)
+object_process_treasure (object              *op,
+                         object             **ret,
+                         int                  difficulty,
+                         treasure_affinity_t *affinity,
+                         int                  flags)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(ret != NULL);

@@ -1938,7 +1938,7 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *self,
 /** Documentation for Atrinik_Object_CreateTreasure(). */
 static const char doc_Atrinik_Object_CreateTreasure[] =
 ".. method:: CreateTreasure(treasure=None, level=0, flags=0, "
-"a_chance=Atrinik.ART_CHANCE_UNSET).\n\n"
+"a_chance=Atrinik.TREASURE_ARTIFACT_CHANCE).\n\n"
 "Create treasure inside (or below, if :attr:`~Atrinik.GT_ENVIRONMENT` flag was "
 "set) the object.\n\n"
 ":param treasure: Treasure list name to generate. If None, will try to "
@@ -1965,8 +1965,8 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *self,
 {
     static char *kwlist[] = {"treasure", "level", "flags", "a_chance", NULL};
     const char *treasure_name = NULL;
-    int level = 0, flags = 0, a_chance = ART_CHANCE_UNSET;
-    treasurelist *t;
+    int level = 0, flags = 0, a_chance = TREASURE_ARTIFACT_CHANCE;
+    treasure_list_t *t;
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ziii", kwlist,
             &treasure_name, &level, &flags, &a_chance)) {
@@ -1977,7 +1977,7 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *self,
 
     /* Figure out the treasure list. */
     if (treasure_name != NULL) {
-        t = hooks->find_treasurelist(treasure_name);
+        t = hooks->treasure_list_find(treasure_name);
     } else {
         t = self->obj->randomitems;
     }
@@ -2009,8 +2009,7 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *self,
     }
 
     /* Create the treasure. */
-    hooks->create_treasure(t, self->obj, flags, level, T_STYLE_UNSET, a_chance,
-            0, NULL);
+    hooks->treasure_generate(t, self->obj, level, flags);
 
     Py_INCREF(Py_None);
     return Py_None;
