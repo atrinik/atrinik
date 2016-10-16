@@ -30,11 +30,13 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
 #include <arch.h>
 #include <player.h>
-#include <path.h>
+#include <toolkit/path.h>
+#include <toolkit/datetime.h>
+#include <toolkit/pbkdf2.h>
 
 #define ACCOUNT_CHARACTERS_LIMIT 16
 #define ACCOUNT_PASSWORD_SIZE 32

@@ -28,7 +28,7 @@
  */
 
 #include <global.h>
-#include <bresenham.h>
+#include <toolkit/bresenham.h>
 #include <player.h>
 #include <object.h>
 

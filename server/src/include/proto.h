@@ -1,5 +1,6 @@
 #ifndef __CPROTO__
 #include <decls.h>
+extern void world_maker(void);
 /* src/commands/permission/arrest.c */
 extern void command_arrest(object *op, const char *command, char *params);
 /* src/commands/permission/ban.c */
@@ -645,83 +646,4 @@ extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
 extern _Bool monster_is_ally_of(object *op, object *target);
 extern void monster_drop_arrows(object *op);
-/* src/toolkit/binreloc.c */
-extern void toolkit_binreloc_init(void);
-extern void toolkit_binreloc_deinit(void);
-extern char *binreloc_find_exe(const char *default_exe);
-extern char *binreloc_find_exe_dir(const char *default_dir);
-extern char *binreloc_find_prefix(const char *default_prefix);
-extern char *binreloc_find_bin_dir(const char *default_bin_dir);
-extern char *binreloc_find_sbin_dir(const char *default_sbin_dir);
-extern char *binreloc_find_data_dir(const char *default_data_dir);
-extern char *binreloc_find_locale_dir(const char *default_locale_dir);
-extern char *binreloc_find_lib_dir(const char *default_lib_dir);
-extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
-extern char *binreloc_find_etc_dir(const char *default_etc_dir);
-/* src/toolkit/clioptions.c */
-/* src/toolkit/colorspace.c */
-extern void toolkit_colorspace_init(void);
-extern void toolkit_colorspace_deinit(void);
-extern double colorspace_rgb_max(const double rgb[3]);
-extern double colorspace_rgb_min(const double rgb[3]);
-extern void colorspace_rgb2hsv(const double rgb[3], double hsv[3]);
-extern void colorspace_hsv2rgb(const double hsv[3], double rgb[3]);
-/* src/toolkit/console.c */
-extern void toolkit_console_init(void);
-extern void toolkit_console_deinit(void);
-extern int console_start_thread(void);
-extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
-extern void console_command_handle(void);
-/* src/toolkit/datetime.c */
-extern void toolkit_datetime_init(void);
-extern void toolkit_datetime_deinit(void);
-extern time_t datetime_getutc(void);
-extern time_t datetime_utctolocal(time_t t);
-/* src/toolkit/logger.c */
-/* src/toolkit/math.c */
-/* src/toolkit/memory.c */
-/* src/toolkit/mempool.c */
-extern void toolkit_mempool_init(void);
-extern void toolkit_mempool_deinit(void);
-extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32_t flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
-extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
-extern void mempool_set_validator(mempool_struct *pool, chunk_validator validator);
-extern void mempool_stats(const char *name, char *buf, size_t size);
-extern mempool_struct *mempool_find(const char *name);
-extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
-extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
-extern size_t mempool_reclaim(mempool_struct *pool);
-extern void mempool_leak_info_all(StringBuffer *sb);
-/* src/toolkit/packet.c */
-/* src/toolkit/path.c */
-/* src/toolkit/pbkdf2.c */
-extern void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
-/* src/toolkit/porting.c */
-extern void toolkit_porting_init(void);
-extern void toolkit_porting_deinit(void);
-/* src/toolkit/sha1.c */
-/* src/toolkit/shstr.c */
-extern void toolkit_shstr_init(void);
-extern void toolkit_shstr_deinit(void);
-extern shstr *add_string(const char *str);
-extern shstr *add_refcount(shstr *str);
-extern int query_refcount(shstr *str);
-extern shstr *find_string(const char *str);
-extern void free_string_shared(shstr *str);
-extern void shstr_stats(char *buf, size_t size);
-/* src/toolkit/signals.c */
-extern void toolkit_signals_init(void);
-extern void toolkit_signals_deinit(void);
-/* src/toolkit/socket.c */
-/* src/toolkit/string.c */
-/* src/toolkit/stringbuffer.c */
-/* src/toolkit/toolkit.c */
-/* src/toolkit/x11.c */
-extern void toolkit_x11_init(void);
-extern void toolkit_x11_deinit(void);
-extern x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win);
-extern void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop);
-extern int x11_clipboard_register_events(void);
-extern int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str);
-extern char *x11_clipboard_get(x11_display_type display, x11_window_type win);
 #endif

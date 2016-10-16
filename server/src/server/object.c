@@ -29,7 +29,7 @@
 
 #include <global.h>
 #include <loader.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <monster_data.h>
 #include <plugin.h>
 #include <arch.h>

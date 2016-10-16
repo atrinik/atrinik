@@ -29,10 +29,10 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <player.h>
 #include <object.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 static int saved_argc; ///< Stored argc.
 static char **saved_argv; ///< Stored argv.

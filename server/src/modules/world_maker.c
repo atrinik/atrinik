@@ -30,9 +30,9 @@
 #include <global.h>
 #include <loader.h>
 #include <gd.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <arch.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 /**
  * Array of colors used by the different faces.

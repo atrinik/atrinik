@@ -32,7 +32,9 @@
 #ifndef TOOLKIT_STRING_H
 #define	TOOLKIT_STRING_H
 
+#include "toolkit.h"
 #include "memory.h"
+#include "stringbuffer.h"
 
 /* Map the error-checking string duplicating functions into the toolkit
  * variants. This is done for convenience, and because the functions can't be

@@ -36,7 +36,7 @@
 #include <faction.h>
 #include <plugin.h>
 #include <monster_data.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <player.h>
 #include <object.h>
 #include <object_methods.h>

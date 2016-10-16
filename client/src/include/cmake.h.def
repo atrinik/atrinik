@@ -39,4 +39,7 @@
 
 #define INSTALL_SUBDIR_SHARE "@INSTALL_SUBDIR_SHARE@"
 
+/* Name of the generated executable. */
+#define EXECUTABLE "@EXECUTABLE@"
+
 #endif

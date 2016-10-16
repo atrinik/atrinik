@@ -31,7 +31,7 @@
 
 #include <global.h>
 #include <network_graph.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 #ifndef __CPROTO__
 

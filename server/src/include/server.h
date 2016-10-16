@@ -30,7 +30,7 @@
 #ifndef SOCKET_SERVER_H
 #define SOCKET_SERVER_H
 
-#include <toolkit.h>
+#include <toolkit/toolkit.h>
 
 /**
  * Function to call when a specific command type is received.

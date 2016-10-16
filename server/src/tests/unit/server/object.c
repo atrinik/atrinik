@@ -26,10 +26,10 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <arch.h>
 #include <object.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 START_TEST(test_object_can_merge)
 {

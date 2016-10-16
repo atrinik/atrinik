@@ -29,7 +29,7 @@
 
 #include <global.h>
 #include <spellist.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <plugin.h>
 #include <arch.h>
 #include <player.h>

@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 /**
  * Structure used for the stat widget data.

@@ -27,19 +27,7 @@
  * Cross-platform support.
  */
 
-#include <global.h>
-
-TOOLKIT_API();
-
-TOOLKIT_INIT_FUNC(porting)
-{
-}
-TOOLKIT_INIT_FUNC_FINISH
-
-TOOLKIT_DEINIT_FUNC(porting)
-{
-}
-TOOLKIT_DEINIT_FUNC_FINISH
+#include "porting.h"
 
 #ifndef __CPROTO__
 
@@ -49,7 +37,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * Re-entrant string tokenizer; glibc version, licensed under GNU LGPL
  * version 2.1.
  */
-char *strtok_r(char *s, const char *delim, char **save_ptr)
+char *
+_strtok_r (char *s, const char *delim, char **save_ptr)
 {
     char *token;
 
@@ -85,7 +74,8 @@ char *strtok_r(char *s, const char *delim, char **save_ptr)
 #ifndef HAVE_TEMPNAM
 static uint32_t curtmp = 0;
 
-char *tempnam(const char *dir, const char *pfx)
+char *
+_tempnam (const char *dir, const char *pfx)
 {
     char *name;
     pid_t pid = getpid();
@@ -117,7 +107,8 @@ char *tempnam(const char *dir, const char *pfx)
 
 #ifndef HAVE_STRDUP
 
-char *strdup(const char *s)
+char *
+_strdup (const char *s)
 {
     size_t len = strlen(s) + 1;
     void *new = malloc(len);
@@ -132,7 +123,8 @@ char *strdup(const char *s)
 
 #ifndef HAVE_STRNDUP
 
-char *strndup(const char *s, size_t n)
+char *
+_strndup (const char *s, size_t n)
 {
     size_t len;
     char *new;
@@ -157,7 +149,8 @@ char *strndup(const char *s, size_t n)
 
 #ifndef HAVE_STRERROR
 
-char *strerror(int errnum)
+char *
+_strerror (int errnum)
 {
     return "";
 }
@@ -165,7 +158,8 @@ char *strerror(int errnum)
 
 #ifndef HAVE_STRCASESTR
 
-const char *strcasestr(const char *haystack, const char *needle)
+const char *
+_strcasestr (const char *haystack, const char *needle)
 {
     char c, sc;
     size_t len;
@@ -191,7 +185,8 @@ const char *strcasestr(const char *haystack, const char *needle)
 
 #ifndef HAVE_GETTIMEOFDAY
 
-int gettimeofday(struct timeval *tv, struct timezone *tz)
+int
+_gettimeofday (struct timeval *tv, struct timezone *tz)
 {
 #ifdef WIN32
     FILETIME time;
@@ -228,7 +223,8 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 
 #ifndef HAVE_GETLINE
 
-ssize_t getline(char **lineptr, size_t *n, FILE *stream)
+ssize_t
+_getline (char **lineptr, size_t *n, FILE *stream)
 {
     char *buf;
     size_t bufsize, numread;
@@ -288,7 +284,8 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 
 #ifndef HAVE_USLEEP
 
-int usleep(uint32_t usec)
+int
+_usleep (uint32_t usec)
 {
     struct timeval tv1, tv2;
 
@@ -308,7 +305,8 @@ int usleep(uint32_t usec)
 
 #ifndef HAVE_STRNLEN
 
-size_t strnlen(const char *s, size_t max)
+size_t
+_strnlen (const char *s, size_t max)
 {
     const char *p;
 
@@ -336,7 +334,8 @@ static const char letters[] =
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
    does not exist at the time of the call to mkstemp.  TMPL is
    overwritten with the result.  */
-int mkstemp(char *tmpl)
+int
+_mkstemp (char *tmpl)
 {
     int len;
     char *XXXXXX;
@@ -426,7 +425,7 @@ int mkstemp(char *tmpl)
 
 #ifndef HAVE_SINCOS
 void
-sincos (double x, double *s, double *c)
+_sincos (double x, double *s, double *c)
 {
     if (s != NULL) {
         *s = sin(x);

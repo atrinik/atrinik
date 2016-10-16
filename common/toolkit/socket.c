@@ -31,9 +31,11 @@
 
 #ifndef __CPROTO__
 
-#include <global.h>
-#include <toolkit_string.h>
 #include <sys/types.h>
+
+#include "socket.h"
+#include "socket_crypto.h"
+#include "string.h"
 
 /**
  * The socket structure.

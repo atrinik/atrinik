@@ -32,7 +32,7 @@
 #include <global.h>
 #include <player.h>
 #include <object.h>
-#include <clioptions.h>
+#include <toolkit/clioptions.h>
 
 /** @copydoc command_func */
 void

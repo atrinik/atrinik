@@ -32,7 +32,7 @@
 #ifndef REGION_MAP_H
 #define REGION_MAP_H
 
-#include <curl.h>
+#include <toolkit/curl.h>
 
 /** Default zoom level. */
 #define RM_ZOOM_DEFAULT 100

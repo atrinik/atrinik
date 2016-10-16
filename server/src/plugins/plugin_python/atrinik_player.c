@@ -30,7 +30,7 @@
  */
 
 #include <plugin_python.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <faction.h>
 #include <player.h>
 #include <object.h>

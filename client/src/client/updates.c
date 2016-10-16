@@ -30,8 +30,8 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <path.h>
+#include <toolkit/packet.h>
+#include <toolkit/path.h>
 
 /**
  * How many file updates have been requested. This is used to block the

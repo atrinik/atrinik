@@ -30,11 +30,11 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <object.h>
 #include <object_methods.h>
 #include <beacon.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 /**
  * One beacon.

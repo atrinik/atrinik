@@ -27,9 +27,8 @@
  * OS path API.
  */
 
-#include <global.h>
-#include <toolkit_string.h>
-#include <path.h>
+#include "path.h"
+#include "string.h"
 
 TOOLKIT_API(DEPENDS(logger), DEPENDS(string), DEPENDS(stringbuffer));
 

@@ -3,13 +3,7 @@
 project(atrinik-server C)
 cmake_minimum_required(VERSION 2.6)
 set(EXECUTABLE atrinik-server)
-
-# Include build configuration.
-include(build.config)
-
-if (EXISTS build.user)
-    include(build.user)
-endif ()
+set(PACKAGE_NAME "Atrinik Server")
 
 # Need Flex...
 find_package(FLEX REQUIRED)
@@ -47,8 +41,6 @@ foreach (name ${LEXERS})
     get_property(out VARIABLE PROPERTY FLEX_${name}_OUTPUTS)
     set(LEXERS_OUT ${LEXERS_OUT} ${out})
 endforeach (name)
-
-include(src/toolkit/cmake-pre.txt)
 
 # Add sources.
 include(src/cmake.txt)
@@ -104,6 +96,7 @@ endif ()
 
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
+target_link_libraries(${EXECUTABLE} atrinik-toolkit)
 
 # Link libraries.
 if (DL_LIBRARY)
@@ -128,8 +121,6 @@ if (GD_LIBRARY)
     endif ()
 endif ()
 
-include(src/toolkit/cmake-post.txt)
-
 # Get all the include directories used to compile the server.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)
 
@@ -144,18 +135,6 @@ foreach (var ${SOURCES} ${LEXERS_OUT})
     string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
     set(SOURCES_STRING "${SOURCES_STRING};${var}")
 endforeach (var)
-
-# Create a 'proto' build target, which generates the proto.h file.
-add_custom_target(proto
-    cproto -ve -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
-    COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
-    COMMAND sed -e "/YY_BUFFER/d" -e "/yy_size_t/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
-    COMMAND cmake -E echo "#endif" >> src/include/proto.h
-    COMMAND cmake -E remove -f src/include/proto.h.bak
-    COMMAND python src/toolkit/adjust_proto.py src/include/proto.h || exit 5
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generating prototypes..."
-    VERBATIM)
 
 if (POLICY CMP0037)
     cmake_policy(PUSH)

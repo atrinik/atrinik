@@ -29,7 +29,7 @@
  * @author Alex Tokar
  */
 
-#include <global.h>
+#include "datetime.h"
 
 TOOLKIT_API();
 
@@ -43,32 +43,20 @@ TOOLKIT_DEINIT_FUNC(datetime)
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
-/**
- * Get the current UTC time as UNIX timestamp.
- * @return
- * UTC time as UNIX timestamp.
- */
-time_t datetime_getutc(void)
+time_t
+datetime_getutc (void)
 {
-    time_t t;
-    struct tm *tm;
-
     TOOLKIT_PROTECT();
 
+    time_t t;
     time(&t);
-    tm = gmtime(&t);
+    struct tm *tm = gmtime(&t);
 
     return mktime(tm);
 }
 
-/**
- * Converts UTC time to local time.
- * @param t
- * UTC time.
- * @return
- * Converted local time.
- */
-time_t datetime_utctolocal(time_t t)
+time_t
+datetime_utctolocal (time_t t)
 {
     TOOLKIT_PROTECT();
     return t - (datetime_getutc() - time(NULL));

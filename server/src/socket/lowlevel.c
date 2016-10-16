@@ -28,8 +28,9 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
+#include <toolkit/socket_crypto.h>
 
 static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {

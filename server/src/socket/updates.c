@@ -28,9 +28,9 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
-#include <path.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
+#include <toolkit/path.h>
 #include <zlib.h>
 
 /**

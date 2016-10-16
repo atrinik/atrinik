@@ -29,14 +29,13 @@
  * @author Alex Tokar
  */
 
-#ifndef SOCKET_CRYPTO_H
-#define SOCKET_CRYPTO_H
+#ifndef TOOLKIT_SOCKET_CRYPTO_H
+#define TOOLKIT_SOCKET_CRYPTO_H
 
-#include <toolkit.h>
-#include <packet.h>
-
-/** Opaque typedef for the ::socket_crypto structure. */
-typedef struct socket_crypto socket_crypto_t;
+#include "toolkit.h"
+#include "packet_dec.h"
+#include "socket_crypto_dec.h"
+#include "socket_dec.h"
 
 /**
  * Possible types for the callback context.

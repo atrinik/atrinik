@@ -29,8 +29,8 @@
  * @author Alex Tokar
  */
 
-#include <toolkit.h>
-#include <toolkit_string.h>
+#include "math.h"
+#include "string.h"
 
 #include <openssl/bio.h>
 #include <openssl/err.h>

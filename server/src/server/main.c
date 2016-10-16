@@ -28,8 +28,8 @@
  */
 
 #include <global.h>
-#include <gitversion.h>
-#include <toolkit_string.h>
+#include <toolkit/gitversion.h>
+#include <toolkit/string.h>
 #include <plugin.h>
 #include <arch.h>
 #include <player.h>
@@ -39,7 +39,8 @@
 #include <waypoint.h>
 #include <server.h>
 
-#include "toolkit/process.h"
+#include <toolkit/process.h>
+#include <toolkit/console.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>

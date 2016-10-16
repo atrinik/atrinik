@@ -27,8 +27,11 @@
  * Memory pools API header file.
  */
 
-#ifndef MEMPOOL_H
-#define MEMPOOL_H
+#ifndef TOOLKIT_MEMPOOL_H
+#define TOOLKIT_MEMPOOL_H
+
+#include "toolkit.h"
+#include "stringbuffer_dec.h"
 
 /**
  * Minimalistic memory management data for a single chunk of memory.
@@ -179,5 +182,140 @@ typedef struct mempool_struct {
 #define mempool_return(_pool, _data) mempool_return_chunk((_pool), 0, (_data))
 #define mempool_return_array(_pool, _arraysize, _data) \
     mempool_return_chunk((_pool), nearest_pow_two_exp(_arraysize), (_data))
+
+/* Prototypes */
+
+TOOLKIT_FUNCS_DECLARE(mempool);
+
+/**
+ * Create a memory pool.
+ *
+ * @param description
+ * Text description of the memory pool. Used for debugging.
+ * @param expand
+ * How many chunks to allocate at each expansion.
+ * @param size
+ * Size of each individual chunk.
+ * @param flags
+ * A combination of @ref mempool_flags "memory pool flags".
+ * @param initialisator
+ * Function to be called when expanding.
+ * @param deinitialisator
+ * Function to be called when freeing.
+ * @param constructor
+ * Function to be called when getting chunks.
+ * @param destructor
+ * Function to be called when returning chunks.
+ * @return
+ * The created memory pool.
+ */
+extern mempool_struct *
+mempool_create(const char           *description,
+               size_t                expand,
+               size_t                size,
+               uint32_t              flags,
+               chunk_initialisator   initialisator,
+               chunk_deinitialisator deinitialisator,
+               chunk_constructor     constructor,
+               chunk_destructor      destructor);
+
+/**
+ * Set the mempool's debugging function.
+ *
+ * @param pool
+ * Memory pool.
+ * @param debugger
+ * Debugging function to use.
+ */
+extern void
+mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
+
+/**
+ * Set the mempool's validator function.
+ *
+ * @param pool
+ * Memory pool.
+ * @param validator
+ * Validator function to use.
+ */
+extern void
+mempool_set_validator(mempool_struct *pool, chunk_validator validator);
+
+/**
+ * Acquire detailed statistics about the specified memory pool.
+ *
+ * @param name
+ * Name of the memory pool, empty or NULL for all.
+ * @param[out] buf Buffer to use for writing. Must end with a NUL.
+ * @param size
+ * Size of 'buf'.
+ */
+extern void
+mempool_stats(const char *name, char *buf, size_t size);
+
+/**
+ * Attempt to find the specified memory pool identified by its name.
+ *
+ * @param name
+ * Name of the memory pool to find.
+ * @return
+ * Memory pool if found, NULL otherwise.
+ */
+extern mempool_struct *
+mempool_find(const char *name);
+
+/**
+ * Get a chunk from the selected pool. The pool will be expanded if
+ * necessary.
+ *
+ * @param pool
+ * Pool to get the chunk from.
+ * @param arraysize_exp
+ * The exponent for the array size, for example 3
+ * for arrays of length 8 (2^3 = 8)
+ * @return
+ * Acquired memory chunk, guaranteed to be zero-filled.
+ */
+extern void *
+mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
+
+/**
+ * Return a chunk to the selected pool.
+ *
+ * @param pool
+ * Memory pool to return to.
+ * @param arraysize_exp
+ * The exponent for the array size, for example 3
+ * for arrays of length 8 (2^3 = 8)
+ * @param data
+ * Data to return.
+ * @warning Don't ever return memory to the wrong pool.
+ * @warning Returned memory will be reused, so be careful about stale pointers.
+ */
+extern void
+mempool_return_chunk(mempool_struct *pool,
+                     size_t          arraysize_exp,
+                     void           *data);
+
+/**
+ * Attempt to reclaim no longer used memory allocated by the specified pool.
+ *
+ * @param pool
+ * Memory pool.
+ * @return
+ * Number of reclaimed puddles.
+ */
+extern size_t
+mempool_reclaim(mempool_struct *pool);
+
+/**
+ * Gather leak information from all the registered pools into the specified
+ * StringBuffer instance.
+ *
+ * @param sb
+ * StringBuffer instance to use.
+ */
+extern void
+mempool_leak_info_all(StringBuffer *sb);
 
 #endif

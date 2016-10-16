@@ -31,8 +31,8 @@
 
 #include <global.h>
 #include <region_map.h>
-#include <toolkit_string.h>
-#include <path.h>
+#include <toolkit/string.h>
+#include <toolkit/path.h>
 
 #ifndef __CPROTO__
 

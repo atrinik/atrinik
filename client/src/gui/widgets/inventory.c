@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 /**
  * Active inventory filter, one of @ref INVENTORY_FILTER_xxx.

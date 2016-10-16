@@ -27,8 +27,10 @@
  * Memory API header file.
  */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef TOOLKIT_MEMORY_H
+#define TOOLKIT_MEMORY_H
+
+#include "toolkit.h"
 
 /* Map the error-checking memory allocating/freeing functions into the toolkit
  * variants. This is done for convenience, and because the functions can't be
@@ -59,8 +61,8 @@ typedef enum memory_status {
 
 /* Prototypes */
 
-void toolkit_memory_init(void);
-void toolkit_memory_deinit(void);
+TOOLKIT_FUNCS_DECLARE(memory);
+
 void *memory_emalloc(size_t size MEMORY_DEBUG_PROTO);
 void memory_efree(void *ptr MEMORY_DEBUG_PROTO);
 void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO);

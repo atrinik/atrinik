@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 /**
  * Names of the possible stat types. Must end with NULL.

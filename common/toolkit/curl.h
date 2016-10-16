@@ -29,8 +29,10 @@
  * @author Alex Tokar
  */
 
-#ifndef CURL_H
-#define CURL_H
+#ifndef TOOLKIT_CURL_H
+#define TOOLKIT_CURL_H
+
+#include "toolkit.h"
 
 /**
  * Connection timeout in seconds.

@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <toolkit/colorspace.h>
 
 /**
  * Create a new color picker.

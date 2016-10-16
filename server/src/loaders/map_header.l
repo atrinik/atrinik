@@ -25,7 +25,7 @@
 
 #include <global.h>
 #include <loader.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 #define YY_DECL int map_lex_load(mapstruct *m)
 

@@ -26,7 +26,8 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
+#include <toolkit/pbkdf2.h>
 
 START_TEST(test_PKCS5_PBKDF2_HMAC_SHA2)
 {

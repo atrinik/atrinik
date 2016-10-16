@@ -28,8 +28,9 @@
  */
 
 #include <global.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <network_graph.h>
+#include <toolkit/socket_crypto.h>
 
 static SDL_Thread *input_thread;
 static SDL_mutex *input_buffer_mutex;

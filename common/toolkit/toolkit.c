@@ -29,7 +29,7 @@
  * @author Alex Tokar
  */
 
-#include <global.h>
+#include "toolkit.h"
 
 /**
  * One toolkit API entry.

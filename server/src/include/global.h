@@ -31,6 +31,11 @@
 #define GLOBAL_H
 
 #include "includes.h"
+#include <toolkit/shstr.h>
+#include <toolkit/memory.h>
+#include <toolkit/stringbuffer.h>
+#include <toolkit/socket.h>
+#include <toolkit/mempool.h>
 
 /**
  * @defgroup BANK_xxx Bank return values

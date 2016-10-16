@@ -33,7 +33,7 @@
 #define RESOURCES_H
 
 #include <openssl/sha.h>
-#include <curl.h>
+#include <toolkit/curl.h>
 
 typedef struct resource {
     UT_hash_handle hh;

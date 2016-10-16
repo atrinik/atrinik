@@ -28,8 +28,8 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
 #include <faction.h>
 #include <arch.h>
 #include <artifact.h>
@@ -37,13 +37,17 @@
 #include <loader.h>
 #include <player.h>
 #include <object_methods.h>
-#include <clioptions.h>
-#include <curl.h>
+#include <toolkit/clioptions.h>
+#include <toolkit/curl.h>
 #include <server.h>
-#include <socket_crypto.h>
-#include <path.h>
+#include <toolkit/socket_crypto.h>
+#include <toolkit/path.h>
 #include <resources.h>
 #include <http_server.h>
+#include <toolkit/signals.h>
+#include <toolkit/console.h>
+#include <toolkit/datetime.h>
+#include <cmake.h>
 
 /**
  * The server's settings.
@@ -887,6 +891,7 @@ static void init_library(int argc, char *argv[])
 {
     toolkit_import(memory);
     toolkit_import(signals);
+    signals_set_traceback_prefix(EXECUTABLE);
 
     toolkit_import(clioptions);
     toolkit_import(console);
@@ -897,7 +902,6 @@ static void init_library(int argc, char *argv[])
     toolkit_import(mempool);
     toolkit_import(packet);
     toolkit_import(path);
-    toolkit_import(porting);
     toolkit_import(shstr);
     toolkit_import(socket);
     toolkit_import(socket_crypto);

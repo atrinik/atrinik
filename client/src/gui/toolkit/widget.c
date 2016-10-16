@@ -42,9 +42,9 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <network_graph.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {

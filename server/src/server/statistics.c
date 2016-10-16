@@ -35,7 +35,7 @@
  */
 
 #include <global.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <player.h>
 #include <object.h>
 

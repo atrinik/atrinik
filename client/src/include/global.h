@@ -44,7 +44,11 @@
 #include <zlib.h>
 #include <pthread.h>
 #include <config.h>
-#include <toolkit.h>
+#include <toolkit/toolkit.h>
+#include <toolkit/socket.h>
+#include <toolkit/shstr.h>
+#include <toolkit/memory.h>
+#include <toolkit/mempool.h>
 
 #ifdef HAVE_SDL_MIXER
 #include <SDL_mixer.h>
@@ -56,7 +60,7 @@
 #include <text.h>
 #include <text_input.h>
 #include <texture.h>
-#include <curl.h>
+#include <toolkit/curl.h>
 #include <book.h>
 #include <interface.h>
 #include <commands.h>
@@ -84,7 +88,7 @@
 #include <image.h>
 #include <settings.h>
 #include <keybind.h>
-#include <sha1.h>
+#include <toolkit/sha1.h>
 #include <progress.h>
 #include <updater.h>
 

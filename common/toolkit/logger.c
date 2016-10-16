@@ -31,9 +31,10 @@
 
 #ifndef __CPROTO__
 
-#include <global.h>
 #include <stdarg.h>
-#include <toolkit_string.h>
+
+#include "logger.h"
+#include "string.h"
 
 #ifndef WIN32
 #include <execinfo.h>

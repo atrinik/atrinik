@@ -28,8 +28,7 @@
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
 
-#include <global.h>
-#include <sha1.h>
+#include "sha1.h"
 
 TOOLKIT_API();
 

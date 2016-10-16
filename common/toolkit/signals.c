@@ -39,7 +39,7 @@
 #define WINVER 0x502
 #endif
 
-#include <global.h>
+#include "signals.h"
 #include <signal.h>
 
 #ifdef HAVE_SIGACTION
@@ -63,6 +63,11 @@ static const int register_signals[] = {
     SIGTERM,
     SIGABRT
 };
+
+/**
+ * Prefix to use for generatedtraceback files.
+ */
+static char traceback_prefix[64] = {"atrinik"};
 
 TOOLKIT_API();
 
@@ -114,12 +119,12 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
     tm = localtime(&t);
 
     strftime(VS(date), "%Y_%m_%d_%H-%M-%S", tm);
-    snprintf(VS(path), "%s/.atrinik/"EXECUTABLE"-traceback-%s.txt", homedir,
-            date);
+    snprintf(VS(path), "%s/.atrinik/%s-traceback-%s.txt", homedir,
+             traceback_prefix, date);
     fp = fopen(path, "a");
 
     if (fp == NULL) {
-        snprintf(VS(path), EXECUTABLE"-traceback-%s.txt", date);
+        snprintf(VS(path), "%s-traceback-%s.txt", traceback_prefix, date);
         fp = fopen(path, "a");
 
         if (fp == NULL) {
@@ -392,3 +397,9 @@ TOOLKIT_DEINIT_FUNC(signals)
 {
 }
 TOOLKIT_DEINIT_FUNC_FINISH
+
+void
+signals_set_traceback_prefix (const char *prefix)
+{
+    snprintf(VS(traceback_prefix), "%s", prefix);
+}

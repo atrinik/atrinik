@@ -29,10 +29,10 @@
  * @author Alex Tokar
  */
 
-#ifndef PATH_H
-#define PATH_H
+#ifndef TOOLKIT_PATH_H
+#define TOOLKIT_PATH_H
 
-#include <toolkit.h>
+#include "toolkit.h"
 
 /**
  * Prototype for the ::path_fopen function signature.

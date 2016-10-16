@@ -30,8 +30,8 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
-#include <curl.h>
+#include <toolkit/string.h>
+#include <toolkit/curl.h>
 
 /** How often to blink the eyes in ticks. */
 #define EYES_BLINK_TIME (15 * 1000)

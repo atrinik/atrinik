@@ -30,12 +30,12 @@
  * Alex Tokar
  */
 
-#include <toolkit.h>
-#include <toolkit_string.h>
-#include <socket.h>
-#include <socket_crypto.h>
-#include <clioptions.h>
-#include <path.h>
+#include "socket_crypto.h"
+#include "string.h"
+#include "socket.h"
+#include "clioptions.h"
+#include "path.h"
+#include "packet.h"
 
 #include <openssl/ssl.h>
 #include <openssl/conf.h>

@@ -34,8 +34,8 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
 #include <monster_data.h>
 #include <plugin.h>
 #include <monster_guard.h>
@@ -48,6 +48,7 @@
 #include <sound_ambient.h>
 #include <object_methods.h>
 #include <resources.h>
+#include <toolkit/socket_crypto.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)

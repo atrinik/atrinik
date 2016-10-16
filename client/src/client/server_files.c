@@ -30,9 +30,9 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
-#include <path.h>
-#include <curl.h>
+#include <toolkit/string.h>
+#include <toolkit/path.h>
+#include <toolkit/curl.h>
 
 /** The server files. */
 static server_files_struct *server_files;

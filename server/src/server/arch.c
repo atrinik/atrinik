@@ -33,7 +33,7 @@
 #include <arch.h>
 #include <artifact.h>
 #include <loader.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 /**
  * The archetype hash table.

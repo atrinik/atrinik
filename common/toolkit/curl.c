@@ -29,14 +29,13 @@
  * @author Alex Tokar
  */
 
-#include <toolkit.h>
-#include <toolkit_string.h>
-#include <curl.h>
-#include <curl/curl.h>
-#include <path.h>
-#include <clioptions.h>
-#include <sha1.h>
+#include "string.h"
+#include "curl.h"
+#include "path.h"
+#include "clioptions.h"
+#include "sha1.h"
 
+#include <curl/curl.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>

@@ -27,8 +27,12 @@
  * Socket API.
  */
 
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef TOOLKIT_SOCKET_H
+#define TOOLKIT_SOCKET_H
+
+#include "toolkit.h"
+#include "socket_crypto_dec.h"
+#include "socket_dec.h"
 
 /**
  * Commands used for sending data from client to server.
@@ -837,9 +841,6 @@ enum {
  */
 #define SOCKET_TIMEOUT_MS 30.0
 
-/** The socket structure. */
-typedef struct sock_struct socket_t;
-
 #ifdef WIN32
 static inline const char *s_strerror(int val)
 {
@@ -867,11 +868,10 @@ static inline const char *s_strerror(int val)
 #define s_errno errno
 #endif
 
-#include <socket_crypto.h>
-
 /* Prototypes */
-void toolkit_socket_init(void);
-void toolkit_socket_deinit(void);
+
+TOOLKIT_FUNCS_DECLARE(socket);
+
 socket_t *
 socket_create(const char   *host,
               uint16_t      port,

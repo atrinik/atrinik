@@ -36,7 +36,7 @@
 
 #include <global.h>
 #include <stdarg.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <player.h>
 #include <object.h>
 

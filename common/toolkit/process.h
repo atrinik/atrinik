@@ -27,10 +27,11 @@
  * Process API header file.
  */
 
-#ifndef PROCESS_H
-#define PROCESS_H
+#ifndef TOOLKIT_PROCESS_H
+#define TOOLKIT_PROCESS_H
 
-#include <toolkit.h>
+#include "toolkit.h"
+#include "packet_dec.h"
 
 typedef struct process process_t;
 

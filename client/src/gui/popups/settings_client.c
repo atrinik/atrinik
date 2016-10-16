@@ -30,7 +30,8 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
+#include <toolkit/colorspace.h>
 
 typedef union list_settings_graphic_union {
     /**

@@ -36,8 +36,8 @@
  * and format might change in the future.
  */
 
-#include <global.h>
-#include <toolkit_string.h>
+#include "mempool.h"
+#include "string.h"
 
 static void mempool_free(mempool_struct *pool);
 
@@ -99,7 +99,8 @@ TOOLKIT_DEINIT_FUNC(mempool)
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /* Comparison function for sort_linked_list() */
-static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
+static int
+sort_puddle_by_nrof_free (void *a, void *b, void *args)
 {
     mempool_puddle_struct *puddle_a, *puddle_b;
 
@@ -117,10 +118,12 @@ static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
 
 /**
  * Go through the freelists and free puddles with no used chunks.
+ *
  * @return
  * Number of freed puddles.
  */
-static size_t mempool_free_puddles(mempool_struct *pool)
+static size_t
+mempool_free_puddles (mempool_struct *pool)
 {
     size_t chunksize_real, nrof_arrays, i, j, freed;
     mempool_chunk_struct *last_free, *chunk;
@@ -215,31 +218,15 @@ static size_t mempool_free_puddles(mempool_struct *pool)
     return freed;
 }
 
-/**
- * Create a memory pool.
- * @param description
- * @copydoc mempool_struct::chunk_description
- * @param expand
- * @copydoc mempool_struct::expand_size
- * @param size
- * @copydoc mempool_struct::chunk_size
- * @param flags
- * @copydoc mempool_struct::flags
- * @param initialisator
- * @copydoc mempool_struct::initialisator
- * @param deinitialisator
- * @copydoc mempool_struct::deinitialisator
- * @param constructor
- * @copydoc mempool_struct::constructor
- * @param destructor
- * @copydoc mempool_struct::destructor
- * @return
- * The created memory pool.
- */
-mempool_struct *mempool_create(const char *description, size_t expand,
-        size_t size, uint32_t flags, chunk_initialisator initialisator,
-        chunk_deinitialisator deinitialisator, chunk_constructor constructor,
-        chunk_destructor destructor)
+mempool_struct *
+mempool_create (const char           *description,
+                size_t                expand,
+                size_t                size,
+                uint32_t              flags,
+                chunk_initialisator   initialisator,
+                chunk_deinitialisator deinitialisator,
+                chunk_constructor     constructor,
+                chunk_destructor      destructor)
 {
     size_t i;
     mempool_struct *pool;
@@ -272,12 +259,14 @@ mempool_struct *mempool_create(const char *description, size_t expand,
 
 /**
  * Construct debug information about leaked chunks in the specified pool.
+ *
  * @param pool
  * Memory pool.
  * @param sb
  * StringBuffer instance to store the information in.
  */
-static void mempool_leak_info(mempool_struct *pool, StringBuffer *sb)
+static void
+mempool_leak_info(mempool_struct *pool, StringBuffer *sb)
 {
     size_t chunksize_real, nrof_arrays, i, j;
     char buf[HUGE_BUF];
@@ -340,10 +329,12 @@ static void mempool_leak_info(mempool_struct *pool, StringBuffer *sb)
 
 /**
  * Free a mempool.
+ *
  * @param pool
  * The mempool to free.
  */
-static void mempool_free(mempool_struct *pool)
+static void
+mempool_free (mempool_struct *pool)
 {
     StringBuffer *sb;
     char *info, *cp;
@@ -370,43 +361,24 @@ static void mempool_free(mempool_struct *pool)
     efree(pool);
 }
 
-/**
- * Set the mempool's debugging function.
- * @param pool
- * Memory pool.
- * @param debugger
- * Debugging function to use.
- */
-void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
+void
+mempool_set_debugger (mempool_struct *pool, chunk_debugger debugger)
 {
 #ifndef NDEBUG
     pool->debugger = debugger;
 #endif
 }
 
-/**
- * Set the mempool's validator function.
- * @param pool
- * Memory pool.
- * @param validator
- * Validator function to use.
- */
-void mempool_set_validator(mempool_struct *pool, chunk_validator validator)
+void
+mempool_set_validator (mempool_struct *pool, chunk_validator validator)
 {
 #ifndef NDEBUG
     pool->validator = validator;
 #endif
 }
 
-/**
- * Acquire detailed statistics about the specified memory pool.
- * @param name
- * Name of the memory pool, empty or NULL for all.
- * @param[out] buf Buffer to use for writing. Must end with a NUL.
- * @param size
- * Size of 'buf'.
- */
-void mempool_stats(const char *name, char *buf, size_t size)
+void
+mempool_stats (const char *name, char *buf, size_t size)
 {
     size_t i, j, allocated;
 
@@ -472,14 +444,8 @@ void mempool_stats(const char *name, char *buf, size_t size)
     snprintfcat(buf, size, "\n");
 }
 
-/**
- * Attempt to find the specified memory pool identified by its name.
- * @param name
- * Name of the memory pool to find.
- * @return
- * Memory pool if found, NULL otherwise.
- */
-mempool_struct *mempool_find(const char *name)
+mempool_struct *
+mempool_find (const char *name)
 {
     size_t i;
 
@@ -497,13 +463,15 @@ mempool_struct *mempool_find(const char *name)
 /**
  * Expands the memory pool based on its settings. All new chunks are put into
  * the pool's freelist for future use.
+ *
  * @param pool
  * Pool to expand.
  * @param arraysize_exp
  * The exponent for the array size, for example 3
  * for arrays of length 8 (2^3 = 8)
  */
-static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
+static void
+mempool_expand (mempool_struct *pool, size_t arraysize_exp)
 {
     mempool_chunk_struct *first, *chunk;
     size_t chunksize_real, nrof_arrays, i;
@@ -555,18 +523,8 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
     }
 }
 
-/**
- * Get a chunk from the selected pool. The pool will be expanded if
- * necessary.
- * @param pool
- * Pool to get the chunk from.
- * @param arraysize_exp
- * The exponent for the array size, for example 3
- * for arrays of length 8 (2^3 = 8)
- * @return
- * Acquired memory chunk, guaranteed to be zero-filled.
- */
-void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
+void *
+mempool_get_chunk (mempool_struct *pool, size_t arraysize_exp)
 {
     mempool_chunk_struct *new_obj;
 
@@ -603,20 +561,10 @@ void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
     return MEM_USERDATA(new_obj);
 }
 
-/**
- * Return a chunk to the selected pool.
- * @warning Don't ever return memory to the wrong pool.
- * @warning Returned memory will be reused, so be careful about stale pointers.
- * @param pool
- * Memory pool to return to.
- * @param arraysize_exp
- * The exponent for the array size, for example 3
- * for arrays of length 8 (2^3 = 8)
- * @param data
- * Data to return.
- */
-void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
-        void *data)
+void
+mempool_return_chunk (mempool_struct *pool,
+                      size_t          arraysize_exp,
+                      void           *data)
 {
     mempool_chunk_struct *chunk;
 
@@ -654,14 +602,8 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
     }
 }
 
-/**
- * Attempt to reclaim no longer used memory allocated by the specified pool.
- * @param pool
- *
- * @return
- * Number of reclaimed puddles.
- */
-size_t mempool_reclaim(mempool_struct *pool)
+size_t
+mempool_reclaim (mempool_struct *pool)
 {
     HARD_ASSERT(pool != NULL);
 
@@ -672,13 +614,8 @@ size_t mempool_reclaim(mempool_struct *pool)
     return mempool_free_puddles(pool);
 }
 
-/**
- * Gather leak information from all the registered pools into the specified
- * StringBuffer instance.
- * @param sb
- * StringBuffer instance to use.
- */
-void mempool_leak_info_all(StringBuffer *sb)
+void
+mempool_leak_info_all (StringBuffer *sb)
 {
     size_t i;
 

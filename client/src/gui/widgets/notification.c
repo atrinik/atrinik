@@ -37,8 +37,8 @@
 
 #include <global.h>
 #include <notification.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
 
 /**
  * The notification data.

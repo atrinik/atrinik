@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit/colorspace.h>
 
 /** @copydoc popup_struct::draw_func */
 static int popup_draw(popup_struct *popup)

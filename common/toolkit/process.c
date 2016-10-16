@@ -30,16 +30,16 @@
  * Alex Tokar
  */
 
-#include <global.h>
-#include <toolkit_string.h>
+#include "process.h"
+#include "string.h"
+#include "packet.h"
+#include "socket.h"
 
 #ifndef WIN32
 #   include <sys/wait.h>
 #   include <poll.h>
 #   include <spawn.h>
 #endif
-
-#include "toolkit/process.h"
 
 TOOLKIT_API(IMPORTS(logger));
 

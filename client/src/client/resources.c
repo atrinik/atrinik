@@ -31,8 +31,9 @@
 
 #include <global.h>
 #include <resources.h>
-#include <toolkit_string.h>
-#include <path.h>
+#include <toolkit/string.h>
+#include <toolkit/path.h>
+#include <toolkit/packet.h>
 
 /**
  * Hash table of the resource files.

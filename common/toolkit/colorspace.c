@@ -29,7 +29,7 @@
  * @author Alex Tokar
  */
 
-#include <global.h>
+#include "colorspace.h"
 
 TOOLKIT_API();
 
@@ -46,7 +46,8 @@ TOOLKIT_DEINIT_FUNC_FINISH
 /**
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-double colorspace_rgb_max(const double rgb[3])
+double
+colorspace_rgb_max (const double rgb[3])
 {
     TOOLKIT_PROTECT();
 
@@ -60,7 +61,8 @@ double colorspace_rgb_max(const double rgb[3])
 /**
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-double colorspace_rgb_min(const double rgb[3])
+double
+colorspace_rgb_min (const double rgb[3])
 {
     TOOLKIT_PROTECT();
 
@@ -72,10 +74,10 @@ double colorspace_rgb_min(const double rgb[3])
 }
 
 /**
- * Converts RGB (red,green,blue) colorspace to HSV (hue,saturation,value).
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
+void
+colorspace_rgb2hsv (const double rgb[3], double hsv[3])
 {
     double max, min, delta;
 
@@ -109,10 +111,10 @@ void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
 }
 
 /**
- * Converts HSV (hue,saturation,value) colorspace to RGB (red,green,blue).
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-void colorspace_hsv2rgb(const double hsv[3], double rgb[3])
+void
+colorspace_hsv2rgb (const double hsv[3], double rgb[3])
 {
     int i;
     double f, w, q, t;

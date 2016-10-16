@@ -28,13 +28,20 @@
  */
 
 #include <global.h>
-#include <gitversion.h>
+#include <toolkit/gitversion.h>
 #include <region_map.h>
-#include <packet.h>
-#include <toolkit_string.h>
-#include <clioptions.h>
-#include <path.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
+#include <toolkit/clioptions.h>
+#include <toolkit/path.h>
 #include <resources.h>
+#include <toolkit/signals.h>
+#include <toolkit/colorspace.h>
+#include <toolkit/binreloc.h>
+#include <toolkit/datetime.h>
+#include <toolkit/socket_crypto.h>
+#include <toolkit/x11.h>
+#include <cmake.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -613,6 +620,7 @@ int main(int argc, char *argv[])
     int fps_limits[] = {30, 60, 120, 0};
 
     toolkit_import(signals);
+    signals_set_traceback_prefix(EXECUTABLE);
 
     toolkit_import(binreloc);
     toolkit_import(clioptions);
@@ -623,7 +631,6 @@ int main(int argc, char *argv[])
     toolkit_import(math);
     toolkit_import(memory);
     toolkit_import(packet);
-    toolkit_import(porting);
     toolkit_import(sha1);
     toolkit_import(socket);
     toolkit_import(socket_crypto);

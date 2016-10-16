@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 /**
  * File where the blacklist data is stored.

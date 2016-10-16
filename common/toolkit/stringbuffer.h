@@ -27,17 +27,16 @@
  * Header file for stringbuffer.c.
  */
 
-#ifndef STRINGBUFFER_H
-#define STRINGBUFFER_H
+#ifndef TOOLKIT_STRINGBUFFER_H
+#define TOOLKIT_STRINGBUFFER_H
 
-/**
- * The string buffer state.
- */
-typedef struct StringBuffer_struct StringBuffer;
+#include "toolkit.h"
+#include "stringbuffer_dec.h"
 
 /* Prototypes */
-void toolkit_stringbuffer_init(void);
-void toolkit_stringbuffer_deinit(void);
+
+TOOLKIT_FUNCS_DECLARE(stringbuffer);
+
 StringBuffer *stringbuffer_new(void);
 void stringbuffer_free(StringBuffer *sb);
 char *stringbuffer_finish(StringBuffer *sb);

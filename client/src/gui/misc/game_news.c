@@ -30,8 +30,8 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
-#include <curl.h>
+#include <toolkit/string.h>
+#include <toolkit/curl.h>
 
 /**
  * Maximum width of the text.

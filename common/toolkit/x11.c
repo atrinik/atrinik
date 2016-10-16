@@ -32,8 +32,8 @@
  * @author Alex Tokar
  */
 
-#include <global.h>
-#include <toolkit_string.h>
+#include "x11.h"
+#include "string.h"
 
 TOOLKIT_API(DEPENDS(string));
 
@@ -47,16 +47,9 @@ TOOLKIT_DEINIT_FUNC(x11)
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
-/**
- * Get the parent window.
- * @param display
- * Display.
- * @param win
- * Window.
- * @return
- * Parent window.
- */
-x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win)
+x11_window_type
+x11_window_get_parent (x11_display_type display,
+                       x11_window_type  win)
 {
 #if defined(HAVE_X11)
     Window root, parent, *children;
@@ -73,7 +66,8 @@ x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type 
 #if defined(HAVE_X11)
 
 /**
- * Sends event to X11.
+ * Sends an event to X11.
+ *
  * @param display
  * Display to send event to.
  * @param win
@@ -94,11 +88,19 @@ x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type 
  * 1 on success, 0 on failure.
  * @author Tomas Styblo (wmctrl - GPLv2)
  */
-static int x11_send_event(Display *display, Window win, char *msg, unsigned long data0, unsigned long data1, unsigned long data2, unsigned long data3, unsigned long data4)
+static int
+x11_send_event (Display      *display,
+                Window        win,
+                char         *msg,
+                unsigned long data0,
+                unsigned long data1,
+                unsigned long data2,
+                unsigned long data3,
+                unsigned long data4)
 {
+    long mask = SubstructureRedirectMask | SubstructureNotifyMask;
+
     XEvent event;
-    long mask;
-    mask = SubstructureRedirectMask | SubstructureNotifyMask;
     event.xclient.type = ClientMessage;
     event.xclient.serial = 0;
     event.xclient.send_event = True;
@@ -112,7 +114,7 @@ static int x11_send_event(Display *display, Window win, char *msg, unsigned long
     event.xclient.data.l[4] = data4;
 
     if (!XSendEvent(display, DefaultRootWindow(display), False, mask, &event)) {
-        LOG(BUG, "Cannot send event: %s", msg);
+        LOG(ERROR, "Cannot send event: %s", msg);
         return 0;
     }
 
@@ -121,6 +123,7 @@ static int x11_send_event(Display *display, Window win, char *msg, unsigned long
 
 /**
  * Acquires X11 window's property.
+ *
  * @param display
  * Display.
  * @param win
@@ -136,7 +139,12 @@ static int x11_send_event(Display *display, Window win, char *msg, unsigned long
  * The property value.
  * @author Tomas Styblo (wmctrl - GPLv2)
  */
-static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, char *prop_name, unsigned long *size)
+static char *
+x11_get_property (Display       *display,
+                  Window         win,
+                  Atom           xa_prop_type,
+                  char          *prop_name,
+                  unsigned long *size)
 {
     Atom xa_prop_name;
     Atom xa_ret_type;
@@ -183,17 +191,12 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
 #endif
 
 /**
- * Raises the specified window.
- * @param display
- * Display.
- * @param win
- * Window to raise.
- * @param switch_desktop
- * If 1, will also switch the desktop to that of
- * the window's desktop.
  * @author Tomas Styblo (wmctrl - GPLv2)
  */
-void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop)
+void
+x11_window_activate (x11_display_type display,
+                     x11_window_type  win,
+                     uint8_t          switch_desktop)
 {
     TOOLKIT_PROTECT();
 
@@ -227,7 +230,8 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t 
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
 
-static int x11_clipboard_filter(const SDL_Event *event)
+static int
+x11_clipboard_filter (const SDL_Event *event)
 {
     /* Post all non-window manager specific events */
     if (event->type != SDL_SYSWMEVENT) {
@@ -281,12 +285,8 @@ static int x11_clipboard_filter(const SDL_Event *event)
 }
 #endif
 
-/**
- * Register clipboard events.
- * @return
- * 1 on success, 0 on failure.
- */
-int x11_clipboard_register_events(void)
+int
+x11_clipboard_register_events (void)
 {
     TOOLKIT_PROTECT();
 
@@ -304,18 +304,10 @@ int x11_clipboard_register_events(void)
     return 1;
 }
 
-/**
- * Set the contents of the clipboard.
- * @param display
- * Display.
- * @param win
- * Window.
- * @param str
- * String to set contents of the clipboard to.
- * @return
- * 1 on success, 0 on failure.
- */
-int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str)
+int
+x11_clipboard_set (x11_display_type display,
+                   x11_window_type  win,
+                   const char      *str)
 {
     TOOLKIT_PROTECT();
 
@@ -399,17 +391,9 @@ int x11_clipboard_set(x11_display_type display, x11_window_type win, const char 
 #endif
 }
 
-/**
- * Get the contents of the clipboard.
- * @param display
- * Display.
- * @param window
- * Window.
- * @return
- * Clipboard contents, must be freed. May be NULL in case of
- * failure to acquire the clipboard contents.
- */
-char *x11_clipboard_get(x11_display_type display, x11_window_type win)
+char *
+x11_clipboard_get (x11_display_type display,
+                   x11_window_type  win)
 {
     char *result;
 #if defined(HAVE_X11)

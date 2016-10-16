@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <ban.h>
 #include <player.h>
 #include <object.h>

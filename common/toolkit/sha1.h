@@ -28,7 +28,7 @@
 #ifndef POLARSSL_SHA1_H
 #define POLARSSL_SHA1_H
 #include <string.h>
-#include <toolkit.h>
+#include "toolkit.h"
 
 /**
  * \brief          SHA-1 context structure

@@ -30,9 +30,10 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <resources.h>
-#include <curl.h>
+#include <toolkit/curl.h>
+#include <toolkit/packet.h>
 
 /**
  * Structure used to store data related to the painting popup.

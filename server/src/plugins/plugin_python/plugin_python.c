@@ -35,7 +35,7 @@
 #endif
 
 #include <plugin_python.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <player.h>
 #include <object.h>
 #include <object_methods.h>

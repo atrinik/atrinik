@@ -28,7 +28,7 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 New_Face *new_faces;
 

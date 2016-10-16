@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 
 /** @copydoc command_func */
 void command_hiscore(object *op, const char *command, char *params)

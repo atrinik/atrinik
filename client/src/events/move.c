@@ -28,7 +28,7 @@
  */
 
 #include <global.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 
 /**
  * Number of the possible directions.

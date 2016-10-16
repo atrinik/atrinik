@@ -30,9 +30,11 @@
 
 #include <global.h>
 #include <region_map.h>
-#include <packet.h>
-#include <path.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/path.h>
+#include <toolkit/string.h>
+#include <toolkit/x11.h>
+#include <toolkit/socket_crypto.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8_t *data, size_t len, size_t pos)

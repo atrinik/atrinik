@@ -30,8 +30,8 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
 #include <monster_data.h>
 #include <faction.h>
 #include <plugin.h>

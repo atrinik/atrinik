@@ -38,20 +38,11 @@
 /* Porting API header file has extra priority. */
 #include "porting.h"
 
-
 /* Now all the other header files that are part of the toolkit. */
-#include "logger.h"
-/*#include <binreloc.h>
-#include <common.h>
-#include <console.h>
-#include <logger.h>
-#include <memory.h>
-#include <mempool.h>
-#include <shstr.h>
-#include <stringbuffer.h>
-#include <utarray.h>
-#include <uthash.h>
-#include <utlist.h>*/
+#include "common.h"
+#include "utarray.h"
+#include "uthash.h"
+#include "utlist.h"
 
 /**
  * Toolkit (de)initialization function.
@@ -415,8 +406,8 @@ do {                                            \
 #define FOR_EACH(what, ...) \
     _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
 
-//#include <socket.h>
-//#include <toolkit_math.h> /* TODO: remove */
+#include "logger.h"
+#include "math.h" /* TODO: remove */
 
 /* Prototypes */
 

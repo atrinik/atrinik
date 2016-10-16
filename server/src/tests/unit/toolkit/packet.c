@@ -26,8 +26,8 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
 
 #define packet_verify_data(packet, str) \
 { \

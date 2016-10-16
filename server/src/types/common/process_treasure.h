@@ -30,7 +30,7 @@
 #ifndef COMMON_PROCESS_TREASURE_H
 #define COMMON_PROCESS_TREASURE_H
 
-#include <toolkit.h>
+#include <toolkit/toolkit.h>
 
 /**
  * Holds data about a single bonus type.

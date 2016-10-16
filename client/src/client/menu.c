@@ -28,8 +28,8 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
 
 /**
  * Analyze /cmd type commands the player has typed in the console or bound to a

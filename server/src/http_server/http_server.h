@@ -30,7 +30,7 @@
 #ifndef HTTP_SERVER_H
 #define HTTP_SERVER_H
 
-#include <toolkit.h>
+#include <toolkit/toolkit.h>
 
 /* Prototypes */
 

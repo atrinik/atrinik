@@ -25,6 +25,9 @@
 #ifndef TOOLKIT_CMAKE_H
 #define TOOLKIT_CMAKE_H
 
+/* Is libcheck (unit tests) available? */
+#cmakedefine HAVE_CHECK
+
 /* Plugin suffix. */
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
@@ -197,8 +200,5 @@
 #ifndef HAVE_PSELECT
 #cmakedefine HAVE_PSELECT
 #endif
-
-/* Name of the generated executable. */
-#define EXECUTABLE "@EXECUTABLE@"
 
 #endif

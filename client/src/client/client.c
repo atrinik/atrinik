@@ -43,6 +43,8 @@
 
 #include <global.h>
 #include <resources.h>
+#include <toolkit/socket_crypto.h>
+#include <toolkit/packet.h>
 
 /** Client player structure with things like stats, damage, etc */
 Client_Player cpl;

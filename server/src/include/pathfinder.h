@@ -30,7 +30,7 @@
 #ifndef PATHFINDER_H
 #define PATHFINDER_H
 
-#include <toolkit.h>
+#include <toolkit/toolkit.h>
 
 /**
  * @defgroup PATH_NODE_xxx Path node flags

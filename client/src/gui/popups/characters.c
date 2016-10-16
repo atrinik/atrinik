@@ -30,8 +30,9 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
+#include <toolkit/datetime.h>
 
 enum {
     TEXT_INPUT_CHARNAME,

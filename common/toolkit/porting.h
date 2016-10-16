@@ -27,8 +27,8 @@
  * Cross-platform support header file.
  */
 
-#ifndef PORTING_H
-#define PORTING_H
+#ifndef TOOLKIT_PORTING_H
+#define TOOLKIT_PORTING_H
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE

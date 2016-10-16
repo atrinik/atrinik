@@ -27,8 +27,10 @@
  * Shared-strings defines.
  */
 
-#ifndef SHSTR_H
-#define SHSTR_H
+#ifndef TOOLKIT_SHSTR_H
+#define TOOLKIT_SHSTR_H
+
+#include "toolkit.h"
 
 /**
  * Used to differentiate shared strings from normal strings.
@@ -201,5 +203,78 @@ typedef struct shstr_list {
     } while (0)
 
 /*@}*/
+
+/* Prototypes */
+
+TOOLKIT_FUNCS_DECLARE(shstr);
+
+/**
+ * This will add 'str' to the hash table. If there's no entry for this
+ * string, a copy will be allocated, and a pointer to that is returned.
+ *
+ * @param str
+ * String to share.
+ * @return
+ * Pointer to string identical to str, but shared.
+ */
+extern shstr *
+add_string(const char *str);
+
+/**
+ * This will increase the refcount of the string str.
+ *
+ * @param str
+ * String which <b>must</b> have been returned from a previous
+ * add_string().
+ * @return
+ * str.
+ */
+extern shstr *
+add_refcount(shstr *str);
+
+/**
+ * This will return the refcount of the string str.
+ *
+ * @param str
+ * String which <b>must</b> have been returned from a previous
+ * add_string().
+ * @return
+ * Refcount of the string.
+ */
+extern int
+query_refcount(shstr *str);
+
+/**
+ * Searches a string in the shared strings.
+ *
+ * @param str
+ * String to search for.
+ * @return
+ * Pointer to identical string or NULL.
+ */
+extern shstr *
+find_string(const char *str);
+
+/**
+ * This will reduce the refcount, and if it has reached 0, str will be
+ * freed.
+ *
+ * @param str
+ * String to release, which <b>must</b> have been returned
+ * from a previous add_string().
+ */
+extern void
+free_string_shared(shstr *str);
+
+/**
+ * A call to this function will cause the shstr API statistics to be dumped into
+ * specified buffer.
+ *
+ * @param[out] buf Buffer to use for writing. Must end with a NUL.
+ * @param size
+ * Size of 'buf'.
+ */
+extern void
+shstr_stats(char *buf, size_t size);
 
 #endif

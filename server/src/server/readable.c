@@ -33,7 +33,7 @@
 
 #include <global.h>
 #include <book.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <arch.h>
 #include <artifact.h>
 

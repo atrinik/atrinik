@@ -28,8 +28,9 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
-#include <curl.h>
+#include <toolkit/string.h>
+#include <toolkit/curl.h>
+#include <toolkit/socket_crypto.h>
 #include <player.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>

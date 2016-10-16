@@ -29,10 +29,10 @@
  * @author Alex Tokar
  */
 
-#ifndef CLIOPTIONS_H
-#define CLIOPTIONS_H
+#ifndef TOOLKIT_CLIOPTIONS_H
+#define TOOLKIT_CLIOPTIONS_H
 
-#include <toolkit.h>
+#include "toolkit.h"
 
 /**
  * Macro to simplify CLI option creation.
@@ -104,27 +104,114 @@ typedef struct clioption clioption_t;
 
 TOOLKIT_FUNCS_DECLARE(clioptions);
 
-clioption_t *
-clioptions_create(const char             *name,
-                  clioptions_handler_func handler_func);
-const char *
+/**
+ * Creates a new CLI option.
+ *
+ * @param name
+ * Name of the option. Must not be destroyed.
+ * @param handler_func
+ * The handler function for the option. Can be NULL.
+ * @return
+ * Created CLI option.
+ */
+extern clioption_t *
+clioptions_create (const char             *name,
+                   clioptions_handler_func handler_func);
+
+/**
+ * Get the value of the specified CLI option.
+ *
+ * @param name
+ * CLI option name.
+ * @return
+ * Value of the option.
+ */
+extern const char *
 clioptions_get(const char *name);
-void
+
+/**
+ * Sets short name for the specified CLI.
+ *
+ * @param cli
+ * CLI.
+ * @param short_name
+ * Short name to set. Must not be destroyed.
+ */
+extern void
 clioptions_set_short_name(clioption_t *cli,
                           const char  *short_name);
-void
+
+/**
+ * Sets description text for the specified CLI.
+ *
+ * This makes the CLI visible in the list of commands when using --help.
+ *
+ * @param cli
+ * CLI.
+ * @param desc_brief
+ * Brief description text. Must not be destroyed.
+ * @param desc
+ * Description text. Must not be destroyed.
+ */
+extern void
 clioptions_set_description(clioption_t *cli,
                            const char  *desc_brief,
                            const char  *desc);
-void
+
+/**
+ * Marks the CLI as requiring an argument.
+ *
+ * @param cli
+ * CLI.
+ */
+extern void
 clioptions_enable_argument(clioption_t *cli);
-void
+
+/**
+ * Marks the CLI as changeable at runtime.
+ *
+ * @param cli
+ * CLI.
+ */
+extern void
 clioptions_enable_changeable(clioption_t *cli);
-void
+
+/**
+ * Parse CLI options from argv array.
+ *
+ * @param argc
+ * Number of elements in argv.
+ * @param argv
+ * Variable length array of character pointers with the option/argument
+ * combinations.
+ */
+extern void
 clioptions_parse(int argc, char *argv[]);
-bool
+
+/**
+ * Load CLI options from a config file.
+ *
+ * @param path
+ * File to load from.
+ * @param category
+ * Category of options to read; NULL for all.
+ * @return
+ * True on success, false on failure.
+ */
+extern bool
 clioptions_load(const char *path, const char *category);
-bool
+
+/**
+ * Load a string as a CLI option, eg, "port = 13327".
+ *
+ * @param str
+ * String to load.
+ * @param errmsg
+ * May contain an error message on failure; must be freed.
+ * @return
+ * True on success, false on failure.
+ */
+extern bool
 clioptions_load_str(const char *str, char **errmsg);
 
 #endif

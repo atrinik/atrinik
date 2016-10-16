@@ -28,8 +28,8 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
-#include <path.h>
+#include <toolkit/string.h>
+#include <toolkit/path.h>
 #include <resources.h>
 
 /**

@@ -49,7 +49,7 @@
 
 #include <plugin_python.h>
 #include <plugin.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <player.h>
 
 /**

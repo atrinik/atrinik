@@ -39,8 +39,8 @@
  * @author Alex Tokar
  */
 
-#include <global.h>
-#include <toolkit_string.h>
+#include "console.h"
+#include "string.h"
 
 #ifdef HAVE_READLINE
 #include <readline/readline.h>
@@ -141,10 +141,12 @@ TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * The help command of the console.
+ *
  * @param params
  * Command parameters.
  */
-static void console_command_help(const char *params)
+static void
+console_command_help (const char *params)
 {
     size_t i;
 
@@ -189,9 +191,10 @@ static void console_command_help(const char *params)
  * @param line
  * Line.
  */
-static void handle_line_fake(char *line)
+static void
+handle_line_fake (char *line)
 {
-    if (line) {
+    if (line != NULL) {
         rl_set_prompt(current_prompt);
         rl_already_prompted = 1;
     }
@@ -200,7 +203,8 @@ static void handle_line_fake(char *line)
 /**
  * Handle enter key.
  */
-static int handle_enter(int cnt, int key)
+static int
+handle_enter (int cnt, int key)
 {
     char *line;
 
@@ -230,7 +234,8 @@ static int handle_enter(int cnt, int key)
 /**
  * Command generator for readline's completion.
  */
-static char *command_generator(const char *text, int state)
+static char *
+command_generator (const char *text, int state)
 {
     static size_t i, len;
     char *command;
@@ -255,7 +260,8 @@ static char *command_generator(const char *text, int state)
 /**
  * Readline completion.
  */
-static char **readline_completion(const char *text, int start, int end)
+static char **
+readline_completion (const char *text, int start, int end)
 {
     char **matches;
 
@@ -271,7 +277,8 @@ static char **readline_completion(const char *text, int start, int end)
 /**
  * Overrides the logger's standard printing function.
  */
-static void console_print(const char *str)
+static void
+console_print (const char *str)
 {
     char *saved_line;
     int saved_point;
@@ -306,7 +313,8 @@ static void console_print(const char *str)
  * @return
  * NULL.
  */
-static void *do_thread(void *dummy)
+static void *
+do_thread (void *dummy)
 {
 #ifndef HAVE_READLINE
     char *line;
@@ -348,12 +356,8 @@ static void *do_thread(void *dummy)
     return NULL;
 }
 
-/**
- * Start the console stdin-reading thread.
- * @return
- * 1 on success, 0 on failure.
- */
-int console_start_thread(void)
+int
+console_start_thread (void)
 {
     int ret;
 
@@ -384,18 +388,11 @@ int console_start_thread(void)
     return 1;
 }
 
-/**
- * Add a possible command to the console.
- * @param command
- * Command name, must be unique.
- * @param handle_func
- * Function that will handle the command.
- * @param desc_brief
- * Brief, one-line description of the command.
- * @param desc
- * More detailed description of the command.
- */
-void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc)
+void
+console_command_add (const char          *command,
+                     console_command_func handle_func,
+                     const char          *desc_brief,
+                     const char          *desc)
 {
     size_t i;
 
@@ -418,11 +415,8 @@ void console_command_add(const char *command, console_command_func handle_func, 
     console_commands_num++;
 }
 
-/**
- * Process the console API. This should usually be part of the program's
- * main loop.
- */
-void console_command_handle(void)
+void
+console_command_handle (void)
 {
     char **line, *cp;
     size_t i;

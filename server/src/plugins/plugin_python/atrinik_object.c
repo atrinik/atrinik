@@ -31,9 +31,9 @@
  */
 
 #include <plugin_python.h>
-#include <bresenham.h>
+#include <toolkit/bresenham.h>
 #include <artifact.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <faction.h>
 #include <player.h>
 #include <object.h>

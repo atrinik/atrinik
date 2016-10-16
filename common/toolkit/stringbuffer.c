@@ -43,9 +43,11 @@
  * program exits.
  */
 
-#include <global.h>
 #include <stdarg.h>
-#include <toolkit_string.h>
+
+#include "stringbuffer.h"
+#include "string.h"
+#include "shstr.h"
 
 /**
  * The string buffer state structure.

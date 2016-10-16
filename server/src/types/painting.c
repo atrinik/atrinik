@@ -35,6 +35,7 @@
 #include <resources.h>
 #include <artifact.h>
 #include <player.h>
+#include <toolkit/packet.h>
 
 #include "common/process_treasure.h"
 

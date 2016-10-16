@@ -29,15 +29,17 @@
  * @author Alex Tokar
  */
 
-#ifndef PACKET_H
-#define PACKET_H
+#ifndef TOOLKIT_PACKET_H
+#define TOOLKIT_PACKET_H
 
-struct StringBuffer_struct;
+#include "toolkit.h"
+#include "stringbuffer_dec.h"
+#include "packet_dec.h"
 
 /**
  * A single data packet.
  */
-typedef struct packet_struct {
+struct packet_struct {
     /**
      * Next packet to send.
      */
@@ -87,9 +89,9 @@ typedef struct packet_struct {
     /**
      * StringBuffer instance used to describe the packet contents.
      */
-    struct StringBuffer_struct *sb;
+    StringBuffer *sb;
 #endif
-} packet_struct;
+};
 
 /**
  * Structure used to save state of the packet so that one can go back to it.
@@ -129,7 +131,8 @@ typedef struct packet_save {
 
 /* Prototypes */
 
-void toolkit_packet_init(void);
+TOOLKIT_FUNCS_DECLARE(packet);
+
 void toolkit_packet_deinit(void);
 packet_struct *packet_new(uint8_t type, size_t size, size_t expand);
 void packet_free(packet_struct *packet);

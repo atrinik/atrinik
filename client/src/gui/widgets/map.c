@@ -31,11 +31,11 @@
 
 #include <global.h>
 #include <region_map.h>
-#include <packet.h>
-#include <toolkit_string.h>
-#include <bresenham.h>
-#include <clioptions.h>
-#include <path.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
+#include <toolkit/bresenham.h>
+#include <toolkit/clioptions.h>
+#include <toolkit/path.h>
 
 /**
  * Map cells.

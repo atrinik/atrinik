@@ -30,9 +30,9 @@
  */
 
 #include <global.h>
-#include <packet.h>
-#include <toolkit_string.h>
-#include <path.h>
+#include <toolkit/packet.h>
+#include <toolkit/string.h>
+#include <toolkit/path.h>
 
 /** Text representations of the setting types. */
 static const char *const opt_types[OPT_TYPE_NUM] = {

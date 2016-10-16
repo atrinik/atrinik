@@ -31,8 +31,9 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
-#include <packet.h>
+#include <toolkit/string.h>
+#include <toolkit/packet.h>
+#include <toolkit/socket_crypto.h>
 #include <server.h>
 #include <player.h>
 #include <object.h>

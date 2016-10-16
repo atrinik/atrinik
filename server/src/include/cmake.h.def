@@ -25,10 +25,10 @@
 #ifndef CMAKE_H
 #define CMAKE_H
 
-/* Is libcheck (unit tests) available? */
-#cmakedefine HAVE_CHECK
-
 /* Build the world maker module? */
 #cmakedefine HAVE_WORLD_MAKER
+
+/* Name of the generated executable. */
+#define EXECUTABLE "@EXECUTABLE@"
 
 #endif

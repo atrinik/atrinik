@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <arch.h>
 #include <player.h>
 #include <object.h>

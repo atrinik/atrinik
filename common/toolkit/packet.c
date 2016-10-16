@@ -29,12 +29,11 @@
  * @author Alex Tokar
  */
 
-#ifndef __CPROTO__
+#include "packet.h"
+#include "string.h"
+#include "mempool.h"
 
-#include <global.h>
 #include <zlib.h>
-#include <packet.h>
-#include <toolkit_string.h>
 
 /**
  * The packets memory pool.
@@ -740,5 +739,3 @@ void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer
     stringbuffer_append_string_len(sb, str, strnlen(str, len - *pos));
     *pos += strlen(str) + 1;
 }
-
-#endif

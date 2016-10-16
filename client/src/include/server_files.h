@@ -30,7 +30,7 @@
 #ifndef SERVER_FILES_H
 #define SERVER_FILES_H
 
-#include <curl.h>
+#include <toolkit/curl.h>
 
 #define SERVER_FILES_HTTP_DIR       "data"
 #define SERVER_FILES_HTTP_LISTING   "listing.txt"

@@ -30,7 +30,8 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
+#include <toolkit/x11.h>
 
 /**
  * Names of the text window tabs.

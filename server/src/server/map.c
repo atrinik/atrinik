@@ -29,7 +29,7 @@
 
 #include <global.h>
 #include <loader.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <arch.h>
 #include <player.h>
 #include <object.h>
@@ -38,7 +38,7 @@
 #include <check_inv.h>
 #include <magic_mirror.h>
 #include <object_methods.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280

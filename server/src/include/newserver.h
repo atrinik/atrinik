@@ -33,7 +33,6 @@
 
 #include "map.h"
 
-
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
 

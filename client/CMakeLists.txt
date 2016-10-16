@@ -4,19 +4,12 @@ project(atrinik C)
 cmake_minimum_required(VERSION 2.6)
 set(EXECUTABLE atrinik)
 set(EXECUTABLE_UPDATER atrinik2)
-
-# Include build configuration.
-include(build.config)
-
-if (EXISTS build.user)
-    include(build.user)
-endif ()
+set(PACKAGE_NAME "Atrinik Client")
 
 # Add our includes.
 include_directories(src/include)
 include_directories(src/gui/toolkit/include)
 include_directories(src)
-include(src/toolkit/cmake-pre.txt)
 
 if (MINGW)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
@@ -68,7 +61,7 @@ endif ()
 
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} WIN32 ${SOURCES})
-include(src/toolkit/cmake-post.txt)
+target_link_libraries(${EXECUTABLE} atrinik-toolkit)
 
 # Link all the available libraries.
 target_link_libraries(${EXECUTABLE} ${SDL_LIBRARY})
@@ -95,18 +88,6 @@ foreach (var ${SOURCES})
     string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
     set(SOURCES_STRING "${SOURCES_STRING};${var}")
 endforeach ()
-
-# Create a 'proto' build target, which generates the proto.h file.
-add_custom_target(proto
-    cproto -ve -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
-    COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
-    COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
-    COMMAND cmake -E echo "#endif" >> src/include/proto.h
-    COMMAND cmake -E remove -f src/include/proto.h.bak
-    COMMAND python src/toolkit/adjust_proto.py src/include/proto.h || exit 5
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generating prototypes..."
-    VERBATIM)
 
 # Installer.
 if (WIN32 AND NOT UNIX)

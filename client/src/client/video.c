@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <toolkit/x11.h>
 
 /**
  * The display.

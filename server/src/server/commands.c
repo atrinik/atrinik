@@ -30,10 +30,10 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <player.h>
 #include <object.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 static command_struct *commands;
 

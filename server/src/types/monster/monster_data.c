@@ -31,7 +31,7 @@
 
 #include <global.h>
 #include <monster_data.h>
-#include <packet.h>
+#include <toolkit/packet.h>
 #include <monster_guard.h>
 #include <player.h>
 #include <object.h>

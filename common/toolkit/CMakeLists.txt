@@ -4,81 +4,6 @@ project(atrinik-toolkit C)
 cmake_minimum_required(VERSION 2.6)
 set(ATRINIK_TOOLKIT atrinik-toolkit)
 
-# Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
-add_definitions(${CUSTOM_WARNINGS})
-
-if (NOT MINGW)
-    if (ENABLE_STACK_PROTECTOR)
-        add_definitions(-fstack-protector-all -Wstack-protector)
-    else ()
-        add_definitions(-fno-stack-protector)
-    endif ()
-endif ()
-
-if (ENABLE_EXTRA_WARNINGS)
-    # Non-macro identifiers inside #if outside of defined()
-    add_definitions(-Wundef)
-    # sizeof() on function types or void
-    add_definitions(-Wpointer-arith)
-    # Casting function types to non-matching types
-    add_definitions(-Wbad-function-cast)
-    # extern declaration within a function
-    add_definitions(-Wnested-externs)
-    # Dead code (removed in newer versions of GCC, might still be in clang)
-    add_definitions(-Wunreachable-code)
-    # Additional format checks for printf/scanf/etc not enabled by -Wall
-    add_definitions(-Wformat=2 -Wno-format-nonliteral)
-    # Declarations like int i = i
-    add_definitions(-Winit-self)
-    # Local variables or types that shadow another variable, parameter, type,
-    # built-in function, etc.
-    add_definitions(-Wshadow)
-    # Global function defined without a previous declaration.
-    add_definitions(-Wmissing-declarations)
-    # Variable that may be clobbered by a setjmp call
-    add_definitions(-Wuninitialized)
-    # Testing floating point values for equality
-    add_definitions(-Wfloat-equal)
-
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        # Suspicious uses of logical operators in expressions
-        add_definitions(-Wlogical-op)
-        # Pointer casting with increased alignment (char * -> int *)
-        add_definitions(-Wcast-align)
-    endif ()
-endif ()
-
-if (ENABLE_AGGRESSIVE_WARNINGS)
-    # Casting const char * to char *
-    add_definitions(-Wcast-qual)
-    # Assigning signed int to unsigned int
-    add_definitions(-Wsign-conversion)
-    # Loop indices that could potentially overflow
-    add_definitions(-Wunsafe-loop-optimizations)
-    # Redundant (multiple same) declarations
-    add_definitions(-Wredundant-decls)
-endif ()
-
-# Turn warnings into errors?
-if (ENABLE_WARNING_ERRORS)
-    add_definitions(-Werror)
-endif ()
-
-if (MINGW)
-    add_definitions(-DCURL_STATICLIB -DPTW32_STATIC_LIB -DBGDWIN32 -DNONDLL)
-    add_definitions(-DNOCRYPT)
-    set(CURL_STATICLIB true)
-    set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
-    set(PLUGIN_SUFFIX ".dll")
-    set(CMAKE_PREFIX_PATH "C:\\MinGW\\msys\\1.0;C:\\MinGW")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so;.dll.a")
-else ()
-    # Compiling on GNU/Linux.
-    set(LINUX true)
-    set(PLUGIN_SUFFIX ".so")
-endif ()
-
 # cURL is required by the metaserver.
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
@@ -129,6 +54,14 @@ if (READLINE_LIBRARY)
     set(HAVE_READLINE true)
 else ()
     message(STATUS "Could not find readline library, simple interactive console will be compiled instead.")
+endif ()
+
+find_library(CHECK_LIBRARY check)
+
+if (CHECK_LIBRARY)
+    set(HAVE_CHECK true)
+else ()
+    message(STATUS "Could not find check library, unit tests will not be compiled.")
 endif ()
 
 find_package(OpenSSL REQUIRED)
@@ -214,13 +147,13 @@ endif ()
 try_compile(HAVE_IPV6 ${CMAKE_CURRENT_BINARY_DIR}/compile_tests ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ipv6test.c)
 
 # Generate the CMake configuration header file.
-configure_file(src/cmake.h.def src/cmake.h)
+configure_file(cmake.h.def cmake.h)
 
 # Generate a header file with the Git version used to compile the library.
 find_program(GIT_SCM git DOC "Git version control")
 mark_as_advanced(GIT_SCM)
 find_file(GITDIR NAMES .git PATHS ../ NO_DEFAULT_PATH)
-set(GITVERSION_H src/gitversion.h)
+set(GITVERSION_H gitversion.h)
 
 if (GIT_SCM AND GITDIR)
     add_custom_command(OUTPUT ${GITVERSION_H}
@@ -248,7 +181,30 @@ add_custom_target(git_branch DEPENDS ${GITVERSION_H})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(TOOLKIT_SOURCES
+    binreloc.c
+    clioptions.c
+    colorspace.c
+    console.c
+    curl.c
+    datetime.c
+    logger.c
+    math.c
+    memory.c
+    mempool.c
+    packet.c
+    path.c
+    pbkdf2.c
+    porting.c
+    process.c
+    sha1.c
+    shstr.c
+    signals.c
+    socket.c
+    socket_crypto.c
+    stringbuffer.c
     string.c
+    toolkit.c
+    x11.c
     )
 
 add_library(${ATRINIK_TOOLKIT} ${TOOLKIT_SOURCES})
@@ -278,6 +234,14 @@ if (HAVE_READLINE)
     target_link_libraries(${ATRINIK_TOOLKIT} ${READLINE_LIBRARY})
 endif ()
 
+if (HAVE_CHECK)
+    target_link_libraries(${ATRINIK_TOOLKIT} ${CHECK_LIBRARY})
+
+    if (UNIX AND NOT APPLE)
+        target_link_libraries(${ATRINIK_TOOLKIT} rt)
+    endif ()
+endif ()
+
 # Link X11 if available.
 if (HAVE_X11)
     target_link_libraries(${ATRINIK_TOOLKIT} ${X11_LIBRARIES})
@@ -291,16 +255,3 @@ endif ()
 target_link_libraries(${ATRINIK_TOOLKIT} ${OPENSSL_LIBRARIES})
 
 add_dependencies(${ATRINIK_TOOLKIT} git_branch)
-
-
-find_library(CHECK_LIBRARY check)
-
-if (CHECK_LIBRARY)
-#    target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
-
-#    if (UNIX AND NOT APPLE)
-#        target_link_libraries(${EXECUTABLE} rt)
-#    endif ()
-else ()
-    message(STATUS "Could not find check library, unit tests will not be compiled.")
-endif ()

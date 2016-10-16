@@ -29,8 +29,10 @@
  * @author Alex Tokar
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef TOOLKIT_LOGGER_H
+#define TOOLKIT_LOGGER_H
+
+#include "toolkit.h"
 
 typedef void (*logger_print_func)(const char *str);
 
@@ -65,8 +67,8 @@ typedef enum logger_level {
 
 /* Prototypes */
 
-extern void toolkit_logger_init(void);
-extern void toolkit_logger_deinit(void);
+TOOLKIT_FUNCS_DECLARE(logger);
+
 void logger_open_log(const char *path);
 FILE *logger_get_logfile(void);
 logger_level logger_get_level(const char *name);

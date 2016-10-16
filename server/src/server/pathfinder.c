@@ -38,12 +38,12 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <arch.h>
 #include <player.h>
 #include <object.h>
 #include <exit.h>
-#include <clioptions.h>
+#include <toolkit/clioptions.h>
 
 /**
  * Turns pathfinding profiling on/off.

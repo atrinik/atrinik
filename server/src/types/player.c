@@ -29,7 +29,7 @@
 
 #include <global.h>
 #include <loader.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
 #include <plugin.h>
 #include <monster_data.h>
 #include <arch.h>
@@ -41,7 +41,7 @@
 #include <disease.h>
 #include <container.h>
 #include <server.h>
-#include <path.h>
+#include <toolkit/path.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);

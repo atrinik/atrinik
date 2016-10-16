@@ -28,7 +28,8 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
+#include <toolkit/colorspace.h>
 
 /**
  * Structure used to cache sprite surfaces that have had special effects
@@ -1462,7 +1463,7 @@ rectangle_create (SDL_Surface *surface,
 
 /**
  * Changes alpha value of the specified surface.
- * 
+ *
  * If the surface is per-pixel alpha, changes every pixel on the surface
  * to match the specified alpha value.
  *

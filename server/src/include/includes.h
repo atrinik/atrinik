@@ -31,7 +31,7 @@
 #define INCLUDES_H
 
 #include <config.h>
-#include <toolkit.h>
+#include <toolkit/toolkit.h>
 #include <define.h>
 #include <version.h>
 

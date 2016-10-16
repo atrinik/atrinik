@@ -30,7 +30,8 @@
  */
 
 #include <global.h>
-#include <toolkit_string.h>
+#include <toolkit/string.h>
+#include <toolkit/x11.h>
 
 text_input_history_struct *text_input_history_create(void)
 {

@@ -32,7 +32,7 @@
 #include <arch.h>
 #include <artifact.h>
 #include "object_methods.h"
-#include "toolkit_string.h"
+#include <toolkit/string.h>
 
 /** All the coin arches. */
 const char *const coins[NUM_COINS + 1] = {
