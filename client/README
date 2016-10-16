@@ -1,19 +1,28 @@
-=======================================
-=           Atrinik Client            =
-=======================================
+=================================================
+=                Atrinik Client                 =
+=================================================
 
-Website: http://www.atrinik.org/
+ Website: http://www.atrinik.org/
 
-Client package for the Atrinik game.
+ Client package for the Atrinik game.
 
-COMPILING:
+=================================================
+= 1. Compiling the Atrinik client               =
+=================================================
 
-See the INSTALL file for instructions on how to compile the client.
+ See the INSTALL file in the Atrinik root directory for instructions on how to
+ compile the client.
 
-LICENSING:
+=================================================
+= 2. Running the client                         =
+=================================================
 
-Atrinik client
-===================
+ Simply execute the atrinik executable.
+
+=================================================
+= 3.1. Licensing (Atrinik client)               =
+=================================================
+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -30,21 +39,25 @@ Atrinik client
 
  The author can be reached at admin@atrinik.org
 
-Atrinik client graphics
-===================
+=================================================
+= 3.2. Licensing (Atrinik client graphics)      =
+=================================================
  See the LICENSE file in the 'textures' directory.
 
-Atrinik client sounds
-===================
+=================================================
+= 3.3. Licensing (Atrinik client sounds)        =
+=================================================
  See the LICENSE file in the 'sound/background' directory for background music,
  or the LICENSE file in the 'sound/effects' directory for sound effects.
 
-Atrinik client fonts
-===================
+=================================================
+= 3.4. Licensing (Atrinik client fonts)         =
+=================================================
  See the respective font file's copyright field.
 
-uthash
-===================
+=================================================
+= 3.5. Licensing (uthash)                       =
+=================================================
 
  Copyright (c) 2005-2011, Troy D. Hanson    http://uthash.sourceforge.net
  All rights reserved.

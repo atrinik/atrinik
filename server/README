@@ -1,330 +1,331 @@
-=======================================
-=           Atrinik Server            =
-=======================================
-
-Website: http://www.atrinik.org/
-
-Server package for the Atrinik game.
-
-================================================
-= 1. Compiling the Atrinik server              =
-================================================
-
-See the INSTALL file for instructions on how to compile the server.
-
-================================================
-= 2. Running the server                        =
-================================================
-
-In order to start up the server, you will need to run the resource collection
-script, which can be located - from the root of the repository - here:
-    ./tools/collect.py
-
-The above script will collect various resources from the 'arch' directory and
-will compile the NPC interfaces definitions into executables, and should be
-ran from the tools directory. You should see output like:
-    $ ./collect.py 
-    Starting resource collection...
-    Collecting factions...
-    Collecting treasures...
-    Collecting animations...
-    Collecting archetypes...
-    Collecting artifacts...
-    Collecting images...
-    Collecting interfaces...
-    Done!
-
-You can use the -d option to specify the root directory of your Atrinik
-package, instead of running it from the tools directory, like so:
-    $ ./tools/collect.py -d ~/atrinik
-
-The script should be executed every time you update the repository or make
-manual changes to archetypes/artifacts/images/interfaces/etc.
-
-Afterwards, you can start up the server with ./server.sh or ./server.bat
-(depending on your platform). Starting up the server using the binary is
-also possible, but generally not recommended, as the startup scripts take
-care of various aspects, such as first-time installation.
-
-For example, you should see something like this:
-    $ ./server.sh 
-    [15:04:46.112927] INFO   [main:634] Server ready. Waiting for
-    connections...
-
-The startup scripts will also pass any extra options straight to the
-binary, for example:
-    $ ./server.sh --version
-    [15:07:12.638483] INFO   [version:94] This is Atrinik v4.0 (master/7fc333e
-    by Alex Tokar)
-
-However, if you want to do it yourself, you will need to do the
-following (working from the server directory):
- - Create 'lib' directory if it doesn't exist
- - If the 'data' directory doesn't exist, copy 'install_data' as 'data'
-   and create a 'data/tmp' directory
- - Copy all files (not directories) from ../arch to the 'lib' directory;
-   this will need to be done every time you run the collect.py script.
-   Alternatively, you can run the collect script like this to automatically
-   copy the necessary files:
-   $ ./collect.py -o ../server/lib
- - Now you can launch the atrinik-server binary manually.
-
-It is recommended to generate the region maps prior to starting up the server.
-As this can take some time, they are not generated automatically, but you need
-to use the --worldmaker switch, eg, run this prior to starting up your server:
-    $ ./server.sh --worldmaker
-
-The region maps are not mandatory to play the game, however, some features may
-not work (specifically, the client will only be able to work with dynamic area
-maps and not the full region maps).
-
-Starting up the server will also start an HTTP server for serving the game data
-files. If you like, you can use any HTTP server of your choice instead, as long
-as it's properly configured. See section 2.2. for details.
-
-================================================
-= 2.1. Configuring the server                  =
-================================================
-
-The server has a number of configuration options, optimized for local server
-play. However, if you feel like tweaking them, you will need to change the
-configuration file server.cfg, or create a new file called server-custom.cfg
-and put your custom settings there (this is the preferred way, especially when
-working from a Git repository).
-
-You can examine the server.cfg file to learn about most of the default settings
-and what they do. Additionally, you can use the -h or --help option when
-executing the server to learn about all the possible options (there is a 1:1
-mapping between the configuration files and arguments passed on the command line,
-so you can use the same options either way; eg, "port = 900" in a configuration
-file and ./atrinik-server --port=900 are the same thing).
-
-See section 3. for information about running a public server and the necessary
-configuration, and section 4. for enabling crypto extensions.
-
-================================================
-= 2.2. Running your own HTTP server            =
-================================================
-
-You can disable the bundled HTTP server with this configuration option:
-    http_server = off
-
-In this case, you will need to configure an HTTP server of your own, which
-will serve the necessary server files. Also, if you plan on using a different
-URL/port for the server files, you will have to change this configuration to
-suit your needs:
-    http_url = http://localhost:8080
-
-You will need to map the following URLs to their directory counterparts:
- - http://localhost:8080/                     -> server/data/http/
- - http://localhost:8080/resources            -> server/resources/
-
-================================================
-= 3. Running a public server                   =
-================================================
-
-!!!
-!!! WARNING:
-!!! READ ALL OF THIS CAREFULLY. FAILURE TO DO SO
-!!! MAY LOCK YOU OUT OF METASERVER ACCESS.
-!!!
-
-There are several security considerations for running your own server. First
-off, note that with default configuration, any player character is by default
-in development mode. You will want to disable this with the following
-configuration:
-    default_permission_groups = None
-
-Second, by default, the server listens on both IPv4 and IPv6 loopback
-interfaces (if present). It is generally recommended to disable the network
-stacks you don't need, or if you want to support both IPv4/IPv6 and you have
-a system with dual-stack network support, you may enable the configuration for
-that instead. Some examples:
- - IPv4-only:
-    network_stack = ipv4=127.0.0.1
- - IPv6-only:
-    network_stack = ipv6=::1
- - Dual-stack:
-    network_stack = dual
-
-Third, it's STRONGLY recommended to enable the crypto extensions for secure
-password exchange and in-game communications, on top of establishing server
-trust and authenticity. See section 4. for details.
-
-The HTTP URL will need to be changed, otherwise outside clients will not be
-able to download the necessary data files. You will need to use either an IP
-address or a hostname (preferable), and you will need to have the specified
-port open, for example:
-    http_url = http://www.example.com:8080
-
-In order to advertise the server to the public, you will need to configure
-metaserver options. This will enable periodic flooding of your server details
-to the Atrinik metaserver (found at: https://meta.atrinik.org). See section
-3.1. for details about the sort of information this exposes. The necessary
-options are:
-    server_name = Your Server Name
-    server_host = www.example.com
-    server_desc = Description about your server.
-
-Adjust the above as necessary. The hostname MUST resolve to the IP address
-of the server. It's strongly discouraged to use PTR records, as they are used
-for a different purpose. If you don't have a static IP, dynamic DNS services
-or low-TTL DNS records are encouraged.
-
-Do note that for security reasons, the metaserver will block IP changes for
-up to an hour, so public servers with dynamic IPs are not encouraged due to
-the possible outage period.
-
-Make sure the Atrinik port (1728 by default, can be changed with port=xyz) is
-accessible from the outside (ie, set up your firewall accordingly). See section
-3.2. for detail about the various ports.
-
-After you have all of the above set up, the next time you launch the server,
-it should connect to the metaserver and update it with your server information,
-allowing players with a compatible client to connect.
-
-Be aware that the first time the server uploads the information to the
-metaserver, a secret key is generated. If you LOSE this key, you will be LOCKED
-out of updating the metaserver ever again (for the particular hostname). The
-key can be found in server/data/metaserver_key, once generated.
-
-================================================
-= 3.1. Metaserver-exposed information          =
-================================================
-
-Apart from the obvious identifying information exposed by any IP connection
-(such as the server IP address), the following information is exposed to the
-metaserver, and flooded in periodic intervals, if reporting to the metaserver
-has been enabled (as per section 3.):
- - Configured server name, hostname and description
- - Enabled game data ports (normal/crypto)
- - Server version
- - Atrinik HTTP client version and platform (Windows/Linux/other)
- - Generated metaserver key (for authentication purposes)
- - Number of players online
- - List of online players (apart from hidden ones)
- - ADS-7 compatible Atrinik server certificate, if configured
- - RSA public key, if configured
-
-The above information is sent to https://meta.atrinik.org/ (unless otherwise
-specified), again, only if enabled as per section 3. Application-based HPKP is
-used to pin the signature of the outermost leaf certificate for security
-reasons. The ultimate-trust keys can be found in server/data/keys.
-
-================================================
-= 3.2. Ports used by Atrinik                   =
-================================================
-
-The following ports are used by the Atrinik server and need to be opened in
-order for other players to connect successfully (they can all be changed in
-the configuration).
-
- - 1728: The main game data port
- - 1729: The security extension port; clients will connect to this port
-         instead of the one above if the security extensions are enabled.
- - 8080: The HTTP server port; used by clients to download large game data
-         files
-
-================================================
-= 4. Enabling crypto extensions                =
-================================================
-
-Protecting player data and ensuring communication privacy is a crucial aspect
-of Atrinik. With the crypto extensions enabled, all text input commands and
-communications are encrypted using ECDHE-RSA. These keys are ephemeral; created
-for every new connection and destroyed on disconnect.
-
-An X509 certificate is used to validate the server's identity. It is strongly
-recommended to use a trusted CA; self-signed certificates are frowned upon and
-will generate a one-time warning when connecting to a server using one.
-
-See section 4.1. for generating an X509 certificate, and an RSA private key
-for it.
-
-Do NOT lose your RSA private key; the client deploys a public-key pinning
-technology which means if it ever sees your server using a different key, it
-will raise red flags and show a warning to the player before they can connect.
-
-You can enable the security extensions like this:
-    [crypto]
-    crypto = true
-    crypto_cert = </path/to/cert.pem
-    crypto_cert_key = </path/to/key.pem
-
-The cert.pem file should contain your X509 certificate, while the key.pem file
-should countain your RSA private key that was used to sign the certificate.
-Note that if you protected the private key with a passphrase, you will need to
-enter it every time you start up the server.
-
-If you need to specify a certificate chain file (eg, one provided by a CA of
-your choice), you can do so like this:
-    [crypto]
-    crypto_cert_chain = </path/to/chain.pem
-
-It is recommended to disable the regular port when using the crypto extensions,
-unless you need to support clients without crypto extensions support:
-    [general]
-    port = 0
-
-By default, the port used by the crypto extensions is 1729. You can change it
-like this:
-    [crypto]
-    port_crypto = 1729
-
-If you've set up everything correctly, the server should now be reporting its
-public key to the metaserver, and advertising crypto extension capabilities,
-which means that clients should be connecting via a secure channel.
-
-However, this is not the end of it; so far, all you have established is a
-secure channel between the server and its clients. While all the different
-security checks put in place should stop a rogue server takeover or a MITM
-attack, they require a client to connect at least once before any such
-attack (to pin the public key), and they do not completely thwart DNS
-spoofing attacks.
-
-Please see section 4.2. for the absolute way of establishing server trust
-and authenticity.
-
-================================================
-= 4.1. Generating an X509 certificate          =
-================================================
-
-You can create a self-signed X509 certificate using a command like this:
-    $ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days X
-
-Add -nodes if you don't want a passphrase for the RSA key (otherwise you will
-be prompted for it each time the server starts up), and change X to the number
-of days you want the certificate to remain valid for. Use the server's hostname
-for the CN.
-
-Keep the generated RSA key secure and backed up; if you lose access to it and
-generate an X509 certificate using a different one in the future, clients that
-previously connected to your server will first have to go through a warning
-sign due to public key pinning.
-
-The preferred alternative is to go through the process of generating an X509
-certificate signing request and getting the X509 certificate from a CA. Let's
-Encrypt provides a free service for trusted certificates, although they have a
-short expire time, and there's some manual work involved in making them use
-your own RSA key for the signing part. At any rate, the process is outside of
-the scope of this document; the only requirement is that the CN must match that
-of your configured server hostname.
-
-================================================
-= 4.2. Server vetting                          =
-================================================
-
-Server vetting is a process by which an Atrinik team member examines a
-server and confirms its identity, generating a signature that clients can
-verify to establish the server is who they claim to be.
-
-At its core is a specially designed certificate format (the design
-specification of which can be found in ADS-7). This certificate is something
-that the server owner must fill out and send to the Atrinik team for review;
-either via email to admin@atrinik.org, a post on the forums (www.atrinik.org)
-or a direct PM to one of the team members.
-
-The certificate looks like this:
+=================================================
+=                Atrinik Server                 =
+=================================================
+
+ Website: http://www.atrinik.org/
+
+ Server package for the Atrinik game.
+
+=================================================
+= 1. Compiling the Atrinik server               =
+=================================================
+
+ See the INSTALL file in the Atrinik root directory for instructions on how to
+ compile the server.
+
+=================================================
+= 2. Running the server                         =
+=================================================
+
+ In order to start up the server, you will need to run the resource collection
+ script, which can be located - from the root of the repository - here:
+  $ ./tools/collect.py
+
+ The above script will collect various resources from the 'arch' directory and
+ will compile the NPC interfaces definitions into executables, and should be
+ ran from the tools directory. You should see output like:
+  $ ./collect.py
+  Starting resource collection...
+  Collecting factions...
+  Collecting treasures...
+  Collecting animations...
+  Collecting archetypes...
+  Collecting artifacts...
+  Collecting images...
+  Collecting interfaces...
+  Done!
+
+ You can use the -d option to specify the root directory of your Atrinik
+ package, instead of running it from the tools directory, like so:
+  $ ./tools/collect.py -d ~/atrinik
+
+ The script should be executed every time you update the repository or make
+ manual changes to archetypes/artifacts/images/interfaces/etc.
+
+ Afterwards, you can start up the server with ./server.sh or ./server.bat
+ (depending on your platform). Starting up the server using the binary is
+ also possible, but generally not recommended, as the startup scripts take
+ care of various aspects, such as first-time installation.
+
+ For example, you should see something like this:
+  $ ./server.sh
+  [15:04:46.112927] INFO   [main:634] Server ready. Waiting for connections...
+
+ The startup scripts will also pass any extra options straight to the
+ binary, for example:
+  $ ./server.sh --version
+  [15:07:12.638483] INFO   [version:94] This is Atrinik v4.0 (master/7fc333e
+  by Alex Tokar)
+
+ However, if you want to do it yourself, you will need to do the
+ following (working from the server directory):
+  - Create 'lib' directory if it doesn't exist
+  - If the 'data' directory doesn't exist, copy 'install_data' as 'data'
+    and create a 'data/tmp' directory
+  - Copy all files (not directories) from ../arch to the 'lib' directory;
+    this will need to be done every time you run the collect.py script.
+    Alternatively, you can run the collect script like this to automatically
+    copy the necessary files:
+     $ ./collect.py -o ../server/lib
+  - Now you can launch the atrinik-server binary manually.
+
+ It is recommended to generate the region maps prior to starting up the server.
+ As this can take some time, they are not generated automatically, but you need
+ to use the --worldmaker switch, eg, run this prior to starting up your server:
+  $ ./server.sh --worldmaker
+
+ The region maps are not mandatory to play the game, however, some features may
+ not work (specifically, the client will only be able to work with dynamic area
+ maps and not the full region maps).
+
+ Starting up the server will also start an HTTP server for serving the game
+ data files. If you like, you can use any HTTP server of your choice instead,
+ as long as it's properly configured. See section 2.2. for details.
+
+=================================================
+= 2.1. Configuring the server                   =
+=================================================
+
+ The server has a number of configuration options, optimized for local server
+ play. However, if you feel like tweaking them, you will need to change the
+ configuration file server.cfg, or create a new file called server-custom.cfg
+ and put your custom settings there (this is the preferred way, especially when
+ working from a Git repository).
+
+ You can examine the server.cfg file to learn about most of the default settings
+ and what they do. Additionally, you can use the -h or --help option when
+ executing the server to learn about all the possible options (there is a 1:1
+ mapping between the configuration files and arguments passed on the command
+ line, so you can use the same options either way; eg, "port = 900" in a
+ configuration file and ./atrinik-server --port=900 are the same thing).
+
+ See section 3. for information about running a public server and the necessary
+ configuration, and section 4. for enabling crypto extensions.
+
+=================================================
+= 2.2. Running your own HTTP server             =
+=================================================
+
+ You can disable the bundled HTTP server with this configuration option:
+  http_server = off
+
+ In this case, you will need to configure an HTTP server of your own, which
+ will serve the necessary server files. Also, if you plan on using a different
+ URL/port for the server files, you will have to change this configuration to
+ suit your needs:
+  http_url = http://localhost:8080
+
+ You will need to map the following URLs to their directory counterparts:
+  - http://localhost:8080/                     -> server/data/http/
+  - http://localhost:8080/resources            -> server/resources/
+
+=================================================
+= 3. Running a public server                    =
+=================================================
+
+ !!!
+ !!! WARNING:
+ !!! READ ALL OF THIS CAREFULLY. FAILURE TO DO SO
+ !!! MAY LOCK YOU OUT OF METASERVER ACCESS.
+ !!!
+
+ There are several security considerations for running your own server. First
+ off, note that with default configuration, any player character is by default
+ in development mode. You will want to disable this with the following
+ configuration:
+  default_permission_groups = None
+
+ Second, by default, the server listens on both IPv4 and IPv6 loopback
+ interfaces (if present). It is generally recommended to disable the network
+ stacks you don't need, or if you want to support both IPv4/IPv6 and you have
+ a system with dual-stack network support, you may enable the configuration for
+ that instead. Some examples:
+  - IPv4-only:
+     network_stack = ipv4=127.0.0.1
+  - IPv6-only:
+     network_stack = ipv6=::1
+  - Dual-stack:
+     network_stack = dual
+
+ Third, it's STRONGLY recommended to enable the crypto extensions for secure
+ password exchange and in-game communications, on top of establishing server
+ trust and authenticity. See section 4. for details.
+
+ The HTTP URL will need to be changed, otherwise outside clients will not be
+ able to download the necessary data files. You will need to use either an IP
+ address or a hostname (preferable), and you will need to have the specified
+ port open, for example:
+  http_url = http://www.example.com:8080
+
+ In order to advertise the server to the public, you will need to configure
+ metaserver options. This will enable periodic flooding of your server details
+ to the Atrinik metaserver (found at: https://meta.atrinik.org). See section
+ 3.1. for details about the sort of information this exposes. The necessary
+ options are:
+  server_name = Your Server Name
+  server_host = www.example.com
+  server_desc = Description about your server.
+
+ Adjust the above as necessary. The hostname MUST resolve to the IP address
+ of the server. It's strongly discouraged to use PTR records, as they are used
+ for a different purpose. If you don't have a static IP, dynamic DNS services
+ or low-TTL DNS records are encouraged.
+
+ Do note that for security reasons, the metaserver will block IP changes for
+ up to an hour, so public servers with dynamic IPs are not encouraged due to
+ the possible outage period.
+
+ Make sure the Atrinik port (1728 by default, can be changed with port=xyz) is
+ accessible from the outside (i.e., set up your firewall accordingly). See
+ section 3.2. for detail about the various ports.
+
+ After you have all of the above set up, the next time you launch the server,
+ it should connect to the metaserver and update it with your server
+ information, allowing players with a compatible client to connect.
+
+ Be aware that the first time the server uploads the information to the
+ metaserver, a secret key is generated. If you LOSE this key, you will be
+ LOCKED out of updating the metaserver ever again (for the particular
+ hostname). The key can be found in server/data/metaserver_key, once generated.
+
+=================================================
+= 3.1. Metaserver-exposed information           =
+=================================================
+
+ Apart from the obvious identifying information exposed by any IP connection
+ (such as the server IP address), the following information is exposed to the
+ metaserver, and flooded in periodic intervals, if reporting to the metaserver
+ has been enabled (as per section 3.):
+  - Configured server name, hostname and description
+  - Enabled game data ports (normal/crypto)
+  - Server version
+  - Atrinik HTTP client version and platform (Windows/Linux/other)
+  - Generated metaserver key (for authentication purposes)
+  - Number of players online
+  - List of online players (apart from hidden ones)
+  - ADS-7 compatible Atrinik server certificate, if configured
+  - RSA public key, if configured
+
+ The above information is sent to https://meta.atrinik.org/ (unless otherwise
+ specified), again, only if enabled as per section 3. Application-based HPKP is
+ used to pin the signature of the outermost leaf certificate for security
+ reasons. The ultimate-trust keys can be found in server/data/keys.
+
+=================================================
+= 3.2. Ports used by Atrinik                    =
+=================================================
+
+ The following ports are used by the Atrinik server and need to be opened in
+ order for other players to connect successfully (they can all be changed in
+ the configuration).
+
+  - 1728: The main game data port
+  - 1729: The security extension port; clients will connect to this port
+          instead of the one above if the security extensions are enabled.
+  - 8080: The HTTP server port; used by clients to download large game data
+          files
+
+=================================================
+= 4. Enabling crypto extensions                 =
+=================================================
+
+ Protecting player data and ensuring communication privacy is a crucial aspect
+ of Atrinik. With the crypto extensions enabled, all text input commands and
+ communications are encrypted using ECDHE-RSA. These keys are ephemeral;
+ created for every new connection and destroyed on disconnect.
+
+ An X509 certificate is used to validate the server's identity. It is strongly
+ recommended to use a trusted CA; self-signed certificates are frowned upon and
+ will generate a one-time warning when connecting to a server using one.
+
+ See section 4.1. for generating an X509 certificate, and an RSA private key
+ for it.
+
+ Do NOT lose your RSA private key; the client deploys a public-key pinning
+ technology which means if it ever sees your server using a different key, it
+ will raise red flags and show a warning to the player before they can connect.
+
+ You can enable the security extensions like this:
+  [crypto]
+  crypto = true
+  crypto_cert = </path/to/cert.pem
+  crypto_cert_key = </path/to/key.pem
+
+ The cert.pem file should contain your X509 certificate, while the key.pem file
+ should countain your RSA private key that was used to sign the certificate.
+ Note that if you protected the private key with a passphrase, you will need to
+ enter it every time you start up the server.
+
+ If you need to specify a certificate chain file (eg, one provided by a CA of
+ your choice), you can do so like this:
+  [crypto]
+  crypto_cert_chain = </path/to/chain.pem
+
+ It is recommended to disable the regular port when using the crypto
+ extensions, unless you need to support clients without crypto extensions
+ support:
+  [general]
+  port = 0
+
+ By default, the port used by the crypto extensions is 1729. You can change it
+ like this:
+  [crypto]
+  port_crypto = 1729
+
+ If you've set up everything correctly, the server should now be reporting its
+ public key to the metaserver, and advertising crypto extension capabilities,
+ which means that clients should be connecting via a secure channel.
+
+ However, this is not the end of it; so far, all you have established is a
+ secure channel between the server and its clients. While all the different
+ security checks put in place should stop a rogue server takeover or a MITM
+ attack, they require a client to connect at least once before any such
+ attack (to pin the public key), and they do not completely thwart DNS
+ spoofing attacks.
+
+ Please see section 4.2. for the absolute way of establishing server trust
+ and authenticity.
+
+=================================================
+= 4.1. Generating an X509 certificate           =
+=================================================
+
+ You can create a self-signed X509 certificate using a command like this:
+  $ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days X
+
+ Add -nodes if you don't want a passphrase for the RSA key (otherwise you will
+ be prompted for it each time the server starts up), and change X to the number
+ of days you want the certificate to remain valid for. Use the server's
+ hostname for the CN.
+
+ Keep the generated RSA key secure and backed up; if you lose access to it and
+ generate an X509 certificate using a different one in the future, clients that
+ previously connected to your server will first have to go through a warning
+ sign due to public key pinning.
+
+ The preferred alternative is to go through the process of generating an X509
+ certificate signing request and getting the X509 certificate from a CA. Let's
+ Encrypt provides a free service for trusted certificates, although they have a
+ short expire time, and there's some manual work involved in making them use
+ your own RSA key for the signing part. At any rate, the process is outside of
+ the scope of this document; the only requirement is that the CN must match
+ that of your configured server hostname.
+
+=================================================
+= 4.2. Server vetting                           =
+=================================================
+
+ Server vetting is a process by which an Atrinik team member examines a
+ server and confirms its identity, generating a signature that clients can
+ verify to establish the server is who they claim to be.
+
+ At its core is a specially designed certificate format (the design
+ specification of which can be found in ADS-7). This certificate is something
+ that the server owner must fill out and send to the Atrinik team for review;
+ either via email to admin@atrinik.org, a post on the forums (www.atrinik.org)
+ or a direct PM to one of the team members.
+
+ The certificate looks like this:
 ========================== BEGIN ATRINIK CERTIFICATE ==========================
 
 The purpose of this certificate is to establish authenticity of the
@@ -335,7 +336,7 @@ signed with one of the ultimate trust Atrinik keys, and MUST be considered
 void if it can't be verified using one of those keys.
 
 ==========================     BEGIN INFORMATION     ==========================
-Name:                                                          Your Server name
+Name:                                                          Your Server Name
 Hostname:                                                       www.example.com
 Port:                                                                      1728
 Crypto port:                                                               1729
@@ -357,38 +358,36 @@ to the Atrinik server.
 
 ==========================  END ATRINIK CERTIFICATE  ==========================
 
-The name, hostname and ports must match that of your server configuration. The
-public key is that of the RSA key you used to sign your X509 certificate.
+ The name, hostname and ports must match that of your server configuration. The
+ public key is that of the RSA key you used to sign your X509 certificate.
 
-Now, the IPv4 andIPv6 addresses are optional. It is understood that there may
-be servers with dynamic IPs, and renewing the certificate for such servers may
-not be viable. However, a certificate with no IP addresses specified will have
-a weaker security rating in the client, and it's strongly recommended to use
-static IP addresses anyway.
+ Now, the IPv4 and IPv6 addresses are optional. It is understood that there may
+ be servers with dynamic IPs, and renewing the certificate for such servers may
+ not be viable. However, a certificate with no IP addresses specified will have
+ a weaker security rating in the client, and it's strongly recommended to use
+ static IP addresses anyway.
 
-If you do specify the IP addresses, and you only have an IPv4 address, you must
-include the IPv6 address line as well, but leave it blank. The same applies
-vice-versa.
+ If you do specify the IP addresses, and you only have an IPv4 address, you must
+ include the IPv6 address line as well, but leave it blank. The same applies
+ vice-versa.
 
-Once you have a certificate like the one above, save it to a file (refer to it
-as server-cert.txt from now on) and send a copy to the Atrinik team, who will
-produce a signature, after the confirmation process (during which you may be
-contacted for more information). Save this signature to another file (refer to
-it as server-cert-sig.txt from now on), and adjust your configuration like so:
+ Once you have a certificate like the one above, save it to a file (refer to it
+ as server-cert.txt from now on) and send a copy to the Atrinik team, who will
+ produce a signature, after the confirmation process (during which you may be
+ contacted for more information). Save this signature to another file (refer to
+ it as server-cert-sig.txt from now on), and adjust your configuration like so:
     [crypto]
     server_cert = </path/to/server-cert.txt
     server_cert_sig = </path/to/servert-cert-sig.txt
 
-After (re-)starting the server, it should update the metaserver with the
-certificate contents and its signature, and your clients should be protected
-with the highest level of security available at this time.
+ After (re-)starting the server, it should update the metaserver with the
+ certificate contents and its signature, and your clients should be protected
+ with the highest level of security available at this time.
 
-================================================
-= 5. Licensing                                 =
-================================================
+=================================================
+= 5.1. Licensing (Atrinik server)               =
+=================================================
 
-Atrinik server
-===================
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -405,8 +404,9 @@ Atrinik server
 
  The author can be reached at admin@atrinik.org
  
-uthash
-===================
+=================================================
+= 5.2. Licensing (uthash)                       =
+=================================================
 
  Copyright (c) 2005-2011, Troy D. Hanson    http://uthash.sourceforge.net
  All rights reserved.

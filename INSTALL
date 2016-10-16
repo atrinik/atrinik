@@ -1,0 +1,243 @@
+======================
+= Installing Atrinik =
+======================
+
+ This document explains how to compile Atrinik from sources.
+
+ !!!
+ !!! If you're compiling from a Git repository, make sure you have
+ !!! performed the following command beforehand:
+ !!! $ git submodule init
+ !!!
+
+ Follow sections 1.x for GNU/Linux installation instructions, or sections 2.x
+ for Windows instructions.
+
+ Refer to the README files located in the server/client directories for
+ execution instructions.
+
+=================================
+= 1.1 Prerequisites (GNU/Linux) =
+=================================
+
+ Several libraries and programs are needed in order to compile and/or run
+ Atrinik:
+  - CMake: Required
+  - Flex: Required
+  - cURL: Required
+  - zlib: Required
+  - OpenSSL: Required
+  - Check: Optional (only if you plan on doing development, required for
+                     running unit tests)
+
+ The Atrinik server needs the following libraries/programs:
+  - GD Graphics Library: Optional (if you want to generate region maps --
+                                   usually a good idea)
+  - Python: Required (optional for merely compiling the server at this time,
+                      but not for playing)
+  - Readline: Optional (nicer CLI console with history and auto-completion)
+
+ The Atrinik client needs the following libraries/programs:
+  - SDL: Required
+  - SDL_image: Required
+  - SDL_mixer: Optional, if not installed sound support will not be
+               available.
+  - SDL_ttf: Required
+  - Timidity: Optional, necessary to play MIDI background music files
+  - libx11, libxmu: Optional, necessary for clipboard support
+
+ You can use the following command on Debian-based systems to install all the
+ recommended packages:
+  # apt-get install build-essential openssl-dev cmake zlib1g-dev \
+    libcurl4-openssl-dev python3-dev libgd-dev check libreadline6-dev \
+    libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev libsdl-ttf2.0-dev \
+    timidity libsdl1.2debian libsdl1.2debian-all libx11-dev libxmu-dev
+
+===============================
+= 1.2 Compilation (GNU/Linux) =
+===============================
+
+ Once you have installed the prerequisites, generate the project Makefiles
+ with CMake:
+  $ cmake .
+
+ Afterwards, use make to compile Atrinik:
+  $ make
+
+ If you have a multi-core CPU, you can specify the number of threads to start:
+  $ make -j4
+
+ If you only want a specific component, you can pass a target to make:
+  $ make atrinik-server
+
+ List of common make targets:
+  - atrinik-server:  The Atrinik server
+  - atrinik:         The Atrinik client
+  - atrinik-toolkit: Toolkit library used by both the client and the server
+  - test:            Run the unit tests
+  - clean:           Remove the generated binaries
+
+===============================
+= 2.1 Prerequisites (Windows) =
+===============================
+
+ You will need to install the following programs/libraries:
+ - MinGW
+    The compiler that you will use for compiling. Download it here:
+    http://sourceforge.net/projects/mingw/files/latest/download?source=files
+
+    After installing, execute the mingw-install-prereq.bat script in "tools"
+    directory (located in Atrinik root directory).
+ - CMake
+    Required to build makefiles. Download it here:
+
+    http://www.cmake.org/files/v3.0/cmake-3.0.2-win32-x86.exe
+ - Microsoft Visual C++ Redistributables 2008
+    This is required for OpenSSL to work properly. Download it here:
+    http://www.microsoft.com/en-us/download/details.aspx?id=29
+ - OpenSSL
+    Atrinik requires OpenSSL. Download it here:
+
+    https://slproweb.com/products/Win32OpenSSL.html
+
+    Make sure you get the full version for Windows 32-bit, and not the light
+    version. For example, this one is OK:
+    Win32 OpenSSL v1.0.2h
+
+    The installer will ask where to copy OpenSSL DLL files. Make sure this is
+    set to the system directory.
+ - cURL
+    Atrinik requires cURL. Download it here:
+
+    https://curl.haxx.se/gknw.net/
+
+    Get the latest version for 32-bit MinGW, eg:
+    http://curl.haxx.se/gknw.net/7.40.0/dist-w32/curl-7.40.0-devel-mingw32.zip
+
+    Extract the archive and copy "lib" and "include" directories into
+    C:/MinGW (or where you installed MinGW).
+ - Check (optional)
+    This is only needed if you want to do development and is used to run unit
+    tests. Download it here:
+
+    http://sourceforge.net/projects/check/files/latest/download
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    export CFLAGS="-DPTW32_STATIC_LIB"
+    ./configure --prefix=/c/MinGW
+    make && make check && make install
+
+ In addition, the server needs the following programs/libraries:
+ - GD Graphics Library (optional, recommended):
+    If you want to generate client maps you will need to install this library.
+
+    Download libpng sources from here:
+    http://sourceforge.net/projects/libpng/files/libpng16/1.6.14/libpng-1.6.14.tar.gz/download
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    ./configure --prefix=/c/MinGW
+    make && make install
+
+    Download GD sources from here:
+    https://bitbucket.org/libgd/gd-libgd/downloads/libgd-2.1.0.tar.gz
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    ./configure --prefix=/c/MinGW --with-png=/c/MinGW
+    make && make install
+ - Python
+    Download and install the latest Python 3 from here:
+
+    https://www.python.org/downloads/
+
+    For example this one:
+    https://www.python.org/ftp/python/3.4.2/python-3.4.2.msi
+
+ In addition, the client needs the following programs/libraries:
+ - SDL
+    Atrinik requires SDL, SDL_image and SDL_ttf. SDL_mixer is also necessary to
+    play music and sounds. Either compile these yourself, or download
+    pre-compiled libraries and binaries here:
+
+    https://www.atrinik.org/download/win32/libsdl-all.zip
+
+    Extract the archive and copy "lib" and "include" directories into
+    C:/MinGW (or where you installed MinGW). Then copy the contents of the "bin"
+    directory to the client's directory.
+ - Timidity
+    You need to install Timidity GUS patches in order to play MIDI files
+    correctly. Download them here:
+
+    http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
+
+    Extract the archive and copy "timidity" directory into the client's
+    directory.
+
+    You will also need to download this Timidity config file and put it into
+    the client directory:
+
+    https://www.atrinik.org/download/win32/timidity.cfg
+
+ Make sure you have the following paths in your PATH environment variable, in
+ this order (adjust accordingly if you installed MinGW or CMake somewhere else):
+
+ C:\MinGW\bin;C:/MinGW/msys/1.0/bin;C:\Program Files (x86)\CMake\bin
+
+ Install Netbeans for C/C++. Download it here:
+
+ https://netbeans.org/downloads/start.html?platform=windows&lang=en&option=cpp
+
+=============================
+= 2.2 Compilation (Windows) =
+=============================
+
+ Once you have installed all the prerequisites, launch Netbeans, then go to
+ Tools -> Options -> C/C++ -> Build Tools and click the Add button. Enter
+ C:\MinGW\bin (or where you installed MinGW) into the "base directory" box.
+
+ Go to File -> New Project -> C/C++ Project with Existing Sources and select
+ the Atrinik directory (i.e., the directory this file is located in). Click
+ "Finish" and the project should build automatically.
+
+============================================
+= 2.3 Building Atrinik installer (Windows) =
+============================================
+
+ If you're creating a release build, you will need to specify CMAKE_BUILD_TYPE
+ to "Release". You can do so by editing (or creating) the file build.user in
+ the root Atrinik directory and adding the following at the end:
+
+ set(CMAKE_BUILD_TYPE "Release")
+
+ Alternatively, you can create a debug build (by default). In this case, the
+ generated exe will contain a large number of debug symbols, which can be split
+ into a separate file by using the following command in a Bash shell:
+
+ ../tools/split_symbols.sh atrinik.exe
+
+ You will need to place tar.exe and gunzip.exe binaries to the client's
+ directory. You can download them here (or compile them yourself):
+
+ http://www2.cs.uidaho.edu/~jeffery/win32/
+
+ Then download latest ca-bundle.crt and place it in the client's directory:
+
+ https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt
+
+ Go to C:\OpenSSL-Win32 (or where you installed OpenSSL) and copy libeay32.dll
+ and ssleay32.dll to the client's directory.
+
+ Then run the following in the client's directory to build an installer:
+
+ cpack -G NSIS
