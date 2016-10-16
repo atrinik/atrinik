@@ -1,6 +1,6 @@
-======================
-= Installing Atrinik =
-======================
+=================================================
+= Installing Atrinik                            =
+=================================================
 
  This document explains how to compile Atrinik from sources.
 
@@ -16,9 +16,9 @@
  Refer to the README files located in the server/client directories for
  execution instructions.
 
-=================================
-= 1.1 Prerequisites (GNU/Linux) =
-=================================
+=================================================
+= 1.1 Prerequisites (GNU/Linux)                 =
+=================================================
 
  Several libraries and programs are needed in order to compile and/or run
  Atrinik:
@@ -53,9 +53,9 @@
     libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev libsdl-ttf2.0-dev \
     timidity libsdl1.2debian libsdl1.2debian-all libx11-dev libxmu-dev
 
-===============================
-= 1.2 Compilation (GNU/Linux) =
-===============================
+=================================================
+= 1.2 Compilation (GNU/Linux)                   =
+=================================================
 
  Once you have installed the prerequisites, generate the project Makefiles
  with CMake:
@@ -77,9 +77,9 @@
   - test:            Run the unit tests
   - clean:           Remove the generated binaries
 
-===============================
-= 2.1 Prerequisites (Windows) =
-===============================
+=================================================
+= 2.1 Prerequisites (Windows)                   =
+=================================================
 
  You will need to install the following programs/libraries:
  - MinGW
@@ -198,9 +198,9 @@
 
  https://netbeans.org/downloads/start.html?platform=windows&lang=en&option=cpp
 
-=============================
-= 2.2 Compilation (Windows) =
-=============================
+=================================================
+= 2.2 Compilation (Windows)                     =
+=================================================
 
  Once you have installed all the prerequisites, launch Netbeans, then go to
  Tools -> Options -> C/C++ -> Build Tools and click the Add button. Enter
@@ -210,9 +210,9 @@
  the Atrinik directory (i.e., the directory this file is located in). Click
  "Finish" and the project should build automatically.
 
-============================================
-= 2.3 Building Atrinik installer (Windows) =
-============================================
+=================================================
+= 2.3 Building Atrinik installer (Windows)      =
+=================================================
 
  If you're creating a release build, you will need to specify CMAKE_BUILD_TYPE
  to "Release". You can do so by editing (or creating) the file build.user in
