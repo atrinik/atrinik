@@ -255,31 +255,37 @@ typedef void *x11_window_type;
 
 #ifndef HAVE_STRTOK_R
 extern char *_strtok_r(char *s, const char *delim, char **save_ptr);
+#undef strtok_r
 #define strtok_r _strtok_r
 #endif
 
 #ifndef HAVE_TEMPNAM
 extern char *_tempnam(const char *dir, const char *pfx);
+#undef tempnam
 #define tempnam _tempnam
 #endif
 
 #ifndef HAVE_STRDUP
 extern char *_strdup(const char *s);
+#undef strdup
 #define strdup _strdup
 #endif
 
 #ifndef HAVE_STRNDUP
 extern char *_strndup(const char *s, size_t n);
+#undef strndup
 #define strndup _strndup
 #endif
 
 #ifndef HAVE_STRERROR
 extern char *_strerror(int errnum);
+#undef strerror
 #define strerror _strerror
 #endif
 
 #ifndef HAVE_STRCASESTR
 extern const char *_strcasestr(const char *haystack, const char *needle);
+#undef strcasestr
 #define strcasestr _strcasestr
 #endif
 
@@ -293,31 +299,37 @@ struct timezone {
 };
 
 extern int _gettimeofday(struct timeval *tv, struct timezone *tz);
+#undef gettimeofday
 #define gettimeofday _gettimeofday
 #endif
 
 #ifndef HAVE_GETLINE
 extern ssize_t _getline(char **lineptr, size_t *n, FILE *stream);
+#undef getline
 #define getline _getline
 #endif
 
 #ifndef HAVE_USLEEP
 extern int _usleep(uint32_t usec);
+#undef usleep
 #define usleep _usleep
 #endif
 
 #ifndef HAVE_STRNLEN
 extern size_t _strnlen(const char *s, size_t max);
+#undef strnlen
 #define strnlen _strnlen
 #endif
 
 #ifndef HAVE_MKSTEMP
 extern int _mkstemp(char *tmpl);
+#undef mkstemp
 #define mkstemp _mkstemp
 #endif
 
 #ifndef HAVE_SINCOS
 extern void _sincos(double x, double *s, double *c);
+#undef sincos
 #define sincos _sincos
 #endif
 

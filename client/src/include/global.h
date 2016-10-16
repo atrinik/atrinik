@@ -40,7 +40,6 @@
 #include <SDL_syswm.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <curl/curl.h>
 #include <zlib.h>
 #include <pthread.h>
 #include <config.h>
