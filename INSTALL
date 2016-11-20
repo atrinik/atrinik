@@ -6,8 +6,9 @@
 
  !!!
  !!! If you're compiling from a Git repository, make sure you have
- !!! performed the following command beforehand:
+ !!! performed the following commands beforehand:
  !!! $ git submodule init
+ !!! $ git submodule update
  !!!
 
  Follow sections 1.x for GNU/Linux installation instructions, or sections 2.x
