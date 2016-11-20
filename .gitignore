@@ -14,9 +14,6 @@ timidity.cfg
 # Metaserver config
 metaserver/db-cfg.php
 
-# The optional Atrinik sound files Git directory
-client/sound
-
 # Server data files
 server/data
 server/lib
