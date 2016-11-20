@@ -38,6 +38,7 @@
 #include <object_methods.h>
 #include <waypoint.h>
 #include <server.h>
+#include <cmake.h>
 
 #include <toolkit/process.h>
 #include <toolkit/console.h>
