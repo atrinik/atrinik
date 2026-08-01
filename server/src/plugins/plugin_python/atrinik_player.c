@@ -1127,50 +1127,25 @@ static PyGetSetDef getseters[NUM_FIELDS + 1];
  * Our actual Python PlayerType.
  */
 PyTypeObject Atrinik_PlayerType = {
-#ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(NULL)
-    0,
-#endif
-    "Atrinik.Player",
-    sizeof(Atrinik_Player),
-    0,
-    (destructor) Atrinik_Player_dealloc,
-    NULL, NULL, NULL,
-#ifdef IS_PY3K
-    NULL,
-#else
-    (cmpfunc) Atrinik_Player_InternalCompare,
-#endif
-    0, 0, 0, 0, 0, 0,
-    (reprfunc) Atrinik_Player_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Atrinik Player class.\n\n"
-    "To access object's player controller, you can use something like::\n\n"
-    "    activator = Atrinik.WhoIsActivator()\n"
-    "    player = activator.Controller()\n\n"
-    "In the above example, player points to the player structure (which Python "
-    "is wrapping) that is controlling the object *activator*. In this way, you "
-    "can, for example, use something like this to get player's save bed, among "
-    "other things::\n\n"
-    "    print(Atrinik.WhoIsActivator().Controller().savebed_map)\n\n",
-    NULL, NULL,
-    (richcmpfunc) Atrinik_Player_RichCompare,
-    0, 0, 0,
-    methods,
-    0,
-    getseters,
-    0, 0, 0, 0, 0, 0, 0,
-    Atrinik_Player_new,
-    0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-    , 0
-#endif
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
+    .tp_name = "Atrinik.Player",
+    .tp_basicsize = sizeof(Atrinik_Player),
+    .tp_dealloc = (destructor) Atrinik_Player_dealloc,
+    .tp_str = (reprfunc) Atrinik_Player_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "Atrinik Player class.\n\n"
+        "To access object's player controller, you can use something like::\n\n"
+        "    activator = Atrinik.WhoIsActivator()\n"
+        "    player = activator.Controller()\n\n"
+        "In the above example, player points to the player structure (which "
+        "Python is wrapping) that is controlling the object *activator*. In "
+        "this way, you can, for example, use something like this to get "
+        "player's save bed, among other things::\n\n"
+        "    print(Atrinik.WhoIsActivator().Controller().savebed_map)\n\n",
+    .tp_richcompare = (richcmpfunc) Atrinik_Player_RichCompare,
+    .tp_methods = methods,
+    .tp_getset = getseters,
+    .tp_new = Atrinik_Player_new,
 };
 
 /**

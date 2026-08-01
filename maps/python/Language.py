@@ -124,7 +124,7 @@ def time2seconds(s):
 
     total = 0
 
-    for (num, unit) in re.findall("(\d+)\s?([a-zA-Z]+)", s):
+    for (num, unit) in re.findall(r"(\d+)\s?([a-zA-Z]+)", s):
         num = int(num)
         unit = unit.lower()
 

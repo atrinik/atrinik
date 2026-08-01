@@ -177,31 +177,41 @@ set(SOURCES_PLUGIN_ARENA
     src/plugins/plugin_arena/plugin_arena.c)
 add_library(plugin_arena MODULE ${SOURCES_PLUGIN_ARENA})
 
-# Set the preferred order of Python versions to find.
-set(Python_ADDITIONAL_VERSIONS 3.5 3.4 3.3 3.2 3.1 3.0 2.7)
-set(CMAKE_USE_PYTHON_VERSION ${Python_ADDITIONAL_VERSIONS})
-# And try to find Python.
-find_package(PythonLibs)
+# Create the Python plugin, if requested and Python was found.
+if (ENABLE_PYTHON_PLUGIN)
+    find_package(Python QUIET COMPONENTS Development)
 
-# Create the Python plugin, if Python was found.
-if (PYTHONLIBS_FOUND)
-    include_directories(${PYTHON_INCLUDE_DIRS})
-    include_directories(src/plugins/plugin_python/include)
-    set(HAVE_PYTHON true)
+    if (Python_Development_FOUND)
+        set(PYTHONLIBS_FOUND true)
+        set(PYTHON_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
+        set(PYTHON_LIBRARIES Python::Python)
+    else ()
+        # Older CMake versions do not provide FindPython.
+        find_package(PythonLibs)
+    endif ()
 
-    set(SOURCES_PLUGIN_PYTHON
-        src/plugins/plugin_python/atrinik_archetype.c
-        src/plugins/plugin_python/atrinik_map.c
-        src/plugins/plugin_python/atrinik_object.c
-        src/plugins/plugin_python/atrinik_party.c
-        src/plugins/plugin_python/atrinik_player.c
-        src/plugins/plugin_python/atrinik_region.c
-        src/plugins/plugin_python/attr_list.c
-        src/plugins/plugin_python/plugin_python.c)
-    add_library(plugin_python MODULE ${SOURCES_PLUGIN_PYTHON})
-    target_link_libraries(plugin_python ${PYTHON_LIBRARIES})
+    if (PYTHONLIBS_FOUND)
+        include_directories(${PYTHON_INCLUDE_DIRS})
+        include_directories(src/plugins/plugin_python/include)
+        set(HAVE_PYTHON true)
+
+        set(SOURCES_PLUGIN_PYTHON
+            src/plugins/plugin_python/atrinik_archetype.c
+            src/plugins/plugin_python/atrinik_map.c
+            src/plugins/plugin_python/atrinik_object.c
+            src/plugins/plugin_python/atrinik_party.c
+            src/plugins/plugin_python/atrinik_player.c
+            src/plugins/plugin_python/atrinik_region.c
+            src/plugins/plugin_python/attr_list.c
+            src/plugins/plugin_python/plugin_python.c)
+        add_library(plugin_python MODULE ${SOURCES_PLUGIN_PYTHON})
+        target_link_libraries(plugin_python ${PYTHON_LIBRARIES})
+        add_dependencies(${EXECUTABLE} plugin_python)
+    else ()
+        message(FATAL_ERROR "Python development files are required for the Python plugin.")
+    endif ()
 else ()
-    message(STATUS "Python libs not found, Python plugin will not be built.")
+    message(STATUS "Python plugin disabled by ENABLE_PYTHON_PLUGIN=false.")
 endif ()
 
 # Configure the .h file with the configuration options (size of long,

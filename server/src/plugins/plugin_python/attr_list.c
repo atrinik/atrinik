@@ -735,43 +735,16 @@ static PyMappingMethods MappingMethods = {
 
 /** AttrListType definition. */
 PyTypeObject Atrinik_AttrListType = {
-#ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(NULL)
-    0,
-#endif
-    "Atrinik.AttrList",
-    sizeof(Atrinik_AttrList),
-    0,
-    NULL,
-    NULL, NULL, NULL,
-    NULL,
-    NULL,
-    0,
-    &SequenceMethods,
-    &MappingMethods,
-    0, 0,
-    NULL,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Atrinik attr lists",
-    NULL, NULL, NULL,
-    0,
-    (getiterfunc) iter,
-    (iternextfunc) iternext,
-    methods,
-    0,
-    NULL,
-    0, 0, 0, 0, 0, 0, 0,
-    NULL,
-    0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-    , 0
-#endif
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
+    .tp_name = "Atrinik.AttrList",
+    .tp_basicsize = sizeof(Atrinik_AttrList),
+    .tp_as_sequence = &SequenceMethods,
+    .tp_as_mapping = &MappingMethods,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "Atrinik attr lists",
+    .tp_iter = (getiterfunc) iter,
+    .tp_iternext = (iternextfunc) iternext,
+    .tp_methods = methods,
 };
 
 /**

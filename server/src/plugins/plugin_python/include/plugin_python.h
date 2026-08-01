@@ -62,7 +62,7 @@
 /* Fake some Python 2.x functions for Python 3.x. */
 #ifdef IS_PY3K
 #define PyString_Check PyUnicode_Check
-#define PyString_AsString _PyUnicode_AsString
+#define PyString_AsString PyUnicode_AsUTF8
 #define PyInt_Check PyLong_Check
 #define PyInt_AsLong PyLong_AsLong
 extern PyTypeObject PyIOBase_Type;

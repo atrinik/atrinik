@@ -68,7 +68,7 @@ class Interface:
         :param newline: If True, will add a blank line before the message (if
                         any was added previously).
         :type newline: bool
-        :param \**keywds: Rest of the keyword arguments will be formatted into
+        :param \\**keywds: Rest of the keyword arguments will be formatted into
                           the message using msg.format().
         """
 

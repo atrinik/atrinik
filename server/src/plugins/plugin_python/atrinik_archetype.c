@@ -139,42 +139,16 @@ static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python ArchetypeType. */
 PyTypeObject Atrinik_ArchetypeType = {
-#ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(NULL)
-    0,
-#endif
-    "Atrinik.Archetype",
-    sizeof(Atrinik_Archetype),
-    0,
-    (destructor) Atrinik_Archetype_dealloc,
-    NULL, NULL, NULL,
-#ifdef IS_PY3K
-    NULL,
-#else
-    (cmpfunc) Atrinik_Archetype_InternalCompare,
-#endif
-    0, 0, 0, 0, 0, 0,
-    (reprfunc) Atrinik_Archetype_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Atrinik archetypes",
-    NULL, NULL,
-    (richcmpfunc) Atrinik_Archetype_RichCompare,
-    0, 0, 0,
-    NULL,
-    0,
-    getseters,
-    0, 0, 0, 0, 0, 0, 0,
-    Atrinik_Archetype_new,
-    0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-    , 0
-#endif
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
+    .tp_name = "Atrinik.Archetype",
+    .tp_basicsize = sizeof(Atrinik_Archetype),
+    .tp_dealloc = (destructor) Atrinik_Archetype_dealloc,
+    .tp_str = (reprfunc) Atrinik_Archetype_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "Atrinik archetypes",
+    .tp_richcompare = (richcmpfunc) Atrinik_Archetype_RichCompare,
+    .tp_getset = getseters,
+    .tp_new = Atrinik_Archetype_new,
 };
 
 /**

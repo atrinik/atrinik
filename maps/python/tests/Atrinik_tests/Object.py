@@ -302,7 +302,7 @@ class ObjectMethodsSuite(unittest.TestCase):
         force = self.obj.CreateForce("test-create-force", expiration=1)
         self.assertEqual(force.name, "test-create-force")
         self.assertAlmostEqual(force.speed, 0.02)
-        self.assertEquals(force.food, 1)
+        self.assertEqual(force.food, 1)
         self.assertTrue(force.f_is_used_up)
         self.assertEqual(self.obj.FindObject(type=Atrinik.Type.FORCE), force)
         self.assertTrue(force)
@@ -327,7 +327,7 @@ class ObjectMethodsSuite(unittest.TestCase):
         self.assertEqual(force.name, "test-create-force")
         self.assertGreater(force.speed, 0.0)
         self.assertTrue(force.f_is_used_up)
-        self.assertEquals(force.food, 1)
+        self.assertEqual(force.food, 1)
         self.assertEqual(self.obj.FindObject(type=Atrinik.Type.FORCE), force)
         self.assertTrue(force)
         verify = lambda obj: self.assertTrue(force)
@@ -341,7 +341,7 @@ class ObjectMethodsSuite(unittest.TestCase):
         self.assertEqual(force.name, "test-create-force")
         self.assertGreater(force.speed, 0.0)
         self.assertTrue(force.f_is_used_up)
-        self.assertEquals(force.food, 2)
+        self.assertEqual(force.food, 2)
         self.assertEqual(self.obj.FindObject(type=Atrinik.Type.FORCE), force)
         self.assertTrue(force)
         verify = lambda obj: self.assertTrue(force)
@@ -1483,8 +1483,8 @@ class ObjectFieldsSuite(TestSuite):
         self.obj.msg = "hello world"
         self.field_compare("msg", "hello world")
 
-        self.obj.msg = "this\n\is\na\nmulti\nline\nmessage"
-        self.field_compare("msg", "this\n\is\na\nmulti\nline\nmessage")
+        self.obj.msg = "this\n\\is\na\nmulti\nline\nmessage"
+        self.field_compare("msg", "this\n\\is\na\nmulti\nline\nmessage")
 
     def test_artifact(self):
         with self.assertRaises(TypeError):
