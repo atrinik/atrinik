@@ -422,6 +422,7 @@ static void widget_draw(widgetdata *widget)
      * icon, spell cost, etc. */
     if (spell != NULL) {
         SDL_Surface *icon;
+        sprite_struct *icon_sprite;
         const char *status;
 
         box.h = 30;
@@ -440,7 +441,8 @@ static void widget_draw(widgetdata *widget)
         text_show(widget->surface, FONT_ARIAL10, spell->msg, 160, 40,
                 COLOR_WHITE, TEXT_WORD_WRAP, &box);
 
-        icon = FaceList[spell->spell->face].sprite->bitmap;
+        icon_sprite = image_get_sprite(spell->spell->face);
+        icon = icon_sprite != NULL ? icon_sprite->bitmap : NULL;
 
         text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 30,
                 COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Cost[/b]: %d",
@@ -461,10 +463,12 @@ static void widget_draw(widgetdata *widget)
 
         text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 18,
                 COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Status[/b]: %s", status);
-        draw_frame(widget->surface, widget->w - 6 - icon->w,
-                widget->h - 6 - icon->h, icon->w + 1, icon->h + 1);
-        surface_show(widget->surface, widget->w - 5 - icon->w,
-                widget->h - 5 - icon->h, NULL, icon);
+        if (icon != NULL) {
+            draw_frame(widget->surface, widget->w - 6 - icon->w,
+                    widget->h - 6 - icon->h, icon->w + 1, icon->h + 1);
+            surface_show(widget->surface, widget->w - 5 - icon->w,
+                    widget->h - 5 - icon->h, NULL, icon);
+        }
     }
 
     for (i = 0; i < BUTTON_NUM; i++) {
@@ -564,7 +568,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             return 0;
         }
 
-        icon = FaceList[spell->spell->face].sprite;
+        icon = image_get_sprite(spell->spell->face);
+        if (icon == NULL || icon->bitmap == NULL) {
+            return 0;
+        }
         xpos = widget->x + widget->w - 5;
         ypos = widget->y + widget->h - 5;
 

@@ -37,6 +37,9 @@ enum {
     DRAG_QUICKSLOT_SPELL
 };
 
+/** SDL user-event code posted when SDL_mixer finishes a music track. */
+#define EVENT_SOUND_MUSIC_FINISHED 1
+
 /**
  * Called when dragged object is not handled, and a handler was specified.
  */

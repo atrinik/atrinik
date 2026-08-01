@@ -220,6 +220,12 @@ int Event_PollInputDevice(void)
             done = 1;
             break;
 
+        case SDL_USEREVENT:
+            if (event.user.code == EVENT_SOUND_MUSIC_FINISHED) {
+                sound_music_finished_handle();
+            }
+            break;
+
         default:
             break;
         }

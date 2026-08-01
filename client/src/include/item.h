@@ -69,7 +69,7 @@ typedef struct obj {
     double weight;
 
     /** Index for face array. */
-    int16_t face;
+    uint16_t face;
 
     /** Index into animation array. */
     uint16_t animation_id;

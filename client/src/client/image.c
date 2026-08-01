@@ -46,6 +46,34 @@ static bmap_t *image_bmaps = NULL;
 static size_t image_bmaps_size = 0;
 
 /**
+ * Check whether a face ID can be used to index ::FaceList.
+ */
+bool
+image_face_valid (int face)
+{
+    return face >= 0 && face < MAX_FACE_TILES;
+}
+
+/**
+ * Get a loaded sprite without allowing an invalid face array access.
+ */
+sprite_struct *
+image_get_sprite (int face)
+{
+    sprite_struct *sprite = image_face_valid(face) ? FaceList[face].sprite : NULL;
+
+    return sprite != NULL && sprite->bitmap != NULL ? sprite : NULL;
+}
+
+/**
+ * Get a face name without allowing an invalid face array access.
+ */
+const char *
+image_get_face_name (int face)
+{
+    return image_face_valid(face) ? FaceList[face].name : NULL;
+}
+/**
  * Free data associated with a bmap_t structure.
  */
 static void
@@ -227,8 +255,13 @@ image_bmaps_deinit (void)
 void
 finish_face_cmd (int facenum, uint32_t checksum, const char *face)
 {
-    HARD_ASSERT(facenum >= 0);
     HARD_ASSERT(face != NULL);
+
+    if (!image_face_valid(facenum) || (size_t) facenum >= image_bmaps_size) {
+        LOG(ERROR, "Ignoring invalid face data ID %d (catalog size: %" PRIu64 ")",
+            facenum, (uint64_t) image_bmaps_size);
+        return;
+    }
 
     /* Loaded or requested. */
     if (FaceList[facenum].name != NULL) {
@@ -402,7 +435,13 @@ void
 image_request_face (int pnum)
 {
     char buf[MAX_BUF];
-    uint16_t num = (uint16_t) (pnum &~0x8000);
+    uint16_t num = (uint16_t) (pnum & FACE_ID_MASK);
+
+    if (!image_face_valid(num) || num >= image_bmaps_size) {
+        LOG(ERROR, "Ignoring invalid face ID %d (normalized: %u, catalog size: %" PRIu64 ")",
+            pnum, num, (uint64_t) image_bmaps_size);
+        return;
+    }
 
     if (setting_get_int(OPT_CAT_DEVEL, OPT_RELOAD_GFX) &&
         load_gfx_user_face(num)) {
@@ -414,11 +453,6 @@ image_request_face (int pnum)
         return;
     }
 
-    if (num >= image_bmaps_size) {
-        LOG(ERROR, "Server sent picture ID too loarge (%d, max: %" PRIu64 ")",
-            num, (uint64_t) image_bmaps_size);
-        return;
-    }
 
     if (load_gfx_user_face(num)) {
         return;

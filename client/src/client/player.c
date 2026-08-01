@@ -104,7 +104,7 @@ void clear_player(void)
  * @param face
  * Face ID.
  */
-void new_player(tag_t tag, long weight, short face)
+void new_player(tag_t tag, long weight, uint16_t face)
 {
     cpl.ob->tag = tag;
     cpl.ob->weight = (float) weight / 1000;

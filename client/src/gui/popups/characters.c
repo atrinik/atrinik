@@ -135,9 +135,14 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
         static uint8_t state[2] = {0, 0};
         uint16_t anim_id, face;
         size_t idx;
+        Animations *animation;
+        const char *face_name;
 
         anim_id = atoi(list->text[row][col]);
-        check_animation_status(anim_id);
+        animation = animation_get(anim_id);
+        if (animation == NULL) {
+            return;
+        }
         idx = list->row_selected - 1 == row ? 1 : 0;
 
         if (SDL_GetTicks() - ticks[idx] > 500) {
@@ -145,22 +150,22 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
             state[idx]++;
         }
 
-        if (state[idx] >= (animations[anim_id].num_animations / animations[anim_id].facings)) {
+        if (state[idx] >= animation->frame) {
             state[idx] = 0;
         }
 
-        if (list->row_selected - 1 == row) {
-            face = animations[anim_id].faces[(animations[anim_id].num_animations / animations[anim_id].facings) * (5 + 8) + state[idx]];
-        } else {
-            face = animations[anim_id].faces[(animations[anim_id].num_animations / animations[anim_id].facings) * 5 + state[idx]];
+        uint8_t direction = list->row_selected - 1 == row ? 13 : 5;
+        if (!animation_get_face(anim_id, direction, state[idx], &face)) {
+            return;
         }
 
         image_request_face(face);
 
-        if (FaceList[face].name) {
+        face_name = image_get_face_name(face);
+        if (face_name != NULL) {
             char *facename;
 
-            facename = string_sub(FaceList[face].name, 0, -4);
+            facename = string_sub(face_name, 0, -4);
             text_show_format(list->surface, FONT_ARIAL10, list->x, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_WHITE, TEXT_MARKUP, NULL, "[img=%s 0 10 0 0 0 0 0 0 0 0 0 50 45]", facename);
             efree(facename);
         }

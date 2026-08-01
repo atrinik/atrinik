@@ -3,10 +3,13 @@
 extern void read_anims(void);
 extern void anims_deinit(void);
 extern void anims_reset(void);
+extern Animations *animation_get(uint16_t animation_id);
+extern bool animation_get_face(uint16_t animation_id, uint8_t direction,
+        size_t state, uint16_t *face);
 /* src/client/client.c */
 extern Client_Player cpl;
 extern void DoClient(void);
-extern void check_animation_status(int anum);
+extern bool check_animation_status(int anum);
 /* src/client/cmd_aliases.c */
 extern void cmd_aliases_init(void);
 extern void cmd_aliases_deinit(void);
@@ -86,7 +89,7 @@ extern _anim_table *anim_table;
 extern Animations *animations;
 extern size_t animations_num;
 extern struct screensize *Screensize;
-extern _face_struct FaceList[32767];
+extern _face_struct FaceList[MAX_FACE_TILES];
 extern struct msg_anim_struct msg_anim;
 extern clioption_settings_struct clioption_settings;
 extern void keepalive_ping_stats(void);
@@ -123,7 +126,7 @@ extern const char *gender_objective[4];
 extern const char *gender_possessive[4];
 extern const char *gender_reflexive[4];
 extern void clear_player(void);
-extern void new_player(tag_t tag, long weight, short face);
+extern void new_player(tag_t tag, long weight, uint16_t face);
 extern void client_send_apply(object *op);
 extern void client_send_examine(tag_t tag);
 extern void client_send_move(tag_t loc, tag_t tag, uint32_t nrof);
@@ -182,6 +185,7 @@ extern bool client_socket_open(client_socket_t *csock, const char *host, int por
 extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);
 extern void sound_deinit(void);
+extern void sound_music_finished_handle(void);
 extern void sound_clear_cache(void);
 extern void sound_play_effect(const char *filename, int volume);
 extern int sound_play_effect_loop(const char *filename, int volume, int loop);

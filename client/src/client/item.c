@@ -453,26 +453,37 @@ int object_animate(object *ob)
         ret = true;
     }
 
-    if (ob->animation_id > 0) {
-        check_animation_status(ob->animation_id);
-    }
-
     if (ob->animation_id > 0 && ob->anim_speed) {
+        Animations *animation = animation_get(ob->animation_id);
+        if (animation == NULL) {
+            LOG(ERROR, "Disabling invalid object animation (tag: %" PRIu32
+                ", face: %u, animation: %u, direction: %u)", ob->tag,
+                ob->face, ob->animation_id, ob->direction);
+            ob->animation_id = 0;
+            return ret;
+        }
+
         ob->last_anim++;
 
         if (ob->last_anim >= ob->anim_speed) {
-            if (++ob->anim_state >= animations[ob->animation_id].frame) {
+            ob->anim_state++;
+            if (ob->anim_state >= animation->frame) {
                 ob->anim_state = 0;
             }
 
-            if (ob->direction > animations[ob->animation_id].facings) {
-                ob->face = animations[ob->animation_id].faces[ob->anim_state];
-            } else {
-                ob->face = animations[ob->animation_id].faces[animations[ob->animation_id].frame * ob->direction + ob->anim_state];
+            uint16_t face;
+            if (!animation_get_face(ob->animation_id, ob->direction,
+                    ob->anim_state, &face)) {
+                LOG(ERROR, "Disabling invalid object animation frame (tag: %"
+                    PRIu32 ", face: %u, animation: %u, direction: %u, state: %u)",
+                    ob->tag, ob->face, ob->animation_id, ob->direction,
+                    ob->anim_state);
+                ob->animation_id = 0;
+                return ret;
             }
 
+            ob->face = face;
             ob->last_anim = 0;
-
             ret = true;
         }
     }
@@ -553,45 +564,45 @@ void object_show_centered (SDL_Surface *surface,
     HARD_ASSERT(surface != NULL);
     HARD_ASSERT(tmp != NULL);
 
-    if (FaceList[tmp->face].sprite == NULL) {
+    sprite_struct *sprite = image_get_sprite(tmp->face);
+    if (sprite == NULL || sprite->bitmap == NULL) {
         return;
     }
 
-    /* Will be used for coordinate calculations. */
-    uint16_t face = tmp->face;
+    sprite_struct *layout_sprite = sprite;
 
     /* If the item is animated, try to use the first animation face for
      * coordinate calculations to prevent 'jumping' of the animation. */
     if (tmp->animation_id > 0) {
-        check_animation_status(tmp->animation_id);
-
-        if (animations[tmp->animation_id].num_animations) {
-            uint16_t face_id;
-
-            face_id = animations[tmp->animation_id].frame * tmp->direction;
-
-            if (FaceList[animations[tmp->animation_id].faces[face_id]].sprite) {
-                face = animations[tmp->animation_id].faces[face_id];
+        uint16_t layout_face;
+        if (animation_get_face(tmp->animation_id, tmp->direction, 0,
+                &layout_face)) {
+            sprite_struct *candidate = image_get_sprite(layout_face);
+            if (candidate != NULL && candidate->bitmap != NULL) {
+                layout_sprite = candidate;
             }
         }
     }
 
-    int border_left = FaceList[face].sprite->border_left;
-    int border_up = FaceList[face].sprite->border_up;
+    int border_left = layout_sprite->border_left;
+    int border_up = layout_sprite->border_up;
     if (tmp->glow[0] != '\0') {
         border_left -= SPRITE_GLOW_SIZE * 2;
         border_up -= SPRITE_GLOW_SIZE * 2;
     }
 
-    int xlen = FaceList[face].sprite->bitmap->w - border_left -
-               FaceList[face].sprite->border_right;
-    int ylen = FaceList[face].sprite->bitmap->h - border_up -
-               FaceList[face].sprite->border_down;
+    int xlen = layout_sprite->bitmap->w - border_left -
+               layout_sprite->border_right;
+    int ylen = layout_sprite->bitmap->h - border_up -
+               layout_sprite->border_down;
     if (tmp->glow[0] != '\0') {
         xlen += SPRITE_GLOW_SIZE * 2;
         ylen += SPRITE_GLOW_SIZE * 2;
     }
 
+    if (xlen <= 0 || ylen <= 0) {
+        return;
+    }
     double zoom_x = 1.0, zoom_y = 1.0;
     if (fit) {
         int xlen2 = xlen, ylen2 = ylen;
@@ -644,23 +655,22 @@ void object_show_centered (SDL_Surface *surface,
         border_up = (h - ylen) / 2;
     }
 
-    if (face != tmp->face) {
+    if (layout_sprite != sprite) {
         int temp = border_left - box.x;
 
         box.x = 0;
-        box.w = FaceList[tmp->face].sprite->bitmap->w * zoom_x;
+        box.w = sprite->bitmap->w * zoom_x;
         border_left = temp;
 
-        temp = border_up - box.y + (FaceList[face].sprite->bitmap->h * zoom_y -
-                                    FaceList[tmp->face].sprite->bitmap->h *
-                                    zoom_y);
+        temp = border_up - box.y + (layout_sprite->bitmap->h * zoom_y -
+                                    sprite->bitmap->h * zoom_y);
         box.y = 0;
-        box.h = FaceList[tmp->face].sprite->bitmap->h * zoom_y;
+        box.h = sprite->bitmap->h * zoom_y;
         border_up = temp;
 
         if (border_left < 0) {
             box.x = -border_left;
-            box.w = FaceList[tmp->face].sprite->bitmap->w * zoom_x +
+            box.w = sprite->bitmap->w * zoom_x +
                     border_left;
 
             if (box.w > w) {
@@ -676,7 +686,7 @@ void object_show_centered (SDL_Surface *surface,
 
         if (border_up < 0) {
             box.y = -border_up;
-            box.h = FaceList[tmp->face].sprite->bitmap->h * zoom_y + border_up;
+            box.h = sprite->bitmap->h * zoom_y + border_up;
 
             if (box.h > h) {
                 box.h = h;
@@ -704,5 +714,5 @@ void object_show_centered (SDL_Surface *surface,
     }
 
     surface_show_effects(surface, x + border_left, y + border_up, &box,
-                         FaceList[tmp->face].sprite->bitmap, &effects);
+                         sprite->bitmap, &effects);
 }

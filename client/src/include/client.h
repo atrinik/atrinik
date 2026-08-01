@@ -46,7 +46,7 @@ typedef struct Animations {
     int loaded;
 
     /* Length of one a animation frame (num_anim / facings) */
-    int frame;
+    size_t frame;
     uint16_t *faces;
 
     /* Number of frames */
@@ -54,7 +54,7 @@ typedef struct Animations {
 
     /* Number of animations. Value of 2 means
      * only faces[0], [1] have meaningful values. */
-    uint8_t num_animations;
+    size_t num_animations;
     uint8_t flags;
 } Animations;
 

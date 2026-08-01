@@ -75,26 +75,51 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_anim(uint8_t *data, size_t len, size_t pos)
 {
-    uint16_t anim_id;
-    int i;
-
-    anim_id = packet_to_uint16(data, len, &pos);
-    animations[anim_id].flags = packet_to_uint8(data, len, &pos);
-    animations[anim_id].facings = packet_to_uint8(data, len, &pos);
-    animations[anim_id].num_animations = (len - pos) / 2;
-
-    if (animations[anim_id].facings > 1) {
-        animations[anim_id].frame = animations[anim_id].num_animations / animations[anim_id].facings;
-    } else {
-        animations[anim_id].frame = animations[anim_id].num_animations;
+    if (pos > len || len - pos < 4) {
+        LOG(ERROR, "Ignoring truncated animation packet");
+        return;
     }
 
-    animations[anim_id].faces = emalloc(sizeof(uint16_t) * animations[anim_id].num_animations);
+    uint16_t anim_id = packet_to_uint16(data, len, &pos);
+    uint8_t flags = packet_to_uint8(data, len, &pos);
+    uint8_t facings = packet_to_uint8(data, len, &pos);
 
-    for (i = 0; pos < len; i++) {
-        animations[anim_id].faces[i] = packet_to_uint16(data, len, &pos);
-        image_request_face(animations[anim_id].faces[i]);
+    if (anim_id >= animations_num || animations == NULL) {
+        LOG(ERROR, "Ignoring invalid animation ID %u (count: %" PRIu64 ")",
+            anim_id, (uint64_t) animations_num);
+        return;
     }
+
+    size_t num_animations = (len - pos) / 2;
+    if ((len - pos) % 2 != 0 || num_animations == 0 || facings == 0 ||
+            num_animations % facings != 0) {
+        LOG(ERROR, "Ignoring malformed animation %u (%" PRIu64
+            " faces, %u facings)", anim_id, (uint64_t) num_animations,
+            facings);
+        return;
+    }
+
+    Animations *animation = &animations[anim_id];
+    efree(animation->faces);
+    animation->faces = emalloc(sizeof(*animation->faces) * num_animations);
+    animation->flags = flags;
+    animation->facings = facings;
+    animation->num_animations = num_animations;
+    animation->frame = num_animations / facings;
+
+    for (size_t i = 0; i < num_animations; i++) {
+        uint16_t face = packet_to_uint16(data, len, &pos) & FACE_ID_MASK;
+        if (!image_face_valid(face)) {
+            LOG(ERROR, "Animation %u contains invalid face ID %u", anim_id,
+                face);
+            face = 0;
+        }
+
+        animation->faces[i] = face;
+        image_request_face(face);
+    }
+
+    animation->loaded = 1;
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -104,11 +129,25 @@ void socket_command_image(uint8_t *data, size_t len, size_t pos)
     char buf[HUGE_BUF];
     FILE *fp;
 
+    if (pos > len || len - pos < 8) {
+        LOG(ERROR, "Ignoring truncated image packet");
+        return;
+    }
+
     facenum = packet_to_uint32(data, len, &pos);
     filesize = packet_to_uint32(data, len, &pos);
 
+    if (!image_face_valid(facenum) || image_get_face_name(facenum) == NULL ||
+            filesize > len - pos) {
+        LOG(ERROR, "Ignoring invalid image packet (face: %" PRIu32
+            ", size: %" PRIu32 ", remaining: %" PRIu64 ")",
+            facenum, filesize, (uint64_t) (len - pos));
+        return;
+    }
+
     /* Save picture to cache and load it to FaceList. */
-    snprintf(buf, sizeof(buf), DIRECTORY_CACHE "/%s", FaceList[facenum].name);
+    snprintf(buf, sizeof(buf), DIRECTORY_CACHE "/%s",
+            image_get_face_name(facenum));
 
     fp = path_fopen(buf, "wb+");
 
@@ -345,11 +384,18 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_player(uint8_t *data, size_t len, size_t pos)
 {
-    int tag, weight, face;
+    int tag, weight;
 
     tag = packet_to_uint32(data, len, &pos);
     weight = packet_to_uint32(data, len, &pos);
-    face = packet_to_uint32(data, len, &pos);
+    uint32_t raw_face = packet_to_uint32(data, len, &pos);
+    uint16_t face = raw_face & FACE_ID_MASK;
+    if (!image_face_valid(face)) {
+        LOG(ERROR, "Player %d received invalid face ID %" PRIu32, tag,
+            raw_face);
+        face = 0;
+    }
+
     image_request_face(face);
     packet_to_string(data, len, &pos, cpl.name, sizeof(cpl.name));
 
@@ -383,8 +429,17 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
     }
 
     if (flags & UPD_FACE) {
-        tmp->face = packet_to_uint16(data, len, pos);
-        image_request_face(tmp->face);
+        uint16_t raw_face = packet_to_uint16(data, len, pos);
+        uint16_t face = raw_face & FACE_ID_MASK;
+        if (!image_face_valid(face)) {
+            LOG(ERROR, "Object %" PRIu32 " received invalid face ID %u "
+                "(animation: %u, direction: %u)", tmp->tag, raw_face,
+                tmp->animation_id, tmp->direction);
+            face = 0;
+        }
+
+        tmp->face = face;
+        image_request_face(face);
     }
 
     if (flags & UPD_DIRECTION) {
@@ -408,9 +463,14 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
     }
 
     if (flags & UPD_ANIM) {
-        uint16_t animation_id;
+        uint16_t animation_id = packet_to_uint16(data, len, pos);
 
-        animation_id = packet_to_uint16(data, len, pos);
+        if (animation_id >= animations_num) {
+            LOG(ERROR, "Object %" PRIu32 " received invalid animation ID %u "
+                "(face: %u, direction: %u)", tmp->tag, animation_id,
+                tmp->face, tmp->direction);
+            animation_id = 0;
+        }
 
         /* Changing animation ID, force animation. */
         if (tmp->animation_id != animation_id) {
