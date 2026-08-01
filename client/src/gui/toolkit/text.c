@@ -1035,12 +1035,12 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     sprite_effects.dark_level = dark_level;
                     sprite_effects.alpha = alpha;
 
-                    if (id != -1 && FaceList[id].sprite) {
+                    if (id != -1 && image_get_sprite(id)) {
                         int w, h;
                         SDL_Rect srcrect;
 
-                        w = FaceList[id].sprite->bitmap->w;
-                        h = FaceList[id].sprite->bitmap->h;
+                        w = image_get_sprite(id)->bitmap->w;
+                        h = image_get_sprite(id)->bitmap->h;
 
                         if (sprite_effects.rotate) {
                             rotozoomSurfaceSizeXY(w, h, sprite_effects.rotate,
@@ -1101,7 +1101,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
 
                         surface_show_effects(surface, dest->x + x, dest->y + y,
                                 wd || ht ? &srcrect : NULL,
-                                FaceList[id].sprite->bitmap, &sprite_effects);
+                                image_get_sprite(id)->bitmap, &sprite_effects);
                     }
                 }
             }
@@ -1293,8 +1293,8 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     icon_sprite = NULL;
                     icon_surface = NULL;
 
-                    if (id != -1 && FaceList[id].sprite) {
-                        icon_sprite = FaceList[id].sprite;
+                    if (id != -1 && image_get_sprite(id)) {
+                        icon_sprite = image_get_sprite(id);
                         icon_surface = icon_sprite->bitmap;
                     }
 

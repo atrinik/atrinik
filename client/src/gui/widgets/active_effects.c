@@ -123,7 +123,7 @@ static void widget_draw(widgetdata *widget)
 
         DL_FOREACH(tmp->active_effects, effect)
         {
-            sprite = FaceList[effect->op->face].sprite;
+            sprite = image_get_sprite(effect->op->face);
 
             if (!sprite) {
                 continue;
@@ -139,10 +139,9 @@ static void widget_draw(widgetdata *widget)
                 widget->redraw++;
             }
 
-            if (effect->op->face != -1 &&
-                FaceList[effect->op->face].sprite != NULL) {
+            if (image_get_sprite(effect->op->face) != NULL) {
                 surface_show(widget->surface, x, y, NULL,
-                             FaceList[effect->op->face].sprite->bitmap);
+                             image_get_sprite(effect->op->face)->bitmap);
             }
 
             if (effect->sec != -1) {
@@ -185,7 +184,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
         DL_FOREACH(tmp->active_effects, effect)
         {
-            sprite = FaceList[effect->op->face].sprite;
+            sprite = image_get_sprite(effect->op->face);
 
             if (!sprite) {
                 continue;

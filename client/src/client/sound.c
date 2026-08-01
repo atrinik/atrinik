@@ -194,9 +194,23 @@ static void sound_music_file_set_duration(const char *filename, uint32_t duratio
 }
 
 /**
- * Hook called when music has finished playing.
+ * SDL_mixer callback. This can run on the audio thread, so only enqueue an
+ * event; the main thread owns all music state and cached resources.
  */
 static void sound_music_finished(void)
+{
+    SDL_Event event;
+
+    memset(&event, 0, sizeof(event));
+    event.type = SDL_USEREVENT;
+    event.user.code = EVENT_SOUND_MUSIC_FINISHED;
+    SDL_PushEvent(&event);
+}
+
+/**
+ * Handle completed music on the main thread.
+ */
+static void sound_music_finished_process(void)
 {
     uint32_t duration;
     char *tmp;
@@ -231,6 +245,18 @@ static void sound_music_finished(void)
 #endif
 
 /**
+ * Handle the music-finished event posted by SDL_mixer.
+ */
+void sound_music_finished_handle(void)
+{
+#ifdef HAVE_SDL_MIXER
+    if (enabled && !Mix_PlayingMusic()) {
+        sound_music_finished_process();
+    }
+#endif
+}
+
+/**
  * Register a new ::sound_background_hook callback.
  * @param ptr
  * New callback to register.
@@ -259,7 +285,9 @@ void sound_init(void)
         enabled = 0;
     }
 
-    Mix_HookMusicFinished(sound_music_finished);
+    if (enabled) {
+        Mix_HookMusicFinished(sound_music_finished);
+    }
 #else
     enabled = 0;
 #endif
@@ -286,17 +314,23 @@ static void sound_cache_free(void)
  */
 void sound_deinit(void)
 {
-    sound_cache_free();
+    enabled = 0;
 #ifdef HAVE_SDL_MIXER
-    Mix_CloseAudio();
+    Mix_HookMusicFinished(NULL);
+    Mix_HaltMusic();
+    Mix_HaltChannel(-1);
 #endif
 
-    enabled = 0;
-
+    sound_ambient_clear();
     if (sound_background != NULL) {
         efree(sound_background);
         sound_background = NULL;
     }
+
+#ifdef HAVE_SDL_MIXER
+    sound_cache_free();
+    Mix_CloseAudio();
+#endif
 }
 
 /**
@@ -304,6 +338,16 @@ void sound_deinit(void)
  */
 void sound_clear_cache(void)
 {
+#ifdef HAVE_SDL_MIXER
+    if (enabled) {
+        sound_stop_bg_music();
+        sound_ambient_clear();
+        Mix_HaltChannel(-1);
+    }
+#else
+    sound_ambient_clear();
+#endif
+
     sound_cache_free();
 }
 

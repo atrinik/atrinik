@@ -770,7 +770,7 @@ int metaserver_thread(void *dummy)
         /* Send a GET request to the metaserver */
         curl_request_t *request =
             curl_request_create(clioption_settings.metaservers[i - 1],
-                                CURL_PKEY_TRUST_ULTIMATE);
+                                CURL_PKEY_TRUST_SYSTEM);
         curl_request_do_get(request);
 
         /* If the request succeeded, parse the metaserver data and break out. */

@@ -461,7 +461,7 @@ void effect_sprites_play(void)
     for (tmp = current_effect->sprites; tmp; tmp = next) {
         next = tmp->next;
 
-        if (!FaceList[tmp->def->id].sprite) {
+        if (!image_get_sprite(tmp->def->id)) {
             continue;
         }
 
@@ -474,11 +474,11 @@ void effect_sprites_play(void)
         x_check = y_check = 0;
 
         if (tmp->def->x_check_mod) {
-            x_check = FaceList[tmp->def->id].sprite->bitmap->w;
+            x_check = image_get_sprite(tmp->def->id)->bitmap->w;
         }
 
         if (tmp->def->y_check_mod) {
-            y_check = FaceList[tmp->def->id].sprite->bitmap->h;
+            y_check = image_get_sprite(tmp->def->id)->bitmap->h;
         }
 
         if (tmp->def->warp_sides) {
@@ -500,7 +500,7 @@ void effect_sprites_play(void)
         /* Show the sprite. */
         sprite_effects.zoom_x = sprite_effects.zoom_y = tmp->def->zoom;
         surface_show_effects(cur_widget[MAP_ID]->surface, tmp->x, tmp->y, NULL,
-                FaceList[tmp->def->id].sprite->bitmap, &sprite_effects);
+                image_get_sprite(tmp->def->id)->bitmap, &sprite_effects);
         num_sprites++;
 
         /* Move it if there is no delay configured or if enough time has passed.
@@ -556,7 +556,7 @@ void effect_sprites_play(void)
             }
 
             /* Invalid sprite. */
-            if (sprite->def->id == -1 || !FaceList[sprite->def->id].sprite) {
+            if (sprite->def->id == -1 || !image_get_sprite(sprite->def->id)) {
                 LOG(INFO, "Invalid sprite ID %d", sprite->def->id);
                 effect_sprite_remove(sprite);
                 return;
@@ -570,7 +570,7 @@ void effect_sprites_play(void)
             }
 
             if (sprite->def->reverse) {
-                sprite->y = cur_widget[MAP_ID]->h - FaceList[sprite->def->id].sprite->bitmap->h;
+                sprite->y = cur_widget[MAP_ID]->h - image_get_sprite(sprite->def->id)->bitmap->h;
             } else if (sprite->def->y != -1) {
                 sprite->y = sprite->def->y;
             }

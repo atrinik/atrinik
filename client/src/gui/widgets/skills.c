@@ -98,7 +98,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
         return;
     }
 
-    if (!FaceList[skill_list[skill_id]->skill->face].sprite) {
+    if (!image_get_sprite(skill_list[skill_id]->skill->face)) {
         return;
     }
 
@@ -107,7 +107,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
     box.w = INVENTORY_ICON_SIZE;
     box.h = INVENTORY_ICON_SIZE;
 
-    surface_show(list->surface, box.x, box.y, NULL, FaceList[skill_list[skill_id]->skill->face].sprite->bitmap);
+    surface_show(list->surface, box.x, box.y, NULL, image_get_sprite(skill_list[skill_id]->skill->face)->bitmap);
 
     if (selected_skill != skill_id) {
         return;

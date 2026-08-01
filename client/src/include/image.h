@@ -70,6 +70,9 @@ typedef struct bmap_hash {
     UT_hash_handle hh;
 } bmap_hash_t;
 
+/** Mask used to extract a face ID from its protocol representation. */
+#define FACE_ID_MASK 0x7fff
+
 /* Prototypes */
 void image_init(void);
 void image_deinit(void);
@@ -78,5 +81,8 @@ void image_bmaps_deinit(void);
 void finish_face_cmd(int facenum, uint32_t checksum, const char *face);
 void image_request_face(int pnum);
 int image_get_id(const char *name);
+bool image_face_valid(int face);
+struct sprite_struct *image_get_sprite(int face);
+const char *image_get_face_name(int face);
 
 #endif

@@ -308,8 +308,10 @@ video_set_icon (SDL_Surface *icon)
     HARD_ASSERT(icon != NULL);
 
 #if defined(HAVE_X11)
-    Atom net_wm_icon = XInternAtom(SDL_display, "_NET_WM_ICON", False);
-    if (net_wm_icon) {
+    Atom net_wm_icon = SDL_display != NULL ?
+        XInternAtom(SDL_display, "_NET_WM_ICON", False) :
+        None;
+    if (net_wm_icon && SDL_window) {
         video_set_icon_x11(icon,
                            SDL_display,
                            x11_window_get_parent(SDL_display, SDL_window),

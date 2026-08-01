@@ -767,7 +767,10 @@ void map_set_data(int x, int y, int layer, int16_t face,
     }
 
     if (anim_speed != 0) {
-        check_animation_status(face);
+        if (!check_animation_status(face)) {
+            cell->faces[layer] = 0;
+            cell->anim_speed[layer] = 0;
+        }
     } else {
         image_request_face(face);
     }
@@ -845,9 +848,10 @@ static void map_animate_object(struct MapCell *cell, int layer)
         return;
     }
 
-    animation = &animations[cell->faces[layer]];
-
-    if (animation->num_animations == 0) {
+    animation = animation_get(cell->faces[layer]);
+    if (animation == NULL) {
+        cell->faces[layer] = 0;
+        cell->anim_speed[layer] = 0;
         return;
     }
 
@@ -858,8 +862,7 @@ static void map_animate_object(struct MapCell *cell, int layer)
     }
 
     /* If beyond drawable states, reset */
-    if (cell->anim_state[layer] >=
-            animation->num_animations / animation->facings) {
+    if (cell->anim_state[layer] >= animation->frame) {
         cell->anim_state[layer] = 0;
     }
 }
@@ -904,36 +907,32 @@ void map_animate(void)
 
 static uint16_t map_object_get_face(struct MapCell *cell, int layer)
 {
-    int sub_layer, dir, state;
+    int sub_layer, dir;
     Animations *animation;
+    uint16_t face;
 
     if (cell->anim_speed[layer] == 0) {
         return cell->faces[layer];
     }
 
-    animation = &animations[cell->faces[layer]];
-
-    if (animation->num_animations == 0) {
-        return cell->faces[layer];
+    animation = animation_get(cell->faces[layer]);
+    if (animation == NULL || cell->anim_facing[layer] == 0) {
+        return 0;
     }
 
     sub_layer = layer / NUM_LAYERS;
     dir = cell->anim_facing[layer] - 1;
-    state = 0;
 
-    if (animation->facings == 9) {
-        state = dir * (animation->num_animations / 9);
-    } else if (animation->facings >= 25) {
+    if (animation->facings >= 25) {
         if (cell->anim_flags[sub_layer] & ANIM_FLAG_ATTACKING) {
             dir += 16;
         } else if (cell->anim_flags[sub_layer] & ANIM_FLAG_MOVING) {
             dir += 8;
         }
-
-        state = dir * (animation->num_animations / animation->facings);
     }
 
-    return animation->faces[cell->anim_state[layer] + state];
+    return animation_get_face(cell->faces[layer], dir,
+            cell->anim_state[layer], &face) ? face : 0;
 }
 
 /**
@@ -987,8 +986,8 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
         return;
     }
 
-    sprite_struct *face_sprite = FaceList[face].sprite;
-    if (face_sprite == NULL) {
+    sprite_struct *face_sprite = image_get_sprite(face);
+    if (face_sprite == NULL || face_sprite->bitmap == NULL) {
         return;
     }
 

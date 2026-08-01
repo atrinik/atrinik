@@ -147,16 +147,26 @@ void DoClient(void)
  * @param anum
  * Animation ID.
  */
-void check_animation_status(int anum)
+bool check_animation_status(int anum)
 {
-    /* Check if it has been loaded. */
-    if (animations[anum].loaded) {
-        return;
+    if (anum < 0 || (size_t) anum >= animations_num || animations == NULL ||
+            anim_table == NULL) {
+        LOG(ERROR, "Ignoring invalid animation ID %d (count: %" PRIu64 ")",
+            anum, (uint64_t) animations_num);
+        return false;
     }
 
-    /* Mark this animation as loaded. */
-    animations[anum].loaded = 1;
+    if (animations[anum].loaded) {
+        return true;
+    }
 
-    /* Same as server sends it */
+    if (anim_table[anum].anim_cmd == NULL || anim_table[anum].len < 4) {
+        LOG(ERROR, "Animation %d has no valid command data", anum);
+        return false;
+    }
+
+    /* Same as server sends it. */
     socket_command_anim(anim_table[anum].anim_cmd, anim_table[anum].len, 0);
+
+    return animations[anum].loaded;
 }

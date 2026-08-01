@@ -149,3 +149,62 @@ void anims_reset(void)
         }
     }
 }
+Animations *
+animation_get (uint16_t animation_id)
+{
+    if (!check_animation_status(animation_id)) {
+        return NULL;
+    }
+
+    Animations *animation = &animations[animation_id];
+    if (animation->faces == NULL || animation->num_animations == 0 ||
+            animation->facings == 0 || animation->frame == 0 ||
+            animation->frame != animation->num_animations /
+            animation->facings) {
+        LOG(ERROR, "Animation %u has inconsistent frame data", animation_id);
+        return NULL;
+    }
+
+    return animation;
+}
+
+/**
+ * Resolve one animation frame without allowing an out-of-bounds access.
+ */
+bool
+animation_get_face (uint16_t animation_id, uint8_t direction, size_t state,
+                    uint16_t *face)
+{
+    HARD_ASSERT(face != NULL);
+
+    Animations *animation = animation_get(animation_id);
+    if (animation == NULL) {
+        return false;
+    }
+
+    size_t facing = direction < animation->facings ? direction : 0;
+    if (state >= animation->frame) {
+        LOG(ERROR, "Invalid animation state (animation: %u, direction: %u, "
+            "state: %" PRIu64 ", frames: %" PRIu64 ")", animation_id,
+            direction, (uint64_t) state, (uint64_t) animation->frame);
+        return false;
+    }
+
+    size_t index = facing * animation->frame + state;
+    if (index >= animation->num_animations) {
+        LOG(ERROR, "Invalid animation frame index (animation: %u, index: %"
+            PRIu64 ", count: %" PRIu64 ")", animation_id, (uint64_t) index,
+            (uint64_t) animation->num_animations);
+        return false;
+    }
+
+    uint16_t candidate = animation->faces[index] & FACE_ID_MASK;
+    if (!image_face_valid(candidate)) {
+        LOG(ERROR, "Animation %u resolved to invalid face ID %u",
+            animation_id, candidate);
+        return false;
+    }
+
+    *face = candidate;
+    return true;
+}
