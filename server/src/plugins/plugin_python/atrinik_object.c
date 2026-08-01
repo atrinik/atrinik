@@ -2693,46 +2693,18 @@ static PyNumberMethods AtrinikObjectNumber = {
  * Our actual Python ObjectType.
  */
 PyTypeObject Atrinik_ObjectType = {
-#ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(NULL)
-    0,
-#endif
-    "Atrinik.Object",
-    sizeof(Atrinik_Object),
-    0,
-    (destructor) Atrinik_Object_dealloc,
-    NULL, NULL, NULL,
-#ifdef IS_PY3K
-    NULL,
-#else
-    (cmpfunc) Atrinik_Object_InternalCompare,
-#endif
-    NULL,
-    &AtrinikObjectNumber,
-    0, 0, 0, 0,
-    (reprfunc) Atrinik_Object_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Atrinik objects",
-    NULL, NULL,
-    (richcmpfunc) Atrinik_Object_RichCompare,
-    0,
-    NULL,
-    NULL,
-    methods,
-    0,
-    getseters,
-    0, 0, 0, 0, 0, 0, 0,
-    Atrinik_Object_new,
-    0, 0, 0, 0, 0, 0, 0, 0
-#ifndef IS_PY_LEGACY
-    , 0
-#endif
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
+    .tp_name = "Atrinik.Object",
+    .tp_basicsize = sizeof(Atrinik_Object),
+    .tp_dealloc = (destructor) Atrinik_Object_dealloc,
+    .tp_as_number = &AtrinikObjectNumber,
+    .tp_str = (reprfunc) Atrinik_Object_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "Atrinik objects",
+    .tp_richcompare = (richcmpfunc) Atrinik_Object_RichCompare,
+    .tp_methods = methods,
+    .tp_getset = getseters,
+    .tp_new = Atrinik_Object_new,
 };
 
 /**
@@ -2994,34 +2966,17 @@ static PySequenceMethods Atrinik_ObjectIteratorSequence = {
  */
 PyTypeObject Atrinik_ObjectIteratorType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "Atrinik.ObjectIterator",
-    sizeof(Atrinik_ObjectIterator),
-    0,
-    (destructor) Atrinik_ObjectIterator_dealloc,
-    NULL, NULL, NULL,
-    NULL,
-    NULL,
-    &Atrinik_ObjectIteratorNumber,
-    &Atrinik_ObjectIteratorSequence,
-    0, 0, 0,
-    (reprfunc) Atrinik_ObjectIterator_str,
-    0, 0, 0,
-    Py_TPFLAGS_DEFAULT,
-    "Used for iterating object inventories.",
-    NULL, NULL,
-    NULL,
-    0,
-    (getiterfunc) Atrinik_ObjectIterator_iter,
-    (iternextfunc) Atrinik_ObjectIterator_iternext,
-    NULL,
-    0,
-    NULL,
-    0, 0, 0, 0, 0, 0, 0,
-    PyType_GenericNew,
-    0, 0, 0, 0, 0, 0, 0, 0, 0
-#ifdef Py_TPFLAGS_HAVE_FINALIZE
-    , NULL
-#endif
+    .tp_name = "Atrinik.ObjectIterator",
+    .tp_basicsize = sizeof(Atrinik_ObjectIterator),
+    .tp_dealloc = (destructor) Atrinik_ObjectIterator_dealloc,
+    .tp_as_number = &Atrinik_ObjectIteratorNumber,
+    .tp_as_sequence = &Atrinik_ObjectIteratorSequence,
+    .tp_str = (reprfunc) Atrinik_ObjectIterator_str,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "Used for iterating object inventories.",
+    .tp_iter = (getiterfunc) Atrinik_ObjectIterator_iter,
+    .tp_iternext = (iternextfunc) Atrinik_ObjectIterator_iternext,
+    .tp_new = PyType_GenericNew,
 };
 
 /**

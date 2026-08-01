@@ -41,12 +41,6 @@
 #include <object_methods.h>
 
 #include <compile.h>
-#include <eval.h>
-#ifdef STR
-/* STR is redefined in node.h. Since this file doesn't use STR, we remove it */
-#undef STR
-#endif
-#include <node.h>
 
 /** Hooks. */
 struct plugin_hooklist *hooks;
@@ -659,6 +653,39 @@ static void PyErr_LOG(void)
 }
 
 /**
+ * Reads a Python source file into a NUL-terminated buffer.
+ */
+static char *read_script_file(const char *filename)
+{
+    FILE *fp = fopen(filename, "rb");
+    long size;
+    char *source;
+
+    if (fp == NULL) {
+        return NULL;
+    }
+
+    if (fseek(fp, 0, SEEK_END) != 0 || (size = ftell(fp)) < 0) {
+        fclose(fp);
+        return NULL;
+    }
+
+    rewind(fp);
+    source = malloc((size_t) size + 1);
+
+    if (source == NULL || fread(source, 1, (size_t) size, fp) !=
+            (size_t) size) {
+        free(source);
+        fclose(fp);
+        return NULL;
+    }
+
+    source[size] = '\0';
+    fclose(fp);
+    return source;
+}
+
+/**
  * Outputs the compiled bytecode for a given python file, using in-memory
  * caching of bytecode.
  */
@@ -675,8 +702,7 @@ static PyCodeObject *compilePython(char *filename)
     HASH_FIND_STR(python_cache, filename, cache);
 
     if (!cache || cache->cached_time < stat_buf.st_mtime) {
-        FILE *fp;
-        struct _node *n;
+        char *source;
         PyCodeObject *code = NULL;
 
         if (cache) {
@@ -686,39 +712,16 @@ static PyCodeObject *compilePython(char *filename)
             free(cache);
         }
 
-        fp = fopen(filename, "r");
+        source = read_script_file(filename);
 
-        if (!fp) {
-            LOG(BUG, "Python: The script file %s can't be opened.", filename);
+        if (source == NULL) {
+            LOG(BUG, "Python: The script file %s cannot be opened.", filename);
             return NULL;
         }
 
-#ifdef WIN32
-        {
-            char buf[HUGE_BUF], *pystr = NULL;
-            size_t buf_len = 0, pystr_len = 0;
-
-            while (fgets(buf, sizeof(buf), fp)) {
-                buf_len = strlen(buf);
-                pystr_len += buf_len;
-                pystr = realloc(pystr, sizeof(char) * (pystr_len + 1));
-                strcpy(pystr + pystr_len - buf_len, buf);
-                pystr[pystr_len] = '\0';
-            }
-
-            n = PyParser_SimpleParseString(pystr, Py_file_input);
-            free(pystr);
-        }
-#else
-        n = PyParser_SimpleParseFile(fp, filename, Py_file_input);
-#endif
-
-        if (n) {
-            code = PyNode_Compile(n, filename);
-            PyNode_Free(n);
-        }
-
-        fclose(fp);
+        code = (PyCodeObject *) Py_CompileString(source, filename,
+                Py_file_input);
+        free(source);
 
         if (PyErr_Occurred()) {
             PyErr_LOG();
@@ -1872,19 +1875,14 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
 {
     double seconds = 0.0f;
     const char *s;
-    struct _node *n;
     PyCodeObject *code = NULL;
 
     if (!PyArg_ParseTuple(args, "s|d", &s, &seconds)) {
         return NULL;
     }
 
-    n = PyParser_SimpleParseString(s, Py_file_input);
-
-    if (n != NULL) {
-        code = PyNode_Compile(n, "eval'd code");
-        PyNode_Free(n);
-    }
+    code = (PyCodeObject *) Py_CompileString(s, "eval'd code",
+            Py_file_input);
 
     if (PyErr_Occurred()) {
         PyErr_LOG();
@@ -1893,7 +1891,6 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
 
     if (code != NULL) {
         python_eval_struct *tmp;
-        PyGILState_STATE gilstate;
         struct timeval tv;
 
         gettimeofday(&tv, NULL);
@@ -1906,10 +1903,6 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
         tmp->code = code;
         tmp->seconds = tv.tv_sec + tv.tv_usec / 1000000. + seconds;
         DL_APPEND(python_eval, tmp);
-
-        gilstate = PyGILState_Ensure();
-        DL_APPEND(python_eval, tmp);
-        PyGILState_Release(gilstate);
     }
 
     Py_INCREF(Py_None);
@@ -2530,7 +2523,6 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 #endif
 
     Py_Initialize();
-    PyEval_InitThreads();
 
 #ifdef IS_PY3K
     m = PyImport_ImportModule("Atrinik");
@@ -3301,7 +3293,7 @@ PyObject *generic_rich_compare(int op, int result)
 int python_call_int(PyObject *callable, PyObject *arglist)
 {
     /* Call the Python function. */
-    PyObject *result = PyEval_CallObject(callable, arglist);
+    PyObject *result = PyObject_CallObject(callable, arglist);
 
     int retval = 0;
     /* Check the result. */

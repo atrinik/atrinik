@@ -107,7 +107,7 @@ def simulate_server(seconds=None, count=None, wait=True, before_cb=None,
     :param after_cb: Optional function to after before calling
                      :func:`Atrinik.Process`.
     :type after_cb: collections.Callable
-    :param \**kwargs: Rest of keyword arguments are passed to *before_cb* and
+    :param \\**kwargs: Rest of keyword arguments are passed to *before_cb* and
                       *after_cb*.
     :return: How many times the loop was iterated.
     :rtype: int

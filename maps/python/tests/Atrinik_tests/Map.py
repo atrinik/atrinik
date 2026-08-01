@@ -329,8 +329,8 @@ class MapFieldsSuite(TestSuite):
         self.map.msg = "hello world"
         self.field_compare("msg", "hello world")
 
-        self.map.msg = "this\n\is\na\nmulti\nline\nmessage"
-        self.field_compare("msg", "this\n\is\na\nmulti\nline\nmessage")
+        self.map.msg = "this\n\\is\na\nmulti\nline\nmessage"
+        self.field_compare("msg", "this\n\\is\na\nmulti\nline\nmessage")
 
     def test_reset_timeout(self):
         self.field_test_int("reset_timeout", 32, True)
