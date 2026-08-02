@@ -1,11 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-DIRS="server client"
+BUILD_DIR=${BUILD_DIR:-build/linux-debug}
 TARGET=${1:-all}
+JOBS=${JOBS:-$(nproc)}
 
-for dir in $DIRS; do
-    cd $dir/
-    cmake .
-    make $TARGET
-    cd ../
-done
+cmake -S . -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Debug -DPACKAGE_TYPE=none
+cmake --build "${BUILD_DIR}" --target "${TARGET}" --parallel "${JOBS}"

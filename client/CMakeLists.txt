@@ -1,13 +1,15 @@
 # The Atrinik CMakeLists file.
 
+cmake_minimum_required(VERSION 3.21)
 project(atrinik C)
-cmake_minimum_required(VERSION 2.6)
 set(EXECUTABLE atrinik)
 set(EXECUTABLE_UPDATER atrinik2)
 set(PACKAGE_NAME "Atrinik Client")
 
 # Add our includes.
-include_directories(src/include)
+include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}/src/include)
+include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+include_directories(${CMAKE_BINARY_DIR}/common/toolkit)
 include_directories(src/gui/toolkit/include)
 include_directories(src)
 
@@ -17,17 +19,35 @@ endif ()
 
 # SDL is required to run the client.
 find_package(SDL REQUIRED)
+if (NOT SDL_INCLUDE_DIR AND SDL_INCLUDE_DIRS)
+    set(SDL_INCLUDE_DIR ${SDL_INCLUDE_DIRS})
+endif ()
+if (NOT SDL_LIBRARY AND SDL_LIBRARIES)
+    set(SDL_LIBRARY ${SDL_LIBRARIES})
+endif ()
 include_directories(${SDL_INCLUDE_DIR})
 set(HAVE_SDL true)
 
 # SDL_image is also required, otherwise no bitmaps or map images could be
 # displayed.
 find_package(SDL_image REQUIRED)
+if (NOT SDLIMAGE_INCLUDE_DIR AND SDL_IMAGE_INCLUDE_DIRS)
+    set(SDLIMAGE_INCLUDE_DIR ${SDL_IMAGE_INCLUDE_DIRS})
+endif ()
+if (NOT SDLIMAGE_LIBRARY AND SDL_IMAGE_LIBRARIES)
+    set(SDLIMAGE_LIBRARY ${SDL_IMAGE_LIBRARIES})
+endif ()
 include_directories(${SDLIMAGE_INCLUDE_DIR})
 set(HAVE_SDL_IMAGE true)
 
 # SDL_ttf is used for all text drawing, so it's required.
 find_package(SDL_ttf REQUIRED)
+if (NOT SDLTTF_INCLUDE_DIR AND SDL_TTF_INCLUDE_DIRS)
+    set(SDLTTF_INCLUDE_DIR ${SDL_TTF_INCLUDE_DIRS})
+endif ()
+if (NOT SDLTTF_LIBRARY AND SDL_TTF_LIBRARIES)
+    set(SDLTTF_LIBRARY ${SDL_TTF_LIBRARIES})
+endif ()
 include_directories(${SDLTTF_INCLUDE_DIR})
 set(HAVE_SDL_TTF true)
 
@@ -37,6 +57,16 @@ include_directories(${LIBXML2_INCLUDE_DIR})
 
 # SDL_mixer is optional, as sound is not a must-have.
 find_package(SDL_mixer)
+
+if (NOT SDLMIXER_FOUND AND SDL_mixer_FOUND)
+    set(SDLMIXER_FOUND ${SDL_mixer_FOUND})
+endif ()
+if (NOT SDLMIXER_INCLUDE_DIR AND SDL_MIXER_INCLUDE_DIRS)
+    set(SDLMIXER_INCLUDE_DIR ${SDL_MIXER_INCLUDE_DIRS})
+endif ()
+if (NOT SDLMIXER_LIBRARY AND SDL_MIXER_LIBRARIES)
+    set(SDLMIXER_LIBRARY ${SDL_MIXER_LIBRARIES})
+endif ()
 
 if (SDLMIXER_FOUND)
     include_directories(${SDLMIXER_INCLUDE_DIR})
@@ -71,6 +101,7 @@ target_link_libraries(${EXECUTABLE} ${LIBXML2_LIBRARIES})
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
+    target_compile_definitions(${EXECUTABLE} PRIVATE HAVE_SDL_MIXER)
     target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
 endif ()
 
@@ -110,9 +141,11 @@ else ()
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/textures/icon.png DESTINATION "share/pixmaps" RENAME "atrinik.png")
 endif ()
 
-install(TARGETS atrinik DESTINATION ${INSTALL_SUBDIR_BIN})
+if (NOT WIN32 OR UNIX)
+    install(TARGETS atrinik DESTINATION ${INSTALL_SUBDIR_BIN})
+endif ()
 install(FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL
+        ${CMAKE_SOURCE_DIR}/INSTALL
         ${CMAKE_CURRENT_SOURCE_DIR}/README
         ${CMAKE_CURRENT_SOURCE_DIR}/COPYING
         ${CMAKE_CURRENT_SOURCE_DIR}/client.cfg
@@ -126,9 +159,9 @@ set(CPACK_PACKAGE_VENDOR "Atrinik Development Team")
 set(CPACK_PACKAGE_CONTACT "Atrinik Development Team <admin@atrinik.org>")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-set(CPACK_PACKAGE_VERSION_MAJOR "4")
-set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_MAJOR "${PACKAGE_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PACKAGE_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PACKAGE_VERSION_PATCH}")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "Atrinik")
 
 if (MINGW)
@@ -136,8 +169,13 @@ if (MINGW)
     set(CPACK_CREATE_DESKTOP_LINKS "atrinik2")
 endif ()
 
+if (MINGW)
+    set(CPACK_PACKAGE_FILE_NAME
+        "atrinik-client-${PACKAGE_VERSION}-windows-x86_64")
+endif ()
+
 set(CPACK_DEBIAN_PACKAGE_NAME "atrinik")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libcurl3 (>= 7.16), libsdl-mixer1.2 (>= 1), libsdl-ttf2.0-0 (>= 1), timidity (>= 1), zlib1g (>= 1), libx11-6, libxmu6")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libsdl-image1.2, libsdl1.2debian, libcurl4, libsdl-mixer1.2, libsdl-ttf2.0-0, timidity, zlib1g, libx11-6, libxmu6")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Fantasy multiplayer online role-playing game with 2.5D graphics\n .\n Homepage: http://www.atrinik.org/")
 set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 
@@ -159,6 +197,8 @@ elseif (${PACKAGE_TYPE} STREQUAL "nsis")
     set(CPACK_BINARY_NSIS "ON")
 elseif (${PACKAGE_TYPE} STREQUAL "rpm")
     set(CPACK_BINARY_RPM "ON")
+elseif (${PACKAGE_TYPE} STREQUAL "zip")
+    set(CPACK_BINARY_ZIP "ON")
 endif (${PACKAGE_TYPE} STREQUAL "deb")
 
 set(CPACK_BINARY_STGZ "OFF")

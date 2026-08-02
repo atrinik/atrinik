@@ -1,0 +1,66 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "linux-debug",
+            "displayName": "Linux Debug",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/linux-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "PACKAGE_TYPE": "none"
+            }
+        },
+        {
+            "name": "linux-release",
+            "displayName": "Linux Release",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/linux-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "PACKAGE_TYPE": "none"
+            }
+        },
+        {
+            "name": "windows-mxe-release",
+            "displayName": "Windows x86_64 Release (MXE)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/windows-mxe-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "$env{MXE_TOOLCHAIN_FILE}",
+                "BUILD_CLIENT": true,
+                "BUILD_SERVER": false,
+                "PACKAGE_TYPE": "zip",
+                "ATRINIK_WINDOWS_RUNTIME_DIR": "$env{MXE_RUNTIME_DIR}",
+                "ATRINIK_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt"
+            }
+        },
+        {
+            "name": "Configure preset using toolchain file",
+            "displayName": "Configure preset using toolchain file",
+            "description": "Sets Ninja generator, build and install directory",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "linux-debug",
+            "configurePreset": "linux-debug"
+        },
+        {
+            "name": "linux-release",
+            "configurePreset": "linux-release"
+        },
+        {
+            "name": "windows-mxe-release",
+            "configurePreset": "windows-mxe-release"
+        }
+    ]
+}

@@ -2,10 +2,22 @@
 *.log
 cov-int
 nbproject
+build/
 *.kdev*
 *.json
+!CMakePresets.json
+!metaserver/worker/package.json
+!metaserver/worker/package-lock.json
+!.devcontainer/
+!.devcontainer/devcontainer.json
+!.devcontainer/**/*.json
 traceback_*.txt
+atrinik-traceback-*.txt
+atrinik-server-traceback-*.txt
 build.user
+metaserver/worker/node_modules/
+metaserver/worker/dist/
+metaserver/worker/.wrangler/
 server/src/loaders/*.c
 timidity.cfg
 .idea
@@ -17,6 +29,7 @@ metaserver/db-cfg.php
 # Server data files
 server/data
 server/lib
+server-data/
 
 # Config files
 tools/map-checker/config.cfg
@@ -104,3 +117,4 @@ client/timidity/
 *.db
 *.pyc
 __pycache__
+.venv/

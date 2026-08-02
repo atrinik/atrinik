@@ -51,7 +51,7 @@
 #endif
 #endif
 
-#include "cmake.h"
+#include "toolkit_cmake.h"
 
 #include <math.h>
 #include <float.h>
