@@ -1966,7 +1966,16 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
 
 void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
+    /* The graphical client sends CLEAR for its Stay action. Besides dropping
+     * commands which have not been dispatched yet, cancel movement already
+     * expanded into the player's persistent server-side path queue and stop
+     * directional run mode. This lets combat or other urgent input reliably
+    * interrupt click-to-move. */
     ns->packet_recv_cmd->len = 0;
+    if (pl != NULL) {
+        player_path_clear(pl);
+        pl->run_on = 0;
+    }
 }
 
 void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
