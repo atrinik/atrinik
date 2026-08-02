@@ -72,6 +72,9 @@ static pthread_mutex_t command_process_queue_mutex;
  */
 static pthread_t thread_id;
 
+/** Whether the console thread was successfully started. */
+static bool thread_started;
+
 #ifdef HAVE_READLINE
 /**
  * Prompt for readline.
@@ -109,7 +112,11 @@ TOOLKIT_DEINIT_FUNC(console)
 {
     size_t i;
 
-    pthread_cancel(thread_id);
+    if (thread_started) {
+        pthread_cancel(thread_id);
+        pthread_join(thread_id, NULL);
+        thread_started = false;
+    }
 
     for (i = 0; i < console_commands_num; i++) {
         efree(console_commands[i].command);
@@ -385,6 +392,7 @@ console_start_thread (void)
         return 0;
     }
 
+    thread_started = true;
     return 1;
 }
 
