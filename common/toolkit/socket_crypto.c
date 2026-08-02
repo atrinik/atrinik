@@ -1405,7 +1405,8 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
         }
 
         LOG(ERROR, "X509_verify_cert() failed: %s",
-            X509_verify_cert_error_string(store_ctx->error));
+            X509_verify_cert_error_string(
+                X509_STORE_CTX_get_error(store_ctx)));
         goto error;
     }
 

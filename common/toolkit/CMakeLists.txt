@@ -1,8 +1,10 @@
 # The Atrinik toolkit CMakeLists file.
 
+cmake_minimum_required(VERSION 3.10)
 project(atrinik-toolkit C)
-cmake_minimum_required(VERSION 2.6)
 set(ATRINIK_TOOLKIT atrinik-toolkit)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # cURL is required by the metaserver.
 find_package(CURL REQUIRED)
@@ -56,9 +58,14 @@ else ()
     message(STATUS "Could not find readline library, simple interactive console will be compiled instead.")
 endif ()
 
+find_package(PkgConfig QUIET)
+if (PKG_CONFIG_FOUND)
+    pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
+endif ()
+
 find_library(CHECK_LIBRARY check)
 
-if (CHECK_LIBRARY)
+if (CHECK_PKG_FOUND OR CHECK_LIBRARY)
     set(HAVE_CHECK true)
 else ()
     message(STATUS "Could not find check library, unit tests will not be compiled.")
@@ -87,6 +94,10 @@ if (MINGW)
 endif ()
 
 find_package(Threads REQUIRED)
+
+if (POLICY CMP0075)
+    cmake_policy(SET CMP0075 NEW)
+endif ()
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -147,7 +158,7 @@ endif ()
 try_compile(HAVE_IPV6 ${CMAKE_CURRENT_BINARY_DIR}/compile_tests ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ipv6test.c)
 
 # Generate the CMake configuration header file.
-configure_file(cmake.h.def cmake.h)
+configure_file(cmake.h.def toolkit_cmake.h)
 
 # Generate a header file with the Git version used to compile the library.
 find_program(GIT_SCM git DOC "Git version control")
@@ -207,17 +218,25 @@ set(TOOLKIT_SOURCES
     x11.c
     )
 
-add_library(${ATRINIK_TOOLKIT} ${TOOLKIT_SOURCES})
+add_library(${ATRINIK_TOOLKIT} STATIC ${TOOLKIT_SOURCES})
 
-target_link_libraries(${ATRINIK_TOOLKIT} ${CURL_LIBRARIES})
+if (TARGET CURL::libcurl)
+    target_link_libraries(${ATRINIK_TOOLKIT} CURL::libcurl)
+else ()
+    target_link_libraries(${ATRINIK_TOOLKIT} ${CURL_LIBRARIES})
+endif ()
 target_link_libraries(${ATRINIK_TOOLKIT} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MINGW)
-    target_link_libraries(${ATRINIK_TOOLKIT} wsock32 idn wldap32 ssh2 rtmp winmm
-            ws2_32 imagehlp)
+    target_link_libraries(${ATRINIK_TOOLKIT} wsock32 wldap32 winmm ws2_32
+            imagehlp)
 endif ()
 
-target_link_libraries(${ATRINIK_TOOLKIT} ${ZLIB_LIBRARIES})
+if (TARGET ZLIB::ZLIB)
+    target_link_libraries(${ATRINIK_TOOLKIT} ZLIB::ZLIB)
+else ()
+    target_link_libraries(${ATRINIK_TOOLKIT} ${ZLIB_LIBRARIES})
+endif ()
 
 # Link math...
 if (MATH_LIBRARY)
@@ -235,10 +254,14 @@ if (HAVE_READLINE)
 endif ()
 
 if (HAVE_CHECK)
-    target_link_libraries(${ATRINIK_TOOLKIT} ${CHECK_LIBRARY})
+    if (CHECK_PKG_FOUND)
+        target_link_libraries(${ATRINIK_TOOLKIT} PkgConfig::CHECK_PKG)
+    else ()
+        target_link_libraries(${ATRINIK_TOOLKIT} ${CHECK_LIBRARY})
 
-    if (UNIX AND NOT APPLE)
-        target_link_libraries(${ATRINIK_TOOLKIT} rt)
+        if (UNIX AND NOT APPLE)
+            target_link_libraries(${ATRINIK_TOOLKIT} rt)
+        endif ()
     endif ()
 endif ()
 
@@ -252,6 +275,10 @@ if (HAVE_X11_XMU)
     target_link_libraries(${ATRINIK_TOOLKIT} ${X11_XMU_LIBRARY})
 endif ()
 
-target_link_libraries(${ATRINIK_TOOLKIT} ${OPENSSL_LIBRARIES})
+if (TARGET OpenSSL::SSL AND TARGET OpenSSL::Crypto)
+    target_link_libraries(${ATRINIK_TOOLKIT} OpenSSL::SSL OpenSSL::Crypto)
+else ()
+    target_link_libraries(${ATRINIK_TOOLKIT} ${OPENSSL_LIBRARIES})
+endif ()
 
 add_dependencies(${ATRINIK_TOOLKIT} git_branch)

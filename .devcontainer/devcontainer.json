@@ -1,0 +1,31 @@
+{
+  "name": "Atrinik 2026 Linux Build",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--network", "host"
+  ],
+  "workspaceFolder": "/workspaces/atrinik",
+  "mounts": [
+    "source=/mnt/wslg/PulseServer,target=/mnt/wslg/PulseServer,type=bind"
+  ],
+  "containerEnv": {
+    "PULSE_SERVER": "unix:/mnt/wslg/PulseServer",
+    "SDL_AUDIODRIVER": "pulse"
+  },
+  "postCreateCommand": "git submodule update --init --recursive || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools"
+      ],
+      "settings": {
+        "cmake.configurePreset": "linux-debug",
+        "cmake.buildPreset": "linux-debug"
+      }
+    }
+  }
+}

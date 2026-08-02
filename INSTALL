@@ -49,10 +49,11 @@
 
  You can use the following command on Debian-based systems to install all the
  recommended packages:
-  # apt-get install build-essential openssl-dev cmake zlib1g-dev \
-    libcurl4-openssl-dev python3-dev libgd-dev check libreadline6-dev \
+  # apt-get install build-essential libssl-dev cmake zlib1g-dev \
+    libcurl4-openssl-dev python3-dev libgd-dev check libreadline-dev \
     libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev libsdl-ttf2.0-dev \
-    timidity libsdl1.2debian libsdl1.2debian-all libx11-dev libxmu-dev
+    timidity libsdl1.2debian libx11-dev libxml2-dev libxmu-dev cproto pkgconf \
+    libsubunit-dev
 
 =================================================
 = 1.2 Compilation (GNU/Linux)                   =
@@ -75,7 +76,7 @@
   - atrinik-server:  The Atrinik server
   - atrinik:         The Atrinik client
   - atrinik-toolkit: Toolkit library used by both the client and the server
-  - test:            Run the unit tests
+  - check:           Run the unit tests
   - clean:           Remove the generated binaries
 
 =================================================

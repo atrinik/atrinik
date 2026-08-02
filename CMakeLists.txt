@@ -1,5 +1,9 @@
+cmake_minimum_required(VERSION 3.21)
 project(atrinik C)
-cmake_minimum_required(VERSION 2.6)
+
+if (POLICY CMP0077)
+    cmake_policy(SET CMP0077 NEW)
+endif ()
 
 # Include build configuration.
 include(build.config)
@@ -9,6 +13,11 @@ if (EXISTS build.user)
 endif ()
 
 include_directories(common)
+include_directories(${CMAKE_BINARY_DIR}/common)
+
+if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-fcommon)
+endif ()
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
@@ -72,13 +81,8 @@ if (ENABLE_WARNING_ERRORS)
 endif ()
 
 if (MINGW)
-    add_definitions(-DCURL_STATICLIB -DPTW32_STATIC_LIB -DBGDWIN32 -DNONDLL)
     add_definitions(-DNOCRYPT)
-    set(CURL_STATICLIB true)
-    set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
     set(PLUGIN_SUFFIX ".dll")
-    set(CMAKE_PREFIX_PATH "C:\\MinGW\\msys\\1.0;C:\\MinGW")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so;.dll.a")
 else ()
     # Compiling on GNU/Linux.
     set(LINUX true)
@@ -86,5 +90,15 @@ else ()
 endif ()
 
 add_subdirectory(common/toolkit)
-add_subdirectory(server)
-add_subdirectory(client)
+
+if (BUILD_SERVER)
+    add_subdirectory(server)
+endif ()
+
+if (BUILD_CLIENT)
+    add_subdirectory(client)
+endif ()
+
+if (NOT BUILD_SERVER AND NOT BUILD_CLIENT)
+    message(FATAL_ERROR "At least one of BUILD_SERVER or BUILD_CLIENT must be enabled")
+endif ()
