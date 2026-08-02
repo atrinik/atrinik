@@ -1,245 +1,153 @@
-=================================================
-= Installing Atrinik                            =
-=================================================
+# Building Atrinik
 
- This document explains how to compile Atrinik from sources.
+This document explains how to build Atrinik from source. See `client/README`
+and `server/README` for component-specific setup and running instructions.
 
- !!!
- !!! If you're compiling from a Git repository, make sure you have
- !!! performed the following commands beforehand:
- !!! $ git submodule init
- !!! $ git submodule update
- !!!
+If you cloned the Git repository, initialize its submodules first:
 
- Follow sections 1.x for GNU/Linux installation instructions, or sections 2.x
- for Windows instructions.
+```sh
+git submodule update --init --recursive
+```
 
- Refer to the README files located in the server/client directories for
- execution instructions.
+## Recommended Linux development environment
 
-=================================================
-= 1.1 Prerequisites (GNU/Linux)                 =
-=================================================
+Atrinik is an older C project that uses the SDL 1.2 API. Current Debian and
+Ubuntu releases provide compatible development headers through
+`sdl12-compat`, allowing the client to use the old API on SDL 2.
 
- Several libraries and programs are needed in order to compile and/or run
- Atrinik:
-  - CMake: Required
-  - Flex: Required
-  - cURL: Required
-  - zlib: Required
-  - OpenSSL: Required
-  - Check: Optional (only if you plan on doing development, required for
-                     running unit tests)
+The recommended development environment is the included devcontainer. Install
+Docker or Podman and use an editor that supports Dev Containers, then reopen
+the repository in the **Atrinik 2026 Linux Build** container. It includes the
+C toolchain, CMake, Flex, SDL dependencies, OpenSSL, cURL, zlib, Python
+development headers, and the optional GD, Check, and Readline dependencies.
 
- The Atrinik server needs the following libraries/programs:
-  - GD Graphics Library: Optional (if you want to generate region maps --
-                                   usually a good idea)
-  - Python: Required (optional for merely compiling the server at this time,
-                      but not for playing)
-  - Readline: Optional (nicer CLI console with history and auto-completion)
+From the repository root, build the client and server:
 
- The Atrinik client needs the following libraries/programs:
-  - SDL: Required
-  - SDL_image: Required
-  - SDL_mixer: Optional, if not installed sound support will not be
-               available.
-  - SDL_ttf: Required
-  - Timidity: Optional, necessary to play MIDI background music files
-  - libx11, libxmu: Optional, necessary for clipboard support
+```sh
+./build.sh
+```
 
- You can use the following command on Debian-based systems to install all the
- recommended packages:
-  # apt-get install build-essential libssl-dev cmake zlib1g-dev \
-    libcurl4-openssl-dev python3-dev libgd-dev check libreadline-dev \
-    libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev libsdl-ttf2.0-dev \
-    timidity libsdl1.2debian libx11-dev libxml2-dev libxmu-dev cproto pkgconf \
-    libsubunit-dev
+Build only one component by naming its CMake target:
 
-=================================================
-= 1.2 Compilation (GNU/Linux)                   =
-=================================================
+```sh
+./build.sh atrinik-server
+./build.sh atrinik
+```
 
- Once you have installed the prerequisites, generate the project Makefiles
- with CMake:
-  $ cmake .
+Debug binaries are written to `build/linux-debug/client/atrinik` and
+`build/linux-debug/server/atrinik-server`. Follow `client/README` or
+`server/README` before running them; both programs rely on resources relative
+to their source directories.
 
- Afterwards, use make to compile Atrinik:
-  $ make
+To generate all client region maps, including the necessary server build,
+resource collection, and runtime setup, run:
 
- If you have a multi-core CPU, you can specify the number of threads to start:
-  $ make -j4
+```sh
+./generate-region-maps.sh
+```
 
- If you only want a specific component, you can pass a target to make:
-  $ make atrinik-server
+The generated files are placed in `server/data/http/client-maps/`.
 
- List of common make targets:
-  - atrinik-server:  The Atrinik server
-  - atrinik:         The Atrinik client
-  - atrinik-toolkit: Toolkit library used by both the client and the server
-  - check:           Run the unit tests
-  - clean:           Remove the generated binaries
+## Manual Linux build
 
-=================================================
-= 2.1 Prerequisites (Windows)                   =
-=================================================
+On Ubuntu 26.04 or a similarly current Debian-based distribution, install the
+recommended dependencies with:
 
- You will need to install the following programs/libraries:
- - MinGW
-    The compiler that you will use for compiling. Download it here:
-    http://sourceforge.net/projects/mingw/files/latest/download?source=files
+```sh
+sudo apt-get update
+sudo apt-get install build-essential cmake flex libcurl4-openssl-dev \
+  libssl-dev zlib1g-dev python3-dev libgd-dev libreadline-dev \
+  libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev \
+  libsdl-ttf2.0-dev timidity libx11-dev libxml2-dev libxmu-dev \
+  cproto pkgconf check libsubunit-dev
+```
 
-    After installing, execute the mingw-install-prereq.bat script in "tools"
-    directory (located in Atrinik root directory).
- - CMake
-    Required to build makefiles. Download it here:
+Configure and compile a debug build using the checked-in presets:
 
-    http://www.cmake.org/files/v3.0/cmake-3.0.2-win32-x86.exe
- - Microsoft Visual C++ Redistributables 2008
-    This is required for OpenSSL to work properly. Download it here:
-    http://www.microsoft.com/en-us/download/details.aspx?id=29
- - OpenSSL
-    Atrinik requires OpenSSL. Download it here:
+```sh
+cmake --preset linux-debug
+cmake --build --preset linux-debug
+```
 
-    https://slproweb.com/products/Win32OpenSSL.html
+For an optimized build, use `linux-release` in both commands. You can also
+build an individual target:
 
-    Make sure you get the full version for Windows 32-bit, and not the light
-    version. For example, this one is OK:
-    Win32 OpenSSL v1.0.2h
+```sh
+cmake --build --preset linux-debug --target atrinik-server
+cmake --build --preset linux-debug --target atrinik
+```
 
-    The installer will ask where to copy OpenSSL DLL files. Make sure this is
-    set to the system directory.
- - cURL
-    Atrinik requires cURL. Download it here:
+The convenience script `./build.sh [target]` performs the equivalent debug
+configuration and build. Set `JOBS` to control build parallelism or
+`BUILD_DIR` to select another build directory.
 
-    https://curl.haxx.se/gknw.net/
+## Tests
 
-    Get the latest version for 32-bit MinGW, eg:
-    http://curl.haxx.se/gknw.net/7.40.0/dist-w32/curl-7.40.0-devel-mingw32.zip
+The server test target is named `check` because modern CMake reserves the name
+`test`:
 
-    Extract the archive and copy "lib" and "include" directories into
-    C:/MinGW (or where you installed MinGW).
- - Check (optional)
-    This is only needed if you want to do development and is used to run unit
-    tests. Download it here:
+```sh
+./build.sh check
+```
 
-    http://sourceforge.net/projects/check/files/latest/download
+The target starts the server in unit-test modes and therefore needs the normal
+server runtime files, including `permissions.cfg`, `data`, collected resources,
+and built plugins. A successful ordinary build verifies compilation even when
+that runtime setup has not yet been prepared. See `server/README` for setup.
 
-    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
-    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
-    extracted directory run the following (adjust the prefix if necessary):
+## Portable Windows build with MXE
 
-    export PATH=/usr/bin:$PATH
-    export CFLAGS="-DPTW32_STATIC_LIB"
-    ./configure --prefix=/c/MinGW
-    make && make check && make install
+Windows packages are cross-compiled in an isolated Linux container. The host
+only needs Docker or Podman; MinGW, SDL, OpenSSL, cURL, and the other Windows
+libraries are installed in the image.
 
- In addition, the server needs the following programs/libraries:
- - GD Graphics Library (optional, recommended):
-    If you want to generate client maps you will need to install this library.
+With a Dev Containers-compatible editor, reopen the repository using
+**Atrinik Windows cross-build (MXE)** and run:
 
-    Download libpng sources from here:
-    http://sourceforge.net/projects/libpng/files/libpng16/1.6.14/libpng-1.6.14.tar.gz/download
+```sh
+./build-windows.sh
+```
 
-    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
-    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
-    extracted directory run the following (adjust the prefix if necessary):
+Alternatively, build directly from the repository root without opening an
+editor:
 
-    export PATH=/usr/bin:$PATH
-    ./configure --prefix=/c/MinGW
-    make && make install
+```sh
+docker compose -f compose.windows.yaml run --build --rm windows-build
+```
 
-    Download GD sources from here:
-    https://bitbucket.org/libgd/gd-libgd/downloads/libgd-2.1.0.tar.gz
+On Linux, if the host user and group IDs are not both `1000`, pass them so the
+generated files retain the correct ownership:
 
-    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
-    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
-    extracted directory run the following (adjust the prefix if necessary):
+```sh
+LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+  docker compose -f compose.windows.yaml run --build --rm windows-build
+```
 
-    export PATH=/usr/bin:$PATH
-    ./configure --prefix=/c/MinGW --with-png=/c/MinGW
-    make && make install
- - Python
-    Download and install the latest Python 3 from here:
+The first image build compiles the MXE toolchain and dependency stack, so it
+can take a while. Container image caching makes later builds faster. The
+portable 64-bit Windows ZIP is written to `build/packages/` and contains the
+client, updater, game assets, CA certificates, and required MXE runtime DLLs.
+Windows 10 or newer is expected because the updater uses the operating
+system's built-in `tar` command when applying patches.
 
-    https://www.python.org/downloads/
+Inside the Windows cross-build container, configure or compile without
+packaging with:
 
-    For example this one:
-    https://www.python.org/ftp/python/3.4.2/python-3.4.2.msi
+```sh
+cmake --preset windows-mxe-release
+cmake --build --preset windows-mxe-release
+```
 
- In addition, the client needs the following programs/libraries:
- - SDL
-    Atrinik requires SDL, SDL_image and SDL_ttf. SDL_mixer is also necessary to
-    play music and sounds. Either compile these yourself, or download
-    pre-compiled libraries and binaries here:
+## Build configuration notes
 
-    https://www.atrinik.org/download/win32/libsdl-all.zip
-
-    Extract the archive and copy "lib" and "include" directories into
-    C:/MinGW (or where you installed MinGW). Then copy the contents of the "bin"
-    directory to the client's directory.
- - Timidity
-    You need to install Timidity GUS patches in order to play MIDI files
-    correctly. Download them here:
-
-    http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
-
-    Extract the archive and copy "timidity" directory into the client's
-    directory.
-
-    You will also need to download this Timidity config file and put it into
-    the client directory:
-
-    https://www.atrinik.org/download/win32/timidity.cfg
-
- Make sure you have the following paths in your PATH environment variable, in
- this order (adjust accordingly if you installed MinGW or CMake somewhere else):
-
- C:\MinGW\bin;C:/MinGW/msys/1.0/bin;C:\Program Files (x86)\CMake\bin
-
- Install Netbeans for C/C++. Download it here:
-
- https://netbeans.org/downloads/start.html?platform=windows&lang=en&option=cpp
-
-=================================================
-= 2.2 Compilation (Windows)                     =
-=================================================
-
- Once you have installed all the prerequisites, launch Netbeans, then go to
- Tools -> Options -> C/C++ -> Build Tools and click the Add button. Enter
- C:\MinGW\bin (or where you installed MinGW) into the "base directory" box.
-
- Go to File -> New Project -> C/C++ Project with Existing Sources and select
- the Atrinik directory (i.e., the directory this file is located in). Click
- "Finish" and the project should build automatically.
-
-=================================================
-= 2.3 Building Atrinik installer (Windows)      =
-=================================================
-
- If you're creating a release build, you will need to specify CMAKE_BUILD_TYPE
- to "Release". You can do so by editing (or creating) the file build.user in
- the root Atrinik directory and adding the following at the end:
-
- set(CMAKE_BUILD_TYPE "Release")
-
- Alternatively, you can create a debug build (by default). In this case, the
- generated exe will contain a large number of debug symbols, which can be split
- into a separate file by using the following command in a Bash shell:
-
- ../tools/split_symbols.sh atrinik.exe
-
- You will need to place tar.exe and gunzip.exe binaries to the client's
- directory. You can download them here (or compile them yourself):
-
- http://www2.cs.uidaho.edu/~jeffery/win32/
-
- Then download latest ca-bundle.crt and place it in the client's directory:
-
- https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt
-
- Go to C:\OpenSSL-Win32 (or where you installed OpenSSL) and copy libeay32.dll
- and ssleay32.dll to the client's directory.
-
- Then run the following in the client's directory to build an installer:
-
- cpack -G NSIS
+- The Python server plugin is enabled by default because NPC and map scripts
+  depend on it. Set `-DENABLE_PYTHON_PLUGIN=false` only for a build that
+  deliberately omits scripted game behavior.
+- GCC and Clang builds use `-fcommon` because this legacy codebase has
+  tentative global definitions in headers that GCC 10 and newer reject by
+  default.
+- `PACKAGE_TYPE` defaults to `deb` in `build.config`; the presets and
+  `build.sh` set it to `none` so ordinary development builds do not create
+  legacy packages.
+- CMake writes some generated compatibility headers into the source tree,
+  matching the project's historical layout.
