@@ -126,12 +126,39 @@ if (WIN32 AND NOT UNIX)
     set(INSTALL_SUBDIR_SHARE ".")
     set(INSTALL_SUBDIR_DOC ".")
 
-    file(GLOB DLLS "${CMAKE_CURRENT_SOURCE_DIR}/*.dll")
-    set(EXES gunzip.exe tar.exe atrinik.bat ca-bundle.crt timidity.cfg)
-    install(FILES ${DLLS} DESTINATION ${INSTALL_SUBDIR_BIN})
-    install(TARGETS atrinik2 DESTINATION ${INSTALL_SUBDIR_BIN})
-    install(FILES ${EXES} DESTINATION ${INSTALL_SUBDIR_BIN})
-    install(DIRECTORY timidity DESTINATION ${INSTALL_SUBDIR_BIN})
+    set(ATRINIK_WINDOWS_RUNTIME_DIR "" CACHE PATH
+        "Directory containing MinGW runtime DLLs for portable packages")
+    set(ATRINIK_CA_BUNDLE "${CMAKE_CURRENT_SOURCE_DIR}/ca-bundle.crt" CACHE FILEPATH
+        "CA certificate bundle to install with the client")
+
+    install(TARGETS atrinik atrinik2
+        RUNTIME DESTINATION ${INSTALL_SUBDIR_BIN})
+
+    if (ATRINIK_WINDOWS_RUNTIME_DIR)
+        file(GLOB ATRINIK_WINDOWS_RUNTIME_DLLS
+            "${ATRINIK_WINDOWS_RUNTIME_DIR}/*.dll")
+
+        if (ATRINIK_WINDOWS_RUNTIME_DLLS)
+            install(FILES ${ATRINIK_WINDOWS_RUNTIME_DLLS}
+                DESTINATION ${INSTALL_SUBDIR_BIN})
+        else ()
+            message(FATAL_ERROR
+                "No DLLs found in ATRINIK_WINDOWS_RUNTIME_DIR: ${ATRINIK_WINDOWS_RUNTIME_DIR}")
+        endif ()
+    else ()
+        message(WARNING "ATRINIK_WINDOWS_RUNTIME_DIR is empty; portable packages will not include dependency DLLs")
+    endif ()
+
+    install(FILES atrinik.bat DESTINATION ${INSTALL_SUBDIR_BIN})
+    install(FILES "${ATRINIK_CA_BUNDLE}" DESTINATION ${INSTALL_SUBDIR_BIN}
+        RENAME ca-bundle.crt)
+
+    if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/timidity.cfg")
+        install(FILES timidity.cfg DESTINATION ${INSTALL_SUBDIR_BIN})
+    endif ()
+    if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/timidity")
+        install(DIRECTORY timidity DESTINATION ${INSTALL_SUBDIR_BIN})
+    endif ()
 else ()
     set(INSTALL_SUBDIR_BIN "games")
     set(INSTALL_SUBDIR_SHARE "share/games/atrinik")

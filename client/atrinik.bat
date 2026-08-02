@@ -12,22 +12,20 @@ timeout /NOBREAK 2
 rem Make sure no Atrinik clients are running.
 taskkill /f /t /im atrinik.exe >nul 2>&1
 
-rem Store the current working directory.
-set old_dir=%CD%
+rem Store the directory containing the portable client.
+set "old_dir=%~dp0"
 rem Go to the patches directory.
-cd "%AppData%\.atrinik\temp"
+cd /d "%AppData%\.atrinik\temp"
 
-rem Extract all patches.
+rem Extract all patches using tar included with supported Windows versions.
 for %%f in (*.tar.gz) do (
 	echo Extracting %%f
-	"%old_dir%\gunzip.exe" -c %%f > %%~nf
-	"%old_dir%\tar.exe" xvf %%~nf
-	del /q %%f
-	del /q %%~nf
+	tar -xzf "%%f"
+	del /q "%%f"
 )
 
 rem Go back to the old directory.
-cd "%old_dir%"
+cd /d "%old_dir%"
 rem Copy over the extracted files.
 xcopy /s/e/y "%AppData%"\.atrinik\temp\*.* .\
 rem Remove the temporary directory.

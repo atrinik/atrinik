@@ -280,33 +280,49 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 #ifdef WIN32
     fputs("Stack trace:\n", fp);
 
+    DWORD machine_type;
+    DWORD64 program_counter;
+#ifdef _WIN64
+    machine_type = IMAGE_FILE_MACHINE_AMD64;
+    program_counter = ExceptionInfo->ContextRecord->Rip;
+#else
+    machine_type = IMAGE_FILE_MACHINE_I386;
+    program_counter = ExceptionInfo->ContextRecord->Eip;
+#endif
+
     if (EXCEPTION_STACK_OVERFLOW !=
             ExceptionInfo->ExceptionRecord->ExceptionCode) {
-        STACKFRAME frame;
+        STACKFRAME64 frame;
         int i;
 
         SymInitialize(GetCurrentProcess(), 0, 1);
 
         memset(&frame, 0, sizeof(frame));
-        frame.AddrPC.Offset = ExceptionInfo->ContextRecord->Eip;
+        frame.AddrPC.Offset = program_counter;
         frame.AddrPC.Mode = AddrModeFlat;
+#ifdef _WIN64
+        frame.AddrStack.Offset = ExceptionInfo->ContextRecord->Rsp;
+        frame.AddrFrame.Offset = ExceptionInfo->ContextRecord->Rbp;
+#else
         frame.AddrStack.Offset = ExceptionInfo->ContextRecord->Esp;
-        frame.AddrStack.Mode = AddrModeFlat;
         frame.AddrFrame.Offset = ExceptionInfo->ContextRecord->Ebp;
+#endif
+        frame.AddrStack.Mode = AddrModeFlat;
         frame.AddrFrame.Mode = AddrModeFlat;
 
         i = 0;
 
-        while (StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(),
+        while (StackWalk64(machine_type, GetCurrentProcess(),
                 GetCurrentThread(), &frame, ExceptionInfo->ContextRecord, 0,
-                SymFunctionTableAccess, SymGetModuleBase, 0)) {
-            fprintf(fp, "%d: %p\n", i, (void *) frame.AddrPC.Offset);
+                SymFunctionTableAccess64, SymGetModuleBase64, 0)) {
+            fprintf(fp, "%d: %p\n", i,
+                    (void *) (uintptr_t) frame.AddrPC.Offset);
             i++;
         }
 
         SymCleanup(GetCurrentProcess());
     } else {
-        fprintf(fp, "%p\n", (void *) ExceptionInfo->ContextRecord->Eip);
+        fprintf(fp, "%p\n", (void *) (uintptr_t) program_counter);
     }
 #else
     {

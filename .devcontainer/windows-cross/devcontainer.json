@@ -1,0 +1,25 @@
+{
+  "name": "Atrinik Windows cross-build (MXE)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../..",
+    "args": {
+      "MXE_BUILD_JOBS": "2"
+    }
+  },
+  "workspaceFolder": "/workspaces/atrinik",
+  "remoteUser": "vscode",
+  "postCreateCommand": "git submodule update --init --recursive || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools"
+      ],
+      "settings": {
+        "cmake.configurePreset": "windows-mxe-release",
+        "cmake.buildPreset": "windows-mxe-release"
+      }
+    }
+  }
+}
