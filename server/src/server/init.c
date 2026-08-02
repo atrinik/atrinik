@@ -1084,11 +1084,16 @@ static void init_library(int argc, char *argv[])
     curl_set_data_dir(settings.datapath);
     socket_crypto_set_path(settings.datapath);
 
-    /* Import game APIs that need settings */
+    /* Import game APIs that need settings. The world maker only reads game
+     * data and writes files; starting listeners here makes generation fail if
+     * another server instance is already using the configured ports. */
     toolkit_import(ban);
     toolkit_import(faction);
-    toolkit_import(socket_server);
-    toolkit_import(http_server);
+
+    if (!settings.world_maker) {
+        toolkit_import(socket_server);
+        toolkit_import(http_server);
+    }
 
     map_init();
     init_globals();
