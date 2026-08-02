@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -26,7 +26,7 @@
  * @file
  * Handles code for @ref DRINK "drink".
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  *
  * @todo
  * Since drinks are basically just food objects with different messages,

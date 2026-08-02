@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -28,7 +28,7 @@
  * by shortcuts instead of atrinik.exe in order to handle extracting
  * update patches.
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #include <stdio.h>

@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -31,7 +31,7 @@
  * make the magic mirrors zoom out/in mirrored objects to create a depth
  * effect.
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #include <global.h>

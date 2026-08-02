@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -29,7 +29,7 @@
  * Clipboard support is based on the works of Sam Lantinga (SDL_scrap) and
  * Eric Wing (SDL_Clipboard). Some X11 logic courtesy of Tomas Styblo (wmctrl).
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #include "x11.h"

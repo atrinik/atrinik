@@ -1,10 +1,9 @@
-__author__ = "Alex Tokar"
+__author__ = "Zoey Rose"
 __copyright__ = "Copyright (c) 2009-2015 Atrinik Development Team"
-__credits__ = ["Alex Tokar"]
+__credits__ = ["Zoey Rose"]
 __license__ = "GPL"
 __version__ = "2.0"
-__maintainer__ = "Alex Tokar"
-__email__ = "admin@atokar.net"
+__maintainer__ = "Zoey Rose"
 
 from xml.etree import ElementTree
 from collections import OrderedDict

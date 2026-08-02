@@ -3,7 +3,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team     *
 *                                                                       *
 * Fork from Crossfire (Multiplayer game for X-windows).                 *
 *                                                                       *
@@ -28,7 +28,7 @@
  * @file
  * This script provides access to world viewer and world image generator,
  * depending whether it was ran from HTTP server or CLI.
- * @author Alex Tokar */
+ * @author Zoey Rose */
 
 if (!file_exists('config.php'))
 {

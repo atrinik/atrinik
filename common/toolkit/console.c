@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -36,7 +36,7 @@
  * standard input, you will need to call console_command_handle() in your
  * program's main loop every iteration.
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #include "console.h"
