@@ -3,7 +3,7 @@
 Atrinik is an open source multi-player RPG with 2.5D isometric graphics,
 with concepts based on Crossfire and Angelion.
 
-## Installing
+## Installing and running
 
 For official release builds, please see the [Atrinik website](https://www.atrinik.org/).
 
@@ -13,9 +13,31 @@ https://www.atrinik.org/page/installing_atrinik_client
 The latest map maker package can be downloaded here:
 https://www.atrinik.org/page/development_join
 
-## Compiling
+To build the current source tree, see `INSTALL`. The recommended path is the
+included Linux devcontainer:
 
-Please see the INSTALL file for compilation instructions.
+```sh
+git submodule update --init --recursive
+./build.sh
+```
+
+After building, follow `client/README` to run the game client or
+`server/README` to prepare and run a local or persistent server. A portable
+Windows client can be cross-compiled with the MXE container described in
+`INSTALL`.
+
+## Development commands
+
+Build one component or generate region maps from the repository root:
+
+```sh
+./build.sh atrinik
+./build.sh atrinik-server
+./generate-region-maps.sh
+```
+
+See `INSTALL` for dependencies, CMake presets, tests, release builds, and
+Windows packaging.
 
 ## Licensing
 

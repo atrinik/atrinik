@@ -1,0 +1,17 @@
+# Copy this file to server-custom.cfg before starting the container.
+# Values here override server/server.cfg.
+
+[general]
+
+# Do not grant development/operator permissions to every player on a public
+# server.
+default_permission_groups = None
+python_reload_modules = off
+
+# The container entrypoint overrides this with ATRINIK_HTTP_URL. For a public
+# server, set that environment variable to an externally reachable URL.
+
+# Optional public-server identity:
+# server_name = My Atrinik Server
+# server_host = atrinik.example.com
+# server_desc = A community Atrinik server.

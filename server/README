@@ -10,21 +10,31 @@
 = 1. Compiling the Atrinik server               =
 =================================================
 
- See the INSTALL file in the Atrinik root directory for instructions on how to
- compile the server.
+ See the INSTALL file in the Atrinik root directory for complete dependency
+ and devcontainer instructions.
+
+ From the repository root, build a Linux debug server with:
+  $ ./build.sh atrinik-server
+
+ The executable and plugins are written to build/linux-debug/server/.
 
 =================================================
 = 2. Running the server                         =
 =================================================
 
- In order to start up the server, you will need to run the resource collection
- script, which can be located - from the root of the repository - here:
-  $ ./tools/collect.py
+ A source-tree build needs collected resources, an initialized data directory,
+ and the server plugins beside the executable. From the repository root, run:
+  $ mkdir -p server/lib
+  $ python3 tools/collect.py --dir . --out server/lib
+  $ test -d server/data || cp -R server/install_data server/data
+  $ mkdir -p server/data/tmp
+  $ ln -sf ../build/linux-debug/server/atrinik-server server/atrinik-server
+  $ ln -sf ../build/linux-debug/server/libplugin_arena.so server/libplugin_arena.so
+  $ ln -sf ../build/linux-debug/server/libplugin_python.so server/libplugin_python.so
 
- The above script will collect various resources from the 'arch' directory and
- will compile the NPC interfaces definitions into executables, and should be
- ran from the tools directory. You should see output like:
-  $ ./collect.py
+ The collection script collects resources from the 'arch' directory and
+ compiles the NPC interface definitions. You should see output like:
+  $ python3 tools/collect.py --dir . --out server/lib
   Starting resource collection...
   Collecting factions...
   Collecting treasures...
@@ -35,17 +45,16 @@
   Collecting interfaces...
   Done!
 
- You can use the -d option to specify the root directory of your Atrinik
- package, instead of running it from the tools directory, like so:
-  $ ./tools/collect.py -d ~/atrinik
+ Use --dir to specify another Atrinik source directory and --out to copy the
+ collected server resources directly into its runtime lib directory.
 
  The script should be executed every time you update the repository or make
  manual changes to archetypes/artifacts/images/interfaces/etc.
 
- Afterwards, you can start up the server with ./server.sh or ./server.bat
- (depending on your platform). Starting up the server using the binary is
- also possible, but generally not recommended, as the startup scripts take
- care of various aspects, such as first-time installation.
+ Afterwards, start the server through its launcher, which also handles
+ first-time runtime initialization:
+  $ cd server
+  $ ./server.sh
 
  For example, you should see something like this:
   $ ./server.sh
@@ -57,16 +66,15 @@
   [15:07:12.638483] INFO   [version:94] This is Atrinik v4.0 (master/7fc333e
   by Alex Tokar)
 
- However, if you want to do it yourself, you will need to do the
+ If you use a different BUILD_DIR or CMake preset, adjust the three symlink
+ targets above. To run the binary without server.sh, you will need to do the
  following (working from the server directory):
   - Create 'lib' directory if it doesn't exist
   - If the 'data' directory doesn't exist, copy 'install_data' as 'data'
     and create a 'data/tmp' directory
   - Copy all files (not directories) from ../arch to the 'lib' directory;
     this will need to be done every time you run the collect.py script.
-    Alternatively, you can run the collect script like this to automatically
-    copy the necessary files:
-     $ ./collect.py -o ../server/lib
+    Alternatively, use the --out option shown above to copy them automatically.
   - Now you can launch the atrinik-server binary manually.
 
  It is recommended to generate the region maps prior to starting up the server.
