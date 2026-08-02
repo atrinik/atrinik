@@ -85,7 +85,7 @@ http_curl_cb (curl_request_t *request, void *user_data)
 TOOLKIT_INIT_FUNC(http_server)
 {
     if (settings.http_server) {
-        process_t *process = process_create("python");
+        process_t *process = process_create("python3");
         process_add_arg(process, "tools/http_server.py");
         process_set_data_out_cb(process, http_data_cb);
         process_set_data_err_cb(process, http_data_cb);
@@ -112,7 +112,7 @@ TOOLKIT_INIT_FUNC(http_server)
     current_request = curl_request_create(settings.http_url,
                                           CURL_PKEY_TRUST_APPLICATION);
     curl_request_set_cb(current_request, http_curl_cb, NULL);
-    curl_request_set_delay(current_request, 100000);
+    curl_request_set_delay(current_request, 1000000);
     curl_request_start_get(current_request);
     pthread_mutex_unlock(&request_lock);
 }

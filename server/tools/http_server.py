@@ -31,7 +31,11 @@ else:
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-config.readfp(open("server.cfg"))
+with open("server.cfg") as fp:
+    if hasattr(config, "read_file"):
+        config.read_file(fp)
+    else:
+        config.readfp(fp)
 config.read(["server-custom.cfg"])
 
 path_translations = {
@@ -182,7 +186,9 @@ class ForkingHTTPServer(SocketServerMixIn, HTTPServer):
         HTTPServer.finish_request(self, request, client_address)
 
 if __name__ == '__main__':
-    with LockFile(__file__) as _:
+    lock_path = os.path.join(config.get("general", "datapath"),
+                             ".http_server.py")
+    with LockFile(lock_path) as _:
         o = urlparse(config.get("general", "http_url"))
         server = ForkingHTTPServer(("", o.port), HTTPRequestHandler)
         server.serve_forever()
