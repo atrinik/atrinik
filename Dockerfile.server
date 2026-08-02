@@ -1,0 +1,94 @@
+FROM ubuntu:26.04 AS build
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        check \
+        cmake \
+        flex \
+        libcurl4-openssl-dev \
+        libgd-dev \
+        libreadline-dev \
+        libsubunit-dev \
+        libssl-dev \
+        pkgconf \
+        python3-dev \
+        zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY . .
+
+RUN cmake -S . -B build/server-release \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DPACKAGE_TYPE=none \
+        -DBUILD_CLIENT=OFF \
+        -DBUILD_SERVER=ON \
+    && cmake --build build/server-release \
+        --target atrinik-server plugin_arena \
+        --parallel
+
+RUN mkdir -p server/lib \
+    && python3 tools/collect.py --dir /src --out /src/server/lib \
+    && cp build/server-release/server/libplugin_arena.so server/ \
+    && cp build/server-release/server/libplugin_python.so server/ \
+    && cp -R server/install_data /tmp/atrinik-data \
+    && mkdir -p /tmp/atrinik-data/tmp /tmp/atrinik-data/http \
+    && cd server \
+    && ../build/server-release/server/atrinik-server \
+        --worldmaker \
+        --datapath=/tmp/atrinik-data \
+        --httppath=/tmp/atrinik-data/http \
+        --http_server=off \
+    && mkdir -p install_data/http \
+    && cp -R /tmp/atrinik-data/http/client-maps install_data/http/
+
+FROM ubuntu:26.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    ATRINIK_HTTP_URL=http://localhost:8080
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        libcrypt1 \
+        libcurl4t64 \
+        libgd3 \
+        libpython3.14 \
+        libreadline8t64 \
+        libssl3t64 \
+        libsubunit0 \
+        python3 \
+        zlib1g \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 10001 atrinik
+
+WORKDIR /opt/atrinik
+
+COPY --from=build /src/maps ./maps
+RUN rm ./maps/python/events/init/documentation.py
+COPY --from=build /src/server/atrinikloop.sh ./server/atrinikloop.sh
+COPY --from=build /src/server/ca-bundle.crt ./server/ca-bundle.crt
+COPY --from=build /src/server/install_data ./server/install_data
+COPY --from=build /src/server/lib ./server/lib
+COPY --from=build /src/server/permissions.cfg ./server/permissions.cfg
+COPY --from=build /src/server/resources ./server/resources
+COPY --from=build /src/server/server.cfg ./server/server.cfg
+COPY --from=build /src/server/tools ./server/tools
+COPY --from=build /src/build/server-release/server/atrinik-server ./server/atrinik-server
+COPY --from=build /src/build/server-release/server/libplugin_arena.so ./server/libplugin_arena.so
+COPY --from=build /src/build/server-release/server/libplugin_python.so ./server/libplugin_python.so
+COPY docker/server-entrypoint.sh /usr/local/bin/atrinik-server-entrypoint
+
+RUN mkdir -p server/data \
+    && chown -R atrinik:atrinik /opt/atrinik
+
+USER atrinik
+WORKDIR /opt/atrinik/server
+
+EXPOSE 1728 1729 8080
+
+ENTRYPOINT ["atrinik-server-entrypoint"]

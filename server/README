@@ -128,6 +128,36 @@
   - http://localhost:8080/resources            -> server/resources/
 
 =================================================
+= 2.3. Running with Docker Compose               =
+=================================================
+
+ A standalone Linux server image can be built and run without VS Code. From
+ the repository root:
+  $ cp server-custom.cfg.example server-custom.cfg
+  $ mkdir -p server-data
+  $ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+      docker compose -f compose.server.yaml up --build -d
+
+ The game server is exposed on TCP ports 1728 (normal) and 1729 (optional
+ crypto), and its bundled HTTP server on port 8080. Player data and other
+ mutable state are kept directly in the host's server-data/ folder. Region maps
+ are generated while building the image and refreshed into that folder when
+ the container starts. On Linux, LOCAL_UID and LOCAL_GID keep those files owned
+ by the user running Docker.
+
+ To follow logs or stop the service:
+  $ docker compose -f compose.server.yaml logs -f
+  $ docker compose -f compose.server.yaml down
+
+ The server-data/ folder is preserved by 'down' and can be backed up with
+ ordinary filesystem tools.
+
+ For a public server, set ATRINIK_HTTP_URL to the externally reachable HTTP
+ URL and review section 3 below. For example:
+  $ ATRINIK_HTTP_URL=http://atrinik.example.com:8080 \
+      docker compose -f compose.server.yaml up -d
+
+=================================================
 = 3. Running a public server                    =
 =================================================
 
