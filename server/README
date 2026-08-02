@@ -138,8 +138,8 @@
   $ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
       docker compose -f compose.server.yaml up --build -d
 
- The game server is exposed on TCP ports 1728 (normal) and 1729 (optional
- crypto), and its bundled HTTP server on port 8080. Player data and other
+ Direct gameplay is exposed on UDP port 1730. TCP ports 1728 and 1729 remain
+ available for legacy modes, and the bundled HTTP server uses port 8080. Player data and other
  mutable state are kept directly in the host's server-data/ folder. Region maps
  are generated while building the image and refreshed into that folder when
  the container starts. On Linux, LOCAL_UID and LOCAL_GID keep those files owned
@@ -152,10 +152,58 @@
  The server-data/ folder is preserved by 'down' and can be backed up with
  ordinary filesystem tools.
 
- For a public server, set ATRINIK_HTTP_URL to the externally reachable HTTP
- URL and review section 3 below. For example:
+ For a public direct server, set ATRINIK_SERVER_PUBLIC=true,
+ ATRINIK_SERVER_HOST, and (optionally) ATRINIK_JOIN_PASSWORD. Set
+ ATRINIK_HTTP_URL to an externally reachable file URL and review section 2.4. For example:
   $ ATRINIK_HTTP_URL=http://atrinik.example.com:8080 \
       docker compose -f compose.server.yaml up -d
+
+
+=================================================
+= 2.4. Direct QUIC hosting (no port forwarding) =
+=================================================
+
+ Current clients and servers use UDP/QUIC for direct play. The metaserver is
+ only a public directory and signaling rendezvous: it exchanges short-lived
+ UDP candidates and never carries game packets.
+
+ Put the following in server-custom.cfg for a public friend server:
+  [meta]
+  server_public = true
+  connectivity_mode = direct_only
+  server_host = your-server-name.example
+  server_name = Your Server Name
+  server_desc = Private server for friends
+  port_quic = 1730
+  stun_server = stun.cloudflare.com:3478
+  join_password = choose-a-long-password
+
+ 'server_public' is opt-in. If false, the server is not returned by the public
+ directory. The join password is verified by the game server over encrypted
+ QUIC; the metaserver receives only the boolean fact that a password is
+ required.
+
+ Connectivity modes:
+  - direct_only: QUIC plus rendezvous; no legacy gameplay listener is needed.
+  - direct_preferred: try direct QUIC while retaining legacy TCP listeners for
+    manually reachable deployments. It does not enable a game-traffic relay.
+  - legacy_tcp: classic TCP ports only; requires a publicly reachable port.
+
+ STUN discovery and punch probes use the same UDP socket as QUIC. This works
+ through common endpoint-independent and address-dependent NATs, including
+ many CGNAT deployments. Some symmetric NATs and UDP-blocking networks cannot
+ establish a direct path. There is intentionally no TURN/game relay fallback,
+ so those networks must use IPv6, a VPN/overlay, or a manually reachable host.
+
+ QUIC certificates are pinned from the metaserver listing. If crypto_cert and
+ crypto_cert_key are configured, that certificate provides a stable server ID.
+ Otherwise the server generates an identity at startup; configure and back up a
+ certificate if friends should see a stable identity across restarts.
+
+ The game file URL in http_url is separate from gameplay. It must be reachable
+ by clients when they need uncached resources; it can be inexpensive static
+ object hosting or a small HTTPS tunnel because it never carries live game
+ traffic.
 
 =================================================
 = 3. Running a public server                    =

@@ -50,6 +50,7 @@
 #include <resources.h>
 #include <toolkit/socket_crypto.h>
 
+#include <openssl/crypto.h>
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 
@@ -110,9 +111,31 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             } else {
                 packet_append_string_terminated(packet, settings.http_url);
             }
+        } else if (type == CMD_SETUP_JOIN_PASSWORD) {
+            char password[MAX_BUF];
+            packet_to_string(data, len, &pos, VS(password));
+
+            size_t expected_len = strlen(settings.join_password);
+            ns->join_authenticated =
+                expected_len == strlen(password) &&
+                CRYPTO_memcmp(settings.join_password,
+                              password,
+                              expected_len) == 0;
+            packet_append_uint8(packet, ns->join_authenticated ? 1 : 0);
         } else {
             LOG(PACKET, "Unknown type: %d", type);
         }
+    }
+
+    if (*settings.join_password != '\0' && !ns->join_authenticated) {
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Incorrect or missing server join password.");
+        packet_free(packet);
+        ns->state = ST_ZOMBIE;
+        return;
     }
 
     socket_send_packet(ns, packet);

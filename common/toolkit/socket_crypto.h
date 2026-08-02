@@ -90,6 +90,8 @@ const char *
 socket_crypto_get_cert_chain(void);
 const char *
 socket_crypto_get_cert_pubkey(void);
+const char *
+socket_crypto_get_cert_key(void);
 void
 socket_crypto_set_path(const char *path);
 bool

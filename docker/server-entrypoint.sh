@@ -12,8 +12,19 @@ fi
 mkdir -p data/http data/tmp
 cp -R install_data/http/. data/http/
 
+if [ -n "${ATRINIK_JOIN_PASSWORD:-}" ]; then
+    set -- --join_password="${ATRINIK_JOIN_PASSWORD}" "$@"
+fi
+
+if [ -n "${ATRINIK_SERVER_HOST:-}" ]; then
+    set -- --server_host="${ATRINIK_SERVER_HOST}" "$@"
+fi
+
 exec ./atrinik-server \
     --network_stack=ipv4 \
     --no_console \
     --http_url="${ATRINIK_HTTP_URL:-http://localhost:8080}" \
+    --connectivity_mode="${ATRINIK_CONNECTIVITY_MODE:-direct_only}" \
+    --server_public="${ATRINIK_SERVER_PUBLIC:-false}" \
+    --port_quic=1730 \
     "$@"

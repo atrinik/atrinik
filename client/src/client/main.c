@@ -303,13 +303,16 @@ static int game_status_chain(void)
         if (!client_socket_open(&csocket,
                                 selected_server->hostname,
                                 port,
-                                secure)) {
+                                secure,
+                                selected_server->quic_certificate_sha256,
+                                selected_server->server_id)) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;
         }
 
-        if (!metaserver_cert_verify_host(selected_server,
+        if (!selected_server->direct &&
+            !metaserver_cert_verify_host(selected_server,
                                          socket_get_addr(csocket.sc))) {
             draw_info(COLOR_RED, "Failed to verify the IP address of the "
                                  "specified server - it is very likely the "
@@ -347,6 +350,12 @@ static int game_status_chain(void)
         packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
         packet_append_uint8(packet, CMD_SETUP_DATA_URL);
         packet_append_string_terminated(packet, "");
+        packet_append_uint8(packet, CMD_SETUP_JOIN_PASSWORD);
+        packet_append_string_terminated(
+            packet,
+            clioption_settings.join_password != NULL &&
+            (socket_is_quic(csocket.sc) || socket_is_secure(csocket.sc))
+                ? clioption_settings.join_password : "");
         socket_send_packet(packet);
 
         cpl.state = ST_WAITSETUP;
@@ -452,6 +461,10 @@ void clioption_settings_deinit(void)
     if (clioption_settings.game_news_url) {
         efree(clioption_settings.game_news_url);
     }
+
+    if (clioption_settings.join_password != NULL) {
+        efree(clioption_settings.join_password);
+    }
 }
 
 /**
@@ -527,6 +540,26 @@ clioptions_option_connect (const char *arg,
     }
 
     efree(cp);
+    return true;
+}
+
+/**
+ * Description of the --join_password command.
+ */
+static const char *const clioptions_option_join_password_desc =
+"Password used to join a private game server.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_join_password (const char *arg,
+                                 char      **errmsg)
+{
+    if (strlen(arg) >= MAX_BUF) {
+        *errmsg = estrdup("Join password is too long");
+        return false;
+    }
+
+    efree(clioption_settings.join_password);
+    clioption_settings.join_password = estrdup(arg);
     return true;
 }
 
@@ -666,6 +699,7 @@ int main(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver, "Add a metaserver to the list");
     CLIOPTIONS_CREATE_ARGUMENT(cli, connect, "Connect to the specified server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, game_news_url, "Set game news URL");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
 
     /* Argument options*/
     CLIOPTIONS_CREATE(cli, nometa, "Disable querying the metaserver");

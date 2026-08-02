@@ -145,6 +145,9 @@ typedef struct socket_struct {
     /** Is the client a bot? */
     uint8_t is_bot;
 
+    /** Whether the configured server join password was accepted. */
+    bool join_authenticated;
+
     /** Start of drawing of look window. */
     uint32_t look_position;
 

@@ -132,6 +132,8 @@ typedef struct clioption_settings_struct {
 
     char *game_news_url;
 
+    char *join_password;
+
     uint8_t reconnect;
 } clioption_settings_struct;
 

@@ -106,6 +106,8 @@ extern void metaserver_disable(void);
 extern server_struct *server_get_id(size_t num);
 bool
 metaserver_cert_verify_host(server_struct *server, const char *host);
+bool
+metaserver_rendezvous_url(const char *server_id, char *url, size_t url_size);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
@@ -180,7 +182,12 @@ extern void socket_thread_stop(void);
 extern int handle_socket_shutdown(void);
 extern void client_socket_close(client_socket_t *csock);
 extern void client_socket_deinitialize(void);
-extern bool client_socket_open(client_socket_t *csock, const char *host, int port, bool secure);
+extern bool client_socket_open(client_socket_t *csock,
+                               const char      *host,
+                               int              port,
+                               bool             secure,
+                               const char      *quic_certificate_sha256,
+                               const char      *server_id);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);

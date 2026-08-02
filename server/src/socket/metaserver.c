@@ -32,9 +32,12 @@
 #include <toolkit/curl.h>
 #include <toolkit/socket_crypto.h>
 #include <player.h>
+#include <server.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 #include <openssl/err.h>
+#include <curl/curl.h>
+#include <ctype.h>
 
 /**
  * Used to hold metaserver statistics.
@@ -80,6 +83,242 @@ static uint32_t request_num_players = 0;
  */
 static bool key_is_new = false;
 
+
+#if LIBCURL_VERSION_NUM >= 0x075600
+static pthread_mutex_t rendezvous_lock;
+static pthread_t rendezvous_thread;
+static bool rendezvous_thread_started;
+static bool rendezvous_shutdown;
+static uint64_t rendezvous_generation;
+
+typedef struct rendezvous_args {
+    char url[HUGE_BUF];
+    char token[65];
+    uint64_t generation;
+} rendezvous_args_t;
+
+static bool
+metaserver_rendezvous_current (uint64_t generation)
+{
+    pthread_mutex_lock(&rendezvous_lock);
+    bool current = !rendezvous_shutdown &&
+                   generation == rendezvous_generation;
+    pthread_mutex_unlock(&rendezvous_lock);
+    return current;
+}
+
+static void *
+metaserver_rendezvous_thread (void *data)
+{
+    rendezvous_args_t *args = data;
+
+reconnect:
+    CURL *curl = curl_easy_init();
+    if (curl == NULL) {
+        goto done;
+    }
+
+    char authorization[sizeof("Authorization: Bearer ") + 64];
+    snprintf(VS(authorization), "Authorization: Bearer %s", args->token);
+    struct curl_slist *headers = curl_slist_append(NULL, authorization);
+    if (headers == NULL) {
+        curl_easy_cleanup(curl);
+        goto done;
+    }
+
+    curl_easy_setopt(curl, CURLOPT_URL, args->url);
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_CONNECT_ONLY, 2L);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+    CURLcode result = curl_easy_perform(curl);
+    if (result != CURLE_OK) {
+        LOG(ERROR, "Rendezvous connection failed: %s",
+            curl_easy_strerror(result));
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers);
+        if (metaserver_rendezvous_current(args->generation)) {
+            sleep(2);
+            goto reconnect;
+        }
+        goto done;
+    }
+
+    char message[513];
+    size_t used = 0;
+    while (metaserver_rendezvous_current(args->generation)) {
+        size_t received = 0;
+        const struct curl_ws_frame *frame = NULL;
+        result = curl_ws_recv(curl,
+                              message + used,
+                              sizeof(message) - 1 - used,
+                              &received,
+                              &frame);
+        if (result == CURLE_AGAIN) {
+            usleep(100000);
+            continue;
+        }
+        if (result != CURLE_OK || frame == NULL ||
+            (frame->flags & CURLWS_CLOSE) != 0) {
+            break;
+        }
+        if ((frame->flags & CURLWS_TEXT) == 0 ||
+            used + received >= sizeof(message) - 1) {
+            break;
+        }
+
+        used += received;
+        if (frame->bytesleft != 0) {
+            continue;
+        }
+        message[used] = '\0';
+
+        char host[65], ticket[65];
+        unsigned int port;
+        int consumed = 0;
+        if (sscanf(message,
+                   "{\"type\":\"candidate\",\"host\":\"%64[0-9a-fA-F:.]\","
+                   "\"port\":%u,\"ticket\":\"%64[0-9a-f]\"}%n",
+                   host,
+                   &port,
+                   ticket,
+                   &consumed) == 3 &&
+            message[consumed] == '\0' &&
+            port >= 1 && port <= UINT16_MAX) {
+            for (int i = 0; i < 3; i++) {
+                socket_server_quic_punch(host, (uint16_t) port);
+                usleep(20000);
+            }
+
+            char ready[128];
+            snprintf(VS(ready),
+                     "{\"type\":\"ready\",\"ticket\":\"%s\"}",
+                     ticket);
+            size_t sent = 0;
+            curl_ws_send(curl,
+                         ready,
+                         strlen(ready),
+                         &sent,
+                         0,
+                         CURLWS_TEXT);
+        }
+        used = 0;
+    }
+
+    curl_easy_cleanup(curl);
+    curl_slist_free_all(headers);
+    if (metaserver_rendezvous_current(args->generation)) {
+        sleep(2);
+        goto reconnect;
+    }
+
+done:
+    efree(args);
+    return NULL;
+}
+
+static bool
+metaserver_rendezvous_url (char       *url,
+                           size_t      url_size)
+{
+    char host[MAX_BUF], quic_fingerprint[65];
+    uint16_t port;
+    if (!settings.server_public ||
+        !socket_server_quic_info(VS(host), &port, quic_fingerprint)) {
+        return false;
+    }
+
+    char origin[MAX_BUF];
+    snprintf(VS(origin), "%s", settings.metaserver_url);
+    char *authority = strstr(origin, "://");
+    if (authority == NULL) {
+        return false;
+    }
+    char *path = strchr(authority + 3, '/');
+    if (path != NULL) {
+        *path = '\0';
+    }
+
+    const char *scheme;
+    if (strncmp(origin, "https://", 8) == 0) {
+        scheme = "wss";
+        memmove(origin, origin + 8, strlen(origin + 8) + 1);
+    } else if (strncmp(origin, "http://", 7) == 0) {
+        scheme = "ws";
+        memmove(origin, origin + 7, strlen(origin + 7) + 1);
+    } else {
+        return false;
+    }
+
+    return snprintf(url,
+                    url_size,
+                    "%s://%s/v2/rendezvous/%s?role=server",
+                    scheme,
+                    origin,
+                    quic_fingerprint) < (int) url_size;
+}
+
+static void
+metaserver_rendezvous_start (const char *token)
+{
+    rendezvous_args_t *args = ecalloc(1, sizeof(*args));
+    snprintf(VS(args->token), "%s", token);
+    if (!metaserver_rendezvous_url(VS(args->url))) {
+        efree(args);
+        return;
+    }
+
+    pthread_mutex_lock(&rendezvous_lock);
+    rendezvous_generation++;
+    args->generation = rendezvous_generation;
+    bool join_old = rendezvous_thread_started;
+    pthread_mutex_unlock(&rendezvous_lock);
+
+    if (join_old) {
+        pthread_join(rendezvous_thread, NULL);
+    }
+
+    if (pthread_create(&rendezvous_thread,
+                       NULL,
+                       metaserver_rendezvous_thread,
+                       args) != 0) {
+        LOG(ERROR, "Failed to start the rendezvous thread");
+        efree(args);
+        return;
+    }
+
+    pthread_mutex_lock(&rendezvous_lock);
+    rendezvous_thread_started = true;
+    pthread_mutex_unlock(&rendezvous_lock);
+}
+
+static void
+metaserver_rendezvous_response (curl_request_t *request)
+{
+    char *body = curl_request_get_body(request, NULL);
+    const char *prefix = "\"rendezvousToken\":\"";
+    char *token = body != NULL ? strstr(body, prefix) : NULL;
+    if (token == NULL) {
+        return;
+    }
+    token += strlen(prefix);
+    for (size_t i = 0; i < 64; i++) {
+        if (!isxdigit((unsigned char) token[i])) {
+            return;
+        }
+    }
+    if (token[64] != '\"') {
+        return;
+    }
+
+    char value[65];
+    memcpy(value, token, 64);
+    value[64] = '\0';
+    string_tolower(value);
+    metaserver_rendezvous_start(value);
+}
+#endif
+
 /**
  * Figure out whether the meta-server is enabled or not.
  *
@@ -112,6 +351,9 @@ metaserver_init (void)
 
     pthread_mutex_init(&stats_lock, NULL);
     pthread_mutex_init(&request_lock, NULL);
+#if LIBCURL_VERSION_NUM >= 0x075600
+    pthread_mutex_init(&rendezvous_lock, NULL);
+#endif
     metaserver_info_update();
 }
 
@@ -149,6 +391,18 @@ metaserver_deinit (void)
     } else {
         pthread_mutex_unlock(&request_lock);
     }
+
+#if LIBCURL_VERSION_NUM >= 0x075600
+    pthread_mutex_lock(&rendezvous_lock);
+    rendezvous_shutdown = true;
+    rendezvous_generation++;
+    bool join_rendezvous = rendezvous_thread_started;
+    pthread_mutex_unlock(&rendezvous_lock);
+    if (join_rendezvous) {
+        pthread_join(rendezvous_thread, NULL);
+    }
+    pthread_mutex_destroy(&rendezvous_lock);
+#endif
 
     if (request_players != NULL) {
         efree(request_players);
@@ -223,6 +477,10 @@ metaserver_update_request (curl_request_t *request, void *user_data)
 
         goto out;
     }
+
+#if LIBCURL_VERSION_NUM >= 0x075600
+    metaserver_rendezvous_response(request);
+#endif
 
     pthread_mutex_lock(&stats_lock);
     stats.last = time(NULL);
@@ -556,8 +814,36 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
 
     char buf[32];
     snprintf(VS(buf), "%" PRIu32, request_num_players);
+    curl_request_form_add(current_request,
+                          "public",
+                          settings.server_public ? "1" : "0");
+    curl_request_form_add(current_request,
+                          "connectivity_mode",
+                          settings.connectivity_mode);
+    curl_request_form_add(current_request,
+                          "password_required",
+                          *settings.join_password != '\0' ? "1" : "0");
+
+    char quic_host[MAX_BUF];
+    uint16_t quic_port;
+    char quic_fingerprint[65];
+    if (socket_server_quic_info(VS(quic_host),
+                                &quic_port,
+                                quic_fingerprint)) {
+        curl_request_form_add(current_request, "server_id", quic_fingerprint);
+        curl_request_form_add(current_request,
+                              "quic_host",
+                              quic_host);
+        snprintf(VS(buf), "%" PRIu16, quic_port);
+        curl_request_form_add(current_request, "quic_port", buf);
+        curl_request_form_add(current_request,
+                              "quic_cert_sha256",
+                              quic_fingerprint);
+    }
+
     curl_request_form_add(current_request, "num_players", buf);
 
+    snprintf(VS(buf), "%" PRIu32, request_num_players);
     snprintf(VS(buf), "%" PRIu16, settings.port);
     curl_request_form_add(current_request, "port", buf);
 

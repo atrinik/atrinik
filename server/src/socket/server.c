@@ -106,6 +106,11 @@ static fd_set fds_error;
  * The server's listening sockets.
  */
 static socket_t *server_sockets[SOCKET_SERVER_ID_NUM];
+/** Direct UDP/QUIC listener, when enabled. */
+static socket_t *quic_server_socket;
+static char quic_public_host[MAX_BUF];
+static uint16_t quic_public_port;
+static char quic_certificate_sha256[65];
 /**
  * List of client sockets that are not yet playing.
  */
@@ -270,12 +275,21 @@ TOOLKIT_INIT_FUNC(socket_server)
         exit(1);
     }
 
-    if (settings.port_crypto == 0 || settings.port == 0) {
-        LOG(ERROR, "No port configured");
+    bool legacy_enabled =
+        *settings.connectivity_mode == '\0' ||
+        strcmp(settings.connectivity_mode, "legacy_tcp") == 0 ||
+        strcmp(settings.connectivity_mode, "direct_preferred") == 0;
+    bool direct_enabled =
+        strcmp(settings.connectivity_mode, "legacy_tcp") != 0;
+
+    if (legacy_enabled && (settings.port_crypto == 0 || settings.port == 0)) {
+        LOG(ERROR, "No legacy TCP port configured");
         exit(1);
     }
 
-    for (socket_server_id_t i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
+    for (socket_server_id_t i = 0;
+         legacy_enabled && i < SOCKET_SERVER_ID_NUM;
+         i++) {
         uint16_t port;
         bool secure = server_socket_id_is_secure(i);
         if (secure) {
@@ -345,6 +359,35 @@ TOOLKIT_INIT_FUNC(socket_server)
         }
     }
 
+    if (direct_enabled) {
+        if (settings.port_quic == 0) {
+            LOG(ERROR, "No QUIC UDP port configured");
+            exit(1);
+        }
+        const char *quic_bind =
+            BIT_QUERY(stack_setting.type, STACK_IPV4)
+                ? "0.0.0.0" : "::";
+        quic_server_socket =
+            socket_quic_server_create(quic_bind, settings.port_quic, false);
+        if (quic_server_socket == NULL ||
+            !socket_certificate_sha256(quic_server_socket,
+                                       quic_certificate_sha256)) {
+            LOG(ERROR, "Failed to initialize the QUIC listener");
+            exit(1);
+        }
+        snprintf(VS(quic_public_host), "%s", settings.server_host);
+        quic_public_port = settings.port_quic;
+        if (*settings.stun_server != '\0' &&
+            !socket_stun_discover(quic_server_socket,
+                                  settings.stun_server,
+                                  VS(quic_public_host),
+                                  &quic_public_port)) {
+            LOG(ERROR,
+                "Could not discover the public UDP candidate; "
+                "direct connections may fail behind NAT");
+        }
+    }
+
     client_sockets = NULL;
 }
 TOOLKIT_INIT_FUNC_FINISH
@@ -361,8 +404,45 @@ TOOLKIT_DEINIT_FUNC(socket_server)
 
         socket_destroy(server_sockets[i]);
     }
+
+    if (quic_server_socket != NULL) {
+        socket_destroy(quic_server_socket);
+        quic_server_socket = NULL;
+    }
 }
 TOOLKIT_DEINIT_FUNC_FINISH
+bool
+socket_server_quic_info (char     *host,
+                         size_t    host_size,
+                         uint16_t *port,
+                         char      certificate_sha256[65])
+{
+    HARD_ASSERT(host != NULL);
+    HARD_ASSERT(port != NULL);
+    HARD_ASSERT(certificate_sha256 != NULL);
+
+    if (quic_server_socket == NULL || *quic_public_host == '\0') {
+        return false;
+    }
+
+    snprintf(host, host_size, "%s", quic_public_host);
+    *port = quic_public_port;
+    memcpy(certificate_sha256,
+           quic_certificate_sha256,
+           sizeof(quic_certificate_sha256));
+
+    return true;
+}
+
+bool
+socket_server_quic_punch (const char *host, uint16_t port)
+{
+    if (quic_server_socket == NULL) {
+        return false;
+    }
+
+    return socket_udp_punch(quic_server_socket, host, port);
+}
 
 /**
  * Attempt to handle a command from the client.
@@ -740,6 +820,15 @@ socket_server_process (void)
         FD_SET(fd, &fds_read);
     }
 
+    if (quic_server_socket != NULL) {
+        int fd = socket_fd(quic_server_socket);
+        if (nfds < fd) {
+            nfds = fd;
+        }
+        FD_SET(fd, &fds_read);
+        FD_SET(fd, &fds_error);
+    }
+
     csocket_entry_t *entry, *entry_tmp;
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {
         if (unlikely(!socket_is_fd_valid(entry->cs->sc))) {
@@ -849,6 +938,11 @@ socket_server_process (void)
         }
 
         socket_server_csocket_create(server_sockets[i]);
+    }
+
+    if (quic_server_socket != NULL &&
+        FD_ISSET(socket_fd(quic_server_socket), &fds_read)) {
+        socket_server_csocket_create(quic_server_socket);
     }
 
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {

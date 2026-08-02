@@ -477,17 +477,35 @@ bool
 client_socket_open (client_socket_t *csock,
                     const char      *host,
                     int              port,
-                    bool             secure)
+                    bool             secure,
+                    const char      *quic_certificate_sha256,
+                    const char      *server_id)
 {
     HARD_ASSERT(csock != NULL);
     HARD_ASSERT(host != NULL);
 
-    csock->sc = socket_create(host, port, secure, SOCKET_ROLE_CLIENT, false);
+    if (quic_certificate_sha256 != NULL) {
+        char rendezvous_url[HUGE_BUF];
+        const char *rendezvous = metaserver_rendezvous_url(
+            server_id,
+            VS(rendezvous_url)) ? rendezvous_url : NULL;
+        csock->sc = socket_quic_client_create(host,
+                                              port,
+                                              quic_certificate_sha256,
+                                              rendezvous,
+                                              "stun.cloudflare.com:3478");
+    } else {
+        csock->sc = socket_create(host,
+                                  port,
+                                  secure,
+                                  SOCKET_ROLE_CLIENT,
+                                  false);
+    }
     if (csock->sc == NULL) {
         return false;
     }
 
-    if (!socket_connect(csock->sc)) {
+    if (quic_certificate_sha256 == NULL && !socket_connect(csock->sc)) {
         goto error;
     }
 

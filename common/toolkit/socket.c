@@ -34,48 +34,10 @@
 #include <sys/types.h>
 
 #include "socket.h"
+#include "socket_private.h"
 #include "socket_crypto.h"
 #include "string.h"
 
-/**
- * The socket structure.
- */
-struct sock_struct {
-    /**
-     * Actual socket handle, as returned by socket() call.
-     */
-    int handle;
-
-    /**
-     * The socket address.
-     */
-    struct sockaddr_storage addr;
-
-    /**
-     * Hostname that the socket connection will use.
-     */
-    char *host;
-
-    /**
-     * Port that the socket connection will use.
-     */
-    uint16_t port;
-
-    /**
-     * Socket crypto pointer.
-     */
-    socket_crypto_t *crypto;
-
-    /**
-     * Whether the socket is on the secure port.
-     */
-    bool secure:1;
-
-    /**
-     * Socket's role.
-     */
-    socket_role_t role;
-};
 
 /** Helper structure used in socket_cmp_addr(). */
 union sockaddr_union {
@@ -154,6 +116,8 @@ socket_create (const char   *host,
                bool          dual_stack)
 {
     socket_t *sc = ecalloc(1, sizeof(*sc));
+    sc->handle = -1;
+    sc->owns_handle = true;
     sc->secure = !!secure;
     sc->role = role;
 
@@ -253,6 +217,7 @@ error:
     efree(sc);
     return NULL;
 }
+
 
 /**
  * Acquire the socket's address as a string representation.
@@ -463,10 +428,28 @@ bool socket_bind(socket_t *sc)
 socket_t *socket_accept(socket_t *sc)
 {
     HARD_ASSERT(sc != NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    if (sc->transport == SOCKET_TRANSPORT_QUIC_LISTENER) {
+        SSL *connection = SSL_accept_connection(sc->quic, 0);
+        if (connection == NULL) {
+            return NULL;
+        }
+
+        socket_t *tmp = ecalloc(1, sizeof(*tmp));
+        tmp->handle = sc->handle;
+        tmp->owns_handle = false;
+        tmp->transport = SOCKET_TRANSPORT_QUIC_CONNECTION;
+        tmp->quic = connection;
+        tmp->role = sc->role;
+        tmp->port = sc->port;
+        return tmp;
+    }
+#endif
 
     SOFT_ASSERT_RC(sc->handle != -1, NULL, "Invalid socket file handle");
 
     socket_t *tmp = ecalloc(1, sizeof(*tmp));
+    tmp->owns_handle = true;
     socklen_t addrlen = sizeof(tmp->addr);
     tmp->handle = accept(sc->handle, (struct sockaddr *) &tmp->addr, &addrlen);
     if (tmp->handle == -1) {
@@ -500,6 +483,23 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(buf != NULL);
     HARD_ASSERT(amt != NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    if (sc->transport == SOCKET_TRANSPORT_QUIC_CONNECTION) {
+        *amt = 0;
+        if (len == 0) {
+            return true;
+        }
+        int result = SSL_read_ex(sc->quic, buf, len, amt);
+        if (result == 1) {
+            return true;
+        }
+        int error = SSL_get_error(sc->quic, result);
+        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+            return true;
+        }
+        return false;
+    }
+#endif
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
@@ -556,6 +556,20 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(buf != NULL);
     HARD_ASSERT(amt != NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    if (sc->transport == SOCKET_TRANSPORT_QUIC_CONNECTION) {
+        *amt = 0;
+        int result = SSL_write_ex(sc->quic, buf, len, amt);
+        if (result == 1) {
+            return true;
+        }
+        int error = SSL_get_error(sc->quic, result);
+        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+            return true;
+        }
+        return false;
+    }
+#endif
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
     SOFT_ASSERT_RC(len != 0, true, "Sending zero-length buffer");
@@ -625,6 +639,10 @@ bool socket_is_fd_valid(socket_t *sc)
 bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger)
 {
     HARD_ASSERT(sc != NULL);
+
+    if (socket_is_quic(sc)) {
+        return true;
+    }
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
@@ -749,6 +767,10 @@ bool socket_opt_ndelay(socket_t *sc, bool enable)
 {
     HARD_ASSERT(sc != NULL);
 
+    if (socket_is_quic(sc)) {
+        return true;
+    }
+
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
     int flag = !!enable;
@@ -867,13 +889,34 @@ void socket_close(socket_t *sc)
 
     SOFT_ASSERT(sc->handle != -1, "Invalid socket handle");
 
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    if (sc->quic != NULL) {
+        SSL_free(sc->quic);
+        sc->quic = NULL;
+    }
+    if (sc->quic_ctx != NULL) {
+        SSL_CTX_free(sc->quic_ctx);
+        sc->quic_ctx = NULL;
+    }
+#endif
+
+    if (sc->handle == -1 || !sc->owns_handle) {
+        sc->handle = -1;
+        return;
+    }
+
 #ifndef WIN32
-    shutdown(sc->handle, SHUT_RDWR);
+    if (!socket_is_quic(sc)) {
+        shutdown(sc->handle, SHUT_RDWR);
+    }
     close(sc->handle);
 #else
-    shutdown(sc->handle, SD_BOTH);
+    if (!socket_is_quic(sc)) {
+        shutdown(sc->handle, SD_BOTH);
+    }
     closesocket(sc->handle);
 #endif
+    sc->handle = -1;
 }
 
 /**

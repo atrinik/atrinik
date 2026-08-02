@@ -67,6 +67,13 @@ typedef struct server_struct {
     /** Hostname of the server. */
     char *hostname;
 
+    /** Stable direct-connect identifier and pinned QUIC certificate. */
+    char *server_id;
+    char *quic_certificate_sha256;
+
+    bool direct:1;
+    bool password_required:1;
+
     /** Server version. */
     char *version;
 

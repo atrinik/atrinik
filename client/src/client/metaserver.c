@@ -32,6 +32,7 @@
 #include <global.h>
 #include <toolkit/string.h>
 #include <toolkit/curl.h>
+#include "metaserver_private.h"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -146,13 +147,21 @@ metaserver_cert_free (server_cert_info_t *info)
  * @param server
  * Node to free.
  */
-static void
-metaserver_free (server_struct *server)
+void
+metaserver_server_free (server_struct *server)
 {
     HARD_ASSERT(server != NULL);
 
     if (server->hostname != NULL) {
         efree(server->hostname);
+    }
+
+    if (server->server_id != NULL) {
+        efree(server->server_id);
+    }
+
+    if (server->quic_certificate_sha256 != NULL) {
+        efree(server->quic_certificate_sha256);
     }
 
     if (server->name != NULL) {
@@ -184,6 +193,17 @@ metaserver_free (server_struct *server)
     }
 
     efree(server);
+}
+
+void
+metaserver_server_add (server_struct *server)
+{
+    HARD_ASSERT(server != NULL);
+
+    SDL_LockMutex(server_head_mutex);
+    DL_PREPEND(server_head, server);
+    server_count++;
+    SDL_UnlockMutex(server_head_mutex);
 }
 
 /**
@@ -462,7 +482,7 @@ parse_metaserver_node (xmlNodePtr node)
     return;
 
 error:
-    metaserver_free(server);
+    metaserver_server_free(server);
 }
 
 /**
@@ -573,6 +593,48 @@ out:
     if (valid_ctx != NULL) {
         xmlSchemaFreeValidCtxt(valid_ctx);
     }
+}
+
+
+
+bool
+metaserver_rendezvous_url (const char *server_id, char *url, size_t url_size)
+{
+    if (server_id == NULL || clioption_settings.metaservers_num == 0) {
+        return false;
+    }
+
+    char origin[MAX_BUF];
+    snprintf(VS(origin),
+             "%s",
+             clioption_settings.metaservers[
+                 clioption_settings.metaservers_num - 1]);
+    char *authority = strstr(origin, "://");
+    if (authority == NULL) {
+        return false;
+    }
+    char *path = strchr(authority + 3, '/');
+    if (path != NULL) {
+        *path = '\0';
+    }
+
+    const char *scheme;
+    if (strncmp(origin, "https://", 8) == 0) {
+        scheme = "wss";
+        memmove(origin, origin + 8, strlen(origin + 8) + 1);
+    } else if (strncmp(origin, "http://", 7) == 0) {
+        scheme = "ws";
+        memmove(origin, origin + 7, strlen(origin + 7) + 1);
+    } else {
+        return false;
+    }
+
+    return snprintf(url,
+                    url_size,
+                    "%s://%s/v2/rendezvous/%s?role=client",
+                    scheme,
+                    origin,
+                    server_id) < (int) url_size;
 }
 
 /**
@@ -703,7 +765,7 @@ void metaserver_clear_data(void)
     DL_FOREACH_SAFE(server_head, node, tmp)
     {
         DL_DELETE(server_head, node);
-        metaserver_free(node);
+        metaserver_server_free(node);
     }
 
     server_count = 0;
@@ -780,6 +842,20 @@ int metaserver_thread(void *dummy)
         if (http_code == 200 && body != NULL) {
             parse_metaserver_data(body, body_size);
             curl_request_free(request);
+
+            char direct_url[MAX_BUF];
+            metaserver_direct_url(clioption_settings.metaservers[i - 1],
+                                  VS(direct_url));
+            curl_request_t *direct =
+                curl_request_create(direct_url, CURL_PKEY_TRUST_SYSTEM);
+            curl_request_do_get(direct);
+            body = curl_request_get_body(direct, &body_size);
+            if (curl_request_get_http_code(direct) == 200 && body != NULL) {
+                metaserver_direct_parse(body, body_size);
+            } else {
+                LOG(INFO, "Direct server directory is unavailable");
+            }
+            curl_request_free(direct);
             break;
         }
 

@@ -351,6 +351,29 @@ clioptions_option_port_crypto (const char *arg,
 }
 
 /**
+ * Description of the --port_quic command.
+ */
+static const char *clioptions_option_port_quic_desc =
+"Sets the UDP port used for direct QUIC connections. Set to zero to disable.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_port_quic (const char *arg,
+                             char      **errmsg)
+{
+    int val = atoi(arg);
+    if (val < 0 || val > UINT16_MAX) {
+        string_fmt(*errmsg,
+                   "%d is an invalid port number, must be 0-%d",
+                   val,
+                   UINT16_MAX);
+        return false;
+    }
+
+    settings.port_quic = val;
+    return true;
+}
+
+/**
  * Description of the --libpath command.
  */
 static const char *clioptions_option_libpath_desc =
@@ -436,6 +459,83 @@ clioptions_option_metaserver_url (const char *arg,
                                   char      **errmsg)
 {
     snprintf(VS(settings.metaserver_url), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --connectivity_mode command.
+ */
+static const char *clioptions_option_connectivity_mode_desc =
+"Connection policy: direct_only, direct_preferred, or legacy_tcp.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_connectivity_mode (const char *arg,
+                                     char      **errmsg)
+{
+    if (strcmp(arg, "direct_only") != 0 &&
+        strcmp(arg, "direct_preferred") != 0 &&
+        strcmp(arg, "legacy_tcp") != 0) {
+        *errmsg = estrdup("Expected direct_only, direct_preferred, or "
+                          "legacy_tcp");
+        return false;
+    }
+
+    snprintf(VS(settings.connectivity_mode), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --stun_server command.
+ */
+static const char *clioptions_option_stun_server_desc =
+"STUN server as hostname:port for public UDP candidate discovery.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_stun_server (const char *arg,
+                               char      **errmsg)
+{
+    snprintf(VS(settings.stun_server), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --join_password command.
+ */
+static const char *clioptions_option_join_password_desc =
+"Optional password required before clients may join this server.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_join_password (const char *arg,
+                                 char      **errmsg)
+{
+    if (strlen(arg) >= sizeof(settings.join_password)) {
+        *errmsg = estrdup("Join password is too long");
+        return false;
+    }
+
+    snprintf(VS(settings.join_password), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --server_public command.
+ */
+static const char *clioptions_option_server_public_desc =
+"Whether this server is listed publicly by the metaserver.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server_public (const char *arg,
+                                 char      **errmsg)
+{
+    if (KEYWORD_IS_TRUE(arg)) {
+        settings.server_public = true;
+    } else if (KEYWORD_IS_FALSE(arg)) {
+        settings.server_public = false;
+    } else {
+        *errmsg = estrdup("Expected true/false");
+        return false;
+    }
+
     return true;
 }
 
@@ -965,6 +1065,7 @@ static void init_library(int argc, char *argv[])
     /* Argument options */
     CLIOPTIONS_CREATE_ARGUMENT(cli, port, "Sets the port to use");
     CLIOPTIONS_CREATE_ARGUMENT(cli, port_crypto, "Sets the crypto port to use");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, port_quic, "Sets the QUIC UDP port");
     CLIOPTIONS_CREATE_ARGUMENT(cli, libpath, "Read-only data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, datapath, "Read/write data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, mapspath, "Map files location");
@@ -972,6 +1073,12 @@ static void init_library(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, resourcespath, "Resource files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver_url, "URL of the metaserver");
     CLIOPTIONS_CREATE_ARGUMENT(cli, http_url, "URL of the HTTP server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               connectivity_mode,
+                               "Direct connection policy");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "STUN discovery endpoint");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_public, "Public server listing");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_name, "Name of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_desc, "Description of the server");

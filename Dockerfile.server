@@ -90,5 +90,6 @@ USER atrinik
 WORKDIR /opt/atrinik/server
 
 EXPOSE 1728 1729 8080
+EXPOSE 1730/udp
 
 ENTRYPOINT ["atrinik-server-entrypoint"]

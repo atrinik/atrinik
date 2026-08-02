@@ -13,9 +13,27 @@ https://www.atrinik.org/page/installing_atrinik_client
 The latest map maker package can be downloaded here:
 https://www.atrinik.org/page/development_join
 
-## Compiling
+## Building from source
 
-Please see the INSTALL file for compilation instructions.
+See [INSTALL](INSTALL) for prerequisites and platform notes. A typical
+out-of-tree Linux build is:
+
+```sh
+git submodule update --init --recursive
+cmake -S . -B build/linux -DCMAKE_BUILD_TYPE=Release
+cmake --build build/linux --parallel
+```
+
+OpenSSL 3.5 or newer is required for the direct UDP/QUIC transport. Build only
+the server with `--target atrinik-server`, or only the client with
+`--target atrinik`.
+
+## Running a server
+
+See [server/README](server/README) for native and container instructions.
+Private friend servers use direct QUIC with STUN and metaserver rendezvous, so
+gameplay does not pass through the metaserver and port forwarding is normally
+unnecessary.
 
 ## Licensing
 

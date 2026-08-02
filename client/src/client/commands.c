@@ -64,6 +64,13 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
         } else if (type == CMD_SETUP_DATA_URL) {
             packet_to_string(data, len, &pos, cpl.http_url,
                     sizeof(cpl.http_url));
+        } else if (type == CMD_SETUP_JOIN_PASSWORD) {
+            if (packet_to_uint8(data, len, &pos) == 0) {
+                draw_info(COLOR_RED,
+                          "The server rejected the join password.");
+                cpl.state = ST_START;
+                return;
+            }
         }
     }
 

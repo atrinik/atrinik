@@ -107,6 +107,8 @@ static char *crypto_cert = NULL;
 static char *crypto_cert_chain = NULL;
 /** Currently used certificate's public key in PEM format. */
 static char *crypto_cert_pubkey = NULL;
+/** Currently used certificate private key in PEM format. */
+static char *crypto_cert_key = NULL;
 /** Private key context for the certificate. */
 static EVP_PKEY_CTX *crypto_cert_ctx = NULL;
 /** Certificate store. */
@@ -371,6 +373,11 @@ clioptions_option_crypto_cert_key (const char *arg,
     BIO_free(bio);
     efree(cp);
 
+    if (crypto_cert_key != NULL) {
+        efree(crypto_cert_key);
+    }
+    crypto_cert_key = estrdup(arg);
+
     if (crypto_cert_ctx != NULL) {
         EVP_PKEY_CTX_free(crypto_cert_ctx);
     }
@@ -504,6 +511,11 @@ TOOLKIT_DEINIT_FUNC(socket_crypto)
     if (crypto_cert_pubkey != NULL) {
         efree(crypto_cert_pubkey);
         crypto_cert_pubkey = NULL;
+    }
+
+    if (crypto_cert_key != NULL) {
+        efree(crypto_cert_key);
+        crypto_cert_key = NULL;
     }
 
     if (crypto_cert_ctx != NULL) {
@@ -1029,6 +1041,19 @@ socket_crypto_get_cert_pubkey (void)
 {
     TOOLKIT_PROTECT();
     return crypto_cert_pubkey;
+}
+
+/**
+ * Acquires the currently used certificate private key in PEM format.
+ *
+ * @return
+ * Certificate private key. Can be NULL.
+ */
+const char *
+socket_crypto_get_cert_key (void)
+{
+    TOOLKIT_PROTECT();
+    return crypto_cert_key;
 }
 
 /**

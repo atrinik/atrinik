@@ -65,5 +65,12 @@ void
 socket_server_process(void);
 void
 socket_server_post_process(void);
+bool
+socket_server_quic_info(char     *host,
+                        size_t    host_size,
+                        uint16_t *port,
+                        char      certificate_sha256[65]);
+bool
+socket_server_quic_punch(const char *host, uint16_t port);
 
 #endif

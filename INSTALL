@@ -27,7 +27,7 @@
   - Flex: Required
   - cURL: Required
   - zlib: Required
-  - OpenSSL: Required
+  - OpenSSL 3.5 or newer: Required (native QUIC support)
   - Check: Optional (only if you plan on doing development, required for
                      running unit tests)
 
@@ -59,18 +59,12 @@
 = 1.2 Compilation (GNU/Linux)                   =
 =================================================
 
- Once you have installed the prerequisites, generate the project Makefiles
- with CMake:
-  $ cmake .
+ Once you have installed the prerequisites, use an out-of-tree CMake build:
+  $ cmake -S . -B build/linux -DCMAKE_BUILD_TYPE=Release
+  $ cmake --build build/linux --parallel
 
- Afterwards, use make to compile Atrinik:
-  $ make
-
- If you have a multi-core CPU, you can specify the number of threads to start:
-  $ make -j4
-
- If you only want a specific component, you can pass a target to make:
-  $ make atrinik-server
+ If you only want a specific component, pass a target:
+  $ cmake --build build/linux --target atrinik-server --parallel
 
  List of common make targets:
   - atrinik-server:  The Atrinik server

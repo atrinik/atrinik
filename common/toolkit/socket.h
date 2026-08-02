@@ -205,6 +205,8 @@ typedef enum socket_role {
 #define CMD_SETUP_BOT 2
 /** URL of the data files to use. */
 #define CMD_SETUP_DATA_URL 3
+/** Password used to join a private game server. */
+#define CMD_SETUP_JOIN_PASSWORD 4
 /*@}*/
 
 /**
@@ -878,6 +880,28 @@ socket_create(const char   *host,
               bool          secure,
               socket_role_t role,
               bool          dual_stack);
+socket_t *
+socket_quic_server_create(const char *host,
+                          uint16_t    port,
+                          bool        dual_stack);
+socket_t *
+socket_quic_client_create(const char *host,
+                          uint16_t    port,
+                          const char *certificate_sha256,
+                          const char *rendezvous_url,
+                          const char *stun_endpoint);
+bool
+socket_is_quic(socket_t *sc);
+bool
+socket_certificate_sha256(socket_t *sc, char fingerprint[65]);
+bool
+socket_stun_discover(socket_t *sc,
+                     const char *endpoint,
+                     char *host,
+                     size_t host_size,
+                     uint16_t *port);
+bool
+socket_udp_punch(socket_t *sc, const char *host, uint16_t port);
 char *socket_get_addr(socket_t *sc);
 char *socket_get_str(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
