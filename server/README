@@ -74,6 +74,14 @@
  to use the --worldmaker switch, eg, run this prior to starting up your server:
   $ ./server.sh --worldmaker
 
+ From a repository build, the root-level helper performs the complete build,
+ resource collection, runtime setup, and generation sequence:
+  $ ./generate-region-maps.sh
+
+ The generator does not open the game or HTTP listening sockets, so it can be
+ run while another server instance is using the configured ports. Generated
+ PNG and definition files are written to server/data/http/client-maps/.
+
  The region maps are not mandatory to play the game, however, some features may
  not work (specifically, the client will only be able to work with dynamic area
  maps and not the full region maps).
