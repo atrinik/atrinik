@@ -45,10 +45,10 @@
  */
 int trap_see(object *op, object *trap, int level)
 {
-    int chance = rndm(0, 99);
-
-    /* Decide if we can see the rune or not */
-    if ((trap->level <= level && rndm_chance(10)) || trap->stats.Int == 1 || (chance > MIN(95, MAX(5, ((int) ((float) (op->map->difficulty + trap->level + trap->stats.Int - op->level) / 10.0 * 50.0)))))) {
+    /* Explicit searching is a capability check, not a rerollable lottery.
+     * This prevents repeated skill commands from being strictly better than
+     * one deliberate search while still leaving over-level traps hidden. */
+    if (trap->stats.Int == 1 || trap->level <= level) {
         draw_info_format(COLOR_WHITE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
 
         if (trap->stats.Int != 1) {
@@ -117,9 +117,14 @@ int trap_show(object *trap, object *where)
 int trap_disarm(object *disarmer, object *trap)
 {
     object *env = trap->env;
-    int disarmer_level = disarmer->level;
+    object *skill = CONTR(disarmer)->skill_ptr[SK_REMOVE_TRAPS];
+    int skill_level = skill != NULL ? skill->level : 0;
+    int disarmer_level = MAX(disarmer->level, skill_level) +
+            disarmer->stats.Dex / 4;
 
-    if ((trap->level <= disarmer_level && rndm_chance(10)) || !(rndm(0, (MAX(2, MIN(20, trap->level - disarmer_level + 5 - disarmer->stats.Dex / 2)) - 1)))) {
+    /* As with explicit detection, disarming is deterministic at a given
+     * capability. Repeating the same command cannot reroll a failure. */
+    if (trap->level <= disarmer_level) {
         draw_info_format(COLOR_WHITE, disarmer, "You successfully remove the %s (lvl %d)!", trap->name, trap->level);
         object_remove(trap, 0);
         set_trapped_flag(env);

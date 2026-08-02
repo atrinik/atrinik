@@ -45,6 +45,7 @@ void find_traps(object *pl, int level)
     object *tmp, *tmp2;
     mapstruct *m;
     int xt, yt, i, suc = 0;
+    int search_level = MAX(level, pl->level) + pl->stats.Dex / 4;
 
     /* First we search all around us for runes and traps, which are
      * all type RUNE */
@@ -66,7 +67,7 @@ void find_traps(object *pl, int level)
 
             for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below) {
                 if (tmp2->type == RUNE) {
-                    if (trap_see(pl, tmp2, level)) {
+                    if (trap_see(pl, tmp2, search_level)) {
                         trap_show(tmp2, tmp);
 
                         if (!suc) {
@@ -75,7 +76,7 @@ void find_traps(object *pl, int level)
                     } else {
                         /* Give out a "we have found signs of traps"
                          * if the traps level is not 1.8 times higher. */
-                        if (tmp2->level <= (level * 1.8f)) {
+                        if (tmp2->level <= (search_level * 1.8f)) {
                             suc = 2;
                         }
                     }
@@ -83,7 +84,7 @@ void find_traps(object *pl, int level)
             }
 
             if (tmp->type == RUNE) {
-                if (trap_see(pl, tmp, level)) {
+                if (trap_see(pl, tmp, search_level)) {
                     trap_show(tmp, tmp);
 
                     if (!suc) {
@@ -92,7 +93,7 @@ void find_traps(object *pl, int level)
                 } else {
                     /* Give out a "we have found signs of traps"
                      * if the traps level is not 1.8 times higher. */
-                    if (tmp->level <= (level * 1.8f)) {
+                    if (tmp->level <= (search_level * 1.8f)) {
                         suc = 2;
                     }
                 }
