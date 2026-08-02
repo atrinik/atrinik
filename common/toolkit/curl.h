@@ -56,6 +56,10 @@ typedef enum curl_request_process {
 
 typedef enum curl_pkey_trust {
     /**
+     * Standard Web PKI validation using the configured system CA bundle.
+     */
+    CURL_PKEY_TRUST_SYSTEM,
+    /**
      * Ultimate trust public keys (specified with the --trusted_pin option).
      */
     CURL_PKEY_TRUST_ULTIMATE,

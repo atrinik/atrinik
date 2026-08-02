@@ -452,6 +452,13 @@ clioptions_option_server_host (const char *arg,
                                char      **errmsg)
 {
     snprintf(VS(settings.server_host), "%s", arg);
+    string_tolower(settings.server_host);
+
+    size_t len = strlen(settings.server_host);
+    if (len > 0 && settings.server_host[len - 1] == '.') {
+        settings.server_host[len - 1] = '\0';
+    }
+
     return true;
 }
 
