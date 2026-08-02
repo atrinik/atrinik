@@ -110,9 +110,9 @@ metaserver_init (void)
         return;
     }
 
-    metaserver_info_update();
     pthread_mutex_init(&stats_lock, NULL);
     pthread_mutex_init(&request_lock, NULL);
+    metaserver_info_update();
 }
 
 /**
@@ -263,20 +263,29 @@ metaserver_get_key (char       *key,
     snprintf(VS(path), "%s/" METASERVER_KEY_FILE, settings.datapath);
     FILE *fp = fopen(path, "rb");
     if (fp == NULL && errno == ENOENT) {
-        fp = fopen(path, "wb");
-        if (fp == NULL) {
-            LOG(ERROR, "Failed to open %s for writing: %s (%d)",
+        int fd = open(path,
+                      O_WRONLY | O_CREAT | O_EXCL,
+                      S_IRUSR | S_IWUSR);
+        if (fd == -1) {
+            LOG(ERROR, "Failed to create %s: %s (%d)",
                 path, strerror(errno), errno);
             return false;
         }
 
-        unsigned char bytes[64];
-
-        if (chmod(path, S_IRUSR | S_IWUSR) != 0) {
-            LOG(ERROR, "Failed to chmod %s: %s (%d)",
-                path, strerror(errno), errno);
-            goto error_creating;
+        fp = fdopen(fd, "wb");
+        if (fp == NULL) {
+            int saved_errno = errno;
+            close(fd);
+            if (unlink(path) != 0) {
+                LOG(ERROR, "Failed to unlink %s: %s (%d)",
+                    path, strerror(errno), errno);
+            }
+            LOG(ERROR, "Failed to open %s for writing: %s (%d)",
+                path, strerror(saved_errno), saved_errno);
+            return false;
         }
+
+        unsigned char bytes[64];
 
         if (RAND_bytes(VS(bytes)) != 1) {
             LOG(ERROR, "RAND_bytes() failed: %s",
@@ -521,7 +530,7 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
 
     char url[MAX_BUF];
     snprintf(VS(url), "%s/update", settings.metaserver_url);
-    current_request = curl_request_create(url, CURL_PKEY_TRUST_ULTIMATE);
+    current_request = curl_request_create(url, CURL_PKEY_TRUST_SYSTEM);
     curl_request_set_cb(current_request, metaserver_update_request, NULL);
 
     curl_request_form_add(current_request, "hostname",
@@ -538,6 +547,8 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
                           cotp_hash);
     curl_request_form_add(current_request, "key",
                           key);
+    curl_request_form_add(current_request, "registration",
+                          key_is_new ? "1" : "0");
     curl_request_form_add(current_request, "ptr_check",
                           "");
     curl_request_form_add(current_request, "players",
@@ -626,7 +637,7 @@ metaserver_info_update (void)
     /* If we're at this point, no other thread is currently working with
      * the current request and thus a lock is not necessary. */
     /* coverity[missing_lock] */
-    current_request = curl_request_create(url, CURL_PKEY_TRUST_ULTIMATE);
+    current_request = curl_request_create(url, CURL_PKEY_TRUST_SYSTEM);
     curl_request_set_cb(current_request, metaserver_otp_request, NULL);
     curl_request_start_get(current_request);
 }
