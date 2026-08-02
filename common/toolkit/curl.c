@@ -161,6 +161,11 @@ struct curl_request {
     bool finished:1;
 
     /**
+     * Whether the request was started in its own thread.
+     */
+    bool threaded:1;
+
+    /**
      * Whether the peer certificate is untrusted.
      */
     bool untrusted:1;
@@ -987,8 +992,9 @@ curl_request_free (curl_request_t *request)
         pthread_mutex_unlock(&request->mutex);
     }
 
-    pthread_join(request->thread_id, NULL);
-    pthread_detach(request->thread_id);
+    if (request->threaded) {
+        pthread_join(request->thread_id, NULL);
+    }
 
     if (request->body != NULL) {
         efree(request->body);
@@ -1539,6 +1545,8 @@ curl_request_start_get (curl_request_t *request)
         /* coverity[missing_lock] */
         LOG(ERROR, "Failed to create thread: %s (%d)", strerror(rc), rc);
         request->state = CURL_STATE_ERROR;
+    } else {
+        request->threaded = true;
     }
 }
 
