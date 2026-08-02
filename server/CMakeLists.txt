@@ -1,7 +1,7 @@
 # The Atrinik server CMakeLists file.
 
+cmake_minimum_required(VERSION 3.10)
 project(atrinik-server C)
-cmake_minimum_required(VERSION 2.6)
 set(EXECUTABLE atrinik-server)
 set(PACKAGE_NAME "Atrinik Server")
 
@@ -16,8 +16,10 @@ if (NOT DL_LIBRARY AND NOT MINGW)
 endif ()
 
 # Add our includes.
+include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}/src/include)
+include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+include_directories(${CMAKE_BINARY_DIR}/common/toolkit)
 include_directories(src/http_server)
-include_directories(src/include)
 include_directories(src/random_maps)
 include_directories(src/tests)
 include_directories(src/types/monster/include)
@@ -46,9 +48,14 @@ endforeach (name)
 include(src/cmake.txt)
 
 # Check is used for unit tests, but is optional.
+find_package(PkgConfig QUIET)
+if (PKG_CONFIG_FOUND)
+    pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
+endif ()
+
 find_library(CHECK_LIBRARY check)
 
-if (CHECK_LIBRARY)
+if (CHECK_PKG_FOUND OR CHECK_LIBRARY)
     set(HAVE_CHECK true)
 else ()
     message(STATUS "Could not find check library, unit tests will be disabled.")
@@ -76,6 +83,7 @@ if (CHECK_LIBRARY)
         src/tests/unit/server/cache.c
         src/tests/unit/server/object.c
         src/tests/unit/server/re_cmp.c
+        src/tests/unit/server/rune.c
         src/tests/unit/server/shop.c
         src/tests/unit/toolkit/math.c
         src/tests/unit/toolkit/memory.c
@@ -104,11 +112,15 @@ if (DL_LIBRARY)
 endif ()
 
 # Link check.
-if (CHECK_LIBRARY)
-    target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
+if (HAVE_CHECK)
+    if (CHECK_PKG_FOUND)
+        target_link_libraries(${EXECUTABLE} PkgConfig::CHECK_PKG)
+    else ()
+        target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
 
-    if (UNIX AND NOT APPLE)
-        target_link_libraries(${EXECUTABLE} rt)
+        if (UNIX AND NOT APPLE)
+            target_link_libraries(${EXECUTABLE} rt)
+        endif ()
     endif ()
 endif ()
 
@@ -136,23 +148,14 @@ foreach (var ${SOURCES} ${LEXERS_OUT})
     set(SOURCES_STRING "${SOURCES_STRING};${var}")
 endforeach (var)
 
-if (POLICY CMP0037)
-    cmake_policy(PUSH)
-    cmake_policy(SET CMP0037 OLD)
-endif ()
-
-add_custom_target(test
+add_custom_target(check
     COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel || exit 5
     COMMAND ${EXECUTABLE} --plugin_unit || exit 5
     COMMENT "Executing unit tests..."
     VERBATIM
 )
 
-if (POLICY CMP0037)
-    cmake_policy(POP)
-endif ()
-
-if (CHECK_LIBRARY)
+if (HAVE_CHECK)
     # Go through the source files and construct a string.
     foreach (var ${SOURCES_CHECK})
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})

@@ -33,6 +33,8 @@ extern void check_server_packet(void);
 extern void check_server_pbkdf2(void);
 /* src/tests/unit/server/re_cmp.c */
 extern void check_server_re_cmp(void);
+/* src/tests/unit/server/rune.c */
+extern void check_server_rune(void);
 /* src/tests/unit/server/shop.c */
 extern void check_server_shop(void);
 /* src/tests/unit/server/shstr.c */
