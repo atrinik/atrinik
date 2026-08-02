@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -26,7 +26,7 @@
  * @file
  * Header file related to @ref MONSTER "monster" guards.
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #ifndef MONSTER_GUARD_H

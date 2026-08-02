@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -32,7 +32,7 @@
  * - Smart Moves: Intelligent Pathfinding
  * http://www.gamasutra.com/view/feature/3317/smart_move_intelligent_.php
  *
- * @author Alex Tokar - new A* algorithm and heuristics
+ * @author Zoey Rose - new A* algorithm and heuristics
  * @author Bjorn Axelsson (gecko@acc.umu.se) - original algorithm, functions and
  * structures
  */

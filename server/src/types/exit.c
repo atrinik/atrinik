@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -32,7 +32,7 @@
  * or its tail will be on top of the return portal, causing it to teleport back
  * to the portal it wanted to enter in the first place...
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #include <global.h>

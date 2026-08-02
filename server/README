@@ -64,7 +64,7 @@
  binary, for example:
   $ ./server.sh --version
   [15:07:12.638483] INFO   [version:94] This is Atrinik v4.0 (master/7fc333e
-  by Alex Tokar)
+  by Zoey Rose)
 
  If you use a different BUILD_DIR or CMake preset, adjust the three symlink
  targets above. To run the binary without server.sh, you will need to do the
