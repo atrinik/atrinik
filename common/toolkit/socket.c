@@ -944,7 +944,8 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
 
 #ifdef WIN32
 /** @cond */
-static const char *inet_ntop(int af, const void *src, char *dst, size_t size)
+static const char *socket_inet_ntop(int af, const void *src, char *dst,
+        size_t size)
 {
 #ifdef HAVE_IPV6
     struct sockaddr_storage ss;
@@ -985,7 +986,9 @@ static const char *inet_ntop(int af, const void *src, char *dst, size_t size)
     return NULL;
 }
 /** @endcond */
-#endif
+#else
+#define socket_inet_ntop inet_ntop
+#endif /* WIN32 */
 
 /**
  * Convert a binary representation of an IP (either IPv4 or IPv6) address into
@@ -1009,13 +1012,13 @@ const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
 #ifdef HAVE_IPV6
     if (saddr->sin_family == AF_INET6) {
         const struct sockaddr_in6 *saddr6 = (const struct sockaddr_in6 *) addr;
-        return inet_ntop(saddr6->sin6_family, &saddr6->sin6_addr, buf,
+        return socket_inet_ntop(saddr6->sin6_family, &saddr6->sin6_addr, buf,
                 bufsize);
     }
-    return inet_ntop(saddr->sin_family, &saddr->sin_addr, buf, bufsize);
+    return socket_inet_ntop(saddr->sin_family, &saddr->sin_addr, buf, bufsize);
 #else
 #ifdef WIN32
-    return inet_ntop(saddr->sin_family, &saddr->sin_addr, buf, bufsize);
+    return socket_inet_ntop(saddr->sin_family, &saddr->sin_addr, buf, bufsize);
 #else
     return inet_ntoa_r(saddr->sin_addr, buf, bufsize);
 #endif

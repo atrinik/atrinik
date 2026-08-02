@@ -312,6 +312,7 @@ void logger_print(logger_level level, const char *function, uint64_t line,
     char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[sizeof(formatted) * 2];
     va_list ap;
     struct timeval tv;
+    time_t timestamp;
     struct tm *tm;
 
     TOOLKIT_PROTECT();
@@ -332,7 +333,8 @@ void logger_print(logger_level level, const char *function, uint64_t line,
     va_end(ap);
 
     gettimeofday(&tv, NULL);
-    tm = localtime(&tv.tv_sec);
+    timestamp = (time_t) tv.tv_sec;
+    tm = localtime(&timestamp);
 
     if (tm != NULL) {
         char timebuf2[MAX_BUF];
