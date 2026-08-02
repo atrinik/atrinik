@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -34,7 +34,7 @@
  * to match any account), address is an IP address (IPv4, or IPv6 if the server
  * supports it) and plen is the subnet to match.
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #ifndef __CPROTO__

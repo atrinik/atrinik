@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -32,7 +32,7 @@
  * to it, when the shortcut key is pressed (thus overriding normal
  * behavior of that particular shortcut).
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #include <global.h>

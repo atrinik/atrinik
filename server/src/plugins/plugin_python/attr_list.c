@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -44,7 +44,7 @@
  * of passed arguments, as the smallest imperfection could cause a memory
  * corruption, most likely resulting in a crash.
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #include <plugin_python.h>

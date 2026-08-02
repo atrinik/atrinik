@@ -635,5 +635,5 @@ return self._activator.FindObject(archname = "goldcoin") != None
 ===============================================================================
  This document was written by:
 
-  Alex Tokar
+  Zoey Rose
   Andreas Kirschbaum

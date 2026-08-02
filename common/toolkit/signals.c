@@ -1,7 +1,7 @@
 /*************************************************************************
  *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *   Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team      *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *
@@ -32,7 +32,7 @@
  * be done, based on the signal's type - aborting for SIGSEGV, exiting
  * with an error code for others.
  *
- * @author Alex Tokar
+ * @author Zoey Rose
  */
 
 #ifdef WIN32

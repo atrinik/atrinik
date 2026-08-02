@@ -1,3 +1,0 @@
-?package(atrinik):needs="X11" section="Games/Adventure"\
-  title="Atrinik" command="/usr/games/atrinik"\
-  icon="atrinik.png"

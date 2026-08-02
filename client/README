@@ -10,14 +10,26 @@
 = 1. Compiling the Atrinik client               =
 =================================================
 
- See the INSTALL file in the Atrinik root directory for instructions on how to
- compile the client.
+ See the INSTALL file in the Atrinik root directory for complete dependency,
+ devcontainer, and Windows cross-compilation instructions.
+
+ From the repository root, build a Linux debug client with:
+  $ ./build.sh atrinik
+
+ The executable is written to build/linux-debug/client/atrinik.
 
 =================================================
 = 2. Running the client                         =
 =================================================
 
- Simply execute the atrinik executable.
+ Run the executable with 'client' as the working directory so it can find its
+ configuration, graphics, fonts, sounds, and other data files:
+  $ cd client
+  $ ../build/linux-debug/client/atrinik
+
+ If you used a different BUILD_DIR or CMake preset, adjust the executable path
+ accordingly. Extracted portable Windows packages contain atrinik.exe and all
+ required runtime assets and DLLs; run atrinik.exe from inside that package.
 
 =================================================
 = 3.1. Licensing (Atrinik client)               =

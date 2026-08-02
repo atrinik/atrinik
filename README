@@ -3,7 +3,10 @@
 Atrinik is an open source multi-player RPG with 2.5D isometric graphics,
 with concepts based on Crossfire and Angelion.
 
-## Installing
+> **Maintenance status:** This project is no longer actively maintained.
+> An actively maintained fork is available at [DeusMagi](https://github.com/DeusMagi).
+
+## Installing and running
 
 For official release builds, please see the [Atrinik website](https://www.atrinik.org/).
 
@@ -13,27 +16,37 @@ https://www.atrinik.org/page/installing_atrinik_client
 The latest map maker package can be downloaded here:
 https://www.atrinik.org/page/development_join
 
-## Building from source
-
-See [INSTALL](INSTALL) for prerequisites and platform notes. A typical
-out-of-tree Linux build is:
+To build the current source tree, see `INSTALL`. The recommended path is the
+included Linux devcontainer:
 
 ```sh
 git submodule update --init --recursive
-cmake -S . -B build/linux -DCMAKE_BUILD_TYPE=Release
-cmake --build build/linux --parallel
+./build.sh
 ```
 
-OpenSSL 3.5 or newer is required for the direct UDP/QUIC transport. Build only
-the server with `--target atrinik-server`, or only the client with
-`--target atrinik`.
+After building, follow `client/README` to run the game client or
+`server/README` to prepare and run a local or persistent server. A portable
+Windows client can be cross-compiled with the MXE container described in
+`INSTALL`.
 
-## Running a server
+Servers may use direct UDP/QUIC networking with STUN and metaserver
+rendezvous, so gameplay does not pass through the metaserver and port
+forwarding is normally unnecessary. Public servers can be listed by the
+metaserver, while private friend servers can require a join password. See
+`server/README` for configuration details.
 
-See [server/README](server/README) for native and container instructions.
-Private friend servers use direct QUIC with STUN and metaserver rendezvous, so
-gameplay does not pass through the metaserver and port forwarding is normally
-unnecessary.
+## Development commands
+
+Build one component or generate region maps from the repository root:
+
+```sh
+./build.sh atrinik
+./build.sh atrinik-server
+./generate-region-maps.sh
+```
+
+See `INSTALL` for dependencies, CMake presets, tests, release builds, and
+Windows packaging.
 
 ## Licensing
 

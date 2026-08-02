@@ -2,7 +2,7 @@
 ## Implements packet-specific functions, such as sending a notification
 ## command to the player's client or creating a book GUI, for example.
 ##
-## @author Alex Tokar
+## @author Zoey Rose
 
 ## Send a notification command to the player.
 ## @param pl The player.
