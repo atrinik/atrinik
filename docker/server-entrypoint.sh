@@ -23,7 +23,7 @@ fi
 exec ./atrinik-server \
     --network_stack=ipv4 \
     --no_console \
-    --http_url="${ATRINIK_HTTP_URL:-http://localhost:8080}" \
+    --http_url="${ATRINIK_HTTP_URL:-off}" \
     --connectivity_mode="${ATRINIK_CONNECTIVITY_MODE:-direct_only}" \
     --server_public="${ATRINIK_SERVER_PUBLIC:-false}" \
     --port_quic=1730 \

@@ -56,6 +56,7 @@ static struct {
  * Where the metaserver key file is located.
  */
 #define METASERVER_KEY_FILE "metaserver_key"
+#define METASERVER_DIRECT_KEY_FILE "metaserver_key_direct"
 
 /**
  * Mutex for the metaserver stats.
@@ -82,6 +83,42 @@ static uint32_t request_num_players = 0;
  * Keeps track of whether the generate metaserver key is new or not.
  */
 static bool key_is_new = false;
+
+static bool
+metaserver_direct_mode (void)
+{
+    return strcmp(settings.connectivity_mode, "legacy_tcp") != 0;
+}
+
+static bool
+metaserver_identity (char *identity, size_t identity_size)
+{
+    if (!metaserver_direct_mode()) {
+        if (*settings.server_host == '\0') {
+            return false;
+        }
+        return snprintf(identity,
+                        identity_size,
+                        "%s",
+                        settings.server_host) < (int) identity_size;
+    }
+
+    char host[MAX_BUF];
+    uint16_t port;
+    return socket_server_quic_info(VS(host), &port, identity);
+}
+
+static void
+metaserver_key_path (char *path, size_t path_size)
+{
+    snprintf(path,
+             path_size,
+             "%s/%s",
+             settings.datapath,
+             metaserver_direct_mode()
+                 ? METASERVER_DIRECT_KEY_FILE
+                 : METASERVER_KEY_FILE);
+}
 
 
 #if LIBCURL_VERSION_NUM >= 0x075600
@@ -328,7 +365,8 @@ metaserver_rendezvous_response (curl_request_t *request)
 static bool
 metaserver_enabled (void)
 {
-    if (*settings.server_host == '\0') {
+    char identity[MAX_BUF];
+    if (!metaserver_identity(VS(identity))) {
         return false;
     }
 
@@ -465,7 +503,7 @@ metaserver_update_request (curl_request_t *request, void *user_data)
          * re-created, since it was rejected. */
         if (key_is_new) {
             char path[HUGE_BUF];
-            snprintf(VS(path), "%s/" METASERVER_KEY_FILE, settings.datapath);
+            metaserver_key_path(VS(path));
 
             if (unlink(path) != 0) {
                 LOG(ERROR, "Failed to unlink %s: %s (%d)",
@@ -518,7 +556,7 @@ metaserver_get_key (char       *key,
     unsigned char tmp_key[SHA512_DIGEST_LENGTH];
 
     char path[HUGE_BUF];
-    snprintf(VS(path), "%s/" METASERVER_KEY_FILE, settings.datapath);
+    metaserver_key_path(VS(path));
     FILE *fp = fopen(path, "rb");
     if (fp == NULL && errno == ENOENT) {
         int fd = open(path,
@@ -634,9 +672,9 @@ error_creating:
         goto error_reading;
     }
 
-    if (SHA512_Update(&ctx,
-                      settings.server_host,
-                      strlen(settings.server_host)) != 1) {
+    char identity[65];
+    if (!metaserver_identity(VS(identity)) ||
+        SHA512_Update(&ctx, identity, strlen(identity)) != 1) {
         LOG(ERROR, "SHA512_Update() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
@@ -791,8 +829,11 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
     current_request = curl_request_create(url, CURL_PKEY_TRUST_SYSTEM);
     curl_request_set_cb(current_request, metaserver_update_request, NULL);
 
-    curl_request_form_add(current_request, "hostname",
-                          settings.server_host);
+    if (*settings.server_host != '\0') {
+        curl_request_form_add(current_request,
+                              "hostname",
+                              settings.server_host);
+    }
     curl_request_form_add(current_request, "version",
                           PACKAGE_VERSION);
     curl_request_form_add(current_request, "text_comment",
@@ -814,6 +855,7 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
 
     char buf[32];
     snprintf(VS(buf), "%" PRIu32, request_num_players);
+    curl_request_form_add(current_request, "num_players", buf);
     curl_request_form_add(current_request,
                           "public",
                           settings.server_public ? "1" : "0");
@@ -841,9 +883,6 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
                               quic_fingerprint);
     }
 
-    curl_request_form_add(current_request, "num_players", buf);
-
-    snprintf(VS(buf), "%" PRIu32, request_num_players);
     snprintf(VS(buf), "%" PRIu16, settings.port);
     curl_request_form_add(current_request, "port", buf);
 

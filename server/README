@@ -94,9 +94,9 @@
  not work (specifically, the client will only be able to work with dynamic area
  maps and not the full region maps).
 
- Starting up the server will also start an HTTP server for serving the game
- data files. If you like, you can use any HTTP server of your choice instead,
- as long as it's properly configured. See section 2.2. for details.
+ By default, QUIC clients download the manifest, required game data, resources,
+ and region maps over the established game connection. The optional HTTP
+ server/CDN path is described in section 2.2.
 
 =================================================
 = 2.1. Configuring the server                   =
@@ -119,21 +119,31 @@
  configuration, and section 4. for enabling crypto extensions.
 
 =================================================
-= 2.2. Running your own HTTP server             =
+= 2.2. Optional HTTP CDN                        =
 =================================================
 
- You can disable the bundled HTTP server with this configuration option:
+ HTTP asset delivery is optional and disabled by default:
   http_server = off
+  http_url = off
 
- In this case, you will need to configure an HTTP server of your own, which
- will serve the necessary server files. Also, if you plan on using a different
- URL/port for the server files, you will have to change this configuration to
- suit your needs:
-  http_url = http://localhost:8080
+ With http_url set to off, QUIC clients retrieve assets directly from the game
+ server. This is the recommended configuration for community and friend
+ servers because it needs no additional public port or hostname.
+
+ A large dedicated server can put the generated files behind an HTTPS CDN:
+  http_url = https://cdn.example.com/atrinik
+
+ When http_url is configured, clients prefer it for manifests, game data,
+ resources, and region maps. If that request fails during a QUIC session, the
+ client automatically falls back to in-band QUIC delivery. Legacy TCP clients
+ still require a working HTTP URL.
 
  You will need to map the following URLs to their directory counterparts:
-  - http://localhost:8080/                     -> server/data/http/
-  - http://localhost:8080/resources            -> server/resources/
+  - https://cdn.example.com/atrinik/          -> server/data/http/
+  - https://cdn.example.com/atrinik/resources -> server/resources/
+
+ The bundled HTTP server can be enabled for testing with http_server = on, but
+ production deployments should normally use a real HTTPS origin/CDN.
 
 =================================================
 = 2.3. Running with Docker Compose               =
@@ -146,12 +156,13 @@
   $ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
       docker compose -f compose.server.yaml up --build -d
 
- Direct gameplay is exposed on UDP port 1730. TCP ports 1728 and 1729 remain
- available for legacy modes, and the bundled HTTP server uses port 8080. Player data and other
- mutable state are kept directly in the host's server-data/ folder. Region maps
- are generated while building the image and refreshed into that folder when
- the container starts. On Linux, LOCAL_UID and LOCAL_GID keep those files owned
- by the user running Docker.
+ Direct gameplay and in-band asset delivery use UDP port 1730. TCP ports 1728
+ and 1729 remain available for legacy modes. Port 8080 is only needed if the
+ optional bundled HTTP server is enabled. Player data, the persistent QUIC
+ identity, and other mutable state are kept directly in the host's
+ server-data/ folder. Region maps are generated while building the image and
+ refreshed into that folder when the container starts. On Linux, LOCAL_UID and
+ LOCAL_GID keep those files owned by the user running Docker.
 
  To follow logs or stop the service:
   $ docker compose -f compose.server.yaml logs -f
@@ -160,10 +171,12 @@
  The server-data/ folder is preserved by 'down' and can be backed up with
  ordinary filesystem tools.
 
- For a public direct server, set ATRINIK_SERVER_PUBLIC=true,
- ATRINIK_SERVER_HOST, and (optionally) ATRINIK_JOIN_PASSWORD. Set
- ATRINIK_HTTP_URL to an externally reachable file URL and review section 2.4. For example:
-  $ ATRINIK_HTTP_URL=http://atrinik.example.com:8080 \
+ For a public direct server, set ATRINIK_SERVER_PUBLIC=true and optionally
+ ATRINIK_JOIN_PASSWORD. No hostname or HTTP URL is required. Large dedicated
+ servers can set ATRINIK_HTTP_URL to an HTTPS CDN base URL; clients will prefer
+ it and fall back to QUIC if it is unavailable:
+  $ ATRINIK_SERVER_PUBLIC=true \
+      ATRINIK_HTTP_URL=https://cdn.example.com/atrinik \
       docker compose -f compose.server.yaml up -d
 
 
@@ -179,7 +192,6 @@
   [meta]
   server_public = true
   connectivity_mode = direct_only
-  server_host = your-server-name.example
   server_name = Your Server Name
   server_desc = Private server for friends
   port_quic = 1730
@@ -203,15 +215,17 @@
  establish a direct path. There is intentionally no TURN/game relay fallback,
  so those networks must use IPv6, a VPN/overlay, or a manually reachable host.
 
- QUIC certificates are pinned from the metaserver listing. If crypto_cert and
- crypto_cert_key are configured, that certificate provides a stable server ID.
- Otherwise the server generates an identity at startup; configure and back up a
- certificate if friends should see a stable identity across restarts.
+ Direct servers are identified by their QUIC certificate fingerprint rather
+ than a DNS hostname. If crypto_cert and crypto_cert_key are configured, that
+ certificate provides the identity. Otherwise the server generates
+ data/quic-identity.pem on first start and reuses it thereafter. Keep the file
+ private and include it in server-data backups; replacing it makes the
+ metaserver and clients see a different server.
 
- The game file URL in http_url is separate from gameplay. It must be reachable
- by clients when they need uncached resources; it can be inexpensive static
- object hosting or a small HTTPS tunnel because it never carries live game
- traffic.
+ Asset requests use the same punched QUIC connection as gameplay by default.
+ Setting http_url enables a separate CDN path and makes it the preferred asset
+ source, with automatic QUIC fallback. The metaserver never carries assets or
+ live game traffic.
 
 =================================================
 = 3. Running a public server                    =
@@ -245,33 +259,27 @@
  password exchange and in-game communications, on top of establishing server
  trust and authenticity. See section 4. for details.
 
- The HTTP URL will need to be changed, otherwise outside clients will not be
- able to download the necessary data files. You will need to use either an IP
- address or a hostname (preferable), and you will need to have the specified
- port open, for example:
-  http_url = http://www.example.com:8080
-
  In order to advertise the server to the public, you will need to configure
  metaserver options. This will enable periodic flooding of your server details
  to the Atrinik metaserver (found at: https://meta.atrinik.org). See section
  3.1. for details about the sort of information this exposes. The necessary
  options are:
+  server_public = true
   server_name = Your Server Name
-  server_host = www.example.com
   server_desc = Description about your server.
 
- Adjust the above as necessary. The hostname MUST resolve to the IP address
- of the server. It's strongly discouraged to use PTR records, as they are used
- for a different purpose. If you don't have a static IP, dynamic DNS services
- or low-TTL DNS records are encouraged.
+ Direct QUIC modes do not require server_host, an HTTP URL, or a forwarded TCP
+ port. For legacy_tcp only, also configure server_host, make its DNS record
+ match the server's public IP, configure a reachable http_url, and forward the
+ selected TCP ports.
 
  Do note that for security reasons, the metaserver will block IP changes for
  up to an hour, so public servers with dynamic IPs are not encouraged due to
  the possible outage period.
 
- Make sure the Atrinik port (1728 by default, can be changed with port=xyz) is
- accessible from the outside (i.e., set up your firewall accordingly). See
- section 3.2. for detail about the various ports.
+ Direct mode uses a NAT-discovered UDP candidate and does not normally require
+ a router port-forwarding rule. The local firewall must still allow the server
+ to send and receive UDP on port_quic. See section 3.2. for details.
 
  After you have all of the above set up, the next time you launch the server,
  it should connect to the metaserver and update it with your server
@@ -280,7 +288,8 @@
  Be aware that the first time the server uploads the information to the
  metaserver, a secret key is generated. If you LOSE this key, you will be
  LOCKED out of updating the metaserver ever again (for the particular
- hostname). The key can be found in server/data/metaserver_key, once generated.
+ identity). Direct mode stores it in server/data/metaserver_key_direct; legacy
+ mode uses server/data/metaserver_key.
 
 =================================================
 = 3.1. Metaserver-exposed information           =
@@ -290,8 +299,9 @@
  (such as the server IP address), the following information is exposed to the
  metaserver, and flooded in periodic intervals, if reporting to the metaserver
  has been enabled (as per section 3.):
-  - Configured server name, hostname and description
-  - Enabled game data ports (normal/crypto)
+  - Configured server name and description, plus hostname in legacy mode
+  - Connectivity mode and enabled game data ports
+  - Direct QUIC candidate, certificate fingerprint, and server identity
   - Server version
   - Atrinik HTTP client version and platform (Windows/Linux/other)
   - Generated metaserver key (for authentication purposes)
@@ -313,11 +323,13 @@
  order for other players to connect successfully (they can all be changed in
  the configuration).
 
-  - 1728: The main game data port
+  - 1730/UDP: Direct QUIC gameplay and asset delivery. NAT traversal normally
+              avoids a manual forwarding rule.
+  - 1728: The main legacy TCP game data port
   - 1729: The security extension port; clients will connect to this port
           instead of the one above if the security extensions are enabled.
-  - 8080: The HTTP server port; used by clients to download large game data
-          files
+  - 8080: Optional bundled HTTP asset server. It is unused when http_server is
+          off, and external CDN deployments normally use HTTPS port 443.
 
 =================================================
 = 4. Enabling crypto extensions                 =

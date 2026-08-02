@@ -111,6 +111,8 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             } else {
                 packet_append_string_terminated(packet, settings.http_url);
             }
+        } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
+            packet_append_uint8(packet, socket_is_quic(ns->sc) ? 1 : 0);
         } else if (type == CMD_SETUP_JOIN_PASSWORD) {
             char password[MAX_BUF];
             packet_to_string(data, len, &pos, VS(password));

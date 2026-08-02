@@ -62,6 +62,8 @@ enum {
     SERVER_CMD_TALK,
     SERVER_CMD_MOVE,
     SERVER_CMD_TARGET,
+    /** Request a cached game asset over the direct QUIC connection. */
+    SERVER_CMD_ASSET,
 
     SERVER_CMD_NROF
 };
@@ -100,6 +102,8 @@ enum {
     CLIENT_CMD_INTERFACE,
     CLIENT_CMD_NOTIFICATION,
     CLIENT_CMD_KEEPALIVE,
+    /** A chunk of a cached game asset sent over direct QUIC. */
+    CLIENT_CMD_ASSET,
 
     CLIENT_CMD_NROF
 };
@@ -207,6 +211,17 @@ typedef enum socket_role {
 #define CMD_SETUP_DATA_URL 3
 /** Password used to join a private game server. */
 #define CMD_SETUP_JOIN_PASSWORD 4
+/** Whether in-band asset downloads are available on this connection. */
+#define CMD_SETUP_ASSET_TRANSPORT 5
+/** First socket protocol version supporting in-band asset downloads. */
+#define ASSET_TRANSPORT_SOCKET_VERSION 1067
+
+/** Asset chunk was returned successfully. */
+#define ASSET_STATUS_OK 0
+/** The requested asset does not exist or cannot be served. */
+#define ASSET_STATUS_NOT_FOUND 1
+/** Maximum payload in one asset response packet. */
+#define ASSET_CHUNK_SIZE 60000
 /*@}*/
 
 /**
@@ -883,7 +898,8 @@ socket_create(const char   *host,
 socket_t *
 socket_quic_server_create(const char *host,
                           uint16_t    port,
-                          bool        dual_stack);
+                          bool        dual_stack,
+                          const char *identity_path);
 socket_t *
 socket_quic_client_create(const char *host,
                           uint16_t    port,

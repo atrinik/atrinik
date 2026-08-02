@@ -108,12 +108,14 @@ TOOLKIT_INIT_FUNC(http_server)
     pthread_mutex_init(&request_lock, NULL);
 
     pthread_mutex_lock(&request_lock);
-    /* Verify the HTTP server is running. */
-    current_request = curl_request_create(settings.http_url,
-                                          CURL_PKEY_TRUST_APPLICATION);
-    curl_request_set_cb(current_request, http_curl_cb, NULL);
-    curl_request_set_delay(current_request, 1000000);
-    curl_request_start_get(current_request);
+    if (*settings.http_url != '\0') {
+        /* Verify the optional CDN or bundled HTTP server is reachable. */
+        current_request = curl_request_create(settings.http_url,
+                                              CURL_PKEY_TRUST_APPLICATION);
+        curl_request_set_cb(current_request, http_curl_cb, NULL);
+        curl_request_set_delay(current_request, 1000000);
+        curl_request_start_get(current_request);
+    }
     pthread_mutex_unlock(&request_lock);
 }
 TOOLKIT_INIT_FUNC_FINISH

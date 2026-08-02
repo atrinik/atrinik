@@ -33,6 +33,7 @@
 #define REGION_MAP_H
 
 #include <toolkit/curl.h>
+#include <asset.h>
 
 /** Default zoom level. */
 #define RM_ZOOM_DEFAULT 100
@@ -232,6 +233,15 @@ typedef struct region_map {
      * cURL request for downloading the region definitions.
      */
     curl_request_t *request_def;
+
+    /** In-band QUIC request for the region map image. */
+    asset_request_t *asset_png;
+
+    /** In-band QUIC request for the region definitions. */
+    asset_request_t *asset_def;
+
+    /** Name used to retry a failed CDN request over QUIC. */
+    char download_name[MAX_BUF];
 } region_map_t;
 
 #define RM_MAP_FOW_BITMAP_SIZE(region_map) \

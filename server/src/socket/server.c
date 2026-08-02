@@ -144,6 +144,7 @@ static const socket_command_t socket_commands[] = {
     {socket_command_talk, SOCKET_COMMAND_PLAYER_ONLY},
     {socket_command_move, SOCKET_COMMAND_PLAYER_ONLY},
     {socket_command_target, SOCKET_COMMAND_PLAYER_ONLY},
+    {socket_command_asset, 0},
 };
 CASSERT_ARRAY(socket_commands, SERVER_CMD_NROF);
 
@@ -367,8 +368,13 @@ TOOLKIT_INIT_FUNC(socket_server)
         const char *quic_bind =
             BIT_QUERY(stack_setting.type, STACK_IPV4)
                 ? "0.0.0.0" : "::";
+        char identity_path[HUGE_BUF];
+        snprintf(VS(identity_path), "%s/quic-identity.pem", settings.datapath);
         quic_server_socket =
-            socket_quic_server_create(quic_bind, settings.port_quic, false);
+            socket_quic_server_create(quic_bind,
+                                      settings.port_quic,
+                                      false,
+                                      identity_path);
         if (quic_server_socket == NULL ||
             !socket_certificate_sha256(quic_server_socket,
                                        quic_certificate_sha256)) {

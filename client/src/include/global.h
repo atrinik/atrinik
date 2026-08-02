@@ -84,6 +84,7 @@
 #include <popup.h>
 #include <server_settings.h>
 #include <server_files.h>
+#include <asset.h>
 #include <image.h>
 #include <settings.h>
 #include <keybind.h>

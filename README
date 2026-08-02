@@ -32,8 +32,10 @@ Windows client can be cross-compiled with the MXE container described in
 Servers may use direct UDP/QUIC networking with STUN and metaserver
 rendezvous, so gameplay does not pass through the metaserver and port
 forwarding is normally unnecessary. Public servers can be listed by the
-metaserver, while private friend servers can require a join password. See
-`server/README` for configuration details.
+metaserver, while private friend servers can require a join password. Game
+assets use the same QUIC connection by default; a configured HTTP CDN is
+preferred automatically with QUIC fallback. See `server/README` for
+configuration details.
 
 ## Development commands
 

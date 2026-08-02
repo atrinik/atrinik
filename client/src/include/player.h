@@ -252,6 +252,11 @@ typedef struct Player_Struct {
     char http_url[MAX_BUF];
 
     /**
+     * Whether this connection can transfer cached assets in-band over QUIC.
+     */
+    bool asset_transport;
+
+    /**
      * If 1, the player is ready to engage in combat and will swing their
      * weapon at targeted enemies.
      */

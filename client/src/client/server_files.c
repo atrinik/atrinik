@@ -37,8 +37,10 @@
 /** The server files. */
 static server_files_struct *server_files;
 
-/** Listing file request. */
+/** CDN listing request. */
 static curl_request_t *listing_request = NULL;
+/** In-band QUIC listing request. */
+static asset_request_t *listing_asset_request = NULL;
 
 /**
  * Initialize the server files API.
@@ -80,9 +82,24 @@ server_files_init (void)
 void
 server_files_deinit (void)
 {
+    if (listing_request != NULL) {
+        curl_request_free(listing_request);
+        listing_request = NULL;
+    }
+    if (listing_asset_request != NULL) {
+        asset_request_free(listing_asset_request);
+        listing_asset_request = NULL;
+    }
+
     server_files_struct *curr, *tmp;
     HASH_ITER(hh, server_files, curr, tmp) {
         HASH_DEL(server_files, curr);
+        if (curr->request != NULL) {
+            curl_request_free(curr->request);
+        }
+        if (curr->asset_request != NULL) {
+            asset_request_free(curr->asset_request);
+        }
         efree(curr->name);
         efree(curr);
     }
@@ -208,15 +225,29 @@ server_files_listing_retrieve (void)
 {
     if (listing_request != NULL) {
         curl_request_free(listing_request);
+        listing_request = NULL;
+    }
+    if (listing_asset_request != NULL) {
+        asset_request_free(listing_asset_request);
+        listing_asset_request = NULL;
     }
 
-    char url[HUGE_BUF];
-    snprintf(VS(url), "%s/%s/%s",
-             cpl.http_url,
-             SERVER_FILES_HTTP_DIR,
-             SERVER_FILES_HTTP_LISTING);
-    listing_request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-    curl_request_start_get(listing_request);
+    if (*cpl.http_url != '\0') {
+        char url[HUGE_BUF];
+        snprintf(VS(url), "%s/%s/%s",
+                 cpl.http_url,
+                 SERVER_FILES_HTTP_DIR,
+                 SERVER_FILES_HTTP_LISTING);
+        listing_request =
+            curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
+        curl_request_start_get(listing_request);
+    } else {
+        listing_asset_request = asset_request_start("data/listing.txt");
+        if (listing_asset_request == NULL) {
+            LOG(ERROR, "No CDN URL or QUIC asset transport is available");
+            cpl.state = ST_INIT;
+        }
+    }
 }
 
 /**
@@ -227,29 +258,44 @@ server_files_listing_retrieve (void)
 int
 server_files_listing_processed (void)
 {
-    if (listing_request == NULL) {
-        return 0;
+    const uint8_t *body = NULL;
+    size_t body_size = 0;
+
+    if (listing_request != NULL) {
+        curl_state_t state = curl_request_get_state(listing_request);
+        if (state == CURL_STATE_INPROGRESS) {
+            return 0;
+        }
+        if (state == CURL_STATE_OK) {
+            body = (const uint8_t *)
+                curl_request_get_body(listing_request, &body_size);
+        } else if (cpl.asset_transport) {
+            curl_request_free(listing_request);
+            listing_request = NULL;
+            listing_asset_request = asset_request_start("data/listing.txt");
+            return 0;
+        }
+    } else if (listing_asset_request != NULL) {
+        asset_request_state_t state =
+            asset_request_get_state(listing_asset_request);
+        if (state == ASSET_REQUEST_PENDING) {
+            return 0;
+        }
+        if (state == ASSET_REQUEST_COMPLETE) {
+            body = asset_request_get_data(listing_asset_request, &body_size);
+        }
     }
 
-    curl_state_t state = curl_request_get_state(listing_request);
-    if (state == CURL_STATE_ERROR) {
-        cpl.state = ST_INIT;
-        return 0;
-    }
-
-    if (state == CURL_STATE_INPROGRESS) {
-        return 0;
-    }
-
-    char *body = curl_request_get_body(listing_request, NULL);
     if (body == NULL) {
+        LOG(ERROR, "Could not retrieve the server asset manifest");
         cpl.state = ST_INIT;
         return 0;
     }
 
+    char *manifest = estrndup((const char *) body, body_size);
     char word[HUGE_BUF];
     size_t pos = 0;
-    while (string_get_word(body, &pos, '\n', VS(word), 0)) {
+    while (string_get_word(manifest, &pos, '\n', VS(word), 0)) {
         char *cps[3];
         if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps)) {
             continue;
@@ -280,9 +326,16 @@ server_files_listing_processed (void)
         tmp->crc32 = crc;
         tmp->size = fsize;
     }
+    efree(manifest);
 
-    curl_request_free(listing_request);
-    listing_request = NULL;
+    if (listing_request != NULL) {
+        curl_request_free(listing_request);
+        listing_request = NULL;
+    }
+    if (listing_asset_request != NULL) {
+        asset_request_free(listing_asset_request);
+        listing_asset_request = NULL;
+    }
 
     return 1;
 }
@@ -303,66 +356,81 @@ server_file_process (server_files_struct *tmp)
     }
 
     if (tmp->update == 1) {
-        char url[MAX_BUF];
-        snprintf(VS(url), "%s/%s/%s.zz",
-                 cpl.http_url,
-                 SERVER_FILES_HTTP_DIR,
-                 tmp->name);
-
-        if (tmp->request != NULL) {
-            curl_request_free(tmp->request);
+        if (*cpl.http_url != '\0') {
+            char url[MAX_BUF];
+            snprintf(VS(url), "%s/%s/%s.zz",
+                     cpl.http_url,
+                     SERVER_FILES_HTTP_DIR,
+                     tmp->name);
+            tmp->request =
+                curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
+            curl_request_start_get(tmp->request);
+        } else {
+            char asset[MAX_BUF];
+            snprintf(VS(asset), "data/%s.zz", tmp->name);
+            tmp->asset_request = asset_request_start(asset);
         }
-
-        LOG(DEVEL, "Beginning download: %s, URL: %s", tmp->name, url);
-
-        tmp->request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-        curl_request_start_get(tmp->request);
         tmp->update = -1;
         return 1;
     }
 
-    curl_state_t state = curl_request_get_state(tmp->request);
-    if (state == CURL_STATE_INPROGRESS) {
-        return 1;
+    const uint8_t *body = NULL;
+    size_t body_size = 0;
+    if (tmp->request != NULL) {
+        curl_state_t state = curl_request_get_state(tmp->request);
+        if (state == CURL_STATE_INPROGRESS) {
+            return 1;
+        }
+        if (state == CURL_STATE_OK) {
+            body = (const uint8_t *)
+                curl_request_get_body(tmp->request, &body_size);
+        } else if (cpl.asset_transport) {
+            curl_request_free(tmp->request);
+            tmp->request = NULL;
+            char asset[MAX_BUF];
+            snprintf(VS(asset), "data/%s.zz", tmp->name);
+            tmp->asset_request = asset_request_start(asset);
+            return 1;
+        }
+    } else if (tmp->asset_request != NULL) {
+        asset_request_state_t state =
+            asset_request_get_state(tmp->asset_request);
+        if (state == ASSET_REQUEST_PENDING) {
+            return 1;
+        }
+        if (state == ASSET_REQUEST_COMPLETE) {
+            body = asset_request_get_data(tmp->asset_request, &body_size);
+        }
     }
 
-    size_t body_size;
-    char *body = curl_request_get_body(tmp->request, &body_size);
-
-    int http_code = curl_request_get_http_code(tmp->request);
-    LOG(DEVEL,
-        "Download finished: %s, state: %d, http_code: %d, size: %" PRIu64,
-        tmp->name,
-        state,
-        http_code,
-        (uint64_t) body_size);
-
-    /* Done. */
-    if (state == CURL_STATE_OK) {
-        if (body != NULL) {
-            unsigned long len_ucomp = tmp->size;
-            unsigned char *dest = emalloc(len_ucomp);
-            uncompress((Bytef *) dest,
-                       (uLongf *) &len_ucomp,
-                       (const Bytef *) body,
-                       (uLong) body_size);
-
-            LOG(DEVEL, "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
-
-            if (server_file_save(tmp, dest, len_ucomp)) {
-                tmp->loaded = 0;
-            }
-
-            efree(dest);
+    if (body == NULL) {
+        LOG(ERROR, "Could not download required server file %s", tmp->name);
+        cpl.state = ST_INIT;
+    } else {
+        unsigned long len_ucomp = tmp->size;
+        unsigned char *dest = emalloc(len_ucomp);
+        int result = uncompress((Bytef *) dest,
+                                (uLongf *) &len_ucomp,
+                                (const Bytef *) body,
+                                (uLong) body_size);
+        if (result != Z_OK || len_ucomp != tmp->size) {
+            LOG(ERROR, "Invalid compressed server file %s", tmp->name);
+            cpl.state = ST_INIT;
+        } else if (server_file_save(tmp, dest, len_ucomp)) {
+            tmp->loaded = 0;
         }
-    } else if (state == CURL_STATE_ERROR) {
-        /* Error occurred. */
-        LOG(ERROR, "Could not download %s: %d", tmp->name, http_code);
+        efree(dest);
     }
 
     tmp->update = 0;
-    curl_request_free(tmp->request);
-    tmp->request = NULL;
+    if (tmp->request != NULL) {
+        curl_request_free(tmp->request);
+        tmp->request = NULL;
+    }
+    if (tmp->asset_request != NULL) {
+        asset_request_free(tmp->asset_request);
+        tmp->asset_request = NULL;
+    }
 
     return 0;
 }
@@ -380,6 +448,9 @@ server_files_processed (void)
     /* Check all files. */
     HASH_ITER(hh, server_files, curr, tmp) {
         if (server_file_process(curr)) {
+            return 0;
+        }
+        if (cpl.state == ST_INIT) {
             return 0;
         }
     }

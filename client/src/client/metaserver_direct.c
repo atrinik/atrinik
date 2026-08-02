@@ -53,7 +53,8 @@ parse_direct_server_field (xmlNodePtr node, server_struct *server)
         } else {
             server->server_id = estrdup(value);
         }
-    } else if (XML_STR_EQUAL(node->name, "Hostname")) {
+    } else if (XML_STR_EQUAL(node->name, "Address") ||
+               XML_STR_EQUAL(node->name, "Hostname")) {
         if (server->hostname != NULL) {
             ok = false;
         } else {

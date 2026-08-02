@@ -894,16 +894,18 @@ clioptions_option_recycle_tmp_maps (const char *arg,
  * Description of the --http_url command.
  */
 static const char *clioptions_option_http_url_desc =
-"Specifies the URL to use for data HTTP requests. The files under the "
+"Specifies the URL to use for data HTTP requests, or 'off' to use in-band "
+"QUIC asset delivery. The files under the "
 "directory specified by --httppath must be reachable using this URL.\n\n"
 "If this URL is incorrect or inaccessible from the public network, clients "
-"will be unable to connect to the server.";
+"will fall back to QUIC when available.";
 /** @copydoc clioptions_handler_func */
 static bool
 clioptions_option_http_url (const char *arg,
                             char      **errmsg)
 {
-    snprintf(VS(settings.http_url), "%s", arg);
+    snprintf(VS(settings.http_url), "%s",
+             strcmp(arg, "off") == 0 ? "" : arg);
     return true;
 }
 

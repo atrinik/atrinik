@@ -49,7 +49,7 @@ RUN mkdir -p server/lib \
 FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    ATRINIK_HTTP_URL=http://localhost:8080
+    ATRINIK_HTTP_URL=off
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \

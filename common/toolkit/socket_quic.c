@@ -49,7 +49,84 @@ socket_quic_log_error (const char *operation)
 }
 
 static bool
-socket_quic_generate_identity (SSL_CTX *ctx)
+socket_quic_use_identity (SSL_CTX *ctx, X509 *cert, EVP_PKEY *key)
+{
+    return cert != NULL &&
+           key != NULL &&
+           SSL_CTX_use_certificate(ctx, cert) == 1 &&
+           SSL_CTX_use_PrivateKey(ctx, key) == 1 &&
+           SSL_CTX_check_private_key(ctx) == 1;
+}
+
+static bool
+socket_quic_load_identity (SSL_CTX *ctx, const char *path)
+{
+    FILE *fp = fopen(path, "rb");
+    if (fp == NULL) {
+        return false;
+    }
+
+    X509 *cert = PEM_read_X509(fp, NULL, NULL, NULL);
+    EVP_PKEY *key = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
+    fclose(fp);
+
+    bool ok = socket_quic_use_identity(ctx, cert, key);
+    X509_free(cert);
+    EVP_PKEY_free(key);
+    return ok;
+}
+
+static bool
+socket_quic_save_identity (const char *path, X509 *cert, EVP_PKEY *key)
+{
+    char temporary[HUGE_BUF];
+    if (snprintf(VS(temporary), "%s.tmp", path) >= (int) sizeof(temporary)) {
+        return false;
+    }
+
+    int fd = open(temporary, O_WRONLY | O_CREAT | O_TRUNC,
+                  S_IRUSR | S_IWUSR);
+    if (fd == -1) {
+        LOG(ERROR, "Failed to create QUIC identity %s: %s (%d)",
+            temporary, strerror(errno), errno);
+        return false;
+    }
+
+    FILE *fp = fdopen(fd, "wb");
+    if (fp == NULL) {
+        int saved_errno = errno;
+        close(fd);
+        unlink(temporary);
+        LOG(ERROR, "Failed to open QUIC identity %s: %s (%d)",
+            temporary, strerror(saved_errno), saved_errno);
+        return false;
+    }
+
+    bool ok = PEM_write_X509(fp, cert) == 1 &&
+              PEM_write_PrivateKey(fp, key, NULL, NULL, 0, NULL, NULL) == 1 &&
+              fflush(fp) == 0;
+    if (fclose(fp) != 0) {
+        ok = false;
+    }
+    if (!ok) {
+        unlink(temporary);
+        LOG(ERROR, "Failed to write persistent QUIC identity %s", path);
+        return false;
+    }
+
+    if (rename(temporary, path) != 0) {
+        LOG(ERROR, "Failed to install QUIC identity %s: %s (%d)",
+            path, strerror(errno), errno);
+        unlink(temporary);
+        return false;
+    }
+
+    chmod(path, S_IRUSR | S_IWUSR);
+    return true;
+}
+
+static bool
+socket_quic_generate_identity (SSL_CTX *ctx, const char *identity_path)
 {
     EVP_PKEY *key = EVP_PKEY_Q_keygen(NULL, NULL, "EC", "prime256v1");
     X509 *cert = X509_new();
@@ -57,7 +134,7 @@ socket_quic_generate_identity (SSL_CTX *ctx)
         X509_set_version(cert, 2) != 1 ||
         ASN1_INTEGER_set(X509_get_serialNumber(cert), (long) time(NULL)) != 1 ||
         X509_gmtime_adj(X509_getm_notBefore(cert), 0) == NULL ||
-        X509_gmtime_adj(X509_getm_notAfter(cert), 31536000L) == NULL ||
+        X509_gmtime_adj(X509_getm_notAfter(cert), 315360000L) == NULL ||
         X509_set_pubkey(cert, key) != 1) {
         EVP_PKEY_free(key);
         X509_free(cert);
@@ -76,9 +153,8 @@ socket_quic_generate_identity (SSL_CTX *ctx)
                   0) == 1 &&
               X509_set_issuer_name(cert, name) == 1 &&
               X509_sign(cert, key, EVP_sha256()) > 0 &&
-              SSL_CTX_use_certificate(ctx, cert) == 1 &&
-              SSL_CTX_use_PrivateKey(ctx, key) == 1 &&
-              SSL_CTX_check_private_key(ctx) == 1;
+              socket_quic_use_identity(ctx, cert, key) &&
+              socket_quic_save_identity(identity_path, cert, key);
 
     EVP_PKEY_free(key);
     X509_free(cert);
@@ -86,7 +162,7 @@ socket_quic_generate_identity (SSL_CTX *ctx)
 }
 
 static SSL_CTX *
-socket_quic_server_ctx (void)
+socket_quic_server_ctx (const char *identity_path)
 {
     SSL_CTX *ctx = SSL_CTX_new(OSSL_QUIC_server_method());
     if (ctx == NULL) {
@@ -98,11 +174,22 @@ socket_quic_server_ctx (void)
     const char *key_pem = socket_crypto_get_cert_key();
     bool ok;
     if (cert_pem == NULL || key_pem == NULL) {
-        ok = socket_quic_generate_identity(ctx);
-        if (ok) {
-            LOG(INFO,
-                "Using an automatically generated QUIC identity; configure "
-                "crypto_cert and crypto_cert_key for a stable server ID");
+        if (identity_path == NULL || *identity_path == '\0') {
+            ok = false;
+        } else if (access(identity_path, F_OK) == 0) {
+            ok = socket_quic_load_identity(ctx, identity_path);
+            if (!ok) {
+                LOG(ERROR, "Failed to load persistent QUIC identity %s",
+                    identity_path);
+            }
+        } else if (errno == ENOENT) {
+            ok = socket_quic_generate_identity(ctx, identity_path);
+            if (ok) {
+                LOG(INFO, "Created persistent QUIC identity %s",
+                    identity_path);
+            }
+        } else {
+            ok = false;
         }
     } else {
         BIO *cert_bio = BIO_new_mem_buf(cert_pem, -1);
@@ -114,11 +201,7 @@ socket_quic_server_ctx (void)
             ? PEM_read_bio_PrivateKey(key_bio, NULL, NULL, NULL)
             : NULL;
 
-        ok = cert != NULL &&
-             key != NULL &&
-             SSL_CTX_use_certificate(ctx, cert) == 1 &&
-             SSL_CTX_use_PrivateKey(ctx, key) == 1 &&
-             SSL_CTX_check_private_key(ctx) == 1;
+        ok = socket_quic_use_identity(ctx, cert, key);
 
         X509_free(cert);
         EVP_PKEY_free(key);
@@ -237,9 +320,10 @@ socket_quic_check_fingerprint (SSL *ssl, const char *expected)
 socket_t *
 socket_quic_server_create (const char *host,
                            uint16_t    port,
-                           bool        dual_stack)
+                           bool        dual_stack,
+                           const char *identity_path)
 {
-    SSL_CTX *ctx = socket_quic_server_ctx();
+    SSL_CTX *ctx = socket_quic_server_ctx(identity_path);
     if (ctx == NULL) {
         return NULL;
     }
@@ -492,7 +576,8 @@ socket_certificate_sha256 (socket_t *sc, char fingerprint[65])
 socket_t *
 socket_quic_server_create (const char *host,
                            uint16_t    port,
-                           bool        dual_stack)
+                           bool        dual_stack,
+                           const char *identity_path)
 {
     LOG(ERROR, "QUIC requires OpenSSL 3.5 or newer");
     return NULL;

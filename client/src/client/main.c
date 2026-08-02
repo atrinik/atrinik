@@ -356,6 +356,9 @@ static int game_status_chain(void)
             clioption_settings.join_password != NULL &&
             (socket_is_quic(csocket.sc) || socket_is_secure(csocket.sc))
                 ? clioption_settings.join_password : "");
+        if (cpl.server_socket_version >= ASSET_TRANSPORT_SOCKET_VERSION) {
+            packet_append_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
+        }
         socket_send_packet(packet);
 
         cpl.state = ST_WAITSETUP;

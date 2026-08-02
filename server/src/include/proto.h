@@ -573,6 +573,13 @@ extern void metaserver_info_update(void);
 extern void metaserver_init(void);
 extern void metaserver_deinit(void);
 extern void metaserver_stats(char *buf, size_t size);
+/* src/socket/assets.c */
+void
+socket_command_asset(socket_struct *ns,
+                     player        *pl,
+                     uint8_t       *data,
+                     size_t         len,
+                     size_t         pos);
 /* src/socket/request.c */
 extern void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
