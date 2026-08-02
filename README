@@ -3,6 +3,9 @@
 Atrinik is an open source multi-player RPG with 2.5D isometric graphics,
 with concepts based on Crossfire and Angelion.
 
+> **Maintenance status:** This project is no longer actively maintained.
+> An actively maintained fork is available at [DeusMagi](https://github.com/DeusMagi).
+
 ## Installing and running
 
 For official release builds, please see the [Atrinik website](https://www.atrinik.org/).
