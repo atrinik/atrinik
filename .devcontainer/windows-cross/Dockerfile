@@ -94,10 +94,10 @@ RUN git clone https://github.com/miniupnp/miniupnp.git /tmp/miniupnp \
     && cmake --install /tmp/miniupnp-build \
     && rm -rf /tmp/miniupnp /tmp/miniupnp-build
 
-COPY --chown=vscode:vscode --chmod=0755 dependencies /tmp/atrinik-dependencies
+COPY --chown=vscode:vscode dependencies /tmp/atrinik-dependencies
 COPY --chown=vscode:vscode .devcontainer/windows-cross/libpcpnatpmp-mingw.patch \
     /tmp/.devcontainer/windows-cross/libpcpnatpmp-mingw.patch
-RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh mingw "${MXE_BUILD_JOBS}"
+RUN bash /tmp/atrinik-dependencies/build-libpcpnatpmp.sh mingw "${MXE_BUILD_JOBS}"
 
 RUN mkdir -p "${ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR}" /tmp/python-sdk \
     && wget -q \
@@ -139,4 +139,4 @@ RUN apt-get update \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native "${MXE_BUILD_JOBS}"
+RUN bash /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native "${MXE_BUILD_JOBS}"

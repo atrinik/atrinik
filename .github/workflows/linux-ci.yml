@@ -48,7 +48,7 @@ jobs:
       - name: Install libpcpnatpmp
         run: |
           prefix="${RUNNER_TEMP}/atrinik-dependencies"
-          dependencies/build-libpcpnatpmp.sh \
+          bash dependencies/build-libpcpnatpmp.sh \
             native \
             "$(nproc)" \
             "${prefix}"
@@ -57,7 +57,7 @@ jobs:
             >> "${GITHUB_ENV}"
 
       - name: Check C formatting
-        run: tools/clang-format.sh --check
+        run: bash tools/clang-format.sh --check
 
       - name: Restore compiler cache
         uses: actions/cache@v6

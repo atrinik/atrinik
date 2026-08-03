@@ -70,9 +70,14 @@ sudo apt-get install build-essential clang-format cmake flex libcurl4-openssl-de
 Ubuntu does not currently package libpcpnatpmp. The authoritative repository,
 commit, and build options live in `dependencies/libpcpnatpmp.env` and
 `dependencies/build-libpcpnatpmp.sh`; the Linux images and MXE environment all
-use that helper and verify the checked-out commit before building. Run
-`sudo dependencies/build-libpcpnatpmp.sh native` before configuring a manual
-server build. Client-only builds do not require either port-mapping library.
+use that helper and verify the checked-out commit before building. Before
+configuring a manual server build, run:
+
+```sh
+sudo bash dependencies/build-libpcpnatpmp.sh native
+```
+
+Client-only builds do not require either port-mapping library.
 
 Configure and compile a debug build using the checked-in presets:
 
@@ -97,8 +102,8 @@ Format all tracked authored C and C++ sources, or run the non-mutating check
 used by Linux CI, with:
 
 ```sh
-tools/clang-format.sh --write
-tools/clang-format.sh --check
+bash tools/clang-format.sh --write
+bash tools/clang-format.sh --check
 ```
 
 The root `.clang-format` owns the style. `.clang-format-ignore` excludes
