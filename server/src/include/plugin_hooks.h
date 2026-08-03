@@ -240,8 +240,7 @@ PLUGIN_HOOK_FUNCTION(void, add_object_to_packet, struct packet_struct *, object 
 PLUGIN_HOOK_FUNCTION(void, player_save, object *)
 PLUGIN_HOOK_FUNCTION(int, new_save_map, mapstruct *, int)
 PLUGIN_HOOK_FUNCTION(void, main_process, void)
-PLUGIN_HOOK_FUNCTION(char *, socket_get_addr, socket_t *)
-PLUGIN_HOOK_FUNCTION(char *, socket_get_str, socket_t *)
+PLUGIN_HOOK_FUNCTION(const char *, socket_get_id, socket_t *)
 PLUGIN_HOOK_FUNCTION(bool, faction_is_friend, struct faction *, object *)
 
 PLUGIN_HOOK_ARRAY(const char *, season_name)

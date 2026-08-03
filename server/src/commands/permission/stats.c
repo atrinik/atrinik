@@ -31,12 +31,13 @@
 
 #include <global.h>
 #include <toolkit/string.h>
+#include <network_metrics.h>
 
 /**
  * Names of the possible stat types. Must end with NULL.
  */
 static const char *const stats[] = {
-    "mempool", "shstr", "metaserver",
+    "mempool", "shstr", "metaserver", "network",
     NULL
 };
 
@@ -45,9 +46,10 @@ void command_stats(object *op, const char *command, char *params)
 {
     size_t pos, i;
     char type[MAX_BUF], buf[HUGE_BUF * 32];
+    const char *args = params != NULL ? params : "";
 
     pos = 0;
-    string_get_word(params, &pos, ' ', type, sizeof(type), 0);
+    string_get_word(args, &pos, ' ', type, sizeof(type), 0);
     buf[0] = '\0';
 
     for (i = 0; stats[i] != NULL; i++) {
@@ -56,13 +58,15 @@ void command_stats(object *op, const char *command, char *params)
         }
 
         if (strcmp(stats[i], "mempool") == 0) {
-            params += pos;
-            string_skip_whitespace(params);
-            mempool_stats(params, VS(buf));
+            const char *pool = args + pos;
+            string_skip_whitespace(pool);
+            mempool_stats(pool, VS(buf));
         } else if (strcmp(stats[i], "shstr") == 0) {
             shstr_stats(VS(buf));
         } else if (strcmp(stats[i], "metaserver") == 0) {
             metaserver_stats(VS(buf));
+        } else if (strcmp(stats[i], "network") == 0) {
+            server_metrics_stats(VS(buf));
         }
 
         if (!string_isempty(type)) {

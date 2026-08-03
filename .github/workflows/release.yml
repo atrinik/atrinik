@@ -1,0 +1,121 @@
+name: Tagged Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_call:
+    inputs:
+      tag:
+        description: Existing release tag to build
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    name: Validate tag
+    runs-on: ubuntu-26.04
+    outputs:
+      tag: ${{ steps.metadata.outputs.tag }}
+      version: ${{ steps.metadata.outputs.version }}
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          fetch-depth: 2
+
+      - name: Validate release tag and commit
+        id: metadata
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Invalid release tag: ${RELEASE_TAG}" >&2
+            exit 1
+          fi
+
+          parent_count=$(git rev-list --parents -n 1 HEAD | awk '{print NF - 1}')
+          if [[ "${parent_count}" -lt 2 ]]; then
+            echo "Release tag ${RELEASE_TAG} does not identify a merge commit." >&2
+            exit 1
+          fi
+
+          echo "tag=${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "version=${RELEASE_TAG#v}" >> "${GITHUB_OUTPUT}"
+
+  linux:
+    name: Linux CI
+    needs: metadata
+    uses: ./.github/workflows/linux-ci.yml
+    with:
+      ref: ${{ needs.metadata.outputs.tag }}
+      package-version: ${{ needs.metadata.outputs.version }}
+
+  windows:
+    name: Windows packages
+    needs:
+      - metadata
+      - linux
+    runs-on: ubuntu-26.04
+    timeout-minutes: 180
+    permissions:
+      contents: write
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.metadata.outputs.tag }}
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Windows cross-compilation image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: .devcontainer/windows-cross/Dockerfile
+          load: true
+          tags: atrinik-windows-mxe:ci
+          cache-from: type=gha,scope=windows-mxe
+          cache-to: type=gha,mode=max,scope=windows-mxe
+          build-args: MXE_BUILD_JOBS=4
+
+      - name: Build Windows client and server packages
+        env:
+          PACKAGE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp \
+            --env ATRINIK_PACKAGE_VERSION="${PACKAGE_VERSION}" \
+            --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
+            --workdir /workspaces/atrinik \
+            atrinik-windows-mxe:ci \
+            bash ./build-windows.sh
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.metadata.outputs.tag }}
+        run: |
+          mapfile -t packages < <(find build/packages -maxdepth 1 \
+            -type f -name '*.zip' -print | sort)
+          if [[ "${#packages[@]}" -ne 2 ]]; then
+            echo "Expected two Windows packages, found ${#packages[@]}." >&2
+            exit 1
+          fi
+
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            gh release upload "${RELEASE_TAG}" --clobber "${packages[@]}"
+          else
+            gh release create "${RELEASE_TAG}" \
+              --verify-tag \
+              --generate-notes \
+              --title "Atrinik ${RELEASE_TAG}" \
+              "${packages[@]}"
+          fi

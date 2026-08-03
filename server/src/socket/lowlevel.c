@@ -31,6 +31,11 @@
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/socket_crypto.h>
+#include <network_metrics.h>
+
+#define SOCKET_QUEUE_BULK_LIMIT (1024U * 1024U)
+#define SOCKET_QUEUE_HARD_LIMIT (4U * 1024U * 1024U)
+#define SOCKET_QUEUE_PACKET_LIMIT 4096U
 
 static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {
@@ -63,6 +68,23 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 #endif
 
     DL_APPEND(ns->packets, packet);
+    ns->packet_queue_bytes += packet->len - packet->pos;
+    ns->packet_queue_count++;
+    ns->packet_queue_peak_bytes = MAX(ns->packet_queue_peak_bytes,
+                                      ns->packet_queue_bytes);
+    server_metrics_queue_changed((int64_t) (packet->len - packet->pos),
+                                 ns->packet_queue_bytes,
+                                 false);
+}
+
+bool
+socket_buffer_can_enqueue (const socket_struct *ns, size_t bytes, bool bulk)
+{
+    HARD_ASSERT(ns != NULL);
+
+    size_t limit = bulk ? SOCKET_QUEUE_BULK_LIMIT : SOCKET_QUEUE_HARD_LIMIT;
+    return bytes <= limit && ns->packet_queue_bytes <= limit - bytes &&
+           ns->packet_queue_count < SOCKET_QUEUE_PACKET_LIMIT;
 }
 
 /**
@@ -72,12 +94,18 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
  */
 void socket_buffer_clear(socket_struct *ns)
 {
+    size_t queued_bytes = ns->packet_queue_bytes;
     packet_struct *packet, *tmp;
     DL_FOREACH_SAFE(ns->packets, packet, tmp) {
         packet_free(packet);
     }
 
     ns->packets = NULL;
+    ns->packet_queue_bytes = 0;
+    ns->packet_queue_count = 0;
+    if (queued_bytes != 0) {
+        server_metrics_queue_changed(-(int64_t) queued_bytes, 0, false);
+    }
 }
 
 /**
@@ -108,11 +136,22 @@ void socket_buffer_write(socket_struct *ns)
         }
 
         packet->pos += amt;
+        HARD_ASSERT(ns->packet_queue_bytes >= amt);
+        ns->packet_queue_bytes -= amt;
+        server_metrics_queue_changed(-(int64_t) amt,
+                                     ns->packet_queue_bytes,
+                                     false);
 
         if (packet->len - packet->pos == 0) {
             DL_DELETE(ns->packets, packet);
+            HARD_ASSERT(ns->packet_queue_count != 0);
+            ns->packet_queue_count--;
             packet_free(packet);
+            continue;
         }
+
+        /* A nonblocking transport made only partial (or no) progress. */
+        break;
     }
 }
 
@@ -121,7 +160,7 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(packet != NULL);
 
-    if (ns->state == ST_DEAD) {
+    if (ns->state == ST_DEAD || ns->state == ST_ZOMBIE) {
         packet_free(packet);
         return;
     }
@@ -143,13 +182,43 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
                                        checksum_only);
         if (packet == NULL) {
             /* Logging already done. */
+            packet_free(packet_meta);
             ns->state = ST_DEAD;
             return;
         }
     } else {
         packet_compress(packet);
-        packet_append_uint16(packet_meta, (uint16_t) packet->len + 1);
+        uint32_t payload_len = (uint32_t) packet->len + 1;
+        if (payload_len < 0x8000) {
+            packet_append_uint16(packet_meta, (uint16_t) payload_len);
+        } else {
+            packet_append_uint8(packet_meta,
+                                (uint8_t) (0x80 | (payload_len >> 16)));
+            packet_append_uint16(packet_meta,
+                                 (uint16_t) (payload_len & 0xffff));
+        }
         packet_append_uint8(packet_meta, packet->type);
+    }
+
+    size_t queued_size = packet_meta->len + packet->len;
+    size_t queued_packets = packet->len != 0 ? 2 : 1;
+    if (!socket_buffer_can_enqueue(ns, queued_size, false) ||
+            ns->packet_queue_count >
+                SOCKET_QUEUE_PACKET_LIMIT - queued_packets) {
+        ns->packet_queue_rejected++;
+        server_metrics_queue_changed(0,
+                                     ns->packet_queue_bytes,
+                                     true);
+        LOG(ERROR,
+            "Connection %s exceeded its outbound queue limit "
+            "(queued=%" PRIu64 ", rejected=%" PRIu64 ")",
+            socket_get_id(ns->sc),
+            (uint64_t) ns->packet_queue_bytes,
+            (uint64_t) queued_size);
+        packet_free(packet_meta);
+        packet_free(packet);
+        ns->state = ST_ZOMBIE;
+        return;
     }
 
     socket_packet_enqueue(ns, packet_meta);

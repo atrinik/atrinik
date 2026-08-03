@@ -48,6 +48,7 @@
 #include <toolkit/console.h>
 #include <toolkit/datetime.h>
 #include <cmake.h>
+#include <openssl/crypto.h>
 
 /**
  * The server's settings.
@@ -197,6 +198,7 @@ void cleanup(void)
     remove_plugins();
     player_deinit();
     account_deinit();
+    socket_assets_deinit();
     resources_deinit();
     free_all_maps();
     free_style_maps();
@@ -214,6 +216,7 @@ void cleanup(void)
     object_deinit();
     metaserver_deinit();
     party_deinit();
+    OPENSSL_cleanse(settings.join_password, sizeof(settings.join_password));
     free_settings();
     toolkit_deinit();
     free_object_loader();
@@ -337,16 +340,39 @@ static bool
 clioptions_option_port_crypto (const char *arg,
                                char      **errmsg)
 {
-    int val = atoi(arg);
-    if (val < 0 || val > UINT16_MAX) {
+    uint64_t val;
+    if (!string_parse_uint64(arg, 10, 0, UINT16_MAX, &val)) {
         string_fmt(*errmsg,
-                   "%d is an invalid port number, must be 1-%d",
-                   val,
+                   "%s is an invalid port number, must be 0-%d",
+                   arg,
                    UINT16_MAX);
         return false;
     }
 
-    settings.port_crypto = val;
+    settings.port_crypto = (uint16_t) val;
+    return true;
+}
+
+/**
+ * Description of the --port_quic command.
+ */
+static const char *clioptions_option_port_quic_desc =
+"Sets the UDP port used for direct QUIC connections. Set to zero to disable.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_port_quic (const char *arg,
+                             char      **errmsg)
+{
+    uint64_t val;
+    if (!string_parse_uint64(arg, 10, 0, UINT16_MAX, &val)) {
+        string_fmt(*errmsg,
+                   "%s is an invalid port number, must be 0-%d",
+                   arg,
+                   UINT16_MAX);
+        return false;
+    }
+
+    settings.port_quic = (uint16_t) val;
     return true;
 }
 
@@ -440,11 +466,138 @@ clioptions_option_metaserver_url (const char *arg,
 }
 
 /**
+ * Description of the --connectivity_mode command.
+ */
+static const char *clioptions_option_connectivity_mode_desc =
+"Connection policy: direct_only, direct_preferred, or legacy_tcp.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_connectivity_mode (const char *arg,
+                                     char      **errmsg)
+{
+    if (strcmp(arg, "direct_only") != 0 &&
+        strcmp(arg, "direct_preferred") != 0 &&
+        strcmp(arg, "legacy_tcp") != 0) {
+        *errmsg = estrdup("Expected direct_only, direct_preferred, or "
+                          "legacy_tcp");
+        return false;
+    }
+
+    snprintf(VS(settings.connectivity_mode), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --stun_server command.
+ */
+static const char *clioptions_option_stun_server_desc =
+"STUN server as hostname:port for public UDP candidate discovery, or off.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_stun_server (const char *arg,
+                               char      **errmsg)
+{
+    snprintf(VS(settings.stun_server), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --port_mapping command.
+ */
+static const char *clioptions_option_port_mapping_desc =
+"Automatic router mapping policy: auto or off.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_port_mapping (const char *arg,
+                                char      **errmsg)
+{
+    if (strcmp(arg, "auto") != 0 && strcmp(arg, "off") != 0) {
+        *errmsg = estrdup("Expected auto or off");
+        return false;
+    }
+    snprintf(VS(settings.port_mapping), "%s", arg);
+    return true;
+}
+
+/**
+ * Description of the --join_password command.
+ */
+static const char *clioptions_option_join_password_desc =
+"Optional password required before clients may join this server.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_join_password (const char *arg,
+                                 char      **errmsg)
+{
+    if (strlen(arg) >= sizeof(settings.join_password)) {
+        *errmsg = estrdup("Join password is too long");
+        return false;
+    }
+
+    OPENSSL_cleanse(settings.join_password, sizeof(settings.join_password));
+    snprintf(VS(settings.join_password), "%s", arg);
+    return true;
+}
+
+static const char *clioptions_option_join_password_file_desc =
+"Read the private server password from a file.";
+
+static bool
+clioptions_option_join_password_file (const char *arg,
+                                      char      **errmsg)
+{
+    char password[MAX_BUF];
+    bool permissive_mode;
+    path_secret_error_t error = path_read_secret(arg,
+                                                 VS(password),
+                                                 &permissive_mode);
+    if (error != PATH_SECRET_OK) {
+        string_fmt(*errmsg,
+                   "Cannot use join password file %s: %s",
+                   arg,
+                   path_secret_error_string(error));
+        return false;
+    }
+    if (permissive_mode) {
+        LOG(SYSTEM,
+            "Join password file %s is readable or writable by group/other; "
+            "use mode 0600",
+            arg);
+    }
+
+    bool ok = clioptions_option_join_password(password, errmsg);
+    OPENSSL_cleanse(password, sizeof(password));
+    return ok;
+}
+
+/**
+ * Description of the --server_public command.
+ */
+static const char *clioptions_option_server_public_desc =
+"Whether this server is listed publicly by the metaserver.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_server_public (const char *arg,
+                                 char      **errmsg)
+{
+    if (KEYWORD_IS_TRUE(arg)) {
+        settings.server_public = true;
+    } else if (KEYWORD_IS_FALSE(arg)) {
+        settings.server_public = false;
+    } else {
+        *errmsg = estrdup("Expected true/false");
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Description of the --server_host command.
  */
 static const char *clioptions_option_server_host_desc =
-"Hostname of the server. If set, the server will send regular updates to the "
-"metaserver (using the URL specified with --metaserver_url).\n\n"
+"Hostname of a legacy TCP server published through the metaserver. Direct "
+"QUIC servers use their certificate identity instead.\n\n"
 "Updates will be refused if the hostname does not resolve to the incoming IP.";
 /** @copydoc clioptions_handler_func */
 static bool
@@ -794,16 +947,18 @@ clioptions_option_recycle_tmp_maps (const char *arg,
  * Description of the --http_url command.
  */
 static const char *clioptions_option_http_url_desc =
-"Specifies the URL to use for data HTTP requests. The files under the "
+"Specifies the URL to use for data HTTP requests, or 'off' to use in-band "
+"QUIC asset delivery. The files under the "
 "directory specified by --httppath must be reachable using this URL.\n\n"
 "If this URL is incorrect or inaccessible from the public network, clients "
-"will be unable to connect to the server.";
+"will fall back to QUIC when available.";
 /** @copydoc clioptions_handler_func */
 static bool
 clioptions_option_http_url (const char *arg,
                             char      **errmsg)
 {
-    snprintf(VS(settings.http_url), "%s", arg);
+    snprintf(VS(settings.http_url), "%s",
+             strcmp(arg, "off") == 0 ? "" : arg);
     return true;
 }
 
@@ -965,6 +1120,7 @@ static void init_library(int argc, char *argv[])
     /* Argument options */
     CLIOPTIONS_CREATE_ARGUMENT(cli, port, "Sets the port to use");
     CLIOPTIONS_CREATE_ARGUMENT(cli, port_crypto, "Sets the crypto port to use");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, port_quic, "Sets the QUIC UDP port");
     CLIOPTIONS_CREATE_ARGUMENT(cli, libpath, "Read-only data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, datapath, "Read/write data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, mapspath, "Map files location");
@@ -972,6 +1128,16 @@ static void init_library(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, resourcespath, "Resource files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver_url, "URL of the metaserver");
     CLIOPTIONS_CREATE_ARGUMENT(cli, http_url, "URL of the HTTP server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               connectivity_mode,
+                               "Direct connection policy");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "STUN discovery endpoint");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, port_mapping, "Router port mapping policy");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               join_password_file,
+                               "Private server password file");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_public, "Public server listing");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_name, "Name of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_desc, "Description of the server");
@@ -1091,13 +1257,15 @@ static void init_library(int argc, char *argv[])
     curl_set_data_dir(settings.datapath);
     socket_crypto_set_path(settings.datapath);
 
-    /* Import game APIs that need settings. The world maker only reads game
-     * data and writes files; starting listeners here makes generation fail if
-     * another server instance is already using the configured ports. */
+    /* Import game APIs that need settings. The world maker and test modes do
+     * not serve clients; starting listeners for them adds an unnecessary
+     * network dependency and can collide with a running server. */
     toolkit_import(ban);
     toolkit_import(faction);
 
-    if (!settings.world_maker) {
+    if (!settings.world_maker &&
+        !settings.unit_tests &&
+        !settings.plugin_unit_tests) {
         toolkit_import(socket_server);
         toolkit_import(http_server);
     }
@@ -1119,6 +1287,12 @@ static void init_library(int argc, char *argv[])
     init_clocks();
     account_init();
     resources_init();
+    if (!settings.world_maker &&
+        !settings.unit_tests &&
+        !settings.plugin_unit_tests &&
+        strcmp(settings.connectivity_mode, "legacy_tcp") != 0) {
+        socket_assets_init();
+    }
 }
 
 /**

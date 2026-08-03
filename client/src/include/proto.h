@@ -17,6 +17,7 @@ extern int cmd_aliases_handle(const char *cmd);
 /* src/client/commands.c */
 extern void socket_command_book(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_setup(uint8_t *data, size_t len, size_t pos);
+extern void socket_command_asset(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_anim(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_image(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos);
@@ -34,6 +35,14 @@ extern void socket_command_compressed(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
 void
 socket_command_crypto(uint8_t *data, size_t len, size_t pos);
+/* src/client/connection_preferences.c */
+extern void connection_preferences_init(void);
+extern void connection_preferences_deinit(void);
+extern socket_connection_preference_t
+connection_preference_get(const server_struct *server);
+extern void
+connection_preference_set(const server_struct                 *server,
+                          socket_connection_preference_t preference);
 /* src/client/image.c */
 /* src/client/item.c */
 extern void object_init(void);
@@ -106,6 +115,10 @@ extern void metaserver_disable(void);
 extern server_struct *server_get_id(size_t num);
 bool
 metaserver_cert_verify_host(server_struct *server, const char *host);
+bool
+metaserver_rendezvous_url(const server_struct *server,
+                          char                *url,
+                          size_t               url_size);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
@@ -180,7 +193,12 @@ extern void socket_thread_stop(void);
 extern int handle_socket_shutdown(void);
 extern void client_socket_close(client_socket_t *csock);
 extern void client_socket_deinitialize(void);
-extern bool client_socket_open(client_socket_t *csock, const char *host, int port, bool secure);
+extern bool client_socket_open(client_socket_t *csock,
+                               const char      *host,
+                               int              port,
+                               bool             secure,
+                               const char      *quic_certificate_sha256,
+                               socket_connection_preference_t preference);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);
@@ -341,6 +359,8 @@ extern void help_handle_tabulator(text_input_struct *text_input);
 extern void socket_command_interface(uint8_t *data, size_t len, size_t pos);
 extern void interface_redraw(void);
 extern void interface_deinit(void);
+/* src/gui/popups/join_password.c */
+extern void join_password_open(server_struct *server);
 /* src/gui/popups/login.c */
 extern void login_start(void);
 /* src/gui/popups/painting.c */
@@ -350,6 +370,8 @@ socket_command_painting(uint8_t *data, size_t len, size_t pos);
 extern void region_map_open(void);
 /* src/gui/popups/server_add.c */
 extern void server_add_open(void);
+/* src/gui/popups/connection_preference.c */
+extern void connection_preference_open(server_struct *server);
 /* src/gui/popups/settings.c */
 extern void settings_open(void);
 /* src/gui/popups/settings_client.c */

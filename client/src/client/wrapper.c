@@ -31,6 +31,7 @@
 #include <toolkit/string.h>
 #include <toolkit/path.h>
 #include <resources.h>
+#include <openssl/evp.h>
 
 /**
  * Start the base system, setting caption name and window icon.
@@ -74,6 +75,7 @@ void system_end(void)
     anims_deinit();
     skills_deinit();
     spells_deinit();
+    connection_preferences_deinit();
     clioption_settings_deinit();
     server_files_deinit();
     image_deinit();
@@ -427,17 +429,53 @@ char *file_path(const char *path, const char *mode)
  */
 static StringBuffer *file_path_server_internal(void)
 {
-    StringBuffer *sb;
+    SOFT_ASSERT_RC(selected_server != NULL, NULL, "Selected server is NULL.");
+    SOFT_ASSERT_RC(!string_isempty(selected_server->hostname), NULL,
+                   "Selected server has empty hostname.");
 
-    sb = stringbuffer_new();
+    StringBuffer *sb = stringbuffer_new();
     stringbuffer_append_string(sb, "settings/");
 
-    SOFT_ASSERT_RC(selected_server != NULL, sb, "Selected server is NULL.");
-    SOFT_ASSERT_RC(!string_isempty(selected_server->hostname), sb,
-            "Selected server has empty hostname.");
+    char scope[65];
+    const char *identity = NULL;
+    if (string_is_hex_fixed(selected_server->server_id, 64, true)) {
+        identity = selected_server->server_id;
+    } else if (string_is_hex_fixed(selected_server->quic_certificate_sha256,
+                                   64,
+                                   false)) {
+        identity = selected_server->quic_certificate_sha256;
+    }
 
-    stringbuffer_append_printf(sb, "servers/%s-%d/", selected_server->hostname,
-            selected_server->port);
+    if (identity != NULL) {
+        snprintf(VS(scope), "%s", identity);
+        string_tolower(scope);
+    } else {
+        EVP_MD_CTX *context = EVP_MD_CTX_new();
+        unsigned char digest[EVP_MAX_MD_SIZE];
+        unsigned int digest_size = 0;
+        uint16_t port = htons((uint16_t) selected_server->port);
+        bool ok = context != NULL &&
+                  EVP_DigestInit_ex(context, EVP_sha256(), NULL) == 1 &&
+                  EVP_DigestUpdate(context,
+                                   selected_server->hostname,
+                                   strlen(selected_server->hostname) + 1) == 1 &&
+                  EVP_DigestUpdate(context, &port, sizeof(port)) == 1 &&
+                  EVP_DigestFinal_ex(context, digest, &digest_size) == 1 &&
+                  digest_size == 32 &&
+                  string_tohex(digest,
+                               digest_size,
+                               VS(scope),
+                               false) == 64;
+        EVP_MD_CTX_free(context);
+        if (!ok) {
+            LOG(ERROR, "Could not derive the server cache scope.");
+            stringbuffer_free(sb);
+            return NULL;
+        }
+        string_tolower(scope);
+    }
+
+    stringbuffer_append_printf(sb, "servers/%s/", scope);
 
     return sb;
 }
@@ -451,18 +489,47 @@ static StringBuffer *file_path_server_internal(void)
  */
 char *file_path_player(const char *path)
 {
-    StringBuffer *sb;
-
     HARD_ASSERT(path != NULL);
+    if (!path_is_safe_relative(path)) {
+        LOG(ERROR, "Refusing unsafe per-player cache path: %s", path);
+        return NULL;
+    }
 
-    sb = file_path_server_internal();
+    if (*cpl.account == '\0' || *cpl.name == '\0') {
+        LOG(ERROR, "Cannot derive a cache scope for an empty player identity");
+        return NULL;
+    }
 
-    SOFT_ASSERT_LABEL(*cpl.account != '\0', done, "Account name is empty.");
-    SOFT_ASSERT_LABEL(*cpl.name != '\0', done, "Player name is empty.");
+    StringBuffer *sb = file_path_server_internal();
+    if (sb == NULL) {
+        return NULL;
+    }
 
-    stringbuffer_append_printf(sb, "%s/%s/%s", cpl.account, cpl.name, path);
+    EVP_MD_CTX *context = EVP_MD_CTX_new();
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int digest_size = 0;
+    char player_scope[65];
+    bool ok = context != NULL &&
+              EVP_DigestInit_ex(context, EVP_sha256(), NULL) == 1 &&
+              EVP_DigestUpdate(context,
+                               cpl.account,
+                               strlen(cpl.account) + 1) == 1 &&
+              EVP_DigestUpdate(context, cpl.name, strlen(cpl.name)) == 1 &&
+              EVP_DigestFinal_ex(context, digest, &digest_size) == 1 &&
+              digest_size == 32 &&
+              string_tohex(digest,
+                           digest_size,
+                           VS(player_scope),
+                           false) == 64;
+    EVP_MD_CTX_free(context);
+    if (!ok) {
+        LOG(ERROR, "Could not derive the player cache scope.");
+        stringbuffer_free(sb);
+        return NULL;
+    }
+    string_tolower(player_scope);
+    stringbuffer_append_printf(sb, "players/%s/%s", player_scope, path);
 
-done:
     return stringbuffer_finish(sb);
 }
 
@@ -475,11 +542,16 @@ done:
  */
 char *file_path_server(const char *path)
 {
-    StringBuffer *sb;
-
     HARD_ASSERT(path != NULL);
+    if (!path_is_safe_relative(path)) {
+        LOG(ERROR, "Refusing unsafe per-server cache path: %s", path);
+        return NULL;
+    }
 
-    sb = file_path_server_internal();
+    StringBuffer *sb = file_path_server_internal();
+    if (sb == NULL) {
+        return NULL;
+    }
     stringbuffer_append_printf(sb, ".common/%s", path);
 
     return stringbuffer_finish(sb);

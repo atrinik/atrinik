@@ -31,7 +31,9 @@
 
 #include <global.h>
 #include <toolkit/string.h>
+#include <openssl/crypto.h>
 #include <toolkit/curl.h>
+#include "metaserver_private.h"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -146,13 +148,31 @@ metaserver_cert_free (server_cert_info_t *info)
  * @param server
  * Node to free.
  */
-static void
-metaserver_free (server_struct *server)
+void
+metaserver_server_free (server_struct *server)
 {
     HARD_ASSERT(server != NULL);
 
     if (server->hostname != NULL) {
         efree(server->hostname);
+    }
+
+    if (server->server_id != NULL) {
+        efree(server->server_id);
+    }
+
+    if (server->quic_certificate_sha256 != NULL) {
+        efree(server->quic_certificate_sha256);
+    }
+
+    if (server->rendezvous_origin != NULL) {
+        efree(server->rendezvous_origin);
+    }
+
+    if (server->join_password != NULL) {
+        OPENSSL_cleanse(server->join_password,
+                        strlen(server->join_password));
+        efree(server->join_password);
     }
 
     if (server->name != NULL) {
@@ -184,6 +204,17 @@ metaserver_free (server_struct *server)
     }
 
     efree(server);
+}
+
+void
+metaserver_server_add (server_struct *server)
+{
+    HARD_ASSERT(server != NULL);
+
+    SDL_LockMutex(server_head_mutex);
+    DL_PREPEND(server_head, server);
+    server_count++;
+    SDL_UnlockMutex(server_head_mutex);
 }
 
 /**
@@ -277,9 +308,19 @@ parse_metaserver_cert (server_struct *server)
         } else if (strcmp(key, "public key") == 0) {
             content = &info->pubkey;
         } else if (strcmp(key, "port") == 0) {
-            info->port = atoi(value);
+            uint64_t parsed;
+            info->port = string_parse_uint64(value,
+                                             10,
+                                             1,
+                                             UINT16_MAX,
+                                             &parsed) ? (int) parsed : 0;
         } else if (strcmp(key, "crypto port") == 0) {
-            info->port_crypto = atoi(value);
+            uint64_t parsed;
+            info->port_crypto = string_parse_uint64(value,
+                                                    10,
+                                                    1,
+                                                    UINT16_MAX,
+                                                    &parsed) ? (int) parsed : 0;
         } else {
             LOG(DEVEL, "Unrecognized key: %s", key);
             continue;
@@ -303,6 +344,7 @@ parse_metaserver_cert (server_struct *server)
     if (info->name == NULL ||
         info->hostname == NULL ||
         info->pubkey == NULL ||
+        info->port <= 0 ||
         info->port_crypto <= 0 ||
         (info->ipv4_address == NULL) != (info->ipv6_address == NULL)) {
         LOG(ERROR,
@@ -369,16 +411,42 @@ parse_metaserver_data_node (xmlNodePtr node, server_struct *server)
         server->hostname = estrdup((const char *) content);
     } else if (XML_STR_EQUAL(node->name, "Port")) {
         SOFT_ASSERT_LABEL(server->port == 0, error, "Parsing error");
-        server->port = atoi((const char *) content);
+        uint64_t value;
+        SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
+                                              10,
+                                              1,
+                                              UINT16_MAX,
+                                              &value),
+                          error,
+                          "Invalid metaserver port");
+        server->port = (int) value;
     } else if (XML_STR_EQUAL(node->name, "PortCrypto")) {
         SOFT_ASSERT_LABEL(server->port_crypto == -1, error, "Parsing error");
-        server->port_crypto = atoi((const char *) content);
+        if (strcmp((const char *) content, "-1") != 0) {
+            uint64_t value;
+            SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
+                                                  10,
+                                                  1,
+                                                  UINT16_MAX,
+                                                  &value),
+                              error,
+                              "Invalid metaserver crypto port");
+            server->port_crypto = (int) value;
+        }
     } else if (XML_STR_EQUAL(node->name, "Name")) {
         SOFT_ASSERT_LABEL(server->name == NULL, error, "Parsing error");
         server->name = estrdup((const char *) content);
     } else if (XML_STR_EQUAL(node->name, "PlayersCount")) {
         SOFT_ASSERT_LABEL(server->player == 0, error, "Parsing error");
-        server->player = atoi((const char *) content);
+        uint64_t value;
+        SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
+                                              10,
+                                              0,
+                                              INT_MAX,
+                                              &value),
+                          error,
+                          "Invalid metaserver player count");
+        server->player = (int) value;
     } else if (XML_STR_EQUAL(node->name, "Version")) {
         SOFT_ASSERT_LABEL(server->version == NULL, error, "Parsing error");
         server->version = estrdup((const char *) content);
@@ -462,7 +530,7 @@ parse_metaserver_node (xmlNodePtr node)
     return;
 
 error:
-    metaserver_free(server);
+    metaserver_server_free(server);
 }
 
 /**
@@ -575,6 +643,24 @@ out:
     }
 }
 
+
+
+bool
+metaserver_rendezvous_url (const server_struct *server,
+                           char                *url,
+                           size_t               url_size)
+{
+    if (server == NULL || server->server_id == NULL ||
+        server->rendezvous_origin == NULL) {
+        return false;
+    }
+    return socket_rendezvous_url(server->rendezvous_origin,
+                                 server->server_id,
+                                 "client",
+                                 url,
+                                 url_size);
+}
+
 /**
  * Verify resolved address of a server against the server's metaserver
  * certificate.
@@ -602,7 +688,8 @@ metaserver_cert_verify_host (server_struct *server, const char *host)
     SOFT_ASSERT_RC(socket_host2addr(host, &addr), false,
                    "Failed to convert host to IP address");
 
-    switch (addr.ss_family) {
+    int family = ((struct sockaddr *) &addr)->sa_family;
+    switch (family) {
     case AF_INET:
         if (strcmp(host, server->cert_info->ipv4_address) != 0) {
             LOG(ERROR, "!!! Certificate IPv4 address error: %s != %s !!!",
@@ -622,7 +709,7 @@ metaserver_cert_verify_host (server_struct *server, const char *host)
         break;
 
     default:
-        LOG(ERROR, "!!! Unknown address family %u !!!", addr.ss_family);
+        LOG(ERROR, "!!! Unknown address family %u !!!", family);
         return false;
     }
 
@@ -703,7 +790,7 @@ void metaserver_clear_data(void)
     DL_FOREACH_SAFE(server_head, node, tmp)
     {
         DL_DELETE(server_head, node);
-        metaserver_free(node);
+        metaserver_server_free(node);
     }
 
     server_count = 0;
@@ -780,6 +867,22 @@ int metaserver_thread(void *dummy)
         if (http_code == 200 && body != NULL) {
             parse_metaserver_data(body, body_size);
             curl_request_free(request);
+
+            char direct_url[MAX_BUF];
+            metaserver_direct_url(clioption_settings.metaservers[i - 1],
+                                  VS(direct_url));
+            curl_request_t *direct =
+                curl_request_create(direct_url, CURL_PKEY_TRUST_SYSTEM);
+            curl_request_do_get(direct);
+            body = curl_request_get_body(direct, &body_size);
+            if (curl_request_get_http_code(direct) == 200 && body != NULL) {
+                metaserver_direct_parse(body,
+                                        body_size,
+                                        clioption_settings.metaservers[i - 1]);
+            } else {
+                LOG(INFO, "Direct server directory is unavailable");
+            }
+            curl_request_free(direct);
             break;
         }
 

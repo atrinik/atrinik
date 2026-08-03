@@ -333,6 +333,11 @@ typedef struct settings_struct {
     uint16_t port_crypto;
 
     /**
+     * UDP port used for direct QUIC client/server communication.
+     */
+    uint16_t port_quic;
+
+    /**
      * Read only data files, such as the collected archetypes.
      */
     char libpath[MAX_BUF];
@@ -361,6 +366,29 @@ typedef struct settings_struct {
      * HTTP URL of the metaserver.
      */
     char metaserver_url[MAX_BUF];
+
+    /**
+     * Connectivity policy advertised through the metaserver.
+     */
+    char connectivity_mode[32];
+
+    /**
+     * STUN endpoint used to discover this server's public UDP candidate.
+     */
+    char stun_server[MAX_BUF];
+
+    /** Automatic router port mapping policy (auto or off). */
+    char port_mapping[16];
+
+    /**
+     * Optional password required before a client may join this server.
+     */
+    char join_password[MAX_BUF];
+
+    /**
+     * Whether this server should be listed publicly.
+     */
+    bool server_public;
 
     /**
      * Hostname of this server.

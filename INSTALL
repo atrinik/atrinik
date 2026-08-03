@@ -21,6 +21,11 @@ the repository in the **Atrinik 2026 Linux Build** container. It includes the
 C toolchain, CMake, Flex, SDL dependencies, OpenSSL, cURL, zlib, Python
 development headers, and the optional GD, Check, and Readline dependencies.
 
+OpenSSL 3.5 or newer is required to build the direct UDP/QUIC transport used
+by the client and server. Server builds also use miniupnpc and libpcpnatpmp
+for automatic UPnP IGD and PCP/NAT-PMP UDP mappings. The devcontainer and
+server image install these dependencies at pinned, reproducible versions.
+
 From the repository root, build the client and server:
 
 ```sh
@@ -59,8 +64,15 @@ sudo apt-get install build-essential cmake flex libcurl4-openssl-dev \
   libssl-dev zlib1g-dev python3-dev libgd-dev libreadline-dev \
   libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev \
   libsdl-ttf2.0-dev timidity libx11-dev libxml2-dev libxmu-dev \
-  cproto pkgconf check libsubunit-dev
+  cproto pkgconf check libsubunit-dev libminiupnpc-dev
 ```
+
+Ubuntu does not currently package libpcpnatpmp. The authoritative repository,
+commit, and build options live in `dependencies/libpcpnatpmp.env` and
+`dependencies/build-libpcpnatpmp.sh`; the Linux images and MXE environment all
+use that helper and verify the checked-out commit before building. Run
+`sudo dependencies/build-libpcpnatpmp.sh native` before configuring a manual
+server build. Client-only builds do not require either port-mapping library.
 
 Configure and compile a debug build using the checked-in presets:
 
@@ -95,17 +107,57 @@ server runtime files, including `permissions.cfg`, `data`, collected resources,
 and built plugins. A successful ordinary build verifies compilation even when
 that runtime setup has not yet been prepared. See `server/README` for setup.
 
+The direct-network end-to-end suite is independent of the server runtime. It
+uses temporary identities, fake STUN and port-mapping backends, and isolated
+loopback UDP sockets:
+
+```sh
+cmake --build --preset linux-debug --target network-e2e
+```
+
+This covers a real OpenSSL QUIC handshake and application-data exchange,
+certificate pinning and identity persistence, STUN discovery, bilateral UDP
+punching, and PCP/NAT-PMP-first mapping orchestration with UPnP fallback. See
+`tests/e2e/README.md` for focused scenarios and the boundary between default CI
+and opt-in physical-router interoperability tests.
+
+## Continuous integration and releases
+
+GitHub Actions builds the Linux client and server and runs the server tests for
+every pull request. The same validation runs again for every automatically
+tagged merge commit on `master`.
+
+The release line comes from `PACKAGE_VERSION` in `build.config`. A merge commit
+on `master` receives the next available patch tag in that release line. The
+first automatically tagged merge in the 5.0 line is `v5.0.0`, followed by
+`v5.0.1`, `v5.0.2`, and so on. Direct, single-parent pushes are not tagged.
+
+A tagged merge also builds the portable Windows client and server packages and
+publishes them in the GitHub release associated with the tag. Automated tagged
+builds export `ATRINIK_PACKAGE_VERSION` so embedded versions and package
+filenames match the tag.
+
 ## Portable Windows build with MXE
 
-Windows packages are cross-compiled in an isolated Linux container. The host
-only needs Docker or Podman; MinGW, SDL, OpenSSL, cURL, and the other Windows
-libraries are installed in the image.
+Windows client and server packages are cross-compiled in one isolated Linux
+container. The host only needs Docker or Podman. The image pins MXE, MinGW,
+OpenSSL, cURL, MiniUPnPc, libpcpnatpmp, and the official embedded Windows
+Python runtime used by the server.
 
 With a Dev Containers-compatible editor, reopen the repository using
 **Atrinik Windows cross-build (MXE)** and run:
 
 ```sh
-./build-windows.sh
+bash ./build-windows.sh
+```
+
+Pass `client` or `server` to build and package only that component. The default
+`all` builds both. Server collection and world-map output are keyed by a SHA-256
+hash of their authored inputs and reused when unchanged:
+
+```sh
+bash ./build-windows.sh client
+bash ./build-windows.sh server
 ```
 
 Alternatively, build directly from the repository root without opening an
@@ -123,12 +175,30 @@ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
   docker compose -f compose.windows.yaml run --build --rm windows-build
 ```
 
+If you have the resources, you can increase the number of build jobs, e.g.:
+
+```sh
+MXE_BUILD_JOBS=$(nproc) LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+  docker compose -f compose.windows.yaml run --build --rm windows-build
+```
+
 The first image build compiles the MXE toolchain and dependency stack, so it
-can take a while. Container image caching makes later builds faster. The
-portable 64-bit Windows ZIP is written to `build/packages/` and contains the
-client, updater, game assets, CA certificates, and required MXE runtime DLLs.
-Windows 10 or newer is expected because the updater uses the operating
-system's built-in `tar` command when applying patches.
+can take a while. Container image caching makes later builds faster. Two
+portable 64-bit Windows ZIPs are written to `build/packages/`:
+
+```text
+atrinik-client-4.0-windows-x86_64.zip
+atrinik-server-4.0-windows-x86_64.zip
+```
+
+The client package contains the updater, game assets, CA certificates, and
+required MXE runtime DLLs. The server package contains the native server,
+plugins, embedded Python runtime, maps, collected resources, generated region
+maps, initial data, and required DLLs. The packaging script builds and runs a
+native Linux world maker inside the cross-build container; it uses isolated
+staging data and never modifies `server/data/`. Windows 10 or newer is expected
+because the client updater uses the operating system's built-in `tar` command
+when applying patches.
 
 Inside the Windows cross-build container, configure or compile without
 packaging with:
@@ -136,6 +206,8 @@ packaging with:
 ```sh
 cmake --preset windows-mxe-release
 cmake --build --preset windows-mxe-release
+cmake --preset windows-mxe-server-release
+cmake --build --preset windows-mxe-server-release
 ```
 
 ## Build configuration notes

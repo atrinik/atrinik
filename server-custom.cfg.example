@@ -1,4 +1,4 @@
-# Copy this file to server-custom.cfg before starting the container.
+# Copy this file to server-custom.cfg before starting the server.
 # Values here override server/server.cfg.
 
 [general]
@@ -8,10 +8,13 @@
 default_permission_groups = None
 python_reload_modules = off
 
-# The container entrypoint overrides this with ATRINIK_HTTP_URL. For a public
-# server, set that environment variable to an externally reachable URL.
+# Leave http_url set to 'off' for direct QUIC asset delivery, or set it to a
+# CDN base URL for a large dedicated server.
 
 # Optional public-server identity:
 # server_name = My Atrinik Server
-# server_host = atrinik.example.com
 # server_desc = A community Atrinik server.
+# server_host is only needed for legacy_tcp connectivity.
+# Automatic PCP/NAT-PMP/UPnP mapping is enabled by default. Set this only when
+# direct addressing or an externally managed route is intentional.
+# port_mapping = off

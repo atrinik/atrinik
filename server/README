@@ -58,7 +58,27 @@
 
  For example, you should see something like this:
   $ ./server.sh
-  [15:04:46.112927] INFO   [main:634] Server ready. Waiting for connections...
+ [15:04:46.112927] INFO   [main:634] Server ready. Waiting for connections...
+
+ For a quiet, local-only devcontainer run that exercises QUIC without public
+ discovery, use:
+
+  $ ./server.sh --connectivity_mode=direct_only \
+      --port_mapping=off --stun_server=off
+
+ The startup log prints the QUIC certificate SHA-256 fingerprint. The matching
+ pinned client command and the faster legacy-TCP alternative are documented in
+ client/README section 2.1.
+
+ Developers can validate the transport without preparing or modifying this
+ source-tree runtime. From the repository root, the `network-e2e` target uses
+ temporary identities and isolated loopback sockets:
+
+  $ cmake --build --preset linux-debug --target network-e2e
+
+ It exercises a real QUIC handshake and data exchange, local STUN and UDP
+ punching, and deterministic port-mapping fallback. See tests/e2e/README.md for
+ focused scenarios.
 
  The startup scripts will also pass any extra options straight to the
  binary, for example:
@@ -94,9 +114,14 @@
  not work (specifically, the client will only be able to work with dynamic area
  maps and not the full region maps).
 
- Starting up the server will also start an HTTP server for serving the game
- data files. If you like, you can use any HTTP server of your choice instead,
- as long as it's properly configured. See section 2.2. for details.
+ By default, QUIC clients download the manifest, required game data, resources,
+ and region maps over the established game connection. The optional HTTP
+ server/CDN path is described in section 2.2. At startup the server reads each
+ immutable allowed asset once, computes its SHA-256 digest, and keeps both bytes
+ and digest in memory. Region maps are cached per server; later QUIC requests
+ send the cached size and digest so an unchanged map is confirmed without
+ retransmitting its contents. Restart after changing collected assets so the
+ server publishes a new immutable snapshot.
 
 =================================================
 = 2.1. Configuring the server                   =
@@ -119,21 +144,32 @@
  configuration, and section 4. for enabling crypto extensions.
 
 =================================================
-= 2.2. Running your own HTTP server             =
+= 2.2. Optional HTTP CDN                        =
 =================================================
 
- You can disable the bundled HTTP server with this configuration option:
+ HTTP asset delivery is optional and disabled by default:
   http_server = off
+  http_url = off
 
- In this case, you will need to configure an HTTP server of your own, which
- will serve the necessary server files. Also, if you plan on using a different
- URL/port for the server files, you will have to change this configuration to
- suit your needs:
-  http_url = http://localhost:8080
+ With http_url set to off, QUIC clients retrieve assets directly from the game
+ server. This is the recommended configuration for community and friend
+ servers because it needs no additional public port or hostname.
+
+ A large dedicated server can put the generated files behind an HTTPS CDN:
+  http_url = https://cdn.example.com/atrinik
+
+ When http_url is configured, clients first obtain each asset's immutable size
+ and SHA-256 digest over the authenticated QUIC connection, then accept the HTTP
+ body only when both match. A failed or mismatched request falls back to
+ in-band QUIC delivery. Non-loopback origins must use HTTPS. Legacy TCP clients
+ still require a working HTTP URL.
 
  You will need to map the following URLs to their directory counterparts:
-  - http://localhost:8080/                     -> server/data/http/
-  - http://localhost:8080/resources            -> server/resources/
+  - https://cdn.example.com/atrinik/          -> server/data/http/
+  - https://cdn.example.com/atrinik/resources -> server/resources/
+
+ The bundled HTTP server can be enabled for testing with http_server = on, but
+ production deployments should normally use a real HTTPS origin/CDN.
 
 =================================================
 = 2.3. Running with Docker Compose               =
@@ -146,24 +182,171 @@
   $ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
       docker compose -f compose.server.yaml up --build -d
 
- The game server is exposed on TCP ports 1728 (normal) and 1729 (optional
- crypto), and its bundled HTTP server on port 8080. Player data and other
- mutable state are kept directly in the host's server-data/ folder. Region maps
- are generated while building the image and refreshed into that folder when
- the container starts. On Linux, LOCAL_UID and LOCAL_GID keep those files owned
- by the user running Docker.
+ On a native Linux Docker Engine, the Compose service uses host networking so
+ candidate gathering and the PCP/NAT-PMP/UPnP libraries can see the physical
+ host's interfaces and default gateway. Docker Desktop still runs Linux
+ containers inside its VM; host mode there can expose the VM gateway instead
+ of the physical router, preventing automatic router discovery. There are no
+ Docker `ports` translations: direct gameplay and
+ in-band asset delivery bind host UDP port 1730, legacy modes bind host TCP
+ ports 1728/1729, and the optional HTTP server binds host port 8080. Player
+ data, the persistent QUIC
+ identity, and other mutable state are kept directly in the host's
+ server-data/ folder. Region maps are generated while building the image and
+ refreshed into that folder when the container starts. On Linux, LOCAL_UID and
+ LOCAL_GID keep those files owned by the user running Docker.
 
  To follow logs or stop the service:
   $ docker compose -f compose.server.yaml logs -f
   $ docker compose -f compose.server.yaml down
 
  The server-data/ folder is preserved by 'down' and can be backed up with
- ordinary filesystem tools.
+ ordinary filesystem tools. The container health check verifies both that the
+ server process exists and that its game-loop heartbeat is no more than 60
+ seconds old; a wedged process therefore becomes unhealthy even if PID 1 still
+ exists.
 
- For a public server, set ATRINIK_HTTP_URL to the externally reachable HTTP
- URL and review section 3 below. For example:
-  $ ATRINIK_HTTP_URL=http://atrinik.example.com:8080 \
+ For a private server, mount a Docker secret or another mode-0600 file and set
+ `ATRINIK_JOIN_PASSWORD_FILE` to its container path. The entrypoint prefers that
+ file over `ATRINIK_JOIN_PASSWORD`, avoiding disclosure through the container
+ environment. Native deployments can use `--join_password_file=PATH`.
+
+ For a public direct server, set ATRINIK_SERVER_PUBLIC=true and optionally
+ ATRINIK_JOIN_PASSWORD. No hostname or HTTP URL is required. Large dedicated
+ servers can set ATRINIK_HTTP_URL to an HTTPS CDN base URL; clients will prefer
+ it and fall back to QUIC if it is unavailable:
+  $ ATRINIK_SERVER_PUBLIC=true \
+      ATRINIK_HTTP_URL=https://cdn.example.com/atrinik \
       docker compose -f compose.server.yaml up -d
+
+ Host networking on a native Linux Docker Engine is required for automatic
+ router discovery in this Compose deployment. A discovered gateway in a Docker
+ Desktop private subnet (for example, `192.168.65.0/24`) is the VM gateway, not
+ evidence that PCP can reach the physical router. If another service already
+ owns one of the Atrinik ports, change the corresponding server configuration
+ before starting the container. Set ATRINIK_PORT_MAPPING=off only when the host
+ has a direct global address or the route is managed outside Atrinik.
+
+
+=================================================
+= 2.4. Running natively on Windows              =
+=================================================
+
+ The shared MXE build produces a self-contained native Windows server package:
+  $ docker compose -f compose.windows.yaml run --build --rm windows-build
+
+ Extract build/packages/atrinik-server-4.0-windows-x86_64.zip on the Windows
+ machine, enter its server/ directory, copy server-custom.cfg.example to
+ server-custom.cfg, configure it, and launch server.bat. The launcher keeps
+ the working directory correct, initializes data/ only when it is absent, and
+ passes additional command-line arguments to atrinik-server.exe. Back up data/
+ because it contains players, metaserver credentials, and the persistent QUIC
+ identity.
+
+ The package includes generated region-map PNG and definition files under
+ install_data/http/client-maps/. A new data/ directory receives them on first
+ launch. On later launches, server.bat refreshes only these read-only files in
+ data/http/client-maps/, so QUIC clients receive the packaged maps without
+ replacing any other runtime data.
+
+ The executable runs directly on Windows; Docker is only used to produce the
+ package. This lets PCP/NAT-PMP/UPnP discovery use the physical Windows network
+ interfaces and router. Permit atrinik-server.exe through Windows Defender
+ Firewall, including inbound UDP on port_quic (1730 by default). The server
+ package includes the Python runtime required by normal map and NPC scripts.
+
+=================================================
+= 2.5. Direct QUIC hosting (no port forwarding) =
+=================================================
+
+ Current clients and servers use UDP/QUIC for direct play. The metaserver is
+ only a public directory and signaling rendezvous: it exchanges short-lived
+ UDP candidates and never carries game packets.
+
+ Put the following in server-custom.cfg for a public friend server:
+  [meta]
+  server_public = true
+  connectivity_mode = direct_only
+  server_name = Your Server Name
+  server_desc = Private server for friends
+  port_quic = 1730
+  stun_server = off
+  port_mapping = auto
+  join_password = choose-a-long-password
+
+ 'server_public' is opt-in. If false, the server is not returned by the public
+ directory. The join password is verified by the game server over encrypted
+ QUIC; the metaserver receives only the boolean fact that a password is
+ required. Failed attempts are compared in constant time and limited per peer
+ to five per minute, with a 256-per-minute server-wide ceiling. Use a long
+ randomly generated password and prefer
+ `join_password_file`/`--join_password_file` over command-line or environment
+ values. The file must be a regular, non-symlink file containing exactly one
+ nonempty line shorter than 1024 bytes. Mode 0600 is recommended; group/other
+ permissions produce a startup warning.
+
+ Connectivity modes:
+  - direct_only: QUIC plus rendezvous; no legacy gameplay listener is needed.
+  - direct_preferred: try direct QUIC while retaining legacy TCP listeners for
+    manually reachable deployments. It does not enable a game-traffic relay.
+  - legacy_tcp: classic TCP ports only; requires a publicly reachable port.
+
+ The server advertises same-LAN and direct global IPv6 addresses, tries PCP
+ with automatic NAT-PMP negotiation and UPnP IGD to create and renew a UDP
+ router mapping, and optionally uses configured STUN for a server-reflexive
+ fallback. Rendezvous
+ opens a bounded bilateral punch window before QUIC checks begin. Both sides
+ send ten paced probes over approximately one second. The QUIC listener
+ recognizes an incoming probe before OpenSSL, logs its actual source, and
+ replies one-for-one so the client can learn a peer-reflexive server endpoint.
+ The client races candidate handshakes concurrently, preferring LAN and global
+ IPv6 routes by default. Its STUN-created IPv4 socket is retained for the
+ highest-priority NAT-derived candidate. A private intermediate router mapping
+ remains a candidate but is not published as the public directory endpoint;
+ ULA IPv6 addresses are classified as LAN.
+ Only a completed, certificate-pinned QUIC handshake confirms that any
+ candidate is usable.
+
+Some carrier-grade/symmetric NATs and UDP-blocking networks still cannot
+establish a direct path when the router offers no mapping protocol and there
+is no global IPv6 address. There is intentionally no TURN/game relay fallback,
+so those networks must use IPv6, a VPN/overlay, or a separately managed direct
+route. Failure is reported explicitly as “No confirmed direct route”.
+
+The client log lists every candidate attempt and the selected route. Operators
+with the `stats` or `/stats` command permission also see each player's reported
+mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
+...)`. This is client-reported diagnostic metadata, not an authorization
+ signal.
+
+ STUN is disabled by default so neither client nor server contacts an implicit
+ third party. Operators who want server-reflexive discovery can set
+ `stun_server` to a provider they trust; automatic router mapping and direct
+ LAN/IPv6/directory candidates do not require it.
+
+ Direct servers are identified by their QUIC certificate fingerprint rather
+ than a DNS hostname. If crypto_cert and crypto_cert_key are configured, that
+ certificate provides the identity. Otherwise the server generates
+ data/quic-identity.pem on first start and reuses it thereafter. Keep the file
+ private and include it in server-data backups; replacing it makes the
+ metaserver and clients see a different server.
+
+ Asset requests use the same punched QUIC connection as gameplay by default.
+ Setting http_url enables a separate CDN path and makes it the preferred asset
+ source after its body is pinned to metadata from the authenticated game
+ connection, with automatic QUIC fallback. Region-map responses are verified
+ by SHA-256 and stored in a cache scoped by stable server identity; matching
+ cached files receive a compact not-modified response. The metaserver never
+ carries assets or live game traffic.
+
+ The startup asset snapshot accepts files up to 128 MiB and at most 1 GiB in
+ aggregate. Each authenticated connection is limited to 256 asset requests and
+ 8 MiB of asset payload per second. These bounds protect the game loop; use the
+ optional HTTPS CDN path when a deployment needs higher bulk-transfer capacity.
+ The outbound queue reserves 1 MiB for bulk assets and has a 4 MiB/4096-packet
+ hard ceiling per connection. Administrators can inspect current/peak queue,
+ asset, QUIC, mapping, connection, and game-loop percentile metrics with
+ `/stats network`.
 
 =================================================
 = 3. Running a public server                    =
@@ -197,33 +380,28 @@
  password exchange and in-game communications, on top of establishing server
  trust and authenticity. See section 4. for details.
 
- The HTTP URL will need to be changed, otherwise outside clients will not be
- able to download the necessary data files. You will need to use either an IP
- address or a hostname (preferable), and you will need to have the specified
- port open, for example:
-  http_url = http://www.example.com:8080
-
  In order to advertise the server to the public, you will need to configure
  metaserver options. This will enable periodic flooding of your server details
  to the Atrinik metaserver (found at: https://meta.atrinik.org). See section
  3.1. for details about the sort of information this exposes. The necessary
  options are:
+  server_public = true
   server_name = Your Server Name
-  server_host = www.example.com
   server_desc = Description about your server.
 
- Adjust the above as necessary. The hostname MUST resolve to the IP address
- of the server. It's strongly discouraged to use PTR records, as they are used
- for a different purpose. If you don't have a static IP, dynamic DNS services
- or low-TTL DNS records are encouraged.
+ Direct QUIC modes do not require server_host, an HTTP URL, or a forwarded TCP
+ port. For legacy_tcp only, also configure server_host, make its DNS record
+ match the server's public IP, configure a reachable http_url, and forward the
+ selected TCP ports.
 
  Do note that for security reasons, the metaserver will block IP changes for
  up to an hour, so public servers with dynamic IPs are not encouraged due to
  the possible outage period.
 
- Make sure the Atrinik port (1728 by default, can be changed with port=xyz) is
- accessible from the outside (i.e., set up your firewall accordingly). See
- section 3.2. for detail about the various ports.
+ Direct mode automatically tries a router mapping and does not normally require
+ a manual port-forwarding rule. The local firewall must still allow the server
+ to send and receive UDP on port_quic, and the router must support PCP,
+ NAT-PMP, or UPnP unless direct IPv6 is available. See section 3.2. for details.
 
  After you have all of the above set up, the next time you launch the server,
  it should connect to the metaserver and update it with your server
@@ -232,7 +410,8 @@
  Be aware that the first time the server uploads the information to the
  metaserver, a secret key is generated. If you LOSE this key, you will be
  LOCKED out of updating the metaserver ever again (for the particular
- hostname). The key can be found in server/data/metaserver_key, once generated.
+ identity). Direct mode stores it in server/data/metaserver_key_direct; legacy
+ mode uses server/data/metaserver_key.
 
 =================================================
 = 3.1. Metaserver-exposed information           =
@@ -242,8 +421,9 @@
  (such as the server IP address), the following information is exposed to the
  metaserver, and flooded in periodic intervals, if reporting to the metaserver
  has been enabled (as per section 3.):
-  - Configured server name, hostname and description
-  - Enabled game data ports (normal/crypto)
+  - Configured server name and description, plus hostname in legacy mode
+  - Connectivity mode and enabled game data ports
+  - Direct QUIC candidate, certificate fingerprint, and server identity
   - Server version
   - Atrinik HTTP client version and platform (Windows/Linux/other)
   - Generated metaserver key (for authentication purposes)
@@ -265,11 +445,13 @@
  order for other players to connect successfully (they can all be changed in
  the configuration).
 
-  - 1728: The main game data port
+  - 1730/UDP: Direct QUIC gameplay and asset delivery. PCP/NAT-PMP/UPnP mapping,
+              IPv6, and rendezvous normally avoid a manual forwarding rule.
+  - 1728: The main legacy TCP game data port
   - 1729: The security extension port; clients will connect to this port
           instead of the one above if the security extensions are enabled.
-  - 8080: The HTTP server port; used by clients to download large game data
-          files
+  - 8080: Optional bundled HTTP asset server. It is unused when http_server is
+          off, and external CDN deployments normally use HTTPS port 443.
 
 =================================================
 = 4. Enabling crypto extensions                 =

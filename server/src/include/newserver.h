@@ -114,6 +114,9 @@ typedef struct socket_struct {
      */
     int login_count;
 
+    /** Wall-clock admission time used by the pre-login deadline. */
+    time_t accepted_at;
+
     /** X size of the map the client wants. */
     int mapx;
 
@@ -145,6 +148,17 @@ typedef struct socket_struct {
     /** Is the client a bot? */
     uint8_t is_bot;
 
+    /** Whether the configured server join password was accepted. */
+    bool join_authenticated;
+
+    /** One-second in-band asset transfer budget. */
+    uint64_t asset_window_ms;
+    size_t asset_window_bytes;
+    unsigned int asset_window_requests;
+
+    /** Transport route selected for this connection. */
+    socket_connection_mode_t connection_mode;
+
     /** Start of drawing of look window. */
     uint32_t look_position;
 
@@ -168,6 +182,12 @@ typedef struct socket_struct {
 
     /** Outgoing packets. */
     struct packet_struct *packets;
+
+    /** Current and peak bytes held by the bounded outbound queue. */
+    size_t packet_queue_bytes;
+    size_t packet_queue_peak_bytes;
+    size_t packet_queue_count;
+    uint64_t packet_queue_rejected;
 
     /**
      * Buffer for how many ticks have passed since the last keep alive

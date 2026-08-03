@@ -38,6 +38,8 @@
 #include <object_methods.h>
 #include <waypoint.h>
 #include <server.h>
+#include <network_metrics.h>
+#include <toolkit/datetime.h>
 #include <cmake.h>
 
 #include <toolkit/process.h>
@@ -510,7 +512,7 @@ static void do_specials(void)
         flush_old_maps();
     }
 
-    if (*settings.server_host != '\0' && !(pticks % 2521)) {
+    if (!(pticks % 2521)) {
         metaserver_info_update();
     }
 
@@ -600,11 +602,11 @@ int main(int argc, char **argv)
         LOG(INFO, "Running plugin unit tests...");
         object *activator = player_get_dummy(PLAYER_TESTING_NAME1, NULL);
         object *me = player_get_dummy(PLAYER_TESTING_NAME2, NULL);
-        trigger_unit_event(activator, me);
+        int failed = trigger_unit_event(activator, me);
 
         if (!settings.unit_tests) {
             cleanup();
-            exit(0);
+            exit(failed == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
         }
     }
 
@@ -642,6 +644,7 @@ int main(int argc, char **argv)
     LOG(INFO, "Server ready. Waiting for connections...");
 
     for (; ; ) {
+        uint64_t loop_started_us = datetime_monotonic_us();
         if (unlikely(shutdown_timer_check())) {
             break;
         }
@@ -655,6 +658,7 @@ int main(int argc, char **argv)
         }
 
         socket_server_post_process();
+        server_metrics_game_loop(datetime_monotonic_us() - loop_started_us);
 
         /* Sleep proper amount of time before next tick */
         sleep_delta();

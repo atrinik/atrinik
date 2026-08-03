@@ -12,6 +12,25 @@ if (EXISTS build.user)
     include(build.user)
 endif ()
 
+if (DEFINED ENV{ATRINIK_PACKAGE_VERSION} AND
+        NOT "$ENV{ATRINIK_PACKAGE_VERSION}" STREQUAL "")
+    set(PACKAGE_VERSION "$ENV{ATRINIK_PACKAGE_VERSION}")
+endif ()
+
+if (NOT PACKAGE_VERSION MATCHES
+        "^([0-9]+)\\.([0-9]+)(\\.([0-9]+))?$")
+    message(FATAL_ERROR
+        "PACKAGE_VERSION must have the form MAJOR.MINOR or MAJOR.MINOR.PATCH")
+endif ()
+
+set(PACKAGE_VERSION_MAJOR "${CMAKE_MATCH_1}")
+set(PACKAGE_VERSION_MINOR "${CMAKE_MATCH_2}")
+if ("${CMAKE_MATCH_4}" STREQUAL "")
+    set(PACKAGE_VERSION_PATCH 0)
+else ()
+    set(PACKAGE_VERSION_PATCH "${CMAKE_MATCH_4}")
+endif ()
+
 include_directories(common)
 include_directories(${CMAKE_BINARY_DIR}/common)
 
@@ -90,6 +109,10 @@ else ()
 endif ()
 
 add_subdirectory(common/toolkit)
+
+if (BUILD_E2E_TESTS AND NOT MINGW)
+    add_subdirectory(tests/e2e)
+endif ()
 
 if (BUILD_SERVER)
     add_subdirectory(server)

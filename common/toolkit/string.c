@@ -28,6 +28,7 @@
  */
 
 #include <stdarg.h>
+#include <errno.h>
 
 #include "toolkit.h"
 #include "string.h"
@@ -423,7 +424,7 @@ void string_newline_to_literal(char *str)
  *
  * Effectively allows looping through all the words in a string.
  * @param str
- * The string.
+ * The string. NULL is treated as an empty string.
  * @param[out] pos Position in string.
  * @param delim
  * Delimeter character.
@@ -443,6 +444,15 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
     uint8_t in_surround;
 
     TOOLKIT_PROTECT();
+
+    HARD_ASSERT(pos != NULL);
+    HARD_ASSERT(word != NULL);
+    HARD_ASSERT(wordsize != 0);
+
+    if (str == NULL) {
+        *word = '\0';
+        return NULL;
+    }
 
     i = 0;
     in_surround = 0;
@@ -1121,6 +1131,82 @@ char *string_last(const char *haystack, const char *needle)
     } while (cp-- != haystack);
 
     return NULL;
+}
+
+/**
+ * Parse an unsigned integer without accepting signs, whitespace, trailing
+ * data or overflow.
+ */
+bool string_parse_uint64(const char *str, int base, uint64_t minimum,
+        uint64_t maximum, uint64_t *result)
+{
+    HARD_ASSERT(result != NULL);
+
+    if (str == NULL || *str == '\0' || isspace((unsigned char) *str) ||
+            *str == '+' || *str == '-') {
+        return false;
+    }
+
+    errno = 0;
+    char *end = NULL;
+    unsigned long long value = strtoull(str, &end, base);
+    if (errno == ERANGE || end == str || *end != '\0' ||
+            value < minimum || value > maximum) {
+        return false;
+    }
+
+    *result = (uint64_t) value;
+    return true;
+}
+
+/**
+ * Validate an exact-length hexadecimal string.
+ */
+bool string_is_hex_fixed(const char *str, size_t length, bool lowercase_only)
+{
+    if (str == NULL || strlen(str) != length) {
+        return false;
+    }
+
+    for (size_t i = 0; i < length; i++) {
+        if ((str[i] >= '0' && str[i] <= '9') ||
+                (str[i] >= 'a' && str[i] <= 'f')) {
+            continue;
+        }
+        if (!lowercase_only && str[i] >= 'A' && str[i] <= 'F') {
+            continue;
+        }
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Decode an exact-length hexadecimal string without accepting separators or
+ * silently skipping invalid characters.
+ */
+bool string_decode_hex_fixed(const char *str, size_t length,
+        bool lowercase_only, unsigned char *result, size_t result_size)
+{
+    HARD_ASSERT(result != NULL);
+
+    if ((length & 1) != 0 || result_size != length / 2 ||
+            !string_is_hex_fixed(str, length, lowercase_only)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < result_size; i++) {
+        unsigned char high = (unsigned char) str[i * 2];
+        unsigned char low = (unsigned char) str[i * 2 + 1];
+        high = high <= '9' ? high - '0' :
+               (unsigned char) (tolower(high) - 'a' + 10);
+        low = low <= '9' ? low - '0' :
+              (unsigned char) (tolower(low) - 'a' + 10);
+        result[i] = (unsigned char) ((high << 4) | low);
+    }
+
+    return true;
 }
 
 #endif

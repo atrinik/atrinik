@@ -62,6 +62,8 @@ enum {
     SERVER_CMD_TALK,
     SERVER_CMD_MOVE,
     SERVER_CMD_TARGET,
+    /** Request a cached game asset over the direct QUIC connection. */
+    SERVER_CMD_ASSET,
 
     SERVER_CMD_NROF
 };
@@ -100,6 +102,8 @@ enum {
     CLIENT_CMD_INTERFACE,
     CLIENT_CMD_NOTIFICATION,
     CLIENT_CMD_KEEPALIVE,
+    /** A chunk of a cached game asset sent over direct QUIC. */
+    CLIENT_CMD_ASSET,
 
     CLIENT_CMD_NROF
 };
@@ -205,6 +209,80 @@ typedef enum socket_role {
 #define CMD_SETUP_BOT 2
 /** URL of the data files to use. */
 #define CMD_SETUP_DATA_URL 3
+/** Password used to join a private game server. */
+#define CMD_SETUP_JOIN_PASSWORD 4
+/** Whether in-band asset downloads are available on this connection. */
+#define CMD_SETUP_ASSET_TRANSPORT 5
+/** Direct connection mode selected by the client. */
+#define CMD_SETUP_CONNECTION_MODE 6
+/** First socket protocol version supporting in-band asset downloads. */
+#define ASSET_TRANSPORT_SOCKET_VERSION 1067
+
+/** Buffer size for a 128-bit hexadecimal connection ID and terminator. */
+#define SOCKET_CONNECTION_ID_SIZE 33
+
+/** Transport route used by an established client connection. */
+typedef enum socket_connection_mode {
+    SOCKET_CONNECTION_MODE_TCP,
+    SOCKET_CONNECTION_MODE_TLS,
+    SOCKET_CONNECTION_MODE_QUIC,
+    SOCKET_CONNECTION_MODE_QUIC_LAN,
+    SOCKET_CONNECTION_MODE_QUIC_IPV6,
+    SOCKET_CONNECTION_MODE_QUIC_MAPPED,
+    SOCKET_CONNECTION_MODE_QUIC_SRFLX,
+    SOCKET_CONNECTION_MODE_QUIC_DIRECTORY,
+    SOCKET_CONNECTION_MODE_NUM
+} socket_connection_mode_t;
+
+/** Preferred ordering for direct QUIC candidate checks. */
+typedef enum socket_connection_preference {
+    SOCKET_CONNECTION_PREFERENCE_AUTO,
+    SOCKET_CONNECTION_PREFERENCE_LAN,
+    SOCKET_CONNECTION_PREFERENCE_IPV6,
+    SOCKET_CONNECTION_PREFERENCE_MAPPED,
+    SOCKET_CONNECTION_PREFERENCE_SRFLX,
+    SOCKET_CONNECTION_PREFERENCE_DIRECTORY,
+    SOCKET_CONNECTION_PREFERENCE_NUM
+} socket_connection_preference_t;
+
+/** Asset chunk was returned successfully. */
+#define ASSET_STATUS_OK 0
+/** The requested asset does not exist or cannot be served. */
+#define ASSET_STATUS_NOT_FOUND 1
+/** The client's cached size and SHA-256 digest match the server asset. */
+#define ASSET_STATUS_NOT_MODIFIED 2
+/** Authenticated size and digest metadata without an asset body. */
+#define ASSET_STATUS_METADATA 3
+/** Metadata was requested for an asset that does not exist. */
+#define ASSET_STATUS_METADATA_NOT_FOUND 4
+/** Request only authenticated size and digest metadata. */
+#define ASSET_REQUEST_METADATA 0x01
+/** Maximum payload in one asset response packet. */
+#define ASSET_CHUNK_SIZE 60000
+/** Maximum complete asset size accepted by the client. */
+#define ASSET_MAX_SIZE (128U * 1024U * 1024U)
+/** SHA-256 digest size used by the asset cache protocol. */
+#define ASSET_DIGEST_SIZE 32
+
+/** Decoded client-to-server asset request. */
+typedef struct socket_asset_request {
+    char path[MAX_BUF];
+    uint32_t offset;
+    uint32_t cached_size;
+    uint8_t cached_digest[ASSET_DIGEST_SIZE];
+    uint8_t flags;
+} socket_asset_request_t;
+
+/** Decoded server-to-client asset response. */
+typedef struct socket_asset_response {
+    uint8_t status;
+    char path[MAX_BUF];
+    uint32_t total_size;
+    uint32_t offset;
+    uint8_t digest[ASSET_DIGEST_SIZE];
+    const uint8_t *data;
+    size_t data_size;
+} socket_asset_response_t;
 /*@}*/
 
 /**
@@ -841,6 +919,53 @@ enum {
  */
 #define SOCKET_TIMEOUT_MS 30.0
 
+/** Maximum number of direct connection candidates exchanged in rendezvous. */
+#define SOCKET_DIRECT_MAX_CANDIDATES 12
+
+/** Number and spacing of UDP hole-punch probes on both peers. */
+#define SOCKET_PUNCH_COUNT 10U
+#define SOCKET_PUNCH_INTERVAL_MS 100U
+/** Maximum probe datagrams consumed in one rendezvous iteration. */
+#define SOCKET_PUNCH_DRAIN_MAX 32U
+
+typedef enum socket_punch_action {
+    SOCKET_PUNCH_WAIT,
+    SOCKET_PUNCH_SEND,
+    SOCKET_PUNCH_COMPLETE
+} socket_punch_action_t;
+
+typedef struct socket_punch_pacer {
+    uint64_t next_action_ms;
+    unsigned int attempts;
+    unsigned int grace_ms;
+    bool active;
+} socket_punch_pacer_t;
+
+/** Direct-route candidate kind shared by gathering, signaling, and selection. */
+typedef enum socket_candidate_kind {
+    SOCKET_CANDIDATE_LAN,
+    SOCKET_CANDIDATE_IPV6,
+    SOCKET_CANDIDATE_PRFLX,
+    SOCKET_CANDIDATE_MAPPED,
+    SOCKET_CANDIDATE_SRFLX,
+    SOCKET_CANDIDATE_DIRECTORY,
+    SOCKET_CANDIDATE_NUM
+} socket_candidate_kind_t;
+
+/** A directly reachable UDP endpoint advertised during rendezvous. */
+typedef struct socket_direct_candidate {
+    char host[65];
+    uint16_t port;
+    socket_candidate_kind_t kind;
+} socket_direct_candidate_t;
+
+typedef enum socket_websocket_receive_state {
+    SOCKET_WEBSOCKET_EMPTY,
+    SOCKET_WEBSOCKET_PARTIAL,
+    SOCKET_WEBSOCKET_MESSAGE,
+    SOCKET_WEBSOCKET_CLOSED
+} socket_websocket_receive_state_t;
+
 #ifdef WIN32
 static inline const char *s_strerror(int val)
 {
@@ -872,22 +997,131 @@ static inline const char *s_strerror(int val)
 
 TOOLKIT_FUNCS_DECLARE(socket);
 
+struct packet_struct;
+void
+socket_asset_request_append(struct packet_struct *packet,
+                            const char           *path,
+                            uint32_t              offset,
+                            uint32_t              cached_size,
+                            const uint8_t          cached_digest[ASSET_DIGEST_SIZE],
+                            uint8_t                flags);
+bool
+socket_asset_request_parse(uint8_t                *data,
+                           size_t                  len,
+                           size_t                  pos,
+                           socket_asset_request_t *request);
+void
+socket_asset_response_append_status(struct packet_struct *packet,
+                                    uint8_t               status,
+                                    const char           *path);
+void
+socket_asset_response_append_ok(struct packet_struct *packet,
+                                const char           *path,
+                                uint32_t              total_size,
+                                uint32_t              offset,
+                                const uint8_t          digest[ASSET_DIGEST_SIZE],
+                                const uint8_t        *data,
+                                size_t                data_size);
+void
+socket_asset_response_append_metadata(
+    struct packet_struct *packet,
+    const char           *path,
+    uint32_t              total_size,
+    const uint8_t          digest[ASSET_DIGEST_SIZE]);
+bool
+socket_asset_response_parse(uint8_t                 *data,
+                            size_t                   len,
+                            size_t                   pos,
+                            socket_asset_response_t *response);
+
 socket_t *
 socket_create(const char   *host,
               uint16_t      port,
               bool          secure,
               socket_role_t role,
               bool          dual_stack);
+socket_t *
+socket_quic_server_create(const char *host,
+                          uint16_t    port,
+                          bool        dual_stack,
+                          const char *identity_path);
+socket_t *
+socket_quic_client_create(const char *host,
+                          uint16_t    port,
+                          const char *certificate_sha256,
+                          const char *rendezvous_url,
+                          const char *stun_endpoint,
+                          socket_connection_preference_t preference);
+const char *
+socket_connection_preference_name(socket_connection_preference_t preference);
+const char *
+socket_candidate_kind_name(socket_candidate_kind_t kind);
+bool
+socket_candidate_kind_parse(const char *name, socket_candidate_kind_t *kind);
+socket_connection_mode_t
+socket_candidate_kind_mode(socket_candidate_kind_t kind);
+bool socket_rendezvous_client_candidate_parse(const char *message,
+        char *host, size_t host_size, uint16_t *port, char ticket[65]);
+bool socket_rendezvous_server_candidate_parse(const char *message,
+        const char *expected_ticket, socket_direct_candidate_t *candidate);
+bool socket_rendezvous_message_render(char *buffer, size_t size,
+        const char *type, const char *host, uint16_t port,
+        socket_candidate_kind_t kind, const char *ticket);
+bool socket_rendezvous_complete_parse(const char *message,
+        const char *expected_ticket);
+socket_websocket_receive_state_t socket_websocket_receive(void *handle,
+        char *buffer, size_t capacity, size_t *used);
+bool
+socket_is_quic(socket_t *sc);
+socket_connection_mode_t
+socket_connection_mode_get(socket_t *sc);
+const char *
+socket_connection_mode_name(socket_connection_mode_t mode);
+bool
+socket_certificate_sha256(socket_t *sc, char fingerprint[65]);
+bool
+socket_stun_discover(socket_t *sc,
+                     const char *endpoint,
+                     char *host,
+                     size_t host_size,
+                     uint16_t *port);
+bool
+socket_udp_punch(socket_t *sc, const char *host, uint16_t port);
+bool
+socket_udp_punch_receive(socket_t *sc,
+                         char *host,
+                         size_t host_size,
+                         uint16_t *port);
+void
+socket_punch_pacer_start(socket_punch_pacer_t *pacer,
+                         uint64_t              now_ms,
+                         unsigned int          grace_ms);
+socket_punch_action_t
+socket_punch_pacer_poll(const socket_punch_pacer_t *pacer, uint64_t now_ms);
+void
+socket_punch_pacer_advance(socket_punch_pacer_t *pacer,
+                           uint64_t              now_ms,
+                           socket_punch_action_t action);
+bool
+socket_host_is_global(const char *host);
+size_t
+socket_local_candidates(uint16_t                    port,
+                        socket_direct_candidate_t *candidates,
+                        size_t                      capacity);
 char *socket_get_addr(socket_t *sc);
-char *socket_get_str(socket_t *sc);
+const char *socket_get_id(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
         unsigned short plen);
 bool socket_connect(socket_t *sc);
 int socket_fd(socket_t *sc);
+bool socket_local_port(socket_t *sc, uint16_t *port);
 bool socket_bind(socket_t *sc);
 socket_t *socket_accept(socket_t *sc);
 bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt);
 bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt);
+bool socket_wait(socket_t *sc, bool readable, bool writable, unsigned int timeout_ms);
+bool socket_quic_service(socket_t *sc, bool network_ready, bool app_write_pending);
+unsigned int socket_quic_timeout(socket_t *sc, unsigned int maximum_ms);
 bool socket_is_fd_valid(socket_t *sc);
 bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger);
 bool socket_opt_reuse_addr(socket_t *sc, bool enable);
@@ -911,6 +1145,12 @@ const char *
 socket_get_host(socket_t *sc);
 bool
 socket_is_secure(socket_t *sc);
+bool
+socket_rendezvous_url(const char *base_url,
+                      const char *server_id,
+                      const char *role,
+                      char       *url,
+                      size_t      url_size);
 socket_role_t
 socket_get_role(socket_t *sc);
 

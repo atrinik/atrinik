@@ -1,14 +1,18 @@
 set(SOURCES
+	src/client/asset.c
+	src/client/asset_source.c
 	src/client/animations.c
 	src/client/client.c
 	src/client/cmd_aliases.c
 	src/client/commands.c
+	src/client/connection_preferences.c
 	src/client/image.c
 	src/client/item.c
 	src/client/keybind.c
 	src/client/main.c
 	src/client/menu.c
 	src/client/metaserver.c
+	src/client/metaserver_direct.c
 	src/client/misc.c
 	src/client/player.c
 	src/client/region_map.c
@@ -34,9 +38,11 @@ set(SOURCES
 	src/gui/popups/book.c
 	src/gui/popups/characters.c
 	src/gui/popups/color_chooser.c
+	src/gui/popups/connection_preference.c
 	src/gui/popups/credits.c
 	src/gui/popups/help.c
 	src/gui/popups/interface.c
+	src/gui/popups/join_password.c
 	src/gui/popups/login.c
 	src/gui/popups/painting.c
 	src/gui/popups/region_map.c

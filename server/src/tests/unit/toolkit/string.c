@@ -339,6 +339,18 @@ START_TEST(test_string_get_word)
     ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
             NULL);
     efree(cp);
+
+    pos = 0;
+    snprintf(VS(word), "not empty");
+    ck_assert_ptr_eq(string_get_word(NULL,
+                                     &pos,
+                                     ' ',
+                                     word,
+                                     sizeof(word),
+                                     0),
+                     NULL);
+    ck_assert_str_eq(word, "");
+    ck_assert_uint_eq(pos, 0);
 }
 
 END_TEST
@@ -890,6 +902,43 @@ START_TEST(test_string_last)
 }
 END_TEST
 
+START_TEST(test_string_parse_uint64)
+{
+    uint64_t value;
+    ck_assert(string_parse_uint64("65535", 10, 1, 65535, &value));
+    ck_assert_uint_eq(value, 65535);
+    ck_assert(string_parse_uint64("ffffffff", 16, 0, UINT32_MAX, &value));
+    ck_assert_uint_eq(value, UINT32_MAX);
+    ck_assert(!string_parse_uint64("", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64("-1", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64(" 1", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64("1x", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64("65536", 10, 1, 65535, &value));
+    ck_assert(!string_parse_uint64("18446744073709551616",
+                                   10,
+                                   0,
+                                   UINT64_MAX,
+                                   &value));
+}
+END_TEST
+
+START_TEST(test_string_hex_fixed)
+{
+    uint8_t decoded[2];
+    ck_assert(string_is_hex_fixed("00abcdef", 8, true));
+    ck_assert(!string_is_hex_fixed("00ABCDEF", 8, true));
+    ck_assert(string_is_hex_fixed("00ABCDEF", 8, false));
+    ck_assert(!string_is_hex_fixed("00abcdeg", 8, false));
+    ck_assert(!string_is_hex_fixed("00abcdef00", 8, false));
+    ck_assert(string_decode_hex_fixed("00Af", 4, false, decoded,
+                                      sizeof(decoded)));
+    ck_assert_uint_eq(decoded[0], 0);
+    ck_assert_uint_eq(decoded[1], 0xaf);
+    ck_assert(!string_decode_hex_fixed("00Af", 4, true, decoded,
+                                       sizeof(decoded)));
+}
+END_TEST
+
 static Suite *suite(void)
 {
     Suite *s = suite_create("string");
@@ -931,6 +980,8 @@ static Suite *suite(void)
     tcase_add_test(tc_core, test_string_fromhex);
     tcase_add_test(tc_core, test_string_skip_whitespace);
     tcase_add_test(tc_core, test_string_last);
+    tcase_add_test(tc_core, test_string_parse_uint64);
+    tcase_add_test(tc_core, test_string_hex_fixed);
 
     return s;
 }

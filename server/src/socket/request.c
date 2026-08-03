@@ -50,8 +50,90 @@
 #include <resources.h>
 #include <toolkit/socket_crypto.h>
 
+#include <openssl/crypto.h>
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
+#define JOIN_FAILURES_PER_MINUTE 5U
+#define JOIN_FAILURES_UNKNOWN_PER_MINUTE 64U
+#define JOIN_FAILURES_GLOBAL_PER_MINUTE 256U
+#define JOIN_FAILURE_ENTRY_MAX 1024U
+
+typedef struct join_failure_entry {
+    UT_hash_handle hh;
+    char address[MAX_BUF];
+    time_t window_started;
+    unsigned int failures;
+} join_failure_entry_t;
+
+static join_failure_entry_t *join_failures;
+static time_t join_failure_global_window;
+static unsigned int join_failure_global_count;
+
+static bool
+join_password_allowed (socket_struct *ns)
+{
+    time_t now = time(NULL);
+    if (now - join_failure_global_window >= 60) {
+        join_failure_global_window = now;
+        join_failure_global_count = 0;
+    }
+    if (join_failure_global_count >= JOIN_FAILURES_GLOBAL_PER_MINUTE) {
+        return false;
+    }
+
+    const char *address = socket_get_addr(ns->sc);
+    join_failure_entry_t *entry;
+    HASH_FIND_STR(join_failures, address, entry);
+    if (entry == NULL) {
+        join_failure_entry_t *old, *next;
+        HASH_ITER(hh, join_failures, old, next) {
+            if (now - old->window_started >= 120) {
+                HASH_DEL(join_failures, old);
+                efree(old);
+            }
+        }
+        if (HASH_COUNT(join_failures) >= JOIN_FAILURE_ENTRY_MAX) {
+            join_failure_entry_t *oldest = NULL;
+            HASH_ITER(hh, join_failures, old, next) {
+                if (oldest == NULL ||
+                    old->window_started < oldest->window_started) {
+                    oldest = old;
+                }
+            }
+            if (oldest != NULL) {
+                HASH_DEL(join_failures, oldest);
+                efree(oldest);
+            }
+        }
+        entry = ecalloc(1, sizeof(*entry));
+        snprintf(VS(entry->address), "%s", address);
+        entry->window_started = now;
+        HASH_ADD_STR(join_failures, address, entry);
+    }
+
+    if (now - entry->window_started >= 60) {
+        entry->window_started = now;
+        entry->failures = 0;
+    }
+    unsigned int limit = strcmp(address, "<no address>") == 0
+        ? JOIN_FAILURES_UNKNOWN_PER_MINUTE
+        : JOIN_FAILURES_PER_MINUTE;
+    return entry->failures < limit;
+}
+
+static void
+join_password_failed (socket_struct *ns)
+{
+    if (join_failure_global_count < UINT_MAX) {
+        join_failure_global_count++;
+    }
+    const char *address = socket_get_addr(ns->sc);
+    join_failure_entry_t *entry;
+    HASH_FIND_STR(join_failures, address, entry);
+    if (entry != NULL && entry->failures < UINT_MAX) {
+        entry->failures++;
+    }
+}
 
 void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
@@ -110,9 +192,50 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             } else {
                 packet_append_string_terminated(packet, settings.http_url);
             }
+        } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
+            packet_append_uint8(packet, socket_is_quic(ns->sc) ? 1 : 0);
+        } else if (type == CMD_SETUP_CONNECTION_MODE) {
+            socket_connection_mode_t mode = packet_to_uint8(data, len, &pos);
+            if (socket_is_quic(ns->sc) &&
+                mode >= SOCKET_CONNECTION_MODE_QUIC_LAN &&
+                mode <= SOCKET_CONNECTION_MODE_QUIC_DIRECTORY) {
+                ns->connection_mode = mode;
+            }
+            packet_append_uint8(packet, ns->connection_mode);
+        } else if (type == CMD_SETUP_JOIN_PASSWORD) {
+            char password[MAX_BUF] = {0};
+            packet_to_string(data, len, &pos, VS(password));
+
+            bool allowed = join_password_allowed(ns);
+            ns->join_authenticated = allowed &&
+                                     CRYPTO_memcmp(settings.join_password,
+                                                   password,
+                                                   sizeof(password)) == 0;
+            if (!ns->join_authenticated) {
+                join_password_failed(ns);
+            }
+            OPENSSL_cleanse(password, sizeof(password));
+            packet_append_uint8(packet, ns->join_authenticated ? 1 : 0);
         } else {
             LOG(PACKET, "Unknown type: %d", type);
         }
+    }
+
+    if (*settings.join_password != '\0' && !ns->join_authenticated) {
+        LOG(SYSTEM,
+            "Connection %s rejected: incorrect or missing join password",
+            socket_get_id(ns->sc));
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Incorrect or missing server join password.");
+        /* JOIN_PASSWORD promises an explicit acceptance result. Send the
+         * SETUP response before entering the short zombie grace period so the
+         * client can report the rejection instead of appearing to hang. */
+        socket_send_packet(ns, packet);
+        ns->state = ST_ZOMBIE;
+        return;
     }
 
     socket_send_packet(ns, packet);
@@ -2122,17 +2245,17 @@ void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t le
     run_on = packet_to_uint8(data, len, &pos);
 
     if (dir > 8) {
-        LOG(PACKET, "%s: Invalid dir: %d", socket_get_str(ns->sc), dir);
+        LOG(PACKET, "%s: Invalid dir: %d", socket_get_id(ns->sc), dir);
         return;
     }
 
     if (run_on > 1) {
-        LOG(PACKET, "%s: Invalid run_on: %d", socket_get_str(ns->sc), run_on);
+        LOG(PACKET, "%s: Invalid run_on: %d", socket_get_id(ns->sc), run_on);
         return;
     }
 
     if (run_on == 1 && dir == 0) {
-        LOG(PACKET, "%s: run_on is 1 but dir is 0", socket_get_str(ns->sc));
+        LOG(PACKET, "%s: run_on is 1 but dir is 0", socket_get_id(ns->sc));
         return;
     }
 
@@ -2539,10 +2662,12 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
 
         unsigned short plen = socket_addr_plen(&addr);
         if (split[1] != NULL) {
-            unsigned long value = strtoul(split[1], NULL, 10);
-            if (value < plen) {
-                plen = value;
+            uint64_t value;
+            if (!string_parse_uint64(split[1], 10, 0, plen, &value)) {
+                LOG(ERROR, "Ignoring invalid control CIDR prefix: %s", word);
+                continue;
             }
+            plen = (unsigned short) value;
         }
 
         if (socket_cmp_addr(ns->sc, &addr, plen) == 0) {
@@ -2553,7 +2678,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     if (!ip_match) {
         LOG(PACKET, "Received control command from unauthorized IP: %s",
-                socket_get_str(ns->sc));
+                socket_get_id(ns->sc));
         return;
     }
 
@@ -2700,7 +2825,7 @@ socket_crypto_hello (socket_struct *ns,
     /* Ensure there's no bytes left. */
     if (pos != len) {
         LOG(PACKET, "Client sent malformed crypto hello command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2708,7 +2833,7 @@ socket_crypto_hello (socket_struct *ns,
     const char *server_cert = socket_crypto_get_cert();
     if (server_cert == NULL) {
         LOG(SYSTEM, "Crypto hello received but no cert loaded: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2765,7 +2890,7 @@ socket_crypto_key (socket_struct *ns,
 
     if (pos == len) {
         LOG(PACKET, "Client sent malformed crypto key command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2778,7 +2903,7 @@ socket_crypto_key (socket_struct *ns,
 
     if (pos == len) {
         LOG(PACKET, "Client sent malformed crypto key command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2790,7 +2915,7 @@ socket_crypto_key (socket_struct *ns,
 
     if (pos != len) {
         LOG(PACKET, "Client sent malformed crypto key command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2840,7 +2965,7 @@ socket_crypto_curves (socket_struct *ns,
             const unsigned char *iv = socket_crypto_gen_iv(crypto, &iv_size);
             if (iv == NULL) {
                 LOG(SYSTEM, "Failed to generate IV buffer: %s",
-                    socket_get_str(ns->sc));
+                    socket_get_id(ns->sc));
                 ns->state = ST_DEAD;
                 return;
             }
@@ -2857,14 +2982,14 @@ socket_crypto_curves (socket_struct *ns,
                                                              &pubkey_len);
             if (pubkey == NULL) {
                 LOG(SYSTEM, "Failed to generate a public key: %s",
-                    socket_get_str(ns->sc));
+                    socket_get_id(ns->sc));
                 ns->state = ST_DEAD;
                 return;
             }
 
             if (pubkey_len > INT16_MAX) {
                 LOG(SYSTEM, "Public key too long: %s",
-                    socket_get_str(ns->sc));
+                    socket_get_id(ns->sc));
                 ns->state = ST_DEAD;
                 efree(pubkey);
                 return;
@@ -2890,7 +3015,7 @@ socket_crypto_curves (socket_struct *ns,
     LOG(SYSTEM,
         "Client requested crypto but failed to provide a compatible "
         "crypto elliptic curve: %s",
-        socket_get_str(ns->sc));
+        socket_get_id(ns->sc));
     ns->state = ST_DEAD;
 }
 
@@ -2915,7 +3040,7 @@ socket_crypto_pubkey (socket_struct *ns,
 
     if (len == pos) {
         LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2931,14 +3056,14 @@ socket_crypto_pubkey (socket_struct *ns,
 
     if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
         LOG(SYSTEM, "Couldn't derive shared secret key: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
 
     if (len != pos) {
         LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2965,7 +3090,7 @@ socket_crypto_secret (socket_struct *ns,
 
     if (len == pos) {
         LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2975,7 +3100,7 @@ socket_crypto_secret (socket_struct *ns,
 
     if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
         LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2984,7 +3109,7 @@ socket_crypto_secret (socket_struct *ns,
 
     if (len != pos) {
         LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -3027,7 +3152,7 @@ socket_crypto_done (socket_struct *ns,
 
     if (len != pos) {
         LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -3043,7 +3168,7 @@ socket_crypto_done (socket_struct *ns,
     }
 
     LOG(SYSTEM, "Connection: established a secure channel with %s",
-        socket_get_str(ns->sc));
+        socket_get_id(ns->sc));
 }
 
 /**
@@ -3128,7 +3253,7 @@ socket_command_ask_resource (socket_struct *ns,
 
     if (string_isempty(resource_name)) {
         LOG(PACKET, "Empty resource name from client %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         return;
     }
 
@@ -3136,7 +3261,7 @@ socket_command_ask_resource (socket_struct *ns,
     if (resource == NULL) {
         LOG(DEVEL, "Invalid resource '%s' from client %s",
             resource_name,
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         return;
     }
 

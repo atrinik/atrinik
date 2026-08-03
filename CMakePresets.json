@@ -8,6 +8,7 @@
             "binaryDir": "${sourceDir}/build/linux-debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true,
                 "PACKAGE_TYPE": "none"
             }
         },
@@ -18,12 +19,13 @@
             "binaryDir": "${sourceDir}/build/linux-release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true,
                 "PACKAGE_TYPE": "none"
             }
         },
         {
             "name": "windows-mxe-release",
-            "displayName": "Windows x86_64 Release (MXE)",
+            "displayName": "Windows x86_64 Client Release (MXE)",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/windows-mxe-release",
             "cacheVariables": {
@@ -34,6 +36,24 @@
                 "PACKAGE_TYPE": "zip",
                 "ATRINIK_WINDOWS_RUNTIME_DIR": "$env{MXE_RUNTIME_DIR}",
                 "ATRINIK_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt"
+            }
+        },
+        {
+            "name": "windows-mxe-server-release",
+            "displayName": "Windows x86_64 Server Release (MXE)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/windows-mxe-server-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "$env{MXE_TOOLCHAIN_FILE}",
+                "BUILD_CLIENT": false,
+                "BUILD_SERVER": true,
+                "PACKAGE_TYPE": "zip",
+                "ATRINIK_WINDOWS_RUNTIME_DIR": "$env{MXE_RUNTIME_DIR}",
+                "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR": "$env{ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR}",
+                "ATRINIK_WINDOWS_PYTHON_LIBRARY": "$env{ATRINIK_WINDOWS_PYTHON_LIBRARY}",
+                "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR": "$env{ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR}",
+                "ATRINIK_SERVER_PACKAGE_ROOT": "${sourceDir}/build/windows-mxe-server-release/package-root"
             }
         },
         {
@@ -61,6 +81,10 @@
         {
             "name": "windows-mxe-release",
             "configurePreset": "windows-mxe-release"
+        },
+        {
+            "name": "windows-mxe-server-release",
+            "configurePreset": "windows-mxe-server-release"
         }
     ]
 }

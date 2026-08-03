@@ -107,6 +107,8 @@ static char *crypto_cert = NULL;
 static char *crypto_cert_chain = NULL;
 /** Currently used certificate's public key in PEM format. */
 static char *crypto_cert_pubkey = NULL;
+/** Currently used certificate private key in PEM format. */
+static char *crypto_cert_key = NULL;
 /** Private key context for the certificate. */
 static EVP_PKEY_CTX *crypto_cert_ctx = NULL;
 /** Certificate store. */
@@ -371,6 +373,11 @@ clioptions_option_crypto_cert_key (const char *arg,
     BIO_free(bio);
     efree(cp);
 
+    if (crypto_cert_key != NULL) {
+        efree(crypto_cert_key);
+    }
+    crypto_cert_key = estrdup(arg);
+
     if (crypto_cert_ctx != NULL) {
         EVP_PKEY_CTX_free(crypto_cert_ctx);
     }
@@ -504,6 +511,11 @@ TOOLKIT_DEINIT_FUNC(socket_crypto)
     if (crypto_cert_pubkey != NULL) {
         efree(crypto_cert_pubkey);
         crypto_cert_pubkey = NULL;
+    }
+
+    if (crypto_cert_key != NULL) {
+        efree(crypto_cert_key);
+        crypto_cert_key = NULL;
     }
 
     if (crypto_cert_ctx != NULL) {
@@ -786,7 +798,7 @@ socket_crypto_verify_pubkey (socket_crypto_t *crypto,
         LOG(SYSTEM,
             "Certificate's public key doesn't match stored public "
             "key record: %s",
-            socket_get_str(crypto->sc));
+            socket_get_id(crypto->sc));
         EVP_PKEY_free(pubkey_cached);
         return false;
     }
@@ -1029,6 +1041,19 @@ socket_crypto_get_cert_pubkey (void)
 {
     TOOLKIT_PROTECT();
     return crypto_cert_pubkey;
+}
+
+/**
+ * Acquires the currently used certificate private key in PEM format.
+ *
+ * @return
+ * Certificate private key. Can be NULL.
+ */
+const char *
+socket_crypto_get_cert_key (void)
+{
+    TOOLKIT_PROTECT();
+    return crypto_cert_key;
 }
 
 /**
@@ -1420,7 +1445,7 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
     if (strcmp(host, cn) != 0) {
         LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
         LOG(SYSTEM, "Certificate CN (%s) doesn't match host (%s): %s",
-            cn, host, socket_get_str(crypto->sc));
+            cn, host, socket_get_id(crypto->sc));
         goto error;
     }
 
@@ -1439,7 +1464,7 @@ socket_crypto_load_cert (socket_crypto_t *crypto,
             LOG(SYSTEM,
                 "Certificate's public key doesn't match public "
                 "metaserver record: %s",
-                socket_get_str(crypto->sc));
+                socket_get_id(crypto->sc));
             goto error;
         }
     } else {
@@ -1808,7 +1833,7 @@ socket_crypto_create_key (socket_crypto_t *crypto, uint8_t *len)
     HARD_ASSERT(len != NULL);
     SOFT_ASSERT_RC(crypto->key == NULL, NULL,
                    "Crypto socket already has a key: %s",
-                   socket_get_str(crypto->sc));
+                   socket_get_id(crypto->sc));
 
     unsigned char buf[128];
     if (RAND_bytes(VS(buf)) != 1) {
@@ -1855,7 +1880,7 @@ socket_crypto_set_key (socket_crypto_t *crypto,
     HARD_ASSERT(crypto != NULL);
     SOFT_ASSERT_RC(crypto->key == NULL, false,
                    "Crypto socket already has a key: %s",
-                   socket_get_str(crypto->sc));
+                   socket_get_id(crypto->sc));
 
     crypto->key = emalloc(key_len);
     memcpy(crypto->key, key, key_len);
@@ -1912,7 +1937,7 @@ socket_crypto_get_iv (socket_crypto_t *crypto, uint8_t *len)
     HARD_ASSERT(len != NULL);
     SOFT_ASSERT_RC(crypto->key != NULL, NULL,
                    "Crypto socket doesn't have a key: %s",
-                   socket_get_str(crypto->sc));
+                   socket_get_id(crypto->sc));
 
     *len = sizeof(crypto->iv);
     return crypto->iv;
@@ -1939,7 +1964,7 @@ socket_crypto_set_iv (socket_crypto_t *crypto,
     HARD_ASSERT(iv != NULL);
     SOFT_ASSERT_RC(crypto->key != NULL, false,
                    "Crypto socket doesn't have a key: %s",
-                   socket_get_str(crypto->sc));
+                   socket_get_id(crypto->sc));
 
     if (sizeof(crypto->iv) != (size_t) iv_len) {
         LOG(ERROR, "Mismatched IV buffer sizes");
@@ -2093,10 +2118,10 @@ socket_crypto_derive (socket_crypto_t     *crypto,
     HARD_ASSERT(crypto != NULL);
     SOFT_ASSERT_RC(crypto->key != NULL, false,
                    "Crypto socket doesn't have an AES key: %s",
-                   socket_get_str(crypto->sc));
+                   socket_get_id(crypto->sc));
     SOFT_ASSERT_RC(crypto->privkey != NULL, false,
                    "Crypto socket doesn't have private key: %s",
-                   socket_get_str(crypto->sc));
+                   socket_get_id(crypto->sc));
 
     EC_KEY *ecprivkey = NULL;
     const EC_GROUP *ecgroup = NULL;
@@ -2316,7 +2341,7 @@ socket_crypto_encrypt (socket_t      *sc,
                              packet_orig->len) != 1) {
             LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
                 ERR_error_string(ERR_get_error(), NULL),
-                socket_get_str(crypto->sc));
+                socket_get_id(crypto->sc));
             goto error;
         }
 
@@ -2370,7 +2395,7 @@ socket_crypto_encrypt (socket_t      *sc,
             new_len != enc_len) {
             LOG(ERROR, "EVP_PKEY_encrypt() failed: %s, for %s",
                 ERR_error_string(ERR_get_error(), NULL),
-                socket_get_str(crypto->sc));
+                socket_get_id(crypto->sc));
             goto error;
         }
 
@@ -2553,7 +2578,7 @@ socket_crypto_decrypt (socket_t *sc,
     if (len < SHA256_DIGEST_LENGTH + 2) {
         LOG(ERROR,
             "Crypto packet length is too short, %" PRIu64 " bytes from %s",
-            (uint64_t) len, socket_get_str(sc));
+            (uint64_t) len, socket_get_id(sc));
         goto error;
     }
 
@@ -2561,7 +2586,7 @@ socket_crypto_decrypt (socket_t *sc,
     uint8_t type = packet_to_uint8(data, len, &pos);
     if (type == 0 || type >= CRYPTO_CMD_MAX) {
         LOG(ERROR, "Invalid crypto packet %" PRIu8 " from %s",
-            type, socket_get_str(sc));
+            type, socket_get_id(sc));
         goto error;
     }
 
@@ -2595,7 +2620,7 @@ socket_crypto_decrypt (socket_t *sc,
         if (!checksum_only) {
             LOG(ERROR, "Received checksum-only packet %" PRIu8 " that should "
                 "have been encrypted from %s",
-                data_type, socket_get_str(sc));
+                data_type, socket_get_id(sc));
             goto error;
         }
     }
@@ -2655,7 +2680,7 @@ socket_crypto_decrypt (socket_t *sc,
         LOG(SYSTEM, "It is highly probable someone is hijacking your "
                     "connection (MITM attack).");
         LOG(SYSTEM, "Packet of size %" PRIu64 " from %s",
-            (uint64_t) len, socket_get_str(sc));
+            (uint64_t) len, socket_get_id(sc));
 
         char digest_ascii[SHA256_DIGEST_LENGTH * 3 + 1];
         string_tohex(data + pos,
@@ -2681,7 +2706,7 @@ socket_crypto_decrypt (socket_t *sc,
     if (crypto->key == NULL && crypto_cert_ctx != NULL) {
         if (*len_out < 1) {
             LOG(PACKET, "Malformed packet detected: %s",
-                socket_get_str(sc));
+                socket_get_id(sc));
             goto error;
         }
 
@@ -2722,7 +2747,7 @@ socket_crypto_decrypt (socket_t *sc,
     pos = 0;
     if (*len_out < tag_len) {
         LOG(PACKET, "Malformed packet detected: %s",
-            socket_get_str(sc));
+            socket_get_id(sc));
         goto error;
     }
 

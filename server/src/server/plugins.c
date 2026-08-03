@@ -474,13 +474,24 @@ trigger_global_event (int event_type, void *parm1, void *parm2)
  * @param me
  * Another player object.
  */
-void trigger_unit_event(object *const activator, object *const me)
+int trigger_unit_event(object *const activator, object *const me)
 {
+    int failed = 0;
+
     for (atrinik_plugin *plugin = plugins_list; plugin != NULL;
             plugin = plugin->next) {
         LOG(INFO, "Running unit tests for plugin: %s", plugin->fullname);
-        (plugin->eventfunc)(0, PLUGIN_EVENT_UNIT, 0, activator, me);
+        int *result = (plugin->eventfunc)(0,
+                                          PLUGIN_EVENT_UNIT,
+                                          0,
+                                          activator,
+                                          me);
+        if (result != NULL && *result != 0) {
+            failed = 1;
+        }
     }
+
+    return failed;
 }
 
 /**

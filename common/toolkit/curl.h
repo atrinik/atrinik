@@ -112,6 +112,8 @@ curl_request_form_add(curl_request_t *request,
 void
 curl_request_set_path(curl_request_t *request, const char *path);
 void
+curl_request_set_max_body(curl_request_t *request, size_t maximum);
+void
 curl_request_set_cb(curl_request_t *request,
                     curl_request_cb cb,
                     void           *user_data);

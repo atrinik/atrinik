@@ -42,6 +42,7 @@
 #include <toolkit/socket_crypto.h>
 #include <toolkit/x11.h>
 #include <cmake.h>
+#include <openssl/crypto.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -248,14 +249,49 @@ static int game_status_chain(void)
                             ' ',
                             VS(port_crypto),
                             0);
-            int port_num = atoi(port);
-            int port_crypto_num = atoi(port_crypto);
-            metaserver_add(host,
-                           port_num != 0 ? port_num : 1728,
-                           port_crypto_num != 0 ? port_crypto_num : -1,
-                           host,
-                           "user server",
-                           "Server from command line --server option.");
+            char quic_fingerprint[65];
+            string_get_word(clioption_settings.servers[i],
+                            &pos,
+                            ' ',
+                            VS(quic_fingerprint),
+                            0);
+            uint64_t port_num = 0;
+            uint64_t port_crypto_num = 0;
+            if ((*port != '\0' &&
+                 !string_parse_uint64(port,
+                                      10,
+                                      0,
+                                      UINT16_MAX,
+                                      &port_num)) ||
+                    (*port_crypto != '\0' &&
+                     !string_parse_uint64(port_crypto,
+                                          10,
+                                          0,
+                                          UINT16_MAX,
+                                          &port_crypto_num))) {
+                LOG(ERROR,
+                    "Ignoring command-line server %s with an invalid port",
+                    host);
+                continue;
+            }
+            server_struct *server = metaserver_add(
+                host,
+                port_num != 0 ? (uint16_t) port_num : 1728,
+                port_crypto_num != 0 ? (int) port_crypto_num : -1,
+                host,
+                "user server",
+                "Server from command line --server option.");
+            if (string_is_hex_fixed(quic_fingerprint, 64, false)) {
+                string_tolower(quic_fingerprint);
+                server->quic_certificate_sha256 =
+                    estrdup(quic_fingerprint);
+                server->port_crypto = -1;
+                server->direct = true;
+            } else if (*quic_fingerprint != '\0') {
+                LOG(ERROR,
+                    "Ignoring invalid QUIC certificate fingerprint for %s",
+                    host);
+            }
         }
 
         metaserver_get_servers();
@@ -303,13 +339,16 @@ static int game_status_chain(void)
         if (!client_socket_open(&csocket,
                                 selected_server->hostname,
                                 port,
-                                secure)) {
+                                secure,
+                                selected_server->quic_certificate_sha256,
+                                connection_preference_get(selected_server))) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;
         }
 
-        if (!metaserver_cert_verify_host(selected_server,
+        if (!selected_server->direct &&
+            !metaserver_cert_verify_host(selected_server,
                                          socket_get_addr(csocket.sc))) {
             draw_info(COLOR_RED, "Failed to verify the IP address of the "
                                  "specified server - it is very likely the "
@@ -347,6 +386,23 @@ static int game_status_chain(void)
         packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
         packet_append_uint8(packet, CMD_SETUP_DATA_URL);
         packet_append_string_terminated(packet, "");
+        packet_append_uint8(packet, CMD_SETUP_JOIN_PASSWORD);
+        const char *join_password = selected_server->join_password != NULL
+            ? selected_server->join_password
+            : clioption_settings.join_password;
+        packet_append_string_terminated(
+            packet,
+            join_password != NULL &&
+            (socket_is_quic(csocket.sc) || socket_is_secure(csocket.sc))
+                ? join_password : "");
+        if (cpl.server_socket_version >= ASSET_TRANSPORT_SOCKET_VERSION) {
+            packet_append_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
+        }
+        if (socket_is_quic(csocket.sc)) {
+            packet_append_uint8(packet, CMD_SETUP_CONNECTION_MODE);
+            packet_append_uint8(packet,
+                                socket_connection_mode_get(csocket.sc));
+        }
         socket_send_packet(packet);
 
         cpl.state = ST_WAITSETUP;
@@ -452,6 +508,16 @@ void clioption_settings_deinit(void)
     if (clioption_settings.game_news_url) {
         efree(clioption_settings.game_news_url);
     }
+
+    if (clioption_settings.join_password != NULL) {
+        OPENSSL_cleanse(clioption_settings.join_password,
+                        strlen(clioption_settings.join_password));
+        efree(clioption_settings.join_password);
+    }
+
+    if (clioption_settings.stun_server != NULL) {
+        efree(clioption_settings.stun_server);
+    }
 }
 
 /**
@@ -460,7 +526,9 @@ void clioption_settings_deinit(void)
 static const char *const clioptions_option_server_desc =
 "Adds a server to the list of servers.\n\n"
 "Usage:\n"
-" --server=example.com";
+" --server=\"HOST [PORT [CRYPTO_PORT [QUIC_SHA256]]]\"\n\n"
+"For a pinned local QUIC server, use its UDP port, -1 for CRYPTO_PORT, and "
+"the 64-character certificate SHA-256 fingerprint.";
 /** @copydoc clioptions_handler_func */
 static bool
 clioptions_option_server (const char *arg,
@@ -527,6 +595,80 @@ clioptions_option_connect (const char *arg,
     }
 
     efree(cp);
+    return true;
+}
+
+/**
+ * Description of the --join_password command.
+ */
+static const char *const clioptions_option_join_password_desc =
+"Password used to join a private game server.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_join_password (const char *arg,
+                                 char      **errmsg)
+{
+    if (strlen(arg) >= MAX_BUF) {
+        *errmsg = estrdup("Join password is too long");
+        return false;
+    }
+
+    if (clioption_settings.join_password != NULL) {
+        OPENSSL_cleanse(clioption_settings.join_password,
+                        strlen(clioption_settings.join_password));
+        efree(clioption_settings.join_password);
+    }
+    clioption_settings.join_password = estrdup(arg);
+    return true;
+}
+
+static const char *const clioptions_option_join_password_file_desc =
+"Read the private server password from a file.";
+
+static bool
+clioptions_option_join_password_file (const char *arg,
+                                      char      **errmsg)
+{
+    char password[MAX_BUF];
+    bool permissive_mode;
+    path_secret_error_t error = path_read_secret(arg,
+                                                 VS(password),
+                                                 &permissive_mode);
+    if (error != PATH_SECRET_OK) {
+        string_fmt(*errmsg,
+                   "Cannot use join password file %s: %s",
+                   arg,
+                   path_secret_error_string(error));
+        return false;
+    }
+    if (permissive_mode) {
+        LOG(SYSTEM,
+            "Join password file %s is readable or writable by group/other; "
+            "use mode 0600",
+            arg);
+    }
+
+    bool ok = clioptions_option_join_password(password, errmsg);
+    OPENSSL_cleanse(password, sizeof(password));
+    return ok;
+}
+
+static const char *const clioptions_option_stun_server_desc =
+"Optional STUN endpoint used for direct rendezvous, or 'off'.";
+
+static bool
+clioptions_option_stun_server (const char *arg,
+                               char      **errmsg)
+{
+    if (strlen(arg) >= MAX_BUF) {
+        *errmsg = estrdup("STUN endpoint is too long");
+        return false;
+    }
+    if (clioption_settings.stun_server != NULL) {
+        efree(clioption_settings.stun_server);
+    }
+    clioption_settings.stun_server = strcmp(arg, "off") == 0
+        ? NULL : estrdup(arg);
     return true;
 }
 
@@ -645,19 +787,22 @@ int main(int argc, char *argv[])
 
     /* Store user agent for cURL, including if this is a GNU/Linux build of
      * the client or a Windows one. */
-    char user_agent[MAX_BUF];
 #if defined(WIN32)
-    snprintf(VS(user_agent), "Atrinik Client (Win32)/%s (%d)",
-             version, SOCKET_VERSION);
+    const char *platform = "Win32";
 #elif defined(__GNUC__)
-    snprintf(VS(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)",
-             version, SOCKET_VERSION);
+    const char *platform = "GNU/Linux";
 #else
-    snprintf(VS(user_agent), "Atrinik Client (Unknown)/%s (%d)",
-             version, SOCKET_VERSION);
+    const char *platform = "Unknown";
 #endif
-
+    StringBuffer *user_agent_builder = stringbuffer_new();
+    stringbuffer_append_printf(user_agent_builder,
+                               "Atrinik Client (%s)/%s (%d)",
+                               platform,
+                               version,
+                               SOCKET_VERSION);
+    char *user_agent = stringbuffer_finish(user_agent_builder);
     curl_set_user_agent(user_agent);
+    efree(user_agent);
 
     clioption_t *cli;
 
@@ -666,6 +811,11 @@ int main(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver, "Add a metaserver to the list");
     CLIOPTIONS_CREATE_ARGUMENT(cli, connect, "Connect to the specified server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, game_news_url, "Set game news URL");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               join_password_file,
+                               "Private server password file");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "Direct rendezvous STUN endpoint");
 
     /* Argument options*/
     CLIOPTIONS_CREATE(cli, nometa, "Disable querying the metaserver");
@@ -688,6 +838,7 @@ int main(int argc, char *argv[])
 
     upgrader_init();
     settings_init();
+    connection_preferences_init();
     init_game_data();
 
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0) {

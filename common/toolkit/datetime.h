@@ -58,4 +58,15 @@ datetime_getutc(void);
 extern time_t
 datetime_utctolocal(time_t t);
 
+/**
+ * Return a monotonic timestamp in milliseconds.
+ *
+ * The value has no wall-clock meaning and is intended exclusively for
+ * elapsed-time measurements, deadlines and rate windows.
+ */
+extern uint64_t
+datetime_monotonic_ms(void);
+extern uint64_t
+datetime_monotonic_us(void);
+
 #endif

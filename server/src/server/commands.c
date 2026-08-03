@@ -277,6 +277,10 @@ int commands_check_permission(player *pl, const char *command)
 
     TOOLKIT_PROTECT();
 
+    while (*command == '/') {
+        command++;
+    }
+
     if (*settings.default_permission_groups != '\0') {
         char *curr, *next;
 
@@ -294,8 +298,14 @@ int commands_check_permission(player *pl, const char *command)
 
         if (string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]") && commands_check_permission_group(pl->cmd_permissions[i], strlen(pl->cmd_permissions[i]), command)) {
             return 1;
-        } else if (strcmp(pl->cmd_permissions[i], command) == 0) {
-            return 1;
+        } else {
+            const char *permission = pl->cmd_permissions[i];
+            while (*permission == '/') {
+                permission++;
+            }
+            if (strcmp(permission, command) == 0) {
+                return 1;
+            }
         }
     }
 

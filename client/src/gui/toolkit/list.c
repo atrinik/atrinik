@@ -357,8 +357,10 @@ void list_show(list_struct *list, int x, int y)
         extra_width = 0;
 
         /* Center it? */
-        if (list->col_centered[col]) {
-            extra_width = list->col_widths[col] / 2 - text_get_width(list->font, list->col_names[col], 0) / 2;
+        if (list->col_centered[col] && list->col_names[col] != NULL &&
+            list->font != NULL) {
+            extra_width = list->col_widths[col] / 2 -
+                text_get_width(list->font, list->col_names[col], 0) / 2;
         }
 
         /* Actually draw the column name. */

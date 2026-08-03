@@ -1,2 +1,4 @@
 import tests
-tests.run()
+
+if not tests.run():
+    raise RuntimeError("Plugin unit tests failed")

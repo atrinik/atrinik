@@ -1,0 +1,117 @@
+================================================================================
+= ADS-8, rev: 1.3: Atrinik Direct Rendezvous Specification                     =
+================================================================================
+
+1. Scope
+========
+
+Atrinik direct mode carries gameplay and assets over QUIC without relaying game
+traffic through the metaserver. The metaserver WebSocket is signaling-only. It
+forwards bounded JSON candidate messages and cannot carry binary messages,
+arbitrary JSON, QUIC datagrams, assets, or game protocol packets.
+
+2. Candidate gathering
+======================
+
+The shared candidate-kind table defines these values, route modes, priorities,
+and handshake timeouts:
+
+  lan     A non-global, non-loopback interface IPv4 or IPv6 address.
+  ipv6    A global-unicast IPv6 address.
+  mapped  A router mapping created by PCP, NAT-PMP, or UPnP IGD.
+  srflx   A server-reflexive address discovered with STUN.
+  prflx   A peer-reflexive address learned from a punch reply.
+  directory  The host and port published by the server directory.
+
+The server gathers and publishes at most 12 lan, ipv6, mapped, and srflx UDP
+candidates. The client derives prflx and directory candidates locally; those
+kinds are not sent in server_candidate messages.
+
+PCP is attempted first and automatically negotiates down to NAT-PMP. UPnP IGD
+is the mapping fallback. Mappings are maintained by the game server and removed
+on orderly shutdown. A private mapped address is retained as an intermediate
+candidate but is never published as the public directory endpoint. STUN does
+not make an unreachable port reachable; it only discovers the address assigned
+by NAT. STUN is optional and has no implicit provider. Without it, the client
+signals the local address selected for the directory route so same-LAN and
+client-initiated punch/connectivity checks still proceed.
+
+3. Signaling messages
+=====================
+
+Every ticket is 64 lowercase hexadecimal characters. Hosts are normalized IP
+literals and ports are integers from 1 through 65535.
+
+Client to server:
+
+  {"type":"client_candidate","host":"198.51.100.8","port":49152,
+   "ticket":"..."}
+
+Server to client, repeated once per candidate:
+
+  {"type":"server_candidate","host":"203.0.113.4","port":1730,
+   "kind":"mapped","ticket":"..."}
+
+Server terminator:
+
+  {"type":"complete","ticket":"..."}
+
+The Worker permits client_candidate only from a client socket and permits
+server_candidate and complete only from the authenticated server socket. It
+normalizes IP literals and reconstructs messages before forwarding them.
+
+The short UDP probe payload is the ASCII string ATRINIK-PUNCH-1. Probes travel
+directly between the game endpoints and never through the Worker.
+
+4. Connectivity checks and failure
+===================================
+
+On receipt of a client candidate, the server returns its candidates before
+opening a bounded, approximately one-second UDP punch window from the QUIC
+listener. The client sends ten paced probes over approximately one second from
+its STUN/QUIC socket to each mapped and STUN server candidate. The server sends
+ten paced probes to the client candidate and sends complete only after its
+punch window and a short grace period.
+
+Before passing a readable listener datagram to OpenSSL, the server checks for
+the exact probe payload. It consumes a matching probe, records its actual
+source for diagnostics, and sends one probe back to that source. This
+one-for-one response lets the client learn a server endpoint associated with
+the client's actual NAT mapping without providing UDP amplification. All other
+datagrams remain queued for the QUIC listener.
+
+The client records the source endpoint of a valid punch as a local
+peer-reflexive (prflx) candidate. This can recover the server port actually
+allocated toward the client when it differs from the STUN observation. It
+starts all candidate handshakes concurrently, then selects the first successful
+route in deterministic preference order: LAN, global IPv6, peer-reflexive,
+mapped, STUN, then directory. An explicit per-server preference moves that kind
+to the front of its direct or NAT group without disabling the remaining
+fallbacks. The STUN/punch socket is assigned to the highest-priority NAT-derived
+candidate so its mapped source port is preserved; LAN and IPv6 checks use
+independent sockets. Connection delay is therefore bounded by the slowest
+candidate timeout rather than the sum of serial timeouts.
+
+A candidate, including a peer-reflexive one, is usable only when the QUIC
+handshake completes and the advertised SHA-256 certificate fingerprint
+matches. Punch payloads and source addresses are not authentication. An exact
+probe receives at most one equal-size response and never creates a connection.
+Signaling completion never claims that a network route works.
+
+If every candidate fails, the client reports that no confirmed direct route is
+available. It does not silently use a TURN relay, metaserver relay, or legacy
+TCP connection. Networks that block UDP or provide incompatible symmetric NAT
+therefore need direct IPv6, an automatic/manual router mapping, or an external
+VPN/overlay chosen by the operator.
+
+5. Diagnostics
+==============
+
+The client logs sent, attempted, and received probe counts, the complete
+candidate list, address-family changes, every handshake attempt and failure,
+and the selected route. The server logs each consumed probe at debug level and
+the result of each scheduled punch window. After connecting, the client reports
+the selected candidate kind through the game protocol SETUP connection mode
+option. This value is operator diagnostics, not trusted authorization or
+network-boundary evidence. The server exposes it only in privileged /who
+output.

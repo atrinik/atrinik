@@ -29,6 +29,7 @@
 
 #include "path.h"
 #include "string.h"
+#include <openssl/crypto.h>
 
 TOOLKIT_API(DEPENDS(logger), DEPENDS(string), DEPENDS(stringbuffer));
 
@@ -449,4 +450,224 @@ path_rename (const char *old, const char *new)
 #else
     return rename(old, new);
 #endif
+}
+
+bool
+path_write_atomic (const char   *path,
+                   const void   *data,
+                   size_t        size,
+                   unsigned int  mode)
+{
+    HARD_ASSERT(path != NULL);
+    HARD_ASSERT(data != NULL || size == 0);
+
+    path_ensure_directories(path);
+    char temporary[HUGE_BUF];
+    if (snprintf(VS(temporary), "%s.tmp.XXXXXX", path) >=
+        (int) sizeof(temporary)) {
+        return false;
+    }
+
+    int fd = mkstemp(temporary);
+    if (fd == -1) {
+        return false;
+    }
+#ifndef WIN32
+    if (fchmod(fd, (mode_t) mode) != 0) {
+        close(fd);
+        unlink(temporary);
+        return false;
+    }
+#else
+    (void) mode;
+#endif
+
+    FILE *fp = fdopen(fd, "wb");
+    if (fp == NULL) {
+        close(fd);
+        unlink(temporary);
+        return false;
+    }
+    bool ok = fwrite(data, 1, size, fp) == size && fflush(fp) == 0;
+#ifndef WIN32
+    if (ok && fsync(fd) != 0) {
+        ok = false;
+    }
+#endif
+    if (fclose(fp) != 0) {
+        ok = false;
+    }
+    if (!ok || path_rename(temporary, path) != 0) {
+        unlink(temporary);
+        return false;
+    }
+    return true;
+}
+
+path_secret_error_t
+path_read_secret (const char *path,
+                  char       *secret,
+                  size_t      secret_size,
+                  bool       *permissive_mode)
+{
+    HARD_ASSERT(path != NULL);
+    HARD_ASSERT(secret != NULL);
+    HARD_ASSERT(secret_size >= 2);
+
+    OPENSSL_cleanse(secret, secret_size);
+    if (permissive_mode != NULL) {
+        *permissive_mode = false;
+    }
+
+#ifdef WIN32
+    FILE *fp = fopen(path, "rb");
+#else
+    int flags = O_RDONLY;
+#ifdef O_CLOEXEC
+    flags |= O_CLOEXEC;
+#endif
+#ifdef O_NOFOLLOW
+    flags |= O_NOFOLLOW;
+#endif
+    int fd = open(path, flags);
+    FILE *fp = fd == -1 ? NULL : fdopen(fd, "rb");
+    if (fp == NULL && fd != -1) {
+        close(fd);
+    }
+#endif
+    if (fp == NULL) {
+        return PATH_SECRET_OPEN_ERROR;
+    }
+
+    path_secret_error_t result = PATH_SECRET_OK;
+    unsigned char trailing[256] = {0};
+    struct stat metadata;
+    if (fstat(fileno(fp), &metadata) != 0) {
+        result = PATH_SECRET_METADATA_ERROR;
+        goto out;
+    }
+    if (!S_ISREG(metadata.st_mode)) {
+        result = PATH_SECRET_NOT_REGULAR;
+        goto out;
+    }
+#ifndef WIN32
+    if (permissive_mode != NULL &&
+            (metadata.st_mode & (S_IRWXG | S_IRWXO)) != 0) {
+        *permissive_mode = true;
+    }
+#endif
+
+    size_t length = fread(secret, 1, secret_size, fp);
+    if (ferror(fp)) {
+        result = PATH_SECRET_READ_ERROR;
+        goto out;
+    }
+
+    char *newline = memchr(secret, '\n', length);
+    if (newline != NULL) {
+        for (char *cp = newline + 1; cp < secret + length; cp++) {
+            if (*cp != '\r' && *cp != '\n') {
+                result = PATH_SECRET_TRAILING_DATA;
+                goto out;
+            }
+        }
+
+        size_t trailing_length;
+        while ((trailing_length = fread(trailing,
+                                        1,
+                                        sizeof(trailing),
+                                        fp)) > 0) {
+            for (size_t i = 0; i < trailing_length; i++) {
+                if (trailing[i] != '\r' && trailing[i] != '\n') {
+                    result = PATH_SECRET_TRAILING_DATA;
+                    goto out;
+                }
+            }
+            OPENSSL_cleanse(trailing, sizeof(trailing));
+        }
+        if (ferror(fp)) {
+            result = PATH_SECRET_READ_ERROR;
+            goto out;
+        }
+
+        size_t used = (size_t) (newline - secret);
+        if (used > 0 && secret[used - 1] == '\r') {
+            used--;
+        }
+        secret[used] = '\0';
+    } else {
+        if (!feof(fp) || length == secret_size) {
+            result = PATH_SECRET_TOO_LONG;
+            goto out;
+        }
+        secret[length] = '\0';
+    }
+
+    if (*secret == '\0') {
+        result = PATH_SECRET_EMPTY;
+    }
+
+out:
+    OPENSSL_cleanse(trailing, sizeof(trailing));
+    if (fclose(fp) != 0 && result == PATH_SECRET_OK) {
+        result = PATH_SECRET_READ_ERROR;
+    }
+    if (result != PATH_SECRET_OK) {
+        OPENSSL_cleanse(secret, secret_size);
+    }
+    return result;
+}
+
+const char *
+path_secret_error_string (path_secret_error_t error)
+{
+    switch (error) {
+    case PATH_SECRET_OK:
+        return "success";
+    case PATH_SECRET_OPEN_ERROR:
+        return "cannot open the file";
+    case PATH_SECRET_METADATA_ERROR:
+        return "cannot inspect the file";
+    case PATH_SECRET_NOT_REGULAR:
+        return "the path is not a regular file";
+    case PATH_SECRET_EMPTY:
+        return "the file is empty";
+    case PATH_SECRET_TOO_LONG:
+        return "the first line is too long";
+    case PATH_SECRET_TRAILING_DATA:
+        return "the file contains data after the first line";
+    case PATH_SECRET_READ_ERROR:
+        return "cannot read the file";
+    }
+
+    return "unknown error";
+}
+
+bool
+path_is_safe_relative (const char *path)
+{
+    if (path == NULL || *path == '\0' || *path == '/' || *path == '\\') {
+        return false;
+    }
+
+    const char *component = path;
+    for (const char *cp = path; ; cp++) {
+        if (*cp == '\\' || *cp == ':') {
+            return false;
+        }
+        if (*cp != '/' && *cp != '\0') {
+            continue;
+        }
+
+        size_t length = (size_t) (cp - component);
+        if (length == 0 || (length == 1 && component[0] == '.') ||
+                (length == 2 && component[0] == '.' &&
+                 component[1] == '.')) {
+            return false;
+        }
+        if (*cp == '\0') {
+            return true;
+        }
+        component = cp + 1;
+    }
 }

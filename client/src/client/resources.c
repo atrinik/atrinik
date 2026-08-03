@@ -56,9 +56,7 @@ resources_free (void)
     HASH_ITER(hh, resources, resource, tmp) {
         HASH_DEL(resources, resource);
 
-        if (resource->request != NULL) {
-            curl_request_free(resource->request);
-        }
+        asset_source_free(resource->source);
 
         efree(resource->name);
         efree(resource);
@@ -143,10 +141,9 @@ socket_command_resource (uint8_t *data, size_t len, size_t pos)
         return;
     }
 
-    char url[HUGE_BUF];
-    snprintf(VS(url), "%s/resources/%s", cpl.http_url, resource_name);
-    resource->request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-    curl_request_start_get(resource->request);
+    char asset[HUGE_BUF];
+    snprintf(VS(asset), "resources/%s", resource_name);
+    resource->source = asset_source_start(asset, NULL);
 }
 
 /**
@@ -164,26 +161,23 @@ resources_is_ready (resource_t *resource)
         return true;
     }
 
-    if (curl_request_get_state(resource->request) == CURL_STATE_INPROGRESS) {
+    const uint8_t *body = NULL;
+    size_t body_size = 0;
+    asset_source_state_t state = asset_source_get_state(resource->source);
+    if (state == ASSET_SOURCE_PENDING) {
         return false;
     }
-
-    if (curl_request_get_http_code(resource->request) != 200) {
-        LOG(ERROR, "Failed to download painting %s",
-            curl_request_get_url(resource->request));
-        goto error;
+    if (state == ASSET_SOURCE_COMPLETE) {
+        body = asset_source_get_data(resource->source, &body_size);
     }
 
-    size_t body_size;
-    char *body = curl_request_get_body(resource->request, &body_size);
     if (body == NULL) {
-        LOG(ERROR, "Failed to download painting %s",
-            curl_request_get_url(resource->request));
+        LOG(ERROR, "Failed to download resource %s", resource->name);
         goto error;
     }
 
     unsigned char md[SHA512_DIGEST_LENGTH];
-    if (SHA512((unsigned char *) body, body_size, md) == NULL) {
+    if (SHA512(body, body_size, md) == NULL) {
         LOG(ERROR, "SHA512() failed");
         goto error;
     }
@@ -196,25 +190,13 @@ resources_is_ready (resource_t *resource)
 
     char path[HUGE_BUF];
     snprintf(VS(path), "resources/%s", resource->digest);
-    FILE *fp = path_fopen(path, "wb");
-    if (fp == NULL) {
-        LOG(ERROR, "Failed to open %s: %s (%d)",
-            path,
-            strerror(errno),
-            errno);
+    char *resolved = file_path(path, "wb");
+    bool saved = path_write_atomic(resolved, body, body_size, 0600);
+    efree(resolved);
+    if (!saved) {
+        LOG(ERROR, "Failed to atomically write %s", path);
         goto error;
     }
-
-    if (fwrite(body, 1, body_size, fp) != body_size) {
-        LOG(ERROR, "Failed to write enough bytes to %s: %s (%d)",
-            path,
-            strerror(errno),
-            errno);
-        fclose(fp);
-        goto error;
-    }
-
-    fclose(fp);
     resource->loaded = true;
 
     bool ret = true;
@@ -222,9 +204,9 @@ resources_is_ready (resource_t *resource)
 
 error:
     ret = false;
-    curl_request_free(resource->request);
-    resource->request = NULL;
 
 out:
+    asset_source_free(resource->source);
+    resource->source = NULL;
     return ret;
 }

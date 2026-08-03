@@ -49,7 +49,7 @@ typedef struct account_struct {
 
     char *password_old;
 
-    char *last_host;
+    char *last_connection_id;
 
     time_t last_time;
 
@@ -78,8 +78,8 @@ static void account_free(account_struct *account)
 {
     size_t i;
 
-    if (account->last_host) {
-        efree(account->last_host);
+    if (account->last_connection_id) {
+        efree(account->last_connection_id);
     }
 
     if (account->password_old) {
@@ -158,7 +158,7 @@ static int account_save(account_struct *account, const char *path)
         fprintf(fp, "salt %s\n", hex);
     }
 
-    fprintf(fp, "host %s\n", account->last_host);
+    fprintf(fp, "connection %s\n", account->last_connection_id);
     fprintf(fp, "time %"PRIu64 "\n", (uint64_t) account->last_time);
 
     for (i = 0; i < account->characters_num; i++) {
@@ -183,6 +183,7 @@ static int account_load(account_struct *account, const char *path)
     }
 
     memset(account, 0, sizeof(*account));
+    account->last_connection_id = estrdup("");
 
     while (fgets(buf, sizeof(buf), fp)) {
         end = strchr(buf, '\n');
@@ -207,8 +208,9 @@ static int account_load(account_struct *account, const char *path)
                 LOG(BUG, "Invalid salt entry in file: %s", path);
                 memset(account->salt, 0, sizeof(account->salt));
             }
-        } else if (strncmp(buf, "host ", 5) == 0) {
-            account->last_host = estrdup(buf + 5);
+        } else if (strncmp(buf, "connection ", 11) == 0) {
+            efree(account->last_connection_id);
+            account->last_connection_id = estrdup(buf + 11);
         } else if (strncmp(buf, "time ", 5) == 0) {
             account->last_time = atoll(buf + 5);
         } else if (strncmp(buf, "char ", 5) == 0) {
@@ -244,10 +246,11 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
 
         packet_debug_data(packet, 0, "Account name");
         packet_append_string_terminated(packet, ns->account);
-        packet_debug_data(packet, 0, "Hostname");
-        packet_append_string_terminated(packet, socket_get_addr(ns->sc));
-        packet_debug_data(packet, 0, "Last hostname");
-        packet_append_string_terminated(packet, account->last_host);
+        packet_debug_data(packet, 0, "Connection ID");
+        packet_append_string_terminated(packet, socket_get_id(ns->sc));
+        packet_debug_data(packet, 0, "Previous connection ID");
+        packet_append_string_terminated(packet,
+                                        account->last_connection_id);
         packet_debug_data(packet, 0, "Last time");
         packet_append_uint64(packet, account->last_time);
 
@@ -333,10 +336,10 @@ void account_login(socket_struct *ns, char *name, char *password)
         efree(path);
 
         ns->password_fails++;
-        LOG(SYSTEM, "%s: Failed to provide correct password for account %s.", socket_get_str(ns->sc), name);
+        LOG(SYSTEM, "%s: Failed to provide correct password for account %s.", socket_get_id(ns->sc), name);
 
         if (ns->password_fails >= MAX_PASSWORD_FAILURES) {
-            LOG(SYSTEM, "%s: Failed to provide a correct password for account %s too many times!", socket_get_str(ns->sc), name);
+            LOG(SYSTEM, "%s: Failed to provide a correct password for account %s too many times!", socket_get_id(ns->sc), name);
             draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "You have failed to provide a correct password too many times.");
             ns->state = ST_ZOMBIE;
         }
@@ -351,8 +354,8 @@ void account_login(socket_struct *ns, char *name, char *password)
     ns->account = estrdup(name);
     account_send_characters(ns, &account);
 
-    efree(account.last_host);
-    account.last_host = estrdup(socket_get_addr(ns->sc));
+    efree(account.last_connection_id);
+    account.last_connection_id = estrdup(socket_get_id(ns->sc));
     account.last_time = datetime_getutc();
     account_save(&account, path);
     account_free(&account);
@@ -364,6 +367,8 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
     size_t name_len, password_len;
     char *path;
     account_struct account;
+
+    memset(&account, 0, sizeof(account));
 
     if (ns->account) {
         ns->state = ST_DEAD;
@@ -409,19 +414,21 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
     path_ensure_directories(path);
 
     account_set_password(&account, password);
-    account.last_host = socket_get_addr(ns->sc);
+    account.last_connection_id = estrdup(socket_get_id(ns->sc));
     account.last_time = datetime_getutc();
     account.characters = NULL;
     account.characters_num = 0;
 
     if (!account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
+        account_free(&account);
         efree(path);
         return;
     }
 
     ns->account = estrdup(name);
     account_send_characters(ns, &account);
+    account_free(&account);
     efree(path);
 }
 

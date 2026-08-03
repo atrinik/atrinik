@@ -34,6 +34,8 @@
 
 #include <openssl/sha.h>
 #include <toolkit/curl.h>
+#include <asset.h>
+#include <asset_source.h>
 
 typedef struct resource {
     UT_hash_handle hh;
@@ -44,7 +46,7 @@ typedef struct resource {
 
     unsigned char digest[SHA512_DIGEST_LENGTH * 2 + 1];
 
-    curl_request_t *request;
+    asset_source_t *source;
 
     bool loaded:1;
 } resource_t;

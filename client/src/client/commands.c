@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <openssl/crypto.h>
 #include <region_map.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
@@ -64,6 +65,30 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
         } else if (type == CMD_SETUP_DATA_URL) {
             packet_to_string(data, len, &pos, cpl.http_url,
                     sizeof(cpl.http_url));
+        } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
+            cpl.asset_transport = packet_to_uint8(data, len, &pos) != 0;
+        } else if (type == CMD_SETUP_CONNECTION_MODE) {
+            packet_to_uint8(data, len, &pos);
+        } else if (type == CMD_SETUP_JOIN_PASSWORD) {
+            if (packet_to_uint8(data, len, &pos) == 0) {
+                if (selected_server != NULL &&
+                    selected_server->join_password != NULL) {
+                    OPENSSL_cleanse(selected_server->join_password,
+                                    strlen(selected_server->join_password));
+                    efree(selected_server->join_password);
+                    selected_server->join_password = NULL;
+                }
+                if (clioption_settings.join_password != NULL) {
+                    OPENSSL_cleanse(clioption_settings.join_password,
+                                    strlen(clioption_settings.join_password));
+                    efree(clioption_settings.join_password);
+                    clioption_settings.join_password = NULL;
+                }
+                draw_info(COLOR_RED,
+                          "The server rejected the join password.");
+                cpl.state = ST_START;
+                return;
+            }
         }
     }
 
@@ -1344,7 +1369,7 @@ socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
 
     if (len == pos) {
         LOG(PACKET, "Server sent malformed crypto key command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1363,7 +1388,7 @@ socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
 
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto key command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1407,7 +1432,7 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
             const unsigned char *iv = socket_crypto_gen_iv(crypto, &iv_size);
             if (iv == NULL) {
                 LOG(SYSTEM, "Failed to generate IV buffer: %s",
-                    socket_get_str(csocket.sc));
+                    socket_get_id(csocket.sc));
                 socket_command_crypto_abort();
                 return;
             }
@@ -1417,14 +1442,14 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
                                                              &pubkey_len);
             if (pubkey == NULL) {
                 LOG(SYSTEM, "Failed to generate a public key: %s",
-                    socket_get_str(csocket.sc));
+                    socket_get_id(csocket.sc));
                 socket_command_crypto_abort();
                 return;
             }
 
             if (pubkey_len > INT16_MAX) {
                 LOG(SYSTEM, "Public key too long: %s",
-                    socket_get_str(csocket.sc));
+                    socket_get_id(csocket.sc));
                 socket_command_crypto_abort();
                 efree(pubkey);
                 return;
@@ -1445,7 +1470,7 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
     LOG(SYSTEM,
         "Server requested crypto but failed to provide a compatible "
         "crypto elliptic curve: %s",
-        socket_get_str(csocket.sc));
+        socket_get_id(csocket.sc));
     socket_command_crypto_abort();
 }
 
@@ -1462,7 +1487,7 @@ socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
 
     if (len == pos) {
         LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1478,14 +1503,14 @@ socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
 
     if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
         LOG(SYSTEM, "Couldn't derive shared secret key: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
 
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1519,7 +1544,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
 
     if (len == pos) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1529,7 +1554,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
 
     if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1538,7 +1563,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
 
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1561,7 +1586,7 @@ socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
 
     if (len != pos) {
         LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_str(csocket.sc));
+            socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1575,7 +1600,7 @@ socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
     /* Begin game data communications */
     cpl.state = ST_START_DATA;
     LOG(SYSTEM, "Connection: established a secure channel with %s",
-        socket_get_str(csocket.sc));
+        socket_get_id(csocket.sc));
 }
 
 /**

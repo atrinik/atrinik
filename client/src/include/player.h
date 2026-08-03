@@ -231,15 +231,11 @@ typedef struct Player_Struct {
      */
     char password[MAX_BUF];
 
-    /**
-     * Current IP.
-     */
-    char host[MAX_BUF];
+    /** Current connection diagnostic ID. */
+    char connection_id[SOCKET_CONNECTION_ID_SIZE];
 
-    /**
-     * Last IP that the account was used from.
-     */
-    char last_host[MAX_BUF];
+    /** Previous connection diagnostic ID used by the account. */
+    char last_connection_id[SOCKET_CONNECTION_ID_SIZE];
 
     /**
      * Last time the account was used.
@@ -250,6 +246,11 @@ typedef struct Player_Struct {
      * HTTP data URL.
      */
     char http_url[MAX_BUF];
+
+    /**
+     * Whether this connection can transfer cached assets in-band over QUIC.
+     */
+    bool asset_transport;
 
     /**
      * If 1, the player is ready to engage in combat and will swing their

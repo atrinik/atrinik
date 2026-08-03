@@ -1,0 +1,23 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e56bff1..8615af1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -30 +30,3 @@
+-if (NOT WIN32)
++if (MINGW)
++	set (HAVE_GETTIMEOFDAY TRUE)
++elseif (NOT WIN32)
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index b66edb4..558701d 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -56 +56 @@
+-    target_link_libraries (pcpnatpmp PUBLIC ws2_32.lib Iphlpapi.lib)
++    target_link_libraries (pcpnatpmp PUBLIC ws2_32 iphlpapi)
+diff --git a/lib/src/net/gateway.c b/lib/src/net/gateway.c
+index b7858df..caeb2bd 100644
+--- a/lib/src/net/gateway.c
++++ b/lib/src/net/gateway.c
+@@ -61 +61 @@
+-#include <Iphlpapi.h>
++#include <iphlpapi.h>

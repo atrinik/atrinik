@@ -771,23 +771,26 @@ help ban
 autocomplete_wiz 1
 title Ban Command
 msg
-The ban command can be used to ban player and/or IP address from the game. Note that IP addresses cannot contain ':' characters, so IPv4 addresses only.
+The ban command can be used to ban a character name, an account name, or a specific character/account combination. Network addresses and connection IDs cannot be banned.
 
 [title]Examples:[/title]
 List all current bans:
 /ban list
 
-Ban Noob with IP address 127.0.0.1:
-/ban add Noob:127.0.0.1
+Ban the character Noob on any account:
+/ban add Noob
 
-Ban Noob with any IP:
-/ban add Noob:*
+Ban every character on the account troublemaker:
+/ban add * troublemaker
 
-Ban anyone with IP address 127.0.0.1:
-/ban add *:127.0.0.1
+Ban Noob only when used by the account troublemaker:
+/ban add Noob troublemaker
 
-Remove Noob's ban (same syntax as above applies):
-/ban remove Noob:*
+Remove Noob's ban (the same syntax as above applies):
+/ban remove Noob
+
+Disconnect online players who match the current ban list:
+/ban kick
 
 [p]
 [title]See Also:[/title]

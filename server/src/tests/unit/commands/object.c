@@ -76,6 +76,19 @@ START_TEST(test_put_object_in_sack)
 
 END_TEST
 
+START_TEST(test_stats_without_parameters)
+{
+    mapstruct *map;
+    object *pl;
+
+    check_setup_env_pl(&map, &pl);
+    command_stats(pl, "stats", NULL);
+
+    char params[] = "mempool";
+    command_stats(pl, "stats", params);
+}
+END_TEST
+
 static Suite *suite(void)
 {
     Suite *s = suite_create("object");
@@ -86,6 +99,7 @@ static Suite *suite(void)
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_put_object_in_sack);
+    tcase_add_test(tc_core, test_stats_without_parameters);
 
     return s;
 }

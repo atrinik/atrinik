@@ -37,8 +37,8 @@
 /** The server files. */
 static server_files_struct *server_files;
 
-/** Listing file request. */
-static curl_request_t *listing_request = NULL;
+/** HTTP-first listing request with in-band QUIC fallback. */
+static asset_source_t *listing_source;
 
 /**
  * Initialize the server files API.
@@ -80,9 +80,13 @@ server_files_init (void)
 void
 server_files_deinit (void)
 {
+    asset_source_free(listing_source);
+    listing_source = NULL;
+
     server_files_struct *curr, *tmp;
     HASH_ITER(hh, server_files, curr, tmp) {
         HASH_DEL(server_files, curr);
+        asset_source_free(curr->source);
         efree(curr->name);
         efree(curr);
     }
@@ -206,17 +210,12 @@ server_files_load (int post_load)
 void
 server_files_listing_retrieve (void)
 {
-    if (listing_request != NULL) {
-        curl_request_free(listing_request);
+    asset_source_free(listing_source);
+    listing_source = asset_source_start("data/listing.txt", NULL);
+    if (asset_source_get_state(listing_source) == ASSET_SOURCE_ERROR) {
+        LOG(ERROR, "No CDN URL or QUIC asset transport is available");
+        cpl.state = ST_INIT;
     }
-
-    char url[HUGE_BUF];
-    snprintf(VS(url), "%s/%s/%s",
-             cpl.http_url,
-             SERVER_FILES_HTTP_DIR,
-             SERVER_FILES_HTTP_LISTING);
-    listing_request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-    curl_request_start_get(listing_request);
 }
 
 /**
@@ -227,29 +226,30 @@ server_files_listing_retrieve (void)
 int
 server_files_listing_processed (void)
 {
-    if (listing_request == NULL) {
+    const uint8_t *body = NULL;
+    size_t body_size = 0;
+
+    if (listing_source == NULL) {
         return 0;
     }
-
-    curl_state_t state = curl_request_get_state(listing_request);
-    if (state == CURL_STATE_ERROR) {
-        cpl.state = ST_INIT;
+    asset_source_state_t state = asset_source_get_state(listing_source);
+    if (state == ASSET_SOURCE_PENDING) {
         return 0;
     }
-
-    if (state == CURL_STATE_INPROGRESS) {
-        return 0;
+    if (state == ASSET_SOURCE_COMPLETE) {
+        body = asset_source_get_data(listing_source, &body_size);
     }
 
-    char *body = curl_request_get_body(listing_request, NULL);
     if (body == NULL) {
+        LOG(ERROR, "Could not retrieve the server asset manifest");
         cpl.state = ST_INIT;
         return 0;
     }
 
+    char *manifest = estrndup((const char *) body, body_size);
     char word[HUGE_BUF];
     size_t pos = 0;
-    while (string_get_word(body, &pos, '\n', VS(word), 0)) {
+    while (string_get_word(manifest, &pos, '\n', VS(word), 0)) {
         char *cps[3];
         if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps)) {
             continue;
@@ -260,8 +260,15 @@ server_files_listing_processed (void)
             continue;
         }
 
-        unsigned long crc = strtoul(cps[1], NULL, 16);
-        size_t fsize = strtoul(cps[2], NULL, 16);
+        uint64_t crc_value;
+        uint64_t size_value;
+        if (!string_parse_uint64(cps[1], 16, 0, UINT32_MAX, &crc_value) ||
+                !string_parse_uint64(cps[2], 16, 0, SIZE_MAX, &size_value)) {
+            LOG(ERROR, "Invalid asset manifest entry for %s", cps[0]);
+            continue;
+        }
+        unsigned long crc = (unsigned long) crc_value;
+        size_t fsize = (size_t) size_value;
 
         if (tmp->crc32 != crc || tmp->size != fsize) {
             tmp->update = 1;
@@ -280,9 +287,10 @@ server_files_listing_processed (void)
         tmp->crc32 = crc;
         tmp->size = fsize;
     }
+    efree(manifest);
 
-    curl_request_free(listing_request);
-    listing_request = NULL;
+    asset_source_free(listing_source);
+    listing_source = NULL;
 
     return 1;
 }
@@ -303,66 +311,45 @@ server_file_process (server_files_struct *tmp)
     }
 
     if (tmp->update == 1) {
-        char url[MAX_BUF];
-        snprintf(VS(url), "%s/%s/%s.zz",
-                 cpl.http_url,
-                 SERVER_FILES_HTTP_DIR,
-                 tmp->name);
-
-        if (tmp->request != NULL) {
-            curl_request_free(tmp->request);
-        }
-
-        LOG(DEVEL, "Beginning download: %s, URL: %s", tmp->name, url);
-
-        tmp->request = curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-        curl_request_start_get(tmp->request);
+        char asset[MAX_BUF];
+        snprintf(VS(asset), "data/%s.zz", tmp->name);
+        tmp->source = asset_source_start(asset, NULL);
         tmp->update = -1;
         return 1;
     }
 
-    curl_state_t state = curl_request_get_state(tmp->request);
-    if (state == CURL_STATE_INPROGRESS) {
+    const uint8_t *body = NULL;
+    size_t body_size = 0;
+    asset_source_state_t source_state = asset_source_get_state(tmp->source);
+    if (source_state == ASSET_SOURCE_PENDING) {
         return 1;
     }
+    if (source_state == ASSET_SOURCE_COMPLETE) {
+        body = asset_source_get_data(tmp->source, &body_size);
+    }
 
-    size_t body_size;
-    char *body = curl_request_get_body(tmp->request, &body_size);
-
-    int http_code = curl_request_get_http_code(tmp->request);
-    LOG(DEVEL,
-        "Download finished: %s, state: %d, http_code: %d, size: %" PRIu64,
-        tmp->name,
-        state,
-        http_code,
-        (uint64_t) body_size);
-
-    /* Done. */
-    if (state == CURL_STATE_OK) {
-        if (body != NULL) {
-            unsigned long len_ucomp = tmp->size;
-            unsigned char *dest = emalloc(len_ucomp);
-            uncompress((Bytef *) dest,
-                       (uLongf *) &len_ucomp,
-                       (const Bytef *) body,
-                       (uLong) body_size);
-
-            LOG(DEVEL, "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
-
-            if (server_file_save(tmp, dest, len_ucomp)) {
-                tmp->loaded = 0;
-            }
-
-            efree(dest);
+    if (body == NULL) {
+        LOG(ERROR, "Could not download required server file %s", tmp->name);
+        cpl.state = ST_INIT;
+    } else {
+        unsigned long len_ucomp = tmp->size;
+        unsigned char *dest = emalloc(len_ucomp);
+        int result = uncompress((Bytef *) dest,
+                                (uLongf *) &len_ucomp,
+                                (const Bytef *) body,
+                                (uLong) body_size);
+        if (result != Z_OK || len_ucomp != tmp->size) {
+            LOG(ERROR, "Invalid compressed server file %s", tmp->name);
+            cpl.state = ST_INIT;
+        } else if (server_file_save(tmp, dest, len_ucomp)) {
+            tmp->loaded = 0;
         }
-    } else if (state == CURL_STATE_ERROR) {
-        /* Error occurred. */
-        LOG(ERROR, "Could not download %s: %d", tmp->name, http_code);
+        efree(dest);
     }
 
     tmp->update = 0;
-    curl_request_free(tmp->request);
-    tmp->request = NULL;
+    asset_source_free(tmp->source);
+    tmp->source = NULL;
 
     return 0;
 }
@@ -380,6 +367,9 @@ server_files_processed (void)
     /* Check all files. */
     HASH_ITER(hh, server_files, curr, tmp) {
         if (server_file_process(curr)) {
+            return 0;
+        }
+        if (cpl.state == ST_INIT) {
             return 0;
         }
     }
@@ -456,24 +446,11 @@ server_file_save (server_files_struct *tmp, unsigned char *data, size_t len)
 {
     char path[MAX_BUF];
     server_file_path(tmp, VS(path));
-
-    FILE *fp = path_fopen(path, "wb");
-    if (fp == NULL) {
-        LOG(ERROR, "Could not open %s for writing.", path);
-        return false;
+    char *resolved = file_path(path, "wb");
+    bool ok = path_write_atomic(resolved, data, len, 0600);
+    efree(resolved);
+    if (!ok) {
+        LOG(ERROR, "Could not atomically write %s.", path);
     }
-
-    bool ret = true;
-
-    if (fwrite(data, 1, len, fp) != len) {
-        LOG(ERROR, "Failed to write to %s.", path);
-        ret = false;
-    }
-
-    if (fclose(fp) != 0) {
-        LOG(ERROR, "Could not close %s.", path);
-        ret = false;
-    }
-
-    return ret;
+    return ok;
 }

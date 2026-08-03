@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit/string.h>
 #include <player.h>
 #include <object.h>
 
@@ -39,6 +40,7 @@ void command_who(object *op, const char *command, char *params)
     player *pl;
     int ip = 0;
     char buf[MAX_BUF];
+    bool show_connection = commands_check_permission(CONTR(op), "stats");
 
     draw_info(COLOR_WHITE, op, " ");
 
@@ -53,6 +55,15 @@ void command_who(object *op, const char *command, char *params)
 
         if (pl->cs->is_bot) {
             strncat(buf, " [BOT]", sizeof(buf) - strlen(buf) - 1);
+        }
+
+        if (show_connection) {
+            snprintfcat(buf,
+                        sizeof(buf),
+                        " (route: %s; connection: %s)",
+                        socket_connection_mode_name(
+                            pl->cs->connection_mode),
+                        socket_get_id(pl->cs->sc));
         }
 
         draw_info(COLOR_WHITE, op, buf);

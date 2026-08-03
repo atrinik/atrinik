@@ -211,6 +211,9 @@ set(TOOLKIT_SOURCES
     shstr.c
     signals.c
     socket.c
+    socket_asset.c
+    socket_direct.c
+    socket_quic.c
     socket_crypto.c
     stringbuffer.c
     string.c
@@ -229,7 +232,7 @@ target_link_libraries(${ATRINIK_TOOLKIT} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MINGW)
     target_link_libraries(${ATRINIK_TOOLKIT} wsock32 wldap32 winmm ws2_32
-            imagehlp)
+            imagehlp iphlpapi)
 endif ()
 
 if (TARGET ZLIB::ZLIB)

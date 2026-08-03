@@ -59,6 +59,7 @@ bool init_connection(socket_struct *ns)
     }
 
     ns->login_count = 0;
+    ns->accepted_at = time(NULL);
     ns->keepalive = 0;
     ns->addme = 0;
     ns->faceset = 0;
@@ -71,6 +72,7 @@ bool init_connection(socket_struct *ns)
     ns->mapy_2 = 8;
     ns->password_fails = 0;
     ns->is_bot = 0;
+    ns->connection_mode = socket_connection_mode_get(ns->sc);
     ns->account = NULL;
     ns->socket_version = 0;
 

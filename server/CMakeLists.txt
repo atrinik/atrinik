@@ -48,10 +48,14 @@ endforeach (name)
 include(src/cmake.txt)
 
 # Check is used for unit tests, but is optional.
-find_package(PkgConfig QUIET)
-if (PKG_CONFIG_FOUND)
-    pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
+
+if (NOT MINGW)
+    pkg_check_modules(MINIUPNPC REQUIRED IMPORTED_TARGET miniupnpc)
 endif ()
+
+find_package(pcpnatpmp 1.0 REQUIRED CONFIG)
 
 find_library(CHECK_LIBRARY check)
 
@@ -90,6 +94,7 @@ if (CHECK_LIBRARY)
         src/tests/unit/toolkit/packet.c
         src/tests/unit/toolkit/pbkdf2.c
         src/tests/unit/toolkit/shstr.c
+        src/tests/unit/toolkit/socket_asset.c
         src/tests/unit/toolkit/string.c
         src/tests/unit/toolkit/stringbuffer.c
         src/tests/unit/types/light_apply.c
@@ -105,6 +110,23 @@ endif ()
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
 target_link_libraries(${EXECUTABLE} atrinik-toolkit)
+target_link_libraries(${EXECUTABLE}
+    pcpnatpmp::pcpnatpmp)
+
+if (MINGW)
+    find_library(ATRINIK_MINIUPNPC_STATIC_LIBRARY miniupnpc)
+    if (NOT ATRINIK_MINIUPNPC_STATIC_LIBRARY)
+        message(FATAL_ERROR "Could not find the static MiniUPnPc library.")
+    endif ()
+
+    target_compile_definitions(${EXECUTABLE} PRIVATE MINIUPNP_STATICLIB)
+    target_link_libraries(${EXECUTABLE}
+        ${ATRINIK_MINIUPNPC_STATIC_LIBRARY}
+        ws2_32
+        iphlpapi)
+else ()
+    target_link_libraries(${EXECUTABLE} PkgConfig::MINIUPNPC)
+endif ()
 
 # Link libraries.
 if (DL_LIBRARY)
@@ -149,8 +171,10 @@ foreach (var ${SOURCES} ${LEXERS_OUT})
 endforeach (var)
 
 add_custom_target(check
-    COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel || exit 5
-    COMMAND ${EXECUTABLE} --plugin_unit || exit 5
+    COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel
+        --port_mapping=off
+    COMMAND ${EXECUTABLE} --plugin_unit --port_mapping=off
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Executing unit tests..."
     VERBATIM
 )
@@ -182,15 +206,27 @@ add_library(plugin_arena MODULE ${SOURCES_PLUGIN_ARENA})
 
 # Create the Python plugin, if requested and Python was found.
 if (ENABLE_PYTHON_PLUGIN)
-    find_package(Python QUIET COMPONENTS Development)
+    set(ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR "" CACHE PATH
+        "Target Python headers for a MinGW server build")
+    set(ATRINIK_WINDOWS_PYTHON_LIBRARY "" CACHE FILEPATH
+        "Target Python import library for a MinGW server build")
 
-    if (Python_Development_FOUND)
+    if (MINGW AND ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR AND
+            ATRINIK_WINDOWS_PYTHON_LIBRARY)
         set(PYTHONLIBS_FOUND true)
-        set(PYTHON_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
-        set(PYTHON_LIBRARIES Python::Python)
+        set(PYTHON_INCLUDE_DIRS ${ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR})
+        set(PYTHON_LIBRARIES ${ATRINIK_WINDOWS_PYTHON_LIBRARY})
     else ()
-        # Older CMake versions do not provide FindPython.
-        find_package(PythonLibs)
+        find_package(Python QUIET COMPONENTS Development)
+
+        if (Python_Development_FOUND)
+            set(PYTHONLIBS_FOUND true)
+            set(PYTHON_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
+            set(PYTHON_LIBRARIES Python::Python)
+        else ()
+            # Older CMake versions do not provide FindPython.
+            find_package(PythonLibs)
+        endif ()
     endif ()
 
     if (PYTHONLIBS_FOUND)
@@ -215,6 +251,95 @@ if (ENABLE_PYTHON_PLUGIN)
     endif ()
 else ()
     message(STATUS "Python plugin disabled by ENABLE_PYTHON_PLUGIN=false.")
+endif ()
+
+add_dependencies(check ${EXECUTABLE} plugin_arena)
+if (TARGET plugin_python)
+    add_dependencies(check plugin_python)
+endif ()
+
+if (MINGW AND ${PACKAGE_TYPE} STREQUAL "zip")
+    if (NOT TARGET plugin_python)
+        message(FATAL_ERROR
+            "The portable Windows server package requires the Python plugin.")
+    endif ()
+
+    set(ATRINIK_WINDOWS_RUNTIME_DIR "" CACHE PATH
+        "Directory containing MinGW runtime DLLs")
+    set(ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR "" CACHE PATH
+        "Directory containing the embedded Windows Python runtime")
+    set(ATRINIK_SERVER_PACKAGE_ROOT "" CACHE PATH
+        "Prepared maps and collected resources for the server package")
+
+    foreach (required_dir
+            ATRINIK_WINDOWS_RUNTIME_DIR
+            ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR
+            ATRINIK_SERVER_PACKAGE_ROOT)
+        if (NOT IS_DIRECTORY "${${required_dir}}")
+            message(FATAL_ERROR
+                "${required_dir} is not a directory: ${${required_dir}}")
+        endif ()
+    endforeach ()
+
+    if (NOT IS_DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/maps" OR
+            NOT IS_DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/lib" OR
+            NOT IS_DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/client-maps")
+        message(FATAL_ERROR
+            "ATRINIK_SERVER_PACKAGE_ROOT must contain maps/, lib/, and "
+            "client-maps/.")
+    endif ()
+
+    install(TARGETS ${EXECUTABLE} plugin_arena plugin_python
+        RUNTIME DESTINATION server
+        LIBRARY DESTINATION server)
+
+    file(GLOB ATRINIK_WINDOWS_RUNTIME_DLLS
+        "${ATRINIK_WINDOWS_RUNTIME_DIR}/*.dll")
+    list(FILTER ATRINIK_WINDOWS_RUNTIME_DLLS EXCLUDE REGEX
+        "/libffi-8\\.dll$")
+    if (NOT ATRINIK_WINDOWS_RUNTIME_DLLS)
+        message(FATAL_ERROR
+            "No DLLs found in ATRINIK_WINDOWS_RUNTIME_DIR: ${ATRINIK_WINDOWS_RUNTIME_DIR}")
+    endif ()
+    install(FILES ${ATRINIK_WINDOWS_RUNTIME_DLLS} DESTINATION server)
+
+    install(DIRECTORY "${ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR}/"
+        DESTINATION server)
+    install(DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/maps"
+        DESTINATION .
+        PATTERN ".git" EXCLUDE)
+    install(DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/lib/"
+        DESTINATION server/lib)
+    install(DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/client-maps"
+        DESTINATION server/install_data/http)
+    install(DIRECTORY install_data resources tools
+        DESTINATION server
+        PATTERN ".git" EXCLUDE)
+    install(FILES
+        README
+        COPYING
+        ca-bundle.crt
+        permissions.cfg
+        server.bat
+        server.cfg
+        ${CMAKE_SOURCE_DIR}/server-custom.cfg.example
+        DESTINATION server)
+
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+        "Atrinik multiplayer online role-playing game server")
+    set(CPACK_PACKAGE_VENDOR "Atrinik Development Team")
+    set(CPACK_PACKAGE_CONTACT
+        "Atrinik Development Team <admin@atrinik.org>")
+    set(CPACK_PACKAGE_VERSION_MAJOR "${PACKAGE_VERSION_MAJOR}")
+    set(CPACK_PACKAGE_VERSION_MINOR "${PACKAGE_VERSION_MINOR}")
+    set(CPACK_PACKAGE_VERSION_PATCH "${PACKAGE_VERSION_PATCH}")
+    set(CPACK_PACKAGE_FILE_NAME
+        "atrinik-server-${PACKAGE_VERSION}-windows-x86_64")
+    set(CPACK_BINARY_ZIP ON)
+    set(CPACK_BINARY_STGZ OFF)
+    set(CPACK_BINARY_TGZ OFF)
+    set(CPACK_BINARY_TZ OFF)
+    include(CPack)
 endif ()
 
 # Configure the .h file with the configuration options (size of long,

@@ -379,7 +379,7 @@ extern void map_event_obj_init(object *ob);
 extern void map_event_free(map_event *tmp);
 extern int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm);
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
-extern void trigger_unit_event(object *const activator, object *const me);
+extern int trigger_unit_event(object *const activator, object *const me);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 /* src/server/quest.c */
 extern void quest_handle(object *op, object *quest);
@@ -567,12 +567,25 @@ extern void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 /* src/socket/lowlevel.c */
 extern void socket_buffer_clear(socket_struct *ns);
 extern void socket_buffer_write(socket_struct *ns);
+extern bool socket_buffer_can_enqueue(const socket_struct *ns,
+        size_t bytes, bool bulk);
 extern void socket_send_packet(socket_struct *ns, struct packet_struct *packet);
 /* src/socket/metaserver.c */
 extern void metaserver_info_update(void);
 extern void metaserver_init(void);
 extern void metaserver_deinit(void);
 extern void metaserver_stats(char *buf, size_t size);
+extern bool metaserver_rendezvous_token_parse(const char *body,
+        size_t body_size, char token[65]);
+/* src/socket/assets.c */
+extern void socket_assets_init(void);
+extern void socket_assets_deinit(void);
+void
+socket_command_asset(socket_struct *ns,
+                     player        *pl,
+                     uint8_t       *data,
+                     size_t         len,
+                     size_t         pos);
 /* src/socket/request.c */
 extern void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);

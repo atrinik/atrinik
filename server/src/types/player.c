@@ -2575,7 +2575,7 @@ player_create (player *pl, archetype_t *at, const char *name)
  * @param name
  * Name of the player to create.
  * @param host
- * IP address of the player.
+ * Host used to create the dummy socket.
  * @return
  * Created player object, never NULL. Will abort() in case of failure.
  */
@@ -2752,9 +2752,12 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
         player_logout(pl);
     }
 
-    if (ban_check(ns, name)) {
-        LOG(SYSTEM, "Ban: Banned player tried to login. [%s, %s]",
-            name, socket_get_addr(ns->sc));
+    if (ban_check(name, ns->account)) {
+        LOG(SYSTEM,
+            "Connection %s: banned player %s on account %s tried to login",
+            socket_get_id(ns->sc),
+            name,
+            ns->account);
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns,
                        "Connection refused due to a ban.");
         ns->state = ST_ZOMBIE;
@@ -2790,11 +2793,12 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
 
     if (!socket_server_remove(ns)) {
         LOG(ERROR, "Failed to remove socket from managed list: %s",
-            socket_get_str(ns->sc));
+            socket_get_id(ns->sc));
         goto out;
     }
 
-    LOG(INFO, "Login %s from IP %s", name, socket_get_str(ns->sc));
+    LOG(INFO, "Connection %s: player %s logged in",
+        socket_get_id(ns->sc), name);
 
     pl = get_player(NULL);
     pl->cs = ns;
@@ -2828,7 +2832,7 @@ player_login (socket_struct *ns, const char *name, struct archetype *at)
 
     display_motd(pl->ob);
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
-    trigger_global_event(GEVENT_LOGIN, pl, socket_get_addr(pl->cs->sc));
+    trigger_global_event(GEVENT_LOGIN, pl, socket_get_id(pl->cs->sc));
 
     mapstruct *m = ready_map_name(pl->maplevel, NULL, 0);
 
@@ -2904,7 +2908,7 @@ player_logout (player *pl)
     }
 
     /* Trigger the global LOGOUT event */
-    trigger_global_event(GEVENT_LOGOUT, pl->ob, socket_get_addr(pl->cs->sc));
+    trigger_global_event(GEVENT_LOGOUT, pl->ob, socket_get_id(pl->cs->sc));
     statistics_player_logout(pl);
 
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s left the game.", pl->ob->name);
@@ -2920,7 +2924,7 @@ player_logout (player *pl)
     leave_map(pl->ob);
 
     LOG(SYSTEM, "Connection: dropping connection: %s (%s)",
-        socket_get_str(pl->cs->sc),
+        socket_get_id(pl->cs->sc),
         pl->ob->name);
 
     /* To avoid problems with inventory window */

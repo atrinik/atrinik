@@ -1,0 +1,76 @@
+name: Auto Tag
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    name: Tag merge commit
+    runs-on: ubuntu-26.04
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Check out source and tags
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Create merge tag
+        id: tag
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          parent_count=$(git rev-list --parents -n 1 "${COMMIT_SHA}" | awk '{print NF - 1}')
+          if [[ "${parent_count}" -lt 2 ]]; then
+            echo "${COMMIT_SHA} is not a merge commit; no tag will be created."
+            exit 0
+          fi
+
+          base_version=$(sed -n \
+            's/^set(PACKAGE_VERSION "\([0-9][0-9]*\.[0-9][0-9]*\)".*$/\1/p' \
+            build.config)
+          if [[ -z "${base_version}" ]]; then
+            echo "Could not read a MAJOR.MINOR release line from build.config." >&2
+            exit 1
+          fi
+
+          base_tag="v${base_version}"
+          patch=-1
+          while IFS= read -r existing_tag; do
+            existing_patch=${existing_tag#"${base_tag}."}
+            if [[ ! "${existing_patch}" =~ ^[0-9]+$ ]]; then
+              continue
+            fi
+
+            existing_patch=$((10#${existing_patch}))
+            if [[ "${existing_patch}" -gt "${patch}" ]]; then
+              patch=${existing_patch}
+            fi
+          done < <(git tag --list "${base_tag}.*")
+          patch=$((patch + 1))
+          tag="${base_tag}.${patch}"
+          if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
+            echo "Tag ${tag} already exists." >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${tag}" "${COMMIT_SHA}" -m "Atrinik ${tag}"
+          git push origin "refs/tags/${tag}"
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+
+  release:
+    name: Build and publish release
+    needs: tag
+    if: needs.tag.outputs.tag != ''
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.tag.outputs.tag }}

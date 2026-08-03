@@ -33,6 +33,8 @@
 #define REGION_MAP_H
 
 #include <toolkit/curl.h>
+#include <asset.h>
+#include <asset_source.h>
 
 /** Default zoom level. */
 #define RM_ZOOM_DEFAULT 100
@@ -223,15 +225,17 @@ typedef struct region_map {
      */
     SDL_Rect pos;
 
-    /**
-     * cURL request for downloading the region map image.
-     */
-    curl_request_t *request_png;
+    /** HTTP-first image download with in-band QUIC fallback. */
+    asset_source_t *source_png;
 
-    /**
-     * cURL request for downloading the region definitions.
-     */
-    curl_request_t *request_def;
+    /** HTTP-first definition download with in-band QUIC fallback. */
+    asset_source_t *source_def;
+
+    /** Name used to retry a failed CDN request over QUIC. */
+    char download_name[MAX_BUF];
+
+    /** Human-readable terminal download/decoding error, or an empty string. */
+    char error[HUGE_BUF];
 } region_map_t;
 
 #define RM_MAP_FOW_BITMAP_SIZE(region_map) \
@@ -245,6 +249,7 @@ region_map_def_map_t *region_map_find_map(region_map_t *region_map,
         const char *map_path);
 void region_map_resize(region_map_t *region_map, int adjust);
 bool region_map_ready(region_map_t *region_map);
+const char *region_map_error(const region_map_t *region_map);
 void region_map_pan(region_map_t *region_map);
 void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
         int x, int y);

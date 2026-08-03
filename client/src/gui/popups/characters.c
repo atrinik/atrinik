@@ -230,7 +230,19 @@ static int popup_draw(popup_struct *popup)
     box.w = 220;
     box.h = 80;
     strftime(timebuf, sizeof(timebuf), "%a %b %d %H:%M:%S %Y", localtime(&cpl.last_time));
-    text_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: [b]%s[/b]\nYou last logged in from [b]%s[/b] at %s.", cpl.host, cpl.last_host, timebuf);
+    text_show_shadow_format(
+        popup->surface,
+        FONT_ARIAL11,
+        265,
+        190,
+        COLOR_WHITE,
+        COLOR_BLACK,
+        TEXT_MARKUP | TEXT_WORD_WRAP,
+        &box,
+        "Connection: [b]%s[/b]\nPrevious connection: [b]%s[/b] at %s.",
+        cpl.connection_id,
+        cpl.last_connection_id,
+        timebuf);
 
     button_set_parent(&button_tab_characters, popup->x, popup->y);
     button_set_parent(&button_tab_new, popup->x, popup->y);
@@ -584,6 +596,110 @@ static int archname_to_character(const char *archname, size_t *race, size_t *gen
     return 0;
 }
 
+/** Validate and skip a terminated string without modifying client state. */
+static bool
+characters_packet_skip_string (const uint8_t *data,
+                               size_t         len,
+                               size_t        *pos,
+                               size_t         capacity,
+                               const uint8_t **value,
+                               size_t        *value_len)
+{
+    if (*pos >= len) {
+        return false;
+    }
+
+    const uint8_t *start = data + *pos;
+    const uint8_t *end = memchr(start, '\0', len - *pos);
+    if (end == NULL || (size_t) (end - start) >= capacity) {
+        return false;
+    }
+
+    if (value != NULL) {
+        *value = start;
+    }
+    if (value_len != NULL) {
+        *value_len = (size_t) (end - start);
+    }
+    *pos += (size_t) (end - start) + 1;
+    return true;
+}
+
+/** Check the complete CHARACTERS payload before parsing any of its fields. */
+static bool
+characters_packet_valid (const uint8_t *data, size_t len, size_t pos)
+{
+    const uint8_t *connection_id, *previous_connection_id;
+    size_t connection_id_len, previous_connection_id_len;
+    if (!characters_packet_skip_string(data,
+                                       len,
+                                       &pos,
+                                       sizeof(cpl.account),
+                                       NULL,
+                                       NULL) ||
+        !characters_packet_skip_string(data,
+                                       len,
+                                       &pos,
+                                       sizeof(cpl.connection_id),
+                                       &connection_id,
+                                       &connection_id_len) ||
+        !characters_packet_skip_string(data,
+                                       len,
+                                       &pos,
+                                       sizeof(cpl.last_connection_id),
+                                       &previous_connection_id,
+                                       &previous_connection_id_len) ||
+        connection_id_len != SOCKET_CONNECTION_ID_SIZE - 1 ||
+        (previous_connection_id_len != 0 &&
+         previous_connection_id_len != SOCKET_CONNECTION_ID_SIZE - 1) ||
+        len - pos < sizeof(uint64_t)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < connection_id_len; i++) {
+        if (!((connection_id[i] >= '0' && connection_id[i] <= '9') ||
+              (connection_id[i] >= 'a' && connection_id[i] <= 'f'))) {
+            return false;
+        }
+    }
+    for (size_t i = 0; i < previous_connection_id_len; i++) {
+        if (!((previous_connection_id[i] >= '0' &&
+               previous_connection_id[i] <= '9') ||
+              (previous_connection_id[i] >= 'a' &&
+               previous_connection_id[i] <= 'f'))) {
+            return false;
+        }
+    }
+    pos += sizeof(uint64_t);
+
+    while (pos < len) {
+        if (!characters_packet_skip_string(data,
+                                           len,
+                                           &pos,
+                                           MAX_BUF,
+                                           NULL,
+                                           NULL) ||
+            !characters_packet_skip_string(data,
+                                           len,
+                                           &pos,
+                                           MAX_BUF,
+                                           NULL,
+                                           NULL) ||
+            !characters_packet_skip_string(data,
+                                           len,
+                                           &pos,
+                                           MAX_BUF,
+                                           NULL,
+                                           NULL) ||
+            len - pos < sizeof(uint16_t) + sizeof(uint8_t)) {
+            return false;
+        }
+        pos += sizeof(uint16_t) + sizeof(uint8_t);
+    }
+
+    return true;
+}
+
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_characters(uint8_t *data, size_t len, size_t pos)
 {
@@ -598,6 +714,14 @@ void socket_command_characters(uint8_t *data, size_t len, size_t pos)
         return;
     }
 
+    if (!characters_packet_valid(data, len, pos)) {
+        LOG(ERROR,
+            "Connection %s sent a malformed CHARACTERS packet",
+            socket_get_id(csocket.sc));
+        cpl.state = ST_START;
+        return;
+    }
+
     if (cpl.state != ST_CHARACTERS) {
         characters_open();
         cpl.state = ST_CHARACTERS;
@@ -606,8 +730,16 @@ void socket_command_characters(uint8_t *data, size_t len, size_t pos)
     list_clear(list_characters);
 
     packet_to_string(data, len, &pos, cpl.account, sizeof(cpl.account));
-    packet_to_string(data, len, &pos, cpl.host, sizeof(cpl.host));
-    packet_to_string(data, len, &pos, cpl.last_host, sizeof(cpl.last_host));
+    packet_to_string(data,
+                     len,
+                     &pos,
+                     cpl.connection_id,
+                     sizeof(cpl.connection_id));
+    packet_to_string(data,
+                     len,
+                     &pos,
+                     cpl.last_connection_id,
+                     sizeof(cpl.last_connection_id));
     cpl.last_time = datetime_utctolocal(packet_to_uint64(data, len, &pos));
 
     while (pos < len) {
