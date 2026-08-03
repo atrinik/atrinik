@@ -45,12 +45,12 @@ typedef union list_settings_graphic_union {
     struct {
         /**
          * Text input buffer.
-     */
+         */
         text_input_struct text_input;
 
         /**
          * Button buffer.
-     */
+         */
         button_struct button;
     } text;
 } list_settings_graphic_union;
@@ -85,8 +85,7 @@ static text_input_struct *text_input_selected;
  * @param val
  * Modifier.
  */
-static void setting_change_value(int cat, int set, int64_t val)
-{
+static void setting_change_value(int cat, int set, int64_t val) {
     setting_struct *setting = setting_categories[cat]->settings[set];
 
     if (setting->type == OPT_TYPE_BOOL) {
@@ -110,7 +109,7 @@ static void setting_change_value(int cat, int set, int64_t val)
         if (setting->type == OPT_TYPE_SELECT) {
             setting_select *s_select = SETTING_SELECT(setting);
 
-            if (new_val >= (int64_t) s_select->options_len) {
+            if (new_val >= (int64_t)s_select->options_len) {
                 new_val = 0;
             } else if (new_val < 0) {
                 new_val = s_select->options_len - 1;
@@ -132,8 +131,7 @@ static void setting_change_value(int cat, int set, int64_t val)
  * @return
  * The setting ID if found, -1 otherwise.
  */
-static int setting_find_by_text_input(text_input_struct *text_input)
-{
+static int setting_find_by_text_input(text_input_struct *text_input) {
     uint32_t row;
     setting_struct *setting;
 
@@ -141,7 +139,8 @@ static int setting_find_by_text_input(text_input_struct *text_input)
         setting = setting_categories[setting_category_selected]->settings[row];
 
         if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
-            if (&((list_settings_graphic_union *) list_settings->data)[row].text.text_input == text_input) {
+            if (&((list_settings_graphic_union *)list_settings->data)[row].text.text_input ==
+                text_input) {
                 return row;
             }
         }
@@ -151,8 +150,7 @@ static int setting_find_by_text_input(text_input_struct *text_input)
 }
 
 /** @copydoc button_struct::repeat_func */
-static void settings_list_button_repeat(button_struct *button)
-{
+static void settings_list_button_repeat(button_struct *button) {
     uint32_t row;
     setting_struct *setting;
 
@@ -166,7 +164,7 @@ static void settings_list_button_repeat(button_struct *button)
         if (setting->type == OPT_TYPE_BOOL) {
             button_struct *button_checkbox;
 
-            button_checkbox = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
+            button_checkbox = &((list_settings_graphic_union *)list_settings->data)[row].button[0];
 
             if (button == button_checkbox) {
                 setting_change_value(setting_category_selected, row, 0);
@@ -175,8 +173,8 @@ static void settings_list_button_repeat(button_struct *button)
         } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
             button_struct *button_left, *button_right;
 
-            button_left = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
-            button_right = &((list_settings_graphic_union *) list_settings->data)[row].button[1];
+            button_left = &((list_settings_graphic_union *)list_settings->data)[row].button[0];
+            button_right = &((list_settings_graphic_union *)list_settings->data)[row].button[1];
 
             if (button == button_left) {
                 setting_change_value(setting_category_selected, row, -1);
@@ -190,33 +188,26 @@ static void settings_list_button_repeat(button_struct *button)
 /**
  * Clear the settings list data.
  */
-static void settings_list_clear(void)
-{
+static void settings_list_clear(void) {
     for (uint32_t row = 0; row < list_settings->rows; row++) {
-        setting_struct *setting =
-                setting_categories[setting_category_selected]->settings[row];
+        setting_struct *setting = setting_categories[setting_category_selected]->settings[row];
 
         if (setting->internal) {
             break;
         }
 
         if (setting->type == OPT_TYPE_BOOL) {
-            button_destroy(&((list_settings_graphic_union *)
-                    list_settings->data)[row].button[0]);
-        } else if (setting->type == OPT_TYPE_SELECT ||
-                setting->type == OPT_TYPE_RANGE) {
-            button_destroy(&((list_settings_graphic_union *)
-                    list_settings->data)[row].button[0]);
-            button_destroy(&((list_settings_graphic_union *)
-                    list_settings->data)[row].button[1]);
-        } else if (setting->type == OPT_TYPE_INPUT_TEXT ||
-                setting->type == OPT_TYPE_COLOR) {
-            text_input_destroy(&((list_settings_graphic_union *)
-                    list_settings->data)[row].text.text_input);
+            button_destroy(&((list_settings_graphic_union *)list_settings->data)[row].button[0]);
+        } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
+            button_destroy(&((list_settings_graphic_union *)list_settings->data)[row].button[0]);
+            button_destroy(&((list_settings_graphic_union *)list_settings->data)[row].button[1]);
+        } else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
+            text_input_destroy(
+                &((list_settings_graphic_union *)list_settings->data)[row].text.text_input);
 
             if (setting->type == OPT_TYPE_COLOR) {
-                button_destroy(&((list_settings_graphic_union *)
-                        list_settings->data)[row].text.button);
+                button_destroy(
+                    &((list_settings_graphic_union *)list_settings->data)[row].text.button);
             }
         }
     }
@@ -225,13 +216,16 @@ static void settings_list_clear(void)
 /**
  * Reload the client settings list.
  */
-static void settings_list_reload(void)
-{
+static void settings_list_reload(void) {
     size_t i;
     setting_struct *setting;
 
     text_input_focused = text_input_selected = NULL;
-    list_settings->data = ereallocz(list_settings->data, sizeof(list_settings_graphic_union) * list_settings->rows, sizeof(list_settings_graphic_union) * setting_categories[setting_category_selected]->settings_num);
+    list_settings->data =
+        ereallocz(list_settings->data,
+                  sizeof(list_settings_graphic_union) * list_settings->rows,
+                  sizeof(list_settings_graphic_union) *
+                      setting_categories[setting_category_selected]->settings_num);
 
     /* Clear all the rows. */
     list_clear_rows(list_settings);
@@ -249,7 +243,7 @@ static void settings_list_reload(void)
         if (setting->type == OPT_TYPE_BOOL) {
             button_struct *button_checkbox;
 
-            button_checkbox = &((list_settings_graphic_union *) list_settings->data)[i].button[0];
+            button_checkbox = &((list_settings_graphic_union *)list_settings->data)[i].button[0];
             button_create(button_checkbox);
             button_checkbox->texture = texture_get(TEXTURE_TYPE_SOFTWARE, "rectangle:15,15");
             button_checkbox->texture_over = button_checkbox->texture_pressed = NULL;
@@ -259,19 +253,22 @@ static void settings_list_reload(void)
         } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
             button_struct *button_left, *button_right;
 
-            button_left = &((list_settings_graphic_union *) list_settings->data)[i].button[0];
-            button_right = &((list_settings_graphic_union *) list_settings->data)[i].button[1];
+            button_left = &((list_settings_graphic_union *)list_settings->data)[i].button[0];
+            button_right = &((list_settings_graphic_union *)list_settings->data)[i].button[1];
 
             button_create(button_left);
             button_create(button_right);
-            button_left->texture = button_right->texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-            button_left->texture_over = button_right->texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-            button_left->texture_pressed = button_right->texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+            button_left->texture = button_right->texture =
+                texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+            button_left->texture_over = button_right->texture_over =
+                texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+            button_left->texture_pressed = button_right->texture_pressed =
+                texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
             button_left->repeat_func = button_right->repeat_func = settings_list_button_repeat;
         } else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
             text_input_struct *text_input;
 
-            text_input = &((list_settings_graphic_union *) list_settings->data)[i].text.text_input;
+            text_input = &((list_settings_graphic_union *)list_settings->data)[i].text.text_input;
             text_input_create(text_input);
             text_input_set(text_input, setting_get_str(setting_category_selected, i));
             text_input_set_font(text_input, FONT_ARIAL10);
@@ -281,7 +278,7 @@ static void settings_list_reload(void)
             if (setting->type == OPT_TYPE_COLOR) {
                 button_struct *button;
 
-                button = &((list_settings_graphic_union *) list_settings->data)[i].text.button;
+                button = &((list_settings_graphic_union *)list_settings->data)[i].text.button;
                 button_create(button);
                 button->color_shadow = button->color_over_shadow = NULL;
                 button->texture = texture_get(TEXTURE_TYPE_SOFTWARE, "rectangle:40,14");
@@ -294,8 +291,7 @@ static void settings_list_reload(void)
 }
 
 /** @copydoc list_struct::post_column_func */
-static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
-{
+static void list_post_column(list_struct *list, uint32_t row, uint32_t col) {
     setting_struct *setting;
     int x, y, mx, my;
 
@@ -309,7 +305,16 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
     y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
 
     /* Show the actual setting name. */
-    text_show_shadow_format(list->surface, FONT_ARIAL11, x + 4, y + 3, list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE, COLOR_BLACK, 0, NULL, "%s:", setting->name);
+    text_show_shadow_format(list->surface,
+                            FONT_ARIAL11,
+                            x + 4,
+                            y + 3,
+                            list->row_selected == row + 1 ? COLOR_HGOLD : COLOR_WHITE,
+                            COLOR_BLACK,
+                            0,
+                            NULL,
+                            "%s:",
+                            setting->name);
 
     SDL_GetMouseState(&mx, &my);
 
@@ -317,7 +322,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
         button_struct *button_checkbox;
         SDL_Rect box;
 
-        button_checkbox = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
+        button_checkbox = &((list_settings_graphic_union *)list_settings->data)[row].button[0];
 
         button_checkbox->surface = list->surface;
         button_checkbox->x = x + list->width - texture_surface(button_checkbox->texture)->w - 2;
@@ -325,7 +330,10 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
         button_checkbox->color = "8c7a7a";
         button_checkbox->color_over = "b09a9a";
         button_set_parent(button_checkbox, list->px, list->py);
-        button_show(button_checkbox, setting_get_int(setting_category_selected, row) ? "[x=1][y=1][c=#"COLOR_HGOLD "][line=0,0,12,12][line=12,0,0,12][/c]" : NULL);
+        button_show(button_checkbox,
+                    setting_get_int(setting_category_selected, row)
+                        ? "[x=1][y=1][c=#" COLOR_HGOLD "][line=0,0,12,12][line=12,0,0,12][/c]"
+                        : NULL);
 
         box.x = button_checkbox->x;
         box.y = button_checkbox->y;
@@ -342,8 +350,8 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
         int64_t val;
         SDL_Rect dst;
 
-        button_left = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
-        button_right = &((list_settings_graphic_union *) list_settings->data)[row].button[1];
+        button_left = &((list_settings_graphic_union *)list_settings->data)[row].button[0];
+        button_right = &((list_settings_graphic_union *)list_settings->data)[row].button[1];
         val = setting_get_int(setting_category_selected, row);
 
         dst.x = x + list->width - 1 - 150 - texture_surface(button_left->texture)->w;
@@ -354,9 +362,24 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
         SDL_FillRect(list->surface, &dst, SDL_MapRGB(list->surface->format, 0, 0, 0));
 
         if (setting->type == OPT_TYPE_SELECT) {
-            text_show(list->surface, FONT_ARIAL10, SETTING_SELECT(setting)->options[val], dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst);
+            text_show(list->surface,
+                      FONT_ARIAL10,
+                      SETTING_SELECT(setting)->options[val],
+                      dst.x,
+                      dst.y,
+                      COLOR_WHITE,
+                      TEXT_ALIGN_CENTER,
+                      &dst);
         } else if (setting->type == OPT_TYPE_RANGE) {
-            text_show_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"PRId64, val);
+            text_show_format(list->surface,
+                             FONT_ARIAL10,
+                             dst.x,
+                             dst.y,
+                             COLOR_WHITE,
+                             TEXT_ALIGN_CENTER,
+                             &dst,
+                             "%" PRId64,
+                             val);
         }
 
         button_left->surface = list->surface;
@@ -383,7 +406,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
             SDL_Rect box;
             char color_notation[COLOR_BUF];
 
-            button = &((list_settings_graphic_union *) list_settings->data)[row].text.button;
+            button = &((list_settings_graphic_union *)list_settings->data)[row].text.button;
             dst.x -= texture_surface(button->texture)->w;
             button_set_parent(button, list->px, list->py);
             button->surface = list->surface;
@@ -392,7 +415,12 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
             button_show(button, NULL);
 
             if (text_color_parse(setting_get_str(setting_category_selected, row), &color)) {
-                snprintf(color_notation, sizeof(color_notation), "%.2X%.2X%.2X", 255 - color.r, 255 - color.g, 255 - color.b);
+                snprintf(color_notation,
+                         sizeof(color_notation),
+                         "%.2X%.2X%.2X",
+                         255 - color.r,
+                         255 - color.g,
+                         255 - color.b);
             } else {
                 color.r = color.g = color.b = 0;
                 snprintf(color_notation, sizeof(color_notation), "%.2X%.2X%.2X", 255, 255, 255);
@@ -400,13 +428,32 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 
             box.w = texture_surface(button->texture)->w;
             box.h = texture_surface(button->texture)->h;
-            text_show_format(list->surface, FONT_ARIAL11, button->x, button->y, COLOR_BLACK, TEXT_MARKUP, NULL, "[bar=#%.2X%.2X%.2X %d %d]", color.r, color.g, color.b, box.w, box.h);
-            text_show(list->surface, FONT_ARIAL11, "Pick", button->x, button->y, color_notation, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+            text_show_format(list->surface,
+                             FONT_ARIAL11,
+                             button->x,
+                             button->y,
+                             COLOR_BLACK,
+                             TEXT_MARKUP,
+                             NULL,
+                             "[bar=#%.2X%.2X%.2X %d %d]",
+                             color.r,
+                             color.g,
+                             color.b,
+                             box.w,
+                             box.h);
+            text_show(list->surface,
+                      FONT_ARIAL11,
+                      "Pick",
+                      button->x,
+                      button->y,
+                      color_notation,
+                      TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+                      &box);
 
             dst.x -= 5;
         }
 
-        text_input = &((list_settings_graphic_union *) list_settings->data)[row].text.text_input;
+        text_input = &((list_settings_graphic_union *)list_settings->data)[row].text.text_input;
         dst.x -= text_input->coords.w;
         text_input->focus = text_input_focused == text_input;
         text_input_set_parent(text_input, list->px, list->py);
@@ -416,8 +463,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 }
 
 /** @copydoc list_struct::handle_enter_func */
-static void list_handle_enter(list_struct *list, SDL_Event *event)
-{
+static void list_handle_enter(list_struct *list, SDL_Event *event) {
     uint32_t row;
     setting_struct *setting;
 
@@ -428,8 +474,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
     row = list->row_selected - 1;
     setting = setting_categories[setting_category_selected]->settings[row];
 
-    if (setting->type == OPT_TYPE_INPUT_TEXT ||
-            setting->type == OPT_TYPE_COLOR) {
+    if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
         list_settings_graphic_union *settings_graphic;
 
         settings_graphic = list_settings->data;
@@ -440,22 +485,25 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 }
 
 /** @copydoc list_struct::handle_mouse_row_func */
-static void list_handle_mouse_row(list_struct *list, uint32_t row, SDL_Event *event)
-{
+static void list_handle_mouse_row(list_struct *list, uint32_t row, SDL_Event *event) {
     if (event->type == SDL_MOUSEMOTION) {
         list->row_selected = row + 1;
     }
 }
 
 /** @copydoc color_picker::callback_func */
-static void color_picker_callback(color_picker_struct *color_picker)
-{
+static void color_picker_callback(color_picker_struct *color_picker) {
     char color_notation[MAX_BUF];
     double rgb[3];
     int i;
 
     colorspace_hsv2rgb(color_picker->hsv, rgb);
-    snprintf(color_notation, sizeof(color_notation), "#%.2X%.2X%.2X", (int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
+    snprintf(color_notation,
+             sizeof(color_notation),
+             "#%.2X%.2X%.2X",
+             (int)(255 * rgb[0]),
+             (int)(255 * rgb[1]),
+             (int)(255 * rgb[2]));
 
     i = setting_find_by_text_input(text_input_selected);
 
@@ -466,8 +514,7 @@ static void color_picker_callback(color_picker_struct *color_picker)
 }
 
 /** @copydoc button_struct::repeat_func */
-static void button_repeat(button_struct *button)
-{
+static void button_repeat(button_struct *button) {
     size_t new_cat;
 
     new_cat = setting_category_selected;
@@ -494,23 +541,37 @@ static void button_repeat(button_struct *button)
 }
 
 /** @copydoc popup_struct::draw_func */
-static int popup_draw(popup_struct *popup)
-{
+static int popup_draw(popup_struct *popup) {
     SDL_Rect box;
     setting_struct *setting;
 
     box.w = popup->surface->w;
     box.h = 38;
-    text_show(popup->surface, FONT_SERIF20, "Client Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+    text_show(popup->surface,
+              FONT_SERIF20,
+              "Client Settings",
+              0,
+              0,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+              &box);
 
     list_show(list_settings, 30, 50);
     list_set_parent(list_settings, popup->x, popup->y);
 
-    setting = setting_categories[setting_category_selected]->settings[list_settings->row_selected - 1];
+    setting =
+        setting_categories[setting_category_selected]->settings[list_settings->row_selected - 1];
 
     box.w = list_settings->width;
     box.h = 0;
-    text_show(popup->surface, FONT_SERIF14, setting_categories[setting_category_selected]->name, list_settings->x, list_settings->y - 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+    text_show(popup->surface,
+              FONT_SERIF14,
+              setting_categories[setting_category_selected]->name,
+              list_settings->x,
+              list_settings->y - 3,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER,
+              &box);
 
     button_set_parent(&button_category_left, popup->x, popup->y);
     button_set_parent(&button_category_right, popup->x, popup->y);
@@ -521,30 +582,40 @@ static int popup_draw(popup_struct *popup)
     button_category_left.y = 50;
     button_show(&button_category_left, "<");
 
-    button_category_right.x = list_settings->x + list_settings->width - texture_surface(button_category_right.texture)->w;
+    button_category_right.x =
+        list_settings->x + list_settings->width - texture_surface(button_category_right.texture)->w;
     button_category_right.y = 50;
     button_show(&button_category_right, ">");
 
-    button_apply.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - texture_surface(button_apply.texture)->w;
+    button_apply.x = list_settings->x + LIST_WIDTH_FULL(list_settings) -
+                     texture_surface(button_apply.texture)->w;
     button_apply.y = popup->surface->h - 72;
     button_show(&button_apply, "Apply");
 
-    button_done.x = list_settings->x + LIST_WIDTH_FULL(list_settings) - texture_surface(button_done.texture)->w;
+    button_done.x =
+        list_settings->x + LIST_WIDTH_FULL(list_settings) - texture_surface(button_done.texture)->w;
     button_done.y = popup->surface->h - 50;
     button_show(&button_done, "Done");
 
     if (setting->desc) {
         box.w = LIST_WIDTH_FULL(list_settings) - texture_surface(button_apply.texture)->w;
         box.h = 66;
-        text_show_shadow(popup->surface, FONT_ARIAL11, setting->desc, list_settings->x - 2, popup->surface->h - 75, COLOR_WHITE, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+        text_show_shadow(popup->surface,
+                         FONT_ARIAL11,
+                         setting->desc,
+                         list_settings->x - 2,
+                         popup->surface->h - 75,
+                         COLOR_WHITE,
+                         COLOR_BLACK,
+                         TEXT_WORD_WRAP | TEXT_MARKUP,
+                         &box);
     }
 
     return 1;
 }
 
 /** @copydoc popup_struct::event_func */
-static int popup_event(popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     uint32_t row;
     setting_struct *setting;
 
@@ -566,7 +637,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 }
 
                 setting = setting_categories[setting_category_selected]->settings[i];
-                text_input = &((list_settings_graphic_union *) list_settings->data)[i].text.text_input;
+                text_input =
+                    &((list_settings_graphic_union *)list_settings->data)[i].text.text_input;
                 text_input_focused = NULL;
 
                 if (setting->type == OPT_TYPE_COLOR && !text_color_parse(text_input->str, NULL)) {
@@ -596,7 +668,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
             if (event->key.keysym.mod & KMOD_SHIFT) {
                 button_repeat(&button_category_left);
             } else {
-                setting_change_value(setting_category_selected, list_settings->row_selected - 1, -1);
+                setting_change_value(setting_category_selected,
+                                     list_settings->row_selected - 1,
+                                     -1);
             }
 
             return 1;
@@ -617,7 +691,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (setting->type == OPT_TYPE_BOOL) {
             button_struct *button_checkbox;
 
-            button_checkbox = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
+            button_checkbox = &((list_settings_graphic_union *)list_settings->data)[row].button[0];
 
             if (button_event(button_checkbox, event)) {
                 settings_list_button_repeat(button_checkbox);
@@ -626,8 +700,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
             button_struct *button_left, *button_right;
 
-            button_left = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
-            button_right = &((list_settings_graphic_union *) list_settings->data)[row].button[1];
+            button_left = &((list_settings_graphic_union *)list_settings->data)[row].button[0];
+            button_right = &((list_settings_graphic_union *)list_settings->data)[row].button[1];
 
             if (button_event(button_left, event)) {
                 settings_list_button_repeat(button_left);
@@ -639,12 +713,12 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         } else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
             text_input_struct *text_input;
 
-            text_input = &((list_settings_graphic_union *) list_settings->data)[row].text.text_input;
+            text_input = &((list_settings_graphic_union *)list_settings->data)[row].text.text_input;
 
             if (setting->type == OPT_TYPE_COLOR) {
                 button_struct *button;
 
-                button = &((list_settings_graphic_union *) list_settings->data)[row].text.button;
+                button = &((list_settings_graphic_union *)list_settings->data)[row].text.button;
 
                 if (button_event(button, event)) {
                     color_picker_struct *color_picker;
@@ -653,13 +727,15 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
                     color_picker = color_chooser_open();
                     color_picker->callback_func = color_picker_callback;
-                    color_picker_set_notation(color_picker, setting_get_str(setting_category_selected, row));
+                    color_picker_set_notation(color_picker,
+                                              setting_get_str(setting_category_selected, row));
 
                     return 1;
                 }
             }
 
-            if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(text_input, event->motion.x, event->motion.y))) {
+            if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT &&
+                 text_input_mouse_over(text_input, event->motion.x, event->motion.y))) {
                 text_input_focused = text_input;
                 return 1;
             }
@@ -688,8 +764,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
-static int popup_destroy_callback(popup_struct *popup)
-{
+static int popup_destroy_callback(popup_struct *popup) {
     settings_apply_change();
     settings_list_clear();
     list_remove(list_settings);
@@ -704,14 +779,12 @@ static int popup_destroy_callback(popup_struct *popup)
 }
 
 /** @copydoc popup_button::event_func */
-static int popup_button_event(popup_button *button)
-{
+static int popup_button_event(popup_button *button) {
     help_show("client settings");
     return 1;
 }
 
-void settings_client_open(void)
-{
+void settings_client_open(void) {
     popup_struct *popup;
 
     setting_category_selected = 0;
@@ -729,12 +802,16 @@ void settings_client_open(void)
     button_create(&button_apply);
     button_create(&button_done);
 
-    button_category_left.texture = button_category_right.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-    button_category_left.texture_over = button_category_right.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-    button_category_left.texture_pressed = button_category_right.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+    button_category_left.texture = button_category_right.texture =
+        texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+    button_category_left.texture_over = button_category_right.texture_over =
+        texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+    button_category_left.texture_pressed = button_category_right.texture_pressed =
+        texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
     button_category_left.repeat_func = button_category_right.repeat_func = button_repeat;
 
-    button_category_left.surface = button_category_right.surface = button_apply.surface = button_done.surface = popup->surface;
+    button_category_left.surface = button_category_right.surface = button_apply.surface =
+        button_done.surface = popup->surface;
 
     list_settings = list_create(9, 1, 8);
     list_settings->surface = popup->surface;

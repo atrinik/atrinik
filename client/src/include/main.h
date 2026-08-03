@@ -72,8 +72,8 @@ typedef struct server_struct {
     char *quic_certificate_sha256;
     char *rendezvous_origin;
 
-    bool direct:1;
-    bool password_required:1;
+    bool direct : 1;
+    bool password_required : 1;
 
     /** Session-only password for joining this server. */
     char *join_password;
@@ -114,7 +114,7 @@ typedef struct server_struct {
     server_cert_info_t *cert_info;
 
     /** Whether the entry was learned from the metaserver. */
-    bool is_meta:1;
+    bool is_meta : 1;
 } server_struct;
 
 /**
@@ -127,9 +127,8 @@ typedef struct server_struct {
  * @todo
  * This should really be a function.
  */
-#define METASERVER_GET_PUBKEY(server)                               \
-    ((server)->cert_info != NULL ? (server)->cert_info->pubkey :    \
-     (server)->cert_pubkey)
+#define METASERVER_GET_PUBKEY(server) \
+    ((server)->cert_info != NULL ? (server)->cert_info->pubkey : (server)->cert_pubkey)
 
 /**
  * Message animation structure. Used when NDI_ANIM is passed to
@@ -149,7 +148,7 @@ typedef struct msg_anim_struct {
 #define FILE_ATRINIK_P0 "data/atrinik.p0"
 
 /* Face requested from server - do it only one time */
-#define FACE_REQUESTED      16
+#define FACE_REQUESTED 16
 
 typedef struct _face_struct {
     /* Our face data. if != null, face is loaded */

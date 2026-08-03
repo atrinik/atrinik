@@ -44,25 +44,30 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size);
 
 TOOLKIT_API(DEPENDS(mempool));
 
-TOOLKIT_INIT_FUNC(packet)
-{
-    pool_packet = mempool_create("packets", PACKET_EXPAND,
-            sizeof(packet_struct), MEMPOOL_ALLOW_FREEING,
-            NULL, NULL, NULL, NULL);
-    mempool_set_debugger(pool_packet, (chunk_debugger) packet_debugger);
+TOOLKIT_INIT_FUNC(packet) {
+    pool_packet = mempool_create("packets",
+                                 PACKET_EXPAND,
+                                 sizeof(packet_struct),
+                                 MEMPOOL_ALLOW_FREEING,
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 NULL);
+    mempool_set_debugger(pool_packet, (chunk_debugger)packet_debugger);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(packet)
-{
-}
+TOOLKIT_DEINIT_FUNC(packet) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /** @copydoc chunk_debugger */
-static void packet_debugger(packet_struct *packet, char *buf, size_t size)
-{
-    snprintf(buf, size, "type: %d length: %"PRIu64" size: %"PRIu64,
-            packet->type, (uint64_t) packet->len, (uint64_t) packet->size);
+static void packet_debugger(packet_struct *packet, char *buf, size_t size) {
+    snprintf(buf,
+             size,
+             "type: %d length: %" PRIu64 " size: %" PRIu64,
+             packet->type,
+             (uint64_t)packet->len,
+             (uint64_t)packet->size);
 
     if (packet->data != NULL && packet->len != 0) {
 #define MAXHEXLEN 256
@@ -72,8 +77,10 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
         snprintfcat(buf, size, " data: %s", hexbuf);
 
         if (packet->len > MAXHEXLEN) {
-            snprintfcat(buf, size, " (%"PRId64" bytes follow)",
-                    (uint64_t) (packet->len - MAXHEXLEN));
+            snprintfcat(buf,
+                        size,
+                        " (%" PRId64 " bytes follow)",
+                        (uint64_t)(packet->len - MAXHEXLEN));
         }
 #undef MAXHEXLEN
     }
@@ -92,8 +99,7 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
  * @return
  * The allocated packet.
  */
-packet_struct *packet_new(uint8_t type, size_t size, size_t expand)
-{
+packet_struct *packet_new(uint8_t type, size_t size, size_t expand) {
     packet_struct *packet;
 
     TOOLKIT_PROTECT();
@@ -121,8 +127,7 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand)
  * @param packet
  * Packet to free.
  */
-void packet_free(packet_struct *packet)
-{
+void packet_free(packet_struct *packet) {
     TOOLKIT_PROTECT();
 
     if (packet->data) {
@@ -143,8 +148,7 @@ void packet_free(packet_struct *packet)
  * @param packet
  * Packet to try to compress.
  */
-void packet_compress(packet_struct *packet)
-{
+void packet_compress(packet_struct *packet) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(packet != NULL);
 
@@ -162,9 +166,9 @@ void packet_compress(packet_struct *packet)
     dest[3] = (packet->len >> 8) & 0xff;
     dest[4] = (packet->len) & 0xff;
     /* Compress it. */
-    compress2((Bytef *) dest + 5,
-              (uLong *) &new_size,
-              (const unsigned char FAR *) packet->data,
+    compress2((Bytef *)dest + 5,
+              (uLong *)&new_size,
+              (const unsigned char FAR *)packet->data,
               packet->len,
               Z_BEST_COMPRESSION);
 
@@ -183,26 +187,22 @@ void packet_compress(packet_struct *packet)
 /**
  * Enables NDELAY on the specified packet.
  */
-void packet_enable_ndelay(packet_struct *packet)
-{
+void packet_enable_ndelay(packet_struct *packet) {
     TOOLKIT_PROTECT();
     packet->ndelay = 1;
 }
 
-void packet_set_pos(packet_struct *packet, size_t pos)
-{
+void packet_set_pos(packet_struct *packet, size_t pos) {
     TOOLKIT_PROTECT();
     packet->len = pos;
 }
 
-size_t packet_get_pos(packet_struct *packet)
-{
+size_t packet_get_pos(packet_struct *packet) {
     TOOLKIT_PROTECT();
     return packet->len;
 }
 
-packet_struct *packet_dup(packet_struct *packet)
-{
+packet_struct *packet_dup(packet_struct *packet) {
     packet_struct *cp;
 
     TOOLKIT_PROTECT();
@@ -217,8 +217,7 @@ packet_struct *packet_dup(packet_struct *packet)
     return cp;
 }
 
-void packet_delete(packet_struct *packet, size_t pos, size_t len)
-{
+void packet_delete(packet_struct *packet, size_t pos, size_t len) {
     TOOLKIT_PROTECT();
 
     if (len > packet->len - pos) {
@@ -232,8 +231,7 @@ void packet_delete(packet_struct *packet, size_t pos, size_t len)
     packet->len -= len;
 }
 
-void packet_save(packet_struct *packet, packet_save_t *packet_save_buf)
-{
+void packet_save(packet_struct *packet, packet_save_t *packet_save_buf) {
     HARD_ASSERT(packet != NULL);
     HARD_ASSERT(packet_save_buf != NULL);
 
@@ -244,8 +242,7 @@ void packet_save(packet_struct *packet, packet_save_t *packet_save_buf)
 #endif
 }
 
-void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
-{
+void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf) {
     HARD_ASSERT(packet != NULL);
     HARD_ASSERT(packet_save_buf != NULL);
 
@@ -264,8 +261,7 @@ void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
  * @param size
  * How many bytes we need.
  */
-static void packet_ensure(packet_struct *packet, size_t size)
-{
+static void packet_ensure(packet_struct *packet, size_t size) {
     TOOLKIT_PROTECT();
 
     if (packet->len + size < packet->size) {
@@ -276,8 +272,7 @@ static void packet_ensure(packet_struct *packet, size_t size)
     packet->data = erealloc(packet->data, packet->size);
 }
 
-char *packet_get_debug(packet_struct *packet)
-{
+char *packet_get_debug(packet_struct *packet) {
     char *cp;
 
     TOOLKIT_PROTECT();
@@ -295,24 +290,21 @@ char *packet_get_debug(packet_struct *packet)
     return cp;
 }
 
-static void packet_append_uint8_internal(packet_struct *packet, uint8_t data)
-{
+static void packet_append_uint8_internal(packet_struct *packet, uint8_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 1);
 
     packet->data[packet->len++] = data;
 }
 
-void packet_append_uint8(packet_struct *packet, uint8_t data)
-{
+void packet_append_uint8(packet_struct *packet, uint8_t data) {
     TOOLKIT_PROTECT();
 
     packet_append_uint8_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
 }
 
-void packet_append_int8(packet_struct *packet, int8_t data)
-{
+void packet_append_int8(packet_struct *packet, int8_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 1);
 
@@ -320,8 +312,7 @@ void packet_append_int8(packet_struct *packet, int8_t data)
     packet_debug(packet, 0, "%d\n", data);
 }
 
-void packet_append_uint16(packet_struct *packet, uint16_t data)
-{
+void packet_append_uint16(packet_struct *packet, uint16_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 2);
 
@@ -330,8 +321,7 @@ void packet_append_uint16(packet_struct *packet, uint16_t data)
     packet_debug(packet, 0, "%u\n", data);
 }
 
-void packet_append_int16(packet_struct *packet, int16_t data)
-{
+void packet_append_int16(packet_struct *packet, int16_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 2);
 
@@ -340,8 +330,7 @@ void packet_append_int16(packet_struct *packet, int16_t data)
     packet_debug(packet, 0, "%d\n", data);
 }
 
-static void packet_append_uint32_internal(packet_struct *packet, uint32_t data)
-{
+static void packet_append_uint32_internal(packet_struct *packet, uint32_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 4);
 
@@ -351,16 +340,14 @@ static void packet_append_uint32_internal(packet_struct *packet, uint32_t data)
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_uint32(packet_struct *packet, uint32_t data)
-{
+void packet_append_uint32(packet_struct *packet, uint32_t data) {
     TOOLKIT_PROTECT();
 
     packet_append_uint32_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
 }
 
-void packet_append_int32(packet_struct *packet, int32_t data)
-{
+void packet_append_int32(packet_struct *packet, int32_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 4);
 
@@ -371,8 +358,7 @@ void packet_append_int32(packet_struct *packet, int32_t data)
     packet_debug(packet, 0, "%d\n", data);
 }
 
-static void packet_append_uint64_internal(packet_struct *packet, uint64_t data)
-{
+static void packet_append_uint64_internal(packet_struct *packet, uint64_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 8);
 
@@ -386,16 +372,14 @@ static void packet_append_uint64_internal(packet_struct *packet, uint64_t data)
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_uint64(packet_struct *packet, uint64_t data)
-{
+void packet_append_uint64(packet_struct *packet, uint64_t data) {
     TOOLKIT_PROTECT();
 
     packet_append_uint64_internal(packet, data);
     packet_debug(packet, 0, "%" PRIu64 "\n", data);
 }
 
-void packet_append_int64(packet_struct *packet, int64_t data)
-{
+void packet_append_int64(packet_struct *packet, int64_t data) {
     TOOLKIT_PROTECT();
     packet_ensure(packet, 8);
 
@@ -410,8 +394,7 @@ void packet_append_int64(packet_struct *packet, int64_t data)
     packet_debug(packet, 0, "%" PRId64 "\n", data);
 }
 
-void packet_append_float(packet_struct *packet, float data)
-{
+void packet_append_float(packet_struct *packet, float data) {
     uint32_t val;
 
     TOOLKIT_PROTECT();
@@ -421,8 +404,7 @@ void packet_append_float(packet_struct *packet, float data)
     packet_debug(packet, 0, "%f\n", data);
 }
 
-void packet_append_double(packet_struct *packet, double data)
-{
+void packet_append_double(packet_struct *packet, double data) {
     uint64_t val;
 
     TOOLKIT_PROTECT();
@@ -432,9 +414,8 @@ void packet_append_double(packet_struct *packet, double data)
     packet_debug(packet, 0, "%f\n", data);
 }
 
-static void packet_append_data_len_internal(packet_struct *packet,
-        const uint8_t *data, size_t len)
-{
+static void
+packet_append_data_len_internal(packet_struct *packet, const uint8_t *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -449,9 +430,7 @@ static void packet_append_data_len_internal(packet_struct *packet,
     packet->len += len;
 }
 
-void packet_append_data_len(packet_struct *packet, const uint8_t *data,
-        size_t len)
-{
+void packet_append_data_len(packet_struct *packet, const uint8_t *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -475,9 +454,7 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data,
 #endif
 }
 
-void packet_append_string_len(packet_struct *packet, const char *data,
-        size_t len)
-{
+void packet_append_string_len(packet_struct *packet, const char *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -490,11 +467,10 @@ void packet_append_string_len(packet_struct *packet, const char *data,
     packet_ensure(packet, len);
     memcpy(packet->data + packet->len, data, len);
     packet->len += len;
-    packet_debug(packet, 0, "%.*s", (int) len, data);
+    packet_debug(packet, 0, "%.*s", (int)len, data);
 }
 
-void packet_append_string(packet_struct *packet, const char *data)
-{
+void packet_append_string(packet_struct *packet, const char *data) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -503,9 +479,7 @@ void packet_append_string(packet_struct *packet, const char *data)
     packet_append_string_len(packet, data, strlen(data));
 }
 
-void packet_append_string_len_terminated(packet_struct *packet,
-        const char *data, size_t len)
-{
+void packet_append_string_len_terminated(packet_struct *packet, const char *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -516,8 +490,7 @@ void packet_append_string_len_terminated(packet_struct *packet,
     packet_debug(packet, 0, "\n");
 }
 
-void packet_append_string_terminated(packet_struct *packet, const char *data)
-{
+void packet_append_string_terminated(packet_struct *packet, const char *data) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -526,8 +499,7 @@ void packet_append_string_terminated(packet_struct *packet, const char *data)
     packet_append_string_len_terminated(packet, data, strlen(data));
 }
 
-void packet_append_packet(packet_struct *packet, packet_struct *src)
-{
+void packet_append_packet(packet_struct *packet, packet_struct *src) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -548,8 +520,7 @@ void packet_append_packet(packet_struct *packet, packet_struct *src)
 #endif
 }
 
-uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos)
-{
+uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos) {
     uint8_t ret;
 
     TOOLKIT_PROTECT();
@@ -565,8 +536,7 @@ uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos)
-{
+int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos) {
     int8_t ret;
 
     TOOLKIT_PROTECT();
@@ -582,8 +552,7 @@ int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos)
-{
+uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos) {
     uint16_t ret;
 
     TOOLKIT_PROTECT();
@@ -599,8 +568,7 @@ uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos)
-{
+int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos) {
     int16_t ret;
 
     TOOLKIT_PROTECT();
@@ -616,8 +584,7 @@ int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos)
-{
+uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos) {
     uint32_t ret;
 
     TOOLKIT_PROTECT();
@@ -633,8 +600,7 @@ uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos)
-{
+int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos) {
     int32_t ret;
 
     TOOLKIT_PROTECT();
@@ -650,8 +616,7 @@ int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos)
-{
+uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos) {
     uint64_t ret;
 
     TOOLKIT_PROTECT();
@@ -661,14 +626,16 @@ uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos)
         return 0;
     }
 
-    ret = ((uint64_t) data[*pos] << 56) + ((uint64_t) data[*pos + 1] << 48) + ((uint64_t) data[*pos + 2] << 40) + ((uint64_t) data[*pos + 3] << 32) + ((uint64_t) data[*pos + 4] << 24) + ((uint64_t) data[*pos + 5] << 16) + ((uint64_t) data[*pos + 6] << 8) + (uint64_t) data[*pos + 7];
+    ret = ((uint64_t)data[*pos] << 56) + ((uint64_t)data[*pos + 1] << 48) +
+          ((uint64_t)data[*pos + 2] << 40) + ((uint64_t)data[*pos + 3] << 32) +
+          ((uint64_t)data[*pos + 4] << 24) + ((uint64_t)data[*pos + 5] << 16) +
+          ((uint64_t)data[*pos + 6] << 8) + (uint64_t)data[*pos + 7];
     *pos += 8;
 
     return ret;
 }
 
-int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos)
-{
+int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos) {
     int64_t ret;
 
     TOOLKIT_PROTECT();
@@ -678,14 +645,16 @@ int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos)
         return 0;
     }
 
-    ret = ((int64_t) data[*pos] << 56) + ((int64_t) data[*pos + 1] << 48) + ((int64_t) data[*pos + 2] << 40) + ((int64_t) data[*pos + 3] << 32) + ((int64_t) data[*pos + 4] << 24) + ((int64_t) data[*pos + 5] << 16) + ((int64_t) data[*pos + 6] << 8) + (int64_t) data[*pos + 7];
+    ret = ((int64_t)data[*pos] << 56) + ((int64_t)data[*pos + 1] << 48) +
+          ((int64_t)data[*pos + 2] << 40) + ((int64_t)data[*pos + 3] << 32) +
+          ((int64_t)data[*pos + 4] << 24) + ((int64_t)data[*pos + 5] << 16) +
+          ((int64_t)data[*pos + 6] << 8) + (int64_t)data[*pos + 7];
     *pos += 8;
 
     return ret;
 }
 
-float packet_to_float(uint8_t *data, size_t len, size_t *pos)
-{
+float packet_to_float(uint8_t *data, size_t len, size_t *pos) {
     uint32_t val;
     float ret;
 
@@ -697,8 +666,7 @@ float packet_to_float(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-double packet_to_double(uint8_t *data, size_t len, size_t *pos)
-{
+double packet_to_double(uint8_t *data, size_t len, size_t *pos) {
     uint64_t val;
     double ret;
 
@@ -710,14 +678,13 @@ double packet_to_double(uint8_t *data, size_t len, size_t *pos)
     return ret;
 }
 
-char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_t dest_size)
-{
+char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_t dest_size) {
     size_t i = 0;
     char c;
 
     TOOLKIT_PROTECT();
 
-    while (*pos < len && (c = (char) (data[(*pos)++]))) {
+    while (*pos < len && (c = (char)(data[(*pos)++]))) {
         if (i < dest_size - 1) {
             dest[i++] = c;
         }
@@ -727,15 +694,14 @@ char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_
     return dest[0] != '\0' ? dest : NULL;
 }
 
-void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer *sb)
-{
+void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer *sb) {
     TOOLKIT_PROTECT();
 
     if (*pos >= len) {
         return;
     }
 
-    char *str = (char *) (data + *pos);
+    char *str = (char *)(data + *pos);
     stringbuffer_append_string_len(sb, str, strnlen(str, len - *pos));
     *pos += strlen(str) + 1;
 }

@@ -32,11 +32,8 @@
 
 /* Prototypes */
 
-const char *
-sound_ambient_match_str(object *op);
-bool
-sound_ambient_match(object *op);
-void
-sound_ambient_match_parse(object *op, const char *str);
+const char *sound_ambient_match_str(object *op);
+bool sound_ambient_match(object *op);
+void sound_ambient_match_parse(object *op, const char *str);
 
 #endif

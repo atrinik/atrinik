@@ -40,9 +40,7 @@
 #include <magic_mirror.h>
 
 /** @copydoc object_methods_t::init_func */
-static void
-init_func (object *op)
-{
+static void init_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->map == NULL) {
@@ -71,10 +69,7 @@ init_func (object *op)
     if (op->slaying == NULL) {
         FREE_AND_ADD_REF_HASH(op->slaying, op->map->path);
     } else if (!map_path_isabs(op->slaying)) {
-        char *path = map_get_path(op->map,
-                                  op->slaying,
-                                  MAP_UNIQUE(op->map),
-                                  NULL);
+        char *path = map_get_path(op->map, op->slaying, MAP_UNIQUE(op->map), NULL);
         FREE_AND_COPY_HASH(op->slaying, path);
         efree(path);
     }
@@ -87,9 +82,7 @@ init_func (object *op)
 }
 
 /** @copydoc object_methods_t::deinit_func */
-static void
-deinit_func (object *op)
-{
+static void deinit_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->custom_attrset != NULL) {
@@ -101,8 +94,7 @@ deinit_func (object *op)
 /**
  * Initialize the magic mirror type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(magic_mirror)
-{
+OBJECT_TYPE_INIT_DEFINE(magic_mirror) {
     OBJECT_METHODS(MAGIC_MIRROR)->init_func = init_func;
     OBJECT_METHODS(MAGIC_MIRROR)->deinit_func = deinit_func;
 }
@@ -117,9 +109,7 @@ OBJECT_TYPE_INIT_DEFINE(magic_mirror)
  * @return
  * The map. Can be NULL in case of loading error.
  */
-mapstruct *
-magic_mirror_get_map (object *op)
-{
+mapstruct *magic_mirror_get_map(object *op) {
     HARD_ASSERT(op != NULL);
 
     magic_mirror_struct *data = MMIRROR(op);
@@ -134,9 +124,7 @@ magic_mirror_get_map (object *op)
     /* Try to load the map. */
     data->map = ready_map_name(op->slaying, NULL, MAP_NAME_SHARED);
     if (data->map == NULL) {
-        LOG(ERROR, "Could not load map '%s': %s",
-            op->slaying,
-            object_get_str(op));
+        LOG(ERROR, "Could not load map '%s': %s", op->slaying, object_get_str(op));
         return NULL;
     }
 

@@ -45,15 +45,16 @@ static popup_struct *popup_head = NULL;
  * @return
  * The created popup.
  */
-popup_struct *popup_create(texture_struct *texture)
-{
+popup_struct *popup_create(texture_struct *texture) {
     popup_struct *popup;
     int mx, my;
 
     popup = ecalloc(1, sizeof(popup_struct));
     popup->texture = texture;
     /* Create the surface used by the popup. */
-    popup->surface = SDL_ConvertSurface(texture_surface(popup->texture), texture_surface(popup->texture)->format, texture_surface(popup->texture)->flags);
+    popup->surface = SDL_ConvertSurface(texture_surface(popup->texture),
+                                        texture_surface(popup->texture)->format,
+                                        texture_surface(popup->texture)->flags);
     DL_PREPEND(popup_head, popup);
 
     SDL_GetMouseState(&mx, &my);
@@ -63,14 +64,18 @@ popup_struct *popup_create(texture_struct *texture)
     button_create(&popup->button_left.button);
     button_create(&popup->button_right.button);
 
-    popup->button_left.button.texture = popup->button_right.button.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large");
-    popup->button_left.button.texture_pressed = popup->button_right.button.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_down");
-    popup->button_left.button.texture_over = popup->button_right.button.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_over");
+    popup->button_left.button.texture = popup->button_right.button.texture =
+        texture_get(TEXTURE_TYPE_CLIENT, "button_round_large");
+    popup->button_left.button.texture_pressed = popup->button_right.button.texture_pressed =
+        texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_down");
+    popup->button_left.button.texture_over = popup->button_right.button.texture_over =
+        texture_get(TEXTURE_TYPE_CLIENT, "button_round_large_over");
 
     popup->button_left.x = 6;
     popup->button_left.y = 6;
 
-    popup->button_right.x = popup->surface->w - texture_surface(popup->button_right.button.texture)->w - 6;
+    popup->button_right.x =
+        popup->surface->w - texture_surface(popup->button_right.button.texture)->w - 6;
     popup->button_right.y = 6;
     popup->button_right.text = estrdup("X");
 
@@ -86,8 +91,7 @@ popup_struct *popup_create(texture_struct *texture)
  * @param button
  * The button.
  */
-static void popup_button_free(popup_button *button)
-{
+static void popup_button_free(popup_button *button) {
     if (button->text) {
         efree(button->text);
     }
@@ -98,8 +102,7 @@ static void popup_button_free(popup_button *button)
 /**
  * Destroy the visible popup, freeing it.
  */
-void popup_destroy(popup_struct *popup)
-{
+void popup_destroy(popup_struct *popup) {
     if (popup->destroy_callback_func && !popup->destroy_callback_func(popup)) {
         return;
     }
@@ -126,12 +129,10 @@ void popup_destroy(popup_struct *popup)
 /**
  * Destroy all visible popups.
  */
-void popup_destroy_all(void)
-{
+void popup_destroy_all(void) {
     popup_struct *popup, *tmp;
 
-    DL_FOREACH_SAFE(popup_head, popup, tmp)
-    {
+    DL_FOREACH_SAFE(popup_head, popup, tmp) {
         popup_destroy(popup);
     }
 }
@@ -143,8 +144,7 @@ void popup_destroy_all(void)
  * @param button
  * The button to render.
  */
-static void popup_button_show(popup_struct *popup, popup_button *button)
-{
+static void popup_button_show(popup_struct *popup, popup_button *button) {
     if (button->button.texture) {
         button->button.x = popup->x + button->x;
         button->button.y = popup->y + button->y;
@@ -157,8 +157,7 @@ static void popup_button_show(popup_struct *popup, popup_button *button)
  * @param popup
  * The popup to render.
  */
-void popup_render(popup_struct *popup)
-{
+void popup_render(popup_struct *popup) {
     SDL_Rect box;
 
     if (!popup->disable_texture_drawing) {
@@ -201,12 +200,10 @@ void popup_render(popup_struct *popup)
 /**
  * Render the visible popups.
  */
-void popup_render_all(void)
-{
+void popup_render_all(void) {
     popup_struct *popup, *tmp;
 
-    DL_FOREACH_REVERSE_SAFE(popup_head, popup, tmp)
-    {
+    DL_FOREACH_REVERSE_SAFE(popup_head, popup, tmp) {
         popup_render(popup);
     }
 }
@@ -222,8 +219,7 @@ void popup_render_all(void)
  * function.
  * @retval 0 Did not handle the event.
  */
-static int popup_button_handle_event(popup_button *button, SDL_Event *event)
-{
+static int popup_button_handle_event(popup_button *button, SDL_Event *event) {
     if (button->text && button_event(&button->button, event)) {
         if (button->event_func && button->event_func(button)) {
             return -1;
@@ -242,11 +238,14 @@ static int popup_button_handle_event(popup_button *button, SDL_Event *event)
  * @return
  * 1 to disable any other mouse/keyboard actions, 0 otherwise.
  */
-int popup_handle_event(SDL_Event *event)
-{
+int popup_handle_event(SDL_Event *event) {
     int ret;
 
-    if (popup_head && !popup_head->modal && event->type == SDL_MOUSEBUTTONDOWN && !(event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h)) {
+    if (popup_head && !popup_head->modal && event->type == SDL_MOUSEBUTTONDOWN &&
+        !(event->motion.x >= popup_head->x &&
+          event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w &&
+          event->motion.y >= popup_head->y &&
+          event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h)) {
         if (popup_head->destroy_on_switch) {
             popup_destroy(popup_head);
             return 1;
@@ -291,7 +290,12 @@ int popup_handle_event(SDL_Event *event)
             efree(str);
 
             return 1;
-        } else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
+        } else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP ||
+                    event->type == SDL_MOUSEMOTION) &&
+                   event->motion.x >= popup_head->x &&
+                   event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w &&
+                   event->motion.y >= popup_head->y &&
+                   event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
             if (event->type == SDL_MOUSEMOTION) {
                 popup_head->redraw = 1;
 
@@ -344,8 +348,7 @@ int popup_handle_event(SDL_Event *event)
  * @return
  * The visible popup, or NULL if there isn't any.
  */
-popup_struct *popup_get_head(void)
-{
+popup_struct *popup_get_head(void) {
     return popup_head;
 }
 
@@ -356,8 +359,7 @@ popup_struct *popup_get_head(void)
  * @param text
  * Text to set.
  */
-void popup_button_set_text(popup_button *button, const char *text)
-{
+void popup_button_set_text(popup_button *button, const char *text) {
     if (button->text) {
         efree(button->text);
     }
@@ -371,7 +373,6 @@ void popup_button_set_text(popup_button *button, const char *text)
  * 1 if any popup needs redrawing, 0 otherwise.
  * @todo Actual redrawing logic in popups.
  */
-int popup_need_redraw(void)
-{
+int popup_need_redraw(void) {
     return popup_get_head() != NULL;
 }

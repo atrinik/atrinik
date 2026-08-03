@@ -60,11 +60,18 @@ static object *clone_op;
 /**
  * Used to initialize the #arches array.
  */
-static const char *const arch_names[ARCH_MAX] = {
-    "waypoint", "empty_archetype", "base_info", "level_up", "ring_normal",
-    "ring_generic", "amulet_normal", "amulet_generic", "inv_group_next",
-    "inv_group_prev", "inv_start", "inv_end"
-};
+static const char *const arch_names[ARCH_MAX] = {"waypoint",
+                                                 "empty_archetype",
+                                                 "base_info",
+                                                 "level_up",
+                                                 "ring_normal",
+                                                 "ring_generic",
+                                                 "amulet_normal",
+                                                 "amulet_generic",
+                                                 "inv_group_next",
+                                                 "inv_group_prev",
+                                                 "inv_start",
+                                                 "inv_end"};
 
 /* Prototypes */
 static void arch_free(archetype_t *at);
@@ -75,8 +82,7 @@ static void arch_load(void);
  *
  * #arches are also initialized.
  */
-void arch_init(void)
-{
+void arch_init(void) {
     HARD_ASSERT(arch_table == NULL);
 
     clone_op = object_get();
@@ -101,8 +107,7 @@ void arch_init(void)
  * After calling this, it's possible to call arch_init() again to
  * reload data.
  */
-void arch_deinit(void)
-{
+void arch_deinit(void) {
     archetype_t *at, *tmp, *tail, *tail_tmp;
     HASH_ITER(hh, arch_table, at, tmp) {
         HASH_DEL(arch_table, at);
@@ -119,8 +124,7 @@ void arch_deinit(void)
  * @return
  * New archetype structure, never NULL.
  */
-static archetype_t *arch_new(void)
-{
+static archetype_t *arch_new(void) {
     HARD_ASSERT(arch_in_init == true);
 
     archetype_t *new = ecalloc(1, sizeof(*new));
@@ -134,8 +138,7 @@ static archetype_t *arch_new(void)
  * @param at
  * Archetype to free.
  */
-static void arch_free(archetype_t *at)
-{
+static void arch_free(archetype_t *at) {
     HARD_ASSERT(at != NULL);
 
     FREE_AND_CLEAR_HASH(at->name);
@@ -158,8 +161,7 @@ static void arch_free(archetype_t *at)
  * Opened file descriptor which will be used to read the
  * archetypes.
  */
-static void arch_pass_first(FILE *fp)
-{
+static void arch_pass_first(FILE *fp) {
     HARD_ASSERT(fp != NULL);
 
     archetype_t *at = arch_new();
@@ -168,28 +170,27 @@ static void arch_pass_first(FILE *fp)
     void *buffer = create_loader_buffer(fp);
     archetype_t *prev = NULL, *last_more = NULL;
 
-    for (int rc = load_object_fp(fp, &at->clone, MAP_STYLE);
-         rc != LL_EOF;
+    for (int rc = load_object_fp(fp, &at->clone, MAP_STYLE); rc != LL_EOF;
          rc = load_object_buffer(buffer, &at->clone, MAP_STYLE)) {
         switch (rc) {
-        /* A new archetype, add it to the arch table. */
-        case LL_NORMAL:
-            arch_add(at);
-            prev = last_more = at;
-            break;
+            /* A new archetype, add it to the arch table. */
+            case LL_NORMAL:
+                arch_add(at);
+                prev = last_more = at;
+                break;
 
-        /* Another part of the previous archetype, link it correctly. */
-        case LL_MORE:
-            at->head = prev;
-            at->clone.head = &prev->clone;
+            /* Another part of the previous archetype, link it correctly. */
+            case LL_MORE:
+                at->head = prev;
+                at->clone.head = &prev->clone;
 
-            if (last_more != NULL) {
-                last_more->more = at;
-                last_more->clone.more = &at->clone;
-            }
+                if (last_more != NULL) {
+                    last_more->more = at;
+                    last_more->clone.more = &at->clone;
+                }
 
-            last_more = at;
-            break;
+                last_more = at;
+                break;
         }
 
         at = arch_new();
@@ -208,8 +209,7 @@ static void arch_pass_first(FILE *fp)
  * @param filename
  * Filename fp is being read from.
  */
-static void arch_pass_second(FILE *fp, const char *filename)
-{
+static void arch_pass_second(FILE *fp, const char *filename) {
     char buf[HUGE_BUF];
     uint64_t linenum = 0;
     const char *key = NULL, *value = NULL, *error_str = NULL;
@@ -338,9 +338,13 @@ static void arch_pass_second(FILE *fp, const char *filename)
     return;
 
 error:
-    LOG(ERROR, "Error parsing %s, line %" PRIu64 ", %s: %s %s", filename,
-            linenum, error_str != NULL ? error_str : "", key != NULL ? key : "",
-            value != NULL ? value : "");
+    LOG(ERROR,
+        "Error parsing %s, line %" PRIu64 ", %s: %s %s",
+        filename,
+        linenum,
+        error_str != NULL ? error_str : "",
+        key != NULL ? key : "",
+        value != NULL ? value : "");
     exit(1);
 }
 
@@ -351,8 +355,7 @@ error:
  * the artifacts and treasures. Afterwards, calls arch_pass_second(), which
  * does the second pass initialization of archetypes and artifacts.
  */
-static void arch_load(void)
-{
+static void arch_load(void) {
     TIMER_START(1);
 
     char filename[MAX_BUF];
@@ -360,8 +363,7 @@ static void arch_load(void)
     FILE *fp = fopen(filename, "rb");
 
     if (fp == NULL) {
-        LOG(ERROR, "Can't open archetype file %s: %s (%d)", filename,
-                strerror(errno), errno);
+        LOG(ERROR, "Can't open archetype file %s: %s (%d)", filename, strerror(errno), errno);
         exit(1);
     }
 
@@ -387,8 +389,7 @@ static void arch_load(void)
  * @param at
  * Archetype to add.
  */
-void arch_add(archetype_t *at)
-{
+void arch_add(archetype_t *at) {
     HARD_ASSERT(at != NULL);
     HARD_ASSERT(arch_in_init == true);
 
@@ -404,8 +405,7 @@ void arch_add(archetype_t *at)
  * @return
  * Pointer to the found archetype, otherwise NULL.
  */
-archetype_t *arch_find(const char *name)
-{
+archetype_t *arch_find(const char *name) {
     if (name == NULL) {
         return NULL;
     }
@@ -427,8 +427,7 @@ archetype_t *arch_find(const char *name)
  * Object of specified archetype, or a singularity. Will never be
  * NULL.
  */
-object *arch_get(const char *name)
-{
+object *arch_get(const char *name) {
     archetype_t *at = arch_find(name);
     if (at == NULL) {
         return object_create_singularity(name);
@@ -443,8 +442,7 @@ object *arch_get(const char *name)
  * @return
  * New object, never NULL.
  */
-object *arch_to_object(archetype_t *at)
-{
+object *arch_to_object(archetype_t *at) {
     HARD_ASSERT(at != NULL);
 
     object *op = object_get();
@@ -461,8 +459,7 @@ object *arch_to_object(archetype_t *at)
  * New archetype.
  * @warning The archetype's name is not cloned.
  */
-archetype_t *arch_clone(archetype_t *at)
-{
+archetype_t *arch_clone(archetype_t *at) {
     HARD_ASSERT(at != NULL);
     HARD_ASSERT(arch_in_init == true);
 

@@ -44,39 +44,27 @@ object *active_objects;
 /**
  * Gender nouns.
  */
-const char *gender_noun[GENDER_MAX] = {
-    "neuter", "male", "female", "hermaphrodite"
-};
+const char *gender_noun[GENDER_MAX] = {"neuter", "male", "female", "hermaphrodite"};
 /**
  * Subjective pronouns.
  */
-const char *gender_subjective[GENDER_MAX] = {
-    "it", "he", "she", "it"
-};
+const char *gender_subjective[GENDER_MAX] = {"it", "he", "she", "it"};
 /**
  * Subjective pronouns, with first letter in uppercase.
  */
-const char *gender_subjective_upper[GENDER_MAX] = {
-    "It", "He", "She", "It"
-};
+const char *gender_subjective_upper[GENDER_MAX] = {"It", "He", "She", "It"};
 /**
  * Objective pronouns.
  */
-const char *gender_objective[GENDER_MAX] = {
-    "it", "him", "her", "it"
-};
+const char *gender_objective[GENDER_MAX] = {"it", "him", "her", "it"};
 /**
  * Possessive pronouns.
  */
-const char *gender_possessive[GENDER_MAX] = {
-    "its", "his", "her", "its"
-};
+const char *gender_possessive[GENDER_MAX] = {"its", "his", "her", "its"};
 /**
  * Reflexive pronouns.
  */
-const char *gender_reflexive[GENDER_MAX] = {
-    "itself", "himself", "herself", "itself"
-};
+const char *gender_reflexive[GENDER_MAX] = {"itself", "himself", "herself", "itself"};
 
 /**
  * X offset when searching around a spot.
@@ -85,12 +73,56 @@ int freearr_x[SIZEOFFREE] = {
     /* Same tile */
     0,
     /* One square away */
-    0, 1, 1, 1, 0, -1, -1, -1,
+    0,
+    1,
+    1,
+    1,
+    0,
+    -1,
+    -1,
+    -1,
     /* Two squares away */
-    0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2, -2, -1,
+    0,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    1,
+    0,
+    -1,
+    -2,
+    -2,
+    -2,
+    -2,
+    -2,
+    -1,
     /* Three squares away */
-    0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3,
-    -3, -3, -3, -3, -3, -2, -1,
+    0,
+    1,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    2,
+    1,
+    0,
+    -1,
+    -2,
+    -3,
+    -3,
+    -3,
+    -3,
+    -3,
+    -3,
+    -3,
+    -2,
+    -1,
 };
 
 /**
@@ -100,12 +132,56 @@ int freearr_y[SIZEOFFREE] = {
     /* Same tile */
     0,
     /* One square away */
-    -1, -1, 0, 1, 1, 1, 0, -1,
+    -1,
+    -1,
+    0,
+    1,
+    1,
+    1,
+    0,
+    -1,
     /* Two squares away */
-    -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2,
+    -2,
+    -2,
+    -2,
+    -1,
+    0,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    1,
+    0,
+    -1,
+    -2,
+    -2,
     /* Three squares away */
-    -3, -3, -3, -3, -2, -1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3,
-    2, 1, 0, -1, -2, -3, -3, -3,
+    -3,
+    -3,
+    -3,
+    -3,
+    -2,
+    -1,
+    0,
+    1,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    2,
+    1,
+    0,
+    -1,
+    -2,
+    -3,
+    -3,
+    -3,
 };
 
 /**
@@ -115,12 +191,56 @@ int maxfree[SIZEOFFREE] = {
     /* Same tile */
     0,
     /* One square away */
-    9, 10, 13, 14, 17, 18, 21, 22,
+    9,
+    10,
+    13,
+    14,
+    17,
+    18,
+    21,
+    22,
     /* Two squares away */
-    25, 26, 27, 30, 31, 32, 33, 36, 37, 39, 39, 42, 43, 44, 45, 48,
+    25,
+    26,
+    27,
+    30,
+    31,
+    32,
+    33,
+    36,
+    37,
+    39,
+    39,
+    42,
+    43,
+    44,
+    45,
+    48,
     /* Three squares away */
-    49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-    49, 49, 49, 49, 49, 49, 49, 49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
 };
 
 /**
@@ -130,11 +250,56 @@ int freedir[SIZEOFFREE] = {
     /* Same tile */
     0,
     /* One square away */
-    1, 2, 3, 4, 5, 6, 7, 8,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
     /* Two squares away */
-    1, 2, 2, 2, 3, 4, 4, 4, 5, 6, 6, 6, 7, 8, 8, 8,
+    1,
+    2,
+    2,
+    2,
+    3,
+    4,
+    4,
+    4,
+    5,
+    6,
+    6,
+    6,
+    7,
+    8,
+    8,
+    8,
     /* Three squares away */
-    1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 6, 6, 6, 6, 6, 7, 8, 8, 8, 8, 8,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5,
+    6,
+    6,
+    6,
+    6,
+    6,
+    7,
+    8,
+    8,
+    8,
+    8,
+    8,
 };
 
 /**
@@ -150,41 +315,145 @@ static mempool_struct *pool_object;
  * If an entry is NULL, that is a flag not to be loaded/saved.
  * @see flag_defines
  */
-const char *object_flag_names[NUM_FLAGS + 1] = {
-    "sleep", "confused", NULL, "scared", "is_blind",
-    "is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
-    "no_pass", "is_animated", "slow_move", "flying", "monster",
-    "friendly", NULL, "been_applied", "auto_apply", NULL,
-    "is_neutral", "see_invisible", "can_roll", "connect_reset", "is_turnable",
-    "walk_off", "fly_on", "fly_off", "is_used_up", "identified",
-    "reflecting", "changing", "splitting", "hitback", "startequip",
-    "blocksview", "undead", "can_stack", "unaggressive", "reflect_missile",
-    "reflect_spell", "no_magic", "no_fix_player", "is_evil", "soulbound",
-    "run_away", "pass_thru", "can_pass_thru", "outdoor", "unique",
-    "no_drop", "is_indestructible", "can_cast_spell", NULL, "two_handed",
-    "can_use_bow", "can_use_armour", "can_use_weapon", "connect_no_push",
-    "connect_no_release", "has_ready_bow", "xrays", NULL, "is_floor",
-    "lifesave", "is_magical", NULL, "stand_still", "random_move", "only_attack",
-    NULL, "stealth", NULL, NULL, "cursed",
-    "damned", "is_buildable", "no_pvp", NULL, NULL,
-    "is_thrown", NULL, NULL, "is_male", "is_female",
-    "applied", "inv_locked", NULL, NULL, NULL,
-    "has_ready_weapon", "no_skill_ident", NULL, "can_see_in_dark", "is_cauldron",
-    "is_dust", NULL, "one_hit", "draw_double_always", "berserk",
-    "no_attack", "invulnerable", "quest_item", "is_trapped", NULL,
-    NULL, NULL, NULL, NULL, NULL,
-    "sys_object", "use_fix_pos", "unpaid", "hidden", "make_invisible",
-    "make_ethereal", "is_player", "is_named", NULL, "no_teleport",
-    "corpse", "corpse_forced", "player_only", NULL, "one_drop",
-    "cursed_perm", "damned_perm", "door_closed", "is_spell", "is_missile",
-    "draw_direction", "draw_double", "is_assassin", NULL, "no_save",
-    NULL
-};
+const char *object_flag_names[NUM_FLAGS + 1] = {"sleep",
+                                                "confused",
+                                                NULL,
+                                                "scared",
+                                                "is_blind",
+                                                "is_invisible",
+                                                "is_ethereal",
+                                                "is_good",
+                                                "no_pick",
+                                                "walk_on",
+                                                "no_pass",
+                                                "is_animated",
+                                                "slow_move",
+                                                "flying",
+                                                "monster",
+                                                "friendly",
+                                                NULL,
+                                                "been_applied",
+                                                "auto_apply",
+                                                NULL,
+                                                "is_neutral",
+                                                "see_invisible",
+                                                "can_roll",
+                                                "connect_reset",
+                                                "is_turnable",
+                                                "walk_off",
+                                                "fly_on",
+                                                "fly_off",
+                                                "is_used_up",
+                                                "identified",
+                                                "reflecting",
+                                                "changing",
+                                                "splitting",
+                                                "hitback",
+                                                "startequip",
+                                                "blocksview",
+                                                "undead",
+                                                "can_stack",
+                                                "unaggressive",
+                                                "reflect_missile",
+                                                "reflect_spell",
+                                                "no_magic",
+                                                "no_fix_player",
+                                                "is_evil",
+                                                "soulbound",
+                                                "run_away",
+                                                "pass_thru",
+                                                "can_pass_thru",
+                                                "outdoor",
+                                                "unique",
+                                                "no_drop",
+                                                "is_indestructible",
+                                                "can_cast_spell",
+                                                NULL,
+                                                "two_handed",
+                                                "can_use_bow",
+                                                "can_use_armour",
+                                                "can_use_weapon",
+                                                "connect_no_push",
+                                                "connect_no_release",
+                                                "has_ready_bow",
+                                                "xrays",
+                                                NULL,
+                                                "is_floor",
+                                                "lifesave",
+                                                "is_magical",
+                                                NULL,
+                                                "stand_still",
+                                                "random_move",
+                                                "only_attack",
+                                                NULL,
+                                                "stealth",
+                                                NULL,
+                                                NULL,
+                                                "cursed",
+                                                "damned",
+                                                "is_buildable",
+                                                "no_pvp",
+                                                NULL,
+                                                NULL,
+                                                "is_thrown",
+                                                NULL,
+                                                NULL,
+                                                "is_male",
+                                                "is_female",
+                                                "applied",
+                                                "inv_locked",
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                "has_ready_weapon",
+                                                "no_skill_ident",
+                                                NULL,
+                                                "can_see_in_dark",
+                                                "is_cauldron",
+                                                "is_dust",
+                                                NULL,
+                                                "one_hit",
+                                                "draw_double_always",
+                                                "berserk",
+                                                "no_attack",
+                                                "invulnerable",
+                                                "quest_item",
+                                                "is_trapped",
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                "sys_object",
+                                                "use_fix_pos",
+                                                "unpaid",
+                                                "hidden",
+                                                "make_invisible",
+                                                "make_ethereal",
+                                                "is_player",
+                                                "is_named",
+                                                NULL,
+                                                "no_teleport",
+                                                "corpse",
+                                                "corpse_forced",
+                                                "player_only",
+                                                NULL,
+                                                "one_drop",
+                                                "cursed_perm",
+                                                "damned_perm",
+                                                "door_closed",
+                                                "is_spell",
+                                                "is_missile",
+                                                "draw_direction",
+                                                "draw_double",
+                                                "is_assassin",
+                                                NULL,
+                                                "no_save",
+                                                NULL};
 
 /** @copydoc chunk_debugger */
-static void
-object_debugger (object *op, char *buf, size_t size)
-{
+static void object_debugger(object *op, char *buf, size_t size) {
     snprintf(buf, size, "count: %d", op->count);
 
     if (op->name != NULL) {
@@ -198,18 +467,14 @@ object_debugger (object *op, char *buf, size_t size)
 }
 
 /** @copydoc chunk_validator */
-static bool
-object_validator (object *op)
-{
+static bool object_validator(object *op) {
     return op->count != 0 && !QUERY_FLAG(op, FLAG_REMOVED);
 }
 
 /**
  * Initialize the object API.
  */
-void
-object_init (void)
-{
+void object_init(void) {
     pool_object = mempool_create("objects",
                                  OBJECT_EXPAND,
                                  sizeof(object),
@@ -218,17 +483,14 @@ object_init (void)
                                  NULL,
                                  NULL,
                                  NULL);
-    mempool_set_debugger(pool_object, (chunk_debugger) object_debugger);
-    mempool_set_validator(pool_object, (chunk_validator) object_validator);
+    mempool_set_debugger(pool_object, (chunk_debugger)object_debugger);
+    mempool_set_validator(pool_object, (chunk_validator)object_validator);
 }
 
 /**
  * Deinitialize the object API.
  */
-void
-object_deinit (void)
-{
-}
+void object_deinit(void) {}
 
 /**
  * Compares value lists.
@@ -241,16 +503,12 @@ object_deinit (void)
  * True if every key_values in 'op' has a partner with the same value
  * in 'cmp'.
  */
-static inline bool
-object_can_merge_key_values_one (const object *op, const object *cmp)
-{
+static inline bool object_can_merge_key_values_one(const object *op, const object *cmp) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cmp != NULL);
 
     /* For each field in wants. */
-    for (key_value_t *op_field = op->key_values;
-         op_field != NULL;
-         op_field = op_field->next) {
+    for (key_value_t *op_field = op->key_values; op_field != NULL; op_field = op_field->next) {
         key_value_t *cmp_field = object_get_key_link(cmp, op_field->key);
         if (cmp_field == NULL) {
             return false;
@@ -275,14 +533,11 @@ object_can_merge_key_values_one (const object *op, const object *cmp)
  * @return
  * True if ob1 has the same key_values as ob2.
  */
-static inline bool
-object_can_merge_key_values (const object *ob1, const object *ob2)
-{
+static inline bool object_can_merge_key_values(const object *ob1, const object *ob2) {
     HARD_ASSERT(ob1 != NULL);
     HARD_ASSERT(ob2 != NULL);
 
-    return (object_can_merge_key_values_one(ob1, ob2) &&
-            object_can_merge_key_values_one(ob2, ob1));
+    return (object_can_merge_key_values_one(ob1, ob2) && object_can_merge_key_values_one(ob2, ob1));
 }
 
 /**
@@ -295,9 +550,7 @@ object_can_merge_key_values (const object *ob1, const object *ob2)
  * @return
  * True if the two object can merge, false otherwise.
  */
-bool
-object_can_merge (object *ob1, object *ob2)
-{
+bool object_can_merge(object *ob1, object *ob2) {
     HARD_ASSERT(ob1 != NULL);
     HARD_ASSERT(ob2 != NULL);
 
@@ -334,41 +587,27 @@ object_can_merge (object *ob1, object *ob2)
     }
 
     /* Do not merge arrows with different owners. */
-    if (ob1->type == ARROW && ob2->type == ARROW &&
-        ob1->attacked_by_count != 0 && ob2->attacked_by_count != 0 &&
-        ob1->attacked_by_count != ob2->attacked_by_count) {
+    if (ob1->type == ARROW && ob2->type == ARROW && ob1->attacked_by_count != 0 &&
+        ob2->attacked_by_count != 0 && ob1->attacked_by_count != ob2->attacked_by_count) {
         return false;
     }
 
     /* Check attributes that cannot ever merge if they're different. */
-    if (ob1->arch               != ob2->arch ||
-        ob1->item_condition     != ob2->item_condition ||
-        ob1->item_level         != ob2->item_level ||
-        ob1->item_power         != ob2->item_power ||
-        ob1->item_quality       != ob2->item_quality ||
-        ob1->item_race          != ob2->item_race ||
-        ob1->item_skill         != ob2->item_skill ||
-        ob1->last_grace         != ob2->last_grace ||
-        ob1->level              != ob2->level ||
-        ob1->magic              != ob2->magic ||
-        ob1->material           != ob2->material ||
-        ob1->material_real      != ob2->material_real ||
-        ob1->other_arch         != ob2->other_arch ||
-        ob1->path_attuned       != ob2->path_attuned ||
-        ob1->path_denied        != ob2->path_denied ||
-        ob1->path_repelled      != ob2->path_repelled ||
-        ob1->randomitems        != ob2->randomitems ||
-        ob1->sub_type           != ob2->sub_type ||
-        ob1->terrain_flag       != ob2->terrain_flag ||
-        ob1->terrain_type       != ob2->terrain_type ||
-        ob1->type               != ob2->type ||
-        ob1->value              != ob2->value ||
-        ob1->weight             != ob2->weight) {
+    if (ob1->arch != ob2->arch || ob1->item_condition != ob2->item_condition ||
+        ob1->item_level != ob2->item_level || ob1->item_power != ob2->item_power ||
+        ob1->item_quality != ob2->item_quality || ob1->item_race != ob2->item_race ||
+        ob1->item_skill != ob2->item_skill || ob1->last_grace != ob2->last_grace ||
+        ob1->level != ob2->level || ob1->magic != ob2->magic || ob1->material != ob2->material ||
+        ob1->material_real != ob2->material_real || ob1->other_arch != ob2->other_arch ||
+        ob1->path_attuned != ob2->path_attuned || ob1->path_denied != ob2->path_denied ||
+        ob1->path_repelled != ob2->path_repelled || ob1->randomitems != ob2->randomitems ||
+        ob1->sub_type != ob2->sub_type || ob1->terrain_flag != ob2->terrain_flag ||
+        ob1->terrain_type != ob2->terrain_type || ob1->type != ob2->type ||
+        ob1->value != ob2->value || ob1->weight != ob2->weight) {
         return false;
     }
 
-    if (!DBL_EQUAL(ob1->speed, ob2->speed) ||
-        !DBL_EQUAL(ob1->weapon_speed, ob2->weapon_speed)) {
+    if (!DBL_EQUAL(ob1->speed, ob2->speed) || !DBL_EQUAL(ob1->weapon_speed, ob2->weapon_speed)) {
         return false;
     }
 
@@ -381,8 +620,7 @@ object_can_merge (object *ob1, object *ob2)
 
         /* Check that all inv objects are event objects */
         object *tmp1, *tmp2;
-        for (tmp1 = ob1->inv, tmp2 = ob2->inv;
-             tmp1 != NULL && tmp2 != NULL;
+        for (tmp1 = ob1->inv, tmp2 = ob2->inv; tmp1 != NULL && tmp2 != NULL;
              tmp1 = tmp1->below, tmp2 = tmp2->below) {
             if (tmp1->type != EVENT_OBJECT || tmp2->type != EVENT_OBJECT) {
                 return false;
@@ -409,43 +647,32 @@ object_can_merge (object *ob1, object *ob2)
     }
 
     /* Check the shared strings of both objects. */
-    if (ob1->name           != ob2->name ||
-        ob1->title          != ob2->title ||
-        ob1->race           != ob2->race ||
-        ob1->slaying        != ob2->slaying ||
-        ob1->msg            != ob2->msg ||
-        ob1->artifact       != ob2->artifact ||
-        ob1->custom_name    != ob2->custom_name ||
-        ob1->glow           != ob2->glow) {
+    if (ob1->name != ob2->name || ob1->title != ob2->title || ob1->race != ob2->race ||
+        ob1->slaying != ob2->slaying || ob1->msg != ob2->msg || ob1->artifact != ob2->artifact ||
+        ob1->custom_name != ob2->custom_name || ob1->glow != ob2->glow) {
         return false;
     }
 
     /* Compare arrays and structures the object has (stats, protections, etc) */
     if (memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0 ||
         memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack)) != 0 ||
-        memcmp(&ob1->protection,
-               &ob2->protection,
-               sizeof(ob1->protection)) != 0) {
+        memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0) {
         return false;
     }
 
     /* Ignore REMOVED and BEEN_APPLIED */
-    if ((ob1->flags[0] | FLAG_BITMASK(FLAG_REMOVED) |
-         FLAG_BITMASK(FLAG_BEEN_APPLIED)) !=
-        (ob2->flags[0] | FLAG_BITMASK(FLAG_REMOVED) |
-         FLAG_BITMASK(FLAG_BEEN_APPLIED)) ||
+    if ((ob1->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) !=
+            (ob2->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) ||
         (ob1->flags[1]) != (ob2->flags[1]) ||
         (ob1->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) !=
-        (ob2->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) ||
+            (ob2->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) ||
         (ob1->flags[3]) != (ob2->flags[3])) {
         return false;
     }
 
     /* Compare face and animation IDs. */
-    if (ob1->face               != ob2->face ||
-        ob1->inv_face           != ob2->inv_face ||
-        ob1->animation_id       != ob2->animation_id ||
-        ob1->inv_animation_id   != ob2->inv_animation_id) {
+    if (ob1->face != ob2->face || ob1->inv_face != ob2->inv_face ||
+        ob1->animation_id != ob2->animation_id || ob1->inv_animation_id != ob2->inv_animation_id) {
         return false;
     }
 
@@ -475,9 +702,7 @@ object_can_merge (object *ob1, object *ob2)
  * @return
  * 'op', or the object 'op' was merged into.
  */
-object *
-object_merge (object *op)
-{
+object *object_merge(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->nrof == 0 || !QUERY_FLAG(op, FLAG_CAN_STACK)) {
@@ -493,7 +718,7 @@ object_merge (object *op)
         return op;
     }
 
-    for ( ; tmp != NULL; tmp = tmp->below) {
+    for (; tmp != NULL; tmp = tmp->below) {
         if (tmp != op && object_can_merge(op, tmp)) {
             tmp->nrof += op->nrof;
             object_update(tmp, UP_OBJ_FACE);
@@ -519,9 +744,7 @@ object_merge (object *op)
  * @return
  * The calculated weight
  */
-uint32_t
-object_weight_sum (object *op)
-{
+uint32_t object_weight_sum(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
@@ -564,9 +787,7 @@ object_weight_sum (object *op)
  * @param weight
  * The weight to add.
  */
-void
-object_weight_add (object *op, uint32_t weight)
-{
+void object_weight_add(object *op, uint32_t weight) {
     HARD_ASSERT(op != NULL);
 
     while (op != NULL) {
@@ -596,9 +817,7 @@ object_weight_add (object *op, uint32_t weight)
  * @param weight
  * The weight to subtract.
  */
-void
-object_weight_sub (object *op, uint32_t weight)
-{
+void object_weight_sub(object *op, uint32_t weight) {
     HARD_ASSERT(op != NULL);
 
     while (op != NULL) {
@@ -627,9 +846,7 @@ object_weight_sub (object *op, uint32_t weight)
  * @return
  * The outermost environment object for a given object. Never NULL.
  */
-object *
-object_get_env (object *op)
-{
+object *object_get_env(object *op) {
     HARD_ASSERT(op != NULL);
 
     while (op->env != NULL) {
@@ -651,9 +868,7 @@ object_get_env (object *op)
  * True if the checked object is somewhere inside the specified inventory,
  * false otherwise.
  */
-bool
-object_is_in_inventory (const object *op, const object *inv)
-{
+bool object_is_in_inventory(const object *op, const object *inv) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(inv != NULL);
 
@@ -676,9 +891,7 @@ object_is_in_inventory (const object *op, const object *inv)
  * @param sb
  * Buffer that will contain object information. Must not be NULL.
  */
-void
-object_dump (const object *op, StringBuffer *sb)
-{
+void object_dump(const object *op, StringBuffer *sb) {
     HARD_ASSERT(sb != NULL);
 
     if (op == NULL) {
@@ -687,9 +900,9 @@ object_dump (const object *op, StringBuffer *sb)
     }
 
     if (op->arch != NULL) {
-        stringbuffer_append_printf(sb, "arch %s\n",
-                                   op->arch->name != NULL ? op->arch->name :
-                                       "(null)");
+        stringbuffer_append_printf(sb,
+                                   "arch %s\n",
+                                   op->arch->name != NULL ? op->arch->name : "(null)");
         get_ob_diff(sb, op, &arches[ARCH_EMPTY_ARCHETYPE]->clone);
         stringbuffer_append_string(sb, "end\n");
     } else {
@@ -707,9 +920,7 @@ object_dump (const object *op, StringBuffer *sb)
  * @param sb
  * Buffer that will contain object information.
  */
-void
-object_dump_rec (const object *op, StringBuffer *sb)
-{
+void object_dump_rec(const object *op, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(sb != NULL);
 
@@ -737,9 +948,7 @@ object_dump_rec (const object *op, StringBuffer *sb)
  * @param op
  * The object to clear the owner for.
  */
-void
-object_owner_clear (object *op)
-{
+void object_owner_clear(object *op) {
     HARD_ASSERT(op != NULL);
     op->owner = NULL;
     op->ownercount = 0;
@@ -754,14 +963,11 @@ object_owner_clear (object *op)
  * The owner.
  * @see object_owner()
  */
-static void
-object_owner_set_internal (object *op, object *owner)
-{
+static void object_owner_set_internal(object *op, object *owner) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(owner != NULL);
 
-    while (owner->owner != NULL &&
-           owner != owner->owner &&
+    while (owner->owner != NULL && owner != owner->owner &&
            owner->ownercount == owner->owner->count) {
         owner = owner->owner;
     }
@@ -784,9 +990,7 @@ object_owner_set_internal (object *op, object *owner)
  * @param owner
  * The owner.
  */
-void
-object_owner_set (object *op, object *owner)
-{
+void object_owner_set(object *op, object *owner) {
     HARD_ASSERT(op != NULL);
 
     if (unlikely(owner == NULL)) {
@@ -820,9 +1024,7 @@ object_owner_set (object *op, object *owner)
  * @param src
  * The source object to copy the owner from.
  */
-void
-object_owner_copy (object *op, object *src)
-{
+void object_owner_copy(object *op, object *src) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(src != NULL);
 
@@ -853,9 +1055,7 @@ object_owner_copy (object *op, object *src)
  * @return
  * Owner of the object if any, NULL if no owner.
  */
-object *
-object_owner (object *op)
-{
+object *object_owner(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->owner == NULL) {
@@ -882,9 +1082,7 @@ object_owner (object *op)
  * @param no_speed
  * If set, do not touch the active list.
  */
-void
-object_copy (object *op, const object *src, bool no_speed)
-{
+void object_copy(object *op, const object *src, bool no_speed) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(src != NULL);
 
@@ -901,8 +1099,8 @@ object_copy (object *op, const object *src, bool no_speed)
 
     object_free_key_values(op);
 
-    memcpy((char *) op + offsetof(object, name),
-           (const char *) src + offsetof(object, name),
+    memcpy((char *)op + offsetof(object, name),
+           (const char *)src + offsetof(object, name),
            sizeof(object) - offsetof(object, name));
 
     if (is_removed) {
@@ -919,8 +1117,7 @@ object_copy (object *op, const object *src, bool no_speed)
     ADD_REF_NOT_NULL_HASH(op->glow);
 
     /* Only alter speed_left when we are sure that we have not done it before */
-    if (!no_speed && op->speed < 0.0 &&
-        DBL_EQUAL(op->speed_left, op->arch->clone.speed_left)) {
+    if (!no_speed && op->speed < 0.0 && DBL_EQUAL(op->speed_left, op->arch->clone.speed_left)) {
         op->speed_left += rndm(0, 90) / 100.0f;
     }
 
@@ -928,9 +1125,7 @@ object_copy (object *op, const object *src, bool no_speed)
     if (src->key_values != NULL) {
         op->key_values = NULL;
 
-        for (key_value_t *link = src->key_values, *tail = NULL;
-             link != NULL;
-             link = link->next) {
+        for (key_value_t *link = src->key_values, *tail = NULL; link != NULL; link = link->next) {
             key_value_t *new_link = emalloc(sizeof(*new_link));
 
             new_link->next = NULL;
@@ -966,9 +1161,7 @@ object_copy (object *op, const object *src, bool no_speed)
  * @param src
  * Object to copy.
  */
-void
-object_copy_full (object *op, const object *src)
-{
+void object_copy_full(object *op, const object *src) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(src != NULL);
 
@@ -989,9 +1182,7 @@ object_copy_full (object *op, const object *src)
  * @return
  * The new object.
  */
-object *
-object_get (void)
-{
+object *object_get(void) {
 
     object *new_obj = mempool_get(pool_object);
     SET_FLAG(new_obj, FLAG_REMOVED);
@@ -1017,9 +1208,7 @@ object_get (void)
  * @param op
  * The object to update.
  */
-void
-object_update_turnable (object *op)
-{
+void object_update_turnable(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (!QUERY_FLAG(op, FLAG_IS_TURNABLE)) {
@@ -1039,9 +1228,7 @@ object_update_turnable (object *op)
  * @param op
  * The object.
  */
-void
-object_update_speed (object *op)
-{
+void object_update_speed(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (OBJECT_FREE(op) && DBL_EQUAL(op->speed, 0.0)) {
@@ -1079,9 +1266,7 @@ object_update_speed (object *op)
         op->active_prev = NULL;
     } else {
         /* If not on the active list, nothing needs to be done. */
-        if (op->active_next == NULL &&
-            op->active_prev == NULL &&
-            op != active_objects) {
+        if (op->active_next == NULL && op->active_prev == NULL && op != active_objects) {
             return;
         }
 
@@ -1113,14 +1298,10 @@ object_update_speed (object *op)
  * Hint of what the caller believes need to be done. One of
  * @ref UP_OBJ_xxx values.
  */
-void
-object_update (object *op, int action)
-{
+void object_update(object *op, int action) {
     HARD_ASSERT(op != NULL);
 
-    if (op->env != NULL ||
-        op->map == NULL ||
-        op->map->in_memory == MAP_SAVING) {
+    if (op->env != NULL || op->map == NULL || op->map->in_memory == MAP_SAVING) {
         return;
     }
 
@@ -1141,8 +1322,7 @@ object_update (object *op, int action)
             adjust_light_source(op->map, op->x, op->y, op->glow_radius);
         }
 
-        if (QUERY_FLAG(op, FLAG_NO_PASS) ||
-            QUERY_FLAG(op, FLAG_PASS_THRU) ||
+        if (QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PASS_THRU) ||
             QUERY_FLAG(op, FLAG_DOOR_CLOSED)) {
             newflags |= P_NEED_UPDATE;
         } else if (QUERY_FLAG(op, FLAG_IS_FLOOR)) {
@@ -1219,23 +1399,14 @@ object_update (object *op, int action)
 
         /* We must rebuild the flags when one of these flags is touched from our
          * object */
-        if (QUERY_FLAG(op, FLAG_MONSTER) ||
-            QUERY_FLAG(op, FLAG_IS_PLAYER) ||
-            QUERY_FLAG(op, FLAG_BLOCKSVIEW) ||
-            QUERY_FLAG(op, FLAG_DOOR_CLOSED) ||
-            QUERY_FLAG(op, FLAG_PASS_THRU) ||
-            QUERY_FLAG(op, FLAG_NO_PASS) ||
-            QUERY_FLAG(op, FLAG_PLAYER_ONLY) ||
-            QUERY_FLAG(op, FLAG_NO_MAGIC) ||
-            QUERY_FLAG(op, FLAG_WALK_ON) ||
-            QUERY_FLAG(op, FLAG_FLY_ON) ||
-            QUERY_FLAG(op, FLAG_WALK_OFF) ||
-            QUERY_FLAG(op, FLAG_FLY_OFF) ||
-            QUERY_FLAG(op, FLAG_IS_FLOOR) ||
-            QUERY_FLAG(op, FLAG_OUTDOOR) ||
-            QUERY_FLAG(op, FLAG_NO_PVP) ||
-            op->type == CHECK_INV ||
-            op->type == MAGIC_MIRROR ||
+        if (QUERY_FLAG(op, FLAG_MONSTER) || QUERY_FLAG(op, FLAG_IS_PLAYER) ||
+            QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) ||
+            QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) ||
+            QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) ||
+            QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) ||
+            QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) ||
+            QUERY_FLAG(op, FLAG_IS_FLOOR) || QUERY_FLAG(op, FLAG_OUTDOOR) ||
+            QUERY_FLAG(op, FLAG_NO_PVP) || op->type == CHECK_INV || op->type == MAGIC_MIRROR ||
             op->type == EXIT) {
             newflags |= P_NEED_UPDATE;
         }
@@ -1278,17 +1449,14 @@ object_update (object *op, int action)
  * @param op
  * The object to drop the inventory for.
  */
-void
-object_drop_inventory (object *op)
-{
+void object_drop_inventory(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->type == PLAYER) {
         return;
     }
 
-    if (op->env == NULL &&
-        (op->map == NULL || op->map->in_memory != MAP_IN_MEMORY)) {
+    if (op->env == NULL && (op->map == NULL || op->map->in_memory != MAP_IN_MEMORY)) {
         return;
     }
 
@@ -1317,8 +1485,7 @@ object_drop_inventory (object *op)
         object_remove(tmp, 0);
 
         if (tmp->type == QUEST_CONTAINER) {
-            if (enemy != NULL && enemy->type == PLAYER &&
-                enemy->count == op->enemy_count) {
+            if (enemy != NULL && enemy->type == PLAYER && enemy->count == op->enemy_count) {
                 quest_handle(enemy, tmp);
             }
 
@@ -1328,9 +1495,9 @@ object_drop_inventory (object *op)
 
         if ((QUERY_FLAG(op, FLAG_STARTEQUIP) &&
              !(tmp->type == ARROW && tmp->attacked_by_count != 0)) ||
-            (tmp->type != RUNE && (QUERY_FLAG(tmp, FLAG_SYS_OBJECT) ||
-                                   QUERY_FLAG(tmp, FLAG_STARTEQUIP) ||
-                                   QUERY_FLAG(tmp, FLAG_NO_DROP)))) {
+            (tmp->type != RUNE &&
+             (QUERY_FLAG(tmp, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) ||
+              QUERY_FLAG(tmp, FLAG_NO_DROP)))) {
             object_destroy(tmp);
             continue;
         }
@@ -1344,12 +1511,10 @@ object_drop_inventory (object *op)
 
         /* If we have a corpse put the item in it. */
         if (corpse != NULL &&
-            !(tmp->type == ARROW && tmp->attacked_by_count != 0 &&
-              enemy != NULL && OBJECT_VALID(tmp->attacked_by,
-                                            tmp->attacked_by_count) &&
+            !(tmp->type == ARROW && tmp->attacked_by_count != 0 && enemy != NULL &&
+              OBJECT_VALID(tmp->attacked_by, tmp->attacked_by_count) &&
               tmp->attacked_by_count != enemy->count &&
-              !(tmp->attacked_by->type == PLAYER &&
-                enemy->type == PLAYER &&
+              !(tmp->attacked_by->type == PLAYER && enemy->type == PLAYER &&
                 CONTR(tmp->attacked_by)->party != NULL &&
                 CONTR(tmp->attacked_by)->party == CONTR(enemy)->party))) {
             object_insert_into(tmp, corpse, 0);
@@ -1362,7 +1527,8 @@ object_drop_inventory (object *op)
         } else {
             object_destroy(tmp);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     /* Drop the corpse. */
     if (corpse != NULL) {
@@ -1376,10 +1542,8 @@ object_drop_inventory (object *op)
 
         /* Change sub_type to mark this corpse. */
         if (corpse->slaying != NULL) {
-            if (CONTR(enemy)->party != NULL &&
-                CONTR(enemy)->party->loot != PARTY_LOOT_OWNER) {
-                FREE_AND_ADD_REF_HASH(corpse->slaying,
-                                      CONTR(enemy)->party->name);
+            if (CONTR(enemy)->party != NULL && CONTR(enemy)->party->loot != PARTY_LOOT_OWNER) {
+                FREE_AND_ADD_REF_HASH(corpse->slaying, CONTR(enemy)->party->name);
                 corpse->sub_type = ST1_CONTAINER_CORPSE_party;
             } else {
                 corpse->sub_type = ST1_CONTAINER_CORPSE_player;
@@ -1396,9 +1560,7 @@ object_drop_inventory (object *op)
             corpse = object_insert_map(corpse, op->map, NULL, 0);
         }
 
-        SOFT_ASSERT(corpse != NULL,
-                    "Failed to insert corpse for %s",
-                    object_get_str(op));
+        SOFT_ASSERT(corpse != NULL, "Failed to insert corpse for %s", object_get_str(op));
         object_reverse_inventory(corpse);
     }
 }
@@ -1410,9 +1572,7 @@ object_drop_inventory (object *op)
  * @param op
  * Object to free the inventory of.
  */
-void
-object_destroy_inv (object *op)
-{
+void object_destroy_inv(object *op) {
     HARD_ASSERT(op != NULL);
 
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -1424,7 +1584,8 @@ object_destroy_inv (object *op)
 
         object_remove(tmp, 0);
         object_destroy(tmp);
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 }
@@ -1437,9 +1598,7 @@ object_destroy_inv (object *op)
  * @param op
  * The object to destroy (free).
  */
-void
-object_destroy (object *op)
-{
+void object_destroy(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (!QUERY_FLAG(op, FLAG_REMOVED)) {
@@ -1474,20 +1633,22 @@ object_destroy (object *op)
     /* Free attached attrsets */
     if (op->custom_attrset) {
         switch (op->type) {
-        case PLAYER:
-            /* Players are changed into DEAD_OBJECTs when they logout */
-        case DEAD_OBJECT:
-            mempool_return(pool_player, op->custom_attrset);
-            break;
+            case PLAYER:
+                /* Players are changed into DEAD_OBJECTs when they logout */
+            case DEAD_OBJECT:
+                mempool_return(pool_player, op->custom_attrset);
+                break;
 
-        case MONSTER:
-            monster_data_deinit(op);
-            break;
+            case MONSTER:
+                monster_data_deinit(op);
+                break;
 
-        default:
-            LOG(ERROR,
-                "Custom attrset found in unsupported object %s "
-                "(type %d)", object_get_str(op), op->type);
+            default:
+                LOG(ERROR,
+                    "Custom attrset found in unsupported object %s "
+                    "(type %d)",
+                    object_get_str(op),
+                    op->type);
         }
 
         op->custom_attrset = NULL;
@@ -1517,9 +1678,7 @@ object_destroy (object *op)
  * @param op
  * Object to destruct.
  */
-void
-object_destruct (object *op)
-{
+void object_destruct(object *op) {
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
 
     if (op->inv != NULL) {
@@ -1543,9 +1702,7 @@ object_destruct (object *op)
  * @return
  * True if 'op' was destroyed, false otherwise.
  */
-static int
-object_check_move_on (object *op, object *originator, int state)
-{
+static int object_check_move_on(object *op, object *originator, int state) {
     HARD_ASSERT(op != NULL);
 
     if (QUERY_FLAG(op, FLAG_NO_APPLY)) {
@@ -1554,8 +1711,7 @@ object_check_move_on (object *op, object *originator, int state)
 
     MapSpace *msp = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
     /* No event on this tile. */
-    if (!(msp->flags &
-          (state == 1 ? (P_WALK_ON | P_FLY_ON) : (P_WALK_OFF | P_FLY_OFF)))) {
+    if (!(msp->flags & (state == 1 ? (P_WALK_ON | P_FLY_ON) : (P_WALK_OFF | P_FLY_OFF)))) {
         return false;
     }
 
@@ -1569,11 +1725,9 @@ object_check_move_on (object *op, object *originator, int state)
                 continue;
             }
 
-            if (state == 1 && IS_LIVE(op) &&
-                (op->type != PLAYER || !CONTR(op)->tcl) &&
+            if (state == 1 && IS_LIVE(op) && (op->type != PLAYER || !CONTR(op)->tcl) &&
                 QUERY_FLAG(tmp, FLAG_SLOW_MOVE) &&
-                (tmp->terrain_flag == 0 ||
-                 tmp->terrain_flag & op->terrain_flag)) {
+                (tmp->terrain_flag == 0 || tmp->terrain_flag & op->terrain_flag)) {
                 op->speed_left -= SLOW_PENALTY(tmp) * FABS(op->speed);
             }
 
@@ -1597,8 +1751,10 @@ object_check_move_on (object *op, object *originator, int state)
             if (op->map != m || op->x != x || op->y != y) {
                 return false;
             }
-        } FOR_MAP_FINISH();
-    } OBJECTS_DESTROYED_END();
+        }
+        FOR_MAP_FINISH();
+    }
+    OBJECTS_DESTROYED_END();
 
     return false;
 }
@@ -1619,14 +1775,11 @@ object_check_move_on (object *op, object *originator, int state)
  * @param flags
  * Combination of @ref REMOVAL_xxx.
  */
-void
-object_remove (object *op, int flags)
-{
+void object_remove(object *op, int flags) {
     HARD_ASSERT(op != NULL);
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        log_error("Tried to remove an already removed object %s.",
-                  object_get_str(op));
+        log_error("Tried to remove an already removed object %s.", object_get_str(op));
         return;
     }
 
@@ -1678,10 +1831,8 @@ object_remove (object *op, int flags)
          * to be it if it is from same layer and sub-layer. */
         MapSpace *msp = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
 
-        if (op->layer != 0 &&
-            GET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer) == op) {
-            if (op->above != NULL &&
-                op->above->layer == op->layer &&
+        if (op->layer != 0 && GET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer) == op) {
+            if (op->above != NULL && op->above->layer == op->layer &&
                 op->above->sub_layer == op->sub_layer) {
                 SET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer, op->above);
             } else {
@@ -1737,21 +1888,17 @@ object_remove (object *op, int flags)
  * @return
  * NULL if 'op' was destroyed, 'op' otherwise.
  */
-object *
-object_insert_map (object *op, mapstruct *m, object *originator, int flag)
-{
+object *object_insert_map(object *op, mapstruct *m, object *originator, int flag) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(m != NULL);
 
     if (OBJECT_FREE(op)) {
-        log_error("Attempted to insert freed object: %s",
-                  object_get_str(op));
+        log_error("Attempted to insert freed object: %s", object_get_str(op));
         return NULL;
     }
 
     if (!QUERY_FLAG(op, FLAG_REMOVED)) {
-        log_error("Attempted to insert non-removed object: %s",
-                  object_get_str(op));
+        log_error("Attempted to insert non-removed object: %s", object_get_str(op));
         return op;
     }
 
@@ -1790,14 +1937,8 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
         mapstruct *tiled;
         bool found_floor;
         int sub_layer;
-        for (tiled = m;
-             tiled != NULL;
-             tiled = get_map_from_tiled(tiled, TILED_DOWN)) {
-            object *floor = GET_MAP_OB_LAYER(tiled,
-                                             op->x,
-                                             op->y,
-                                             LAYER_FLOOR,
-                                             op->sub_layer);
+        for (tiled = m; tiled != NULL; tiled = get_map_from_tiled(tiled, TILED_DOWN)) {
+            object *floor = GET_MAP_OB_LAYER(tiled, op->x, op->y, LAYER_FLOOR, op->sub_layer);
             int z = floor != NULL ? floor->z : 0;
             int z_highest = 0;
             sub_layer = -1;
@@ -1808,12 +1949,7 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
             }
 
             object *floor_tmp;
-            FOR_MAP_LAYER_BEGIN(tiled,
-                                op->x,
-                                op->y,
-                                LAYER_FLOOR,
-                                -1,
-                                floor_tmp) {
+            FOR_MAP_LAYER_BEGIN(tiled, op->x, op->y, LAYER_FLOOR, -1, floor_tmp) {
                 found_floor = true;
 
                 if (tiled == m) {
@@ -1828,7 +1964,8 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
                     z_highest = floor_tmp->z;
                     sub_layer = floor_tmp->sub_layer;
                 }
-            } FOR_MAP_LAYER_END
+            }
+            FOR_MAP_LAYER_END
 
             if (found_floor || QUERY_FLAG(op, FLAG_FLYING)) {
                 break;
@@ -1898,11 +2035,8 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
     if (op->layer != 0) {
         object *top = GET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer);
         if (top == NULL) {
-            for (int layer = op->layer;
-                 layer <= NUM_LAYERS && top == NULL;
-                 layer++) {
-                for (int sub_layer = op->sub_layer;
-                     sub_layer < NUM_SUB_LAYERS && top == NULL;
+            for (int layer = op->layer; layer <= NUM_LAYERS && top == NULL; layer++) {
+                for (int sub_layer = op->sub_layer; sub_layer < NUM_SUB_LAYERS && top == NULL;
                      sub_layer++) {
                     top = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
                 }
@@ -1970,8 +2104,7 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
     /* Attempt to open doors. */
     door_try_open(op, op->map, op->x, op->y, false);
 
-    if (!(flag & INS_NO_WALK_ON) &&
-        (msp->flags & (P_WALK_ON | P_FLY_ON) || op->more != NULL) &&
+    if (!(flag & INS_NO_WALK_ON) && (msp->flags & (P_WALK_ON | P_FLY_ON) || op->more != NULL) &&
         op->head == NULL) {
         for (object *tmp = op; tmp != NULL; tmp = tmp->more) {
             if (object_check_move_on(tmp, originator, 1)) {
@@ -1987,7 +2120,8 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
             if (OBJECTS_DESTROYED(op)) {
                 return NULL;
             }
-        } OBJECTS_DESTROYED_END();
+        }
+        OBJECTS_DESTROYED_END();
     }
 
     return op;
@@ -2006,9 +2140,7 @@ object_insert_map (object *op, mapstruct *m, object *originator, int flag)
  * @return
  * Split part of the stack. Can be the original object; never NULL.
  */
-object *
-object_stack_get (object *op, uint32_t nrof)
-{
+object *object_stack_get(object *op, uint32_t nrof) {
     HARD_ASSERT(op != NULL);
 
     nrof = MAX(1, nrof);
@@ -2042,9 +2174,7 @@ object_stack_get (object *op, uint32_t nrof)
  * @return
  * Split part of the stack. Can be the original object; never NULL.
  */
-object *
-object_stack_get_reinsert (object *op, uint32_t nrof)
-{
+object *object_stack_get_reinsert(object *op, uint32_t nrof) {
     HARD_ASSERT(op != NULL);
 
     object *split = object_stack_get(op, nrof);
@@ -2074,9 +2204,7 @@ object_stack_get_reinsert (object *op, uint32_t nrof)
  * @return
  * Split part of the stack. Can be the original object; never NULL.
  */
-object *
-object_stack_get_removed (object *op, uint32_t nrof)
-{
+object *object_stack_get_removed(object *op, uint32_t nrof) {
     HARD_ASSERT(op != NULL);
 
     object *split = object_stack_get(op, nrof);
@@ -2101,9 +2229,7 @@ object_stack_get_removed (object *op, uint32_t nrof)
  * @return
  * 'op' if something is left, NULL if the amount reached 0.
  */
-object *
-object_decrease (object *op, uint32_t nrof)
-{
+object *object_decrease(object *op, uint32_t nrof) {
     HARD_ASSERT(op != NULL);
 
     if (nrof == 0) {
@@ -2154,14 +2280,9 @@ object_decrease (object *op, uint32_t nrof)
  * Pointer to inserted item, which will be different than op if object
  * was merged.
  */
-object *
-object_insert_into (object *op, object *where, int flag)
-{
+object *object_insert_into(object *op, object *where, int flag) {
     HARD_ASSERT(op != NULL);
-    SOFT_ASSERT_RC(where != NULL,
-                   op,
-                   "Attempting to insert %s into nothing.",
-                   object_get_str(op));
+    SOFT_ASSERT_RC(where != NULL, op, "Attempting to insert %s into nothing.", object_get_str(op));
     SOFT_ASSERT_RC(QUERY_FLAG(op, FLAG_REMOVED),
                    op,
                    "Attempting to insert non-removed object %s into %s",
@@ -2190,8 +2311,7 @@ object_insert_into (object *op, object *where, int flag)
     if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
         if (!(flag & INS_NO_MERGE)) {
             for (object *tmp = where->inv; tmp != NULL; tmp = tmp->below) {
-                if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) &&
-                    object_can_merge(tmp, op)) {
+                if (!QUERY_FLAG(tmp, FLAG_SYS_OBJECT) && object_can_merge(tmp, op)) {
                     tmp->nrof += op->nrof;
                     esrv_update_item(UPD_NROF, tmp);
                     object_weight_add(where, op->weight * MAX(1, op->nrof));
@@ -2254,9 +2374,7 @@ object_insert_into (object *op, object *where, int flag)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *
-object_find_arch (object *op, archetype_t *at)
-{
+object *object_find_arch(object *op, archetype_t *at) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(at != NULL);
 
@@ -2280,9 +2398,7 @@ object_find_arch (object *op, archetype_t *at)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *
-object_find_type (object *op, uint8_t type)
-{
+object *object_find_type(object *op, uint8_t type) {
     HARD_ASSERT(op != NULL);
 
     for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
@@ -2306,9 +2422,7 @@ object_find_type (object *op, uint8_t type)
  * @return
  * The direction; zero if no direction can be computed.
  */
-int
-object_dir_to_target (object *op, object *target)
-{
+int object_dir_to_target(object *op, object *target) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(target != NULL);
 
@@ -2331,9 +2445,7 @@ object_dir_to_target (object *op, object *target)
  * @return
  * True if it can be picked up, false otherwise.
  */
-bool
-object_can_pick (const object *op, const object *item)
-{
+bool object_can_pick(const object *op, const object *item) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item != NULL);
     HARD_ASSERT(op->type == PLAYER || op->type == MONSTER);
@@ -2381,9 +2493,7 @@ object_can_pick (const object *op, const object *item)
  * @return
  * Clone of op, including inventory and 'more' body parts.
  */
-object *
-object_clone (const object *op)
-{
+object *object_clone(const object *op) {
     HARD_ASSERT(op != NULL);
 
     op = HEAD(op);
@@ -2429,9 +2539,7 @@ object_clone (const object *op)
  * @return
  * The newly created object, NULL on failure.
  */
-object *
-object_load_str (const char *str)
-{
+object *object_load_str(const char *str) {
     HARD_ASSERT(str != NULL);
 
     object *obj = object_get();
@@ -2452,9 +2560,7 @@ object_load_str (const char *str)
  * @param op
  * Object to clear.
  */
-void
-object_free_key_values (object *op)
-{
+void object_free_key_values(object *op) {
     HARD_ASSERT(op != NULL);
 
     key_value_t *field, *tmp;
@@ -2483,9 +2589,7 @@ object_free_key_values (object *op)
  * @return
  * The link from the list if pb has a field named key, NULL otherwise.
  */
-key_value_t *
-object_get_key_link (const object *op, shstr *key)
-{
+key_value_t *object_get_key_link(const object *op, shstr *key) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(key != NULL);
 
@@ -2511,9 +2615,7 @@ object_get_key_link (const object *op, shstr *key)
  * @note
  * The returned string is shared.
  */
-shstr *
-object_get_value (const object *op, const char *const key)
-{
+shstr *object_get_value(const object *op, const char *const key) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(key != NULL);
 
@@ -2546,9 +2648,7 @@ object_get_value (const object *op, const char *const key)
  * @return
  * True if key was updated or added, false otherwise.
  */
-static bool
-object_set_value_s (object *op, shstr *key, const char *value, bool add_key)
-{
+static bool object_set_value_s(object *op, shstr *key, const char *value, bool add_key) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(key != NULL);
 
@@ -2631,9 +2731,7 @@ object_set_value_s (object *op, shstr *key, const char *value, bool add_key)
  * This function is merely a wrapper to object_set_value_s() to ensure
  * the key is a shared string.
  */
-bool
-object_set_value (object *op, const char *key, const char *value, bool add_key)
-{
+bool object_set_value(object *op, const char *key, const char *value, bool add_key) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(key != NULL);
 
@@ -2672,9 +2770,7 @@ object_set_value (object *op, const char *key, const char *value, bool add_key)
  * Non-zero if we have a match. A higher value means a better match. Zero
  * means no match.
  */
-int
-object_matches_string (object *op, object *caller, const char *str)
-{
+int object_matches_string(object *op, object *caller, const char *str) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(caller != NULL);
     HARD_ASSERT(str != NULL);
@@ -2705,19 +2801,16 @@ object_matches_string (object *op, object *caller, const char *str)
                 return 2;
             }
 
-            if (QUERY_FLAG(op, FLAG_IS_MAGICAL) &&
-                strcasecmp(cp, "magical") == 0) {
+            if (QUERY_FLAG(op, FLAG_IS_MAGICAL) && strcasecmp(cp, "magical") == 0) {
                 return 2;
             }
 
-            if (op->artifact != NULL &&
-                strcasecmp(cp, "artifact") == 0) {
+            if (op->artifact != NULL && strcasecmp(cp, "artifact") == 0) {
                 return 2;
             }
         }
 
-        if (!QUERY_FLAG(op, FLAG_INV_LOCKED) &&
-            strcasecmp(cp, "unlocked") == 0) {
+        if (!QUERY_FLAG(op, FLAG_INV_LOCKED) && strcasecmp(cp, "unlocked") == 0) {
             return 2;
         }
 
@@ -2729,13 +2822,12 @@ object_matches_string (object *op, object *caller, const char *str)
             return 2;
         }
 
-        if ((op->type == FOOD || op->type == DRINK) &&
-            strcasecmp(cp, "food") == 0) {
+        if ((op->type == FOOD || op->type == DRINK) && strcasecmp(cp, "food") == 0) {
             return 2;
         }
 
-        if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET ||
-             op->type == PEARL) && strcasecmp(cp, "valuables") == 0) {
+        if ((op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) &&
+            strcasecmp(cp, "valuables") == 0) {
             return 2;
         }
 
@@ -2777,8 +2869,7 @@ object_matches_string (object *op, object *caller, const char *str)
                     return 2;
                 }
 
-                if (sscanf(cp, "unread level %d-%d books", &book_level[0],
-                           &book_level[1]) == 2 &&
+                if (sscanf(cp, "unread level %d-%d books", &book_level[0], &book_level[1]) == 2 &&
                     op->level >= book_level[0] && op->level <= book_level[1]) {
                     return 2;
                 }
@@ -2792,8 +2883,7 @@ object_matches_string (object *op, object *caller, const char *str)
                     return 2;
                 }
 
-                if (sscanf(cp, "read level %d-%d books", &book_level[0],
-                           &book_level[1]) == 2 &&
+                if (sscanf(cp, "read level %d-%d books", &book_level[0], &book_level[1]) == 2 &&
                     op->level >= book_level[0] && op->level <= book_level[1]) {
                     return 2;
                 }
@@ -2828,8 +2918,7 @@ object_matches_string (object *op, object *caller, const char *str)
             retval = 18;
         } else if (strcasecmp(cp, base_name) == 0) {
             retval = 16;
-        } else if (op->custom_name != NULL &&
-                   strcasecmp(cp, op->custom_name) == 0) {
+        } else if (op->custom_name != NULL && strcasecmp(cp, op->custom_name) == 0) {
             retval = 15;
         } else if (strncasecmp(cp, base_name, strlen(cp)) == 0) {
             retval = 14;
@@ -2841,8 +2930,7 @@ object_matches_string (object *op, object *caller, const char *str)
             retval = 12;
         } else if (strstr(short_name, cp) != NULL) {
             retval = 12;
-        } else if (op->custom_name != NULL &&
-                   strstr(op->custom_name, cp) != NULL) {
+        } else if (op->custom_name != NULL && strstr(op->custom_name, cp) != NULL) {
             /* Check for partial custom name, but give a really low priority. */
             retval = 3;
         } else {
@@ -2873,9 +2961,7 @@ object_matches_string (object *op, object *caller, const char *str)
  * @return
  * The gender ID.
  */
-int
-object_get_gender (const object *op)
-{
+int object_get_gender(const object *op) {
     HARD_ASSERT(op != NULL);
 
     if (QUERY_FLAG(op, FLAG_IS_MALE)) {
@@ -2897,9 +2983,7 @@ object_get_gender (const object *op)
  * @param op
  * Object to reverse the inventory of.
  */
-void
-object_reverse_inventory (object *op)
-{
+void object_reverse_inventory(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->inv == NULL) {
@@ -2952,14 +3036,7 @@ object_reverse_inventory (object *op)
  * @return
  * True on success, false on failure.
  */
-bool
-object_enter_map (object    *op,
-                  object    *exit,
-                  mapstruct *m,
-                  int        x,
-                  int        y,
-                  bool       fixed_pos)
-{
+bool object_enter_map(object *op, object *exit, mapstruct *m, int x, int y, bool fixed_pos) {
     HARD_ASSERT(op != NULL);
 
     op = HEAD(op);
@@ -2993,7 +3070,7 @@ object_enter_map (object    *op,
              * static variable and increment the counter by one each time. */
             static uint64_t reference_number = 0;
             char newmap_name[HUGE_BUF];
-            snprintf(VS(newmap_name), "/random/%"PRIu64, reference_number++);
+            snprintf(VS(newmap_name), "/random/%" PRIu64, reference_number++);
 
             /* Now to generate the actual map. */
             m = generate_random_map(newmap_name, &rp);
@@ -3009,26 +3086,15 @@ object_enter_map (object    *op,
         } else if (exit->map != NULL) {
             bool unique = (op->type == PLAYER &&
                            (exit->last_eat == MAP_PLAYER_MAP ||
-                            (MAP_UNIQUE(exit->map) &&
-                             !map_path_isabs(EXIT_PATH(exit)))));
-            char *path = map_get_path(exit->map,
-                                      EXIT_PATH(exit),
-                                      unique,
-                                      op->name);
+                            (MAP_UNIQUE(exit->map) && !map_path_isabs(EXIT_PATH(exit)))));
+            char *path = map_get_path(exit->map, EXIT_PATH(exit), unique, op->name);
             m = ready_map_name(path, NULL, 0);
             efree(path);
 
             /* Failed to load a random map? */
-            if (m == NULL &&
-                op->type == PLAYER &&
-                strncmp(EXIT_PATH(exit), "/random/", 8) == 0) {
+            if (m == NULL && op->type == PLAYER && strncmp(EXIT_PATH(exit), "/random/", 8) == 0) {
                 m = ready_map_name(CONTR(op)->savebed_map, NULL, 0);
-                return object_enter_map(op,
-                                        NULL,
-                                        m,
-                                        CONTR(op)->bed_x,
-                                        CONTR(op)->bed_y,
-                                        true);
+                return object_enter_map(op, NULL, m, CONTR(op)->bed_x, CONTR(op)->bed_y, true);
             }
         } else {
             m = ready_map_name(EXIT_PATH(exit), NULL, MAP_NAME_SHARED);
@@ -3061,11 +3127,7 @@ object_enter_map (object    *op,
 
     mapstruct *m2 = get_map_from_coord(m, &x, &y);
     if (m2 == NULL) {
-        LOG(ERROR,
-            "Invalid exit coordinates (%d,%d): %s",
-            x,
-            y,
-            object_get_str(exit));
+        LOG(ERROR, "Invalid exit coordinates (%d,%d): %s", x, y, object_get_str(exit));
         x = MAP_ENTER_X(m);
         y = MAP_ENTER_Y(m);
     } else {
@@ -3086,8 +3148,7 @@ object_enter_map (object    *op,
 
     if (exit != NULL) {
         int sub_direction = exit->last_heal - 1 == TILED_UP ? 1 : -1;
-        for (int sub_layer = op->sub_layer;
-             sub_layer >= 0 && sub_layer < NUM_SUB_LAYERS;
+        for (int sub_layer = op->sub_layer; sub_layer >= 0 && sub_layer < NUM_SUB_LAYERS;
              sub_layer += sub_direction) {
             object *floor = GET_MAP_OB_LAYER(m, x, y, LAYER_FLOOR, sub_layer);
             if (floor != NULL) {
@@ -3147,9 +3208,7 @@ object_enter_map (object    *op,
  * @return
  * String representation of the object.
  */
-const char *
-object_get_str (const object *op)
-{
+const char *object_get_str(const object *op) {
     static char buf[10][HUGE_BUF * 16];
     static int buf_idx = 0;
 
@@ -3171,9 +3230,7 @@ object_get_str (const object *op)
  * @return
  * 'buf'.
  */
-char *
-object_get_str_r (const object *op, char *buf, size_t bufsize)
-{
+char *object_get_str_r(const object *op, char *buf, size_t bufsize) {
     HARD_ASSERT(buf != NULL);
 
     if (op == NULL) {
@@ -3181,23 +3238,23 @@ object_get_str_r (const object *op, char *buf, size_t bufsize)
         return buf;
     }
 
-    snprintf(buf, bufsize, "%s UID: %u",
-            op->name != NULL ? op->name : "<no name>",
-            op->count);
+    snprintf(buf, bufsize, "%s UID: %u", op->name != NULL ? op->name : "<no name>", op->count);
 
     if (arch_table != NULL && op->arch != NULL && op->arch->name != NULL) {
         snprintfcat(buf, bufsize, " arch: %s", op->arch->name);
     }
 
     if (first_map != NULL && op->map != NULL) {
-        snprintfcat(buf, bufsize, " map: %s [%s] @ %d,%d",
-                op->map->name != NULL ? op->map->name : "<no name>",
-                op->map->path != NULL ? op->map->path : "<no path>",
-                op->x, op->y);
+        snprintfcat(buf,
+                    bufsize,
+                    " map: %s [%s] @ %d,%d",
+                    op->map->name != NULL ? op->map->name : "<no name>",
+                    op->map->path != NULL ? op->map->path : "<no path>",
+                    op->x,
+                    op->y);
     } else if (op->env != NULL) {
         char buf2[HUGE_BUF];
-        snprintfcat(buf, bufsize, " env: [%s]", object_get_str_r(op->env,
-                VS(buf2)));
+        snprintfcat(buf, bufsize, " env: [%s]", object_get_str_r(op->env, VS(buf2)));
     }
 
     return buf;
@@ -3220,18 +3277,11 @@ object_get_str_r (const object *op, char *buf, size_t bufsize)
  * 0 if the tile is not blocked, a combination of @ref map_look_flags
  * otherwise.
  */
-int
-object_blocked (object *op, mapstruct *m, int x, int y)
-{
+int object_blocked(object *op, mapstruct *m, int x, int y) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(m != NULL);
 
-    SOFT_ASSERT_RC(!OUT_OF_MAP(m, x, y),
-                   P_OUT_OF_MAP,
-                   "Out of map: %s %d,%d",
-                   m->path,
-                   x,
-                   y);
+    SOFT_ASSERT_RC(!OUT_OF_MAP(m, x, y), P_OUT_OF_MAP, "Out of map: %s %d,%d", m->path, x, y);
 
     op = HEAD(op);
 
@@ -3277,9 +3327,7 @@ object_blocked (object *op, mapstruct *m, int x, int y)
  * @return
  * Object of specified name. It fill have the #FLAG_NO_PICK flag set.
  */
-object *
-object_create_singularity (const char *name)
-{
+object *object_create_singularity(const char *name) {
     char buf[MAX_BUF];
     snprintf(VS(buf), "singularity");
     if (name != NULL) {
@@ -3301,9 +3349,7 @@ object_create_singularity (const char *name)
  * Where to save the object's text representation. Can be NULL, in which
  * case this is a no-op.
  */
-void
-object_save (const object *op, FILE *fp)
-{
+void object_save(const object *op, FILE *fp) {
     HARD_ASSERT(op != NULL);
 
     if (fp == NULL) {

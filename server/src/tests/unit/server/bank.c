@@ -30,8 +30,7 @@
 #include <arch.h>
 #include <object.h>
 
-START_TEST(test_bank_find_info)
-{
+START_TEST(test_bank_find_info) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -48,8 +47,7 @@ START_TEST(test_bank_find_info)
 }
 END_TEST
 
-START_TEST(test_bank_deposit)
-{
+START_TEST(test_bank_deposit) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -122,8 +120,7 @@ START_TEST(test_bank_deposit)
 }
 END_TEST
 
-START_TEST(test_bank_withdraw)
-{
+START_TEST(test_bank_withdraw) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -155,39 +152,32 @@ START_TEST(test_bank_withdraw)
     ck_assert_uint_eq(shop_get_money(pl), total);
     ck_assert_int_eq(bank_withdraw(pl, "", &value), BANK_SYNTAX_ERROR);
     ck_assert_uint_eq(value, 0);
-    ck_assert_int_eq(bank_withdraw(pl, "10000000 a", &value),
-            BANK_WITHDRAW_HIGH);
+    ck_assert_int_eq(bank_withdraw(pl, "10000000 a", &value), BANK_WITHDRAW_HIGH);
     ck_assert_uint_eq(value, 0);
     ck_assert_uint_eq(bank_get_balance(pl), total);
     ck_assert_uint_eq(shop_get_money(pl), total);
-    ck_assert_int_eq(bank_withdraw(pl, "10000000 m", &value),
-            BANK_WITHDRAW_HIGH);
+    ck_assert_int_eq(bank_withdraw(pl, "10000000 m", &value), BANK_WITHDRAW_HIGH);
     ck_assert_uint_eq(value, 0);
     ck_assert_uint_eq(bank_get_balance(pl), total);
     ck_assert_uint_eq(shop_get_money(pl), total);
-    ck_assert_int_eq(bank_withdraw(pl, "10000000 j", &value),
-            BANK_WITHDRAW_HIGH);
+    ck_assert_int_eq(bank_withdraw(pl, "10000000 j", &value), BANK_WITHDRAW_HIGH);
     ck_assert_uint_eq(value, 0);
     ck_assert_uint_eq(bank_get_balance(pl), total);
     ck_assert_uint_eq(shop_get_money(pl), total);
-    ck_assert_int_eq(bank_withdraw(pl, "10000000 g", &value),
-            BANK_WITHDRAW_HIGH);
+    ck_assert_int_eq(bank_withdraw(pl, "10000000 g", &value), BANK_WITHDRAW_HIGH);
     ck_assert_uint_eq(value, 0);
     ck_assert_uint_eq(bank_get_balance(pl), total);
     ck_assert_uint_eq(shop_get_money(pl), total);
-    ck_assert_int_eq(bank_withdraw(pl, "10000000 s", &value),
-            BANK_WITHDRAW_HIGH);
+    ck_assert_int_eq(bank_withdraw(pl, "10000000 s", &value), BANK_WITHDRAW_HIGH);
     ck_assert_uint_eq(value, 0);
     ck_assert_uint_eq(bank_get_balance(pl), total);
     ck_assert_uint_eq(shop_get_money(pl), total);
-    ck_assert_int_eq(bank_withdraw(pl, "10000000 c", &value),
-            BANK_WITHDRAW_HIGH);
+    ck_assert_int_eq(bank_withdraw(pl, "10000000 c", &value), BANK_WITHDRAW_HIGH);
     ck_assert_uint_eq(value, 0);
     ck_assert_uint_eq(bank_get_balance(pl), total);
     ck_assert_uint_eq(shop_get_money(pl), total);
 
-    ck_assert_int_eq(bank_withdraw(pl, "1000000 c", &value),
-            BANK_WITHDRAW_OVERWEIGHT);
+    ck_assert_int_eq(bank_withdraw(pl, "1000000 c", &value), BANK_WITHDRAW_OVERWEIGHT);
     ck_assert_uint_eq(value, 0);
     ck_assert_uint_eq(bank_get_balance(pl), total);
     ck_assert_uint_eq(shop_get_money(pl), total);
@@ -200,8 +190,7 @@ START_TEST(test_bank_withdraw)
     ck_assert_uint_eq(bank_get_balance(pl), in_bank);
     ck_assert_uint_eq(shop_get_money(pl), total);
 
-    ck_assert_int_eq(bank_withdraw(pl, "5983 copper 83 silver 500 gold",
-            &value), BANK_SUCCESS);
+    ck_assert_int_eq(bank_withdraw(pl, "5983 copper 83 silver 500 gold", &value), BANK_SUCCESS);
     withdrawn = 5014283;
     in_bank -= withdrawn;
     ck_assert_uint_eq(value, withdrawn);
@@ -220,8 +209,7 @@ START_TEST(test_bank_withdraw)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("bank");
     TCase *tc_core = tcase_create("Core");
 
@@ -236,7 +224,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_bank(void)
-{
+void check_server_bank(void) {
     check_run_suite(suite(), __FILE__);
 }

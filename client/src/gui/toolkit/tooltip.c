@@ -57,8 +57,7 @@ static uint8_t tooltip_opacity = 0;
  * @param text
  * The text to show in the tooltip.
  */
-void tooltip_create(int mx, int my, font_struct *font, const char *text)
-{
+void tooltip_create(int mx, int my, font_struct *font, const char *text) {
     if (tooltip_font != NULL) {
         font_free(tooltip_font);
     }
@@ -79,8 +78,7 @@ void tooltip_create(int mx, int my, font_struct *font, const char *text)
  * @param delay
  * Delay in milliseconds.
  */
-void tooltip_enable_delay(uint32_t delay)
-{
+void tooltip_enable_delay(uint32_t delay) {
     tooltip_delay = delay;
 
     if (tooltip_created + delay < SDL_GetTicks()) {
@@ -93,28 +91,40 @@ void tooltip_enable_delay(uint32_t delay)
  * @param max_width
  * Maximum width of the tooltip.
  */
-void tooltip_multiline(int max_width)
-{
+void tooltip_multiline(int max_width) {
     SDL_Rect box;
 
     box.x = 0;
     box.y = 0;
     box.w = max_width;
     box.h = 0;
-    text_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+    text_show(NULL,
+              tooltip_font,
+              tooltip_text,
+              3,
+              0,
+              COLOR_WHITE,
+              TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT,
+              &box);
     tooltip_w = max_width;
     tooltip_h = box.h;
 
     box.h = 0;
-    text_show(NULL, tooltip_font, tooltip_text, 3, 0, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+    text_show(NULL,
+              tooltip_font,
+              tooltip_text,
+              3,
+              0,
+              COLOR_WHITE,
+              TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH,
+              &box);
     tooltip_w = box.w;
 }
 
 /**
  * Actually show the tooltip.
  */
-void tooltip_show(void)
-{
+void tooltip_show(void) {
     SDL_Rect box, text_box;
 
     /* No tooltip to show. */
@@ -161,8 +171,25 @@ void tooltip_show(void)
         box.y -= (box.y + box.h + 1) - ScreenSurface->h;
     }
 
-    boxRGBA(ScreenSurface, box.x, box.y, box.x + box.w, box.y + box.h, 255, 255, 255, tooltip_opacity);
-    text_show_format(ScreenSurface, tooltip_font, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box, "[alpha=%d]%s[/alpha]", tooltip_opacity, tooltip_text);
+    boxRGBA(ScreenSurface,
+            box.x,
+            box.y,
+            box.x + box.w,
+            box.y + box.h,
+            255,
+            255,
+            255,
+            tooltip_opacity);
+    text_show_format(ScreenSurface,
+                     tooltip_font,
+                     box.x + 3,
+                     box.y,
+                     COLOR_BLACK,
+                     TEXT_MARKUP | TEXT_WORD_WRAP,
+                     &text_box,
+                     "[alpha=%d]%s[/alpha]",
+                     tooltip_opacity,
+                     tooltip_text);
 
     if (tooltip_delay) {
         tooltip_opacity = MIN(255, tooltip_opacity + 25);
@@ -172,8 +199,7 @@ void tooltip_show(void)
 /**
  * Dismiss the currently shown tooltip.
  */
-void tooltip_dismiss(void)
-{
+void tooltip_dismiss(void) {
     tooltip_x = -1;
     tooltip_y = -1;
     tooltip_w = -1;
@@ -193,8 +219,7 @@ void tooltip_dismiss(void)
  * whether the x/y is the same, text/font is the same (in other words, reset
  * old x/y when creating if text/font has changed)
  */
-int tooltip_need_redraw(void)
-{
+int tooltip_need_redraw(void) {
     if (tooltip_x == -1 || tooltip_y == -1) {
         return 0;
     }

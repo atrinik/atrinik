@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_reply(object *op, const char *command, char *params)
-{
+void command_reply(object *op, const char *command, char *params) {
     char newparams[HUGE_BUF];
 
     if (!params) {

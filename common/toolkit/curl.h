@@ -83,8 +83,7 @@ typedef enum curl_info {
     CURL_INFO_DL_SIZE, ///< Number of bytes requested so far.
 } curl_info_t;
 
-typedef void (*curl_request_process_cb)(curl_request_process_t type,
-                                        size_t                 size);
+typedef void (*curl_request_process_cb)(curl_request_process_t type, size_t size);
 
 /**
  * Opaque definition for the ::curl_request structure.
@@ -97,58 +96,31 @@ typedef void (*curl_request_cb)(curl_request_t *request, void *user_data);
 
 TOOLKIT_FUNCS_DECLARE(curl);
 
-void
-curl_set_user_agent(const char *user_agent);
-bool
-curl_set_trust_application(const char *pubkey);
-void
-curl_set_data_dir(const char *dir);
-curl_request_t *
-curl_request_create(const char *url, curl_pkey_trust_t trust);
-void
-curl_request_form_add(curl_request_t *request,
-                      const char     *key,
-                      const char     *value);
-void
-curl_request_set_path(curl_request_t *request, const char *path);
-void
-curl_request_set_max_body(curl_request_t *request, size_t maximum);
-void
-curl_request_set_cb(curl_request_t *request,
-                    curl_request_cb cb,
-                    void           *user_data);
-void
-curl_request_set_delay(curl_request_t *request,
-                       uint32_t        delay);
-curl_state_t
-curl_request_get_state(curl_request_t *request);
-char *
-curl_request_get_body(curl_request_t *request, size_t *body_size);
-char *
-curl_request_get_header(curl_request_t *request, size_t *header_size);
-int
-curl_request_get_http_code(curl_request_t *request);
-const char *
-curl_request_get_url(curl_request_t *request);
-int64_t
-curl_request_sizeinfo(curl_request_t *request, curl_info_t info);
-char *
-curl_request_speedinfo(curl_request_t *request, char *buf, size_t bufsize);
-void
-curl_request_free(curl_request_t *request);
-void *
-curl_request_do_get(void *user_data);
-void
-curl_request_start_get(curl_request_t *request);
-void *
-curl_request_do_post(void *user_data);
-void
-curl_request_start_post(curl_request_t *request);
-bool
-curl_verify(curl_pkey_trust_t    trust,
-            const char          *msg,
-            size_t               msg_len,
-            const unsigned char *sig,
-            size_t               sig_len);
+void curl_set_user_agent(const char *user_agent);
+bool curl_set_trust_application(const char *pubkey);
+void curl_set_data_dir(const char *dir);
+curl_request_t *curl_request_create(const char *url, curl_pkey_trust_t trust);
+void curl_request_form_add(curl_request_t *request, const char *key, const char *value);
+void curl_request_set_path(curl_request_t *request, const char *path);
+void curl_request_set_max_body(curl_request_t *request, size_t maximum);
+void curl_request_set_cb(curl_request_t *request, curl_request_cb cb, void *user_data);
+void curl_request_set_delay(curl_request_t *request, uint32_t delay);
+curl_state_t curl_request_get_state(curl_request_t *request);
+char *curl_request_get_body(curl_request_t *request, size_t *body_size);
+char *curl_request_get_header(curl_request_t *request, size_t *header_size);
+int curl_request_get_http_code(curl_request_t *request);
+const char *curl_request_get_url(curl_request_t *request);
+int64_t curl_request_sizeinfo(curl_request_t *request, curl_info_t info);
+char *curl_request_speedinfo(curl_request_t *request, char *buf, size_t bufsize);
+void curl_request_free(curl_request_t *request);
+void *curl_request_do_get(void *user_data);
+void curl_request_start_get(curl_request_t *request);
+void *curl_request_do_post(void *user_data);
+void curl_request_start_post(curl_request_t *request);
+bool curl_verify(curl_pkey_trust_t trust,
+                 const char *msg,
+                 size_t msg_len,
+                 const unsigned char *sig,
+                 size_t sig_len);
 
 #endif

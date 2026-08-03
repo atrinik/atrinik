@@ -44,22 +44,22 @@
 #endif
 
 /** The maximum legal value of any stat. */
-#define MAX_STAT            30
+#define MAX_STAT 30
 /** The minimum legal value of any stat. */
-#define MIN_STAT            1
+#define MIN_STAT 1
 
-#define MAX_ANIMATIONS      256
+#define MAX_ANIMATIONS 256
 
 /**
  * @defgroup identify_modes Identify modes
  * Modes for cast_identify().
  *@{*/
 /** Normal identification. */
-#define IDENTIFY_NORMAL    0
+#define IDENTIFY_NORMAL 0
 /** Identify everything. */
-#define IDENTIFY_ALL       1
+#define IDENTIFY_ALL 1
 /** Identify only marked item. */
-#define IDENTIFY_MARKED    2
+#define IDENTIFY_MARKED 2
 /*@}*/
 
 /**
@@ -67,11 +67,11 @@
  * Spell list commands for client spell list.
  *@{*/
 /** Add a spell to the spell list */
-#define SPLIST_MODE_ADD     0
+#define SPLIST_MODE_ADD 0
 /** Remove a spell from the spell list */
-#define SPLIST_MODE_REMOVE  1
+#define SPLIST_MODE_REMOVE 1
 /** Update a spell in the spell list */
-#define SPLIST_MODE_UPDATE  2
+#define SPLIST_MODE_UPDATE 2
 /*@}*/
 
 /** Marks no skill used. */
@@ -86,15 +86,15 @@
  * Line of Sight (los.c) defines
  *@{*/
 /** It's visible. */
-#define BLOCKED_LOS_VISIBLE     0x00
+#define BLOCKED_LOS_VISIBLE 0x00
 /** Ignore this tile for blocksview/visible changes. */
-#define BLOCKED_LOS_IGNORE      0x01
+#define BLOCKED_LOS_IGNORE 0x01
 /** Visible but will block all behind. */
-#define BLOCKED_LOS_BLOCKSVIEW  0x02
+#define BLOCKED_LOS_BLOCKSVIEW 0x02
 /** Sight is blocked. */
-#define BLOCKED_LOS_BLOCKED     0x04
+#define BLOCKED_LOS_BLOCKED 0x04
 /** Tile is not visible because it is not part of legal map. */
-#define BLOCKED_LOS_OUT_OF_MAP  0x08
+#define BLOCKED_LOS_OUT_OF_MAP 0x08
 /*@}*/
 
 /**
@@ -563,23 +563,23 @@
  * the party members can open it.
  *@{*/
 /** Normal container */
-#define ST1_CONTAINER_NORMAL           0
+#define ST1_CONTAINER_NORMAL 0
 /** Corpse container */
-#define ST1_CONTAINER_CORPSE           1
+#define ST1_CONTAINER_CORPSE 1
 /** Player container */
-#define ST1_CONTAINER_DEAD_PL          2
+#define ST1_CONTAINER_DEAD_PL 2
 /** Quiver. */
-#define ST1_CONTAINER_QUIVER           3
+#define ST1_CONTAINER_QUIVER 3
 
 /** Personalized normal container */
-#define ST1_CONTAINER_NORMAL_player    64
+#define ST1_CONTAINER_NORMAL_player 64
 /** Personalized corpse container */
-#define ST1_CONTAINER_CORPSE_player    65
+#define ST1_CONTAINER_CORPSE_player 65
 
 /** Party normal container */
-#define ST1_CONTAINER_NORMAL_party     128
+#define ST1_CONTAINER_NORMAL_party 128
 /** Party corpse container */
-#define ST1_CONTAINER_CORPSE_party     129
+#define ST1_CONTAINER_CORPSE_party 129
 /*@}*/
 
 /**
@@ -587,9 +587,9 @@
  * Sub types for DOOR objects.
  *@{*/
 /** Normal door */
-#define ST1_DOOR_NORMAL     0
+#define ST1_DOOR_NORMAL 0
 /** Different sound */
-#define ST1_DOOR_CURTAIN    1
+#define ST1_DOOR_CURTAIN 1
 /*@}*/
 
 /**
@@ -633,11 +633,11 @@
  * Sub types used by @ref POTION "potions".
  *@{*/
 /** Regular potion. */
-#define POTION_NORMAL       0
+#define POTION_NORMAL 0
 /** Balm. */
-#define POTION_BALM         1
+#define POTION_BALM 1
 /** Dust. */
-#define POTION_DUST         2
+#define POTION_DUST 2
 /*@}*/
 
 /*@}*/
@@ -651,19 +651,19 @@
  *  - <= SIZEOFFREE3 will get you within 3 spaces.
  *@{*/
 /** Up to one space when searching around a spot. */
-#define SIZEOFFREE1     8
+#define SIZEOFFREE1 8
 /** Up to two spaces when searching around a spot. */
-#define SIZEOFFREE2     24
+#define SIZEOFFREE2 24
 /** Up to three spaces when searching around a spot. */
-#define SIZEOFFREE3     48
+#define SIZEOFFREE3 48
 /** Maximum size of the arrays. */
-#define SIZEOFFREE      49
+#define SIZEOFFREE 49
 /*@}*/
 
 /** Number of different spells */
-#define NROFREALSPELLS  52
+#define NROFREALSPELLS 52
 /** Number of spell paths. */
-#define NRSPELLPATHS    20
+#define NRSPELLPATHS 20
 
 /**
  * @defgroup terrain_type_flags Terrain type flags
@@ -673,23 +673,23 @@
  * These values also define the environment of the map tile position
  *@{*/
 /** No terrain. */
-#define TERRAIN_NOTHING         0
+#define TERRAIN_NOTHING 0
 /** Walk on earth. */
-#define TERRAIN_AIRBREATH       1
+#define TERRAIN_AIRBREATH 1
 /** Walk on water - deep water too. */
-#define TERRAIN_WATERWALK       2
+#define TERRAIN_WATERWALK 2
 /** You can move underwater and on land. */
-#define TERRAIN_WATERBREATH     4
+#define TERRAIN_WATERBREATH 4
 /** Walk over lava or fire, */
-#define TERRAIN_FIREWALK        8
+#define TERRAIN_FIREWALK 8
 /** You can move in fire environment (fire elemental dimension, hell, ...) */
-#define TERRAIN_FIREBREATH      16
+#define TERRAIN_FIREBREATH 16
 /** Move "on clouds" in the air - not flying. */
-#define TERRAIN_CLOUDWALK       32
+#define TERRAIN_CLOUDWALK 32
 /** Shallow water. */
-#define TERRAIN_WATER_SHALLOW   64
+#define TERRAIN_WATER_SHALLOW 64
 /** Used in blocked() when we only want know about blocked by something. */
-#define TERRAIN_ALL             0xffff
+#define TERRAIN_ALL 0xffff
 /*@}*/
 
 /**
@@ -738,8 +738,7 @@
  * @param p
  * The flag to set
  */
-#define SET_FLAG(xyz, p) \
-    BIT_SET((xyz)->flags[p / 32], p % 32)
+#define SET_FLAG(xyz, p) BIT_SET((xyz)->flags[p / 32], p % 32)
 
 /**
  * Clear flag of an object.
@@ -748,8 +747,7 @@
  * @param p
  * The flag to clear
  */
-#define CLEAR_FLAG(xyz, p) \
-    BIT_CLEAR((xyz)->flags[p / 32], p % 32)
+#define CLEAR_FLAG(xyz, p) BIT_CLEAR((xyz)->flags[p / 32], p % 32)
 
 /**
  * Query flag of an object.
@@ -758,8 +756,7 @@
  * @param p
  * The flag to query
  */
-#define QUERY_FLAG(xyz, p) \
-    BIT_QUERY((xyz)->flags[p / 32], p % 32)
+#define QUERY_FLAG(xyz, p) BIT_QUERY((xyz)->flags[p / 32], p % 32)
 
 /**
  * Flip flag of an object.
@@ -768,8 +765,7 @@
  * @param p
  * The flag to flip.
  */
-#define FLIP_FLAG(xyz, p) \
-    BIT_FLIP((xyz)->flags[p / 32], p % 32)
+#define FLIP_FLAG(xyz, p) BIT_FLIP((xyz)->flags[p / 32], p % 32)
 
 /**
  * Utility macro to set or clear an object's flag depending on whether the cond
@@ -781,8 +777,7 @@
  * @param cond
  * If true, will set the flag, will clear otherwise.
  */
-#define CHANGE_FLAG(op, flag, cond) \
-    BIT_CHANGE((op)->flags[flag / 32], flag % 32, cond)
+#define CHANGE_FLAG(op, flag, cond) BIT_CHANGE((op)->flags[flag / 32], flag % 32, cond)
 
 /*@}*/
 
@@ -794,38 +789,38 @@
  * we set this ONE time outside instead of every time in object_remove():
  * we skip the call for the head in this way.
  *@{*/
-#define SET_MULTI_FLAG(xyz, p)                                                 \
-    do {                                                                       \
-        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) {                \
-            SET_FLAG(_tos_, p);                                                \
-        }                                                                      \
+#define SET_MULTI_FLAG(xyz, p)                                  \
+    do {                                                        \
+        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) { \
+            SET_FLAG(_tos_, p);                                 \
+        }                                                       \
     } while (0)
 
-#define CLEAR_MULTI_FLAG(xyz, p)                                               \
-    do {                                                                       \
-        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) {                \
-            CLEAR_FLAG(_tos_, p);                                              \
-        }                                                                      \
+#define CLEAR_MULTI_FLAG(xyz, p)                                \
+    do {                                                        \
+        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) { \
+            CLEAR_FLAG(_tos_, p);                               \
+        }                                                       \
     } while (0)
 
-#define SET_OR_CLEAR_MULTI_FLAG(_head, _flag)                                  \
-    do {                                                                       \
-        if (QUERY_FLAG(_head, _flag)) {                                        \
-            SET_MULTI_FLAG((_head)->more, _flag);                              \
-        } else {                                                               \
-            CLEAR_MULTI_FLAG((_head)->more, _flag);                            \
-        }                                                                      \
+#define SET_OR_CLEAR_MULTI_FLAG(_head, _flag)       \
+    do {                                            \
+        if (QUERY_FLAG(_head, _flag)) {             \
+            SET_MULTI_FLAG((_head)->more, _flag);   \
+        } else {                                    \
+            CLEAR_MULTI_FLAG((_head)->more, _flag); \
+        }                                           \
     } while (0)
 
-#define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag)                         \
-    do {                                                                       \
-        bool _has_head_ = QUERY_FLAG(_head, _flag);                            \
-        bool _has_clone_ = QUERY_FLAG(&(_head)->arch->clone, _flag);           \
-        if (_has_head_ && !_has_clone_) {                                      \
-            SET_MULTI_FLAG((_head), _flag);                                    \
-        } else if (!_has_head_ && _has_clone_) {                               \
-            CLEAR_MULTI_FLAG((_head), _flag);                                  \
-        }                                                                      \
+#define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag)               \
+    do {                                                             \
+        bool _has_head_ = QUERY_FLAG(_head, _flag);                  \
+        bool _has_clone_ = QUERY_FLAG(&(_head)->arch->clone, _flag); \
+        if (_has_head_ && !_has_clone_) {                            \
+            SET_MULTI_FLAG((_head), _flag);                          \
+        } else if (!_has_head_ && _has_clone_) {                     \
+            CLEAR_MULTI_FLAG((_head), _flag);                        \
+        }                                                            \
     } while (0)
 /*@}*/
 
@@ -836,7 +831,10 @@
 /** Is this a weapon? */
 #define IS_WEAPON(op) (op->type == ARROW || op->type == BOW || op->type == WEAPON)
 /** Is this some kind of armor (shield, helmet, cloak, etc)? */
-#define IS_ARMOR(op) (op->type == ARMOUR || op->type == SHIELD || op->type == HELMET || op->type == CLOAK || op->type == BOOTS || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE || op->type == PANTS)
+#define IS_ARMOR(op)                                                                         \
+    (op->type == ARMOUR || op->type == SHIELD || op->type == HELMET || op->type == CLOAK ||  \
+     op->type == BOOTS || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE || \
+     op->type == PANTS)
 /** Is this object alive? */
 #define IS_LIVE(op) ((op)->type == PLAYER || QUERY_FLAG((op), FLAG_MONSTER))
 /** Is it an arrow? */
@@ -1350,11 +1348,11 @@
 /*@}*/
 
 /** Check if object has @ref FLAG_SYS_OBJECT set. */
-#define IS_SYS_INVISIBLE(__ob_) \
-    QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)
+#define IS_SYS_INVISIBLE(__ob_) QUERY_FLAG(__ob_, FLAG_SYS_OBJECT)
 /** Check if the object is invisible. */
-#define IS_INVISIBLE(__ob_, __player_) \
-    ((QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE)) && ((__player_)->type != PLAYER || !CONTR((__player_))->tsi))
+#define IS_INVISIBLE(__ob_, __player_)                                               \
+    ((QUERY_FLAG(__ob_, FLAG_SYS_OBJECT) || QUERY_FLAG(__ob_, FLAG_IS_INVISIBLE)) && \
+     ((__player_)->type != PLAYER || !CONTR((__player_))->tsi))
 
 #define SLOW_PENALTY(xyz) ((xyz)->stats.exp)
 
@@ -1401,21 +1399,21 @@
  * Move toward a player if far, but maintain some space,
  * attack from a distance - good for missile users only
  */
-#define DISTATT  1
+#define DISTATT 1
 /** Run but attack if player catches up to object */
-#define RUNATT   2
+#define RUNATT 2
 /** Run to then hit player then run away cyclically */
-#define HITRUN   3
+#define HITRUN 3
 /** Wait for player to approach then hit, move if hit */
-#define WAITATT  4
+#define WAITATT 4
 /** Rush toward player blindly, similar to dumb monster */
-#define RUSH     5
+#define RUSH 5
 /** Always run never attack good for sim. of weak player */
-#define ALLRUN   6
+#define ALLRUN 6
 /** Attack from a distance if hit as recommended by Frank */
-#define DISTHIT  7
+#define DISTHIT 7
 /** Monster does not try to move towards player if far */
-#define WAIT2    8
+#define WAIT2 8
 
 #define UNUSED_MOVE 16
 
@@ -1434,7 +1432,7 @@
  * The Monster will pace back and forth until attacked
  * this is HORIZONTAL movement
  */
-#define PACEH   64
+#define PACEH 64
 
 /**
  * the monster will pace as above but the length of the
@@ -1442,14 +1440,14 @@
  * changing directions
  * this is HORIZONTAL movement
  */
-#define PACEH2  80
+#define PACEH2 80
 
 /**
  * the monster will go in a random direction until
  * it is stopped by an obstacle, then it chooses another
  * direction.
  */
-#define RANDO   96
+#define RANDO 96
 
 /** constantly move in a different random direction */
 #define RANDO2 112
@@ -1458,7 +1456,7 @@
  * The Monster will pace back and forth until attacked
  * this is VERTICAL movement
  */
-#define PACEV  128
+#define PACEV 128
 
 /**
  * the monster will pace as above but the length of the
@@ -1472,8 +1470,8 @@
 #define WPOINT 176
 
 /* bitmasks for upper and lower 4 bits from 8 bit fields */
-#define LO4    15
-#define HI4    240
+#define LO4 15
+#define HI4 240
 /*@}*/
 
 /** Name of the blank face. */
@@ -1506,8 +1504,7 @@ enum apply_flag {
  * Acquire the name of a specified quest. If the quest name is not set, uses the
  * UID of the quest.
  */
-#define QUEST_NAME(_quest) \
-    ((_quest)->race != NULL ? (_quest)->race : (_quest)->name)
+#define QUEST_NAME(_quest) ((_quest)->race != NULL ? (_quest)->race : (_quest)->name)
 
 /**
  * @defgroup quest_statuses Quest statuses
@@ -1575,9 +1572,10 @@ enum apply_flag {
 /**
  * Calculates number of seconds for the interface timeout.
  */
-#define INTERFACE_TIMEOUT(ret) ((long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, \
-        (ret)) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - \
-        INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL)
+#define INTERFACE_TIMEOUT(ret)                                                        \
+    ((long)(((double)MAX(INTERFACE_TIMEOUT_CHARS, (ret)) / INTERFACE_TIMEOUT_CHARS) * \
+            INTERFACE_TIMEOUT_SECONDS) -                                              \
+     INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL)
 /*@}*/
 
 /**
@@ -1627,40 +1625,44 @@ enum apply_flag {
  * @note Use @ref FOR_MAP_LAYER_BREAK to break out, instead of the
  * traditional 'break'.
  */
-#define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _sub_layer, _obj) \
-    { \
-        int __sub_layer; \
-        object *__tmp, *__next; \
-        tag_t __next_tag; \
-        for (__sub_layer = ((_sub_layer) == -1 ? 0 : (_sub_layer)); __sub_layer < ((_layer) == LAYER_SYS ? 1 : ((_sub_layer) == -1 ? NUM_SUB_LAYERS : ((_sub_layer) + 1))); __sub_layer++) \
-        { \
-            for (__tmp = (_layer) == LAYER_SYS ? GET_MAP_OB((_m), (_x), (_y)) : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer); __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer; __tmp = __next) \
-            { \
-                __next = __tmp->above; \
-                __next_tag = 0; \
-                if (__next) \
-                { \
-                    __next_tag = __next->count; \
-                } \
+#define FOR_MAP_LAYER_BEGIN(_m, _x, _y, _layer, _sub_layer, _obj)                              \
+    {                                                                                          \
+        int __sub_layer;                                                                       \
+        object *__tmp, *__next;                                                                \
+        tag_t __next_tag;                                                                      \
+        for (__sub_layer = ((_sub_layer) == -1 ? 0 : (_sub_layer));                            \
+             __sub_layer < ((_layer) == LAYER_SYS                                              \
+                                ? 1                                                            \
+                                : ((_sub_layer) == -1 ? NUM_SUB_LAYERS : ((_sub_layer) + 1))); \
+             __sub_layer++) {                                                                  \
+            for (__tmp = (_layer) == LAYER_SYS                                                 \
+                             ? GET_MAP_OB((_m), (_x), (_y))                                    \
+                             : GET_MAP_OB_LAYER((_m), (_x), (_y), (_layer), __sub_layer);      \
+                 __tmp && __tmp->layer == (_layer) && __tmp->sub_layer == __sub_layer;         \
+                 __tmp = __next) {                                                             \
+                __next = __tmp->above;                                                         \
+                __next_tag = 0;                                                                \
+                if (__next) {                                                                  \
+                    __next_tag = __next->count;                                                \
+                }                                                                              \
                 (_obj) = __tmp;
 
 /**
  * Break out of the loop.
  */
-#define FOR_MAP_LAYER_BREAK \
+#define FOR_MAP_LAYER_BREAK       \
     __sub_layer = NUM_SUB_LAYERS; \
-    break; \
+    break;
 
 /**
  * End the loop.
  */
-#define FOR_MAP_LAYER_END \
-    if (__next && !OBJECT_VALID(__next, __next_tag)) \
-    { \
-        FOR_MAP_LAYER_BREAK; \
-    } \
-    } \
-    } \
+#define FOR_MAP_LAYER_END                              \
+    if (__next && !OBJECT_VALID(__next, __next_tag)) { \
+        FOR_MAP_LAYER_BREAK;                           \
+    }                                                  \
+    }                                                  \
+    }                                                  \
     }
 /*@}*/
 
@@ -1688,16 +1690,18 @@ enum apply_flag {
  * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
-#define FOR_INV_PREPARE(op_, it_)                               \
-    do {                                                        \
-        object *it_ = (op_)->inv;                               \
-        FOR_OB_AND_BELOW_PREPARE(it_);
+#define FOR_INV_PREPARE(op_, it_)     \
+    do {                              \
+        object *it_ = (op_)->inv;     \
+        FOR_OB_AND_BELOW_PREPARE(it_) \
+            ;
 /**
  * Finishes #FOR_INV_PREPARE().
  */
-#define FOR_INV_FINISH()                                        \
-        FOR_OB_AND_BELOW_FINISH();                              \
-    } while(0)
+#define FOR_INV_FINISH()       \
+    FOR_OB_AND_BELOW_FINISH(); \
+    }                          \
+    while (0)
 
 /**
  * Constructs a loop iterating over all objects above an object.
@@ -1707,16 +1711,18 @@ enum apply_flag {
  * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
-#define FOR_ABOVE_PREPARE(op_, it_)                             \
-    do {                                                        \
-        object *it_ = (op_)->above;                             \
-        FOR_OB_AND_ABOVE_PREPARE(it_);
+#define FOR_ABOVE_PREPARE(op_, it_)   \
+    do {                              \
+        object *it_ = (op_)->above;   \
+        FOR_OB_AND_ABOVE_PREPARE(it_) \
+            ;
 /**
  * Finishes #FOR_ABOVE_PREPARE().
  */
-#define FOR_ABOVE_FINISH()                                      \
-        FOR_OB_AND_ABOVE_FINISH();                              \
-    } while(0)
+#define FOR_ABOVE_FINISH()     \
+    FOR_OB_AND_ABOVE_FINISH(); \
+    }                          \
+    while (0)
 
 /**
  * Constructs a loop iterating over all objects below an object.
@@ -1726,16 +1732,18 @@ enum apply_flag {
  * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
-#define FOR_BELOW_PREPARE(op_, it_)                             \
-    do {                                                        \
-        object *it_ = (op_)->below;                             \
-        FOR_OB_AND_BELOW_PREPARE(it_);
+#define FOR_BELOW_PREPARE(op_, it_)   \
+    do {                              \
+        object *it_ = (op_)->below;   \
+        FOR_OB_AND_BELOW_PREPARE(it_) \
+            ;
 /**
  * Finishes #FOR_BELOW_PREPARE().
  */
-#define FOR_BELOW_FINISH()                                      \
-        FOR_OB_AND_BELOW_FINISH();                              \
-    } while(0)
+#define FOR_BELOW_FINISH()     \
+    FOR_OB_AND_BELOW_FINISH(); \
+    }                          \
+    while (0)
 
 /**
  * Constructs a loop iterating over all objects of a map tile.
@@ -1749,16 +1757,18 @@ enum apply_flag {
  * a variable name that holds the inventory objects; a new variable
  * will be declared; modifications do not affect the loop
  */
-#define FOR_MAP_PREPARE(map_, mx_, my_, it_)                    \
-    do {                                                        \
-        object *it_ = GET_MAP_OB((map_), (mx_), (my_));         \
-        FOR_OB_AND_ABOVE_PREPARE(it_);
+#define FOR_MAP_PREPARE(map_, mx_, my_, it_)            \
+    do {                                                \
+        object *it_ = GET_MAP_OB((map_), (mx_), (my_)); \
+        FOR_OB_AND_ABOVE_PREPARE(it_)                   \
+            ;
 /**
  * Finishes #FOR_MAP_PREPARE().
  */
-#define FOR_MAP_FINISH()                                        \
-        FOR_OB_AND_ABOVE_FINISH();                              \
-    } while(0)
+#define FOR_MAP_FINISH()       \
+    FOR_OB_AND_ABOVE_FINISH(); \
+    }                          \
+    while (0)
 
 /**
  * Constructs a loop iterating over an object and all objects above it in the
@@ -1805,22 +1815,23 @@ enum apply_flag {
  * @param suffix_
  * a suffix for constructing unique variable names
  */
-#define FOR_OB_PREPARE2(op_, field_, suffix_)                     \
-    do {                                                        \
-        object *next##suffix_ = (op_);                        \
-        tag_t next_tag##suffix_ = next##suffix_ == NULL ? 0 : next##suffix_->count;\
-        while (((op_) = next##suffix_) != NULL) {              \
-            if (OBJECT_DESTROYED(next##suffix_, next_tag##suffix_)) {\
-                break;                                          \
-            }                                                   \
-            next##suffix_ = next##suffix_->field_;                               \
+#define FOR_OB_PREPARE2(op_, field_, suffix_)                                       \
+    do {                                                                            \
+        object *next##suffix_ = (op_);                                              \
+        tag_t next_tag##suffix_ = next##suffix_ == NULL ? 0 : next##suffix_->count; \
+        while (((op_) = next##suffix_) != NULL) {                                   \
+            if (OBJECT_DESTROYED(next##suffix_, next_tag##suffix_)) {               \
+                break;                                                              \
+            }                                                                       \
+            next##suffix_ = next##suffix_->field_;                                  \
             next_tag##suffix_ = next##suffix_ == NULL ? 0 : next##suffix_->count;
 /**
  * Finishes #FOR_OB_PREPARE().
  */
-#define FOR_OB_FINISH()                                         \
-        }                                                       \
-    } while(0)
+#define FOR_OB_FINISH() \
+    }                   \
+    }                   \
+    while (0)
 
 /*@}*/
 
@@ -1834,9 +1845,7 @@ enum apply_flag {
  * of a number (it actually takes care of "overflow" in previous calculations
  * of a direction).
  */
-static inline int
-absdir (int d)
-{
+static inline int absdir(int d) {
     while (d < 1) {
         d += 8;
     }

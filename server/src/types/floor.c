@@ -35,6 +35,4 @@
 /**
  * Initialize the floor type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(floor)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(floor) {}

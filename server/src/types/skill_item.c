@@ -35,7 +35,6 @@
 /**
  * Initialize the skill item type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(skill_item)
-{
+OBJECT_TYPE_INIT_DEFINE(skill_item) {
     OBJECT_METHODS(SKILL_ITEM)->apply_func = object_apply_item;
 }

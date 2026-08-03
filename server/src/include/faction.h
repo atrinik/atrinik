@@ -35,7 +35,7 @@
 /**
  * Pointer to a faction structure.
  */
-typedef struct faction * faction_t;
+typedef struct faction *faction_t;
 
 /* Prototypes */
 

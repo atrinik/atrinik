@@ -66,8 +66,7 @@ TOOLKIT_FUNCS_DECLARE(console);
  * @return
  * 1 on success, 0 on failure.
  */
-extern int
-console_start_thread(void);
+extern int console_start_thread(void);
 
 /**
  * Add a possible command to the console.
@@ -81,17 +80,15 @@ console_start_thread(void);
  * @param desc
  * More detailed description of the command.
  */
-extern void
-console_command_add(const char          *command,
-                    console_command_func handle_func,
-                    const char          *desc_brief,
-                    const char          *desc);
+extern void console_command_add(const char *command,
+                                console_command_func handle_func,
+                                const char *desc_brief,
+                                const char *desc);
 
 /**
  * Process the console API. This should usually be part of the program's
  * main loop.
  */
-extern void
-console_command_handle(void);
+extern void console_command_handle(void);
 
 #endif

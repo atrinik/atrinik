@@ -48,8 +48,7 @@ socket_struct *init_sockets;
  * @param ns
  * Client's socket.
  */
-bool init_connection(socket_struct *ns)
-{
+bool init_connection(socket_struct *ns) {
     if (!socket_opt_non_blocking(ns->sc, true)) {
         return false;
     }
@@ -88,8 +87,7 @@ bool init_connection(socket_struct *ns)
 /**
  * Frees all the memory that ericserver allocates.
  */
-void free_all_newserver(void)
-{
+void free_all_newserver(void) {
     int i;
 
     free_socket_images();
@@ -112,8 +110,7 @@ void free_all_newserver(void)
  * @param ns
  * The socket.
  */
-void free_newsocket(socket_struct *ns)
-{
+void free_newsocket(socket_struct *ns) {
     socket_destroy(ns->sc);
 
     if (ns->account) {
@@ -141,8 +138,7 @@ void free_newsocket(socket_struct *ns)
  * @param cmd
  * The data command.
  */
-static void load_srv_file(char *fname, FILE *listing)
-{
+static void load_srv_file(char *fname, FILE *listing) {
     FILE *fp;
     char *contents, *compressed, *cp;
     StringBuffer *sb;
@@ -163,20 +159,22 @@ static void load_srv_file(char *fname, FILE *listing)
     fclose(fp);
 
     /* Get a crc from the uncompressed file. */
-    crc = crc32(1L, (const unsigned char FAR *) contents, numread);
+    crc = crc32(1L, (const unsigned char FAR *)contents, numread);
 
     /* Calculate the upper bound of the compressed size. */
     numread = compressBound(fsize);
     /* Allocate a buffer to hold the compressed file. */
     compressed = emalloc(numread);
-    compress2((Bytef *) compressed, (uLong *) & numread,
-            (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
+    compress2((Bytef *)compressed,
+              (uLong *)&numread,
+              (const unsigned char FAR *)contents,
+              fsize,
+              Z_BEST_COMPRESSION);
 
     sb = stringbuffer_new();
     cp = path_basename(fname);
     stringbuffer_append_printf(sb, "%s/http/data/%s.zz", settings.datapath, cp);
-    fprintf(listing, "%s:%"PRIx64":%"PRIx64"\n", cp, (uint64_t) crc,
-            (uint64_t) fsize);
+    fprintf(listing, "%s:%" PRIx64 ":%" PRIx64 "\n", cp, (uint64_t)crc, (uint64_t)fsize);
 
     efree(cp);
     cp = stringbuffer_finish(sb);
@@ -201,8 +199,7 @@ static void load_srv_file(char *fname, FILE *listing)
  * Get the lib/server_settings default file and create the
  * data/server_settings file from it.
  */
-static void create_server_settings(void)
-{
+static void create_server_settings(void) {
     char buf[MAX_BUF];
     size_t i;
     FILE *fp;
@@ -226,14 +223,17 @@ static void create_server_settings(void)
 
     for (i = 0; i < ALLOWED_CHARS_NUM; i++) {
         fprintf(fp, "text %s\n", settings.allowed_chars[i]);
-        fprintf(fp, "text %"PRIu64 "-%"PRIu64 "\n", (uint64_t) settings.limits[i][0], (uint64_t) settings.limits[i][1]);
+        fprintf(fp,
+                "text %" PRIu64 "-%" PRIu64 "\n",
+                (uint64_t)settings.limits[i][0],
+                (uint64_t)settings.limits[i][1]);
     }
 
     /* Add the level information. */
     fprintf(fp, "level %d\n", MAXLEVEL);
 
     for (i = 0; i <= MAXLEVEL; i++) {
-        fprintf(fp, "%"PRIx64 "\n", new_levels[i]);
+        fprintf(fp, "%" PRIx64 "\n", new_levels[i]);
     }
 
     fclose(fp);
@@ -242,8 +242,7 @@ static void create_server_settings(void)
 /**
  * Initialize animations file for the client.
  */
-static void create_server_animations(void)
-{
+static void create_server_animations(void) {
     char buf[MAX_BUF];
     snprintf(VS(buf), "%s/anims", settings.datapath);
 
@@ -263,7 +262,7 @@ static void create_server_animations(void)
     while (fgets(VS(buf), fp2)) {
         /* Copy anything but face names. */
         if (strncmp(buf, "anim ", 5) == 0 || strcmp(buf, "mina\n") == 0 ||
-                strncmp(buf, "facings ", 8) == 0) {
+            strncmp(buf, "facings ", 8) == 0) {
             fputs(buf, fp);
         } else {
             char *end = strchr(buf, '\n');
@@ -286,8 +285,7 @@ static void create_server_animations(void)
  * client_bmaps is generated from the server at startup out of the
  * Atrinik png file.
  */
-void init_srv_files(void)
-{
+void init_srv_files(void) {
     char buf[MAX_BUF];
     FILE *fp;
 
@@ -303,7 +301,7 @@ void init_srv_files(void)
     snprintf(buf, sizeof(buf), "%s/bmaps", settings.datapath);
     load_srv_file(buf, fp);
 
-    snprintf(buf, sizeof(buf), "%s/"UPDATES_FILE_NAME, settings.datapath);
+    snprintf(buf, sizeof(buf), "%s/" UPDATES_FILE_NAME, settings.datapath);
     load_srv_file(buf, fp);
 
     create_server_settings();

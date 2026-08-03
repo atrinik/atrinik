@@ -35,48 +35,48 @@
  * Spell path defines.
  *@{*/
 /** Protection. */
-#define PATH_PROT       0x00000001
+#define PATH_PROT 0x00000001
 /** Fire. */
-#define PATH_FIRE       0x00000002
+#define PATH_FIRE 0x00000002
 /** Frost. */
-#define PATH_FROST      0x00000004
+#define PATH_FROST 0x00000004
 /** Electricity. */
-#define PATH_ELEC       0x00000008
+#define PATH_ELEC 0x00000008
 /** Missiles. */
-#define PATH_MISSILE    0x00000010
+#define PATH_MISSILE 0x00000010
 /** Self. */
-#define PATH_SELF       0x00000020
+#define PATH_SELF 0x00000020
 /** Summoning. */
-#define PATH_SUMMON     0x00000040
+#define PATH_SUMMON 0x00000040
 /** Abjuration. */
-#define PATH_ABJURE     0x00000080
+#define PATH_ABJURE 0x00000080
 /** Restoration. */
-#define PATH_RESTORE    0x00000100
+#define PATH_RESTORE 0x00000100
 /** Detonation. */
-#define PATH_DETONATE   0x00000200
+#define PATH_DETONATE 0x00000200
 /** Mind. */
-#define PATH_MIND       0x00000400
+#define PATH_MIND 0x00000400
 /** Creation. */
-#define PATH_CREATE     0x00000800
+#define PATH_CREATE 0x00000800
 /** Teleportation. */
-#define PATH_TELE       0x00001000
+#define PATH_TELE 0x00001000
 /** Information. */
-#define PATH_INFO       0x00002000
+#define PATH_INFO 0x00002000
 /** Transmutation. */
-#define PATH_TRANSMUTE  0x00004000
+#define PATH_TRANSMUTE 0x00004000
 /** Transference. */
-#define PATH_TRANSFER   0x00008000
+#define PATH_TRANSFER 0x00008000
 /** Turning. */
-#define PATH_TURNING    0x00010000
+#define PATH_TURNING 0x00010000
 /** Wounding. */
-#define PATH_WOUNDING   0x00020000
+#define PATH_WOUNDING 0x00020000
 /** Death. */
-#define PATH_DEATH      0x00040000
+#define PATH_DEATH 0x00040000
 /** Light. */
-#define PATH_LIGHT      0x00080000
+#define PATH_LIGHT 0x00080000
 
 /** Number of the different paths. */
-#define PATH_NUM        20
+#define PATH_NUM 20
 /*@}*/
 
 /**
@@ -84,19 +84,19 @@
  * Spell use flags.
  *@{*/
 /** Spell can be cast. */
-#define SPELL_USE_CAST   0x01
+#define SPELL_USE_CAST 0x01
 /** Spell can be found in balms. */
-#define SPELL_USE_BALM   0x02
+#define SPELL_USE_BALM 0x02
 /** Spell can be found in dusts. */
-#define SPELL_USE_DUST   0x04
+#define SPELL_USE_DUST 0x04
 /** Spell can be found in scrolls. */
 #define SPELL_USE_SCROLL 0x08
 /*** Spell can be found in books. */
-#define SPELL_USE_BOOK   0x10
+#define SPELL_USE_BOOK 0x10
 /** Spell can be found in wands. */
-#define SPELL_USE_WAND   0x20
+#define SPELL_USE_WAND 0x20
 /** Spell can be found in rods. */
-#define SPELL_USE_ROD    0x40
+#define SPELL_USE_ROD 0x40
 /** Spell can be found in potions. */
 #define SPELL_USE_POTION 0x80
 /*@}*/
@@ -105,7 +105,7 @@
  * Number of different spell types, should be have value of the highest
  * spell type.
  */
-#define SPELL_TYPE_NROF    2
+#define SPELL_TYPE_NROF 2
 
 /**
  * @defgroup SPELL_DESC_xxx Spell flags
@@ -113,15 +113,15 @@
  *@{*/
 
 /** Spell is safe to cast in town. */
-#define SPELL_DESC_TOWN         0x01
+#define SPELL_DESC_TOWN 0x01
 /** Spell is fired in a direction (bullet, bolt, ...). */
-#define SPELL_DESC_DIRECTION    0x02
+#define SPELL_DESC_DIRECTION 0x02
 /** Spell can be cast on self. */
-#define SPELL_DESC_SELF         0x04
+#define SPELL_DESC_SELF 0x04
 /** Spell can be cast on friendly creature. */
-#define SPELL_DESC_FRIENDLY     0x08
+#define SPELL_DESC_FRIENDLY 0x08
 /** Spell can be cast on enemy creature. */
-#define SPELL_DESC_ENEMY        0x10
+#define SPELL_DESC_ENEMY 0x10
 /*@}*/
 
 struct archetype;

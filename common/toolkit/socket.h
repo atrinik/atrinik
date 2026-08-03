@@ -303,13 +303,13 @@ typedef struct socket_asset_response {
  * in map2 protocol.
  *@{*/
 /** Multi-arch object. */
-#define MAP2_FLAG_MULTI      1
+#define MAP2_FLAG_MULTI 1
 /** Player name. */
-#define MAP2_FLAG_NAME       2
+#define MAP2_FLAG_NAME 2
 /** Animation instead of a face. */
-#define MAP2_FLAG_ANIMATION  4
+#define MAP2_FLAG_ANIMATION 4
 /** Tile's Z position. */
-#define MAP2_FLAG_HEIGHT     8
+#define MAP2_FLAG_HEIGHT 8
 /** The object should be highlighted in red. */
 #define MAP2_FLAG_INFRAVISION 16
 /** X align. */
@@ -349,7 +349,7 @@ typedef struct socket_asset_response {
  * tiles in map2 protocol.
  *@{*/
 /** An animation. */
-#define MAP2_FLAG_EXT_ANIM   1
+#define MAP2_FLAG_EXT_ANIM 1
 /*@}*/
 
 /**
@@ -357,9 +357,9 @@ typedef struct socket_asset_response {
  * Animation types.
  *@{*/
 /** Damage animation. */
-#define ANIM_DAMAGE     1
+#define ANIM_DAMAGE 1
 /** Kill animation. */
-#define ANIM_KILL       2
+#define ANIM_KILL 2
 /*@}*/
 
 /**
@@ -367,7 +367,7 @@ typedef struct socket_asset_response {
  * Flags used for masks in map2 protocol.
  *@{*/
 /** Clear cell, with all layers. */
-#define MAP2_MASK_CLEAR      0x2
+#define MAP2_MASK_CLEAR 0x2
 #define MAP2_MASK_DARKNESS 0x4
 #define MAP2_MASK_DARKNESS_MORE 0x8
 /*@}*/
@@ -376,7 +376,7 @@ typedef struct socket_asset_response {
  * @defgroup MAP2_LAYER_xxx Map2 layer types
  *@{*/
 /** Clear this layer. */
-#define MAP2_LAYER_CLEAR    255
+#define MAP2_LAYER_CLEAR 255
 /*@}*/
 
 /**
@@ -586,31 +586,31 @@ typedef struct socket_asset_response {
  * @defgroup CS_STAT_xx Client/server stats
  * IDs for the various stats that get sent across.
  *@{*/
-#define CS_STAT_HP              1
-#define CS_STAT_MAXHP           2
-#define CS_STAT_SP              3
-#define CS_STAT_MAXSP           4
-#define CS_STAT_STR             5
-#define CS_STAT_DEX             6
-#define CS_STAT_CON             7
-#define CS_STAT_INT             8
-#define CS_STAT_POW             9
-#define CS_STAT_EXP             11
-#define CS_STAT_LEVEL           12
-#define CS_STAT_WC              13
-#define CS_STAT_AC              14
-#define CS_STAT_DAM             15
-#define CS_STAT_ARMOUR          16
-#define CS_STAT_SPEED           17
-#define CS_STAT_FOOD            18
-#define CS_STAT_WEAPON_SPEED    19
-#define CS_STAT_RANGE           20
-#define CS_STAT_TITLE           21
-#define CS_STAT_FLAGS           25
-#define CS_STAT_WEIGHT_LIM      26
-#define CS_STAT_REG_HP          28
-#define CS_STAT_REG_MANA        29
-#define CS_STAT_TARGET_HP       31
+#define CS_STAT_HP 1
+#define CS_STAT_MAXHP 2
+#define CS_STAT_SP 3
+#define CS_STAT_MAXSP 4
+#define CS_STAT_STR 5
+#define CS_STAT_DEX 6
+#define CS_STAT_CON 7
+#define CS_STAT_INT 8
+#define CS_STAT_POW 9
+#define CS_STAT_EXP 11
+#define CS_STAT_LEVEL 12
+#define CS_STAT_WC 13
+#define CS_STAT_AC 14
+#define CS_STAT_DAM 15
+#define CS_STAT_ARMOUR 16
+#define CS_STAT_SPEED 17
+#define CS_STAT_FOOD 18
+#define CS_STAT_WEAPON_SPEED 19
+#define CS_STAT_RANGE 20
+#define CS_STAT_TITLE 21
+#define CS_STAT_FLAGS 25
+#define CS_STAT_WEIGHT_LIM 26
+#define CS_STAT_REG_HP 28
+#define CS_STAT_REG_MANA 29
+#define CS_STAT_TARGET_HP 31
 
 #define CS_STAT_GENDER 35
 #define CS_STAT_ACTION_TIME 36
@@ -621,26 +621,26 @@ typedef struct socket_asset_response {
 #define CS_STAT_PATH_REPELLED 41
 #define CS_STAT_PATH_DENIED 42
 
-#define CS_STAT_RESIST_START    100
-#define CS_STAT_RESIST_END      117
-#define CS_STAT_RES_PHYS        100
-#define CS_STAT_RES_MAG         101
-#define CS_STAT_RES_FIRE        102
-#define CS_STAT_RES_ELEC        103
-#define CS_STAT_RES_COLD        104
-#define CS_STAT_RES_CONF        105
-#define CS_STAT_RES_ACID        106
-#define CS_STAT_RES_DRAIN       107
-#define CS_STAT_RES_GHOSTHIT    108
-#define CS_STAT_RES_POISON      109
-#define CS_STAT_RES_SLOW        110
-#define CS_STAT_RES_PARA        111
-#define CS_STAT_TIME            112
-#define CS_STAT_RES_FEAR        113
-#define CS_STAT_RES_DEPLETE     114
-#define CS_STAT_RES_DEATH       115
-#define CS_STAT_RES_HOLYWORD    116
-#define CS_STAT_RES_BLIND       117
+#define CS_STAT_RESIST_START 100
+#define CS_STAT_RESIST_END 117
+#define CS_STAT_RES_PHYS 100
+#define CS_STAT_RES_MAG 101
+#define CS_STAT_RES_FIRE 102
+#define CS_STAT_RES_ELEC 103
+#define CS_STAT_RES_COLD 104
+#define CS_STAT_RES_CONF 105
+#define CS_STAT_RES_ACID 106
+#define CS_STAT_RES_DRAIN 107
+#define CS_STAT_RES_GHOSTHIT 108
+#define CS_STAT_RES_POISON 109
+#define CS_STAT_RES_SLOW 110
+#define CS_STAT_RES_PARA 111
+#define CS_STAT_TIME 112
+#define CS_STAT_RES_FEAR 113
+#define CS_STAT_RES_DEPLETE 114
+#define CS_STAT_RES_DEATH 115
+#define CS_STAT_RES_HOLYWORD 116
+#define CS_STAT_RES_BLIND 117
 
 #define CS_STAT_EQUIP_START 100
 #define CS_STAT_EQUIP_END 116
@@ -654,11 +654,11 @@ typedef struct socket_asset_response {
  * These are used with @ref CS_STAT_FLAGS to determine the
  * server thinks the fire-on and run-on states are.
  *@{*/
-#define SF_FIREON           1
-#define SF_RUNON            2
-#define SF_BLIND            4
-#define SF_XRAYS            8
-#define SF_INFRAVISION      16
+#define SF_FIREON 1
+#define SF_RUNON 2
+#define SF_BLIND 4
+#define SF_XRAYS 8
+#define SF_INFRAVISION 16
 /*@}*/
 
 /**
@@ -672,21 +672,21 @@ typedef struct socket_asset_response {
  *@{*/
 
 /** Object is sleeping */
-#define FFLAG_SLEEP     0x01
+#define FFLAG_SLEEP 0x01
 /** Object is confused */
-#define FFLAG_CONFUSED  0x02
+#define FFLAG_CONFUSED 0x02
 /** Object is paralyzed */
 #define FFLAG_PARALYZED 0x04
 /** Object is scared - it will run away */
-#define FFLAG_SCARED    0x08
+#define FFLAG_SCARED 0x08
 /** Object is blinded */
-#define FFLAG_BLINDED   0x10
+#define FFLAG_BLINDED 0x10
 /** Object is invisible (can be seen with "see invisible" on) */
 #define FFLAG_INVISIBLE 0x20
 /** Object is ethereal */
-#define FFLAG_ETHEREAL  0x40
+#define FFLAG_ETHEREAL 0x40
 /** Object is probed */
-#define FFLAG_PROBE     0x80
+#define FFLAG_PROBE 0x80
 /*@}*/
 
 /**
@@ -732,7 +732,6 @@ typedef struct socket_asset_response {
  */
 #define CMD_CONTROL_PLAYER 2
 /*@}*/
-
 
 /**
  * @defgroup CMD_CONTROL_MAP_xxx Map control command types
@@ -967,12 +966,16 @@ typedef enum socket_websocket_receive_state {
 } socket_websocket_receive_state_t;
 
 #ifdef WIN32
-static inline const char *s_strerror(int val)
-{
+static inline const char *s_strerror(int val) {
     wchar_t *s = NULL;
     FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS, NULL, val,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR) &s, 0, NULL);
+                       FORMAT_MESSAGE_IGNORE_INSERTS,
+                   NULL,
+                   val,
+                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   (LPWSTR)&s,
+                   0,
+                   NULL);
     static char buf[4096];
     int end = snprintf(buf, sizeof(buf), "%S", s);
     if (end > 0) {
@@ -998,120 +1001,91 @@ static inline const char *s_strerror(int val)
 TOOLKIT_FUNCS_DECLARE(socket);
 
 struct packet_struct;
-void
-socket_asset_request_append(struct packet_struct *packet,
-                            const char           *path,
-                            uint32_t              offset,
-                            uint32_t              cached_size,
-                            const uint8_t          cached_digest[ASSET_DIGEST_SIZE],
-                            uint8_t                flags);
-bool
-socket_asset_request_parse(uint8_t                *data,
-                           size_t                  len,
-                           size_t                  pos,
-                           socket_asset_request_t *request);
-void
-socket_asset_response_append_status(struct packet_struct *packet,
-                                    uint8_t               status,
-                                    const char           *path);
-void
-socket_asset_response_append_ok(struct packet_struct *packet,
-                                const char           *path,
-                                uint32_t              total_size,
-                                uint32_t              offset,
-                                const uint8_t          digest[ASSET_DIGEST_SIZE],
-                                const uint8_t        *data,
-                                size_t                data_size);
-void
-socket_asset_response_append_metadata(
-    struct packet_struct *packet,
-    const char           *path,
-    uint32_t              total_size,
-    const uint8_t          digest[ASSET_DIGEST_SIZE]);
-bool
-socket_asset_response_parse(uint8_t                 *data,
-                            size_t                   len,
-                            size_t                   pos,
-                            socket_asset_response_t *response);
+void socket_asset_request_append(struct packet_struct *packet,
+                                 const char *path,
+                                 uint32_t offset,
+                                 uint32_t cached_size,
+                                 const uint8_t cached_digest[ASSET_DIGEST_SIZE],
+                                 uint8_t flags);
+bool socket_asset_request_parse(uint8_t *data,
+                                size_t len,
+                                size_t pos,
+                                socket_asset_request_t *request);
+void socket_asset_response_append_status(struct packet_struct *packet,
+                                         uint8_t status,
+                                         const char *path);
+void socket_asset_response_append_ok(struct packet_struct *packet,
+                                     const char *path,
+                                     uint32_t total_size,
+                                     uint32_t offset,
+                                     const uint8_t digest[ASSET_DIGEST_SIZE],
+                                     const uint8_t *data,
+                                     size_t data_size);
+void socket_asset_response_append_metadata(struct packet_struct *packet,
+                                           const char *path,
+                                           uint32_t total_size,
+                                           const uint8_t digest[ASSET_DIGEST_SIZE]);
+bool socket_asset_response_parse(uint8_t *data,
+                                 size_t len,
+                                 size_t pos,
+                                 socket_asset_response_t *response);
 
 socket_t *
-socket_create(const char   *host,
-              uint16_t      port,
-              bool          secure,
-              socket_role_t role,
-              bool          dual_stack);
-socket_t *
-socket_quic_server_create(const char *host,
-                          uint16_t    port,
-                          bool        dual_stack,
-                          const char *identity_path);
-socket_t *
-socket_quic_client_create(const char *host,
-                          uint16_t    port,
-                          const char *certificate_sha256,
-                          const char *rendezvous_url,
-                          const char *stun_endpoint,
-                          socket_connection_preference_t preference);
-const char *
-socket_connection_preference_name(socket_connection_preference_t preference);
-const char *
-socket_candidate_kind_name(socket_candidate_kind_t kind);
-bool
-socket_candidate_kind_parse(const char *name, socket_candidate_kind_t *kind);
-socket_connection_mode_t
-socket_candidate_kind_mode(socket_candidate_kind_t kind);
+socket_create(const char *host, uint16_t port, bool secure, socket_role_t role, bool dual_stack);
+socket_t *socket_quic_server_create(const char *host,
+                                    uint16_t port,
+                                    bool dual_stack,
+                                    const char *identity_path);
+socket_t *socket_quic_client_create(const char *host,
+                                    uint16_t port,
+                                    const char *certificate_sha256,
+                                    const char *rendezvous_url,
+                                    const char *stun_endpoint,
+                                    socket_connection_preference_t preference);
+const char *socket_connection_preference_name(socket_connection_preference_t preference);
+const char *socket_candidate_kind_name(socket_candidate_kind_t kind);
+bool socket_candidate_kind_parse(const char *name, socket_candidate_kind_t *kind);
+socket_connection_mode_t socket_candidate_kind_mode(socket_candidate_kind_t kind);
 bool socket_rendezvous_client_candidate_parse(const char *message,
-        char *host, size_t host_size, uint16_t *port, char ticket[65]);
+                                              char *host,
+                                              size_t host_size,
+                                              uint16_t *port,
+                                              char ticket[65]);
 bool socket_rendezvous_server_candidate_parse(const char *message,
-        const char *expected_ticket, socket_direct_candidate_t *candidate);
-bool socket_rendezvous_message_render(char *buffer, size_t size,
-        const char *type, const char *host, uint16_t port,
-        socket_candidate_kind_t kind, const char *ticket);
-bool socket_rendezvous_complete_parse(const char *message,
-        const char *expected_ticket);
-socket_websocket_receive_state_t socket_websocket_receive(void *handle,
-        char *buffer, size_t capacity, size_t *used);
-bool
-socket_is_quic(socket_t *sc);
-socket_connection_mode_t
-socket_connection_mode_get(socket_t *sc);
-const char *
-socket_connection_mode_name(socket_connection_mode_t mode);
-bool
-socket_certificate_sha256(socket_t *sc, char fingerprint[65]);
-bool
-socket_stun_discover(socket_t *sc,
-                     const char *endpoint,
-                     char *host,
-                     size_t host_size,
-                     uint16_t *port);
-bool
-socket_udp_punch(socket_t *sc, const char *host, uint16_t port);
-bool
-socket_udp_punch_receive(socket_t *sc,
-                         char *host,
-                         size_t host_size,
-                         uint16_t *port);
-void
-socket_punch_pacer_start(socket_punch_pacer_t *pacer,
-                         uint64_t              now_ms,
-                         unsigned int          grace_ms);
-socket_punch_action_t
-socket_punch_pacer_poll(const socket_punch_pacer_t *pacer, uint64_t now_ms);
-void
-socket_punch_pacer_advance(socket_punch_pacer_t *pacer,
-                           uint64_t              now_ms,
-                           socket_punch_action_t action);
-bool
-socket_host_is_global(const char *host);
+                                              const char *expected_ticket,
+                                              socket_direct_candidate_t *candidate);
+bool socket_rendezvous_message_render(char *buffer,
+                                      size_t size,
+                                      const char *type,
+                                      const char *host,
+                                      uint16_t port,
+                                      socket_candidate_kind_t kind,
+                                      const char *ticket);
+bool socket_rendezvous_complete_parse(const char *message, const char *expected_ticket);
+socket_websocket_receive_state_t
+socket_websocket_receive(void *handle, char *buffer, size_t capacity, size_t *used);
+bool socket_is_quic(socket_t *sc);
+socket_connection_mode_t socket_connection_mode_get(socket_t *sc);
+const char *socket_connection_mode_name(socket_connection_mode_t mode);
+bool socket_certificate_sha256(socket_t *sc, char fingerprint[65]);
+bool socket_stun_discover(socket_t *sc,
+                          const char *endpoint,
+                          char *host,
+                          size_t host_size,
+                          uint16_t *port);
+bool socket_udp_punch(socket_t *sc, const char *host, uint16_t port);
+bool socket_udp_punch_receive(socket_t *sc, char *host, size_t host_size, uint16_t *port);
+void socket_punch_pacer_start(socket_punch_pacer_t *pacer, uint64_t now_ms, unsigned int grace_ms);
+socket_punch_action_t socket_punch_pacer_poll(const socket_punch_pacer_t *pacer, uint64_t now_ms);
+void socket_punch_pacer_advance(socket_punch_pacer_t *pacer,
+                                uint64_t now_ms,
+                                socket_punch_action_t action);
+bool socket_host_is_global(const char *host);
 size_t
-socket_local_candidates(uint16_t                    port,
-                        socket_direct_candidate_t *candidates,
-                        size_t                      capacity);
+socket_local_candidates(uint16_t port, socket_direct_candidate_t *candidates, size_t capacity);
 char *socket_get_addr(socket_t *sc);
 const char *socket_get_id(socket_t *sc);
-int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
-        unsigned short plen);
+int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr, unsigned short plen);
 bool socket_connect(socket_t *sc);
 int socket_fd(socket_t *sc);
 bool socket_local_port(socket_t *sc, uint16_t *port);
@@ -1132,26 +1106,20 @@ bool socket_opt_recv_buffer(socket_t *sc, int bufsize);
 void socket_destroy(socket_t *sc);
 void socket_close(socket_t *sc);
 bool socket_host2addr(const char *host, struct sockaddr_storage *addr);
-const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
-        size_t bufsize);
+const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf, size_t bufsize);
 unsigned short socket_addr_plen(const struct sockaddr_storage *addr);
 int socket_addr_cmp(const struct sockaddr_storage *a,
-        const struct sockaddr_storage *b, unsigned short plen);
-void
-socket_set_crypto(socket_t *sc, socket_crypto_t *crypto);
-socket_crypto_t *
-socket_get_crypto(socket_t *sc);
-const char *
-socket_get_host(socket_t *sc);
-bool
-socket_is_secure(socket_t *sc);
-bool
-socket_rendezvous_url(const char *base_url,
-                      const char *server_id,
-                      const char *role,
-                      char       *url,
-                      size_t      url_size);
-socket_role_t
-socket_get_role(socket_t *sc);
+                    const struct sockaddr_storage *b,
+                    unsigned short plen);
+void socket_set_crypto(socket_t *sc, socket_crypto_t *crypto);
+socket_crypto_t *socket_get_crypto(socket_t *sc);
+const char *socket_get_host(socket_t *sc);
+bool socket_is_secure(socket_t *sc);
+bool socket_rendezvous_url(const char *base_url,
+                           const char *server_id,
+                           const char *role,
+                           char *url,
+                           size_t url_size);
+socket_role_t socket_get_role(socket_t *sc);
 
 #endif

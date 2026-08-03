@@ -28,7 +28,7 @@
  */
 
 #ifndef PLUGIN_HOOKLIST_H
-#define	PLUGIN_HOOKLIST_H
+#define PLUGIN_HOOKLIST_H
 
 /* We want the hook declarations. */
 #define PLUGIN_HOOK_DECLARATIONS
@@ -42,4 +42,3 @@ struct artifact_list;
 #include <plugin_hooks.h>
 
 #endif
-

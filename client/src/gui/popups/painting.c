@@ -60,9 +60,7 @@ typedef struct popup_painting {
  * @return
  * Surface to use.
  */
-static inline SDL_Surface *
-popup_painting_data_surface (popup_painting_t *data)
-{
+static inline SDL_Surface *popup_painting_data_surface(popup_painting_t *data) {
     HARD_ASSERT(data != NULL);
 
     if (data->zoomed != NULL) {
@@ -82,9 +80,7 @@ popup_painting_data_surface (popup_painting_t *data)
  * @param data
  * What to free.
  */
-static void
-popup_painting_data_free (popup_painting_t *data)
-{
+static void popup_painting_data_free(popup_painting_t *data) {
     HARD_ASSERT(data != NULL);
 
     if (data->sprite != NULL) {
@@ -102,9 +98,7 @@ popup_painting_data_free (popup_painting_t *data)
 }
 
 /** @copydoc popup_struct::draw_func */
-static int
-popup_draw_func (popup_struct *popup)
-{
+static int popup_draw_func(popup_struct *popup) {
     if (!popup->redraw) {
         return 1;
     }
@@ -184,15 +178,14 @@ popup_draw_func (popup_struct *popup)
 
         if (painting_data->sprite->bitmap->w != painting_data->coords.w ||
             painting_data->sprite->bitmap->h != painting_data->coords.h) {
-            painting_data->zoom_x = (double) painting_data->coords.w /
-                                    painting_data->sprite->bitmap->w;
-            painting_data->zoom_y = (double) painting_data->coords.h /
-                                    painting_data->sprite->bitmap->h;
+            painting_data->zoom_x =
+                (double)painting_data->coords.w / painting_data->sprite->bitmap->w;
+            painting_data->zoom_y =
+                (double)painting_data->coords.h / painting_data->sprite->bitmap->h;
         }
     }
 
-    if (painting_data->zoomed == NULL &&
-        !DBL_EQUAL(painting_data->zoom_x, 1.0) &&
+    if (painting_data->zoomed == NULL && !DBL_EQUAL(painting_data->zoom_x, 1.0) &&
         !DBL_EQUAL(painting_data->zoom_y, 1.0)) {
         bool smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
         painting_data->zoomed = rotozoomSurfaceXY(painting_data->sprite->bitmap,
@@ -200,8 +193,7 @@ popup_draw_func (popup_struct *popup)
                                                   painting_data->zoom_x,
                                                   painting_data->zoom_y,
                                                   smooth);
-        surface_pan(popup_painting_data_surface(painting_data),
-                    &painting_data->coords);
+        surface_pan(popup_painting_data_surface(painting_data), &painting_data->coords);
     }
 
     surface_show(popup->surface,
@@ -214,9 +206,7 @@ popup_draw_func (popup_struct *popup)
 }
 
 /** @copydoc popup_struct::draw_post_func */
-static int
-popup_draw_post_func (popup_struct *popup)
-{
+static int popup_draw_post_func(popup_struct *popup) {
     popup_painting_t *painting_data = popup->custom_data;
 
     resource_t *resource = resources_find(painting_data->resource_name);
@@ -237,9 +227,7 @@ popup_draw_post_func (popup_struct *popup)
 }
 
 /** @copydoc popup_struct::event_func */
-static int
-popup_event_func (popup_struct *popup, SDL_Event *event)
-{
+static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     popup_painting_t *painting_data = popup->custom_data;
 
     if (event->type == SDL_MOUSEBUTTONDOWN) {
@@ -268,15 +256,13 @@ popup_event_func (popup_struct *popup, SDL_Event *event)
         if (event->button.button == SDL_BUTTON_LEFT) {
             painting_data->mx = painting_data->my = -1;
         }
-    } else if (event->type == SDL_MOUSEMOTION &&
-        painting_data->mx != -1 &&
-        painting_data->my != -1) {
+    } else if (event->type == SDL_MOUSEMOTION && painting_data->mx != -1 &&
+               painting_data->my != -1) {
         painting_data->coords.x += painting_data->mx - event->motion.x;
         painting_data->coords.y += painting_data->my - event->motion.y;
         painting_data->mx = event->motion.x;
         painting_data->my = event->motion.y;
-        surface_pan(popup_painting_data_surface(painting_data),
-                    &painting_data->coords);
+        surface_pan(popup_painting_data_surface(painting_data), &painting_data->coords);
         popup->redraw = 1;
     }
 
@@ -284,9 +270,7 @@ popup_event_func (popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
-static int
-popup_destroy_callback (popup_struct *popup)
-{
+static int popup_destroy_callback(popup_struct *popup) {
     popup_painting_t *painting_data = popup->custom_data;
     popup_painting_data_free(painting_data);
     popup->custom_data = NULL;
@@ -294,9 +278,7 @@ popup_destroy_callback (popup_struct *popup)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void
-socket_command_painting (uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_painting(uint8_t *data, size_t len, size_t pos) {
     popup_painting_t *painting_data = ecalloc(1, sizeof(*painting_data));
 
     painting_data->coords.w = 750;
@@ -316,15 +298,13 @@ socket_command_painting (uint8_t *data, size_t len, size_t pos)
     packet_to_stringbuffer(data, len, &pos, sb);
     painting_data->msg = stringbuffer_finish(sb);
 
-    if (string_isempty(painting_data->resource_name) ||
-        string_isempty(painting_data->name)) {
+    if (string_isempty(painting_data->resource_name) || string_isempty(painting_data->name)) {
         LOG(PACKET, "Empty resource name or painting name");
         popup_painting_data_free(painting_data);
         return;
     }
 
-    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT,
-                                                   "painting"));
+    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "painting"));
     popup->custom_data = painting_data;
     popup->draw_func = popup_draw_func;
     popup->draw_post_func = popup_draw_post_func;
@@ -333,6 +313,6 @@ socket_command_painting (uint8_t *data, size_t len, size_t pos)
     popup->disable_texture_drawing = 1;
     popup->button_left.button.texture = NULL;
     popup->button_right.y = 25;
-    popup->button_right.x = popup->texture->surface->w - 25 -
-                            popup->button_right.button.texture->surface->w;
+    popup->button_right.x =
+        popup->texture->surface->w - 25 - popup->button_right.button.texture->surface->w;
 }

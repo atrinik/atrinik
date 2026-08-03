@@ -81,54 +81,54 @@
  *@{*/
 
 /** This is when the map will reset */
-#define MAP_WHEN_RESET(m)      ((m)->reset_time)
+#define MAP_WHEN_RESET(m) ((m)->reset_time)
 /** The map reset timeout */
-#define MAP_RESET_TIMEOUT(m)   ((m)->reset_timeout)
+#define MAP_RESET_TIMEOUT(m) ((m)->reset_timeout)
 /** The map difficulty */
-#define MAP_DIFFICULTY(m)      ((m)->difficulty)
+#define MAP_DIFFICULTY(m) ((m)->difficulty)
 /** The map timeout */
-#define MAP_TIMEOUT(m)         ((m)->timeout)
+#define MAP_TIMEOUT(m) ((m)->timeout)
 /** The map swap time */
-#define MAP_SWAP_TIME(m)       ((m)->swap_time)
+#define MAP_SWAP_TIME(m) ((m)->swap_time)
 /** Is the map outdoors map? */
-#define MAP_OUTDOORS(m)        ((m)->map_flags & MAP_FLAG_OUTDOOR)
+#define MAP_OUTDOORS(m) ((m)->map_flags & MAP_FLAG_OUTDOOR)
 /** Is the map unique map? */
-#define MAP_UNIQUE(m)          ((m)->map_flags & MAP_FLAG_UNIQUE)
+#define MAP_UNIQUE(m) ((m)->map_flags & MAP_FLAG_UNIQUE)
 /** Does the map have fixed reset time? */
 #define MAP_FIXED_RESETTIME(m) ((m)->map_flags & MAP_FLAG_FIXED_RTIME)
 /** Is the map no-save map? */
-#define MAP_NOSAVE(m)          ((m)->map_flags & MAP_FLAG_NO_SAVE)
+#define MAP_NOSAVE(m) ((m)->map_flags & MAP_FLAG_NO_SAVE)
 /** Does the map disallow magic? */
-#define MAP_NOMAGIC(m)         ((m)->map_flags & MAP_FLAG_NOMAGIC)
+#define MAP_NOMAGIC(m) ((m)->map_flags & MAP_FLAG_NOMAGIC)
 /*
  * Height difference will be taken into account when rendering the map.
  */
-#define MAP_HEIGHT_DIFF(m)     ((m)->map_flags & MAP_FLAG_HEIGHT_DIFF)
+#define MAP_HEIGHT_DIFF(m) ((m)->map_flags & MAP_FLAG_HEIGHT_DIFF)
 /** Does the map disallow harmful spells? */
-#define MAP_NOHARM(m)          ((m)->map_flags & MAP_FLAG_NOHARM)
+#define MAP_NOHARM(m) ((m)->map_flags & MAP_FLAG_NOHARM)
 /** Does the map disallow summoning spells? */
-#define MAP_NOSUMMON(m)        ((m)->map_flags & MAP_FLAG_NOSUMMON)
+#define MAP_NOSUMMON(m) ((m)->map_flags & MAP_FLAG_NOSUMMON)
 /** Is the map a fixed login map? */
-#define MAP_FIXEDLOGIN(m)      ((m)->map_flags & MAP_FLAG_FIXED_LOGIN)
+#define MAP_FIXEDLOGIN(m) ((m)->map_flags & MAP_FLAG_FIXED_LOGIN)
 /** Are players unable to save on this map? */
 #define MAP_PLAYER_NO_SAVE(m) ((m)->map_flags & MAP_FLAG_PLAYER_NO_SAVE)
 /** Is the map PVP area? */
-#define MAP_PVP(m)             ((m)->map_flags & MAP_FLAG_PVP)
+#define MAP_PVP(m) ((m)->map_flags & MAP_FLAG_PVP)
 /** Darkness of a map */
-#define MAP_DARKNESS(m)        (m)->darkness
+#define MAP_DARKNESS(m) (m)->darkness
 /** Width of a map */
-#define MAP_WIDTH(m)           (m)->width
+#define MAP_WIDTH(m) (m)->width
 /** Height of a map */
-#define MAP_HEIGHT(m)          (m)->height
+#define MAP_HEIGHT(m) (m)->height
 /**
  * Convenience function - total number of spaces on map is used in many
  * places.
  */
-#define MAP_SIZE(m)            ((m)->width * (m)->height)
+#define MAP_SIZE(m) ((m)->width * (m)->height)
 /** Enter X position of a map */
-#define MAP_ENTER_X(m)         (m)->enter_x
+#define MAP_ENTER_X(m) (m)->enter_x
 /** Enter Y position of a map */
-#define MAP_ENTER_Y(m)         (m)->enter_y
+#define MAP_ENTER_Y(m) (m)->enter_y
 /*@}*/
 
 /**
@@ -141,24 +141,24 @@
  * Always load map from the map directory, and don't do unique items or
  * the like.
  */
-#define MAP_FLUSH         1
+#define MAP_FLUSH 1
 /**
  * This map is player-specific. Don't do any more name translation on
  * it.
  */
 #define MAP_PLAYER_UNIQUE 2
 /** Unused. */
-#define MAP_BLOCK         4
+#define MAP_BLOCK 4
 /** Active objects shouldn't be put on active list. */
-#define MAP_STYLE         8
+#define MAP_STYLE 8
 /** Unused. */
-#define MAP_ARTIFACT      16
+#define MAP_ARTIFACT 16
 /** Indicates that the name string is a shared string */
-#define MAP_NAME_SHARED   32
+#define MAP_NAME_SHARED 32
 /** Original map. Generate treasures */
-#define MAP_ORIGINAL      64
+#define MAP_ORIGINAL 64
 /** No dynamic maps. */
-#define MAP_NO_DYNAMIC    128
+#define MAP_NO_DYNAMIC 128
 /*@}*/
 
 /**
@@ -167,66 +167,49 @@
  *@{*/
 
 /** Map is fully loaded. */
-#define MAP_IN_MEMORY   1
+#define MAP_IN_MEMORY 1
 /** Map spaces have been saved to disk. */
-#define MAP_SWAPPED     2
+#define MAP_SWAPPED 2
 /** This map is being loaded. */
-#define MAP_LOADING     3
+#define MAP_LOADING 3
 /** Map being saved. Will stop object_remove() from some processing. */
-#define MAP_SAVING      4
+#define MAP_SAVING 4
 /*@}*/
 
 /* new macros for map layer system */
-#define GET_MAP_SPACE_PTR(M_, X_, Y_) \
-    (&((M_)->spaces[(X_) + (M_)->width * (Y_)]))
+#define GET_MAP_SPACE_PTR(M_, X_, Y_) (&((M_)->spaces[(X_) + (M_)->width * (Y_)]))
 
-#define GET_MAP_SPACE_FIRST(M_) \
-    ((M_)->first)
-#define GET_MAP_SPACE_LAST(M_) \
-    ((M_)->last)
-#define GET_MAP_SPACE_LAYER(M_, L_, SL_) \
-    ((M_)->layer[NUM_LAYERS * (SL_) + (L_) -1])
+#define GET_MAP_SPACE_FIRST(M_) ((M_)->first)
+#define GET_MAP_SPACE_LAST(M_) ((M_)->last)
+#define GET_MAP_SPACE_LAYER(M_, L_, SL_) ((M_)->layer[NUM_LAYERS * (SL_) + (L_) - 1])
 
-#define SET_MAP_SPACE_FIRST(M_, O_) \
-    ((M_)->first = (O_))
-#define SET_MAP_SPACE_LAST(M_, O_) \
-    ((M_)->last = (O_))
-#define SET_MAP_SPACE_LAYER(M_, L_, SL_, O_) \
-    ((M_)->layer[NUM_LAYERS * (SL_) + (L_) -1] = (O_))
+#define SET_MAP_SPACE_FIRST(M_, O_) ((M_)->first = (O_))
+#define SET_MAP_SPACE_LAST(M_, O_) ((M_)->last = (O_))
+#define SET_MAP_SPACE_LAYER(M_, L_, SL_, O_) ((M_)->layer[NUM_LAYERS * (SL_) + (L_) - 1] = (O_))
 
-#define GET_MAP_UPDATE_COUNTER(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].update_tile)
+#define GET_MAP_UPDATE_COUNTER(M, X, Y) ((M)->spaces[(X) + (M)->width * (Y)].update_tile)
 
-#define INC_MAP_UPDATE_COUNTER(M, X, Y) \
-    ((M)->spaces[((X) + (M)->width * (Y))].update_tile++)
+#define INC_MAP_UPDATE_COUNTER(M, X, Y) ((M)->spaces[((X) + (M)->width * (Y))].update_tile++)
 
-#define GET_MAP_MOVE_FLAGS(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].move_flags)
-#define SET_MAP_MOVE_FLAGS(M, X, Y, C) \
-    ((M)->spaces[(X) + (M)->width * (Y)].move_flags = C)
-#define GET_MAP_FLAGS(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].flags)
-#define SET_MAP_FLAGS(M, X, Y, C) \
-    ((M)->spaces[(X) + (M)->width * (Y)].flags = C)
-#define GET_MAP_LIGHT(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light_value)
-#define SET_MAP_LIGHT(M, X, Y, L) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light_value = L)
+#define GET_MAP_MOVE_FLAGS(M, X, Y) ((M)->spaces[(X) + (M)->width * (Y)].move_flags)
+#define SET_MAP_MOVE_FLAGS(M, X, Y, C) ((M)->spaces[(X) + (M)->width * (Y)].move_flags = C)
+#define GET_MAP_FLAGS(M, X, Y) ((M)->spaces[(X) + (M)->width * (Y)].flags)
+#define SET_MAP_FLAGS(M, X, Y, C) ((M)->spaces[(X) + (M)->width * (Y)].flags = C)
+#define GET_MAP_LIGHT(M, X, Y) ((M)->spaces[(X) + (M)->width * (Y)].light_value)
+#define SET_MAP_LIGHT(M, X, Y, L) ((M)->spaces[(X) + (M)->width * (Y)].light_value = L)
 
-#define GET_MAP_OB(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].first)
-#define GET_MAP_OB_LAST(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last)
+#define GET_MAP_OB(M, X, Y) ((M)->spaces[(X) + (M)->width * (Y)].first)
+#define GET_MAP_OB_LAST(M, X, Y) ((M)->spaces[(X) + (M)->width * (Y)].last)
 #define GET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_, _SL_) \
-    ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) -1])
+    ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) - 1])
 
 #define SET_MAP_DAMAGE(M, X, Y, SUB_LAYER, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)] = (int16_t) (tmp))
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)] = (int16_t)(tmp))
 #define GET_MAP_DAMAGE(M, X, Y, SUB_LAYER) \
     ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)])
 
 #define SET_MAP_RTAG(M, X, Y, SUB_LAYER, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag[(SUB_LAYER)] = (uint32_t) (tmp))
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag[(SUB_LAYER)] = (uint32_t)(tmp))
 #define GET_MAP_RTAG(M, X, Y, SUB_LAYER) \
     ((M)->spaces[(X) + (M)->width * (Y)].round_tag[(SUB_LAYER)])
 
@@ -237,8 +220,7 @@
  * should almost always be using get_map_from_coord() instead, which
  * takes into account map tiling.
  */
-#define OUT_OF_MAP(M, X, Y) \
-    ((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
+#define OUT_OF_MAP(M, X, Y) ((X) < 0 || (Y) < 0 || (X) >= (M)->width || (Y) >= (M)->height)
 
 /**
  * @defgroup map_look_flags Map look flags
@@ -247,37 +229,37 @@
  *@{*/
 
 /** Blocks the view. */
-#define P_BLOCKSVIEW          0x01
+#define P_BLOCKSVIEW 0x01
 /** Spells (some) can't pass this object */
-#define P_NO_MAGIC            0x02
+#define P_NO_MAGIC 0x02
 /** Nothing can pass (wall() is true) */
-#define P_NO_PASS             0x04
+#define P_NO_PASS 0x04
 /** There is one or more player on this tile */
-#define P_IS_PLAYER           0x08
+#define P_IS_PLAYER 0x08
 /** There is a monster on this square. */
-#define P_IS_MONSTER            0x10
+#define P_IS_MONSTER 0x10
 /** There is an exit on this tile. */
-#define P_IS_EXIT             0x20
+#define P_IS_EXIT 0x20
 /**
  * Only players are allowed to enter this space. This excludes mobs
  * and golems but also spell effects and thrown / fired items.
  * It works like a no_pass for players only (pass_thru doesn't work for
  * it).
  */
-#define P_PLAYER_ONLY         0x40
+#define P_PLAYER_ONLY 0x40
 /**
  * A closed door is blocking this space - if we want to approach, we must
  * first check if it's possible to open it.
  */
-#define P_DOOR_CLOSED         0x80
+#define P_DOOR_CLOSED 0x80
 /**
  * We have something like an inventory checker in this tile node.
  */
-#define P_CHECK_INV           0x100
+#define P_CHECK_INV 0x100
 /**
  * PvP is not possible on this tile.
  */
-#define P_NO_PVP              0x200
+#define P_NO_PVP 0x200
 /**
  * Same as NO_PASS - but objects with PASS_THRU set can cross it.
  *
@@ -285,15 +267,15 @@
  * in the node, one with pass_thru and one with real no_pass - then
  * no_pass will overrule pass_thru
  */
-#define P_PASS_THRU           0x400
+#define P_PASS_THRU 0x400
 /** For moving objects and what happens when they enter */
-#define P_WALK_ON             0x1000
+#define P_WALK_ON 0x1000
 /** For moving objects and what happens when they leave */
-#define P_WALK_OFF            0x2000
+#define P_WALK_OFF 0x2000
 /** For flying objects and what happens when they leave */
-#define P_FLY_OFF             0x4000
+#define P_FLY_OFF 0x4000
 /** For flying objects and what happens when they enter */
-#define P_FLY_ON              0x8000
+#define P_FLY_ON 0x8000
 /** There is a @ref MAGIC_MIRROR object on this tile. */
 #define P_MAGIC_MIRROR 0x10000
 /** The tile has object with 'outdoor 1' flag. */
@@ -302,14 +284,14 @@
  * Of course not set for map tiles but from blocked_xx() function where
  * the get_map_from_coord() fails to grab a valid map or tile.
  */
-#define P_OUT_OF_MAP          0x4000000
+#define P_OUT_OF_MAP 0x4000000
 /** Update all the map square flags by looping the map objects. */
-#define P_NEED_UPDATE         0x40000000
+#define P_NEED_UPDATE 0x40000000
 /**
  * Do <b>NOT</b> use this with SET_MAP_FLAGS(). This is just to mark for
  * return values of blocked().
  */
-#define P_NO_TERRAIN          0x80000000
+#define P_NO_TERRAIN 0x80000000
 /*@}*/
 
 /**
@@ -439,7 +421,7 @@ typedef struct MapSpace_s {
  *@{*/
 
 /** Default darkness */
-#define MAP_DEFAULT_DARKNESS    0
+#define MAP_DEFAULT_DARKNESS 0
 /*@}*/
 
 /**
@@ -495,7 +477,7 @@ typedef struct region_struct {
     /** Y coodinate in jailmap to which the player should be sent. */
     int16_t jaily;
 
-    bool child_maps:1; ///< If true, map of this region has all the children.
+    bool child_maps : 1; ///< If true, map of this region has all the children.
 } region_struct;
 
 /**
@@ -694,21 +676,19 @@ typedef struct mapdef {
  * Level offset.
  */
 #define MAP_TILE_IS_SAME_LEVEL(_m, _z) \
-    ((_m)->coords[2] + (_z) >= (_m)->level_min && \
-    (_m)->coords[2] + (_z) <= (_m)->level_max)
+    ((_m)->coords[2] + (_z) >= (_m)->level_min && (_m)->coords[2] + (_z) <= (_m)->level_max)
 
-#define MAP_TILES_WALK_INTERNAL(_m, _fnc, ...) \
-    if (__ret == 0) { \
-        __ret = (_fnc)((_m), (_m), ##__VA_ARGS__); \
-    } \
-\
-    for (__idx = 0; __ret == 0 && __idx < TILED_NUM_DIR; __idx++) { \
-        if ((_m)->tile_map[__idx] == NULL || \
-                (_m)->tile_map[__idx]->in_memory != MAP_IN_MEMORY) { \
-            continue; \
-        } \
-\
-        __ret = (_fnc)((_m)->tile_map[__idx], (_m), ##__VA_ARGS__); \
+#define MAP_TILES_WALK_INTERNAL(_m, _fnc, ...)                                                    \
+    if (__ret == 0) {                                                                             \
+        __ret = (_fnc)((_m), (_m), ##__VA_ARGS__);                                                \
+    }                                                                                             \
+                                                                                                  \
+    for (__idx = 0; __ret == 0 && __idx < TILED_NUM_DIR; __idx++) {                               \
+        if ((_m)->tile_map[__idx] == NULL || (_m)->tile_map[__idx]->in_memory != MAP_IN_MEMORY) { \
+            continue;                                                                             \
+        }                                                                                         \
+                                                                                                  \
+        __ret = (_fnc)((_m)->tile_map[__idx], (_m), ##__VA_ARGS__);                               \
     }
 
 /**
@@ -730,30 +710,25 @@ typedef struct mapdef {
  * @param ...
  * Additional arguments supplied to the function.
  */
-#define MAP_TILES_WALK_START(_m, _fnc, ...) \
-{ \
-    int __ret, __idx, __tile_id, __z; \
-    mapstruct *__tile; \
-\
-    __ret = 0; \
-\
-    if ((_m)->in_memory == MAP_IN_MEMORY) { \
-        MAP_TILES_WALK_INTERNAL(_m, _fnc, ##__VA_ARGS__); \
-    } \
-\
-    for (__tile_id = TILED_UP; \
-            __ret == 0 && __tile_id <= TILED_DOWN; \
-            __tile_id++) { \
-        for (__tile = (_m)->tile_map[__tile_id], \
-                __z = __tile_id == TILED_UP ? 1 : -1; \
-                __ret == 0 && __tile != NULL && \
-                __tile->in_memory == MAP_IN_MEMORY && \
-                MAP_TILE_IS_SAME_LEVEL(_m, __z); \
-                __tile = __tile->tile_map[__tile_id], \
-                __z += __tile_id == TILED_UP ? 1 : -1) { \
-            MAP_TILES_WALK_INTERNAL(__tile, _fnc, ##__VA_ARGS__); \
-        } \
-    }
+#define MAP_TILES_WALK_START(_m, _fnc, ...)                                                     \
+    {                                                                                           \
+        int __ret, __idx, __tile_id, __z;                                                       \
+        mapstruct *__tile;                                                                      \
+                                                                                                \
+        __ret = 0;                                                                              \
+                                                                                                \
+        if ((_m)->in_memory == MAP_IN_MEMORY) {                                                 \
+            MAP_TILES_WALK_INTERNAL(_m, _fnc, ##__VA_ARGS__);                                   \
+        }                                                                                       \
+                                                                                                \
+        for (__tile_id = TILED_UP; __ret == 0 && __tile_id <= TILED_DOWN; __tile_id++) {        \
+            for (__tile = (_m)->tile_map[__tile_id], __z = __tile_id == TILED_UP ? 1 : -1;      \
+                 __ret == 0 && __tile != NULL && __tile->in_memory == MAP_IN_MEMORY &&          \
+                 MAP_TILE_IS_SAME_LEVEL(_m, __z);                                               \
+                 __tile = __tile->tile_map[__tile_id], __z += __tile_id == TILED_UP ? 1 : -1) { \
+                MAP_TILES_WALK_INTERNAL(__tile, _fnc, ##__VA_ARGS__);                           \
+            }                                                                                   \
+        }
 
 /**
  * Acquires the return value from the user-supplied function.
@@ -763,8 +738,7 @@ typedef struct mapdef {
 /**
  * Ends map tile walking block.
  */
-#define MAP_TILES_WALK_END \
-}
+#define MAP_TILES_WALK_END }
 
 /**
  * This is used by get_rangevector() to determine where the other
@@ -798,35 +772,35 @@ typedef struct rv_vector_s {
 /**
  * Calculate Manhattan distance.
  */
-#define RV_MANHATTAN_DISTANCE  0x00
+#define RV_MANHATTAN_DISTANCE 0x00
 /**
  * Calculate Euclidian distance.
  */
-#define RV_EUCLIDIAN_DISTANCE  0x01
+#define RV_EUCLIDIAN_DISTANCE 0x01
 /**
  * Calculate diagonal distance.
  */
-#define RV_DIAGONAL_DISTANCE   0x02
+#define RV_DIAGONAL_DISTANCE 0x02
 /**
  * Do not perform distance calculation.
  */
-#define RV_NO_DISTANCE         (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)
+#define RV_NO_DISTANCE (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)
 
 /**
  * If set, will ignore tail parts of a multi-part object in range vector
  * calculations.
  */
-#define RV_IGNORE_MULTIPART    0x04
+#define RV_IGNORE_MULTIPART 0x04
 
 /**
  * If not set, only immediately adjacent tiled maps are searched. If set, a
  * depth-first search is performed on the tiled maps, up to some limit.
  */
-#define RV_RECURSIVE_SEARCH    0x08
+#define RV_RECURSIVE_SEARCH 0x08
 /**
  * Do not load any maps when attempting to calculate the range vector.
  */
-#define RV_NO_LOAD             0x10
+#define RV_NO_LOAD 0x10
 /*@}*/
 
 /**
@@ -854,7 +828,9 @@ typedef struct rv_vector_s {
 /*@}*/
 
 /** Check if 'pl' cannot see 'ob' due to it being hidden by plugin. */
-#define OBJECT_IS_HIDDEN(pl, ob) (HAS_EVENT((ob), EVENT_ASK_SHOW) && trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
+#define OBJECT_IS_HIDDEN(pl, ob)        \
+    (HAS_EVENT((ob), EVENT_ASK_SHOW) && \
+     trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
 
 /**
  * Maximum darkness of building walls.
@@ -870,93 +846,51 @@ typedef struct rv_vector_s {
 extern int global_darkness_table[MAX_DARKNESS + 1];
 extern int map_tiled_reverse[TILED_NUM];
 
-void
-map_init(void);
-mapstruct *
-has_been_loaded_sh(shstr *name);
-char *
-create_pathname(const char *name);
-int
-wall(mapstruct *m, int x, int y);
-int
-blocks_view(mapstruct *m, int x, int y);
-int
-blocks_magic(mapstruct *m, int x, int y);
-int
-blocked(object *op, mapstruct *m, int x, int y, int terrain);
-int
-blocked_tile(object *op, mapstruct *m, int x, int y);
-int
-arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y);
-void
-set_map_darkness(mapstruct *m, int value);
-mapstruct *
-get_linked_map(void);
-mapstruct *
-get_empty_map(int sizex, int sizey);
-void
-map_set_tile(mapstruct *m, int tile, const char *pathname);
-mapstruct *
-load_original_map(const char *filename, mapstruct *originator, int flags);
-int
-new_save_map(mapstruct *m, int flag);
-void
-free_map(mapstruct *m, int flag);
-void
-delete_map(mapstruct *m);
-mapstruct *
-ready_map_name(const char *name, mapstruct *originator, int flags);
-void
-clean_tmp_map(mapstruct *m);
-void
-free_all_maps(void);
-void
-update_position(mapstruct *m, int x, int y);
-void
-set_map_reset_time(mapstruct *map);
-mapstruct *
-get_map_from_tiled(mapstruct *m, int tiled);
-mapstruct *
-get_map_from_coord(mapstruct *m, int *x, int *y);
-mapstruct *
-get_map_from_coord2(mapstruct *m, int *x, int *y);
-int
-get_rangevector(object *op1, object *op2, rv_vector *retval, int flags);
-int
-get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags);
-int
-on_same_map(object *op1, object *op2);
-int
-players_on_map(mapstruct *m);
-int
-wall_blocked(mapstruct *m, int x, int y);
-int
-map_get_darkness(mapstruct *m, int x, int y, object **mirror);
-int
-map_path_isabs(const char *path);
-char *
-map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *name);
-mapstruct *
-map_force_reset(mapstruct *m);
-void
-map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer);
-object *
-map_find_arch(mapstruct *m, int x, int y, archetype_t *at);
-object *
-map_find_type(mapstruct *m, int x, int y, uint8_t type);
-int
-map_free_spot(mapstruct   *m,
-              int          x,
-              int          y,
-              int          start,
-              int          stop,
-              archetype_t *at,
-              object      *op);
-int
-map_free_spot_first(mapstruct   *m,
-                    int          x,
-                    int          y,
-                    archetype_t *at,
-                    object      *op);
+void map_init(void);
+mapstruct *has_been_loaded_sh(shstr *name);
+char *create_pathname(const char *name);
+int wall(mapstruct *m, int x, int y);
+int blocks_view(mapstruct *m, int x, int y);
+int blocks_magic(mapstruct *m, int x, int y);
+int blocked(object *op, mapstruct *m, int x, int y, int terrain);
+int blocked_tile(object *op, mapstruct *m, int x, int y);
+int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y);
+void set_map_darkness(mapstruct *m, int value);
+mapstruct *get_linked_map(void);
+mapstruct *get_empty_map(int sizex, int sizey);
+void map_set_tile(mapstruct *m, int tile, const char *pathname);
+mapstruct *load_original_map(const char *filename, mapstruct *originator, int flags);
+int new_save_map(mapstruct *m, int flag);
+void free_map(mapstruct *m, int flag);
+void delete_map(mapstruct *m);
+mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags);
+void clean_tmp_map(mapstruct *m);
+void free_all_maps(void);
+void update_position(mapstruct *m, int x, int y);
+void set_map_reset_time(mapstruct *map);
+mapstruct *get_map_from_tiled(mapstruct *m, int tiled);
+mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y);
+mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y);
+int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags);
+int get_rangevector_from_mapcoords(mapstruct *map1,
+                                   int x,
+                                   int y,
+                                   mapstruct *map2,
+                                   int x2,
+                                   int y2,
+                                   rv_vector *retval,
+                                   int flags);
+int on_same_map(object *op1, object *op2);
+int players_on_map(mapstruct *m);
+int wall_blocked(mapstruct *m, int x, int y);
+int map_get_darkness(mapstruct *m, int x, int y, object **mirror);
+int map_path_isabs(const char *path);
+char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *name);
+mapstruct *map_force_reset(mapstruct *m);
+void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer);
+object *map_find_arch(mapstruct *m, int x, int y, archetype_t *at);
+object *map_find_type(mapstruct *m, int x, int y, uint8_t type);
+int map_free_spot(mapstruct *m, int x, int y, int start, int stop, archetype_t *at, object *op);
+int map_free_spot_first(mapstruct *m, int x, int y, archetype_t *at, object *op);
 
 #endif

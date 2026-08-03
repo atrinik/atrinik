@@ -8,8 +8,7 @@
 #include <check_proto.h>
 #include <arch.h>
 
-START_TEST(test_trap_see_is_deterministic_at_capability_boundary)
-{
+START_TEST(test_trap_see_is_deterministic_at_capability_boundary) {
     mapstruct *map;
     object *pl, *trap;
 
@@ -27,8 +26,7 @@ START_TEST(test_trap_see_is_deterministic_at_capability_boundary)
 }
 END_TEST
 
-START_TEST(test_trap_disarm_succeeds_once_with_sufficient_capability)
-{
+START_TEST(test_trap_disarm_succeeds_once_with_sufficient_capability) {
     mapstruct *map;
     object *pl, *trap;
 
@@ -46,23 +44,19 @@ START_TEST(test_trap_disarm_succeeds_once_with_sufficient_capability)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("rune");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
     tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
     suite_add_tcase(s, tc_core);
-    tcase_add_test(tc_core,
-            test_trap_see_is_deterministic_at_capability_boundary);
-    tcase_add_test(tc_core,
-            test_trap_disarm_succeeds_once_with_sufficient_capability);
+    tcase_add_test(tc_core, test_trap_see_is_deterministic_at_capability_boundary);
+    tcase_add_test(tc_core, test_trap_disarm_succeeds_once_with_sufficient_capability);
 
     return s;
 }
 
-void check_server_rune(void)
-{
+void check_server_rune(void) {
     check_run_suite(suite(), __FILE__);
 }

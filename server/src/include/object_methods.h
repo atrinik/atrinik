@@ -59,9 +59,7 @@ typedef struct object_methods {
      * @param aflags
      * Special (always apply/unapply) flags.
      */
-    int (*apply_func)(object *op,
-                      object *applier,
-                      int     aflags);
+    int (*apply_func)(object *op, object *applier, int aflags);
 
     /**
      * Processes an object, giving it the opportunity to move or react.
@@ -83,10 +81,7 @@ typedef struct object_methods {
      * @param size
      * Size of 'buf'.
      */
-    void (*describe_func)(object *op,
-                          object *observer,
-                          char   *buf,
-                          size_t  size);
+    void (*describe_func)(object *op, object *observer, char *buf, size_t size);
 
     /**
      * Triggered when an object moves moves off a square and when object
@@ -102,10 +97,7 @@ typedef struct object_methods {
      * 1 if the object is moving onto a square, 0 if moving
      * off a square.
      */
-    int (*move_on_func)(object *op,
-                        object *victim,
-                        object *originator,
-                        int     state);
+    int (*move_on_func)(object *op, object *victim, object *originator, int state);
 
     /**
      * An object is triggered by another one.
@@ -117,9 +109,7 @@ typedef struct object_methods {
      * @param state
      * Trigger state.
      */
-    int (*trigger_func)(object *op,
-                        object *cause,
-                        int     state);
+    int (*trigger_func)(object *op, object *cause, int state);
 
     /**
      * An object is triggered by a button.
@@ -131,9 +121,7 @@ typedef struct object_methods {
      * @param state
      * Trigger state.
      */
-    int (*trigger_button_func)(object *op,
-                               object *cause,
-                               int     state);
+    int (*trigger_button_func)(object *op, object *cause, int state);
 
     /**
      * Called when an object is inserted on a map.
@@ -172,9 +160,7 @@ typedef struct object_methods {
      * @return
      * The fired object on success, NULL on failure.
      */
-    object *(*projectile_fire_func)(object *op,
-                                    object *shooter,
-                                    int     dir);
+    object *(*projectile_fire_func)(object *op, object *shooter, int dir);
 
     /**
      * Function to handle a fired object moving, eg, arrow moving to the
@@ -205,8 +191,7 @@ typedef struct object_methods {
      * @retval OBJECT_METHOD_ERROR
      * 'op' was destroyed.
      */
-    int (*projectile_hit_func)(object *op,
-                               object *victim);
+    int (*projectile_hit_func)(object *op, object *victim);
 
     /**
      * Called to stop a fired object.
@@ -218,8 +203,7 @@ typedef struct object_methods {
      * @return
      * The fired object if it still exists, NULL otherwise.
      */
-    object *(*projectile_stop_func)(object *op,
-                                    int     reason);
+    object *(*projectile_stop_func)(object *op, int reason);
 
     /**
      * Used to fire a ranged weapon, eg, a bow firing arrows, throwing
@@ -236,10 +220,7 @@ typedef struct object_methods {
      * @return
      * One of @ref OBJECT_METHOD_xxx.
      */
-    int (*ranged_fire_func)(object *op,
-                            object *shooter,
-                            int     dir,
-                            double *delay);
+    int (*ranged_fire_func)(object *op, object *shooter, int dir, double *delay);
 
     /**
      * Processes an object with #FLAG_AUTO_APPLY.
@@ -272,17 +253,17 @@ typedef struct object_methods {
      * possible that the original object has been destroyed and thus
      * any further processing should stop.
      */
-    int (*process_treasure_func)(object               *op,
-                                 object             **ret,
-                                 int                  difficulty,
+    int (*process_treasure_func)(object *op,
+                                 object **ret,
+                                 int difficulty,
                                  treasure_affinity_t *affinity,
-                                 int                  flags);
+                                 int flags);
 
     /**
      * If true, will override the standard treasure processing
      * such as setting a magic bonus, generating artifacts, etc.
      */
-    bool override_treasure_processing:1;
+    bool override_treasure_processing : 1;
 
     /**
      * Fallback methods.
@@ -322,8 +303,8 @@ typedef struct object_methods {
  * @param what
  * Name of the object type.
  */
-#define OBJECT_TYPE_INIT_DEFINE(what)                   \
-    void CONCAT(object_type_init_, what)(void);         \
+#define OBJECT_TYPE_INIT_DEFINE(what)           \
+    void CONCAT(object_type_init_, what)(void); \
     void CONCAT(object_type_init_, what)(void)
 
 /**
@@ -336,49 +317,29 @@ typedef struct object_methods {
 
 /* Prototypes */
 
-void
-object_methods_init(void);
-object_methods_t *
-object_methods_get(int type);
-void
-object_cb_init(object *op);
-void
-object_cb_deinit(object *op);
-int
-object_apply(object *op, object *applier, int aflags);
-void
-object_process(object *op);
-char *
-object_describe(object *op, object *observer, char *buf, size_t size);
-int
-object_move_on(object *op, object *victim, object *originator, int state);
-int
-object_trigger(object *op, object *cause, int state);
-int
-object_trigger_button(object *op, object *cause, int state);
-void
-object_cb_insert_map(object *op);
-void
-object_cb_remove_map(object *op);
-void
-object_cb_remove_inv(object *op);
-object *
-object_projectile_fire(object *op, object *shooter, int dir);
-object *
-object_projectile_move(object *op);
-int
-object_projectile_hit(object *op, object *victim);
-object *
-object_projectile_stop(object *op, int reason);
-int
-object_ranged_fire(object *op, object *shooter, int dir, double *delay);
-void
-object_auto_apply(object *op);
-int
-object_process_treasure(object              *op,
-                        object             **ret,
-                        int                  difficulty,
-                        treasure_affinity_t *affinity,
-                        int                  flags);
+void object_methods_init(void);
+object_methods_t *object_methods_get(int type);
+void object_cb_init(object *op);
+void object_cb_deinit(object *op);
+int object_apply(object *op, object *applier, int aflags);
+void object_process(object *op);
+char *object_describe(object *op, object *observer, char *buf, size_t size);
+int object_move_on(object *op, object *victim, object *originator, int state);
+int object_trigger(object *op, object *cause, int state);
+int object_trigger_button(object *op, object *cause, int state);
+void object_cb_insert_map(object *op);
+void object_cb_remove_map(object *op);
+void object_cb_remove_inv(object *op);
+object *object_projectile_fire(object *op, object *shooter, int dir);
+object *object_projectile_move(object *op);
+int object_projectile_hit(object *op, object *victim);
+object *object_projectile_stop(object *op, int reason);
+int object_ranged_fire(object *op, object *shooter, int dir, double *delay);
+void object_auto_apply(object *op);
+int object_process_treasure(object *op,
+                            object **ret,
+                            int difficulty,
+                            treasure_affinity_t *affinity,
+                            int flags);
 
 #endif

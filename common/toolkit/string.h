@@ -30,7 +30,7 @@
  */
 
 #ifndef TOOLKIT_STRING_H
-#define	TOOLKIT_STRING_H
+#define TOOLKIT_STRING_H
 
 #include "toolkit.h"
 #include "memory.h"
@@ -53,13 +53,13 @@
  * @param str
  * The string. Cannot be NULL.
  */
-#define string_skip_whitespace(str)     \
-do {                                    \
-    HARD_ASSERT(str != NULL);           \
-    while (isspace(*(str))) {           \
-        (str)++;                        \
-    }                                   \
-} while (0)
+#define string_skip_whitespace(str) \
+    do {                            \
+        HARD_ASSERT(str != NULL);   \
+        while (isspace(*(str))) {   \
+            (str)++;                \
+        }                           \
+    } while (0)
 
 /**
  * Strip the trailing newline in the specified string, if any.
@@ -67,14 +67,14 @@ do {                                    \
  * @param str
  * The string. Cannot be NULL.
  */
-#define string_strip_newline(str)                       \
-do {                                                    \
-    HARD_ASSERT(str != NULL);                           \
-    char *CONCAT(end, __LINE__) = strchr(str, '\n');    \
-    if (CONCAT(end, __LINE__) != NULL) {                \
-        *CONCAT(end, __LINE__) = '\0';                  \
-    }                                                   \
-} while (0)
+#define string_strip_newline(str)                        \
+    do {                                                 \
+        HARD_ASSERT(str != NULL);                        \
+        char *CONCAT(end, __LINE__) = strchr(str, '\n'); \
+        if (CONCAT(end, __LINE__) != NULL) {             \
+            *CONCAT(end, __LINE__) = '\0';               \
+        }                                                \
+    } while (0)
 
 /**
  * Create a new string from the specified format specifier and arguments.
@@ -86,12 +86,12 @@ do {                                                    \
  * @param ...
  * Format arguments.
  */
-#define string_fmt(str, fmt, ...)                       \
-do {                                                    \
-    StringBuffer *_sb_ = stringbuffer_new();            \
-    stringbuffer_append_printf(_sb_, fmt, __VA_ARGS__); \
-    str = stringbuffer_finish(_sb_);                    \
-} while (0)
+#define string_fmt(str, fmt, ...)                           \
+    do {                                                    \
+        StringBuffer *_sb_ = stringbuffer_new();            \
+        stringbuffer_append_printf(_sb_, fmt, __VA_ARGS__); \
+        str = stringbuffer_finish(_sb_);                    \
+    } while (0)
 
 /* Prototypes */
 
@@ -99,8 +99,11 @@ void toolkit_string_init(void);
 void toolkit_string_deinit(void);
 char *string_estrdup(const char *s MEMORY_DEBUG_PROTO);
 char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO);
-void string_replace(const char *src, const char *key, const char *replacement,
-        char *result, size_t resultsize);
+void string_replace(const char *src,
+                    const char *key,
+                    const char *replacement,
+                    char *result,
+                    size_t resultsize);
 void string_replace_char(char *str, const char *key, const char replacement);
 size_t string_split(char *str, char *array[], size_t array_size, char sep);
 void string_replace_unprintable_chars(char *buf);
@@ -110,16 +113,19 @@ void string_tolower(char *str);
 char *string_whitespace_trim(char *str);
 char *string_whitespace_squeeze(char *str);
 void string_newline_to_literal(char *str);
-const char *string_get_word(const char *str, size_t *pos, char delim,
-        char *word, size_t wordsize, int surround);
+const char *string_get_word(const char *str,
+                            size_t *pos,
+                            char delim,
+                            char *word,
+                            size_t wordsize,
+                            int surround);
 void string_skip_word(const char *str, size_t *i, int dir);
 int string_isdigit(const char *str);
 void string_capitalize(char *str);
 void string_title(char *str);
 int string_startswith(const char *str, const char *cmp);
 int string_endswith(const char *str, const char *cmp);
-char *string_sub(const char *str, ssize_t start,
-        ssize_t end MEMORY_DEBUG_PROTO);
+char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO);
 int string_isempty(const char *str);
 int string_iswhite(const char *str);
 int char_contains(const char c, const char *key);
@@ -130,25 +136,28 @@ char *string_join(const char *delim, ...);
 char *string_join_array(const char *delim, const char *const *array, size_t arraysize);
 char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO);
 size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
-        __attribute__((format(printf, 3, 4)));
-size_t string_tohex(const unsigned char *str, size_t len, char *result,
-        size_t resultsize, bool sep);
-size_t string_fromhex(const char *str, size_t len, unsigned char *result,
-        size_t resultsize);
+    __attribute__((format(printf, 3, 4)));
+size_t
+string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize, bool sep);
+size_t string_fromhex(const char *str, size_t len, unsigned char *result, size_t resultsize);
 char *string_last(const char *haystack, const char *needle);
-bool string_parse_uint64(const char *str, int base, uint64_t minimum,
-        uint64_t maximum, uint64_t *result);
+bool string_parse_uint64(const char *str,
+                         int base,
+                         uint64_t minimum,
+                         uint64_t maximum,
+                         uint64_t *result);
 bool string_is_hex_fixed(const char *str, size_t length, bool lowercase_only);
-bool string_decode_hex_fixed(const char *str, size_t length,
-        bool lowercase_only, unsigned char *result, size_t result_size);
+bool string_decode_hex_fixed(const char *str,
+                             size_t length,
+                             bool lowercase_only,
+                             unsigned char *result,
+                             size_t result_size);
 
 #ifndef NDEBUG
-#define string_sub(_str, _start, _end) \
-    string_sub(_str, _start, _end MEMORY_DEBUG_INFO)
+#define string_sub(_str, _start, _end) string_sub(_str, _start, _end MEMORY_DEBUG_INFO)
 #define string_create_char_range(_start, _end) \
     string_create_char_range(_start, _end MEMORY_DEBUG_INFO)
-#define string_repeat(_str, _num) \
-    string_repeat(_str, _num MEMORY_DEBUG_INFO)
+#define string_repeat(_str, _num) string_repeat(_str, _num MEMORY_DEBUG_INFO)
 #endif
 
 #endif

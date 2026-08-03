@@ -32,9 +32,7 @@
 #include <global.h>
 
 /** @copydoc widgetdata::draw_func */
-static void
-widget_draw (widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     if (!widget->redraw) {
         return;
     }
@@ -61,8 +59,7 @@ widget_draw (widgetdata *widget)
                      0,
                      0,
                      COLOR_HGOLD,
-                     TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE |
-                     TEXT_MARKUP,
+                     TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE | TEXT_MARKUP,
                      &box,
                      "[b]%s[/b]",
                      cpl.name);
@@ -70,8 +67,7 @@ widget_draw (widgetdata *widget)
     char buf[32];
     snprintf(VS(buf), "[b]%d[/b]", cpl.stats.level);
     int wd = text_get_width(FONT_SERIF14, buf, TEXT_MARKUP);
-    const char *color =
-        cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE;
+    const char *color = cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE;
     text_show_format(widget->surface,
                      FONT_SERIF14,
                      widget->w - 4 - wd,
@@ -87,9 +83,7 @@ widget_draw (widgetdata *widget)
 }
 
 /** @copydoc widgetdata::background_func */
-static void
-widget_background (widgetdata *widget, int draw)
-{
+static void widget_background(widgetdata *widget, int draw) {
     static uint32_t action_tick = 0;
 
     /* Pre-emptively tick down the skill delay timer */
@@ -109,9 +103,7 @@ widget_background (widgetdata *widget, int draw)
 }
 
 /** @copydoc widgetdata::event_func */
-static int
-widget_event (struct widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(struct widgetdata *widget, SDL_Event *event) {
     if (event->type == SDL_MOUSEMOTION) {
         WIDGET_REDRAW(widget);
         return 1;
@@ -123,9 +115,7 @@ widget_event (struct widgetdata *widget, SDL_Event *event)
 /**
  * Initialize one player info widget.
  */
-void
-widget_playerinfo_init (widgetdata *widget)
-{
+void widget_playerinfo_init(widgetdata *widget) {
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;

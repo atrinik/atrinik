@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->last_eat == 0 || op->map == NULL) {
@@ -47,9 +45,7 @@ process_func (object *op)
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -66,8 +62,7 @@ trigger_func (object *op, object *cause, int state)
 /**
  * Initialize the firewall type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(firewall)
-{
+OBJECT_TYPE_INIT_DEFINE(firewall) {
     OBJECT_METHODS(FIREWALL)->process_func = process_func;
     OBJECT_METHODS(FIREWALL)->trigger_func = trigger_func;
 }

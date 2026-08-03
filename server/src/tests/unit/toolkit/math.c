@@ -28,8 +28,7 @@
 #include <check_proto.h>
 #include <malloc.h>
 
-START_TEST(test_isqrt)
-{
+START_TEST(test_isqrt) {
     ck_assert_uint_eq(isqrt(0), 0);
     ck_assert_uint_eq(isqrt(1), 1);
     ck_assert_uint_eq(isqrt(2), 1);
@@ -39,8 +38,7 @@ START_TEST(test_isqrt)
 }
 END_TEST
 
-START_TEST(test_nearest_pow_two_exp)
-{
+START_TEST(test_nearest_pow_two_exp) {
     ck_assert_uint_eq(nearest_pow_two_exp(0), 0);
     ck_assert_uint_eq(nearest_pow_two_exp(1), 0);
     ck_assert_uint_eq(nearest_pow_two_exp(2), 1);
@@ -50,8 +48,7 @@ START_TEST(test_nearest_pow_two_exp)
 }
 END_TEST
 
-START_TEST(test_math_point_in_ellipse)
-{
+START_TEST(test_math_point_in_ellipse) {
     ck_assert(!math_point_in_ellipse(0, 0, 5, 5, 10, 10, 0));
     ck_assert(!math_point_in_ellipse(500, 0, 5, 5, 10, 10, 0));
     ck_assert(!math_point_in_ellipse(0, 500, 5, 5, 10, 10, 0));
@@ -64,8 +61,7 @@ START_TEST(test_math_point_in_ellipse)
 }
 END_TEST
 
-START_TEST(test_math_point_edge_ellipse)
-{
+START_TEST(test_math_point_edge_ellipse) {
     ck_assert(!math_point_edge_ellipse(0, 0, 5, 5, 10, 10, 0, NULL));
     int deg;
     ck_assert(math_point_edge_ellipse(50, 2, 50, 50, 100, 100, 0, &deg));
@@ -81,8 +77,7 @@ START_TEST(test_math_point_edge_ellipse)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("math");
     TCase *tc_core = tcase_create("Core");
 
@@ -98,7 +93,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_math(void)
-{
+void check_server_math(void) {
     check_run_suite(suite(), __FILE__);
 }

@@ -32,7 +32,6 @@
 #include <global.h>
 
 /** @copydoc command_func */
-void command_version(object *op, const char *command, char *params)
-{
+void command_version(object *op, const char *command, char *params) {
     version(op);
 }

@@ -35,9 +35,7 @@
 #include <pedestal.h>
 
 /** @copydoc object_methods_t::trigger_button_func */
-static int
-trigger_button_func (object *op, object *cause, int state)
-{
+static int trigger_button_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -63,7 +61,8 @@ trigger_button_func (object *op, object *cause, int state)
 
         op->value = 1;
         break;
-    } FOR_MAP_FINISH();
+    }
+    FOR_MAP_FINISH();
 
     return OBJECT_METHOD_OK;
 }
@@ -71,8 +70,7 @@ trigger_button_func (object *op, object *cause, int state)
 /**
  * Initialize the pedestal type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(pedestal)
-{
+OBJECT_TYPE_INIT_DEFINE(pedestal) {
     OBJECT_METHODS(PEDESTAL)->trigger_button_func = trigger_button_func;
     OBJECT_METHODS(PEDESTAL)->fallback = object_methods_get(BUTTON);
 }
@@ -87,9 +85,7 @@ OBJECT_TYPE_INIT_DEFINE(pedestal)
  * @return
  * true if the object matches, false otherwise.
  */
-bool
-pedestal_matches_obj (object *op, object *tmp)
-{
+bool pedestal_matches_obj(object *op, object *tmp) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(tmp != NULL);
 

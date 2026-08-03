@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->env != NULL && op->env->map && op->env->type == PLAYER) {
@@ -54,7 +52,6 @@ process_func (object *op)
 /**
  * Initialize the word of recall type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(word_of_recall)
-{
+OBJECT_TYPE_INIT_DEFINE(word_of_recall) {
     OBJECT_METHODS(WORD_OF_RECALL)->process_func = process_func;
 }

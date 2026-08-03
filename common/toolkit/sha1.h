@@ -40,8 +40,7 @@ typedef struct {
 
     unsigned char ipad[64]; /*!< HMAC: inner padding        */
     unsigned char opad[64]; /*!< HMAC: outer padding        */
-}
-sha1_context;
+} sha1_context;
 
 /* Prototypes */
 
@@ -56,6 +55,10 @@ void sha1_hmac_starts(sha1_context *ctx, const unsigned char *key, size_t keylen
 void sha1_hmac_update(sha1_context *ctx, const unsigned char *input, size_t ilen);
 void sha1_hmac_finish(sha1_context *ctx, unsigned char output[20]);
 void sha1_hmac_reset(sha1_context *ctx);
-void sha1_hmac(const unsigned char *key, size_t keylen, const unsigned char *input, size_t ilen, unsigned char output[20]);
+void sha1_hmac(const unsigned char *key,
+               size_t keylen,
+               const unsigned char *input,
+               size_t ilen,
+               unsigned char output[20]);
 
 #endif

@@ -47,18 +47,14 @@ static void artifact_load(void);
 /**
  * Initializes artifacts code.
  */
-void
-artifact_init (void)
-{
+void artifact_init(void) {
     artifact_load();
 }
 
 /**
  * Deinitializes artifacts code.
  */
-void
-artifact_deinit (void)
-{
+void artifact_deinit(void) {
     artifact_list_t *al, *tmp;
     LL_FOREACH_SAFE(first_artifactlist, al, tmp) {
         artifact_list_free(al);
@@ -70,8 +66,7 @@ artifact_deinit (void)
  * @return
  * New structure.
  */
-static artifact_t *artifact_new(void)
-{
+static artifact_t *artifact_new(void) {
     artifact_t *art = ecalloc(1, sizeof(*art));
     return art;
 }
@@ -81,8 +76,7 @@ static artifact_t *artifact_new(void)
  * @param art
  * Artifact to free.
  */
-static void artifact_free(artifact_t *art)
-{
+static void artifact_free(artifact_t *art) {
     HARD_ASSERT(art != NULL);
 
     free_string_shared(art->def_at_name);
@@ -105,8 +99,7 @@ static void artifact_free(artifact_t *art)
  * @return
  * New structure.
  */
-static artifact_list_t *artifact_list_new(void)
-{
+static artifact_list_t *artifact_list_new(void) {
     artifact_list_t *al = ecalloc(1, sizeof(*al));
     return al;
 }
@@ -117,8 +110,7 @@ static artifact_list_t *artifact_list_new(void)
  * @param al
  * Artifact list.
  */
-static void artifact_list_free(artifact_list_t *al)
-{
+static void artifact_list_free(artifact_list_t *al) {
     artifact_t *art, *tmp;
     LL_FOREACH_SAFE(al->items, art, tmp) {
         artifact_free(art);
@@ -130,8 +122,7 @@ static void artifact_list_free(artifact_list_t *al)
 /**
  * Builds up the lists of artifacts from the file in the libpath.
  */
-void artifact_load(void)
-{
+void artifact_load(void) {
     char filename[MAX_BUF];
     snprintf(VS(filename), "%s/artifacts", settings.libpath);
     FILE *fp = fopen(filename, "rb");
@@ -211,7 +202,7 @@ void artifact_load(void)
                 goto error;
             }
 
-            art->chance = (uint16_t) val;
+            art->chance = (uint16_t)val;
         } else if (strcmp(key, "difficulty") == 0) {
             if (!string_isdigit(value)) {
                 error_str = "difficulty attribute expects a number";
@@ -224,7 +215,7 @@ void artifact_load(void)
                 goto error;
             }
 
-            art->difficulty = (uint8_t) val;
+            art->difficulty = (uint8_t)val;
         } else if (strcmp(key, "artifact") == 0) {
             if (name != NULL) {
                 error_str = "duplicated artifact attribute";
@@ -278,9 +269,7 @@ void artifact_load(void)
                 goto error;
             }
 
-            if (load_object_fp(fp,
-                               &art->def_at->clone,
-                               MAP_STYLE) != LL_NORMAL) {
+            if (load_object_fp(fp, &art->def_at->clone, MAP_STYLE) != LL_NORMAL) {
                 error_str = "could not load object";
                 goto error;
             }
@@ -302,8 +291,7 @@ void artifact_load(void)
             }
 
             if (fseek(fp, old_pos, SEEK_SET) != 0) {
-                LOG(ERROR, "Could not fseek() to %ld: %s (%d)", old_pos,
-                        strerror(errno), errno);
+                LOG(ERROR, "Could not fseek() to %ld: %s (%d)", old_pos, strerror(errno), errno);
                 error_str = "general failure";
                 goto error;
             }
@@ -315,8 +303,7 @@ void artifact_load(void)
 
                 long pos = ftell(fp);
                 if (pos == -1) {
-                    LOG(ERROR, "ftell() failed: %s (%d)", strerror(errno),
-                            errno);
+                    LOG(ERROR, "ftell() failed: %s (%d)", strerror(errno), errno);
                     error_str = "general failure";
                     goto error;
                 }
@@ -326,8 +313,11 @@ void artifact_load(void)
                 }
 
                 if (pos > file_pos) {
-                    LOG(ERROR, "fgets() read too much data, at: %ld, should "
-                            "be: %ld", pos, file_pos);
+                    LOG(ERROR,
+                        "fgets() read too much data, at: %ld, should "
+                        "be: %ld",
+                        pos,
+                        file_pos);
                     error_str = "general failure";
                     goto error;
                 }
@@ -359,10 +349,14 @@ void artifact_load(void)
         }
 
         continue;
-error:
-        LOG(ERROR, "Error parsing %s, line %" PRIu64 ", %s: %s %s", filename,
-                linenum, error_str != NULL ? error_str : "",
-                key != NULL ? key : "", value != NULL ? value : "");
+    error:
+        LOG(ERROR,
+            "Error parsing %s, line %" PRIu64 ", %s: %s %s",
+            filename,
+            linenum,
+            error_str != NULL ? error_str : "",
+            key != NULL ? key : "",
+            value != NULL ? value : "");
         exit(1);
     }
 
@@ -393,9 +387,7 @@ error:
  * @return
  * NULL if no suitable list found.
  */
-artifact_list_t *
-artifact_list_find (uint8_t type)
-{
+artifact_list_t *artifact_list_find(uint8_t type) {
     for (artifact_list_t *al = first_artifactlist; al != NULL; al = al->next) {
         if (al->type == type) {
             return al;
@@ -415,9 +407,7 @@ artifact_list_find (uint8_t type)
  * @return
  * The artifact if found, NULL otherwise.
  */
-artifact_t *
-artifact_find_type (const char *name, uint8_t type)
-{
+artifact_t *artifact_find_type(const char *name, uint8_t type) {
     HARD_ASSERT(name != NULL);
 
     artifact_list_t *al = artifact_list_find(type);
@@ -442,9 +432,7 @@ artifact_find_type (const char *name, uint8_t type)
  * @param op
  * The object to change.
  */
-void
-artifact_change_object (artifact_t *art, object *op)
-{
+void artifact_change_object(artifact_t *art, object *op) {
     if (art->copy_artifact) {
         object_copy_full(op, &art->def_at->clone);
         return;
@@ -454,8 +442,10 @@ artifact_change_object (artifact_t *art, object *op)
     op->value = 0;
 
     if (load_object(art->parse_text, op, MAP_ARTIFACT) != LL_NORMAL) {
-        LOG(ERROR, "load_object() error, art: %s, object: %s",
-            art->def_at->name, object_get_str(op));
+        LOG(ERROR,
+            "load_object() error, art: %s, object: %s",
+            art->def_at->name,
+            object_get_str(op));
     }
 
     FREE_AND_ADD_REF_HASH(op->artifact, art->def_at->name);
@@ -486,11 +476,7 @@ artifact_change_object (artifact_t *art, object *op)
  * Whether the object can be combined with the artifact.
  */
 static bool
-artifact_can_combine (artifact_t          *art,
-                      object              *op,
-                      int                  difficulty,
-                      treasure_affinity_t *affinity)
-{
+artifact_can_combine(artifact_t *art, object *op, int difficulty, treasure_affinity_t *affinity) {
     HARD_ASSERT(art != NULL);
     HARD_ASSERT(op != NULL);
 
@@ -498,9 +484,7 @@ artifact_can_combine (artifact_t          *art,
         return false;
     }
 
-    if (affinity != NULL &&
-        art->affinity != NULL &&
-        art->affinity != affinity) {
+    if (affinity != NULL && art->affinity != NULL && art->affinity != affinity) {
         return false;
     }
 
@@ -518,7 +502,8 @@ artifact_can_combine (artifact_t          *art,
         if (op->arch->name == name) {
             return !ret;
         }
-    } SHSTR_LIST_FOR_FINISH();
+    }
+    SHSTR_LIST_FOR_FINISH();
 
     return ret;
 }
@@ -537,11 +522,7 @@ artifact_can_combine (artifact_t          *art,
  * @return
  * Whether the object was turned into an artifact.
  */
-bool
-artifact_generate (object              *op,
-                   int                  difficulty,
-                   treasure_affinity_t *affinity)
-{
+bool artifact_generate(object *op, int difficulty, treasure_affinity_t *affinity) {
     artifact_list_t *al = artifact_list_find(op->type);
     if (al == NULL) {
         return 0;

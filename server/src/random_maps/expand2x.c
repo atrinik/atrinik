@@ -40,8 +40,7 @@ static void expand_door(char **newlayout, int i, int j, char **layout, int xsize
  * @return
  * New layout. Must be freed by caller.
  */
-char **expand2x(char **layout, int xsize, int ysize)
-{
+char **expand2x(char **layout, int xsize, int ysize) {
     int i, j;
     int nxsize = xsize * 2 - 1;
     int nysize = ysize * 2 - 1;
@@ -56,16 +55,16 @@ char **expand2x(char **layout, int xsize, int ysize)
     for (i = 0; i < xsize; i++) {
         for (j = 0; j < ysize; j++) {
             switch (layout[i][j]) {
-            case '#':
-                expand_wall(newlayout, i, j, layout, xsize, ysize);
-                break;
+                case '#':
+                    expand_wall(newlayout, i, j, layout, xsize, ysize);
+                    break;
 
-            case 'D':
-                expand_door(newlayout, i, j, layout, xsize, ysize);
-                break;
+                case 'D':
+                    expand_door(newlayout, i, j, layout, xsize, ysize);
+                    break;
 
-            default:
-                expand_misc(newlayout, i, j, layout);
+                default:
+                    expand_misc(newlayout, i, j, layout);
             }
         }
     }
@@ -96,8 +95,7 @@ char **expand2x(char **layout, int xsize, int ysize)
  * @note No need to reset rest of 2x2 area to \0 because calloc does that
  * for us.
  */
-static void expand_misc(char **newlayout, int i, int j, char **layout)
-{
+static void expand_misc(char **newlayout, int i, int j, char **layout) {
     newlayout[i * 2][j * 2] = layout[i][j];
 }
 
@@ -122,8 +120,7 @@ static void expand_misc(char **newlayout, int i, int j, char **layout)
  * - <b>2</b>: Match on (i, j + 1).
  * - <b>4</b>: Match on (i + 1, j + 1).
  */
-static int calc_pattern(char ch, char **layout, int i, int j, int xsize, int ysize)
-{
+static int calc_pattern(char ch, char **layout, int i, int j, int xsize, int ysize) {
     int pattern = 0;
 
     if (i + 1 < xsize && layout[i + 1][j] == ch) {
@@ -160,8 +157,7 @@ static int calc_pattern(char ch, char **layout, int i, int j, int xsize, int ysi
  * @param ysize
  * Y size of layout.
  */
-static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize, int ysize)
-{
+static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize, int ysize) {
     int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);
     int door_pattern = calc_pattern('D', layout, i, j, xsize, ysize);
     int both_pattern = wall_pattern | door_pattern;
@@ -207,8 +203,7 @@ static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize
  * @param ysize
  * Y size of the non expanded layout
  */
-static void expand_door(char **newlayout, int i, int j, char **layout, int xsize, int ysize)
-{
+static void expand_door(char **newlayout, int i, int j, char **layout, int xsize, int ysize) {
     int wall_pattern = calc_pattern('#', layout, i, j, xsize, ysize);
     int door_pattern = calc_pattern('D', layout, i, j, xsize, ysize);
     int join_pattern;

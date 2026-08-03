@@ -36,17 +36,17 @@
  */
 /*@{*/
 /** Strength. */
-#define STR             0
+#define STR 0
 /** Dexterity. */
-#define DEX             1
+#define DEX 1
 /** Constitution. */
-#define CON             2
+#define CON 2
 /** Intelligence. */
-#define INT             3
+#define INT 3
 /** Power. */
-#define POW             4
+#define POW 4
 /** Number of stats. */
-#define NUM_STATS       5
+#define NUM_STATS 5
 /*@}*/
 
 /* Changed from NO_STAT to NO_STAT_VAL to fix conflict on
@@ -58,7 +58,7 @@
 /**
  * Calculates damage based on level.
  */
-#define LEVEL_DAMAGE(level) (float) ((level) > 0 ? 0.75 + (level) * 0.25 : 1.0)
+#define LEVEL_DAMAGE(level) (float)((level) > 0 ? 0.75 + (level) * 0.25 : 1.0)
 
 /**
  * Mostly used by "alive" objects, but also by other objects like gates,

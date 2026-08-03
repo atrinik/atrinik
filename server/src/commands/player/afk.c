@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_afk(object *op, const char *command, char *params)
-{
+void command_afk(object *op, const char *command, char *params) {
     params = player_sanitize_input(params);
 
     /* No auto-reply message given*/

@@ -32,13 +32,9 @@
 
 /* Prototypes */
 
-bool
-disease_infect(object *op, object *victim, bool force);
-void
-disease_physically_infect(object *op, object *hitter);
-bool
-disease_cure(object *op, object *caster);
-bool
-disease_reduce_symptoms(object *op, int reduction);
+bool disease_infect(object *op, object *victim, bool force);
+void disease_physically_infect(object *op, object *hitter);
+bool disease_cure(object *op, object *caster);
+bool disease_reduce_symptoms(object *op, int reduction);
 
 #endif

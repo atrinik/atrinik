@@ -34,9 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void
-command_follow (object *op, const char *command, char *params)
-{
+void command_follow(object *op, const char *command, char *params) {
     player *pl = CONTR(op);
 
     if (params == NULL) {
@@ -48,14 +46,10 @@ command_follow (object *op, const char *command, char *params)
 
         player *followed = find_player_sh(pl->followed_player);
         if (!IS_INVISIBLE(op, followed->ob)) {
-            draw_info_format(COLOR_WHITE, followed->ob,
-                             "%s is no longer following you.",
-                             op->name);
+            draw_info_format(COLOR_WHITE, followed->ob, "%s is no longer following you.", op->name);
         }
 
-        draw_info_format(COLOR_WHITE, op,
-                         "You stop following %s.",
-                         pl->followed_player);
+        draw_info_format(COLOR_WHITE, op, "You stop following %s.", pl->followed_player);
         FREE_AND_CLEAR_HASH(pl->followed_player);
 
         return;
@@ -68,13 +62,9 @@ command_follow (object *op, const char *command, char *params)
     }
 
     if (!IS_INVISIBLE(op, followed->ob)) {
-        draw_info_format(COLOR_GREEN, followed->ob,
-                         "%s is now following you.",
-                         op->name);
+        draw_info_format(COLOR_GREEN, followed->ob, "%s is now following you.", op->name);
     }
 
     pl->followed_player = add_string(params);
-    draw_info_format(COLOR_GREEN, op,
-                     "You are now following %s.",
-                     pl->followed_player);
+    draw_info_format(COLOR_GREEN, op, "You are now following %s.", pl->followed_player);
 }

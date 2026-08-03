@@ -88,7 +88,7 @@ enum {
 /**
  * Acquire the specified escape sequence from ::logger_escape_seqs.
  */
-#define LOGGER_ESC_SEQ(_x) (logger_escape_seqs[LOGGER_ESC_SEQ_ ## _x])
+#define LOGGER_ESC_SEQ(_x) (logger_escape_seqs[LOGGER_ESC_SEQ_##_x])
 
 /**
  * Escape sequence strings.
@@ -110,8 +110,7 @@ static bool logger_term_has_ansi_colors(void);
 
 TOOLKIT_API(DEPENDS(string));
 
-TOOLKIT_INIT_FUNC(logger)
-{
+TOOLKIT_INIT_FUNC(logger) {
     log_fp = NULL;
     logger_set_print_func(logger_do_print);
 
@@ -135,8 +134,7 @@ TOOLKIT_INIT_FUNC(logger)
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(logger)
-{
+TOOLKIT_DEINIT_FUNC(logger) {
     if (log_fp != NULL) {
         fclose(log_fp);
     }
@@ -148,8 +146,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @param path
  * File to open.
  */
-void logger_open_log(const char *path)
-{
+void logger_open_log(const char *path) {
     TOOLKIT_PROTECT();
 
     if (log_fp != NULL) {
@@ -165,8 +162,7 @@ void logger_open_log(const char *path)
  * Log file pointer. In the case that no log file is currently open,
  * stdout is returned.
  */
-FILE *logger_get_logfile(void)
-{
+FILE *logger_get_logfile(void) {
     TOOLKIT_PROTECT();
     return log_fp != NULL ? log_fp : stdout;
 }
@@ -179,8 +175,7 @@ FILE *logger_get_logfile(void)
  * Log level. Can be LOG_MAX, in which case no log level has been
  * found.
  */
-logger_level logger_get_level(const char *name)
-{
+logger_level logger_get_level(const char *name) {
     logger_level level;
 
     for (level = 0; level < LOG_MAX; level++) {
@@ -201,8 +196,7 @@ logger_level logger_get_level(const char *name)
  * @param str
  * String with the log filter levels.
  */
-static void logger_set_filter(uint64_t *filter, const char *str)
-{
+static void logger_set_filter(uint64_t *filter, const char *str) {
     char word[MAX_BUF];
     const char *cp;
     size_t pos;
@@ -211,8 +205,7 @@ static void logger_set_filter(uint64_t *filter, const char *str)
 
     pos = 0;
 
-    while ((cp = string_get_word(str, &pos, ',', word,
-            sizeof(word), 0)) != NULL) {
+    while ((cp = string_get_word(str, &pos, ',', word, sizeof(word), 0)) != NULL) {
         oper = -1;
 
         if (*cp == '-' || *cp == '+') {
@@ -253,16 +246,14 @@ static void logger_set_filter(uint64_t *filter, const char *str)
 /**
  * Sets the stdout filter to the specified log filter levels.
  */
-void logger_set_filter_stdout(const char *str)
-{
+void logger_set_filter_stdout(const char *str) {
     logger_set_filter(&logger_filter_stdout, str);
 }
 
 /**
  * Sets the logfile filter to the specified log filter levels.
  */
-void logger_set_filter_logfile(const char *str)
-{
+void logger_set_filter_logfile(const char *str) {
     logger_set_filter(&logger_filter_logfile, str);
 }
 
@@ -271,8 +262,7 @@ void logger_set_filter_logfile(const char *str)
  * @param func
  * Function to use.
  */
-void logger_set_print_func(logger_print_func func)
-{
+void logger_set_print_func(logger_print_func func) {
     TOOLKIT_PROTECT();
     print_func = func;
 }
@@ -282,8 +272,7 @@ void logger_set_print_func(logger_print_func func)
  * @param str
  * String to print.
  */
-void logger_do_print(const char *str)
-{
+void logger_do_print(const char *str) {
     TOOLKIT_PROTECT();
 
     fputs(str, stdout);
@@ -303,9 +292,11 @@ void logger_do_print(const char *str)
  * @param ...
  * Format arguments.
  */
-void logger_print(logger_level level, const char *function, uint64_t line,
-        const char *format, ...)
-{
+void logger_print(logger_level level,
+                  const char *function,
+                  uint64_t line,
+                  const char *format,
+                  ...) {
     char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[sizeof(formatted) * 2];
     va_list ap;
     struct timeval tv;
@@ -320,8 +311,7 @@ void logger_print(logger_level level, const char *function, uint64_t line,
     }
 
     /* If the log level is unwanted, bail out. */
-    if (!((1U << level) & logger_filter_stdout) &&
-            !((1U << level) & logger_filter_logfile)) {
+    if (!((1U << level) & logger_filter_stdout) && !((1U << level) & logger_filter_logfile)) {
         return;
     }
 
@@ -330,31 +320,48 @@ void logger_print(logger_level level, const char *function, uint64_t line,
     va_end(ap);
 
     gettimeofday(&tv, NULL);
-    timestamp = (time_t) tv.tv_sec;
+    timestamp = (time_t)tv.tv_sec;
     tm = localtime(&timestamp);
 
     if (tm != NULL) {
         char timebuf2[MAX_BUF];
 
         strftime(VS(timebuf2), "%Y/%m/%d %H:%M:%S", tm);
-        snprintf(VS(timebuf), "[%s.%06"PRIu64 "] ", timebuf2,
-                (uint64_t) tv.tv_usec);
+        snprintf(VS(timebuf), "[%s.%06" PRIu64 "] ", timebuf2, (uint64_t)tv.tv_usec);
     } else {
         timebuf[0] = '\0';
     }
 
     if ((1U << level) & logger_filter_stdout) {
-        snprintf(VS(buf), "%s%s%s""%s%-6s%s ""%s[%s:%" PRIu64 "]%s ""%s%s%s\n",
-                LOGGER_ESC_SEQ(BOLD), timebuf, LOGGER_ESC_SEQ(END),
-                LOGGER_ESC_SEQ(RED), logger_names[level], LOGGER_ESC_SEQ(END),
-                LOGGER_ESC_SEQ(CYAN), function, line, LOGGER_ESC_SEQ(END),
-                LOGGER_ESC_SEQ(YELLOW), formatted, LOGGER_ESC_SEQ(END));
+        snprintf(VS(buf),
+                 "%s%s%s"
+                 "%s%-6s%s "
+                 "%s[%s:%" PRIu64 "]%s "
+                 "%s%s%s\n",
+                 LOGGER_ESC_SEQ(BOLD),
+                 timebuf,
+                 LOGGER_ESC_SEQ(END),
+                 LOGGER_ESC_SEQ(RED),
+                 logger_names[level],
+                 LOGGER_ESC_SEQ(END),
+                 LOGGER_ESC_SEQ(CYAN),
+                 function,
+                 line,
+                 LOGGER_ESC_SEQ(END),
+                 LOGGER_ESC_SEQ(YELLOW),
+                 formatted,
+                 LOGGER_ESC_SEQ(END));
         print_func(buf);
     }
 
     if (log_fp != NULL && (1U << level) & logger_filter_logfile) {
-        fprintf(log_fp, "%s%-6s [%s:%"PRIu64 "] %s\n", timebuf,
-                logger_names[level], function, line, formatted);
+        fprintf(log_fp,
+                "%s%-6s [%s:%" PRIu64 "] %s\n",
+                timebuf,
+                logger_names[level],
+                function,
+                line,
+                formatted);
         fflush(log_fp);
     }
 }
@@ -362,8 +369,7 @@ void logger_print(logger_level level, const char *function, uint64_t line,
 /**
  * Print a traceback.
  */
-void logger_traceback(void)
-{
+void logger_traceback(void) {
 #ifndef WIN32
     void *bt[1024];
     int bt_size;
@@ -388,13 +394,11 @@ void logger_traceback(void)
  * @return
  * Whether stdout is a TTY.
  */
-static bool logger_isatty(void)
-{
+static bool logger_isatty(void) {
 #ifdef WIN32
     CONSOLE_SCREEN_BUFFER_INFO sbi;
 
-    if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
-            &sbi)) {
+    if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &sbi)) {
 #else
     if (!isatty(fileno(stdout))) {
 #endif
@@ -409,8 +413,7 @@ static bool logger_isatty(void)
  * @return
  * Whether the terminal supports ANSI colors.
  */
-static bool logger_term_has_ansi_colors(void)
-{
+static bool logger_term_has_ansi_colors(void) {
     /* If stdout is not a TTY, it cannot support ANSI colors. */
     if (!logger_isatty()) {
         return false;

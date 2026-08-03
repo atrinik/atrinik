@@ -37,22 +37,17 @@
 #include <arrow.h>
 
 /** @copydoc object_methods_t::ranged_fire_func */
-static int
-ranged_fire_func (object *op, object *shooter, int dir, double *delay)
-{
+static int ranged_fire_func(object *op, object *shooter, int dir, double *delay) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(shooter != NULL);
 
     object *arrow = arrow_find(shooter, op->race);
     if (arrow == NULL) {
-        draw_info_format(COLOR_WHITE, shooter, "You have no %s left.",
-                         op->race);
+        draw_info_format(COLOR_WHITE, shooter, "You have no %s left.", op->race);
         return OBJECT_METHOD_OK;
     }
 
-    if (wall(shooter->map,
-             shooter->x + freearr_x[dir],
-             shooter->y + freearr_y[dir])) {
+    if (wall(shooter->map, shooter->x + freearr_x[dir], shooter->y + freearr_y[dir])) {
         draw_info(COLOR_WHITE, shooter, "Something is in the way.");
         return OBJECT_METHOD_OK;
     }
@@ -111,21 +106,14 @@ ranged_fire_func (object *op, object *shooter, int dir, double *delay)
         CONTR(shooter)->last_combat = pticks;
     }
 
-    play_sound_map(shooter->map,
-                   CMD_SOUND_EFFECT,
-                   "bow1.ogg",
-                   shooter->x,
-                   shooter->y,
-                   0,
-                   0);
+    play_sound_map(shooter->map, CMD_SOUND_EFFECT, "bow1.ogg", shooter->x, shooter->y, 0, 0);
     return OBJECT_METHOD_OK;
 }
 
 /**
  * Initialize the bow type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(bow)
-{
+OBJECT_TYPE_INIT_DEFINE(bow) {
     OBJECT_METHODS(BOW)->apply_func = object_apply_item;
     OBJECT_METHODS(BOW)->ranged_fire_func = ranged_fire_func;
 }
@@ -140,9 +128,7 @@ OBJECT_TYPE_INIT_DEFINE(bow)
  * @return
  * Firing speed.
  */
-double
-bow_get_ws (object *bow, object *arrow)
-{
+double bow_get_ws(object *bow, object *arrow) {
     return bow->stats.sp / MAX_TICKS + arrow->last_grace / MAX_TICKS;
 }
 
@@ -154,9 +140,7 @@ bow_get_ws (object *bow, object *arrow)
  * @return
  * Required skill to use the object.
  */
-int
-bow_get_skill (object *bow)
-{
+int bow_get_skill(object *bow) {
     if (bow->item_skill != 0 && SKILL_IS_ARCHERY(bow->item_skill - 1)) {
         return bow->item_skill - 1;
     }

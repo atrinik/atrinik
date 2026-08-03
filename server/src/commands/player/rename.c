@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_rename(object *op, const char *command, char *params)
-{
+void command_rename(object *op, const char *command, char *params) {
     object *tmp;
 
     tmp = find_marked_object(op);
@@ -56,8 +55,11 @@ void command_rename(object *op, const char *command, char *params)
 
         FREE_AND_CLEAR_HASH(tmp->custom_name);
         char *name = object_get_base_name_s(tmp, op);
-        draw_info_format(COLOR_WHITE, op, "You stop calling your %s with weird "
-                "names.", name);
+        draw_info_format(COLOR_WHITE,
+                         op,
+                         "You stop calling your %s with weird "
+                         "names.",
+                         name);
         efree(name);
     } else {
         if (tmp->type == MONEY) {
@@ -73,16 +75,18 @@ void command_rename(object *op, const char *command, char *params)
         char *name = object_get_base_name_s(tmp, op);
 
         if (tmp->custom_name != NULL && strcmp(tmp->custom_name, params) == 0) {
-            draw_info_format(COLOR_WHITE, op, "You keep calling your %s %s.",
-                    name, tmp->custom_name);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "You keep calling your %s %s.",
+                             name,
+                             tmp->custom_name);
             efree(name);
             return;
         }
 
         /* Set custom name. */
         FREE_AND_COPY_HASH(tmp->custom_name, params);
-        draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.",
-                name, tmp->custom_name);
+        draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.", name, tmp->custom_name);
         CONTR(op)->stat_renamed_items++;
         efree(name);
     }

@@ -35,9 +35,7 @@
  * Client versions we know about. The process how these are checked is
  * explained in upgrader_init().
  */
-static const char *const client_versions[] = {
-    "2.0", "2.5", "3.0"
-};
+static const char *const client_versions[] = {"2.0", "2.5", "3.0"};
 
 /** ::client_versions entry we are currently migrating. */
 static int64_t version_id_migrating = -1;
@@ -52,8 +50,7 @@ static int64_t version_id_migrating = -1;
  * @param to
  * The new setting directory.
  */
-static void upgrade_20_to_25(const char *from, const char *to)
-{
+static void upgrade_20_to_25(const char *from, const char *to) {
     char src[MAX_BUF], buf[HUGE_BUF];
     FILE *fp;
 
@@ -70,7 +67,12 @@ static void upgrade_20_to_25(const char *from, const char *to)
         /* Read the old keys.dat file. */
         while (fgets(buf, sizeof(buf) - 1, fp)) {
             /* Try to parse the macro definition lines. */
-            if (sscanf(buf, "%d %d \"%200[^\"]\" \"%2000[^\"]\"", &keycode, &repeat, keyname, command) == 4) {
+            if (sscanf(buf,
+                       "%d %d \"%200[^\"]\" \"%2000[^\"]\"",
+                       &keycode,
+                       &repeat,
+                       keyname,
+                       command) == 4) {
                 keybind_struct *keybind;
 
                 /* Is it a command? */
@@ -256,8 +258,7 @@ static void upgrade_20_to_25(const char *from, const char *to)
  * @param to
  * The new setting directory.
  */
-static void upgrade_25_to_30(const char *from, const char *to)
-{
+static void upgrade_25_to_30(const char *from, const char *to) {
     copy_if_exists(from, to, "settings", "settings");
 }
 
@@ -265,8 +266,7 @@ static void upgrade_25_to_30(const char *from, const char *to)
  * Called before anything else on start, to check if we need to migrate
  * settings.
  */
-void upgrader_init(void)
-{
+void upgrader_init(void) {
     char tmp[HUGE_BUF], tmp2[HUGE_BUF], version[MAX_BUF];
     size_t i;
 
@@ -278,7 +278,11 @@ void upgrader_init(void)
         return;
     }
 
-    snprintf(tmp, sizeof(tmp), "%s/.atrinik/%s", get_config_dir(), package_get_version_partial(version, sizeof(version)));
+    snprintf(tmp,
+             sizeof(tmp),
+             "%s/.atrinik/%s",
+             get_config_dir(),
+             package_get_version_partial(version, sizeof(version)));
 
     /* If the settings directory for the current version already exists,
      * leave. */
@@ -329,8 +333,7 @@ void upgrader_init(void)
  * @return
  * 'dst' or NULL if the upgrader is not working on any version.
  */
-char *upgrader_get_version_partial(char *dst, size_t dstlen)
-{
+char *upgrader_get_version_partial(char *dst, size_t dstlen) {
     /* No version is being migrated. */
     if (version_id_migrating == -1) {
         return NULL;

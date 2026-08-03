@@ -30,7 +30,7 @@
  */
 
 #ifndef BAN_H
-#define	BAN_H
+#define BAN_H
 
 /**
  * Used as return codes for ban API functions.

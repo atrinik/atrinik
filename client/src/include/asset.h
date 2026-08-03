@@ -25,30 +25,22 @@ typedef enum asset_request_state {
     ASSET_REQUEST_ERROR,
 } asset_request_state_t;
 
-asset_request_t *
-asset_request_start(const char *path);
+asset_request_t *asset_request_start(const char *path);
 
-asset_request_t *
-asset_request_start_cached(const char *path, const char *cache_path);
+asset_request_t *asset_request_start_cached(const char *path, const char *cache_path);
 
-asset_request_t *
-asset_request_start_metadata(const char *path);
+asset_request_t *asset_request_start_metadata(const char *path);
 
-asset_request_state_t
-asset_request_get_state(const asset_request_t *request);
+asset_request_state_t asset_request_get_state(const asset_request_t *request);
 
-const uint8_t *
-asset_request_get_data(const asset_request_t *request, size_t *size);
+const uint8_t *asset_request_get_data(const asset_request_t *request, size_t *size);
 
-bool
-asset_request_get_metadata(const asset_request_t *request,
-                           size_t                *size,
-                           uint8_t                digest[ASSET_DIGEST_SIZE]);
+bool asset_request_get_metadata(const asset_request_t *request,
+                                size_t *size,
+                                uint8_t digest[ASSET_DIGEST_SIZE]);
 
-void
-asset_request_free(asset_request_t *request);
+void asset_request_free(asset_request_t *request);
 
-void
-socket_command_asset(uint8_t *data, size_t len, size_t pos);
+void socket_command_asset(uint8_t *data, size_t len, size_t pos);
 
 #endif

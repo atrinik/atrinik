@@ -35,6 +35,4 @@
 /**
  * Initialize the god type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(god)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(god) {}

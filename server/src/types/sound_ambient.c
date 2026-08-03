@@ -94,9 +94,9 @@ typedef struct sound_ambient_match {
         } operation;
     } data; ///< Data about the rule.
 
-    int is_group:1; ///< Whether the data union points to a group of rules.
+    int is_group : 1; ///< Whether the data union points to a group of rules.
 
-    int is_and:1; ///< Whether this is an AND rule.
+    int is_and : 1; ///< Whether this is an AND rule.
 } __attribute__((packed)) sound_ambient_match_t;
 
 /**
@@ -105,9 +105,7 @@ typedef struct sound_ambient_match {
  * @param match
  * Structure to free.
  */
-static void
-sound_ambient_match_free (sound_ambient_match_t *match)
-{
+static void sound_ambient_match_free(sound_ambient_match_t *match) {
     HARD_ASSERT(match != NULL);
 
     for (sound_ambient_match_t *tmp = match, *next; tmp != NULL; tmp = next) {
@@ -122,17 +120,13 @@ sound_ambient_match_free (sound_ambient_match_t *match)
 }
 
 /** @copydoc object_methods_t::init_func */
-static void
-init_func (object *op)
-{
+static void init_func(object *op) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(op->type == SOUND_AMBIENT);
 
     /* Must be on map... */
     if (op->map == NULL) {
-        LOG(ERROR,
-            "Ambient sound effect object not on map: %s",
-            object_get_str(op));
+        LOG(ERROR, "Ambient sound effect object not on map: %s", object_get_str(op));
         return;
     }
 
@@ -149,9 +143,7 @@ init_func (object *op)
 }
 
 /** @copydoc object_methods_t::deinit_func */
-static void
-deinit_func (object *op)
-{
+static void deinit_func(object *op) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(op->type == SOUND_AMBIENT);
 
@@ -164,8 +156,7 @@ deinit_func (object *op)
 /**
  * Initialize the ambient sound type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(sound_ambient)
-{
+OBJECT_TYPE_INIT_DEFINE(sound_ambient) {
     OBJECT_METHODS(SOUND_AMBIENT)->init_func = init_func;
     OBJECT_METHODS(SOUND_AMBIENT)->deinit_func = deinit_func;
 }
@@ -181,11 +172,7 @@ OBJECT_TYPE_INIT_DEFINE(sound_ambient)
  * @param size
  * Maximum size of 'buf'.
  */
-static void
-sound_ambient_match_print_rec (sound_ambient_match_t *match,
-                               char                  *buf,
-                               size_t                 size)
-{
+static void sound_ambient_match_print_rec(sound_ambient_match_t *match, char *buf, size_t size) {
     HARD_ASSERT(buf != NULL);
 
     for (sound_ambient_match_t *tmp = match; tmp != NULL; tmp = tmp->next) {
@@ -199,38 +186,38 @@ sound_ambient_match_print_rec (sound_ambient_match_t *match,
             snprintfcat(buf, size, ")");
         } else {
             switch (tmp->data.operation.type) {
-            case SA_OPER_TYPE_HOUR:
-                snprintfcat(buf, size, "hour");
-                break;
+                case SA_OPER_TYPE_HOUR:
+                    snprintfcat(buf, size, "hour");
+                    break;
 
-            case SA_OPER_TYPE_MINUTE:
-                snprintfcat(buf, size, "minute");
-                break;
+                case SA_OPER_TYPE_MINUTE:
+                    snprintfcat(buf, size, "minute");
+                    break;
             }
 
             switch (tmp->data.operation.operation) {
-            case SA_OPER_NONE:
-                break;
+                case SA_OPER_NONE:
+                    break;
 
-            case SA_OPER_ADD:
-                snprintfcat(buf, size, " + ");
-                break;
+                case SA_OPER_ADD:
+                    snprintfcat(buf, size, " + ");
+                    break;
 
-            case SA_OPER_SUB:
-                snprintfcat(buf, size, " - ");
-                break;
+                case SA_OPER_SUB:
+                    snprintfcat(buf, size, " - ");
+                    break;
 
-            case SA_OPER_MUL:
-                snprintfcat(buf, size, " * ");
-                break;
+                case SA_OPER_MUL:
+                    snprintfcat(buf, size, " * ");
+                    break;
 
-            case SA_OPER_DIV:
-                snprintfcat(buf, size, " / ");
-                break;
+                case SA_OPER_DIV:
+                    snprintfcat(buf, size, " / ");
+                    break;
 
-            case SA_OPER_MOD:
-                snprintfcat(buf, size, " %% ");
-                break;
+                case SA_OPER_MOD:
+                    snprintfcat(buf, size, " %% ");
+                    break;
             }
 
             if (tmp->data.operation.operation != SA_OPER_NONE) {
@@ -238,25 +225,25 @@ sound_ambient_match_print_rec (sound_ambient_match_t *match,
             }
 
             switch (tmp->data.operation.operation2) {
-            case SA_OPER2_EQ:
-                snprintfcat(buf, size, " == ");
-                break;
+                case SA_OPER2_EQ:
+                    snprintfcat(buf, size, " == ");
+                    break;
 
-            case SA_OPER2_LT:
-                snprintfcat(buf, size, " < ");
-                break;
+                case SA_OPER2_LT:
+                    snprintfcat(buf, size, " < ");
+                    break;
 
-            case SA_OPER2_GT:
-                snprintfcat(buf, size, " > ");
-                break;
+                case SA_OPER2_GT:
+                    snprintfcat(buf, size, " > ");
+                    break;
 
-            case SA_OPER2_LE:
-                snprintfcat(buf, size, " <= ");
-                break;
+                case SA_OPER2_LE:
+                    snprintfcat(buf, size, " <= ");
+                    break;
 
-            case SA_OPER2_GE:
-                snprintfcat(buf, size, " >= ");
-                break;
+                case SA_OPER2_GE:
+                    snprintfcat(buf, size, " >= ");
+                    break;
             }
 
             snprintfcat(buf, size, "%u", tmp->data.operation.num2);
@@ -276,9 +263,7 @@ sound_ambient_match_print_rec (sound_ambient_match_t *match,
  * @return
  * True if the rules match, false otherwise.
  */
-static bool
-sound_ambient_match_rec (sound_ambient_match_t *match)
-{
+static bool sound_ambient_match_rec(sound_ambient_match_t *match) {
     if (match == NULL) {
         return true;
     }
@@ -293,65 +278,65 @@ sound_ambient_match_rec (sound_ambient_match_t *match)
         } else {
             int value;
             switch (tmp->data.operation.type) {
-            case SA_OPER_TYPE_HOUR:
-                value = tod.hour;
-                break;
+                case SA_OPER_TYPE_HOUR:
+                    value = tod.hour;
+                    break;
 
-            case SA_OPER_TYPE_MINUTE:
-                value = tod.minute;
-                break;
+                case SA_OPER_TYPE_MINUTE:
+                    value = tod.minute;
+                    break;
 
-            default:
-                value = 0;
-                break;
+                default:
+                    value = 0;
+                    break;
             }
 
             switch (tmp->data.operation.operation) {
-            case SA_OPER_ADD:
-                value += tmp->data.operation.num;
-                break;
+                case SA_OPER_ADD:
+                    value += tmp->data.operation.num;
+                    break;
 
-            case SA_OPER_SUB:
-                value -= tmp->data.operation.num;
-                break;
+                case SA_OPER_SUB:
+                    value -= tmp->data.operation.num;
+                    break;
 
-            case SA_OPER_MUL:
-                value *= tmp->data.operation.num;
-                break;
+                case SA_OPER_MUL:
+                    value *= tmp->data.operation.num;
+                    break;
 
-            case SA_OPER_DIV:
-                value /= tmp->data.operation.num;
-                break;
+                case SA_OPER_DIV:
+                    value /= tmp->data.operation.num;
+                    break;
 
-            case SA_OPER_MOD:
-                value %= tmp->data.operation.num;
-                break;
+                case SA_OPER_MOD:
+                    value %= tmp->data.operation.num;
+                    break;
             }
 
             switch (tmp->data.operation.operation2) {
-            case SA_OPER2_EQ:
-                ret = value == tmp->data.operation.num2;
-                break;
+                case SA_OPER2_EQ:
+                    ret = value == tmp->data.operation.num2;
+                    break;
 
-            case SA_OPER2_LT:
-                ret = value < tmp->data.operation.num2;
-                break;
+                case SA_OPER2_LT:
+                    ret = value < tmp->data.operation.num2;
+                    break;
 
-            case SA_OPER2_GT:
-                ret = value > tmp->data.operation.num2;
-                break;
+                case SA_OPER2_GT:
+                    ret = value > tmp->data.operation.num2;
+                    break;
 
-            case SA_OPER2_LE:
-                ret = value <= tmp->data.operation.num2;
-                break;
+                case SA_OPER2_LE:
+                    ret = value <= tmp->data.operation.num2;
+                    break;
 
-            case SA_OPER2_GE:
-                ret = value >= tmp->data.operation.num2;
-                break;
+                case SA_OPER2_GE:
+                    ret = value >= tmp->data.operation.num2;
+                    break;
 
-            default:
-                ret = false;
-                break;
+                default:
+                    ret = false;
+                    break;
             }
         }
 
@@ -374,9 +359,7 @@ sound_ambient_match_rec (sound_ambient_match_t *match)
  * @return
  * String representation.
  */
-const char *
-sound_ambient_match_str (object *op)
-{
+const char *sound_ambient_match_str(object *op) {
     HARD_ASSERT(op != NULL);
 
     static char buf[HUGE_BUF];
@@ -394,9 +377,7 @@ sound_ambient_match_str (object *op)
  * @return
  * True if all the rules are met, false otherwise.
  */
-bool
-sound_ambient_match (object *op)
-{
+bool sound_ambient_match(object *op) {
     HARD_ASSERT(op != NULL);
     return sound_ambient_match_rec(op->custom_attrset);
 }
@@ -410,9 +391,7 @@ sound_ambient_match (object *op)
  * @param str
  * The string to parse.
  */
-void
-sound_ambient_match_parse (object *op, const char *str)
-{
+void sound_ambient_match_parse(object *op, const char *str) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(str != NULL);
 
@@ -443,13 +422,12 @@ sound_ambient_match_parse (object *op, const char *str)
             cp++;
             stack_id++;
 
-            sound_ambient_match_t *tmp =
-                ecalloc(1, sizeof(sound_ambient_match_t));
+            sound_ambient_match_t *tmp = ecalloc(1, sizeof(sound_ambient_match_t));
             tmp->is_group = 1;
 
             if (match_stack[stack_id - 1] != NULL) {
                 if (match_stack[stack_id - 1]->is_group &&
-                        match_stack[stack_id - 1]->data.group == NULL) {
+                    match_stack[stack_id - 1]->data.group == NULL) {
                     match_stack[stack_id - 1]->data.group = tmp;
                 } else {
                     match_stack[stack_id - 1]->next = tmp;
@@ -488,8 +466,7 @@ sound_ambient_match_parse (object *op, const char *str)
             }
 
             if (match_stack[stack_id] != NULL) {
-                if (match_stack[stack_id]->is_group &&
-                    group_num != 0 &&
+                if (match_stack[stack_id]->is_group && group_num != 0 &&
                     match_stack[stack_id]->data.group == NULL) {
                     match_stack[stack_id]->data.group = match;
                 } else {

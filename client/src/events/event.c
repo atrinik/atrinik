@@ -35,8 +35,7 @@ static event_drag_cb_fnc event_drag_cb = NULL;
 
 static int dragging_old_mx = -1, dragging_old_my = -1;
 
-int event_dragging_check(void)
-{
+int event_dragging_check(void) {
     int mx, my;
 
     if (!cpl.dragging_tag) {
@@ -52,8 +51,7 @@ int event_dragging_check(void)
     return 1;
 }
 
-int event_dragging_need_redraw(void)
-{
+int event_dragging_need_redraw(void) {
     int mx, my;
 
     if (!event_dragging_check()) {
@@ -72,8 +70,7 @@ int event_dragging_need_redraw(void)
     return 0;
 }
 
-void event_dragging_start(tag_t tag, int mx, int my)
-{
+void event_dragging_start(tag_t tag, int mx, int my) {
     dragging_old_mx = -1;
     dragging_old_my = -1;
 
@@ -84,18 +81,15 @@ void event_dragging_start(tag_t tag, int mx, int my)
     event_dragging_set_callback(NULL);
 }
 
-void event_dragging_set_callback(event_drag_cb_fnc fnc)
-{
+void event_dragging_set_callback(event_drag_cb_fnc fnc) {
     event_drag_cb = fnc;
 }
 
-void event_dragging_stop(void)
-{
+void event_dragging_stop(void) {
     cpl.dragging_tag = 0;
 }
 
-static void event_dragging_stop_internal(void)
-{
+static void event_dragging_stop_internal(void) {
     if (event_dragging_check() && event_drag_cb != NULL) {
         event_drag_cb();
     }
@@ -112,8 +106,7 @@ static void event_dragging_stop_internal(void)
  * @param height
  * Height to set.
  */
-void resize_window(int width, int height)
-{
+void resize_window(int width, int height) {
     setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X, width);
     setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y, height);
 
@@ -127,8 +120,7 @@ void resize_window(int width, int height)
  * @return
  * 1 if the the quit key was pressed, 0 otherwise
  */
-int Event_PollInputDevice(void)
-{
+int Event_PollInputDevice(void) {
     SDL_Event event;
     int x, y, done = 0;
     static Uint32 Ticks = 0;
@@ -169,65 +161,69 @@ int Event_PollInputDevice(void)
         }
 
         switch (event.type) {
-            /* Screen has been resized, update screen size. */
-        case SDL_VIDEORESIZE:
-            ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
+                /* Screen has been resized, update screen size. */
+            case SDL_VIDEORESIZE:
+                ScreenSurface = SDL_SetVideoMode(event.resize.w,
+                                                 event.resize.h,
+                                                 video_get_bpp(),
+                                                 get_video_flags());
 
-            if (!ScreenSurface) {
-                LOG(ERROR, "Unable to grab surface after resize event: %s", SDL_GetError());
-                exit(1);
-            }
+                if (!ScreenSurface) {
+                    LOG(ERROR, "Unable to grab surface after resize event: %s", SDL_GetError());
+                    exit(1);
+                }
 
-            /* Set resolution to custom. */
-            setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
-            resize_window(event.resize.w, event.resize.h);
-            break;
-
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEMOTION:
-        case SDL_KEYUP:
-        case SDL_KEYDOWN:
-
-            if (event.type == SDL_MOUSEMOTION) {
-                cursor_x = x;
-                cursor_y = y;
-                cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
-            }
-
-            if (popup_handle_event(&event)) {
+                /* Set resolution to custom. */
+                setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
+                resize_window(event.resize.w, event.resize.h);
                 break;
-            }
 
-            if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEMOTION:
+            case SDL_KEYUP:
+            case SDL_KEYDOWN:
+
+                if (event.type == SDL_MOUSEMOTION) {
+                    cursor_x = x;
+                    cursor_y = y;
+                    cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+                }
+
+                if (popup_handle_event(&event)) {
+                    break;
+                }
+
+                if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
+                    break;
+                }
+
+                if (cpl.state <= ST_WAITFORPLAY && intro_event(&event)) {
+                    break;
+                } else if (cpl.state == ST_PLAY && widgets_event(&event)) {
+                    break;
+                }
+
+                if (cpl.state == ST_PLAY &&
+                    (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
+                    key_handle_event(&event.key);
+                    break;
+                }
+
                 break;
-            }
 
-            if (cpl.state <= ST_WAITFORPLAY && intro_event(&event)) {
+            case SDL_QUIT:
+                done = 1;
                 break;
-            } else if (cpl.state == ST_PLAY && widgets_event(&event)) {
+
+            case SDL_USEREVENT:
+                if (event.user.code == EVENT_SOUND_MUSIC_FINISHED) {
+                    sound_music_finished_handle();
+                }
                 break;
-            }
 
-            if (cpl.state == ST_PLAY && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
-                key_handle_event(&event.key);
+            default:
                 break;
-            }
-
-            break;
-
-        case SDL_QUIT:
-            done = 1;
-            break;
-
-        case SDL_USEREVENT:
-            if (event.user.code == EVENT_SOUND_MUSIC_FINISHED) {
-                sound_music_finished_handle();
-            }
-            break;
-
-        default:
-            break;
         }
 
         if (event.type == SDL_MOUSEBUTTONUP) {
@@ -251,8 +247,7 @@ int Event_PollInputDevice(void)
     return done;
 }
 
-void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod)
-{
+void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod) {
     SDL_Event event;
 
     event.type = type;
@@ -264,8 +259,7 @@ void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod)
     SDL_PushEvent(&event);
 }
 
-void event_push_key_once(SDLKey key, SDLMod mod)
-{
+void event_push_key_once(SDLKey key, SDLMod mod) {
     event_push_key(SDL_KEYDOWN, key, mod);
     event_push_key(SDL_KEYUP, key, mod);
 }

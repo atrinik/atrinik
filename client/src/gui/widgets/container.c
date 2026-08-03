@@ -33,18 +33,15 @@
 #include <global.h>
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     /* Special case, menuitem is highlighted when mouse is moved over it. */
     if (widget->sub_type == MENU_ID) {
         widget_highlight_menu(widget);
     }
-
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     if (widget->sub_type == MENUITEM_ID && event->type == SDL_MOUSEBUTTONDOWN) {
         _menuitem *menuitem;
 
@@ -55,7 +52,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         menuitem = MENUITEM(widget);
         widget_mouse_event.owner = (MENU(widget->env))->owner;
 
-        if (widget_mouse_event.owner && menuitem->menu_type != MENU_SUBMENU && menuitem->menu_func_ptr) {
+        if (widget_mouse_event.owner && menuitem->menu_type != MENU_SUBMENU &&
+            menuitem->menu_func_ptr) {
             if (menuitem->menu_type == MENU_RADIO && menuitem->val != 0) {
                 return 1;
             }
@@ -70,8 +68,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::load_func */
-static int widget_load(widgetdata *widget, const char *keyword, const char *parameter)
-{
+static int widget_load(widgetdata *widget, const char *keyword, const char *parameter) {
     _widget_container *container;
 
     container = CONTAINER(widget);
@@ -79,8 +76,15 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
     if (strcmp(keyword, "padding") == 0) {
         int padding[5];
 
-        if (sscanf(parameter, "%d %d %d %d %d", &padding[0], &padding[1], &padding[2], &padding[3], &padding[4]) >= 4) {
-            if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID) {
+        if (sscanf(parameter,
+                   "%d %d %d %d %d",
+                   &padding[0],
+                   &padding[1],
+                   &padding[2],
+                   &padding[3],
+                   &padding[4]) >= 4) {
+            if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID ||
+                widget->sub_type == MENUITEM_ID) {
                 _widget_container_strip *container_strip;
 
                 container_strip = CONTAINER_STRIP(widget);
@@ -100,15 +104,21 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
 }
 
 /** @copydoc widgetdata::save_func */
-static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
-{
+static void widget_save(widgetdata *widget, FILE *fp, const char *padding) {
     _widget_container *container;
 
     container = CONTAINER(widget);
 
-    fprintf(fp, "%spadding = %d %d %d %d", padding, container->outer_padding_top, container->outer_padding_right, container->outer_padding_bottom, container->outer_padding_left);
+    fprintf(fp,
+            "%spadding = %d %d %d %d",
+            padding,
+            container->outer_padding_top,
+            container->outer_padding_right,
+            container->outer_padding_bottom,
+            container->outer_padding_left);
 
-    if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID) {
+    if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID ||
+        widget->sub_type == MENUITEM_ID) {
         _widget_container_strip *container_strip;
 
         container_strip = CONTAINER_STRIP(widget);
@@ -119,8 +129,7 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     _widget_container *container = widget->subwidget;
 
     if (container->subcontainer != NULL) {
@@ -139,8 +148,7 @@ static void widget_deinit(widgetdata *widget)
  * @param widget
  * Widget to initialize.
  */
-void widget_container_init(widgetdata *widget)
-{
+void widget_container_init(widgetdata *widget) {
     _widget_container *container;
 
     container = ecalloc(1, sizeof(_widget_container));
@@ -153,7 +161,8 @@ void widget_container_init(widgetdata *widget)
     widget->deinit_func = widget_deinit;
     widget->subwidget = container;
 
-    if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID) {
+    if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID ||
+        widget->sub_type == MENUITEM_ID) {
         _widget_container_strip *container_strip;
 
         container_strip = ecalloc(1, sizeof(_widget_container_strip));

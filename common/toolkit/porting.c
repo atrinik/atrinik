@@ -37,9 +37,7 @@
  * Re-entrant string tokenizer; glibc version, licensed under GNU LGPL
  * version 2.1.
  */
-char *
-_strtok_r (char *s, const char *delim, char **save_ptr)
-{
+char *_strtok_r(char *s, const char *delim, char **save_ptr) {
     char *token;
 
     if (s == NULL) {
@@ -74,9 +72,7 @@ _strtok_r (char *s, const char *delim, char **save_ptr)
 #ifndef HAVE_TEMPNAM
 static uint32_t curtmp = 0;
 
-char *
-_tempnam (const char *dir, const char *pfx)
-{
+char *_tempnam(const char *dir, const char *pfx) {
     char *name;
     pid_t pid = getpid();
 
@@ -89,14 +85,14 @@ _tempnam (const char *dir, const char *pfx)
      * already exists - if so, we'll just keep looking - eventually we
      * should find one that is free. */
     if (dir) {
-        if (!(name = (char *) malloc(MAXPATHLEN))) {
+        if (!(name = (char *)malloc(MAXPATHLEN))) {
             return NULL;
         }
 
         do {
             snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", dir, pfx, pid, curtmp);
             curtmp++;
-        }        while (access(name, F_OK) != -1);
+        } while (access(name, F_OK) != -1);
 
         return name;
     }
@@ -107,9 +103,7 @@ _tempnam (const char *dir, const char *pfx)
 
 #ifndef HAVE_STRDUP
 
-char *
-_strdup (const char *s)
-{
+char *_strdup(const char *s) {
     size_t len = strlen(s) + 1;
     void *new = malloc(len);
 
@@ -117,15 +111,13 @@ _strdup (const char *s)
         return NULL;
     }
 
-    return (char *) memcpy(new, s, len);
+    return (char *)memcpy(new, s, len);
 }
 #endif
 
 #ifndef HAVE_STRNDUP
 
-char *
-_strndup (const char *s, size_t n)
-{
+char *_strndup(const char *s, size_t n) {
     size_t len;
     char *new;
 
@@ -143,24 +135,20 @@ _strndup (const char *s, size_t n)
 
     new[len] = '\0';
 
-    return (char *) memcpy(new, s, len);
+    return (char *)memcpy(new, s, len);
 }
 #endif
 
 #ifndef HAVE_STRERROR
 
-char *
-_strerror (int errnum)
-{
+char *_strerror(int errnum) {
     return "";
 }
 #endif
 
 #ifndef HAVE_STRCASESTR
 
-const char *
-_strcasestr (const char *haystack, const char *needle)
-{
+const char *_strcasestr(const char *haystack, const char *needle) {
     char c, sc;
     size_t len;
 
@@ -173,8 +161,8 @@ _strcasestr (const char *haystack, const char *needle)
                 if ((sc = *haystack++) == 0) {
                     return NULL;
                 }
-            }            while (tolower(sc) != c);
-        }        while (strncasecmp(haystack, needle, len) != 0);
+            } while (tolower(sc) != c);
+        } while (strncasecmp(haystack, needle, len) != 0);
 
         haystack--;
     }
@@ -185,9 +173,7 @@ _strcasestr (const char *haystack, const char *needle)
 
 #ifndef HAVE_GETTIMEOFDAY
 
-int
-_gettimeofday (struct timeval *tv, struct timezone *tz)
-{
+int _gettimeofday(struct timeval *tv, struct timezone *tz) {
 #ifdef WIN32
     FILETIME time;
     unsigned __int64 res;
@@ -200,9 +186,9 @@ _gettimeofday (struct timeval *tv, struct timezone *tz)
 
     GetSystemTimeAsFileTime(&time);
 
-    res = (((unsigned __int64) time.dwHighDateTime << 32) | time.dwLowDateTime) / 10 - DELTA_EPOCH;
-    tv->tv_sec = (long) (res / 1000000UL);
-    tv->tv_usec = (long) (res % 1000000UL);
+    res = (((unsigned __int64)time.dwHighDateTime << 32) | time.dwLowDateTime) / 10 - DELTA_EPOCH;
+    tv->tv_sec = (long)(res / 1000000UL);
+    tv->tv_usec = (long)(res % 1000000UL);
 
     /* Get the timezone, if they want it. */
     if (tz) {
@@ -214,8 +200,8 @@ _gettimeofday (struct timeval *tv, struct timezone *tz)
 
     return 0;
 #else
-    (void) tv;
-    (void) tz;
+    (void)tv;
+    (void)tz;
     return 0;
 #endif
 }
@@ -223,9 +209,7 @@ _gettimeofday (struct timeval *tv, struct timezone *tz)
 
 #ifndef HAVE_GETLINE
 
-ssize_t
-_getline (char **lineptr, size_t *n, FILE *stream)
-{
+ssize_t _getline(char **lineptr, size_t *n, FILE *stream) {
     char *buf;
     size_t bufsize, numread;
     int c;
@@ -284,9 +268,7 @@ _getline (char **lineptr, size_t *n, FILE *stream)
 
 #ifndef HAVE_USLEEP
 
-int
-_usleep (uint32_t usec)
-{
+int _usleep(uint32_t usec) {
     struct timeval tv1, tv2;
 
     if (gettimeofday(&tv1, NULL) != 0) {
@@ -297,7 +279,7 @@ _usleep (uint32_t usec)
         if (gettimeofday(&tv2, NULL) != 0) {
             return -1;
         }
-    }    while ((tv2.tv_usec - tv1.tv_usec) < usec);
+    } while ((tv2.tv_usec - tv1.tv_usec) < usec);
 
     return 0;
 }
@@ -305,13 +287,10 @@ _usleep (uint32_t usec)
 
 #ifndef HAVE_STRNLEN
 
-size_t
-_strnlen (const char *s, size_t max)
-{
+size_t _strnlen(const char *s, size_t max) {
     const char *p;
 
-    for (p = s; *p && max--; p++) {
-    }
+    for (p = s; *p && max--; p++) {}
 
     return p - s;
 }
@@ -327,16 +306,13 @@ _strnlen (const char *s, size_t max)
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.  */
 
-static const char letters[] =
-"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+static const char letters[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 /* Generate a temporary file name based on TMPL.  TMPL must match the
    rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
    does not exist at the time of the call to mkstemp.  TMPL is
    overwritten with the result.  */
-int
-_mkstemp (char *tmpl)
-{
+int _mkstemp(char *tmpl) {
     int len;
     char *XXXXXX;
     static unsigned long long value;
@@ -385,11 +361,11 @@ _mkstemp (char *tmpl)
             return -1;
         }
 
-        random_time_bits = (((unsigned long long) ftNow.dwHighDateTime << 32)
-                | (unsigned long long) ftNow.dwLowDateTime);
+        random_time_bits = (((unsigned long long)ftNow.dwHighDateTime << 32) |
+                            (unsigned long long)ftNow.dwLowDateTime);
     }
 
-    value += random_time_bits ^ (unsigned long long) GetCurrentThreadId();
+    value += random_time_bits ^ (unsigned long long)GetCurrentThreadId();
 
     for (count = 0; count < attempts; value += 7777, ++count) {
         unsigned long long v = value;
@@ -407,7 +383,7 @@ _mkstemp (char *tmpl)
         v /= 62;
         XXXXXX[5] = letters[v % 62];
 
-        fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL, _S_IREAD | _S_IWRITE);
+        fd = open(tmpl, O_RDWR | O_CREAT | O_EXCL, _S_IREAD | _S_IWRITE);
 
         if (fd >= 0) {
             errno = save_errno;
@@ -424,9 +400,7 @@ _mkstemp (char *tmpl)
 #endif
 
 #ifndef HAVE_SINCOS
-void
-_sincos (double x, double *s, double *c)
-{
+void _sincos(double x, double *s, double *c) {
     if (s != NULL) {
         *s = sin(x);
     }

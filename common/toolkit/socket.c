@@ -59,16 +59,15 @@ struct in6_addr_helper {
         uint16_t __u6_addr16[8];
         uint32_t __u6_addr32[4];
     } __in6_u;
-#   define s6_addr8__ __in6_u.__u6_addr8
-#   define s6_addr16__ __in6_u.__u6_addr16
-#   define s6_addr32__ __in6_u.__u6_addr32
+#define s6_addr8__ __in6_u.__u6_addr8
+#define s6_addr16__ __in6_u.__u6_addr16
+#define s6_addr32__ __in6_u.__u6_addr32
 };
 #endif
 
 TOOLKIT_API(DEPENDS(datetime));
 
-TOOLKIT_INIT_FUNC(socket)
-{
+TOOLKIT_INIT_FUNC(socket) {
 #ifdef WIN32
     WORD wVersionRequested = MAKEWORD(2, 2);
     WSADATA w;
@@ -89,9 +88,7 @@ TOOLKIT_INIT_FUNC(socket)
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(socket)
-{
-}
+TOOLKIT_DEINIT_FUNC(socket) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
@@ -112,20 +109,13 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * Newly allocated socket, NULL in case of failure.
  */
 socket_t *
-socket_create (const char   *host,
-               uint16_t      port,
-               bool          secure,
-               socket_role_t role,
-               bool          dual_stack)
-{
+socket_create(const char *host, uint16_t port, bool secure, socket_role_t role, bool dual_stack) {
     socket_t *sc = ecalloc(1, sizeof(*sc));
     sc->handle = -1;
     sc->owns_handle = true;
     sc->secure = !!secure;
     sc->role = role;
-    sc->connection_mode = secure
-        ? SOCKET_CONNECTION_MODE_TLS
-        : SOCKET_CONNECTION_MODE_TCP;
+    sc->connection_mode = secure ? SOCKET_CONNECTION_MODE_TLS : SOCKET_CONNECTION_MODE_TCP;
     if (!socket_connection_id_generate(sc)) {
         LOG(ERROR, "Failed to generate connection diagnostic ID");
         goto error;
@@ -147,9 +137,12 @@ socket_create (const char   *host,
     }
 
     if (getaddrinfo(host, port_str, &hints, &res) != 0) {
-        LOG(ERROR, "Cannot getaddrinfo(), host %s, port %" PRIu16 ": %s (%d)",
-                host != NULL ? host : "<none>", port, s_strerror(s_errno),
-                s_errno);
+        LOG(ERROR,
+            "Cannot getaddrinfo(), host %s, port %" PRIu16 ": %s (%d)",
+            host != NULL ? host : "<none>",
+            port,
+            s_strerror(s_errno),
+            s_errno);
         goto error;
     }
 
@@ -168,10 +161,12 @@ socket_create (const char   *host,
 #ifdef HAVE_IPV6
         if (ai->ai_family == AF_INET6) {
             int flag = !dual_stack;
-            if (setsockopt(sc->handle, IPPROTO_IPV6, IPV6_V6ONLY,
-                    (const char *) &flag, sizeof(flag)) != 0) {
-                LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)",
-                        s_strerror(s_errno), s_errno);
+            if (setsockopt(sc->handle,
+                           IPPROTO_IPV6,
+                           IPV6_V6ONLY,
+                           (const char *)&flag,
+                           sizeof(flag)) != 0) {
+                LOG(ERROR, "Cannot setsockopt(IPV6_V6ONLY): %s (%d)", s_strerror(s_errno), s_errno);
                 socket_close(sc);
                 freeaddrinfo(res);
                 goto error;
@@ -188,13 +183,17 @@ socket_create (const char   *host,
     if (host != NULL) {
         struct hostent *host_entry = gethostbyname(host);
         if (host_entry == NULL) {
-            LOG(ERROR, "Cannot gethostbyname(), host %s, port %" PRIu16 ": %s "
-                    "(%d)", host != NULL ? host : "<none>", port,
-                    s_strerror(s_errno), s_errno);
+            LOG(ERROR,
+                "Cannot gethostbyname(), host %s, port %" PRIu16 ": %s "
+                "(%d)",
+                host != NULL ? host : "<none>",
+                port,
+                s_strerror(s_errno),
+                s_errno);
             goto error;
         }
 
-        sc->addr.sin_addr = *((struct in_addr *) host_entry->h_addr);
+        sc->addr.sin_addr = *((struct in_addr *)host_entry->h_addr);
     } else {
         sc->addr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
@@ -205,18 +204,25 @@ socket_create (const char   *host,
 
     struct protoent *protox = getprotobyname("tcp");
     if (protox == NULL) {
-        LOG(ERROR, "Cannot getprotobyname(), host %s, port %" PRIu16 ": %s "
-                "(%d)", host != NULL ? host : "<none>", port,
-                s_strerror(s_errno), s_errno);
+        LOG(ERROR,
+            "Cannot getprotobyname(), host %s, port %" PRIu16 ": %s "
+            "(%d)",
+            host != NULL ? host : "<none>",
+            port,
+            s_strerror(s_errno),
+            s_errno);
         goto error;
     }
 
     sc->handle = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 #endif
     if (sc->handle == -1) {
-        LOG(ERROR, "Cannot socket(), host %s, port %" PRIu16 ": %s (%d)",
-                host != NULL ? host : "<none>", port, s_strerror(s_errno),
-                s_errno);
+        LOG(ERROR,
+            "Cannot socket(), host %s, port %" PRIu16 ": %s (%d)",
+            host != NULL ? host : "<none>",
+            port,
+            s_strerror(s_errno),
+            s_errno);
         goto error;
     }
 
@@ -229,7 +235,6 @@ error:
     return NULL;
 }
 
-
 /**
  * Acquire the socket's address as a string representation.
  * @param sc
@@ -238,8 +243,7 @@ error:
  * Pointer to a static buffer containing the socket's address. Will be
  * overwritten with the next call.
  */
-char *socket_get_addr(socket_t *sc)
-{
+char *socket_get_addr(socket_t *sc) {
     static char buf[MAX_BUF];
     if (socket_addr2host(&sc->addr, VS(buf)) == NULL) {
         snprintf(VS(buf), "<no address>");
@@ -254,8 +258,7 @@ char *socket_get_addr(socket_t *sc)
  * @return
  * Pointer owned by the socket. It remains valid until the socket is destroyed.
  */
-const char *socket_get_id(socket_t *sc)
-{
+const char *socket_get_id(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
     return sc->connection_id;
@@ -263,13 +266,9 @@ const char *socket_get_id(socket_t *sc)
 
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
 /** Log diagnostic details for a failed QUIC I/O operation. */
-static void
-socket_quic_log_io_failure (socket_t *sc, const char *operation, int error)
-{
+static void socket_quic_log_io_failure(socket_t *sc, const char *operation, int error) {
     SSL_CONN_CLOSE_INFO close_info;
-    if (SSL_get_conn_close_info(sc->quic,
-                                &close_info,
-                                sizeof(close_info)) == 1) {
+    if (SSL_get_conn_close_info(sc->quic, &close_info, sizeof(close_info)) == 1) {
         LOG(ERROR,
             "Connection %s QUIC %s failed: SSL error %d, close origin=%s, "
             "type=%s, code=%" PRIu64 ", frame=%" PRIu64 ", reason=%.*s",
@@ -277,12 +276,10 @@ socket_quic_log_io_failure (socket_t *sc, const char *operation, int error)
             operation,
             error,
             close_info.flags & SSL_CONN_CLOSE_FLAG_LOCAL ? "local" : "peer",
-            close_info.flags & SSL_CONN_CLOSE_FLAG_TRANSPORT
-                ? "transport"
-                : "application",
+            close_info.flags & SSL_CONN_CLOSE_FLAG_TRANSPORT ? "transport" : "application",
             close_info.error_code,
             close_info.frame_type,
-            (int) close_info.reason_len,
+            (int)close_info.reason_len,
             close_info.reason != NULL ? close_info.reason : "");
         return;
     }
@@ -304,8 +301,7 @@ socket_quic_log_io_failure (socket_t *sc, const char *operation, int error)
  * @return
  * True on success, false on failure.
  */
-bool socket_connection_id_generate(socket_t *sc)
-{
+bool socket_connection_id_generate(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
     unsigned char id[(SOCKET_CONNECTION_ID_SIZE - 1) / 2];
@@ -313,11 +309,8 @@ bool socket_connection_id_generate(socket_t *sc)
         return false;
     }
 
-    if (string_tohex(id,
-                     sizeof(id),
-                     sc->connection_id,
-                     sizeof(sc->connection_id),
-                     false) != sizeof(sc->connection_id) - 1) {
+    if (string_tohex(id, sizeof(id), sc->connection_id, sizeof(sc->connection_id), false) !=
+        sizeof(sc->connection_id) - 1) {
         return false;
     }
     string_tolower(sc->connection_id);
@@ -336,8 +329,7 @@ bool socket_connection_id_generate(socket_t *sc)
  * @return
  * True on success, false on failure.
  */
-bool socket_connection_id_export(socket_t *sc)
-{
+bool socket_connection_id_export(socket_t *sc) {
     static const char label[] = "EXPERIMENTAL-Atrinik-Connection-ID";
     unsigned char id[(SOCKET_CONNECTION_ID_SIZE - 1) / 2];
 
@@ -355,24 +347,18 @@ bool socket_connection_id_export(socket_t *sc)
         return false;
     }
 
-    if (string_tohex(id,
-                     sizeof(id),
-                     sc->connection_id,
-                     sizeof(sc->connection_id),
-                     false) != sizeof(sc->connection_id) - 1) {
+    if (string_tohex(id, sizeof(id), sc->connection_id, sizeof(sc->connection_id), false) !=
+        sizeof(sc->connection_id) - 1) {
         return false;
     }
 
     string_tolower(sc->connection_id);
     sc->connection_id_final = true;
-    LOG(SYSTEM,
-        "Connection %s completed the QUIC handshake",
-        socket_get_id(sc));
+    LOG(SYSTEM, "Connection %s completed the QUIC handshake", socket_get_id(sc));
     return true;
 }
 #else
-bool socket_connection_id_export(socket_t *sc)
-{
+bool socket_connection_id_export(socket_t *sc) {
     if (!socket_connection_id_generate(sc)) {
         return false;
     }
@@ -388,9 +374,7 @@ bool socket_connection_id_export(socket_t *sc)
  * 1 when ready for application I/O, 0 when more network I/O is needed, and
  * -1 on a fatal error.
  */
-static int
-socket_quic_connection_prepare (socket_t *sc)
-{
+static int socket_quic_connection_prepare(socket_t *sc) {
     if (sc->connection_id_final) {
         return 1;
     }
@@ -399,9 +383,7 @@ socket_quic_connection_prepare (socket_t *sc)
     int result = SSL_do_handshake(sc->quic);
     if (result == 1) {
         if (!socket_connection_id_export(sc)) {
-            socket_quic_log_io_failure(sc,
-                                       "diagnostic ID derivation",
-                                       SSL_ERROR_SSL);
+            socket_quic_log_io_failure(sc, "diagnostic ID derivation", SSL_ERROR_SSL);
             return -1;
         }
         return 1;
@@ -429,35 +411,27 @@ socket_quic_connection_prepare (socket_t *sc)
  * 0 if the socket's address matches the supplied address/subnet,
  * anything else otherwise.
  */
-int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
-        unsigned short plen)
-{
+int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr, unsigned short plen) {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(addr != NULL);
 
 #ifdef HAVE_IPV6
-    const struct sockaddr *saddr1 = (const struct sockaddr *) &sc->addr;
-    const struct sockaddr *saddr2 = (const struct sockaddr *) addr;
+    const struct sockaddr *saddr1 = (const struct sockaddr *)&sc->addr;
+    const struct sockaddr *saddr2 = (const struct sockaddr *)addr;
 
     /* Compare an IPv4 address against an IPv4-mapped IPv6 peer. */
     if (saddr1->sa_family == AF_INET6 && saddr2->sa_family == AF_INET) {
-        const union sockaddr_union *addr_ipv6 =
-            (const union sockaddr_union *) saddr1;
+        const union sockaddr_union *addr_ipv6 = (const union sockaddr_union *)saddr1;
         struct in6_addr_helper *addr_ipv6_help =
-            (struct in6_addr_helper *) &addr_ipv6->in6.sin6_addr;
+            (struct in6_addr_helper *)&addr_ipv6->in6.sin6_addr;
 
-        if (addr_ipv6_help->s6_addr32__[0] == 0 &&
-                addr_ipv6_help->s6_addr32__[1] == 0 &&
-                addr_ipv6_help->s6_addr16__[4] == 0 &&
-                addr_ipv6_help->s6_addr16__[5] == 0xffff) {
+        if (addr_ipv6_help->s6_addr32__[0] == 0 && addr_ipv6_help->s6_addr32__[1] == 0 &&
+            addr_ipv6_help->s6_addr16__[4] == 0 && addr_ipv6_help->s6_addr16__[5] == 0xffff) {
             struct sockaddr_storage addr_new = sc->addr;
-            struct sockaddr *saddr_new = (struct sockaddr *) &addr_new;
-            union sockaddr_union *addr_ipv6_new =
-                (union sockaddr_union *) saddr_new;
-            addr_ipv6_help =
-                (struct in6_addr_helper *) &addr_ipv6_new->in6.sin6_addr;
-            const union sockaddr_union *addr_ipv4 =
-                (const union sockaddr_union *) saddr2;
+            struct sockaddr *saddr_new = (struct sockaddr *)&addr_new;
+            union sockaddr_union *addr_ipv6_new = (union sockaddr_union *)saddr_new;
+            addr_ipv6_help = (struct in6_addr_helper *)&addr_ipv6_new->in6.sin6_addr;
+            const union sockaddr_union *addr_ipv4 = (const union sockaddr_union *)saddr2;
             addr_ipv6_help->s6_addr32__[3] = addr_ipv4->in4.sin_addr.s_addr;
             return socket_addr_cmp(&sc->addr, &addr_new, 96 + plen);
         }
@@ -474,35 +448,29 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
  * @return
  * The file descriptor.
  */
-int socket_fd(socket_t *sc)
-{
+int socket_fd(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(sc->handle != -1);
 
     return sc->handle;
 }
 
-bool
-socket_local_port (socket_t *sc, uint16_t *port)
-{
+bool socket_local_port(socket_t *sc, uint16_t *port) {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(port != NULL);
 
     struct sockaddr_storage address;
     socklen_t length = sizeof(address);
-    if (sc->handle == -1 ||
-            getsockname(sc->handle,
-                        (struct sockaddr *) &address,
-                        &length) != 0) {
+    if (sc->handle == -1 || getsockname(sc->handle, (struct sockaddr *)&address, &length) != 0) {
         return false;
     }
-    if (((struct sockaddr *) &address)->sa_family == AF_INET) {
-        *port = ntohs(((struct sockaddr_in *) &address)->sin_port);
+    if (((struct sockaddr *)&address)->sa_family == AF_INET) {
+        *port = ntohs(((struct sockaddr_in *)&address)->sin_port);
         return *port != 0;
     }
 #ifdef HAVE_IPV6
-    if (((struct sockaddr *) &address)->sa_family == AF_INET6) {
-        *port = ntohs(((struct sockaddr_in6 *) &address)->sin6_port);
+    if (((struct sockaddr *)&address)->sa_family == AF_INET6) {
+        *port = ntohs(((struct sockaddr_in6 *)&address)->sin6_port);
         return *port != 0;
     }
 #endif
@@ -517,8 +485,7 @@ socket_local_port (socket_t *sc, uint16_t *port)
  * @return
  * True on success, false on failure.
  */
-bool socket_connect(socket_t *sc)
-{
+bool socket_connect(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT_RC(sc->host != NULL, false, "NULL host");
@@ -532,8 +499,7 @@ bool socket_connect(socket_t *sc)
 #endif
     TIMER_START(connect);
 
-    while (connect(sc->handle, (struct sockaddr *) &sc->addr,
-            sizeof(sc->addr)) == -1) {
+    while (connect(sc->handle, (struct sockaddr *)&sc->addr, sizeof(sc->addr)) == -1) {
 #ifdef WIN32
         int rc = s_errno;
 #endif
@@ -550,8 +516,7 @@ bool socket_connect(socket_t *sc)
             break;
         }
 
-        if (rc == WSAEWOULDBLOCK || rc == WSAEALREADY ||
-                (rc == WSAEINVAL && error)) {
+        if (rc == WSAEWOULDBLOCK || rc == WSAEALREADY || (rc == WSAEINVAL && error)) {
             error = true;
             continue;
         }
@@ -578,14 +543,12 @@ done:
  * @return
  * True on success, false on failure.
  */
-bool socket_bind(socket_t *sc)
-{
+bool socket_bind(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
-    if (bind(sc->handle, (struct sockaddr *) &sc->addr,
-            sizeof(sc->addr)) == -1) {
+    if (bind(sc->handle, (struct sockaddr *)&sc->addr, sizeof(sc->addr)) == -1) {
         LOG(ERROR, "Cannot bind(): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
@@ -606,8 +569,7 @@ bool socket_bind(socket_t *sc)
  * Newly allocated socket structure containing a valid handle, NULL
  * on failure.
  */
-socket_t *socket_accept(socket_t *sc)
-{
+socket_t *socket_accept(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
     if (sc->transport == SOCKET_TRANSPORT_QUIC_LISTENER) {
@@ -616,14 +578,11 @@ socket_t *socket_accept(socket_t *sc)
             return NULL;
         }
 
-        if (SSL_set_default_stream_mode(
-                connection,
-                SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) != 1) {
+        if (SSL_set_default_stream_mode(connection, SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) != 1) {
             unsigned long code = ERR_peek_error();
             LOG(ERROR,
                 "Failed to configure accepted QUIC application stream: %s",
-                code != 0 ? ERR_error_string(code, NULL)
-                          : "no OpenSSL error information");
+                code != 0 ? ERR_error_string(code, NULL) : "no OpenSSL error information");
             SSL_free(connection);
             return NULL;
         }
@@ -637,28 +596,21 @@ socket_t *socket_accept(socket_t *sc)
         tmp->role = sc->role;
         BIO *network = SSL_get_rbio(connection);
         BIO_ADDR *peer = BIO_ADDR_new();
-        if (network != NULL && peer != NULL &&
-            BIO_dgram_get_peer(network, peer) > 0) {
+        if (network != NULL && peer != NULL && BIO_dgram_get_peer(network, peer) > 0) {
             int family = BIO_ADDR_family(peer);
             if (family == AF_INET) {
-                struct sockaddr_in *address =
-                    (struct sockaddr_in *) &tmp->addr;
+                struct sockaddr_in *address = (struct sockaddr_in *)&tmp->addr;
                 size_t address_size = sizeof(address->sin_addr);
                 address->sin_family = AF_INET;
                 address->sin_port = BIO_ADDR_rawport(peer);
-                BIO_ADDR_rawaddress(peer,
-                                    &address->sin_addr,
-                                    &address_size);
+                BIO_ADDR_rawaddress(peer, &address->sin_addr, &address_size);
 #ifdef HAVE_IPV6
             } else if (family == AF_INET6) {
-                struct sockaddr_in6 *address =
-                    (struct sockaddr_in6 *) &tmp->addr;
+                struct sockaddr_in6 *address = (struct sockaddr_in6 *)&tmp->addr;
                 size_t address_size = sizeof(address->sin6_addr);
                 address->sin6_family = AF_INET6;
                 address->sin6_port = BIO_ADDR_rawport(peer);
-                BIO_ADDR_rawaddress(peer,
-                                    &address->sin6_addr,
-                                    &address_size);
+                BIO_ADDR_rawaddress(peer, &address->sin6_addr, &address_size);
 #endif
             }
         }
@@ -677,18 +629,16 @@ socket_t *socket_accept(socket_t *sc)
     socket_t *tmp = ecalloc(1, sizeof(*tmp));
     tmp->owns_handle = true;
     socklen_t addrlen = sizeof(tmp->addr);
-    tmp->handle = accept(sc->handle, (struct sockaddr *) &tmp->addr, &addrlen);
+    tmp->handle = accept(sc->handle, (struct sockaddr *)&tmp->addr, &addrlen);
     if (tmp->handle == -1) {
         efree(tmp);
         return NULL;
     }
 
-    tmp->port = ((struct sockaddr_in *) &tmp->addr)->sin_port;
+    tmp->port = ((struct sockaddr_in *)&tmp->addr)->sin_port;
     /* Copy over the secure flag from the accepting socket. */
     tmp->secure = sc->secure;
-    tmp->connection_mode = tmp->secure
-        ? SOCKET_CONNECTION_MODE_TLS
-        : SOCKET_CONNECTION_MODE_TCP;
+    tmp->connection_mode = tmp->secure ? SOCKET_CONNECTION_MODE_TLS : SOCKET_CONNECTION_MODE_TCP;
     /* And the role. */
     tmp->role = sc->role;
     if (!socket_connection_id_generate(tmp)) {
@@ -712,8 +662,7 @@ socket_t *socket_accept(socket_t *sc)
  * True on success, false if there was an error and the connection
  * should be closed.
  */
-bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
-{
+bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt) {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(buf != NULL);
     HARD_ASSERT(amt != NULL);
@@ -762,9 +711,7 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
         }
 #endif
 
-        LOG(INFO, "Error reading on connection %s: %s (%d)",
-                socket_get_id(sc),
-                s_strerror(rc), rc);
+        LOG(INFO, "Error reading on connection %s: %s (%d)", socket_get_id(sc), s_strerror(rc), rc);
         return false;
     } else if (ret == 0) {
         /* The connection has been gracefully shutdown; EOF. */
@@ -772,7 +719,7 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
     }
 
     HARD_ASSERT(ret > 0);
-    *amt = (size_t) ret;
+    *amt = (size_t)ret;
 
     return true;
 }
@@ -791,8 +738,7 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
  * True on success, false if there was an error and the connection
  * should be closed.
  */
-bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
-{
+bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt) {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(buf != NULL);
     HARD_ASSERT(amt != NULL);
@@ -835,9 +781,7 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
         }
 #endif
 
-        LOG(INFO, "Error writing on connection %s: %s (%d)",
-                socket_get_id(sc),
-                s_strerror(rc), rc);
+        LOG(INFO, "Error writing on connection %s: %s (%d)", socket_get_id(sc), s_strerror(rc), rc);
         return false;
     } else if (ret == 0) {
         /* Zero can be returned in case the other end cannot keep up with
@@ -846,17 +790,12 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
     }
 
     HARD_ASSERT(ret > 0);
-    *amt = (size_t) ret;
+    *amt = (size_t)ret;
 
     return true;
 }
 
-bool
-socket_wait (socket_t     *sc,
-             bool          readable,
-             bool          writable,
-             unsigned int  timeout_ms)
-{
+bool socket_wait(socket_t *sc, bool readable, bool writable, unsigned int timeout_ms) {
     HARD_ASSERT(sc != NULL);
     if (sc->handle == -1) {
         return false;
@@ -872,8 +811,8 @@ socket_wait (socket_t     *sc,
         FD_SET(sc->handle, &write_fds);
     }
     struct timeval timeout = {
-        .tv_sec = (long) (timeout_ms / 1000),
-        .tv_usec = (long) ((timeout_ms % 1000) * 1000),
+        .tv_sec = (long)(timeout_ms / 1000),
+        .tv_usec = (long)((timeout_ms % 1000) * 1000),
     };
     int result = select(sc->handle + 1,
                         readable ? &read_fds : NULL,
@@ -886,8 +825,7 @@ socket_wait (socket_t     *sc,
 #else
     if (result < 0 && error != EINTR) {
 #endif
-        LOG(ERROR, "select() failed for %s: %s (%d)",
-            socket_get_id(sc), s_strerror(error), error);
+        LOG(ERROR, "select() failed for %s: %s (%d)", socket_get_id(sc), s_strerror(error), error);
     }
     return result > 0;
 }
@@ -899,8 +837,7 @@ socket_wait (socket_t     *sc,
  * @return
  * True if the socket's file descriptor is valid, false otherwise.
  */
-bool socket_is_fd_valid(socket_t *sc)
-{
+bool socket_is_fd_valid(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
@@ -923,8 +860,7 @@ bool socket_is_fd_valid(socket_t *sc)
  * @return
  * True on success, false on failure.
  */
-bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger)
-{
+bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger) {
     HARD_ASSERT(sc != NULL);
 
     if (socket_is_quic(sc)) {
@@ -937,10 +873,12 @@ bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger)
     linger_opt.l_onoff = !!enable;
     linger_opt.l_linger = linger;
 
-    if (setsockopt(sc->handle, SOL_SOCKET, SO_LINGER,
-            (const char *) &linger_opt, sizeof(struct linger)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(SO_LINGER): %s (%d)", s_strerror(s_errno),
-                s_errno);
+    if (setsockopt(sc->handle,
+                   SOL_SOCKET,
+                   SO_LINGER,
+                   (const char *)&linger_opt,
+                   sizeof(struct linger)) == -1) {
+        LOG(ERROR, "Cannot setsockopt(SO_LINGER): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 
@@ -956,25 +894,21 @@ bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger)
  * @return
  * True on success, false on failure.
  */
-bool socket_opt_reuse_addr(socket_t *sc, bool enable)
-{
+bool socket_opt_reuse_addr(socket_t *sc, bool enable) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
     int flag = !!enable;
-    if (setsockopt(sc->handle, SOL_SOCKET, SO_REUSEADDR, (const char *) &flag,
-            sizeof(flag)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(SO_REUSEADDR): %s (%d)",
-                s_strerror(s_errno), s_errno);
+    if (setsockopt(sc->handle, SOL_SOCKET, SO_REUSEADDR, (const char *)&flag, sizeof(flag)) == -1) {
+        LOG(ERROR, "Cannot setsockopt(SO_REUSEADDR): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 
 #ifndef WIN32
     int flags = fcntl(sc->handle, F_GETFL);
     if (flags == -1) {
-        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", s_strerror(s_errno),
-                s_errno);
+        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 
@@ -987,8 +921,7 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable)
     }
 
     if (fcntl(sc->handle, F_SETFD, FD_CLOEXEC) == -1) {
-        LOG(ERROR, "Cannot fcntl(F_SETFD): %s (%d)",
-            s_strerror(s_errno), s_errno);
+        LOG(ERROR, "Cannot fcntl(F_SETFD): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 #endif
@@ -1006,8 +939,7 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable)
  * @return
  * True on success, false on failure.
  */
-bool socket_opt_non_blocking(socket_t *sc, bool enable)
-{
+bool socket_opt_non_blocking(socket_t *sc, bool enable) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
@@ -1015,13 +947,11 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable)
 #ifdef WIN32
     u_long flag = !!enable;
     if (ioctlsocket(sc->handle, FIONBIO, &flag) == -1) {
-        LOG(ERROR, "Cannot ioctlsocket(): %s (%d)", s_strerror(s_errno),
-                s_errno);
+        LOG(ERROR, "Cannot ioctlsocket(): %s (%d)", s_strerror(s_errno), s_errno);
 #else
     int flags = fcntl(sc->handle, F_GETFL);
     if (flags == -1) {
-        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", s_strerror(s_errno),
-                s_errno);
+        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 
@@ -1032,8 +962,7 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable)
     }
 
     if (fcntl(sc->handle, F_SETFL, flags) == -1) {
-        LOG(ERROR, "Cannot fcntl(F_SETFL), flags %d: %s (%d)", flags,
-                s_strerror(s_errno), s_errno);
+        LOG(ERROR, "Cannot fcntl(F_SETFL), flags %d: %s (%d)", flags, s_strerror(s_errno), s_errno);
 #endif
         return false;
     }
@@ -1050,8 +979,7 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable)
  * @return
  * True on success, false on failure.
  */
-bool socket_opt_ndelay(socket_t *sc, bool enable)
-{
+bool socket_opt_ndelay(socket_t *sc, bool enable) {
     HARD_ASSERT(sc != NULL);
 
     if (socket_is_quic(sc)) {
@@ -1061,10 +989,8 @@ bool socket_opt_ndelay(socket_t *sc, bool enable)
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
 
     int flag = !!enable;
-    if (setsockopt(sc->handle, IPPROTO_TCP, TCP_NODELAY, (const char *) &flag,
-            sizeof(flag)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(TCP_NODELAY): %s (%d)",
-                s_strerror(s_errno), s_errno);
+    if (setsockopt(sc->handle, IPPROTO_TCP, TCP_NODELAY, (const char *)&flag, sizeof(flag)) == -1) {
+        LOG(ERROR, "Cannot setsockopt(TCP_NODELAY): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 
@@ -1081,8 +1007,7 @@ bool socket_opt_ndelay(socket_t *sc, bool enable)
  * @return
  * True on success, false on failure.
  */
-bool socket_opt_send_buffer(socket_t *sc, int bufsize)
-{
+bool socket_opt_send_buffer(socket_t *sc, int bufsize) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
@@ -1090,16 +1015,21 @@ bool socket_opt_send_buffer(socket_t *sc, int bufsize)
     int oldbufsize;
     socklen_t buflen = sizeof(int);
 
-    if (getsockopt(sc->handle, SOL_SOCKET, SO_SNDBUF, (char *) &oldbufsize,
-            &buflen) == -1) {
+    if (getsockopt(sc->handle, SOL_SOCKET, SO_SNDBUF, (char *)&oldbufsize, &buflen) == -1) {
         oldbufsize = 0;
     }
 
     if (oldbufsize < bufsize) {
-        if (setsockopt(sc->handle, SOL_SOCKET, SO_SNDBUF,
-                (const char *) &bufsize, sizeof(bufsize))) {
-            LOG(ERROR, "Cannot setsockopt(), bufsize %d: %s (%d)", bufsize,
-                    s_strerror(s_errno), s_errno);
+        if (setsockopt(sc->handle,
+                       SOL_SOCKET,
+                       SO_SNDBUF,
+                       (const char *)&bufsize,
+                       sizeof(bufsize))) {
+            LOG(ERROR,
+                "Cannot setsockopt(), bufsize %d: %s (%d)",
+                bufsize,
+                s_strerror(s_errno),
+                s_errno);
             return false;
         }
     }
@@ -1117,8 +1047,7 @@ bool socket_opt_send_buffer(socket_t *sc, int bufsize)
  * @return
  * True on success, false on failure.
  */
-bool socket_opt_recv_buffer(socket_t *sc, int bufsize)
-{
+bool socket_opt_recv_buffer(socket_t *sc, int bufsize) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
@@ -1126,16 +1055,21 @@ bool socket_opt_recv_buffer(socket_t *sc, int bufsize)
     int oldbufsize;
     socklen_t buflen = sizeof(int);
 
-    if (getsockopt(sc->handle, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize,
-            &buflen) == -1) {
+    if (getsockopt(sc->handle, SOL_SOCKET, SO_RCVBUF, (char *)&oldbufsize, &buflen) == -1) {
         oldbufsize = 0;
     }
 
     if (oldbufsize < bufsize) {
-        if (setsockopt(sc->handle, SOL_SOCKET, SO_RCVBUF,
-                (const char *) &bufsize, sizeof(bufsize))) {
-            LOG(ERROR, "Cannot setsockopt(), bufsize %d: %s (%d)", bufsize,
-                    s_strerror(s_errno), s_errno);
+        if (setsockopt(sc->handle,
+                       SOL_SOCKET,
+                       SO_RCVBUF,
+                       (const char *)&bufsize,
+                       sizeof(bufsize))) {
+            LOG(ERROR,
+                "Cannot setsockopt(), bufsize %d: %s (%d)",
+                bufsize,
+                s_strerror(s_errno),
+                s_errno);
             return false;
         }
     }
@@ -1149,8 +1083,7 @@ bool socket_opt_recv_buffer(socket_t *sc, int bufsize)
  * @param sc
  * Socket.
  */
-void socket_destroy(socket_t *sc)
-{
+void socket_destroy(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
     if (sc->host != NULL) {
@@ -1170,8 +1103,7 @@ void socket_destroy(socket_t *sc)
  * @param sc
  * Socket.
  */
-void socket_close(socket_t *sc)
-{
+void socket_close(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
     SOFT_ASSERT(sc->handle != -1, "Invalid socket handle");
@@ -1214,8 +1146,7 @@ void socket_close(socket_t *sc)
  * @return
  * True on success, false on failure.
  */
-bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
-{
+bool socket_host2addr(const char *host, struct sockaddr_storage *addr) {
     HARD_ASSERT(host != NULL);
     HARD_ASSERT(addr != NULL);
 
@@ -1229,8 +1160,7 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
     int rc = getaddrinfo(host, NULL, &hints, &res);
     if (rc != 0) {
         if (rc != EAI_NONAME) {
-            LOG(ERROR, "Cannot getaddrinfo(), host %s: %s (%d)", host,
-                    gai_strerror(rc), rc);
+            LOG(ERROR, "Cannot getaddrinfo(), host %s: %s (%d)", host, gai_strerror(rc), rc);
         }
 
         return false;
@@ -1259,12 +1189,11 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
 #else
     struct hostent *host_entry = gethostbyname(host);
     if (host_entry == NULL) {
-        LOG(ERROR, "Cannot gethostbyname(), host %s: %s (%d)", host,
-                s_strerror(s_errno), s_errno);
+        LOG(ERROR, "Cannot gethostbyname(), host %s: %s (%d)", host, s_strerror(s_errno), s_errno);
         return false;
     }
 
-    addr->sin_addr = *((struct in_addr *) host_entry->h_addr);
+    addr->sin_addr = *((struct in_addr *)host_entry->h_addr);
     addr->sin_family = AF_INET;
     addr->sin_port = 0;
     memset(&addr->sin_zero, 0, sizeof(addr->sin_zero));
@@ -1274,9 +1203,7 @@ bool socket_host2addr(const char *host, struct sockaddr_storage *addr)
 
 #ifdef WIN32
 /** @cond */
-static const char *socket_inet_ntop(int af, const void *src, char *dst,
-        size_t size)
-{
+static const char *socket_inet_ntop(int af, const void *src, char *dst, size_t size) {
 #ifdef HAVE_IPV6
     struct sockaddr_storage ss;
 #else
@@ -1291,12 +1218,12 @@ static const char *socket_inet_ntop(int af, const void *src, char *dst,
 
     switch (af) {
         case AF_INET:
-            ((struct sockaddr_in *) &ss)->sin_addr = *(struct in_addr *) src;
+            ((struct sockaddr_in *)&ss)->sin_addr = *(struct in_addr *)src;
             break;
 
 #ifdef HAVE_IPV6
         case AF_INET6:
-            ((struct sockaddr_in6 *) &ss)->sin6_addr = *(struct in6_addr *) src;
+            ((struct sockaddr_in6 *)&ss)->sin6_addr = *(struct in6_addr *)src;
             break;
 #endif
 
@@ -1306,13 +1233,11 @@ static const char *socket_inet_ntop(int af, const void *src, char *dst,
     }
 
     unsigned long s = size;
-    if (WSAAddressToString((struct sockaddr *) &ss, sizeof(ss), NULL, dst,
-            &s) == 0) {
+    if (WSAAddressToString((struct sockaddr *)&ss, sizeof(ss), NULL, dst, &s) == 0) {
         return dst;
     }
 
-    LOG(ERROR, "Cannot WSAAddressToString(): %s (%d)", s_strerror(s_errno),
-            s_errno);
+    LOG(ERROR, "Cannot WSAAddressToString(): %s (%d)", s_strerror(s_errno), s_errno);
     return NULL;
 }
 /** @endcond */
@@ -1332,18 +1257,15 @@ static const char *socket_inet_ntop(int af, const void *src, char *dst,
  * @return
  * 'buf' on success, NULL on failure.
  */
-const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
-        size_t bufsize)
-{
+const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf, size_t bufsize) {
     HARD_ASSERT(addr != NULL);
     HARD_ASSERT(buf != NULL);
 
-    const struct sockaddr_in *saddr = (const struct sockaddr_in *) addr;
+    const struct sockaddr_in *saddr = (const struct sockaddr_in *)addr;
 #ifdef HAVE_IPV6
     if (saddr->sin_family == AF_INET6) {
-        const struct sockaddr_in6 *saddr6 = (const struct sockaddr_in6 *) addr;
-        return socket_inet_ntop(saddr6->sin6_family, &saddr6->sin6_addr, buf,
-                bufsize);
+        const struct sockaddr_in6 *saddr6 = (const struct sockaddr_in6 *)addr;
+        return socket_inet_ntop(saddr6->sin6_family, &saddr6->sin6_addr, buf, bufsize);
     }
     return socket_inet_ntop(saddr->sin_family, &saddr->sin_addr, buf, bufsize);
 #else
@@ -1363,11 +1285,10 @@ const char *socket_addr2host(const struct sockaddr_storage *addr, char *buf,
  * @return
  * Default prefix length.
  */
-unsigned short socket_addr_plen(const struct sockaddr_storage *addr)
-{
+unsigned short socket_addr_plen(const struct sockaddr_storage *addr) {
     HARD_ASSERT(addr != NULL);
 
-    struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+    struct sockaddr_in *saddr = (struct sockaddr_in *)addr;
 
 #ifdef HAVE_IPV6
     if (saddr->sin_family == AF_INET6) {
@@ -1395,68 +1316,57 @@ unsigned short socket_addr_plen(const struct sockaddr_storage *addr)
  * else otherwise.
  */
 int socket_addr_cmp(const struct sockaddr_storage *a,
-        const struct sockaddr_storage *b, unsigned short plen)
-{
+                    const struct sockaddr_storage *b,
+                    unsigned short plen) {
     HARD_ASSERT(a != NULL);
     HARD_ASSERT(b != NULL);
 
-    const struct sockaddr *saddr1 = (const struct sockaddr *) a;
-    const struct sockaddr *saddr2 = (const struct sockaddr *) b;
+    const struct sockaddr *saddr1 = (const struct sockaddr *)a;
+    const struct sockaddr *saddr2 = (const struct sockaddr *)b;
     if (saddr1->sa_family != saddr2->sa_family) {
         return -1;
     }
 
-    const union sockaddr_union *addr1 = (const union sockaddr_union *) saddr1;
-    const union sockaddr_union *addr2 = (const union sockaddr_union *) saddr2;
+    const union sockaddr_union *addr1 = (const union sockaddr_union *)saddr1;
+    const union sockaddr_union *addr2 = (const union sockaddr_union *)saddr2;
 
     switch (saddr1->sa_family) {
-    case AF_INET:
-    {
-        HARD_ASSERT(plen <= 32);
-        unsigned long mask = htonl(0xffffffff << (32 - plen));
+        case AF_INET: {
+            HARD_ASSERT(plen <= 32);
+            unsigned long mask = htonl(0xffffffff << (32 - plen));
 
-        if ((addr1->in4.sin_addr.s_addr & mask) ==
-            (addr2->in4.sin_addr.s_addr & mask)) {
-            return 0;
+            if ((addr1->in4.sin_addr.s_addr & mask) == (addr2->in4.sin_addr.s_addr & mask)) {
+                return 0;
+            }
+
+            break;
         }
 
-        break;
-    }
-
 #ifdef HAVE_IPV6
-    case AF_INET6:
-    {
-        HARD_ASSERT(plen <= 128);
-        struct in6_addr_helper mask;
-        mask.s6_addr32__[0] = htonl(plen <= 32 ? 0xffffffff << (32 - plen) :
-            0xffffffff);
-        mask.s6_addr32__[1] = htonl(plen <= 32 ? 0 :
-            (plen > 64 ? 0xffffffff : 0xffffffff << (32 - (plen - 32))));
-        mask.s6_addr32__[2] = htonl(plen <= 64 ? 0 :
-            (plen > 96 ? 0xffffffff : 0xffffffff << (32 - (plen - 64))));
-        mask.s6_addr32__[3] = htonl(plen <= 96 ? 0 :
-            0xffffffff << (32 - (plen - 96)));
+        case AF_INET6: {
+            HARD_ASSERT(plen <= 128);
+            struct in6_addr_helper mask;
+            mask.s6_addr32__[0] = htonl(plen <= 32 ? 0xffffffff << (32 - plen) : 0xffffffff);
+            mask.s6_addr32__[1] =
+                htonl(plen <= 32 ? 0 : (plen > 64 ? 0xffffffff : 0xffffffff << (32 - (plen - 32))));
+            mask.s6_addr32__[2] =
+                htonl(plen <= 64 ? 0 : (plen > 96 ? 0xffffffff : 0xffffffff << (32 - (plen - 64))));
+            mask.s6_addr32__[3] = htonl(plen <= 96 ? 0 : 0xffffffff << (32 - (plen - 96)));
 
-        struct in6_addr_helper *sin6_addr1 =
-            (struct in6_addr_helper *) &addr1->in6.sin6_addr;
-        struct in6_addr_helper *sin6_addr2 =
-            (struct in6_addr_helper *) &addr2->in6.sin6_addr;
+            struct in6_addr_helper *sin6_addr1 = (struct in6_addr_helper *)&addr1->in6.sin6_addr;
+            struct in6_addr_helper *sin6_addr2 = (struct in6_addr_helper *)&addr2->in6.sin6_addr;
 
-        return (!!(((sin6_addr1->s6_addr32__[0] ^
-                sin6_addr2->s6_addr32__[0]) & mask.s6_addr32__[0]) |
-                ((sin6_addr1->s6_addr32__[1] ^
-                sin6_addr2->s6_addr32__[1]) & mask.s6_addr32__[1]) |
-                ((sin6_addr1->s6_addr32__[2] ^
-                sin6_addr2->s6_addr32__[2]) & mask.s6_addr32__[2]) |
-                ((sin6_addr1->s6_addr32__[3] ^
-                sin6_addr2->s6_addr32__[3]) & mask.s6_addr32__[3])));
-    }
+            return (!!(
+                ((sin6_addr1->s6_addr32__[0] ^ sin6_addr2->s6_addr32__[0]) & mask.s6_addr32__[0]) |
+                ((sin6_addr1->s6_addr32__[1] ^ sin6_addr2->s6_addr32__[1]) & mask.s6_addr32__[1]) |
+                ((sin6_addr1->s6_addr32__[2] ^ sin6_addr2->s6_addr32__[2]) & mask.s6_addr32__[2]) |
+                ((sin6_addr1->s6_addr32__[3] ^ sin6_addr2->s6_addr32__[3]) & mask.s6_addr32__[3])));
+        }
 #endif
 
-    default:
-        LOG(ERROR, "Don't know how to compare socket family: %u",
-                saddr1->sa_family);
-        break;
+        default:
+            LOG(ERROR, "Don't know how to compare socket family: %u", saddr1->sa_family);
+            break;
     }
 
     return -1;
@@ -1470,9 +1380,7 @@ int socket_addr_cmp(const struct sockaddr_storage *a,
  * @param crypto
  * Socket crypto pointer.
  */
-void
-socket_set_crypto (socket_t *sc, socket_crypto_t *crypto)
-{
+void socket_set_crypto(socket_t *sc, socket_crypto_t *crypto) {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(crypto != NULL);
     sc->crypto = crypto;
@@ -1486,9 +1394,7 @@ socket_set_crypto (socket_t *sc, socket_crypto_t *crypto)
  * @return
  * Crypto socket. Can be NULL.
  */
-socket_crypto_t *
-socket_get_crypto (socket_t *sc)
-{
+socket_crypto_t *socket_get_crypto(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     return sc->crypto;
 }
@@ -1501,9 +1407,7 @@ socket_get_crypto (socket_t *sc)
  * @return
  * Hostname. Can be NULL if the socket was created with NULL hostname.
  */
-const char *
-socket_get_host (socket_t *sc)
-{
+const char *socket_get_host(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     return sc->host;
 }
@@ -1516,9 +1420,7 @@ socket_get_host (socket_t *sc)
  * @return
  * True if on secure port, false otherwise.
  */
-bool
-socket_is_secure (socket_t *sc)
-{
+bool socket_is_secure(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     return sc->secure;
 }
@@ -1531,9 +1433,7 @@ socket_is_secure (socket_t *sc)
  * @return
  * Socket's role.
  */
-socket_role_t
-socket_get_role (socket_t *sc)
-{
+socket_role_t socket_get_role(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     return sc->role;
 }

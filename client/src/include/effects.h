@@ -287,16 +287,19 @@ typedef struct effect_overlay {
 } effect_overlay;
 
 /** Macro used in effect_scale(). */
-#define EFFECT_SCALE_ADJUST(i, overlay) \
-    (i) = (overlay)->col[idx].val == -1 ? vals[idx] : (overlay)->col[idx].val; \
-    (i) += (int) (((double) vals[0] * (overlay)->col[idx].mod[0] + (double) vals[1] * (overlay)->col[idx].mod[1] + (double) vals[2] * (overlay)->col[idx].mod[2] + (double) vals[3] * (overlay)->col[idx].mod[3]) * (overlay)->col[idx].mod[4]); \
-    \
-    if ((overlay)->col[idx].rndm_max != 0) \
-    { \
+#define EFFECT_SCALE_ADJUST(i, overlay)                                          \
+    (i) = (overlay)->col[idx].val == -1 ? vals[idx] : (overlay)->col[idx].val;   \
+    (i) += (int)(((double)vals[0] * (overlay)->col[idx].mod[0] +                 \
+                  (double)vals[1] * (overlay)->col[idx].mod[1] +                 \
+                  (double)vals[2] * (overlay)->col[idx].mod[2] +                 \
+                  (double)vals[3] * (overlay)->col[idx].mod[3]) *                \
+                 (overlay)->col[idx].mod[4]);                                    \
+                                                                                 \
+    if ((overlay)->col[idx].rndm_max != 0) {                                     \
         (i) += rndm((overlay)->col[idx].rndm_min, (overlay)->col[idx].rndm_max); \
-    } \
-    \
-    (i) = MAX(0, MIN(255, (i))); \
+    }                                                                            \
+                                                                                 \
+    (i) = MAX(0, MIN(255, (i)));                                                 \
     idx++;
 
 #endif

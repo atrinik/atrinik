@@ -170,7 +170,7 @@ typedef struct mempool_struct {
  *@{*/
 
 /** Don't use pooling, but only malloc/free instead */
-#define MEMPOOL_BYPASS_POOLS  1
+#define MEMPOOL_BYPASS_POOLS 1
 /** Allow puddles from this pool to be freed. */
 #define MEMPOOL_ALLOW_FREEING 2
 /*@}*/
@@ -209,15 +209,14 @@ TOOLKIT_FUNCS_DECLARE(mempool);
  * @return
  * The created memory pool.
  */
-extern mempool_struct *
-mempool_create(const char           *description,
-               size_t                expand,
-               size_t                size,
-               uint32_t              flags,
-               chunk_initialisator   initialisator,
-               chunk_deinitialisator deinitialisator,
-               chunk_constructor     constructor,
-               chunk_destructor      destructor);
+extern mempool_struct *mempool_create(const char *description,
+                                      size_t expand,
+                                      size_t size,
+                                      uint32_t flags,
+                                      chunk_initialisator initialisator,
+                                      chunk_deinitialisator deinitialisator,
+                                      chunk_constructor constructor,
+                                      chunk_destructor destructor);
 
 /**
  * Set the mempool's debugging function.
@@ -227,8 +226,7 @@ mempool_create(const char           *description,
  * @param debugger
  * Debugging function to use.
  */
-extern void
-mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
+extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
 
 /**
  * Set the mempool's validator function.
@@ -238,8 +236,7 @@ mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
  * @param validator
  * Validator function to use.
  */
-extern void
-mempool_set_validator(mempool_struct *pool, chunk_validator validator);
+extern void mempool_set_validator(mempool_struct *pool, chunk_validator validator);
 
 /**
  * Acquire detailed statistics about the specified memory pool.
@@ -250,8 +247,7 @@ mempool_set_validator(mempool_struct *pool, chunk_validator validator);
  * @param size
  * Size of 'buf'.
  */
-extern void
-mempool_stats(const char *name, char *buf, size_t size);
+extern void mempool_stats(const char *name, char *buf, size_t size);
 
 /**
  * Attempt to find the specified memory pool identified by its name.
@@ -261,8 +257,7 @@ mempool_stats(const char *name, char *buf, size_t size);
  * @return
  * Memory pool if found, NULL otherwise.
  */
-extern mempool_struct *
-mempool_find(const char *name);
+extern mempool_struct *mempool_find(const char *name);
 
 /**
  * Get a chunk from the selected pool. The pool will be expanded if
@@ -276,8 +271,7 @@ mempool_find(const char *name);
  * @return
  * Acquired memory chunk, guaranteed to be zero-filled.
  */
-extern void *
-mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
+extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
 
 /**
  * Return a chunk to the selected pool.
@@ -292,10 +286,7 @@ mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
  * @warning Don't ever return memory to the wrong pool.
  * @warning Returned memory will be reused, so be careful about stale pointers.
  */
-extern void
-mempool_return_chunk(mempool_struct *pool,
-                     size_t          arraysize_exp,
-                     void           *data);
+extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
 
 /**
  * Attempt to reclaim no longer used memory allocated by the specified pool.
@@ -305,8 +296,7 @@ mempool_return_chunk(mempool_struct *pool,
  * @return
  * Number of reclaimed puddles.
  */
-extern size_t
-mempool_reclaim(mempool_struct *pool);
+extern size_t mempool_reclaim(mempool_struct *pool);
 
 /**
  * Gather leak information from all the registered pools into the specified
@@ -315,7 +305,6 @@ mempool_reclaim(mempool_struct *pool);
  * @param sb
  * StringBuffer instance to use.
  */
-extern void
-mempool_leak_info_all(StringBuffer *sb);
+extern void mempool_leak_info_all(StringBuffer *sb);
 
 #endif

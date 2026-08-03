@@ -97,27 +97,16 @@ typedef enum atnr {
 const char *const attack_save[NROFATTACKS];
 const char *const attack_name[NROFATTACKS];
 
-int
-attack_object(object *op, object *hitter);
-int
-attack_hit(object *op, object *hitter, int dam);
-void
-attack_hit_map(object *op, int dir, bool multi_reduce);
-bool
-attack_kill(object *op, object *hitter);
-void
-attack_perform_poison(object *op, object *hitter, double dam);
-void
-attack_perform_slow(object *op);
-void
-attack_perform_confusion(object *op);
-void
-attack_perform_blind(object *op, object *hitter, double dam);
-void
-attack_peform_paralyze(object *op, double dam);
-void
-attack_perform_fall(object *op, int fall_floors);
-bool
-attack_is_melee_range(object *hitter, object *enemy);
+int attack_object(object *op, object *hitter);
+int attack_hit(object *op, object *hitter, int dam);
+void attack_hit_map(object *op, int dir, bool multi_reduce);
+bool attack_kill(object *op, object *hitter);
+void attack_perform_poison(object *op, object *hitter, double dam);
+void attack_perform_slow(object *op);
+void attack_perform_confusion(object *op);
+void attack_perform_blind(object *op, object *hitter, double dam);
+void attack_peform_paralyze(object *op, double dam);
+void attack_perform_fall(object *op, int fall_floors);
+bool attack_is_melee_range(object *hitter, object *enemy);
 
 #endif

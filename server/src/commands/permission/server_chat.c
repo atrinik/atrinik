@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_server_chat(object *op, const char *command, char *params)
-{
+void command_server_chat(object *op, const char *command, char *params) {
     player *pl;
     char name[MAX_BUF];
 

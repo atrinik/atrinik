@@ -48,24 +48,17 @@ typedef struct resource {
 
     asset_source_t *source;
 
-    bool loaded:1;
+    bool loaded : 1;
 } resource_t;
 
 /* Function prototypes */
 
-void
-resources_init (void);
-void
-resources_deinit(void);
-void
-resources_reload(void);
-resource_t *
-resources_find(const char *name);
-resource_t *
-resources_find_by_md(const unsigned char *md);
-void
-socket_command_resource(uint8_t *data, size_t len, size_t pos);
-bool
-resources_is_ready(resource_t *resource);
+void resources_init(void);
+void resources_deinit(void);
+void resources_reload(void);
+resource_t *resources_find(const char *name);
+resource_t *resources_find_by_md(const unsigned char *md);
+void socket_command_resource(uint8_t *data, size_t len, size_t pos);
+bool resources_is_ready(resource_t *resource);
 
 #endif

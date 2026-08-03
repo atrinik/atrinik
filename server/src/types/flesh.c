@@ -35,7 +35,6 @@
 /**
  * Initialize the flesh type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(flesh)
-{
+OBJECT_TYPE_INIT_DEFINE(flesh) {
     OBJECT_METHODS(FLESH)->fallback = object_methods_get(FOOD);
 }

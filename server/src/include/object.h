@@ -45,13 +45,13 @@
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags
  */
 /*@{*/
-#define MOVE_APPLY_DEFAULT  0
-#define MOVE_APPLY_WALK_ON  1
-#define MOVE_APPLY_FLY_ON   2
+#define MOVE_APPLY_DEFAULT 0
+#define MOVE_APPLY_WALK_ON 1
+#define MOVE_APPLY_FLY_ON 2
 #define MOVE_APPLY_WALK_OFF 4
-#define MOVE_APPLY_FLY_OFF  8
+#define MOVE_APPLY_FLY_OFF 8
 /** Our object makes a step in/out of this tile */
-#define MOVE_APPLY_MOVE     16
+#define MOVE_APPLY_MOVE 16
 /**
  * When a player logs out, the player char not "move" out of a tile
  * but it "turns to nothing on the spot". This sounds senseless but for
@@ -61,16 +61,16 @@
  */
 #define MOVE_APPLY_VANISHED 32
 /** move_apply() called from saving function */
-#define MOVE_APPLY_SAVING   64
+#define MOVE_APPLY_SAVING 64
 /*@}*/
 
 /**
  * @defgroup CHECK_WALK_xxx WALK ON/OFF function return flags
  */
 /*@{*/
-#define CHECK_WALK_OK        0
+#define CHECK_WALK_OK 0
 #define CHECK_WALK_DESTROYED 1
-#define CHECK_WALK_MOVED     2
+#define CHECK_WALK_MOVED 2
 /*@}*/
 
 /**
@@ -511,7 +511,7 @@ struct oblnk {
 
 #define free_objectlink_simple(_chunk_) mempool_return(pool_objectlink, (_chunk_));
 
-#define CONTR(ob) ((player *) ((ob)->custom_attrset))
+#define CONTR(ob) ((player *)((ob)->custom_attrset))
 
 /* This returns TRUE if the object is something that
  * should be displayed in the look window */
@@ -525,27 +525,29 @@ struct oblnk {
  */
 /*@{*/
 /** Object was inserted in a map */
-#define UP_OBJ_INSERT   1
+#define UP_OBJ_INSERT 1
 /** Object was removed from a map tile */
-#define UP_OBJ_REMOVE   2
+#define UP_OBJ_REMOVE 2
 /**
  * Critical object flags has been changed, rebuild tile flags but NOT
  * increase tile counter
  */
-#define UP_OBJ_FLAGS    3
+#define UP_OBJ_FLAGS 3
 /** Only thing that changed was the face */
-#define UP_OBJ_FACE     4
+#define UP_OBJ_FACE 4
 /** Update flags & face (means increase tile update counter */
 #define UP_OBJ_FLAGFACE 5
 /** Force full update */
-#define UP_OBJ_ALL      6
+#define UP_OBJ_ALL 6
 /*@}*/
 
 /**
  * Macro for the often used object validity test (verify a pointer/count
  * pair)
  */
-#define OBJECT_VALID(_ob_, _count_) ((_ob_) && (_ob_)->count == ((tag_t) _count_) && !QUERY_FLAG((_ob_), FLAG_REMOVED) && !OBJECT_FREE(_ob_))
+#define OBJECT_VALID(_ob_, _count_)                                                      \
+    ((_ob_) && (_ob_)->count == ((tag_t)_count_) && !QUERY_FLAG((_ob_), FLAG_REMOVED) && \
+     !OBJECT_FREE(_ob_))
 
 /** Test the object is not removed nor freed - but no count test */
 #define OBJECT_ACTIVE(_ob_) (!QUERY_FLAG((_ob_), FLAG_REMOVED) && !OBJECT_FREE(_ob_))
@@ -675,14 +677,14 @@ typedef struct magic_mirror_struct {
  * and y. Can be NULL in case of a magic mirror that is only used for zooming
  * or similar effect, and not mirroring.
  */
-#define MMIRROR(ob) ((magic_mirror_struct *) ((ob)->custom_attrset))
+#define MMIRROR(ob) ((magic_mirror_struct *)((ob)->custom_attrset))
 
 /**
  * Check whether the specified object can talk.
  */
-#define OBJECT_CAN_TALK(ob) ((ob)->type == MONSTER && ((ob)->msg || \
-        HAS_EVENT((ob), EVENT_SAY)) && !OBJECT_VALID((ob)->enemy, \
-        (ob)->enemy_count))
+#define OBJECT_CAN_TALK(ob)                                                \
+    ((ob)->type == MONSTER && ((ob)->msg || HAS_EVENT((ob), EVENT_SAY)) && \
+     !OBJECT_VALID((ob)->enemy, (ob)->enemy_count))
 
 /**
  * Check whether an object is cursed/damned.
@@ -693,17 +695,18 @@ typedef struct magic_mirror_struct {
  * @deprecated
  */
 #define OBJ_DESTROYED_BEGIN(_op) \
-    do { \
-        tag_t __tag_ ## _op = (_op)->count;
+    do {                         \
+        tag_t __tag_##_op = (_op)->count;
 /**
  * @deprecated
  */
-#define OBJ_DESTROYED(_op) (!OBJECT_VALID((_op), __tag_ ## _op))
+#define OBJ_DESTROYED(_op) (!OBJECT_VALID((_op), __tag_##_op))
 /**
  * @deprecated
  */
 #define OBJ_DESTROYED_END() \
-    } while (0)
+    }                       \
+    while (0)
 
 /**
  * Check if the specified object has been destroyed.
@@ -713,8 +716,7 @@ typedef struct magic_mirror_struct {
  * @param tag
  * Tag to check against.
  */
-#define OBJECT_DESTROYED(obj, tag) \
-    (OBJECT_FREE(obj) || (obj)->count != (tag))
+#define OBJECT_DESTROYED(obj, tag) (OBJECT_FREE(obj) || (obj)->count != (tag))
 
 /**
  * @defgroup OBJECTS_DESTROYED_xxx Destroyed objects check
@@ -737,24 +739,21 @@ typedef struct magic_mirror_struct {
 /**
  * Helper macro for OBJECTS_DESTROYED_BEGIN(); used internally.
  */
-#define _OBJECTS_DESTROYED_DEFINE(obj)      \
-    HARD_ASSERT(!OBJECT_FREE(obj));         \
+#define _OBJECTS_DESTROYED_DEFINE(obj) \
+    HARD_ASSERT(!OBJECT_FREE(obj));    \
     tag_t __tag_##obj = obj->count;
 /**
  * Helper macro for OBJECTS_DESTROYED(); used internally.
  */
-#define _OBJECTS_DESTROYED(obj) \
-    (OBJECT_DESTROYED(obj, __tag_##obj))
+#define _OBJECTS_DESTROYED(obj) (OBJECT_DESTROYED(obj, __tag_##obj))
 /**
  * Helper macro for OBJECTS_DESTROYED_ANY(); used internally.
  */
-#define _OBJECTS_DESTROYED_ANY(obj) \
-    _OBJECTS_DESTROYED(obj) ||
+#define _OBJECTS_DESTROYED_ANY(obj) _OBJECTS_DESTROYED(obj) ||
 /**
  * Helper macro for OBJECTS_DESTROYED_ALL(); used internally.
  */
-#define _OBJECTS_DESTROYED_ALL(obj) \
-    _OBJECTS_DESTROYED(obj) &&
+#define _OBJECTS_DESTROYED_ALL(obj) _OBJECTS_DESTROYED(obj) &&
 
 /**
  * Begin tracking objects for destruction checks. This creates a new scope,
@@ -763,7 +762,7 @@ typedef struct magic_mirror_struct {
  * @param ... The objects to track.
  */
 #define OBJECTS_DESTROYED_BEGIN(...) \
-    do { \
+    do {                             \
         FOR_EACH(_OBJECTS_DESTROYED_DEFINE, __VA_ARGS__)
 /**
  * Check if any of the objects tracked by OBJECTS_DESTROYED_BEGIN() have
@@ -779,8 +778,7 @@ typedef struct magic_mirror_struct {
  * does not have to be the same as the one defined previously for
  * OBJECTS_DESTROYED_BEGIN().
  */
-#define OBJECTS_DESTROYED_ANY(...) \
-    (FOR_EACH(_OBJECTS_DESTROYED_ANY, __VA_ARGS__) 0)
+#define OBJECTS_DESTROYED_ANY(...) (FOR_EACH(_OBJECTS_DESTROYED_ANY, __VA_ARGS__) 0)
 /**
  * Check if all of the objects tracked by OBJECTS_DESTROYED_BEGIN() have
  * been destroyed.
@@ -795,8 +793,7 @@ typedef struct magic_mirror_struct {
  * does not have to be the same as the one defined previously for
  * OBJECTS_DESTROYED_BEGIN().
  */
-#define OBJECTS_DESTROYED_ALL(...) \
-    (FOR_EACH(_OBJECTS_DESTROYED_ALL, __VA_ARGS__) 1)
+#define OBJECTS_DESTROYED_ALL(...) (FOR_EACH(_OBJECTS_DESTROYED_ALL, __VA_ARGS__) 1)
 /**
  * Check if the specified object tracked by a previous use of
  * OBJECTS_DESTROYED_BEGIN() has been destroyed.
@@ -808,40 +805,42 @@ typedef struct magic_mirror_struct {
  * @param obj
  * The object to check.
  */
-#define OBJECTS_DESTROYED(obj) \
-    (_OBJECTS_DESTROYED(obj))
+#define OBJECTS_DESTROYED(obj) (_OBJECTS_DESTROYED(obj))
 /**
  * Closes the scope created by OBJECTS_DESTROYED_BEGIN().
  */
 #define OBJECTS_DESTROYED_END() \
-    } while (0)
+    }                           \
+    while (0)
 /*@}*/
 
 /**
  * Check whether the object is a flying projectile.
  */
-#define OBJECT_IS_PROJECTILE(ob) (QUERY_FLAG((ob), FLAG_FLYING) && (QUERY_FLAG((ob), FLAG_IS_MISSILE) || QUERY_FLAG((ob), FLAG_IS_SPELL)))
+#define OBJECT_IS_PROJECTILE(ob)      \
+    (QUERY_FLAG((ob), FLAG_FLYING) && \
+     (QUERY_FLAG((ob), FLAG_IS_MISSILE) || QUERY_FLAG((ob), FLAG_IS_SPELL)))
 
 /**
  * Check whether the object is a ranged weapon.
  */
-#define OBJECT_IS_RANGED(_ob) ((_ob)->type == WAND || (_ob)->type == ROD || (_ob)->type == BOW || (_ob)->type == SPELL || (_ob)->type == SKILL || ((_ob)->type == ARROW && QUERY_FLAG((_ob), FLAG_IS_THROWN)))
+#define OBJECT_IS_RANGED(_ob)                                                                   \
+    ((_ob)->type == WAND || (_ob)->type == ROD || (_ob)->type == BOW || (_ob)->type == SPELL || \
+     (_ob)->type == SKILL || ((_ob)->type == ARROW && QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
 /**
  * Check whether the object is ammunition (quiver, arrow, bolt, etc).
  */
-#define OBJECT_IS_AMMO(_ob) (((_ob)->type == CONTAINER && \
-        (_ob)->race != NULL && (_ob)->sub_type == ST1_CONTAINER_QUIVER) || \
-        ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
+#define OBJECT_IS_AMMO(_ob)                              \
+    (((_ob)->type == CONTAINER && (_ob)->race != NULL && \
+      (_ob)->sub_type == ST1_CONTAINER_QUIVER) ||        \
+     ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
 /**
  * Check whether the object is spell-related tool, eg, a wand, a potion, etc.
  */
-#define OBJECT_IS_SPELL_TOOL(ob)            \
-    ((ob)->type == WAND ||                  \
-     (ob)->type == ROD ||                   \
-     (ob)->type == POTION ||                \
-     (ob)->type == SCROLL ||                \
+#define OBJECT_IS_SPELL_TOOL(ob)                                                                \
+    ((ob)->type == WAND || (ob)->type == ROD || (ob)->type == POTION || (ob)->type == SCROLL || \
      (ob)->type == BOOK_SPELL)
 
 /* Prototypes */
@@ -858,113 +857,57 @@ extern int maxfree[SIZEOFFREE];
 extern int freedir[SIZEOFFREE];
 extern const char *object_flag_names[NUM_FLAGS + 1];
 
-bool
-object_can_merge(object *ob1, object *ob2);
-object *
-object_merge(object *op);
-uint32_t
-object_weight_sum(object *op);
-void
-object_weight_add(object *op, uint32_t weight);
-void
-object_weight_sub(object *op, uint32_t weight);
-object *
-object_get_env(object *op);
-bool
-object_is_in_inventory(const object *op, const object *inv);
-void
-object_dump(const object *op, StringBuffer *sb);
-void
-object_dump_rec(const object *op, StringBuffer *sb);
-void
-object_owner_clear(object *op);
-void
-object_owner_set(object *op, object *owner);
-void
-object_owner_copy(object *op, object *clone_ob);
-object *
-object_owner(object *op);
-void
-object_copy(object *op, const object *src, bool no_speed);
-void
-object_copy_full(object *op, const object *src);
-void
-object_init(void);
-void
-object_deinit(void);
-object *
-object_get(void);
-void
-object_update_turnable(object *op);
-void
-object_update_speed(object *op);
-void
-object_update(object *op, int action);
-void
-object_drop_inventory(object *op);
-void
-object_destroy_inv(object *ob);
-void
-object_destroy(object *ob);
-void
-object_destruct(object *op);
-void
-object_remove(object *op, int flags);
-object *
-object_insert_map(object *op, mapstruct *m, object *originator, int flag);
-object *
-object_stack_get(object *op, uint32_t nrof);
-object *
-object_stack_get_reinsert(object *op, uint32_t nrof);
-object *
-object_stack_get_removed(object *op, uint32_t nrof);
-object *
-object_decrease(object *op, uint32_t i);
-object *
-object_insert_into(object *op, object *where, int flag);
-object *
-object_find_arch(object *op, archetype_t *at);
-object *
-object_find_type(object *op, uint8_t type);
-int
-object_dir_to_target(object *op, object *target);
-bool
-object_can_pick(const object *op, const object *item);
-object *
-object_clone(const object *op);
-object *
-object_load_str(const char *obstr);
-void
-object_free_key_values(object *op);
-key_value_t *
-object_get_key_link(const object *op, shstr *key);
-shstr *
-object_get_value(const object *op, const char *const key);
-bool
-object_set_value(object *op, const char *key, const char *value, bool add_key);
-int
-object_matches_string(object *op, object *caller, const char *str);
-int
-object_get_gender(const object *op);
-void
-object_reverse_inventory(object *op);
-bool
-object_enter_map(object    *op,
-                 object    *exit,
-                 mapstruct *m,
-                 int        x,
-                 int        y,
-                 bool       fixed_pos);
-const char *
-object_get_str(const object *op);
-char *
-object_get_str_r(const object *op, char *buf, size_t bufsize);
-int
-object_blocked(object *op, mapstruct *m, int x, int y);
-object *
-object_create_singularity(const char *name);
-void
-object_save(const object *op, FILE *fp);
+bool object_can_merge(object *ob1, object *ob2);
+object *object_merge(object *op);
+uint32_t object_weight_sum(object *op);
+void object_weight_add(object *op, uint32_t weight);
+void object_weight_sub(object *op, uint32_t weight);
+object *object_get_env(object *op);
+bool object_is_in_inventory(const object *op, const object *inv);
+void object_dump(const object *op, StringBuffer *sb);
+void object_dump_rec(const object *op, StringBuffer *sb);
+void object_owner_clear(object *op);
+void object_owner_set(object *op, object *owner);
+void object_owner_copy(object *op, object *clone_ob);
+object *object_owner(object *op);
+void object_copy(object *op, const object *src, bool no_speed);
+void object_copy_full(object *op, const object *src);
+void object_init(void);
+void object_deinit(void);
+object *object_get(void);
+void object_update_turnable(object *op);
+void object_update_speed(object *op);
+void object_update(object *op, int action);
+void object_drop_inventory(object *op);
+void object_destroy_inv(object *ob);
+void object_destroy(object *ob);
+void object_destruct(object *op);
+void object_remove(object *op, int flags);
+object *object_insert_map(object *op, mapstruct *m, object *originator, int flag);
+object *object_stack_get(object *op, uint32_t nrof);
+object *object_stack_get_reinsert(object *op, uint32_t nrof);
+object *object_stack_get_removed(object *op, uint32_t nrof);
+object *object_decrease(object *op, uint32_t i);
+object *object_insert_into(object *op, object *where, int flag);
+object *object_find_arch(object *op, archetype_t *at);
+object *object_find_type(object *op, uint8_t type);
+int object_dir_to_target(object *op, object *target);
+bool object_can_pick(const object *op, const object *item);
+object *object_clone(const object *op);
+object *object_load_str(const char *obstr);
+void object_free_key_values(object *op);
+key_value_t *object_get_key_link(const object *op, shstr *key);
+shstr *object_get_value(const object *op, const char *const key);
+bool object_set_value(object *op, const char *key, const char *value, bool add_key);
+int object_matches_string(object *op, object *caller, const char *str);
+int object_get_gender(const object *op);
+void object_reverse_inventory(object *op);
+bool object_enter_map(object *op, object *exit, mapstruct *m, int x, int y, bool fixed_pos);
+const char *object_get_str(const object *op);
+char *object_get_str_r(const object *op, char *buf, size_t bufsize);
+int object_blocked(object *op, mapstruct *m, int x, int y);
+object *object_create_singularity(const char *name);
+void object_save(const object *op, FILE *fp);
 
 /**
  * Returns the owner of the specified object. If there is no object,
@@ -975,9 +918,7 @@ object_save(const object *op, FILE *fp);
  * @return
  * Owner of the object (may be the same object).
  */
-static inline object *
-OWNER (object *op)
-{
+static inline object *OWNER(object *op) {
     HARD_ASSERT(op != NULL);
 
     object *owner = object_owner(op);

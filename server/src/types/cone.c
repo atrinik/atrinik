@@ -48,21 +48,19 @@
  * @return
  * Whether the cone exists.
  */
-static bool
-cone_exists (object *op, mapstruct *m, int x, int y)
-{
+static bool cone_exists(object *op, mapstruct *m, int x, int y) {
     FOR_MAP_PREPARE(m, x, y, tmp) {
         if (op->type == tmp->type && op->weight_limit == tmp->weight_limit) {
             return true;
         }
-    } FOR_MAP_FINISH();
+    }
+    FOR_MAP_FINISH();
 
     return false;
 }
 
 /** @copydoc object_methods_t::process_func */
-static void process_func(object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->map == NULL) {
@@ -121,9 +119,7 @@ static void process_func(object *op)
 }
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -145,8 +141,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
 /**
  * Initialize the cone type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(cone)
-{
+OBJECT_TYPE_INIT_DEFINE(cone) {
     OBJECT_METHODS(CONE)->move_on_func = move_on_func;
     OBJECT_METHODS(CONE)->process_func = process_func;
 }

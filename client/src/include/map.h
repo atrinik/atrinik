@@ -83,8 +83,7 @@
  */
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
 
-#define GET_MAP_LAYER(_layer, _sub_layer) \
-    (NUM_LAYERS * (_sub_layer) + (_layer) - 1)
+#define GET_MAP_LAYER(_layer, _sub_layer) (NUM_LAYERS * (_sub_layer) + (_layer) - 1)
 
 /** Multi part object tile structure */
 typedef struct _multi_part_tile {
@@ -255,15 +254,15 @@ typedef struct MapCell {
     uint8_t glow_state[NUM_REAL_LAYERS];
 } MapCell;
 
-#define MAP_STARTX map_width * (MAP_FOW_SIZE / 2)
-#define MAP_STARTY map_height * (MAP_FOW_SIZE / 2)
+#define MAP_STARTX map_width *(MAP_FOW_SIZE / 2)
+#define MAP_STARTY map_height *(MAP_FOW_SIZE / 2)
 #define MAP_WIDTH map_width
 #define MAP_HEIGHT map_height
 
 #define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])
-#define MAP_CELL_GET_MIDDLE(_x, _y) \
-    (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * \
-    (map_width * MAP_FOW_SIZE) + (_x) + map_width * (MAP_FOW_SIZE / 2)])
+#define MAP_CELL_GET_MIDDLE(_x, _y)                                                        \
+    (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * (map_width * MAP_FOW_SIZE) + (_x) + \
+            map_width * (MAP_FOW_SIZE / 2)])
 
 typedef struct map_target_struct {
     uint32_t count;
@@ -293,9 +292,9 @@ typedef struct map_target_struct {
  * Animation types.
  *@{*/
 /** Damage animation. */
-#define ANIM_DAMAGE     1
+#define ANIM_DAMAGE 1
 /** Kill animation. */
-#define ANIM_KILL       2
+#define ANIM_KILL 2
 /*@}*/
 
 /**

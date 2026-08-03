@@ -34,8 +34,7 @@
 /**
  * Write maps log.
  */
-void write_map_log(void)
-{
+void write_map_log(void) {
     FILE *fp;
     mapstruct *map;
     char buf[MAX_BUF];
@@ -48,12 +47,17 @@ void write_map_log(void)
         return;
     }
 
-    DL_FOREACH(first_map, map)
-    {
+    DL_FOREACH(first_map, map) {
         /* If tmpname is null, it is probably a unique player map,
          * so don't save information on it. */
         if (map->in_memory != MAP_IN_MEMORY && map->tmpname && strncmp(map->path, "/random", 7)) {
-            fprintf(fp, "%s:%s:%ld:%d:%d\n", map->path, map->tmpname, (map->reset_time - current_time), map->difficulty, map->darkness);
+            fprintf(fp,
+                    "%s:%s:%ld:%d:%d\n",
+                    map->path,
+                    map->tmpname,
+                    (map->reset_time - current_time),
+                    map->difficulty,
+                    map->darkness);
         }
     }
 
@@ -63,8 +67,7 @@ void write_map_log(void)
 /**
  * Read map log.
  */
-void read_map_log(void)
-{
+void read_map_log(void) {
     FILE *fp;
     mapstruct *map;
     char buf[MAX_BUF];
@@ -113,8 +116,7 @@ void read_map_log(void)
  * @return
  * 1 if the map cannot be swapped, 0 otherwise.
  */
-static int swap_map_check(mapstruct *tiled, mapstruct *map)
-{
+static int swap_map_check(mapstruct *tiled, mapstruct *map) {
     return tiled->player_first != NULL;
 }
 
@@ -125,16 +127,14 @@ static int swap_map_check(mapstruct *tiled, mapstruct *map)
  * @param force_flag
  * Force flag. If set, will not check for players.
  */
-void swap_map(mapstruct *map, int force_flag)
-{
+void swap_map(mapstruct *map, int force_flag) {
     if (map->in_memory != MAP_IN_MEMORY) {
         LOG(BUG, "Tried to swap out map which was not in memory (%s).", map->path);
         return;
     }
 
     if (!force_flag) {
-        MAP_TILES_WALK_START(map, swap_map_check)
-        {
+        MAP_TILES_WALK_START(map, swap_map_check) {
             if (MAP_TILES_WALK_RETVAL != 0) {
                 return;
             }
@@ -149,7 +149,7 @@ void swap_map(mapstruct *map, int force_flag)
 
     /* If it is immediate reset time, don't bother saving it - just get
      * rid of it right away. */
-    if (map->reset_time <= (uint32_t) seconds()) {
+    if (map->reset_time <= (uint32_t)seconds()) {
         if (map->events) {
             /* Trigger the map reset event */
             trigger_map_event(MEVENT_RESET, map, NULL, NULL, NULL, map->path, 0);
@@ -173,12 +173,10 @@ void swap_map(mapstruct *map, int force_flag)
 /**
  * Check active maps and swap them out.
  */
-void check_active_maps(void)
-{
+void check_active_maps(void) {
     mapstruct *map, *tmp;
 
-    DL_FOREACH_SAFE(first_map, map, tmp)
-    {
+    DL_FOREACH_SAFE(first_map, map, tmp) {
         if (map->in_memory != MAP_IN_MEMORY) {
             continue;
         }
@@ -205,13 +203,11 @@ void check_active_maps(void)
  *
  * This is very useful if the tmp-disk is very full.
  */
-void flush_old_maps(void)
-{
+void flush_old_maps(void) {
     mapstruct *m, *tmp;
     long sec = seconds();
 
-    DL_FOREACH_SAFE(first_map, m, tmp)
-    {
+    DL_FOREACH_SAFE(first_map, m, tmp) {
         /* There can be cases (ie death) where a player leaves a map and
          * the timeout is not set so it isn't swapped out. */
         if ((m->in_memory == MAP_IN_MEMORY) && (m->timeout == 0) && !m->player_first) {
@@ -224,8 +220,7 @@ void flush_old_maps(void)
             continue;
         }
 
-        if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL ||
-                (uint32_t) sec < m->reset_time) {
+        if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL || (uint32_t)sec < m->reset_time) {
             /* No need to flush them if there are no resets */
             continue;
         }

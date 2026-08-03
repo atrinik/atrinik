@@ -35,17 +35,13 @@ static struct {
     size_t game_loop_next;
 } metrics;
 
-static int
-metrics_compare_u64 (const void *left, const void *right)
-{
-    uint64_t a = *(const uint64_t *) left;
-    uint64_t b = *(const uint64_t *) right;
+static int metrics_compare_u64(const void *left, const void *right) {
+    uint64_t a = *(const uint64_t *)left;
+    uint64_t b = *(const uint64_t *)right;
     return a > b ? 1 : a < b ? -1 : 0;
 }
 
-static uint64_t
-metrics_percentile (uint64_t *samples, size_t count, unsigned int percentile)
-{
+static uint64_t metrics_percentile(uint64_t *samples, size_t count, unsigned int percentile) {
     if (count == 0) {
         return 0;
     }
@@ -54,18 +50,14 @@ metrics_percentile (uint64_t *samples, size_t count, unsigned int percentile)
     return samples[index];
 }
 
-void
-server_metrics_pending_changed (size_t pending)
-{
+void server_metrics_pending_changed(size_t pending) {
     pthread_mutex_lock(&metrics_lock);
     metrics.pending = pending;
     metrics.pending_peak = MAX(metrics.pending_peak, pending);
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_connection_accepted (size_t pending)
-{
+void server_metrics_connection_accepted(size_t pending) {
     pthread_mutex_lock(&metrics_lock);
     metrics.accepted++;
     metrics.pending = pending;
@@ -73,18 +65,14 @@ server_metrics_connection_accepted (size_t pending)
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_connection_rejected (size_t pending)
-{
+void server_metrics_connection_rejected(size_t pending) {
     pthread_mutex_lock(&metrics_lock);
     metrics.rejected++;
     metrics.pending = pending;
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_quic_service (bool network_ready)
-{
+void server_metrics_quic_service(bool network_ready) {
     pthread_mutex_lock(&metrics_lock);
     metrics.quic_service_calls++;
     if (network_ready) {
@@ -93,21 +81,15 @@ server_metrics_quic_service (bool network_ready)
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_queue_changed (int64_t delta,
-                              size_t  connection_bytes,
-                              bool    rejected)
-{
+void server_metrics_queue_changed(int64_t delta, size_t connection_bytes, bool rejected) {
     pthread_mutex_lock(&metrics_lock);
     if (delta < 0) {
-        size_t removed = (size_t) -delta;
-        metrics.queue_bytes = removed <= metrics.queue_bytes
-            ? metrics.queue_bytes - removed : 0;
+        size_t removed = (size_t)-delta;
+        metrics.queue_bytes = removed <= metrics.queue_bytes ? metrics.queue_bytes - removed : 0;
     } else {
-        metrics.queue_bytes += (size_t) delta;
+        metrics.queue_bytes += (size_t)delta;
     }
-    metrics.queue_peak_bytes = MAX(metrics.queue_peak_bytes,
-                                   metrics.queue_bytes);
+    metrics.queue_peak_bytes = MAX(metrics.queue_peak_bytes, metrics.queue_bytes);
     metrics.connection_queue_peak_bytes =
         MAX(metrics.connection_queue_peak_bytes, connection_bytes);
     if (rejected) {
@@ -116,17 +98,13 @@ server_metrics_queue_changed (int64_t delta,
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_asset_cache (size_t bytes)
-{
+void server_metrics_asset_cache(size_t bytes) {
     pthread_mutex_lock(&metrics_lock);
     metrics.asset_cache_bytes = bytes;
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_asset_response (uint64_t latency_us, bool throttled)
-{
+void server_metrics_asset_response(uint64_t latency_us, bool throttled) {
     pthread_mutex_lock(&metrics_lock);
     if (throttled) {
         metrics.asset_throttled++;
@@ -134,17 +112,12 @@ server_metrics_asset_response (uint64_t latency_us, bool throttled)
         metrics.asset_responses++;
         metrics.asset_latency_us[metrics.asset_latency_next++] = latency_us;
         metrics.asset_latency_next %= METRICS_SAMPLES;
-        metrics.asset_latency_count =
-            MIN(metrics.asset_latency_count + 1, (size_t) METRICS_SAMPLES);
+        metrics.asset_latency_count = MIN(metrics.asset_latency_count + 1, (size_t)METRICS_SAMPLES);
     }
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_mapping (const char *method,
-                        bool        open_failed,
-                        bool        renewal_failed)
-{
+void server_metrics_mapping(const char *method, bool open_failed, bool renewal_failed) {
     pthread_mutex_lock(&metrics_lock);
     if (method != NULL) {
         snprintf(VS(metrics.mapping_method), "%s", method);
@@ -158,20 +131,15 @@ server_metrics_mapping (const char *method,
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_game_loop (uint64_t duration_us)
-{
+void server_metrics_game_loop(uint64_t duration_us) {
     pthread_mutex_lock(&metrics_lock);
     metrics.game_loop_us[metrics.game_loop_next++] = duration_us;
     metrics.game_loop_next %= METRICS_SAMPLES;
-    metrics.game_loop_count =
-        MIN(metrics.game_loop_count + 1, (size_t) METRICS_SAMPLES);
+    metrics.game_loop_count = MIN(metrics.game_loop_count + 1, (size_t)METRICS_SAMPLES);
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void
-server_metrics_stats (char *buffer, size_t size)
-{
+void server_metrics_stats(char *buffer, size_t size) {
     uint64_t game[METRICS_SAMPLES];
     uint64_t asset[METRICS_SAMPLES];
 
@@ -182,53 +150,53 @@ server_metrics_stats (char *buffer, size_t size)
     memcpy(asset, metrics.asset_latency_us, asset_count * sizeof(*asset));
 
     snprintfcat(buffer, size, "\n=== NETWORK ===\n");
-    snprintfcat(buffer, size,
-                "\nConnections: accepted=%" PRIu64 " rejected=%" PRIu64
-                " pending=%" PRIu64 " pending_peak=%" PRIu64,
+    snprintfcat(buffer,
+                size,
+                "\nConnections: accepted=%" PRIu64 " rejected=%" PRIu64 " pending=%" PRIu64
+                " pending_peak=%" PRIu64,
                 metrics.accepted,
                 metrics.rejected,
-                (uint64_t) metrics.pending,
-                (uint64_t) metrics.pending_peak);
-    snprintfcat(buffer, size,
-                "\nQUIC service: calls=%" PRIu64 " network-ready=%" PRIu64
-                " calls-per-ready=%.2f",
+                (uint64_t)metrics.pending,
+                (uint64_t)metrics.pending_peak);
+    snprintfcat(buffer,
+                size,
+                "\nQUIC service: calls=%" PRIu64 " network-ready=%" PRIu64 " calls-per-ready=%.2f",
                 metrics.quic_service_calls,
                 metrics.quic_network_ready_calls,
                 metrics.quic_network_ready_calls != 0
-                    ? (double) metrics.quic_service_calls /
-                      (double) metrics.quic_network_ready_calls
+                    ? (double)metrics.quic_service_calls / (double)metrics.quic_network_ready_calls
                     : 0.0);
-    snprintfcat(buffer, size,
+    snprintfcat(buffer,
+                size,
                 "\nOutbound queues: bytes=%" PRIu64 " aggregate_peak=%" PRIu64
                 " connection_peak=%" PRIu64 " rejected=%" PRIu64,
-                (uint64_t) metrics.queue_bytes,
-                (uint64_t) metrics.queue_peak_bytes,
-                (uint64_t) metrics.connection_queue_peak_bytes,
+                (uint64_t)metrics.queue_bytes,
+                (uint64_t)metrics.queue_peak_bytes,
+                (uint64_t)metrics.connection_queue_peak_bytes,
                 metrics.queue_rejected);
-    snprintfcat(buffer, size,
-                "\nAssets: cached_rss=%" PRIu64 " responses=%" PRIu64
-                " throttled=%" PRIu64,
-                (uint64_t) metrics.asset_cache_bytes,
+    snprintfcat(buffer,
+                size,
+                "\nAssets: cached_rss=%" PRIu64 " responses=%" PRIu64 " throttled=%" PRIu64,
+                (uint64_t)metrics.asset_cache_bytes,
                 metrics.asset_responses,
                 metrics.asset_throttled);
-    snprintfcat(buffer, size,
-                "\nMapping: method=%s open_failures=%" PRIu64
-                " renewal_failures=%" PRIu64,
-                *metrics.mapping_method != '\0'
-                    ? metrics.mapping_method : "none",
+    snprintfcat(buffer,
+                size,
+                "\nMapping: method=%s open_failures=%" PRIu64 " renewal_failures=%" PRIu64,
+                *metrics.mapping_method != '\0' ? metrics.mapping_method : "none",
                 metrics.mapping_open_failures,
                 metrics.mapping_renewal_failures);
     pthread_mutex_unlock(&metrics_lock);
 
-    snprintfcat(buffer, size,
-                "\nAsset latency us: p50=%" PRIu64 " p95=%" PRIu64
-                " p99=%" PRIu64,
+    snprintfcat(buffer,
+                size,
+                "\nAsset latency us: p50=%" PRIu64 " p95=%" PRIu64 " p99=%" PRIu64,
                 metrics_percentile(asset, asset_count, 50),
                 metrics_percentile(asset, asset_count, 95),
                 metrics_percentile(asset, asset_count, 99));
-    snprintfcat(buffer, size,
-                "\nGame loop us: p50=%" PRIu64 " p95=%" PRIu64
-                " p99=%" PRIu64 "\n",
+    snprintfcat(buffer,
+                size,
+                "\nGame loop us: p50=%" PRIu64 " p95=%" PRIu64 " p99=%" PRIu64 "\n",
                 metrics_percentile(game, game_count, 50),
                 metrics_percentile(game, game_count, 95),
                 metrics_percentile(game, game_count, 99));

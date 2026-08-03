@@ -39,14 +39,10 @@ TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer), IMPORTS(memory));
 
 #ifndef __CPROTO__
 
-TOOLKIT_INIT_FUNC(string)
-{
-}
+TOOLKIT_INIT_FUNC(string) {}
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(string)
-{
-}
+TOOLKIT_DEINIT_FUNC(string) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 #undef string_sub
@@ -62,8 +58,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @note abort() is called in case 's' is NULL or strdup() fails to duplicate
  * the string (oom).
  */
-char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
-{
+char *string_estrdup(const char *s MEMORY_DEBUG_PROTO) {
     char *cp;
 
     if (s == NULL) {
@@ -104,8 +99,7 @@ char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
  * @note abort() is called in case 's' is NULL or strndup() fails to duplicate
  * the string (oom).
  */
-char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
-{
+char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO) {
     char *cp;
 
     if (s == NULL) {
@@ -140,9 +134,11 @@ char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
  * string is put into result; at most resultsize characters (including the
  * terminating null character) will be written to result.
  */
-void string_replace(const char *src, const char *key, const char *replacement,
-        char *result, size_t resultsize)
-{
+void string_replace(const char *src,
+                    const char *key,
+                    const char *replacement,
+                    char *result,
+                    size_t resultsize) {
     size_t resultlen, keylen;
 
     TOOLKIT_PROTECT();
@@ -158,8 +154,7 @@ void string_replace(const char *src, const char *key, const char *replacement,
 
     while (*src != '\0' && resultlen + 1 < resultsize) {
         if (strncmp(src, key, keylen) == 0) {
-            snprintf(result + resultlen, resultsize - resultlen, "%s",
-                    replacement);
+            snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
             resultlen += strlen(result + resultlen);
             src += keylen;
         } else {
@@ -180,8 +175,7 @@ void string_replace(const char *src, const char *key, const char *replacement,
  * @param replacement
  * What to replace matched characters with.
  */
-void string_replace_char(char *str, const char *key, const char replacement)
-{
+void string_replace_char(char *str, const char *key, const char replacement) {
     size_t i;
 
     TOOLKIT_PROTECT();
@@ -219,8 +213,7 @@ void string_replace_char(char *str, const char *key, const char replacement)
  * The number of elements found; always less or equal to
  * <code>array_size</code>.
  */
-size_t string_split(char *str, char *array[], size_t array_size, char sep)
-{
+size_t string_split(char *str, char *array[], size_t array_size, char sep) {
     char *p;
     size_t pos;
 
@@ -263,8 +256,7 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
  * @param buf
  * The buffer to modify.
  */
-void string_replace_unprintable_chars(char *buf)
-{
+void string_replace_unprintable_chars(char *buf) {
     char *p;
 
     TOOLKIT_PROTECT();
@@ -283,8 +275,7 @@ void string_replace_unprintable_chars(char *buf)
  * @return
  * Thousands-separated string.
  */
-char *string_format_number_comma(uint64_t num)
-{
+char *string_format_number_comma(uint64_t num) {
     static char retbuf[4 * (sizeof(uint64_t) * CHAR_BIT + 2) / 3 / 3 + 1];
     char *buf;
     int i = 0;
@@ -302,7 +293,7 @@ char *string_format_number_comma(uint64_t num)
         *--buf = '0' + num % 10;
         num /= 10;
         i++;
-    }    while (num != 0);
+    } while (num != 0);
 
     return buf;
 }
@@ -312,8 +303,7 @@ char *string_format_number_comma(uint64_t num)
  * @param str
  * String to transform, will be modified.
  */
-void string_toupper(char *str)
-{
+void string_toupper(char *str) {
     TOOLKIT_PROTECT();
 
     while (*str != '\0') {
@@ -327,8 +317,7 @@ void string_toupper(char *str)
  * @param str
  * String to transform, will be modified.
  */
-void string_tolower(char *str)
-{
+void string_tolower(char *str) {
     TOOLKIT_PROTECT();
 
     while (*str != '\0') {
@@ -346,8 +335,7 @@ void string_tolower(char *str)
  * @return
  * 'str'.
  */
-char *string_whitespace_trim(char *str)
-{
+char *string_whitespace_trim(char *str) {
     char *cp;
     size_t len;
 
@@ -379,8 +367,7 @@ char *string_whitespace_trim(char *str)
  * @return
  * 'str'.
  */
-char *string_whitespace_squeeze(char *str)
-{
+char *string_whitespace_squeeze(char *str) {
     size_t r, w;
 
     TOOLKIT_PROTECT();
@@ -407,8 +394,7 @@ char *string_whitespace_squeeze(char *str)
  * @param str
  * Text to replace into.
  */
-void string_newline_to_literal(char *str)
-{
+void string_newline_to_literal(char *str) {
     char *next;
 
     TOOLKIT_PROTECT();
@@ -437,9 +423,12 @@ void string_newline_to_literal(char *str)
  * @return
  * 'word', NULL if 'word' is empty.
  */
-const char *string_get_word(const char *str, size_t *pos, char delim,
-        char *word, size_t wordsize, int surround)
-{
+const char *string_get_word(const char *str,
+                            size_t *pos,
+                            char delim,
+                            char *word,
+                            size_t wordsize,
+                            int surround) {
     size_t i;
     uint8_t in_surround;
 
@@ -492,8 +481,7 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
  * @param dir
  * If 1, skip to the right, if -1, skip to the left.
  */
-void string_skip_word(const char *str, size_t *i, int dir)
-{
+void string_skip_word(const char *str, size_t *i, int dir) {
     uint8_t whitespace;
 
     TOOLKIT_PROTECT();
@@ -519,8 +507,7 @@ void string_skip_word(const char *str, size_t *i, int dir)
  * @return
  * 1 if the string is a digit, 0 otherwise.
  */
-int string_isdigit(const char *str)
-{
+int string_isdigit(const char *str) {
     TOOLKIT_PROTECT();
 
     if (*str == '-') {
@@ -545,8 +532,7 @@ int string_isdigit(const char *str)
  * @param str
  * String to capitalize.
  */
-void string_capitalize(char *str)
-{
+void string_capitalize(char *str) {
     TOOLKIT_PROTECT();
 
     if (!str || *str == '\0') {
@@ -567,8 +553,7 @@ void string_capitalize(char *str)
  * @param str
  * String to titlecase.
  */
-void string_title(char *str)
-{
+void string_title(char *str) {
     uint8_t previous_cased;
 
     TOOLKIT_PROTECT();
@@ -609,8 +594,7 @@ void string_title(char *str)
  * @return
  * 1 if 'str' starts with 'cmp', 0 otherwise.
  */
-int string_startswith(const char *str, const char *cmp)
-{
+int string_startswith(const char *str, const char *cmp) {
     TOOLKIT_PROTECT();
 
     if (string_isempty(str) || string_isempty(cmp)) {
@@ -633,8 +617,7 @@ int string_startswith(const char *str, const char *cmp)
  * @return
  * 1 if 'str' ends with 'cmp', 0 otherwise.
  */
-int string_endswith(const char *str, const char *cmp)
-{
+int string_endswith(const char *str, const char *cmp) {
     ssize_t len;
 
     TOOLKIT_PROTECT();
@@ -682,8 +665,7 @@ int string_endswith(const char *str, const char *cmp)
  * @return
  * The created substring; never NULL. Must be freed.
  */
-char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
-{
+char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO) {
     size_t n, str_len;
 
     TOOLKIT_PROTECT();
@@ -711,7 +693,7 @@ char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
     }
 
     str += start;
-    n = MIN(str_len, (size_t) (end - start));
+    n = MIN(str_len, (size_t)(end - start));
 
     return string_estrndup(str, n MEMORY_DEBUG_PARAM);
 }
@@ -724,8 +706,7 @@ char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
  * 1 if 'str' is either NULL or if it begins with the NUL
  * character.
  */
-int string_isempty(const char *str)
-{
+int string_isempty(const char *str) {
     TOOLKIT_PROTECT();
 
     return !str || *str == '\0';
@@ -739,8 +720,7 @@ int string_isempty(const char *str)
  * @return
  * 1 if 'str' consists of purely whitespace character, 0 otherwise.
  */
-int string_iswhite(const char *str)
-{
+int string_iswhite(const char *str) {
     TOOLKIT_PROTECT();
 
     while (str && *str != '\0') {
@@ -764,8 +744,7 @@ int string_iswhite(const char *str)
  * @return
  * 1 if 'c' equals to any of the character in 'key', 0 otherwise.
  */
-int char_contains(const char c, const char *key)
-{
+int char_contains(const char c, const char *key) {
     size_t i;
 
     TOOLKIT_PROTECT();
@@ -788,8 +767,7 @@ int char_contains(const char c, const char *key)
  * @return
  * 1 if 'str' contains any of the characters in 'key', 0 otherwise.
  */
-int string_contains(const char *str, const char *key)
-{
+int string_contains(const char *str, const char *key) {
     TOOLKIT_PROTECT();
 
     while (*str != '\0') {
@@ -813,8 +791,7 @@ int string_contains(const char *str, const char *key)
  * @return
  * 1 if 'str' contains a character that is not in 'key', 0 otherwise.
  */
-int string_contains_other(const char *str, const char *key)
-{
+int string_contains_other(const char *str, const char *key) {
     TOOLKIT_PROTECT();
 
     while (*str != '\0') {
@@ -842,8 +819,7 @@ int string_contains_other(const char *str, const char *key)
  * @return
  * The generated string; never NULL. Must be freed.
  */
-char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO)
-{
+char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO) {
     char *str, c;
 
     TOOLKIT_PROTECT();
@@ -873,8 +849,7 @@ char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO)
  * @return
  * Joined string; never NULL. Must be freed.
  */
-char *string_join(const char *delim, ...)
-{
+char *string_join(const char *delim, ...) {
     StringBuffer *sb;
     va_list args;
     const char *str;
@@ -922,9 +897,7 @@ char *string_join(const char *delim, ...)
  * @return
  * Joined string; never NULL. Must be freed.
  */
-char *string_join_array(const char *delim, const char *const *array,
-                        size_t arraysize)
-{
+char *string_join_array(const char *delim, const char *const *array, size_t arraysize) {
     StringBuffer *sb;
     size_t i;
 
@@ -961,8 +934,7 @@ char *string_join_array(const char *delim, const char *const *array,
  * @return
  * Constructed string; never NULL. Must be freed.
  */
-char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO)
-{
+char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO) {
     size_t len, i;
     char *ret;
 
@@ -996,8 +968,7 @@ char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO)
  * @return
  * Length of string in the buffer.
  */
-size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
-{
+size_t snprintfcat(char *buf, size_t size, const char *fmt, ...) {
     size_t result;
     va_list args;
     size_t len;
@@ -1026,9 +997,8 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
  * @return
  * Number of characters written into 'result'.
  */
-size_t string_tohex(const unsigned char *str, size_t len, char *result,
-        size_t resultsize, bool sep)
-{
+size_t
+string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize, bool sep) {
     size_t i, written, need;
 
     written = 0;
@@ -1067,17 +1037,13 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result,
  * @return
  * How many elements have been filled into 'result'.
  */
-size_t string_fromhex(const char *str, size_t len, unsigned char *result,
-        size_t resultsize)
-{
+size_t string_fromhex(const char *str, size_t len, unsigned char *result, size_t resultsize) {
     size_t i, j;
     unsigned char c, found;
 
     for (found = 0, i = 0, j = 0, c = 0; i < len && j < resultsize; i++) {
-        if ((str[i] >= 'A' && str[i] <= 'F') ||
-                (str[i] >= '0' && str[i] <= '9')) {
-            c = (c << 4) |
-                    ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
+        if ((str[i] >= 'A' && str[i] <= 'F') || (str[i] >= '0' && str[i] <= '9')) {
+            c = (c << 4) | ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
             found++;
         }
 
@@ -1100,8 +1066,7 @@ size_t string_fromhex(const char *str, size_t len, unsigned char *result,
  * @return
  * Substring or NULL if not found.
  */
-char *string_last(const char *haystack, const char *needle)
-{
+char *string_last(const char *haystack, const char *needle) {
     size_t len_haystack, len_needle;
 
     TOOLKIT_PROTECT();
@@ -1120,7 +1085,7 @@ char *string_last(const char *haystack, const char *needle)
         return NULL;
     }
 
-    char *cp = (char *) haystack + len_haystack - len_needle;
+    char *cp = (char *)haystack + len_haystack - len_needle;
 
     do {
         if (*cp == *needle) {
@@ -1137,40 +1102,38 @@ char *string_last(const char *haystack, const char *needle)
  * Parse an unsigned integer without accepting signs, whitespace, trailing
  * data or overflow.
  */
-bool string_parse_uint64(const char *str, int base, uint64_t minimum,
-        uint64_t maximum, uint64_t *result)
-{
+bool string_parse_uint64(const char *str,
+                         int base,
+                         uint64_t minimum,
+                         uint64_t maximum,
+                         uint64_t *result) {
     HARD_ASSERT(result != NULL);
 
-    if (str == NULL || *str == '\0' || isspace((unsigned char) *str) ||
-            *str == '+' || *str == '-') {
+    if (str == NULL || *str == '\0' || isspace((unsigned char)*str) || *str == '+' || *str == '-') {
         return false;
     }
 
     errno = 0;
     char *end = NULL;
     unsigned long long value = strtoull(str, &end, base);
-    if (errno == ERANGE || end == str || *end != '\0' ||
-            value < minimum || value > maximum) {
+    if (errno == ERANGE || end == str || *end != '\0' || value < minimum || value > maximum) {
         return false;
     }
 
-    *result = (uint64_t) value;
+    *result = (uint64_t)value;
     return true;
 }
 
 /**
  * Validate an exact-length hexadecimal string.
  */
-bool string_is_hex_fixed(const char *str, size_t length, bool lowercase_only)
-{
+bool string_is_hex_fixed(const char *str, size_t length, bool lowercase_only) {
     if (str == NULL || strlen(str) != length) {
         return false;
     }
 
     for (size_t i = 0; i < length; i++) {
-        if ((str[i] >= '0' && str[i] <= '9') ||
-                (str[i] >= 'a' && str[i] <= 'f')) {
+        if ((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'f')) {
             continue;
         }
         if (!lowercase_only && str[i] >= 'A' && str[i] <= 'F') {
@@ -1186,24 +1149,24 @@ bool string_is_hex_fixed(const char *str, size_t length, bool lowercase_only)
  * Decode an exact-length hexadecimal string without accepting separators or
  * silently skipping invalid characters.
  */
-bool string_decode_hex_fixed(const char *str, size_t length,
-        bool lowercase_only, unsigned char *result, size_t result_size)
-{
+bool string_decode_hex_fixed(const char *str,
+                             size_t length,
+                             bool lowercase_only,
+                             unsigned char *result,
+                             size_t result_size) {
     HARD_ASSERT(result != NULL);
 
     if ((length & 1) != 0 || result_size != length / 2 ||
-            !string_is_hex_fixed(str, length, lowercase_only)) {
+        !string_is_hex_fixed(str, length, lowercase_only)) {
         return false;
     }
 
     for (size_t i = 0; i < result_size; i++) {
-        unsigned char high = (unsigned char) str[i * 2];
-        unsigned char low = (unsigned char) str[i * 2 + 1];
-        high = high <= '9' ? high - '0' :
-               (unsigned char) (tolower(high) - 'a' + 10);
-        low = low <= '9' ? low - '0' :
-              (unsigned char) (tolower(low) - 'a' + 10);
-        result[i] = (unsigned char) ((high << 4) | low);
+        unsigned char high = (unsigned char)str[i * 2];
+        unsigned char low = (unsigned char)str[i * 2 + 1];
+        high = high <= '9' ? high - '0' : (unsigned char)(tolower(high) - 'a' + 10);
+        low = low <= '9' ? low - '0' : (unsigned char)(tolower(low) - 'a' + 10);
+        result[i] = (unsigned char)((high << 4) | low);
     }
 
     return true;

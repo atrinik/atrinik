@@ -48,9 +48,7 @@
 #define BOOK_SPELL_CHANCE_DAMNED 2
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -60,11 +58,9 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS) {
-        LOG(ERROR, "Spell book with an invalid ID (%d): %s",
-            op->stats.sp, object_get_str(op));
+        LOG(ERROR, "Spell book with an invalid ID (%d): %s", op->stats.sp, object_get_str(op));
         char *name = object_get_name_s(op, applier);
-        draw_info_format(COLOR_WHITE, applier,
-                         "The symbols in the %s make no sense.", name);
+        draw_info_format(COLOR_WHITE, applier, "The symbols in the %s make no sense.", name);
         efree(name);
         return OBJECT_METHOD_OK;
     }
@@ -77,14 +73,12 @@ apply_func (object *op, object *applier, int aflags)
     player *pl = CONTR(applier);
 
     if (pl->skill_ptr[SK_LITERACY] == NULL) {
-        draw_info(COLOR_WHITE, applier,
-                  "You are unable to decipher the strange symbols.");
+        draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
         return OBJECT_METHOD_OK;
     }
 
     if (pl->skill_ptr[SK_WIZARDRY_SPELLS] == NULL) {
-        draw_info(COLOR_WHITE, applier,
-                  "The arcane symbols have no meaning to you.");
+        draw_info(COLOR_WHITE, applier, "The arcane symbols have no meaning to you.");
         return OBJECT_METHOD_OK;
     }
 
@@ -92,18 +86,21 @@ apply_func (object *op, object *applier, int aflags)
 
     if (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) {
         char *name = object_get_base_name_s(op, applier);
-        draw_info_format(COLOR_RED, applier, "The %s was %s!",
+        draw_info_format(COLOR_RED,
+                         applier,
+                         "The %s was %s!",
                          name,
                          QUERY_FLAG(op, FLAG_DAMNED) ? "damned" : "cursed");
         efree(name);
-        spell_failure(applier, (spell->at->clone.level +
-                                pl->skill_ptr[SK_WIZARDRY_SPELLS]->level) / 2);
+        spell_failure(applier,
+                      (spell->at->clone.level + pl->skill_ptr[SK_WIZARDRY_SPELLS]->level) / 2);
 
         /* Damned spell book, small chance to forget the spell. */
         if (QUERY_FLAG(op, FLAG_DAMNED) && rndm_chance(15)) {
             object *tmp = player_find_spell(applier, spell);
             if (tmp != NULL) {
-                draw_info_format(COLOR_RED, applier,
+                draw_info_format(COLOR_RED,
+                                 applier,
                                  "The wild magic burns the spell %s out of "
                                  "your mind!",
                                  tmp->name);
@@ -121,7 +118,8 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (spell->at->clone.level > pl->skill_ptr[SK_LITERACY]->level + 15) {
-        draw_info(COLOR_WHITE, applier,
+        draw_info(COLOR_WHITE,
+                  applier,
                   "Try as hard as you might, you can't quite make sense "
                   "out of the symbols...");
         return OBJECT_METHOD_OK;
@@ -129,7 +127,8 @@ apply_func (object *op, object *applier, int aflags)
 
     if (!QUERY_FLAG(op, FLAG_IDENTIFIED)) {
         identify(op);
-        draw_info_format(COLOR_WHITE, applier,
+        draw_info_format(COLOR_WHITE,
+                         applier,
                          "The spellbook contains the spell %s.",
                          spell->at->clone.name);
     }
@@ -140,7 +139,8 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (spell->at->clone.level > pl->skill_ptr[SK_WIZARDRY_SPELLS]->level) {
-        draw_info_format(COLOR_WHITE, applier,
+        draw_info_format(COLOR_WHITE,
+                         applier,
                          "You need to be level %d in %s to learn this spell.",
                          spell->at->clone.level,
                          pl->skill_ptr[SK_WIZARDRY_SPELLS]->name);
@@ -148,20 +148,25 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (QUERY_FLAG(applier, FLAG_CONFUSED)) {
-        draw_info(COLOR_RED, applier,
+        draw_info(COLOR_RED,
+                  applier,
                   "In your confused state you mix up the wording "
                   "of the spell!");
-        spell_failure(applier, (spell->at->clone.level +
-                                pl->skill_ptr[SK_WIZARDRY_SPELLS]->level) / 2);
+        spell_failure(applier,
+                      (spell->at->clone.level + pl->skill_ptr[SK_WIZARDRY_SPELLS]->level) / 2);
     } else {
         object *tmp = object_insert_into(arch_to_object(spell->at), applier, 0);
         if (tmp == NULL) {
-            LOG(ERROR, "Failed to insert spell, op: %s, applier: %s",
-                object_get_str(op), object_get_str(applier));
+            LOG(ERROR,
+                "Failed to insert spell, op: %s, applier: %s",
+                object_get_str(op),
+                object_get_str(applier));
             return OBJECT_METHOD_OK;
         }
 
-        draw_info_format(COLOR_WHITE, applier, "You succeed in learning %s.",
+        draw_info_format(COLOR_WHITE,
+                         applier,
+                         "You succeed in learning %s.",
                          spell->at->clone.name);
     }
 
@@ -171,13 +176,11 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -188,8 +191,7 @@ process_treasure_func (object              *op,
 
     op->stats.sp = spell_get_random(difficulty, SPELL_USE_BOOK);
     if (op->stats.sp == SP_NO_SPELL) {
-        log_error("Failed to generate a spell for spell book: %s",
-                  object_get_str(op));
+        log_error("Failed to generate a spell for spell book: %s", object_get_str(op));
         object_remove(op, 0);
         object_destroy(op);
         return OBJECT_METHOD_ERROR;
@@ -211,8 +213,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the spell book type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(book_spell)
-{
+OBJECT_TYPE_INIT_DEFINE(book_spell) {
     OBJECT_METHODS(BOOK_SPELL)->apply_func = apply_func;
     OBJECT_METHODS(BOOK_SPELL)->process_treasure_func = process_treasure_func;
     OBJECT_METHODS(BOOK_SPELL)->override_treasure_processing = true;

@@ -41,8 +41,7 @@
  * @return
  * Pointer to the projectile, which may or may not have merged.
  */
-static object *projectile_stick(object *op, object *victim)
-{
+static object *projectile_stick(object *op, object *victim) {
     object *owner;
 
     /* Only insert arrows, and as long as they are no more than 1kg, and can be
@@ -65,8 +64,7 @@ static object *projectile_stick(object *op, object *victim)
 }
 
 /** @copydoc object_methods_t::process_func */
-void common_object_projectile_process(object *op)
-{
+void common_object_projectile_process(object *op) {
     mapstruct *m;
     int x, y;
 
@@ -96,8 +94,12 @@ void common_object_projectile_process(object *op)
             } else {
                 int left, right;
 
-                left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]);
-                right = wall(op->map, op->x + freearr_x[absdir(op->direction + 1)], op->y + freearr_y[absdir(op->direction + 1)]);
+                left = wall(op->map,
+                            op->x + freearr_x[absdir(op->direction - 1)],
+                            op->y + freearr_y[absdir(op->direction - 1)]);
+                right = wall(op->map,
+                             op->x + freearr_x[absdir(op->direction + 1)],
+                             op->y + freearr_y[absdir(op->direction + 1)]);
 
                 if (left == right) {
                     op->direction = absdir(op->direction + 4);
@@ -125,11 +127,12 @@ void common_object_projectile_process(object *op)
         object *tmp;
         int ret;
 
-        FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_LIVING, -1, tmp)
-        {
+        FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_LIVING, -1, tmp) {
             tmp = HEAD(tmp);
 
-            if (((QUERY_FLAG(op, FLAG_IS_MISSILE) && QUERY_FLAG(tmp, FLAG_REFL_MISSILE)) || (QUERY_FLAG(op, FLAG_IS_SPELL) && QUERY_FLAG(tmp, FLAG_REFL_SPELL))) && rndm(0, 99) < 90 - (op->level / 10)) {
+            if (((QUERY_FLAG(op, FLAG_IS_MISSILE) && QUERY_FLAG(tmp, FLAG_REFL_MISSILE)) ||
+                 (QUERY_FLAG(op, FLAG_IS_SPELL) && QUERY_FLAG(tmp, FLAG_REFL_SPELL))) &&
+                rndm(0, 99) < 90 - (op->level / 10)) {
                 op->direction = absdir(op->direction + 4);
                 SET_ANIMATION_STATE(op);
                 FOR_MAP_LAYER_BREAK;
@@ -149,8 +152,7 @@ void common_object_projectile_process(object *op)
 }
 
 /** @copydoc object_methods_t::projectile_move_func */
-object *common_object_projectile_move(object *op)
-{
+object *common_object_projectile_move(object *op) {
     mapstruct *m;
     int x, y;
 
@@ -173,14 +175,14 @@ object *common_object_projectile_move(object *op)
         if (OBJ_DESTROYED(op)) {
             return NULL;
         }
-    } OBJ_DESTROYED_END();
+    }
+    OBJ_DESTROYED_END();
 
     return op;
 }
 
 /** @copydoc object_methods_t::projectile_stop_func */
-object *common_object_projectile_stop_missile(object *op, int reason)
-{
+object *common_object_projectile_stop_missile(object *op, int reason) {
     /* Reset 'owner' when picking it up. */
     if (reason == OBJECT_PROJECTILE_PICKUP) {
         op->attacked_by = NULL;
@@ -281,8 +283,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 }
 
 /** @copydoc object_methods_t::projectile_stop_func */
-object *common_object_projectile_stop_spell(object *op, int reason)
-{
+object *common_object_projectile_stop_spell(object *op, int reason) {
     if (reason == OBJECT_PROJECTILE_STOP_HIT && op->stats.dam > 0) {
         return op;
     }
@@ -298,8 +299,7 @@ object *common_object_projectile_stop_spell(object *op, int reason)
 }
 
 /** @copydoc object_methods_t::projectile_fire_func */
-object *common_object_projectile_fire_missile(object *op, object *shooter, int dir)
-{
+object *common_object_projectile_fire_missile(object *op, object *shooter, int dir) {
     object_owner_set(op, shooter);
     op->direction = dir;
     SET_ANIMATION_STATE(op);
@@ -341,8 +341,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 }
 
 /** @copydoc object_methods_t::projectile_hit_func */
-int common_object_projectile_hit(object *op, object *victim)
-{
+int common_object_projectile_hit(object *op, object *victim) {
     object *owner;
 
     owner = object_owner(op);
@@ -366,18 +365,18 @@ int common_object_projectile_hit(object *op, object *victim)
             }
 
             op->stats.dam -= dam;
-        } OBJ_DESTROYED_END();
+        }
+        OBJ_DESTROYED_END();
     }
 
     return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods_t::move_on_func */
-int common_object_projectile_move_on(object *op, object *victim, object *originator, int state)
-{
+int common_object_projectile_move_on(object *op, object *victim, object *originator, int state) {
     int ret;
 
-    (void) originator;
+    (void)originator;
 
     if (!state) {
         return OBJECT_METHOD_UNHANDLED;

@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_tls(object *op, const char *command, char *params)
-{
+void command_tls(object *op, const char *command, char *params) {
     CONTR(op)->tls = !CONTR(op)->tls;
     CONTR(op)->update_los = 1;
     draw_info_format(COLOR_WHITE, op, "Toggled line of sight %s.", CONTR(op)->tls ? "off" : "on");

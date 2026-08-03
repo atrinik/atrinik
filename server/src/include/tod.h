@@ -31,20 +31,20 @@
 #define TOD_H
 
 /** Ticks per clock. */
-#define PTICKS_PER_CLOCK    1500
+#define PTICKS_PER_CLOCK 1500
 
 /** Hours per day. */
-#define HOURS_PER_DAY       24
+#define HOURS_PER_DAY 24
 /** Days per week. */
-#define DAYS_PER_WEEK       7
+#define DAYS_PER_WEEK 7
 /** Weeks per month. */
-#define WEEKS_PER_MONTH     4
+#define WEEKS_PER_MONTH 4
 /** Months per year. */
-#define MONTHS_PER_YEAR     12
+#define MONTHS_PER_YEAR 12
 /** Seasons per year. */
-#define SEASONS_PER_YEAR    4
+#define SEASONS_PER_YEAR 4
 /** Periods per day. */
-#define PERIODS_PER_DAY     10
+#define PERIODS_PER_DAY 10
 
 /** Weeks per year. */
 #define WEEKS_PER_YEAR (WEEKS_PER_MONTH * MONTHS_PER_YEAR)

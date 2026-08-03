@@ -120,9 +120,7 @@ static button_struct button_close, button_retry, button_restart;
  * @return
  * 'buf'.
  */
-static char *
-updater_get_dir (char *buf, size_t len)
-{
+static char *updater_get_dir(char *buf, size_t len) {
     snprintf(buf, len, "%s/.atrinik/temp", get_config_dir());
     return buf;
 }
@@ -131,9 +129,7 @@ updater_get_dir (char *buf, size_t len)
  * Cleans up updater files - basically recursively removes the temporary
  * directory.
  */
-static void
-cleanup_patch_files (void)
-{
+static void cleanup_patch_files(void) {
     char dir_path[HUGE_BUF];
     rmrf(updater_get_dir(VS(dir_path)));
 }
@@ -141,9 +137,7 @@ cleanup_patch_files (void)
 /**
  * Start updater download.
  */
-static void
-updater_download_start (void)
-{
+static void updater_download_start(void) {
     /* Construct URL. */
     CURL *curl = curl_easy_init();
     char version[MAX_BUF];
@@ -164,9 +158,7 @@ updater_download_start (void)
 /**
  * Cleanup after downloading.
  */
-static void
-updater_download_clean (void)
-{
+static void updater_download_clean(void) {
     /* Free data that is being downloaded, if the user quits mid-download.
      * Also remove the temp directory, as the update has clearly not
      * finished downloading its data */
@@ -196,9 +188,7 @@ updater_download_clean (void)
 /**
  * Process the list of updates.
  */
-static void
-updater_process_list (void)
-{
+static void updater_process_list(void) {
     char *body = curl_request_get_body(request, NULL);
     if (body == NULL) {
         return;
@@ -209,8 +199,7 @@ updater_process_list (void)
         char *cps[2];
         if (string_split(cp, cps, arraysize(cps), '\t') == arraysize(cps)) {
             download_packages = erealloc(download_packages,
-                                         sizeof(*download_packages) *
-                                             (download_packages_num + 1));
+                                         sizeof(*download_packages) * (download_packages_num + 1));
             download_packages[download_packages_num].filename = estrdup(cps[0]);
             download_packages[download_packages_num].sha1 = estrdup(cps[1]);
             download_packages_num++;
@@ -230,9 +219,7 @@ updater_process_list (void)
 /**
  * Process package downloading.
  */
-static void
-updater_process_packages (void)
-{
+static void updater_process_packages(void) {
     /* Have we got anything to store yet, or are we just starting
      * the download? */
     if (download_package_next != 0 && request != NULL) {
@@ -248,7 +235,7 @@ updater_process_packages (void)
 
         unsigned char sha1_output[20];
         /* Calculate the SHA-1 sum of the downloaded data. */
-        sha1((unsigned char *) body, body_size, sha1_output);
+        sha1((unsigned char *)body, body_size, sha1_output);
 
         /* Create the ASCII SHA-1 sum. snprintf() is not
          * needed, because no overflow can happen in this
@@ -259,17 +246,17 @@ updater_process_packages (void)
         }
 
         /* Compare the SHA-1 sum. */
-        if (strcmp(download_packages[download_package_next - 1].sha1,
-                   sha1_output_ascii) == 0) {
+        if (strcmp(download_packages[download_package_next - 1].sha1, sha1_output_ascii) == 0) {
             /* Get the temporary directory. */
             char dir_path[HUGE_BUF];
             updater_get_dir(VS(dir_path));
 
             /* Construct the path. */
             char filename[HUGE_BUF];
-            snprintf(VS(filename), "%s/client_patch_%09" PRIu64 ".tar.gz",
+            snprintf(VS(filename),
+                     "%s/client_patch_%09" PRIu64 ".tar.gz",
                      dir_path,
-                     (uint64_t) download_package_next - 1);
+                     (uint64_t)download_package_next - 1);
 
             path_ensure_directories(filename);
             FILE *fp = fopen(filename, "wb");
@@ -294,7 +281,8 @@ updater_process_packages (void)
     if (download_package_next < download_packages_num) {
         /* Construct the URL. */
         char url[HUGE_BUF];
-        snprintf(VS(url), UPDATER_PATH_URL "/%s",
+        snprintf(VS(url),
+                 UPDATER_PATH_URL "/%s",
                  download_packages[download_package_next].filename);
         request = curl_request_create(url, CURL_PKEY_TRUST_ULTIMATE);
         curl_request_start_get(request);
@@ -303,9 +291,7 @@ updater_process_packages (void)
 }
 
 /** @copydoc popup_struct::draw_post_func */
-static int
-popup_draw_post (popup_struct *popup)
-{
+static int popup_draw_post(popup_struct *popup) {
     SDL_Rect box;
 
     box.x = popup->x;
@@ -333,9 +319,8 @@ popup_draw_post (popup_struct *popup)
     /* Not done yet and downloading something, inform the user. */
     if (!progress.done && request != NULL) {
         /* Downloading list of updates? */
-        if (strncmp(curl_request_get_url(request),
-                    UPDATER_CHECK_URL,
-                    strlen(UPDATER_CHECK_URL)) == 0) {
+        if (strncmp(curl_request_get_url(request), UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL)) ==
+            0) {
             text_show_shadow(ScreenSurface,
                              FONT_ARIAL11,
                              "Downloading list of updates...",
@@ -354,10 +339,9 @@ popup_draw_post (popup_struct *popup)
                                     COLOR_BLACK,
                                     TEXT_ALIGN_CENTER,
                                     &box,
-                                    "Downloading update #%" PRIu64 " out of %"
-                                    PRIu64 "...",
-                                    (uint64_t) download_package_next,
-                                    (uint64_t) download_packages_num);
+                                    "Downloading update #%" PRIu64 " out of %" PRIu64 "...",
+                                    (uint64_t)download_package_next,
+                                    (uint64_t)download_packages_num);
         }
     }
 
@@ -378,8 +362,7 @@ popup_draw_post (popup_struct *popup)
                              &box);
             box.y += 60;
 
-            button_close.x = box.x + box.w / 2 -
-                             texture_surface(button_close.texture)->w / 2;
+            button_close.x = box.x + box.w / 2 - texture_surface(button_close.texture)->w / 2;
             button_close.y = box.y;
             button_show(&button_close, "Close");
         } else {
@@ -394,7 +377,7 @@ popup_draw_post (popup_struct *popup)
                                     &box,
                                     "%" PRIu64 " update(s) downloaded "
                                     "successfully.",
-                                    (uint64_t) download_packages_downloaded);
+                                    (uint64_t)download_packages_downloaded);
             box.y += 20;
             text_show_shadow(ScreenSurface,
                              FONT_ARIAL11,
@@ -407,19 +390,19 @@ popup_draw_post (popup_struct *popup)
                              &box);
 
             if (download_packages_downloaded < download_packages_num) {
-                text_show_shadow_format(ScreenSurface,
-                                        FONT_ARIAL11,
-                                        box.x,
-                                        box.y + 20,
-                                        COLOR_WHITE,
-                                        COLOR_BLACK,
-                                        TEXT_ALIGN_CENTER,
-                                        &box,
-                                        "%" PRIu64 " update(s) failed to "
-                                        "download (possibly due to a "
-                                        "connection failure).",
-                                        (uint64_t) (download_packages_num -
-                                            download_packages_downloaded));
+                text_show_shadow_format(
+                    ScreenSurface,
+                    FONT_ARIAL11,
+                    box.x,
+                    box.y + 20,
+                    COLOR_WHITE,
+                    COLOR_BLACK,
+                    TEXT_ALIGN_CENTER,
+                    &box,
+                    "%" PRIu64 " update(s) failed to "
+                    "download (possibly due to a "
+                    "connection failure).",
+                    (uint64_t)(download_packages_num - download_packages_downloaded));
                 text_show_shadow(ScreenSurface,
                                  FONT_ARIAL11,
                                  "You may need to retry updating after "
@@ -437,8 +420,7 @@ popup_draw_post (popup_struct *popup)
             /* Show a restart button, which will call atrinik2.exe to
              * apply the updates (using atrinik_updater.bat) and restart
              * the client. */
-            button_restart.x = box.x + box.w / 2 -
-                               texture_surface(button_restart.texture)->w / 2;
+            button_restart.x = box.x + box.w / 2 - texture_surface(button_restart.texture)->w / 2;
             button_restart.y = box.y;
             button_show(&button_restart, "Restart");
 #else
@@ -493,17 +475,15 @@ popup_draw_post (popup_struct *popup)
 
         box.y += 20;
 
-        button_retry.x = box.x + box.w / 2 -
-                         texture_surface(button_retry.texture)->w / 2;
+        button_retry.x = box.x + box.w / 2 - texture_surface(button_retry.texture)->w / 2;
         button_retry.y = box.y;
         button_show(&button_retry, "Retry");
     } else if (state == CURL_STATE_OK) {
         /* Finished downloading. */
 
         /* Is it the list of updates? */
-        if (strncmp(curl_request_get_url(request),
-                    UPDATER_CHECK_URL,
-                    strlen(UPDATER_CHECK_URL)) == 0) {
+        if (strncmp(curl_request_get_url(request), UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL)) ==
+            0) {
             updater_process_list();
             curl_request_free(request);
             request = NULL;
@@ -519,9 +499,7 @@ popup_draw_post (popup_struct *popup)
 }
 
 /** @copydoc popup_struct::popup_event_func */
-static int
-popup_event (popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (button_event(&button_close, event)) {
         popup_destroy(popup);
         return 1;
@@ -549,9 +527,7 @@ popup_event (popup_struct *popup, SDL_Event *event)
  * @param popup
  * Updater popup.
  */
-static int
-popup_destroy_callback (popup_struct *popup)
-{
+static int popup_destroy_callback(popup_struct *popup) {
     updater_download_clean();
 
     button_destroy(&button_close);
@@ -564,12 +540,9 @@ popup_destroy_callback (popup_struct *popup)
 /**
  * Open the updater popup.
  */
-void
-updater_open (void)
-{
+void updater_open(void) {
     /* Create the popup. */
-    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT,
-                                                   "popup"));
+    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
     popup->destroy_callback_func = popup_destroy_callback;
     popup->draw_post_func = popup_draw_post;
     popup->event_func = popup_event;

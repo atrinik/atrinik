@@ -87,8 +87,7 @@ static socket_command_struct commands[CLIENT_CMD_NROF] = {
  * Do client. The main loop for commands. From this, the data and
  * commands from server are received.
  */
-void DoClient(void)
-{
+void DoClient(void) {
     command_buffer *cmd;
     /* Handle all enqueued commands */
     while ((cmd = get_next_input_command()) != NULL) {
@@ -99,11 +98,7 @@ void DoClient(void)
         size_t decrypted_len;
         bool was_decrypted = true;
         if (socket_is_secure(csocket.sc)) {
-            if (!socket_crypto_decrypt(csocket.sc,
-                                       data,
-                                       len,
-                                       &decrypted_data,
-                                       &decrypted_len)) {
+            if (!socket_crypto_decrypt(csocket.sc, data, len, &decrypted_data, &decrypted_len)) {
                 draw_info(COLOR_RED,
                           "!!! Cryptography decryption failed; someone is "
                           "likely hijacking your connection (MITM attack) !!!");
@@ -119,8 +114,7 @@ void DoClient(void)
         size_t pos = 0;
         uint8_t type = packet_to_uint8(decrypted_data, decrypted_len, &pos);
 
-        if (socket_is_secure(csocket.sc) &&
-            type != CLIENT_CMD_CRYPTO &&
+        if (socket_is_secure(csocket.sc) && type != CLIENT_CMD_CRYPTO &&
             !socket_crypto_is_done(socket_get_crypto(csocket.sc))) {
             LOG(PACKET,
                 "Received non-crypto packet before crypto exchange from %s",
@@ -148,12 +142,12 @@ void DoClient(void)
  * @param anum
  * Animation ID.
  */
-bool check_animation_status(int anum)
-{
-    if (anum < 0 || (size_t) anum >= animations_num || animations == NULL ||
-            anim_table == NULL) {
-        LOG(ERROR, "Ignoring invalid animation ID %d (count: %" PRIu64 ")",
-            anum, (uint64_t) animations_num);
+bool check_animation_status(int anum) {
+    if (anum < 0 || (size_t)anum >= animations_num || animations == NULL || anim_table == NULL) {
+        LOG(ERROR,
+            "Ignoring invalid animation ID %d (count: %" PRIu64 ")",
+            anum,
+            (uint64_t)animations_num);
         return false;
     }
 

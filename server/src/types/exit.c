@@ -51,9 +51,7 @@
  * @return
  * Connected exit if found, NULL otherwise.
  */
-static object *
-exit_find (object *op, bool do_load)
-{
+static object *exit_find(object *op, bool do_load) {
     HARD_ASSERT(op != NULL);
 
     object *altern[20];
@@ -92,7 +90,8 @@ exit_find (object *op, bool do_load)
                         goto loop_exit;
                     }
                 }
-            } FOR_MAP_FINISH();
+            }
+            FOR_MAP_FINISH();
         }
     }
 
@@ -116,9 +115,7 @@ loop_exit:
  * @return
  * True on success, false on failure.
  */
-static bool
-exit_activate (object *op, object *applier)
-{
+static bool exit_activate(object *op, object *applier) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -149,9 +146,7 @@ exit_activate (object *op, object *applier)
 }
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -170,11 +165,7 @@ apply_func (object *op, object *applier, int aflags)
 
     bool is_shop = false;
     for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-        object *tmp = GET_MAP_OB_LAYER(op->map,
-                                       op->x,
-                                       op->y,
-                                       LAYER_FLOOR,
-                                       sub_layer);
+        object *tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, sub_layer);
         if (tmp != NULL && tmp->type == SHOP_FLOOR) {
             is_shop = true;
             break;
@@ -185,11 +176,12 @@ apply_func (object *op, object *applier, int aflags)
      * all the items they want to buy (if any). */
     if (is_shop && applier->type == PLAYER && !shop_pay_items(applier)) {
         int i = map_free_spot(applier->map,
-                               applier->x,
-                               applier->y,
-                               1,
-                               SIZEOFFREE1, applier->arch,
-                               NULL);
+                              applier->x,
+                              applier->y,
+                              1,
+                              SIZEOFFREE1,
+                              applier->arch,
+                              NULL);
         if (i != -1) {
             object_remove(applier, 0);
             applier->x += freearr_x[i];
@@ -201,9 +193,9 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     /* Don't display messages for random maps. */
-    if (op->msg != NULL && (EXIT_PATH(op) == NULL ||
-                            (strncmp(EXIT_PATH(op), "/!", 2) != 0 &&
-                             strncmp(EXIT_PATH(op), "/random/", 8) != 0))) {
+    if (op->msg != NULL &&
+        (EXIT_PATH(op) == NULL ||
+         (strncmp(EXIT_PATH(op), "/!", 2) != 0 && strncmp(EXIT_PATH(op), "/random/", 8) != 0))) {
         draw_info(COLOR_NAVY, applier, op->msg);
     } else if (is_shop) {
         draw_info(COLOR_WHITE, applier, "Thank you for visiting our shop.");
@@ -230,9 +222,7 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -240,9 +230,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
 }
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->map == NULL) {
@@ -255,15 +243,7 @@ process_func (object *op)
         }
 
         if (HAS_EVENT(op, EVENT_TRIGGER)) {
-            int ret = trigger_event(EVENT_TRIGGER,
-                                    tmp,
-                                    op,
-                                    NULL,
-                                    NULL,
-                                    0,
-                                    0,
-                                    0,
-                                    0);
+            int ret = trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, 0);
             if (ret == 1) {
                 return;
             } else if (ret == 2) {
@@ -272,13 +252,12 @@ process_func (object *op)
         }
 
         object_apply(op, tmp, 0);
-    } FOR_MAP_FINISH();
+    }
+    FOR_MAP_FINISH();
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -287,25 +266,19 @@ trigger_func (object *op, object *cause, int state)
 }
 
 /** @copydoc object_methods_t::insert_map_func */
-static void
-insert_map_func (object *op)
-{
+static void insert_map_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (EXIT_PATH(op) != NULL) {
         /* Exit has a path, ensure it's absolute and take unique maps
          * into account. */
         bool is_unique = MAP_UNIQUE(op->map) && !map_path_isabs(EXIT_PATH(op));
-        char *path = map_get_path(op->map,
-                                  EXIT_PATH(op),
-                                  is_unique,
-                                  NULL);
+        char *path = map_get_path(op->map, EXIT_PATH(op), is_unique, NULL);
         FREE_AND_COPY_HASH(EXIT_PATH(op), path);
         efree(path);
     } else if (op->last_heal > 0 && op->last_heal <= TILED_NUM &&
                op->map->tile_path[op->last_heal - 1] != NULL) {
-        FREE_AND_ADD_REF_HASH(EXIT_PATH(op),
-                op->map->tile_path[op->last_heal - 1]);
+        FREE_AND_ADD_REF_HASH(EXIT_PATH(op), op->map->tile_path[op->last_heal - 1]);
 
         EXIT_X(op) = op->x;
         EXIT_Y(op) = op->y;
@@ -335,9 +308,7 @@ insert_map_func (object *op)
 }
 
 /** @copydoc object_methods_t::remove_map_func */
-static void
-remove_map_func (object *op)
-{
+static void remove_map_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     map_exit_t *exit, *tmp;
@@ -353,8 +324,7 @@ remove_map_func (object *op)
 /**
  * Initialize the exit type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(exit)
-{
+OBJECT_TYPE_INIT_DEFINE(exit) {
     OBJECT_METHODS(EXIT)->apply_func = apply_func;
     OBJECT_METHODS(EXIT)->move_on_func = move_on_func;
     OBJECT_METHODS(EXIT)->process_func = process_func;
@@ -379,9 +349,7 @@ OBJECT_TYPE_INIT_DEFINE(exit)
  * @return
  * Destination map. Can be NULL.
  */
-mapstruct *
-exit_get_destination (object *op, int *x, int *y, bool do_load)
-{
+mapstruct *exit_get_destination(object *op, int *x, int *y, bool do_load) {
     HARD_ASSERT(op != NULL);
 
     if (EXIT_PATH(op) != NULL) {

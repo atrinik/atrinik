@@ -52,15 +52,17 @@ TOOLKIT_API(DEPENDS(clioptions), IMPORTS(memory));
  * @param value
  * Value to set.
  */
-#define CURL_SETOPT(handle, option, value)                              \
-do {                                                                    \
-    CURLcode res = curl_easy_setopt(handle, option, value);             \
-    if (res != CURLE_OK) {                                              \
-        LOG(ERROR, "Failed to set " STRINGIFY(option) ": %s (%d)",      \
-            curl_easy_strerror(res), res);                              \
-        return CURL_STATE_ERROR;                                        \
-    }                                                                   \
-} while (0)
+#define CURL_SETOPT(handle, option, value)                      \
+    do {                                                        \
+        CURLcode res = curl_easy_setopt(handle, option, value); \
+        if (res != CURLE_OK) {                                  \
+            LOG(ERROR,                                          \
+                "Failed to set " STRINGIFY(option) ": %s (%d)", \
+                curl_easy_strerror(res),                        \
+                res);                                           \
+            return CURL_STATE_ERROR;                            \
+        }                                                       \
+    } while (0)
 
 /**
  * cURL request structure.
@@ -161,17 +163,17 @@ struct curl_request {
     /**
      * True if the thread is quitting.
      */
-    bool finished:1;
+    bool finished : 1;
 
     /**
      * Whether the request was started in its own thread.
      */
-    bool threaded:1;
+    bool threaded : 1;
 
     /**
      * Whether the peer certificate is untrusted.
      */
-    bool untrusted:1;
+    bool untrusted : 1;
 };
 
 /**
@@ -201,22 +203,14 @@ static char *curl_data_dir = NULL;
  * Lock the share handle.
  */
 static void
-curl_share_lock (CURL            *handle,
-                 curl_lock_data   data,
-                 curl_lock_access lock_access,
-                 void            *userptr)
-{
+curl_share_lock(CURL *handle, curl_lock_data data, curl_lock_access lock_access, void *userptr) {
     pthread_mutex_lock(userptr);
 }
 
 /**
  * Unlock the share handle.
  */
-static void
-curl_share_unlock (CURL          *handle,
-                   curl_lock_data data,
-                   void          *userptr)
-{
+static void curl_share_unlock(CURL *handle, curl_lock_data data, void *userptr) {
     pthread_mutex_unlock(userptr);
 }
 
@@ -226,9 +220,7 @@ curl_share_unlock (CURL          *handle,
  * @param store
  * Entry to free.
  */
-static void
-curl_free_store (curl_trust_store_t *store)
-{
+static void curl_free_store(curl_trust_store_t *store) {
     HARD_ASSERT(store != NULL);
 
     if (store->key != NULL) {
@@ -250,9 +242,7 @@ curl_free_store (curl_trust_store_t *store)
  * @return
  * True on success, false on failure.
  */
-static bool
-curl_load_pem (const char *pubkey, curl_pkey_trust_t trust, char **errmsg)
-{
+static bool curl_load_pem(const char *pubkey, curl_pkey_trust_t trust, char **errmsg) {
     HARD_ASSERT(pubkey != NULL);
 
     bool ret = false;
@@ -283,8 +273,7 @@ curl_load_pem (const char *pubkey, curl_pkey_trust_t trust, char **errmsg)
     }
 
     if (!EVP_PKEY_set1_RSA(store->key, key)) {
-        string_fmt(*errmsg, "Setting RSA key to trusted store %d failed",
-                   trust);
+        string_fmt(*errmsg, "Setting RSA key to trusted store %d failed", trust);
         goto out;
     }
 
@@ -314,23 +303,19 @@ out:
  * Description of the --trusted_pin command.
  */
 static const char *const clioptions_option_trusted_pin_desc =
-"Adds a new trusted public key (pin) that will be used to validate HTTPS "
-"certificates (in a fashion similar to HPKP).\n\n"
-"Usage:\n"
-" --trusted_pin=<public-key>";
+    "Adds a new trusted public key (pin) that will be used to validate HTTPS "
+    "certificates (in a fashion similar to HPKP).\n\n"
+    "Usage:\n"
+    " --trusted_pin=<public-key>";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_trusted_pin (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_trusted_pin(const char *arg, char **errmsg) {
     return curl_load_pem(arg, CURL_PKEY_TRUST_ULTIMATE, errmsg);
 }
 
 /**
  * Initialize the cURL API.
  */
-TOOLKIT_INIT_FUNC(curl)
-{
+TOOLKIT_INIT_FUNC(curl) {
     curl_global_init(CURL_GLOBAL_ALL);
     pthread_mutex_init(&handle_share_mutex, NULL);
     pthread_mutex_init(&certchains_mutex, NULL);
@@ -354,8 +339,7 @@ TOOLKIT_INIT_FUNC_FINISH
 /**
  * Deinitialize the cURL API.
  */
-TOOLKIT_DEINIT_FUNC(curl)
-{
+TOOLKIT_DEINIT_FUNC(curl) {
     curl_share_cleanup(handle_share);
     pthread_mutex_destroy(&handle_share_mutex);
     pthread_mutex_destroy(&certchains_mutex);
@@ -383,9 +367,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @param user_agent
  * User agent to use.
  */
-void
-curl_set_user_agent (const char *user_agent)
-{
+void curl_set_user_agent(const char *user_agent) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(user_agent != NULL);
@@ -403,9 +385,7 @@ curl_set_user_agent (const char *user_agent)
  * @param dir
  * Directory.
  */
-void
-curl_set_data_dir (const char *dir)
-{
+void curl_set_data_dir(const char *dir) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(dir != NULL);
@@ -426,9 +406,7 @@ curl_set_data_dir (const char *dir)
  * @return
  * True on success, false on failure.
  */
-bool
-curl_set_trust_application (const char *pubkey)
-{
+bool curl_set_trust_application(const char *pubkey) {
     TOOLKIT_PROTECT();
 
     if (curl_trust_pkeys[CURL_PKEY_TRUST_APPLICATION] != NULL) {
@@ -458,9 +436,7 @@ curl_set_trust_application (const char *pubkey)
  * @return
  * ETag on success, NULL on failure. Must be freed.
  */
-static char *
-curl_load_etag (curl_request_t *request)
-{
+static char *curl_load_etag(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
 
     if (request->path == NULL) {
@@ -518,9 +494,7 @@ done:
  * @warning
  * This function expects the cURL request mutex to be locked.
  */
-static bool
-curl_load_cache (curl_request_t *request)
-{
+static bool curl_load_cache(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
 
     FILE *fp = NULL;
@@ -533,20 +507,17 @@ curl_load_cache (curl_request_t *request)
 
     fp = path_fopen(request->path, "rb");
     if (fp == NULL) {
-        LOG(ERROR, "Could not open %s: %d (%s)", request->path, errno,
-            strerror(errno));
+        LOG(ERROR, "Could not open %s: %d (%s)", request->path, errno, strerror(errno));
         goto fail;
     }
 
     struct stat statbuf;
     if (fstat(fileno(fp), &statbuf) == -1) {
-        LOG(ERROR, "Could not stat %s: %d (%s)", request->path, errno,
-            strerror(errno));
+        LOG(ERROR, "Could not stat %s: %d (%s)", request->path, errno, strerror(errno));
         goto fail;
     }
 
-    if (statbuf.st_size < 0 ||
-        (uint64_t) statbuf.st_size > request->max_body_size) {
+    if (statbuf.st_size < 0 || (uint64_t)statbuf.st_size > request->max_body_size) {
         LOG(ERROR, "Cached response exceeds its configured body limit");
         goto fail;
     }
@@ -554,8 +525,7 @@ curl_load_cache (curl_request_t *request)
     size_t size = statbuf.st_size;
     buffer = emalloc(size + 1);
     if (fread(buffer, 1, size, fp) != size) {
-        LOG(ERROR, "Could not read %s: %d (%s)", request->path, errno,
-            strerror(errno));
+        LOG(ERROR, "Could not read %s: %d (%s)", request->path, errno, strerror(errno));
         goto fail;
     }
 
@@ -589,15 +559,12 @@ done:
  * @warning
  * This function expects the cURL request mutex to be locked.
  */
-static void
-curl_write_cache (curl_request_t *request)
-{
+static void curl_write_cache(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
 
     /* If we have a cache path, and we managed to retrieve some data, update
      * the cached file. */
-    if (request->path == NULL || request->header == NULL ||
-        request->body == NULL) {
+    if (request->path == NULL || request->header == NULL || request->body == NULL) {
         return;
     }
 
@@ -605,11 +572,7 @@ curl_write_cache (curl_request_t *request)
 
     char header[HUGE_BUF];
     size_t pos = 0;
-    while (string_get_word(request->header,
-                           &pos,
-                           '\n',
-                           header,
-                           sizeof(header), 0)) {
+    while (string_get_word(request->header, &pos, '\n', header, sizeof(header), 0)) {
         char *cps[2];
         if (string_split(header, cps, arraysize(cps), ':') != arraysize(cps)) {
             continue;
@@ -622,12 +585,8 @@ curl_write_cache (curl_request_t *request)
         }
     }
 
-    if (!path_write_atomic(request->path,
-                           request->body,
-                           request->body_size,
-                           0600)) {
-        LOG(ERROR, "Failed to open %s for saving: %d (%s)",
-            request->path, errno, strerror(errno));
+    if (!path_write_atomic(request->path, request->body, request->body_size, 0600)) {
+        LOG(ERROR, "Failed to open %s for saving: %d (%s)", request->path, errno, strerror(errno));
         etag = NULL;
     }
 
@@ -635,8 +594,7 @@ curl_write_cache (curl_request_t *request)
         char path[HUGE_BUF];
         snprintf(VS(path), "%s.etag", request->path);
         if (!path_write_atomic(path, etag, strlen(etag), 0600)) {
-            LOG(ERROR, "Failed to open %s for saving: %d (%s)",
-                path, errno, strerror(errno));
+            LOG(ERROR, "Failed to open %s for saving: %d (%s)", path, errno, strerror(errno));
         }
     }
 }
@@ -651,9 +609,7 @@ curl_write_cache (curl_request_t *request)
  * @return
  * The new structure.
  */
-curl_request_t *
-curl_request_create (const char *url, curl_pkey_trust_t trust)
-{
+curl_request_t *curl_request_create(const char *url, curl_pkey_trust_t trust) {
     HARD_ASSERT(url != NULL);
     TOOLKIT_PROTECT();
 
@@ -681,11 +637,7 @@ curl_request_create (const char *url, curl_pkey_trust_t trust)
  * @param value
  * Form value.
  */
-void
-curl_request_form_add (curl_request_t *request,
-                       const char     *key,
-                       const char     *value)
-{
+void curl_request_form_add(curl_request_t *request, const char *key, const char *value) {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(key != NULL);
     HARD_ASSERT(value != NULL);
@@ -708,9 +660,7 @@ curl_request_form_add (curl_request_t *request,
  * @param path
  * Path.
  */
-void
-curl_request_set_path (curl_request_t *request, const char *path)
-{
+void curl_request_set_path(curl_request_t *request, const char *path) {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(path != NULL);
     TOOLKIT_PROTECT();
@@ -723,9 +673,7 @@ curl_request_set_path (curl_request_t *request, const char *path)
 }
 
 /** Set the largest response body this request may retain. */
-void
-curl_request_set_max_body (curl_request_t *request, size_t maximum)
-{
+void curl_request_set_max_body(curl_request_t *request, size_t maximum) {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(maximum > 0);
     TOOLKIT_PROTECT();
@@ -740,11 +688,7 @@ curl_request_set_max_body (curl_request_t *request, size_t maximum)
  * that in most cases, the callback function will be called from the thread
  * used to process the HTTP request.
  */
-void
-curl_request_set_cb (curl_request_t *request,
-                     curl_request_cb cb,
-                     void           *user_data)
-{
+void curl_request_set_cb(curl_request_t *request, curl_request_cb cb, void *user_data) {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(cb != NULL);
     TOOLKIT_PROTECT();
@@ -761,10 +705,7 @@ curl_request_set_cb (curl_request_t *request,
  * @param delay
  * Delay in microseconds.
  */
-void
-curl_request_set_delay (curl_request_t *request,
-                        uint32_t        delay)
-{
+void curl_request_set_delay(curl_request_t *request, uint32_t delay) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
@@ -779,9 +720,7 @@ curl_request_set_delay (curl_request_t *request,
  * @return
  * State of the request.
  */
-curl_state_t
-curl_request_get_state (curl_request_t *request)
-{
+curl_state_t curl_request_get_state(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
@@ -803,9 +742,7 @@ curl_request_get_state (curl_request_t *request)
  * Response body. Always NUL-terminated. NULL in case the download isn't
  * finished yet (or has failed).
  */
-char *
-curl_request_get_body (curl_request_t *request, size_t *body_size)
-{
+char *curl_request_get_body(curl_request_t *request, size_t *body_size) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
@@ -831,9 +768,7 @@ curl_request_get_body (curl_request_t *request, size_t *body_size)
  * Response header. Always NUL-terminated. NULL in case the download isn't
  * finished yet (or has failed).
  */
-char *
-curl_request_get_header (curl_request_t *request, size_t *header_size)
-{
+char *curl_request_get_header(curl_request_t *request, size_t *header_size) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
@@ -856,9 +791,7 @@ curl_request_get_header (curl_request_t *request, size_t *header_size)
  * @return
  * HTTP code, -1 if the request isn't complete yet.
  */
-int
-curl_request_get_http_code (curl_request_t *request)
-{
+int curl_request_get_http_code(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
@@ -877,9 +810,7 @@ curl_request_get_http_code (curl_request_t *request)
  * @return
  * URL of the request.
  */
-const char *
-curl_request_get_url (curl_request_t *request)
-{
+const char *curl_request_get_url(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
     return request->url;
@@ -895,34 +826,31 @@ curl_request_get_url (curl_request_t *request)
  * @return
  * The returned size information.
  */
-int64_t
-curl_request_sizeinfo (curl_request_t *request, curl_info_t info)
-{
+int64_t curl_request_sizeinfo(curl_request_t *request, curl_info_t info) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
-    if (curl_request_get_state(request) != CURL_STATE_INPROGRESS ||
-        request->handle == NULL) {
+    if (curl_request_get_state(request) != CURL_STATE_INPROGRESS || request->handle == NULL) {
         return 0;
     }
 
     CURLINFO info_code;
     switch (info) {
-    case CURL_INFO_DL_LENGTH:
-        info_code = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
-        break;
+        case CURL_INFO_DL_LENGTH:
+            info_code = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
+            break;
 
-    case CURL_INFO_DL_SPEED:
-        info_code = CURLINFO_SPEED_DOWNLOAD;
-        break;
+        case CURL_INFO_DL_SPEED:
+            info_code = CURLINFO_SPEED_DOWNLOAD;
+            break;
 
-    case CURL_INFO_DL_SIZE:
-        info_code = CURLINFO_SIZE_DOWNLOAD;
-        break;
+        case CURL_INFO_DL_SIZE:
+            info_code = CURLINFO_SIZE_DOWNLOAD;
+            break;
 
-    default:
-        LOG(ERROR, "Invalid info ID: %d", info);
-        return 0;
+        default:
+            LOG(ERROR, "Invalid info ID: %d", info);
+            return 0;
     }
 
     double val;
@@ -931,7 +859,7 @@ curl_request_sizeinfo (curl_request_t *request, curl_info_t info)
     if (res == CURLE_OK) {
         /* cURL uses doubles, but all the info values we use this for are
          * in bytes, so there's no reason for a double. */
-        return (int64_t) val;
+        return (int64_t)val;
     }
 
     return 0;
@@ -949,9 +877,7 @@ curl_request_sizeinfo (curl_request_t *request, curl_info_t info)
  * @return
  * 'buf'.
  */
-char *
-curl_request_speedinfo (curl_request_t *request, char *buf, size_t bufsize)
-{
+char *curl_request_speedinfo(curl_request_t *request, char *buf, size_t bufsize) {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(buf != NULL);
     TOOLKIT_PROTECT();
@@ -963,12 +889,13 @@ curl_request_speedinfo (curl_request_t *request, char *buf, size_t bufsize)
     if (speed == 0 && received == 0 && size == 0) {
         *buf = '\0';
     } else if (size == -1) {
-        snprintf(buf, bufsize, "%0.3f MB/s",
-                 speed / 1000.0 / 1000.0);
+        snprintf(buf, bufsize, "%0.3f MB/s", speed / 1000.0 / 1000.0);
     } else {
         received = MAX(1, received);
         size = MAX(1, size);
-        snprintf(buf, bufsize, "%.0f%% @ %0.3f MB/s",
+        snprintf(buf,
+                 bufsize,
+                 "%.0f%% @ %0.3f MB/s",
                  received * 100.0 / size,
                  speed / 1000.0 / 1000.0);
     }
@@ -985,9 +912,7 @@ curl_request_speedinfo (curl_request_t *request, char *buf, size_t bufsize)
  * @param request
  * What to free.
  */
-void
-curl_request_free (curl_request_t *request)
-{
+void curl_request_free(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
@@ -1035,15 +960,12 @@ curl_request_free (curl_request_t *request)
  * @return
  * 1 if the verification succeeded, 0 otherwise.
  */
-static int
-curl_ssl_verify (int preverify_ok, X509_STORE_CTX *ctx)
-{
+static int curl_ssl_verify(int preverify_ok, X509_STORE_CTX *ctx) {
     if (!preverify_ok) {
         return 0;
     }
 
-    SSL *ssl = X509_STORE_CTX_get_ex_data(ctx,
-                                          SSL_get_ex_data_X509_STORE_CTX_idx());
+    SSL *ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
     SOFT_ASSERT_RC(ssl != NULL, 0, "Failed to get SSL pointer");
     SSL_CTX *ssl_ctx = SSL_get_SSL_CTX(ssl);
     SOFT_ASSERT_RC(ssl_ctx != NULL, 0, "Failed to get SSL_CTX pointer");
@@ -1058,7 +980,8 @@ curl_ssl_verify (int preverify_ok, X509_STORE_CTX *ctx)
     }
 
     if (curl_trust_pkeys[request->trust] == NULL) {
-        SOFT_ASSERT_RC(request->trust != CURL_PKEY_TRUST_ULTIMATE, 0,
+        SOFT_ASSERT_RC(request->trust != CURL_PKEY_TRUST_ULTIMATE,
+                       0,
                        "Ultimate trust check requested but store is NULL");
         request->untrusted = true;
         pthread_mutex_unlock(&request->mutex);
@@ -1069,7 +992,8 @@ curl_ssl_verify (int preverify_ok, X509_STORE_CTX *ctx)
 
     X509 *cert = X509_STORE_CTX_get_current_cert(ctx);
     SOFT_ASSERT_RC(cert != NULL, 0, "Failed to get X509 pointer");
-    EVP_PKEY *pubkey = X509_get_pubkey(cert);;
+    EVP_PKEY *pubkey = X509_get_pubkey(cert);
+    ;
     SOFT_ASSERT_RC(pubkey != NULL, 0, "Failed to get EVP_PKEY pointer");
 
     /* Acquire the certificate's common name and store it. */
@@ -1120,9 +1044,7 @@ out:
  * @warning
  * This function expects the cURL request mutex to be locked.
  */
-static bool
-curl_verify_cert_chain (curl_request_t *request)
-{
+static bool curl_verify_cert_chain(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
 
     /* No certificate verified yet. */
@@ -1134,15 +1056,12 @@ curl_verify_cert_chain (curl_request_t *request)
 
     if (request->cert_chain == 0) {
         LOG(SYSTEM, "!!! UNTRUSTED CERTIFICATE !!!");
-        LOG(SYSTEM, "Aborting connection to URL: %s, CN: %s",
-            request->url, request->cert_cn);
+        LOG(SYSTEM, "Aborting connection to URL: %s, CN: %s", request->url, request->cert_cn);
         return false;
     }
 
     unsigned char sha1_output[20];
-    sha1((unsigned char *) request->cert_cn,
-         strlen(request->cert_cn),
-         sha1_output);
+    sha1((unsigned char *)request->cert_cn, strlen(request->cert_cn), sha1_output);
 
     char sha1_output_ascii[sizeof(sha1_output) * 2 + 1];
     for (size_t i = 0; i < sizeof(sha1_output); i++) {
@@ -1160,10 +1079,8 @@ curl_verify_cert_chain (curl_request_t *request)
             LOG(ERROR, "Certificate chain file is corrupt: %s", path);
         } else if (cert_chain != request->cert_chain) {
             LOG(SYSTEM, "!!! CERTIFICATE CHAIN CHANGED !!!");
-            LOG(SYSTEM, "Old chain: %x, new chain: %x",
-                cert_chain, request->cert_chain);
-            LOG(SYSTEM, "Aborting connection to URL: %s, CN: %s",
-                request->url, request->cert_cn);
+            LOG(SYSTEM, "Old chain: %x, new chain: %x", cert_chain, request->cert_chain);
+            LOG(SYSTEM, "Aborting connection to URL: %s, CN: %s", request->url, request->cert_cn);
             fclose(fp);
             pthread_mutex_unlock(&certchains_mutex);
             return false;
@@ -1174,10 +1091,7 @@ curl_verify_cert_chain (curl_request_t *request)
 
     fp = path_fopen(path, "wb");
     if (fp != NULL) {
-        if (fwrite(&request->cert_chain,
-                   sizeof(request->cert_chain),
-                   1,
-                   fp) != 1) {
+        if (fwrite(&request->cert_chain, sizeof(request->cert_chain), 1, fp) != 1) {
             LOG(ERROR, "Failed to write data to file: %s", path);
         }
 
@@ -1203,9 +1117,7 @@ curl_verify_cert_chain (curl_request_t *request)
  * @return
  * CURLE_OK on success, anything else on failure.
  */
-static CURLcode
-curl_ssl_ctx (CURL *curl, void *ssl_ctx, void *user_data)
-{
+static CURLcode curl_ssl_ctx(CURL *curl, void *ssl_ctx, void *user_data) {
     curl_request_t *request = user_data;
     pthread_mutex_lock(&request->mutex);
 
@@ -1218,7 +1130,7 @@ curl_ssl_ctx (CURL *curl, void *ssl_ctx, void *user_data)
     request->cert_chain = 0;
     pthread_mutex_unlock(&request->mutex);
 
-    SSL_CTX *ctx = (SSL_CTX *) ssl_ctx;
+    SSL_CTX *ctx = (SSL_CTX *)ssl_ctx;
     SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, curl_ssl_verify);
     SSL_CTX_set_app_data(ctx, user_data);
     return CURLE_OK;
@@ -1238,9 +1150,7 @@ curl_ssl_ctx (CURL *curl, void *ssl_ctx, void *user_data)
  * @return
  * Number of bytes processed.
  */
-static size_t
-curl_callback (char *buffer, size_t size, size_t nitems, void *userdata)
-{
+static size_t curl_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
     curl_request_t *request = userdata;
     pthread_mutex_lock(&request->mutex);
 
@@ -1262,8 +1172,7 @@ curl_callback (char *buffer, size_t size, size_t nitems, void *userdata)
         process_cb(CURL_REQUEST_PROCESS_RX, realsize);
     }
 
-    request->body = erealloc(request->body,
-                             request->body_size + realsize + 1);
+    request->body = erealloc(request->body, request->body_size + realsize + 1);
     if (request->body != NULL) {
         memcpy(request->body + request->body_size, buffer, realsize);
         request->body_size += realsize;
@@ -1289,9 +1198,7 @@ curl_callback (char *buffer, size_t size, size_t nitems, void *userdata)
  * @return
  * Number of bytes processed.
  */
-static size_t
-curl_header_callback (char *buffer, size_t size, size_t nitems, void *userdata)
-{
+static size_t curl_header_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
     curl_request_t *request = userdata;
     pthread_mutex_lock(&request->mutex);
 
@@ -1306,8 +1213,7 @@ curl_header_callback (char *buffer, size_t size, size_t nitems, void *userdata)
         process_cb(CURL_REQUEST_PROCESS_RX, realsize);
     }
 
-    request->header = erealloc(request->header,
-                               request->header_size + realsize + 1);
+    request->header = erealloc(request->header, request->header_size + realsize + 1);
     if (request->header != NULL) {
         memcpy(request->header + request->header_size, buffer, realsize);
         request->header_size += realsize;
@@ -1336,12 +1242,7 @@ curl_header_callback (char *buffer, size_t size, size_t nitems, void *userdata)
  * 1 to continue downloading, 0 otherwise.
  */
 static int
-curl_progress (void  *userdata,
-               double dltotal,
-               double dlnow,
-               double ultotal,
-               double ulnow)
-{
+curl_progress(void *userdata, double dltotal, double dlnow, double ultotal, double ulnow) {
     curl_request_t *request = userdata;
 
     pthread_mutex_lock(&request->mutex);
@@ -1367,9 +1268,7 @@ curl_progress (void  *userdata,
  * @param request
  * cURL request.
  */
-static curl_state_t
-curl_request_setup (curl_request_t *request)
-{
+static curl_state_t curl_request_setup(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(request->handle != NULL);
 
@@ -1383,9 +1282,7 @@ curl_request_setup (curl_request_t *request)
     CURL_SETOPT(request->handle, CURLOPT_FOLLOWLOCATION, 1);
 
     if (request->max_body_size != SIZE_MAX) {
-        CURL_SETOPT(request->handle,
-                    CURLOPT_MAXFILESIZE_LARGE,
-                    (curl_off_t) request->max_body_size);
+        CURL_SETOPT(request->handle, CURLOPT_MAXFILESIZE_LARGE, (curl_off_t)request->max_body_size);
     }
 
     /* Register a progress function so that we can quit the thread if
@@ -1401,17 +1298,17 @@ curl_request_setup (curl_request_t *request)
 
     /* The callback function. */
     CURL_SETOPT(request->handle, CURLOPT_WRITEFUNCTION, curl_callback);
-    CURL_SETOPT(request->handle, CURLOPT_WRITEDATA, (void *) request);
+    CURL_SETOPT(request->handle, CURLOPT_WRITEDATA, (void *)request);
 
     /* The header callback function. */
     CURL_SETOPT(request->handle, CURLOPT_HEADERFUNCTION, curl_header_callback);
-    CURL_SETOPT(request->handle, CURLOPT_HEADERDATA, (void *) request);
+    CURL_SETOPT(request->handle, CURLOPT_HEADERDATA, (void *)request);
 
     /* Set user agent. */
     CURL_SETOPT(request->handle, CURLOPT_USERAGENT, curl_user_agent);
 
     CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_FUNCTION, curl_ssl_ctx);
-    CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_DATA, (void *) request);
+    CURL_SETOPT(request->handle, CURLOPT_SSL_CTX_DATA, (void *)request);
 
 #ifdef WIN32
     curl_easy_setopt(request->handle, CURLOPT_CAINFO, "ca-bundle.crt");
@@ -1428,9 +1325,7 @@ curl_request_setup (curl_request_t *request)
  * @return
  * State code.
  */
-static curl_state_t
-curl_request_complete (curl_request_t *request)
-{
+static curl_state_t curl_request_complete(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     HARD_ASSERT(request->handle != NULL);
 
@@ -1439,15 +1334,12 @@ curl_request_complete (curl_request_t *request)
 
     long request_size;
     if (process_cb != NULL &&
-        curl_easy_getinfo(request->handle,
-                          CURLINFO_REQUEST_SIZE,
-                          &request_size) == CURLE_OK) {
+        curl_easy_getinfo(request->handle, CURLINFO_REQUEST_SIZE, &request_size) == CURLE_OK) {
         process_cb(CURL_REQUEST_PROCESS_TX, request_size);
     }
 
     if (res != CURLE_OK) {
-        LOG(ERROR, "curl_easy_perform() got error %d (%s).",
-            res, curl_easy_strerror(res));
+        LOG(ERROR, "curl_easy_perform() got error %d (%s).", res, curl_easy_strerror(res));
         return CURL_STATE_ERROR;
     }
 
@@ -1491,9 +1383,7 @@ curl_request_complete (curl_request_t *request)
  * @param user_data
  * ::curl_request_t structure that will receive the data.
  */
-void *
-curl_request_do_get (void *user_data)
-{
+void *curl_request_do_get(void *user_data) {
     curl_request_t *request = user_data;
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
@@ -1554,16 +1444,11 @@ done:
  * @param request
  * Previously created cURL request.
  */
-void
-curl_request_start_get (curl_request_t *request)
-{
+void curl_request_start_get(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
-    int rc = pthread_create(&request->thread_id,
-                            NULL,
-                            curl_request_do_get,
-                            request);
+    int rc = pthread_create(&request->thread_id, NULL, curl_request_do_get, request);
     if (rc != 0) {
         /* Thread creation failed; no lock necessary. */
         /* coverity[missing_lock] */
@@ -1581,9 +1466,7 @@ curl_request_start_get (curl_request_t *request)
  * @param user_data
  * ::curl_request_t structure that will receive the data.
  */
-void *
-curl_request_do_post (void *user_data)
-{
+void *curl_request_do_post(void *user_data) {
     curl_request_t *request = user_data;
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
@@ -1632,16 +1515,11 @@ done:
  * @param request
  * Previously created cURL request.
  */
-void
-curl_request_start_post (curl_request_t *request)
-{
+void curl_request_start_post(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
     TOOLKIT_PROTECT();
 
-    int rc = pthread_create(&request->thread_id,
-                            NULL,
-                            curl_request_do_post,
-                            request);
+    int rc = pthread_create(&request->thread_id, NULL, curl_request_do_post, request);
     if (rc != 0) {
         /* Thread creation failed; no lock necessary. */
         /* coverity[missing_lock] */
@@ -1666,33 +1544,28 @@ curl_request_start_post (curl_request_t *request)
  * @return
  * True if the signature matches the message, false otherwise.
  */
-static bool
-curl_do_verify (EVP_PKEY            *key,
-                const char          *msg,
-                size_t               msg_len,
-                const unsigned char *sig,
-                size_t               sig_len)
-{
+static bool curl_do_verify(EVP_PKEY *key,
+                           const char *msg,
+                           size_t msg_len,
+                           const unsigned char *sig,
+                           size_t sig_len) {
     HARD_ASSERT(key != NULL);
     HARD_ASSERT(msg != NULL);
     HARD_ASSERT(sig != NULL);
 
     EVP_MD_CTX *ctx = EVP_MD_CTX_create();
     if (ctx == NULL) {
-        LOG(ERROR, "EVP_MD_CTX_create() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "EVP_MD_CTX_create() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
     if (EVP_DigestVerifyInit(ctx, NULL, EVP_sha512(), NULL, key) != 1) {
-        LOG(ERROR, "EVP_DigestSignInit() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "EVP_DigestSignInit() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
     if (EVP_DigestVerifyUpdate(ctx, msg, msg_len) != 1) {
-        LOG(ERROR, "EVP_DigestVerifyUpdate() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "EVP_DigestVerifyUpdate() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
@@ -1700,8 +1573,7 @@ curl_do_verify (EVP_PKEY            *key,
     memcpy(cp, sig, sig_len);
 
     if (EVP_DigestVerifyFinal(ctx, cp, sig_len) != 1) {
-        LOG(ERROR, "EVP_DigestVerifyFinal() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "EVP_DigestVerifyFinal() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         efree(cp);
         goto error;
     }
@@ -1740,17 +1612,16 @@ out:
  * @todo
  * This should really go in a separate API, along with the trust store stuff.
  */
-bool
-curl_verify (curl_pkey_trust_t    trust,
-             const char          *msg,
-             size_t               msg_len,
-             const unsigned char *sig,
-             size_t               sig_len)
-{
+bool curl_verify(curl_pkey_trust_t trust,
+                 const char *msg,
+                 size_t msg_len,
+                 const unsigned char *sig,
+                 size_t sig_len) {
     HARD_ASSERT(msg != NULL);
     HARD_ASSERT(sig != NULL);
 
-    SOFT_ASSERT_RC(curl_trust_pkeys[trust], false,
+    SOFT_ASSERT_RC(curl_trust_pkeys[trust],
+                   false,
                    "Verification requested but no public key loaded");
 
     curl_trust_store_t *store;

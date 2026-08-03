@@ -97,14 +97,13 @@
  * @param _nv_
  * String to copy to the shared string.
  */
-#define FREE_AND_COPY_HASH(_sv_, _nv_)     \
-    {                                      \
-        if (_sv_)                          \
-        {                                  \
-            free_string_shared(_sv_);      \
-        }                                  \
-                                           \
-        _sv_ = add_string(_nv_);           \
+#define FREE_AND_COPY_HASH(_sv_, _nv_) \
+    {                                  \
+        if (_sv_) {                    \
+            free_string_shared(_sv_);  \
+        }                              \
+                                       \
+        _sv_ = add_string(_nv_);       \
     }
 /**
  * Free old hash and add a reference to the new one.
@@ -113,24 +112,22 @@
  * @param _nv_
  * String to add reference to. Must be a shared string.
  */
-#define FREE_AND_ADD_REF_HASH(_sv_, _nv_)     \
-    {                                         \
-        if (_sv_)                             \
-        {                                     \
-            free_string_shared(_sv_);         \
-        }                                     \
-                                              \
-        _sv_ = add_refcount(_nv_);            \
+#define FREE_AND_ADD_REF_HASH(_sv_, _nv_) \
+    {                                     \
+        if (_sv_) {                       \
+            free_string_shared(_sv_);     \
+        }                                 \
+                                          \
+        _sv_ = add_refcount(_nv_);        \
     }
 /**
  * Free and NULL a shared string.
  * @param _nv_
  * Shared string to free and NULL.
  */
-#define FREE_AND_CLEAR_HASH(_nv_) \
+#define FREE_AND_CLEAR_HASH(_nv_)     \
     {                                 \
-        if (_nv_)                     \
-        {                             \
+        if (_nv_) {                   \
             free_string_shared(_nv_); \
             _nv_ = NULL;              \
         }                             \
@@ -141,8 +138,7 @@
  * Shared string to free.
  */
 #define FREE_ONLY_HASH(_nv_)      \
-    if (_nv_)                     \
-    {                             \
+    if (_nv_) {                   \
         free_string_shared(_nv_); \
     }
 /**
@@ -150,20 +146,18 @@
  * @param _nv_
  * Pointer to shared string.
  */
-#define ADD_REF_NOT_NULL_HASH(_nv_)     \
-    if (_nv_)                           \
-    {                                   \
-        add_refcount(_nv_);             \
+#define ADD_REF_NOT_NULL_HASH(_nv_) \
+    if (_nv_) {                     \
+        add_refcount(_nv_);         \
     }
 /**
  * @copydoc FREE_AND_CLEAR_HASH
  * @warning Like FREE_AND_CLEAR_HASH(), but without { and }.
  */
-#define FREE_AND_CLEAR_HASH2(_nv_)     \
-    if (_nv_)                          \
-    {                                  \
-        free_string_shared(_nv_);      \
-        _nv_ = NULL;                   \
+#define FREE_AND_CLEAR_HASH2(_nv_) \
+    if (_nv_) {                    \
+        free_string_shared(_nv_);  \
+        _nv_ = NULL;               \
     }
 /*@}*/
 
@@ -265,7 +259,8 @@ typedef struct linked_char {
 /**
  * Use to get a safe arch name of object, even if the object arch name is NULL.
  */
-#define STRING_OBJ_ARCH_NAME(__ob__) ((__ob__)->arch ? ((__ob__)->arch->name ? (__ob__)->arch->name : ">NULL<") : ">NULL<")
+#define STRING_OBJ_ARCH_NAME(__ob__) \
+    ((__ob__)->arch ? ((__ob__)->arch->name ? (__ob__)->arch->name : ">NULL<") : ">NULL<")
 /**
  * Use to get a safe slaying value of an object, even if the slaying value is
  * NULL.
@@ -279,16 +274,20 @@ typedef struct linked_char {
  * @param newanim
  * Animation ID to set.
  */
-#define SET_ANIMATION(ob, newanim) (ob)->face = &new_faces[animations[(ob)->animation_id].faces[(newanim)]]
+#define SET_ANIMATION(ob, newanim) \
+    (ob)->face = &new_faces[animations[(ob)->animation_id].faces[(newanim)]]
 /**
  * Set object's animation depending on its number of animations/facings,
  * direction and animation state.
  */
-#define SET_ANIMATION_STATE(ob) \
-    if ((ob)->animation_id && NUM_FACINGS((ob)) && (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) \
-    { \
-        SET_ANIMATION((ob), (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) * (QUERY_FLAG((ob), FLAG_IS_TURNABLE) ? (ob)->direction : 0) + (ob)->state); \
-        object_update((ob), UP_OBJ_FACE); \
+#define SET_ANIMATION_STATE(ob)                                                            \
+    if ((ob)->animation_id && NUM_FACINGS((ob)) &&                                         \
+        (QUERY_FLAG((ob), FLAG_IS_TURNABLE) || QUERY_FLAG((ob), FLAG_ANIMATE))) {          \
+        SET_ANIMATION((ob),                                                                \
+                      (NUM_ANIMATIONS((ob)) / NUM_FACINGS((ob))) *                         \
+                              (QUERY_FLAG((ob), FLAG_IS_TURNABLE) ? (ob)->direction : 0) + \
+                          (ob)->state);                                                    \
+        object_update((ob), UP_OBJ_FACE);                                                  \
     }
 /** Get object's animation ID. */
 #define GET_ANIM_ID(ob) (ob->animation_id)
@@ -301,13 +300,12 @@ typedef struct linked_char {
 
 /** Free and NULL a pointer. */
 #define FREE_AND_NULL_PTR(_xyz_) \
-    {                                \
-        if (_xyz_)                   \
-        {                            \
-            efree(_xyz_);            \
-        }                            \
+    {                            \
+        if (_xyz_) {             \
+            efree(_xyz_);        \
+        }                        \
                                  \
-        _xyz_ = NULL;                \
+        _xyz_ = NULL;            \
     }
 
 enum {
@@ -474,12 +472,12 @@ typedef struct settings_struct {
     /**
      * Whether to recycle tmp maps or not.
      */
-    bool recycle_tmp_maps:1;
+    bool recycle_tmp_maps : 1;
 
     /**
      * Whether to start the bundled HTTP server.
      */
-    bool http_server:1;
+    bool http_server : 1;
 
     /**
      * URL to the HTTP server.

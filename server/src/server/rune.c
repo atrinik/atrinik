@@ -43,8 +43,7 @@
  * @retval 0 Trap wasn't spotted.
  * @retval 1 Trap was spotted.
  */
-int trap_see(object *op, object *trap, int level)
-{
+int trap_see(object *op, object *trap, int level) {
     /* Explicit searching is a capability check, not a rerollable lottery.
      * This prevents repeated skill commands from being strictly better than
      * one deliberate search while still leaving over-level traps hidden. */
@@ -70,8 +69,7 @@ int trap_see(object *op, object *trap, int level)
  * @return
  * 1 if the trap was shown, 0 otherwise.
  */
-int trap_show(object *trap, object *where)
-{
+int trap_show(object *trap, object *where) {
     object *env;
 
     if (where == NULL) {
@@ -94,8 +92,8 @@ int trap_show(object *trap, object *where)
         trap->stats.Int = 1;
     }
 
-    if (env && env->type != PLAYER && env->type != MONSTER &&
-            env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS)) {
+    if (env && env->type != PLAYER && env->type != MONSTER && env->type != DOOR &&
+        !QUERY_FLAG(env, FLAG_NO_PASS)) {
         object_insert_into(trap, env, 0);
         set_trapped_flag(env);
     } else if (where->map != NULL) {
@@ -114,27 +112,34 @@ int trap_show(object *trap, object *where)
  * @return
  * 1 if trap was disarmed, 0 otherwise.
  */
-int trap_disarm(object *disarmer, object *trap)
-{
+int trap_disarm(object *disarmer, object *trap) {
     object *env = trap->env;
     object *skill = CONTR(disarmer)->skill_ptr[SK_REMOVE_TRAPS];
     int skill_level = skill != NULL ? skill->level : 0;
-    int disarmer_level = MAX(disarmer->level, skill_level) +
-            disarmer->stats.Dex / 4;
+    int disarmer_level = MAX(disarmer->level, skill_level) + disarmer->stats.Dex / 4;
 
     /* As with explicit detection, disarming is deterministic at a given
      * capability. Repeating the same command cannot reroll a failure. */
     if (trap->level <= disarmer_level) {
-        draw_info_format(COLOR_WHITE, disarmer, "You successfully remove the %s (lvl %d)!", trap->name, trap->level);
+        draw_info_format(COLOR_WHITE,
+                         disarmer,
+                         "You successfully remove the %s (lvl %d)!",
+                         trap->name,
+                         trap->level);
         object_remove(trap, 0);
         set_trapped_flag(env);
         CONTR(disarmer)->stat_traps_disarmed++;
         return 1;
     } else {
-        draw_info_format(COLOR_WHITE, disarmer, "You fail to remove the %s (lvl %d).", trap->name, trap->level);
+        draw_info_format(COLOR_WHITE,
+                         disarmer,
+                         "You fail to remove the %s (lvl %d).",
+                         trap->name,
+                         trap->level);
 
         if (trap->level > disarmer_level * 1.4f || rndm(0, 2)) {
-            if (!(rndm(0, (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1))) {
+            if (!(rndm(0,
+                       (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1))) {
                 draw_info(COLOR_WHITE, disarmer, "In fact, you set it off!");
                 rune_spring(trap, disarmer);
             }

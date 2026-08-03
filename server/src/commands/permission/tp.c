@@ -35,8 +35,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_tp(object *op, const char *command, char *params)
-{
+void command_tp(object *op, const char *command, char *params) {
     char word[MAX_BUF];
     size_t pos;
     player *dst, *who;

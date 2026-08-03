@@ -35,6 +35,4 @@
 /**
  * Initialize the material type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(material)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(material) {}

@@ -43,13 +43,11 @@
  * Message used in the painting UI when the painting is not identified.
  */
 static const char *const painting_message_decipher =
-"[i][b]<You are unable to decipher the strange runes inscribed upon the "
-"frame of the painting...>[/b][/i]";
+    "[i][b]<You are unable to decipher the strange runes inscribed upon the "
+    "frame of the painting...>[/b][/i]";
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -58,14 +56,14 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (op->slaying == NULL) {
-        LOG(ERROR, "Painting object %s has no slaying attribute",
-            object_get_str(op));
+        LOG(ERROR, "Painting object %s has no slaying attribute", object_get_str(op));
         return OBJECT_METHOD_ERROR;
     }
 
     resource_t *resource = resources_find(op->slaying);
     if (resource == NULL) {
-        LOG(ERROR, "Painting object %s has an invalid slaying attribute: '%s'",
+        LOG(ERROR,
+            "Painting object %s has an invalid slaying attribute: '%s'",
             object_get_str(op),
             op->slaying);
         return OBJECT_METHOD_ERROR;
@@ -93,13 +91,11 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -109,8 +105,7 @@ process_treasure_func (object              *op,
     }
 
     if (!artifact_generate(op, difficulty, affinity)) {
-        log_error("Failed to generate artifact for painting: %s",
-                  object_get_str(op));
+        log_error("Failed to generate artifact for painting: %s", object_get_str(op));
         object_remove(op, 0);
         object_destroy(op);
         return OBJECT_METHOD_ERROR;
@@ -122,8 +117,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the pants type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(painting)
-{
+OBJECT_TYPE_INIT_DEFINE(painting) {
     OBJECT_METHODS(PAINTING)->apply_func = apply_func;
     OBJECT_METHODS(PAINTING)->process_treasure_func = process_treasure_func;
 }

@@ -20,9 +20,7 @@ static popup_struct *join_password_popup;
 static server_struct *join_password_server;
 static text_input_struct password_input;
 
-static int
-popup_draw (popup_struct *popup)
-{
+static int popup_draw(popup_struct *popup) {
     SDL_Rect box = {0, 0, popup->surface->w, 38};
     text_show(popup->surface,
               FONT_SERIF16,
@@ -66,9 +64,7 @@ popup_draw (popup_struct *popup)
     return 1;
 }
 
-static int
-popup_event (popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (button_event(&button_connect, event) ||
         (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
         if (join_password_server == NULL || password_input.str[0] == '\0') {
@@ -89,21 +85,16 @@ popup_event (popup_struct *popup, SDL_Event *event)
     if (text_input_event(&password_input, event)) {
         return 1;
     }
-    if (event->type == SDL_MOUSEBUTTONDOWN &&
-        event->button.button == SDL_BUTTON_LEFT &&
-        text_input_mouse_over(&password_input,
-                              event->button.x,
-                              event->button.y)) {
+    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT &&
+        text_input_mouse_over(&password_input, event->button.x, event->button.y)) {
         password_input.focus = 1;
         return 1;
     }
     return -1;
 }
 
-static int
-popup_destroy_callback (popup_struct *popup)
-{
-    (void) popup;
+static int popup_destroy_callback(popup_struct *popup) {
+    (void)popup;
     OPENSSL_cleanse(password_input.str, sizeof(password_input.str));
     text_input_destroy(&password_input);
     button_destroy(&button_connect);
@@ -112,14 +103,11 @@ popup_destroy_callback (popup_struct *popup)
     return 1;
 }
 
-void
-join_password_open (server_struct *server)
-{
+void join_password_open(server_struct *server) {
     HARD_ASSERT(server != NULL);
 
     join_password_server = server;
-    join_password_popup =
-        popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
+    join_password_popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
     join_password_popup->draw_func = popup_draw;
     join_password_popup->event_func = popup_event;
     join_password_popup->destroy_callback_func = popup_destroy_callback;

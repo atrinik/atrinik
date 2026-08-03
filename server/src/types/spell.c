@@ -34,19 +34,11 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::ranged_fire_func */
-static int
-ranged_fire_func (object *op, object *shooter, int dir, double *delay)
-{
+static int ranged_fire_func(object *op, object *shooter, int dir, double *delay) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(shooter != NULL);
 
-    int cost = cast_spell(shooter,
-                          shooter,
-                          dir,
-                          op->stats.sp,
-                          0,
-                          CAST_NORMAL,
-                          NULL);
+    int cost = cast_spell(shooter, shooter, dir, op->stats.sp, 0, CAST_NORMAL, NULL);
     if (cost != 0) {
         shooter->stats.sp -= cost;
 
@@ -63,8 +55,7 @@ ranged_fire_func (object *op, object *shooter, int dir, double *delay)
 /**
  * Initialize the spell type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(spell)
-{
+OBJECT_TYPE_INIT_DEFINE(spell) {
     OBJECT_METHODS(SPELL)->apply_func = object_apply_item;
     OBJECT_METHODS(SPELL)->ranged_fire_func = ranged_fire_func;
 }

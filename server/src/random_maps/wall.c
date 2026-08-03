@@ -42,8 +42,7 @@
  * - <b>4</b>: Something on above.
  * - <b>8</b>: Something on below.
  */
-int surround_flag(char **layout, int i, int j, RMParms *RP)
-{
+int surround_flag(char **layout, int i, int j, RMParms *RP) {
     int surround_index = 0;
 
     if ((i > 0) && layout[i - 1][j] != '\0') {
@@ -77,8 +76,7 @@ int surround_flag(char **layout, int i, int j, RMParms *RP)
  * - <b>4</b>: Wall/door on above.
  * - <b>8</b>: Wall/door on below.
  */
-int surround_flag2(char **layout, int i, int j, RMParms *RP)
-{
+int surround_flag2(char **layout, int i, int j, RMParms *RP) {
     int surround_index = 0;
 
     if ((i > 0) && (layout[i - 1][j] == '#' || layout[i - 1][j] == 'D')) {
@@ -116,8 +114,7 @@ int surround_flag2(char **layout, int i, int j, RMParms *RP)
  * - <b>4</b>: Blocked on above.
  * - <b>8</b>: Blocked on below.
  */
-int surround_flag3(mapstruct *map, int i, int j, RMParms *RP)
-{
+int surround_flag3(mapstruct *map, int i, int j, RMParms *RP) {
     int surround_index = 0;
 
     if ((i > 0) && blocked(NULL, map, i - 1, j, TERRAIN_ALL)) {
@@ -155,8 +152,7 @@ int surround_flag3(mapstruct *map, int i, int j, RMParms *RP)
  * - <b>4</b>: Wall on above.
  * - <b>8</b>: Wall on below.
  */
-int surround_flag4(mapstruct *map, int i, int j, RMParms *RP)
-{
+int surround_flag4(mapstruct *map, int i, int j, RMParms *RP) {
     int surround_index = 0;
 
     if ((i > 0) && wall_blocked(map, i - 1, j)) {
@@ -190,8 +186,7 @@ int surround_flag4(mapstruct *map, int i, int j, RMParms *RP)
  * @param RP
  * Random map parameters.
  */
-void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP)
-{
+void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP) {
     char styledirname[256], stylefilepath[256];
     mapstruct *style_map = NULL;
     object *the_wall;
@@ -251,8 +246,7 @@ void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP)
  * @return
  * Correct wall archetype to fit on the square.
  */
-object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms *RP)
-{
+object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms *RP) {
     int surround_index = 0, l;
     char wall_name[MAX_BUF];
     archetype_t *wall_arch = 0;
@@ -277,36 +271,36 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
     surround_index = surround_flag2(layout, i, j, RP);
 
     switch (surround_index) {
-    case 0:
-        strcat(wall_name, "_0");
-        break;
+        case 0:
+            strcat(wall_name, "_0");
+            break;
 
-    case 10:
-    case 8:
-    case 2:
-        strcat(wall_name, "_8");
-        break;
+        case 10:
+        case 8:
+        case 2:
+            strcat(wall_name, "_8");
+            break;
 
-    case 11:
-    case 9:
-    case 3:
-        strcat(wall_name, "_1");
-        break;
+        case 11:
+        case 9:
+        case 3:
+            strcat(wall_name, "_1");
+            break;
 
-    case 12:
-    case 4:
-    case 14:
-    case 6:
-        strcat(wall_name, "_3");
-        break;
+        case 12:
+        case 4:
+        case 14:
+        case 6:
+            strcat(wall_name, "_3");
+            break;
 
-    case 1:
-    case 5:
-    case 7:
-    case 13:
-    case 15:
-        strcat(wall_name, "_4");
-        break;
+        case 1:
+        case 5:
+        case 7:
+        case 13:
+        case 15:
+            strcat(wall_name, "_4");
+            break;
     }
 
     wall_arch = arch_find(wall_name);
@@ -330,8 +324,7 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
  * Correct wall for spot.
  * @todo Merge with pick_joined_wall()?
  */
-object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP)
-{
+object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP) {
     int surround_index = 0, l;
     object *the_wall = NULL, *new_wall = NULL;
     archetype_t *wall_arch = NULL;
@@ -368,36 +361,36 @@ object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, 
     surround_index = surround_flag4(the_map, i, j, RP);
 
     switch (surround_index) {
-    case 0:
-        strcat(RP->wall_name, "_0");
-        break;
+        case 0:
+            strcat(RP->wall_name, "_0");
+            break;
 
-    case 10:
-    case 8:
-    case 2:
-        strcat(RP->wall_name, "_8");
-        break;
+        case 10:
+        case 8:
+        case 2:
+            strcat(RP->wall_name, "_8");
+            break;
 
-    case 11:
-    case 9:
-    case 3:
-        strcat(RP->wall_name, "_1");
-        break;
+        case 11:
+        case 9:
+        case 3:
+            strcat(RP->wall_name, "_1");
+            break;
 
-    case 12:
-    case 4:
-    case 14:
-    case 6:
-        strcat(RP->wall_name, "_3");
-        break;
+        case 12:
+        case 4:
+        case 14:
+        case 6:
+            strcat(RP->wall_name, "_3");
+            break;
 
-    case 1:
-    case 5:
-    case 7:
-    case 13:
-    case 15:
-        strcat(RP->wall_name, "_4");
-        break;
+        case 1:
+        case 5:
+        case 7:
+        case 13:
+        case 15:
+            strcat(RP->wall_name, "_4");
+            break;
     }
 
     wall_arch = arch_find(RP->wall_name);

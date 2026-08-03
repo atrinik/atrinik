@@ -67,8 +67,7 @@ void *memory_emalloc(size_t size MEMORY_DEBUG_PROTO);
 void memory_efree(void *ptr MEMORY_DEBUG_PROTO);
 void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO);
 void *memory_erealloc(void *ptr, size_t size MEMORY_DEBUG_PROTO);
-void *memory_reallocz(void *ptr, size_t old_size, size_t new_size
-        MEMORY_DEBUG_PROTO);
+void *memory_reallocz(void *ptr, size_t old_size, size_t new_size MEMORY_DEBUG_PROTO);
 void memory_check_all(void);
 bool memory_check(void *ptr);
 bool memory_get_status(void *ptr, memory_status_t *status);

@@ -44,10 +44,9 @@
  * If true, this is called as part of periodic processing (from
  * process_func()).
  */
-static void player_mover_handle(object *op, object *victim, bool process)
-{
+static void player_mover_handle(object *op, object *victim, bool process) {
     HARD_ASSERT(op != NULL);
-    HARD_ASSERT(victim  != NULL);
+    HARD_ASSERT(victim != NULL);
 
     if (!IS_LIVE(victim)) {
         return;
@@ -82,8 +81,7 @@ static void player_mover_handle(object *op, object *victim, bool process)
     }
 
     /* Flag to stop moving if there's a wall. */
-    if (QUERY_FLAG(op, FLAG_STAND_STILL) &&
-        blocked(victim, map, x, y, victim->terrain_flag)) {
+    if (QUERY_FLAG(op, FLAG_STAND_STILL) && blocked(victim, map, x, y, victim->terrain_flag)) {
         return;
     }
 
@@ -93,7 +91,8 @@ static void player_mover_handle(object *op, object *victim, bool process)
             if (nextmover->type == op->type && nextmover->value != pticks) {
                 nextmover->speed_left--;
             }
-        } FOR_MAP_LAYER_END;
+        }
+        FOR_MAP_LAYER_END;
     }
 
     if (victim->type == PLAYER) {
@@ -118,7 +117,8 @@ static void player_mover_handle(object *op, object *victim, bool process)
             if (OBJECTS_DESTROYED(victim)) {
                 return;
             }
-        } OBJECTS_DESTROYED_END();
+        }
+        OBJECTS_DESTROYED_END();
     }
 
     if (op->stats.maxsp == 0 && op->stats.sp) {
@@ -132,28 +132,25 @@ static void player_mover_handle(object *op, object *victim, bool process)
 }
 
 /** @copydoc object_methods_t::process_func */
-static void process_func(object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     op->value = pticks;
 
-    if (!(GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_MONSTER |
-                                                  P_IS_PLAYER))) {
+    if (!(GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_MONSTER | P_IS_PLAYER))) {
         return;
     }
 
     FOR_MAP_PREPARE(op->map, op->x, op->y, victim) {
         player_mover_handle(op, victim, true);
-    } FOR_MAP_FINISH();
+    }
+    FOR_MAP_FINISH();
 }
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
-    HARD_ASSERT(victim  != NULL);
+    HARD_ASSERT(victim != NULL);
 
     player_mover_handle(op, victim, false);
     return OBJECT_METHOD_OK;
@@ -162,8 +159,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
 /**
  * Initialize the player mover type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(player_mover)
-{
+OBJECT_TYPE_INIT_DEFINE(player_mover) {
     OBJECT_METHODS(PLAYER_MOVER)->process_func = process_func;
     OBJECT_METHODS(PLAYER_MOVER)->move_on_func = move_on_func;
 }

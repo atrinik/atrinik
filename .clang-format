@@ -1,0 +1,66 @@
+---
+# Atrinik uses a conservative LLVM-derived style for all authored C and C++.
+# Keep this file compatible with the clang-format release in the devcontainer.
+BasedOnStyle: LLVM
+Language: Cpp
+
+IndentWidth: 4
+ContinuationIndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+
+BreakBeforeBraces: Attach
+BreakAfterReturnType: None
+IndentCaseLabels: true
+IndentPPDirectives: None
+PointerAlignment: Right
+DerivePointerAlignment: false
+
+AlignAfterOpenBracket: Align
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Never
+
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+BinPackArguments: false
+BinPackParameters: false
+
+IncludeBlocks: Preserve
+SortIncludes: Never
+ReflowComments: true
+
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterForeachMacros: false
+  AfterFunctionDeclarationName: false
+  AfterFunctionDefinitionName: false
+  AfterIfMacros: false
+  AfterOverloadedOperator: false
+  BeforeNonEmptyParentheses: false
+
+ForEachMacros:
+  - CDL_FOREACH
+  - DL_FOREACH
+  - DL_FOREACH_SAFE
+  - FOR_ATRINIK_ITERATOR_BEGIN
+  - FOR_CLIOPTIONS_BEGIN
+  - FOR_EACH
+  - FOR_INV_PREPARE
+  - FOR_MAP_LAYER_BEGIN
+  - FOR_MAP_PREPARE
+  - FOR_OB_AND_ABOVE_PREPARE
+  - FOR_OB_AND_BELOW_PREPARE
+  - HASH_ITER
+  - LL_FOREACH
+  - LL_FOREACH_SAFE
+...

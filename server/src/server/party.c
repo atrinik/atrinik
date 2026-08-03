@@ -35,9 +35,11 @@
 /**
  * String representations of the party looting modes.
  */
-const char *const party_loot_modes[PARTY_LOOT_MAX] = {
-    "normal", "leader", "owner", "random", "split"
-};
+const char *const party_loot_modes[PARTY_LOOT_MAX] = {"normal",
+                                                      "leader",
+                                                      "owner",
+                                                      "random",
+                                                      "split"};
 
 /**
  * Explanation of the party modes.
@@ -47,8 +49,7 @@ const char *const party_loot_modes_help[PARTY_LOOT_MAX] = {
     "only the party leader can loot the corpse",
     "only the corpse owner can loot the corpse; standard behavior when outside of a party",
     "loot is randomly split between party members when the corpse is opened",
-    "loot is evenly split between party members when the corpse is opened"
-};
+    "loot is evenly split between party members when the corpse is opened"};
 
 /** The party list. */
 party_struct *first_party = NULL;
@@ -61,18 +62,21 @@ static mempool_struct *pool_party;
 /**
  * Initialize the party API.
  */
-void party_init(void)
-{
-    pool_party = mempool_create("parties", 25, sizeof(party_struct),
-            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
+void party_init(void) {
+    pool_party = mempool_create("parties",
+                                25,
+                                sizeof(party_struct),
+                                MEMPOOL_ALLOW_FREEING,
+                                NULL,
+                                NULL,
+                                NULL,
+                                NULL);
 }
 
 /**
  * Deinitialize the party API.
  */
-void party_deinit(void)
-{
-}
+void party_deinit(void) {}
 
 /**
  * Add a player to party's member list.
@@ -81,8 +85,7 @@ void party_deinit(void)
  * @param op
  * The player to add.
  */
-void add_party_member(party_struct *party, object *op)
-{
+void add_party_member(party_struct *party, object *op) {
     objectlink *ol;
     packet_struct *packet;
 
@@ -111,8 +114,7 @@ void add_party_member(party_struct *party, object *op)
  * @param op
  * The player to remove.
  */
-void remove_party_member(party_struct *party, object *op)
-{
+void remove_party_member(party_struct *party, object *op) {
     objectlink *ol;
     packet_struct *packet;
 
@@ -126,8 +128,7 @@ void remove_party_member(party_struct *party, object *op)
         }
     }
 
-    SOFT_ASSERT(ol != NULL, "Could not find player %s in party members!",
-            object_get_str(op));
+    SOFT_ASSERT(ol != NULL, "Could not find player %s in party members!", object_get_str(op));
 
     if (party->members) {
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
@@ -137,8 +138,7 @@ void remove_party_member(party_struct *party, object *op)
         packet_append_string_terminated(packet, op->name);
 
         for (ol = party->members; ol; ol = ol->next) {
-            socket_send_packet(CONTR(ol->objlink.ob)->cs,
-                    packet_dup(packet));
+            socket_send_packet(CONTR(ol->objlink.ob)->cs, packet_dup(packet));
         }
 
         packet_free(packet);
@@ -150,8 +150,10 @@ void remove_party_member(party_struct *party, object *op)
     } else if (op->name == party->leader) {
         /* Otherwise choose a new leader, if the old one left. */
         FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
-        draw_info_format(COLOR_WHITE, party->members->objlink.ob,
-                "You are the new leader of party %s!", party->name);
+        draw_info_format(COLOR_WHITE,
+                         party->members->objlink.ob,
+                         "You are the new leader of party %s!",
+                         party->name);
     }
 
     packet = packet_new(CLIENT_CMD_PARTY, 4, 0);
@@ -169,8 +171,7 @@ void remove_party_member(party_struct *party, object *op)
  * @return
  * The initialized party structure.
  */
-static party_struct *make_party(const char *name)
-{
+static party_struct *make_party(const char *name) {
     party_struct *party = mempool_get(pool_party);
 
     FREE_AND_COPY_HASH(party->name, name);
@@ -188,8 +189,7 @@ static party_struct *make_party(const char *name)
  * @param name
  * Name of the party.
  */
-void form_party(object *op, const char *name)
-{
+void form_party(object *op, const char *name) {
     party_struct *party = make_party(name);
 
     add_party_member(party, op);
@@ -205,8 +205,7 @@ void form_party(object *op, const char *name)
  * @return
  * Party if found, NULL otherwise.
  */
-party_struct *find_party(const char *name)
-{
+party_struct *find_party(const char *name) {
     party_struct *tmp;
 
     for (tmp = first_party; tmp; tmp = tmp->next) {
@@ -227,8 +226,7 @@ party_struct *find_party(const char *name)
  * @return
  * 1 if we can open the corpse, 0 otherwise.
  */
-int party_can_open_corpse(object *pl, object *corpse)
-{
+int party_can_open_corpse(object *pl, object *corpse) {
     /* Check if the player is in the same party. */
     if (!CONTR(pl)->party || corpse->slaying != CONTR(pl)->party->name) {
         draw_info(COLOR_WHITE, pl, "It's not your party's bounty.");
@@ -236,20 +234,20 @@ int party_can_open_corpse(object *pl, object *corpse)
     }
 
     switch (CONTR(pl)->party->loot) {
-        /* Normal: anyone can access it. */
-    case PARTY_LOOT_NORMAL:
-    default:
-        return 1;
+            /* Normal: anyone can access it. */
+        case PARTY_LOOT_NORMAL:
+        default:
+            return 1;
 
-        /* Only leader can access it. */
-    case PARTY_LOOT_LEADER:
+            /* Only leader can access it. */
+        case PARTY_LOOT_LEADER:
 
-        if (pl->name != CONTR(pl)->party->leader) {
-            draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
-            return 0;
-        }
+            if (pl->name != CONTR(pl)->party->leader) {
+                draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
+                return 0;
+            }
 
-        return 1;
+            return 1;
     }
 }
 
@@ -260,8 +258,7 @@ int party_can_open_corpse(object *pl, object *corpse)
  * @param corpse
  * The corpse.
  */
-static void party_loot_random(object *pl, object *corpse)
-{
+static void party_loot_random(object *pl, object *corpse) {
     int count = 0, pl_id;
     party_struct *party;
     objectlink *ol;
@@ -292,8 +289,7 @@ static void party_loot_random(object *pl, object *corpse)
                 if (num == pl_id) {
                     if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
                         char *name = object_get_name_s(tmp, NULL);
-                        draw_info_format(COLOR_BLUE, ol->objlink.ob,
-                                "You receive the %s.", name);
+                        draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", name);
                         efree(name);
                         object_remove(tmp, 0);
                         object_insert_into(tmp, ol->objlink.ob, 0);
@@ -315,8 +311,7 @@ static void party_loot_random(object *pl, object *corpse)
  * @param corpse
  * The corpse.
  */
-static void party_loot_split(object *pl, object *corpse)
-{
+static void party_loot_split(object *pl, object *corpse) {
     party_struct *party;
     objectlink *ol, *ol_loot, *ol_next;
     uint32_t count;
@@ -369,10 +364,14 @@ static void party_loot_split(object *pl, object *corpse)
                 ol_next = party->members;
             }
 
-            if (on_same_map(ol->objlink.ob, pl) && player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
+            if (on_same_map(ol->objlink.ob, pl) &&
+                player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
                 char *name = object_get_name_s(tmp, NULL);
-                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the "
-                        "%s.", name);
+                draw_info_format(COLOR_BLUE,
+                                 ol->objlink.ob,
+                                 "You receive the "
+                                 "%s.",
+                                 name);
                 efree(name);
                 object_remove(tmp, 0);
                 object_insert_into(tmp, ol->objlink.ob, 0);
@@ -405,7 +404,10 @@ static void party_loot_split(object *pl, object *corpse)
                     value_split += value % count;
                 }
 
-                draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive %s.", shop_get_cost_string(value_split));
+                draw_info_format(COLOR_BLUE,
+                                 ol->objlink.ob,
+                                 "You receive %s.",
+                                 shop_get_cost_string(value_split));
                 shop_insert_coins(ol->objlink.ob, value_split);
 
                 num++;
@@ -421,8 +423,7 @@ static void party_loot_split(object *pl, object *corpse)
  * @param corpse
  * The corpse.
  */
-void party_handle_corpse(object *pl, object *corpse)
-{
+void party_handle_corpse(object *pl, object *corpse) {
     object *tmp, *next;
 
     /* Sanity check. */
@@ -435,22 +436,24 @@ void party_handle_corpse(object *pl, object *corpse)
         next = tmp->below;
 
         if (tmp->type == ARROW && OBJECT_VALID(tmp->attacked_by, tmp->attacked_by_count) &&
-                tmp->attacked_by->type == PLAYER && CONTR(tmp->attacked_by)->party == CONTR(pl)->party &&
-                on_same_map(tmp->attacked_by, pl)) {
-            if (object_can_pick(tmp->attacked_by, tmp) && player_can_carry(tmp->attacked_by, WEIGHT_NROF(tmp, tmp->nrof))) {
+            tmp->attacked_by->type == PLAYER &&
+            CONTR(tmp->attacked_by)->party == CONTR(pl)->party &&
+            on_same_map(tmp->attacked_by, pl)) {
+            if (object_can_pick(tmp->attacked_by, tmp) &&
+                player_can_carry(tmp->attacked_by, WEIGHT_NROF(tmp, tmp->nrof))) {
                 pick_up(tmp->attacked_by, tmp, 0);
             }
         }
     }
 
     switch (CONTR(pl)->party->loot) {
-    case PARTY_LOOT_RANDOM:
-        party_loot_random(pl, corpse);
-        break;
+        case PARTY_LOOT_RANDOM:
+            party_loot_random(pl, corpse);
+            break;
 
-    case PARTY_LOOT_SPLIT:
-        party_loot_split(pl, corpse);
-        break;
+        case PARTY_LOOT_SPLIT:
+            party_loot_split(pl, corpse);
+            break;
     }
 }
 
@@ -467,13 +470,15 @@ void party_handle_corpse(object *pl, object *corpse)
  * @param except
  * If not NULL, this player will not receive the message.
  */
-void send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except)
-{
+void send_party_message(party_struct *party,
+                        const char *msg,
+                        int flag,
+                        object *op,
+                        object *except) {
     HARD_ASSERT(party != NULL);
     HARD_ASSERT(msg != NULL);
 
-    SOFT_ASSERT(op != NULL || flag == PARTY_MESSAGE_STATUS,
-            "'op' argument not supplied");
+    SOFT_ASSERT(op != NULL || flag == PARTY_MESSAGE_STATUS, "'op' argument not supplied");
 
     objectlink *ol;
 
@@ -495,8 +500,7 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
  * @param party
  * The party to remove.
  */
-void remove_party(party_struct *party)
-{
+void remove_party(party_struct *party) {
     party_struct *tmp, *prev = NULL;
 
     while (party->members != NULL) {
@@ -527,18 +531,15 @@ void remove_party(party_struct *party)
  * @param pl
  * Player.
  */
-void party_update_who(player *pl)
-{
+void party_update_who(player *pl) {
     uint8_t hp, sp;
 
     if (!pl->party) {
         return;
     }
 
-    hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f,
-            100));
-    sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f,
-            100));
+    hp = MAX(1, MIN((double)pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f, 100));
+    sp = MAX(1, MIN((double)pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f, 100));
 
     if (hp != pl->last_party_hp || sp != pl->last_party_sp) {
         packet_struct *packet;
@@ -555,8 +556,7 @@ void party_update_who(player *pl)
         packet_append_uint8(packet, sp);
 
         for (ol = pl->party->members; ol; ol = ol->next) {
-            socket_send_packet(CONTR(ol->objlink.ob)->cs,
-                    packet_dup(packet));
+            socket_send_packet(CONTR(ol->objlink.ob)->cs, packet_dup(packet));
         }
 
         packet_free(packet);

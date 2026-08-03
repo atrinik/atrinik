@@ -4,8 +4,8 @@ extern void read_anims(void);
 extern void anims_deinit(void);
 extern void anims_reset(void);
 extern Animations *animation_get(uint16_t animation_id);
-extern bool animation_get_face(uint16_t animation_id, uint8_t direction,
-        size_t state, uint16_t *face);
+extern bool
+animation_get_face(uint16_t animation_id, uint8_t direction, size_t state, uint16_t *face);
 /* src/client/client.c */
 extern Client_Player cpl;
 extern void DoClient(void);
@@ -24,7 +24,8 @@ extern void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_target(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_stats(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_player(uint8_t *data, size_t len, size_t pos);
-extern void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp);
+extern void
+command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp);
 extern void socket_command_item(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_item_update(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_item_delete(uint8_t *data, size_t len, size_t pos);
@@ -33,16 +34,13 @@ extern void socket_command_map(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_version(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_compressed(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
-void
-socket_command_crypto(uint8_t *data, size_t len, size_t pos);
+void socket_command_crypto(uint8_t *data, size_t len, size_t pos);
 /* src/client/connection_preferences.c */
 extern void connection_preferences_init(void);
 extern void connection_preferences_deinit(void);
-extern socket_connection_preference_t
-connection_preference_get(const server_struct *server);
-extern void
-connection_preference_set(const server_struct                 *server,
-                          socket_connection_preference_t preference);
+extern socket_connection_preference_t connection_preference_get(const server_struct *server);
+extern void connection_preference_set(const server_struct *server,
+                                      socket_connection_preference_t preference);
 /* src/client/image.c */
 /* src/client/item.c */
 extern void object_init(void);
@@ -62,7 +60,8 @@ extern void objects_deinit(void);
 extern void objects_init(void);
 extern int object_animate(object *ob);
 extern void animate_objects(void);
-extern void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y, int w, int h, bool fit);
+extern void
+object_show_centered(SDL_Surface *surface, object *tmp, int x, int y, int w, int h, bool fit);
 /* src/client/keybind.c */
 extern keybind_struct **keybindings;
 extern size_t keybindings_num;
@@ -113,16 +112,17 @@ extern int send_command_check(const char *cmd);
 extern void metaserver_init(void);
 extern void metaserver_disable(void);
 extern server_struct *server_get_id(size_t num);
-bool
-metaserver_cert_verify_host(server_struct *server, const char *host);
-bool
-metaserver_rendezvous_url(const server_struct *server,
-                          char                *url,
-                          size_t               url_size);
+bool metaserver_cert_verify_host(server_struct *server, const char *host);
+bool metaserver_rendezvous_url(const server_struct *server, char *url, size_t url_size);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
-extern server_struct *metaserver_add(const char *hostname, int port, int port_crypto, const char *name, const char *version, const char *desc);
+extern server_struct *metaserver_add(const char *hostname,
+                                     int port,
+                                     int port_crypto,
+                                     const char *name,
+                                     const char *version,
+                                     const char *desc);
 extern int metaserver_thread(void *dummy);
 extern void metaserver_get_servers(void);
 /* src/client/misc.c */
@@ -194,10 +194,10 @@ extern int handle_socket_shutdown(void);
 extern void client_socket_close(client_socket_t *csock);
 extern void client_socket_deinitialize(void);
 extern bool client_socket_open(client_socket_t *csock,
-                               const char      *host,
-                               int              port,
-                               bool             secure,
-                               const char      *quic_certificate_sha256,
+                               const char *host,
+                               int port,
+                               bool secure,
+                               const char *quic_certificate_sha256,
                                socket_connection_preference_t preference);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);
@@ -234,22 +234,45 @@ extern void sprite_free_sprite(sprite_struct *sprite);
 extern void sprite_cache_free_all(void);
 extern void sprite_cache_gc(void);
 extern void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src);
-extern void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SDL_Surface *src, SDL_Rect *box);
-extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, const sprite_effects_t *effects);
+extern void surface_show_fill(SDL_Surface *surface,
+                              int x,
+                              int y,
+                              SDL_Rect *srcsize,
+                              SDL_Surface *src,
+                              SDL_Rect *box);
+extern void surface_show_effects(SDL_Surface *surface,
+                                 int x,
+                                 int y,
+                                 SDL_Rect *srcrect,
+                                 SDL_Surface *src,
+                                 const sprite_effects_t *effects);
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
 extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-extern int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32_t color);
-extern int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2);
+extern int surface_borders_get(SDL_Surface *surface,
+                               int *top,
+                               int *bottom,
+                               int *left,
+                               int *right,
+                               uint32_t color);
+extern int
+sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2);
 extern void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 extern void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
 extern void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
 extern void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32_t color);
-extern void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color);
-extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, const char *color_notation);
-extern void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
-extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
+extern void
+border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color);
+extern void border_create_color(SDL_Surface *surface,
+                                SDL_Rect *coords,
+                                int thickness,
+                                const char *color_notation);
+extern void
+border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
+extern void
+rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
 extern void surface_set_alpha(SDL_Surface *surface, uint8_t alpha);
-extern int polygon_check_coords(double x, double y, double corners_x[], double corners_y[], int corners_num);
+extern int
+polygon_check_coords(double x, double y, double corners_x[], double corners_y[], int corners_num);
 /* src/client/texture.c */
 extern void texture_init(void);
 extern void texture_deinit(void);
@@ -261,8 +284,23 @@ extern SDL_Surface *texture_surface(texture_struct *texture);
 /* src/client/tilestretcher.c */
 extern int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y);
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
-extern void copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, double brightness);
-extern void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, double brightness, _Bool extra);
+extern void copy_pixel_to_pixel(SDL_Surface *src,
+                                SDL_Surface *dest,
+                                int x,
+                                int y,
+                                int x2,
+                                int y2,
+                                double brightness);
+extern void copy_vertical_line(SDL_Surface *src,
+                               SDL_Surface *dest,
+                               int src_x,
+                               int src_sy,
+                               int src_ey,
+                               int dest_x,
+                               int dest_sy,
+                               int dest_ey,
+                               double brightness,
+                               _Bool extra);
 extern SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
 /* src/client/updates.c */
 extern void socket_command_file_update(uint8_t *data, size_t len, size_t pos);
@@ -364,8 +402,7 @@ extern void join_password_open(server_struct *server);
 /* src/gui/popups/login.c */
 extern void login_start(void);
 /* src/gui/popups/painting.c */
-void
-socket_command_painting(uint8_t *data, size_t len, size_t pos);
+void socket_command_painting(uint8_t *data, size_t len, size_t pos);
 /* src/gui/popups/region_map.c */
 extern void region_map_open(void);
 /* src/gui/popups/server_add.c */
@@ -385,93 +422,424 @@ extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 col
 extern int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColor(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int fastPixelRGBANolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int
+fastPixelRGBANolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 extern int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha);
 extern int pixelColor(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int pixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
-extern int _filledRectAlpha(SDL_Surface *dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha);
-extern int filledRectAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color);
+extern int _filledRectAlpha(SDL_Surface *dst,
+                            Sint16 xx,
+                            Sint16 yy,
+                            Sint16 x2,
+                            Sint16 y2,
+                            Uint32 color,
+                            Uint8 alpha);
+extern int
+filledRectAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color);
 extern int _HLineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color);
 extern int _VLineAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color);
 extern int pixelColorWeight(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight);
-extern int pixelColorWeightNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight);
+extern int
+pixelColorWeightNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight);
 extern int pixelRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 extern int hlineColorStore(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color);
-extern int hlineRGBAStore(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int hlineRGBAStore(SDL_Surface *dst,
+                          Sint16 x1,
+                          Sint16 x2,
+                          Sint16 y,
+                          Uint8 r,
+                          Uint8 g,
+                          Uint8 b,
+                          Uint8 a);
 extern int hlineColor(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color);
-extern int hlineRGBA(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int
+hlineRGBA(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 extern int vlineColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color);
-extern int vlineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int
+vlineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 extern int rectangleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color);
-extern int rectangleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int roundedRectangleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color);
-extern int roundedRectangleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int roundedBoxColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color);
-extern int roundedBoxRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int rectangleRGBA(SDL_Surface *dst,
+                         Sint16 x,
+                         Sint16 y,
+                         Sint16 x2,
+                         Sint16 y2,
+                         Uint8 r,
+                         Uint8 g,
+                         Uint8 b,
+                         Uint8 a);
+extern int roundedRectangleColor(SDL_Surface *dst,
+                                 Sint16 x,
+                                 Sint16 y,
+                                 Sint16 x2,
+                                 Sint16 y2,
+                                 Sint16 rad,
+                                 Uint32 color);
+extern int roundedRectangleRGBA(SDL_Surface *dst,
+                                Sint16 x,
+                                Sint16 y,
+                                Sint16 x2,
+                                Sint16 y2,
+                                Sint16 rad,
+                                Uint8 r,
+                                Uint8 g,
+                                Uint8 b,
+                                Uint8 a);
+extern int roundedBoxColor(SDL_Surface *dst,
+                           Sint16 x,
+                           Sint16 y,
+                           Sint16 x2,
+                           Sint16 y2,
+                           Sint16 rad,
+                           Uint32 color);
+extern int roundedBoxRGBA(SDL_Surface *dst,
+                          Sint16 x,
+                          Sint16 y,
+                          Sint16 x2,
+                          Sint16 y2,
+                          Sint16 rad,
+                          Uint8 r,
+                          Uint8 g,
+                          Uint8 b,
+                          Uint8 a);
 extern int boxColor(SDL_Surface *dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color);
-extern int boxRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int boxRGBA(SDL_Surface *dst,
+                   Sint16 x,
+                   Sint16 y,
+                   Sint16 x2,
+                   Sint16 y2,
+                   Uint8 r,
+                   Uint8 g,
+                   Uint8 b,
+                   Uint8 a);
 extern int lineColor(SDL_Surface *dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color);
-extern int lineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int _aalineColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color, int draw_endpoint);
+extern int lineRGBA(SDL_Surface *dst,
+                    Sint16 x,
+                    Sint16 y,
+                    Sint16 x2,
+                    Sint16 y2,
+                    Uint8 r,
+                    Uint8 g,
+                    Uint8 b,
+                    Uint8 a);
+extern int _aalineColor(SDL_Surface *dst,
+                        Sint16 x,
+                        Sint16 y,
+                        Sint16 x2,
+                        Sint16 y2,
+                        Uint32 color,
+                        int draw_endpoint);
 extern int aalineColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color);
-extern int aalineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int aalineRGBA(SDL_Surface *dst,
+                      Sint16 x,
+                      Sint16 y,
+                      Sint16 x2,
+                      Sint16 y2,
+                      Uint8 r,
+                      Uint8 g,
+                      Uint8 b,
+                      Uint8 a);
 extern int circleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color);
-extern int circleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int arcColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
-extern int arcRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int
+circleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int
+arcColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
+extern int arcRGBA(SDL_Surface *dst,
+                   Sint16 x,
+                   Sint16 y,
+                   Sint16 rad,
+                   Sint16 start,
+                   Sint16 end,
+                   Uint8 r,
+                   Uint8 g,
+                   Uint8 b,
+                   Uint8 a);
 extern int aacircleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color);
-extern int aacircleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int
+aacircleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 extern int filledCircleColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color);
-extern int filledCircleRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int filledCircleRGBA(SDL_Surface *dst,
+                            Sint16 x,
+                            Sint16 y,
+                            Sint16 rad,
+                            Uint8 r,
+                            Uint8 g,
+                            Uint8 b,
+                            Uint8 a);
 extern int ellipseColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
-extern int ellipseRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int ellipseRGBA(SDL_Surface *dst,
+                       Sint16 x,
+                       Sint16 y,
+                       Sint16 rx,
+                       Sint16 ry,
+                       Uint8 r,
+                       Uint8 g,
+                       Uint8 b,
+                       Uint8 a);
 extern int aaellipseColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
-extern int aaellipseRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int filledEllipseColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
-extern int filledEllipseRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int _pieColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color, Uint8 filled);
-extern int pieColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
-extern int pieRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int filledPieColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
-extern int filledPieRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int trigonColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color);
-extern int trigonRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int aatrigonColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color);
-extern int aatrigonRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int filledTrigonColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color);
-extern int filledTrigonRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int aaellipseRGBA(SDL_Surface *dst,
+                         Sint16 x,
+                         Sint16 y,
+                         Sint16 rx,
+                         Sint16 ry,
+                         Uint8 r,
+                         Uint8 g,
+                         Uint8 b,
+                         Uint8 a);
+extern int
+filledEllipseColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
+extern int filledEllipseRGBA(SDL_Surface *dst,
+                             Sint16 x,
+                             Sint16 y,
+                             Sint16 rx,
+                             Sint16 ry,
+                             Uint8 r,
+                             Uint8 g,
+                             Uint8 b,
+                             Uint8 a);
+extern int _pieColor(SDL_Surface *dst,
+                     Sint16 x,
+                     Sint16 y,
+                     Sint16 rad,
+                     Sint16 start,
+                     Sint16 end,
+                     Uint32 color,
+                     Uint8 filled);
+extern int
+pieColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color);
+extern int pieRGBA(SDL_Surface *dst,
+                   Sint16 x,
+                   Sint16 y,
+                   Sint16 rad,
+                   Sint16 start,
+                   Sint16 end,
+                   Uint8 r,
+                   Uint8 g,
+                   Uint8 b,
+                   Uint8 a);
+extern int filledPieColor(SDL_Surface *dst,
+                          Sint16 x,
+                          Sint16 y,
+                          Sint16 rad,
+                          Sint16 start,
+                          Sint16 end,
+                          Uint32 color);
+extern int filledPieRGBA(SDL_Surface *dst,
+                         Sint16 x,
+                         Sint16 y,
+                         Sint16 rad,
+                         Sint16 start,
+                         Sint16 end,
+                         Uint8 r,
+                         Uint8 g,
+                         Uint8 b,
+                         Uint8 a);
+extern int trigonColor(SDL_Surface *dst,
+                       Sint16 x,
+                       Sint16 y,
+                       Sint16 x2,
+                       Sint16 y2,
+                       Sint16 x3,
+                       Sint16 y3,
+                       Uint32 color);
+extern int trigonRGBA(SDL_Surface *dst,
+                      Sint16 x,
+                      Sint16 y,
+                      Sint16 x2,
+                      Sint16 y2,
+                      Sint16 x3,
+                      Sint16 y3,
+                      Uint8 r,
+                      Uint8 g,
+                      Uint8 b,
+                      Uint8 a);
+extern int aatrigonColor(SDL_Surface *dst,
+                         Sint16 x,
+                         Sint16 y,
+                         Sint16 x2,
+                         Sint16 y2,
+                         Sint16 x3,
+                         Sint16 y3,
+                         Uint32 color);
+extern int aatrigonRGBA(SDL_Surface *dst,
+                        Sint16 x,
+                        Sint16 y,
+                        Sint16 x2,
+                        Sint16 y2,
+                        Sint16 x3,
+                        Sint16 y3,
+                        Uint8 r,
+                        Uint8 g,
+                        Uint8 b,
+                        Uint8 a);
+extern int filledTrigonColor(SDL_Surface *dst,
+                             Sint16 x,
+                             Sint16 y,
+                             Sint16 x2,
+                             Sint16 y2,
+                             Sint16 x3,
+                             Sint16 y3,
+                             Uint32 color);
+extern int filledTrigonRGBA(SDL_Surface *dst,
+                            Sint16 x,
+                            Sint16 y,
+                            Sint16 x2,
+                            Sint16 y2,
+                            Sint16 x3,
+                            Sint16 y3,
+                            Uint8 r,
+                            Uint8 g,
+                            Uint8 b,
+                            Uint8 a);
 extern int polygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
-extern int polygonRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int aapolygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
-extern int aapolygonRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int polygonRGBA(SDL_Surface *dst,
+                       const Sint16 *vx,
+                       const Sint16 *vy,
+                       int n,
+                       Uint8 r,
+                       Uint8 g,
+                       Uint8 b,
+                       Uint8 a);
+extern int
+aapolygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
+extern int aapolygonRGBA(SDL_Surface *dst,
+                         const Sint16 *vx,
+                         const Sint16 *vy,
+                         int n,
+                         Uint8 r,
+                         Uint8 g,
+                         Uint8 b,
+                         Uint8 a);
 extern int _gfxPrimitivesCompareInt(const void *a, const void *b);
-extern int filledPolygonColorMT(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color, int **polyInts, int *polyAllocated);
-extern int filledPolygonRGBAMT(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a, int **polyInts, int *polyAllocated);
-extern int filledPolygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
-extern int filledPolygonRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int _HLineTextured(SDL_Surface *dst, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surface *texture, int texture_dx, int texture_dy);
-extern int texturedPolygonMT(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, SDL_Surface *texture, int texture_dx, int texture_dy, int **polyInts, int *polyAllocated);
-extern int texturedPolygon(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, SDL_Surface *texture, int texture_dx, int texture_dy);
+extern int filledPolygonColorMT(SDL_Surface *dst,
+                                const Sint16 *vx,
+                                const Sint16 *vy,
+                                int n,
+                                Uint32 color,
+                                int **polyInts,
+                                int *polyAllocated);
+extern int filledPolygonRGBAMT(SDL_Surface *dst,
+                               const Sint16 *vx,
+                               const Sint16 *vy,
+                               int n,
+                               Uint8 r,
+                               Uint8 g,
+                               Uint8 b,
+                               Uint8 a,
+                               int **polyInts,
+                               int *polyAllocated);
+extern int
+filledPolygonColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, Uint32 color);
+extern int filledPolygonRGBA(SDL_Surface *dst,
+                             const Sint16 *vx,
+                             const Sint16 *vy,
+                             int n,
+                             Uint8 r,
+                             Uint8 g,
+                             Uint8 b,
+                             Uint8 a);
+extern int _HLineTextured(SDL_Surface *dst,
+                          Sint16 x1,
+                          Sint16 x2,
+                          Sint16 y,
+                          SDL_Surface *texture,
+                          int texture_dx,
+                          int texture_dy);
+extern int texturedPolygonMT(SDL_Surface *dst,
+                             const Sint16 *vx,
+                             const Sint16 *vy,
+                             int n,
+                             SDL_Surface *texture,
+                             int texture_dx,
+                             int texture_dy,
+                             int **polyInts,
+                             int *polyAllocated);
+extern int texturedPolygon(SDL_Surface *dst,
+                           const Sint16 *vx,
+                           const Sint16 *vy,
+                           int n,
+                           SDL_Surface *texture,
+                           int texture_dx,
+                           int texture_dy);
 extern double _evaluateBezier(double *data, int ndata, double t);
-extern int bezierColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int s, Uint32 color);
-extern int bezierRGBA(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-extern int thickLineColor(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint32 color);
-extern int thickLineRGBA(SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+extern int
+bezierColor(SDL_Surface *dst, const Sint16 *vx, const Sint16 *vy, int n, int s, Uint32 color);
+extern int bezierRGBA(SDL_Surface *dst,
+                      const Sint16 *vx,
+                      const Sint16 *vy,
+                      int n,
+                      int s,
+                      Uint8 r,
+                      Uint8 g,
+                      Uint8 b,
+                      Uint8 a);
+extern int thickLineColor(SDL_Surface *dst,
+                          Sint16 x,
+                          Sint16 y,
+                          Sint16 x2,
+                          Sint16 y2,
+                          Uint8 width,
+                          Uint32 color);
+extern int thickLineRGBA(SDL_Surface *dst,
+                         Sint16 x,
+                         Sint16 y,
+                         Sint16 x2,
+                         Sint16 y2,
+                         Uint8 width,
+                         Uint8 r,
+                         Uint8 g,
+                         Uint8 b,
+                         Uint8 a);
 /* src/gui/toolkit/SDL_rotozoom.c */
 extern Uint32 _colorkey(SDL_Surface *src);
 extern int _shrinkSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
 extern int _shrinkSurfaceY(SDL_Surface *src, SDL_Surface *dst, int factorx, int factory);
 extern int _zoomSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int flipx, int flipy, int smooth);
 extern int _zoomSurfaceY(SDL_Surface *src, SDL_Surface *dst, int flipx, int flipy);
-extern void _transformSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int cx, int cy, int isin, int icos, int flipx, int flipy, int smooth);
-extern void transformSurfaceY(SDL_Surface *src, SDL_Surface *dst, int cx, int cy, int isin, int icos, int flipx, int flipy);
+extern void _transformSurfaceRGBA(SDL_Surface *src,
+                                  SDL_Surface *dst,
+                                  int cx,
+                                  int cy,
+                                  int isin,
+                                  int icos,
+                                  int flipx,
+                                  int flipy,
+                                  int smooth);
+extern void transformSurfaceY(SDL_Surface *src,
+                              SDL_Surface *dst,
+                              int cx,
+                              int cy,
+                              int isin,
+                              int icos,
+                              int flipx,
+                              int flipy);
 extern SDL_Surface *rotateSurface90Degrees(SDL_Surface *src, int numClockwiseTurns);
-extern void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx, double zoomy, int *dstwidth, int *dstheight, double *canglezoom, double *sanglezoom);
-extern void rotozoomSurfaceSizeXY(int width, int height, double angle, double zoomx, double zoomy, int *dstwidth, int *dstheight);
-extern void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth, int *dstheight);
+extern void _rotozoomSurfaceSizeTrig(int width,
+                                     int height,
+                                     double angle,
+                                     double zoomx,
+                                     double zoomy,
+                                     int *dstwidth,
+                                     int *dstheight,
+                                     double *canglezoom,
+                                     double *sanglezoom);
+extern void rotozoomSurfaceSizeXY(int width,
+                                  int height,
+                                  double angle,
+                                  double zoomx,
+                                  double zoomy,
+                                  int *dstwidth,
+                                  int *dstheight);
+extern void rotozoomSurfaceSize(int width,
+                                int height,
+                                double angle,
+                                double zoom,
+                                int *dstwidth,
+                                int *dstheight);
 extern SDL_Surface *rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
-extern SDL_Surface *rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoomx, double zoomy, int smooth);
-extern void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
+extern SDL_Surface *
+rotozoomSurfaceXY(SDL_Surface *src, double angle, double zoomx, double zoomy, int smooth);
+extern void
+zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 extern SDL_Surface *zoomSurface(SDL_Surface *src, double zoomx, double zoomy, int smooth);
 extern SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
 /* src/gui/toolkit/button.c */
@@ -486,8 +854,10 @@ extern int button_event(button_struct *button, SDL_Event *event);
 /* src/gui/toolkit/color_picker.c */
 extern void color_picker_create(color_picker_struct *color_picker, int size);
 extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
-extern void color_picker_set_notation(color_picker_struct *color_picker, const char *color_notation);
-extern void color_picker_get_rgb(color_picker_struct *color_picker, uint8_t *r, uint8_t *g, uint8_t *b);
+extern void color_picker_set_notation(color_picker_struct *color_picker,
+                                      const char *color_notation);
+extern void
+color_picker_get_rgb(color_picker_struct *color_picker, uint8_t *r, uint8_t *g, uint8_t *b);
 extern void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker);
 extern int color_picker_event(color_picker_struct *color_picker, SDL_Event *event);
 extern int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my);
@@ -496,7 +866,12 @@ extern void list_set_parent(list_struct *list, int px, int py);
 extern list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing);
 extern void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str);
 extern void list_remove_row(list_struct *list, uint32_t row);
-extern void list_set_column(list_struct *list, uint32_t col, int width, int spacing, const char *name, int centered);
+extern void list_set_column(list_struct *list,
+                            uint32_t col,
+                            int width,
+                            int spacing,
+                            const char *name,
+                            int centered);
 extern void list_set_font(list_struct *list, font_struct *font);
 extern void list_scrollbar_enable(list_struct *list);
 extern int list_need_redraw(list_struct *list);
@@ -531,7 +906,12 @@ extern int range_buttons_show(int x, int y, int *val, int advance);
 /* src/gui/toolkit/scrollbar.c */
 extern void scrollbar_init(void);
 extern int scrollbar_need_redraw(scrollbar_struct *scrollbar);
-extern void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32_t *scroll_offset, uint32_t *num_lines, uint32_t max_lines);
+extern void scrollbar_create(scrollbar_struct *scrollbar,
+                             int w,
+                             int h,
+                             uint32_t *scroll_offset,
+                             uint32_t *num_lines,
+                             uint32_t max_lines);
 extern void scrollbar_info_create(scrollbar_info_struct *info);
 extern void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll);
 extern void scrollbar_scroll_adjust(scrollbar_struct *scrollbar, int adjust);
@@ -557,16 +937,63 @@ extern char *text_escape_markup(const char *buf);
 extern int text_color_parse(const char *color_notation, SDL_Color *color);
 extern void text_anchor_execute(text_info_struct *info, void *custom_data);
 extern void text_show_character_init(text_info_struct *info);
-extern int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64_t flags, SDL_Rect *box, int *x_adjust, text_info_struct *info);
+extern int text_show_character(font_struct **font,
+                               font_struct *orig_font,
+                               SDL_Surface *surface,
+                               SDL_Rect *dest,
+                               const char *cp,
+                               SDL_Color *color,
+                               SDL_Color *orig_color,
+                               uint64_t flags,
+                               SDL_Rect *box,
+                               int *x_adjust,
+                               text_info_struct *info);
 extern int glyph_get_width(font_struct *font, char c);
 extern int glyph_get_height(font_struct *font, char c);
-extern void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, uint64_t flags, SDL_Rect *box);
-extern void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64_t flags, SDL_Rect *box);
-extern void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, uint64_t flags, SDL_Rect *box, const char *format, ...) __attribute__((format(printf, 8, 9)));
-extern void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64_t flags, SDL_Rect *box, const char *format, ...) __attribute__((format(printf, 9, 10)));
+extern void text_show(SDL_Surface *surface,
+                      font_struct *font,
+                      const char *text,
+                      int x,
+                      int y,
+                      const char *color_notation,
+                      uint64_t flags,
+                      SDL_Rect *box);
+extern void text_show_shadow(SDL_Surface *surface,
+                             font_struct *font,
+                             const char *text,
+                             int x,
+                             int y,
+                             const char *color_notation,
+                             const char *color_shadow_notation,
+                             uint64_t flags,
+                             SDL_Rect *box);
+extern void text_show_format(SDL_Surface *surface,
+                             font_struct *font,
+                             int x,
+                             int y,
+                             const char *color_notation,
+                             uint64_t flags,
+                             SDL_Rect *box,
+                             const char *format,
+                             ...) __attribute__((format(printf, 8, 9)));
+extern void text_show_shadow_format(SDL_Surface *surface,
+                                    font_struct *font,
+                                    int x,
+                                    int y,
+                                    const char *color_notation,
+                                    const char *color_shadow_notation,
+                                    uint64_t flags,
+                                    SDL_Rect *box,
+                                    const char *format,
+                                    ...) __attribute__((format(printf, 9, 10)));
 extern int text_get_width(font_struct *font, const char *text, uint64_t flags);
 extern int text_get_height(font_struct *font, const char *text, uint64_t flags);
-extern void text_get_width_height(font_struct *font, const char *text, uint64_t flags, SDL_Rect *box, uint16_t *w, uint16_t *h);
+extern void text_get_width_height(font_struct *font,
+                                  const char *text,
+                                  uint64_t flags,
+                                  SDL_Rect *box,
+                                  uint16_t *w,
+                                  uint16_t *h);
 extern void text_truncate_overflow(font_struct *font, char *text, int max_width);
 extern void text_anchor_parse(text_info_struct *info, const char *text);
 extern void text_enable_debug(void);
@@ -577,7 +1004,8 @@ extern void text_input_create(text_input_struct *text_input);
 extern void text_input_destroy(text_input_struct *text_input);
 extern void text_input_set_font(text_input_struct *text_input, font_struct *font);
 extern void text_input_reset(text_input_struct *text_input);
-extern void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history);
+extern void text_input_set_history(text_input_struct *text_input,
+                                   text_input_history_struct *history);
 extern void text_input_set(text_input_struct *text_input, const char *str);
 extern void text_input_set_parent(text_input_struct *text_input, int px, int py);
 extern int text_input_mouse_over(text_input_struct *text_input, int mx, int my);
@@ -601,7 +1029,8 @@ extern void toolkit_widget_init(void);
 extern void menu_container_move(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_container_detach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_container_attach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_container_background_change(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void
+menu_container_background_change(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_container_background(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void widget_menu_standard_items(widgetdata *widget, widgetdata *menu);
 extern widgetdata *create_widget_object(int widget_subtype_id);
@@ -631,7 +1060,8 @@ extern int widgets_need_redraw(void);
 extern void process_widgets(int draw);
 extern void SetPriorityWidget(widgetdata *node);
 extern void SetPriorityWidget_reverse(widgetdata *node);
-extern void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget, int absolute);
+extern void
+insert_widget_in_container(widgetdata *widget_container, widgetdata *widget, int absolute);
 extern widgetdata *get_outermost_container(widgetdata *widget);
 extern widgetdata *get_innermost_container(widgetdata *widget);
 extern widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface *surface);
@@ -644,7 +1074,11 @@ extern void resize_widget_rec(widgetdata *widget, int x, int width, int y, int h
 extern widgetdata *add_label(const char *text, font_struct *font, const char *color);
 extern widgetdata *add_texture(const char *texture);
 extern widgetdata *create_menu(int x, int y, widgetdata *owner);
-extern void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widgetdata *, widgetdata *, SDL_Event *event), int menu_type, int val);
+extern void add_menuitem(widgetdata *menu,
+                         const char *text,
+                         void (*menu_func_ptr)(widgetdata *, widgetdata *, SDL_Event *event),
+                         int menu_type,
+                         int val);
 extern void add_separator(widgetdata *widget);
 extern void menu_finalize(widgetdata *widget);
 extern void widget_redraw_all(int widget_type_id);
@@ -655,10 +1089,12 @@ extern void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event
 extern void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void
+menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void widget_render_enable_debug(void);
 /* src/gui/widgets/active_effects.c */
-extern void widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, const char *msg);
+extern void
+widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, const char *msg);
 extern void widget_active_effects_remove(widgetdata *widget, object *op);
 extern void widget_active_effects_init(widgetdata *widget);
 /* src/gui/widgets/buddy.c */
@@ -688,7 +1124,8 @@ extern void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem, SDL
 extern void menu_inventory_get(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void
+menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
@@ -723,7 +1160,33 @@ extern int map_get_player_direction(void);
 extern void map_get_real_coords(int *x, int *y);
 extern void init_map_data(int xl, int yl, int px, int py);
 extern void adjust_tile_stretch(void);
-extern void map_set_data(int x, int y, int layer, int16_t face, uint8_t quick_pos, uint8_t obj_flags, const char *name, const char *name_color, int16_t height, uint8_t probe, int16_t zoom_x, int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha, int16_t rotate, uint8_t infravision, uint32_t target_object_count, uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing, uint8_t anim_flags, uint8_t anim_state, uint8_t priority, uint8_t secondpass, const char *glow, uint8_t glow_speed);
+extern void map_set_data(int x,
+                         int y,
+                         int layer,
+                         int16_t face,
+                         uint8_t quick_pos,
+                         uint8_t obj_flags,
+                         const char *name,
+                         const char *name_color,
+                         int16_t height,
+                         uint8_t probe,
+                         int16_t zoom_x,
+                         int16_t zoom_y,
+                         int16_t align,
+                         uint8_t draw_double,
+                         uint8_t alpha,
+                         int16_t rotate,
+                         uint8_t infravision,
+                         uint32_t target_object_count,
+                         uint8_t target_is_friend,
+                         uint8_t anim_speed,
+                         uint8_t anim_facing,
+                         uint8_t anim_flags,
+                         uint8_t anim_state,
+                         uint8_t priority,
+                         uint8_t secondpass,
+                         const char *glow,
+                         uint8_t glow_speed);
 extern void map_clear_cell(int x, int y);
 extern void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness);
 extern void map_animate(void);
@@ -780,7 +1243,8 @@ extern void spells_deinit(void);
 extern int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
 extern int spell_find_object(object *op, size_t *spell_path, size_t *spell_id);
 extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
-extern void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags, const char *msg);
+extern void
+spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags, const char *msg);
 extern void spells_remove(object *op);
 extern void widget_spells_init(widgetdata *widget);
 /* src/gui/widgets/stat.c */
@@ -800,7 +1264,8 @@ extern void textwin_tab_add(widgetdata *widget, const char *name);
 extern int textwin_tab_find(widgetdata *widget, uint8_t type, const char *name, size_t *id);
 extern void textwin_tab_open(widgetdata *widget, const char *name);
 extern void draw_info_tab(size_t type, const char *color, const char *str);
-extern void draw_info_format(const char *color, const char *format, ...) __attribute__((format(printf, 2, 3)));
+extern void draw_info_format(const char *color, const char *format, ...)
+    __attribute__((format(printf, 2, 3)));
 extern void draw_info(const char *color, const char *str);
 extern void textwin_handle_copy(widgetdata *widget);
 extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);

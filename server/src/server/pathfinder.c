@@ -111,7 +111,9 @@ static int pathfinder_nodebuf_next = 0;
  * depending on selected algorithm.
  */
 static const double algo_modifiers[] = {
-    0, 0.5, 1.0,
+    0,
+    0.5,
+    1.0,
 };
 CASSERT_ARRAY(algo_modifiers, PATH_ALGO_NUM);
 
@@ -119,7 +121,9 @@ CASSERT_ARRAY(algo_modifiers, PATH_ALGO_NUM);
  * Text representation of the algorithms.
  */
 static const char *const algo_strs[] = {
-    "BFS", "A*", "Dijkstra",
+    "BFS",
+    "A*",
+    "Dijkstra",
 };
 CASSERT_ARRAY(algo_strs, PATH_ALGO_NUM);
 
@@ -138,13 +142,10 @@ TOOLKIT_API(IMPORTS(clioptions), DEPENDS(logger));
  * Description of the --pathfinder_algorithm command.
  */
 static const char *clioptions_option_pathfinder_algorithm_desc =
-"Changes the algorithm used for pathfinding.\n\n"
-"Available algorithms: BFS, A*, Dijkstra";
+    "Changes the algorithm used for pathfinding.\n\n"
+    "Available algorithms: BFS, A*, Dijkstra";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_pathfinder_algorithm (const char *arg,
-                                        char      **errmsg)
-{
+static bool clioptions_option_pathfinder_algorithm(const char *arg, char **errmsg) {
     path_algo_t algo;
     for (algo = 0; algo < PATH_ALGO_NUM; algo++) {
         if (strcasecmp(algo_strs[algo], arg) == 0) {
@@ -162,8 +163,7 @@ clioptions_option_pathfinder_algorithm (const char *arg,
         return false;
     }
 
-    LOG(INFO, "Pathfinding algorithm changed from %s to %s",
-        algo_strs[path_algo], algo_strs[algo]);
+    LOG(INFO, "Pathfinding algorithm changed from %s to %s", algo_strs[path_algo], algo_strs[algo]);
     path_algo = algo;
     return true;
 }
@@ -172,41 +172,30 @@ clioptions_option_pathfinder_algorithm (const char *arg,
  * Description of the --pathfinder_greed command.
  */
 static const char *clioptions_option_pathfinder_greed_desc =
-"Sets the pathfinding heuristics greed modifier.";
+    "Sets the pathfinding heuristics greed modifier.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_pathfinder_greed (const char *arg,
-                                    char      **errmsg)
-{
+static bool clioptions_option_pathfinder_greed(const char *arg, char **errmsg) {
     double greed = atof(arg);
     if (DBL_EQUAL(path_greed, greed)) {
         *errmsg = estrdup("Greed modifier unchanged");
         return false;
     }
 
-    LOG(INFO, "Pathfinding greed modifier changed from %f to %f",
-        path_greed, greed);
+    LOG(INFO, "Pathfinding greed modifier changed from %f to %f", path_greed, greed);
     path_greed = greed;
     return true;
 }
 
-TOOLKIT_INIT_FUNC(pathfinder)
-{
+TOOLKIT_INIT_FUNC(pathfinder) {
     clioption_t *cli;
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               pathfinder_algorithm,
-                               "Set pathfinding algorithm");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, pathfinder_algorithm, "Set pathfinding algorithm");
     clioptions_enable_changeable(cli);
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               pathfinder_greed,
-                               "Set pathfinding greed modifier");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, pathfinder_greed, "Set pathfinding greed modifier");
     clioptions_enable_changeable(cli);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(pathfinder)
-{
-}
+TOOLKIT_DEINIT_FUNC(pathfinder) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
@@ -217,15 +206,12 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * True on success, false on failure.
  */
-static bool
-pathfinder_queue_enqueue (object *waypoint)
-{
+static bool pathfinder_queue_enqueue(object *waypoint) {
     HARD_ASSERT(waypoint != NULL);
 
     /* Queue full? */
     if (pathfinder_queue_last == pathfinder_queue_first - 1 ||
-        (pathfinder_queue_first == 0 &&
-         pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1)) {
+        (pathfinder_queue_first == 0 && pathfinder_queue_last == PATHFINDER_QUEUE_SIZE - 1)) {
         return false;
     }
 
@@ -246,9 +232,7 @@ pathfinder_queue_enqueue (object *waypoint)
  * @return
  * The waypoint, NULL if the queue is empty.
  */
-static object *
-pathfinder_queue_dequeue (tag_t *count)
-{
+static object *pathfinder_queue_dequeue(tag_t *count) {
     HARD_ASSERT(count != NULL);
 
     /* Queue empty? */
@@ -272,8 +256,7 @@ pathfinder_queue_dequeue (tag_t *count)
  * @param waypoint
  * Waypoint.
  */
-void path_request(object *waypoint)
-{
+void path_request(object *waypoint) {
     HARD_ASSERT(waypoint != NULL);
 
     if (QUERY_FLAG(waypoint, FLAG_WP_PATH_REQUESTED)) {
@@ -281,9 +264,7 @@ void path_request(object *waypoint)
     }
 
 #ifdef DEBUG_PATHFINDING
-    LOG(DEBUG, "enqueuing path request for >%s< -> >%s<",
-        waypoint->env->name,
-        waypoint->name);
+    LOG(DEBUG, "enqueuing path request for >%s< -> >%s<", waypoint->env->name, waypoint->name);
 #endif
 
     if (pathfinder_queue_enqueue(waypoint)) {
@@ -299,9 +280,7 @@ void path_request(object *waypoint)
  * @return
  * Waypoint, NULL if there isn't any left.
  */
-object *
-path_get_next_request (void)
-{
+object *path_get_next_request(void) {
     object *waypoint;
 
     do {
@@ -315,8 +294,7 @@ path_get_next_request (void)
         /* Verify the waypoint and its monster. */
         if (!OBJECT_VALID(waypoint, count) ||
             !OBJECT_VALID(waypoint->owner, waypoint->ownercount) ||
-            !(QUERY_FLAG(waypoint, FLAG_CURSED) ||
-              QUERY_FLAG(waypoint, FLAG_DAMNED)) ||
+            !(QUERY_FLAG(waypoint, FLAG_CURSED) || QUERY_FLAG(waypoint, FLAG_DAMNED)) ||
             (QUERY_FLAG(waypoint, FLAG_DAMNED) &&
              !OBJECT_VALID(waypoint->enemy, waypoint->enemy_count))) {
             waypoint = NULL;
@@ -324,9 +302,7 @@ path_get_next_request (void)
     } while (waypoint == NULL);
 
 #ifdef DEBUG_PATHFINDING
-    LOG(DEBUG, "dequeued '%s' -> '%s'",
-        waypoint->owner->name,
-        waypoint->name);
+    LOG(DEBUG, "dequeued '%s' -> '%s'", waypoint->owner->name, waypoint->name);
 #endif
 
     CLEAR_FLAG(waypoint, FLAG_WP_PATH_REQUESTED);
@@ -356,24 +332,18 @@ path_get_next_request (void)
  * @return
  * New node.
  */
-static path_node_t *path_node_new (mapstruct   *map,
-                                   int16_t      x,
-                                   int16_t      y,
-                                   double       cost,
-                                   path_node_t *start,
-                                   path_node_t *goal,
-                                   path_node_t *parent)
-{
+static path_node_t *path_node_new(mapstruct *map,
+                                  int16_t x,
+                                  int16_t y,
+                                  double cost,
+                                  path_node_t *start,
+                                  path_node_t *goal,
+                                  path_node_t *parent) {
     HARD_ASSERT(map != NULL);
     HARD_ASSERT(start != NULL);
     HARD_ASSERT(goal != NULL);
 
-    SOFT_ASSERT_RC(!OUT_OF_MAP(map, x, y),
-                   NULL,
-                   "Out of map: %s %d,%d",
-                   map->path,
-                   x,
-                   y);
+    SOFT_ASSERT_RC(!OUT_OF_MAP(map, x, y), NULL, "Out of map: %s %d,%d", map->path, x, y);
 
     /* Out of memory? */
     if (unlikely(pathfinder_nodebuf_next == PATHFINDER_NODEBUF)) {
@@ -407,8 +377,7 @@ static path_node_t *path_node_new (mapstruct   *map,
         return NULL;
     }
 
-    int cross = abs(rv.distance_x * rv2.distance_y -
-                    rv2.distance_x * rv.distance_y);
+    int cross = abs(rv.distance_x * rv2.distance_y - rv2.distance_x * rv.distance_y);
     int straight = abs(abs(rv.distance_x) - abs(rv.distance_y));
     int diagonal = MAX(abs(rv.distance_x), abs(rv.distance_y)) - straight;
 
@@ -423,13 +392,13 @@ static path_node_t *path_node_new (mapstruct   *map,
     node->cost = cost;
     node->flags = 0;
     node->distance_z = abs(rv.distance_z);
-    node->heuristic = straight + PATH_COST_DIAG * diagonal + cross * 0.001 +
-                      abs(rv.distance_z) * PATH_COST_LEVEL;
+    node->heuristic =
+        straight + PATH_COST_DIAG * diagonal + cross * 0.001 + abs(rv.distance_z) * PATH_COST_LEVEL;
     node->heuristic *= path_greed;
 
     const double modifier = algo_modifiers[path_algo];
-    node->sum = (modifier * node->cost + (1 - modifier) * node->heuristic) /
-                MAX(modifier, 1 - modifier);
+    node->sum =
+        (modifier * node->cost + (1 - modifier) * node->heuristic) / MAX(modifier, 1 - modifier);
 
     return node;
 }
@@ -441,9 +410,7 @@ static path_node_t *path_node_new (mapstruct   *map,
  * Node to remove.
  * @param[out] list List to remove from.
  */
-static void
-path_node_remove (path_node_t *node, path_node_t **list)
-{
+static void path_node_remove(path_node_t *node, path_node_t **list) {
     HARD_ASSERT(node != NULL);
     HARD_ASSERT(list != NULL);
 
@@ -473,9 +440,7 @@ path_node_remove (path_node_t *node, path_node_t **list)
  * Node to insert.
  * @param[out] list List to insert into.
  */
-static void
-path_node_insert (path_node_t *node, path_node_t **list)
-{
+static void path_node_insert(path_node_t *node, path_node_t **list) {
     HARD_ASSERT(node != NULL);
     HARD_ASSERT(list != NULL);
 
@@ -498,9 +463,7 @@ path_node_insert (path_node_t *node, path_node_t **list)
  * List to insert into.
  * @todo Make more efficient by using skip list or heaps.
  */
-static void
-path_node_insert_priority (path_node_t *node, path_node_t **list)
-{
+static void path_node_insert_priority(path_node_t *node, path_node_t **list) {
     HARD_ASSERT(node != NULL);
     HARD_ASSERT(list != NULL);
 
@@ -550,9 +513,7 @@ path_node_insert_priority (path_node_t *node, path_node_t **list)
  * @return
  * 0 if the tile is not blocked, non-zero otherwise.
  */
-static int
-tile_is_blocked (object *op, mapstruct *map, int x, int y)
-{
+static int tile_is_blocked(object *op, mapstruct *map, int x, int y) {
     int block;
     if (op->type == PLAYER && CONTR(op)->tcl) {
         block = 0;
@@ -585,9 +546,7 @@ tile_is_blocked (object *op, mapstruct *map, int x, int y)
  * @return
  * Encoded path as a shared string.
  */
-shstr *
-path_encode (path_node_t *path)
-{
+shstr *path_encode(path_node_t *path) {
     mapstruct *last_map;
     StringBuffer *sb;
     path_node_t *tmp;
@@ -649,9 +608,13 @@ path_encode (path_node_t *path)
  * Otherwise 0 will be returned and the values of map, x and y will be undefined
  * and off will not be touched.
  */
-int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
-        int *x, int *y, uint32_t *flags)
-{
+int path_get_next(shstr *buf,
+                  int16_t *off,
+                  shstr **mappath,
+                  mapstruct **map,
+                  int *x,
+                  int *y,
+                  uint32_t *flags) {
     const char *coord_start, *coord_end, *map_def;
 
     HARD_ASSERT(buf != NULL);
@@ -667,9 +630,7 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
     if (string_isempty(*mappath)) {
         /* Scan backwards from requested offset to previous linebreak or start
          * of string */
-        for (map_def = coord_start; map_def > buf && *(map_def - 1) != '\n';
-                map_def--) {
-        }
+        for (map_def = coord_start; map_def > buf && *(map_def - 1) != '\n'; map_def--) {}
     }
 
     /* Extract map path if any at the current position (this part is only used
@@ -683,8 +644,11 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
         mapend = strchr(map_def, ' ');
 
         if (mapend == NULL) {
-            LOG(BUG, "No delimeter after map name in path description "
-                    "'%s' off %d", buf, *off);
+            LOG(BUG,
+                "No delimeter after map name in path description "
+                "'%s' off %d",
+                buf,
+                *off);
             return 0;
         }
 
@@ -709,16 +673,14 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
     }
 
     if (*map == NULL) {
-        LOG(BUG, "Couldn't load map from description '%s' off %d", buf,
-                *off);
+        LOG(BUG, "Couldn't load map from description '%s' off %d", buf, *off);
         return 0;
     }
 
     /* Get the requested coordinate pair. */
     coord_end = coord_start + strcspn(coord_start, " \n");
 
-    if (coord_end == coord_start || sscanf(coord_start, "%d,%d,%d", x, y,
-            flags) != 3) {
+    if (coord_end == coord_start || sscanf(coord_start, "%d,%d,%d", x, y, flags) != 3) {
         LOG(BUG, "Illegal coordinate pair in '%s' off %d", buf, *off);
         return 0;
     }
@@ -756,8 +718,7 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
  * @return
  * 'path' with redundant segments removed.
  */
-path_node_t *path_compress(path_node_t *path)
-{
+path_node_t *path_compress(path_node_t *path) {
     path_node_t *tmp, *next;
     int last_dir;
     rv_vector v;
@@ -772,8 +733,14 @@ path_node_t *path_compress(path_node_t *path)
 
     next = path->next;
 
-    get_rangevector_from_mapcoords(path->map, path->x, path->y, next->map,
-            next->x, next->y, &v, RV_EUCLIDIAN_DISTANCE);
+    get_rangevector_from_mapcoords(path->map,
+                                   path->x,
+                                   path->y,
+                                   next->map,
+                                   next->x,
+                                   next->y,
+                                   &v,
+                                   RV_EUCLIDIAN_DISTANCE);
     last_dir = v.direction;
 
     for (tmp = next; tmp != NULL && tmp->next != NULL; tmp = next) {
@@ -782,8 +749,14 @@ path_node_t *path_compress(path_node_t *path)
 #ifdef DEBUG_PATHFINDING
         total_nodes++;
 #endif
-        get_rangevector_from_mapcoords(tmp->map, tmp->x, tmp->y, next->map,
-                next->x, next->y, &v, RV_EUCLIDIAN_DISTANCE);
+        get_rangevector_from_mapcoords(tmp->map,
+                                       tmp->x,
+                                       tmp->y,
+                                       next->map,
+                                       next->x,
+                                       next->y,
+                                       &v,
+                                       RV_EUCLIDIAN_DISTANCE);
 
         if (last_dir == v.direction) {
             path_node_remove(tmp, &path);
@@ -796,8 +769,11 @@ path_node_t *path_compress(path_node_t *path)
     }
 
 #ifdef DEBUG_PATHFINDING
-    LOG(DEBUG, "removed %d nodes of %d (%.0f%%)", removed_nodes,
-            total_nodes, (float) removed_nodes * 100.0 / (float) total_nodes);
+    LOG(DEBUG,
+        "removed %d nodes of %d (%.0f%%)",
+        removed_nodes,
+        total_nodes,
+        (float)removed_nodes * 100.0 / (float)total_nodes);
 #endif
 
     return path;
@@ -808,25 +784,20 @@ path_node_t *path_compress(path_node_t *path)
  * @param[out] visualization Hash table to use. Must be initialized to NULL.
  * @param[out] visualizer List of the visited/closed nodes.
  */
-void path_visualize(path_visualization_t **visualization,
-        path_visualizer_t **visualizer)
-{
+void path_visualize(path_visualization_t **visualization, path_visualizer_t **visualizer) {
     path_visualizer_t *node, *tmp;
     path_visualization_t *visualization_node;
 
     HARD_ASSERT(visualization != NULL);
     HARD_ASSERT(visualizer != NULL);
 
-    DL_FOREACH_SAFE(*visualizer, node, tmp)
-    {
-        HASH_FIND(hh, *visualization, &node->map->path, sizeof(shstr *),
-                visualization_node);
+    DL_FOREACH_SAFE(*visualizer, node, tmp) {
+        HASH_FIND(hh, *visualization, &node->map->path, sizeof(shstr *), visualization_node);
 
         if (visualization_node == NULL) {
             visualization_node = ecalloc(1, sizeof(*visualization_node));
             FREE_AND_ADD_REF_HASH(visualization_node->path, node->map->path);
-            HASH_ADD(hh, *visualization, path, sizeof(shstr *),
-                    visualization_node);
+            HASH_ADD(hh, *visualization, path, sizeof(shstr *), visualization_node);
         }
 
         DL_DELETE(*visualizer, node);
@@ -856,9 +827,14 @@ void path_visualize(path_visualization_t **visualization,
  * @return
  * Found path.
  */
-path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
-        mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer)
-{
+path_node_t *path_find(object *op,
+                       mapstruct *map1,
+                       int x,
+                       int y,
+                       mapstruct *map2,
+                       int x2,
+                       int y2,
+                       path_visualizer_t **visualizer) {
     path_node_t *open_list, *found_path, *visited, *node, *new_node, *best;
     path_node_t start, goal;
     static uint32_t traversal_id = 0;
@@ -920,20 +896,23 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         path_node_remove(node, &open_list);
 
         bool reached_goal = node->heuristic <= 1.2;
-        if (op->more != NULL && !reached_goal &&
-            node->heuristic <= (op->quick_pos >> 4) + 1) {
+        if (op->more != NULL && !reached_goal && node->heuristic <= (op->quick_pos >> 4) + 1) {
             for (object *tmp = op; tmp != NULL; tmp = tmp->more) {
                 int tmp_x = node->x + tmp->arch->clone.x;
                 int tmp_y = node->y + tmp->arch->clone.y;
-                mapstruct *tmp_map = get_map_from_coord(node->map,
-                                                        &tmp_x,
-                                                        &tmp_y);
+                mapstruct *tmp_map = get_map_from_coord(node->map, &tmp_x, &tmp_y);
                 if (tmp_map == NULL) {
                     continue;
                 }
 
-                get_rangevector_from_mapcoords(tmp_map, tmp_x, tmp_y, goal.map,
-                                               goal.x, goal.y, &rv, 0);
+                get_rangevector_from_mapcoords(tmp_map,
+                                               tmp_x,
+                                               tmp_y,
+                                               goal.map,
+                                               goal.x,
+                                               goal.y,
+                                               &rv,
+                                               0);
                 if (rv.distance <= 1) {
                     reached_goal = true;
                     break;
@@ -943,13 +922,11 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
         if (reached_goal) {
             if (visualizer != NULL) {
-                PATHFINDING_SET_CLOSED(node->map, node->x, node->y,
-                        traversal_id, visualizer);
-                PATHFINDING_SET_CLOSED(goal.map, goal.x, goal.y,
-                        traversal_id, visualizer);
+                PATHFINDING_SET_CLOSED(node->map, node->x, node->y, traversal_id, visualizer);
+                PATHFINDING_SET_CLOSED(goal.map, goal.x, goal.y, traversal_id, visualizer);
             }
 
-            for ( ; node != NULL; node = node->parent) {
+            for (; node != NULL; node = node->parent) {
                 path_node_insert(node, &found_path);
             }
 
@@ -957,28 +934,31 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         }
 
         /* Close this tile. */
-        PATHFINDING_SET_CLOSED(node->map, node->x, node->y, traversal_id,
-                visualizer);
+        PATHFINDING_SET_CLOSED(node->map, node->x, node->y, traversal_id, visualizer);
 
         node_map = node->map;
         node_x = node->x;
         node_y = node->y;
 
-        if (GET_MAP_FLAGS(node_map, node_x, node_y) & P_IS_EXIT &&
-                op->behavior & BEHAVIOR_EXITS) {
+        if (GET_MAP_FLAGS(node_map, node_x, node_y) & P_IS_EXIT && op->behavior & BEHAVIOR_EXITS) {
             object *tmp;
 
-            for (tmp = GET_MAP_OB(node_map, node_x, node_y); tmp != NULL;
-                    tmp = tmp->above) {
+            for (tmp = GET_MAP_OB(node_map, node_x, node_y); tmp != NULL; tmp = tmp->above) {
                 if (tmp->type == EXIT) {
                     m = exit_get_destination(tmp, &nx, &ny, true);
 
                     /* Do not enter exits that have worse z distance than the
                      * current node. */
-                    if (m != NULL && get_rangevector_from_mapcoords(m, node_x,
-                            node_y, goal.map, goal.x, goal.y, &rv,
-                            RV_RECURSIVE_SEARCH) && abs(rv.distance_z) <=
-                            node->distance_z) {
+                    if (m != NULL &&
+                        get_rangevector_from_mapcoords(m,
+                                                       node_x,
+                                                       node_y,
+                                                       goal.map,
+                                                       goal.x,
+                                                       goal.y,
+                                                       &rv,
+                                                       RV_RECURSIVE_SEARCH) &&
+                        abs(rv.distance_z) <= node->distance_z) {
                         node_map = m;
                         node_x = nx;
                         node_y = ny;
@@ -990,8 +970,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
                         node->flags |= PATH_NODE_EXIT;
 
                         /* Close the tile that the exit leads to. */
-                        PATHFINDING_SET_CLOSED(node_map, node_x, node_y,
-                                traversal_id, visualizer);
+                        PATHFINDING_SET_CLOSED(node_map, node_x, node_y, traversal_id, visualizer);
 
                         break;
                     }
@@ -1024,10 +1003,10 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
              * that is not chasing an enemy, and this tile is a secret passage,
              * skip it. */
             if (!(GET_MAP_FLAGS(m, nx, ny) & P_DOOR_CLOSED) &&
-                    (op->type != PLAYER || !CONTR(op)->tcl) &&
-                    !(op->behavior & BEHAVIOR_SECRET_PASSAGES) &&
-                    (op->type == PLAYER || !OBJECT_VALID(op->enemy,
-                    op->enemy_count)) && blocks_view(m, nx, ny)) {
+                (op->type != PLAYER || !CONTR(op)->tcl) &&
+                !(op->behavior & BEHAVIOR_SECRET_PASSAGES) &&
+                (op->type == PLAYER || !OBJECT_VALID(op->enemy, op->enemy_count)) &&
+                blocks_view(m, nx, ny)) {
                 continue;
             }
 
@@ -1084,8 +1063,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
 #if TIME_PATHFINDING
     TIMER_UPDATE(1);
-    LOG(DEVEL, "Pathfinding took %f seconds (searched %d nodes)",
-            TIMER_GET(1), searched);
+    LOG(DEVEL, "Pathfinding took %f seconds (searched %d nodes)", TIMER_GET(1), searched);
 #endif
 
 #if VISUALIZE_PATHFINDING
@@ -1093,8 +1071,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         char path[HUGE_BUF];
         FILE *fp;
 
-        snprintf(path, sizeof(path), "%s/pathfinding/%u.json",
-                settings.datapath, traversal_id);
+        snprintf(path, sizeof(path), "%s/pathfinding/%u.json", settings.datapath, traversal_id);
         path_ensure_directories(path);
 
         fp = fopen(path, "w");
@@ -1110,32 +1087,42 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             visualization = NULL;
             path_visualize(&visualization, visualizer);
 
-            fprintf(fp, "{\"start\": {\"map\": \"%s\", \"x\": %d, \"y\": %d},\n"
+            fprintf(fp,
+                    "{\"start\": {\"map\": \"%s\", \"x\": %d, \"y\": %d},\n"
                     "\"goal\": {\"map\": \"%s\", \"x\": %d, \"y\": %d},\n"
-                    "\"nodes\": {\n", start.map->path, start.x, start.y,
-                    goal.map->path, goal.x, goal.y);
+                    "\"nodes\": {\n",
+                    start.map->path,
+                    start.x,
+                    start.y,
+                    goal.map->path,
+                    goal.x,
+                    goal.y);
 
-            HASH_ITER(hh, visualization, curr, tmp)
-            {
+            HASH_ITER(hh, visualization, curr, tmp) {
                 m = has_been_loaded_sh(curr->path);
                 fprintf(fp, "\"%s\": {\"walked\": [\n", m->path);
 
-                DL_FOREACH_SAFE(curr->nodes, visualizer_node,
-                        visualizer_node_tmp)
-                {
-                    fprintf(fp, "{\"id\": %u, \"x\": %d, \"y\": %d, "
-                            "\"closed\": %s, \"exit\": %s", visualizer_node->id,
-                            visualizer_node->x, visualizer_node->y,
+                DL_FOREACH_SAFE(curr->nodes, visualizer_node, visualizer_node_tmp) {
+                    fprintf(fp,
+                            "{\"id\": %u, \"x\": %d, \"y\": %d, "
+                            "\"closed\": %s, \"exit\": %s",
+                            visualizer_node->id,
+                            visualizer_node->x,
+                            visualizer_node->y,
                             visualizer_node->closed ? "true" : "false",
-                            GET_MAP_FLAGS(m, visualizer_node->x,
-                            visualizer_node->y) & P_IS_EXIT ? "true" : "false");
+                            GET_MAP_FLAGS(m, visualizer_node->x, visualizer_node->y) & P_IS_EXIT
+                                ? "true"
+                                : "false");
 
                     if (visualizer_node->node == NULL) {
-                        fprintf(fp, ", \"cost\": NaN, \"heuristic\": NaN, "
+                        fprintf(fp,
+                                ", \"cost\": NaN, \"heuristic\": NaN, "
                                 "\"sum\": NaN");
                     } else {
-                        fprintf(fp, ", \"cost\": %f, \"heuristic\": %f, "
-                                "\"sum\": %f", visualizer_node->node->cost,
+                        fprintf(fp,
+                                ", \"cost\": %f, \"heuristic\": %f, "
+                                "\"sum\": %f",
+                                visualizer_node->node->cost,
                                 visualizer_node->node->heuristic,
                                 visualizer_node->node->sum);
                     }
@@ -1164,14 +1151,16 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
                             stringbuffer_append_char(sb, ',');
                         }
 
-                        stringbuffer_append_printf(sb, "\n{\"x\": %d, "
-                                "\"y\": %d}", x, y);
+                        stringbuffer_append_printf(sb,
+                                                   "\n{\"x\": %d, "
+                                                   "\"y\": %d}",
+                                                   x,
+                                                   y);
                     }
                 }
 
                 cp = stringbuffer_finish(sb);
-                fprintf(fp, "],\n\"walls\": [%s\n]}%s\n", cp,
-                        tmp != NULL ? "," : "");
+                fprintf(fp, "],\n\"walls\": [%s\n]}%s\n", cp, tmp != NULL ? "," : "");
                 efree(cp);
 
                 HASH_DEL(visualization, curr);
@@ -1187,23 +1176,30 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
                 if (node->flags & PATH_NODE_EXIT) {
                     object *exit;
 
-                    for (exit = GET_MAP_OB(node->map, node->x, node->y);
-                            exit != NULL; exit = exit->above) {
+                    for (exit = GET_MAP_OB(node->map, node->x, node->y); exit != NULL;
+                         exit = exit->above) {
                         if (exit->type == EXIT) {
                             m = exit_get_destination(exit, &nx, &ny, true);
                         }
                     }
                 }
 
-                fprintf(fp, "{\"map\": \"%s\", \"x\": %d, \"y\": %d, "
-                        "\"flags\": %d}%s\n", node->map->path, node->x, node->y,
-                        node->flags, node->next != NULL || m != NULL ? "," :
-                            "");
+                fprintf(fp,
+                        "{\"map\": \"%s\", \"x\": %d, \"y\": %d, "
+                        "\"flags\": %d}%s\n",
+                        node->map->path,
+                        node->x,
+                        node->y,
+                        node->flags,
+                        node->next != NULL || m != NULL ? "," : "");
 
                 if (m != NULL) {
-                    fprintf(fp, "{\"map\": \"%s\", \"x\": %d, \"y\": %d}%s\n",
-                            m->path, nx, ny, node->next != NULL ? "," : "");
-
+                    fprintf(fp,
+                            "{\"map\": \"%s\", \"x\": %d, \"y\": %d}%s\n",
+                            m->path,
+                            nx,
+                            ny,
+                            node->next != NULL ? "," : "");
                 }
             }
 
@@ -1227,8 +1223,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
             fclose(fp);
 
-            LOG(DEVEL, "Generated pathfinding visualization for '%s': %s",
-                    op->name, path);
+            LOG(DEVEL, "Generated pathfinding visualization for '%s': %s", op->name, path);
         }
     }
 #endif

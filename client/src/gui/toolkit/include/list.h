@@ -150,62 +150,62 @@ typedef struct list_struct {
      * Function that will draw frame (and/or other effects) right before
      * the column names and the actual rows.
      * @param list
- * List.
- */
+     * List.
+     */
     void (*draw_frame_func)(struct list_struct *list);
 
     /**
      * Function that will color the specified row.
      * @param list
- * List.
+     * List.
      * @param row
- * Row number, 0-[max visible rows].
+     * Row number, 0-[max visible rows].
      * @param box
- * Contains base x/y/width/height information to use.
- */
+     * Contains base x/y/width/height information to use.
+     */
     void (*row_color_func)(struct list_struct *list, int row, SDL_Rect box);
 
     /**
      * Function to highlight a row (due to mouse being over it).
      * @param list
- * List.
+     * List.
      * @param box
- * Contains base x/y/width/height information to use.
- */
+     * Contains base x/y/width/height information to use.
+     */
     void (*row_highlight_func)(struct list_struct *list, SDL_Rect box);
 
     /**
      * Function to color a selected row.
      * @param list
- * List.
+     * List.
      * @param box
- * Contains base x/y/width/height information to use.
- */
+     * Contains base x/y/width/height information to use.
+     */
     void (*row_selected_func)(struct list_struct *list, SDL_Rect box);
 
     /**
      * Function to handle ESC key being pressed while the list had focus.
      * @param list
- * List.
- */
+     * List.
+     */
     void (*handle_esc_func)(struct list_struct *list);
 
     /**
      * Function to handle enter key being pressed on a selected row, or
      * a row being double clicked.
      * @param list
- * List.
+     * List.
      * @param Event
- * Event that triggered this.
- */
+     * Event that triggered this.
+     */
     void (*handle_enter_func)(struct list_struct *list, SDL_Event *event);
 
     /**
      * Custom function to call for handling keyboard events.
      * @param list
- * List.
+     * List.
      * @param key
- * Key ID.
+     * Key ID.
      * @retval -1 Did not handle the event, but should still attempt to
      * handle generic list events (eg, scrolling with arrow keys).
      * @retval 0 Did not handle the event.
@@ -216,48 +216,54 @@ typedef struct list_struct {
     /**
      * Hook to use for setting text color based on row/column.
      * @param list
- * List.
+     * List.
      * @param row
- * Text row.
+     * Text row.
      * @param col
- * Column.
+     * Column.
      * @param[out] color What color to use.
      * @param[out] color_shadow What color to use for the text's shadow,
      * NULL to disable shadow.
      */
-    void (*text_color_hook)(struct list_struct *list, uint32_t row, uint32_t col, const char **color, const char **color_shadow);
+    void (*text_color_hook)(struct list_struct *list,
+                            uint32_t row,
+                            uint32_t col,
+                            const char **color,
+                            const char **color_shadow);
 
     /**
      * Callback function to call after drawing one column in a list.
      * @param list
- * The list.
+     * The list.
      * @param row
- * The row of the column that was drawn.
+     * The row of the column that was drawn.
      * @param col
- * The column.
- */
+     * The column.
+     */
     void (*post_column_func)(struct list_struct *list, uint32_t row, uint32_t col);
 
     /**
      * Callback function to call when a mouse has been detected to be
      * located over a list row.
      * @param list
- * The list.
+     * The list.
      * @param row
- * The row in the list the mouse is over.
+     * The row in the list the mouse is over.
      * @param event
- * Event that triggered this - can be used to figure out
+     * Event that triggered this - can be used to figure out
      * whether the event was a click, a motion, etc.
      */
     void (*handle_mouse_row_func)(struct list_struct *list, uint32_t row, SDL_Event *event);
 } list_struct;
 
 /** Calculate list's row height. */
-#define LIST_ROW_HEIGHT(list) (((list)->font != NULL ? FONT_HEIGHT((list)->font) : 0) + (list)->row_height_adjust)
+#define LIST_ROW_HEIGHT(list) \
+    (((list)->font != NULL ? FONT_HEIGHT((list)->font) : 0) + (list)->row_height_adjust)
 /** Figure out Y position where rows should actually start. */
-#define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing + (list)->frame_offset)
+#define LIST_ROWS_START(list) \
+    ((list)->y + (list)->header_height + (list)->spacing + (list)->frame_offset)
 /** Figure out maximum visible rows. */
-#define LIST_ROWS_MAX(list) ((uint32_t) ((list)->height + (list)->spacing) / LIST_ROW_HEIGHT((list)))
+#define LIST_ROWS_MAX(list) ((uint32_t)((list)->height + (list)->spacing) / LIST_ROW_HEIGHT((list)))
 /** Calculate the height of the rows. */
 #define LIST_ROWS_HEIGHT(list) (LIST_ROW_HEIGHT((list)) * (list)->max_rows)
 /**
@@ -268,14 +274,18 @@ typedef struct list_struct {
 /**
  * Figure out full height of the list, including its header.
  */
-#define LIST_HEIGHT_FULL(list) ((int) LIST_ROWS_HEIGHT((list)) + (list)->spacing + (list)->header_height)
+#define LIST_HEIGHT_FULL(list) \
+    ((int)LIST_ROWS_HEIGHT((list)) + (list)->spacing + (list)->header_height)
 /**
  * Figure out the full width of the list, including its scrollbar, if it
  * has one.
  */
-#define LIST_WIDTH_FULL(list) ((list)->width + ((list)->scrollbar_enabled ? (list)->scrollbar.background.w : 0))
+#define LIST_WIDTH_FULL(list) \
+    ((list)->width + ((list)->scrollbar_enabled ? (list)->scrollbar.background.w : 0))
 /** Calculate whether mouse is over the specified list. */
-#define LIST_MOUSE_OVER(list, mx, my) ((mx) > (list)->x && (mx) < (list)->x + LIST_WIDTH_FULL((list)) && (my) > (list)->y && (my) < (list)->y + LIST_HEIGHT_FULL((list)))
+#define LIST_MOUSE_OVER(list, mx, my)                                                      \
+    ((mx) > (list)->x && (mx) < (list)->x + LIST_WIDTH_FULL((list)) && (my) > (list)->y && \
+     (my) < (list)->y + LIST_HEIGHT_FULL((list)))
 
 /**
  * @defgroup LIST_SORT_xxx List sort types

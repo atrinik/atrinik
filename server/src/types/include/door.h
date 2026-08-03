@@ -32,9 +32,7 @@
 
 /* Prototypes */
 
-bool
-door_try_open(object *op, mapstruct *m, int x, int y, bool test);
-void
-door_show_message(object *op, mapstruct *m, int x, int y);
+bool door_try_open(object *op, mapstruct *m, int x, int y, bool test);
+void door_show_message(object *op, mapstruct *m, int x, int y);
 
 #endif

@@ -45,8 +45,7 @@ static size_t file_updates_requested = 0;
  * @param filename
  * What to request.
  */
-static void file_updates_request(char *filename)
-{
+static void file_updates_request(char *filename) {
     packet_struct *packet;
 
     file_updates_requested++;
@@ -54,12 +53,10 @@ static void file_updates_request(char *filename)
     packet = packet_new(SERVER_CMD_REQUEST_UPDATE, 64, 64);
     packet_append_string_terminated(packet, filename);
     socket_send_packet(packet);
-
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_file_update(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_file_update(uint8_t *data, size_t len, size_t pos) {
     char filename[MAX_BUF];
     unsigned long ucomp_len;
     unsigned char *dest;
@@ -75,7 +72,7 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos)
 
     /* Uncompress it. */
     dest = emalloc(ucomp_len);
-    uncompress((Bytef *) dest, (uLongf *) & ucomp_len, (const Bytef *) data + pos, (uLong) len);
+    uncompress((Bytef *)dest, (uLongf *)&ucomp_len, (const Bytef *)data + pos, (uLong)len);
     data = dest;
     len = ucomp_len;
 
@@ -98,16 +95,14 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos)
  * @return
  * 1 if we have finished, 0 otherwise.
  */
-int file_updates_finished(void)
-{
+int file_updates_finished(void) {
     return file_updates_requested == 0;
 }
 
 /**
  * Parse the updates srv file, and request updated files as needed.
  */
-void file_updates_parse(void)
-{
+void file_updates_parse(void) {
     FILE *fp;
     char buf[HUGE_BUF];
 
@@ -130,7 +125,7 @@ void file_updates_parse(void)
         unsigned long crc;
         struct stat sb;
 
-        if (sscanf(buf, "%s %"PRIu64 " %s", filename, &size, crc_buf) != 3) {
+        if (sscanf(buf, "%s %" PRIu64 " %s", filename, &size, crc_buf) != 3) {
             continue;
         }
 
@@ -149,12 +144,12 @@ void file_updates_parse(void)
         fclose(fp2);
 
         /* Get the CRC32... */
-        crc = crc32(1L, (const unsigned char FAR *) contents, numread);
+        crc = crc32(1L, (const unsigned char FAR *)contents, numread);
         efree(contents);
 
         /* If the checksum or the size doesn't match, we'll want to update it.
          * */
-        if (crc != strtoul(crc_buf, NULL, 16) || st_size != (size_t) size) {
+        if (crc != strtoul(crc_buf, NULL, 16) || st_size != (size_t)size) {
             file_updates_request(filename);
         }
     }

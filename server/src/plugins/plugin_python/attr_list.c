@@ -74,18 +74,14 @@ typedef enum attr_list_oper {
  * @return
  * The length of the provided AttrList.
  */
-static Py_ssize_t attr_list_len(Atrinik_AttrList *al)
-{
+static Py_ssize_t attr_list_len(Atrinik_AttrList *al) {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-        return *(int *) ((char *) al->ptr +
-                offsetof(player, num_cmd_permissions));
+        return *(int *)((char *)al->ptr + offsetof(player, num_cmd_permissions));
     } else if (al->field == FIELDTYPE_FACTIONS) {
-        player_faction_t *factions = *(player_faction_t **) ((char *) al->ptr +
-                al->offset);
+        player_faction_t *factions = *(player_faction_t **)((char *)al->ptr + al->offset);
         return HASH_CNT(hh, factions);
     } else if (al->field == FIELDTYPE_PACKETS) {
-        packet_struct *head = *(packet_struct **) ((char *) al->ptr +
-                al->offset), *packet;
+        packet_struct *head = *(packet_struct **)((char *)al->ptr + al->offset), *packet;
         Py_ssize_t num = 0;
         DL_FOREACH(head, packet) {
             num++;
@@ -111,13 +107,12 @@ static Py_ssize_t attr_list_len(Atrinik_AttrList *al)
  * True on success, false on failure.
  */
 static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
-        attr_list_oper_t oper, PyObject *key, PyObject **value)
-{
-    char ***perms = ((char ***) ((char *) al->ptr + al->offset));
-    int *len = (int *) ((char *) al->ptr +
-            offsetof(player, num_cmd_permissions));
-    socket_struct *ns = (socket_struct *) ((char *) al->ptr +
-            offsetof(player, cs));
+                                           attr_list_oper_t oper,
+                                           PyObject *key,
+                                           PyObject **value) {
+    char ***perms = ((char ***)((char *)al->ptr + al->offset));
+    int *len = (int *)((char *)al->ptr + offsetof(player, num_cmd_permissions));
+    socket_struct *ns = (socket_struct *)((char *)al->ptr + offsetof(player, cs));
 
     if (oper == AL_OPER_CLEAR) {
         if (*perms == NULL) {
@@ -153,9 +148,8 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
         }
 
         return false;
-    } else if (oper != AL_OPER_APPEND && oper != AL_OPER_GET &&
-            oper != AL_OPER_SET && oper != AL_OPER_ITER &&
-            oper != AL_OPER_REMOVE) {
+    } else if (oper != AL_OPER_APPEND && oper != AL_OPER_GET && oper != AL_OPER_SET &&
+               oper != AL_OPER_ITER && oper != AL_OPER_REMOVE) {
         PyErr_SetString(PyExc_NotImplementedError, "operation not implemented");
         return false;
     }
@@ -245,13 +239,14 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
  * True on success, false on failure.
  */
 static bool attr_list_oper_factions(Atrinik_AttrList *al,
-        attr_list_oper_t oper, PyObject *key, PyObject **value)
-{
+                                    attr_list_oper_t oper,
+                                    PyObject *key,
+                                    PyObject **value) {
     HARD_ASSERT(al != NULL);
 
     if (oper == AL_OPER_CLEAR) {
-        player_faction_t *factions = *(player_faction_t **) (
-                (char *) al->ptr + al->offset), *faction, *tmp;
+        player_faction_t *factions = *(player_faction_t **)((char *)al->ptr + al->offset), *faction,
+                         *tmp;
         HASH_ITER(hh, factions, faction, tmp) {
             hooks->player_faction_free(al->ptr, faction);
         }
@@ -259,8 +254,8 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
         return true;
     } else if (oper == AL_OPER_ITEMS) {
         *value = PyList_New(0);
-        player_faction_t *factions = *(player_faction_t **) (
-                (char *) al->ptr + al->offset), *faction, *tmp;
+        player_faction_t *factions = *(player_faction_t **)((char *)al->ptr + al->offset), *faction,
+                         *tmp;
         HASH_ITER(hh, factions, faction, tmp) {
             PyObject *tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, Py_BuildValue("s", faction->name));
@@ -269,9 +264,8 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
         }
 
         return true;
-    } else if (oper != AL_OPER_CONTAINS && oper != AL_OPER_GET &&
-            oper != AL_OPER_SET && oper != AL_OPER_DELETE &&
-            oper != AL_OPER_ITER) {
+    } else if (oper != AL_OPER_CONTAINS && oper != AL_OPER_GET && oper != AL_OPER_SET &&
+               oper != AL_OPER_DELETE && oper != AL_OPER_ITER) {
         PyErr_SetString(PyExc_NotImplementedError, "operation not implemented");
         return false;
     }
@@ -298,8 +292,8 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
             return false;
         }
 
-        player_faction_t *factions = *(player_faction_t **) (
-                (char *) al->ptr + al->offset), *faction, *tmp;
+        player_faction_t *factions = *(player_faction_t **)((char *)al->ptr + al->offset), *faction,
+                         *tmp;
         HASH_ITER(hh, factions, faction, tmp) {
             if (faction->name == shared_str) {
                 return true;
@@ -314,8 +308,7 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
     player_faction_t *faction;
     bool added_new = false;
     if (oper == AL_OPER_ITER) {
-        player_faction_t *factions = *(player_faction_t **) ((char *) al->ptr +
-                al->offset), *tmp;
+        player_faction_t *factions = *(player_faction_t **)((char *)al->ptr + al->offset), *tmp;
         PY_LONG_LONG i = 0;
         HASH_ITER(hh, factions, faction, tmp) {
             if (i++ == al->iter.idx) {
@@ -359,8 +352,7 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
         }
     }
 
-    void *ptr = &(*(double **) ((char *) (void *) faction +
-            offsetof(player_faction_t, reputation)));
+    void *ptr = &(*(double **)((char *)(void *)faction + offsetof(player_faction_t, reputation)));
     fields_struct field = {"xxx", FIELDTYPE_DOUBLE, 0, 0, 0, NULL};
 
     if (oper == AL_OPER_GET || oper == AL_OPER_ITER) {
@@ -396,12 +388,12 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
  * True on success, false on failure.
  */
 static bool attr_list_oper_packets(Atrinik_AttrList *al,
-        attr_list_oper_t oper, PyObject *key, PyObject **value)
-{
+                                   attr_list_oper_t oper,
+                                   PyObject *key,
+                                   PyObject **value) {
     HARD_ASSERT(al != NULL);
 
-    if (oper == AL_OPER_SET || oper == AL_OPER_CONTAINS ||
-            oper == AL_OPER_APPEND) {
+    if (oper == AL_OPER_SET || oper == AL_OPER_CONTAINS || oper == AL_OPER_APPEND) {
         HARD_ASSERT(value != NULL);
         if (!PyBytes_Check(*value)) {
             PyErr_SetString(PyExc_TypeError, "value must be a bytes object");
@@ -409,7 +401,7 @@ static bool attr_list_oper_packets(Atrinik_AttrList *al,
         }
     }
 
-    packet_struct **head = (packet_struct **) ((char *) al->ptr + al->offset);
+    packet_struct **head = (packet_struct **)((char *)al->ptr + al->offset);
     if (oper == AL_OPER_CLEAR) {
         packet_struct *packet, *tmp;
         DL_FOREACH_SAFE(*head, packet, tmp) {
@@ -429,8 +421,8 @@ static bool attr_list_oper_packets(Atrinik_AttrList *al,
         }
 
         return false;
-    } else if (oper != AL_OPER_GET && oper != AL_OPER_SET &&
-            oper != AL_OPER_APPEND && oper != AL_OPER_ITER) {
+    } else if (oper != AL_OPER_GET && oper != AL_OPER_SET && oper != AL_OPER_APPEND &&
+               oper != AL_OPER_ITER) {
         PyErr_SetString(PyExc_NotImplementedError, "operation not implemented");
         return false;
     }
@@ -451,8 +443,7 @@ static bool attr_list_oper_packets(Atrinik_AttrList *al,
         al->iter.ptr = elem;
     } else if (oper != AL_OPER_APPEND) {
         if (key == NULL) {
-            PyErr_SetString(PyExc_NotImplementedError,
-                    "operation not implemented");
+            PyErr_SetString(PyExc_NotImplementedError, "operation not implemented");
             return false;
         }
 
@@ -483,14 +474,14 @@ static bool attr_list_oper_packets(Atrinik_AttrList *al,
     }
 
     if (oper == AL_OPER_GET || oper == AL_OPER_ITER) {
-        *value = PyBytes_FromStringAndSize((const char *) elem->data,
-                elem->len);
+        *value = PyBytes_FromStringAndSize((const char *)elem->data, elem->len);
         return true;
     }
 
     packet_struct *packet = hooks->packet_new(0, PyBytes_Size(*value), 0);
-    hooks->packet_append_data_len(packet, (uint8_t *) PyBytes_AsString(*value),
-            PyBytes_Size(*value));
+    hooks->packet_append_data_len(packet,
+                                  (uint8_t *)PyBytes_AsString(*value),
+                                  PyBytes_Size(*value));
 
     if (oper == AL_OPER_SET) {
         DL_PREPEND_ELEM(*head, elem, packet);
@@ -516,22 +507,21 @@ static bool attr_list_oper_packets(Atrinik_AttrList *al,
  * @return
  * True on success, false on failure.
  */
-static bool attr_list_oper(Atrinik_AttrList *al, attr_list_oper_t oper,
-        PyObject *key, PyObject **value)
-{
+static bool
+attr_list_oper(Atrinik_AttrList *al, attr_list_oper_t oper, PyObject *key, PyObject **value) {
     switch (al->field) {
-    case FIELDTYPE_CMD_PERMISSIONS:
-        return attr_list_oper_cmd_permissions(al, oper, key, value);
+        case FIELDTYPE_CMD_PERMISSIONS:
+            return attr_list_oper_cmd_permissions(al, oper, key, value);
 
-    case FIELDTYPE_FACTIONS:
-        return attr_list_oper_factions(al, oper, key, value);
+        case FIELDTYPE_FACTIONS:
+            return attr_list_oper_factions(al, oper, key, value);
 
-    case FIELDTYPE_PACKETS:
-        return attr_list_oper_packets(al, oper, key, value);
+        case FIELDTYPE_PACKETS:
+            return attr_list_oper_packets(al, oper, key, value);
 
-    default:
-        LOG(ERROR, "Unhandled field: %d", al->field);
-        return false;
+        default:
+            LOG(ERROR, "Unhandled field: %d", al->field);
+            return false;
     }
 }
 
@@ -544,8 +534,7 @@ static bool attr_list_oper(Atrinik_AttrList *al, attr_list_oper_t oper,
  * @return
  * None.
  */
-static PyObject *append(Atrinik_AttrList *al, PyObject *value)
-{
+static PyObject *append(Atrinik_AttrList *al, PyObject *value) {
     if (!attr_list_oper(al, AL_OPER_APPEND, NULL, &value)) {
         return NULL;
     }
@@ -563,8 +552,7 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
  * @return
  * None.
  */
-static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
-{
+static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value) {
     if (!attr_list_oper(al, AL_OPER_REMOVE, NULL, &value)) {
         return NULL;
     }
@@ -580,8 +568,7 @@ static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
  * @return
  * None.
  */
-static PyObject *attr_list_clear(Atrinik_AttrList *al)
-{
+static PyObject *attr_list_clear(Atrinik_AttrList *al) {
     if (!attr_list_oper(al, AL_OPER_CLEAR, NULL, NULL)) {
         return NULL;
     }
@@ -597,8 +584,7 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
  * @return
  * List of the items in the AttrList.
  */
-static PyObject *attr_list_items(Atrinik_AttrList *al)
-{
+static PyObject *attr_list_items(Atrinik_AttrList *al) {
     PyObject *value;
     if (!attr_list_oper(al, AL_OPER_ITEMS, NULL, &value)) {
         return NULL;
@@ -608,13 +594,11 @@ static PyObject *attr_list_items(Atrinik_AttrList *al)
 }
 
 /** Available Python methods for the AtrinikAttrList type. */
-static PyMethodDef methods[] = {
-    {"append", (PyCFunction) append, METH_O, 0},
-    {"remove", (PyCFunction) attr_list_remove, METH_O, 0},
-    {"clear", (PyCFunction) attr_list_clear, METH_NOARGS, 0},
-    {"items", (PyCFunction) attr_list_items, METH_NOARGS, 0},
-    {NULL, NULL, 0, 0}
-};
+static PyMethodDef methods[] = {{"append", (PyCFunction)append, METH_O, 0},
+                                {"remove", (PyCFunction)attr_list_remove, METH_O, 0},
+                                {"clear", (PyCFunction)attr_list_clear, METH_NOARGS, 0},
+                                {"items", (PyCFunction)attr_list_items, METH_NOARGS, 0},
+                                {NULL, NULL, 0, 0}};
 
 /**
  * Start iterating.
@@ -623,9 +607,8 @@ static PyMethodDef methods[] = {
  * @return
  * New iteration object.
  */
-static PyObject *iter(PyObject *seq)
-{
-    Atrinik_AttrList *al, *orig_al = (Atrinik_AttrList *) seq;
+static PyObject *iter(PyObject *seq) {
+    Atrinik_AttrList *al, *orig_al = (Atrinik_AttrList *)seq;
 
     al = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
     al->iter.ptr = NULL;
@@ -634,7 +617,7 @@ static PyObject *iter(PyObject *seq)
     al->offset = orig_al->offset;
     al->field = orig_al->field;
 
-    return (PyObject *) al;
+    return (PyObject *)al;
 }
 
 /**
@@ -644,8 +627,7 @@ static PyObject *iter(PyObject *seq)
  * @return
  * Next object from attribute list, NULL if the end was reached.
  */
-static PyObject *iternext(Atrinik_AttrList *al)
-{
+static PyObject *iternext(Atrinik_AttrList *al) {
     PyObject *value = NULL;
     attr_list_oper(al, AL_OPER_ITER, NULL, &value);
     return value;
@@ -658,8 +640,7 @@ static PyObject *iternext(Atrinik_AttrList *al)
  * @return
  * Length of the attribute list.
  */
-static Py_ssize_t __len__(Atrinik_AttrList *al)
-{
+static Py_ssize_t __len__(Atrinik_AttrList *al) {
     return attr_list_len(al);
 }
 
@@ -673,8 +654,7 @@ static Py_ssize_t __len__(Atrinik_AttrList *al)
  * The object from the AttrList at the specified index, NULL on
  * failure.
  */
-static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
-{
+static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key) {
     PyObject *value = NULL;
     attr_list_oper(al, AL_OPER_GET, key, &value);
     return value;
@@ -691,8 +671,7 @@ static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
  * @return
  * 0 on success, -1 on failure.
  */
-static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
-{
+static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value) {
     attr_list_oper_t oper = value != NULL ? AL_OPER_SET : AL_OPER_DELETE;
     if (attr_list_oper(al, oper, key, &value)) {
         return 0;
@@ -710,40 +689,34 @@ static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
  * @return
  * 1 if the value is in the attribute list, 0 otherwise.
  */
-static int __contains__(Atrinik_AttrList *al, PyObject *value)
-{
+static int __contains__(Atrinik_AttrList *al, PyObject *value) {
     return attr_list_oper(al, AL_OPER_CONTAINS, NULL, &value);
 }
 
 /** Common sequence methods. */
-static PySequenceMethods SequenceMethods = {
-    (lenfunc) __len__,
-    NULL, NULL, NULL, NULL, NULL, NULL,
-    (objobjproc) __contains__,
-    NULL, NULL
-};
+static PySequenceMethods SequenceMethods =
+    {(lenfunc)__len__, NULL, NULL, NULL, NULL, NULL, NULL, (objobjproc)__contains__, NULL, NULL};
 
 /**
  * Defines what to map some common methods (len(), __setitem__() and
  * __getitem__()) to.
  */
 static PyMappingMethods MappingMethods = {
-    (lenfunc) __len__,
-    (binaryfunc) __getitem__,
-    (objobjargproc) __setitem__,
+    (lenfunc)__len__,
+    (binaryfunc)__getitem__,
+    (objobjargproc)__setitem__,
 };
 
 /** AttrListType definition. */
 PyTypeObject Atrinik_AttrListType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "Atrinik.AttrList",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Atrinik.AttrList",
     .tp_basicsize = sizeof(Atrinik_AttrList),
     .tp_as_sequence = &SequenceMethods,
     .tp_as_mapping = &MappingMethods,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Atrinik attr lists",
-    .tp_iter = (getiterfunc) iter,
-    .tp_iternext = (iternextfunc) iternext,
+    .tp_iter = (getiterfunc)iter,
+    .tp_iternext = (iternextfunc)iternext,
     .tp_methods = methods,
 };
 
@@ -754,8 +727,7 @@ PyTypeObject Atrinik_AttrListType = {
  * @return
  * 1 on success, 0 on failure.
  */
-int Atrinik_AttrList_init(PyObject *module)
-{
+int Atrinik_AttrList_init(PyObject *module) {
     Atrinik_AttrListType.tp_new = PyType_GenericNew;
 
     if (PyType_Ready(&Atrinik_AttrListType) < 0) {
@@ -763,7 +735,7 @@ int Atrinik_AttrList_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_AttrListType);
-    PyModule_AddObject(module, "AttrList", (PyObject *) &Atrinik_AttrListType);
+    PyModule_AddObject(module, "AttrList", (PyObject *)&Atrinik_AttrListType);
 
     return 1;
 }
@@ -780,15 +752,13 @@ int Atrinik_AttrList_init(PyObject *module)
  * @return
  * The new wrapper object.
  */
-PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field)
-{
-    Atrinik_AttrList *wrapper = PyObject_NEW(Atrinik_AttrList,
-            &Atrinik_AttrListType);
+PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field) {
+    Atrinik_AttrList *wrapper = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
     if (wrapper != NULL) {
         wrapper->ptr = ptr;
         wrapper->offset = offset;
         wrapper->field = field;
     }
 
-    return (PyObject *) wrapper;
+    return (PyObject *)wrapper;
 }

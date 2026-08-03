@@ -49,12 +49,10 @@
  * @param state
  * 1 to activate the gate, 0 to deactivate.
  */
-void monster_guard_activate_gate(object *op, int state)
-{
+void monster_guard_activate_gate(object *op, int state) {
     HARD_ASSERT(op != NULL);
 
-    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s",
-            object_get_str(op));
+    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s", object_get_str(op));
     SOFT_ASSERT(op->map != NULL, "Object has no map: %s", object_get_str(op));
 
     if (!(op->behavior & BEHAVIOR_GUARD)) {
@@ -75,18 +73,28 @@ void monster_guard_activate_gate(object *op, int state)
         char buf[HUGE_BUF];
 
         if (state == 1) {
-            snprintf(VS(buf), "%s shouts:\nThe gate, get the gate! Let no one "
-                    "leave or enter until this matter is resolved!", op->name);
+            snprintf(VS(buf),
+                     "%s shouts:\nThe gate, get the gate! Let no one "
+                     "leave or enter until this matter is resolved!",
+                     op->name);
         } else {
-            snprintf(VS(buf), "%s shouts:\nAll clear, open the gate!",
-                    op->name);
+            snprintf(VS(buf), "%s shouts:\nAll clear, open the gate!", op->name);
         }
 
-        draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, op->map, op->x, op->y,
-                MAP_INFO_NORMAL, NULL, NULL, buf);
+        draw_info_map(CHAT_TYPE_GAME,
+                      NULL,
+                      COLOR_NAVY,
+                      op->map,
+                      op->x,
+                      op->y,
+                      MAP_INFO_NORMAL,
+                      NULL,
+                      NULL,
+                      buf);
 
         break;
-    } FOR_MAP_FINISH();
+    }
+    FOR_MAP_FINISH();
 }
 
 /**
@@ -99,8 +107,7 @@ void monster_guard_activate_gate(object *op, int state)
  * @return
  * Whether the bounty was successfully acquired.
  */
-static bool monster_guard_get_bounty(object *op, player *pl, double *bounty)
-{
+static bool monster_guard_get_bounty(object *op, player *pl, double *bounty) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(bounty != NULL);
@@ -115,8 +122,7 @@ static bool monster_guard_get_bounty(object *op, player *pl, double *bounty)
     faction_t faction = faction_find(faction_name);
 
     if (faction == NULL) {
-        LOG(ERROR, "Monster has invalid faction '%s': %s", faction_name,
-                object_get_str(op));
+        LOG(ERROR, "Monster has invalid faction '%s': %s", faction_name, object_get_str(op));
         return false;
     }
 
@@ -143,16 +149,12 @@ static bool monster_guard_get_bounty(object *op, player *pl, double *bounty)
  * @return
  * Whether the target was stopped.
  */
-bool monster_guard_check(object *op, object *target, const char *msg,
-        uint32_t distance)
-{
+bool monster_guard_check(object *op, object *target, const char *msg, uint32_t distance) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(target != NULL);
 
-    SOFT_ASSERT_RC(op->type == MONSTER, false, "Object is not a monster: %s",
-            object_get_str(op));
-    SOFT_ASSERT_RC(op->map != NULL, false, "Object has no map: %s",
-            object_get_str(op));
+    SOFT_ASSERT_RC(op->type == MONSTER, false, "Object is not a monster: %s", object_get_str(op));
+    SOFT_ASSERT_RC(op->map != NULL, false, "Object has no map: %s", object_get_str(op));
 
     if (!(op->behavior & BEHAVIOR_GUARD)) {
         return false;
@@ -171,8 +173,7 @@ bool monster_guard_check(object *op, object *target, const char *msg,
     player *pl = CONTR(target);
 
     /* Player is talking to someone, don't disturb them... yet. */
-    if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
-            pl->talking_to != op) {
+    if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) && pl->talking_to != op) {
         return false;
     }
 
@@ -216,13 +217,11 @@ bool monster_guard_check(object *op, object *target, const char *msg,
  * @param target
  * Who is closing the interface.
  */
-void monster_guard_check_close(object *op, object *target)
-{
+void monster_guard_check_close(object *op, object *target) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(target != NULL);
 
-    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s",
-            object_get_str(op));
+    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s", object_get_str(op));
     SOFT_ASSERT(op->map != NULL, "Object has no map: %s", object_get_str(op));
 
     if (!(op->behavior & BEHAVIOR_GUARD)) {
@@ -246,8 +245,7 @@ void monster_guard_check_close(object *op, object *target)
     }
 
     set_npc_enemy(op, target, NULL);
-    draw_info_format(COLOR_NAVY, target, "%s says:\nThen pay with your blood!",
-            op->name);
+    draw_info_format(COLOR_NAVY, target, "%s says:\nThen pay with your blood!", op->name);
 }
 
 #endif

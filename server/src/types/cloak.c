@@ -35,7 +35,6 @@
 /**
  * Initialize the cloak type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(cloak)
-{
+OBJECT_TYPE_INIT_DEFINE(cloak) {
     OBJECT_METHODS(CLOAK)->apply_func = object_apply_item;
 }

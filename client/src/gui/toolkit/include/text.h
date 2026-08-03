@@ -326,7 +326,8 @@ typedef struct text_info_struct {
 /** Get font's maximum height. */
 #define FONT_HEIGHT(font) ((font)->height)
 
-#define FONT_TRY_INFO(_font, _info, _surface) ((_info).calc_font != NULL && !(_surface) && !(_info).obscured ? (_info).calc_font : (_font))
+#define FONT_TRY_INFO(_font, _info, _surface) \
+    ((_info).calc_font != NULL && !(_surface) && !(_info).obscured ? (_info).calc_font : (_font))
 
 /**
  * Anchor handler function to try and execute before the defaults.
@@ -345,6 +346,9 @@ typedef struct text_info_struct {
  * 1 if handled the action and should not handle it using default
  * actions, 0 otherwise.
  */
-typedef int (*text_anchor_handle_func)(const char *anchor_action, const char *buf, size_t len, void *custom_data);
+typedef int (*text_anchor_handle_func)(const char *anchor_action,
+                                       const char *buf,
+                                       size_t len,
+                                       void *custom_data);
 
 #endif

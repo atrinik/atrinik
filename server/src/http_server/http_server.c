@@ -49,9 +49,7 @@ static curl_request_t *current_request;
 static pthread_mutex_t request_lock;
 
 /** @copydoc process_data_callback_t */
-static void
-http_data_cb (process_t *process, uint8_t *data, size_t len)
-{
+static void http_data_cb(process_t *process, uint8_t *data, size_t len) {
     char buf[HUGE_BUF * 4];
     size_t pos = 0;
     while (packet_to_string(data, len, &pos, VS(buf)) != NULL) {
@@ -60,9 +58,7 @@ http_data_cb (process_t *process, uint8_t *data, size_t len)
 }
 
 /** @copydoc curl_request_cb */
-static void
-http_curl_cb (curl_request_t *request, void *user_data)
-{
+static void http_curl_cb(curl_request_t *request, void *user_data) {
     pthread_mutex_lock(&request_lock);
     current_request = NULL;
     pthread_mutex_unlock(&request_lock);
@@ -82,8 +78,7 @@ http_curl_cb (curl_request_t *request, void *user_data)
 /**
  * Initialize the HTTP server.
  */
-TOOLKIT_INIT_FUNC(http_server)
-{
+TOOLKIT_INIT_FUNC(http_server) {
     if (settings.http_server) {
 #ifdef WIN32
         process_t *process = process_create("python.exe");
@@ -114,8 +109,7 @@ TOOLKIT_INIT_FUNC(http_server)
     pthread_mutex_lock(&request_lock);
     if (*settings.http_url != '\0') {
         /* Verify the optional CDN or bundled HTTP server is reachable. */
-        current_request = curl_request_create(settings.http_url,
-                                              CURL_PKEY_TRUST_APPLICATION);
+        current_request = curl_request_create(settings.http_url, CURL_PKEY_TRUST_APPLICATION);
         curl_request_set_cb(current_request, http_curl_cb, NULL);
         curl_request_set_delay(current_request, 1000000);
         curl_request_start_get(current_request);
@@ -127,8 +121,7 @@ TOOLKIT_INIT_FUNC_FINISH
 /**
  * Deinitialize the HTTP server.
  */
-TOOLKIT_DEINIT_FUNC(http_server)
-{
+TOOLKIT_DEINIT_FUNC(http_server) {
     pthread_mutex_lock(&request_lock);
     if (current_request != NULL) {
         pthread_mutex_unlock(&request_lock);

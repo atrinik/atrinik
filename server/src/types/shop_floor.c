@@ -34,9 +34,7 @@
 #include <object.h>
 
 /** @copydoc object_methods_t::auto_apply_func */
-static void
-auto_apply_func (object *op)
-{
+static void auto_apply_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->randomitems == NULL) {
@@ -88,16 +86,13 @@ auto_apply_func (object *op)
     }
 
     tmp = object_insert_map(tmp, op->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-    SOFT_ASSERT(tmp != NULL,
-                "Failed to insert treasure generated from %s",
-                object_get_str(op));
+    SOFT_ASSERT(tmp != NULL, "Failed to insert treasure generated from %s", object_get_str(op));
     identify(tmp);
 }
 
 /**
  * Initialize the shop floor type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(shop_floor)
-{
+OBJECT_TYPE_INIT_DEFINE(shop_floor) {
     OBJECT_METHODS(SHOP_FLOOR)->auto_apply_func = auto_apply_func;
 }

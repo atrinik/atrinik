@@ -35,9 +35,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -47,7 +45,8 @@ apply_func (object *op, object *applier, int aflags)
 
     object *light = find_marked_object(applier);
     if (light == NULL) {
-        draw_info_format(COLOR_WHITE, applier,
+        draw_info_format(COLOR_WHITE,
+                         applier,
                          "You need to mark a light source that you "
                          "want to refill.");
         return OBJECT_METHOD_OK;
@@ -55,11 +54,10 @@ apply_func (object *op, object *applier, int aflags)
 
     char *light_name = object_get_name_s(light, applier);
 
-    if (light->type != LIGHT_APPLY ||
-        light->race == NULL ||
-        light->race != op->race) {
+    if (light->type != LIGHT_APPLY || light->race == NULL || light->race != op->race) {
         char *name = object_get_name_s(op, applier);
-        draw_info_format(COLOR_WHITE, applier,
+        draw_info_format(COLOR_WHITE,
+                         applier,
                          "You can't refill the %s with the %s.",
                          light_name,
                          name);
@@ -69,17 +67,16 @@ apply_func (object *op, object *applier, int aflags)
 
     int capacity_missing = light->stats.maxhp - light->stats.food;
     if (capacity_missing == 0) {
-        draw_info_format(COLOR_WHITE, applier,
-                         "The %s is full and can't be refilled.",
-                         light_name);
+        draw_info_format(COLOR_WHITE, applier, "The %s is full and can't be refilled.", light_name);
         goto out;
     }
 
     int capacity_received = MIN(capacity_missing, op->stats.food);
     light->stats.food += capacity_received;
 
-    int percent = (double) light->stats.food / light->stats.maxhp * 100.0;
-    draw_info_format(COLOR_WHITE, applier,
+    int percent = (double)light->stats.food / light->stats.maxhp * 100.0;
+    draw_info_format(COLOR_WHITE,
+                     applier,
                      "You refill the %s and it's now at %d%% of its capacity.",
                      light_name,
                      percent);
@@ -102,7 +99,6 @@ out:
 /**
  * Initialize the light refill type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(light_refill)
-{
+OBJECT_TYPE_INIT_DEFINE(light_refill) {
     OBJECT_METHODS(LIGHT_REFILL)->apply_func = apply_func;
 }

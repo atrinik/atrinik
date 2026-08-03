@@ -59,13 +59,9 @@ typedef struct level_color {
 uint64_t new_levels[MAXLEVEL + 2];
 level_color_t level_color[201];
 
-uint64_t
-level_exp(int level, double expmul);
-int64_t
-add_exp(object *op, int64_t exp_gain, int skill_nr, int exact);
-int
-exp_lvl_adj(object *who, object *op);
-float
-calc_level_difference(int who_lvl, int op_lvl);
+uint64_t level_exp(int level, double expmul);
+int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact);
+int exp_lvl_adj(object *who, object *op);
+float calc_level_difference(int who_lvl, int op_lvl);
 
 #endif

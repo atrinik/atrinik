@@ -33,15 +33,15 @@
  * @defgroup SPIRAL_xxx Random spiral map options
  *@{*/
 /** Pick random options below */
-#define RANDOM_OPTIONS  0
+#define RANDOM_OPTIONS 0
 /** Regular spiral--distance increases constantly */
-#define REGULAR_SPIRAL  1
+#define REGULAR_SPIRAL 1
 /** Uses the min. separation:  most coiling */
-#define FINE_SPIRAL     2
+#define FINE_SPIRAL 2
 /** Scale to a rectangular region, not square */
-#define FIT_SPIRAL      4
+#define FIT_SPIRAL 4
 /** This should be 2x the last real option */
-#define MAX_SPIRAL_OPT  8
+#define MAX_SPIRAL_OPT 8
 /*@}*/
 
 #define MINDIST 3
@@ -59,8 +59,7 @@
  * @return
  * The generated layout.
  */
-char **map_gen_spiral(int xsize, int ysize, int option)
-{
+char **map_gen_spiral(int xsize, int ysize, int option) {
     int i, j, ic, jc;
     float parm = 0, x = 0, y = 0, SizeX, SizeY, xscale, yscale;
 
@@ -81,8 +80,8 @@ char **map_gen_spiral(int xsize, int ysize, int option)
     ic = xsize / 2;
     jc = ysize / 2;
 
-    SizeX = (float) xsize / 2.0f - 2.0f;
-    SizeY = (float) ysize / 2.0f - 2.0f;
+    SizeX = (float)xsize / 2.0f - 2.0f;
+    SizeY = (float)ysize / 2.0f - 2.0f;
 
     /* Select random options if necessary */
     if (option == 0) {
@@ -103,20 +102,20 @@ char **map_gen_spiral(int xsize, int ysize, int option)
     }
 
     /* fine spiral */
-    xscale = yscale = (float) MAX_FINE;
+    xscale = yscale = (float)MAX_FINE;
 
     /* choose the spiral pitch */
     if (!(option & FINE_SPIRAL)) {
-        float pitch = (float) (RANDOM() % 5) / 10.0f + 10.0f / 22.0f;
+        float pitch = (float)(RANDOM() % 5) / 10.0f + 10.0f / 22.0f;
 
         xscale = yscale = pitch;
     }
 
     if ((option & FIT_SPIRAL) && (xsize != ysize)) {
         if (xsize > ysize) {
-            xscale *= (float) xsize / (float) ysize;
+            xscale *= (float)xsize / (float)ysize;
         } else {
-            yscale *= (float) ysize / (float) xsize;
+            yscale *= (float)ysize / (float)xsize;
         }
     }
 
@@ -127,15 +126,15 @@ char **map_gen_spiral(int xsize, int ysize, int option)
 
     /* cut out the spiral */
     while ((FABS(x) < SizeX) && (FABS(y) < SizeY)) {
-        x = parm * (float) cos((double) parm) * xscale;
-        y = parm * (float) sin((double) parm) * yscale;
+        x = parm * (float)cos((double)parm) * xscale;
+        y = parm * (float)sin((double)parm) * yscale;
 
-        maze[(int) (ic + x)][(int) (jc + y)] = '\0';
+        maze[(int)(ic + x)][(int)(jc + y)] = '\0';
 
         parm += 0.01f;
     }
 
-    maze[(int) (ic + x + 0.5)][(int) (jc + y + 0.5)] = '<';
+    maze[(int)(ic + x + 0.5)][(int)(jc + y + 0.5)] = '<';
 
     /* Cut out the center in a 2x2 and place the center and downexit */
     maze[ic][jc + 1] = '>';
@@ -156,8 +155,7 @@ char **map_gen_spiral(int xsize, int ysize, int option)
  * @param layout
  * Layout to alter.
  */
-void connect_spirals(int xsize, int ysize, int sym, char **layout)
-{
+void connect_spirals(int xsize, int ysize, int sym, char **layout) {
     int i, j, ic = xsize / 2, jc = ysize / 2;
 
     if (sym == X_SYM) {

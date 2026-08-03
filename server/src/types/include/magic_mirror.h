@@ -32,7 +32,6 @@
 
 /* Prototypes */
 
-mapstruct *
-magic_mirror_get_map(object *op);
+mapstruct *magic_mirror_get_map(object *op);
 
 #endif

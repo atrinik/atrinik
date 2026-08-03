@@ -51,13 +51,11 @@
 #define AMULET_CHANCE_TABLE 20
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-amulet_set_bonus_reflect_missiles (object              *op,
-                                   int                  difficulty,
-                                   treasure_affinity_t *affinity,
-                                   double              *item_power,
-                                   int                  bonus)
-{
+static bool amulet_set_bonus_reflect_missiles(object *op,
+                                              int difficulty,
+                                              treasure_affinity_t *affinity,
+                                              double *item_power,
+                                              int bonus) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -69,13 +67,11 @@ amulet_set_bonus_reflect_missiles (object              *op,
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-amulet_set_bonus_reflect_spells (object              *op,
-                                 int                  difficulty,
-                                 treasure_affinity_t *affinity,
-                                 double              *item_power,
-                                 int                  bonus)
-{
+static bool amulet_set_bonus_reflect_spells(object *op,
+                                            int difficulty,
+                                            treasure_affinity_t *affinity,
+                                            double *item_power,
+                                            int bonus) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -95,13 +91,11 @@ static const process_treasure_table_t amulet_treasure_table[] = {
 };
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -146,8 +140,7 @@ process_treasure_func (object              *op,
     if (rndm_chance(AMULET_CHANCE_TABLE)) {
         static uint32_t total_chance = 0;
         if (total_chance == 0) {
-            total_chance =
-                PROCESS_TREASURE_TABLE_TOTAL_CHANCE(amulet_treasure_table);
+            total_chance = PROCESS_TREASURE_TABLE_TOTAL_CHANCE(amulet_treasure_table);
         }
 
         if (!process_treasure_table(amulet_treasure_table,
@@ -161,10 +154,7 @@ process_treasure_func (object              *op,
             return OBJECT_METHOD_ERROR;
         }
     } else {
-        if (!process_treasure_table_jewelry(op,
-                                            difficulty,
-                                            affinity,
-                                            &item_power)) {
+        if (!process_treasure_table_jewelry(op, difficulty, affinity, &item_power)) {
             object_destroy(op);
             return OBJECT_METHOD_ERROR;
         }
@@ -178,8 +168,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the amulet type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(amulet)
-{
+OBJECT_TYPE_INIT_DEFINE(amulet) {
     OBJECT_METHODS(AMULET)->apply_func = object_apply_item;
     OBJECT_METHODS(AMULET)->process_treasure_func = process_treasure_func;
 }

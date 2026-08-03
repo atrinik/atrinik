@@ -35,6 +35,4 @@
 /**
  * Initialize the money type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(money)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(money) {}

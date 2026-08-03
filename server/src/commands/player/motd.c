@@ -33,7 +33,6 @@
 #include <player.h>
 
 /** @copydoc command_func */
-void command_motd(object *op, const char *command, char *params)
-{
+void command_motd(object *op, const char *command, char *params) {
     display_motd(op);
 }

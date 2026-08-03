@@ -35,8 +35,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_tell(object *op, const char *command, char *params)
-{
+void command_tell(object *op, const char *command, char *params) {
     char name[MAX_BUF], *msg, buf[HUGE_BUF];
     size_t pos;
     player *pl;
@@ -81,7 +80,11 @@ void command_tell(object *op, const char *command, char *params)
 
     /* Auto-reply message available */
     if (CONTR(pl->ob)->afk_auto_reply[0] != '\0') {
-        snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] auto-replies: %s", pl->ob->name, CONTR(pl->ob)->afk_auto_reply);
+        snprintf(buf,
+                 sizeof(buf),
+                 "[a=#charname]%s[/a] auto-replies: %s",
+                 pl->ob->name,
+                 CONTR(pl->ob)->afk_auto_reply);
         draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
     } else if (CONTR(pl->ob)->afk) {
         /* Player is AFK */

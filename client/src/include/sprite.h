@@ -55,12 +55,11 @@ typedef struct sprite_effects {
     uint8_t glow_state;
 } sprite_effects_t;
 
-#define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                \
-    ((_effects)->flags != 0 || (_effects)->alpha != 0 ||                       \
-    (_effects)->stretch != 0 || ((_effects)->zoom_x != 0 &&                    \
-    (_effects)->zoom_x != 100) || ((_effects)->zoom_y != 0 &&                  \
-    (_effects)->zoom_y != 100) || (_effects)->rotate != 0 ||                   \
-    (_effects)->glow[0] != '\0')
+#define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                           \
+    ((_effects)->flags != 0 || (_effects)->alpha != 0 || (_effects)->stretch != 0 ||      \
+     ((_effects)->zoom_x != 0 && (_effects)->zoom_x != 100) ||                            \
+     ((_effects)->zoom_y != 0 && (_effects)->zoom_y != 100) || (_effects)->rotate != 0 || \
+     (_effects)->glow[0] != '\0')
 
 /**
  * @defgroup SPRITE_FLAG_xxx Sprite drawing flags
@@ -98,13 +97,11 @@ typedef struct sprite_struct {
 
 #define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) \
     border_create_line((_surface), (_x), (_y), (_w), (_thickness), (_color))
-#define BORDER_CREATE_BOTTOM(_surface, _x, _y, _w, _h, _color, _thickness)\
-    border_create_line((_surface), (_x), (_y) + (_h) - (_thickness), (_w), \
-            (_thickness), (_color))
+#define BORDER_CREATE_BOTTOM(_surface, _x, _y, _w, _h, _color, _thickness) \
+    border_create_line((_surface), (_x), (_y) + (_h) - (_thickness), (_w), (_thickness), (_color))
 #define BORDER_CREATE_LEFT(_surface, _x, _y, _w, _h, _color, _thickness) \
     border_create_line((_surface), (_x), (_y), (_thickness), (_h), (_color))
 #define BORDER_CREATE_RIGHT(_surface, _x, _y, _w, _h, _color, _thickness) \
-    border_create_line((_surface), (_x) + (_w) - (_thickness), (_y),\
-            (_thickness), (_h), (_color))
+    border_create_line((_surface), (_x) + (_w) - (_thickness), (_y), (_thickness), (_h), (_color))
 
 #endif

@@ -41,7 +41,6 @@
 /**
  * Initialize the drink type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(drink)
-{
+OBJECT_TYPE_INIT_DEFINE(drink) {
     OBJECT_METHODS(DRINK)->fallback = object_methods_get(FOOD);
 }

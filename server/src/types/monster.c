@@ -82,8 +82,7 @@ static void rand_move(object *ob);
  * @param rv
  * Range vector of the enemy.
  */
-void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
-{
+void set_npc_enemy(object *npc, object *enemy, rv_vector *rv) {
     object *aggro_wp;
     rv_vector rv2;
 
@@ -132,7 +131,12 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
             object *return_wp = waypoint_get_home(npc);
 
 #ifdef DEBUG_PATHFINDING
-            LOG(DEBUG, "%s lost aggro and is returning home (%s:%d,%d)", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
+            LOG(DEBUG,
+                "%s lost aggro and is returning home (%s:%d,%d)",
+                STRING_OBJ_NAME(npc),
+                base->slaying,
+                base->x,
+                base->y);
 #endif
 
             if (!return_wp) {
@@ -221,9 +225,8 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
  * @param dist
  * Maximum distance for non-linked spawn points.
  */
-static void monster_enemy_signal_map(object *npc, mapstruct *map,
-        object *spawn_point, uint32_t dist)
-{
+static void
+monster_enemy_signal_map(object *npc, mapstruct *map, object *spawn_point, uint32_t dist) {
     objectlink *ol;
 
     for (ol = map->linked_spawn_points; ol != NULL; ol = ol->next) {
@@ -237,18 +240,15 @@ static void monster_enemy_signal_map(object *npc, mapstruct *map,
         }
 
         /* Ensure the spawned monster doesn't yet have an enemy. */
-        if (OBJECT_VALID(ol->objlink.ob->enemy->enemy,
-                         ol->objlink.ob->enemy->enemy_count)) {
+        if (OBJECT_VALID(ol->objlink.ob->enemy->enemy, ol->objlink.ob->enemy->enemy_count)) {
             continue;
         }
 
         rv_vector rv;
 
-        if ((spawn_point->title == NULL ||
-                ol->objlink.ob->title != spawn_point->title) &&
-                (!get_rangevector(npc, ol->objlink.ob->enemy, &rv,
-                RV_DIAGONAL_DISTANCE) || rv.distance > dist ||
-                !monster_is_ally_of(npc, ol->objlink.ob->enemy))) {
+        if ((spawn_point->title == NULL || ol->objlink.ob->title != spawn_point->title) &&
+            (!get_rangevector(npc, ol->objlink.ob->enemy, &rv, RV_DIAGONAL_DISTANCE) ||
+             rv.distance > dist || !monster_is_ally_of(npc, ol->objlink.ob->enemy))) {
             continue;
         }
 
@@ -267,26 +267,24 @@ static void monster_enemy_signal_map(object *npc, mapstruct *map,
  * @param enemy
  * New enemy.
  */
-void monster_enemy_signal(object *npc, object *enemy)
-{
+void monster_enemy_signal(object *npc, object *enemy) {
     object *spawn_point_info;
 
     HARD_ASSERT(npc != NULL);
     HARD_ASSERT(enemy != NULL);
 
     SOFT_ASSERT(npc->map != NULL, "NPC has no map: %s", object_get_str(npc));
-    SOFT_ASSERT(enemy->map != NULL, "Enemy has no map: %s",
-                object_get_str(enemy));
+    SOFT_ASSERT(enemy->map != NULL, "Enemy has no map: %s", object_get_str(enemy));
 
     if (monster_signal_chance[npc->stats.Int] == 0 ||
-            !rndm_chance(monster_signal_chance[npc->stats.Int])) {
+        !rndm_chance(monster_signal_chance[npc->stats.Int])) {
         return;
     }
 
     spawn_point_info = object_find_type(npc, SPAWN_POINT_INFO);
 
-    if (spawn_point_info == NULL || !OBJECT_VALID(spawn_point_info->owner,
-            spawn_point_info->ownercount)) {
+    if (spawn_point_info == NULL ||
+        !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount)) {
         return;
     }
 
@@ -294,7 +292,7 @@ void monster_enemy_signal(object *npc, object *enemy)
     rv_vector rv;
 
     if (get_rangevector(npc, enemy, &rv, 0)) {
-        dist = (int32_t) ((double) npc->item_power * 1.5) - rv.distance;
+        dist = (int32_t)((double)npc->item_power * 1.5) - rv.distance;
 
         if (dist < 0) {
             dist = 0;
@@ -306,10 +304,8 @@ void monster_enemy_signal(object *npc, object *enemy)
 
     /* Signal all the tiled maps that are in memory. */
     for (size_t i = 0; i < TILED_NUM_DIR; i++) {
-        if (npc->map->tile_map[i] != NULL &&
-                npc->map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
-            monster_enemy_signal_map(npc, npc->map->tile_map[i],
-                                     spawn_point_info->owner, dist);
+        if (npc->map->tile_map[i] != NULL && npc->map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
+            monster_enemy_signal_map(npc, npc->map->tile_map[i], spawn_point_info->owner, dist);
         }
     }
 }
@@ -323,13 +319,13 @@ void monster_enemy_signal(object *npc, object *enemy)
  * @return
  * Enemy object if valid, NULL otherwise.
  */
-object *check_enemy(object *npc, rv_vector *rv)
-{
+object *check_enemy(object *npc, rv_vector *rv) {
     if (npc->enemy == NULL) {
         return NULL;
     }
 
-    if (!OBJECT_VALID(npc->enemy, npc->enemy_count) || npc == npc->enemy || !IS_LIVE(npc->enemy) || is_friend_of(npc, npc->enemy)) {
+    if (!OBJECT_VALID(npc->enemy, npc->enemy_count) || npc == npc->enemy || !IS_LIVE(npc->enemy) ||
+        is_friend_of(npc, npc->enemy)) {
         set_npc_enemy(npc, NULL, NULL);
         return NULL;
     }
@@ -347,8 +343,7 @@ object *check_enemy(object *npc, rv_vector *rv)
  * @return
  * Enemy object if found, NULL otherwise.
  */
-object *find_enemy(object *npc, rv_vector *rv)
-{
+object *find_enemy(object *npc, rv_vector *rv) {
     object *tmp = NULL;
 
     /* If we are berserk, we don't care about others - we attack all we can
@@ -369,7 +364,9 @@ object *find_enemy(object *npc, rv_vector *rv)
 
     if (!tmp) {
         /* If we have an attacker, check him */
-        if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count) && !IS_INVISIBLE(npc->attacked_by, npc) && !QUERY_FLAG(npc->attacked_by, FLAG_INVULNERABLE)) {
+        if (OBJECT_VALID(npc->attacked_by, npc->attacked_by_count) &&
+            !IS_INVISIBLE(npc->attacked_by, npc) &&
+            !QUERY_FLAG(npc->attacked_by, FLAG_INVULNERABLE)) {
             /* We don't want a fight evil vs evil or good against non evil. */
             if (is_friend_of(npc, npc->attacked_by)) {
                 /* Skip it, but let's wake up */
@@ -421,8 +418,7 @@ object *find_enemy(object *npc, rv_vector *rv)
  * @return
  * 1 if can see/detect, 0 otherwise.
  */
-static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
-{
+static int can_detect_enemy(object *op, object *enemy, rv_vector *rv) {
     /* Will check for legal maps too */
     if (!op || !enemy || !on_same_map(op, enemy)) {
         return 0;
@@ -438,7 +434,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
     }
 
     /* If our enemy is too far away ... */
-    if ((int) rv->distance >= MAX(MAX_AGGRO_RANGE, op->item_power)) {
+    if ((int)rv->distance >= MAX(MAX_AGGRO_RANGE, op->item_power)) {
         /* Then start counting until our mob loses aggro... */
         if (++op->last_eat > MAX_AGGRO_TIME) {
             set_npc_enemy(op, NULL, NULL);
@@ -462,8 +458,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
  * @return
  * Whether the monster can move.
  */
-static bool monster_can_move(object *op)
-{
+static bool monster_can_move(object *op) {
     if (monster_data_dialogs_num(op) != 0) {
         return false;
     }
@@ -472,12 +467,10 @@ static bool monster_can_move(object *op)
 }
 
 /** @copydoc object_methods_t::process_func */
-static void process_func(object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
-    SOFT_ASSERT(op->head == NULL, "Called on a tail part: %s",
-            object_get_str(op));
+    SOFT_ASSERT(op->head == NULL, "Called on a tail part: %s", object_get_str(op));
 
     /* Monsters not on maps don't do anything. */
     if (op->map == NULL) {
@@ -510,12 +503,13 @@ static void process_func(object *op)
             op->anim_flags |= ANIM_FLAG_ATTACKING;
         }
 
-        if (!enemy->attacked_by || (enemy->attacked_by && enemy->attacked_by_distance > (int) rv.distance)) {
+        if (!enemy->attacked_by ||
+            (enemy->attacked_by && enemy->attacked_by_distance > (int)rv.distance)) {
             /* We have an enemy, just tell him we want him dead */
             enemy->attacked_by = op;
             enemy->attacked_by_count = op->count;
             /* Now the attacked foe knows how near we are */
-            enemy->attacked_by_distance = (int16_t) rv.distance;
+            enemy->attacked_by_distance = (int16_t)rv.distance;
         }
     }
 
@@ -532,17 +526,15 @@ static void process_func(object *op)
 
         /* So if the monster has gained enough HP that they are no longer afraid
          * */
-        if (QUERY_FLAG(op, FLAG_RUN_AWAY) && op->stats.hp >=
-                (int32_t) (((double) op->run_away / 100.0) *
-                (double) op->stats.maxhp)) {
+        if (QUERY_FLAG(op, FLAG_RUN_AWAY) &&
+            op->stats.hp >= (int32_t)(((double)op->run_away / 100.0) * (double)op->stats.maxhp)) {
             CLEAR_FLAG(op, FLAG_RUN_AWAY);
         }
     }
 
     /* Generate sp, if applicable */
     if (op->stats.Pow && op->stats.sp < op->stats.maxsp) {
-        op->last_sp += (int16_t) (8.0 * (double) op->stats.Pow /
-                FABS(op->speed));
+        op->last_sp += (int16_t)(8.0 * (double)op->stats.Pow / FABS(op->speed));
         /* causes Pow/16 sp/tick */
         op->stats.sp += op->last_sp / 128;
         op->last_sp %= 128;
@@ -576,7 +568,10 @@ static void process_func(object *op)
     if (enemy == NULL) {
         object *spawn_point_info;
 
-        if (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || ((spawn_point_info = object_find_type(op, SPAWN_POINT_INFO)) && spawn_point_info->owner && !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount))) {
+        if (QUERY_FLAG(op, FLAG_ONLY_ATTACK) ||
+            ((spawn_point_info = object_find_type(op, SPAWN_POINT_INFO)) &&
+             spawn_point_info->owner &&
+             !OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount))) {
             monster_drop_arrows(op);
             object_remove(op, 0);
             object_destroy(op);
@@ -590,45 +585,45 @@ static void process_func(object *op)
                 }
 
                 switch (op->move_type & HI4) {
-                case CIRCLE1:
-                    circ1_move(op);
-                    break;
+                    case CIRCLE1:
+                        circ1_move(op);
+                        break;
 
-                case CIRCLE2:
-                    circ2_move(op);
-                    break;
+                    case CIRCLE2:
+                        circ2_move(op);
+                        break;
 
-                case PACEV:
-                    pace_movev(op);
-                    break;
+                    case PACEV:
+                        pace_movev(op);
+                        break;
 
-                case PACEH:
-                    pace_moveh(op);
-                    break;
+                    case PACEH:
+                        pace_moveh(op);
+                        break;
 
-                case PACEV2:
-                    pace2_movev(op);
-                    break;
+                    case PACEV2:
+                        pace2_movev(op);
+                        break;
 
-                case PACEH2:
-                    pace2_moveh(op);
-                    break;
+                    case PACEH2:
+                        pace2_moveh(op);
+                        break;
 
-                case RANDO:
-                    rand_move(op);
-                    break;
+                    case RANDO:
+                        rand_move(op);
+                        break;
 
-                case RANDO2:
-                    move_randomly(op);
-                    break;
+                    case RANDO2:
+                        move_randomly(op);
+                        break;
 
-                case WPOINT: {
-                    object *wp = waypoint_get_active(op);
-                    if (wp != NULL) {
-                        waypoint_move(wp, op);
+                    case WPOINT: {
+                        object *wp = waypoint_get_active(op);
+                        if (wp != NULL) {
+                            waypoint_move(wp, op);
+                        }
+                        break;
                     }
-                    break;
-                }
                 }
 
                 return;
@@ -655,7 +650,11 @@ static void process_func(object *op)
 
         if (op->stats.Dex && rndm_chance(op->stats.Dex)) {
             if (QUERY_FLAG(op, FLAG_CAST_SPELL) && !op->last_grace) {
-                if (monster_cast_spell(op, part, dir, &rv, SPELL_DESC_DIRECTION | SPELL_DESC_ENEMY | SPELL_DESC_SELF)) {
+                if (monster_cast_spell(op,
+                                       part,
+                                       dir,
+                                       &rv,
+                                       SPELL_DESC_DIRECTION | SPELL_DESC_ENEMY | SPELL_DESC_SELF)) {
                     /* Add monster casting delay */
                     op->last_grace += op->magic;
                     return;
@@ -682,37 +681,37 @@ static void process_func(object *op)
     if (!QUERY_FLAG(op, FLAG_SCARED)) {
         if (op->attack_move_type & LO4) {
             switch (op->attack_move_type & LO4) {
-            case DISTATT:
-                special_dir = dist_att(dir, part, &rv);
-                break;
+                case DISTATT:
+                    special_dir = dist_att(dir, part, &rv);
+                    break;
 
-            case RUNATT:
-                special_dir = run_att(dir, op, part, &rv);
-                break;
+                case RUNATT:
+                    special_dir = run_att(dir, op, part, &rv);
+                    break;
 
-            case HITRUN:
-                special_dir = hitrun_att(dir, op);
-                break;
+                case HITRUN:
+                    special_dir = hitrun_att(dir, op);
+                    break;
 
-            case WAITATT:
-                special_dir = wait_att(dir, op, part, &rv);
-                break;
+                case WAITATT:
+                    special_dir = wait_att(dir, op, part, &rv);
+                    break;
 
-            case RUSH:
-            case ALLRUN:
-                special_dir = dir;
-                break;
+                case RUSH:
+                case ALLRUN:
+                    special_dir = dir;
+                    break;
 
-            case DISTHIT:
-                special_dir = disthit_att(dir, op, part, &rv);
-                break;
+                case DISTHIT:
+                    special_dir = disthit_att(dir, op, part, &rv);
+                    break;
 
-            case WAIT2:
-                special_dir = wait_att2(dir, &rv);
-                break;
+                case WAIT2:
+                    special_dir = wait_att2(dir, &rv);
+                    break;
 
-            default:
-                LOG(DEBUG, "Illegal low mon-move: %d", op->attack_move_type & LO4);
+                default:
+                    LOG(DEBUG, "Illegal low mon-move: %d", op->attack_move_type & LO4);
             }
 
             if (special_dir == 0) {
@@ -723,7 +722,9 @@ static void process_func(object *op)
 
     /* Try to move closer to enemy, or follow whatever special attack behavior
      * is */
-    if (!QUERY_FLAG(op, FLAG_STAND_STILL) && (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY) || !can_hit(part, &rv) || ((op->attack_move_type & LO4) && special_dir != dir))) {
+    if (!QUERY_FLAG(op, FLAG_STAND_STILL) &&
+        (QUERY_FLAG(op, FLAG_SCARED) || QUERY_FLAG(op, FLAG_RUN_AWAY) || !can_hit(part, &rv) ||
+         ((op->attack_move_type & LO4) && special_dir != dir))) {
         object *aggro_wp = waypoint_get_aggro(op);
 
         /* TODO: make (intelligent) monsters go to last known position of enemy
@@ -737,7 +738,9 @@ static void process_func(object *op)
 
         /* If valid aggro wp (and no special attack), and not scared, use it for
          * movement */
-        if (aggro_wp && aggro_wp->enemy && aggro_wp->enemy == op->enemy && (rv.distance_z != 0 || rv.distance > 1) && !QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(op, FLAG_RUN_AWAY)) {
+        if (aggro_wp && aggro_wp->enemy && aggro_wp->enemy == op->enemy &&
+            (rv.distance_z != 0 || rv.distance > 1) && !QUERY_FLAG(op, FLAG_SCARED) &&
+            !QUERY_FLAG(op, FLAG_RUN_AWAY)) {
             waypoint_move(aggro_wp, op);
             return;
         } else {
@@ -755,7 +758,7 @@ static void process_func(object *op)
                 int m = 1 - (RANDOM() & 2);
 
                 if (move_object(op, absdir(dir + diff * m)) ||
-                        move_object(op, absdir(dir - diff * m))) {
+                    move_object(op, absdir(dir - diff * m))) {
                     return;
                 }
             }
@@ -764,7 +767,8 @@ static void process_func(object *op)
 
     /* Eneq(@csd.uu.se): Patch to make RUN_AWAY or SCARED monsters move a random
      * direction if they can't move away. */
-    if (!QUERY_FLAG(op, FLAG_ONLY_ATTACK) && (QUERY_FLAG(op, FLAG_RUN_AWAY) || QUERY_FLAG(op, FLAG_SCARED))) {
+    if (!QUERY_FLAG(op, FLAG_ONLY_ATTACK) &&
+        (QUERY_FLAG(op, FLAG_RUN_AWAY) || QUERY_FLAG(op, FLAG_SCARED))) {
         if (move_randomly(op)) {
             return;
         }
@@ -778,7 +782,7 @@ static void process_func(object *op)
             /* As long we are > 0, we are not ready to swing */
             if (op->weapon_speed_left <= 0) {
                 skill_attack(enemy, part, 0, NULL);
-                op->weapon_speed_left += FABS((int) op->weapon_speed_left) + 1;
+                op->weapon_speed_left += FABS((int)op->weapon_speed_left) + 1;
             }
 
             part->stats.wc += 10;
@@ -786,7 +790,7 @@ static void process_func(object *op)
             /* As long we are > 0, we are not ready to swing */
             if (op->weapon_speed_left <= 0) {
                 skill_attack(enemy, part, 0, NULL);
-                op->weapon_speed_left += FABS((int) op->weapon_speed_left) + 1;
+                op->weapon_speed_left += FABS((int)op->weapon_speed_left) + 1;
             }
         }
     }
@@ -807,8 +811,7 @@ static void process_func(object *op)
 /**
  * Initialize the monster type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(monster)
-{
+OBJECT_TYPE_INIT_DEFINE(monster) {
     OBJECT_METHODS(MONSTER)->process_func = process_func;
 }
 
@@ -827,9 +830,11 @@ OBJECT_TYPE_INIT_DEFINE(monster)
  * @return
  * 1 if can detect target, 0 otherwise.
  */
-static int can_detect_target(object *op, object *target, unsigned int range,
-        unsigned int srange, rv_vector *rv)
-{
+static int can_detect_target(object *op,
+                             object *target,
+                             unsigned int range,
+                             unsigned int srange,
+                             rv_vector *rv) {
     /* We check for sys_invisible and normal */
     if (IS_INVISIBLE(target, op) || QUERY_FLAG(target, FLAG_INVULNERABLE)) {
         return 0;
@@ -859,8 +864,7 @@ static int can_detect_target(object *op, object *target, unsigned int range,
  * @return
  * Nearest enemy, NULL if none.
  */
-static object *find_nearest_enemy(object *ob)
-{
+static object *find_nearest_enemy(object *ob) {
     object *tmp;
     int aggro_range, aggro_stealth;
     rv_vector rv;
@@ -909,8 +913,7 @@ static object *find_nearest_enemy(object *ob)
                     continue;
                 }
 
-                if (!can_detect_target(ob, tmp, aggro_range, aggro_stealth,
-                        &rv)) {
+                if (!can_detect_target(ob, tmp, aggro_range, aggro_stealth, &rv)) {
                     continue;
                 }
 
@@ -939,8 +942,7 @@ static object *find_nearest_enemy(object *ob)
  * @return
  * 1 if the monster was moved, 0 otherwise.
  */
-static int move_randomly(object *op)
-{
+static int move_randomly(object *op) {
     int i, r;
     int dirs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
@@ -951,8 +953,14 @@ static int move_randomly(object *op)
         if (base != NULL) {
             basemap = ready_map_name(base->slaying, NULL, MAP_NAME_SHARED);
             if (basemap != NULL) {
-                if (!get_rangevector_from_mapcoords(basemap, base->x, base->y,
-                        op->map, op->x, op->y, &rv, RV_NO_DISTANCE)) {
+                if (!get_rangevector_from_mapcoords(basemap,
+                                                    base->x,
+                                                    base->y,
+                                                    op->map,
+                                                    op->x,
+                                                    op->y,
+                                                    &rv,
+                                                    RV_NO_DISTANCE)) {
                     basemap = NULL;
                 }
             }
@@ -982,15 +990,7 @@ static int move_randomly(object *op)
         }
 
         if (HAS_EVENT(op, EVENT_AI)) {
-            int ret = trigger_event(EVENT_AI,
-                                    NULL,
-                                    op,
-                                    NULL,
-                                    NULL,
-                                    EVENT_AI_RANDOM_MOVE,
-                                    r,
-                                    0,
-                                    0);
+            int ret = trigger_event(EVENT_AI, NULL, op, NULL, NULL, EVENT_AI_RANDOM_MOVE, r, 0, 0);
             if (ret == 1) {
                 /* Cancel random movement. */
                 return 0;
@@ -1017,14 +1017,12 @@ static int move_randomly(object *op)
  * @return
  * 1 if can hit, 0 otherwise.
  */
-static int can_hit(object *ob1, rv_vector *rv)
-{
+static int can_hit(object *ob1, rv_vector *rv) {
     if (QUERY_FLAG(ob1, FLAG_CONFUSED) && !rndm_chance(3)) {
         return 0;
     }
 
-    return rv->distance_z == 0 && abs(rv->distance_x) < 2 &&
-            abs(rv->distance_y) < 2;
+    return rv->distance_z == 0 && abs(rv->distance_x) < 2 && abs(rv->distance_y) < 2;
 }
 
 #define MAX_KNOWN_SPELLS 20
@@ -1038,16 +1036,17 @@ static int can_hit(object *ob1, rv_vector *rv)
  * @return
  * Random spell object, NULL if no spell found.
  */
-static object *monster_choose_random_spell(object *monster, uint32_t flags)
-{
-    object * altern[MAX_KNOWN_SPELLS], *tmp;
+static object *monster_choose_random_spell(object *monster, uint32_t flags) {
+    object *altern[MAX_KNOWN_SPELLS], *tmp;
     spell_struct *spell;
     int i = 0, j;
 
     for (tmp = monster->inv; tmp != NULL; tmp = tmp->below) {
         if (tmp->type == ABILITY) {
             /* Check and see if it's actually a useful spell */
-            if ((spell = find_spell(tmp->stats.sp)) != NULL && !(spell->path & (PATH_INFO | PATH_TRANSMUTE | PATH_TRANSFER | PATH_LIGHT)) && spell->flags & flags) {
+            if ((spell = find_spell(tmp->stats.sp)) != NULL &&
+                !(spell->path & (PATH_INFO | PATH_TRANSMUTE | PATH_TRANSFER | PATH_LIGHT)) &&
+                spell->flags & flags) {
                 if (tmp->stats.maxsp) {
                     for (j = 0; i < MAX_KNOWN_SPELLS && j < tmp->stats.maxsp; j++) {
                         altern[i++] = tmp;
@@ -1060,7 +1059,6 @@ static object *monster_choose_random_spell(object *monster, uint32_t flags)
                     break;
                 }
             }
-
         }
     }
 
@@ -1080,12 +1078,11 @@ static object *monster_choose_random_spell(object *monster, uint32_t flags)
  * @return
  * 1 if it's worth it, 0 otherwise.
  */
-static int monster_spell_useful(object *target, int spell_id)
-{
+static int monster_spell_useful(object *target, int spell_id) {
     switch (spell_id) {
-    case SP_MINOR_HEAL:
-    case SP_GREATER_HEAL:
-        return target->stats.hp != target->stats.maxhp;
+        case SP_MINOR_HEAL:
+        case SP_GREATER_HEAL:
+            return target->stats.hp != target->stats.maxhp;
     }
 
     return 1;
@@ -1107,8 +1104,7 @@ static int monster_spell_useful(object *target, int spell_id)
  * @return
  * 1 if monster casted a spell, 0 otherwise.
  */
-static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32_t flags)
-{
+static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32_t flags) {
     object *spell_item, *target = NULL;
     spell_struct *sp;
     int sp_typ, ability;
@@ -1227,17 +1223,16 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
  * @return
  * 1 if monster fired something, 0 otherwise.
  */
-static int monster_use_bow(object *head, object *part, int dir)
-{
+static int monster_use_bow(object *head, object *part, int dir) {
     FOR_INV_PREPARE(head, tmp) {
         if (tmp->type == BOW && QUERY_FLAG(tmp, FLAG_APPLIED)) {
             object_ranged_fire(tmp, part, dir, NULL);
             return 1;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
-    LOG(ERROR, "Monster %s has FLAG_READY_BOW without a bow.",
-            object_get_str(head));
+    LOG(ERROR, "Monster %s has FLAG_READY_BOW without a bow.", object_get_str(head));
     CLEAR_FLAG(head, FLAG_READY_BOW);
     return 0;
 }
@@ -1253,8 +1248,7 @@ static int monster_use_bow(object *head, object *part, int dir)
  * @return
  * New direction.
  */
-static int dist_att(int dir, object *part, rv_vector *rv)
-{
+static int dist_att(int dir, object *part, rv_vector *rv) {
     if (can_hit(part, rv)) {
         return dir;
     }
@@ -1281,8 +1275,7 @@ static int dist_att(int dir, object *part, rv_vector *rv)
  * @return
  * New direction.
  */
-static int run_att(int dir, object *ob, object *part, rv_vector *rv)
-{
+static int run_att(int dir, object *ob, object *part, rv_vector *rv) {
     if ((can_hit(part, rv) && ob->move_status < 20) || ob->move_status < 20) {
         ob->move_status++;
         return dir;
@@ -1302,8 +1295,7 @@ static int run_att(int dir, object *ob, object *part, rv_vector *rv)
  * @return
  * New direction.
  */
-static int hitrun_att(int dir, object *ob)
-{
+static int hitrun_att(int dir, object *ob) {
     if (ob->move_status++ < 25) {
         return dir;
     } else if (ob->move_status < 50) {
@@ -1328,8 +1320,7 @@ static int hitrun_att(int dir, object *ob)
  * @return
  * New direction.
  */
-static int wait_att(int dir, object *ob, object *part, rv_vector *rv)
-{
+static int wait_att(int dir, object *ob, object *part, rv_vector *rv) {
     if (ob->move_status || can_hit(part, rv)) {
         ob->move_status++;
     }
@@ -1359,8 +1350,7 @@ static int wait_att(int dir, object *ob, object *part, rv_vector *rv)
  * @return
  * New direction.
  */
-static int disthit_att(int dir, object *ob, object *part, rv_vector *rv)
-{
+static int disthit_att(int dir, object *ob, object *part, rv_vector *rv) {
     if (ob->stats.maxhp && (ob->stats.hp * 100) / ob->stats.maxhp < ob->run_away) {
         return absdir(dir + 4);
     }
@@ -1377,8 +1367,7 @@ static int disthit_att(int dir, object *ob, object *part, rv_vector *rv)
  * @return
  * New direction.
  */
-static int wait_att2(int dir, rv_vector *rv)
-{
+static int wait_att2(int dir, rv_vector *rv) {
     if (rv->distance < 9) {
         return absdir(dir + 4);
     }
@@ -1391,8 +1380,7 @@ static int wait_att2(int dir, rv_vector *rv)
  * @param ob
  * Monster.
  */
-static void circ1_move(object *ob)
-{
+static void circ1_move(object *ob) {
     static const int circle[12] = {3, 3, 4, 5, 5, 6, 7, 7, 8, 1, 1, 2};
 
     if (++ob->move_status > 11) {
@@ -1409,8 +1397,7 @@ static void circ1_move(object *ob)
  * @param ob
  * Monster.
  */
-static void circ2_move(object *ob)
-{
+static void circ2_move(object *ob) {
     static const int circle[20] = {3, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8, 1, 1, 1, 2, 2};
 
     if (++ob->move_status > 19) {
@@ -1427,8 +1414,7 @@ static void circ2_move(object *ob)
  * @param ob
  * Monster.
  */
-static void pace_movev(object *ob)
-{
+static void pace_movev(object *ob) {
     if (ob->move_status++ > 6) {
         ob->move_status = 0;
     }
@@ -1445,8 +1431,7 @@ static void pace_movev(object *ob)
  * @param ob
  * Monster.
  */
-static void pace_moveh(object *ob)
-{
+static void pace_moveh(object *ob) {
     if (ob->move_status++ > 6) {
         ob->move_status = 0;
     }
@@ -1463,8 +1448,7 @@ static void pace_moveh(object *ob)
  * @param ob
  * Monster.
  */
-static void pace2_movev(object *ob)
-{
+static void pace2_movev(object *ob) {
     if (ob->move_status++ > 16) {
         ob->move_status = 0;
     }
@@ -1483,8 +1467,7 @@ static void pace2_movev(object *ob)
  * @param ob
  * Monster.
  */
-static void pace2_moveh(object *ob)
-{
+static void pace2_moveh(object *ob) {
     if (ob->move_status++ > 16) {
         ob->move_status = 0;
     }
@@ -1503,11 +1486,11 @@ static void pace2_moveh(object *ob)
  * @param ob
  * Monster.
  */
-static void rand_move(object *ob)
-{
+static void rand_move(object *ob) {
     int i;
 
-    if (ob->move_status < 1 || ob->move_status > 8 || !move_object(ob, ob->move_status || rndm_chance(9))) {
+    if (ob->move_status < 1 || ob->move_status > 8 ||
+        !move_object(ob, ob->move_status || rndm_chance(9))) {
         for (i = 0; i < 5; i++) {
             if (move_object(ob, ob->move_status = rndm(1, 8))) {
                 return;
@@ -1527,8 +1510,7 @@ static void rand_move(object *ob)
  * Returned portion which should be freed later, NULL if there
  * was no match.
  */
-static char *find_matching_message(const char *msg, const char *match)
-{
+static char *find_matching_message(const char *msg, const char *match) {
     const char *cp = msg, *cp1, *cp2;
     char regex[MAX_BUF], *cp3;
     int gotmatch = 0;
@@ -1612,8 +1594,7 @@ static char *find_matching_message(const char *msg, const char *match)
  * @return
  * 1 if the NPC replied to the player, 0 otherwise.
  */
-int talk_to_npc(object *op, object *npc, char *txt)
-{
+int talk_to_npc(object *op, object *npc, char *txt) {
     size_t ret = 0;
 
     if (HAS_EVENT(npc, EVENT_SAY)) {
@@ -1626,8 +1607,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
             ret = strlen(cp);
 
             if (op->type == PLAYER) {
-                packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 256,
-                        256);
+                packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 256, 256);
 
                 packet_debug_data(packet, 0, "\nInterface data type");
                 packet_append_uint8(packet, CMD_INTERFACE_TEXT);
@@ -1655,8 +1635,16 @@ int talk_to_npc(object *op, object *npc, char *txt)
                 char *name = object_get_name_s(npc, NULL);
                 snprintf(buf, sizeof(buf), "\n%s says: %s", name, cp);
                 efree(name);
-                draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x,
-                        op->y, MAP_INFO_NORMAL, op, op, buf);
+                draw_info_map(CHAT_TYPE_GAME,
+                              NULL,
+                              COLOR_WHITE,
+                              op->map,
+                              op->x,
+                              op->y,
+                              MAP_INFO_NORMAL,
+                              op,
+                              op,
+                              buf);
             }
 
             efree(cp);
@@ -1682,8 +1670,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
  * @return
  * 1 if both objects are friends, 0 otherwise
  */
-int is_friend_of(object *op, object *obj)
-{
+int is_friend_of(object *op, object *obj) {
     if (op == NULL || obj == NULL) {
         return 0;
     }
@@ -1711,13 +1698,11 @@ int is_friend_of(object *op, object *obj)
         return 1;
     }
 
-    if (op->type == MONSTER && OBJECT_VALID(op->enemy, op->enemy_count) &&
-            obj == op->enemy) {
+    if (op->type == MONSTER && OBJECT_VALID(op->enemy, op->enemy_count) && obj == op->enemy) {
         return 0;
     }
 
-    if (obj->type == MONSTER && OBJECT_VALID(obj->enemy, obj->enemy_count) &&
-            op == obj->enemy) {
+    if (obj->type == MONSTER && OBJECT_VALID(obj->enemy, obj->enemy_count) && op == obj->enemy) {
         return 0;
     }
 
@@ -1761,8 +1746,7 @@ int is_friend_of(object *op, object *obj)
  * @return
  * 1 if item is a better object, 0 otherwise.
  */
-int check_good_weapon(object *who, object *item)
-{
+int check_good_weapon(object *who, object *item) {
     object *other_weap;
     int val = 0, i;
 
@@ -1808,8 +1792,7 @@ int check_good_weapon(object *who, object *item)
  * @return
  * 1 if item is a better object, 0 otherwise.
  */
-int check_good_armour(object *who, object *item)
-{
+int check_good_armour(object *who, object *item) {
     object *other_armour;
     int val = 0, i;
 
@@ -1849,8 +1832,7 @@ int check_good_armour(object *who, object *item)
     return 0;
 }
 
-bool monster_is_ally_of(object *op, object *target)
-{
+bool monster_is_ally_of(object *op, object *target) {
     shstr *op_faction_name = object_get_value(op, "faction");
 
     if (op_faction_name == NULL) {
@@ -1883,13 +1865,10 @@ bool monster_is_ally_of(object *op, object *target)
  *
  * @param op Monster. Must be on a map.
  */
-void
-monster_drop_arrows (object *op)
-{
+void monster_drop_arrows(object *op) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(op->type == MONSTER);
-    SOFT_ASSERT(op->map != NULL, "Monster is not on a map: %s",
-                object_get_str(op));
+    SOFT_ASSERT(op->map != NULL, "Monster is not on a map: %s", object_get_str(op));
 
     FOR_INV_PREPARE(op, tmp) {
         if (tmp->type == ARROW && tmp->attacked_by_count != 0) {
@@ -1898,5 +1877,6 @@ monster_drop_arrows (object *op)
             tmp->y = op->y;
             object_insert_map(tmp, op->map, op, 0);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 }

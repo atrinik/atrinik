@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -49,9 +47,7 @@ apply_func (object *op, object *applier, int aflags)
     } else if (op->glow_radius != 0) {
         op = object_stack_get_reinsert(op, 1);
 
-        draw_info_format(COLOR_WHITE, applier,
-                         "You extinguish the %s.",
-                         name);
+        draw_info_format(COLOR_WHITE, applier, "You extinguish the %s.", name);
 
         CLEAR_FLAG(op, FLAG_CHANGING);
 
@@ -78,9 +74,7 @@ apply_func (object *op, object *applier, int aflags)
     } else if (op->last_sp != 0) {
         op = object_stack_get_reinsert(op, 1);
 
-        draw_info_format(COLOR_WHITE, applier,
-                         "You light the %s.",
-                         name);
+        draw_info_format(COLOR_WHITE, applier, "You light the %s.", name);
 
         /* Light source that burns out... */
         if (op->last_eat != 0) {
@@ -106,9 +100,7 @@ apply_func (object *op, object *applier, int aflags)
             return OBJECT_METHOD_OK;
         }
     } else {
-        draw_info_format(COLOR_WHITE, applier,
-                         "The %s can't be lit.",
-                         name);
+        draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", name);
         efree(name);
         return OBJECT_METHOD_OK;
     }
@@ -126,7 +118,6 @@ apply_func (object *op, object *applier, int aflags)
 /**
  * Initialize the applyable light type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(light_apply)
-{
+OBJECT_TYPE_INIT_DEFINE(light_apply) {
     OBJECT_METHODS(LIGHT_APPLY)->apply_func = apply_func;
 }

@@ -32,9 +32,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -49,7 +47,8 @@ move_on_func (object *op, object *victim, object *originator, int state)
                 object_destroy(tmp);
                 break;
             }
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
     }
 
     if (op->race == NULL) {
@@ -60,7 +59,8 @@ move_on_func (object *op, object *victim, object *originator, int state)
         if (tmp->type == FORCE && tmp->slaying == op->race) {
             return OBJECT_METHOD_OK;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     object *force = arch_get("force");
     force->speed = 0;
@@ -94,7 +94,6 @@ move_on_func (object *op, object *victim, object *originator, int state)
 /**
  * Initialize the marker type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(marker)
-{
+OBJECT_TYPE_INIT_DEFINE(marker) {
     OBJECT_METHODS(MARKER)->move_on_func = move_on_func;
 }

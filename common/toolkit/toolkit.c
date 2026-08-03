@@ -55,8 +55,7 @@ static size_t apis_num = 0;
  * @param func
  * Deinitialization function.
  */
-void toolkit_import_register(const char *name, toolkit_func func)
-{
+void toolkit_import_register(const char *name, toolkit_func func) {
     HARD_ASSERT(name != NULL);
     HARD_ASSERT(func != NULL);
 
@@ -90,8 +89,7 @@ void toolkit_import_register(const char *name, toolkit_func func)
  * @return
  * Whether the API was registered.
  */
-bool toolkit_check_imported(toolkit_func func)
-{
+bool toolkit_check_imported(toolkit_func func) {
     size_t i;
 
     for (i = 0; i < apis_num; i++) {
@@ -106,8 +104,7 @@ bool toolkit_check_imported(toolkit_func func)
 /**
  * Deinitializes all the registered APIs.
  */
-void toolkit_deinit(void)
-{
+void toolkit_deinit(void) {
     size_t i, len;
     char buf[HUGE_BUF];
 
@@ -115,8 +112,11 @@ void toolkit_deinit(void)
 
     for (i = apis_num; i > 0; i--) {
         len = strnlen(buf, sizeof(buf));
-        snprintf(buf + len, sizeof(buf) - len, "%s%s",
-                buf[0] != '\0' ? ", " : "", apis[i - 1].name);
+        snprintf(buf + len,
+                 sizeof(buf) - len,
+                 "%s%s",
+                 buf[0] != '\0' ? ", " : "",
+                 apis[i - 1].name);
     }
 
     LOG(DEVEL, "Deinitializing APIs in the following order: %s", buf);

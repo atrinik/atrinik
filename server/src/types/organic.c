@@ -35,6 +35,4 @@
 /**
  * Initialize the organic type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(organic)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(organic) {}

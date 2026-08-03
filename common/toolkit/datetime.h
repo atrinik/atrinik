@@ -44,8 +44,7 @@ TOOLKIT_FUNCS_DECLARE(datetime);
  * @return
  * UTC time as UNIX timestamp.
  */
-extern time_t
-datetime_getutc(void);
+extern time_t datetime_getutc(void);
 
 /**
  * Converts UTC time to local time.
@@ -55,8 +54,7 @@ datetime_getutc(void);
  * @return
  * Converted local time.
  */
-extern time_t
-datetime_utctolocal(time_t t);
+extern time_t datetime_utctolocal(time_t t);
 
 /**
  * Return a monotonic timestamp in milliseconds.
@@ -64,9 +62,7 @@ datetime_utctolocal(time_t t);
  * The value has no wall-clock meaning and is intended exclusively for
  * elapsed-time measurements, deadlines and rate windows.
  */
-extern uint64_t
-datetime_monotonic_ms(void);
-extern uint64_t
-datetime_monotonic_us(void);
+extern uint64_t datetime_monotonic_ms(void);
+extern uint64_t datetime_monotonic_us(void);
 
 #endif

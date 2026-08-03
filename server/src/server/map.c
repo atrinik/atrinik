@@ -40,9 +40,7 @@
 #include <object_methods.h>
 #include <toolkit/path.h>
 
-int global_darkness_table[MAX_DARKNESS + 1] = {
-    0, 20, 40, 80, 160, 320, 640, 1280
-};
+int global_darkness_table[MAX_DARKNESS + 1] = {0, 20, 40, 80, 160, 320, 640, 1280};
 
 /**
  * Used to get the reverse direction for all the tiled maps.
@@ -50,16 +48,16 @@ int global_darkness_table[MAX_DARKNESS + 1] = {
  * For example: TILED_NORTH -> TILED_SOUTH
  */
 int map_tiled_reverse[TILED_NUM] = {
-    TILED_SOUTH,     /* TILED_NORTH */
-    TILED_WEST,      /* TILED_EAST */
-    TILED_NORTH,     /* TILED_SOUTH */
-    TILED_EAST,      /* TILED_WEST */
+    TILED_SOUTH, /* TILED_NORTH */
+    TILED_WEST, /* TILED_EAST */
+    TILED_NORTH, /* TILED_SOUTH */
+    TILED_EAST, /* TILED_WEST */
     TILED_SOUTHWEST, /* TILED_NORTHEAST */
     TILED_NORTHWEST, /* TILED_SOUTHEAST */
     TILED_NORTHEAST, /* TILED_SOUTHWEST */
     TILED_SOUTHEAST, /* TILED_NORTHWEST */
-    TILED_DOWN,      /* TILED_UP */
-    TILED_UP,        /* TILED_DOWN */
+    TILED_DOWN, /* TILED_UP */
+    TILED_UP, /* TILED_DOWN */
 };
 
 static int map_tiled_coords[TILED_NUM][3] = {
@@ -86,8 +84,7 @@ static void allocate_map(mapstruct *m);
 static void free_all_objects(mapstruct *m);
 
 /** @copydoc chunk_debugger */
-static void map_debugger(mapstruct *map, char *buf, size_t size)
-{
+static void map_debugger(mapstruct *map, char *buf, size_t size) {
     snprintf(buf, size, "count: %d", map->count);
 
     if (map->name != NULL) {
@@ -100,14 +97,12 @@ static void map_debugger(mapstruct *map, char *buf, size_t size)
 }
 
 /** @copydoc chunk_validator */
-static bool map_validator(mapstruct *map)
-{
+static bool map_validator(mapstruct *map) {
     return map->count != 0;
 }
 
 /** @copydoc chunk_constructor */
-static void map_constructor(mapstruct *map)
-{
+static void map_constructor(mapstruct *map) {
     DL_APPEND(first_map, map);
 
     map->in_memory = MAP_SWAPPED;
@@ -127,8 +122,7 @@ static void map_constructor(mapstruct *map)
 }
 
 /** @copydoc chunk_constructor */
-static void map_destructor(mapstruct *map)
-{
+static void map_destructor(mapstruct *map) {
     if (!map->global_removed) {
         DL_DELETE(first_map, map);
     }
@@ -145,15 +139,18 @@ static void map_destructor(mapstruct *map)
 /**
  * Initialize map-related code.
  */
-void map_init(void)
-{
+void map_init(void) {
     map_count = 0;
-    pool_map = mempool_create("maps", 10, sizeof(mapstruct),
-            MEMPOOL_ALLOW_FREEING, NULL, NULL,
-            (chunk_constructor) map_constructor,
-            (chunk_destructor) map_destructor);
-    mempool_set_debugger(pool_map, (chunk_debugger) map_debugger);
-    mempool_set_validator(pool_map, (chunk_validator) map_validator);
+    pool_map = mempool_create("maps",
+                              10,
+                              sizeof(mapstruct),
+                              MEMPOOL_ALLOW_FREEING,
+                              NULL,
+                              NULL,
+                              (chunk_constructor)map_constructor,
+                              (chunk_destructor)map_destructor);
+    mempool_set_debugger(pool_map, (chunk_debugger)map_debugger);
+    mempool_set_validator(pool_map, (chunk_validator)map_validator);
 }
 
 /**
@@ -165,20 +162,22 @@ void map_init(void)
  * @return
  * NULL if loading or tiling fails, loaded neighbor map otherwise.
  */
-static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
-{
+static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num) {
     mapstruct *map;
 
     if (orig_map->tile_path[tile_num] == NULL) {
         return NULL;
     }
 
-    map = ready_map_name(orig_map->tile_path[tile_num], orig_map,
-            MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? MAP_PLAYER_UNIQUE : 0));
+    map = ready_map_name(orig_map->tile_path[tile_num],
+                         orig_map,
+                         MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? MAP_PLAYER_UNIQUE : 0));
 
     if (map == NULL) {
         log_error("Failed to load map: %s (tile: #%d), for: %s",
-                orig_map->tile_path[tile_num], tile_num, orig_map->path);
+                  orig_map->tile_path[tile_num],
+                  tile_num,
+                  orig_map->path);
         return NULL;
     }
 
@@ -187,7 +186,9 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
         map->tile_map[map_tiled_reverse[tile_num]] = orig_map;
     } else if (map != orig_map->tile_map[tile_num]) {
         log_error("Failed to connect map %s with tile #%d (%s).",
-                orig_map->tile_path[tile_num], tile_num, orig_map->path);
+                  orig_map->tile_path[tile_num],
+                  tile_num,
+                  orig_map->path);
         FREE_AND_CLEAR_HASH(orig_map->tile_path[tile_num]);
         delete_map(map);
         return NULL;
@@ -216,8 +217,14 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
  *
  * @todo A bidirectional breadth-first search would be more efficient.
  */
-static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, uint32_t id, int level, int flags)
-{
+static int relative_tile_position_rec(mapstruct *map1,
+                                      mapstruct *map2,
+                                      int *x,
+                                      int *y,
+                                      int *z,
+                                      uint32_t id,
+                                      int level,
+                                      int flags) {
     int i;
     map_exit_t *exit;
     mapstruct *m;
@@ -233,17 +240,22 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
     level--;
     map1->traversed = id;
 
-    DL_FOREACH(map1->exits, exit)
-    {
+    DL_FOREACH(map1->exits, exit) {
         m = exit_get_destination(exit->obj, NULL, NULL, false);
 
         if (m == NULL) {
             continue;
         }
 
-        if (m->traversed != id && (m == map2 || relative_tile_position_rec(m,
-                map2, x, y, z, id, flags,
-                flags & RV_RECURSIVE_SEARCH ? level : 1))) {
+        if (m->traversed != id &&
+            (m == map2 || relative_tile_position_rec(m,
+                                                     map2,
+                                                     x,
+                                                     y,
+                                                     z,
+                                                     id,
+                                                     flags,
+                                                     flags & RV_RECURSIVE_SEARCH ? level : 1))) {
             *z += 1;
             return 1;
         }
@@ -253,61 +265,65 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
         /* Depth-first search for the destination map */
         for (i = 0; i < TILED_NUM; i++) {
             if (map1->tile_path[i]) {
-                if (map1->tile_map[i] == NULL ||
-                        map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
-                    if (flags & RV_NO_LOAD || !load_and_link_tiled_map(map1,
-                            i)) {
+                if (map1->tile_map[i] == NULL || map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
+                    if (flags & RV_NO_LOAD || !load_and_link_tiled_map(map1, i)) {
                         continue;
                     }
                 }
 
-                if (map1->tile_map[i]->traversed != id && (map1->tile_map[i] ==
-                        map2 || relative_tile_position_rec(map1->tile_map[i],
-                        map2, x, y, z, id, level, flags))) {
+                if (map1->tile_map[i]->traversed != id &&
+                    (map1->tile_map[i] == map2 || relative_tile_position_rec(map1->tile_map[i],
+                                                                             map2,
+                                                                             x,
+                                                                             y,
+                                                                             z,
+                                                                             id,
+                                                                             level,
+                                                                             flags))) {
                     switch (i) {
-                    case TILED_NORTH:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        return 1;
+                        case TILED_NORTH:
+                            *y -= MAP_HEIGHT(map1->tile_map[i]);
+                            return 1;
 
-                    case TILED_EAST:
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                        case TILED_EAST:
+                            *x += MAP_WIDTH(map1);
+                            return 1;
 
-                    case TILED_SOUTH:
-                        *y += MAP_HEIGHT(map1);
-                        return 1;
+                        case TILED_SOUTH:
+                            *y += MAP_HEIGHT(map1);
+                            return 1;
 
-                    case TILED_WEST:
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                        case TILED_WEST:
+                            *x -= MAP_WIDTH(map1->tile_map[i]);
+                            return 1;
 
-                    case TILED_NORTHEAST:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                        case TILED_NORTHEAST:
+                            *y -= MAP_HEIGHT(map1->tile_map[i]);
+                            *x += MAP_WIDTH(map1);
+                            return 1;
 
-                    case TILED_SOUTHEAST:
-                        *y += MAP_HEIGHT(map1);
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                        case TILED_SOUTHEAST:
+                            *y += MAP_HEIGHT(map1);
+                            *x += MAP_WIDTH(map1);
+                            return 1;
 
-                    case TILED_SOUTHWEST:
-                        *y += MAP_HEIGHT(map1);
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                        case TILED_SOUTHWEST:
+                            *y += MAP_HEIGHT(map1);
+                            *x -= MAP_WIDTH(map1->tile_map[i]);
+                            return 1;
 
-                    case TILED_NORTHWEST:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                        case TILED_NORTHWEST:
+                            *y -= MAP_HEIGHT(map1->tile_map[i]);
+                            *x -= MAP_WIDTH(map1->tile_map[i]);
+                            return 1;
 
-                    case TILED_UP:
-                        *z += 1;
-                        return 1;
+                        case TILED_UP:
+                            *z += 1;
+                            return 1;
 
-                    case TILED_DOWN:
-                        *z -= 1;
-                        return 1;
+                        case TILED_DOWN:
+                            *z -= 1;
+                            return 1;
                     }
                 }
             }
@@ -345,8 +361,8 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
  * @return
  * 1 if the two tiles are part of the same map, 0 otherwise.
  */
-static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, int flags)
-{
+static int
+relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, int flags) {
     static uint32_t traversal_id = 0;
 
     /* Save some time in the simplest cases ( very similar to on_same_map() )*/
@@ -364,8 +380,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 
         LOG(DEBUG, "resetting traversal id");
 
-        DL_FOREACH(first_map, m)
-        {
+        DL_FOREACH(first_map, m) {
             m->traversed = 0;
         }
 
@@ -373,8 +388,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
     }
 
     /* Recursive search */
-    return relative_tile_position_rec(map1, map2, x, y, z, ++traversal_id, 2,
-            flags);
+    return relative_tile_position_rec(map1, map2, x, y, z, ++traversal_id, 2, flags);
 }
 
 /**
@@ -386,8 +400,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
  * ::mapstruct which has a name matching the given argument,
  * NULL if no such map.
  */
-mapstruct *has_been_loaded_sh(shstr *name)
-{
+mapstruct *has_been_loaded_sh(shstr *name) {
     mapstruct *map;
 
     if (!name || !*name) {
@@ -399,8 +412,7 @@ mapstruct *has_been_loaded_sh(shstr *name)
         return NULL;
     }
 
-    DL_FOREACH(first_map, map)
-    {
+    DL_FOREACH(first_map, map) {
         if (name == map->path) {
             break;
         }
@@ -419,8 +431,7 @@ mapstruct *has_been_loaded_sh(shstr *name)
  * @return
  * The full path.
  */
-char *create_pathname(const char *name)
-{
+char *create_pathname(const char *name) {
     static char buf[MAX_BUF];
 
     if (*name == '/') {
@@ -442,8 +453,7 @@ char *create_pathname(const char *name)
  * @return
  * The absolute path.
  */
-static char *create_items_path(shstr *s)
-{
+static char *create_items_path(shstr *s) {
     static char buf[MAX_BUF];
     char *t;
 
@@ -483,8 +493,7 @@ static char *create_items_path(shstr *s)
  * @return
  * 1 if a wall is present at the given location.
  */
-int wall(mapstruct *m, int x, int y)
-{
+int wall(mapstruct *m, int x, int y) {
     if (!(m = get_map_from_coord(m, &x, &y))) {
         return (P_BLOCKSVIEW | P_NO_PASS | P_OUT_OF_MAP);
     }
@@ -504,8 +513,7 @@ int wall(mapstruct *m, int x, int y)
  * @return
  * 1 if the given location blocks view.
  */
-int blocks_view(mapstruct *m, int x, int y)
-{
+int blocks_view(mapstruct *m, int x, int y) {
     mapstruct *nm;
 
     if (!(nm = get_map_from_coord(m, &x, &y))) {
@@ -526,13 +534,13 @@ int blocks_view(mapstruct *m, int x, int y)
  * @return
  * 1 if the given location blocks magic.
  */
-int blocks_magic(mapstruct *m, int x, int y)
-{
+int blocks_magic(mapstruct *m, int x, int y) {
     if (!(m = get_map_from_coord(m, &x, &y))) {
         return (P_BLOCKSVIEW | P_NO_PASS | P_NO_MAGIC | P_OUT_OF_MAP);
     }
 
-    return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC) || (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_MAGIC);
+    return (GET_MAP_FLAGS(m, x, y) & P_NO_MAGIC) ||
+           (GET_MAP_SPACE_PTR(m, x, y)->extra_flags & MSP_EXTRA_NO_MAGIC);
 }
 
 /**
@@ -552,9 +560,7 @@ int blocks_magic(mapstruct *m, int x, int y)
  * @return
  * Whether the object is blocked by itself on the specified square.
  */
-static bool
-blocked_self (object *op, mapstruct *m, int x, int y)
-{
+static bool blocked_self(object *op, mapstruct *m, int x, int y) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(m != NULL);
 
@@ -595,8 +601,7 @@ blocked_self (object *op, mapstruct *m, int x, int y)
  * 0 if not blocked by anything, combination of
  * @ref map_look_flags otherwise.
  */
-int blocked(object *op, mapstruct *m, int x, int y, int terrain)
-{
+int blocked(object *op, mapstruct *m, int x, int y, int terrain) {
     int flags;
     MapSpace *msp;
 
@@ -604,8 +609,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
     /* Flying objects can move over various terrains. */
     if (op && QUERY_FLAG(op, FLAG_FLYING)) {
-        terrain |= TERRAIN_AIRBREATH | TERRAIN_WATERWALK | TERRAIN_FIREWALK |
-                TERRAIN_CLOUDWALK;
+        terrain |= TERRAIN_AIRBREATH | TERRAIN_WATERWALK | TERRAIN_FIREWALK | TERRAIN_CLOUDWALK;
     }
 
     /* First, look at the terrain. If we don't have a valid terrain flag,
@@ -617,12 +621,11 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
     /* If the tile is either no_pass or has a closed door, and it's either
      * not allowed to pass_thru this tile or the object doesn't have
      * can_pass_thru, then handle no_pass/doors. */
-    if (flags & (P_NO_PASS | P_DOOR_CLOSED) && (!(flags & P_PASS_THRU) ||
-            op == NULL || !QUERY_FLAG(op, FLAG_CAN_PASS_THRU))) {
+    if (flags & (P_NO_PASS | P_DOOR_CLOSED) &&
+        (!(flags & P_PASS_THRU) || op == NULL || !QUERY_FLAG(op, FLAG_CAN_PASS_THRU))) {
         /* If the tile is either no_pass or a closed door that we cannot open,
          * then we cannot enter the tile. */
-        if (flags & P_NO_PASS || (flags & P_DOOR_CLOSED &&
-                !door_try_open(op, m, x, y, true))) {
+        if (flags & P_NO_PASS || (flags & P_DOOR_CLOSED && !door_try_open(op, m, x, y, true))) {
             return flags;
         }
     }
@@ -640,9 +643,9 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
     /* Only other players can move onto tiles with a player, unless it's a PvP
      * area, in which case they can't. */
-    if (flags & P_IS_PLAYER && IS_LIVE(op) && (op->type != PLAYER ||
-            (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) &&
-            !(msp->extra_flags & MSP_EXTRA_NO_PVP)))) {
+    if (flags & P_IS_PLAYER && IS_LIVE(op) &&
+        (op->type != PLAYER || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) &&
+                                !(msp->extra_flags & MSP_EXTRA_NO_PVP)))) {
         return flags;
     }
 
@@ -673,8 +676,7 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
  * @return
  * 1 if the tile is blocked, 0 otherwise.
  */
-int blocked_tile(object *op, mapstruct *m, int x, int y)
-{
+int blocked_tile(object *op, mapstruct *m, int x, int y) {
     object *tmp;
 
     for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above) {
@@ -725,8 +727,7 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
  * 0 if the space to check is not blocked, return value of blocked()
  * otherwise.
  */
-int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
-{
+int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y) {
     archetype_t *tmp;
     mapstruct *mt;
     int xt, yt, t;
@@ -771,8 +772,7 @@ int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
  * @param mapflags
  * The same as we get with load_original_map().
  */
-static void load_objects(mapstruct *m, FILE *fp, int mapflags)
-{
+static void load_objects(mapstruct *m, FILE *fp, int mapflags) {
     object *op = object_get();
     /* To handle buttons correctly */
     op->map = m;
@@ -817,7 +817,10 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
             object_auto_apply(op);
         } else if ((mapflags & MAP_ORIGINAL) && op->randomitems) {
             /* For fresh maps, create treasures */
-            treasure_generate(op->randomitems, op, op->level ? op->level : m->difficulty, op->type != TREASURE ? GT_APPLY : 0);
+            treasure_generate(op->randomitems,
+                              op,
+                              op->level ? op->level : m->difficulty,
+                              op->type != TREASURE ? GT_APPLY : 0);
         }
 
         op = object_get();
@@ -840,8 +843,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
  * @param fp2
  * File to save unique objects.
  */
-static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
-{
+static void save_objects(mapstruct *m, FILE *fp, FILE *fp2) {
     int x, y;
     object *ob, *next, *head, *tmp, *owner;
     uint8_t unique;
@@ -867,13 +869,13 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
                     /* Try to find the spawn point information. */
                     for (tmp = head->inv; tmp; tmp = tmp->below) {
                         if (tmp->type == SPAWN_POINT_INFO) {
-                            if (OBJECT_VALID(tmp->owner, tmp->ownercount) && tmp->owner->type == SPAWN_POINT) {
+                            if (OBJECT_VALID(tmp->owner, tmp->ownercount) &&
+                                tmp->owner->type == SPAWN_POINT) {
                                 tmp->owner->last_sp = -1;
                                 tmp->owner->speed_left += 1.0f;
                                 tmp->owner->enemy = NULL;
                             }
-                        } else if (tmp->type == ARROW &&
-                                   tmp->attacked_by_count != 0) {
+                        } else if (tmp->type == ARROW && tmp->attacked_by_count != 0) {
                             tmp->x = head->x;
                             tmp->y = head->y;
 
@@ -930,14 +932,13 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
  * @param value
  * The darkness value.
  */
-void set_map_darkness(mapstruct *m, int value)
-{
+void set_map_darkness(mapstruct *m, int value) {
     if (value < 0 || value > MAX_DARKNESS) {
         value = MAX_DARKNESS;
     }
 
-    MAP_DARKNESS(m) = (int32_t) value;
-    m->light_value = (int32_t) global_darkness_table[value];
+    MAP_DARKNESS(m) = (int32_t)value;
+    m->light_value = (int32_t)global_darkness_table[value];
 }
 
 /**
@@ -945,8 +946,7 @@ void set_map_darkness(mapstruct *m, int value)
  * @return
  * The new map structure.
  */
-mapstruct *get_linked_map(void)
-{
+mapstruct *get_linked_map(void) {
     return mempool_get(pool_map);
 }
 
@@ -956,8 +956,7 @@ mapstruct *get_linked_map(void)
  * @param m
  * Map to allocate spaces for.
  */
-static void allocate_map(mapstruct *m)
-{
+static void allocate_map(mapstruct *m) {
     SOFT_ASSERT(m->spaces == NULL, "Map spaces are not NULL: %s", m->path);
     SOFT_ASSERT(m->buttons == NULL, "Buttons are not NULL: %s", m->path);
     SOFT_ASSERT(m->bitmap == NULL, "Bitmap is not NULL: %s", m->path);
@@ -966,8 +965,7 @@ static void allocate_map(mapstruct *m)
     m->in_memory = MAP_LOADING;
 
     m->spaces = ecalloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
-    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) *
-            sizeof(*m->bitmap));
+    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(*m->bitmap));
     m->path_nodes = emalloc(MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(*m->path_nodes));
 }
 
@@ -982,8 +980,7 @@ static void allocate_map(mapstruct *m)
  * @return
  * The new map structure.
  */
-mapstruct *get_empty_map(int sizex, int sizey)
-{
+mapstruct *get_empty_map(int sizex, int sizey) {
     mapstruct *m = get_linked_map();
     m->width = sizex;
     m->height = sizey;
@@ -994,8 +991,7 @@ mapstruct *get_empty_map(int sizex, int sizey)
     return m;
 }
 
-void map_set_tile(mapstruct *m, int tile, const char *pathname)
-{
+void map_set_tile(mapstruct *m, int tile, const char *pathname) {
     char *path;
     shstr *path_sh;
     mapstruct *neighbor;
@@ -1006,8 +1002,7 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname)
     SOFT_ASSERT(tile >= 0 && tile < TILED_NUM, "Invalid tile: %d", tile);
 
     if (m->tile_path[tile] != NULL) {
-        LOG(BUG, "Tile location %d duplicated (%s <-> %s)", tile, m->path,
-                m->tile_path[tile]);
+        LOG(BUG, "Tile location %d duplicated (%s <-> %s)", tile, m->path, m->tile_path[tile]);
         FREE_AND_CLEAR_HASH(m->tile_path[tile]);
     }
 
@@ -1023,14 +1018,13 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname)
     neighbor = has_been_loaded_sh(path_sh);
 
     /* If the neighboring map tile has been loaded, set up the map pointers. */
-    if (neighbor != NULL && (neighbor->in_memory == MAP_IN_MEMORY ||
-            neighbor->in_memory == MAP_LOADING)) {
+    if (neighbor != NULL &&
+        (neighbor->in_memory == MAP_IN_MEMORY || neighbor->in_memory == MAP_LOADING)) {
         int dest_tile = map_tiled_reverse[tile];
 
         m->tile_map[tile] = neighbor;
 
-        if (neighbor->tile_path[dest_tile] == NULL ||
-                neighbor->tile_path[dest_tile] == m->path) {
+        if (neighbor->tile_path[dest_tile] == NULL || neighbor->tile_path[dest_tile] == m->path) {
             neighbor->tile_map[dest_tile] = m;
         }
     }
@@ -1052,9 +1046,7 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname)
  * @return
  * The loaded map structure, NULL on failure.
  */
-mapstruct *load_original_map(const char *filename, mapstruct *originator,
-        int flags)
-{
+mapstruct *load_original_map(const char *filename, mapstruct *originator, int flags) {
     FILE *fp;
     mapstruct *m;
     char pathname[HUGE_BUF], split[MAX_BUF];
@@ -1067,9 +1059,11 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
         return NULL;
     }
 
-    snprintf(pathname, sizeof(pathname), "%s%s",
-            *filename != '/' && *filename != '.' ? "/" : "",
-            flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename));
+    snprintf(pathname,
+             sizeof(pathname),
+             "%s%s",
+             *filename != '/' && *filename != '.' ? "/" : "",
+             flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename));
 
     char *real_path = NULL;
     if (flags & MAP_PLAYER_UNIQUE) {
@@ -1097,8 +1091,7 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
     }
 
     if (fp != NULL && !load_map_header(m, fp)) {
-        log_error("Failure loading map header for %s, flags=%d",
-                filename, flags);
+        log_error("Failure loading map header for %s, flags=%d", filename, flags);
         delete_map(m);
         fclose(fp);
         return NULL;
@@ -1117,8 +1110,7 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
 
     while (string_get_word(basename, &pos, '_', split, sizeof(split), 0)) {
         if (strlen(split) == 1) {
-            old_style_z = string_isdigit(split) ? atoi(split) :
-                'a' - *split - 1;
+            old_style_z = string_isdigit(split) ? atoi(split) : 'a' - *split - 1;
         } else if (strlen(split) > 3) {
             /* TODO: remove this hack (avoids parsing old-style naming
              * convention like map_0101) */
@@ -1151,18 +1143,20 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
                 continue;
             }
 
-            snprintf(VS(path), "%s_%d_%d", cp,
-                    m->coords[0] + map_tiled_coords[i][0],
-                    m->coords[1] + map_tiled_coords[i][1]);
+            snprintf(VS(path),
+                     "%s_%d_%d",
+                     cp,
+                     m->coords[0] + map_tiled_coords[i][0],
+                     m->coords[1] + map_tiled_coords[i][1]);
 
             if (m->coords[2] + map_tiled_coords[i][2] != 0) {
-                snprintfcat(VS(path), "_%d",
-                        m->coords[2] + map_tiled_coords[i][2]);
+                snprintfcat(VS(path), "_%d", m->coords[2] + map_tiled_coords[i][2]);
             }
 
-            if ((!(flags & MAP_NO_DYNAMIC) && ((m->coords[2] >= 0 &&
-                    i != TILED_UP && i != TILED_DOWN) || (m->coords[2] > 0 &&
-                    i != TILED_UP))) || path_exists(path)) {
+            if ((!(flags & MAP_NO_DYNAMIC) &&
+                 ((m->coords[2] >= 0 && i != TILED_UP && i != TILED_DOWN) ||
+                  (m->coords[2] > 0 && i != TILED_UP))) ||
+                path_exists(path)) {
                 cp2 = path_basename(path);
                 map_set_tile(m, i, cp2);
                 efree(cp2);
@@ -1232,8 +1226,7 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
  * The map object we load into (this can change from the passed
  * option if we can't find the original map).
  */
-static mapstruct *load_temporary_map(mapstruct *m)
-{
+static mapstruct *load_temporary_map(mapstruct *m) {
     FILE *fp;
     char buf[HUGE_BUF];
 
@@ -1260,7 +1253,10 @@ static mapstruct *load_temporary_map(mapstruct *m)
     }
 
     if (!load_map_header(m, fp)) {
-        LOG(BUG, "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
+        LOG(BUG,
+            "Error loading map header for %s (%s)! Fallback to original!",
+            m->path,
+            m->tmpname);
         snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
         m = load_original_map(buf, NULL, 0);
@@ -1271,7 +1267,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
     allocate_map(m);
 
     m->in_memory = MAP_LOADING;
-    load_objects (m, fp, 0);
+    load_objects(m, fp, 0);
     fclose(fp);
     return m;
 }
@@ -1281,8 +1277,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
  * @param m
  * The map to go through.
  */
-static void delete_unique_items(mapstruct *m)
-{
+static void delete_unique_items(mapstruct *m) {
     int i, j, unique = 0;
     object *op, *next;
 
@@ -1315,8 +1310,7 @@ static void delete_unique_items(mapstruct *m)
  * @param m
  * The map to load unique items into.
  */
-static void load_unique_objects(mapstruct *m)
-{
+static void load_unique_objects(mapstruct *m) {
     FILE *fp;
     int count;
     char firstname[HUGE_BUF];
@@ -1360,8 +1354,7 @@ static void load_unique_objects(mapstruct *m)
  * @return
  *
  */
-int new_save_map(mapstruct *m, int flag)
-{
+int new_save_map(mapstruct *m, int flag) {
     FILE *fp, *fp2;
     char filename[MAX_BUF], buf[MAX_BUF];
 
@@ -1395,16 +1388,18 @@ int new_save_map(mapstruct *m, int flag)
             fd = mkstemp(m->tmpname);
 
             if (fd == -1) {
-                LOG(ERROR, "Can't create a temporary file: %d (%s)", errno,
-                        strerror(errno));
+                LOG(ERROR, "Can't create a temporary file: %d (%s)", errno, strerror(errno));
                 return -1;
             }
 
             fp = fdopen(fd, "w");
 
             if (fp == NULL) {
-                LOG(ERROR, "Can't open file %s for saving: %d (%s)",
-                        filename, errno, strerror(errno));
+                LOG(ERROR,
+                    "Can't open file %s for saving: %d (%s)",
+                    filename,
+                    errno,
+                    strerror(errno));
                 close(fd);
                 return -1;
             }
@@ -1416,8 +1411,7 @@ int new_save_map(mapstruct *m, int flag)
     }
 
     if (fp == NULL) {
-        LOG(ERROR, "Can't open file %s for saving: %d (%s)", filename,
-                errno, strerror(errno));
+        LOG(ERROR, "Can't open file %s for saving: %d (%s)", filename, errno, strerror(errno));
         return -1;
     }
 
@@ -1464,8 +1458,7 @@ int new_save_map(mapstruct *m, int flag)
  * @param m
  * The map.
  */
-static void free_all_objects(mapstruct *m)
-{
+static void free_all_objects(mapstruct *m) {
     int x, y;
     object *ob, *head;
 
@@ -1490,8 +1483,7 @@ static void free_all_objects(mapstruct *m)
  * @param flag
  * If set, free all objects on the map.
  */
-void free_map(mapstruct *m, int flag)
-{
+void free_map(mapstruct *m, int flag) {
     int i;
 
     if (!m->in_memory) {
@@ -1519,8 +1511,12 @@ void free_map(mapstruct *m, int flag)
     for (i = 0; i < TILED_NUM; i++) {
         /* Delete the backlinks in other tiled maps to our map */
         if (m->tile_map[i]) {
-            if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] && m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m) {
-                LOG(BUG, "Freeing map %s linked to %s which links back to another map.", STRING_SAFE(m->path), STRING_SAFE(m->tile_map[i]->path));
+            if (m->tile_map[i]->tile_map[map_tiled_reverse[i]] &&
+                m->tile_map[i]->tile_map[map_tiled_reverse[i]] != m) {
+                LOG(BUG,
+                    "Freeing map %s linked to %s which links back to another map.",
+                    STRING_SAFE(m->path),
+                    STRING_SAFE(m->tile_map[i]->path));
             }
 
             m->tile_map[i]->tile_map[map_tiled_reverse[i]] = NULL;
@@ -1552,8 +1548,7 @@ void free_map(mapstruct *m, int flag)
  * @param m
  * The map to delete.
  */
-void delete_map(mapstruct *m)
-{
+void delete_map(mapstruct *m) {
     HARD_ASSERT(m != NULL);
 
     if (m->in_memory == MAP_IN_MEMORY) {
@@ -1581,8 +1576,7 @@ void delete_map(mapstruct *m)
  * @return
  * Pointer to the given map.
  */
-mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags)
-{
+mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags) {
     mapstruct *m;
     shstr *name_sh;
 
@@ -1627,8 +1621,9 @@ mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags)
         }
 
         /* Create and load a map */
-        if (!(m = load_original_map(name, originator,
-                (flags & (MAP_PLAYER_UNIQUE | MAP_NO_DYNAMIC))))) {
+        if (!(m = load_original_map(name,
+                                    originator,
+                                    (flags & (MAP_PLAYER_UNIQUE | MAP_NO_DYNAMIC))))) {
             return NULL;
         }
 
@@ -1659,8 +1654,7 @@ mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags)
  * @param m
  * Map.
  */
-void clean_tmp_map(mapstruct *m)
-{
+void clean_tmp_map(mapstruct *m) {
     if (m->tmpname == NULL) {
         return;
     }
@@ -1674,12 +1668,10 @@ void clean_tmp_map(mapstruct *m)
 /**
  * Free all allocated maps.
  */
-void free_all_maps(void)
-{
+void free_all_maps(void) {
     mapstruct *map, *tmp;
 
-    DL_FOREACH_SAFE(first_map, map, tmp)
-    {
+    DL_FOREACH_SAFE(first_map, map, tmp) {
         /* I think some of the callers above before it gets here set this to be
          * saving, but we still want to free this data */
         if (map->in_memory == MAP_SAVING) {
@@ -1702,9 +1694,7 @@ void free_all_maps(void)
  * @param y
  * Y position on the given map.
  */
-void
-update_position (mapstruct *m, int x, int y)
-{
+void update_position(mapstruct *m, int x, int y) {
     HARD_ASSERT(m != NULL);
     HARD_ASSERT(GET_MAP_FLAGS(m, x, y) & P_NEED_UPDATE);
 
@@ -1798,7 +1788,13 @@ update_position (mapstruct *m, int x, int y)
     if (flags == old_flags && move_flags == old_move_flags) {
         LOG(DEVEL,
             "New flags (%x, %x) are the same as old ones (%x, %x): %s %d,%d",
-            flags, move_flags, old_flags, old_move_flags, m->path, x, y);
+            flags,
+            move_flags,
+            old_flags,
+            old_move_flags,
+            m->path,
+            x,
+            y);
     }
 #endif
 
@@ -1811,8 +1807,7 @@ update_position (mapstruct *m, int x, int y)
  * @param map
  * Map to update.
  */
-void set_map_reset_time(mapstruct *map)
-{
+void set_map_reset_time(mapstruct *map) {
     uint32_t timeout = MAP_RESET_TIMEOUT(map);
 
     if (timeout == 0) {
@@ -1835,15 +1830,12 @@ void set_map_reset_time(mapstruct *map)
  * @return
  * Tiled map on success, NULL on failure.
  */
-mapstruct *get_map_from_tiled(mapstruct *m, int tiled)
-{
+mapstruct *get_map_from_tiled(mapstruct *m, int tiled) {
     HARD_ASSERT(m != NULL);
 
-    SOFT_ASSERT_RC(tiled >= 0 && tiled < TILED_NUM, NULL, "Invalid tile: %d",
-            tiled);
+    SOFT_ASSERT_RC(tiled >= 0 && tiled < TILED_NUM, NULL, "Invalid tile: %d", tiled);
 
-    if (m->tile_map[tiled] == NULL ||
-            m->tile_map[tiled]->in_memory != MAP_IN_MEMORY) {
+    if (m->tile_map[tiled] == NULL || m->tile_map[tiled]->in_memory != MAP_IN_MEMORY) {
         if (!load_and_link_tiled_map(m, tiled)) {
             return NULL;
         }
@@ -1866,8 +1858,7 @@ mapstruct *get_map_from_tiled(mapstruct *m, int tiled)
  * Map that is at specified location. Will be NULL if not on any
  * map.
  */
-mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
-{
+mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y) {
     /* m should never be null, but if a tiled map fails to load below, it
      * could happen. */
     if (!m) {
@@ -1997,8 +1988,7 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
  * Map that is at specified location. Will be NULL if not on any
  * map.
  */
-mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
-{
+mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y) {
     if (!m) {
         *x = 0;
         return NULL;
@@ -2162,9 +2152,7 @@ mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y)
  * @return
  * Direction.
  */
-static int
-coords_distance_to_dir (int x, int y)
-{
+static int coords_distance_to_dir(int x, int y) {
     int q;
     if (!y) {
         q = -300 * x;
@@ -2235,9 +2223,15 @@ coords_distance_to_dir (int x, int y)
  * Returns TRUE if successful, or FALSE otherwise.
  * @todo Document.
  */
-int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
-{
-    if (!get_rangevector_from_mapcoords(op1->map, op1->x, op1->y, op2->map, op2->x, op2->y, retval, flags | RV_NO_DISTANCE)) {
+int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags) {
+    if (!get_rangevector_from_mapcoords(op1->map,
+                                        op1->x,
+                                        op1->y,
+                                        op2->map,
+                                        op2->x,
+                                        op2->y,
+                                        retval,
+                                        flags | RV_NO_DISTANCE)) {
         return 0;
     }
 
@@ -2246,7 +2240,9 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
     /* If this is multipart, find the closest part now */
     if (!(flags & RV_IGNORE_MULTIPART) && op1->more) {
         object *tmp, *best = NULL;
-        int best_distance = retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y, tmpi;
+        int best_distance =
+                retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y,
+            tmpi;
 
         /* we just take the offset of the piece to head to figure
          * distance instead of doing all that work above again
@@ -2254,7 +2250,10 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
          * same axis as is used for multipart objects, the simply arithmetic
          * below works. */
         for (tmp = op1->more; tmp; tmp = tmp->more) {
-            tmpi = (retval->distance_x - tmp->arch->clone.x) * (retval->distance_x - tmp->arch->clone.x) + (retval->distance_y - tmp->arch->clone.y) * (retval->distance_y - tmp->arch->clone.y);
+            tmpi = (retval->distance_x - tmp->arch->clone.x) *
+                       (retval->distance_x - tmp->arch->clone.x) +
+                   (retval->distance_y - tmp->arch->clone.y) *
+                       (retval->distance_y - tmp->arch->clone.y);
 
             if (tmpi < best_distance) {
                 best_distance = tmpi;
@@ -2269,7 +2268,8 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
         }
     }
 
-    retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
+    retval->distance =
+        isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
     retval->direction = coords_distance_to_dir(-retval->distance_x, -retval->distance_y);
 
     return 1;
@@ -2294,8 +2294,14 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
  *   0x8|0x04 - don't calculate distance (or direction) (fastest)
  * @todo Document.
  */
-int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags)
-{
+int get_rangevector_from_mapcoords(mapstruct *map1,
+                                   int x,
+                                   int y,
+                                   mapstruct *map2,
+                                   int x2,
+                                   int y2,
+                                   rv_vector *retval,
+                                   int flags) {
     retval->part = NULL;
     retval->distance_z = 0;
 
@@ -2342,8 +2348,12 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
             flags |= RV_NO_LOAD;
         }
 
-        if (!relative_tile_position(map1, map2, &retval->distance_x,
-                &retval->distance_y, &retval->distance_z, flags)) {
+        if (!relative_tile_position(map1,
+                                    map2,
+                                    &retval->distance_x,
+                                    &retval->distance_y,
+                                    &retval->distance_z,
+                                    flags)) {
             return 0;
         }
 
@@ -2352,35 +2362,34 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
     }
 
     switch (flags & (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)) {
-    case RV_MANHATTAN_DISTANCE:
-        retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
-        break;
+        case RV_MANHATTAN_DISTANCE:
+            retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
+            break;
 
-    case RV_EUCLIDIAN_DISTANCE:
-        retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
-        break;
+        case RV_EUCLIDIAN_DISTANCE:
+            retval->distance = isqrt(retval->distance_x * retval->distance_x +
+                                     retval->distance_y * retval->distance_y);
+            break;
 
-    case RV_DIAGONAL_DISTANCE:
-        retval->distance = MAX(abs(retval->distance_x), abs(retval->distance_y));
-        break;
+        case RV_DIAGONAL_DISTANCE:
+            retval->distance = MAX(abs(retval->distance_x), abs(retval->distance_y));
+            break;
 
-        /* No distance calc */
-    case RV_NO_DISTANCE:
-        return 1;
+            /* No distance calc */
+        case RV_NO_DISTANCE:
+            return 1;
     }
 
     retval->direction = coords_distance_to_dir(-retval->distance_x, -retval->distance_y);
     return 1;
 }
 
-static int on_same_map_exits(mapstruct *map1, mapstruct *map2)
-{
+static int on_same_map_exits(mapstruct *map1, mapstruct *map2) {
     map_exit_t *exit;
     mapstruct *m;
     int i;
 
-    DL_FOREACH(map1->exits, exit)
-    {
+    DL_FOREACH(map1->exits, exit) {
         m = exit_get_destination(exit->obj, NULL, NULL, false);
 
         if (m == NULL) {
@@ -2411,8 +2420,7 @@ static int on_same_map_exits(mapstruct *map1, mapstruct *map2)
  * @return
  * 1 if both objects are on same map, 0 otherwise.
  */
-int on_same_map(object *op1, object *op2)
-{
+int on_same_map(object *op1, object *op2) {
     int i;
 
     if (op1->map == NULL || op2->map == NULL) {
@@ -2424,8 +2432,7 @@ int on_same_map(object *op1, object *op2)
     }
 
     for (i = 0; i < TILED_NUM; i++) {
-        if (op1->map->tile_map[i] == NULL ||
-                op1->map->tile_map[i]->in_memory != MAP_IN_MEMORY) {
+        if (op1->map->tile_map[i] == NULL || op1->map->tile_map[i]->in_memory != MAP_IN_MEMORY) {
             continue;
         }
 
@@ -2452,8 +2459,7 @@ int on_same_map(object *op1, object *op2)
  * @return
  * Number of players on this map.
  */
-int players_on_map(mapstruct *m)
-{
+int players_on_map(mapstruct *m) {
     object *tmp;
     int count;
 
@@ -2476,8 +2482,7 @@ int players_on_map(mapstruct *m)
  * @return
  * Non zero if blocked, 0 otherwise.
  */
-int wall_blocked(mapstruct *m, int x, int y)
-{
+int wall_blocked(mapstruct *m, int x, int y) {
     int r;
 
     if (!(m = get_map_from_coord(m, &x, &y))) {
@@ -2489,8 +2494,7 @@ int wall_blocked(mapstruct *m, int x, int y)
     return r;
 }
 
-int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
-{
+int map_get_darkness(mapstruct *m, int x, int y, object **mirror) {
     MapSpace *msp;
     uint8_t outdoor;
     int darkness;
@@ -2500,13 +2504,18 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
     }
 
     msp = GET_MAP_SPACE_PTR(m, x, y);
-    outdoor = MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power == -2);
+    outdoor =
+        MAP_OUTDOORS(m) || (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) &&
+                            msp->map_info->item_power == -2);
 
-    if (((outdoor && !(msp->flags & P_OUTDOOR)) || (!outdoor && msp->flags & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0)) {
+    if (((outdoor && !(msp->flags & P_OUTDOOR)) || (!outdoor && msp->flags & P_OUTDOOR)) &&
+        (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) ||
+         msp->map_info->item_power < 0)) {
         darkness = msp->light_value + global_darkness_table[world_darkness];
     } else {
         /* Check if map info object bound to this tile has a darkness. */
-        if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1) {
+        if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) &&
+            msp->map_info->item_power != -1) {
             int dark_value;
 
             dark_value = msp->map_info->item_power;
@@ -2526,8 +2535,7 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
         magic_mirror_struct *m_data;
         mapstruct *mirror_map;
 
-        FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_SYS, -1, tmp)
-        {
+        FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_SYS, -1, tmp) {
             if (tmp->type == MAGIC_MIRROR) {
                 if (mirror) {
                     *mirror = tmp;
@@ -2535,10 +2543,12 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 
                 m_data = MMIRROR(tmp);
 
-                if (m_data && (mirror_map = magic_mirror_get_map(tmp)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
+                if (m_data && (mirror_map = magic_mirror_get_map(tmp)) &&
+                    !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
                     MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
 
-                    if ((MAP_OUTDOORS(mirror_map) && !(mirror_msp->flags & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && mirror_msp->flags & P_OUTDOOR)) {
+                    if ((MAP_OUTDOORS(mirror_map) && !(mirror_msp->flags & P_OUTDOOR)) ||
+                        (!MAP_OUTDOORS(mirror_map) && mirror_msp->flags & P_OUTDOOR)) {
                         darkness = mirror_msp->light_value + global_darkness_table[world_darkness];
                     } else {
                         darkness = mirror_map->light_value + mirror_msp->light_value;
@@ -2554,8 +2564,7 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
     return darkness;
 }
 
-int map_path_isabs(const char *path)
-{
+int map_path_isabs(const char *path) {
     if (path == NULL) {
         return 0;
     }
@@ -2567,8 +2576,7 @@ int map_path_isabs(const char *path)
     return 0;
 }
 
-char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *name)
-{
+char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *name) {
     char *path_tmp, *ret;
 
     path_tmp = NULL;
@@ -2688,8 +2696,7 @@ char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *n
  * @return
  * Reset map on success, NULL on failure.
  */
-mapstruct *map_force_reset(mapstruct *m)
-{
+mapstruct *map_force_reset(mapstruct *m) {
     object *tmp, *next, **players;
     size_t players_num, i;
     shstr *path;
@@ -2755,13 +2762,11 @@ mapstruct *map_force_reset(mapstruct *m)
  * @return
  * 0.
  */
-static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
-        int layer, int sub_layer)
-{
+static int
+map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y, int layer, int sub_layer) {
     object *pl;
     rv_vector rv;
-    int ax, ay, layer_start, layer_end, sub_layer_start, sub_layer_end,
-            socket_layer;
+    int ax, ay, layer_start, layer_end, sub_layer_start, sub_layer_end, socket_layer;
 
     if (layer == -1) {
         layer_start = LAYER_FLOOR;
@@ -2778,22 +2783,26 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
     }
 
     for (pl = tiled->player_first; pl != NULL; pl = CONTR(pl)->map_above) {
-        if (!get_rangevector_from_mapcoords(pl->map, pl->x, pl->y, map, x, y,
-                &rv, RV_NO_DISTANCE)) {
+        if (!get_rangevector_from_mapcoords(pl->map,
+                                            pl->x,
+                                            pl->y,
+                                            map,
+                                            x,
+                                            y,
+                                            &rv,
+                                            RV_NO_DISTANCE)) {
             continue;
         }
 
         ax = CONTR(pl)->cs->mapx_2 + rv.distance_x;
         ay = CONTR(pl)->cs->mapy_2 + rv.distance_y;
 
-        if (ax < 0 || ax >= CONTR(pl)->cs->mapx ||
-                ay < 0 || ay >= CONTR(pl)->cs->mapy) {
+        if (ax < 0 || ax >= CONTR(pl)->cs->mapx || ay < 0 || ay >= CONTR(pl)->cs->mapy) {
             continue;
         }
 
         for (layer = layer_start; layer <= layer_end; layer++) {
-            for (sub_layer = sub_layer_start; sub_layer <= sub_layer_end;
-                    sub_layer++) {
+            for (sub_layer = sub_layer_start; sub_layer <= sub_layer_end; sub_layer++) {
                 socket_layer = NUM_LAYERS * sub_layer + layer - 1;
 
                 CONTR(pl)->cs->lastmap.cells[ax][ay].faces[socket_layer] = 0;
@@ -2821,19 +2830,15 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
  * only if it's really necessary. Do not EVER call it from code that is called
  * very often (combat code for example).
  */
-void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer)
-{
+void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer) {
     HARD_ASSERT(m != NULL);
 
     SOFT_ASSERT(x >= 0 && x < m->width, "Invalid X coordinate: %d", x);
     SOFT_ASSERT(y >= 0 && y < m->height, "Invalid Y coordinate: %d", y);
     SOFT_ASSERT(layer >= -1 && layer <= NUM_LAYERS, "Invalid layer: %d", layer);
-    SOFT_ASSERT(sub_layer >= -1 && sub_layer < NUM_SUB_LAYERS,
-            "Invalid sub-layer: %d", sub_layer);
+    SOFT_ASSERT(sub_layer >= -1 && sub_layer < NUM_SUB_LAYERS, "Invalid sub-layer: %d", sub_layer);
 
-    MAP_TILES_WALK_START(m, map_redraw_internal, x, y, layer, sub_layer)
-    {
-    }
+    MAP_TILES_WALK_START(m, map_redraw_internal, x, y, layer, sub_layer) {}
     MAP_TILES_WALK_END
 }
 
@@ -2852,9 +2857,7 @@ void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *
-map_find_arch (mapstruct *m, int x, int y, archetype_t *at)
-{
+object *map_find_arch(mapstruct *m, int x, int y, archetype_t *at) {
     HARD_ASSERT(m != NULL);
     HARD_ASSERT(at != NULL);
 
@@ -2887,9 +2890,7 @@ map_find_arch (mapstruct *m, int x, int y, archetype_t *at)
  * @return
  * First matching object, or NULL if none matches.
  */
-object *
-map_find_type (mapstruct *m, int x, int y, uint8_t type)
-{
+object *map_find_type(mapstruct *m, int x, int y, uint8_t type) {
     HARD_ASSERT(m != NULL);
 
     m = get_map_from_coord(m, &x, &y);
@@ -2938,42 +2939,20 @@ map_find_type (mapstruct *m, int x, int y, uint8_t type)
  * An index usable in the #freearr_x/#freearr_y arrays, -1 if there is no
  * usable spot.
  */
-int
-map_free_spot (mapstruct   *m,
-               int          x,
-               int          y,
-               int          start,
-               int          stop,
-               archetype_t *at,
-               object      *op)
-{
+int map_free_spot(mapstruct *m, int x, int y, int start, int stop, archetype_t *at, object *op) {
     HARD_ASSERT(m != NULL);
     HARD_ASSERT(at != NULL);
 
-    SOFT_ASSERT_RC(start >= 0 && start < SIZEOFFREE,
-                   -1,
-                   "Invalid start value: %d", start);
-    SOFT_ASSERT_RC(stop >= 0 && stop < SIZEOFFREE,
-                   -1,
-                   "Invalid stop value: %d", start);
-    SOFT_ASSERT_RC(stop > start,
-                   -1,
-                   "Stop (%d) is not higher than start (%d)",
-                   stop, start);
+    SOFT_ASSERT_RC(start >= 0 && start < SIZEOFFREE, -1, "Invalid start value: %d", start);
+    SOFT_ASSERT_RC(stop >= 0 && stop < SIZEOFFREE, -1, "Invalid stop value: %d", start);
+    SOFT_ASSERT_RC(stop > start, -1, "Stop (%d) is not higher than start (%d)", stop, start);
 
     int num_altern = 0;
     static int altern[SIZEOFFREE];
     for (int i = start; i <= stop; i++) {
-        if (!arch_blocked(at,
-                          op,
-                          m,
-                          x + freearr_x[i],
-                          y + freearr_y[i])) {
+        if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i])) {
             altern[num_altern++] = i;
-        } else if (wall(m,
-                        x + freearr_x[i],
-                        y + freearr_y[i]) &&
-                   maxfree[i] < stop) {
+        } else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop) {
             stop = maxfree[i];
         }
     }
@@ -3005,13 +2984,7 @@ map_free_spot (mapstruct   *m,
  * An index usable in the #freearr_x/#freearr_y arrays, -1 if there is no
  * usable spot.
  */
-int
-map_free_spot_first (mapstruct   *m,
-                     int          x,
-                     int          y,
-                     archetype_t *at,
-                     object      *op)
-{
+int map_free_spot_first(mapstruct *m, int x, int y, archetype_t *at, object *op) {
     HARD_ASSERT(m != NULL);
     HARD_ASSERT(at != NULL);
 

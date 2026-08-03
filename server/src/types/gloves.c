@@ -35,7 +35,6 @@
 /**
  * Initialize the gloves type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(gloves)
-{
+OBJECT_TYPE_INIT_DEFINE(gloves) {
     OBJECT_METHODS(GLOVES)->apply_func = object_apply_item;
 }

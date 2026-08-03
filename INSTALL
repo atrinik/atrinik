@@ -60,7 +60,7 @@ recommended dependencies with:
 
 ```sh
 sudo apt-get update
-sudo apt-get install build-essential cmake flex libcurl4-openssl-dev \
+sudo apt-get install build-essential clang-format cmake flex libcurl4-openssl-dev \
   libssl-dev zlib1g-dev python3-dev libgd-dev libreadline-dev \
   libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev \
   libsdl-ttf2.0-dev timidity libx11-dev libxml2-dev libxmu-dev \
@@ -92,6 +92,18 @@ cmake --build --preset linux-debug --target atrinik
 The convenience script `./build.sh [target]` performs the equivalent debug
 configuration and build. Set `JOBS` to control build parallelism or
 `BUILD_DIR` to select another build directory.
+
+Format all tracked authored C and C++ sources, or run the non-mutating check
+used by Linux CI, with:
+
+```sh
+tools/clang-format.sh --write
+tools/clang-format.sh --check
+```
+
+The root `.clang-format` owns the style. `.clang-format-ignore` excludes
+generated sources and bundled third-party code that must retain its upstream
+formatting.
 
 ## Tests
 

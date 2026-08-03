@@ -34,9 +34,7 @@
 /**
  * Initialize the button API.
  */
-void button_init()
-{
-}
+void button_init() {}
 
 /**
  * Determine button's texture, based on its texture settings and whether
@@ -46,8 +44,7 @@ void button_init()
  * @return
  * Texture to use.
  */
-static texture_struct *button_determine_texture(button_struct *button)
-{
+static texture_struct *button_determine_texture(button_struct *button) {
     if (button->pressed && button->texture_pressed) {
         return button->texture_pressed;
     } else if (button->mouse_over && button->texture_over) {
@@ -62,8 +59,7 @@ static texture_struct *button_determine_texture(button_struct *button)
  * @param button
  * Button.
  */
-void button_create(button_struct *button)
-{
+void button_create(button_struct *button) {
     memset(button, 0, sizeof(*button));
 
     /* Initialize default values. */
@@ -91,15 +87,13 @@ void button_create(button_struct *button)
  * @param button
  * Button to destroy.
  */
-void button_destroy(button_struct *button)
-{
+void button_destroy(button_struct *button) {
     if (button->font) {
         font_free(button->font);
     }
 }
 
-void button_set_parent(button_struct *button, int px, int py)
-{
+void button_set_parent(button_struct *button, int px, int py) {
     button->px = px;
     button->py = py;
 }
@@ -111,8 +105,7 @@ void button_set_parent(button_struct *button, int px, int py)
  * @param font
  * Font to set.
  */
-void button_set_font(button_struct *button, font_struct *font)
-{
+void button_set_font(button_struct *button, font_struct *font) {
     if (button->font) {
         font_free(button->font);
     }
@@ -124,8 +117,7 @@ void button_set_font(button_struct *button, font_struct *font)
     button->font = font;
 }
 
-int button_need_redraw(button_struct *button)
-{
+int button_need_redraw(button_struct *button) {
     int ret;
 
     ret = 0;
@@ -141,8 +133,7 @@ int button_need_redraw(button_struct *button)
             ret = 1;
         }
 
-        if (button->pressed && !button->pressed_forced &&
-                (!mover || state != SDL_BUTTON_LEFT)) {
+        if (button->pressed && !button->pressed_forced && (!mover || state != SDL_BUTTON_LEFT)) {
             button->pressed = 0;
             ret = 1;
         }
@@ -158,11 +149,10 @@ int button_need_redraw(button_struct *button)
  * @param text
  * Optional text to render.
  */
-void button_show(button_struct *button, const char *text)
-{
+void button_show(button_struct *button, const char *text) {
     SDL_Surface *texture;
 
-    (void) button_need_redraw(button);
+    (void)button_need_redraw(button);
 
     if (button->pressed_forced) {
         button->pressed = 1;
@@ -197,11 +187,20 @@ void button_show(button_struct *button, const char *text)
         if (!color_shadow) {
             text_show(button->surface, button->font, text, x, y, color, button->flags, NULL);
         } else {
-            text_show_shadow(button->surface, button->font, text, x, y - 2, color, color_shadow, button->flags, NULL);
+            text_show_shadow(button->surface,
+                             button->font,
+                             text,
+                             x,
+                             y - 2,
+                             color,
+                             color_shadow,
+                             button->flags,
+                             NULL);
         }
     }
 
-    if (button->repeat_func && button->pressed && SDL_GetTicks() - button->pressed_ticks > button->pressed_repeat_ticks) {
+    if (button->repeat_func && button->pressed &&
+        SDL_GetTicks() - button->pressed_ticks > button->pressed_repeat_ticks) {
         button->repeat_func(button);
         button->pressed_ticks = SDL_GetTicks();
         button->pressed_repeat_ticks = 150;
@@ -219,12 +218,12 @@ void button_show(button_struct *button, const char *text)
  * @return
  * 1 if the event makes the button pressed, 0 otherwise.
  */
-int button_event(button_struct *button, SDL_Event *event)
-{
+int button_event(button_struct *button, SDL_Event *event) {
     SDL_Surface *texture;
     int old_mouse_over;
 
-    if (event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEMOTION) {
+    if (event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEBUTTONDOWN &&
+        event->type != SDL_MOUSEMOTION) {
         return 0;
     }
 

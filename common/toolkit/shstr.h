@@ -76,12 +76,12 @@ typedef const char shstr;
  * SS(string) will return the address of the shared_string struct which
  * contains "string".
  */
-#define SS(x) ((shared_string *) ((x) - offsetof(shared_string, string)))
+#define SS(x) ((shared_string *)((x) - offsetof(shared_string, string)))
 
-#define SS_DUMP_TABLE   1
-#define SS_DUMP_TOTALS  2
+#define SS_DUMP_TABLE 1
+#define SS_DUMP_TOTALS 2
 
-#define TOPBIT ((unsigned REFCOUNT_TYPE) 1 << (sizeof(REFCOUNT_TYPE) * CHAR_BIT - 1))
+#define TOPBIT ((unsigned REFCOUNT_TYPE)1 << (sizeof(REFCOUNT_TYPE) * CHAR_BIT - 1))
 
 #define PADDING ((2 * sizeof(long) - sizeof(REFCOUNT_TYPE)) % sizeof(long)) + 1
 
@@ -145,12 +145,12 @@ typedef struct shstr_list {
  * @param value_
  * String to add to the list.
  */
-#define SHSTR_LIST_PREPEND(list_, value_) \
-    do {                                                                       \
-        shstr_list_t *shstr_list = emalloc(sizeof(*shstr_list));               \
-        shstr_list->next = NULL;                                               \
-        shstr_list->value = add_string(value_);                                \
-        LL_PREPEND(list_, shstr_list);                                         \
+#define SHSTR_LIST_PREPEND(list_, value_)                        \
+    do {                                                         \
+        shstr_list_t *shstr_list = emalloc(sizeof(*shstr_list)); \
+        shstr_list->next = NULL;                                 \
+        shstr_list->value = add_string(value_);                  \
+        LL_PREPEND(list_, shstr_list);                           \
     } while (0)
 
 /**
@@ -164,14 +164,14 @@ typedef struct shstr_list {
  * @param list_
  * Pointer to a shared string list that will be cleared.
  */
-#define SHSTR_LIST_CLEAR(list_)                                                \
-    do {                                                                       \
-        shstr_list_t *shstr_list, *shstr_list_tmp;                             \
-        LL_FOREACH_SAFE(list_, shstr_list, shstr_list_tmp) {                   \
-            free_string_shared(shstr_list->value);                             \
-            efree(shstr_list);                                                 \
-        }                                                                      \
-        list_ = NULL;                                                          \
+#define SHSTR_LIST_CLEAR(list_)                              \
+    do {                                                     \
+        shstr_list_t *shstr_list, *shstr_list_tmp;           \
+        LL_FOREACH_SAFE(list_, shstr_list, shstr_list_tmp) { \
+            free_string_shared(shstr_list->value);           \
+            efree(shstr_list);                               \
+        }                                                    \
+        list_ = NULL;                                        \
     } while (0)
 
 /**
@@ -189,18 +189,19 @@ typedef struct shstr_list {
  * A variable name that will hold the shared string values;
  * a new variable will be declared
  */
-#define SHSTR_LIST_FOR_PREPARE(list_, it_)                                     \
-    do {                                                                       \
-        shstr_list_t *shstr_list, *shstr_list_tmp;                             \
-        LL_FOREACH_SAFE(list_, shstr_list, shstr_list_tmp) {                   \
+#define SHSTR_LIST_FOR_PREPARE(list_, it_)                   \
+    do {                                                     \
+        shstr_list_t *shstr_list, *shstr_list_tmp;           \
+        LL_FOREACH_SAFE(list_, shstr_list, shstr_list_tmp) { \
             shstr *it_ = shstr_list->value;
 
 /**
  * Finishes iteration started by #SHSTR_LIST_FOR_PREPARE.
  */
-#define SHSTR_LIST_FOR_FINISH()                                                \
-        }                                                                      \
-    } while (0)
+#define SHSTR_LIST_FOR_FINISH() \
+    }                           \
+    }                           \
+    while (0)
 
 /*@}*/
 
@@ -217,8 +218,7 @@ TOOLKIT_FUNCS_DECLARE(shstr);
  * @return
  * Pointer to string identical to str, but shared.
  */
-extern shstr *
-add_string(const char *str);
+extern shstr *add_string(const char *str);
 
 /**
  * This will increase the refcount of the string str.
@@ -229,8 +229,7 @@ add_string(const char *str);
  * @return
  * str.
  */
-extern shstr *
-add_refcount(shstr *str);
+extern shstr *add_refcount(shstr *str);
 
 /**
  * This will return the refcount of the string str.
@@ -241,8 +240,7 @@ add_refcount(shstr *str);
  * @return
  * Refcount of the string.
  */
-extern int
-query_refcount(shstr *str);
+extern int query_refcount(shstr *str);
 
 /**
  * Searches a string in the shared strings.
@@ -252,8 +250,7 @@ query_refcount(shstr *str);
  * @return
  * Pointer to identical string or NULL.
  */
-extern shstr *
-find_string(const char *str);
+extern shstr *find_string(const char *str);
 
 /**
  * This will reduce the refcount, and if it has reached 0, str will be
@@ -263,8 +260,7 @@ find_string(const char *str);
  * String to release, which <b>must</b> have been returned
  * from a previous add_string().
  */
-extern void
-free_string_shared(shstr *str);
+extern void free_string_shared(shstr *str);
 
 /**
  * A call to this function will cause the shstr API statistics to be dumped into
@@ -274,7 +270,6 @@ free_string_shared(shstr *str);
  * @param size
  * Size of 'buf'.
  */
-extern void
-shstr_stats(char *buf, size_t size);
+extern void shstr_stats(char *buf, size_t size);
 
 #endif

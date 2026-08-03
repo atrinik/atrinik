@@ -52,15 +52,18 @@ typedef struct scrollbar_element {
     /**
      * Rendering function of this element.
      * @param surface
- * Surface to render on.
+     * Surface to render on.
      * @param box
- * Where to draw.
+     * Where to draw.
      * @param elem
- * The element.
+     * The element.
      * @param horizontal
- * Whether the scrollbar is horizontal.
- */
-    void (*render_func)(SDL_Surface *surface, SDL_Rect *box, struct scrollbar_element *element, uint8_t horizontal);
+     * Whether the scrollbar is horizontal.
+     */
+    void (*render_func)(SDL_Surface *surface,
+                        SDL_Rect *box,
+                        struct scrollbar_element *element,
+                        uint8_t horizontal);
 } scrollbar_element;
 
 /**
@@ -154,7 +157,8 @@ typedef struct scrollbar_info_struct {
 /*@}*/
 
 /** Get the scroll offset needed to reach the bottom of the scrollbar. */
-#define SCROLL_BOTTOM(_scrollbar) ((uint32_t) (MAX(0, (int) *(_scrollbar)->num_lines - (int) (_scrollbar)->max_lines)))
+#define SCROLL_BOTTOM(_scrollbar) \
+    ((uint32_t)(MAX(0, (int)*(_scrollbar)->num_lines - (int)(_scrollbar)->max_lines)))
 /** Get the scroll offset needed to reach the top of the scrollbar. */
 #define SCROLL_TOP(_scrollbar) (0)
 

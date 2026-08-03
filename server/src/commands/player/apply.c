@@ -43,8 +43,7 @@
  * @return
  * Best match, or NULL if no match.
  */
-static object *find_best_object_match(object *pl, const char *params)
-{
+static object *find_best_object_match(object *pl, const char *params) {
     object *tmp, *best;
     int match_val, tmpmatch;
 
@@ -72,8 +71,7 @@ static object *find_best_object_match(object *pl, const char *params)
 }
 
 /** @copydoc command_func */
-void command_apply(object *op, const char *command, char *params)
-{
+void command_apply(object *op, const char *command, char *params) {
     enum apply_flag aflag;
     size_t pos;
     char word[MAX_BUF];

@@ -119,10 +119,9 @@
 /**
  * Check whether the mouse is inside the region map.
  */
-#define RM_IN_MAP(_popup, _mx, _my) ((_mx) >= (_popup)->x + RM_MAP_STARTX && \
-    (_mx) < (_popup)->x + RM_MAP_STARTX + RM_MAP_WIDTH && \
-    (_my) >= (_popup)->y + RM_MAP_STARTY && \
-    (_my) < (_popup)->y + RM_MAP_STARTY + RM_MAP_HEIGHT)
+#define RM_IN_MAP(_popup, _mx, _my)                                                                \
+    ((_mx) >= (_popup)->x + RM_MAP_STARTX && (_mx) < (_popup)->x + RM_MAP_STARTX + RM_MAP_WIDTH && \
+     (_my) >= (_popup)->y + RM_MAP_STARTY && (_my) < (_popup)->y + RM_MAP_STARTY + RM_MAP_HEIGHT)
 
 /** Region map scrollbar. */
 static scrollbar_struct scrollbar;
@@ -145,8 +144,7 @@ static bool region_map_dragging = false;
 static region_map_t *region_map = NULL;
 
 /** @copydoc popup_struct::draw_post_func */
-static int popup_draw_post_func(popup_struct *popup)
-{
+static int popup_draw_post_func(popup_struct *popup) {
     SDL_Rect box, dest;
     SDL_Surface *surface;
 
@@ -154,24 +152,50 @@ static int popup_draw_post_func(popup_struct *popup)
     box.h = popup->surface->h;
 
     /* Show direction markers. */
-    text_show(ScreenSurface, FONT_SERIF14, "N", popup->x,
-            popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2,
-            COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-    text_show(ScreenSurface, FONT_SERIF14, "E",
-            popup->x + popup->surface->w - RM_BORDER_SIZE / 2 -
-            text_get_width(FONT_SERIF14, "E", 0) / 2, popup->y,
-            COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
-    text_show(ScreenSurface, FONT_SERIF14, "S", popup->x,
-            popup->y + popup->surface->h - RM_BORDER_SIZE / 2 -
-            FONT_HEIGHT(FONT_SERIF14) / 2,
-            COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_OUTLINE, &box);
-    text_show(ScreenSurface, FONT_SERIF14, "W", popup->x + RM_BORDER_SIZE / 2 -
-            text_get_width(FONT_SERIF14, "W", 0) / 2, popup->y,
-            COLOR_HGOLD, TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+    text_show(ScreenSurface,
+              FONT_SERIF14,
+              "N",
+              popup->x,
+              popup->y + RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_OUTLINE,
+              &box);
+    text_show(ScreenSurface,
+              FONT_SERIF14,
+              "E",
+              popup->x + popup->surface->w - RM_BORDER_SIZE / 2 -
+                  text_get_width(FONT_SERIF14, "E", 0) / 2,
+              popup->y,
+              COLOR_HGOLD,
+              TEXT_OUTLINE | TEXT_VALIGN_CENTER,
+              &box);
+    text_show(ScreenSurface,
+              FONT_SERIF14,
+              "S",
+              popup->x,
+              popup->y + popup->surface->h - RM_BORDER_SIZE / 2 - FONT_HEIGHT(FONT_SERIF14) / 2,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_OUTLINE,
+              &box);
+    text_show(ScreenSurface,
+              FONT_SERIF14,
+              "W",
+              popup->x + RM_BORDER_SIZE / 2 - text_get_width(FONT_SERIF14, "W", 0) / 2,
+              popup->y,
+              COLOR_HGOLD,
+              TEXT_OUTLINE | TEXT_VALIGN_CENTER,
+              &box);
 
     box.w = RM_TITLE_WIDTH;
     box.h = RM_TITLE_HEIGHT;
-    text_show(ScreenSurface, FONT_SERIF14, MapData.region_longname, popup->x + RM_TITLE_STARTX, popup->y + RM_TITLE_STARTY, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+    text_show(ScreenSurface,
+              FONT_SERIF14,
+              MapData.region_longname,
+              popup->x + RM_TITLE_STARTX,
+              popup->y + RM_TITLE_STARTY,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+              &box);
 
     box.x = popup->x + RM_MAP_STARTX;
     box.y = popup->y + RM_MAP_STARTY;
@@ -187,8 +211,7 @@ static int popup_draw_post_func(popup_struct *popup)
                       box.x,
                       box.y,
                       COLOR_WHITE,
-                      TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER |
-                          TEXT_OUTLINE | TEXT_WORD_WRAP,
+                      TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE | TEXT_WORD_WRAP,
                       &box);
         } else if (MapData.region_map->source_png != NULL &&
                    MapData.region_map->source_def != NULL) {
@@ -198,13 +221,10 @@ static int popup_draw_post_func(popup_struct *popup)
                              box.x,
                              box.y,
                              COLOR_WHITE,
-                             TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER |
-                                 TEXT_OUTLINE,
+                             TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE,
                              &box,
                              "Downloading the map, please wait...\n%s",
-                             asset_source_speedinfo(
-                                 MapData.region_map->source_png,
-                                 VS(buf)));
+                             asset_source_speedinfo(MapData.region_map->source_png, VS(buf)));
         } else {
             text_show(ScreenSurface,
                       FONT_SERIF14,
@@ -248,10 +268,14 @@ static int popup_draw_post_func(popup_struct *popup)
         scrollbar_horizontal.max_lines = region_map->pos.w;
     }
 
-    scrollbar_show(&scrollbar, ScreenSurface,
-            popup->x + RM_SCROLLBAR_STARTX, popup->y + RM_SCROLLBAR_STARTY);
-    scrollbar_show(&scrollbar_horizontal, ScreenSurface,
-            popup->x + RM_SCROLLBARH_STARTX, popup->y + RM_SCROLLBARH_STARTY);
+    scrollbar_show(&scrollbar,
+                   ScreenSurface,
+                   popup->x + RM_SCROLLBAR_STARTX,
+                   popup->y + RM_SCROLLBAR_STARTY);
+    scrollbar_show(&scrollbar_horizontal,
+                   ScreenSurface,
+                   popup->x + RM_SCROLLBARH_STARTX,
+                   popup->y + RM_SCROLLBARH_STARTY);
 
     dest.x = box.x;
     dest.y = box.y;
@@ -265,31 +289,27 @@ static int popup_draw_post_func(popup_struct *popup)
 }
 
 /** @copydoc popup_button::event_func */
-static int popup_button_event_func(popup_button *button)
-{
+static int popup_button_event_func(popup_button *button) {
     help_show("region map");
     return 1;
 }
 
 /** @copydoc popup_struct::event_func */
-static int popup_event_func(popup_struct *popup, SDL_Event *event)
-{
+static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     if (region_map == NULL) {
         return -1;
     }
 
     /* Start dragging the map. */
-    if (event->type == SDL_MOUSEBUTTONDOWN &&
-            event->button.button == SDL_BUTTON_LEFT &&
-            RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
+    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT &&
+        RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
         region_map_dragging = 1;
     }
 
     /* Dragging the map? */
     if (region_map_dragging) {
         /* Stop dragging the map if the left mouse button has been released. */
-        if (event->type == SDL_MOUSEBUTTONUP &&
-                event->button.button == SDL_BUTTON_LEFT) {
+        if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT) {
             region_map_dragging = 0;
             return 1;
         }
@@ -326,39 +346,38 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                 return 1;
             }
         } else if (event->button.button == SDL_BUTTON_MIDDLE &&
-                setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
-                RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
+                   setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
+                   RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
             int xpos, ypos, map_x, map_y, map_w, map_h;
             double zoomfactor;
             size_t i;
             char buf[HUGE_BUF];
 
             /* Quickport. */
-            xpos = region_map->pos.x + event->motion.x - popup->x -
-                    RM_MAP_STARTX;
-            ypos = region_map->pos.y + event->motion.y - popup->y -
-                    RM_MAP_STARTY;
+            xpos = region_map->pos.x + event->motion.x - popup->x - RM_MAP_STARTX;
+            ypos = region_map->pos.y + event->motion.y - popup->y - RM_MAP_STARTY;
             zoomfactor = region_map->zoom / 100.0;
-            map_w = region_map->def->map_size_x * region_map->def->pixel_size *
-                    zoomfactor;
-            map_h = region_map->def->map_size_y * region_map->def->pixel_size *
-                    zoomfactor;
+            map_w = region_map->def->map_size_x * region_map->def->pixel_size * zoomfactor;
+            map_h = region_map->def->map_size_y * region_map->def->pixel_size * zoomfactor;
 
             for (i = 0; i < region_map->def->num_maps; i++) {
                 map_x = region_map->def->maps[i].xpos * zoomfactor;
                 map_y = region_map->def->maps[i].ypos * zoomfactor;
 
-                if (xpos < map_x || xpos > map_x + map_w ||
-                        ypos < map_y || ypos > map_y + map_h) {
+                if (xpos < map_x || xpos > map_x + map_w || ypos < map_y || ypos > map_y + map_h) {
                     continue;
                 }
 
                 xpos = (xpos - region_map->def->maps[i].xpos * zoomfactor) /
-                        (region_map->def->pixel_size * zoomfactor);
+                       (region_map->def->pixel_size * zoomfactor);
                 ypos = (ypos - region_map->def->maps[i].ypos * zoomfactor) /
-                        (region_map->def->pixel_size * zoomfactor);
-                snprintf(buf, sizeof(buf), "/tpto %s %d %d",
-                        region_map->def->maps[i].path, xpos, ypos);
+                       (region_map->def->pixel_size * zoomfactor);
+                snprintf(buf,
+                         sizeof(buf),
+                         "/tpto %s %d %d",
+                         region_map->def->maps[i].path,
+                         xpos,
+                         ypos);
                 send_command(buf);
 
                 popup_destroy(popup);
@@ -371,10 +390,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
             size_t i;
             double zoomfactor;
 
-            xpos = region_map->pos.x + event->motion.x - popup->x -
-                    RM_MAP_STARTX;
-            ypos = region_map->pos.y + event->motion.y - popup->y -
-                    RM_MAP_STARTY;
+            xpos = region_map->pos.x + event->motion.x - popup->x - RM_MAP_STARTX;
+            ypos = region_map->pos.y + event->motion.y - popup->y - RM_MAP_STARTY;
             zoomfactor = region_map->zoom / 100.0;
 
             for (i = 0; i < region_map->def->num_tooltips; i++) {
@@ -383,17 +400,19 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                 tooltip_w = region_map->def->tooltips[i].w * zoomfactor;
                 tooltip_h = region_map->def->tooltips[i].h * zoomfactor;
 
-                if (xpos < tooltip_x || xpos > tooltip_x + tooltip_w ||
-                        ypos < tooltip_y || ypos > tooltip_y + tooltip_h) {
+                if (xpos < tooltip_x || xpos > tooltip_x + tooltip_w || ypos < tooltip_y ||
+                    ypos > tooltip_y + tooltip_h) {
                     continue;
                 }
 
-                if (region_map_fow_is_visible(MapData.region_map, xpos /
-                        (double) region_map->def->pixel_size / zoomfactor,
-                        ypos / (double) region_map->def->pixel_size /
-                        zoomfactor)) {
-                    tooltip_create(event->motion.x, event->motion.y,
-                            FONT_ARIAL11, region_map->def->tooltips[i].text);
+                if (region_map_fow_is_visible(
+                        MapData.region_map,
+                        xpos / (double)region_map->def->pixel_size / zoomfactor,
+                        ypos / (double)region_map->def->pixel_size / zoomfactor)) {
+                    tooltip_create(event->motion.x,
+                                   event->motion.y,
+                                   FONT_ARIAL11,
+                                   region_map->def->tooltips[i].text);
                     tooltip_multiline(200);
                     tooltip_enable_delay(100);
                 }
@@ -441,8 +460,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
-static int popup_destroy_callback(popup_struct *popup)
-{
+static int popup_destroy_callback(popup_struct *popup) {
     if (region_map != NULL) {
         region_map_free(region_map);
         region_map = NULL;
@@ -454,8 +472,7 @@ static int popup_destroy_callback(popup_struct *popup)
 /**
  * Opens the region map popup.
  */
-void region_map_open(void)
-{
+void region_map_open(void) {
     popup_struct *popup;
 
     if (MapData.region_name[0] == '\0') {
@@ -482,12 +499,22 @@ void region_map_open(void)
     popup->button_right.y = RM_BUTTON_RIGHT_STARTY;
 
     scrollbar_info_create(&scrollbar_info);
-    scrollbar_create(&scrollbar, RM_SCROLLBAR_WIDTH, RM_SCROLLBAR_HEIGHT, &scrollbar_info.scroll_offset, &scrollbar_info.num_lines, 0);
+    scrollbar_create(&scrollbar,
+                     RM_SCROLLBAR_WIDTH,
+                     RM_SCROLLBAR_HEIGHT,
+                     &scrollbar_info.scroll_offset,
+                     &scrollbar_info.num_lines,
+                     0);
     scrollbar.redraw = &scrollbar_info.redraw;
     scrollbar.arrow_adjust = RM_SCROLL;
 
     scrollbar_info_create(&scrollbar_horizontal_info);
-    scrollbar_create(&scrollbar_horizontal, RM_SCROLLBARH_WIDTH, RM_SCROLLBARH_HEIGHT, &scrollbar_horizontal_info.scroll_offset, &scrollbar_horizontal_info.num_lines, 0);
+    scrollbar_create(&scrollbar_horizontal,
+                     RM_SCROLLBARH_WIDTH,
+                     RM_SCROLLBARH_HEIGHT,
+                     &scrollbar_horizontal_info.scroll_offset,
+                     &scrollbar_horizontal_info.num_lines,
+                     0);
     scrollbar_horizontal.redraw = &scrollbar_horizontal_info.redraw;
     scrollbar_horizontal.arrow_adjust = RM_SCROLL;
 }

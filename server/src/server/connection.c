@@ -41,8 +41,7 @@
  * @param connected
  * Connection ID of the object.
  */
-void connection_object_add(object *op, mapstruct *map, int connected)
-{
+void connection_object_add(object *op, mapstruct *map, int connected) {
     objectlink *ol2, *ol;
 
     if (!op || !map) {
@@ -88,8 +87,7 @@ void connection_object_add(object *op, mapstruct *map, int connected)
  * @param op
  * Object to remove. Must be on a map, and connected.
  */
-void connection_object_remove(object *op)
-{
+void connection_object_remove(object *op) {
     objectlink *ol, **ol2, *tmp;
 
     if (!op->map) {
@@ -121,9 +119,7 @@ void connection_object_remove(object *op)
  * @return
  * Connection ID, or 0 if not connected.
  */
-int
-connection_object_get_value (const object *op)
-{
+int connection_object_get_value(const object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->map == NULL || !QUERY_FLAG(op, FLAG_IS_LINKED)) {
@@ -142,8 +138,7 @@ connection_object_get_value (const object *op)
  * @return
  * ::objectlink for this object, or NULL.
  */
-static objectlink *connection_object_links(object *op, mapstruct *map)
-{
+static objectlink *connection_object_links(object *op, mapstruct *map) {
     objectlink *ol, *ol2;
 
     HARD_ASSERT(op != NULL);
@@ -152,7 +147,7 @@ static objectlink *connection_object_links(object *op, mapstruct *map)
     for (ol = map->buttons; ol != NULL; ol = ol->next) {
         for (ol2 = ol->objlink.link; ol2 != NULL; ol2 = ol2->next) {
             if (OBJECT_VALID(ol2->objlink.ob, ol2->id) &&
-                    ol2->objlink.ob->path_attuned == op->path_attuned) {
+                ol2->objlink.ob->path_attuned == op->path_attuned) {
                 return ol->objlink.link;
             }
         }
@@ -174,8 +169,7 @@ static objectlink *connection_object_links(object *op, mapstruct *map)
  * If @p button is true, returns new state of the button, otherwise 0
  * is returned.
  */
-static int64_t connection_trigger_do(object *op, int state, bool button)
-{
+static int64_t connection_trigger_do(object *op, int state, bool button) {
     if (op->map == NULL) {
         return 0;
     }
@@ -183,8 +177,7 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
     int64_t down = 0;
 
     for (int i = -1; i < TILED_NUM; i++) {
-        if (i != -1 && (op->map->tile_path[i] == NULL ||
-                !(op->path_repelled & (1 << i)))) {
+        if (i != -1 && (op->map->tile_path[i] == NULL || !(op->path_repelled & (1 << i)))) {
             continue;
         }
 
@@ -203,8 +196,7 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
             }
         }
 
-        for (objectlink *ol = connection_object_links(op, map); ol != NULL;
-                ol = ol->next) {
+        for (objectlink *ol = connection_object_links(op, map); ol != NULL; ol = ol->next) {
             object *tmp = ol->objlink.ob;
 
             if (button) {
@@ -228,15 +220,7 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
                 }
 
                 if (HAS_EVENT(tmp, EVENT_TRIGGER) &&
-                    trigger_event(EVENT_TRIGGER,
-                                  tmp,
-                                  op,
-                                  NULL,
-                                  NULL,
-                                  0,
-                                  0,
-                                  0,
-                                  0) != 0) {
+                    trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, 0) != 0) {
                     continue;
                 }
 
@@ -255,8 +239,7 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
  * @param state
  * The trigger state.
  */
-void connection_trigger(object *op, int state)
-{
+void connection_trigger(object *op, int state) {
     HARD_ASSERT(op != NULL);
 
     connection_trigger_do(op, state, false);
@@ -269,8 +252,7 @@ void connection_trigger(object *op, int state)
  * @param state
  * The trigger state.
  */
-void connection_trigger_button(object *op, int state)
-{
+void connection_trigger_button(object *op, int state) {
     int64_t old_state, down;
 
     HARD_ASSERT(op != NULL);

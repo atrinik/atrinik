@@ -31,8 +31,7 @@
 #include <object.h>
 #include <toolkit/path.h>
 
-START_TEST(test_object_can_merge)
-{
+START_TEST(test_object_can_merge) {
     object *ob1, *ob2;
 
     ob1 = arch_get("bolt");
@@ -54,8 +53,7 @@ START_TEST(test_object_can_merge)
 }
 END_TEST
 
-START_TEST(test_object_weight_sum)
-{
+START_TEST(test_object_weight_sum) {
     object *ob1, *ob2, *ob3, *ob4;
     unsigned long sum;
 
@@ -80,8 +78,7 @@ START_TEST(test_object_weight_sum)
 }
 END_TEST
 
-START_TEST(test_object_weight_add)
-{
+START_TEST(test_object_weight_add) {
     object *ob1, *ob2, *ob3, *ob4;
     unsigned long sum;
 
@@ -109,8 +106,7 @@ START_TEST(test_object_weight_add)
 }
 END_TEST
 
-START_TEST(test_object_weight_sub)
-{
+START_TEST(test_object_weight_sub) {
     object *ob1, *ob2, *ob3, *ob4;
     unsigned long sum;
 
@@ -138,8 +134,7 @@ START_TEST(test_object_weight_sub)
 }
 END_TEST
 
-START_TEST(test_object_get_env)
-{
+START_TEST(test_object_get_env) {
     object *ob1, *ob2, *ob3, *ob4, *result;
 
     ob1 = arch_get("sack");
@@ -155,8 +150,7 @@ START_TEST(test_object_get_env)
 }
 END_TEST
 
-START_TEST(test_object_is_in_inventory)
-{
+START_TEST(test_object_is_in_inventory) {
     object *ob1, *ob2, *ob3, *ob4;
 
     ob1 = arch_get("sack");
@@ -187,8 +181,7 @@ START_TEST(test_object_is_in_inventory)
 }
 END_TEST
 
-START_TEST(test_object_dump)
-{
+START_TEST(test_object_dump) {
     object *ob1, *ob2, *ob3;
     StringBuffer *sb;
     char *result;
@@ -207,8 +200,7 @@ START_TEST(test_object_dump)
 }
 END_TEST
 
-START_TEST(test_object_insert_map)
-{
+START_TEST(test_object_insert_map) {
     mapstruct *map;
     object *first, *second, *third, *floor_ob, *got;
 
@@ -263,8 +255,7 @@ START_TEST(test_object_insert_map)
 }
 END_TEST
 
-START_TEST(test_object_decrease)
-{
+START_TEST(test_object_decrease) {
     object *first, *second;
 
     first = arch_get("bolt");
@@ -294,8 +285,7 @@ START_TEST(test_object_decrease)
 }
 END_TEST
 
-START_TEST(test_object_insert_into)
-{
+START_TEST(test_object_insert_into) {
     object *container, *item;
 
     item = arch_get("bolt");
@@ -320,8 +310,7 @@ START_TEST(test_object_insert_into)
 }
 END_TEST
 
-START_TEST(test_object_can_pick)
-{
+START_TEST(test_object_can_pick) {
     mapstruct *map;
     object *pl, *ob;
 
@@ -351,8 +340,7 @@ START_TEST(test_object_can_pick)
 }
 END_TEST
 
-START_TEST(test_object_clone)
-{
+START_TEST(test_object_clone) {
     object *ob, *clone_ob;
 
     ob = arch_get("raas");
@@ -367,8 +355,7 @@ START_TEST(test_object_clone)
 }
 END_TEST
 
-START_TEST(test_object_load_str)
-{
+START_TEST(test_object_load_str) {
     object *ob;
 
     ob = object_load_str("arch sack\nend\n");
@@ -396,8 +383,7 @@ START_TEST(test_object_load_str)
 }
 END_TEST
 
-START_TEST(test_object_reverse_inventory)
-{
+START_TEST(test_object_reverse_inventory) {
     char *cp, *cp2;
     object *ob;
     StringBuffer *sb;
@@ -419,8 +405,7 @@ START_TEST(test_object_reverse_inventory)
 }
 END_TEST
 
-START_TEST(test_object_create_singularity)
-{
+START_TEST(test_object_create_singularity) {
     object *obj;
 
     obj = object_create_singularity("JO3584jke");
@@ -437,8 +422,7 @@ START_TEST(test_object_create_singularity)
 }
 END_TEST
 
-START_TEST(test_OBJECT_DESTROYED)
-{
+START_TEST(test_OBJECT_DESTROYED) {
     object *ob, *ob2;
     tag_t ob_tag, ob2_tag;
     mapstruct *m;
@@ -462,8 +446,7 @@ START_TEST(test_OBJECT_DESTROYED)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("object");
     TCase *tc_core = tcase_create("Core");
 
@@ -491,7 +474,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_object(void)
-{
+void check_server_object(void) {
     check_run_suite(suite(), __FILE__);
 }

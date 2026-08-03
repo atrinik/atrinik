@@ -1,7 +1,7 @@
 #ifdef WIN32
-#   include <winsock2.h>
+#include <winsock2.h>
 #else
-#   include <sys/socket.h>
+#include <sys/socket.h>
 #endif
 
 int main(void) {

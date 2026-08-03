@@ -32,11 +32,8 @@
 
 /* Prototypes */
 
-int16_t
-arrow_get_wc(object *op, object *bow, object *arrow);
-int16_t
-arrow_get_damage(object *op, object *bow, object *arrow);
-object *
-arrow_find(object *op, shstr *type);
+int16_t arrow_get_wc(object *op, object *bow, object *arrow);
+int16_t arrow_get_damage(object *op, object *bow, object *arrow);
+object *arrow_find(object *op, shstr *type);
 
 #endif

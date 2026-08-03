@@ -37,8 +37,7 @@
  * @return
  * Pointer to god's object, NULL if doesn't match any god.
  */
-object *find_god(const char *name)
-{
+object *find_god(const char *name) {
     archetype_t *at;
 
     at = arch_find(name);
@@ -59,8 +58,7 @@ object *find_god(const char *name)
  * @return
  * God name, "none" if nothing suitable.
  */
-const char *determine_god(object *op)
-{
+const char *determine_god(object *op) {
     /* spells */
     if ((op->type == CONE || op->type == SWARM_SPELL) && op->title) {
         if (find_god(op->title)) {

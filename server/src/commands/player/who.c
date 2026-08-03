@@ -35,8 +35,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_who(object *op, const char *command, char *params)
-{
+void command_who(object *op, const char *command, char *params) {
     player *pl;
     int ip = 0;
     char buf[MAX_BUF];
@@ -47,7 +46,13 @@ void command_who(object *op, const char *command, char *params)
     for (pl = first_player; pl; pl = pl->next) {
         ip++;
 
-        snprintf(buf, sizeof(buf), "%s the %s %s (lvl %d)", pl->ob->name, gender_noun[object_get_gender(pl->ob)], pl->ob->race, pl->ob->level);
+        snprintf(buf,
+                 sizeof(buf),
+                 "%s the %s %s (lvl %d)",
+                 pl->ob->name,
+                 gender_noun[object_get_gender(pl->ob)],
+                 pl->ob->race,
+                 pl->ob->level);
 
         if (pl->afk) {
             strncat(buf, " [AFK]", sizeof(buf) - strlen(buf) - 1);
@@ -61,13 +66,17 @@ void command_who(object *op, const char *command, char *params)
             snprintfcat(buf,
                         sizeof(buf),
                         " (route: %s; connection: %s)",
-                        socket_connection_mode_name(
-                            pl->cs->connection_mode),
+                        socket_connection_mode_name(pl->cs->connection_mode),
                         socket_get_id(pl->cs->sc));
         }
 
         draw_info(COLOR_WHITE, op, buf);
     }
 
-    draw_info_format(COLOR_WHITE, op, "There %s %d player%s online.", ip > 1 ? "are" : "is", ip, ip > 1 ? "s" : "");
+    draw_info_format(COLOR_WHITE,
+                     op,
+                     "There %s %d player%s online.",
+                     ip > 1 ? "are" : "is",
+                     ip,
+                     ip > 1 ? "s" : "");
 }

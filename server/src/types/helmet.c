@@ -35,7 +35,6 @@
 /**
  * Initialize the helmet type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(helmet)
-{
+OBJECT_TYPE_INIT_DEFINE(helmet) {
     OBJECT_METHODS(HELMET)->apply_func = object_apply_item;
 }

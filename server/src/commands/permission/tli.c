@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_tli(object *op, const char *command, char *params)
-{
+void command_tli(object *op, const char *command, char *params) {
     CONTR(op)->tli = !CONTR(op)->tli;
     draw_info_format(COLOR_WHITE, op, "Toggled lighting %s.", CONTR(op)->tli ? "off" : "on");
 }

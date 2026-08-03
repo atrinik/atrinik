@@ -46,8 +46,7 @@
  * @param RP
  * Random map parameters.
  */
-void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMParms *RP)
-{
+void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMParms *RP) {
     int M, x, y;
 
     *fx = -1;
@@ -64,73 +63,69 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
      *    we can do something different for symmetrical maps instead of
      *    the same damned thing every time. */
     switch (M) {
-        /* Search from top left down/right */
-    case 1:
-    {
-        for (x = 1; x < RP->Xsize; x++) {
-            for (y = 1; y < RP->Ysize; y++) {
-                if (layout[x][y] == target) {
-                    *fx = x;
-                    *fy = y;
+            /* Search from top left down/right */
+        case 1: {
+            for (x = 1; x < RP->Xsize; x++) {
+                for (y = 1; y < RP->Ysize; y++) {
+                    if (layout[x][y] == target) {
+                        *fx = x;
+                        *fy = y;
 
-                    return;
+                        return;
+                    }
                 }
             }
+
+            break;
         }
 
-        break;
-    }
+            /* Search from top right down/left */
+        case 2: {
+            for (x = RP->Xsize - 2; x > 0; x--) {
+                for (y = 1; y < RP->Ysize - 1; y++) {
+                    if (layout[x][y] == target) {
+                        *fx = x;
+                        *fy = y;
 
-        /* Search from top right down/left */
-    case 2:
-    {
-        for (x = RP->Xsize - 2; x > 0; x--) {
-            for (y = 1; y < RP->Ysize - 1; y++) {
-                if (layout[x][y] == target) {
-                    *fx = x;
-                    *fy = y;
-
-                    return;
+                        return;
+                    }
                 }
             }
+
+            break;
         }
 
-        break;
-    }
+            /* Search from bottom-left up-right */
+        case 3: {
+            for (x = 1; x < RP->Xsize - 1; x++) {
+                for (y = RP->Ysize - 2; y > 0; y--) {
+                    if (layout[x][y] == target) {
+                        *fx = x;
+                        *fy = y;
 
-        /* Search from bottom-left up-right */
-    case 3:
-    {
-        for (x = 1; x < RP->Xsize - 1; x++) {
-            for (y = RP->Ysize - 2; y > 0; y--) {
-                if (layout[x][y] == target) {
-                    *fx = x;
-                    *fy = y;
-
-                    return;
+                        return;
+                    }
                 }
             }
+
+            break;
         }
 
-        break;
-    }
+            /* Search from bottom-right up-left */
+        case 4: {
+            for (x = RP->Xsize - 2; x > 0; x--) {
+                for (y = RP->Ysize - 2; y > 0; y--) {
+                    if (layout[x][y] == target) {
+                        *fx = x;
+                        *fy = y;
 
-        /* Search from bottom-right up-left */
-    case 4:
-    {
-        for (x = RP->Xsize - 2; x > 0; x--) {
-            for (y = RP->Ysize - 2; y > 0; y--) {
-                if (layout[x][y] == target) {
-                    *fx = x;
-                    *fy = y;
-
-                    return;
+                        return;
+                    }
                 }
             }
-        }
 
-        break;
-    }
+            break;
+        }
     }
 }
 
@@ -152,8 +147,7 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
  * @note unblock_exits() should be called at some point, as exits will be
  * blocking everything to avoid putting other objects on them.
  */
-void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, RMParms *RP)
-{
+void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, RMParms *RP) {
     mapstruct *style_map_down = NULL, *style_map_up = NULL;
     object *the_exit_down;
     object *the_exit_up;
@@ -168,23 +162,23 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     }
 
     switch (orientation) {
-    case 1:
-        style_map_up = find_style("/styles/exitstyles/up", exitstyle, -1);
-        style_map_down = find_style("/styles/exitstyles/down", exitstyle, -1);
+        case 1:
+            style_map_up = find_style("/styles/exitstyles/up", exitstyle, -1);
+            style_map_down = find_style("/styles/exitstyles/down", exitstyle, -1);
 
-        break;
+            break;
 
-    case 2:
-        style_map_up = find_style("/styles/exitstyles/down", exitstyle, -1);
-        style_map_down = find_style("/styles/exitstyles/up", exitstyle, -1);
+        case 2:
+            style_map_up = find_style("/styles/exitstyles/down", exitstyle, -1);
+            style_map_down = find_style("/styles/exitstyles/up", exitstyle, -1);
 
-        break;
+            break;
 
-    default:
-        style_map_up = find_style("/styles/exitstyles/generic", exitstyle, -1);
-        style_map_down = style_map_up;
+        default:
+            style_map_up = find_style("/styles/exitstyles/generic", exitstyle, -1);
+            style_map_down = style_map_up;
 
-        break;
+            break;
     }
 
     if (style_map_up == NULL) {
@@ -319,8 +313,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     }
 
     if (the_exit_down != NULL) {
-        int i = map_free_spot_first(map, downx,
-                downy, the_exit_down->arch, NULL);
+        int i = map_free_spot_first(map, downx, downy, the_exit_down->arch, NULL);
         if (i == -1) {
             LOG(ERROR, "Could not find a free spot for exit going down.");
             the_exit_down = NULL;
@@ -349,7 +342,8 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
             the_exit_down->stats.hp = MAP_ENTER_X(new_map);
             the_exit_down->stats.sp = MAP_ENTER_Y(new_map);
 
-            for (tmp = GET_MAP_OB(new_map, MAP_ENTER_X(new_map), MAP_ENTER_Y(new_map)); tmp; tmp = tmp->above) {
+            for (tmp = GET_MAP_OB(new_map, MAP_ENTER_X(new_map), MAP_ENTER_Y(new_map)); tmp;
+                 tmp = tmp->above) {
                 /* Remove exit back to previous random map.  There should only
                  * be one
                  * which is why we break out.  To try to process more than one
@@ -403,8 +397,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
  * @param RP
  * Random map parameters.
  */
-void unblock_exits(mapstruct *map, char **maze, RMParms *RP)
-{
+void unblock_exits(mapstruct *map, char **maze, RMParms *RP) {
     int x, y;
     object *walk;
 

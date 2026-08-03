@@ -37,12 +37,10 @@
 #define PLUGINDIR "./"
 #endif
 
-
 /** Where bans are stored. */
 #ifndef BANFILE
 #define BANFILE "bans"
 #endif
-
 
 #define BALSL_LOSS_CHANCE_RATIO 4
 #define BALSL_NUMBER_LOSSES_RATIO 6
@@ -152,8 +150,8 @@
  * If you are running the game set-gid (to a games-group, for instance),
  * you must remember to make it writeable for the group (ie 0660).
  */
-#define SAVE_MODE      0600
-#define SAVE_MODE_DIR  0700
+#define SAVE_MODE 0600
+#define SAVE_MODE_DIR 0700
 
 /**
  * How often (in seconds) the player is saved if he drops things. If it is

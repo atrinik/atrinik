@@ -47,14 +47,12 @@ static char *_binreloc_find_exe(void);
 
 TOOLKIT_API(DEPENDS(path));
 
-TOOLKIT_INIT_FUNC(binreloc)
-{
+TOOLKIT_INIT_FUNC(binreloc) {
     exe = _binreloc_find_exe();
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(binreloc)
-{
+TOOLKIT_DEINIT_FUNC(binreloc) {
     if (exe != NULL) {
         efree(exe);
         exe = NULL;
@@ -68,9 +66,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * The filename (which must be freed) or NULL on error.
  */
-static char
-*_binreloc_find_exe (void)
-{
+static char *_binreloc_find_exe(void) {
 #ifndef ENABLE_BINRELOC
     TOOLKIT_PROTECT();
     return NULL;
@@ -182,9 +178,7 @@ static char
 #endif
 }
 
-char *
-binreloc_find_exe (const char *default_exe)
-{
+char *binreloc_find_exe(const char *default_exe) {
     TOOLKIT_PROTECT();
 
     if (exe) {
@@ -198,9 +192,7 @@ binreloc_find_exe (const char *default_exe)
     return NULL;
 }
 
-char *
-binreloc_find_exe_dir (const char *default_dir)
-{
+char *binreloc_find_exe_dir(const char *default_dir) {
     TOOLKIT_PROTECT();
 
     if (exe) {
@@ -214,9 +206,7 @@ binreloc_find_exe_dir (const char *default_dir)
     return NULL;
 }
 
-char *
-binreloc_find_prefix (const char *default_prefix)
-{
+char *binreloc_find_prefix(const char *default_prefix) {
     TOOLKIT_PROTECT();
 
     if (exe) {
@@ -235,9 +225,7 @@ binreloc_find_prefix (const char *default_prefix)
     return NULL;
 }
 
-char *
-binreloc_find_bin_dir (const char *default_bin_dir)
-{
+char *binreloc_find_bin_dir(const char *default_bin_dir) {
     char *prefix, *dir;
 
     TOOLKIT_PROTECT();
@@ -257,9 +245,7 @@ binreloc_find_bin_dir (const char *default_bin_dir)
     return dir;
 }
 
-char *
-binreloc_find_sbin_dir (const char *default_sbin_dir)
-{
+char *binreloc_find_sbin_dir(const char *default_sbin_dir) {
     char *prefix, *dir;
 
     TOOLKIT_PROTECT();
@@ -279,9 +265,7 @@ binreloc_find_sbin_dir (const char *default_sbin_dir)
     return dir;
 }
 
-char *
-binreloc_find_data_dir (const char *default_data_dir)
-{
+char *binreloc_find_data_dir(const char *default_data_dir) {
     char *prefix, *dir;
 
     TOOLKIT_PROTECT();
@@ -301,9 +285,7 @@ binreloc_find_data_dir (const char *default_data_dir)
     return dir;
 }
 
-char *
-binreloc_find_locale_dir (const char *default_locale_dir)
-{
+char *binreloc_find_locale_dir(const char *default_locale_dir) {
     char *data_dir, *dir;
 
     TOOLKIT_PROTECT();
@@ -323,9 +305,7 @@ binreloc_find_locale_dir (const char *default_locale_dir)
     return dir;
 }
 
-char *
-binreloc_find_lib_dir (const char *default_lib_dir)
-{
+char *binreloc_find_lib_dir(const char *default_lib_dir) {
     char *prefix, *dir;
 
     TOOLKIT_PROTECT();
@@ -345,9 +325,7 @@ binreloc_find_lib_dir (const char *default_lib_dir)
     return dir;
 }
 
-char *
-binreloc_find_libexec_dir (const char *default_libexec_dir)
-{
+char *binreloc_find_libexec_dir(const char *default_libexec_dir) {
     char *prefix, *dir;
 
     TOOLKIT_PROTECT();
@@ -367,9 +345,7 @@ binreloc_find_libexec_dir (const char *default_libexec_dir)
     return dir;
 }
 
-char *
-binreloc_find_etc_dir (const char *default_etc_dir)
-{
+char *binreloc_find_etc_dir(const char *default_etc_dir) {
     char *prefix, *dir;
 
     TOOLKIT_PROTECT();

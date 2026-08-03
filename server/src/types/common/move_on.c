@@ -34,8 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::move_on_func */
-int common_object_move_on(object *op, object *victim, object *originator, int state)
-{
+int common_object_move_on(object *op, object *victim, object *originator, int state) {
     if (OBJECT_IS_PROJECTILE(op)) {
         return common_object_projectile_move_on(op, victim, originator, state);
     }

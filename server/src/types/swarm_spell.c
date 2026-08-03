@@ -34,21 +34,15 @@
 /**
  * Cardinal direction adjustments for swarm spells.
  */
-static const int cardinal_adjust[9] = {
-    -3, -2, -1, 0, 0, 0, 1, 2, 3
-};
+static const int cardinal_adjust[9] = {-3, -2, -1, 0, 0, 0, 1, 2, 3};
 
 /**
  * Diagonal direction adjustments for swarm spells.
  */
-static const int diagonal_adjust[10] = {
-    -3, -2, -2, -1, 0, 0, 1, 2, 2, 3
-};
+static const int diagonal_adjust[10] = {-3, -2, -2, -1, 0, 0, 1, 2, 2, 3};
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->stats.hp == 0 || object_owner(op) == NULL) {
@@ -100,20 +94,12 @@ process_func (object *op)
     }
 
     /* Bombs away! */
-    fire_arch_from_position(op,
-                            caster,
-                            x,
-                            y,
-                            basedir,
-                            op->other_arch,
-                            op->stats.sp,
-                            NULL);
+    fire_arch_from_position(op, caster, x, y, basedir, op->other_arch, op->stats.sp, NULL);
 }
 
 /**
  * Initialize the swarm spell type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(swarm_spell)
-{
+OBJECT_TYPE_INIT_DEFINE(swarm_spell) {
     OBJECT_METHODS(SWARM_SPELL)->process_func = process_func;
 }

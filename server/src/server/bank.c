@@ -81,8 +81,7 @@ typedef struct bank_info {
  * @param info
  * Bank info structure.
  */
-static void bank_parse_string(const char *str, bank_info_t *info)
-{
+static void bank_parse_string(const char *str, bank_info_t *info) {
     memset(info, 0, sizeof(*info));
 
     while (isspace(*str)) {
@@ -142,17 +141,17 @@ static void bank_parse_string(const char *str, bank_info_t *info)
  * @return
  * Number of coins in the object's inventory.
  */
-static uint32_t bank_get_coins_num(object *op, archetype_t *at)
-{
+static uint32_t bank_get_coins_num(object *op, archetype_t *at) {
     uint32_t num = 0;
     FOR_INV_PREPARE(op, tmp) {
         if (tmp->type == MONEY && tmp->arch == at) {
             num += tmp->nrof;
-        } else if (tmp->type == CONTAINER && (tmp->race == NULL ||
-                strstr(tmp->race, "gold") != NULL)) {
+        } else if (tmp->type == CONTAINER &&
+                   (tmp->race == NULL || strstr(tmp->race, "gold") != NULL)) {
             num += bank_get_coins_num(tmp, at);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return num;
 }
@@ -168,8 +167,7 @@ static uint32_t bank_get_coins_num(object *op, archetype_t *at)
  * @return
  * Removed amount.
  */
-static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof)
-{
+static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof) {
     int64_t amount = 0;
 
     FOR_INV_PREPARE(op, tmp) {
@@ -191,11 +189,12 @@ static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof)
                 amount += nrof * tmp->value;
                 nrof = 0;
             }
-        } else if (tmp->type == CONTAINER && (tmp->race == NULL ||
-                strstr(tmp->race, "gold") != NULL)) {
+        } else if (tmp->type == CONTAINER &&
+                   (tmp->race == NULL || strstr(tmp->race, "gold") != NULL)) {
             amount += bank_remove_coins(tmp, at, nrof);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return amount;
 }
@@ -209,8 +208,7 @@ static int64_t bank_remove_coins(object *op, archetype_t *at, uint32_t nrof)
  * @param nrof
  * Number of coins.
  */
-static void bank_insert_coins(object *op, archetype_t *at, uint32_t nrof)
-{
+static void bank_insert_coins(object *op, archetype_t *at, uint32_t nrof) {
     object *tmp = object_get();
     object_copy(tmp, &at->clone, false);
     tmp->nrof = nrof;
@@ -224,14 +222,13 @@ static void bank_insert_coins(object *op, archetype_t *at, uint32_t nrof)
  * @return
  * The player info object if found, NULL otherwise.
  */
-object *bank_find_info(object *op)
-{
+object *bank_find_info(object *op) {
     FOR_INV_PREPARE(op, tmp) {
-        if (tmp->arch->name == shstr_cons.player_info &&
-                tmp->name == shstr_cons.BANK_GENERAL) {
+        if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
             return tmp;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
@@ -243,8 +240,7 @@ object *bank_find_info(object *op)
  * @return
  * The created player info object.
  */
-static object *bank_create_info(object *op)
-{
+static object *bank_create_info(object *op) {
     object *bank = arch_get(shstr_cons.player_info);
 
     FREE_AND_COPY_HASH(bank->name, shstr_cons.BANK_GENERAL);
@@ -259,8 +255,7 @@ static object *bank_create_info(object *op)
  * @return
  * The bank player info object. Never NULL.
  */
-static object *bank_get_info(object *op)
-{
+static object *bank_get_info(object *op) {
     object *bank = bank_find_info(op);
     if (bank == NULL) {
         bank = bank_create_info(op);
@@ -275,8 +270,7 @@ static object *bank_get_info(object *op)
  * @return
  * The money stored.
  */
-int64_t bank_get_balance(object *op)
-{
+int64_t bank_get_balance(object *op) {
     HARD_ASSERT(op != NULL);
 
     object *bank = bank_find_info(op);
@@ -297,8 +291,7 @@ int64_t bank_get_balance(object *op)
  * @return
  * One of @ref BANK_xxx.
  */
-int bank_deposit(object *op, const char *text, int64_t *value)
-{
+int bank_deposit(object *op, const char *text, int64_t *value) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(text != NULL);
     HARD_ASSERT(value != NULL);
@@ -374,12 +367,10 @@ int bank_deposit(object *op, const char *text, int64_t *value)
             bank_remove_coins(op, coins_arch[5], info.copper);
         }
 
-        *value = info.amber * coins_arch[0]->clone.value +
-                info.mithril * coins_arch[1]->clone.value +
-                info.jade * coins_arch[2]->clone.value +
-                info.gold * coins_arch[3]->clone.value +
-                info.silver * coins_arch[4]->clone.value +
-                info.copper * coins_arch[5]->clone.value;
+        *value =
+            info.amber * coins_arch[0]->clone.value + info.mithril * coins_arch[1]->clone.value +
+            info.jade * coins_arch[2]->clone.value + info.gold * coins_arch[3]->clone.value +
+            info.silver * coins_arch[4]->clone.value + info.copper * coins_arch[5]->clone.value;
         object *bank = bank_get_info(op);
         bank->value += *value;
     }
@@ -399,8 +390,7 @@ int bank_deposit(object *op, const char *text, int64_t *value)
  * @return
  * One of @ref BANK_xxx.
  */
-int bank_withdraw(object *op, const char *text, int64_t *value)
-{
+int bank_withdraw(object *op, const char *text, int64_t *value) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(text != NULL);
     HARD_ASSERT(value != NULL);
@@ -422,29 +412,27 @@ int bank_withdraw(object *op, const char *text, int64_t *value)
         bank->value = 0;
         shop_insert_coins(op, *value);
     } else {
-        if (info.amber > 100000 || info.mithril > 100000 ||
-                info.jade > 100000 || info.gold > 100000 ||
-                info.silver > 1000000 || info.copper > 1000000) {
+        if (info.amber > 100000 || info.mithril > 100000 || info.jade > 100000 ||
+            info.gold > 100000 || info.silver > 1000000 || info.copper > 1000000) {
             return BANK_WITHDRAW_HIGH;
         }
 
-        int64_t big_value = info.amber * coins_arch[0]->clone.value +
-                info.mithril * coins_arch[1]->clone.value +
-                info.jade * coins_arch[2]->clone.value +
-                info.gold * coins_arch[3]->clone.value +
-                info.silver * coins_arch[4]->clone.value +
-                info.copper * coins_arch[5]->clone.value;
+        int64_t big_value =
+            info.amber * coins_arch[0]->clone.value + info.mithril * coins_arch[1]->clone.value +
+            info.jade * coins_arch[2]->clone.value + info.gold * coins_arch[3]->clone.value +
+            info.silver * coins_arch[4]->clone.value + info.copper * coins_arch[5]->clone.value;
 
         if (big_value > bank->value) {
             return BANK_WITHDRAW_MISSING;
         }
 
-        if (!player_can_carry(op, info.amber * coins_arch[0]->clone.weight +
-                info.mithril * coins_arch[1]->clone.weight +
-                info.jade * coins_arch[2]->clone.weight +
-                info.gold * coins_arch[3]->clone.weight +
-                info.silver * coins_arch[4]->clone.weight +
-                info.copper * coins_arch[5]->clone.weight)) {
+        if (!player_can_carry(op,
+                              info.amber * coins_arch[0]->clone.weight +
+                                  info.mithril * coins_arch[1]->clone.weight +
+                                  info.jade * coins_arch[2]->clone.weight +
+                                  info.gold * coins_arch[3]->clone.weight +
+                                  info.silver * coins_arch[4]->clone.weight +
+                                  info.copper * coins_arch[5]->clone.weight)) {
             return BANK_WITHDRAW_OVERWEIGHT;
         }
 

@@ -33,8 +33,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_tphere(object *op, const char *command, char *params)
-{
+void command_tphere(object *op, const char *command, char *params) {
     char newparams[HUGE_BUF];
 
     if (!params) {

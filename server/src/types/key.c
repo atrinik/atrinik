@@ -44,15 +44,12 @@
  * @return
  * The key pointer if found, NULL otherwise.
  */
-object *
-key_match (object *op, const object *locked)
-{
+object *key_match(object *op, const object *locked) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(locked != NULL);
 
     FOR_INV_PREPARE(op, tmp) {
-        if ((tmp->type == KEY || tmp->type == FORCE) &&
-            tmp->slaying == locked->slaying) {
+        if ((tmp->type == KEY || tmp->type == FORCE) && tmp->slaying == locked->slaying) {
             return tmp;
         }
 
@@ -62,7 +59,8 @@ key_match (object *op, const object *locked)
                 return key;
             }
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
@@ -70,6 +68,4 @@ key_match (object *op, const object *locked)
 /**
  * Initialize the key type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(key)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(key) {}

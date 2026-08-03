@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -56,9 +54,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -75,8 +71,7 @@ trigger_func (object *op, object *cause, int state)
 /**
  * Initialize the director type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(director)
-{
+OBJECT_TYPE_INIT_DEFINE(director) {
     OBJECT_METHODS(DIRECTOR)->move_on_func = move_on_func;
     OBJECT_METHODS(DIRECTOR)->trigger_func = trigger_func;
 }

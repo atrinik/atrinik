@@ -96,10 +96,9 @@ enum skillnrs {
  * @return
  * Whether the skill number is a melee weapons skill.
  */
-#define SKILL_IS_MELEE(nr)                                      \
-    ((nr) == SK_SLASH_WEAPONS || (nr) == SK_CLEAVE_WEAPONS ||   \
-     (nr) == SK_PIERCE_WEAPONS || (nr) == SK_IMPACT_WEAPONS ||  \
-     (nr) == SK_UNARMED || (nr) == SK_KARATE)
+#define SKILL_IS_MELEE(nr)                                                                 \
+    ((nr) == SK_SLASH_WEAPONS || (nr) == SK_CLEAVE_WEAPONS || (nr) == SK_PIERCE_WEAPONS || \
+     (nr) == SK_IMPACT_WEAPONS || (nr) == SK_UNARMED || (nr) == SK_KARATE)
 
 /**
  * Checks if the specified skill is an archery skill.
@@ -109,8 +108,7 @@ enum skillnrs {
  * @return
  * Whether the skill number is an archery skill.
  */
-#define SKILL_IS_ARCHERY(nr) \
-    ((nr) >= SK_BOW_ARCHERY && (nr) <= SK_SLING_ARCHERY)
+#define SKILL_IS_ARCHERY(nr) ((nr) >= SK_BOW_ARCHERY && (nr) <= SK_SLING_ARCHERY)
 
 struct archetype;
 

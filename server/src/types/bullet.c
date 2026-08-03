@@ -33,9 +33,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     /* Custom handling for the magic missile spell bullets, so that they
@@ -43,8 +41,7 @@ process_func (object *op)
     if (op->stats.sp == SP_MAGIC_MISSILE) {
         rv_vector rv;
 
-        if (!OBJECT_VALID(op->enemy, op->enemy_count) ||
-            !get_rangevector(op, op->enemy, &rv, 0)) {
+        if (!OBJECT_VALID(op->enemy, op->enemy_count) || !get_rangevector(op, op->enemy, &rv, 0)) {
             object_remove(op, 0);
             object_destroy(op);
             return;
@@ -58,9 +55,7 @@ process_func (object *op)
 }
 
 /** @copydoc object_methods_t::projectile_hit_func */
-static int
-projectile_hit_func (object *op, object *victim)
-{
+static int projectile_hit_func(object *op, object *victim) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -68,9 +63,7 @@ projectile_hit_func (object *op, object *victim)
     if (op->stats.sp == SP_PROBE && IS_LIVE(victim)) {
         object *owner = object_owner(op);
         if (owner != NULL) {
-            draw_info_format(COLOR_WHITE, owner,
-                             "Your probe analyzes %s.",
-                             victim->name);
+            draw_info_format(COLOR_WHITE, owner, "Your probe analyzes %s.", victim->name);
             examine(owner, victim, NULL);
         }
 
@@ -83,16 +76,10 @@ projectile_hit_func (object *op, object *victim)
 /**
  * Initialize the bullet type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(bullet)
-{
-    OBJECT_METHODS(BULLET)->process_func =
-        process_func;
-    OBJECT_METHODS(BULLET)->projectile_move_func =
-        common_object_projectile_move;
-    OBJECT_METHODS(BULLET)->projectile_stop_func =
-        common_object_projectile_stop_spell;
-    OBJECT_METHODS(BULLET)->projectile_hit_func =
-        projectile_hit_func;
-    OBJECT_METHODS(BULLET)->move_on_func =
-        common_object_projectile_move_on;
+OBJECT_TYPE_INIT_DEFINE(bullet) {
+    OBJECT_METHODS(BULLET)->process_func = process_func;
+    OBJECT_METHODS(BULLET)->projectile_move_func = common_object_projectile_move;
+    OBJECT_METHODS(BULLET)->projectile_stop_func = common_object_projectile_stop_spell;
+    OBJECT_METHODS(BULLET)->projectile_hit_func = projectile_hit_func;
+    OBJECT_METHODS(BULLET)->move_on_func = common_object_projectile_move_on;
 }

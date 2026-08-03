@@ -50,9 +50,7 @@
  * @return
  * True if the victim can be infected, false otherwise.
  */
-static bool
-disease_is_susceptible (object *op, object *victim)
-{
+static bool disease_is_susceptible(object *op, object *victim) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -84,16 +82,15 @@ disease_is_susceptible (object *op, object *victim)
  * @return
  * Matching symptom object, NULL if not found.
  */
-static object *
-disease_find_symptom (object *op)
-{
+static object *disease_find_symptom(object *op) {
     HARD_ASSERT(op != NULL);
 
     FOR_INV_PREPARE(op->env, tmp) {
         if (tmp->type == SYMPTOM && strcmp(tmp->name, op->name) == 0) {
             return tmp;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
@@ -104,9 +101,7 @@ disease_find_symptom (object *op)
  * @param op
  * The disease.
  */
-static void
-disease_remove_symptoms (object *op)
-{
+static void disease_remove_symptoms(object *op) {
     HARD_ASSERT(op != NULL);
 
     object *symptom = disease_find_symptom(op);
@@ -121,9 +116,7 @@ disease_remove_symptoms (object *op)
  * @param op
  * Disease infecting.
  */
-static void
-disease_check_infection (object *op)
-{
+static void disease_check_infection(object *op) {
     HARD_ASSERT(op != NULL);
 
     int x, y;
@@ -168,7 +161,8 @@ disease_check_infection (object *op)
                 }
 
                 disease_infect(op, tmp, 0);
-            } FOR_MAP_FINISH();
+            }
+            FOR_MAP_FINISH();
         }
     }
 }
@@ -181,9 +175,7 @@ disease_check_infection (object *op)
  * @param op
  * The disease.
  */
-static void
-disease_do_symptoms (object *op)
-{
+static void disease_do_symptoms(object *op) {
     HARD_ASSERT(op != NULL);
 
     object *victim = op->env;
@@ -211,7 +203,8 @@ disease_do_symptoms (object *op)
             if (strcmp(tmp->name, op->name) == 0 && tmp->level >= op->level) {
                 return;
             }
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
 
         object *new_symptom = arch_get("symptom");
 
@@ -239,7 +232,7 @@ disease_do_symptoms (object *op)
         new_symptom->stats.Con = op->stats.Con;
         new_symptom->stats.Int = op->stats.Int;
         new_symptom->stats.Pow = op->stats.Pow;
-        new_symptom->stats.sp  = op->stats.sp;
+        new_symptom->stats.sp = op->stats.sp;
         new_symptom->stats.food = op->last_eat;
         new_symptom->stats.maxsp = op->stats.maxsp;
         new_symptom->last_sp = op->last_sp;
@@ -299,9 +292,7 @@ disease_do_symptoms (object *op)
  * @param op
  * Disease to grant immunity to.
  */
-static void
-disease_grant_immunity (object *op)
-{
+static void disease_grant_immunity(object *op) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(op->env != NULL);
 
@@ -316,7 +307,8 @@ disease_grant_immunity (object *op)
             tmp->level = op->level;
             return;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     object *immunity = arch_get("immunity");
     FREE_AND_COPY_HASH(immunity->name, op->name);
@@ -326,9 +318,7 @@ disease_grant_immunity (object *op)
 }
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     /* Determine if the disease is inside or outside of someone.
@@ -370,8 +360,7 @@ process_func (object *op)
 /**
  * Initialize the disease type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(disease)
-{
+OBJECT_TYPE_INIT_DEFINE(disease) {
     OBJECT_METHODS(DISEASE)->process_func = process_func;
 }
 
@@ -392,9 +381,7 @@ OBJECT_TYPE_INIT_DEFINE(disease)
  * @return
  * True if the victim was infected, false otherwise.
  */
-bool
-disease_infect (object *op, object *victim, bool force)
-{
+bool disease_infect(object *op, object *victim, bool force) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -423,7 +410,8 @@ disease_infect (object *op, object *victim, bool force)
                 return false;
             }
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     /* If we've gotten this far, go ahead and infect the victim. */
     object *new_disease = object_get();
@@ -441,7 +429,8 @@ disease_infect (object *op, object *victim, bool force)
     }
 
     new_disease = object_insert_into(new_disease, victim, 0);
-    SOFT_ASSERT_RC(new_disease != NULL, false,
+    SOFT_ASSERT_RC(new_disease != NULL,
+                   false,
                    "Failed to insert disease into %s",
                    object_get_str(victim));
     CLEAR_FLAG(new_disease, FLAG_NO_PASS);
@@ -453,8 +442,10 @@ disease_infect (object *op, object *victim, bool force)
         if (new_disease->title != NULL) {
             snprintf(VS(buf), "%s %s!!", op->title, victim->name);
         } else {
-            snprintf(VS(buf), "You infect %s with your disease, %s!",
-                     victim->name, new_disease->name);
+            snprintf(VS(buf),
+                     "You infect %s with your disease, %s!",
+                     victim->name,
+                     new_disease->name);
         }
 
         if (victim->type == PLAYER) {
@@ -479,9 +470,7 @@ disease_infect (object *op, object *victim, bool force)
  * @param hitter
  * The hitter.
  */
-void
-disease_physically_infect (object *op, object *hitter)
-{
+void disease_physically_infect(object *op, object *hitter) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
@@ -489,7 +478,8 @@ disease_physically_infect (object *op, object *hitter)
         if (tmp->type == DISEASE) {
             disease_infect(tmp, op, 0);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 }
 
 /**
@@ -503,14 +493,11 @@ disease_physically_infect (object *op, object *hitter)
  * @return
  * True if at least one disease was cured, false otherwise.
  */
-bool
-disease_cure (object *op, object *caster)
-{
+bool disease_cure(object *op, object *caster) {
     HARD_ASSERT(op != NULL);
 
     if (caster != NULL) {
-        draw_info_format(COLOR_WHITE, op, "%s casts cure disease on you!",
-                         caster->name);
+        draw_info_format(COLOR_WHITE, op, "%s casts cure disease on you!", caster->name);
     }
 
     bool success = false;
@@ -530,12 +517,11 @@ disease_cure (object *op, object *caster)
         }
 
         if (diff > 1 && !rndm_chance(diff)) {
-            draw_info_format(COLOR_WHITE, op,
-                             "The disease %s resists the cure spell!",
-                             tmp->name);
+            draw_info_format(COLOR_WHITE, op, "The disease %s resists the cure spell!", tmp->name);
 
             if (caster != NULL) {
-                draw_info_format(COLOR_WHITE, caster,
+                draw_info_format(COLOR_WHITE,
+                                 caster,
                                  "The disease %s resists the cure spell!",
                                  tmp->name);
             }
@@ -543,28 +529,28 @@ disease_cure (object *op, object *caster)
             continue;
         }
 
-        draw_info_format(COLOR_WHITE, op,
-                         "You are healed from disease %s.",
-                         tmp->name);
+        draw_info_format(COLOR_WHITE, op, "You are healed from disease %s.", tmp->name);
 
         if (caster != NULL) {
-            draw_info_format(COLOR_WHITE, caster,
+            draw_info_format(COLOR_WHITE,
+                             caster,
                              "You heal %s from disease %s.",
-                             op->name, tmp->name);
+                             op->name,
+                             tmp->name);
         }
 
         disease_remove_symptoms(tmp);
         object_remove(tmp, 0);
         object_destroy(tmp);
         success = true;
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     if (!is_diseased) {
         draw_info(COLOR_WHITE, op, "You are not diseased!");
 
         if (caster != NULL) {
-            draw_info_format(COLOR_WHITE, caster, "%s is not diseased!",
-                             op->name);
+            draw_info_format(COLOR_WHITE, caster, "%s is not diseased!", op->name);
         }
     }
 
@@ -581,9 +567,7 @@ disease_cure (object *op, object *caster)
  * @return
  * True if we actually reduce a disease, false otherwise.
  */
-bool
-disease_reduce_symptoms (object *op, int reduction)
-{
+bool disease_reduce_symptoms(object *op, int reduction) {
     HARD_ASSERT(op != NULL);
 
     bool success = false;
@@ -597,7 +581,8 @@ disease_reduce_symptoms (object *op, int reduction)
         /* Give the disease time to modify this symptom,
          * and reduce its severity. */
         tmp->speed_left = 0;
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     if (success) {
         draw_info(COLOR_WHITE, op, "Your illness seems less severe.");

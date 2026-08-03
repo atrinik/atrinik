@@ -1,26 +1,26 @@
 /************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team     *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+ *            Atrinik, a Multiplayer Online Role Playing Game            *
+ *                                                                       *
+ *    Copyright (C) 2009-2014 Zoey Rose and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /* Small utility to randomize map arches, with a custom list of things to
  * randomize, like floor, flowers, trees, etc.
@@ -62,8 +62,7 @@ typedef struct random_variations_struct {
 } random_variations;
 
 /* Structure for the arches to randomize from file */
-typedef struct random_struct
-{
+typedef struct random_struct {
     /* Name of arch to randomize */
     char archname[MAX_BUF];
 
@@ -81,16 +80,14 @@ typedef struct random_struct
 random_struct *random_list = NULL;
 
 /* Signal handler for SIGSEGV -- make core with abort. */
-static void signal_sigsegv(int i)
-{
-    (void) i;
+static void signal_sigsegv(int i) {
+    (void)i;
 
     abort();
 }
 
 /* Random number function, with min and max */
-int rndm(int min, int max)
-{
+int rndm(int min, int max) {
     int diff;
 
     diff = max - min + 1;
@@ -102,8 +99,7 @@ int rndm(int min, int max)
 }
 
 /* Parse the "random" file */
-static void parse_randoms()
-{
+static void parse_randoms() {
     FILE *fh;
     char line[MAX_BUF], name[MAX_BUF], randoms[MAX_BUF], *p;
     random_struct *random_tmp;
@@ -130,7 +126,7 @@ static void parse_randoms()
                 /* Scan the next line for Randoms: and store it */
                 if (sscanf(line, "Randoms: %s\n", randoms)) {
                     /* Allocate a new random list structure */
-                    random_tmp = (random_struct *) malloc(sizeof(random_struct));
+                    random_tmp = (random_struct *)malloc(sizeof(random_struct));
 
                     /* Append the old list structure to it */
                     random_tmp->next = random_list;
@@ -152,7 +148,8 @@ static void parse_randoms()
                         random_tmp->variations++;
 
                         /* Allocate a new list of random variations */
-                        random_variations_tmp = (random_variations *) malloc(sizeof(random_variations));
+                        random_variations_tmp =
+                            (random_variations *)malloc(sizeof(random_variations));
 
                         /* Append the old list structure to it */
                         random_variations_tmp->next = random_tmp->randoms_start;
@@ -161,7 +158,10 @@ static void parse_randoms()
                         random_tmp->randoms_start = random_variations_tmp;
 
                         /* Store the random variation */
-                        snprintf(random_variations_tmp->random_var, sizeof(random_variations_tmp->random_var), "%s", p);
+                        snprintf(random_variations_tmp->random_var,
+                                 sizeof(random_variations_tmp->random_var),
+                                 "%s",
+                                 p);
 
                         p = strtok(NULL, ",");
                     }
@@ -177,14 +177,13 @@ static void parse_randoms()
 }
 
 /* Main function of the randomizer */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     random_struct *random_tmp;
     random_variations *random_variations_tmp;
     char archname[MAX_BUF], filename[MAX_BUF], line[MAX_BUF];
     FILE *fh;
 
-    (void) argc;
+    (void)argc;
 
     /* Handle SIGSEGV (Segmentation fault) event, so we can dump core */
     signal(SIGSEGV, signal_sigsegv);
@@ -229,15 +228,21 @@ int main(int argc, char *argv[])
                      * randomize grassd_m2 if grassd_ is on the list, and m2 is
                      * not on the
                      * random variations list. */
-                    for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp; random_variations_tmp = random_variations_tmp->next) {
+                    for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp;
+                         random_variations_tmp = random_variations_tmp->next) {
                         /* Store the arch name from the config file in a
                          * temporary buffer,
                          * with both the (partial) arch name and the random
                          * variation. */
-                        snprintf(tmparchname, sizeof(tmparchname), "%s%s", random_tmp->archname, random_variations_tmp->random_var);
+                        snprintf(tmparchname,
+                                 sizeof(tmparchname),
+                                 "%s%s",
+                                 random_tmp->archname,
+                                 random_variations_tmp->random_var);
 
                         /* Compare it, for secure also compare the lengths */
-                        if (strcmp(archname, tmparchname) == 0 && strlen(archname) == strlen(tmparchname)) {
+                        if (strcmp(archname, tmparchname) == 0 &&
+                            strlen(archname) == strlen(tmparchname)) {
                             /* Found it, break out and move on the next loop */
                             found = 1;
 
@@ -251,12 +256,18 @@ int main(int argc, char *argv[])
                          *  we just
                          * check if i is equal to the random number calculated
                          *  above. */
-                        for (random_variations_tmp = random_tmp->randoms_start; random_variations_tmp; random_variations_tmp = random_variations_tmp->next) {
+                        for (random_variations_tmp = random_tmp->randoms_start;
+                             random_variations_tmp;
+                             random_variations_tmp = random_variations_tmp->next) {
                             /* If i (variation ID) is equal to the random
                              * number,
                              * overwrite the old arch name and break out. */
                             if (i == random_int) {
-                                snprintf(archname, sizeof(archname), "%s%s", random_tmp->archname, random_variations_tmp->random_var);
+                                snprintf(archname,
+                                         sizeof(archname),
+                                         "%s%s",
+                                         random_tmp->archname,
+                                         random_variations_tmp->random_var);
 
                                 break;
                             }
@@ -281,4 +292,3 @@ int main(int argc, char *argv[])
     /* Exit cleanly */
     return 0;
 }
-

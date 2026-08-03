@@ -47,8 +47,7 @@ static void commands_permissions_read(const char *path);
 
 TOOLKIT_API(DEPENDS(path), DEPENDS(string));
 
-TOOLKIT_INIT_FUNC(commands)
-{
+TOOLKIT_INIT_FUNC(commands) {
     commands = NULL;
     permission_groups = NULL;
 
@@ -112,20 +111,17 @@ TOOLKIT_INIT_FUNC(commands)
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(commands)
-{
+TOOLKIT_DEINIT_FUNC(commands) {
     command_struct *curr, *tmp;
     permission_group_struct *curr2, *tmp2;
 
-    HASH_ITER(hh, commands, curr, tmp)
-    {
+    HASH_ITER(hh, commands, curr, tmp) {
         HASH_DEL(commands, curr);
         efree(curr->name);
         efree(curr);
     }
 
-    HASH_ITER(hh, permission_groups, curr2, tmp2)
-    {
+    HASH_ITER(hh, permission_groups, curr2, tmp2) {
         HASH_DEL(permission_groups, curr2);
         commands_permission_group_free(curr2);
     }
@@ -137,8 +133,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @param tmp
  * What to free.
  */
-static void commands_permission_group_free(permission_group_struct *tmp)
-{
+static void commands_permission_group_free(permission_group_struct *tmp) {
     size_t i;
 
     efree(tmp->name);
@@ -160,8 +155,7 @@ static void commands_permission_group_free(permission_group_struct *tmp)
  * @param tmp
  * What to add.
  */
-static void commands_permission_group_add(permission_group_struct *tmp)
-{
+static void commands_permission_group_add(permission_group_struct *tmp) {
     permission_group_struct *curr;
 
     HASH_FIND(hh, permission_groups, tmp->name, strlen(tmp->name), curr);
@@ -180,8 +174,7 @@ static void commands_permission_group_add(permission_group_struct *tmp)
  * @param path
  * File to read.
  */
-static void commands_permissions_read(const char *path)
-{
+static void commands_permissions_read(const char *path) {
     FILE *fp;
     char buf[MAX_BUF], *end;
     permission_group_struct *tmp;
@@ -221,7 +214,9 @@ static void commands_permissions_read(const char *path)
                 string_whitespace_trim(cps[1]);
 
                 if (strcmp(cps[0], "cmd") == 0) {
-                    tmp->cmd_permissions = erealloc(tmp->cmd_permissions, sizeof(*tmp->cmd_permissions) * (tmp->cmd_permissions_num + 1));
+                    tmp->cmd_permissions =
+                        erealloc(tmp->cmd_permissions,
+                                 sizeof(*tmp->cmd_permissions) * (tmp->cmd_permissions_num + 1));
                     tmp->cmd_permissions[tmp->cmd_permissions_num] = estrdup(cps[1]);
                     tmp->cmd_permissions_num++;
                 }
@@ -236,8 +231,7 @@ static void commands_permissions_read(const char *path)
     fclose(fp);
 }
 
-void commands_add(const char *name, command_func handle_func, double delay, uint64_t flags)
-{
+void commands_add(const char *name, command_func handle_func, double delay, uint64_t flags) {
     command_struct *command;
 
     TOOLKIT_PROTECT();
@@ -251,8 +245,7 @@ void commands_add(const char *name, command_func handle_func, double delay, uint
     HASH_ADD_KEYPTR(hh, commands, command->name, strlen(command->name), command);
 }
 
-static int commands_check_permission_group(const char *name, size_t len, const char *command)
-{
+static int commands_check_permission_group(const char *name, size_t len, const char *command) {
     size_t i;
     permission_group_struct *tmp;
 
@@ -263,7 +256,8 @@ static int commands_check_permission_group(const char *name, size_t len, const c
     }
 
     for (i = 0; i < tmp->cmd_permissions_num; i++) {
-        if (strcmp(tmp->cmd_permissions[i], "*") == 0 || strcmp(tmp->cmd_permissions[i], command) == 0) {
+        if (strcmp(tmp->cmd_permissions[i], "*") == 0 ||
+            strcmp(tmp->cmd_permissions[i], command) == 0) {
             return 1;
         }
     }
@@ -271,8 +265,7 @@ static int commands_check_permission_group(const char *name, size_t len, const c
     return 0;
 }
 
-int commands_check_permission(player *pl, const char *command)
-{
+int commands_check_permission(player *pl, const char *command) {
     int i;
 
     TOOLKIT_PROTECT();
@@ -284,8 +277,12 @@ int commands_check_permission(player *pl, const char *command)
     if (*settings.default_permission_groups != '\0') {
         char *curr, *next;
 
-        for (curr = settings.default_permission_groups; (curr && (next = strchr(curr, ','))) || curr; curr = next ? next + 1 : NULL) {
-            if (commands_check_permission_group(curr, next ? (size_t) (next - curr) : strlen(curr), command)) {
+        for (curr = settings.default_permission_groups;
+             (curr && (next = strchr(curr, ','))) || curr;
+             curr = next ? next + 1 : NULL) {
+            if (commands_check_permission_group(curr,
+                                                next ? (size_t)(next - curr) : strlen(curr),
+                                                command)) {
                 return 1;
             }
         }
@@ -296,7 +293,11 @@ int commands_check_permission(player *pl, const char *command)
             continue;
         }
 
-        if (string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]") && commands_check_permission_group(pl->cmd_permissions[i], strlen(pl->cmd_permissions[i]), command)) {
+        if (string_startswith(pl->cmd_permissions[i], "[") &&
+            string_endswith(pl->cmd_permissions[i], "]") &&
+            commands_check_permission_group(pl->cmd_permissions[i],
+                                            strlen(pl->cmd_permissions[i]),
+                                            command)) {
             return 1;
         } else {
             const char *permission = pl->cmd_permissions[i];
@@ -312,8 +313,7 @@ int commands_check_permission(player *pl, const char *command)
     return 0;
 }
 
-void commands_handle(object *op, char *cmd)
-{
+void commands_handle(object *op, char *cmd) {
     TOOLKIT_PROTECT();
 
     if (cmd[0] == '/' && cmd[1] != '\0') {
@@ -338,7 +338,9 @@ void commands_handle(object *op, char *cmd)
 
         if (command) {
             if (command->flags & COMMAND_PERMISSION && !commands_check_permission(CONTR(op), cmd)) {
-                draw_info(COLOR_WHITE, op, "You do not have sufficient permissions for that command.");
+                draw_info(COLOR_WHITE,
+                          op,
+                          "You do not have sufficient permissions for that command.");
                 return;
             }
 

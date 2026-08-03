@@ -55,7 +55,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         sudo \
         timidity \
         tree \
-        uncrustify \
         valgrind \
         zlib1g-dev \
         iproute2 \

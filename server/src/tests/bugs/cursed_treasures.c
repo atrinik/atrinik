@@ -35,11 +35,11 @@
 #include <arch.h>
 #include <object.h>
 
-START_TEST(test_cursed_amulet_shielding)
-{
+START_TEST(test_cursed_amulet_shielding) {
     treasure_list_t *list = treasure_list_find("random_talisman");
-    ck_assert_msg(list != NULL, "Couldn't find 'random_talisman' treasure list "
-            "to start the test.");
+    ck_assert_msg(list != NULL,
+                  "Couldn't find 'random_talisman' treasure list "
+                  "to start the test.");
 
     for (int i = 0; i < 2000; i++) {
         object *tmp = treasure_generate_single(list, 999, 100);
@@ -48,7 +48,8 @@ START_TEST(test_cursed_amulet_shielding)
         if (strcmp(tmp->arch->name, "amulet_shielding") == 0) {
             if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
                 ck_abort_msg("Managed to create cursed amulet of minor "
-                        "shielding (i: %d).", i);
+                             "shielding (i: %d).",
+                             i);
             }
         }
 
@@ -57,11 +58,11 @@ START_TEST(test_cursed_amulet_shielding)
 }
 END_TEST
 
-START_TEST(test_cursed_starting_items)
-{
+START_TEST(test_cursed_starting_items) {
     treasure_list_t *list = treasure_list_find("player_male");
-    ck_assert_msg(list != NULL, "Couldn't find 'player_male' treasure list "
-            "to start the test.");
+    ck_assert_msg(list != NULL,
+                  "Couldn't find 'player_male' treasure list "
+                  "to start the test.");
 
     object *inv = object_get();
 
@@ -75,7 +76,9 @@ START_TEST(test_cursed_starting_items)
                 SET_FLAG(tmp, FLAG_IDENTIFIED);
                 char *name = object_get_name_s(tmp, NULL);
                 ck_abort_msg("Managed to create cursed item %s (%s) (i: %d).",
-                        name, object_get_str(tmp), i);
+                             name,
+                             object_get_str(tmp),
+                             i);
                 efree(name);
             }
         }
@@ -85,8 +88,7 @@ START_TEST(test_cursed_starting_items)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("cursed_treasures");
     TCase *tc_core = tcase_create("Core");
 
@@ -100,7 +102,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_bug_cursed_treasures(void)
-{
+void check_bug_cursed_treasures(void) {
     check_run_suite(suite(), __FILE__);
 }

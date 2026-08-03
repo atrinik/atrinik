@@ -35,6 +35,4 @@
 /**
  * Initialize the quest container type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(quest_container)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(quest_container) {}

@@ -68,7 +68,7 @@ typedef struct faction_parent {
     /**
      * If true, will force spill value usage.
      */
-    bool spill_force:1;
+    bool spill_force : 1;
 } faction_parent_t;
 
 /**
@@ -123,7 +123,7 @@ struct faction {
     /**
      * Whether this faction is an alliance.
      */
-    bool alliance:1;
+    bool alliance : 1;
 };
 
 /**
@@ -140,16 +140,14 @@ static void faction_assign_names(void);
 
 TOOLKIT_API(DEPENDS(shstr));
 
-TOOLKIT_INIT_FUNC(faction)
-{
+TOOLKIT_INIT_FUNC(faction) {
     char filename[HUGE_BUF];
     snprintf(VS(filename), "%s/factions", settings.libpath);
 
     FILE *fp = fopen(filename, "r");
 
     if (fp == NULL) {
-        LOG(ERROR, "Can't open factions file %s: %s (%d)", filename,
-            strerror(errno), errno);
+        LOG(ERROR, "Can't open factions file %s: %s (%d)", filename, strerror(errno), errno);
         exit(1);
     }
 
@@ -209,9 +207,8 @@ TOOLKIT_INIT_FUNC(faction)
                 error_str = "unknown attribute without a value";
                 goto error;
             }
-        } else if (strcmp(key, "modifier") == 0 ||
-                strcmp(key, "spill") == 0 ||
-                strcmp(key, "attention") == 0) {
+        } else if (strcmp(key, "modifier") == 0 || strcmp(key, "spill") == 0 ||
+                   strcmp(key, "attention") == 0) {
             if (!string_endswith(value, "%")) {
                 error_str = "value must end with a percent sign";
                 goto error;
@@ -225,21 +222,20 @@ TOOLKIT_INIT_FUNC(faction)
             }
 
             if ((strcmp(key, "spill") == 0 || strcmp(key, "attention") == 0) &&
-                    faction->parents_num == 0) {
+                faction->parents_num == 0) {
                 error_str = "faction has no parent";
                 goto error;
             }
 
             if (strcmp(key, "modifier") == 0) {
-                faction->modifier = (int16_t) value_int;
+                faction->modifier = (int16_t)value_int;
             } else {
-                faction_parent_t *parent =
-                        &faction->parents[faction->parents_num - 1];
+                faction_parent_t *parent = &faction->parents[faction->parents_num - 1];
 
                 if (strcmp(key, "spill") == 0) {
-                    parent->spill = (int16_t) value_int;
+                    parent->spill = (int16_t)value_int;
                 } else if (strcmp(key, "attention") == 0) {
-                    parent->attention = (int16_t) value_int;
+                    parent->attention = (int16_t)value_int;
                 }
             }
         } else if (strcmp(key, "penalty") == 0) {
@@ -249,10 +245,9 @@ TOOLKIT_INIT_FUNC(faction)
         } else if (strcmp(key, "parent") == 0) {
             faction_add_parent(faction, value);
         } else if (strcmp(key, "enemy") == 0) {
-            faction->enemies = erealloc(faction->enemies,
-                    sizeof(*faction->enemies) * (faction->enemies_num + 1));
-            faction->enemies[faction->enemies_num].faction.name =
-                    add_string(value);
+            faction->enemies =
+                erealloc(faction->enemies, sizeof(*faction->enemies) * (faction->enemies_num + 1));
+            faction->enemies[faction->enemies_num].faction.name = add_string(value);
             faction->enemies_num++;
         } else if (strcmp(key, "alliance") == 0) {
             if (KEYWORD_IS_TRUE(value)) {
@@ -267,8 +262,7 @@ TOOLKIT_INIT_FUNC(faction)
                 goto error;
             }
 
-            faction_parent_t *parent =
-                    &faction->parents[faction->parents_num - 1];
+            faction_parent_t *parent = &faction->parents[faction->parents_num - 1];
             if (KEYWORD_IS_TRUE(value)) {
                 parent->spill_force = true;
             } else {
@@ -282,17 +276,21 @@ TOOLKIT_INIT_FUNC(faction)
 
         continue;
 
-error:
-        LOG(ERROR, "Error parsing %s, line %" PRIu64 ", %s: %s %s", filename,
-            linenum, error_str, key, value != NULL ? value : "");
+    error:
+        LOG(ERROR,
+            "Error parsing %s, line %" PRIu64 ", %s: %s %s",
+            filename,
+            linenum,
+            error_str,
+            key,
+            value != NULL ? value : "");
         exit(1);
     }
 
     fclose(fp);
 
     if (depth > 0) {
-        LOG(ERROR, "Faction block without end: %s",
-            faction_stack[depth - 1]->name);
+        LOG(ERROR, "Faction block without end: %s", faction_stack[depth - 1]->name);
         exit(1);
     }
 
@@ -300,8 +298,7 @@ error:
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(faction)
-{
+TOOLKIT_DEINIT_FUNC(faction) {
     faction_t faction, tmp;
 
     HASH_ITER(hh, factions, faction, tmp) {
@@ -321,8 +318,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * The created faction.
  */
-static faction_t faction_create(const char *name, faction_t parent)
-{
+static faction_t faction_create(const char *name, faction_t parent) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(name != NULL);
@@ -348,8 +344,7 @@ static faction_t faction_create(const char *name, faction_t parent)
  * @param faction
  * Faction to free.
  */
-static void faction_free(faction_t faction)
-{
+static void faction_free(faction_t faction) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
@@ -379,8 +374,7 @@ static void faction_free(faction_t faction)
  * @return
  * Faction if found, NULL otherwise.
  */
-faction_t faction_find(shstr *name)
-{
+faction_t faction_find(shstr *name) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(name != NULL);
@@ -397,15 +391,14 @@ faction_t faction_find(shstr *name)
  * @param name
  * Name of the parent.
  */
-static void faction_add_parent(faction_t faction, const char *name)
-{
+static void faction_add_parent(faction_t faction, const char *name) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
     HARD_ASSERT(name != NULL);
 
-    faction->parents = erealloc(faction->parents, sizeof(*faction->parents) *
-            (faction->parents_num + 1));
+    faction->parents =
+        erealloc(faction->parents, sizeof(*faction->parents) * (faction->parents_num + 1));
     faction->parents[faction->parents_num].spill = 100;
     faction->parents[faction->parents_num].attention = 100;
     faction->parents[faction->parents_num].spill_force = false;
@@ -416,8 +409,7 @@ static void faction_add_parent(faction_t faction, const char *name)
 /**
  * Assign pointers to faction parents and enemies.
  */
-static void faction_assign_names(void)
-{
+static void faction_assign_names(void) {
     TOOLKIT_PROTECT();
 
     faction_t faction, tmp;
@@ -428,16 +420,18 @@ static void faction_assign_names(void)
             faction_t parent = faction_find(faction->parents[i].faction.name);
 
             if (parent == NULL) {
-                LOG(ERROR, "Could not find parent faction %s for faction %s.",
-                    faction->parents[i].faction.name, faction->name);
+                LOG(ERROR,
+                    "Could not find parent faction %s for faction %s.",
+                    faction->parents[i].faction.name,
+                    faction->name);
                 exit(1);
             }
 
             free_string_shared(faction->parents[i].faction.name);
             faction->parents[i].faction.ptr = parent;
 
-            parent->children = erealloc(parent->children,
-                    sizeof(*parent->children) * (parent->children_num + 1));
+            parent->children =
+                erealloc(parent->children, sizeof(*parent->children) * (parent->children_num + 1));
             parent->children[parent->children_num] = faction;
             parent->children_num++;
         }
@@ -447,8 +441,10 @@ static void faction_assign_names(void)
             faction_t enemy = faction_find(faction->enemies[i].faction.name);
 
             if (enemy == NULL) {
-                LOG(ERROR, "Could not find enemy faction %s for faction %s.",
-                    faction->enemies[i].faction.name, faction->name);
+                LOG(ERROR,
+                    "Could not find enemy faction %s for faction %s.",
+                    faction->enemies[i].faction.name,
+                    faction->name);
                 exit(1);
             }
 
@@ -469,9 +465,7 @@ static void faction_assign_names(void)
  * @param override_spill
  * If true, spill value of parents will not be considered.
  */
-static void _faction_update(faction_t faction, player *pl, double reputation,
-        bool override_spill)
-{
+static void _faction_update(faction_t faction, player *pl, double reputation, bool override_spill) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
@@ -484,10 +478,10 @@ static void _faction_update(faction_t faction, player *pl, double reputation,
         double new_reputation = reputation;
 
         if (!override_spill || faction->parents[i].spill_force) {
-            new_reputation *= (double) faction->parents[i].spill / 100.0;
+            new_reputation *= (double)faction->parents[i].spill / 100.0;
         }
 
-        new_reputation *= (double) parent->modifier / 100.0;
+        new_reputation *= (double)parent->modifier / 100.0;
 
         if (fabs(new_reputation) < 0.00000001) {
             continue;
@@ -506,8 +500,7 @@ static void _faction_update(faction_t faction, player *pl, double reputation,
  * @param reputation
  * Reputation value to add.
  */
-void faction_update(faction_t faction, player *pl, double reputation)
-{
+void faction_update(faction_t faction, player *pl, double reputation) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
@@ -524,8 +517,7 @@ void faction_update(faction_t faction, player *pl, double reputation)
  * @param pl
  * Player.
  */
-void faction_update_kill(faction_t faction, player *pl)
-{
+void faction_update_kill(faction_t faction, player *pl) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
@@ -547,9 +539,8 @@ void faction_update_kill(faction_t faction, player *pl)
  * @return
  * Whether the object is a friend of the faction.
  */
-static bool _faction_is_friend(faction_t faction, object *op,
-        bool check_enemies, double attention)
-{
+static bool
+_faction_is_friend(faction_t faction, object *op, bool check_enemies, double attention) {
     HARD_ASSERT(faction != NULL);
     HARD_ASSERT(op != NULL);
 
@@ -569,10 +560,7 @@ static bool _faction_is_friend(faction_t faction, object *op,
 
     if (check_enemies) {
         for (size_t i = 0; i < faction->enemies_num; i++) {
-            if (_faction_is_friend(faction->enemies[i].faction.ptr,
-                                   op,
-                                   false,
-                                   attention)) {
+            if (_faction_is_friend(faction->enemies[i].faction.ptr, op, false, attention)) {
                 double value = fabs(faction->threshold) + 1.0;
                 if (op->type != PLAYER) {
                     value *= 2.0;
@@ -592,7 +580,7 @@ static bool _faction_is_friend(faction_t faction, object *op,
         }
 
         faction_t parent = faction->parents[i].faction.ptr;
-        double new_attention = (double) faction->parents[i].attention / 100.0;
+        double new_attention = (double)faction->parents[i].attention / 100.0;
 
         if (!_faction_is_friend(parent, op, true, new_attention)) {
             return false;
@@ -615,8 +603,7 @@ static bool _faction_is_friend(faction_t faction, object *op,
  * @return
  * Whether the object is a friend of the faction.
  */
-bool faction_is_friend(faction_t faction, object *op)
-{
+bool faction_is_friend(faction_t faction, object *op) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
@@ -633,8 +620,7 @@ bool faction_is_friend(faction_t faction, object *op)
  * @return
  * Faction with the alliance flag. Can be NULL.
  */
-static faction_t faction_get_alliance(faction_t faction)
-{
+static faction_t faction_get_alliance(faction_t faction) {
     HARD_ASSERT(faction != NULL);
 
     if (faction->alliance) {
@@ -660,8 +646,7 @@ static faction_t faction_get_alliance(faction_t faction)
  * @return
  * True if the two factions are in an alliance, false otherwise.
  */
-bool faction_is_alliance(faction_t faction, faction_t faction2)
-{
+bool faction_is_alliance(faction_t faction, faction_t faction2) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
@@ -690,8 +675,7 @@ bool faction_is_alliance(faction_t faction, faction_t faction2)
  * @return
  * Bounty.
  */
-static double _faction_get_bounty(faction_t faction, player *pl)
-{
+static double _faction_get_bounty(faction_t faction, player *pl) {
     HARD_ASSERT(faction != NULL);
     HARD_ASSERT(pl != NULL);
 
@@ -701,8 +685,10 @@ static double _faction_get_bounty(faction_t faction, player *pl)
     }
 
     for (size_t i = 0; i < faction->children_num; i++) {
-        SOFT_ASSERT_RC(faction->children[i]->parents_num > 0, 0.0,
-                "Child faction %s has no parents!", faction->children[i]->name);
+        SOFT_ASSERT_RC(faction->children[i]->parents_num > 0,
+                       0.0,
+                       "Child faction %s has no parents!",
+                       faction->children[i]->name);
 
         /* Skip child factions that do not have this faction as their primary
          * parent. */
@@ -731,8 +717,7 @@ static double _faction_get_bounty(faction_t faction, player *pl)
  * @return
  * Bounty.
  */
-double faction_get_bounty(faction_t faction, player *pl)
-{
+double faction_get_bounty(faction_t faction, player *pl) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
@@ -753,8 +738,7 @@ double faction_get_bounty(faction_t faction, player *pl)
  * @param pl
  * Player.
  */
-static void _faction_clear_bounty(faction_t faction, player *pl)
-{
+static void _faction_clear_bounty(faction_t faction, player *pl) {
     HARD_ASSERT(faction != NULL);
     HARD_ASSERT(pl != NULL);
 
@@ -765,7 +749,8 @@ static void _faction_clear_bounty(faction_t faction, player *pl)
 
     for (size_t i = 0; i < faction->children_num; i++) {
         SOFT_ASSERT(faction->children[i]->parents_num > 0,
-                "Child faction %s has no parents!", faction->children[i]->name);
+                    "Child faction %s has no parents!",
+                    faction->children[i]->name);
 
         /* Skip child factions that do not have this faction as their primary
          * parent. */
@@ -787,8 +772,7 @@ static void _faction_clear_bounty(faction_t faction, player *pl)
  * @param pl
  * Player.
  */
-void faction_clear_bounty(faction_t faction, player *pl)
-{
+void faction_clear_bounty(faction_t faction, player *pl) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);

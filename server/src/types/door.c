@@ -39,9 +39,7 @@
 #include <rune.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     /* Check to see if the door should still remain open. */
@@ -51,9 +49,7 @@ process_func (object *op)
 
     /* If there's something blocking the door from closing, reset the
      * counter. */
-    if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_NO_PASS |
-                                                P_IS_MONSTER |
-                                                P_IS_PLAYER)) {
+    if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER)) {
         op->last_sp = op->stats.sp;
         return;
     }
@@ -76,27 +72,18 @@ process_func (object *op)
 
     /* Update animation state. */
     if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE)) {
-        SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
-                           op->direction + op->state));
+        SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state));
     }
 
     if (op->sub_type == ST1_DOOR_NORMAL) {
-        play_sound_map(op->map,
-                       CMD_SOUND_EFFECT,
-                       "door_close.ogg",
-                       op->x,
-                       op->y,
-                       0,
-                       0);
+        play_sound_map(op->map, CMD_SOUND_EFFECT, "door_close.ogg", op->x, op->y, 0, 0);
     }
 
     object_update(op, UP_OBJ_FLAGS);
 }
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
     return OBJECT_METHOD_UNHANDLED;
@@ -105,8 +92,7 @@ apply_func (object *op, object *applier, int aflags)
 /**
  * Initialize the door type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(door)
-{
+OBJECT_TYPE_INIT_DEFINE(door) {
     OBJECT_METHODS(DOOR)->process_func = process_func;
     OBJECT_METHODS(DOOR)->apply_func = apply_func;
 }
@@ -121,9 +107,7 @@ OBJECT_TYPE_INIT_DEFINE(door)
  * @param nearby
  * Whether this door was opened by opening a nearby door.
  */
-static void
-door_open (object *op, object *opener, bool nearby)
-{
+static void door_open(object *op, object *opener, bool nearby) {
     /* Already open, nothing to do. */
     if (op->last_eat == 1) {
         return;
@@ -134,7 +118,8 @@ door_open (object *op, object *opener, bool nearby)
         if (tmp->type == RUNE && tmp->level != 0) {
             rune_spring(tmp, opener);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     /* Mark this door as open. */
     op->last_eat = 1;
@@ -152,18 +137,11 @@ door_open (object *op, object *opener, bool nearby)
 
     /* Update animation state. */
     if (QUERY_FLAG(op, FLAG_IS_TURNABLE) || QUERY_FLAG(op, FLAG_ANIMATE)) {
-        SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
-                           op->direction + op->state));
+        SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->state));
     }
 
     if (op->sub_type == ST1_DOOR_NORMAL && !nearby) {
-        play_sound_map(op->map,
-                       CMD_SOUND_EFFECT,
-                       "door.ogg",
-                       op->x,
-                       op->y,
-                       0,
-                       0);
+        play_sound_map(op->map, CMD_SOUND_EFFECT, "door.ogg", op->x, op->y, 0, 0);
     }
 
     object_update(op, UP_OBJ_FLAGS);
@@ -177,9 +155,7 @@ door_open (object *op, object *opener, bool nearby)
  * @param opener
  * Object opening the door.
  */
-static void
-doors_open (object *op, object *opener)
-{
+static void doors_open(object *op, object *opener) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(opener != NULL);
 
@@ -205,7 +181,8 @@ doors_open (object *op, object *opener)
             if (tmp->type == DOOR && tmp->slaying == op->slaying) {
                 door_open(tmp, opener, true);
             }
-        } FOR_MAP_LAYER_END
+        }
+        FOR_MAP_LAYER_END
     }
 }
 
@@ -227,9 +204,7 @@ doors_open (object *op, object *opener)
  * True if door was opened (or can be), false if not and is not possible
  * to open.
  */
-bool
-door_try_open (object *op, mapstruct *m, int x, int y, bool test)
-{
+bool door_try_open(object *op, mapstruct *m, int x, int y, bool test) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(m != NULL);
     HARD_ASSERT(!OUT_OF_MAP(m, x, y));
@@ -251,8 +226,7 @@ door_try_open (object *op, mapstruct *m, int x, int y, bool test)
 
     /* Pass through is set on the tile, and the object can pass through, so
      * don't open doors. */
-    if (GET_MAP_FLAGS(m, x, y) & P_PASS_THRU &&
-        QUERY_FLAG(op, FLAG_CAN_PASS_THRU)) {
+    if (GET_MAP_FLAGS(m, x, y) & P_PASS_THRU && QUERY_FLAG(op, FLAG_CAN_PASS_THRU)) {
         return false;
     }
 
@@ -273,14 +247,14 @@ door_try_open (object *op, mapstruct *m, int x, int y, bool test)
             } else if (!test) {
                 if (key->type == KEY) {
                     char *key_name = object_get_base_name_s(key, op);
-                    draw_info_format(COLOR_WHITE, op,
+                    draw_info_format(COLOR_WHITE,
+                                     op,
                                      "You open the %s with the %s.",
-                                     tmp->name, key_name);
+                                     tmp->name,
+                                     key_name);
                     efree(key_name);
                 } else if (key->type == FORCE) {
-                    draw_info_format(COLOR_WHITE, op,
-                                     "The %s is opened for you.",
-                                     tmp->name);
+                    draw_info_format(COLOR_WHITE, op, "The %s is opened for you.", tmp->name);
                 }
             }
         }
@@ -291,7 +265,8 @@ door_try_open (object *op, mapstruct *m, int x, int y, bool test)
         }
 
         return true;
-    } FOR_MAP_LAYER_END
+    }
+    FOR_MAP_LAYER_END
 
     return false;
 }
@@ -308,9 +283,7 @@ door_try_open (object *op, mapstruct *m, int x, int y, bool test)
  * @param y
  * Y position.
  */
-void
-door_show_message (object *op, mapstruct *m, int x, int y)
-{
+void door_show_message(object *op, mapstruct *m, int x, int y) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(m != NULL);
     HARD_ASSERT(!OUT_OF_MAP(m, x, y));
@@ -321,5 +294,6 @@ door_show_message (object *op, mapstruct *m, int x, int y)
             draw_info(COLOR_NAVY, op, tmp->msg);
             return;
         }
-    } FOR_MAP_LAYER_END
+    }
+    FOR_MAP_LAYER_END
 }

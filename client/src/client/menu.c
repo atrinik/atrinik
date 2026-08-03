@@ -41,8 +41,7 @@
  * @return
  * 0 to send command to server, 1 to not send it
  */
-int client_command_check(const char *cmd)
-{
+int client_command_check(const char *cmd) {
     if (cmd_aliases_handle(cmd)) {
         return 1;
     } else if (strncasecmp(cmd, "/ready_spell", 12) == 0) {
@@ -237,13 +236,11 @@ int client_command_check(const char *cmd)
         }
 
         return 1;
-    } else if (string_startswith(cmd, "/droptag ") ||
-            string_startswith(cmd, "/gettag ")) {
+    } else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
         char *cps[3];
         unsigned long int loc, tag, num;
 
-        if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') !=
-                arraysize(cps)) {
+        if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') != arraysize(cps)) {
             return 1;
         }
 
@@ -273,7 +270,9 @@ int client_command_check(const char *cmd)
 
         type_num = atoi(type);
 
-        if (type_num == CMD_TALK_NPC_NAME && (!string_get_word(cmd, &pos, ' ', npc_name, sizeof(npc_name), '"') || string_isempty(cmd + pos))) {
+        if (type_num == CMD_TALK_NPC_NAME &&
+            (!string_get_word(cmd, &pos, ' ', npc_name, sizeof(npc_name), '"') ||
+             string_isempty(cmd + pos))) {
             return 1;
         }
 
@@ -289,7 +288,8 @@ int client_command_check(const char *cmd)
         } else {
             char tag[MAX_BUF];
 
-            if (!string_get_word(cmd, &pos, ' ', tag, sizeof(tag), 0) || string_isempty(cmd + pos)) {
+            if (!string_get_word(cmd, &pos, ' ', tag, sizeof(tag), 0) ||
+                string_isempty(cmd + pos)) {
                 packet_free(packet);
                 return 1;
             }
@@ -373,8 +373,7 @@ int client_command_check(const char *cmd)
  * @param cmd
  * Command to send.
  */
-int send_command_check(const char *cmd)
-{
+int send_command_check(const char *cmd) {
     if (!client_command_check(cmd)) {
         send_command(cmd);
         return 1;

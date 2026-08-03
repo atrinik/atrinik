@@ -245,9 +245,9 @@ typedef struct setting_category {
 } setting_category;
 
 /** Macro to get ::setting_select structure from ::setting_struct. */
-#define SETTING_SELECT(_setting) ((setting_select *) (_setting)->custom_attrset)
+#define SETTING_SELECT(_setting) ((setting_select *)(_setting)->custom_attrset)
 /** Macro to get ::setting_range structure from ::setting_struct. */
-#define SETTING_RANGE(_setting) ((setting_range *) (_setting)->custom_attrset)
+#define SETTING_RANGE(_setting) ((setting_range *)(_setting)->custom_attrset)
 
 /**
  * Step in the keybinding settings.

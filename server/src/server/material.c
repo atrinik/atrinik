@@ -58,9 +58,7 @@ material_real_t materials_real[NUM_MATERIALS_REAL];
 /**
  * Initialize materials from file.
  */
-void
-material_init (void)
-{
+void material_init(void) {
     /* First initialize default values to the array */
     for (int i = 0; i < NUM_MATERIALS_REAL; i++) {
         materials_real[i].name[0] = '\0';
@@ -74,9 +72,7 @@ material_init (void)
 
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
-        LOG(ERROR,
-            "Could not open materials file %s: %s",
-            filename, strerror(errno));
+        LOG(ERROR, "Could not open materials file %s: %s", filename, strerror(errno));
         exit(1);
     }
 
@@ -95,7 +91,8 @@ material_init (void)
         if (i < 0 || i >= NUM_MATERIALS_REAL) {
             LOG(ERROR,
                 "Materials file contains declaration for material #%d but it "
-                "doesn't exist.", i);
+                "doesn't exist.",
+                i);
             exit(1);
         }
 

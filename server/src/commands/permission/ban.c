@@ -36,8 +36,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_ban(object *op, const char *command, char *params)
-{
+void command_ban(object *op, const char *command, char *params) {
     size_t pos = 0;
     char word[MAX_BUF];
     if (!string_get_word(params, &pos, ' ', VS(word), '"')) {
@@ -52,9 +51,7 @@ void command_ban(object *op, const char *command, char *params)
 
     if (strcmp(word, "add") == 0) {
         if (params == NULL) {
-            draw_info(COLOR_WHITE,
-                      op,
-                      "Usage: /ban add <player|*> [account|*]");
+            draw_info(COLOR_WHITE, op, "Usage: /ban add <player|*> [account|*]");
             return;
         }
 
@@ -62,14 +59,11 @@ void command_ban(object *op, const char *command, char *params)
         if (rc == BAN_OK) {
             draw_info(COLOR_GREEN, op, "Added new ban successfully.");
         } else {
-            draw_info_format(COLOR_RED, op, "Failed to add new ban: %s",
-                    ban_strerror(rc));
+            draw_info_format(COLOR_RED, op, "Failed to add new ban: %s", ban_strerror(rc));
         }
     } else if (strcmp(word, "remove") == 0) {
         if (params == NULL) {
-            draw_info(COLOR_WHITE,
-                      op,
-                      "Usage: /ban remove <player|#ID|*> [account|*]");
+            draw_info(COLOR_WHITE, op, "Usage: /ban remove <player|#ID|*> [account|*]");
             return;
         }
 
@@ -77,8 +71,7 @@ void command_ban(object *op, const char *command, char *params)
         if (rc == BAN_OK) {
             draw_info(COLOR_GREEN, op, "Removed ban successfully.");
         } else {
-            draw_info_format(COLOR_RED, op, "Failed to remove ban: %s",
-                    ban_strerror(rc));
+            draw_info_format(COLOR_RED, op, "Failed to remove ban: %s", ban_strerror(rc));
         }
     } else if (strcmp(word, "list") == 0) {
         ban_list(op);
@@ -86,10 +79,10 @@ void command_ban(object *op, const char *command, char *params)
         for (player *pl = first_player; pl != NULL; pl = pl->next) {
             if (ban_check(pl->ob->name, pl->cs->account)) {
                 LOG(SYSTEM,
-                        "Connection %s: kicking player %s due to a ban",
-                        socket_get_id(pl->cs->sc), pl->ob->name);
-                draw_info_type(CHAT_TYPE_GAME, NULL, COLOR_RED, pl->ob,
-                        "You have been banned.");
+                    "Connection %s: kicking player %s due to a ban",
+                    socket_get_id(pl->cs->sc),
+                    pl->ob->name);
+                draw_info_type(CHAT_TYPE_GAME, NULL, COLOR_RED, pl->ob, "You have been banned.");
                 pl->cs->state = ST_ZOMBIE;
             }
         }

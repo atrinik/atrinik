@@ -35,6 +35,4 @@
 /**
  * Initialize the wealth type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(wealth)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(wealth) {}

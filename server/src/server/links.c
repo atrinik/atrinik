@@ -37,8 +37,7 @@
 mempool_struct *pool_objectlink;
 
 /** @copydoc chunk_debugger */
-static void objectlink_debugger(objectlink *ol, char *buf, size_t size)
-{
+static void objectlink_debugger(objectlink *ol, char *buf, size_t size) {
     snprintf(buf, size, "ID: %d", ol->id);
     snprintfcat(buf, size, " value: %ld", ol->value);
 
@@ -50,27 +49,29 @@ static void objectlink_debugger(objectlink *ol, char *buf, size_t size)
 /**
  * Initialize the objectlink API.
  */
-void objectlink_init(void)
-{
-    pool_objectlink = mempool_create("object links", 500, sizeof(objectlink),
-            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
-    mempool_set_debugger(pool_objectlink, (chunk_debugger) objectlink_debugger);
+void objectlink_init(void) {
+    pool_objectlink = mempool_create("object links",
+                                     500,
+                                     sizeof(objectlink),
+                                     MEMPOOL_ALLOW_FREEING,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL);
+    mempool_set_debugger(pool_objectlink, (chunk_debugger)objectlink_debugger);
 }
 
 /**
  * Deinitialize the objectlink API.
  */
-void objectlink_deinit(void)
-{
-}
+void objectlink_deinit(void) {}
 
 /**
  * Allocate a new objectlink structure and initialize it.
  * @return
  * Pointer to the new objectlink
  */
-objectlink *get_objectlink(void)
-{
+objectlink *get_objectlink(void) {
     objectlink *ol = mempool_get(pool_objectlink);
 
     return ol;
@@ -81,8 +82,7 @@ objectlink *get_objectlink(void)
  * @param ol
  * Object link to free.
  */
-void free_objectlink(objectlink *ol)
-{
+void free_objectlink(objectlink *ol) {
     if (OBJECT_VALID(ol->objlink.ob, ol->id)) {
         CLEAR_FLAG(ol->objlink.ob, FLAG_IS_LINKED);
     }
@@ -95,8 +95,7 @@ void free_objectlink(objectlink *ol)
  * @param ol
  * The objectlink.
  */
-static void free_objectlink_recursive(objectlink *ol)
-{
+static void free_objectlink_recursive(objectlink *ol) {
     if (ol->next) {
         free_objectlink_recursive(ol->next);
     }
@@ -115,8 +114,7 @@ static void free_objectlink_recursive(objectlink *ol)
  * @param obp
  * The oblinkpt
  */
-void free_objectlinkpt(objectlink *obp)
-{
+void free_objectlinkpt(objectlink *obp) {
     if (obp->next) {
         free_objectlinkpt(obp->next);
     }
@@ -131,8 +129,11 @@ void free_objectlinkpt(objectlink *obp)
 /**
  * Generic link function for object links.
  */
-objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectlink *afterptr, objectlink *beforeptr, objectlink *objptr)
-{
+objectlink *objectlink_link(objectlink **startptr,
+                            objectlink **endptr,
+                            objectlink *afterptr,
+                            objectlink *beforeptr,
+                            objectlink *objptr) {
     /* Link it behind afterptr */
     if (!beforeptr) {
         /* If not, we just have to update startptr and endptr */
@@ -184,8 +185,7 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
 /**
  * Unlink object link from a list.
  */
-objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr)
-{
+objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr) {
     if (startptr && *startptr == objptr) {
         *startptr = objptr->next;
     }

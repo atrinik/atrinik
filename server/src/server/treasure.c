@@ -35,15 +35,8 @@
 #include <toolkit/string.h>
 
 /** All the coin arches. */
-const char *const coins[NUM_COINS + 1] = {
-    "ambercoin",
-    "mithrilcoin",
-    "jadecoin",
-    "goldcoin",
-    "silvercoin",
-    "coppercoin",
-    NULL
-};
+const char *const coins[NUM_COINS + 1] =
+    {"ambercoin", "mithrilcoin", "jadecoin", "goldcoin", "silvercoin", "coppercoin", NULL};
 
 /**
  * Difficulty to magic chance list.
@@ -51,56 +44,56 @@ const char *const coins[NUM_COINS + 1] = {
 static const int difftomagic_list[DIFFLEVELS][MAXMAGIC + 1] = {
     /* Chance of magic  Difficulty */
     /* +0 +1 +2 +3 +4 */
-    {94, 3, 2, 1, 0},   /*1*/
-    {94, 3, 2, 1, 0},   /*2*/
-    {94, 3, 2, 1, 0},   /*3*/
-    {94, 3, 2, 1, 0},   /*4*/
-    {94, 3, 2, 1, 0},   /*5*/
-    {90, 4, 3, 2, 1},   /*6*/
-    {90, 4, 3, 2, 1},   /*7*/
-    {90, 4, 3, 2, 1},   /*8*/
-    {90, 4, 3, 2, 1},   /*9*/
-    {90, 4, 3, 2, 1},   /*10*/
-    {85, 6, 4, 3, 2},   /*11*/
-    {85, 6, 4, 3, 2},   /*12*/
-    {85, 6, 4, 3, 2},   /*13*/
-    {85, 6, 4, 3, 2},   /*14*/
-    {85, 6, 4, 3, 2},   /*15*/
-    {80, 8, 5, 4, 3},   /*16*/
-    {80, 8, 5, 4, 3},   /*17*/
-    {80, 8, 5, 4, 3},   /*18*/
-    {80, 8, 5, 4, 3},   /*19*/
-    {80, 8, 5, 4, 3},   /*20*/
-    {75, 10, 6, 5, 4},  /*21*/
-    {75, 10, 6, 5, 4},  /*22*/
-    {75, 10, 6, 5, 4},  /*23*/
-    {75, 10, 6, 5, 4},  /*24*/
-    {75, 10, 6, 5, 4},  /*25*/
-    {70, 12, 7, 6, 5},  /*26*/
-    {70, 12, 7, 6, 5},  /*27*/
-    {70, 12, 7, 6, 5},  /*28*/
-    {70, 12, 7, 6, 5},  /*29*/
-    {70, 12, 7, 6, 5},  /*30*/
-    {70, 9, 8, 7, 6},   /*31*/
-    {70, 9, 8, 7, 6},   /*32*/
-    {70, 9, 8, 7, 6},   /*33*/
-    {70, 9, 8, 7, 6},   /*34*/
-    {70, 9, 8, 7, 6},   /*35*/
-    {70, 6, 9, 8, 7},   /*36*/
-    {70, 6, 9, 8, 7},   /*37*/
-    {70, 6, 9, 8, 7},   /*38*/
-    {70, 6, 9, 8, 7},   /*39*/
-    {70, 6, 9, 8, 7},   /*40*/
-    {70, 3, 10, 9, 8},  /*41*/
-    {70, 3, 10, 9, 8},  /*42*/
-    {70, 3, 10, 9, 8},  /*43*/
-    {70, 3, 10, 9, 8},  /*44*/
-    {70, 3, 10, 9, 8},  /*45*/
-    {70, 2, 9, 10, 9},  /*46*/
-    {70, 2, 9, 10, 9},  /*47*/
-    {70, 2, 9, 10, 9},  /*48*/
-    {70, 2, 9, 10, 9},  /*49*/
-    {70, 2, 9, 10, 9},  /*50*/
+    {94, 3, 2, 1, 0}, /*1*/
+    {94, 3, 2, 1, 0}, /*2*/
+    {94, 3, 2, 1, 0}, /*3*/
+    {94, 3, 2, 1, 0}, /*4*/
+    {94, 3, 2, 1, 0}, /*5*/
+    {90, 4, 3, 2, 1}, /*6*/
+    {90, 4, 3, 2, 1}, /*7*/
+    {90, 4, 3, 2, 1}, /*8*/
+    {90, 4, 3, 2, 1}, /*9*/
+    {90, 4, 3, 2, 1}, /*10*/
+    {85, 6, 4, 3, 2}, /*11*/
+    {85, 6, 4, 3, 2}, /*12*/
+    {85, 6, 4, 3, 2}, /*13*/
+    {85, 6, 4, 3, 2}, /*14*/
+    {85, 6, 4, 3, 2}, /*15*/
+    {80, 8, 5, 4, 3}, /*16*/
+    {80, 8, 5, 4, 3}, /*17*/
+    {80, 8, 5, 4, 3}, /*18*/
+    {80, 8, 5, 4, 3}, /*19*/
+    {80, 8, 5, 4, 3}, /*20*/
+    {75, 10, 6, 5, 4}, /*21*/
+    {75, 10, 6, 5, 4}, /*22*/
+    {75, 10, 6, 5, 4}, /*23*/
+    {75, 10, 6, 5, 4}, /*24*/
+    {75, 10, 6, 5, 4}, /*25*/
+    {70, 12, 7, 6, 5}, /*26*/
+    {70, 12, 7, 6, 5}, /*27*/
+    {70, 12, 7, 6, 5}, /*28*/
+    {70, 12, 7, 6, 5}, /*29*/
+    {70, 12, 7, 6, 5}, /*30*/
+    {70, 9, 8, 7, 6}, /*31*/
+    {70, 9, 8, 7, 6}, /*32*/
+    {70, 9, 8, 7, 6}, /*33*/
+    {70, 9, 8, 7, 6}, /*34*/
+    {70, 9, 8, 7, 6}, /*35*/
+    {70, 6, 9, 8, 7}, /*36*/
+    {70, 6, 9, 8, 7}, /*37*/
+    {70, 6, 9, 8, 7}, /*38*/
+    {70, 6, 9, 8, 7}, /*39*/
+    {70, 6, 9, 8, 7}, /*40*/
+    {70, 3, 10, 9, 8}, /*41*/
+    {70, 3, 10, 9, 8}, /*42*/
+    {70, 3, 10, 9, 8}, /*43*/
+    {70, 3, 10, 9, 8}, /*44*/
+    {70, 3, 10, 9, 8}, /*45*/
+    {70, 2, 9, 10, 9}, /*46*/
+    {70, 2, 9, 10, 9}, /*47*/
+    {70, 2, 9, 10, 9}, /*48*/
+    {70, 2, 9, 10, 9}, /*49*/
+    {70, 2, 9, 10, 9}, /*50*/
     {70, 2, 7, 11, 10}, /*51*/
     {70, 2, 7, 11, 10}, /*52*/
     {70, 2, 7, 11, 10}, /*53*/
@@ -131,127 +124,127 @@ static const int difftomagic_list[DIFFLEVELS][MAXMAGIC + 1] = {
     {70, 2, 3, 10, 15}, /*78*/
     {70, 2, 3, 10, 15}, /*79*/
     {70, 2, 3, 10, 15}, /*80*/
-    {70, 2, 3, 9, 16},  /*81*/
-    {70, 2, 3, 9, 16},  /*82*/
-    {70, 2, 3, 9, 16},  /*83*/
-    {70, 2, 3, 9, 16},  /*84*/
-    {70, 2, 3, 9, 16},  /*85*/
-    {70, 2, 3, 8, 17},  /*86*/
-    {70, 2, 3, 8, 17},  /*87*/
-    {70, 2, 3, 8, 17},  /*88*/
-    {70, 2, 3, 8, 17},  /*89*/
-    {70, 2, 3, 8, 17},  /*90*/
-    {70, 2, 3, 7, 18},  /*91*/
-    {70, 2, 3, 7, 18},  /*92*/
-    {70, 2, 3, 7, 18},  /*93*/
-    {70, 2, 3, 7, 18},  /*94*/
-    {70, 2, 3, 7, 18},  /*95*/
-    {70, 2, 3, 6, 19},  /*96*/
-    {70, 2, 3, 6, 19},  /*97*/
-    {70, 2, 3, 6, 19},  /*98*/
-    {70, 2, 3, 6, 19},  /*99*/
-    {70, 2, 3, 6, 19},  /*100*/
-    {70, 2, 3, 6, 19},  /*101*/
-    {70, 2, 3, 6, 19},  /*101*/
-    {70, 2, 3, 6, 19},  /*102*/
-    {70, 2, 3, 6, 19},  /*103*/
-    {70, 2, 3, 6, 19},  /*104*/
-    {70, 2, 3, 6, 19},  /*105*/
-    {70, 2, 3, 6, 19},  /*106*/
-    {70, 2, 3, 6, 19},  /*107*/
-    {70, 2, 3, 6, 19},  /*108*/
-    {70, 2, 3, 6, 19},  /*109*/
-    {70, 2, 3, 6, 19},  /*110*/
-    {70, 2, 3, 6, 19},  /*111*/
-    {70, 2, 3, 6, 19},  /*112*/
-    {70, 2, 3, 6, 19},  /*113*/
-    {70, 2, 3, 6, 19},  /*114*/
-    {70, 2, 3, 6, 19},  /*115*/
-    {70, 2, 3, 6, 19},  /*116*/
-    {70, 2, 3, 6, 19},  /*117*/
-    {70, 2, 3, 6, 19},  /*118*/
-    {70, 2, 3, 6, 19},  /*119*/
-    {70, 2, 3, 6, 19},  /*120*/
-    {70, 2, 3, 6, 19},  /*121*/
-    {70, 2, 3, 6, 19},  /*122*/
-    {70, 2, 3, 6, 19},  /*123*/
-    {70, 2, 3, 6, 19},  /*124*/
-    {70, 2, 3, 6, 19},  /*125*/
-    {70, 2, 3, 6, 19},  /*126*/
-    {70, 2, 3, 6, 19},  /*127*/
-    {70, 2, 3, 6, 19},  /*128*/
-    {70, 2, 3, 6, 19},  /*129*/
-    {70, 2, 3, 6, 19},  /*130*/
-    {70, 2, 3, 6, 19},  /*131*/
-    {70, 2, 3, 6, 19},  /*132*/
-    {70, 2, 3, 6, 19},  /*133*/
-    {70, 2, 3, 6, 19},  /*134*/
-    {70, 2, 3, 6, 19},  /*135*/
-    {70, 2, 3, 6, 19},  /*136*/
-    {70, 2, 3, 6, 19},  /*137*/
-    {70, 2, 3, 6, 19},  /*138*/
-    {70, 2, 3, 6, 19},  /*139*/
-    {70, 2, 3, 6, 19},  /*140*/
-    {70, 2, 3, 6, 19},  /*141*/
-    {70, 2, 3, 6, 19},  /*142*/
-    {70, 2, 3, 6, 19},  /*143*/
-    {70, 2, 3, 6, 19},  /*144*/
-    {70, 2, 3, 6, 19},  /*145*/
-    {70, 2, 3, 6, 19},  /*146*/
-    {70, 2, 3, 6, 19},  /*147*/
-    {70, 2, 3, 6, 19},  /*148*/
-    {70, 2, 3, 6, 19},  /*149*/
-    {70, 2, 3, 6, 19},  /*150*/
-    {70, 2, 3, 6, 19},  /*151*/
-    {70, 2, 3, 6, 19},  /*152*/
-    {70, 2, 3, 6, 19},  /*153*/
-    {70, 2, 3, 6, 19},  /*154*/
-    {70, 2, 3, 6, 19},  /*155*/
-    {70, 2, 3, 6, 19},  /*156*/
-    {70, 2, 3, 6, 19},  /*157*/
-    {70, 2, 3, 6, 19},  /*158*/
-    {70, 2, 3, 6, 19},  /*159*/
-    {70, 2, 3, 6, 19},  /*160*/
-    {70, 2, 3, 6, 19},  /*161*/
-    {70, 2, 3, 6, 19},  /*162*/
-    {70, 2, 3, 6, 19},  /*163*/
-    {70, 2, 3, 6, 19},  /*164*/
-    {70, 2, 3, 6, 19},  /*165*/
-    {70, 2, 3, 6, 19},  /*166*/
-    {70, 2, 3, 6, 19},  /*167*/
-    {70, 2, 3, 6, 19},  /*168*/
-    {70, 2, 3, 6, 19},  /*169*/
-    {70, 2, 3, 6, 19},  /*170*/
-    {70, 2, 3, 6, 19},  /*171*/
-    {70, 2, 3, 6, 19},  /*172*/
-    {70, 2, 3, 6, 19},  /*173*/
-    {70, 2, 3, 6, 19},  /*174*/
-    {70, 2, 3, 6, 19},  /*175*/
-    {70, 2, 3, 6, 19},  /*176*/
-    {70, 2, 3, 6, 19},  /*177*/
-    {70, 2, 3, 6, 19},  /*178*/
-    {70, 2, 3, 6, 19},  /*179*/
-    {70, 2, 3, 6, 19},  /*180*/
-    {70, 2, 3, 6, 19},  /*181*/
-    {70, 2, 3, 6, 19},  /*182*/
-    {70, 2, 3, 6, 19},  /*183*/
-    {70, 2, 3, 6, 19},  /*184*/
-    {70, 2, 3, 6, 19},  /*185*/
-    {70, 2, 3, 6, 19},  /*186*/
-    {70, 2, 3, 6, 19},  /*187*/
-    {70, 2, 3, 6, 19},  /*188*/
-    {70, 2, 3, 6, 19},  /*189*/
-    {70, 2, 3, 6, 19},  /*190*/
-    {70, 2, 3, 6, 19},  /*191*/
-    {70, 2, 3, 6, 19},  /*192*/
-    {70, 2, 3, 6, 19},  /*193*/
-    {70, 2, 3, 6, 19},  /*194*/
-    {70, 2, 3, 6, 19},  /*195*/
-    {70, 2, 3, 6, 19},  /*196*/
-    {70, 2, 3, 6, 19},  /*197*/
-    {70, 2, 3, 6, 19},  /*198*/
-    {70, 2, 3, 6, 19},  /*199*/
-    {70, 2, 3, 6, 19},  /*200*/
+    {70, 2, 3, 9, 16}, /*81*/
+    {70, 2, 3, 9, 16}, /*82*/
+    {70, 2, 3, 9, 16}, /*83*/
+    {70, 2, 3, 9, 16}, /*84*/
+    {70, 2, 3, 9, 16}, /*85*/
+    {70, 2, 3, 8, 17}, /*86*/
+    {70, 2, 3, 8, 17}, /*87*/
+    {70, 2, 3, 8, 17}, /*88*/
+    {70, 2, 3, 8, 17}, /*89*/
+    {70, 2, 3, 8, 17}, /*90*/
+    {70, 2, 3, 7, 18}, /*91*/
+    {70, 2, 3, 7, 18}, /*92*/
+    {70, 2, 3, 7, 18}, /*93*/
+    {70, 2, 3, 7, 18}, /*94*/
+    {70, 2, 3, 7, 18}, /*95*/
+    {70, 2, 3, 6, 19}, /*96*/
+    {70, 2, 3, 6, 19}, /*97*/
+    {70, 2, 3, 6, 19}, /*98*/
+    {70, 2, 3, 6, 19}, /*99*/
+    {70, 2, 3, 6, 19}, /*100*/
+    {70, 2, 3, 6, 19}, /*101*/
+    {70, 2, 3, 6, 19}, /*101*/
+    {70, 2, 3, 6, 19}, /*102*/
+    {70, 2, 3, 6, 19}, /*103*/
+    {70, 2, 3, 6, 19}, /*104*/
+    {70, 2, 3, 6, 19}, /*105*/
+    {70, 2, 3, 6, 19}, /*106*/
+    {70, 2, 3, 6, 19}, /*107*/
+    {70, 2, 3, 6, 19}, /*108*/
+    {70, 2, 3, 6, 19}, /*109*/
+    {70, 2, 3, 6, 19}, /*110*/
+    {70, 2, 3, 6, 19}, /*111*/
+    {70, 2, 3, 6, 19}, /*112*/
+    {70, 2, 3, 6, 19}, /*113*/
+    {70, 2, 3, 6, 19}, /*114*/
+    {70, 2, 3, 6, 19}, /*115*/
+    {70, 2, 3, 6, 19}, /*116*/
+    {70, 2, 3, 6, 19}, /*117*/
+    {70, 2, 3, 6, 19}, /*118*/
+    {70, 2, 3, 6, 19}, /*119*/
+    {70, 2, 3, 6, 19}, /*120*/
+    {70, 2, 3, 6, 19}, /*121*/
+    {70, 2, 3, 6, 19}, /*122*/
+    {70, 2, 3, 6, 19}, /*123*/
+    {70, 2, 3, 6, 19}, /*124*/
+    {70, 2, 3, 6, 19}, /*125*/
+    {70, 2, 3, 6, 19}, /*126*/
+    {70, 2, 3, 6, 19}, /*127*/
+    {70, 2, 3, 6, 19}, /*128*/
+    {70, 2, 3, 6, 19}, /*129*/
+    {70, 2, 3, 6, 19}, /*130*/
+    {70, 2, 3, 6, 19}, /*131*/
+    {70, 2, 3, 6, 19}, /*132*/
+    {70, 2, 3, 6, 19}, /*133*/
+    {70, 2, 3, 6, 19}, /*134*/
+    {70, 2, 3, 6, 19}, /*135*/
+    {70, 2, 3, 6, 19}, /*136*/
+    {70, 2, 3, 6, 19}, /*137*/
+    {70, 2, 3, 6, 19}, /*138*/
+    {70, 2, 3, 6, 19}, /*139*/
+    {70, 2, 3, 6, 19}, /*140*/
+    {70, 2, 3, 6, 19}, /*141*/
+    {70, 2, 3, 6, 19}, /*142*/
+    {70, 2, 3, 6, 19}, /*143*/
+    {70, 2, 3, 6, 19}, /*144*/
+    {70, 2, 3, 6, 19}, /*145*/
+    {70, 2, 3, 6, 19}, /*146*/
+    {70, 2, 3, 6, 19}, /*147*/
+    {70, 2, 3, 6, 19}, /*148*/
+    {70, 2, 3, 6, 19}, /*149*/
+    {70, 2, 3, 6, 19}, /*150*/
+    {70, 2, 3, 6, 19}, /*151*/
+    {70, 2, 3, 6, 19}, /*152*/
+    {70, 2, 3, 6, 19}, /*153*/
+    {70, 2, 3, 6, 19}, /*154*/
+    {70, 2, 3, 6, 19}, /*155*/
+    {70, 2, 3, 6, 19}, /*156*/
+    {70, 2, 3, 6, 19}, /*157*/
+    {70, 2, 3, 6, 19}, /*158*/
+    {70, 2, 3, 6, 19}, /*159*/
+    {70, 2, 3, 6, 19}, /*160*/
+    {70, 2, 3, 6, 19}, /*161*/
+    {70, 2, 3, 6, 19}, /*162*/
+    {70, 2, 3, 6, 19}, /*163*/
+    {70, 2, 3, 6, 19}, /*164*/
+    {70, 2, 3, 6, 19}, /*165*/
+    {70, 2, 3, 6, 19}, /*166*/
+    {70, 2, 3, 6, 19}, /*167*/
+    {70, 2, 3, 6, 19}, /*168*/
+    {70, 2, 3, 6, 19}, /*169*/
+    {70, 2, 3, 6, 19}, /*170*/
+    {70, 2, 3, 6, 19}, /*171*/
+    {70, 2, 3, 6, 19}, /*172*/
+    {70, 2, 3, 6, 19}, /*173*/
+    {70, 2, 3, 6, 19}, /*174*/
+    {70, 2, 3, 6, 19}, /*175*/
+    {70, 2, 3, 6, 19}, /*176*/
+    {70, 2, 3, 6, 19}, /*177*/
+    {70, 2, 3, 6, 19}, /*178*/
+    {70, 2, 3, 6, 19}, /*179*/
+    {70, 2, 3, 6, 19}, /*180*/
+    {70, 2, 3, 6, 19}, /*181*/
+    {70, 2, 3, 6, 19}, /*182*/
+    {70, 2, 3, 6, 19}, /*183*/
+    {70, 2, 3, 6, 19}, /*184*/
+    {70, 2, 3, 6, 19}, /*185*/
+    {70, 2, 3, 6, 19}, /*186*/
+    {70, 2, 3, 6, 19}, /*187*/
+    {70, 2, 3, 6, 19}, /*188*/
+    {70, 2, 3, 6, 19}, /*189*/
+    {70, 2, 3, 6, 19}, /*190*/
+    {70, 2, 3, 6, 19}, /*191*/
+    {70, 2, 3, 6, 19}, /*192*/
+    {70, 2, 3, 6, 19}, /*193*/
+    {70, 2, 3, 6, 19}, /*194*/
+    {70, 2, 3, 6, 19}, /*195*/
+    {70, 2, 3, 6, 19}, /*196*/
+    {70, 2, 3, 6, 19}, /*197*/
+    {70, 2, 3, 6, 19}, /*198*/
+    {70, 2, 3, 6, 19}, /*199*/
+    {70, 2, 3, 6, 19}, /*200*/
 };
 
 /** Pointers to coin archetypes. */
@@ -264,19 +257,15 @@ static void free_treasurestruct(treasure_t *t);
 
 /* Function prototypes */
 static void
-treasure_load_more(treasure_t **treasure,
-                   FILE        *fp,
-                   const char  *filename,
-                   uint64_t    *linenum);
-static void
-treasure_generate_internal(treasure_list_t     *treasure_list,
-                           object              *op,
-                           int                  difficulty,
-                           int                  flags,
-                           treasure_affinity_t *affinity,
-                           int                  artifact_chance,
-                           int                  tries,
-                           treasure_attrs_t    *attrs);
+treasure_load_more(treasure_t **treasure, FILE *fp, const char *filename, uint64_t *linenum);
+static void treasure_generate_internal(treasure_list_t *treasure_list,
+                                       object *op,
+                                       int difficulty,
+                                       int flags,
+                                       treasure_affinity_t *affinity,
+                                       int artifact_chance,
+                                       int tries,
+                                       treasure_attrs_t *attrs);
 
 /**
  * Allocate and return a pointer to an empty treasure list structure.
@@ -284,9 +273,7 @@ treasure_generate_internal(treasure_list_t     *treasure_list,
  * @return
  * New structure, never NULL.
  */
-static treasure_list_t *
-treasure_list_create (void)
-{
+static treasure_list_t *treasure_list_create(void) {
     treasure_list_t *treasure_list = ecalloc(1, sizeof(*treasure_list));
 
     treasure_list->artifact_chance = TREASURE_ARTIFACT_CHANCE;
@@ -302,9 +289,7 @@ treasure_list_create (void)
  * @return
  * New structure, never NULL.
  */
-static treasure_t *
-treasure_create (void)
-{
+static treasure_t *treasure_create(void) {
     treasure_t *treasure = ecalloc(1, sizeof(*treasure));
 
     treasure->magic_chance = 3;
@@ -339,13 +324,11 @@ treasure_create (void)
  * @return
  * Read structure, never NULL.
  */
-static treasure_t *
-treasure_load_one (FILE                 *fp,
-                   const char           *filename,
-                   uint64_t             *linenum,
-                   treasure_affinity_t **affinity,
-                   int                  *artifact_chance)
-{
+static treasure_t *treasure_load_one(FILE *fp,
+                                     const char *filename,
+                                     uint64_t *linenum,
+                                     treasure_affinity_t **affinity,
+                                     int *artifact_chance) {
     HARD_ASSERT(fp != NULL);
     HARD_ASSERT(filename != NULL);
     HARD_ASSERT(linenum != NULL);
@@ -523,7 +506,7 @@ treasure_load_one (FILE                 *fp,
         }
 
         continue;
-error:
+    error:
         LOG(ERROR,
             "Error parsing %s, line %" PRIu64 ", %s: %s %s",
             filename,
@@ -554,11 +537,7 @@ error:
  * Line number.
  */
 static void
-treasure_load_more (treasure_t **treasure,
-                    FILE        *fp,
-                    const char  *filename,
-                    uint64_t    *linenum)
-{
+treasure_load_more(treasure_t **treasure, FILE *fp, const char *filename, uint64_t *linenum) {
     HARD_ASSERT(treasure != NULL);
     HARD_ASSERT(fp != NULL);
     HARD_ASSERT(filename != NULL);
@@ -567,11 +546,7 @@ treasure_load_more (treasure_t **treasure,
     treasure_affinity_t *affinity = NULL;
     int artifact_chance = TREASURE_ARTIFACT_CHANCE;
 
-    *treasure = treasure_load_one(fp,
-                                  filename,
-                                  linenum,
-                                  &affinity,
-                                  &artifact_chance);
+    *treasure = treasure_load_one(fp, filename, linenum, &affinity, &artifact_chance);
 
     if ((*treasure)->artifact_chance == TREASURE_ARTIFACT_CHANCE) {
         (*treasure)->artifact_chance = artifact_chance;
@@ -589,9 +564,7 @@ treasure_load_more (treasure_t **treasure,
  *
  * Each treasure is parsed with the help of treasure_load_one().
  */
-static void
-treasure_load (void)
-{
+static void treasure_load(void) {
     char filename[HUGE_BUF];
     snprintf(VS(filename), "%s/treasures", settings.libpath);
 
@@ -617,8 +590,7 @@ treasure_load (void)
 
         const char *key = cps[0], *value = cps[1], *error_str = NULL;
 
-        if (strcmp(key, "treasureone") == 0 ||
-            strcmp(key, "treasure") == 0) {
+        if (strcmp(key, "treasureone") == 0 || strcmp(key, "treasure") == 0) {
             treasure_list_t *treasure_list = treasure_list_create();
             FREE_AND_COPY_HASH(treasure_list->name, value);
 
@@ -628,11 +600,8 @@ treasure_load (void)
 
             treasure_affinity_t *affinity = NULL;
             int artifact_chance = TREASURE_ARTIFACT_CHANCE;
-            treasure_list->items = treasure_load_one(fp,
-                                                     filename,
-                                                     &linenum,
-                                                     &affinity,
-                                                     &artifact_chance);
+            treasure_list->items =
+                treasure_load_one(fp, filename, &linenum, &affinity, &artifact_chance);
 
             if (treasure_list->artifact_chance == TREASURE_ARTIFACT_CHANCE) {
                 treasure_list->artifact_chance = artifact_chance;
@@ -644,17 +613,15 @@ treasure_load (void)
                 free_string_shared(affinity);
             }
 
-           if (strcmp(key, "treasureone") == 0) {
-                for (treasure_t *treasure = treasure_list->items;
-                     treasure != NULL;
+            if (strcmp(key, "treasureone") == 0) {
+                for (treasure_t *treasure = treasure_list->items; treasure != NULL;
                      treasure = treasure->next) {
                     if (treasure->next_yes || treasure->next_no) {
                         LOG(ERROR,
                             "Treasure %s is one item, but on treasure %s "
                             "the next_yes or next_no field is set",
                             treasure_list->name,
-                            treasure->item != NULL ? treasure->item->name :
-                                treasure->name);
+                            treasure->item != NULL ? treasure->item->name : treasure->name);
                         exit(1);
                     }
 
@@ -667,7 +634,7 @@ treasure_load (void)
         }
 
         continue;
-error:
+    error:
         LOG(ERROR,
             "Error parsing %s, line %" PRIu64 ", %s: %s %s",
             filename,
@@ -686,9 +653,7 @@ error:
  *
  * This is done for faster access to the coin archetypes.
  */
-static void
-treasure_init_coins (void)
-{
+static void treasure_init_coins(void) {
     for (int i = 0; coins[i] != NULL; i++) {
         coins_arch[i] = arch_find(coins[i]);
         if (coins_arch[i] == NULL) {
@@ -706,22 +671,16 @@ treasure_init_coins (void)
  * @param tl
  * Needed only so that the treasure name can be printed out.
  */
-static void
-treasure_list_check (treasure_t *t, treasure_list_t *tl)
-{
+static void treasure_list_check(treasure_t *t, treasure_list_t *tl) {
     HARD_ASSERT(t != NULL);
     HARD_ASSERT(tl != NULL);
 
     if (t->item == NULL && t->name == NULL) {
-        LOG(ERROR,
-            "Treasurelist %s has element with no name or archetype",
-            tl->name);
+        LOG(ERROR, "Treasurelist %s has element with no name or archetype", tl->name);
         exit(1);
     }
 
-    if (t->chance >= 100 &&
-        t->next_yes != NULL &&
-        (t->next != NULL || t->next_no != NULL)) {
+    if (t->chance >= 100 && t->next_yes != NULL && (t->next != NULL || t->next_no != NULL)) {
         LOG(ERROR,
             "Treasurelist %s has element that has 100%% generation, "
             "next_yes field as well as next or next_no",
@@ -731,7 +690,7 @@ treasure_list_check (treasure_t *t, treasure_list_t *tl)
     if (t->name != NULL && t->name != shstr_cons.NONE) {
         /* treasure_list_find will drop an error message if the treasure list
          * cannot be found. */
-        (void) treasure_list_find(t->name);
+        (void)treasure_list_find(t->name);
     }
 
     if (t->next != NULL) {
@@ -750,9 +709,7 @@ treasure_list_check (treasure_t *t, treasure_list_t *tl)
 /**
  * Initialize the treasure sub-system.
  */
-void
-treasure_init (void)
-{
+void treasure_init(void) {
     treasure_load();
     treasure_init_coins();
 
@@ -760,8 +717,7 @@ treasure_init (void)
      * Verify that list transitions work (ie, the list that it is
      * supposed to transition to exists). Also, verify that at least the
      * name or archetype is set for each treasure element. */
-    for (treasure_list_t *treasure = first_treasurelist;
-         treasure != NULL;
+    for (treasure_list_t *treasure = first_treasurelist; treasure != NULL;
          treasure = treasure->next) {
         treasure_list_check(treasure->items, treasure);
     }
@@ -785,9 +741,7 @@ treasure_init (void)
  * @param name
  * Treasure list name to search for.
  */
-treasure_list_t *
-treasure_list_find (const char *name)
-{
+treasure_list_t *treasure_list_find(const char *name) {
     SOFT_ASSERT_RC(name != NULL, NULL, "name is NULL");
 
     /* Still initializing the treasure lists, so return NULL for now. */
@@ -804,8 +758,7 @@ treasure_list_find (const char *name)
         return NULL;
     }
 
-    for (treasure_list_t *treasure_list = first_treasurelist;
-         treasure_list != NULL;
+    for (treasure_list_t *treasure_list = first_treasurelist; treasure_list != NULL;
          treasure_list = treasure_list->next) {
         if (name_sh == treasure_list->name) {
             return treasure_list;
@@ -825,9 +778,7 @@ out:
  * @return
  * Magic value.
  */
-static int
-magic_from_difficulty (int difficulty)
-{
+static int magic_from_difficulty(int difficulty) {
     difficulty--;
 
     if (difficulty < 0) {
@@ -865,9 +816,7 @@ magic_from_difficulty (int difficulty)
  * @param magic
  * Magic modifier.
  */
-static void
-treasure_set_magical_bonus (object *op, int magic)
-{
+static void treasure_set_magical_bonus(object *op, int magic) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(magic != 0);
 
@@ -892,8 +841,7 @@ treasure_set_magical_bonus (object *op, int magic)
         }
 
         if (op->type == ARMOUR) {
-            ARMOUR_SPEED(op) = (ARMOUR_SPEED(&op->arch->clone) *
-                                (100 + magic * 10)) / 100;
+            ARMOUR_SPEED(op) = (ARMOUR_SPEED(&op->arch->clone) * (100 + magic * 10)) / 100;
         }
 
         if (magic < 0 && rndm_chance(3)) {
@@ -933,14 +881,12 @@ treasure_set_magical_bonus (object *op, int magic)
  * @param flags
  * Combination of @ref GT_xxx flags.
  */
-static void
-treasure_set_magic (object *op,
-                    int     difficulty,
-                    int     max_magic,
-                    int     fixed_magic,
-                    int     chance_magic,
-                    int     flags)
-{
+static void treasure_set_magic(object *op,
+                               int difficulty,
+                               int max_magic,
+                               int fixed_magic,
+                               int chance_magic,
+                               int flags) {
     int magic;
 
     HARD_ASSERT(op != NULL);
@@ -975,9 +921,7 @@ treasure_set_magic (object *op,
  * @param flags
  * Combination of @ref GT_xxx values.
  */
-static void
-treasure_insert (object *op, object *creator, int flags)
-{
+static void treasure_insert(object *op, object *creator, int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(creator != NULL);
 
@@ -998,9 +942,7 @@ treasure_insert (object *op, object *creator, int flags)
  * @param attrs
  * Attributes to apply.
  */
-static void
-treasure_apply_attrs (object *op, treasure_attrs_t *attrs)
-{
+static void treasure_apply_attrs(object *op, treasure_attrs_t *attrs) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(attrs != NULL);
 
@@ -1025,9 +967,7 @@ treasure_apply_attrs (object *op, treasure_attrs_t *attrs)
  * @param attrs
  * Treasure attributes.
  */
-static void
-treasure_set_quality (object *op, treasure_attrs_t *attrs)
-{
+static void treasure_set_quality(object *op, treasure_attrs_t *attrs) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(attrs != NULL);
 
@@ -1056,9 +996,7 @@ treasure_set_quality (object *op, treasure_attrs_t *attrs)
  * @param attrs
  * Treasure attributes.
  */
-static void
-treasure_set_material (object *op, treasure_attrs_t *attrs)
-{
+static void treasure_set_material(object *op, treasure_attrs_t *attrs) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(attrs != NULL);
 
@@ -1067,7 +1005,7 @@ treasure_set_material (object *op, treasure_attrs_t *attrs)
     }
 
     if (attrs->item_race != -1) {
-        op->item_race = (uint8_t) attrs->item_race;
+        op->item_race = (uint8_t)attrs->item_race;
     }
 
     if (op->material_real == -1) {
@@ -1127,19 +1065,15 @@ treasure_set_material (object *op, treasure_attrs_t *attrs)
             material_tmp = material_tmp * 64 + 1;
 
             for (int i = 0; i < NROFMATERIALS_REAL; i++) {
-                if (materials_real[material_tmp + i].quality ==
-                        material_quality) {
+                if (materials_real[material_tmp + i].quality == material_quality) {
                     op->material_real = material_tmp + i;
                     treasure_set_quality(op, attrs);
                     return;
                 }
 
-                if (materials_real[material_tmp + i].quality >=
-                        attrs->material_quality &&
-                    materials_real[material_tmp + i].quality <=
-                        material_quality &&
-                    materials_real[material_tmp + i].quality >
-                        best_material) {
+                if (materials_real[material_tmp + i].quality >= attrs->material_quality &&
+                    materials_real[material_tmp + i].quality <= material_quality &&
+                    materials_real[material_tmp + i].quality > best_material) {
                     best_material = material_tmp + i;
                 }
             }
@@ -1190,18 +1124,16 @@ treasure_set_material (object *op, treasure_attrs_t *attrs)
  * @param attrs
  * Treasure attributes to apply.
  */
-static void
-treasure_process_generated (object              *op,
-                            object              *creator,
-                            int                  difficulty,
-                            int                  flags,
-                            int                  artifact_chance,
-                            treasure_affinity_t *affinity,
-                            int                  max_magic,
-                            int                  fixed_magic,
-                            int                  chance_magic,
-                            treasure_attrs_t    *attrs)
-{
+static void treasure_process_generated(object *op,
+                                       object *creator,
+                                       int difficulty,
+                                       int flags,
+                                       int artifact_chance,
+                                       treasure_affinity_t *affinity,
+                                       int max_magic,
+                                       int fixed_magic,
+                                       int chance_magic,
+                                       treasure_attrs_t *attrs) {
     HARD_ASSERT(op != NULL);
 
     /* Safety and to prevent polymorphed objects giving attributes. */
@@ -1224,31 +1156,19 @@ treasure_process_generated (object              *op,
         }
 
         if ((op->magic == 0 && max_magic != 0) || fixed_magic != 0) {
-            treasure_set_magic(op,
-                               difficulty,
-                               max_magic,
-                               fixed_magic,
-                               chance_magic,
-                               flags);
+            treasure_set_magic(op, difficulty, max_magic, fixed_magic, chance_magic, flags);
         }
 
         if (artifact_chance != 0) {
-            if ((!was_magical && rndm_chance(CHANCE_FOR_ARTIFACT)) ||
-                difficulty >= 999 ||
+            if ((!was_magical && rndm_chance(CHANCE_FOR_ARTIFACT)) || difficulty >= 999 ||
                 rndm(1, 100) <= artifact_chance) {
-                generated_artifact = artifact_generate(op,
-                                                       difficulty,
-                                                       affinity);
+                generated_artifact = artifact_generate(op, difficulty, affinity);
             }
         }
     }
 
     object *new_obj;
-    int res = object_process_treasure(op,
-                                      &new_obj,
-                                      difficulty,
-                                      affinity,
-                                      flags);
+    int res = object_process_treasure(op, &new_obj, difficulty, affinity, flags);
     if (res == OBJECT_METHOD_ERROR) {
         return;
     } else if (res == OBJECT_METHOD_OK) {
@@ -1264,9 +1184,7 @@ treasure_process_generated (object              *op,
     }
 
     if (flags & GT_STARTEQUIP) {
-        if (op->nrof < 2 &&
-            op->type != CONTAINER &&
-            op->type != MONEY &&
+        if (op->nrof < 2 && op->type != CONTAINER && op->type != MONEY &&
             !QUERY_FLAG(op, FLAG_IS_THROWN)) {
             SET_FLAG(op, FLAG_STARTEQUIP);
         } else if (op->type != MONEY) {
@@ -1309,16 +1227,14 @@ treasure_process_generated (object              *op,
  * @param attrs
  * Treasure attributes.
  */
-static void
-treasure_create_all (treasure_t          *treasure,
-                     object              *op,
-                     int                  difficulty,
-                     int                  flags,
-                     treasure_affinity_t *affinity,
-                     int                  artifact_chance,
-                     int                  tries,
-                     treasure_attrs_t    *attrs)
-{
+static void treasure_create_all(treasure_t *treasure,
+                                object *op,
+                                int difficulty,
+                                int flags,
+                                treasure_affinity_t *affinity,
+                                int artifact_chance,
+                                int tries,
+                                treasure_attrs_t *attrs) {
     HARD_ASSERT(treasure != NULL);
     HARD_ASSERT(op != NULL);
 
@@ -1332,10 +1248,18 @@ treasure_create_all (treasure_t          *treasure,
         artifact_chance = treasure->artifact_chance;
     }
 
-    if ((treasure->chance_fix != CHANCE_FIX && rndm_chance(treasure->chance_fix)) || (int) treasure->chance >= 100 || (rndm(1, 100) < (int) treasure->chance)) {
+    if ((treasure->chance_fix != CHANCE_FIX && rndm_chance(treasure->chance_fix)) ||
+        (int)treasure->chance >= 100 || (rndm(1, 100) < (int)treasure->chance)) {
         if (treasure->name) {
             if (treasure->name != shstr_cons.NONE && difficulty >= treasure->difficulty) {
-                treasure_generate_internal(treasure_list_find(treasure->name), op, difficulty, flags, affinity, artifact_chance, tries, attrs ? attrs : &treasure->attrs);
+                treasure_generate_internal(treasure_list_find(treasure->name),
+                                           op,
+                                           difficulty,
+                                           flags,
+                                           affinity,
+                                           artifact_chance,
+                                           tries,
+                                           attrs ? attrs : &treasure->attrs);
             }
         } else if (difficulty >= treasure->difficulty) {
             if (treasure->item->clone.type != WEALTH) {
@@ -1365,7 +1289,7 @@ treasure_create_all (treasure_t          *treasure,
                 value *= (difficulty / 2) + 1;
 
                 /* So we have 80% to 120% of the fixed value */
-                value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
+                value = (int)((float)value * 0.8f + (float)value * (rndm(1, 40) / 100.0f));
 
                 for (i = 0; i < NUM_COINS; i++) {
                     if (value / coins_arch[i]->clone.value > 0) {
@@ -1380,14 +1304,38 @@ treasure_create_all (treasure_t          *treasure,
         }
 
         if (treasure->next_yes != NULL) {
-            treasure_create_all(treasure->next_yes, op, difficulty, flags, (treasure->next_yes->affinity == NULL) ? affinity : treasure->next_yes->affinity, artifact_chance, tries, attrs);
+            treasure_create_all(
+                treasure->next_yes,
+                op,
+                difficulty,
+                flags,
+                (treasure->next_yes->affinity == NULL) ? affinity : treasure->next_yes->affinity,
+                artifact_chance,
+                tries,
+                attrs);
         }
     } else if (treasure->next_no != NULL) {
-        treasure_create_all(treasure->next_no, op, difficulty, flags, (treasure->next_no->affinity == NULL) ? affinity : treasure->next_no->affinity, artifact_chance, tries, attrs);
+        treasure_create_all(treasure->next_no,
+                            op,
+                            difficulty,
+                            flags,
+                            (treasure->next_no->affinity == NULL) ? affinity
+                                                                  : treasure->next_no->affinity,
+                            artifact_chance,
+                            tries,
+                            attrs);
     }
 
     if (treasure->next != NULL) {
-        treasure_create_all(treasure->next, op, difficulty, flags, (treasure->next->affinity == NULL) ? affinity : treasure->next->affinity, artifact_chance, tries, attrs);
+        treasure_create_all(treasure->next,
+                            op,
+                            difficulty,
+                            flags,
+                            (treasure->next->affinity == NULL) ? affinity
+                                                               : treasure->next->affinity,
+                            artifact_chance,
+                            tries,
+                            attrs);
     }
 }
 
@@ -1412,16 +1360,14 @@ treasure_create_all (treasure_t          *treasure,
  * Treasure attributes.
  * @todo Get rid of the goto.
  */
-static void
-treasure_create_one (treasure_list_t     *treasure_list,
-                     object              *op,
-                     int                  difficulty,
-                     int                  flags,
-                     treasure_affinity_t *affinity,
-                     int                  artifact_chance,
-                     int                  tries,
-                     treasure_attrs_t    *attrs)
-{
+static void treasure_create_one(treasure_list_t *treasure_list,
+                                object *op,
+                                int difficulty,
+                                int flags,
+                                treasure_affinity_t *affinity,
+                                int artifact_chance,
+                                int tries,
+                                treasure_attrs_t *attrs) {
     HARD_ASSERT(treasure_list != NULL);
     HARD_ASSERT(op != NULL);
 
@@ -1486,7 +1432,10 @@ create_one_treasure_again_jmp:
     }
 
     if (!t || value > 0) {
-        LOG(BUG, "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", treasure_list ? treasure_list->name : "(null)", op ? op->name : "(null)");
+        LOG(BUG,
+            "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s",
+            treasure_list ? treasure_list->name : "(null)",
+            op ? op->name : "(null)");
         return;
     }
 
@@ -1504,9 +1453,23 @@ create_one_treasure_again_jmp:
         }
 
         if (difficulty >= t->difficulty) {
-            treasure_generate_internal(treasure_list_find(t->name), op, difficulty, flags, affinity, artifact_chance, tries, attrs);
+            treasure_generate_internal(treasure_list_find(t->name),
+                                       op,
+                                       difficulty,
+                                       flags,
+                                       affinity,
+                                       artifact_chance,
+                                       tries,
+                                       attrs);
         } else if (t->nrof) {
-            treasure_create_one(treasure_list, op, difficulty, flags, affinity, artifact_chance, tries, attrs);
+            treasure_create_one(treasure_list,
+                                op,
+                                difficulty,
+                                flags,
+                                affinity,
+                                artifact_chance,
+                                tries,
+                                attrs);
         }
 
         return;
@@ -1540,7 +1503,7 @@ create_one_treasure_again_jmp:
         value *= difficulty;
 
         /* So we have 80% to 120% of the fixed value */
-        value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
+        value = (int)((float)value * 0.8f + (float)value * (rndm(1, 40) / 100.0f));
 
         for (i = 0; i < NUM_COINS; i++) {
             if (value / coins_arch[i]->clone.value > 0) {
@@ -1575,23 +1538,19 @@ create_one_treasure_again_jmp:
  * @param attrs
  * Treasure attributes.
  */
-static void
-treasure_generate_internal (treasure_list_t     *treasure_list,
-                            object              *op,
-                            int                  difficulty,
-                            int                  flags,
-                            treasure_affinity_t *affinity,
-                            int                  artifact_chance,
-                            int                  tries,
-                            treasure_attrs_t    *attrs)
-{
+static void treasure_generate_internal(treasure_list_t *treasure_list,
+                                       object *op,
+                                       int difficulty,
+                                       int flags,
+                                       treasure_affinity_t *affinity,
+                                       int artifact_chance,
+                                       int tries,
+                                       treasure_attrs_t *attrs) {
     HARD_ASSERT(treasure_list != NULL);
     HARD_ASSERT(op != NULL);
 
     if (tries++ > 100) {
-        LOG(ERROR,
-            "Tries reached maximum for treasure list %s.",
-            treasure_list->name);
+        LOG(ERROR, "Tries reached maximum for treasure list %s.", treasure_list->name);
         return;
     }
 
@@ -1637,12 +1596,7 @@ treasure_generate_internal (treasure_list_t     *treasure_list,
  * @param flags
  * Combination of @ref GT_xxx values.
  */
-void
-treasure_generate (treasure_list_t *treasure_list,
-                   object          *op,
-                   int              difficulty,
-                   int              flags)
-{
+void treasure_generate(treasure_list_t *treasure_list, object *op, int difficulty, int flags) {
     SOFT_ASSERT(treasure_list != NULL, "NULL treasure list");
     SOFT_ASSERT(op != NULL, "NULL object");
 
@@ -1669,13 +1623,8 @@ treasure_generate (treasure_list_t *treasure_list,
  * Generated treasure. Can be NULL if no suitable treasure was found.
  */
 object *
-treasure_generate_single (treasure_list_t *treasure_list,
-                          int              difficulty,
-                          int              artifact_chance)
-{
-    SOFT_ASSERT_RC(treasure_list != NULL,
-                   NULL,
-                   "NULL treasure list");
+treasure_generate_single(treasure_list_t *treasure_list, int difficulty, int artifact_chance) {
+    SOFT_ASSERT_RC(treasure_list != NULL, NULL, "NULL treasure list");
 
     object *op = object_get();
     treasure_generate_internal(treasure_list,
@@ -1693,9 +1642,7 @@ treasure_generate_single (treasure_list_t *treasure_list,
     }
 
     if (op->inv != NULL) {
-        LOG(ERROR,
-            "Created multiple objects, treasure list: %s",
-            treasure_list->name);
+        LOG(ERROR, "Created multiple objects, treasure list: %s", treasure_list->name);
     }
 
     object_destroy(op);
@@ -1709,8 +1656,7 @@ treasure_generate_single (treasure_list_t *treasure_list,
  * Treasure to free. Pointer is efree()d too, so becomes
  * invalid.
  */
-static void free_treasurestruct(treasure_t *t)
-{
+static void free_treasurestruct(treasure_t *t) {
     if (t->next) {
         free_treasurestruct(t->next);
     }
@@ -1734,8 +1680,7 @@ static void free_treasurestruct(treasure_t *t)
 /**
  * Free all treasure related memory.
  */
-void free_all_treasures(void)
-{
+void free_all_treasures(void) {
     treasure_list_t *tl, *next;
 
     for (tl = first_treasurelist; tl; tl = next) {
@@ -1759,8 +1704,7 @@ void free_all_treasures(void)
  * @return
  * The environment level, always at least 1.
  */
-int get_environment_level(object *op)
-{
+int get_environment_level(object *op) {
     object *env;
 
     if (!op) {

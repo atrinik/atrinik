@@ -33,8 +33,7 @@
 #include <toolkit/string.h>
 #include <toolkit/x11.h>
 
-text_input_history_struct *text_input_history_create(void)
-{
+text_input_history_struct *text_input_history_create(void) {
     text_input_history_struct *tmp;
 
     tmp = ecalloc(1, sizeof(*tmp));
@@ -43,8 +42,7 @@ text_input_history_struct *text_input_history_create(void)
     return tmp;
 }
 
-void text_input_history_free(text_input_history_struct *history)
-{
+void text_input_history_free(text_input_history_struct *history) {
     utarray_free(history->history);
     efree(history);
 }
@@ -56,15 +54,14 @@ void text_input_history_free(text_input_history_struct *history)
  * @param text
  * The text to add to the history.
  */
-static void text_input_history_add(text_input_history_struct *history, const char *text)
-{
+static void text_input_history_add(text_input_history_struct *history, const char *text) {
     char **p;
 
     if (!history) {
         return;
     }
 
-    p = (char **) utarray_back(history->history);
+    p = (char **)utarray_back(history->history);
 
     if (p && !strcmp(*p, text)) {
         return;
@@ -72,13 +69,16 @@ static void text_input_history_add(text_input_history_struct *history, const cha
 
     utarray_push_back(history->history, &text);
 
-    if (utarray_len(history->history) > (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES)) {
-        utarray_erase(history->history, 0, utarray_len(history->history) - (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES));
+    if (utarray_len(history->history) >
+        (size_t)setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES)) {
+        utarray_erase(history->history,
+                      0,
+                      utarray_len(history->history) -
+                          (size_t)setting_get_int(OPT_CAT_GENERAL, OPT_MAX_INPUT_HISTORY_LINES));
     }
 }
 
-void text_input_create(text_input_struct *text_input)
-{
+void text_input_create(text_input_struct *text_input) {
     memset(text_input, 0, sizeof(*text_input));
     text_input->focus = 1;
     text_input->coords.w = 200;
@@ -93,15 +93,13 @@ void text_input_create(text_input_struct *text_input)
  * @param text_input
  * Text input to destroy.
  */
-void text_input_destroy(text_input_struct *text_input)
-{
+void text_input_destroy(text_input_struct *text_input) {
     if (text_input->font != NULL) {
         font_free(text_input->font);
     }
 }
 
-void text_input_set_font(text_input_struct *text_input, font_struct *font)
-{
+void text_input_set_font(text_input_struct *text_input, font_struct *font) {
     if (text_input->font != NULL) {
         font_free(text_input->font);
     }
@@ -111,8 +109,7 @@ void text_input_set_font(text_input_struct *text_input, font_struct *font)
     text_input->coords.h = FONT_HEIGHT(font) + TEXT_INPUT_PADDING * 2;
 }
 
-void text_input_reset(text_input_struct *text_input)
-{
+void text_input_reset(text_input_struct *text_input) {
     if (text_input->history) {
         text_input->history->pos = 0;
     }
@@ -120,52 +117,43 @@ void text_input_reset(text_input_struct *text_input)
     text_input_set(text_input, NULL);
 }
 
-void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history)
-{
+void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history) {
     text_input->history = history;
 }
 
-void text_input_set(text_input_struct *text_input, const char *str)
-{
+void text_input_set(text_input_struct *text_input, const char *str) {
     strncpy(text_input->str, str ? str : "", text_input->max - 1);
     text_input->str[text_input->max - 1] = '\0';
     text_input->pos = text_input->num = strlen(text_input->str);
 }
 
-void text_input_set_parent(text_input_struct *text_input, int px, int py)
-{
+void text_input_set_parent(text_input_struct *text_input, int px, int py) {
     text_input->px = px;
     text_input->py = py;
 }
 
-int text_input_mouse_over(text_input_struct *text_input, int mx, int my)
-{
+int text_input_mouse_over(text_input_struct *text_input, int mx, int my) {
     mx -= text_input->px;
     my -= text_input->py;
 
-    if (mx >= text_input->coords.x &&
-            my >= text_input->coords.y &&
-            mx < text_input->coords.x + text_input->coords.w &&
-            my < text_input->coords.y + text_input->coords.h) {
+    if (mx >= text_input->coords.x && my >= text_input->coords.y &&
+        mx < text_input->coords.x + text_input->coords.w &&
+        my < text_input->coords.y + text_input->coords.h) {
         return 1;
     }
 
     return 0;
 }
 
-void text_input_show_edit_password(text_input_struct *text_input)
-{
+void text_input_show_edit_password(text_input_struct *text_input) {
     string_replace_char(text_input->str, NULL, '*');
 }
 
-int text_input_number_character_check(text_input_struct *text_input, char c)
-{
+int text_input_number_character_check(text_input_struct *text_input, char c) {
     return isdigit(c);
 }
 
-void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
-        int x, int y)
-{
+void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x, int y) {
     text_info_struct info;
     int underscore_width;
     size_t pos;
@@ -176,8 +164,12 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
     text_input->coords.x = x;
     text_input->coords.y = y;
 
-    rectangle_create(surface, text_input->coords.x, text_input->coords.y,
-            text_input->coords.w, text_input->coords.h, "000000");
+    rectangle_create(surface,
+                     text_input->coords.x,
+                     text_input->coords.y,
+                     text_input->coords.w,
+                     text_input->coords.h,
+                     "000000");
     border_create_color(surface, &text_input->coords, 1, "303030");
 
     cp = NULL;
@@ -194,38 +186,47 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
     /* Figure out the width by going backwards. */
     for (pos = text_input->pos; pos; pos--) {
         /* Reached the maximum yet? */
-        if (box.w + glyph_get_width(text_input->font,
-                *(text_input->str + pos)) +
-                underscore_width > text_input->coords.w - TEXT_INPUT_PADDING * 2) {
+        if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width >
+            text_input->coords.w - TEXT_INPUT_PADDING * 2) {
             break;
         }
 
-        text_show_character(&text_input->font, text_input->font, NULL, &box,
-                text_input->str + pos, NULL, NULL, 0, NULL, NULL,
-                &info);
+        text_show_character(&text_input->font,
+                            text_input->font,
+                            NULL,
+                            &box,
+                            text_input->str + pos,
+                            NULL,
+                            NULL,
+                            0,
+                            NULL,
+                            NULL,
+                            &info);
     }
 
     sb = stringbuffer_new();
-    stringbuffer_append_string_len(sb, text_input->str + pos,
-            text_input->pos - pos);
+    stringbuffer_append_string_len(sb, text_input->str + pos, text_input->pos - pos);
 
     if (text_input->focus) {
         stringbuffer_append_char(sb, '_');
     }
 
     if ((text_input->str + pos) + (text_input->pos - pos)) {
-        stringbuffer_append_string(sb,
-                (text_input->str + pos) + (text_input->pos - pos));
+        stringbuffer_append_string(sb, (text_input->str + pos) + (text_input->pos - pos));
     }
 
     box.w = text_input->coords.w - TEXT_INPUT_PADDING * 2;
     box.h = text_input->coords.h - TEXT_INPUT_PADDING * 2;
 
     cp2 = stringbuffer_finish(sb);
-    text_show(surface, text_input->font, cp2,
-            text_input->coords.x + TEXT_INPUT_PADDING,
-            text_input->coords.y + TEXT_INPUT_PADDING,
-            COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+    text_show(surface,
+              text_input->font,
+              cp2,
+              text_input->coords.x + TEXT_INPUT_PADDING,
+              text_input->coords.y + TEXT_INPUT_PADDING,
+              COLOR_WHITE,
+              text_input->text_flags | TEXT_WIDTH,
+              &box);
     efree(cp2);
 
     if (cp) {
@@ -234,8 +235,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
     }
 }
 
-void text_input_add_char(text_input_struct *text_input, char c)
-{
+void text_input_add_char(text_input_struct *text_input, char c) {
     size_t i;
 
     if (text_input->num >= text_input->max) {
@@ -258,8 +258,7 @@ void text_input_add_char(text_input_struct *text_input, char c)
     text_input->str[text_input->num] = '\0';
 }
 
-int text_input_event(text_input_struct *text_input, SDL_Event *event)
-{
+int text_input_event(text_input_struct *text_input, SDL_Event *event) {
     if (!text_input->focus) {
         return 0;
     }
@@ -355,11 +354,15 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
             if (text_input->history) {
                 char **p;
 
-                p = (char **) utarray_eltptr(text_input->history->history, utarray_len(text_input->history->history) - 1 - text_input->history->pos);
+                p = (char **)utarray_eltptr(text_input->history->history,
+                                            utarray_len(text_input->history->history) - 1 -
+                                                text_input->history->pos);
 
                 if (p) {
                     if (text_input->history->pos == 0) {
-                        strncpy(text_input->str_editing, text_input->str, sizeof(text_input->str_editing) - 1);
+                        strncpy(text_input->str_editing,
+                                text_input->str,
+                                sizeof(text_input->str_editing) - 1);
                         text_input->str_editing[sizeof(text_input->str_editing) - 1] = '\0';
                     }
 
@@ -380,7 +383,9 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
                     } else {
                         char **p;
 
-                        p = (char **) utarray_eltptr(text_input->history->history, utarray_len(text_input->history->history) - text_input->history->pos);
+                        p = (char **)utarray_eltptr(text_input->history->history,
+                                                    utarray_len(text_input->history->history) -
+                                                        text_input->history->pos);
 
                         if (p) {
                             text_input_set(text_input, *p);
@@ -406,7 +411,8 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 
             c = event->key.keysym.unicode & 0xff;
 
-            if (isprint(c) && (!text_input->character_check_func || text_input->character_check_func(text_input, c))) {
+            if (isprint(c) && (!text_input->character_check_func ||
+                               text_input->character_check_func(text_input, c))) {
                 if (event->key.keysym.mod & KMOD_SHIFT) {
                     c = toupper(c);
                 }

@@ -39,20 +39,24 @@ static mempool_struct *pool_object;
 /**
  * Initialize the object system.
  */
-void object_init(void)
-{
+void object_init(void) {
     toolkit_import(mempool);
 
-    pool_object = mempool_create("objects", NROF_ITEMS, sizeof(object),
-            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
+    pool_object = mempool_create("objects",
+                                 NROF_ITEMS,
+                                 sizeof(object),
+                                 MEMPOOL_ALLOW_FREEING,
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 NULL);
     objects_init();
 }
 
 /**
  * Deinitialize the object system.
  */
-void object_deinit(void)
-{
+void object_deinit(void) {
     objects_deinit();
 }
 
@@ -61,8 +65,7 @@ void object_deinit(void)
  * @param op
  * Start of the list.
  */
-void objects_free(object *op)
-{
+void objects_free(object *op) {
     object *next;
 
     while (op) {
@@ -93,8 +96,7 @@ void objects_free(object *op)
  * @return
  * Matching object if found, NULL otherwise.
  */
-object *object_find_object_inv(object *op, tag_t tag)
-{
+object *object_find_object_inv(object *op, tag_t tag) {
     for (object *tmp = op->inv; tmp != NULL; tmp = tmp->next) {
         if (tmp->tag == tag) {
             return op;
@@ -113,9 +115,8 @@ object *object_find_object_inv(object *op, tag_t tag)
  * @return
  * Matching object if found, NULL otherwise.
  */
-object *object_find_object(object *op, tag_t tag)
-{
-    for ( ; op != NULL; op = op->next) {
+object *object_find_object(object *op, tag_t tag) {
+    for (; op != NULL; op = op->next) {
         if (op->tag == tag) {
             return op;
         } else if (op->inv != NULL) {
@@ -136,8 +137,7 @@ object *object_find_object(object *op, tag_t tag)
  * @return
  * Matching object if found, NULL otherwise.
  */
-object *object_find(tag_t tag)
-{
+object *object_find(tag_t tag) {
     /* In interface GUI. */
     if (cpl.interface != NULL) {
         object *op = object_find_object(cpl.interface->inv, tag);
@@ -171,8 +171,7 @@ object *object_find(tag_t tag)
  * @param op
  * What to remove.
  */
-void object_remove(object *op)
-{
+void object_remove(object *op) {
     if (op == NULL || op == cpl.ob || op == cpl.below) {
         return;
     }
@@ -214,8 +213,7 @@ void object_remove(object *op)
  * @param op
  * The object to remove inventory of.
  */
-void object_remove_inventory(object *op)
-{
+void object_remove_inventory(object *op) {
     if (!op) {
         return;
     }
@@ -247,8 +245,7 @@ void object_remove_inventory(object *op)
  * If 1, the object will be added to the end of the
  * inventory instead of the start.
  */
-static void object_add(object *env, object *op, int bflag)
-{
+static void object_add(object *env, object *op, int bflag) {
     object *tmp;
 
     if (!op) {
@@ -266,8 +263,7 @@ static void object_add(object *env, object *op, int bflag)
         env->inv = op;
         op->env = env;
     } else {
-        for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next) {
-        }
+        for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next) {}
 
         op->next = NULL;
         op->prev = tmp;
@@ -292,8 +288,7 @@ static void object_add(object *env, object *op, int bflag)
  * @param to
  * Object to receive the items.
  */
-void object_transfer_inventory(object *op, object *to)
-{
+void object_transfer_inventory(object *op, object *to) {
     for (object *tmp = op->inv, *next; tmp != NULL; tmp = next) {
         next = tmp->next;
 
@@ -324,8 +319,7 @@ void object_transfer_inventory(object *op, object *to)
  * @return
  * The created object.
  */
-object *object_create(object *env, tag_t tag, int bflag)
-{
+object *object_create(object *env, tag_t tag, int bflag) {
     object *op = mempool_get(pool_object);
 
     op->tag = tag;
@@ -344,8 +338,7 @@ object *object_create(object *env, tag_t tag, int bflag)
  * @param op
  * Object.
  */
-void toggle_locked(object *op)
-{
+void toggle_locked(object *op) {
     packet_struct *packet;
 
     /* If object is on the ground, don't lock it. */
@@ -363,8 +356,7 @@ void toggle_locked(object *op)
  * @param op
  * The object.
  */
-void object_send_mark(object *op)
-{
+void object_send_mark(object *op) {
     packet_struct *packet;
 
     /* If object is on the ground, don't mark it. */
@@ -385,8 +377,7 @@ void object_send_mark(object *op)
     socket_send_packet(packet);
 }
 
-void object_redraw(object *op)
-{
+void object_redraw(object *op) {
     object *env;
 
     HARD_ASSERT(op != NULL);
@@ -415,8 +406,7 @@ void object_redraw(object *op)
 /**
  * Deinitialize the various objects of ::cpl structure.
  */
-void objects_deinit(void)
-{
+void objects_deinit(void) {
     objects_free(cpl.below);
     objects_free(cpl.ob);
 }
@@ -424,8 +414,7 @@ void objects_deinit(void)
 /**
  * Initializes the various objects of ::cpl structure.
  */
-void objects_init(void)
-{
+void objects_init(void) {
     cpl.ob = mempool_get(pool_object);
     cpl.below = mempool_get(pool_object);
 
@@ -439,8 +428,7 @@ void objects_init(void)
  * @return
  * 1 if the object changed face, 0 otherwise.
  */
-int object_animate(object *ob)
-{
+int object_animate(object *ob) {
     bool ret = false;
 
     if (ob->glow_speed > 1) {
@@ -456,9 +444,13 @@ int object_animate(object *ob)
     if (ob->animation_id > 0 && ob->anim_speed) {
         Animations *animation = animation_get(ob->animation_id);
         if (animation == NULL) {
-            LOG(ERROR, "Disabling invalid object animation (tag: %" PRIu32
-                ", face: %u, animation: %u, direction: %u)", ob->tag,
-                ob->face, ob->animation_id, ob->direction);
+            LOG(ERROR,
+                "Disabling invalid object animation (tag: %" PRIu32
+                ", face: %u, animation: %u, direction: %u)",
+                ob->tag,
+                ob->face,
+                ob->animation_id,
+                ob->direction);
             ob->animation_id = 0;
             return ret;
         }
@@ -472,11 +464,14 @@ int object_animate(object *ob)
             }
 
             uint16_t face;
-            if (!animation_get_face(ob->animation_id, ob->direction,
-                    ob->anim_state, &face)) {
-                LOG(ERROR, "Disabling invalid object animation frame (tag: %"
-                    PRIu32 ", face: %u, animation: %u, direction: %u, state: %u)",
-                    ob->tag, ob->face, ob->animation_id, ob->direction,
+            if (!animation_get_face(ob->animation_id, ob->direction, ob->anim_state, &face)) {
+                LOG(ERROR,
+                    "Disabling invalid object animation frame (tag: %" PRIu32
+                    ", face: %u, animation: %u, direction: %u, state: %u)",
+                    ob->tag,
+                    ob->face,
+                    ob->animation_id,
+                    ob->direction,
                     ob->anim_state);
                 ob->animation_id = 0;
                 return ret;
@@ -496,8 +491,7 @@ int object_animate(object *ob)
  * @param op
  * The object, such as cpl.ob, cpl.below, etc.
  */
-static void animate_inventory(object *op)
-{
+static void animate_inventory(object *op) {
     object *tmp;
 
     for (tmp = op->inv; tmp != NULL; tmp = tmp->next) {
@@ -518,8 +512,7 @@ static void animate_inventory(object *op)
 /**
  * Animate all possible objects.
  */
-void animate_objects(void)
-{
+void animate_objects(void) {
     animate_inventory(cpl.ob);
     animate_inventory(cpl.below);
 
@@ -553,14 +546,7 @@ void animate_objects(void)
  * Whether to fit the object into the maximum width/height by
  * zooming it as necessary.
  */
-void object_show_centered (SDL_Surface *surface,
-                           object      *tmp,
-                           int          x,
-                           int          y,
-                           int          w,
-                           int          h,
-                           bool         fit)
-{
+void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y, int w, int h, bool fit) {
     HARD_ASSERT(surface != NULL);
     HARD_ASSERT(tmp != NULL);
 
@@ -575,8 +561,7 @@ void object_show_centered (SDL_Surface *surface,
      * coordinate calculations to prevent 'jumping' of the animation. */
     if (tmp->animation_id > 0) {
         uint16_t layout_face;
-        if (animation_get_face(tmp->animation_id, tmp->direction, 0,
-                &layout_face)) {
+        if (animation_get_face(tmp->animation_id, tmp->direction, 0, &layout_face)) {
             sprite_struct *candidate = image_get_sprite(layout_face);
             if (candidate != NULL && candidate->bitmap != NULL) {
                 layout_sprite = candidate;
@@ -591,10 +576,8 @@ void object_show_centered (SDL_Surface *surface,
         border_up -= SPRITE_GLOW_SIZE * 2;
     }
 
-    int xlen = layout_sprite->bitmap->w - border_left -
-               layout_sprite->border_right;
-    int ylen = layout_sprite->bitmap->h - border_up -
-               layout_sprite->border_down;
+    int xlen = layout_sprite->bitmap->w - border_left - layout_sprite->border_right;
+    int ylen = layout_sprite->bitmap->h - border_up - layout_sprite->border_down;
     if (tmp->glow[0] != '\0') {
         xlen += SPRITE_GLOW_SIZE * 2;
         ylen += SPRITE_GLOW_SIZE * 2;
@@ -608,25 +591,25 @@ void object_show_centered (SDL_Surface *surface,
         int xlen2 = xlen, ylen2 = ylen;
 
         if (xlen2 != w) {
-            double factor = (double) w / xlen2;
+            double factor = (double)w / xlen2;
             xlen2 *= factor;
             ylen2 *= factor;
         }
 
         if (ylen2 != h) {
-            double factor = (double) h / ylen2;
+            double factor = (double)h / ylen2;
             xlen2 *= factor;
             ylen2 *= factor;
         }
 
         if (xlen2 != xlen) {
-            zoom_x = ((double) xlen2 + 0.5) / xlen;
+            zoom_x = ((double)xlen2 + 0.5) / xlen;
             xlen = xlen2;
             border_left *= zoom_x;
         }
 
         if (ylen2 != ylen) {
-            zoom_y = ((double) ylen2 + 0.5) / ylen;
+            zoom_y = ((double)ylen2 + 0.5) / ylen;
             ylen = ylen2;
             border_up *= zoom_y;
         }
@@ -662,16 +645,14 @@ void object_show_centered (SDL_Surface *surface,
         box.w = sprite->bitmap->w * zoom_x;
         border_left = temp;
 
-        temp = border_up - box.y + (layout_sprite->bitmap->h * zoom_y -
-                                    sprite->bitmap->h * zoom_y);
+        temp = border_up - box.y + (layout_sprite->bitmap->h * zoom_y - sprite->bitmap->h * zoom_y);
         box.y = 0;
         box.h = sprite->bitmap->h * zoom_y;
         border_up = temp;
 
         if (border_left < 0) {
             box.x = -border_left;
-            box.w = sprite->bitmap->w * zoom_x +
-                    border_left;
+            box.w = sprite->bitmap->w * zoom_x + border_left;
 
             if (box.w > w) {
                 box.w = w;
@@ -713,6 +694,5 @@ void object_show_centered (SDL_Surface *surface,
         effects.dark_level = 0;
     }
 
-    surface_show_effects(surface, x + border_left, y + border_up, &box,
-                         sprite->bitmap, &effects);
+    surface_show_effects(surface, x + border_left, y + border_up, &box, sprite->bitmap, &effects);
 }

@@ -32,8 +32,7 @@
 #include <global.h>
 
 /** @copydoc command_func */
-void command_gsay(object *op, const char *command, char *params)
-{
+void command_gsay(object *op, const char *command, char *params) {
     char newparams[HUGE_BUF];
 
     if (!params) {

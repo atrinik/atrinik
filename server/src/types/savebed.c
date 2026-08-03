@@ -33,9 +33,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -48,8 +46,7 @@ apply_func (object *op, object *applier, int aflags)
     CONTR(applier)->bed_x = applier->x;
     CONTR(applier)->bed_y = applier->y;
 
-    draw_info(COLOR_WHITE, applier,
-              "You save and your save bed location is updated.");
+    draw_info(COLOR_WHITE, applier, "You save and your save bed location is updated.");
     hiscore_check(applier, 0);
     player_save(applier);
 
@@ -59,7 +56,6 @@ apply_func (object *op, object *applier, int aflags)
 /**
  * Initialize the savebed type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(savebed)
-{
+OBJECT_TYPE_INIT_DEFINE(savebed) {
     OBJECT_METHODS(SAVEBED)->apply_func = apply_func;
 }

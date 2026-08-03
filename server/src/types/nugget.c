@@ -35,6 +35,4 @@
 /**
  * Initialize the nugget type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(nugget)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(nugget) {}

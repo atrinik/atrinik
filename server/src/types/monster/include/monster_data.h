@@ -95,17 +95,15 @@ typedef struct monster_data {
 /**
  * Acquire monster data structure from an object structure.
  */
-#define MONSTER_DATA(_obj) ((monster_data_t *) (_obj)->custom_attrset)
+#define MONSTER_DATA(_obj) ((monster_data_t *)(_obj)->custom_attrset)
 
 /* Prototypes */
 
 void monster_data_init(object *op);
 void monster_data_deinit(object *op);
 void monster_data_enemy_update(object *op, object *enemy);
-bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x,
-        uint16_t *y);
-void monster_data_dialogs_add(object *op, object *activator,
-        uint32_t secs);
+bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x, uint16_t *y);
+void monster_data_dialogs_add(object *op, object *activator, uint32_t secs);
 void monster_data_dialogs_remove(object *op, object *activator);
 bool monster_data_dialogs_check(object *op, object *activator);
 size_t monster_data_dialogs_num(object *op);

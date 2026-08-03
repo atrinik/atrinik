@@ -35,6 +35,4 @@
 /**
  * Initialize the misc object type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(misc_object)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(misc_object) {}

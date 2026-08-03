@@ -46,9 +46,7 @@
  * @return
  * The generated monster, NULL on failure.
  */
-static object *
-spawn_point_generate (object *op, object *monster)
-{
+static object *spawn_point_generate(object *op, object *monster) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(monster != NULL);
 
@@ -69,43 +67,42 @@ spawn_point_generate (object *op, object *monster)
         int level = MAX(1, MIN(tmp->level, MAXLEVEL));
         int min, max;
         switch (tmp->item_condition) {
-        case SPAWN_RELATIVE_LEVEL_GREEN:
-            min = level_color[op->map->difficulty].green;
-            max = level_color[op->map->difficulty].blue - 1;
-            break;
+            case SPAWN_RELATIVE_LEVEL_GREEN:
+                min = level_color[op->map->difficulty].green;
+                max = level_color[op->map->difficulty].blue - 1;
+                break;
 
-        case SPAWN_RELATIVE_LEVEL_BLUE:
-            min = level_color[op->map->difficulty].blue;
-            max = level_color[op->map->difficulty].yellow - 1;
-            break;
+            case SPAWN_RELATIVE_LEVEL_BLUE:
+                min = level_color[op->map->difficulty].blue;
+                max = level_color[op->map->difficulty].yellow - 1;
+                break;
 
-        case SPAWN_RELATIVE_LEVEL_YELLOW:
-            min = level_color[op->map->difficulty].yellow;
-            max = level_color[op->map->difficulty].orange - 1;
-            break;
+            case SPAWN_RELATIVE_LEVEL_YELLOW:
+                min = level_color[op->map->difficulty].yellow;
+                max = level_color[op->map->difficulty].orange - 1;
+                break;
 
-        case SPAWN_RELATIVE_LEVEL_ORANGE:
-            min = level_color[op->map->difficulty].orange;
-            max = level_color[op->map->difficulty].red - 1;
-            break;
+            case SPAWN_RELATIVE_LEVEL_ORANGE:
+                min = level_color[op->map->difficulty].orange;
+                max = level_color[op->map->difficulty].red - 1;
+                break;
 
-        case SPAWN_RELATIVE_LEVEL_RED:
-            min = level_color[op->map->difficulty].red;
-            max = level_color[op->map->difficulty].purple - 1;
-            break;
+            case SPAWN_RELATIVE_LEVEL_RED:
+                min = level_color[op->map->difficulty].red;
+                max = level_color[op->map->difficulty].purple - 1;
+                break;
 
-        case SPAWN_RELATIVE_LEVEL_PURPLE:
-            min = level_color[op->map->difficulty].purple;
-            max = min + 1;
-            break;
+            case SPAWN_RELATIVE_LEVEL_PURPLE:
+                min = level_color[op->map->difficulty].purple;
+                max = min + 1;
+                break;
 
-        default:
-            min = level;
-            max = min;
+            default:
+                min = level;
+                max = min;
         }
 
-        tmp->level = rndm(MAX(level, MIN(min, MAXLEVEL)),
-                          MAX(level, MIN(max, MAXLEVEL)));
+        tmp->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
     }
 
     if (tmp->randomitems != NULL) {
@@ -125,9 +122,7 @@ spawn_point_generate (object *op, object *monster)
  * @return
  * True if the monster can be generated, false otherwise.
  */
-static bool
-spawn_point_can_generate (object *op, object *monster)
-{
+static bool spawn_point_can_generate(object *op, object *monster) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(monster != NULL);
 
@@ -139,12 +134,7 @@ spawn_point_can_generate (object *op, object *monster)
     shstr *spawn_time = object_get_value(monster, "spawn_time");
     if (spawn_time != NULL) {
         int hour, minute, hour2, minute2;
-        if (sscanf(spawn_time,
-                   "%d:%d - %d:%d",
-                   &hour,
-                   &minute,
-                   &hour2,
-                   &minute2) == 4) {
+        if (sscanf(spawn_time, "%d:%d - %d:%d", &hour, &minute, &hour2, &minute2) == 4) {
             timeofday_t tod;
             get_tod(&tod);
 
@@ -179,9 +169,7 @@ spawn_point_can_generate (object *op, object *monster)
 }
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     /* See if the spawn point should get a chance to do its processing. */
@@ -211,7 +199,8 @@ process_func (object *op)
         }
 
         total_chance += MAX(1, tmp->enemy_count);
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     /* No total chance, this means there are no monsters in this
      * spawn point. */
@@ -232,7 +221,8 @@ process_func (object *op)
             spawn_monster = tmp;
             break;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     /* Didn't find any monster to generate, or it can't be generated. */
     if (spawn_monster == NULL || !spawn_point_can_generate(op, spawn_monster)) {
@@ -265,13 +255,15 @@ process_func (object *op)
                 object *copy = object_get();
                 object_copy_full(copy, tmp2);
                 object_insert_into(copy, monster, 0);
-            } FOR_INV_FINISH();
+            }
+            FOR_INV_FINISH();
         } else {
             object *copy = object_get();
             object_copy_full(copy, tmp);
             object_insert_into(copy, monster, 0);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     /* Create spawn info. */
     object *tmp = arch_to_object(op->other_arch);
@@ -282,17 +274,13 @@ process_func (object *op)
 
     /* Insert the generated monster into the map. */
     monster = object_insert_map(monster, op->map, op, 0);
-    SOFT_ASSERT(monster != NULL,
-                "Failed to insert monster, spawn point: %s",
-                object_get_str(op));
+    SOFT_ASSERT(monster != NULL, "Failed to insert monster, spawn point: %s", object_get_str(op));
     living_update_monster(monster);
     monster_guard_activate_gate(monster, 0);
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -301,30 +289,20 @@ trigger_func (object *op, object *cause, int state)
 }
 
 /** @copydoc object_methods_t::insert_map_func */
-static void
-insert_map_func (object *op)
-{
+static void insert_map_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     objectlink *ol = get_objectlink();
     ol->objlink.ob = op;
 
-    objectlink_link(&op->map->linked_spawn_points,
-                    NULL,
-                    NULL,
-                    op->map->linked_spawn_points,
-                    ol);
+    objectlink_link(&op->map->linked_spawn_points, NULL, NULL, op->map->linked_spawn_points, ol);
 }
 
 /** @copydoc object_methods_t::remove_map_func */
-static void
-remove_map_func (object *op)
-{
+static void remove_map_func(object *op) {
     HARD_ASSERT(op != NULL);
 
-    for (objectlink *ol = op->map->linked_spawn_points;
-         ol != NULL;
-         ol = ol->next) {
+    for (objectlink *ol = op->map->linked_spawn_points; ol != NULL; ol = ol->next) {
         if (ol->objlink.ob == op) {
             objectlink_unlink(&op->map->linked_spawn_points, NULL, ol);
             free_objectlink_simple(ol);
@@ -336,8 +314,7 @@ remove_map_func (object *op)
 /**
  * Initialize the spawn point type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(spawn_point)
-{
+OBJECT_TYPE_INIT_DEFINE(spawn_point) {
     OBJECT_METHODS(SPAWN_POINT)->process_func = process_func;
     OBJECT_METHODS(SPAWN_POINT)->trigger_func = trigger_func;
     OBJECT_METHODS(SPAWN_POINT)->insert_map_func = insert_map_func;

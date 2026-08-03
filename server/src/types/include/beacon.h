@@ -32,7 +32,6 @@
 
 /* Prototypes */
 
-object *
-beacon_locate(shstr *name);
+object *beacon_locate(shstr *name);
 
 #endif

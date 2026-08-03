@@ -49,22 +49,17 @@ path_fopen_t path_fopen;
  * @return
  * Opened file, NULL on failure.
  */
-static FILE *
-fopen_wrapper (const char *path, const char *modes)
-{
+static FILE *fopen_wrapper(const char *path, const char *modes) {
     path_ensure_directories(path);
     return fopen(path, modes);
 }
 
-TOOLKIT_INIT_FUNC(path)
-{
+TOOLKIT_INIT_FUNC(path) {
     path_fopen = fopen_wrapper;
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(path)
-{
-}
+TOOLKIT_DEINIT_FUNC(path) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
@@ -76,8 +71,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * The joined path; should be freed when no longer needed.
  */
-char *path_join(const char *path, const char *path2)
-{
+char *path_join(const char *path, const char *path2) {
     StringBuffer *sb;
     size_t len;
     char *cp;
@@ -113,8 +107,7 @@ char *path_join(const char *path, const char *path2)
  * needed.
  * @author Hongli Lai (public domain)
  */
-char *path_dirname(const char *path)
-{
+char *path_dirname(const char *path) {
     const char *end;
     char *result;
 
@@ -157,8 +150,7 @@ char *path_dirname(const char *path)
  * The basename of the path. Should be freed when no longer
  * needed.
  */
-char *path_basename(const char *path)
-{
+char *path_basename(const char *path) {
     const char *slash;
 
     TOOLKIT_PROTECT();
@@ -187,8 +179,7 @@ char *path_basename(const char *path)
  * @return
  * The normalized path; never NULL. Must be freed.
  */
-char *path_normalize(const char *path)
-{
+char *path_normalize(const char *path) {
     StringBuffer *sb;
     size_t pos, startsbpos;
     char component[MAX_BUF];
@@ -250,8 +241,7 @@ char *path_normalize(const char *path)
  * @param path
  * The path to check.
  */
-void path_ensure_directories(const char *path)
-{
+void path_ensure_directories(const char *path) {
     char buf[MAXPATHLEN], *cp;
     struct stat statbuf;
 
@@ -268,14 +258,12 @@ void path_ensure_directories(const char *path)
         *cp = '\0';
 
         if (mkdir(buf, 0777) != 0 && errno != EEXIST) {
-            LOG(BUG, "Cannot mkdir %s (path: %s): %s", buf, path,
-                    strerror(errno));
+            LOG(BUG, "Cannot mkdir %s (path: %s): %s", buf, path, strerror(errno));
             return;
         }
 
         if (stat(buf, &statbuf) != 0) {
-            LOG(BUG, "Cannot stat %s (path: %s): %s", buf, path,
-                    strerror(errno));
+            LOG(BUG, "Cannot stat %s (path: %s): %s", buf, path, strerror(errno));
             return;
         }
 
@@ -299,8 +287,7 @@ void path_ensure_directories(const char *path)
  * @return
  * 1 on success, 0 on failure.
  */
-int path_copy_file(const char *src, FILE *dst, const char *mode)
-{
+int path_copy_file(const char *src, FILE *dst, const char *mode) {
     FILE *fp;
     char buf[HUGE_BUF];
 
@@ -332,8 +319,7 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
  * @return
  * 1 if 'path' exists, 0 otherwise.
  */
-int path_exists(const char *path)
-{
+int path_exists(const char *path) {
     struct stat statbuf;
 
     TOOLKIT_PROTECT();
@@ -352,8 +338,7 @@ int path_exists(const char *path)
  * @return
  * 1 on success, 0 on failure.
  */
-int path_touch(const char *path)
-{
+int path_touch(const char *path) {
     FILE *fp;
 
     TOOLKIT_PROTECT();
@@ -379,8 +364,7 @@ int path_touch(const char *path)
  * @return
  * Size of the file.
  */
-size_t path_size(const char *path)
-{
+size_t path_size(const char *path) {
     struct stat statbuf;
 
     TOOLKIT_PROTECT();
@@ -400,8 +384,7 @@ size_t path_size(const char *path)
  * @return
  * The loaded contents. Must be freed.
  */
-char *path_file_contents(const char *path)
-{
+char *path_file_contents(const char *path) {
     FILE *fp;
     StringBuffer *sb;
     char buf[MAX_BUF];
@@ -438,9 +421,7 @@ char *path_file_contents(const char *path)
  * @return
  * 0 on success, an error number otherwise.
  */
-int
-path_rename (const char *old, const char *new)
-{
+int path_rename(const char *old, const char *new) {
 #ifdef WIN32
     if (!MoveFileEx(old, new, MOVEFILE_REPLACE_EXISTING)) {
         return GetLastError();
@@ -452,19 +433,13 @@ path_rename (const char *old, const char *new)
 #endif
 }
 
-bool
-path_write_atomic (const char   *path,
-                   const void   *data,
-                   size_t        size,
-                   unsigned int  mode)
-{
+bool path_write_atomic(const char *path, const void *data, size_t size, unsigned int mode) {
     HARD_ASSERT(path != NULL);
     HARD_ASSERT(data != NULL || size == 0);
 
     path_ensure_directories(path);
     char temporary[HUGE_BUF];
-    if (snprintf(VS(temporary), "%s.tmp.XXXXXX", path) >=
-        (int) sizeof(temporary)) {
+    if (snprintf(VS(temporary), "%s.tmp.XXXXXX", path) >= (int)sizeof(temporary)) {
         return false;
     }
 
@@ -473,13 +448,13 @@ path_write_atomic (const char   *path,
         return false;
     }
 #ifndef WIN32
-    if (fchmod(fd, (mode_t) mode) != 0) {
+    if (fchmod(fd, (mode_t)mode) != 0) {
         close(fd);
         unlink(temporary);
         return false;
     }
 #else
-    (void) mode;
+    (void)mode;
 #endif
 
     FILE *fp = fdopen(fd, "wb");
@@ -505,11 +480,7 @@ path_write_atomic (const char   *path,
 }
 
 path_secret_error_t
-path_read_secret (const char *path,
-                  char       *secret,
-                  size_t      secret_size,
-                  bool       *permissive_mode)
-{
+path_read_secret(const char *path, char *secret, size_t secret_size, bool *permissive_mode) {
     HARD_ASSERT(path != NULL);
     HARD_ASSERT(secret != NULL);
     HARD_ASSERT(secret_size >= 2);
@@ -551,8 +522,7 @@ path_read_secret (const char *path,
         goto out;
     }
 #ifndef WIN32
-    if (permissive_mode != NULL &&
-            (metadata.st_mode & (S_IRWXG | S_IRWXO)) != 0) {
+    if (permissive_mode != NULL && (metadata.st_mode & (S_IRWXG | S_IRWXO)) != 0) {
         *permissive_mode = true;
     }
 #endif
@@ -573,10 +543,7 @@ path_read_secret (const char *path,
         }
 
         size_t trailing_length;
-        while ((trailing_length = fread(trailing,
-                                        1,
-                                        sizeof(trailing),
-                                        fp)) > 0) {
+        while ((trailing_length = fread(trailing, 1, sizeof(trailing), fp)) > 0) {
             for (size_t i = 0; i < trailing_length; i++) {
                 if (trailing[i] != '\r' && trailing[i] != '\n') {
                     result = PATH_SECRET_TRAILING_DATA;
@@ -590,7 +557,7 @@ path_read_secret (const char *path,
             goto out;
         }
 
-        size_t used = (size_t) (newline - secret);
+        size_t used = (size_t)(newline - secret);
         if (used > 0 && secret[used - 1] == '\r') {
             used--;
         }
@@ -618,40 +585,36 @@ out:
     return result;
 }
 
-const char *
-path_secret_error_string (path_secret_error_t error)
-{
+const char *path_secret_error_string(path_secret_error_t error) {
     switch (error) {
-    case PATH_SECRET_OK:
-        return "success";
-    case PATH_SECRET_OPEN_ERROR:
-        return "cannot open the file";
-    case PATH_SECRET_METADATA_ERROR:
-        return "cannot inspect the file";
-    case PATH_SECRET_NOT_REGULAR:
-        return "the path is not a regular file";
-    case PATH_SECRET_EMPTY:
-        return "the file is empty";
-    case PATH_SECRET_TOO_LONG:
-        return "the first line is too long";
-    case PATH_SECRET_TRAILING_DATA:
-        return "the file contains data after the first line";
-    case PATH_SECRET_READ_ERROR:
-        return "cannot read the file";
+        case PATH_SECRET_OK:
+            return "success";
+        case PATH_SECRET_OPEN_ERROR:
+            return "cannot open the file";
+        case PATH_SECRET_METADATA_ERROR:
+            return "cannot inspect the file";
+        case PATH_SECRET_NOT_REGULAR:
+            return "the path is not a regular file";
+        case PATH_SECRET_EMPTY:
+            return "the file is empty";
+        case PATH_SECRET_TOO_LONG:
+            return "the first line is too long";
+        case PATH_SECRET_TRAILING_DATA:
+            return "the file contains data after the first line";
+        case PATH_SECRET_READ_ERROR:
+            return "cannot read the file";
     }
 
     return "unknown error";
 }
 
-bool
-path_is_safe_relative (const char *path)
-{
+bool path_is_safe_relative(const char *path) {
     if (path == NULL || *path == '\0' || *path == '/' || *path == '\\') {
         return false;
     }
 
     const char *component = path;
-    for (const char *cp = path; ; cp++) {
+    for (const char *cp = path;; cp++) {
         if (*cp == '\\' || *cp == ':') {
             return false;
         }
@@ -659,10 +622,9 @@ path_is_safe_relative (const char *path)
             continue;
         }
 
-        size_t length = (size_t) (cp - component);
+        size_t length = (size_t)(cp - component);
         if (length == 0 || (length == 1 && component[0] == '.') ||
-                (length == 2 && component[0] == '.' &&
-                 component[1] == '.')) {
+            (length == 2 && component[0] == '.' && component[1] == '.')) {
             return false;
         }
         if (*cp == '\0') {

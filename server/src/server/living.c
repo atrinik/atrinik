@@ -42,39 +42,39 @@
  * Bonus to melee/ranged damage. Based on strength.
  */
 double dam_bonus[MAX_STAT + 1] = {
-    -2.5,                           // 0
-    -2.0, -2.0, -1.5, -1.5, -1.5,   // 1-5
-    -1.0, -1.0, -1.0, -0.5, -0.5,   // 6-10
-    0.0, 0.0, 0.0, 0.0, 0.0,        // 11-15
-    0.5, 0.5, 1.0, 1.0, 1.5,        // 16-20
-    1.5, 1.5, 2.0, 2.0, 2.5,        // 21-25
-    3.0, 3.5, 4.0, 4.5, 5.0,        // 26-30
+    -2.5, // 0
+    -2.0, -2.0, -1.5, -1.5, -1.5, // 1-5
+    -1.0, -1.0, -1.0, -0.5, -0.5, // 6-10
+    0.0,  0.0,  0.0,  0.0,  0.0, // 11-15
+    0.5,  0.5,  1.0,  1.0,  1.5, // 16-20
+    1.5,  1.5,  2.0,  2.0,  2.5, // 21-25
+    3.0,  3.5,  4.0,  4.5,  5.0, // 26-30
 };
 
 /**
  * WC bonus. Based on dexterity.
  */
 int wc_bonus[MAX_STAT + 1] = {
-    -5,                     // 0
-    -4, -4, -3, -3, -3,     // 1-5
-    -2, -2, -2, -1, -1,     // 6-10
-    0, 0, 0, 0, 0,          // 11-15
-    1, 1, 2, 2, 3,          // 16-20
-    3, 3, 4, 4, 5,          // 21-25
-    5, 5, 6, 7, 8,          // 26-30
+    -5, // 0
+    -4, -4, -3, -3, -3, // 1-5
+    -2, -2, -2, -1, -1, // 6-10
+    0,  0,  0,  0,  0, // 11-15
+    1,  1,  2,  2,  3, // 16-20
+    3,  3,  4,  4,  5, // 21-25
+    5,  5,  6,  7,  8, // 26-30
 };
 
 /**
  * Maximum health points bonus. Based on constitution.
  */
 static double hp_bonus[MAX_STAT + 1] = {
-    -0.8,                               // 0
-    -0.6, -0.5, -0.4, -0.35, -0.3,      // 1-5
-    -0.25, -0.2, -0.15, -0.11, -0.07,   // 6-10
-    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
-    0.1, 0.15, 0.2, 0.25, 0.3,          // 16-20
-    0.35, 0.4, 0.45, 0.5, 0.55,         // 21-25
-    0.6, 0.7, 0.8, 0.9, 1.0             // 26-30
+    -0.8, // 0
+    -0.6,  -0.5, -0.4,  -0.35, -0.3, // 1-5
+    -0.25, -0.2, -0.15, -0.11, -0.07, // 6-10
+    0.0,   0.0,  0.0,   0.0,   0.0, // 11-15
+    0.1,   0.15, 0.2,   0.25,  0.3, // 16-20
+    0.35,  0.4,  0.45,  0.5,   0.55, // 21-25
+    0.6,   0.7,  0.8,   0.9,   1.0 // 26-30
 };
 
 /**
@@ -82,39 +82,39 @@ static double hp_bonus[MAX_STAT + 1] = {
  * power.
  */
 static double sp_bonus[MAX_STAT + 1] = {
-    -0.8,                               // 0
-    -0.6, -0.5, -0.4, -0.35, -0.3,      // 1-5
-    -0.25, -0.2, -0.15, -0.11, -0.07,   // 6-10
-    0.0, 0.0, 0.0, 0.0, 0.0,            // 11-15
-    0.1, 0.2, 0.3, 0.4, 0.5,            // 16-20
-    0.6, 0.7, 0.8, 0.9, 1.0,            // 21-25
-    1.1, 1.4, 1.6, 1.8, 2.0,            // 26-30
+    -0.8, // 0
+    -0.6,  -0.5, -0.4,  -0.35, -0.3, // 1-5
+    -0.25, -0.2, -0.15, -0.11, -0.07, // 6-10
+    0.0,   0.0,  0.0,   0.0,   0.0, // 11-15
+    0.1,   0.2,  0.3,   0.4,   0.5, // 16-20
+    0.6,   0.7,  0.8,   0.9,   1.0, // 21-25
+    1.1,   1.4,  1.6,   1.8,   2.0, // 26-30
 };
 
 /**
  * Speed bonus. Based on dexterity.
  */
 float speed_bonus[MAX_STAT + 1] = {
-    -0.4,                                   // 0
-    -0.4, -0.3, -0.3, -0.2,                 // 1-5
-    -0.2, -0.2, -0.1, -0.1, -0.1,           // 6-10
-    -0.05, 0.0, 0.0, 0.0, 0.025, 0.05,      // 11-15
-    0.075, 0.1, 0.125, 0.15, 0.175, 0.2,    // 16-20
-    0.225, 0.25, 0.275, 0.3,                // 21-25
-    0.325, 0.35, 0.4, 0.45, 0.5,            // 26-30
+    -0.4, // 0
+    -0.4,  -0.3, -0.3,  -0.2, // 1-5
+    -0.2,  -0.2, -0.1,  -0.1, -0.1, // 6-10
+    -0.05, 0.0,  0.0,   0.0,  0.025, 0.05, // 11-15
+    0.075, 0.1,  0.125, 0.15, 0.175, 0.2, // 16-20
+    0.225, 0.25, 0.275, 0.3, // 21-25
+    0.325, 0.35, 0.4,   0.45, 0.5, // 26-30
 };
 
 /**
  * Falling damage mitigation. Based on dexterity.
  */
 double falling_mitigation[MAX_STAT + 1] = {
-    2.0,                            // 0
-    1.9, 1.8, 1.7, 1.6, 1.5,        // 1-5
-    1.4, 1.3, 1.2, 1.1, 1.0,        // 6-10
-    1.05, 1.0, 1.0, 1.0, 1.0,       // 11-15
-    0.98, 0.96, 0.94, 0.92, 0.9,    // 16-20
-    0.88, 0.84, 0.80, 0.77, 0.73,   // 21-25
-    0.7, 0.65, 0.6, 0.55, 0.5,      // 26-30
+    2.0, // 0
+    1.9,  1.8,  1.7,  1.6,  1.5, // 1-5
+    1.4,  1.3,  1.2,  1.1,  1.0, // 6-10
+    1.05, 1.0,  1.0,  1.0,  1.0, // 11-15
+    0.98, 0.96, 0.94, 0.92, 0.9, // 16-20
+    0.88, 0.84, 0.80, 0.77, 0.73, // 21-25
+    0.7,  0.65, 0.6,  0.55, 0.5, // 26-30
 };
 
 /**
@@ -127,23 +127,17 @@ double falling_mitigation[MAX_STAT + 1] = {
  * values before, you need to start someplace.
  */
 uint32_t weight_limit[MAX_STAT + 1] = {
-    20000,
-    25000,  30000,  35000,  40000,  50000,
-    60000,  70000,  80000,  90000,  100000,
-    110000, 120000, 130000, 140000, 150000,
-    165000, 180000, 195000, 210000, 225000,
-    240000, 255000, 270000, 285000, 300000,
-    325000, 350000, 375000, 400000, 450000
-};
+    20000,  25000,  30000,  35000,  40000,  50000,  60000,  70000,  80000,  90000,  100000,
+    110000, 120000, 130000, 140000, 150000, 165000, 180000, 195000, 210000, 225000, 240000,
+    255000, 270000, 285000, 300000, 325000, 350000, 375000, 400000, 450000};
 
 /**
  * Probability to learn a spell or skill, based on intelligence or
  * wisdom.
  */
-int learn_spell[MAX_STAT + 1] = {
-    0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
-    100, 100, 100, 100, 100, 100
-};
+int learn_spell[MAX_STAT + 1] = {0,   0,   0,   1,   2,   4,   8,   12,  16, 25,  36,
+                                 45,  55,  65,  70,  75,  80,  85,  90,  95, 100, 100,
+                                 100, 100, 100, 100, 100, 100, 100, 100, 100};
 
 /**
  * Probability for monsters to signal their friends, based on their intelligence
@@ -151,80 +145,61 @@ int learn_spell[MAX_STAT + 1] = {
  */
 int monster_signal_chance[MAX_STAT + 1] = {
     0, // 0
-    0, 0, 0, 0, 0, // 1-5
+    0,  0,  0,  0,  0, // 1-5
     20, 18, 16, 14, 13, // 6-10
-    12, 11, 10, 9, 8, // 11-15
-    7, 6, 5, 4, 3, // 16-20
-    2, 1, 1, 1, 1, // 21-25
-    1, 1, 1, 1, 1, // 26-30
+    12, 11, 10, 9,  8, // 11-15
+    7,  6,  5,  4,  3, // 16-20
+    2,  1,  1,  1,  1, // 21-25
+    1,  1,  1,  1,  1, // 26-30
 };
 
 /**
  * Probability to avoid something.
  */
 int savethrow[MAXLEVEL + 1] = {
-    18,
-    18, 17, 16, 15, 14, 14, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9,
-    9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6,
-    6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-};
+    18, 18, 17, 16, 15, 14, 14, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9, 9, 9,
+    9,  8,  8,  8,  8,  8,  8,  7,  7,  7,  7,  7,  7,  7,  6,  6,  6,  6,  6,  6,  6, 6, 5, 5,
+    5,  5,  5,  5,  5,  5,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  3,  3,  3,  3, 3, 3, 3,
+    3,  3,  3,  3,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  1,  1,  1, 1, 1, 1,
+    1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1};
 
 /** Message when a player is drained of a stat. */
-static const char *const drain_msg[NUM_STATS] = {
-    "Oh no! You are weakened!",
-    "You're feeling clumsy!",
-    "You feel less healthy",
-    "Watch out, your mind is going!",
-    "Your spirit feels drained!"
-};
+static const char *const drain_msg[NUM_STATS] = {"Oh no! You are weakened!",
+                                                 "You're feeling clumsy!",
+                                                 "You feel less healthy",
+                                                 "Watch out, your mind is going!",
+                                                 "Your spirit feels drained!"};
 
 /** Message when a player has a stat restored. */
-const char *const restore_msg[NUM_STATS] = {
-    "You feel your strength return.",
-    "You feel your agility return.",
-    "You feel your health return.",
-    "You feel your memory return.",
-    "You feel your spirits return."
-};
+const char *const restore_msg[NUM_STATS] = {"You feel your strength return.",
+                                            "You feel your agility return.",
+                                            "You feel your health return.",
+                                            "You feel your memory return.",
+                                            "You feel your spirits return."};
 
 /** Message when a player increases a stat. */
-static const char *const gain_msg[NUM_STATS] = {
-    "You feel stronger.",
-    "You feel more agile.",
-    "You feel healthy.",
-    "You feel smarter.",
-    "You feel more potent."
-};
+static const char *const gain_msg[NUM_STATS] = {"You feel stronger.",
+                                                "You feel more agile.",
+                                                "You feel healthy.",
+                                                "You feel smarter.",
+                                                "You feel more potent."};
 
 /** Message when a player decreases a stat. */
-const char *const lose_msg[NUM_STATS] = {
-    "You feel weaker!",
-    "You feel clumsy!",
-    "You feel less healthy!",
-    "You feel stupid!",
-    "You feel less potent!"
-};
+const char *const lose_msg[NUM_STATS] = {"You feel weaker!",
+                                         "You feel clumsy!",
+                                         "You feel less healthy!",
+                                         "You feel stupid!",
+                                         "You feel less potent!"};
 
 /** Names of stats. */
-const char *const statname[NUM_STATS] = {
-    "strength",
-    "dexterity",
-    "constitution",
-    "intelligence",
-    "power"
-};
+const char *const statname[NUM_STATS] = {"strength",
+                                         "dexterity",
+                                         "constitution",
+                                         "intelligence",
+                                         "power"};
 
 /** Short names of stats. */
-const char *const short_stat_name[NUM_STATS] = {
-    "Str",
-    "Dex",
-    "Con",
-    "Int",
-    "Pow"
-};
+const char *const short_stat_name[NUM_STATS] = {"Str", "Dex", "Con", "Int", "Pow"};
 
 /**
  * Sets Str/Dex/con/Wis/Cha/Int/Pow in stats to value, depending on what
@@ -236,28 +211,27 @@ const char *const short_stat_name[NUM_STATS] = {
  * @param value
  * New value.
  */
-void set_attr_value(living *stats, int attr, int8_t value)
-{
+void set_attr_value(living *stats, int attr, int8_t value) {
     switch (attr) {
-    case STR:
-        stats->Str = value;
-        break;
+        case STR:
+            stats->Str = value;
+            break;
 
-    case DEX:
-        stats->Dex = value;
-        break;
+        case DEX:
+            stats->Dex = value;
+            break;
 
-    case CON:
-        stats->Con = value;
-        break;
+        case CON:
+            stats->Con = value;
+            break;
 
-    case POW:
-        stats->Pow = value;
-        break;
+        case POW:
+            stats->Pow = value;
+            break;
 
-    case INT:
-        stats->Int = value;
-        break;
+        case INT:
+            stats->Int = value;
+            break;
     }
 }
 
@@ -274,8 +248,7 @@ void set_attr_value(living *stats, int attr, int8_t value)
  * @param value
  * Delta (can be positive).
  */
-void change_attr_value(living *stats, int attr, int8_t value)
-{
+void change_attr_value(living *stats, int attr, int8_t value) {
     int16_t result;
 
     if (value == 0) {
@@ -302,23 +275,22 @@ void change_attr_value(living *stats, int attr, int8_t value)
  * Specified attribute, 0 if not found.
  * @see set_attr_value().
  */
-int8_t get_attr_value(const living *stats, int attr)
-{
+int8_t get_attr_value(const living *stats, int attr) {
     switch (attr) {
-    case STR:
-        return stats->Str;
+        case STR:
+            return stats->Str;
 
-    case DEX:
-        return stats->Dex;
+        case DEX:
+            return stats->Dex;
 
-    case CON:
-        return stats->Con;
+        case CON:
+            return stats->Con;
 
-    case INT:
-        return stats->Int;
+        case INT:
+            return stats->Int;
 
-    case POW:
-        return stats->Pow;
+        case POW:
+            return stats->Pow;
     }
 
     return 0;
@@ -330,8 +302,7 @@ int8_t get_attr_value(const living *stats, int attr)
  * @param stats
  * Attributes to check.
  */
-void check_stat_bounds(living *stats)
-{
+void check_stat_bounds(living *stats) {
     int i, v;
 
     for (i = 0; i < NUM_STATS; i++) {
@@ -350,8 +321,7 @@ void check_stat_bounds(living *stats)
  * @param op
  * Object to drain.
  */
-void drain_stat(object *op)
-{
+void drain_stat(object *op) {
     drain_specific_stat(op, rndm(1, NUM_STATS) - 1);
 }
 
@@ -362,8 +332,7 @@ void drain_stat(object *op)
  * @param deplete_stats
  * Statistic to drain.
  */
-void drain_specific_stat(object *op, int deplete_stats)
-{
+void drain_specific_stat(object *op, int deplete_stats) {
     object *tmp;
     archetype_t *at = arch_find("depletion");
 
@@ -392,10 +361,7 @@ void drain_specific_stat(object *op, int deplete_stats)
  * @param item
  * Item with the stats to give.
  */
-static void
-living_apply_flags (object       *op,
-                    const object *item)
-{
+static void living_apply_flags(object *op, const object *item) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item != NULL);
 
@@ -493,19 +459,17 @@ living_apply_flags (object       *op,
  * @param[out] added_speed Added speed.
  * @param[out] bonus_speed Bonus speed.
  */
-static void
-living_update_player_item (player       *pl,
-                           object       *op,
-                           const object *item,
-                           double       *attacks,
-                           double       *protect_bonus,
-                           double       *protect_malus,
-                           int          *max_bonus_hp,
-                           int          *max_bonus_sp,
-                           double       *max_speed,
-                           double       *added_speed,
-                           double       *bonus_speed)
-{
+static void living_update_player_item(player *pl,
+                                      object *op,
+                                      const object *item,
+                                      double *attacks,
+                                      double *protect_bonus,
+                                      double *protect_malus,
+                                      int *max_bonus_hp,
+                                      int *max_bonus_sp,
+                                      double *max_speed,
+                                      double *added_speed,
+                                      double *bonus_speed) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item != NULL);
     HARD_ASSERT(protect_bonus != NULL);
@@ -517,8 +481,7 @@ living_update_player_item (player       *pl,
 
     /* If this is an armour piece with a speed cap, update player's max speed
      * if it's higher than the cap. */
-    if (IS_ARMOR(item) && ARMOUR_SPEED(item) != 0 &&
-        *max_speed > ARMOUR_SPEED(item) / 10.0) {
+    if (IS_ARMOR(item) && ARMOUR_SPEED(item) != 0 && *max_speed > ARMOUR_SPEED(item) / 10.0) {
         *max_speed = ARMOUR_SPEED(item) / 10.0;
     }
 
@@ -611,14 +574,12 @@ living_update_player_item (player       *pl,
  * @param op
  * Player to update.
  */
-void living_update_player(object *op)
-{
+void living_update_player(object *op) {
     HARD_ASSERT(op != NULL);
 
     op = HEAD(op);
 
-    SOFT_ASSERT(op->type == PLAYER, "Called with non-player: %s",
-                object_get_str(op));
+    SOFT_ASSERT(op->type == PLAYER, "Called with non-player: %s", object_get_str(op));
 
     if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER)) {
         return;
@@ -728,8 +689,7 @@ void living_update_player(object *op)
     /* Initializing player arrays from the values in player archetype clone */
     memset(&pl->equipment, 0, sizeof(pl->equipment));
     memset(&pl->skill_ptr, 0, sizeof(pl->skill_ptr));
-    memcpy(&op->protection, &op->arch->clone.protection,
-           sizeof(op->protection));
+    memcpy(&op->protection, &op->arch->clone.protection, sizeof(op->protection));
     memcpy(&op->attack, &op->arch->clone.attack, sizeof(op->attack));
 
     int8_t old_glow = op->glow_radius;
@@ -761,8 +721,7 @@ void living_update_player(object *op)
             if (likely(pl->quest_container == NULL)) {
                 pl->quest_container = tmp;
             } else {
-                LOG(ERROR, "Found duplicate quest container object %s",
-                    object_get_str(tmp));
+                LOG(ERROR, "Found duplicate quest container object %s", object_get_str(tmp));
                 object_remove(tmp, 0);
                 object_destroy(tmp);
             }
@@ -771,8 +730,7 @@ void living_update_player(object *op)
         }
 
         if (tmp->type == SCROLL || tmp->type == POTION ||
-            (tmp->type == CONTAINER && !OBJECT_IS_AMMO(tmp)) ||
-            tmp->type == LIGHT_REFILL) {
+            (tmp->type == CONTAINER && !OBJECT_IS_AMMO(tmp)) || tmp->type == LIGHT_REFILL) {
             /* Skip objects that do not give any stats, and require no
              * further handling. */
             continue;
@@ -788,8 +746,7 @@ void living_update_player(object *op)
             if (likely(pl->skill_ptr[tmp->stats.sp] == NULL)) {
                 pl->skill_ptr[tmp->stats.sp] = tmp;
             } else {
-                LOG(ERROR, "Found duplicate skill object %s",
-                    object_get_str(tmp));
+                LOG(ERROR, "Found duplicate skill object %s", object_get_str(tmp));
                 object_remove(tmp, 0);
                 object_destroy(tmp);
                 continue;
@@ -811,8 +768,7 @@ void living_update_player(object *op)
             for (int i = 0; i < NROFATTACKS; i++) {
                 if (tmp->protection[i] > potion_protection_bonus[i]) {
                     potion_protection_bonus[i] = tmp->protection[i];
-                } else if (tmp->protection[i] <
-                           potion_protection_malus[i]) {
+                } else if (tmp->protection[i] < potion_protection_malus[i]) {
                     potion_protection_malus[i] = tmp->protection[i];
                 }
 
@@ -822,12 +778,9 @@ void living_update_player(object *op)
             }
 
             living_apply_flags(op, tmp);
-        } else if (tmp->type == FORCE ||
-                   tmp->type == POISONING ||
-                   tmp->type == DISEASE ||
+        } else if (tmp->type == FORCE || tmp->type == POISONING || tmp->type == DISEASE ||
                    tmp->type == SYMPTOM) {
-            if (ARMOUR_SPEED(tmp) != 0 &&
-                max_speed > ARMOUR_SPEED(tmp) / 10.0) {
+            if (ARMOUR_SPEED(tmp) != 0 && max_speed > ARMOUR_SPEED(tmp) / 10.0) {
                 max_speed = ARMOUR_SPEED(tmp) / 10.0;
             }
 
@@ -836,8 +789,7 @@ void living_update_player(object *op)
                 change_attr_value(&op->stats, i, value);
             }
 
-            if (tmp->type != DISEASE && tmp->type != SYMPTOM &&
-                tmp->type != POISONING) {
+            if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING) {
                 if (tmp->stats.wc != 0) {
                     op->stats.wc += tmp->stats.wc + tmp->magic;
                 }
@@ -877,8 +829,8 @@ void living_update_player(object *op)
                     protect_exact_malus[i] += -tmp->protection[i];
                 }
 
-                if (tmp->attack[i] > 0 && tmp->type != DISEASE &&
-                    tmp->type != SYMPTOM && tmp->type != POISONING) {
+                if (tmp->attack[i] > 0 && tmp->type != DISEASE && tmp->type != SYMPTOM &&
+                    tmp->type != POISONING) {
                     unsigned int attack = op->attack[i] + tmp->attack[i];
                     op->attack[i] = MIN(UINT8_MAX, attack);
                 }
@@ -903,8 +855,7 @@ void living_update_player(object *op)
                 pl->equipment[PLAYER_EQUIP_RING_RIGHT] = tmp;
                 ring_right = true;
             } else {
-                LOG(ERROR, "Unexpected applied ring: %s",
-                    object_get_str(tmp));
+                LOG(ERROR, "Unexpected applied ring: %s", object_get_str(tmp));
                 CLEAR_FLAG(tmp, FLAG_APPLIED);
             }
         } else if (tmp->type == HELMET) {
@@ -942,11 +893,11 @@ void living_update_player(object *op)
                                       &added_speed,
                                       &bonus_speed);
         } else {
-            LOG(BUG, "Unexpected applied object: %s",
-                    object_get_str(tmp));
+            LOG(BUG, "Unexpected applied object: %s", object_get_str(tmp));
             CLEAR_FLAG(tmp, FLAG_APPLIED);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     for (int i = 0; i < PLAYER_EQUIP_MAX; i++) {
         if (pl->equipment[i] == NULL) {
@@ -957,16 +908,13 @@ void living_update_player(object *op)
          * is equipped. */
         if (i == PLAYER_EQUIP_SHIELD &&
             ((pl->equipment[PLAYER_EQUIP_WEAPON] != NULL &&
-              QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON],
-                         FLAG_TWO_HANDED)) ||
+              QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON], FLAG_TWO_HANDED)) ||
              (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] != NULL &&
-              QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED],
-                         FLAG_TWO_HANDED)))) {
+              QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], FLAG_TWO_HANDED)))) {
             continue;
         }
 
-        if (i == PLAYER_EQUIP_AMMO || i == PLAYER_EQUIP_LIGHT ||
-            i == PLAYER_EQUIP_SKILL_ITEM) {
+        if (i == PLAYER_EQUIP_AMMO || i == PLAYER_EQUIP_LIGHT || i == PLAYER_EQUIP_SKILL_ITEM) {
             continue;
         }
 
@@ -1002,8 +950,8 @@ void living_update_player(object *op)
             protect_malus[i] += malus;
         }
 
-        int protection = protect_bonus[i] + protect_exact_bonus[i] -
-                         protect_malus[i] - protect_exact_malus[i];
+        int protection =
+            protect_bonus[i] + protect_exact_bonus[i] - protect_malus[i] - protect_exact_malus[i];
         op->protection[i] = MIN(100, MAX(-100, protection));
     }
 
@@ -1076,8 +1024,9 @@ void living_update_player(object *op)
     op->stats.ac += op->level;
 
     op->stats.maxhp *= op->level + 3;
-    op->stats.maxsp *= (pl->skill_ptr[SK_WIZARDRY_SPELLS] != NULL ?
-                        pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1) + 3;
+    op->stats.maxsp *=
+        (pl->skill_ptr[SK_WIZARDRY_SPELLS] != NULL ? pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1) +
+        3;
 
     /* Now adjust with the % of the stats malus/bonus. */
     op->stats.maxhp += op->stats.maxhp * hp_bonus[op->stats.Con];
@@ -1138,8 +1087,7 @@ void living_update_player(object *op)
                     continue;
                 }
 
-                unsigned int attack = op->attack[i] +
-                                      pl->skill_ptr[SK_UNARMED]->attack[i];
+                unsigned int attack = op->attack[i] + pl->skill_ptr[SK_UNARMED]->attack[i];
                 op->attack[i] = MIN(UINT8_MAX, attack);
             }
         }
@@ -1158,8 +1106,7 @@ void living_update_player(object *op)
     op->stats.wc += wc_bonus[op->stats.Dex];
 
     if (pl->quest_container == NULL) {
-        LOG(ERROR, "Player %s has no quest container, fixing.",
-            object_get_str(op));
+        LOG(ERROR, "Player %s has no quest container, fixing.", object_get_str(op));
         object *quest_container = arch_get(QUEST_CONTAINER_ARCHETYPE);
         object_insert_into(quest_container, op, 0);
         pl->quest_container = quest_container;
@@ -1171,16 +1118,14 @@ void living_update_player(object *op)
  * @param op
  * The monster.
  */
-void living_update_monster(object *op)
-{
+void living_update_monster(object *op) {
     object *base;
 
     HARD_ASSERT(op != NULL);
 
     op = HEAD(op);
 
-    SOFT_ASSERT(op->type == MONSTER, "Called with non-monster: %s",
-            object_get_str(op));
+    SOFT_ASSERT(op->type == MONSTER, "Called with non-monster: %s", object_get_str(op));
 
     if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER)) {
         return;
@@ -1196,11 +1141,10 @@ void living_update_monster(object *op)
     CLEAR_FLAG(op, FLAG_READY_BOW);
     op->absorb = 0;
     op->block = 0;
-    memcpy(&op->protection, &op->arch->clone.protection,
-           sizeof(op->protection));
+    memcpy(&op->protection, &op->arch->clone.protection, sizeof(op->protection));
 
-    op->stats.maxhp = (base->stats.maxhp * (op->level + 3) + (op->level / 2) *
-            base->stats.maxhp) / 10;
+    op->stats.maxhp =
+        (base->stats.maxhp * (op->level + 3) + (op->level / 2) * base->stats.maxhp) / 10;
     op->stats.maxsp = base->stats.maxsp * (op->level + 1);
 
     if (op->stats.hp == -1) {
@@ -1237,18 +1181,16 @@ void living_update_monster(object *op)
         CLEAR_FLAG(tmp, FLAG_APPLIED);
 
         /* Check for bow and use it! */
-        if (tmp->type == BOW && QUERY_FLAG(op, FLAG_USE_BOW) &&
-                check_good_weapon(op, tmp)) {
+        if (tmp->type == BOW && QUERY_FLAG(op, FLAG_USE_BOW) && check_good_weapon(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
             SET_FLAG(op, FLAG_READY_BOW);
-        } else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) &&
-                check_good_armour(op, tmp)) {
+        } else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) && check_good_armour(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
         } else if (QUERY_FLAG(op, FLAG_USE_WEAPON) && tmp->type == WEAPON &&
-                check_good_weapon(op, tmp)) {
+                   check_good_weapon(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
         } else if (tmp->type == EVENT_OBJECT && tmp->sub_type == EVENT_AI &&
-                tmp->path_attuned & EVENT_FLAG(EVENT_AI_GUARD_STOP)) {
+                   tmp->path_attuned & EVENT_FLAG(EVENT_AI_GUARD_STOP)) {
             op->behavior |= BEHAVIOR_GUARD;
         }
 
@@ -1287,21 +1229,23 @@ void living_update_monster(object *op)
         SET_MULTI_FLAG(op, FLAG_FRIENDLY);
     }
 
-    op->stats.dam = (int16_t) (((double) op->stats.dam *
-            ((LEVEL_DAMAGE(op->level) + MAX(LEVEL_DAMAGE(op->level / 3.0) -
-            0.75f, 0.0)) * (0.925f + 0.05 * (op->level / 10.0)))) / 10.0f);
+    op->stats.dam =
+        (int16_t)(((double)op->stats.dam *
+                   ((LEVEL_DAMAGE(op->level) + MAX(LEVEL_DAMAGE(op->level / 3.0) - 0.75f, 0.0)) *
+                    (0.925f + 0.05 * (op->level / 10.0)))) /
+                  10.0f);
 
     /* Add a special decrease of power for monsters level 1-5 */
     if (op->level <= 5) {
-        double d = 1.0f - ((0.35f / 5.0f) * (double) (6 - op->level));
+        double d = 1.0f - ((0.35f / 5.0f) * (double)(6 - op->level));
 
-        op->stats.dam = (int16_t) ((double) op->stats.dam * d);
+        op->stats.dam = (int16_t)((double)op->stats.dam * d);
 
         if (op->stats.dam < 1) {
             op->stats.dam = 1;
         }
 
-        op->stats.maxhp = (int32_t) ((double) op->stats.maxhp * d);
+        op->stats.maxhp = (int32_t)((double)op->stats.maxhp * d);
 
         if (op->stats.maxhp < 1) {
             op->stats.maxhp = 1;
@@ -1326,8 +1270,7 @@ void living_update_monster(object *op)
  * @return
  * Number of stats changed (approximate).
  */
-static int living_update_display(object *op, object *refop, player *refpl)
-{
+static int living_update_display(object *op, object *refop, player *refpl) {
     int ret, i, stat_new, stat_old;
     player *pl;
 
@@ -1342,8 +1285,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
 
     ret = 0;
 
-    if (MIN(op->attack[ATNR_CONFUSION], 1) !=
-            MIN(refop->attack[ATNR_CONFUSION], 1)) {
+    if (MIN(op->attack[ATNR_CONFUSION], 1) != MIN(refop->attack[ATNR_CONFUSION], 1)) {
         ret++;
 
         if (op->attack[ATNR_CONFUSION] != 0) {
@@ -1363,8 +1305,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
-    if (QUERY_FLAG(op, FLAG_REFL_MISSILE) !=
-            QUERY_FLAG(refop, FLAG_REFL_MISSILE)) {
+    if (QUERY_FLAG(op, FLAG_REFL_MISSILE) != QUERY_FLAG(refop, FLAG_REFL_MISSILE)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_REFL_MISSILE)) {
@@ -1374,8 +1315,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
-    if (QUERY_FLAG(op, FLAG_REFL_SPELL) !=
-            QUERY_FLAG(refop, FLAG_REFL_SPELL)) {
+    if (QUERY_FLAG(op, FLAG_REFL_SPELL) != QUERY_FLAG(refop, FLAG_REFL_SPELL)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_REFL_SPELL)) {
@@ -1398,7 +1338,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
     /* Becoming UNDEAD... a special treatment for this flag. Only those not
      * originally undead may change their status */
     if (QUERY_FLAG(op, FLAG_UNDEAD) != QUERY_FLAG(refop, FLAG_UNDEAD) &&
-            !QUERY_FLAG(&op->arch->clone, FLAG_UNDEAD)) {
+        !QUERY_FLAG(&op->arch->clone, FLAG_UNDEAD)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_UNDEAD)) {
@@ -1425,8 +1365,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
-    if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE) !=
-            QUERY_FLAG(refop, FLAG_SEE_INVISIBLE)) {
+    if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE) != QUERY_FLAG(refop, FLAG_SEE_INVISIBLE)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE)) {
@@ -1436,8 +1375,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
-    if (QUERY_FLAG(op, FLAG_IS_INVISIBLE) !=
-            QUERY_FLAG(refop, FLAG_IS_INVISIBLE)) {
+    if (QUERY_FLAG(op, FLAG_IS_INVISIBLE) != QUERY_FLAG(refop, FLAG_IS_INVISIBLE)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_IS_INVISIBLE)) {
@@ -1447,8 +1385,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
-    if (QUERY_FLAG(op, FLAG_BLIND) !=
-            QUERY_FLAG(refop, FLAG_BLIND)) {
+    if (QUERY_FLAG(op, FLAG_BLIND) != QUERY_FLAG(refop, FLAG_BLIND)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_BLIND)) {
@@ -1460,8 +1397,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
         pl->update_los = 1;
     }
 
-    if (QUERY_FLAG(op, FLAG_CONFUSED) !=
-            QUERY_FLAG(refop, FLAG_CONFUSED)) {
+    if (QUERY_FLAG(op, FLAG_CONFUSED) != QUERY_FLAG(refop, FLAG_CONFUSED)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_CONFUSED)) {
@@ -1471,8 +1407,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
         }
     }
 
-    if (QUERY_FLAG(op, FLAG_SEE_IN_DARK) !=
-            QUERY_FLAG(refop, FLAG_SEE_IN_DARK)) {
+    if (QUERY_FLAG(op, FLAG_SEE_IN_DARK) != QUERY_FLAG(refop, FLAG_SEE_IN_DARK)) {
         ret++;
 
         if (QUERY_FLAG(op, FLAG_SEE_IN_DARK)) {
@@ -1506,8 +1441,10 @@ static int living_update_display(object *op, object *refop, player *refpl)
         ret++;
 
         if (op->stats.maxsp > refop->stats.maxsp) {
-            draw_info(COLOR_WHITE, op, "You feel one with the powers of "
-                    "magic!");
+            draw_info(COLOR_WHITE,
+                      op,
+                      "You feel one with the powers of "
+                      "magic!");
         } else {
             draw_info(COLOR_GRAY, op, "You suddenly feel more mundane.");
         }
@@ -1517,11 +1454,15 @@ static int living_update_display(object *op, object *refop, player *refpl)
         ret++;
 
         if (pl->gen_hp > refpl->gen_hp) {
-            draw_info(COLOR_WHITE, op, "You feel your health regeneration "
-                    "speeding up.");
+            draw_info(COLOR_WHITE,
+                      op,
+                      "You feel your health regeneration "
+                      "speeding up.");
         } else {
-            draw_info(COLOR_GRAY, op, "You feel your health regeneration "
-                    "slowing down.");
+            draw_info(COLOR_GRAY,
+                      op,
+                      "You feel your health regeneration "
+                      "slowing down.");
         }
     }
 
@@ -1529,11 +1470,15 @@ static int living_update_display(object *op, object *refop, player *refpl)
         ret++;
 
         if (pl->gen_sp > refpl->gen_sp) {
-            draw_info(COLOR_WHITE, op, "You feel your mana regeneration "
-                    "speeding up.");
+            draw_info(COLOR_WHITE,
+                      op,
+                      "You feel your mana regeneration "
+                      "speeding up.");
         } else {
-            draw_info(COLOR_GRAY, op, "You feel your mana regeneration "
-                    "slowing down.");
+            draw_info(COLOR_GRAY,
+                      op,
+                      "You feel your mana regeneration "
+                      "slowing down.");
         }
     }
 
@@ -1541,8 +1486,10 @@ static int living_update_display(object *op, object *refop, player *refpl)
         ret++;
 
         if (pl->gen_sp_armour > refpl->gen_sp_armour) {
-            draw_info(COLOR_GRAY, op, "You feel the weight of your armour "
-                    "impairing your ability to concentrate on magic.");
+            draw_info(COLOR_GRAY,
+                      op,
+                      "You feel the weight of your armour "
+                      "impairing your ability to concentrate on magic.");
         } else {
             draw_info(COLOR_WHITE, op, "You feel able to concentrate clearer.");
         }
@@ -1564,55 +1511,73 @@ static int living_update_display(object *op, object *refop, player *refpl)
             ret++;
 
             if (op->protection[i] > refop->protection[i]) {
-                draw_info_format(COLOR_GREEN, op, "Your protection to %s rises "
-                        "to %d%%.", attack_name[i], op->protection[i]);
+                draw_info_format(COLOR_GREEN,
+                                 op,
+                                 "Your protection to %s rises "
+                                 "to %d%%.",
+                                 attack_name[i],
+                                 op->protection[i]);
             } else {
-                draw_info_format(COLOR_BLUE, op, "Your protection to %s drops "
-                        "to %d%%.", attack_name[i], op->protection[i]);
+                draw_info_format(COLOR_BLUE,
+                                 op,
+                                 "Your protection to %s drops "
+                                 "to %d%%.",
+                                 attack_name[i],
+                                 op->protection[i]);
             }
         }
     }
 
     /* Messages for changed attuned/repelled/denied paths. */
-    if (op->path_attuned != refop->path_attuned ||
-            op->path_repelled != refop->path_repelled ||
-            op->path_denied != refop->path_denied) {
+    if (op->path_attuned != refop->path_attuned || op->path_repelled != refop->path_repelled ||
+        op->path_denied != refop->path_denied) {
         uint32_t path;
 
         for (i = 0; i < PATH_NUM; i++) {
             path = 1U << i;
 
             if ((op->path_attuned & path) && !(refop->path_attuned & path)) {
-                draw_info_format(COLOR_WHITE, op, "You feel your magical "
-                        "powers attuned towards the path of %s.",
-                        spellpathnames[i]);
-            } else if ((refop->path_attuned & path) &&
-                    !(op->path_attuned & path)) {
-                draw_info_format(COLOR_GRAY, op, "You no longer feel your "
-                        "magical powers attuned towards the path of %s.",
-                        spellpathnames[i]);
+                draw_info_format(COLOR_WHITE,
+                                 op,
+                                 "You feel your magical "
+                                 "powers attuned towards the path of %s.",
+                                 spellpathnames[i]);
+            } else if ((refop->path_attuned & path) && !(op->path_attuned & path)) {
+                draw_info_format(COLOR_GRAY,
+                                 op,
+                                 "You no longer feel your "
+                                 "magical powers attuned towards the path of %s.",
+                                 spellpathnames[i]);
             }
 
             if ((op->path_repelled & path) && !(refop->path_repelled & path)) {
-                draw_info_format(COLOR_WHITE, op, "You feel your magical "
-                        "powers repelled from the path of %s.",
-                        spellpathnames[i]);
-            } else if ((refop->path_repelled & path) &&
-                    !(op->path_repelled & path)) {
-                draw_info_format(COLOR_GRAY, op, "You no longer feel your "
-                        "magical powers repelled from the path of %s.",
-                        spellpathnames[i]);
+                draw_info_format(COLOR_WHITE,
+                                 op,
+                                 "You feel your magical "
+                                 "powers repelled from the path of %s.",
+                                 spellpathnames[i]);
+            } else if ((refop->path_repelled & path) && !(op->path_repelled & path)) {
+                draw_info_format(COLOR_GRAY,
+                                 op,
+                                 "You no longer feel your "
+                                 "magical powers repelled from the path of %s.",
+                                 spellpathnames[i]);
             }
 
             if ((op->path_denied & path) && !(refop->path_denied & path)) {
-                draw_info_format(COLOR_WHITE, op, "You feel your magical "
-                        "powers shift, and become unable to cast spells from "
-                        "the path of %s.", spellpathnames[i]);
-            } else if ((refop->path_denied & path) &&
-                    !(op->path_denied & path)) {
-                draw_info_format(COLOR_GRAY, op, "You feel your magical powers "
-                        "shift, and become able to cast spells from the path "
-                        "of %s.", spellpathnames[i]);
+                draw_info_format(COLOR_WHITE,
+                                 op,
+                                 "You feel your magical "
+                                 "powers shift, and become unable to cast spells from "
+                                 "the path of %s.",
+                                 spellpathnames[i]);
+            } else if ((refop->path_denied & path) && !(op->path_denied & path)) {
+                draw_info_format(COLOR_GRAY,
+                                 op,
+                                 "You feel your magical powers "
+                                 "shift, and become able to cast spells from the path "
+                                 "of %s.",
+                                 spellpathnames[i]);
             }
         }
     }
@@ -1636,12 +1601,16 @@ static int living_update_display(object *op, object *refop, player *refpl)
         (pl->item_power > settings.item_power_factor * op->level ||
          refpl->item_power > settings.item_power_factor * op->level)) {
         if (pl->item_power > refpl->item_power) {
-            draw_info(COLOR_GRAY, op, "You feel the combined power of your "
-                                      "equipped items begin gnawing on your "
-                                      "soul!");
+            draw_info(COLOR_GRAY,
+                      op,
+                      "You feel the combined power of your "
+                      "equipped items begin gnawing on your "
+                      "soul!");
         } else if (pl->item_power > settings.item_power_factor * op->level) {
-            draw_info(COLOR_GRAY, op, "You feel your soul return closer to "
-                                      "normal.");
+            draw_info(COLOR_GRAY,
+                      op,
+                      "You feel your soul return closer to "
+                      "normal.");
         } else {
             draw_info(COLOR_WHITE, op, "You feel your soul return to normal.");
         }
@@ -1658,8 +1627,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
  * @return
  * Approximate number of changed stats.
  */
-int living_update(object *op)
-{
+int living_update(object *op) {
     HARD_ASSERT(op != NULL);
 
     op = HEAD(op);
@@ -1702,14 +1670,11 @@ int living_update(object *op)
  * @return
  * Pointer to the base info if found, NULL otherwise.
  */
-object *living_find_base_info(object *op)
-{
+object *living_find_base_info(object *op) {
     HARD_ASSERT(op != NULL);
 
-    SOFT_ASSERT_RC(op->head == NULL, NULL, "Called on non-head part: %s",
-            object_get_str(op));
-    SOFT_ASSERT_RC(op->type == MONSTER, NULL, "Object is not a monster: %s",
-            object_get_str(op));
+    SOFT_ASSERT_RC(op->head == NULL, NULL, "Called on non-head part: %s", object_get_str(op));
+    SOFT_ASSERT_RC(op->type == MONSTER, NULL, "Object is not a monster: %s", object_get_str(op));
 
     for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
         if (tmp->type == BASE_INFO) {
@@ -1729,14 +1694,11 @@ object *living_find_base_info(object *op)
  * @return
  * Pointer to the base info object, NULL on failure.
  */
-object *living_get_base_info(object *op)
-{
+object *living_get_base_info(object *op) {
     HARD_ASSERT(op != NULL);
 
-    SOFT_ASSERT_RC(op->head == NULL, NULL, "Called on non-head part: %s",
-            object_get_str(op));
-    SOFT_ASSERT_RC(op->type == MONSTER, NULL, "Object is not a monster: %s",
-            object_get_str(op));
+    SOFT_ASSERT_RC(op->head == NULL, NULL, "Called on non-head part: %s", object_get_str(op));
+    SOFT_ASSERT_RC(op->type == MONSTER, NULL, "Object is not a monster: %s", object_get_str(op));
 
     object *tmp = living_find_base_info(op);
     if (tmp != NULL) {
@@ -1782,8 +1744,7 @@ object *living_get_base_info(object *op)
  * @param idx
  * Index.
  */
-void set_mobile_speed(object *op, int idx)
-{
+void set_mobile_speed(object *op, int idx) {
     object *base;
     double speed, tmp;
 

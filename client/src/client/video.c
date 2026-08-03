@@ -42,8 +42,7 @@ x11_window_type SDL_window;
 /**
  * Initialize the video system.
  */
-void video_init(void)
-{
+void video_init(void) {
     SDL_SysWMinfo info;
 
     list_vid_modes();
@@ -105,11 +104,7 @@ void video_init(void)
  * Sam Lantinga
  * slouken@libsdl.org
  */
-static void
-video_mask_from_icon (SDL_Surface *icon,
-                      Uint8       *mask,
-                      int          flags)
-{
+static void video_mask_from_icon(SDL_Surface *icon, Uint8 *mask, int flags) {
     HARD_ASSERT(icon != NULL);
     HARD_ASSERT(mask != NULL);
 
@@ -120,7 +115,7 @@ video_mask_from_icon (SDL_Surface *icon,
     switch (icon->format->BytesPerPixel) {
         case 1:
             for (int y = 0; y < icon->h; ++y) {
-                Uint8 *pixels = (Uint8 *) icon->pixels + y * icon->pitch;
+                Uint8 *pixels = (Uint8 *)icon->pixels + y * icon->pitch;
                 for (int x = 0; x < icon->w; ++x) {
                     if (*pixels++ == colorkey) {
                         SET_MASKBIT(icon, x, y, mask);
@@ -132,12 +127,11 @@ video_mask_from_icon (SDL_Surface *icon,
 
         case 2:
             for (int y = 0; y < icon->h; ++y) {
-                Uint16 *pixels = (Uint16 *) icon->pixels + y * icon->pitch / 2;
+                Uint16 *pixels = (Uint16 *)icon->pixels + y * icon->pitch / 2;
                 for (int x = 0; x < icon->w; ++x) {
                     if ((flags & 0x1) && *pixels == colorkey) {
                         SET_MASKBIT(icon, x, y, mask);
-                    } else if ((flags & 0x2) &&
-                               (*pixels & icon->format->Amask) == 0) {
+                    } else if ((flags & 0x2) && (*pixels & icon->format->Amask) == 0) {
                         SET_MASKBIT(icon, x, y, mask);
                     }
 
@@ -149,12 +143,11 @@ video_mask_from_icon (SDL_Surface *icon,
 
         case 4:
             for (int y = 0; y < icon->h; ++y) {
-                Uint32 *pixels = (Uint32 *) icon->pixels + y * icon->pitch / 4;
+                Uint32 *pixels = (Uint32 *)icon->pixels + y * icon->pitch / 4;
                 for (int x = 0; x < icon->w; ++x) {
                     if ((flags & 0x1) && *pixels == colorkey) {
                         SET_MASKBIT(icon, x, y, mask);
-                    } else if ((flags & 0x2) &&
-                               (*pixels & icon->format->Amask) == 0) {
+                    } else if ((flags & 0x2) && (*pixels & icon->format->Amask) == 0) {
                         SET_MASKBIT(icon, x, y, mask);
                     }
 
@@ -200,12 +193,10 @@ video_mask_from_icon (SDL_Surface *icon,
  * Sam Lantinga
  * slouken@libsdl.org
  */
-static void
-video_set_icon_x11 (SDL_Surface     *icon,
-                    x11_display_type display,
-                    x11_window_type  win,
-                    Atom             net_wm_icon)
-{
+static void video_set_icon_x11(SDL_Surface *icon,
+                               x11_display_type display,
+                               x11_window_type win,
+                               Atom net_wm_icon) {
     HARD_ASSERT(icon != NULL);
 
     size_t mask_len = icon->h * (icon->w + 7) / 8;
@@ -261,8 +252,7 @@ video_set_icon_x11 (SDL_Surface     *icon,
     long *dst = &prop_data[2];
     size_t maskidx = 0;
     for (int y = 0; y < icon->h; ++y) {
-        Uint32 *src = (Uint32 *) ((Uint8 *) surface->pixels +
-                                  y * surface->pitch);
+        Uint32 *src = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch);
 
         for (int x = 0; x < icon->w; ++x) {
             const Uint32 pixel = *(src++);
@@ -283,7 +273,7 @@ video_set_icon_x11 (SDL_Surface     *icon,
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
-                    (unsigned char *) prop_data,
+                    (unsigned char *)prop_data,
                     prop_size);
     efree(prop_data);
 
@@ -302,15 +292,11 @@ out:
  * @param icon
  * Icon to set.
  */
-void
-video_set_icon (SDL_Surface *icon)
-{
+void video_set_icon(SDL_Surface *icon) {
     HARD_ASSERT(icon != NULL);
 
 #if defined(HAVE_X11)
-    Atom net_wm_icon = SDL_display != NULL ?
-        XInternAtom(SDL_display, "_NET_WM_ICON", False) :
-        None;
+    Atom net_wm_icon = SDL_display != NULL ? XInternAtom(SDL_display, "_NET_WM_ICON", False) : None;
     if (net_wm_icon && SDL_window) {
         video_set_icon_x11(icon,
                            SDL_display,
@@ -333,8 +319,7 @@ out:
  * @return
  * Bits per pixel.
  */
-int video_get_bpp(void)
-{
+int video_get_bpp(void) {
     return SDL_GetVideoInfo()->vfmt->BitsPerPixel;
 }
 
@@ -343,12 +328,14 @@ int video_get_bpp(void)
  * @return
  * 1 on success, 0 on failure.
  */
-int video_set_size(void)
-{
+int video_set_size(void) {
     SDL_Surface *new;
 
     /* Try to set the video mode. */
-    new = SDL_SetVideoMode(setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X), setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y), video_get_bpp(), get_video_flags());
+    new = SDL_SetVideoMode(setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X),
+                           setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y),
+                           video_get_bpp(),
+                           get_video_flags());
 
     if (new) {
         ScreenSurface = new;
@@ -364,12 +351,13 @@ int video_set_size(void)
  * @return
  * The flags
  */
-uint32_t get_video_flags(void)
-{
+uint32_t get_video_flags(void) {
     if (setting_get_int(OPT_CAT_CLIENT, OPT_FULLSCREEN)) {
-        return SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_ANYFORMAT;
+        return SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_DOUBLEBUF |
+               SDL_ANYFORMAT;
     } else {
-        return SDL_SWSURFACE | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_ANYFORMAT | SDL_RESIZABLE;
+        return SDL_SWSURFACE | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_ANYFORMAT |
+               SDL_RESIZABLE;
     }
 }
 
@@ -391,8 +379,7 @@ uint32_t get_video_flags(void)
  *  @return
  * Non-zero on success, zero on failure.
  */
-int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags)
-{
+int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags) {
     size_t framesize = 0;
     void *pixels = NULL;
     SDL_Rect clip;
@@ -440,7 +427,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags)
 
     /* Save the contents of the screen. */
     if ((!(tmpflags & SDL_OPENGL)) && (!(tmpflags & SDL_OPENGLBLIT))) {
-        framesize = (w * h) * (size_t) (*surface)->format->BytesPerPixel;
+        framesize = (w * h) * (size_t)(*surface)->format->BytesPerPixel;
         pixels = emalloc(framesize);
 
         if (pixels == NULL) {

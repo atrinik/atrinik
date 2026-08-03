@@ -28,8 +28,7 @@
 #include <check_proto.h>
 #include <malloc.h>
 
-START_TEST(test_memory_emalloc)
-{
+START_TEST(test_memory_emalloc) {
     char *ptr;
     memory_status_t memory_status;
     size_t size;
@@ -51,8 +50,7 @@ START_TEST(test_memory_emalloc)
 }
 END_TEST
 
-START_TEST(test_memory_efree)
-{
+START_TEST(test_memory_efree) {
     void *ptr;
     memory_status_t memory_status;
     size_t size;
@@ -76,8 +74,7 @@ START_TEST(test_memory_efree)
 }
 END_TEST
 
-START_TEST(test_memory_ecalloc)
-{
+START_TEST(test_memory_ecalloc) {
     int32_t *ptr;
     size_t size;
     memory_status_t memory_status;
@@ -105,8 +102,7 @@ START_TEST(test_memory_ecalloc)
 }
 END_TEST
 
-START_TEST(test_memory_erealloc)
-{
+START_TEST(test_memory_erealloc) {
     char *ptr;
     memory_status_t memory_status;
     size_t size;
@@ -171,8 +167,7 @@ START_TEST(test_memory_erealloc)
 }
 END_TEST
 
-START_TEST(test_memory_reallocz)
-{
+START_TEST(test_memory_reallocz) {
     int32_t *ptr;
     memory_status_t memory_status;
     size_t size, i;
@@ -236,8 +231,7 @@ START_TEST(test_memory_reallocz)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("memory");
     TCase *tc_core = tcase_create("Core");
 
@@ -254,7 +248,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_memory(void)
-{
+void check_server_memory(void) {
     check_run_suite(suite(), __FILE__);
 }

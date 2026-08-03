@@ -97,8 +97,7 @@
 struct packet_struct;
 
 /* TODO: move to appropriate header */
-FILE *
-client_fopen_wrapper(const char *fname, const char *mode);
+FILE *client_fopen_wrapper(const char *fname, const char *mode);
 
 #ifndef __CPROTO__
 #include <proto.h>

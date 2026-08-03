@@ -38,50 +38,40 @@ struct asset_request {
 
 static asset_request_t *asset_requests;
 
-static void
-asset_request_send (asset_request_t *request)
-{
+static void asset_request_send(asset_request_t *request) {
     LOG(DEBUG,
         "Requesting QUIC asset %s at offset %" PRIu64,
         request->path,
-        (uint64_t) request->received);
+        (uint64_t)request->received);
     packet_struct *packet = packet_new(SERVER_CMD_ASSET, 128, 128);
     static const uint8_t empty_digest[ASSET_DIGEST_SIZE];
     socket_asset_request_append(
         packet,
         request->path,
-        (uint32_t) request->received,
-        request->received == 0 && request->cache_loaded ?
-        (uint32_t) request->size : 0,
-        request->received == 0 && request->cache_loaded ?
-        request->cached_digest : empty_digest,
+        (uint32_t)request->received,
+        request->received == 0 && request->cache_loaded ? (uint32_t)request->size : 0,
+        request->received == 0 && request->cache_loaded ? request->cached_digest : empty_digest,
         request->metadata_only ? ASSET_REQUEST_METADATA : 0);
     socket_send_packet(packet);
 }
 
-static void
-asset_request_cache_load (asset_request_t *request)
-{
+static void asset_request_cache_load(asset_request_t *request) {
     if (request->cache_path == NULL) {
         return;
     }
 
     FILE *fp = path_fopen(request->cache_path, "rb");
     struct stat sb;
-    if (fp == NULL ||
-        fstat(fileno(fp), &sb) != 0 ||
-        !S_ISREG(sb.st_mode) ||
-        sb.st_size < 0 ||
-        (uint64_t) sb.st_size > ASSET_MAX_SIZE) {
+    if (fp == NULL || fstat(fileno(fp), &sb) != 0 || !S_ISREG(sb.st_mode) || sb.st_size < 0 ||
+        (uint64_t)sb.st_size > ASSET_MAX_SIZE) {
         if (fp != NULL) {
             fclose(fp);
         }
         return;
     }
 
-    uint8_t *data = emalloc((size_t) sb.st_size + 1);
-    bool success = fread(data, 1, (size_t) sb.st_size, fp) ==
-        (size_t) sb.st_size;
+    uint8_t *data = emalloc((size_t)sb.st_size + 1);
+    bool success = fread(data, 1, (size_t)sb.st_size, fp) == (size_t)sb.st_size;
     if (fclose(fp) != 0) {
         success = false;
     }
@@ -90,16 +80,17 @@ asset_request_cache_load (asset_request_t *request)
         return;
     }
 
-    data[(size_t) sb.st_size] = '\0';
+    data[(size_t)sb.st_size] = '\0';
     request->data = data;
-    request->size = (size_t) sb.st_size;
+    request->size = (size_t)sb.st_size;
     unsigned int digest_size = 0;
     if (EVP_Digest(request->data,
                    request->size,
                    request->cached_digest,
                    &digest_size,
                    EVP_sha256(),
-                   NULL) != 1 || digest_size != ASSET_DIGEST_SIZE) {
+                   NULL) != 1 ||
+        digest_size != ASSET_DIGEST_SIZE) {
         efree(request->data);
         request->data = NULL;
         request->size = 0;
@@ -109,42 +100,28 @@ asset_request_cache_load (asset_request_t *request)
     LOG(DEBUG,
         "Loaded cached QUIC asset %s (%" PRIu64 " bytes)",
         request->path,
-        (uint64_t) request->size);
+        (uint64_t)request->size);
 }
 
-static void
-asset_request_cache_save (const asset_request_t *request)
-{
+static void asset_request_cache_save(const asset_request_t *request) {
     if (request->cache_path == NULL) {
         return;
     }
 
     char *path = file_path(request->cache_path, "wb");
-    bool success = path_write_atomic(path,
-                                     request->data,
-                                     request->size,
-                                     0600);
+    bool success = path_write_atomic(path, request->data, request->size, 0600);
     efree(path);
     if (!success) {
-        LOG(ERROR,
-            "Could not write QUIC asset cache %s",
-            request->cache_path);
+        LOG(ERROR, "Could not write QUIC asset cache %s", request->cache_path);
     } else {
-        LOG(DEBUG,
-            "Cached QUIC asset %s at %s",
-            request->path,
-            request->cache_path);
+        LOG(DEBUG, "Cached QUIC asset %s at %s", request->path, request->cache_path);
     }
 }
 
 static asset_request_t *
-asset_request_start_internal (const char *path,
-                              const char *cache_path,
-                              bool        metadata_only)
-{
-    if (!cpl.asset_transport || csocket.sc == NULL ||
-        !socket_is_quic(csocket.sc) ||
-        path == NULL || *path == '\0' || strlen(path) >= MAX_BUF) {
+asset_request_start_internal(const char *path, const char *cache_path, bool metadata_only) {
+    if (!cpl.asset_transport || csocket.sc == NULL || !socket_is_quic(csocket.sc) || path == NULL ||
+        *path == '\0' || strlen(path) >= MAX_BUF) {
         return NULL;
     }
 
@@ -166,43 +143,29 @@ asset_request_start_internal (const char *path,
     request->references = 1;
     request->metadata_only = metadata_only;
     request->state = ASSET_REQUEST_PENDING;
-    HASH_ADD_KEYPTR(hh,
-                    asset_requests,
-                    request->key,
-                    strlen(request->key),
-                    request);
+    HASH_ADD_KEYPTR(hh, asset_requests, request->key, strlen(request->key), request);
     asset_request_cache_load(request);
     asset_request_send(request);
     return request;
 }
 
-asset_request_t *
-asset_request_start (const char *path)
-{
+asset_request_t *asset_request_start(const char *path) {
     return asset_request_start_internal(path, NULL, false);
 }
 
-asset_request_t *
-asset_request_start_cached (const char *path, const char *cache_path)
-{
+asset_request_t *asset_request_start_cached(const char *path, const char *cache_path) {
     return asset_request_start_internal(path, cache_path, false);
 }
 
-asset_request_t *
-asset_request_start_metadata (const char *path)
-{
+asset_request_t *asset_request_start_metadata(const char *path) {
     return asset_request_start_internal(path, NULL, true);
 }
 
-asset_request_state_t
-asset_request_get_state (const asset_request_t *request)
-{
+asset_request_state_t asset_request_get_state(const asset_request_t *request) {
     return request != NULL ? request->state : ASSET_REQUEST_ERROR;
 }
 
-const uint8_t *
-asset_request_get_data (const asset_request_t *request, size_t *size)
-{
+const uint8_t *asset_request_get_data(const asset_request_t *request, size_t *size) {
     if (size != NULL) {
         *size = request != NULL ? request->size : 0;
     }
@@ -212,13 +175,10 @@ asset_request_get_data (const asset_request_t *request, size_t *size)
     return request->data;
 }
 
-bool
-asset_request_get_metadata (const asset_request_t *request,
-                            size_t                *size,
-                            uint8_t                digest[ASSET_DIGEST_SIZE])
-{
-    if (request == NULL || !request->metadata_only ||
-            request->state != ASSET_REQUEST_COMPLETE) {
+bool asset_request_get_metadata(const asset_request_t *request,
+                                size_t *size,
+                                uint8_t digest[ASSET_DIGEST_SIZE]) {
+    if (request == NULL || !request->metadata_only || request->state != ASSET_REQUEST_COMPLETE) {
         return false;
     }
     if (size != NULL) {
@@ -230,9 +190,7 @@ asset_request_get_metadata (const asset_request_t *request,
     return true;
 }
 
-void
-asset_request_free (asset_request_t *request)
-{
+void asset_request_free(asset_request_t *request) {
     if (request == NULL || --request->references != 0) {
         return;
     }
@@ -249,9 +207,7 @@ asset_request_free (asset_request_t *request)
     efree(request);
 }
 
-void
-socket_command_asset (uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_asset(uint8_t *data, size_t len, size_t pos) {
     socket_asset_response_t response;
     if (!socket_asset_response_parse(data, len, pos, &response)) {
         LOG(ERROR, "Rejected malformed QUIC asset response");
@@ -264,9 +220,8 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
         return;
     }
 
-    bool metadata_response =
-        response.status == ASSET_STATUS_METADATA ||
-        response.status == ASSET_STATUS_METADATA_NOT_FOUND;
+    bool metadata_response = response.status == ASSET_STATUS_METADATA ||
+                             response.status == ASSET_STATUS_METADATA_NOT_FOUND;
     char key[MAX_BUF + 3];
     snprintf(VS(key), "%c:%s", metadata_response ? 'M' : 'D', response.path);
     asset_request_t *request;
@@ -277,24 +232,18 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
 
     if (response.status == ASSET_STATUS_METADATA) {
         request->size = response.total_size;
-        memcpy(request->expected_digest,
-               response.digest,
-               ASSET_DIGEST_SIZE);
+        memcpy(request->expected_digest, response.digest, ASSET_DIGEST_SIZE);
         request->state = ASSET_REQUEST_COMPLETE;
         return;
     }
 
     if (response.status == ASSET_STATUS_NOT_MODIFIED) {
         if (!request->cache_loaded) {
-            LOG(ERROR,
-                "Server accepted missing QUIC asset cache for %s",
-                response.path);
+            LOG(ERROR, "Server accepted missing QUIC asset cache for %s", response.path);
             request->state = ASSET_REQUEST_ERROR;
             return;
         }
-        LOG(DEBUG,
-            "Server confirmed cached QUIC asset %s is current",
-            response.path);
+        LOG(DEBUG, "Server confirmed cached QUIC asset %s is current", response.path);
         request->state = ASSET_REQUEST_COMPLETE;
         return;
     }
@@ -309,25 +258,21 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
     }
 
     LOG(DEBUG,
-        "Received QUIC asset %s offset %" PRIu32 "/%" PRIu32
-        " (%" PRIu64 " bytes)",
+        "Received QUIC asset %s offset %" PRIu32 "/%" PRIu32 " (%" PRIu64 " bytes)",
         response.path,
         response.offset,
         response.total_size,
-        (uint64_t) response.data_size);
+        (uint64_t)response.data_size);
     if (response.offset != request->received ||
-        (request->data != NULL &&
-         !request->cache_loaded &&
-         request->size != response.total_size)) {
+        (request->data != NULL && !request->cache_loaded && request->size != response.total_size)) {
         LOG(ERROR,
             "Rejected malformed QUIC asset chunk for %s: expected offset "
-            "%" PRIu64 ", received offset %" PRIu32 ", total %" PRIu32
-            ", chunk size %" PRIu64,
+            "%" PRIu64 ", received offset %" PRIu32 ", total %" PRIu32 ", chunk size %" PRIu64,
             response.path,
-            (uint64_t) request->received,
+            (uint64_t)request->received,
             response.offset,
             response.total_size,
-            (uint64_t) response.data_size);
+            (uint64_t)response.data_size);
         request->state = ASSET_REQUEST_ERROR;
         return;
     }
@@ -339,25 +284,19 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
         }
         request->size = 0;
         request->cache_loaded = false;
-        memcpy(request->expected_digest,
-               response.digest,
-               ASSET_DIGEST_SIZE);
-    } else if (memcmp(request->expected_digest,
-                      response.digest,
-                      ASSET_DIGEST_SIZE) != 0) {
+        memcpy(request->expected_digest, response.digest, ASSET_DIGEST_SIZE);
+    } else if (memcmp(request->expected_digest, response.digest, ASSET_DIGEST_SIZE) != 0) {
         LOG(ERROR, "Rejected changing QUIC asset digest for %s", response.path);
         request->state = ASSET_REQUEST_ERROR;
         return;
     }
 
     if (request->data == NULL) {
-        request->data = emalloc((size_t) response.total_size + 1);
+        request->data = emalloc((size_t)response.total_size + 1);
         request->size = response.total_size;
     }
 
-    memcpy(request->data + request->received,
-           response.data,
-           response.data_size);
+    memcpy(request->data + request->received, response.data, response.data_size);
     request->received += response.data_size;
     request->data[request->received] = '\0';
 
@@ -371,9 +310,7 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
                        EVP_sha256(),
                        NULL) != 1 ||
             digest_size != ASSET_DIGEST_SIZE ||
-            memcmp(actual_digest,
-                   request->expected_digest,
-                   ASSET_DIGEST_SIZE) != 0) {
+            memcmp(actual_digest, request->expected_digest, ASSET_DIGEST_SIZE) != 0) {
             LOG(ERROR, "Rejected QUIC asset %s: SHA-256 mismatch", response.path);
             request->state = ASSET_REQUEST_ERROR;
             return;

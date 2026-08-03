@@ -49,8 +49,7 @@
  * @retval 2 Objects of that type can't be applied if not in
  * inventory.
  */
-int manual_apply(object *op, object *tmp, int aflag)
-{
+int manual_apply(object *op, object *tmp, int aflag) {
     tmp = HEAD(tmp);
 
     if (QUERY_FLAG(tmp, FLAG_UNPAID) && !QUERY_FLAG(tmp, FLAG_APPLIED)) {
@@ -69,7 +68,8 @@ int manual_apply(object *op, object *tmp, int aflag)
     }
 
     /* Trigger the APPLY event */
-    if (!(aflag & APPLY_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, 0)) {
+    if (!(aflag & APPLY_NO_EVENT) &&
+        trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, 0)) {
         return OBJECT_METHOD_OK;
     }
 
@@ -120,8 +120,7 @@ int manual_apply(object *op, object *tmp, int aflag)
  * @retval 2 Objects of that type can't be applied if not in
  * inventory.
  */
-int player_apply(object *pl, object *op, int aflag, int quiet)
-{
+int player_apply(object *pl, object *op, int aflag, int quiet) {
     int tmp;
 
     if (op->env == NULL && QUERY_FLAG(pl, FLAG_FLYING)) {
@@ -137,8 +136,11 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
     if (!quiet) {
         if (tmp == OBJECT_METHOD_UNHANDLED) {
             char *name = object_get_name_s(op, NULL);
-            draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the "
-                    "%s.", name);
+            draw_info_format(COLOR_WHITE,
+                             pl,
+                             "I don't know how to apply the "
+                             "%s.",
+                             name);
             efree(name);
         } else if (tmp == OBJECT_METHOD_ERROR) {
             if (op->env != pl) {
@@ -158,8 +160,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
  * @param pl
  * Player.
  */
-void player_apply_below(object *pl)
-{
+void player_apply_below(object *pl) {
     object *tmp, *next;
     int floors;
 
@@ -184,7 +185,8 @@ void player_apply_below(object *pl)
             return;
         }
 
-        if (!IS_INVISIBLE(tmp, pl) || QUERY_FLAG(tmp, FLAG_WALK_ON) || QUERY_FLAG(tmp, FLAG_FLY_ON)) {
+        if (!IS_INVISIBLE(tmp, pl) || QUERY_FLAG(tmp, FLAG_WALK_ON) ||
+            QUERY_FLAG(tmp, FLAG_FLY_ON)) {
             if (player_apply(pl, tmp, 0, 1) == 1) {
                 return;
             }

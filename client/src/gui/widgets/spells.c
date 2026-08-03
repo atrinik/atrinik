@@ -57,7 +57,7 @@ enum {
     BUTTON_HELP,
 
     BUTTON_NUM
-} ;
+};
 
 /**
  * Button buffer.
@@ -71,22 +71,18 @@ static list_struct *list_spells = NULL;
 /**
  * Initialize the spells system.
  */
-void spells_init(void)
-{
+void spells_init(void) {
     memset(&spell_list, 0, sizeof(*spell_list) * arraysize(spell_list));
-    memset(&spell_list_num, 0,
-            sizeof(*spell_list_num) * arraysize(spell_list_num));
+    memset(&spell_list_num, 0, sizeof(*spell_list_num) * arraysize(spell_list_num));
     spell_list_path = SPELL_PATH_NUM - 1;
 }
 
 /**
  * Deinitialize the spells system.
  */
-void spells_deinit(void)
-{
+void spells_deinit(void) {
     for (size_t spell_path = 0; spell_path < SPELL_PATH_NUM - 1; spell_path++) {
-        for (size_t spell_id = 0; spell_id < spell_list_num[spell_path];
-                spell_id++) {
+        for (size_t spell_id = 0; spell_id < spell_list_num[spell_path]; spell_id++) {
             efree(spell_list[spell_path][spell_id]);
         }
 
@@ -101,8 +97,7 @@ void spells_deinit(void)
  * @param list
  * The spells list.
  */
-static void list_handle_enter(list_struct *list, SDL_Event *event)
-{
+static void list_handle_enter(list_struct *list, SDL_Event *event) {
     const char *selected;
     char buf[MAX_BUF];
 
@@ -120,8 +115,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
  * Reload the spells list, due to a change of the spell path, filtering
  * options, etc.
  */
-static void spell_list_reload(void)
-{
+static void spell_list_reload(void) {
     size_t i, j;
     uint32_t offset, rows, selected;
 
@@ -142,8 +136,7 @@ static void spell_list_reload(void)
 
     do {
         for (j = 0; j < spell_list_num[i]; j++) {
-            list_add(list_spells, list_spells->rows, 0,
-                    spell_list[i][j]->spell->s_name);
+            list_add(list_spells, list_spells->rows, 0, spell_list[i][j]->spell->s_name);
         }
 
         i++;
@@ -164,8 +157,7 @@ static void spell_list_reload(void)
  * @param button
  * The button.
  */
-static void button_repeat_func(button_struct *button)
-{
+static void button_repeat_func(button_struct *button) {
     int path = spell_list_path;
 
     if (button == &buttons[BUTTON_PATH_LEFT]) {
@@ -195,8 +187,7 @@ static void button_repeat_func(button_struct *button)
  * @return
  * 1 if the spell was found, 0 otherwise.
  */
-int spell_find(const char *name, size_t *spell_path, size_t *spell_id)
-{
+int spell_find(const char *name, size_t *spell_path, size_t *spell_id) {
     size_t name_len;
 
     if (name == NULL) {
@@ -206,10 +197,9 @@ int spell_find(const char *name, size_t *spell_path, size_t *spell_id)
     name_len = strlen(name);
 
     for (*spell_path = 0; *spell_path < SPELL_PATH_NUM - 1; *spell_path += 1) {
-        for (*spell_id = 0; *spell_id < spell_list_num[*spell_path];
-                *spell_id += 1) {
-            if (strncasecmp(spell_list[*spell_path][*spell_id]->spell->s_name,
-                    name, name_len) == 0) {
+        for (*spell_id = 0; *spell_id < spell_list_num[*spell_path]; *spell_id += 1) {
+            if (strncasecmp(spell_list[*spell_path][*spell_id]->spell->s_name, name, name_len) ==
+                0) {
                 return 1;
             }
         }
@@ -227,11 +217,9 @@ int spell_find(const char *name, size_t *spell_path, size_t *spell_id)
  * @return
  * 1 if the spell was found, 0 otherwise.
  */
-int spell_find_object(object *op, size_t *spell_path, size_t *spell_id)
-{
+int spell_find_object(object *op, size_t *spell_path, size_t *spell_id) {
     for (*spell_path = 0; *spell_path < SPELL_PATH_NUM - 1; *spell_path += 1) {
-        for (*spell_id = 0; *spell_id < spell_list_num[*spell_path];
-                *spell_id += 1) {
+        for (*spell_id = 0; *spell_id < spell_list_num[*spell_path]; *spell_id += 1) {
             if (spell_list[*spell_path][*spell_id]->spell == op) {
                 return 1;
             }
@@ -251,8 +239,7 @@ int spell_find_object(object *op, size_t *spell_path, size_t *spell_id)
  * @return
  * The spell if found, NULL otherwise.
  */
-static spell_entry_struct *spell_find_path_selected(const char *name)
-{
+static spell_entry_struct *spell_find_path_selected(const char *name) {
     size_t spell_id, name_len;
 
     if (name == NULL) {
@@ -271,10 +258,9 @@ static spell_entry_struct *spell_find_path_selected(const char *name)
 
     name_len = strlen(name);
 
-    for (spell_id = 0; spell_id < spell_list_num[spell_list_path];
-            spell_id += 1) {
-        if (strncasecmp(spell_list[spell_list_path][spell_id]->spell->s_name,
-                name, name_len) == 0) {
+    for (spell_id = 0; spell_id < spell_list_num[spell_list_path]; spell_id += 1) {
+        if (strncasecmp(spell_list[spell_list_path][spell_id]->spell->s_name, name, name_len) ==
+            0) {
             return spell_get(spell_list_path, spell_id);
         }
     }
@@ -291,14 +277,11 @@ static spell_entry_struct *spell_find_path_selected(const char *name)
  * @return
  * The spell.
  */
-spell_entry_struct *spell_get(size_t spell_path, size_t spell_id)
-{
+spell_entry_struct *spell_get(size_t spell_path, size_t spell_id) {
     return spell_list[spell_path][spell_id];
 }
 
-void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags,
-        const char *msg)
-{
+void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags, const char *msg) {
     size_t spell_path, spell_id, path_real;
     spell_entry_struct *spell;
 
@@ -312,8 +295,7 @@ void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags,
     }
 
     if (spell_path == arraysize(spell_list)) {
-        LOG(BUG, "Invalid spell path for spell '%s'.",
-                op->s_name);
+        LOG(BUG, "Invalid spell path for spell '%s'.", op->s_name);
         return;
     }
 
@@ -329,9 +311,9 @@ void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags,
         spell = ecalloc(1, sizeof(*spell));
         spell->spell = op;
 
-        spell_list[path_real] = erealloc(spell_list[path_real],
-                sizeof(*spell_list[path_real]) *
-                (spell_list_num[path_real] + 1));
+        spell_list[path_real] =
+            erealloc(spell_list[path_real],
+                     sizeof(*spell_list[path_real]) * (spell_list_num[path_real] + 1));
         spell_list[path_real][spell_list_num[path_real]] = spell;
         spell_list_num[path_real]++;
     }
@@ -344,13 +326,11 @@ void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags,
     spell_list_reload();
 }
 
-void spells_remove(object *op)
-{
+void spells_remove(object *op) {
     size_t spell_path, spell_id, i;
 
     if (!spell_find_object(op, &spell_path, &spell_id)) {
-        LOG(BUG, "Tried to remove spell '%s', but it was not in spell list.",
-            op->s_name);
+        LOG(BUG, "Tried to remove spell '%s', but it was not in spell list.", op->s_name);
         return;
     }
 
@@ -360,16 +340,16 @@ void spells_remove(object *op)
         spell_list[spell_path][i - 1] = spell_list[spell_path][i];
     }
 
-    spell_list[spell_path] = erealloc(spell_list[spell_path],
-            sizeof(*spell_list[spell_path]) * (spell_list_num[spell_path] - 1));
+    spell_list[spell_path] =
+        erealloc(spell_list[spell_path],
+                 sizeof(*spell_list[spell_path]) * (spell_list_num[spell_path] - 1));
     spell_list_num[spell_path]--;
 
     spell_list_reload();
 }
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     SDL_Rect box;
     size_t i;
     spell_entry_struct *spell;
@@ -386,12 +366,9 @@ static void widget_draw(widgetdata *widget)
 
         for (i = 0; i < BUTTON_NUM; i++) {
             button_create(&buttons[i]);
-            buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT,
-                    "button_round");
-            buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT,
-                    "button_round_down");
-            buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT,
-                    "button_round_over");
+            buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+            buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+            buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
 
             if (i == BUTTON_PATH_LEFT || i == BUTTON_PATH_RIGHT) {
                 buttons[i].repeat_func = button_repeat_func;
@@ -405,16 +382,19 @@ static void widget_draw(widgetdata *widget)
 
     box.h = 0;
     box.w = widget->w;
-    text_show(widget->surface, FONT_SERIF12, "Spells", 0, 3, COLOR_HGOLD,
-            TEXT_ALIGN_CENTER, &box);
+    text_show(widget->surface, FONT_SERIF12, "Spells", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
     list_set_parent(list_spells, widget->x, widget->y);
     list_show(list_spells, 10, 2);
 
     box.w = 160;
-    text_show(widget->surface, FONT_SERIF12,
-            s_settings->spell_paths[spell_list_path],
-            0, widget->h - FONT_HEIGHT(FONT_SERIF12) - 7,
-            COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+    text_show(widget->surface,
+              FONT_SERIF12,
+              s_settings->spell_paths[spell_list_path],
+              0,
+              widget->h - FONT_HEIGHT(FONT_SERIF12) - 7,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER,
+              &box);
 
     spell = spell_find_path_selected(list_get_selected(list_spells, 0));
 
@@ -438,36 +418,58 @@ static void widget_draw(widgetdata *widget)
 
         box.h = 120;
         box.w = 150;
-        text_show(widget->surface, FONT_ARIAL10, spell->msg, 160, 40,
-                COLOR_WHITE, TEXT_WORD_WRAP, &box);
+        text_show(widget->surface,
+                  FONT_ARIAL10,
+                  spell->msg,
+                  160,
+                  40,
+                  COLOR_WHITE,
+                  TEXT_WORD_WRAP,
+                  &box);
 
         icon_sprite = image_get_sprite(spell->spell->face);
         icon = icon_sprite != NULL ? icon_sprite->bitmap : NULL;
 
-        text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 30,
-                COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Cost[/b]: %d",
-                (int) ((double) spell->cost *
-                (double) PATH_SP_MULT(&cpl, spell)));
+        text_show_format(widget->surface,
+                         FONT_ARIAL10,
+                         160,
+                         widget->h - 30,
+                         COLOR_WHITE,
+                         TEXT_MARKUP,
+                         NULL,
+                         "[b]Cost[/b]: %d",
+                         (int)((double)spell->cost * (double)PATH_SP_MULT(&cpl, spell)));
 
         if (cpl.path_denied & spell->path) {
             status = "Denied";
-        } else if (cpl.path_attuned & spell->path &&
-                !(cpl.path_repelled & spell->path)) {
+        } else if (cpl.path_attuned & spell->path && !(cpl.path_repelled & spell->path)) {
             status = "Attuned";
-        } else if (cpl.path_repelled & spell->path &&
-                !(cpl.path_attuned & spell->path)) {
+        } else if (cpl.path_repelled & spell->path && !(cpl.path_attuned & spell->path)) {
             status = "Repelled";
         } else {
             status = "Normal";
         }
 
-        text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 18,
-                COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Status[/b]: %s", status);
+        text_show_format(widget->surface,
+                         FONT_ARIAL10,
+                         160,
+                         widget->h - 18,
+                         COLOR_WHITE,
+                         TEXT_MARKUP,
+                         NULL,
+                         "[b]Status[/b]: %s",
+                         status);
         if (icon != NULL) {
-            draw_frame(widget->surface, widget->w - 6 - icon->w,
-                    widget->h - 6 - icon->h, icon->w + 1, icon->h + 1);
-            surface_show(widget->surface, widget->w - 5 - icon->w,
-                    widget->h - 5 - icon->h, NULL, icon);
+            draw_frame(widget->surface,
+                       widget->w - 6 - icon->w,
+                       widget->h - 6 - icon->h,
+                       icon->w + 1,
+                       icon->h + 1);
+            surface_show(widget->surface,
+                         widget->w - 5 - icon->w,
+                         widget->h - 5 - icon->h,
+                         NULL,
+                         icon);
         }
     }
 
@@ -477,31 +479,28 @@ static void widget_draw(widgetdata *widget)
     }
 
     buttons[BUTTON_PATH_LEFT].x = 6;
-    buttons[BUTTON_PATH_LEFT].y = widget->h -
-            texture_surface(buttons[BUTTON_PATH_LEFT].texture)->h - 5;
+    buttons[BUTTON_PATH_LEFT].y =
+        widget->h - texture_surface(buttons[BUTTON_PATH_LEFT].texture)->h - 5;
     button_show(&buttons[BUTTON_PATH_LEFT], "<");
 
     buttons[BUTTON_PATH_RIGHT].x = 6 + 130;
-    buttons[BUTTON_PATH_RIGHT].y = widget->h -
-            texture_surface(buttons[BUTTON_PATH_RIGHT].texture)->h - 5;
+    buttons[BUTTON_PATH_RIGHT].y =
+        widget->h - texture_surface(buttons[BUTTON_PATH_RIGHT].texture)->h - 5;
     button_show(&buttons[BUTTON_PATH_RIGHT], ">");
 
     /* Show close button. */
-    buttons[BUTTON_CLOSE].x = widget->w -
-            texture_surface(buttons[BUTTON_CLOSE].texture)->w - 4;
+    buttons[BUTTON_CLOSE].x = widget->w - texture_surface(buttons[BUTTON_CLOSE].texture)->w - 4;
     buttons[BUTTON_CLOSE].y = 4;
     button_show(&buttons[BUTTON_CLOSE], "X");
 
     /* Show help button. */
-    buttons[BUTTON_HELP].x = widget->w -
-            texture_surface(buttons[BUTTON_HELP].texture)->w * 2 - 4;
+    buttons[BUTTON_HELP].x = widget->w - texture_surface(buttons[BUTTON_HELP].texture)->w * 2 - 4;
     buttons[BUTTON_HELP].y = 4;
     button_show(&buttons[BUTTON_HELP], "?");
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget, int draw)
-{
+static void widget_background(widgetdata *widget, int draw) {
     if (!widget->redraw) {
         widget->redraw = list_need_redraw(list_spells);
     }
@@ -519,8 +518,7 @@ static void widget_background(widgetdata *widget, int draw)
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     size_t i;
 
     /* If the list has handled the mouse event, we need to redraw the
@@ -533,18 +531,18 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&buttons[i], event)) {
             switch (i) {
-            case BUTTON_PATH_LEFT:
-            case BUTTON_PATH_RIGHT:
-                button_repeat_func(&buttons[i]);
-                break;
+                case BUTTON_PATH_LEFT:
+                case BUTTON_PATH_RIGHT:
+                    button_repeat_func(&buttons[i]);
+                    break;
 
-            case BUTTON_CLOSE:
-                widget->show = 0;
-                break;
+                case BUTTON_CLOSE:
+                    widget->show = 0;
+                    break;
 
-            case BUTTON_HELP:
-                help_show("spell list");
-                break;
+                case BUTTON_HELP:
+                    help_show("spell list");
+                    break;
             }
 
             widget->redraw = 1;
@@ -557,7 +555,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     }
 
     if (list_spells != NULL && event->type == SDL_MOUSEBUTTONDOWN &&
-            event->button.button == SDL_BUTTON_LEFT) {
+        event->button.button == SDL_BUTTON_LEFT) {
         spell_entry_struct *spell;
         sprite_struct *icon;
         int xpos, ypos;
@@ -576,8 +574,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         ypos = widget->y + widget->h - 5;
 
         if (event->motion.x >= xpos - icon->bitmap->w &&
-                event->motion.y >= ypos - icon->bitmap->h &&
-                event->motion.x < xpos && event->motion.y < ypos) {
+            event->motion.y >= ypos - icon->bitmap->h && event->motion.x < xpos &&
+            event->motion.y < ypos) {
             cpl.dragging_tag = spell->spell->tag;
             return 1;
         }
@@ -587,8 +585,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     if (list_spells != NULL) {
         list_remove(list_spells);
         list_spells = NULL;
@@ -602,8 +599,7 @@ static void widget_deinit(widgetdata *widget)
 /**
  * Initialize one spells widget.
  */
-void widget_spells_init(widgetdata *widget)
-{
+void widget_spells_init(widgetdata *widget) {
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;

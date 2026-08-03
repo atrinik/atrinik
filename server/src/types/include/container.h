@@ -32,9 +32,7 @@
 
 /* Prototypes */
 
-bool
-container_check_magical(object *op, object *container);
-bool
-container_close(object *applier, object *op);
+bool container_check_magical(object *op, object *container);
+bool container_close(object *applier, object *op);
 
 #endif

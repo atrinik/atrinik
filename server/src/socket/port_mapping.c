@@ -28,13 +28,11 @@ static char mapping_upnp_lan_address[65];
 static uint64_t mapping_upnp_renew_at_ms;
 static socket_port_mapping_controller_t mapping_controller;
 
-static bool
-socket_port_mapping_pcp (void     *data,
-                         uint16_t  port,
-                         char     *host,
-                         size_t    host_size,
-                         uint16_t *external_port)
-{
+static bool socket_port_mapping_pcp(void *data,
+                                    uint16_t port,
+                                    char *host,
+                                    size_t host_size,
+                                    uint16_t *external_port) {
     struct sockaddr_in source;
     memset(&source, 0, sizeof(source));
     source.sin_family = AF_INET;
@@ -45,17 +43,16 @@ socket_port_mapping_pcp (void     *data,
         return false;
     }
     mapping_pcp_flow = pcp_new_flow(mapping_pcp_context,
-                                    (struct sockaddr *) &source,
+                                    (struct sockaddr *)&source,
                                     NULL,
                                     NULL,
                                     IPPROTO_UDP,
                                     PORT_MAPPING_LIFETIME,
                                     NULL);
     mapping_pcp_failure_reported = false;
-    pcp_fstate_e state = mapping_pcp_flow != NULL
-        ? pcp_wait(mapping_pcp_flow, 5000, 1) : pcp_state_failed;
-    if (state != pcp_state_succeeded &&
-        state != pcp_state_partial_result) {
+    pcp_fstate_e state =
+        mapping_pcp_flow != NULL ? pcp_wait(mapping_pcp_flow, 5000, 1) : pcp_state_failed;
+    if (state != pcp_state_succeeded && state != pcp_state_partial_result) {
         pcp_terminate(mapping_pcp_context, 0);
         mapping_pcp_context = NULL;
         mapping_pcp_flow = NULL;
@@ -93,17 +90,14 @@ socket_port_mapping_pcp (void     *data,
     return ok;
 }
 
-static void
-socket_port_mapping_pcp_process (void *data)
-{
+static void socket_port_mapping_pcp_process(void *data) {
     if (mapping_pcp_context != NULL) {
         struct timeval timeout = {0, 0};
         pcp_pulse(mapping_pcp_context, &timeout);
         pcp_fstate_e state;
         if (!mapping_pcp_failure_reported && mapping_pcp_flow != NULL &&
-                pcp_eval_flow_state(mapping_pcp_flow, &state) != 0 &&
-                (state == pcp_state_failed ||
-                 state == pcp_state_short_lifetime_error)) {
+            pcp_eval_flow_state(mapping_pcp_flow, &state) != 0 &&
+            (state == pcp_state_failed || state == pcp_state_short_lifetime_error)) {
             LOG(ERROR, "Could not renew PCP/NAT-PMP UDP mapping");
             server_metrics_mapping("PCP/NAT-PMP", false, true);
             mapping_pcp_failure_reported = true;
@@ -111,9 +105,7 @@ socket_port_mapping_pcp_process (void *data)
     }
 }
 
-static void
-socket_port_mapping_pcp_close (void *data)
-{
+static void socket_port_mapping_pcp_close(void *data) {
     if (mapping_pcp_context != NULL) {
         pcp_terminate(mapping_pcp_context, 1);
         mapping_pcp_context = NULL;
@@ -122,21 +114,13 @@ socket_port_mapping_pcp_close (void *data)
     }
 }
 
-static bool
-socket_port_mapping_upnp (void     *data,
-                          uint16_t  port,
-                          char     *host,
-                          size_t    host_size,
-                          uint16_t *external_port)
-{
+static bool socket_port_mapping_upnp(void *data,
+                                     uint16_t port,
+                                     char *host,
+                                     size_t host_size,
+                                     uint16_t *external_port) {
     int error = 0;
-    struct UPNPDev *devices = upnpDiscover(2000,
-                                           NULL,
-                                           NULL,
-                                           UPNP_LOCAL_PORT_ANY,
-                                           0,
-                                           2,
-                                           &error);
+    struct UPNPDev *devices = upnpDiscover(2000, NULL, NULL, UPNP_LOCAL_PORT_ANY, 0, 2, &error);
     if (devices == NULL) {
         return false;
     }
@@ -150,10 +134,7 @@ socket_port_mapping_upnp (void     *data,
                                   VS(lan_address),
                                   VS(wan_address));
 #else
-    int status = UPNP_GetValidIGD(devices,
-                                  &mapping_upnp_urls,
-                                  &mapping_upnp_data,
-                                  VS(lan_address));
+    int status = UPNP_GetValidIGD(devices, &mapping_upnp_urls, &mapping_upnp_data, VS(lan_address));
 #endif
     freeUPNPDevlist(devices);
     if (status == 0) {
@@ -162,27 +143,22 @@ socket_port_mapping_upnp (void     *data,
 
     snprintf(VS(mapping_upnp_port), "%" PRIu16, port);
     char external_address[65];
-    int address_result = UPNP_GetExternalIPAddress(
-        mapping_upnp_urls.controlURL,
-        mapping_upnp_data.first.servicetype,
-        external_address);
-    int mapping_result = UPNP_AddPortMapping(
-        mapping_upnp_urls.controlURL,
-        mapping_upnp_data.first.servicetype,
-        mapping_upnp_port,
-        mapping_upnp_port,
-        lan_address,
-        "Atrinik QUIC server",
-        "UDP",
-        NULL,
-        "7200");
+    int address_result = UPNP_GetExternalIPAddress(mapping_upnp_urls.controlURL,
+                                                   mapping_upnp_data.first.servicetype,
+                                                   external_address);
+    int mapping_result = UPNP_AddPortMapping(mapping_upnp_urls.controlURL,
+                                             mapping_upnp_data.first.servicetype,
+                                             mapping_upnp_port,
+                                             mapping_upnp_port,
+                                             lan_address,
+                                             "Atrinik QUIC server",
+                                             "UDP",
+                                             NULL,
+                                             "7200");
     struct in_addr parsed_address;
-    if (address_result != UPNPCOMMAND_SUCCESS ||
-        mapping_result != UPNPCOMMAND_SUCCESS ||
+    if (address_result != UPNPCOMMAND_SUCCESS || mapping_result != UPNPCOMMAND_SUCCESS ||
         inet_pton(AF_INET, external_address, &parsed_address) != 1) {
-        LOG(DEBUG,
-            "UPnP UDP mapping failed: %s",
-            strupnperror(mapping_result));
+        LOG(DEBUG, "UPnP UDP mapping failed: %s", strupnperror(mapping_result));
         FreeUPNPUrls(&mapping_upnp_urls);
         memset(&mapping_upnp_urls, 0, sizeof(mapping_upnp_urls));
         return false;
@@ -191,43 +167,33 @@ socket_port_mapping_upnp (void     *data,
     snprintf(host, host_size, "%s", external_address);
     *external_port = port;
     snprintf(VS(mapping_upnp_lan_address), "%s", lan_address);
-    mapping_upnp_renew_at_ms = datetime_monotonic_ms() +
-        (uint64_t) PORT_MAPPING_LIFETIME * 500;
+    mapping_upnp_renew_at_ms = datetime_monotonic_ms() + (uint64_t)PORT_MAPPING_LIFETIME * 500;
     mapping_upnp_active = true;
     return true;
 }
 
-static void
-socket_port_mapping_upnp_process (void *data)
-{
-    if (!mapping_upnp_active ||
-            datetime_monotonic_ms() < mapping_upnp_renew_at_ms) {
+static void socket_port_mapping_upnp_process(void *data) {
+    if (!mapping_upnp_active || datetime_monotonic_ms() < mapping_upnp_renew_at_ms) {
         return;
     }
 
-    int result = UPNP_AddPortMapping(
-        mapping_upnp_urls.controlURL,
-        mapping_upnp_data.first.servicetype,
-        mapping_upnp_port,
-        mapping_upnp_port,
-        mapping_upnp_lan_address,
-        "Atrinik QUIC server",
-        "UDP",
-        NULL,
-        "7200");
+    int result = UPNP_AddPortMapping(mapping_upnp_urls.controlURL,
+                                     mapping_upnp_data.first.servicetype,
+                                     mapping_upnp_port,
+                                     mapping_upnp_port,
+                                     mapping_upnp_lan_address,
+                                     "Atrinik QUIC server",
+                                     "UDP",
+                                     NULL,
+                                     "7200");
     if (result != UPNPCOMMAND_SUCCESS) {
-        LOG(ERROR,
-            "Could not renew UPnP UDP mapping: %s",
-            strupnperror(result));
+        LOG(ERROR, "Could not renew UPnP UDP mapping: %s", strupnperror(result));
         server_metrics_mapping("UPnP", false, true);
     }
-    mapping_upnp_renew_at_ms = datetime_monotonic_ms() +
-        (uint64_t) PORT_MAPPING_LIFETIME * 500;
+    mapping_upnp_renew_at_ms = datetime_monotonic_ms() + (uint64_t)PORT_MAPPING_LIFETIME * 500;
 }
 
-static void
-socket_port_mapping_upnp_close (void *data)
-{
+static void socket_port_mapping_upnp_close(void *data) {
     if (!mapping_upnp_active) {
         return;
     }
@@ -244,12 +210,10 @@ socket_port_mapping_upnp_close (void *data)
     mapping_upnp_active = false;
 }
 
-bool
-socket_port_mapping_init (uint16_t port,
-                          char    *host,
-                          size_t   host_size,
-                          uint16_t *external_port)
-{
+bool socket_port_mapping_init(uint16_t port,
+                              char *host,
+                              size_t host_size,
+                              uint16_t *external_port) {
     if (strcmp(settings.port_mapping, "off") == 0) {
         return false;
     }
@@ -269,21 +233,20 @@ socket_port_mapping_init (uint16_t port,
         },
     };
     if (socket_port_mapping_controller_open(&mapping_controller,
-                                             backends,
-                                             arraysize(backends),
-                                             port,
-                                             host,
-                                             host_size,
-                                             external_port)) {
+                                            backends,
+                                            arraysize(backends),
+                                            port,
+                                            host,
+                                            host_size,
+                                            external_port)) {
         LOG(INFO,
             "Created %s UDP mapping %s:%" PRIu16,
             socket_port_mapping_controller_name(&mapping_controller),
             host,
             *external_port);
-        server_metrics_mapping(
-            socket_port_mapping_controller_name(&mapping_controller),
-            false,
-            false);
+        server_metrics_mapping(socket_port_mapping_controller_name(&mapping_controller),
+                               false,
+                               false);
         return true;
     }
 
@@ -292,14 +255,10 @@ socket_port_mapping_init (uint16_t port,
     return false;
 }
 
-void
-socket_port_mapping_process (void)
-{
+void socket_port_mapping_process(void) {
     socket_port_mapping_controller_process(&mapping_controller);
 }
 
-void
-socket_port_mapping_deinit (void)
-{
+void socket_port_mapping_deinit(void) {
     socket_port_mapping_controller_close(&mapping_controller);
 }

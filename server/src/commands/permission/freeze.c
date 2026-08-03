@@ -35,8 +35,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_freeze(object *op, const char *command, char *params)
-{
+void command_freeze(object *op, const char *command, char *params) {
     char word[MAX_BUF];
     size_t pos;
     player *pl;

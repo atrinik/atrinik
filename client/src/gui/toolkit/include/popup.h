@@ -49,7 +49,7 @@ typedef struct popup_button {
     /**
      * Callback function to call when the button is clicked.
      * @param button
- * The clicked button.
+     * The clicked button.
      * @retval 1 Handled the event, should not do generic handling.
      * @retval 0 Did not handle the event.
      */
@@ -120,26 +120,26 @@ typedef struct popup_struct {
     /**
      * Function used for drawing on the popup's surface.
      * @param popup
- * The popup.
+     * The popup.
      * @return
- * 0 to destroy the popup, 1 otherwise.
- */
+     * 0 to destroy the popup, 1 otherwise.
+     */
     int (*draw_func)(struct popup_struct *popup);
 
     /**
      * Function used for drawing after drawing the popup's surface on
      * the main surface.
      * @param popup
- * The popup.
+     * The popup.
      * @return
- * 0 to destroy the popup, 1 otherwise.
- */
+     * 0 to destroy the popup, 1 otherwise.
+     */
     int (*draw_post_func)(struct popup_struct *popup);
 
     /**
      * Function used for handling mouse/key events when popup is visible.
      * @param event
- * SDL event.
+     * SDL event.
      * @retval -1 Did not handle the event.
      * @retval 0 Did not handle the event, but allow other keyboard
      * events.
@@ -151,9 +151,9 @@ typedef struct popup_struct {
      * Function used right before the visible popup is destroyed using
      * popup_destroy_visible().
      * @param popup
- * The popup.
+     * The popup.
      * @return
- * 1 to proceed with the destruction of the popup, 0
+     * 1 to proceed with the destruction of the popup, 0
      * otherwise.
      */
     int (*destroy_callback_func)(struct popup_struct *popup);
@@ -161,10 +161,10 @@ typedef struct popup_struct {
     /**
      * Function used to get contents for clipboard copy operation.
      * @param popup
- * Popup.
+     * Popup.
      * @return
- * Contents to copy.
- */
+     * Contents to copy.
+     */
     const char *(*clipboard_copy_func)(struct popup_struct *popup);
 } popup_struct;
 

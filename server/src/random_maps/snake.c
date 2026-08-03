@@ -38,8 +38,7 @@
  * @return
  * The generated layout.
  */
-char **make_snake_layout(int xsize, int ysize)
-{
+char **make_snake_layout(int xsize, int ysize) {
     int i, j;
     /* Allocate that array, set it up */
     char **maze = ecalloc(sizeof(char *), xsize);

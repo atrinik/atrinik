@@ -48,8 +48,7 @@ static notification_struct *notification = NULL;
 /**
  * Destroy notification data.
  */
-void notification_destroy(void)
-{
+void notification_destroy(void) {
     if (!notification) {
         return;
     }
@@ -70,8 +69,7 @@ void notification_destroy(void)
 /**
  * Process notification's action, if any.
  */
-static void notification_action_do(void)
-{
+static void notification_action_do(void) {
     if (notification && notification->action) {
         /* Macro or command? */
         if (*notification->action == '?') {
@@ -92,9 +90,9 @@ static void notification_action_do(void)
  * @return
  * 1 if the notification handled the keybinding, 0 otherwise.
  */
-int notification_keybind_check(const char *cmd)
-{
-    if (notification && notification->action && notification->shortcut && !strcmp(notification->shortcut, cmd)) {
+int notification_keybind_check(const char *cmd) {
+    if (notification && notification->action && notification->shortcut &&
+        !strcmp(notification->shortcut, cmd)) {
         notification_action_do();
         return 1;
     }
@@ -103,8 +101,7 @@ int notification_keybind_check(const char *cmd)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_notification(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_notification(uint8_t *data, size_t len, size_t pos) {
     int wd, ht;
     char type, *cp;
     SDL_Rect box;
@@ -128,39 +125,37 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos)
         type = packet_to_uint8(data, len, &pos);
 
         switch (type) {
-        case CMD_NOTIFICATION_TEXT:
-        {
-            char message[HUGE_BUF];
+            case CMD_NOTIFICATION_TEXT: {
+                char message[HUGE_BUF];
 
-            packet_to_string(data, len, &pos, message, sizeof(message));
-            stringbuffer_append_string(sb, message);
-            break;
-        }
+                packet_to_string(data, len, &pos, message, sizeof(message));
+                stringbuffer_append_string(sb, message);
+                break;
+            }
 
-        case CMD_NOTIFICATION_ACTION:
-        {
-            char action[HUGE_BUF];
+            case CMD_NOTIFICATION_ACTION: {
+                char action[HUGE_BUF];
 
-            packet_to_string(data, len, &pos, action, sizeof(action));
-            notification->action = estrdup(action);
-            break;
-        }
+                packet_to_string(data, len, &pos, action, sizeof(action));
+                notification->action = estrdup(action);
+                break;
+            }
 
-        case CMD_NOTIFICATION_SHORTCUT:
-        {
-            char shortcut[HUGE_BUF];
+            case CMD_NOTIFICATION_SHORTCUT: {
+                char shortcut[HUGE_BUF];
 
-            packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
-            notification->shortcut = estrdup(shortcut);
-            break;
-        }
+                packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
+                notification->shortcut = estrdup(shortcut);
+                break;
+            }
 
-        case CMD_NOTIFICATION_DELAY:
-            notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
-            break;
+            case CMD_NOTIFICATION_DELAY:
+                notification->delay =
+                    MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 
@@ -188,12 +183,26 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos)
     box.y = 0;
     box.w = NOTIFICATION_DEFAULT_WIDTH;
     box.h = 0;
-    text_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT, &box);
+    text_show(NULL,
+              NOTIFICATION_DEFAULT_FONT,
+              cp,
+              0,
+              0,
+              COLOR_BLACK,
+              TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_HEIGHT,
+              &box);
     ht = box.h;
 
     /* Calculate the maximum text width. */
     box.h = 0;
-    text_show(NULL, NOTIFICATION_DEFAULT_FONT, cp, 0, 0, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH, &box);
+    text_show(NULL,
+              NOTIFICATION_DEFAULT_FONT,
+              cp,
+              0,
+              0,
+              COLOR_BLACK,
+              TEXT_MARKUP | TEXT_WORD_WRAP | TEXT_MAX_WIDTH,
+              &box);
     wd = box.w;
 
     box.x = 0;
@@ -210,11 +219,15 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos)
     }
 
     /* Create a new surface. */
-    cur_widget[NOTIFICATION_ID]->surface = SDL_CreateRGBSurface(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
+    cur_widget[NOTIFICATION_ID]->surface =
+        SDL_CreateRGBSurface(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
 
     /* Fill the surface with the background color. */
     if (text_color_parse("e6e796", &color)) {
-        SDL_FillRect(cur_widget[NOTIFICATION_ID]->surface, &box, SDL_MapRGB(cur_widget[NOTIFICATION_ID]->surface->format, color.r, color.g, color.b));
+        SDL_FillRect(
+            cur_widget[NOTIFICATION_ID]->surface,
+            &box,
+            SDL_MapRGB(cur_widget[NOTIFICATION_ID]->surface->format, color.r, color.g, color.b));
     }
 
     /* Create a border. */
@@ -223,14 +236,20 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos)
     /* Render the text. */
     box.w = wd;
     box.h = ht;
-    text_show(cur_widget[NOTIFICATION_ID]->surface, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+    text_show(cur_widget[NOTIFICATION_ID]->surface,
+              NOTIFICATION_DEFAULT_FONT,
+              cp,
+              3,
+              3,
+              COLOR_BLACK,
+              TEXT_MARKUP | TEXT_WORD_WRAP,
+              &box);
 
     efree(cp);
 }
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     SDL_Rect dst;
 
     /* Nothing to render... */
@@ -243,11 +262,13 @@ static void widget_draw(widgetdata *widget)
     widget->y = cur_widget[MAPNAME_ID]->y + cur_widget[MAPNAME_ID]->h;
 
     /* Check whether we should do fade out. */
-    if (SDL_GetTicks() - notification->start_ticks > notification->delay - NOTIFICATION_DEFAULT_FADEOUT) {
+    if (SDL_GetTicks() - notification->start_ticks >
+        notification->delay - NOTIFICATION_DEFAULT_FADEOUT) {
         int fade;
 
         /* Calculate how far into the fading animation we are. */
-        fade = SDL_GetTicks() - notification->start_ticks - (notification->delay - NOTIFICATION_DEFAULT_FADEOUT);
+        fade = SDL_GetTicks() - notification->start_ticks -
+               (notification->delay - NOTIFICATION_DEFAULT_FADEOUT);
 
         /* Completed the fading animation? */
         if (fade > NOTIFICATION_DEFAULT_FADEOUT) {
@@ -256,7 +277,8 @@ static void widget_draw(widgetdata *widget)
         }
 
         /* Adjust the alpha value... */
-        notification->alpha = 255 * ((NOTIFICATION_DEFAULT_FADEOUT - fade) / (double) NOTIFICATION_DEFAULT_FADEOUT);
+        notification->alpha =
+            255 * ((NOTIFICATION_DEFAULT_FADEOUT - fade) / (double)NOTIFICATION_DEFAULT_FADEOUT);
     }
 
     dst.x = widget->x;
@@ -266,13 +288,17 @@ static void widget_draw(widgetdata *widget)
 
     /* Do highlight. */
     if (widget_mouse_event.owner == widget && notification->action) {
-        filledRectAlpha(ScreenSurface, dst.x, dst.y, dst.x + widget->w, dst.y + widget->h, 0xffffff3c);
+        filledRectAlpha(ScreenSurface,
+                        dst.x,
+                        dst.y,
+                        dst.x + widget->w,
+                        dst.y + widget->h,
+                        0xffffff3c);
     }
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
         notification_action_do();
         return 1;
@@ -284,8 +310,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 /**
  * Initialize one notification widget.
  */
-void widget_notification_init(widgetdata *widget)
-{
+void widget_notification_init(widgetdata *widget) {
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;
 }

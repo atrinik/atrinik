@@ -84,7 +84,7 @@ typedef struct MapCell_struct {
 
     uint8_t anim_num; ///< Last number of animations sent.
 
-    uint8_t is_friend:NUM_SUB_LAYERS; ///< Friendly state cache.
+    uint8_t is_friend : NUM_SUB_LAYERS; ///< Friendly state cache.
 } MapCell;
 
 /** One map for a player. */
@@ -206,7 +206,7 @@ typedef struct socket_struct {
  * How many seconds must pass since the last keep alive command for the
  * socket to be disconnected.
  */
-#define SOCKET_KEEPALIVE_TIMEOUT (uint32_t) ((60 * 10) * MAX_TICKS_MULTIPLIER)
+#define SOCKET_KEEPALIVE_TIMEOUT (uint32_t)((60 * 10) * MAX_TICKS_MULTIPLIER)
 
 /** Holds some system related information. */
 typedef struct Socket_Info_struct {

@@ -32,7 +32,6 @@
 
 /* Prototypes */
 
-object *
-key_match(object *op, const object *locked);
+object *key_match(object *op, const object *locked);
 
 #endif

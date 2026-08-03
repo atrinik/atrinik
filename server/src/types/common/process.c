@@ -37,8 +37,7 @@
  * @param op
  * The object to process.
  */
-static void common_object_process_changing(object *op)
-{
+static void common_object_process_changing(object *op) {
     object *tmp, *env;
 
     if (op->stats.food-- > 0) {
@@ -120,8 +119,7 @@ static void common_object_process_changing(object *op)
  * 1 if the object was processed and should not continue
  * processing it normally, 0 otherwise.
  */
-int common_object_process_pre(object *op)
-{
+int common_object_process_pre(object *op) {
     if (QUERY_FLAG(op, FLAG_CHANGING) && !op->state) {
         common_object_process_changing(op);
         return 1;
@@ -162,8 +160,7 @@ int common_object_process_pre(object *op)
 }
 
 /** @copydoc object_methods_t::process_func */
-void common_object_process(object *op)
-{
+void common_object_process(object *op) {
     if (OBJECT_IS_PROJECTILE(op)) {
         common_object_projectile_process(op);
     }

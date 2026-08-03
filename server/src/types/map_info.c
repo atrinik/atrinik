@@ -34,24 +34,18 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::init_func */
-static void
-init_func (object *op)
-{
+static void init_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->map == NULL) {
-        LOG(ERROR,
-            "Map info object not on map: %s",
-            object_get_str(op));
+        LOG(ERROR, "Map info object not on map: %s", object_get_str(op));
         return;
     }
 
     for (int x = op->x; x <= op->x + op->stats.hp; x++) {
         for (int y = op->y; y <= op->y + op->stats.sp; y++) {
             if (OUT_OF_MAP(op->map, x, y)) {
-                LOG(ERROR,
-                    "Map info object spans invalid area: %s",
-                    object_get_str(op));
+                LOG(ERROR, "Map info object spans invalid area: %s", object_get_str(op));
                 return;
             }
 
@@ -89,7 +83,6 @@ init_func (object *op)
 /**
  * Initialize the map info type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(map_info)
-{
+OBJECT_TYPE_INIT_DEFINE(map_info) {
     OBJECT_METHODS(MAP_INFO)->init_func = init_func;
 }
