@@ -70,6 +70,16 @@
  pinned client command and the faster legacy-TCP alternative are documented in
  client/README section 2.1.
 
+ Developers can validate the transport without preparing or modifying this
+ source-tree runtime. From the repository root, the `network-e2e` target uses
+ temporary identities and isolated loopback sockets:
+
+  $ cmake --build --preset linux-debug --target network-e2e
+
+ It exercises a real QUIC handshake and data exchange, local STUN and UDP
+ punching, and deterministic port-mapping fallback. See tests/e2e/README.md for
+ focused scenarios.
+
  The startup scripts will also pass any extra options straight to the
  binary, for example:
   $ ./server.sh --version

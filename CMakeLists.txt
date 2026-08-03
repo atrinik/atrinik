@@ -110,6 +110,10 @@ endif ()
 
 add_subdirectory(common/toolkit)
 
+if (BUILD_E2E_TESTS AND NOT MINGW)
+    add_subdirectory(tests/e2e)
+endif ()
+
 if (BUILD_SERVER)
     add_subdirectory(server)
 endif ()

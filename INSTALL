@@ -107,6 +107,20 @@ server runtime files, including `permissions.cfg`, `data`, collected resources,
 and built plugins. A successful ordinary build verifies compilation even when
 that runtime setup has not yet been prepared. See `server/README` for setup.
 
+The direct-network end-to-end suite is independent of the server runtime. It
+uses temporary identities, fake STUN and port-mapping backends, and isolated
+loopback UDP sockets:
+
+```sh
+cmake --build --preset linux-debug --target network-e2e
+```
+
+This covers a real OpenSSL QUIC handshake and application-data exchange,
+certificate pinning and identity persistence, STUN discovery, bilateral UDP
+punching, and PCP/NAT-PMP-first mapping orchestration with UPnP fallback. See
+`tests/e2e/README.md` for focused scenarios and the boundary between default CI
+and opt-in physical-router interoperability tests.
+
 ## Continuous integration and releases
 
 GitHub Actions builds the Linux client and server and runs the server tests for
