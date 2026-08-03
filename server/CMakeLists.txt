@@ -91,6 +91,7 @@ if (CHECK_LIBRARY)
         src/tests/unit/toolkit/packet.c
         src/tests/unit/toolkit/pbkdf2.c
         src/tests/unit/toolkit/shstr.c
+        src/tests/unit/toolkit/socket_asset.c
         src/tests/unit/toolkit/string.c
         src/tests/unit/toolkit/stringbuffer.c
         src/tests/unit/types/light_apply.c
@@ -270,9 +271,11 @@ if (MINGW AND ${PACKAGE_TYPE} STREQUAL "zip")
     endforeach ()
 
     if (NOT IS_DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/maps" OR
-            NOT IS_DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/lib")
+            NOT IS_DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/lib" OR
+            NOT IS_DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/client-maps")
         message(FATAL_ERROR
-            "ATRINIK_SERVER_PACKAGE_ROOT must contain maps/ and lib/.")
+            "ATRINIK_SERVER_PACKAGE_ROOT must contain maps/, lib/, and "
+            "client-maps/.")
     endif ()
 
     install(TARGETS ${EXECUTABLE} plugin_arena plugin_python
@@ -296,6 +299,8 @@ if (MINGW AND ${PACKAGE_TYPE} STREQUAL "zip")
         PATTERN ".git" EXCLUDE)
     install(DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/lib/"
         DESTINATION server/lib)
+    install(DIRECTORY "${ATRINIK_SERVER_PACKAGE_ROOT}/client-maps"
+        DESTINATION server/install_data/http)
     install(DIRECTORY install_data resources tools
         DESTINATION server
         PATTERN ".git" EXCLUDE)

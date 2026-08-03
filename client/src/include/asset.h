@@ -28,6 +28,9 @@ typedef enum asset_request_state {
 asset_request_t *
 asset_request_start(const char *path);
 
+asset_request_t *
+asset_request_start_cached(const char *path, const char *cache_path);
+
 asset_request_state_t
 asset_request_get_state(const asset_request_t *request);
 

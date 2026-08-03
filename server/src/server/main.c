@@ -510,7 +510,7 @@ static void do_specials(void)
         flush_old_maps();
     }
 
-    if (*settings.server_host != '\0' && !(pticks % 2521)) {
+    if (!(pticks % 2521)) {
         metaserver_info_update();
     }
 

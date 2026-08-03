@@ -242,6 +242,9 @@ typedef struct region_map {
 
     /** Name used to retry a failed CDN request over QUIC. */
     char download_name[MAX_BUF];
+
+    /** Human-readable terminal download/decoding error, or an empty string. */
+    char error[HUGE_BUF];
 } region_map_t;
 
 #define RM_MAP_FOW_BITMAP_SIZE(region_map) \
@@ -255,6 +258,7 @@ region_map_def_map_t *region_map_find_map(region_map_t *region_map,
         const char *map_path);
 void region_map_resize(region_map_t *region_map, int adjust);
 bool region_map_ready(region_map_t *region_map);
+const char *region_map_error(const region_map_t *region_map);
 void region_map_pan(region_map_t *region_map);
 void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
         int x, int y);

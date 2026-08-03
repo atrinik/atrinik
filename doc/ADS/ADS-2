@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.2: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.3: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -32,6 +32,7 @@
     2.22 Server command TALK
     2.23 Server command MOVE
     2.24 Server command TARGET
+    2.25 Server command ASSET
  3. Client commands
     3.1  Client command MAP
     3.2  Client command DRAWINFO
@@ -61,6 +62,8 @@
     3.26 Client command SOUND_AMBIENT
     3.27 Client command INTERFACE
     3.28 Client command NOTIFICATION
+    3.29 Client command KEEPALIVE
+    3.30 Client command ASSET
  4. Example logic
  5. Authors
 
@@ -209,6 +212,8 @@
   See section 2.23.
  TARGET (player only):
   See section 2.24.
+ ASSET:
+  See section 2.25.
 
 ===============================================================================
 = 2.1. Server command CONTROL                                                 =
@@ -731,6 +736,31 @@
   Clears the player's target.
 
 ===============================================================================
+= 2.25. Server command ASSET                                                  =
+===============================================================================
+ This command requests an asset over an established QUIC game connection. It
+ is available beginning with socket protocol version 1069 and MUST NOT be
+ accepted before join-password authentication succeeds.
+
+ The packet MUST be constructed in the following order:
+  - path (string):
+     Server-relative asset path from an implementation-defined allowlist.
+  - offset (uint32):
+     Byte offset requested. The first request MUST use zero. A continuation
+     request MUST use the end offset of the preceding response.
+  - cached_size (uint32):
+     Size of the client's persistent cached copy, or zero when there is no
+     cached copy. This field MUST be zero on continuation requests.
+  - cached_crc32 (uint32):
+     CRC32 of the client's persistent cached copy, initialized with 1, or zero
+     when there is no cached copy. This field MUST be zero on continuation
+     requests.
+
+ When offset is zero and both cached fields match the current server file, the
+ server SHOULD return ASSET status NOT_MODIFIED instead of transferring the
+ body. See section 3.30.
+
+===============================================================================
 = 3. Client commands                                                          =
 ===============================================================================
  The following is a list of commands recognised by the client.
@@ -794,6 +824,10 @@
   See section 3.27.
  NOTIFICATION:
   See section 3.28.
+ KEEPALIVE:
+  See section 3.29.
+ ASSET:
+  See section 3.30.
 
 ===============================================================================
 = 3.20. Client command CHARACTERS                                             =
@@ -829,6 +863,43 @@
  A client MUST reject a packet whose fixed fields or any character record are
  truncated. A connection ID is diagnostic metadata only and MUST NOT be used
  for authorization or banning.
+
+===============================================================================
+= 3.29. Client command KEEPALIVE                                               =
+===============================================================================
+ This command is the server-to-client keepalive response. It has no payload.
+
+===============================================================================
+= 3.30. Client command ASSET                                                   =
+===============================================================================
+ This command returns an asset response over the established QUIC game
+ connection. The packet begins with these fields:
+
+  - status (uint8):
+     0 (OK), 1 (NOT_FOUND), or 2 (NOT_MODIFIED).
+  - path (string):
+     The path from the corresponding request.
+
+ NOT_FOUND and NOT_MODIFIED end after path. NOT_MODIFIED is valid only when
+ the client supplied a cached size and CRC32 that match the current asset.
+
+ An OK response continues with these fields:
+
+  - total_size (uint32):
+     Complete asset size.
+  - offset (uint32):
+     Offset of this chunk.
+  - crc32 (uint32):
+     CRC32 of the complete asset, initialized with 1, on the response whose
+     offset is zero. Continuation responses use zero.
+  - data (bytes):
+     Up to 60000 asset bytes.
+
+ The client MUST request continuation chunks until total_size bytes have been
+ received. Assets larger than 128 MiB MUST be rejected. Before making the data
+ available or replacing its persistent cache, the client MUST calculate the
+ complete CRC32 and reject a mismatch. Cached assets are scoped to the selected
+ server host and port so unrelated server entries cannot collide.
 
 ===============================================================================
 = 5. Authors                                                                  =

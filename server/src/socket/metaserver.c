@@ -122,6 +122,11 @@ metaserver_key_path (char *path, size_t path_size)
 
 
 #if LIBCURL_VERSION_NUM >= 0x075600
+#define RENDEZVOUS_PUNCH_JOBS_MAX 64
+#define RENDEZVOUS_PUNCH_COUNT 10
+#define RENDEZVOUS_PUNCH_INTERVAL_MS 100
+#define RENDEZVOUS_PUNCH_GRACE_MS 200
+
 static pthread_mutex_t rendezvous_lock;
 static pthread_t rendezvous_thread;
 static bool rendezvous_thread_started;
@@ -133,6 +138,109 @@ typedef struct rendezvous_args {
     char token[65];
     uint64_t generation;
 } rendezvous_args_t;
+
+typedef struct rendezvous_punch_job {
+    uint64_t next_action_ms;
+    int punch_attempts;
+    int punches_sent;
+    uint16_t port;
+    bool active;
+    char host[65];
+    char ticket[65];
+} rendezvous_punch_job_t;
+
+static uint64_t
+metaserver_rendezvous_now_ms (void)
+{
+    struct timeval now;
+    GETTIMEOFDAY(&now);
+    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
+}
+
+static bool
+metaserver_rendezvous_send_complete (CURL *curl, const char *ticket)
+{
+    char complete[128];
+    snprintf(VS(complete),
+             "{\"type\":\"complete\",\"ticket\":\"%s\"}",
+             ticket);
+    size_t sent = 0;
+    return curl_ws_send(curl,
+                        complete,
+                        strlen(complete),
+                        &sent,
+                        0,
+                        CURLWS_TEXT) == CURLE_OK &&
+           sent == strlen(complete);
+}
+
+static bool
+metaserver_rendezvous_punch_update (CURL                     *curl,
+                                    rendezvous_punch_job_t *jobs)
+{
+    uint64_t now = metaserver_rendezvous_now_ms();
+    for (size_t i = 0; i < RENDEZVOUS_PUNCH_JOBS_MAX; i++) {
+        rendezvous_punch_job_t *job = &jobs[i];
+        if (!job->active || now < job->next_action_ms) {
+            continue;
+        }
+
+        if (job->punch_attempts < RENDEZVOUS_PUNCH_COUNT) {
+            if (socket_server_quic_punch(job->host, job->port)) {
+                job->punches_sent++;
+            }
+            job->punch_attempts++;
+            job->next_action_ms = now +
+                (job->punch_attempts < RENDEZVOUS_PUNCH_COUNT
+                 ? RENDEZVOUS_PUNCH_INTERVAL_MS
+                 : RENDEZVOUS_PUNCH_GRACE_MS);
+            continue;
+        }
+
+        if (!metaserver_rendezvous_send_complete(curl, job->ticket)) {
+            return false;
+        }
+        LOG(DEBUG,
+            "Completed rendezvous UDP punch window to %s:%" PRIu16
+            " (sent %d/%d probes)",
+            job->host,
+            job->port,
+            job->punches_sent,
+            job->punch_attempts);
+        job->active = false;
+    }
+    return true;
+}
+
+static bool
+metaserver_rendezvous_punch_schedule (rendezvous_punch_job_t *jobs,
+                                      const char              *host,
+                                      uint16_t                 port,
+                                      const char              *ticket)
+{
+    rendezvous_punch_job_t *available = NULL;
+    for (size_t i = 0; i < RENDEZVOUS_PUNCH_JOBS_MAX; i++) {
+        if (jobs[i].active && strcmp(jobs[i].ticket, ticket) == 0) {
+            available = &jobs[i];
+            break;
+        }
+        if (!jobs[i].active && available == NULL) {
+            available = &jobs[i];
+        }
+    }
+    if (available == NULL) {
+        return false;
+    }
+
+    snprintf(VS(available->host), "%s", host);
+    snprintf(VS(available->ticket), "%s", ticket);
+    available->port = port;
+    available->next_action_ms = metaserver_rendezvous_now_ms();
+    available->punch_attempts = 0;
+    available->punches_sent = 0;
+    available->active = true;
+    return true;
+}
 
 static bool
 metaserver_rendezvous_current (uint64_t generation)
@@ -184,9 +292,14 @@ reconnect:
         goto done;
     }
 
+    rendezvous_punch_job_t punch_jobs[RENDEZVOUS_PUNCH_JOBS_MAX] = {0};
     char message[513];
     size_t used = 0;
     while (metaserver_rendezvous_current(args->generation)) {
+        if (!metaserver_rendezvous_punch_update(curl, punch_jobs)) {
+            break;
+        }
+
         size_t received = 0;
         const struct curl_ws_frame *frame = NULL;
         result = curl_ws_recv(curl,
@@ -195,7 +308,7 @@ reconnect:
                               &received,
                               &frame);
         if (result == CURLE_AGAIN) {
-            usleep(100000);
+            usleep(20000);
             continue;
         }
         if (result != CURLE_OK || frame == NULL ||
@@ -225,11 +338,6 @@ reconnect:
                    &consumed) == 3 &&
             message[consumed] == '\0' &&
             port >= 1 && port <= UINT16_MAX) {
-            for (int i = 0; i < 3; i++) {
-                socket_server_quic_punch(host, (uint16_t) port);
-                usleep(20000);
-            }
-
             socket_direct_candidate_t
                 candidates[SOCKET_DIRECT_MAX_CANDIDATES];
             size_t count = socket_server_quic_candidates(
@@ -257,17 +365,17 @@ reconnect:
                 }
             }
 
-            char complete[128];
-            snprintf(VS(complete),
-                     "{\"type\":\"complete\",\"ticket\":\"%s\"}",
-                     ticket);
-            size_t sent = 0;
-            curl_ws_send(curl,
-                         complete,
-                         strlen(complete),
-                         &sent,
-                         0,
-                         CURLWS_TEXT);
+            LOG(INFO,
+                "Opening a rendezvous UDP path to client candidate %s:%u",
+                host,
+                port);
+            if (!metaserver_rendezvous_punch_schedule(punch_jobs,
+                                                       host,
+                                                       (uint16_t) port,
+                                                       ticket)) {
+                LOG(ERROR, "Rendezvous UDP punch queue is full");
+                metaserver_rendezvous_send_complete(curl, ticket);
+            }
         }
         used = 0;
     }

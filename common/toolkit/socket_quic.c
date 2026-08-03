@@ -541,7 +541,8 @@ socket_quic_client_handshake (socket_t              *sc,
                               const struct sockaddr *address,
                               socklen_t              address_length,
                               const char            *certificate_sha256,
-                              const char            *host)
+                              const char            *host,
+                              double                 timeout)
 {
     memcpy(&sc->addr, address, address_length);
     if (connect(sc->handle, address, address_length) != 0) {
@@ -610,7 +611,7 @@ socket_quic_client_handshake (socket_t              *sc,
         }
 
         TIMER_UPDATE(connect_timer);
-        if (TIMER_GET(connect_timer) > 5.0 ||
+        if (TIMER_GET(connect_timer) > timeout ||
             !socket_quic_wait(sc->quic)) {
             LOG(DEBUG, "QUIC candidate %s timed out", host);
             return false;
@@ -644,7 +645,59 @@ socket_quic_candidate_mode (const char *kind)
     if (strcmp(kind, "srflx") == 0) {
         return SOCKET_CONNECTION_MODE_QUIC_SRFLX;
     }
+    if (strcmp(kind, "prflx") == 0) {
+        return SOCKET_CONNECTION_MODE_QUIC_SRFLX;
+    }
     return SOCKET_CONNECTION_MODE_QUIC_DIRECTORY;
+}
+
+static const char *
+socket_quic_preference_kind (socket_connection_preference_t preference)
+{
+    switch (preference) {
+    case SOCKET_CONNECTION_PREFERENCE_LAN:
+        return "lan";
+
+    case SOCKET_CONNECTION_PREFERENCE_IPV6:
+        return "ipv6";
+
+    case SOCKET_CONNECTION_PREFERENCE_MAPPED:
+        return "mapped";
+
+    case SOCKET_CONNECTION_PREFERENCE_SRFLX:
+        return "srflx";
+
+    case SOCKET_CONNECTION_PREFERENCE_DIRECTORY:
+        return "directory";
+
+    case SOCKET_CONNECTION_PREFERENCE_AUTO:
+    case SOCKET_CONNECTION_PREFERENCE_NUM:
+    default:
+        return NULL;
+    }
+}
+
+static double
+socket_quic_candidate_timeout (const char *kind)
+{
+    if (strcmp(kind, "lan") == 0) {
+        return 1.0;
+    }
+    if (strcmp(kind, "ipv6") == 0) {
+        return 2.0;
+    }
+    return 5.0;
+}
+
+static size_t
+socket_quic_family_index (int family)
+{
+#ifdef HAVE_IPV6
+    return family == AF_INET6 ? 1 : 0;
+#else
+    (void) family;
+    return 0;
+#endif
 }
 
 socket_t *
@@ -666,16 +719,19 @@ socket_quic_client_create (const char *host,
     if (sc == NULL) {
         return NULL;
     }
+    socket_t *sockets[2] = {NULL, NULL};
+    sockets[socket_quic_family_index(
+        ((struct sockaddr *) &sc->addr)->sa_family)] = sc;
 
     socket_direct_candidate_t
-        candidates[SOCKET_DIRECT_MAX_CANDIDATES + 1];
+        candidates[SOCKET_DIRECT_MAX_CANDIDATES + 2];
     size_t count = 0;
     if (rendezvous_url != NULL) {
         count = socket_rendezvous_client(sc,
                                          rendezvous_url,
                                          stun_endpoint,
                                          candidates,
-                                         SOCKET_DIRECT_MAX_CANDIDATES);
+                                         SOCKET_DIRECT_MAX_CANDIDATES + 1);
         if (count == 0) {
             LOG(ERROR,
                 "Rendezvous signaling returned no direct candidates; "
@@ -702,31 +758,32 @@ socket_quic_client_create (const char *host,
     }
 
     static const char *const priorities[] = {
-        "lan", "ipv6", "mapped", "srflx", "directory"
+        "prflx", "lan", "ipv6", "mapped", "srflx", "directory"
     };
-    const char *preferred_kind = NULL;
+    const char *preferred_kind = socket_quic_preference_kind(preference);
     if (preference > SOCKET_CONNECTION_PREFERENCE_AUTO &&
         preference < SOCKET_CONNECTION_PREFERENCE_NUM) {
-        preferred_kind = priorities[preference - 1];
         LOG(INFO,
-            "Trying preferred QUIC route type first: %s",
+            "Prioritizing requested QUIC route type after any "
+            "peer-reflexive route: %s",
             socket_connection_preference_name(preference));
     }
 
-    size_t priority_count = arraysize(priorities) +
-                            (preferred_kind != NULL ? 1 : 0);
-    for (size_t priority = 0; priority < priority_count; priority++) {
-        const char *kind;
-        if (preferred_kind != NULL && priority == 0) {
-            kind = preferred_kind;
-        } else {
-            size_t automatic_priority = priority -
-                (preferred_kind != NULL ? 1 : 0);
-            kind = priorities[automatic_priority];
-            if (kind == preferred_kind) {
-                continue;
-            }
+    const char *ordered_priorities[arraysize(priorities) + 1];
+    size_t priority_count = 0;
+    ordered_priorities[priority_count++] = priorities[0];
+    if (preferred_kind != NULL) {
+        ordered_priorities[priority_count++] = preferred_kind;
+    }
+    for (size_t i = 1; i < arraysize(priorities); i++) {
+        if (preferred_kind == NULL ||
+            strcmp(priorities[i], preferred_kind) != 0) {
+            ordered_priorities[priority_count++] = priorities[i];
         }
+    }
+
+    for (size_t priority = 0; priority < priority_count; priority++) {
+        const char *kind = ordered_priorities[priority];
 
         for (size_t i = 0; i < count; i++) {
             if (strcmp(candidates[i].kind, kind) != 0) {
@@ -756,39 +813,43 @@ socket_quic_client_create (const char *host,
             }
 
             struct addrinfo *selected = addresses;
-            int current_family =
-                ((struct sockaddr *) &sc->addr)->sa_family;
-            while (selected != NULL &&
-                   selected->ai_family != current_family) {
-                selected = selected->ai_next;
-            }
-            if (selected == NULL) {
-                LOG(INFO,
-                    "Switching UDP address family for %s QUIC candidate",
-                    candidates[i].kind);
+            if (selected->ai_family != AF_INET
+#ifdef HAVE_IPV6
+                && selected->ai_family != AF_INET6
+#endif
+            ) {
                 freeaddrinfo(addresses);
-                addresses = NULL;
-                socket_destroy(sc);
+                continue;
+            }
+
+            size_t family_index = socket_quic_family_index(
+                selected->ai_family);
+            sc = sockets[family_index];
+            if (sc == NULL) {
+                LOG(INFO,
+                    "Creating a preserved UDP address family for %s QUIC "
+                    "candidate",
+                    candidates[i].kind);
                 sc = socket_quic_client_socket(candidates[i].host,
                                                candidates[i].port,
                                                &initial_address,
                                                &initial_length);
                 if (sc == NULL) {
+                    freeaddrinfo(addresses);
                     continue;
                 }
-                rc = getaddrinfo(candidates[i].host,
-                                 port_str,
-                                 &hints,
-                                 &addresses);
-                if (rc != 0) {
+                if (((struct sockaddr *) &sc->addr)->sa_family !=
+                    selected->ai_family) {
                     LOG(ERROR,
-                        "Cannot resolve %s QUIC candidate after switching "
-                        "address family: %s",
-                        candidates[i].kind,
-                        gai_strerror(rc));
+                        "Created the wrong UDP address family for %s QUIC "
+                        "candidate",
+                        candidates[i].kind);
+                    socket_destroy(sc);
+                    sc = NULL;
+                    freeaddrinfo(addresses);
                     continue;
                 }
-                selected = addresses;
+                sockets[family_index] = sc;
             }
 
             LOG(INFO,
@@ -801,7 +862,8 @@ socket_quic_client_create (const char *host,
                 selected->ai_addr,
                 (socklen_t) selected->ai_addrlen,
                 certificate_sha256,
-                candidates[i].host);
+                candidates[i].host,
+                socket_quic_candidate_timeout(candidates[i].kind));
             freeaddrinfo(addresses);
             if (connected) {
                 sc->connection_mode = socket_quic_candidate_mode(
@@ -816,6 +878,11 @@ socket_quic_client_create (const char *host,
                     candidates[i].kind,
                     candidates[i].host,
                     candidates[i].port);
+                for (size_t j = 0; j < arraysize(sockets); j++) {
+                    if (sockets[j] != NULL && sockets[j] != sc) {
+                        socket_destroy(sockets[j]);
+                    }
+                }
                 return sc;
             }
             LOG(INFO,
@@ -829,7 +896,11 @@ socket_quic_client_create (const char *host,
     LOG(ERROR,
         "No confirmed direct route to the server; game traffic relay is "
         "disabled");
-    socket_destroy(sc);
+    for (size_t i = 0; i < arraysize(sockets); i++) {
+        if (sockets[i] != NULL) {
+            socket_destroy(sockets[i]);
+        }
+    }
     return NULL;
 }
 

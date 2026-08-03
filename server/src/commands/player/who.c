@@ -60,7 +60,7 @@ void command_who(object *op, const char *command, char *params)
         if (show_connection) {
             snprintfcat(buf,
                         sizeof(buf),
-                        " [%s, connection %s]",
+                        " (route: %s; connection: %s)",
                         socket_connection_mode_name(
                             pl->cs->connection_mode),
                         socket_get_id(pl->cs->sc));

@@ -16,6 +16,16 @@
 #include <net/if.h>
 #endif
 #define SOCKET_STUN_MAGIC 0x2112a442U
+#define SOCKET_PUNCH_PROBE "ATRINIK-PUNCH-1"
+#define SOCKET_PUNCH_COUNT 10
+#define SOCKET_PUNCH_INTERVAL_MS 100
+
+typedef struct socket_punch_job {
+    socket_direct_candidate_t candidate;
+    uint64_t next_send_ms;
+    unsigned int attempts;
+    bool active;
+} socket_punch_job_t;
 
 static bool
 socket_candidate_add (socket_direct_candidate_t *candidates,
@@ -60,6 +70,56 @@ socket_candidate_address_valid (const struct sockaddr *address)
                !IN6_IS_ADDR_LOOPBACK(&address6->sin6_addr) &&
                !IN6_IS_ADDR_LINKLOCAL(&address6->sin6_addr) &&
                !IN6_IS_ADDR_MULTICAST(&address6->sin6_addr);
+    }
+#endif
+    return false;
+}
+
+static bool
+socket_candidate_address_global (const struct sockaddr *address)
+{
+    if (address->sa_family == AF_INET) {
+        const struct sockaddr_in *address4 =
+            (const struct sockaddr_in *) address;
+        uint32_t value = ntohl(address4->sin_addr.s_addr);
+        return (value & 0xff000000U) != 0 &&
+               (value & 0xff000000U) != 0x0a000000U &&
+               (value & 0xfff00000U) != 0xac100000U &&
+               (value & 0xffff0000U) != 0xc0a80000U &&
+               (value & 0xffc00000U) != 0x64400000U &&
+               (value & 0xffff0000U) != 0xa9fe0000U &&
+               (value & 0xff000000U) != 0x7f000000U &&
+               value < 0xe0000000U;
+    }
+#ifdef HAVE_IPV6
+    if (address->sa_family == AF_INET6) {
+        const struct sockaddr_in6 *address6 =
+            (const struct sockaddr_in6 *) address;
+        return (address6->sin6_addr.s6_addr[0] & 0xe0) == 0x20;
+    }
+#endif
+    return false;
+}
+
+bool
+socket_host_is_global (const char *host)
+{
+    HARD_ASSERT(host != NULL);
+
+    struct sockaddr_storage address;
+    memset(&address, 0, sizeof(address));
+    struct sockaddr_in *address4 = (struct sockaddr_in *) &address;
+    if (inet_pton(AF_INET, host, &address4->sin_addr) == 1) {
+        address4->sin_family = AF_INET;
+        return socket_candidate_address_global(
+            (const struct sockaddr *) &address);
+    }
+#ifdef HAVE_IPV6
+    struct sockaddr_in6 *address6 = (struct sockaddr_in6 *) &address;
+    if (inet_pton(AF_INET6, host, &address6->sin6_addr) == 1) {
+        address6->sin6_family = AF_INET6;
+        return socket_candidate_address_global(
+            (const struct sockaddr *) &address);
     }
 #endif
     return false;
@@ -121,8 +181,8 @@ socket_local_candidates (uint16_t                    port,
                                          capacity,
                                          host,
                                          port,
-                                         address->sa_family == AF_INET6
-                                             ? "ipv6" : "lan");
+                                         socket_candidate_address_global(
+                                             address) ? "ipv6" : "lan");
                 }
             }
         }
@@ -157,8 +217,8 @@ socket_local_candidates (uint16_t                    port,
                                  capacity,
                                  host,
                                  port,
-                                 entry->ifa_addr->sa_family == AF_INET6
-                                     ? "ipv6" : "lan");
+                                 socket_candidate_address_global(
+                                     entry->ifa_addr) ? "ipv6" : "lan");
         }
     }
     freeifaddrs(interfaces);
@@ -316,7 +376,7 @@ socket_udp_punch (socket_t *sc, const char *host, uint16_t port)
         return false;
     }
 
-    static const unsigned char probe[] = "ATRINIK-PUNCH-1";
+    static const char probe[] = SOCKET_PUNCH_PROBE;
     bool ok = false;
     for (struct addrinfo *ai = addresses; ai != NULL; ai = ai->ai_next) {
         if (sendto(sc->handle, probe, sizeof(probe) - 1, 0,
@@ -327,6 +387,190 @@ socket_udp_punch (socket_t *sc, const char *host, uint16_t port)
     }
     freeaddrinfo(addresses);
     return ok;
+}
+
+bool
+socket_udp_punch_receive (socket_t *sc,
+                          char     *host,
+                          size_t    host_size,
+                          uint16_t *port)
+{
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(host != NULL);
+    HARD_ASSERT(port != NULL);
+
+    char datagram[UINT16_MAX];
+    struct sockaddr_storage source;
+    socklen_t source_length = sizeof(source);
+    ssize_t length = recvfrom(sc->handle,
+                              datagram,
+                              sizeof(datagram),
+                              MSG_PEEK,
+                              (struct sockaddr *) &source,
+                              &source_length);
+    if ((size_t) length != sizeof(SOCKET_PUNCH_PROBE) - 1 ||
+        memcmp(datagram,
+               SOCKET_PUNCH_PROBE,
+               sizeof(SOCKET_PUNCH_PROBE) - 1) != 0) {
+        return false;
+    }
+
+    char probe[sizeof(SOCKET_PUNCH_PROBE)];
+    source_length = sizeof(source);
+    length = recvfrom(sc->handle,
+                      probe,
+                      sizeof(probe),
+                      0,
+                      (struct sockaddr *) &source,
+                      &source_length);
+    if ((size_t) length != sizeof(SOCKET_PUNCH_PROBE) - 1) {
+        return false;
+    }
+
+    char service[6];
+    if (getnameinfo((const struct sockaddr *) &source,
+                    source_length,
+                    host,
+                    (socklen_t) host_size,
+                    VS(service),
+                    NI_NUMERICHOST | NI_NUMERICSERV) != 0) {
+        return false;
+    }
+    unsigned long value = strtoul(service, NULL, 10);
+    if (value == 0 || value > UINT16_MAX) {
+        return false;
+    }
+    *port = (uint16_t) value;
+    return true;
+}
+
+static uint64_t
+socket_udp_punch_now_ms (void)
+{
+    struct timeval now;
+    GETTIMEOFDAY(&now);
+    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
+}
+
+static void
+socket_udp_punch_schedule (socket_punch_job_t             *jobs,
+                           size_t                          capacity,
+                           const socket_direct_candidate_t *candidate)
+{
+    if (strcmp(candidate->kind, "mapped") != 0 &&
+        strcmp(candidate->kind, "srflx") != 0) {
+        return;
+    }
+
+    socket_punch_job_t *available = NULL;
+    for (size_t i = 0; i < capacity; i++) {
+        if (jobs[i].active &&
+            jobs[i].candidate.port == candidate->port &&
+            strcmp(jobs[i].candidate.host, candidate->host) == 0) {
+            return;
+        }
+        if (!jobs[i].active && jobs[i].attempts == 0 && available == NULL) {
+            available = &jobs[i];
+        }
+    }
+    if (available == NULL) {
+        LOG(ERROR, "Client UDP punch queue is full");
+        return;
+    }
+
+    available->candidate = *candidate;
+    available->next_send_ms = socket_udp_punch_now_ms();
+    available->active = true;
+    LOG(INFO,
+        "Opening a paced UDP path to %s QUIC candidate %s:%" PRIu16,
+        candidate->kind,
+        candidate->host,
+        candidate->port);
+}
+
+static void
+socket_udp_punch_update (socket_t           *sc,
+                         socket_punch_job_t *jobs,
+                         size_t              capacity,
+                         unsigned int       *attempts,
+                         unsigned int       *successful)
+{
+    uint64_t now = socket_udp_punch_now_ms();
+    for (size_t i = 0; i < capacity; i++) {
+        socket_punch_job_t *job = &jobs[i];
+        if (!job->active || now < job->next_send_ms) {
+            continue;
+        }
+
+        (*attempts)++;
+        if (socket_udp_punch(sc,
+                             job->candidate.host,
+                             job->candidate.port)) {
+            (*successful)++;
+        }
+        job->attempts++;
+        if (job->attempts >= SOCKET_PUNCH_COUNT) {
+            job->active = false;
+        } else {
+            job->next_send_ms = now + SOCKET_PUNCH_INTERVAL_MS;
+        }
+    }
+}
+
+static size_t
+socket_udp_punch_collect (socket_t                   *sc,
+                          socket_direct_candidate_t *candidates,
+                          size_t                    *count,
+                          size_t                     capacity)
+{
+    size_t received = 0;
+    for (;;) {
+        char host[65];
+        uint16_t port;
+        if (!socket_udp_punch_receive(sc, VS(host), &port)) {
+            return received;
+        }
+        received++;
+
+        bool already_recorded = false;
+        bool has_peer_reflexive = false;
+        for (size_t i = 0; i < *count; i++) {
+            if (strcmp(candidates[i].kind, "prflx") == 0) {
+                has_peer_reflexive = true;
+            }
+            if (candidates[i].port == port &&
+                strcmp(candidates[i].host, host) == 0) {
+                if (strcmp(candidates[i].kind, "prflx") != 0) {
+                    snprintf(VS(candidates[i].kind), "prflx");
+                    LOG(INFO,
+                        "Confirmed peer-reflexive QUIC candidate %s:%lu "
+                        "from a UDP punch",
+                        host,
+                        (unsigned long) port);
+                }
+                already_recorded = true;
+                break;
+            }
+        }
+        if (already_recorded || has_peer_reflexive) {
+            continue;
+        }
+
+        size_t previous_count = *count;
+        socket_candidate_add(candidates,
+                             count,
+                             capacity,
+                             host,
+                             port,
+                             "prflx");
+        if (*count != previous_count) {
+            LOG(INFO,
+                "Learned peer-reflexive QUIC candidate %s:%lu from a UDP "
+                "punch",
+                host,
+                (unsigned long) port);
+        }
+    }
 }
 
 
@@ -399,7 +643,21 @@ socket_rendezvous_client (socket_t                   *sc,
     TIMER_START(wait);
     size_t count = 0;
     bool complete = false;
+    socket_punch_job_t punch_jobs[SOCKET_DIRECT_MAX_CANDIDATES] = {0};
+    unsigned int punch_attempts = 0;
+    unsigned int punches_sent = 0;
+    size_t punches_received = 0;
     while (!complete) {
+        socket_udp_punch_update(sc,
+                                punch_jobs,
+                                arraysize(punch_jobs),
+                                &punch_attempts,
+                                &punches_sent);
+        punches_received += socket_udp_punch_collect(sc,
+                                                     candidates,
+                                                     &count,
+                                                     capacity);
+
         size_t received = 0;
         const struct curl_ws_frame *frame = NULL;
         result = curl_ws_recv(curl,
@@ -442,12 +700,19 @@ socket_rendezvous_client (socket_t                   *sc,
             response[consumed] == '\0' &&
             response_port >= 1 && response_port <= UINT16_MAX &&
             strcmp(response_ticket, ticket) == 0) {
+            socket_direct_candidate_t candidate;
+            snprintf(VS(candidate.host), "%s", response_host);
+            candidate.port = (uint16_t) response_port;
+            snprintf(VS(candidate.kind), "%s", kind);
             socket_candidate_add(candidates,
                                  &count,
                                  capacity,
-                                 response_host,
-                                 (uint16_t) response_port,
-                                 kind);
+                                 candidate.host,
+                                 candidate.port,
+                                 candidate.kind);
+            socket_udp_punch_schedule(punch_jobs,
+                                      arraysize(punch_jobs),
+                                      &candidate);
         } else {
             char expected[128];
             snprintf(VS(expected),
@@ -458,6 +723,20 @@ socket_rendezvous_client (socket_t                   *sc,
         used = 0;
     }
 
+    socket_udp_punch_update(sc,
+                            punch_jobs,
+                            arraysize(punch_jobs),
+                            &punch_attempts,
+                            &punches_sent);
+    punches_received += socket_udp_punch_collect(sc,
+                                                 candidates,
+                                                 &count,
+                                                 capacity);
+    LOG(INFO,
+        "Rendezvous UDP punch summary: sent %u/%u probes, received %" PRIu64,
+        punches_sent,
+        punch_attempts,
+        (uint64_t) punches_received);
     curl_easy_cleanup(curl);
     return complete ? count : 0;
 }

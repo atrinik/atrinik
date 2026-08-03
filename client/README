@@ -32,10 +32,14 @@
  required runtime assets and DLLs; run atrinik.exe from inside that package.
 
  The main server screen has a Route button for choosing a preferred
- direct route per server. Automatic retains the normal LAN, IPv6, mapped,
- STUN, and directory ordering. A specific choice is tried first and then falls
- back to the automatic ordering if it is unavailable. These choices are stored
- in settings/connection-preferences.dat beneath the client's versioned user
+ direct route per server. Automatic first uses any peer-reflexive endpoint
+ learned from paced bilateral UDP punching, then tries LAN, global IPv6,
+ mapped, STUN, and directory routes. Private/ULA IPv6 addresses are treated as
+ LAN candidates. A learned peer-reflexive endpoint is always checked first;
+ otherwise a specific choice is tried before falling back to the automatic
+ ordering. The log reports punch send/receive totals for diagnosing restrictive
+ NATs. These choices are stored in
+ settings/connection-preferences.dat beneath the client's versioned user
  configuration directory.
 
  Password-protected metaserver entries prompt for their server join password
@@ -43,6 +47,11 @@
  is not written to the connection-preferences file or another persistent
  client file. Automated launches can provide it with
  `--join_password=PASSWORD`.
+
+ Region maps received over QUIC are stored beneath the per-server client data
+ directory. On later visits the client sends the cached size and CRC32; the
+ server returns a compact not-modified response when they match. A changed map
+ is downloaded once, checksum-verified, and then replaces the cached copy.
 
 =================================================
 = 2.1. Rapid development in the devcontainer    =

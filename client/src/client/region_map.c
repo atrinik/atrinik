@@ -133,6 +133,7 @@ void region_map_reset(region_map_t *region_map)
         region_map->asset_def = NULL;
     }
     *region_map->download_name = '\0';
+    *region_map->error = '\0';
 
     /* The fog of war freeing makes use of region_map->surface, so it must
      * be freed before the surface... */
@@ -196,9 +197,13 @@ void region_map_update(region_map_t *region_map, const char *region_name)
         efree(path);
     } else {
         snprintf(VS(buf), "client-maps/%s.png", region_name);
-        region_map->asset_png = asset_request_start(buf);
+        path = file_path_server(buf);
+        region_map->asset_png = asset_request_start_cached(buf, path);
+        efree(path);
         snprintf(VS(buf), "client-maps/%s.def", region_name);
-        region_map->asset_def = asset_request_start(buf);
+        path = file_path_server(buf);
+        region_map->asset_def = asset_request_start_cached(buf, path);
+        efree(path);
     }
 
     snprintf(VS(buf), "client-maps/%s.tiles", region_name);
@@ -221,6 +226,10 @@ bool region_map_ready(region_map_t *region_map)
 
     if (region_map->surface != NULL) {
         return true;
+    }
+
+    if (*region_map->error != '\0') {
+        return false;
     }
 
     SOFT_ASSERT_RC(region_map->zoomed == NULL, false,
@@ -257,11 +266,15 @@ bool region_map_ready(region_map_t *region_map)
             snprintf(VS(asset),
                      "client-maps/%s.png",
                      region_map->download_name);
-            region_map->asset_png = asset_request_start(asset);
+            char *path = file_path_server(asset);
+            region_map->asset_png = asset_request_start_cached(asset, path);
+            efree(path);
             snprintf(VS(asset),
                      "client-maps/%s.def",
                      region_map->download_name);
-            region_map->asset_def = asset_request_start(asset);
+            path = file_path_server(asset);
+            region_map->asset_def = asset_request_start_cached(asset, path);
+            efree(path);
             return false;
         }
     } else if (region_map->asset_png != NULL &&
@@ -279,6 +292,13 @@ bool region_map_ready(region_map_t *region_map)
             body_png = asset_request_get_data(region_map->asset_png,
                                               &body_png_size);
             body_def = asset_request_get_data(region_map->asset_def, NULL);
+        } else if (png_state == ASSET_REQUEST_ERROR ||
+                   def_state == ASSET_REQUEST_ERROR) {
+            snprintf(VS(region_map->error),
+                     "The server does not provide region map '%s'.",
+                     region_map->download_name);
+            LOG(ERROR, "%s", region_map->error);
+            return false;
         }
     }
 
@@ -286,12 +306,38 @@ bool region_map_ready(region_map_t *region_map)
         return false;
     }
 
-    img = IMG_Load_RW(SDL_RWFromMem((void *) body_png, body_png_size), 1);
+    if (body_png_size > INT_MAX) {
+        snprintf(VS(region_map->error),
+                 "Region map '%s' is too large.",
+                 region_map->download_name);
+        LOG(ERROR, "%s", region_map->error);
+        return false;
+    }
+
+    SDL_RWops *rw = SDL_RWFromConstMem(body_png, (int) body_png_size);
+    img = rw != NULL ? IMG_Load_RW(rw, 1) : NULL;
+    if (img == NULL) {
+        snprintf(VS(region_map->error),
+                 "Could not decode region map '%s': %s",
+                 region_map->download_name,
+                 IMG_GetError());
+        LOG(ERROR, "%s", region_map->error);
+        return false;
+    }
+
     region_map->surface = SDL_DisplayFormat(img);
     SDL_FreeSurface(img);
+    if (region_map->surface == NULL) {
+        snprintf(VS(region_map->error),
+                 "Could not prepare region map '%s': %s",
+                 region_map->download_name,
+                 SDL_GetError());
+        LOG(ERROR, "%s", region_map->error);
+        return false;
+    }
 
-    region_map_pan(region_map);
     region_map_def_load(region_map->def, (const char *) body_def);
+    region_map_pan(region_map);
 
     /* Draw the labels. */
     for (i = 0; i < region_map->def->num_labels; i++) {
@@ -343,6 +389,13 @@ bool region_map_ready(region_map_t *region_map)
     minimap_redraw_flag = 1;
 
     return true;
+}
+
+const char *
+region_map_error (const region_map_t *region_map)
+{
+    HARD_ASSERT(region_map != NULL);
+    return *region_map->error != '\0' ? region_map->error : NULL;
 }
 
 /**

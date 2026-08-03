@@ -114,6 +114,8 @@ static size_t quic_candidate_count;
 static char quic_public_host[MAX_BUF];
 static uint16_t quic_public_port;
 static char quic_certificate_sha256[65];
+static uint64_t quic_punches_received;
+static uint64_t quic_punches_echoed;
 /**
  * List of client sockets that are not yet playing.
  */
@@ -405,15 +407,15 @@ TOOLKIT_INIT_FUNC(socket_server)
 #ifdef HAVE_IPV6
         struct in6_addr configured_address6;
 #endif
-        if (inet_pton(AF_INET,
-                      settings.server_host,
-                      &configured_address4) == 1
+        if ((inet_pton(AF_INET,
+                       settings.server_host,
+                       &configured_address4) == 1
 #ifdef HAVE_IPV6
-            || inet_pton(AF_INET6,
-                         settings.server_host,
-                         &configured_address6) == 1
+             || inet_pton(AF_INET6,
+                          settings.server_host,
+                          &configured_address6) == 1
 #endif
-        ) {
+             ) && socket_host_is_global(settings.server_host)) {
             snprintf(VS(quic_public_host), "%s", settings.server_host);
         }
         quic_public_port = settings.port_quic;
@@ -422,8 +424,16 @@ TOOLKIT_INIT_FUNC(socket_server)
         if (socket_port_mapping_init(settings.port_quic,
                                      VS(mapped_host),
                                      &mapped_port)) {
-            snprintf(VS(quic_public_host), "%s", mapped_host);
-            quic_public_port = mapped_port;
+            if (socket_host_is_global(mapped_host)) {
+                snprintf(VS(quic_public_host), "%s", mapped_host);
+                quic_public_port = mapped_port;
+            } else {
+                LOG(INFO,
+                    "Router mapping %s:%" PRIu16 " is not globally "
+                    "routable; retaining it as an intermediate candidate",
+                    mapped_host,
+                    mapped_port);
+            }
             snprintf(VS(quic_candidates[quic_candidate_count].host),
                      "%s", mapped_host);
             quic_candidates[quic_candidate_count].port = mapped_port;
@@ -453,7 +463,8 @@ TOOLKIT_INIT_FUNC(socket_server)
                          "srflx");
                 quic_candidate_count++;
             }
-            if (*quic_public_host == '\0') {
+            if (*quic_public_host == '\0' &&
+                socket_host_is_global(stun_host)) {
                 snprintf(VS(quic_public_host), "%s", stun_host);
                 quic_public_port = stun_port;
             }
@@ -497,8 +508,7 @@ TOOLKIT_INIT_FUNC(socket_server)
                 if (strcmp(quic_candidates[i].kind, "ipv6") == 0 &&
                     inet_pton(AF_INET6,
                               quic_candidates[i].host,
-                              &address6) == 1 &&
-                    (address6.s6_addr[0] & 0xfe) != 0xfc) {
+                              &address6) == 1) {
                     snprintf(VS(quic_public_host),
                              "%s", quic_candidates[i].host);
                     quic_public_port = quic_candidates[i].port;
@@ -587,6 +597,31 @@ socket_server_quic_punch (const char *host, uint16_t port)
     }
 
     return socket_udp_punch(quic_server_sockets[index], host, port);
+}
+
+static bool
+socket_server_quic_punch_receive (socket_t *server_socket)
+{
+    char host[65];
+    uint16_t port;
+    if (!socket_udp_punch_receive(server_socket, VS(host), &port)) {
+        return false;
+    }
+
+    quic_punches_received++;
+    bool echoed = socket_udp_punch(server_socket, host, port);
+    if (echoed) {
+        quic_punches_echoed++;
+    }
+    LOG(DEBUG,
+        "Received direct UDP punch from %s:%" PRIu16 "; echo %s "
+        "(received=%" PRIu64 ", echoed=%" PRIu64 ")",
+        host,
+        port,
+        echoed ? "sent" : "failed",
+        quic_punches_received,
+        quic_punches_echoed);
+    return true;
 }
 
 /**
@@ -712,6 +747,30 @@ socket_server_csocket_drop (csocket_entry_t *entry)
     LOG(SYSTEM, "Connection %s: dropping connection",
         socket_get_id(entry->cs->sc));
     socket_server_csocket_free(entry);
+}
+
+static csocket_entry_t *
+socket_server_csocket_find (socket_struct *cs)
+{
+    csocket_entry_t *entry;
+    DL_FOREACH(client_sockets, entry) {
+        if (entry->cs == cs) {
+            return entry;
+        }
+    }
+    return NULL;
+}
+
+static player *
+socket_server_player_find (socket_struct *cs)
+{
+    player *pl;
+    DL_FOREACH(first_player, pl) {
+        if (pl->cs == cs) {
+            return pl;
+        }
+    }
+    return NULL;
 }
 
 /**
@@ -1097,6 +1156,9 @@ socket_server_process (void)
     for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
         if (quic_server_sockets[i] != NULL &&
             FD_ISSET(socket_fd(quic_server_sockets[i]), &fds_read)) {
+            if (socket_server_quic_punch_receive(quic_server_sockets[i])) {
+                continue;
+            }
             socket_server_csocket_create(quic_server_sockets[i]);
         }
     }
@@ -1108,8 +1170,15 @@ socket_server_process (void)
             if (entry->cs->state == ST_ZOMBIE) {
                 continue;
             }
-            socket_server_csocket_read(entry->cs);
-            if (entry->cs->state == ST_DEAD) {
+            socket_struct *cs = entry->cs;
+            socket_server_csocket_read(cs);
+            entry = socket_server_csocket_find(cs);
+            if (entry == NULL) {
+                /* Login moved the live socket to first_player; the player
+                 * pass below will flush its queued response. */
+                continue;
+            }
+            if (cs->state == ST_DEAD) {
                 socket_server_csocket_drop(entry);
                 continue;
             }
@@ -1144,12 +1213,17 @@ socket_server_process (void)
             if (pl->cs->state == ST_ZOMBIE) {
                 continue;
             }
-            socket_server_csocket_read(pl->cs);
-            if (pl->cs->state == ST_DEAD) {
+            socket_struct *cs = pl->cs;
+            socket_server_csocket_read(cs);
+            pl = socket_server_player_find(cs);
+            if (pl == NULL) {
+                continue;
+            }
+            if (cs->state == ST_DEAD) {
                 player_logout(pl);
                 continue;
             }
-            socket_server_csocket_write(pl->cs);
+            socket_server_csocket_write(cs);
             continue;
         }
 

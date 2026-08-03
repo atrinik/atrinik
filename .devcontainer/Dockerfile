@@ -47,6 +47,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         libxmu-dev \
         pkgconf \
         python3-dev \
+        python3-pip \
+        python3-venv \
         ripgrep \
         shellcheck \
         shfmt \

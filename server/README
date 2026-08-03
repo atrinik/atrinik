@@ -106,7 +106,9 @@
 
  By default, QUIC clients download the manifest, required game data, resources,
  and region maps over the established game connection. The optional HTTP
- server/CDN path is described in section 2.2.
+ server/CDN path is described in section 2.2. Region maps are cached per server;
+ later QUIC requests send the cached size and CRC32 so an unchanged map is
+ confirmed without retransmitting its contents.
 
 =================================================
 = 2.1. Configuring the server                   =
@@ -219,6 +221,12 @@
  because it contains players, metaserver credentials, and the persistent QUIC
  identity.
 
+ The package includes generated region-map PNG and definition files under
+ install_data/http/client-maps/. A new data/ directory receives them on first
+ launch. On later launches, server.bat refreshes only these read-only files in
+ data/http/client-maps/, so QUIC clients receive the packaged maps without
+ replacing any other runtime data.
+
  The executable runs directly on Windows; Docker is only used to produce the
  package. This lets PCP/NAT-PMP/UPnP discovery use the physical Windows network
  interfaces and router. Permit atrinik-server.exe through Windows Defender
@@ -255,11 +263,18 @@
     manually reachable deployments. It does not enable a game-traffic relay.
   - legacy_tcp: classic TCP ports only; requires a publicly reachable port.
 
- The server advertises same-LAN and direct global IPv6 addresses first. It then
- tries PCP with automatic NAT-PMP negotiation and UPnP IGD to create and renew
- a UDP router mapping; STUN supplies a server-reflexive fallback. Rendezvous
- sends short punch probes in both directions, but only a completed,
- certificate-pinned QUIC handshake confirms that a candidate is usable.
+ The server advertises same-LAN and direct global IPv6 addresses, tries PCP
+ with automatic NAT-PMP negotiation and UPnP IGD to create and renew a UDP
+ router mapping, and uses STUN for a server-reflexive fallback. Rendezvous
+ opens a bounded bilateral punch window before QUIC checks begin. Both sides
+ send ten paced probes over approximately one second. The QUIC listener
+ recognizes an incoming probe before OpenSSL, logs its actual source, and
+ replies one-for-one so the client can learn a peer-reflexive server endpoint.
+ The client preserves its STUN-created IPv4 socket while checking IPv6. A
+ private intermediate router mapping remains a candidate but is not published
+ as the public directory endpoint; ULA IPv6 addresses are classified as LAN.
+ Only a completed, certificate-pinned QUIC handshake confirms that any
+ candidate is usable.
 
 Some carrier-grade/symmetric NATs and UDP-blocking networks still cannot
 establish a direct path when the router offers no mapping protocol and there
@@ -268,9 +283,10 @@ so those networks must use IPv6, a VPN/overlay, or a separately managed direct
 route. Failure is reported explicitly as “No confirmed direct route”.
 
 The client log lists every candidate attempt and the selected route. Operators
-with the `stats` command permission also see each player's reported mode (for
-example, `QUIC/mapped` or `QUIC/IPv6`) in `/who`. This is client-reported
-diagnostic metadata, not an authorization signal.
+with the `stats` or `/stats` command permission also see each player's reported
+mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
+...)`. This is client-reported diagnostic metadata, not an authorization
+signal.
 
  Direct servers are identified by their QUIC certificate fingerprint rather
  than a DNS hostname. If crypto_cert and crypto_cert_key are configured, that
@@ -281,8 +297,10 @@ diagnostic metadata, not an authorization signal.
 
  Asset requests use the same punched QUIC connection as gameplay by default.
  Setting http_url enables a separate CDN path and makes it the preferred asset
- source, with automatic QUIC fallback. The metaserver never carries assets or
- live game traffic.
+ source, with automatic QUIC fallback. QUIC region-map responses are verified
+ by CRC32 and stored in the client's per-server cache; matching cached files
+ receive a compact not-modified response. The metaserver never carries assets
+ or live game traffic.
 
 =================================================
 = 3. Running a public server                    =

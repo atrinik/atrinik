@@ -211,6 +211,7 @@ set(TOOLKIT_SOURCES
     shstr.c
     signals.c
     socket.c
+    socket_asset.c
     socket_direct.c
     socket_quic.c
     socket_crypto.c

@@ -216,7 +216,7 @@ typedef enum socket_role {
 /** Direct connection mode selected by the client. */
 #define CMD_SETUP_CONNECTION_MODE 6
 /** First socket protocol version supporting in-band asset downloads. */
-#define ASSET_TRANSPORT_SOCKET_VERSION 1067
+#define ASSET_TRANSPORT_SOCKET_VERSION 1069
 
 /** Buffer size for a 128-bit hexadecimal connection ID and terminator. */
 #define SOCKET_CONNECTION_ID_SIZE 33
@@ -249,8 +249,31 @@ typedef enum socket_connection_preference {
 #define ASSET_STATUS_OK 0
 /** The requested asset does not exist or cannot be served. */
 #define ASSET_STATUS_NOT_FOUND 1
+/** The client's cached size and CRC32 match the server asset. */
+#define ASSET_STATUS_NOT_MODIFIED 2
 /** Maximum payload in one asset response packet. */
 #define ASSET_CHUNK_SIZE 60000
+/** Maximum complete asset size accepted by the client. */
+#define ASSET_MAX_SIZE (128U * 1024U * 1024U)
+
+/** Decoded client-to-server asset request. */
+typedef struct socket_asset_request {
+    char path[MAX_BUF];
+    uint32_t offset;
+    uint32_t cached_size;
+    uint32_t cached_checksum;
+} socket_asset_request_t;
+
+/** Decoded server-to-client asset response. */
+typedef struct socket_asset_response {
+    uint8_t status;
+    char path[MAX_BUF];
+    uint32_t total_size;
+    uint32_t offset;
+    uint32_t checksum;
+    const uint8_t *data;
+    size_t data_size;
+} socket_asset_response_t;
 /*@}*/
 
 /**
@@ -928,6 +951,36 @@ static inline const char *s_strerror(int val)
 
 TOOLKIT_FUNCS_DECLARE(socket);
 
+struct packet_struct;
+void
+socket_asset_request_append(struct packet_struct *packet,
+                            const char           *path,
+                            uint32_t              offset,
+                            uint32_t              cached_size,
+                            uint32_t              cached_checksum);
+bool
+socket_asset_request_parse(uint8_t                *data,
+                           size_t                  len,
+                           size_t                  pos,
+                           socket_asset_request_t *request);
+void
+socket_asset_response_append_status(struct packet_struct *packet,
+                                    uint8_t               status,
+                                    const char           *path);
+void
+socket_asset_response_append_ok(struct packet_struct *packet,
+                                const char           *path,
+                                uint32_t              total_size,
+                                uint32_t              offset,
+                                uint32_t              checksum,
+                                const uint8_t        *data,
+                                size_t                data_size);
+bool
+socket_asset_response_parse(uint8_t                 *data,
+                            size_t                   len,
+                            size_t                   pos,
+                            socket_asset_response_t *response);
+
 socket_t *
 socket_create(const char   *host,
               uint16_t      port,
@@ -964,6 +1017,13 @@ socket_stun_discover(socket_t *sc,
                      uint16_t *port);
 bool
 socket_udp_punch(socket_t *sc, const char *host, uint16_t port);
+bool
+socket_udp_punch_receive(socket_t *sc,
+                         char *host,
+                         size_t host_size,
+                         uint16_t *port);
+bool
+socket_host_is_global(const char *host);
 size_t
 socket_local_candidates(uint16_t                    port,
                         socket_direct_candidate_t *candidates,

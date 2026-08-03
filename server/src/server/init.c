@@ -561,8 +561,8 @@ clioptions_option_server_public (const char *arg,
  * Description of the --server_host command.
  */
 static const char *clioptions_option_server_host_desc =
-"Hostname of the server. If set, the server will send regular updates to the "
-"metaserver (using the URL specified with --metaserver_url).\n\n"
+"Hostname of a legacy TCP server published through the metaserver. Direct "
+"QUIC servers use their certificate identity instead.\n\n"
 "Updates will be refused if the hostname does not resolve to the incoming IP.";
 /** @copydoc clioptions_handler_func */
 static bool

@@ -12,11 +12,17 @@
 /** @file Per-server direct connection preference popup. */
 
 #include <global.h>
+#include <toolkit/string.h>
 
 static list_struct *preference_list;
 static button_struct button_use;
 static popup_struct *preference_popup;
 static server_struct *preference_server;
+
+#define PREFERENCE_CONTENT_X 26
+#define PREFERENCE_CONTENT_Y 100
+#define PREFERENCE_LIST_WIDTH 180
+#define PREFERENCE_CONTENT_GAP 18
 
 static const char *
 preference_description (socket_connection_preference_t preference)
@@ -99,29 +105,55 @@ popup_draw (popup_struct *popup)
               &box);
 
     list_set_parent(preference_list, popup->x, popup->y);
-    list_show(preference_list, 24, 88);
+    list_show(preference_list, PREFERENCE_CONTENT_X, PREFERENCE_CONTENT_Y);
 
     socket_connection_preference_t selected =
         preference_list->row_selected > 0
             ? (socket_connection_preference_t)
                 (preference_list->row_selected - 1)
             : SOCKET_CONNECTION_PREFERENCE_AUTO;
-    box.x = 205;
-    box.y = 88;
-    box.w = popup->surface->w - box.x - 18;
-    box.h = 88;
+    SDL_Rect help = {
+        PREFERENCE_CONTENT_X + PREFERENCE_LIST_WIDTH +
+            PREFERENCE_CONTENT_GAP,
+        PREFERENCE_CONTENT_Y,
+        popup->surface->w - PREFERENCE_CONTENT_X * 2 -
+            PREFERENCE_LIST_WIDTH - PREFERENCE_CONTENT_GAP,
+        LIST_ROWS_HEIGHT(preference_list)
+    };
+    SDL_FillRect(popup->surface,
+                 &help,
+                 SDL_MapRGB(popup->surface->format, 0x45, 0x45, 0x45));
+    draw_frame(popup->surface, help.x, help.y, help.w, help.h);
+
+    box.x = help.x + 12;
+    box.y = help.y + 10;
+    box.w = help.w - 24;
+    box.h = 18;
+    text_show(popup->surface,
+              FONT_ARIAL11,
+              socket_connection_preference_name(selected),
+              box.x,
+              box.y,
+              COLOR_HGOLD,
+              0,
+              &box);
+
+    box.y += 24;
+    box.h = help.h - 42;
     text_show(popup->surface,
               FONT_ARIAL10,
               preference_description(selected),
               box.x,
               box.y,
-              COLOR_HGOLD,
+              COLOR_WHITE,
               TEXT_WORD_WRAP,
               &box);
 
     button_set_parent(&button_use, popup->x, popup->y);
-    button_use.x = 190;
-    button_use.y = 190;
+    button_use.x = popup->surface->w / 2 -
+        texture_surface(button_use.texture)->w / 2;
+    button_use.y = PREFERENCE_CONTENT_Y +
+        LIST_ROWS_HEIGHT(preference_list) + 22;
     button_use.surface = popup->surface;
     button_show(&button_use, "Use selection");
     return 1;
@@ -151,6 +183,14 @@ popup_destroy_callback (popup_struct *popup)
     preference_list = NULL;
     button_destroy(&button_use);
     preference_popup = NULL;
+    efree(preference_server->name);
+    if (preference_server->hostname != NULL) {
+        efree(preference_server->hostname);
+    }
+    if (preference_server->server_id != NULL) {
+        efree(preference_server->server_id);
+    }
+    efree(preference_server);
     preference_server = NULL;
     return 1;
 }
@@ -160,7 +200,15 @@ connection_preference_open (server_struct *server)
 {
     HARD_ASSERT(server != NULL);
 
-    preference_server = server;
+    preference_server = ecalloc(1, sizeof(*preference_server));
+    preference_server->name = estrdup(server->name);
+    if (server->hostname != NULL) {
+        preference_server->hostname = estrdup(server->hostname);
+    }
+    if (server->server_id != NULL) {
+        preference_server->server_id = estrdup(server->server_id);
+    }
+    preference_server->port = server->port;
     preference_popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
     preference_popup->draw_func = popup_draw;
     preference_popup->event_func = popup_event;
@@ -168,7 +216,16 @@ connection_preference_open (server_struct *server)
 
     preference_list = list_create(SOCKET_CONNECTION_PREFERENCE_NUM, 1, 8);
     preference_list->surface = preference_popup->surface;
-    list_set_column(preference_list, 0, 160, 7, NULL, -1);
+    preference_list->header_height = 0;
+    preference_list->spacing = 0;
+    preference_list->frame_offset = 0;
+    preference_list->row_height_adjust = 4;
+    list_set_column(preference_list,
+                    0,
+                    PREFERENCE_LIST_WIDTH,
+                    0,
+                    NULL,
+                    1);
     list_set_font(preference_list, FONT_ARIAL11);
     for (int i = 0; i < SOCKET_CONNECTION_PREFERENCE_NUM; i++) {
         list_add(preference_list,

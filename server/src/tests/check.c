@@ -192,6 +192,7 @@ void check_main(int argc, char **argv)
     check_server_packet();
     check_server_pbkdf2();
     check_server_shstr();
+    check_server_socket_asset();
     check_server_string();
     check_server_stringbuffer();
 

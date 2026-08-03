@@ -139,3 +139,29 @@ RUN mkdir -p "${ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR}" /tmp/python-sdk \
     && rm -rf /tmp/python-sdk
 
 USER root
+
+# Native build dependencies used by build-windows.sh to run the Linux world
+# maker before cross-compiling and packaging the Windows server.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libcurl4-openssl-dev \
+        libgd-dev \
+        libminiupnpc-dev \
+        python3-dev \
+        zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/libpcpnatpmp/libpcpnatpmp.git \
+        /tmp/libpcpnatpmp-native \
+    && git -C /tmp/libpcpnatpmp-native checkout "${PCPNATPMP_COMMIT}" \
+    && /usr/bin/cmake \
+        -S /tmp/libpcpnatpmp-native \
+        -B /tmp/libpcpnatpmp-native/build \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DBUILD_CLI_CLIENT=OFF \
+        -DBUILD_SERVER=OFF \
+        -DBUILD_TESTS=OFF \
+    && /usr/bin/cmake --build /tmp/libpcpnatpmp-native/build \
+        --parallel "${MXE_BUILD_JOBS}" \
+    && /usr/bin/cmake --install /tmp/libpcpnatpmp-native/build \
+    && rm -rf /tmp/libpcpnatpmp-native

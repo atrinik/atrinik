@@ -1,5 +1,5 @@
 ================================================================================
-= ADS-8, rev: 1.0: Atrinik Direct Rendezvous Specification                     =
+= ADS-8, rev: 1.2: Atrinik Direct Rendezvous Specification                     =
 ================================================================================
 
 1. Scope
@@ -15,15 +15,17 @@ arbitrary JSON, QUIC datagrams, assets, or game protocol packets.
 
 The server gathers at most 12 UDP candidates. Candidate kinds are:
 
-  lan     A non-loopback interface IPv4 address.
-  ipv6    A non-loopback, non-link-local IPv6 address.
+  lan     A non-global, non-loopback interface IPv4 or IPv6 address.
+  ipv6    A global-unicast IPv6 address.
   mapped  A router mapping created by PCP, NAT-PMP, or UPnP IGD.
   srflx   A server-reflexive address discovered with STUN.
 
 PCP is attempted first and automatically negotiates down to NAT-PMP. UPnP IGD
 is the mapping fallback. Mappings are maintained by the game server and removed
-on orderly shutdown. STUN does not make an unreachable port reachable; it only
-discovers the address assigned by NAT.
+on orderly shutdown. A private mapped address is retained as an intermediate
+candidate but is never published as the public directory endpoint. STUN does
+not make an unreachable port reachable; it only discovers the address assigned
+by NAT.
 
 3. Signaling messages
 =====================
@@ -49,14 +51,42 @@ The Worker permits client_candidate only from a client socket and permits
 server_candidate and complete only from the authenticated server socket. It
 normalizes IP literals and reconstructs messages before forwarding them.
 
+The short UDP probe payload is the ASCII string ATRINIK-PUNCH-1. Probes travel
+directly between the game endpoints and never through the Worker.
+
 4. Connectivity checks and failure
 ===================================
 
-On receipt of a client candidate, the server sends several UDP probes from the
-QUIC listener while returning its candidates. The client checks candidates in
-LAN, IPv6, mapped, STUN, then directory order. A candidate is usable only when
-the QUIC handshake completes and the advertised SHA-256 certificate fingerprint
-matches. Signaling completion never claims that a network route works.
+On receipt of a client candidate, the server returns its candidates before
+opening a bounded, approximately one-second UDP punch window from the QUIC
+listener. The client sends ten paced probes over approximately one second from
+its STUN/QUIC socket to each mapped and STUN server candidate. The server sends
+ten paced probes to the client candidate and sends complete only after its
+punch window and a short grace period.
+
+Before passing a readable listener datagram to OpenSSL, the server checks for
+the exact probe payload. It consumes a matching probe, records its actual
+source for diagnostics, and sends one probe back to that source. This
+one-for-one response lets the client learn a server endpoint associated with
+the client's actual NAT mapping without providing UDP amplification. All other
+datagrams remain queued for the QUIC listener.
+
+The client records the source endpoint of a valid punch as a local
+peer-reflexive (prflx) candidate. This can recover the server port actually
+allocated toward the client when it differs from the STUN observation. A
+peer-reflexive candidate is checked first automatically, followed by LAN,
+IPv6, mapped, STUN, and directory candidates. A peer-reflexive candidate also
+precedes an explicit per-server route preference because it represents a
+recently confirmed path. Private and IPv6 candidate failures use shorter
+timeouts so they do not consume the NAT punch window. IPv4 and IPv6 checks keep
+separate UDP sockets, preserving the IPv4 mapping established by STUN while
+IPv6 candidates are tested.
+
+A candidate, including a peer-reflexive one, is usable only when the QUIC
+handshake completes and the advertised SHA-256 certificate fingerprint
+matches. Punch payloads and source addresses are not authentication. An exact
+probe receives at most one equal-size response and never creates a connection.
+Signaling completion never claims that a network route works.
 
 If every candidate fails, the client reports that no confirmed direct route is
 available. It does not silently use a TURN relay, metaserver relay, or legacy
@@ -67,9 +97,11 @@ VPN/overlay chosen by the operator.
 5. Diagnostics
 ==============
 
-The client logs the complete candidate list, address-family changes, every
-handshake attempt and failure, and the selected route. After connecting it
-reports the selected candidate kind through the game protocol SETUP connection
-mode option. This value is operator diagnostics, not trusted authorization or
+The client logs sent, attempted, and received probe counts, the complete
+candidate list, address-family changes, every handshake attempt and failure,
+and the selected route. The server logs each consumed probe at debug level and
+the result of each scheduled punch window. After connecting, the client reports
+the selected candidate kind through the game protocol SETUP connection mode
+option. This value is operator diagnostics, not trusted authorization or
 network-boundary evidence. The server exposes it only in privileged /who
 output.

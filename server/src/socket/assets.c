@@ -18,6 +18,7 @@
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <resources.h>
+#include <zlib.h>
 
 static bool
 asset_simple_name (const char *name)
@@ -89,9 +90,40 @@ static void
 asset_send_error (socket_struct *ns, const char *asset)
 {
     packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
-    packet_append_uint8(packet, ASSET_STATUS_NOT_FOUND);
-    packet_append_string_terminated(packet, asset);
+    socket_asset_response_append_status(packet,
+                                        ASSET_STATUS_NOT_FOUND,
+                                        asset);
     socket_send_packet(ns, packet);
+}
+
+static bool
+asset_checksum (FILE *fp, uint32_t size, uint32_t *checksum)
+{
+    uint8_t buffer[8192];
+    uLong value = 1L;
+
+    if (fseek(fp, 0, SEEK_SET) != 0) {
+        return false;
+    }
+
+    uint32_t remaining = size;
+    while (remaining != 0) {
+        size_t requested = MIN((size_t) remaining, sizeof(buffer));
+        size_t length = fread(buffer, 1, requested, fp);
+        if (length != requested) {
+            return false;
+        }
+        value = crc32(value,
+                      (const unsigned char FAR *) buffer,
+                      (uInt) length);
+        remaining -= (uint32_t) length;
+    }
+    if (fseek(fp, 0, SEEK_SET) != 0) {
+        return false;
+    }
+
+    *checksum = (uint32_t) value;
+    return true;
 }
 
 void
@@ -106,20 +138,25 @@ socket_command_asset (socket_struct *ns,
         return;
     }
 
-    char asset[MAX_BUF];
-    if (packet_to_string(data, len, &pos, VS(asset)) == NULL) {
+    socket_asset_request_t request;
+    if (!socket_asset_request_parse(data, len, pos, &request)) {
+        LOG(ERROR,
+            "Connection %s sent a malformed QUIC asset request",
+            socket_get_id(ns->sc));
         return;
     }
-    uint32_t offset = packet_to_uint32(data, len, &pos);
     LOG(DEBUG,
-        "Connection %s requested QUIC asset %s at offset %" PRIu32,
+        "Connection %s requested QUIC asset %s at offset %" PRIu32
+        " (cached size %" PRIu32 ", CRC32 %" PRIu32 ")",
         socket_get_id(ns->sc),
-        asset,
-        offset);
+        request.path,
+        request.offset,
+        request.cached_size,
+        request.cached_checksum);
 
     char path[HUGE_BUF];
-    if (!asset_resolve_path(asset, VS(path))) {
-        asset_send_error(ns, asset);
+    if (!asset_resolve_path(request.path, VS(path))) {
+        asset_send_error(ns, request.path);
         return;
     }
 
@@ -129,13 +166,45 @@ socket_command_asset (socket_struct *ns,
         fstat(fileno(fp), &sb) != 0 ||
         !S_ISREG(sb.st_mode) ||
         sb.st_size < 0 ||
-        (uint64_t) sb.st_size > UINT32_MAX ||
-        offset > (uint32_t) sb.st_size ||
-        fseek(fp, (long) offset, SEEK_SET) != 0) {
+        (uint64_t) sb.st_size > ASSET_MAX_SIZE ||
+        request.offset > (uint32_t) sb.st_size) {
         if (fp != NULL) {
             fclose(fp);
         }
-        asset_send_error(ns, asset);
+        asset_send_error(ns, request.path);
+        return;
+    }
+
+    uint32_t checksum = 0;
+    if (request.offset == 0 &&
+        !asset_checksum(fp, (uint32_t) sb.st_size, &checksum)) {
+        fclose(fp);
+        asset_send_error(ns, request.path);
+        return;
+    }
+
+    if (request.offset == 0 &&
+        request.cached_size == (uint32_t) sb.st_size &&
+        request.cached_checksum == checksum) {
+        fclose(fp);
+        packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
+        socket_asset_response_append_status(packet,
+                                            ASSET_STATUS_NOT_MODIFIED,
+                                            request.path);
+        LOG(DEBUG,
+            "Connection %s confirmed cached QUIC asset %s (size %" PRIu32
+            ", CRC32 %" PRIu32 ")",
+            socket_get_id(ns->sc),
+            request.path,
+            request.cached_size,
+            request.cached_checksum);
+        socket_send_packet(ns, packet);
+        return;
+    }
+
+    if (fseek(fp, (long) request.offset, SEEK_SET) != 0) {
+        fclose(fp);
+        asset_send_error(ns, request.path);
         return;
     }
 
@@ -143,24 +212,26 @@ socket_command_asset (socket_struct *ns,
     size_t chunk_size = fread(chunk, 1, sizeof(chunk), fp);
     if (ferror(fp)) {
         fclose(fp);
-        asset_send_error(ns, asset);
+        asset_send_error(ns, request.path);
         return;
     }
     fclose(fp);
 
     packet_struct *packet =
         packet_new(CLIENT_CMD_ASSET, chunk_size + 128, 128);
-    packet_append_uint8(packet, ASSET_STATUS_OK);
-    packet_append_string_terminated(packet, asset);
-    packet_append_uint32(packet, (uint32_t) sb.st_size);
-    packet_append_uint32(packet, offset);
-    packet_append_data_len(packet, chunk, chunk_size);
+    socket_asset_response_append_ok(packet,
+                                    request.path,
+                                    (uint32_t) sb.st_size,
+                                    request.offset,
+                                    checksum,
+                                    chunk,
+                                    chunk_size);
     LOG(DEBUG,
         "Connection %s sending QUIC asset %s offset %" PRIu32 "/%" PRIu32
         " (%" PRIu64 " bytes)",
         socket_get_id(ns->sc),
-        asset,
-        offset,
+        request.path,
+        request.offset,
         (uint32_t) sb.st_size,
         (uint64_t) chunk_size);
     socket_send_packet(ns, packet);

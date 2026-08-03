@@ -591,7 +591,9 @@ clioptions_option_join_password (const char *arg,
         return false;
     }
 
-    efree(clioption_settings.join_password);
+    if (clioption_settings.join_password != NULL) {
+        efree(clioption_settings.join_password);
+    }
     clioption_settings.join_password = estrdup(arg);
     return true;
 }

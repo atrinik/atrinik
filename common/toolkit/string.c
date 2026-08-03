@@ -423,7 +423,7 @@ void string_newline_to_literal(char *str)
  *
  * Effectively allows looping through all the words in a string.
  * @param str
- * The string.
+ * The string. NULL is treated as an empty string.
  * @param[out] pos Position in string.
  * @param delim
  * Delimeter character.
@@ -443,6 +443,15 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
     uint8_t in_surround;
 
     TOOLKIT_PROTECT();
+
+    HARD_ASSERT(pos != NULL);
+    HARD_ASSERT(word != NULL);
+    HARD_ASSERT(wordsize != 0);
+
+    if (str == NULL) {
+        *word = '\0';
+        return NULL;
+    }
 
     i = 0;
     in_surround = 0;
