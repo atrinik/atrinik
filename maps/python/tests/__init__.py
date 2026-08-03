@@ -74,9 +74,11 @@ def run():
             for name in glob.glob(os.path.join(path, "*.xml")):
                 os.unlink(name)
 
-        xmlrunner.XMLTestRunner(output=path).run(all_tests)
+        result = xmlrunner.XMLTestRunner(output=path).run(all_tests)
     except ImportError:
-        unittest.TextTestRunner(verbosity=2).run(all_tests)
+        result = unittest.TextTestRunner(verbosity=2).run(all_tests)
+
+    return result.wasSuccessful()
 
 
 def ib_wrapper(fnc):

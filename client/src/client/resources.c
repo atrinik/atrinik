@@ -56,12 +56,7 @@ resources_free (void)
     HASH_ITER(hh, resources, resource, tmp) {
         HASH_DEL(resources, resource);
 
-        if (resource->request != NULL) {
-            curl_request_free(resource->request);
-        }
-        if (resource->asset_request != NULL) {
-            asset_request_free(resource->asset_request);
-        }
+        asset_source_free(resource->source);
 
         efree(resource->name);
         efree(resource);
@@ -146,17 +141,9 @@ socket_command_resource (uint8_t *data, size_t len, size_t pos)
         return;
     }
 
-    if (*cpl.http_url != '\0') {
-        char url[HUGE_BUF];
-        snprintf(VS(url), "%s/resources/%s", cpl.http_url, resource_name);
-        resource->request =
-            curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-        curl_request_start_get(resource->request);
-    } else {
-        char asset[HUGE_BUF];
-        snprintf(VS(asset), "resources/%s", resource_name);
-        resource->asset_request = asset_request_start(asset);
-    }
+    char asset[HUGE_BUF];
+    snprintf(VS(asset), "resources/%s", resource_name);
+    resource->source = asset_source_start(asset, NULL);
 }
 
 /**
@@ -176,32 +163,12 @@ resources_is_ready (resource_t *resource)
 
     const uint8_t *body = NULL;
     size_t body_size = 0;
-    if (resource->request != NULL) {
-        if (curl_request_get_state(resource->request) ==
-            CURL_STATE_INPROGRESS) {
-            return false;
-        }
-
-        if (curl_request_get_http_code(resource->request) == 200) {
-            body = (const uint8_t *)
-                curl_request_get_body(resource->request, &body_size);
-        } else if (cpl.asset_transport) {
-            curl_request_free(resource->request);
-            resource->request = NULL;
-            char asset[HUGE_BUF];
-            snprintf(VS(asset), "resources/%s", resource->name);
-            resource->asset_request = asset_request_start(asset);
-            return false;
-        }
-    } else if (resource->asset_request != NULL) {
-        asset_request_state_t state =
-            asset_request_get_state(resource->asset_request);
-        if (state == ASSET_REQUEST_PENDING) {
-            return false;
-        }
-        if (state == ASSET_REQUEST_COMPLETE) {
-            body = asset_request_get_data(resource->asset_request, &body_size);
-        }
+    asset_source_state_t state = asset_source_get_state(resource->source);
+    if (state == ASSET_SOURCE_PENDING) {
+        return false;
+    }
+    if (state == ASSET_SOURCE_COMPLETE) {
+        body = asset_source_get_data(resource->source, &body_size);
     }
 
     if (body == NULL) {
@@ -223,25 +190,13 @@ resources_is_ready (resource_t *resource)
 
     char path[HUGE_BUF];
     snprintf(VS(path), "resources/%s", resource->digest);
-    FILE *fp = path_fopen(path, "wb");
-    if (fp == NULL) {
-        LOG(ERROR, "Failed to open %s: %s (%d)",
-            path,
-            strerror(errno),
-            errno);
+    char *resolved = file_path(path, "wb");
+    bool saved = path_write_atomic(resolved, body, body_size, 0600);
+    efree(resolved);
+    if (!saved) {
+        LOG(ERROR, "Failed to atomically write %s", path);
         goto error;
     }
-
-    if (fwrite(body, 1, body_size, fp) != body_size) {
-        LOG(ERROR, "Failed to write enough bytes to %s: %s (%d)",
-            path,
-            strerror(errno),
-            errno);
-        fclose(fp);
-        goto error;
-    }
-
-    fclose(fp);
     resource->loaded = true;
 
     bool ret = true;
@@ -251,13 +206,7 @@ error:
     ret = false;
 
 out:
-    if (resource->request != NULL) {
-        curl_request_free(resource->request);
-        resource->request = NULL;
-    }
-    if (resource->asset_request != NULL) {
-        asset_request_free(resource->asset_request);
-        resource->asset_request = NULL;
-    }
+    asset_source_free(resource->source);
+    resource->source = NULL;
     return ret;
 }

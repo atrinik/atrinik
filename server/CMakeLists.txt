@@ -50,7 +50,10 @@ include(src/cmake.txt)
 # Check is used for unit tests, but is optional.
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
-pkg_check_modules(MINIUPNPC REQUIRED IMPORTED_TARGET miniupnpc)
+
+if (NOT MINGW)
+    pkg_check_modules(MINIUPNPC REQUIRED IMPORTED_TARGET miniupnpc)
+endif ()
 
 find_package(pcpnatpmp 1.0 REQUIRED CONFIG)
 
@@ -108,8 +111,7 @@ endif ()
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
 target_link_libraries(${EXECUTABLE} atrinik-toolkit)
 target_link_libraries(${EXECUTABLE}
-    pcpnatpmp::pcpnatpmp
-    PkgConfig::MINIUPNPC)
+    pcpnatpmp::pcpnatpmp)
 
 if (MINGW)
     find_library(ATRINIK_MINIUPNPC_STATIC_LIBRARY miniupnpc)
@@ -122,6 +124,8 @@ if (MINGW)
         ${ATRINIK_MINIUPNPC_STATIC_LIBRARY}
         ws2_32
         iphlpapi)
+else ()
+    target_link_libraries(${EXECUTABLE} PkgConfig::MINIUPNPC)
 endif ()
 
 # Link libraries.
@@ -167,8 +171,10 @@ foreach (var ${SOURCES} ${LEXERS_OUT})
 endforeach (var)
 
 add_custom_target(check
-    COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel || exit 5
-    COMMAND ${EXECUTABLE} --plugin_unit || exit 5
+    COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel
+        --port_mapping=off
+    COMMAND ${EXECUTABLE} --plugin_unit --port_mapping=off
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Executing unit tests..."
     VERBATIM
 )
@@ -245,6 +251,11 @@ if (ENABLE_PYTHON_PLUGIN)
     endif ()
 else ()
     message(STATUS "Python plugin disabled by ENABLE_PYTHON_PLUGIN=false.")
+endif ()
+
+add_dependencies(check ${EXECUTABLE} plugin_arena)
+if (TARGET plugin_python)
+    add_dependencies(check plugin_python)
 endif ()
 
 if (MINGW AND ${PACKAGE_TYPE} STREQUAL "zip")

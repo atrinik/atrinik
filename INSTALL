@@ -67,10 +67,12 @@ sudo apt-get install build-essential cmake flex libcurl4-openssl-dev \
   cproto pkgconf check libsubunit-dev libminiupnpc-dev
 ```
 
-Ubuntu does not currently package libpcpnatpmp. Install release 1.0.0 (the
-repository images pin commit `866d283da99f5e98eecff702a8df63e2ae57ffca`)
-with its CLI, test server, and tests disabled before configuring a server
-build. Client-only builds do not require either port-mapping library.
+Ubuntu does not currently package libpcpnatpmp. The authoritative repository,
+commit, and build options live in `dependencies/libpcpnatpmp.env` and
+`dependencies/build-libpcpnatpmp.sh`; the Linux images and MXE environment all
+use that helper and verify the checked-out commit before building. Run
+`sudo dependencies/build-libpcpnatpmp.sh native` before configuring a manual
+server build. Client-only builds do not require either port-mapping library.
 
 Configure and compile a debug build using the checked-in presets:
 
@@ -105,6 +107,22 @@ server runtime files, including `permissions.cfg`, `data`, collected resources,
 and built plugins. A successful ordinary build verifies compilation even when
 that runtime setup has not yet been prepared. See `server/README` for setup.
 
+## Continuous integration and releases
+
+GitHub Actions builds the Linux client and server and runs the server tests for
+every pull request. The same validation runs again for every automatically
+tagged merge commit on `master`.
+
+The release line comes from `PACKAGE_VERSION` in `build.config`. A merge commit
+on `master` receives the next available patch tag in that release line. The
+first automatically tagged merge in the 5.0 line is `v5.0.0`, followed by
+`v5.0.1`, `v5.0.2`, and so on. Direct, single-parent pushes are not tagged.
+
+A tagged merge also builds the portable Windows client and server packages and
+publishes them in the GitHub release associated with the tag. Automated tagged
+builds export `ATRINIK_PACKAGE_VERSION` so embedded versions and package
+filenames match the tag.
+
 ## Portable Windows build with MXE
 
 Windows client and server packages are cross-compiled in one isolated Linux
@@ -117,6 +135,15 @@ With a Dev Containers-compatible editor, reopen the repository using
 
 ```sh
 bash ./build-windows.sh
+```
+
+Pass `client` or `server` to build and package only that component. The default
+`all` builds both. Server collection and world-map output are keyed by a SHA-256
+hash of their authored inputs and reused when unchanged:
+
+```sh
+bash ./build-windows.sh client
+bash ./build-windows.sh server
 ```
 
 Alternatively, build directly from the repository root without opening an

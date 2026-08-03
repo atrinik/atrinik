@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <openssl/crypto.h>
 #include <region_map.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
@@ -72,10 +73,14 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
             if (packet_to_uint8(data, len, &pos) == 0) {
                 if (selected_server != NULL &&
                     selected_server->join_password != NULL) {
+                    OPENSSL_cleanse(selected_server->join_password,
+                                    strlen(selected_server->join_password));
                     efree(selected_server->join_password);
                     selected_server->join_password = NULL;
                 }
                 if (clioption_settings.join_password != NULL) {
+                    OPENSSL_cleanse(clioption_settings.join_password,
+                                    strlen(clioption_settings.join_password));
                     efree(clioption_settings.join_password);
                     clioption_settings.join_password = NULL;
                 }

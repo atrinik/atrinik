@@ -51,6 +51,7 @@ struct sock_struct {
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
     SSL_CTX *quic_ctx;
     SSL *quic;
+    uint64_t quic_event_deadline_ms;
 #endif
 
     /** Whether this object owns and must close handle. */
@@ -68,5 +69,6 @@ socket_rendezvous_client(socket_t                    *sc,
 
 bool socket_connection_id_generate(socket_t *sc);
 bool socket_connection_id_export(socket_t *sc);
+double socket_candidate_kind_timeout(socket_candidate_kind_t kind);
 
 #endif

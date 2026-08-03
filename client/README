@@ -31,27 +31,32 @@
  accordingly. Extracted portable Windows packages contain atrinik.exe and all
  required runtime assets and DLLs; run atrinik.exe from inside that package.
 
- The main server screen has a Route button for choosing a preferred
- direct route per server. Automatic first uses any peer-reflexive endpoint
- learned from paced bilateral UDP punching, then tries LAN, global IPv6,
- mapped, STUN, and directory routes. Private/ULA IPv6 addresses are treated as
- LAN candidates. A learned peer-reflexive endpoint is always checked first;
- otherwise a specific choice is tried before falling back to the automatic
- ordering. The log reports punch send/receive totals for diagnosing restrictive
- NATs. These choices are stored in
+ The main server screen has a Route button for choosing a preferred direct
+ route per server. The client races all candidates concurrently and selects a
+ successful route in the order LAN, global IPv6, peer-reflexive, mapped, STUN,
+ then directory. A specific choice is moved to the front of its direct or NAT
+ group without disabling fallback routes. Private/ULA IPv6 addresses are
+ treated as LAN candidates. The log reports punch send/receive totals for
+ diagnosing restrictive NATs. These choices are stored in
  settings/connection-preferences.dat beneath the client's versioned user
  configuration directory.
 
  Password-protected metaserver entries prompt for their server join password
  before connecting. The password is kept only in memory for that server and
  is not written to the connection-preferences file or another persistent
- client file. Automated launches can provide it with
- `--join_password=PASSWORD`.
+ client file. Automated launches should provide it through a restricted file
+ with `--join_password_file=PATH`; `--join_password=PASSWORD` remains available
+ for interactive debugging but exposes the value in the process argument list.
+
+ The client has no built-in public STUN provider. Configure one explicitly with
+ `--stun_server=HOST:PORT`, or use `--stun_server=off` to disable discovery.
+ LAN, global IPv6, mapped, and directory routes remain available without STUN.
 
  Region maps received over QUIC are stored beneath the per-server client data
- directory. On later visits the client sends the cached size and CRC32; the
- server returns a compact not-modified response when they match. A changed map
- is downloaded once, checksum-verified, and then replaces the cached copy.
+ directory. On later visits the client sends the cached size and SHA-256
+ digest; the server returns a compact not-modified response when they match. A
+ changed map is downloaded once, digest-verified, and atomically replaces the
+ cached copy.
 
 =================================================
 = 2.1. Rapid development in the devcontainer    =

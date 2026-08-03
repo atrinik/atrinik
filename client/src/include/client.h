@@ -134,6 +134,9 @@ typedef struct clioption_settings_struct {
 
     char *join_password;
 
+    /** Optional STUN endpoint used for direct rendezvous. */
+    char *stun_server;
+
     uint8_t reconnect;
 } clioption_settings_struct;
 

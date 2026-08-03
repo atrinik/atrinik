@@ -42,6 +42,7 @@
 #include <toolkit/socket_crypto.h>
 #include <toolkit/x11.h>
 #include <cmake.h>
+#include <openssl/crypto.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -324,7 +325,6 @@ static int game_status_chain(void)
                                 port,
                                 secure,
                                 selected_server->quic_certificate_sha256,
-                                selected_server->server_id,
                                 connection_preference_get(selected_server))) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
@@ -494,7 +494,13 @@ void clioption_settings_deinit(void)
     }
 
     if (clioption_settings.join_password != NULL) {
+        OPENSSL_cleanse(clioption_settings.join_password,
+                        strlen(clioption_settings.join_password));
         efree(clioption_settings.join_password);
+    }
+
+    if (clioption_settings.stun_server != NULL) {
+        efree(clioption_settings.stun_server);
     }
 }
 
@@ -592,9 +598,59 @@ clioptions_option_join_password (const char *arg,
     }
 
     if (clioption_settings.join_password != NULL) {
+        OPENSSL_cleanse(clioption_settings.join_password,
+                        strlen(clioption_settings.join_password));
         efree(clioption_settings.join_password);
     }
     clioption_settings.join_password = estrdup(arg);
+    return true;
+}
+
+static const char *const clioptions_option_join_password_file_desc =
+"Read the private server password from a file.";
+
+static bool
+clioptions_option_join_password_file (const char *arg,
+                                      char      **errmsg)
+{
+    FILE *fp = fopen(arg, "rb");
+    if (fp == NULL) {
+        string_fmt(*errmsg, "Cannot open join password file: %s", arg);
+        return false;
+    }
+
+    char password[MAX_BUF];
+    bool ok = fgets(VS(password), fp) != NULL;
+    if (fclose(fp) != 0) {
+        ok = false;
+    }
+    if (!ok) {
+        OPENSSL_cleanse(password, sizeof(password));
+        *errmsg = estrdup("Cannot read join password file");
+        return false;
+    }
+    password[strcspn(password, "\r\n")] = '\0';
+    ok = clioptions_option_join_password(password, errmsg);
+    OPENSSL_cleanse(password, sizeof(password));
+    return ok;
+}
+
+static const char *const clioptions_option_stun_server_desc =
+"Optional STUN endpoint used for direct rendezvous, or 'off'.";
+
+static bool
+clioptions_option_stun_server (const char *arg,
+                               char      **errmsg)
+{
+    if (strlen(arg) >= MAX_BUF) {
+        *errmsg = estrdup("STUN endpoint is too long");
+        return false;
+    }
+    if (clioption_settings.stun_server != NULL) {
+        efree(clioption_settings.stun_server);
+    }
+    clioption_settings.stun_server = strcmp(arg, "off") == 0
+        ? NULL : estrdup(arg);
     return true;
 }
 
@@ -713,19 +769,22 @@ int main(int argc, char *argv[])
 
     /* Store user agent for cURL, including if this is a GNU/Linux build of
      * the client or a Windows one. */
-    char user_agent[MAX_BUF];
 #if defined(WIN32)
-    snprintf(VS(user_agent), "Atrinik Client (Win32)/%s (%d)",
-             version, SOCKET_VERSION);
+    const char *platform = "Win32";
 #elif defined(__GNUC__)
-    snprintf(VS(user_agent), "Atrinik Client (GNU/Linux)/%s (%d)",
-             version, SOCKET_VERSION);
+    const char *platform = "GNU/Linux";
 #else
-    snprintf(VS(user_agent), "Atrinik Client (Unknown)/%s (%d)",
-             version, SOCKET_VERSION);
+    const char *platform = "Unknown";
 #endif
-
+    StringBuffer *user_agent_builder = stringbuffer_new();
+    stringbuffer_append_printf(user_agent_builder,
+                               "Atrinik Client (%s)/%s (%d)",
+                               platform,
+                               version,
+                               SOCKET_VERSION);
+    char *user_agent = stringbuffer_finish(user_agent_builder);
     curl_set_user_agent(user_agent);
+    efree(user_agent);
 
     clioption_t *cli;
 
@@ -735,6 +794,10 @@ int main(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, connect, "Connect to the specified server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, game_news_url, "Set game news URL");
     CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               join_password_file,
+                               "Private server password file");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "Direct rendezvous STUN endpoint");
 
     /* Argument options*/
     CLIOPTIONS_CREATE(cli, nometa, "Disable querying the metaserver");

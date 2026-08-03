@@ -27,13 +27,218 @@ typedef struct socket_punch_job {
     bool active;
 } socket_punch_job_t;
 
+typedef struct socket_candidate_kind_info {
+    const char *name;
+    socket_connection_mode_t mode;
+    double timeout;
+} socket_candidate_kind_info_t;
+
+static const socket_candidate_kind_info_t
+socket_candidate_kinds[SOCKET_CANDIDATE_NUM] = {
+    [SOCKET_CANDIDATE_LAN] = {"lan", SOCKET_CONNECTION_MODE_QUIC_LAN, 1.0},
+    [SOCKET_CANDIDATE_IPV6] = {"ipv6", SOCKET_CONNECTION_MODE_QUIC_IPV6, 2.0},
+    [SOCKET_CANDIDATE_PRFLX] = {"prflx", SOCKET_CONNECTION_MODE_QUIC_SRFLX, 3.0},
+    [SOCKET_CANDIDATE_MAPPED] = {"mapped", SOCKET_CONNECTION_MODE_QUIC_MAPPED, 5.0},
+    [SOCKET_CANDIDATE_SRFLX] = {"srflx", SOCKET_CONNECTION_MODE_QUIC_SRFLX, 5.0},
+    [SOCKET_CANDIDATE_DIRECTORY] = {"directory", SOCKET_CONNECTION_MODE_QUIC_DIRECTORY, 5.0},
+};
+
+const char *
+socket_candidate_kind_name (socket_candidate_kind_t kind)
+{
+    if ((unsigned int) kind >= SOCKET_CANDIDATE_NUM) {
+        return "unknown";
+    }
+    return socket_candidate_kinds[kind].name;
+}
+
+bool
+socket_candidate_kind_parse (const char              *name,
+                             socket_candidate_kind_t *kind)
+{
+    HARD_ASSERT(name != NULL);
+    HARD_ASSERT(kind != NULL);
+
+    for (socket_candidate_kind_t i = 0; i < SOCKET_CANDIDATE_NUM; i++) {
+        if (strcmp(name, socket_candidate_kinds[i].name) == 0) {
+            *kind = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+socket_connection_mode_t
+socket_candidate_kind_mode (socket_candidate_kind_t kind)
+{
+    return (unsigned int) kind < SOCKET_CANDIDATE_NUM
+        ? socket_candidate_kinds[kind].mode
+        : SOCKET_CONNECTION_MODE_QUIC;
+}
+
+double
+socket_candidate_kind_timeout (socket_candidate_kind_t kind)
+{
+    return (unsigned int) kind < SOCKET_CANDIDATE_NUM
+        ? socket_candidate_kinds[kind].timeout
+        : 5.0;
+}
+
+static bool
+socket_rendezvous_ticket_valid (const char *ticket)
+{
+    if (ticket == NULL || strlen(ticket) != 64) {
+        return false;
+    }
+    for (const unsigned char *cp = (const unsigned char *) ticket;
+         *cp != '\0';
+         cp++) {
+        if (!isdigit(*cp) && (*cp < 'a' || *cp > 'f')) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool
+socket_rendezvous_host_valid (const char *host)
+{
+    struct in_addr address4;
+    if (host != NULL && inet_pton(AF_INET, host, &address4) == 1) {
+        return true;
+    }
+#ifdef HAVE_IPV6
+    struct in6_addr address6;
+    return host != NULL && inet_pton(AF_INET6, host, &address6) == 1;
+#else
+    return false;
+#endif
+}
+
+bool
+socket_rendezvous_client_candidate_parse (const char *message,
+                                          char       *host,
+                                          size_t      host_size,
+                                          uint16_t   *port,
+                                          char        ticket[65])
+{
+    char parsed_host[65], parsed_ticket[65];
+    unsigned int parsed_port;
+    int consumed = 0;
+    if (message == NULL || host == NULL || host_size == 0 || port == NULL ||
+            ticket == NULL ||
+            sscanf(message,
+                   "{\"type\":\"client_candidate\",\"host\":\"%64[0-9a-fA-F:.]\","
+                   "\"port\":%u,\"ticket\":\"%64[0-9a-f]\"}%n",
+                   parsed_host,
+                   &parsed_port,
+                   parsed_ticket,
+                   &consumed) != 3 ||
+            message[consumed] != '\0' || parsed_port == 0 ||
+            parsed_port > UINT16_MAX ||
+            !socket_rendezvous_host_valid(parsed_host) ||
+            !socket_rendezvous_ticket_valid(parsed_ticket) ||
+            strlen(parsed_host) >= host_size) {
+        return false;
+    }
+    snprintf(host, host_size, "%s", parsed_host);
+    snprintf(ticket, 65, "%s", parsed_ticket);
+    *port = (uint16_t) parsed_port;
+    return true;
+}
+
+bool
+socket_rendezvous_server_candidate_parse (
+    const char                *message,
+    const char                *expected_ticket,
+    socket_direct_candidate_t *candidate)
+{
+    char host[65], kind[16], ticket[65];
+    unsigned int port;
+    int consumed = 0;
+    socket_candidate_kind_t parsed_kind;
+    if (message == NULL || expected_ticket == NULL || candidate == NULL ||
+            !socket_rendezvous_ticket_valid(expected_ticket) ||
+            sscanf(message,
+                   "{\"type\":\"server_candidate\",\"host\":\"%64[0-9a-fA-F:.]\","
+                   "\"port\":%u,\"kind\":\"%15[a-z0-9]\","
+                   "\"ticket\":\"%64[0-9a-f]\"}%n",
+                   host,
+                   &port,
+                   kind,
+                   ticket,
+                   &consumed) != 4 ||
+            message[consumed] != '\0' || port == 0 || port > UINT16_MAX ||
+            strcmp(ticket, expected_ticket) != 0 ||
+            !socket_rendezvous_host_valid(host) ||
+            !socket_candidate_kind_parse(kind, &parsed_kind)) {
+        return false;
+    }
+    snprintf(VS(candidate->host), "%s", host);
+    candidate->port = (uint16_t) port;
+    candidate->kind = parsed_kind;
+    return true;
+}
+
+bool
+socket_rendezvous_message_render (char                    *buffer,
+                                  size_t                   size,
+                                  const char              *type,
+                                  const char              *host,
+                                  uint16_t                 port,
+                                  socket_candidate_kind_t  kind,
+                                  const char              *ticket)
+{
+    if (buffer == NULL || size == 0 || type == NULL ||
+            !socket_rendezvous_ticket_valid(ticket)) {
+        return false;
+    }
+    int length;
+    if (strcmp(type, "complete") == 0) {
+        length = snprintf(buffer, size,
+                "{\"type\":\"complete\",\"ticket\":\"%s\"}", ticket);
+    } else if (strcmp(type, "client_candidate") == 0 &&
+               socket_rendezvous_host_valid(host)) {
+        length = snprintf(buffer, size,
+                "{\"type\":\"client_candidate\",\"host\":\"%s\","
+                "\"port\":%" PRIu16 ",\"ticket\":\"%s\"}",
+                host, port, ticket);
+    } else if (strcmp(type, "server_candidate") == 0 &&
+               socket_rendezvous_host_valid(host) &&
+               (unsigned int) kind < SOCKET_CANDIDATE_NUM) {
+        length = snprintf(buffer, size,
+                "{\"type\":\"server_candidate\",\"host\":\"%s\","
+                "\"port\":%" PRIu16 ",\"kind\":\"%s\","
+                "\"ticket\":\"%s\"}",
+                host, port, socket_candidate_kind_name(kind), ticket);
+    } else {
+        return false;
+    }
+    return length >= 0 && (size_t) length < size;
+}
+
+bool
+socket_rendezvous_complete_parse (const char *message,
+                                  const char *expected_ticket)
+{
+    char expected[128];
+    return message != NULL &&
+           socket_rendezvous_message_render(VS(expected),
+                                            "complete",
+                                            NULL,
+                                            0,
+                                            SOCKET_CANDIDATE_NUM,
+                                            expected_ticket) &&
+           strcmp(message, expected) == 0;
+}
+
 static bool
 socket_candidate_add (socket_direct_candidate_t *candidates,
                       size_t                     *count,
                       size_t                      capacity,
                       const char                 *host,
                       uint16_t                    port,
-                      const char                 *kind)
+                      socket_candidate_kind_t     kind)
 {
     for (size_t i = 0; i < *count; i++) {
         if (candidates[i].port == port &&
@@ -47,7 +252,7 @@ socket_candidate_add (socket_direct_candidate_t *candidates,
 
     snprintf(VS(candidates[*count].host), "%s", host);
     candidates[*count].port = port;
-    snprintf(VS(candidates[*count].kind), "%s", kind);
+    candidates[*count].kind = kind;
     (*count)++;
     return true;
 }
@@ -182,7 +387,9 @@ socket_local_candidates (uint16_t                    port,
                                          host,
                                          port,
                                          socket_candidate_address_global(
-                                             address) ? "ipv6" : "lan");
+                                             address)
+                                         ? SOCKET_CANDIDATE_IPV6
+                                         : SOCKET_CANDIDATE_LAN);
                 }
             }
         }
@@ -218,7 +425,9 @@ socket_local_candidates (uint16_t                    port,
                                  host,
                                  port,
                                  socket_candidate_address_global(
-                                     entry->ifa_addr) ? "ipv6" : "lan");
+                                     entry->ifa_addr)
+                                 ? SOCKET_CANDIDATE_IPV6
+                                 : SOCKET_CANDIDATE_LAN);
         }
     }
     freeifaddrs(interfaces);
@@ -436,8 +645,8 @@ socket_udp_punch_receive (socket_t *sc,
                     NI_NUMERICHOST | NI_NUMERICSERV) != 0) {
         return false;
     }
-    unsigned long value = strtoul(service, NULL, 10);
-    if (value == 0 || value > UINT16_MAX) {
+    uint64_t value;
+    if (!string_parse_uint64(service, 10, 1, UINT16_MAX, &value)) {
         return false;
     }
     *port = (uint16_t) value;
@@ -452,13 +661,65 @@ socket_udp_punch_now_ms (void)
     return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
 }
 
+static bool
+socket_local_candidate (socket_t *sc,
+                        char     *host,
+                        size_t    host_size,
+                        uint16_t *port)
+{
+    socklen_t peer_length;
+    int family = ((struct sockaddr *) &sc->addr)->sa_family;
+    if (family == AF_INET) {
+        peer_length = sizeof(struct sockaddr_in);
+#ifdef HAVE_IPV6
+    } else if (family == AF_INET6) {
+        peer_length = sizeof(struct sockaddr_in6);
+#endif
+    } else {
+        return false;
+    }
+
+    static const char probe[] = SOCKET_PUNCH_PROBE;
+    if (sendto(sc->handle,
+               probe,
+               sizeof(probe) - 1,
+               0,
+               (const struct sockaddr *) &sc->addr,
+               peer_length) != (ssize_t) (sizeof(probe) - 1)) {
+        return false;
+    }
+
+    struct sockaddr_storage local;
+    socklen_t local_length = sizeof(local);
+    if (getsockname(sc->handle,
+                    (struct sockaddr *) &local,
+                    &local_length) != 0) {
+        return false;
+    }
+    char service[6];
+    if (getnameinfo((const struct sockaddr *) &local,
+                    local_length,
+                    host,
+                    (socklen_t) host_size,
+                    VS(service),
+                    NI_NUMERICHOST | NI_NUMERICSERV) != 0) {
+        return false;
+    }
+    uint64_t value;
+    if (!string_parse_uint64(service, 10, 1, UINT16_MAX, &value)) {
+        return false;
+    }
+    *port = (uint16_t) value;
+    return true;
+}
+
 static void
 socket_udp_punch_schedule (socket_punch_job_t             *jobs,
                            size_t                          capacity,
                            const socket_direct_candidate_t *candidate)
 {
-    if (strcmp(candidate->kind, "mapped") != 0 &&
-        strcmp(candidate->kind, "srflx") != 0) {
+    if (candidate->kind != SOCKET_CANDIDATE_MAPPED &&
+        candidate->kind != SOCKET_CANDIDATE_SRFLX) {
         return;
     }
 
@@ -483,7 +744,7 @@ socket_udp_punch_schedule (socket_punch_job_t             *jobs,
     available->active = true;
     LOG(INFO,
         "Opening a paced UDP path to %s QUIC candidate %s:%" PRIu16,
-        candidate->kind,
+        socket_candidate_kind_name(candidate->kind),
         candidate->host,
         candidate->port);
 }
@@ -535,13 +796,13 @@ socket_udp_punch_collect (socket_t                   *sc,
         bool already_recorded = false;
         bool has_peer_reflexive = false;
         for (size_t i = 0; i < *count; i++) {
-            if (strcmp(candidates[i].kind, "prflx") == 0) {
+            if (candidates[i].kind == SOCKET_CANDIDATE_PRFLX) {
                 has_peer_reflexive = true;
             }
             if (candidates[i].port == port &&
                 strcmp(candidates[i].host, host) == 0) {
-                if (strcmp(candidates[i].kind, "prflx") != 0) {
-                    snprintf(VS(candidates[i].kind), "prflx");
+                if (candidates[i].kind != SOCKET_CANDIDATE_PRFLX) {
+                    candidates[i].kind = SOCKET_CANDIDATE_PRFLX;
                     LOG(INFO,
                         "Confirmed peer-reflexive QUIC candidate %s:%lu "
                         "from a UDP punch",
@@ -562,7 +823,7 @@ socket_udp_punch_collect (socket_t                   *sc,
                              capacity,
                              host,
                              port,
-                             "prflx");
+                             SOCKET_CANDIDATE_PRFLX);
         if (*count != previous_count) {
             LOG(INFO,
                 "Learned peer-reflexive QUIC candidate %s:%lu from a UDP "
@@ -573,8 +834,90 @@ socket_udp_punch_collect (socket_t                   *sc,
     }
 }
 
+bool
+socket_rendezvous_url (const char *base_url,
+                       const char *server_id,
+                       const char *role,
+                       char       *url,
+                       size_t      url_size)
+{
+    HARD_ASSERT(base_url != NULL);
+    HARD_ASSERT(server_id != NULL);
+    HARD_ASSERT(role != NULL);
+    HARD_ASSERT(url != NULL);
+
+    CURLU *parsed = curl_url();
+    char *scheme = NULL;
+    char *rendered = NULL;
+    char path[MAX_BUF];
+    char query[64];
+    bool ok = parsed != NULL &&
+              curl_url_set(parsed, CURLUPART_URL, base_url, 0) == CURLUE_OK &&
+              curl_url_get(parsed, CURLUPART_SCHEME, &scheme, 0) == CURLUE_OK;
+    if (ok) {
+        const char *websocket_scheme = strcmp(scheme, "https") == 0
+            ? "wss" : strcmp(scheme, "http") == 0 ? "ws" : NULL;
+        ok = websocket_scheme != NULL &&
+             snprintf(VS(path), "/v2/rendezvous/%s", server_id) <
+                 (int) sizeof(path) &&
+             snprintf(VS(query), "role=%s", role) < (int) sizeof(query) &&
+             curl_url_set(parsed,
+                          CURLUPART_SCHEME,
+                          websocket_scheme,
+                          0) == CURLUE_OK &&
+             curl_url_set(parsed, CURLUPART_PATH, path, 0) == CURLUE_OK &&
+             curl_url_set(parsed, CURLUPART_QUERY, query, 0) == CURLUE_OK &&
+             curl_url_set(parsed, CURLUPART_FRAGMENT, NULL, 0) == CURLUE_OK &&
+             curl_url_get(parsed, CURLUPART_URL, &rendered, 0) == CURLUE_OK &&
+             snprintf(url, url_size, "%s", rendered) < (int) url_size;
+    }
+
+    curl_free(rendered);
+    curl_free(scheme);
+    curl_url_cleanup(parsed);
+    return ok;
+}
+
 
 #if LIBCURL_VERSION_NUM >= 0x075600
+socket_websocket_receive_state_t
+socket_websocket_receive (void   *handle,
+                          char   *buffer,
+                          size_t  capacity,
+                          size_t *used)
+{
+    HARD_ASSERT(handle != NULL);
+    HARD_ASSERT(buffer != NULL);
+    HARD_ASSERT(used != NULL);
+    if (capacity < 2 || *used >= capacity - 1) {
+        return SOCKET_WEBSOCKET_CLOSED;
+    }
+
+    size_t received = 0;
+    const struct curl_ws_frame *frame = NULL;
+    CURLcode result = curl_ws_recv(handle,
+                                   buffer + *used,
+                                   capacity - 1 - *used,
+                                   &received,
+                                   &frame);
+    if (result == CURLE_AGAIN) {
+        return SOCKET_WEBSOCKET_EMPTY;
+    }
+    if (result != CURLE_OK || frame == NULL ||
+        (frame->flags & CURLWS_CLOSE) != 0 ||
+        (frame->flags & CURLWS_TEXT) == 0 ||
+        received > capacity - 1 - *used) {
+        return SOCKET_WEBSOCKET_CLOSED;
+    }
+
+    *used += received;
+    if (frame->bytesleft != 0) {
+        return SOCKET_WEBSOCKET_PARTIAL;
+    }
+    buffer[*used] = '\0';
+    return SOCKET_WEBSOCKET_MESSAGE;
+}
+
 size_t
 socket_rendezvous_client (socket_t                   *sc,
                           const char                 *url,
@@ -584,11 +927,16 @@ socket_rendezvous_client (socket_t                   *sc,
 {
     char host[65];
     uint16_t port;
-    if (url == NULL || stun_endpoint == NULL ||
-        !socket_stun_discover(sc,
-                              stun_endpoint,
-                              VS(host),
-                              &port)) {
+    if (url == NULL) {
+        return 0;
+    }
+    bool have_candidate = stun_endpoint != NULL &&
+        socket_stun_discover(sc, stun_endpoint, VS(host), &port);
+    if (!have_candidate) {
+        have_candidate = socket_local_candidate(sc, VS(host), &port);
+    }
+    if (!have_candidate) {
+        LOG(ERROR, "Cannot determine a local rendezvous candidate");
         return 0;
     }
 
@@ -620,12 +968,15 @@ socket_rendezvous_client (socket_t                   *sc,
     }
 
     char candidate[256];
-    snprintf(VS(candidate),
-             "{\"type\":\"client_candidate\",\"host\":\"%s\","
-             "\"port\":%" PRIu16 ",\"ticket\":\"%s\"}",
-             host,
-             port,
-             ticket);
+    if (!socket_rendezvous_message_render(VS(candidate),
+                                          "client_candidate",
+                                          host,
+                                          port,
+                                          SOCKET_CANDIDATE_NUM,
+                                          ticket)) {
+        curl_easy_cleanup(curl);
+        return 0;
+    }
     size_t sent = 0;
     result = curl_ws_send(curl,
                           candidate,
@@ -658,14 +1009,9 @@ socket_rendezvous_client (socket_t                   *sc,
                                                      &count,
                                                      capacity);
 
-        size_t received = 0;
-        const struct curl_ws_frame *frame = NULL;
-        result = curl_ws_recv(curl,
-                              response + used,
-                              sizeof(response) - 1 - used,
-                              &received,
-                              &frame);
-        if (result == CURLE_AGAIN) {
+        socket_websocket_receive_state_t receive_state =
+            socket_websocket_receive(curl, VS(response), &used);
+        if (receive_state == SOCKET_WEBSOCKET_EMPTY) {
             TIMER_UPDATE(wait);
             if (TIMER_GET(wait) > 5.0) {
                 break;
@@ -673,52 +1019,27 @@ socket_rendezvous_client (socket_t                   *sc,
             usleep(20000);
             continue;
         }
-        if (result != CURLE_OK || frame == NULL ||
-            (frame->flags & CURLWS_CLOSE) != 0 ||
-            (frame->flags & CURLWS_TEXT) == 0 ||
-            used + received >= sizeof(response) - 1) {
-            break;
-        }
-
-        used += received;
-        if (frame->bytesleft != 0) {
+        if (receive_state == SOCKET_WEBSOCKET_PARTIAL) {
             continue;
         }
-        response[used] = '\0';
-        char response_host[65], kind[16], response_ticket[65];
-        unsigned int response_port;
-        int consumed = 0;
-        if (sscanf(response,
-                   "{\"type\":\"server_candidate\",\"host\":\"%64[0-9a-fA-F:.]\","
-                   "\"port\":%u,\"kind\":\"%15[a-z0-9]\","
-                   "\"ticket\":\"%64[0-9a-f]\"}%n",
-                   response_host,
-                   &response_port,
-                   kind,
-                   response_ticket,
-                   &consumed) == 4 &&
-            response[consumed] == '\0' &&
-            response_port >= 1 && response_port <= UINT16_MAX &&
-            strcmp(response_ticket, ticket) == 0) {
-            socket_direct_candidate_t candidate;
-            snprintf(VS(candidate.host), "%s", response_host);
-            candidate.port = (uint16_t) response_port;
-            snprintf(VS(candidate.kind), "%s", kind);
+        if (receive_state != SOCKET_WEBSOCKET_MESSAGE) {
+            break;
+        }
+        socket_direct_candidate_t parsed_candidate;
+        if (socket_rendezvous_server_candidate_parse(response,
+                                                      ticket,
+                                                      &parsed_candidate)) {
             socket_candidate_add(candidates,
                                  &count,
                                  capacity,
-                                 candidate.host,
-                                 candidate.port,
-                                 candidate.kind);
+                                 parsed_candidate.host,
+                                 parsed_candidate.port,
+                                 parsed_candidate.kind);
             socket_udp_punch_schedule(punch_jobs,
                                       arraysize(punch_jobs),
-                                      &candidate);
+                                      &parsed_candidate);
         } else {
-            char expected[128];
-            snprintf(VS(expected),
-                     "{\"type\":\"complete\",\"ticket\":\"%s\"}",
-                     ticket);
-            complete = strcmp(response, expected) == 0;
+            complete = socket_rendezvous_complete_parse(response, ticket);
         }
         used = 0;
     }
@@ -741,6 +1062,19 @@ socket_rendezvous_client (socket_t                   *sc,
     return complete ? count : 0;
 }
 #else
+socket_websocket_receive_state_t
+socket_websocket_receive (void   *handle,
+                          char   *buffer,
+                          size_t  capacity,
+                          size_t *used)
+{
+    (void) handle;
+    (void) buffer;
+    (void) capacity;
+    (void) used;
+    return SOCKET_WEBSOCKET_CLOSED;
+}
+
 size_t
 socket_rendezvous_client (socket_t                   *sc,
                           const char                 *url,

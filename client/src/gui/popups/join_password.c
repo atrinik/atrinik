@@ -12,6 +12,7 @@
 /** @file Session-only server join-password prompt. */
 
 #include <global.h>
+#include <openssl/crypto.h>
 #include <toolkit/string.h>
 
 static button_struct button_connect;
@@ -75,6 +76,8 @@ popup_event (popup_struct *popup, SDL_Event *event)
         }
 
         if (join_password_server->join_password != NULL) {
+            OPENSSL_cleanse(join_password_server->join_password,
+                            strlen(join_password_server->join_password));
             efree(join_password_server->join_password);
         }
         join_password_server->join_password = estrdup(password_input.str);
@@ -101,6 +104,7 @@ static int
 popup_destroy_callback (popup_struct *popup)
 {
     (void) popup;
+    OPENSSL_cleanse(password_input.str, sizeof(password_input.str));
     text_input_destroy(&password_input);
     button_destroy(&button_connect);
     join_password_popup = NULL;

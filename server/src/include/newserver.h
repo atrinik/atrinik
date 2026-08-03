@@ -114,6 +114,9 @@ typedef struct socket_struct {
      */
     int login_count;
 
+    /** Wall-clock admission time used by the pre-login deadline. */
+    time_t accepted_at;
+
     /** X size of the map the client wants. */
     int mapx;
 
@@ -147,6 +150,11 @@ typedef struct socket_struct {
 
     /** Whether the configured server join password was accepted. */
     bool join_authenticated;
+
+    /** One-second in-band asset transfer budget. */
+    uint64_t asset_window_ms;
+    size_t asset_window_bytes;
+    unsigned int asset_window_requests;
 
     /** Transport route selected for this connection. */
     socket_connection_mode_t connection_mode;

@@ -607,6 +607,34 @@ socket_t *socket_accept(socket_t *sc)
         tmp->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
         tmp->quic = connection;
         tmp->role = sc->role;
+        BIO *network = SSL_get_rbio(connection);
+        BIO_ADDR *peer = BIO_ADDR_new();
+        if (network != NULL && peer != NULL &&
+            BIO_dgram_get_peer(network, peer) > 0) {
+            int family = BIO_ADDR_family(peer);
+            if (family == AF_INET) {
+                struct sockaddr_in *address =
+                    (struct sockaddr_in *) &tmp->addr;
+                size_t address_size = sizeof(address->sin_addr);
+                address->sin_family = AF_INET;
+                address->sin_port = BIO_ADDR_rawport(peer);
+                BIO_ADDR_rawaddress(peer,
+                                    &address->sin_addr,
+                                    &address_size);
+#ifdef HAVE_IPV6
+            } else if (family == AF_INET6) {
+                struct sockaddr_in6 *address =
+                    (struct sockaddr_in6 *) &tmp->addr;
+                size_t address_size = sizeof(address->sin6_addr);
+                address->sin6_family = AF_INET6;
+                address->sin6_port = BIO_ADDR_rawport(peer);
+                BIO_ADDR_rawaddress(peer,
+                                    &address->sin6_addr,
+                                    &address_size);
+#endif
+            }
+        }
+        BIO_ADDR_free(peer);
         if (!socket_connection_id_generate(tmp)) {
             LOG(ERROR, "Failed to generate pending QUIC diagnostic ID");
             socket_destroy(tmp);
@@ -793,6 +821,47 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
     *amt = (size_t) ret;
 
     return true;
+}
+
+bool
+socket_wait (socket_t     *sc,
+             bool          readable,
+             bool          writable,
+             unsigned int  timeout_ms)
+{
+    HARD_ASSERT(sc != NULL);
+    if (sc->handle == -1) {
+        return false;
+    }
+
+    fd_set read_fds, write_fds;
+    FD_ZERO(&read_fds);
+    FD_ZERO(&write_fds);
+    if (readable) {
+        FD_SET(sc->handle, &read_fds);
+    }
+    if (writable) {
+        FD_SET(sc->handle, &write_fds);
+    }
+    struct timeval timeout = {
+        .tv_sec = (long) (timeout_ms / 1000),
+        .tv_usec = (long) ((timeout_ms % 1000) * 1000),
+    };
+    int result = select(sc->handle + 1,
+                        readable ? &read_fds : NULL,
+                        writable ? &write_fds : NULL,
+                        NULL,
+                        &timeout);
+    int error = result < 0 ? s_errno : 0;
+#ifdef WIN32
+    if (result < 0 && error != WSAEINTR) {
+#else
+    if (result < 0 && error != EINTR) {
+#endif
+        LOG(ERROR, "select() failed for %s: %s (%d)",
+            socket_get_id(sc), s_strerror(error), error);
+    }
+    return result > 0;
 }
 
 /**

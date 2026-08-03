@@ -190,63 +190,21 @@ static int popup_draw_post_func(popup_struct *popup)
                       TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER |
                           TEXT_OUTLINE | TEXT_WORD_WRAP,
                       &box);
-        } else if (MapData.region_map->request_png != NULL &&
-                   MapData.region_map->request_def != NULL) {
-            /* Check the status of CDN downloads only when they exist. */
-            curl_state_t state_png =
-                curl_request_get_state(MapData.region_map->request_png);
-            curl_state_t state_def =
-                curl_request_get_state(MapData.region_map->request_def);
-
-            if (state_png == CURL_STATE_ERROR ||
-                state_def == CURL_STATE_ERROR) {
-                curl_request_t *request;
-                if (state_png == CURL_STATE_ERROR) {
-                    request = MapData.region_map->request_png;
-                } else {
-                    request = MapData.region_map->request_def;
-                }
-
-                int http_code = curl_request_get_http_code(request);
-                if (http_code != -1) {
-                    text_show_format(ScreenSurface, FONT_SERIF14,
-                        box.x, box.y,  COLOR_WHITE,
-                        TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE,
-                        &box, "Error: %d", http_code);
-                } else {
-                    text_show(ScreenSurface, FONT_SERIF14,
-                        "Connection timed out.", box.x, box.y, COLOR_WHITE,
-                        TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE,
-                        &box);
-                }
-            } else if (state_png == CURL_STATE_INPROGRESS ||
-                       state_def == CURL_STATE_INPROGRESS) {
-                curl_request_t *request;
-                if (state_png == CURL_STATE_INPROGRESS) {
-                    request = MapData.region_map->request_png;
-                } else {
-                    request = MapData.region_map->request_def;
-                }
-
-                char buf[MAX_BUF];
-                text_show_format(ScreenSurface, FONT_SERIF14,
-                    box.x, box.y, COLOR_WHITE,
-                    TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box,
-                    "Downloading the map, please wait...\n%s",
-                    curl_request_speedinfo(request, VS(buf)));
-            }
-        } else if (MapData.region_map->asset_png != NULL &&
-                   MapData.region_map->asset_def != NULL) {
-            text_show(ScreenSurface,
-                      FONT_SERIF14,
-                      "Downloading the map over the game connection, "
-                      "please wait...",
-                      box.x,
-                      box.y,
-                      COLOR_WHITE,
-                      TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER |
-                          TEXT_OUTLINE | TEXT_WORD_WRAP,
-                      &box);
+        } else if (MapData.region_map->source_png != NULL &&
+                   MapData.region_map->source_def != NULL) {
+            char buf[MAX_BUF];
+            text_show_format(ScreenSurface,
+                             FONT_SERIF14,
+                             box.x,
+                             box.y,
+                             COLOR_WHITE,
+                             TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER |
+                                 TEXT_OUTLINE,
+                             &box,
+                             "Downloading the map, please wait...\n%s",
+                             asset_source_speedinfo(
+                                 MapData.region_map->source_png,
+                                 VS(buf)));
         } else {
             text_show(ScreenSurface,
                       FONT_SERIF14,

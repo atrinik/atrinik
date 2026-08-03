@@ -21,17 +21,10 @@ RUN apt-get update \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-ARG PCPNATPMP_COMMIT=866d283da99f5e98eecff702a8df63e2ae57ffca
-RUN git clone https://github.com/libpcpnatpmp/libpcpnatpmp.git /tmp/libpcpnatpmp \
-    && git -C /tmp/libpcpnatpmp checkout "${PCPNATPMP_COMMIT}" \
-    && cmake -S /tmp/libpcpnatpmp -B /tmp/libpcpnatpmp/build \
-        -DBUILD_SHARED_LIBS=OFF \
-        -DBUILD_CLI_CLIENT=OFF \
-        -DBUILD_SERVER=OFF \
-        -DBUILD_TESTS=OFF \
-    && cmake --build /tmp/libpcpnatpmp/build --parallel \
-    && cmake --install /tmp/libpcpnatpmp/build \
-    && rm -rf /tmp/libpcpnatpmp
+COPY --chmod=0755 dependencies /tmp/atrinik-dependencies
+COPY .devcontainer/windows-cross/libpcpnatpmp-mingw.patch \
+    /tmp/.devcontainer/windows-cross/libpcpnatpmp-mingw.patch
+RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native
 
 WORKDIR /src
 COPY . .
@@ -97,6 +90,7 @@ COPY --from=build /src/build/server-release/server/atrinik-server ./server/atrin
 COPY --from=build /src/build/server-release/server/libplugin_arena.so ./server/libplugin_arena.so
 COPY --from=build /src/build/server-release/server/libplugin_python.so ./server/libplugin_python.so
 COPY --chmod=0755 docker/server-entrypoint.sh /usr/local/bin/atrinik-server-entrypoint
+COPY --chmod=0755 docker/server-healthcheck.sh /usr/local/bin/atrinik-server-healthcheck
 
 RUN mkdir -p server/data \
     && chown -R atrinik:atrinik /opt/atrinik

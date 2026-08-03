@@ -37,6 +37,7 @@
 static int saved_argc; ///< Stored argc.
 static char **saved_argv; ///< Stored argv.
 static enum fork_status fork_st; ///< Current fork status.
+static int failed_tests; ///< Number of failed tests across all suites.
 
 /*
  * Setup function.
@@ -140,7 +141,7 @@ void check_run_suite(Suite *suite, const char *file)
     efree(sub);
 
     srunner_run_all(srunner, CK_ENV);
-    srunner_ntests_failed(srunner);
+    failed_tests += srunner_ntests_failed(srunner);
     srunner_free(srunner);
 }
 
@@ -151,6 +152,7 @@ void check_main(int argc, char **argv)
     int i;
 
     toolkit_import(string);
+    failed_tests = 0;
 
     saved_argc = argc;
     saved_argv = malloc(sizeof(*argv) * argc);
@@ -205,4 +207,8 @@ void check_main(int argc, char **argv)
     }
 
     free(saved_argv);
+
+    if (failed_tests != 0) {
+        exit(EXIT_FAILURE);
+    }
 }

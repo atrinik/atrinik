@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit/string.h>
+#include <openssl/crypto.h>
 #include <toolkit/curl.h>
 #include "metaserver_private.h"
 
@@ -164,7 +165,13 @@ metaserver_server_free (server_struct *server)
         efree(server->quic_certificate_sha256);
     }
 
+    if (server->rendezvous_origin != NULL) {
+        efree(server->rendezvous_origin);
+    }
+
     if (server->join_password != NULL) {
+        OPENSSL_cleanse(server->join_password,
+                        strlen(server->join_password));
         efree(server->join_password);
     }
 
@@ -301,9 +308,19 @@ parse_metaserver_cert (server_struct *server)
         } else if (strcmp(key, "public key") == 0) {
             content = &info->pubkey;
         } else if (strcmp(key, "port") == 0) {
-            info->port = atoi(value);
+            uint64_t parsed;
+            info->port = string_parse_uint64(value,
+                                             10,
+                                             1,
+                                             UINT16_MAX,
+                                             &parsed) ? (int) parsed : 0;
         } else if (strcmp(key, "crypto port") == 0) {
-            info->port_crypto = atoi(value);
+            uint64_t parsed;
+            info->port_crypto = string_parse_uint64(value,
+                                                    10,
+                                                    1,
+                                                    UINT16_MAX,
+                                                    &parsed) ? (int) parsed : 0;
         } else {
             LOG(DEVEL, "Unrecognized key: %s", key);
             continue;
@@ -327,6 +344,7 @@ parse_metaserver_cert (server_struct *server)
     if (info->name == NULL ||
         info->hostname == NULL ||
         info->pubkey == NULL ||
+        info->port <= 0 ||
         info->port_crypto <= 0 ||
         (info->ipv4_address == NULL) != (info->ipv6_address == NULL)) {
         LOG(ERROR,
@@ -393,16 +411,42 @@ parse_metaserver_data_node (xmlNodePtr node, server_struct *server)
         server->hostname = estrdup((const char *) content);
     } else if (XML_STR_EQUAL(node->name, "Port")) {
         SOFT_ASSERT_LABEL(server->port == 0, error, "Parsing error");
-        server->port = atoi((const char *) content);
+        uint64_t value;
+        SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
+                                              10,
+                                              1,
+                                              UINT16_MAX,
+                                              &value),
+                          error,
+                          "Invalid metaserver port");
+        server->port = (int) value;
     } else if (XML_STR_EQUAL(node->name, "PortCrypto")) {
         SOFT_ASSERT_LABEL(server->port_crypto == -1, error, "Parsing error");
-        server->port_crypto = atoi((const char *) content);
+        if (strcmp((const char *) content, "-1") != 0) {
+            uint64_t value;
+            SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
+                                                  10,
+                                                  1,
+                                                  UINT16_MAX,
+                                                  &value),
+                              error,
+                              "Invalid metaserver crypto port");
+            server->port_crypto = (int) value;
+        }
     } else if (XML_STR_EQUAL(node->name, "Name")) {
         SOFT_ASSERT_LABEL(server->name == NULL, error, "Parsing error");
         server->name = estrdup((const char *) content);
     } else if (XML_STR_EQUAL(node->name, "PlayersCount")) {
         SOFT_ASSERT_LABEL(server->player == 0, error, "Parsing error");
-        server->player = atoi((const char *) content);
+        uint64_t value;
+        SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
+                                              10,
+                                              0,
+                                              INT_MAX,
+                                              &value),
+                          error,
+                          "Invalid metaserver player count");
+        server->player = (int) value;
     } else if (XML_STR_EQUAL(node->name, "Version")) {
         SOFT_ASSERT_LABEL(server->version == NULL, error, "Parsing error");
         server->version = estrdup((const char *) content);
@@ -602,43 +646,19 @@ out:
 
 
 bool
-metaserver_rendezvous_url (const char *server_id, char *url, size_t url_size)
+metaserver_rendezvous_url (const server_struct *server,
+                           char                *url,
+                           size_t               url_size)
 {
-    if (server_id == NULL || clioption_settings.metaservers_num == 0) {
+    if (server == NULL || server->server_id == NULL ||
+        server->rendezvous_origin == NULL) {
         return false;
     }
-
-    char origin[MAX_BUF];
-    snprintf(VS(origin),
-             "%s",
-             clioption_settings.metaservers[
-                 clioption_settings.metaservers_num - 1]);
-    char *authority = strstr(origin, "://");
-    if (authority == NULL) {
-        return false;
-    }
-    char *path = strchr(authority + 3, '/');
-    if (path != NULL) {
-        *path = '\0';
-    }
-
-    const char *scheme;
-    if (strncmp(origin, "https://", 8) == 0) {
-        scheme = "wss";
-        memmove(origin, origin + 8, strlen(origin + 8) + 1);
-    } else if (strncmp(origin, "http://", 7) == 0) {
-        scheme = "ws";
-        memmove(origin, origin + 7, strlen(origin + 7) + 1);
-    } else {
-        return false;
-    }
-
-    return snprintf(url,
-                    url_size,
-                    "%s://%s/v2/rendezvous/%s?role=client",
-                    scheme,
-                    origin,
-                    server_id) < (int) url_size;
+    return socket_rendezvous_url(server->rendezvous_origin,
+                                 server->server_id,
+                                 "client",
+                                 url,
+                                 url_size);
 }
 
 /**
@@ -856,7 +876,9 @@ int metaserver_thread(void *dummy)
             curl_request_do_get(direct);
             body = curl_request_get_body(direct, &body_size);
             if (curl_request_get_http_code(direct) == 200 && body != NULL) {
-                metaserver_direct_parse(body, body_size);
+                metaserver_direct_parse(body,
+                                        body_size,
+                                        clioption_settings.metaservers[i - 1]);
             } else {
                 LOG(INFO, "Direct server directory is unavailable");
             }

@@ -12,7 +12,9 @@ fi
 mkdir -p data/http data/tmp
 cp -R install_data/http/. data/http/
 
-if [ -n "${ATRINIK_JOIN_PASSWORD:-}" ]; then
+if [ -r "${ATRINIK_JOIN_PASSWORD_FILE:-/run/secrets/atrinik_join_password}" ]; then
+    set -- --join_password_file="${ATRINIK_JOIN_PASSWORD_FILE:-/run/secrets/atrinik_join_password}" "$@"
+elif [ -n "${ATRINIK_JOIN_PASSWORD:-}" ]; then
     set -- --join_password="${ATRINIK_JOIN_PASSWORD}" "$@"
 fi
 

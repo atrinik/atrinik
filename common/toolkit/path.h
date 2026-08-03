@@ -72,5 +72,10 @@ char *
 path_file_contents(const char *path);
 int
 path_rename(const char *old, const char *new);
+bool
+path_write_atomic(const char *path,
+                  const void *data,
+                  size_t      size,
+                  unsigned int mode);
 
 #endif

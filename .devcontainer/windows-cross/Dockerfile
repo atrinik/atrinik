@@ -52,7 +52,6 @@ RUN apt-get update \
 ARG MXE_REF=0b88e56678ee5b2afe9c294e53a23c9d8ac30a15
 ARG MXE_BUILD_JOBS=2
 ARG MINIUPNPC_COMMIT=bf4215a7574f88aa55859db9db00e3ae58cf42d6
-ARG PCPNATPMP_COMMIT=866d283da99f5e98eecff702a8df63e2ae57ffca
 ARG PYTHON_VERSION=3.14.6
 ARG PYTHON_EMBED_SHA256=df901e84a896ff1ee720ad03377e0c8d8c2244fda79808aeeaff6316df1cb75c
 ARG PYTHON_SOURCE_SHA256=143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63
@@ -95,21 +94,10 @@ RUN git clone https://github.com/miniupnp/miniupnp.git /tmp/miniupnp \
     && cmake --install /tmp/miniupnp-build \
     && rm -rf /tmp/miniupnp /tmp/miniupnp-build
 
-COPY .devcontainer/windows-cross/libpcpnatpmp-mingw.patch \
-    /tmp/libpcpnatpmp-mingw.patch
-RUN git clone https://github.com/libpcpnatpmp/libpcpnatpmp.git /tmp/libpcpnatpmp \
-    && git -C /tmp/libpcpnatpmp checkout "${PCPNATPMP_COMMIT}" \
-    && git -C /tmp/libpcpnatpmp apply /tmp/libpcpnatpmp-mingw.patch \
-    && x86_64-w64-mingw32.shared-cmake \
-        -S /tmp/libpcpnatpmp \
-        -B /tmp/libpcpnatpmp-build \
-        -DBUILD_SHARED_LIBS=OFF \
-        -DBUILD_CLI_CLIENT=OFF \
-        -DBUILD_SERVER=OFF \
-        -DBUILD_TESTS=OFF \
-    && cmake --build /tmp/libpcpnatpmp-build --parallel "${MXE_BUILD_JOBS}" \
-    && cmake --install /tmp/libpcpnatpmp-build \
-    && rm -rf /tmp/libpcpnatpmp /tmp/libpcpnatpmp-build
+COPY --chown=vscode:vscode --chmod=0755 dependencies /tmp/atrinik-dependencies
+COPY --chown=vscode:vscode .devcontainer/windows-cross/libpcpnatpmp-mingw.patch \
+    /tmp/.devcontainer/windows-cross/libpcpnatpmp-mingw.patch
+RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh mingw "${MXE_BUILD_JOBS}"
 
 RUN mkdir -p "${ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR}" /tmp/python-sdk \
     && wget -q \
@@ -151,17 +139,4 @@ RUN apt-get update \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/libpcpnatpmp/libpcpnatpmp.git \
-        /tmp/libpcpnatpmp-native \
-    && git -C /tmp/libpcpnatpmp-native checkout "${PCPNATPMP_COMMIT}" \
-    && /usr/bin/cmake \
-        -S /tmp/libpcpnatpmp-native \
-        -B /tmp/libpcpnatpmp-native/build \
-        -DBUILD_SHARED_LIBS=OFF \
-        -DBUILD_CLI_CLIENT=OFF \
-        -DBUILD_SERVER=OFF \
-        -DBUILD_TESTS=OFF \
-    && /usr/bin/cmake --build /tmp/libpcpnatpmp-native/build \
-        --parallel "${MXE_BUILD_JOBS}" \
-    && /usr/bin/cmake --install /tmp/libpcpnatpmp-native/build \
-    && rm -rf /tmp/libpcpnatpmp-native
+RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native "${MXE_BUILD_JOBS}"

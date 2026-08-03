@@ -161,9 +161,14 @@ static bool
 metaserver_rendezvous_send_complete (CURL *curl, const char *ticket)
 {
     char complete[128];
-    snprintf(VS(complete),
-             "{\"type\":\"complete\",\"ticket\":\"%s\"}",
-             ticket);
+    if (!socket_rendezvous_message_render(VS(complete),
+                                          "complete",
+                                          NULL,
+                                          0,
+                                          SOCKET_CANDIDATE_NUM,
+                                          ticket)) {
+        return false;
+    }
     size_t sent = 0;
     return curl_ws_send(curl,
                         complete,
@@ -300,44 +305,25 @@ reconnect:
             break;
         }
 
-        size_t received = 0;
-        const struct curl_ws_frame *frame = NULL;
-        result = curl_ws_recv(curl,
-                              message + used,
-                              sizeof(message) - 1 - used,
-                              &received,
-                              &frame);
-        if (result == CURLE_AGAIN) {
+        socket_websocket_receive_state_t receive_state =
+            socket_websocket_receive(curl, VS(message), &used);
+        if (receive_state == SOCKET_WEBSOCKET_EMPTY) {
             usleep(20000);
             continue;
         }
-        if (result != CURLE_OK || frame == NULL ||
-            (frame->flags & CURLWS_CLOSE) != 0) {
-            break;
-        }
-        if ((frame->flags & CURLWS_TEXT) == 0 ||
-            used + received >= sizeof(message) - 1) {
-            break;
-        }
-
-        used += received;
-        if (frame->bytesleft != 0) {
+        if (receive_state == SOCKET_WEBSOCKET_PARTIAL) {
             continue;
         }
-        message[used] = '\0';
+        if (receive_state != SOCKET_WEBSOCKET_MESSAGE) {
+            break;
+        }
 
         char host[65], ticket[65];
-        unsigned int port;
-        int consumed = 0;
-        if (sscanf(message,
-                   "{\"type\":\"client_candidate\",\"host\":\"%64[0-9a-fA-F:.]\","
-                   "\"port\":%u,\"ticket\":\"%64[0-9a-f]\"}%n",
-                   host,
-                   &port,
-                   ticket,
-                   &consumed) == 3 &&
-            message[consumed] == '\0' &&
-            port >= 1 && port <= UINT16_MAX) {
+        uint16_t port;
+        if (socket_rendezvous_client_candidate_parse(message,
+                                                      VS(host),
+                                                      &port,
+                                                      ticket)) {
             socket_direct_candidate_t
                 candidates[SOCKET_DIRECT_MAX_CANDIDATES];
             size_t count = socket_server_quic_candidates(
@@ -345,14 +331,15 @@ reconnect:
                 arraysize(candidates));
             for (size_t i = 0; i < count; i++) {
                 char response[256];
-                snprintf(VS(response),
-                         "{\"type\":\"server_candidate\","
-                         "\"host\":\"%s\",\"port\":%" PRIu16 ","
-                         "\"kind\":\"%s\",\"ticket\":\"%s\"}",
-                         candidates[i].host,
-                         candidates[i].port,
-                         candidates[i].kind,
-                         ticket);
+                if (!socket_rendezvous_message_render(
+                        VS(response),
+                        "server_candidate",
+                        candidates[i].host,
+                        candidates[i].port,
+                        candidates[i].kind,
+                        ticket)) {
+                    break;
+                }
                 size_t sent = 0;
                 if (curl_ws_send(curl,
                                  response,
@@ -366,12 +353,12 @@ reconnect:
             }
 
             LOG(INFO,
-                "Opening a rendezvous UDP path to client candidate %s:%u",
+                "Opening a rendezvous UDP path to client candidate %s:%" PRIu16,
                 host,
                 port);
             if (!metaserver_rendezvous_punch_schedule(punch_jobs,
                                                        host,
-                                                       (uint16_t) port,
+                                                       port,
                                                        ticket)) {
                 LOG(ERROR, "Rendezvous UDP punch queue is full");
                 metaserver_rendezvous_send_complete(curl, ticket);
@@ -403,34 +390,11 @@ metaserver_rendezvous_url (char       *url,
         return false;
     }
 
-    char origin[MAX_BUF];
-    snprintf(VS(origin), "%s", settings.metaserver_url);
-    char *authority = strstr(origin, "://");
-    if (authority == NULL) {
-        return false;
-    }
-    char *path = strchr(authority + 3, '/');
-    if (path != NULL) {
-        *path = '\0';
-    }
-
-    const char *scheme;
-    if (strncmp(origin, "https://", 8) == 0) {
-        scheme = "wss";
-        memmove(origin, origin + 8, strlen(origin + 8) + 1);
-    } else if (strncmp(origin, "http://", 7) == 0) {
-        scheme = "ws";
-        memmove(origin, origin + 7, strlen(origin + 7) + 1);
-    } else {
-        return false;
-    }
-
-    return snprintf(url,
-                    url_size,
-                    "%s://%s/v2/rendezvous/%s?role=server",
-                    scheme,
-                    origin,
-                    quic_fingerprint) < (int) url_size;
+    return socket_rendezvous_url(settings.metaserver_url,
+                                 quic_fingerprint,
+                                 "server",
+                                 url,
+                                 url_size);
 }
 
 static void

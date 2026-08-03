@@ -34,6 +34,7 @@
 
 #include <toolkit/curl.h>
 #include <asset.h>
+#include <asset_source.h>
 
 /** Default zoom level. */
 #define RM_ZOOM_DEFAULT 100
@@ -224,21 +225,11 @@ typedef struct region_map {
      */
     SDL_Rect pos;
 
-    /**
-     * cURL request for downloading the region map image.
-     */
-    curl_request_t *request_png;
+    /** HTTP-first image download with in-band QUIC fallback. */
+    asset_source_t *source_png;
 
-    /**
-     * cURL request for downloading the region definitions.
-     */
-    curl_request_t *request_def;
-
-    /** In-band QUIC request for the region map image. */
-    asset_request_t *asset_png;
-
-    /** In-band QUIC request for the region definitions. */
-    asset_request_t *asset_def;
+    /** HTTP-first definition download with in-band QUIC fallback. */
+    asset_source_t *source_def;
 
     /** Name used to retry a failed CDN request over QUIC. */
     char download_name[MAX_BUF];

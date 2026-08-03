@@ -1,5 +1,6 @@
 set(SOURCES
 	src/client/asset.c
+	src/client/asset_source.c
 	src/client/animations.c
 	src/client/client.c
 	src/client/cmd_aliases.c

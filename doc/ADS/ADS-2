@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.3: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.4: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -751,9 +751,9 @@
   - cached_size (uint32):
      Size of the client's persistent cached copy, or zero when there is no
      cached copy. This field MUST be zero on continuation requests.
-  - cached_crc32 (uint32):
-     CRC32 of the client's persistent cached copy, initialized with 1, or zero
-     when there is no cached copy. This field MUST be zero on continuation
+  - cached_digest (32 bytes):
+     SHA-256 digest of the client's persistent cached copy, or 32 zero bytes
+     when there is no cached copy. This field MUST be all zero on continuation
      requests.
 
  When offset is zero and both cached fields match the current server file, the
@@ -881,7 +881,8 @@
      The path from the corresponding request.
 
  NOT_FOUND and NOT_MODIFIED end after path. NOT_MODIFIED is valid only when
- the client supplied a cached size and CRC32 that match the current asset.
+ the client supplied a cached size and SHA-256 digest that match the current
+ asset.
 
  An OK response continues with these fields:
 
@@ -889,17 +890,19 @@
      Complete asset size.
   - offset (uint32):
      Offset of this chunk.
-  - crc32 (uint32):
-     CRC32 of the complete asset, initialized with 1, on the response whose
-     offset is zero. Continuation responses use zero.
+  - digest (32 bytes):
+     SHA-256 digest of the complete asset. Every OK chunk carries the same
+     digest, allowing the client to reject a response that changes mid-stream.
   - data (bytes):
      Up to 60000 asset bytes.
 
  The client MUST request continuation chunks until total_size bytes have been
  received. Assets larger than 128 MiB MUST be rejected. Before making the data
  available or replacing its persistent cache, the client MUST calculate the
- complete CRC32 and reject a mismatch. Cached assets are scoped to the selected
- server host and port so unrelated server entries cannot collide.
+ complete SHA-256 digest and reject a mismatch. Cache replacement MUST use a
+ same-directory temporary file with exclusive creation followed by an atomic
+ rename. Cached assets are scoped to the selected server host and port so
+ unrelated server entries cannot collide.
 
 ===============================================================================
 = 5. Authors                                                                  =

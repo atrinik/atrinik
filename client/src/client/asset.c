@@ -18,6 +18,7 @@
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
 #include <toolkit/string.h>
+#include <openssl/evp.h>
 
 struct asset_request {
     UT_hash_handle hh;
@@ -27,8 +28,8 @@ struct asset_request {
     size_t size;
     size_t received;
     size_t references;
-    uint32_t cached_checksum;
-    uint32_t expected_checksum;
+    uint8_t cached_digest[ASSET_DIGEST_SIZE];
+    uint8_t expected_digest[ASSET_DIGEST_SIZE];
     bool cache_loaded;
     asset_request_state_t state;
 };
@@ -43,6 +44,7 @@ asset_request_send (asset_request_t *request)
         request->path,
         (uint64_t) request->received);
     packet_struct *packet = packet_new(SERVER_CMD_ASSET, 128, 128);
+    static const uint8_t empty_digest[ASSET_DIGEST_SIZE];
     socket_asset_request_append(
         packet,
         request->path,
@@ -50,7 +52,7 @@ asset_request_send (asset_request_t *request)
         request->received == 0 && request->cache_loaded ?
         (uint32_t) request->size : 0,
         request->received == 0 && request->cache_loaded ?
-        request->cached_checksum : 0);
+        request->cached_digest : empty_digest);
     socket_send_packet(packet);
 }
 
@@ -88,17 +90,23 @@ asset_request_cache_load (asset_request_t *request)
     data[(size_t) sb.st_size] = '\0';
     request->data = data;
     request->size = (size_t) sb.st_size;
-    request->cached_checksum = (uint32_t) crc32(
-        1L,
-        (const unsigned char FAR *) request->data,
-        (uInt) request->size);
+    unsigned int digest_size = 0;
+    if (EVP_Digest(request->data,
+                   request->size,
+                   request->cached_digest,
+                   &digest_size,
+                   EVP_sha256(),
+                   NULL) != 1 || digest_size != ASSET_DIGEST_SIZE) {
+        efree(request->data);
+        request->data = NULL;
+        request->size = 0;
+        return;
+    }
     request->cache_loaded = true;
     LOG(DEBUG,
-        "Loaded cached QUIC asset %s (%" PRIu64 " bytes, CRC32 %" PRIu32
-        ")",
+        "Loaded cached QUIC asset %s (%" PRIu64 " bytes)",
         request->path,
-        (uint64_t) request->size,
-        request->cached_checksum);
+        (uint64_t) request->size);
 }
 
 static void
@@ -108,19 +116,12 @@ asset_request_cache_save (const asset_request_t *request)
         return;
     }
 
-    FILE *fp = path_fopen(request->cache_path, "wb");
-    if (fp == NULL) {
-        LOG(ERROR,
-            "Could not open QUIC asset cache %s for writing",
-            request->cache_path);
-        return;
-    }
-
-    bool success = fwrite(request->data, 1, request->size, fp) ==
-        request->size;
-    if (fclose(fp) != 0) {
-        success = false;
-    }
+    char *path = file_path(request->cache_path, "wb");
+    bool success = path_write_atomic(path,
+                                     request->data,
+                                     request->size,
+                                     0600);
+    efree(path);
     if (!success) {
         LOG(ERROR,
             "Could not write QUIC asset cache %s",
@@ -289,7 +290,15 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
         }
         request->size = 0;
         request->cache_loaded = false;
-        request->expected_checksum = response.checksum;
+        memcpy(request->expected_digest,
+               response.digest,
+               ASSET_DIGEST_SIZE);
+    } else if (memcmp(request->expected_digest,
+                      response.digest,
+                      ASSET_DIGEST_SIZE) != 0) {
+        LOG(ERROR, "Rejected changing QUIC asset digest for %s", response.path);
+        request->state = ASSET_REQUEST_ERROR;
+        return;
     }
 
     if (request->data == NULL) {
@@ -304,17 +313,19 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
     request->data[request->received] = '\0';
 
     if (request->received == request->size) {
-        uint32_t actual_checksum = (uint32_t) crc32(
-            1L,
-            (const unsigned char FAR *) request->data,
-            (uInt) request->size);
-        if (actual_checksum != request->expected_checksum) {
-            LOG(ERROR,
-                "Rejected QUIC asset %s: expected CRC32 %" PRIu32
-                ", received %" PRIu32,
-                response.path,
-                request->expected_checksum,
-                actual_checksum);
+        uint8_t actual_digest[ASSET_DIGEST_SIZE];
+        unsigned int digest_size = 0;
+        if (EVP_Digest(request->data,
+                       request->size,
+                       actual_digest,
+                       &digest_size,
+                       EVP_sha256(),
+                       NULL) != 1 ||
+            digest_size != ASSET_DIGEST_SIZE ||
+            memcmp(actual_digest,
+                   request->expected_digest,
+                   ASSET_DIGEST_SIZE) != 0) {
+            LOG(ERROR, "Rejected QUIC asset %s: SHA-256 mismatch", response.path);
             request->state = ASSET_REQUEST_ERROR;
             return;
         }

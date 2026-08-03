@@ -148,7 +148,7 @@ popup_draw_func (popup_struct *popup)
     box.h = painting_data->coords.h;
 
     if (!resources_is_ready(resource)) {
-        if (resource->request == NULL) {
+        if (resource->source == NULL) {
             text_show(popup->surface,
                       FONT_SERIF16,
                       "Painting download failed.",
@@ -161,7 +161,6 @@ popup_draw_func (popup_struct *popup)
         }
 
         char buf[MAX_BUF];
-        curl_request_speedinfo(resource->request, VS(buf));
         text_show_format(popup->surface,
                          FONT_SERIF16,
                          25,
@@ -170,7 +169,7 @@ popup_draw_func (popup_struct *popup)
                          TEXT_OUTLINE | TEXT_VALIGN_CENTER | TEXT_ALIGN_CENTER,
                          &box,
                          "Downloading data, please wait...\n%s",
-                         buf);
+                         asset_source_speedinfo(resource->source, VS(buf)));
 
         return 1;
     }

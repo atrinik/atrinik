@@ -31,6 +31,7 @@
  */
 
 #include <global.h>
+#include <toolkit/path.h>
 #include <toolkit/string.h>
 #include <toolkit/packet.h>
 #include <toolkit/socket_crypto.h>
@@ -120,6 +121,10 @@ static uint64_t quic_punches_echoed;
  * List of client sockets that are not yet playing.
  */
 static csocket_entry_t *client_sockets;
+static size_t client_sockets_count;
+
+#define SOCKET_PENDING_CONNECTIONS_MAX 128U
+#define SOCKET_PRELOGIN_TIMEOUT 30
 
 /**
  * Defines all the possible socket commands.
@@ -437,8 +442,8 @@ TOOLKIT_INIT_FUNC(socket_server)
             snprintf(VS(quic_candidates[quic_candidate_count].host),
                      "%s", mapped_host);
             quic_candidates[quic_candidate_count].port = mapped_port;
-            snprintf(VS(quic_candidates[quic_candidate_count].kind),
-                     "mapped");
+            quic_candidates[quic_candidate_count].kind =
+                SOCKET_CANDIDATE_MAPPED;
             quic_candidate_count++;
         }
 
@@ -459,8 +464,8 @@ TOOLKIT_INIT_FUNC(socket_server)
                 snprintf(VS(quic_candidates[quic_candidate_count].host),
                          "%s", stun_host);
                 quic_candidates[quic_candidate_count].port = stun_port;
-                snprintf(VS(quic_candidates[quic_candidate_count].kind),
-                         "srflx");
+                quic_candidates[quic_candidate_count].kind =
+                    SOCKET_CANDIDATE_SRFLX;
                 quic_candidate_count++;
             }
             if (*quic_public_host == '\0' &&
@@ -481,8 +486,8 @@ TOOLKIT_INIT_FUNC(socket_server)
             snprintf(VS(quic_candidates[quic_candidate_count].host),
                      "%s", stun_host);
             quic_candidates[quic_candidate_count].port = stun_port;
-            snprintf(VS(quic_candidates[quic_candidate_count].kind),
-                     "ipv6");
+            quic_candidates[quic_candidate_count].kind =
+                SOCKET_CANDIDATE_IPV6;
             quic_candidate_count++;
         } else if (*quic_public_host == '\0') {
             if (strcmp(settings.port_mapping, "off") == 0 &&
@@ -505,7 +510,7 @@ TOOLKIT_INIT_FUNC(socket_server)
         if (*quic_public_host == '\0') {
             for (size_t i = 0; i < quic_candidate_count; i++) {
                 struct in6_addr address6;
-                if (strcmp(quic_candidates[i].kind, "ipv6") == 0 &&
+                if (quic_candidates[i].kind == SOCKET_CANDIDATE_IPV6 &&
                     inet_pton(AF_INET6,
                               quic_candidates[i].host,
                               &address6) == 1) {
@@ -520,13 +525,14 @@ TOOLKIT_INIT_FUNC(socket_server)
         for (size_t i = 0; i < quic_candidate_count; i++) {
             LOG(INFO,
                 "Direct %s candidate: %s:%" PRIu16,
-                quic_candidates[i].kind,
+                socket_candidate_kind_name(quic_candidates[i].kind),
                 quic_candidates[i].host,
                 quic_candidates[i].port);
         }
     }
 
     client_sockets = NULL;
+    client_sockets_count = 0;
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -698,13 +704,20 @@ socket_server_handle_command (socket_struct *cs,
 static void
 socket_server_csocket_create (socket_t *server_socket)
 {
-    csocket_entry_t *entry = ecalloc(1, sizeof(*entry));
-    entry->cs = ecalloc(1, sizeof(*entry->cs));
-    entry->cs->sc = socket_accept(server_socket);
-    if (entry->cs->sc == NULL) {
-        efree(entry);
+    socket_t *accepted = socket_accept(server_socket);
+    if (accepted == NULL) {
         return;
     }
+    if (client_sockets_count >= SOCKET_PENDING_CONNECTIONS_MAX) {
+        LOG(ERROR,
+            "Rejecting connection: pending login limit (%u) reached",
+            SOCKET_PENDING_CONNECTIONS_MAX);
+        socket_destroy(accepted);
+        return;
+    }
+    csocket_entry_t *entry = ecalloc(1, sizeof(*entry));
+    entry->cs = ecalloc(1, sizeof(*entry->cs));
+    entry->cs->sc = accepted;
 
     init_connection(entry->cs);
     if (!socket_is_quic(entry->cs->sc)) {
@@ -715,6 +728,7 @@ socket_server_csocket_create (socket_t *server_socket)
                 socket_connection_mode_get(entry->cs->sc)));
     }
     DL_APPEND(client_sockets, entry);
+    client_sockets_count++;
 }
 
 /**
@@ -729,6 +743,8 @@ socket_server_csocket_free (csocket_entry_t *entry)
     HARD_ASSERT(entry != NULL);
     free_newsocket(entry->cs);
     DL_DELETE(client_sockets, entry);
+    HARD_ASSERT(client_sockets_count != 0);
+    client_sockets_count--;
     efree(entry);
 }
 
@@ -771,6 +787,19 @@ socket_server_player_find (socket_struct *cs)
         }
     }
     return NULL;
+}
+
+static bool
+socket_server_quic_network_ready (socket_t *sc)
+{
+    for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
+        if (quic_server_sockets[i] != NULL &&
+            socket_fd(quic_server_sockets[i]) == socket_fd(sc) &&
+            FD_ISSET(socket_fd(sc), &fds_read)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -842,6 +871,8 @@ socket_server_remove (socket_struct *cs)
     DL_FOREACH_SAFE(client_sockets, entry, tmp) {
         if (entry->cs == cs) {
             DL_DELETE(client_sockets, entry);
+            HARD_ASSERT(client_sockets_count != 0);
+            client_sockets_count--;
             efree(entry);
             return true;
         }
@@ -1004,6 +1035,21 @@ socket_server_csocket_write (socket_struct *cs)
 void
 socket_server_process (void)
 {
+    static time_t heartbeat_last;
+    time_t now = time(NULL);
+    if (heartbeat_last == 0 || now - heartbeat_last >= 5) {
+        char path[HUGE_BUF];
+        char heartbeat[64];
+        snprintf(VS(path), "%s/tmp/server-heartbeat", settings.datapath);
+        int length = snprintf(VS(heartbeat), "%" PRIu64 "\n", (uint64_t) now);
+        if (length > 0 && (size_t) length < sizeof(heartbeat) &&
+                path_write_atomic(path,
+                                  heartbeat,
+                                  (size_t) length,
+                                  0600)) {
+            heartbeat_last = now;
+        }
+    }
     socket_port_mapping_process();
     FD_ZERO(&fds_read);
     FD_ZERO(&fds_write);
@@ -1037,6 +1083,13 @@ socket_server_process (void)
 
     csocket_entry_t *entry, *entry_tmp;
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {
+        if (entry->cs->accepted_at != 0 &&
+            time(NULL) - entry->cs->accepted_at >= SOCKET_PRELOGIN_TIMEOUT) {
+            LOG(SYSTEM,
+                "Connection %s exceeded the pre-login deadline",
+                socket_get_id(entry->cs->sc));
+            entry->cs->state = ST_DEAD;
+        }
         if (unlikely(!socket_is_fd_valid(entry->cs->sc))) {
             LOG(ERROR, "Invalid waiting socket: %s",
                 socket_get_id(entry->cs->sc));
@@ -1171,6 +1224,12 @@ socket_server_process (void)
                 continue;
             }
             socket_struct *cs = entry->cs;
+            if (!socket_quic_service(
+                    cs->sc,
+                    socket_server_quic_network_ready(cs->sc),
+                    cs->packets != NULL)) {
+                continue;
+            }
             socket_server_csocket_read(cs);
             entry = socket_server_csocket_find(cs);
             if (entry == NULL) {
@@ -1214,6 +1273,12 @@ socket_server_process (void)
                 continue;
             }
             socket_struct *cs = pl->cs;
+            if (!socket_quic_service(
+                    cs->sc,
+                    socket_server_quic_network_ready(cs->sc),
+                    cs->packets != NULL)) {
+                continue;
+            }
             socket_server_csocket_read(cs);
             pl = socket_server_player_find(cs);
             if (pl == NULL) {

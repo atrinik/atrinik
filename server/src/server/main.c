@@ -600,11 +600,11 @@ int main(int argc, char **argv)
         LOG(INFO, "Running plugin unit tests...");
         object *activator = player_get_dummy(PLAYER_TESTING_NAME1, NULL);
         object *me = player_get_dummy(PLAYER_TESTING_NAME2, NULL);
-        trigger_unit_event(activator, me);
+        int failed = trigger_unit_event(activator, me);
 
         if (!settings.unit_tests) {
             cleanup();
-            exit(0);
+            exit(failed == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
         }
     }
 

@@ -37,10 +37,8 @@
 /** The server files. */
 static server_files_struct *server_files;
 
-/** CDN listing request. */
-static curl_request_t *listing_request = NULL;
-/** In-band QUIC listing request. */
-static asset_request_t *listing_asset_request = NULL;
+/** HTTP-first listing request with in-band QUIC fallback. */
+static asset_source_t *listing_source;
 
 /**
  * Initialize the server files API.
@@ -82,24 +80,13 @@ server_files_init (void)
 void
 server_files_deinit (void)
 {
-    if (listing_request != NULL) {
-        curl_request_free(listing_request);
-        listing_request = NULL;
-    }
-    if (listing_asset_request != NULL) {
-        asset_request_free(listing_asset_request);
-        listing_asset_request = NULL;
-    }
+    asset_source_free(listing_source);
+    listing_source = NULL;
 
     server_files_struct *curr, *tmp;
     HASH_ITER(hh, server_files, curr, tmp) {
         HASH_DEL(server_files, curr);
-        if (curr->request != NULL) {
-            curl_request_free(curr->request);
-        }
-        if (curr->asset_request != NULL) {
-            asset_request_free(curr->asset_request);
-        }
+        asset_source_free(curr->source);
         efree(curr->name);
         efree(curr);
     }
@@ -223,30 +210,11 @@ server_files_load (int post_load)
 void
 server_files_listing_retrieve (void)
 {
-    if (listing_request != NULL) {
-        curl_request_free(listing_request);
-        listing_request = NULL;
-    }
-    if (listing_asset_request != NULL) {
-        asset_request_free(listing_asset_request);
-        listing_asset_request = NULL;
-    }
-
-    if (*cpl.http_url != '\0') {
-        char url[HUGE_BUF];
-        snprintf(VS(url), "%s/%s/%s",
-                 cpl.http_url,
-                 SERVER_FILES_HTTP_DIR,
-                 SERVER_FILES_HTTP_LISTING);
-        listing_request =
-            curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-        curl_request_start_get(listing_request);
-    } else {
-        listing_asset_request = asset_request_start("data/listing.txt");
-        if (listing_asset_request == NULL) {
-            LOG(ERROR, "No CDN URL or QUIC asset transport is available");
-            cpl.state = ST_INIT;
-        }
+    asset_source_free(listing_source);
+    listing_source = asset_source_start("data/listing.txt", NULL);
+    if (asset_source_get_state(listing_source) == ASSET_SOURCE_ERROR) {
+        LOG(ERROR, "No CDN URL or QUIC asset transport is available");
+        cpl.state = ST_INIT;
     }
 }
 
@@ -261,29 +229,15 @@ server_files_listing_processed (void)
     const uint8_t *body = NULL;
     size_t body_size = 0;
 
-    if (listing_request != NULL) {
-        curl_state_t state = curl_request_get_state(listing_request);
-        if (state == CURL_STATE_INPROGRESS) {
-            return 0;
-        }
-        if (state == CURL_STATE_OK) {
-            body = (const uint8_t *)
-                curl_request_get_body(listing_request, &body_size);
-        } else if (cpl.asset_transport) {
-            curl_request_free(listing_request);
-            listing_request = NULL;
-            listing_asset_request = asset_request_start("data/listing.txt");
-            return 0;
-        }
-    } else if (listing_asset_request != NULL) {
-        asset_request_state_t state =
-            asset_request_get_state(listing_asset_request);
-        if (state == ASSET_REQUEST_PENDING) {
-            return 0;
-        }
-        if (state == ASSET_REQUEST_COMPLETE) {
-            body = asset_request_get_data(listing_asset_request, &body_size);
-        }
+    if (listing_source == NULL) {
+        return 0;
+    }
+    asset_source_state_t state = asset_source_get_state(listing_source);
+    if (state == ASSET_SOURCE_PENDING) {
+        return 0;
+    }
+    if (state == ASSET_SOURCE_COMPLETE) {
+        body = asset_source_get_data(listing_source, &body_size);
     }
 
     if (body == NULL) {
@@ -306,8 +260,15 @@ server_files_listing_processed (void)
             continue;
         }
 
-        unsigned long crc = strtoul(cps[1], NULL, 16);
-        size_t fsize = strtoul(cps[2], NULL, 16);
+        uint64_t crc_value;
+        uint64_t size_value;
+        if (!string_parse_uint64(cps[1], 16, 0, UINT32_MAX, &crc_value) ||
+                !string_parse_uint64(cps[2], 16, 0, SIZE_MAX, &size_value)) {
+            LOG(ERROR, "Invalid asset manifest entry for %s", cps[0]);
+            continue;
+        }
+        unsigned long crc = (unsigned long) crc_value;
+        size_t fsize = (size_t) size_value;
 
         if (tmp->crc32 != crc || tmp->size != fsize) {
             tmp->update = 1;
@@ -328,14 +289,8 @@ server_files_listing_processed (void)
     }
     efree(manifest);
 
-    if (listing_request != NULL) {
-        curl_request_free(listing_request);
-        listing_request = NULL;
-    }
-    if (listing_asset_request != NULL) {
-        asset_request_free(listing_asset_request);
-        listing_asset_request = NULL;
-    }
+    asset_source_free(listing_source);
+    listing_source = NULL;
 
     return 1;
 }
@@ -356,51 +311,21 @@ server_file_process (server_files_struct *tmp)
     }
 
     if (tmp->update == 1) {
-        if (*cpl.http_url != '\0') {
-            char url[MAX_BUF];
-            snprintf(VS(url), "%s/%s/%s.zz",
-                     cpl.http_url,
-                     SERVER_FILES_HTTP_DIR,
-                     tmp->name);
-            tmp->request =
-                curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-            curl_request_start_get(tmp->request);
-        } else {
-            char asset[MAX_BUF];
-            snprintf(VS(asset), "data/%s.zz", tmp->name);
-            tmp->asset_request = asset_request_start(asset);
-        }
+        char asset[MAX_BUF];
+        snprintf(VS(asset), "data/%s.zz", tmp->name);
+        tmp->source = asset_source_start(asset, NULL);
         tmp->update = -1;
         return 1;
     }
 
     const uint8_t *body = NULL;
     size_t body_size = 0;
-    if (tmp->request != NULL) {
-        curl_state_t state = curl_request_get_state(tmp->request);
-        if (state == CURL_STATE_INPROGRESS) {
-            return 1;
-        }
-        if (state == CURL_STATE_OK) {
-            body = (const uint8_t *)
-                curl_request_get_body(tmp->request, &body_size);
-        } else if (cpl.asset_transport) {
-            curl_request_free(tmp->request);
-            tmp->request = NULL;
-            char asset[MAX_BUF];
-            snprintf(VS(asset), "data/%s.zz", tmp->name);
-            tmp->asset_request = asset_request_start(asset);
-            return 1;
-        }
-    } else if (tmp->asset_request != NULL) {
-        asset_request_state_t state =
-            asset_request_get_state(tmp->asset_request);
-        if (state == ASSET_REQUEST_PENDING) {
-            return 1;
-        }
-        if (state == ASSET_REQUEST_COMPLETE) {
-            body = asset_request_get_data(tmp->asset_request, &body_size);
-        }
+    asset_source_state_t source_state = asset_source_get_state(tmp->source);
+    if (source_state == ASSET_SOURCE_PENDING) {
+        return 1;
+    }
+    if (source_state == ASSET_SOURCE_COMPLETE) {
+        body = asset_source_get_data(tmp->source, &body_size);
     }
 
     if (body == NULL) {
@@ -423,14 +348,8 @@ server_file_process (server_files_struct *tmp)
     }
 
     tmp->update = 0;
-    if (tmp->request != NULL) {
-        curl_request_free(tmp->request);
-        tmp->request = NULL;
-    }
-    if (tmp->asset_request != NULL) {
-        asset_request_free(tmp->asset_request);
-        tmp->asset_request = NULL;
-    }
+    asset_source_free(tmp->source);
+    tmp->source = NULL;
 
     return 0;
 }
@@ -527,24 +446,11 @@ server_file_save (server_files_struct *tmp, unsigned char *data, size_t len)
 {
     char path[MAX_BUF];
     server_file_path(tmp, VS(path));
-
-    FILE *fp = path_fopen(path, "wb");
-    if (fp == NULL) {
-        LOG(ERROR, "Could not open %s for writing.", path);
-        return false;
+    char *resolved = file_path(path, "wb");
+    bool ok = path_write_atomic(resolved, data, len, 0600);
+    efree(resolved);
+    if (!ok) {
+        LOG(ERROR, "Could not atomically write %s.", path);
     }
-
-    bool ret = true;
-
-    if (fwrite(data, 1, len, fp) != len) {
-        LOG(ERROR, "Failed to write to %s.", path);
-        ret = false;
-    }
-
-    if (fclose(fp) != 0) {
-        LOG(ERROR, "Could not close %s.", path);
-        ret = false;
-    }
-
-    return ret;
+    return ok;
 }

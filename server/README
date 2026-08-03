@@ -106,9 +106,12 @@
 
  By default, QUIC clients download the manifest, required game data, resources,
  and region maps over the established game connection. The optional HTTP
- server/CDN path is described in section 2.2. Region maps are cached per server;
- later QUIC requests send the cached size and CRC32 so an unchanged map is
- confirmed without retransmitting its contents.
+ server/CDN path is described in section 2.2. At startup the server reads each
+ immutable allowed asset once, computes its SHA-256 digest, and keeps both bytes
+ and digest in memory. Region maps are cached per server; later QUIC requests
+ send the cached size and digest so an unchanged map is confirmed without
+ retransmitting its contents. Restart after changing collected assets so the
+ server publishes a new immutable snapshot.
 
 =================================================
 = 2.1. Configuring the server                   =
@@ -187,7 +190,15 @@
   $ docker compose -f compose.server.yaml down
 
  The server-data/ folder is preserved by 'down' and can be backed up with
- ordinary filesystem tools.
+ ordinary filesystem tools. The container health check verifies both that the
+ server process exists and that its game-loop heartbeat is no more than 60
+ seconds old; a wedged process therefore becomes unhealthy even if PID 1 still
+ exists.
+
+ For a private server, mount a Docker secret or another mode-0600 file and set
+ `ATRINIK_JOIN_PASSWORD_FILE` to its container path. The entrypoint prefers that
+ file over `ATRINIK_JOIN_PASSWORD`, avoiding disclosure through the container
+ environment. Native deployments can use `--join_password_file=PATH`.
 
  For a public direct server, set ATRINIK_SERVER_PUBLIC=true and optionally
  ATRINIK_JOIN_PASSWORD. No hostname or HTTP URL is required. Large dedicated
@@ -248,14 +259,18 @@
   server_name = Your Server Name
   server_desc = Private server for friends
   port_quic = 1730
-  stun_server = stun.cloudflare.com:3478
+  stun_server = off
   port_mapping = auto
   join_password = choose-a-long-password
 
  'server_public' is opt-in. If false, the server is not returned by the public
  directory. The join password is verified by the game server over encrypted
  QUIC; the metaserver receives only the boolean fact that a password is
- required.
+ required. Failed attempts are compared in constant time and limited per peer
+ to five per minute, with a 256-per-minute server-wide ceiling. Use a long
+ randomly generated password and prefer
+ `join_password_file`/`--join_password_file` over command-line or environment
+ values.
 
  Connectivity modes:
   - direct_only: QUIC plus rendezvous; no legacy gameplay listener is needed.
@@ -265,14 +280,17 @@
 
  The server advertises same-LAN and direct global IPv6 addresses, tries PCP
  with automatic NAT-PMP negotiation and UPnP IGD to create and renew a UDP
- router mapping, and uses STUN for a server-reflexive fallback. Rendezvous
+ router mapping, and optionally uses configured STUN for a server-reflexive
+ fallback. Rendezvous
  opens a bounded bilateral punch window before QUIC checks begin. Both sides
  send ten paced probes over approximately one second. The QUIC listener
  recognizes an incoming probe before OpenSSL, logs its actual source, and
  replies one-for-one so the client can learn a peer-reflexive server endpoint.
- The client preserves its STUN-created IPv4 socket while checking IPv6. A
- private intermediate router mapping remains a candidate but is not published
- as the public directory endpoint; ULA IPv6 addresses are classified as LAN.
+ The client races candidate handshakes concurrently, preferring LAN and global
+ IPv6 routes by default. Its STUN-created IPv4 socket is retained for the
+ highest-priority NAT-derived candidate. A private intermediate router mapping
+ remains a candidate but is not published as the public directory endpoint;
+ ULA IPv6 addresses are classified as LAN.
  Only a completed, certificate-pinned QUIC handshake confirms that any
  candidate is usable.
 
@@ -286,7 +304,12 @@ The client log lists every candidate attempt and the selected route. Operators
 with the `stats` or `/stats` command permission also see each player's reported
 mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
 ...)`. This is client-reported diagnostic metadata, not an authorization
-signal.
+ signal.
+
+ STUN is disabled by default so neither client nor server contacts an implicit
+ third party. Operators who want server-reflexive discovery can set
+ `stun_server` to a provider they trust; automatic router mapping and direct
+ LAN/IPv6/directory candidates do not require it.
 
  Direct servers are identified by their QUIC certificate fingerprint rather
  than a DNS hostname. If crypto_cert and crypto_cert_key are configured, that
@@ -298,9 +321,14 @@ signal.
  Asset requests use the same punched QUIC connection as gameplay by default.
  Setting http_url enables a separate CDN path and makes it the preferred asset
  source, with automatic QUIC fallback. QUIC region-map responses are verified
- by CRC32 and stored in the client's per-server cache; matching cached files
+ by SHA-256 and stored in the client's per-server cache; matching cached files
  receive a compact not-modified response. The metaserver never carries assets
  or live game traffic.
+
+ The startup asset snapshot accepts files up to 128 MiB and at most 1 GiB in
+ aggregate. Each authenticated connection is limited to 256 asset requests and
+ 8 MiB of asset payload per second. These bounds protect the game loop; use the
+ optional HTTPS CDN path when a deployment needs higher bulk-transfer capacity.
 
 =================================================
 = 3. Running a public server                    =

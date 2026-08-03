@@ -72,6 +72,9 @@ struct curl_request {
     /** Size of the data. */
     size_t body_size;
 
+    /** Maximum accepted response-body size. */
+    size_t max_body_size;
+
     /** HTTP headers. */
     char *header;
 
@@ -542,6 +545,12 @@ curl_load_cache (curl_request_t *request)
         goto fail;
     }
 
+    if (statbuf.st_size < 0 ||
+        (uint64_t) statbuf.st_size > request->max_body_size) {
+        LOG(ERROR, "Cached response exceeds its configured body limit");
+        goto fail;
+    }
+
     size_t size = statbuf.st_size;
     buffer = emalloc(size + 1);
     if (fread(buffer, 1, size, fp) != size) {
@@ -613,19 +622,10 @@ curl_write_cache (curl_request_t *request)
         }
     }
 
-    FILE *fp = path_fopen(request->path, "wb");
-    if (fp != NULL) {
-        if (fwrite(request->body,
-                   1,
-                   request->body_size,
-                   fp) != request->body_size) {
-            LOG(ERROR, "Failed to save %s: %d (%s)",
-                request->path, errno, strerror(errno));
-            etag = NULL;
-        }
-
-        fclose(fp);
-    } else {
+    if (!path_write_atomic(request->path,
+                           request->body,
+                           request->body_size,
+                           0600)) {
         LOG(ERROR, "Failed to open %s for saving: %d (%s)",
             request->path, errno, strerror(errno));
         etag = NULL;
@@ -634,15 +634,7 @@ curl_write_cache (curl_request_t *request)
     if (etag != NULL) {
         char path[HUGE_BUF];
         snprintf(VS(path), "%s.etag", request->path);
-        fp = path_fopen(path, "w");
-        if (fp != NULL) {
-            if (fputs(etag, fp) == EOF) {
-                LOG(ERROR, "Failed to save %s: %d (%s)",
-                    path, errno, strerror(errno));
-            }
-
-            fclose(fp);
-        } else {
+        if (!path_write_atomic(path, etag, strlen(etag), 0600)) {
             LOG(ERROR, "Failed to open %s for saving: %d (%s)",
                 path, errno, strerror(errno));
         }
@@ -671,6 +663,7 @@ curl_request_create (const char *url, curl_pkey_trust_t trust)
     /* coverity[missing_lock] */
     request->state = CURL_STATE_INPROGRESS;
     request->trust = trust;
+    request->max_body_size = SIZE_MAX;
 
     /* Create a mutex to protect the structure. */
     pthread_mutex_init(&request->mutex, NULL);
@@ -727,6 +720,19 @@ curl_request_set_path (curl_request_t *request, const char *path)
     }
 
     request->path = estrdup(path);
+}
+
+/** Set the largest response body this request may retain. */
+void
+curl_request_set_max_body (curl_request_t *request, size_t maximum)
+{
+    HARD_ASSERT(request != NULL);
+    HARD_ASSERT(maximum > 0);
+    TOOLKIT_PROTECT();
+
+    pthread_mutex_lock(&request->mutex);
+    request->max_body_size = maximum;
+    pthread_mutex_unlock(&request->mutex);
 }
 
 /**
@@ -1245,6 +1251,13 @@ curl_callback (char *buffer, size_t size, size_t nitems, void *userdata)
 
     size_t realsize = size * nitems;
 
+    if ((size != 0 && realsize / size != nitems) ||
+        realsize > request->max_body_size - request->body_size) {
+        LOG(ERROR, "HTTP response exceeds configured body limit");
+        pthread_mutex_unlock(&request->mutex);
+        return 0;
+    }
+
     if (process_cb != NULL) {
         process_cb(CURL_REQUEST_PROCESS_RX, realsize);
     }
@@ -1368,6 +1381,12 @@ curl_request_setup (curl_request_t *request)
      * for details. */
     CURL_SETOPT(request->handle, CURLOPT_NOSIGNAL, 1);
     CURL_SETOPT(request->handle, CURLOPT_FOLLOWLOCATION, 1);
+
+    if (request->max_body_size != SIZE_MAX) {
+        CURL_SETOPT(request->handle,
+                    CURLOPT_MAXFILESIZE_LARGE,
+                    (curl_off_t) request->max_body_size);
+    }
 
     /* Register a progress function so that we can quit the thread if
      * we need to. */

@@ -28,6 +28,7 @@
  */
 
 #include <stdarg.h>
+#include <errno.h>
 
 #include "toolkit.h"
 #include "string.h"
@@ -1130,6 +1131,32 @@ char *string_last(const char *haystack, const char *needle)
     } while (cp-- != haystack);
 
     return NULL;
+}
+
+/**
+ * Parse an unsigned integer without accepting signs, whitespace, trailing
+ * data or overflow.
+ */
+bool string_parse_uint64(const char *str, int base, uint64_t minimum,
+        uint64_t maximum, uint64_t *result)
+{
+    HARD_ASSERT(result != NULL);
+
+    if (str == NULL || *str == '\0' || isspace((unsigned char) *str) ||
+            *str == '+' || *str == '-') {
+        return false;
+    }
+
+    errno = 0;
+    char *end = NULL;
+    unsigned long long value = strtoull(str, &end, base);
+    if (errno == ERANGE || end == str || *end != '\0' ||
+            value < minimum || value > maximum) {
+        return false;
+    }
+
+    *result = (uint64_t) value;
+    return true;
 }
 
 #endif

@@ -70,6 +70,7 @@ typedef struct server_struct {
     /** Stable direct-connect identifier and pinned QUIC certificate. */
     char *server_id;
     char *quic_certificate_sha256;
+    char *rendezvous_origin;
 
     bool direct:1;
     bool password_required:1;

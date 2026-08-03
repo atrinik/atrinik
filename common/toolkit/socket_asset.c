@@ -22,12 +22,12 @@ socket_asset_request_append (packet_struct *packet,
                              const char    *path,
                              uint32_t       offset,
                              uint32_t       cached_size,
-                             uint32_t       cached_checksum)
+                             const uint8_t  cached_digest[ASSET_DIGEST_SIZE])
 {
     packet_append_string_terminated(packet, path);
     packet_append_uint32(packet, offset);
     packet_append_uint32(packet, cached_size);
-    packet_append_uint32(packet, cached_checksum);
+    packet_append_data_len(packet, cached_digest, ASSET_DIGEST_SIZE);
 }
 
 bool
@@ -38,16 +38,22 @@ socket_asset_request_parse (uint8_t                *data,
 {
     if (data == NULL || request == NULL || pos > len ||
         packet_to_string(data, len, &pos, VS(request->path)) == NULL ||
-        len - pos != 12) {
+        len - pos != 8 + ASSET_DIGEST_SIZE) {
         return false;
     }
 
     request->offset = packet_to_uint32(data, len, &pos);
     request->cached_size = packet_to_uint32(data, len, &pos);
-    request->cached_checksum = packet_to_uint32(data, len, &pos);
+    memcpy(request->cached_digest, data + pos, ASSET_DIGEST_SIZE);
+    pos += ASSET_DIGEST_SIZE;
+
+    static const uint8_t empty_digest[ASSET_DIGEST_SIZE];
     return *request->path != '\0' &&
            (request->offset == 0 ||
-            (request->cached_size == 0 && request->cached_checksum == 0));
+            (request->cached_size == 0 &&
+             memcmp(request->cached_digest,
+                    empty_digest,
+                    ASSET_DIGEST_SIZE) == 0));
 }
 
 void
@@ -64,14 +70,14 @@ socket_asset_response_append_ok (packet_struct *packet,
                                  const char    *path,
                                  uint32_t       total_size,
                                  uint32_t       offset,
-                                 uint32_t       checksum,
+                                 const uint8_t  digest[ASSET_DIGEST_SIZE],
                                  const uint8_t *data,
                                  size_t         data_size)
 {
     socket_asset_response_append_status(packet, ASSET_STATUS_OK, path);
     packet_append_uint32(packet, total_size);
     packet_append_uint32(packet, offset);
-    packet_append_uint32(packet, checksum);
+    packet_append_data_len(packet, digest, ASSET_DIGEST_SIZE);
     packet_append_data_len(packet, data, data_size);
 }
 
@@ -98,19 +104,20 @@ socket_asset_response_parse (uint8_t                 *data,
         response->status == ASSET_STATUS_NOT_MODIFIED) {
         return pos == len;
     }
-    if (response->status != ASSET_STATUS_OK || len - pos < 12) {
+    if (response->status != ASSET_STATUS_OK ||
+        len - pos < 8 + ASSET_DIGEST_SIZE) {
         return false;
     }
 
     response->total_size = packet_to_uint32(data, len, &pos);
     response->offset = packet_to_uint32(data, len, &pos);
-    response->checksum = packet_to_uint32(data, len, &pos);
+    memcpy(response->digest, data + pos, ASSET_DIGEST_SIZE);
+    pos += ASSET_DIGEST_SIZE;
     response->data = data + pos;
     response->data_size = len - pos;
 
     return response->total_size <= ASSET_MAX_SIZE &&
            response->offset <= response->total_size &&
-           (response->offset == 0 || response->checksum == 0) &&
            response->data_size <= ASSET_CHUNK_SIZE &&
            response->data_size <= response->total_size - response->offset;
 }

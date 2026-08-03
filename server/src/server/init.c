@@ -48,6 +48,7 @@
 #include <toolkit/console.h>
 #include <toolkit/datetime.h>
 #include <cmake.h>
+#include <openssl/crypto.h>
 
 /**
  * The server's settings.
@@ -197,6 +198,7 @@ void cleanup(void)
     remove_plugins();
     player_deinit();
     account_deinit();
+    socket_assets_deinit();
     resources_deinit();
     free_all_maps();
     free_style_maps();
@@ -214,6 +216,7 @@ void cleanup(void)
     object_deinit();
     metaserver_deinit();
     party_deinit();
+    OPENSSL_cleanse(settings.join_password, sizeof(settings.join_password));
     free_settings();
     toolkit_deinit();
     free_object_loader();
@@ -531,8 +534,38 @@ clioptions_option_join_password (const char *arg,
         return false;
     }
 
+    OPENSSL_cleanse(settings.join_password, sizeof(settings.join_password));
     snprintf(VS(settings.join_password), "%s", arg);
     return true;
+}
+
+static const char *clioptions_option_join_password_file_desc =
+"Read the private server password from a file.";
+
+static bool
+clioptions_option_join_password_file (const char *arg,
+                                      char      **errmsg)
+{
+    FILE *fp = fopen(arg, "rb");
+    if (fp == NULL) {
+        string_fmt(*errmsg, "Cannot open join password file: %s", arg);
+        return false;
+    }
+
+    char password[MAX_BUF];
+    bool ok = fgets(VS(password), fp) != NULL;
+    if (fclose(fp) != 0) {
+        ok = false;
+    }
+    if (!ok) {
+        OPENSSL_cleanse(password, sizeof(password));
+        *errmsg = estrdup("Cannot read join password file");
+        return false;
+    }
+    password[strcspn(password, "\r\n")] = '\0';
+    ok = clioptions_option_join_password(password, errmsg);
+    OPENSSL_cleanse(password, sizeof(password));
+    return ok;
 }
 
 /**
@@ -1099,6 +1132,9 @@ static void init_library(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "STUN discovery endpoint");
     CLIOPTIONS_CREATE_ARGUMENT(cli, port_mapping, "Router port mapping policy");
     CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
+    CLIOPTIONS_CREATE_ARGUMENT(cli,
+                               join_password_file,
+                               "Private server password file");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_public, "Public server listing");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_name, "Name of the server");
@@ -1219,13 +1255,15 @@ static void init_library(int argc, char *argv[])
     curl_set_data_dir(settings.datapath);
     socket_crypto_set_path(settings.datapath);
 
-    /* Import game APIs that need settings. The world maker only reads game
-     * data and writes files; starting listeners here makes generation fail if
-     * another server instance is already using the configured ports. */
+    /* Import game APIs that need settings. The world maker and test modes do
+     * not serve clients; starting listeners for them adds an unnecessary
+     * network dependency and can collide with a running server. */
     toolkit_import(ban);
     toolkit_import(faction);
 
-    if (!settings.world_maker) {
+    if (!settings.world_maker &&
+        !settings.unit_tests &&
+        !settings.plugin_unit_tests) {
         toolkit_import(socket_server);
         toolkit_import(http_server);
     }
@@ -1247,6 +1285,12 @@ static void init_library(int argc, char *argv[])
     init_clocks();
     account_init();
     resources_init();
+    if (!settings.world_maker &&
+        !settings.unit_tests &&
+        !settings.plugin_unit_tests &&
+        strcmp(settings.connectivity_mode, "legacy_tcp") != 0) {
+        socket_assets_init();
+    }
 }
 
 /**

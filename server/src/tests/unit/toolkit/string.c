@@ -902,6 +902,26 @@ START_TEST(test_string_last)
 }
 END_TEST
 
+START_TEST(test_string_parse_uint64)
+{
+    uint64_t value;
+    ck_assert(string_parse_uint64("65535", 10, 1, 65535, &value));
+    ck_assert_uint_eq(value, 65535);
+    ck_assert(string_parse_uint64("ffffffff", 16, 0, UINT32_MAX, &value));
+    ck_assert_uint_eq(value, UINT32_MAX);
+    ck_assert(!string_parse_uint64("", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64("-1", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64(" 1", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64("1x", 10, 0, UINT64_MAX, &value));
+    ck_assert(!string_parse_uint64("65536", 10, 1, 65535, &value));
+    ck_assert(!string_parse_uint64("18446744073709551616",
+                                   10,
+                                   0,
+                                   UINT64_MAX,
+                                   &value));
+}
+END_TEST
+
 static Suite *suite(void)
 {
     Suite *s = suite_create("string");
@@ -943,6 +963,7 @@ static Suite *suite(void)
     tcase_add_test(tc_core, test_string_fromhex);
     tcase_add_test(tc_core, test_string_skip_whitespace);
     tcase_add_test(tc_core, test_string_last);
+    tcase_add_test(tc_core, test_string_parse_uint64);
 
     return s;
 }

@@ -2304,7 +2304,7 @@ static int handle_unit_event(va_list args)
 {
     PythonContext *context = malloc(sizeof(*context));
     if (context == NULL) {
-        return 0;
+        return 1;
     }
 
     context->activator = va_arg(args, object *);
@@ -2319,12 +2319,15 @@ static int handle_unit_event(va_list args)
     context->options = NULL;
     context->returnvalue = 0;
 
+    int failed = 0;
     if (do_script(context, "/python/events/python_unit.py")) {
         context = popContext();
+    } else {
+        failed = 1;
     }
 
     freeContext(context);
-    return 0;
+    return failed;
 }
 
 MODULEAPI void *triggerEvent(int *type, ...)

@@ -116,7 +116,9 @@ extern server_struct *server_get_id(size_t num);
 bool
 metaserver_cert_verify_host(server_struct *server, const char *host);
 bool
-metaserver_rendezvous_url(const char *server_id, char *url, size_t url_size);
+metaserver_rendezvous_url(const server_struct *server,
+                          char                *url,
+                          size_t               url_size);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
@@ -196,7 +198,6 @@ extern bool client_socket_open(client_socket_t *csock,
                                int              port,
                                bool             secure,
                                const char      *quic_certificate_sha256,
-                               const char      *server_id,
                                socket_connection_preference_t preference);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);

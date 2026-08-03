@@ -32,6 +32,7 @@
 
 #include <toolkit/curl.h>
 #include <asset.h>
+#include <asset_source.h>
 
 #define SERVER_FILES_HTTP_DIR       "data"
 #define SERVER_FILES_HTTP_LISTING   "listing.txt"
@@ -67,11 +68,8 @@ typedef struct server_files_struct {
     /** Calculated checksum. */
     unsigned long crc32;
 
-    /** Preferred CDN request, when an HTTP URL is configured. */
-    curl_request_t *request;
-
-    /** In-band QUIC fallback request. */
-    asset_request_t *asset_request;
+    /** HTTP-first download with in-band QUIC fallback. */
+    asset_source_t *source;
 
     /** Init-time function. */
     void (*init_func)(void);

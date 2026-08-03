@@ -63,17 +63,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         libasound2-plugins \
         pulseaudio-utils
 
-ARG PCPNATPMP_COMMIT=866d283da99f5e98eecff702a8df63e2ae57ffca
-RUN git clone https://github.com/libpcpnatpmp/libpcpnatpmp.git /tmp/libpcpnatpmp \
-    && git -C /tmp/libpcpnatpmp checkout "${PCPNATPMP_COMMIT}" \
-    && cmake -S /tmp/libpcpnatpmp -B /tmp/libpcpnatpmp/build \
-        -DBUILD_SHARED_LIBS=OFF \
-        -DBUILD_CLI_CLIENT=OFF \
-        -DBUILD_SERVER=OFF \
-        -DBUILD_TESTS=OFF \
-    && cmake --build /tmp/libpcpnatpmp/build --parallel \
-    && cmake --install /tmp/libpcpnatpmp/build \
-    && rm -rf /tmp/libpcpnatpmp
+COPY --chmod=0755 dependencies /tmp/atrinik-dependencies
+COPY .devcontainer/windows-cross/libpcpnatpmp-mingw.patch \
+    /tmp/.devcontainer/windows-cross/libpcpnatpmp-mingw.patch
+RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native
 
 # Ubuntu packages fd as "fdfind" to avoid a naming conflict. Provide the
 # conventional command name expected by editor integrations and CLI tooling.

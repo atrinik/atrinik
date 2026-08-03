@@ -277,7 +277,15 @@ static int reader_thread_loop(void *dummy)
             break;
         }
         if (amt == 0) {
-            SDL_Delay(1);
+            SDL_LockMutex(socket_mutex);
+            if (csocket.sc != NULL) {
+                /* The mutex is shared with the writer, so cap the wait even
+                 * when OpenSSL has no earlier event deadline. */
+                unsigned int timeout = socket_quic_timeout(csocket.sc, 50);
+                bool ready = socket_wait(csocket.sc, true, false, timeout);
+                socket_quic_service(csocket.sc, ready, false);
+            }
+            SDL_UnlockMutex(socket_mutex);
             continue;
         }
 
@@ -346,7 +354,13 @@ static int writer_thread_loop(void *dummy)
                 break;
             }
             if (amt == 0) {
-                SDL_Delay(1);
+                SDL_LockMutex(socket_mutex);
+                if (csocket.sc != NULL) {
+                    unsigned int timeout = socket_quic_timeout(csocket.sc, 50);
+                    bool ready = socket_wait(csocket.sc, true, true, timeout);
+                    socket_quic_service(csocket.sc, ready, true);
+                }
+                SDL_UnlockMutex(socket_mutex);
                 continue;
             }
 
@@ -497,7 +511,6 @@ client_socket_open (client_socket_t *csock,
                     int              port,
                     bool             secure,
                     const char      *quic_certificate_sha256,
-                    const char      *server_id,
                     socket_connection_preference_t preference)
 {
     HARD_ASSERT(csock != NULL);
@@ -506,13 +519,13 @@ client_socket_open (client_socket_t *csock,
     if (quic_certificate_sha256 != NULL) {
         char rendezvous_url[HUGE_BUF];
         const char *rendezvous = metaserver_rendezvous_url(
-            server_id,
+            selected_server,
             VS(rendezvous_url)) ? rendezvous_url : NULL;
         csock->sc = socket_quic_client_create(host,
                                               port,
                                               quic_certificate_sha256,
                                               rendezvous,
-                                              "stun.cloudflare.com:3478",
+                                              clioption_settings.stun_server,
                                               preference);
     } else {
         csock->sc = socket_create(host,

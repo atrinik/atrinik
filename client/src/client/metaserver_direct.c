@@ -8,6 +8,7 @@
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <curl/curl.h>
 
 #define XML_STR_EQUAL(s1, s2) \
     xmlStrEqual((const xmlChar *) s1, (const xmlChar *) s2)
@@ -61,7 +62,13 @@ parse_direct_server_field (xmlNodePtr node, server_struct *server)
             server->hostname = estrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "Port")) {
-        server->port = atoi(value);
+        uint64_t port;
+        if (!string_parse_uint64(value, 10, 1, UINT16_MAX, &port) ||
+                server->port != 0) {
+            ok = false;
+        } else {
+            server->port = (int) port;
+        }
     } else if (XML_STR_EQUAL(node->name, "Name")) {
         if (server->name != NULL) {
             ok = false;
@@ -69,7 +76,12 @@ parse_direct_server_field (xmlNodePtr node, server_struct *server)
             server->name = estrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "PlayersCount")) {
-        server->player = atoi(value);
+        uint64_t players;
+        if (!string_parse_uint64(value, 10, 0, INT_MAX, &players)) {
+            ok = false;
+        } else {
+            server->player = (int) players;
+        }
     } else if (XML_STR_EQUAL(node->name, "Version")) {
         if (server->version != NULL) {
             ok = false;
@@ -104,12 +116,13 @@ parse_direct_server_field (xmlNodePtr node, server_struct *server)
 }
 
 static void
-parse_direct_server (xmlNodePtr node)
+parse_direct_server (xmlNodePtr node, const char *origin)
 {
     server_struct *server = ecalloc(1, sizeof(*server));
     server->port_crypto = -1;
     server->is_meta = true;
     server->direct = true;
+    server->rendezvous_origin = estrdup(origin);
 
     for (xmlNodePtr field = node->children;
          field != NULL;
@@ -141,7 +154,9 @@ error:
 }
 
 bool
-metaserver_direct_parse (const char *body, size_t body_size)
+metaserver_direct_parse (const char *body,
+                         size_t      body_size,
+                         const char *origin)
 {
     xmlDocPtr doc = xmlReadMemory(body,
                                   body_size,
@@ -171,7 +186,7 @@ metaserver_direct_parse (const char *body, size_t body_size)
     for (xmlNodePtr node = root->children; node != NULL; node = node->next) {
         if (node->type == XML_ELEMENT_NODE &&
             XML_STR_EQUAL(node->name, "Server")) {
-            parse_direct_server(node);
+            parse_direct_server(node, origin);
         }
     }
 
@@ -182,11 +197,17 @@ metaserver_direct_parse (const char *body, size_t body_size)
 void
 metaserver_direct_url (const char *legacy_url, char *url, size_t url_size)
 {
-    snprintf(url, url_size, "%s", legacy_url);
-    char *scheme = strstr(url, "://");
-    char *path = scheme != NULL ? strchr(scheme + 3, '/') : NULL;
-    if (path != NULL) {
-        *path = '\0';
+    CURLU *parsed = curl_url();
+    char *rendered = NULL;
+    bool ok = parsed != NULL &&
+              curl_url_set(parsed, CURLUPART_URL, legacy_url, 0) == CURLUE_OK &&
+              curl_url_set(parsed, CURLUPART_PATH, "/v2/servers", 0) == CURLUE_OK &&
+              curl_url_set(parsed, CURLUPART_QUERY, NULL, 0) == CURLUE_OK &&
+              curl_url_set(parsed, CURLUPART_FRAGMENT, NULL, 0) == CURLUE_OK &&
+              curl_url_get(parsed, CURLUPART_URL, &rendered, 0) == CURLUE_OK;
+    snprintf(url, url_size, "%s", ok ? rendered : "");
+    curl_free(rendered);
+    if (parsed != NULL) {
+        curl_url_cleanup(parsed);
     }
-    snprintfcat(url, url_size, "/v2/servers");
 }

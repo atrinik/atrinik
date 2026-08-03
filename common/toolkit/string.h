@@ -136,6 +136,8 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result,
 size_t string_fromhex(const char *str, size_t len, unsigned char *result,
         size_t resultsize);
 char *string_last(const char *haystack, const char *needle);
+bool string_parse_uint64(const char *str, int base, uint64_t minimum,
+        uint64_t maximum, uint64_t *result);
 
 #ifndef NDEBUG
 #define string_sub(_str, _start, _end) \

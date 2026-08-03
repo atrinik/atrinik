@@ -10,6 +10,7 @@ services:
       ATRINIK_SERVER_PUBLIC: ${ATRINIK_SERVER_PUBLIC:-false}
       ATRINIK_SERVER_HOST: ${ATRINIK_SERVER_HOST:-}
       ATRINIK_JOIN_PASSWORD: ${ATRINIK_JOIN_PASSWORD:-}
+      ATRINIK_JOIN_PASSWORD_FILE: ${ATRINIK_JOIN_PASSWORD_FILE:-/run/secrets/atrinik_join_password}
       ATRINIK_NETWORK_STACK: ${ATRINIK_NETWORK_STACK:-dual}
       ATRINIK_PORT_MAPPING: ${ATRINIK_PORT_MAPPING:-auto}
       ATRINIK_QUIC_PORT: ${ATRINIK_QUIC_PORT:-1730}
@@ -22,7 +23,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 30s
     healthcheck:
-      test: ["CMD", "sh", "-c", "kill -0 1"]
+      test: ["CMD", "/usr/local/bin/atrinik-server-healthcheck"]
       interval: 30s
       timeout: 5s
       retries: 3

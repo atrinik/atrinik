@@ -115,23 +115,10 @@ void region_map_reset(region_map_t *region_map)
 
     memset(&region_map->pos, 0, sizeof(region_map->pos));
 
-    if (region_map->request_png != NULL) {
-        curl_request_free(region_map->request_png);
-        region_map->request_png = NULL;
-    }
-
-    if (region_map->request_def != NULL) {
-        curl_request_free(region_map->request_def);
-        region_map->request_def = NULL;
-    }
-    if (region_map->asset_png != NULL) {
-        asset_request_free(region_map->asset_png);
-        region_map->asset_png = NULL;
-    }
-    if (region_map->asset_def != NULL) {
-        asset_request_free(region_map->asset_def);
-        region_map->asset_def = NULL;
-    }
+    asset_source_free(region_map->source_png);
+    region_map->source_png = NULL;
+    asset_source_free(region_map->source_def);
+    region_map->source_def = NULL;
     *region_map->download_name = '\0';
     *region_map->error = '\0';
 
@@ -172,39 +159,19 @@ void region_map_reset(region_map_t *region_map)
  */
 void region_map_update(region_map_t *region_map, const char *region_name)
 {
-    char url[HUGE_BUF], buf[HUGE_BUF], *path;
+    char buf[HUGE_BUF], *path;
 
     region_map_reset(region_map);
     snprintf(VS(region_map->download_name), "%s", region_name);
 
-    if (*cpl.http_url != '\0') {
-        snprintf(VS(url), "%s/client-maps/%s.png", cpl.http_url, region_name);
-        snprintf(VS(buf), "client-maps/%s.png", region_name);
-        path = file_path_server(buf);
-        region_map->request_png =
-            curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-        curl_request_set_path(region_map->request_png, path);
-        curl_request_start_get(region_map->request_png);
-        efree(path);
-
-        snprintf(VS(url), "%s/client-maps/%s.def", cpl.http_url, region_name);
-        snprintf(VS(buf), "client-maps/%s.def", region_name);
-        path = file_path_server(buf);
-        region_map->request_def =
-            curl_request_create(url, CURL_PKEY_TRUST_APPLICATION);
-        curl_request_set_path(region_map->request_def, path);
-        curl_request_start_get(region_map->request_def);
-        efree(path);
-    } else {
-        snprintf(VS(buf), "client-maps/%s.png", region_name);
-        path = file_path_server(buf);
-        region_map->asset_png = asset_request_start_cached(buf, path);
-        efree(path);
-        snprintf(VS(buf), "client-maps/%s.def", region_name);
-        path = file_path_server(buf);
-        region_map->asset_def = asset_request_start_cached(buf, path);
-        efree(path);
-    }
+    snprintf(VS(buf), "client-maps/%s.png", region_name);
+    path = file_path_server(buf);
+    region_map->source_png = asset_source_start(buf, path);
+    efree(path);
+    snprintf(VS(buf), "client-maps/%s.def", region_name);
+    path = file_path_server(buf);
+    region_map->source_def = asset_source_start(buf, path);
+    efree(path);
 
     snprintf(VS(buf), "client-maps/%s.tiles", region_name);
     region_map->fow->path = file_path_player(buf);
@@ -239,67 +206,28 @@ bool region_map_ready(region_map_t *region_map)
     const uint8_t *body_def = NULL;
     size_t body_png_size = 0;
 
-    if (region_map->request_png != NULL &&
-        region_map->request_def != NULL) {
-        curl_state_t png_state =
-            curl_request_get_state(region_map->request_png);
-        curl_state_t def_state =
-            curl_request_get_state(region_map->request_def);
-        if (png_state == CURL_STATE_INPROGRESS ||
-            def_state == CURL_STATE_INPROGRESS) {
-            return false;
-        }
-
-        if (png_state == CURL_STATE_OK && def_state == CURL_STATE_OK) {
-            body_png = (const uint8_t *)
-                curl_request_get_body(region_map->request_png,
-                                      &body_png_size);
-            body_def = (const uint8_t *)
-                curl_request_get_body(region_map->request_def, NULL);
-        } else if (cpl.asset_transport) {
-            curl_request_free(region_map->request_png);
-            curl_request_free(region_map->request_def);
-            region_map->request_png = NULL;
-            region_map->request_def = NULL;
-
-            char asset[HUGE_BUF];
-            snprintf(VS(asset),
-                     "client-maps/%s.png",
-                     region_map->download_name);
-            char *path = file_path_server(asset);
-            region_map->asset_png = asset_request_start_cached(asset, path);
-            efree(path);
-            snprintf(VS(asset),
-                     "client-maps/%s.def",
-                     region_map->download_name);
-            path = file_path_server(asset);
-            region_map->asset_def = asset_request_start_cached(asset, path);
-            efree(path);
-            return false;
-        }
-    } else if (region_map->asset_png != NULL &&
-               region_map->asset_def != NULL) {
-        asset_request_state_t png_state =
-            asset_request_get_state(region_map->asset_png);
-        asset_request_state_t def_state =
-            asset_request_get_state(region_map->asset_def);
-        if (png_state == ASSET_REQUEST_PENDING ||
-            def_state == ASSET_REQUEST_PENDING) {
-            return false;
-        }
-        if (png_state == ASSET_REQUEST_COMPLETE &&
-            def_state == ASSET_REQUEST_COMPLETE) {
-            body_png = asset_request_get_data(region_map->asset_png,
-                                              &body_png_size);
-            body_def = asset_request_get_data(region_map->asset_def, NULL);
-        } else if (png_state == ASSET_REQUEST_ERROR ||
-                   def_state == ASSET_REQUEST_ERROR) {
-            snprintf(VS(region_map->error),
-                     "The server does not provide region map '%s'.",
-                     region_map->download_name);
-            LOG(ERROR, "%s", region_map->error);
-            return false;
-        }
+    if (region_map->source_png == NULL || region_map->source_def == NULL) {
+        return false;
+    }
+    asset_source_state_t png_state =
+        asset_source_get_state(region_map->source_png);
+    asset_source_state_t def_state =
+        asset_source_get_state(region_map->source_def);
+    if (png_state == ASSET_SOURCE_PENDING ||
+        def_state == ASSET_SOURCE_PENDING) {
+        return false;
+    }
+    if (png_state == ASSET_SOURCE_COMPLETE &&
+        def_state == ASSET_SOURCE_COMPLETE) {
+        body_png = asset_source_get_data(region_map->source_png,
+                                         &body_png_size);
+        body_def = asset_source_get_data(region_map->source_def, NULL);
+    } else {
+        snprintf(VS(region_map->error),
+                 "The server does not provide region map '%s'.",
+                 region_map->download_name);
+        LOG(ERROR, "%s", region_map->error);
+        return false;
     }
 
     if (body_png == NULL || body_def == NULL) {
@@ -369,22 +297,10 @@ bool region_map_ready(region_map_t *region_map)
         region_map_fow_create(region_map);
     }
 
-    if (region_map->request_png != NULL) {
-        curl_request_free(region_map->request_png);
-        region_map->request_png = NULL;
-    }
-    if (region_map->request_def != NULL) {
-        curl_request_free(region_map->request_def);
-        region_map->request_def = NULL;
-    }
-    if (region_map->asset_png != NULL) {
-        asset_request_free(region_map->asset_png);
-        region_map->asset_png = NULL;
-    }
-    if (region_map->asset_def != NULL) {
-        asset_request_free(region_map->asset_def);
-        region_map->asset_def = NULL;
-    }
+    asset_source_free(region_map->source_png);
+    region_map->source_png = NULL;
+    asset_source_free(region_map->source_def);
+    region_map->source_def = NULL;
 
     minimap_redraw_flag = 1;
 

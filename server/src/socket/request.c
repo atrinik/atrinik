@@ -53,6 +53,87 @@
 #include <openssl/crypto.h>
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
+#define JOIN_FAILURES_PER_MINUTE 5U
+#define JOIN_FAILURES_UNKNOWN_PER_MINUTE 64U
+#define JOIN_FAILURES_GLOBAL_PER_MINUTE 256U
+#define JOIN_FAILURE_ENTRY_MAX 1024U
+
+typedef struct join_failure_entry {
+    UT_hash_handle hh;
+    char address[MAX_BUF];
+    time_t window_started;
+    unsigned int failures;
+} join_failure_entry_t;
+
+static join_failure_entry_t *join_failures;
+static time_t join_failure_global_window;
+static unsigned int join_failure_global_count;
+
+static bool
+join_password_allowed (socket_struct *ns)
+{
+    time_t now = time(NULL);
+    if (now - join_failure_global_window >= 60) {
+        join_failure_global_window = now;
+        join_failure_global_count = 0;
+    }
+    if (join_failure_global_count >= JOIN_FAILURES_GLOBAL_PER_MINUTE) {
+        return false;
+    }
+
+    const char *address = socket_get_addr(ns->sc);
+    join_failure_entry_t *entry;
+    HASH_FIND_STR(join_failures, address, entry);
+    if (entry == NULL) {
+        join_failure_entry_t *old, *next;
+        HASH_ITER(hh, join_failures, old, next) {
+            if (now - old->window_started >= 120) {
+                HASH_DEL(join_failures, old);
+                efree(old);
+            }
+        }
+        if (HASH_COUNT(join_failures) >= JOIN_FAILURE_ENTRY_MAX) {
+            join_failure_entry_t *oldest = NULL;
+            HASH_ITER(hh, join_failures, old, next) {
+                if (oldest == NULL ||
+                    old->window_started < oldest->window_started) {
+                    oldest = old;
+                }
+            }
+            if (oldest != NULL) {
+                HASH_DEL(join_failures, oldest);
+                efree(oldest);
+            }
+        }
+        entry = ecalloc(1, sizeof(*entry));
+        snprintf(VS(entry->address), "%s", address);
+        entry->window_started = now;
+        HASH_ADD_STR(join_failures, address, entry);
+    }
+
+    if (now - entry->window_started >= 60) {
+        entry->window_started = now;
+        entry->failures = 0;
+    }
+    unsigned int limit = strcmp(address, "<no address>") == 0
+        ? JOIN_FAILURES_UNKNOWN_PER_MINUTE
+        : JOIN_FAILURES_PER_MINUTE;
+    return entry->failures < limit;
+}
+
+static void
+join_password_failed (socket_struct *ns)
+{
+    if (join_failure_global_count < UINT_MAX) {
+        join_failure_global_count++;
+    }
+    const char *address = socket_get_addr(ns->sc);
+    join_failure_entry_t *entry;
+    HASH_FIND_STR(join_failures, address, entry);
+    if (entry != NULL && entry->failures < UINT_MAX) {
+        entry->failures++;
+    }
+}
 
 void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
@@ -122,15 +203,18 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             }
             packet_append_uint8(packet, ns->connection_mode);
         } else if (type == CMD_SETUP_JOIN_PASSWORD) {
-            char password[MAX_BUF];
+            char password[MAX_BUF] = {0};
             packet_to_string(data, len, &pos, VS(password));
 
-            size_t expected_len = strlen(settings.join_password);
-            ns->join_authenticated =
-                expected_len == strlen(password) &&
-                CRYPTO_memcmp(settings.join_password,
-                              password,
-                              expected_len) == 0;
+            bool allowed = join_password_allowed(ns);
+            ns->join_authenticated = allowed &&
+                                     CRYPTO_memcmp(settings.join_password,
+                                                   password,
+                                                   sizeof(password)) == 0;
+            if (!ns->join_authenticated) {
+                join_password_failed(ns);
+            }
+            OPENSSL_cleanse(password, sizeof(password));
             packet_append_uint8(packet, ns->join_authenticated ? 1 : 0);
         } else {
             LOG(PACKET, "Unknown type: %d", type);
@@ -2578,10 +2662,12 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
 
         unsigned short plen = socket_addr_plen(&addr);
         if (split[1] != NULL) {
-            unsigned long value = strtoul(split[1], NULL, 10);
-            if (value < plen) {
-                plen = value;
+            uint64_t value;
+            if (!string_parse_uint64(split[1], 10, 0, plen, &value)) {
+                LOG(ERROR, "Ignoring invalid control CIDR prefix: %s", word);
+                continue;
             }
+            plen = (unsigned short) value;
         }
 
         if (socket_cmp_addr(ns->sc, &addr, plen) == 0) {

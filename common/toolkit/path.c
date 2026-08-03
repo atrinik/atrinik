@@ -450,3 +450,55 @@ path_rename (const char *old, const char *new)
     return rename(old, new);
 #endif
 }
+
+bool
+path_write_atomic (const char   *path,
+                   const void   *data,
+                   size_t        size,
+                   unsigned int  mode)
+{
+    HARD_ASSERT(path != NULL);
+    HARD_ASSERT(data != NULL || size == 0);
+
+    path_ensure_directories(path);
+    char temporary[HUGE_BUF];
+    if (snprintf(VS(temporary), "%s.tmp.XXXXXX", path) >=
+        (int) sizeof(temporary)) {
+        return false;
+    }
+
+    int fd = mkstemp(temporary);
+    if (fd == -1) {
+        return false;
+    }
+#ifndef WIN32
+    if (fchmod(fd, (mode_t) mode) != 0) {
+        close(fd);
+        unlink(temporary);
+        return false;
+    }
+#else
+    (void) mode;
+#endif
+
+    FILE *fp = fdopen(fd, "wb");
+    if (fp == NULL) {
+        close(fd);
+        unlink(temporary);
+        return false;
+    }
+    bool ok = fwrite(data, 1, size, fp) == size && fflush(fp) == 0;
+#ifndef WIN32
+    if (ok && fsync(fd) != 0) {
+        ok = false;
+    }
+#endif
+    if (fclose(fp) != 0) {
+        ok = false;
+    }
+    if (!ok || path_rename(temporary, path) != 0) {
+        unlink(temporary);
+        return false;
+    }
+    return true;
+}

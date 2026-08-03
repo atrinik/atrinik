@@ -11,14 +11,29 @@
 
 /**
  * @file
- * Serves cached game assets over an established QUIC connection.
+ * Serves an immutable, startup-cached game asset snapshot over QUIC.
  */
 
 #include <global.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <resources.h>
-#include <zlib.h>
+#include <openssl/evp.h>
+
+#define ASSET_CACHE_MAX_TOTAL (1024ULL * 1024ULL * 1024ULL)
+#define ASSET_RATE_BYTES_PER_SECOND (8U * 1024U * 1024U)
+#define ASSET_RATE_REQUESTS_PER_SECOND 256U
+
+typedef struct asset_cache_entry {
+    UT_hash_handle hh;
+    char *name;
+    uint8_t *data;
+    uint32_t size;
+    uint8_t digest[ASSET_DIGEST_SIZE];
+} asset_cache_entry_t;
+
+static asset_cache_entry_t *asset_cache;
+static uint64_t asset_cache_size;
 
 static bool
 asset_simple_name (const char *name)
@@ -86,6 +101,193 @@ asset_resolve_path (const char *asset, char *path, size_t path_size)
     return false;
 }
 
+static bool
+asset_cache_add (const char *name, const char *path)
+{
+#ifdef O_NOFOLLOW
+    int fd = open(path, O_RDONLY | O_NOFOLLOW);
+    FILE *fp = fd >= 0 ? fdopen(fd, "rb") : NULL;
+    if (fd >= 0 && fp == NULL) {
+        close(fd);
+    }
+#else
+    FILE *fp = fopen(path, "rb");
+#endif
+    struct stat sb;
+    if (fp == NULL ||
+        fstat(fileno(fp), &sb) != 0 ||
+        !S_ISREG(sb.st_mode) ||
+        sb.st_size < 0 ||
+        (uint64_t) sb.st_size > ASSET_MAX_SIZE ||
+        asset_cache_size + (uint64_t) sb.st_size > ASSET_CACHE_MAX_TOTAL) {
+        if (fp != NULL) {
+            fclose(fp);
+        }
+        LOG(ERROR, "Cannot cache game asset %s from %s", name, path);
+        return false;
+    }
+
+    asset_cache_entry_t *entry = ecalloc(1, sizeof(*entry));
+    entry->name = estrdup(name);
+    entry->size = (uint32_t) sb.st_size;
+    entry->data = emalloc(MAX((size_t) entry->size, (size_t) 1));
+    bool ok = fread(entry->data, 1, entry->size, fp) == entry->size;
+    if (fclose(fp) != 0) {
+        ok = false;
+    }
+    unsigned int digest_size = 0;
+    ok = ok && EVP_Digest(entry->data,
+                          entry->size,
+                          entry->digest,
+                          &digest_size,
+                          EVP_sha256(),
+                          NULL) == 1 &&
+         digest_size == ASSET_DIGEST_SIZE;
+    if (!ok) {
+        LOG(ERROR, "Cannot read or hash game asset %s from %s", name, path);
+        efree(entry->data);
+        efree(entry->name);
+        efree(entry);
+        return false;
+    }
+
+    HASH_ADD_KEYPTR(hh, asset_cache, entry->name, strlen(entry->name), entry);
+    asset_cache_size += entry->size;
+    return true;
+}
+
+static void
+asset_cache_directory (const char *root,
+                       const char *relative,
+                       const char *prefix,
+                       bool        recursive)
+{
+    char directory[HUGE_BUF];
+    int length = snprintf(VS(directory),
+                          "%s%s%s",
+                          root,
+                          *relative != '\0' ? "/" : "",
+                          relative);
+    if (length < 0 || (size_t) length >= sizeof(directory)) {
+        return;
+    }
+    DIR *dir = opendir(directory);
+    if (dir == NULL) {
+        return;
+    }
+
+    struct dirent *item;
+    while ((item = readdir(dir)) != NULL) {
+        if (item->d_name[0] == '.') {
+            continue;
+        }
+        char child_relative[HUGE_BUF];
+        length = snprintf(VS(child_relative),
+                          "%s%s%s",
+                          relative,
+                          *relative != '\0' ? "/" : "",
+                          item->d_name);
+        if (length < 0 || (size_t) length >= sizeof(child_relative)) {
+            continue;
+        }
+        char path[HUGE_BUF];
+        length = snprintf(VS(path), "%s/%s", root, child_relative);
+        if (length < 0 || (size_t) length >= sizeof(path)) {
+            continue;
+        }
+        struct stat sb;
+        if (stat(path, &sb) != 0) {
+            continue;
+        }
+        if (S_ISDIR(sb.st_mode) && recursive) {
+            asset_cache_directory(root, child_relative, prefix, true);
+            continue;
+        }
+        if (!S_ISREG(sb.st_mode)) {
+            continue;
+        }
+
+        char name[HUGE_BUF];
+        length = snprintf(VS(name), "%s/%s", prefix, child_relative);
+        if (length < 0 || (size_t) length >= sizeof(name)) {
+            continue;
+        }
+        char resolved[HUGE_BUF];
+        if (asset_resolve_path(name, VS(resolved))) {
+            asset_cache_add(name, resolved);
+        }
+    }
+    closedir(dir);
+}
+
+void
+socket_assets_init (void)
+{
+    char path[HUGE_BUF];
+    snprintf(VS(path), "%s/data", settings.httppath);
+    asset_cache_directory(path, "", "data", false);
+    asset_cache_directory(settings.resourcespath, "", "resources", true);
+    snprintf(VS(path), "%s/client-maps", settings.httppath);
+    asset_cache_directory(path, "", "client-maps", false);
+    LOG(INFO,
+        "Cached %" PRIu64 " bytes of game assets in memory",
+        asset_cache_size);
+}
+
+void
+socket_assets_deinit (void)
+{
+    asset_cache_entry_t *entry, *next;
+    HASH_ITER(hh, asset_cache, entry, next) {
+        HASH_DEL(asset_cache, entry);
+        efree(entry->data);
+        efree(entry->name);
+        efree(entry);
+    }
+    asset_cache_size = 0;
+}
+
+static asset_cache_entry_t *
+asset_cache_find (const char *name)
+{
+    asset_cache_entry_t *entry;
+    HASH_FIND_STR(asset_cache, name, entry);
+    return entry;
+}
+
+static uint64_t
+asset_now_ms (void)
+{
+    struct timeval now;
+    GETTIMEOFDAY(&now);
+    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
+}
+
+static bool
+asset_rate_allow (socket_struct *ns, size_t bytes, bool count_request)
+{
+    uint64_t now = asset_now_ms();
+    if (ns->asset_window_ms == 0 || now - ns->asset_window_ms >= 1000) {
+        ns->asset_window_ms = now;
+        ns->asset_window_bytes = 0;
+        ns->asset_window_requests = 0;
+    }
+    if ((count_request &&
+         ns->asset_window_requests >= ASSET_RATE_REQUESTS_PER_SECOND) ||
+        ns->asset_window_bytes + bytes > ASSET_RATE_BYTES_PER_SECOND) {
+        LOG(ERROR,
+            "Connection %s exceeded the in-band asset transfer budget",
+            socket_get_id(ns->sc));
+        ns->state = ST_ZOMBIE;
+        return false;
+    }
+    if (count_request) {
+        ns->asset_window_requests++;
+    }
+    ns->asset_window_bytes += bytes;
+    return true;
+}
+
 static void
 asset_send_error (socket_struct *ns, const char *asset)
 {
@@ -96,36 +298,6 @@ asset_send_error (socket_struct *ns, const char *asset)
     socket_send_packet(ns, packet);
 }
 
-static bool
-asset_checksum (FILE *fp, uint32_t size, uint32_t *checksum)
-{
-    uint8_t buffer[8192];
-    uLong value = 1L;
-
-    if (fseek(fp, 0, SEEK_SET) != 0) {
-        return false;
-    }
-
-    uint32_t remaining = size;
-    while (remaining != 0) {
-        size_t requested = MIN((size_t) remaining, sizeof(buffer));
-        size_t length = fread(buffer, 1, requested, fp);
-        if (length != requested) {
-            return false;
-        }
-        value = crc32(value,
-                      (const unsigned char FAR *) buffer,
-                      (uInt) length);
-        remaining -= (uint32_t) length;
-    }
-    if (fseek(fp, 0, SEEK_SET) != 0) {
-        return false;
-    }
-
-    *checksum = (uint32_t) value;
-    return true;
-}
-
 void
 socket_command_asset (socket_struct *ns,
                       player        *pl,
@@ -133,6 +305,8 @@ socket_command_asset (socket_struct *ns,
                       size_t         len,
                       size_t         pos)
 {
+    (void) pl;
+
     if (!socket_is_quic(ns->sc) ||
         (*settings.join_password != '\0' && !ns->join_authenticated)) {
         return;
@@ -145,14 +319,14 @@ socket_command_asset (socket_struct *ns,
             socket_get_id(ns->sc));
         return;
     }
+    if (!asset_rate_allow(ns, 0, true)) {
+        return;
+    }
     LOG(DEBUG,
-        "Connection %s requested QUIC asset %s at offset %" PRIu32
-        " (cached size %" PRIu32 ", CRC32 %" PRIu32 ")",
+        "Connection %s requested QUIC asset %s at offset %" PRIu32,
         socket_get_id(ns->sc),
         request.path,
-        request.offset,
-        request.cached_size,
-        request.cached_checksum);
+        request.offset);
 
     char path[HUGE_BUF];
     if (!asset_resolve_path(request.path, VS(path))) {
@@ -160,79 +334,39 @@ socket_command_asset (socket_struct *ns,
         return;
     }
 
-    FILE *fp = fopen(path, "rb");
-    struct stat sb;
-    if (fp == NULL ||
-        fstat(fileno(fp), &sb) != 0 ||
-        !S_ISREG(sb.st_mode) ||
-        sb.st_size < 0 ||
-        (uint64_t) sb.st_size > ASSET_MAX_SIZE ||
-        request.offset > (uint32_t) sb.st_size) {
-        if (fp != NULL) {
-            fclose(fp);
-        }
-        asset_send_error(ns, request.path);
-        return;
-    }
-
-    uint32_t checksum = 0;
-    if (request.offset == 0 &&
-        !asset_checksum(fp, (uint32_t) sb.st_size, &checksum)) {
-        fclose(fp);
+    asset_cache_entry_t *entry = asset_cache_find(request.path);
+    if (entry == NULL || request.offset > entry->size) {
         asset_send_error(ns, request.path);
         return;
     }
 
     if (request.offset == 0 &&
-        request.cached_size == (uint32_t) sb.st_size &&
-        request.cached_checksum == checksum) {
-        fclose(fp);
+        request.cached_size == entry->size &&
+        memcmp(request.cached_digest,
+               entry->digest,
+               ASSET_DIGEST_SIZE) == 0) {
         packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
         socket_asset_response_append_status(packet,
                                             ASSET_STATUS_NOT_MODIFIED,
                                             request.path);
-        LOG(DEBUG,
-            "Connection %s confirmed cached QUIC asset %s (size %" PRIu32
-            ", CRC32 %" PRIu32 ")",
-            socket_get_id(ns->sc),
-            request.path,
-            request.cached_size,
-            request.cached_checksum);
         socket_send_packet(ns, packet);
         return;
     }
 
-    if (fseek(fp, (long) request.offset, SEEK_SET) != 0) {
-        fclose(fp);
-        asset_send_error(ns, request.path);
+    size_t chunk_size = MIN((size_t) (entry->size - request.offset),
+                            (size_t) ASSET_CHUNK_SIZE);
+    if (!asset_rate_allow(ns, chunk_size, false)) {
         return;
     }
-
-    uint8_t chunk[ASSET_CHUNK_SIZE];
-    size_t chunk_size = fread(chunk, 1, sizeof(chunk), fp);
-    if (ferror(fp)) {
-        fclose(fp);
-        asset_send_error(ns, request.path);
-        return;
-    }
-    fclose(fp);
 
     packet_struct *packet =
         packet_new(CLIENT_CMD_ASSET, chunk_size + 128, 128);
     socket_asset_response_append_ok(packet,
                                     request.path,
-                                    (uint32_t) sb.st_size,
+                                    entry->size,
                                     request.offset,
-                                    checksum,
-                                    chunk,
+                                    entry->digest,
+                                    entry->data + request.offset,
                                     chunk_size);
-    LOG(DEBUG,
-        "Connection %s sending QUIC asset %s offset %" PRIu32 "/%" PRIu32
-        " (%" PRIu64 " bytes)",
-        socket_get_id(ns->sc),
-        request.path,
-        request.offset,
-        (uint32_t) sb.st_size,
-        (uint64_t) chunk_size);
     socket_send_packet(ns, packet);
 }

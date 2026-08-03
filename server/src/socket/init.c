@@ -59,6 +59,7 @@ bool init_connection(socket_struct *ns)
     }
 
     ns->login_count = 0;
+    ns->accepted_at = time(NULL);
     ns->keepalive = 0;
     ns->addme = 0;
     ns->faceset = 0;

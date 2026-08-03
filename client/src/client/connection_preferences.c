@@ -73,27 +73,26 @@ connection_preference_find (const char *key)
 static void
 connection_preferences_save (void)
 {
-    FILE *fp = path_fopen(FILE_CONNECTION_PREFERENCES, "w");
-    if (fp == NULL) {
-        LOG(ERROR,
-            "Could not write %s: %s (%d)",
-            FILE_CONNECTION_PREFERENCES,
-            strerror(errno),
-            errno);
-        return;
-    }
-
-    fprintf(fp,
-            "# Per-server preferred direct QUIC route. Automatic entries "
-            "are omitted.\n");
+    StringBuffer *output = stringbuffer_new();
+    stringbuffer_append_string(
+        output,
+        "# Per-server preferred direct QUIC route. Automatic entries "
+        "are omitted.\n");
     connection_preference_entry_t *entry;
     DL_FOREACH(connection_preferences, entry) {
-        fprintf(fp,
-                "%s\t%s\n",
-                entry->key,
-                preference_keys[entry->preference]);
+        stringbuffer_append_printf(output,
+                                   "%s\t%s\n",
+                                   entry->key,
+                                   preference_keys[entry->preference]);
     }
-    fclose(fp);
+    char *contents = stringbuffer_finish(output);
+    char *path = file_path(FILE_CONNECTION_PREFERENCES, "w");
+    bool ok = path_write_atomic(path, contents, strlen(contents), 0600);
+    efree(path);
+    efree(contents);
+    if (!ok) {
+        LOG(ERROR, "Could not atomically write %s", FILE_CONNECTION_PREFERENCES);
+    }
 }
 
 void
