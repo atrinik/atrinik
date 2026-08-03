@@ -287,21 +287,35 @@ static int wall_split_orientation(const object *wall_ob,
                                   size_t wall_name_size,
                                   char *orientation,
                                   size_t orientation_size) {
-    int l;
+    const char *separator;
+    size_t name_length, orientation_length;
 
-    strncpy(wall_name, wall_ob->arch->name, wall_name_size - 1);
-
-    /* Extract the wall name, which is the text up to the last '_'. */
-    for (l = wall_name_size; l >= 0; l--) {
-        if (wall_name[l] == '_') {
-            /* Copy over orientation. */
-            strncpy(orientation, wall_name + l, orientation_size - 1);
-            wall_name[l] = '\0';
-            return 1;
-        }
+    if (wall_name_size == 0 || orientation_size == 0) {
+        return 0;
     }
 
-    return 0;
+    name_length = strnlen(wall_ob->arch->name, wall_name_size);
+    if (name_length == wall_name_size) {
+        return 0;
+    }
+
+    /* Extract the wall name, which is the text up to the last '_'. */
+    separator = strrchr(wall_ob->arch->name, '_');
+    if (separator == NULL) {
+        return 0;
+    }
+
+    orientation_length = strlen(separator);
+    if (orientation_length >= orientation_size) {
+        return 0;
+    }
+
+    name_length = (size_t)(separator - wall_ob->arch->name);
+    memcpy(wall_name, wall_ob->arch->name, name_length);
+    wall_name[name_length] = '\0';
+    memcpy(orientation, separator, orientation_length + 1);
+
+    return 1;
 }
 
 /**
@@ -525,8 +539,15 @@ static int builder_window(object *op, int x, int y) {
         return 0;
     }
 
-    strncat(wall_name, "_w", sizeof(wall_name) - strlen(wall_name) - 1);
-    strncat(wall_name, orientation, sizeof(wall_name) - strlen(wall_name) - 1);
+    size_t wall_name_length = strlen(wall_name);
+    size_t orientation_length = strlen(orientation);
+    if (wall_name_length + 2 + orientation_length >= sizeof(wall_name)) {
+        draw_info(COLOR_WHITE, op, "You cannot build a window in that wall.");
+        return 0;
+    }
+
+    memcpy(wall_name + wall_name_length, "_w", 2);
+    memcpy(wall_name + wall_name_length + 2, orientation, orientation_length + 1);
 
     new_arch = arch_find(wall_name);
 

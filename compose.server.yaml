@@ -1,6 +1,6 @@
 services:
   server:
-    image: atrinik-server
+    image: ${ATRINIK_SERVER_IMAGE:-atrinik-server}
     build:
       context: .
       dockerfile: Dockerfile.server

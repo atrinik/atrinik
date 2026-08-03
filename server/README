@@ -175,8 +175,16 @@
 = 2.3. Running with Docker Compose               =
 =================================================
 
- A standalone Linux server image can be built and run without VS Code. From
- the repository root:
+ Release images are published to `ghcr.io/atrinik/atrinik-server`. Pin a
+ version for a persistent deployment, then start it from the repository root:
+  $ cp server-custom.cfg.example server-custom.cfg
+  $ mkdir -p server-data
+  $ ATRINIK_SERVER_IMAGE=ghcr.io/atrinik/atrinik-server:5.0.6 \
+      LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+      docker compose -f compose.server.yaml up --no-build -d
+
+ The `latest` tag follows the newest release, but a versioned tag avoids an
+ unexpected server upgrade. To build the current source locally instead:
   $ cp server-custom.cfg.example server-custom.cfg
   $ mkdir -p server-data
   $ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \

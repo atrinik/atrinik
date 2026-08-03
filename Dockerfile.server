@@ -1,5 +1,7 @@
 FROM ubuntu:26.04 AS build
 
+ARG ATRINIK_PACKAGE_VERSION
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
@@ -24,7 +26,8 @@ RUN apt-get update \
 WORKDIR /src
 COPY . .
 
-RUN cmake -S . -B build/server-release \
+RUN ATRINIK_PACKAGE_VERSION="${ATRINIK_PACKAGE_VERSION}" \
+    cmake -S . -B build/server-release \
         -DCMAKE_BUILD_TYPE=Release \
         -DPACKAGE_TYPE=none \
         -DBUILD_CLIENT=OFF \
@@ -95,5 +98,8 @@ WORKDIR /opt/atrinik/server
 
 EXPOSE 1728 1729 8080
 EXPOSE 1730/udp
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD ["/usr/local/bin/atrinik-server-healthcheck"]
 
 ENTRYPOINT ["atrinik-server-entrypoint"]

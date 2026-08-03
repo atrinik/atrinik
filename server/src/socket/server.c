@@ -465,7 +465,13 @@ TOOLKIT_INIT_FUNC(socket_server) {
                 struct in6_addr address6;
                 if (quic_candidates[i].kind == SOCKET_CANDIDATE_IPV6 &&
                     inet_pton(AF_INET6, quic_candidates[i].host, &address6) == 1) {
-                    snprintf(VS(quic_public_host), "%s", quic_candidates[i].host);
+                    size_t host_length =
+                        strnlen(quic_candidates[i].host, sizeof(quic_candidates[i].host));
+                    if (host_length == sizeof(quic_candidates[i].host)) {
+                        continue;
+                    }
+
+                    memcpy(quic_public_host, quic_candidates[i].host, host_length + 1);
                     quic_public_port = quic_candidates[i].port;
                     break;
                 }
