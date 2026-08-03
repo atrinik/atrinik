@@ -1,11 +1,6 @@
 services:
   windows-build:
-    image: atrinik-windows-mxe
-    build:
-      context: .
-      dockerfile: .devcontainer/windows-cross/Dockerfile
-      args:
-        MXE_BUILD_JOBS: ${MXE_BUILD_JOBS:-16}
+    image: ${ATRINIK_WINDOWS_BUILD_IMAGE:-ghcr.io/atrinik/windows-build:mxe}
     working_dir: /workspaces/atrinik
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     environment:

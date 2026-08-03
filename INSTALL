@@ -157,6 +157,12 @@ layers are reused. Linux CI and the VS Code devcontainer consume the rolling
 Ubuntu tag, so later tagged releases update their build environment without a
 configuration change.
 
+Tagged releases also publish the MXE cross-compilation environment as
+`ghcr.io/atrinik/windows-build`, using the release version, rolling `mxe`, and
+commit-specific `sha-<commit>` tags. Windows packaging waits for that image and
+pulls the exact release-version tag instead of rebuilding the MXE toolchain in
+the packaging job.
+
 The release line comes from `PACKAGE_VERSION` in `build.config`. A pull request
 merged into `master` receives the next available patch tag in that release
 line. The first automatically tagged merge in the 5.0 line is `v5.0.0`,
@@ -196,7 +202,8 @@ Alternatively, build directly from the repository root without opening an
 editor:
 
 ```sh
-docker compose -f compose.windows.yaml run --build --rm windows-build
+docker compose -f compose.windows.yaml pull windows-build
+docker compose -f compose.windows.yaml run --rm windows-build
 ```
 
 On Linux, if the host user and group IDs are not both `1000`, pass them so the
@@ -204,19 +211,24 @@ generated files retain the correct ownership:
 
 ```sh
 LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
-  docker compose -f compose.windows.yaml run --build --rm windows-build
+  docker compose -f compose.windows.yaml run --rm windows-build
 ```
 
-If you have the resources, you can increase the number of build jobs, e.g.:
+The VS Code configuration and Compose service use the rolling published MXE
+image. To test changes to `.devcontainer/windows-cross/Dockerfile`, build a
+local replacement and select it through the Compose override:
 
 ```sh
-MXE_BUILD_JOBS=$(nproc) LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
-  docker compose -f compose.windows.yaml run --build --rm windows-build
+docker build --file .devcontainer/windows-cross/Dockerfile \
+  --build-arg MXE_BUILD_JOBS="$(nproc)" \
+  --tag atrinik-windows-mxe .
+ATRINIK_WINDOWS_BUILD_IMAGE=atrinik-windows-mxe \
+  docker compose -f compose.windows.yaml run --rm windows-build
 ```
 
-The first image build compiles the MXE toolchain and dependency stack, so it
-can take a while. Container image caching makes later builds faster. Two
-portable 64-bit Windows ZIPs are written to `build/packages/`:
+The first image pull can take a while because it contains the MXE toolchain and
+dependency stack. Docker reuses its layers for later updates. Two portable
+64-bit Windows ZIPs are written to `build/packages/`:
 
 ```text
 atrinik-client-4.0-windows-x86_64.zip
