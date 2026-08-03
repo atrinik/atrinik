@@ -42,6 +42,8 @@
 #include <openssl/aes.h>
 #include <openssl/engine.h>
 #include <openssl/err.h>
+#include <openssl/core_names.h>
+#include <openssl/params.h>
 
 TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
 
@@ -449,12 +451,6 @@ TOOLKIT_INIT_FUNC(socket_crypto) {
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_chain, "Certificate chain");
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_key, "Certificate key");
     CLIOPTIONS_CREATE_ARGUMENT(cli, crypto_cert_bundle, "Certificate bundle");
-
-    OPENSSL_config(NULL);
-    SSL_load_error_strings();
-    SSL_library_init();
-    OpenSSL_add_all_ciphers();
-    ERR_load_crypto_strings();
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -543,7 +539,7 @@ static void socket_crypto_load_trusted(void) {
             continue;
         }
 
-        char fullpath[HUGE_BUF];
+        char fullpath[HUGE_BUF + MAX_BUF + 2];
         snprintf(VS(fullpath), "%s/%s", path, d->d_name);
 
         char *contents = path_file_contents(fullpath);
@@ -740,7 +736,7 @@ socket_crypto_verify_pubkey(socket_crypto_t *crypto, EVP_PKEY *pubkey, const cha
     BIO_free(bio);
     efree(cp);
 
-    if (EVP_PKEY_cmp(pubkey_cached, pubkey) != 1) {
+    if (EVP_PKEY_eq(pubkey_cached, pubkey) != 1) {
         LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
         LOG(SYSTEM,
             "Certificate's public key doesn't match stored public "
@@ -1341,7 +1337,7 @@ bool socket_crypto_load_cert(socket_crypto_t *crypto, const char *cert_str, cons
      * the one in the certificate. Otherwise, load up the public key context
      * using the provided certificate public key. */
     if (crypto->pubkey != NULL) {
-        int res = EVP_PKEY_cmp(pubkey, crypto->pubkey);
+        int res = EVP_PKEY_eq(pubkey, crypto->pubkey);
 
         if (res != 1) {
             LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
@@ -1520,123 +1516,68 @@ unsigned char *socket_crypto_gen_pubkey(socket_crypto_t *crypto, size_t *pubkey_
     SOFT_ASSERT_RC(crypto->privkey == NULL, NULL, "Crypto socket already has a private key");
     SOFT_ASSERT_RC(crypto->nid != NID_undef, NULL, "Undefined NID");
 
-    EVP_PKEY_CTX *pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-    if (pctx == NULL) {
-        LOG(ERROR, "EVP_PKEY_CTX_new_id() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    const char *group_name = OBJ_nid2sn(crypto->nid);
+    if (group_name == NULL) {
+        LOG(ERROR, "Failed to resolve EC group NID %d", crypto->nid);
         return NULL;
     }
 
-    if (EVP_PKEY_paramgen_init(pctx) != 1) {
-        LOG(ERROR, "EVP_PKEY_paramgen_init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(pctx);
-        return NULL;
-    }
-
-    if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, crypto->nid) != 1) {
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_from_name(NULL, "EC", NULL);
+    if (ctx == NULL) {
         LOG(ERROR,
-            "EVP_PKEY_CTX_set_ec_paramgen_curve_nid() failed: %s",
+            "EVP_PKEY_CTX_new_from_name() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
 
-    EVP_PKEY *params = NULL;
-    if (EVP_PKEY_paramgen(pctx, &params) != 1) {
-        LOG(ERROR, "EVP_PKEY_paramgen() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(pctx);
-        return NULL;
-    }
-
-    EVP_PKEY_CTX *kctx = EVP_PKEY_CTX_new(params, NULL);
-    if (kctx == NULL) {
-        LOG(ERROR, "EVP_PKEY_CTX_new() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
-        return NULL;
-    }
-
-    if (EVP_PKEY_keygen_init(kctx) != 1) {
+    if (EVP_PKEY_keygen_init(ctx) != 1) {
         LOG(ERROR, "EVP_PKEY_keygen_init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
+        EVP_PKEY_CTX_free(ctx);
+        return NULL;
+    }
+
+    if (EVP_PKEY_CTX_set_group_name(ctx, group_name) != 1) {
+        LOG(ERROR,
+            "EVP_PKEY_CTX_set_group_name() failed: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
 
     EVP_PKEY *pkey = NULL;
-    if (EVP_PKEY_keygen(kctx, &pkey) != 1) {
-        LOG(ERROR, "EVP_PKEY_keygen() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
+    if (EVP_PKEY_generate(ctx, &pkey) != 1) {
+        LOG(ERROR, "EVP_PKEY_generate() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(ctx);
         return NULL;
     }
 
-    EC_KEY *eckey = EVP_PKEY_get1_EC_KEY(pkey);
-    if (eckey == NULL) {
-        LOG(ERROR, "EVP_PKEY_get1_EC_KEY() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
+    if (EVP_PKEY_set_utf8_string_param(pkey,
+                                       OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT,
+                                       OSSL_PKEY_EC_POINT_CONVERSION_FORMAT_COMPRESSED) != 1 ||
+        EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, NULL, 0, pubkey_len) != 1) {
+        LOG(ERROR,
+            "Failed to acquire encoded EC public key: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(ctx);
         EVP_PKEY_free(pkey);
-        return NULL;
-    }
-
-    const EC_GROUP *ecgroup = EC_KEY_get0_group(eckey);
-    if (ecgroup == NULL) {
-        LOG(ERROR, "EC_KEY_get0_group() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
-        EVP_PKEY_free(pkey);
-        EC_KEY_free(eckey);
-        return NULL;
-    }
-
-    const EC_POINT *ecpoint = EC_KEY_get0_public_key(eckey);
-    if (ecpoint == NULL) {
-        LOG(ERROR, "EC_KEY_get0_public_key() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
-        EVP_PKEY_free(pkey);
-        EC_KEY_free(eckey);
-        return NULL;
-    }
-
-    *pubkey_len = EC_POINT_point2oct(ecgroup, ecpoint, POINT_CONVERSION_COMPRESSED, NULL, 0, NULL);
-    if (*pubkey_len == 0) {
-        LOG(ERROR, "EC_POINT_point2oct() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
-        EVP_PKEY_free(pkey);
-        EC_KEY_free(eckey);
         return NULL;
     }
 
     unsigned char *pubkey = emalloc(*pubkey_len);
-    if (EC_POINT_point2oct(ecgroup,
-                           ecpoint,
-                           POINT_CONVERSION_COMPRESSED,
-                           pubkey,
-                           *pubkey_len,
-                           NULL) != *pubkey_len) {
-        LOG(ERROR, "EC_POINT_point2oct() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        EVP_PKEY_CTX_free(kctx);
-        EVP_PKEY_free(params);
-        EVP_PKEY_CTX_free(pctx);
+    if (EVP_PKEY_get_octet_string_param(pkey,
+                                        OSSL_PKEY_PARAM_PUB_KEY,
+                                        pubkey,
+                                        *pubkey_len,
+                                        pubkey_len) != 1) {
+        LOG(ERROR, "Failed to encode EC public key: %s", ERR_error_string(ERR_get_error(), NULL));
+        EVP_PKEY_CTX_free(ctx);
         EVP_PKEY_free(pkey);
-        EC_KEY_free(eckey);
+        efree(pubkey);
         return NULL;
     }
 
     crypto->privkey = pkey;
-
-    EVP_PKEY_CTX_free(kctx);
-    EVP_PKEY_free(params);
-    EVP_PKEY_CTX_free(pctx);
-    EC_KEY_free(eckey);
+    EVP_PKEY_CTX_free(ctx);
 
     return pubkey;
 }
@@ -1951,11 +1892,8 @@ bool socket_crypto_derive(socket_crypto_t *crypto,
                    "Crypto socket doesn't have private key: %s",
                    socket_get_id(crypto->sc));
 
-    EC_KEY *ecprivkey = NULL;
-    const EC_GROUP *ecgroup = NULL;
-    EC_POINT *ecpoint = NULL;
-    EC_KEY *eckey = NULL;
     EVP_PKEY *pkey = NULL;
+    EVP_PKEY_CTX *fromdata_ctx = NULL;
     EVP_PKEY_CTX *ctx = NULL;
 
     if (pubkey_len == 0 || iv_size != sizeof(crypto->iv2)) {
@@ -1963,50 +1901,28 @@ bool socket_crypto_derive(socket_crypto_t *crypto,
         goto error;
     }
 
-    ecprivkey = EVP_PKEY_get1_EC_KEY(crypto->privkey);
-    if (ecprivkey == NULL) {
-        LOG(ERROR, "EVP_PKEY_get1_EC_KEY() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    char group_name[128];
+    if (EVP_PKEY_get_utf8_string_param(crypto->privkey,
+                                       OSSL_PKEY_PARAM_GROUP_NAME,
+                                       VS(group_name),
+                                       NULL) != 1) {
+        LOG(ERROR, "Failed to acquire EC group name: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
-    ecgroup = EC_KEY_get0_group(ecprivkey);
-    if (ecgroup == NULL) {
-        LOG(ERROR, "EC_KEY_get0_group() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    fromdata_ctx = EVP_PKEY_CTX_new_from_name(NULL, "EC", NULL);
+    if (fromdata_ctx == NULL || EVP_PKEY_fromdata_init(fromdata_ctx) != 1) {
+        LOG(ERROR, "EVP_PKEY_fromdata_init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
-    ecpoint = EC_POINT_new(ecgroup);
-    if (ecpoint == NULL) {
-        LOG(ERROR, "EC_POINT_new() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
-    if (EC_POINT_oct2point(ecgroup, ecpoint, pubkey, pubkey_len, NULL) != 1) {
-        LOG(ERROR, "EC_POINT_oct2point() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
-    eckey = EC_KEY_new();
-    if (eckey == NULL) {
-        LOG(ERROR, "EC_KEY_new() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
-    EC_KEY_set_group(eckey, ecgroup);
-
-    if (EC_KEY_set_public_key(eckey, ecpoint) != 1) {
-        LOG(ERROR, "EC_KEY_set_public_key() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
-    pkey = EVP_PKEY_new();
-    if (pkey == NULL) {
-        LOG(ERROR, "EVP_PKEY_new() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
-    if (EVP_PKEY_set1_EC_KEY(pkey, eckey) != 1) {
-        LOG(ERROR, "EVP_PKEY_set1_EC_KEY() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    OSSL_PARAM params[] = {
+        OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, group_name, 0),
+        OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY, (void *)pubkey, pubkey_len),
+        OSSL_PARAM_construct_end(),
+    };
+    if (EVP_PKEY_fromdata(fromdata_ctx, &pkey, EVP_PKEY_PUBLIC_KEY, params) != 1) {
+        LOG(ERROR, "EVP_PKEY_fromdata() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
@@ -2078,20 +1994,12 @@ error:
     ret = false;
 
 out:
-    if (ecprivkey != NULL) {
-        EC_KEY_free(ecprivkey);
-    }
-
-    if (ecpoint != NULL) {
-        EC_POINT_free(ecpoint);
-    }
-
-    if (eckey != NULL) {
-        EC_KEY_free(eckey);
-    }
-
     if (pkey != NULL) {
         EVP_PKEY_free(pkey);
+    }
+
+    if (fromdata_ctx != NULL) {
+        EVP_PKEY_CTX_free(fromdata_ctx);
     }
 
     if (ctx != NULL) {
@@ -2099,6 +2007,32 @@ out:
     }
 
     return ret;
+}
+
+/**
+ * Computes SHA-256 over up to three data segments.
+ */
+static bool socket_crypto_sha256(unsigned char digest[SHA256_DIGEST_LENGTH],
+                                 const void *data1,
+                                 size_t size1,
+                                 const void *data2,
+                                 size_t size2,
+                                 const void *data3,
+                                 size_t size3) {
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (ctx == NULL) {
+        return false;
+    }
+
+    bool success = EVP_DigestInit_ex(ctx, EVP_sha256(), NULL) == 1 &&
+                   (data1 == NULL || EVP_DigestUpdate(ctx, data1, size1) == 1) &&
+                   (data2 == NULL || EVP_DigestUpdate(ctx, data2, size2) == 1) &&
+                   (data3 == NULL || EVP_DigestUpdate(ctx, data3, size3) == 1);
+    unsigned int digest_len = 0;
+    success = success && EVP_DigestFinal_ex(ctx, digest, &digest_len) == 1 &&
+              digest_len == SHA256_DIGEST_LENGTH;
+    EVP_MD_CTX_free(ctx);
+    return success;
 }
 
 /**
@@ -2272,42 +2206,25 @@ packet_struct *socket_crypto_encrypt(socket_t *sc,
         goto error;
     }
 
-    SHA256_CTX ctx;
-    if (SHA256_Init(&ctx) != 1) {
-        LOG(ERROR, "SHA256_Init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
+    const void *checksum_header;
+    size_t checksum_header_size;
     if (checksum_only || crypto->last_cmd < CMD_CRYPTO_KEY) {
-        /* Checksum the Atrinik packet type */
-        if (SHA256_Update(&ctx, &packet_orig_type, sizeof(packet_orig_type)) != 1) {
-            LOG(ERROR, "SHA256_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-            goto error;
-        }
+        checksum_header = &packet_orig_type;
+        checksum_header_size = sizeof(packet_orig_type);
     } else {
-        /* Checksum the original packet length */
-        if (SHA256_Update(&ctx, &packet_orig_len, sizeof(packet_orig_len)) != 1) {
-            LOG(ERROR, "SHA256_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-            goto error;
-        }
-    }
-
-    /* Checksum the payload */
-    if (SHA256_Update(&ctx, packet->data, packet->len) != 1) {
-        LOG(ERROR, "SHA256_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
-    /* Checksum the secret */
-    if (crypto != NULL && crypto->done &&
-        SHA256_Update(&ctx, crypto->secret, sizeof(crypto->secret)) != 1) {
-        LOG(ERROR, "SHA256_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
+        checksum_header = &packet_orig_len;
+        checksum_header_size = sizeof(packet_orig_len);
     }
 
     unsigned char digest[SHA256_DIGEST_LENGTH];
-    if (SHA256_Final(digest, &ctx) != 1) {
-        LOG(ERROR, "SHA256_Final() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    if (!socket_crypto_sha256(digest,
+                              checksum_header,
+                              checksum_header_size,
+                              packet->data,
+                              packet->len,
+                              crypto != NULL && crypto->done ? crypto->secret : NULL,
+                              sizeof(crypto->secret))) {
+        LOG(ERROR, "SHA-256 digest failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
@@ -2426,35 +2343,22 @@ bool socket_crypto_decrypt(socket_t *sc,
     memcpy(*data_out, data + pos, *len_out);
     pos += *len_out;
 
-    SHA256_CTX ctx;
-    if (SHA256_Init(&ctx) != 1) {
-        LOG(ERROR, "SHA256_Init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
+    const void *checksum_header = NULL;
+    size_t checksum_header_size = 0;
     if (crypto != NULL && type == CRYPTO_CMD_ENCRYPTED && crypto->key != NULL) {
-        if (SHA256_Update(&ctx, &decrypted_len, sizeof(decrypted_len)) != 1) {
-            LOG(ERROR, "SHA256_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-            goto error;
-        }
-    }
-
-    /* Checksum the payload */
-    if (SHA256_Update(&ctx, *data_out, *len_out) != 1) {
-        LOG(ERROR, "SHA256_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
-    }
-
-    /* Checksum the secret */
-    if (crypto != NULL && crypto->done &&
-        SHA256_Update(&ctx, crypto->secret, sizeof(crypto->secret)) != 1) {
-        LOG(ERROR, "SHA256_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error;
+        checksum_header = &decrypted_len;
+        checksum_header_size = sizeof(decrypted_len);
     }
 
     unsigned char digest[SHA256_DIGEST_LENGTH];
-    if (SHA256_Final(digest, &ctx) != 1) {
-        LOG(ERROR, "SHA256_Final() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    if (!socket_crypto_sha256(digest,
+                              checksum_header,
+                              checksum_header_size,
+                              *data_out,
+                              *len_out,
+                              crypto != NULL && crypto->done ? crypto->secret : NULL,
+                              sizeof(crypto->secret))) {
+        LOG(ERROR, "SHA-256 digest failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 

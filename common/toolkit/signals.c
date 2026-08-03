@@ -101,7 +101,7 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 {
     struct tm *tm;
     static time_t t = 0;
-    char path[MAX_BUF], date[MAX_BUF], *homedir;
+    char path[HUGE_BUF], date[MAX_BUF], *homedir;
     FILE *fp;
 
 #ifndef WIN32

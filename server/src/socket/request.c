@@ -860,7 +860,7 @@ void draw_client_map2(object *pl) {
 
             /* TODO: This should be improved once maps have a real basename */
             if (region != NULL && (pl->map->region->map_first != NULL || pl->map->coords[2] >= 0)) {
-                char *basename, *underscore, *basename_region;
+                const char *basename, *underscore, *basename_region;
 
                 basename = strrchr(pl->map->path, '/') + 1;
                 underscore = basename ? strchr(basename, '_') : NULL;

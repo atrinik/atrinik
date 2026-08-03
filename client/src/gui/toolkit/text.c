@@ -621,12 +621,12 @@ void text_anchor_execute(text_info_struct *info, void *custom_data) {
 
     pos = strchr(info->anchor_action, ':');
 
-    if (pos && pos + 1) {
+    if (pos != NULL && pos[1] != '\0') {
         buf = estrdup(pos + 1);
         len = strlen(buf);
         info->anchor_action[pos - info->anchor_action] = '\0';
     } else {
-        char *tag;
+        const char *tag;
 
         tag = strstr(info->anchor_tag, "[/a]");
 

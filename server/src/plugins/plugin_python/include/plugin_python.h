@@ -77,11 +77,14 @@ extern PyTypeObject PyIOBase_Type;
 /** Name of the plugin, and its version. */
 #define PLUGIN_VERSION "Atrinik Python Plugin 1.0"
 
+/** Cast a correctly flagged CPython method to the PyMethodDef storage type. */
+#define PY_METHOD(func) _PyCFunction_CAST(func)
+
 /**
  * @param self
  * Self object for methods; module object for module functions.
  */
-typedef PyObject *(*PyMethod_NOARGS)(PyObject *self);
+typedef PyObject *(*PyMethod_NOARGS)(PyObject *self, PyObject *ignored);
 
 /**
  * @copydoc PyMethod_NOARGS

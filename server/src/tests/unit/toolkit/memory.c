@@ -118,7 +118,7 @@ START_TEST(test_memory_erealloc) {
         ck_assert_uint_eq(size, 4);
     }
 
-    snprintf(ptr, 4, "%s", "testing");
+    memcpy(ptr, "tes", 4);
     ck_assert_str_eq(ptr, "tes");
 
     ptr = erealloc(ptr, 8);

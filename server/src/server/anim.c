@@ -54,7 +54,7 @@ void free_all_anim(void) {
  * data from a file.
  */
 void init_anim(void) {
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     FILE *fp;
     static int anim_init = 0;
     int num_frames = 0, faces[MAX_ANIMATIONS], i;
@@ -87,7 +87,7 @@ void init_anim(void) {
         exit(1);
     }
 
-    while (fgets(buf, MAX_BUF - 1, fp) != NULL) {
+    while (fgets(VS(buf), fp) != NULL) {
         if (*buf == '#') {
             continue;
         }

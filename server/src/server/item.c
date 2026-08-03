@@ -1018,6 +1018,8 @@ StringBuffer *object_get_description(const object *op, const object *caller, Str
                         }
                     }
 
+                    /* fall through */
+
                 default:
                     return sb;
             }

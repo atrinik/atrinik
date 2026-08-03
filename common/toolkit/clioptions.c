@@ -531,7 +531,7 @@ bool clioptions_load(const char *path, const char *category) {
 
     LOG(INFO, "Loading configuration from %s", path);
 
-    char category_cur[MAX_BUF];
+    char category_cur[HUGE_BUF];
     category_cur[0] = '\0';
 
     char buf[HUGE_BUF];

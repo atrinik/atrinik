@@ -349,7 +349,7 @@ int x11_clipboard_set(x11_display_type display, x11_window_type win, const char 
 #endif
 
     if (getenv("KDE_FULL_SESSION")) {
-        char strbuf[HUGE_BUF * 4], buf[HUGE_BUF * 4];
+        char strbuf[HUGE_BUF * 4], buf[HUGE_BUF * 4 + 256];
 
         string_replace(str, "'", "'\\''", strbuf, sizeof(strbuf));
         snprintf(buf,

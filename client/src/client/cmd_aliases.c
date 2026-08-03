@@ -318,7 +318,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params) {
  */
 int cmd_aliases_handle(const char *cmd) {
     if (cmd[0] == '/' && cmd[1] != '\0') {
-        char *cp;
+        const char *cp;
         size_t cmd_len;
         const char *params;
         cmd_alias_struct *cmd_alias;

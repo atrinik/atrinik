@@ -200,7 +200,12 @@ typedef void (*f_plug_pinit)(void);
 #define LIBPTRTYPE HMODULE
 #define plugins_dlopen(fname) LoadLibrary(fname)
 #define plugins_dlclose(lib) FreeLibrary(lib)
-#define plugins_dlsym(lib, name, type) (type) GetProcAddress(lib, name)
+#define plugins_dlsym(lib, name, type)       \
+    ((union {                                \
+         FARPROC source;                     \
+         type target;                        \
+     }){.source = GetProcAddress(lib, name)} \
+         .target)
 #endif
 
 /** Check if the specified filename is a plugin file. */

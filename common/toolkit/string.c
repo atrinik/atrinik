@@ -688,12 +688,12 @@ char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
         }
     }
 
-    if (!(str + start) || end - start < 0) {
+    if (start > end || (size_t)start >= str_len) {
         return string_estrdup("" MEMORY_DEBUG_PARAM);
     }
 
     str += start;
-    n = MIN(str_len, (size_t)(end - start));
+    n = MIN(str_len - (size_t)start, (size_t)(end - start));
 
     return string_estrndup(str, n MEMORY_DEBUG_PARAM);
 }

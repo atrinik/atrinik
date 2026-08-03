@@ -79,7 +79,7 @@ static int compar(const void *a, const void *b) {
  * display the person is on will not make a difference).
  */
 int read_bmap_names(void) {
-    char buf[MAX_BUF], *cp;
+    char buf[HUGE_BUF], *cp;
     FILE *fp;
     int nrofbmaps = 0, i;
     size_t line = 0;

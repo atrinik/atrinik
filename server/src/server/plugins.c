@@ -173,7 +173,7 @@ void display_plugins_list(object *op) {
 void init_plugins(void) {
     struct dirent *currentfile;
     DIR *plugdir;
-    char pluginfile[MAX_BUF];
+    char pluginfile[HUGE_BUF];
 
     if (!(plugdir = opendir(PLUGINDIR))) {
         return;

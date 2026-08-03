@@ -538,10 +538,10 @@ static void parse_metaserver_data(const char *body, size_t body_size) {
         goto out;
     }
 
-    xmlSetStructuredErrorFunc(NULL, NULL);
-    xmlSetGenericErrorFunc(NULL, parse_metaserver_data_error);
-    xmlThrDefSetStructuredErrorFunc(NULL, NULL);
-    xmlThrDefSetGenericErrorFunc(NULL, parse_metaserver_data_error);
+    xmlSchemaSetValidErrors(valid_ctx,
+                            parse_metaserver_data_error,
+                            parse_metaserver_data_error,
+                            NULL);
 
     if (xmlSchemaValidateDoc(valid_ctx, doc) != 0) {
         LOG(ERROR, "XML verification failed.");

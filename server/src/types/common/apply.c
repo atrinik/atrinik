@@ -255,6 +255,8 @@ int object_apply_item(object *op, object *applier, int aflags) {
                 return OBJECT_METHOD_ERROR;
             }
 
+            /* fall through */
+
         case RING:
         case AMULET:
         case TRINKET:

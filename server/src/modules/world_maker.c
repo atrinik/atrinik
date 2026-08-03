@@ -478,7 +478,7 @@ void world_maker(void) {
     size_t i;
     region_struct *r, *r2;
     wm_region *wm_r;
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     int x, y, layer, sub_layer, got_one;
     int xpos = 0, ypos = 0;
     FILE *def_fp;

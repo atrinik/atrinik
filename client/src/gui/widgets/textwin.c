@@ -120,7 +120,7 @@ static void textwin_tab_append(widgetdata *widget,
     textwin_struct *textwin;
     SDL_Rect box;
     size_t len, scroll;
-    char timebuf[MAX_BUF], tabname[MAX_BUF], *cp;
+    char timebuf[MAX_BUF + 16], tabname[MAX_BUF], *cp;
 
     textwin = TEXTWIN(widget);
     box.w = TEXTWIN_TEXT_WIDTH(widget);

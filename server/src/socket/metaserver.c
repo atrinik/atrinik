@@ -641,6 +641,32 @@ out:
 }
 
 /**
+ * Computes SHA-512 over up to three data segments.
+ */
+static bool metaserver_sha512(unsigned char digest[SHA512_DIGEST_LENGTH],
+                              const void *data1,
+                              size_t size1,
+                              const void *data2,
+                              size_t size2,
+                              const void *data3,
+                              size_t size3) {
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (ctx == NULL) {
+        return false;
+    }
+
+    bool success = EVP_DigestInit_ex(ctx, EVP_sha512(), NULL) == 1 &&
+                   EVP_DigestUpdate(ctx, data1, size1) == 1 &&
+                   EVP_DigestUpdate(ctx, data2, size2) == 1 &&
+                   (data3 == NULL || EVP_DigestUpdate(ctx, data3, size3) == 1);
+    unsigned int digest_len = 0;
+    success = success && EVP_DigestFinal_ex(ctx, digest, &digest_len) == 1 &&
+              digest_len == SHA512_DIGEST_LENGTH;
+    EVP_MD_CTX_free(ctx);
+    return success;
+}
+
+/**
  * Acquires the key to use for metaserver authentication.
  *
  * @param[out] key
@@ -659,8 +685,6 @@ static bool metaserver_get_key(char *key, size_t key_size, const char *otp, cons
     HARD_ASSERT(key_size == SHA512_DIGEST_LENGTH * 2 + 1);
 
     unsigned char tmp_key[SHA512_DIGEST_LENGTH];
-    SHA512_CTX ctx = {0};
-
     char path[HUGE_BUF];
     metaserver_key_path(VS(path));
     FILE *fp = fopen(path, "rb");
@@ -751,25 +775,10 @@ static bool metaserver_get_key(char *key, size_t key_size, const char *otp, cons
                       "string_tohex failed");
     string_tolower(key);
 
-    if (SHA512_Init(&ctx) != 1) {
-        LOG(ERROR, "SHA512_Init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error_reading;
-    }
-
-    if (SHA512_Update(&ctx, key, key_size - 1) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error_reading;
-    }
-
     char identity[65];
     if (!metaserver_identity(VS(identity)) ||
-        SHA512_Update(&ctx, identity, strlen(identity)) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error_reading;
-    }
-
-    if (SHA512_Final(tmp_key, &ctx) != 1) {
-        LOG(ERROR, "SHA512_Final() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+        !metaserver_sha512(tmp_key, key, key_size - 1, identity, strlen(identity), NULL, 0)) {
+        LOG(ERROR, "SHA-512 digest failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
@@ -785,28 +794,8 @@ static bool metaserver_get_key(char *key, size_t key_size, const char *otp, cons
         goto error_reading;
     }
 
-    if (SHA512_Init(&ctx) != 1) {
-        LOG(ERROR, "SHA512_Init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error_reading;
-    }
-
-    if (SHA512_Update(&ctx, otp, strlen(otp)) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error_reading;
-    }
-
-    if (SHA512_Update(&ctx, key, key_size - 1) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error_reading;
-    }
-
-    if (SHA512_Update(&ctx, cotp, strlen(cotp)) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        goto error_reading;
-    }
-
-    if (SHA512_Final(tmp_key, &ctx) != 1) {
-        LOG(ERROR, "SHA512_Final() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    if (!metaserver_sha512(tmp_key, otp, strlen(otp), key, key_size - 1, cotp, strlen(cotp))) {
+        LOG(ERROR, "SHA-512 digest failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
@@ -823,8 +812,6 @@ error_reading:
     }
     memset(key, 0, key_size);
     memset(&tmp_key, 0, sizeof(tmp_key));
-    memset(&ctx, 0, sizeof(ctx));
-
     return false;
 }
 
@@ -898,7 +885,7 @@ static void metaserver_otp_request(curl_request_t *request, void *user_data) {
         goto out;
     }
 
-    char url[MAX_BUF];
+    char url[HUGE_BUF];
     snprintf(VS(url), "%s/update", settings.metaserver_url);
     current_request = curl_request_create(url, CURL_PKEY_TRUST_SYSTEM);
     curl_request_set_cb(current_request, metaserver_update_request, NULL);
@@ -1003,7 +990,7 @@ void metaserver_info_update(void) {
     }
     request_players = stringbuffer_finish(sb);
 
-    char url[MAX_BUF];
+    char url[HUGE_BUF];
     snprintf(VS(url), "%s/otp", settings.metaserver_url);
     /* If we're at this point, no other thread is currently working with
      * the current request and thus a lock is not necessary. */

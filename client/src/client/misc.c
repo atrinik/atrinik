@@ -136,19 +136,21 @@ int bmp2png(const char *path) {
  * The surface to take a screenshot of.
  */
 void screenshot_create(SDL_Surface *surface) {
-    char path[HUGE_BUF], timebuf[MAX_BUF];
+    char path[HUGE_BUF], timebuf[64];
     struct timeval tv;
     struct tm *tm;
+    time_t seconds;
 
     if (!surface) {
         return;
     }
 
     gettimeofday(&tv, NULL);
-    tm = localtime(&tv.tv_sec);
+    seconds = tv.tv_sec;
+    tm = localtime(&seconds);
 
     if (tm) {
-        char timebuf2[MAX_BUF];
+        char timebuf2[32];
 
         strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
         snprintf(timebuf, sizeof(timebuf), "%s-%06" PRIu64, timebuf2, (uint64_t)tv.tv_usec);

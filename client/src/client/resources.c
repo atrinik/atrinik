@@ -112,18 +112,19 @@ void socket_command_resource(uint8_t *data, size_t len, size_t pos) {
     memcpy(resource->digest, digest, sizeof(resource->digest));
     HASH_ADD_KEYPTR(hh, resources, resource->name, strlen(resource->name), resource);
 
-    char path[HUGE_BUF];
-    snprintf(VS(path), "resources/%s", resource->digest);
+    char *path = path_join("resources", resource->digest);
     FILE *fp = path_fopen(path, "r");
     if (fp != NULL) {
         fclose(fp);
+        efree(path);
         resource->loaded = true;
         return;
     }
+    efree(path);
 
-    char asset[HUGE_BUF];
-    snprintf(VS(asset), "resources/%s", resource_name);
+    char *asset = path_join("resources", resource_name);
     resource->source = asset_source_start(asset, NULL);
+    efree(asset);
 }
 
 /**
@@ -165,15 +166,16 @@ bool resources_is_ready(resource_t *resource) {
         goto error;
     }
 
-    char path[HUGE_BUF];
-    snprintf(VS(path), "resources/%s", resource->digest);
+    char *path = path_join("resources", resource->digest);
     char *resolved = file_path(path, "wb");
     bool saved = path_write_atomic(resolved, body, body_size, 0600);
     efree(resolved);
     if (!saved) {
         LOG(ERROR, "Failed to atomically write %s", path);
+        efree(path);
         goto error;
     }
+    efree(path);
     resource->loaded = true;
 
     bool ret = true;
