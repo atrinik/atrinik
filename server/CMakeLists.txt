@@ -55,8 +55,6 @@ if (NOT MINGW)
     pkg_check_modules(MINIUPNPC REQUIRED IMPORTED_TARGET miniupnpc)
 endif ()
 
-find_package(pcpnatpmp 1.0 REQUIRED CONFIG)
-
 find_library(CHECK_LIBRARY check)
 
 if (CHECK_PKG_FOUND OR CHECK_LIBRARY)

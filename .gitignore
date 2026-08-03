@@ -4,6 +4,7 @@ AGENTS.md
 cov-int
 nbproject
 build/
+/devcontainer/
 *.kdev*
 *.json
 !CMakePresets.json

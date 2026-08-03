@@ -1,6 +1,6 @@
 {
   "name": "Atrinik Windows cross-build (MXE)",
-  "image": "ghcr.io/atrinik/windows-build:mxe",
+  "image": "ghcr.io/atrinik/windows-build:0.0.2",
   "workspaceFolder": "/workspaces/atrinik",
   "remoteUser": "vscode",
   "postCreateCommand": "git submodule update --init --recursive || true",

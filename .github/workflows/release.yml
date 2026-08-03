@@ -10,16 +10,14 @@ on:
         description: Existing release tag to build
         required: true
         type: string
-  workflow_call:
-    inputs:
-      tag:
-        description: Existing release tag to build
-        required: true
-        type: string
 
 permissions:
   contents: read
   packages: read
+
+concurrency:
+  group: tagged-release
+  cancel-in-progress: false
 
 jobs:
   metadata:
@@ -56,56 +54,6 @@ jobs:
           echo "tag=${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
           echo "version=${RELEASE_TAG#v}" >> "${GITHUB_OUTPUT}"
 
-  linux-build-image:
-    name: Linux build image
-    needs: metadata
-    runs-on: ubuntu-26.04
-    timeout-minutes: 60
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Check out tagged source
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.metadata.outputs.tag }}
-
-      - name: Set image name
-        env:
-          IMAGE_NAME: linux-build
-        run: |
-          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}" \
-            >> "${GITHUB_ENV}"
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and publish Linux build image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: .devcontainer/Dockerfile
-          platforms: linux/amd64
-          pull: true
-          push: true
-          tags: |
-            ${{ env.IMAGE }}:${{ needs.metadata.outputs.version }}
-            ${{ env.IMAGE }}:ubuntu-26.04
-            ${{ env.IMAGE }}:sha-${{ needs.metadata.outputs.commit }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ needs.metadata.outputs.commit }}
-            org.opencontainers.image.version=${{ needs.metadata.outputs.version }}
-          cache-from: type=gha,scope=linux-ci-image
-          cache-to: type=gha,mode=max,scope=linux-ci-image
-
   linux:
     name: Linux CI
     needs: metadata
@@ -114,64 +62,11 @@ jobs:
       ref: ${{ needs.metadata.outputs.tag }}
       package-version: ${{ needs.metadata.outputs.version }}
 
-  windows-build-image:
-    name: Windows build image
-    needs: metadata
-    runs-on: ubuntu-26.04
-    timeout-minutes: 180
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Check out tagged source
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.metadata.outputs.tag }}
-
-      - name: Set image name
-        env:
-          IMAGE_NAME: windows-build
-        run: |
-          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}" \
-            >> "${GITHUB_ENV}"
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and publish Windows build image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: .devcontainer/windows-cross/Dockerfile
-          platforms: linux/amd64
-          pull: true
-          push: true
-          tags: |
-            ${{ env.IMAGE }}:${{ needs.metadata.outputs.version }}
-            ${{ env.IMAGE }}:mxe
-            ${{ env.IMAGE }}:sha-${{ needs.metadata.outputs.commit }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ needs.metadata.outputs.commit }}
-            org.opencontainers.image.version=${{ needs.metadata.outputs.version }}
-          cache-from: type=gha,scope=windows-mxe
-          cache-to: type=gha,mode=max,scope=windows-mxe
-          build-args: MXE_BUILD_JOBS=4
-
   windows:
     name: Windows packages
     needs:
       - metadata
       - linux
-      - linux-build-image
-      - windows-build-image
     runs-on: ubuntu-26.04
     timeout-minutes: 180
     permissions:
@@ -187,7 +82,7 @@ jobs:
       - name: Set image name
         env:
           IMAGE_NAME: windows-build
-          IMAGE_VERSION: ${{ needs.metadata.outputs.version }}
+          IMAGE_VERSION: 0.0.2
         run: |
           echo "WINDOWS_BUILD_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}:${IMAGE_VERSION}" \
             >> "${GITHUB_ENV}"

@@ -31,6 +31,10 @@ else ()
     set(PACKAGE_VERSION_PATCH "${CMAKE_MATCH_4}")
 endif ()
 
+if (BUILD_SERVER)
+    include(cmake/pcpnatpmp.cmake)
+endif ()
+
 include_directories(common)
 include_directories(${CMAKE_BINARY_DIR}/common)
 
