@@ -739,7 +739,7 @@
 = 2.25. Server command ASSET                                                  =
 ===============================================================================
  This command requests an asset over an established QUIC game connection. It
- is available beginning with socket protocol version 1069 and MUST NOT be
+ is available beginning with socket protocol version 1067 and MUST NOT be
  accepted before join-password authentication succeeds.
 
  The packet MUST be constructed in the following order:

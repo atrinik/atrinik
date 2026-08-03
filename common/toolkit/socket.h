@@ -216,7 +216,7 @@ typedef enum socket_role {
 /** Direct connection mode selected by the client. */
 #define CMD_SETUP_CONNECTION_MODE 6
 /** First socket protocol version supporting in-band asset downloads. */
-#define ASSET_TRANSPORT_SOCKET_VERSION 1069
+#define ASSET_TRANSPORT_SOCKET_VERSION 1067
 
 /** Buffer size for a 128-bit hexadecimal connection ID and terminator. */
 #define SOCKET_CONNECTION_ID_SIZE 33
