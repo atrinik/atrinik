@@ -121,18 +121,6 @@
 #cmakedefine HAVE_STRNICMP
 #endif
 
-#ifndef HAVE_SRANDOM
-#cmakedefine HAVE_SRANDOM
-#endif
-
-#ifndef HAVE_SRAND48
-#cmakedefine HAVE_SRAND48
-#endif
-
-#ifndef HAVE_SRAND
-#cmakedefine HAVE_SRAND
-#endif
-
 #ifndef HAVE_GETDTABLESIZE
 #cmakedefine HAVE_GETDTABLESIZE
 #endif

@@ -62,13 +62,13 @@ void find_top_left_corner(char **maze, int *cx, int *cy) {
  * @return
  * The generated layout.
  */
-char **make_square_spiral_layout(int xsize, int ysize) {
+char **make_square_spiral_layout(int xsize, int ysize, rng_state_t *rng) {
     int i, j;
     int cx = 0, cy = 0;
     int tx, ty;
 
     /* Generate and allocate a doorless, centered onion */
-    char **maze = map_gen_onion(xsize, ysize, OPT_CENTERED | OPT_NO_DOORS, 0);
+    char **maze = map_gen_onion(xsize, ysize, OPT_CENTERED | OPT_NO_DOORS, 0, rng);
 
     /* Find the layout center.  */
     for (i = 0; i < xsize; i++) {
@@ -128,7 +128,7 @@ char **make_square_spiral_layout(int xsize, int ysize) {
     }
 
     /* place the exits.  */
-    if (rndm_chance(2)) {
+    if (rng_chance(rng, 2)) {
         maze[cx][cy] = '>';
         maze[xsize - 2][1] = '<';
     } else {

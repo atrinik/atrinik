@@ -142,7 +142,7 @@ and opt-in physical-router interoperability tests.
 
 GitHub Actions builds the Linux client and server and runs the server tests for
 every pull request. The same validation runs again for every automatically
-tagged merge commit on `master`.
+tagged pull request merged into `master`.
 
 Each tagged release builds the Linux devcontainer and publishes it as
 `ghcr.io/atrinik/linux-build`. The image receives the release version without
@@ -151,10 +151,12 @@ the leading `v`, the rolling `ubuntu-26.04` tag, and a commit-specific
 The release workflow uses the GitHub Actions BuildKit cache so unchanged image
 layers are reused.
 
-The release line comes from `PACKAGE_VERSION` in `build.config`. A merge commit
-on `master` receives the next available patch tag in that release line. The
-first automatically tagged merge in the 5.0 line is `v5.0.0`, followed by
-`v5.0.1`, `v5.0.2`, and so on. Direct, single-parent pushes are not tagged.
+The release line comes from `PACKAGE_VERSION` in `build.config`. A pull request
+merged into `master` receives the next available patch tag in that release
+line. The first automatically tagged merge in the 5.0 line is `v5.0.0`,
+followed by `v5.0.1`, `v5.0.2`, and so on. Direct pushes and pull requests
+closed without merging are not tagged. An existing tag can be rebuilt through
+the manual dispatch input of the `Tagged Release` workflow.
 
 A tagged merge also builds the portable Windows client and server packages and
 publishes them in the GitHub release associated with the tag. Automated tagged

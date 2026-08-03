@@ -45,13 +45,30 @@ typedef struct free_walls_struct {
     int wall_free_size;
 } free_walls_struct;
 
-static void
-fill_maze_full(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls);
-static void
-fill_maze_sparse(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls);
+static void fill_maze_full(char **maze,
+                           int x,
+                           int y,
+                           int xsize,
+                           int ysize,
+                           free_walls_struct *free_walls,
+                           rng_state_t *rng);
+static void fill_maze_sparse(char **maze,
+                             int x,
+                             int y,
+                             int xsize,
+                             int ysize,
+                             free_walls_struct *free_walls,
+                             rng_state_t *rng);
 static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_walls);
-static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls);
-static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsize, int ysize);
+static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls, rng_state_t *rng);
+static int find_free_point(char **maze,
+                           int *x,
+                           int *y,
+                           int xc,
+                           int yc,
+                           int xsize,
+                           int ysize,
+                           rng_state_t *rng);
 
 /**
  * This function generates a random blocked maze with the property that
@@ -68,7 +85,7 @@ static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsiz
  * a char ** array with # and . for closed and open respectively.
  * a char value of 0 represents a blank space:  a '#' is a wall.
  */
-char **maze_gen(int xsize, int ysize, int option) {
+char **maze_gen(int xsize, int ysize, int option, rng_state_t *rng) {
     int i, j;
     struct free_walls_struct free_walls;
     /* allocate that array, set it up */
@@ -103,12 +120,12 @@ char **maze_gen(int xsize, int ysize, int option) {
     /* recursively generate the walls of the maze */
     while (free_walls.wall_free_size > 0) {
         /* first pop a random starting point */
-        pop_wall_point(&i, &j, &free_walls);
+        pop_wall_point(&i, &j, &free_walls, rng);
 
         if (option) {
-            fill_maze_full(maze, i, j, xsize, ysize, &free_walls);
+            fill_maze_full(maze, i, j, xsize, ysize, &free_walls, rng);
         } else {
-            fill_maze_sparse(maze, i, j, xsize, ysize, &free_walls);
+            fill_maze_sparse(maze, i, j, xsize, ysize, &free_walls, rng);
         }
     }
 
@@ -175,8 +192,8 @@ static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_wa
  * @param free_walls
  * Free walls list.
  */
-static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls) {
-    int i = rndm(0, free_walls->wall_free_size - 1);
+static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls, rng_state_t *rng) {
+    int i = rng_range(rng, 0, free_walls->wall_free_size - 1);
 
     *x = free_walls->wall_x_list[i];
     *y = free_walls->wall_y_list[i];
@@ -210,7 +227,14 @@ static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls) {
  * @return
  * -1 if no free spot, 0 otherwise.
  */
-static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsize, int ysize) {
+static int find_free_point(char **maze,
+                           int *x,
+                           int *y,
+                           int xc,
+                           int yc,
+                           int xsize,
+                           int ysize,
+                           rng_state_t *rng) {
     /* we will randomly pick from this list, 1=up,2=down,3=right,4=left */
     int dirlist[4];
     /* # elements in dirlist */
@@ -275,7 +299,7 @@ static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsiz
 
     /* choose a random direction */
     if (count > 1) {
-        count = rndm(0, count - 1);
+        count = rng_range(rng, 0, count - 1);
     } else {
         count = 0;
     }
@@ -329,22 +353,27 @@ static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsiz
  * @param free_walls
  * Free walls list.
  */
-static void
-fill_maze_full(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls) {
+static void fill_maze_full(char **maze,
+                           int x,
+                           int y,
+                           int xsize,
+                           int ysize,
+                           free_walls_struct *free_walls,
+                           rng_state_t *rng) {
     int xc, yc;
 
     /* Write a wall here */
     maze[x][y] = '#';
 
     /* Decide if we're going to pick from the wall_free_list */
-    if (!rndm_chance(4) && free_walls->wall_free_size > 0) {
-        pop_wall_point(&xc, &yc, free_walls);
-        fill_maze_full(maze, xc, yc, xsize, ysize, free_walls);
+    if (!rng_chance(rng, 4) && free_walls->wall_free_size > 0) {
+        pop_wall_point(&xc, &yc, free_walls, rng);
+        fill_maze_full(maze, xc, yc, xsize, ysize, free_walls, rng);
     }
 
     /* Change the if to a while for a complete maze.  */
-    while (find_free_point(maze, &xc, &yc, x, y, xsize, ysize) != -1) {
-        fill_maze_full(maze, xc, yc, xsize, ysize, free_walls);
+    while (find_free_point(maze, &xc, &yc, x, y, xsize, ysize, rng) != -1) {
+        fill_maze_full(maze, xc, yc, xsize, ysize, free_walls, rng);
     }
 }
 
@@ -364,21 +393,26 @@ fill_maze_full(char **maze, int x, int y, int xsize, int ysize, free_walls_struc
  * @param free_walls
  * Free walls list.
  */
-static void
-fill_maze_sparse(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls) {
+static void fill_maze_sparse(char **maze,
+                             int x,
+                             int y,
+                             int xsize,
+                             int ysize,
+                             free_walls_struct *free_walls,
+                             rng_state_t *rng) {
     int xc, yc;
 
     /* Write a wall here */
     maze[x][y] = '#';
 
     /* Decide if we're going to pick from the wall_free_list */
-    if (!rndm_chance(4) && free_walls->wall_free_size > 0) {
-        pop_wall_point(&xc, &yc, free_walls);
-        fill_maze_sparse(maze, xc, yc, xsize, ysize, free_walls);
+    if (!rng_chance(rng, 4) && free_walls->wall_free_size > 0) {
+        pop_wall_point(&xc, &yc, free_walls, rng);
+        fill_maze_sparse(maze, xc, yc, xsize, ysize, free_walls, rng);
     }
 
     /* Change the if to a while for a complete maze.  */
-    if (find_free_point(maze, &xc, &yc, x, y, xsize, ysize) != -1) {
-        fill_maze_sparse(maze, xc, yc, xsize, ysize, free_walls);
+    if (find_free_point(maze, &xc, &yc, x, y, xsize, ysize, rng) != -1) {
+        fill_maze_sparse(maze, xc, yc, xsize, ysize, free_walls, rng);
     }
 }

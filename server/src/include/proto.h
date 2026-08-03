@@ -123,7 +123,7 @@ extern char **expand2x(char **layout, int xsize, int ysize);
 /* src/random_maps/floor.c */
 extern mapstruct *make_map_floor(char *floorstyle, RMParms *RP);
 /* src/random_maps/maze_gen.c */
-extern char **maze_gen(int xsize, int ysize, int option);
+extern char **maze_gen(int xsize, int ysize, int option, rng_state_t *rng);
 /* src/random_maps/monster.c */
 extern void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP);
 /* src/random_maps/random_map.c */
@@ -139,28 +139,41 @@ extern void doorify_layout(char **maze, RMParms *RP);
 extern void write_map_parameters_to_string(char *buf, RMParms *RP);
 /* src/random_maps/rogue_layout.c */
 extern int surround_check(char **layout, int i, int j, int Xsize, int Ysize);
-extern char **roguelike_layout_gen(int xsize, int ysize, int options);
+extern char **roguelike_layout_gen(int xsize, int ysize, int options, rng_state_t *rng);
 /* src/random_maps/room_gen_onion.c */
-extern char **map_gen_onion(int xsize, int ysize, int option, int layers);
-extern void centered_onion(char **maze, int xsize, int ysize, int option, int layers);
-extern void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
+extern char **map_gen_onion(int xsize, int ysize, int option, int layers, rng_state_t *rng);
+extern void
+centered_onion(char **maze, int xsize, int ysize, int option, int layers, rng_state_t *rng);
+extern void
+bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers, rng_state_t *rng);
 extern void draw_onion(char **maze, float *xlocations, float *ylocations, int layers);
-extern void make_doors(char **maze, float *xlocations, float *ylocations, int layers, int options);
-extern void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
+extern void make_doors(char **maze,
+                       float *xlocations,
+                       float *ylocations,
+                       int layers,
+                       int options,
+                       rng_state_t *rng);
+extern void bottom_right_centered_onion(char **maze,
+                                        int xsize,
+                                        int ysize,
+                                        int option,
+                                        int layers,
+                                        rng_state_t *rng);
 /* src/random_maps/room_gen_spiral.c */
-extern char **map_gen_spiral(int xsize, int ysize, int option);
+extern char **map_gen_spiral(int xsize, int ysize, int option, rng_state_t *rng);
 extern void connect_spirals(int xsize, int ysize, int sym, char **layout);
 /* src/random_maps/snake.c */
-extern char **make_snake_layout(int xsize, int ysize);
+extern char **make_snake_layout(int xsize, int ysize, rng_state_t *rng);
 /* src/random_maps/square_spiral.c */
 extern void find_top_left_corner(char **maze, int *cx, int *cy);
-extern char **make_square_spiral_layout(int xsize, int ysize);
+extern char **make_square_spiral_layout(int xsize, int ysize, rng_state_t *rng);
 /* src/random_maps/style.c */
 extern int load_dir(const char *dir, char ***namelist, int skip_dirs);
 extern mapstruct *styles;
 extern mapstruct *load_style_map(char *style_name);
-extern mapstruct *find_style(const char *dirname, const char *stylename, int difficulty);
-extern object *pick_random_object(mapstruct *style);
+extern mapstruct *
+find_style(const char *dirname, const char *stylename, int difficulty, rng_state_t *rng);
+extern object *pick_random_object(mapstruct *style, rng_state_t *rng);
 extern void free_style_maps(void);
 /* src/random_maps/wall.c */
 extern int surround_flag(char **layout, int i, int j, RMParms *RP);

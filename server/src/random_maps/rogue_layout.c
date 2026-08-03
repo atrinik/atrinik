@@ -45,9 +45,16 @@ typedef struct {
     int rtype;
 } Room;
 
-static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms);
-static void roguelike_make_rooms(Room *Rooms, char **maze, int options);
-static void roguelike_link_rooms(Room *Rooms, char **maze);
+static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms, rng_state_t *rng);
+static void roguelike_make_rooms(Room *Rooms, char **maze, int options, rng_state_t *rng);
+static void roguelike_link_rooms(Room *Rooms, char **maze, rng_state_t *rng);
+
+static int centered_size(rng_state_t *rng, int base_size) {
+    int size = rng_range(rng, 0, base_size - 1);
+    size += rng_range(rng, 0, base_size - 1);
+    size += rng_range(rng, 0, base_size - 1);
+    return size;
+}
 
 /**
  * Checks free spots around a spot.
@@ -104,7 +111,7 @@ int surround_check(char **layout, int i, int j, int Xsize, int Ysize) {
  * @return
  * Generated layout.
  */
-char **roguelike_layout_gen(int xsize, int ysize, int options) {
+char **roguelike_layout_gen(int xsize, int ysize, int options, rng_state_t *rng) {
     int i, j = 0;
     Room *Rooms = NULL, *walk;
     int nrooms = 0;
@@ -138,7 +145,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options) {
     }
 
     /* decide on the number of rooms */
-    nrooms = RANDOM() % 10 + 6;
+    nrooms = rng_range(rng, 6, 15);
     Rooms = ecalloc(nrooms + 1, sizeof(Room));
 
     /* Actually place the rooms */
@@ -146,7 +153,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options) {
 
     while (tries < 450 && i < nrooms) {
         /* Try to place the room */
-        if (!roguelike_place_room(Rooms, xsize, ysize, nrooms)) {
+        if (!roguelike_place_room(Rooms, xsize, ysize, nrooms, rng)) {
             tries++;
         } else {
             i++;
@@ -169,9 +176,9 @@ char **roguelike_layout_gen(int xsize, int ysize, int options) {
     }
 
     /* Erase the areas occupied by the rooms */
-    roguelike_make_rooms(Rooms, maze, options);
+    roguelike_make_rooms(Rooms, maze, options, rng);
 
-    roguelike_link_rooms(Rooms, maze);
+    roguelike_link_rooms(Rooms, maze, rng);
 
     /* Put in the stairs */
     maze[Rooms->x][Rooms->y] = '<';
@@ -224,7 +231,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options) {
  * @return
  * 0 if no room could be generated, 1 otherwise.
  */
-static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms) {
+static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms, rng_state_t *rng) {
     /* trial center locations */
     int tx, ty;
     /* trial sizes */
@@ -240,12 +247,12 @@ static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms) {
     x_basesize = (int)(xsize / sqrt(nrooms));
     y_basesize = (int)(ysize / sqrt(nrooms));
 
-    tx = RANDOM() % xsize;
-    ty = RANDOM() % ysize;
+    tx = rng_range(rng, 0, xsize - 1);
+    ty = rng_range(rng, 0, ysize - 1);
 
     /* Generate a distribution of sizes centered about basesize */
-    sx = (RANDOM() % x_basesize) + (RANDOM() % x_basesize) + (RANDOM() % x_basesize);
-    sy = (RANDOM() % y_basesize) + (RANDOM() % y_basesize) + (RANDOM() % y_basesize);
+    sx = centered_size(rng, x_basesize);
+    sy = centered_size(rng, y_basesize);
 
     /* Renormalize */
     sy = (int)(sy * 0.5);
@@ -308,7 +315,7 @@ static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms) {
  * 2 to have circular rooms, 1 for rectangular ones,
  * another value for random choice.
  */
-static void roguelike_make_rooms(Room *Rooms, char **maze, int options) {
+static void roguelike_make_rooms(Room *Rooms, char **maze, int options, rng_state_t *rng) {
     int making_circle = 0, i, j, R = 0;
     Room *walk;
 
@@ -324,7 +331,7 @@ static void roguelike_make_rooms(Room *Rooms, char **maze, int options) {
                 break;
 
             default:
-                making_circle = rndm_chance(3);
+                making_circle = rng_chance(rng, 3);
 
                 if (walk->sx < walk->sy) {
                     R = walk->sx / 2;
@@ -355,7 +362,7 @@ static void roguelike_make_rooms(Room *Rooms, char **maze, int options) {
  * @param ysize
  * Y size of the maze.
  */
-static void roguelike_link_rooms(Room *Rooms, char **maze) {
+static void roguelike_link_rooms(Room *Rooms, char **maze, rng_state_t *rng) {
     Room *walk;
     int i, j;
 
@@ -369,7 +376,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze) {
         int x = walk->x, y = walk->y, x2 = (walk - 1)->x, y2 = (walk - 1)->y, in_wall = 0;
 
         /* Connect in x direction first */
-        if (rndm_chance(2)) {
+        if (rng_chance(rng, 2)) {
             /* horizontal connect */
             /* swap (x1, y1) (x2, y2) if necessary */
             if (x2 < x) {

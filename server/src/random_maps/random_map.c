@@ -73,12 +73,8 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP) {
     mapstruct *theMap;
     int i;
 
-    /* pick a random seed, or use the one from the input file */
-    if (RP->random_seed == 0) {
-        SRANDOM(time(0));
-    } else {
-        SRANDOM(RP->random_seed);
-    }
+    uint64_t seed = RP->random_seed == 0 ? rndm_u64() : (uint64_t)(uint32_t)RP->random_seed;
+    rng_seed(&RP->rng, seed);
 
     if (RP->difficulty == 0) {
         /* use this instead of a map difficulty */
@@ -101,7 +97,7 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP) {
     }
 
     /* rotate the layout randomly */
-    layout = rotate_layout(layout, RANDOM() % 4, RP);
+    layout = rotate_layout(layout, rng_range(&RP->rng, 0, 3), RP);
 
 #ifdef RMAP_DEBUG
     dump_layout(layout, RP);
@@ -157,25 +153,25 @@ char **layoutgen(RMParms *RP) {
 
     if (RP->symmetry != NO_SYM) {
         if (RP->Xsize < 15) {
-            RP->Xsize = 15 + RANDOM() % 25;
+            RP->Xsize = rng_range(&RP->rng, 15, 39);
         }
 
         if (RP->Ysize < 15) {
-            RP->Ysize = 15 + RANDOM() % 25;
+            RP->Ysize = rng_range(&RP->rng, 15, 39);
         }
     } else {
         /* Has to be at least 7 for square spirals to work */
         if (RP->Xsize < 7) {
-            RP->Xsize = 15 + RANDOM() % 25;
+            RP->Xsize = rng_range(&RP->rng, 15, 39);
         }
 
         if (RP->Ysize < 7) {
-            RP->Ysize = 15 + RANDOM() % 25;
+            RP->Ysize = rng_range(&RP->rng, 15, 39);
         }
     }
 
     if (RP->symmetry == RANDOM_SYM) {
-        RP->symmetry_used = (RANDOM() % (XY_SYM)) + 1;
+        RP->symmetry_used = rng_range(&RP->rng, 1, XY_SYM);
 
         if (RP->symmetry_used == Y_SYM || RP->symmetry_used == XY_SYM) {
             RP->Ysize = RP->Ysize / 2 + 1;
@@ -197,111 +193,116 @@ char **layoutgen(RMParms *RP) {
     }
 
     if (strstr(RP->layoutstyle, "onion")) {
-        maze = map_gen_onion(RP->Xsize, RP->Ysize, RP->layoutoptions1, RP->layoutoptions2);
+        maze =
+            map_gen_onion(RP->Xsize, RP->Ysize, RP->layoutoptions1, RP->layoutoptions2, &RP->rng);
 
         RP->map_layout_style = ONION_LAYOUT;
 
-        if (!(RANDOM() % 3) && !(RP->layoutoptions1 & OPT_WALLS_ONLY)) {
+        if (rng_chance(&RP->rng, 3) && !(RP->layoutoptions1 & OPT_WALLS_ONLY)) {
             roomify_layout(maze, RP);
         }
     } else if (strstr(RP->layoutstyle, "maze")) {
-        maze = maze_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
+        maze = maze_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1, &RP->rng);
 
         RP->map_layout_style = MAZE_LAYOUT;
 
-        if (!(RANDOM() % 2)) {
+        if (rng_chance(&RP->rng, 2)) {
             doorify_layout(maze, RP);
         }
     } else if (strstr(RP->layoutstyle, "spiral")) {
-        maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1);
+        maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1, &RP->rng);
 
         RP->map_layout_style = SPIRAL_LAYOUT;
 
-        if (!(RANDOM() % 2)) {
+        if (rng_chance(&RP->rng, 2)) {
             doorify_layout(maze, RP);
         }
     } else if (strstr(RP->layoutstyle, "rogue")) {
-        maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
+        maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1, &RP->rng);
 
         RP->map_layout_style = ROGUELIKE_LAYOUT;
     } else if (strstr(RP->layoutstyle, "snake")) {
-        maze = make_snake_layout(RP->Xsize, RP->Ysize);
+        maze = make_snake_layout(RP->Xsize, RP->Ysize, &RP->rng);
 
         RP->map_layout_style = SNAKE_LAYOUT;
 
-        if (RANDOM() % 2) {
+        if (rng_chance(&RP->rng, 2)) {
             roomify_layout(maze, RP);
         }
     } else if (strstr(RP->layoutstyle, "squarespiral")) {
-        maze = make_square_spiral_layout(RP->Xsize, RP->Ysize);
+        maze = make_square_spiral_layout(RP->Xsize, RP->Ysize, &RP->rng);
 
         RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
 
-        if (RANDOM() % 2) {
+        if (rng_chance(&RP->rng, 2)) {
             roomify_layout(maze, RP);
         }
     }
 
     /* unknown or unspecified layout type, pick one at random */
     if (maze == NULL) {
-        switch (RANDOM() % NROFLAYOUTS) {
+        switch (rng_range(&RP->rng, 0, NROFLAYOUTS - 1)) {
             case 0:
-                maze = maze_gen(RP->Xsize, RP->Ysize, RANDOM() % 2);
+                maze = maze_gen(RP->Xsize, RP->Ysize, rng_range(&RP->rng, 0, 1), &RP->rng);
 
                 RP->map_layout_style = MAZE_LAYOUT;
 
-                if (!(RANDOM() % 2)) {
+                if (rng_chance(&RP->rng, 2)) {
                     doorify_layout(maze, RP);
                 }
 
                 break;
 
             case 1:
-                maze = map_gen_onion(RP->Xsize, RP->Ysize, RP->layoutoptions1, RP->layoutoptions2);
+                maze = map_gen_onion(RP->Xsize,
+                                     RP->Ysize,
+                                     RP->layoutoptions1,
+                                     RP->layoutoptions2,
+                                     &RP->rng);
 
                 RP->map_layout_style = ONION_LAYOUT;
 
-                if (!(RANDOM() % 3) && !(RP->layoutoptions1 & OPT_WALLS_ONLY)) {
+                if (rng_chance(&RP->rng, 3) && !(RP->layoutoptions1 & OPT_WALLS_ONLY)) {
                     roomify_layout(maze, RP);
                 }
 
                 break;
 
             case 2:
-                maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1);
+                maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1, &RP->rng);
 
                 RP->map_layout_style = SPIRAL_LAYOUT;
 
-                if (!(RANDOM() % 2)) {
+                if (rng_chance(&RP->rng, 2)) {
                     doorify_layout(maze, RP);
                 }
 
                 break;
 
             case 3:
-                maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
+                maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1, &RP->rng);
 
                 RP->map_layout_style = ROGUELIKE_LAYOUT;
 
                 break;
 
             case 4:
-                maze = make_snake_layout(RP->Xsize, RP->Ysize);
+                maze = make_snake_layout(RP->Xsize, RP->Ysize, &RP->rng);
 
                 RP->map_layout_style = SNAKE_LAYOUT;
 
-                if (RANDOM() % 2) {
+                if (rng_chance(&RP->rng, 2)) {
                     roomify_layout(maze, RP);
                 }
 
                 break;
 
             case 5:
-                maze = make_square_spiral_layout(RP->Xsize, RP->Ysize);
+                maze = make_square_spiral_layout(RP->Xsize, RP->Ysize, &RP->rng);
 
                 RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
 
-                if (RANDOM() % 2) {
+                if (rng_chance(&RP->rng, 2)) {
                     roomify_layout(maze, RP);
                 }
 
@@ -525,8 +526,8 @@ void roomify_layout(char **maze, RMParms *RP) {
         /* results of checking on creating walls. */
         int cx, cy;
 
-        dx = RANDOM() % RP->Xsize;
-        dy = RANDOM() % RP->Ysize;
+        dx = rng_range(&RP->rng, 0, RP->Xsize - 1);
+        dy = rng_range(&RP->rng, 0, RP->Ysize - 1);
 
         /* horizontal */
         cx = can_make_wall(maze, dx, dy, 0, RP);
@@ -765,7 +766,7 @@ void doorify_layout(char **maze, RMParms *RP) {
     }
 
     while (ndoors > 0 && doorlocs > 0) {
-        int di = RANDOM() % doorlocs, sindex;
+        int di = rng_range(&RP->rng, 0, doorlocs - 1), sindex;
 
         i = doorlist_x[di];
         j = doorlist_y[di];

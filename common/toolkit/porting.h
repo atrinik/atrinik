@@ -163,23 +163,6 @@
 
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, NULL);
 
-#ifdef HAVE_SRANDOM
-#define RANDOM() random()
-#define SRANDOM(xyz) srandom(xyz)
-#else
-#ifdef HAVE_SRAND48
-#define RANDOM() lrand48()
-#define SRANDOM(xyz) srand48(xyz)
-#else
-#ifdef HAVE_SRAND
-#define RANDOM() rand()
-#define SRANDOM(xyz) srand(xyz)
-#else
-#error "Could not find a usable random routine"
-#endif
-#endif
-#endif
-
 #ifdef HAVE_STRICMP
 #define strcasecmp _stricmp
 #endif

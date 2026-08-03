@@ -59,7 +59,7 @@
  * @return
  * The generated layout.
  */
-char **map_gen_spiral(int xsize, int ysize, int option) {
+char **map_gen_spiral(int xsize, int ysize, int option, rng_state_t *rng) {
     int i, j, ic, jc;
     float parm = 0, x = 0, y = 0, SizeX, SizeY, xscale, yscale;
 
@@ -85,7 +85,7 @@ char **map_gen_spiral(int xsize, int ysize, int option) {
 
     /* Select random options if necessary */
     if (option == 0) {
-        option = rndm(0, MAX_SPIRAL_OPT);
+        option = rng_range(rng, 0, MAX_SPIRAL_OPT);
     }
 
     /* the order in which these are evaluated matters */
@@ -94,7 +94,7 @@ char **map_gen_spiral(int xsize, int ysize, int option) {
      *    pick one if they're both set. */
     if ((option & REGULAR_SPIRAL) && (option & FIT_SPIRAL)) {
         /* unset REGULAR_SPIRAL half the time */
-        if (rndm_chance(2) && (option & REGULAR_SPIRAL)) {
+        if (rng_chance(rng, 2) && (option & REGULAR_SPIRAL)) {
             option -= REGULAR_SPIRAL;
         } else {
             option -= FIT_SPIRAL;
@@ -106,7 +106,7 @@ char **map_gen_spiral(int xsize, int ysize, int option) {
 
     /* choose the spiral pitch */
     if (!(option & FINE_SPIRAL)) {
-        float pitch = (float)(RANDOM() % 5) / 10.0f + 10.0f / 22.0f;
+        float pitch = (float)rng_range(rng, 0, 4) / 10.0f + 10.0f / 22.0f;
 
         xscale = yscale = pitch;
     }

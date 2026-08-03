@@ -95,14 +95,14 @@ void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP) {
         return;
     }
 
-    vdoors = find_style("/styles/doorstyles/vdoors", doorstyle, -1);
+    vdoors = find_style("/styles/doorstyles/vdoors", doorstyle, -1, &RP->rng);
 
     if (!vdoors) {
         return;
     }
 
     snprintf(doorpath, sizeof(doorpath), "/styles/doorstyles/hdoors%s", strrchr(vdoors->path, '/'));
-    hdoors = find_style(doorpath, 0, -1);
+    hdoors = find_style(doorpath, 0, -1, &RP->rng);
 
     for (x = 0; x < RP->Xsize; x++) {
         for (y = 0; y < RP->Ysize; y++) {
@@ -111,9 +111,9 @@ void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP) {
                 object *this_door, *new_door;
 
                 if (sindex == 3) {
-                    this_door = pick_random_object(hdoors);
+                    this_door = pick_random_object(hdoors, &RP->rng);
                 } else {
-                    this_door = pick_random_object(vdoors);
+                    this_door = pick_random_object(vdoors, &RP->rng);
                 }
 
                 new_door = arch_to_object(this_door->arch);

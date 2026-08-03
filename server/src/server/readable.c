@@ -525,7 +525,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize) {
     artifact_list_t *al;
     artifact_t *art;
     int chance, i, type, idx;
-    int book_entries = level > 5 ? RANDOM() % 3 + RANDOM() % 3 + 2 : RANDOM() % level + 1;
+    int book_entries = level > 5 ? rndm(0, 2) + rndm(0, 2) + 2 : rndm(1, level);
     char *final;
     object *tmp = NULL;
     StringBuffer *desc;
@@ -743,7 +743,7 @@ static char *msgfile_msg(size_t booksize) {
  */
 void tailor_readable_ob(object *book, int msg_type) {
     char msgbuf[BOOK_BUF];
-    int level = book->level ? (RANDOM() % book->level) + 1 : 1;
+    int level = book->level ? rndm(1, book->level) : 1;
 
     /* Safety. */
     if (book->type != BOOK) {

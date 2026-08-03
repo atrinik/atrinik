@@ -38,10 +38,21 @@
 
 TOOLKIT_FUNCS_DECLARE(math);
 
+/** State for a deterministic, non-cryptographic random number stream. */
+typedef struct rng_state {
+    uint64_t state;
+} rng_state_t;
+
+void rng_seed(rng_state_t *rng, uint64_t seed);
+uint64_t rng_u64(rng_state_t *rng);
+int rng_range(rng_state_t *rng, int min, int max);
+int rng_chance(rng_state_t *rng, uint32_t n);
+double rng_real(rng_state_t *rng);
 unsigned long isqrt(unsigned long n);
 int rndm(int min, int max);
 int rndm_chance(uint32_t n);
 uint64_t rndm_u64(void);
+double rndm_real(void);
 void *sort_linked_list(void *p,
                        unsigned index,
                        int (*compare)(void *, void *, void *),

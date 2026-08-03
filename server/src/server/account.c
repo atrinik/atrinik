@@ -38,6 +38,9 @@
 #include <toolkit/datetime.h>
 #include <toolkit/pbkdf2.h>
 
+#include <openssl/err.h>
+#include <openssl/rand.h>
+
 #define ACCOUNT_CHARACTERS_LIMIT 16
 #define ACCOUNT_PASSWORD_SIZE 32
 #define ACCOUNT_PASSWORD_ITERATIONS 4096
@@ -99,12 +102,12 @@ static char *account_old_crypt(char *str, const char *salt) {
 #endif
 }
 
-static void account_set_password(account_struct *account, const char *password) {
-    size_t i;
-
-    /* Create a truly random 256-bit salt. */
-    for (i = 0; i < ACCOUNT_PASSWORD_SIZE; i++) {
-        account->salt[i] = rndm(1, 256) - 1;
+static bool account_set_password(account_struct *account, const char *password) {
+    if (RAND_bytes(account->salt, sizeof(account->salt)) != 1) {
+        LOG(ERROR,
+            "RAND_bytes() failed while generating an account password salt: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+        return false;
     }
 
     PKCS5_PBKDF2_HMAC_SHA2((const unsigned char *)password,
@@ -114,6 +117,7 @@ static void account_set_password(account_struct *account, const char *password) 
                            ACCOUNT_PASSWORD_ITERATIONS,
                            ACCOUNT_PASSWORD_SIZE,
                            account->password);
+    return true;
 }
 
 static int account_check_password(account_struct *account, char *password) {
@@ -362,8 +366,15 @@ void account_login(socket_struct *ns, char *name, char *password) {
         return;
     }
 
-    if (account.password_old) {
-        account_set_password(&account, password);
+    if (account.password_old && !account_set_password(&account, password)) {
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Password upgrade failed, please contact server administrator.");
+        account_free(&account);
+        efree(path);
+        return;
     }
 
     ns->account = estrdup(name);
@@ -444,7 +455,16 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
     path_ensure_directories(path);
 
-    account_set_password(&account, password);
+    if (!account_set_password(&account, password)) {
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Account creation failed, please contact server administrator.");
+        account_free(&account);
+        efree(path);
+        return;
+    }
     account.last_connection_id = estrdup(socket_get_id(ns->sc));
     account.last_time = datetime_getutc();
     account.characters = NULL;
@@ -690,7 +710,16 @@ void account_password_change(socket_struct *ns,
         return;
     }
 
-    account_set_password(&account, password_new);
+    if (!account_set_password(&account, password_new)) {
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Password change failed, please contact server administrator.");
+        account_free(&account);
+        efree(path);
+        return;
+    }
 
     if (account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "Password changed successfully.");
@@ -747,7 +776,15 @@ void account_password_force(object *op, char *name, const char *password) {
         return;
     }
 
-    account_set_password(&account, password);
+    if (!account_set_password(&account, password)) {
+        draw_info(COLOR_RED,
+                  op,
+                  "Password change failed, please contact server "
+                  "administrator.");
+        account_free(&account);
+        efree(path);
+        return;
+    }
 
     if (account_save(&account, path)) {
         draw_info(COLOR_GREEN, op, "Password changed successfully.");

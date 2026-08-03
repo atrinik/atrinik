@@ -38,6 +38,64 @@ START_TEST(test_isqrt) {
 }
 END_TEST
 
+START_TEST(test_rng_sequence) {
+    rng_state_t rng;
+
+    rng_seed(&rng, 42);
+    ck_assert_uint_eq(rng_u64(&rng), UINT64_C(0xc2f57bd66b07c4a9));
+    ck_assert_uint_eq(rng_u64(&rng), UINT64_C(0x72b7b29b44215383));
+    ck_assert_uint_eq(rng_u64(&rng), UINT64_C(0xf5af5ead68beb632));
+}
+END_TEST
+
+START_TEST(test_rng_ranges) {
+    rng_state_t first, second;
+    bool saw_min = false, saw_max = false;
+
+    rng_seed(&first, UINT64_C(0x123456789abcdef0));
+    rng_seed(&second, UINT64_C(0x123456789abcdef0));
+
+    for (int i = 0; i < 10000; i++) {
+        int value = rng_range(&first, -7, 13);
+
+        ck_assert_int_ge(value, -7);
+        ck_assert_int_le(value, 13);
+        ck_assert_int_eq(value, rng_range(&second, -7, 13));
+        saw_min |= value == -7;
+        saw_max |= value == 13;
+    }
+
+    ck_assert(saw_min);
+    ck_assert(saw_max);
+    ck_assert_int_eq(rng_range(&first, INT_MIN, INT_MAX), rng_range(&second, INT_MIN, INT_MAX));
+    ck_assert(rng_chance(&first, 1));
+
+    double real = rng_real(&first);
+    ck_assert_double_ge(real, 0.0);
+    ck_assert_double_lt(real, 1.0);
+}
+END_TEST
+
+START_TEST(test_random_map_rng_is_deterministic) {
+    rng_state_t first_rng, second_rng;
+    char **first, **second;
+
+    rng_seed(&first_rng, 12345);
+    rng_seed(&second_rng, 12345);
+    first = maze_gen(19, 19, 0, &first_rng);
+    second = maze_gen(19, 19, 0, &second_rng);
+
+    for (int x = 0; x < 19; x++) {
+        ck_assert_mem_eq(first[x], second[x], 19);
+        efree(first[x]);
+        efree(second[x]);
+    }
+
+    efree(first);
+    efree(second);
+}
+END_TEST
+
 START_TEST(test_nearest_pow_two_exp) {
     ck_assert_uint_eq(nearest_pow_two_exp(0), 0);
     ck_assert_uint_eq(nearest_pow_two_exp(1), 0);
@@ -86,6 +144,9 @@ static Suite *suite(void) {
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_isqrt);
+    tcase_add_test(tc_core, test_rng_sequence);
+    tcase_add_test(tc_core, test_rng_ranges);
+    tcase_add_test(tc_core, test_random_map_rng_is_deterministic);
     tcase_add_test(tc_core, test_nearest_pow_two_exp);
     tcase_add_test(tc_core, test_math_point_in_ellipse);
     tcase_add_test(tc_core, test_math_point_edge_ellipse);

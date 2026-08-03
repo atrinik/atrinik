@@ -755,7 +755,7 @@ static void process_func(object *op) {
             for (int diff = 1; diff <= maxdiff; diff++) {
                 /* try different detours */
                 /* Try left or right first? */
-                int m = 1 - (RANDOM() & 2);
+                int m = rndm_chance(2) ? -1 : 1;
 
                 if (move_object(op, absdir(dir + diff * m)) ||
                     move_object(op, absdir(dir - diff * m))) {
