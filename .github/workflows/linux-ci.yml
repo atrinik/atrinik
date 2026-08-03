@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 concurrency:
   group: linux-ci-${{ github.workflow }}-${{ github.event.pull_request.number || inputs.ref || github.ref }}
@@ -26,6 +27,9 @@ jobs:
     runs-on: ubuntu-26.04
     container:
       image: ghcr.io/atrinik/linux-build:ubuntu-26.04
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
         shell: bash
@@ -40,14 +44,29 @@ jobs:
           ref: ${{ inputs.ref || github.sha }}
           submodules: recursive
 
+      - name: Trust checked-out workspace
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
       - name: Check C formatting
         run: bash tools/clang-format.sh --check
+
+      - name: Calculate compiler cache key
+        id: compiler-cache-key
+        run: |
+          source_hash=$(
+            git ls-files --stage -- \
+              CMakeLists.txt build.config CMakePresets.json \
+              client common server \
+              | sha256sum \
+              | cut -d ' ' -f 1
+          )
+          echo "hash=${source_hash}" >> "${GITHUB_OUTPUT}"
 
       - name: Restore compiler cache
         uses: actions/cache@v6
         with:
           path: .ccache
-          key: ccache-linux-${{ hashFiles('CMakeLists.txt', 'build.config', 'CMakePresets.json', 'client/**', 'common/**', 'server/**') }}
+          key: ccache-linux-${{ steps.compiler-cache-key.outputs.hash }}
           restore-keys: |
             ccache-linux-
 
