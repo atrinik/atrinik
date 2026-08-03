@@ -148,7 +148,15 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
         }
     } else {
         packet_compress(packet);
-        packet_append_uint16(packet_meta, (uint16_t) packet->len + 1);
+        uint32_t payload_len = (uint32_t) packet->len + 1;
+        if (payload_len < 0x8000) {
+            packet_append_uint16(packet_meta, (uint16_t) payload_len);
+        } else {
+            packet_append_uint8(packet_meta,
+                                (uint8_t) (0x80 | (payload_len >> 16)));
+            packet_append_uint16(packet_meta,
+                                 (uint16_t) (payload_len & 0xffff));
+        }
         packet_append_uint8(packet_meta, packet->type);
     }
 

@@ -107,9 +107,10 @@ that runtime setup has not yet been prepared. See `server/README` for setup.
 
 ## Portable Windows build with MXE
 
-Windows packages are cross-compiled in an isolated Linux container. The host
-only needs Docker or Podman; MinGW, SDL, OpenSSL, cURL, and the other Windows
-libraries are installed in the image.
+Windows client and server packages are cross-compiled in one isolated Linux
+container. The host only needs Docker or Podman. The image pins MXE, MinGW,
+OpenSSL, cURL, MiniUPnPc, libpcpnatpmp, and the official embedded Windows
+Python runtime used by the server.
 
 With a Dev Containers-compatible editor, reopen the repository using
 **Atrinik Windows cross-build (MXE)** and run:
@@ -136,16 +137,24 @@ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
 If you have the resources, you can increase the number of build jobs, e.g.:
 
 ```sh
-MXE_BUILD_JOBS=32 LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+MXE_BUILD_JOBS=$(nproc) LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
   docker compose -f compose.windows.yaml run --build --rm windows-build
 ```
 
 The first image build compiles the MXE toolchain and dependency stack, so it
-can take a while. Container image caching makes later builds faster. The
-portable 64-bit Windows ZIP is written to `build/packages/` and contains the
-client, updater, game assets, CA certificates, and required MXE runtime DLLs.
-Windows 10 or newer is expected because the updater uses the operating
-system's built-in `tar` command when applying patches.
+can take a while. Container image caching makes later builds faster. Two
+portable 64-bit Windows ZIPs are written to `build/packages/`:
+
+```text
+atrinik-client-4.0-windows-x86_64.zip
+atrinik-server-4.0-windows-x86_64.zip
+```
+
+The client package contains the updater, game assets, CA certificates, and
+required MXE runtime DLLs. The server package contains the native server,
+plugins, embedded Python runtime, maps, collected resources, initial data, and
+required DLLs. Windows 10 or newer is expected because the client updater uses
+the operating system's built-in `tar` command when applying patches.
 
 Inside the Windows cross-build container, configure or compile without
 packaging with:
@@ -153,6 +162,8 @@ packaging with:
 ```sh
 cmake --preset windows-mxe-release
 cmake --build --preset windows-mxe-release
+cmake --preset windows-mxe-server-release
+cmake --build --preset windows-mxe-server-release
 ```
 
 ## Build configuration notes

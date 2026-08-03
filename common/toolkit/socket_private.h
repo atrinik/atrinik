@@ -42,6 +42,7 @@ struct sock_struct {
     struct sockaddr_storage addr;
     char *host;
     uint16_t port;
+    char connection_id[SOCKET_CONNECTION_ID_SIZE];
     socket_crypto_t *crypto;
     bool secure:1;
     socket_role_t role;
@@ -54,6 +55,8 @@ struct sock_struct {
 
     /** Whether this object owns and must close handle. */
     bool owns_handle:1;
+    /** Whether connection_id is the final shared QUIC diagnostic ID. */
+    bool connection_id_final:1;
 };
 
 size_t
@@ -62,5 +65,8 @@ socket_rendezvous_client(socket_t                    *sc,
                          const char                  *stun_endpoint,
                          socket_direct_candidate_t  *candidates,
                          size_t                       capacity);
+
+bool socket_connection_id_generate(socket_t *sc);
+bool socket_connection_id_export(socket_t *sc);
 
 #endif

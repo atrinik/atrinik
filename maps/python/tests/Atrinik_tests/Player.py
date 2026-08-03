@@ -397,12 +397,13 @@ class PlayerMethodsSuite(PlayerCommonSuite):
         self.assertTrue(os.path.exists(path))
         self.assertTrue(os.path.isfile(path))
 
-    def test_Address(self):
-        self.assertRaises(TypeError, self.pl.Address, 1, 2)
-        self.assertRaises(TypeError, self.pl.Address, x=1)
+    def test_ConnectionID(self):
+        self.assertRaises(TypeError, self.pl.ConnectionID, 1)
+        self.assertRaises(TypeError, self.pl.ConnectionID, x=1)
 
-        self.assertEqual(self.pl.Address(), "127.0.0.1")
-        self.assertEqual(self.pl.Address(True), "127.0.0.1 13327")
+        connection_id = self.pl.ConnectionID()
+        self.assertEqual(len(connection_id), 32)
+        int(connection_id, 16)
 
 
 class PlayerFieldsSuite(PlayerCommonSuite):

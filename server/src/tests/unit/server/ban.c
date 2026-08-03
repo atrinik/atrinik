@@ -28,7 +28,6 @@
 #include <check_proto.h>
 #include <ban.h>
 #include <player.h>
-#include <object.h>
 
 START_TEST(test_ban_add)
 {
@@ -45,25 +44,7 @@ START_TEST(test_ban_add)
             ACCOUNT_TESTING_NAME), BAN_OK);
     ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" "
             ACCOUNT_TESTING_NAME), BAN_EXIST);
-    ck_assert_int_eq(ban_add("* * 88.88.88.88/32"), BAN_OK);
-    ck_assert_int_eq(ban_add("* * 88.88.88.88"), BAN_EXIST);
-    ck_assert_int_eq(ban_add("* * 88.88.88.88/0"), BAN_BADPLEN);
-    ck_assert_int_eq(ban_add("* * 88.88.88.88/64"), BAN_BADPLEN);
-    ck_assert_int_eq(ban_add("* * 88.88.88.677"), BAN_BADIP);
-    ck_assert_int_eq(ban_add("* * abc"), BAN_BADIP);
-#ifdef HAVE_IPV6
-    ck_assert_int_eq(ban_add("* * 2001:cdba:9abc:5678::/64"), BAN_OK);
-    ck_assert_int_eq(ban_add("* * 2001:cdba:9abc:5678::/64"), BAN_EXIST);
-    ck_assert_int_eq(ban_add("* * 2001:cdba:0000:0000:0000:0000:3257:9652"),
-            BAN_OK);
-    ck_assert_int_eq(ban_add("* * 2001:cdba:0000:0000:0000:0000:3257:9652/128"),
-            BAN_EXIST);
-    ck_assert_int_eq(ban_add("* * 2001:cdba::3257:9652/128"), BAN_EXIST);
-    ck_assert_int_eq(ban_add("* * 2001:cdba:0000:0000:0000:0000:3257:9652/256"),
-            BAN_BADPLEN);
-    ck_assert_int_eq(ban_add("* * 2001:cdba:0000:0000:0000:0000:3257:9652/0"),
-            BAN_BADPLEN);
-#endif
+    ck_assert_int_eq(ban_add("* * unexpected"), BAN_BADSYNTAX);
     ban_reset();
 }
 END_TEST
@@ -83,20 +64,8 @@ START_TEST(test_ban_remove)
             BAN_NOTEXIST);
     ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" "
             ACCOUNT_TESTING_NAME), BAN_OK);
-    ck_assert_int_eq(ban_add("* * 88.88.88.88/32"), BAN_OK);
     ck_assert_int_eq(ban_remove("\"" PLAYER_TESTING_NAME2 "\" "
             ACCOUNT_TESTING_NAME), BAN_OK);
-    ck_assert_int_eq(ban_remove("* * 88.88.88.88"), BAN_OK);
-#ifdef HAVE_IPV6
-    ck_assert_int_eq(ban_add("* * 2001:cdba:9abc:5678::/64"), BAN_OK);
-    ck_assert_int_eq(ban_remove("* * 2001:cdba:9abc:5678::/64"), BAN_OK);
-    ck_assert_int_eq(ban_add("* * 2001:cdba:0000:0000:0000:0000:3257:9652"),
-            BAN_OK);
-    ck_assert_int_eq(ban_remove("* * 2001:cdba:0000:0000:0000:0000:3257:9652/"
-            "128"), BAN_OK);
-    ck_assert_int_eq(ban_remove("* * 2001:cdba:0000:0000:0000:0000:3257:9652/"
-            "128"), BAN_NOTEXIST);
-#endif
     ban_reset();
     ck_assert_int_eq(ban_remove("#1"), BAN_BADID);
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_OK);
@@ -111,78 +80,29 @@ END_TEST
 START_TEST(test_ban_check)
 {
     ban_reset();
-    object *pl = player_get_dummy(PLAYER_TESTING_NAME1, NULL);
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
+    ck_assert(!ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_OK);
-    ck_assert(!ban_check(CONTR(pl)->cs, NULL));
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
+    ck_assert(!ban_check(NULL, ACCOUNT_TESTING_NAME));
+    ck_assert(ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
     ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME2), BAN_OK);
-    ck_assert(!ban_check(CONTR(pl)->cs, NULL));
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
+    ck_assert(!ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
     ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
     ck_assert_int_eq(ban_add("* " ACCOUNT_TESTING_NAME), BAN_OK);
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert(ban_check(CONTR(pl)->cs, NULL));
+    ck_assert(ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
+    ck_assert(ban_check(NULL, ACCOUNT_TESTING_NAME));
+    ck_assert(!ban_check(PLAYER_TESTING_NAME1, "another-account"));
     ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME),
             BAN_OK);
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert(ban_check(CONTR(pl)->cs, NULL));
+    ck_assert(ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
+    ck_assert(!ban_check(PLAYER_TESTING_NAME1, "another-account"));
+    ck_assert(!ban_check(PLAYER_TESTING_NAME2, ACCOUNT_TESTING_NAME));
     ban_reset();
-    pl = player_get_dummy(PLAYER_TESTING_NAME2, "8.8.8.8");
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 8.8.8.8"), BAN_OK);
-    ck_assert(ban_check(CONTR(pl)->cs, NULL));
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
+    ck_assert_int_eq(ban_add("* *"), BAN_OK);
+    ck_assert(ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
+    ck_assert(ban_check(NULL, NULL));
     ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 8.8.4.4"), BAN_OK);
-    ck_assert(!ban_check(CONTR(pl)->cs, NULL));
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 8.8.0.0/16"), BAN_OK);
-    ck_assert(ban_check(CONTR(pl)->cs, NULL));
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
-    ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 7.7.0.0/16"), BAN_OK);
-    ck_assert(!ban_check(CONTR(pl)->cs, NULL));
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" * 8.8.8.8"), BAN_OK);
-    ck_assert(ban_check(CONTR(pl)->cs, NULL));
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
-    ban_reset();
-#ifdef HAVE_IPV6
-    pl = player_get_dummy(PLAYER_TESTING_NAME2, "2001:cdba::3257:9652");
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 2001:cdba::3257:9652"), BAN_OK);
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert(ban_check(CONTR(pl)->cs, NULL));
-    ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 2001:cdba::3257:9653"), BAN_OK);
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert(!ban_check(CONTR(pl)->cs, NULL));
-    ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 2001:cdba::/64"), BAN_OK);
-    ck_assert(ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert(ban_check(CONTR(pl)->cs, NULL));
-    ban_reset();
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert_int_eq(ban_add("* * 2002:cdba::/64"), BAN_OK);
-    ck_assert(!ban_check(CONTR(pl)->cs, pl->name));
-    ck_assert(!ban_check(CONTR(pl)->cs, NULL));
-    ban_reset();
-#endif
-
 }
 END_TEST
 

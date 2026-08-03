@@ -35,6 +35,10 @@ static asset_request_t *asset_requests;
 static void
 asset_request_send (asset_request_t *request)
 {
+    LOG(DEBUG,
+        "Requesting QUIC asset %s at offset %" PRIu64,
+        request->path,
+        (uint64_t) request->received);
     packet_struct *packet = packet_new(SERVER_CMD_ASSET, 128, 128);
     packet_append_string_terminated(packet, request->path);
     packet_append_uint32(packet, (uint32_t) request->received);
@@ -96,7 +100,9 @@ asset_request_free (asset_request_t *request)
 
     HASH_DEL(asset_requests, request);
     efree(request->path);
-    efree(request->data);
+    if (request->data != NULL) {
+        efree(request->data);
+    }
     efree(request);
 }
 
@@ -123,11 +129,27 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
     uint32_t total = packet_to_uint32(data, len, &pos);
     uint32_t offset = packet_to_uint32(data, len, &pos);
     size_t chunk_size = len - pos;
+    LOG(DEBUG,
+        "Received QUIC asset %s offset %" PRIu32 "/%" PRIu32
+        " (%" PRIu64 " bytes)",
+        path,
+        offset,
+        total,
+        (uint64_t) chunk_size);
     if (total > ASSET_MAX_SIZE ||
         offset != request->received ||
         chunk_size > ASSET_CHUNK_SIZE ||
         (size_t) offset + chunk_size > total ||
         (request->data != NULL && request->size != total)) {
+        LOG(ERROR,
+            "Rejected malformed QUIC asset chunk for %s: expected offset "
+            "%" PRIu64 ", received offset %" PRIu32 ", total %" PRIu32
+            ", chunk size %" PRIu64,
+            path,
+            (uint64_t) request->received,
+            offset,
+            total,
+            (uint64_t) chunk_size);
         request->state = ASSET_REQUEST_ERROR;
         return;
     }

@@ -1,16 +1,19 @@
-rem Run server script.
+@echo off
+setlocal
+
+rem Run from the packaged server directory so relative runtime paths resolve.
+cd /d "%~dp0"
 
 if not exist "lib" (
-	echo Creating lib directory...
-	md lib
+	echo The packaged server resources are missing from the lib directory.
+	exit /b 1
 )
 
 if not exist "data" (
 	echo Creating data directory...
-	xcopy /s/e install_data data\
-	md data\tmp
+	xcopy /e /i /q /y install_data data >nul
 )
 
-copy ..\arch\*.* lib\*.*
+if not exist "data\tmp" md "data\tmp"
 
-atrinik-server.exe --logfile=logfile.log
+atrinik-server.exe %*

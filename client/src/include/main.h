@@ -74,6 +74,9 @@ typedef struct server_struct {
     bool direct:1;
     bool password_required:1;
 
+    /** Session-only password for joining this server. */
+    char *join_password;
+
     /** Server version. */
     char *version;
 

@@ -218,6 +218,9 @@ typedef enum socket_role {
 /** First socket protocol version supporting in-band asset downloads. */
 #define ASSET_TRANSPORT_SOCKET_VERSION 1067
 
+/** Buffer size for a 128-bit hexadecimal connection ID and terminator. */
+#define SOCKET_CONNECTION_ID_SIZE 33
+
 /** Transport route used by an established client connection. */
 typedef enum socket_connection_mode {
     SOCKET_CONNECTION_MODE_TCP,
@@ -230,6 +233,17 @@ typedef enum socket_connection_mode {
     SOCKET_CONNECTION_MODE_QUIC_DIRECTORY,
     SOCKET_CONNECTION_MODE_NUM
 } socket_connection_mode_t;
+
+/** Preferred ordering for direct QUIC candidate checks. */
+typedef enum socket_connection_preference {
+    SOCKET_CONNECTION_PREFERENCE_AUTO,
+    SOCKET_CONNECTION_PREFERENCE_LAN,
+    SOCKET_CONNECTION_PREFERENCE_IPV6,
+    SOCKET_CONNECTION_PREFERENCE_MAPPED,
+    SOCKET_CONNECTION_PREFERENCE_SRFLX,
+    SOCKET_CONNECTION_PREFERENCE_DIRECTORY,
+    SOCKET_CONNECTION_PREFERENCE_NUM
+} socket_connection_preference_t;
 
 /** Asset chunk was returned successfully. */
 #define ASSET_STATUS_OK 0
@@ -930,7 +944,10 @@ socket_quic_client_create(const char *host,
                           uint16_t    port,
                           const char *certificate_sha256,
                           const char *rendezvous_url,
-                          const char *stun_endpoint);
+                          const char *stun_endpoint,
+                          socket_connection_preference_t preference);
+const char *
+socket_connection_preference_name(socket_connection_preference_t preference);
 bool
 socket_is_quic(socket_t *sc);
 socket_connection_mode_t
@@ -952,7 +969,7 @@ socket_local_candidates(uint16_t                    port,
                         socket_direct_candidate_t *candidates,
                         size_t                      capacity);
 char *socket_get_addr(socket_t *sc);
-char *socket_get_str(socket_t *sc);
+const char *socket_get_id(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
         unsigned short plen);
 bool socket_connect(socket_t *sc);

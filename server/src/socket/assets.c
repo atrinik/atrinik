@@ -111,6 +111,11 @@ socket_command_asset (socket_struct *ns,
         return;
     }
     uint32_t offset = packet_to_uint32(data, len, &pos);
+    LOG(DEBUG,
+        "Connection %s requested QUIC asset %s at offset %" PRIu32,
+        socket_get_id(ns->sc),
+        asset,
+        offset);
 
     char path[HUGE_BUF];
     if (!asset_resolve_path(asset, VS(path))) {
@@ -150,5 +155,13 @@ socket_command_asset (socket_struct *ns,
     packet_append_uint32(packet, (uint32_t) sb.st_size);
     packet_append_uint32(packet, offset);
     packet_append_data_len(packet, chunk, chunk_size);
+    LOG(DEBUG,
+        "Connection %s sending QUIC asset %s offset %" PRIu32 "/%" PRIu32
+        " (%" PRIu64 " bytes)",
+        socket_get_id(ns->sc),
+        asset,
+        offset,
+        (uint32_t) sb.st_size,
+        (uint64_t) chunk_size);
     socket_send_packet(ns, packet);
 }

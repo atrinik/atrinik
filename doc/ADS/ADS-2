@@ -796,6 +796,41 @@
   See section 3.28.
 
 ===============================================================================
+= 3.20. Client command CHARACTERS                                             =
+===============================================================================
+ This command reports account metadata and the account's available characters
+ after a successful account login or registration.
+
+ An empty payload indicates that an account operation failed and returns the
+ client to its account-login state.
+
+ The packet MUST be constructed in the following order:
+  - account (string):
+     The authenticated account name.
+  - connection_id (string):
+     The current connection's diagnostic ID. This is exactly 32 lowercase
+     hexadecimal characters. For QUIC, both endpoints derive the same opaque
+     value from the completed TLS handshake. It is stable across QUIC path
+     migration and MUST NOT be treated as an address or authentication token.
+  - previous_connection_id (string):
+     The diagnostic ID stored after the account's previous successful login,
+     or an empty string when no previous ID is available.
+  - previous_login (uint64):
+     UTC timestamp of the account's previous successful login.
+
+ The remainder contains zero or more character records. Each record has this
+ field order:
+  - archetype (string)
+  - name (string)
+  - region_name (string)
+  - animation_id (uint16)
+  - level (uint8)
+
+ A client MUST reject a packet whose fixed fields or any character record are
+ truncated. A connection ID is diagnostic metadata only and MUST NOT be used
+ for authorization or banning.
+
+===============================================================================
 = 5. Authors                                                                  =
 ===============================================================================
  This document was written by:

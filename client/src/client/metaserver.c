@@ -164,6 +164,10 @@ metaserver_server_free (server_struct *server)
         efree(server->quic_certificate_sha256);
     }
 
+    if (server->join_password != NULL) {
+        efree(server->join_password);
+    }
+
     if (server->name != NULL) {
         efree(server->name);
     }

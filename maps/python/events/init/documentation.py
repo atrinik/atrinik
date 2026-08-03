@@ -27,6 +27,12 @@ from CParser import CParser
 
 
 PATH = os.path.join(GetSettings()["mapspath"], "python", "Atrinik")
+SOURCE_DIRS = (
+    "src/server",
+    "src/plugins/plugin_python/include",
+    "src/include",
+)
+PROTOCOL_HEADER = "../common/toolkit/socket.h"
 
 
 def getargspec(obj, obj_name):
@@ -283,7 +289,12 @@ def main():
                               subsequent_indent=" " * 11))
         f.write("\n")
 
-if not GetSettings()["unit_tests"] and not GetSettings()["plugin_unit_tests"]:
+if (
+    not GetSettings()["unit_tests"]
+    and not GetSettings()["plugin_unit_tests"]
+    and all(os.path.isdir(path) for path in SOURCE_DIRS)
+    and os.path.isfile(PROTOCOL_HEADER)
+):
     parser = CParser()
     matches = {}
 
@@ -292,9 +303,8 @@ if not GetSettings()["unit_tests"] and not GetSettings()["plugin_unit_tests"]:
             for file in files:
                 matches.update(parser.parse(os.path.join(root, file)))
 
-    scan("src/server")
-    scan("src/plugins/plugin_python/include")
-    scan("src/include")
-    matches.update(parser.parse("../common/toolkit/socket.h"))
+    for source_dir in SOURCE_DIRS:
+        scan(source_dir)
+    matches.update(parser.parse(PROTOCOL_HEADER))
 
     main()

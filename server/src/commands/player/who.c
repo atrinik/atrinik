@@ -60,9 +60,10 @@ void command_who(object *op, const char *command, char *params)
         if (show_connection) {
             snprintfcat(buf,
                         sizeof(buf),
-                        " [%s]",
+                        " [%s, connection %s]",
                         socket_connection_mode_name(
-                            pl->cs->connection_mode));
+                            pl->cs->connection_mode),
+                        socket_get_id(pl->cs->sc));
         }
 
         draw_info(COLOR_WHITE, op, buf);

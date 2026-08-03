@@ -901,31 +901,20 @@ static PyObject *Atrinik_Player_Save(Atrinik_Player *self)
     return Py_None;
 }
 
-/** Documentation for Atrinik_Player_Address(). */
-static const char doc_Atrinik_Player_Address[] =
-".. method:: Address(verbose=False).\n\n"
-"Acquires the player's IP address.\n\n"
-":param verbose: If True, will contain the port as well.\n"
-":type verbose: bool\n"
-":returns: The player's IP address.\n"
+/** Documentation for Atrinik_Player_ConnectionID(). */
+static const char doc_Atrinik_Player_ConnectionID[] =
+".. method:: ConnectionID().\n\n"
+"Acquires the player's connection diagnostic ID.\n\n"
+":returns: The player's connection diagnostic ID.\n"
 ":rtype: str";
 
 /**
- * Implements Atrinik.Player.Player.Address() Python method.
- * @copydoc PyMethod_VARARGS
+ * Implements Atrinik.Player.Player.ConnectionID() Python method.
+ * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Player_Address(Atrinik_Player *self, PyObject *args)
+static PyObject *Atrinik_Player_ConnectionID(Atrinik_Player *self)
 {
-    int verbose = 0;
-    if (!PyArg_ParseTuple(args, "|i", &verbose)) {
-        return NULL;
-    }
-
-    if (!verbose) {
-        return Py_BuildValue("s", hooks->socket_get_addr(self->pl->cs->sc));
-    }
-
-    return Py_BuildValue("s", hooks->socket_get_str(self->pl->cs->sc));
+    return Py_BuildValue("s", hooks->socket_get_id(self->pl->cs->sc));
 }
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -964,8 +953,8 @@ static PyMethodDef methods[] = {
             doc_Atrinik_Player_InsertCoins},
     {"Save", (PyCFunction) Atrinik_Player_Save, METH_NOARGS,
             doc_Atrinik_Player_Save},
-    {"Address", (PyCFunction) Atrinik_Player_Address, METH_VARARGS,
-            doc_Atrinik_Player_Address},
+    {"ConnectionID", (PyCFunction) Atrinik_Player_ConnectionID, METH_NOARGS,
+            doc_Atrinik_Player_ConnectionID},
 
     {NULL, NULL, 0, NULL}
 };

@@ -41,6 +41,10 @@ void command_ban(object *op, const char *command, char *params)
     size_t pos = 0;
     char word[MAX_BUF];
     if (!string_get_word(params, &pos, ' ', VS(word), '"')) {
+        draw_info(COLOR_WHITE,
+                  op,
+                  "Usage: /ban add|remove <player|*> [account|*], "
+                  "/ban list, or /ban kick");
         return;
     }
 
@@ -48,6 +52,9 @@ void command_ban(object *op, const char *command, char *params)
 
     if (strcmp(word, "add") == 0) {
         if (params == NULL) {
+            draw_info(COLOR_WHITE,
+                      op,
+                      "Usage: /ban add <player|*> [account|*]");
             return;
         }
 
@@ -60,6 +67,9 @@ void command_ban(object *op, const char *command, char *params)
         }
     } else if (strcmp(word, "remove") == 0) {
         if (params == NULL) {
+            draw_info(COLOR_WHITE,
+                      op,
+                      "Usage: /ban remove <player|#ID|*> [account|*]");
             return;
         }
 
@@ -74,13 +84,19 @@ void command_ban(object *op, const char *command, char *params)
         ban_list(op);
     } else if (strcmp(word, "kick") == 0) {
         for (player *pl = first_player; pl != NULL; pl = pl->next) {
-            if (ban_check(pl->cs, pl->ob->name)) {
-                LOG(SYSTEM, "Ban: Kicking player due to a ban. [%s, %s]",
-                        pl->ob->name, socket_get_addr(pl->cs->sc));
+            if (ban_check(pl->ob->name, pl->cs->account)) {
+                LOG(SYSTEM,
+                        "Connection %s: kicking player %s due to a ban",
+                        socket_get_id(pl->cs->sc), pl->ob->name);
                 draw_info_type(CHAT_TYPE_GAME, NULL, COLOR_RED, pl->ob,
                         "You have been banned.");
                 pl->cs->state = ST_ZOMBIE;
             }
         }
+    } else {
+        draw_info(COLOR_WHITE,
+                  op,
+                  "Usage: /ban add|remove <player|*> [account|*], "
+                  "/ban list, or /ban kick");
     }
 }

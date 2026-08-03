@@ -38,6 +38,8 @@
 #include "socket_crypto.h"
 #include "string.h"
 
+#include <openssl/err.h>
+#include <openssl/rand.h>
 
 /** Helper structure used in socket_cmp_addr(). */
 union sockaddr_union {
@@ -123,6 +125,11 @@ socket_create (const char   *host,
     sc->connection_mode = secure
         ? SOCKET_CONNECTION_MODE_TLS
         : SOCKET_CONNECTION_MODE_TCP;
+    if (!socket_connection_id_generate(sc)) {
+        LOG(ERROR, "Failed to generate connection diagnostic ID");
+        goto error;
+    }
+    sc->connection_id_final = true;
 
 #ifdef HAVE_GETADDRINFO
     char port_str[6];
@@ -240,19 +247,174 @@ char *socket_get_addr(socket_t *sc)
 }
 
 /**
- * Acquire a string representation of the socket (its address and port).
+ * Acquire the socket's opaque diagnostic connection ID.
  * @param sc
  * Socket.
  * @return
- * Pointer to a static buffer containing the socket's string
- * representation. Will be overwritten with the next call.
+ * Pointer owned by the socket. It remains valid until the socket is destroyed.
  */
-char *socket_get_str(socket_t *sc)
+const char *socket_get_id(socket_t *sc)
 {
-    static char buf[MAX_BUF];
-    snprintf(VS(buf), "%s %" PRIu16, socket_get_addr(sc), sc->port);
-    return buf;
+    HARD_ASSERT(sc != NULL);
+
+    return sc->connection_id;
 }
+
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+/** Log diagnostic details for a failed QUIC I/O operation. */
+static void
+socket_quic_log_io_failure (socket_t *sc, const char *operation, int error)
+{
+    SSL_CONN_CLOSE_INFO close_info;
+    if (SSL_get_conn_close_info(sc->quic,
+                                &close_info,
+                                sizeof(close_info)) == 1) {
+        LOG(ERROR,
+            "Connection %s QUIC %s failed: SSL error %d, close origin=%s, "
+            "type=%s, code=%" PRIu64 ", frame=%" PRIu64 ", reason=%.*s",
+            socket_get_id(sc),
+            operation,
+            error,
+            close_info.flags & SSL_CONN_CLOSE_FLAG_LOCAL ? "local" : "peer",
+            close_info.flags & SSL_CONN_CLOSE_FLAG_TRANSPORT
+                ? "transport"
+                : "application",
+            close_info.error_code,
+            close_info.frame_type,
+            (int) close_info.reason_len,
+            close_info.reason != NULL ? close_info.reason : "");
+        return;
+    }
+
+    unsigned long code = ERR_peek_error();
+    LOG(ERROR,
+        "Connection %s QUIC %s failed: SSL error %d, %s",
+        socket_get_id(sc),
+        operation,
+        error,
+        code != 0 ? ERR_error_string(code, NULL) : "no close information");
+}
+#endif
+
+/**
+ * Generate a random diagnostic ID for a connection.
+ * @param sc
+ * Socket.
+ * @return
+ * True on success, false on failure.
+ */
+bool socket_connection_id_generate(socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+
+    unsigned char id[(SOCKET_CONNECTION_ID_SIZE - 1) / 2];
+    if (RAND_bytes(id, sizeof(id)) != 1) {
+        return false;
+    }
+
+    if (string_tohex(id,
+                     sizeof(id),
+                     sc->connection_id,
+                     sizeof(sc->connection_id),
+                     false) != sizeof(sc->connection_id) - 1) {
+        return false;
+    }
+    string_tolower(sc->connection_id);
+    return true;
+}
+
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+/**
+ * Derive a diagnostic ID from an established QUIC connection.
+ *
+ * The dedicated exporter label makes the value useful only as an opaque
+ * correlation token. Both peers derive the same value, and it remains stable
+ * if QUIC changes network paths.
+ * @param sc
+ * Established QUIC connection.
+ * @return
+ * True on success, false on failure.
+ */
+bool socket_connection_id_export(socket_t *sc)
+{
+    static const char label[] = "EXPERIMENTAL-Atrinik-Connection-ID";
+    unsigned char id[(SOCKET_CONNECTION_ID_SIZE - 1) / 2];
+
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(sc->quic != NULL);
+
+    if (SSL_export_keying_material(sc->quic,
+                                   id,
+                                   sizeof(id),
+                                   label,
+                                   sizeof(label) - 1,
+                                   NULL,
+                                   0,
+                                   0) != 1) {
+        return false;
+    }
+
+    if (string_tohex(id,
+                     sizeof(id),
+                     sc->connection_id,
+                     sizeof(sc->connection_id),
+                     false) != sizeof(sc->connection_id) - 1) {
+        return false;
+    }
+
+    string_tolower(sc->connection_id);
+    sc->connection_id_final = true;
+    LOG(SYSTEM,
+        "Connection %s completed the QUIC handshake",
+        socket_get_id(sc));
+    return true;
+}
+#else
+bool socket_connection_id_export(socket_t *sc)
+{
+    if (!socket_connection_id_generate(sc)) {
+        return false;
+    }
+    sc->connection_id_final = true;
+    return true;
+}
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+/**
+ * Progress an accepted QUIC handshake and establish its shared diagnostic ID.
+ * @return
+ * 1 when ready for application I/O, 0 when more network I/O is needed, and
+ * -1 on a fatal error.
+ */
+static int
+socket_quic_connection_prepare (socket_t *sc)
+{
+    if (sc->connection_id_final) {
+        return 1;
+    }
+
+    ERR_clear_error();
+    int result = SSL_do_handshake(sc->quic);
+    if (result == 1) {
+        if (!socket_connection_id_export(sc)) {
+            socket_quic_log_io_failure(sc,
+                                       "diagnostic ID derivation",
+                                       SSL_ERROR_SSL);
+            return -1;
+        }
+        return 1;
+    }
+
+    int error = SSL_get_error(sc->quic, result);
+    if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+        return 0;
+    }
+
+    socket_quic_log_io_failure(sc, "handshake", error);
+    return -1;
+}
+#endif
 
 /**
  * Compare the socket's address to another address/subnet.
@@ -276,28 +438,17 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
     const struct sockaddr *saddr1 = (const struct sockaddr *) &sc->addr;
     const struct sockaddr *saddr2 = (const struct sockaddr *) addr;
 
-    /* In the case that the socket is IPv6 and the address to compare is IPv4,
-     * we need to check if the socket is an IPv4-mapped IPv6 address, and if so,
-     * run a comparison against that instead. */
+    /* Compare an IPv4 address against an IPv4-mapped IPv6 peer. */
     if (saddr1->sa_family == AF_INET6 && saddr2->sa_family == AF_INET) {
         const union sockaddr_union *addr_ipv6 =
             (const union sockaddr_union *) saddr1;
         struct in6_addr_helper *addr_ipv6_help =
             (struct in6_addr_helper *) &addr_ipv6->in6.sin6_addr;
 
-        /* As per https://tools.ietf.org/html/rfc4291#section-2.5.5.2 an
-         * IPv4-mapped IPv6 address begins with 80 bits of zeroes, followed
-         * by 16 bits of ones, and finally followed by 32 bits holding the
-         * IPv4 address. */
         if (addr_ipv6_help->s6_addr32__[0] == 0 &&
                 addr_ipv6_help->s6_addr32__[1] == 0 &&
                 addr_ipv6_help->s6_addr16__[4] == 0 &&
                 addr_ipv6_help->s6_addr16__[5] == 0xffff) {
-            /* We create a clone of the socket's IPv4-mapped IPv6 address and
-             * replace the IPv4 address part with the IPv4 address to be
-             * compared. Then we use socket_addr_cmp() on this temporary
-             * address instead, thus triggering a comparison between two
-             * IPv6-family addresses (albeit IPv4-mapped ones). */
             struct sockaddr_storage addr_new = sc->addr;
             struct sockaddr *saddr_new = (struct sockaddr *) &addr_new;
             union sockaddr_union *addr_ipv6_new =
@@ -307,7 +458,6 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
             const union sockaddr_union *addr_ipv4 =
                 (const union sockaddr_union *) saddr2;
             addr_ipv6_help->s6_addr32__[3] = addr_ipv4->in4.sin_addr.s_addr;
-            /* Need to compare the first 96 bits as well. */
             return socket_addr_cmp(&sc->addr, &addr_new, 96 + plen);
         }
     }
@@ -438,6 +588,18 @@ socket_t *socket_accept(socket_t *sc)
             return NULL;
         }
 
+        if (SSL_set_default_stream_mode(
+                connection,
+                SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) != 1) {
+            unsigned long code = ERR_peek_error();
+            LOG(ERROR,
+                "Failed to configure accepted QUIC application stream: %s",
+                code != 0 ? ERR_error_string(code, NULL)
+                          : "no OpenSSL error information");
+            SSL_free(connection);
+            return NULL;
+        }
+
         socket_t *tmp = ecalloc(1, sizeof(*tmp));
         tmp->handle = sc->handle;
         tmp->owns_handle = false;
@@ -445,7 +607,11 @@ socket_t *socket_accept(socket_t *sc)
         tmp->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
         tmp->quic = connection;
         tmp->role = sc->role;
-        tmp->port = sc->port;
+        if (!socket_connection_id_generate(tmp)) {
+            LOG(ERROR, "Failed to generate pending QUIC diagnostic ID");
+            socket_destroy(tmp);
+            return NULL;
+        }
         return tmp;
     }
 #endif
@@ -469,6 +635,11 @@ socket_t *socket_accept(socket_t *sc)
         : SOCKET_CONNECTION_MODE_TCP;
     /* And the role. */
     tmp->role = sc->role;
+    if (!socket_connection_id_generate(tmp)) {
+        socket_destroy(tmp);
+        return NULL;
+    }
+    tmp->connection_id_final = true;
     return tmp;
 }
 
@@ -496,6 +667,10 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
         if (len == 0) {
             return true;
         }
+        int ready = socket_quic_connection_prepare(sc);
+        if (ready <= 0) {
+            return ready == 0;
+        }
         int result = SSL_read_ex(sc->quic, buf, len, amt);
         if (result == 1) {
             return true;
@@ -504,6 +679,7 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
         if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
             return true;
         }
+        socket_quic_log_io_failure(sc, "read", error);
         return false;
     }
 #endif
@@ -530,7 +706,8 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt)
         }
 #endif
 
-        LOG(INFO, "Error reading from %s: %s (%d)", socket_get_str(sc),
+        LOG(INFO, "Error reading on connection %s: %s (%d)",
+                socket_get_id(sc),
                 s_strerror(rc), rc);
         return false;
     } else if (ret == 0) {
@@ -566,6 +743,10 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
     if (sc->transport == SOCKET_TRANSPORT_QUIC_CONNECTION) {
         *amt = 0;
+        int ready = socket_quic_connection_prepare(sc);
+        if (ready <= 0) {
+            return ready == 0;
+        }
         int result = SSL_write_ex(sc->quic, buf, len, amt);
         if (result == 1) {
             return true;
@@ -574,6 +755,7 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
         if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
             return true;
         }
+        socket_quic_log_io_failure(sc, "write", error);
         return false;
     }
 #endif
@@ -597,7 +779,8 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt)
         }
 #endif
 
-        LOG(INFO, "Error writing to %s: %s (%d)", socket_get_str(sc),
+        LOG(INFO, "Error writing on connection %s: %s (%d)",
+                socket_get_id(sc),
                 s_strerror(rc), rc);
         return false;
     } else if (ret == 0) {

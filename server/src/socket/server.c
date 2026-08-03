@@ -395,6 +395,9 @@ TOOLKIT_INIT_FUNC(socket_server)
             LOG(ERROR, "Failed to initialize the QUIC listener");
             exit(1);
         }
+        LOG(SYSTEM,
+            "QUIC certificate SHA-256: %s",
+            quic_certificate_sha256);
 
         quic_candidate_count = 0;
         quic_public_host[0] = '\0';
@@ -432,6 +435,7 @@ TOOLKIT_INIT_FUNC(socket_server)
         char stun_host[65];
         uint16_t stun_port = settings.port_quic;
         if (*settings.stun_server != '\0' &&
+            strcmp(settings.stun_server, "off") != 0 &&
             quic_server_sockets[0] != NULL &&
             socket_stun_discover(quic_server_sockets[0],
                                  settings.stun_server,
@@ -456,6 +460,7 @@ TOOLKIT_INIT_FUNC(socket_server)
         } else if (*quic_public_host == '\0' &&
                    quic_server_sockets[1] != NULL &&
                    *settings.stun_server != '\0' &&
+                   strcmp(settings.stun_server, "off") != 0 &&
                    socket_stun_discover(quic_server_sockets[1],
                                         settings.stun_server,
                                         VS(stun_host),
@@ -469,9 +474,16 @@ TOOLKIT_INIT_FUNC(socket_server)
                      "ipv6");
             quic_candidate_count++;
         } else if (*quic_public_host == '\0') {
-            LOG(ERROR,
-                "No mapped or STUN public UDP candidate is available; "
-                "only LAN/IPv6 direct routes may work");
+            if (strcmp(settings.port_mapping, "off") == 0 &&
+                strcmp(settings.stun_server, "off") == 0) {
+                LOG(INFO,
+                    "Public UDP candidate discovery is disabled; only "
+                    "LAN/IPv6 direct routes are available");
+            } else {
+                LOG(ERROR,
+                    "No mapped or STUN public UDP candidate is available; "
+                    "only LAN/IPv6 direct routes may work");
+            }
         }
 
         quic_candidate_count += socket_local_candidates(
@@ -604,7 +616,7 @@ socket_server_handle_command (socket_struct *cs,
     bool is_secure = socket_is_secure(cs->sc);
     if (!is_secure && type == SERVER_CMD_CRYPTO) {
         LOG(PACKET, "Received crypto packet on wrong port from %s",
-            socket_get_str(cs->sc));
+            socket_get_id(cs->sc));
         cs->state = ST_DEAD;
         return false;
     }
@@ -614,7 +626,7 @@ socket_server_handle_command (socket_struct *cs,
         !socket_crypto_is_done(socket_get_crypto(cs->sc))) {
         LOG(PACKET,
             "Received non-crypto packet before crypto exchange from %s",
-            socket_get_str(cs->sc));
+            socket_get_id(cs->sc));
         cs->state = ST_DEAD;
         return false;
     }
@@ -659,15 +671,14 @@ socket_server_csocket_create (socket_t *server_socket)
         return;
     }
 
-    if (ban_check(entry->cs, NULL)) {
-        LOG(SYSTEM, "Ban: Banned IP tried to connect: %s",
-            socket_get_addr(entry->cs->sc));
-        socket_destroy(entry->cs->sc);
-        efree(entry);
-        return;
-    }
-
     init_connection(entry->cs);
+    if (!socket_is_quic(entry->cs->sc)) {
+        LOG(SYSTEM,
+            "Connection %s accepted using %s",
+            socket_get_id(entry->cs->sc),
+            socket_connection_mode_name(
+                socket_connection_mode_get(entry->cs->sc)));
+    }
     DL_APPEND(client_sockets, entry);
 }
 
@@ -698,8 +709,8 @@ static void
 socket_server_csocket_drop (csocket_entry_t *entry)
 {
     HARD_ASSERT(entry != NULL);
-    LOG(SYSTEM, "Connection: dropping connection: %s",
-        socket_get_str(entry->cs->sc));
+    LOG(SYSTEM, "Connection %s: dropping connection",
+        socket_get_id(entry->cs->sc));
     socket_server_csocket_free(entry);
 }
 
@@ -963,14 +974,13 @@ socket_server_process (void)
             nfds = fd;
         }
         FD_SET(fd, &fds_read);
-        FD_SET(fd, &fds_error);
     }
 
     csocket_entry_t *entry, *entry_tmp;
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {
         if (unlikely(!socket_is_fd_valid(entry->cs->sc))) {
             LOG(ERROR, "Invalid waiting socket: %s",
-                socket_get_str(entry->cs->sc));
+                socket_get_id(entry->cs->sc));
             entry->cs->state = ST_DEAD;
         }
 
@@ -980,6 +990,14 @@ socket_server_process (void)
         }
 
         if (server_socket_csocket_is_zombie(entry->cs)) {
+            continue;
+        }
+
+        /* Accepted OpenSSL QUIC connections share the listener's UDP handle.
+         * A readiness bit for that handle cannot identify which SSL object
+         * has buffered application data or protocol timers to process. QUIC
+         * connections are nonblocking and are polled explicitly below. */
+        if (socket_is_quic(entry->cs->sc)) {
             continue;
         }
 
@@ -1002,14 +1020,14 @@ socket_server_process (void)
 
         if (unlikely(!socket_is_fd_valid(pl->cs->sc))) {
             LOG(ERROR, "Invalid waiting socket: %s",
-                socket_get_str(pl->cs->sc));
+                socket_get_id(pl->cs->sc));
             pl->cs->state = ST_DEAD;
         }
 
         if (pl->cs->keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT) {
             LOG(SYSTEM, "Keepalive: disconnecting %s [%s]: %d",
                 object_get_str(pl->ob),
-                socket_get_str(pl->cs->sc),
+                socket_get_id(pl->cs->sc),
                 socket_fd(pl->cs->sc));
             pl->cs->state = ST_DEAD;
         }
@@ -1020,6 +1038,10 @@ socket_server_process (void)
         }
 
         if (server_socket_csocket_is_zombie(pl->cs)) {
+            continue;
+        }
+
+        if (socket_is_quic(pl->cs->sc)) {
             continue;
         }
 
@@ -1060,11 +1082,6 @@ socket_server_process (void)
         return;
     }
 
-    /* No FDs that need processing. */
-    if (ready == 0) {
-        return;
-    }
-
     for (socket_server_id_t i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
         if (server_sockets[i] == NULL) {
             continue;
@@ -1087,6 +1104,21 @@ socket_server_process (void)
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {
         int fd = socket_fd(entry->cs->sc);
 
+        if (socket_is_quic(entry->cs->sc)) {
+            if (entry->cs->state == ST_ZOMBIE) {
+                continue;
+            }
+            socket_server_csocket_read(entry->cs);
+            if (entry->cs->state == ST_DEAD) {
+                socket_server_csocket_drop(entry);
+                continue;
+            }
+            /* Flush responses in the same pass as the command that queued
+             * them. SSL_write_ex() remains nonblocking. */
+            socket_server_csocket_write(entry->cs);
+            continue;
+        }
+
         if (FD_ISSET(fd, &fds_error)) {
             entry->cs->state = ST_DEAD;
             continue;
@@ -1107,6 +1139,19 @@ socket_server_process (void)
 
     DL_FOREACH_SAFE(first_player, pl, pl_tmp) {
         int fd = socket_fd(pl->cs->sc);
+
+        if (socket_is_quic(pl->cs->sc)) {
+            if (pl->cs->state == ST_ZOMBIE) {
+                continue;
+            }
+            socket_server_csocket_read(pl->cs);
+            if (pl->cs->state == ST_DEAD) {
+                player_logout(pl);
+                continue;
+            }
+            socket_server_csocket_write(pl->cs);
+            continue;
+        }
 
         if (FD_ISSET(fd, &fds_error)) {
             pl->cs->state = ST_DEAD;

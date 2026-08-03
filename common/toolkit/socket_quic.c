@@ -12,11 +12,54 @@
 #include <openssl/pem.h>
 #include <openssl/sha.h>
 
+#ifdef WIN32
+#include <mstcpip.h>
+
+/* Older MinGW headers omit this Windows UDP ioctl declaration. */
+#ifndef SIO_UDP_CONNRESET
+#define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR, 12)
+#endif
+#endif
+
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
 
 static const unsigned char socket_quic_alpn[] = {
     9, 'a', 't', 'r', 'i', 'n', 'i', 'k', '/', '1'
 };
+
+/**
+ * Prevent an ICMP error for one UDP datagram from failing a multiplexed QUIC
+ * socket on Windows. This is especially important while hole punching, where
+ * some candidate endpoints are expected to be unreachable.
+ */
+static bool
+socket_quic_disable_udp_connreset (int fd)
+{
+#ifdef WIN32
+    BOOL enabled = FALSE;
+    DWORD bytes_returned = 0;
+    if (WSAIoctl(fd,
+                 SIO_UDP_CONNRESET,
+                 &enabled,
+                 sizeof(enabled),
+                 NULL,
+                 0,
+                 &bytes_returned,
+                 NULL,
+                 NULL) == SOCKET_ERROR) {
+        int error = WSAGetLastError();
+        LOG(ERROR,
+            "Failed to disable UDP connection resets: %s (%d)",
+            s_strerror(error),
+            error);
+        return false;
+    }
+#else
+    (void) fd;
+#endif
+
+    return true;
+}
 
 static int
 socket_quic_select_alpn (SSL                *ssl,
@@ -353,6 +396,13 @@ socket_quic_server_create (const char *host,
     sc->port = port;
     sc->host = host != NULL ? estrdup(host) : NULL;
     sc->quic_ctx = ctx;
+    if (!socket_connection_id_generate(sc)) {
+        LOG(ERROR, "Failed to generate QUIC listener diagnostic ID");
+        socket_destroy(sc);
+        freeaddrinfo(addresses);
+        return NULL;
+    }
+    sc->connection_id_final = true;
 
     for (struct addrinfo *ai = addresses; ai != NULL; ai = ai->ai_next) {
 #ifdef HAVE_IPV6
@@ -362,6 +412,11 @@ socket_quic_server_create (const char *host,
 #endif
         sc->handle = socket(ai->ai_family, SOCK_DGRAM, IPPROTO_UDP);
         if (sc->handle == -1) {
+            continue;
+        }
+        if (!socket_quic_disable_udp_connreset(sc->handle)) {
+            socket_close(sc);
+            sc->handle = -1;
             continue;
         }
 
@@ -451,10 +506,20 @@ socket_quic_client_socket (const char              *host,
     sc->role = SOCKET_ROLE_CLIENT;
     sc->port = port;
     sc->host = estrdup(host);
+    if (!socket_connection_id_generate(sc)) {
+        socket_destroy(sc);
+        freeaddrinfo(addresses);
+        return NULL;
+    }
 
     for (struct addrinfo *ai = addresses; ai != NULL; ai = ai->ai_next) {
         sc->handle = socket(ai->ai_family, SOCK_DGRAM, IPPROTO_UDP);
         if (sc->handle == -1) {
+            continue;
+        }
+        if (!socket_quic_disable_udp_connreset(sc->handle)) {
+            socket_close(sc);
+            sc->handle = -1;
             continue;
         }
         memcpy(&sc->addr, ai->ai_addr, ai->ai_addrlen);
@@ -513,7 +578,10 @@ socket_quic_client_handshake (socket_t              *sc,
         SSL_CTX_set_verify(sc->quic_ctx, SSL_VERIFY_NONE, NULL);
         SSL_set_bio(sc->quic, bio, bio);
         bio = NULL;
-        configured = SSL_set_blocking_mode(sc->quic, 0) == 1 &&
+        configured = SSL_set_default_stream_mode(
+                         sc->quic,
+                         SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) == 1 &&
+                     SSL_set_blocking_mode(sc->quic, 0) == 1 &&
                      SSL_set_alpn_protos(sc->quic,
                                          socket_quic_alpn,
                                          sizeof(socket_quic_alpn)) == 0 &&
@@ -553,6 +621,11 @@ socket_quic_client_handshake (socket_t              *sc,
         return false;
     }
 
+    if (!socket_connection_id_export(sc)) {
+        socket_quic_log_error("connection diagnostic ID derivation");
+        return false;
+    }
+
     return true;
 }
 
@@ -579,7 +652,8 @@ socket_quic_client_create (const char *host,
                            uint16_t    port,
                            const char *certificate_sha256,
                            const char *rendezvous_url,
-                           const char *stun_endpoint)
+                           const char *stun_endpoint,
+                           socket_connection_preference_t preference)
 {
     HARD_ASSERT(host != NULL);
 
@@ -630,9 +704,32 @@ socket_quic_client_create (const char *host,
     static const char *const priorities[] = {
         "lan", "ipv6", "mapped", "srflx", "directory"
     };
-    for (size_t priority = 0; priority < arraysize(priorities); priority++) {
+    const char *preferred_kind = NULL;
+    if (preference > SOCKET_CONNECTION_PREFERENCE_AUTO &&
+        preference < SOCKET_CONNECTION_PREFERENCE_NUM) {
+        preferred_kind = priorities[preference - 1];
+        LOG(INFO,
+            "Trying preferred QUIC route type first: %s",
+            socket_connection_preference_name(preference));
+    }
+
+    size_t priority_count = arraysize(priorities) +
+                            (preferred_kind != NULL ? 1 : 0);
+    for (size_t priority = 0; priority < priority_count; priority++) {
+        const char *kind;
+        if (preferred_kind != NULL && priority == 0) {
+            kind = preferred_kind;
+        } else {
+            size_t automatic_priority = priority -
+                (preferred_kind != NULL ? 1 : 0);
+            kind = priorities[automatic_priority];
+            if (kind == preferred_kind) {
+                continue;
+            }
+        }
+
         for (size_t i = 0; i < count; i++) {
-            if (strcmp(candidates[i].kind, priorities[priority]) != 0) {
+            if (strcmp(candidates[i].kind, kind) != 0) {
                 continue;
             }
 
@@ -713,7 +810,9 @@ socket_quic_client_create (const char *host,
                 sc->host = estrdup(candidates[i].host);
                 sc->port = candidates[i].port;
                 LOG(SYSTEM,
-                    "Selected %s direct QUIC route %s:%" PRIu16,
+                    "Connection %s selected %s direct QUIC route %s:%"
+                    PRIu16,
+                    socket_get_id(sc),
                     candidates[i].kind,
                     candidates[i].host,
                     candidates[i].port);
@@ -780,8 +879,10 @@ socket_quic_client_create (const char *host,
                            uint16_t    port,
                            const char *certificate_sha256,
                            const char *rendezvous_url,
-                           const char *stun_endpoint)
+                           const char *stun_endpoint,
+                           socket_connection_preference_t preference)
 {
+    (void) preference;
     LOG(ERROR, "QUIC requires OpenSSL 3.5 or newer");
     return NULL;
 }
@@ -793,6 +894,24 @@ socket_certificate_sha256 (socket_t *sc, char fingerprint[65])
 }
 
 #endif
+
+const char *
+socket_connection_preference_name (socket_connection_preference_t preference)
+{
+    static const char *const names[SOCKET_CONNECTION_PREFERENCE_NUM] = {
+        "Automatic",
+        "Local network (LAN)",
+        "Native IPv6",
+        "Router port mapping",
+        "NAT traversal (STUN)",
+        "Directory address",
+    };
+
+    if ((unsigned int) preference >= SOCKET_CONNECTION_PREFERENCE_NUM) {
+        return names[SOCKET_CONNECTION_PREFERENCE_AUTO];
+    }
+    return names[preference];
+}
 
 bool
 socket_is_quic (socket_t *sc)

@@ -58,7 +58,17 @@
 
  For example, you should see something like this:
   $ ./server.sh
-  [15:04:46.112927] INFO   [main:634] Server ready. Waiting for connections...
+ [15:04:46.112927] INFO   [main:634] Server ready. Waiting for connections...
+
+ For a quiet, local-only devcontainer run that exercises QUIC without public
+ discovery, use:
+
+  $ ./server.sh --connectivity_mode=direct_only \
+      --port_mapping=off --stun_server=off
+
+ The startup log prints the QUIC certificate SHA-256 fingerprint. The matching
+ pinned client command and the faster legacy-TCP alternative are documented in
+ client/README section 2.1.
 
  The startup scripts will also pass any extra options straight to the
  binary, for example:
@@ -195,7 +205,28 @@
 
 
 =================================================
-= 2.4. Direct QUIC hosting (no port forwarding) =
+= 2.4. Running natively on Windows              =
+=================================================
+
+ The shared MXE build produces a self-contained native Windows server package:
+  $ docker compose -f compose.windows.yaml run --build --rm windows-build
+
+ Extract build/packages/atrinik-server-4.0-windows-x86_64.zip on the Windows
+ machine, enter its server/ directory, copy server-custom.cfg.example to
+ server-custom.cfg, configure it, and launch server.bat. The launcher keeps
+ the working directory correct, initializes data/ only when it is absent, and
+ passes additional command-line arguments to atrinik-server.exe. Back up data/
+ because it contains players, metaserver credentials, and the persistent QUIC
+ identity.
+
+ The executable runs directly on Windows; Docker is only used to produce the
+ package. This lets PCP/NAT-PMP/UPnP discovery use the physical Windows network
+ interfaces and router. Permit atrinik-server.exe through Windows Defender
+ Firewall, including inbound UDP on port_quic (1730 by default). The server
+ package includes the Python runtime required by normal map and NPC scripts.
+
+=================================================
+= 2.5. Direct QUIC hosting (no port forwarding) =
 =================================================
 
  Current clients and servers use UDP/QUIC for direct play. The metaserver is

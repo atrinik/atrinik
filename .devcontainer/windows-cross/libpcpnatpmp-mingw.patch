@@ -1,0 +1,41 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e56bff1..8615af1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -26,7 +26,9 @@ set (WITH_EXPERIMENTAL ${ENABLE_EXPERIMENTAL})
+ 
+ check_symbol_exists (strndup "string.h" HAVE_STRNDUP)
+ 
+-if (NOT WIN32)
++if (MINGW)
++	set (HAVE_GETTIMEOFDAY TRUE)
++elseif (NOT WIN32)
+ 	check_symbol_exists (gettimeofday "sys/time.h" HAVE_GETTIMEOFDAY)
+ endif ()
+ 
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index b66edb4..558701d 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -52,7 +52,7 @@ set_target_properties (pcpnatpmp PROPERTIES
+ )
+ 
+ if (WIN32)
+-    target_link_libraries (pcpnatpmp PUBLIC ws2_32.lib Iphlpapi.lib)
++    target_link_libraries (pcpnatpmp PUBLIC ws2_32 iphlpapi)
+ endif ()
+ 
+ # include directories with source and header files
+diff --git a/lib/src/net/gateway.c b/lib/src/net/gateway.c
+index b7858df..caeb2bd 100644
+--- a/lib/src/net/gateway.c
++++ b/lib/src/net/gateway.c
+@@ -58,7 +58,7 @@
+ #include <winsock2.h>
+ #include <ws2ipdef.h>
+ 
+-#include <Iphlpapi.h>
++#include <iphlpapi.h>
+ 
+ #include <ws2tcpip.h>
+ 

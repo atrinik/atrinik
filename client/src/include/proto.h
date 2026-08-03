@@ -35,6 +35,14 @@ extern void socket_command_compressed(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
 void
 socket_command_crypto(uint8_t *data, size_t len, size_t pos);
+/* src/client/connection_preferences.c */
+extern void connection_preferences_init(void);
+extern void connection_preferences_deinit(void);
+extern socket_connection_preference_t
+connection_preference_get(const server_struct *server);
+extern void
+connection_preference_set(const server_struct                 *server,
+                          socket_connection_preference_t preference);
 /* src/client/image.c */
 /* src/client/item.c */
 extern void object_init(void);
@@ -188,7 +196,8 @@ extern bool client_socket_open(client_socket_t *csock,
                                int              port,
                                bool             secure,
                                const char      *quic_certificate_sha256,
-                               const char      *server_id);
+                               const char      *server_id,
+                               socket_connection_preference_t preference);
 /* src/client/sound.c */
 extern void sound_background_hook_register(void *ptr);
 extern void sound_init(void);
@@ -349,6 +358,8 @@ extern void help_handle_tabulator(text_input_struct *text_input);
 extern void socket_command_interface(uint8_t *data, size_t len, size_t pos);
 extern void interface_redraw(void);
 extern void interface_deinit(void);
+/* src/gui/popups/join_password.c */
+extern void join_password_open(server_struct *server);
 /* src/gui/popups/login.c */
 extern void login_start(void);
 /* src/gui/popups/painting.c */
@@ -358,6 +369,8 @@ socket_command_painting(uint8_t *data, size_t len, size_t pos);
 extern void region_map_open(void);
 /* src/gui/popups/server_add.c */
 extern void server_add_open(void);
+/* src/gui/popups/connection_preference.c */
+extern void connection_preference_open(server_struct *server);
 /* src/gui/popups/settings.c */
 extern void settings_open(void);
 /* src/gui/popups/settings_client.c */

@@ -248,14 +248,33 @@ static int game_status_chain(void)
                             ' ',
                             VS(port_crypto),
                             0);
+            char quic_fingerprint[65];
+            string_get_word(clioption_settings.servers[i],
+                            &pos,
+                            ' ',
+                            VS(quic_fingerprint),
+                            0);
             int port_num = atoi(port);
             int port_crypto_num = atoi(port_crypto);
-            metaserver_add(host,
-                           port_num != 0 ? port_num : 1728,
-                           port_crypto_num != 0 ? port_crypto_num : -1,
-                           host,
-                           "user server",
-                           "Server from command line --server option.");
+            server_struct *server = metaserver_add(
+                host,
+                port_num != 0 ? port_num : 1728,
+                port_crypto_num != 0 ? port_crypto_num : -1,
+                host,
+                "user server",
+                "Server from command line --server option.");
+            if (strlen(quic_fingerprint) == 64 &&
+                strspn(quic_fingerprint, "0123456789abcdefABCDEF") == 64) {
+                string_tolower(quic_fingerprint);
+                server->quic_certificate_sha256 =
+                    estrdup(quic_fingerprint);
+                server->port_crypto = -1;
+                server->direct = true;
+            } else if (*quic_fingerprint != '\0') {
+                LOG(ERROR,
+                    "Ignoring invalid QUIC certificate fingerprint for %s",
+                    host);
+            }
         }
 
         metaserver_get_servers();
@@ -305,7 +324,8 @@ static int game_status_chain(void)
                                 port,
                                 secure,
                                 selected_server->quic_certificate_sha256,
-                                selected_server->server_id)) {
+                                selected_server->server_id,
+                                connection_preference_get(selected_server))) {
             draw_info(COLOR_RED, "Connection failed!");
             cpl.state = ST_START;
             return 1;
@@ -351,11 +371,14 @@ static int game_status_chain(void)
         packet_append_uint8(packet, CMD_SETUP_DATA_URL);
         packet_append_string_terminated(packet, "");
         packet_append_uint8(packet, CMD_SETUP_JOIN_PASSWORD);
+        const char *join_password = selected_server->join_password != NULL
+            ? selected_server->join_password
+            : clioption_settings.join_password;
         packet_append_string_terminated(
             packet,
-            clioption_settings.join_password != NULL &&
+            join_password != NULL &&
             (socket_is_quic(csocket.sc) || socket_is_secure(csocket.sc))
-                ? clioption_settings.join_password : "");
+                ? join_password : "");
         if (cpl.server_socket_version >= ASSET_TRANSPORT_SOCKET_VERSION) {
             packet_append_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
         }
@@ -481,7 +504,9 @@ void clioption_settings_deinit(void)
 static const char *const clioptions_option_server_desc =
 "Adds a server to the list of servers.\n\n"
 "Usage:\n"
-" --server=example.com";
+" --server=\"HOST [PORT [CRYPTO_PORT [QUIC_SHA256]]]\"\n\n"
+"For a pinned local QUIC server, use its UDP port, -1 for CRYPTO_PORT, and "
+"the 64-character certificate SHA-256 fingerprint.";
 /** @copydoc clioptions_handler_func */
 static bool
 clioptions_option_server (const char *arg,
@@ -730,6 +755,7 @@ int main(int argc, char *argv[])
 
     upgrader_init();
     settings_init();
+    connection_preferences_init();
     init_game_data();
 
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0) {

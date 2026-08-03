@@ -266,10 +266,19 @@ static int reader_thread_loop(void *dummy)
         }
 
         size_t amt;
-        bool success = socket_read(csocket.sc, (void *) (readbuf + readbuf_len),
-                toread, &amt);
+        SDL_LockMutex(socket_mutex);
+        bool success = csocket.sc != NULL &&
+                       socket_read(csocket.sc,
+                                   (void *) (readbuf + readbuf_len),
+                                   toread,
+                                   &amt);
+        SDL_UnlockMutex(socket_mutex);
         if (!success) {
             break;
+        }
+        if (amt == 0) {
+            SDL_Delay(1);
+            continue;
         }
 
         readbuf_len += amt;
@@ -326,10 +335,19 @@ static int writer_thread_loop(void *dummy)
 
         while (buf != NULL && written < buf->len && !abort_thread) {
             size_t amt;
-            bool success = socket_write(csocket.sc, (const void *) (buf->data +
-                    written), buf->len - written, &amt);
+            SDL_LockMutex(socket_mutex);
+            bool success = csocket.sc != NULL &&
+                           socket_write(csocket.sc,
+                                        (const void *) (buf->data + written),
+                                        buf->len - written,
+                                        &amt);
+            SDL_UnlockMutex(socket_mutex);
             if (!success) {
                 break;
+            }
+            if (amt == 0) {
+                SDL_Delay(1);
+                continue;
             }
 
             written += amt;
@@ -479,7 +497,8 @@ client_socket_open (client_socket_t *csock,
                     int              port,
                     bool             secure,
                     const char      *quic_certificate_sha256,
-                    const char      *server_id)
+                    const char      *server_id,
+                    socket_connection_preference_t preference)
 {
     HARD_ASSERT(csock != NULL);
     HARD_ASSERT(host != NULL);
@@ -493,7 +512,8 @@ client_socket_open (client_socket_t *csock,
                                               port,
                                               quic_certificate_sha256,
                                               rendezvous,
-                                              "stun.cloudflare.com:3478");
+                                              "stun.cloudflare.com:3478",
+                                              preference);
     } else {
         csock->sc = socket_create(host,
                                   port,

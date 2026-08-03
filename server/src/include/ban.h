@@ -43,8 +43,6 @@ typedef enum ban_error {
     BAN_NOTEXIST, ///< Ban entry doesn't exist.
     BAN_REMOVED, ///< Ban was already removed.
     BAN_BADID, ///< Bad ban ID.
-    BAN_BADIP, ///< Invalid IP address.
-    BAN_BADPLEN, ///< Invalid prefix length.
     BAN_BADSYNTAX, ///< Invalid syntax.
 
     BAN_MAX ///< Number of ban error codes.
@@ -55,7 +53,7 @@ void toolkit_ban_init(void);
 void toolkit_ban_deinit(void);
 ban_error_t ban_add(const char *str);
 ban_error_t ban_remove(const char *str);
-bool ban_check(socket_struct *ns, const char *name);
+bool ban_check(const char *name, const char *account);
 void ban_list(object *op);
 void ban_reset(void);
 const char *ban_strerror(ban_error_t errnum);

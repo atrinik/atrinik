@@ -488,7 +488,7 @@ clioptions_option_connectivity_mode (const char *arg,
  * Description of the --stun_server command.
  */
 static const char *clioptions_option_stun_server_desc =
-"STUN server as hostname:port for public UDP candidate discovery.";
+"STUN server as hostname:port for public UDP candidate discovery, or off.";
 /** @copydoc clioptions_handler_func */
 static bool
 clioptions_option_stun_server (const char *arg,

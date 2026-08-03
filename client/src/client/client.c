@@ -124,7 +124,7 @@ void DoClient(void)
             !socket_crypto_is_done(socket_get_crypto(csocket.sc))) {
             LOG(PACKET,
                 "Received non-crypto packet before crypto exchange from %s",
-                socket_get_str(csocket.sc));
+                socket_get_id(csocket.sc));
             cpl.state = ST_START;
             break;
         }

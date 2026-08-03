@@ -1,4 +1,4 @@
-# Copy this file to server-custom.cfg before starting the container.
+# Copy this file to server-custom.cfg before starting the server.
 # Values here override server/server.cfg.
 
 [general]
@@ -8,9 +8,8 @@
 default_permission_groups = None
 python_reload_modules = off
 
-# The container entrypoint overrides http_url with ATRINIK_HTTP_URL. Leave it
-# set to 'off' for direct QUIC asset delivery, or use a CDN base URL for a large
-# dedicated server.
+# Leave http_url set to 'off' for direct QUIC asset delivery, or set it to a
+# CDN base URL for a large dedicated server.
 
 # Optional public-server identity:
 # server_name = My Atrinik Server
