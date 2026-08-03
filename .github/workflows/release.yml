@@ -101,9 +101,13 @@ jobs:
         env:
           PACKAGE_VERSION: ${{ needs.metadata.outputs.version }}
         run: |
+          # The image's default /opt/mxe cache belongs to its build user. Keep
+          # ccache under writable /tmp when running as the host runner's UID.
           docker run --rm \
             --user "$(id -u):$(id -g)" \
             --env HOME=/tmp \
+            --env CCACHE_DIR=/tmp/atrinik-ccache \
+            --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
             --env ATRINIK_PACKAGE_VERSION="${PACKAGE_VERSION}" \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
