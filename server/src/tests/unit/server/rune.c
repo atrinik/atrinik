@@ -144,7 +144,7 @@ START_TEST(test_trap_successes_award_skill_and_character_experience_once) {
     ck_assert_int_eq(trap_see(pl, trap, trap_skill_rating(pl, SK_FIND_TRAPS)), 1);
     int64_t find_gain = find_skill->stats.exp - find_exp;
     ck_assert_int_gt(find_gain, 0);
-    ck_assert_int_eq(pl->stats.exp - character_exp, find_gain);
+    ck_assert_int_eq(pl->stats.exp - character_exp, find_gain / 5);
 
     ck_assert_int_eq(trap_see(pl, trap, trap_skill_rating(pl, SK_FIND_TRAPS)), 1);
     ck_assert_int_eq(find_skill->stats.exp - find_exp, find_gain);
@@ -152,7 +152,10 @@ START_TEST(test_trap_successes_award_skill_and_character_experience_once) {
     ck_assert_int_eq(trap_disarm(pl, trap), 1);
     int64_t remove_gain = remove_skill->stats.exp - remove_exp;
     ck_assert_int_gt(remove_gain, 0);
-    ck_assert_int_eq(pl->stats.exp - character_exp, find_gain + remove_gain);
+    ck_assert_int_eq(pl->stats.exp - character_exp, find_gain / 5 + remove_gain / 5);
+
+    link_player_skills(pl);
+    ck_assert_int_eq(pl->stats.exp, find_skill->stats.exp / 5 + remove_skill->stats.exp / 5);
 }
 END_TEST
 

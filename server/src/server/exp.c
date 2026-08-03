@@ -375,6 +375,34 @@ uint64_t level_exp(int level, double expmul) {
 }
 
 /**
+ * Calculate how much of a skill's experience contributes to character
+ * experience.
+ *
+ * Trap skills retain their full skill progression but contribute only 20% to
+ * the character level. Skills marked stand-still remain entirely excluded.
+ *
+ * @param skill
+ * Skill object.
+ * @param skill_nr
+ * Skill ID.
+ * @return
+ * Character experience represented by the skill's current experience.
+ */
+int64_t skill_exp_to_character_exp(const object *skill, int skill_nr) {
+    HARD_ASSERT(skill != NULL);
+
+    if (QUERY_FLAG(skill, FLAG_STAND_STILL)) {
+        return 0;
+    }
+
+    if (skill_nr == SK_FIND_TRAPS || skill_nr == SK_REMOVE_TRAPS) {
+        return skill->stats.exp / 5;
+    }
+
+    return skill->stats.exp;
+}
+
+/**
  * Add experience to player.
  * @param op
  * The player.
@@ -419,6 +447,8 @@ int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact) {
         return 0;
     }
 
+    int64_t old_character_exp = skill_exp_to_character_exp(exp_skill, skill_nr);
+
     /* Can't add experience to maxed out skill, and can't subtract
      * experience if the skill doesn't have any experience left. */
     if ((exp_gain > 0 && exp_skill->level >= MAXLEVEL) ||
@@ -448,8 +478,10 @@ int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact) {
     }
 
     if (exp_gain > 0) {
-        if (!QUERY_FLAG(exp_skill, FLAG_STAND_STILL)) {
-            op->stats.exp += exp_gain;
+        int64_t character_exp = skill_exp_to_character_exp(exp_skill, skill_nr);
+        int64_t character_exp_gain = character_exp - old_character_exp;
+        if (character_exp_gain > 0) {
+            op->stats.exp += character_exp_gain;
 
             if (op->stats.exp >= (int64_t)MAX_EXPERIENCE) {
                 op->stats.exp = MAX_EXPERIENCE;

@@ -285,8 +285,9 @@ void link_player_skills(object *pl) {
             fix = true;
         }
 
-        if (!QUERY_FLAG(CONTR(pl)->skill_ptr[i], FLAG_STAND_STILL)) {
-            pl->stats.exp += CONTR(pl)->skill_ptr[i]->stats.exp;
+        int64_t character_exp = skill_exp_to_character_exp(CONTR(pl)->skill_ptr[i], i);
+        if (character_exp > 0) {
+            pl->stats.exp += character_exp;
 
             if (pl->stats.exp >= (int64_t)MAX_EXPERIENCE) {
                 pl->stats.exp = MAX_EXPERIENCE;
