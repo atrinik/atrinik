@@ -101,19 +101,16 @@ static int popup_draw(popup_struct *popup) {
 static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (button_event(&button_add, event) ||
         (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
-        char buf[HUGE_BUF];
-
         if (*text_input_server_host.str == '\0' || *text_input_server_port.str == '\0' ||
             atoi(text_input_server_port.str) <= 0) {
             return -1;
         }
 
-        snprintf(buf, sizeof(buf), "%s %s", text_input_server_host.str, text_input_server_port.str);
-
         clioption_settings.servers =
             erealloc(clioption_settings.servers,
                      sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
-        clioption_settings.servers[clioption_settings.servers_num] = estrdup(buf);
+        clioption_settings.servers[clioption_settings.servers_num] =
+            string_join("", text_input_server_host.str, " ", text_input_server_port.str, NULL);
         clioption_settings.servers_num++;
 
         if (!ms_connecting(-1)) {

@@ -129,7 +129,7 @@ player *find_player_sh(shstr *plname) {
  * Player object to print the message to.
  */
 void display_motd(object *op) {
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     FILE *fp;
 
     snprintf(buf, sizeof(buf), "%s/motd_custom", settings.datapath);
@@ -3110,7 +3110,9 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at) {
 
     display_motd(pl->ob);
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
-    trigger_global_event(GEVENT_LOGIN, pl, socket_get_id(pl->cs->sc));
+    char connection_id[SOCKET_CONNECTION_ID_SIZE];
+    memcpy(connection_id, socket_get_id(pl->cs->sc), sizeof(connection_id));
+    trigger_global_event(GEVENT_LOGIN, pl, connection_id);
 
     mapstruct *m = ready_map_name(pl->maplevel, NULL, 0);
 
@@ -3177,7 +3179,9 @@ void player_logout(player *pl) {
     }
 
     /* Trigger the global LOGOUT event */
-    trigger_global_event(GEVENT_LOGOUT, pl->ob, socket_get_id(pl->cs->sc));
+    char connection_id[SOCKET_CONNECTION_ID_SIZE];
+    memcpy(connection_id, socket_get_id(pl->cs->sc), sizeof(connection_id));
+    trigger_global_event(GEVENT_LOGOUT, pl->ob, connection_id);
     statistics_player_logout(pl);
 
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s left the game.", pl->ob->name);

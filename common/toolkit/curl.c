@@ -64,6 +64,12 @@ TOOLKIT_API(DEPENDS(clioptions), IMPORTS(memory));
         }                                                       \
     } while (0)
 
+typedef struct curl_form_field {
+    struct curl_form_field *next;
+    char *key;
+    char *value;
+} curl_form_field_t;
+
 /**
  * cURL request structure.
  */
@@ -123,12 +129,7 @@ struct curl_request {
     /**
      * POST form data.
      */
-    struct curl_httppost *form_post;
-
-    /**
-     * Pointer to last form data.
-     */
-    struct curl_httppost *form_post_last;
+    curl_form_field_t *form_fields;
 
     /**
      * Used to keep track of which certificate is being processed.
@@ -251,7 +252,6 @@ static bool curl_load_pem(const char *pubkey, curl_pkey_trust_t trust, char **er
     char *cp = estrdup(pubkey);
     curl_trust_store_t *store = NULL;
 
-    RSA *key = NULL;
     BIO *key_bio = BIO_new_mem_buf(cp, -1);
     if (key_bio == NULL) {
         *errmsg = estrdup("Failed to create a BIO");
@@ -259,21 +259,10 @@ static bool curl_load_pem(const char *pubkey, curl_pkey_trust_t trust, char **er
     }
 
     store = ecalloc(1, sizeof(*store));
-    store->key = EVP_PKEY_new();
-    if (store->key == NULL) {
-        *errmsg = estrdup("Failed to create an EVP_PKEY");
-        goto out;
-    }
-
-    key = PEM_read_bio_RSA_PUBKEY(key_bio, NULL, NULL, NULL);
-    if (key == NULL) {
+    store->key = PEM_read_bio_PUBKEY(key_bio, NULL, NULL, NULL);
+    if (store->key == NULL || EVP_PKEY_is_a(store->key, "RSA") != 1) {
         *errmsg = estrdup("Failed to load RSA public key; ensure it's in a "
                           "valid PEM format");
-        goto out;
-    }
-
-    if (!EVP_PKEY_set1_RSA(store->key, key)) {
-        string_fmt(*errmsg, "Setting RSA key to trusted store %d failed", trust);
         goto out;
     }
 
@@ -286,10 +275,6 @@ out:
 
     if (key_bio != NULL) {
         BIO_free(key_bio);
-    }
-
-    if (key != NULL) {
-        RSA_free(key);
     }
 
     if (!ret && store != NULL) {
@@ -643,13 +628,10 @@ void curl_request_form_add(curl_request_t *request, const char *key, const char 
     HARD_ASSERT(value != NULL);
     TOOLKIT_PROTECT();
 
-    curl_formadd(&request->form_post,
-                 &request->form_post_last,
-                 CURLFORM_COPYNAME,
-                 key,
-                 CURLFORM_COPYCONTENTS,
-                 value,
-                 CURLFORM_END);
+    curl_form_field_t *field = ecalloc(1, sizeof(*field));
+    field->key = estrdup(key);
+    field->value = estrdup(value);
+    LL_APPEND(request->form_fields, field);
 }
 
 /**
@@ -837,15 +819,15 @@ int64_t curl_request_sizeinfo(curl_request_t *request, curl_info_t info) {
     CURLINFO info_code;
     switch (info) {
         case CURL_INFO_DL_LENGTH:
-            info_code = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
+            info_code = CURLINFO_CONTENT_LENGTH_DOWNLOAD_T;
             break;
 
         case CURL_INFO_DL_SPEED:
-            info_code = CURLINFO_SPEED_DOWNLOAD;
+            info_code = CURLINFO_SPEED_DOWNLOAD_T;
             break;
 
         case CURL_INFO_DL_SIZE:
-            info_code = CURLINFO_SIZE_DOWNLOAD;
+            info_code = CURLINFO_SIZE_DOWNLOAD_T;
             break;
 
         default:
@@ -853,12 +835,10 @@ int64_t curl_request_sizeinfo(curl_request_t *request, curl_info_t info) {
             return 0;
     }
 
-    double val;
+    curl_off_t val;
     CURLcode res = curl_easy_getinfo(request->handle, info_code, &val);
 
     if (res == CURLE_OK) {
-        /* cURL uses doubles, but all the info values we use this for are
-         * in bytes, so there's no reason for a double. */
         return (int64_t)val;
     }
 
@@ -944,7 +924,13 @@ void curl_request_free(curl_request_t *request) {
     }
 
     pthread_mutex_destroy(&request->mutex);
-    curl_formfree(request->form_post);
+
+    curl_form_field_t *field, *tmp;
+    LL_FOREACH_SAFE(request->form_fields, field, tmp) {
+        efree(field->key);
+        efree(field->value);
+        efree(field);
+    }
 
     efree(request->url);
     efree(request);
@@ -1018,7 +1004,7 @@ static int curl_ssl_verify(int preverify_ok, X509_STORE_CTX *ctx) {
 
     curl_trust_store_t *store;
     LL_FOREACH(curl_trust_pkeys[request->trust], store) {
-        int res = EVP_PKEY_cmp(pubkey, store->key);
+        int res = EVP_PKEY_eq(pubkey, store->key);
         if (res == 1) {
             BIT_SET(request->cert_chain, request->cert_id);
         }
@@ -1241,8 +1227,11 @@ static size_t curl_header_callback(char *buffer, size_t size, size_t nitems, voi
  * @return
  * 1 to continue downloading, 0 otherwise.
  */
-static int
-curl_progress(void *userdata, double dltotal, double dlnow, double ultotal, double ulnow) {
+static int curl_progress(void *userdata,
+                         curl_off_t dltotal,
+                         curl_off_t dlnow,
+                         curl_off_t ultotal,
+                         curl_off_t ulnow) {
     curl_request_t *request = userdata;
 
     pthread_mutex_lock(&request->mutex);
@@ -1287,8 +1276,8 @@ static curl_state_t curl_request_setup(curl_request_t *request) {
 
     /* Register a progress function so that we can quit the thread if
      * we need to. */
-    CURL_SETOPT(request->handle, CURLOPT_PROGRESSFUNCTION, curl_progress);
-    CURL_SETOPT(request->handle, CURLOPT_PROGRESSDATA, request);
+    CURL_SETOPT(request->handle, CURLOPT_XFERINFOFUNCTION, curl_progress);
+    CURL_SETOPT(request->handle, CURLOPT_XFERINFODATA, request);
 
     pthread_mutex_lock(&request->mutex);
     CURL_SETOPT(request->handle, CURLOPT_URL, request->url);
@@ -1460,6 +1449,42 @@ void curl_request_start_get(curl_request_t *request) {
 }
 
 /**
+ * Builds and attaches a MIME form to a request handle.
+ */
+static bool curl_request_build_form(curl_request_t *request, curl_mime **mime_out) {
+    curl_mime *mime = curl_mime_init(request->handle);
+    if (mime == NULL) {
+        LOG(ERROR, "Failed to create cURL MIME form");
+        return false;
+    }
+
+    curl_form_field_t *field;
+    LL_FOREACH(request->form_fields, field) {
+        curl_mimepart *part = curl_mime_addpart(mime);
+        CURLcode res;
+        if (part == NULL || (res = curl_mime_name(part, field->key)) != CURLE_OK ||
+            (res = curl_mime_data(part, field->value, CURL_ZERO_TERMINATED)) != CURLE_OK) {
+            LOG(ERROR,
+                "Failed to add cURL MIME field %s: %s",
+                field->key,
+                part == NULL ? "out of memory" : curl_easy_strerror(res));
+            curl_mime_free(mime);
+            return false;
+        }
+    }
+
+    CURLcode res = curl_easy_setopt(request->handle, CURLOPT_MIMEPOST, mime);
+    if (res != CURLE_OK) {
+        LOG(ERROR, "Failed to attach cURL MIME form: %s", curl_easy_strerror(res));
+        curl_mime_free(mime);
+        return false;
+    }
+
+    *mime_out = mime;
+    return true;
+}
+
+/**
  * Use cURL to send a POST request to the URL specified in ::curl_request_t
  * structure (user_data).
  *
@@ -1476,6 +1501,7 @@ void *curl_request_do_post(void *user_data) {
     }
 
     curl_state_t state;
+    curl_mime *mime = NULL;
 
     /* Init "easy" cURL */
     request->handle = curl_easy_init();
@@ -1489,7 +1515,10 @@ void *curl_request_do_post(void *user_data) {
         goto done;
     }
 
-    curl_easy_setopt(request->handle, CURLOPT_HTTPPOST, request->form_post);
+    if (!curl_request_build_form(request, &mime)) {
+        state = CURL_STATE_ERROR;
+        goto done;
+    }
 
     state = curl_request_complete(request);
 
@@ -1499,6 +1528,7 @@ done:
     pthread_mutex_unlock(&request->mutex);
 
     if (request->handle != NULL) {
+        curl_mime_free(mime);
         curl_easy_cleanup(request->handle);
     }
 

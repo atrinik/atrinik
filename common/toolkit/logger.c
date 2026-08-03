@@ -297,7 +297,7 @@ void logger_print(logger_level level,
                   uint64_t line,
                   const char *format,
                   ...) {
-    char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[sizeof(formatted) * 2];
+    char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[sizeof(formatted) * 3];
     va_list ap;
     struct timeval tv;
     time_t timestamp;

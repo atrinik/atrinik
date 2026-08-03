@@ -781,7 +781,6 @@ static int do_script(PythonContext *context, const char *filename) {
         if (hooks->settings->python_reload_modules) {
             PyObject *modules = PyImport_GetModuleDict(), *key, *value;
             Py_ssize_t pos = 0;
-            const char *m_filename;
             char m_buf[MAX_BUF];
 
             /* Create path name to the Python scripts directory. */
@@ -789,10 +788,16 @@ static int do_script(PythonContext *context, const char *filename) {
 
             /* Go through the loaded modules. */
             while (PyDict_Next(modules, &pos, &key, &value)) {
-                m_filename = PyModule_GetFilename(value);
-
-                if (!m_filename) {
+                PyObject *filename_obj = PyModule_GetFilenameObject(value);
+                if (filename_obj == NULL) {
                     PyErr_Clear();
+                    continue;
+                }
+
+                const char *m_filename = PyUnicode_AsUTF8(filename_obj);
+                if (m_filename == NULL) {
+                    PyErr_Clear();
+                    Py_DECREF(filename_obj);
                     continue;
                 }
 
@@ -805,6 +810,8 @@ static int do_script(PythonContext *context, const char *filename) {
                         PyErr_LOG();
                     }
                 }
+
+                Py_DECREF(filename_obj);
             }
         }
 
@@ -1005,7 +1012,7 @@ static const char doc_Atrinik_WhoAmI[] =
  * Implements Atrinik.WhoAmI() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_WhoAmI(PyObject *self) {
+static PyObject *Atrinik_WhoAmI(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1027,7 +1034,7 @@ static const char doc_Atrinik_WhoIsActivator[] =
  * Implements Atrinik.WhoIsActivator() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_WhoIsActivator(PyObject *self) {
+static PyObject *Atrinik_WhoIsActivator(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1050,7 +1057,7 @@ static const char doc_Atrinik_WhoIsOther[] =
  * Implements Atrinik.WhoIsOther() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_WhoIsOther(PyObject *self) {
+static PyObject *Atrinik_WhoIsOther(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1072,7 +1079,7 @@ static const char doc_Atrinik_WhatIsEvent[] =
  * Implements Atrinik.WhatIsEvent() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_WhatIsEvent(PyObject *self) {
+static PyObject *Atrinik_WhatIsEvent(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1095,7 +1102,7 @@ static const char doc_Atrinik_GetEventNumber[] =
  * Implements Atrinik.GetEventNumber() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_GetEventNumber(PyObject *self) {
+static PyObject *Atrinik_GetEventNumber(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1122,7 +1129,7 @@ static const char doc_Atrinik_WhatIsMessage[] =
  * Implements Atrinik.WhatIsMessage() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_WhatIsMessage(PyObject *self) {
+static PyObject *Atrinik_WhatIsMessage(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1144,7 +1151,7 @@ static const char doc_Atrinik_GetOptions[] =
  * Implements Atrinik.GetOptions() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_GetOptions(PyObject *self) {
+static PyObject *Atrinik_GetOptions(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1166,7 +1173,7 @@ static const char doc_Atrinik_GetReturnValue[] =
  * Implements Atrinik.GetReturnValue() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_GetReturnValue(PyObject *self) {
+static PyObject *Atrinik_GetReturnValue(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1223,7 +1230,7 @@ static const char doc_Atrinik_GetEventParameters[] =
  * Implements Atrinik.GetEventParameters() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_GetEventParameters(PyObject *self) {
+static PyObject *Atrinik_GetEventParameters(PyObject *self, PyObject *ignored) {
     if (current_context == NULL) {
         PyErr_SetString(AtrinikError, "There is no event context.");
         return NULL;
@@ -1316,7 +1323,7 @@ static const char doc_Atrinik_GetTime[] =
  * Implements Atrinik.GetTime() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_GetTime(PyObject *self) {
+static PyObject *Atrinik_GetTime(PyObject *self, PyObject *ignored) {
     timeofday_t tod;
     hooks->get_tod(&tod);
 
@@ -1724,7 +1731,7 @@ static const char doc_Atrinik_GetTicks[] = ".. function:: GetTicks().\n\n"
  * Implements Atrinik.GetTicks() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_GetTicks(PyObject *self) {
+static PyObject *Atrinik_GetTicks(PyObject *self, PyObject *ignored) {
     return Py_BuildValue("l", *hooks->pticks);
 }
 
@@ -1857,7 +1864,7 @@ static const char doc_Atrinik_GetSettings[] =
  * Implements Atrinik.GetSettings() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_GetSettings(PyObject *self) {
+static PyObject *Atrinik_GetSettings(PyObject *self, PyObject *ignored) {
     PyObject *dict = PyDict_New();
     PyDict_SetItemString(dict, "port", Py_BuildValue("H", hooks->settings->port));
     PyDict_SetItemString(dict, "libpath", Py_BuildValue("s", hooks->settings->libpath));
@@ -1933,7 +1940,7 @@ static const char doc_Atrinik_Process[] =
  * Implements Atrinik.Process() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Process(PyObject *self) {
+static PyObject *Atrinik_Process(PyObject *self, PyObject *ignored) {
     if (!hooks->settings->plugin_unit_tests) {
         PyErr_SetString(AtrinikError,
                         "Method cannot be used outside of unit "
@@ -1952,63 +1959,48 @@ static PyObject *Atrinik_Process(PyObject *self) {
  * an interface with the C code.
  */
 static PyMethodDef AtrinikMethods[] = {
-    {"LoadObject", (PyCFunction)Atrinik_LoadObject, METH_VARARGS, doc_Atrinik_LoadObject},
-    {"ReadyMap", (PyCFunction)Atrinik_ReadyMap, METH_VARARGS, doc_Atrinik_ReadyMap},
-    {"FindPlayer", (PyCFunction)Atrinik_FindPlayer, METH_VARARGS, doc_Atrinik_FindPlayer},
-    {"PlayerExists", (PyCFunction)Atrinik_PlayerExists, METH_VARARGS, doc_Atrinik_PlayerExists},
-    {"WhoAmI", (PyCFunction)Atrinik_WhoAmI, METH_NOARGS, doc_Atrinik_WhoAmI},
-    {"WhoIsActivator",
-     (PyCFunction)Atrinik_WhoIsActivator,
-     METH_NOARGS,
-     doc_Atrinik_WhoIsActivator},
-    {"WhoIsOther", (PyCFunction)Atrinik_WhoIsOther, METH_NOARGS, doc_Atrinik_WhoIsOther},
-    {"WhatIsEvent", (PyCFunction)Atrinik_WhatIsEvent, METH_NOARGS, doc_Atrinik_WhatIsEvent},
-    {"GetEventNumber",
-     (PyCFunction)Atrinik_GetEventNumber,
-     METH_NOARGS,
-     doc_Atrinik_GetEventNumber},
-    {"WhatIsMessage", (PyCFunction)Atrinik_WhatIsMessage, METH_NOARGS, doc_Atrinik_WhatIsMessage},
-    {"GetOptions", (PyCFunction)Atrinik_GetOptions, METH_NOARGS, doc_Atrinik_GetOptions},
-    {"GetReturnValue",
-     (PyCFunction)Atrinik_GetReturnValue,
-     METH_NOARGS,
-     doc_Atrinik_GetReturnValue},
-    {"SetReturnValue",
-     (PyCFunction)Atrinik_SetReturnValue,
-     METH_VARARGS,
-     doc_Atrinik_SetReturnValue},
+    {"LoadObject", PY_METHOD(Atrinik_LoadObject), METH_VARARGS, doc_Atrinik_LoadObject},
+    {"ReadyMap", PY_METHOD(Atrinik_ReadyMap), METH_VARARGS, doc_Atrinik_ReadyMap},
+    {"FindPlayer", PY_METHOD(Atrinik_FindPlayer), METH_VARARGS, doc_Atrinik_FindPlayer},
+    {"PlayerExists", PY_METHOD(Atrinik_PlayerExists), METH_VARARGS, doc_Atrinik_PlayerExists},
+    {"WhoAmI", PY_METHOD(Atrinik_WhoAmI), METH_NOARGS, doc_Atrinik_WhoAmI},
+    {"WhoIsActivator", PY_METHOD(Atrinik_WhoIsActivator), METH_NOARGS, doc_Atrinik_WhoIsActivator},
+    {"WhoIsOther", PY_METHOD(Atrinik_WhoIsOther), METH_NOARGS, doc_Atrinik_WhoIsOther},
+    {"WhatIsEvent", PY_METHOD(Atrinik_WhatIsEvent), METH_NOARGS, doc_Atrinik_WhatIsEvent},
+    {"GetEventNumber", PY_METHOD(Atrinik_GetEventNumber), METH_NOARGS, doc_Atrinik_GetEventNumber},
+    {"WhatIsMessage", PY_METHOD(Atrinik_WhatIsMessage), METH_NOARGS, doc_Atrinik_WhatIsMessage},
+    {"GetOptions", PY_METHOD(Atrinik_GetOptions), METH_NOARGS, doc_Atrinik_GetOptions},
+    {"GetReturnValue", PY_METHOD(Atrinik_GetReturnValue), METH_NOARGS, doc_Atrinik_GetReturnValue},
+    {"SetReturnValue", PY_METHOD(Atrinik_SetReturnValue), METH_VARARGS, doc_Atrinik_SetReturnValue},
     {"GetEventParameters",
-     (PyCFunction)Atrinik_GetEventParameters,
+     PY_METHOD(Atrinik_GetEventParameters),
      METH_NOARGS,
      doc_Atrinik_GetEventParameters},
     {"RegisterCommand",
-     (PyCFunction)Atrinik_RegisterCommand,
+     PY_METHOD(Atrinik_RegisterCommand),
      METH_VARARGS,
      doc_Atrinik_RegisterCommand},
-    {"CreatePathname",
-     (PyCFunction)Atrinik_CreatePathname,
-     METH_VARARGS,
-     doc_Atrinik_CreatePathname},
-    {"GetTime", (PyCFunction)Atrinik_GetTime, METH_NOARGS, doc_Atrinik_GetTime},
-    {"FindParty", (PyCFunction)Atrinik_FindParty, METH_VARARGS, doc_Atrinik_FindParty},
-    {"Logger", (PyCFunction)Atrinik_Logger, METH_VARARGS, doc_Atrinik_Logger},
+    {"CreatePathname", PY_METHOD(Atrinik_CreatePathname), METH_VARARGS, doc_Atrinik_CreatePathname},
+    {"GetTime", PY_METHOD(Atrinik_GetTime), METH_NOARGS, doc_Atrinik_GetTime},
+    {"FindParty", PY_METHOD(Atrinik_FindParty), METH_VARARGS, doc_Atrinik_FindParty},
+    {"Logger", PY_METHOD(Atrinik_Logger), METH_VARARGS, doc_Atrinik_Logger},
     {"GetRangeVectorFromMapCoords",
-     (PyCFunction)Atrinik_GetRangeVectorFromMapCoords,
+     PY_METHOD(Atrinik_GetRangeVectorFromMapCoords),
      METH_VARARGS,
      doc_Atrinik_GetRangeVectorFromMapCoords},
-    {"CostString", (PyCFunction)Atrinik_CostString, METH_VARARGS, doc_Atrinik_CostString},
-    {"CacheAdd", (PyCFunction)Atrinik_CacheAdd, METH_VARARGS, doc_Atrinik_CacheAdd},
-    {"CacheGet", (PyCFunction)Atrinik_CacheGet, METH_VARARGS, doc_Atrinik_CacheGet},
-    {"CacheRemove", (PyCFunction)Atrinik_CacheRemove, METH_VARARGS, doc_Atrinik_CacheRemove},
-    {"GetFirst", (PyCFunction)Atrinik_GetFirst, METH_VARARGS, doc_Atrinik_GetFirst},
-    {"CreateMap", (PyCFunction)Atrinik_CreateMap, METH_VARARGS, doc_Atrinik_CreateMap},
-    {"CreateObject", (PyCFunction)Atrinik_CreateObject, METH_VARARGS, doc_Atrinik_CreateObject},
-    {"GetTicks", (PyCFunction)Atrinik_GetTicks, METH_NOARGS, doc_Atrinik_GetTicks},
-    {"GetArchetype", (PyCFunction)Atrinik_GetArchetype, METH_VARARGS, doc_Atrinik_GetArchetype},
-    {"print", (PyCFunction)Atrinik_print, METH_VARARGS, doc_Atrinik_print},
-    {"Eval", (PyCFunction)Atrinik_Eval, METH_VARARGS, doc_Atrinik_Eval},
-    {"GetSettings", (PyCFunction)Atrinik_GetSettings, METH_NOARGS, doc_Atrinik_GetSettings},
-    {"Process", (PyCFunction)Atrinik_Process, METH_NOARGS, doc_Atrinik_Process},
+    {"CostString", PY_METHOD(Atrinik_CostString), METH_VARARGS, doc_Atrinik_CostString},
+    {"CacheAdd", PY_METHOD(Atrinik_CacheAdd), METH_VARARGS, doc_Atrinik_CacheAdd},
+    {"CacheGet", PY_METHOD(Atrinik_CacheGet), METH_VARARGS, doc_Atrinik_CacheGet},
+    {"CacheRemove", PY_METHOD(Atrinik_CacheRemove), METH_VARARGS, doc_Atrinik_CacheRemove},
+    {"GetFirst", PY_METHOD(Atrinik_GetFirst), METH_VARARGS, doc_Atrinik_GetFirst},
+    {"CreateMap", PY_METHOD(Atrinik_CreateMap), METH_VARARGS, doc_Atrinik_CreateMap},
+    {"CreateObject", PY_METHOD(Atrinik_CreateObject), METH_VARARGS, doc_Atrinik_CreateObject},
+    {"GetTicks", PY_METHOD(Atrinik_GetTicks), METH_NOARGS, doc_Atrinik_GetTicks},
+    {"GetArchetype", PY_METHOD(Atrinik_GetArchetype), METH_VARARGS, doc_Atrinik_GetArchetype},
+    {"print", PY_METHOD(Atrinik_print), METH_VARARGS, doc_Atrinik_print},
+    {"Eval", PY_METHOD(Atrinik_Eval), METH_VARARGS, doc_Atrinik_Eval},
+    {"GetSettings", PY_METHOD(Atrinik_GetSettings), METH_NOARGS, doc_Atrinik_GetSettings},
+    {"Process", PY_METHOD(Atrinik_Process), METH_NOARGS, doc_Atrinik_Process},
     {NULL, NULL, 0, 0}};
 
 /**

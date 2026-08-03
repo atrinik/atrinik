@@ -71,7 +71,7 @@ int load_dir(const char *dir, char ***namelist, int skip_dirs) {
     DIR *dp;
     struct dirent *d;
     int entries = 0, entry_size = 0;
-    char name[NAME_MAX + 1], **rn = NULL;
+    char **rn = NULL;
     struct stat sb;
 
     dp = opendir(dir);
@@ -82,11 +82,16 @@ int load_dir(const char *dir, char ***namelist, int skip_dirs) {
 
     while ((d = readdir(dp)) != NULL) {
         if (skip_dirs) {
-            snprintf(name, sizeof(name), "%s/%s", dir, d->d_name);
+            size_t name_size = strlen(dir) + strlen(d->d_name) + 2;
+            char *name = emalloc(name_size);
+            snprintf(name, name_size, "%s/%s", dir, d->d_name);
 
             if (stat(name, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+                efree(name);
                 continue;
             }
+
+            efree(name);
         }
 
         if (entries == entry_size) {
@@ -164,7 +169,7 @@ mapstruct *load_style_map(char *style_name) {
  */
 mapstruct *
 find_style(const char *dirname, const char *stylename, int difficulty, rng_state_t *rng) {
-    char style_file_path[256], style_file_full_path[256];
+    char style_file_path[HUGE_BUF], style_file_full_path[HUGE_BUF * 2];
     mapstruct *style_map = NULL;
     struct stat file_stat;
     int i;
@@ -194,7 +199,7 @@ find_style(const char *dirname, const char *stylename, int difficulty, rng_state
     if (style_map == NULL) {
         char **namelist;
         int n, only_subdirs = 0;
-        char style_dir_full_path[256];
+        char style_dir_full_path[HUGE_BUF * 2];
 
         /* Get the names of all the files in that directory */
         snprintf(style_dir_full_path,
@@ -235,11 +240,11 @@ find_style(const char *dirname, const char *stylename, int difficulty, rng_state
 
             for (i = 0; i < n; i++) {
                 int dist;
-                char *mfile_name = strrchr(namelist[i], '_') + 1;
+                char *separator = strrchr(namelist[i], '_');
 
                 /* since there isn't a sequence, pick one at random to recurse
                  * */
-                if ((mfile_name - 1) == NULL) {
+                if (separator == NULL) {
                     int q;
 
                     style_map = find_style(style_file_path,
@@ -254,13 +259,14 @@ find_style(const char *dirname, const char *stylename, int difficulty, rng_state
                     efree(namelist);
 
                     return style_map;
-                } else {
-                    dist = abs(difficulty - atoi(mfile_name));
+                }
 
-                    if (dist < min_dist) {
-                        min_dist = dist;
-                        min_index = i;
-                    }
+                char *mfile_name = separator + 1;
+                dist = abs(difficulty - atoi(mfile_name));
+
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    min_index = i;
                 }
             }
 

@@ -502,7 +502,7 @@ static const char doc_Atrinik_Map_CountPlayers[] = ".. method:: CountPlayers().\
  * Implements Atrinik.Map.Map.CountPlayers() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *self) {
+static PyObject *Atrinik_Map_CountPlayers(Atrinik_Map *self, PyObject *ignored) {
     return Py_BuildValue("i", hooks->players_on_map(self->map));
 }
 
@@ -517,7 +517,7 @@ static const char doc_Atrinik_Map_GetPlayers[] =
  * Implements Atrinik.Map.Map.GetPlayers() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *self) {
+static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *self, PyObject *ignored) {
     PyObject *list = PyList_New(0);
 
     for (object *tmp = self->map->player_first; tmp != NULL; tmp = CONTR(tmp)->map_above) {
@@ -865,7 +865,7 @@ static const char doc_Atrinik_Map_Save[] = ".. method:: Save().\n\n"
  * Implements Atrinik.Map.Map.Save() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Map_Save(Atrinik_Map *self) {
+static PyObject *Atrinik_Map_Save(Atrinik_Map *self, PyObject *ignored) {
     hooks->new_save_map(self->map, 0);
 
     Py_INCREF(Py_None);
@@ -874,51 +874,48 @@ static PyObject *Atrinik_Map_Save(Atrinik_Map *self) {
 
 /** Available Python methods for the AtrinikMap object */
 static PyMethodDef MapMethods[] = {
-    {"Objects", (PyCFunction)Atrinik_Map_Objects, METH_VARARGS, doc_Atrinik_Map_Objects},
+    {"Objects", PY_METHOD(Atrinik_Map_Objects), METH_VARARGS, doc_Atrinik_Map_Objects},
     {"ObjectsReversed",
-     (PyCFunction)Atrinik_Map_ObjectsReversed,
+     PY_METHOD(Atrinik_Map_ObjectsReversed),
      METH_VARARGS,
      doc_Atrinik_Map_ObjectsReversed},
-    {"GetLayer", (PyCFunction)Atrinik_Map_GetLayer, METH_VARARGS, doc_Atrinik_Map_GetLayer},
+    {"GetLayer", PY_METHOD(Atrinik_Map_GetLayer), METH_VARARGS, doc_Atrinik_Map_GetLayer},
     {"GetMapFromCoord",
-     (PyCFunction)Atrinik_Map_GetMapFromCoord,
+     PY_METHOD(Atrinik_Map_GetMapFromCoord),
      METH_VARARGS,
      doc_Atrinik_Map_GetMapFromCoord},
     {"PlaySound",
-     (PyCFunction)Atrinik_Map_PlaySound,
+     PY_METHOD(Atrinik_Map_PlaySound),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Map_PlaySound},
     {"DrawInfo",
-     (PyCFunction)Atrinik_Map_DrawInfo,
+     PY_METHOD(Atrinik_Map_DrawInfo),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Map_DrawInfo},
     {"CreateObject",
-     (PyCFunction)Atrinik_Map_CreateObject,
+     PY_METHOD(Atrinik_Map_CreateObject),
      METH_VARARGS,
      doc_Atrinik_Map_CreateObject},
     {"CountPlayers",
-     (PyCFunction)Atrinik_Map_CountPlayers,
+     PY_METHOD(Atrinik_Map_CountPlayers),
      METH_NOARGS,
      doc_Atrinik_Map_CountPlayers},
-    {"GetPlayers", (PyCFunction)Atrinik_Map_GetPlayers, METH_NOARGS, doc_Atrinik_Map_GetPlayers},
-    {"Insert", (PyCFunction)Atrinik_Map_Insert, METH_VARARGS, doc_Atrinik_Map_Insert},
-    {"Wall", (PyCFunction)Atrinik_Map_Wall, METH_VARARGS, doc_Atrinik_Map_Wall},
-    {"Blocked", (PyCFunction)Atrinik_Map_Blocked, METH_VARARGS, doc_Atrinik_Map_Blocked},
-    {"FreeSpot", (PyCFunction)Atrinik_Map_FreeSpot, METH_VARARGS, doc_Atrinik_Map_FreeSpot},
-    {"GetDarkness",
-     (PyCFunction)Atrinik_Map_GetDarkness,
-     METH_VARARGS,
-     doc_Atrinik_Map_GetDarkness},
+    {"GetPlayers", PY_METHOD(Atrinik_Map_GetPlayers), METH_NOARGS, doc_Atrinik_Map_GetPlayers},
+    {"Insert", PY_METHOD(Atrinik_Map_Insert), METH_VARARGS, doc_Atrinik_Map_Insert},
+    {"Wall", PY_METHOD(Atrinik_Map_Wall), METH_VARARGS, doc_Atrinik_Map_Wall},
+    {"Blocked", PY_METHOD(Atrinik_Map_Blocked), METH_VARARGS, doc_Atrinik_Map_Blocked},
+    {"FreeSpot", PY_METHOD(Atrinik_Map_FreeSpot), METH_VARARGS, doc_Atrinik_Map_FreeSpot},
+    {"GetDarkness", PY_METHOD(Atrinik_Map_GetDarkness), METH_VARARGS, doc_Atrinik_Map_GetDarkness},
     {"GetPath",
-     (PyCFunction)Atrinik_Map_GetPath,
+     PY_METHOD(Atrinik_Map_GetPath),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Map_GetPath},
     {"LocateBeacon",
-     (PyCFunction)Atrinik_Map_LocateBeacon,
+     PY_METHOD(Atrinik_Map_LocateBeacon),
      METH_VARARGS,
      doc_Atrinik_Map_LocateBeacon},
-    {"Redraw", (PyCFunction)Atrinik_Map_Redraw, METH_VARARGS, doc_Atrinik_Map_Redraw},
-    {"Save", (PyCFunction)Atrinik_Map_Save, METH_NOARGS, doc_Atrinik_Map_Save},
+    {"Redraw", PY_METHOD(Atrinik_Map_Redraw), METH_VARARGS, doc_Atrinik_Map_Redraw},
+    {"Save", PY_METHOD(Atrinik_Map_Save), METH_NOARGS, doc_Atrinik_Map_Save},
 
     {NULL, NULL, 0, NULL}};
 

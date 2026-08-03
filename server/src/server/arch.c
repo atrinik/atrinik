@@ -272,7 +272,7 @@ static void arch_pass_second(FILE *fp, const char *filename) {
         }
     }
 
-    char filename2[MAX_BUF];
+    char filename2[HUGE_BUF];
     snprintf(VS(filename2), "%s/artifacts", settings.libpath);
     fp = fopen(filename2, "rb");
 
@@ -358,7 +358,7 @@ error:
 static void arch_load(void) {
     TIMER_START(1);
 
-    char filename[MAX_BUF];
+    char filename[HUGE_BUF];
     snprintf(VS(filename), "%s/archetypes", settings.libpath);
     FILE *fp = fopen(filename, "rb");
 

@@ -432,7 +432,7 @@ mapstruct *has_been_loaded_sh(shstr *name) {
  * The full path.
  */
 char *create_pathname(const char *name) {
-    static char buf[MAX_BUF];
+    static char buf[HUGE_BUF];
 
     if (*name == '/') {
         snprintf(buf, sizeof(buf), "%s%s", settings.mapspath, name);
@@ -454,7 +454,7 @@ char *create_pathname(const char *name) {
  * The absolute path.
  */
 static char *create_items_path(shstr *s) {
-    static char buf[MAX_BUF];
+    static char buf[HUGE_BUF];
     char *t;
 
     if (*s == '/') {
@@ -1356,7 +1356,7 @@ static void load_unique_objects(mapstruct *m) {
  */
 int new_save_map(mapstruct *m, int flag) {
     FILE *fp, *fp2;
-    char filename[MAX_BUF], buf[MAX_BUF];
+    char filename[HUGE_BUF], buf[MAX_BUF];
 
     if (flag && !*m->path) {
         return -1;
@@ -1379,7 +1379,7 @@ int new_save_map(mapstruct *m, int flag) {
         fp = fopen(filename, "w");
     } else {
         if (m->tmpname == NULL) {
-            char path[MAX_BUF];
+            char path[HUGE_BUF];
             int fd;
 
             snprintf(path, sizeof(path), "%s/tmp/XXXXXX", settings.datapath);

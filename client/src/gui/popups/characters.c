@@ -789,7 +789,8 @@ static bool characters_packet_valid(const uint8_t *data, size_t len, size_t pos)
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_characters(uint8_t *data, size_t len, size_t pos) {
-    char archname[MAX_BUF], name[MAX_BUF], region_name[MAX_BUF], buf[MAX_BUF], race_gender[MAX_BUF];
+    char archname[MAX_BUF], name[MAX_BUF], region_name[MAX_BUF], buf[HUGE_BUF],
+        race_gender[MAX_BUF];
     uint16_t anim_id;
     uint8_t level;
     size_t race, gender;

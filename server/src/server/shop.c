@@ -171,7 +171,7 @@ static archetype_t *shop_get_next_coin(int64_t cost, int *cointype) {
  * call to this function.
  */
 const char *shop_get_cost_string(int64_t cost) {
-    static char buf[MAX_BUF];
+    static char buf[HUGE_BUF];
 
     int cointype = 0;
     archetype_t *coin = shop_get_next_coin(cost, &cointype);

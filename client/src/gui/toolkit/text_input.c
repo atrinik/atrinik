@@ -211,7 +211,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
         stringbuffer_append_char(sb, '_');
     }
 
-    if ((text_input->str + pos) + (text_input->pos - pos)) {
+    if (text_input->str[text_input->pos] != '\0') {
         stringbuffer_append_string(sb, (text_input->str + pos) + (text_input->pos - pos));
     }
 

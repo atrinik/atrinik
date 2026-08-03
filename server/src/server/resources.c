@@ -34,6 +34,9 @@
 #include <toolkit/packet.h>
 #include <resources.h>
 
+#include <openssl/err.h>
+#include <openssl/evp.h>
+
 /**
  * Hash table containing the resources IDs and SHA512 sums.
  */
@@ -80,8 +83,12 @@ static void resources_traverse(DIR *dir, const char *path) {
         resource->name = cp;
         HASH_ADD_KEYPTR(hh, resources, resource->name, strlen(resource->name), resource);
 
-        SHA512_CTX ctx;
-        SOFT_ASSERT(SHA512_Init(&ctx) == 1, "SHA512_Init() failed");
+        EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+        if (ctx == NULL || EVP_DigestInit_ex(ctx, EVP_sha512(), NULL) != 1) {
+            LOG(ERROR, "Failed to initialize SHA-512: %s", ERR_error_string(ERR_get_error(), NULL));
+            EVP_MD_CTX_free(ctx);
+            exit(1);
+        }
 
         FILE *fp = fopen(path_curr, "rb");
         if (fp == NULL) {
@@ -92,11 +99,29 @@ static void resources_traverse(DIR *dir, const char *path) {
         size_t num_read;
         unsigned char buffer[1024 * 64];
         while ((num_read = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
-            SOFT_ASSERT(SHA512_Update(&ctx, buffer, num_read) == 1, "SHA512_Update() failed");
+            if (EVP_DigestUpdate(ctx, buffer, num_read) != 1) {
+                LOG(ERROR,
+                    "Failed to hash resource %s: %s",
+                    path_curr,
+                    ERR_error_string(ERR_get_error(), NULL));
+                EVP_MD_CTX_free(ctx);
+                fclose(fp);
+                exit(1);
+            }
         }
 
         fclose(fp);
-        SOFT_ASSERT(SHA512_Final(resource->md, &ctx) == 1, "SHA512_Final() failed");
+        unsigned int digest_len = 0;
+        if (EVP_DigestFinal_ex(ctx, resource->md, &digest_len) != 1 ||
+            digest_len != sizeof(resource->md)) {
+            LOG(ERROR,
+                "Failed to finalize resource digest for %s: %s",
+                path_curr,
+                ERR_error_string(ERR_get_error(), NULL));
+            EVP_MD_CTX_free(ctx);
+            exit(1);
+        }
+        EVP_MD_CTX_free(ctx);
 
         char key[sizeof(resource->md) * 2 + 1];
         SOFT_ASSERT(string_tohex(VS(resource->md), VS(key), false) == sizeof(key) - 1,

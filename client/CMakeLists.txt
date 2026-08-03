@@ -98,7 +98,6 @@ target_link_libraries(${EXECUTABLE} ${LIBXML2_LIBRARIES})
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
-    target_compile_definitions(${EXECUTABLE} PRIVATE HAVE_SDL_MIXER)
     target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
 endif ()
 

@@ -44,7 +44,7 @@ typedef struct resource {
 
     unsigned char md[SHA512_DIGEST_LENGTH];
 
-    unsigned char digest[SHA512_DIGEST_LENGTH * 2 + 1];
+    char digest[SHA512_DIGEST_LENGTH * 2 + 1];
 
     asset_source_t *source;
 

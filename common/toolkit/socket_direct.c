@@ -412,8 +412,12 @@ bool socket_stun_discover(socket_t *sc,
 
     bool sent = false;
     for (struct addrinfo *ai = addresses; ai != NULL; ai = ai->ai_next) {
-        if (sendto(sc->handle, request, sizeof(request), 0, ai->ai_addr, ai->ai_addrlen) ==
-            (ssize_t)sizeof(request)) {
+        if (sendto(sc->handle,
+                   (const char *)request,
+                   sizeof(request),
+                   0,
+                   ai->ai_addr,
+                   ai->ai_addrlen) == (ssize_t)sizeof(request)) {
             sent = true;
             break;
         }
@@ -434,7 +438,7 @@ bool socket_stun_discover(socket_t *sc,
     }
 
     unsigned char response[1024];
-    ssize_t length = recvfrom(sc->handle, response, sizeof(response), 0, NULL, NULL);
+    ssize_t length = recvfrom(sc->handle, (char *)response, sizeof(response), 0, NULL, NULL);
     if (length < 20 || socket_stun_u16(response) != 0x0101 ||
         socket_stun_u32(response + 4) != SOCKET_STUN_MAGIC ||
         memcmp(response + 8, request + 8, 12) != 0) {

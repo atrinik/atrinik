@@ -613,7 +613,7 @@ const char *sound_get_bg_music(void) {
  */
 const char *sound_get_bg_music_basename(void) {
     const char *bg_music = sound_background;
-    char *cp;
+    const char *cp;
 
     if (bg_music && (cp = strrchr(bg_music, '/'))) {
         bg_music = cp + 1;

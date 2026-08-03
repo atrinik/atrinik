@@ -408,7 +408,7 @@ static const char doc_Atrinik_Player_BankBalance[] =
  * Implements Atrinik.Player.Player.BankBalance() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *self) {
+static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *self, PyObject *ignored) {
     return Py_BuildValue("L", hooks->bank_get_balance(self->pl->ob));
 }
 
@@ -491,7 +491,7 @@ static const char doc_Atrinik_Player_FindMarkedObject[] =
  * Implements Atrinik.Player.Player.FindMarkedObject() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Player_FindMarkedObject(Atrinik_Player *self) {
+static PyObject *Atrinik_Player_FindMarkedObject(Atrinik_Player *self, PyObject *ignored) {
     return wrap_object(hooks->find_marked_object(self->pl->ob));
 }
 
@@ -641,7 +641,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
     }
 
     /* Get the format specifier. */
-    char *format = PyString_AsString(PyTuple_GET_ITEM(args, 1));
+    const char *format = PyString_AsString(PyTuple_GET_ITEM(args, 1));
 
     packet_struct *packet = hooks->packet_new(cmd, 256, 512);
 
@@ -749,7 +749,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
             if (PyString_Check(value)) {
                 Py_ssize_t size;
 #ifdef IS_PY3K
-                char *data = PyUnicode_AsUTF8AndSize(value, &size);
+                const char *data = PyUnicode_AsUTF8AndSize(value, &size);
 #else
                 char *data = NULL;
                 if (PyString_AsStringAndSize(value, &data, &size) == -1 || data == NULL) {
@@ -953,7 +953,7 @@ static const char doc_Atrinik_Player_Save[] = ".. method:: Save().\n\n"
  * Implements Atrinik.Player.Player.Save() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Player_Save(Atrinik_Player *self) {
+static PyObject *Atrinik_Player_Save(Atrinik_Player *self, PyObject *ignored) {
     hooks->player_save(self->pl->ob);
 
     Py_INCREF(Py_None);
@@ -971,70 +971,70 @@ static const char doc_Atrinik_Player_ConnectionID[] =
  * Implements Atrinik.Player.Player.ConnectionID() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Player_ConnectionID(Atrinik_Player *self) {
+static PyObject *Atrinik_Player_ConnectionID(Atrinik_Player *self, PyObject *ignored) {
     return Py_BuildValue("s", hooks->socket_get_id(self->pl->cs->sc));
 }
 
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] = {
     {"GetEquipment",
-     (PyCFunction)Atrinik_Player_GetEquipment,
+     PY_METHOD(Atrinik_Player_GetEquipment),
      METH_VARARGS,
      doc_Atrinik_Player_GetEquipment},
-    {"CanCarry", (PyCFunction)Atrinik_Player_CanCarry, METH_O, doc_Atrinik_Player_CanCarry},
-    {"AddExp", (PyCFunction)Atrinik_Player_AddExp, METH_VARARGS, doc_Atrinik_Player_AddExp},
+    {"CanCarry", PY_METHOD(Atrinik_Player_CanCarry), METH_O, doc_Atrinik_Player_CanCarry},
+    {"AddExp", PY_METHOD(Atrinik_Player_AddExp), METH_VARARGS, doc_Atrinik_Player_AddExp},
     {"BankDeposit",
-     (PyCFunction)Atrinik_Player_BankDeposit,
+     PY_METHOD(Atrinik_Player_BankDeposit),
      METH_VARARGS,
      doc_Atrinik_Player_BankDeposit},
     {"BankWithdraw",
-     (PyCFunction)Atrinik_Player_BankWithdraw,
+     PY_METHOD(Atrinik_Player_BankWithdraw),
      METH_VARARGS,
      doc_Atrinik_Player_BankWithdraw},
     {"BankBalance",
-     (PyCFunction)Atrinik_Player_BankBalance,
+     PY_METHOD(Atrinik_Player_BankBalance),
      METH_NOARGS,
      doc_Atrinik_Player_BankBalance},
     {"SwapApartments",
-     (PyCFunction)Atrinik_Player_SwapApartments,
+     PY_METHOD(Atrinik_Player_SwapApartments),
      METH_VARARGS,
      doc_Atrinik_Player_SwapApartments},
     {"ExecuteCommand",
-     (PyCFunction)Atrinik_Player_ExecuteCommand,
+     PY_METHOD(Atrinik_Player_ExecuteCommand),
      METH_VARARGS,
      doc_Atrinik_Player_ExecuteCommand},
     {"FindMarkedObject",
-     (PyCFunction)Atrinik_Player_FindMarkedObject,
+     PY_METHOD(Atrinik_Player_FindMarkedObject),
      METH_NOARGS,
      doc_Atrinik_Player_FindMarkedObject},
     {"Sound",
-     (PyCFunction)Atrinik_Player_Sound,
+     PY_METHOD(Atrinik_Player_Sound),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Player_Sound},
-    {"Examine", (PyCFunction)Atrinik_Player_Examine, METH_VARARGS, doc_Atrinik_Player_Examine},
+    {"Examine", PY_METHOD(Atrinik_Player_Examine), METH_VARARGS, doc_Atrinik_Player_Examine},
     {"SendPacket",
-     (PyCFunction)Atrinik_Player_SendPacket,
+     PY_METHOD(Atrinik_Player_SendPacket),
      METH_VARARGS,
      doc_Atrinik_Player_SendPacket},
     {"DrawInfo",
-     (PyCFunction)Atrinik_Player_DrawInfo,
+     PY_METHOD(Atrinik_Player_DrawInfo),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Player_DrawInfo},
     {"FactionGetBounty",
-     (PyCFunction)Atrinik_Player_FactionGetBounty,
+     PY_METHOD(Atrinik_Player_FactionGetBounty),
      METH_VARARGS,
      doc_Atrinik_Player_FactionGetBounty},
     {"FactionClearBounty",
-     (PyCFunction)Atrinik_Player_FactionClearBounty,
+     PY_METHOD(Atrinik_Player_FactionClearBounty),
      METH_VARARGS,
      doc_Atrinik_Player_FactionClearBounty},
     {"InsertCoins",
-     (PyCFunction)Atrinik_Player_InsertCoins,
+     PY_METHOD(Atrinik_Player_InsertCoins),
      METH_VARARGS,
      doc_Atrinik_Player_InsertCoins},
-    {"Save", (PyCFunction)Atrinik_Player_Save, METH_NOARGS, doc_Atrinik_Player_Save},
+    {"Save", PY_METHOD(Atrinik_Player_Save), METH_NOARGS, doc_Atrinik_Player_Save},
     {"ConnectionID",
-     (PyCFunction)Atrinik_Player_ConnectionID,
+     PY_METHOD(Atrinik_Player_ConnectionID),
      METH_NOARGS,
      doc_Atrinik_Player_ConnectionID},
 

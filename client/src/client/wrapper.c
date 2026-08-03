@@ -127,18 +127,17 @@ static int mkdir_recurse(const char *path) {
  * The path to ensure.
  */
 void mkdir_ensure(const char *path) {
+    char *copy = estrdup(path);
     char *stmp;
 
-    stmp = strrchr(path, '/');
+    stmp = strrchr(copy, '/');
 
     if (stmp) {
-        char ctmp;
-
-        ctmp = stmp[0];
         stmp[0] = '\0';
-        mkdir_recurse(path);
-        stmp[0] = ctmp;
+        mkdir_recurse(copy);
     }
+
+    efree(copy);
 }
 
 /**

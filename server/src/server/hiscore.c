@@ -63,7 +63,7 @@ typedef struct scr {
  */
 typedef struct {
     /** Filename of the backing file. */
-    char fname[MAX_BUF];
+    char fname[HUGE_BUF];
 
     /** The entries in decreasing exp order. */
     score entry[HIGHSCORE_LENGTH];

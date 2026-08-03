@@ -1176,7 +1176,7 @@ static void init_dynamic(void) {
  * time the server reboots.
  */
 void write_todclock(void) {
-    char filename[MAX_BUF];
+    char filename[HUGE_BUF];
     FILE *fp;
 
     snprintf(filename, sizeof(filename), "%s/clockdata", settings.datapath);
@@ -1196,7 +1196,7 @@ void write_todclock(void) {
  * Called by init_library().
  */
 static void init_clocks(void) {
-    char filename[MAX_BUF];
+    char filename[HUGE_BUF];
     FILE *fp;
     static int has_been_done = 0;
 

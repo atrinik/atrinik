@@ -136,7 +136,7 @@ extern void roomify_layout(char **maze, RMParms *RP);
 extern int can_make_wall(char **maze, int dx, int dy, int dir, RMParms *RP);
 extern int make_wall(char **maze, int x, int y, int dir);
 extern void doorify_layout(char **maze, RMParms *RP);
-extern void write_map_parameters_to_string(char *buf, RMParms *RP);
+extern char *write_map_parameters_to_string(RMParms *RP);
 /* src/random_maps/rogue_layout.c */
 extern int surround_check(char **layout, int i, int j, int Xsize, int Ysize);
 extern char **roguelike_layout_gen(int xsize, int ysize, int options, rng_state_t *rng);

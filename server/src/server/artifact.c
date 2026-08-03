@@ -123,7 +123,7 @@ static void artifact_list_free(artifact_list_t *al) {
  * Builds up the lists of artifacts from the file in the libpath.
  */
 void artifact_load(void) {
-    char filename[MAX_BUF];
+    char filename[HUGE_BUF];
     snprintf(VS(filename), "%s/artifacts", settings.libpath);
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {

@@ -67,7 +67,7 @@ void material_init(void) {
         materials_real[i].def_race = RACE_TYPE_NONE;
     }
 
-    char filename[MAX_BUF];
+    char filename[HUGE_BUF];
     snprintf(VS(filename), "%s/materials", settings.libpath);
 
     FILE *fp = fopen(filename, "r");
@@ -114,7 +114,10 @@ void material_init(void) {
         }
 
         if (*name != '\0') {
-            snprintf(VS(materials_real[i].name), "%s ", name);
+            snprintf(VS(materials_real[i].name),
+                     "%.*s ",
+                     (int)sizeof(materials_real[i].name) - 2,
+                     name);
         }
 
         materials_real[i].quality = quality;

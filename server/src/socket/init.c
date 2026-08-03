@@ -200,7 +200,7 @@ static void load_srv_file(char *fname, FILE *listing) {
  * data/server_settings file from it.
  */
 static void create_server_settings(void) {
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     size_t i;
     FILE *fp;
 
@@ -243,7 +243,7 @@ static void create_server_settings(void) {
  * Initialize animations file for the client.
  */
 static void create_server_animations(void) {
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     snprintf(VS(buf), "%s/anims", settings.datapath);
 
     FILE *fp = fopen(buf, "wb");
@@ -286,7 +286,7 @@ static void create_server_animations(void) {
  * Atrinik png file.
  */
 void init_srv_files(void) {
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     FILE *fp;
 
     snprintf(buf, sizeof(buf), "%s/http/data/listing.txt", settings.datapath);

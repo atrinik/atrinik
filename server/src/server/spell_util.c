@@ -69,7 +69,7 @@ void init_spells(void) {
     init_spells_done = 1;
 
     for (i = 0; i < NROFREALSPELLS; i++) {
-        char spellname[MAX_BUF], tmpresult[MAX_BUF];
+        char spellname[HUGE_BUF], tmpresult[MAX_BUF];
         archetype_t *at;
 
         string_replace(spells[i].name, " ", "_", tmpresult, sizeof(spellname));

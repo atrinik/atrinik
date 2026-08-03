@@ -37,7 +37,7 @@
 void write_map_log(void) {
     FILE *fp;
     mapstruct *map;
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     long current_time = time(NULL);
 
     snprintf(buf, sizeof(buf), "%s/temp.maps", settings.datapath);
@@ -70,7 +70,7 @@ void write_map_log(void) {
 void read_map_log(void) {
     FILE *fp;
     mapstruct *map;
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
     int darkness;
 
     snprintf(buf, sizeof(buf), "%s/temp.maps", settings.datapath);

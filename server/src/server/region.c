@@ -46,7 +46,7 @@ static void region_assign_parents(void);
  */
 void regions_init(void) {
     FILE *fp;
-    char filename[MAX_BUF];
+    char filename[HUGE_BUF];
     region_struct *region;
     char buf[HUGE_BUF * 4], msgbuf[HUGE_BUF], *key, *value, *end;
 

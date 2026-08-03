@@ -369,10 +369,10 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
             /* So it gets swapped out */
             set_map_timeout(new_map);
         } else {
-            char buf[2048];
+            char *params = write_map_parameters_to_string(RP);
 
-            write_map_parameters_to_string(buf, RP);
-            FREE_AND_COPY_HASH(the_exit_down->msg, buf);
+            FREE_AND_COPY_HASH(the_exit_down->msg, params);
+            efree(params);
             FREE_AND_COPY_HASH(the_exit_down->slaying, "/random/");
             the_exit_down->stats.hp = 0;
             the_exit_down->stats.sp = 0;

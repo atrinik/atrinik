@@ -187,7 +187,7 @@ int surround_flag4(mapstruct *map, int i, int j, RMParms *RP) {
  * Random map parameters.
  */
 void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP) {
-    char styledirname[256], stylefilepath[256];
+    char styledirname[256], stylefilepath[HUGE_BUF];
     mapstruct *style_map = NULL;
     object *the_wall;
 

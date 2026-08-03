@@ -139,7 +139,7 @@ static const char doc_Atrinik_Party_GetMembers[] =
  * Implements Atrinik.Party.Party.GetMembers() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Party_GetMembers(Atrinik_Party *self) {
+static PyObject *Atrinik_Party_GetMembers(Atrinik_Party *self, PyObject *ignored) {
     PyObject *list = PyList_New(0);
     for (objectlink *ol = self->party->members; ol != NULL; ol = ol->next) {
         PyList_Append(list, wrap_object(ol->objlink.ob));
@@ -207,17 +207,14 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *self, PyObject *args) 
 
 /** Available Python methods for the AtrinikParty object */
 static PyMethodDef PartyMethods[] = {
-    {"AddMember", (PyCFunction)Atrinik_Party_AddMember, METH_VARARGS, doc_Atrinik_Party_AddMember},
+    {"AddMember", PY_METHOD(Atrinik_Party_AddMember), METH_VARARGS, doc_Atrinik_Party_AddMember},
     {"RemoveMember",
-     (PyCFunction)Atrinik_Party_RemoveMember,
+     PY_METHOD(Atrinik_Party_RemoveMember),
      METH_VARARGS,
      doc_Atrinik_Party_RemoveMember},
-    {"GetMembers",
-     (PyCFunction)Atrinik_Party_GetMembers,
-     METH_NOARGS,
-     doc_Atrinik_Party_GetMembers},
+    {"GetMembers", PY_METHOD(Atrinik_Party_GetMembers), METH_NOARGS, doc_Atrinik_Party_GetMembers},
     {"SendMessage",
-     (PyCFunction)Atrinik_Party_SendMessage,
+     PY_METHOD(Atrinik_Party_SendMessage),
      METH_VARARGS,
      doc_Atrinik_Party_SendMessage},
     {NULL, NULL, 0, 0}};

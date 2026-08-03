@@ -140,7 +140,7 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
 
         return true;
     } else if (oper == AL_OPER_CONTAINS) {
-        char *str = PyString_AsString(*value);
+        const char *str = PyString_AsString(*value);
         for (int i = 0; i < *len; i++) {
             if ((*perms)[i] != NULL && strcmp((*perms)[i], str) == 0) {
                 return true;
@@ -170,7 +170,7 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
 
         al->iter.idx++;
     } else if (oper == AL_OPER_REMOVE) {
-        char *str = PyString_AsString(*value);
+        const char *str = PyString_AsString(*value);
         for (idx = 0; idx < *len; idx++) {
             if ((*perms)[idx] != NULL && strcmp((*perms)[idx], str) == 0) {
                 break;
@@ -275,7 +275,7 @@ static bool attr_list_oper_factions(Atrinik_AttrList *al,
         key = *value;
     }
 
-    char *str = NULL;
+    const char *str = NULL;
     if (oper != AL_OPER_ITER) {
         HARD_ASSERT(key != NULL);
         if (!PyString_Check(key)) {
@@ -568,7 +568,7 @@ static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value) {
  * @return
  * None.
  */
-static PyObject *attr_list_clear(Atrinik_AttrList *al) {
+static PyObject *attr_list_clear(Atrinik_AttrList *al, PyObject *ignored) {
     if (!attr_list_oper(al, AL_OPER_CLEAR, NULL, NULL)) {
         return NULL;
     }
@@ -584,7 +584,7 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al) {
  * @return
  * List of the items in the AttrList.
  */
-static PyObject *attr_list_items(Atrinik_AttrList *al) {
+static PyObject *attr_list_items(Atrinik_AttrList *al, PyObject *ignored) {
     PyObject *value;
     if (!attr_list_oper(al, AL_OPER_ITEMS, NULL, &value)) {
         return NULL;
@@ -594,10 +594,10 @@ static PyObject *attr_list_items(Atrinik_AttrList *al) {
 }
 
 /** Available Python methods for the AtrinikAttrList type. */
-static PyMethodDef methods[] = {{"append", (PyCFunction)append, METH_O, 0},
-                                {"remove", (PyCFunction)attr_list_remove, METH_O, 0},
-                                {"clear", (PyCFunction)attr_list_clear, METH_NOARGS, 0},
-                                {"items", (PyCFunction)attr_list_items, METH_NOARGS, 0},
+static PyMethodDef methods[] = {{"append", PY_METHOD(append), METH_O, 0},
+                                {"remove", PY_METHOD(attr_list_remove), METH_O, 0},
+                                {"clear", PY_METHOD(attr_list_clear), METH_NOARGS, 0},
+                                {"items", PY_METHOD(attr_list_items), METH_NOARGS, 0},
                                 {NULL, NULL, 0, 0}};
 
 /**

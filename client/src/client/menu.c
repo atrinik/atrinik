@@ -128,7 +128,7 @@ int client_command_check(const char *cmd) {
         cmd += 20;
 
         if (cpl.partyjoin[0] != '\0') {
-            char buf[MAX_BUF];
+            char buf[HUGE_BUF];
 
             snprintf(VS(buf), "/party join %s\t%s", cpl.partyjoin, cmd);
             send_command(buf);
@@ -238,15 +238,18 @@ int client_command_check(const char *cmd) {
         return 1;
     } else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
         char *cps[3];
+        char *params = estrdup(strchr(cmd, ' ') + 1);
         unsigned long int loc, tag, num;
 
-        if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') != arraysize(cps)) {
+        if (string_split(params, cps, arraysize(cps), ' ') != arraysize(cps)) {
+            efree(params);
             return 1;
         }
 
         loc = strtoul(cps[0], NULL, 10);
         tag = strtoul(cps[1], NULL, 10);
         num = strtoul(cps[2], NULL, 10);
+        efree(params);
         client_send_move(loc, tag, num);
 
         if (string_startswith(cmd, "/gettag ")) {

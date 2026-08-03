@@ -252,7 +252,7 @@ int book_overflow(const char *buf1, const char *buf2, size_t booksize) {
  */
 static void init_msgfile(void) {
     FILE *fp;
-    char buf[MAX_BUF], fname[MAX_BUF], *cp;
+    char buf[MAX_BUF], fname[HUGE_BUF], *cp;
 
     msgs = NULL;
     num_msgs = 0;

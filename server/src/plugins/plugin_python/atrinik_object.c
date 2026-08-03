@@ -889,7 +889,9 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *self, PyObject *what) {
         OBJEXISTCHECK((Atrinik_Object *)what);
         hooks->pick_up(self->obj, ((Atrinik_Object *)what)->obj, 0);
     } else if (PyString_Check(what)) {
-        hooks->command_take(self->obj, "take", PyString_AsString(what));
+        char *params = estrdup(PyString_AsString(what));
+        hooks->command_take(self->obj, "take", params);
+        efree(params);
     } else {
         PyErr_SetString(PyExc_TypeError,
                         "Argument 'what' must be either Atrinik object or string.");
@@ -919,7 +921,9 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *self, PyObject *what) {
         OBJEXISTCHECK((Atrinik_Object *)what);
         hooks->drop(self->obj, ((Atrinik_Object *)what)->obj, 0);
     } else if (PyString_Check(what)) {
-        hooks->command_drop(self->obj, "drop", PyString_AsString(what));
+        char *params = estrdup(PyString_AsString(what));
+        hooks->command_drop(self->obj, "drop", params);
+        efree(params);
     } else {
         PyErr_SetString(PyExc_TypeError,
                         "Argument 'what' must be either Atrinik object or string.");
@@ -980,7 +984,7 @@ static const char doc_Atrinik_Object_GetGender[] =
  * Implements Atrinik.Object.Object.GetGender() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Object_GetGender(Atrinik_Object *self) {
+static PyObject *Atrinik_Object_GetGender(Atrinik_Object *self, PyObject *ignored) {
     OBJEXISTCHECK(self);
 
     return Py_BuildValue("i", hooks->object_get_gender(self->obj));
@@ -1038,7 +1042,7 @@ static const char doc_Atrinik_Object_Update[] =
  * Implements Atrinik.Object.Object.Update() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Object_Update(Atrinik_Object *self) {
+static PyObject *Atrinik_Object_Update(Atrinik_Object *self, PyObject *ignored) {
     OBJEXISTCHECK(self);
 
     hooks->living_update(self->obj);
@@ -1497,7 +1501,7 @@ static const char doc_Atrinik_Object_Remove[] =
  * Implements Atrinik.Object.Object.Remove() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Object_Remove(Atrinik_Object *self) {
+static PyObject *Atrinik_Object_Remove(Atrinik_Object *self, PyObject *ignored) {
     OBJEXISTCHECK(self);
 
     if (QUERY_FLAG(self->obj, FLAG_REMOVED)) {
@@ -1518,7 +1522,7 @@ static const char doc_Atrinik_Object_Destroy[] = ".. method:: Destroy().\n\n"
  * Implements Atrinik.Object.Object.Destroy() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Object_Destroy(Atrinik_Object *self) {
+static PyObject *Atrinik_Object_Destroy(Atrinik_Object *self, PyObject *ignored) {
     OBJEXISTCHECK(self);
 
     if (!QUERY_FLAG(self->obj, FLAG_REMOVED)) {
@@ -1632,7 +1636,7 @@ static const char doc_Atrinik_Object_Save[] =
  * Implements Atrinik.Object.Object.Save() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Object_Save(Atrinik_Object *self) {
+static PyObject *Atrinik_Object_Save(Atrinik_Object *self, PyObject *ignored) {
     OBJEXISTCHECK(self);
 
     StringBuffer *sb = hooks->stringbuffer_new();
@@ -1681,7 +1685,7 @@ static const char doc_Atrinik_Object_GetMoney[] =
  * Implements Atrinik.Object.Object.GetMoney() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *self) {
+static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *self, PyObject *ignored) {
     OBJEXISTCHECK(self);
 
     return Py_BuildValue("L", hooks->shop_get_money(self->obj));
@@ -1853,7 +1857,7 @@ static const char doc_Atrinik_Object_Controller[] =
  * Implements Atrinik.Object.Object.Controller() Python method.
  * @copydoc PyMethod_NOARGS
  */
-static PyObject *Atrinik_Object_Controller(Atrinik_Object *self) {
+static PyObject *Atrinik_Object_Controller(Atrinik_Object *self, PyObject *ignored) {
     OBJEXISTCHECK(self);
 
     if (self->obj->type != PLAYER) {
@@ -2549,115 +2553,100 @@ static PyObject *Atrinik_Object_FactionIsFriend(Atrinik_Object *self, PyObject *
 /** Available Python methods for the Atrinik.Object.Object object */
 static PyMethodDef methods[] = {
     {"ActivateRune",
-     (PyCFunction)Atrinik_Object_ActivateRune,
+     PY_METHOD(Atrinik_Object_ActivateRune),
      METH_VARARGS,
      doc_Atrinik_Object_ActivateRune},
     {"TeleportTo",
-     (PyCFunction)Atrinik_Object_TeleportTo,
+     PY_METHOD(Atrinik_Object_TeleportTo),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_TeleportTo},
     {"InsertInto",
-     (PyCFunction)Atrinik_Object_InsertInto,
+     PY_METHOD(Atrinik_Object_InsertInto),
      METH_VARARGS,
      doc_Atrinik_Object_InsertInto},
-    {"Apply", (PyCFunction)Atrinik_Object_Apply, METH_VARARGS, doc_Atrinik_Object_Apply},
-    {"Take", (PyCFunction)Atrinik_Object_Take, METH_O, doc_Atrinik_Object_Take},
-    {"Drop", (PyCFunction)Atrinik_Object_Drop, METH_O, doc_Atrinik_Object_Drop},
-    {"Say", (PyCFunction)Atrinik_Object_Say, METH_VARARGS, doc_Atrinik_Object_Say},
-    {"GetGender", (PyCFunction)Atrinik_Object_GetGender, METH_NOARGS, doc_Atrinik_Object_GetGender},
-    {"SetGender",
-     (PyCFunction)Atrinik_Object_SetGender,
-     METH_VARARGS,
-     doc_Atrinik_Object_SetGender},
-    {"Update", (PyCFunction)Atrinik_Object_Update, METH_NOARGS, doc_Atrinik_Object_Update},
-    {"Hit", (PyCFunction)Atrinik_Object_Hit, METH_VARARGS, doc_Atrinik_Object_Hit},
-    {"Cast",
-     (PyCFunction)Atrinik_Object_Cast,
-     METH_VARARGS | METH_KEYWORDS,
-     doc_Atrinik_Object_Cast},
+    {"Apply", PY_METHOD(Atrinik_Object_Apply), METH_VARARGS, doc_Atrinik_Object_Apply},
+    {"Take", PY_METHOD(Atrinik_Object_Take), METH_O, doc_Atrinik_Object_Take},
+    {"Drop", PY_METHOD(Atrinik_Object_Drop), METH_O, doc_Atrinik_Object_Drop},
+    {"Say", PY_METHOD(Atrinik_Object_Say), METH_VARARGS, doc_Atrinik_Object_Say},
+    {"GetGender", PY_METHOD(Atrinik_Object_GetGender), METH_NOARGS, doc_Atrinik_Object_GetGender},
+    {"SetGender", PY_METHOD(Atrinik_Object_SetGender), METH_VARARGS, doc_Atrinik_Object_SetGender},
+    {"Update", PY_METHOD(Atrinik_Object_Update), METH_NOARGS, doc_Atrinik_Object_Update},
+    {"Hit", PY_METHOD(Atrinik_Object_Hit), METH_VARARGS, doc_Atrinik_Object_Hit},
+    {"Cast", PY_METHOD(Atrinik_Object_Cast), METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_Cast},
     {"CreateForce",
-     (PyCFunction)Atrinik_Object_CreateForce,
+     PY_METHOD(Atrinik_Object_CreateForce),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_CreateForce},
     {"CreateObject",
-     (PyCFunction)Atrinik_Object_CreateObject,
+     PY_METHOD(Atrinik_Object_CreateObject),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_CreateObject},
     {"FindObject",
-     (PyCFunction)Atrinik_Object_FindObject,
+     PY_METHOD(Atrinik_Object_FindObject),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_FindObject},
     {"FindObjects",
-     (PyCFunction)Atrinik_Object_FindObjects,
+     PY_METHOD(Atrinik_Object_FindObjects),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_FindObjects},
-    {"Remove", (PyCFunction)Atrinik_Object_Remove, METH_NOARGS, doc_Atrinik_Object_Remove},
-    {"Destroy", (PyCFunction)Atrinik_Object_Destroy, METH_NOARGS, doc_Atrinik_Object_Destroy},
+    {"Remove", PY_METHOD(Atrinik_Object_Remove), METH_NOARGS, doc_Atrinik_Object_Remove},
+    {"Destroy", PY_METHOD(Atrinik_Object_Destroy), METH_NOARGS, doc_Atrinik_Object_Destroy},
     {"SetPosition",
-     (PyCFunction)Atrinik_Object_SetPosition,
+     PY_METHOD(Atrinik_Object_SetPosition),
      METH_VARARGS,
      doc_Atrinik_Object_SetPosition},
     {"CastIdentify",
-     (PyCFunction)Atrinik_Object_CastIdentify,
+     PY_METHOD(Atrinik_Object_CastIdentify),
      METH_VARARGS,
      doc_Atrinik_Object_CastIdentify},
-    {"Save", (PyCFunction)Atrinik_Object_Save, METH_NOARGS, doc_Atrinik_Object_Save},
-    {"GetCost", (PyCFunction)Atrinik_Object_GetCost, METH_VARARGS, doc_Atrinik_Object_GetCost},
-    {"GetMoney", (PyCFunction)Atrinik_Object_GetMoney, METH_NOARGS, doc_Atrinik_Object_GetMoney},
-    {"PayAmount",
-     (PyCFunction)Atrinik_Object_PayAmount,
-     METH_VARARGS,
-     doc_Atrinik_Object_PayAmount},
-    {"Clone", (PyCFunction)Atrinik_Object_Clone, METH_VARARGS, doc_Atrinik_Object_Clone},
-    {"ReadKey", (PyCFunction)Atrinik_Object_ReadKey, METH_VARARGS, doc_Atrinik_Object_ReadKey},
-    {"WriteKey", (PyCFunction)Atrinik_Object_WriteKey, METH_VARARGS, doc_Atrinik_Object_WriteKey},
-    {"GetName", (PyCFunction)Atrinik_Object_GetName, METH_VARARGS, doc_Atrinik_Object_GetName},
+    {"Save", PY_METHOD(Atrinik_Object_Save), METH_NOARGS, doc_Atrinik_Object_Save},
+    {"GetCost", PY_METHOD(Atrinik_Object_GetCost), METH_VARARGS, doc_Atrinik_Object_GetCost},
+    {"GetMoney", PY_METHOD(Atrinik_Object_GetMoney), METH_NOARGS, doc_Atrinik_Object_GetMoney},
+    {"PayAmount", PY_METHOD(Atrinik_Object_PayAmount), METH_VARARGS, doc_Atrinik_Object_PayAmount},
+    {"Clone", PY_METHOD(Atrinik_Object_Clone), METH_VARARGS, doc_Atrinik_Object_Clone},
+    {"ReadKey", PY_METHOD(Atrinik_Object_ReadKey), METH_VARARGS, doc_Atrinik_Object_ReadKey},
+    {"WriteKey", PY_METHOD(Atrinik_Object_WriteKey), METH_VARARGS, doc_Atrinik_Object_WriteKey},
+    {"GetName", PY_METHOD(Atrinik_Object_GetName), METH_VARARGS, doc_Atrinik_Object_GetName},
     {"Controller",
-     (PyCFunction)Atrinik_Object_Controller,
+     PY_METHOD(Atrinik_Object_Controller),
      METH_NOARGS,
      doc_Atrinik_Object_Controller},
     {"Protection",
-     (PyCFunction)Atrinik_Object_Protection,
+     PY_METHOD(Atrinik_Object_Protection),
      METH_VARARGS,
      doc_Atrinik_Object_Protection},
     {"SetProtection",
-     (PyCFunction)Atrinik_Object_SetProtection,
+     PY_METHOD(Atrinik_Object_SetProtection),
      METH_VARARGS,
      doc_Atrinik_Object_SetProtection},
-    {"Attack", (PyCFunction)Atrinik_Object_Attack, METH_VARARGS, doc_Atrinik_Object_Attack},
-    {"SetAttack",
-     (PyCFunction)Atrinik_Object_SetAttack,
-     METH_VARARGS,
-     doc_Atrinik_Object_SetAttack},
-    {"Decrease", (PyCFunction)Atrinik_Object_Decrease, METH_VARARGS, doc_Atrinik_Object_Decrease},
+    {"Attack", PY_METHOD(Atrinik_Object_Attack), METH_VARARGS, doc_Atrinik_Object_Attack},
+    {"SetAttack", PY_METHOD(Atrinik_Object_SetAttack), METH_VARARGS, doc_Atrinik_Object_SetAttack},
+    {"Decrease", PY_METHOD(Atrinik_Object_Decrease), METH_VARARGS, doc_Atrinik_Object_Decrease},
     {"SquaresAround",
-     (PyCFunction)Atrinik_Object_SquaresAround,
+     PY_METHOD(Atrinik_Object_SquaresAround),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_SquaresAround},
     {"GetRangeVector",
-     (PyCFunction)Atrinik_Object_GetRangeVector,
+     PY_METHOD(Atrinik_Object_GetRangeVector),
      METH_VARARGS,
      doc_Atrinik_Object_GetRangeVector},
     {"CreateTreasure",
-     (PyCFunction)Atrinik_Object_CreateTreasure,
+     PY_METHOD(Atrinik_Object_CreateTreasure),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_CreateTreasure},
-    {"Move", (PyCFunction)Atrinik_Object_Move, METH_VARARGS, doc_Atrinik_Object_Move},
+    {"Move", PY_METHOD(Atrinik_Object_Move), METH_VARARGS, doc_Atrinik_Object_Move},
     {"ConnectionTrigger",
-     (PyCFunction)Atrinik_Object_ConnectionTrigger,
+     PY_METHOD(Atrinik_Object_ConnectionTrigger),
      METH_VARARGS | METH_KEYWORDS,
      doc_Atrinik_Object_ConnectionTrigger},
     {"Artificate",
-     (PyCFunction)Atrinik_Object_Artificate,
+     PY_METHOD(Atrinik_Object_Artificate),
      METH_VARARGS,
      doc_Atrinik_Object_Artificate},
-    {"Load", (PyCFunction)Atrinik_Object_Load, METH_VARARGS, doc_Atrinik_Object_Load},
-    {"GetPacket",
-     (PyCFunction)Atrinik_Object_GetPacket,
-     METH_VARARGS,
-     doc_Atrinik_Object_GetPacket},
+    {"Load", PY_METHOD(Atrinik_Object_Load), METH_VARARGS, doc_Atrinik_Object_Load},
+    {"GetPacket", PY_METHOD(Atrinik_Object_GetPacket), METH_VARARGS, doc_Atrinik_Object_GetPacket},
     {"FactionIsFriend",
-     (PyCFunction)Atrinik_Object_FactionIsFriend,
+     PY_METHOD(Atrinik_Object_FactionIsFriend),
      METH_VARARGS,
      doc_Atrinik_Object_FactionIsFriend},
     {NULL, NULL, 0, 0}};
@@ -2941,26 +2930,8 @@ static PyGetSetDef getseters[NUM_FIELDS + NUM_FLAGS + 1];
  * The number protocol for Atrinik objects.
  */
 static PyNumberMethods AtrinikObjectNumber = {
-    NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_divide */
-#endif
-    NULL, NULL, NULL, NULL, NULL, NULL, (inquiry)atrinik_object_bool,
-    NULL, NULL, NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_coerce */
-#endif
-    NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_oct */
-    NULL, /* nb_hex */
-#endif
-    NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_inplace_divide */
-#endif
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL};
+    .nb_bool = (inquiry)atrinik_object_bool,
+};
 
 /**
  * Our actual Python ObjectType.
@@ -3164,26 +3135,8 @@ static PyObject *Atrinik_ObjectIterator_iternext(PyObject *self) {
  * The number protocol for Atrinik object iterator.
  */
 static PyNumberMethods Atrinik_ObjectIteratorNumber = {
-    NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_divide */
-#endif
-    NULL, NULL, NULL, NULL, NULL, NULL, (inquiry)Atrinik_ObjectIterator_bool,
-    NULL, NULL, NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_coerce */
-#endif
-    NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_oct */
-    NULL, /* nb_hex */
-#endif
-    NULL, NULL, NULL,
-#ifndef IS_PY3K
-    NULL, /* nb_inplace_divide */
-#endif
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL};
+    .nb_bool = (inquiry)Atrinik_ObjectIterator_bool,
+};
 
 /**
  * The sequence protocol for Atrinik object iterator.

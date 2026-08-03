@@ -792,131 +792,109 @@ void doorify_layout(char **maze, RMParms *RP) {
 
 /**
  * Creates a suitable message for exit from RP.
- * @param buf
- * Buffer that will contain RP's values.
  * @param RP
  * Parameters to convert to message.
+ * @return
+ * Newly allocated parameter string. Must be freed.
  */
-void write_map_parameters_to_string(char *buf, RMParms *RP) {
-    char small_buf[256];
+char *write_map_parameters_to_string(RMParms *RP) {
+    StringBuffer *buf = stringbuffer_new();
 
-    sprintf(buf, "xsize %d\nysize %d\n", RP->Xsize, RP->Ysize);
+    stringbuffer_append_printf(buf, "xsize %d\nysize %d\n", RP->Xsize, RP->Ysize);
 
     if (RP->wallstyle[0]) {
-        sprintf(small_buf, "wallstyle %s\n", RP->wallstyle);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "wallstyle %s\n", RP->wallstyle);
     }
 
     if (RP->floorstyle[0]) {
-        sprintf(small_buf, "floorstyle %s\n", RP->floorstyle);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "floorstyle %s\n", RP->floorstyle);
     }
 
     if (RP->monsterstyle[0]) {
-        sprintf(small_buf, "monsterstyle %s\n", RP->monsterstyle);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "monsterstyle %s\n", RP->monsterstyle);
     }
 
     if (RP->layoutstyle[0]) {
-        sprintf(small_buf, "layoutstyle %s\n", RP->layoutstyle);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "layoutstyle %s\n", RP->layoutstyle);
     }
 
     if (RP->decorstyle[0]) {
-        sprintf(small_buf, "decorstyle %s\n", RP->decorstyle);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "decorstyle %s\n", RP->decorstyle);
     }
 
     if (RP->doorstyle[0]) {
-        sprintf(small_buf, "doorstyle %s\n", RP->doorstyle);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "doorstyle %s\n", RP->doorstyle);
     }
 
     if (RP->dungeon_name[0]) {
-        sprintf(small_buf, "dungeon_name %s\n", RP->dungeon_name);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "dungeon_name %s\n", RP->dungeon_name);
     }
 
     if (RP->exitstyle[0]) {
-        sprintf(small_buf, "exitstyle %s\n", RP->exitstyle);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "exitstyle %s\n", RP->exitstyle);
     }
 
     if (RP->final_map[0]) {
-        sprintf(small_buf, "final_map %s\n", RP->final_map);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "final_map %s\n", RP->final_map);
     }
 
     if (RP->expand2x) {
-        sprintf(small_buf, "expand2x %d\n", RP->expand2x);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "expand2x %d\n", RP->expand2x);
     }
 
     if (RP->layoutoptions1) {
-        sprintf(small_buf, "layoutoptions1 %d\n", RP->layoutoptions1);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "layoutoptions1 %d\n", RP->layoutoptions1);
     }
 
     if (RP->layoutoptions2) {
-        sprintf(small_buf, "layoutoptions2 %d\n", RP->layoutoptions2);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "layoutoptions2 %d\n", RP->layoutoptions2);
     }
 
     if (RP->layoutoptions3) {
-        sprintf(small_buf, "layoutoptions3 %d\n", RP->layoutoptions3);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "layoutoptions3 %d\n", RP->layoutoptions3);
     }
 
     if (RP->symmetry) {
-        sprintf(small_buf, "symmetry %d\n", RP->symmetry);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "symmetry %d\n", RP->symmetry);
     }
 
     if (RP->difficulty && RP->difficulty_given) {
-        sprintf(small_buf, "difficulty %d\n", RP->difficulty);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "difficulty %d\n", RP->difficulty);
     }
 
-    sprintf(small_buf, "dungeon_level %d\n", RP->dungeon_level);
-    strcat(buf, small_buf);
+    stringbuffer_append_printf(buf, "dungeon_level %d\n", RP->dungeon_level);
 
     if (RP->dungeon_depth) {
-        sprintf(small_buf, "dungeon_depth %d\n", RP->dungeon_depth);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "dungeon_depth %d\n", RP->dungeon_depth);
     }
 
     if (RP->decorchance) {
-        sprintf(small_buf, "decorchance %d\n", RP->decorchance);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "decorchance %d\n", RP->decorchance);
     }
 
     if (RP->orientation) {
-        sprintf(small_buf, "orientation %d\n", RP->orientation);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "orientation %d\n", RP->orientation);
     }
 
     if (RP->random_seed) {
-        sprintf(small_buf, "random_seed %d\n", RP->random_seed + 1);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "random_seed %d\n", RP->random_seed + 1);
     }
 
     if (RP->num_monsters) {
-        sprintf(small_buf, "num_monsters %d\n", RP->num_monsters);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "num_monsters %d\n", RP->num_monsters);
     }
 
     if (RP->darkness) {
-        sprintf(small_buf, "darkness %d\n", RP->darkness);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "darkness %d\n", RP->darkness);
     }
 
     if (RP->level_increment) {
-        sprintf(small_buf, "level_increment %d\n", RP->level_increment);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "level_increment %d\n", RP->level_increment);
     }
 
     if (RP->bg_music[0]) {
-        sprintf(small_buf, "bg_music %s\n", RP->bg_music);
-        strcat(buf, small_buf);
+        stringbuffer_append_printf(buf, "bg_music %s\n", RP->bg_music);
     }
+
+    return stringbuffer_finish(buf);
 }
