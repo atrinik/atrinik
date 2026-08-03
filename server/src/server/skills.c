@@ -31,6 +31,98 @@
 #include <book.h>
 #include <skillist.h>
 #include <object.h>
+#include <player.h>
+
+typedef enum trap_search_result {
+    TRAP_SEARCH_NONE,
+    TRAP_SEARCH_FOUND,
+    TRAP_SEARCH_SIGNS
+} trap_search_result;
+
+/**
+ * Search an object's inventory for traps.
+ *
+ * @param pl
+ * Player searching.
+ * @param where
+ * Object whose inventory is searched.
+ * @param search_level
+ * Effective trap-search level.
+ * @return
+ * Best search result found in the inventory.
+ */
+static trap_search_result find_traps_in_object(object *pl, object *where, int search_level) {
+    trap_search_result result = TRAP_SEARCH_NONE;
+
+    FOR_INV_PREPARE(where, trap) {
+        if (trap->type != RUNE) {
+            continue;
+        }
+
+        if (trap_see(pl, trap, search_level)) {
+            trap_show(trap, where);
+            result = TRAP_SEARCH_FOUND;
+        } else if (result == TRAP_SEARCH_NONE && trap->level <= search_level * 1.8f) {
+            result = TRAP_SEARCH_SIGNS;
+        }
+    }
+    FOR_INV_FINISH();
+
+    return result;
+}
+
+/**
+ * Disarm all discovered traps in an object's inventory.
+ *
+ * @param pl
+ * Player disarming the traps.
+ * @param where
+ * Object whose inventory is checked.
+ */
+static void remove_traps_from_object(object *pl, object *where) {
+    FOR_INV_PREPARE(where, trap) {
+        if (trap->type != RUNE || trap->stats.Int > 1) {
+            continue;
+        }
+
+        if (QUERY_FLAG(trap, FLAG_SYS_OBJECT) || QUERY_FLAG(trap, FLAG_IS_INVISIBLE)) {
+            trap_show(trap, where);
+        }
+
+        if (!trap_disarm(pl, trap)) {
+            return;
+        }
+    }
+    FOR_INV_FINISH();
+}
+
+/**
+ * Automatically search for and disarm traps before a player opens a container.
+ *
+ * The attempt is made only when the player knows both required skills. Failed
+ * detection or disarming retains the normal container-opening behavior, which
+ * can still spring the remaining trap.
+ *
+ * @param pl
+ * Player opening the container.
+ * @param container
+ * Container about to be opened.
+ */
+void traps_auto_disarm(object *pl, object *container) {
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(container != NULL);
+
+    if (pl->type != PLAYER || CONTR(pl)->skill_ptr[SK_FIND_TRAPS] == NULL ||
+        CONTR(pl)->skill_ptr[SK_REMOVE_TRAPS] == NULL) {
+        return;
+    }
+
+    object *skill = CONTR(pl)->skill_ptr[SK_FIND_TRAPS];
+    int search_level = MAX(skill->level, pl->level) + pl->stats.Dex / 4;
+    if (find_traps_in_object(pl, container, search_level) == TRAP_SEARCH_FOUND) {
+        remove_traps_from_object(pl, container);
+    }
+}
 
 /**
  * Checks for traps on the spaces around the player or in certain
@@ -41,68 +133,53 @@
  * Level of the find traps skill.
  */
 void find_traps(object *pl, int level) {
-    object *tmp, *tmp2;
-    mapstruct *m;
-    int xt, yt, i, suc = 0;
+    int suc = TRAP_SEARCH_NONE;
     int search_level = MAX(level, pl->level) + pl->stats.Dex / 4;
 
     /* First we search all around us for runes and traps, which are
      * all type RUNE */
-    for (i = 0; i < 9; i++) {
+    for (int i = 0; i < 9; i++) {
         /* Check everything in the square for trapness */
-        xt = pl->x + freearr_x[i];
-        yt = pl->y + freearr_y[i];
+        int xt = pl->x + freearr_x[i];
+        int yt = pl->y + freearr_y[i];
 
-        if (!(m = get_map_from_coord(pl->map, &xt, &yt))) {
+        mapstruct *m = get_map_from_coord(pl->map, &xt, &yt);
+        if (m == NULL) {
             continue;
         }
 
-        for (tmp = GET_MAP_OB(m, xt, yt); tmp != NULL; tmp = tmp->above) {
+        for (object *tmp = GET_MAP_OB(m, xt, yt); tmp != NULL; tmp = tmp->above) {
             /* And now we'd better do an inventory traversal of each
              * of these objects' inventory */
             if (pl != tmp && (tmp->type == PLAYER || tmp->type == MONSTER)) {
                 continue;
             }
 
-            for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below) {
-                if (tmp2->type == RUNE) {
-                    if (trap_see(pl, tmp2, search_level)) {
-                        trap_show(tmp2, tmp);
-
-                        if (!suc) {
-                            suc = 1;
-                        }
-                    } else {
-                        /* Give out a "we have found signs of traps"
-                         * if the traps level is not 1.8 times higher. */
-                        if (tmp2->level <= (search_level * 1.8f)) {
-                            suc = 2;
-                        }
-                    }
-                }
+            trap_search_result result = find_traps_in_object(pl, tmp, search_level);
+            if (result == TRAP_SEARCH_FOUND) {
+                suc = TRAP_SEARCH_FOUND;
+            } else if (suc == TRAP_SEARCH_NONE && result == TRAP_SEARCH_SIGNS) {
+                suc = TRAP_SEARCH_SIGNS;
             }
 
             if (tmp->type == RUNE) {
                 if (trap_see(pl, tmp, search_level)) {
                     trap_show(tmp, tmp);
-
-                    if (!suc) {
-                        suc = 1;
-                    }
+                    suc = TRAP_SEARCH_FOUND;
                 } else {
                     /* Give out a "we have found signs of traps"
                      * if the traps level is not 1.8 times higher. */
-                    if (tmp->level <= (search_level * 1.8f)) {
-                        suc = 2;
+                    if (suc == TRAP_SEARCH_NONE && tmp->level <= search_level * 1.8f) {
+                        suc = TRAP_SEARCH_SIGNS;
                     }
                 }
             }
         }
     }
 
-    if (!suc) {
+    if (suc == TRAP_SEARCH_NONE) {
         draw_info(COLOR_WHITE, pl, "You can't detect any trap here.");
-    } else if (suc == 2) {
+    } else if (suc == TRAP_SEARCH_SIGNS) {
         draw_info(COLOR_WHITE, pl, "You detect trap signs!");
     }
 }
@@ -113,32 +190,30 @@ void find_traps(object *pl, int level) {
  * Player disarming.
  */
 void remove_trap(object *op) {
-    object *tmp, *tmp2;
-    mapstruct *m;
-    int i, x, y;
+    for (int i = 0; i < 9; i++) {
+        int x = op->x + freearr_x[i];
+        int y = op->y + freearr_y[i];
 
-    for (i = 0; i < 9; i++) {
-        x = op->x + freearr_x[i];
-        y = op->y + freearr_y[i];
-
-        if (!(m = get_map_from_coord(op->map, &x, &y))) {
+        mapstruct *m = get_map_from_coord(op->map, &x, &y);
+        if (m == NULL) {
             continue;
         }
 
         /* Check everything in the square for trapness */
-        for (tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above) {
+        for (object *tmp = GET_MAP_OB(m, x, y); tmp != NULL; tmp = tmp->above) {
             /* And now we'd better do an inventory traversal of each
              * of these objects' inventory */
-            for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->below) {
-                if (tmp2->type == RUNE && tmp2->stats.Int <= 1) {
-                    if (QUERY_FLAG(tmp2, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp2, FLAG_IS_INVISIBLE)) {
-                        trap_show(tmp2, tmp);
+            FOR_INV_PREPARE(tmp, trap) {
+                if (trap->type == RUNE && trap->stats.Int <= 1) {
+                    if (QUERY_FLAG(trap, FLAG_SYS_OBJECT) || QUERY_FLAG(trap, FLAG_IS_INVISIBLE)) {
+                        trap_show(trap, tmp);
                     }
 
-                    trap_disarm(op, tmp2);
+                    trap_disarm(op, trap);
                     return;
                 }
             }
+            FOR_INV_FINISH();
 
             if (tmp->type == RUNE && tmp->stats.Int <= 1) {
                 if (QUERY_FLAG(tmp, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp, FLAG_IS_INVISIBLE)) {

@@ -3,7 +3,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(atrinik C)
 set(EXECUTABLE atrinik)
-set(EXECUTABLE_UPDATER atrinik2)
 set(PACKAGE_NAME "Atrinik Client")
 
 # Add our includes.
@@ -85,8 +84,6 @@ if (MINGW)
             -o ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o
             VERBATIM)
     SET(SOURCES ${SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o")
-    add_executable(${EXECUTABLE_UPDATER}
-        src/updater/main.c "${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o")
 endif ()
 
 # Compile the sources into an executable.
@@ -131,7 +128,7 @@ if (WIN32 AND NOT UNIX)
     set(ATRINIK_CA_BUNDLE "${CMAKE_CURRENT_SOURCE_DIR}/ca-bundle.crt" CACHE FILEPATH
         "CA certificate bundle to install with the client")
 
-    install(TARGETS atrinik atrinik2
+    install(TARGETS atrinik
         RUNTIME DESTINATION ${INSTALL_SUBDIR_BIN})
 
     if (ATRINIK_WINDOWS_RUNTIME_DIR)
@@ -149,7 +146,6 @@ if (WIN32 AND NOT UNIX)
         message(WARNING "ATRINIK_WINDOWS_RUNTIME_DIR is empty; portable packages will not include dependency DLLs")
     endif ()
 
-    install(FILES atrinik.bat DESTINATION ${INSTALL_SUBDIR_BIN})
     install(FILES "${ATRINIK_CA_BUNDLE}" DESTINATION ${INSTALL_SUBDIR_BIN}
         RENAME ca-bundle.crt)
 
@@ -192,8 +188,8 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PACKAGE_VERSION_PATCH}")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "Atrinik")
 
 if (MINGW)
-    set(CPACK_PACKAGE_EXECUTABLES "atrinik2" "Atrinik")
-    set(CPACK_CREATE_DESKTOP_LINKS "atrinik2")
+    set(CPACK_PACKAGE_EXECUTABLES "atrinik" "Atrinik")
+    set(CPACK_CREATE_DESKTOP_LINKS "atrinik")
 endif ()
 
 if (MINGW)

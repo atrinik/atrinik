@@ -65,11 +65,10 @@ def find_files(where, ext = None, rec = True, ignore_dirs = True, ignore_files =
 
 for project_dir in PROJECT_DIRS:
     path = os.path.join(project_dir, "src")
-    ignore_paths = [os.path.join(path, "updater"), os.path.join(path, "plugins"), os.path.join(path, "modules"), os.path.join(path, "tests")]
+    ignore_paths = [os.path.join(path, "plugins"), os.path.join(path, "modules"), os.path.join(path, "tests")]
 
     files = find_files(path, ".c", ignore_paths = [os.path.join(path, "toolkit")] + ignore_paths)
 
     fp = open(os.path.join(path, "cmake.txt"), "w")
     fp.write("set(SOURCES\n\t{}\n\t${{SOURCES_TOOLKIT}})".format("\n\t".join(["/".join(f.split(os.path.sep)[len(project_dir.split(os.path.sep)):]) for f in files])))
     fp.close()
-

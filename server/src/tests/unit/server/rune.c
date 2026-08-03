@@ -7,6 +7,8 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <arch.h>
+#include <object_methods.h>
+#include <player.h>
 
 START_TEST(test_trap_see_is_deterministic_at_capability_boundary) {
     mapstruct *map;
@@ -44,6 +46,32 @@ START_TEST(test_trap_disarm_succeeds_once_with_sufficient_capability) {
 }
 END_TEST
 
+START_TEST(test_traps_auto_disarm_container) {
+    mapstruct *map;
+    object *pl, *container, *trap;
+
+    check_setup_env_pl(&map, &pl);
+    pl->level = MAXLEVEL;
+    ck_assert_ptr_nonnull(CONTR(pl)->skill_ptr[SK_FIND_TRAPS]);
+    ck_assert_ptr_nonnull(CONTR(pl)->skill_ptr[SK_REMOVE_TRAPS]);
+
+    container = arch_get("sack");
+    container->x = pl->x + 1;
+    container->y = pl->y;
+    container = object_insert_map(container, map, NULL, 0);
+
+    trap = arch_get("rune_fire");
+    trap->level = 1;
+    trap = object_insert_into(trap, container, 0);
+
+    object_apply(container, pl, 0);
+
+    ck_assert(QUERY_FLAG(trap, FLAG_REMOVED));
+    ck_assert_ptr_null(container->inv);
+    ck_assert_ptr_eq(CONTR(pl)->container, container);
+}
+END_TEST
+
 static Suite *suite(void) {
     Suite *s = suite_create("rune");
     TCase *tc_core = tcase_create("Core");
@@ -53,6 +81,7 @@ static Suite *suite(void) {
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_trap_see_is_deterministic_at_capability_boundary);
     tcase_add_test(tc_core, test_trap_disarm_succeeds_once_with_sufficient_capability);
+    tcase_add_test(tc_core, test_traps_auto_disarm_container);
 
     return s;
 }

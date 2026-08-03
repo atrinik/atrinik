@@ -21,6 +21,8 @@ extern void check_server_ban(void);
 extern void check_server_bank(void);
 /* src/tests/unit/server/cache.c */
 extern void check_server_cache(void);
+/* src/tests/unit/server/living.c */
+extern void check_server_living(void);
 /* src/tests/unit/server/object.c */
 extern void check_server_object(void);
 /* src/tests/unit/server/re_cmp.c */

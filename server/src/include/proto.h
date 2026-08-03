@@ -210,6 +210,7 @@ extern int player_apply(object *pl, object *op, int aflag, int quiet);
 extern void player_apply_below(object *pl);
 /* src/server/arch.c */
 /* src/server/attack.c */
+extern int attack_roll_adjust(object *op, object *hitter, StringBuffer *modifiers);
 /* src/server/ban.c */
 /* src/server/cache.c */
 extern cache_struct *cache_find(shstr *key);
@@ -331,6 +332,7 @@ extern const char *const restore_msg[5];
 extern const char *const lose_msg[5];
 extern const char *const statname[5];
 extern const char *const short_stat_name[5];
+extern StringBuffer *depletion_get_tooltip(const object *depletion, StringBuffer *sb);
 extern void set_attr_value(living *stats, int attr, int8_t value);
 extern void change_attr_value(living *stats, int attr, int8_t value);
 extern int8_t get_attr_value(const living *stats, int attr);
@@ -501,6 +503,7 @@ extern object *SK_skill(object *op);
 extern skill_struct skills[NROFSKILLS];
 extern void find_traps(object *pl, int level);
 extern void remove_trap(object *op);
+extern void traps_auto_disarm(object *pl, object *container);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);

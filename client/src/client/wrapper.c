@@ -200,58 +200,6 @@ void copy_if_exists(const char *from, const char *to, const char *src, const cha
 }
 
 /**
- * Removes all the files in the specified directory.
- *
- * @param dir
- * The directory.
- * @param path
- * Path to the directory.
- */
-static void _rmrf(DIR *dir, const char *path) {
-    HARD_ASSERT(dir != NULL);
-
-    struct dirent *file;
-    while ((file = readdir(dir)) != NULL) {
-        if (strcmp(file->d_name, ".") == 0 || strcmp(file->d_name, "..") == 0) {
-            continue;
-        }
-
-        char buf[HUGE_BUF];
-        snprintf(VS(buf), "%s/%s", path, file->d_name);
-
-        DIR *dir2 = opendir(buf);
-        if (dir2 != NULL) {
-            _rmrf(dir2, buf);
-            closedir(dir2);
-            rmdir(buf);
-        } else {
-            unlink(buf);
-        }
-    }
-}
-
-/**
- * Recursively remove a directory and its contents.
- *
- * Effectively same as 'rf -rf path'.
- *
- * @param path
- * What to remove.
- */
-void rmrf(const char *path) {
-    HARD_ASSERT(path != NULL);
-
-    DIR *dir = opendir(path);
-    if (dir == NULL) {
-        return;
-    }
-
-    _rmrf(dir, path);
-    closedir(dir);
-    rmdir(path);
-}
-
-/**
  * Recursively copy a file or directory.
  * @param src
  * Source file/directory to copy.

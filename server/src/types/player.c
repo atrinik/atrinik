@@ -722,6 +722,7 @@ static void player_death_deplete_stats(object *op) {
     }
 
     if (lost_stat) {
+        esrv_update_item(UPD_EXTRA, depletion);
         living_update_player(op);
     } else {
         draw_info(COLOR_WHITE,

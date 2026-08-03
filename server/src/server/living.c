@@ -202,6 +202,55 @@ const char *const statname[NUM_STATS] = {"strength",
 const char *const short_stat_name[NUM_STATS] = {"Str", "Dex", "Con", "Int", "Pow"};
 
 /**
+ * Build the tooltip description for a depletion status effect.
+ *
+ * @param depletion
+ * Depletion force object.
+ * @param sb
+ * Optional buffer to append to.
+ * @return
+ * Buffer containing the static effect description and all currently depleted
+ * stats.
+ */
+StringBuffer *depletion_get_tooltip(const object *depletion, StringBuffer *sb) {
+    HARD_ASSERT(depletion != NULL);
+
+    if (sb == NULL) {
+        sb = stringbuffer_new();
+    }
+
+    if (depletion->msg != NULL) {
+        stringbuffer_append_string(sb, depletion->msg);
+    }
+
+    bool found = false;
+    for (int stat = 0; stat < NUM_STATS; stat++) {
+        int8_t value = get_attr_value(&depletion->stats, stat);
+        if (value >= 0) {
+            continue;
+        }
+
+        if (!found) {
+            if (stringbuffer_length(sb) != 0) {
+                stringbuffer_append_char(sb, '\n');
+            }
+            stringbuffer_append_string(sb, "Currently depleted: ");
+            found = true;
+        } else {
+            stringbuffer_append_string(sb, ", ");
+        }
+
+        stringbuffer_append_printf(sb, "%s (%d)", statname[stat], -value);
+    }
+
+    if (found) {
+        stringbuffer_append_char(sb, '.');
+    }
+
+    return sb;
+}
+
+/**
  * Sets Str/Dex/con/Wis/Cha/Int/Pow in stats to value, depending on what
  * attr is (STR to POW).
  * @param stats
@@ -351,6 +400,7 @@ void drain_specific_stat(object *op, int deplete_stats) {
 
     draw_info(COLOR_GRAY, op, drain_msg[deplete_stats]);
     change_attr_value(&tmp->stats, deplete_stats, -1);
+    esrv_update_item(UPD_EXTRA, tmp);
     living_update_player(op);
 }
 

@@ -324,7 +324,6 @@ extern void system_end(void);
 extern void mkdir_ensure(const char *path);
 extern void copy_file(const char *filename, const char *filename_out);
 extern void copy_if_exists(const char *from, const char *to, const char *src, const char *dst);
-extern void rmrf(const char *path);
 extern void copy_rec(const char *src, const char *dst);
 extern const char *get_config_dir(void);
 extern void get_data_dir_file(char *buf, size_t len, const char *fname);
@@ -415,8 +414,6 @@ extern void settings_open(void);
 extern void settings_client_open(void);
 /* src/gui/popups/settings_keybinding.c */
 extern void settings_keybinding_open(void);
-/* src/gui/popups/updater.c */
-extern void updater_open(void);
 /* src/gui/toolkit/SDL_gfx.c */
 extern int fastPixelColorNolock(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
 extern int fastPixelColorNolockNoclip(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);

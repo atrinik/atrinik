@@ -684,7 +684,6 @@ int main(int argc, char *argv[]) {
     toolkit_import(math);
     toolkit_import(memory);
     toolkit_import(packet);
-    toolkit_import(sha1);
     toolkit_import(socket);
     toolkit_import(socket_crypto);
     toolkit_import(string);

@@ -226,14 +226,12 @@ atrinik-client-4.0-windows-x86_64.zip
 atrinik-server-4.0-windows-x86_64.zip
 ```
 
-The client package contains the updater, game assets, CA certificates, and
-required MXE runtime DLLs. The server package contains the native server,
+The client package contains the game assets, CA certificates, and required MXE
+runtime DLLs. The server package contains the native server,
 plugins, embedded Python runtime, maps, collected resources, generated region
 maps, initial data, and required DLLs. The packaging script builds and runs a
 native Linux world maker inside the cross-build container; it uses isolated
-staging data and never modifies `server/data/`. Windows 10 or newer is expected
-because the client updater uses the operating system's built-in `tar` command
-when applying patches.
+staging data and never modifies `server/data/`.
 
 Inside the Windows cross-build container, configure or compile without
 packaging with:
