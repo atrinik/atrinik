@@ -1,12 +1,6 @@
 {
   "name": "Atrinik Windows cross-build (MXE)",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": "../..",
-    "args": {
-      "MXE_BUILD_JOBS": "2"
-    }
-  },
+  "image": "ghcr.io/atrinik/windows-build:mxe",
   "workspaceFolder": "/workspaces/atrinik",
   "remoteUser": "vscode",
   "postCreateCommand": "git submodule update --init --recursive || true",
