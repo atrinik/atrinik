@@ -784,7 +784,11 @@ socket_websocket_receive(void *handle, char *buffer, size_t capacity, size_t *us
     }
 
     size_t received = 0;
+#if LIBCURL_VERSION_NUM >= 0x080200
     const struct curl_ws_frame *frame = NULL;
+#else
+    struct curl_ws_frame *frame = NULL;
+#endif
     CURLcode result = curl_ws_recv(handle, buffer + *used, capacity - 1 - *used, &received, &frame);
     if (result == CURLE_AGAIN) {
         return SOCKET_WEBSOCKET_EMPTY;

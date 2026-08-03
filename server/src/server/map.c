@@ -1059,11 +1059,18 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator, int fl
         return NULL;
     }
 
-    snprintf(pathname,
-             sizeof(pathname),
-             "%s%s",
-             *filename != '/' && *filename != '.' ? "/" : "",
-             flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename));
+    const char *resolved_path = flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename);
+    size_t prefix_length = *filename != '/' && *filename != '.' ? 1 : 0;
+    size_t resolved_length = strlen(resolved_path);
+    if (prefix_length + resolved_length >= sizeof(pathname)) {
+        LOG(ERROR, "Map path is too long: %s", filename);
+        return NULL;
+    }
+
+    if (prefix_length != 0) {
+        pathname[0] = '/';
+    }
+    memcpy(pathname + prefix_length, resolved_path, resolved_length + 1);
 
     char *real_path = NULL;
     if (flags & MAP_PLAYER_UNIQUE) {

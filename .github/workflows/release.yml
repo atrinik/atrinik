@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-26.04
     outputs:
       commit: ${{ steps.metadata.outputs.commit }}
+      latest: ${{ steps.metadata.outputs.latest }}
       tag: ${{ steps.metadata.outputs.tag }}
       version: ${{ steps.metadata.outputs.version }}
     steps:
@@ -51,6 +52,13 @@ jobs:
           fi
 
           echo "commit=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
+          mapfile -t release_tags < <(git tag --list 'v[0-9]*' --sort=-v:refname)
+          latest_tag=${release_tags[0]:-}
+          if [[ "${RELEASE_TAG}" == "${latest_tag}" ]]; then
+            echo "latest=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "latest=false" >> "${GITHUB_OUTPUT}"
+          fi
           echo "tag=${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
           echo "version=${RELEASE_TAG#v}" >> "${GITHUB_OUTPUT}"
 
@@ -135,3 +143,62 @@ jobs:
               --title "Atrinik ${RELEASE_TAG}" \
               "${packages[@]}"
           fi
+
+  server-image:
+    name: Linux server image
+    needs:
+      - metadata
+      - linux
+    runs-on: ubuntu-26.04
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.metadata.outputs.tag }}
+          submodules: recursive
+
+      - name: Set image name
+        run: |
+          echo "SERVER_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/atrinik-server" \
+            >> "${GITHUB_ENV}"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Linux server image
+        env:
+          RELEASE_COMMIT: ${{ needs.metadata.outputs.commit }}
+          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: |
+          docker build \
+            --build-arg ATRINIK_PACKAGE_VERSION="${RELEASE_VERSION}" \
+            --file Dockerfile.server \
+            --label "org.opencontainers.image.revision=${RELEASE_COMMIT}" \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --label "org.opencontainers.image.title=Atrinik Server" \
+            --label "org.opencontainers.image.version=${RELEASE_VERSION}" \
+            --tag "${SERVER_IMAGE}:${RELEASE_VERSION}" \
+            .
+
+      - name: Publish versioned Linux server image
+        env:
+          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: docker push "${SERVER_IMAGE}:${RELEASE_VERSION}"
+
+      - name: Publish latest Linux server image
+        if: needs.metadata.outputs.latest == 'true'
+        env:
+          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: |
+          docker tag \
+            "${SERVER_IMAGE}:${RELEASE_VERSION}" \
+            "${SERVER_IMAGE}:latest"
+          docker push "${SERVER_IMAGE}:latest"

@@ -2799,9 +2799,13 @@ static void player_load(player *pl, FILE *fp) {
         } else if (strncmp(buf, "tls ", 4) == 0) {
             pl->tls = atoi(buf + 4);
         } else if (strncmp(buf, "map ", 4) == 0) {
-            snprintf(VS(pl->maplevel), "%s", buf + 4);
+            size_t length = strnlen(buf + 4, sizeof(pl->maplevel) - 1);
+            memcpy(pl->maplevel, buf + 4, length);
+            pl->maplevel[length] = '\0';
         } else if (strncmp(buf, "bed_map ", 8) == 0) {
-            snprintf(VS(pl->savebed_map), "%s", buf + 8);
+            size_t length = strnlen(buf + 8, sizeof(pl->savebed_map) - 1);
+            memcpy(pl->savebed_map, buf + 8, length);
+            pl->savebed_map[length] = '\0';
         } else if (strncmp(buf, "bed_x ", 5) == 0) {
             pl->bed_x = atoi(buf + 5);
         } else if (strncmp(buf, "bed_y ", 5) == 0) {
