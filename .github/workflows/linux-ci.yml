@@ -80,6 +80,7 @@ jobs:
 
       - name: Prepare server test runtime
         run: |
+          mkdir -p server/lib
           python3 tools/collect.py --dir . --out server/lib
           cp -R server/install_data server/data
           mkdir -p server/data/tmp
