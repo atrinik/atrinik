@@ -255,17 +255,33 @@ static int game_status_chain(void)
                             ' ',
                             VS(quic_fingerprint),
                             0);
-            int port_num = atoi(port);
-            int port_crypto_num = atoi(port_crypto);
+            uint64_t port_num = 0;
+            uint64_t port_crypto_num = 0;
+            if ((*port != '\0' &&
+                 !string_parse_uint64(port,
+                                      10,
+                                      0,
+                                      UINT16_MAX,
+                                      &port_num)) ||
+                    (*port_crypto != '\0' &&
+                     !string_parse_uint64(port_crypto,
+                                          10,
+                                          0,
+                                          UINT16_MAX,
+                                          &port_crypto_num))) {
+                LOG(ERROR,
+                    "Ignoring command-line server %s with an invalid port",
+                    host);
+                continue;
+            }
             server_struct *server = metaserver_add(
                 host,
-                port_num != 0 ? port_num : 1728,
-                port_crypto_num != 0 ? port_crypto_num : -1,
+                port_num != 0 ? (uint16_t) port_num : 1728,
+                port_crypto_num != 0 ? (int) port_crypto_num : -1,
                 host,
                 "user server",
                 "Server from command line --server option.");
-            if (strlen(quic_fingerprint) == 64 &&
-                strspn(quic_fingerprint, "0123456789abcdefABCDEF") == 64) {
+            if (string_is_hex_fixed(quic_fingerprint, 64, false)) {
                 string_tolower(quic_fingerprint);
                 server->quic_certificate_sha256 =
                     estrdup(quic_fingerprint);
@@ -613,24 +629,26 @@ static bool
 clioptions_option_join_password_file (const char *arg,
                                       char      **errmsg)
 {
-    FILE *fp = fopen(arg, "rb");
-    if (fp == NULL) {
-        string_fmt(*errmsg, "Cannot open join password file: %s", arg);
+    char password[MAX_BUF];
+    bool permissive_mode;
+    path_secret_error_t error = path_read_secret(arg,
+                                                 VS(password),
+                                                 &permissive_mode);
+    if (error != PATH_SECRET_OK) {
+        string_fmt(*errmsg,
+                   "Cannot use join password file %s: %s",
+                   arg,
+                   path_secret_error_string(error));
         return false;
+    }
+    if (permissive_mode) {
+        LOG(SYSTEM,
+            "Join password file %s is readable or writable by group/other; "
+            "use mode 0600",
+            arg);
     }
 
-    char password[MAX_BUF];
-    bool ok = fgets(VS(password), fp) != NULL;
-    if (fclose(fp) != 0) {
-        ok = false;
-    }
-    if (!ok) {
-        OPENSSL_cleanse(password, sizeof(password));
-        *errmsg = estrdup("Cannot read join password file");
-        return false;
-    }
-    password[strcspn(password, "\r\n")] = '\0';
-    ok = clioptions_option_join_password(password, errmsg);
+    bool ok = clioptions_option_join_password(password, errmsg);
     OPENSSL_cleanse(password, sizeof(password));
     return ok;
 }

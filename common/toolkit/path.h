@@ -44,6 +44,17 @@
  */
 typedef FILE *(*path_fopen_t)(const char *filename, const char *modes);
 
+typedef enum path_secret_error {
+    PATH_SECRET_OK,
+    PATH_SECRET_OPEN_ERROR,
+    PATH_SECRET_METADATA_ERROR,
+    PATH_SECRET_NOT_REGULAR,
+    PATH_SECRET_EMPTY,
+    PATH_SECRET_TOO_LONG,
+    PATH_SECRET_TRAILING_DATA,
+    PATH_SECRET_READ_ERROR
+} path_secret_error_t;
+
 /* Prototypes */
 
 path_fopen_t path_fopen;
@@ -77,5 +88,14 @@ path_write_atomic(const char *path,
                   const void *data,
                   size_t      size,
                   unsigned int mode);
+path_secret_error_t
+path_read_secret(const char *path,
+                 char       *secret,
+                 size_t      secret_size,
+                 bool       *permissive_mode);
+const char *
+path_secret_error_string(path_secret_error_t error);
+bool
+path_is_safe_relative(const char *path);
 
 #endif

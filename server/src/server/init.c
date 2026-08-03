@@ -340,16 +340,16 @@ static bool
 clioptions_option_port_crypto (const char *arg,
                                char      **errmsg)
 {
-    int val = atoi(arg);
-    if (val < 0 || val > UINT16_MAX) {
+    uint64_t val;
+    if (!string_parse_uint64(arg, 10, 0, UINT16_MAX, &val)) {
         string_fmt(*errmsg,
-                   "%d is an invalid port number, must be 1-%d",
-                   val,
+                   "%s is an invalid port number, must be 0-%d",
+                   arg,
                    UINT16_MAX);
         return false;
     }
 
-    settings.port_crypto = val;
+    settings.port_crypto = (uint16_t) val;
     return true;
 }
 
@@ -363,16 +363,16 @@ static bool
 clioptions_option_port_quic (const char *arg,
                              char      **errmsg)
 {
-    int val = atoi(arg);
-    if (val < 0 || val > UINT16_MAX) {
+    uint64_t val;
+    if (!string_parse_uint64(arg, 10, 0, UINT16_MAX, &val)) {
         string_fmt(*errmsg,
-                   "%d is an invalid port number, must be 0-%d",
-                   val,
+                   "%s is an invalid port number, must be 0-%d",
+                   arg,
                    UINT16_MAX);
         return false;
     }
 
-    settings.port_quic = val;
+    settings.port_quic = (uint16_t) val;
     return true;
 }
 
@@ -546,24 +546,26 @@ static bool
 clioptions_option_join_password_file (const char *arg,
                                       char      **errmsg)
 {
-    FILE *fp = fopen(arg, "rb");
-    if (fp == NULL) {
-        string_fmt(*errmsg, "Cannot open join password file: %s", arg);
+    char password[MAX_BUF];
+    bool permissive_mode;
+    path_secret_error_t error = path_read_secret(arg,
+                                                 VS(password),
+                                                 &permissive_mode);
+    if (error != PATH_SECRET_OK) {
+        string_fmt(*errmsg,
+                   "Cannot use join password file %s: %s",
+                   arg,
+                   path_secret_error_string(error));
         return false;
+    }
+    if (permissive_mode) {
+        LOG(SYSTEM,
+            "Join password file %s is readable or writable by group/other; "
+            "use mode 0600",
+            arg);
     }
 
-    char password[MAX_BUF];
-    bool ok = fgets(VS(password), fp) != NULL;
-    if (fclose(fp) != 0) {
-        ok = false;
-    }
-    if (!ok) {
-        OPENSSL_cleanse(password, sizeof(password));
-        *errmsg = estrdup("Cannot read join password file");
-        return false;
-    }
-    password[strcspn(password, "\r\n")] = '\0';
-    ok = clioptions_option_join_password(password, errmsg);
+    bool ok = clioptions_option_join_password(password, errmsg);
     OPENSSL_cleanse(password, sizeof(password));
     return ok;
 }

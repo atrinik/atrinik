@@ -38,6 +38,8 @@
 #include <object_methods.h>
 #include <waypoint.h>
 #include <server.h>
+#include <network_metrics.h>
+#include <toolkit/datetime.h>
 #include <cmake.h>
 
 #include <toolkit/process.h>
@@ -642,6 +644,7 @@ int main(int argc, char **argv)
     LOG(INFO, "Server ready. Waiting for connections...");
 
     for (; ; ) {
+        uint64_t loop_started_us = datetime_monotonic_us();
         if (unlikely(shutdown_timer_check())) {
             break;
         }
@@ -655,6 +658,7 @@ int main(int argc, char **argv)
         }
 
         socket_server_post_process();
+        server_metrics_game_loop(datetime_monotonic_us() - loop_started_us);
 
         /* Sleep proper amount of time before next tick */
         sleep_delta();

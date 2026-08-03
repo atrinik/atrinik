@@ -922,6 +922,23 @@ START_TEST(test_string_parse_uint64)
 }
 END_TEST
 
+START_TEST(test_string_hex_fixed)
+{
+    uint8_t decoded[2];
+    ck_assert(string_is_hex_fixed("00abcdef", 8, true));
+    ck_assert(!string_is_hex_fixed("00ABCDEF", 8, true));
+    ck_assert(string_is_hex_fixed("00ABCDEF", 8, false));
+    ck_assert(!string_is_hex_fixed("00abcdeg", 8, false));
+    ck_assert(!string_is_hex_fixed("00abcdef00", 8, false));
+    ck_assert(string_decode_hex_fixed("00Af", 4, false, decoded,
+                                      sizeof(decoded)));
+    ck_assert_uint_eq(decoded[0], 0);
+    ck_assert_uint_eq(decoded[1], 0xaf);
+    ck_assert(!string_decode_hex_fixed("00Af", 4, true, decoded,
+                                       sizeof(decoded)));
+}
+END_TEST
+
 static Suite *suite(void)
 {
     Suite *s = suite_create("string");
@@ -964,6 +981,7 @@ static Suite *suite(void)
     tcase_add_test(tc_core, test_string_skip_whitespace);
     tcase_add_test(tc_core, test_string_last);
     tcase_add_test(tc_core, test_string_parse_uint64);
+    tcase_add_test(tc_core, test_string_hex_fixed);
 
     return s;
 }

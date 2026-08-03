@@ -22,12 +22,6 @@ PAYLOAD = "atrinik-quic-e2e"
 SCENARIOS = ("identity", "quic", "stun", "punch", "mapping")
 
 
-def unused_udp_port() -> int:
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        sock.bind(("127.0.0.1", 0))
-        return int(sock.getsockname()[1])
-
-
 class NativeDriver:
     def __init__(self, path: Path, verbose: bool) -> None:
         self.path = path
@@ -68,7 +62,10 @@ class NativeDriver:
             )
         return matches[0].removeprefix(prefix)
 
-    def server(self, port: int, identity: Path) -> tuple[subprocess.Popen[str], str]:
+    def server(
+        self, identity: Path
+    ) -> tuple[subprocess.Popen[str], int, str]:
+        port = 0
         command = [str(self.path), "server", str(port), str(identity), PAYLOAD]
         process = subprocess.Popen(
             command,
@@ -100,7 +97,11 @@ class NativeDriver:
                 f"unexpected server readiness {ready!r}; "
                 f"stdout={stdout!r}, stderr={stderr!r}"
             )
-        return process, ready.removeprefix("READY ")
+        fields = ready.removeprefix("READY ").split()
+        if len(fields) != 2:
+            self.stop_server(process)
+            raise AssertionError(f"invalid READY marker: {ready!r}")
+        return process, int(fields[0]), fields[1]
 
     def finish_server(self, process: subprocess.Popen[str]) -> str:
         assert process.stdout is not None
@@ -207,10 +208,10 @@ class NetworkE2ETest(unittest.TestCase):
     def test_identity(self) -> None:
         identity = self.temp / "quic-identity.pem"
         first_output = self.driver.command(
-            "fingerprint", unused_udp_port(), identity
+            "fingerprint", 0, identity
         ).stdout
         second_output = self.driver.command(
-            "fingerprint", unused_udp_port(), identity
+            "fingerprint", 0, identity
         ).stdout
         first = self.driver.marker(first_output, "FINGERPRINT ")
         second = self.driver.marker(second_output, "FINGERPRINT ")
@@ -220,14 +221,13 @@ class NetworkE2ETest(unittest.TestCase):
 
         identity.write_text("not a private key\n", encoding="utf-8")
         corrupted = self.driver.command(
-            "fingerprint", unused_udp_port(), identity, check=False
+            "fingerprint", 0, identity, check=False
         )
         self.assertNotEqual(corrupted.returncode, 0)
 
     def test_quic(self) -> None:
         identity = self.temp / "quic-identity.pem"
-        server, fingerprint = self.driver.server(unused_udp_port(), identity)
-        port = self._server_port(server)
+        server, port, fingerprint = self.driver.server(identity)
         try:
             client = self.driver.command(
                 "client", "127.0.0.1", port, fingerprint, PAYLOAD
@@ -241,10 +241,9 @@ class NetworkE2ETest(unittest.TestCase):
         self.assertRegex(client_id, r"^[0-9a-f]{32}$")
         self.assertEqual(client_id, server_id)
 
-        bad_server, bad_fingerprint = self.driver.server(
-            unused_udp_port(), self.temp / "bad-pin-identity.pem"
+        bad_server, bad_port, bad_fingerprint = self.driver.server(
+            self.temp / "bad-pin-identity.pem"
         )
-        bad_port = self._server_port(bad_server)
         replacement = "0" if bad_fingerprint[0] != "0" else "1"
         wrong_fingerprint = replacement + bad_fingerprint[1:]
         rejected = self.driver.command(
@@ -258,18 +257,11 @@ class NetworkE2ETest(unittest.TestCase):
         self.assertNotEqual(rejected.returncode, 0)
         self.driver.stop_server(bad_server)
 
-    @staticmethod
-    def _server_port(process: subprocess.Popen[str]) -> int:
-        command = process.args
-        if not isinstance(command, list):
-            raise AssertionError("unexpected server command representation")
-        return int(command[2])
-
     def test_stun(self) -> None:
         with FakeStunServer() as stun:
             result = self.driver.command(
                 "stun",
-                unused_udp_port(),
+                0,
                 self.temp / "stun-identity.pem",
                 f"127.0.0.1:{stun.port}",
             )
@@ -281,7 +273,7 @@ class NetworkE2ETest(unittest.TestCase):
         with FakeStunServer(malformed=True) as malformed:
             rejected = self.driver.command(
                 "stun",
-                unused_udp_port(),
+                0,
                 self.temp / "malformed-stun-identity.pem",
                 f"127.0.0.1:{malformed.port}",
                 check=False,
@@ -289,21 +281,18 @@ class NetworkE2ETest(unittest.TestCase):
         self.assertNotEqual(rejected.returncode, 0)
 
     def test_punch(self) -> None:
-        first_port = unused_udp_port()
-        second_port = unused_udp_port()
-        while second_port == first_port:
-            second_port = unused_udp_port()
         result = self.driver.command(
             "punch",
-            first_port,
+            0,
             self.temp / "punch-first.pem",
-            second_port,
+            0,
             self.temp / "punch-second.pem",
         )
-        self.assertEqual(
-            self.driver.marker(result.stdout, "PUNCH "),
-            f"127.0.0.1:{first_port} 127.0.0.1:{second_port}",
-        )
+        endpoints = self.driver.marker(result.stdout, "PUNCH ").split()
+        self.assertEqual(len(endpoints), 2)
+        self.assertNotEqual(endpoints[0], endpoints[1])
+        for endpoint in endpoints:
+            self.assertRegex(endpoint, r"^127\.0\.0\.1:[1-9][0-9]*$")
 
     def test_mapping(self) -> None:
         result = self.driver.command("mapping")

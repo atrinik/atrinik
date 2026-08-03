@@ -251,6 +251,12 @@ typedef enum socket_connection_preference {
 #define ASSET_STATUS_NOT_FOUND 1
 /** The client's cached size and SHA-256 digest match the server asset. */
 #define ASSET_STATUS_NOT_MODIFIED 2
+/** Authenticated size and digest metadata without an asset body. */
+#define ASSET_STATUS_METADATA 3
+/** Metadata was requested for an asset that does not exist. */
+#define ASSET_STATUS_METADATA_NOT_FOUND 4
+/** Request only authenticated size and digest metadata. */
+#define ASSET_REQUEST_METADATA 0x01
 /** Maximum payload in one asset response packet. */
 #define ASSET_CHUNK_SIZE 60000
 /** Maximum complete asset size accepted by the client. */
@@ -264,6 +270,7 @@ typedef struct socket_asset_request {
     uint32_t offset;
     uint32_t cached_size;
     uint8_t cached_digest[ASSET_DIGEST_SIZE];
+    uint8_t flags;
 } socket_asset_request_t;
 
 /** Decoded server-to-client asset response. */
@@ -915,6 +922,25 @@ enum {
 /** Maximum number of direct connection candidates exchanged in rendezvous. */
 #define SOCKET_DIRECT_MAX_CANDIDATES 12
 
+/** Number and spacing of UDP hole-punch probes on both peers. */
+#define SOCKET_PUNCH_COUNT 10U
+#define SOCKET_PUNCH_INTERVAL_MS 100U
+/** Maximum probe datagrams consumed in one rendezvous iteration. */
+#define SOCKET_PUNCH_DRAIN_MAX 32U
+
+typedef enum socket_punch_action {
+    SOCKET_PUNCH_WAIT,
+    SOCKET_PUNCH_SEND,
+    SOCKET_PUNCH_COMPLETE
+} socket_punch_action_t;
+
+typedef struct socket_punch_pacer {
+    uint64_t next_action_ms;
+    unsigned int attempts;
+    unsigned int grace_ms;
+    bool active;
+} socket_punch_pacer_t;
+
 /** Direct-route candidate kind shared by gathering, signaling, and selection. */
 typedef enum socket_candidate_kind {
     SOCKET_CANDIDATE_LAN,
@@ -977,7 +1003,8 @@ socket_asset_request_append(struct packet_struct *packet,
                             const char           *path,
                             uint32_t              offset,
                             uint32_t              cached_size,
-                            const uint8_t          cached_digest[ASSET_DIGEST_SIZE]);
+                            const uint8_t          cached_digest[ASSET_DIGEST_SIZE],
+                            uint8_t                flags);
 bool
 socket_asset_request_parse(uint8_t                *data,
                            size_t                  len,
@@ -995,6 +1022,12 @@ socket_asset_response_append_ok(struct packet_struct *packet,
                                 const uint8_t          digest[ASSET_DIGEST_SIZE],
                                 const uint8_t        *data,
                                 size_t                data_size);
+void
+socket_asset_response_append_metadata(
+    struct packet_struct *packet,
+    const char           *path,
+    uint32_t              total_size,
+    const uint8_t          digest[ASSET_DIGEST_SIZE]);
 bool
 socket_asset_response_parse(uint8_t                 *data,
                             size_t                   len,
@@ -1059,6 +1092,16 @@ socket_udp_punch_receive(socket_t *sc,
                          char *host,
                          size_t host_size,
                          uint16_t *port);
+void
+socket_punch_pacer_start(socket_punch_pacer_t *pacer,
+                         uint64_t              now_ms,
+                         unsigned int          grace_ms);
+socket_punch_action_t
+socket_punch_pacer_poll(const socket_punch_pacer_t *pacer, uint64_t now_ms);
+void
+socket_punch_pacer_advance(socket_punch_pacer_t *pacer,
+                           uint64_t              now_ms,
+                           socket_punch_action_t action);
 bool
 socket_host_is_global(const char *host);
 size_t
@@ -1071,6 +1114,7 @@ int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,
         unsigned short plen);
 bool socket_connect(socket_t *sc);
 int socket_fd(socket_t *sc);
+bool socket_local_port(socket_t *sc, uint16_t *port);
 bool socket_bind(socket_t *sc);
 socket_t *socket_accept(socket_t *sc);
 bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt);

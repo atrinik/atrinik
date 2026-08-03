@@ -122,6 +122,7 @@ set(SOURCES
 	src/socket/item.c
 	src/socket/lowlevel.c
 	src/socket/metaserver.c
+	src/socket/network_metrics.c
 	src/socket/port_mapping.c
 	src/socket/port_mapping_controller.c
 	src/socket/assets.c

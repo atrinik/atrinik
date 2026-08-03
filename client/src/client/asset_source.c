@@ -5,15 +5,21 @@
 
 #include <global.h>
 #include <asset_source.h>
+#include <toolkit/path.h>
 #include <toolkit/string.h>
 #include <curl/curl.h>
+#include <openssl/evp.h>
 
 struct asset_source {
     char *asset_path;
     char *cache_path;
+    char *http_url;
     char error[128];
     curl_request_t *http;
     asset_request_t *inband;
+    size_t expected_size;
+    uint8_t expected_digest[ASSET_DIGEST_SIZE];
+    bool metadata_request;
     asset_source_state_t state;
 };
 
@@ -22,9 +28,25 @@ asset_source_url (const char *asset_path, char *url, size_t size)
 {
     CURLU *parsed = curl_url();
     char *base_path = NULL;
+    char *scheme = NULL;
+    char *host = NULL;
     char *rendered = NULL;
     bool ok = parsed != NULL &&
               curl_url_set(parsed, CURLUPART_URL, cpl.http_url, 0) == CURLUE_OK;
+    if (ok) {
+        ok = curl_url_get(parsed, CURLUPART_SCHEME, &scheme, 0) == CURLUE_OK &&
+             curl_url_get(parsed, CURLUPART_HOST, &host, 0) == CURLUE_OK &&
+             (strcasecmp(scheme, "https") == 0 ||
+              (strcasecmp(scheme, "http") == 0 &&
+               (strcasecmp(host, "localhost") == 0 ||
+                strcmp(host, "127.0.0.1") == 0 ||
+                strcmp(host, "::1") == 0 ||
+                strcmp(host, "[::1]") == 0)));
+        if (!ok) {
+            LOG(ERROR,
+                "Refusing non-HTTPS asset URL outside the local machine");
+        }
+    }
     if (ok && curl_url_get(parsed,
                            CURLUPART_PATH,
                            &base_path,
@@ -51,11 +73,26 @@ asset_source_url (const char *asset_path, char *url, size_t size)
         ok = length >= 0 && (size_t) length < size;
     }
     curl_free(base_path);
+    curl_free(scheme);
+    curl_free(host);
     curl_free(rendered);
     if (parsed != NULL) {
         curl_url_cleanup(parsed);
     }
     return ok;
+}
+
+static void
+asset_source_start_http (asset_source_t *source)
+{
+    source->http = curl_request_create(source->http_url,
+                                       CURL_PKEY_TRUST_APPLICATION);
+    curl_request_set_max_body(source->http, ASSET_MAX_SIZE);
+    /*
+     * Do not let the generic cURL layer persist an unverified response. The
+     * authenticated game-server digest is checked before cache replacement.
+     */
+    curl_request_start_get(source->http);
 }
 
 static bool
@@ -79,15 +116,15 @@ asset_source_start (const char *asset_path, const char *cache_path)
 
     if (*cpl.http_url != '\0') {
         char url[HUGE_BUF];
-        if (asset_source_url(asset_path, VS(url))) {
-            source->http = curl_request_create(url,
-                                               CURL_PKEY_TRUST_APPLICATION);
-            curl_request_set_max_body(source->http, ASSET_MAX_SIZE);
-            if (cache_path != NULL) {
-                curl_request_set_path(source->http, cache_path);
+        if (asset_source_url(asset_path, VS(url)) &&
+                cpl.asset_transport && csocket.sc != NULL &&
+                socket_is_quic(csocket.sc)) {
+            source->http_url = estrdup(url);
+            source->inband = asset_request_start_metadata(asset_path);
+            if (source->inband != NULL) {
+                source->metadata_request = true;
+                return source;
             }
-            curl_request_start_get(source->http);
-            return source;
         }
     }
     if (!asset_source_start_inband(source)) {
@@ -105,16 +142,71 @@ asset_source_get_state (asset_source_t *source)
         return source->state;
     }
 
+    if (source->metadata_request) {
+        asset_request_state_t state = asset_request_get_state(source->inband);
+        if (state == ASSET_REQUEST_PENDING) {
+            return source->state;
+        }
+        if (state == ASSET_REQUEST_COMPLETE &&
+                asset_request_get_metadata(source->inband,
+                                           &source->expected_size,
+                                           source->expected_digest)) {
+            asset_request_free(source->inband);
+            source->inband = NULL;
+            source->metadata_request = false;
+            asset_source_start_http(source);
+            return source->state;
+        }
+
+        asset_request_free(source->inband);
+        source->inband = NULL;
+        source->metadata_request = false;
+        if (asset_source_start_inband(source)) {
+            return source->state;
+        }
+        source->state = ASSET_SOURCE_ERROR;
+        snprintf(VS(source->error),
+                 "Authenticated asset metadata is unavailable");
+        return source->state;
+    }
+
     if (source->http != NULL) {
         if (curl_request_get_state(source->http) == CURL_STATE_INPROGRESS) {
             return source->state;
         }
         size_t size = 0;
         const void *body = curl_request_get_body(source->http, &size);
+        bool verified = false;
         if (curl_request_get_http_code(source->http) == 200 &&
-                body != NULL && size <= ASSET_MAX_SIZE) {
-            source->state = ASSET_SOURCE_COMPLETE;
-            return source->state;
+                body != NULL && size == source->expected_size) {
+            uint8_t digest[ASSET_DIGEST_SIZE];
+            unsigned int digest_size = 0;
+            verified = EVP_Digest(body,
+                                  size,
+                                  digest,
+                                  &digest_size,
+                                  EVP_sha256(),
+                                  NULL) == 1 &&
+                       digest_size == ASSET_DIGEST_SIZE &&
+                       memcmp(digest,
+                              source->expected_digest,
+                              ASSET_DIGEST_SIZE) == 0;
+        }
+        if (verified) {
+            if (source->cache_path != NULL) {
+                char *path = file_path(source->cache_path, "wb");
+                verified = path_write_atomic(path, body, size, 0600);
+                efree(path);
+            }
+            if (verified) {
+                source->state = ASSET_SOURCE_COMPLETE;
+                return source->state;
+            }
+        } else {
+            LOG(ERROR,
+                "Rejected HTTP asset %s: authenticated SHA-256 or size "
+                "mismatch",
+                source->asset_path);
         }
         curl_request_free(source->http);
         source->http = NULL;
@@ -188,6 +280,7 @@ asset_source_free (asset_source_t *source)
         asset_request_free(source->inband);
     }
     efree(source->cache_path);
+    efree(source->http_url);
     efree(source->asset_path);
     efree(source);
 }

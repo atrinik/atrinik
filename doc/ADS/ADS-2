@@ -755,6 +755,10 @@
      SHA-256 digest of the client's persistent cached copy, or 32 zero bytes
      when there is no cached copy. This field MUST be all zero on continuation
      requests.
+  - flags (uint8):
+     Bit 0 (METADATA) requests only the authenticated total size and SHA-256
+     digest. All other bits MUST be zero. A metadata request MUST use offset
+     and cached_size zero and an all-zero cached_digest.
 
  When offset is zero and both cached fields match the current server file, the
  server SHOULD return ASSET status NOT_MODIFIED instead of transferring the
@@ -876,13 +880,20 @@
  connection. The packet begins with these fields:
 
   - status (uint8):
-     0 (OK), 1 (NOT_FOUND), or 2 (NOT_MODIFIED).
+     0 (OK), 1 (NOT_FOUND), 2 (NOT_MODIFIED), 3 (METADATA), or
+     4 (METADATA_NOT_FOUND).
   - path (string):
      The path from the corresponding request.
 
- NOT_FOUND and NOT_MODIFIED end after path. NOT_MODIFIED is valid only when
- the client supplied a cached size and SHA-256 digest that match the current
- asset.
+ NOT_FOUND, NOT_MODIFIED, and METADATA_NOT_FOUND end after path. NOT_MODIFIED
+ is valid only when the client supplied a cached size and SHA-256 digest that
+ match the current asset.
+
+ A METADATA response continues with total_size (uint32) and digest (32 bytes).
+ These values come from the server's immutable startup asset snapshot and are
+ authenticated by the established, certificate-pinned QUIC connection. A
+ client using a separate HTTP origin MUST obtain this metadata first and MUST
+ reject an HTTP body whose exact size or SHA-256 digest differs.
 
  An OK response continues with these fields:
 
@@ -901,8 +912,9 @@
  available or replacing its persistent cache, the client MUST calculate the
  complete SHA-256 digest and reject a mismatch. Cache replacement MUST use a
  same-directory temporary file with exclusive creation followed by an atomic
- rename. Cached assets are scoped to the selected server host and port so
- unrelated server entries cannot collide.
+ rename. Cached assets MUST be scoped to the stable server ID or authenticated
+ certificate fingerprint. A client MAY use a digest of the endpoint only for
+ a manual legacy entry that has no authenticated server identity.
 
 ===============================================================================
 = 5. Authors                                                                  =

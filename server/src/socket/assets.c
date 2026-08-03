@@ -17,7 +17,9 @@
 #include <global.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
+#include <toolkit/datetime.h>
 #include <resources.h>
+#include <network_metrics.h>
 #include <openssl/evp.h>
 
 #define ASSET_CACHE_MAX_TOTAL (1024ULL * 1024ULL * 1024ULL)
@@ -34,6 +36,7 @@ typedef struct asset_cache_entry {
 
 static asset_cache_entry_t *asset_cache;
 static uint64_t asset_cache_size;
+static size_t asset_cache_rss;
 
 static bool
 asset_simple_name (const char *name)
@@ -153,6 +156,8 @@ asset_cache_add (const char *name, const char *path)
 
     HASH_ADD_KEYPTR(hh, asset_cache, entry->name, strlen(entry->name), entry);
     asset_cache_size += entry->size;
+    asset_cache_rss += sizeof(*entry) + strlen(entry->name) + 1 +
+                       MAX((size_t) entry->size, (size_t) 1);
     return true;
 }
 
@@ -232,6 +237,7 @@ socket_assets_init (void)
     LOG(INFO,
         "Cached %" PRIu64 " bytes of game assets in memory",
         asset_cache_size);
+    server_metrics_asset_cache(asset_cache_rss);
 }
 
 void
@@ -245,6 +251,8 @@ socket_assets_deinit (void)
         efree(entry);
     }
     asset_cache_size = 0;
+    asset_cache_rss = 0;
+    server_metrics_asset_cache(0);
 }
 
 static asset_cache_entry_t *
@@ -255,18 +263,10 @@ asset_cache_find (const char *name)
     return entry;
 }
 
-static uint64_t
-asset_now_ms (void)
-{
-    struct timeval now;
-    GETTIMEOFDAY(&now);
-    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
-}
-
 static bool
 asset_rate_allow (socket_struct *ns, size_t bytes, bool count_request)
 {
-    uint64_t now = asset_now_ms();
+    uint64_t now = datetime_monotonic_ms();
     if (ns->asset_window_ms == 0 || now - ns->asset_window_ms >= 1000) {
         ns->asset_window_ms = now;
         ns->asset_window_bytes = 0;
@@ -278,6 +278,7 @@ asset_rate_allow (socket_struct *ns, size_t bytes, bool count_request)
         LOG(ERROR,
             "Connection %s exceeded the in-band asset transfer budget",
             socket_get_id(ns->sc));
+        server_metrics_asset_response(0, true);
         ns->state = ST_ZOMBIE;
         return false;
     }
@@ -289,11 +290,13 @@ asset_rate_allow (socket_struct *ns, size_t bytes, bool count_request)
 }
 
 static void
-asset_send_error (socket_struct *ns, const char *asset)
+asset_send_error (socket_struct *ns, const char *asset, bool metadata)
 {
     packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
     socket_asset_response_append_status(packet,
-                                        ASSET_STATUS_NOT_FOUND,
+                                        metadata
+                                            ? ASSET_STATUS_METADATA_NOT_FOUND
+                                            : ASSET_STATUS_NOT_FOUND,
                                         asset);
     socket_send_packet(ns, packet);
 }
@@ -306,6 +309,7 @@ socket_command_asset (socket_struct *ns,
                       size_t         pos)
 {
     (void) pl;
+    uint64_t started_us = datetime_monotonic_us();
 
     if (!socket_is_quic(ns->sc) ||
         (*settings.join_password != '\0' && !ns->join_authenticated)) {
@@ -323,20 +327,41 @@ socket_command_asset (socket_struct *ns,
         return;
     }
     LOG(DEBUG,
-        "Connection %s requested QUIC asset %s at offset %" PRIu32,
+        "Connection %s requested QUIC asset %s at offset %" PRIu32 "%s",
         socket_get_id(ns->sc),
         request.path,
-        request.offset);
+        request.offset,
+        request.flags & ASSET_REQUEST_METADATA ? " (metadata)" : "");
 
     char path[HUGE_BUF];
     if (!asset_resolve_path(request.path, VS(path))) {
-        asset_send_error(ns, request.path);
+        asset_send_error(ns,
+                         request.path,
+                         request.flags & ASSET_REQUEST_METADATA);
+        server_metrics_asset_response(datetime_monotonic_us() - started_us,
+                                      false);
         return;
     }
 
     asset_cache_entry_t *entry = asset_cache_find(request.path);
     if (entry == NULL || request.offset > entry->size) {
-        asset_send_error(ns, request.path);
+        asset_send_error(ns,
+                         request.path,
+                         request.flags & ASSET_REQUEST_METADATA);
+        server_metrics_asset_response(datetime_monotonic_us() - started_us,
+                                      false);
+        return;
+    }
+
+    if (request.flags & ASSET_REQUEST_METADATA) {
+        packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
+        socket_asset_response_append_metadata(packet,
+                                              request.path,
+                                              entry->size,
+                                              entry->digest);
+        socket_send_packet(ns, packet);
+        server_metrics_asset_response(datetime_monotonic_us() - started_us,
+                                      false);
         return;
     }
 
@@ -350,12 +375,22 @@ socket_command_asset (socket_struct *ns,
                                             ASSET_STATUS_NOT_MODIFIED,
                                             request.path);
         socket_send_packet(ns, packet);
+        server_metrics_asset_response(datetime_monotonic_us() - started_us,
+                                      false);
         return;
     }
 
     size_t chunk_size = MIN((size_t) (entry->size - request.offset),
                             (size_t) ASSET_CHUNK_SIZE);
     if (!asset_rate_allow(ns, chunk_size, false)) {
+        return;
+    }
+    if (!socket_buffer_can_enqueue(ns, chunk_size + 256, true)) {
+        server_metrics_asset_response(0, true);
+        LOG(ERROR,
+            "Connection %s exceeded the bulk-asset queue reserve",
+            socket_get_id(ns->sc));
+        ns->state = ST_ZOMBIE;
         return;
     }
 
@@ -369,4 +404,6 @@ socket_command_asset (socket_struct *ns,
                                     entry->data + request.offset,
                                     chunk_size);
     socket_send_packet(ns, packet);
+    server_metrics_asset_response(datetime_monotonic_us() - started_us,
+                                  false);
 }

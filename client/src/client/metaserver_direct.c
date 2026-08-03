@@ -18,22 +18,6 @@
 #endif
 
 static bool
-metaserver_direct_hex64 (const char *value)
-{
-    if (value == NULL || strlen(value) != 64) {
-        return false;
-    }
-    for (const unsigned char *cp = (const unsigned char *) value;
-         *cp != '\0';
-         cp++) {
-        if (!isxdigit(*cp)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-static bool
 parse_direct_server_field (xmlNodePtr node, server_struct *server)
 {
     if (node->type != XML_ELEMENT_NODE) {
@@ -132,8 +116,8 @@ parse_direct_server (xmlNodePtr node, const char *origin)
         }
     }
 
-    if (!metaserver_direct_hex64(server->server_id) ||
-        !metaserver_direct_hex64(server->quic_certificate_sha256) ||
+    if (!string_is_hex_fixed(server->server_id, 64, true) ||
+        !string_is_hex_fixed(server->quic_certificate_sha256, 64, true) ||
         server->hostname == NULL ||
         server->port <= 0 ||
         server->port > UINT16_MAX ||

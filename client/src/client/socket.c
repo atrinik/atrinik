@@ -32,13 +32,9 @@
 #include <network_graph.h>
 #include <toolkit/socket_crypto.h>
 
-static SDL_Thread *input_thread;
+static SDL_Thread *io_thread;
 static SDL_mutex *input_buffer_mutex;
-static SDL_cond *input_buffer_cond;
-
-static SDL_Thread *output_thread;
 static SDL_mutex *output_buffer_mutex;
-static SDL_cond *output_buffer_cond;
 
 /**
  * Mutex to protect socket deinitialization.
@@ -152,7 +148,14 @@ void socket_send_packet(struct packet_struct *packet)
 {
     HARD_ASSERT(packet != NULL);
 
-    if (csocket.sc == NULL) {
+    if (socket_mutex == NULL) {
+        packet_free(packet);
+        return;
+    }
+
+    SDL_LockMutex(socket_mutex);
+    if (csocket.sc == NULL || abort_thread) {
+        SDL_UnlockMutex(socket_mutex);
         packet_free(packet);
         return;
     }
@@ -167,6 +170,8 @@ void socket_send_packet(struct packet_struct *packet)
         if (packet == NULL) {
             /* Logging already done. */
             cpl.state = ST_START;
+            packet_free(packet_meta);
+            SDL_UnlockMutex(socket_mutex);
             return;
         }
     } else {
@@ -180,11 +185,11 @@ void socket_send_packet(struct packet_struct *packet)
     command_buffer *buf2 = command_buffer_new(packet->len,
                                               packet->data);
     packet_free(packet);
+    SDL_UnlockMutex(socket_mutex);
 
     SDL_LockMutex(output_buffer_mutex);
     command_buffer_enqueue(buf1, &output_queue_start, &output_queue_end);
     command_buffer_enqueue(buf2, &output_queue_start, &output_queue_end);
-    SDL_CondSignal(output_buffer_cond);
     SDL_UnlockMutex(output_buffer_mutex);
 }
 
@@ -208,28 +213,73 @@ void add_input_command(command_buffer *buf)
 {
     SDL_LockMutex(input_buffer_mutex);
     command_buffer_enqueue_first(buf, &input_queue_start, &input_queue_end);
-    SDL_CondSignal(input_buffer_cond);
     SDL_UnlockMutex(input_buffer_mutex);
 }
 
-static int reader_thread_loop(void *dummy)
+static bool
+socket_thread_aborted (void)
 {
-    static uint8_t *readbuf = NULL;
-    static int readbuf_size = 256;
+    SDL_LockMutex(socket_mutex);
+    bool aborted = abort_thread != 0;
+    SDL_UnlockMutex(socket_mutex);
+    return aborted;
+}
+
+/**
+ * Single owner for all transport I/O and OpenSSL QUIC event handling.
+ */
+static int
+socket_io_thread_loop (void *dummy)
+{
+    (void) dummy;
+
+    int readbuf_size = 256;
+    uint8_t *readbuf = emalloc(readbuf_size);
     int readbuf_len = 0;
     int header_len = 0;
     int cmd_len = -1;
+    command_buffer *output = NULL;
+    size_t output_pos = 0;
+    socket_t *sc = csocket.sc;
 
-    if (!readbuf) {
-        readbuf = emalloc(readbuf_size);
-    }
+    while (!socket_thread_aborted()) {
+        if (output == NULL) {
+            SDL_LockMutex(output_buffer_mutex);
+            output = command_buffer_dequeue(&output_queue_start,
+                                            &output_queue_end);
+            SDL_UnlockMutex(output_buffer_mutex);
+            output_pos = 0;
+            if (output != NULL && output->len == 0) {
+                command_buffer_free(output);
+                output = NULL;
+            }
+        }
 
-    while (!abort_thread) {
+        bool progressed = false;
+        if (output != NULL) {
+            size_t amt;
+            if (!socket_write(sc,
+                              output->data + output_pos,
+                              output->len - output_pos,
+                              &amt)) {
+                break;
+            }
+            if (amt != 0) {
+                output_pos += amt;
+                progressed = true;
+                network_graph_update(NETWORK_GRAPH_TYPE_GAME,
+                                     NETWORK_GRAPH_TRAFFIC_TX,
+                                     amt);
+                if (output_pos == output->len) {
+                    command_buffer_free(output);
+                    output = NULL;
+                    output_pos = 0;
+                }
+            }
+        }
+
         int toread;
-
-        /* First, try to read a command length sequence */
         if (readbuf_len < 2) {
-            /* Three-byte length? */
             if (readbuf_len > 0 && (readbuf[0] & 0x80)) {
                 toread = 3 - readbuf_len;
             } else {
@@ -238,26 +288,19 @@ static int reader_thread_loop(void *dummy)
         } else if (readbuf_len == 2 && (readbuf[0] & 0x80)) {
             toread = 1;
         } else {
-            /* If we have a finished header, get the packet size from it. */
             if (readbuf_len <= 3) {
                 uint8_t *p = readbuf;
-
                 header_len = (*p & 0x80) ? 3 : 2;
                 cmd_len = 0;
-
                 if (header_len == 3) {
                     cmd_len += ((int) (*p++) & 0x7f) << 16;
                 }
-
                 cmd_len += ((int) (*p++)) << 8;
                 cmd_len += ((int) (*p++));
             }
-
             toread = cmd_len + header_len - readbuf_len;
-
             if (readbuf_len + toread > readbuf_size) {
                 uint8_t *tmp = readbuf;
-
                 readbuf_size = readbuf_len + toread;
                 readbuf = emalloc(readbuf_size);
                 memcpy(readbuf, tmp, readbuf_len);
@@ -266,162 +309,89 @@ static int reader_thread_loop(void *dummy)
         }
 
         size_t amt;
-        SDL_LockMutex(socket_mutex);
-        bool success = csocket.sc != NULL &&
-                       socket_read(csocket.sc,
-                                   (void *) (readbuf + readbuf_len),
-                                   toread,
-                                   &amt);
-        SDL_UnlockMutex(socket_mutex);
-        if (!success) {
+        if (!socket_read(sc,
+                         readbuf + readbuf_len,
+                         (size_t) toread,
+                         &amt)) {
             break;
         }
-        if (amt == 0) {
-            SDL_LockMutex(socket_mutex);
-            if (csocket.sc != NULL) {
-                /* The mutex is shared with the writer, so cap the wait even
-                 * when OpenSSL has no earlier event deadline. */
-                unsigned int timeout = socket_quic_timeout(csocket.sc, 50);
-                bool ready = socket_wait(csocket.sc, true, false, timeout);
-                socket_quic_service(csocket.sc, ready, false);
-            }
-            SDL_UnlockMutex(socket_mutex);
-            continue;
-        }
-
-        readbuf_len += amt;
-        network_graph_update(NETWORK_GRAPH_TYPE_GAME, NETWORK_GRAPH_TRAFFIC_RX,
-                amt);
-
-        /* Finished with a command? */
-        if (readbuf_len == cmd_len + header_len && !abort_thread) {
-            command_buffer *buf = command_buffer_new(readbuf_len - header_len,
-                    readbuf + header_len);
-
-            SDL_LockMutex(input_buffer_mutex);
-            command_buffer_enqueue(buf, &input_queue_start, &input_queue_end);
-            SDL_CondSignal(input_buffer_cond);
-            SDL_UnlockMutex(input_buffer_mutex);
-
-            cmd_len = -1;
-            header_len = 0;
-            readbuf_len = 0;
-        }
-    }
-
-    client_socket_close(&csocket);
-
-    if (readbuf != NULL) {
-        efree(readbuf);
-        readbuf = NULL;
-    }
-
-    return -1;
-}
-
-/**
- * Worker for the writer thread. It waits for enqueued outgoing packets
- * and sends them to the server as fast as it can.
- *
- * If any error is detected, the socket is closed and the thread exits. It is
- * up to them main thread to detect this and join() the worker threads.
- */
-static int writer_thread_loop(void *dummy)
-{
-    command_buffer *buf = NULL;
-
-    while (!abort_thread) {
-        SDL_LockMutex(output_buffer_mutex);
-
-        while (output_queue_start == NULL && !abort_thread) {
-            SDL_CondWait(output_buffer_cond, output_buffer_mutex);
-        }
-
-        buf = command_buffer_dequeue(&output_queue_start, &output_queue_end);
-        SDL_UnlockMutex(output_buffer_mutex);
-        size_t written = 0;
-
-        while (buf != NULL && written < buf->len && !abort_thread) {
-            size_t amt;
-            SDL_LockMutex(socket_mutex);
-            bool success = csocket.sc != NULL &&
-                           socket_write(csocket.sc,
-                                        (const void *) (buf->data + written),
-                                        buf->len - written,
-                                        &amt);
-            SDL_UnlockMutex(socket_mutex);
-            if (!success) {
-                break;
-            }
-            if (amt == 0) {
-                SDL_LockMutex(socket_mutex);
-                if (csocket.sc != NULL) {
-                    unsigned int timeout = socket_quic_timeout(csocket.sc, 50);
-                    bool ready = socket_wait(csocket.sc, true, true, timeout);
-                    socket_quic_service(csocket.sc, ready, true);
-                }
-                SDL_UnlockMutex(socket_mutex);
-                continue;
-            }
-
-            written += amt;
+        if (amt != 0) {
+            progressed = true;
+            readbuf_len += (int) amt;
             network_graph_update(NETWORK_GRAPH_TYPE_GAME,
-                    NETWORK_GRAPH_TRAFFIC_TX, amt);
+                                 NETWORK_GRAPH_TRAFFIC_RX,
+                                 amt);
+
+            if (readbuf_len == cmd_len + header_len &&
+                    !socket_thread_aborted()) {
+                command_buffer *input =
+                    command_buffer_new(readbuf_len - header_len,
+                                       readbuf + header_len);
+                SDL_LockMutex(input_buffer_mutex);
+                command_buffer_enqueue(input,
+                                       &input_queue_start,
+                                       &input_queue_end);
+                SDL_UnlockMutex(input_buffer_mutex);
+                cmd_len = -1;
+                header_len = 0;
+                readbuf_len = 0;
+            }
         }
 
-        if (buf != NULL) {
-            command_buffer_free(buf);
-            buf = NULL;
+        if (!progressed) {
+            bool write_pending = output != NULL;
+            unsigned int timeout = socket_quic_timeout(sc, 20);
+            bool ready = socket_wait(sc, true, write_pending, timeout);
+            socket_quic_service(sc, ready, write_pending);
         }
     }
 
-    client_socket_close(&csocket);
+    if (output != NULL) {
+        command_buffer_free(output);
+    }
+    efree(readbuf);
+
+    SDL_LockMutex(socket_mutex);
+    if (csocket.sc == sc) {
+        socket_destroy(csocket.sc);
+        csocket.sc = NULL;
+    }
+    abort_thread = 1;
+    SDL_UnlockMutex(socket_mutex);
     return 0;
 }
 
 /**
- * Initialize and start up the worker threads.
+ * Initialize and start the transport I/O thread.
  */
 void socket_thread_start(void)
 {
-    if (input_buffer_cond == NULL) {
-        input_buffer_cond = SDL_CreateCond();
+    if (socket_mutex == NULL) {
         input_buffer_mutex = SDL_CreateMutex();
-        output_buffer_cond = SDL_CreateCond();
         output_buffer_mutex = SDL_CreateMutex();
         socket_mutex = SDL_CreateMutex();
     }
 
     abort_thread = 0;
-
-    input_thread = SDL_CreateThread(reader_thread_loop, NULL);
-
-    if (input_thread == NULL) {
-        LOG(ERROR, "Unable to start socket thread: %s", SDL_GetError());
-        exit(1);
-    }
-
-    output_thread = SDL_CreateThread(writer_thread_loop, NULL);
-
-    if (output_thread == NULL) {
+    io_thread = SDL_CreateThread(socket_io_thread_loop, NULL);
+    if (io_thread == NULL) {
         LOG(ERROR, "Unable to start socket thread: %s", SDL_GetError());
         exit(1);
     }
 }
 
 /**
- * Wait for the socket threads to finish.
+ * Wait for the socket thread to finish.
  *
  * Closes the socket first, if it hasn't already been done.
  */
 void socket_thread_stop(void)
 {
     client_socket_close(&csocket);
-
-    SDL_WaitThread(output_thread, NULL);
-    SDL_WaitThread(input_thread, NULL);
-
-    input_thread = output_thread = NULL;
+    if (io_thread != NULL) {
+        SDL_WaitThread(io_thread, NULL);
+        io_thread = NULL;
+    }
 }
 
 /**
@@ -433,9 +403,11 @@ void socket_thread_stop(void)
  */
 int handle_socket_shutdown(void)
 {
-    if (abort_thread) {
+    if (socket_mutex != NULL && socket_thread_aborted()) {
         socket_thread_stop();
+        SDL_LockMutex(socket_mutex);
         abort_thread = 0;
+        SDL_UnlockMutex(socket_mutex);
 
         /* Empty all queues */
         while (input_queue_start) {
@@ -462,19 +434,21 @@ void client_socket_close(client_socket_t *csock)
 {
     HARD_ASSERT(csock != NULL);
 
-    SDL_LockMutex(socket_mutex);
+    if (socket_mutex == NULL) {
+        if (csock->sc != NULL) {
+            socket_destroy(csock->sc);
+            csock->sc = NULL;
+        }
+        abort_thread = 1;
+        return;
+    }
 
-    if (csock->sc != NULL) {
+    SDL_LockMutex(socket_mutex);
+    abort_thread = 1;
+    if (io_thread == NULL && csock->sc != NULL) {
         socket_destroy(csock->sc);
         csock->sc = NULL;
     }
-
-    abort_thread = 1;
-
-    /* Poke anyone waiting at a cond */
-    SDL_CondSignal(input_buffer_cond);
-    SDL_CondSignal(output_buffer_cond);
-
     SDL_UnlockMutex(socket_mutex);
 }
 
@@ -483,8 +457,22 @@ void client_socket_close(client_socket_t *csock)
  */
 void client_socket_deinitialize(void)
 {
-    if (csocket.sc != NULL) {
+    if (io_thread != NULL) {
+        socket_thread_stop();
+    } else if (csocket.sc != NULL) {
         client_socket_close(&csocket);
+    }
+    if (input_buffer_mutex != NULL) {
+        SDL_DestroyMutex(input_buffer_mutex);
+        input_buffer_mutex = NULL;
+    }
+    if (output_buffer_mutex != NULL) {
+        SDL_DestroyMutex(output_buffer_mutex);
+        output_buffer_mutex = NULL;
+    }
+    if (socket_mutex != NULL) {
+        SDL_DestroyMutex(socket_mutex);
+        socket_mutex = NULL;
     }
 
 #ifdef WIN32

@@ -567,12 +567,16 @@ extern void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 /* src/socket/lowlevel.c */
 extern void socket_buffer_clear(socket_struct *ns);
 extern void socket_buffer_write(socket_struct *ns);
+extern bool socket_buffer_can_enqueue(const socket_struct *ns,
+        size_t bytes, bool bulk);
 extern void socket_send_packet(socket_struct *ns, struct packet_struct *packet);
 /* src/socket/metaserver.c */
 extern void metaserver_info_update(void);
 extern void metaserver_init(void);
 extern void metaserver_deinit(void);
 extern void metaserver_stats(char *buf, size_t size);
+extern bool metaserver_rendezvous_token_parse(const char *body,
+        size_t body_size, char token[65]);
 /* src/socket/assets.c */
 extern void socket_assets_init(void);
 extern void socket_assets_deinit(void);

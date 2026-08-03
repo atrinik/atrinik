@@ -30,6 +30,7 @@
 #include <global.h>
 #include <toolkit/string.h>
 #include <toolkit/curl.h>
+#include <toolkit/datetime.h>
 #include <toolkit/socket_crypto.h>
 #include <player.h>
 #include <server.h>
@@ -46,6 +47,8 @@ static struct {
     uint64_t num; ///< Number of successful updates.
 
     uint64_t num_failed; ///< Number of failed updates.
+
+    uint64_t rendezvous_reconnects; ///< Rendezvous reconnect attempts.
 
     time_t last; ///< Last successful update.
 
@@ -120,16 +123,53 @@ metaserver_key_path (char *path, size_t path_size)
                  : METASERVER_KEY_FILE);
 }
 
+bool
+metaserver_rendezvous_token_parse (const char *body,
+                                   size_t      body_size,
+                                   char        token[65])
+{
+    HARD_ASSERT(token != NULL);
+
+    OPENSSL_cleanse(token, 65);
+    static const char prefix[] = "\"rendezvousToken\":\"";
+    const size_t required = sizeof(prefix) - 1 + 65;
+    if (body == NULL || body_size < required) {
+        return false;
+    }
+
+    for (size_t offset = 0; offset <= body_size - required; offset++) {
+        if (memcmp(body + offset, prefix, sizeof(prefix) - 1) != 0) {
+            continue;
+        }
+        const char *value = body + offset + sizeof(prefix) - 1;
+        if (value[64] != '\"') {
+            continue;
+        }
+        memcpy(token, value, 64);
+        token[64] = '\0';
+        if (string_is_hex_fixed(token, 64, true)) {
+            return true;
+        }
+        OPENSSL_cleanse(token, 65);
+    }
+
+    return false;
+}
+
 
 #if LIBCURL_VERSION_NUM >= 0x075600
 #define RENDEZVOUS_PUNCH_JOBS_MAX 64
-#define RENDEZVOUS_PUNCH_COUNT 10
-#define RENDEZVOUS_PUNCH_INTERVAL_MS 100
 #define RENDEZVOUS_PUNCH_GRACE_MS 200
 
 static pthread_mutex_t rendezvous_lock;
+static pthread_cond_t rendezvous_condition;
 static pthread_t rendezvous_thread;
-static bool rendezvous_thread_started;
+typedef enum rendezvous_thread_state {
+    RENDEZVOUS_THREAD_STOPPED,
+    RENDEZVOUS_THREAD_RUNNING,
+    RENDEZVOUS_THREAD_EXITED
+} rendezvous_thread_state_t;
+static rendezvous_thread_state_t rendezvous_thread_state;
 static bool rendezvous_shutdown;
 static uint64_t rendezvous_generation;
 
@@ -140,22 +180,12 @@ typedef struct rendezvous_args {
 } rendezvous_args_t;
 
 typedef struct rendezvous_punch_job {
-    uint64_t next_action_ms;
-    int punch_attempts;
-    int punches_sent;
+    socket_punch_pacer_t pacer;
+    unsigned int punches_sent;
     uint16_t port;
-    bool active;
     char host[65];
     char ticket[65];
 } rendezvous_punch_job_t;
-
-static uint64_t
-metaserver_rendezvous_now_ms (void)
-{
-    struct timeval now;
-    GETTIMEOFDAY(&now);
-    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
-}
 
 static bool
 metaserver_rendezvous_send_complete (CURL *curl, const char *ticket)
@@ -183,22 +213,20 @@ static bool
 metaserver_rendezvous_punch_update (CURL                     *curl,
                                     rendezvous_punch_job_t *jobs)
 {
-    uint64_t now = metaserver_rendezvous_now_ms();
+    uint64_t now = datetime_monotonic_ms();
     for (size_t i = 0; i < RENDEZVOUS_PUNCH_JOBS_MAX; i++) {
         rendezvous_punch_job_t *job = &jobs[i];
-        if (!job->active || now < job->next_action_ms) {
+        socket_punch_action_t action = socket_punch_pacer_poll(&job->pacer,
+                                                               now);
+        if (action == SOCKET_PUNCH_WAIT) {
             continue;
         }
 
-        if (job->punch_attempts < RENDEZVOUS_PUNCH_COUNT) {
+        if (action == SOCKET_PUNCH_SEND) {
             if (socket_server_quic_punch(job->host, job->port)) {
                 job->punches_sent++;
             }
-            job->punch_attempts++;
-            job->next_action_ms = now +
-                (job->punch_attempts < RENDEZVOUS_PUNCH_COUNT
-                 ? RENDEZVOUS_PUNCH_INTERVAL_MS
-                 : RENDEZVOUS_PUNCH_GRACE_MS);
+            socket_punch_pacer_advance(&job->pacer, now, action);
             continue;
         }
 
@@ -211,8 +239,8 @@ metaserver_rendezvous_punch_update (CURL                     *curl,
             job->host,
             job->port,
             job->punches_sent,
-            job->punch_attempts);
-        job->active = false;
+            job->pacer.attempts);
+        socket_punch_pacer_advance(&job->pacer, now, action);
     }
     return true;
 }
@@ -225,11 +253,11 @@ metaserver_rendezvous_punch_schedule (rendezvous_punch_job_t *jobs,
 {
     rendezvous_punch_job_t *available = NULL;
     for (size_t i = 0; i < RENDEZVOUS_PUNCH_JOBS_MAX; i++) {
-        if (jobs[i].active && strcmp(jobs[i].ticket, ticket) == 0) {
+        if (jobs[i].pacer.active && strcmp(jobs[i].ticket, ticket) == 0) {
             available = &jobs[i];
             break;
         }
-        if (!jobs[i].active && available == NULL) {
+        if (!jobs[i].pacer.active && available == NULL) {
             available = &jobs[i];
         }
     }
@@ -240,10 +268,10 @@ metaserver_rendezvous_punch_schedule (rendezvous_punch_job_t *jobs,
     snprintf(VS(available->host), "%s", host);
     snprintf(VS(available->ticket), "%s", ticket);
     available->port = port;
-    available->next_action_ms = metaserver_rendezvous_now_ms();
-    available->punch_attempts = 0;
     available->punches_sent = 0;
-    available->active = true;
+    socket_punch_pacer_start(&available->pacer,
+                             datetime_monotonic_ms(),
+                             RENDEZVOUS_PUNCH_GRACE_MS);
     return true;
 }
 
@@ -257,12 +285,53 @@ metaserver_rendezvous_current (uint64_t generation)
     return current;
 }
 
+static bool
+metaserver_rendezvous_wait (uint64_t generation, unsigned int timeout_ms)
+{
+    struct timeval now;
+    GETTIMEOFDAY(&now);
+    uint64_t deadline_ns = (uint64_t) now.tv_usec * 1000 +
+                           (uint64_t) timeout_ms * 1000000;
+    struct timespec deadline = {
+        .tv_sec = now.tv_sec + (time_t) (deadline_ns / 1000000000),
+        .tv_nsec = (long) (deadline_ns % 1000000000)
+    };
+
+    pthread_mutex_lock(&rendezvous_lock);
+    if (!rendezvous_shutdown && generation == rendezvous_generation) {
+        pthread_cond_timedwait(&rendezvous_condition,
+                               &rendezvous_lock,
+                               &deadline);
+    }
+    bool current = !rendezvous_shutdown &&
+                   generation == rendezvous_generation;
+    pthread_mutex_unlock(&rendezvous_lock);
+    return current;
+}
+
+static int
+metaserver_rendezvous_progress (void       *data,
+                                curl_off_t  download_total,
+                                curl_off_t  download_now,
+                                curl_off_t  upload_total,
+                                curl_off_t  upload_now)
+{
+    (void) download_total;
+    (void) download_now;
+    (void) upload_total;
+    (void) upload_now;
+
+    rendezvous_args_t *args = data;
+    return metaserver_rendezvous_current(args->generation) ? 0 : 1;
+}
+
 static void *
 metaserver_rendezvous_thread (void *data)
 {
     rendezvous_args_t *args = data;
 
 reconnect:
+    ;
     CURL *curl = curl_easy_init();
     if (curl == NULL) {
         goto done;
@@ -272,6 +341,7 @@ reconnect:
     snprintf(VS(authorization), "Authorization: Bearer %s", args->token);
     struct curl_slist *headers = curl_slist_append(NULL, authorization);
     if (headers == NULL) {
+        OPENSSL_cleanse(authorization, sizeof(authorization));
         curl_easy_cleanup(curl);
         goto done;
     }
@@ -279,8 +349,13 @@ reconnect:
     curl_easy_setopt(curl, CURLOPT_URL, args->url);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_CONNECT_ONLY, 2L);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 2L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+    curl_easy_setopt(curl,
+                     CURLOPT_XFERINFOFUNCTION,
+                     metaserver_rendezvous_progress);
+    curl_easy_setopt(curl, CURLOPT_XFERINFODATA, args);
 #ifdef WIN32
     curl_easy_setopt(curl, CURLOPT_CAINFO, "ca-bundle.crt");
 #endif
@@ -290,8 +365,11 @@ reconnect:
             curl_easy_strerror(result));
         curl_easy_cleanup(curl);
         curl_slist_free_all(headers);
-        if (metaserver_rendezvous_current(args->generation)) {
-            sleep(2);
+        OPENSSL_cleanse(authorization, sizeof(authorization));
+        if (metaserver_rendezvous_wait(args->generation, 2000)) {
+            pthread_mutex_lock(&stats_lock);
+            stats.rendezvous_reconnects++;
+            pthread_mutex_unlock(&stats_lock);
             goto reconnect;
         }
         goto done;
@@ -308,7 +386,9 @@ reconnect:
         socket_websocket_receive_state_t receive_state =
             socket_websocket_receive(curl, VS(message), &used);
         if (receive_state == SOCKET_WEBSOCKET_EMPTY) {
-            usleep(20000);
+            if (!metaserver_rendezvous_wait(args->generation, 20)) {
+                break;
+            }
             continue;
         }
         if (receive_state == SOCKET_WEBSOCKET_PARTIAL) {
@@ -369,12 +449,20 @@ reconnect:
 
     curl_easy_cleanup(curl);
     curl_slist_free_all(headers);
-    if (metaserver_rendezvous_current(args->generation)) {
-        sleep(2);
+    OPENSSL_cleanse(authorization, sizeof(authorization));
+    if (metaserver_rendezvous_wait(args->generation, 2000)) {
+        pthread_mutex_lock(&stats_lock);
+        stats.rendezvous_reconnects++;
+        pthread_mutex_unlock(&stats_lock);
         goto reconnect;
     }
 
 done:
+    pthread_mutex_lock(&rendezvous_lock);
+    rendezvous_thread_state = RENDEZVOUS_THREAD_EXITED;
+    pthread_cond_broadcast(&rendezvous_condition);
+    pthread_mutex_unlock(&rendezvous_lock);
+    OPENSSL_cleanse(args->token, sizeof(args->token));
     efree(args);
     return NULL;
 }
@@ -403,58 +491,58 @@ metaserver_rendezvous_start (const char *token)
     rendezvous_args_t *args = ecalloc(1, sizeof(*args));
     snprintf(VS(args->token), "%s", token);
     if (!metaserver_rendezvous_url(VS(args->url))) {
+        OPENSSL_cleanse(args->token, sizeof(args->token));
         efree(args);
         return;
     }
 
     pthread_mutex_lock(&rendezvous_lock);
     rendezvous_generation++;
+    pthread_cond_broadcast(&rendezvous_condition);
     args->generation = rendezvous_generation;
-    bool join_old = rendezvous_thread_started;
+    bool join_old = rendezvous_thread_state != RENDEZVOUS_THREAD_STOPPED;
+    pthread_t old_thread = rendezvous_thread;
     pthread_mutex_unlock(&rendezvous_lock);
 
     if (join_old) {
-        pthread_join(rendezvous_thread, NULL);
-    }
-
-    if (pthread_create(&rendezvous_thread,
-                       NULL,
-                       metaserver_rendezvous_thread,
-                       args) != 0) {
-        LOG(ERROR, "Failed to start the rendezvous thread");
-        efree(args);
-        return;
+        pthread_join(old_thread, NULL);
     }
 
     pthread_mutex_lock(&rendezvous_lock);
-    rendezvous_thread_started = true;
+    rendezvous_thread_state = RENDEZVOUS_THREAD_STOPPED;
+    if (rendezvous_shutdown || args->generation != rendezvous_generation) {
+        pthread_mutex_unlock(&rendezvous_lock);
+        OPENSSL_cleanse(args->token, sizeof(args->token));
+        efree(args);
+        return;
+    }
+    int error = pthread_create(&rendezvous_thread,
+                               NULL,
+                               metaserver_rendezvous_thread,
+                               args);
+    if (error != 0) {
+        LOG(ERROR, "Failed to start the rendezvous thread");
+        rendezvous_thread_state = RENDEZVOUS_THREAD_STOPPED;
+        pthread_mutex_unlock(&rendezvous_lock);
+        OPENSSL_cleanse(args->token, sizeof(args->token));
+        efree(args);
+        return;
+    }
+    rendezvous_thread_state = RENDEZVOUS_THREAD_RUNNING;
     pthread_mutex_unlock(&rendezvous_lock);
 }
 
 static void
 metaserver_rendezvous_response (curl_request_t *request)
 {
-    char *body = curl_request_get_body(request, NULL);
-    const char *prefix = "\"rendezvousToken\":\"";
-    char *token = body != NULL ? strstr(body, prefix) : NULL;
-    if (token == NULL) {
-        return;
-    }
-    token += strlen(prefix);
-    for (size_t i = 0; i < 64; i++) {
-        if (!isxdigit((unsigned char) token[i])) {
-            return;
-        }
-    }
-    if (token[64] != '\"') {
-        return;
-    }
-
+    size_t body_size = 0;
+    char *body = curl_request_get_body(request, &body_size);
     char value[65];
-    memcpy(value, token, 64);
-    value[64] = '\0';
-    string_tolower(value);
+    if (!metaserver_rendezvous_token_parse(body, body_size, value)) {
+        return;
+    }
     metaserver_rendezvous_start(value);
+    OPENSSL_cleanse(value, sizeof(value));
 }
 #endif
 
@@ -493,6 +581,10 @@ metaserver_init (void)
     pthread_mutex_init(&request_lock, NULL);
 #if LIBCURL_VERSION_NUM >= 0x075600
     pthread_mutex_init(&rendezvous_lock, NULL);
+    pthread_cond_init(&rendezvous_condition, NULL);
+    rendezvous_thread_state = RENDEZVOUS_THREAD_STOPPED;
+    rendezvous_shutdown = false;
+    rendezvous_generation = 0;
 #endif
     metaserver_info_update();
 }
@@ -536,11 +628,18 @@ metaserver_deinit (void)
     pthread_mutex_lock(&rendezvous_lock);
     rendezvous_shutdown = true;
     rendezvous_generation++;
-    bool join_rendezvous = rendezvous_thread_started;
+    pthread_cond_broadcast(&rendezvous_condition);
+    bool join_rendezvous =
+        rendezvous_thread_state != RENDEZVOUS_THREAD_STOPPED;
+    pthread_t thread = rendezvous_thread;
     pthread_mutex_unlock(&rendezvous_lock);
     if (join_rendezvous) {
-        pthread_join(rendezvous_thread, NULL);
+        pthread_join(thread, NULL);
     }
+    pthread_mutex_lock(&rendezvous_lock);
+    rendezvous_thread_state = RENDEZVOUS_THREAD_STOPPED;
+    pthread_mutex_unlock(&rendezvous_lock);
+    pthread_cond_destroy(&rendezvous_condition);
     pthread_mutex_destroy(&rendezvous_lock);
 #endif
 
@@ -656,6 +755,7 @@ metaserver_get_key (char       *key,
     HARD_ASSERT(key_size == SHA512_DIGEST_LENGTH * 2 + 1);
 
     unsigned char tmp_key[SHA512_DIGEST_LENGTH];
+    SHA512_CTX ctx = {0};
 
     char path[HUGE_BUF];
     metaserver_key_path(VS(path));
@@ -706,13 +806,13 @@ metaserver_get_key (char       *key,
             goto error_creating;
         }
 
-        if (fclose(fp) != 0) {
+        int close_result = fclose(fp);
+        fp = NULL;
+        if (close_result != 0) {
             LOG(ERROR, "Failed to close %s: %s (%d)",
                 path, strerror(errno), errno);
             goto error_creating;
         }
-
-        fp = NULL;
 
         SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
                                        key,
@@ -761,7 +861,6 @@ error_creating:
                       "string_tohex failed");
     string_tolower(key);
 
-    SHA512_CTX ctx;
     if (SHA512_Init(&ctx) != 1) {
         LOG(ERROR, "SHA512_Init() failed: %s",
             ERR_error_string(ERR_get_error(), NULL));
@@ -796,7 +895,9 @@ error_creating:
                       "string_tohex failed");
     string_tolower(key);
 
-    if (fclose(fp) != 0) {
+    int close_result = fclose(fp);
+    fp = NULL;
+    if (close_result != 0) {
         LOG(ERROR, "Failed to close %s: %s (%d)",
             path, strerror(errno), errno);
         goto error_reading;
@@ -843,6 +944,9 @@ error_creating:
     return true;
 
 error_reading:
+    if (fp != NULL) {
+        fclose(fp);
+    }
     memset(key, 0, key_size);
     memset(&tmp_key, 0, sizeof(tmp_key));
     memset(&ctx, 0, sizeof(ctx));
@@ -1084,6 +1188,10 @@ metaserver_stats (char *buf, size_t size)
     snprintfcat(buf, size, "\n=== METASERVER ===\n");
     snprintfcat(buf, size, "\nUpdates: %" PRIu64, stats.num);
     snprintfcat(buf, size, "\nFailed: %" PRIu64, stats.num_failed);
+    snprintfcat(buf,
+                size,
+                "\nRendezvous reconnects: %" PRIu64,
+                stats.rendezvous_reconnects);
 
     if (stats.last != 0) {
         snprintfcat(buf, size, "\nLast update: %.19s", ctime(&stats.last));

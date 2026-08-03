@@ -7,6 +7,8 @@
 #include <global.h>
 #include <port_mapping.h>
 #include <server.h>
+#include <network_metrics.h>
+#include <toolkit/datetime.h>
 
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/upnpcommands.h>
@@ -17,12 +19,13 @@
 
 static pcp_ctx_t *mapping_pcp_context;
 static pcp_flow_t *mapping_pcp_flow;
+static bool mapping_pcp_failure_reported;
 static bool mapping_upnp_active;
 static struct UPNPUrls mapping_upnp_urls;
 static struct IGDdatas mapping_upnp_data;
 static char mapping_upnp_port[6];
 static char mapping_upnp_lan_address[65];
-static time_t mapping_upnp_renew_at;
+static uint64_t mapping_upnp_renew_at_ms;
 static socket_port_mapping_controller_t mapping_controller;
 
 static bool
@@ -48,6 +51,7 @@ socket_port_mapping_pcp (void     *data,
                                     IPPROTO_UDP,
                                     PORT_MAPPING_LIFETIME,
                                     NULL);
+    mapping_pcp_failure_reported = false;
     pcp_fstate_e state = mapping_pcp_flow != NULL
         ? pcp_wait(mapping_pcp_flow, 5000, 1) : pcp_state_failed;
     if (state != pcp_state_succeeded &&
@@ -95,6 +99,15 @@ socket_port_mapping_pcp_process (void *data)
     if (mapping_pcp_context != NULL) {
         struct timeval timeout = {0, 0};
         pcp_pulse(mapping_pcp_context, &timeout);
+        pcp_fstate_e state;
+        if (!mapping_pcp_failure_reported && mapping_pcp_flow != NULL &&
+                pcp_eval_flow_state(mapping_pcp_flow, &state) != 0 &&
+                (state == pcp_state_failed ||
+                 state == pcp_state_short_lifetime_error)) {
+            LOG(ERROR, "Could not renew PCP/NAT-PMP UDP mapping");
+            server_metrics_mapping("PCP/NAT-PMP", false, true);
+            mapping_pcp_failure_reported = true;
+        }
     }
 }
 
@@ -105,6 +118,7 @@ socket_port_mapping_pcp_close (void *data)
         pcp_terminate(mapping_pcp_context, 1);
         mapping_pcp_context = NULL;
         mapping_pcp_flow = NULL;
+        mapping_pcp_failure_reported = false;
     }
 }
 
@@ -177,7 +191,8 @@ socket_port_mapping_upnp (void     *data,
     snprintf(host, host_size, "%s", external_address);
     *external_port = port;
     snprintf(VS(mapping_upnp_lan_address), "%s", lan_address);
-    mapping_upnp_renew_at = time(NULL) + PORT_MAPPING_LIFETIME / 2;
+    mapping_upnp_renew_at_ms = datetime_monotonic_ms() +
+        (uint64_t) PORT_MAPPING_LIFETIME * 500;
     mapping_upnp_active = true;
     return true;
 }
@@ -185,7 +200,8 @@ socket_port_mapping_upnp (void     *data,
 static void
 socket_port_mapping_upnp_process (void *data)
 {
-    if (!mapping_upnp_active || time(NULL) < mapping_upnp_renew_at) {
+    if (!mapping_upnp_active ||
+            datetime_monotonic_ms() < mapping_upnp_renew_at_ms) {
         return;
     }
 
@@ -203,8 +219,10 @@ socket_port_mapping_upnp_process (void *data)
         LOG(ERROR,
             "Could not renew UPnP UDP mapping: %s",
             strupnperror(result));
+        server_metrics_mapping("UPnP", false, true);
     }
-    mapping_upnp_renew_at = time(NULL) + PORT_MAPPING_LIFETIME / 2;
+    mapping_upnp_renew_at_ms = datetime_monotonic_ms() +
+        (uint64_t) PORT_MAPPING_LIFETIME * 500;
 }
 
 static void
@@ -222,7 +240,7 @@ socket_port_mapping_upnp_close (void *data)
     FreeUPNPUrls(&mapping_upnp_urls);
     memset(&mapping_upnp_urls, 0, sizeof(mapping_upnp_urls));
     mapping_upnp_lan_address[0] = '\0';
-    mapping_upnp_renew_at = 0;
+    mapping_upnp_renew_at_ms = 0;
     mapping_upnp_active = false;
 }
 
@@ -262,10 +280,15 @@ socket_port_mapping_init (uint16_t port,
             socket_port_mapping_controller_name(&mapping_controller),
             host,
             *external_port);
+        server_metrics_mapping(
+            socket_port_mapping_controller_name(&mapping_controller),
+            false,
+            false);
         return true;
     }
 
     LOG(INFO, "No PCP, NAT-PMP, or UPnP IGD mapping was available");
+    server_metrics_mapping(NULL, true, false);
     return false;
 }
 

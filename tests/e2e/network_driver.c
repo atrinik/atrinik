@@ -8,6 +8,7 @@
 #include <toolkit/path.h>
 #include <toolkit/socket.h>
 #include <toolkit/socket_crypto.h>
+#include <toolkit/datetime.h>
 #include <toolkit/toolkit.h>
 #include <port_mapping.h>
 
@@ -22,14 +23,6 @@
         } \
     } while (0)
 
-static uint64_t
-driver_now_ms (void)
-{
-    struct timeval now;
-    GETTIMEOFDAY(&now);
-    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
-}
-
 static void
 driver_pause (void)
 {
@@ -43,7 +36,7 @@ driver_parse_port (const char *value, uint16_t *port)
     errno = 0;
     unsigned long parsed = strtoul(value, &end, 10);
     if (errno != 0 || end == value || *end != '\0' ||
-        parsed == 0 || parsed > UINT16_MAX) {
+        parsed > UINT16_MAX) {
         return false;
     }
     *port = (uint16_t) parsed;
@@ -63,8 +56,8 @@ static bool
 driver_write_all (socket_t *socket, const void *data, size_t length)
 {
     size_t offset = 0;
-    uint64_t deadline = driver_now_ms() + DRIVER_TIMEOUT_MS;
-    while (offset < length && driver_now_ms() < deadline) {
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (offset < length && datetime_monotonic_ms() < deadline) {
         size_t amount = 0;
         if (!socket_write(socket,
                           (const uint8_t *) data + offset,
@@ -84,8 +77,8 @@ static bool
 driver_read_all (socket_t *socket, void *data, size_t length)
 {
     size_t offset = 0;
-    uint64_t deadline = driver_now_ms() + DRIVER_TIMEOUT_MS;
-    while (offset < length && driver_now_ms() < deadline) {
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (offset < length && datetime_monotonic_ms() < deadline) {
         bool ready = socket_wait(socket,
                                  true,
                                  false,
@@ -140,12 +133,15 @@ driver_server (uint16_t    port,
     char fingerprint[65];
     DRIVER_REQUIRE(socket_certificate_sha256(listener, fingerprint),
                    "could not read QUIC certificate fingerprint");
-    printf("READY %s\n", fingerprint);
+    uint16_t bound_port;
+    DRIVER_REQUIRE(socket_local_port(listener, &bound_port),
+                   "could not read QUIC listener port");
+    printf("READY %" PRIu16 " %s\n", bound_port, fingerprint);
     fflush(stdout);
 
     socket_t *connection = NULL;
-    uint64_t deadline = driver_now_ms() + DRIVER_TIMEOUT_MS;
-    while (connection == NULL && driver_now_ms() < deadline) {
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (connection == NULL && datetime_monotonic_ms() < deadline) {
         if (socket_wait(listener, true, false, 20)) {
             connection = socket_accept(listener);
         }
@@ -239,12 +235,17 @@ driver_punch (uint16_t    first_port,
         DRIVER_REQUIRE(false, "could not create UDP punch sockets");
     }
 
+    DRIVER_REQUIRE(socket_local_port(first, &first_port) &&
+                   socket_local_port(second, &second_port) &&
+                   first_port != second_port,
+                   "could not acquire distinct UDP punch ports");
+
     DRIVER_REQUIRE(socket_udp_punch(first, "127.0.0.1", second_port),
                    "could not send first UDP punch");
     char host[65];
     uint16_t observed_port = 0;
-    uint64_t deadline = driver_now_ms() + DRIVER_TIMEOUT_MS;
-    while (driver_now_ms() < deadline &&
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (datetime_monotonic_ms() < deadline &&
            !socket_udp_punch_receive(second,
                                      VS(host),
                                      &observed_port)) {
@@ -256,8 +257,8 @@ driver_punch (uint16_t    first_port,
         ok = socket_udp_punch(second, host, observed_port);
     }
     observed_port = 0;
-    deadline = driver_now_ms() + DRIVER_TIMEOUT_MS;
-    while (ok && driver_now_ms() < deadline &&
+    deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (ok && datetime_monotonic_ms() < deadline &&
            !socket_udp_punch_receive(first,
                                      VS(host),
                                      &observed_port)) {

@@ -37,6 +37,7 @@
 #include "socket_private.h"
 #include "socket_crypto.h"
 #include "string.h"
+#include "datetime.h"
 
 #include <openssl/err.h>
 #include <openssl/rand.h>
@@ -64,7 +65,7 @@ struct in6_addr_helper {
 };
 #endif
 
-TOOLKIT_API();
+TOOLKIT_API(DEPENDS(datetime));
 
 TOOLKIT_INIT_FUNC(socket)
 {
@@ -479,6 +480,33 @@ int socket_fd(socket_t *sc)
     HARD_ASSERT(sc->handle != -1);
 
     return sc->handle;
+}
+
+bool
+socket_local_port (socket_t *sc, uint16_t *port)
+{
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(port != NULL);
+
+    struct sockaddr_storage address;
+    socklen_t length = sizeof(address);
+    if (sc->handle == -1 ||
+            getsockname(sc->handle,
+                        (struct sockaddr *) &address,
+                        &length) != 0) {
+        return false;
+    }
+    if (((struct sockaddr *) &address)->sa_family == AF_INET) {
+        *port = ntohs(((struct sockaddr_in *) &address)->sin_port);
+        return *port != 0;
+    }
+#ifdef HAVE_IPV6
+    if (((struct sockaddr *) &address)->sa_family == AF_INET6) {
+        *port = ntohs(((struct sockaddr_in6 *) &address)->sin6_port);
+        return *port != 0;
+    }
+#endif
+    return false;
 }
 
 /**

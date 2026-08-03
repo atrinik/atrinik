@@ -39,6 +39,7 @@
 #include <player.h>
 #include <object.h>
 #include <ban.h>
+#include <network_metrics.h>
 
 TOOLKIT_API(DEPENDS(socket), IMPORTS(logger));
 
@@ -712,6 +713,7 @@ socket_server_csocket_create (socket_t *server_socket)
         LOG(ERROR,
             "Rejecting connection: pending login limit (%u) reached",
             SOCKET_PENDING_CONNECTIONS_MAX);
+        server_metrics_connection_rejected(client_sockets_count);
         socket_destroy(accepted);
         return;
     }
@@ -729,6 +731,7 @@ socket_server_csocket_create (socket_t *server_socket)
     }
     DL_APPEND(client_sockets, entry);
     client_sockets_count++;
+    server_metrics_connection_accepted(client_sockets_count);
 }
 
 /**
@@ -745,6 +748,7 @@ socket_server_csocket_free (csocket_entry_t *entry)
     DL_DELETE(client_sockets, entry);
     HARD_ASSERT(client_sockets_count != 0);
     client_sockets_count--;
+    server_metrics_pending_changed(client_sockets_count);
     efree(entry);
 }
 
@@ -873,6 +877,7 @@ socket_server_remove (socket_struct *cs)
             DL_DELETE(client_sockets, entry);
             HARD_ASSERT(client_sockets_count != 0);
             client_sockets_count--;
+            server_metrics_pending_changed(client_sockets_count);
             efree(entry);
             return true;
         }
@@ -978,53 +983,6 @@ socket_server_csocket_read (socket_struct *cs)
         }
 
         packet_delete(cs->packet_recv, 0, size);
-    }
-}
-
-/**
- * Write out the packet queue to the specified client socket.
- *
- * @param cs
- * Client socket.
- */
-static inline void
-socket_server_csocket_write (socket_struct *cs)
-{
-    HARD_ASSERT(cs != NULL);
-
-    while (cs->packets != NULL) {
-        packet_struct *packet = cs->packets;
-
-        if (packet->ndelay) {
-            socket_opt_ndelay(cs->sc, true);
-        }
-
-        size_t amt;
-        bool success = socket_write(cs->sc,
-                                    (const void *) (packet->data + packet->pos),
-                                    packet->len - packet->pos,
-                                    &amt);
-
-        if (packet->ndelay) {
-            socket_opt_ndelay(cs->sc, false);
-        }
-
-        if (!success) {
-            cs->state = ST_DEAD;
-            break;
-        }
-
-        packet->pos += amt;
-
-        if (packet->len - packet->pos == 0) {
-            DL_DELETE(cs->packets, packet);
-            packet_free(packet);
-            continue;
-        }
-
-        /* Failed to send the entire packet; it's unlikely we can retry
-         * immediately, so just stop here. */
-        break;
     }
 }
 
@@ -1224,9 +1182,11 @@ socket_server_process (void)
                 continue;
             }
             socket_struct *cs = entry->cs;
+            bool network_ready = socket_server_quic_network_ready(cs->sc);
+            server_metrics_quic_service(network_ready);
             if (!socket_quic_service(
                     cs->sc,
-                    socket_server_quic_network_ready(cs->sc),
+                    network_ready,
                     cs->packets != NULL)) {
                 continue;
             }
@@ -1243,7 +1203,7 @@ socket_server_process (void)
             }
             /* Flush responses in the same pass as the command that queued
              * them. SSL_write_ex() remains nonblocking. */
-            socket_server_csocket_write(entry->cs);
+            socket_buffer_write(entry->cs);
             continue;
         }
 
@@ -1261,7 +1221,7 @@ socket_server_process (void)
         }
 
         if (FD_ISSET(fd, &fds_write)) {
-            socket_server_csocket_write(entry->cs);
+            socket_buffer_write(entry->cs);
         }
     }
 
@@ -1273,9 +1233,11 @@ socket_server_process (void)
                 continue;
             }
             socket_struct *cs = pl->cs;
+            bool network_ready = socket_server_quic_network_ready(cs->sc);
+            server_metrics_quic_service(network_ready);
             if (!socket_quic_service(
                     cs->sc,
-                    socket_server_quic_network_ready(cs->sc),
+                    network_ready,
                     cs->packets != NULL)) {
                 continue;
             }
@@ -1288,7 +1250,7 @@ socket_server_process (void)
                 player_logout(pl);
                 continue;
             }
-            socket_server_csocket_write(cs);
+            socket_buffer_write(cs);
             continue;
         }
 
@@ -1306,7 +1268,7 @@ socket_server_process (void)
         }
 
         if (FD_ISSET(fd, &fds_write)) {
-            socket_server_csocket_write(pl->cs);
+            socket_buffer_write(pl->cs);
         }
     }
 }
@@ -1351,7 +1313,7 @@ socket_server_post_process (void)
         }
 
         if (FD_ISSET(socket_fd(pl->cs->sc), &fds_write)) {
-            socket_server_csocket_write(pl->cs);
+            socket_buffer_write(pl->cs);
         }
     }
 }

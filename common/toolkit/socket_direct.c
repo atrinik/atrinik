@@ -6,6 +6,7 @@
 
 #include "socket_private.h"
 #include "string.h"
+#include "datetime.h"
 
 #include <curl/curl.h>
 #include <openssl/rand.h>
@@ -17,14 +18,9 @@
 #endif
 #define SOCKET_STUN_MAGIC 0x2112a442U
 #define SOCKET_PUNCH_PROBE "ATRINIK-PUNCH-1"
-#define SOCKET_PUNCH_COUNT 10
-#define SOCKET_PUNCH_INTERVAL_MS 100
-
 typedef struct socket_punch_job {
     socket_direct_candidate_t candidate;
-    uint64_t next_send_ms;
-    unsigned int attempts;
-    bool active;
+    socket_punch_pacer_t pacer;
 } socket_punch_job_t;
 
 typedef struct socket_candidate_kind_info {
@@ -87,17 +83,7 @@ socket_candidate_kind_timeout (socket_candidate_kind_t kind)
 static bool
 socket_rendezvous_ticket_valid (const char *ticket)
 {
-    if (ticket == NULL || strlen(ticket) != 64) {
-        return false;
-    }
-    for (const unsigned char *cp = (const unsigned char *) ticket;
-         *cp != '\0';
-         cp++) {
-        if (!isdigit(*cp) && (*cp < 'a' || *cp > 'f')) {
-            return false;
-        }
-    }
-    return true;
+    return string_is_hex_fixed(ticket, 64, true);
 }
 
 static bool
@@ -653,12 +639,48 @@ socket_udp_punch_receive (socket_t *sc,
     return true;
 }
 
-static uint64_t
-socket_udp_punch_now_ms (void)
+void
+socket_punch_pacer_start (socket_punch_pacer_t *pacer,
+                          uint64_t              now_ms,
+                          unsigned int          grace_ms)
 {
-    struct timeval now;
-    GETTIMEOFDAY(&now);
-    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
+    HARD_ASSERT(pacer != NULL);
+
+    pacer->next_action_ms = now_ms;
+    pacer->attempts = 0;
+    pacer->grace_ms = grace_ms;
+    pacer->active = true;
+}
+
+socket_punch_action_t
+socket_punch_pacer_poll (const socket_punch_pacer_t *pacer, uint64_t now_ms)
+{
+    HARD_ASSERT(pacer != NULL);
+
+    if (!pacer->active || now_ms < pacer->next_action_ms) {
+        return SOCKET_PUNCH_WAIT;
+    }
+    return pacer->attempts < SOCKET_PUNCH_COUNT
+        ? SOCKET_PUNCH_SEND
+        : SOCKET_PUNCH_COMPLETE;
+}
+
+void
+socket_punch_pacer_advance (socket_punch_pacer_t *pacer,
+                            uint64_t              now_ms,
+                            socket_punch_action_t action)
+{
+    HARD_ASSERT(pacer != NULL);
+
+    if (action == SOCKET_PUNCH_SEND) {
+        pacer->attempts++;
+        pacer->next_action_ms = now_ms +
+            (pacer->attempts < SOCKET_PUNCH_COUNT
+             ? SOCKET_PUNCH_INTERVAL_MS
+             : pacer->grace_ms);
+    } else if (action == SOCKET_PUNCH_COMPLETE) {
+        pacer->active = false;
+    }
 }
 
 static bool
@@ -725,12 +747,12 @@ socket_udp_punch_schedule (socket_punch_job_t             *jobs,
 
     socket_punch_job_t *available = NULL;
     for (size_t i = 0; i < capacity; i++) {
-        if (jobs[i].active &&
+        if (jobs[i].pacer.active &&
             jobs[i].candidate.port == candidate->port &&
             strcmp(jobs[i].candidate.host, candidate->host) == 0) {
             return;
         }
-        if (!jobs[i].active && jobs[i].attempts == 0 && available == NULL) {
+        if (!jobs[i].pacer.active && available == NULL) {
             available = &jobs[i];
         }
     }
@@ -740,8 +762,9 @@ socket_udp_punch_schedule (socket_punch_job_t             *jobs,
     }
 
     available->candidate = *candidate;
-    available->next_send_ms = socket_udp_punch_now_ms();
-    available->active = true;
+    socket_punch_pacer_start(&available->pacer,
+                             datetime_monotonic_ms(),
+                             0);
     LOG(INFO,
         "Opening a paced UDP path to %s QUIC candidate %s:%" PRIu16,
         socket_candidate_kind_name(candidate->kind),
@@ -756,10 +779,17 @@ socket_udp_punch_update (socket_t           *sc,
                          unsigned int       *attempts,
                          unsigned int       *successful)
 {
-    uint64_t now = socket_udp_punch_now_ms();
+    uint64_t now = datetime_monotonic_ms();
     for (size_t i = 0; i < capacity; i++) {
         socket_punch_job_t *job = &jobs[i];
-        if (!job->active || now < job->next_send_ms) {
+        socket_punch_action_t action = socket_punch_pacer_poll(&job->pacer,
+                                                               now);
+        if (action == SOCKET_PUNCH_WAIT) {
+            continue;
+        }
+
+        if (action == SOCKET_PUNCH_COMPLETE) {
+            socket_punch_pacer_advance(&job->pacer, now, action);
             continue;
         }
 
@@ -769,12 +799,7 @@ socket_udp_punch_update (socket_t           *sc,
                              job->candidate.port)) {
             (*successful)++;
         }
-        job->attempts++;
-        if (job->attempts >= SOCKET_PUNCH_COUNT) {
-            job->active = false;
-        } else {
-            job->next_send_ms = now + SOCKET_PUNCH_INTERVAL_MS;
-        }
+        socket_punch_pacer_advance(&job->pacer, now, action);
     }
 }
 
@@ -785,7 +810,7 @@ socket_udp_punch_collect (socket_t                   *sc,
                           size_t                     capacity)
 {
     size_t received = 0;
-    for (;;) {
+    while (received < SOCKET_PUNCH_DRAIN_MAX) {
         char host[65];
         uint16_t port;
         if (!socket_udp_punch_receive(sc, VS(host), &port)) {
@@ -832,6 +857,7 @@ socket_udp_punch_collect (socket_t                   *sc,
                 (unsigned long) port);
         }
     }
+    return received;
 }
 
 bool
@@ -991,7 +1017,7 @@ socket_rendezvous_client (socket_t                   *sc,
 
     char response[512];
     size_t used = 0;
-    TIMER_START(wait);
+    uint64_t deadline_ms = datetime_monotonic_ms() + 5000;
     size_t count = 0;
     bool complete = false;
     socket_punch_job_t punch_jobs[SOCKET_DIRECT_MAX_CANDIDATES] = {0};
@@ -1012,8 +1038,7 @@ socket_rendezvous_client (socket_t                   *sc,
         socket_websocket_receive_state_t receive_state =
             socket_websocket_receive(curl, VS(response), &used);
         if (receive_state == SOCKET_WEBSOCKET_EMPTY) {
-            TIMER_UPDATE(wait);
-            if (TIMER_GET(wait) > 5.0) {
+            if (datetime_monotonic_ms() >= deadline_ms) {
                 break;
             }
             usleep(20000);

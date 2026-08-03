@@ -31,12 +31,13 @@
 
 #include <global.h>
 #include <toolkit/string.h>
+#include <network_metrics.h>
 
 /**
  * Names of the possible stat types. Must end with NULL.
  */
 static const char *const stats[] = {
-    "mempool", "shstr", "metaserver",
+    "mempool", "shstr", "metaserver", "network",
     NULL
 };
 
@@ -64,6 +65,8 @@ void command_stats(object *op, const char *command, char *params)
             shstr_stats(VS(buf));
         } else if (strcmp(stats[i], "metaserver") == 0) {
             metaserver_stats(VS(buf));
+        } else if (strcmp(stats[i], "network") == 0) {
+            server_metrics_stats(VS(buf));
         }
 
         if (!string_isempty(type)) {

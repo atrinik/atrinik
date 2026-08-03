@@ -162,19 +162,49 @@ void region_map_update(region_map_t *region_map, const char *region_name)
     char buf[HUGE_BUF], *path;
 
     region_map_reset(region_map);
+    size_t region_name_length = region_name != NULL ? strlen(region_name) : 0;
+    bool valid_region = region_name_length != 0 &&
+                        region_name_length < sizeof(region_map->download_name);
+    for (size_t i = 0; valid_region && i < region_name_length; i++) {
+        valid_region = (region_name[i] >= 'a' && region_name[i] <= 'z') ||
+                       (region_name[i] >= '0' && region_name[i] <= '9') ||
+                       region_name[i] == '_' || region_name[i] == '-';
+    }
+    if (!valid_region) {
+        snprintf(VS(region_map->error), "The server sent an invalid region.");
+        LOG(ERROR, "Refusing unsafe region map name");
+        return;
+    }
     snprintf(VS(region_map->download_name), "%s", region_name);
 
-    snprintf(VS(buf), "client-maps/%s.png", region_name);
+    if (snprintf(VS(buf), "client-maps/%s.png", region_name) >=
+            (int) sizeof(buf)) {
+        snprintf(VS(region_map->error), "The server sent an invalid region.");
+        return;
+    }
     path = file_path_server(buf);
+    if (path == NULL) {
+        snprintf(VS(region_map->error), "The server sent an invalid region.");
+        return;
+    }
     region_map->source_png = asset_source_start(buf, path);
     efree(path);
     snprintf(VS(buf), "client-maps/%s.def", region_name);
     path = file_path_server(buf);
+    if (path == NULL) {
+        asset_source_free(region_map->source_png);
+        region_map->source_png = NULL;
+        snprintf(VS(region_map->error), "The server sent an invalid region.");
+        return;
+    }
     region_map->source_def = asset_source_start(buf, path);
     efree(path);
 
     snprintf(VS(buf), "client-maps/%s.tiles", region_name);
     region_map->fow->path = file_path_player(buf);
+    if (region_map->fow->path == NULL) {
+        snprintf(VS(region_map->error), "The server sent an invalid region.");
+    }
 }
 
 /**

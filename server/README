@@ -158,9 +158,10 @@
  A large dedicated server can put the generated files behind an HTTPS CDN:
   http_url = https://cdn.example.com/atrinik
 
- When http_url is configured, clients prefer it for manifests, game data,
- resources, and region maps. If that request fails during a QUIC session, the
- client automatically falls back to in-band QUIC delivery. Legacy TCP clients
+ When http_url is configured, clients first obtain each asset's immutable size
+ and SHA-256 digest over the authenticated QUIC connection, then accept the HTTP
+ body only when both match. A failed or mismatched request falls back to
+ in-band QUIC delivery. Non-loopback origins must use HTTPS. Legacy TCP clients
  still require a working HTTP URL.
 
  You will need to map the following URLs to their directory counterparts:
@@ -280,7 +281,9 @@
  to five per minute, with a 256-per-minute server-wide ceiling. Use a long
  randomly generated password and prefer
  `join_password_file`/`--join_password_file` over command-line or environment
- values.
+ values. The file must be a regular, non-symlink file containing exactly one
+ nonempty line shorter than 1024 bytes. Mode 0600 is recommended; group/other
+ permissions produce a startup warning.
 
  Connectivity modes:
   - direct_only: QUIC plus rendezvous; no legacy gameplay listener is needed.
@@ -330,15 +333,20 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
 
  Asset requests use the same punched QUIC connection as gameplay by default.
  Setting http_url enables a separate CDN path and makes it the preferred asset
- source, with automatic QUIC fallback. QUIC region-map responses are verified
- by SHA-256 and stored in the client's per-server cache; matching cached files
- receive a compact not-modified response. The metaserver never carries assets
- or live game traffic.
+ source after its body is pinned to metadata from the authenticated game
+ connection, with automatic QUIC fallback. Region-map responses are verified
+ by SHA-256 and stored in a cache scoped by stable server identity; matching
+ cached files receive a compact not-modified response. The metaserver never
+ carries assets or live game traffic.
 
  The startup asset snapshot accepts files up to 128 MiB and at most 1 GiB in
  aggregate. Each authenticated connection is limited to 256 asset requests and
  8 MiB of asset payload per second. These bounds protect the game loop; use the
  optional HTTPS CDN path when a deployment needs higher bulk-transfer capacity.
+ The outbound queue reserves 1 MiB for bulk assets and has a 4 MiB/4096-packet
+ hard ceiling per connection. Administrators can inspect current/peak queue,
+ asset, QUIC, mapping, connection, and game-loop percentile metrics with
+ `/stats network`.
 
 =================================================
 = 3. Running a public server                    =

@@ -22,6 +22,7 @@
 
 struct asset_request {
     UT_hash_handle hh;
+    char *key;
     char *path;
     char *cache_path;
     uint8_t *data;
@@ -31,6 +32,7 @@ struct asset_request {
     uint8_t cached_digest[ASSET_DIGEST_SIZE];
     uint8_t expected_digest[ASSET_DIGEST_SIZE];
     bool cache_loaded;
+    bool metadata_only;
     asset_request_state_t state;
 };
 
@@ -52,7 +54,8 @@ asset_request_send (asset_request_t *request)
         request->received == 0 && request->cache_loaded ?
         (uint32_t) request->size : 0,
         request->received == 0 && request->cache_loaded ?
-        request->cached_digest : empty_digest);
+        request->cached_digest : empty_digest,
+        request->metadata_only ? ASSET_REQUEST_METADATA : 0);
     socket_send_packet(packet);
 }
 
@@ -135,31 +138,38 @@ asset_request_cache_save (const asset_request_t *request)
 }
 
 static asset_request_t *
-asset_request_start_internal (const char *path, const char *cache_path)
+asset_request_start_internal (const char *path,
+                              const char *cache_path,
+                              bool        metadata_only)
 {
-    if (!cpl.asset_transport || !socket_is_quic(csocket.sc) ||
+    if (!cpl.asset_transport || csocket.sc == NULL ||
+        !socket_is_quic(csocket.sc) ||
         path == NULL || *path == '\0' || strlen(path) >= MAX_BUF) {
         return NULL;
     }
 
+    char key[MAX_BUF + 3];
+    snprintf(VS(key), "%c:%s", metadata_only ? 'M' : 'D', path);
     asset_request_t *request;
-    HASH_FIND_STR(asset_requests, path, request);
+    HASH_FIND_STR(asset_requests, key, request);
     if (request != NULL) {
         request->references++;
         return request;
     }
 
     request = ecalloc(1, sizeof(*request));
+    request->key = estrdup(key);
     request->path = estrdup(path);
     if (cache_path != NULL) {
         request->cache_path = estrdup(cache_path);
     }
     request->references = 1;
+    request->metadata_only = metadata_only;
     request->state = ASSET_REQUEST_PENDING;
     HASH_ADD_KEYPTR(hh,
                     asset_requests,
-                    request->path,
-                    strlen(request->path),
+                    request->key,
+                    strlen(request->key),
                     request);
     asset_request_cache_load(request);
     asset_request_send(request);
@@ -169,13 +179,19 @@ asset_request_start_internal (const char *path, const char *cache_path)
 asset_request_t *
 asset_request_start (const char *path)
 {
-    return asset_request_start_internal(path, NULL);
+    return asset_request_start_internal(path, NULL, false);
 }
 
 asset_request_t *
 asset_request_start_cached (const char *path, const char *cache_path)
 {
-    return asset_request_start_internal(path, cache_path);
+    return asset_request_start_internal(path, cache_path, false);
+}
+
+asset_request_t *
+asset_request_start_metadata (const char *path)
+{
+    return asset_request_start_internal(path, NULL, true);
 }
 
 asset_request_state_t
@@ -196,6 +212,24 @@ asset_request_get_data (const asset_request_t *request, size_t *size)
     return request->data;
 }
 
+bool
+asset_request_get_metadata (const asset_request_t *request,
+                            size_t                *size,
+                            uint8_t                digest[ASSET_DIGEST_SIZE])
+{
+    if (request == NULL || !request->metadata_only ||
+            request->state != ASSET_REQUEST_COMPLETE) {
+        return false;
+    }
+    if (size != NULL) {
+        *size = request->size;
+    }
+    if (digest != NULL) {
+        memcpy(digest, request->expected_digest, ASSET_DIGEST_SIZE);
+    }
+    return true;
+}
+
 void
 asset_request_free (asset_request_t *request)
 {
@@ -204,6 +238,7 @@ asset_request_free (asset_request_t *request)
     }
 
     HASH_DEL(asset_requests, request);
+    efree(request->key);
     efree(request->path);
     if (request->cache_path != NULL) {
         efree(request->cache_path);
@@ -229,9 +264,23 @@ socket_command_asset (uint8_t *data, size_t len, size_t pos)
         return;
     }
 
+    bool metadata_response =
+        response.status == ASSET_STATUS_METADATA ||
+        response.status == ASSET_STATUS_METADATA_NOT_FOUND;
+    char key[MAX_BUF + 3];
+    snprintf(VS(key), "%c:%s", metadata_response ? 'M' : 'D', response.path);
     asset_request_t *request;
-    HASH_FIND_STR(asset_requests, response.path, request);
+    HASH_FIND_STR(asset_requests, key, request);
     if (request == NULL || request->state != ASSET_REQUEST_PENDING) {
+        return;
+    }
+
+    if (response.status == ASSET_STATUS_METADATA) {
+        request->size = response.total_size;
+        memcpy(request->expected_digest,
+               response.digest,
+               ASSET_DIGEST_SIZE);
+        request->state = ASSET_REQUEST_COMPLETE;
         return;
     }
 

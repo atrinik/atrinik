@@ -41,8 +41,26 @@ esac
 prepare_server_content() {
     local content_hash cached_hash=""
     content_hash=$(
-        find arch maps server/install_data tools/collect.py \
-            -type f -print0 \
+        {
+            find arch maps server/install_data server/resources server/src \
+                common/toolkit tools/compilers \
+                -type f \
+                ! -path '*/__pycache__/*' \
+                ! -name '*.pyc' \
+                ! -name '*.pyo' \
+                -print0
+            printf '%s\0' \
+                CMakeLists.txt \
+                CMakePresets.json \
+                build-windows.sh \
+                build.config \
+                common/toolkit/CMakeLists.txt \
+                server/CMakeLists.txt \
+                server/server.cfg \
+                server/permissions.cfg \
+                tools/collect.py \
+                tools/utils.py
+        } \
             | sort -z \
             | xargs -0 sha256sum \
             | sha256sum \

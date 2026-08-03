@@ -138,6 +138,9 @@ size_t string_fromhex(const char *str, size_t len, unsigned char *result,
 char *string_last(const char *haystack, const char *needle);
 bool string_parse_uint64(const char *str, int base, uint64_t minimum,
         uint64_t maximum, uint64_t *result);
+bool string_is_hex_fixed(const char *str, size_t length, bool lowercase_only);
+bool string_decode_hex_fixed(const char *str, size_t length,
+        bool lowercase_only, unsigned char *result, size_t result_size);
 
 #ifndef NDEBUG
 #define string_sub(_str, _start, _end) \

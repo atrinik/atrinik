@@ -46,22 +46,15 @@ jobs:
             pkgconf python3-dev zlib1g-dev
 
       - name: Install libpcpnatpmp
-        env:
-          PCPNATPMP_COMMIT: 866d283da99f5e98eecff702a8df63e2ae57ffca
         run: |
-          git clone --filter=blob:none \
-            https://github.com/libpcpnatpmp/libpcpnatpmp.git \
-            "${RUNNER_TEMP}/libpcpnatpmp"
-          git -C "${RUNNER_TEMP}/libpcpnatpmp" checkout "${PCPNATPMP_COMMIT}"
-          cmake \
-            -S "${RUNNER_TEMP}/libpcpnatpmp" \
-            -B "${RUNNER_TEMP}/libpcpnatpmp/build" \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DBUILD_CLI_CLIENT=OFF \
-            -DBUILD_SERVER=OFF \
-            -DBUILD_TESTS=OFF
-          cmake --build "${RUNNER_TEMP}/libpcpnatpmp/build" --parallel
-          sudo cmake --install "${RUNNER_TEMP}/libpcpnatpmp/build"
+          prefix="${RUNNER_TEMP}/atrinik-dependencies"
+          dependencies/build-libpcpnatpmp.sh \
+            native \
+            "$(nproc)" \
+            "${prefix}"
+          echo "CMAKE_PREFIX_PATH=${prefix}" >> "${GITHUB_ENV}"
+          echo "PKG_CONFIG_PATH=${prefix}/lib/pkgconfig:${prefix}/lib64/pkgconfig" \
+            >> "${GITHUB_ENV}"
 
       - name: Restore compiler cache
         uses: actions/cache@v6

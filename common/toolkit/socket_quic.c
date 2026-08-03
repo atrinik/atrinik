@@ -8,6 +8,7 @@
 #include "socket_crypto.h"
 #include "path.h"
 #include "string.h"
+#include "datetime.h"
 
 #include <openssl/err.h>
 #include <openssl/pem.h>
@@ -287,7 +288,8 @@ socket_quic_wait (SSL *ssl)
         FD_SET(fd, &write_fds);
     }
 
-    struct timeval timeout = {0, 100000};
+    /* Keep candidate cancellation and first-success handoff responsive. */
+    struct timeval timeout = {0, 20000};
     struct timeval event_timeout;
     int infinite = 1;
     if (SSL_get_event_timeout(ssl, &event_timeout, &infinite) &&
@@ -307,7 +309,9 @@ socket_quic_wait (SSL *ssl)
 static bool
 socket_quic_check_fingerprint (SSL *ssl, const char *expected)
 {
-    if (expected == NULL || strlen(expected) != SHA256_DIGEST_LENGTH * 2) {
+    if (!string_is_hex_fixed(expected,
+                             SHA256_DIGEST_LENGTH * 2,
+                             false)) {
         LOG(ERROR, "Invalid QUIC certificate fingerprint");
         return false;
     }
@@ -459,6 +463,30 @@ socket_quic_server_create (const char *host,
 }
 
 static socket_t *
+socket_quic_client_socket_resolved (const char            *host,
+                                    uint16_t               port,
+                                    const struct sockaddr *address,
+                                    socklen_t               address_length)
+{
+    socket_t *sc = ecalloc(1, sizeof(*sc));
+    sc->handle = socket(address->sa_family, SOCK_DGRAM, IPPROTO_UDP);
+    sc->owns_handle = true;
+    sc->transport = SOCKET_TRANSPORT_QUIC_CONNECTION;
+    sc->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
+    sc->role = SOCKET_ROLE_CLIENT;
+    sc->port = port;
+    sc->host = estrdup(host);
+    if (sc->handle == -1 || !socket_quic_disable_udp_connreset(sc->handle) ||
+            !socket_connection_id_generate(sc) ||
+            !socket_opt_non_blocking(sc, true)) {
+        socket_destroy(sc);
+        return NULL;
+    }
+    memcpy(&sc->addr, address, address_length);
+    return sc;
+}
+
+static socket_t *
 socket_quic_client_socket (const char              *host,
                            uint16_t                 port,
                            struct sockaddr_storage *address,
@@ -479,43 +507,25 @@ socket_quic_client_socket (const char              *host,
         return NULL;
     }
 
-    socket_t *sc = ecalloc(1, sizeof(*sc));
-    sc->handle = -1;
-    sc->owns_handle = true;
-    sc->transport = SOCKET_TRANSPORT_QUIC_CONNECTION;
-    sc->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
-    sc->role = SOCKET_ROLE_CLIENT;
-    sc->port = port;
-    sc->host = estrdup(host);
-    if (!socket_connection_id_generate(sc)) {
-        socket_destroy(sc);
-        freeaddrinfo(addresses);
-        return NULL;
-    }
-
+    socket_t *sc = NULL;
     for (struct addrinfo *ai = addresses; ai != NULL; ai = ai->ai_next) {
-        sc->handle = socket(ai->ai_family, SOCK_DGRAM, IPPROTO_UDP);
-        if (sc->handle == -1) {
+        sc = socket_quic_client_socket_resolved(host,
+                                                port,
+                                                ai->ai_addr,
+                                                (socklen_t) ai->ai_addrlen);
+        if (sc == NULL) {
             continue;
         }
-        if (!socket_quic_disable_udp_connreset(sc->handle)) {
-            socket_close(sc);
-            sc->handle = -1;
-            continue;
-        }
-        memcpy(&sc->addr, ai->ai_addr, ai->ai_addrlen);
         memcpy(address, ai->ai_addr, ai->ai_addrlen);
         *address_length = (socklen_t) ai->ai_addrlen;
         break;
     }
 
     freeaddrinfo(addresses);
-    if (sc->handle == -1 || !socket_opt_non_blocking(sc, true)) {
-        socket_destroy(sc);
-        return NULL;
-    }
     return sc;
 }
+
+typedef bool (*socket_quic_cancelled_t)(void *data);
 
 static bool
 socket_quic_client_handshake (socket_t              *sc,
@@ -523,7 +533,9 @@ socket_quic_client_handshake (socket_t              *sc,
                               socklen_t              address_length,
                               const char            *certificate_sha256,
                               const char            *host,
-                              double                 timeout)
+                              double                 timeout,
+                              socket_quic_cancelled_t cancelled,
+                              void                  *cancel_data)
 {
     memcpy(&sc->addr, address, address_length);
     if (connect(sc->handle, address, address_length) != 0) {
@@ -534,7 +546,10 @@ socket_quic_client_handshake (socket_t              *sc,
      * sees the same five-tuple. Remove those non-QUIC probes before OpenSSL
      * owns the receive path; otherwise they can abort the QUIC state machine. */
     char probe[2048];
-    while (recv(sc->handle, probe, sizeof(probe), 0) > 0) {
+    for (unsigned int drained = 0; drained < SOCKET_PUNCH_DRAIN_MAX; drained++) {
+        if (recv(sc->handle, probe, sizeof(probe), 0) <= 0) {
+            break;
+        }
     }
 
     if (sc->quic != NULL) {
@@ -577,8 +592,12 @@ socket_quic_client_handshake (socket_t              *sc,
         return false;
     }
 
-    TIMER_START(connect_timer);
+    uint64_t deadline = datetime_monotonic_ms() +
+                        (uint64_t) (timeout * 1000.0);
     for (;;) {
+        if (cancelled != NULL && cancelled(cancel_data)) {
+            return false;
+        }
         int result = SSL_connect(sc->quic);
         if (result == 1) {
             break;
@@ -591,8 +610,7 @@ socket_quic_client_handshake (socket_t              *sc,
             return false;
         }
 
-        TIMER_UPDATE(connect_timer);
-        if (TIMER_GET(connect_timer) > timeout ||
+        if (datetime_monotonic_ms() >= deadline ||
             !socket_quic_wait(sc->quic)) {
             LOG(DEBUG, "QUIC candidate %s timed out", host);
             return false;
@@ -637,91 +655,210 @@ socket_quic_preference_kind (socket_connection_preference_t preference)
     }
 }
 
+typedef struct socket_quic_candidate_race {
+    pthread_mutex_t lock;
+    pthread_cond_t condition;
+    size_t completed;
+    size_t task_count;
+    size_t best_rank;
+    size_t attempted;
+    size_t succeeded;
+    size_t failed;
+    uint64_t total_handshake_ms;
+    uint64_t maximum_handshake_ms;
+    uint64_t first_success_ms;
+    bool cancelled;
+} socket_quic_candidate_race_t;
+
 typedef struct socket_quic_candidate_task {
-    socket_direct_candidate_t candidate;
+    socket_direct_candidate_t candidates[SOCKET_DIRECT_MAX_CANDIDATES + 2];
+    struct sockaddr_storage addresses[SOCKET_DIRECT_MAX_CANDIDATES + 2];
+    socklen_t address_lengths[SOCKET_DIRECT_MAX_CANDIDATES + 2];
+    size_t ranks[SOCKET_DIRECT_MAX_CANDIDATES + 2];
+    size_t candidate_count;
     const char *certificate_sha256;
+    socket_quic_candidate_race_t *race;
     socket_t *socket;
     socket_t *result;
+    socket_direct_candidate_t selected_candidate;
+    size_t selected_rank;
     pthread_t thread;
     bool started;
 } socket_quic_candidate_task_t;
+
+static bool
+socket_quic_candidate_cancelled (void *data)
+{
+    socket_quic_candidate_race_t *race = data;
+    pthread_mutex_lock(&race->lock);
+    bool cancelled = race->cancelled;
+    pthread_mutex_unlock(&race->lock);
+    return cancelled;
+}
+
+static void
+socket_quic_candidate_finished (socket_quic_candidate_task_t *task)
+{
+    pthread_mutex_lock(&task->race->lock);
+    task->race->completed++;
+    if (task->result != NULL && task->selected_rank < task->race->best_rank) {
+        if (task->race->first_success_ms == 0) {
+            task->race->first_success_ms = datetime_monotonic_ms();
+        }
+        task->race->best_rank = task->selected_rank;
+    }
+    pthread_cond_broadcast(&task->race->condition);
+    pthread_mutex_unlock(&task->race->lock);
+}
 
 static void *
 socket_quic_candidate_thread (void *data)
 {
     socket_quic_candidate_task_t *task = data;
-    char port_string[6];
-    snprintf(VS(port_string), "%" PRIu16, task->candidate.port);
+    for (size_t i = 0; i < task->candidate_count; i++) {
+        socket_direct_candidate_t *candidate = &task->candidates[i];
+        if (socket_quic_candidate_cancelled(task->race)) {
+            break;
+        }
+        if (task->socket == NULL) {
+            task->socket = socket_quic_client_socket_resolved(
+                candidate->host,
+                candidate->port,
+                (const struct sockaddr *) &task->addresses[i],
+                task->address_lengths[i]);
+        }
+        if (task->socket == NULL) {
+            continue;
+        }
 
+        LOG(INFO,
+            "Checking %s QUIC candidate %s:%" PRIu16,
+            socket_candidate_kind_name(candidate->kind),
+            candidate->host,
+            candidate->port);
+        uint64_t started_ms = datetime_monotonic_ms();
+        bool connected = socket_quic_client_handshake(
+            task->socket,
+            (const struct sockaddr *) &task->addresses[i],
+            task->address_lengths[i],
+            task->certificate_sha256,
+            candidate->host,
+            socket_candidate_kind_timeout(candidate->kind),
+            socket_quic_candidate_cancelled,
+            task->race);
+        uint64_t elapsed_ms = datetime_monotonic_ms() - started_ms;
+        pthread_mutex_lock(&task->race->lock);
+        task->race->attempted++;
+        task->race->total_handshake_ms += elapsed_ms;
+        task->race->maximum_handshake_ms =
+            MAX(task->race->maximum_handshake_ms, elapsed_ms);
+        if (connected) {
+            task->race->succeeded++;
+        } else {
+            task->race->failed++;
+        }
+        pthread_mutex_unlock(&task->race->lock);
+        if (!connected) {
+            LOG(INFO,
+                "%s QUIC candidate %s:%" PRIu16 " failed after %" PRIu64
+                " ms",
+                socket_candidate_kind_name(candidate->kind),
+                candidate->host,
+                candidate->port,
+                elapsed_ms);
+            continue;
+        }
+
+        LOG(INFO,
+            "%s QUIC candidate %s:%" PRIu16 " succeeded after %" PRIu64
+            " ms",
+            socket_candidate_kind_name(candidate->kind),
+            candidate->host,
+            candidate->port,
+            elapsed_ms);
+        task->socket->connection_mode =
+            socket_candidate_kind_mode(candidate->kind);
+        efree(task->socket->host);
+        task->socket->host = estrdup(candidate->host);
+        task->socket->port = candidate->port;
+        task->result = task->socket;
+        task->socket = NULL;
+        task->selected_candidate = *candidate;
+        task->selected_rank = task->ranks[i];
+        break;
+    }
+
+    if (task->socket != NULL) {
+        socket_destroy(task->socket);
+        task->socket = NULL;
+    }
+    socket_quic_candidate_finished(task);
+    return NULL;
+}
+
+static bool
+socket_quic_candidate_address (
+    const socket_direct_candidate_t *candidate,
+    const struct sockaddr_storage   *initial_address,
+    socklen_t                        initial_length,
+    struct sockaddr_storage         *address,
+    socklen_t                       *address_length)
+{
+    if (candidate->kind == SOCKET_CANDIDATE_DIRECTORY) {
+        memcpy(address, initial_address, initial_length);
+        *address_length = initial_length;
+        return true;
+    }
+
+    char service[6];
+    snprintf(VS(service), "%" PRIu16, candidate->port);
     struct addrinfo hints, *addresses = NULL;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
-    hints.ai_flags = AI_NUMERICSERV;
-    int rc = getaddrinfo(task->candidate.host,
-                         port_string,
-                         &hints,
-                         &addresses);
-    if (rc != 0 || addresses == NULL) {
+    hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+    int rc = getaddrinfo(candidate->host, service, &hints, &addresses);
+    if (rc != 0 || addresses == NULL ||
+            addresses->ai_addrlen > sizeof(*address)) {
         LOG(ERROR,
-            "Cannot resolve %s QUIC candidate %s:%" PRIu16 ": %s",
-            socket_candidate_kind_name(task->candidate.kind),
-            task->candidate.host,
-            task->candidate.port,
-            rc != 0 ? gai_strerror(rc) : "no address");
-        goto done;
+            "Invalid numeric %s QUIC candidate %s:%" PRIu16,
+            socket_candidate_kind_name(candidate->kind),
+            candidate->host,
+            candidate->port);
+        if (addresses != NULL) {
+            freeaddrinfo(addresses);
+        }
+        return false;
     }
 
-    if (task->socket == NULL) {
-        struct sockaddr_storage ignored_address;
-        socklen_t ignored_length = 0;
-        task->socket = socket_quic_client_socket(task->candidate.host,
-                                                 task->candidate.port,
-                                                 &ignored_address,
-                                                 &ignored_length);
-    }
-    if (task->socket == NULL) {
-        goto done;
-    }
+    memcpy(address, addresses->ai_addr, addresses->ai_addrlen);
+    *address_length = (socklen_t) addresses->ai_addrlen;
+    freeaddrinfo(addresses);
+    return true;
+}
 
-    LOG(INFO,
-        "Checking %s QUIC candidate %s:%" PRIu16,
-        socket_candidate_kind_name(task->candidate.kind),
-        task->candidate.host,
-        task->candidate.port);
-    if (!socket_quic_client_handshake(
-            task->socket,
-            addresses->ai_addr,
-            (socklen_t) addresses->ai_addrlen,
-            task->certificate_sha256,
-            task->candidate.host,
-            socket_candidate_kind_timeout(task->candidate.kind))) {
-        LOG(INFO,
-            "%s QUIC candidate %s:%" PRIu16 " failed",
-            socket_candidate_kind_name(task->candidate.kind),
-            task->candidate.host,
-            task->candidate.port);
-        goto done;
-    }
+static bool
+socket_quic_candidate_is_nat (socket_candidate_kind_t kind)
+{
+    return kind == SOCKET_CANDIDATE_PRFLX ||
+           kind == SOCKET_CANDIDATE_MAPPED ||
+           kind == SOCKET_CANDIDATE_SRFLX;
+}
 
-    task->socket->connection_mode =
-        socket_candidate_kind_mode(task->candidate.kind);
-    efree(task->socket->host);
-    task->socket->host = estrdup(task->candidate.host);
-    task->socket->port = task->candidate.port;
-    task->result = task->socket;
-    task->socket = NULL;
-
-done:
-    if (addresses != NULL) {
-        freeaddrinfo(addresses);
-    }
-    if (task->socket != NULL) {
-        socket_destroy(task->socket);
-        task->socket = NULL;
-    }
-    return NULL;
+static void
+socket_quic_candidate_wait (socket_quic_candidate_race_t *race,
+                            unsigned int                  timeout_ms)
+{
+    struct timeval now;
+    GETTIMEOFDAY(&now);
+    uint64_t deadline_ns = (uint64_t) now.tv_usec * 1000 +
+                           (uint64_t) timeout_ms * 1000000;
+    struct timespec deadline = {
+        .tv_sec = now.tv_sec + (time_t) (deadline_ns / 1000000000),
+        .tv_nsec = (long) (deadline_ns % 1000000000)
+    };
+    pthread_cond_timedwait(&race->condition, &race->lock, &deadline);
 }
 
 socket_t *
@@ -815,64 +952,149 @@ socket_quic_client_create (const char *host,
         }
     }
 
-    socket_quic_candidate_task_t
-        tasks[SOCKET_DIRECT_MAX_CANDIDATES + 2] = {0};
-    size_t task_count = 0;
+    socket_direct_candidate_t
+        ordered_candidates[SOCKET_DIRECT_MAX_CANDIDATES + 2];
+    size_t ordered_count = 0;
     for (size_t priority = 0; priority < priority_count; priority++) {
         for (size_t i = 0; i < count; i++) {
             if (candidates[i].kind != ordered_priorities[priority]) {
                 continue;
             }
-            tasks[task_count].candidate = candidates[i];
-            tasks[task_count].certificate_sha256 = certificate_sha256;
-            task_count++;
+            ordered_candidates[ordered_count++] = candidates[i];
         }
     }
 
-    /* Preserve the STUN/punch socket for a NAT-derived route so that its
-     * mapped source port remains valid. LAN and global IPv6 routes do not
-     * depend on that mapping and can use independent sockets. */
-    size_t mapped_task = 0;
-    for (size_t i = 0; i < task_count; i++) {
-        if (tasks[i].candidate.kind == SOCKET_CANDIDATE_PRFLX ||
-            tasks[i].candidate.kind == SOCKET_CANDIDATE_MAPPED ||
-            tasks[i].candidate.kind == SOCKET_CANDIDATE_SRFLX) {
-            mapped_task = i;
-            break;
+    socket_quic_candidate_task_t
+        tasks[SOCKET_DIRECT_MAX_CANDIDATES + 2] = {0};
+    size_t task_count = 0;
+    size_t nat_task = SIZE_MAX;
+    for (size_t rank = 0; rank < ordered_count; rank++) {
+        socket_direct_candidate_t *candidate = &ordered_candidates[rank];
+        struct sockaddr_storage address;
+        socklen_t address_length;
+        if (!socket_quic_candidate_address(candidate,
+                                           &initial_address,
+                                           initial_length,
+                                           &address,
+                                           &address_length)) {
+            continue;
+        }
+
+        size_t task_index;
+        if (socket_quic_candidate_is_nat(candidate->kind)) {
+            if (nat_task == SIZE_MAX) {
+                nat_task = task_count++;
+            }
+            task_index = nat_task;
+        } else {
+            task_index = task_count++;
+        }
+        socket_quic_candidate_task_t *task = &tasks[task_index];
+        size_t slot = task->candidate_count++;
+        task->candidates[slot] = *candidate;
+        task->addresses[slot] = address;
+        task->address_lengths[slot] = address_length;
+        task->ranks[slot] = rank;
+        task->certificate_sha256 = certificate_sha256;
+    }
+    if (task_count == 0) {
+        socket_destroy(sc);
+        return NULL;
+    }
+
+    /* All NAT-derived candidates are serialized through the exact socket used
+     * for STUN and punching. This preserves the externally mapped source port
+     * while LAN, global IPv6 and directory candidates race independently. */
+    size_t initial_socket_task = nat_task;
+    if (initial_socket_task == SIZE_MAX) {
+        initial_socket_task = 0;
+        for (size_t i = 0; i < task_count; i++) {
+            if (tasks[i].candidates[0].kind ==
+                    SOCKET_CANDIDATE_DIRECTORY) {
+                initial_socket_task = i;
+                break;
+            }
         }
     }
-    tasks[mapped_task].socket = sc;
+    tasks[initial_socket_task].socket = sc;
+
+    socket_quic_candidate_race_t race = {
+        .task_count = task_count,
+        .best_rank = SIZE_MAX
+    };
+    pthread_mutex_init(&race.lock, NULL);
+    pthread_cond_init(&race.condition, NULL);
     for (size_t i = 0; i < task_count; i++) {
+        tasks[i].race = &race;
         tasks[i].started = pthread_create(&tasks[i].thread,
                                           NULL,
                                           socket_quic_candidate_thread,
                                           &tasks[i]) == 0;
-    }
-    for (size_t i = 0; i < task_count; i++) {
-        if (tasks[i].started) {
-            pthread_join(tasks[i].thread, NULL);
-        } else {
+        if (!tasks[i].started) {
             socket_quic_candidate_thread(&tasks[i]);
         }
     }
 
-    socket_t *selected = NULL;
-    size_t selected_index = 0;
+    /* Publish the first authenticated route immediately, with a brief window
+     * for an already-running, higher-priority candidate to finish. */
+    pthread_mutex_lock(&race.lock);
+    while (race.completed < race.task_count) {
+        uint64_t now = datetime_monotonic_ms();
+        if (race.best_rank == 0 ||
+                (race.best_rank != SIZE_MAX &&
+                 now - race.first_success_ms >= 150)) {
+            break;
+        }
+        socket_quic_candidate_wait(&race, 20);
+    }
+    if (race.best_rank != SIZE_MAX) {
+        race.cancelled = true;
+        pthread_cond_broadcast(&race.condition);
+    }
+    pthread_mutex_unlock(&race.lock);
+
     for (size_t i = 0; i < task_count; i++) {
-        if (selected == NULL && tasks[i].result != NULL) {
+        if (tasks[i].started) {
+            pthread_join(tasks[i].thread, NULL);
+        }
+    }
+
+    socket_t *selected = NULL;
+    size_t selected_index = SIZE_MAX;
+    size_t selected_rank = SIZE_MAX;
+    for (size_t i = 0; i < task_count; i++) {
+        if (tasks[i].result != NULL &&
+                tasks[i].selected_rank < selected_rank) {
+            if (selected != NULL) {
+                socket_destroy(selected);
+            }
             selected = tasks[i].result;
             selected_index = i;
+            selected_rank = tasks[i].selected_rank;
         } else if (tasks[i].result != NULL) {
             socket_destroy(tasks[i].result);
         }
     }
+
+    LOG(SYSTEM,
+        "QUIC candidate race: attempted=%" PRIu64 " succeeded=%" PRIu64
+        " failed=%" PRIu64 " total_handshake_ms=%" PRIu64
+        " maximum_handshake_ms=%" PRIu64,
+        (uint64_t) race.attempted,
+        (uint64_t) race.succeeded,
+        (uint64_t) race.failed,
+        race.total_handshake_ms,
+        race.maximum_handshake_ms);
+    pthread_cond_destroy(&race.condition);
+    pthread_mutex_destroy(&race.lock);
     if (selected != NULL) {
         LOG(SYSTEM,
             "Connection %s selected %s direct QUIC route %s:%" PRIu16,
             socket_get_id(selected),
-            socket_candidate_kind_name(tasks[selected_index].candidate.kind),
-            tasks[selected_index].candidate.host,
-            tasks[selected_index].candidate.port);
+            socket_candidate_kind_name(
+                tasks[selected_index].selected_candidate.kind),
+            tasks[selected_index].selected_candidate.host,
+            tasks[selected_index].selected_candidate.port);
         return selected;
     }
 
@@ -911,14 +1133,6 @@ socket_certificate_sha256 (socket_t *sc, char fingerprint[65])
     return true;
 }
 
-static uint64_t
-socket_quic_now_ms (void)
-{
-    struct timeval now;
-    GETTIMEOFDAY(&now);
-    return (uint64_t) now.tv_sec * 1000 + (uint64_t) now.tv_usec / 1000;
-}
-
 static void
 socket_quic_schedule_event (socket_t *sc)
 {
@@ -930,7 +1144,7 @@ socket_quic_schedule_event (socket_t *sc)
     }
     uint64_t delay = (uint64_t) timeout.tv_sec * 1000 +
                      (uint64_t) timeout.tv_usec / 1000;
-    sc->quic_event_deadline_ms = socket_quic_now_ms() + delay;
+    sc->quic_event_deadline_ms = datetime_monotonic_ms() + delay;
 }
 
 unsigned int
@@ -941,7 +1155,7 @@ socket_quic_timeout (socket_t *sc, unsigned int maximum_ms)
             sc->quic_event_deadline_ms == UINT64_MAX) {
         return maximum_ms;
     }
-    uint64_t now = socket_quic_now_ms();
+    uint64_t now = datetime_monotonic_ms();
     if (sc->quic_event_deadline_ms == 0 ||
             sc->quic_event_deadline_ms <= now) {
         return 0;
@@ -960,7 +1174,7 @@ socket_quic_service (socket_t *sc,
         return network_ready || app_write_pending;
     }
 
-    uint64_t now = socket_quic_now_ms();
+    uint64_t now = datetime_monotonic_ms();
     bool buffered = SSL_has_pending(sc->quic) != 0;
     bool timer_due = sc->quic_event_deadline_ms == 0 ||
                      (sc->quic_event_deadline_ms != UINT64_MAX &&

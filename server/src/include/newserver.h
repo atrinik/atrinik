@@ -183,6 +183,12 @@ typedef struct socket_struct {
     /** Outgoing packets. */
     struct packet_struct *packets;
 
+    /** Current and peak bytes held by the bounded outbound queue. */
+    size_t packet_queue_bytes;
+    size_t packet_queue_peak_bytes;
+    size_t packet_queue_count;
+    uint64_t packet_queue_rejected;
+
     /**
      * Buffer for how many ticks have passed since the last keep alive
      * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the

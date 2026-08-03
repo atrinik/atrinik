@@ -25,7 +25,8 @@ START_TEST(test_socket_asset_request_round_trip)
                                 "client-maps/test.png",
                                 0,
                                 123456,
-                                digest);
+                                digest,
+                                0);
 
     socket_asset_request_t request;
     ck_assert(socket_asset_request_parse(packet->data,
@@ -35,8 +36,116 @@ START_TEST(test_socket_asset_request_round_trip)
     ck_assert_str_eq(request.path, "client-maps/test.png");
     ck_assert_uint_eq(request.offset, 0);
     ck_assert_uint_eq(request.cached_size, 123456);
+    ck_assert_uint_eq(request.flags, 0);
     ck_assert_mem_eq(request.cached_digest, digest, sizeof(digest));
     packet_free(packet);
+}
+END_TEST
+
+START_TEST(test_metaserver_rendezvous_token_bounds)
+{
+    static const char token[] =
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    char response[128];
+    int length = snprintf(VS(response),
+                          "{\"rendezvousToken\":\"%s\"}",
+                          token);
+    ck_assert_int_gt(length, 0);
+    ck_assert_int_lt(length, (int) sizeof(response));
+
+    char parsed[65];
+    ck_assert(metaserver_rendezvous_token_parse(response,
+                                                (size_t) length,
+                                                parsed));
+    ck_assert_str_eq(parsed, token);
+
+    for (size_t truncated = 0; truncated < (size_t) length - 1; truncated++) {
+        ck_assert(!metaserver_rendezvous_token_parse(response,
+                                                     truncated,
+                                                     parsed));
+    }
+
+    response[sizeof("{\"rendezvousToken\":\"") - 1] = 'A';
+    ck_assert(!metaserver_rendezvous_token_parse(response,
+                                                 (size_t) length,
+                                                 parsed));
+    static const char cleared[sizeof(parsed)];
+    ck_assert_mem_eq(parsed, cleared, sizeof(parsed));
+}
+END_TEST
+
+START_TEST(test_path_secret_reader)
+{
+    char path[] = "/tmp/atrinik-secret-test.XXXXXX";
+    int fd = mkstemp(path);
+    ck_assert_int_ne(fd, -1);
+    static const char value[] = "correct horse\r\n";
+    ck_assert_int_eq(write(fd, value, sizeof(value) - 1),
+                     (ssize_t) (sizeof(value) - 1));
+#ifndef WIN32
+    ck_assert_int_eq(fchmod(fd, 0644), 0);
+#endif
+    ck_assert_int_eq(close(fd), 0);
+
+    char secret[32];
+    bool permissive = false;
+    ck_assert_int_eq(path_read_secret(path,
+                                      VS(secret),
+                                      &permissive),
+                     PATH_SECRET_OK);
+    ck_assert_str_eq(secret, "correct horse");
+#ifndef WIN32
+    ck_assert(permissive);
+#endif
+
+    fd = open(path, O_WRONLY | O_TRUNC);
+    ck_assert_int_ne(fd, -1);
+    static const char too_long[] = "a secret that cannot fit";
+    ck_assert_int_eq(write(fd, too_long, sizeof(too_long) - 1),
+                     (ssize_t) (sizeof(too_long) - 1));
+    ck_assert_int_eq(close(fd), 0);
+    char small[8];
+    memset(small, 0xaa, sizeof(small));
+    ck_assert_int_eq(path_read_secret(path, VS(small), NULL),
+                     PATH_SECRET_TOO_LONG);
+    static const char cleared[sizeof(small)];
+    ck_assert_mem_eq(small, cleared, sizeof(small));
+
+    fd = open(path, O_WRONLY | O_TRUNC);
+    ck_assert_int_ne(fd, -1);
+    static const char trailing[] = "valid secret\nsecond secret\n";
+    ck_assert_int_eq(write(fd, trailing, sizeof(trailing) - 1),
+                     (ssize_t) (sizeof(trailing) - 1));
+    ck_assert_int_eq(close(fd), 0);
+    ck_assert_int_eq(path_read_secret(path, VS(secret), NULL),
+                     PATH_SECRET_TRAILING_DATA);
+    static const char cleared_secret[sizeof(secret)];
+    ck_assert_mem_eq(secret, cleared_secret, sizeof(secret));
+
+#if !defined(WIN32) && defined(O_NOFOLLOW)
+    char link_path[sizeof(path) + 8];
+    snprintf(VS(link_path), "%s.link", path);
+    ck_assert_int_eq(symlink(path, link_path), 0);
+    ck_assert_int_eq(path_read_secret(link_path, VS(secret), NULL),
+                     PATH_SECRET_OPEN_ERROR);
+    ck_assert_int_eq(unlink(link_path), 0);
+#endif
+
+    ck_assert_int_eq(path_read_secret("/tmp", VS(secret), NULL),
+                     PATH_SECRET_NOT_REGULAR);
+    ck_assert_int_eq(unlink(path), 0);
+}
+END_TEST
+
+START_TEST(test_path_safe_relative)
+{
+    ck_assert(path_is_safe_relative("client-maps/world.png"));
+    ck_assert(path_is_safe_relative("settings/file"));
+    ck_assert(!path_is_safe_relative("../outside"));
+    ck_assert(!path_is_safe_relative("inside/../outside"));
+    ck_assert(!path_is_safe_relative("/absolute"));
+    ck_assert(!path_is_safe_relative("C:\\absolute"));
+    ck_assert(!path_is_safe_relative("double//component"));
 }
 END_TEST
 
@@ -124,7 +233,12 @@ START_TEST(test_socket_asset_request_rejects_malformed)
 {
     packet_struct *packet = packet_new(0, 0, 0);
     uint8_t digest[ASSET_DIGEST_SIZE] = {0};
-    socket_asset_request_append(packet, "data/listing.txt", 0, 0, digest);
+    socket_asset_request_append(packet,
+                                "data/listing.txt",
+                                0,
+                                0,
+                                digest,
+                                0);
 
     socket_asset_request_t request;
     ck_assert(!socket_asset_request_parse(packet->data,
@@ -140,11 +254,31 @@ START_TEST(test_socket_asset_request_rejects_malformed)
 
     packet = packet_new(0, 0, 0);
     digest[0] = 3;
-    socket_asset_request_append(packet, "data/listing.txt", 1, 2, digest);
+    socket_asset_request_append(packet,
+                                "data/listing.txt",
+                                1,
+                                2,
+                                digest,
+                                0);
     ck_assert(!socket_asset_request_parse(packet->data,
                                           packet->len,
                                           0,
                                           &request));
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    memset(digest, 0, sizeof(digest));
+    socket_asset_request_append(packet,
+                                "data/listing.txt",
+                                0,
+                                0,
+                                digest,
+                                ASSET_REQUEST_METADATA);
+    ck_assert(socket_asset_request_parse(packet->data,
+                                         packet->len,
+                                         0,
+                                         &request));
+    ck_assert_uint_eq(request.flags, ASSET_REQUEST_METADATA);
     packet_free(packet);
 }
 END_TEST
@@ -187,6 +321,20 @@ START_TEST(test_socket_asset_response_round_trip)
                                           &response));
     ck_assert_uint_eq(response.status, ASSET_STATUS_NOT_MODIFIED);
     ck_assert_str_eq(response.path, "client-maps/test.def");
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    socket_asset_response_append_metadata(packet,
+                                          "client-maps/test.def",
+                                          sizeof(chunk),
+                                          digest);
+    ck_assert(socket_asset_response_parse(packet->data,
+                                          packet->len,
+                                          0,
+                                          &response));
+    ck_assert_uint_eq(response.status, ASSET_STATUS_METADATA);
+    ck_assert_uint_eq(response.total_size, sizeof(chunk));
+    ck_assert_mem_eq(response.digest, digest, sizeof(digest));
     packet_free(packet);
 }
 END_TEST
@@ -256,7 +404,10 @@ suite (void)
     tcase_add_test(tc_core, test_socket_asset_response_round_trip);
     tcase_add_test(tc_core, test_socket_asset_response_rejects_malformed);
     tcase_add_test(tc_core, test_socket_rendezvous_messages);
+    tcase_add_test(tc_core, test_metaserver_rendezvous_token_bounds);
     tcase_add_test(tc_core, test_path_write_atomic_replaces_complete_file);
+    tcase_add_test(tc_core, test_path_secret_reader);
+    tcase_add_test(tc_core, test_path_safe_relative);
 
     return s;
 }

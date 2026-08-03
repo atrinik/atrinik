@@ -47,16 +47,22 @@
  client file. Automated launches should provide it through a restricted file
  with `--join_password_file=PATH`; `--join_password=PASSWORD` remains available
  for interactive debugging but exposes the value in the process argument list.
+ The password file must be a regular, non-symlink file containing exactly one
+ nonempty line shorter than 1024 bytes. Group/other permissions produce a
+ warning; mode 0600 is recommended.
 
  The client has no built-in public STUN provider. Configure one explicitly with
  `--stun_server=HOST:PORT`, or use `--stun_server=off` to disable discovery.
  LAN, global IPv6, mapped, and directory routes remain available without STUN.
 
- Region maps received over QUIC are stored beneath the per-server client data
- directory. On later visits the client sends the cached size and SHA-256
- digest; the server returns a compact not-modified response when they match. A
- changed map is downloaded once, digest-verified, and atomically replaces the
- cached copy.
+ Region maps are stored beneath a directory scoped by the stable server ID or
+ authenticated certificate fingerprint, so a reused hostname and port cannot
+ inherit another server's cache. On later visits the client sends the cached
+ size and SHA-256 digest; the server returns a compact not-modified response
+ when they match. A changed map is downloaded once, digest-verified, and
+ atomically replaces the cached copy. HTTP/CDN bodies are accepted only after
+ their size and SHA-256 match metadata obtained over authenticated QUIC;
+ non-loopback origins must use HTTPS.
 
 =================================================
 = 2.1. Rapid development in the devcontainer    =
