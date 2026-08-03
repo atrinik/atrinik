@@ -62,10 +62,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         libasound2-plugins \
         pulseaudio-utils
 
-COPY --chmod=0755 dependencies /tmp/atrinik-dependencies
+COPY dependencies /tmp/atrinik-dependencies
 COPY .devcontainer/windows-cross/libpcpnatpmp-mingw.patch \
     /tmp/.devcontainer/windows-cross/libpcpnatpmp-mingw.patch
-RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native
+RUN bash /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native
 
 # Ubuntu packages fd as "fdfind" to avoid a naming conflict. Provide the
 # conventional command name expected by editor integrations and CLI tooling.

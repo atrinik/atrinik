@@ -70,9 +70,14 @@ sudo apt-get install build-essential clang-format cmake flex libcurl4-openssl-de
 Ubuntu does not currently package libpcpnatpmp. The authoritative repository,
 commit, and build options live in `dependencies/libpcpnatpmp.env` and
 `dependencies/build-libpcpnatpmp.sh`; the Linux images and MXE environment all
-use that helper and verify the checked-out commit before building. Run
-`sudo dependencies/build-libpcpnatpmp.sh native` before configuring a manual
-server build. Client-only builds do not require either port-mapping library.
+use that helper and verify the checked-out commit before building. Before
+configuring a manual server build, run:
+
+```sh
+sudo bash dependencies/build-libpcpnatpmp.sh native
+```
+
+Client-only builds do not require either port-mapping library.
 
 Configure and compile a debug build using the checked-in presets:
 
@@ -97,8 +102,8 @@ Format all tracked authored C and C++ sources, or run the non-mutating check
 used by Linux CI, with:
 
 ```sh
-tools/clang-format.sh --write
-tools/clang-format.sh --check
+bash tools/clang-format.sh --write
+bash tools/clang-format.sh --check
 ```
 
 The root `.clang-format` owns the style. `.clang-format-ignore` excludes
@@ -138,6 +143,13 @@ and opt-in physical-router interoperability tests.
 GitHub Actions builds the Linux client and server and runs the server tests for
 every pull request. The same validation runs again for every automatically
 tagged merge commit on `master`.
+
+Each tagged release builds the Linux devcontainer and publishes it as
+`ghcr.io/atrinik/linux-build`. The image receives the release version without
+the leading `v`, the rolling `ubuntu-26.04` tag, and a commit-specific
+`sha-<commit>` tag. For example, release `v5.0.1` publishes image tag `5.0.1`.
+The release workflow uses the GitHub Actions BuildKit cache so unchanged image
+layers are reused.
 
 The release line comes from `PACKAGE_VERSION` in `build.config`. A merge commit
 on `master` receives the next available patch tag in that release line. The

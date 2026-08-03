@@ -21,10 +21,10 @@ RUN apt-get update \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --chmod=0755 dependencies /tmp/atrinik-dependencies
+COPY dependencies /tmp/atrinik-dependencies
 COPY .devcontainer/windows-cross/libpcpnatpmp-mingw.patch \
     /tmp/.devcontainer/windows-cross/libpcpnatpmp-mingw.patch
-RUN /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native
+RUN bash /tmp/atrinik-dependencies/build-libpcpnatpmp.sh native
 
 WORKDIR /src
 COPY . .
