@@ -94,7 +94,7 @@ int64_t do_skill(object *op, int dir, const char *params) {
 
     switch (skill) {
         case SK_FIND_TRAPS:
-            find_traps(op, op->level);
+            find_traps(op);
             break;
 
         case SK_REMOVE_TRAPS:

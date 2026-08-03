@@ -501,7 +501,7 @@ extern int SK_level(object *op);
 extern object *SK_skill(object *op);
 /* src/server/skills.c */
 extern skill_struct skills[NROFSKILLS];
-extern void find_traps(object *pl, int level);
+extern void find_traps(object *pl);
 extern void remove_trap(object *op);
 extern void traps_auto_disarm(object *pl, object *container);
 /* src/server/spell_effect.c */

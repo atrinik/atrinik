@@ -31,6 +31,36 @@
 #include <player.h>
 #include <object.h>
 #include <rune.h>
+#include <exp.h>
+
+/**
+ * Award experience for successfully handling a generated trap.
+ *
+ * Generated traps store their creator monster's base experience in stats.exp.
+ * The normal experience path caps excessive single awards and updates both the
+ * skill and, for contributing skills, character experience.
+ *
+ * @param pl
+ * Player receiving experience.
+ * @param trap
+ * Trap that was found or disarmed.
+ * @param skill_nr
+ * Skill receiving the experience.
+ */
+static void trap_award_exp(object *pl, object *trap, int skill_nr) {
+    if (trap->stats.exp <= 0 || trap->level <= 0) {
+        return;
+    }
+
+    int64_t exp = trap->stats.exp;
+    if (exp > INT64_MAX / trap->level) {
+        exp = INT64_MAX;
+    } else {
+        exp *= trap->level;
+    }
+
+    add_exp(pl, exp, skill_nr, 0);
+}
 
 /**
  * Should op see trap?
@@ -52,6 +82,10 @@ int trap_see(object *op, object *trap, int level) {
 
         if (trap->stats.Int != 1) {
             CONTR(op)->stat_traps_found++;
+            trap_award_exp(op, trap, SK_FIND_TRAPS);
+            /* Mark it as found immediately so repeated checks cannot award
+             * experience before trap_show() updates its presentation. */
+            trap->stats.Int = 1;
         }
 
         return 1;
@@ -114,9 +148,7 @@ int trap_show(object *trap, object *where) {
  */
 int trap_disarm(object *disarmer, object *trap) {
     object *env = trap->env;
-    object *skill = CONTR(disarmer)->skill_ptr[SK_REMOVE_TRAPS];
-    int skill_level = skill != NULL ? skill->level : 0;
-    int disarmer_level = MAX(disarmer->level, skill_level) + disarmer->stats.Dex / 4;
+    int disarmer_level = trap_skill_rating(disarmer, SK_REMOVE_TRAPS);
 
     /* As with explicit detection, disarming is deterministic at a given
      * capability. Repeating the same command cannot reroll a failure. */
@@ -129,6 +161,7 @@ int trap_disarm(object *disarmer, object *trap) {
         object_remove(trap, 0);
         set_trapped_flag(env);
         CONTR(disarmer)->stat_traps_disarmed++;
+        trap_award_exp(disarmer, trap, SK_REMOVE_TRAPS);
         return 1;
     } else {
         draw_info_format(COLOR_WHITE,

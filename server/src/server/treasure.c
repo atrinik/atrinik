@@ -1179,6 +1179,12 @@ static void treasure_process_generated(object *op,
 
     SOFT_ASSERT(op != NULL, "Object is NULL");
 
+    /* Preserve the generating monster's base experience on traps so finding
+     * and disarming rewards can be derived after the trap reaches a corpse. */
+    if (op->type == RUNE && creator->type == MONSTER) {
+        op->stats.exp = creator->stats.exp;
+    }
+
     if ((flags & GT_NO_VALUE) && op->type != MONEY) {
         op->value = 0;
     }

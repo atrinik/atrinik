@@ -32,6 +32,7 @@
 #include <skillist.h>
 #include <object.h>
 #include <player.h>
+#include <rune.h>
 
 typedef enum trap_search_result {
     TRAP_SEARCH_NONE,
@@ -117,8 +118,7 @@ void traps_auto_disarm(object *pl, object *container) {
         return;
     }
 
-    object *skill = CONTR(pl)->skill_ptr[SK_FIND_TRAPS];
-    int search_level = MAX(skill->level, pl->level) + pl->stats.Dex / 4;
+    int search_level = trap_skill_rating(pl, SK_FIND_TRAPS);
     if (find_traps_in_object(pl, container, search_level) == TRAP_SEARCH_FOUND) {
         remove_traps_from_object(pl, container);
     }
@@ -129,12 +129,10 @@ void traps_auto_disarm(object *pl, object *container) {
  * objects.
  * @param pl
  * Player searching.
- * @param level
- * Level of the find traps skill.
  */
-void find_traps(object *pl, int level) {
+void find_traps(object *pl) {
     int suc = TRAP_SEARCH_NONE;
-    int search_level = MAX(level, pl->level) + pl->stats.Dex / 4;
+    int search_level = trap_skill_rating(pl, SK_FIND_TRAPS);
 
     /* First we search all around us for runes and traps, which are
      * all type RUNE */
