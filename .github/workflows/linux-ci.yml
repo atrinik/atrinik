@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 concurrency:
   group: linux-ci-${{ github.workflow }}-${{ github.event.pull_request.number || inputs.ref || github.ref }}
@@ -26,6 +27,9 @@ jobs:
     runs-on: ubuntu-26.04
     container:
       image: ghcr.io/atrinik/linux-build:ubuntu-26.04
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
         shell: bash
