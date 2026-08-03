@@ -16,3 +16,6 @@ python_reload_modules = off
 # server_name = My Atrinik Server
 # server_desc = A community Atrinik server.
 # server_host is only needed for legacy_tcp connectivity.
+# Automatic PCP/NAT-PMP/UPnP mapping is enabled by default. Set this only when
+# direct addressing or an externally managed route is intentional.
+# port_mapping = off

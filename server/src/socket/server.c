@@ -106,8 +106,11 @@ static fd_set fds_error;
  * The server's listening sockets.
  */
 static socket_t *server_sockets[SOCKET_SERVER_ID_NUM];
-/** Direct UDP/QUIC listener, when enabled. */
-static socket_t *quic_server_socket;
+/** Direct UDP/QUIC listeners (IPv4 and IPv6), when enabled. */
+static socket_t *quic_server_sockets[2];
+static socket_direct_candidate_t
+    quic_candidates[SOCKET_DIRECT_MAX_CANDIDATES];
+static size_t quic_candidate_count;
 static char quic_public_host[MAX_BUF];
 static uint16_t quic_public_port;
 static char quic_certificate_sha256[65];
@@ -365,32 +368,139 @@ TOOLKIT_INIT_FUNC(socket_server)
             LOG(ERROR, "No QUIC UDP port configured");
             exit(1);
         }
-        const char *quic_bind =
-            BIT_QUERY(stack_setting.type, STACK_IPV4)
-                ? "0.0.0.0" : "::";
         char identity_path[HUGE_BUF];
         snprintf(VS(identity_path), "%s/quic-identity.pem", settings.datapath);
-        quic_server_socket =
-            socket_quic_server_create(quic_bind,
-                                      settings.port_quic,
-                                      false,
-                                      identity_path);
-        if (quic_server_socket == NULL ||
-            !socket_certificate_sha256(quic_server_socket,
+        bool dual = BIT_QUERY(stack_setting.type, STACK_DUAL);
+        if (dual || BIT_QUERY(stack_setting.type, STACK_IPV4)) {
+            quic_server_sockets[0] =
+                socket_quic_server_create("0.0.0.0",
+                                          settings.port_quic,
+                                          false,
+                                          identity_path);
+        }
+#ifdef HAVE_IPV6
+        if (dual || BIT_QUERY(stack_setting.type, STACK_IPV6)) {
+            quic_server_sockets[1] =
+                socket_quic_server_create("::",
+                                          settings.port_quic,
+                                          false,
+                                          identity_path);
+        }
+#endif
+        socket_t *identity_socket = quic_server_sockets[0] != NULL
+            ? quic_server_sockets[0] : quic_server_sockets[1];
+        if (identity_socket == NULL ||
+            !socket_certificate_sha256(identity_socket,
                                        quic_certificate_sha256)) {
             LOG(ERROR, "Failed to initialize the QUIC listener");
             exit(1);
         }
-        snprintf(VS(quic_public_host), "%s", settings.server_host);
+
+        quic_candidate_count = 0;
+        quic_public_host[0] = '\0';
+        struct in_addr configured_address4;
+#ifdef HAVE_IPV6
+        struct in6_addr configured_address6;
+#endif
+        if (inet_pton(AF_INET,
+                      settings.server_host,
+                      &configured_address4) == 1
+#ifdef HAVE_IPV6
+            || inet_pton(AF_INET6,
+                         settings.server_host,
+                         &configured_address6) == 1
+#endif
+        ) {
+            snprintf(VS(quic_public_host), "%s", settings.server_host);
+        }
         quic_public_port = settings.port_quic;
+        char mapped_host[65];
+        uint16_t mapped_port;
+        if (socket_port_mapping_init(settings.port_quic,
+                                     VS(mapped_host),
+                                     &mapped_port)) {
+            snprintf(VS(quic_public_host), "%s", mapped_host);
+            quic_public_port = mapped_port;
+            snprintf(VS(quic_candidates[quic_candidate_count].host),
+                     "%s", mapped_host);
+            quic_candidates[quic_candidate_count].port = mapped_port;
+            snprintf(VS(quic_candidates[quic_candidate_count].kind),
+                     "mapped");
+            quic_candidate_count++;
+        }
+
+        char stun_host[65];
+        uint16_t stun_port = settings.port_quic;
         if (*settings.stun_server != '\0' &&
-            !socket_stun_discover(quic_server_socket,
-                                  settings.stun_server,
-                                  VS(quic_public_host),
-                                  &quic_public_port)) {
+            quic_server_sockets[0] != NULL &&
+            socket_stun_discover(quic_server_sockets[0],
+                                 settings.stun_server,
+                                 VS(stun_host),
+                                 &stun_port)) {
+            bool duplicate = quic_candidate_count != 0 &&
+                             quic_candidates[0].port == stun_port &&
+                             strcmp(quic_candidates[0].host, stun_host) == 0;
+            if (!duplicate &&
+                quic_candidate_count < arraysize(quic_candidates)) {
+                snprintf(VS(quic_candidates[quic_candidate_count].host),
+                         "%s", stun_host);
+                quic_candidates[quic_candidate_count].port = stun_port;
+                snprintf(VS(quic_candidates[quic_candidate_count].kind),
+                         "srflx");
+                quic_candidate_count++;
+            }
+            if (*quic_public_host == '\0') {
+                snprintf(VS(quic_public_host), "%s", stun_host);
+                quic_public_port = stun_port;
+            }
+        } else if (*quic_public_host == '\0' &&
+                   quic_server_sockets[1] != NULL &&
+                   *settings.stun_server != '\0' &&
+                   socket_stun_discover(quic_server_sockets[1],
+                                        settings.stun_server,
+                                        VS(stun_host),
+                                        &stun_port)) {
+            snprintf(VS(quic_public_host), "%s", stun_host);
+            quic_public_port = stun_port;
+            snprintf(VS(quic_candidates[quic_candidate_count].host),
+                     "%s", stun_host);
+            quic_candidates[quic_candidate_count].port = stun_port;
+            snprintf(VS(quic_candidates[quic_candidate_count].kind),
+                     "ipv6");
+            quic_candidate_count++;
+        } else if (*quic_public_host == '\0') {
             LOG(ERROR,
-                "Could not discover the public UDP candidate; "
-                "direct connections may fail behind NAT");
+                "No mapped or STUN public UDP candidate is available; "
+                "only LAN/IPv6 direct routes may work");
+        }
+
+        quic_candidate_count += socket_local_candidates(
+            settings.port_quic,
+            quic_candidates + quic_candidate_count,
+            arraysize(quic_candidates) - quic_candidate_count);
+#ifdef HAVE_IPV6
+        if (*quic_public_host == '\0') {
+            for (size_t i = 0; i < quic_candidate_count; i++) {
+                struct in6_addr address6;
+                if (strcmp(quic_candidates[i].kind, "ipv6") == 0 &&
+                    inet_pton(AF_INET6,
+                              quic_candidates[i].host,
+                              &address6) == 1 &&
+                    (address6.s6_addr[0] & 0xfe) != 0xfc) {
+                    snprintf(VS(quic_public_host),
+                             "%s", quic_candidates[i].host);
+                    quic_public_port = quic_candidates[i].port;
+                    break;
+                }
+            }
+        }
+#endif
+        for (size_t i = 0; i < quic_candidate_count; i++) {
+            LOG(INFO,
+                "Direct %s candidate: %s:%" PRIu16,
+                quic_candidates[i].kind,
+                quic_candidates[i].host,
+                quic_candidates[i].port);
         }
     }
 
@@ -411,9 +521,12 @@ TOOLKIT_DEINIT_FUNC(socket_server)
         socket_destroy(server_sockets[i]);
     }
 
-    if (quic_server_socket != NULL) {
-        socket_destroy(quic_server_socket);
-        quic_server_socket = NULL;
+    socket_port_mapping_deinit();
+    for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
+        if (quic_server_sockets[i] != NULL) {
+            socket_destroy(quic_server_sockets[i]);
+            quic_server_sockets[i] = NULL;
+        }
     }
 }
 TOOLKIT_DEINIT_FUNC_FINISH
@@ -427,7 +540,9 @@ socket_server_quic_info (char     *host,
     HARD_ASSERT(port != NULL);
     HARD_ASSERT(certificate_sha256 != NULL);
 
-    if (quic_server_socket == NULL || *quic_public_host == '\0') {
+    if ((quic_server_sockets[0] == NULL &&
+         quic_server_sockets[1] == NULL) ||
+        *quic_public_host == '\0') {
         return false;
     }
 
@@ -440,14 +555,26 @@ socket_server_quic_info (char     *host,
     return true;
 }
 
+size_t
+socket_server_quic_candidates (socket_direct_candidate_t *candidates,
+                               size_t                      capacity)
+{
+    size_t count = MIN(quic_candidate_count, capacity);
+    if (count != 0) {
+        memcpy(candidates, quic_candidates, count * sizeof(*candidates));
+    }
+    return count;
+}
+
 bool
 socket_server_quic_punch (const char *host, uint16_t port)
 {
-    if (quic_server_socket == NULL) {
+    size_t index = strchr(host, ':') != NULL ? 1 : 0;
+    if (quic_server_sockets[index] == NULL) {
         return false;
     }
 
-    return socket_udp_punch(quic_server_socket, host, port);
+    return socket_udp_punch(quic_server_sockets[index], host, port);
 }
 
 /**
@@ -807,6 +934,7 @@ socket_server_csocket_write (socket_struct *cs)
 void
 socket_server_process (void)
 {
+    socket_port_mapping_process();
     FD_ZERO(&fds_read);
     FD_ZERO(&fds_write);
     FD_ZERO(&fds_error);
@@ -826,8 +954,11 @@ socket_server_process (void)
         FD_SET(fd, &fds_read);
     }
 
-    if (quic_server_socket != NULL) {
-        int fd = socket_fd(quic_server_socket);
+    for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
+        if (quic_server_sockets[i] == NULL) {
+            continue;
+        }
+        int fd = socket_fd(quic_server_sockets[i]);
         if (nfds < fd) {
             nfds = fd;
         }
@@ -946,9 +1077,11 @@ socket_server_process (void)
         socket_server_csocket_create(server_sockets[i]);
     }
 
-    if (quic_server_socket != NULL &&
-        FD_ISSET(socket_fd(quic_server_socket), &fds_read)) {
-        socket_server_csocket_create(quic_server_socket);
+    for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
+        if (quic_server_sockets[i] != NULL &&
+            FD_ISSET(socket_fd(quic_server_sockets[i]), &fds_read)) {
+            socket_server_csocket_create(quic_server_sockets[i]);
+        }
     }
 
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {

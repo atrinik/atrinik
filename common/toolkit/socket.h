@@ -213,8 +213,23 @@ typedef enum socket_role {
 #define CMD_SETUP_JOIN_PASSWORD 4
 /** Whether in-band asset downloads are available on this connection. */
 #define CMD_SETUP_ASSET_TRANSPORT 5
+/** Direct connection mode selected by the client. */
+#define CMD_SETUP_CONNECTION_MODE 6
 /** First socket protocol version supporting in-band asset downloads. */
 #define ASSET_TRANSPORT_SOCKET_VERSION 1067
+
+/** Transport route used by an established client connection. */
+typedef enum socket_connection_mode {
+    SOCKET_CONNECTION_MODE_TCP,
+    SOCKET_CONNECTION_MODE_TLS,
+    SOCKET_CONNECTION_MODE_QUIC,
+    SOCKET_CONNECTION_MODE_QUIC_LAN,
+    SOCKET_CONNECTION_MODE_QUIC_IPV6,
+    SOCKET_CONNECTION_MODE_QUIC_MAPPED,
+    SOCKET_CONNECTION_MODE_QUIC_SRFLX,
+    SOCKET_CONNECTION_MODE_QUIC_DIRECTORY,
+    SOCKET_CONNECTION_MODE_NUM
+} socket_connection_mode_t;
 
 /** Asset chunk was returned successfully. */
 #define ASSET_STATUS_OK 0
@@ -858,6 +873,16 @@ enum {
  */
 #define SOCKET_TIMEOUT_MS 30.0
 
+/** Maximum number of direct connection candidates exchanged in rendezvous. */
+#define SOCKET_DIRECT_MAX_CANDIDATES 12
+
+/** A directly reachable UDP endpoint advertised during rendezvous. */
+typedef struct socket_direct_candidate {
+    char host[65];
+    uint16_t port;
+    char kind[16];
+} socket_direct_candidate_t;
+
 #ifdef WIN32
 static inline const char *s_strerror(int val)
 {
@@ -908,6 +933,10 @@ socket_quic_client_create(const char *host,
                           const char *stun_endpoint);
 bool
 socket_is_quic(socket_t *sc);
+socket_connection_mode_t
+socket_connection_mode_get(socket_t *sc);
+const char *
+socket_connection_mode_name(socket_connection_mode_t mode);
 bool
 socket_certificate_sha256(socket_t *sc, char fingerprint[65]);
 bool
@@ -918,6 +947,10 @@ socket_stun_discover(socket_t *sc,
                      uint16_t *port);
 bool
 socket_udp_punch(socket_t *sc, const char *host, uint16_t port);
+size_t
+socket_local_candidates(uint16_t                    port,
+                        socket_direct_candidate_t *candidates,
+                        size_t                      capacity);
 char *socket_get_addr(socket_t *sc);
 char *socket_get_str(socket_t *sc);
 int socket_cmp_addr(socket_t *sc, const struct sockaddr_storage *addr,

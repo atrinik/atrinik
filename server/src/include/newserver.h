@@ -148,6 +148,9 @@ typedef struct socket_struct {
     /** Whether the configured server join password was accepted. */
     bool join_authenticated;
 
+    /** Transport route selected for this connection. */
+    socket_connection_mode_t connection_mode;
+
     /** Start of drawing of look window. */
     uint32_t look_position;
 

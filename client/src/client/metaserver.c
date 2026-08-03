@@ -664,7 +664,8 @@ metaserver_cert_verify_host (server_struct *server, const char *host)
     SOFT_ASSERT_RC(socket_host2addr(host, &addr), false,
                    "Failed to convert host to IP address");
 
-    switch (addr.ss_family) {
+    int family = ((struct sockaddr *) &addr)->sa_family;
+    switch (family) {
     case AF_INET:
         if (strcmp(host, server->cert_info->ipv4_address) != 0) {
             LOG(ERROR, "!!! Certificate IPv4 address error: %s != %s !!!",
@@ -684,7 +685,7 @@ metaserver_cert_verify_host (server_struct *server, const char *host)
         break;
 
     default:
-        LOG(ERROR, "!!! Unknown address family %u !!!", addr.ss_family);
+        LOG(ERROR, "!!! Unknown address family %u !!!", family);
         return false;
     }
 

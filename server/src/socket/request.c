@@ -113,6 +113,14 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             }
         } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
             packet_append_uint8(packet, socket_is_quic(ns->sc) ? 1 : 0);
+        } else if (type == CMD_SETUP_CONNECTION_MODE) {
+            socket_connection_mode_t mode = packet_to_uint8(data, len, &pos);
+            if (socket_is_quic(ns->sc) &&
+                mode >= SOCKET_CONNECTION_MODE_QUIC_LAN &&
+                mode <= SOCKET_CONNECTION_MODE_QUIC_DIRECTORY) {
+                ns->connection_mode = mode;
+            }
+            packet_append_uint8(packet, ns->connection_mode);
         } else if (type == CMD_SETUP_JOIN_PASSWORD) {
             char password[MAX_BUF];
             packet_to_string(data, len, &pos, VS(password));

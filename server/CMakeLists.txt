@@ -48,10 +48,11 @@ endforeach (name)
 include(src/cmake.txt)
 
 # Check is used for unit tests, but is optional.
-find_package(PkgConfig QUIET)
-if (PKG_CONFIG_FOUND)
-    pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
-endif ()
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
+pkg_check_modules(MINIUPNPC REQUIRED IMPORTED_TARGET miniupnpc)
+
+find_package(pcpnatpmp 1.0 REQUIRED CONFIG)
 
 find_library(CHECK_LIBRARY check)
 
@@ -105,6 +106,9 @@ endif ()
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
 target_link_libraries(${EXECUTABLE} atrinik-toolkit)
+target_link_libraries(${EXECUTABLE}
+    pcpnatpmp::pcpnatpmp
+    PkgConfig::MINIUPNPC)
 
 # Link libraries.
 if (DL_LIBRARY)

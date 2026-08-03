@@ -377,6 +377,9 @@ typedef struct settings_struct {
      */
     char stun_server[MAX_BUF];
 
+    /** Automatic router port mapping policy (auto or off). */
+    char port_mapping[16];
+
     /**
      * Optional password required before a client may join this server.
      */

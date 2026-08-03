@@ -156,9 +156,15 @@
   $ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
       docker compose -f compose.server.yaml up --build -d
 
- Direct gameplay and in-band asset delivery use UDP port 1730. TCP ports 1728
- and 1729 remain available for legacy modes. Port 8080 is only needed if the
- optional bundled HTTP server is enabled. Player data, the persistent QUIC
+ On a native Linux Docker Engine, the Compose service uses host networking so
+ candidate gathering and the PCP/NAT-PMP/UPnP libraries can see the physical
+ host's interfaces and default gateway. Docker Desktop still runs Linux
+ containers inside its VM; host mode there can expose the VM gateway instead
+ of the physical router, preventing automatic router discovery. There are no
+ Docker `ports` translations: direct gameplay and
+ in-band asset delivery bind host UDP port 1730, legacy modes bind host TCP
+ ports 1728/1729, and the optional HTTP server binds host port 8080. Player
+ data, the persistent QUIC
  identity, and other mutable state are kept directly in the host's
  server-data/ folder. Region maps are generated while building the image and
  refreshed into that folder when the container starts. On Linux, LOCAL_UID and
@@ -179,6 +185,14 @@
       ATRINIK_HTTP_URL=https://cdn.example.com/atrinik \
       docker compose -f compose.server.yaml up -d
 
+ Host networking on a native Linux Docker Engine is required for automatic
+ router discovery in this Compose deployment. A discovered gateway in a Docker
+ Desktop private subnet (for example, `192.168.65.0/24`) is the VM gateway, not
+ evidence that PCP can reach the physical router. If another service already
+ owns one of the Atrinik ports, change the corresponding server configuration
+ before starting the container. Set ATRINIK_PORT_MAPPING=off only when the host
+ has a direct global address or the route is managed outside Atrinik.
+
 
 =================================================
 = 2.4. Direct QUIC hosting (no port forwarding) =
@@ -196,6 +210,7 @@
   server_desc = Private server for friends
   port_quic = 1730
   stun_server = stun.cloudflare.com:3478
+  port_mapping = auto
   join_password = choose-a-long-password
 
  'server_public' is opt-in. If false, the server is not returned by the public
@@ -209,11 +224,22 @@
     manually reachable deployments. It does not enable a game-traffic relay.
   - legacy_tcp: classic TCP ports only; requires a publicly reachable port.
 
- STUN discovery and punch probes use the same UDP socket as QUIC. This works
- through common endpoint-independent and address-dependent NATs, including
- many CGNAT deployments. Some symmetric NATs and UDP-blocking networks cannot
- establish a direct path. There is intentionally no TURN/game relay fallback,
- so those networks must use IPv6, a VPN/overlay, or a manually reachable host.
+ The server advertises same-LAN and direct global IPv6 addresses first. It then
+ tries PCP with automatic NAT-PMP negotiation and UPnP IGD to create and renew
+ a UDP router mapping; STUN supplies a server-reflexive fallback. Rendezvous
+ sends short punch probes in both directions, but only a completed,
+ certificate-pinned QUIC handshake confirms that a candidate is usable.
+
+Some carrier-grade/symmetric NATs and UDP-blocking networks still cannot
+establish a direct path when the router offers no mapping protocol and there
+is no global IPv6 address. There is intentionally no TURN/game relay fallback,
+so those networks must use IPv6, a VPN/overlay, or a separately managed direct
+route. Failure is reported explicitly as “No confirmed direct route”.
+
+The client log lists every candidate attempt and the selected route. Operators
+with the `stats` command permission also see each player's reported mode (for
+example, `QUIC/mapped` or `QUIC/IPv6`) in `/who`. This is client-reported
+diagnostic metadata, not an authorization signal.
 
  Direct servers are identified by their QUIC certificate fingerprint rather
  than a DNS hostname. If crypto_cert and crypto_cert_key are configured, that
@@ -277,9 +303,10 @@
  up to an hour, so public servers with dynamic IPs are not encouraged due to
  the possible outage period.
 
- Direct mode uses a NAT-discovered UDP candidate and does not normally require
- a router port-forwarding rule. The local firewall must still allow the server
- to send and receive UDP on port_quic. See section 3.2. for details.
+ Direct mode automatically tries a router mapping and does not normally require
+ a manual port-forwarding rule. The local firewall must still allow the server
+ to send and receive UDP on port_quic, and the router must support PCP,
+ NAT-PMP, or UPnP unless direct IPv6 is available. See section 3.2. for details.
 
  After you have all of the above set up, the next time you launch the server,
  it should connect to the metaserver and update it with your server
@@ -323,8 +350,8 @@
  order for other players to connect successfully (they can all be changed in
  the configuration).
 
-  - 1730/UDP: Direct QUIC gameplay and asset delivery. NAT traversal normally
-              avoids a manual forwarding rule.
+  - 1730/UDP: Direct QUIC gameplay and asset delivery. PCP/NAT-PMP/UPnP mapping,
+              IPv6, and rendezvous normally avoid a manual forwarding rule.
   - 1728: The main legacy TCP game data port
   - 1729: The security extension port; clients will connect to this port
           instead of the one above if the security extensions are enabled.

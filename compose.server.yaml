@@ -10,13 +10,12 @@ services:
       ATRINIK_SERVER_PUBLIC: ${ATRINIK_SERVER_PUBLIC:-false}
       ATRINIK_SERVER_HOST: ${ATRINIK_SERVER_HOST:-}
       ATRINIK_JOIN_PASSWORD: ${ATRINIK_JOIN_PASSWORD:-}
+      ATRINIK_NETWORK_STACK: ${ATRINIK_NETWORK_STACK:-dual}
+      ATRINIK_PORT_MAPPING: ${ATRINIK_PORT_MAPPING:-auto}
+      ATRINIK_QUIC_PORT: ${ATRINIK_QUIC_PORT:-1730}
       HOME: /tmp
+    network_mode: host
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
-    ports:
-      - "${ATRINIK_PORT:-1728}:1728"
-      - "${ATRINIK_CRYPTO_PORT:-1729}:1729"
-      - "${ATRINIK_QUIC_PORT:-1730}:1730/udp"
-      - "${ATRINIK_HTTP_PORT:-8080}:8080"
     volumes:
       - ./server-data:/opt/atrinik/server/data
       - ./server-custom.cfg:/opt/atrinik/server/server-custom.cfg:ro

@@ -29,13 +29,13 @@ After building, follow `client/README` to run the game client or
 Windows client can be cross-compiled with the MXE container described in
 `INSTALL`.
 
-Servers may use direct UDP/QUIC networking with STUN and metaserver
-rendezvous, so gameplay does not pass through the metaserver and port
-forwarding is normally unnecessary. Public servers can be listed by the
-metaserver, while private friend servers can require a join password. Game
-assets use the same QUIC connection by default; a configured HTTP CDN is
-preferred automatically with QUIC fallback. See `server/README` for
-configuration details.
+Servers may use direct UDP/QUIC networking with LAN and global IPv6 candidates,
+automatic PCP/NAT-PMP/UPnP router mappings, STUN, and metaserver rendezvous.
+Gameplay never passes through the metaserver, and a manual forwarding rule is
+normally unnecessary. Public servers can be listed by the metaserver, while
+private friend servers can require a join password. Game assets use the same
+QUIC connection by default; a configured HTTP CDN is preferred automatically
+with QUIC fallback. See `server/README` for configuration details.
 
 ## Development commands
 

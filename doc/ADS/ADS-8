@@ -1,0 +1,75 @@
+================================================================================
+= ADS-8, rev: 1.0: Atrinik Direct Rendezvous Specification                     =
+================================================================================
+
+1. Scope
+========
+
+Atrinik direct mode carries gameplay and assets over QUIC without relaying game
+traffic through the metaserver. The metaserver WebSocket is signaling-only. It
+forwards bounded JSON candidate messages and cannot carry binary messages,
+arbitrary JSON, QUIC datagrams, assets, or game protocol packets.
+
+2. Candidate gathering
+======================
+
+The server gathers at most 12 UDP candidates. Candidate kinds are:
+
+  lan     A non-loopback interface IPv4 address.
+  ipv6    A non-loopback, non-link-local IPv6 address.
+  mapped  A router mapping created by PCP, NAT-PMP, or UPnP IGD.
+  srflx   A server-reflexive address discovered with STUN.
+
+PCP is attempted first and automatically negotiates down to NAT-PMP. UPnP IGD
+is the mapping fallback. Mappings are maintained by the game server and removed
+on orderly shutdown. STUN does not make an unreachable port reachable; it only
+discovers the address assigned by NAT.
+
+3. Signaling messages
+=====================
+
+Every ticket is 64 lowercase hexadecimal characters. Hosts are normalized IP
+literals and ports are integers from 1 through 65535.
+
+Client to server:
+
+  {"type":"client_candidate","host":"198.51.100.8","port":49152,
+   "ticket":"..."}
+
+Server to client, repeated once per candidate:
+
+  {"type":"server_candidate","host":"203.0.113.4","port":1730,
+   "kind":"mapped","ticket":"..."}
+
+Server terminator:
+
+  {"type":"complete","ticket":"..."}
+
+The Worker permits client_candidate only from a client socket and permits
+server_candidate and complete only from the authenticated server socket. It
+normalizes IP literals and reconstructs messages before forwarding them.
+
+4. Connectivity checks and failure
+===================================
+
+On receipt of a client candidate, the server sends several UDP probes from the
+QUIC listener while returning its candidates. The client checks candidates in
+LAN, IPv6, mapped, STUN, then directory order. A candidate is usable only when
+the QUIC handshake completes and the advertised SHA-256 certificate fingerprint
+matches. Signaling completion never claims that a network route works.
+
+If every candidate fails, the client reports that no confirmed direct route is
+available. It does not silently use a TURN relay, metaserver relay, or legacy
+TCP connection. Networks that block UDP or provide incompatible symmetric NAT
+therefore need direct IPv6, an automatic/manual router mapping, or an external
+VPN/overlay chosen by the operator.
+
+5. Diagnostics
+==============
+
+The client logs the complete candidate list, address-family changes, every
+handshake attempt and failure, and the selected route. After connecting it
+reports the selected candidate kind through the game protocol SETUP connection
+mode option. This value is operator diagnostics, not trusted authorization or
+network-boundary evidence. The server exposes it only in privileged /who
+output.

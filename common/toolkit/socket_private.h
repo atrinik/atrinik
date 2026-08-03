@@ -45,6 +45,7 @@ struct sock_struct {
     socket_crypto_t *crypto;
     bool secure:1;
     socket_role_t role;
+    socket_connection_mode_t connection_mode;
 
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
     SSL_CTX *quic_ctx;
@@ -55,9 +56,11 @@ struct sock_struct {
     bool owns_handle:1;
 };
 
-bool
-socket_rendezvous_client(socket_t   *sc,
-                         const char *url,
-                         const char *stun_endpoint);
+size_t
+socket_rendezvous_client(socket_t                    *sc,
+                         const char                  *url,
+                         const char                  *stun_endpoint,
+                         socket_direct_candidate_t  *candidates,
+                         size_t                       capacity);
 
 #endif

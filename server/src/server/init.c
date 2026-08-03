@@ -499,6 +499,24 @@ clioptions_option_stun_server (const char *arg,
 }
 
 /**
+ * Description of the --port_mapping command.
+ */
+static const char *clioptions_option_port_mapping_desc =
+"Automatic router mapping policy: auto or off.";
+/** @copydoc clioptions_handler_func */
+static bool
+clioptions_option_port_mapping (const char *arg,
+                                char      **errmsg)
+{
+    if (strcmp(arg, "auto") != 0 && strcmp(arg, "off") != 0) {
+        *errmsg = estrdup("Expected auto or off");
+        return false;
+    }
+    snprintf(VS(settings.port_mapping), "%s", arg);
+    return true;
+}
+
+/**
  * Description of the --join_password command.
  */
 static const char *clioptions_option_join_password_desc =
@@ -1079,6 +1097,7 @@ static void init_library(int argc, char *argv[])
                                connectivity_mode,
                                "Direct connection policy");
     CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "STUN discovery endpoint");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, port_mapping, "Router port mapping policy");
     CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_public, "Public server listing");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");

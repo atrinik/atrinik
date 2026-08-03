@@ -348,6 +348,7 @@ socket_quic_server_create (const char *host,
     sc->handle = -1;
     sc->owns_handle = true;
     sc->transport = SOCKET_TRANSPORT_QUIC_LISTENER;
+    sc->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
     sc->role = SOCKET_ROLE_SERVER;
     sc->port = port;
     sc->host = host != NULL ? estrdup(host) : NULL;
@@ -421,18 +422,15 @@ socket_quic_server_create (const char *host,
     return sc;
 }
 
-socket_t *
-socket_quic_client_create (const char *host,
-                           uint16_t    port,
-                           const char *certificate_sha256,
-                           const char *rendezvous_url,
-                           const char *stun_endpoint)
+static socket_t *
+socket_quic_client_socket (const char              *host,
+                           uint16_t                 port,
+                           struct sockaddr_storage *address,
+                           socklen_t               *address_length)
 {
-    HARD_ASSERT(host != NULL);
-
     char port_str[6];
     snprintf(VS(port_str), "%" PRIu16, port);
-    struct addrinfo hints, *addresses = NULL, *selected = NULL;
+    struct addrinfo hints, *addresses = NULL;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
@@ -449,6 +447,7 @@ socket_quic_client_create (const char *host,
     sc->handle = -1;
     sc->owns_handle = true;
     sc->transport = SOCKET_TRANSPORT_QUIC_CONNECTION;
+    sc->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
     sc->role = SOCKET_ROLE_CLIENT;
     sc->port = port;
     sc->host = estrdup(host);
@@ -459,29 +458,45 @@ socket_quic_client_create (const char *host,
             continue;
         }
         memcpy(&sc->addr, ai->ai_addr, ai->ai_addrlen);
-        selected = ai;
+        memcpy(address, ai->ai_addr, ai->ai_addrlen);
+        *address_length = (socklen_t) ai->ai_addrlen;
         break;
     }
 
-    if (selected == NULL) {
-        freeaddrinfo(addresses);
+    freeaddrinfo(addresses);
+    if (sc->handle == -1 || !socket_opt_non_blocking(sc, true)) {
         socket_destroy(sc);
         return NULL;
     }
+    return sc;
+}
 
-    if (rendezvous_url != NULL &&
-        !socket_rendezvous_client(sc, rendezvous_url, stun_endpoint)) {
-        LOG(ERROR,
-            "Rendezvous signaling failed; attempting the direct candidate");
+static bool
+socket_quic_client_handshake (socket_t              *sc,
+                              const struct sockaddr *address,
+                              socklen_t              address_length,
+                              const char            *certificate_sha256,
+                              const char            *host)
+{
+    memcpy(&sc->addr, address, address_length);
+    if (connect(sc->handle, address, address_length) != 0) {
+        return false;
     }
 
-    if (connect(sc->handle,
-                (struct sockaddr *) &sc->addr,
-                selected->ai_addrlen) != 0 ||
-        !socket_opt_non_blocking(sc, true)) {
-        freeaddrinfo(addresses);
-        socket_destroy(sc);
-        return NULL;
+    /* Rendezvous punch datagrams deliberately use the QUIC socket so the NAT
+     * sees the same five-tuple. Remove those non-QUIC probes before OpenSSL
+     * owns the receive path; otherwise they can abort the QUIC state machine. */
+    char probe[2048];
+    while (recv(sc->handle, probe, sizeof(probe), 0) > 0) {
+    }
+
+    if (sc->quic != NULL) {
+        SSL_free(sc->quic);
+        sc->quic = NULL;
+    }
+    if (sc->quic_ctx != NULL) {
+        SSL_CTX_free(sc->quic_ctx);
+        sc->quic_ctx = NULL;
     }
 
     sc->quic_ctx = SSL_CTX_new(OSSL_QUIC_client_method());
@@ -507,12 +522,9 @@ socket_quic_client_create (const char *host,
 
     BIO_free(bio);
     BIO_ADDR_free(peer);
-    freeaddrinfo(addresses);
-
     if (!configured) {
         socket_quic_log_error("client setup");
-        socket_destroy(sc);
-        return NULL;
+        return false;
     }
 
     TIMER_START(connect_timer);
@@ -526,25 +538,200 @@ socket_quic_client_create (const char *host,
         if (ssl_error != SSL_ERROR_WANT_READ &&
             ssl_error != SSL_ERROR_WANT_WRITE) {
             socket_quic_log_error("client handshake");
-            socket_destroy(sc);
-            return NULL;
+            return false;
         }
 
         TIMER_UPDATE(connect_timer);
-        if (TIMER_GET(connect_timer) > SOCKET_TIMEOUT_MS ||
+        if (TIMER_GET(connect_timer) > 5.0 ||
             !socket_quic_wait(sc->quic)) {
-            LOG(ERROR, "QUIC connection to %s timed out", host);
-            socket_destroy(sc);
-            return NULL;
+            LOG(DEBUG, "QUIC candidate %s timed out", host);
+            return false;
         }
     }
 
     if (!socket_quic_check_fingerprint(sc->quic, certificate_sha256)) {
-        socket_destroy(sc);
+        return false;
+    }
+
+    return true;
+}
+
+static socket_connection_mode_t
+socket_quic_candidate_mode (const char *kind)
+{
+    if (strcmp(kind, "lan") == 0) {
+        return SOCKET_CONNECTION_MODE_QUIC_LAN;
+    }
+    if (strcmp(kind, "ipv6") == 0) {
+        return SOCKET_CONNECTION_MODE_QUIC_IPV6;
+    }
+    if (strcmp(kind, "mapped") == 0) {
+        return SOCKET_CONNECTION_MODE_QUIC_MAPPED;
+    }
+    if (strcmp(kind, "srflx") == 0) {
+        return SOCKET_CONNECTION_MODE_QUIC_SRFLX;
+    }
+    return SOCKET_CONNECTION_MODE_QUIC_DIRECTORY;
+}
+
+socket_t *
+socket_quic_client_create (const char *host,
+                           uint16_t    port,
+                           const char *certificate_sha256,
+                           const char *rendezvous_url,
+                           const char *stun_endpoint)
+{
+    HARD_ASSERT(host != NULL);
+
+    struct sockaddr_storage initial_address;
+    socklen_t initial_length = 0;
+    socket_t *sc = socket_quic_client_socket(host,
+                                             port,
+                                             &initial_address,
+                                             &initial_length);
+    if (sc == NULL) {
         return NULL;
     }
 
-    return sc;
+    socket_direct_candidate_t
+        candidates[SOCKET_DIRECT_MAX_CANDIDATES + 1];
+    size_t count = 0;
+    if (rendezvous_url != NULL) {
+        count = socket_rendezvous_client(sc,
+                                         rendezvous_url,
+                                         stun_endpoint,
+                                         candidates,
+                                         SOCKET_DIRECT_MAX_CANDIDATES);
+        if (count == 0) {
+            LOG(ERROR,
+                "Rendezvous signaling returned no direct candidates; "
+                "trying the directory candidate");
+        }
+    }
+    snprintf(VS(candidates[count].host), "%s", host);
+    candidates[count].port = port;
+    snprintf(VS(candidates[count].kind), "directory");
+    count++;
+
+    LOG(INFO, "Testing %" PRIu64 " direct QUIC candidate%s",
+        (uint64_t) count,
+        count == 1 ? "" : "s");
+    for (size_t i = 0; i < count; i++) {
+        LOG(INFO,
+            "Direct QUIC candidate %" PRIu64 "/%" PRIu64 ": %s %s:%"
+            PRIu16,
+            (uint64_t) (i + 1),
+            (uint64_t) count,
+            candidates[i].kind,
+            candidates[i].host,
+            candidates[i].port);
+    }
+
+    static const char *const priorities[] = {
+        "lan", "ipv6", "mapped", "srflx", "directory"
+    };
+    for (size_t priority = 0; priority < arraysize(priorities); priority++) {
+        for (size_t i = 0; i < count; i++) {
+            if (strcmp(candidates[i].kind, priorities[priority]) != 0) {
+                continue;
+            }
+
+            char port_str[6];
+            snprintf(VS(port_str), "%" PRIu16, candidates[i].port);
+            struct addrinfo hints, *addresses = NULL;
+            memset(&hints, 0, sizeof(hints));
+            hints.ai_family = AF_UNSPEC;
+            hints.ai_socktype = SOCK_DGRAM;
+            hints.ai_protocol = IPPROTO_UDP;
+            hints.ai_flags = AI_NUMERICSERV;
+            int rc = getaddrinfo(candidates[i].host,
+                                 port_str,
+                                 &hints,
+                                 &addresses);
+            if (rc != 0) {
+                LOG(ERROR,
+                    "Cannot resolve %s QUIC candidate %s:%" PRIu16 ": %s",
+                    candidates[i].kind,
+                    candidates[i].host,
+                    candidates[i].port,
+                    gai_strerror(rc));
+                continue;
+            }
+
+            struct addrinfo *selected = addresses;
+            int current_family =
+                ((struct sockaddr *) &sc->addr)->sa_family;
+            while (selected != NULL &&
+                   selected->ai_family != current_family) {
+                selected = selected->ai_next;
+            }
+            if (selected == NULL) {
+                LOG(INFO,
+                    "Switching UDP address family for %s QUIC candidate",
+                    candidates[i].kind);
+                freeaddrinfo(addresses);
+                addresses = NULL;
+                socket_destroy(sc);
+                sc = socket_quic_client_socket(candidates[i].host,
+                                               candidates[i].port,
+                                               &initial_address,
+                                               &initial_length);
+                if (sc == NULL) {
+                    continue;
+                }
+                rc = getaddrinfo(candidates[i].host,
+                                 port_str,
+                                 &hints,
+                                 &addresses);
+                if (rc != 0) {
+                    LOG(ERROR,
+                        "Cannot resolve %s QUIC candidate after switching "
+                        "address family: %s",
+                        candidates[i].kind,
+                        gai_strerror(rc));
+                    continue;
+                }
+                selected = addresses;
+            }
+
+            LOG(INFO,
+                "Checking %s QUIC candidate %s:%" PRIu16,
+                candidates[i].kind,
+                candidates[i].host,
+                candidates[i].port);
+            bool connected = socket_quic_client_handshake(
+                sc,
+                selected->ai_addr,
+                (socklen_t) selected->ai_addrlen,
+                certificate_sha256,
+                candidates[i].host);
+            freeaddrinfo(addresses);
+            if (connected) {
+                sc->connection_mode = socket_quic_candidate_mode(
+                    candidates[i].kind);
+                efree(sc->host);
+                sc->host = estrdup(candidates[i].host);
+                sc->port = candidates[i].port;
+                LOG(SYSTEM,
+                    "Selected %s direct QUIC route %s:%" PRIu16,
+                    candidates[i].kind,
+                    candidates[i].host,
+                    candidates[i].port);
+                return sc;
+            }
+            LOG(INFO,
+                "%s QUIC candidate %s:%" PRIu16 " failed",
+                candidates[i].kind,
+                candidates[i].host,
+                candidates[i].port);
+        }
+    }
+
+    LOG(ERROR,
+        "No confirmed direct route to the server; game traffic relay is "
+        "disabled");
+    socket_destroy(sc);
+    return NULL;
 }
 
 bool
@@ -612,4 +799,31 @@ socket_is_quic (socket_t *sc)
 {
     HARD_ASSERT(sc != NULL);
     return sc->transport != SOCKET_TRANSPORT_TCP;
+}
+
+socket_connection_mode_t
+socket_connection_mode_get (socket_t *sc)
+{
+    HARD_ASSERT(sc != NULL);
+    return sc->connection_mode;
+}
+
+const char *
+socket_connection_mode_name (socket_connection_mode_t mode)
+{
+    static const char *const names[SOCKET_CONNECTION_MODE_NUM] = {
+        "TCP",
+        "TLS",
+        "QUIC",
+        "QUIC/LAN",
+        "QUIC/IPv6",
+        "QUIC/mapped",
+        "QUIC/STUN",
+        "QUIC/directory"
+    };
+
+    if ((unsigned int) mode >= SOCKET_CONNECTION_MODE_NUM) {
+        return "unknown";
+    }
+    return names[mode];
 }

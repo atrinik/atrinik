@@ -66,6 +66,8 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
                     sizeof(cpl.http_url));
         } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
             cpl.asset_transport = packet_to_uint8(data, len, &pos) != 0;
+        } else if (type == CMD_SETUP_CONNECTION_MODE) {
+            packet_to_uint8(data, len, &pos);
         } else if (type == CMD_SETUP_JOIN_PASSWORD) {
             if (packet_to_uint8(data, len, &pos) == 0) {
                 draw_info(COLOR_RED,

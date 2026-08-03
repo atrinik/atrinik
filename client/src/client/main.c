@@ -359,6 +359,11 @@ static int game_status_chain(void)
         if (cpl.server_socket_version >= ASSET_TRANSPORT_SOCKET_VERSION) {
             packet_append_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
         }
+        if (socket_is_quic(csocket.sc)) {
+            packet_append_uint8(packet, CMD_SETUP_CONNECTION_MODE);
+            packet_append_uint8(packet,
+                                socket_connection_mode_get(csocket.sc));
+        }
         socket_send_packet(packet);
 
         cpl.state = ST_WAITSETUP;

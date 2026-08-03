@@ -22,7 +22,9 @@ C toolchain, CMake, Flex, SDL dependencies, OpenSSL, cURL, zlib, Python
 development headers, and the optional GD, Check, and Readline dependencies.
 
 OpenSSL 3.5 or newer is required to build the direct UDP/QUIC transport used
-by the client and server.
+by the client and server. Server builds also use miniupnpc and libpcpnatpmp
+for automatic UPnP IGD and PCP/NAT-PMP UDP mappings. The devcontainer and
+server image install these dependencies at pinned, reproducible versions.
 
 From the repository root, build the client and server:
 
@@ -62,8 +64,13 @@ sudo apt-get install build-essential cmake flex libcurl4-openssl-dev \
   libssl-dev zlib1g-dev python3-dev libgd-dev libreadline-dev \
   libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev \
   libsdl-ttf2.0-dev timidity libx11-dev libxml2-dev libxmu-dev \
-  cproto pkgconf check libsubunit-dev
+  cproto pkgconf check libsubunit-dev libminiupnpc-dev
 ```
+
+Ubuntu does not currently package libpcpnatpmp. Install release 1.0.0 (the
+repository images pin commit `866d283da99f5e98eecff702a8df63e2ae57ffca`)
+with its CLI, test server, and tests disabled before configuring a server
+build. Client-only builds do not require either port-mapping library.
 
 Configure and compile a debug build using the checked-in presets:
 

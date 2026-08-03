@@ -13,7 +13,8 @@
   "updateRemoteUserUID": true,
   "runArgs": [
     "--network", "host",
-    "--security-opt", "seccomp=unconfined"
+    "--security-opt", "seccomp=unconfined",
+    "--security-opt", "no-new-privileges=false"
   ],
   "initializeCommand": "install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\"",
   "workspaceFolder": "/workspaces/atrinik",

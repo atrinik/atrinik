@@ -21,10 +21,11 @@ if [ -n "${ATRINIK_SERVER_HOST:-}" ]; then
 fi
 
 exec ./atrinik-server \
-    --network_stack=ipv4 \
+    --network_stack="${ATRINIK_NETWORK_STACK:-dual}" \
     --no_console \
     --http_url="${ATRINIK_HTTP_URL:-off}" \
     --connectivity_mode="${ATRINIK_CONNECTIVITY_MODE:-direct_only}" \
     --server_public="${ATRINIK_SERVER_PUBLIC:-false}" \
-    --port_quic=1730 \
+    --port_quic="${ATRINIK_QUIC_PORT:-1730}" \
+    --port_mapping="${ATRINIK_PORT_MAPPING:-auto}" \
     "$@"

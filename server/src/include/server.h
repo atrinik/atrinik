@@ -72,5 +72,17 @@ socket_server_quic_info(char     *host,
                         char      certificate_sha256[65]);
 bool
 socket_server_quic_punch(const char *host, uint16_t port);
+size_t
+socket_server_quic_candidates(socket_direct_candidate_t *candidates,
+                              size_t                      capacity);
+bool
+socket_port_mapping_init(uint16_t port,
+                         char    *host,
+                         size_t   host_size,
+                         uint16_t *external_port);
+void
+socket_port_mapping_process(void);
+void
+socket_port_mapping_deinit(void);
 
 #endif

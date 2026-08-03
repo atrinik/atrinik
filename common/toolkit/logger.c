@@ -287,10 +287,7 @@ void logger_do_print(const char *str)
     TOOLKIT_PROTECT();
 
     fputs(str, stdout);
-
-#ifdef WIN32
     fflush(stdout);
-#endif
 }
 
 /**

@@ -231,7 +231,7 @@ target_link_libraries(${ATRINIK_TOOLKIT} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MINGW)
     target_link_libraries(${ATRINIK_TOOLKIT} wsock32 wldap32 winmm ws2_32
-            imagehlp)
+            imagehlp iphlpapi)
 endif ()
 
 if (TARGET ZLIB::ZLIB)

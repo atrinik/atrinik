@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: .devcontainer/windows-cross/Dockerfile
       args:
-        MXE_BUILD_JOBS: ${MXE_BUILD_JOBS:-2}
+        MXE_BUILD_JOBS: ${MXE_BUILD_JOBS:-16}
     working_dir: /workspaces/atrinik
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     environment:

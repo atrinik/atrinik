@@ -120,6 +120,9 @@ socket_create (const char   *host,
     sc->owns_handle = true;
     sc->secure = !!secure;
     sc->role = role;
+    sc->connection_mode = secure
+        ? SOCKET_CONNECTION_MODE_TLS
+        : SOCKET_CONNECTION_MODE_TCP;
 
 #ifdef HAVE_GETADDRINFO
     char port_str[6];
@@ -439,6 +442,7 @@ socket_t *socket_accept(socket_t *sc)
         tmp->handle = sc->handle;
         tmp->owns_handle = false;
         tmp->transport = SOCKET_TRANSPORT_QUIC_CONNECTION;
+        tmp->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
         tmp->quic = connection;
         tmp->role = sc->role;
         tmp->port = sc->port;
@@ -460,6 +464,9 @@ socket_t *socket_accept(socket_t *sc)
     tmp->port = ((struct sockaddr_in *) &tmp->addr)->sin_port;
     /* Copy over the secure flag from the accepting socket. */
     tmp->secure = sc->secure;
+    tmp->connection_mode = tmp->secure
+        ? SOCKET_CONNECTION_MODE_TLS
+        : SOCKET_CONNECTION_MODE_TCP;
     /* And the role. */
     tmp->role = sc->role;
     return tmp;

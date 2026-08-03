@@ -9,8 +9,10 @@ RUN apt-get update \
         check \
         cmake \
         flex \
+        git \
         libcurl4-openssl-dev \
         libgd-dev \
+        libminiupnpc-dev \
         libreadline-dev \
         libsubunit-dev \
         libssl-dev \
@@ -18,6 +20,18 @@ RUN apt-get update \
         python3-dev \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
+
+ARG PCPNATPMP_COMMIT=866d283da99f5e98eecff702a8df63e2ae57ffca
+RUN git clone https://github.com/libpcpnatpmp/libpcpnatpmp.git /tmp/libpcpnatpmp \
+    && git -C /tmp/libpcpnatpmp checkout "${PCPNATPMP_COMMIT}" \
+    && cmake -S /tmp/libpcpnatpmp -B /tmp/libpcpnatpmp/build \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DBUILD_CLI_CLIENT=OFF \
+        -DBUILD_SERVER=OFF \
+        -DBUILD_TESTS=OFF \
+    && cmake --build /tmp/libpcpnatpmp/build --parallel \
+    && cmake --install /tmp/libpcpnatpmp/build \
+    && rm -rf /tmp/libpcpnatpmp
 
 WORKDIR /src
 COPY . .
@@ -57,6 +71,7 @@ RUN apt-get update \
         libcrypt1 \
         libcurl4t64 \
         libgd3 \
+        libminiupnpc21 \
         libpython3.14 \
         libreadline8t64 \
         libssl3t64 \

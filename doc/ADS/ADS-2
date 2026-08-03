@@ -364,6 +364,28 @@
    - url (string):
       The URL to use for data files. Empty string to simply ask for the URL,
       otherwise a valid URL as a suggestion.
+ JOIN_PASSWORD:
+  Password used to enter a private server. The request value is a terminated
+  string. The response value is a uint8 that is non-zero when accepted.
+ ASSET_TRANSPORT:
+  Whether in-band asset downloads are available. This option has no request
+  payload. The response contains a uint8 that is non-zero when available.
+ CONNECTION_MODE:
+  The direct route selected by a QUIC client. The request and response each
+  contain one uint8 with one of these values:
+
+   0  TCP
+   1  TLS
+   2  QUIC with no more specific classification
+   3  QUIC through a same-LAN candidate
+   4  QUIC through a direct IPv6 candidate
+   5  QUIC through a PCP, NAT-PMP, or UPnP mapped candidate
+   6  QUIC through a STUN server-reflexive candidate
+   7  QUIC through the directory fallback candidate
+
+  A server MUST accept values 3 through 7 only on an established QUIC
+  transport. The value is diagnostic metadata reported by the client and MUST
+  NOT be used as a security assertion.
 
 ===============================================================================
 = 2.4. Server command VERSION                                                 =

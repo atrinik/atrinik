@@ -214,7 +214,7 @@ reconnect:
         unsigned int port;
         int consumed = 0;
         if (sscanf(message,
-                   "{\"type\":\"candidate\",\"host\":\"%64[0-9a-fA-F:.]\","
+                   "{\"type\":\"client_candidate\",\"host\":\"%64[0-9a-fA-F:.]\","
                    "\"port\":%u,\"ticket\":\"%64[0-9a-f]\"}%n",
                    host,
                    &port,
@@ -227,14 +227,41 @@ reconnect:
                 usleep(20000);
             }
 
-            char ready[128];
-            snprintf(VS(ready),
-                     "{\"type\":\"ready\",\"ticket\":\"%s\"}",
+            socket_direct_candidate_t
+                candidates[SOCKET_DIRECT_MAX_CANDIDATES];
+            size_t count = socket_server_quic_candidates(
+                candidates,
+                arraysize(candidates));
+            for (size_t i = 0; i < count; i++) {
+                char response[256];
+                snprintf(VS(response),
+                         "{\"type\":\"server_candidate\","
+                         "\"host\":\"%s\",\"port\":%" PRIu16 ","
+                         "\"kind\":\"%s\",\"ticket\":\"%s\"}",
+                         candidates[i].host,
+                         candidates[i].port,
+                         candidates[i].kind,
+                         ticket);
+                size_t sent = 0;
+                if (curl_ws_send(curl,
+                                 response,
+                                 strlen(response),
+                                 &sent,
+                                 0,
+                                 CURLWS_TEXT) != CURLE_OK ||
+                    sent != strlen(response)) {
+                    break;
+                }
+            }
+
+            char complete[128];
+            snprintf(VS(complete),
+                     "{\"type\":\"complete\",\"ticket\":\"%s\"}",
                      ticket);
             size_t sent = 0;
             curl_ws_send(curl,
-                         ready,
-                         strlen(ready),
+                         complete,
+                         strlen(complete),
                          &sent,
                          0,
                          CURLWS_TEXT);
