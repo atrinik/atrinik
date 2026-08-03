@@ -26,7 +26,7 @@ jobs:
     name: Build and server tests
     runs-on: ubuntu-26.04
     container:
-      image: ghcr.io/atrinik/linux-build:ubuntu-26.04
+      image: ghcr.io/atrinik/linux-build:0.0.2
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -56,7 +56,7 @@ jobs:
           source_hash=$(
             git ls-files --stage -- \
               CMakeLists.txt build.config CMakePresets.json \
-              client common server \
+              client cmake common server \
               | sha256sum \
               | cut -d ' ' -f 1
           )

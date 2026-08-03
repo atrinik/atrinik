@@ -5,7 +5,7 @@ index e56bff1..8615af1 100644
 @@ -30 +30,3 @@
 -if (NOT WIN32)
 +if (MINGW)
-+	set (HAVE_GETTIMEOFDAY TRUE)
++    set (HAVE_GETTIMEOFDAY TRUE)
 +elseif (NOT WIN32)
 diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
 index b66edb4..558701d 100644

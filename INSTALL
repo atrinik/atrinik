@@ -18,17 +18,18 @@ Ubuntu releases provide compatible development headers through
 The recommended development environment is the included devcontainer. Install
 Docker or Podman and use an editor that supports Dev Containers, then reopen
 the repository in the **Atrinik 2026 Linux Build** container. The configuration
-pulls `ghcr.io/atrinik/linux-build:ubuntu-26.04`, then adds its configured Dev
+pulls `ghcr.io/atrinik/linux-build:0.0.2`, then adds its configured Dev
 Containers features without rebuilding the Linux toolchain locally. The image
 includes the C toolchain, CMake, Flex, SDL dependencies, OpenSSL, cURL, zlib,
 Python development headers, and the optional GD, Check, and Readline
-dependencies. `.devcontainer/Dockerfile` remains the source used by tagged
-releases to build the image.
+dependencies. Image build sources and publishing workflows live in the
+separate `atrinik/devcontainer` repository.
 
 OpenSSL 3.5 or newer is required to build the direct UDP/QUIC transport used
 by the client and server. Server builds also use miniupnpc and libpcpnatpmp
-for automatic UPnP IGD and PCP/NAT-PMP UDP mappings. The devcontainer and
-server image install these dependencies at pinned, reproducible versions.
+for automatic UPnP IGD and PCP/NAT-PMP UDP mappings. CMake fetches
+libpcpnatpmp at a pinned revision when the server is enabled; the build images
+only provide the compiler and platform libraries.
 
 From the repository root, build the client and server:
 
@@ -64,22 +65,18 @@ recommended dependencies with:
 
 ```sh
 sudo apt-get update
-sudo apt-get install build-essential clang-format cmake flex libcurl4-openssl-dev \
+sudo apt-get install build-essential clang-format cmake flex git libcurl4-openssl-dev \
   libssl-dev zlib1g-dev python3-dev libgd-dev libreadline-dev \
   libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev \
   libsdl-ttf2.0-dev timidity libx11-dev libxml2-dev libxmu-dev \
   cproto pkgconf check libsubunit-dev libminiupnpc-dev
 ```
 
-Ubuntu does not currently package libpcpnatpmp. The authoritative repository,
-commit, and build options live in `dependencies/libpcpnatpmp.env` and
-`dependencies/build-libpcpnatpmp.sh`; the Linux images and MXE environment all
-use that helper and verify the checked-out commit before building. Before
-configuring a manual server build, run:
-
-```sh
-sudo bash dependencies/build-libpcpnatpmp.sh native
-```
+Ubuntu does not currently package libpcpnatpmp. Server configurations acquire
+and build the pinned static library through CMake FetchContent, so no system
+installation step is required. The first server configuration therefore needs
+network access; subsequent configurations reuse the source under the selected
+build directory's `_deps` folder.
 
 Client-only builds do not require either port-mapping library.
 
@@ -148,20 +145,15 @@ GitHub Actions builds the Linux client and server and runs the server tests for
 every pull request. The same validation runs again for every automatically
 tagged pull request merged into `master`.
 
-Each tagged release builds the Linux devcontainer and publishes it as
-`ghcr.io/atrinik/linux-build`. The image receives the release version without
-the leading `v`, the rolling `ubuntu-26.04` tag, and a commit-specific
-`sha-<commit>` tag. For example, release `v5.0.1` publishes image tag `5.0.1`.
-The release workflow uses the GitHub Actions BuildKit cache so unchanged image
-layers are reused. Linux CI and the VS Code devcontainer consume the rolling
-Ubuntu tag, so later tagged releases update their build environment without a
-configuration change.
-
-Tagged releases also publish the MXE cross-compilation environment as
-`ghcr.io/atrinik/windows-build`, using the release version, rolling `mxe`, and
-commit-specific `sha-<commit>` tags. Windows packaging waits for that image and
-pulls the exact release-version tag instead of rebuilding the MXE toolchain in
-the packaging job.
+The Linux and Windows build environments are published independently from the
+`atrinik/devcontainer` repository. Its change-aware auto-tag workflow updates
+the rolling `linux-build:ubuntu-26.04` and `windows-build:mxe` tags only when
+their image inputs change, rather than rebuilding toolchains for every Atrinik
+release. Atrinik's Linux CI and VS Code devcontainer use `linux-build:0.0.2`;
+Windows release packaging, the Windows VS Code devcontainer, and the Windows
+Compose workflow use `windows-build:0.0.2`. Upgrade these pins together after
+validating a newer published version. Devcontainer repository tags provide
+immutable image versions independently of Atrinik's game version.
 
 The release line comes from `PACKAGE_VERSION` in `build.config`. A pull request
 merged into `master` receives the next available patch tag in that release
@@ -179,8 +171,9 @@ filenames match the tag.
 
 Windows client and server packages are cross-compiled in one isolated Linux
 container. The host only needs Docker or Podman. The image pins MXE, MinGW,
-OpenSSL, cURL, MiniUPnPc, libpcpnatpmp, and the official embedded Windows
-Python runtime used by the server.
+OpenSSL, cURL, MiniUPnPc, and the official embedded Windows Python runtime used
+by the server. The Atrinik server configuration fetches its pinned
+libpcpnatpmp source through CMake.
 
 With a Dev Containers-compatible editor, reopen the repository using
 **Atrinik Windows cross-build (MXE)** and run:
@@ -214,14 +207,12 @@ LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
   docker compose -f compose.windows.yaml run --rm windows-build
 ```
 
-The VS Code configuration and Compose service use the rolling published MXE
-image. To test changes to `.devcontainer/windows-cross/Dockerfile`, build a
-local replacement and select it through the Compose override:
+The VS Code configuration and Compose service use the pinned published MXE
+image. Image source changes and local Dockerfile validation belong in the
+separate `atrinik/devcontainer` repository. To test an image built there with
+this checkout, select it through the Compose override:
 
 ```sh
-docker build --file .devcontainer/windows-cross/Dockerfile \
-  --build-arg MXE_BUILD_JOBS="$(nproc)" \
-  --tag atrinik-windows-mxe .
 ATRINIK_WINDOWS_BUILD_IMAGE=atrinik-windows-mxe \
   docker compose -f compose.windows.yaml run --rm windows-build
 ```
