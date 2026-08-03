@@ -568,7 +568,12 @@ socket_certificate_sha256 (socket_t *sc, char fingerprint[65])
         return false;
     }
 
-    return string_tohex(digest, digest_len, fingerprint, 65, false) == 64;
+    if (string_tohex(digest, digest_len, fingerprint, 65, false) != 64) {
+        return false;
+    }
+
+    string_tolower(fingerprint);
+    return true;
 }
 
 #else

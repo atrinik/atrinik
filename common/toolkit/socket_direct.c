@@ -207,6 +207,9 @@ socket_rendezvous_client (socket_t   *sc,
     curl_easy_setopt(curl, CURLOPT_CONNECT_ONLY, 2L);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+#ifdef WIN32
+    curl_easy_setopt(curl, CURLOPT_CAINFO, "ca-bundle.crt");
+#endif
     CURLcode result = curl_easy_perform(curl);
     if (result != CURLE_OK) {
         LOG(ERROR, "Rendezvous connection failed: %s",
