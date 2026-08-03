@@ -13,4 +13,5 @@ services:
     volumes:
       - .:/workspaces/atrinik
     command:
+      - bash
       - ./build-windows.sh

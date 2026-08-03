@@ -81,7 +81,7 @@ COPY --from=build /src/server/tools ./server/tools
 COPY --from=build /src/build/server-release/server/atrinik-server ./server/atrinik-server
 COPY --from=build /src/build/server-release/server/libplugin_arena.so ./server/libplugin_arena.so
 COPY --from=build /src/build/server-release/server/libplugin_python.so ./server/libplugin_python.so
-COPY docker/server-entrypoint.sh /usr/local/bin/atrinik-server-entrypoint
+COPY --chmod=0755 docker/server-entrypoint.sh /usr/local/bin/atrinik-server-entrypoint
 
 RUN mkdir -p server/data \
     && chown -R atrinik:atrinik /opt/atrinik

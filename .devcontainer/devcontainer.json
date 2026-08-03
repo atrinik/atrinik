@@ -4,14 +4,25 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {
+      "moby": false
+    }
+  },
+  "remoteUser": "ubuntu",
+  "updateRemoteUserUID": true,
   "runArgs": [
-    "--network", "host"
+    "--network", "host",
+    "--security-opt", "seccomp=unconfined"
   ],
+  "initializeCommand": "install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\"",
   "workspaceFolder": "/workspaces/atrinik",
   "mounts": [
+    "source=${localEnv:HOME}/.codex-atrinik,target=/home/ubuntu/.codex,type=bind",
     "source=/mnt/wslg/PulseServer,target=/mnt/wslg/PulseServer,type=bind"
   ],
   "containerEnv": {
+    "CODEX_HOME": "/home/ubuntu/.codex",
     "PULSE_SERVER": "unix:/mnt/wslg/PulseServer",
     "SDL_AUDIODRIVER": "pulse"
   },
@@ -20,11 +31,20 @@
     "vscode": {
       "extensions": [
         "ms-vscode.cmake-tools",
-        "ms-vscode.cpptools"
+        "llvm-vs-code-extensions.vscode-clangd",
+        "ms-python.python",
+        "dbaeumer.vscode-eslint",
+        "timonwong.shellcheck",
+        "EditorConfig.EditorConfig"
       ],
       "settings": {
         "cmake.configurePreset": "linux-debug",
-        "cmake.buildPreset": "linux-debug"
+        "cmake.buildPreset": "linux-debug",
+        "clangd.arguments": [
+          "--background-index",
+          "--clang-tidy",
+          "--compile-commands-dir=${workspaceFolder}/build/linux-debug"
+        ]
       }
     }
   }

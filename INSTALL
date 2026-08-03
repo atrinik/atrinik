@@ -108,7 +108,7 @@ With a Dev Containers-compatible editor, reopen the repository using
 **Atrinik Windows cross-build (MXE)** and run:
 
 ```sh
-./build-windows.sh
+bash ./build-windows.sh
 ```
 
 Alternatively, build directly from the repository root without opening an
@@ -123,6 +123,13 @@ generated files retain the correct ownership:
 
 ```sh
 LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
+  docker compose -f compose.windows.yaml run --build --rm windows-build
+```
+
+If you have the resources, you can increase the number of build jobs, e.g.:
+
+```sh
+MXE_BUILD_JOBS=32 LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) \
   docker compose -f compose.windows.yaml run --build --rm windows-build
 ```
 
