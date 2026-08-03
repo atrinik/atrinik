@@ -50,7 +50,6 @@ set(SOURCES
 	src/gui/popups/settings.c
 	src/gui/popups/settings_client.c
 	src/gui/popups/settings_keybinding.c
-	src/gui/popups/updater.c
 	src/gui/toolkit/SDL_gfx.c
 	src/gui/toolkit/SDL_rotozoom.c
 	src/gui/toolkit/button.c

@@ -89,9 +89,7 @@
 #include <image.h>
 #include <settings.h>
 #include <keybind.h>
-#include <toolkit/sha1.h>
 #include <progress.h>
-#include <updater.h>
 
 /* TODO: Remove from here eventually */
 struct packet_struct;

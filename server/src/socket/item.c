@@ -288,7 +288,16 @@ void add_object_to_packet(struct packet_struct *packet,
             packet_debug_data(packet, level + 1, "Seconds");
             packet_append_int32(packet, sec);
             packet_debug_data(packet, level + 1, "Message");
-            packet_append_string_terminated(packet, op->msg != NULL ? op->msg : "");
+            if (op->arch != NULL && op->arch->name != NULL &&
+                strcmp(op->arch->name, "depletion") == 0) {
+                StringBuffer *sb = depletion_get_tooltip(op, NULL);
+                packet_append_string_len_terminated(packet,
+                                                    stringbuffer_data(sb),
+                                                    stringbuffer_length(sb));
+                stringbuffer_free(sb);
+            } else {
+                packet_append_string_terminated(packet, op->msg != NULL ? op->msg : "");
+            }
         }
     }
 

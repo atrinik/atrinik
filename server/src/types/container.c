@@ -101,6 +101,7 @@ static void container_open(object *applier, object *op) {
         CONTR(op->attacked_by)->container_below = applier;
     } else {
         /* Not open yet. */
+        traps_auto_disarm(applier, op);
         SET_FLAG(op, FLAG_APPLIED);
 
         if (op->other_arch != NULL) {

@@ -175,6 +175,7 @@ void check_main(int argc, char **argv) {
     check_server_ban();
     check_server_bank();
     check_server_cache();
+    check_server_living();
     check_server_object();
     check_server_re_cmp();
     check_server_rune();

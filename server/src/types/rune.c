@@ -37,6 +37,69 @@
 #include <rune.h>
 
 /**
+ * Calculate a player's effective rating for a trap skill.
+ *
+ * Character level supplies the zone-appropriate baseline. Skill levels are a
+ * specialization bonus because utility skills advance more slowly than the
+ * character, while the relevant attribute supplies a smaller bonus or
+ * penalty. Finding uses Intelligence and disarming uses Dexterity.
+ *
+ * @param pl
+ * Player whose rating is calculated.
+ * @param skill_nr
+ * Either @ref SK_FIND_TRAPS or @ref SK_REMOVE_TRAPS.
+ * @return
+ * Effective trap-skill rating, with a minimum of one.
+ */
+int trap_skill_rating(object *pl, int skill_nr) {
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(pl->type == PLAYER);
+    HARD_ASSERT(skill_nr == SK_FIND_TRAPS || skill_nr == SK_REMOVE_TRAPS);
+
+    object *skill = CONTR(pl)->skill_ptr[skill_nr];
+    int skill_level = skill != NULL ? skill->level : 0;
+    int stat = skill_nr == SK_FIND_TRAPS ? pl->stats.Int : pl->stats.Dex;
+
+    return MAX(1, pl->level + skill_level / 2 + (stat - 10) / 4);
+}
+
+/**
+ * Generate a trap level relative to its environment's difficulty.
+ *
+ * Most traps are expected to be manageable by a character appropriate for
+ * the area, while five percent are deliberately beyond that baseline.
+ *
+ * @param difficulty
+ * Environment difficulty.
+ * @return
+ * Generated trap level.
+ */
+int rune_generate_level(int difficulty) {
+    HARD_ASSERT(difficulty > 0);
+
+    int roll = rndm(1, 100);
+    int min_percent, max_percent;
+
+    if (roll <= 60) {
+        min_percent = 80;
+        max_percent = 100;
+    } else if (roll <= 85) {
+        min_percent = 101;
+        max_percent = 110;
+    } else if (roll <= 95) {
+        min_percent = 111;
+        max_percent = 120;
+    } else {
+        min_percent = 121;
+        max_percent = 140;
+    }
+
+    int min_level = MAX(1, (difficulty * min_percent + 99) / 100);
+    int max_level = MAX(min_level, difficulty * max_percent / 100);
+    return MIN(rndm(min_level, max_level), MAXLEVEL);
+}
+
+/**
  * Springs a rune.
  *
  * @param op
@@ -142,9 +205,8 @@ static int process_treasure_func(object *op,
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
+    int level = rune_generate_level(difficulty);
     int off = (int)((float)difficulty * 0.2f);
-    int level = rndm(difficulty - off, difficulty + off);
-    level = MAX(1, MIN(level, MAXLEVEL));
     int hide = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
     hide = MAX(1, MIN(hide, INT8_MAX));
 

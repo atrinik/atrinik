@@ -32,6 +32,8 @@
 
 /* Prototypes */
 
+int trap_skill_rating(object *pl, int skill_nr);
+int rune_generate_level(int difficulty);
 void rune_spring(object *op, object *victim);
 
 #endif

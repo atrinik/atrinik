@@ -1,5 +1,9 @@
 # Atrinik
 
+[![Linux CI](https://github.com/atrinik/atrinik/actions/workflows/linux-ci.yml/badge.svg)](https://github.com/atrinik/atrinik/actions/workflows/linux-ci.yml)
+[![Metaserver Worker](https://github.com/atrinik/atrinik/actions/workflows/metaserver-worker.yml/badge.svg?branch=master)](https://github.com/atrinik/atrinik/actions/workflows/metaserver-worker.yml)
+[![Tagged Release](https://github.com/atrinik/atrinik/actions/workflows/release.yml/badge.svg)](https://github.com/atrinik/atrinik/actions/workflows/release.yml)
+
 Atrinik is an open source multi-player RPG with 2.5D isometric graphics,
 with concepts based on Crossfire and Angelion.
 

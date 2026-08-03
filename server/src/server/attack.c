@@ -126,6 +126,36 @@ static bool attack_check_abort(object *op, object *hitter, bool attack_map) {
 }
 
 /**
+ * Add one named modifier to an attack roll and its optional description.
+ *
+ * @param adjustment
+ * Net adjustment being accumulated.
+ * @param modifiers
+ * Optional description buffer.
+ * @param value
+ * Signed modifier value.
+ * @param description
+ * Player-facing modifier name.
+ */
+static void attack_roll_modifier_add(int *adjustment,
+                                     StringBuffer *modifiers,
+                                     int value,
+                                     const char *description) {
+    HARD_ASSERT(adjustment != NULL);
+    HARD_ASSERT(description != NULL);
+
+    *adjustment += value;
+    if (modifiers == NULL) {
+        return;
+    }
+
+    if (stringbuffer_length(modifiers) != 0) {
+        stringbuffer_append_string(modifiers, ", ");
+    }
+    stringbuffer_append_printf(modifiers, "%s %+d", description, value);
+}
+
+/**
  * Adjustments to attack rolls by various conditions.
  *
  * Essentially simulates advantaged/disadvantaged rolls.
@@ -134,10 +164,13 @@ static bool attack_check_abort(object *op, object *hitter, bool attack_map) {
  * Victim of the attack.
  * @param hitter
  * Who is attacking.
+ * @param modifiers
+ * Optional buffer that receives a comma-separated explanation of every
+ * modifier that was applied.
  * @return
- * Adjustment to attack roll.
+ * Net adjustment to attack roll.
  */
-static int attack_roll_adjust(object *op, object *hitter) {
+int attack_roll_adjust(object *op, object *hitter, StringBuffer *modifiers) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
     SOFT_ASSERT_RC(op->map != NULL, 0, "Object without map: %s", object_get_str(op));
@@ -162,41 +195,39 @@ static int attack_roll_adjust(object *op, object *hitter) {
 
     /* Invisible means, we can't see it - same for blind. */
     if (IS_INVISIBLE(op, hitter) || QUERY_FLAG(hitter, FLAG_BLIND)) {
-        adjust -= 12;
+        attack_roll_modifier_add(&adjust, modifiers, -12, "attacker cannot see target");
     }
 
     if (QUERY_FLAG(hitter, FLAG_SCARED)) {
-        adjust -= 3;
+        attack_roll_modifier_add(&adjust, modifiers, -3, "attacker scared");
     }
 
     if (QUERY_FLAG(op, FLAG_SCARED)) {
-        adjust += 1;
+        attack_roll_modifier_add(&adjust, modifiers, 1, "target scared");
     }
 
     if (QUERY_FLAG(op, FLAG_UNAGGRESSIVE)) {
-        adjust += 1;
+        attack_roll_modifier_add(&adjust, modifiers, 1, "target unaggressive");
     }
 
     if (QUERY_FLAG(op, FLAG_CONFUSED)) {
-        adjust += 1;
+        attack_roll_modifier_add(&adjust, modifiers, 1, "target confused");
     }
 
     if (QUERY_FLAG(hitter, FLAG_CONFUSED)) {
-        adjust -= 3;
+        attack_roll_modifier_add(&adjust, modifiers, -3, "attacker confused");
     }
 
     /* If we attack at a different 'altitude' it's harder */
     if (QUERY_FLAG(hitter, FLAG_FLYING) != QUERY_FLAG(op, FLAG_FLYING)) {
-        adjust -= 2;
+        attack_roll_modifier_add(&adjust, modifiers, -2, "different altitude");
     }
 
     if (hitter->direction == op->direction) {
-        /* Backstab */
-        adjust += 5;
+        attack_roll_modifier_add(&adjust, modifiers, 5, "backstab");
     } else if (hitter->direction == absdir(op->direction - 1) ||
                hitter->direction == absdir(op->direction + 1)) {
-        /* Sidestab */
-        adjust += 2;
+        attack_roll_modifier_add(&adjust, modifiers, 2, "sidestab");
     }
 
     /* If the monster had to turn to attack since it last saw its enemy, it's
@@ -215,11 +246,47 @@ static int attack_roll_adjust(object *op, object *hitter) {
                                             &rv,
                                             0) ||
             rv.direction != hitter->direction) {
-            adjust -= 6;
+            attack_roll_modifier_add(&adjust, modifiers, -6, "target moved");
         }
     }
 
     return adjust;
+}
+
+/**
+ * Report the named modifiers applied to an attack roll.
+ *
+ * @param op
+ * Victim of the attack.
+ * @param hitter
+ * Attacking object.
+ * @param modifiers
+ * Comma-separated modifier description.
+ * @param adjustment
+ * Net attack-roll adjustment.
+ */
+static void
+send_attack_roll_msg(object *op, object *attacker, const char *modifiers, int adjustment) {
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(attacker != NULL);
+    HARD_ASSERT(modifiers != NULL);
+
+    if (attacker->type == PLAYER) {
+        draw_info_format(COLOR_ORANGE,
+                         attacker,
+                         "Attack roll modifiers: %s (net %+d).",
+                         modifiers,
+                         adjustment);
+    }
+
+    if (op->type == PLAYER && op != attacker) {
+        draw_info_format(COLOR_PURPLE,
+                         op,
+                         "%s's attack roll modifiers: %s (net %+d).",
+                         attacker->name,
+                         modifiers,
+                         adjustment);
+    }
 }
 
 /**
@@ -286,7 +353,27 @@ int attack_object(object *op, object *hitter) {
 
     int roll_adjust = 0;
     if (attack_map) {
-        roll_adjust += attack_roll_adjust(op, hitter);
+        object *attacker = hitter;
+        if (attacker->type != PLAYER) {
+            object *owner = object_owner(attacker);
+            if (owner != NULL) {
+                attacker = owner;
+            }
+        }
+
+        StringBuffer *modifiers = NULL;
+        if (op->type == PLAYER || attacker->type == PLAYER) {
+            modifiers = stringbuffer_new();
+        }
+
+        roll_adjust = attack_roll_adjust(op, hitter, modifiers);
+        if (modifiers != NULL && stringbuffer_length(modifiers) != 0) {
+            char *description = stringbuffer_finish(modifiers);
+            send_attack_roll_msg(op, attacker, description, roll_adjust);
+            efree(description);
+        } else if (modifiers != NULL) {
+            stringbuffer_free(modifiers);
+        }
     }
 
     if (hitter->stats.wc_range == 0) {
