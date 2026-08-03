@@ -144,6 +144,13 @@ GitHub Actions builds the Linux client and server and runs the server tests for
 every pull request. The same validation runs again for every automatically
 tagged merge commit on `master`.
 
+Each tagged release builds the Linux devcontainer and publishes it as
+`ghcr.io/atrinik/linux-build`. The image receives the release version without
+the leading `v`, the rolling `ubuntu-26.04` tag, and a commit-specific
+`sha-<commit>` tag. For example, release `v5.0.1` publishes image tag `5.0.1`.
+The release workflow uses the GitHub Actions BuildKit cache so unchanged image
+layers are reused.
+
 The release line comes from `PACKAGE_VERSION` in `build.config`. A merge commit
 on `master` receives the next available patch tag in that release line. The
 first automatically tagged merge in the 5.0 line is `v5.0.0`, followed by
