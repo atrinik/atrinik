@@ -44,6 +44,9 @@ jobs:
           ref: ${{ inputs.ref || github.sha }}
           submodules: recursive
 
+      - name: Trust checked-out workspace
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
       - name: Check C formatting
         run: bash tools/clang-format.sh --check
 
