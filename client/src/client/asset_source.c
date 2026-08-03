@@ -241,8 +241,12 @@ void asset_source_free(asset_source_t *source) {
     if (source->inband != NULL) {
         asset_request_free(source->inband);
     }
-    efree(source->cache_path);
-    efree(source->http_url);
+    if (source->cache_path != NULL) {
+        efree(source->cache_path);
+    }
+    if (source->http_url != NULL) {
+        efree(source->http_url);
+    }
     efree(source->asset_path);
     efree(source);
 }

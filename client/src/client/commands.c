@@ -123,7 +123,9 @@ void socket_command_anim(uint8_t *data, size_t len, size_t pos) {
     }
 
     Animations *animation = &animations[anim_id];
-    efree(animation->faces);
+    if (animation->faces != NULL) {
+        efree(animation->faces);
+    }
     animation->faces = emalloc(sizeof(*animation->faces) * num_animations);
     animation->flags = flags;
     animation->facings = facings;
