@@ -1,36 +1,40 @@
 name: Auto Tag
 
 on:
-  push:
+  pull_request_target:
+    types:
+      - closed
     branches:
       - master
 
 permissions:
   contents: write
 
+concurrency:
+  group: auto-tag-release
+  cancel-in-progress: false
+
 jobs:
   tag:
-    name: Tag merge commit
+    name: Tag merged pull request
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-26.04
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
     steps:
+      # This write-capable workflow must only check out the commit that GitHub
+      # has already merged into master, never the pull request head.
       - name: Check out source and tags
         uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
           fetch-depth: 0
 
       - name: Create merge tag
         id: tag
         env:
-          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
-          parent_count=$(git rev-list --parents -n 1 "${COMMIT_SHA}" | awk '{print NF - 1}')
-          if [[ "${parent_count}" -lt 2 ]]; then
-            echo "${COMMIT_SHA} is not a merge commit; no tag will be created."
-            exit 0
-          fi
-
           base_version=$(sed -n \
             's/^set(PACKAGE_VERSION "\([0-9][0-9]*\.[0-9][0-9]*\)".*$/\1/p' \
             build.config)
