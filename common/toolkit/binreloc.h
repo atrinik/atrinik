@@ -59,7 +59,7 @@ typedef enum {
     BR_INIT_ERROR_DISABLED
 } BrInitError;
 
-/* Prototypes */ 
+/* Prototypes */
 
 TOOLKIT_FUNCS_DECLARE(binreloc);
 
@@ -74,8 +74,7 @@ TOOLKIT_FUNCS_DECLARE(binreloc);
  * initialized, or if initialization failed, then a copy of default_exe
  * will be returned. If default_exe is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_exe(const char *default_exe);
+extern char *binreloc_find_exe(const char *default_exe);
 
 /**
  * Locate the directory in which the current application is installed.
@@ -93,8 +92,7 @@ binreloc_find_exe(const char *default_exe);
  * initialization failed, then a copy of default_dir will be returned. If
  * default_dir is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_exe_dir(const char *default_dir);
+extern char *binreloc_find_exe_dir(const char *default_dir);
 
 /**
  * Locate the prefix in which the current application is installed.
@@ -112,8 +110,7 @@ binreloc_find_exe_dir(const char *default_dir);
  * initialization failed, then a copy of default_prefix will be returned.
  * If default_prefix is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_prefix(const char *default_prefix);
+extern char *binreloc_find_prefix(const char *default_prefix);
 
 /**
  * Locate the application's binary folder.
@@ -131,8 +128,7 @@ binreloc_find_prefix(const char *default_prefix);
  * initialization failed, then a copy of default_bin_dir will be
  * returned. If default_bin_dir is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_bin_dir(const char *default_bin_dir);
+extern char *binreloc_find_bin_dir(const char *default_bin_dir);
 
 /**
  * Locate the application's superuser binary folder.
@@ -150,8 +146,7 @@ binreloc_find_bin_dir(const char *default_bin_dir);
  * the initialization failed, then a copy of default_sbin_dir will be
  * returned. If default_bin_dir is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_sbin_dir(const char *default_sbin_dir);
+extern char *binreloc_find_sbin_dir(const char *default_sbin_dir);
 
 /**
  * Locate the application's data folder.
@@ -169,8 +164,7 @@ binreloc_find_sbin_dir(const char *default_sbin_dir);
  * the initialization failed, then a copy of default_data_dir will be
  * returned. If default_data_dir is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_data_dir(const char *default_data_dir);
+extern char *binreloc_find_data_dir(const char *default_data_dir);
 
 /**
  * Locate the application's localization folder.
@@ -189,8 +183,7 @@ binreloc_find_data_dir(const char *default_data_dir);
  * be returned. If default_locale_dir is NULL, then NULL will be
  * returned.
  */
-extern char *
-binreloc_find_locale_dir(const char *default_locale_dir);
+extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 
 /**
  * Locate the application's library folder.
@@ -208,8 +201,7 @@ binreloc_find_locale_dir(const char *default_locale_dir);
  * the initialization failed, then a copy of default_lib_dir will be
  * returned. If default_lib_dir is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_lib_dir(const char *default_lib_dir);
+extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 
 /**
  * Locate the application's libexec folder.
@@ -228,8 +220,7 @@ binreloc_find_lib_dir(const char *default_lib_dir);
  * returned. If default_libexec_dir is NULL, then NULL will be
  * returned.
  */
-char *
-binreloc_find_libexec_dir(const char *default_libexec_dir);
+char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 
 /**
  * Locate the application's configuration files folder.
@@ -247,7 +238,6 @@ binreloc_find_libexec_dir(const char *default_libexec_dir);
  * initialization failed, then a copy of default_etc_dir will be
  * returned. If default_etc_dir is NULL, then NULL will be returned.
  */
-extern char *
-binreloc_find_etc_dir(const char *default_etc_dir);
+extern char *binreloc_find_etc_dir(const char *default_etc_dir);
 
 #endif

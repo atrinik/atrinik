@@ -35,152 +35,88 @@
 #define MAX_LIGHT_SOURCE 13
 
 static int lmask_x[MAX_MASK_SIZE] = {
-    0, 0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2, -2, -1,
-    0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -3, -3, -3, -3, -2, -1,
-    0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 1, 0, -1, -2, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -3, -2, -1
-};
+    0,  0,  1,  1,  1,  0,  -1, -1, -1, 0,  1,  2,  2,  2,  2,  2,  1,  0,  -1, -2, -2,
+    -2, -2, -2, -1, 0,  1,  2,  3,  3,  3,  3,  3,  3,  3,  2,  1,  0,  -1, -2, -3, -3,
+    -3, -3, -3, -3, -3, -2, -1, 0,  1,  2,  3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  3,
+    2,  1,  0,  -1, -2, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -3, -2, -1};
 
 static int lmask_y[MAX_MASK_SIZE] = {
-    0, -1, -1, 0, 1, 1, 1, 0, -1, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2,
-    -3, -3, -3, -3, -2, -1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3,
-    4, 4, 4, 4, 4, 3, 2, 1, 0, -1, -2, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -3, -2, -1, 0, 1, 2, 3, 4, 4, 4, 4
-};
+    0,  -1, -1, 0,  1,  1,  1,  0,  -1, -2, -2, -2, -1, 0, 1, 2, 2,  2,  2,  2,  1,
+    0,  -1, -2, -2, -3, -3, -3, -3, -2, -1, 0,  1,  2,  3, 3, 3, 3,  3,  3,  3,  2,
+    1,  0,  -1, -2, -3, -3, -3, 4,  4,  4,  4,  4,  3,  2, 1, 0, -1, -2, -3, -4, -4,
+    -4, -4, -4, -4, -4, -4, -4, -3, -2, -1, 0,  1,  2,  3, 4, 4, 4,  4};
 
-static int light_mask[MAX_LIGHT_SOURCE + 1] = {
-    0,
-    1,
-    2, 3,
-    4, 5, 6, 6,
-    7, 7, 8, 8,
-    8, 9
-};
+static int light_mask[MAX_LIGHT_SOURCE + 1] = {0, 1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 9};
 
-static int light_mask_width[NR_LIGHT_MASK] = {
-    0, 1, 2, 2, 3,
-    3, 3, 4, 4, 4
-};
+static int light_mask_width[NR_LIGHT_MASK] = {0, 1, 2, 2, 3, 3, 3, 4, 4, 4};
 
-static int light_mask_size[NR_LIGHT_MASK] = {
-    0, 9, 25, 25, 49,
-    49, 49, 81, 81, 81
-};
+static int light_mask_size[NR_LIGHT_MASK] = {0, 9, 25, 25, 49, 49, 49, 81, 81, 81};
 
 static int light_masks[NR_LIGHT_MASK][MAX_MASK_SIZE] = {
-    {0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, },
-    {40,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, },
-    {80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, },
-    {160,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, },
-    {160,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, },
-    {320,
-        160, 160, 160, 160, 160, 160, 160, 160,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, },
-    {320,
-        160, 160, 160, 160, 160, 160, 160, 160,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, },
-    {320,
-        160, 160, 160, 160, 160, 160, 160, 160,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        20, 20, 20, 20, 20, 20, 20, 20,
-        20, 20, 20, 20, 20, 20, 20, 20, },
-    {640,
-        320, 320, 320, 320, 320, 320, 320, 320,
-        160, 160, 160, 160, 160, 160, 160, 160,
-        160, 160, 160, 160, 160, 160, 160, 160,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40, },
-    {1280,
-        640, 640, 640, 640, 640, 640, 640, 640,
-        160, 160, 160, 160, 160, 160, 160, 160,
-        160, 160, 160, 160, 160, 160, 160, 160,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        80, 80, 80, 80, 80, 80, 80, 80,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40,
-        40, 40, 40, 40, 40, 40, 40, 40, }
+    {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    },
+    {
+        40, 20, 20, 20, 20, 20, 20, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    },
+    {
+        80, 40, 40, 40, 40, 40, 40, 40, 40, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+        20, 20, 20, 20, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    },
+    {
+        160, 80, 80, 80, 80, 80, 80, 80, 80, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
+        40,  40, 40, 40, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    },
+    {
+        160, 80, 80, 80, 80, 80, 80, 80, 80, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
+        40,  40, 40, 40, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+        20,  20, 20, 20, 20, 20, 20, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    },
+    {
+        320, 160, 160, 160, 160, 160, 160, 160, 160, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+        80,  80,  80,  80,  40,  40,  40,  40,  40,  40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
+        40,  40,  40,  40,  40,  40,  40,  0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0,
+    },
+    {
+        320, 160, 160, 160, 160, 160, 160, 160, 160, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+        80,  80,  80,  80,  40,  40,  40,  40,  40,  40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
+        40,  40,  40,  40,  40,  40,  40,  0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0,
+    },
+    {
+        320, 160, 160, 160, 160, 160, 160, 160, 160, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+        80,  80,  80,  80,  40,  40,  40,  40,  40,  40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
+        40,  40,  40,  40,  40,  40,  40,  20,  20,  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+        20,  20,  20,  20,  20,  20,  20,  20,  20,  20, 20, 20, 20, 20, 20, 20, 20, 20,
+    },
+    {
+        640, 320, 320, 320, 320, 320, 320, 320, 320, 160, 160, 160, 160, 160, 160, 160, 160,
+        160, 160, 160, 160, 160, 160, 160, 160, 80,  80,  80,  80,  80,  80,  80,  80,  80,
+        80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  40,  40,
+        40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,
+        40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,
+    },
+    {
+        1280, 640, 640, 640, 640, 640, 640, 640, 640, 160, 160, 160, 160, 160, 160, 160, 160,
+        160,  160, 160, 160, 160, 160, 160, 160, 80,  80,  80,  80,  80,  80,  80,  80,  80,
+        80,   80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  80,  40,  40,
+        40,   40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,
+        40,   40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,  40,
+    }
 
 };
 
-static int get_real_light_source_value(int l)
-{
+static int get_real_light_source_value(int l) {
     if (l > MAX_LIGHT_SOURCE) {
         return light_mask[MAX_LIGHT_SOURCE];
     }
@@ -196,8 +132,13 @@ static int get_real_light_source_value(int l)
     return light_mask[l];
 }
 
-static int light_mask_adjust(mapstruct *map, int x, int y, int intensity, int mod, mapstruct *restore_map, int other_only)
-{
+static int light_mask_adjust(mapstruct *map,
+                             int x,
+                             int y,
+                             int intensity,
+                             int mod,
+                             mapstruct *restore_map,
+                             int other_only) {
     MapSpace *msp;
     mapstruct *m;
     int xt, yt, i, mlen, map_flag = 0;
@@ -254,8 +195,7 @@ static int light_mask_adjust(mapstruct *map, int x, int y, int intensity, int mo
  * @param light
  * Glow radius of the light
  */
-void adjust_light_source(mapstruct *map, int x, int y, int light)
-{
+void adjust_light_source(mapstruct *map, int x, int y, int light) {
     int nlm, olm;
     MapSpace *msp1 = GET_MAP_SPACE_PTR(map, x, y);
 
@@ -321,8 +261,7 @@ void adjust_light_source(mapstruct *map, int x, int y, int light)
  * @param map
  * The map to check.
  */
-void check_light_source_list(mapstruct *map)
-{
+void check_light_source_list(mapstruct *map) {
     int i, intensity, x, y, reaching;
     mapstruct *m;
     MapSpace *tmp;
@@ -343,69 +282,73 @@ void check_light_source_list(mapstruct *map)
                 reaching = 1;
 
                 switch (i) {
-                case TILED_NORTH:
+                    case TILED_NORTH:
 
-                    if (y + light_mask_width[abs(intensity)] < MAP_HEIGHT(m)) {
-                        reaching = 0;
-                    }
+                        if (y + light_mask_width[abs(intensity)] < MAP_HEIGHT(m)) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
 
-                case TILED_EAST:
+                    case TILED_EAST:
 
-                    if (x - light_mask_width[abs(intensity)] >= 0) {
-                        reaching = 0;
-                    }
+                        if (x - light_mask_width[abs(intensity)] >= 0) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
 
-                case TILED_SOUTH:
+                    case TILED_SOUTH:
 
-                    if (y - light_mask_width[abs(intensity)] >= 0) {
-                        reaching = 0;
-                    }
+                        if (y - light_mask_width[abs(intensity)] >= 0) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
 
-                case TILED_WEST:
+                    case TILED_WEST:
 
-                    if (x + light_mask_width[abs(intensity)] < MAP_WIDTH(m)) {
-                        reaching = 0;
-                    }
+                        if (x + light_mask_width[abs(intensity)] < MAP_WIDTH(m)) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
 
-                case TILED_NORTHEAST:
+                    case TILED_NORTHEAST:
 
-                    if ((y + light_mask_width[abs(intensity)]) < MAP_HEIGHT(m) || (x - light_mask_width[abs(intensity)]) >= 0) {
-                        reaching = 0;
-                    }
+                        if ((y + light_mask_width[abs(intensity)]) < MAP_HEIGHT(m) ||
+                            (x - light_mask_width[abs(intensity)]) >= 0) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
 
-                case TILED_SOUTHEAST:
+                    case TILED_SOUTHEAST:
 
-                    if ((x - light_mask_width[abs(intensity)]) >= 0 || (y - light_mask_width[abs(intensity)]) >= 0) {
-                        reaching = 0;
-                    }
+                        if ((x - light_mask_width[abs(intensity)]) >= 0 ||
+                            (y - light_mask_width[abs(intensity)]) >= 0) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
 
-                case TILED_SOUTHWEST:
+                    case TILED_SOUTHWEST:
 
-                    if ((y - light_mask_width[abs(intensity)]) >= 0 || (x + light_mask_width[abs(intensity)]) < MAP_WIDTH(m)) {
-                        reaching = 0;
-                    }
+                        if ((y - light_mask_width[abs(intensity)]) >= 0 ||
+                            (x + light_mask_width[abs(intensity)]) < MAP_WIDTH(m)) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
 
-                case TILED_NORTHWEST:
+                    case TILED_NORTHWEST:
 
-                    if ((y + light_mask_width[abs(intensity)]) < MAP_HEIGHT(m) || (x + light_mask_width[abs(intensity)]) < MAP_WIDTH(m)) {
-                        reaching = 0;
-                    }
+                        if ((y + light_mask_width[abs(intensity)]) < MAP_HEIGHT(m) ||
+                            (x + light_mask_width[abs(intensity)]) < MAP_WIDTH(m)) {
+                            reaching = 0;
+                        }
 
-                    break;
+                        break;
                 }
 
                 if (reaching) {
@@ -421,8 +364,7 @@ void check_light_source_list(mapstruct *map)
  * @param map
  * The map to remove from.
  */
-void remove_light_source_list(mapstruct *map)
-{
+void remove_light_source_list(mapstruct *map) {
     MapSpace *tmp;
 
     for (tmp = map->first_light; tmp; tmp = tmp->next_light) {
@@ -430,7 +372,13 @@ void remove_light_source_list(mapstruct *map)
             continue;
         }
 
-        light_mask_adjust(map, tmp->first->x, tmp->first->y, get_real_light_source_value(tmp->light_source), -1, NULL, 1);
+        light_mask_adjust(map,
+                          tmp->first->x,
+                          tmp->first->y,
+                          get_real_light_source_value(tmp->light_source),
+                          -1,
+                          NULL,
+                          1);
     }
 
     map->first_light = NULL;

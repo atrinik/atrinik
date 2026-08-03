@@ -34,14 +34,12 @@ const int season_timechange[SEASONS_PER_YEAR][HOURS_PER_DAY] = {
     {0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
     {0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0, 0},
     {0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},
-    {0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0}
-};
+    {0, 0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0}};
 
 /**
  * Initializes the world darkness value.
  */
-void init_world_darkness(void)
-{
+void init_world_darkness(void) {
     int i;
     timeofday_t tod;
 
@@ -64,8 +62,7 @@ void init_world_darkness(void)
  * from this function, and probably be passed tod as an argument.
  * Please don't modify tod in the dependant function.
  */
-void tick_the_clock(void)
-{
+void tick_the_clock(void) {
     timeofday_t tod;
 
     todtick++;

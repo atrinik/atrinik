@@ -37,9 +37,12 @@
  * @param list
  * List to draw the frame for.
  */
-static void list_draw_frame(list_struct *list)
-{
-    draw_frame(list->surface, list->x + list->frame_offset, LIST_ROWS_START(list), list->width, LIST_ROWS_HEIGHT(list));
+static void list_draw_frame(list_struct *list) {
+    draw_frame(list->surface,
+               list->x + list->frame_offset,
+               LIST_ROWS_START(list),
+               list->width,
+               LIST_ROWS_HEIGHT(list));
 }
 
 /**
@@ -51,8 +54,7 @@ static void list_draw_frame(list_struct *list)
  * @param box
  * Contains base x/y/width/height information to use.
  */
-static void list_row_color(list_struct *list, int row, SDL_Rect box)
-{
+static void list_row_color(list_struct *list, int row, SDL_Rect box) {
     if (row & 1) {
         SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x55, 0x55, 0x55));
     } else {
@@ -67,8 +69,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
  * @param box
  * Contains base x/y/width/height information to use.
  */
-static void list_row_highlight(list_struct *list, SDL_Rect box)
-{
+static void list_row_highlight(list_struct *list, SDL_Rect box) {
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x80, 0x00));
 }
 
@@ -79,8 +80,7 @@ static void list_row_highlight(list_struct *list, SDL_Rect box)
  * @param box
  * Contains base x/y/width/height information to use.
  */
-static void list_row_selected(list_struct *list, SDL_Rect box)
-{
+static void list_row_selected(list_struct *list, SDL_Rect box) {
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
 }
 
@@ -93,8 +93,7 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
  * @param py
  * Parent Y.
  */
-void list_set_parent(list_struct *list, int px, int py)
-{
+void list_set_parent(list_struct *list, int px, int py) {
     list->px = px;
     list->py = py;
 }
@@ -110,8 +109,7 @@ void list_set_parent(list_struct *list, int px, int py)
  * @return
  * The created list.
  */
-list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing)
-{
+list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing) {
     list_struct *list = ecalloc(1, sizeof(list_struct));
 
     if (max_rows == 0) {
@@ -160,8 +158,7 @@ list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing)
  * @param str
  * Text to add.
  */
-void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str)
-{
+void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str) {
     if (!list) {
         return;
     }
@@ -195,8 +192,7 @@ void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str)
  * @param row
  * Row ID to remove.
  */
-void list_remove_row(list_struct *list, uint32_t row)
-{
+void list_remove_row(list_struct *list, uint32_t row) {
     uint32_t col, row2;
 
     /* Sanity checks. */
@@ -239,8 +235,12 @@ void list_remove_row(list_struct *list, uint32_t row)
  * Whether to center the drawn name/text in the column.
  * -1 to leave default (not centered).
  */
-void list_set_column(list_struct *list, uint32_t col, int width, int spacing, const char *name, int centered)
-{
+void list_set_column(list_struct *list,
+                     uint32_t col,
+                     int width,
+                     int spacing,
+                     const char *name,
+                     int centered) {
     if (col > list->cols) {
         LOG(BUG, "Attempted to change column #%u, but columns max is %u.", col, list->cols);
         return;
@@ -281,8 +281,7 @@ void list_set_column(list_struct *list, uint32_t col, int width, int spacing, co
  * @param font
  * Font to use.
  */
-void list_set_font(list_struct *list, font_struct *font)
-{
+void list_set_font(list_struct *list, font_struct *font) {
     if (list->font != NULL) {
         font_free(list->font);
     }
@@ -299,10 +298,14 @@ void list_set_font(list_struct *list, font_struct *font)
  * @param list
  * List to enable scrollbar on.
  */
-void list_scrollbar_enable(list_struct *list)
-{
+void list_scrollbar_enable(list_struct *list) {
     list->scrollbar_enabled = 1;
-    scrollbar_create(&list->scrollbar, 9, LIST_ROWS_HEIGHT(list) + 1, &list->row_offset, &list->rows, list->max_rows);
+    scrollbar_create(&list->scrollbar,
+                     9,
+                     LIST_ROWS_HEIGHT(list) + 1,
+                     &list->row_offset,
+                     &list->rows,
+                     list->max_rows);
 }
 
 /**
@@ -312,8 +315,7 @@ void list_scrollbar_enable(list_struct *list)
  * @return
  * 1 if the list needs redrawing, 0 otherwise.
  */
-int list_need_redraw(list_struct *list)
-{
+int list_need_redraw(list_struct *list) {
     if (!list) {
         return 0;
     }
@@ -334,8 +336,7 @@ int list_need_redraw(list_struct *list)
  * @param y
  * Y position.
  */
-void list_show(list_struct *list, int x, int y)
-{
+void list_show(list_struct *list, int x, int y) {
     uint32_t row, col;
     int w = 0, extra_width = 0;
     SDL_Rect box;
@@ -357,15 +358,22 @@ void list_show(list_struct *list, int x, int y)
         extra_width = 0;
 
         /* Center it? */
-        if (list->col_centered[col] && list->col_names[col] != NULL &&
-            list->font != NULL) {
-            extra_width = list->col_widths[col] / 2 -
-                text_get_width(list->font, list->col_names[col], 0) / 2;
+        if (list->col_centered[col] && list->col_names[col] != NULL && list->font != NULL) {
+            extra_width =
+                list->col_widths[col] / 2 - text_get_width(list->font, list->col_names[col], 0) / 2;
         }
 
         /* Actually draw the column name. */
         if (list->col_names[col]) {
-            text_show_shadow(list->surface, list->font, list->col_names[col], list->x + w + extra_width, list->y, list->focus ? COLOR_WHITE : COLOR_GRAY, COLOR_BLACK, 0, NULL);
+            text_show_shadow(list->surface,
+                             list->font,
+                             list->col_names[col],
+                             list->x + w + extra_width,
+                             list->y,
+                             list->focus ? COLOR_WHITE : COLOR_GRAY,
+                             COLOR_BLACK,
+                             0,
+                             NULL);
         }
 
         w += list->col_widths[col] + list->col_spacings[col];
@@ -377,7 +385,10 @@ void list_show(list_struct *list, int x, int y)
     box.h = LIST_ROW_HEIGHT(list);
 
     if (list->scrollbar_enabled) {
-        scrollbar_show(&list->scrollbar, list->surface, list->x + list->frame_offset + 1 + w, LIST_ROWS_START(list));
+        scrollbar_show(&list->scrollbar,
+                       list->surface,
+                       list->x + list->frame_offset + 1 + w,
+                       LIST_ROWS_START(list));
     }
 
     /* Doing coloring of each row? */
@@ -418,7 +429,9 @@ void list_show(list_struct *list, int x, int y)
 
                 /* Center it. */
                 if (list->col_centered[col]) {
-                    extra_width = list->col_widths[col] / 2 - text_get_width(list->font, list->text[row][col], TEXT_WORD_WRAP) / 2;
+                    extra_width =
+                        list->col_widths[col] / 2 -
+                        text_get_width(list->font, list->text[row][col], TEXT_WORD_WRAP) / 2;
                 }
 
                 text_color = list->focus ? COLOR_WHITE : COLOR_GRAY;
@@ -430,15 +443,31 @@ void list_show(list_struct *list, int x, int y)
 
                 /* Add width limit on the string. */
                 text_rect.x = list->x + w + extra_width;
-                text_rect.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
+                text_rect.y =
+                    LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
                 text_rect.w = list->col_widths[col] + list->col_spacings[col];
                 text_rect.h = LIST_ROW_HEIGHT(list);
 
                 /* Output the text. */
                 if (text_color_shadow) {
-                    text_show_shadow(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, text_color_shadow, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+                    text_show_shadow(list->surface,
+                                     list->font,
+                                     list->text[row][col],
+                                     text_rect.x,
+                                     text_rect.y,
+                                     text_color,
+                                     text_color_shadow,
+                                     TEXT_WORD_WRAP | list->text_flags,
+                                     &text_rect);
                 } else if (text_color) {
-                    text_show(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, TEXT_WORD_WRAP | list->text_flags, &text_rect);
+                    text_show(list->surface,
+                              list->font,
+                              list->text[row][col],
+                              text_rect.x,
+                              text_rect.y,
+                              text_color,
+                              TEXT_WORD_WRAP | list->text_flags,
+                              &text_rect);
                 }
             }
 
@@ -456,8 +485,7 @@ void list_show(list_struct *list, int x, int y)
  * @param list
  * The list.
  */
-void list_clear_rows(list_struct *list)
-{
+void list_clear_rows(list_struct *list) {
     uint32_t row, col;
 
     if (!list || !list->text) {
@@ -485,8 +513,7 @@ void list_clear_rows(list_struct *list)
  * @param list
  * List.
  */
-void list_clear(list_struct *list)
-{
+void list_clear(list_struct *list) {
     list_clear_rows(list);
 
     list->row_selected = 1;
@@ -500,8 +527,7 @@ void list_clear(list_struct *list)
  * @param list
  * List to ensure for.
  */
-void list_offsets_ensure(list_struct *list)
-{
+void list_offsets_ensure(list_struct *list) {
     if (list->row_selected <= 1) {
         list->row_selected = 1;
     } else if (list->row_selected >= list->rows) {
@@ -521,8 +547,7 @@ void list_offsets_ensure(list_struct *list)
  * @param list
  * List to remove.
  */
-void list_remove(list_struct *list)
-{
+void list_remove(list_struct *list) {
     uint32_t col;
 
     if (!list) {
@@ -563,8 +588,7 @@ void list_remove(list_struct *list)
  * @param scroll
  * Amount to scroll by.
  */
-void list_scroll(list_struct *list, int up, int scroll)
-{
+void list_scroll(list_struct *list, int up, int scroll) {
     /* The actual values are unsigned. Changing them to signed here
      * makes it easier to check for overflows below. */
     int32_t row_selected = list->row_selected, row_offset = list->row_offset;
@@ -621,8 +645,7 @@ void list_scroll(list_struct *list, int up, int scroll)
  * @return
  * 1 if we handled the event, 0 otherwise.
  */
-int list_handle_keyboard(list_struct *list, SDL_Event *event)
-{
+int list_handle_keyboard(list_struct *list, SDL_Event *event) {
     if (!list) {
         return 0;
     }
@@ -640,48 +663,48 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
     }
 
     switch (event->key.keysym.sym) {
-        /* Up arrow. */
-    case SDLK_UP:
-        list_scroll(list, 1, 1);
-        return 1;
+            /* Up arrow. */
+        case SDLK_UP:
+            list_scroll(list, 1, 1);
+            return 1;
 
-        /* Down arrow. */
-    case SDLK_DOWN:
-        list_scroll(list, 0, 1);
-        return 1;
+            /* Down arrow. */
+        case SDLK_DOWN:
+            list_scroll(list, 0, 1);
+            return 1;
 
-        /* Page up. */
-    case SDLK_PAGEUP:
-        list_scroll(list, 1, list->max_rows);
-        return 1;
+            /* Page up. */
+        case SDLK_PAGEUP:
+            list_scroll(list, 1, list->max_rows);
+            return 1;
 
-        /* Page down. */
-    case SDLK_PAGEDOWN:
-        list_scroll(list, 0, list->max_rows);
-        return 1;
+            /* Page down. */
+        case SDLK_PAGEDOWN:
+            list_scroll(list, 0, list->max_rows);
+            return 1;
 
-        /* Esc, let the list creator handle this if they want to. */
-    case SDLK_ESCAPE:
+            /* Esc, let the list creator handle this if they want to. */
+        case SDLK_ESCAPE:
 
-        if (list->handle_esc_func) {
-            list->handle_esc_func(list);
-        }
+            if (list->handle_esc_func) {
+                list->handle_esc_func(list);
+            }
 
-        return 1;
+            return 1;
 
-        /* Enter. */
-    case SDLK_RETURN:
-    case SDLK_KP_ENTER:
+            /* Enter. */
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
 
-        if (list->handle_enter_func) {
-            list->handle_enter_func(list, event);
-        }
+            if (list->handle_enter_func) {
+                list->handle_enter_func(list, event);
+            }
 
-        return 1;
+            return 1;
 
-        /* Unhandled key. */
-    default:
-        break;
+            /* Unhandled key. */
+        default:
+            break;
     }
 
     return 0;
@@ -697,8 +720,7 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
  * @return
  * 1 if the event was handled, 0 otherwise.
  */
-int list_handle_mouse(list_struct *list, SDL_Event *event)
-{
+int list_handle_mouse(list_struct *list, SDL_Event *event) {
     uint32_t row, col, old_highlighted, old_selected;
     int mx, my;
 
@@ -706,7 +728,8 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
         return 0;
     }
 
-    if (event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEMOTION) {
+    if (event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEBUTTONUP &&
+        event->type != SDL_MOUSEMOTION) {
         return 0;
     }
 
@@ -766,7 +789,8 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
     }
 
     /* Handle mouse wheel for scrolling. */
-    if (event->type == SDL_MOUSEBUTTONDOWN && (event->button.button == SDL_BUTTON_WHEELUP || event->button.button == SDL_BUTTON_WHEELDOWN)) {
+    if (event->type == SDL_MOUSEBUTTONDOWN && (event->button.button == SDL_BUTTON_WHEELUP ||
+                                               event->button.button == SDL_BUTTON_WHEELDOWN)) {
         list_scroll(list, event->button.button == SDL_BUTTON_WHEELUP, 1);
         return 1;
     }
@@ -778,8 +802,7 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
     return 0;
 }
 
-int list_mouse_get_pos(list_struct *list, int mx, int my, uint32_t *row, uint32_t *col)
-{
+int list_mouse_get_pos(list_struct *list, int mx, int my, uint32_t *row, uint32_t *col) {
     uint32_t w;
 
     mx -= list->px;
@@ -793,11 +816,16 @@ int list_mouse_get_pos(list_struct *list, int mx, int my, uint32_t *row, uint32_
         }
 
         /* Is the mouse over this row? */
-        if ((uint32_t) my >= (LIST_ROWS_START(list) + LIST_ROW_OFFSET(*row, list) * LIST_ROW_HEIGHT(list)) && (uint32_t) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(*row, list) + 1) * LIST_ROW_HEIGHT(list)) {
+        if ((uint32_t)my >=
+                (LIST_ROWS_START(list) + LIST_ROW_OFFSET(*row, list) * LIST_ROW_HEIGHT(list)) &&
+            (uint32_t)my <
+                LIST_ROWS_START(list) + (LIST_ROW_OFFSET(*row, list) + 1) * LIST_ROW_HEIGHT(list)) {
             w = 0;
 
             for (*col = 0; *col < list->cols; (*col)++) {
-                if ((uint32_t) mx >= list->x + list->frame_offset + w && (uint32_t) mx < list->x + list->frame_offset + w + list->col_widths[*col] + list->col_spacings[*col]) {
+                if ((uint32_t)mx >= list->x + list->frame_offset + w &&
+                    (uint32_t)mx < list->x + list->frame_offset + w + list->col_widths[*col] +
+                                       list->col_spacings[*col]) {
                     return 1;
                 }
 
@@ -818,9 +846,8 @@ int list_mouse_get_pos(list_struct *list, int mx, int my, uint32_t *row, uint32_
  * @return
  * Return value of strcmp() against the two entries.
  */
-static int list_compare_alpha(const void *a, const void *b)
-{
-    return strcmp(((char ***) a)[0][0], ((char ***) b)[0][0]);
+static int list_compare_alpha(const void *a, const void *b) {
+    return strcmp(((char ***)a)[0][0], ((char ***)b)[0][0]);
 }
 
 /**
@@ -831,8 +858,7 @@ static int list_compare_alpha(const void *a, const void *b)
  * How to sort, one of @ref LIST_SORT_xxx.
  * @note Sorting is done by looking at the first column of each row.
  */
-void list_sort(list_struct *list, int type)
-{
+void list_sort(list_struct *list, int type) {
     if (!list->text) {
         return;
     }
@@ -854,8 +880,7 @@ void list_sort(list_struct *list, int type)
  * @return
  * 1 if new selected row was set, 0 otherwise.
  */
-int list_set_selected(list_struct *list, const char *str, uint32_t col)
-{
+int list_set_selected(list_struct *list, const char *str, uint32_t col) {
     uint32_t row;
 
     for (row = 0; row < list->rows; row++) {
@@ -878,8 +903,7 @@ int list_set_selected(list_struct *list, const char *str, uint32_t col)
  * @return
  * Pointer to column's text, NULL if there is no row selected.
  */
-const char *list_get_selected(list_struct *list, uint32_t col)
-{
+const char *list_get_selected(list_struct *list, uint32_t col) {
     if (list->text == NULL) {
         return NULL;
     }

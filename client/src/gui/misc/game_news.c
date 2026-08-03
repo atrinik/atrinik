@@ -88,9 +88,7 @@ typedef struct game_news {
 } game_news_t;
 
 /** @copydoc popup_struct::draw_func */
-static int
-popup_draw (popup_struct *popup)
-{
+static int popup_draw(popup_struct *popup) {
     game_news_t *game_news = popup->custom_data;
 
     curl_state_t state = curl_request_get_state(game_news->request);
@@ -109,20 +107,37 @@ popup_draw (popup_struct *popup)
     SDL_Rect box;
     box.w = popup->surface->w;
     box.h = 38;
-    text_show(popup->surface, FONT_SERIF16, game_news->title, 0, 0,
-              COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+    text_show(popup->surface,
+              FONT_SERIF16,
+              game_news->title,
+              0,
+              0,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+              &box);
 
     box.w = popup->surface->w;
     box.h = popup->surface->h - box.h;
 
     if (state == CURL_STATE_ERROR) {
-        text_show(popup->surface, FONT_SERIF12, "Connection timed out.", 0, 0,
-                  COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+        text_show(popup->surface,
+                  FONT_SERIF12,
+                  "Connection timed out.",
+                  0,
+                  0,
+                  COLOR_WHITE,
+                  TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+                  &box);
         return 1;
     } else if (state == CURL_STATE_INPROGRESS) {
-        text_show(popup->surface, FONT_SERIF12,
-                  "Downloading news, please wait...", 0, 0, COLOR_WHITE,
-                  TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+        text_show(popup->surface,
+                  FONT_SERIF12,
+                  "Downloading news, please wait...",
+                  0,
+                  0,
+                  COLOR_WHITE,
+                  TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+                  &box);
         return 1;
     } else if (state == CURL_STATE_OK) {
         if (game_news->msg == NULL) {
@@ -131,11 +146,20 @@ popup_draw (popup_struct *popup)
 
             box.w = NEWS_MAX_WIDTH;
             box.h = NEWS_MAX_HEIGHT;
-            text_show(NULL, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE,
-                      TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+            text_show(NULL,
+                      NEWS_FONT,
+                      game_news->msg,
+                      10,
+                      40,
+                      COLOR_WHITE,
+                      TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC,
+                      &box);
             game_news->num_lines = box.h;
-            scrollbar_create(&game_news->scrollbar, 15, 240,
-                             &game_news->scroll_offset, &game_news->num_lines,
+            scrollbar_create(&game_news->scrollbar,
+                             15,
+                             240,
+                             &game_news->scroll_offset,
+                             &game_news->num_lines,
                              box.y);
             box.h = NEWS_MAX_HEIGHT;
         }
@@ -144,20 +168,23 @@ popup_draw (popup_struct *popup)
     box.w = NEWS_MAX_WIDTH;
     box.h = NEWS_MAX_HEIGHT;
     box.y = game_news->scroll_offset;
-    text_show(popup->surface, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE,
-              TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+    text_show(popup->surface,
+              NEWS_FONT,
+              game_news->msg,
+              10,
+              40,
+              COLOR_WHITE,
+              TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP,
+              &box);
 
     game_news->scrollbar.px = popup->x;
     game_news->scrollbar.py = popup->y;
-    scrollbar_show(&game_news->scrollbar, popup->surface,
-                   popup->surface->w - 28, 45);
+    scrollbar_show(&game_news->scrollbar, popup->surface, popup->surface->w - 28, 45);
     return 1;
 }
 
 /** @copydoc popup_struct::event_func */
-static int
-popup_event (popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     game_news_t *game_news = popup->custom_data;
 
     if (game_news->msg == NULL) {
@@ -180,17 +207,15 @@ popup_event (popup_struct *popup, SDL_Event *event)
             popup->redraw = 1;
             return 1;
         } else if (event->key.keysym.sym == SDLK_PAGEUP) {
-            scrollbar_scroll_adjust(&game_news->scrollbar,
-                                    -game_news->scrollbar.max_lines);
+            scrollbar_scroll_adjust(&game_news->scrollbar, -game_news->scrollbar.max_lines);
             popup->redraw = 1;
             return 1;
         } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
-            scrollbar_scroll_adjust(&game_news->scrollbar,
-                                    game_news->scrollbar.max_lines);
+            scrollbar_scroll_adjust(&game_news->scrollbar, game_news->scrollbar.max_lines);
             popup->redraw = 1;
             return 1;
         }
-    }/* Mouse wheel? */
+    } /* Mouse wheel? */
     else if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, 1);
@@ -207,9 +232,7 @@ popup_event (popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
-static int
-popup_destroy_callback (popup_struct *popup)
-{
+static int popup_destroy_callback(popup_struct *popup) {
     game_news_t *game_news = popup->custom_data;
     efree(game_news->title);
     curl_request_free(game_news->request);
@@ -227,11 +250,8 @@ popup_destroy_callback (popup_struct *popup)
  * @param title
  * Title of the news entry that we want to read.
  */
-void
-game_news_open (const char *title)
-{
-    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT,
-                                                   "popup"));
+void game_news_open(const char *title) {
+    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
     popup->draw_func = popup_draw;
     popup->event_func = popup_event;
     popup->destroy_callback_func = popup_destroy_callback;

@@ -60,8 +60,7 @@ static void expand_sight(object *op);
  * are the only ones further out that are still possibly in the
  * sightline.
  */
-void init_block(void)
-{
+void init_block(void) {
     int x, y, dx, dy, i;
     static const int block_x[3] = {-1, -1, 0}, block_y[3] = {-1, 0, -1};
 
@@ -106,9 +105,11 @@ void init_block(void)
                      * r is more a curiosity - it lets us know what direction
                      * (left/right)
                      * the line is off */
-                    d1 = (float) (pow(MAP_CLIENT_X / 2 - dx, 2) + pow(MAP_CLIENT_Y / 2 - dy, 2));
-                    s = (float) ((dy - y) * (MAP_CLIENT_X / 2 - dx) - (dx - x) * (MAP_CLIENT_Y / 2 - dy)) / d1;
-                    l = (float) FABS(sqrt(d1) * s);
+                    d1 = (float)(pow(MAP_CLIENT_X / 2 - dx, 2) + pow(MAP_CLIENT_Y / 2 - dy, 2));
+                    s = (float)((dy - y) * (MAP_CLIENT_X / 2 - dx) -
+                                (dx - x) * (MAP_CLIENT_Y / 2 - dy)) /
+                        d1;
+                    l = (float)FABS(sqrt(d1) * s);
 
                     if (l <= SPACE_BLOCK) {
                         /* For simplicity, we mirror the coordinates to block
@@ -117,7 +118,10 @@ void init_block(void)
                         set_block(x, y, dx, dy);
                         set_block(MAP_CLIENT_X - x - 1, y, MAP_CLIENT_X - dx - 1, dy);
                         set_block(x, MAP_CLIENT_Y - y - 1, dx, MAP_CLIENT_Y - dy - 1);
-                        set_block(MAP_CLIENT_X - x - 1, MAP_CLIENT_Y - y - 1, MAP_CLIENT_X - dx - 1, MAP_CLIENT_Y - dy - 1);
+                        set_block(MAP_CLIENT_X - x - 1,
+                                  MAP_CLIENT_Y - y - 1,
+                                  MAP_CLIENT_X - dx - 1,
+                                  MAP_CLIENT_Y - dy - 1);
                     }
                 }
             }
@@ -142,8 +146,7 @@ void init_block(void)
  * @param by
  * Blocked Y position
  */
-void set_block(int x, int y, int bx, int by)
-{
+void set_block(int x, int y, int bx, int by) {
     int idx = block[x][y].index, i;
 
     /* Due to flipping, we may get duplicates - better safe than sorry. */
@@ -174,8 +177,7 @@ void set_block(int x, int y, int bx, int by)
  * @param y
  * Y position
  */
-static void set_wall(object *op, int x, int y)
-{
+static void set_wall(object *op, int x, int y) {
     int i, xt, yt;
 
     xt = (MAP_CLIENT_X - CONTR(op)->cs->mapx) / 2;
@@ -218,8 +220,7 @@ static void set_wall(object *op, int x, int y)
  * @param y
  * Y position based on MAP_CLIENT_Y
  */
-static void check_wall(object *op, int x, int y)
-{
+static void check_wall(object *op, int x, int y) {
     int ax, ay, flags;
 
     /* ax, ay are coordinates as indexed into the look window */
@@ -235,7 +236,8 @@ static void check_wall(object *op, int x, int y)
          * blockview changes to this tiles will have no effect. */
 
         /* mark the space as OUT_OF_MAP. */
-        if (blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2) & P_OUT_OF_MAP) {
+        if (blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2) &
+            P_OUT_OF_MAP) {
             CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
         } else {
             /* ignore means ignore for LOS */
@@ -244,7 +246,6 @@ static void check_wall(object *op, int x, int y)
 
         return;
     }
-
 
     /* If the converted coordinates are outside the viewable
      * area for the client, return now. */
@@ -259,7 +260,9 @@ static void check_wall(object *op, int x, int y)
      * */
     if (CONTR(op)->blocked_los[ax][ay] & (BLOCKED_LOS_BLOCKED | BLOCKED_LOS_OUT_OF_MAP)) {
         if (CONTR(op)->blocked_los[ax][ay] & BLOCKED_LOS_BLOCKED) {
-            if ((flags = blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2))) {
+            if ((flags = blocks_view(op->map,
+                                     op->x + x - MAP_CLIENT_X / 2,
+                                     op->y + y - MAP_CLIENT_Y / 2))) {
                 /* mark the space as OUT_OF_MAP. */
                 if (flags & P_OUT_OF_MAP) {
                     CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
@@ -271,7 +274,8 @@ static void check_wall(object *op, int x, int y)
         return;
     }
 
-    if ((flags = blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2))) {
+    if ((flags =
+             blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2))) {
         set_wall(op, x, y);
 
         /* out of map clears all other flags! */
@@ -292,8 +296,7 @@ static void check_wall(object *op, int x, int y)
  * @param op
  * Player's object for which to reset los.
  */
-static void blinded_sight(object *op)
-{
+static void blinded_sight(object *op) {
     int x, y;
 
     for (x = 0; x < CONTR(op)->cs->mapx; x++) {
@@ -302,7 +305,8 @@ static void blinded_sight(object *op)
         }
     }
 
-    CONTR(op)->blocked_los[CONTR(op)->cs->mapx / 2][CONTR(op)->cs->mapy / 2] &= ~BLOCKED_LOS_BLOCKED;
+    CONTR(op)->blocked_los[CONTR(op)->cs->mapx / 2][CONTR(op)->cs->mapy / 2] &=
+        ~BLOCKED_LOS_BLOCKED;
 }
 
 /**
@@ -311,8 +315,7 @@ static void blinded_sight(object *op)
  * @param op
  * The player object
  */
-void update_los(object *op)
-{
+void update_los(object *op) {
     int dx = CONTR(op)->cs->mapx_2, dy = CONTR(op)->cs->mapy_2, x, y;
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
@@ -329,8 +332,11 @@ void update_los(object *op)
      * used the chaining of the block array.  Since many space views could
      * be blocked by different spaces in front, this mean that a lot of spaces
      * could be examined multile times, as each path would be looked at. */
-    for (x = (MAP_CLIENT_X - CONTR(op)->cs->mapx) / 2; x < (MAP_CLIENT_X + CONTR(op)->cs->mapx) / 2; x++) {
-        for (y = (MAP_CLIENT_Y - CONTR(op)->cs->mapy) / 2; y < (MAP_CLIENT_Y + CONTR(op)->cs->mapy) / 2; y++) {
+    for (x = (MAP_CLIENT_X - CONTR(op)->cs->mapx) / 2; x < (MAP_CLIENT_X + CONTR(op)->cs->mapx) / 2;
+         x++) {
+        for (y = (MAP_CLIENT_Y - CONTR(op)->cs->mapy) / 2;
+             y < (MAP_CLIENT_Y + CONTR(op)->cs->mapy) / 2;
+             y++) {
             check_wall(op, x, y);
         }
     }
@@ -360,9 +366,8 @@ void update_los(object *op)
  * @param op
  * The player object.
  */
-void clear_los(object *op)
-{
-    (void) memset(CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
+void clear_los(object *op) {
+    (void)memset(CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
 }
 
 #define BLOCKED_LOS_EXPAND 0x20
@@ -377,15 +382,15 @@ void clear_los(object *op)
  * The player object.
  * @todo Improve the formula.
  */
-static void expand_sight(object *op)
-{
+static void expand_sight(object *op) {
     int i, x, y, dx, dy;
 
     /* loop over inner squares */
     for (x = 1; x < CONTR(op)->cs->mapx - 1; x++) {
         for (y = 1; y < CONTR(op)->cs->mapy - 1; y++) {
             /* if visible and not blocksview */
-            if (CONTR(op)->blocked_los[x][y] <= BLOCKED_LOS_BLOCKSVIEW && !(CONTR(op)->blocked_los[x][y] & BLOCKED_LOS_BLOCKSVIEW)) {
+            if (CONTR(op)->blocked_los[x][y] <= BLOCKED_LOS_BLOCKSVIEW &&
+                !(CONTR(op)->blocked_los[x][y] & BLOCKED_LOS_BLOCKSVIEW)) {
                 /* mark all directions */
                 for (i = 1; i <= 8; i += 1) {
                     dx = x + freearr_x[i];
@@ -424,8 +429,7 @@ static void expand_sight(object *op)
  * @return
  * 1 if in line of sight, 0 otherwise
  */
-int obj_in_line_of_sight(object *obj, rv_vector *rv)
-{
+int obj_in_line_of_sight(object *obj, rv_vector *rv) {
     /* Bresenham variables */
     int fraction, dx2, dy2, stepx, stepy;
     /* Stepping variables */

@@ -35,6 +35,4 @@
 /**
  * Initialize the force type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(force)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(force) {}

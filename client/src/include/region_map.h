@@ -238,23 +238,20 @@ typedef struct region_map {
     char error[HUGE_BUF];
 } region_map_t;
 
-#define RM_MAP_FOW_BITMAP_SIZE(region_map) \
-    (sizeof(*(region_map)->fow->bitmap) * \
-    (((region_map)->surface->w / (region_map)->def->pixel_size + 31) / 32) * \
-    ((region_map)->surface->h / (region_map)->def->pixel_size))
+#define RM_MAP_FOW_BITMAP_SIZE(region_map)                                    \
+    (sizeof(*(region_map)->fow->bitmap) *                                     \
+     (((region_map)->surface->w / (region_map)->def->pixel_size + 31) / 32) * \
+     ((region_map)->surface->h / (region_map)->def->pixel_size))
 
 /* Prototypes */
 
-region_map_def_map_t *region_map_find_map(region_map_t *region_map,
-        const char *map_path);
+region_map_def_map_t *region_map_find_map(region_map_t *region_map, const char *map_path);
 void region_map_resize(region_map_t *region_map, int adjust);
 bool region_map_ready(region_map_t *region_map);
 const char *region_map_error(const region_map_t *region_map);
 void region_map_pan(region_map_t *region_map);
-void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
-        int x, int y);
-void region_map_render_fow(region_map_t *region, SDL_Surface *surface,
-        int x, int y);
+void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface, int x, int y);
+void region_map_render_fow(region_map_t *region, SDL_Surface *surface, int x, int y);
 SDL_Surface *region_map_surface(region_map_t *region_map);
 void region_map_reset(region_map_t *region_map);
 region_map_t *region_map_create(void);
@@ -263,7 +260,10 @@ void region_map_free(region_map_t *region_map);
 void region_map_update(region_map_t *region_map, const char *region_name);
 void region_map_fow_update(region_map_t *region_map);
 bool region_map_fow_set_visited(region_map_t *region_map,
-        region_map_def_map_t *map, const char *map_path, int x, int y);
+                                region_map_def_map_t *map,
+                                const char *map_path,
+                                int x,
+                                int y);
 SDL_Surface *region_map_fow_surface(region_map_t *region_map);
 bool region_map_fow_is_visited(region_map_t *region_map, int x, int y);
 bool region_map_fow_is_visible(region_map_t *region_map, int x, int y);

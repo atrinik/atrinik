@@ -28,8 +28,7 @@
 #include <check_proto.h>
 #include <toolkit/string.h>
 
-START_TEST(test_string_replace)
-{
+START_TEST(test_string_replace) {
     char buf[MAX_BUF], buf2[6];
 
     /* Check simple replacement */
@@ -73,8 +72,7 @@ START_TEST(test_string_replace)
 
 END_TEST
 
-START_TEST(test_string_replace_char)
-{
+START_TEST(test_string_replace_char) {
     char *cp;
 
     /* Attempt to replace "a", "e" and "o" characters with spaces. */
@@ -104,8 +102,7 @@ START_TEST(test_string_replace_char)
 
 END_TEST
 
-START_TEST(test_string_split)
-{
+START_TEST(test_string_split) {
     char *cp, *cps[20], *cps2[2];
 
     /* Attempt to split two words separated by spaces. */
@@ -137,8 +134,7 @@ START_TEST(test_string_split)
     /* Attempt to split several one-character words, and the result would not
      * fit into the array. */
     cp = estrdup("q w e r t y");
-    ck_assert_int_eq(string_split(cp, cps2, sizeof(cps2) / sizeof(*cps2), ' '),
-            2);
+    ck_assert_int_eq(string_split(cp, cps2, sizeof(cps2) / sizeof(*cps2), ' '), 2);
     ck_assert_str_eq(cps2[0], "q");
     ck_assert_str_eq(cps2[1], "w e r t y");
     efree(cp);
@@ -146,8 +142,7 @@ START_TEST(test_string_split)
 
 END_TEST
 
-START_TEST(test_string_replace_unprintable_char)
-{
+START_TEST(test_string_replace_unprintable_char) {
     char *cp;
 
     /* Replace tabs with spaces. */
@@ -171,21 +166,17 @@ START_TEST(test_string_replace_unprintable_char)
 
 END_TEST
 
-START_TEST(test_string_format_number_comma)
-{
+START_TEST(test_string_format_number_comma) {
     ck_assert_str_eq(string_format_number_comma(100), "100");
     ck_assert_str_eq(string_format_number_comma(1000), "1,000");
     ck_assert_str_eq(string_format_number_comma(123456789), "123,456,789");
-    ck_assert_str_eq(string_format_number_comma(99999999999999999),
-            "99,999,999,999,999,999");
-    ck_assert_str_eq(string_format_number_comma(UINT64_MAX),
-            "18,446,744,073,709,551,615");
+    ck_assert_str_eq(string_format_number_comma(99999999999999999), "99,999,999,999,999,999");
+    ck_assert_str_eq(string_format_number_comma(UINT64_MAX), "18,446,744,073,709,551,615");
 }
 
 END_TEST
 
-START_TEST(test_string_toupper)
-{
+START_TEST(test_string_toupper) {
     char *cp;
 
     cp = estrdup("hello world");
@@ -206,8 +197,7 @@ START_TEST(test_string_toupper)
 
 END_TEST
 
-START_TEST(test_string_tolower)
-{
+START_TEST(test_string_tolower) {
     char *cp;
 
     cp = estrdup("HELLO WORLD");
@@ -228,8 +218,7 @@ START_TEST(test_string_tolower)
 
 END_TEST
 
-START_TEST(test_string_whitespace_trim)
-{
+START_TEST(test_string_whitespace_trim) {
     char *cp;
 
     cp = estrdup("            ");
@@ -260,8 +249,7 @@ START_TEST(test_string_whitespace_trim)
 
 END_TEST
 
-START_TEST(test_string_whitespace_squeeze)
-{
+START_TEST(test_string_whitespace_squeeze) {
     char *cp;
 
     cp = estrdup(" hello world ");
@@ -287,8 +275,7 @@ START_TEST(test_string_whitespace_squeeze)
 
 END_TEST
 
-START_TEST(test_string_newline_to_literal)
-{
+START_TEST(test_string_newline_to_literal) {
     char *cp;
 
     cp = estrdup("hello\\nworld");
@@ -309,54 +296,39 @@ START_TEST(test_string_newline_to_literal)
 
 END_TEST
 
-START_TEST(test_string_get_word)
-{
+START_TEST(test_string_get_word) {
     char *cp, word[MAX_BUF];
     size_t pos;
 
     cp = estrdup("hello world");
     pos = 0;
-    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
-            "hello");
-    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
-            "world");
-    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
-            NULL);
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "hello");
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "world");
+    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), NULL);
     efree(cp);
 
     cp = estrdup("/teleport 'Player Name'");
     pos = 0;
-    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
-            "/teleport");
-    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), '\''),
-            "Player Name");
-    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
-            NULL);
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "/teleport");
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), '\''), "Player Name");
+    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), NULL);
     efree(cp);
 
     cp = estrdup("");
     pos = 0;
-    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
-            NULL);
+    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), NULL);
     efree(cp);
 
     pos = 0;
     snprintf(VS(word), "not empty");
-    ck_assert_ptr_eq(string_get_word(NULL,
-                                     &pos,
-                                     ' ',
-                                     word,
-                                     sizeof(word),
-                                     0),
-                     NULL);
+    ck_assert_ptr_eq(string_get_word(NULL, &pos, ' ', word, sizeof(word), 0), NULL);
     ck_assert_str_eq(word, "");
     ck_assert_uint_eq(pos, 0);
 }
 
 END_TEST
 
-START_TEST(test_string_skip_word)
-{
+START_TEST(test_string_skip_word) {
     char *cp;
     size_t pos;
 
@@ -381,8 +353,7 @@ START_TEST(test_string_skip_word)
 
 END_TEST
 
-START_TEST(test_string_isdigit)
-{
+START_TEST(test_string_isdigit) {
     ck_assert(string_isdigit("10"));
     ck_assert(string_isdigit("10000000000000"));
     ck_assert(string_isdigit("1234567890"));
@@ -395,8 +366,7 @@ START_TEST(test_string_isdigit)
 
 END_TEST
 
-START_TEST(test_string_capitalize)
-{
+START_TEST(test_string_capitalize) {
     char *cp;
 
     cp = estrdup("hello world");
@@ -427,8 +397,7 @@ START_TEST(test_string_capitalize)
 
 END_TEST
 
-START_TEST(test_string_title)
-{
+START_TEST(test_string_title) {
     char *cp;
 
     cp = estrdup("hello world");
@@ -494,8 +463,7 @@ START_TEST(test_string_title)
 
 END_TEST
 
-START_TEST(test_string_startswith)
-{
+START_TEST(test_string_startswith) {
     ck_assert(string_startswith("hello world", "hello"));
     ck_assert(!string_startswith("", ""));
     ck_assert(!string_startswith("hello world", ""));
@@ -507,8 +475,7 @@ START_TEST(test_string_startswith)
 
 END_TEST
 
-START_TEST(test_string_endswith)
-{
+START_TEST(test_string_endswith) {
     ck_assert(string_endswith("hello world", "world"));
     ck_assert(string_endswith("hello world", "d"));
     ck_assert(!string_endswith("", ""));
@@ -520,8 +487,7 @@ START_TEST(test_string_endswith)
 
 END_TEST
 
-START_TEST(test_string_sub)
-{
+START_TEST(test_string_sub) {
     char *cp;
 
     cp = string_sub("hello world", 1, -1);
@@ -583,8 +549,7 @@ START_TEST(test_string_sub)
 
 END_TEST
 
-START_TEST(test_string_isempty)
-{
+START_TEST(test_string_isempty) {
     ck_assert(string_isempty(NULL));
     ck_assert(string_isempty(""));
     ck_assert(!string_isempty("1"));
@@ -595,8 +560,7 @@ START_TEST(test_string_isempty)
 
 END_TEST
 
-START_TEST(test_string_iswhite)
-{
+START_TEST(test_string_iswhite) {
     ck_assert(string_iswhite(NULL));
     ck_assert(string_iswhite("      "));
     ck_assert(string_iswhite(" "));
@@ -611,8 +575,7 @@ START_TEST(test_string_iswhite)
 
 END_TEST
 
-START_TEST(test_char_contains)
-{
+START_TEST(test_char_contains) {
     ck_assert(char_contains('q', "qwerty"));
     ck_assert(char_contains('\n', "hello\nworld"));
     ck_assert(!char_contains('\n', "\t"));
@@ -624,8 +587,7 @@ START_TEST(test_char_contains)
 
 END_TEST
 
-START_TEST(test_string_contains)
-{
+START_TEST(test_string_contains) {
     ck_assert(string_contains("hello world", "qwerty"));
     ck_assert(string_contains("hello world", " "));
     ck_assert(!string_contains("hello world", "\t"));
@@ -633,8 +595,7 @@ START_TEST(test_string_contains)
 
 END_TEST
 
-START_TEST(test_string_contains_other)
-{
+START_TEST(test_string_contains_other) {
     ck_assert(string_contains_other("Qwerty", "qwerty"));
     ck_assert(!string_contains_other("qwerty", "qwerty"));
     ck_assert(string_contains_other("hello world", "qwerty"));
@@ -643,8 +604,7 @@ START_TEST(test_string_contains_other)
 
 END_TEST
 
-START_TEST(test_string_create_char_range)
-{
+START_TEST(test_string_create_char_range) {
     char *cp;
 
     cp = string_create_char_range('a', 'z');
@@ -662,8 +622,7 @@ START_TEST(test_string_create_char_range)
 
 END_TEST
 
-START_TEST(test_string_join)
-{
+START_TEST(test_string_join) {
     char *cp;
 
     cp = string_join(NULL, "hello", "world", NULL);
@@ -693,8 +652,7 @@ START_TEST(test_string_join)
 
 END_TEST
 
-START_TEST(test_string_join_array)
-{
+START_TEST(test_string_join_array) {
     char *cp;
     const char *cps[] = {"hello", "world"};
     const char *cps2[] = {"hello"};
@@ -732,8 +690,7 @@ START_TEST(test_string_join_array)
 
 END_TEST
 
-START_TEST(test_string_repeat)
-{
+START_TEST(test_string_repeat) {
     char *cp;
 
     cp = string_repeat("hello", 5);
@@ -751,8 +708,7 @@ START_TEST(test_string_repeat)
 
 END_TEST
 
-START_TEST(test_snprintfcat)
-{
+START_TEST(test_snprintfcat) {
     char buf[MAX_BUF], buf2[8];
 
     snprintf(buf, sizeof(buf), "%s", "hello");
@@ -782,22 +738,22 @@ START_TEST(test_snprintfcat)
 
 END_TEST
 
-START_TEST(test_string_tohex)
-{
+START_TEST(test_string_tohex) {
     char buf[MAX_BUF], buf2[5], buf3[6], buf4[7];
     unsigned char cp[] = {0xff, 0x00, 0x03}, cp2[1] = {0x00}, cp3[] = {0x03};
 
-    ck_assert_uint_eq(string_tohex((const unsigned char *) "hello world",
-            strlen("hello world"), buf, sizeof(buf), false),
-            strlen("68656C6C6F20776F726C64"));
+    ck_assert_uint_eq(string_tohex((const unsigned char *)"hello world",
+                                   strlen("hello world"),
+                                   buf,
+                                   sizeof(buf),
+                                   false),
+                      strlen("68656C6C6F20776F726C64"));
     ck_assert_str_eq(buf, "68656C6C6F20776F726C64");
 
-    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf, sizeof(buf), false),
-            6);
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf, sizeof(buf), false), 6);
     ck_assert_str_eq(buf, "FF0003");
 
-    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf, sizeof(buf), true),
-            8);
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf, sizeof(buf), true), 8);
     ck_assert_str_eq(buf, "FF:00:03");
 
     ck_assert_uint_eq(string_tohex(cp2, 0, buf, sizeof(buf), false), 0);
@@ -806,51 +762,41 @@ START_TEST(test_string_tohex)
     ck_assert_uint_eq(string_tohex(cp2, 0, buf, sizeof(buf), true), 0);
     ck_assert_str_eq(buf, "");
 
-    ck_assert_uint_eq(string_tohex(cp3, arraysize(cp3), buf, sizeof(buf), true),
-            2);
+    ck_assert_uint_eq(string_tohex(cp3, arraysize(cp3), buf, sizeof(buf), true), 2);
     ck_assert_str_eq(buf, "03");
 
     /* Test buffer overflows. */
-    ck_assert_int_eq(string_tohex(cp, arraysize(cp), buf2, sizeof(buf2), false),
-            4);
+    ck_assert_int_eq(string_tohex(cp, arraysize(cp), buf2, sizeof(buf2), false), 4);
     ck_assert_str_eq(buf2, "FF00");
 
-    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf3, sizeof(buf3),
-            false), 4);
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf3, sizeof(buf3), false), 4);
     ck_assert_str_eq(buf3, "FF00");
 
-    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4),
-            false), 6);
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4), false), 6);
     ck_assert_str_eq(buf4, "FF0003");
 }
 
 END_TEST
 
-START_TEST(test_string_fromhex)
-{
+START_TEST(test_string_fromhex) {
     unsigned char buf[MAX_BUF], buf2[2];
 
-    ck_assert_uint_eq(string_fromhex("FF03", strlen("FF03"), buf,
-            arraysize(buf)), 2);
+    ck_assert_uint_eq(string_fromhex("FF03", strlen("FF03"), buf, arraysize(buf)), 2);
     ck_assert(buf[0] == 0xFF && buf[1] == 0x03);
 
-    ck_assert_uint_eq(string_fromhex("FF       03", strlen("FF       03"), buf,
-            arraysize(buf)), 2);
+    ck_assert_uint_eq(string_fromhex("FF       03", strlen("FF       03"), buf, arraysize(buf)), 2);
     ck_assert(buf[0] == 0xFF && buf[1] == 0x03);
 
-    ck_assert_uint_eq(string_fromhex("FF3", strlen("FF3"), buf,
-            arraysize(buf)), 1);
+    ck_assert_uint_eq(string_fromhex("FF3", strlen("FF3"), buf, arraysize(buf)), 1);
     ck_assert(buf[0] == 0xFF);
 
-    ck_assert_uint_eq(string_fromhex("FF0304", strlen("FF0304"), buf2,
-            arraysize(buf2)), 2);
+    ck_assert_uint_eq(string_fromhex("FF0304", strlen("FF0304"), buf2, arraysize(buf2)), 2);
     ck_assert(buf[0] == 0xFF && buf[1] == 0x03);
 }
 
 END_TEST
 
-START_TEST(test_string_skip_whitespace)
-{
+START_TEST(test_string_skip_whitespace) {
     const char *str = "";
     string_skip_whitespace(str);
     ck_assert_str_eq(str, "");
@@ -886,8 +832,7 @@ START_TEST(test_string_skip_whitespace)
 
 END_TEST
 
-START_TEST(test_string_last)
-{
+START_TEST(test_string_last) {
     ck_assert_ptr_eq(string_last("hello", ""), NULL);
     ck_assert_ptr_eq(string_last("a", "hello"), NULL);
     ck_assert_str_eq(string_last("hello", "hello"), "hello");
@@ -902,8 +847,7 @@ START_TEST(test_string_last)
 }
 END_TEST
 
-START_TEST(test_string_parse_uint64)
-{
+START_TEST(test_string_parse_uint64) {
     uint64_t value;
     ck_assert(string_parse_uint64("65535", 10, 1, 65535, &value));
     ck_assert_uint_eq(value, 65535);
@@ -914,33 +858,25 @@ START_TEST(test_string_parse_uint64)
     ck_assert(!string_parse_uint64(" 1", 10, 0, UINT64_MAX, &value));
     ck_assert(!string_parse_uint64("1x", 10, 0, UINT64_MAX, &value));
     ck_assert(!string_parse_uint64("65536", 10, 1, 65535, &value));
-    ck_assert(!string_parse_uint64("18446744073709551616",
-                                   10,
-                                   0,
-                                   UINT64_MAX,
-                                   &value));
+    ck_assert(!string_parse_uint64("18446744073709551616", 10, 0, UINT64_MAX, &value));
 }
 END_TEST
 
-START_TEST(test_string_hex_fixed)
-{
+START_TEST(test_string_hex_fixed) {
     uint8_t decoded[2];
     ck_assert(string_is_hex_fixed("00abcdef", 8, true));
     ck_assert(!string_is_hex_fixed("00ABCDEF", 8, true));
     ck_assert(string_is_hex_fixed("00ABCDEF", 8, false));
     ck_assert(!string_is_hex_fixed("00abcdeg", 8, false));
     ck_assert(!string_is_hex_fixed("00abcdef00", 8, false));
-    ck_assert(string_decode_hex_fixed("00Af", 4, false, decoded,
-                                      sizeof(decoded)));
+    ck_assert(string_decode_hex_fixed("00Af", 4, false, decoded, sizeof(decoded)));
     ck_assert_uint_eq(decoded[0], 0);
     ck_assert_uint_eq(decoded[1], 0xaf);
-    ck_assert(!string_decode_hex_fixed("00Af", 4, true, decoded,
-                                       sizeof(decoded)));
+    ck_assert(!string_decode_hex_fixed("00Af", 4, true, decoded, sizeof(decoded)));
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("string");
     TCase *tc_core = tcase_create("Core");
 
@@ -986,7 +922,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_string(void)
-{
+void check_server_string(void) {
     check_run_suite(suite(), __FILE__);
 }

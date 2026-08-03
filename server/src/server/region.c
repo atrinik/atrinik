@@ -44,8 +44,7 @@ static void region_assign_parents(void);
 /**
  * Initializes regions from the regions file.
  */
-void regions_init(void)
-{
+void regions_init(void) {
     FILE *fp;
     char filename[MAX_BUF];
     region_struct *region;
@@ -101,8 +100,7 @@ void regions_init(void)
                 region = region_get();
                 region->name = estrdup(value);
             } else {
-                LOG(ERROR, "Parsing error: %s %s", buf,
-                        value ? value : "");
+                LOG(ERROR, "Parsing error: %s %s", buf, value ? value : "");
                 exit(1);
             }
 
@@ -126,8 +124,7 @@ void regions_init(void)
                 region_add(region);
                 region = NULL;
             } else {
-                LOG(ERROR, "Parsing error: %s %s", buf,
-                        value ? value : "");
+                LOG(ERROR, "Parsing error: %s %s", buf, value ? value : "");
                 exit(1);
             }
 
@@ -146,8 +143,7 @@ void regions_init(void)
 
             /* Jail entries are of the form: /path/to/map x y */
             if (sscanf(value, "%255[^ ] %d %d", path, &x, &y) != 3) {
-                LOG(ERROR, "Parsing error: %s %s", buf,
-                        value ? value : "");
+                LOG(ERROR, "Parsing error: %s %s", buf, value ? value : "");
                 exit(1);
             }
 
@@ -157,8 +153,7 @@ void regions_init(void)
         } else if (strcmp(key, "child_maps") == 0) {
             region->child_maps = KEYWORD_IS_TRUE(value);
         } else {
-            LOG(ERROR, "Parsing error: %s %s", buf,
-                    value ? value : "");
+            LOG(ERROR, "Parsing error: %s %s", buf, value ? value : "");
             exit(1);
         }
     }
@@ -176,8 +171,7 @@ void regions_init(void)
 /**
  * Deinitializes all regions.
  */
-void regions_free(void)
-{
+void regions_free(void) {
     region_struct *region, *next;
 
     for (region = first_region; region != NULL; region = next) {
@@ -191,8 +185,7 @@ void regions_free(void)
  * @return
  * Initialized region structure.
  */
-static region_struct *region_get(void)
-{
+static region_struct *region_get(void) {
     return ecalloc(1, sizeof(region_struct));
 }
 
@@ -201,8 +194,7 @@ static region_struct *region_get(void)
  * @param region
  * Region to free.
  */
-static void region_free(region_struct *region)
-{
+static void region_free(region_struct *region) {
     if (region == NULL) {
         return;
     }
@@ -222,14 +214,10 @@ static void region_free(region_struct *region)
  * @param region
  * Region to add.
  */
-static void region_add(region_struct *region)
-{
+static void region_add(region_struct *region) {
     region_struct *tmp;
 
-    for (tmp = first_region;
-            tmp != NULL && tmp->next != NULL;
-            tmp = tmp->next) {
-    }
+    for (tmp = first_region; tmp != NULL && tmp->next != NULL; tmp = tmp->next) {}
 
     if (tmp == NULL) {
         first_region = region;
@@ -241,8 +229,7 @@ static void region_add(region_struct *region)
 /**
  * Links children regions with their parent from the parent_name field.
  */
-static void region_assign_parents(void)
-{
+static void region_assign_parents(void) {
     region_struct *region;
 
     for (region = first_region; region != NULL; region = region->next) {
@@ -261,8 +248,7 @@ static void region_assign_parents(void)
  * @return
  * Matching region, NULL if it can't be found.
  */
-region_struct *region_find_by_name(const char *region_name)
-{
+region_struct *region_find_by_name(const char *region_name) {
     region_struct *region;
 
     for (region = first_region; region != NULL; region = region->next) {
@@ -282,11 +268,10 @@ region_struct *region_find_by_name(const char *region_name)
  * @return
  * Region or NULL if none found.
  */
-const region_struct *region_find_with_map(const region_struct *region)
-{
+const region_struct *region_find_with_map(const region_struct *region) {
     HARD_ASSERT(region != NULL);
 
-    for ( ; region != NULL; region = region->parent) {
+    for (; region != NULL; region = region->parent) {
         if (region->map_first != NULL) {
             break;
         }
@@ -306,16 +291,14 @@ const region_struct *region_find_with_map(const region_struct *region)
  * Long name of a region if found. Will also search recursively in
  * parents. NULL is never returned, instead a fake region name is returned.
  */
-const char *region_get_longname(const region_struct *region)
-{
+const char *region_get_longname(const region_struct *region) {
     if (region->longname) {
         return region->longname;
     } else if (region->parent) {
         return region_get_longname(region->parent);
     }
 
-    LOG(BUG, "Region %s has no parent and no longname.",
-            region->name);
+    LOG(BUG, "Region %s has no parent and no longname.", region->name);
     return "no region name";
 }
 
@@ -327,16 +310,14 @@ const char *region_get_longname(const region_struct *region)
  * Message of a region if found. Will also search recursively in
  * parents. NULL is never returned, instead a fake region message is returned.
  */
-const char *region_get_msg(const region_struct *region)
-{
+const char *region_get_msg(const region_struct *region) {
     if (region->msg) {
         return region->msg;
     } else if (region->parent) {
         return region_get_msg(region->parent);
     }
 
-    LOG(BUG, "Region %s has no parent and no msg.",
-            region->name);
+    LOG(BUG, "Region %s has no parent and no msg.", region->name);
     return "no region message";
 }
 
@@ -347,8 +328,7 @@ const char *region_get_msg(const region_struct *region)
  * @return
  * 1 if jailed successfully, 0 otherwise.
  */
-int region_enter_jail(object *op)
-{
+int region_enter_jail(object *op) {
     region_struct *region;
     mapstruct *m;
 
@@ -364,20 +344,17 @@ int region_enter_jail(object *op)
         m = ready_map_name(region->jailmap, NULL, 0);
 
         if (m == NULL) {
-            LOG(BUG, "Could not load map '%s' (%d,%d).",
-                    region->jailmap, region->jailx, region->jaily);
+            LOG(BUG,
+                "Could not load map '%s' (%d,%d).",
+                region->jailmap,
+                region->jailx,
+                region->jaily);
             return 0;
         }
 
-        return object_enter_map(op,
-                                NULL,
-                                m,
-                                region->jailx,
-                                region->jaily,
-                                true);
+        return object_enter_map(op, NULL, m, region->jailx, region->jaily, true);
     }
 
-    LOG(BUG, "No suitable jailmap for region %s was found.",
-            op->map->region->name);
+    LOG(BUG, "No suitable jailmap for region %s was found.", op->map->region->name);
     return 0;
 }

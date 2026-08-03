@@ -33,8 +33,7 @@
 #include <global.h>
 
 /** Handles highlighting of menuitems when the cursor is hovering over them. */
-void widget_highlight_menu(widgetdata *widget)
-{
+void widget_highlight_menu(widgetdata *widget) {
     widgetdata *tmp, *tmp2, *tmp3, *submenuwidget = NULL;
     _menu *menu = NULL, *tmp_menu = NULL;
     _menuitem *menuitem = NULL, *submenuitem = NULL;
@@ -110,8 +109,8 @@ void widget_highlight_menu(widgetdata *widget)
                 if (tmp2 && tmp2->sub_type == MENU_ID) {
                     /* Loop through the submenus to see if we find a match for
                      * the menu the cursor is hovering over. */
-                    for (tmp_menu = menu; tmp_menu->submenu && tmp_menu->submenu != tmp2; tmp_menu = MENU(tmp_menu->submenu)) {
-                    }
+                    for (tmp_menu = menu; tmp_menu->submenu && tmp_menu->submenu != tmp2;
+                         tmp_menu = MENU(tmp_menu->submenu)) {}
 
                     /* Remove any submenus related to menu if the menu
                      * underneath the cursor is not a submenu of menu. */

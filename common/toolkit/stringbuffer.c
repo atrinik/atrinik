@@ -76,14 +76,10 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len);
 
 TOOLKIT_API(IMPORTS(string));
 
-TOOLKIT_INIT_FUNC(stringbuffer)
-{
-}
+TOOLKIT_INIT_FUNC(stringbuffer) {}
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(stringbuffer)
-{
-}
+TOOLKIT_DEINIT_FUNC(stringbuffer) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
@@ -91,8 +87,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * The newly allocated string buffer.
  */
-StringBuffer *stringbuffer_new(void)
-{
+StringBuffer *stringbuffer_new(void) {
     StringBuffer *sb;
 
     TOOLKIT_PROTECT();
@@ -109,8 +104,7 @@ StringBuffer *stringbuffer_new(void)
  * @param sb
  * The string buffer instance to free.
  */
-void stringbuffer_free(StringBuffer *sb)
-{
+void stringbuffer_free(StringBuffer *sb) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
 
@@ -127,8 +121,7 @@ void stringbuffer_free(StringBuffer *sb)
  * @return
  * The result string; to free it, call efree() on it.
  */
-char *stringbuffer_finish(StringBuffer *sb)
-{
+char *stringbuffer_finish(StringBuffer *sb) {
     char *result;
 
     TOOLKIT_PROTECT();
@@ -152,8 +145,7 @@ char *stringbuffer_finish(StringBuffer *sb)
  * The result shared string; to free it, use
  * FREE_AND_CLEAR_HASH().
  */
-const char *stringbuffer_finish_shared(StringBuffer *sb)
-{
+const char *stringbuffer_finish_shared(StringBuffer *sb) {
     char *str;
     shstr *result;
 
@@ -176,9 +168,7 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
  * @param len
  * Length of the string.
  */
-void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
-        size_t len)
-{
+void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
@@ -196,8 +186,7 @@ void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
  * @param str
  * The string to append.
  */
-void stringbuffer_append_string(StringBuffer *sb, const char *str)
-{
+void stringbuffer_append_string(StringBuffer *sb, const char *str) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
@@ -212,8 +201,7 @@ void stringbuffer_append_string(StringBuffer *sb, const char *str)
  * @param format
  * The format string to append.
  */
-void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
-{
+void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...) {
     size_t size = MAX_BUF;
 
     TOOLKIT_PROTECT();
@@ -221,7 +209,7 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
     HARD_ASSERT(sb != NULL);
     HARD_ASSERT(format != NULL);
 
-    for (; ; ) {
+    for (;;) {
         int n;
         va_list arg;
 
@@ -231,8 +219,8 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
         n = vsnprintf(sb->buf + sb->pos, size, format, arg);
         va_end(arg);
 
-        if (n > -1 && (size_t) n < size) {
-            sb->pos += (size_t) n;
+        if (n > -1 && (size_t)n < size) {
+            sb->pos += (size_t)n;
             break;
         }
 
@@ -254,8 +242,7 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
  * @param sb2
  * The string buffer to append; it must be different from sb.
  */
-void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
-{
+void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
@@ -275,8 +262,7 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
  * @param c
  * The character to append.
  */
-void stringbuffer_append_char(StringBuffer *sb, const char c)
-{
+void stringbuffer_append_char(StringBuffer *sb, const char c) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
@@ -293,8 +279,7 @@ void stringbuffer_append_char(StringBuffer *sb, const char c)
  * @param len
  * The number of bytes to allocate.
  */
-static void stringbuffer_ensure(StringBuffer *sb, size_t len)
-{
+static void stringbuffer_ensure(StringBuffer *sb, size_t len) {
     char *tmp;
     size_t new_size;
 
@@ -321,8 +306,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
  * Pointer to the buffer.
  * @warning The buffer is NOT NUL-terminated!
  */
-const char *stringbuffer_data(StringBuffer *sb)
-{
+const char *stringbuffer_data(StringBuffer *sb) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
     return sb->buf;
@@ -335,8 +319,7 @@ const char *stringbuffer_data(StringBuffer *sb)
  * @return
  * Current length of 'sb'.
  */
-size_t stringbuffer_length(StringBuffer *sb)
-{
+size_t stringbuffer_length(StringBuffer *sb) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
     return sb->pos;
@@ -349,13 +332,11 @@ size_t stringbuffer_length(StringBuffer *sb)
  * @param pos
  * Position.
  */
-void stringbuffer_seek(StringBuffer *sb, const size_t pos)
-{
+void stringbuffer_seek(StringBuffer *sb, const size_t pos) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
 
-    SOFT_ASSERT(pos < sb->size, "Incorrect length argument: %" PRIuMAX,
-            (uintmax_t) pos);
+    SOFT_ASSERT(pos < sb->size, "Incorrect length argument: %" PRIuMAX, (uintmax_t)pos);
     sb->pos = pos;
 }
 
@@ -370,8 +351,7 @@ void stringbuffer_seek(StringBuffer *sb, const size_t pos)
  * Index in the StringBuffer's buffer, -1 if the character was
  * not found.
  */
-ssize_t stringbuffer_index(StringBuffer *sb, char c)
-{
+ssize_t stringbuffer_index(StringBuffer *sb, char c) {
     size_t i;
 
     TOOLKIT_PROTECT();
@@ -397,8 +377,7 @@ ssize_t stringbuffer_index(StringBuffer *sb, char c)
  * Index in the StringBuffer's buffer, -1 if the character was
  * not found.
  */
-ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
-{
+ssize_t stringbuffer_rindex(StringBuffer *sb, char c) {
     size_t i;
 
     TOOLKIT_PROTECT();
@@ -426,8 +405,7 @@ ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
  * @return
  * Substring. Must be freed.
  */
-char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end)
-{
+char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);

@@ -66,7 +66,7 @@
 #define PyInt_Check PyLong_Check
 #define PyInt_AsLong PyLong_AsLong
 extern PyTypeObject PyIOBase_Type;
-#define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
+#define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *)&PyIOBase_Type))
 #define PyString_FromFormat PyUnicode_FromFormat
 #else
 #define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
@@ -102,8 +102,7 @@ typedef PyObject *(*PyMethod_OBJECT)(PyObject *self, PyObject *what);
  * @param keywds
  * Keyword arguments.
  */
-typedef PyObject *(*PyMethod_VARARGS_KEYWORDS)(PyObject *self, PyObject *args,
-        PyObject *keywds);
+typedef PyObject *(*PyMethod_VARARGS_KEYWORDS)(PyObject *self, PyObject *args, PyObject *keywds);
 
 extern struct plugin_hooklist *hooks;
 
@@ -150,13 +149,12 @@ extern struct plugin_hooklist *hooks;
  * @param _nv_
  * String to copy to the shared string.
  */
-#define FREE_AND_COPY_HASH(_sv_, _nv_)   \
+#define FREE_AND_COPY_HASH(_sv_, _nv_)       \
     {                                        \
-        if (_sv_)                            \
-        {                                    \
+        if (_sv_) {                          \
             hooks->free_string_shared(_sv_); \
         }                                    \
-                                         \
+                                             \
         _sv_ = hooks->add_string(_nv_);      \
     }
 /**
@@ -166,17 +164,17 @@ extern struct plugin_hooklist *hooks;
  * @param _nv_
  * String to add reference to. Must be a shared string.
  */
-#define FREE_AND_CLEAR_HASH(_nv_)        \
+#define FREE_AND_CLEAR_HASH(_nv_)            \
     {                                        \
-        if (_nv_)                            \
-        {                                    \
+        if (_nv_) {                          \
             hooks->free_string_shared(_nv_); \
             _nv_ = NULL;                     \
         }                                    \
     }
 
 #undef SET_ANIMATION
-#define SET_ANIMATION(ob, newanim) ob->face = &(*hooks->new_faces)[(*hooks->animations)[ob->animation_id].faces[newanim]]
+#define SET_ANIMATION(ob, newanim) \
+    ob->face = &(*hooks->new_faces)[(*hooks->animations)[ob->animation_id].faces[newanim]]
 #undef NUM_ANIMATIONS
 #define NUM_ANIMATIONS(ob) ((*hooks->animations)[ob->animation_id].num_animations)
 #undef NUM_FACINGS
@@ -193,10 +191,8 @@ extern struct plugin_hooklist *hooks;
 #ifndef NDEBUG
 #define emalloc(_size) hooks->memory_emalloc(_size, __FILE__, __LINE__)
 #define efree(_ptr) hooks->memory_efree(_ptr, __FILE__, __LINE__)
-#define ecalloc(_nmemb, _size) \
-    hooks->memory_ecalloc(_nmemb, _size, __FILE__, __LINE__)
-#define erealloc(_ptr, _size) \
-    hooks->memory_erealloc(_ptr, _size, __FILE__, __LINE__)
+#define ecalloc(_nmemb, _size) hooks->memory_ecalloc(_nmemb, _size, __FILE__, __LINE__)
+#define erealloc(_ptr, _size) hooks->memory_erealloc(_ptr, _size, __FILE__, __LINE__)
 #define ereallocz(_ptr, _old_size, _new_size) \
     hooks->memory_reallocz(_ptr, _old_size, _new_size, __FILE__, __LINE__)
 #define estrdup(_s) hooks->string_estrdup(_s, __FILE__, __LINE__)
@@ -206,8 +202,7 @@ extern struct plugin_hooklist *hooks;
 #define efree(_ptr) hooks->memory_efree(_ptr)
 #define ecalloc(_nmemb, _size) hooks->memory_ecalloc(_nmemb, _size)
 #define erealloc(_ptr, _size) hooks->memory_erealloc(_ptr, _size)
-#define ereallocz(_ptr, _old_size, _new_size) \
-    hooks->memory_reallocz(_ptr, _old_size, _new_size)
+#define ereallocz(_ptr, _old_size, _new_size) hooks->memory_reallocz(_ptr, _old_size, _new_size)
 #define estrdup(_s) hooks->string_estrdup(_s)
 #define estrndup(_s, _n) hooks->string_estrndup(_s, _n)
 #endif
@@ -218,13 +213,13 @@ extern struct plugin_hooklist *hooks;
 extern PyObject *AtrinikError;
 
 /** Raise an error using AtrinikError, and return NULL. */
-#define RAISE(msg)                        \
+#define RAISE(msg)                            \
     {                                         \
         PyErr_SetString(AtrinikError, (msg)); \
         return NULL;                          \
     }
 /** Raise an error using AtrinikError, and return -1. */
-#define INTRAISE(msg)                        \
+#define INTRAISE(msg)                            \
     {                                            \
         PyErr_SetString(PyExc_TypeError, (msg)); \
         return -1;                               \
@@ -378,8 +373,8 @@ int Atrinik_Object_init(PyObject *module);
 typedef struct Atrinik_Object {
     PyObject_HEAD
 
-    /** Pointer to the Atrinik object we wrap. */
-    object *obj;
+        /** Pointer to the Atrinik object we wrap. */
+        object *obj;
 
     /** ID of the object. */
     tag_t count;
@@ -389,17 +384,17 @@ typedef struct Atrinik_Object {
 typedef struct Atrinik_ObjectIterator {
     PyObject_HEAD
 
-    /** Pointer to the wrapper Atrinik object. */
-    object *obj;
+        /** Pointer to the wrapper Atrinik object. */
+        object *obj;
 
     /** ID of the object. */
     tag_t count;
 
     /** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
-    uint8_t iter_type:7;
+    uint8_t iter_type : 7;
 
     /** If true, iteration has started/finished. */
-    uint8_t iterated:1;
+    uint8_t iterated : 1;
 } Atrinik_ObjectIterator;
 
 PyTypeObject Atrinik_MapType;
@@ -409,8 +404,8 @@ int Atrinik_Map_init(PyObject *module);
 /** The Atrinik_Map structure. */
 typedef struct {
     PyObject_HEAD
-    /** Pointer to the Atrinik map we wrap. */
-    mapstruct *map;
+        /** Pointer to the Atrinik map we wrap. */
+        mapstruct *map;
 } Atrinik_Map;
 
 PyTypeObject Atrinik_PartyType;
@@ -420,8 +415,8 @@ int Atrinik_Party_init(PyObject *module);
 /** The Atrinik_Party structure. */
 typedef struct {
     PyObject_HEAD
-    /** Pointer to the Atrinik party we wrap. */
-    party_struct *party;
+        /** Pointer to the Atrinik party we wrap. */
+        party_struct *party;
 } Atrinik_Party;
 
 PyTypeObject Atrinik_RegionType;
@@ -431,8 +426,8 @@ int Atrinik_Region_init(PyObject *module);
 /** The Atrinik_Region structure. */
 typedef struct {
     PyObject_HEAD
-    /** Pointer to the Atrinik region we wrap. */
-    region_struct *region;
+        /** Pointer to the Atrinik region we wrap. */
+        region_struct *region;
 } Atrinik_Region;
 
 PyTypeObject Atrinik_PlayerType;
@@ -442,8 +437,8 @@ int Atrinik_Player_init(PyObject *module);
 /** The Atrinik_Player structure. */
 typedef struct {
     PyObject_HEAD
-    /** Pointer to the Atrinik player we wrap. */
-    player *pl;
+        /** Pointer to the Atrinik player we wrap. */
+        player *pl;
 } Atrinik_Player;
 
 PyTypeObject Atrinik_ArchetypeType;
@@ -453,8 +448,8 @@ int Atrinik_Archetype_init(PyObject *module);
 /** The Atrinik_Archetype structure. */
 typedef struct {
     PyObject_HEAD
-    /** Pointer to the Atrinik archetype we wrap. */
-    archetype_t *at;
+        /** Pointer to the Atrinik archetype we wrap. */
+        archetype_t *at;
 } Atrinik_Archetype;
 
 PyTypeObject Atrinik_AttrListType;
@@ -465,8 +460,8 @@ int Atrinik_AttrList_init(PyObject *module);
 typedef struct {
     PyObject_HEAD
 
-    /** Pointer to the structure the array is in. */
-    void *ptr;
+        /** Pointer to the structure the array is in. */
+        void *ptr;
 
     /** Where in the structure the array is. */
     size_t offset;
@@ -541,35 +536,33 @@ typedef struct {
  */
 #define NUM_FIELDS (sizeof(fields) / sizeof(fields[0]))
 
-#define OBJEXISTCHECK_INT(ob) \
-    { \
-        if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
-        { \
-            PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
-            return -1; \
-        } \
+#define OBJEXISTCHECK_INT(ob)                                                                   \
+    {                                                                                           \
+        if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) { \
+            PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists.");          \
+            return -1;                                                                          \
+        }                                                                                       \
     }
 
-#define OBJEXISTCHECK(ob) \
-    { \
-        if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) \
-        { \
-            PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists."); \
-            return NULL; \
-        } \
+#define OBJEXISTCHECK(ob)                                                                       \
+    {                                                                                           \
+        if (!(ob) || !(ob)->obj || (ob)->obj->count != (ob)->count || OBJECT_FREE((ob)->obj)) { \
+            PyErr_SetString(PyExc_ReferenceError, "Atrinik object no longer exists.");          \
+            return NULL;                                                                        \
+        }                                                                                       \
     }
 
 /**
  * Helper macro for the object.SquaresAround() Python function.
  */
-#define SQUARES_AROUND_ADD(_m, _x, _y) \
-    { \
-        PyObject *tuple = PyTuple_New(3); \
-\
-        PyTuple_SET_ITEM(tuple, 0, wrap_map((_m))); \
+#define SQUARES_AROUND_ADD(_m, _x, _y)                        \
+    {                                                         \
+        PyObject *tuple = PyTuple_New(3);                     \
+                                                              \
+        PyTuple_SET_ITEM(tuple, 0, wrap_map((_m)));           \
         PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", (_x))); \
         PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", (_y))); \
-        PyList_Append(list, tuple); \
+        PyList_Append(list, tuple);                           \
     }
 
 /**
@@ -579,33 +572,34 @@ typedef struct {
 #define Py_BuildBoolean(val) \
     ((val) ? (Py_INCREF(Py_True), Py_True) : (Py_INCREF(Py_False), Py_False))
 
-
 /**
  * Begins iterating an Atrinik.Object.ObjectIterator object instance.
  */
-#define FOR_ATRINIK_ITERATOR_BEGIN()                                  \
-    for (object *tmp = self->obj; tmp != NULL; ) {
+#define FOR_ATRINIK_ITERATOR_BEGIN() for (object *tmp = self->obj; tmp != NULL;) {
 
 /**
  * Ends iterating an Atrinik.Object.ObjectIterator object instance.
  */
-#define FOR_ATRINIK_ITERATOR_END() \
-        if (self->iter_type == OBJ_ITER_TYPE_BELOW) {                 \
-            tmp = tmp->below;                                         \
-        } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) {          \
-            tmp = tmp->above;                                         \
-        } else {                                                      \
-            break;                                                    \
-        }                                                             \
+#define FOR_ATRINIK_ITERATOR_END()                       \
+    if (self->iter_type == OBJ_ITER_TYPE_BELOW) {        \
+        tmp = tmp->below;                                \
+    } else if (self->iter_type == OBJ_ITER_TYPE_ABOVE) { \
+        tmp = tmp->above;                                \
+    } else {                                             \
+        break;                                           \
+    }                                                    \
     }
 
-#define PY_CHECK_INT(val, min, max) \
-    if (val < min || val > max) { \
-        PyErr_Format(PyExc_OverflowError, \
-                "Invalid integer value for parameter '"STRINGIFY(val)"': " \
-                "%zd, must be %zd to %zd.", (Py_ssize_t) val, \
-                (Py_ssize_t) min, (Py_ssize_t) max); \
-        return NULL; \
+#define PY_CHECK_INT(val, min, max)                                                            \
+    if (val < min || val > max) {                                                              \
+        PyErr_Format(                                                                          \
+            PyExc_OverflowError,                                                               \
+            "Invalid integer value for parameter '" STRINGIFY(val) "': "                       \
+                                                                   "%zd, must be %zd to %zd.", \
+            (Py_ssize_t)val,                                                                   \
+            (Py_ssize_t)min,                                                                   \
+            (Py_ssize_t)max);                                                                  \
+        return NULL;                                                                           \
     }
 
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);

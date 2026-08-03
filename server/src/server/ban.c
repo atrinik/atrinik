@@ -50,7 +50,7 @@ typedef struct ban {
 
     char *account; ///< Name of the banned account. Can be NULL.
 
-    bool removed:1; ///< If true, the ban entry is no longer valid.
+    bool removed : 1; ///< If true, the ban entry is no longer valid.
 } ban_t;
 
 /**
@@ -71,8 +71,7 @@ static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len);
 
 TOOLKIT_API(IMPORTS(shstr), IMPORTS(string));
 
-TOOLKIT_INIT_FUNC(ban)
-{
+TOOLKIT_INIT_FUNC(ban) {
     char filename[HUGE_BUF];
     snprintf(VS(filename), "%s/" BANFILE, settings.datapath);
 
@@ -95,8 +94,7 @@ TOOLKIT_INIT_FUNC(ban)
 
         ban_error_t rc = ban_add(buf);
         if (rc != BAN_OK) {
-            LOG(ERROR, "Malformed line in bans file: %s, %s", buf,
-                    ban_strerror(rc));
+            LOG(ERROR, "Malformed line in bans file: %s, %s", buf, ban_strerror(rc));
         }
     }
 
@@ -104,8 +102,7 @@ TOOLKIT_INIT_FUNC(ban)
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(ban)
-{
+TOOLKIT_DEINIT_FUNC(ban) {
     ban_save();
     ban_free();
 }
@@ -114,8 +111,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
 /**
  * Saves all the bans to the bans file.
  */
-static void ban_save(void)
-{
+static void ban_save(void) {
     char filename[HUGE_BUF];
     snprintf(VS(filename), "%s/" BANFILE, settings.datapath);
 
@@ -145,8 +141,7 @@ static void ban_save(void)
 /**
  * Frees all the bans.
  */
-static void ban_free(void)
-{
+static void ban_free(void) {
     for (size_t i = 0; i < bans_num; i++) {
         ban_t *ban = &bans[i];
         if (!ban->removed) {
@@ -169,8 +164,7 @@ static void ban_free(void)
  * @param account
  * Account name. Can be NULL.
  */
-static void ban_entry_new(const char *name, const char *account)
-{
+static void ban_entry_new(const char *name, const char *account) {
     bans = erealloc(bans, sizeof(*bans) * (bans_num + 1));
     ban_t *ban = &bans[bans_num];
     bans_num++;
@@ -189,21 +183,19 @@ static void ban_entry_new(const char *name, const char *account)
  * @return
  * Pointer to the found ban structure, NULL otherwise.
  */
-static ban_t *ban_entry_find(const char *name, const char *account)
-{
+static ban_t *ban_entry_find(const char *name, const char *account) {
     for (size_t i = 0; i < bans_num; i++) {
         ban_t *ban = &bans[i];
         if (ban->removed) {
             continue;
         }
 
-        if (strcmp(name, "*") != 0 && (ban->name == NULL ||
-                strcmp(ban->name, name) != 0)) {
+        if (strcmp(name, "*") != 0 && (ban->name == NULL || strcmp(ban->name, name) != 0)) {
             continue;
         }
 
-        if (strcmp(account, "*") != 0 && (ban->account == NULL ||
-                strcmp(ban->account, account) != 0)) {
+        if (strcmp(account, "*") != 0 &&
+            (ban->account == NULL || strcmp(ban->account, account) != 0)) {
             continue;
         }
 
@@ -218,8 +210,7 @@ static ban_t *ban_entry_find(const char *name, const char *account)
  * @param ban
  * Ban entry to free.
  */
-static void ban_entry_free(ban_t *ban)
-{
+static void ban_entry_free(ban_t *ban) {
     if (ban->name != NULL) {
         free_string_shared(ban->name);
     }
@@ -242,18 +233,14 @@ static void ban_entry_free(ban_t *ban)
  * @return
  * 'buf' on success, NULL on failure.
  */
-static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len)
-{
+static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len) {
     if (ban->name == NULL) {
         snprintf(buf, len, "*");
     } else {
         snprintf(buf, len, "\"%s\"", ban->name);
     }
 
-    snprintfcat(buf,
-                len,
-                " %s\n",
-                ban->account != NULL ? ban->account : "*");
+    snprintfcat(buf, len, " %s\n", ban->account != NULL ? ban->account : "*");
     return buf;
 }
 
@@ -271,9 +258,8 @@ static const char *ban_entry_save(const ban_t *ban, char *buf, size_t len)
  * #BAN_OK on success, one of the errors defined in #ban_error_t on
  * failure.
  */
-static ban_error_t ban_parse(const char *str, char *name, size_t name_len,
-        char *account, size_t account_len)
-{
+static ban_error_t
+ban_parse(const char *str, char *name, size_t name_len, char *account, size_t account_len) {
     size_t pos = 0;
     if (!string_get_word(str, &pos, ' ', name, name_len, '"')) {
         return BAN_BADSYNTAX;
@@ -300,8 +286,7 @@ static ban_error_t ban_parse(const char *str, char *name, size_t name_len,
  * #BAN_OK on success, one of the errors defined in #ban_error_t on
  * failure.
  */
-ban_error_t ban_add(const char *str)
-{
+ban_error_t ban_add(const char *str) {
     HARD_ASSERT(str != NULL);
 
     char name[MAX_BUF], account[MAX_BUF];
@@ -328,8 +313,7 @@ ban_error_t ban_add(const char *str)
  * #BAN_OK on success, one of the errors defined in #ban_error_t on
  * failure.
  */
-ban_error_t ban_remove(const char *str)
-{
+ban_error_t ban_remove(const char *str) {
     HARD_ASSERT(str != NULL);
 
     ban_t *ban;
@@ -374,21 +358,18 @@ ban_error_t ban_remove(const char *str)
  * @return
  * True if the connection is banned, false otherwise.
  */
-bool ban_check(const char *name, const char *account)
-{
+bool ban_check(const char *name, const char *account) {
     for (size_t i = 0; i < bans_num; i++) {
         ban_t *ban = &bans[i];
         if (ban->removed) {
             continue;
         }
 
-        if (ban->name != NULL &&
-            (name == NULL || strcmp(ban->name, name) != 0)) {
+        if (ban->name != NULL && (name == NULL || strcmp(ban->name, name) != 0)) {
             continue;
         }
 
-        if (ban->account != NULL &&
-            (account == NULL || strcmp(ban->account, account) != 0)) {
+        if (ban->account != NULL && (account == NULL || strcmp(ban->account, account) != 0)) {
             continue;
         }
 
@@ -403,8 +384,7 @@ bool ban_check(const char *name, const char *account)
  * @param op
  * Player.
  */
-void ban_list(object *op)
-{
+void ban_list(object *op) {
     draw_info(COLOR_WHITE, op, "List of bans:");
 
     for (size_t i = 0; i < bans_num; i++) {
@@ -418,16 +398,14 @@ void ban_list(object *op)
             continue;
         }
 
-        draw_info_format(COLOR_WHITE, op, "#%" PRIuMAX ": %s",
-                (uintmax_t) i, buf);
+        draw_info_format(COLOR_WHITE, op, "#%" PRIuMAX ": %s", (uintmax_t)i, buf);
     }
 }
 
 /**
  * Removes all existing bans.
  */
-void ban_reset(void)
-{
+void ban_reset(void) {
     ban_free();
     ban_save();
 }
@@ -439,32 +417,33 @@ void ban_reset(void)
  * @return
  * String representation, never NULL.
  */
-const char *ban_strerror(ban_error_t errnum)
-{
-    SOFT_ASSERT_RC(errnum >= BAN_OK && errnum < BAN_MAX, "unknown error",
-            "Invalid error number: %d", errnum);
+const char *ban_strerror(ban_error_t errnum) {
+    SOFT_ASSERT_RC(errnum >= BAN_OK && errnum < BAN_MAX,
+                   "unknown error",
+                   "Invalid error number: %d",
+                   errnum);
 
     switch (errnum) {
-    case BAN_OK:
-        return "success";
+        case BAN_OK:
+            return "success";
 
-    case BAN_EXIST:
-        return "specified ban already exists";
+        case BAN_EXIST:
+            return "specified ban already exists";
 
-    case BAN_NOTEXIST:
-        return "no such ban entry";
+        case BAN_NOTEXIST:
+            return "no such ban entry";
 
-    case BAN_REMOVED:
-        return "ban entry has been removed already";
+        case BAN_REMOVED:
+            return "ban entry has been removed already";
 
-    case BAN_BADID:
-        return "invalid ban ID";
+        case BAN_BADID:
+            return "invalid ban ID";
 
-    case BAN_BADSYNTAX:
-        return "invalid syntax";
+        case BAN_BADSYNTAX:
+            return "invalid syntax";
 
-    default:
-        break;
+        default:
+            break;
     }
 
     return "<unreachable>";

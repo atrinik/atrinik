@@ -28,8 +28,7 @@
 #include <check_proto.h>
 #include <arch.h>
 
-START_TEST(test_attack_is_melee_range)
-{
+START_TEST(test_attack_is_melee_range) {
     mapstruct *map;
     object *pl, *tmp, *tmp2;
 
@@ -64,8 +63,7 @@ START_TEST(test_attack_is_melee_range)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("attack");
     TCase *tc_core = tcase_create("Core");
 
@@ -78,7 +76,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_attack(void)
-{
+void check_server_attack(void) {
     check_run_suite(suite(), __FILE__);
 }

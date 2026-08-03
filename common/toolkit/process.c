@@ -36,9 +36,9 @@
 #include "socket.h"
 
 #ifndef WIN32
-#   include <sys/wait.h>
-#   include <poll.h>
-#   include <spawn.h>
+#include <sys/wait.h>
+#include <poll.h>
+#include <spawn.h>
 #endif
 
 TOOLKIT_API(IMPORTS(logger));
@@ -55,27 +55,33 @@ enum {
  * Platform-independent pipe representation.
  */
 #ifndef WIN32
-    typedef int process_pipe_t;
+typedef int process_pipe_t;
 #else
-    typedef HANDLE process_pipe_t;
+typedef HANDLE process_pipe_t;
 #endif
 
 /**
  * Value used for an invalid process_pipe_t.
  */
 #ifndef WIN32
-#   define PROCESS_PIPE_INVALID -1
+#define PROCESS_PIPE_INVALID -1
 #else
-#   define PROCESS_PIPE_INVALID NULL
+#define PROCESS_PIPE_INVALID NULL
 #endif
 
 /**
  * Value used for an invalid process_pipe_t.
  */
 #ifndef WIN32
-#   define PROCESS_PIPE_CLOSE(pipe) do { close(pipe); } while (0)
+#define PROCESS_PIPE_CLOSE(pipe) \
+    do {                         \
+        close(pipe);             \
+    } while (0)
 #else
-#   define PROCESS_PIPE_CLOSE(pipe) do { CloseHandle(pipe); } while (0)
+#define PROCESS_PIPE_CLOSE(pipe) \
+    do {                         \
+        CloseHandle(pipe);       \
+    } while (0)
 #endif
 
 /**
@@ -99,8 +105,8 @@ struct process {
     char **args; ///< Arguments for starting the process.
     size_t num_args; ///< Number of arguments.
 
-    bool restart:1; ///< Whether the process should restart automatically.
-    bool running:1; ///< Whether the process is currently running.
+    bool restart : 1; ///< Whether the process should restart automatically.
+    bool running : 1; ///< Whether the process is currently running.
 
     /**
      * Callback for data read from the out pipe.
@@ -121,8 +127,7 @@ static process_t *processes = NULL;
 /**
  * Initialize the process API.
  */
-TOOLKIT_INIT_FUNC(process)
-{
+TOOLKIT_INIT_FUNC(process) {
     processes = NULL;
 }
 TOOLKIT_INIT_FUNC_FINISH
@@ -130,8 +135,7 @@ TOOLKIT_INIT_FUNC_FINISH
 /**
  * Deinitialize the process API.
  */
-TOOLKIT_DEINIT_FUNC(process)
-{
+TOOLKIT_DEINIT_FUNC(process) {
     process_t *process, *tmp;
     DL_FOREACH_SAFE(processes, process, tmp) {
         DL_DELETE(processes, process);
@@ -148,9 +152,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * Pointer to the created process, never NULL.
  */
-process_t *
-process_create (const char *executable)
-{
+process_t *process_create(const char *executable) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(executable != NULL);
@@ -183,9 +185,7 @@ process_create (const char *executable)
  * @param process
  * Process to free.
  */
-void
-process_free (process_t *process)
-{
+void process_free(process_t *process) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
@@ -212,17 +212,14 @@ process_free (process_t *process)
  * @param arg
  * Argument to add.
  */
-void
-process_add_arg (process_t *process, const char *arg)
-{
+void process_add_arg(process_t *process, const char *arg) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
     HARD_ASSERT(arg != NULL);
 
     /* +2 = 1 for the new argument, 1 for the NULL */
-    process->args = erealloc(process->args,
-                             sizeof(*process->args) * (process->num_args + 2));
+    process->args = erealloc(process->args, sizeof(*process->args) * (process->num_args + 2));
     process->args[process->num_args] = estrdup(arg);
     process->args[process->num_args + 1] = NULL;
     process->num_args++;
@@ -236,9 +233,7 @@ process_add_arg (process_t *process, const char *arg)
  * @return
  * String representation of the process. Uses a static buffer.
  */
-const char *
-process_get_str (process_t *process)
-{
+const char *process_get_str(process_t *process) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
@@ -247,8 +242,9 @@ process_get_str (process_t *process)
 #ifndef WIN32
     snprintf(VS(buf), "PID %d", process->pid);
 #else
-    snprintf(VS(buf), "PID %" PRIu64 " (handle: %p)",
-             (uint64_t) process->pi.dwProcessId,
+    snprintf(VS(buf),
+             "PID %" PRIu64 " (handle: %p)",
+             (uint64_t)process->pi.dwProcessId,
              process->pi.hProcess);
 #endif
 
@@ -267,9 +263,7 @@ process_get_str (process_t *process)
  * @param val
  * True to enable automatic restart, false to disable.
  */
-void
-process_set_restart (process_t *process, bool val)
-{
+void process_set_restart(process_t *process, bool val) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
@@ -285,9 +279,7 @@ process_set_restart (process_t *process, bool val)
  * @param cb
  * Callback to use.
  */
-void
-process_set_data_out_cb (process_t *process, process_data_callback_t cb)
-{
+void process_set_data_out_cb(process_t *process, process_data_callback_t cb) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
@@ -303,9 +295,7 @@ process_set_data_out_cb (process_t *process, process_data_callback_t cb)
  * @param cb
  * Callback to use.
  */
-void
-process_set_data_err_cb (process_t *process, process_data_callback_t cb)
-{
+void process_set_data_err_cb(process_t *process, process_data_callback_t cb) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
@@ -321,9 +311,7 @@ process_set_data_err_cb (process_t *process, process_data_callback_t cb)
  * @return
  * True if the process is running, false otherwise.
  */
-bool
-process_is_running (process_t *process)
-{
+bool process_is_running(process_t *process) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
@@ -340,22 +328,16 @@ process_is_running (process_t *process)
  * @param packet
  * Packet to send.
  */
-void
-process_send (process_t *process, packet_struct *packet)
-{
+void process_send(process_t *process, packet_struct *packet) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
     HARD_ASSERT(packet != NULL);
 
-    SOFT_ASSERT(process->running,
-                "The process %s has not been started.",
-                process_get_str(process));
+    SOFT_ASSERT(process->running, "The process %s has not been started.", process_get_str(process));
 
 #ifndef WIN32
-    ssize_t ret = write(process->pipes[PROCESS_PIPE_IN],
-                        packet->data,
-                        packet->len);
+    ssize_t ret = write(process->pipes[PROCESS_PIPE_IN], packet->data, packet->len);
 #else
     DWORD ret = 0;
     WriteFile(process->pipes[PROCESS_PIPE_IN],
@@ -395,9 +377,7 @@ process_send (process_t *process, packet_struct *packet)
  * @return
  * True on success, false on failure.
  */
-bool
-process_start (process_t *process)
-{
+bool process_start(process_t *process) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
@@ -425,10 +405,7 @@ process_start (process_t *process)
     for (int i = 0; i < PROCESS_PIPE_NUM; i++) {
 #ifndef WIN32
         if (pipe(pipes[i]) != 0) {
-            LOG(ERROR,
-                "Failed to create a pipe: %s (%d)",
-                strerror(errno),
-                errno);
+            LOG(ERROR, "Failed to create a pipe: %s (%d)", strerror(errno), errno);
             goto error;
         }
 #else
@@ -443,8 +420,7 @@ process_start (process_t *process)
         process_pipe_t *pipe_rx_tmp =
             CreateNamedPipe(pipe_name,
                             PIPE_ACCESS_INBOUND,
-                            PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE |
-                                PIPE_NOWAIT,
+                            PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT,
                             1,
                             4096,
                             4096,
@@ -455,14 +431,13 @@ process_start (process_t *process)
             goto error;
         }
 
-        pipes[i][PROCESS_COMM_PIPE_TX] =
-            CreateFile(pipe_name,
-                       FILE_WRITE_DATA | SYNCHRONIZE,
-                       0,
-                       &sa,
-                       OPEN_EXISTING,
-                       FILE_ATTRIBUTE_NORMAL,
-                       0);
+        pipes[i][PROCESS_COMM_PIPE_TX] = CreateFile(pipe_name,
+                                                    FILE_WRITE_DATA | SYNCHRONIZE,
+                                                    0,
+                                                    &sa,
+                                                    OPEN_EXISTING,
+                                                    FILE_ATTRIBUTE_NORMAL,
+                                                    0);
         if (pipes[i][PROCESS_COMM_PIPE_TX] == NULL) {
             LOG(ERROR, "Failed to create a file handle.");
             CloseHandle(pipe_rx_tmp);
@@ -486,28 +461,24 @@ process_start (process_t *process)
     }
 
     /* Parent side of the pipes */
-    process->pipes[PROCESS_PIPE_IN] =
-        pipes[PROCESS_PIPE_IN][PROCESS_COMM_PIPE_TX];
-    process->pipes[PROCESS_PIPE_OUT] =
-        pipes[PROCESS_PIPE_OUT][PROCESS_COMM_PIPE_RX];
-    process->pipes[PROCESS_PIPE_ERR] =
-        pipes[PROCESS_PIPE_ERR][PROCESS_COMM_PIPE_RX];
+    process->pipes[PROCESS_PIPE_IN] = pipes[PROCESS_PIPE_IN][PROCESS_COMM_PIPE_TX];
+    process->pipes[PROCESS_PIPE_OUT] = pipes[PROCESS_PIPE_OUT][PROCESS_COMM_PIPE_RX];
+    process->pipes[PROCESS_PIPE_ERR] = pipes[PROCESS_PIPE_ERR][PROCESS_COMM_PIPE_RX];
 
     /* Configure the pipes to be non-blocking. */
     for (int i = 0; i < PROCESS_PIPE_NUM; i++) {
 #ifndef WIN32
         int flags = fcntl(process->pipes[i], F_GETFL);
         if (flags == -1) {
-            LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)",
-                s_strerror(s_errno),
-                s_errno);
+            LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", s_strerror(s_errno), s_errno);
             goto error;
         }
 
         flags |= O_NDELAY | O_NONBLOCK;
 
         if (fcntl(process->pipes[i], F_SETFL, flags) == -1) {
-            LOG(ERROR, "Cannot fcntl(F_SETFL), flags %d: %s (%d)",
+            LOG(ERROR,
+                "Cannot fcntl(F_SETFL), flags %d: %s (%d)",
                 flags,
                 s_strerror(s_errno),
                 s_errno);
@@ -545,26 +516,14 @@ process_start (process_t *process)
     posix_spawn_file_actions_addclose(&actions, perr_tx);
 
     /* Spawn the process. */
-    if (posix_spawnp(&process->pid,
-                     process->args[0],
-                     &actions,
-                     NULL,
-                     process->args,
-                     NULL) != 0) {
-        LOG(ERROR,
-            "Failed to start %s: %s (%d)",
-            process_get_str(process),
-            strerror(errno),
-            errno);
+    if (posix_spawnp(&process->pid, process->args[0], &actions, NULL, process->args, NULL) != 0) {
+        LOG(ERROR, "Failed to start %s: %s (%d)", process_get_str(process), strerror(errno), errno);
         goto error;
     }
 #else
     StringBuffer *sb = stringbuffer_new();
     for (size_t i = 0; i < process->num_args; i++) {
-        stringbuffer_append_printf(sb,
-                                   "%s%s",
-                                   i != 0 ? " " : "",
-                                   process->args[i]);
+        stringbuffer_append_printf(sb, "%s%s", i != 0 ? " " : "", process->args[i]);
     }
 
     char *cmdline = stringbuffer_finish(sb);
@@ -579,16 +538,7 @@ process_start (process_t *process)
     si.hStdError = pipes[PROCESS_PIPE_ERR][PROCESS_COMM_PIPE_TX];
     si.wShowWindow = SW_HIDE;
 
-    if (!CreateProcess(NULL,
-                       cmdline,
-                       NULL,
-                       NULL,
-                       true,
-                       0,
-                       NULL,
-                       NULL,
-                       &si,
-                       &process->pi)) {
+    if (!CreateProcess(NULL, cmdline, NULL, NULL, true, 0, NULL, NULL, &si, &process->pi)) {
         efree(cmdline);
         LOG(ERROR, "CreateProcess() failed");
         goto error;
@@ -608,7 +558,7 @@ process_start (process_t *process)
 
 error:
     for (int i = 0; i < PROCESS_PIPE_NUM; i++) {
-        for (int j = 0 ; j < PROCESS_COMM_PIPE_NUM; j++) {
+        for (int j = 0; j < PROCESS_COMM_PIPE_NUM; j++) {
             if (pipes[i][j] != PROCESS_PIPE_INVALID) {
                 PROCESS_PIPE_CLOSE(pipes[i][j]);
             }
@@ -635,14 +585,10 @@ error:
  * @param process
  * Process.
  */
-static void
-process_cleanup (process_t *process)
-{
+static void process_cleanup(process_t *process) {
     HARD_ASSERT(process != NULL);
 
-    SOFT_ASSERT(process->running,
-                "The process %s has not been started.",
-                process_get_str(process));
+    SOFT_ASSERT(process->running, "The process %s has not been started.", process_get_str(process));
 
     LOG(INFO, "Process has exited: %s", process_get_str(process));
 
@@ -675,16 +621,12 @@ process_cleanup (process_t *process)
  * @param process
  * Process to stop. Must be running.
  */
-void
-process_stop (process_t *process)
-{
+void process_stop(process_t *process) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
 
-    SOFT_ASSERT(process->running,
-                "The process %s has not been started.",
-                process_get_str(process));
+    SOFT_ASSERT(process->running, "The process %s has not been started.", process_get_str(process));
 
     LOG(INFO, "Stopping process: %s", process_get_str(process));
 
@@ -728,7 +670,7 @@ process_stop (process_t *process)
 
 out:
     /* Last attempt */
-    (void) kill(process->pid, SIGKILL);
+    (void)kill(process->pid, SIGKILL);
     process_cleanup(process);
 #else
     TerminateProcess(process->pi.hProcess, 0);
@@ -736,88 +678,78 @@ out:
 #endif
 }
 
-static void
-process_check_internal_pipe (process_t     *process,
-                             int            pipe_type,
-                             process_pipe_t fd)
-{
+static void process_check_internal_pipe(process_t *process, int pipe_type, process_pipe_t fd) {
     HARD_ASSERT(process != NULL);
 
     switch (pipe_type) {
-    case PROCESS_PIPE_OUT:
-    case PROCESS_PIPE_ERR: {
-        uint8_t buf[HUGE_BUF];
+        case PROCESS_PIPE_OUT:
+        case PROCESS_PIPE_ERR: {
+            uint8_t buf[HUGE_BUF];
 #ifndef WIN32
-        ssize_t ret = read(fd, VS(buf));
-#else
-        DWORD ret = 0;
-        ReadFile(fd, VS(buf), &ret, 0);
-#endif
-        if (ret > 0) {
-            switch (pipe_type) {
-            case PROCESS_PIPE_OUT:
-                if (process->data_out_cb != NULL) {
-                    process->data_out_cb(process, buf, ret);
-                }
-
-                break;
-
-            case PROCESS_PIPE_ERR:
-                if (process->data_err_cb != NULL) {
-                    process->data_err_cb(process, buf, ret);
-                }
-
-                break;
-
-            default:
-                IMPOSSIBLE();
-                break;
-            }
-        }
-
-        break;
-    }
-
-    case PROCESS_PIPE_IN:
-        while (process->packets != NULL) {
-            packet_struct *packet = process->packets;
-#ifndef WIN32
-            ssize_t ret = write(fd,
-                                packet->data + packet->pos,
-                                packet->len - packet->pos);
+            ssize_t ret = read(fd, VS(buf));
 #else
             DWORD ret = 0;
-            WriteFile(fd,
-                      packet->data + packet->pos,
-                      packet->len - packet->pos,
-                      &ret,
-                      0);
+            ReadFile(fd, VS(buf), &ret, 0);
 #endif
-            if (ret <= 0) {
-                break;
+            if (ret > 0) {
+                switch (pipe_type) {
+                    case PROCESS_PIPE_OUT:
+                        if (process->data_out_cb != NULL) {
+                            process->data_out_cb(process, buf, ret);
+                        }
+
+                        break;
+
+                    case PROCESS_PIPE_ERR:
+                        if (process->data_err_cb != NULL) {
+                            process->data_err_cb(process, buf, ret);
+                        }
+
+                        break;
+
+                    default:
+                        IMPOSSIBLE();
+                        break;
+                }
             }
 
-            /* Cannot be signed here. */
-            size_t written = ret;
-            packet->pos += written;
-
-            if (packet->pos == packet->len) {
-                /* The entire packet was sent to the process, delete
-                 * it from the queue and free it. */
-                DL_DELETE(process->packets, packet);
-                packet_free(packet);
-            } else {
-                /* Otherwise only a part of it was sent, so no reason
-                 * to keep going. */
-                break;
-            }
+            break;
         }
 
-        break;
+        case PROCESS_PIPE_IN:
+            while (process->packets != NULL) {
+                packet_struct *packet = process->packets;
+#ifndef WIN32
+                ssize_t ret = write(fd, packet->data + packet->pos, packet->len - packet->pos);
+#else
+                DWORD ret = 0;
+                WriteFile(fd, packet->data + packet->pos, packet->len - packet->pos, &ret, 0);
+#endif
+                if (ret <= 0) {
+                    break;
+                }
 
-    default:
-        IMPOSSIBLE();
-        break;
+                /* Cannot be signed here. */
+                size_t written = ret;
+                packet->pos += written;
+
+                if (packet->pos == packet->len) {
+                    /* The entire packet was sent to the process, delete
+                     * it from the queue and free it. */
+                    DL_DELETE(process->packets, packet);
+                    packet_free(packet);
+                } else {
+                    /* Otherwise only a part of it was sent, so no reason
+                     * to keep going. */
+                    break;
+                }
+            }
+
+            break;
+
+        default:
+            IMPOSSIBLE();
+            break;
     }
 }
 
@@ -834,11 +766,7 @@ process_check_internal_pipe (process_t     *process,
  * @param[out] nfds
  * Number of file descriptors in the set.
  */
-static void
-process_check_internal_begin (process_t      *process,
-                              struct pollfd **fds,
-                              nfds_t         *nfds)
-{
+static void process_check_internal_begin(process_t *process, struct pollfd **fds, nfds_t *nfds) {
     HARD_ASSERT(process != NULL);
     HARD_ASSERT(fds != NULL);
     HARD_ASSERT(nfds != NULL);
@@ -868,20 +796,14 @@ process_check_internal_begin (process_t      *process,
  * @return
  * True if any FDs have events waiting to be processed, false otherwise.
  */
-static bool
-process_check_internal_poll (struct pollfd *fds,
-                             nfds_t         nfds)
-{
+static bool process_check_internal_poll(struct pollfd *fds, nfds_t nfds) {
     if (fds == NULL || nfds == 0) {
         return false;
     }
 
     int ready = poll(fds, nfds, 0);
     if (unlikely(ready == -1)) {
-        LOG(ERROR,
-            "poll() returned an error: %s (%d)",
-            strerror(errno),
-            errno);
+        LOG(ERROR, "poll() returned an error: %s (%d)", strerror(errno), errno);
         return false;
     }
 
@@ -908,27 +830,21 @@ process_check_internal_poll (struct pollfd *fds,
  * file descriptor.
  */
 static void
-process_check_internal_end (process_t           *process,
-                            const struct pollfd *fds,
-                            nfds_t               nfds,
-                            size_t              *idx)
-{
+process_check_internal_end(process_t *process, const struct pollfd *fds, nfds_t nfds, size_t *idx) {
     HARD_ASSERT(process != NULL);
     HARD_ASSERT(fds != NULL);
     HARD_ASSERT(idx != NULL);
 
     for (int i = 0; i < PROCESS_PIPE_NUM; i++) {
         if (*idx == nfds) {
-            LOG(ERROR,
-                "Inconsistency detected, reached more than %u FDs",
-                (unsigned) *idx);
+            LOG(ERROR, "Inconsistency detected, reached more than %u FDs", (unsigned)*idx);
             break;
         }
 
         if (fds[*idx].revents & (POLLERR | POLLHUP)) {
             LOG(ERROR,
                 "Pipe error on FD %u (pipe: %d): %s",
-                (unsigned) *idx,
+                (unsigned)*idx,
                 i,
                 process_get_str(process));
         } else {
@@ -948,9 +864,7 @@ process_check_internal_end (process_t           *process,
  * @param process
  * Process.
  */
-static void
-process_check_internal_exit (process_t *process)
-{
+static void process_check_internal_exit(process_t *process) {
     HARD_ASSERT(process != NULL);
 
     if (!process->running) {
@@ -977,9 +891,7 @@ process_check_internal_exit (process_t *process)
 #else
     DWORD exit_code;
     if (!GetExitCodeProcess(process->pi.hProcess, &exit_code)) {
-        LOG(ERROR,
-            "GetExitCodeProcess() failed for %s",
-            process_get_str(process));
+        LOG(ERROR, "GetExitCodeProcess() failed for %s", process_get_str(process));
         return;
     }
 
@@ -1000,16 +912,12 @@ process_check_internal_exit (process_t *process)
  * @param process
  * Process to check.
  */
-void
-process_check (process_t *process)
-{
+void process_check(process_t *process) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(process != NULL);
 
-    SOFT_ASSERT(process->running,
-                "The process %s has not been started.",
-                process_get_str(process));
+    SOFT_ASSERT(process->running, "The process %s has not been started.", process_get_str(process));
 
 #ifndef WIN32
     nfds_t nfds = 0;
@@ -1036,9 +944,7 @@ process_check (process_t *process)
  * Check all processes for errors, read data from them and send any outgoing
  * packets if necessary.
  */
-void
-process_check_all (void)
-{
+void process_check_all(void) {
     TOOLKIT_PROTECT();
 
 #ifndef WIN32

@@ -88,8 +88,7 @@ static void console_command_help(const char *params);
 
 TOOLKIT_API(DEPENDS(logger), DEPENDS(memory), DEPENDS(string));
 
-TOOLKIT_INIT_FUNC(console)
-{
+TOOLKIT_INIT_FUNC(console) {
     console_commands = NULL;
     console_commands_num = 0;
 
@@ -99,17 +98,15 @@ TOOLKIT_INIT_FUNC(console)
 
     /* Add the 'help' command. */
     console_command_add(
-            "help",
-            console_command_help,
-            "Displays this help.",
-            "Displays the help, listing available console commands, etc.\n\n"
-            "'help <command>' can be used to get more detailed help about the specified command."
-            );
+        "help",
+        console_command_help,
+        "Displays this help.",
+        "Displays the help, listing available console commands, etc.\n\n"
+        "'help <command>' can be used to get more detailed help about the specified command.");
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(console)
-{
+TOOLKIT_DEINIT_FUNC(console) {
     size_t i;
 
     if (thread_started) {
@@ -152,9 +149,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @param params
  * Command parameters.
  */
-static void
-console_command_help (const char *params)
-{
+static void console_command_help(const char *params) {
     size_t i;
 
     /* Parameters provided, so give out info about the command. */
@@ -166,8 +161,9 @@ console_command_help (const char *params)
                 LOG(INFO, "##### Command: %s #####", console_commands[i].command);
                 LOG(INFO, " ");
 
-                for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL) {
-                    cp = estrndup(curr, next ? (size_t) (next - curr) : strlen(curr));
+                for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr;
+                     curr = next ? next + 1 : NULL) {
+                    cp = estrndup(curr, next ? (size_t)(next - curr) : strlen(curr));
                     LOG(INFO, "%s", cp);
                     efree(cp);
                 }
@@ -198,9 +194,7 @@ console_command_help (const char *params)
  * @param line
  * Line.
  */
-static void
-handle_line_fake (char *line)
-{
+static void handle_line_fake(char *line) {
     if (line != NULL) {
         rl_set_prompt(current_prompt);
         rl_already_prompted = 1;
@@ -210,9 +204,7 @@ handle_line_fake (char *line)
 /**
  * Handle enter key.
  */
-static int
-handle_enter (int cnt, int key)
-{
+static int handle_enter(int cnt, int key) {
     char *line;
 
     line = rl_copy_text(0, rl_end);
@@ -241,9 +233,7 @@ handle_enter (int cnt, int key)
 /**
  * Command generator for readline's completion.
  */
-static char *
-command_generator (const char *text, int state)
-{
+static char *command_generator(const char *text, int state) {
     static size_t i, len;
     char *command;
 
@@ -267,9 +257,7 @@ command_generator (const char *text, int state)
 /**
  * Readline completion.
  */
-static char **
-readline_completion (const char *text, int start, int end)
-{
+static char **readline_completion(const char *text, int start, int end) {
     char **matches;
 
     matches = NULL;
@@ -284,9 +272,7 @@ readline_completion (const char *text, int start, int end)
 /**
  * Overrides the logger's standard printing function.
  */
-static void
-console_print (const char *str)
-{
+static void console_print(const char *str) {
     char *saved_line;
     int saved_point;
 
@@ -320,9 +306,7 @@ console_print (const char *str)
  * @return
  * NULL.
  */
-static void *
-do_thread (void *dummy)
-{
+static void *do_thread(void *dummy) {
 #ifndef HAVE_READLINE
     char *line;
     ssize_t numread;
@@ -336,10 +320,10 @@ do_thread (void *dummy)
 
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-    for ( ; ; ) {
+    for (;;) {
 #ifdef HAVE_READLINE
         if (select(STDIN_FILENO + 1, &fds, NULL, NULL, NULL) != -1 &&
-                FD_ISSET(STDIN_FILENO, &fds)) {
+            FD_ISSET(STDIN_FILENO, &fds)) {
             pthread_mutex_lock(&rl_mutex);
             rl_callback_read_char();
             pthread_mutex_unlock(&rl_mutex);
@@ -363,9 +347,7 @@ do_thread (void *dummy)
     return NULL;
 }
 
-int
-console_start_thread (void)
-{
+int console_start_thread(void) {
     int ret;
 
 #ifdef HAVE_READLINE
@@ -396,12 +378,10 @@ console_start_thread (void)
     return 1;
 }
 
-void
-console_command_add (const char          *command,
-                     console_command_func handle_func,
-                     const char          *desc_brief,
-                     const char          *desc)
-{
+void console_command_add(const char *command,
+                         console_command_func handle_func,
+                         const char *desc_brief,
+                         const char *desc) {
     size_t i;
 
     TOOLKIT_PROTECT();
@@ -415,7 +395,9 @@ console_command_add (const char          *command,
     }
 
     /* Add it to the commands array. */
-    console_commands = ereallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
+    console_commands = ereallocz(console_commands,
+                                 sizeof(*console_commands) * console_commands_num,
+                                 sizeof(*console_commands) * (console_commands_num + 1));
     console_commands[console_commands_num].command = estrdup(command);
     console_commands[console_commands_num].handle_func = handle_func;
     console_commands[console_commands_num].desc_brief = estrdup(desc_brief);
@@ -423,16 +405,14 @@ console_command_add (const char          *command,
     console_commands_num++;
 }
 
-void
-console_command_handle (void)
-{
+void console_command_handle(void) {
     char **line, *cp;
     size_t i;
 
     TOOLKIT_PROTECT();
 
     pthread_mutex_lock(&command_process_queue_mutex);
-    line = (char **) utarray_front(command_process_queue);
+    line = (char **)utarray_front(command_process_queue);
     pthread_mutex_unlock(&command_process_queue_mutex);
 
     if (likely(line == NULL)) {

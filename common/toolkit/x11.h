@@ -48,9 +48,7 @@ TOOLKIT_FUNCS_DECLARE(x11);
  * @return
  * Parent window.
  */
-extern x11_window_type
-x11_window_get_parent(x11_display_type display,
-                      x11_window_type  win);
+extern x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win);
 
 /**
  * Raises the specified window.
@@ -63,9 +61,7 @@ x11_window_get_parent(x11_display_type display,
  * If 1, will also switch the desktop to that of the window's desktop.
  */
 extern void
-x11_window_activate(x11_display_type display,
-                    x11_window_type  win,
-                    uint8_t          switch_desktop);
+x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop);
 
 /**
  * Register clipboard events.
@@ -73,8 +69,7 @@ x11_window_activate(x11_display_type display,
  * @return
  * 1 on success, 0 on failure.
  */
-extern int
-x11_clipboard_register_events(void);
+extern int x11_clipboard_register_events(void);
 
 /**
  * Set the contents of the clipboard.
@@ -88,10 +83,7 @@ x11_clipboard_register_events(void);
  * @return
  * 1 on success, 0 on failure.
  */
-extern int
-x11_clipboard_set(x11_display_type display,
-                  x11_window_type  win,
-                  const char      *str);
+extern int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str);
 
 /**
  * Get the contents of the clipboard.
@@ -104,8 +96,6 @@ x11_clipboard_set(x11_display_type display,
  * Clipboard contents, must be freed. May be NULL in case of
  * failure to acquire the clipboard contents.
  */
-char *
-x11_clipboard_get(x11_display_type display,
-                  x11_window_type  win);
+char *x11_clipboard_get(x11_display_type display, x11_window_type win);
 
 #endif

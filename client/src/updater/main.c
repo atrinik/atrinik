@@ -40,8 +40,7 @@
 
 #define HUGE_BUF 4096 * 12
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     char params[HUGE_BUF], path[HUGE_BUF], wdir[HUGE_BUF];
     int i;
 

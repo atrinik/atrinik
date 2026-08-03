@@ -37,20 +37,13 @@
 
 TOOLKIT_API(DEPENDS(string));
 
-TOOLKIT_INIT_FUNC(x11)
-{
-}
+TOOLKIT_INIT_FUNC(x11) {}
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(x11)
-{
-}
+TOOLKIT_DEINIT_FUNC(x11) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
-x11_window_type
-x11_window_get_parent (x11_display_type display,
-                       x11_window_type  win)
-{
+x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win) {
 #if defined(HAVE_X11)
     Window root, parent, *children;
     unsigned int children_count;
@@ -88,16 +81,14 @@ x11_window_get_parent (x11_display_type display,
  * 1 on success, 0 on failure.
  * @author Tomas Styblo (wmctrl - GPLv2)
  */
-static int
-x11_send_event (Display      *display,
-                Window        win,
-                char         *msg,
-                unsigned long data0,
-                unsigned long data1,
-                unsigned long data2,
-                unsigned long data3,
-                unsigned long data4)
-{
+static int x11_send_event(Display *display,
+                          Window win,
+                          char *msg,
+                          unsigned long data0,
+                          unsigned long data1,
+                          unsigned long data2,
+                          unsigned long data3,
+                          unsigned long data4) {
     long mask = SubstructureRedirectMask | SubstructureNotifyMask;
 
     XEvent event;
@@ -139,13 +130,11 @@ x11_send_event (Display      *display,
  * The property value.
  * @author Tomas Styblo (wmctrl - GPLv2)
  */
-static char *
-x11_get_property (Display       *display,
-                  Window         win,
-                  Atom           xa_prop_type,
-                  char          *prop_name,
-                  unsigned long *size)
-{
+static char *x11_get_property(Display *display,
+                              Window win,
+                              Atom xa_prop_type,
+                              char *prop_name,
+                              unsigned long *size) {
     Atom xa_prop_name;
     Atom xa_ret_type;
     int ret_format;
@@ -157,7 +146,18 @@ x11_get_property (Display       *display,
 
     xa_prop_name = XInternAtom(display, prop_name, False);
 
-    if (XGetWindowProperty(display, win, xa_prop_name, 0, 1024, False, xa_prop_type, &xa_ret_type, &ret_format, &ret_nitems, &ret_bytes_after, &ret_prop) != Success) {
+    if (XGetWindowProperty(display,
+                           win,
+                           xa_prop_name,
+                           0,
+                           1024,
+                           False,
+                           xa_prop_type,
+                           &xa_ret_type,
+                           &ret_format,
+                           &ret_nitems,
+                           &ret_bytes_after,
+                           &ret_prop) != Success) {
         LOG(BUG, "Cannot get property: %s", prop_name);
         return NULL;
     }
@@ -193,11 +193,7 @@ x11_get_property (Display       *display,
 /**
  * @author Tomas Styblo (wmctrl - GPLv2)
  */
-void
-x11_window_activate (x11_display_type display,
-                     x11_window_type  win,
-                     uint8_t          switch_desktop)
-{
+void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop) {
     TOOLKIT_PROTECT();
 
 #if defined(HAVE_X11)
@@ -212,7 +208,14 @@ x11_window_activate (x11_display_type display,
         }
 
         if (desktop != NULL) {
-            if (!x11_send_event(display, DefaultRootWindow(display), "_NET_CURRENT_DESKTOP", *desktop, 0, 0, 0, 0)) {
+            if (!x11_send_event(display,
+                                DefaultRootWindow(display),
+                                "_NET_CURRENT_DESKTOP",
+                                *desktop,
+                                0,
+                                0,
+                                0,
+                                0)) {
                 LOG(BUG, "Cannot switch desktop.");
             }
 
@@ -230,9 +233,7 @@ x11_window_activate (x11_display_type display,
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
 
-static int
-x11_clipboard_filter (const SDL_Event *event)
-{
+static int x11_clipboard_filter(const SDL_Event *event) {
     /* Post all non-window manager specific events */
     if (event->type != SDL_SYSWMEVENT) {
         return 1;
@@ -240,42 +241,59 @@ x11_clipboard_filter (const SDL_Event *event)
 
     /* Handle window-manager specific clipboard events. */
     switch (event->syswm.msg->event.xevent.type) {
-        /* Copy the selection from XA_CUT_BUFFER0 to the requested property. */
-    case SelectionRequest:
-    {
-        XSelectionRequestEvent *req;
-        XEvent sevent;
-        int seln_format;
-        unsigned long nbytes, overflow;
-        unsigned char *seln_data;
+            /* Copy the selection from XA_CUT_BUFFER0 to the requested property. */
+        case SelectionRequest: {
+            XSelectionRequestEvent *req;
+            XEvent sevent;
+            int seln_format;
+            unsigned long nbytes, overflow;
+            unsigned char *seln_data;
 
-        req = &event->syswm.msg->event.xevent.xselectionrequest;
-        sevent.xselection.type = SelectionNotify;
-        sevent.xselection.display = req->display;
-        sevent.xselection.selection = req->selection;
-        sevent.xselection.target = None;
-        sevent.xselection.property = None;
-        sevent.xselection.requestor = req->requestor;
-        sevent.xselection.time = req->time;
+            req = &event->syswm.msg->event.xevent.xselectionrequest;
+            sevent.xselection.type = SelectionNotify;
+            sevent.xselection.display = req->display;
+            sevent.xselection.selection = req->selection;
+            sevent.xselection.target = None;
+            sevent.xselection.property = None;
+            sevent.xselection.requestor = req->requestor;
+            sevent.xselection.time = req->time;
 
-        if (XGetWindowProperty(SDL_display, DefaultRootWindow(SDL_display), XA_CUT_BUFFER0, 0, INT_MAX / 4, False, req->target, &sevent.xselection.target, &seln_format, &nbytes, &overflow, &seln_data) == Success) {
-            if (sevent.xselection.target == req->target) {
-                if (sevent.xselection.target == XA_STRING) {
-                    if (seln_data[nbytes - 1] == '\0') {
-                        nbytes--;
+            if (XGetWindowProperty(SDL_display,
+                                   DefaultRootWindow(SDL_display),
+                                   XA_CUT_BUFFER0,
+                                   0,
+                                   INT_MAX / 4,
+                                   False,
+                                   req->target,
+                                   &sevent.xselection.target,
+                                   &seln_format,
+                                   &nbytes,
+                                   &overflow,
+                                   &seln_data) == Success) {
+                if (sevent.xselection.target == req->target) {
+                    if (sevent.xselection.target == XA_STRING) {
+                        if (seln_data[nbytes - 1] == '\0') {
+                            nbytes--;
+                        }
                     }
+
+                    XChangeProperty(SDL_display,
+                                    req->requestor,
+                                    req->property,
+                                    sevent.xselection.target,
+                                    seln_format,
+                                    PropModeReplace,
+                                    seln_data,
+                                    nbytes);
+                    sevent.xselection.property = req->property;
                 }
 
-                XChangeProperty(SDL_display, req->requestor, req->property, sevent.xselection.target, seln_format, PropModeReplace, seln_data, nbytes);
-                sevent.xselection.property = req->property;
+                XFree(seln_data);
             }
 
-            XFree(seln_data);
+            XSendEvent(SDL_display, req->requestor, False, 0, &sevent);
+            XSync(SDL_display, False);
         }
-
-        XSendEvent(SDL_display, req->requestor, False, 0, &sevent);
-        XSync(SDL_display, False);
-    }
 
         break;
     }
@@ -285,9 +303,7 @@ x11_clipboard_filter (const SDL_Event *event)
 }
 #endif
 
-int
-x11_clipboard_register_events (void)
-{
+int x11_clipboard_register_events(void) {
     TOOLKIT_PROTECT();
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
@@ -304,11 +320,7 @@ x11_clipboard_register_events (void)
     return 1;
 }
 
-int
-x11_clipboard_set (x11_display_type display,
-                   x11_window_type  win,
-                   const char      *str)
-{
+int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str) {
     TOOLKIT_PROTECT();
 
     if (!display) {
@@ -316,7 +328,14 @@ x11_clipboard_set (x11_display_type display,
     }
 
 #if defined(HAVE_X11)
-    XChangeProperty(display, DefaultRootWindow(display), XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace, (unsigned const char *) str, strlen(str));
+    XChangeProperty(display,
+                    DefaultRootWindow(display),
+                    XA_CUT_BUFFER0,
+                    XA_STRING,
+                    8,
+                    PropModeReplace,
+                    (unsigned const char *)str,
+                    strlen(str));
 
     if (XGetSelectionOwner(display, XA_PRIMARY) != win) {
         XSetSelectionOwner(display, XA_PRIMARY, win, CurrentTime);
@@ -333,7 +352,11 @@ x11_clipboard_set (x11_display_type display,
         char strbuf[HUGE_BUF * 4], buf[HUGE_BUF * 4];
 
         string_replace(str, "'", "'\\''", strbuf, sizeof(strbuf));
-        snprintf(buf, sizeof(buf), "dbus-send --type=method_call --dest=org.kde.klipper /klipper org.kde.klipper.klipper.setClipboardContents string:'%s'", strbuf);
+        snprintf(buf,
+                 sizeof(buf),
+                 "dbus-send --type=method_call --dest=org.kde.klipper /klipper "
+                 "org.kde.klipper.klipper.setClipboardContents string:'%s'",
+                 strbuf);
 
         if (system(buf) != 0) {
             return 0;
@@ -360,7 +383,7 @@ x11_clipboard_set (x11_display_type display,
         hMem = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, size);
 
         if (hMem) {
-            LPTSTR dst = (LPTSTR) GlobalLock(hMem);
+            LPTSTR dst = (LPTSTR)GlobalLock(hMem);
 
             /* Copy the text over, adding carriage returns as necessary. */
             for (i = 0; str[i] != '\0'; i++) {
@@ -391,10 +414,7 @@ x11_clipboard_set (x11_display_type display,
 #endif
 }
 
-char *
-x11_clipboard_get (x11_display_type display,
-                   x11_window_type  win)
-{
+char *x11_clipboard_get(x11_display_type display, x11_window_type win) {
     char *result;
 #if defined(HAVE_X11)
     Window owner;
@@ -443,7 +463,18 @@ x11_clipboard_get (x11_display_type display,
 #endif
     }
 
-    if (XGetWindowProperty(display, owner, selection, 0, INT_MAX / 4, False, XA_STRING, &seln_type, &seln_format, &nbytes, &overflow, (unsigned char **) &src) == Success) {
+    if (XGetWindowProperty(display,
+                           owner,
+                           selection,
+                           0,
+                           INT_MAX / 4,
+                           False,
+                           XA_STRING,
+                           &seln_type,
+                           &seln_format,
+                           &nbytes,
+                           &overflow,
+                           (unsigned char **)&src) == Success) {
         if (seln_type == XA_STRING) {
             result = estrdup(src);
         }
@@ -459,7 +490,7 @@ x11_clipboard_get (x11_display_type display,
         hMem = GetClipboardData(CF_TEXT);
 
         if (hMem) {
-            src = (char *) GlobalLock(hMem);
+            src = (char *)GlobalLock(hMem);
             result = estrdup(src);
             GlobalUnlock(hMem);
         }

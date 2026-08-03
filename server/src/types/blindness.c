@@ -36,6 +36,4 @@
 /**
  * Initialize the blindness type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(blindness)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(blindness) {}

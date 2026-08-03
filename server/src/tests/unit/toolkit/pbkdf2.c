@@ -29,23 +29,25 @@
 #include <toolkit/string.h>
 #include <toolkit/pbkdf2.h>
 
-START_TEST(test_PKCS5_PBKDF2_HMAC_SHA2)
-{
+START_TEST(test_PKCS5_PBKDF2_HMAC_SHA2) {
     unsigned char result[32];
     char hex[64 + 1];
 
-    PKCS5_PBKDF2_HMAC_SHA2((unsigned char *) "Pa$$w0rd", strlen("Pa$$w0rd"),
-            (unsigned char *) "xxx", strlen("xxx"), 4096, 32, result);
+    PKCS5_PBKDF2_HMAC_SHA2((unsigned char *)"Pa$$w0rd",
+                           strlen("Pa$$w0rd"),
+                           (unsigned char *)"xxx",
+                           strlen("xxx"),
+                           4096,
+                           32,
+                           result);
 
     ck_assert_int_eq(string_tohex(result, 32, hex, sizeof(hex), false), 64);
-    ck_assert_str_eq(hex,
-            "1A27DBE11B730C53A42951F40026F148D65708CCF4829BA89F618CF8720BF5FA");
+    ck_assert_str_eq(hex, "1A27DBE11B730C53A42951F40026F148D65708CCF4829BA89F618CF8720BF5FA");
 }
 
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("pbkdf2");
     TCase *tc_core = tcase_create("Core");
 
@@ -58,7 +60,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_pbkdf2(void)
-{
+void check_server_pbkdf2(void) {
     check_run_suite(suite(), __FILE__);
 }

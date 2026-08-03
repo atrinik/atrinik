@@ -35,9 +35,7 @@
 #include <arch.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     object *victim = op->env;
@@ -54,14 +52,14 @@ process_func (object *op)
         if (op->stats.dam > 0) {
             attack_hit(victim, op, op->stats.dam);
         } else {
-            attack_hit(victim, op,
-                       MAX(1.0, -victim->stats.maxhp * op->stats.dam / 100.0));
+            attack_hit(victim, op, MAX(1.0, -victim->stats.maxhp * op->stats.dam / 100.0));
         }
 
         if (OBJECTS_DESTROYED_ANY(op, victim)) {
             return;
         }
-    } OBJECTS_DESTROYED_END();
+    }
+    OBJECTS_DESTROYED_END();
 
     int sp_reduce;
     if (op->stats.maxsp > 0) {
@@ -80,10 +78,7 @@ process_func (object *op)
             new_ob->x = tmp->x;
             new_ob->y = tmp->y;
             new_ob->map = victim->map;
-            object_insert_map(new_ob,
-                             victim->map,
-                             victim,
-                             INS_NO_MERGE | INS_NO_WALK_ON);
+            object_insert_map(new_ob, victim->map, victim, INS_NO_MERGE | INS_NO_WALK_ON);
         }
     }
 
@@ -95,7 +90,6 @@ process_func (object *op)
 /**
  * Initialize the symptom type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(symptom)
-{
+OBJECT_TYPE_INIT_DEFINE(symptom) {
     OBJECT_METHODS(SYMPTOM)->process_func = process_func;
 }

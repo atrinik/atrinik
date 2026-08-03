@@ -35,6 +35,4 @@
 /**
  * Initialize the gem type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(gem)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(gem) {}

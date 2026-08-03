@@ -28,8 +28,7 @@
 #include <check_proto.h>
 #include <arch.h>
 
-START_TEST(test_object_matches_string)
-{
+START_TEST(test_object_matches_string) {
     mapstruct *map;
     object *pl, *o1, *o2;
 
@@ -58,8 +57,7 @@ START_TEST(test_object_matches_string)
 }
 END_TEST
 
-START_TEST(test_arch_to_object)
-{
+START_TEST(test_arch_to_object) {
     archetype_t *arch;
     object *obj;
 
@@ -70,8 +68,7 @@ START_TEST(test_arch_to_object)
 }
 END_TEST
 
-START_TEST(test_arch_get)
-{
+START_TEST(test_arch_get) {
     object *obj;
 
     obj = arch_get("empty_archetype");
@@ -86,15 +83,13 @@ START_TEST(test_arch_get)
 }
 END_TEST
 
-START_TEST(test_arch_find)
-{
+START_TEST(test_arch_find) {
     ck_assert_ptr_ne(arch_find("empty_archetype"), NULL);
     ck_assert_ptr_eq(arch_find("AA938DFEPQ54FH"), NULL);
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("arch");
     TCase *tc_core = tcase_create("Core");
 
@@ -110,7 +105,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_arch(void)
-{
+void check_server_arch(void) {
     check_run_suite(suite(), __FILE__);
 }

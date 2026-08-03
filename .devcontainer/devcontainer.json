@@ -41,6 +41,12 @@
       "settings": {
         "cmake.configurePreset": "linux-debug",
         "cmake.buildPreset": "linux-debug",
+        "[c]": {
+          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+        },
+        "[cpp]": {
+          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+        },
         "clangd.arguments": [
           "--background-index",
           "--clang-tidy",

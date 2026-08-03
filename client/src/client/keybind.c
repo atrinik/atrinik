@@ -57,8 +57,7 @@ size_t keybindings_num = 0;
 /**
  * Load keybindings.
  */
-void keybind_load(void)
-{
+void keybind_load(void) {
     FILE *fp;
     char buf[HUGE_BUF], *cp;
     keybind_struct *keybind = NULL;
@@ -119,19 +118,16 @@ void keybind_load(void)
 /**
  * Save the keybindings.
  */
-void keybind_save(void)
-{
+void keybind_save(void) {
     FILE *fp = path_fopen(FILE_KEYBIND, "w");
     if (fp == NULL) {
-        LOG(ERROR, "Could not open %s for writing: %s (%d)", FILE_KEYBIND,
-                strerror(errno), errno);
+        LOG(ERROR, "Could not open %s for writing: %s (%d)", FILE_KEYBIND, strerror(errno), errno);
         return;
     }
 
     for (size_t i = 0; i < keybindings_num; i++) {
         fprintf(fp, "bind\n");
-        fprintf(fp, "\t# %s\n\tkey %d\n", SDL_GetKeyName(keybindings[i]->key),
-                keybindings[i]->key);
+        fprintf(fp, "\t# %s\n\tkey %d\n", SDL_GetKeyName(keybindings[i]->key), keybindings[i]->key);
 
         if (keybindings[i]->mod != 0) {
             fprintf(fp, "\tmod %d\n", keybindings[i]->mod);
@@ -156,8 +152,7 @@ void keybind_save(void)
  * @param keybind
  * Keybinding to free.
  */
-void keybind_free(keybind_struct *keybind)
-{
+void keybind_free(keybind_struct *keybind) {
     efree(keybind->command);
     efree(keybind);
 }
@@ -165,8 +160,7 @@ void keybind_free(keybind_struct *keybind)
 /**
  * Deinitialize all keybindings.
  */
-void keybind_deinit(void)
-{
+void keybind_deinit(void) {
     size_t i;
 
     /* Save them... */
@@ -193,8 +187,7 @@ void keybind_deinit(void)
  * @return
  * Adjusted state.
  */
-static SDLMod keybind_adjust_kmod(SDLMod mod)
-{
+static SDLMod keybind_adjust_kmod(SDLMod mod) {
     /* We only care about left/right shift, ctrl, alt, and super
      * modifiers, so remove any others. */
     mod &= KMOD_SHIFT | KMOD_CTRL | KMOD_ALT | KMOD_META;
@@ -234,8 +227,7 @@ static SDLMod keybind_adjust_kmod(SDLMod mod)
  * @return
  * The added keybinding.
  */
-keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command)
-{
+keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command) {
     keybind_struct *keybind;
 
     /* Allocate a new keybinding, and store the values. */
@@ -263,8 +255,7 @@ keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command)
  * @param command
  * Command to change.
  */
-void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command)
-{
+void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command) {
     /* Sanity check. */
     if (i >= keybindings_num) {
         return;
@@ -282,8 +273,7 @@ void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command)
  * @param i
  * Index in the ::keybindings array to remove.
  */
-void keybind_remove(size_t i)
-{
+void keybind_remove(size_t i) {
     size_t j;
 
     /* Sanity check. */
@@ -310,8 +300,7 @@ void keybind_remove(size_t i)
  * Index in the ::keybindings array to toggle the repeat state
  * of.
  */
-void keybind_repeat_toggle(size_t i)
-{
+void keybind_repeat_toggle(size_t i) {
     /* Sanity check. */
     if (i >= keybindings_num) {
         return;
@@ -333,8 +322,7 @@ void keybind_repeat_toggle(size_t i)
  * @return
  * 'buf'.
  */
-char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len)
-{
+char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len) {
     buf[0] = '\0';
 
     /* Prefix with the keyboard modifier. */
@@ -368,8 +356,7 @@ char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len)
  * @return
  * Keybinding if found, NULL otherwise.
  */
-keybind_struct *keybind_find_by_command(const char *cmd)
-{
+keybind_struct *keybind_find_by_command(const char *cmd) {
     size_t i;
 
     for (i = 0; i < keybindings_num; i++) {
@@ -388,15 +375,15 @@ keybind_struct *keybind_find_by_command(const char *cmd)
  * @return
  * 1 if it matches, 0 otherwise.
  */
-int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event)
-{
+int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event) {
     keybind_struct *keybind = keybind_find_by_command(cmd);
 
     if (!keybind) {
         return 0;
     }
 
-    if (event->keysym.sym == keybind->key && (!keybind->mod || keybind->mod == keybind_adjust_kmod(event->keysym.mod))) {
+    if (event->keysym.sym == keybind->key &&
+        (!keybind->mod || keybind->mod == keybind_adjust_kmod(event->keysym.mod))) {
         return 1;
     }
 
@@ -411,13 +398,14 @@ int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event)
  * @return
  * 1 if it matches, 0 otherwise.
  */
-int keybind_command_matches_state(const char *cmd)
-{
+int keybind_command_matches_state(const char *cmd) {
     size_t i;
 
     for (i = 0; i < keybindings_num; i++) {
         if (!strcmp(cmd, keybindings[i]->command)) {
-            if (keys[keybindings[i]->key].pressed && (!keybindings[i]->mod || keybindings[i]->mod == keybind_adjust_kmod(SDL_GetModState()))) {
+            if (keys[keybindings[i]->key].pressed &&
+                (!keybindings[i]->mod ||
+                 keybindings[i]->mod == keybind_adjust_kmod(SDL_GetModState()))) {
                 return 1;
             }
         }
@@ -433,13 +421,13 @@ int keybind_command_matches_state(const char *cmd)
  * @return
  * 1 if the event was handled, 0 otherwise.
  */
-int keybind_process_event(SDL_KeyboardEvent *event)
-{
+int keybind_process_event(SDL_KeyboardEvent *event) {
     size_t i;
 
     /* Try to handle keybindings with modifier keys first. */
     for (i = 0; i < keybindings_num; i++) {
-        if (event->keysym.sym == keybindings[i]->key && keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)) {
+        if (event->keysym.sym == keybindings[i]->key &&
+            keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)) {
             keybind_process(keybindings[i], event->type);
             return 1;
         }
@@ -464,8 +452,7 @@ int keybind_process_event(SDL_KeyboardEvent *event)
  * @param type
  * Either SDL_KEYDOWN or SDL_KEYUP.
  */
-void keybind_process(keybind_struct *keybind, uint8_t type)
-{
+void keybind_process(keybind_struct *keybind, uint8_t type) {
     char command[MAX_BUF], *cp;
 
     /* Do not repeat keys that should not be repeated. */
@@ -500,8 +487,7 @@ void keybind_process(keybind_struct *keybind, uint8_t type)
  * @return
  * 1 if the command was handled, 0 otherwise.
  */
-int keybind_process_command_up(const char *cmd)
-{
+int keybind_process_command_up(const char *cmd) {
     const char *cmd_orig = cmd;
 
     if (*cmd == '?') {
@@ -517,7 +503,8 @@ int keybind_process_command_up(const char *cmd)
 
             cmd += 5;
 
-            if (strcmp(cmd, "STAY") != 0 && !cpl.fire_on && (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated) {
+            if (strcmp(cmd, "STAY") != 0 && !cpl.fire_on &&
+                (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated) {
                 move_keys(5);
             }
         }
@@ -532,8 +519,7 @@ int keybind_process_command_up(const char *cmd)
  * Ensure that keybindings which should trigger on 'key up' event have
  * done so, even if the 'key up' event was handled by something else.
  */
-void keybind_state_ensure(void)
-{
+void keybind_state_ensure(void) {
     if (cpl.run_on && !keybind_command_matches_state("?RUNON")) {
         keybind_process_command_up("?RUNON");
     }
@@ -550,8 +536,7 @@ void keybind_state_ensure(void)
  * @return
  * 1 if the command was handled, 0 otherwise.
  */
-int keybind_process_command(const char *cmd)
-{
+int keybind_process_command(const char *cmd) {
     if (notification_keybind_check(cmd)) {
         return 1;
     }
@@ -675,8 +660,7 @@ int keybind_process_command(const char *cmd)
             textwin_handle_copy(NULL);
         } else if (!strcmp(cmd, "HELLO")) {
             send_command_check("/talk 1 hello");
-        } else if (strcmp(cmd, "COMBAT") == 0 ||
-                strcmp(cmd, "COMBAT_FORCE") == 0) {
+        } else if (strcmp(cmd, "COMBAT") == 0 || strcmp(cmd, "COMBAT_FORCE") == 0) {
             uint8_t combat = cpl.combat, combat_force = cpl.combat_force;
 
             if (strcmp(cmd, "COMBAT") == 0) {

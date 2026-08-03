@@ -46,8 +46,7 @@
  * The object that is used to represent the quest in the quest
  * object, NULL if no matching quest found.
  */
-static object *quest_find(object *quest, shstr *quest_name)
-{
+static object *quest_find(object *quest, shstr *quest_name) {
     object *tmp;
 
     /* Go through the objects in the quest container */
@@ -77,9 +76,7 @@ static object *quest_find(object *quest, shstr *quest_name)
  * @return
  * 1 if the player has the quest item, 0 otherwise.
  */
-static int quest_item_check(object *op, object *quest_item, int flag,
-        int64_t *num)
-{
+static int quest_item_check(object *op, object *quest_item, int flag, int64_t *num) {
     object *tmp;
 
     HARD_ASSERT(op != NULL);
@@ -88,9 +85,8 @@ static int quest_item_check(object *op, object *quest_item, int flag,
     /* Go through the objects in the object's inventory. */
     for (tmp = op->inv; tmp != NULL; tmp = tmp->below) {
         /* Compare the values. */
-        if (tmp->name == quest_item->name &&
-                tmp->arch->name == quest_item->arch->name &&
-                (flag == -1 || QUERY_FLAG(tmp, flag))) {
+        if (tmp->name == quest_item->name && tmp->arch->name == quest_item->arch->name &&
+            (flag == -1 || QUERY_FLAG(tmp, flag))) {
             if (num != NULL) {
                 *num += MAX(1, tmp->nrof);
             } else {
@@ -125,9 +121,7 @@ static int quest_item_check(object *op, object *quest_item, int flag,
  * @param item
  * Quest item.
  */
-static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
-        object *item)
-{
+static void quest_check_item_drop(object *op, object *quest, object *quest_pl, object *item) {
     object *clone;
     char buf[MAX_BUF];
 
@@ -136,8 +130,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
         return;
     }
 
-    if (!QUERY_FLAG(item, FLAG_ONE_DROP) &&
-            quest_item_check(op, item, -1, NULL)) {
+    if (!QUERY_FLAG(item, FLAG_ONE_DROP) && quest_item_check(op, item, -1, NULL)) {
         /* Not one-drop, but we already have the quest object (keys, for
          * example). */
         return;
@@ -168,8 +161,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
         /* Insert it inside player's quest container. */
         object_insert_into(quest_pl, CONTR(op)->quest_container, 0);
 
-        snprintf(VS(buf), "You solved the one drop quest %s!\n",
-                QUEST_NAME(quest_pl));
+        snprintf(VS(buf), "You solved the one drop quest %s!\n", QUEST_NAME(quest_pl));
     } else {
         char *name = object_get_short_name_s(clone, op);
         snprintf(VS(buf), "You found the special drop %s!\n", name);
@@ -178,8 +170,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
 
     draw_map_text_anim(op, COLOR_NAVY, buf);
     draw_info(COLOR_NAVY, op, buf);
-    play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg",
-            0, 0, 0, 0);
+    play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 }
 
 /**
@@ -193,9 +184,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
  * @param item
  * Quest item.
  */
-static void quest_check_kill(object *op, object *quest, object *quest_pl,
-        object *item)
-{
+static void quest_check_kill(object *op, object *quest, object *quest_pl, object *item) {
     if (item != NULL) {
         LOG(BUG, "Quest '%s' with an item.", quest->name);
         return;
@@ -219,12 +208,10 @@ static void quest_check_kill(object *op, object *quest, object *quest_pl,
         snprintf(VS(buf), "Quest [b]%s[/b]", QUEST_NAME(quest_pl));
 
         if (quest_pl->last_sp == quest_pl->last_grace) {
-            play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg",
-                    0, 0, 0, 0);
+            play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
             snprintfcat(VS(buf), " completed!\n");
         } else {
-            snprintfcat(VS(buf), " %d/%d.\n", quest_pl->last_sp,
-                    quest_pl->last_grace);
+            snprintfcat(VS(buf), " %d/%d.\n", quest_pl->last_sp, quest_pl->last_grace);
         }
 
         draw_map_text_anim(op, COLOR_NAVY, buf);
@@ -243,9 +230,7 @@ static void quest_check_kill(object *op, object *quest, object *quest_pl,
  * @param item
  * Quest item.
  */
-static void quest_check_item(object *op, object *quest, object *quest_pl,
-        object *item)
-{
+static void quest_check_item(object *op, object *quest, object *quest_pl, object *item) {
     object *clone;
     int64_t num;
     char buf[MAX_BUF];
@@ -282,13 +267,11 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
 
     char *name = object_get_base_name_s(clone, op);
-    snprintf(VS(buf), "Quest [b]%s[/b]: You found the quest item %s",
-            QUEST_NAME(quest_pl), name);
+    snprintf(VS(buf), "Quest [b]%s[/b]: You found the quest item %s", QUEST_NAME(quest_pl), name);
     efree(name);
 
     if (quest_pl->last_grace > 1) {
-        snprintfcat(VS(buf), " (%"PRId64"/%d)", num + MAX(1, clone->nrof),
-                quest_pl->last_grace);
+        snprintfcat(VS(buf), " (%" PRId64 "/%d)", num + MAX(1, clone->nrof), quest_pl->last_grace);
     }
 
     snprintfcat(VS(buf), "!\n");
@@ -298,8 +281,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
 
     /* Insert the quest item inside the player. */
     object_insert_into(clone, op, 0);
-    play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg",
-            0, 0, 0, 0);
+    play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
 }
 
 /**
@@ -311,30 +293,23 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
  * @param quest_pl
  * Quest object in the player, can be NULL.
  */
-static void quest_object_handle(object *op, object *quest, object *quest_pl)
-{
+static void quest_object_handle(object *op, object *quest, object *quest_pl) {
     object *item;
 
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(quest != NULL);
 
-    SOFT_ASSERT(op->type == PLAYER, "Object is not a player: %s",
-            object_get_str(op));
-    SOFT_ASSERT(quest->type == QUEST_CONTAINER, "Quest is not a quest "
-            "container: %s", object_get_str(quest));
+    SOFT_ASSERT(op->type == PLAYER, "Object is not a player: %s", object_get_str(op));
+    SOFT_ASSERT(quest->type == QUEST_CONTAINER,
+                "Quest is not a quest "
+                "container: %s",
+                object_get_str(quest));
     SOFT_ASSERT(quest_pl == NULL || quest_pl->type == QUEST_CONTAINER,
-            "Invalid quest_pl supplied: %p", quest_pl);
+                "Invalid quest_pl supplied: %p",
+                quest_pl);
 
     /* Trigger the TRIGGER event */
-    if (trigger_event(EVENT_TRIGGER,
-                      op,
-                      quest,
-                      quest_pl,
-                      NULL,
-                      0,
-                      0,
-                      0,
-                      0) != 0) {
+    if (trigger_event(EVENT_TRIGGER, op, quest, quest_pl, NULL, 0, 0, 0, 0) != 0) {
         return;
     }
 
@@ -345,22 +320,21 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
     }
 
     switch (quest->sub_type) {
-    case QUEST_TYPE_ITEM_DROP:
-        quest_check_item_drop(op, quest, quest_pl, item);
-        break;
+        case QUEST_TYPE_ITEM_DROP:
+            quest_check_item_drop(op, quest, quest_pl, item);
+            break;
 
-    case QUEST_TYPE_KILL:
-        quest_check_kill(op, quest, quest_pl, item);
-        break;
+        case QUEST_TYPE_KILL:
+            quest_check_kill(op, quest, quest_pl, item);
+            break;
 
-    case QUEST_TYPE_ITEM:
-        quest_check_item(op, quest, quest_pl, item);
-        break;
+        case QUEST_TYPE_ITEM:
+            quest_check_item(op, quest, quest_pl, item);
+            break;
 
-    default:
-        LOG(BUG, "Quest '%s' has unknown sub type: %d",
-                quest->name, quest->sub_type);
-        break;
+        default:
+            LOG(BUG, "Quest '%s' has unknown sub type: %d", quest->name, quest->sub_type);
+            break;
     }
 }
 
@@ -374,17 +348,17 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
  * @param quest
  * The quest.
  */
-void quest_handle(object *op, object *quest)
-{
+void quest_handle(object *op, object *quest) {
     object *quest_pl;
 
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(quest != NULL);
 
-    SOFT_ASSERT(op->type == PLAYER, "Object is not a player: %s",
-            object_get_str(op));
-    SOFT_ASSERT(quest->type == QUEST_CONTAINER, "Quest is not a quest "
-            "container: %s", object_get_str(quest));
+    SOFT_ASSERT(op->type == PLAYER, "Object is not a player: %s", object_get_str(op));
+    SOFT_ASSERT(quest->type == QUEST_CONTAINER,
+                "Quest is not a quest "
+                "container: %s",
+                object_get_str(quest));
 
     quest_pl = quest_find(CONTR(op)->quest_container, quest->name);
 

@@ -55,13 +55,11 @@
 #define RING_CHANCE_EXTRA 4
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_speed (object              *op,
-                      int                  difficulty,
-                      treasure_affinity_t *affinity,
-                      double              *item_power,
-                      int                  bonus)
-{
+static bool ring_set_bonus_speed(object *op,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 double *item_power,
+                                 int bonus) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -72,13 +70,11 @@ ring_set_bonus_speed (object              *op,
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_regen_hp (object              *op,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         double              *item_power,
-                         int                  bonus)
-{
+static bool ring_set_bonus_regen_hp(object *op,
+                                    int difficulty,
+                                    treasure_affinity_t *affinity,
+                                    double *item_power,
+                                    int bonus) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -100,13 +96,11 @@ ring_set_bonus_regen_hp (object              *op,
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_regen_sp (object              *op,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         double               *item_power,
-                         int                   bonus)
-{
+static bool ring_set_bonus_regen_sp(object *op,
+                                    int difficulty,
+                                    treasure_affinity_t *affinity,
+                                    double *item_power,
+                                    int bonus) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -128,13 +122,11 @@ ring_set_bonus_regen_sp (object              *op,
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_damage (object              *op,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       double              *item_power,
-                       int                  bonus)
-{
+static bool ring_set_bonus_damage(object *op,
+                                  int difficulty,
+                                  treasure_affinity_t *affinity,
+                                  double *item_power,
+                                  int bonus) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -156,13 +148,11 @@ ring_set_bonus_damage (object              *op,
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_sustenance (object              *op,
-                           int                  difficulty,
-                           treasure_affinity_t *affinity,
-                           double              *item_power,
-                           int                  bonus)
-{
+static bool ring_set_bonus_sustenance(object *op,
+                                      int difficulty,
+                                      treasure_affinity_t *affinity,
+                                      double *item_power,
+                                      int bonus) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -197,14 +187,12 @@ ring_set_bonus_sustenance (object              *op,
  * @return
  * True on success, false on failure.
  */
-static bool
-ring_set_bonus_stat (object              *op,
-                     int                  difficulty,
-                     treasure_affinity_t *affinity,
-                     double              *item_power,
-                     int                  bonus,
-                     int                  stat)
-{
+static bool ring_set_bonus_stat(object *op,
+                                int difficulty,
+                                treasure_affinity_t *affinity,
+                                double *item_power,
+                                int bonus,
+                                int stat) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(item_power != NULL);
 
@@ -213,10 +201,7 @@ ring_set_bonus_stat (object              *op,
         /* Extremely unlikely to happen (if it's even possible), but guard
          * against it anyway. Returning false will make the main processing
          * function roll something else (hopefully). */
-        LOG(DEVEL,
-            "Stat value reached minimum/maximum %d: %s",
-            value,
-            object_get_str(op));
+        LOG(DEVEL, "Stat value reached minimum/maximum %d: %s", value, object_get_str(op));
         return false;
     }
 
@@ -231,83 +216,48 @@ ring_set_bonus_stat (object              *op,
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_stat_str (object              *op,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         double              *item_power,
-                         int                  bonus)
-{
-    return ring_set_bonus_stat(op,
-                               difficulty,
-                               affinity,
-                               item_power,
-                               bonus,
-                               STR);
+static bool ring_set_bonus_stat_str(object *op,
+                                    int difficulty,
+                                    treasure_affinity_t *affinity,
+                                    double *item_power,
+                                    int bonus) {
+    return ring_set_bonus_stat(op, difficulty, affinity, item_power, bonus, STR);
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_stat_dex (object              *op,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         double              *item_power,
-                         int                  bonus)
-{
-    return ring_set_bonus_stat(op,
-                               difficulty,
-                               affinity,
-                               item_power,
-                               bonus,
-                               DEX);
+static bool ring_set_bonus_stat_dex(object *op,
+                                    int difficulty,
+                                    treasure_affinity_t *affinity,
+                                    double *item_power,
+                                    int bonus) {
+    return ring_set_bonus_stat(op, difficulty, affinity, item_power, bonus, DEX);
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_stat_con (object              *op,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         double              *item_power,
-                         int                  bonus)
-{
-    return ring_set_bonus_stat(op,
-                               difficulty,
-                               affinity,
-                               item_power,
-                               bonus,
-                               CON);
+static bool ring_set_bonus_stat_con(object *op,
+                                    int difficulty,
+                                    treasure_affinity_t *affinity,
+                                    double *item_power,
+                                    int bonus) {
+    return ring_set_bonus_stat(op, difficulty, affinity, item_power, bonus, CON);
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_stat_int (object              *op,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         double              *item_power,
-                         int                  bonus)
-{
-    return ring_set_bonus_stat(op,
-                               difficulty,
-                               affinity,
-                               item_power,
-                               bonus,
-                               INT);
+static bool ring_set_bonus_stat_int(object *op,
+                                    int difficulty,
+                                    treasure_affinity_t *affinity,
+                                    double *item_power,
+                                    int bonus) {
+    return ring_set_bonus_stat(op, difficulty, affinity, item_power, bonus, INT);
 }
 
 /** @copydoc process_treasure_table_t::set_bonus_func */
-static bool
-ring_set_bonus_stat_pow (object              *op,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         double              *item_power,
-                         int                  bonus)
-{
-    return ring_set_bonus_stat(op,
-                               difficulty,
-                               affinity,
-                               item_power,
-                               bonus,
-                               POW);
+static bool ring_set_bonus_stat_pow(object *op,
+                                    int difficulty,
+                                    treasure_affinity_t *affinity,
+                                    double *item_power,
+                                    int bonus) {
+    return ring_set_bonus_stat(op, difficulty, affinity, item_power, bonus, POW);
 }
 
 /**
@@ -327,13 +277,11 @@ static const process_treasure_table_t ring_treasure_table[] = {
 };
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -386,8 +334,7 @@ process_treasure_func (object              *op,
         if (rndm_chance(RING_CHANCE_TABLE)) {
             static uint32_t total_chance = 0;
             if (total_chance == 0) {
-                total_chance =
-                    PROCESS_TREASURE_TABLE_TOTAL_CHANCE(ring_treasure_table);
+                total_chance = PROCESS_TREASURE_TABLE_TOTAL_CHANCE(ring_treasure_table);
             }
 
             if (!process_treasure_table(ring_treasure_table,
@@ -401,10 +348,7 @@ process_treasure_func (object              *op,
                 return OBJECT_METHOD_ERROR;
             }
         } else {
-            if (!process_treasure_table_jewelry(op,
-                                                difficulty,
-                                                affinity,
-                                                &item_power)) {
+            if (!process_treasure_table_jewelry(op, difficulty, affinity, &item_power)) {
                 object_destroy(op);
                 return OBJECT_METHOD_ERROR;
             }
@@ -419,8 +363,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the ring type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(ring)
-{
+OBJECT_TYPE_INIT_DEFINE(ring) {
     OBJECT_METHODS(RING)->apply_func = object_apply_item;
     OBJECT_METHODS(RING)->process_treasure_func = process_treasure_func;
 }

@@ -35,7 +35,6 @@
 /**
  * Initialize the armour type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(armour)
-{
+OBJECT_TYPE_INIT_DEFINE(armour) {
     OBJECT_METHODS(ARMOUR)->apply_func = object_apply_item;
 }

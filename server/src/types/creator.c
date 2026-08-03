@@ -44,25 +44,20 @@
  * @return
  * True if such object already exists, false otherwise.
  */
-static bool
-creator_obj_exists (object *op, object *check)
-{
+static bool creator_obj_exists(object *op, object *check) {
     object *tmp;
     FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, check->layer, -1, tmp) {
-        if (tmp->arch == check->arch &&
-            tmp->name == check->name &&
-            tmp->type == check->type) {
+        if (tmp->arch == check->arch && tmp->name == check->name && tmp->type == check->type) {
             return true;
         }
-    } FOR_MAP_LAYER_END
+    }
+    FOR_MAP_LAYER_END
 
     return false;
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -81,7 +76,8 @@ trigger_func (object *op, object *cause, int state)
             }
 
             num_objs++;
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
 
         roll = rndm(0, num_objs - 1);
     }
@@ -107,7 +103,8 @@ trigger_func (object *op, object *cause, int state)
         if (clone != NULL) {
             created = true;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     if (created && !QUERY_FLAG(op, FLAG_LIFESAVE)) {
         op->stats.hp--;
@@ -119,7 +116,6 @@ trigger_func (object *op, object *cause, int state)
 /**
  * Initialize the creator type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(creator)
-{
+OBJECT_TYPE_INIT_DEFINE(creator) {
     OBJECT_METHODS(CREATOR)->trigger_func = trigger_func;
 }

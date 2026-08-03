@@ -49,15 +49,13 @@
  * @param desc_brief
  * Brief description about the CLI.
  */
-#define CLIOPTIONS_CREATE(cli, name, desc_brief)                            \
-do {                                                                        \
-    cli = clioptions_create(STRINGIFY(name),                                \
-                            CONCAT(clioptions_option_, name));              \
-    clioptions_set_description(cli,                                         \
-                               desc_brief,                                  \
-                               CONCAT(CONCAT(clioptions_option_, name),     \
-                                      _desc));                              \
-} while (0)
+#define CLIOPTIONS_CREATE(cli, name, desc_brief)                                     \
+    do {                                                                             \
+        cli = clioptions_create(STRINGIFY(name), CONCAT(clioptions_option_, name));  \
+        clioptions_set_description(cli,                                              \
+                                   desc_brief,                                       \
+                                   CONCAT(CONCAT(clioptions_option_, name), _desc)); \
+    } while (0)
 
 /**
  * Like CLIOPTIONS_CREATE(), but will enable passing a required argument using
@@ -70,16 +68,14 @@ do {                                                                        \
  * @param desc_brief
  * Brief description about the CLI.
  */
-#define CLIOPTIONS_CREATE_ARGUMENT(cli, name, desc_brief)                   \
-do {                                                                        \
-    cli = clioptions_create(STRINGIFY(name),                                \
-                            CONCAT(clioptions_option_, name));              \
-    clioptions_set_description(cli,                                         \
-                               desc_brief,                                  \
-                               CONCAT(CONCAT(clioptions_option_, name),     \
-                                      _desc));                              \
-    clioptions_enable_argument(cli);                                        \
-} while (0)
+#define CLIOPTIONS_CREATE_ARGUMENT(cli, name, desc_brief)                            \
+    do {                                                                             \
+        cli = clioptions_create(STRINGIFY(name), CONCAT(clioptions_option_, name));  \
+        clioptions_set_description(cli,                                              \
+                                   desc_brief,                                       \
+                                   CONCAT(CONCAT(clioptions_option_, name), _desc)); \
+        clioptions_enable_argument(cli);                                             \
+    } while (0)
 
 /**
  * Command line option handler function.
@@ -92,8 +88,7 @@ do {                                                                        \
  * @return
  * True on success, false on failure.
  */
-typedef bool (*clioptions_handler_func)(const char *arg,
-                                        char      **errmsg);
+typedef bool (*clioptions_handler_func)(const char *arg, char **errmsg);
 
 /*
  * Opaque typedef for a single CLI option structure.
@@ -114,9 +109,7 @@ TOOLKIT_FUNCS_DECLARE(clioptions);
  * @return
  * Created CLI option.
  */
-extern clioption_t *
-clioptions_create (const char             *name,
-                   clioptions_handler_func handler_func);
+extern clioption_t *clioptions_create(const char *name, clioptions_handler_func handler_func);
 
 /**
  * Get the value of the specified CLI option.
@@ -126,8 +119,7 @@ clioptions_create (const char             *name,
  * @return
  * Value of the option.
  */
-extern const char *
-clioptions_get(const char *name);
+extern const char *clioptions_get(const char *name);
 
 /**
  * Sets short name for the specified CLI.
@@ -137,9 +129,7 @@ clioptions_get(const char *name);
  * @param short_name
  * Short name to set. Must not be destroyed.
  */
-extern void
-clioptions_set_short_name(clioption_t *cli,
-                          const char  *short_name);
+extern void clioptions_set_short_name(clioption_t *cli, const char *short_name);
 
 /**
  * Sets description text for the specified CLI.
@@ -153,10 +143,7 @@ clioptions_set_short_name(clioption_t *cli,
  * @param desc
  * Description text. Must not be destroyed.
  */
-extern void
-clioptions_set_description(clioption_t *cli,
-                           const char  *desc_brief,
-                           const char  *desc);
+extern void clioptions_set_description(clioption_t *cli, const char *desc_brief, const char *desc);
 
 /**
  * Marks the CLI as requiring an argument.
@@ -164,8 +151,7 @@ clioptions_set_description(clioption_t *cli,
  * @param cli
  * CLI.
  */
-extern void
-clioptions_enable_argument(clioption_t *cli);
+extern void clioptions_enable_argument(clioption_t *cli);
 
 /**
  * Marks the CLI as changeable at runtime.
@@ -173,8 +159,7 @@ clioptions_enable_argument(clioption_t *cli);
  * @param cli
  * CLI.
  */
-extern void
-clioptions_enable_changeable(clioption_t *cli);
+extern void clioptions_enable_changeable(clioption_t *cli);
 
 /**
  * Parse CLI options from argv array.
@@ -185,8 +170,7 @@ clioptions_enable_changeable(clioption_t *cli);
  * Variable length array of character pointers with the option/argument
  * combinations.
  */
-extern void
-clioptions_parse(int argc, char *argv[]);
+extern void clioptions_parse(int argc, char *argv[]);
 
 /**
  * Load CLI options from a config file.
@@ -198,8 +182,7 @@ clioptions_parse(int argc, char *argv[]);
  * @return
  * True on success, false on failure.
  */
-extern bool
-clioptions_load(const char *path, const char *category);
+extern bool clioptions_load(const char *path, const char *category);
 
 /**
  * Load a string as a CLI option, eg, "port = 13327".
@@ -211,7 +194,6 @@ clioptions_load(const char *path, const char *category);
  * @return
  * True on success, false on failure.
  */
-extern bool
-clioptions_load_str(const char *str, char **errmsg);
+extern bool clioptions_load_str(const char *str, char **errmsg);
 
 #endif

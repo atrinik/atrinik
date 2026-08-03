@@ -59,35 +59,23 @@ static int object_move_on_recursion_depth = 0;
  * @param methods
  * What to initialize.
  */
-static void
-object_methods_init_one (object_methods_t *methods)
-{
+static void object_methods_init_one(object_methods_t *methods) {
     memset(methods, 0, sizeof(*methods));
 }
 
 /**
  * Initializes the object methods system.
  */
-void
-object_methods_init (void)
-{
+void object_methods_init(void) {
     object_methods_init_one(&object_methods_base);
-    object_methods_base.apply_func =
-        common_object_apply;
-    object_methods_base.describe_func =
-        common_object_describe;
-    object_methods_base.process_func =
-        common_object_process;
-    object_methods_base.move_on_func =
-        common_object_move_on;
-    object_methods_base.projectile_fire_func =
-        common_object_projectile_fire_missile;
-    object_methods_base.projectile_move_func =
-        common_object_projectile_move;
-    object_methods_base.projectile_hit_func =
-        common_object_projectile_hit;
-    object_methods_base.projectile_stop_func =
-        common_object_projectile_stop_missile;
+    object_methods_base.apply_func = common_object_apply;
+    object_methods_base.describe_func = common_object_describe;
+    object_methods_base.process_func = common_object_process;
+    object_methods_base.move_on_func = common_object_move_on;
+    object_methods_base.projectile_fire_func = common_object_projectile_fire_missile;
+    object_methods_base.projectile_move_func = common_object_projectile_move;
+    object_methods_base.projectile_hit_func = common_object_projectile_hit;
+    object_methods_base.projectile_stop_func = common_object_projectile_stop_missile;
 
     for (size_t i = 0; i < arraysize(object_type_methods); i++) {
         object_methods_init_one(&object_type_methods[i]);
@@ -105,9 +93,7 @@ object_methods_init (void)
  * @return
  * The object methods for the specified type, never NULL.
  */
-object_methods_t *
-object_methods_get (int type)
-{
+object_methods_t *object_methods_get(int type) {
     SOFT_ASSERT_RC(type >= 0 && type < OBJECT_TYPE_MAX,
                    &object_methods_base,
                    "Invalid object type: %d",
@@ -116,14 +102,11 @@ object_methods_get (int type)
 }
 
 /** @copydoc object_methods_t::init_func */
-void
-object_cb_init (object *op)
-{
+void object_cb_init(object *op) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(op->head == NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->init_func != NULL) {
             methods->init_func(op);
@@ -133,14 +116,11 @@ object_cb_init (object *op)
 }
 
 /** @copydoc object_methods_t::deinit_func */
-void
-object_cb_deinit (object *op)
-{
+void object_cb_deinit(object *op) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(op->head == NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->deinit_func != NULL) {
             methods->deinit_func(op);
@@ -150,16 +130,13 @@ object_cb_deinit (object *op)
 }
 
 /** @copydoc object_methods_t::apply_func */
-int
-object_apply (object *op, object *applier, int aflags)
-{
+int object_apply(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
     applier = HEAD(applier);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->apply_func != NULL) {
             return methods->apply_func(op, applier, aflags);
@@ -170,9 +147,7 @@ object_apply (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::process_func */
-void
-object_process (object *op)
-{
+void object_process(object *op) {
     HARD_ASSERT(op != NULL);
 
     /* No need to process objects inside creators. */
@@ -189,8 +164,7 @@ object_process (object *op)
         return;
     }
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->process_func != NULL) {
             methods->process_func(op);
@@ -200,15 +174,12 @@ object_process (object *op)
 }
 
 /** @copydoc object_methods_t::describe_func */
-char *
-object_describe (object *op, object *observer, char *buf, size_t size)
-{
+char *object_describe(object *op, object *observer, char *buf, size_t size) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(observer != NULL);
     HARD_ASSERT(buf != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->describe_func != NULL) {
             methods->describe_func(op, observer, buf, size);
@@ -221,29 +192,18 @@ object_describe (object *op, object *observer, char *buf, size_t size)
 }
 
 /** @copydoc object_methods_t::move_on_func */
-int
-object_move_on (object *op, object *victim, object *originator, int state)
-{
+int object_move_on(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
     op = HEAD(op);
     victim = HEAD(victim);
 
-    if (trigger_event(EVENT_TRIGGER,
-                      victim,
-                      op,
-                      originator,
-                      NULL,
-                      0,
-                      0,
-                      0,
-                      0) != 0) {
+    if (trigger_event(EVENT_TRIGGER, victim, op, originator, NULL, 0, 0, 0, 0) != 0) {
         return OBJECT_METHOD_OK;
     }
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->move_on_func != NULL) {
             if (object_move_on_recursion_depth >= 500) {
@@ -266,14 +226,11 @@ object_move_on (object *op, object *victim, object *originator, int state)
 }
 
 /** @copydoc object_methods_t::trigger_func */
-int
-object_trigger (object *op, object *cause, int state)
-{
+int object_trigger(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->trigger_func != NULL) {
             return methods->trigger_func(op, cause, state);
@@ -284,14 +241,11 @@ object_trigger (object *op, object *cause, int state)
 }
 
 /** @copydoc object_methods_t::trigger_button_func */
-int
-object_trigger_button (object *op, object *cause, int state)
-{
+int object_trigger_button(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->trigger_button_func != NULL) {
             return methods->trigger_button_func(op, cause, state);
@@ -302,13 +256,10 @@ object_trigger_button (object *op, object *cause, int state)
 }
 
 /** @copydoc object_methods_t::insert_map_func */
-void
-object_cb_insert_map (object *op)
-{
+void object_cb_insert_map(object *op) {
     HARD_ASSERT(op != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->insert_map_func != NULL) {
             methods->insert_map_func(op);
@@ -318,13 +269,10 @@ object_cb_insert_map (object *op)
 }
 
 /** @copydoc object_methods_t::remove_map_func */
-void
-object_cb_remove_map (object *op)
-{
+void object_cb_remove_map(object *op) {
     HARD_ASSERT(op != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->remove_map_func != NULL) {
             methods->remove_map_func(op);
@@ -334,13 +282,10 @@ object_cb_remove_map (object *op)
 }
 
 /** @copydoc object_methods_t::remove_inv_func */
-void
-object_cb_remove_inv (object *op)
-{
+void object_cb_remove_inv(object *op) {
     HARD_ASSERT(op != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->remove_inv_func != NULL) {
             methods->remove_inv_func(op);
@@ -350,14 +295,11 @@ object_cb_remove_inv (object *op)
 }
 
 /** @copydoc object_methods_t::projectile_fire_func */
-object *
-object_projectile_fire (object *op, object *shooter, int dir)
-{
+object *object_projectile_fire(object *op, object *shooter, int dir) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(shooter != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->projectile_fire_func != NULL) {
             return methods->projectile_fire_func(op, shooter, dir);
@@ -368,13 +310,10 @@ object_projectile_fire (object *op, object *shooter, int dir)
 }
 
 /** @copydoc object_methods_t::projectile_move_func */
-object *
-object_projectile_move (object *op)
-{
+object *object_projectile_move(object *op) {
     HARD_ASSERT(op != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->projectile_move_func != NULL) {
             return methods->projectile_move_func(op);
@@ -385,14 +324,11 @@ object_projectile_move (object *op)
 }
 
 /** @copydoc object_methods_t::projectile_hit_func */
-int
-object_projectile_hit (object *op, object *victim)
-{
+int object_projectile_hit(object *op, object *victim) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->projectile_hit_func != NULL) {
             return methods->projectile_hit_func(op, victim);
@@ -403,17 +339,14 @@ object_projectile_hit (object *op, object *victim)
 }
 
 /** @copydoc object_methods_t::projectile_stop_func */
-object *
-object_projectile_stop (object *op, int reason)
-{
+object *object_projectile_stop(object *op, int reason) {
     HARD_ASSERT(op != NULL);
 
     if (trigger_event(EVENT_STOP, NULL, op, NULL, NULL, 0, 0, 0, 0) != 0) {
         return op;
     }
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->projectile_stop_func != NULL) {
             return methods->projectile_stop_func(op, reason);
@@ -424,18 +357,13 @@ object_projectile_stop (object *op, int reason)
 }
 
 /** @copydoc object_methods_t::ranged_fire_func */
-int
-object_ranged_fire (object *op, object *shooter, int dir, double *delay)
-{
+int object_ranged_fire(object *op, object *shooter, int dir, double *delay) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(shooter != NULL);
 
     /* No direction, try to get a direction to the player's target, if any. */
-    if (dir == 0 &&
-        op->type == BOW &&
-        shooter->type == PLAYER &&
-        OBJECT_VALID(CONTR(shooter)->target_object,
-                     CONTR(shooter)->target_object_count)) {
+    if (dir == 0 && op->type == BOW && shooter->type == PLAYER &&
+        OBJECT_VALID(CONTR(shooter)->target_object, CONTR(shooter)->target_object_count)) {
         dir = object_dir_to_target(shooter, CONTR(shooter)->target_object);
     }
 
@@ -454,8 +382,7 @@ object_ranged_fire (object *op, object *shooter, int dir, double *delay)
 
     shooter->direction = dir;
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->ranged_fire_func != NULL) {
             return methods->ranged_fire_func(op, shooter, dir, delay);
@@ -466,9 +393,7 @@ object_ranged_fire (object *op, object *shooter, int dir, double *delay)
 }
 
 /** @copydoc object_methods_t::auto_apply_func */
-void
-object_auto_apply (object *op)
-{
+void object_auto_apply(object *op) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(QUERY_FLAG(op, FLAG_AUTO_APPLY));
 
@@ -482,8 +407,7 @@ object_auto_apply (object *op)
         return;
     }
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->auto_apply_func != NULL) {
             methods->auto_apply_func(op);
@@ -491,24 +415,18 @@ object_auto_apply (object *op)
         }
     }
 
-    log_error("Object with auto_apply flag was not handled: %s",
-              object_get_str(op));
+    log_error("Object with auto_apply flag was not handled: %s", object_get_str(op));
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-int
-object_process_treasure (object              *op,
-                         object             **ret,
-                         int                  difficulty,
-                         treasure_affinity_t *affinity,
-                         int                  flags)
-{
+int object_process_treasure(object *op,
+                            object **ret,
+                            int difficulty,
+                            treasure_affinity_t *affinity,
+                            int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(ret != NULL);
-    SOFT_ASSERT_RC(difficulty > 0,
-                   OBJECT_METHOD_UNHANDLED,
-                   "Invalid difficulty: %d",
-                   difficulty);
+    SOFT_ASSERT_RC(difficulty > 0, OBJECT_METHOD_UNHANDLED, "Invalid difficulty: %d", difficulty);
 
     if (op->arch == NULL) {
         log_error("Object has no arch: %s", object_get_str(op));
@@ -519,15 +437,10 @@ object_process_treasure (object              *op,
 
     *ret = op;
 
-    for (object_methods_t *methods = &object_type_methods[op->type];
-         methods != NULL;
+    for (object_methods_t *methods = &object_type_methods[op->type]; methods != NULL;
          methods = methods->fallback) {
         if (methods->process_treasure_func != NULL) {
-            return methods->process_treasure_func(op,
-                                                  ret,
-                                                  difficulty,
-                                                  affinity,
-                                                  flags);
+            return methods->process_treasure_func(op, ret, difficulty, affinity, flags);
         }
     }
 

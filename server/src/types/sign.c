@@ -38,9 +38,7 @@
 #include <check_inv.h>
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -50,9 +48,7 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     shstr *notification_msg = object_get_value(op, "notification_message");
-    if (op->msg == NULL &&
-        op->title == NULL &&
-        notification_msg == NULL &&
+    if (op->msg == NULL && op->title == NULL && notification_msg == NULL &&
         !HAS_EVENT(op, EVENT_SAY)) {
         draw_info(COLOR_WHITE, applier, "Nothing is written on it.");
         return OBJECT_METHOD_OK;
@@ -78,11 +74,9 @@ apply_func (object *op, object *applier, int aflags)
     if (op->slaying != NULL || op->stats.hp != 0 || op->race != NULL) {
         object *match = check_inv(op, applier);
 
-        if ((match != NULL && op->last_sp != 0) ||
-            (match == NULL && op->last_sp == 0)) {
+        if ((match != NULL && op->last_sp != 0) || (match == NULL && op->last_sp == 0)) {
             if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
-                draw_info(COLOR_WHITE, applier,
-                          "You are unable to decipher the strange symbols.");
+                draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
             }
 
             return OBJECT_METHOD_OK;
@@ -104,13 +98,7 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (op->title != NULL) {
-        play_sound_player_only(CONTR(applier),
-                               CMD_SOUND_EFFECT,
-                               op->title,
-                               0,
-                               0,
-                               0,
-                               0);
+        play_sound_player_only(CONTR(applier), CMD_SOUND_EFFECT, op->title, 0, 0, 0, 0);
     }
 
     if (op->msg != NULL) {
@@ -119,12 +107,9 @@ apply_func (object *op, object *applier, int aflags)
 
     /* Add notification message, if any. */
     if (notification_msg != NULL) {
-        shstr *notification_action =
-            object_get_value(op, "notification_action");
-        shstr *notification_shortcut =
-            object_get_value(op, "notification_shortcut");
-        shstr *notification_delay =
-            object_get_value(op, "notification_delay");
+        shstr *notification_action = object_get_value(op, "notification_action");
+        shstr *notification_shortcut = object_get_value(op, "notification_shortcut");
+        shstr *notification_delay = object_get_value(op, "notification_delay");
 
         packet_struct *packet = packet_new(CLIENT_CMD_NOTIFICATION, 256, 512);
 
@@ -161,9 +146,7 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -171,9 +154,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -199,13 +180,7 @@ trigger_func (object *op, object *cause, int state)
     }
 
     if (op->title != NULL) {
-        play_sound_map(op->map,
-                       CMD_SOUND_EFFECT,
-                       op->title,
-                       op->x,
-                       op->y,
-                       0,
-                       0);
+        play_sound_map(op->map, CMD_SOUND_EFFECT, op->title, op->x, op->y, 0, 0);
     }
 
     if (op->msg != NULL) {
@@ -227,8 +202,7 @@ trigger_func (object *op, object *cause, int state)
 /**
  * Initialize the sign type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(sign)
-{
+OBJECT_TYPE_INIT_DEFINE(sign) {
     OBJECT_METHODS(SIGN)->apply_func = apply_func;
     OBJECT_METHODS(SIGN)->move_on_func = move_on_func;
     OBJECT_METHODS(SIGN)->trigger_func = trigger_func;

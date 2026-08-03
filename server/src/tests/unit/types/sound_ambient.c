@@ -31,52 +31,50 @@
 #include <object.h>
 #include <sound_ambient.h>
 
-START_TEST(test_sound_ambient_match_parse)
-{
+START_TEST(test_sound_ambient_match_parse) {
     object *ob;
-    const char *match[] = {
-        "hour == 1",
-        "hour > 1",
-        "hour < 1",
-        "hour >= 1",
-        "hour <= 1",
+    const char *match[] = {"hour == 1",
+                           "hour > 1",
+                           "hour < 1",
+                           "hour >= 1",
+                           "hour <= 1",
 
-        "minute == 5",
-        "minute > 5",
-        "minute < 5",
-        "minute >= 5",
-        "minute <= 5",
+                           "minute == 5",
+                           "minute > 5",
+                           "minute < 5",
+                           "minute >= 5",
+                           "minute <= 5",
 
-        "hour + 5 == 1",
-        "hour - 5 > 1",
-        "hour * 5 < 1",
-        "hour / 5 >= 1",
-        "hour % 5 <= 1",
+                           "hour + 5 == 1",
+                           "hour - 5 > 1",
+                           "hour * 5 < 1",
+                           "hour / 5 >= 1",
+                           "hour % 5 <= 1",
 
-        "hour == 1 && minute == 5",
-        "hour > 1 && minute > 5",
-        "hour < 1 && minute < 5",
-        "hour >= 1 && minute >= 5",
-        "hour <= 1 && minute <= 5",
+                           "hour == 1 && minute == 5",
+                           "hour > 1 && minute > 5",
+                           "hour < 1 && minute < 5",
+                           "hour >= 1 && minute >= 5",
+                           "hour <= 1 && minute <= 5",
 
-        "hour == 1 || minute == 5",
-        "hour > 1 || minute > 5",
-        "hour < 1 || minute < 5",
-        "hour >= 1 || minute >= 5",
-        "hour <= 1 || minute <= 5",
+                           "hour == 1 || minute == 5",
+                           "hour > 1 || minute > 5",
+                           "hour < 1 || minute < 5",
+                           "hour >= 1 || minute >= 5",
+                           "hour <= 1 || minute <= 5",
 
-        "(hour == 1 || minute == 5)",
-        "((hour == 1 || minute == 5))",
-        "(hour == 1 || (minute == 5))",
-        "((hour == 1) || minute == 5)",
-        "((hour == 1) || (minute == 5))",
-        "(hour == 1) || (minute == 5)",
+                           "(hour == 1 || minute == 5)",
+                           "((hour == 1 || minute == 5))",
+                           "(hour == 1 || (minute == 5))",
+                           "((hour == 1) || minute == 5)",
+                           "((hour == 1) || (minute == 5))",
+                           "(hour == 1) || (minute == 5)",
 
-        "hour < 10 && ((minute > 5 && hour < 1) || "
-                "(minute < 10 && minute > 10)) && hour > 1",
-        "(minute > 5 || minute < 10) && hour < 10 && hour > 1",
+                           "hour < 10 && ((minute > 5 && hour < 1) || "
+                           "(minute < 10 && minute > 10)) && hour > 1",
+                           "(minute > 5 || minute < 10) && hour < 10 && hour > 1",
 
-        NULL};
+                           NULL};
     size_t i;
 
     ob = arch_get("sound_ambient");
@@ -92,8 +90,7 @@ START_TEST(test_sound_ambient_match_parse)
 
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("sound_ambient");
     TCase *tc_core = tcase_create("Core");
 
@@ -106,7 +103,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_types_sound_ambient(void)
-{
+void check_types_sound_ambient(void) {
     check_run_suite(suite(), __FILE__);
 }

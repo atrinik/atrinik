@@ -38,8 +38,7 @@
  * @return
  * The random direction.
  */
-int get_random_dir(void)
-{
+int get_random_dir(void) {
     return rndm(1, 8);
 }
 
@@ -50,8 +49,7 @@ int get_random_dir(void)
  * @return
  * The randomized direction.
  */
-int get_randomized_dir(int dir)
-{
+int get_randomized_dir(int dir) {
     return absdir(dir + rndm(0, 2) + rndm(0, 2) - 2);
 }
 
@@ -74,20 +72,16 @@ int get_randomized_dir(int dir)
  * @return
  * 1 on success, 0 on failure.
  */
-int object_move_to(object *op, int dir, object *originator, mapstruct *m,
-        int x, int y)
-{
+int object_move_to(object *op, int dir, object *originator, mapstruct *m, int x, int y) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(originator != NULL);
     HARD_ASSERT(m != NULL);
 
-    SOFT_ASSERT_RC(dir > 0 && dir <= NUM_DIRECTION, 0, "Invalid direction: %d",
-            dir);
+    SOFT_ASSERT_RC(dir > 0 && dir <= NUM_DIRECTION, 0, "Invalid direction: %d", dir);
     SOFT_ASSERT_RC(x >= 0 && x < m->width, 0, "Invalid X coordinate: %d", x);
     SOFT_ASSERT_RC(y >= 0 && y < m->height, 0, "Invalid Y coordinate: %d", y);
 
-    object *floor =
-            GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
+    object *floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
     int z = floor != NULL ? floor->z : 0;
     int z_highest = 0, sub_layer = 0;
     object *floor_tmp;
@@ -101,7 +95,8 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
             z_highest = floor_tmp->z;
             sub_layer = floor_tmp->sub_layer;
         }
-    } FOR_MAP_LAYER_END
+    }
+    FOR_MAP_LAYER_END
 
     object_remove(op, 0);
 
@@ -116,8 +111,7 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
 
     if (op->map == m && op->x == x && op->y == y) {
         floor = GET_MAP_OB_LAYER(m, x, y, LAYER_FLOOR, sub_layer);
-        int fall_floors = (int) ((z - (floor != NULL ? floor->z : 0)) / 50.0 +
-                0.5);
+        int fall_floors = (int)((z - (floor != NULL ? floor->z : 0)) / 50.0 + 0.5);
 
         if (fall_floors > 0 && IS_LIVE(op)) {
             OBJ_DESTROYED_BEGIN(op) {
@@ -126,7 +120,8 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
                 if (OBJ_DESTROYED(op)) {
                     return 1;
                 }
-            } OBJ_DESTROYED_END();
+            }
+            OBJ_DESTROYED_END();
         }
     }
 
@@ -152,12 +147,14 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
  * that might allow us to move there (door opening for example), direction
  * number that the object ended up moving in otherwise.
  */
-int move_ob(object *op, int dir, object *originator)
-{
+int move_ob(object *op, int dir, object *originator) {
     HARD_ASSERT(op != NULL);
 
-    SOFT_ASSERT_RC(!QUERY_FLAG(op, FLAG_REMOVED), 0, "Trying to move a removed "
-            "object: %s", object_get_str(op));
+    SOFT_ASSERT_RC(!QUERY_FLAG(op, FLAG_REMOVED),
+                   0,
+                   "Trying to move a removed "
+                   "object: %s",
+                   object_get_str(op));
 
     op = HEAD(op);
 
@@ -234,12 +231,12 @@ int move_ob(object *op, int dir, object *originator)
  * @return
  * 1 if the object was destroyed, 0 otherwise.
  */
-int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap)
-{
+int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap) {
     int i, ret;
 
     if (trap != NULL && EXIT_PATH(trap)) {
-        if (op->type == PLAYER && trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) && strncmp(EXIT_PATH(trap), "/random/", 8)) {
+        if (op->type == PLAYER && trap->msg && strncmp(EXIT_PATH(trap), "/!", 2) &&
+            strncmp(EXIT_PATH(trap), "/random/", 8)) {
             draw_info(COLOR_NAVY, op, trap->msg);
         }
 
@@ -281,8 +278,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
  * @return
  * 0 if the object couldn't be pushed, 1 otherwise.
  */
-int push_ob(object *op, int dir, object *pusher)
-{
+int push_ob(object *op, int dir, object *pusher) {
     object *tmp, *floor_ob;
     mapstruct *m;
     int x, y;
@@ -293,7 +289,8 @@ int push_ob(object *op, int dir, object *pusher)
     }
 
     /* Check whether we are strong enough to push this object. */
-    if (op->weight && (op->weight / 50000 - 1 > 0 ? rndm(0, op->weight / 50000 - 1) : 0) > pusher->stats.Str) {
+    if (op->weight &&
+        (op->weight / 50000 - 1 > 0 ? rndm(0, op->weight / 50000 - 1) : 0) > pusher->stats.Str) {
         return 0;
     }
 

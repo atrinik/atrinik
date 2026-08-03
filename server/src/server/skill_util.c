@@ -39,45 +39,27 @@
 #include <exp.h>
 
 /** Table for stat modification of exp */
-float stat_exp_mult[MAX_STAT + 1] = {
-    0.0f,   0.01f,  0.1f,   0.3f,   0.5f,
-    0.6f,   0.7f,   0.8f,   0.85f,  0.9f,
-    0.95f,  0.96f,  0.97f,  0.98f,  0.99f,
-    1.0f,   1.01f,  1.02f,  1.03f,  1.04f,
-    1.05f,  1.07f,  1.09f,  1.12f,  1.15f,
-    1.2f,   1.3f,   1.4f,   1.5f,   1.7f,
-    2.0f
-};
+float stat_exp_mult[MAX_STAT + 1] = {0.0f,  0.01f, 0.1f,  0.3f,  0.5f,  0.6f,  0.7f,  0.8f,
+                                     0.85f, 0.9f,  0.95f, 0.96f, 0.97f, 0.98f, 0.99f, 1.0f,
+                                     1.01f, 1.02f, 1.03f, 1.04f, 1.05f, 1.07f, 1.09f, 1.12f,
+                                     1.15f, 1.2f,  1.3f,  1.4f,  1.5f,  1.7f,  2.0f};
 
 /**
  * Used for calculating experience gained in calc_skill_exp().
  */
 static float lev_exp[MAXLEVEL + 1] = {
-    0.0f,     1.0f,     1.11f,    1.75f,    3.2f,
-    5.5f,     10.0f,    20.0f,    35.25f,   66.1f,
-    137.0f,   231.58f,  240.00f,  247.62f,  254.55f,
-    260.87f,  266.67f,  272.00f,  276.92f,  281.48f,
-    285.71f,  289.66f,  293.33f,  296.77f,  300.00f,
-    303.03f,  305.88f,  308.57f,  311.11f,  313.51f,
-    315.79f,  317.95f,  320.00f,  321.95f,  323.81f,
-    325.58f,  327.27f,  328.89f,  330.43f,  331.91f,
-    333.33f,  334.69f,  336.00f,  337.25f,  338.46f,
-    339.62f,  340.74f,  341.82f,  342.86f,  343.86f,
-    344.83f,  345.76f,  346.67f,  347.54f,  348.39f,
-    349.21f,  350.00f,  350.77f,  351.52f,  352.24f,
-    352.94f,  353.62f,  354.29f,  354.93f,  355.56f,
-    356.16f,  356.76f,  357.33f,  357.89f,  358.44f,
-    358.97f,  359.49f,  360.00f,  360.49f,  360.98f,
-    361.45f,  361.90f,  362.35f,  362.79f,  365.22f,
-    367.64f,  369.04f,  373.44f,  378.84f,  384.22f,
-    389.59f,  395.96f,  402.32f,  410.67f,  419.01f,
-    429.35f,  440.68f,  452.00f,  465.32f,  479.63f,
-    494.93f,  510.23f,  527.52f,  545.81f,  562.09f,
-    580.37f,  599.64f,  619.91f,  640.17f,  662.43f,
-    685.68f,  709.93f,  773.17f,  852.41f,  932.65f,
-    1013.88f, 1104.11f, 1213.35f, 1324.60f, 1431.86f,
-    1542.13f
-};
+    0.0f,     1.0f,     1.11f,    1.75f,    3.2f,     5.5f,    10.0f,   20.0f,   35.25f,  66.1f,
+    137.0f,   231.58f,  240.00f,  247.62f,  254.55f,  260.87f, 266.67f, 272.00f, 276.92f, 281.48f,
+    285.71f,  289.66f,  293.33f,  296.77f,  300.00f,  303.03f, 305.88f, 308.57f, 311.11f, 313.51f,
+    315.79f,  317.95f,  320.00f,  321.95f,  323.81f,  325.58f, 327.27f, 328.89f, 330.43f, 331.91f,
+    333.33f,  334.69f,  336.00f,  337.25f,  338.46f,  339.62f, 340.74f, 341.82f, 342.86f, 343.86f,
+    344.83f,  345.76f,  346.67f,  347.54f,  348.39f,  349.21f, 350.00f, 350.77f, 351.52f, 352.24f,
+    352.94f,  353.62f,  354.29f,  354.93f,  355.56f,  356.16f, 356.76f, 357.33f, 357.89f, 358.44f,
+    358.97f,  359.49f,  360.00f,  360.49f,  360.98f,  361.45f, 361.90f, 362.35f, 362.79f, 365.22f,
+    367.64f,  369.04f,  373.44f,  378.84f,  384.22f,  389.59f, 395.96f, 402.32f, 410.67f, 419.01f,
+    429.35f,  440.68f,  452.00f,  465.32f,  479.63f,  494.93f, 510.23f, 527.52f, 545.81f, 562.09f,
+    580.37f,  599.64f,  619.91f,  640.17f,  662.43f,  685.68f, 709.93f, 773.17f, 852.41f, 932.65f,
+    1013.88f, 1104.11f, 1213.35f, 1324.60f, 1431.86f, 1542.13f};
 
 static int do_skill_attack(object *tmp, object *op, char *string);
 
@@ -96,8 +78,7 @@ static int do_skill_attack(object *tmp, object *op, char *string);
  * @return
  * 0 on failure of using the skill, non-zero otherwise.
  */
-int64_t do_skill(object *op, int dir, const char *params)
-{
+int64_t do_skill(object *op, int dir, const char *params) {
     int64_t success = 0;
     int skill = op->chosen_skill->stats.sp;
 
@@ -112,25 +93,25 @@ int64_t do_skill(object *op, int dir, const char *params)
     }
 
     switch (skill) {
-    case SK_FIND_TRAPS:
-        find_traps(op, op->level);
-        break;
+        case SK_FIND_TRAPS:
+            find_traps(op, op->level);
+            break;
 
-    case SK_REMOVE_TRAPS:
-        remove_trap(op);
-        break;
+        case SK_REMOVE_TRAPS:
+            remove_trap(op);
+            break;
 
-    case SK_CONSTRUCTION:
-        construction_do(op, dir);
-        return success;
+        case SK_CONSTRUCTION:
+            construction_do(op, dir);
+            return success;
 
-    case SK_INSCRIPTION:
-        success = skill_inscription(op, params);
-        break;
+        case SK_INSCRIPTION:
+            success = skill_inscription(op, params);
+            break;
 
-    default:
-        draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
-        return 0;
+        default:
+            draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
+            return 0;
     }
 
     /* This is a good place to add experience for successfull use of skills.
@@ -155,12 +136,14 @@ int64_t do_skill(object *op, int dir, const char *params)
  * @return
  * Experience for the skill use.
  */
-int64_t calc_skill_exp(object *who, object *op, int level)
-{
+int64_t calc_skill_exp(object *who, object *op, int level) {
     HARD_ASSERT(who != NULL);
 
-    SOFT_ASSERT_RC(who->type == PLAYER, 0, "Called with non-player: %s, op: %s",
-            object_get_str(who), object_get_str(op));
+    SOFT_ASSERT_RC(who->type == PLAYER,
+                   0,
+                   "Called with non-player: %s, op: %s",
+                   object_get_str(who),
+                   object_get_str(op));
 
     int who_lvl = level;
     if (who_lvl == -1) {
@@ -202,12 +185,11 @@ int64_t calc_skill_exp(object *who, object *op, int level)
 
     /* We first get a global level difference multiplier */
     float exp_mul = calc_level_difference(who_lvl, op_lvl);
-    op_exp = (int64_t) ((float) op_exp * lev_exp[op_lvl] * exp_mul);
-    float tmp = ((float) (new_levels[who_lvl + 1] - new_levels[who_lvl]) *
-            0.1f) * max_mul;
+    op_exp = (int64_t)((float)op_exp * lev_exp[op_lvl] * exp_mul);
+    float tmp = ((float)(new_levels[who_lvl + 1] - new_levels[who_lvl]) * 0.1f) * max_mul;
 
-    if ((float) op_exp > tmp) {
-        op_exp = (int64_t) tmp;
+    if ((float)op_exp > tmp) {
+        op_exp = (int64_t)tmp;
     }
 
     return op_exp;
@@ -216,8 +198,7 @@ int64_t calc_skill_exp(object *who, object *op, int level)
 /**
  * Initialize the experience system.
  */
-void init_new_exp_system(void)
-{
+void init_new_exp_system(void) {
     int i;
     archetype_t *at;
     char buf[MAX_BUF];
@@ -249,8 +230,7 @@ void init_new_exp_system(void)
  * @return
  * 1 on success, 0 on failure.
  */
-int check_skill_to_fire(object *op, object *weapon)
-{
+int check_skill_to_fire(object *op, object *weapon) {
     int skillnr;
 
     skillnr = -1;
@@ -284,8 +264,7 @@ int check_skill_to_fire(object *op, object *weapon)
  * @param pl
  * Player.
  */
-void link_player_skills(object *pl)
-{
+void link_player_skills(object *pl) {
     bool fix;
     int i;
     object *tmp;
@@ -309,7 +288,7 @@ void link_player_skills(object *pl)
         if (!QUERY_FLAG(CONTR(pl)->skill_ptr[i], FLAG_STAND_STILL)) {
             pl->stats.exp += CONTR(pl)->skill_ptr[i]->stats.exp;
 
-            if (pl->stats.exp >= (int64_t) MAX_EXPERIENCE) {
+            if (pl->stats.exp >= (int64_t)MAX_EXPERIENCE) {
                 pl->stats.exp = MAX_EXPERIENCE;
             }
         }
@@ -337,8 +316,7 @@ void link_player_skills(object *pl)
  * @return
  * 0 on failure, 1 on success.
  */
-int change_skill(object *who, int sk_index)
-{
+int change_skill(object *who, int sk_index) {
     if (who->type != PLAYER) {
         return 0;
     }
@@ -374,8 +352,7 @@ int change_skill(object *who, int sk_index)
  * @return
  * 1 if the attack damaged the opponent.
  */
-int skill_attack(object *tmp, object *pl, int dir, char *string)
-{
+int skill_attack(object *tmp, object *pl, int dir, char *string) {
     int xt, yt;
     mapstruct *m;
 
@@ -394,7 +371,9 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
         }
 
         for (tmp = GET_MAP_OB(m, xt, yt); tmp; tmp = tmp->above) {
-            if ((IS_LIVE(tmp) && (tmp->head == NULL ? tmp->stats.hp > 0 : tmp->head->stats.hp > 0)) || QUERY_FLAG(tmp, FLAG_CAN_ROLL) || tmp->type == DOOR) {
+            if ((IS_LIVE(tmp) &&
+                 (tmp->head == NULL ? tmp->stats.hp > 0 : tmp->head->stats.hp > 0)) ||
+                QUERY_FLAG(tmp, FLAG_CAN_ROLL) || tmp->type == DOOR) {
                 if (pl->type == PLAYER && tmp->type == PLAYER && !pvp_area(pl, tmp)) {
                     continue;
                 }
@@ -429,13 +408,15 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
  * @return
  * 1 if the attack damaged the opponent.
  */
-static int do_skill_attack(object *tmp, object *op, char *string)
-{
+static int do_skill_attack(object *tmp, object *op, char *string) {
     int success;
 
     if (op->type == PLAYER) {
-        if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill) {
-            op->chosen_skill = CONTR(op)->skill_ptr[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1];
+        if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] &&
+            CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON &&
+            CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill) {
+            op->chosen_skill =
+                CONTR(op)->skill_ptr[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1];
         } else {
             op->chosen_skill = CONTR(op)->skill_ptr[SK_UNARMED];
         }
@@ -467,8 +448,7 @@ static int do_skill_attack(object *tmp, object *op, char *string)
  * The level of the chosen skill, level of the player if no
  * chosen skill.
  */
-int SK_level(object *op)
-{
+int SK_level(object *op) {
     object *head = op->head ? op->head : op;
     int level;
 
@@ -493,8 +473,7 @@ int SK_level(object *op)
  * @return
  * Chosen skill object, NULL if no chosen skill.
  */
-object *SK_skill(object *op)
-{
+object *SK_skill(object *op) {
     object *head = op->head ? op->head : op;
 
     if (head->type == PLAYER && head->chosen_skill) {

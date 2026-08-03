@@ -53,8 +53,7 @@ static char command_buf[HUGE_BUF];
 /**
  * Free a help file structure.
  */
-static void hfile_free(hfile_struct *hfile)
-{
+static void hfile_free(hfile_struct *hfile) {
     efree(hfile->key);
 
     if (hfile->msg != NULL) {
@@ -67,12 +66,10 @@ static void hfile_free(hfile_struct *hfile)
 /**
  * Frees the ::hfiles hashtable.
  */
-void hfiles_deinit(void)
-{
+void hfiles_deinit(void) {
     hfile_struct *hfile, *tmp;
 
-    HASH_ITER(hh, hfiles, hfile, tmp)
-    {
+    HASH_ITER(hh, hfiles, hfile, tmp) {
         HASH_DEL(hfiles, hfile);
         hfile_free(hfile);
     }
@@ -86,8 +83,7 @@ void hfiles_deinit(void)
 /**
  * Read help files from file.
  */
-void hfiles_init(void)
-{
+void hfiles_init(void) {
     FILE *fp;
     char buf[HUGE_BUF], *key, *value, *end;
     hfile_struct *hfile;
@@ -137,8 +133,7 @@ void hfiles_init(void)
                 hfile = ecalloc(1, sizeof(*hfile));
                 hfile->key = estrdup(value);
             } else {
-                LOG(DEVEL, "Unrecognised line: %s %s", buf,
-                        value ? value : "");
+                LOG(DEVEL, "Unrecognised line: %s %s", buf, value ? value : "");
             }
         } else if (value == NULL) {
             if (strcmp(key, "msg") == 0) {
@@ -163,12 +158,10 @@ void hfiles_init(void)
                     hfile->msg_len = strlen(hfile->msg);
                 }
 
-                HASH_ADD_KEYPTR(hh, hfiles, hfile->key, strlen(hfile->key),
-                        hfile);
+                HASH_ADD_KEYPTR(hh, hfiles, hfile->key, strlen(hfile->key), hfile);
                 hfile = NULL;
             } else {
-                LOG(DEVEL, "Unrecognised line: %s %s", buf,
-                        value ? value : "");
+                LOG(DEVEL, "Unrecognised line: %s %s", buf, value ? value : "");
             }
         } else if (strcmp(key, "autocomplete") == 0) {
             hfile->autocomplete = atoi(value);
@@ -179,8 +172,7 @@ void hfiles_init(void)
             stringbuffer_append_printf(sb, "[book]%s[/book]", value);
             hfile->msg = stringbuffer_finish(sb);
         } else {
-            LOG(DEVEL, "Unrecognised line: %s %s", buf,
-                    value ? value : "");
+            LOG(DEVEL, "Unrecognised line: %s %s", buf, value ? value : "");
         }
     }
 
@@ -202,8 +194,7 @@ void hfiles_init(void)
  * @return
  * Help file if found, NULL otherwise.
  */
-hfile_struct *help_find(const char *name)
-{
+hfile_struct *help_find(const char *name) {
     hfile_struct *hfile;
 
     HASH_FIND_STR(hfiles, name, hfile);
@@ -216,8 +207,7 @@ hfile_struct *help_find(const char *name)
  * @param name
  * Name of the help file entry to show.
  */
-void help_show(const char *name)
-{
+void help_show(const char *name) {
     hfile_struct *hfile;
 
     hfile = help_find(name);
@@ -226,9 +216,10 @@ void help_show(const char *name)
     if (hfile == NULL) {
         char buf[HUGE_BUF];
 
-        snprintf(VS(buf), "[book]Help not found[/book][title]\n[center]The "
-                "specified help file could not be found.[/center]"
-                "[/title]");
+        snprintf(VS(buf),
+                 "[book]Help not found[/book][title]\n[center]The "
+                 "specified help file could not be found.[/center]"
+                 "[/title]");
         book_load(buf, strlen(buf));
     } else {
         book_load(hfile->msg, hfile->msg_len);
@@ -238,16 +229,14 @@ void help_show(const char *name)
 /**
  * Comparison function used in help_handle_tabulator().
  */
-static int command_match_cmp(const void *a, const void *b)
-{
-    return strcmp(*(char * const *) a, *(char * const *) b);
+static int command_match_cmp(const void *a, const void *b) {
+    return strcmp(*(char *const *)a, *(char *const *)b);
 }
 
 /**
  * Handle tabulator key in console text input.
  */
-void help_handle_tabulator(text_input_struct *text_input)
-{
+void help_handle_tabulator(text_input_struct *text_input) {
     size_t len;
     char buf[sizeof(text_input->str)], *space;
 
@@ -269,13 +258,10 @@ void help_handle_tabulator(text_input_struct *text_input)
 
         utarray_clear(command_matches);
 
-        HASH_ITER(hh, hfiles, hfile, tmp)
-        {
+        HASH_ITER(hh, hfiles, hfile, tmp) {
             if ((hfile->autocomplete ||
-                    (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
-                    hfile->autocomplete_wiz)
-                    ) && strncasecmp(hfile->key, text_input->str + 1,
-                    text_input->num - 1) == 0) {
+                 (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && hfile->autocomplete_wiz)) &&
+                strncasecmp(hfile->key, text_input->str + 1, text_input->num - 1) == 0) {
 
                 utarray_push_back(command_matches, &hfile->key);
             }
@@ -293,8 +279,7 @@ void help_handle_tabulator(text_input_struct *text_input)
         return;
     }
 
-    snprintf(VS(buf), "/%s ", *((char **) utarray_eltptr(command_matches,
-            command_index)));
+    snprintf(VS(buf), "/%s ", *((char **)utarray_eltptr(command_matches, command_index)));
     text_input_set(text_input, buf);
     snprintf(VS(command_buf), "%s", buf);
 

@@ -40,12 +40,10 @@
  * @return
  * The price of the item.
  */
-int64_t shop_get_cost(object *op, int mode)
-{
+int64_t shop_get_cost(object *op, int mode) {
     HARD_ASSERT(op != NULL);
 
-    SOFT_ASSERT_RC(op->arch != NULL, 0, "Object has no archetype: %s",
-            object_get_str(op));
+    SOFT_ASSERT_RC(op->arch != NULL, 0, "Object has no archetype: %s", object_get_str(op));
 
     uint32_t nrof = MAX(1, op->nrof);
     /* Money is always identified */
@@ -66,13 +64,11 @@ int64_t shop_get_cost(object *op, int mode)
     } else {
         /* This area deals with objects that are not identified, but can be. */
         if (mode == COST_BUY) {
-            log_error("Asking for buy value of unidentified object: %s",
-                    object_get_str(op));
+            log_error("Asking for buy value of unidentified object: %s", object_get_str(op));
             val = op->arch->clone.value * nrof;
         } else {
             /* Trying to sell something, or get true value. */
-            if (op->type == GEM || op->type == JEWEL || op->type == NUGGET ||
-                    op->type == PEARL) {
+            if (op->type == GEM || op->type == JEWEL || op->type == NUGGET || op->type == PEARL) {
                 val = 3 * nrof;
             } else if (op->type == POTION) {
                 val = 50 * nrof;
@@ -129,7 +125,7 @@ int64_t shop_get_cost(object *op, int mode)
         diff = 0.20;
     }
 
-    val = (int64_t) (val * diff);
+    val = (int64_t)(val * diff);
     if (val < 1 && op->value > 0) {
         val = 1;
     }
@@ -147,8 +143,7 @@ int64_t shop_get_cost(object *op, int mode)
  * @return
  * Coin archetype, NULL if none found.
  */
-static archetype_t *shop_get_next_coin(int64_t cost, int *cointype)
-{
+static archetype_t *shop_get_next_coin(int64_t cost, int *cointype) {
     archetype_t *coin;
 
     do {
@@ -175,8 +170,7 @@ static archetype_t *shop_get_next_coin(int64_t cost, int *cointype)
  * Static buffer containing the price. Will be overwritten with the next
  * call to this function.
  */
-const char *shop_get_cost_string(int64_t cost)
-{
+const char *shop_get_cost_string(int64_t cost) {
     static char buf[MAX_BUF];
 
     int cointype = 0;
@@ -188,9 +182,12 @@ const char *shop_get_cost_string(int64_t cost)
     int64_t num = cost / coin->clone.value;
     cost -= num * coin->clone.value;
 
-    snprintf(VS(buf), "%" PRId64 " %s%s%s", num,
-            materials_real[coin->clone.material_real].name,
-            coin->clone.name, num == 1 ? "" : "s");
+    snprintf(VS(buf),
+             "%" PRId64 " %s%s%s",
+             num,
+             materials_real[coin->clone.material_real].name,
+             coin->clone.name,
+             num == 1 ? "" : "s");
 
     archetype_t *next_coin = shop_get_next_coin(cost, &cointype);
     if (next_coin == NULL) {
@@ -216,9 +213,12 @@ const char *shop_get_cost_string(int64_t cost)
             snprintfcat(VS(buf), " and ");
         }
 
-        snprintfcat(VS(buf), "%" PRId64 " %s%s%s", num,
-                materials_real[coin->clone.material_real].name,
-                coin->clone.name, num == 1 ? "" : "s");
+        snprintfcat(VS(buf),
+                    "%" PRId64 " %s%s%s",
+                    num,
+                    materials_real[coin->clone.material_real].name,
+                    coin->clone.name,
+                    num == 1 ? "" : "s");
     } while (next_coin != NULL);
 
     return buf;
@@ -235,8 +235,7 @@ const char *shop_get_cost_string(int64_t cost)
  * @return
  * The cost string.
  */
-const char *shop_get_cost_string_item(object *op, int mode)
-{
+const char *shop_get_cost_string_item(object *op, int mode) {
     return shop_get_cost_string(shop_get_cost(op, mode));
 }
 
@@ -248,25 +247,27 @@ const char *shop_get_cost_string_item(object *op, int mode)
  * @return
  * Total money the player is carrying.
  */
-int64_t shop_get_money(object *op)
-{
+int64_t shop_get_money(object *op) {
     HARD_ASSERT(op != NULL);
 
-    SOFT_ASSERT_RC(op->type == PLAYER || op->type == CONTAINER, 0,
-            "Called with invalid object type: %s", object_get_str(op));
+    SOFT_ASSERT_RC(op->type == PLAYER || op->type == CONTAINER,
+                   0,
+                   "Called with invalid object type: %s",
+                   object_get_str(op));
 
     int64_t total = 0;
     FOR_INV_PREPARE(op, tmp) {
         if (tmp->type == MONEY) {
             total += tmp->nrof * tmp->value;
-        } else if (tmp->type == CONTAINER && (QUERY_FLAG(tmp, FLAG_APPLIED) ||
-                tmp->race == NULL || strstr(tmp->race, "gold") != NULL)) {
+        } else if (tmp->type == CONTAINER && (QUERY_FLAG(tmp, FLAG_APPLIED) || tmp->race == NULL ||
+                                              strstr(tmp->race, "gold") != NULL)) {
             total += shop_get_money(tmp);
         } else if (tmp->arch->name == shstr_cons.player_info &&
-                tmp->name == shstr_cons.BANK_GENERAL) {
+                   tmp->name == shstr_cons.BANK_GENERAL) {
             total += tmp->value;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return total;
 }
@@ -281,8 +282,7 @@ int64_t shop_get_money(object *op)
  * @return
  * Amount still left to pay.
  */
-static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
-{
+static int64_t shop_pay_inventory(object *obj, int64_t to_pay) {
     int64_t remain = to_pay;
 
     object *coins_objects[NUM_COINS];
@@ -300,15 +300,15 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
         bool found = false;
         for (int i = 0; i < NUM_COINS; i++) {
             if (strcmp(coins[NUM_COINS - 1 - i], tmp->arch->name) != 0 ||
-                    tmp->value != tmp->arch->clone.value) {
+                tmp->value != tmp->arch->clone.value) {
                 continue;
             }
 
             /* This should not happen, but if it does, just merge them. */
             if (coins_objects[i] != NULL) {
                 log_error("Two money entries of %s in object: %s",
-                        coins[NUM_COINS - 1 - i],
-                        object_get_str(obj));
+                          coins[NUM_COINS - 1 - i],
+                          object_get_str(obj));
                 coins_objects[i]->nrof += tmp->nrof;
                 object_remove(tmp, 0);
                 object_destroy(tmp);
@@ -324,7 +324,8 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
         if (!found) {
             log_error("Did not find coin match for %s", tmp->arch->name);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     for (int i = 0; i < NUM_COINS; i++) {
         if (coins_objects[i] == NULL) {
@@ -332,8 +333,7 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
         }
 
         int64_t num_coins;
-        if ((int64_t) coins_objects[i]->nrof * coins_objects[i]->value >
-                remain) {
+        if ((int64_t)coins_objects[i]->nrof * coins_objects[i]->value > remain) {
             num_coins = remain / coins_objects[i]->value;
 
             if (num_coins * coins_objects[i]->value < remain) {
@@ -344,13 +344,15 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
         }
 
         if (num_coins > UINT32_MAX) {
-            LOG(ERROR, "Money overflow value->nrof: number of coins > "
-                    "UINT32_MAX (type coin %d)", i);
+            LOG(ERROR,
+                "Money overflow value->nrof: number of coins > "
+                "UINT32_MAX (type coin %d)",
+                i);
             num_coins = UINT32_MAX;
         }
 
         remain -= num_coins * coins_objects[i]->value;
-        coins_objects[i]->nrof -= (uint32_t) num_coins;
+        coins_objects[i]->nrof -= (uint32_t)num_coins;
 
         /* Now start making change.  Start at the coin value
          * below the one we just did, and work down to
@@ -363,7 +365,7 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
             }
 
             num_coins = -remain / coins_objects[count]->value;
-            coins_objects[count]->nrof += (uint32_t) num_coins;
+            coins_objects[count]->nrof += (uint32_t)num_coins;
             remain += num_coins * coins_objects[count]->value;
             count--;
         }
@@ -394,8 +396,7 @@ static int64_t shop_pay_inventory(object *obj, int64_t to_pay)
  * @return
  * Amount left to pay.
  */
-static int64_t shop_pay_amount(object *op, int64_t to_pay)
-{
+static int64_t shop_pay_amount(object *op, int64_t to_pay) {
     to_pay = shop_pay_inventory(op, to_pay);
     FOR_INV_PREPARE(op, tmp) {
         if (to_pay <= 0) {
@@ -407,10 +408,11 @@ static int64_t shop_pay_amount(object *op, int64_t to_pay)
         }
 
         if (QUERY_FLAG(tmp, FLAG_APPLIED) || tmp->race == NULL ||
-                strstr(tmp->race, "gold") != NULL) {
+            strstr(tmp->race, "gold") != NULL) {
             to_pay = shop_pay_amount(tmp, to_pay);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return to_pay;
 }
@@ -425,8 +427,7 @@ static int64_t shop_pay_amount(object *op, int64_t to_pay)
  * False if not enough money, in which case nothing is removed, true
  * if money was removed.
  */
-bool shop_pay(object *op, int64_t to_pay)
-{
+bool shop_pay(object *op, int64_t to_pay) {
     if (to_pay == 0) {
         return true;
     }
@@ -439,16 +440,24 @@ bool shop_pay(object *op, int64_t to_pay)
     if (to_pay != 0) {
         object *bank = bank_find_info(op);
         if (bank != NULL) {
-            SOFT_ASSERT_RC(bank->value >= to_pay, true, "Bank object value is "
-                    "%" PRId64 ", but object needs %" PRId64 " to finish "
-                    "payment, op: %s", bank->value, to_pay, object_get_str(op));
+            SOFT_ASSERT_RC(bank->value >= to_pay,
+                           true,
+                           "Bank object value is "
+                           "%" PRId64 ", but object needs %" PRId64 " to finish "
+                           "payment, op: %s",
+                           bank->value,
+                           to_pay,
+                           object_get_str(op));
             bank->value -= to_pay;
             to_pay = 0;
         }
     }
 
-    SOFT_ASSERT_RC(to_pay == 0, true, "Still %" PRId64 " left to pay, op: %s",
-            to_pay, object_get_str(op));
+    SOFT_ASSERT_RC(to_pay == 0,
+                   true,
+                   "Still %" PRId64 " left to pay, op: %s",
+                   to_pay,
+                   object_get_str(op));
 
     return true;
 }
@@ -462,8 +471,7 @@ bool shop_pay(object *op, int64_t to_pay)
  * @return
  * Whether the object was purchased successfully (and money removed).
  */
-bool shop_pay_item(object *op, object *item)
-{
+bool shop_pay_item(object *op, object *item) {
     return shop_pay(op, shop_get_cost(item, COST_BUY));
 }
 
@@ -476,8 +484,7 @@ bool shop_pay_item(object *op, object *item)
  * @return
  * True if everything has been paid for, false otherwise.
  */
-static bool shop_pay_items_rec(object *op, object *where)
-{
+static bool shop_pay_items_rec(object *op, object *where) {
     FOR_INV_PREPARE(where, tmp) {
         if (tmp->inv != NULL) {
             if (!shop_pay_items_rec(op, tmp)) {
@@ -493,8 +500,11 @@ static bool shop_pay_items_rec(object *op, object *where)
             CLEAR_FLAG(tmp, FLAG_UNPAID);
             int64_t need = shop_get_cost(tmp, COST_BUY) - shop_get_money(op);
             char *name = object_get_name_s(tmp, op);
-            draw_info_format(COLOR_WHITE, op, "You lack %s to buy %s.",
-                    shop_get_cost_string(need), name);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "You lack %s to buy %s.",
+                             shop_get_cost_string(need),
+                             name);
             efree(name);
             SET_FLAG(tmp, FLAG_UNPAID);
             return false;
@@ -502,21 +512,22 @@ static bool shop_pay_items_rec(object *op, object *where)
             CLEAR_FLAG(tmp, FLAG_UNPAID);
             CLEAR_FLAG(tmp, FLAG_STARTEQUIP);
             char *name = object_get_name_s(tmp, op);
-            draw_info_format(COLOR_WHITE, op, "You paid %s for %s.",
-                    shop_get_cost_string_item(tmp, COST_BUY), name);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "You paid %s for %s.",
+                             shop_get_cost_string_item(tmp, COST_BUY),
+                             name);
 
             if (QUERY_FLAG(tmp, FLAG_SOULBOUND)) {
-                bool ret = object_set_value(tmp,
-                                            "soulbound_name",
-                                            op->name,
-                                            true);
+                bool ret = object_set_value(tmp, "soulbound_name", op->name, true);
                 if (ret) {
-                    draw_info_format(COLOR_WHITE, op,
-                                     "%s becomes soulbound to you.", name);
+                    draw_info_format(COLOR_WHITE, op, "%s becomes soulbound to you.", name);
                 } else {
                     CLEAR_FLAG(tmp, FLAG_SOULBOUND);
-                    LOG(ERROR, "Failed to soulbind %s to %s",
-                        object_get_str(tmp), object_get_str(op));
+                    LOG(ERROR,
+                        "Failed to soulbind %s to %s",
+                        object_get_str(tmp),
+                        object_get_str(op));
                 }
             }
 
@@ -527,7 +538,8 @@ static bool shop_pay_items_rec(object *op, object *where)
                 esrv_update_item(UPD_FLAGS, tmp);
             }
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return true;
 }
@@ -539,8 +551,7 @@ static bool shop_pay_items_rec(object *op, object *where)
  * @return
  * True if everything has been paid for, false otherwise.
  */
-bool shop_pay_items(object *op)
-{
+bool shop_pay_items(object *op) {
     return shop_pay_items_rec(op, op);
 }
 
@@ -551,8 +562,7 @@ bool shop_pay_items(object *op)
  * @param item
  * The item to sell.
  */
-void shop_sell_item(object *op, object *item)
-{
+void shop_sell_item(object *op, object *item) {
     HARD_ASSERT(op != NULL);
 
     if (item->custom_name) {
@@ -566,8 +576,7 @@ void shop_sell_item(object *op, object *item)
     }
 
     shop_insert_coins(op, value);
-    draw_info_format(COLOR_WHITE, op, "You receive %s for %s.",
-            shop_get_cost_string(value), name);
+    draw_info_format(COLOR_WHITE, op, "You receive %s for %s.", shop_get_cost_string(value), name);
 
     SET_FLAG(item, FLAG_UNPAID);
     /* Identify the item. Makes any unidentified item sold to unique shop appear
@@ -584,8 +593,7 @@ void shop_sell_item(object *op, object *item)
  * Value of coins to insert (for example, 120 for 1 silver and 20
  * copper).
  */
-void shop_insert_coins(object *op, int64_t value)
-{
+void shop_insert_coins(object *op, int64_t value) {
     for (int i = 0; coins[i] != NULL; i++) {
         archetype_t *at = arch_find(coins[i]);
         if (at == NULL) {
@@ -610,19 +618,18 @@ void shop_insert_coins(object *op, int64_t value)
                 continue;
             }
 
-            uint32_t nrof = (uint32_t) (value / at->clone.value);
+            uint32_t nrof = (uint32_t)(value / at->clone.value);
             if (nrof == 0) {
                 continue;
             }
 
             double weight = at->clone.weight * tmp->weapon_speed;
-            if (tmp->weight_limit != 0 && tmp->carrying + weight >
-                    tmp->weight_limit) {
+            if (tmp->weight_limit != 0 && tmp->carrying + weight > tmp->weight_limit) {
                 continue;
             }
 
             if (weight > 0.0 && tmp->weight_limit != 0 &&
-                    (tmp->weight_limit - tmp->carrying) / weight < nrof) {
+                (tmp->weight_limit - tmp->carrying) / weight < nrof) {
                 nrof = (tmp->weight_limit - tmp->carrying) / weight;
             }
 
@@ -631,10 +638,11 @@ void shop_insert_coins(object *op, int64_t value)
             coin->nrof = nrof;
             value -= coin->nrof * coin->value;
             object_insert_into(coin, tmp, 0);
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
 
         if (value / at->clone.value > 0) {
-            uint32_t nrof = (uint32_t) (value / at->clone.value);
+            uint32_t nrof = (uint32_t)(value / at->clone.value);
             uint32_t weight_max = weight_limit[MIN(op->stats.Str, MAX_STAT)];
 
             if (nrof > 0 && op->carrying + at->clone.weight <= weight_max) {
@@ -653,7 +661,7 @@ void shop_insert_coins(object *op, int64_t value)
         if (value / at->clone.value > 0) {
             object *coin = object_get();
             object_copy(coin, &at->clone, false);
-            coin->nrof = (uint32_t) (value / at->clone.value);
+            coin->nrof = (uint32_t)(value / at->clone.value);
             value -= coin->nrof * coin->value;
             coin->x = op->x;
             coin->y = op->y;
@@ -661,6 +669,8 @@ void shop_insert_coins(object *op, int64_t value)
         }
     }
 
-    SOFT_ASSERT(value == 0, "Value is not zero: %" PRId64 ", object: %s",
-            value, object_get_str(op));
+    SOFT_ASSERT(value == 0,
+                "Value is not zero: %" PRId64 ", object: %s",
+                value,
+                object_get_str(op));
 }

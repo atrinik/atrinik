@@ -400,13 +400,13 @@ typedef struct widgetresize {
 #define WIDGET_SHOW(_widget) widget_show(_widget, 1);
 #define WIDGET_SHOW_TOGGLE(_widget) widget_show(_widget, !(_widget)->show);
 #define WIDGET_SHOW_TOGGLE_ALL(__id) widget_show_toggle_all(__id);
-#define WIDGET_SHOW_CHANGE(_id, _state)                                        \
-    do {                                                                       \
-        bool _state_ = _state != 0;                                            \
-        for (widgetdata *_widget_ = cur_widget[_id]; _widget_ != NULL;         \
-                _widget_ = _widget_->type_next) {                              \
-            widget_show(_widget_, _state_);                                    \
-        }                                                                      \
+#define WIDGET_SHOW_CHANGE(_id, _state)                                \
+    do {                                                               \
+        bool _state_ = _state != 0;                                    \
+        for (widgetdata *_widget_ = cur_widget[_id]; _widget_ != NULL; \
+             _widget_ = _widget_->type_next) {                         \
+            widget_show(_widget_, _state_);                            \
+        }                                                              \
     } while (0)
 
 /* Macro to redraw all widgets of a particular type. Don't use this often. */
@@ -414,18 +414,23 @@ typedef struct widgetresize {
 
 /** Macros to grab extended widget attributes. This works similar to
  * inheritance. */
-#define TEXTWIN(__textwin) ((textwin_struct *) ((__textwin)->subwidget))
-#define WIDGET_INPUT(_widget) ((widget_input_struct *) (_widget)->subwidget)
-#define CONTAINER(__widget_container) (_widget_container *) (__widget_container->subwidget)
-#define LABEL(__widget_label) (_widget_label *) (__widget_label->subwidget)
-#define WIDGET_TEXTURE(__widget_texture) (_widget_texture *) (__widget_texture->subwidget)
-#define CONTAINER_STRIP(__widget_container_strip) \
-    (_widget_container_strip *) ( ((_widget_container *) (__widget_container_strip->subwidget))->subcontainer)
-#define MENU(__menu) \
-    ((_menu *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menu->subwidget))->subcontainer))->subcontainer_strip)))
-#define MENUITEM(__menuitem) \
-    (_menuitem *) ( (( ((_widget_container_strip *) ((_widget_container *) (__menuitem->subwidget))->subcontainer))->subcontainer_strip))
-#define INVENTORY(_widget) ((inventory_struct *) ((_widget)->subwidget))
+#define TEXTWIN(__textwin) ((textwin_struct *)((__textwin)->subwidget))
+#define WIDGET_INPUT(_widget) ((widget_input_struct *)(_widget)->subwidget)
+#define CONTAINER(__widget_container) (_widget_container *)(__widget_container->subwidget)
+#define LABEL(__widget_label) (_widget_label *)(__widget_label->subwidget)
+#define WIDGET_TEXTURE(__widget_texture) (_widget_texture *)(__widget_texture->subwidget)
+#define CONTAINER_STRIP(__widget_container_strip)                                            \
+    (_widget_container_strip *)(((_widget_container *)(__widget_container_strip->subwidget)) \
+                                    ->subcontainer)
+#define MENU(__menu)                                                                            \
+    ((_menu *)((                                                                                \
+        (((_widget_container_strip *)((_widget_container *)(__menu->subwidget))->subcontainer)) \
+            ->subcontainer_strip)))
+#define MENUITEM(__menuitem)                                                                   \
+    (_menuitem *)(((((_widget_container_strip *)((_widget_container *)(__menuitem->subwidget)) \
+                         ->subcontainer))                                                      \
+                       ->subcontainer_strip))
+#define INVENTORY(_widget) ((inventory_struct *)((_widget)->subwidget))
 
 #define WIDGET_BORDER_SIZE 1
 

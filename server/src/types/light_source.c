@@ -35,6 +35,4 @@
 /**
  * Initialize the light source type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(light_source)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(light_source) {}

@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     if (--op->stats.food > 0) {
         return;
     }
@@ -53,7 +51,6 @@ process_func (object *op)
 /**
  * Initialize the confusion type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(confusion)
-{
+OBJECT_TYPE_INIT_DEFINE(confusion) {
     OBJECT_METHODS(CONFUSION)->process_func = process_func;
 }

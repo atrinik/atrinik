@@ -43,8 +43,7 @@
  * @param RP
  * Random map parameters.
  */
-void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP)
-{
+void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms *RP) {
     mapstruct *style_map = NULL;
     int failed_placements = 0, number_monsters = 0;
 

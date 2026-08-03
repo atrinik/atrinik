@@ -33,28 +33,9 @@
 
 /** Word representations of numbers used by get_number() */
 static char numbers[21][20] = {
-    "",
-    "",
-    "two ",
-    "three ",
-    "four ",
-    "five ",
-    "six ",
-    "seven ",
-    "eight ",
-    "nine ",
-    "ten ",
-    "eleven ",
-    "twelve ",
-    "thirteen ",
-    "fourteen ",
-    "fifteen ",
-    "sixteen ",
-    "seventeen ",
-    "eighteen ",
-    "nineteen ",
-    "twenty "
-};
+    "",          "",         "two ",     "three ",     "four ",     "five ",     "six ",
+    "seven ",    "eight ",   "nine ",    "ten ",       "eleven ",   "twelve ",   "thirteen ",
+    "fourteen ", "fifteen ", "sixteen ", "seventeen ", "eighteen ", "nineteen ", "twenty "};
 
 /**
  * Builds a textual representation of the object's material (if applicable).
@@ -68,9 +49,7 @@ static char numbers[21][20] = {
  * @return
  * StringBuffer instance that contains the object material.
  */
-StringBuffer *object_get_material(const object *op, const object *caller,
-        StringBuffer *sb)
-{
+StringBuffer *object_get_material(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -82,13 +61,12 @@ StringBuffer *object_get_material(const object *op, const object *caller,
         return sb;
     }
 
-    if (!IS_LIVE(op) && op->type != BASE_INFO &&
-            op->item_race < NROF_ITEM_RACES) {
+    if (!IS_LIVE(op) && op->type != BASE_INFO && op->item_race < NROF_ITEM_RACES) {
         stringbuffer_append_string(sb, item_races[op->item_race]);
     }
 
     if (op->material_real > 0 && op->material_real < NUM_MATERIALS_REAL &&
-            QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+        QUERY_FLAG(op, FLAG_IDENTIFIED)) {
         stringbuffer_append_string(sb, materials_real[op->material_real].name);
     }
 
@@ -104,8 +82,7 @@ StringBuffer *object_get_material(const object *op, const object *caller,
  * @return
  * String containing the object material. Must be freed.
  */
-char *object_get_material_s(const object *op, const object *caller)
-{
+char *object_get_material_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_material(op, caller, NULL));
 }
 
@@ -121,9 +98,7 @@ char *object_get_material_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object title.
  */
-StringBuffer *object_get_title(const object *op, const object *caller,
-        StringBuffer *sb)
-{
+StringBuffer *object_get_title(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -131,23 +106,52 @@ StringBuffer *object_get_title(const object *op, const object *caller,
     }
 
     switch (op->type) {
-    case CONTAINER:
-        if (op->title != NULL && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-            stringbuffer_append_printf(sb, " %s", op->title);
-        }
+        case CONTAINER:
+            if (op->title != NULL && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+                stringbuffer_append_printf(sb, " %s", op->title);
+            }
 
-        if (op->sub_type >= ST1_CONTAINER_NORMAL_party) {
-            if (op->sub_type == ST1_CONTAINER_CORPSE_party) {
-                if (op->slaying != NULL) {
-                    if (caller == NULL || caller->type != PLAYER) {
-                        stringbuffer_append_string(sb, " (bounty of a party)");
-                    } else if (CONTR(caller)->party != NULL &&
-                            CONTR(caller)->party->name == op->slaying) {
-                        stringbuffer_append_string(sb,
-                                " (bounty of your party");
+            if (op->sub_type >= ST1_CONTAINER_NORMAL_party) {
+                if (op->sub_type == ST1_CONTAINER_CORPSE_party) {
+                    if (op->slaying != NULL) {
+                        if (caller == NULL || caller->type != PLAYER) {
+                            stringbuffer_append_string(sb, " (bounty of a party)");
+                        } else if (CONTR(caller)->party != NULL &&
+                                   CONTR(caller)->party->name == op->slaying) {
+                            stringbuffer_append_string(sb, " (bounty of your party");
+
+                            /* A searched bounty */
+                            if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                                stringbuffer_append_string(sb, ", searched");
+
+                                if (op->inv == NULL) {
+                                    stringbuffer_append_string(sb, ", empty");
+                                }
+                            }
+
+                            stringbuffer_append_string(sb, ")");
+                        } else {
+                            /* It's a different party */
+                            stringbuffer_append_string(sb, " (bounty of another party)");
+                        }
+                    } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                        stringbuffer_append_string(sb, " (searched");
+
+                        if (op->inv == NULL) {
+                            stringbuffer_append_string(sb, ", empty");
+                        }
+
+                        stringbuffer_append_string(sb, ")");
+                    }
+                }
+            } else if (op->sub_type >= ST1_CONTAINER_NORMAL_player) {
+                if (op->sub_type == ST1_CONTAINER_CORPSE_player) {
+                    if (op->slaying != NULL) {
+                        stringbuffer_append_printf(sb, " (bounty of %s", op->slaying);
 
                         /* A searched bounty */
-                        if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                        if ((caller != NULL && caller->name == op->slaying) &&
+                            QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
                             stringbuffer_append_string(sb, ", searched");
 
                             if (op->inv == NULL) {
@@ -156,115 +160,81 @@ StringBuffer *object_get_title(const object *op, const object *caller,
                         }
 
                         stringbuffer_append_string(sb, ")");
-                    } else {
-                        /* It's a different party */
-                        stringbuffer_append_string(sb,
-                                " (bounty of another party)");
-                    }
-                } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                    stringbuffer_append_string(sb, " (searched");
-
-                    if (op->inv == NULL) {
-                        stringbuffer_append_string(sb, ", empty");
-                    }
-
-                    stringbuffer_append_string(sb, ")");
-                }
-            }
-        } else if (op->sub_type >= ST1_CONTAINER_NORMAL_player) {
-            if (op->sub_type == ST1_CONTAINER_CORPSE_player) {
-                if (op->slaying != NULL) {
-                    stringbuffer_append_printf(sb, " (bounty of %s",
-                            op->slaying);
-
-                    /* A searched bounty */
-                    if ((caller != NULL && caller->name == op->slaying) &&
-                            QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                        stringbuffer_append_string(sb, ", searched");
+                    } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                        stringbuffer_append_string(sb, " (searched");
 
                         if (op->inv == NULL) {
                             stringbuffer_append_string(sb, ", empty");
                         }
+
+                        stringbuffer_append_string(sb, ")");
                     }
-
-                    stringbuffer_append_string(sb, ")");
-                } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                    stringbuffer_append_string(sb, " (searched");
-
-                    if (op->inv == NULL) {
-                        stringbuffer_append_string(sb, ", empty");
-                    }
-
-                    stringbuffer_append_string(sb, ")");
                 }
             }
-        }
 
-        break;
+            break;
 
-    case SCROLL:
-    case WAND:
-    case ROD:
-    case POTION:
-    case BOOK_SPELL:
-        if (QUERY_FLAG(op, FLAG_IDENTIFIED) ||
-                QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-            if (op->title == NULL) {
-                stringbuffer_append_string(sb, " of ");
+        case SCROLL:
+        case WAND:
+        case ROD:
+        case POTION:
+        case BOOK_SPELL:
+            if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                if (op->title == NULL) {
+                    stringbuffer_append_string(sb, " of ");
 
-                if (op->stats.sp >= 0 && op->stats.sp < NROFREALSPELLS) {
-                    stringbuffer_append_string(sb, spells[op->stats.sp].name);
+                    if (op->stats.sp >= 0 && op->stats.sp < NROFREALSPELLS) {
+                        stringbuffer_append_string(sb, spells[op->stats.sp].name);
+                    } else {
+                        stringbuffer_append_string(sb, "nothing");
+                    }
                 } else {
-                    stringbuffer_append_string(sb, "nothing");
+                    stringbuffer_append_printf(sb, " %s", op->title);
                 }
-            } else {
+
+                if (op->type != BOOK_SPELL) {
+                    stringbuffer_append_printf(sb, " (lvl %" PRId8 ")", op->level);
+                }
+            }
+
+            break;
+
+        case SKILL:
+        case AMULET:
+        case RING:
+        case TRINKET:
+            if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+                /* If ring has a title, full description isn't so useful. */
+                if (op->title == NULL) {
+                    stringbuffer_append_string(sb, " ");
+                    size_t len = stringbuffer_length(sb);
+                    sb = object_get_description(op, caller, sb);
+                    if (stringbuffer_length(sb) == len) {
+                        stringbuffer_seek(sb, len - 1);
+                    }
+                } else {
+                    stringbuffer_append_printf(sb, " %s", op->title);
+                }
+            }
+
+            break;
+
+        default:
+            if (op->magic != 0 && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) ||
+                                   QUERY_FLAG(op, FLAG_IDENTIFIED))) {
+                if (!IS_LIVE(op) && op->type != BASE_INFO) {
+                    stringbuffer_append_printf(sb, " %+" PRId8, op->magic);
+                }
+            }
+
+            if (op->title != NULL && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                 stringbuffer_append_printf(sb, " %s", op->title);
             }
 
-            if (op->type != BOOK_SPELL) {
-                stringbuffer_append_printf(sb, " (lvl %" PRId8 ")", op->level);
-            }
-        }
-
-        break;
-
-    case SKILL:
-    case AMULET:
-    case RING:
-    case TRINKET:
-        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-            /* If ring has a title, full description isn't so useful. */
-            if (op->title == NULL) {
-                stringbuffer_append_string(sb, " ");
-                size_t len = stringbuffer_length(sb);
-                sb = object_get_description(op, caller, sb);
-                if (stringbuffer_length(sb) == len) {
-                    stringbuffer_seek(sb, len - 1);
-                }
-            } else {
-                stringbuffer_append_printf(sb, " %s", op->title);
-            }
-        }
-
-        break;
-
-    default:
-        if (op->magic != 0 && (!need_identify(op) ||
-                QUERY_FLAG(op, FLAG_BEEN_APPLIED) ||
-                QUERY_FLAG(op, FLAG_IDENTIFIED))) {
-            if (!IS_LIVE(op) && op->type != BASE_INFO) {
-                stringbuffer_append_printf(sb, " %+" PRId8, op->magic);
-            }
-        }
-
-        if (op->title != NULL && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-            stringbuffer_append_printf(sb, " %s", op->title);
-        }
-
-        if ((op->type == ARROW || op->type == WEAPON) && op->slaying != NULL &&
+            if ((op->type == ARROW || op->type == WEAPON) && op->slaying != NULL &&
                 QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-            stringbuffer_append_printf(sb, " %s", op->slaying);
-        }
+                stringbuffer_append_printf(sb, " %s", op->slaying);
+            }
     }
 
     return sb;
@@ -279,8 +249,7 @@ StringBuffer *object_get_title(const object *op, const object *caller,
  * @return
  * String containing the object title. Must be freed.
  */
-char *object_get_title_s(const object *op, const object *caller)
-{
+char *object_get_title_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_title(op, caller, NULL));
 }
 
@@ -296,9 +265,7 @@ char *object_get_title_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object name.
  */
-StringBuffer *object_get_name(const object *op, const object *caller,
-        StringBuffer *sb)
-{
+StringBuffer *object_get_name(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     sb = object_get_short_name(op, caller, sb);
@@ -343,39 +310,39 @@ StringBuffer *object_get_name(const object *op, const object *caller,
 
     if (QUERY_FLAG(op, FLAG_APPLIED)) {
         switch (op->type) {
-        case BOW:
-        case WAND:
-        case ROD:
-            stringbuffer_append_string(sb, " (readied)");
-            break;
+            case BOW:
+            case WAND:
+            case ROD:
+                stringbuffer_append_string(sb, " (readied)");
+                break;
 
-        case WEAPON:
-            stringbuffer_append_string(sb, " (wielded)");
-            break;
+            case WEAPON:
+                stringbuffer_append_string(sb, " (wielded)");
+                break;
 
-        case ARMOUR:
-        case HELMET:
-        case SHIELD:
-        case RING:
-        case BOOTS:
-        case GLOVES:
-        case AMULET:
-        case GIRDLE:
-        case BRACERS:
-        case CLOAK:
-        case PANTS:
-        case TRINKET:
-            stringbuffer_append_string(sb, " (worn)");
-            break;
+            case ARMOUR:
+            case HELMET:
+            case SHIELD:
+            case RING:
+            case BOOTS:
+            case GLOVES:
+            case AMULET:
+            case GIRDLE:
+            case BRACERS:
+            case CLOAK:
+            case PANTS:
+            case TRINKET:
+                stringbuffer_append_string(sb, " (worn)");
+                break;
 
-        case CONTAINER:
-            stringbuffer_append_string(sb, " (active)");
-            break;
+            case CONTAINER:
+                stringbuffer_append_string(sb, " (active)");
+                break;
 
-        case SKILL:
-        case SKILL_ITEM:
-        default:
-            stringbuffer_append_string(sb, " (applied)");
+            case SKILL:
+            case SKILL_ITEM:
+            default:
+                stringbuffer_append_string(sb, " (applied)");
         }
     }
 
@@ -395,8 +362,7 @@ StringBuffer *object_get_name(const object *op, const object *caller,
  * @return
  * String containing the object name. Must be freed.
  */
-char *object_get_name_s(const object *op, const object *caller)
-{
+char *object_get_name_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_name(op, caller, NULL));
 }
 
@@ -413,9 +379,7 @@ char *object_get_name_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object name.
  */
-StringBuffer *object_get_short_name(const object *op, const object *caller,
-        StringBuffer *sb)
-{
+StringBuffer *object_get_short_name(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -450,8 +414,7 @@ StringBuffer *object_get_short_name(const object *op, const object *caller,
  * @return
  * String containing the short object name. Must be freed.
  */
-char *object_get_short_name_s(const object *op, const object *caller)
-{
+char *object_get_short_name_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_short_name(op, caller, NULL));
 }
 
@@ -468,9 +431,7 @@ char *object_get_short_name_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object name.
  */
-StringBuffer *object_get_material_name(const object *op, const object *caller,
-        StringBuffer *sb)
-{
+StringBuffer *object_get_material_name(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     sb = object_get_material(op, caller, sb);
@@ -492,8 +453,7 @@ StringBuffer *object_get_material_name(const object *op, const object *caller,
  * @return
  * String containing the material object name. Must be freed.
  */
-char *object_get_material_name_s(const object *op, const object *caller)
-{
+char *object_get_material_name_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_material_name(op, caller, NULL));
 }
 
@@ -510,9 +470,7 @@ char *object_get_material_name_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object name.
  */
-StringBuffer *object_get_base_name(const object *op, const object *caller,
-        StringBuffer *sb)
-{
+StringBuffer *object_get_base_name(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     sb = object_get_material(op, caller, sb);
@@ -531,8 +489,7 @@ StringBuffer *object_get_base_name(const object *op, const object *caller,
  * @return
  * String containing the base object name. Must be freed.
  */
-char *object_get_base_name_s(const object *op, const object *caller)
-{
+char *object_get_base_name_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_base_name(op, caller, NULL));
 }
 
@@ -548,9 +505,8 @@ char *object_get_base_name_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object terrain.
  */
-StringBuffer *object_get_description_terrain(const object *op,
-        const object *caller, StringBuffer *sb)
-{
+StringBuffer *
+object_get_description_terrain(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -613,10 +569,8 @@ StringBuffer *object_get_description_terrain(const object *op,
  * @return
  * String containing the terrain description. Must be freed.
  */
-char *object_get_description_terrain_s(const object *op, const object *caller)
-{
-    return stringbuffer_finish(object_get_description_terrain(op, caller,
-            NULL));
+char *object_get_description_terrain_s(const object *op, const object *caller) {
+    return stringbuffer_finish(object_get_description_terrain(op, caller, NULL));
 }
 
 /**
@@ -631,9 +585,8 @@ char *object_get_description_terrain_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object attack types.
  */
-StringBuffer *object_get_description_attacks(const object *op,
-        const object *caller, StringBuffer *sb)
-{
+StringBuffer *
+object_get_description_attacks(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -654,8 +607,7 @@ StringBuffer *object_get_description_attacks(const object *op,
             stringbuffer_append_string(sb, ", ");
         }
 
-        stringbuffer_append_printf(sb, "%s +%" PRIu8 "%%", attack_name[i],
-                op->attack[i]);
+        stringbuffer_append_printf(sb, "%s +%" PRIu8 "%%", attack_name[i], op->attack[i]);
         got_one = true;
     }
 
@@ -675,10 +627,8 @@ StringBuffer *object_get_description_attacks(const object *op,
  * @return
  * String containing the attacks description. Must be freed.
  */
-char *object_get_description_attacks_s(const object *op, const object *caller)
-{
-    return stringbuffer_finish(object_get_description_attacks(op, caller,
-            NULL));
+char *object_get_description_attacks_s(const object *op, const object *caller) {
+    return stringbuffer_finish(object_get_description_attacks(op, caller, NULL));
 }
 
 /**
@@ -693,9 +643,8 @@ char *object_get_description_attacks_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the object protections.
  */
-StringBuffer *object_get_description_protections(const object *op,
-        const object *caller, StringBuffer *sb)
-{
+StringBuffer *
+object_get_description_protections(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -716,8 +665,7 @@ StringBuffer *object_get_description_protections(const object *op,
             stringbuffer_append_string(sb, ", ");
         }
 
-        stringbuffer_append_printf(sb, "%s %+" PRId8 "%%", attack_name[i],
-                op->protection[i]);
+        stringbuffer_append_printf(sb, "%s %+" PRId8 "%%", attack_name[i], op->protection[i]);
         got_one = true;
     }
 
@@ -737,11 +685,8 @@ StringBuffer *object_get_description_protections(const object *op,
  * @return
  * String containing the protections description. Must be freed.
  */
-char *object_get_description_protections_s(const object *op,
-        const object *caller)
-{
-    return stringbuffer_finish(object_get_description_protections(op, caller,
-            NULL));
+char *object_get_description_protections_s(const object *op, const object *caller) {
+    return stringbuffer_finish(object_get_description_protections(op, caller, NULL));
 }
 
 /**
@@ -760,9 +705,11 @@ char *object_get_description_protections_s(const object *op,
  * @return
  * StringBuffer instance that contains the spell path description.
  */
-StringBuffer *object_get_description_path(const object *op, const
-        object *caller, const uint32_t path, const char *name, StringBuffer *sb)
-{
+StringBuffer *object_get_description_path(const object *op,
+                                          const object *caller,
+                                          const uint32_t path,
+                                          const char *name,
+                                          StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -808,11 +755,11 @@ StringBuffer *object_get_description_path(const object *op, const
  * @return
  * String containing the path description. Must be freed.
  */
-char *object_get_description_path_s(const object *op, const object *caller,
-        const uint32_t path, const char *name)
-{
-    return stringbuffer_finish(object_get_description_path(op, caller, path,
-            name, NULL));
+char *object_get_description_path_s(const object *op,
+                                    const object *caller,
+                                    const uint32_t path,
+                                    const char *name) {
+    return stringbuffer_finish(object_get_description_path(op, caller, path, name, NULL));
 }
 
 /**
@@ -836,9 +783,7 @@ char *object_get_description_path_s(const object *op, const object *caller,
  * @return
  * StringBuffer instance that contains the description.
  */
-StringBuffer *object_get_description(const object *op, const object *caller,
-        StringBuffer *sb)
-{
+StringBuffer *object_get_description(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     if (sb == NULL) {
@@ -853,22 +798,18 @@ StringBuffer *object_get_description(const object *op, const object *caller,
 
         if (CONTR(op)->digestion != 0) {
             if (CONTR(op)->digestion > 0) {
-                stringbuffer_append_printf(sb, "(sustenance%+d) ",
-                        CONTR(op)->digestion);
+                stringbuffer_append_printf(sb, "(sustenance%+d) ", CONTR(op)->digestion);
             } else {
-                stringbuffer_append_printf(sb, "(hunger%+d) ",
-                        -CONTR(op)->digestion);
+                stringbuffer_append_printf(sb, "(hunger%+d) ", -CONTR(op)->digestion);
             }
         }
 
         if (CONTR(op)->gen_client_hp != 0) {
-            stringbuffer_append_printf(sb, "(hp reg. %3.1f) ",
-                    CONTR(op)->gen_client_hp / 10.0);
+            stringbuffer_append_printf(sb, "(hp reg. %3.1f) ", CONTR(op)->gen_client_hp / 10.0);
         }
 
         if (CONTR(op)->gen_client_sp != 0) {
-            stringbuffer_append_printf(sb, "(mana reg. %3.1f) ",
-                    CONTR(op)->gen_client_sp / 10.0);
+            stringbuffer_append_printf(sb, "(mana reg. %3.1f) ", CONTR(op)->gen_client_sp / 10.0);
         }
     } else if (QUERY_FLAG(op, FLAG_MONSTER)) {
         sb = object_get_description_terrain(op, caller, sb);
@@ -914,46 +855,45 @@ StringBuffer *object_get_description(const object *op, const object *caller,
         }
 
         if (FABS(op->speed) > MIN_ACTIVE_SPEED) {
-            switch ((int) ((FABS(op->speed)) * 15)) {
-            case 0:
-                stringbuffer_append_string(sb, "(very slow movement) ");
-                break;
+            switch ((int)((FABS(op->speed)) * 15)) {
+                case 0:
+                    stringbuffer_append_string(sb, "(very slow movement) ");
+                    break;
 
-            case 1:
-                stringbuffer_append_string(sb, "(slow movement) ");
-                break;
+                case 1:
+                    stringbuffer_append_string(sb, "(slow movement) ");
+                    break;
 
-            case 2:
-                stringbuffer_append_string(sb, "(normal movement) ");
-                break;
+                case 2:
+                    stringbuffer_append_string(sb, "(normal movement) ");
+                    break;
 
-            case 3:
-            case 4:
-                stringbuffer_append_string(sb, "(fast movement) ");
-                break;
+                case 3:
+                case 4:
+                    stringbuffer_append_string(sb, "(fast movement) ");
+                    break;
 
-            case 5:
-            case 6:
-                stringbuffer_append_string(sb, "(very fast movement) ");
-                break;
+                case 5:
+                case 6:
+                    stringbuffer_append_string(sb, "(very fast movement) ");
+                    break;
 
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-                stringbuffer_append_string(sb, "(extremely fast movement) ");
-                break;
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                    stringbuffer_append_string(sb, "(extremely fast movement) ");
+                    break;
 
-            default:
-                stringbuffer_append_string(sb, "(lightning fast movement) ");
-                break;
+                default:
+                    stringbuffer_append_string(sb, "(lightning fast movement) ");
+                    break;
             }
         }
     } else {
         /* We only need calculate this once */
-        if (QUERY_FLAG(op, FLAG_IDENTIFIED) ||
-                QUERY_FLAG(op, FLAG_BEEN_APPLIED) ||
-                !need_identify(op)) {
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) ||
+            !need_identify(op)) {
             identified = true;
         }
 
@@ -962,126 +902,130 @@ StringBuffer *object_get_description(const object *op, const object *caller,
 
             /* Deal with special cases */
             switch (op->type) {
-            case WAND:
-            case ROD:
-                stringbuffer_append_printf(sb, "(delay%+2.1fs) ",
-                        (double) op->last_grace / MAX_TICKS);
-                break;
+                case WAND:
+                case ROD:
+                    stringbuffer_append_printf(sb,
+                                               "(delay%+2.1fs) ",
+                                               (double)op->last_grace / MAX_TICKS);
+                    break;
 
-                /* Armour type objects */
-            case ARMOUR:
-            case HELMET:
-            case SHIELD:
-            case BOOTS:
-            case GLOVES:
-            case GIRDLE:
-            case BRACERS:
-            case CLOAK:
-            case PANTS:
-                if (ARMOUR_SPEED(op) != 0) {
-                    stringbuffer_append_printf(sb, "(speed cap %1.2f) ",
-                            ARMOUR_SPEED(op) / 10.0);
-                }
-
-                if (ARMOUR_SPELLS(op) != 0) {
-                    stringbuffer_append_printf(sb, "(armour mana reg %d) ",
-                            -ARMOUR_SPELLS(op));
-                }
-
-                /* Fall through */
-
-            case WEAPON:
-            case RING:
-            case AMULET:
-            case FORCE:
-            case TRINKET:
-                more_info = 1;
-                /* Fall through */
-
-            case BOW:
-            case ARROW:
-                if (op->type == BOW) {
-                    stringbuffer_append_printf(sb, "(delay%+2.1fs) ",
-                            (double) op->stats.sp / MAX_TICKS);
-                } else if (op->type == ARROW) {
-                    stringbuffer_append_printf(sb, "(delay%+2.1fs) ",
-                            (double) op->last_grace / MAX_TICKS);
-                }
-
-                if (op->last_sp != 0 && !IS_ARMOR(op)) {
-                    stringbuffer_append_printf(sb, "(range%+d) ", op->last_sp);
-                }
-
-                if (op->stats.wc != 0) {
-                    stringbuffer_append_printf(sb, "(wc%+d) ", op->stats.wc);
-                }
-
-                if (op->stats.dam != 0) {
-                    stringbuffer_append_printf(sb, "(dam%+d) ", op->stats.dam);
-                }
-
-                if (op->stats.ac != 0) {
-                    stringbuffer_append_printf(sb, "(ac%+d) ", op->stats.ac);
-                }
-
-                if (op->type == WEAPON) {
-                    stringbuffer_append_printf(sb, "(%3.2f sec) ",
-                            (double) op->last_grace / MAX_TICKS);
-
-                    if (op->level > 0) {
-                        stringbuffer_append_printf(sb, "(improved %d/%d) ",
-                                op->last_eat, op->level);
+                    /* Armour type objects */
+                case ARMOUR:
+                case HELMET:
+                case SHIELD:
+                case BOOTS:
+                case GLOVES:
+                case GIRDLE:
+                case BRACERS:
+                case CLOAK:
+                case PANTS:
+                    if (ARMOUR_SPEED(op) != 0) {
+                        stringbuffer_append_printf(sb,
+                                                   "(speed cap %1.2f) ",
+                                                   ARMOUR_SPEED(op) / 10.0);
                     }
-                }
 
-                break;
-
-            case FOOD:
-            case FLESH:
-            case DRINK:
-            {
-                stringbuffer_append_printf(sb, "(food%+d) ", op->stats.food);
-
-                if (op->stats.hp != 0) {
-                    stringbuffer_append_printf(sb, "(hp%+d) ", op->stats.hp);
-                }
-
-                if (op->stats.sp != 0) {
-                    stringbuffer_append_printf(sb, "(mana%+d) ", op->stats.sp);
-                }
-
-                break;
-            }
-
-            case POTION:
-                if (op->last_sp) {
-                    stringbuffer_append_printf(sb, "(range%+d) ", op->last_sp);
-                }
-
-                break;
-
-            case BOOK:
-                if (op->level) {
-                    stringbuffer_append_printf(sb, "(lvl %d) ", op->level);
-                }
-
-                if (op->msg != NULL) {
-                    if (QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
-                        stringbuffer_append_string(sb, "(read) ");
-                    } else {
-                        stringbuffer_append_string(sb, "(unread) ");
+                    if (ARMOUR_SPELLS(op) != 0) {
+                        stringbuffer_append_printf(sb, "(armour mana reg %d) ", -ARMOUR_SPELLS(op));
                     }
+
+                    /* Fall through */
+
+                case WEAPON:
+                case RING:
+                case AMULET:
+                case FORCE:
+                case TRINKET:
+                    more_info = 1;
+                    /* Fall through */
+
+                case BOW:
+                case ARROW:
+                    if (op->type == BOW) {
+                        stringbuffer_append_printf(sb,
+                                                   "(delay%+2.1fs) ",
+                                                   (double)op->stats.sp / MAX_TICKS);
+                    } else if (op->type == ARROW) {
+                        stringbuffer_append_printf(sb,
+                                                   "(delay%+2.1fs) ",
+                                                   (double)op->last_grace / MAX_TICKS);
+                    }
+
+                    if (op->last_sp != 0 && !IS_ARMOR(op)) {
+                        stringbuffer_append_printf(sb, "(range%+d) ", op->last_sp);
+                    }
+
+                    if (op->stats.wc != 0) {
+                        stringbuffer_append_printf(sb, "(wc%+d) ", op->stats.wc);
+                    }
+
+                    if (op->stats.dam != 0) {
+                        stringbuffer_append_printf(sb, "(dam%+d) ", op->stats.dam);
+                    }
+
+                    if (op->stats.ac != 0) {
+                        stringbuffer_append_printf(sb, "(ac%+d) ", op->stats.ac);
+                    }
+
+                    if (op->type == WEAPON) {
+                        stringbuffer_append_printf(sb,
+                                                   "(%3.2f sec) ",
+                                                   (double)op->last_grace / MAX_TICKS);
+
+                        if (op->level > 0) {
+                            stringbuffer_append_printf(sb,
+                                                       "(improved %d/%d) ",
+                                                       op->last_eat,
+                                                       op->level);
+                        }
+                    }
+
+                    break;
+
+                case FOOD:
+                case FLESH:
+                case DRINK: {
+                    stringbuffer_append_printf(sb, "(food%+d) ", op->stats.food);
+
+                    if (op->stats.hp != 0) {
+                        stringbuffer_append_printf(sb, "(hp%+d) ", op->stats.hp);
+                    }
+
+                    if (op->stats.sp != 0) {
+                        stringbuffer_append_printf(sb, "(mana%+d) ", op->stats.sp);
+                    }
+
+                    break;
                 }
 
-            default:
-                return sb;
+                case POTION:
+                    if (op->last_sp) {
+                        stringbuffer_append_printf(sb, "(range%+d) ", op->last_sp);
+                    }
+
+                    break;
+
+                case BOOK:
+                    if (op->level) {
+                        stringbuffer_append_printf(sb, "(lvl %d) ", op->level);
+                    }
+
+                    if (op->msg != NULL) {
+                        if (QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
+                            stringbuffer_append_string(sb, "(read) ");
+                        } else {
+                            stringbuffer_append_string(sb, "(unread) ");
+                        }
+                    }
+
+                default:
+                    return sb;
             }
 
             for (int attr = 0; attr < NUM_STATS; attr++) {
                 int8_t val = get_attr_value(&op->stats, attr);
                 if (val != 0) {
-                    stringbuffer_append_printf(sb, "(%s%+" PRId8 ") ",
-                            short_stat_name[attr], val);
+                    stringbuffer_append_printf(sb, "(%s%+" PRId8 ") ", short_stat_name[attr], val);
                 }
             }
         }
@@ -1090,28 +1034,23 @@ StringBuffer *object_get_description(const object *op, const object *caller,
     /* Some special info for some identified items */
     if (identified && more_info) {
         if (op->stats.sp != 0) {
-            stringbuffer_append_printf(sb, "(mana reg.%+3.1f) ",
-                    op->stats.sp * 0.4);
+            stringbuffer_append_printf(sb, "(mana reg.%+3.1f) ", op->stats.sp * 0.4);
         }
 
         if (op->stats.hp != 0) {
-            stringbuffer_append_printf(sb, "(hp reg.%+3.1f) ",
-                    op->stats.hp * 0.4);
+            stringbuffer_append_printf(sb, "(hp reg.%+3.1f) ", op->stats.hp * 0.4);
         }
 
         if (op->stats.food != 0) {
             if (op->stats.food > 0) {
-                stringbuffer_append_printf(sb, "(sustenance%+d) ",
-                        op->stats.food);
+                stringbuffer_append_printf(sb, "(sustenance%+d) ", op->stats.food);
             } else {
-                stringbuffer_append_printf(sb, "(hunger%+d) ",
-                        -op->stats.food);
+                stringbuffer_append_printf(sb, "(hunger%+d) ", -op->stats.food);
             }
         }
 
         if (op->stats.exp != 0) {
-            stringbuffer_append_printf(sb, "(speed%+" PRId64 ") ",
-                    op->stats.exp);
+            stringbuffer_append_printf(sb, "(speed%+" PRId64 ") ", op->stats.exp);
         }
 
         if (op->block != 0) {
@@ -1182,12 +1121,9 @@ StringBuffer *object_get_description(const object *op, const object *caller,
         sb = object_get_description_attacks(op, caller, sb);
         sb = object_get_description_protections(op, caller, sb);
 
-        sb = object_get_description_path(op, caller, op->path_attuned,
-                "Attuned", sb);
-        sb = object_get_description_path(op, caller, op->path_repelled,
-                "Repelled", sb);
-        sb = object_get_description_path(op, caller, op->path_denied,
-                "Denied", sb);
+        sb = object_get_description_path(op, caller, op->path_attuned, "Attuned", sb);
+        sb = object_get_description_path(op, caller, op->path_repelled, "Repelled", sb);
+        sb = object_get_description_path(op, caller, op->path_denied, "Denied", sb);
 
         if (op->stats.maxhp != 0 && op->type != ROD && op->type != WAND) {
             stringbuffer_append_printf(sb, "(hp%+d) ", op->stats.maxhp);
@@ -1219,8 +1155,7 @@ StringBuffer *object_get_description(const object *op, const object *caller,
  * @return
  * String containing the description. Must be freed.
  */
-char *object_get_description_s(const object *op, const object *caller)
-{
+char *object_get_description_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_description(op, caller, NULL));
 }
 
@@ -1237,54 +1172,52 @@ char *object_get_description_s(const object *op, const object *caller)
  * @return
  * StringBuffer instance that contains the description.
  */
-StringBuffer *object_get_name_description(const object *op,
-        const object *caller, StringBuffer *sb)
-{
+StringBuffer *
+object_get_name_description(const object *op, const object *caller, StringBuffer *sb) {
     HARD_ASSERT(op != NULL);
 
     sb = object_get_name(op, caller, sb);
 
     switch (op->type) {
-    case RING:
-    case SKILL:
-    case WEAPON:
-    case ARMOUR:
-    case BRACERS:
-    case HELMET:
-    case PANTS:
-    case SHIELD:
-    case BOOTS:
-    case GLOVES:
-    case AMULET:
-    case GIRDLE:
-    case POTION:
-    case BOW:
-    case ARROW:
-    case CLOAK:
-    case FOOD:
-    case DRINK:
-    case WAND:
-    case ROD:
-    case FLESH:
-    case BOOK:
-    case CONTAINER:
-    case TRINKET:
-    {
-        if ((op->type != AMULET && op->type != RING && op->type != TRINKET) ||
-            op->title != NULL) {
-            StringBuffer *sb2 = object_get_description(op, caller, NULL);
-            if (stringbuffer_length(sb2) > 1) {
-                stringbuffer_append_string(sb, " ");
-                stringbuffer_append_stringbuffer(sb, sb2);
+        case RING:
+        case SKILL:
+        case WEAPON:
+        case ARMOUR:
+        case BRACERS:
+        case HELMET:
+        case PANTS:
+        case SHIELD:
+        case BOOTS:
+        case GLOVES:
+        case AMULET:
+        case GIRDLE:
+        case POTION:
+        case BOW:
+        case ARROW:
+        case CLOAK:
+        case FOOD:
+        case DRINK:
+        case WAND:
+        case ROD:
+        case FLESH:
+        case BOOK:
+        case CONTAINER:
+        case TRINKET: {
+            if ((op->type != AMULET && op->type != RING && op->type != TRINKET) ||
+                op->title != NULL) {
+                StringBuffer *sb2 = object_get_description(op, caller, NULL);
+                if (stringbuffer_length(sb2) > 1) {
+                    stringbuffer_append_string(sb, " ");
+                    stringbuffer_append_stringbuffer(sb, sb2);
+                }
+                stringbuffer_free(sb2);
             }
-            stringbuffer_free(sb2);
+
+            break;
         }
 
-        break;
-    }
-
-    default:
-        break;
+        default:
+            break;
     }
 
     return sb;
@@ -1300,8 +1233,7 @@ StringBuffer *object_get_name_description(const object *op,
  * String containing the object's name and its description. Must be
  * freed.
  */
-char *object_get_name_description_s(const object *op, const object *caller)
-{
+char *object_get_name_description_s(const object *op, const object *caller) {
     return stringbuffer_finish(object_get_name_description(op, caller, NULL));
 }
 
@@ -1312,44 +1244,43 @@ char *object_get_name_description_s(const object *op, const object *caller)
  * @return
  * True if this object needs identification, false otherwise.
  */
-bool need_identify(const object *op)
-{
+bool need_identify(const object *op) {
     switch (op->type) {
-    case RING:
-    case WAND:
-    case ROD:
-    case SCROLL:
-    case FOOD:
-    case POTION:
-    case BOW:
-    case ARROW:
-    case WEAPON:
-    case ARMOUR:
-    case SHIELD:
-    case HELMET:
-    case PANTS:
-    case AMULET:
-    case BOOTS:
-    case GLOVES:
-    case BRACERS:
-    case GIRDLE:
-    case CONTAINER:
-    case DRINK:
-    case FLESH:
-    case INORGANIC:
-    case CLOAK:
-    case GEM:
-    case JEWEL:
-    case NUGGET:
-    case PEARL:
-    case POWER_CRYSTAL:
-    case BOOK:
-    case LIGHT_APPLY:
-    case LIGHT_REFILL:
-    case BOOK_SPELL:
-    case TRINKET:
-    case PAINTING:
-        return true;
+        case RING:
+        case WAND:
+        case ROD:
+        case SCROLL:
+        case FOOD:
+        case POTION:
+        case BOW:
+        case ARROW:
+        case WEAPON:
+        case ARMOUR:
+        case SHIELD:
+        case HELMET:
+        case PANTS:
+        case AMULET:
+        case BOOTS:
+        case GLOVES:
+        case BRACERS:
+        case GIRDLE:
+        case CONTAINER:
+        case DRINK:
+        case FLESH:
+        case INORGANIC:
+        case CLOAK:
+        case GEM:
+        case JEWEL:
+        case NUGGET:
+        case PEARL:
+        case POWER_CRYSTAL:
+        case BOOK:
+        case LIGHT_APPLY:
+        case LIGHT_REFILL:
+        case BOOK_SPELL:
+        case TRINKET:
+        case PAINTING:
+            return true;
     }
 
     return false;
@@ -1361,8 +1292,7 @@ bool need_identify(const object *op)
  * @param op
  * Object to identify.
  */
-void identify(object *op)
-{
+void identify(object *op) {
     if (!op) {
         return;
     }
@@ -1383,8 +1313,7 @@ void identify(object *op)
  * @param op
  * The object to check.
  */
-void set_trapped_flag(object *op)
-{
+void set_trapped_flag(object *op) {
     object *tmp;
     uint32_t flag;
 

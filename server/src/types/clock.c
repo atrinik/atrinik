@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->map == NULL) {
@@ -44,13 +42,7 @@ process_func (object *op)
     }
 
     if (op->last_heal > 0) {
-        play_sound_map(op->map,
-                       CMD_SOUND_EFFECT,
-                       "clock.ogg",
-                       op->x,
-                       op->y,
-                       0,
-                       0);
+        play_sound_map(op->map, CMD_SOUND_EFFECT, "clock.ogg", op->x, op->y, 0, 0);
         op->last_heal--;
         return;
     }
@@ -71,9 +63,7 @@ process_func (object *op)
 }
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -87,10 +77,11 @@ apply_func (object *op, object *applier, int aflags)
     if ((tod.hour % (HOURS_PER_DAY / 2)) == 0) {
         hour = HOURS_PER_DAY / 2;
     } else {
-        hour =  tod.hour % (HOURS_PER_DAY / 2);
+        hour = tod.hour % (HOURS_PER_DAY / 2);
     }
 
-    draw_info_format(COLOR_WHITE, applier,
+    draw_info_format(COLOR_WHITE,
+                     applier,
                      "It is %d minute%s past %d o'clock %s.",
                      tod.minute,
                      tod.minute == 1 ? "" : "s",
@@ -101,9 +92,7 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::insert_map_func */
-static void
-insert_map_func (object *op)
-{
+static void insert_map_func(object *op) {
     timeofday_t tod;
     get_tod(&tod);
     op->last_sp = tod.hour;
@@ -112,8 +101,7 @@ insert_map_func (object *op)
 /**
  * Initialize the clock type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(clock)
-{
+OBJECT_TYPE_INIT_DEFINE(clock) {
     OBJECT_METHODS(CLOCK)->process_func = process_func;
     OBJECT_METHODS(CLOCK)->apply_func = apply_func;
     OBJECT_METHODS(CLOCK)->insert_map_func = insert_map_func;

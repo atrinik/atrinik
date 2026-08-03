@@ -65,8 +65,7 @@ static size_t num_cache = 0;
 /**
  * Comparison function for binary search in cache_find().
  */
-static int cache_compare(const void *one, const void *two)
-{
+static int cache_compare(const void *one, const void *two) {
     const cache_struct *one_cache = one;
     const cache_struct *two_cache = two;
 
@@ -92,8 +91,7 @@ static int cache_compare(const void *one, const void *two)
  * @return
  * Pointer to the cache entry, NULL if there is no such entry.
  */
-cache_struct *cache_find(shstr *key)
-{
+cache_struct *cache_find(shstr *key) {
     cache_struct bkey;
 
     /* Sanity. */
@@ -118,8 +116,7 @@ cache_struct *cache_find(shstr *key)
  * 1 on success, 0 on failure (NULL ptr, or cache entry with name
  * 'key' already exists).
  */
-int cache_add(const char *key, void *ptr, uint32_t flags)
-{
+int cache_add(const char *key, void *ptr, uint32_t flags) {
     size_t i, ii;
     shstr *sh_key = add_string(key);
 
@@ -164,8 +161,7 @@ int cache_add(const char *key, void *ptr, uint32_t flags)
  * @return
  * 1 on success, 0 on failure (cache entry not found).
  */
-int cache_remove(shstr *key)
-{
+int cache_remove(shstr *key) {
     cache_struct *entry = cache_find(key);
     size_t i;
 
@@ -175,7 +171,7 @@ int cache_remove(shstr *key)
 
     /* The entry wants global events, so send one about it being removed. */
     if (entry->flags & CACHE_FLAG_GEVENT) {
-        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32_t *) & entry->flags);
+        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32_t *)&entry->flags);
     }
 
     /* Does it want to be freed automatically? */
@@ -202,8 +198,7 @@ int cache_remove(shstr *key)
 /**
  * Remove all cache entries.
  */
-void cache_remove_all(void)
-{
+void cache_remove_all(void) {
     /* Keep removing until there's nothing left. */
     while (num_cache) {
         if (!cache_remove(cache[0].key)) {
@@ -219,8 +214,7 @@ void cache_remove_all(void)
  * @param flags
  * One or a combination of @ref CACHE_FLAG_xxx.
  */
-void cache_remove_by_flags(uint32_t flags)
-{
+void cache_remove_by_flags(uint32_t flags) {
     size_t i;
 
     /* Search for matching entries, and remove them. */

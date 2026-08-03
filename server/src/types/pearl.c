@@ -35,6 +35,4 @@
 /**
  * Initialize the pearl type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(pearl)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(pearl) {}

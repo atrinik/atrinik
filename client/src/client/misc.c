@@ -34,8 +34,7 @@
  * @param url
  * URL to open.
  */
-void browser_open(const char *url)
-{
+void browser_open(const char *url) {
 #if defined(WIN32)
     ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
 #elif defined(__GNUC__)
@@ -66,12 +65,16 @@ void browser_open(const char *url)
  * @return
  * 'dst'.
  */
-char *package_get_version_full(char *dst, size_t dstlen)
-{
+char *package_get_version_full(char *dst, size_t dstlen) {
 #if PACKAGE_VERSION_PATCH == 0
     package_get_version_partial(dst, dstlen);
 #else
-    snprintf(dst, dstlen, "%d.%d.%d", PACKAGE_VERSION_MAJOR, PACKAGE_VERSION_MINOR, PACKAGE_VERSION_PATCH);
+    snprintf(dst,
+             dstlen,
+             "%d.%d.%d",
+             PACKAGE_VERSION_MAJOR,
+             PACKAGE_VERSION_MINOR,
+             PACKAGE_VERSION_PATCH);
 #endif
     return dst;
 }
@@ -86,8 +89,7 @@ char *package_get_version_full(char *dst, size_t dstlen)
  * @return
  * 'dst'
  */
-char *package_get_version_partial(char *dst, size_t dstlen)
-{
+char *package_get_version_partial(char *dst, size_t dstlen) {
     /* Upgrader version will overrule the package version if the upgrader
      * is currently doing its job. */
     if (upgrader_get_version_partial(dst, dstlen)) {
@@ -105,12 +107,16 @@ char *package_get_version_partial(char *dst, size_t dstlen)
  * @return
  * 1 if the file was converted to PNG, 0 otherwise.
  */
-int bmp2png(const char *path)
-{
+int bmp2png(const char *path) {
 #if defined(__GNUC__) && !defined(WIN32)
     char buf[HUGE_BUF];
 
-    snprintf(buf, sizeof(buf), "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"", path, path, path);
+    snprintf(buf,
+             sizeof(buf),
+             "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"",
+             path,
+             path,
+             path);
 
     if (system(buf) != 0) {
         LOG(INFO, "Could not convert %s from BMP to PNG.", path);
@@ -119,7 +125,7 @@ int bmp2png(const char *path)
 
     return 1;
 #else
-    (void) path;
+    (void)path;
     return 0;
 #endif
 }
@@ -129,8 +135,7 @@ int bmp2png(const char *path)
  * @param surface
  * The surface to take a screenshot of.
  */
-void screenshot_create(SDL_Surface *surface)
-{
+void screenshot_create(SDL_Surface *surface) {
     char path[HUGE_BUF], timebuf[MAX_BUF];
     struct timeval tv;
     struct tm *tm;
@@ -146,13 +151,17 @@ void screenshot_create(SDL_Surface *surface)
         char timebuf2[MAX_BUF];
 
         strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
-        snprintf(timebuf, sizeof(timebuf), "%s-%06"PRIu64, timebuf2, (uint64_t) tv.tv_usec);
+        snprintf(timebuf, sizeof(timebuf), "%s-%06" PRIu64, timebuf2, (uint64_t)tv.tv_usec);
     } else {
         draw_info(COLOR_RED, "Could not get time information.");
         return;
     }
 
-    snprintf(path, sizeof(path), "%s/.atrinik/screenshots/Atrinik-%s.bmp", get_config_dir(), timebuf);
+    snprintf(path,
+             sizeof(path),
+             "%s/.atrinik/screenshots/Atrinik-%s.bmp",
+             get_config_dir(),
+             timebuf);
     mkdir_ensure(path);
 
     if (SDL_SaveBMP(surface, path) == 0) {

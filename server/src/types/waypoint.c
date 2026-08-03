@@ -37,9 +37,7 @@
 /**
  * Initialize the waypoint type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(waypoint)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(waypoint) {}
 
 /**
  * Find a monster's currently active waypoint, if any.
@@ -49,16 +47,15 @@ OBJECT_TYPE_INIT_DEFINE(waypoint)
  * @return
  * Active waypoint of this monster, NULL if none found.
  */
-object *
-waypoint_get_active (object *npc)
-{
+object *waypoint_get_active(object *npc) {
     HARD_ASSERT(npc != NULL);
 
     FOR_INV_PREPARE(npc, tmp) {
         if (tmp->type == WAYPOINT_OBJECT && QUERY_FLAG(tmp, FLAG_CURSED)) {
             return tmp;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
@@ -71,16 +68,15 @@ waypoint_get_active (object *npc)
  * @return
  * Aggro waypoint of this monster, NULL if none found.
  */
-object *
-waypoint_get_aggro (object *npc)
-{
+object *waypoint_get_aggro(object *npc) {
     HARD_ASSERT(npc != NULL);
 
     FOR_INV_PREPARE(npc, tmp) {
         if (tmp->type == WAYPOINT_OBJECT && QUERY_FLAG(tmp, FLAG_DAMNED)) {
             return tmp;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
@@ -94,16 +90,15 @@ waypoint_get_aggro (object *npc)
  * Return-home waypoint of this monster, NULL if none
  * found.
  */
-object *
-waypoint_get_home (object *npc)
-{
+object *waypoint_get_home(object *npc) {
     HARD_ASSERT(npc != NULL);
 
     FOR_INV_PREPARE(npc, tmp) {
         if (tmp->type == WAYPOINT_OBJECT && QUERY_FLAG(tmp, FLAG_REFLECTING)) {
             return tmp;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
@@ -118,9 +113,7 @@ waypoint_get_home (object *npc)
  * @return
  * The waypoint object if found, NULL otherwise.
  */
-static object *
-waypoint_find (object *npc, shstr *name)
-{
+static object *waypoint_find(object *npc, shstr *name) {
     HARD_ASSERT(npc != NULL);
     HARD_ASSERT(name != NULL);
 
@@ -128,7 +121,8 @@ waypoint_find (object *npc, shstr *name)
         if (tmp->type == WAYPOINT_OBJECT && tmp->name == name) {
             return tmp;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
@@ -144,17 +138,12 @@ waypoint_find (object *npc, shstr *name)
  * @return
  * Destination map.
  */
-static mapstruct *
-waypoint_load_destination (object *op, object *npc)
-{
+static mapstruct *waypoint_load_destination(object *op, object *npc) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(npc != NULL);
 
     if (!map_path_isabs(op->slaying)) {
-        char *path = map_get_path(npc->map,
-                                  op->slaying,
-                                  MAP_UNIQUE(npc->map),
-                                  NULL);
+        char *path = map_get_path(npc->map, op->slaying, MAP_UNIQUE(npc->map), NULL);
         FREE_AND_COPY_HASH(op->slaying, path);
         efree(path);
     }
@@ -176,9 +165,7 @@ waypoint_load_destination (object *op, object *npc)
  * @param waypoint
  * The waypoint object.
  */
-void
-waypoint_compute_path (object *op)
-{
+void waypoint_compute_path(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (unlikely(op->env == NULL)) {
@@ -192,13 +179,10 @@ waypoint_compute_path (object *op)
             op->x = op->stats.hp = op->enemy->x;
             op->y = op->stats.sp = op->enemy->y;
         } else {
-            LOG(ERROR,
-                "Dynamic waypoint without valid target: %s",
-                object_get_str(op));
+            LOG(ERROR, "Dynamic waypoint without valid target: %s", object_get_str(op));
             return;
         }
     }
-
 
     mapstruct *destmap;
     if (op->slaying != NULL) {
@@ -208,10 +192,7 @@ waypoint_compute_path (object *op)
     }
 
     if (destmap == NULL) {
-        LOG(ERROR,
-            "Invalid destination map '%s': %s",
-            op->slaying,
-            object_get_str(op));
+        LOG(ERROR, "Invalid destination map '%s': %s", op->slaying, object_get_str(op));
         return;
     }
 
@@ -279,9 +260,7 @@ waypoint_compute_path (object *op)
  * @param npc
  * Object to move.
  */
-void
-waypoint_move (object *op, object *npc)
-{
+void waypoint_move(object *op, object *npc) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(npc != NULL);
     HARD_ASSERT(npc->map != NULL);
@@ -289,8 +268,7 @@ waypoint_move (object *op, object *npc)
     mapstruct *destmap = npc->map;
 
     if (QUERY_FLAG(op, FLAG_DAMNED)) {
-        if (op->enemy == npc->enemy &&
-            op->enemy_count == npc->enemy_count &&
+        if (op->enemy == npc->enemy && op->enemy_count == npc->enemy_count &&
             OBJECT_VALID(op->enemy, op->enemy_count)) {
             destmap = op->enemy->map;
             op->stats.hp = op->enemy->x;
@@ -321,8 +299,7 @@ waypoint_move (object *op, object *npc)
                                         op->stats.hp,
                                         op->stats.sp,
                                         &global_rv,
-                                        RV_RECURSIVE_SEARCH |
-                                        RV_DIAGONAL_DISTANCE)) {
+                                        RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE)) {
         LOG(ERROR,
             "Could not find rv to: %s, %d, %d, waypoint: %s",
             destmap->path,
@@ -337,8 +314,7 @@ waypoint_move (object *op, object *npc)
     rv_vector *dest_rv = &global_rv;
 
     /* Reached the final destination? */
-    if (global_rv.distance_z == 0 &&
-        global_rv.distance <= (unsigned int) op->stats.maxsp) {
+    if (global_rv.distance_z == 0 && global_rv.distance <= (unsigned int)op->stats.maxsp) {
         /* Just arrived? */
         if (op->stats.ac == 0) {
 #ifdef DEBUG_PATHFINDING
@@ -346,15 +322,7 @@ waypoint_move (object *op, object *npc)
 #endif
 
             /* Trigger the TRIGGER event */
-            if (trigger_event(EVENT_TRIGGER,
-                              npc,
-                              op,
-                              NULL,
-                              NULL,
-                              0,
-                              0,
-                              0,
-                              0) != 0) {
+            if (trigger_event(EVENT_TRIGGER, npc, op, NULL, NULL, 0, 0, 0, 0) != 0) {
                 return;
             }
         }
@@ -410,14 +378,12 @@ waypoint_move (object *op, object *npc)
     /* If we finished our current path, clear it so that we can get a
      * new one. */
     if (op->msg != NULL && (op->msg[op->stats.food] == '\0' ||
-                            (global_rv.distance_z == 0 &&
-                             global_rv.distance <= 0))) {
+                            (global_rv.distance_z == 0 && global_rv.distance <= 0))) {
         FREE_AND_CLEAR_HASH(op->msg);
     }
 
     /* Get new path if target has moved much since the path was created. */
-    if (QUERY_FLAG(op, FLAG_DAMNED) &&
-        op->msg != NULL &&
+    if (QUERY_FLAG(op, FLAG_DAMNED) && op->msg != NULL &&
         (op->stats.hp != op->x || op->stats.sp != op->y)) {
         rv_vector rv;
         ;
@@ -462,14 +428,13 @@ waypoint_move (object *op, object *npc)
 
             new_offset = op->stats.food;
 
-            if (new_offset < op->attacked_by_distance &&
-                path_get_next(op->msg,
-                              &new_offset,
-                              &op->race,
-                              &destmap,
-                              &destx,
-                              &desty,
-                              &destflags)) {
+            if (new_offset < op->attacked_by_distance && path_get_next(op->msg,
+                                                                       &new_offset,
+                                                                       &op->race,
+                                                                       &destmap,
+                                                                       &destx,
+                                                                       &desty,
+                                                                       &destflags)) {
                 get_rangevector_from_mapcoords(npc->map,
                                                npc->x,
                                                npc->y,
@@ -477,8 +442,7 @@ waypoint_move (object *op, object *npc)
                                                destx,
                                                desty,
                                                &local_rv,
-                                               RV_RECURSIVE_SEARCH |
-                                               RV_DIAGONAL_DISTANCE);
+                                               RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE);
                 dest_rv = &local_rv;
             } else {
                 /* We seem to have an invalid path string or offset. */
@@ -489,7 +453,7 @@ waypoint_move (object *op, object *npc)
     }
 
     /* Did we get closer to our goal last time? */
-    if (dest_rv->distance < (unsigned int) op->stats.dam) {
+    if (dest_rv->distance < (unsigned int)op->stats.dam) {
         op->stats.dam = dest_rv->distance;
         /* Number of times we failed getting closer to (sub)goal */
         op->stats.Str = 0;
@@ -502,7 +466,8 @@ waypoint_move (object *op, object *npc)
 #ifdef DEBUG_PATHFINDING
             LOG(DEBUG,
                 "Stuck with a best-effort waypoint (%s). Accepting "
-                "current position", op->name);
+                "current position",
+                op->name);
 #endif
             op->stats.hp = npc->x;
             op->stats.sp = npc->y;
@@ -510,10 +475,8 @@ waypoint_move (object *op, object *npc)
         }
     }
 
-    if ((global_rv.distance_z != 0 || global_rv.distance > 1) &&
-        op->msg == NULL &&
-        QUERY_FLAG(op, FLAG_WP_PATH_REQUESTED) &&
-        !QUERY_FLAG(op, FLAG_DAMNED)) {
+    if ((global_rv.distance_z != 0 || global_rv.distance > 1) && op->msg == NULL &&
+        QUERY_FLAG(op, FLAG_WP_PATH_REQUESTED) && !QUERY_FLAG(op, FLAG_DAMNED)) {
 #ifdef DEBUG_PATHFINDING
         LOG(DEBUG, "No path found. '%s' standing still.", npc->name);
 #endif
@@ -550,23 +513,23 @@ waypoint_move (object *op, object *npc)
             if (OBJECTS_DESTROYED(npc)) {
                 return;
             }
-        } OBJECTS_DESTROYED_END();
+        }
+        OBJECTS_DESTROYED_END();
 
         /* If we had a local destination and we got close enough to it,
          * accept it. */
         if (dest_rv == &local_rv && dest_rv->distance == 1 && ret != -1) {
             /* Handle entering exits that need to be manually
              * applied (stairs, ladders, etc). */
-            if (destflags & PATH_NODE_EXIT &&
-                npc->map == destmap &&
-                npc->x == destx &&
+            if (destflags & PATH_NODE_EXIT && npc->map == destmap && npc->x == destx &&
                 npc->y == desty) {
                 FOR_MAP_PREPARE(npc->map, npc->x, npc->y, tmp) {
                     if (tmp->type == EXIT) {
                         object_apply(tmp, npc, 0);
                         break;
                     }
-                } FOR_MAP_FINISH();
+                }
+                FOR_MAP_FINISH();
             }
 
             op->stats.food = new_offset;

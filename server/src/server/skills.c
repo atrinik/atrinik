@@ -40,8 +40,7 @@
  * @param level
  * Level of the find traps skill.
  */
-void find_traps(object *pl, int level)
-{
+void find_traps(object *pl, int level) {
     object *tmp, *tmp2;
     mapstruct *m;
     int xt, yt, i, suc = 0;
@@ -113,8 +112,7 @@ void find_traps(object *pl, int level)
  * @param op
  * Player disarming.
  */
-void remove_trap(object *op)
-{
+void remove_trap(object *op) {
     object *tmp, *tmp2;
     mapstruct *m;
     int i, x, y;

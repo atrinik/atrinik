@@ -179,7 +179,8 @@ extern void account_register(socket_struct *ns, char *name, char *password, char
 extern void account_new_char(socket_struct *ns, char *name, char *archname);
 extern void account_login_char(socket_struct *ns, char *name);
 extern void account_logout_char(socket_struct *ns, player *pl);
-extern void account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2);
+extern void
+account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2);
 extern void account_password_force(object *op, char *name, const char *password);
 /* src/server/anim.c */
 extern Animations *animations;
@@ -251,23 +252,37 @@ extern StringBuffer *object_get_title(const object *op, const object *caller, St
 extern char *object_get_title_s(const object *op, const object *caller);
 extern StringBuffer *object_get_name(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_name_s(const object *op, const object *caller);
-extern StringBuffer *object_get_short_name(const object *op, const object *caller, StringBuffer *sb);
+extern StringBuffer *
+object_get_short_name(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_short_name_s(const object *op, const object *caller);
-extern StringBuffer *object_get_material_name(const object *op, const object *caller, StringBuffer *sb);
+extern StringBuffer *
+object_get_material_name(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_material_name_s(const object *op, const object *caller);
 extern StringBuffer *object_get_base_name(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_base_name_s(const object *op, const object *caller);
-extern StringBuffer *object_get_description_terrain(const object *op, const object *caller, StringBuffer *sb);
+extern StringBuffer *
+object_get_description_terrain(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_description_terrain_s(const object *op, const object *caller);
-extern StringBuffer *object_get_description_attacks(const object *op, const object *caller, StringBuffer *sb);
+extern StringBuffer *
+object_get_description_attacks(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_description_attacks_s(const object *op, const object *caller);
-extern StringBuffer *object_get_description_protections(const object *op, const object *caller, StringBuffer *sb);
+extern StringBuffer *
+object_get_description_protections(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_description_protections_s(const object *op, const object *caller);
-extern StringBuffer *object_get_description_path(const object *op, const object *caller, const uint32_t path, const char *name, StringBuffer *sb);
-extern char *object_get_description_path_s(const object *op, const object *caller, const uint32_t path, const char *name);
-extern StringBuffer *object_get_description(const object *op, const object *caller, StringBuffer *sb);
+extern StringBuffer *object_get_description_path(const object *op,
+                                                 const object *caller,
+                                                 const uint32_t path,
+                                                 const char *name,
+                                                 StringBuffer *sb);
+extern char *object_get_description_path_s(const object *op,
+                                           const object *caller,
+                                           const uint32_t path,
+                                           const char *name);
+extern StringBuffer *
+object_get_description(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_description_s(const object *op, const object *caller);
-extern StringBuffer *object_get_name_description(const object *op, const object *caller, StringBuffer *sb);
+extern StringBuffer *
+object_get_name_description(const object *op, const object *caller, StringBuffer *sb);
 extern char *object_get_name_description_s(const object *op, const object *caller);
 extern bool need_identify(const object *op);
 extern void identify(object *op);
@@ -283,8 +298,13 @@ extern void objectlink_deinit(void);
 extern objectlink *get_objectlink(void);
 extern void free_objectlink(objectlink *ol);
 extern void free_objectlinkpt(objectlink *obp);
-extern objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectlink *afterptr, objectlink *beforeptr, objectlink *objptr);
-extern objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr);
+extern objectlink *objectlink_link(objectlink **startptr,
+                                   objectlink **endptr,
+                                   objectlink *afterptr,
+                                   objectlink *beforeptr,
+                                   objectlink *objptr);
+extern objectlink *
+objectlink_unlink(objectlink **startptr, objectlink **endptr, objectlink *objptr);
 /* src/server/living.c */
 extern double dam_bonus[30 + 1];
 extern int wc_bonus[30 + 1];
@@ -357,17 +377,31 @@ extern void form_party(object *op, const char *name);
 extern party_struct *find_party(const char *name);
 extern int party_can_open_corpse(object *pl, object *corpse);
 extern void party_handle_corpse(object *pl, object *corpse);
-extern void send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except);
+extern void
+send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except);
 extern void remove_party(party_struct *party);
 extern void party_update_who(player *pl);
 /* src/server/pathfinder.c */
 extern void path_request(object *waypoint);
 extern object *path_get_next_request(void);
 extern shstr *path_encode(path_node_t *path);
-extern int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map, int *x, int *y, uint32_t *flags);
+extern int path_get_next(shstr *buf,
+                         int16_t *off,
+                         shstr **mappath,
+                         mapstruct **map,
+                         int *x,
+                         int *y,
+                         uint32_t *flags);
 extern path_node_t *path_compress(path_node_t *path);
 extern void path_visualize(path_visualization_t **visualization, path_visualizer_t **visualizer);
-extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer);
+extern path_node_t *path_find(object *op,
+                              mapstruct *map1,
+                              int x,
+                              int y,
+                              mapstruct *map2,
+                              int x2,
+                              int y2,
+                              path_visualizer_t **visualizer);
 /* src/server/plugins.c */
 extern object *get_event_object(object *op, int event_nr);
 extern void display_plugins_list(object *op);
@@ -377,10 +411,24 @@ extern void remove_plugin(const char *id);
 extern void remove_plugins(void);
 extern void map_event_obj_init(object *ob);
 extern void map_event_free(map_event *tmp);
-extern int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm);
+extern int trigger_map_event(int event_id,
+                             mapstruct *m,
+                             object *activator,
+                             object *other,
+                             object *other2,
+                             const char *text,
+                             int parm);
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
 extern int trigger_unit_event(object *const activator, object *const me);
-extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
+extern int trigger_event(int event_type,
+                         object *const activator,
+                         object *const me,
+                         object *const other,
+                         const char *msg,
+                         int parm1,
+                         int parm2,
+                         int parm3,
+                         int flags);
 /* src/server/quest.c */
 extern void quest_handle(object *op, object *quest);
 /* src/server/race.c */
@@ -455,7 +503,8 @@ extern int do_cast_identify(object *tmp, object *op, int mode, int *done, int le
 extern int cast_identify(object *op, int level, object *single_ob, int mode);
 extern int cast_consecrate(object *op);
 extern int finger_of_death(object *op, object *target);
-extern int cast_cause_disease(object *op, object *caster, int dir, struct archetype *disease_arch, int type);
+extern int
+cast_cause_disease(object *op, object *caster, int dir, struct archetype *disease_arch, int type);
 extern int cast_transform_wealth(object *op);
 /* src/server/spell_util.c */
 extern spell_struct spells[52];
@@ -464,11 +513,29 @@ extern struct archetype *spellarch[52];
 extern void init_spells(void);
 extern int insert_spell_effect(const char *archname, mapstruct *m, int x, int y);
 extern spell_struct *find_spell(int spelltype);
-extern int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg);
+extern int cast_spell(object *op,
+                      object *caster,
+                      int dir,
+                      int type,
+                      int ability,
+                      int item,
+                      const char *stringarg);
 extern int cast_create_obj(object *op, object *new_op, int dir);
 extern int fire_bolt(object *op, object *caster, int dir, int type);
-extern int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, struct archetype *at, int type, object *target);
-extern int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, struct archetype *spell_arch);
+extern int fire_arch_from_position(object *op,
+                                   object *caster,
+                                   int16_t x,
+                                   int16_t y,
+                                   int dir,
+                                   struct archetype *at,
+                                   int type,
+                                   object *target);
+extern int cast_cone(object *op,
+                     object *caster,
+                     int dir,
+                     int strength,
+                     int spell_type,
+                     struct archetype *spell_arch);
 extern void cone_drop(object *op);
 extern void explode_object(object *op);
 extern void check_fired_arch(object *op);
@@ -476,7 +543,13 @@ extern int find_target_for_spell(object *op, object **target, uint32_t flags);
 extern int SP_level_dam_adjust(object *caster, int spell_type, bool exact);
 extern int SP_level_strength_adjust(object *caster, int spell_type);
 extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
-extern void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_type, int spell_type, int n, int magic);
+extern void fire_swarm(object *op,
+                       object *caster,
+                       int dir,
+                       struct archetype *swarm_type,
+                       int spell_type,
+                       int n,
+                       int magic);
 extern void spell_failure_raw_mana(object *caster, int level);
 extern void spell_failure(object *caster, int level);
 extern int spell_get_random(int level, int flags);
@@ -513,8 +586,10 @@ extern const char *const coins[6 + 1];
 extern struct archetype *coins_arch[6];
 extern void treasure_init(void);
 extern treasure_list_t *treasure_list_find(const char *name);
-extern object *treasure_generate_single(treasure_list_t *treasure_list, int difficulty, int artifact_chance);
-extern void treasure_generate(treasure_list_t *treasure_list, object *op, int difficulty, int flags);
+extern object *
+treasure_generate_single(treasure_list_t *treasure_list, int difficulty, int artifact_chance);
+extern void
+treasure_generate(treasure_list_t *treasure_list, object *op, int difficulty, int flags);
 extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
 /* src/server/weather.c */
@@ -529,17 +604,49 @@ extern int skill_inscription(object *op, const char *params);
 extern int is_valid_faceset(int fsn);
 extern void free_socket_images(void);
 extern void read_client_images(void);
-extern void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void face_get_data(int face, uint8_t **ptr, uint16_t *len);
 /* src/socket/info.c */
-extern void draw_info_send(uint8_t type, const char *name, const char *color, socket_struct *ns, const char *buf);
-extern void draw_info_full(uint8_t type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *buf);
-extern void draw_info_full_format(uint8_t type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...) __attribute__((format(printf, 6, 7)));
-extern void draw_info_type(uint8_t type, const char *name, const char *color, object *pl, const char *buf);
-extern void draw_info_type_format(uint8_t type, const char *name, const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 5, 6)));
+extern void draw_info_send(uint8_t type,
+                           const char *name,
+                           const char *color,
+                           socket_struct *ns,
+                           const char *buf);
+extern void draw_info_full(uint8_t type,
+                           const char *name,
+                           const char *color,
+                           StringBuffer *sb_capture,
+                           object *pl,
+                           const char *buf);
+extern void draw_info_full_format(uint8_t type,
+                                  const char *name,
+                                  const char *color,
+                                  StringBuffer *sb_capture,
+                                  object *pl,
+                                  const char *format,
+                                  ...) __attribute__((format(printf, 6, 7)));
+extern void
+draw_info_type(uint8_t type, const char *name, const char *color, object *pl, const char *buf);
+extern void draw_info_type_format(uint8_t type,
+                                  const char *name,
+                                  const char *color,
+                                  object *pl,
+                                  const char *format,
+                                  ...) __attribute__((format(printf, 5, 6)));
 extern void draw_info(const char *color, object *pl, const char *buf);
-extern void draw_info_format(const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 3, 4)));
-extern void draw_info_map(uint8_t type, const char *name, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf);
+extern void draw_info_format(const char *color, object *pl, const char *format, ...)
+    __attribute__((format(printf, 3, 4)));
+extern void draw_info_map(uint8_t type,
+                          const char *name,
+                          const char *color,
+                          mapstruct *map,
+                          int x,
+                          int y,
+                          int dist,
+                          object *op,
+                          object *op2,
+                          const char *buf);
 /* src/socket/init.c */
 extern Socket_Info socket_info;
 extern socket_struct *init_sockets;
@@ -549,7 +656,12 @@ extern void free_newsocket(socket_struct *ns);
 extern void init_srv_files(void);
 /* src/socket/item.c */
 extern unsigned int query_flags(object *op);
-extern void add_object_to_packet(struct packet_struct *packet, object *op, object *pl, uint8_t apply_action, uint32_t flags, int level);
+extern void add_object_to_packet(struct packet_struct *packet,
+                                 object *op,
+                                 object *pl,
+                                 uint8_t apply_action,
+                                 uint32_t flags,
+                                 int level);
 extern void esrv_draw_look(object *pl);
 extern void esrv_close_container(object *pl, object *op);
 extern void esrv_send_inventory(object *pl, object *op);
@@ -557,40 +669,42 @@ extern void esrv_update_item(int flags, object *op);
 extern void esrv_send_item(object *op);
 extern void esrv_del_item(object *op);
 extern object *esrv_get_ob_from_count(object *pl, tag_t count);
-extern void socket_command_item_examine(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_item_examine(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void send_quickslots(player *pl);
-extern void socket_command_quickslot(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_item_apply(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_item_lock(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_item_mark(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_quickslot(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_item_apply(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_item_lock(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_item_mark(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof);
 /* src/socket/lowlevel.c */
 extern void socket_buffer_clear(socket_struct *ns);
 extern void socket_buffer_write(socket_struct *ns);
-extern bool socket_buffer_can_enqueue(const socket_struct *ns,
-        size_t bytes, bool bulk);
+extern bool socket_buffer_can_enqueue(const socket_struct *ns, size_t bytes, bool bulk);
 extern void socket_send_packet(socket_struct *ns, struct packet_struct *packet);
 /* src/socket/metaserver.c */
 extern void metaserver_info_update(void);
 extern void metaserver_init(void);
 extern void metaserver_deinit(void);
 extern void metaserver_stats(char *buf, size_t size);
-extern bool metaserver_rendezvous_token_parse(const char *body,
-        size_t body_size, char token[65]);
+extern bool metaserver_rendezvous_token_parse(const char *body, size_t body_size, char token[65]);
 /* src/socket/assets.c */
 extern void socket_assets_init(void);
 extern void socket_assets_deinit(void);
-void
-socket_command_asset(socket_struct *ns,
-                     player        *pl,
-                     uint8_t       *data,
-                     size_t         len,
-                     size_t         pos);
+void socket_command_asset(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 /* src/socket/request.c */
-extern void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void esrv_update_stats(player *pl);
 extern void esrv_new_player(player *pl, uint32_t weight);
 extern void draw_map_text_anim(object *pl, const char *color, const char *text);
@@ -599,37 +713,50 @@ extern void packet_append_map_name(struct packet_struct *packet, object *op, obj
 extern void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info);
 extern void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info);
 extern void draw_client_map2(object *pl);
-extern void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void send_target_command(player *pl);
-extern void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void generate_quick_name(player *pl);
-extern void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-extern void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-void
-socket_command_crypto(socket_struct *ns,
-                      player        *pl,
-                      uint8_t       *data,
-                      size_t         len,
-                      size_t         pos);
-void
-socket_command_ask_resource(socket_struct *ns,
-                            player        *pl,
-                            uint8_t       *data,
-                            size_t         len,
-                            size_t         pos);
+extern void
+socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_combat(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+void socket_command_crypto(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+void socket_command_ask_resource(socket_struct *ns,
+                                 player *pl,
+                                 uint8_t *data,
+                                 size_t len,
+                                 size_t pos);
 /* src/socket/sounds.c */
-extern void play_sound_player_only(player *pl, int type, const char *filename, int x, int y, int loop, int volume);
-extern void play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume);
+extern void play_sound_player_only(player *pl,
+                                   int type,
+                                   const char *filename,
+                                   int x,
+                                   int y,
+                                   int loop,
+                                   int volume);
+extern void
+play_sound_map(mapstruct *map, int type, const char *filename, int x, int y, int loop, int volume);
 /* src/socket/updates.c */
 extern void updates_init(void);
-extern void socket_command_request_update(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern void
+socket_command_request_update(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 /* src/types/common/apply.c */
 extern int common_object_apply(object *op, object *applier, int aflags);
 extern int object_apply_item(object *op, object *applier, int aflags);
@@ -647,7 +774,8 @@ extern object *common_object_projectile_stop_missile(object *op, int reason);
 extern object *common_object_projectile_stop_spell(object *op, int reason);
 extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
 extern int common_object_projectile_hit(object *op, object *victim);
-extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
+extern int
+common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
 /* src/types/monster.c */
 extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
 extern void monster_enemy_signal(object *npc, object *enemy);

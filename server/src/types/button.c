@@ -34,14 +34,11 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
-    if (!DBL_EQUAL(op->speed, 0.0) ||
-        (op->stats.exp == -1 && op->value != 0)) {
+    if (!DBL_EQUAL(op->speed, 0.0) || (op->stats.exp == -1 && op->value != 0)) {
         return OBJECT_METHOD_OK;
     }
 
@@ -50,9 +47,7 @@ move_on_func (object *op, object *victim, object *originator, int state)
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -68,9 +63,7 @@ trigger_func (object *op, object *cause, int state)
 }
 
 /** @copydoc object_methods_t::trigger_button_func */
-static int
-trigger_button_func (object *op, object *cause, int state)
-{
+static int trigger_button_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -92,7 +85,8 @@ trigger_button_func (object *op, object *cause, int state)
         }
 
         total += tmp->weight * MAX(1, tmp->nrof) + tmp->carrying;
-    } FOR_MAP_FINISH();
+    }
+    FOR_MAP_FINISH();
 
     op->value = total >= op->weight;
 
@@ -100,9 +94,7 @@ trigger_button_func (object *op, object *cause, int state)
 }
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     op->speed = 0;
@@ -119,8 +111,7 @@ process_func (object *op)
 /**
  * Initialize the button type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(button)
-{
+OBJECT_TYPE_INIT_DEFINE(button) {
     OBJECT_METHODS(BUTTON)->move_on_func = move_on_func;
     OBJECT_METHODS(BUTTON)->trigger_func = trigger_func;
     OBJECT_METHODS(BUTTON)->trigger_button_func = trigger_button_func;

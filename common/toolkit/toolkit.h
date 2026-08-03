@@ -57,20 +57,18 @@ typedef struct toolkit_dependency {
 /**
  * Check if the specified API has been imported yet.
  */
-#define toolkit_imported(__api_name) toolkit_check_imported(toolkit_ ## __api_name ## _deinit)
+#define toolkit_imported(__api_name) toolkit_check_imported(toolkit_##__api_name##_deinit)
 /**
  * Import the specified API (if it has not been imported yet).
  */
-#define toolkit_import(__api_name) toolkit_ ## __api_name ## _init()
+#define toolkit_import(__api_name) toolkit_##__api_name##_init()
 
-#define DEPENDS(__api_name) { toolkit_ ## __api_name ## _init, true}
-#define IMPORTS(__api_name) { toolkit_ ## __api_name ## _init, false}
+#define DEPENDS(__api_name) {toolkit_##__api_name##_init, true}
+#define IMPORTS(__api_name) {toolkit_##__api_name##_init, false}
 
-#define TOOLKIT_API(...) \
+#define TOOLKIT_API(...)            \
     static bool _did_init_ = false; \
-    static toolkit_dependency_t _dependencies_[] = { \
-        {NULL, true}, ## __VA_ARGS__, {NULL, true} \
-    }
+    static toolkit_dependency_t _dependencies_[] = {{NULL, true}, ##__VA_ARGS__, {NULL, true}}
 
 /**
  * Constructs a toolkit function name, for example, toolkit_string_init if the
@@ -81,67 +79,64 @@ typedef struct toolkit_dependency {
 /**
  * Defines an initialization function.
  */
-#define TOOLKIT_INIT_FUNC(__api_name) \
-    void TOOLKIT_FUNC(__api_name, _init)(void) \
-    { \
+#define TOOLKIT_INIT_FUNC(__api_name)                                   \
+    void TOOLKIT_FUNC(__api_name, _init)(void) {                        \
         toolkit_func _deinit_func_ = TOOLKIT_FUNC(__api_name, _deinit); \
-        const char *const _api_name_ = STRINGIFY(__api_name); \
-        if (toolkit_check_imported(_deinit_func_)) { \
-            return; \
-        } \
-        _did_init_ = true; \
+        const char *const _api_name_ = STRINGIFY(__api_name);           \
+        if (toolkit_check_imported(_deinit_func_)) {                    \
+            return;                                                     \
+        }                                                               \
+        _did_init_ = true;                                              \
         for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
-            if (_dependencies_[_i_].depends) { \
-                _dependencies_[_i_].func(); \
-            } \
-        } \
+            if (_dependencies_[_i_].depends) {                          \
+                _dependencies_[_i_].func();                             \
+            }                                                           \
+        }                                                               \
         toolkit_import_register(_api_name_, _deinit_func_);
 
 /**
  * Finishes a previously defined initialization function.
  */
-#define TOOLKIT_INIT_FUNC_FINISH \
-        for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
-            if (!_dependencies_[_i_].depends) { \
-                _dependencies_[_i_].func(); \
-            } \
-        } \
+#define TOOLKIT_INIT_FUNC_FINISH                                    \
+    for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
+        if (!_dependencies_[_i_].depends) {                         \
+            _dependencies_[_i_].func();                             \
+        }                                                           \
+    }                                                               \
     }
 
 /**
  * Defines a deinitialization function.
  */
-#define TOOLKIT_DEINIT_FUNC(__api_name) \
-    void TOOLKIT_FUNC(__api_name, _deinit)(void) \
-    {
+#define TOOLKIT_DEINIT_FUNC(__api_name) void TOOLKIT_FUNC(__api_name, _deinit)(void) {
 
 /**
  * Finishes a previously defined deinitialization function.
  */
 #define TOOLKIT_DEINIT_FUNC_FINISH \
-        _did_init_ = false; \
+    _did_init_ = false;            \
     }
 
 /**
  * Declares API functions.
  */
-#define TOOLKIT_FUNCS_DECLARE(__api_name)                       \
-    void TOOLKIT_FUNC(__api_name, _init)(void);                 \
+#define TOOLKIT_FUNCS_DECLARE(__api_name)       \
+    void TOOLKIT_FUNC(__api_name, _init)(void); \
     void TOOLKIT_FUNC(__api_name, _deinit)(void);
 
 #ifndef NDEBUG
-#define TOOLKIT_PROTECT() \
-    do { \
-        if (!_did_init_) { \
-            static bool did_warn = false; \
-            if (!did_warn) { \
-                toolkit_import(logger); \
-                did_warn = true; \
+#define TOOLKIT_PROTECT()                                                   \
+    do {                                                                    \
+        if (!_did_init_) {                                                  \
+            static bool did_warn = false;                                   \
+            if (!did_warn) {                                                \
+                toolkit_import(logger);                                     \
+                did_warn = true;                                            \
                 log_error("Toolkit API function used, but the API was not " \
-                          "initialized - this could result in undefined " \
-                          "behavior."); \
-            } \
-        } \
+                          "initialized - this could result in undefined "   \
+                          "behavior.");                                     \
+            }                                                               \
+        }                                                                   \
     } while (0)
 #else
 #define TOOLKIT_PROTECT()
@@ -156,9 +151,9 @@ typedef struct toolkit_dependency {
  * @defgroup buffer_sizes Buffer sizes
  *@{*/
 /** Used for all kinds of things. */
-#define MAX_BUF             256
+#define MAX_BUF 256
 /** Used for messages - some can be quite long. */
-#define HUGE_BUF            4096
+#define HUGE_BUF 4096
 /*@}*/
 
 /**
@@ -172,17 +167,21 @@ typedef struct toolkit_dependency {
 #define arraysize(arrayname) (sizeof(arrayname) / sizeof(*(arrayname)))
 
 /** Check if the keyword represents a true value. */
-#define KEYWORD_IS_TRUE(_keyword) (!strcasecmp((_keyword), "yes") || !strcasecmp((_keyword), "on") || !strcasecmp((_keyword), "true"))
+#define KEYWORD_IS_TRUE(_keyword)                                       \
+    (!strcasecmp((_keyword), "yes") || !strcasecmp((_keyword), "on") || \
+     !strcasecmp((_keyword), "true"))
 /** Check if the keyword represents a false value. */
-#define KEYWORD_IS_FALSE(_keyword) (!strcasecmp((_keyword), "no") || !strcasecmp((_keyword), "off") || !strcasecmp((_keyword), "false"))
-#define KEYWORD_TO_BOOLEAN(_keyword, _bool)     \
-do {                                            \
-    if (KEYWORD_IS_TRUE((_keyword))) {          \
-        (_bool) = true;                         \
-    } else if (KEYWORD_IS_FALSE((_keyword))) {  \
-        (_bool) = false;                        \
-    }                                           \
-} while (0)
+#define KEYWORD_IS_FALSE(_keyword)                                      \
+    (!strcasecmp((_keyword), "no") || !strcasecmp((_keyword), "off") || \
+     !strcasecmp((_keyword), "false"))
+#define KEYWORD_TO_BOOLEAN(_keyword, _bool)        \
+    do {                                           \
+        if (KEYWORD_IS_TRUE((_keyword))) {         \
+            (_bool) = true;                        \
+        } else if (KEYWORD_IS_FALSE((_keyword))) { \
+            (_bool) = false;                       \
+        }                                          \
+    } while (0)
 
 /**
  * @defgroup TIMER_xxx Timer macros
@@ -200,46 +199,42 @@ do {                                            \
  *@{*/
 
 #define TIMER_VAR(__var, __id) (__var##_##__id)
-#define TIMER_START(__id)                                                      \
-    TIMER_DECLARE(__id);                                                       \
+#define TIMER_START(__id) \
+    TIMER_DECLARE(__id);  \
     TIMER_RESTART(__id);
 
 #ifdef WIN32
 
-#define TIMER_DECLARE(__id)                                                    \
-    LARGE_INTEGER TIMER_VAR(__pt_frequency, __id);                             \
+#define TIMER_DECLARE(__id)                        \
+    LARGE_INTEGER TIMER_VAR(__pt_frequency, __id); \
     LARGE_INTEGER TIMER_VAR(__pt_t1, __id), TIMER_VAR(__pt_t2, __id)
-#define TIMER_RESTART(__id)                                                    \
-    do {                                                                       \
-        QueryPerformanceFrequency(&TIMER_VAR(__pt_frequency, __id));           \
-        QueryPerformanceCounter(&TIMER_VAR(__pt_t1, __id));                    \
+#define TIMER_RESTART(__id)                                          \
+    do {                                                             \
+        QueryPerformanceFrequency(&TIMER_VAR(__pt_frequency, __id)); \
+        QueryPerformanceCounter(&TIMER_VAR(__pt_t1, __id));          \
     } while (0)
-#define TIMER_UPDATE(__id)                                                     \
-    do {                                                                       \
-        QueryPerformanceCounter(&TIMER_VAR(__pt_t2, __id));                    \
+#define TIMER_UPDATE(__id)                                  \
+    do {                                                    \
+        QueryPerformanceCounter(&TIMER_VAR(__pt_t2, __id)); \
     } while (0)
-#define TIMER_GET(__id)                                                        \
-    (((TIMER_VAR(__pt_t2, __id).QuadPart -                                     \
-    TIMER_VAR(__pt_t1, __id).QuadPart)) /                                      \
-    (double) TIMER_VAR(__pt_frequency, __id).QuadPart)
+#define TIMER_GET(__id)                                                          \
+    (((TIMER_VAR(__pt_t2, __id).QuadPart - TIMER_VAR(__pt_t1, __id).QuadPart)) / \
+     (double)TIMER_VAR(__pt_frequency, __id).QuadPart)
 
 #else
 
-#define TIMER_DECLARE(__id)                                                    \
-    struct timeval TIMER_VAR(__pt_t1, __id), TIMER_VAR(__pt_t2, __id)
-#define TIMER_RESTART(__id)                                                    \
-    do {                                                                       \
-        GETTIMEOFDAY(&TIMER_VAR(__pt_t1, __id));                               \
+#define TIMER_DECLARE(__id) struct timeval TIMER_VAR(__pt_t1, __id), TIMER_VAR(__pt_t2, __id)
+#define TIMER_RESTART(__id)                      \
+    do {                                         \
+        GETTIMEOFDAY(&TIMER_VAR(__pt_t1, __id)); \
     } while (0)
-#define TIMER_UPDATE(__id)                                                     \
-    do {                                                                       \
-        GETTIMEOFDAY(&TIMER_VAR(__pt_t2, __id));                               \
+#define TIMER_UPDATE(__id)                       \
+    do {                                         \
+        GETTIMEOFDAY(&TIMER_VAR(__pt_t2, __id)); \
     } while (0)
-#define TIMER_GET(__id)                                                        \
-    (((TIMER_VAR(__pt_t2, __id).tv_sec -                                       \
-    TIMER_VAR(__pt_t1, __id).tv_sec)) +                                        \
-    ((TIMER_VAR(__pt_t2, __id).tv_usec -                                       \
-    TIMER_VAR(__pt_t1, __id).tv_usec) / 1000000.0))
+#define TIMER_GET(__id)                                                      \
+    (((TIMER_VAR(__pt_t2, __id).tv_sec - TIMER_VAR(__pt_t1, __id).tv_sec)) + \
+     ((TIMER_VAR(__pt_t2, __id).tv_usec - TIMER_VAR(__pt_t1, __id).tv_usec) / 1000000.0))
 
 #endif
 /*@}*/
@@ -247,87 +242,84 @@ do {                                            \
 #define _STRINGIFY(_X_) #_X_
 #define STRINGIFY(_X_) _STRINGIFY(_X_)
 
-#define _CONCAT(_X_, _Y_) _X_ ## _Y_
+#define _CONCAT(_X_, _Y_) _X_##_Y_
 #define CONCAT(_X_, _Y_) _CONCAT(_X_, _Y_)
 #define UNIQUE_VAR(_X_) CONCAT(_X_, __LINE__)
 
-#define SOFT_ASSERT_MSG(msg, ...) log_error((msg), ## __VA_ARGS__)
+#define SOFT_ASSERT_MSG(msg, ...) log_error((msg), ##__VA_ARGS__)
 
-#define _CASSERT(_test, _var)                                       \
-    typedef char _var[2*!!(_test) - 1] __attribute__((unused))
-#define CASSERT(_test)                                              \
-    _CASSERT(_test, UNIQUE_VAR(assertion_failed));
-#define CASSERT_ARRAY(_array, _size)                                \
-    _CASSERT(arraysize(_array) == (_size),                          \
-             array_ ## _array ## _missing_or_extra_elements);
+#define _CASSERT(_test, _var) typedef char _var[2 * !!(_test) - 1] __attribute__((unused))
+#define CASSERT(_test) _CASSERT(_test, UNIQUE_VAR(assertion_failed));
+#define CASSERT_ARRAY(_array, _size) \
+    _CASSERT(arraysize(_array) == (_size), array_##_array##_missing_or_extra_elements);
 
 #ifndef NDEBUG
 
 #include <assert.h>
 
-#define SOFT_ASSERT(cond, msg, ...) \
-    do { \
-        if (unlikely(!(cond))) { \
+#define SOFT_ASSERT(cond, msg, ...)              \
+    do {                                         \
+        if (unlikely(!(cond))) {                 \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
-            assert(cond); \
-            return; \
-        } \
+            assert(cond);                        \
+            return;                              \
+        }                                        \
     } while (0)
 
-#define SOFT_ASSERT_RC(cond, rc, msg, ...) \
-    do { \
-        if (unlikely(!(cond))) { \
+#define SOFT_ASSERT_RC(cond, rc, msg, ...)       \
+    do {                                         \
+        if (unlikely(!(cond))) {                 \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
-            assert(cond); \
-            return (rc); \
-        } \
+            assert(cond);                        \
+            return (rc);                         \
+        }                                        \
     } while (0)
 
 #define SOFT_ASSERT_LABEL(cond, label, msg, ...) \
-    do { \
-        if (unlikely(!(cond))) { \
+    do {                                         \
+        if (unlikely(!(cond))) {                 \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
-            assert(cond); \
-            goto label; \
-        } \
+            assert(cond);                        \
+            goto label;                          \
+        }                                        \
     } while (0)
 
-#define IMPOSSIBLE() \
-    do { \
+#define IMPOSSIBLE()                                       \
+    do {                                                   \
         SOFT_ASSERT_MSG("Reached impossible code branch"); \
-        assert(false); \
+        assert(false);                                     \
     } while (0)
 
 #else
 
-#define SOFT_ASSERT(cond, msg, ...) \
-    do { \
-        if (unlikely(!(cond))) { \
+#define SOFT_ASSERT(cond, msg, ...)              \
+    do {                                         \
+        if (unlikely(!(cond))) {                 \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
-            return; \
-        } \
+            return;                              \
+        }                                        \
     } while (0)
 
-#define SOFT_ASSERT_RC(cond, rc, msg, ...) \
-    do { \
-        if (unlikely(!(cond))) { \
+#define SOFT_ASSERT_RC(cond, rc, msg, ...)       \
+    do {                                         \
+        if (unlikely(!(cond))) {                 \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
-            return (rc); \
-        } \
+            return (rc);                         \
+        }                                        \
     } while (0)
 
 #define SOFT_ASSERT_LABEL(cond, label, msg, ...) \
-    do { \
-        if (unlikely(!(cond))) { \
+    do {                                         \
+        if (unlikely(!(cond))) {                 \
             SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
-            goto label; \
-        } \
+            goto label;                          \
+        }                                        \
     } while (0)
 
-#define IMPOSSIBLE() \
-    do { \
+#define IMPOSSIBLE()                                       \
+    do {                                                   \
         SOFT_ASSERT_MSG("Reached impossible code branch"); \
-        exit(EXIT_FAILURE); \
+        exit(EXIT_FAILURE);                                \
     } while (0)
 
 #endif
@@ -339,7 +331,7 @@ do {                                            \
 #define DBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, DBL_EPSILON)
 #define LDBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, LDBL_EPSILON)
 
-#define BIT_MASK(_bit) ((uintmax_t) 1 << (_bit))
+#define BIT_MASK(_bit) ((uintmax_t)1 << (_bit))
 
 #define BIT_QUERY(_val, _bit) (((_val) & BIT_MASK(_bit)) != 0)
 #define BIT_SET(_val, _bit) BITMASK_SET(_val, BIT_MASK(_bit))
@@ -348,21 +340,21 @@ do {                                            \
 #define BIT_CHANGE(_val, _bit, _x) BITMASK_CHANGE(_val, BIT_MASK(_bit), _x)
 
 #define BITMASK_QUERY(_val, _mask) (((_val) & (_mask)) == (_mask))
-#define BITMASK_SET(_val, _mask)                          \
-    do {                                                  \
-        (_val) |= (_mask);                                \
+#define BITMASK_SET(_val, _mask) \
+    do {                         \
+        (_val) |= (_mask);       \
     } while (0)
-#define BITMASK_CLEAR(_val, _mask)                        \
-    do {                                                  \
-        (_val) &= ~(_mask);                               \
+#define BITMASK_CLEAR(_val, _mask) \
+    do {                           \
+        (_val) &= ~(_mask);        \
     } while (0)
-#define BITMASK_FLIP(_val, _mask)                         \
-    do {                                                  \
-        (_val) ^= (_mask);                                \
+#define BITMASK_FLIP(_val, _mask) \
+    do {                          \
+        (_val) ^= (_mask);        \
     } while (0)
-#define BITMASK_CHANGE(_val, _mask, _x)                   \
-    do {                                                  \
-        (_val) ^= ((-(_x)) ^ (_val)) & (_mask);           \
+#define BITMASK_CHANGE(_val, _mask, _x)         \
+    do {                                        \
+        (_val) ^= ((-(_x)) ^ (_val)) & (_mask); \
     } while (0)
 
 /**@cond*/
@@ -381,8 +373,7 @@ do {                                            \
 #define _FOR_EACH_ARG_N(_1, _2, _3, _4, _5, _6, _7, _8, N, ...) N
 #define _FOR_EACH_RSEQ_N() 8, 7, 6, 5, 4, 3, 2, 1, 0
 
-#define _FOR_EACH(N, what, x, ...) \
-    CONCAT(_FOR_EACH_, N)(what, x, __VA_ARGS__)
+#define _FOR_EACH(N, what, x, ...) CONCAT(_FOR_EACH_, N)(what, x, __VA_ARGS__)
 /**@endcond*/
 
 /**
@@ -403,19 +394,15 @@ do {                                            \
  * // print_obj(obj2);
  * @endcode
  */
-#define FOR_EACH(what, ...) \
-    _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
+#define FOR_EACH(what, ...) _FOR_EACH(_FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
 
 #include "logger.h"
 #include "math.h" /* TODO: remove */
 
 /* Prototypes */
 
-void
-toolkit_import_register(const char *name, toolkit_func func);
-bool
-toolkit_check_imported(toolkit_func func);
-void
-toolkit_deinit(void);
+void toolkit_import_register(const char *name, toolkit_func func);
+bool toolkit_check_imported(toolkit_func func);
+void toolkit_deinit(void);
 
 #endif

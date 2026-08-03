@@ -32,8 +32,7 @@
 #include <global.h>
 
 /** @copydoc command_func */
-void command_memleak(object *op, const char *command, char *params)
-{
+void command_memleak(object *op, const char *command, char *params) {
     StringBuffer *sb;
     char *info;
 

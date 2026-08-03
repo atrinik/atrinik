@@ -32,7 +32,6 @@
 
 /* Prototypes */
 
-mapstruct *
-exit_get_destination(object *op, int *x, int *y, bool do_load);
+mapstruct *exit_get_destination(object *op, int *x, int *y, bool do_load);
 
 #endif

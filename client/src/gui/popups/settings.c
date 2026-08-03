@@ -42,14 +42,15 @@ enum {
     BUTTON_DISCONNECT,
 
     BUTTON_NUM
-} ;
+};
 
 /**
  * Names of the buttons.
  */
-static const char *const button_names[BUTTON_NUM] = {
-    "Client Settings", "Key Settings", "Logout", "Disconnect"
-};
+static const char *const button_names[BUTTON_NUM] = {"Client Settings",
+                                                     "Key Settings",
+                                                     "Logout",
+                                                     "Disconnect"};
 
 /**
  * Currently selected button.
@@ -63,8 +64,7 @@ static size_t button_selected;
  * @param button
  * The button ID.
  */
-static void settings_button_handle(popup_struct *popup, size_t button)
-{
+static void settings_button_handle(popup_struct *popup, size_t button) {
     if (button == BUTTON_SETTINGS) {
         settings_client_open();
     } else if (button == BUTTON_KEY_SETTINGS) {
@@ -83,14 +83,20 @@ static void settings_button_handle(popup_struct *popup, size_t button)
 }
 
 /** @copydoc popup_struct::draw_func */
-static int popup_draw(popup_struct *popup)
-{
+static int popup_draw(popup_struct *popup) {
     SDL_Rect box;
     size_t i;
 
     box.w = popup->surface->w;
     box.h = 38;
-    text_show(popup->surface, FONT_SERIF20, "Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+    text_show(popup->surface,
+              FONT_SERIF20,
+              "Settings",
+              0,
+              0,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+              &box);
 
     box.h = 0;
 
@@ -100,9 +106,26 @@ static int popup_draw(popup_struct *popup)
         }
 
         if (button_selected == i) {
-            text_show_shadow_format(popup->surface, FONT_SERIF40, 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "[c=#9f0408]>[/c] %s [c=#9f0408]<[/c]", button_names[i]);
+            text_show_shadow_format(popup->surface,
+                                    FONT_SERIF40,
+                                    0,
+                                    60 + i * FONT_HEIGHT(FONT_SERIF40),
+                                    COLOR_HGOLD,
+                                    COLOR_BLACK,
+                                    TEXT_ALIGN_CENTER | TEXT_MARKUP,
+                                    &box,
+                                    "[c=#9f0408]>[/c] %s [c=#9f0408]<[/c]",
+                                    button_names[i]);
         } else {
-            text_show_shadow(popup->surface, FONT_SERIF40, button_names[i], 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+            text_show_shadow(popup->surface,
+                             FONT_SERIF40,
+                             button_names[i],
+                             0,
+                             60 + i * FONT_HEIGHT(FONT_SERIF40),
+                             COLOR_WHITE,
+                             COLOR_BLACK,
+                             TEXT_ALIGN_CENTER,
+                             &box);
         }
     }
 
@@ -110,8 +133,7 @@ static int popup_draw(popup_struct *popup)
 }
 
 /** @copydoc popup_struct::event_func */
-static int popup_event(popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (event->type == SDL_KEYDOWN) {
         /* Move the selected button up and down. */
         if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN) {
@@ -150,7 +172,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 if (event->motion.x >= x && event->motion.x < x + width) {
                     if (event->type == SDL_MOUSEMOTION) {
                         button_selected = i;
-                    } else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+                    } else if (event->type == SDL_MOUSEBUTTONDOWN &&
+                               event->button.button == SDL_BUTTON_LEFT) {
                         settings_button_handle(popup, i);
                         return 1;
                     }
@@ -165,8 +188,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_button::event_func */
-static int popup_button_event(popup_button *button)
-{
+static int popup_button_event(popup_button *button) {
     help_show("esc menu");
     return 1;
 }
@@ -174,8 +196,7 @@ static int popup_button_event(popup_button *button)
 /**
  * Open the settings popup.
  */
-void settings_open(void)
-{
+void settings_open(void) {
     popup_struct *popup;
 
     popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));

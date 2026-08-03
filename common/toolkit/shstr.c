@@ -44,21 +44,18 @@ static struct statistics {
 
 TOOLKIT_API(DEPENDS(logger));
 
-TOOLKIT_INIT_FUNC(shstr)
-{
+TOOLKIT_INIT_FUNC(shstr) {
     memset(hash_table, 0, TABLESIZE * sizeof(shared_string *));
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(shstr)
-{
+TOOLKIT_DEINIT_FUNC(shstr) {
     size_t i;
     shared_string *ss;
 
     for (i = 0; i < TABLESIZE; i++) {
         for (ss = hash_table[i]; ss != NULL; ss = ss->next) {
-            LOG(ERROR, "String still has %lu references: '%s'",
-                    ss->refcount & ~TOPBIT, ss->string);
+            LOG(ERROR, "String still has %lu references: '%s'", ss->refcount & ~TOPBIT, ss->string);
         }
     }
 }
@@ -72,9 +69,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * Hash of string, suitable for use in ::hash_table.
  */
-static unsigned long
-hashstr (const char *str)
-{
+static unsigned long hashstr(const char *str) {
     unsigned long hash = 0;
     int i = 0;
     unsigned int rot = 0;
@@ -85,7 +80,7 @@ hashstr (const char *str)
     hash_stats.calls++;
 
     for (p = str; i < MAXSTRING && *p; p++, i++) {
-        hash ^= (unsigned long) *p << rot;
+        hash ^= (unsigned long)*p << rot;
         rot += 2;
 
         if (rot >= (sizeof(unsigned long) - sizeof(char)) * CHAR_BIT) {
@@ -104,9 +99,7 @@ hashstr (const char *str)
  * @return
  * Sharing structure.
  */
-static shared_string *
-new_shared_string (const char *str)
-{
+static shared_string *new_shared_string(const char *str) {
     shared_string *ss;
     size_t n = strlen(str);
 
@@ -126,9 +119,7 @@ new_shared_string (const char *str)
     return ss;
 }
 
-shstr *
-add_string (const char *str)
-{
+shstr *add_string(const char *str) {
     shared_string *ss;
     unsigned long ind;
 
@@ -204,9 +195,7 @@ add_string (const char *str)
     }
 }
 
-shstr *
-add_refcount (shstr *str)
-{
+shstr *add_refcount(shstr *str) {
     TOOLKIT_PROTECT();
     add_ref_stats.calls++;
     ++(SS(str)->refcount);
@@ -214,16 +203,12 @@ add_refcount (shstr *str)
     return str;
 }
 
-int
-query_refcount (shstr *str)
-{
+int query_refcount(shstr *str) {
     TOOLKIT_PROTECT();
     return SS(str)->refcount & ~TOPBIT;
 }
 
-shstr *
-find_string (const char *str)
-{
+shstr *find_string(const char *str) {
     shared_string *ss;
     unsigned long ind;
 
@@ -262,9 +247,7 @@ find_string (const char *str)
     return NULL;
 }
 
-void
-free_string_shared (shstr *str)
-{
+void free_string_shared(shstr *str) {
     shared_string *ss;
 
     TOOLKIT_PROTECT();
@@ -297,19 +280,36 @@ free_string_shared (shstr *str)
     }
 }
 
-void
-shstr_stats (char *buf, size_t size)
-{
+void shstr_stats(char *buf, size_t size) {
     snprintfcat(buf, size, "\n=== SHSTR ===\n");
-    snprintfcat(buf, size, "\n%-13s %6s %6s %6s %6s %6s\n", "", "calls",
-            "hashed", "strcmp", "search", "linked");
-    snprintfcat(buf, size, "%-13s %6d %6d %6d %6d %6d\n", "add_string:",
-            add_stats.calls, add_stats.hashed, add_stats.strcmps,
-            add_stats.search, add_stats.linked);
+    snprintfcat(buf,
+                size,
+                "\n%-13s %6s %6s %6s %6s %6s\n",
+                "",
+                "calls",
+                "hashed",
+                "strcmp",
+                "search",
+                "linked");
+    snprintfcat(buf,
+                size,
+                "%-13s %6d %6d %6d %6d %6d\n",
+                "add_string:",
+                add_stats.calls,
+                add_stats.hashed,
+                add_stats.strcmps,
+                add_stats.search,
+                add_stats.linked);
     snprintfcat(buf, size, "%-13s %6d\n", "add_refcount:", add_ref_stats.calls);
     snprintfcat(buf, size, "%-13s %6d\n", "free_string:", free_stats.calls);
-    snprintfcat(buf, size, "%-13s %6d %6d %6d %6d %6d\n", "find_string:",
-            find_stats.calls, find_stats.hashed, find_stats.strcmps,
-            find_stats.search, find_stats.linked);
+    snprintfcat(buf,
+                size,
+                "%-13s %6d %6d %6d %6d %6d\n",
+                "find_string:",
+                find_stats.calls,
+                find_stats.hashed,
+                find_stats.strcmps,
+                find_stats.search,
+                find_stats.linked);
     snprintfcat(buf, size, "%-13s %6d\n", "hashstr:", hash_stats.calls);
 }

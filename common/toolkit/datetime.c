@@ -33,19 +33,13 @@
 
 TOOLKIT_API();
 
-TOOLKIT_INIT_FUNC(datetime)
-{
-}
+TOOLKIT_INIT_FUNC(datetime) {}
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(datetime)
-{
-}
+TOOLKIT_DEINIT_FUNC(datetime) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
-time_t
-datetime_getutc (void)
-{
+time_t datetime_getutc(void) {
     TOOLKIT_PROTECT();
 
     time_t t;
@@ -55,47 +49,38 @@ datetime_getutc (void)
     return mktime(tm);
 }
 
-time_t
-datetime_utctolocal (time_t t)
-{
+time_t datetime_utctolocal(time_t t) {
     TOOLKIT_PROTECT();
     return t - (datetime_getutc() - time(NULL));
 }
 
-uint64_t
-datetime_monotonic_us (void)
-{
+uint64_t datetime_monotonic_us(void) {
     TOOLKIT_PROTECT();
 
 #ifdef WIN32
     LARGE_INTEGER frequency;
     LARGE_INTEGER counter;
-    if (!QueryPerformanceFrequency(&frequency) ||
-            !QueryPerformanceCounter(&counter) || frequency.QuadPart <= 0) {
-        return (uint64_t) GetTickCount64() * 1000;
+    if (!QueryPerformanceFrequency(&frequency) || !QueryPerformanceCounter(&counter) ||
+        frequency.QuadPart <= 0) {
+        return (uint64_t)GetTickCount64() * 1000;
     }
 
-    uint64_t whole = (uint64_t) (counter.QuadPart / frequency.QuadPart);
-    uint64_t remainder = (uint64_t) (counter.QuadPart % frequency.QuadPart);
-    return whole * 1000000 +
-           remainder * 1000000 / (uint64_t) frequency.QuadPart;
+    uint64_t whole = (uint64_t)(counter.QuadPart / frequency.QuadPart);
+    uint64_t remainder = (uint64_t)(counter.QuadPart % frequency.QuadPart);
+    return whole * 1000000 + remainder * 1000000 / (uint64_t)frequency.QuadPart;
 #else
     struct timespec now;
     if (clock_gettime(CLOCK_MONOTONIC, &now) == 0) {
-        return (uint64_t) now.tv_sec * 1000000 +
-               (uint64_t) now.tv_nsec / 1000;
+        return (uint64_t)now.tv_sec * 1000000 + (uint64_t)now.tv_nsec / 1000;
     }
 
     /* Only used on platforms without a functioning monotonic clock. */
     struct timeval fallback;
     GETTIMEOFDAY(&fallback);
-    return (uint64_t) fallback.tv_sec * 1000000 +
-           (uint64_t) fallback.tv_usec;
+    return (uint64_t)fallback.tv_sec * 1000000 + (uint64_t)fallback.tv_usec;
 #endif
 }
 
-uint64_t
-datetime_monotonic_ms (void)
-{
+uint64_t datetime_monotonic_ms(void) {
     return datetime_monotonic_us() / 1000;
 }

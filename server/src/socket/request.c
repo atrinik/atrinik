@@ -51,7 +51,7 @@
 #include <toolkit/socket_crypto.h>
 
 #include <openssl/crypto.h>
-#define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
+#define GET_CLIENT_FLAGS(_O_) ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 #define JOIN_FAILURES_PER_MINUTE 5U
 #define JOIN_FAILURES_UNKNOWN_PER_MINUTE 64U
@@ -69,9 +69,7 @@ static join_failure_entry_t *join_failures;
 static time_t join_failure_global_window;
 static unsigned int join_failure_global_count;
 
-static bool
-join_password_allowed (socket_struct *ns)
-{
+static bool join_password_allowed(socket_struct *ns) {
     time_t now = time(NULL);
     if (now - join_failure_global_window >= 60) {
         join_failure_global_window = now;
@@ -95,8 +93,7 @@ join_password_allowed (socket_struct *ns)
         if (HASH_COUNT(join_failures) >= JOIN_FAILURE_ENTRY_MAX) {
             join_failure_entry_t *oldest = NULL;
             HASH_ITER(hh, join_failures, old, next) {
-                if (oldest == NULL ||
-                    old->window_started < oldest->window_started) {
+                if (oldest == NULL || old->window_started < oldest->window_started) {
                     oldest = old;
                 }
             }
@@ -115,15 +112,12 @@ join_password_allowed (socket_struct *ns)
         entry->window_started = now;
         entry->failures = 0;
     }
-    unsigned int limit = strcmp(address, "<no address>") == 0
-        ? JOIN_FAILURES_UNKNOWN_PER_MINUTE
-        : JOIN_FAILURES_PER_MINUTE;
+    unsigned int limit = strcmp(address, "<no address>") == 0 ? JOIN_FAILURES_UNKNOWN_PER_MINUTE
+                                                              : JOIN_FAILURES_PER_MINUTE;
     return entry->failures < limit;
 }
 
-static void
-join_password_failed (socket_struct *ns)
-{
+static void join_password_failed(socket_struct *ns) {
     if (join_failure_global_count < UINT_MAX) {
         join_failure_global_count++;
     }
@@ -135,8 +129,7 @@ join_password_failed (socket_struct *ns)
     }
 }
 
-void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     packet_struct *packet;
     uint8_t type;
 
@@ -196,8 +189,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             packet_append_uint8(packet, socket_is_quic(ns->sc) ? 1 : 0);
         } else if (type == CMD_SETUP_CONNECTION_MODE) {
             socket_connection_mode_t mode = packet_to_uint8(data, len, &pos);
-            if (socket_is_quic(ns->sc) &&
-                mode >= SOCKET_CONNECTION_MODE_QUIC_LAN &&
+            if (socket_is_quic(ns->sc) && mode >= SOCKET_CONNECTION_MODE_QUIC_LAN &&
                 mode <= SOCKET_CONNECTION_MODE_QUIC_DIRECTORY) {
                 ns->connection_mode = mode;
             }
@@ -207,10 +199,8 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             packet_to_string(data, len, &pos, VS(password));
 
             bool allowed = join_password_allowed(ns);
-            ns->join_authenticated = allowed &&
-                                     CRYPTO_memcmp(settings.join_password,
-                                                   password,
-                                                   sizeof(password)) == 0;
+            ns->join_authenticated =
+                allowed && CRYPTO_memcmp(settings.join_password, password, sizeof(password)) == 0;
             if (!ns->join_authenticated) {
                 join_password_failed(ns);
             }
@@ -241,8 +231,11 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
     socket_send_packet(ns, packet);
 }
 
-void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_player_cmd(socket_struct *ns,
+                               player *pl,
+                               uint8_t *data,
+                               size_t len,
+                               size_t pos) {
     char command[MAX_BUF];
 
     if (pl->cs->state != ST_PLAYING) {
@@ -254,8 +247,7 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, siz
     commands_handle(pl->ob, command);
 }
 
-void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     uint32_t ver;
     packet_struct *packet;
 
@@ -268,9 +260,13 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
     ver = packet_to_uint32(data, len, &pos);
 
     if (ver == 0 || ver == 991017 || ver == 1055) {
-        draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Your client is "
-                "outdated!\nGo to http://www.atrinik.org/ and download the latest "
-                "Atrinik client.");
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Your client is "
+                       "outdated!\nGo to http://www.atrinik.org/ and download the latest "
+                       "Atrinik client.");
         ns->state = ST_ZOMBIE;
         return;
     }
@@ -283,8 +279,11 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
     socket_send_packet(ns, packet);
 }
 
-void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_item_move(socket_struct *ns,
+                              player *pl,
+                              uint8_t *data,
+                              size_t len,
+                              size_t pos) {
     tag_t to, tag;
     uint32_t nrof;
 
@@ -307,39 +306,40 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size
  *
  * Stat mapping values are in socket.h
  */
-void esrv_update_stats(player *pl)
-{
+void esrv_update_stats(player *pl) {
     HARD_ASSERT(pl != NULL);
 
     SOFT_ASSERT(pl->ob != NULL, "Player has no object!");
 
-#define _Add(_old, _new, _type, _bitsize) \
-    if (packet == NULL) { \
+#define _Add(_old, _new, _type, _bitsize)               \
+    if (packet == NULL) {                               \
         packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
-    } \
-    (_old) = (_new); \
+    }                                                   \
+    (_old) = (_new);                                    \
     packet_debug_data(packet, 0, "Stats command type"); \
-    packet_append_uint8(packet, (_type)); \
-    packet_debug_data(packet, 0, "%s", #_new); \
-    packet_append_ ## _bitsize(packet, (_new));
+    packet_append_uint8(packet, (_type));               \
+    packet_debug_data(packet, 0, "%s", #_new);          \
+    packet_append_##_bitsize(packet, (_new));
 #define AddIf(_old, _new, _type, _bitsize) \
-    if ((_old) != (_new)) { \
+    if ((_old) != (_new)) {                \
         _Add(_old, _new, _type, _bitsize); \
     }
-#define AddIfFloat(_old, _new, _type) \
-    if (!FLT_EQUAL(_old, _new)) { \
+#define AddIfFloat(_old, _new, _type)   \
+    if (!FLT_EQUAL(_old, _new)) {       \
         _Add(_old, _new, _type, float); \
     }
-#define AddIfDouble(_old, _new, _type) \
-    if (!DBL_EQUAL(_old, _new)) { \
+#define AddIfDouble(_old, _new, _type)   \
+    if (!DBL_EQUAL(_old, _new)) {        \
         _Add(_old, _new, _type, double); \
     }
 
     packet_struct *packet = NULL;
 
     if (pl->target_object && pl->target_object != pl->ob) {
-        uint8_t hp = MAX(1, (((float) pl->target_object->stats.hp /
-                (float) pl->target_object->stats.maxhp) * 100.0f));
+        uint8_t hp =
+            MAX(1,
+                (((float)pl->target_object->stats.hp / (float)pl->target_object->stats.maxhp) *
+                 100.0f));
         AddIf(pl->target_hp, hp, CS_STAT_TARGET_HP, uint8);
     }
 
@@ -348,10 +348,8 @@ void esrv_update_stats(player *pl)
     AddIfFloat(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
     AddIf(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
     AddIfDouble(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
-    AddIfDouble(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS,
-            CS_STAT_WEAPON_SPEED);
-    AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str],
-            CS_STAT_WEIGHT_LIM, uint32);
+    AddIfDouble(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS, CS_STAT_WEAPON_SPEED);
+    AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
     AddIf(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, int32);
     AddIf(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, int32);
     AddIf(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, int16);
@@ -366,12 +364,9 @@ void esrv_update_stats(player *pl)
     AddIf(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
     AddIf(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM, uint16);
     AddIf(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD, uint16);
-    AddIf(pl->last_path_attuned, pl->ob->path_attuned,
-            CS_STAT_PATH_ATTUNED, uint32);
-    AddIf(pl->last_path_repelled, pl->ob->path_repelled,
-            CS_STAT_PATH_REPELLED, uint32);
-    AddIf(pl->last_path_denied, pl->ob->path_denied,
-            CS_STAT_PATH_DENIED, uint32);
+    AddIf(pl->last_path_attuned, pl->ob->path_attuned, CS_STAT_PATH_ATTUNED, uint32);
+    AddIf(pl->last_path_repelled, pl->ob->path_repelled, CS_STAT_PATH_REPELLED, uint32);
+    AddIf(pl->last_path_denied, pl->ob->path_denied, CS_STAT_PATH_DENIED, uint32);
 
     object *ranged_weapon = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
     object *arrow = NULL;
@@ -433,13 +428,14 @@ void esrv_update_stats(player *pl)
             break;
         }
 
-        AddIf(pl->last_protection[i], pl->ob->protection[i],
-                CS_STAT_PROT_START + i, int8);
+        AddIf(pl->last_protection[i], pl->ob->protection[i], CS_STAT_PROT_START + i, int8);
     }
 
     for (int i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        AddIf(pl->last_equipment[i], pl->equipment[i] != NULL ?
-                pl->equipment[i]->count : 0, CS_STAT_EQUIP_START + i, uint32);
+        AddIf(pl->last_equipment[i],
+              pl->equipment[i] != NULL ? pl->equipment[i]->count : 0,
+              CS_STAT_EQUIP_START + i,
+              uint32);
     }
 
     AddIf(pl->last_gender, object_get_gender(pl->ob), CS_STAT_GENDER, uint8);
@@ -457,8 +453,7 @@ void esrv_update_stats(player *pl)
 /**
  * Tells the client that here is a player it should start using.
  */
-void esrv_new_player(player *pl, uint32_t weight)
-{
+void esrv_new_player(player *pl, uint32_t weight) {
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_PLAYER, 12, 0);
@@ -482,8 +477,7 @@ void esrv_new_player(player *pl, uint32_t weight)
  * @return
  * ID of the tiled map, 0 if there is no match.
  */
-static inline int get_tiled_map_id(player *pl, struct mapdef *map)
-{
+static inline int get_tiled_map_id(player *pl, struct mapdef *map) {
     int i;
 
     if (!pl->last_update) {
@@ -508,8 +502,7 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
  * @param dy
  * Y.
  */
-static inline void copy_lastmap(socket_struct *ns, int dx, int dy)
-{
+static inline void copy_lastmap(socket_struct *ns, int dx, int dy) {
     struct Map newmap;
     int x, y;
 
@@ -527,8 +520,7 @@ static inline void copy_lastmap(socket_struct *ns, int dx, int dy)
     memcpy(&(ns->lastmap), &newmap, sizeof(struct Map));
 }
 
-void draw_map_text_anim(object *pl, const char *color, const char *text)
-{
+void draw_map_text_anim(object *pl, const char *color, const char *text) {
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_MAPSTATS, 64, 64);
@@ -546,8 +538,7 @@ void draw_map_text_anim(object *pl, const char *color, const char *text)
  * @param pl
  * Whom to draw map for.
  */
-void draw_client_map(object *pl)
-{
+void draw_client_map(object *pl) {
     int redraw_below = 0;
 
     if (pl->type != PLAYER) {
@@ -581,45 +572,45 @@ void draw_client_map(object *pl)
 
             /* We have moved to a tiled map. Let's calculate the offsets. */
             switch (tile_map - 1) {
-            case 0:
-                CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
-                CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-                break;
+                case 0:
+                    CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+                    CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+                    break;
 
-            case 1:
-                CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
-                CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-                break;
+                case 1:
+                    CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+                    CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+                    break;
 
-            case 2:
-                CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
-                CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-                break;
+                case 2:
+                    CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+                    CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+                    break;
 
-            case 3:
-                CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
-                CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-                break;
+                case 3:
+                    CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+                    CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+                    break;
 
-            case 4:
-                CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-                CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-                break;
+                case 4:
+                    CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+                    CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+                    break;
 
-            case 5:
-                CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-                CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-                break;
+                case 5:
+                    CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+                    CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+                    break;
 
-            case 6:
-                CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-                CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-                break;
+                case 6:
+                    CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+                    CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+                    break;
 
-            case 7:
-                CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-                CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-                break;
+                case 7:
+                    CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+                    CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+                    break;
             }
 
             copy_lastmap(CONTR(pl)->cs, CONTR(pl)->map_off_x, CONTR(pl)->map_off_y);
@@ -627,7 +618,9 @@ void draw_client_map(object *pl)
         }
     } else {
         if (CONTR(pl)->map_tile_x != pl->x || CONTR(pl)->map_tile_y != pl->y) {
-            copy_lastmap(CONTR(pl)->cs, pl->x - CONTR(pl)->map_tile_x, pl->y - CONTR(pl)->map_tile_y);
+            copy_lastmap(CONTR(pl)->cs,
+                         pl->x - CONTR(pl)->map_tile_x,
+                         pl->y - CONTR(pl)->map_tile_y);
             redraw_below = 1;
         }
     }
@@ -659,43 +652,55 @@ void draw_client_map(object *pl)
         object *map_info;
 
         msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
-        map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info : NULL;
+        map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info
+                                                                                     : NULL;
 
         packet = packet_new(CLIENT_CMD_MAPSTATS, 256, 256);
 
-        if ((map_info && map_info->race && strcmp(map_info->race, CONTR(pl)->map_info_name) != 0) || (!map_info && CONTR(pl)->map_info_name[0] != '\0')) {
+        if ((map_info && map_info->race && strcmp(map_info->race, CONTR(pl)->map_info_name) != 0) ||
+            (!map_info && CONTR(pl)->map_info_name[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
             packet_append_uint8(packet, CMD_MAPSTATS_NAME);
             packet_append_map_name(packet, pl, map_info);
 
             if (map_info) {
-                strncpy(CONTR(pl)->map_info_name, map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+                strncpy(CONTR(pl)->map_info_name,
+                        map_info->race,
+                        sizeof(CONTR(pl)->map_info_name) - 1);
                 CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
             } else {
                 CONTR(pl)->map_info_name[0] = '\0';
             }
         }
 
-        if ((map_info && map_info->slaying && strcmp(map_info->slaying, CONTR(pl)->map_info_music) != 0) || (!map_info && CONTR(pl)->map_info_music[0] != '\0')) {
+        if ((map_info && map_info->slaying &&
+             strcmp(map_info->slaying, CONTR(pl)->map_info_music) != 0) ||
+            (!map_info && CONTR(pl)->map_info_music[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
             packet_append_uint8(packet, CMD_MAPSTATS_MUSIC);
             packet_append_map_music(packet, pl, map_info);
 
             if (map_info) {
-                strncpy(CONTR(pl)->map_info_music, map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+                strncpy(CONTR(pl)->map_info_music,
+                        map_info->slaying,
+                        sizeof(CONTR(pl)->map_info_music) - 1);
                 CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
             } else {
                 CONTR(pl)->map_info_music[0] = '\0';
             }
         }
 
-        if ((map_info && map_info->title && strcmp(map_info->title, CONTR(pl)->map_info_weather) != 0) || (!map_info && CONTR(pl)->map_info_weather[0] != '\0')) {
+        if ((map_info && map_info->title &&
+             strcmp(map_info->title, CONTR(pl)->map_info_weather) != 0) ||
+            (!map_info && CONTR(pl)->map_info_weather[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
             packet_append_uint8(packet, CMD_MAPSTATS_WEATHER);
             packet_append_map_weather(packet, pl, map_info);
 
             if (map_info) {
-                strncpy(CONTR(pl)->map_info_weather, map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+                strncpy(CONTR(pl)->map_info_weather,
+                        map_info->title,
+                        sizeof(CONTR(pl)->map_info_weather) - 1);
                 CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
             } else {
                 CONTR(pl)->map_info_weather[0] = '\0';
@@ -723,9 +728,9 @@ void draw_client_map(object *pl)
  * @return
  * The color.
  */
-static const char *get_playername_color(object *pl, object *op)
-{
-    if (CONTR(pl)->party != NULL && CONTR(op)->party != NULL && CONTR(pl)->party == CONTR(op)->party) {
+static const char *get_playername_color(object *pl, object *op) {
+    if (CONTR(pl)->party != NULL && CONTR(op)->party != NULL &&
+        CONTR(pl)->party == CONTR(op)->party) {
         return COLOR_GREEN;
     } else if (pl != op && pvp_area(pl, op)) {
         return COLOR_RED;
@@ -734,47 +739,50 @@ static const char *get_playername_color(object *pl, object *op)
     return COLOR_WHITE;
 }
 
-void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info)
-{
+void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map name");
     packet_append_string(packet, "[b][o=#000000]");
     packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
     packet_append_string_terminated(packet, "[/o][/b]");
 }
 
-void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info)
-{
+void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map music");
-    packet_append_string_terminated(packet, map_info && map_info->slaying ? map_info->slaying : (op->map->bg_music ? op->map->bg_music : "no_music"));
+    packet_append_string_terminated(packet,
+                                    map_info && map_info->slaying
+                                        ? map_info->slaying
+                                        : (op->map->bg_music ? op->map->bg_music : "no_music"));
 }
 
-void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info)
-{
+void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map weather");
-    packet_append_string_terminated(packet, map_info && map_info->title ? map_info->title : (op->map->weather ? op->map->weather : "none"));
+    packet_append_string_terminated(packet,
+                                    map_info && map_info->title
+                                        ? map_info->title
+                                        : (op->map->weather ? op->map->weather : "none"));
 }
 
 /** Clear a map cell. */
-#define map_clearcell(_cell_) \
-    { \
-        memset((void *) ((char *) (_cell_) + offsetof(MapCell, cleared)), 0, sizeof(MapCell) - offsetof(MapCell, cleared)); \
-        (_cell_)->cleared = 1; \
+#define map_clearcell(_cell_)                                           \
+    {                                                                   \
+        memset((void *)((char *)(_cell_) + offsetof(MapCell, cleared)), \
+               0,                                                       \
+               sizeof(MapCell) - offsetof(MapCell, cleared));           \
+        (_cell_)->cleared = 1;                                          \
     }
 
 /** Clear a map cell, but only if it has not been cleared before. */
-#define map_if_clearcell() \
-    { \
-        if (CONTR(pl)->cs->lastmap.cells[ax][ay].cleared != 1) \
-        { \
+#define map_if_clearcell()                                                     \
+    {                                                                          \
+        if (CONTR(pl)->cs->lastmap.cells[ax][ay].cleared != 1) {               \
             packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay); \
-            packet_append_uint16(packet, mask | MAP2_MASK_CLEAR); \
-            map_clearcell(&CONTR(pl)->cs->lastmap.cells[ax][ay]); \
-        } \
+            packet_append_uint16(packet, mask | MAP2_MASK_CLEAR);              \
+            map_clearcell(&CONTR(pl)->cs->lastmap.cells[ax][ay]);              \
+        }                                                                      \
     }
 
 /** Draw the client map. */
-void draw_client_map2(object *pl)
-{
+void draw_client_map2(object *pl) {
     static uint32_t map2_count = 0;
     MapCell *mp;
     MapSpace *msp, *msp_pl, *msp_tmp;
@@ -795,7 +803,8 @@ void draw_client_map2(object *pl)
     packet_save_t packet_save_buf;
 
     /* Any kind of special vision? */
-    special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
+    special_vision =
+        (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
     map2_count++;
 
     packet = packet_new(CLIENT_CMD_MAP, 0, 512);
@@ -810,7 +819,8 @@ void draw_client_map2(object *pl)
         const region_struct *region;
 
         msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
-        map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info : NULL;
+        map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info
+                                                                                     : NULL;
 
         packet_append_map_name(packet, pl, map_info);
         packet_append_map_music(packet, pl, map_info);
@@ -820,23 +830,28 @@ void draw_client_map2(object *pl)
 
         if (map_info) {
             if (map_info->race) {
-                strncpy(CONTR(pl)->map_info_name, map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
+                strncpy(CONTR(pl)->map_info_name,
+                        map_info->race,
+                        sizeof(CONTR(pl)->map_info_name) - 1);
                 CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
             }
 
             if (map_info->slaying) {
-                strncpy(CONTR(pl)->map_info_music, map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
+                strncpy(CONTR(pl)->map_info_music,
+                        map_info->slaying,
+                        sizeof(CONTR(pl)->map_info_music) - 1);
                 CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
             }
 
             if (map_info->title) {
-                strncpy(CONTR(pl)->map_info_weather, map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
+                strncpy(CONTR(pl)->map_info_weather,
+                        map_info->title,
+                        sizeof(CONTR(pl)->map_info_weather) - 1);
                 CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
             }
         }
 
-        region = pl->map->region != NULL ?
-            region_find_with_map(pl->map->region) : NULL;
+        region = pl->map->region != NULL ? region_find_with_map(pl->map->region) : NULL;
 
         if (CONTR(pl)->cs->socket_version >= 1059) {
             bool has_map;
@@ -844,17 +859,15 @@ void draw_client_map2(object *pl)
             has_map = false;
 
             /* TODO: This should be improved once maps have a real basename */
-            if (region != NULL && (pl->map->region->map_first != NULL ||
-                    pl->map->coords[2] >= 0)) {
+            if (region != NULL && (pl->map->region->map_first != NULL || pl->map->coords[2] >= 0)) {
                 char *basename, *underscore, *basename_region;
 
                 basename = strrchr(pl->map->path, '/') + 1;
                 underscore = basename ? strchr(basename, '_') : NULL;
                 basename_region = strrchr(region->map_first, '/') + 1;
 
-                if (basename != NULL && basename_region != NULL &&
-                        underscore != NULL && strncmp(basename, basename_region,
-                        underscore - basename) == 0) {
+                if (basename != NULL && basename_region != NULL && underscore != NULL &&
+                    strncmp(basename, basename_region, underscore - basename) == 0) {
                     has_map = true;
                 }
             }
@@ -862,11 +875,10 @@ void draw_client_map2(object *pl)
             packet_debug_data(packet, 0, "Display region map");
             packet_append_uint8(packet, has_map);
             packet_debug_data(packet, 0, "Region name");
-            packet_append_string_terminated(packet,
-                    region != NULL ? region->name : "");
+            packet_append_string_terminated(packet, region != NULL ? region->name : "");
             packet_debug_data(packet, 0, "Region long name");
             packet_append_string_terminated(packet,
-                    region != NULL ? region_get_longname(region) : "");
+                                            region != NULL ? region_get_longname(region) : "");
             packet_debug_data(packet, 0, "Map path");
             packet_append_string_terminated(packet, pl->map->path);
         }
@@ -888,8 +900,8 @@ void draw_client_map2(object *pl)
 
     msp_pl = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
     /* Figure out whether the player is in a building, but not on a balcony. */
-    is_in_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING |
-            MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING;
+    is_in_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
+                     MSP_EXTRA_IS_BUILDING;
 
     packet_debug_data(packet, 0, "Player's X coordinate");
     packet_append_uint8(packet, pl->x);
@@ -900,10 +912,13 @@ void draw_client_map2(object *pl)
     packet_debug_data(packet, 0, "Player is in building");
     packet_append_uint8(packet, is_in_building);
 
-    for (ay = CONTR(pl)->cs->mapy - 1, y = (pl->y + (CONTR(pl)->cs->mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->cs->mapy_2; y--, ay--) {
+    for (ay = CONTR(pl)->cs->mapy - 1, y = (pl->y + (CONTR(pl)->cs->mapy + 1) / 2) - 1;
+         y >= pl->y - CONTR(pl)->cs->mapy_2;
+         y--, ay--) {
         ax = CONTR(pl)->cs->mapx - 1;
 
-        for (x = (pl->x + (CONTR(pl)->cs->mapx + 1) / 2) - 1; x >= pl->x - CONTR(pl)->cs->mapx_2; x--, ax--) {
+        for (x = (pl->x + (CONTR(pl)->cs->mapx + 1) / 2) - 1; x >= pl->x - CONTR(pl)->cs->mapx_2;
+             x--, ax--) {
             d = CONTR(pl)->blocked_los[ax][ay];
             /* Form the data packet for x and y positions. */
             mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
@@ -926,23 +941,23 @@ void draw_client_map2(object *pl)
 
             msp = GET_MAP_SPACE_PTR(m, nx, ny);
             /* Check whether there is ambient sound effect on this tile. */
-            have_sound_ambient = msp->sound_ambient && OBJECT_VALID(msp->sound_ambient, msp->sound_ambient_count);
+            have_sound_ambient =
+                msp->sound_ambient && OBJECT_VALID(msp->sound_ambient, msp->sound_ambient_count);
 
             /* If there is an ambient sound effect but it cannot be heard
              * through walls due to its configuration, we will pretend
              * there is no sound effect here. */
-            if (have_sound_ambient && ((!QUERY_FLAG(msp->sound_ambient,
-                    FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED) ||
-                    !sound_ambient_match(msp->sound_ambient))) {
+            if (have_sound_ambient &&
+                ((!QUERY_FLAG(msp->sound_ambient, FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED) ||
+                 !sound_ambient_match(msp->sound_ambient))) {
                 have_sound_ambient = 0;
             }
 
             /* If there is an ambient sound effect and we haven't sent it
              * before, or there isn't one but it was sent before, send an
              * update. */
-            if ((have_sound_ambient && mp->sound_ambient_count !=
-                    msp->sound_ambient->count) || (!have_sound_ambient &&
-                    mp->sound_ambient_count)) {
+            if ((have_sound_ambient && mp->sound_ambient_count != msp->sound_ambient->count) ||
+                (!have_sound_ambient && mp->sound_ambient_count)) {
                 packet_debug(packet_sound, 0, "\nSound tile data:");
                 packet_debug_data(packet_sound, 1, "X coordinate");
                 packet_append_uint8(packet_sound, ax);
@@ -953,17 +968,13 @@ void draw_client_map2(object *pl)
                 packet_debug_data(packet_sound, 1, "Sound object ID");
 
                 if (have_sound_ambient) {
-                    packet_append_uint32(packet_sound,
-                            msp->sound_ambient->count);
+                    packet_append_uint32(packet_sound, msp->sound_ambient->count);
                     packet_debug_data(packet_sound, 1, "Sound filename");
-                    packet_append_string_terminated(packet_sound,
-                            msp->sound_ambient->race);
+                    packet_append_string_terminated(packet_sound, msp->sound_ambient->race);
                     packet_debug_data(packet_sound, 1, "Volume");
-                    packet_append_uint8(packet_sound,
-                            msp->sound_ambient->item_condition);
+                    packet_append_uint8(packet_sound, msp->sound_ambient->item_condition);
                     packet_debug_data(packet_sound, 1, "Max range");
-                    packet_append_uint8(packet_sound,
-                            msp->sound_ambient->item_level);
+                    packet_append_uint8(packet_sound, msp->sound_ambient->item_level);
 
                     mp->sound_ambient_count = msp->sound_ambient->count;
                 } else {
@@ -975,13 +986,12 @@ void draw_client_map2(object *pl)
 
             blocksview = d & BLOCKED_LOS_BLOCKED;
 
-            if (blocksview && (is_in_building || !(msp->extra_flags &
-                    (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ||
-                    (msp->map_info != NULL &&
-                    (msp->extra_flags & MSP_EXTRA_IS_BUILDING) &&
-                    msp_pl->map_info != NULL &&
-                    (msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING) &&
-                    msp->map_info->name != msp_pl->map_info->name))) {
+            if (blocksview &&
+                (is_in_building ||
+                 !(msp->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ||
+                 (msp->map_info != NULL && (msp->extra_flags & MSP_EXTRA_IS_BUILDING) &&
+                  msp_pl->map_info != NULL && (msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING) &&
+                  msp->map_info->name != msp_pl->map_info->name))) {
                 map_if_clearcell();
                 continue;
             }
@@ -1021,8 +1031,7 @@ void draw_client_map2(object *pl)
             int16_t anim_value[NUM_SUB_LAYERS] = {0};
 
             /* Check if we have a map under this tile. */
-            if (get_map_from_tiled(m, TILED_DOWN) != NULL &&
-                    MAP_TILE_IS_SAME_LEVEL(m, -1)) {
+            if (get_map_from_tiled(m, TILED_DOWN) != NULL && MAP_TILE_IS_SAME_LEVEL(m, -1)) {
                 have_down = 1;
             }
 
@@ -1045,10 +1054,9 @@ void draw_client_map2(object *pl)
 
                     msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
 
-                    if (OBJECT_VALID(msp_tmp->map_info,
-                            msp_tmp->map_info_count) && msp_tmp->extra_flags &
-                            (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY |
-                            MSP_EXTRA_IS_OVERLOOK)) {
+                    if (OBJECT_VALID(msp_tmp->map_info, msp_tmp->map_info_count) &&
+                        msp_tmp->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY |
+                                                MSP_EXTRA_IS_OVERLOOK)) {
                         override_rendering = false;
                     }
 
@@ -1058,10 +1066,8 @@ void draw_client_map2(object *pl)
                             bottom_map_depth--;
                         }
 
-                        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS;
-                                sub_layer++) {
-                            tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR,
-                                    sub_layer);
+                        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                            tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR, sub_layer);
 
                             if (tmp == NULL) {
                                 continue;
@@ -1092,14 +1098,13 @@ void draw_client_map2(object *pl)
              * anything above that will not be visible while they're in the
              * building, *but*, only for that building - other buildings will
              * have the upper floors. */
-            if (!MAP_TILE_IS_SAME_LEVEL(m, 1) || (
-                    OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
-                    OBJECT_VALID(msp->map_info, msp->map_info_count) &&
-                    msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING &&
-                    msp->extra_flags & (MSP_EXTRA_IS_BUILDING |
-                    MSP_EXTRA_IS_BALCONY) && (!(msp_pl->extra_flags &
-                    MSP_EXTRA_IS_BALCONY) ||
-                    msp_pl->map_info == msp->map_info))) {
+            if (!MAP_TILE_IS_SAME_LEVEL(m, 1) ||
+                (OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
+                 OBJECT_VALID(msp->map_info, msp->map_info_count) &&
+                 msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING &&
+                 msp->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY) &&
+                 (!(msp_pl->extra_flags & MSP_EXTRA_IS_BALCONY) ||
+                  msp_pl->map_info == msp->map_info))) {
                 draw_up = 0;
             }
 
@@ -1115,8 +1120,7 @@ void draw_client_map2(object *pl)
 
                 tiled = m;
 
-                for (int sub_layer_tmp = 0; sub_layer_tmp < NUM_SUB_LAYERS;
-                        sub_layer_tmp++) {
+                for (int sub_layer_tmp = 0; sub_layer_tmp < NUM_SUB_LAYERS; sub_layer_tmp++) {
                     if (override_rendering) {
                         sub_layer = sub_layer_tmp;
                     } else {
@@ -1131,8 +1135,7 @@ void draw_client_map2(object *pl)
                      * sending the upper floors of a building. */
                     force_draw_double = draw_up;
 
-                    if (sub_layer != 0 && tiled != NULL &&
-                            !override_rendering) {
+                    if (sub_layer != 0 && tiled != NULL && !override_rendering) {
                         tiled = get_map_from_tiled(tiled, tiled_dir);
 
                         if (tiled == NULL && tiled_dir == TILED_UP) {
@@ -1141,31 +1144,28 @@ void draw_client_map2(object *pl)
                             tiled = get_map_from_tiled(m, tiled_dir);
                         }
 
-                        if (tiled != NULL && !MAP_TILE_IS_SAME_LEVEL(m,
-                                tiled_depth + (tiled_dir == TILED_UP ?
-                                    1 : -1))) {
+                        if (tiled != NULL && !MAP_TILE_IS_SAME_LEVEL(
+                                                 m,
+                                                 tiled_depth + (tiled_dir == TILED_UP ? 1 : -1))) {
                             tiled = NULL;
                         }
 
-                        if (tiled != NULL && (draw_up ||
-                                tiled_dir == TILED_DOWN)) {
+                        if (tiled != NULL && (draw_up || tiled_dir == TILED_DOWN)) {
                             msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
 
                             if (layer == LAYER_EFFECT) {
-                                tmp = GET_MAP_SPACE_LAYER(msp_tmp, LAYER_WALL,
-                                        0);
+                                tmp = GET_MAP_SPACE_LAYER(msp_tmp, LAYER_WALL, 0);
                             }
 
-                            if (tmp != NULL && layer == LAYER_EFFECT &&
-                                    tmp->type != WALL && tmp->type != DOOR) {
+                            if (tmp != NULL && layer == LAYER_EFFECT && tmp->type != WALL &&
+                                tmp->type != DOOR) {
                                 tmp = NULL;
                             }
 
                             if (tmp == NULL) {
-                                for (sub_layer2 = NUM_SUB_LAYERS - 1;
-                                        sub_layer2 >= 0; sub_layer2--) {
-                                    tmp = GET_MAP_SPACE_LAYER(msp_tmp, layer,
-                                            sub_layer2);
+                                for (sub_layer2 = NUM_SUB_LAYERS - 1; sub_layer2 >= 0;
+                                     sub_layer2--) {
+                                    tmp = GET_MAP_SPACE_LAYER(msp_tmp, layer, sub_layer2);
 
                                     if (tmp != NULL) {
                                         break;
@@ -1177,51 +1177,44 @@ void draw_client_map2(object *pl)
                             force_draw_double = 1;
 
                             if (tmp != NULL && layer == LAYER_WALL &&
-                                    (tmp->type == WALL || tmp->type == DOOR) &&
-                                    tmp->sub_layer == 0 && (tmp->map != m ||
-                                    !(msp->extra_flags &
-                                    MSP_EXTRA_IS_BALCONY)) &&
-                                    ((msp_tmp->extra_flags &
-                                    (MSP_EXTRA_IS_BUILDING |
-                                    MSP_EXTRA_IS_BALCONY)) ||
-                                    QUERY_FLAG(tmp, FLAG_HIDDEN))) {
+                                (tmp->type == WALL || tmp->type == DOOR) && tmp->sub_layer == 0 &&
+                                (tmp->map != m || !(msp->extra_flags & MSP_EXTRA_IS_BALCONY)) &&
+                                ((msp_tmp->extra_flags &
+                                  (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ||
+                                 QUERY_FLAG(tmp, FLAG_HIDDEN))) {
                                 tmp = NULL;
                             }
 
-                            if (tmp != NULL && layer == LAYER_FLOOR &&
-                                    tiled_dir == TILED_UP &&
-                                    (msp_tmp->extra_flags &
-                                    (MSP_EXTRA_IS_BUILDING |
-                                    MSP_EXTRA_IS_BALCONY)) ==
+                            if (tmp != NULL && layer == LAYER_FLOOR && tiled_dir == TILED_UP &&
+                                (msp_tmp->extra_flags &
+                                 (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
                                     MSP_EXTRA_IS_BUILDING) {
                                 tmp = NULL;
                             }
 
                             if (tmp != NULL && layer == LAYER_FLOOR &&
-                                    QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+                                QUERY_FLAG(tmp, FLAG_HIDDEN)) {
                                 tmp = NULL;
                             }
 
-                            if (tmp != NULL && tiled_dir == TILED_UP &&
-                                    is_in_building && (msp_tmp->extra_flags &
-                                    MSP_EXTRA_IS_BALCONY) &&
-                                    !(msp_pl->extra_flags &
-                                    MSP_EXTRA_IS_BALCONY)) {
+                            if (tmp != NULL && tiled_dir == TILED_UP && is_in_building &&
+                                (msp_tmp->extra_flags & MSP_EXTRA_IS_BALCONY) &&
+                                !(msp_pl->extra_flags & MSP_EXTRA_IS_BALCONY)) {
                                 tmp = NULL;
                             }
 
                             if (tmp != NULL && (msp_tmp->extra_flags &
-                                    (MSP_EXTRA_IS_BUILDING |
-                                    MSP_EXTRA_IS_BALCONY)) ==
-                                    MSP_EXTRA_IS_BALCONY) {
+                                                (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
+                                                   MSP_EXTRA_IS_BALCONY) {
                                 priority = 1;
                             }
                         }
                     }
 
                     if (bottom_map != NULL && override_rendering) {
-                        tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(bottom_map,
-                                nx, ny), layer, sub_layer);
+                        tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(bottom_map, nx, ny),
+                                                  layer,
+                                                  sub_layer);
                     }
 
                     if (tmp != NULL && layer == LAYER_FLOOR) {
@@ -1232,20 +1225,17 @@ void draw_client_map2(object *pl)
                         }
                     }
 
-                    if (tmp != NULL && (layer != LAYER_WALL ||
-                            tmp->sub_layer != 0 || override_rendering)) {
+                    if (tmp != NULL &&
+                        (layer != LAYER_WALL || tmp->sub_layer != 0 || override_rendering)) {
                         tiled_z = 1;
 
                         if (layer != LAYER_FLOOR) {
-                            if (tiled_dir == TILED_UP &&
-                                    (floor_z_up & (1 << sub_layer))) {
+                            if (tiled_dir == TILED_UP && (floor_z_up & (1 << sub_layer))) {
                                 tiled_z = 0;
-                            } else if (layer != LAYER_EFFECT &&
-                                    layer != LAYER_LIVING &&
-                                    layer != LAYER_ITEM &&
-                                    layer != LAYER_ITEM2 &&
-                                    tiled_dir == TILED_DOWN &&
-                                    (floor_z_down & (1 << sub_layer))) {
+                            } else if (layer != LAYER_EFFECT && layer != LAYER_LIVING &&
+                                       layer != LAYER_ITEM && layer != LAYER_ITEM2 &&
+                                       tiled_dir == TILED_DOWN &&
+                                       (floor_z_down & (1 << sub_layer))) {
                                 tiled_z = 0;
                             }
                         }
@@ -1265,9 +1255,8 @@ void draw_client_map2(object *pl)
                      * to the player, even if they are standing on top of
                      * another
                      * player or monster. */
-                    if (tmp != NULL && layer == pl->layer &&
-                            sub_layer == pl->sub_layer &&
-                            pl->x == nx && pl->y == ny) {
+                    if (tmp != NULL && layer == pl->layer && sub_layer == pl->sub_layer &&
+                        pl->x == nx && pl->y == ny) {
                         tmp = pl;
                     }
 
@@ -1277,8 +1266,12 @@ void draw_client_map2(object *pl)
                         magic_mirror_struct *m_data = MMIRROR(mirror);
                         mapstruct *mirror_map;
 
-                        if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
-                            tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer, sub_layer);
+                        if (m_data && (mirror_map = magic_mirror_get_map(mirror)) &&
+                            !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
+                            tmp = GET_MAP_SPACE_LAYER(
+                                GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y),
+                                layer,
+                                sub_layer);
                         }
                     }
 
@@ -1286,11 +1279,10 @@ void draw_client_map2(object *pl)
                      * invisible tiles, attempt to find a different object
                      * that is not invisible on the same layer and sub-layer. */
                     if (tmp != NULL && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) &&
-                            !QUERY_FLAG(pl, FLAG_SEE_INVISIBLE)) {
-                        for (tmp2 = tmp, tmp = NULL; tmp2 != NULL &&
-                                tmp2->layer == layer &&
-                                tmp2->sub_layer == sub_layer;
-                                tmp2 = tmp2->above) {
+                        !QUERY_FLAG(pl, FLAG_SEE_INVISIBLE)) {
+                        for (tmp2 = tmp, tmp = NULL;
+                             tmp2 != NULL && tmp2->layer == layer && tmp2->sub_layer == sub_layer;
+                             tmp2 = tmp2->above) {
                             if (!QUERY_FLAG(tmp2, FLAG_IS_INVISIBLE)) {
                                 tmp = tmp2;
                                 break;
@@ -1298,8 +1290,7 @@ void draw_client_map2(object *pl)
                         }
                     }
 
-                    if (tmp != NULL && tmp->layer != LAYER_WALL &&
-                            QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+                    if (tmp != NULL && tmp->layer != LAYER_WALL && QUERY_FLAG(tmp, FLAG_HIDDEN)) {
                         tmp = NULL;
                     }
 
@@ -1309,9 +1300,21 @@ void draw_client_map2(object *pl)
                         /* If the object is dir [0124568] and not in the top
                          * or right quadrant or on the central square, do not
                          * show it. */
-                        if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->cs->mapx_2) && (ay <= CONTR(pl)->cs->mapy_2)) && !((ax > CONTR(pl)->cs->mapx_2) && (ay < CONTR(pl)->cs->mapy_2))) {
+                        if ((!tmp->direction || tmp->direction == NORTH ||
+                             tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST ||
+                             tmp->direction == SOUTH || tmp->direction == SOUTHWEST ||
+                             tmp->direction == NORTHWEST) &&
+                            !((ax <= CONTR(pl)->cs->mapx_2) && (ay <= CONTR(pl)->cs->mapy_2)) &&
+                            !((ax > CONTR(pl)->cs->mapx_2) && (ay < CONTR(pl)->cs->mapy_2))) {
                             tmp = NULL;
-                        } else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->cs->mapx_2) && (ay <= CONTR(pl)->cs->mapy_2)) && !((ax < CONTR(pl)->cs->mapx_2) && (ay > CONTR(pl)->cs->mapy_2))) {
+                        } else if ((!tmp->direction || tmp->direction == NORTHEAST ||
+                                    tmp->direction == EAST || tmp->direction == SOUTHEAST ||
+                                    tmp->direction == SOUTHWEST || tmp->direction == WEST ||
+                                    tmp->direction == NORTHWEST) &&
+                                   !((ax <= CONTR(pl)->cs->mapx_2) &&
+                                     (ay <= CONTR(pl)->cs->mapy_2)) &&
+                                   !((ax < CONTR(pl)->cs->mapx_2) &&
+                                     (ay > CONTR(pl)->cs->mapy_2))) {
                             /* If the object is dir [0234768] and not in the top
                              * or left quadrant or on the central square, do not
                              * show it. */
@@ -1319,29 +1322,23 @@ void draw_client_map2(object *pl)
                         }
                     }
 
-                    if (tmp != NULL && (msp_tmp = GET_MAP_SPACE_PTR(tmp->map,
-                            tmp->x, tmp->y))->extra_flags &
+                    if (tmp != NULL &&
+                        (msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y))->extra_flags &
                             MSP_EXTRA_IS_BUILDING &&
-                            OBJECT_VALID(msp_tmp->map_info,
-                            msp_tmp->map_info_count)) {
-                        int match_x, match_y, match_x2, match_y2, match_x3,
-                                match_y3;
+                        OBJECT_VALID(msp_tmp->map_info, msp_tmp->map_info_count)) {
+                        int match_x, match_y, match_x2, match_y2, match_x3, match_y3;
 
-                        match_x = tmp->x >= msp_tmp->map_info->x && tmp->x <=
-                                msp_tmp->map_info->x +
-                                msp_tmp->map_info->stats.hp;
-                        match_y = tmp->y >= msp_tmp->map_info->y && tmp->y <=
-                                msp_tmp->map_info->y +
-                                msp_tmp->map_info->stats.sp;
-                        match_x2 = tmp->x == msp_tmp->map_info->x +
-                                msp_tmp->map_info->stats.hp;
-                        match_y2 = tmp->y == msp_tmp->map_info->y +
-                                msp_tmp->map_info->stats.sp;
+                        match_x = tmp->x >= msp_tmp->map_info->x &&
+                                  tmp->x <= msp_tmp->map_info->x + msp_tmp->map_info->stats.hp;
+                        match_y = tmp->y >= msp_tmp->map_info->y &&
+                                  tmp->y <= msp_tmp->map_info->y + msp_tmp->map_info->stats.sp;
+                        match_x2 = tmp->x == msp_tmp->map_info->x + msp_tmp->map_info->stats.hp;
+                        match_y2 = tmp->y == msp_tmp->map_info->y + msp_tmp->map_info->stats.sp;
                         match_x3 = tmp->x == msp_tmp->map_info->x;
                         match_y3 = tmp->y == msp_tmp->map_info->y;
 
-                        if (match_x == match_y2 || match_y == match_x2 ||
-                                match_x == match_y3 || match_y == match_x3) {
+                        if (match_x == match_y2 || match_y == match_x2 || match_x == match_y3 ||
+                            match_y == match_x3) {
                             is_building_wall = 1;
                         }
 
@@ -1361,10 +1358,8 @@ void draw_client_map2(object *pl)
 
                                 msp_tmp = GET_MAP_SPACE_PTR(m2, x2, y2);
 
-                                if (!(msp_tmp->extra_flags &
-                                        MSP_EXTRA_IS_BUILDING) ||
-                                        msp_tmp->extra_flags &
-                                        MSP_EXTRA_IS_BALCONY) {
+                                if (!(msp_tmp->extra_flags & MSP_EXTRA_IS_BUILDING) ||
+                                    msp_tmp->extra_flags & MSP_EXTRA_IS_BALCONY) {
                                     break;
                                 }
                             }
@@ -1376,63 +1371,55 @@ void draw_client_map2(object *pl)
                     }
 
                     if (tmp != NULL && blocksview && tmp->map == m &&
-                            (layer != LAYER_FLOOR || !is_building_wall) &&
-                            ((layer != LAYER_WALL && tmp->type != WALL) ||
-                            !is_building_wall) && (layer != LAYER_EFFECT ||
-                            sub_layer == 0) && !(GET_MAP_SPACE_PTR(tmp->map,
-                            tmp->x, tmp->y)->extra_flags &
-                            MSP_EXTRA_IS_BALCONY)) {
+                        (layer != LAYER_FLOOR || !is_building_wall) &&
+                        ((layer != LAYER_WALL && tmp->type != WALL) || !is_building_wall) &&
+                        (layer != LAYER_EFFECT || sub_layer == 0) &&
+                        !(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
+                          MSP_EXTRA_IS_BALCONY)) {
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && ((tiled_depth > 0 && is_in_building) ||
-                            blocksview || (tiled_depth < 0 && GET_MAP_SPACE_PTR(
-                            tmp->map, tmp->x, tmp->y)->map_info != NULL &&
-                            QUERY_FLAG(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
-                            tmp->y)->map_info, FLAG_CURSED))) &&
-                            !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                            !(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
-                            tmp->y)->extra_flags & (MSP_EXTRA_IS_BUILDING |
-                            MSP_EXTRA_IS_BALCONY))) {
+                    if (tmp != NULL &&
+                        ((tiled_depth > 0 && is_in_building) || blocksview ||
+                         (tiled_depth < 0 &&
+                          GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->map_info != NULL &&
+                          QUERY_FLAG(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->map_info,
+                                     FLAG_CURSED))) &&
+                        !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
+                        !(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
+                          (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY))) {
                         tmp = NULL;
                     }
 
                     if (tmp != NULL && tiled_depth != 0 && !is_building_wall &&
-                            (tmp->type == WALL || tmp->type == DOOR) &&
-                            layer == LAYER_EFFECT && sub_layer != 0 &&
-                            !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                            !(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
-                            tmp->y)->extra_flags & MSP_EXTRA_IS_BALCONY) &&
-                            !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
+                        (tmp->type == WALL || tmp->type == DOOR) && layer == LAYER_EFFECT &&
+                        sub_layer != 0 && !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
+                        !(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
+                          MSP_EXTRA_IS_BALCONY) &&
+                        !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && layer != LAYER_EFFECT &&
-                            sub_layer != 0 && (!is_building_wall ||
-                            (tmp->type != WALL && tmp->type != DOOR)) &&
-                            (tmp->type != FLOOR || !is_building_wall) &&
-                            tmp->map != m && (GET_MAP_SPACE_PTR(tmp->map,
-                            tmp->x, tmp->y)->extra_flags &
-                            (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
-                            MSP_EXTRA_IS_BUILDING && !(msp->extra_flags &
-                            MSP_EXTRA_IS_OVERLOOK)) {
+                    if (tmp != NULL && layer != LAYER_EFFECT && sub_layer != 0 &&
+                        (!is_building_wall || (tmp->type != WALL && tmp->type != DOOR)) &&
+                        (tmp->type != FLOOR || !is_building_wall) && tmp->map != m &&
+                        (GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
+                         (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING &&
+                        !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && (!dark_set[sub_layer] ||
-                            (layer == LAYER_EFFECT && sub_layer > 0))) {
+                    if (tmp != NULL &&
+                        (!dark_set[sub_layer] || (layer == LAYER_EFFECT && sub_layer > 0))) {
                         dark_set[sub_layer] = 1;
-                        dark[sub_layer] = map_get_darkness(tmp->map, tmp->x,
-                                tmp->y, NULL);
+                        dark[sub_layer] = map_get_darkness(tmp->map, tmp->x, tmp->y, NULL);
 
                         if (CONTR(pl)->tli) {
-                            dark[sub_layer] +=
-                                    global_darkness_table[MAX_DARKNESS];
+                            dark[sub_layer] += global_darkness_table[MAX_DARKNESS];
                         }
 
                         if (dark[sub_layer] < 100) {
-                            if (QUERY_FLAG(tmp, FLAG_HIDDEN) ||
-                                    special_vision & 1) {
+                            if (QUERY_FLAG(tmp, FLAG_HIDDEN) || special_vision & 1) {
                                 dark[sub_layer] = 100;
                             }
                         }
@@ -1440,20 +1427,17 @@ void draw_client_map2(object *pl)
                         msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
 
                         if ((tmp->map->coords[2] != 0 || !is_building_wall) &&
-                                (msp_tmp->extra_flags & (MSP_EXTRA_IS_BUILDING |
-                                MSP_EXTRA_IS_BALCONY)) ==
+                            (msp_tmp->extra_flags &
+                             (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
                                 MSP_EXTRA_IS_BUILDING &&
-                                msp_tmp->map_info != NULL &&
-                                msp_tmp->map_info->item_power == -1) {
+                            msp_tmp->map_info != NULL && msp_tmp->map_info->item_power == -1) {
                             if (is_building_wall) {
-                                d = MAX(world_darkness,
-                                        MAP_BUILDING_DARKNESS_WALL);
+                                d = MAX(world_darkness, MAP_BUILDING_DARKNESS_WALL);
                             } else {
                                 d = MAP_BUILDING_DARKNESS;
                             }
 
-                            dark[sub_layer] -=
-                                    global_darkness_table[world_darkness];
+                            dark[sub_layer] -= global_darkness_table[world_darkness];
                             dark[sub_layer] += global_darkness_table[d];
                         }
                     }
@@ -1462,8 +1446,7 @@ void draw_client_map2(object *pl)
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && dark[sub_layer] !=
-                            mp->darkness[sub_layer]) {
+                    if (tmp != NULL && dark[sub_layer] != mp->darkness[sub_layer]) {
                         if (sub_layer == 0) {
                             mask |= MAP2_MASK_DARKNESS;
                         } else {
@@ -1473,12 +1456,10 @@ void draw_client_map2(object *pl)
                         mp->darkness[sub_layer] = dark[sub_layer];
                     }
 
-                    if (tmp != NULL && tmp->map != m &&
-                            anim_type[sub_layer] == 0 && GET_MAP_RTAG(tmp->map,
-                            tmp->x, tmp->y, sub_layer) == global_round_tag) {
+                    if (tmp != NULL && tmp->map != m && anim_type[sub_layer] == 0 &&
+                        GET_MAP_RTAG(tmp->map, tmp->x, tmp->y, sub_layer) == global_round_tag) {
                         anim_type[sub_layer] = ANIM_KILL;
-                        anim_value[sub_layer] = GET_MAP_DAMAGE(tmp->map, tmp->x,
-                                tmp->y, sub_layer);
+                        anim_value[sub_layer] = GET_MAP_DAMAGE(tmp->map, tmp->x, tmp->y, sub_layer);
                         anim_num++;
                     }
 
@@ -1561,19 +1542,26 @@ void draw_client_map2(object *pl)
                          * know its HP percent. */
                         if (head->count == CONTR(pl)->target_object_count) {
                             flags2 |= MAP2_FLAG2_PROBE;
-                            probe_val = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
+                            probe_val =
+                                MAX(1,
+                                    ((double)head->stats.hp / ((double)head->stats.maxhp / 100.0)));
                         }
 
                         /* Z position set? */
-                        if (head->z != 0 || tiled_z || (zadj != 0 &&
-                                tmp->map->coords[2] != m->level_min &&
-                                (layer == LAYER_FLOOR || (QUERY_FLAG(head,
-                                FLAG_HIDDEN) && sub_layer == 0)) &&
-                                !override_rendering)) {
+                        if (head->z != 0 || tiled_z ||
+                            (zadj != 0 && tmp->map->coords[2] != m->level_min &&
+                             (layer == LAYER_FLOOR ||
+                              (QUERY_FLAG(head, FLAG_HIDDEN) && sub_layer == 0)) &&
+                             !override_rendering)) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
-                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) || (head->type == CONTAINER && head->sub_type == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
+                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) &&
+                            ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) ||
+                             (head->type == CONTAINER && head->sub_type == ST1_CONTAINER_CORPSE &&
+                              QUERY_FLAG(head, FLAG_IS_USED_UP) &&
+                              (float)head->stats.food / head->last_eat >=
+                                  CORPSE_INFRAVISION_PERCENT / 100.0))) {
                             flags |= MAP2_FLAG_INFRAVISION;
                         }
 
@@ -1583,7 +1571,10 @@ void draw_client_map2(object *pl)
 
                         /* Draw the object twice if set, but only if it's not
                          * in the bottom quadrant of the map. */
-                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (force_draw_double || (ax < CONTR(pl)->cs->mapx_2 || ay < CONTR(pl)->cs->mapy_2))) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
+                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) &&
+                             (force_draw_double ||
+                              (ax < CONTR(pl)->cs->mapx_2 || ay < CONTR(pl)->cs->mapy_2))) ||
+                            QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
                             flags |= MAP2_FLAG_DOUBLE;
                         }
 
@@ -1598,7 +1589,10 @@ void draw_client_map2(object *pl)
                         /* Check if the object has zoom, or check if the magic
                          * mirror
                          * should affect the zoom value of this layer. */
-                        if ((head->zoom_x && head->zoom_x != 100) || (head->zoom_y && head->zoom_y != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << (layer - 1)))) {
+                        if ((head->zoom_x && head->zoom_x != 100) ||
+                            (head->zoom_y && head->zoom_y != 100) ||
+                            (mirror && mirror->last_heal && mirror->last_heal != 100 &&
+                             mirror->path_attuned & (1U << (layer - 1)))) {
                             flags2 |= MAP2_FLAG2_ZOOM;
                         }
 
@@ -1612,15 +1606,14 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_PRIORITY;
                         }
 
-                        if (head->type == DOOR || (layer == LAYER_LIVING &&
-                                !(GET_MAP_SPACE_PTR(head->map, head->x,
-                                head->y)->extra_flags &
-                                MSP_EXTRA_IS_BUILDING))) {
+                        if (head->type == DOOR ||
+                            (layer == LAYER_LIVING &&
+                             !(GET_MAP_SPACE_PTR(head->map, head->x, head->y)->extra_flags &
+                               MSP_EXTRA_IS_BUILDING))) {
                             flags2 |= MAP2_FLAG2_SECONDPASS;
                         }
 
-                        if (head->glow != NULL &&
-                                CONTR(pl)->cs->socket_version >= 1060) {
+                        if (head->glow != NULL && CONTR(pl)->cs->socket_version >= 1060) {
                             flags2 |= MAP2_FLAG2_GLOW;
                         }
 
@@ -1629,8 +1622,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Damage animation? Store it for later. */
-                        if (tmp->last_damage && tmp->damage_round_tag ==
-                                global_round_tag) {
+                        if (tmp->last_damage && tmp->damage_round_tag == global_round_tag) {
                             if (anim_type[sub_layer] == 0) {
                                 anim_num++;
                             }
@@ -1641,21 +1633,19 @@ void draw_client_map2(object *pl)
 
                         /* Now, check if we have cached this. */
                         if (mp->faces[socket_layer] == face &&
-                                mp->quick_pos[socket_layer] == quick_pos &&
-                                mp->flags[socket_layer] == flags && (layer !=
-                                LAYER_LIVING || !IS_LIVE(head) || (mp->probe ==
-                                probe_val && mp->target_object_count ==
-                                target_object_count)) &&
-                                mp->anim_speed[socket_layer] == anim_speed &&
-                                mp->anim_facing[socket_layer] == anim_facing &&
-                                (layer != LAYER_LIVING ||
-                                (mp->anim_flags[sub_layer] == anim_flags &&
-                                mp->client_flags[sub_layer] == client_flags)) &&
-                                (!(flags & MAP2_FLAG_NAME) ||
-                                !CONTR(tmp)->cs->ext_title_flag) &&
-                                (!(flags2 & MAP2_FLAG2_TARGET) ||
-                                ((mp->is_friend & (1 << sub_layer)) != 0) ==
-                                is_friend)) {
+                            mp->quick_pos[socket_layer] == quick_pos &&
+                            mp->flags[socket_layer] == flags &&
+                            (layer != LAYER_LIVING || !IS_LIVE(head) ||
+                             (mp->probe == probe_val &&
+                              mp->target_object_count == target_object_count)) &&
+                            mp->anim_speed[socket_layer] == anim_speed &&
+                            mp->anim_facing[socket_layer] == anim_facing &&
+                            (layer != LAYER_LIVING ||
+                             (mp->anim_flags[sub_layer] == anim_flags &&
+                              mp->client_flags[sub_layer] == client_flags)) &&
+                            (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->cs->ext_title_flag) &&
+                            (!(flags2 & MAP2_FLAG2_TARGET) ||
+                             ((mp->is_friend & (1 << sub_layer)) != 0) == is_friend)) {
                             continue;
                         }
 
@@ -1693,14 +1683,10 @@ void draw_client_map2(object *pl)
                             }
 
                             if (mp->faces[socket_layer]) {
-                                packet_debug_data(packet_layer, 1,
-                                        "Socket layer ID (clear)");
-                                packet_append_uint8(packet_layer,
-                                        MAP2_LAYER_CLEAR);
-                                packet_debug_data(packet_layer, 1,
-                                        "Actual socket layer");
-                                packet_append_uint8(packet_layer,
-                                        socket_layer);
+                                packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
+                                packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+                                packet_debug_data(packet_layer, 1, "Actual socket layer");
+                                packet_append_uint8(packet_layer, socket_layer);
                                 num_layers++;
                             }
 
@@ -1709,9 +1695,11 @@ void draw_client_map2(object *pl)
 
                         num_layers++;
 
-                        packet_debug_data(packet_layer, 1,
-                                "Socket layer (layer: %d, sub-layer: %d)",
-                                layer, sub_layer);
+                        packet_debug_data(packet_layer,
+                                          1,
+                                          "Socket layer (layer: %d, sub-layer: %d)",
+                                          layer,
+                                          sub_layer);
                         packet_append_uint8(packet_layer, socket_layer);
                         packet_debug_data(packet_layer, 2, "Face ID");
                         packet_append_uint16(packet_layer, face);
@@ -1730,12 +1718,10 @@ void draw_client_map2(object *pl)
                          * name color. */
                         if (flags & MAP2_FLAG_NAME) {
                             packet_debug_data(packet_layer, 2, "Player name");
+                            packet_append_string_terminated(packet_layer, CONTR(tmp)->quick_name);
+                            packet_debug_data(packet_layer, 2, "Player name color");
                             packet_append_string_terminated(packet_layer,
-                                    CONTR(tmp)->quick_name);
-                            packet_debug_data(packet_layer, 2,
-                                    "Player name color");
-                            packet_append_string_terminated(packet_layer,
-                                    get_playername_color(pl, tmp));
+                                                            get_playername_color(pl, tmp));
                         }
 
                         if (flags & MAP2_FLAG_ANIMATION) {
@@ -1749,8 +1735,7 @@ void draw_client_map2(object *pl)
 
                             if (anim_flags & ANIM_FLAG_MOVING) {
                                 packet_debug_data(packet_layer, 3, "State");
-                                packet_append_uint8(packet_layer,
-                                        face_obj->state);
+                                packet_append_uint8(packet_layer, face_obj->state);
                             }
                         }
 
@@ -1761,9 +1746,9 @@ void draw_client_map2(object *pl)
                             z = head->z;
 
                             if (tmp->map->coords[2] != m->level_min &&
-                                    (layer == LAYER_FLOOR || (QUERY_FLAG(head,
-                                    FLAG_HIDDEN) && sub_layer == 0)) &&
-                                    !override_rendering) {
+                                (layer == LAYER_FLOOR ||
+                                 (QUERY_FLAG(head, FLAG_HIDDEN) && sub_layer == 0)) &&
+                                !override_rendering) {
                                 z += zadj;
                             }
 
@@ -1775,8 +1760,7 @@ void draw_client_map2(object *pl)
                                 z += 46 * tiled_depth;
 
                                 if (layer != LAYER_FLOOR &&
-                                        (layer != LAYER_WALL ||
-                                        !override_rendering)) {
+                                    (layer != LAYER_WALL || !override_rendering)) {
                                     if (tiled_depth < 0) {
                                         z += MIN(zadj, 46 * -tiled_depth);
                                     } else {
@@ -1818,54 +1802,37 @@ void draw_client_map2(object *pl)
                                 /* First check mirror, even if the object *does*
                                  * have custom zoom. */
                                 if (mirror && mirror->last_heal) {
-                                    packet_debug_data(packet_layer, 3,
-                                            "X zoom");
-                                    packet_append_uint16(packet_layer,
-                                            mirror->last_heal);
-                                    packet_debug_data(packet_layer, 3,
-                                            "Y zoom");
-                                    packet_append_uint16(packet_layer,
-                                            mirror->last_heal);
+                                    packet_debug_data(packet_layer, 3, "X zoom");
+                                    packet_append_uint16(packet_layer, mirror->last_heal);
+                                    packet_debug_data(packet_layer, 3, "Y zoom");
+                                    packet_append_uint16(packet_layer, mirror->last_heal);
                                 } else {
-                                    packet_debug_data(packet_layer, 3,
-                                            "X zoom");
-                                    packet_append_uint16(packet_layer,
-                                            head->zoom_x);
-                                    packet_debug_data(packet_layer, 3,
-                                            "Y zoom");
-                                    packet_append_uint16(packet_layer,
-                                            head->zoom_y);
+                                    packet_debug_data(packet_layer, 3, "X zoom");
+                                    packet_append_uint16(packet_layer, head->zoom_x);
+                                    packet_debug_data(packet_layer, 3, "Y zoom");
+                                    packet_append_uint16(packet_layer, head->zoom_y);
                                 }
                             }
 
                             if (flags2 & MAP2_FLAG2_TARGET) {
-                                packet_debug_data(packet_layer, 3,
-                                        "Target object ID");
-                                packet_append_uint32(packet_layer,
-                                        target_object_count);
-                                packet_debug_data(packet_layer, 3,
-                                        "Target is friend");
-                                packet_append_uint8(packet_layer,
-                                        is_friend);
+                                packet_debug_data(packet_layer, 3, "Target object ID");
+                                packet_append_uint32(packet_layer, target_object_count);
+                                packet_debug_data(packet_layer, 3, "Target is friend");
+                                packet_append_uint8(packet_layer, is_friend);
                             }
 
                             /* Target's HP bar. */
                             if (flags2 & MAP2_FLAG2_PROBE) {
-                                packet_debug_data(packet_layer, 3,
-                                        "HP percentage");
+                                packet_debug_data(packet_layer, 3, "HP percentage");
                                 packet_append_uint8(packet_layer, probe_val);
                             }
 
                             /* Target's HP bar. */
                             if (flags2 & MAP2_FLAG2_GLOW) {
-                                packet_debug_data(packet_layer, 3,
-                                        "Glow color");
-                                packet_append_string_terminated(packet_layer,
-                                        head->glow);
-                                packet_debug_data(packet_layer, 3,
-                                        "Glow speed");
-                                packet_append_uint8(packet_layer,
-                                        head->glow_speed);
+                                packet_debug_data(packet_layer, 3, "Glow color");
+                                packet_append_string_terminated(packet_layer, head->glow);
+                                packet_debug_data(packet_layer, 3, "Glow speed");
+                                packet_append_uint8(packet_layer, head->glow_speed);
                             }
                         }
                     } else if (mp->faces[socket_layer]) {
@@ -1881,11 +1848,9 @@ void draw_client_map2(object *pl)
                             mp->anim_flags[sub_layer] = 0;
                         }
 
-                        packet_debug_data(packet_layer, 1,
-                                "Socket layer ID (clear)");
+                        packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
                         packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
-                        packet_debug_data(packet_layer, 1,
-                                "Actual socket layer");
+                        packet_debug_data(packet_layer, 1, "Actual socket layer");
                         packet_append_uint8(packet_layer, socket_layer);
                         num_layers++;
                     }
@@ -1897,8 +1862,8 @@ void draw_client_map2(object *pl)
             packet_append_uint16(packet, mask);
 
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                if ((sub_layer == 0 && !(mask & MAP2_MASK_DARKNESS)) || (
-                        sub_layer != 0 && !(mask & MAP2_MASK_DARKNESS_MORE))) {
+                if ((sub_layer == 0 && !(mask & MAP2_MASK_DARKNESS)) ||
+                    (sub_layer != 0 && !(mask & MAP2_MASK_DARKNESS_MORE))) {
                     if (!dark_set[sub_layer] && mp->darkness[sub_layer] != 0) {
                         mp->darkness[sub_layer] = 0;
                     }
@@ -1924,8 +1889,7 @@ void draw_client_map2(object *pl)
                     d = 30;
                 }
 
-                packet_debug_data(packet, 1, "Darkness (sub-layer: %d)",
-                        sub_layer);
+                packet_debug_data(packet, 1, "Darkness (sub-layer: %d)", sub_layer);
                 packet_append_uint8(packet, d);
             }
 
@@ -1943,8 +1907,7 @@ void draw_client_map2(object *pl)
                     }
 
                     anim_type[sub_layer] = ANIM_KILL;
-                    anim_value[sub_layer] = GET_MAP_DAMAGE(m, nx, ny,
-                            sub_layer);
+                    anim_value[sub_layer] = GET_MAP_DAMAGE(m, nx, ny, sub_layer);
                 }
             }
 
@@ -1952,8 +1915,7 @@ void draw_client_map2(object *pl)
                 ext_flags |= MAP2_FLAG_EXT_ANIM;
             }
 
-            if (ext_flags == mp->ext_flags && anim_num == mp->anim_num &&
-                    process_delay != 0) {
+            if (ext_flags == mp->ext_flags && anim_num == mp->anim_num && process_delay != 0) {
                 ext_flags = 0;
             } else {
                 mp->ext_flags = ext_flags;
@@ -2009,8 +1971,11 @@ void draw_client_map2(object *pl)
     }
 }
 
-void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_quest_list(socket_struct *ns,
+                               player *pl,
+                               uint8_t *data,
+                               size_t len,
+                               size_t pos) {
     object *quest_container, *tmp, *tmp2, *last;
     StringBuffer *sb;
     packet_struct *packet;
@@ -2039,8 +2004,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
         stringbuffer_append_printf(sb, "\n[title]%s[/title]", tmp->race);
 
         /* Find the last entry. */
-        for (last = tmp->inv; last && last->below; last = last->below) {
-        }
+        for (last = tmp->inv; last && last->below; last = last->below) {}
 
         /* Show the quest parts. */
         for (tmp2 = last; tmp2; tmp2 = tmp2->above) {
@@ -2057,9 +2021,12 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
             }
 
             switch (tmp2->sub_type) {
-            case QUEST_TYPE_KILL:
-                stringbuffer_append_printf(sb, "\n[x=10]Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
-                break;
+                case QUEST_TYPE_KILL:
+                    stringbuffer_append_printf(sb,
+                                               "\n[x=10]Status: %d/%d",
+                                               MIN(tmp2->last_sp, tmp2->last_grace),
+                                               tmp2->last_grace);
+                    break;
             }
         }
 
@@ -2087,13 +2054,12 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
     efree(cp);
 }
 
-void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     /* The graphical client sends CLEAR for its Stay action. Besides dropping
      * commands which have not been dispatched yet, cancel movement already
      * expanded into the player's persistent server-side path queue and stop
      * directional run mode. This lets combat or other urgent input reliably
-    * interrupt click-to-move. */
+     * interrupt click-to-move. */
     ns->packet_recv_cmd->len = 0;
     if (pl != NULL) {
         player_path_clear(pl);
@@ -2101,8 +2067,11 @@ void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t l
     }
 }
 
-void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_move_path(socket_struct *ns,
+                              player *pl,
+                              uint8_t *data,
+                              size_t len,
+                              size_t pos) {
     uint8_t x, y;
     mapstruct *m;
     int xt, yt;
@@ -2160,8 +2129,7 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size
     player_path_add(pl, m, xt, yt);
 }
 
-void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     int dir;
     tag_t tag;
     object *tmp;
@@ -2172,7 +2140,8 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t le
     tag = packet_to_uint32(data, len, &pos);
 
     if (tag) {
-        if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->count == tag) {
+        if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] &&
+            pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->count == tag) {
             tmp = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
         } else {
             for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
@@ -2184,7 +2153,8 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t le
     } else {
         tmp = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
 
-        if (!tmp && pl->equipment[PLAYER_EQUIP_AMMO] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_AMMO], FLAG_IS_THROWN)) {
+        if (!tmp && pl->equipment[PLAYER_EQUIP_AMMO] &&
+            QUERY_FLAG(pl->equipment[PLAYER_EQUIP_AMMO], FLAG_IS_THROWN)) {
             tmp = pl->equipment[PLAYER_EQUIP_WEAPON];
         }
     }
@@ -2216,12 +2186,15 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
     pl->action_attack = global_round_tag + skill_time + delay;
 
-    pl->action_timer = (float) (pl->action_attack - global_round_tag) / MAX_TICKS;
+    pl->action_timer = (float)(pl->action_attack - global_round_tag) / MAX_TICKS;
     pl->last_action_timer = 0;
 }
 
-void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_keepalive(socket_struct *ns,
+                              player *pl,
+                              uint8_t *data,
+                              size_t len,
+                              size_t pos) {
     ns->keepalive = 0;
 
     if (len == pos) {
@@ -2237,8 +2210,7 @@ void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size
     socket_send_packet(ns, packet);
 }
 
-void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     uint8_t dir, run_on;
 
     dir = packet_to_uint8(data, len, &pos);
@@ -2273,8 +2245,7 @@ void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t le
  * @param pl
  * Player requesting this.
  */
-void send_target_command(player *pl)
-{
+void send_target_command(player *pl) {
     packet_struct *packet;
 
     if (!pl->ob->map) {
@@ -2288,7 +2259,9 @@ void send_target_command(player *pl)
     pl->ob->enemy = NULL;
     pl->ob->enemy_count = 0;
 
-    if (!pl->target_object || pl->target_object == pl->ob || !OBJECT_VALID(pl->target_object, pl->target_object_count) || IS_INVISIBLE(pl->target_object, pl->ob)) {
+    if (!pl->target_object || pl->target_object == pl->ob ||
+        !OBJECT_VALID(pl->target_object, pl->target_object_count) ||
+        IS_INVISIBLE(pl->target_object, pl->ob)) {
         packet_debug_data(packet, 0, "Target command type");
         packet_append_uint8(packet, CMD_TARGET_SELF);
         packet_debug_data(packet, 0, "Color");
@@ -2343,7 +2316,11 @@ void send_target_command(player *pl)
         if (pl->tgm) {
             char buf[MAX_BUF];
 
-            snprintf(buf, sizeof(buf), "%s (lvl %d)", pl->target_object->name, pl->target_object->level);
+            snprintf(buf,
+                     sizeof(buf),
+                     "%s (lvl %d)",
+                     pl->target_object->name,
+                     pl->target_object->level);
             packet_append_string_terminated(packet, buf);
         } else {
             packet_append_string_terminated(packet, pl->target_object->name);
@@ -2358,8 +2335,7 @@ void send_target_command(player *pl)
     socket_send_packet(pl->cs, packet);
 }
 
-void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     uint8_t type;
 
     type = packet_to_uint8(data, len, &pos);
@@ -2370,7 +2346,9 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
         packet_to_string(data, len, &pos, name, sizeof(name));
         packet_to_string(data, len, &pos, password, sizeof(password));
 
-        if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
+        if (*name == '\0' || *password == '\0' ||
+            string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) ||
+            string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
             LOG(PACKET, "Received invalid data in account login command.");
             return;
         }
@@ -2415,16 +2393,15 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
  * @param pl
  * The player.
  */
-void generate_quick_name(player *pl)
-{
+void generate_quick_name(player *pl) {
     int i;
 
     snprintf(pl->quick_name, sizeof(pl->quick_name), "%s", pl->ob->name);
 
     for (i = 0; i < pl->num_cmd_permissions; i++) {
-        if (pl->cmd_permissions[i] && string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]")) {
-            snprintfcat(pl->quick_name, sizeof(pl->quick_name), " %s",
-                    pl->cmd_permissions[i]);
+        if (pl->cmd_permissions[i] && string_startswith(pl->cmd_permissions[i], "[") &&
+            string_endswith(pl->cmd_permissions[i], "]")) {
+            snprintfcat(pl->quick_name, sizeof(pl->quick_name), " %s", pl->cmd_permissions[i]);
         }
     }
 
@@ -2433,8 +2410,7 @@ void generate_quick_name(player *pl)
     }
 }
 
-void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     uint8_t type;
 
     type = packet_to_uint8(data, len, &pos);
@@ -2463,7 +2439,9 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
         for (i = 0; i <= SIZEOFFREE1 && !pl->target_object_count; i++) {
             /* Check whether we are still in range of the player's
              * viewport, and whether the player can see the square. */
-            if (x + freearr_x[i] < 0 || x + freearr_x[i] >= pl->cs->mapx || y + freearr_y[i] < 0 || y + freearr_y[i] >= pl->cs->mapy || pl->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW) {
+            if (x + freearr_x[i] < 0 || x + freearr_x[i] >= pl->cs->mapx || y + freearr_y[i] < 0 ||
+                y + freearr_y[i] >= pl->cs->mapy ||
+                pl->blocked_los[x + freearr_x[i]][y + freearr_y[i]] > BLOCKED_LOS_BLOCKSVIEW) {
                 continue;
             }
 
@@ -2485,11 +2463,11 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
                 continue;
             }
 
-            FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_LIVING, -1, tmp)
-            {
+            FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_LIVING, -1, tmp) {
                 tmp = HEAD(tmp);
 
-                if ((!count || tmp->count == count) && IS_LIVE(tmp) && tmp != pl->ob && !IS_INVISIBLE(tmp, pl->ob) && !OBJECT_IS_HIDDEN(pl->ob, tmp)) {
+                if ((!count || tmp->count == count) && IS_LIVE(tmp) && tmp != pl->ob &&
+                    !IS_INVISIBLE(tmp, pl->ob) && !OBJECT_IS_HIDDEN(pl->ob, tmp)) {
                     pl->target_object = tmp;
                     pl->target_object_count = tmp->count;
                     FOR_MAP_LAYER_BREAK;
@@ -2512,8 +2490,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
     }
 }
 
-void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     uint8_t type;
     char msg[HUGE_BUF];
 
@@ -2546,7 +2523,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
         npc = NULL;
 
-        if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
+        if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) &&
+            OBJECT_CAN_TALK(pl->target_object)) {
             for (i = 0; i <= SIZEOFFREE2; i++) {
                 x = pl->ob->x + freearr_x[i];
                 y = pl->ob->y + freearr_y[i];
@@ -2556,7 +2534,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
                     continue;
                 }
 
-                if (m == pl->target_object->map && x == pl->target_object->x && y == pl->target_object->y) {
+                if (m == pl->target_object->map && x == pl->target_object->x &&
+                    y == pl->target_object->y) {
                     npc = pl->target_object;
                     break;
                 }
@@ -2573,9 +2552,9 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
                 continue;
             }
 
-            FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, -1, tmp)
-            {
-                if (OBJECT_CAN_TALK(tmp) && (type == CMD_TALK_NPC || strcmp(tmp->name, npc_name) == 0)) {
+            FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, -1, tmp) {
+                if (OBJECT_CAN_TALK(tmp) &&
+                    (type == CMD_TALK_NPC || strcmp(tmp->name, npc_name) == 0)) {
                     npc = tmp;
                     FOR_MAP_LAYER_BREAK;
                 }
@@ -2589,8 +2568,13 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             if (!monster_guard_check(npc, pl->ob, msg, 0)) {
                 talk_to_npc(pl->ob, npc, msg);
             }
-        } else if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
-            draw_info_format(COLOR_WHITE, pl->ob, "You are too far away from %s.", pl->target_object->name);
+        } else if (type == CMD_TALK_NPC &&
+                   OBJECT_VALID(pl->target_object, pl->target_object_count) &&
+                   OBJECT_CAN_TALK(pl->target_object)) {
+            draw_info_format(COLOR_WHITE,
+                             pl->ob,
+                             "You are too far away from %s.",
+                             pl->target_object->name);
         } else {
             draw_info(COLOR_WHITE, pl->ob, "There are no NPCs that you can talk to nearby.");
         }
@@ -2634,8 +2618,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
     }
 }
 
-void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     char word[MAX_BUF], app_name[MAX_BUF];
     uint8_t type, sub_type;
     packet_struct *packet;
@@ -2648,8 +2631,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     bool ip_match = false;
 
     size_t pos2 = 0;
-    while (string_get_word(settings.control_allowed_ips, &pos2, ',', VS(word),
-            0)) {
+    while (string_get_word(settings.control_allowed_ips, &pos2, ',', VS(word), 0)) {
         char *split[2];
         if (string_split(word, split, arraysize(split), '/') < 1) {
             continue;
@@ -2667,7 +2649,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
                 LOG(ERROR, "Ignoring invalid control CIDR prefix: %s", word);
                 continue;
             }
-            plen = (unsigned short) value;
+            plen = (unsigned short)value;
         }
 
         if (socket_cmp_addr(ns->sc, &addr, plen) == 0) {
@@ -2677,8 +2659,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     }
 
     if (!ip_match) {
-        LOG(PACKET, "Received control command from unauthorized IP: %s",
-                socket_get_id(ns->sc));
+        LOG(PACKET, "Received control command from unauthorized IP: %s", socket_get_id(ns->sc));
         return;
     }
 
@@ -2693,104 +2674,106 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     sub_type = packet_to_uint8(data, len, &pos);
 
     switch (type) {
-    case CMD_CONTROL_MAP:
-    {
-        char mappath[HUGE_BUF];
-        shstr *mappath_sh;
-        mapstruct *control_map;
-
-        packet_to_string(data, len, &pos, mappath, sizeof(mappath));
-
-        mappath_sh = add_string(mappath);
-        control_map = has_been_loaded_sh(mappath_sh);
-        free_string_shared(mappath_sh);
-
-        /* No such map has been loaded, nothing to do. */
-        if (control_map == NULL) {
-            return;
-        }
-
-        switch (sub_type) {
-        case CMD_CONTROL_MAP_RESET:
-        {
-            map_force_reset(control_map);
-            return;
-        }
-        }
-
-        break;
-    }
-
-    case CMD_CONTROL_PLAYER:
-    {
-        char playername[MAX_BUF];
-        player *control_player;
-        int ret;
-
-        packet_to_string(data, len, &pos, playername, sizeof(playername));
-
-        /* Attempt to find a suitable player as the controller. */
-        if (!string_isempty(playername)) {
-            control_player = find_player(playername);
-        } else if (!string_isempty(settings.control_player)) {
-            control_player = find_player(settings.control_player);
-        } else {
-            control_player = first_player;
-        }
-
-        /* No player has been found, return immediately. This is not an
-         * error; no player is logged in, for example. */
-        if (control_player == NULL) {
-            return;
-        }
-
-        ret = 0;
-
-        switch (sub_type) {
-        case CMD_CONTROL_PLAYER_TELEPORT:
-        {
+        case CMD_CONTROL_MAP: {
             char mappath[HUGE_BUF];
-            int16_t x, y;
-            mapstruct *m;
+            shstr *mappath_sh;
+            mapstruct *control_map;
 
             packet_to_string(data, len, &pos, mappath, sizeof(mappath));
-            x = packet_to_int16(data, len, &pos);
-            y = packet_to_int16(data, len, &pos);
 
-            m = ready_map_name(mappath, NULL, 0);
+            mappath_sh = add_string(mappath);
+            control_map = has_been_loaded_sh(mappath_sh);
+            free_string_shared(mappath_sh);
 
-            if (m == NULL) {
-                LOG(ERROR, "Could not teleport player to '%s' (%d,%d): "
-                        "map could not be loaded.", mappath, x, y);
+            /* No such map has been loaded, nothing to do. */
+            if (control_map == NULL) {
                 return;
             }
 
-            ret = object_enter_map(control_player->ob, NULL, m, x, y, 1);
+            switch (sub_type) {
+                case CMD_CONTROL_MAP_RESET: {
+                    map_force_reset(control_map);
+                    return;
+                }
+            }
+
             break;
         }
+
+        case CMD_CONTROL_PLAYER: {
+            char playername[MAX_BUF];
+            player *control_player;
+            int ret;
+
+            packet_to_string(data, len, &pos, playername, sizeof(playername));
+
+            /* Attempt to find a suitable player as the controller. */
+            if (!string_isempty(playername)) {
+                control_player = find_player(playername);
+            } else if (!string_isempty(settings.control_player)) {
+                control_player = find_player(settings.control_player);
+            } else {
+                control_player = first_player;
+            }
+
+            /* No player has been found, return immediately. This is not an
+             * error; no player is logged in, for example. */
+            if (control_player == NULL) {
+                return;
+            }
+
+            ret = 0;
+
+            switch (sub_type) {
+                case CMD_CONTROL_PLAYER_TELEPORT: {
+                    char mappath[HUGE_BUF];
+                    int16_t x, y;
+                    mapstruct *m;
+
+                    packet_to_string(data, len, &pos, mappath, sizeof(mappath));
+                    x = packet_to_int16(data, len, &pos);
+                    y = packet_to_int16(data, len, &pos);
+
+                    m = ready_map_name(mappath, NULL, 0);
+
+                    if (m == NULL) {
+                        LOG(ERROR,
+                            "Could not teleport player to '%s' (%d,%d): "
+                            "map could not be loaded.",
+                            mappath,
+                            x,
+                            y);
+                        return;
+                    }
+
+                    ret = object_enter_map(control_player->ob, NULL, m, x, y, 1);
+                    break;
+                }
+            }
+
+            if (ret == 1) {
+                packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
+                packet_enable_ndelay(packet);
+                packet_debug_data(packet, 0, "Forwarded data");
+                packet_append_data_len(packet, data, len);
+                socket_send_packet(control_player->cs, packet);
+
+                return;
+            }
+
+            break;
         }
-
-        if (ret == 1) {
-            packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
-            packet_enable_ndelay(packet);
-            packet_debug_data(packet, 0, "Forwarded data");
-            packet_append_data_len(packet, data, len);
-            socket_send_packet(control_player->cs, packet);
-
-            return;
-        }
-
-        break;
-    }
     }
 
-    LOG(PACKET, "Unrecognised control command type: %d, sub-type: %d, "
-            "by application: '%s'", type, sub_type, app_name);
+    LOG(PACKET,
+        "Unrecognised control command type: %d, sub-type: %d, "
+        "by application: '%s'",
+        type,
+        sub_type,
+        app_name);
 }
 
-void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data,
-        size_t len, size_t pos)
-{
+void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     uint8_t combat = packet_to_uint8(data, len, &pos);
     uint8_t combat_force = packet_to_uint8(data, len, &pos);
 
@@ -2812,28 +2795,21 @@ void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data,
  * @copydoc socket_command_func
  */
 static void
-socket_crypto_hello (socket_struct *ns,
-                     player        *pl,
-                     uint8_t       *data,
-                     size_t         len,
-                     size_t         pos)
-{
+socket_crypto_hello(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
 
     /* Ensure there's no bytes left. */
     if (pos != len) {
-        LOG(PACKET, "Client sent malformed crypto hello command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto hello command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
 
     const char *server_cert = socket_crypto_get_cert();
     if (server_cert == NULL) {
-        LOG(SYSTEM, "Crypto hello received but no cert loaded: %s",
-            socket_get_id(ns->sc));
+        LOG(SYSTEM, "Crypto hello received but no cert loaded: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2864,8 +2840,7 @@ socket_crypto_hello (socket_struct *ns,
     packet_append_string_terminated(packet, server_cert);
     packet_debug_data(packet, 0, "Certificate chain");
     const char *cert_chain = socket_crypto_get_cert_chain();
-    packet_append_string_terminated(packet,
-                                    cert_chain != NULL ? cert_chain : "");
+    packet_append_string_terminated(packet, cert_chain != NULL ? cert_chain : "");
     socket_send_packet(ns, packet);
 }
 
@@ -2875,12 +2850,7 @@ socket_crypto_hello (socket_struct *ns,
  * @copydoc socket_command_func
  */
 static void
-socket_crypto_key (socket_struct *ns,
-                   player        *pl,
-                   uint8_t       *data,
-                   size_t         len,
-                   size_t         pos)
-{
+socket_crypto_key(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
@@ -2889,8 +2859,7 @@ socket_crypto_key (socket_struct *ns,
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (pos == len) {
-        LOG(PACKET, "Client sent malformed crypto key command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto key command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2902,8 +2871,7 @@ socket_crypto_key (socket_struct *ns,
     pos += key_len;
 
     if (pos == len) {
-        LOG(PACKET, "Client sent malformed crypto key command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto key command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2914,8 +2882,7 @@ socket_crypto_key (socket_struct *ns,
     pos += iv_len;
 
     if (pos != len) {
-        LOG(PACKET, "Client sent malformed crypto key command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto key command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -2942,12 +2909,7 @@ socket_crypto_key (socket_struct *ns,
  * @copydoc socket_command_func
  */
 static void
-socket_crypto_curves (socket_struct *ns,
-                      player        *pl,
-                      uint8_t       *data,
-                      size_t         len,
-                      size_t         pos)
-{
+socket_crypto_curves(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
@@ -2964,8 +2926,7 @@ socket_crypto_curves (socket_struct *ns,
             uint8_t iv_size;
             const unsigned char *iv = socket_crypto_gen_iv(crypto, &iv_size);
             if (iv == NULL) {
-                LOG(SYSTEM, "Failed to generate IV buffer: %s",
-                    socket_get_id(ns->sc));
+                LOG(SYSTEM, "Failed to generate IV buffer: %s", socket_get_id(ns->sc));
                 ns->state = ST_DEAD;
                 return;
             }
@@ -2978,18 +2939,15 @@ socket_crypto_curves (socket_struct *ns,
             socket_send_packet(ns, packet);
 
             size_t pubkey_len;
-            unsigned char *pubkey = socket_crypto_gen_pubkey(crypto,
-                                                             &pubkey_len);
+            unsigned char *pubkey = socket_crypto_gen_pubkey(crypto, &pubkey_len);
             if (pubkey == NULL) {
-                LOG(SYSTEM, "Failed to generate a public key: %s",
-                    socket_get_id(ns->sc));
+                LOG(SYSTEM, "Failed to generate a public key: %s", socket_get_id(ns->sc));
                 ns->state = ST_DEAD;
                 return;
             }
 
             if (pubkey_len > INT16_MAX) {
-                LOG(SYSTEM, "Public key too long: %s",
-                    socket_get_id(ns->sc));
+                LOG(SYSTEM, "Public key too long: %s", socket_get_id(ns->sc));
                 ns->state = ST_DEAD;
                 efree(pubkey);
                 return;
@@ -2999,7 +2957,7 @@ socket_crypto_curves (socket_struct *ns,
             packet_debug_data(packet, 0, "Crypto sub-command");
             packet_append_uint8(packet, CMD_CRYPTO_PUBKEY);
             packet_debug_data(packet, 0, "ECDH public key length");
-            packet_append_uint16(packet, (uint16_t) pubkey_len);
+            packet_append_uint16(packet, (uint16_t)pubkey_len);
             packet_debug_data(packet, 0, "ECDH public key");
             packet_append_data_len(packet, pubkey, pubkey_len);
             packet_debug_data(packet, 0, "IV buffer size");
@@ -3025,12 +2983,7 @@ socket_crypto_curves (socket_struct *ns,
  * @copydoc socket_command_func
  */
 static void
-socket_crypto_pubkey (socket_struct *ns,
-                      player        *pl,
-                      uint8_t       *data,
-                      size_t         len,
-                      size_t         pos)
-{
+socket_crypto_pubkey(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
@@ -3039,8 +2992,7 @@ socket_crypto_pubkey (socket_struct *ns,
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (len == pos) {
-        LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto pubkey command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -3055,15 +3007,13 @@ socket_crypto_pubkey (socket_struct *ns,
     pos += iv_len;
 
     if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
-        LOG(SYSTEM, "Couldn't derive shared secret key: %s",
-            socket_get_id(ns->sc));
+        LOG(SYSTEM, "Couldn't derive shared secret key: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
 
     if (len != pos) {
-        LOG(PACKET, "Client sent malformed crypto pubkey command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto pubkey command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -3075,12 +3025,7 @@ socket_crypto_pubkey (socket_struct *ns,
  * @copydoc socket_command_func
  */
 static void
-socket_crypto_secret (socket_struct *ns,
-                      player        *pl,
-                      uint8_t       *data,
-                      size_t         len,
-                      size_t         pos)
-{
+socket_crypto_secret(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
@@ -3089,8 +3034,7 @@ socket_crypto_secret (socket_struct *ns,
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (len == pos) {
-        LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto secret command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -3099,8 +3043,7 @@ socket_crypto_secret (socket_struct *ns,
     secret_len = MIN(secret_len, len - pos);
 
     if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
-        LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto secret command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -3108,14 +3051,12 @@ socket_crypto_secret (socket_struct *ns,
     pos += secret_len;
 
     if (len != pos) {
-        LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto secret command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
 
-    const unsigned char *secret = socket_crypto_create_secret(crypto,
-                                                              &secret_len);
+    const unsigned char *secret = socket_crypto_create_secret(crypto, &secret_len);
     if (secret == NULL) {
         LOG(ERROR, "Failed to generate a secret");
         ns->state = ST_DEAD;
@@ -3137,12 +3078,7 @@ socket_crypto_secret (socket_struct *ns,
  * @copydoc socket_command_func
  */
 static void
-socket_crypto_done (socket_struct *ns,
-                    player        *pl,
-                    uint8_t       *data,
-                    size_t         len,
-                    size_t         pos)
-{
+socket_crypto_done(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(pl == NULL);
     HARD_ASSERT(data != NULL);
@@ -3151,8 +3087,7 @@ socket_crypto_done (socket_struct *ns,
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (len != pos) {
-        LOG(PACKET, "Client sent malformed crypto secret command: %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Client sent malformed crypto secret command: %s", socket_get_id(ns->sc));
         ns->state = ST_DEAD;
         return;
     }
@@ -3167,8 +3102,7 @@ socket_crypto_done (socket_struct *ns,
         return;
     }
 
-    LOG(SYSTEM, "Connection: established a secure channel with %s",
-        socket_get_id(ns->sc));
+    LOG(SYSTEM, "Connection: established a secure channel with %s", socket_get_id(ns->sc));
 }
 
 /**
@@ -3176,13 +3110,7 @@ socket_crypto_done (socket_struct *ns,
  *
  * @copydoc socket_command_func
  */
-void
-socket_command_crypto (socket_struct *ns,
-                       player        *pl,
-                       uint8_t       *data,
-                       size_t         len,
-                       size_t         pos)
-{
+void socket_command_crypto(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(data != NULL);
 
@@ -3202,34 +3130,34 @@ socket_command_crypto (socket_struct *ns,
     }
 
     switch (type) {
-    case CMD_CRYPTO_HELLO:
-        socket_crypto_hello(ns, pl, data, len, pos);
-        break;
+        case CMD_CRYPTO_HELLO:
+            socket_crypto_hello(ns, pl, data, len, pos);
+            break;
 
-    case CMD_CRYPTO_KEY:
-        socket_crypto_key(ns, pl, data, len, pos);
-        break;
+        case CMD_CRYPTO_KEY:
+            socket_crypto_key(ns, pl, data, len, pos);
+            break;
 
-    case CMD_CRYPTO_CURVES:
-        socket_crypto_curves(ns, pl, data, len, pos);
-        break;
+        case CMD_CRYPTO_CURVES:
+            socket_crypto_curves(ns, pl, data, len, pos);
+            break;
 
-    case CMD_CRYPTO_PUBKEY:
-        socket_crypto_pubkey(ns, pl, data, len, pos);
-        break;
+        case CMD_CRYPTO_PUBKEY:
+            socket_crypto_pubkey(ns, pl, data, len, pos);
+            break;
 
-    case CMD_CRYPTO_SECRET:
-        socket_crypto_secret(ns, pl, data, len, pos);
-        break;
+        case CMD_CRYPTO_SECRET:
+            socket_crypto_secret(ns, pl, data, len, pos);
+            break;
 
-    case CMD_CRYPTO_DONE:
-        socket_crypto_done(ns, pl, data, len, pos);
-        break;
+        case CMD_CRYPTO_DONE:
+            socket_crypto_done(ns, pl, data, len, pos);
+            break;
 
-    default:
-        LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
-        ns->state = ST_DEAD;
-        break;
+        default:
+            LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
+            ns->state = ST_DEAD;
+            break;
     }
 }
 
@@ -3238,13 +3166,11 @@ socket_command_crypto (socket_struct *ns,
  *
  * @copydoc socket_command_func
  */
-void
-socket_command_ask_resource (socket_struct *ns,
-                             player        *pl,
-                             uint8_t       *data,
-                             size_t         len,
-                             size_t         pos)
-{
+void socket_command_ask_resource(socket_struct *ns,
+                                 player *pl,
+                                 uint8_t *data,
+                                 size_t len,
+                                 size_t pos) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(data != NULL);
 
@@ -3252,16 +3178,13 @@ socket_command_ask_resource (socket_struct *ns,
     packet_to_string(data, len, &pos, VS(resource_name));
 
     if (string_isempty(resource_name)) {
-        LOG(PACKET, "Empty resource name from client %s",
-            socket_get_id(ns->sc));
+        LOG(PACKET, "Empty resource name from client %s", socket_get_id(ns->sc));
         return;
     }
 
     resource_t *resource = resources_find(resource_name);
     if (resource == NULL) {
-        LOG(DEVEL, "Invalid resource '%s' from client %s",
-            resource_name,
-            socket_get_id(ns->sc));
+        LOG(DEVEL, "Invalid resource '%s' from client %s", resource_name, socket_get_id(ns->sc));
         return;
     }
 

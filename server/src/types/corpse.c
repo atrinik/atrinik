@@ -35,6 +35,4 @@
 /**
  * Initialize the corpse type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(corpse)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(corpse) {}

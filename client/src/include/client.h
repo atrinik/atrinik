@@ -32,13 +32,13 @@
 
 /* How many skill types server supports/client will get sent to it.
  * If more skills are added to server, this needs to get increased. */
-#define MAX_SKILL   6
+#define MAX_SKILL 6
 
-#define INPUT_MODE_NO       0
-#define INPUT_MODE_CONSOLE  1
-#define INPUT_MODE_NUMBER   2
+#define INPUT_MODE_NO 0
+#define INPUT_MODE_CONSOLE 1
+#define INPUT_MODE_NUMBER 2
 
-#define NUM_MODE_GET  1
+#define NUM_MODE_GET 1
 #define NUM_MODE_DROP 2
 
 typedef struct Animations {
@@ -92,10 +92,10 @@ typedef struct client_socket {
 
 /** Copies information from one color structure into another. */
 #define SDL_color_copy(_color, _color2) \
-    { \
-        (_color)->r = (_color2)->r; \
-        (_color)->g = (_color2)->g; \
-        (_color)->b = (_color2)->b; \
+    {                                   \
+        (_color)->r = (_color2)->r;     \
+        (_color)->g = (_color2)->g;     \
+        (_color)->b = (_color2)->b;     \
     }
 
 typedef struct socket_command_struct {
@@ -107,15 +107,15 @@ typedef struct socket_command_struct {
  * Spell flags.
  *@{*/
 /** Spell is safe to cast in town. */
-#define SPELL_DESC_TOWN         0x01
+#define SPELL_DESC_TOWN 0x01
 /** Spell is fired in a direction (bullet, bolt, ...). */
-#define SPELL_DESC_DIRECTION    0x02
+#define SPELL_DESC_DIRECTION 0x02
 /** Spell can be cast on self. */
-#define SPELL_DESC_SELF         0x04
+#define SPELL_DESC_SELF 0x04
 /** Spell can be cast on friendly creature. */
-#define SPELL_DESC_FRIENDLY     0x08
+#define SPELL_DESC_FRIENDLY 0x08
 /** Spell can be cast on enemy creature. */
-#define SPELL_DESC_ENEMY        0x10
+#define SPELL_DESC_ENEMY 0x10
 
 /*@}*/
 

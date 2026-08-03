@@ -74,11 +74,9 @@
   + -                   \\//                x - >
  @endverbatim
  */
-static int std_tile_half_len[] = {
-    0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,
-    10, 10, 11, 11, 11, 11, 10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5,
-    5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0
-};
+static int std_tile_half_len[] = {0, 0, 1, 1, 2,  2,  3,  3,  4,  4,  5,  5,  6, 6, 7, 7,
+                                  8, 8, 9, 9, 10, 10, 11, 11, 11, 11, 10, 10, 9, 9, 8, 8,
+                                  7, 7, 6, 6, 5,  5,  4,  4,  3,  3,  2,  2,  1, 1, 0, 0};
 
 /** Line information structure. */
 typedef struct line_and_slope {
@@ -117,8 +115,7 @@ typedef struct line_and_slope {
  * @param ey
  * Ending Y.
  */
-static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
-{
+static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey) {
     HARD_ASSERT(dest != NULL);
 
     dest->sx = sx;
@@ -127,7 +124,7 @@ static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
     dest->end_y = ey;
     int x_diff = abs(sx - ex);
     int y_diff = abs(sy - ey);
-    dest->slope = x_diff == 0 ? 0 : (double) y_diff / (double) x_diff;
+    dest->slope = x_diff == 0 ? 0 : (double)y_diff / (double)x_diff;
 }
 
 /**
@@ -146,8 +143,7 @@ static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
  * Both the SE and NW corners move close the more South and further
  * away the more North the tile is stretched
  */
-static void determine_lines(line_and_slope *dest, int n, int e, int s, int w)
-{
+static void determine_lines(line_and_slope *dest, int n, int e, int s, int w) {
     HARD_ASSERT(dest != NULL);
 
     /* 0: Western edge: SW to NW corner  */
@@ -174,12 +170,11 @@ static void determine_lines(line_and_slope *dest, int n, int e, int s, int w)
  * 1 if the supplied coordinates are within the isometric map tile
  * shape, 0 otherwise.
  */
-int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y)
-{
-    int8_t n = (int8_t) ((stretch >> 24) & 0xff);
-    int8_t e = (int8_t) ((stretch >> 16) & 0xff);
-    int8_t w = (int8_t) ((stretch >> 8) & 0xff);
-    int8_t s = (int8_t) (stretch & 0xff);
+int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y) {
+    int8_t n = (int8_t)((stretch >> 24) & 0xff);
+    int8_t e = (int8_t)((stretch >> 16) & 0xff);
+    int8_t w = (int8_t)((stretch >> 8) & 0xff);
+    int8_t s = (int8_t)(stretch & 0xff);
 
     line_and_slope lines[4];
     determine_lines(lines, n, e, s, w);
@@ -205,15 +200,13 @@ int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y)
     corners_x[7] = lines[0].sx - 3;
     corners_y[7] = lines[0].sy - 1;
 
-    return polygon_check_coords(x, y, corners_x, corners_y,
-            arraysize(corners_x));
+    return polygon_check_coords(x, y, corners_x, corners_y, arraysize(corners_x));
 }
 
 /**
  * Adds a color to the palette in a bitmap ("surface").
  */
-int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
-{
+int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue) {
     HARD_ASSERT(dest != NULL);
 
     SDL_Color colors[256];
@@ -250,14 +243,18 @@ int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
  * @warning brightness above 1.0 is (apparently) allowed but brightness < 0
  * is not tested and could cause problems.
  */
-void copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y,
-        int x2, int y2, double brightness)
-{
+void copy_pixel_to_pixel(SDL_Surface *src,
+                         SDL_Surface *dest,
+                         int x,
+                         int y,
+                         int x2,
+                         int y2,
+                         double brightness) {
     HARD_ASSERT(src != NULL);
     HARD_ASSERT(dest != NULL);
 
-    if (x < 0 || y < 0 || x2 < 0 || y2 < 0 || x >= src->w || x2 >= dest->w ||
-            y >= src->h || y2 >= dest->h) {
+    if (x < 0 || y < 0 || x2 < 0 || y2 < 0 || x >= src->w || x2 >= dest->w || y >= src->h ||
+        y2 >= dest->h) {
         return;
     }
 
@@ -295,8 +292,7 @@ void copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y,
         Uint8 red_2, green_2, blue_2, alpha_2;
         SDL_GetRGBA(color, dest->format, &red_2, &green_2, &blue_2, &alpha_2);
 
-        if (red != red_2 || green != green_2 || blue != blue_2 ||
-                alpha != alpha_2) {
+        if (red != red_2 || green != green_2 || blue != blue_2 || alpha != alpha_2) {
             add_color_to_surface(dest, red, green, blue);
             color = SDL_MapRGBA(dest->format, red, green, blue, alpha);
         }
@@ -327,10 +323,16 @@ void copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y,
  * @note This function would be horribly inefficient if ever used to shrink
  * a long line down to a few pixels.
  */
-void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x,
-        int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey,
-        double brightness, bool extra)
-{
+void copy_vertical_line(SDL_Surface *src,
+                        SDL_Surface *dest,
+                        int src_x,
+                        int src_sy,
+                        int src_ey,
+                        int dest_x,
+                        int dest_sy,
+                        int dest_ey,
+                        double brightness,
+                        bool extra) {
     HARD_ASSERT(src != NULL);
     HARD_ASSERT(dest != NULL);
 
@@ -346,8 +348,7 @@ void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x,
 
     if (dest_h == 0) {
         int src_y = src_h == 0 ? min_src_y : (max_src_y - min_src_y) / 2;
-        copy_pixel_to_pixel(src, dest, src_x, src_y, dest_x, min_dest_y,
-                brightness);
+        copy_pixel_to_pixel(src, dest, src_x, src_y, dest_x, min_dest_y, brightness);
     } else if (src_h == 0) {
         Uint32 color = getpixel(src, src_x, min_src_y);
         for (int y = min_dest_y; y <= max_dest_y; y++) {
@@ -355,18 +356,16 @@ void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x,
         }
     } else {
         /* The stretching */
-        double ratio = (double) src_h / (double) dest_h;
+        double ratio = (double)src_h / (double)dest_h;
 
         for (int y = 0; y <= dest_h; y++) {
             int go_y = min_dest_y + y;
-            int get_y = (int) (min_src_y + (y * ratio));
-            copy_pixel_to_pixel(src, dest, src_x, get_y, dest_x, go_y,
-                    brightness);
+            int get_y = (int)(min_src_y + (y * ratio));
+            copy_pixel_to_pixel(src, dest, src_x, get_y, dest_x, go_y, brightness);
         }
 
         if (extra && max_dest_y + 1 < dest->h) {
-            copy_pixel_to_pixel(src, dest, src_x, src_ey, dest_x,
-                    max_dest_y + 1, brightness);
+            copy_pixel_to_pixel(src, dest, src_x, src_ey, dest_x, max_dest_y + 1, brightness);
         }
     }
 
@@ -401,16 +400,20 @@ void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x,
  *  - Both the SE and NW corners move close the more South and further
  *    away the more North the tile is stretched
  */
-SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
-{
+SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w) {
     HARD_ASSERT(src != NULL);
 
     /* Initialization and housekeeping */
     SDL_LockSurface(src);
 
-    SDL_Surface *tmp = SDL_CreateRGBSurface(src->flags, src->w, src->h + n,
-            src->format->BitsPerPixel, src->format->Rmask,
-            src->format->Gmask, src->format->Bmask, src->format->Amask);
+    SDL_Surface *tmp = SDL_CreateRGBSurface(src->flags,
+                                            src->w,
+                                            src->h + n,
+                                            src->format->BitsPerPixel,
+                                            src->format->Rmask,
+                                            src->format->Gmask,
+                                            src->format->Bmask,
+                                            src->format->Amask);
 
     SDL_Surface *destination = SDL_DisplayFormatAlpha(tmp);
     SDL_FreeSurface(tmp);
@@ -427,7 +430,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 
     /* We fill with black and full transparency */
     color = SDL_MapRGBA(destination->format, 0, 0, 0, 0);
-    SDL_FillRect( destination, NULL, color);
+    SDL_FillRect(destination, NULL, color);
 
     if (src->format->BitsPerPixel == 8) {
         SDL_SetColorKey(destination, SDL_SRCCOLORKEY, color);
@@ -503,9 +506,8 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
          *
          * effective loop control when non-horizontal:
          * for (x1 = dest_sx; x1 != dest_ex; x1 += dest_x_inc) */
-        while (((!DBL_EQUAL(dest_slope, 0.0)) && (x != dest_ex) &&
-                (y != dest_ey)) || (!at_least_one &&
-                DBL_EQUAL(dest_slope, 0.0))) {
+        while (((!DBL_EQUAL(dest_slope, 0.0)) && (x != dest_ex) && (y != dest_ey)) ||
+               (!at_least_one && DBL_EQUAL(dest_slope, 0.0))) {
             /* Exit the loop after the first iteration if the line is exactly
              * horizontal (or vertical) */
             at_least_one = true;
@@ -522,8 +524,16 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 
             /* Choose y co-ordinates either side of the central horizontal */
             int src_len = std_tile_half_len[x];
-            copy_vertical_line(src, destination, x, 11 + src_len, 11 - src_len,
-                    x, y, y2, ln_num < 2 ? w_dark : e_dark, flat);
+            copy_vertical_line(src,
+                               destination,
+                               x,
+                               11 + src_len,
+                               11 - src_len,
+                               x,
+                               y,
+                               y2,
+                               ln_num < 2 ? w_dark : e_dark,
+                               flat);
 
             x = x + dest_x_inc;
 
@@ -533,13 +543,11 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     }
 
     for (int x = 22; x < 22 + 2; x++) {
-        copy_vertical_line(src, destination, x, 0, 23, x, 0, 23 + n - s,
-                w_dark, flat);
+        copy_vertical_line(src, destination, x, 0, 23, x, 0, 23 + n - s, w_dark, flat);
     }
 
     for (int x = 24; x < 24 + 2; x++) {
-        copy_vertical_line(src, destination, x, 0, 23, x, 0, 23 + n - s,
-                e_dark, flat);
+        copy_vertical_line(src, destination, x, 0, 23, x, 0, 23 + n - s, e_dark, flat);
     }
 
     for (int x = 0; x < 2; x++) {

@@ -35,6 +35,4 @@
 /**
  * Initialize the map type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(map)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(map) {}

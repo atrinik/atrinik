@@ -39,8 +39,7 @@
  * @param RP
  * Parameters of the random map.
  */
-void put_decor(mapstruct *map, char **layout, RMParms *RP)
-{
+void put_decor(mapstruct *map, char **layout, RMParms *RP) {
     mapstruct *decor_map;
     char style_name[256];
     int i, j;
@@ -65,16 +64,23 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP)
 
             new_decor_object = pick_random_object(decor_map);
 
-            if (layout[i][j] == (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) ? '#' : '\0')) {
+            if (layout[i][j] ==
+                (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE)
+                     ? '#'
+                     : '\0')) {
                 object *this_object = object_get();
 
                 object_copy(this_object, new_decor_object, false);
                 this_object->x = i;
                 this_object->y = j;
 
-                if (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) && surround_flag2(layout, i, j, RP) & (4 | 8)) {
+                if (new_decor_object->type == WALL &&
+                    QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE) &&
+                    surround_flag2(layout, i, j, RP) & (4 | 8)) {
                     this_object->direction = 7;
-                    SET_ANIMATION(this_object, (NUM_ANIMATIONS(this_object) / NUM_FACINGS(this_object)) * this_object->direction);
+                    SET_ANIMATION(this_object,
+                                  (NUM_ANIMATIONS(this_object) / NUM_FACINGS(this_object)) *
+                                      this_object->direction);
                 }
 
                 object_insert_map(this_object, map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);

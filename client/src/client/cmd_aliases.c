@@ -69,8 +69,7 @@ static cmd_alias_struct *cmd_aliases = NULL;
  * @param path
  * Where to load the file from.
  */
-static void cmd_aliases_load(const char *path)
-{
+static void cmd_aliases_load(const char *path) {
     FILE *fp = path_fopen(path, "r");
     if (fp == NULL) {
         return;
@@ -96,8 +95,11 @@ static void cmd_aliases_load(const char *path)
 
         if (string_startswith(cp, "[") && string_endswith(cp, "]")) {
             if (cmd_alias != NULL) {
-                HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name,
-                        strlen(cmd_alias->name), cmd_alias);
+                HASH_ADD_KEYPTR(hh,
+                                cmd_aliases,
+                                cmd_alias->name,
+                                strlen(cmd_alias->name),
+                                cmd_alias);
             }
 
             cmd_alias = ecalloc(1, sizeof(*cmd_alias));
@@ -144,16 +146,20 @@ static void cmd_aliases_load(const char *path)
 
         continue;
 
-error:
-        LOG(ERROR, "Error parsing %s, line %" PRIu64 ", %s: %s%s%s", path,
-                linenum, error_str, key, value != NULL ? " = " : "",
-                value != NULL ? value : "");
+    error:
+        LOG(ERROR,
+            "Error parsing %s, line %" PRIu64 ", %s: %s%s%s",
+            path,
+            linenum,
+            error_str,
+            key,
+            value != NULL ? " = " : "",
+            value != NULL ? value : "");
         exit(1);
     }
 
     if (cmd_alias != NULL) {
-        HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name,
-                strlen(cmd_alias->name), cmd_alias);
+        HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
     }
 
     fclose(fp);
@@ -162,8 +168,7 @@ error:
 /**
  * Initialize the command aliases system.
  */
-void cmd_aliases_init(void)
-{
+void cmd_aliases_init(void) {
     cmd_aliases_load("data/cmd_aliases.cfg");
     cmd_aliases_load("settings/cmd_aliases.cfg");
 }
@@ -171,12 +176,10 @@ void cmd_aliases_init(void)
 /**
  * Deinitialize the command aliases system.
  */
-void cmd_aliases_deinit(void)
-{
+void cmd_aliases_deinit(void) {
     cmd_alias_struct *curr, *tmp;
 
-    HASH_ITER(hh, cmd_aliases, curr, tmp)
-    {
+    HASH_ITER(hh, cmd_aliases, curr, tmp) {
         HASH_DEL(cmd_aliases, curr);
 
         efree(curr->name);
@@ -200,8 +203,7 @@ void cmd_aliases_deinit(void)
  * @param params
  * Parameters passed by the player. NULL if none.
  */
-static void cmd_aliases_execute(const char *cmd, const char *params)
-{
+static void cmd_aliases_execute(const char *cmd, const char *params) {
     char word[MAX_BUF], *cp, *func_end;
     StringBuffer *sb;
     size_t pos;
@@ -278,7 +280,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
                     }
 
                     idx = rndm(1, utarray_len(strs)) - 1;
-                    p = (char **) utarray_eltptr(strs, idx);
+                    p = (char **)utarray_eltptr(strs, idx);
 
                     if (p) {
                         stringbuffer_append_string(sb, *p);
@@ -314,8 +316,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
  * @return
  * 1 if it was handled, 0 otherwise.
  */
-int cmd_aliases_handle(const char *cmd)
-{
+int cmd_aliases_handle(const char *cmd) {
     if (cmd[0] == '/' && cmd[1] != '\0') {
         char *cp;
         size_t cmd_len;

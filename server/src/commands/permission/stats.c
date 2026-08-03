@@ -36,14 +36,10 @@
 /**
  * Names of the possible stat types. Must end with NULL.
  */
-static const char *const stats[] = {
-    "mempool", "shstr", "metaserver", "network",
-    NULL
-};
+static const char *const stats[] = {"mempool", "shstr", "metaserver", "network", NULL};
 
 /** @copydoc command_func */
-void command_stats(object *op, const char *command, char *params)
-{
+void command_stats(object *op, const char *command, char *params) {
     size_t pos, i;
     char type[MAX_BUF], buf[HUGE_BUF * 32];
     const char *args = params != NULL ? params : "";

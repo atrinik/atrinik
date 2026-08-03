@@ -30,8 +30,7 @@
 #include <player.h>
 #include <object.h>
 
-START_TEST(test_put_object_in_sack)
-{
+START_TEST(test_put_object_in_sack) {
     mapstruct *map;
     object *sack, *obj, *pl;
 
@@ -76,8 +75,7 @@ START_TEST(test_put_object_in_sack)
 
 END_TEST
 
-START_TEST(test_stats_without_parameters)
-{
+START_TEST(test_stats_without_parameters) {
     mapstruct *map;
     object *pl;
 
@@ -89,8 +87,7 @@ START_TEST(test_stats_without_parameters)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("object");
     TCase *tc_core = tcase_create("Core");
 
@@ -104,7 +101,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_commands_object(void)
-{
+void check_commands_object(void) {
     check_run_suite(suite(), __FILE__);
 }

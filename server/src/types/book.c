@@ -54,15 +54,9 @@
  * higher level books; if their intelligence is too low, the maximum level
  * books they can read will decrease.
  */
-static int book_level_mod[MAX_STAT + 1] = {
-    -9,
-    -8, -7, -6, -5, -4,
-    -4, -3, -2, -2, -1,
-    0, 0, 0, 0, 0,
-    1, 1, 2, 2, 3,
-    3, 3, 4, 4, 5,
-    6, 7, 8, 9, 10
-};
+static int book_level_mod[MAX_STAT + 1] = {-9, -8, -7, -6, -5, -4, -4, -3, -2, -2, -1,
+                                           0,  0,  0,  0,  0,  1,  1,  2,  2,  3,  3,
+                                           3,  4,  4,  5,  6,  7,  8,  9,  10};
 
 /**
  * The higher your intelligence, the more you are able to make use of the
@@ -71,19 +65,12 @@ static int book_level_mod[MAX_STAT + 1] = {
  * have unnaturally low intelligence.
  */
 static double book_exp_mod[MAX_STAT + 1] = {
-    -3.00f,
-    -2.00f, -1.90f, -1.80f, -1.70f, -1.60f,
-    -1.50f, -1.40f, -1.30f, -1.20f, -1.10f,
-    1.00f, 1.00f, 1.00f, 1.00f, 1.00f,
-    1.05f, 1.10f, 1.15f, 1.20f, 1.30f,
-    1.35f, 1.40f, 1.50f, 1.55f, 1.60f,
-    1.70f, 1.75f, 1.85f, 1.90f, 2.00f
-};
+    -3.00f, -2.00f, -1.90f, -1.80f, -1.70f, -1.60f, -1.50f, -1.40f, -1.30f, -1.20f, -1.10f,
+    1.00f,  1.00f,  1.00f,  1.00f,  1.00f,  1.05f,  1.10f,  1.15f,  1.20f,  1.30f,  1.35f,
+    1.40f,  1.50f,  1.55f,  1.60f,  1.70f,  1.75f,  1.85f,  1.90f,  2.00f};
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -98,57 +85,44 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (op->msg == NULL) {
-        draw_info_format(COLOR_WHITE, applier,
-                         "You open the %s and find it empty.", op->name);
+        draw_info_format(COLOR_WHITE, applier, "You open the %s and find it empty.", op->name);
         return OBJECT_METHOD_OK;
     }
 
     /* Need a literacy skill to read stuff! */
     if (!change_skill(applier, SK_LITERACY)) {
-        draw_info(COLOR_WHITE, applier,
-                  "You are unable to decipher the strange symbols.");
+        draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
         return OBJECT_METHOD_OK;
     }
 
-    int lev_diff = op->level - (SK_level(applier) +
-                                BOOK_LEVEL_DIFF +
-                                book_level_mod[applier->stats.Int]);
+    int lev_diff =
+        op->level - (SK_level(applier) + BOOK_LEVEL_DIFF + book_level_mod[applier->stats.Int]);
     if (lev_diff > 0) {
         if (lev_diff < 2) {
-            draw_info(COLOR_WHITE, applier,
-                      "This book is just barely beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier, "This book is just barely beyond your comprehension.");
         } else if (lev_diff < 3) {
-            draw_info(COLOR_WHITE, applier,
-                      "This book is slightly beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier, "This book is slightly beyond your comprehension.");
         } else if (lev_diff < 5) {
-            draw_info(COLOR_WHITE, applier,
-                      "This book is beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier, "This book is beyond your comprehension.");
         } else if (lev_diff < 8) {
-            draw_info(COLOR_WHITE, applier,
-                      "This book is quite a bit beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier, "This book is quite a bit beyond your comprehension.");
         } else if (lev_diff < 15) {
-            draw_info(COLOR_WHITE, applier,
-                      "This book is way beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier, "This book is way beyond your comprehension.");
         } else {
-            draw_info(COLOR_WHITE, applier,
-                      "This book is totally beyond your comprehension.");
+            draw_info(COLOR_WHITE, applier, "This book is totally beyond your comprehension.");
         }
 
         return OBJECT_METHOD_OK;
     }
 
-    draw_info_format(COLOR_WHITE, applier,
-                     "You open the %s and start reading.",
-                     op->name);
+    draw_info_format(COLOR_WHITE, applier, "You open the %s and start reading.", op->name);
     CONTR(applier)->stat_books_read++;
 
     packet_struct *packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
     packet_debug_data(packet, 0, "Book interface header");
     packet_append_string(packet, "[book]");
     StringBuffer *sb = object_get_base_name(op, applier, NULL);
-    packet_append_string_len(packet,
-                             stringbuffer_data(sb),
-                             stringbuffer_length(sb));
+    packet_append_string_len(packet, stringbuffer_data(sb), stringbuffer_length(sb));
     stringbuffer_free(sb);
     packet_append_string(packet, "[/book]");
     packet_debug_data(packet, 0, "Book message");
@@ -185,13 +159,11 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -235,8 +207,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the book type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(book)
-{
+OBJECT_TYPE_INIT_DEFINE(book) {
     OBJECT_METHODS(BOOK)->apply_func = apply_func;
     OBJECT_METHODS(BOOK)->process_treasure_func = process_treasure_func;
 }

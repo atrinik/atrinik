@@ -35,7 +35,6 @@
 /**
  * Initialize the shield type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(shield)
-{
+OBJECT_TYPE_INIT_DEFINE(shield) {
     OBJECT_METHODS(SHIELD)->apply_func = object_apply_item;
 }

@@ -39,9 +39,7 @@
  * @param tmp
  * First piece of the fork.
  */
-static void
-lightning_fork (object *op, object *tmp)
-{
+static void lightning_fork(object *op, object *tmp) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(tmp != NULL);
 
@@ -91,15 +89,11 @@ lightning_fork (object *op, object *tmp)
     tmp->stats.dam++;
 
     bolt = object_insert_map(bolt, m, op, 0);
-    SOFT_ASSERT(bolt != NULL,
-                "Failed to insert bolt from %s",
-                object_get_str(op));
+    SOFT_ASSERT(bolt != NULL, "Failed to insert bolt from %s", object_get_str(op));
 }
 
 /** @copydoc object_methods_t::projectile_move_func */
-static object *
-projectile_move_func (object *op)
-{
+static object *projectile_move_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->stats.food == 0) {
@@ -131,9 +125,7 @@ projectile_move_func (object *op)
 }
 
 /** @copydoc object_methods_t::projectile_stop_func */
-static object *
-projectile_stop_func (object *op, int reason)
-{
+static object *projectile_stop_func(object *op, int reason) {
     HARD_ASSERT(op != NULL);
 
     if (reason == OBJECT_PROJECTILE_STOP_EOL) {
@@ -146,16 +138,10 @@ projectile_stop_func (object *op, int reason)
 /**
  * Initialize the lightning type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(lightning)
-{
-    OBJECT_METHODS(LIGHTNING)->projectile_move_func =
-        projectile_move_func;
-    OBJECT_METHODS(LIGHTNING)->projectile_stop_func =
-        projectile_stop_func;
-    OBJECT_METHODS(LIGHTNING)->process_func =
-        common_object_projectile_process;
-    OBJECT_METHODS(LIGHTNING)->projectile_hit_func =
-        common_object_projectile_hit;
-    OBJECT_METHODS(LIGHTNING)->move_on_func =
-        common_object_projectile_move_on;
+OBJECT_TYPE_INIT_DEFINE(lightning) {
+    OBJECT_METHODS(LIGHTNING)->projectile_move_func = projectile_move_func;
+    OBJECT_METHODS(LIGHTNING)->projectile_stop_func = projectile_stop_func;
+    OBJECT_METHODS(LIGHTNING)->process_func = common_object_projectile_process;
+    OBJECT_METHODS(LIGHTNING)->projectile_hit_func = common_object_projectile_hit;
+    OBJECT_METHODS(LIGHTNING)->move_on_func = common_object_projectile_move_on;
 }

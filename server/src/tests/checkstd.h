@@ -25,23 +25,26 @@
 #define ck_assert(C) ck_assert_msg(C, NULL)
 #undef ck_assert_msg
 #define ck_assert_msg(expr, ...) \
-  _fail_unless(expr, __FILE__, __LINE__,\
-    "Assertion '"#expr"' failed" , ## __VA_ARGS__, NULL)
+    _fail_unless(expr, __FILE__, __LINE__, "Assertion '" #expr "' failed", ##__VA_ARGS__, NULL)
 
 /* Always fail */
 #undef ck_abort
 #define ck_abort() ck_abort_msg(NULL)
 #undef ck_abort_msg
-#define ck_abort_msg(...) _fail_unless(0, __FILE__, __LINE__, "Failed" , ## __VA_ARGS__, NULL)
+#define ck_abort_msg(...) _fail_unless(0, __FILE__, __LINE__, "Failed", ##__VA_ARGS__, NULL)
 
 /* Signed and unsigned integer comparsion macros with improved output compared to ck_assert(). */
 /* OP may be any comparion operator. */
 #undef _ck_assert_int
-#define _ck_assert_int(X, OP, Y) do { \
-  int64_t _ck_x = (X); \
-  int64_t _ck_y = (Y); \
-  ck_assert_msg(_ck_x OP _ck_y, "Assertion '"#X#OP#Y"' failed: "#X"==%jd, "#Y"==%jd", _ck_x, _ck_y); \
-} while (0)
+#define _ck_assert_int(X, OP, Y)                                                    \
+    do {                                                                            \
+        int64_t _ck_x = (X);                                                        \
+        int64_t _ck_y = (Y);                                                        \
+        ck_assert_msg(_ck_x OP _ck_y,                                               \
+                      "Assertion '" #X #OP #Y "' failed: " #X "==%jd, " #Y "==%jd", \
+                      _ck_x,                                                        \
+                      _ck_y);                                                       \
+    } while (0)
 #undef ck_assert_int_eq
 #define ck_assert_int_eq(X, Y) _ck_assert_int(X, ==, Y)
 #undef ck_assert_int_ne
@@ -56,11 +59,15 @@
 #define ck_assert_int_ge(X, Y) _ck_assert_int(X, >=, Y)
 
 #undef _ck_assert_uint
-#define _ck_assert_uint(X, OP, Y) do { \
-  uint64_t _ck_x = (X); \
-  uint64_t _ck_y = (Y); \
-  ck_assert_msg(_ck_x OP _ck_y, "Assertion '"#X#OP#Y"' failed: "#X"==%ju, "#Y"==%ju", _ck_x, _ck_y); \
-} while (0)
+#define _ck_assert_uint(X, OP, Y)                                                   \
+    do {                                                                            \
+        uint64_t _ck_x = (X);                                                       \
+        uint64_t _ck_y = (Y);                                                       \
+        ck_assert_msg(_ck_x OP _ck_y,                                               \
+                      "Assertion '" #X #OP #Y "' failed: " #X "==%ju, " #Y "==%ju", \
+                      _ck_x,                                                        \
+                      _ck_y);                                                       \
+    } while (0)
 #undef ck_assert_uint_eq
 #define ck_assert_uint_eq(X, Y) _ck_assert_uint(X, ==, Y)
 #undef ck_assert_uint_ne
@@ -78,12 +85,15 @@
 /* OP might be any operator that can be used in '0 OP strcmp(X,Y)' comparison */
 /* The x and y parameter swap in strcmp() is needed to handle >, >=, <, <= operators */
 #undef _ck_assert_str
-#define _ck_assert_str(X, OP, Y) do { \
-  const char* _ck_x = (X); \
-  const char* _ck_y = (Y); \
-  ck_assert_msg(0 OP strcmp(_ck_y, _ck_x), \
-    "Assertion '"#X#OP#Y"' failed: "#X"==\"%s\", "#Y"==\"%s\"", _ck_x, _ck_y); \
-} while (0)
+#define _ck_assert_str(X, OP, Y)                                                          \
+    do {                                                                                  \
+        const char *_ck_x = (X);                                                          \
+        const char *_ck_y = (Y);                                                          \
+        ck_assert_msg(0 OP strcmp(_ck_y, _ck_x),                                          \
+                      "Assertion '" #X #OP #Y "' failed: " #X "==\"%s\", " #Y "==\"%s\"", \
+                      _ck_x,                                                              \
+                      _ck_y);                                                             \
+    } while (0)
 #undef ck_assert_str_eq
 #define ck_assert_str_eq(X, Y) _ck_assert_str(X, ==, Y)
 #undef ck_assert_str_ne
@@ -100,11 +110,15 @@
 /* Pointer comparsion macros with improved output compared to ck_assert(). */
 /* OP may only be == or !=  */
 #undef _ck_assert_ptr
-#define _ck_assert_ptr(X, OP, Y) do { \
-  const void* _ck_x = (X); \
-  const void* _ck_y = (Y); \
-  ck_assert_msg(_ck_x OP _ck_y, "Assertion '"#X#OP#Y"' failed: "#X"==%p, "#Y"==%p", _ck_x, _ck_y); \
-} while (0)
+#define _ck_assert_ptr(X, OP, Y)                                                  \
+    do {                                                                          \
+        const void *_ck_x = (X);                                                  \
+        const void *_ck_y = (Y);                                                  \
+        ck_assert_msg(_ck_x OP _ck_y,                                             \
+                      "Assertion '" #X #OP #Y "' failed: " #X "==%p, " #Y "==%p", \
+                      _ck_x,                                                      \
+                      _ck_y);                                                     \
+    } while (0)
 #undef ck_assert_ptr_eq
 #define ck_assert_ptr_eq(X, Y) _ck_assert_ptr(X, ==, Y)
 #undef ck_assert_ptr_ne

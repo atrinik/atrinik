@@ -31,8 +31,7 @@
 #include <object.h>
 #include <object_methods.h>
 
-START_TEST(test_shop_get_cost)
-{
+START_TEST(test_shop_get_cost) {
     object *money = arch_get("coppercoin");
     ck_assert_int_eq(1, shop_get_cost(money, COST_BUY));
     ck_assert_int_eq(1, shop_get_cost(money, COST_SELL));
@@ -80,24 +79,22 @@ START_TEST(test_shop_get_cost)
 }
 END_TEST
 
-START_TEST(test_shop_get_cost_string)
-{
+START_TEST(test_shop_get_cost_string) {
     ck_assert_str_eq(shop_get_cost_string(0), "nothing");
     ck_assert_str_eq(shop_get_cost_string(1), "1 copper coin");
     ck_assert_str_eq(shop_get_cost_string(2), "2 copper coins");
     ck_assert_str_eq(shop_get_cost_string(100), "1 silver coin");
-    ck_assert_str_eq(shop_get_cost_string(501),
-            "5 silver coins and 1 copper coin");
+    ck_assert_str_eq(shop_get_cost_string(501), "5 silver coins and 1 copper coin");
     ck_assert_str_eq(shop_get_cost_string(10000), "1 gold coin");
     ck_assert_str_eq(shop_get_cost_string(30000), "3 gold coins");
-    ck_assert_str_eq(shop_get_cost_string(6849602841), "68 amber coins, "
-            "4 mithril coins, 9 jade coins, 60 gold coins, 28 silver coins "
-            "and 41 copper coins");
+    ck_assert_str_eq(shop_get_cost_string(6849602841),
+                     "68 amber coins, "
+                     "4 mithril coins, 9 jade coins, 60 gold coins, 28 silver coins "
+                     "and 41 copper coins");
 }
 END_TEST
 
-START_TEST(test_shop_get_cost_string_item)
-{
+START_TEST(test_shop_get_cost_string_item) {
     object *sword = arch_get("sword");
     SET_FLAG(sword, FLAG_IDENTIFIED);
     sword->value = 0;
@@ -105,25 +102,21 @@ START_TEST(test_shop_get_cost_string_item)
     ck_assert_str_eq(shop_get_cost_string_item(sword, COST_SELL), "nothing");
     ck_assert_str_eq(shop_get_cost_string_item(sword, COST_TRUE), "nothing");
     sword->value = 1;
-    ck_assert_str_eq(shop_get_cost_string_item(sword, COST_BUY),
-            "1 copper coin");
-    ck_assert_str_eq(shop_get_cost_string_item(sword, COST_SELL),
-            "1 copper coin");
-    ck_assert_str_eq(shop_get_cost_string_item(sword, COST_TRUE),
-            "1 copper coin");
+    ck_assert_str_eq(shop_get_cost_string_item(sword, COST_BUY), "1 copper coin");
+    ck_assert_str_eq(shop_get_cost_string_item(sword, COST_SELL), "1 copper coin");
+    ck_assert_str_eq(shop_get_cost_string_item(sword, COST_TRUE), "1 copper coin");
     sword->value = 11101;
     ck_assert_str_eq(shop_get_cost_string_item(sword, COST_BUY),
-            "1 gold coin, 11 silver coins and 1 copper coin");
+                     "1 gold coin, 11 silver coins and 1 copper coin");
     ck_assert_str_eq(shop_get_cost_string_item(sword, COST_SELL),
-            "22 silver coins and 20 copper coins");
+                     "22 silver coins and 20 copper coins");
     ck_assert_str_eq(shop_get_cost_string_item(sword, COST_TRUE),
-            "1 gold coin, 11 silver coins and 1 copper coin");
+                     "1 gold coin, 11 silver coins and 1 copper coin");
     object_destroy(sword);
 }
 END_TEST
 
-START_TEST(test_shop_get_money)
-{
+START_TEST(test_shop_get_money) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -155,8 +148,7 @@ START_TEST(test_shop_get_money)
 }
 END_TEST
 
-START_TEST(test_shop_pay)
-{
+START_TEST(test_shop_pay) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -214,8 +206,7 @@ START_TEST(test_shop_pay)
 }
 END_TEST
 
-START_TEST(test_shop_pay_item)
-{
+START_TEST(test_shop_pay_item) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -295,8 +286,7 @@ START_TEST(test_shop_pay_item)
 }
 END_TEST
 
-START_TEST(test_shop_pay_items)
-{
+START_TEST(test_shop_pay_items) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -330,8 +320,7 @@ START_TEST(test_shop_pay_items)
 }
 END_TEST
 
-START_TEST(test_shop_sell_item)
-{
+START_TEST(test_shop_sell_item) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -373,8 +362,7 @@ START_TEST(test_shop_sell_item)
 }
 END_TEST
 
-START_TEST(test_shop_insert_coins)
-{
+START_TEST(test_shop_insert_coins) {
     mapstruct *map;
     object *pl;
     check_setup_env_pl(&map, &pl);
@@ -417,13 +405,11 @@ START_TEST(test_shop_insert_coins)
     }
 
     ck_assert_ptr_ne(GET_MAP_OB(pl->map, pl->x, pl->y), NULL);
-    ck_assert_str_eq(GET_MAP_OB(pl->map, pl->x, pl->y)->arch->name,
-            "coppercoin");
+    ck_assert_str_eq(GET_MAP_OB(pl->map, pl->x, pl->y)->arch->name, "coppercoin");
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("shop");
     TCase *tc_core = tcase_create("Core");
 
@@ -444,7 +430,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_shop(void)
-{
+void check_server_shop(void) {
     check_run_suite(suite(), __FILE__);
 }

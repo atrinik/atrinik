@@ -33,8 +33,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_push(object *op, const char *command, char *params)
-{
+void command_push(object *op, const char *command, char *params) {
     object *tmp;
     mapstruct *m;
     int x, y, dir;

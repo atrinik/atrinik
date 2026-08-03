@@ -33,8 +33,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_right(object *op, const char *command, char *params)
-{
+void command_right(object *op, const char *command, char *params) {
     op->direction = absdir(op->direction + 1);
     SET_ANIMATION(op, op->direction * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
 }

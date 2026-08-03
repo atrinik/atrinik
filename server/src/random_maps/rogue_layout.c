@@ -68,8 +68,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze);
  * - <b>4</b>: Free space above
  * - <b>8</b>: Free space below
  */
-int surround_check(char **layout, int i, int j, int Xsize, int Ysize)
-{
+int surround_check(char **layout, int i, int j, int Xsize, int Ysize) {
     int surround_index = 0;
 
     if ((i > 0) && (layout[i - 1][j] != 0 && layout[i - 1][j] != '.')) {
@@ -105,8 +104,7 @@ int surround_check(char **layout, int i, int j, int Xsize, int Ysize)
  * @return
  * Generated layout.
  */
-char **roguelike_layout_gen(int xsize, int ysize, int options)
-{
+char **roguelike_layout_gen(int xsize, int ysize, int options) {
     int i, j = 0;
     Room *Rooms = NULL, *walk;
     int nrooms = 0;
@@ -179,8 +177,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
     maze[Rooms->x][Rooms->y] = '<';
 
     /* Get the last one */
-    for (walk = Rooms; walk->x != 0; walk++) {
-    }
+    for (walk = Rooms; walk->x != 0; walk++) {}
 
     /* Back up one */
     walk--;
@@ -227,8 +224,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
  * @return
  * 0 if no room could be generated, 1 otherwise.
  */
-static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms)
-{
+static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms) {
     /* trial center locations */
     int tx, ty;
     /* trial sizes */
@@ -241,18 +237,18 @@ static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms)
     Room *walk;
 
     /* Decide on the base x and y sizes */
-    x_basesize = (int) (xsize / sqrt(nrooms));
-    y_basesize = (int) (ysize / sqrt(nrooms));
+    x_basesize = (int)(xsize / sqrt(nrooms));
+    y_basesize = (int)(ysize / sqrt(nrooms));
 
     tx = RANDOM() % xsize;
     ty = RANDOM() % ysize;
 
     /* Generate a distribution of sizes centered about basesize */
-    sx = (RANDOM() % x_basesize) + (RANDOM() % x_basesize)+ (RANDOM() % x_basesize);
-    sy = (RANDOM() % y_basesize) + (RANDOM() % y_basesize)+ (RANDOM() % y_basesize);
+    sx = (RANDOM() % x_basesize) + (RANDOM() % x_basesize) + (RANDOM() % x_basesize);
+    sy = (RANDOM() % y_basesize) + (RANDOM() % y_basesize) + (RANDOM() % y_basesize);
 
     /* Renormalize */
-    sy = (int) (sy * 0.5);
+    sy = (int)(sy * 0.5);
 
     /* Find the corners */
     ax = tx - sx / 2;
@@ -287,8 +283,7 @@ static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms)
     /* If we've got here, presumably the room is OK. */
 
     /* Get a pointer to the first free room */
-    for (walk = Rooms; walk->x != 0; walk++) {
-    }
+    for (walk = Rooms; walk->x != 0; walk++) {}
 
     walk->x = tx;
     walk->y = ty;
@@ -313,36 +308,35 @@ static int roguelike_place_room(Room *Rooms, int xsize, int ysize, int nrooms)
  * 2 to have circular rooms, 1 for rectangular ones,
  * another value for random choice.
  */
-static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
-{
+static void roguelike_make_rooms(Room *Rooms, char **maze, int options) {
     int making_circle = 0, i, j, R = 0;
     Room *walk;
 
     for (walk = Rooms; walk->x != 0; walk++) {
         /* First decide what shape to make */
         switch (options) {
-        case 1:
-            making_circle = 0;
-            break;
+            case 1:
+                making_circle = 0;
+                break;
 
-        case 2:
-            making_circle = 1;
-            break;
+            case 2:
+                making_circle = 1;
+                break;
 
-        default:
-            making_circle = rndm_chance(3);
+            default:
+                making_circle = rndm_chance(3);
 
-            if (walk->sx < walk->sy) {
-                R = walk->sx / 2;
-            } else {
-                R = walk->sy / 2;
-            }
+                if (walk->sx < walk->sy) {
+                    R = walk->sx / 2;
+                } else {
+                    R = walk->sy / 2;
+                }
         }
 
         /* Enscribe a rectangle */
         for (i = walk->ax; i < walk->zx; i++) {
             for (j = walk->ay; j < walk->zy; j++) {
-                if (!making_circle || ((int) (0.5 + hypot(walk->x - i, walk->y - j))) <= R) {
+                if (!making_circle || ((int)(0.5 + hypot(walk->x - i, walk->y - j))) <= R) {
                     maze[i][j] = '.';
                 }
             }
@@ -361,8 +355,7 @@ static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
  * @param ysize
  * Y size of the maze.
  */
-static void roguelike_link_rooms(Room *Rooms, char **maze)
-{
+static void roguelike_link_rooms(Room *Rooms, char **maze) {
     Room *walk;
     int i, j;
 

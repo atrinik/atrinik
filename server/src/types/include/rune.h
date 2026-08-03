@@ -32,7 +32,6 @@
 
 /* Prototypes */
 
-void
-rune_spring(object *op, object *victim);
+void rune_spring(object *op, object *victim);
 
 #endif

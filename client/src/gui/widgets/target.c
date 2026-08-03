@@ -40,8 +40,7 @@ typedef struct target_widget {
 } target_widget_t;
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     if (!widget->redraw) {
         return;
     }
@@ -60,8 +59,7 @@ static void widget_draw(widgetdata *widget)
         } else {
             str = "target enemy";
         }
-    } else if (cpl.target_code == CMD_TARGET_NEUTRAL ||
-            cpl.target_code == CMD_TARGET_FRIEND) {
+    } else if (cpl.target_code == CMD_TARGET_NEUTRAL || cpl.target_code == CMD_TARGET_FRIEND) {
         if (cpl.combat) {
             if (cpl.combat_force && cpl.target_code != CMD_TARGET_FRIEND) {
                 str = "target and attack friend";
@@ -78,17 +76,15 @@ static void widget_draw(widgetdata *widget)
 
     target_widget_t *target_widget = widget->subwidget;
 
-    target_widget->button_combat.texture =
-            target_widget->button_combat.texture_over =
-            target_widget->button_combat.texture_pressed =
-            texture_get(TEXTURE_TYPE_CLIENT,
-                        cpl.combat ? "target_attack" : "target_normal");
+    target_widget->button_combat.texture = target_widget->button_combat.texture_over =
+        target_widget->button_combat.texture_pressed =
+            texture_get(TEXTURE_TYPE_CLIENT, cpl.combat ? "target_attack" : "target_normal");
 
     target_widget->button_combat.surface = widget->surface;
     button_set_parent(&target_widget->button_combat, widget->x, widget->y);
     target_widget->button_combat.x = 5;
-    target_widget->button_combat.y = widget->h / 2 -
-            texture_surface(target_widget->button_combat.texture)->h / 2;
+    target_widget->button_combat.y =
+        widget->h / 2 - texture_surface(target_widget->button_combat.texture)->h / 2;
     button_show(&target_widget->button_combat, "");
 
     int x = target_widget->button_combat.x;
@@ -98,21 +94,19 @@ static void widget_draw(widgetdata *widget)
 
     if (cpl.target_code != CMD_TARGET_SELF) {
         target_widget->button_talk.surface = widget->surface;
-        target_widget->button_talk.x = widget->w -
-                texture_surface(target_widget->button_talk.texture)->w - 5;
-        target_widget->button_talk.y = widget->h / 2 -
-                texture_surface(target_widget->button_talk.texture)->h / 2;
+        target_widget->button_talk.x =
+            widget->w - texture_surface(target_widget->button_talk.texture)->w - 5;
+        target_widget->button_talk.y =
+            widget->h / 2 - texture_surface(target_widget->button_talk.texture)->h / 2;
         button_set_parent(&target_widget->button_talk, widget->x, widget->y);
         button_show(&target_widget->button_talk, "");
     }
 
-    if (setting_get_int(OPT_CAT_GENERAL, OPT_TARGET_SELF) ||
-            cpl.target_code != 0) {
+    if (setting_get_int(OPT_CAT_GENERAL, OPT_TARGET_SELF) || cpl.target_code != 0) {
         int hp = cpl.target_hp;
 
         if (cpl.target_code == CMD_TARGET_SELF) {
-            hp = (int) (((double) cpl.stats.hp / (double) cpl.stats.maxhp) *
-                    100.0);
+            hp = (int)(((double)cpl.stats.hp / (double)cpl.stats.maxhp) * 100.0);
         } else {
             hp = MIN(100, MAX(0, hp));
         }
@@ -123,15 +117,13 @@ static void widget_draw(widgetdata *widget)
         box.x = 0;
         box.y = 0;
         box.h = target_hp->h;
-        box.w = (Uint16) (target_hp->w * ((double) hp * 0.01));
+        box.w = (Uint16)(target_hp->w * ((double)hp * 0.01));
         surface_show(widget->surface, x + 1, y + 1, &box, target_hp);
 
-        box.x = texture_surface(target_widget->button_combat.texture)->w +
-                5 * 2;
+        box.x = texture_surface(target_widget->button_combat.texture)->w + 5 * 2;
         box.y = 1;
         box.h = widget->h - 1 * 2;
-        box.w = widget->w - box.x - 5 * 2 -
-                texture_surface(target_widget->button_talk.texture)->w;
+        box.w = widget->w - box.x - 5 * 2 - texture_surface(target_widget->button_talk.texture)->w;
 
         const char *hp_color;
 
@@ -149,16 +141,23 @@ static void widget_draw(widgetdata *widget)
             hp_color = COLOR_RED;
         }
 
-        text_show_format(widget->surface, FONT_ARIAL11, box.x, box.y,
-                         cpl.target_color, TEXT_MARKUP | TEXT_VALIGN_CENTER,
-                         &box, "%s\n[c=#%s]HP: %d%%[/c] %s", cpl.target_name,
-                         hp_color, hp, str);
+        text_show_format(widget->surface,
+                         FONT_ARIAL11,
+                         box.x,
+                         box.y,
+                         cpl.target_color,
+                         TEXT_MARKUP | TEXT_VALIGN_CENTER,
+                         &box,
+                         "%s\n[c=#%s]HP: %d%%[/c] %s",
+                         cpl.target_name,
+                         hp_color,
+                         hp,
+                         str);
     }
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     target_widget_t *target_widget = widget->subwidget;
 
     if (button_event(&target_widget->button_combat, event)) {
@@ -177,8 +176,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     target_widget_t *target_widget = widget->subwidget;
     button_destroy(&target_widget->button_talk);
     button_destroy(&target_widget->button_combat);
@@ -189,8 +187,7 @@ static void widget_deinit(widgetdata *widget)
  * @param widget
  * Widget.
  */
-void widget_target_init(widgetdata *widget)
-{
+void widget_target_init(widgetdata *widget) {
     target_widget_t *target_widget;
 
     widget->draw_func = widget_draw;
@@ -199,8 +196,7 @@ void widget_target_init(widgetdata *widget)
     target_widget = widget->subwidget = ecalloc(1, sizeof(*target_widget));
     button_create(&target_widget->button_talk);
     button_create(&target_widget->button_combat);
-    target_widget->button_talk.texture =
-            target_widget->button_talk.texture_over =
-            target_widget->button_talk.texture_pressed =
+    target_widget->button_talk.texture = target_widget->button_talk.texture_over =
+        target_widget->button_talk.texture_pressed =
             texture_get(TEXTURE_TYPE_CLIENT, "target_talk");
 }

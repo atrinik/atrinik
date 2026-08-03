@@ -42,31 +42,28 @@ static int failed_tests; ///< Number of failed tests across all suites.
 /*
  * Setup function.
  */
-void check_setup(void)
-{
+void check_setup(void) {
     init(saved_argc, saved_argv);
 }
 
 /*
  * Cleanup function.
  */
-void check_teardown(void)
-{
+void check_teardown(void) {
     cleanup();
 
     if (fork_st != CK_FORK) {
         size_t num = memory_check_leak(false);
 
         if (num != 0) {
-            fprintf(stderr, "%" PRIu64 " memory leaks detected!\n",
-                    (uint64_t) num);
+            fprintf(stderr, "%" PRIu64 " memory leaks detected!\n", (uint64_t)num);
             abort();
         }
     } else {
         size_t num = memory_check_leak(true);
 
         if (num != 0) {
-            ck_abort_msg("%" PRIu64 " memory leaks detected!", (uint64_t) num);
+            ck_abort_msg("%" PRIu64 " memory leaks detected!", (uint64_t)num);
         }
     }
 }
@@ -74,8 +71,7 @@ void check_teardown(void)
 /*
  * Test setup function.
  */
-void check_test_setup(void)
-{
+void check_test_setup(void) {
     if (fork_st != CK_FORK) {
         return;
     }
@@ -84,8 +80,7 @@ void check_test_setup(void)
 /*
  * Test cleanup function.
  */
-void check_test_teardown(void)
-{
+void check_test_teardown(void) {
     if (fork_st != CK_FORK) {
         return;
     }
@@ -94,8 +89,7 @@ void check_test_teardown(void)
 /*
  * Sets up environment for doing tests related to players.
  */
-void check_setup_env_pl(mapstruct **map, object **pl)
-{
+void check_setup_env_pl(mapstruct **map, object **pl) {
     HARD_ASSERT(map != NULL);
     HARD_ASSERT(pl != NULL);
 
@@ -114,8 +108,7 @@ void check_setup_env_pl(mapstruct **map, object **pl)
 /*
  * Runs the specified test suite.
  */
-void check_run_suite(Suite *suite, const char *file)
-{
+void check_run_suite(Suite *suite, const char *file) {
     SRunner *srunner;
     char *sub, buf[HUGE_BUF], buf2[HUGE_BUF];
 
@@ -147,8 +140,7 @@ void check_run_suite(Suite *suite, const char *file)
 
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
-void check_main(int argc, char **argv)
-{
+void check_main(int argc, char **argv) {
     int i;
 
     toolkit_import(string);

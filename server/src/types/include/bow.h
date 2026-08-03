@@ -32,9 +32,7 @@
 
 /* Prototypes */
 
-double
-bow_get_ws(object *bow, object *arrow);
-int
-bow_get_skill(object *bow);
+double bow_get_ws(object *bow, object *arrow);
+int bow_get_skill(object *bow);
 
 #endif

@@ -53,8 +53,7 @@ static atrinik_plugin *plugins_list = NULL;
  * @return
  * Pointer to the found plugin, NULL if not found.
  */
-static atrinik_plugin *find_plugin(const char *id)
-{
+static atrinik_plugin *find_plugin(const char *id) {
     atrinik_plugin *plugin;
 
     if (!plugins_list) {
@@ -77,8 +76,7 @@ static atrinik_plugin *find_plugin(const char *id)
  * @param event_nr
  * Event ID to register.
  */
-static void register_global_event(const char *plugin_name, int event_nr)
-{
+static void register_global_event(const char *plugin_name, int event_nr) {
     atrinik_plugin *plugin = find_plugin(plugin_name);
 
     if (!plugin) {
@@ -96,8 +94,7 @@ static void register_global_event(const char *plugin_name, int event_nr)
  * @param event_nr
  * Event ID to unregister.
  */
-static void unregister_global_event(const char *plugin_name, int event_nr)
-{
+static void unregister_global_event(const char *plugin_name, int event_nr) {
     atrinik_plugin *plugin = find_plugin(plugin_name);
 
     if (!plugin) {
@@ -118,8 +115,7 @@ static void unregister_global_event(const char *plugin_name, int event_nr)
  * @return
  * Script object matching the event type.
  */
-object *get_event_object(object *op, int event_nr)
-{
+object *get_event_object(object *op, int event_nr) {
     object *tmp;
 
     for (tmp = op->inv; tmp != NULL; tmp = tmp->below) {
@@ -136,8 +132,7 @@ object *get_event_object(object *op, int event_nr)
  * @param op
  * The player to print the plugins to.
  */
-void display_plugins_list(object *op)
-{
+void display_plugins_list(object *op) {
     char buf[MAX_BUF];
     struct dirent *currentfile;
     DIR *plugdir;
@@ -175,8 +170,7 @@ void display_plugins_list(object *op)
  * init_plugin() for each plugin file found with the extension being
  * @ref PLUGIN_SUFFIX.
  */
-void init_plugins(void)
-{
+void init_plugins(void) {
     struct dirent *currentfile;
     DIR *plugdir;
     char pluginfile[MAX_BUF];
@@ -202,8 +196,7 @@ void init_plugins(void)
  * @return
  * Returned error from loading a plugin.
  */
-static const char *plugins_dlerror(void)
-{
+static const char *plugins_dlerror(void) {
     static char buf[MAX_BUF];
     DWORD err = GetLastError();
     char *p;
@@ -214,7 +207,7 @@ static const char *plugins_dlerror(void)
 
     p = strchr(buf, '\0');
 
-    while (p > buf && (p[ -1] == '\r' || p[ -1] == '\n')) {
+    while (p > buf && (p[-1] == '\r' || p[-1] == '\n')) {
         p--;
     }
 
@@ -228,8 +221,7 @@ static const char *plugins_dlerror(void)
  * @param pluginfile
  * The plugin filename.
  */
-void init_plugin(const char *pluginfile)
-{
+void init_plugin(const char *pluginfile) {
     int i;
     LIBPTRTYPE ptr;
     f_plug_event eventfunc;
@@ -256,7 +248,10 @@ void init_plugin(const char *pluginfile)
     eventfunc = plugins_dlsym(ptr, "triggerEvent", f_plug_event);
 
     if (!eventfunc) {
-        LOG(BUG, "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG,
+            "Error while requesting 'triggerEvent' from %s: %s",
+            pluginfile,
+            plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -264,7 +259,10 @@ void init_plugin(const char *pluginfile)
     pinitfunc = plugins_dlsym(ptr, "postinitPlugin", f_plug_pinit);
 
     if (!pinitfunc) {
-        LOG(BUG, "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG,
+            "Error while requesting 'postinitPlugin' from %s: %s",
+            pluginfile,
+            plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -272,7 +270,10 @@ void init_plugin(const char *pluginfile)
     propfunc = plugins_dlsym(ptr, "getPluginProperty", f_plug_prop);
 
     if (!propfunc) {
-        LOG(BUG, "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG,
+            "Error while requesting 'getPluginProperty' from %s: %s",
+            pluginfile,
+            plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -315,8 +316,7 @@ void init_plugin(const char *pluginfile)
  * @param id
  * The plugin keyname.
  */
-void remove_plugin(const char *id)
-{
+void remove_plugin(const char *id) {
     atrinik_plugin *plugin, *prev = NULL;
 
     if (!plugins_list) {
@@ -342,15 +342,14 @@ void remove_plugin(const char *id)
 /**
  * Deinitialize all plugins.
  */
-void remove_plugins(void)
-{
+void remove_plugins(void) {
     atrinik_plugin *plugin;
 
     if (!plugins_list) {
         return;
     }
 
-    for (plugin = plugins_list; plugin; ) {
+    for (plugin = plugins_list; plugin;) {
         atrinik_plugin *next = plugin->next;
 
         plugin->closefunc();
@@ -367,8 +366,7 @@ void remove_plugins(void)
  * @param ob
  * What to initialize.
  */
-void map_event_obj_init(object *ob)
-{
+void map_event_obj_init(object *ob) {
     map_event *tmp;
 
     if (!ob->map) {
@@ -389,8 +387,7 @@ void map_event_obj_init(object *ob)
  * @param tmp
  * What to free.
  */
-void map_event_free(map_event *tmp)
-{
+void map_event_free(map_event *tmp) {
     efree(tmp);
 }
 
@@ -413,8 +410,13 @@ void map_event_free(map_event *tmp)
  * @return
  * 1 if the event returns an event value, 0 otherwise.
  */
-int trigger_map_event(int event_id, mapstruct *m, object *activator, object *other, object *other2, const char *text, int parm)
-{
+int trigger_map_event(int event_id,
+                      mapstruct *m,
+                      object *activator,
+                      object *other,
+                      object *other2,
+                      const char *text,
+                      int parm) {
     map_event *tmp;
 
     if (!m->events) {
@@ -428,12 +430,25 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
                 tmp->plugin = find_plugin(tmp->event->name);
 
                 if (!tmp->plugin) {
-                    LOG(BUG, "Tried to trigger map event #%d, but could not find plugin '%s'.", event_id, tmp->event->name);
+                    LOG(BUG,
+                        "Tried to trigger map event #%d, but could not find plugin '%s'.",
+                        event_id,
+                        tmp->event->name);
                     return 0;
                 }
             }
 
-            return *(int *) (tmp->plugin->eventfunc)(0, PLUGIN_EVENT_MAP, event_id, activator, tmp->event, other, other2, tmp->event->race, tmp->event->slaying, text, parm);
+            return *(int *)(tmp->plugin->eventfunc)(0,
+                                                    PLUGIN_EVENT_MAP,
+                                                    event_id,
+                                                    activator,
+                                                    tmp->event,
+                                                    other,
+                                                    other2,
+                                                    tmp->event->race,
+                                                    tmp->event->slaying,
+                                                    text,
+                                                    parm);
         }
     }
 
@@ -451,18 +466,10 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
  * @param parm2
  * Second data parameter.
  */
-void
-trigger_global_event (int event_type, void *parm1, void *parm2)
-{
-    for (atrinik_plugin *plugin = plugins_list;
-         plugin != NULL;
-         plugin = plugin->next) {
+void trigger_global_event(int event_type, void *parm1, void *parm2) {
+    for (atrinik_plugin *plugin = plugins_list; plugin != NULL; plugin = plugin->next) {
         if (plugin->gevent[event_type]) {
-            (plugin->eventfunc)(0,
-                                PLUGIN_EVENT_GLOBAL,
-                                event_type,
-                                parm1,
-                                parm2);
+            (plugin->eventfunc)(0, PLUGIN_EVENT_GLOBAL, event_type, parm1, parm2);
         }
     }
 }
@@ -474,18 +481,12 @@ trigger_global_event (int event_type, void *parm1, void *parm2)
  * @param me
  * Another player object.
  */
-int trigger_unit_event(object *const activator, object *const me)
-{
+int trigger_unit_event(object *const activator, object *const me) {
     int failed = 0;
 
-    for (atrinik_plugin *plugin = plugins_list; plugin != NULL;
-            plugin = plugin->next) {
+    for (atrinik_plugin *plugin = plugins_list; plugin != NULL; plugin = plugin->next) {
         LOG(INFO, "Running unit tests for plugin: %s", plugin->fullname);
-        int *result = (plugin->eventfunc)(0,
-                                          PLUGIN_EVENT_UNIT,
-                                          0,
-                                          activator,
-                                          me);
+        int *result = (plugin->eventfunc)(0, PLUGIN_EVENT_UNIT, 0, activator, me);
         if (result != NULL && *result != 0) {
             failed = 1;
         }
@@ -518,8 +519,15 @@ int trigger_unit_event(object *const activator, object *const me)
  * @return
  * 1 if the event returns an event value, 0 otherwise.
  */
-int trigger_event(int event_type, object * const activator, object * const me, object * const other, const char *msg, int parm1, int parm2, int parm3, int flags)
-{
+int trigger_event(int event_type,
+                  object *const activator,
+                  object *const me,
+                  object *const other,
+                  const char *msg,
+                  int parm1,
+                  int parm2,
+                  int parm3,
+                  int flags) {
     object *event_obj;
     atrinik_plugin *plugin;
 
@@ -551,7 +559,20 @@ int trigger_event(int event_type, object * const activator, object * const me, o
         gettimeofday(&start, NULL);
 #endif
 
-        returnvalue = *(int *) plugin->eventfunc(0, PLUGIN_EVENT_NORMAL, event_type, activator, me, other, event_obj, msg, parm1, parm2, parm3, flags, event_obj->race, event_obj->slaying);
+        returnvalue = *(int *)plugin->eventfunc(0,
+                                                PLUGIN_EVENT_NORMAL,
+                                                event_type,
+                                                activator,
+                                                me,
+                                                other,
+                                                event_obj,
+                                                msg,
+                                                parm1,
+                                                parm2,
+                                                parm3,
+                                                flags,
+                                                event_obj->race,
+                                                event_obj->slaying);
 
 #ifdef TIME_SCRIPTS
         gettimeofday(&stop, NULL);
@@ -562,7 +583,10 @@ int trigger_event(int event_type, object * const activator, object * const me, o
 #endif
         return returnvalue;
     } else {
-        LOG(BUG, "event object with unknown plugin: %s, plugin %s", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
+        LOG(BUG,
+            "event object with unknown plugin: %s, plugin %s",
+            STRING_OBJ_NAME(me),
+            STRING_OBJ_NAME(event_obj));
         me->event_flags &= ~(1 << event_type);
     }
 

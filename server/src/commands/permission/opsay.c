@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_opsay(object *op, const char *command, char *params)
-{
+void command_opsay(object *op, const char *command, char *params) {
     player *pl;
 
     params = player_sanitize_input(params);

@@ -43,14 +43,9 @@ static resource_t *resources = NULL;
 /**
  * Initialize the resource files management sub-system.
  */
-void
-resources_init (void)
-{
-}
+void resources_init(void) {}
 
-static void
-resources_free (void)
-{
+static void resources_free(void) {
     resource_t *resource, *tmp;
 
     HASH_ITER(hh, resources, resource, tmp) {
@@ -68,9 +63,7 @@ resources_free (void)
 /**
  * Deinitialize the resource files management sub-system.
  */
-void
-resources_deinit (void)
-{
+void resources_deinit(void) {
     resources_free();
 }
 
@@ -79,24 +72,18 @@ resources_deinit (void)
  *
  * This should be done when switching servers.
  */
-void
-resources_reload (void)
-{
+void resources_reload(void) {
     resources_free();
 }
 
-resource_t *
-resources_find (const char *name)
-{
+resource_t *resources_find(const char *name) {
     resource_t *resource;
     HASH_FIND(hh, resources, name, strlen(name), resource);
     return resource;
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void
-socket_command_resource (uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_resource(uint8_t *data, size_t len, size_t pos) {
     char resource_name[HUGE_BUF];
     packet_to_string(data, len, &pos, VS(resource_name));
     if (string_isempty(resource_name)) {
@@ -109,16 +96,13 @@ socket_command_resource (uint8_t *data, size_t len, size_t pos)
     }
 
     const unsigned char *md = data + pos;
-    if (len - pos != sizeof(((resource_t *) NULL)->md)) {
+    if (len - pos != sizeof(((resource_t *)NULL)->md)) {
         LOG(PACKET, "Invalid remaining packet size");
         return;
     }
 
-    char digest[sizeof(((resource_t *) NULL)->digest)];
-    SOFT_ASSERT(string_tohex(md,
-                             len - pos,
-                             VS(digest),
-                             false) == sizeof(digest) - 1,
+    char digest[sizeof(((resource_t *)NULL)->digest)];
+    SOFT_ASSERT(string_tohex(md, len - pos, VS(digest), false) == sizeof(digest) - 1,
                 "string_tohex failed");
     string_tolower(digest);
 
@@ -126,11 +110,7 @@ socket_command_resource (uint8_t *data, size_t len, size_t pos)
     resource->name = estrdup(resource_name);
     memcpy(resource->md, md, sizeof(resource->md));
     memcpy(resource->digest, digest, sizeof(resource->digest));
-    HASH_ADD_KEYPTR(hh,
-                    resources,
-                    resource->name,
-                    strlen(resource->name),
-                    resource);
+    HASH_ADD_KEYPTR(hh, resources, resource->name, strlen(resource->name), resource);
 
     char path[HUGE_BUF];
     snprintf(VS(path), "resources/%s", resource->digest);
@@ -154,9 +134,7 @@ socket_command_resource (uint8_t *data, size_t len, size_t pos)
  * @return
  * True if the resource is ready, false otherwise.
  */
-bool
-resources_is_ready (resource_t *resource)
-{
+bool resources_is_ready(resource_t *resource) {
     if (resource->loaded) {
         return true;
     }
@@ -183,8 +161,7 @@ resources_is_ready (resource_t *resource)
     }
 
     if (memcmp(md, resource->md, sizeof(md)) != 0) {
-        LOG(ERROR, "!!! SHA512 digests do not match for resource %s !!!",
-            resource->name);
+        LOG(ERROR, "!!! SHA512 digests do not match for resource %s !!!", resource->name);
         goto error;
     }
 

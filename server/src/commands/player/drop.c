@@ -35,8 +35,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_drop(object *op, const char *command, char *params)
-{
+void command_drop(object *op, const char *command, char *params) {
     object *tmp, *next;
     int did_one = 0, missed = 0, ival;
 
@@ -45,7 +44,8 @@ void command_drop(object *op, const char *command, char *params)
         return;
     }
 
-    if (op->map && op->map->events && trigger_map_event(MEVENT_CMD_DROP, op->map, op, NULL, NULL, params, 0)) {
+    if (op->map && op->map->events &&
+        trigger_map_event(MEVENT_CMD_DROP, op->map, op, NULL, NULL, params, 0)) {
         return;
     }
 
@@ -54,7 +54,8 @@ void command_drop(object *op, const char *command, char *params)
     for (tmp = op->inv; tmp; tmp = next) {
         next = tmp->below;
 
-        if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) || IS_INVISIBLE(tmp, op)) {
+        if (QUERY_FLAG(tmp, FLAG_NO_DROP) || QUERY_FLAG(tmp, FLAG_STARTEQUIP) ||
+            IS_INVISIBLE(tmp, op)) {
             continue;
         }
 
@@ -81,7 +82,10 @@ void command_drop(object *op, const char *command, char *params)
     if (missed == 1) {
         draw_info(COLOR_WHITE, op, "One item couldn't be dropped because it was locked.");
     } else if (missed > 1) {
-        draw_info_format(COLOR_WHITE, op, "%d items couldn't be dropped because they were locked.", missed);
+        draw_info_format(COLOR_WHITE,
+                         op,
+                         "%d items couldn't be dropped because they were locked.",
+                         missed);
     }
 
     CONTR(op)->count = 0;

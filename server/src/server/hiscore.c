@@ -83,9 +83,17 @@ static score_table hiscore_table;
  * @param size
  * Size of the buffer.
  */
-static void put_score(const score *sc, char *buf, int size)
-{
-    snprintf(buf, size, "%s:%s:%"PRIu64 ":%s:%s:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp);
+static void put_score(const score *sc, char *buf, int size) {
+    snprintf(buf,
+             size,
+             "%s:%s:%" PRIu64 ":%s:%s:%d:%d",
+             sc->name,
+             sc->title,
+             sc->exp,
+             sc->killer,
+             sc->maplevel,
+             sc->maxhp,
+             sc->maxsp);
 }
 
 /**
@@ -93,8 +101,7 @@ static void put_score(const score *sc, char *buf, int size)
  * @param table
  * The highscore table to save.
  */
-static void hiscore_save(const score_table *table)
-{
+static void hiscore_save(const score_table *table) {
     FILE *fp;
     size_t i;
     char buf[HUGE_BUF];
@@ -133,8 +140,7 @@ static void hiscore_save(const score_table *table)
  * @return
  * Whether parsing was successful.
  */
-static int get_score(char *bp, score *sc)
-{
+static int get_score(char *bp, score *sc) {
     char *cp, *tmp[7];
 
     cp = strchr(bp, '\n');
@@ -153,7 +159,7 @@ static int get_score(char *bp, score *sc)
     strncpy(sc->title, tmp[1], sizeof(sc->title));
     sc->title[sizeof(sc->title) - 1] = '\0';
 
-    sscanf(tmp[2], "%"PRIu64, &sc->exp);
+    sscanf(tmp[2], "%" PRIu64, &sc->exp);
 
     strncpy(sc->killer, tmp[3], sizeof(sc->killer));
     sc->killer[sizeof(sc->killer) - 1] = '\0';
@@ -177,10 +183,18 @@ static int get_score(char *bp, score *sc)
  * @return
  * buf.
  */
-static char *draw_one_high_score(const score *sc, char *buf, size_t size)
-{
+static char *draw_one_high_score(const score *sc, char *buf, size_t size) {
     if (sc->killer[0] == '\0') {
-        snprintf(buf, size, "[green]%3d[/green] %s [green]%s[/green] the %s (%s) <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp);
+        snprintf(buf,
+                 size,
+                 "[green]%3d[/green] %s [green]%s[/green] the %s (%s) <%d><%d>.",
+                 sc->position,
+                 string_format_number_comma(sc->exp),
+                 sc->name,
+                 sc->title,
+                 sc->maplevel,
+                 sc->maxhp,
+                 sc->maxsp);
     } else {
         const char *s1, *s2;
 
@@ -192,7 +206,18 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
             s2 = sc->killer;
         }
 
-        snprintf(buf, size, "[green]%3d[/green] %s [green]%s[/green] the %s %s %s on map %s <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp);
+        snprintf(buf,
+                 size,
+                 "[green]%3d[/green] %s [green]%s[/green] the %s %s %s on map %s <%d><%d>.",
+                 sc->position,
+                 string_format_number_comma(sc->exp),
+                 sc->name,
+                 sc->title,
+                 s1,
+                 s2,
+                 sc->maplevel,
+                 sc->maxhp,
+                 sc->maxsp);
     }
 
     return buf;
@@ -208,8 +233,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
  * @param old_score
  * Returns the old player score.
  */
-static void add_score(score_table *table, score *new_score, score *old_score)
-{
+static void add_score(score_table *table, score *new_score, score *old_score) {
     size_t i;
 
     new_score->position = HIGHSCORE_LENGTH + 1;
@@ -272,8 +296,7 @@ static void add_score(score_table *table, score *new_score, score *old_score)
  * @param table
  * The highscore table to load.
  */
-static void hiscore_load(score_table *table)
-{
+static void hiscore_load(score_table *table) {
     FILE *fp;
     size_t i = 0;
 
@@ -312,8 +335,7 @@ static void hiscore_load(score_table *table)
 /**
  * Initializes the module.
  */
-void hiscore_init(void)
-{
+void hiscore_init(void) {
     snprintf(hiscore_table.fname, sizeof(hiscore_table.fname), "%s/highscore", settings.datapath);
     hiscore_load(&hiscore_table);
 }
@@ -329,8 +351,7 @@ void hiscore_init(void)
  * game play or when player unexpectedly quits - don't need to print anything in
  * those cases.
  */
-void hiscore_check(object *op, int quiet)
-{
+void hiscore_check(object *op, int quiet) {
     score new_score, old_score;
     char bufscore[HUGE_BUF];
     const char *message;
@@ -363,8 +384,8 @@ void hiscore_check(object *op, int quiet)
         string_replace_char(new_score.maplevel, ":", ' ');
     }
 
-    new_score.maxhp = (int) op->stats.maxhp;
-    new_score.maxsp = (int) op->stats.maxsp;
+    new_score.maxhp = (int)op->stats.maxhp;
+    new_score.maxsp = (int)op->stats.maxsp;
     add_score(&hiscore_table, &new_score, &old_score);
 
     /* Everything below here is just related to print messages
@@ -383,7 +404,7 @@ void hiscore_check(object *op, int quiet)
     } else {
         if (new_score.position > HIGHSCORE_LENGTH) {
             message = "You left the highscore list:";
-        } else if (new_score.exp  > old_score.exp) {
+        } else if (new_score.exp > old_score.exp) {
             message = "You beat your last score:";
         } else {
             message = "You didn't beat your last score:";
@@ -409,17 +430,19 @@ void hiscore_check(object *op, int quiet)
  * If non-empty, will only print players with name or title
  * containing the string (non case-sensitive).
  */
-void hiscore_display(object *op, int max, const char *match)
-{
+void hiscore_display(object *op, int max, const char *match) {
     int printed_entries = 0;
     size_t j;
 
     draw_info(COLOR_WHITE, op, "Nr    Score   Who <max hp><max sp>");
 
-    for (j = 0; j < HIGHSCORE_LENGTH && hiscore_table.entry[j].name[0] != '\0' && printed_entries < max; j++) {
+    for (j = 0;
+         j < HIGHSCORE_LENGTH && hiscore_table.entry[j].name[0] != '\0' && printed_entries < max;
+         j++) {
         char scorebuf[MAX_BUF];
 
-        if (match && !strcasestr(hiscore_table.entry[j].name, match) && !strcasestr(hiscore_table.entry[j].title, match)) {
+        if (match && !strcasestr(hiscore_table.entry[j].name, match) &&
+            !strcasestr(hiscore_table.entry[j].title, match)) {
             continue;
         }
 

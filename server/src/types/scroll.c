@@ -38,9 +38,7 @@
 #include "common/process_treasure.h"
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -54,54 +52,44 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS) {
-        draw_info(COLOR_WHITE, applier,
-                  "The scroll just doesn't make sense!");
+        draw_info(COLOR_WHITE, applier, "The scroll just doesn't make sense!");
         return OBJECT_METHOD_OK;
     }
 
     if (applier->type == PLAYER) {
         /* Players need a literacy skill to read scrolls. */
         if (!change_skill(applier, SK_LITERACY)) {
-            draw_info(COLOR_WHITE, applier,
-                      "You are unable to decipher the strange symbols.");
+            draw_info(COLOR_WHITE, applier, "You are unable to decipher the strange symbols.");
             return OBJECT_METHOD_OK;
         }
 
         /* Also need the appropriate skill for the scroll's spell. */
         if (!change_skill(applier, SK_WIZARDRY_SPELLS)) {
-            draw_info(COLOR_WHITE, applier,
-                      "You can read the scroll but you don't understand it.");
+            draw_info(COLOR_WHITE, applier, "You can read the scroll but you don't understand it.");
             return OBJECT_METHOD_OK;
         }
 
         CONTR(applier)->stat_scrolls_used++;
     }
 
-    draw_info_format(COLOR_WHITE, applier,
+    draw_info_format(COLOR_WHITE,
+                     applier,
                      "The scroll of %s turns to dust.",
                      spells[op->stats.sp].name);
 
     int direction = applier->direction ? applier->direction : SOUTHEAST;
-    cast_spell(applier,
-               op,
-               direction,
-               op->stats.sp,
-               0,
-               CAST_SCROLL,
-               NULL);
+    cast_spell(applier, op, direction, op->stats.sp, 0, CAST_SCROLL, NULL);
     decrease_ob(op);
 
     return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -114,8 +102,7 @@ process_treasure_func (object              *op,
     for (int tries = 0; op->stats.sp == SP_NO_SPELL; tries++) {
         /* Give it a few tries. */
         if (tries >= 5) {
-            log_error("Failed to generate a spell for scroll: %s",
-                      object_get_str(op));
+            log_error("Failed to generate a spell for scroll: %s", object_get_str(op));
             object_remove(op, 0);
             object_destroy(op);
             return OBJECT_METHOD_ERROR;
@@ -138,8 +125,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the scroll type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(scroll)
-{
+OBJECT_TYPE_INIT_DEFINE(scroll) {
     OBJECT_METHODS(SCROLL)->apply_func = apply_func;
     OBJECT_METHODS(SCROLL)->process_treasure_func = process_treasure_func;
     OBJECT_METHODS(SCROLL)->override_treasure_processing = true;

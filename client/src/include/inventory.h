@@ -69,7 +69,11 @@
 #define INVENTORY_WHERE(_inventory) \
     ((_inventory)->display == INVENTORY_DISPLAY_MAIN ? cpl.ob : cpl.below)
 /** Check whether the mouse is inside the inventory area. */
-#define INVENTORY_MOUSE_INSIDE(_widget, _mx, _my) ((_mx) >= (_widget)->x + INVENTORY((_widget))->x && (_mx) < (_widget)->x + INVENTORY((_widget))->x + INVENTORY((_widget))->w && (_my) >= (_widget)->y + INVENTORY((_widget))->y && (_my) < (_widget)->y + INVENTORY((_widget))->y + INVENTORY((_widget))->h)
+#define INVENTORY_MOUSE_INSIDE(_widget, _mx, _my)                                \
+    ((_mx) >= (_widget)->x + INVENTORY((_widget))->x &&                          \
+     (_mx) < (_widget)->x + INVENTORY((_widget))->x + INVENTORY((_widget))->w && \
+     (_my) >= (_widget)->y + INVENTORY((_widget))->y &&                          \
+     (_my) < (_widget)->y + INVENTORY((_widget))->y + INVENTORY((_widget))->h)
 
 /**
  * Possible values for inventory_struct::display.

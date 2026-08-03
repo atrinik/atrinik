@@ -34,7 +34,7 @@
 #include "zlib.h"
 
 /** Maximum different face sets. */
-#define MAX_FACE_SETS   1
+#define MAX_FACE_SETS 1
 
 /** Face info structure. */
 typedef struct FaceInfo {
@@ -79,8 +79,7 @@ static FaceSets facesets[MAX_FACE_SETS];
  * @return
  * 1 if the face set is valid, 0 otherwise
  */
-int is_valid_faceset(int fsn)
-{
+int is_valid_faceset(int fsn) {
     if (fsn >= 0 && fsn < MAX_FACE_SETS && facesets[fsn].prefix) {
         return 1;
     }
@@ -91,8 +90,7 @@ int is_valid_faceset(int fsn)
 /**
  * Free all the information in face sets.
  */
-void free_socket_images(void)
-{
+void free_socket_images(void) {
     int num, q;
 
     for (num = 0; num < MAX_FACE_SETS; num++) {
@@ -126,8 +124,7 @@ void free_socket_images(void)
  * At the moment, Atrinik only uses one face set file, no files like
  * atrinik.1, atrinik.2, etc.
  */
-void read_client_images(void)
-{
+void read_client_images(void) {
     char filename[400], buf[HUGE_BUF], *cp, *cps[7 + 1];
     FILE *infile, *fbmap;
     int num, len, file_num, i;
@@ -207,8 +204,7 @@ void read_client_images(void)
             }
 
             /* Skip across the number data */
-            for (cp = buf + 6; *cp != ' '; cp++) {
-            }
+            for (cp = buf + 6; *cp != ' '; cp++) {}
 
             len = atoi(cp);
 
@@ -223,12 +219,22 @@ void read_client_images(void)
             facesets[file_num].faces[num].data = emalloc(len);
 
             if ((i = fread(facesets[file_num].faces[num].data, len, 1, infile)) != 1) {
-                LOG(ERROR, "Did not read desired amount of data, wanted %d, got %d: %s", len, i, buf);
+                LOG(ERROR,
+                    "Did not read desired amount of data, wanted %d, got %d: %s",
+                    len,
+                    i,
+                    buf);
                 exit(1);
             }
 
-            facesets[file_num].faces[num].checksum = (uint32_t) crc32(1L, facesets[file_num].faces[num].data, len);
-            snprintf(buf, sizeof(buf), "%x %x %s\n", len, facesets[file_num].faces[num].checksum, new_faces[num].name);
+            facesets[file_num].faces[num].checksum =
+                (uint32_t)crc32(1L, facesets[file_num].faces[num].data, len);
+            snprintf(buf,
+                     sizeof(buf),
+                     "%x %x %s\n",
+                     len,
+                     facesets[file_num].faces[num].checksum,
+                     new_faces[num].name);
             fputs(buf, fbmap);
         }
 
@@ -237,16 +243,13 @@ void read_client_images(void)
     }
 }
 
-void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data,
-        size_t len, size_t pos)
-{
+void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
     uint16_t facenum;
     packet_struct *packet;
 
     facenum = packet_to_uint16(data, len, &pos);
 
-    if (facenum == 0 || facenum >= nrofpixmaps ||
-            facesets[0].faces[facenum].data == NULL) {
+    if (facenum == 0 || facenum >= nrofpixmaps || facesets[0].faces[facenum].data == NULL) {
         return;
     }
 
@@ -256,8 +259,9 @@ void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data,
     packet_debug_data(packet, 0, "Face size");
     packet_append_uint32(packet, facesets[0].faces[facenum].datalen);
     packet_debug_data(packet, 0, "Face data");
-    packet_append_data_len(packet, facesets[0].faces[facenum].data,
-            facesets[0].faces[facenum].datalen);
+    packet_append_data_len(packet,
+                           facesets[0].faces[facenum].data,
+                           facesets[0].faces[facenum].datalen);
     socket_send_packet(ns, packet);
 }
 
@@ -269,8 +273,7 @@ void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data,
  * @param[out] len Pointer that will contain the image data length, can
  * be NULL.
  */
-void face_get_data(int face, uint8_t **ptr, uint16_t *len)
-{
+void face_get_data(int face, uint8_t **ptr, uint16_t *len) {
     if (ptr) {
         *ptr = facesets[0].faces[face].data;
     }

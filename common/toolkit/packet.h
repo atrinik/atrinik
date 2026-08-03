@@ -117,13 +117,12 @@ typedef struct packet_save {
 #define PACKET_EXPAND 10
 
 #ifndef NDEBUG
-#define packet_debug(_packet, _indent, _fmt, ...) \
-    do { \
-        stringbuffer_append_printf((_packet)->sb, "%*s" _fmt, (_indent), "", \
-                                   ## __VA_ARGS__); \
+#define packet_debug(_packet, _indent, _fmt, ...)                                            \
+    do {                                                                                     \
+        stringbuffer_append_printf((_packet)->sb, "%*s" _fmt, (_indent), "", ##__VA_ARGS__); \
     } while (0)
 #define packet_debug_data(_packet, _indent, _fmt, ...) \
-    packet_debug(_packet, _indent, _fmt ": ", ## __VA_ARGS__)
+    packet_debug(_packet, _indent, _fmt ": ", ##__VA_ARGS__)
 #else
 #define packet_debug(_packet, _indent, _fmt, ...)
 #define packet_debug_data(_packet, _indent, _fmt, ...)
@@ -155,13 +154,10 @@ void packet_append_uint64(packet_struct *packet, uint64_t data);
 void packet_append_int64(packet_struct *packet, int64_t data);
 void packet_append_float(packet_struct *packet, float data);
 void packet_append_double(packet_struct *packet, double data);
-void packet_append_data_len(packet_struct *packet, const uint8_t *data,
-        size_t len);
-void packet_append_string_len(packet_struct *packet, const char *data,
-        size_t len);
+void packet_append_data_len(packet_struct *packet, const uint8_t *data, size_t len);
+void packet_append_string_len(packet_struct *packet, const char *data, size_t len);
 void packet_append_string(packet_struct *packet, const char *data);
-void packet_append_string_len_terminated(packet_struct *packet,
-        const char *data, size_t len);
+void packet_append_string_len_terminated(packet_struct *packet, const char *data, size_t len);
 void packet_append_string_terminated(packet_struct *packet, const char *data);
 void packet_append_packet(packet_struct *packet, packet_struct *src);
 uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos);
@@ -174,9 +170,7 @@ uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos);
 int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos);
 float packet_to_float(uint8_t *data, size_t len, size_t *pos);
 double packet_to_double(uint8_t *data, size_t len, size_t *pos);
-char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest,
-        size_t dest_size);
-void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos,
-        StringBuffer *sb);
+char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_t dest_size);
+void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer *sb);
 
 #endif

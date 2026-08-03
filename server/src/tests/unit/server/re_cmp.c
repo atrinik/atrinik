@@ -27,14 +27,11 @@
 #include <checkstd.h>
 #include <check_proto.h>
 
-static void check_re_cmp(const char *str, const char *regex)
-{
-    ck_assert_msg(re_cmp(str, regex) != NULL,
-            "Failed to match '%s' with regex '%s'.", str, regex);
+static void check_re_cmp(const char *str, const char *regex) {
+    ck_assert_msg(re_cmp(str, regex) != NULL, "Failed to match '%s' with regex '%s'.", str, regex);
 }
 
-START_TEST(test_re_cmp)
-{
+START_TEST(test_re_cmp) {
     check_re_cmp("dragon183", "dragon[1-9]+$");
     check_re_cmp("dragon18", "dragon[1-9][1-9]");
     check_re_cmp("dragon18", "dragon[1-2][1-9]$");
@@ -47,8 +44,7 @@ START_TEST(test_re_cmp)
 
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("re_cmp");
     TCase *tc_core = tcase_create("Core");
 
@@ -61,7 +57,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_re_cmp(void)
-{
+void check_server_re_cmp(void) {
     check_run_suite(suite(), __FILE__);
 }

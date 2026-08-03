@@ -40,8 +40,7 @@
  * @return
  * Atrinik map structure.
  */
-mapstruct *make_map_floor(char *floorstyle, RMParms *RP)
-{
+mapstruct *make_map_floor(char *floorstyle, RMParms *RP) {
     char styledirname[256], stylefilepath[256];
     mapstruct *style_map = NULL, *newMap = NULL;
     int x, y;

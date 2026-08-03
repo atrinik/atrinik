@@ -46,8 +46,8 @@
 #include <toolkit/console.h>
 
 #ifdef HAVE_CHECK
-#   include <check.h>
-#   include <check_proto.h>
+#include <check.h>
+#include <check_proto.h>
 #endif
 
 /** Object used in process_events(). */
@@ -84,14 +84,15 @@ static void do_specials(void);
  * If NULL the version is logged using LOG(), otherwise it is
  * shown to the player object using draw_info_format().
  */
-void version(object *op)
-{
+void version(object *op) {
     char buf[HUGE_BUF];
 
     snprintf(VS(buf), "This is Atrinik v%s", PACKAGE_VERSION);
 #ifdef GITVERSION
-    snprintfcat(VS(buf), "%s", " (" STRINGIFY(GITBRANCH) "/"
-            STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
+    snprintfcat(
+        VS(buf),
+        "%s",
+        " (" STRINGIFY(GITBRANCH) "/" STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
 #endif
 
     if (op != NULL) {
@@ -107,8 +108,7 @@ void version(object *op)
  * @param op
  * The object leaving the map.
  */
-void leave_map(object *op)
-{
+void leave_map(object *op) {
     object_remove(op, 0);
 
     if (!op->map->player_first) {
@@ -124,8 +124,7 @@ void leave_map(object *op)
  * @param map
  * The map to set the timeout for.
  */
-void set_map_timeout(mapstruct *map)
-{
+void set_map_timeout(mapstruct *map) {
 #if MAP_DEFAULTTIMEOUT
     uint32_t swap_time = MAP_SWAP_TIME(map);
 
@@ -147,9 +146,7 @@ void set_map_timeout(mapstruct *map)
 /**
  * Process objects with speed, like teleporters, players, etc.
  */
-void
-process_events (void)
-{
+void process_events(void) {
     object *op;
     tag_t tag;
 
@@ -212,15 +209,13 @@ process_events (void)
         }
 
         if (unlikely(DBL_EQUAL(op->speed, 0.0))) {
-            LOG(ERROR, "Object has no speed, but is on active list: %s",
-                object_get_str(op));
+            LOG(ERROR, "Object has no speed, but is on active list: %s", object_get_str(op));
             object_update_speed(op);
             continue;
         }
 
         if (unlikely(op->map == NULL && op->env == NULL)) {
-            LOG(ERROR, "Object without map or inventory is on active list: %s",
-                object_get_str(op));
+            LOG(ERROR, "Object without map or inventory is on active list: %s", object_get_str(op));
             op->speed = 0;
             object_update_speed(op);
             continue;
@@ -277,9 +272,8 @@ process_events (void)
 
                 if (op->anim_flags & ANIM_FLAG_MOVING) {
                     if ((op->anim_flags & ANIM_FLAG_ATTACKING &&
-                            !(op->anim_flags & ANIM_FLAG_STOP_ATTACKING)) ||
-                            op->type == PLAYER ||
-                            !OBJECT_VALID(op->enemy, op->enemy_count)) {
+                         !(op->anim_flags & ANIM_FLAG_STOP_ATTACKING)) ||
+                        op->type == PLAYER || !OBJECT_VALID(op->enemy, op->enemy_count)) {
                         op->anim_flags |= ANIM_FLAG_STOP_MOVING;
                     }
                 }
@@ -300,14 +294,12 @@ process_events (void)
 /**
  * Clean temporary map files.
  */
-void clean_tmp_files(void)
-{
+void clean_tmp_files(void) {
     mapstruct *m, *tmp;
 
     /* We save the maps - it may not be intuitive why, but if there are
      * unique items, we need to save the map so they get saved off. */
-    DL_FOREACH_SAFE(first_map, m, tmp)
-    {
+    DL_FOREACH_SAFE(first_map, m, tmp) {
         if (m->in_memory == MAP_IN_MEMORY) {
             if (settings.recycle_tmp_maps) {
                 swap_map(m, 0);
@@ -329,8 +321,7 @@ void clean_tmp_files(void)
 /**
  * Shut down the server, saving and freeing all data.
  */
-void server_shutdown(void)
-{
+void server_shutdown(void) {
     player_disconnect_all();
     clean_tmp_files();
     exit(0);
@@ -341,8 +332,7 @@ void server_shutdown(void)
  * @todo Only compute time if there is something more in the queue,
  * something like if (path_request_queue_empty()) { break; }
  */
-static void dequeue_path_requests(void)
-{
+static void dequeue_path_requests(void) {
 #ifdef LEFTOVER_CPU_FOR_PATHFINDING
     static struct timeval new_time;
     long leftover_sec, leftover_usec;
@@ -351,7 +341,7 @@ static void dequeue_path_requests(void)
     while ((wp = path_get_next_request())) {
         waypoint_compute_path(wp);
 
-        (void) GETTIMEOFDAY(&new_time);
+        (void)GETTIMEOFDAY(&new_time);
 
         leftover_sec = last_time.tv_sec - new_time.tv_sec;
         leftover_usec = max_time - (new_time.tv_usec - last_time.tv_usec);
@@ -395,8 +385,7 @@ static void dequeue_path_requests(void)
  * @return
  * 1 on success, 0 on failure.
  */
-int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op)
-{
+int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op) {
     char *cleanpath, *path;
     int i, j;
     object *ob, *tmp, *tmp2;
@@ -497,8 +486,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
 /**
  * Collection of functions to call from time to time.
  */
-static void do_specials(void)
-{
+static void do_specials(void) {
     if (!(pticks % 2)) {
         dequeue_path_requests();
     }
@@ -525,19 +513,16 @@ static void do_specials(void)
     }
 }
 
-void shutdown_timer_start(long secs)
-{
+void shutdown_timer_start(long secs) {
     shutdown_time = pticks + secs * MAX_TICKS;
     shutdown_active = 1;
 }
 
-void shutdown_timer_stop(void)
-{
+void shutdown_timer_stop(void) {
     shutdown_active = 0;
 }
 
-static int shutdown_timer_check(void)
-{
+static int shutdown_timer_check(void) {
     if (!shutdown_active) {
         return 0;
     }
@@ -546,13 +531,16 @@ static int shutdown_timer_check(void)
         return 1;
     }
 
-    if (((shutdown_time - pticks) % (long) (60 * MAX_TICKS)) == 0 ||
-            pticks == shutdown_time - (long) (5 * MAX_TICKS)) {
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL,
-                "[Server]: Server will shut down in %02"PRIu64
-                ":%02"PRIu64 " minutes.", (uint64_t) ((shutdown_time - pticks) /
-                MAX_TICKS / 60), (uint64_t) ((shutdown_time - pticks) / (long)
-                MAX_TICKS % 60));
+    if (((shutdown_time - pticks) % (long)(60 * MAX_TICKS)) == 0 ||
+        pticks == shutdown_time - (long)(5 * MAX_TICKS)) {
+        draw_info_type_format(CHAT_TYPE_CHAT,
+                              NULL,
+                              COLOR_GREEN,
+                              NULL,
+                              "[Server]: Server will shut down in %02" PRIu64 ":%02" PRIu64
+                              " minutes.",
+                              (uint64_t)((shutdown_time - pticks) / MAX_TICKS / 60),
+                              (uint64_t)((shutdown_time - pticks) / (long)MAX_TICKS % 60));
     }
 
     return 0;
@@ -561,8 +549,7 @@ static int shutdown_timer_check(void)
 /**
  * Main processing function, called from main().
  */
-void main_process(void)
-{
+void main_process(void) {
     /* Global round ticker. */
     global_round_tag++;
     pticks++;
@@ -588,8 +575,7 @@ void main_process(void)
  * @return
  * 0.
  */
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 #ifdef WIN32
     /* Open all files in binary mode by default. */
     _set_fmode(_O_BINARY);
@@ -643,7 +629,7 @@ int main(int argc, char **argv)
 
     LOG(INFO, "Server ready. Waiting for connections...");
 
-    for (; ; ) {
+    for (;;) {
         uint64_t loop_started_us = datetime_monotonic_us();
         if (unlikely(shutdown_timer_check())) {
             break;

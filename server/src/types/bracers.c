@@ -35,7 +35,6 @@
 /**
  * Initialize the bracers type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(bracers)
-{
+OBJECT_TYPE_INIT_DEFINE(bracers) {
     OBJECT_METHODS(BRACERS)->apply_func = object_apply_item;
 }

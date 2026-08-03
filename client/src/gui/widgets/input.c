@@ -32,8 +32,7 @@
 #include <global.h>
 #include <toolkit/string.h>
 
-static void widget_input_handle_enter(widgetdata *widget)
-{
+static void widget_input_handle_enter(widgetdata *widget) {
     text_input_struct *text_input;
 
     widget->show = 0;
@@ -60,30 +59,42 @@ static void widget_input_handle_enter(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     text_input_struct *text_input;
 
     widget->redraw++;
 
     text_input = &WIDGET_INPUT(widget)->text_input;
     text_input->coords.w = widget->w - 16;
-    text_input_show(text_input, widget->surface, widget->w / 2 - text_input->coords.w / 2, widget->h / 2 - text_input->coords.h / 2 + 8);
+    text_input_show(text_input,
+                    widget->surface,
+                    widget->w / 2 - text_input->coords.w / 2,
+                    widget->h / 2 - text_input->coords.h / 2 + 8);
 
     text_truncate_overflow(FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, 220);
-    text_show(widget->surface, FONT_ARIAL10, WIDGET_INPUT(widget)->title_text, 8, 6, COLOR_HGOLD, 0, NULL);
+    text_show(widget->surface,
+              FONT_ARIAL10,
+              WIDGET_INPUT(widget)->title_text,
+              8,
+              6,
+              COLOR_HGOLD,
+              0,
+              NULL);
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     widget_input_struct *input;
     text_input_struct *text_input;
 
     if (widget->show && event->type == SDL_KEYDOWN) {
         input = WIDGET_INPUT(widget);
 
-        if (SDL_GetTicks() - widget->showed_ticks > 125 && ((string_startswith(input->prepend_text, "/gettag ") && keybind_command_matches_event("?GET", &event->key)) || (string_startswith(input->prepend_text, "/droptag ") && keybind_command_matches_event("?DROP", &event->key)))) {
+        if (SDL_GetTicks() - widget->showed_ticks > 125 &&
+            ((string_startswith(input->prepend_text, "/gettag ") &&
+              keybind_command_matches_event("?GET", &event->key)) ||
+             (string_startswith(input->prepend_text, "/droptag ") &&
+              keybind_command_matches_event("?DROP", &event->key)))) {
             widget_input_handle_enter(widget);
             keys[event->key.keysym.sym].time = SDL_GetTicks() + 125;
             return 1;
@@ -110,8 +121,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     widget_input_struct *input;
 
     input = WIDGET_INPUT(widget);
@@ -120,8 +130,7 @@ static void widget_deinit(widgetdata *widget)
     text_input_history_free(input->text_input_history);
 }
 
-void widget_input_init(widgetdata *widget)
-{
+void widget_input_init(widgetdata *widget) {
     widget_input_struct *input;
 
     input = ecalloc(1, sizeof(*input));

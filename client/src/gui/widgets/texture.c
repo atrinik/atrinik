@@ -33,8 +33,7 @@
 #include <global.h>
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     _widget_texture *texture;
 
     texture = widget->subwidget;
@@ -47,8 +46,7 @@ static void widget_draw(widgetdata *widget)
 /**
  * Initialize one texture widget.
  */
-void widget_texture_init(widgetdata *widget)
-{
+void widget_texture_init(widgetdata *widget) {
     _widget_texture *texture;
 
     texture = ecalloc(1, sizeof(*texture));

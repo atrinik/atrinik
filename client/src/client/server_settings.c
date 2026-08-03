@@ -38,8 +38,7 @@ server_settings *s_settings = NULL;
 /**
  * Initialize the server settings from the srv file.
  */
-void server_settings_init(void)
-{
+void server_settings_init(void) {
     FILE *fp = server_file_open_name(SERVER_FILE_SETTINGS);
     if (fp == NULL) {
         return;
@@ -75,11 +74,10 @@ void server_settings_init(void)
                 goto error;
             }
 
-            s_settings->characters = ereallocz(s_settings->characters,
-                    sizeof(*s_settings->characters) *
-                    s_settings->num_characters,
-                    sizeof(*s_settings->characters) *
-                    (s_settings->num_characters + 1));
+            s_settings->characters =
+                ereallocz(s_settings->characters,
+                          sizeof(*s_settings->characters) * s_settings->num_characters,
+                          sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
             cur_char = &s_settings->characters[s_settings->num_characters];
             s_settings->num_characters++;
             cur_char->name = estrdup(value);
@@ -99,8 +97,7 @@ void server_settings_init(void)
                 if (string_split(value, cps2, arraysize(cps2), ' ') == 3) {
                     int gender_id = gender_to_id(cps2[0]);
                     if (gender_id != -1) {
-                        cur_char->gender_archetypes[gender_id] =
-                                estrdup(cps2[1]);
+                        cur_char->gender_archetypes[gender_id] = estrdup(cps2[1]);
                         cur_char->gender_faces[gender_id] = estrdup(cps2[2]);
                     }
                 }
@@ -109,8 +106,8 @@ void server_settings_init(void)
             }
         } else if (strcmp(key, "level") == 0) {
             s_settings->max_level = atoi(value);
-            s_settings->level_exp = emalloc(sizeof(*s_settings->level_exp) *
-                    (s_settings->max_level + 2));
+            s_settings->level_exp =
+                emalloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
 
             for (uint32_t lev = 0; lev <= s_settings->max_level; lev++) {
                 if (fgets(VS(buf), fp) == NULL) {
@@ -131,9 +128,8 @@ void server_settings_init(void)
             string_newline_to_literal(s_settings->text[text_id]);
 
             if (text_id == SERVER_TEXT_PROTECTION_GROUPS ||
-                    text_id == SERVER_TEXT_PROTECTION_LETTERS ||
-                    text_id == SERVER_TEXT_PROTECTION_FULL ||
-                    text_id == SERVER_TEXT_SPELL_PATHS) {
+                text_id == SERVER_TEXT_PROTECTION_LETTERS ||
+                text_id == SERVER_TEXT_PROTECTION_FULL || text_id == SERVER_TEXT_SPELL_PATHS) {
                 char **dst;
                 size_t arraymax;
                 if (text_id == SERVER_TEXT_PROTECTION_GROUPS) {
@@ -153,8 +149,7 @@ void server_settings_init(void)
                 }
 
                 size_t i = 0, pos = 0;
-                while (string_get_word(s_settings->text[text_id], &pos, ' ',
-                        VS(buf), 0)) {
+                while (string_get_word(s_settings->text[text_id], &pos, ' ', VS(buf), 0)) {
                     if (i == arraymax) {
                         error_str = "reached maximum array size";
                         goto error;
@@ -169,10 +164,14 @@ void server_settings_init(void)
 
         continue;
 
-error:
-        LOG(ERROR, "Error parsing %s, line %" PRIu64 ", %s: %s %s",
-                SERVER_FILE_SETTINGS, linenum, error_str, key,
-                value != NULL ? value : "");
+    error:
+        LOG(ERROR,
+            "Error parsing %s, line %" PRIu64 ", %s: %s %s",
+            SERVER_FILE_SETTINGS,
+            linenum,
+            error_str,
+            key,
+            value != NULL ? value : "");
     }
 
     for (size_t i = text_id; i < SERVER_TEXT_MAX; i++) {
@@ -185,8 +184,7 @@ error:
 /**
  * Deinitialize the server settings.
  */
-void server_settings_deinit(void)
-{
+void server_settings_deinit(void) {
     if (s_settings == NULL) {
         return;
     }

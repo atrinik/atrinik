@@ -35,8 +35,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_take(object *op, const char *command, char *params)
-{
+void command_take(object *op, const char *command, char *params) {
     object *tmp, *next;
     int did_one = 0, missed = 0, ival;
     uint32_t ground_total = 0;
@@ -57,7 +56,8 @@ void command_take(object *op, const char *command, char *params)
         return;
     }
 
-    if (op->map && op->map->events && trigger_map_event(MEVENT_CMD_TAKE, op->map, op, tmp, NULL, params, 0)) {
+    if (op->map && op->map->events &&
+        trigger_map_event(MEVENT_CMD_TAKE, op->map, op, tmp, NULL, params, 0)) {
         return;
     }
 
@@ -66,7 +66,8 @@ void command_take(object *op, const char *command, char *params)
     for (; tmp; tmp = next) {
         next = tmp->below;
 
-        if ((tmp->layer != LAYER_ITEM && tmp->layer != LAYER_ITEM2) || QUERY_FLAG(tmp, FLAG_NO_PICK) || IS_INVISIBLE(tmp, op)) {
+        if ((tmp->layer != LAYER_ITEM && tmp->layer != LAYER_ITEM2) ||
+            QUERY_FLAG(tmp, FLAG_NO_PICK) || IS_INVISIBLE(tmp, op)) {
             continue;
         }
 
@@ -102,7 +103,8 @@ void command_take(object *op, const char *command, char *params)
             if (CONTR(tmp)->cs->look_position > ground_total) {
                 CONTR(tmp)->cs->look_position = ground_total;
             }
-        } FOR_MAP_LAYER_END
+        }
+        FOR_MAP_LAYER_END
     } else if (!missed) {
         draw_info(COLOR_WHITE, op, "Nothing to take.");
     }

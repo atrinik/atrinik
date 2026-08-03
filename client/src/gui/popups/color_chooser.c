@@ -33,8 +33,7 @@
 #include <toolkit/colorspace.h>
 
 /** @copydoc popup_struct::draw_func */
-static int popup_draw(popup_struct *popup)
-{
+static int popup_draw(popup_struct *popup) {
     color_picker_struct *color_picker;
     double rgb[3];
     SDL_Rect box;
@@ -48,14 +47,24 @@ static int popup_draw(popup_struct *popup)
     colorspace_hsv2rgb(color_picker->hsv, rgb);
     box.w = 100;
     box.h = 200;
-    text_show_format(popup->surface, FONT_ARIAL11, color_picker->x + 180, color_picker->y, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Preview:\n[bar=#%.2X%.2X%.2X 80 20][border=#303030 80 20]\n\nChoose your desired color, then dismiss this popup.", (int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
+    text_show_format(popup->surface,
+                     FONT_ARIAL11,
+                     color_picker->x + 180,
+                     color_picker->y,
+                     COLOR_WHITE,
+                     TEXT_MARKUP | TEXT_WORD_WRAP,
+                     &box,
+                     "Preview:\n[bar=#%.2X%.2X%.2X 80 20][border=#303030 80 20]\n\nChoose your "
+                     "desired color, then dismiss this popup.",
+                     (int)(255 * rgb[0]),
+                     (int)(255 * rgb[1]),
+                     (int)(255 * rgb[2]));
 
     return 1;
 }
 
 /** @copydoc popup_struct::event_func */
-static int popup_event(popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     color_picker_struct *color_picker;
 
     color_picker = popup->custom_data;
@@ -72,15 +81,16 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
  * @return
  * Allocated color picker.
  */
-color_picker_struct *color_chooser_open(void)
-{
+color_picker_struct *color_chooser_open(void) {
     popup_struct *popup;
     color_picker_struct *color_picker;
 
     color_picker = emalloc(sizeof(*color_picker));
     color_picker_create(color_picker, 150);
 
-    popup = popup_create(texture_get(TEXTURE_TYPE_SOFTWARE, "rectangle:300,200;[bar=widget_bg][border=widget_border -1 -1 2]"));
+    popup = popup_create(
+        texture_get(TEXTURE_TYPE_SOFTWARE,
+                    "rectangle:300,200;[bar=widget_bg][border=widget_border -1 -1 2]"));
     popup->draw_func = popup_draw;
     popup->event_func = popup_event;
     popup->custom_data = color_picker;
@@ -89,7 +99,8 @@ color_picker_struct *color_chooser_open(void)
     popup->button_left.button.texture = NULL;
     popup->button_right.button.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
     popup->button_right.button.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-    popup->button_right.button.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+    popup->button_right.button.texture_pressed =
+        texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
     popup->button_right.x += 7;
 
     return color_picker;

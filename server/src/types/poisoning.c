@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->env == NULL || !IS_LIVE(op->env) || op->env->stats.hp < 0) {
@@ -59,7 +57,8 @@ process_func (object *op)
         if (OBJECTS_DESTROYED(target)) {
             return;
         }
-    } OBJECTS_DESTROYED_END();
+    }
+    OBJECTS_DESTROYED_END();
 
     if (target->type != PLAYER) {
         return;
@@ -80,7 +79,6 @@ process_func (object *op)
 /**
  * Initialize the poisoning type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(poisoning)
-{
+OBJECT_TYPE_INIT_DEFINE(poisoning) {
     OBJECT_METHODS(POISONING)->process_func = process_func;
 }

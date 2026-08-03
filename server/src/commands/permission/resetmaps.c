@@ -44,9 +44,8 @@
  * @return
  * 0.
  */
-static int command_resetmaps_internal(mapstruct *tiled, mapstruct *map,
-        mapstruct ***maps, size_t *maps_num)
-{
+static int
+command_resetmaps_internal(mapstruct *tiled, mapstruct *map, mapstruct ***maps, size_t *maps_num) {
     *maps = erealloc(*maps, sizeof(**maps) * ((*maps_num) + 1));
     (*maps)[*maps_num] = tiled;
     (*maps_num)++;
@@ -55,8 +54,7 @@ static int command_resetmaps_internal(mapstruct *tiled, mapstruct *map,
 }
 
 /** @copydoc command_func */
-void command_resetmaps(object *op, const char *command, char *params)
-{
+void command_resetmaps(object *op, const char *command, char *params) {
     mapstruct *m, **maps;
     size_t maps_num, i;
     int failed, success;
@@ -67,8 +65,7 @@ void command_resetmaps(object *op, const char *command, char *params)
     failed = success = 0;
 
     if (params != NULL && strcasecmp(params, "all") == 0) {
-        DL_FOREACH(first_map, m)
-        {
+        DL_FOREACH(first_map, m) {
             command_resetmaps_internal(m, NULL, &maps, &maps_num);
         }
     } else {
@@ -98,16 +95,13 @@ void command_resetmaps(object *op, const char *command, char *params)
             return;
         }
 
-        MAP_TILES_WALK_START(m, command_resetmaps_internal, &maps, &maps_num)
-        {
-        }
+        MAP_TILES_WALK_START(m, command_resetmaps_internal, &maps, &maps_num) {}
         MAP_TILES_WALK_END
     }
 
     if (maps == NULL) {
         LOG(BUG, "Failed to find any maps to reset: %s", m->path);
-        draw_info_format(COLOR_RED, op, "Failed to find any maps to reset: %s",
-                m->path);
+        draw_info_format(COLOR_RED, op, "Failed to find any maps to reset: %s", m->path);
         return;
     }
 
@@ -122,12 +116,10 @@ void command_resetmaps(object *op, const char *command, char *params)
     efree(maps);
 
     if (success != 0) {
-        draw_info_format(COLOR_WHITE, op, "Successfully reset %d maps.",
-                success);
+        draw_info_format(COLOR_WHITE, op, "Successfully reset %d maps.", success);
     }
 
     if (failed != 0) {
-        draw_info_format(COLOR_RED, op, "Failed to reset %d maps.",
-                failed);
+        draw_info_format(COLOR_RED, op, "Failed to reset %d maps.", failed);
     }
 }

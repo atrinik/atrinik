@@ -35,6 +35,4 @@
 /**
  * Initialize the wall type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(wall)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(wall) {}

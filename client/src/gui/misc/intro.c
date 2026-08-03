@@ -53,9 +53,8 @@ static uint32_t eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
 static uint8_t eyes_draw = 1;
 /** Button buffer. */
-static button_struct button_play, button_refresh, button_server,
-                     button_settings, button_update, button_help,
-                     button_credits, button_connection, button_quit;
+static button_struct button_play, button_refresh, button_server, button_settings, button_update,
+    button_help, button_credits, button_connection, button_quit;
 
 /** The news list. */
 static list_struct *list_news = NULL;
@@ -67,8 +66,7 @@ static list_struct *list_servers = NULL;
  * @param list
  * The servers list.
  */
-static void list_handle_enter(list_struct *list, SDL_Event *event)
-{
+static void list_handle_enter(list_struct *list, SDL_Event *event) {
     /* Servers list? */
     if (list == list_servers) {
         char number[16];
@@ -83,19 +81,19 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
         }
 
         for (pos = 0, i = 0, version = 0;
-                string_get_word(selected_server->version, &pos, '.', number,
-                sizeof(number), 0); i++) {
+             string_get_word(selected_server->version, &pos, '.', number, sizeof(number), 0);
+             i++) {
             version += atoi(number) << (i * CHAR_BIT);
         }
 
         if (version != 0 && version < SERVER_VERSION) {
-            draw_info(COLOR_RED, "The server is outdated; "
-                    "choose a different one.");
+            draw_info(COLOR_RED,
+                      "The server is outdated; "
+                      "choose a different one.");
             return;
         }
 
-        if (selected_server->password_required &&
-            selected_server->join_password == NULL &&
+        if (selected_server->password_required && selected_server->join_password == NULL &&
             clioption_settings.join_password == NULL) {
             join_password_open(selected_server);
         } else {
@@ -109,21 +107,18 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 }
 
 /** @copydoc list_struct::esc_handle_func */
-static void list_handle_esc(list_struct *list)
-{
-    (void) list;
+static void list_handle_esc(list_struct *list) {
+    (void)list;
 
     exit(0);
 }
 
 /** @copydoc list_struct::text_color_hook */
-static void
-list_text_color (struct list_struct *list,
-                 uint32_t            row,
-                 uint32_t            col,
-                 const char        **color,
-                 const char        **color_shadow)
-{
+static void list_text_color(struct list_struct *list,
+                            uint32_t row,
+                            uint32_t col,
+                            const char **color,
+                            const char **color_shadow) {
     server_struct *server = server_get_id(row);
     SOFT_ASSERT(server != NULL, "Server on row %u is NULL", row);
 
@@ -157,8 +152,7 @@ list_text_color (struct list_struct *list,
 /**
  * Deinitialize data used by the intro screen.
  */
-void intro_deinit(void)
-{
+void intro_deinit(void) {
     button_destroy(&button_play);
     button_destroy(&button_refresh);
     button_destroy(&button_server);
@@ -180,8 +174,7 @@ void intro_deinit(void)
  * Show the main GUI after starting the client -- servers list, chat box,
  * connecting to server, etc.
  */
-void intro_show(void)
-{
+void intro_show(void) {
     SDL_Surface *texture;
     int x, y;
     size_t server_count;
@@ -195,7 +188,11 @@ void intro_show(void)
 
     /* Background */
     surface_show(ScreenSurface, 0, 0, NULL, texture);
-    textwin_show(ScreenSurface, texture->w, 1, ScreenSurface->w - texture->w - 2, ScreenSurface->h - 3);
+    textwin_show(ScreenSurface,
+                 texture->w,
+                 1,
+                 ScreenSurface->w - texture->w - 2,
+                 ScreenSurface->h - 3);
 
     /* Calculate whether to show the eyes or not. Blinks every
      * EYES_BLINK_TIME ticks, then waits EYES_BLINK_DELAY ticks until
@@ -212,7 +209,11 @@ void intro_show(void)
         src_box.y = eyes_draw - 1;
         src_box.w = TEXTURE_CLIENT("eyes")->w;
         src_box.h = TEXTURE_CLIENT("eyes")->h;
-        surface_show(ScreenSurface, texture->w - 90, 310 + src_box.y, &src_box, TEXTURE_CLIENT("eyes"));
+        surface_show(ScreenSurface,
+                     texture->w - 90,
+                     310 + src_box.y,
+                     &src_box,
+                     TEXTURE_CLIENT("eyes"));
 
         if (eyes_draw > 1) {
             eyes_draw++;
@@ -267,9 +268,7 @@ void intro_show(void)
             node = server_get_id(i);
 
             list_add(list_servers, i, 0, node->name);
-            snprintf(VS(buf),
-                     "%d",
-                     node->port_crypto == -1 ? node->port : node->port_crypto);
+            snprintf(VS(buf), "%d", node->port_crypto == -1 ? node->port : node->port_crypto);
             list_add(list_servers, i, 1, buf);
 
             if (node->player >= 0) {
@@ -293,13 +292,20 @@ void intro_show(void)
      * description. */
     if (node) {
         snprintf(buf, sizeof(buf), "Version: %s", node->version);
-        text_show_shadow(ScreenSurface, FONT_ARIAL10, buf, x + 13, y + 185, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+        text_show_shadow(ScreenSurface,
+                         FONT_ARIAL10,
+                         buf,
+                         x + 13,
+                         y + 185,
+                         COLOR_HGOLD,
+                         COLOR_BLACK,
+                         0,
+                         NULL);
 
         snprintf(buf,
                  sizeof(buf),
                  "Preferred connection: %s",
-                 socket_connection_preference_name(
-                     connection_preference_get(node)));
+                 socket_connection_preference_name(connection_preference_get(node)));
         text_show_shadow(ScreenSurface,
                          FONT_ARIAL10,
                          buf,
@@ -312,14 +318,37 @@ void intro_show(void)
 
         box.w = 410;
         box.h = 36;
-        text_show(ScreenSurface, FONT_ARIAL10, node->desc, x + 13, y + 209, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+        text_show(ScreenSurface,
+                  FONT_ARIAL10,
+                  node->desc,
+                  x + 13,
+                  y + 209,
+                  COLOR_WHITE,
+                  TEXT_WORD_WRAP | TEXT_MARKUP,
+                  &box);
     }
 
     /* Show whether we are connecting to the metaserver or not. */
     if (ms_connecting(-1)) {
-        text_show_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
+        text_show_shadow(ScreenSurface,
+                         FONT_ARIAL10,
+                         "Connecting to metaserver, please wait...",
+                         x + 105,
+                         y + 8,
+                         COLOR_HGOLD,
+                         COLOR_BLACK,
+                         0,
+                         NULL);
     } else {
-        text_show_shadow(ScreenSurface, FONT_ARIAL10, "Select a secure server.", x + 196, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
+        text_show_shadow(ScreenSurface,
+                         FONT_ARIAL10,
+                         "Select a secure server.",
+                         x + 196,
+                         y + 8,
+                         COLOR_GREEN,
+                         COLOR_BLACK,
+                         0,
+                         NULL);
     }
 
     texture = TEXTURE_CLIENT("servers_bg_over");
@@ -331,13 +360,21 @@ void intro_show(void)
 
     box.w = texture->w;
     box.h = 0;
-    text_show_shadow(ScreenSurface, FONT_SERIF12, "Game News", x, y + 10, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
+    text_show_shadow(ScreenSurface,
+                     FONT_SERIF12,
+                     "Game News",
+                     x,
+                     y + 10,
+                     COLOR_HGOLD,
+                     COLOR_BLACK,
+                     TEXT_ALIGN_CENTER,
+                     &box);
 
     /* No list yet, make one and start downloading the data. */
     if (!list_news) {
         /* Start downloading. */
-        news_request = curl_request_create(clioption_settings.game_news_url,
-                                           CURL_PKEY_TRUST_ULTIMATE);
+        news_request =
+            curl_request_create(clioption_settings.game_news_url, CURL_PKEY_TRUST_ULTIMATE);
         curl_request_start_get(news_request);
 
         list_news = list_create(18, 1, 8);
@@ -375,9 +412,8 @@ void intro_show(void)
     /* Show the news list. */
     list_show(list_news, x + 13, y + 10);
 
-    button_play.x = button_refresh.x = button_server.x =
-        button_settings.x = button_update.x = button_help.x =
-        button_credits.x = button_connection.x = button_quit.x = 489;
+    button_play.x = button_refresh.x = button_server.x = button_settings.x = button_update.x =
+        button_help.x = button_credits.x = button_connection.x = button_quit.x = 489;
     y += 2;
 
     button_play.y = y + 10;
@@ -435,8 +471,7 @@ void intro_show(void)
  * @return
  * 1 if the event was handled, 0 otherwise.
  */
-int intro_event(SDL_Event *event)
-{
+int intro_event(SDL_Event *event) {
     if (!list_servers) {
         return 0;
     }
@@ -493,7 +528,8 @@ int intro_event(SDL_Event *event)
 
         list_news->focus = news_focus;
         list_servers->focus = !news_focus;
-    } else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers, event)) {
+    } else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers,
+                                    event)) {
         return 1;
     } else if (list_handle_mouse(list_news, event)) {
         return 1;

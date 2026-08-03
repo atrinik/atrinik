@@ -110,8 +110,7 @@ static fd_set fds_error;
 static socket_t *server_sockets[SOCKET_SERVER_ID_NUM];
 /** Direct UDP/QUIC listeners (IPv4 and IPv6), when enabled. */
 static socket_t *quic_server_sockets[2];
-static socket_direct_candidate_t
-    quic_candidates[SOCKET_DIRECT_MAX_CANDIDATES];
+static socket_direct_candidate_t quic_candidates[SOCKET_DIRECT_MAX_CANDIDATES];
 static size_t quic_candidate_count;
 static char quic_public_host[MAX_BUF];
 static uint16_t quic_public_port;
@@ -167,9 +166,7 @@ CASSERT_ARRAY(socket_commands, SERVER_CMD_NROF);
  * @return
  * Whether the ID is for a secure connection.
  */
-static inline bool
-server_socket_id_is_secure (socket_server_id_t id)
-{
+static inline bool server_socket_id_is_secure(socket_server_id_t id) {
     if (id == SOCKET_SERVER_ID_SECURE_V4 || id == SOCKET_SERVER_ID_SECURE_V6) {
         return true;
     }
@@ -185,11 +182,8 @@ server_socket_id_is_secure (socket_server_id_t id)
  * @return
  * Whether the ID is for an IPv6 connection.
  */
-static inline bool
-server_socket_id_is_v6 (socket_server_id_t id)
-{
-    if (id == SOCKET_SERVER_ID_CLASSIC_V6 ||
-        id == SOCKET_SERVER_ID_SECURE_V6) {
+static inline bool server_socket_id_is_v6(socket_server_id_t id) {
+    if (id == SOCKET_SERVER_ID_CLASSIC_V6 || id == SOCKET_SERVER_ID_SECURE_V6) {
         return true;
     }
 
@@ -204,11 +198,8 @@ server_socket_id_is_v6 (socket_server_id_t id)
  * @return
  * Whether the ID is for an IPv4 connection.
  */
-static inline bool
-server_socket_id_is_v4 (socket_server_id_t id)
-{
-    if (id == SOCKET_SERVER_ID_CLASSIC_V4 ||
-        id == SOCKET_SERVER_ID_SECURE_V4) {
+static inline bool server_socket_id_is_v4(socket_server_id_t id) {
+    if (id == SOCKET_SERVER_ID_CLASSIC_V4 || id == SOCKET_SERVER_ID_SECURE_V4) {
         return true;
     }
 
@@ -218,8 +209,7 @@ server_socket_id_is_v4 (socket_server_id_t id)
 /**
  * Initialize the socket server API.
  */
-TOOLKIT_INIT_FUNC(socket_server)
-{
+TOOLKIT_INIT_FUNC(socket_server) {
     /* Used to store the parsed network stack setting. */
     struct {
         /* Type of the network stack; some of these can be combined. */
@@ -255,18 +245,16 @@ TOOLKIT_INIT_FUNC(socket_server)
         BIT_CLEAR(stack_setting.type, STACK_DUAL);
 
         struct sockaddr_storage *addr;
-        if (strcasecmp(cps[0], "ipv4") == 0 ||
-            strcasecmp(cps[0], "v4") == 0) {
+        if (strcasecmp(cps[0], "ipv4") == 0 || strcasecmp(cps[0], "v4") == 0) {
             BIT_SET(stack_setting.type, STACK_IPV4);
             addr = &stack_setting.v4;
-            struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+            struct sockaddr_in *saddr = (struct sockaddr_in *)addr;
             saddr->sin_family = AF_INET;
-        } else if (strcasecmp(cps[0], "ipv6") == 0 ||
-                   strcasecmp(cps[0], "v6") == 0) {
+        } else if (strcasecmp(cps[0], "ipv6") == 0 || strcasecmp(cps[0], "v6") == 0) {
 #ifdef HAVE_IPV6
             BIT_SET(stack_setting.type, STACK_IPV6);
             addr = &stack_setting.v6;
-            struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+            struct sockaddr_in *saddr = (struct sockaddr_in *)addr;
             saddr->sin_family = AF_INET6;
 #endif
         } else {
@@ -275,9 +263,7 @@ TOOLKIT_INIT_FUNC(socket_server)
         }
 
         if (cps[1] != NULL && !socket_host2addr(cps[1], addr)) {
-            LOG(ERROR,
-                "Invalid IP address in network stack configuration: %s",
-                cps[1]);
+            LOG(ERROR, "Invalid IP address in network stack configuration: %s", cps[1]);
             exit(1);
         }
     }
@@ -287,21 +273,17 @@ TOOLKIT_INIT_FUNC(socket_server)
         exit(1);
     }
 
-    bool legacy_enabled =
-        *settings.connectivity_mode == '\0' ||
-        strcmp(settings.connectivity_mode, "legacy_tcp") == 0 ||
-        strcmp(settings.connectivity_mode, "direct_preferred") == 0;
-    bool direct_enabled =
-        strcmp(settings.connectivity_mode, "legacy_tcp") != 0;
+    bool legacy_enabled = *settings.connectivity_mode == '\0' ||
+                          strcmp(settings.connectivity_mode, "legacy_tcp") == 0 ||
+                          strcmp(settings.connectivity_mode, "direct_preferred") == 0;
+    bool direct_enabled = strcmp(settings.connectivity_mode, "legacy_tcp") != 0;
 
     if (legacy_enabled && (settings.port_crypto == 0 || settings.port == 0)) {
         LOG(ERROR, "No legacy TCP port configured");
         exit(1);
     }
 
-    for (socket_server_id_t i = 0;
-         legacy_enabled && i < SOCKET_SERVER_ID_NUM;
-         i++) {
+    for (socket_server_id_t i = 0; legacy_enabled && i < SOCKET_SERVER_ID_NUM; i++) {
         uint16_t port;
         bool secure = server_socket_id_is_secure(i);
         if (secure) {
@@ -349,11 +331,7 @@ TOOLKIT_INIT_FUNC(socket_server)
         }
 
         bool dual_stack = BIT_QUERY(stack_setting.type, STACK_DUAL);
-        server_sockets[i] = socket_create(host,
-                                          port,
-                                          secure,
-                                          SOCKET_ROLE_SERVER,
-                                          dual_stack);
+        server_sockets[i] = socket_create(host, port, secure, SOCKET_ROLE_SERVER, dual_stack);
         if (server_sockets[i] == NULL) {
             exit(1);
         }
@@ -381,31 +359,22 @@ TOOLKIT_INIT_FUNC(socket_server)
         bool dual = BIT_QUERY(stack_setting.type, STACK_DUAL);
         if (dual || BIT_QUERY(stack_setting.type, STACK_IPV4)) {
             quic_server_sockets[0] =
-                socket_quic_server_create("0.0.0.0",
-                                          settings.port_quic,
-                                          false,
-                                          identity_path);
+                socket_quic_server_create("0.0.0.0", settings.port_quic, false, identity_path);
         }
 #ifdef HAVE_IPV6
         if (dual || BIT_QUERY(stack_setting.type, STACK_IPV6)) {
             quic_server_sockets[1] =
-                socket_quic_server_create("::",
-                                          settings.port_quic,
-                                          false,
-                                          identity_path);
+                socket_quic_server_create("::", settings.port_quic, false, identity_path);
         }
 #endif
-        socket_t *identity_socket = quic_server_sockets[0] != NULL
-            ? quic_server_sockets[0] : quic_server_sockets[1];
+        socket_t *identity_socket =
+            quic_server_sockets[0] != NULL ? quic_server_sockets[0] : quic_server_sockets[1];
         if (identity_socket == NULL ||
-            !socket_certificate_sha256(identity_socket,
-                                       quic_certificate_sha256)) {
+            !socket_certificate_sha256(identity_socket, quic_certificate_sha256)) {
             LOG(ERROR, "Failed to initialize the QUIC listener");
             exit(1);
         }
-        LOG(SYSTEM,
-            "QUIC certificate SHA-256: %s",
-            quic_certificate_sha256);
+        LOG(SYSTEM, "QUIC certificate SHA-256: %s", quic_certificate_sha256);
 
         quic_candidate_count = 0;
         quic_public_host[0] = '\0';
@@ -413,23 +382,18 @@ TOOLKIT_INIT_FUNC(socket_server)
 #ifdef HAVE_IPV6
         struct in6_addr configured_address6;
 #endif
-        if ((inet_pton(AF_INET,
-                       settings.server_host,
-                       &configured_address4) == 1
+        if ((inet_pton(AF_INET, settings.server_host, &configured_address4) == 1
 #ifdef HAVE_IPV6
-             || inet_pton(AF_INET6,
-                          settings.server_host,
-                          &configured_address6) == 1
+             || inet_pton(AF_INET6, settings.server_host, &configured_address6) == 1
 #endif
-             ) && socket_host_is_global(settings.server_host)) {
+             ) &&
+            socket_host_is_global(settings.server_host)) {
             snprintf(VS(quic_public_host), "%s", settings.server_host);
         }
         quic_public_port = settings.port_quic;
         char mapped_host[65];
         uint16_t mapped_port;
-        if (socket_port_mapping_init(settings.port_quic,
-                                     VS(mapped_host),
-                                     &mapped_port)) {
+        if (socket_port_mapping_init(settings.port_quic, VS(mapped_host), &mapped_port)) {
             if (socket_host_is_global(mapped_host)) {
                 snprintf(VS(quic_public_host), "%s", mapped_host);
                 quic_public_port = mapped_port;
@@ -440,55 +404,43 @@ TOOLKIT_INIT_FUNC(socket_server)
                     mapped_host,
                     mapped_port);
             }
-            snprintf(VS(quic_candidates[quic_candidate_count].host),
-                     "%s", mapped_host);
+            snprintf(VS(quic_candidates[quic_candidate_count].host), "%s", mapped_host);
             quic_candidates[quic_candidate_count].port = mapped_port;
-            quic_candidates[quic_candidate_count].kind =
-                SOCKET_CANDIDATE_MAPPED;
+            quic_candidates[quic_candidate_count].kind = SOCKET_CANDIDATE_MAPPED;
             quic_candidate_count++;
         }
 
         char stun_host[65];
         uint16_t stun_port = settings.port_quic;
-        if (*settings.stun_server != '\0' &&
-            strcmp(settings.stun_server, "off") != 0 &&
+        if (*settings.stun_server != '\0' && strcmp(settings.stun_server, "off") != 0 &&
             quic_server_sockets[0] != NULL &&
             socket_stun_discover(quic_server_sockets[0],
                                  settings.stun_server,
                                  VS(stun_host),
                                  &stun_port)) {
-            bool duplicate = quic_candidate_count != 0 &&
-                             quic_candidates[0].port == stun_port &&
+            bool duplicate = quic_candidate_count != 0 && quic_candidates[0].port == stun_port &&
                              strcmp(quic_candidates[0].host, stun_host) == 0;
-            if (!duplicate &&
-                quic_candidate_count < arraysize(quic_candidates)) {
-                snprintf(VS(quic_candidates[quic_candidate_count].host),
-                         "%s", stun_host);
+            if (!duplicate && quic_candidate_count < arraysize(quic_candidates)) {
+                snprintf(VS(quic_candidates[quic_candidate_count].host), "%s", stun_host);
                 quic_candidates[quic_candidate_count].port = stun_port;
-                quic_candidates[quic_candidate_count].kind =
-                    SOCKET_CANDIDATE_SRFLX;
+                quic_candidates[quic_candidate_count].kind = SOCKET_CANDIDATE_SRFLX;
                 quic_candidate_count++;
             }
-            if (*quic_public_host == '\0' &&
-                socket_host_is_global(stun_host)) {
+            if (*quic_public_host == '\0' && socket_host_is_global(stun_host)) {
                 snprintf(VS(quic_public_host), "%s", stun_host);
                 quic_public_port = stun_port;
             }
-        } else if (*quic_public_host == '\0' &&
-                   quic_server_sockets[1] != NULL &&
-                   *settings.stun_server != '\0' &&
-                   strcmp(settings.stun_server, "off") != 0 &&
+        } else if (*quic_public_host == '\0' && quic_server_sockets[1] != NULL &&
+                   *settings.stun_server != '\0' && strcmp(settings.stun_server, "off") != 0 &&
                    socket_stun_discover(quic_server_sockets[1],
                                         settings.stun_server,
                                         VS(stun_host),
                                         &stun_port)) {
             snprintf(VS(quic_public_host), "%s", stun_host);
             quic_public_port = stun_port;
-            snprintf(VS(quic_candidates[quic_candidate_count].host),
-                     "%s", stun_host);
+            snprintf(VS(quic_candidates[quic_candidate_count].host), "%s", stun_host);
             quic_candidates[quic_candidate_count].port = stun_port;
-            quic_candidates[quic_candidate_count].kind =
-                SOCKET_CANDIDATE_IPV6;
+            quic_candidates[quic_candidate_count].kind = SOCKET_CANDIDATE_IPV6;
             quic_candidate_count++;
         } else if (*quic_public_host == '\0') {
             if (strcmp(settings.port_mapping, "off") == 0 &&
@@ -503,20 +455,17 @@ TOOLKIT_INIT_FUNC(socket_server)
             }
         }
 
-        quic_candidate_count += socket_local_candidates(
-            settings.port_quic,
-            quic_candidates + quic_candidate_count,
-            arraysize(quic_candidates) - quic_candidate_count);
+        quic_candidate_count +=
+            socket_local_candidates(settings.port_quic,
+                                    quic_candidates + quic_candidate_count,
+                                    arraysize(quic_candidates) - quic_candidate_count);
 #ifdef HAVE_IPV6
         if (*quic_public_host == '\0') {
             for (size_t i = 0; i < quic_candidate_count; i++) {
                 struct in6_addr address6;
                 if (quic_candidates[i].kind == SOCKET_CANDIDATE_IPV6 &&
-                    inet_pton(AF_INET6,
-                              quic_candidates[i].host,
-                              &address6) == 1) {
-                    snprintf(VS(quic_public_host),
-                             "%s", quic_candidates[i].host);
+                    inet_pton(AF_INET6, quic_candidates[i].host, &address6) == 1) {
+                    snprintf(VS(quic_public_host), "%s", quic_candidates[i].host);
                     quic_public_port = quic_candidates[i].port;
                     break;
                 }
@@ -540,8 +489,7 @@ TOOLKIT_INIT_FUNC_FINISH
 /**
  * Deinitialize the socket server API.
  */
-TOOLKIT_DEINIT_FUNC(socket_server)
-{
+TOOLKIT_DEINIT_FUNC(socket_server) {
     for (int i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
         if (server_sockets[i] == NULL) {
             continue;
@@ -559,35 +507,27 @@ TOOLKIT_DEINIT_FUNC(socket_server)
     }
 }
 TOOLKIT_DEINIT_FUNC_FINISH
-bool
-socket_server_quic_info (char     *host,
-                         size_t    host_size,
-                         uint16_t *port,
-                         char      certificate_sha256[65])
-{
+bool socket_server_quic_info(char *host,
+                             size_t host_size,
+                             uint16_t *port,
+                             char certificate_sha256[65]) {
     HARD_ASSERT(host != NULL);
     HARD_ASSERT(port != NULL);
     HARD_ASSERT(certificate_sha256 != NULL);
 
-    if ((quic_server_sockets[0] == NULL &&
-         quic_server_sockets[1] == NULL) ||
+    if ((quic_server_sockets[0] == NULL && quic_server_sockets[1] == NULL) ||
         *quic_public_host == '\0') {
         return false;
     }
 
     snprintf(host, host_size, "%s", quic_public_host);
     *port = quic_public_port;
-    memcpy(certificate_sha256,
-           quic_certificate_sha256,
-           sizeof(quic_certificate_sha256));
+    memcpy(certificate_sha256, quic_certificate_sha256, sizeof(quic_certificate_sha256));
 
     return true;
 }
 
-size_t
-socket_server_quic_candidates (socket_direct_candidate_t *candidates,
-                               size_t                      capacity)
-{
+size_t socket_server_quic_candidates(socket_direct_candidate_t *candidates, size_t capacity) {
     size_t count = MIN(quic_candidate_count, capacity);
     if (count != 0) {
         memcpy(candidates, quic_candidates, count * sizeof(*candidates));
@@ -595,9 +535,7 @@ socket_server_quic_candidates (socket_direct_candidate_t *candidates,
     return count;
 }
 
-bool
-socket_server_quic_punch (const char *host, uint16_t port)
-{
+bool socket_server_quic_punch(const char *host, uint16_t port) {
     size_t index = strchr(host, ':') != NULL ? 1 : 0;
     if (quic_server_sockets[index] == NULL) {
         return false;
@@ -606,9 +544,7 @@ socket_server_quic_punch (const char *host, uint16_t port)
     return socket_udp_punch(quic_server_sockets[index], host, port);
 }
 
-static bool
-socket_server_quic_punch_receive (socket_t *server_socket)
-{
+static bool socket_server_quic_punch_receive(socket_t *server_socket) {
     char host[65];
     uint16_t port;
     if (!socket_udp_punch_receive(server_socket, VS(host), &port)) {
@@ -646,25 +582,18 @@ socket_server_quic_punch_receive (socket_t *server_socket)
  * @return
  * True if the command was handled, false otherwise.
  */
-static bool
-socket_server_handle_command (socket_struct *cs,
-                              player        *pl,
-                              uint8_t       *data,
-                              size_t         len)
-{
+static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t *data, size_t len) {
     size_t pos = 0;
     uint8_t type = packet_to_uint8(data, len, &pos);
 
     bool is_secure = socket_is_secure(cs->sc);
     if (!is_secure && type == SERVER_CMD_CRYPTO) {
-        LOG(PACKET, "Received crypto packet on wrong port from %s",
-            socket_get_id(cs->sc));
+        LOG(PACKET, "Received crypto packet on wrong port from %s", socket_get_id(cs->sc));
         cs->state = ST_DEAD;
         return false;
     }
 
-    if (socket_is_secure(cs->sc) &&
-        type != SERVER_CMD_CRYPTO &&
+    if (socket_is_secure(cs->sc) && type != SERVER_CMD_CRYPTO &&
         !socket_crypto_is_done(socket_get_crypto(cs->sc))) {
         LOG(PACKET,
             "Received non-crypto packet before crypto exchange from %s",
@@ -676,9 +605,7 @@ socket_server_handle_command (socket_struct *cs,
 #ifndef DEBUG
     char *cp;
 
-    LOG(DUMPRX,
-        "Received packet with command type %d (%" PRIu64 " bytes):",
-        type, (uint64_t) len);
+    LOG(DUMPRX, "Received packet with command type %d (%" PRIu64 " bytes):", type, (uint64_t)len);
     cp = emalloc(sizeof(*cp) * (len * 3 + 1));
     string_tohex(data, len, cp, len * 3 + 1, true);
     LOG(DUMPRX, "  Hexadecimal: %s", cp);
@@ -692,8 +619,7 @@ socket_server_handle_command (socket_struct *cs,
 
     /* If the command is only for players and the client is not logged in yet,
      * do not handle the command. */
-    if (socket_commands[type].flags & SOCKET_COMMAND_PLAYER_ONLY &&
-        pl == NULL) {
+    if (socket_commands[type].flags & SOCKET_COMMAND_PLAYER_ONLY && pl == NULL) {
         return false;
     }
 
@@ -702,9 +628,7 @@ socket_server_handle_command (socket_struct *cs,
     return true;
 }
 
-static void
-socket_server_csocket_create (socket_t *server_socket)
-{
+static void socket_server_csocket_create(socket_t *server_socket) {
     socket_t *accepted = socket_accept(server_socket);
     if (accepted == NULL) {
         return;
@@ -726,8 +650,7 @@ socket_server_csocket_create (socket_t *server_socket)
         LOG(SYSTEM,
             "Connection %s accepted using %s",
             socket_get_id(entry->cs->sc),
-            socket_connection_mode_name(
-                socket_connection_mode_get(entry->cs->sc)));
+            socket_connection_mode_name(socket_connection_mode_get(entry->cs->sc)));
     }
     DL_APPEND(client_sockets, entry);
     client_sockets_count++;
@@ -740,9 +663,7 @@ socket_server_csocket_create (socket_t *server_socket)
  * @param entry
  * Entry to free.
  */
-static void
-socket_server_csocket_free (csocket_entry_t *entry)
-{
+static void socket_server_csocket_free(csocket_entry_t *entry) {
     HARD_ASSERT(entry != NULL);
     free_newsocket(entry->cs);
     DL_DELETE(client_sockets, entry);
@@ -760,18 +681,13 @@ socket_server_csocket_free (csocket_entry_t *entry)
  * @param entry
  * Entry to drop.
  */
-static void
-socket_server_csocket_drop (csocket_entry_t *entry)
-{
+static void socket_server_csocket_drop(csocket_entry_t *entry) {
     HARD_ASSERT(entry != NULL);
-    LOG(SYSTEM, "Connection %s: dropping connection",
-        socket_get_id(entry->cs->sc));
+    LOG(SYSTEM, "Connection %s: dropping connection", socket_get_id(entry->cs->sc));
     socket_server_csocket_free(entry);
 }
 
-static csocket_entry_t *
-socket_server_csocket_find (socket_struct *cs)
-{
+static csocket_entry_t *socket_server_csocket_find(socket_struct *cs) {
     csocket_entry_t *entry;
     DL_FOREACH(client_sockets, entry) {
         if (entry->cs == cs) {
@@ -781,9 +697,7 @@ socket_server_csocket_find (socket_struct *cs)
     return NULL;
 }
 
-static player *
-socket_server_player_find (socket_struct *cs)
-{
+static player *socket_server_player_find(socket_struct *cs) {
     player *pl;
     DL_FOREACH(first_player, pl) {
         if (pl->cs == cs) {
@@ -793,12 +707,9 @@ socket_server_player_find (socket_struct *cs)
     return NULL;
 }
 
-static bool
-socket_server_quic_network_ready (socket_t *sc)
-{
+static bool socket_server_quic_network_ready(socket_t *sc) {
     for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
-        if (quic_server_sockets[i] != NULL &&
-            socket_fd(quic_server_sockets[i]) == socket_fd(sc) &&
+        if (quic_server_sockets[i] != NULL && socket_fd(quic_server_sockets[i]) == socket_fd(sc) &&
             FD_ISSET(socket_fd(sc), &fds_read)) {
             return true;
         }
@@ -815,30 +726,22 @@ socket_server_quic_network_ready (socket_t *sc)
  * @param pl
  * Player to handle commands for.
  */
-void
-socket_server_handle_client (player *pl)
-{
+void socket_server_handle_client(player *pl) {
     HARD_ASSERT(pl != NULL);
 
-    for (int num_cmds = 0;
-         num_cmds < SOCKET_SERVER_PLAYER_MAX_COMMANDS;
-         num_cmds++) {
+    for (int num_cmds = 0; num_cmds < SOCKET_SERVER_PLAYER_MAX_COMMANDS; num_cmds++) {
         if (pl->cs->packet_recv_cmd->len == 0) {
             break;
         }
 
         /* Ensure the player is in a state capable of issue commands, and
          * has enough speed left to do so. */
-        if (pl->cs->state == ST_ZOMBIE ||
-            pl->cs->state == ST_DEAD ||
-            (pl->cs->state == ST_PLAYING &&
-             pl->ob != NULL &&
-             pl->ob->speed_left < 0)) {
+        if (pl->cs->state == ST_ZOMBIE || pl->cs->state == ST_DEAD ||
+            (pl->cs->state == ST_PLAYING && pl->ob != NULL && pl->ob->speed_left < 0)) {
             break;
         }
 
-        size_t len = 2 + (pl->cs->packet_recv_cmd->data[0] << 8) +
-                     pl->cs->packet_recv_cmd->data[1];
+        size_t len = 2 + (pl->cs->packet_recv_cmd->data[0] << 8) + pl->cs->packet_recv_cmd->data[1];
 
         /* Reset idle counter. */
         if (pl->cs->state == ST_PLAYING) {
@@ -846,10 +749,7 @@ socket_server_handle_client (player *pl)
             pl->cs->keepalive = 0;
         }
 
-        socket_server_handle_command(pl->cs,
-                                     pl,
-                                     pl->cs->packet_recv_cmd->data + 2,
-                                     len - 2);
+        socket_server_handle_command(pl->cs, pl, pl->cs->packet_recv_cmd->data + 2, len - 2);
         packet_delete(pl->cs->packet_recv_cmd, 0, len);
     }
 }
@@ -868,9 +768,7 @@ socket_server_handle_client (player *pl)
  * @return
  * True on success, false on failure (no such client socket).
  */
-bool
-socket_server_remove (socket_struct *cs)
-{
+bool socket_server_remove(socket_struct *cs) {
     csocket_entry_t *entry, *tmp;
     DL_FOREACH_SAFE(client_sockets, entry, tmp) {
         if (entry->cs == cs) {
@@ -895,9 +793,7 @@ socket_server_remove (socket_struct *cs)
  * @return
  * True if the client socket is in zombie state, false otherwise.
  */
-static inline bool
-server_socket_csocket_is_zombie (socket_struct *cs)
-{
+static inline bool server_socket_csocket_is_zombie(socket_struct *cs) {
     HARD_ASSERT(cs != NULL);
 
     if (cs->state != ST_ZOMBIE) {
@@ -917,9 +813,7 @@ server_socket_csocket_is_zombie (socket_struct *cs)
  * @param cs
  * Client socket.
  */
-static inline void
-socket_server_csocket_read (socket_struct *cs)
-{
+static inline void socket_server_csocket_read(socket_struct *cs) {
     HARD_ASSERT(cs != NULL);
 
     if (cs->state == ST_DEAD) {
@@ -928,7 +822,7 @@ socket_server_csocket_read (socket_struct *cs)
 
     size_t amt;
     if (!socket_read(cs->sc,
-                     (void *) (cs->packet_recv->data + cs->packet_recv->len),
+                     (void *)(cs->packet_recv->data + cs->packet_recv->len),
                      cs->packet_recv->size - cs->packet_recv->len,
                      &amt)) {
         cs->state = ST_DEAD;
@@ -938,8 +832,7 @@ socket_server_csocket_read (socket_struct *cs)
     cs->packet_recv->len += amt;
 
     while (cs->packet_recv->len >= 2) {
-        size_t size = 2 + (cs->packet_recv->data[0] << 8) +
-                      cs->packet_recv->data[1];
+        size_t size = 2 + (cs->packet_recv->data[0] << 8) + cs->packet_recv->data[1];
         if (size > cs->packet_recv->len) {
             break;
         }
@@ -966,16 +859,11 @@ socket_server_csocket_read (socket_struct *cs)
         }
 
         /* Try to handle the command. */
-        if (!socket_server_handle_command(cs,
-                                          NULL,
-                                          decrypted_data,
-                                          decrypted_len)) {
+        if (!socket_server_handle_command(cs, NULL, decrypted_data, decrypted_len)) {
             /* Couldn't handle it immediately, add it to the commands
              * packet. */
             packet_append_uint16(cs->packet_recv_cmd, decrypted_len);
-            packet_append_data_len(cs->packet_recv_cmd,
-                                   decrypted_data,
-                                   decrypted_len);
+            packet_append_data_len(cs->packet_recv_cmd, decrypted_data, decrypted_len);
         }
 
         if (was_decrypted) {
@@ -990,21 +878,16 @@ socket_server_csocket_read (socket_struct *cs)
  * Accept incoming connections, read data from clients and write data to
  * clients.
  */
-void
-socket_server_process (void)
-{
+void socket_server_process(void) {
     static time_t heartbeat_last;
     time_t now = time(NULL);
     if (heartbeat_last == 0 || now - heartbeat_last >= 5) {
         char path[HUGE_BUF];
         char heartbeat[64];
         snprintf(VS(path), "%s/tmp/server-heartbeat", settings.datapath);
-        int length = snprintf(VS(heartbeat), "%" PRIu64 "\n", (uint64_t) now);
-        if (length > 0 && (size_t) length < sizeof(heartbeat) &&
-                path_write_atomic(path,
-                                  heartbeat,
-                                  (size_t) length,
-                                  0600)) {
+        int length = snprintf(VS(heartbeat), "%" PRIu64 "\n", (uint64_t)now);
+        if (length > 0 && (size_t)length < sizeof(heartbeat) &&
+            path_write_atomic(path, heartbeat, (size_t)length, 0600)) {
             heartbeat_last = now;
         }
     }
@@ -1049,8 +932,7 @@ socket_server_process (void)
             entry->cs->state = ST_DEAD;
         }
         if (unlikely(!socket_is_fd_valid(entry->cs->sc))) {
-            LOG(ERROR, "Invalid waiting socket: %s",
-                socket_get_id(entry->cs->sc));
+            LOG(ERROR, "Invalid waiting socket: %s", socket_get_id(entry->cs->sc));
             entry->cs->state = ST_DEAD;
         }
 
@@ -1089,13 +971,13 @@ socket_server_process (void)
         }
 
         if (unlikely(!socket_is_fd_valid(pl->cs->sc))) {
-            LOG(ERROR, "Invalid waiting socket: %s",
-                socket_get_id(pl->cs->sc));
+            LOG(ERROR, "Invalid waiting socket: %s", socket_get_id(pl->cs->sc));
             pl->cs->state = ST_DEAD;
         }
 
         if (pl->cs->keepalive++ >= SOCKET_KEEPALIVE_TIMEOUT) {
-            LOG(SYSTEM, "Keepalive: disconnecting %s [%s]: %d",
+            LOG(SYSTEM,
+                "Keepalive: disconnecting %s [%s]: %d",
                 object_get_str(pl->ob),
                 socket_get_id(pl->cs->sc),
                 socket_fd(pl->cs->sc));
@@ -1130,25 +1012,15 @@ socket_server_process (void)
     static struct timespec timeout;
     /* pselect does not change the timeout argument, so we're OK with a
      * static storage duration one. */
-    ready = pselect(nfds + 1,
-                    &fds_read,
-                    &fds_write,
-                    &fds_error,
-                    &timeout,
-                    NULL);
+    ready = pselect(nfds + 1, &fds_read, &fds_write, &fds_error, &timeout, NULL);
 #else
     struct timeval timeout;
     timeout.tv_sec = 0;
     timeout.tv_usec = 0;
-    ready = select(nfds + 1,
-                   &fds_read,
-                   &fds_write,
-                   &fds_error,
-                   &timeout);
+    ready = select(nfds + 1, &fds_read, &fds_write, &fds_error, &timeout);
 #endif
     if (unlikely(ready == -1)) {
-        LOG(ERROR, "pselect/select() returned an error: %s (%d)",
-            strerror(errno), errno);
+        LOG(ERROR, "pselect/select() returned an error: %s (%d)", strerror(errno), errno);
         return;
     }
 
@@ -1184,10 +1056,7 @@ socket_server_process (void)
             socket_struct *cs = entry->cs;
             bool network_ready = socket_server_quic_network_ready(cs->sc);
             server_metrics_quic_service(network_ready);
-            if (!socket_quic_service(
-                    cs->sc,
-                    network_ready,
-                    cs->packets != NULL)) {
+            if (!socket_quic_service(cs->sc, network_ready, cs->packets != NULL)) {
                 continue;
             }
             socket_server_csocket_read(cs);
@@ -1235,10 +1104,7 @@ socket_server_process (void)
             socket_struct *cs = pl->cs;
             bool network_ready = socket_server_quic_network_ready(cs->sc);
             server_metrics_quic_service(network_ready);
-            if (!socket_quic_service(
-                    cs->sc,
-                    network_ready,
-                    cs->packets != NULL)) {
+            if (!socket_quic_service(cs->sc, network_ready, cs->packets != NULL)) {
                 continue;
             }
             socket_server_csocket_read(cs);
@@ -1277,9 +1143,7 @@ socket_server_process (void)
  * Update player socket-related data, render the map for them, etc.
  * Afterwards, attempt to write to the players' clients.
  */
-void
-socket_server_post_process (void)
-{
+void socket_server_post_process(void) {
     player *pl, *pl_tmp;
     DL_FOREACH_SAFE(first_player, pl, pl_tmp) {
         if (pl->cs->state == ST_DEAD) {
@@ -1303,9 +1167,7 @@ socket_server_post_process (void)
         if (pl->ob->map != NULL) {
             draw_client_map(pl->ob);
 
-            uint32_t update_tile = GET_MAP_UPDATE_COUNTER(pl->ob->map,
-                                                          pl->ob->x,
-                                                          pl->ob->y);
+            uint32_t update_tile = GET_MAP_UPDATE_COUNTER(pl->ob->map, pl->ob->x, pl->ob->y);
             if (update_tile != pl->cs->update_tile) {
                 esrv_draw_look(pl->ob);
                 pl->cs->update_tile = update_tile;

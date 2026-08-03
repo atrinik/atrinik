@@ -69,76 +69,36 @@ static size_t num_msgs = 0;
 
 /** Spellpath information */
 static uint32_t spellpathdef[NRSPELLPATHS] = {
-    PATH_PROT,
-    PATH_FIRE,
-    PATH_FROST,
-    PATH_ELEC,
-    PATH_MISSILE,
-    PATH_SELF,
-    PATH_SUMMON,
-    PATH_ABJURE,
-    PATH_RESTORE,
-    PATH_DETONATE,
-    PATH_MIND,
-    PATH_CREATE,
-    PATH_TELE,
-    PATH_INFO,
-    PATH_TRANSMUTE,
-    PATH_TRANSFER,
-    PATH_TURNING,
-    PATH_WOUNDING,
-    PATH_DEATH,
-    PATH_LIGHT
-};
+    PATH_PROT,     PATH_FIRE,    PATH_FROST,    PATH_ELEC,    PATH_MISSILE,
+    PATH_SELF,     PATH_SUMMON,  PATH_ABJURE,   PATH_RESTORE, PATH_DETONATE,
+    PATH_MIND,     PATH_CREATE,  PATH_TELE,     PATH_INFO,    PATH_TRANSMUTE,
+    PATH_TRANSFER, PATH_TURNING, PATH_WOUNDING, PATH_DEATH,   PATH_LIGHT};
 
 /** Path book information */
-static const char *const path_book_name[] = {
-    "codex",
-    "compendium",
-    "exposition",
-    "tables",
-    "treatise",
-    "devotional",
-    "devout notes",
-    "divine text",
-    "divine work",
-    "holy book",
-    "holy record",
-    "moral text",
-    "sacred guide",
-    "testament",
-    "transcript"
-};
+static const char *const path_book_name[] = {"codex",
+                                             "compendium",
+                                             "exposition",
+                                             "tables",
+                                             "treatise",
+                                             "devotional",
+                                             "devout notes",
+                                             "divine text",
+                                             "divine work",
+                                             "holy book",
+                                             "holy record",
+                                             "moral text",
+                                             "sacred guide",
+                                             "testament",
+                                             "transcript"};
 
 /** Used by spellpath texts */
 static const char *const path_author[] = {
-    "aether",
-    "astral byways",
-    "connections",
-    "the Grey Council",
-    "deep pathways",
-    "knowledge",
-    "magic",
-    "mystic ways",
-    "pathways",
-    "power",
-    "spells",
-    "transforms",
-    "the mystic veil",
-    "unknown spells",
-    "cults",
-    "joy",
-    "lasting curse",
-    "madness",
-    "religions",
-    "the dead",
-    "the gods",
-    "the heirophant",
-    "the poor priest",
-    "the priestess",
-    "pain",
-    "white"
-};
+    "aether",    "astral byways",  "connections",     "the Grey Council", "deep pathways",
+    "knowledge", "magic",          "mystic ways",     "pathways",         "power",
+    "spells",    "transforms",     "the mystic veil", "unknown spells",   "cults",
+    "joy",       "lasting curse",  "madness",         "religions",        "the dead",
+    "the gods",  "the heirophant", "the poor priest", "the priestess",    "pain",
+    "white"};
 
 /**
  * Artifact/item information
@@ -146,157 +106,93 @@ static const char *const path_author[] = {
  * If it isn't listed here, then art_attr_msg will never generate
  * a message for this type of artifact.
  */
-static arttypename art_name_array[] = {
-    {"Helmet", HELMET},
-    {"Amulet", AMULET},
-    {"Shield", SHIELD},
-    {"Bracers", BRACERS},
-    {"Boots", BOOTS},
-    {"Cloak", CLOAK},
-    {"Gloves", GLOVES},
-    {"Girdle", GIRDLE},
-    {"Ring", RING},
-    {"Missile Weapon", BOW},
-    {"Missile", ARROW},
-    {"Hand Weapon", WEAPON},
-    {"Artifact", SKILL},
-    {"Food", FOOD},
-    {"Body Armour", ARMOUR},
-    {"Pants", PANTS}
-};
+static arttypename art_name_array[] = {{"Helmet", HELMET},
+                                       {"Amulet", AMULET},
+                                       {"Shield", SHIELD},
+                                       {"Bracers", BRACERS},
+                                       {"Boots", BOOTS},
+                                       {"Cloak", CLOAK},
+                                       {"Gloves", GLOVES},
+                                       {"Girdle", GIRDLE},
+                                       {"Ring", RING},
+                                       {"Missile Weapon", BOW},
+                                       {"Missile", ARROW},
+                                       {"Hand Weapon", WEAPON},
+                                       {"Artifact", SKILL},
+                                       {"Food", FOOD},
+                                       {"Body Armour", ARMOUR},
+                                       {"Pants", PANTS}};
 
 /** Artifact book information */
-static const char *const art_book_name[] = {
-    "collection",
-    "file",
-    "files",
-    "guide",
-    "handbook",
-    "index",
-    "inventory",
-    "list",
-    "listing",
-    "record",
-    "record book"
-};
+static const char *const art_book_name[] = {"collection",
+                                            "file",
+                                            "files",
+                                            "guide",
+                                            "handbook",
+                                            "index",
+                                            "inventory",
+                                            "list",
+                                            "listing",
+                                            "record",
+                                            "record book"};
 
 /** Used by artifact texts */
-static const char *const art_author[] = {
-    "ancient things",
-    "artifacts",
-    "Havlor",
-    "items",
-    "lost artifacts",
-    "the ancients",
-    "useful things"
-};
+static const char *const art_author[] = {"ancient things",
+                                         "artifacts",
+                                         "Havlor",
+                                         "items",
+                                         "lost artifacts",
+                                         "the ancients",
+                                         "useful things"};
 
 /** Monster book information */
-static const char *const mon_book_name[] = {
-    "bestiary",
-    "catalog",
-    "compilation",
-    "collection",
-    "encyclopedia",
-    "guide",
-    "handbook",
-    "list",
-    "manual",
-    "notes",
-    "record",
-    "register",
-    "volume"
-};
+static const char *const mon_book_name[] = {"bestiary",
+                                            "catalog",
+                                            "compilation",
+                                            "collection",
+                                            "encyclopedia",
+                                            "guide",
+                                            "handbook",
+                                            "list",
+                                            "manual",
+                                            "notes",
+                                            "record",
+                                            "register",
+                                            "volume"};
 
 /** Used by monster bestiary texts */
-static const char *const mon_author[] = {
-    "beasts",
-    "creatures",
-    "dezidens",
-    "dwellers",
-    "evil nature",
-    "life",
-    "monsters",
-    "nature",
-    "new life",
-    "residents",
-    "the spawn",
-    "the living",
-    "things"
-};
+static const char *const mon_author[] = {"beasts",
+                                         "creatures",
+                                         "dezidens",
+                                         "dwellers",
+                                         "evil nature",
+                                         "life",
+                                         "monsters",
+                                         "nature",
+                                         "new life",
+                                         "residents",
+                                         "the spawn",
+                                         "the living",
+                                         "things"};
 
 /**
  * Generic book information.
  */
 static const char *const book_name[] = {
-    "calendar",
-    "datebook",
-    "diary",
-    "guidebook",
-    "handbook",
-    "ledger",
-    "notes",
-    "notebook",
-    "octavo",
-    "pamphlet",
-    "practicum",
-    "script",
-    "transcript",
-    "catalog",
-    "compendium",
-    "guide",
-    "manual",
-    "opus",
-    "tome",
-    "treatise",
-    "volume",
-    "work"
-};
+    "calendar",   "datebook", "diary",      "guidebook", "handbook",  "ledger",
+    "notes",      "notebook", "octavo",     "pamphlet",  "practicum", "script",
+    "transcript", "catalog",  "compendium", "guide",     "manual",    "opus",
+    "tome",       "treatise", "volume",     "work"};
 
 /** Used by 'generic' books */
 static const char *const book_author[] = {
-    "Abdulah",
-    "Al'hezred",
-    "Alywn",
-    "Arundel",
-    "Arvind",
-    "Aerlingas",
-    "Bacon",
-    "Baliqendii",
-    "Bosworth",
-    "Beathis",
-    "Bertil",
-    "Cauchy",
-    "Chakrabarti",
-    "der Waalis",
-    "Dirk",
-    "Djwimii",
-    "Eisenstaadt",
-    "Fendris",
-    "Frank",
-    "Habbi",
-    "Harlod",
-    "Ichibod",
-    "Janus",
-    "June",
-    "Magnuson",
-    "Nandii",
-    "Nitfeder",
-    "Norris",
-    "Parael",
-    "Penhew",
-    "Sophia",
-    "Skilly",
-    "Tahir",
-    "Thockmorton",
-    "Thomas",
-    "van Helsing",
-    "van Pelt",
-    "Voormis",
-    "Xavier",
-    "Xeno",
-    "Zardoz",
-    "Zagy",
+    "Abdulah",         "Al'hezred",  "Alywn",    "Arundel",     "Arvind",      "Aerlingas",
+    "Bacon",           "Baliqendii", "Bosworth", "Beathis",     "Bertil",      "Cauchy",
+    "Chakrabarti",     "der Waalis", "Dirk",     "Djwimii",     "Eisenstaadt", "Fendris",
+    "Frank",           "Habbi",      "Harlod",   "Ichibod",     "Janus",       "June",
+    "Magnuson",        "Nandii",     "Nitfeder", "Norris",      "Parael",      "Penhew",
+    "Sophia",          "Skilly",     "Tahir",    "Thockmorton", "Thomas",      "van Helsing",
+    "van Pelt",        "Voormis",    "Xavier",   "Xeno",        "Zardoz",      "Zagy",
     "Albertus Magnus",
 };
 
@@ -312,8 +208,7 @@ static const char *const book_author[] = {
  * @return
  * 1 if overflow will occur, 0 otherwise.
  */
-static int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
-{
+static int buf_overflow(const char *buf1, const char *buf2, size_t bufsize) {
     size_t len1 = 0, len2 = 0;
 
     if (buf1) {
@@ -343,8 +238,7 @@ static int buf_overflow(const char *buf1, const char *buf2, size_t bufsize)
  * @return
  * 1 if it will overflow, 0 otherwise.
  */
-int book_overflow(const char *buf1, const char *buf2, size_t booksize)
-{
+int book_overflow(const char *buf1, const char *buf2, size_t booksize) {
     /* 2 less so always room for trailing \n */
     if (buf_overflow(buf1, buf2, BOOK_BUF - 2) || buf_overflow(buf1, buf2, booksize)) {
         return 1;
@@ -356,8 +250,7 @@ int book_overflow(const char *buf1, const char *buf2, size_t booksize)
 /**
  * Reads the messages file into the list pointed to by first_msg.
  */
-static void init_msgfile(void)
-{
+static void init_msgfile(void) {
     FILE *fp;
     char buf[MAX_BUF], fname[MAX_BUF], *cp;
 
@@ -420,8 +313,7 @@ static void init_msgfile(void)
 /**
  * Initialize array of ::monsters.
  */
-static void init_mon_info(void)
-{
+static void init_mon_info(void) {
     monsters = NULL;
     num_monsters = 0;
 
@@ -444,8 +336,7 @@ static void init_mon_info(void)
  * This is the function called by the main routine to initialize
  * all the readable information.
  */
-void init_readable(void)
-{
+void init_readable(void) {
     init_msgfile();
     init_mon_info();
 }
@@ -462,8 +353,7 @@ void init_readable(void)
  * @param msgtype
  * Message type.
  */
-static void new_text_name(object *book, int msgtype)
-{
+static void new_text_name(object *book, int msgtype) {
     const char *name;
 
     if (book->type != BOOK) {
@@ -471,22 +361,22 @@ static void new_text_name(object *book, int msgtype)
     }
 
     switch (msgtype) {
-    case MSGTYPE_MONSTER:
-        name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
-        break;
+        case MSGTYPE_MONSTER:
+            name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
+            break;
 
-    case MSGTYPE_ARTIFACT:
-        name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
-        break;
+        case MSGTYPE_ARTIFACT:
+            name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
+            break;
 
-    case MSGTYPE_SPELLPATH:
-        name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
-        break;
+        case MSGTYPE_SPELLPATH:
+            name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
+            break;
 
-    case MSGTYPE_MSGFILE:
-    default:
-        name = book_name[rndm(1, arraysize(book_name)) - 1];
-        break;
+        case MSGTYPE_MSGFILE:
+        default:
+            name = book_name[rndm(1, arraysize(book_name)) - 1];
+            break;
     }
 
     FREE_AND_COPY_HASH(book->name, name);
@@ -500,8 +390,7 @@ static void new_text_name(object *book, int msgtype)
  * @param msgtype
  * Message type.
  */
-static void add_author(object *op, int msgtype)
-{
+static void add_author(object *op, int msgtype) {
     char title[MAX_BUF];
     const char *name;
 
@@ -510,21 +399,21 @@ static void add_author(object *op, int msgtype)
     }
 
     switch (msgtype) {
-    case MSGTYPE_MONSTER:
-        name = mon_author[rndm(1, arraysize(mon_author)) - 1];
-        break;
+        case MSGTYPE_MONSTER:
+            name = mon_author[rndm(1, arraysize(mon_author)) - 1];
+            break;
 
-    case MSGTYPE_ARTIFACT:
-        name = art_author[rndm(1, arraysize(art_author)) - 1];
-        break;
+        case MSGTYPE_ARTIFACT:
+            name = art_author[rndm(1, arraysize(art_author)) - 1];
+            break;
 
-    case MSGTYPE_SPELLPATH:
-        name = path_author[rndm(1, arraysize(path_author)) - 1];
-        break;
+        case MSGTYPE_SPELLPATH:
+            name = path_author[rndm(1, arraysize(path_author)) - 1];
+            break;
 
-    case MSGTYPE_MSGFILE:
-    default:
-        name = book_author[rndm(1, arraysize(book_author)) - 1];
+        case MSGTYPE_MSGFILE:
+        default:
+            name = book_author[rndm(1, arraysize(book_author)) - 1];
     }
 
     snprintf(title, sizeof(title), "of %s", name);
@@ -543,8 +432,7 @@ static void add_author(object *op, int msgtype)
  * @param msgtype
  * Message type to make.
  */
-static void change_book(object *book, int msgtype)
-{
+static void change_book(object *book, int msgtype) {
     if (book->type != BOOK || book->title) {
         return;
     }
@@ -560,8 +448,7 @@ static void change_book(object *book, int msgtype)
  * @return
  * The monster object
  */
-object *get_random_mon(void)
-{
+object *get_random_mon(void) {
     /* Safety. */
     if (!monsters || !num_monsters) {
         return NULL;
@@ -581,8 +468,7 @@ object *get_random_mon(void)
  * @return
  * 'buf'.
  */
-static char *mon_desc(object *mon, char *buf, size_t size)
-{
+static char *mon_desc(object *mon, char *buf, size_t size) {
     char *desc = object_get_description_s(mon, NULL);
     snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, desc);
     efree(desc);
@@ -599,13 +485,14 @@ static char *mon_desc(object *mon, char *buf, size_t size)
  * @return
  * 'buf'.
  */
-static char *mon_info_msg(char *buf, size_t booksize)
-{
+static char *mon_info_msg(char *buf, size_t booksize) {
     char tmpbuf[HUGE_BUF], desc[MAX_BUF];
     object *tmp;
 
     /* Preamble */
-    strncpy(buf, "[title]Bestiary[/title]\nHerein are detailed creatures found in the world around.\n", booksize - 1);
+    strncpy(buf,
+            "[title]Bestiary[/title]\nHerein are detailed creatures found in the world around.\n",
+            booksize - 1);
 
     /* Lets print info on as many monsters as will fit in our
      * document. */
@@ -634,12 +521,11 @@ static char *mon_info_msg(char *buf, size_t booksize)
  * @return
  * 'buf'.
  */
-static char *artifact_msg(int level, char *buf, size_t booksize)
-{
+static char *artifact_msg(int level, char *buf, size_t booksize) {
     artifact_list_t *al;
     artifact_t *art;
     int chance, i, type, idx;
-    int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
+    int book_entries = level > 5 ? RANDOM() % 3 + RANDOM() % 3 + 2 : RANDOM() % level + 1;
     char *final;
     object *tmp = NULL;
     StringBuffer *desc;
@@ -682,7 +568,12 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
     }
 
     /* Ok, let's print out the contents */
-    snprintf(buf, booksize, "[title]Magical %s[/title]\nHerein %s detailed %s...\n", art_name_array[idx].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
+    snprintf(buf,
+             booksize,
+             "[title]Magical %s[/title]\nHerein %s detailed %s...\n",
+             art_name_array[idx].name,
+             book_entries > 1 ? "are" : "is",
+             book_entries > 1 ? "some artifacts" : "an artifact");
 
     /* Artifact msg attributes loop. Let's keep adding entries to the 'book'
      * as long as we have space up to the allowed max # (book_entries) */
@@ -700,7 +591,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         stringbuffer_append_string(desc, "[/title]\nIt is ");
 
         /* Chance of finding. */
-        chance = 100 * ((float) art->chance / al->total_chance);
+        chance = 100 * ((float)art->chance / al->total_chance);
 
         if (chance >= 20) {
             stringbuffer_append_string(desc, "an uncommon");
@@ -713,12 +604,13 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         }
 
         /* Value of artifact. */
-        stringbuffer_append_printf(desc, " item with a value of %s.", shop_get_cost_string(tmp->value));
+        stringbuffer_append_printf(desc,
+                                   " item with a value of %s.",
+                                   shop_get_cost_string(tmp->value));
 
         StringBuffer *sb = object_get_description(tmp, NULL, NULL);
         if (stringbuffer_length(sb) > 1) {
-            stringbuffer_append_string(desc,
-                    "\nProperties of this artifact include:\n");
+            stringbuffer_append_string(desc, "\nProperties of this artifact include:\n");
             stringbuffer_append_stringbuffer(desc, sb);
         }
         stringbuffer_free(sb);
@@ -754,8 +646,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
  * @return
  * 'buf'.
  */
-static char *spellpath_msg(int level, char *buf, size_t booksize)
-{
+static char *spellpath_msg(int level, char *buf, size_t booksize) {
     int path = rndm(1, NRSPELLPATHS) - 1;
     int i, did_first_sp = 0;
     uint32_t pnum = spellpathdef[path];
@@ -766,7 +657,11 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
     buf[0] = '\0';
 
     /* Preamble */
-    stringbuffer_append_printf(desc, "[title]Path of %s[/title]\nHerein are detailed the names of incantations belonging to the path of %s:\n\n", spellpathnames[path], spellpathnames[path]);
+    stringbuffer_append_printf(desc,
+                               "[title]Path of %s[/title]\nHerein are detailed the names of "
+                               "incantations belonging to the path of %s:\n\n",
+                               spellpathnames[path],
+                               spellpathnames[path]);
 
     /* Now go through the entire list of spells. Add appropriate spells
      * in our message buffer */
@@ -791,7 +686,10 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 
     /* Geez, no spells were generated. */
     if (!did_first_sp) {
-        snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n - no known spells exist -\n", final);
+        snprintf(buf + strlen(buf),
+                 booksize - strlen(buf),
+                 "%s\n - no known spells exist -\n",
+                 final);
     } else {
         snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n", final);
     }
@@ -807,8 +705,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
  * @return
  * Pointer to the generated message.
  */
-static char *msgfile_msg(size_t booksize)
-{
+static char *msgfile_msg(size_t booksize) {
     static char buf[BOOK_BUF];
     char *msg = NULL;
 
@@ -844,10 +741,9 @@ static char *msgfile_msg(size_t booksize)
  * message type - otherwise a random value is used.
  * @author b.t. thomas@astro.psu.edu
  */
-void tailor_readable_ob(object *book, int msg_type)
-{
+void tailor_readable_ob(object *book, int msg_type) {
     char msgbuf[BOOK_BUF];
-    int level = book->level ? (RANDOM () % book->level) + 1 : 1;
+    int level = book->level ? (RANDOM() % book->level) + 1 : 1;
 
     /* Safety. */
     if (book->type != BOOK) {
@@ -862,22 +758,22 @@ void tailor_readable_ob(object *book, int msg_type)
     msg_type = msg_type > 0 ? msg_type : rndm(0, MSGTYPE_NUM);
 
     switch (msg_type) {
-    case MSGTYPE_MONSTER:
-        mon_info_msg(msgbuf, BOOK_BUF);
-        break;
+        case MSGTYPE_MONSTER:
+            mon_info_msg(msgbuf, BOOK_BUF);
+            break;
 
-    case MSGTYPE_ARTIFACT:
-        artifact_msg(level, msgbuf, BOOK_BUF);
-        break;
+        case MSGTYPE_ARTIFACT:
+            artifact_msg(level, msgbuf, BOOK_BUF);
+            break;
 
-    case MSGTYPE_SPELLPATH:
-        spellpath_msg(level, msgbuf, BOOK_BUF);
-        break;
+        case MSGTYPE_SPELLPATH:
+            spellpath_msg(level, msgbuf, BOOK_BUF);
+            break;
 
-    case MSGTYPE_MSGFILE:
-    default:
-        snprintf(VS(msgbuf), "%s", msgfile_msg(BOOK_BUF));
-        break;
+        case MSGTYPE_MSGFILE:
+        default:
+            snprintf(VS(msgbuf), "%s", msgfile_msg(BOOK_BUF));
+            break;
     }
 
     /* Safety -- we get ugly map saves/crashes without this */
@@ -893,8 +789,7 @@ void tailor_readable_ob(object *book, int msg_type)
 /**
  * Cleanup routine for readable stuff.
  */
-void free_all_readable(void)
-{
+void free_all_readable(void) {
     size_t i;
 
     for (i = 0; i < num_msgs; i++) {

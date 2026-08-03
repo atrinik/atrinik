@@ -36,13 +36,11 @@
 #include "common/process_treasure.h"
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -68,8 +66,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the weapon type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(weapon)
-{
+OBJECT_TYPE_INIT_DEFINE(weapon) {
     OBJECT_METHODS(WEAPON)->apply_func = object_apply_item;
     OBJECT_METHODS(WEAPON)->process_treasure_func = process_treasure_func;
 }

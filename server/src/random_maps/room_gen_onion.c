@@ -64,8 +64,7 @@
  * @return
  * The generated layout.
  */
-char **map_gen_onion(int xsize, int ysize, int option, int layers)
-{
+char **map_gen_onion(int xsize, int ysize, int option, int layers) {
     int i, j;
 
     /* Allocate that array, set it up */
@@ -78,17 +77,17 @@ char **map_gen_onion(int xsize, int ysize, int option, int layers)
     /* Pick some random options if option = 0 */
     if (option == 0) {
         switch (rndm(0, 2)) {
-        case 0:
-            option |= OPT_CENTERED;
-            break;
+            case 0:
+                option |= OPT_CENTERED;
+                break;
 
-        case 1:
-            option |= OPT_BOTTOM_C;
-            break;
+            case 1:
+                option |= OPT_BOTTOM_C;
+                break;
 
-        case 2:
-            option |= OPT_BOTTOM_R;
-            break;
+            case 2:
+                option |= OPT_BOTTOM_R;
+                break;
         }
 
         if (rndm_chance(2)) {
@@ -140,8 +139,7 @@ char **map_gen_onion(int xsize, int ysize, int option, int layers)
  * @param layers
  * Number of layers to create.
  */
-void centered_onion(char **maze, int xsize, int ysize, int option, int layers)
-{
+void centered_onion(char **maze, int xsize, int ysize, int option, int layers) {
     int i, maxlayers;
     float *xlocations, *ylocations;
 
@@ -178,18 +176,24 @@ void centered_onion(char **maze, int xsize, int ysize, int option, int layers)
             float xpitch = 2, ypitch = 2;
 
             if (x_spaces_available > 0) {
-                xpitch = 2.0f + (float) (RANDOM() % x_spaces_available + RANDOM() % x_spaces_available + RANDOM() % x_spaces_available) / 3.0f;
+                xpitch =
+                    2.0f + (float)(RANDOM() % x_spaces_available + RANDOM() % x_spaces_available +
+                                   RANDOM() % x_spaces_available) /
+                               3.0f;
             }
 
             if (y_spaces_available > 0) {
-                ypitch = 2.0f + (float) (RANDOM() % y_spaces_available + RANDOM() % y_spaces_available + RANDOM() % y_spaces_available) / 3.0f;
+                ypitch =
+                    2.0f + (float)(RANDOM() % y_spaces_available + RANDOM() % y_spaces_available +
+                                   RANDOM() % y_spaces_available) /
+                               3.0f;
             }
 
             xlocations[i] = ((i > 0) ? xlocations[i - 1] : 0) + xpitch;
             ylocations[i] = ((i > 0) ? ylocations[i - 1] : 0) + ypitch;
 
-            x_spaces_available -= (int) xpitch - 2;
-            y_spaces_available -= (int) ypitch - 2;
+            x_spaces_available -= (int)xpitch - 2;
+            y_spaces_available -= (int)ypitch - 2;
         }
     }
 
@@ -198,8 +202,8 @@ void centered_onion(char **maze, int xsize, int ysize, int option, int layers)
         /* pitch of the onion layers */
         float xpitch, ypitch;
 
-        xpitch = (float) (xsize - 2) / (2.0f * (float) (layers + 1));
-        ypitch = (float) (ysize - 2) / (2.0f * (float) (layers + 1));
+        xpitch = (float)(xsize - 2) / (2.0f * (float)(layers + 1));
+        ypitch = (float)(ysize - 2) / (2.0f * (float)(layers + 1));
 
         xlocations[0] = xpitch;
         ylocations[0] = ypitch;
@@ -228,8 +232,7 @@ void centered_onion(char **maze, int xsize, int ysize, int option, int layers)
  * @param layers
  * Number of layers to create.
  */
-void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers)
-{
+void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers) {
     int i, maxlayers;
     float *xlocations, *ylocations;
 
@@ -266,11 +269,17 @@ void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int la
             float xpitch = 2, ypitch = 2;
 
             if (x_spaces_available > 0) {
-                xpitch = 2.0f + (float) (RANDOM() % x_spaces_available + RANDOM() % x_spaces_available + RANDOM() % x_spaces_available) / 3.0f;
+                xpitch =
+                    2.0f + (float)(RANDOM() % x_spaces_available + RANDOM() % x_spaces_available +
+                                   RANDOM() % x_spaces_available) /
+                               3.0f;
             }
 
             if (y_spaces_available > 0) {
-                ypitch = 2.0f + (float) (RANDOM() % y_spaces_available + RANDOM() % y_spaces_available + RANDOM() % y_spaces_available) / 3.0f;
+                ypitch =
+                    2.0f + (float)(RANDOM() % y_spaces_available + RANDOM() % y_spaces_available +
+                                   RANDOM() % y_spaces_available) /
+                               3.0f;
             }
 
             xlocations[i] = ((i > 0) ? xlocations[i - 1] : 0) + xpitch;
@@ -278,11 +287,11 @@ void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int la
             if (i < layers) {
                 ylocations[i] = ((i > 0) ? ylocations[i - 1] : 0) + ypitch;
             } else {
-                ylocations[i] = (float) (ysize - 1);
+                ylocations[i] = (float)(ysize - 1);
             }
 
-            x_spaces_available -= (int) xpitch - 2;
-            y_spaces_available -= (int) ypitch - 2;
+            x_spaces_available -= (int)xpitch - 2;
+            y_spaces_available -= (int)ypitch - 2;
         }
     }
 
@@ -291,8 +300,8 @@ void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int la
         /* pitch of the onion layers */
         float xpitch, ypitch;
 
-        xpitch = (float) (xsize - 2) / (2.0f * (float) (layers + 1));
-        ypitch = (float) (ysize - 2) / (float) (layers + 1);
+        xpitch = (float)(xsize - 2) / (2.0f * (float)(layers + 1));
+        ypitch = (float)(ysize - 2) / (float)(layers + 1);
 
         xlocations[0] = xpitch;
         ylocations[0] = ypitch;
@@ -303,7 +312,7 @@ void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int la
             if (i < layers) {
                 ylocations[i] = ylocations[i - 1] + ypitch;
             } else {
-                ylocations[i] = (float) (ysize - 1);
+                ylocations[i] = (float)(ysize - 1);
             }
         }
     }
@@ -324,27 +333,26 @@ void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int la
  * @param layers
  * Number of layers.
  */
-void draw_onion(char **maze, float *xlocations, float *ylocations, int layers)
-{
+void draw_onion(char **maze, float *xlocations, float *ylocations, int layers) {
     int i, j, l;
 
     for (l = 0; l < layers; l++) {
         int x, x2, y, y2;
 
         /* horizontal segments */
-        y = (int) ylocations[l];
-        y2 = (int) ylocations[2 * layers - l - 1];
+        y = (int)ylocations[l];
+        y2 = (int)ylocations[2 * layers - l - 1];
 
-        for (i = (int) xlocations[l]; i <= (int) xlocations[2 * layers - l - 1]; i++) {
+        for (i = (int)xlocations[l]; i <= (int)xlocations[2 * layers - l - 1]; i++) {
             maze[i][y] = '#';
             maze[i][y2] = '#';
         }
 
         /* vertical segments */
-        x = (int) xlocations[l];
-        x2 = (int) xlocations[2 * layers - l - 1];
+        x = (int)xlocations[l];
+        x2 = (int)xlocations[2 * layers - l - 1];
 
-        for (j = (int) ylocations[l]; j <= (int) ylocations[2 * layers - l - 1]; j++) {
+        for (j = (int)ylocations[l]; j <= (int)ylocations[2 * layers - l - 1]; j++) {
             maze[x][j] = '#';
             maze[x2][j] = '#';
         }
@@ -364,8 +372,7 @@ void draw_onion(char **maze, float *xlocations, float *ylocations, int layers)
  * @param options
  * Combination of @ref OPT_xxx "OPT_xxx" values.
  */
-void make_doors(char **maze, float *xlocations, float *ylocations, int layers, int options)
-{
+void make_doors(char **maze, float *xlocations, float *ylocations, int layers, int options) {
     /* number of different walls on which we could place a door */
     int freedoms;
     /* left, 1, top, 2, right, 3, bottom 4 */
@@ -394,33 +401,33 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
         /* linear door placement. */
         if (options & OPT_LINEAR) {
             switch (which_wall) {
-                /* Left hand wall */
-            case 1:
-                x = (int) xlocations[l];
-                y = (int) ((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
+                    /* Left hand wall */
+                case 1:
+                    x = (int)xlocations[l];
+                    y = (int)((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
 
-                break;
+                    break;
 
-                /* Top wall placement */
-            case 2:
-                x = (int) ((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
-                y = (int) ylocations[l];
+                    /* Top wall placement */
+                case 2:
+                    x = (int)((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
+                    y = (int)ylocations[l];
 
-                break;
+                    break;
 
-                /* Right wall placement */
-            case 3:
-                x = (int) xlocations[2 * layers - l - 1];
-                y = (int) ((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
+                    /* Right wall placement */
+                case 3:
+                    x = (int)xlocations[2 * layers - l - 1];
+                    y = (int)((ylocations[l] + ylocations[2 * layers - l - 1]) / 2);
 
-                break;
+                    break;
 
-                /* Bottom wall placement */
-            case 4:
-                x = (int) ((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
-                y = (int) ylocations[2 * layers - l - 1];
+                    /* Bottom wall placement */
+                case 4:
+                    x = (int)((xlocations[l] + xlocations[2 * layers - l - 1]) / 2);
+                    y = (int)ylocations[2 * layers - l - 1];
 
-                break;
+                    break;
             }
         } else {
             /* random door placement. */
@@ -428,59 +435,59 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
             which_wall = RANDOM() % freedoms + 1;
 
             switch (which_wall) {
-                /* Left hand wall */
-            case 1:
-                x = (int) xlocations[l];
-                y2 = (int) (ylocations[2 * layers - l - 1] - ylocations[l] - 1.0f);
+                    /* Left hand wall */
+                case 1:
+                    x = (int)xlocations[l];
+                    y2 = (int)(ylocations[2 * layers - l - 1] - ylocations[l] - 1.0f);
 
-                if (y2 > 0) {
-                    y = (int) ylocations[l] + RANDOM() % y2 + 1;
-                } else {
-                    y = (int) ylocations[l] + 1;
-                }
+                    if (y2 > 0) {
+                        y = (int)ylocations[l] + RANDOM() % y2 + 1;
+                    } else {
+                        y = (int)ylocations[l] + 1;
+                    }
 
-                break;
+                    break;
 
-                /* Top wall placement */
-            case 2:
-                x2 = (int) ((-xlocations[l] + xlocations[2 * layers - l - 1])) - 1;
+                    /* Top wall placement */
+                case 2:
+                    x2 = (int)((-xlocations[l] + xlocations[2 * layers - l - 1])) - 1;
 
-                if (x2 > 0) {
-                    x = (int) xlocations[l] + RANDOM() % x2 + 1;
-                } else {
-                    x = (int) xlocations[l] + 1;
-                }
+                    if (x2 > 0) {
+                        x = (int)xlocations[l] + RANDOM() % x2 + 1;
+                    } else {
+                        x = (int)xlocations[l] + 1;
+                    }
 
-                y = (int) ylocations[l];
+                    y = (int)ylocations[l];
 
-                break;
+                    break;
 
-                /* Right wall placement */
-            case 3:
-                x = (int) xlocations[2 * layers - l - 1];
-                y2 = (int) ((-ylocations[l] + ylocations[2 * layers - l - 1])) - 1;
+                    /* Right wall placement */
+                case 3:
+                    x = (int)xlocations[2 * layers - l - 1];
+                    y2 = (int)((-ylocations[l] + ylocations[2 * layers - l - 1])) - 1;
 
-                if (y2 > 0) {
-                    y = (int) ylocations[l] + RANDOM() % y2 + 1;
-                } else {
-                    y = (int) ylocations[l] + 1;
-                }
+                    if (y2 > 0) {
+                        y = (int)ylocations[l] + RANDOM() % y2 + 1;
+                    } else {
+                        y = (int)ylocations[l] + 1;
+                    }
 
-                break;
+                    break;
 
-                /* Bottom wall placement */
-            case 4:
-                x2 = (int) ((-xlocations[l] + xlocations[2 * layers - l - 1])) - 1;
+                    /* Bottom wall placement */
+                case 4:
+                    x2 = (int)((-xlocations[l] + xlocations[2 * layers - l - 1])) - 1;
 
-                if (x2 > 0) {
-                    x = (int) xlocations[l] + RANDOM() % x2 + 1;
-                } else {
-                    x = (int) xlocations[l] + 1;
-                }
+                    if (x2 > 0) {
+                        x = (int)xlocations[l] + RANDOM() % x2 + 1;
+                    } else {
+                        x = (int)xlocations[l] + 1;
+                    }
 
-                y = (int) ylocations[2 * layers - l - 1];
+                    y = (int)ylocations[2 * layers - l - 1];
 
-                break;
+                    break;
             }
         }
 
@@ -495,8 +502,8 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 
     /* mark the center of the maze with a C */
     l = layers - 1;
-    x = (int) (xlocations[l] + xlocations[2 * layers - l - 1]) / 2;
-    y = (int) (ylocations[l] + ylocations[2 * layers - l - 1]) / 2;
+    x = (int)(xlocations[l] + xlocations[2 * layers - l - 1]) / 2;
+    y = (int)(ylocations[l] + ylocations[2 * layers - l - 1]) / 2;
 
     maze[x][y] = 'C';
 
@@ -518,8 +525,7 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
  * @param layers
  * Number of layers to create.
  */
-void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, int layers)
-{
+void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, int layers) {
     int i, maxlayers;
     float *xlocations, *ylocations;
 
@@ -556,29 +562,34 @@ void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, 
             float xpitch = 2, ypitch = 2;
 
             if (x_spaces_available > 0) {
-                xpitch = 2.0f + (float) (RANDOM() % x_spaces_available + RANDOM() % x_spaces_available + RANDOM() % x_spaces_available) / 3.0f;
+                xpitch =
+                    2.0f + (float)(RANDOM() % x_spaces_available + RANDOM() % x_spaces_available +
+                                   RANDOM() % x_spaces_available) /
+                               3.0f;
             }
 
             if (y_spaces_available > 0) {
-                ypitch = 2.0f + (float) (RANDOM() % y_spaces_available + RANDOM() % y_spaces_available + RANDOM() % y_spaces_available) / 3.0f;
+                ypitch =
+                    2.0f + (float)(RANDOM() % y_spaces_available + RANDOM() % y_spaces_available +
+                                   RANDOM() % y_spaces_available) /
+                               3.0f;
             }
 
             if (i < layers) {
                 xlocations[i] = ((i > 0) ? xlocations[i - 1] : 0) + xpitch;
             } else {
-                xlocations[i] = (float) (xsize - 1);
+                xlocations[i] = (float)(xsize - 1);
             }
 
             if (i < layers) {
                 ylocations[i] = ((i > 0) ? ylocations[i - 1] : 0) + ypitch;
             } else {
-                ylocations[i] = (float) (ysize - 1);
+                ylocations[i] = (float)(ysize - 1);
             }
 
-            x_spaces_available -= (int) xpitch - 2;
-            y_spaces_available -= (int) ypitch - 2;
+            x_spaces_available -= (int)xpitch - 2;
+            y_spaces_available -= (int)ypitch - 2;
         }
-
     }
 
     /* evenly spaced */
@@ -586,8 +597,8 @@ void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, 
         /* pitch of the onion layers */
         float xpitch, ypitch;
 
-        xpitch = (float) (xsize - 2) / (float) (2 * layers + 1);
-        ypitch = (float) (ysize - 2) / (float) (layers + 1);
+        xpitch = (float)(xsize - 2) / (float)(2 * layers + 1);
+        ypitch = (float)(ysize - 2) / (float)(layers + 1);
 
         xlocations[0] = xpitch;
         ylocations[0] = ypitch;
@@ -596,13 +607,13 @@ void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, 
             if (i < layers) {
                 xlocations[i] = xlocations[i - 1] + xpitch;
             } else {
-                xlocations[i] = (float) (xsize - 1);
+                xlocations[i] = (float)(xsize - 1);
             }
 
             if (i < layers) {
                 ylocations[i] = ylocations[i - 1] + ypitch;
             } else {
-                ylocations[i] = (float) (ysize - 1);
+                ylocations[i] = (float)(ysize - 1);
             }
         }
     }

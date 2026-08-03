@@ -49,8 +49,7 @@
  * - <b>4</b>: Door or wall above.
  * - <b>8</b>: Door or wall below.
  */
-int surround_check2(char **layout, int x, int y, int Xsize, int Ysize)
-{
+int surround_check2(char **layout, int x, int y, int Xsize, int Ysize) {
     /* 1 = door or wall to left,
      *     2 = door or wall to right,
      *     4 = door or wall above
@@ -87,8 +86,7 @@ int surround_check2(char **layout, int x, int y, int Xsize, int Ysize)
  * @param RP
  * Random map parameters.
  */
-void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP)
-{
+void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP) {
     int x, y;
     mapstruct *vdoors, *hdoors;
     char doorpath[128];

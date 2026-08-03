@@ -35,7 +35,7 @@
 
 #ifndef NDEBUG
 #ifdef HAVE_VALGRIND_H
-#   include <valgrind/valgrind.h>
+#include <valgrind/valgrind.h>
 #else
 #define RUNNING_ON_VALGRIND (0)
 #endif
@@ -54,7 +54,7 @@
 /**
  * Magic value stored after each allocated memory block.
  */
-#define CHUNK_AFTER_VAL  0x659C5B2E539A4C3FULL
+#define CHUNK_AFTER_VAL 0x659C5B2E539A4C3FULL
 
 typedef struct memory_chunk {
     struct memory_chunk *next; ///< Next memory chunk.
@@ -75,15 +75,14 @@ typedef struct memory_chunk {
  * @param _n
  * The memory block size.
  */
-#define MEM_CHUNK_SIZE(_n) \
-    (sizeof(memory_chunk_t) - 1 + (_n) + sizeof(uint64_t))
+#define MEM_CHUNK_SIZE(_n) (sizeof(memory_chunk_t) - 1 + (_n) + sizeof(uint64_t))
 /**
  * Acquire a pointer to the memory block part of the specified memory chunk.
  *
  * @param _chunk
  * The memory chunk.
  */
-#define MEM_DATA(_chunk) ((void *) &((_chunk)->data[0]))
+#define MEM_DATA(_chunk) ((void *)&((_chunk)->data[0]))
 /**
  * Acquire a memory chunk pointer from the specified memory block pointer. If
  * the pointer was not returned by this API, the dragons will come after you.
@@ -91,8 +90,7 @@ typedef struct memory_chunk {
  * @param _ptr
  * Memory block pointer.
  */
-#define MEM_CHUNK(_ptr) \
-    ((memory_chunk_t *) ((char *) _ptr - offsetof(memory_chunk_t, data[0])))
+#define MEM_CHUNK(_ptr) ((memory_chunk_t *)((char *)_ptr - offsetof(memory_chunk_t, data[0])))
 
 /**
  * List of all the allocated memory chunks.
@@ -128,10 +126,8 @@ static ssize_t memory_chunks_allocated;
  */
 static ssize_t memory_chunks_allocated_max;
 
-static const char *
-chunk_get_str(memory_chunk_t *chunk);
-static void
-chunks_free(void);
+static const char *chunk_get_str(memory_chunk_t *chunk);
+static void chunks_free(void);
 
 #else
 #define _malloc(_size, _file, _line) malloc(_size)
@@ -145,8 +141,7 @@ TOOLKIT_API(DEPENDS(logger));
 /**
  * Initialize the memory API.
  */
-TOOLKIT_INIT_FUNC(memory)
-{
+TOOLKIT_INIT_FUNC(memory) {
 #ifndef NDEBUG
     pthread_mutex_init(&memory_chunks_mutex, NULL);
     pthread_mutex_init(&memory_chunks_freed_mutex, NULL);
@@ -162,8 +157,7 @@ TOOLKIT_INIT_FUNC_FINISH
 /**
  * Deinitialize the memory API.
  */
-TOOLKIT_DEINIT_FUNC(memory)
-{
+TOOLKIT_DEINIT_FUNC(memory) {
 #ifndef NDEBUG
     chunks_free();
     pthread_mutex_destroy(&memory_chunks_mutex);
@@ -174,20 +168,16 @@ TOOLKIT_DEINIT_FUNC(memory)
         LOG(ERROR, "Unfreed pointer: %s", chunk_get_str(chunk));
     }
 
-    LOG(INFO, "Maximum number of bytes allocated: %" PRIu64,
-            (uint64_t) memory_chunks_allocated_max);
+    LOG(INFO, "Maximum number of bytes allocated: %" PRIu64, (uint64_t)memory_chunks_allocated_max);
 
-    LOG(INFO, "Maximum number of pointers allocated: %" PRIu64,
-            (uint64_t) memory_chunks_num_max);
+    LOG(INFO, "Maximum number of pointers allocated: %" PRIu64, (uint64_t)memory_chunks_num_max);
 
     if (memory_chunks_num != 0) {
-        LOG(ERROR, "Number of pointers still allocated: %" PRIu64,
-                (uint64_t) memory_chunks_num);
+        LOG(ERROR, "Number of pointers still allocated: %" PRIu64, (uint64_t)memory_chunks_num);
     }
 
     if (memory_chunks_allocated != 0) {
-        LOG(ERROR, "Number of bytes still allocated: %" PRIu64,
-                (uint64_t) memory_chunks_allocated);
+        LOG(ERROR, "Number of bytes still allocated: %" PRIu64, (uint64_t)memory_chunks_allocated);
     }
 #endif
 }
@@ -203,13 +193,16 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * String representation of the memory chunk as a static-storage string.
  */
-static const char *
-chunk_get_str (memory_chunk_t *chunk)
-{
+static const char *chunk_get_str(memory_chunk_t *chunk) {
     static char buf[HUGE_BUF];
-    snprintf(VS(buf), "Chunk %p, pointer %p (%" PRIu64 " bytes) allocated in "
-             "%s:%u", chunk, MEM_DATA(chunk), (uint64_t) chunk->size,
-             chunk->file, chunk->line);
+    snprintf(VS(buf),
+             "Chunk %p, pointer %p (%" PRIu64 " bytes) allocated in "
+             "%s:%u",
+             chunk,
+             MEM_DATA(chunk),
+             (uint64_t)chunk->size,
+             chunk->file,
+             chunk->line);
     return buf;
 }
 
@@ -221,9 +214,7 @@ chunk_get_str (memory_chunk_t *chunk)
  * @return
  * The magic value.
  */
-static inline uint64_t
-chunk_after (memory_chunk_t *chunk)
-{
+static inline uint64_t chunk_after(memory_chunk_t *chunk) {
     uint64_t after;
     memcpy(&after, &chunk->data[chunk->size], sizeof(after));
     return after;
@@ -235,9 +226,7 @@ chunk_after (memory_chunk_t *chunk)
  * @param chunk
  * The memory chunk.
  */
-static void
-chunk_check (memory_chunk_t *chunk)
-{
+static void chunk_check(memory_chunk_t *chunk) {
     /* Check for underrun */
     if (unlikely(chunk->before != CHUNK_BEFORE_VAL)) {
         log_error("Pointer underrun detected: %s", chunk_get_str(chunk));
@@ -262,13 +251,11 @@ chunk_check (memory_chunk_t *chunk)
  * Memory chunk the pointer belongs to; NULL if it's not a memory
  * chunk pointer.
  */
-static memory_chunk_t *
-chunk_checkptr (void *ptr)
-{
+static memory_chunk_t *chunk_checkptr(void *ptr) {
     memory_chunk_t *chunk;
     DL_FOREACH(memory_chunks, chunk) {
-        if (ptr >= (void *) &chunk->data[0] &&
-            ptr < (void *) ((char *) chunk + MEM_CHUNK_SIZE(chunk->size))) {
+        if (ptr >= (void *)&chunk->data[0] &&
+            ptr < (void *)((char *)chunk + MEM_CHUNK_SIZE(chunk->size))) {
             break;
         }
     }
@@ -288,9 +275,7 @@ chunk_checkptr (void *ptr)
  * @param chunk
  * The chunk to check.
  */
-static void
-chunk_freed_check (memory_chunk_t *chunk)
-{
+static void chunk_freed_check(memory_chunk_t *chunk) {
     chunk_check(chunk);
 
     /* When running under Valgrind, the bytes are not set to 0x7A. */
@@ -320,13 +305,11 @@ chunk_freed_check (memory_chunk_t *chunk)
  * Memory chunk the pointer belongs to; NULL if it's not a memory
  * chunk pointer.
  */
-static memory_chunk_t *
-chunk_freed_checkptr (void *ptr)
-{
+static memory_chunk_t *chunk_freed_checkptr(void *ptr) {
     memory_chunk_t *chunk;
     DL_FOREACH(memory_chunks_freed, chunk) {
-        if (ptr >= (void *) &chunk->data[0] &&
-            ptr < (void *) ((char *) chunk + MEM_CHUNK_SIZE(chunk->size))) {
+        if (ptr >= (void *)&chunk->data[0] &&
+            ptr < (void *)((char *)chunk + MEM_CHUNK_SIZE(chunk->size))) {
             break;
         }
     }
@@ -342,9 +325,7 @@ chunk_freed_checkptr (void *ptr)
 /**
  * Free all the memory chunks on the free list.
  */
-static void
-chunks_free (void)
-{
+static void chunks_free(void) {
     pthread_mutex_lock(&memory_chunks_freed_mutex);
 
     memory_chunk_t *chunk, *tmp;
@@ -363,9 +344,7 @@ chunks_free (void)
  * Check all memory chunks for errors; allocated ones for overruns/underruns
  * and freed ones for modifications.
  */
-static void
-chunk_check_all (void)
-{
+static void chunk_check_all(void) {
     /* Check allocated chunks */
     pthread_mutex_lock(&memory_chunks_mutex);
     memory_chunk_t *chunk;
@@ -395,15 +374,16 @@ chunk_check_all (void)
  * @return
  * Pointer to an allocated memory block; never NULL.
  */
-static void *
-_malloc (size_t size, const char *file, uint32_t line)
-{
+static void *_malloc(size_t size, const char *file, uint32_t line) {
     HARD_ASSERT(file != NULL);
 
     memory_chunk_t *chunk = malloc(MEM_CHUNK_SIZE(size));
     if (chunk == NULL) {
-        LOG(ERROR, "OOM (size: %" PRIu64 ", file: %s:%" PRIu32 ").",
-            (uint64_t) MEM_CHUNK_SIZE(size), file, line);
+        LOG(ERROR,
+            "OOM (size: %" PRIu64 ", file: %s:%" PRIu32 ").",
+            (uint64_t)MEM_CHUNK_SIZE(size),
+            file,
+            line);
         abort();
     }
 
@@ -461,9 +441,7 @@ _malloc (size_t size, const char *file, uint32_t line)
  * @param line
  * Line freeing is done from.
  */
-static void
-_free (void *ptr, const char *file, uint32_t line)
-{
+static void _free(void *ptr, const char *file, uint32_t line) {
     if (ptr == NULL) {
         return;
     }
@@ -472,7 +450,10 @@ _free (void *ptr, const char *file, uint32_t line)
 
     if (unlikely(memory_chunks_num <= 0)) {
         log_error("More frees than allocs (%" PRId64 "), free called from: "
-                  "%s:%u", (int64_t) memory_chunks_num, file, line);
+                  "%s:%u",
+                  (int64_t)memory_chunks_num,
+                  file,
+                  line);
         abort();
     }
 
@@ -485,8 +466,7 @@ _free (void *ptr, const char *file, uint32_t line)
     memory_chunk_t *chunk = chunk_checkptr(ptr);
 
     if (chunk == NULL) {
-        log_error("Invalid pointer detected: %p, free called from: %s:%u", ptr,
-                  file, line);
+        log_error("Invalid pointer detected: %p, free called from: %s:%u", ptr, file, line);
         abort();
     }
 #else
@@ -499,14 +479,18 @@ _free (void *ptr, const char *file, uint32_t line)
     /* Check for underrun */
     if (unlikely(chunk->before != CHUNK_BEFORE_VAL)) {
         log_error("Pointer underrun detected: %s, free called from: %s:%u",
-                  chunk_get_str(chunk), file, line);
+                  chunk_get_str(chunk),
+                  file,
+                  line);
         abort();
     }
 
     /* Check for overrun */
     if (unlikely(chunk_after(chunk) != CHUNK_AFTER_VAL)) {
         log_error("Pointer overrun detected: %s, free called from: %s:%u",
-                  chunk_get_str(chunk), file, line);
+                  chunk_get_str(chunk),
+                  file,
+                  line);
         abort();
     }
 
@@ -515,8 +499,10 @@ _free (void *ptr, const char *file, uint32_t line)
     if (unlikely(memory_chunks_allocated < 0)) {
         log_error("Freed more bytes than what should be possible: %s, now "
                   "allocated: %" PRId64 ", free called from: %s:%u",
-                  chunk_get_str(chunk), (int64_t) memory_chunks_allocated,
-                  file, line);
+                  chunk_get_str(chunk),
+                  (int64_t)memory_chunks_allocated,
+                  file,
+                  line);
         abort();
     }
 
@@ -555,9 +541,7 @@ _free (void *ptr, const char *file, uint32_t line)
  * @return
  * Pointer to an allocated zero-initialized memory block; never NULL.
  */
-static void *
-_calloc (size_t nmemb, size_t size, const char *file, uint32_t line)
-{
+static void *_calloc(size_t nmemb, size_t size, const char *file, uint32_t line) {
     void *ptr;
 
     ptr = _malloc(size * nmemb, file, line);
@@ -581,9 +565,7 @@ _calloc (size_t nmemb, size_t size, const char *file, uint32_t line)
  * @return
  * Resized memory block; NULL in case size was zero.
  */
-static void *
-_realloc (void *ptr, size_t size, const char *file, uint32_t line)
-{
+static void *_realloc(void *ptr, size_t size, const char *file, uint32_t line) {
     void *new_ptr;
     if (size == 0) {
         new_ptr = NULL;
@@ -613,9 +595,7 @@ _realloc (void *ptr, size_t size, const char *file, uint32_t line)
 /*
  * Check all the currently allocated memory chunks.
  */
-void
-memory_check_all (void)
-{
+void memory_check_all(void) {
     TOOLKIT_PROTECT();
 
 #ifndef NDEBUG
@@ -633,9 +613,7 @@ memory_check_all (void)
  * True on success, false on failure (memory checking API is disabled or the
  * pointer was not allocated by this API).
  */
-bool
-memory_check (void *ptr)
-{
+bool memory_check(void *ptr) {
     HARD_ASSERT(ptr != NULL);
 
     TOOLKIT_PROTECT();
@@ -667,9 +645,7 @@ memory_check (void *ptr)
  * @return
  * True on success (status contains a valid value), false otherwise.
  */
-bool
-memory_get_status (void *ptr, memory_status_t *status)
-{
+bool memory_get_status(void *ptr, memory_status_t *status) {
     HARD_ASSERT(ptr != NULL);
     HARD_ASSERT(status != NULL);
 
@@ -716,9 +692,7 @@ memory_get_status (void *ptr, memory_status_t *status)
  * True on success (size contains a valid value), false otherwise (the pointer
  * was not returned by this API or the API is disabled).
  */
-bool
-memory_get_size (void *ptr, size_t *size)
-{
+bool memory_get_size(void *ptr, size_t *size) {
     HARD_ASSERT(ptr != NULL);
     HARD_ASSERT(size != NULL);
 
@@ -755,9 +729,7 @@ memory_get_size (void *ptr, size_t *size)
  * @return
  * Number of allocated chunks.
  */
-size_t
-memory_check_leak (bool verbose)
-{
+size_t memory_check_leak(bool verbose) {
 #ifndef NDEBUG
     if (_did_init_) {
         pthread_mutex_lock(&memory_chunks_mutex);
@@ -793,14 +765,12 @@ memory_check_leak (bool verbose)
  * @note
  * Will abort() in case the pointer can't be allocated.
  */
-void *
-memory_emalloc (size_t size MEMORY_DEBUG_PROTO)
-{
+void *memory_emalloc(size_t size MEMORY_DEBUG_PROTO) {
     TOOLKIT_PROTECT();
 
     void *ptr = _malloc(size, file, line);
     if (ptr == NULL) {
-        LOG(ERROR, "OOM (size: %"PRIu64").", (uint64_t) size);
+        LOG(ERROR, "OOM (size: %" PRIu64 ").", (uint64_t)size);
         abort();
     }
 
@@ -815,9 +785,7 @@ memory_emalloc (size_t size MEMORY_DEBUG_PROTO)
  * @note
  * Will abort() in case the pointer is NULL.
  */
-void
-memory_efree (void *ptr MEMORY_DEBUG_PROTO)
-{
+void memory_efree(void *ptr MEMORY_DEBUG_PROTO) {
     TOOLKIT_PROTECT();
 
     SOFT_ASSERT(ptr != NULL, "Freeing NULL pointer.");
@@ -836,14 +804,12 @@ memory_efree (void *ptr MEMORY_DEBUG_PROTO)
  * @note
  * Will abort() in case the pointer can't be allocated.
  */
-void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO)
-{
+void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO) {
     TOOLKIT_PROTECT();
 
     void *ptr = _calloc(nmemb, size, file, line);
     if (ptr == NULL) {
-        LOG(ERROR, "OOM (nmemb: %"PRIu64", size: %"PRIu64").",
-                (uint64_t) nmemb, (uint64_t) size);
+        LOG(ERROR, "OOM (nmemb: %" PRIu64 ", size: %" PRIu64 ").", (uint64_t)nmemb, (uint64_t)size);
         abort();
     }
 
@@ -862,15 +828,12 @@ void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO)
  * @note
  * Will abort() in case the pointer can't be resized.
  */
-void *
-memory_erealloc (void *ptr, size_t size MEMORY_DEBUG_PROTO)
-{
+void *memory_erealloc(void *ptr, size_t size MEMORY_DEBUG_PROTO) {
     TOOLKIT_PROTECT();
 
     void *newptr = _realloc(ptr, size, file, line);
     if (newptr == NULL && size != 0) {
-        LOG(ERROR, "OOM (ptr: %p, size: %"PRIu64".", ptr,
-                (uint64_t) size);
+        LOG(ERROR, "OOM (ptr: %p, size: %" PRIu64 ".", ptr, (uint64_t)size);
         abort();
     }
 
@@ -890,9 +853,7 @@ memory_erealloc (void *ptr, size_t size MEMORY_DEBUG_PROTO)
  * @return
  * Resized pointer, NULL on failure.
  */
-void *
-memory_reallocz (void *ptr, size_t old_size, size_t new_size MEMORY_DEBUG_PROTO)
-{
+void *memory_reallocz(void *ptr, size_t old_size, size_t new_size MEMORY_DEBUG_PROTO) {
     TOOLKIT_PROTECT();
 
 #ifndef NDEBUG
@@ -902,7 +863,7 @@ memory_reallocz (void *ptr, size_t old_size, size_t new_size MEMORY_DEBUG_PROTO)
 #endif
 
     if (new_ptr && new_size > old_size) {
-        memset(((char *) new_ptr) + old_size, 0, new_size - old_size);
+        memset(((char *)new_ptr) + old_size, 0, new_size - old_size);
     }
 
     return new_ptr;

@@ -40,45 +40,32 @@
 /**
  * Gender nouns.
  */
-const char *gender_noun[GENDER_MAX] = {
-    "neuter", "male", "female", "hermaphrodite"
-};
+const char *gender_noun[GENDER_MAX] = {"neuter", "male", "female", "hermaphrodite"};
 /**
  * Subjective pronouns.
  */
-const char *gender_subjective[GENDER_MAX] = {
-    "it", "he", "she", "it"
-};
+const char *gender_subjective[GENDER_MAX] = {"it", "he", "she", "it"};
 /**
  * Subjective pronouns, with first letter in uppercase.
  */
-const char *gender_subjective_upper[GENDER_MAX] = {
-    "It", "He", "She", "It"
-};
+const char *gender_subjective_upper[GENDER_MAX] = {"It", "He", "She", "It"};
 /**
  * Objective pronouns.
  */
-const char *gender_objective[GENDER_MAX] = {
-    "it", "him", "her", "it"
-};
+const char *gender_objective[GENDER_MAX] = {"it", "him", "her", "it"};
 /**
  * Possessive pronouns.
  */
-const char *gender_possessive[GENDER_MAX] = {
-    "its", "his", "her", "its"
-};
+const char *gender_possessive[GENDER_MAX] = {"its", "his", "her", "its"};
 /**
  * Reflexive pronouns.
  */
-const char *gender_reflexive[GENDER_MAX] = {
-    "itself", "himself", "herself", "itself"
-};
+const char *gender_reflexive[GENDER_MAX] = {"itself", "himself", "herself", "itself"};
 
 /**
  * Clear the player data like quickslots, inventory items, etc.
  */
-void clear_player(void)
-{
+void clear_player(void) {
     objects_deinit();
     skills_deinit();
     spells_deinit();
@@ -104,10 +91,9 @@ void clear_player(void)
  * @param face
  * Face ID.
  */
-void new_player(tag_t tag, long weight, uint16_t face)
-{
+void new_player(tag_t tag, long weight, uint16_t face) {
     cpl.ob->tag = tag;
-    cpl.ob->weight = (float) weight / 1000;
+    cpl.ob->weight = (float)weight / 1000;
     cpl.ob->face = face;
 }
 
@@ -116,8 +102,7 @@ void new_player(tag_t tag, long weight, uint16_t face)
  * @param op
  * Object to apply.
  */
-void client_send_apply(object *op)
-{
+void client_send_apply(object *op) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_APPLY, 8, 0);
@@ -135,8 +120,7 @@ void client_send_apply(object *op)
  * @param tag
  * Item tag.
  */
-void client_send_examine(tag_t tag)
-{
+void client_send_examine(tag_t tag) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_EXAMINE, 8, 0);
@@ -153,8 +137,7 @@ void client_send_examine(tag_t tag)
  * @param nrof
  * Number of objects from tag.
  */
-void client_send_move(tag_t loc, tag_t tag, uint32_t nrof)
-{
+void client_send_move(tag_t loc, tag_t tag, uint32_t nrof) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_MOVE, 32, 0);
@@ -172,8 +155,7 @@ void client_send_move(tag_t loc, tag_t tag, uint32_t nrof)
  * @return
  * 1 if command was sent, 0 otherwise.
  */
-void send_command(const char *command)
-{
+void send_command(const char *command) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_PLAYER_CMD, 256, 128);
@@ -184,8 +166,7 @@ void send_command(const char *command)
 /**
  * Initialize player data.
  */
-void init_player_data(void)
-{
+void init_player_data(void) {
     new_player(0, 0, 0);
 
     /* Focus to the main inventory widget if it's open, otherwise focus to
@@ -194,8 +175,7 @@ void init_player_data(void)
     if (widget != NULL) {
         if (!widget->show) {
             widget = widget_find(NULL, INVENTORY_ID, "below", NULL);
-            SOFT_ASSERT(widget != NULL,
-                        "Could not find the below inventory widget");
+            SOFT_ASSERT(widget != NULL, "Could not find the below inventory widget");
         }
 
         cpl.inventory_focus = widget;
@@ -223,8 +203,7 @@ void init_player_data(void)
  * The gender's ID as one of @ref GENDER_xxx, or -1 if 'gender'
  * didn't match any of the existing genders.
  */
-int gender_to_id(const char *gender)
-{
+int gender_to_id(const char *gender) {
     size_t i;
 
     for (i = 0; i < GENDER_MAX; i++) {
@@ -236,8 +215,7 @@ int gender_to_id(const char *gender)
     return -1;
 }
 
-void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, uint8_t level)
-{
+void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, uint8_t level) {
     SDL_Surface *texture_bubble_on, *texture_bubble_off;
     int line_width, offset, i;
     double fractional, integral;
@@ -247,13 +225,25 @@ void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, ui
     texture_bubble_off = TEXTURE_CLIENT("exp_bubble_off");
 
     line_width = texture_bubble_on->w * EXP_PROGRESS_BUBBLES;
-    offset = (double) texture_bubble_on->h / 2.0 + 0.5;
-    fractional = modf(((double) (xp - s_settings->level_exp[level]) / (double) (s_settings->level_exp[level + 1] - s_settings->level_exp[level]) * EXP_PROGRESS_BUBBLES), &integral);
+    offset = (double)texture_bubble_on->h / 2.0 + 0.5;
+    fractional = modf(((double)(xp - s_settings->level_exp[level]) /
+                       (double)(s_settings->level_exp[level + 1] - s_settings->level_exp[level]) *
+                       EXP_PROGRESS_BUBBLES),
+                      &integral);
 
-    rectangle_create(surface, x, y, line_width + offset * 2, texture_bubble_on->h + offset * 4, "020202");
+    rectangle_create(surface,
+                     x,
+                     y,
+                     line_width + offset * 2,
+                     texture_bubble_on->h + offset * 4,
+                     "020202");
 
     for (i = 0; i < EXP_PROGRESS_BUBBLES; i++) {
-        surface_show(surface, x + offset + i * texture_bubble_on->w, y + offset, NULL, i < (int) integral ? texture_bubble_on : texture_bubble_off);
+        surface_show(surface,
+                     x + offset + i * texture_bubble_on->w,
+                     y + offset,
+                     NULL,
+                     i < (int)integral ? texture_bubble_on : texture_bubble_off);
     }
 
     box.x = x + offset;
@@ -263,7 +253,7 @@ void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, ui
 
     rectangle_create(surface, box.x, box.y, box.w, box.h, "404040");
 
-    box.w = (double) box.w * fractional;
+    box.w = (double)box.w * fractional;
     rectangle_create(surface, box.x, box.y, box.w, box.h, "0000ff");
 
     box.y += offset / 4;

@@ -49,7 +49,7 @@ enum {
     BUTTON_SETTINGS, ///< Esc menu.
 
     NUM_BUTTONS ///< Total number of the buttons.
-} ;
+};
 
 /**
  * Button buffers.
@@ -58,28 +58,51 @@ static button_struct buttons[NUM_BUTTONS];
 /**
  * Images to render on top of the buttons, NULL for none.
  */
-static const char *button_images[NUM_BUTTONS] = {
-    "magic", "skill", "protections", "party", "music", "buddy", "ignore",
-    "minimap", "map", "quest", NULL, "cogs"
-};
+static const char *button_images[NUM_BUTTONS] = {"magic",
+                                                 "skill",
+                                                 "protections",
+                                                 "party",
+                                                 "music",
+                                                 "buddy",
+                                                 "ignore",
+                                                 "minimap",
+                                                 "map",
+                                                 "quest",
+                                                 NULL,
+                                                 "cogs"};
 /**
  * Tooltip texts for the buttons.
  */
-static const char *const button_tooltips[NUM_BUTTONS] = {
-    "Spells", "Skills", "Protections", "Party", "Music player", "Buddy List",
-    "Ignore List", "Minimap", "Region map", "Quest list", "Help", "Settings"
-};
+static const char *const button_tooltips[NUM_BUTTONS] = {"Spells",
+                                                         "Skills",
+                                                         "Protections",
+                                                         "Party",
+                                                         "Music player",
+                                                         "Buddy List",
+                                                         "Ignore List",
+                                                         "Minimap",
+                                                         "Region map",
+                                                         "Quest list",
+                                                         "Help",
+                                                         "Settings"};
 /**
  * Widgets associated with the buttons, -1 for none.
  */
-static int button_widgets[NUM_BUTTONS] = {
-    SPELLS_ID, SKILLS_ID, PROTECTIONS_ID, PARTY_ID, MPLAYER_ID, BUDDY_ID,
-    BUDDY_ID, MINIMAP_ID, -1, -1, -1, -1
-};
+static int button_widgets[NUM_BUTTONS] = {SPELLS_ID,
+                                          SKILLS_ID,
+                                          PROTECTIONS_ID,
+                                          PARTY_ID,
+                                          MPLAYER_ID,
+                                          BUDDY_ID,
+                                          BUDDY_ID,
+                                          MINIMAP_ID,
+                                          -1,
+                                          -1,
+                                          -1,
+                                          -1};
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     int i, x, y;
     const char *text;
 
@@ -103,14 +126,12 @@ static void widget_draw(widgetdata *widget)
             widgetdata *tmp;
 
             if (button_widgets[i] == BUDDY_ID) {
-                tmp = widget_find(NULL, button_widgets[i], button_images[i],
-                        NULL);
+                tmp = widget_find(NULL, button_widgets[i], button_images[i], NULL);
             } else {
                 tmp = cur_widget[button_widgets[i]];
             }
 
-            SOFT_ASSERT(tmp != NULL, "Could not find widget type: %d",
-                    button_widgets[i]);
+            SOFT_ASSERT(tmp != NULL, "Could not find widget type: %d", button_widgets[i]);
             buttons[i].pressed_forced = tmp->show;
         } else if (i == BUTTON_HELP) {
             text = "[y=2]?";
@@ -134,8 +155,7 @@ static void widget_draw(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget, int draw)
-{
+static void widget_background(widgetdata *widget, int draw) {
     int i;
 
     /* Figure out whether we need to redraw the widget due to change in
@@ -149,8 +169,7 @@ static void widget_background(widgetdata *widget, int draw)
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     int i;
 
     for (i = 0; i < NUM_BUTTONS; i++) {
@@ -160,8 +179,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             }
 
             if (BUTTON_CHECK_TOOLTIP(&buttons[i])) {
-                tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
-                        button_tooltips[i]);
+                tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, button_tooltips[i]);
                 tooltip_enable_delay(300);
             }
 
@@ -175,14 +193,12 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             widgetdata *tmp;
 
             if (button_widgets[i] == BUDDY_ID) {
-                tmp = widget_find(NULL, button_widgets[i], button_images[i],
-                        NULL);
+                tmp = widget_find(NULL, button_widgets[i], button_images[i], NULL);
             } else {
                 tmp = cur_widget[button_widgets[i]];
             }
 
-            SOFT_ASSERT_RC(tmp != NULL, 1, "Could not find widget type: %d",
-                    button_widgets[i]);
+            SOFT_ASSERT_RC(tmp != NULL, 1, "Could not find widget type: %d", button_widgets[i]);
             WIDGET_SHOW_TOGGLE(tmp);
             SetPriorityWidget(tmp);
 
@@ -195,25 +211,25 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
         /* Decide how to handle the button. */
         switch (i) {
-        case BUTTON_SETTINGS:
-            settings_open();
-            break;
+            case BUTTON_SETTINGS:
+                settings_open();
+                break;
 
-        case BUTTON_MAP:
-            send_command_check("/region_map");
-            break;
+            case BUTTON_MAP:
+                send_command_check("/region_map");
+                break;
 
-        case BUTTON_QUEST:
-            keybind_process_command("?QLIST");
-            break;
+            case BUTTON_QUEST:
+                keybind_process_command("?QLIST");
+                break;
 
-        case BUTTON_HELP:
-            help_show("main");
-            break;
+            case BUTTON_HELP:
+                help_show("main");
+                break;
 
-        default:
-            LOG(BUG, "Cannot handle button ID: %d", i);
-            break;
+            default:
+                LOG(BUG, "Cannot handle button ID: %d", i);
+                break;
         }
 
         return 1;
@@ -223,8 +239,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     for (int i = 0; i < NUM_BUTTONS; i++) {
         button_destroy(&buttons[i]);
     }
@@ -233,19 +248,15 @@ static void widget_deinit(widgetdata *widget)
 /**
  * Initialize one menu buttons widget.
  */
-void widget_menu_buttons_init(widgetdata *widget)
-{
+void widget_menu_buttons_init(widgetdata *widget) {
     int i;
 
     for (i = 0; i < NUM_BUTTONS; i++) {
         button_create(&buttons[i]);
 
-        buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT,
-                "button_rect");
-        buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT,
-                "button_rect_over");
-        buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT,
-                "button_rect_down");
+        buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_rect");
+        buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_over");
+        buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_down");
     }
 
     buttons[BUTTON_HELP].flags |= TEXT_MARKUP;

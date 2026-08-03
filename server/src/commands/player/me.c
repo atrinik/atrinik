@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_me(object *op, const char *command, char *params)
-{
+void command_me(object *op, const char *command, char *params) {
     char buf[HUGE_BUF];
 
     params = player_sanitize_input(params);
@@ -46,5 +45,14 @@ void command_me(object *op, const char *command, char *params)
 
     LOG(CHAT, "[ME] [%s] %s", op->name, params);
     snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] %s", op->name, params);
-    draw_info_map(CHAT_TYPE_LOCAL, NULL, COLOR_YELLOW, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
+    draw_info_map(CHAT_TYPE_LOCAL,
+                  NULL,
+                  COLOR_YELLOW,
+                  op->map,
+                  op->x,
+                  op->y,
+                  MAP_INFO_NORMAL,
+                  NULL,
+                  NULL,
+                  buf);
 }

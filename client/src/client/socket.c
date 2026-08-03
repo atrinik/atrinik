@@ -61,8 +61,7 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * @return
  * A new command buffer or NULL in case of an error.
  */
-command_buffer *command_buffer_new(size_t len, uint8_t *data)
-{
+command_buffer *command_buffer_new(size_t len, uint8_t *data) {
     command_buffer *buf = emalloc(sizeof(command_buffer) + len + 1);
 
     buf->next = buf->prev = NULL;
@@ -81,16 +80,16 @@ command_buffer *command_buffer_new(size_t len, uint8_t *data)
  * @param buf
  * Buffer to free.
  */
-void command_buffer_free(command_buffer *buf)
-{
+void command_buffer_free(command_buffer *buf) {
     efree(buf);
 }
 
 /**
  * Enqueue a command buffer last in a queue.
  */
-static void command_buffer_enqueue(command_buffer *buf, command_buffer **queue_start, command_buffer **queue_end)
-{
+static void command_buffer_enqueue(command_buffer *buf,
+                                   command_buffer **queue_start,
+                                   command_buffer **queue_end) {
     buf->next = NULL;
     buf->prev = *queue_end;
 
@@ -108,8 +107,9 @@ static void command_buffer_enqueue(command_buffer *buf, command_buffer **queue_s
 /**
  * Enqueue a command buffer first in a queue.
  */
-static void command_buffer_enqueue_first(command_buffer *buf, command_buffer **queue_start, command_buffer **queue_end)
-{
+static void command_buffer_enqueue_first(command_buffer *buf,
+                                         command_buffer **queue_start,
+                                         command_buffer **queue_end) {
     buf->next = *queue_start;
     buf->prev = NULL;
 
@@ -127,8 +127,8 @@ static void command_buffer_enqueue_first(command_buffer *buf, command_buffer **q
 /**
  * Remove the first command buffer from a queue.
  */
-static command_buffer *command_buffer_dequeue(command_buffer **queue_start, command_buffer **queue_end)
-{
+static command_buffer *command_buffer_dequeue(command_buffer **queue_start,
+                                              command_buffer **queue_end) {
     command_buffer *buf = *queue_start;
 
     if (buf) {
@@ -144,8 +144,7 @@ static command_buffer *command_buffer_dequeue(command_buffer **queue_start, comm
     return buf;
 }
 
-void socket_send_packet(struct packet_struct *packet)
-{
+void socket_send_packet(struct packet_struct *packet) {
     HARD_ASSERT(packet != NULL);
 
     if (socket_mutex == NULL) {
@@ -163,10 +162,7 @@ void socket_send_packet(struct packet_struct *packet)
     packet_struct *packet_meta = packet_new(0, 4, 0);
     if (socket_is_secure(csocket.sc)) {
         bool checksum_only = !socket_crypto_client_should_encrypt(packet->type);
-        packet = socket_crypto_encrypt(csocket.sc,
-                                       packet,
-                                       packet_meta,
-                                       checksum_only);
+        packet = socket_crypto_encrypt(csocket.sc, packet, packet_meta, checksum_only);
         if (packet == NULL) {
             /* Logging already done. */
             cpl.state = ST_START;
@@ -179,11 +175,9 @@ void socket_send_packet(struct packet_struct *packet)
         packet_append_uint8(packet_meta, packet->type);
     }
 
-    command_buffer *buf1 = command_buffer_new(packet_meta->len,
-                                              packet_meta->data);
+    command_buffer *buf1 = command_buffer_new(packet_meta->len, packet_meta->data);
     packet_free(packet_meta);
-    command_buffer *buf2 = command_buffer_new(packet->len,
-                                              packet->data);
+    command_buffer *buf2 = command_buffer_new(packet->len, packet->data);
     packet_free(packet);
     SDL_UnlockMutex(socket_mutex);
 
@@ -199,8 +193,7 @@ void socket_send_packet(struct packet_struct *packet)
  * The command (being removed from queue), NULL if there is no
  * command.
  */
-command_buffer *get_next_input_command(void)
-{
+command_buffer *get_next_input_command(void) {
     command_buffer *buf;
 
     SDL_LockMutex(input_buffer_mutex);
@@ -209,16 +202,13 @@ command_buffer *get_next_input_command(void)
     return buf;
 }
 
-void add_input_command(command_buffer *buf)
-{
+void add_input_command(command_buffer *buf) {
     SDL_LockMutex(input_buffer_mutex);
     command_buffer_enqueue_first(buf, &input_queue_start, &input_queue_end);
     SDL_UnlockMutex(input_buffer_mutex);
 }
 
-static bool
-socket_thread_aborted (void)
-{
+static bool socket_thread_aborted(void) {
     SDL_LockMutex(socket_mutex);
     bool aborted = abort_thread != 0;
     SDL_UnlockMutex(socket_mutex);
@@ -228,10 +218,8 @@ socket_thread_aborted (void)
 /**
  * Single owner for all transport I/O and OpenSSL QUIC event handling.
  */
-static int
-socket_io_thread_loop (void *dummy)
-{
-    (void) dummy;
+static int socket_io_thread_loop(void *dummy) {
+    (void)dummy;
 
     int readbuf_size = 256;
     uint8_t *readbuf = emalloc(readbuf_size);
@@ -245,8 +233,7 @@ socket_io_thread_loop (void *dummy)
     while (!socket_thread_aborted()) {
         if (output == NULL) {
             SDL_LockMutex(output_buffer_mutex);
-            output = command_buffer_dequeue(&output_queue_start,
-                                            &output_queue_end);
+            output = command_buffer_dequeue(&output_queue_start, &output_queue_end);
             SDL_UnlockMutex(output_buffer_mutex);
             output_pos = 0;
             if (output != NULL && output->len == 0) {
@@ -258,18 +245,13 @@ socket_io_thread_loop (void *dummy)
         bool progressed = false;
         if (output != NULL) {
             size_t amt;
-            if (!socket_write(sc,
-                              output->data + output_pos,
-                              output->len - output_pos,
-                              &amt)) {
+            if (!socket_write(sc, output->data + output_pos, output->len - output_pos, &amt)) {
                 break;
             }
             if (amt != 0) {
                 output_pos += amt;
                 progressed = true;
-                network_graph_update(NETWORK_GRAPH_TYPE_GAME,
-                                     NETWORK_GRAPH_TRAFFIC_TX,
-                                     amt);
+                network_graph_update(NETWORK_GRAPH_TYPE_GAME, NETWORK_GRAPH_TRAFFIC_TX, amt);
                 if (output_pos == output->len) {
                     command_buffer_free(output);
                     output = NULL;
@@ -293,10 +275,10 @@ socket_io_thread_loop (void *dummy)
                 header_len = (*p & 0x80) ? 3 : 2;
                 cmd_len = 0;
                 if (header_len == 3) {
-                    cmd_len += ((int) (*p++) & 0x7f) << 16;
+                    cmd_len += ((int)(*p++) & 0x7f) << 16;
                 }
-                cmd_len += ((int) (*p++)) << 8;
-                cmd_len += ((int) (*p++));
+                cmd_len += ((int)(*p++)) << 8;
+                cmd_len += ((int)(*p++));
             }
             toread = cmd_len + header_len - readbuf_len;
             if (readbuf_len + toread > readbuf_size) {
@@ -309,28 +291,19 @@ socket_io_thread_loop (void *dummy)
         }
 
         size_t amt;
-        if (!socket_read(sc,
-                         readbuf + readbuf_len,
-                         (size_t) toread,
-                         &amt)) {
+        if (!socket_read(sc, readbuf + readbuf_len, (size_t)toread, &amt)) {
             break;
         }
         if (amt != 0) {
             progressed = true;
-            readbuf_len += (int) amt;
-            network_graph_update(NETWORK_GRAPH_TYPE_GAME,
-                                 NETWORK_GRAPH_TRAFFIC_RX,
-                                 amt);
+            readbuf_len += (int)amt;
+            network_graph_update(NETWORK_GRAPH_TYPE_GAME, NETWORK_GRAPH_TRAFFIC_RX, amt);
 
-            if (readbuf_len == cmd_len + header_len &&
-                    !socket_thread_aborted()) {
+            if (readbuf_len == cmd_len + header_len && !socket_thread_aborted()) {
                 command_buffer *input =
-                    command_buffer_new(readbuf_len - header_len,
-                                       readbuf + header_len);
+                    command_buffer_new(readbuf_len - header_len, readbuf + header_len);
                 SDL_LockMutex(input_buffer_mutex);
-                command_buffer_enqueue(input,
-                                       &input_queue_start,
-                                       &input_queue_end);
+                command_buffer_enqueue(input, &input_queue_start, &input_queue_end);
                 SDL_UnlockMutex(input_buffer_mutex);
                 cmd_len = -1;
                 header_len = 0;
@@ -364,8 +337,7 @@ socket_io_thread_loop (void *dummy)
 /**
  * Initialize and start the transport I/O thread.
  */
-void socket_thread_start(void)
-{
+void socket_thread_start(void) {
     if (socket_mutex == NULL) {
         input_buffer_mutex = SDL_CreateMutex();
         output_buffer_mutex = SDL_CreateMutex();
@@ -385,8 +357,7 @@ void socket_thread_start(void)
  *
  * Closes the socket first, if it hasn't already been done.
  */
-void socket_thread_stop(void)
-{
+void socket_thread_stop(void) {
     client_socket_close(&csocket);
     if (io_thread != NULL) {
         SDL_WaitThread(io_thread, NULL);
@@ -401,8 +372,7 @@ void socket_thread_stop(void)
  * The main thread should poll this function which detects connection
  * shutdowns and removes the threads if it happens.
  */
-int handle_socket_shutdown(void)
-{
+int handle_socket_shutdown(void) {
     if (socket_mutex != NULL && socket_thread_aborted()) {
         socket_thread_stop();
         SDL_LockMutex(socket_mutex);
@@ -430,8 +400,7 @@ int handle_socket_shutdown(void)
  * @param csock
  * Socket to close.
  */
-void client_socket_close(client_socket_t *csock)
-{
+void client_socket_close(client_socket_t *csock) {
     HARD_ASSERT(csock != NULL);
 
     if (socket_mutex == NULL) {
@@ -455,8 +424,7 @@ void client_socket_close(client_socket_t *csock)
 /**
  * Deinitialize the client sockets.
  */
-void client_socket_deinitialize(void)
-{
+void client_socket_deinitialize(void) {
     if (io_thread != NULL) {
         socket_thread_stop();
     } else if (csocket.sc != NULL) {
@@ -493,22 +461,19 @@ void client_socket_deinitialize(void)
  * @return
  * True on success, false on failure.
  */
-bool
-client_socket_open (client_socket_t *csock,
-                    const char      *host,
-                    int              port,
-                    bool             secure,
-                    const char      *quic_certificate_sha256,
-                    socket_connection_preference_t preference)
-{
+bool client_socket_open(client_socket_t *csock,
+                        const char *host,
+                        int port,
+                        bool secure,
+                        const char *quic_certificate_sha256,
+                        socket_connection_preference_t preference) {
     HARD_ASSERT(csock != NULL);
     HARD_ASSERT(host != NULL);
 
     if (quic_certificate_sha256 != NULL) {
         char rendezvous_url[HUGE_BUF];
-        const char *rendezvous = metaserver_rendezvous_url(
-            selected_server,
-            VS(rendezvous_url)) ? rendezvous_url : NULL;
+        const char *rendezvous =
+            metaserver_rendezvous_url(selected_server, VS(rendezvous_url)) ? rendezvous_url : NULL;
         csock->sc = socket_quic_client_create(host,
                                               port,
                                               quic_certificate_sha256,
@@ -516,11 +481,7 @@ client_socket_open (client_socket_t *csock,
                                               clioption_settings.stun_server,
                                               preference);
     } else {
-        csock->sc = socket_create(host,
-                                  port,
-                                  secure,
-                                  SOCKET_ROLE_CLIENT,
-                                  false);
+        csock->sc = socket_create(host, port, secure, SOCKET_ROLE_CLIENT, false);
     }
     if (csock->sc == NULL) {
         return false;

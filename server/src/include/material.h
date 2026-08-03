@@ -36,68 +36,68 @@
 /** Number of materials real */
 #define NROFMATERIALS_REAL 64
 
-#define NUM_MATERIALS_REAL NROFMATERIALS * NROFMATERIALS_REAL + 1
+#define NUM_MATERIALS_REAL NROFMATERIALS *NROFMATERIALS_REAL + 1
 
 /**
  * @defgroup material_types Material types
  * Material types.
  *@{*/
 /** No material. */
-#define M_NONE          0
+#define M_NONE 0
 /** Paper */
-#define M_PAPER         1
+#define M_PAPER 1
 /** Iron */
-#define M_IRON          2
+#define M_IRON 2
 /** Glass */
-#define M_GLASS         4
+#define M_GLASS 4
 /** Leather */
-#define M_LEATHER       8
+#define M_LEATHER 8
 /** Wood */
-#define M_WOOD          16
+#define M_WOOD 16
 /** Organic */
-#define M_ORGANIC       32
+#define M_ORGANIC 32
 /** Stone */
-#define M_STONE         64
+#define M_STONE 64
 /** Cloth */
-#define M_CLOTH         128
+#define M_CLOTH 128
 /** Adamant */
-#define M_ADAMANT       256
+#define M_ADAMANT 256
 /** Liquid */
-#define M_LIQUID        512
+#define M_LIQUID 512
 /** Soft metal */
-#define M_SOFT_METAL    1024
+#define M_SOFT_METAL 1024
 /** Bone */
-#define M_BONE          2048
+#define M_BONE 2048
 /** Ice */
-#define M_ICE           4096
+#define M_ICE 4096
 /*@}*/
 
 /** 1-64 */
-#define M_START_PAPER           0 * 64 + 1
+#define M_START_PAPER 0 * 64 + 1
 /** 65 - 128 */
-#define M_START_IRON            1 * 64 + 1
+#define M_START_IRON 1 * 64 + 1
 /** 129 - 192 */
-#define M_START_GLASS           2 * 64 + 1
+#define M_START_GLASS 2 * 64 + 1
 /** 193 - 256 */
-#define M_START_LEATHER         3 * 64 + 1
+#define M_START_LEATHER 3 * 64 + 1
 /** 257 - 320 */
-#define M_START_WOOD            4 * 64 + 1
+#define M_START_WOOD 4 * 64 + 1
 /** 321 - 384 */
-#define M_START_ORGANIC         5 * 64 + 1
+#define M_START_ORGANIC 5 * 64 + 1
 /** 385 - 448 */
-#define M_START_STONE           6 * 64 + 1
+#define M_START_STONE 6 * 64 + 1
 /** 449 - 512 */
-#define M_START_CLOTH           7 * 64 + 1
+#define M_START_CLOTH 7 * 64 + 1
 /** 513 - 576 */
-#define M_START_ADAMANT         8 * 64 + 1
+#define M_START_ADAMANT 8 * 64 + 1
 /** 577 - 640 */
-#define M_START_LIQUID          9 * 64 + 1
+#define M_START_LIQUID 9 * 64 + 1
 /** 641 - 704 */
-#define M_START_SOFT_METAL      10 * 64 + 1
+#define M_START_SOFT_METAL 10 * 64 + 1
 /** 705 - 768 */
-#define M_START_BONE            11 * 64 + 1
+#define M_START_BONE 11 * 64 + 1
 /** 769 - 832 */
-#define M_START_ICE             12 * 64 + 1
+#define M_START_ICE 12 * 64 + 1
 
 /**
  * A single material.
@@ -129,7 +129,6 @@ typedef struct material_real {
 material_t materials[NROFMATERIALS];
 material_real_t materials_real[NUM_MATERIALS_REAL];
 
-void
-material_init(void);
+void material_init(void);
 
 #endif

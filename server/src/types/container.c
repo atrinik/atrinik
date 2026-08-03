@@ -49,12 +49,9 @@
  * @return
  * True if both op and container are magical containers, false otherwise.
  */
-bool
-container_check_magical (object *op, object *container)
-{
+bool container_check_magical(object *op, object *container) {
     if (op->type == CONTAINER && container->type == CONTAINER &&
-        !DBL_EQUAL(op->weapon_speed, 1.0) &&
-        !DBL_EQUAL(container->weapon_speed, 1.0)) {
+        !DBL_EQUAL(op->weapon_speed, 1.0) && !DBL_EQUAL(container->weapon_speed, 1.0)) {
         return true;
     }
 
@@ -70,9 +67,7 @@ container_check_magical (object *op, object *container)
  * @param op
  * The container.
  */
-static void
-container_open (object *applier, object *op)
-{
+static void container_open(object *applier, object *op) {
     HARD_ASSERT(applier != NULL);
     HARD_ASSERT(op != NULL);
 
@@ -92,7 +87,8 @@ container_open (object *applier, object *op)
             if (inv->type == QUEST_CONTAINER) {
                 quest_handle(applier, inv);
             }
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
     }
 
     player *pl = CONTR(applier);
@@ -126,12 +122,7 @@ container_open (object *applier, object *op)
                 tmp->x = op->x;
                 tmp->y = op->y;
 
-                int i = map_free_spot(op->map,
-                                       tmp->x,
-                                       tmp->y,
-                                       0,
-                                       SIZEOFFREE1, tmp->arch,
-                                       tmp);
+                int i = map_free_spot(op->map, tmp->x, tmp->y, 0, SIZEOFFREE1, tmp->arch, tmp);
                 if (i != -1) {
                     tmp->x += freearr_x[i];
                     tmp->y += freearr_y[i];
@@ -142,7 +133,8 @@ container_open (object *applier, object *op)
                     living_update_monster(tmp);
                     char *name = object_get_base_name_s(op, applier);
                     char *monster_name = object_get_base_name_s(tmp, applier);
-                    draw_info_format(COLOR_WHITE, applier,
+                    draw_info_format(COLOR_WHITE,
+                                     applier,
                                      "A %s jumps out of the %s!",
                                      monster_name,
                                      name);
@@ -150,7 +142,8 @@ container_open (object *applier, object *op)
                     efree(monster_name);
                 }
             }
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
     }
 
     esrv_send_inventory(applier, op);
@@ -172,9 +165,7 @@ container_open (object *applier, object *op)
  * True if the container was closed and has no players left looking
  * into the container, false otherwise.
  */
-bool
-container_close (object *applier, object *op)
-{
+bool container_close(object *applier, object *op) {
     HARD_ASSERT(applier != NULL || op != NULL);
 
     if (applier != NULL && applier->type == PLAYER) {
@@ -207,8 +198,7 @@ container_close (object *applier, object *op)
             CONTR(pl->container_below)->container_above = pl->container_above;
 
             if (pl->container_above != NULL) {
-                CONTR(pl->container_above)->container_below =
-                    pl->container_below;
+                CONTR(pl->container_above)->container_below = pl->container_below;
             }
         }
 
@@ -259,9 +249,7 @@ container_close (object *applier, object *op)
 }
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -279,15 +267,7 @@ apply_func (object *op, object *applier, int aflags)
      * open another container. */
     if (container != NULL) {
         /* Trigger the CLOSE event. */
-        if (trigger_event(EVENT_CLOSE,
-                          applier,
-                          container,
-                          NULL,
-                          NULL,
-                          0,
-                          0,
-                          0,
-                          0) != 0) {
+        if (trigger_event(EVENT_CLOSE, applier, container, NULL, NULL, 0, 0, 0, 0) != 0) {
             return OBJECT_METHOD_OK;
         }
 
@@ -333,24 +313,27 @@ apply_func (object *op, object *applier, int aflags)
             if (tmp != NULL) {
                 if (tmp->type == KEY) {
                     char *key_name = object_get_base_name_s(tmp, applier);
-                    draw_info_format(COLOR_WHITE, applier,
-                            "You unlock %s with %s.", name, key_name);
+                    draw_info_format(COLOR_WHITE,
+                                     applier,
+                                     "You unlock %s with %s.",
+                                     name,
+                                     key_name);
                     efree(key_name);
                 } else if (tmp->type == FORCE) {
-                    draw_info_format(COLOR_WHITE, applier,
-                            "The %s is unlocked for you.", name);
+                    draw_info_format(COLOR_WHITE, applier, "The %s is unlocked for you.", name);
                 }
 
                 efree(name);
             } else {
-                draw_info_format(COLOR_WHITE, applier,
-                        "You don't have the key to unlock %s.", name);
+                draw_info_format(COLOR_WHITE,
+                                 applier,
+                                 "You don't have the key to unlock %s.",
+                                 name);
                 efree(name);
                 return OBJECT_METHOD_OK;
             }
         } else {
-            if (op->sub_type == ST1_CONTAINER_CORPSE_party &&
-                !party_can_open_corpse(applier, op)) {
+            if (op->sub_type == ST1_CONTAINER_CORPSE_party && !party_can_open_corpse(applier, op)) {
                 /* Party corpse. */
                 return OBJECT_METHOD_OK;
             } else if (op->sub_type == ST1_CONTAINER_CORPSE_player &&
@@ -416,24 +399,19 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::remove_inv_func */
-static void
-remove_inv_func (object *op)
-{
+static void remove_inv_func(object *op) {
     container_close(NULL, op);
 }
 
 /** @copydoc object_methods_t::remove_map_func */
-static void
-remove_map_func (object *op)
-{
+static void remove_map_func(object *op) {
     remove_inv_func(op);
 }
 
 /**
  * Initialize the container type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(container)
-{
+OBJECT_TYPE_INIT_DEFINE(container) {
     OBJECT_METHODS(CONTAINER)->apply_func = apply_func;
     OBJECT_METHODS(CONTAINER)->remove_inv_func = remove_inv_func;
     OBJECT_METHODS(CONTAINER)->remove_map_func = remove_map_func;

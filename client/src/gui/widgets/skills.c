@@ -37,7 +37,7 @@ enum {
     BUTTON_HELP,
 
     BUTTON_NUM
-} ;
+};
 
 /**
  * Button buffer.
@@ -63,8 +63,7 @@ static size_t selected_skill;
 /**
  * Initialize skills system.
  */
-void skills_init(void)
-{
+void skills_init(void) {
     skill_list = NULL;
     skill_list_num = 0;
     selected_skill = 0;
@@ -73,8 +72,7 @@ void skills_init(void)
 /**
  * Deinitialize skills system.
  */
-void skills_deinit(void)
-{
+void skills_deinit(void) {
     for (size_t i = 0; i < skill_list_num; i++) {
         efree(skill_list[i]);
     }
@@ -87,8 +85,7 @@ void skills_deinit(void)
 }
 
 /** @copydoc list_struct::post_column_func */
-static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
-{
+static void list_post_column(list_struct *list, uint32_t row, uint32_t col) {
     size_t skill_id;
     SDL_Rect box;
 
@@ -107,7 +104,11 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
     box.w = INVENTORY_ICON_SIZE;
     box.h = INVENTORY_ICON_SIZE;
 
-    surface_show(list->surface, box.x, box.y, NULL, image_get_sprite(skill_list[skill_id]->skill->face)->bitmap);
+    surface_show(list->surface,
+                 box.x,
+                 box.y,
+                 NULL,
+                 image_get_sprite(skill_list[skill_id]->skill->face)->bitmap);
 
     if (selected_skill != skill_id) {
         return;
@@ -145,8 +146,19 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
     widgetdata *widget = widget_find(NULL, -1, NULL, list->surface);
     SOFT_ASSERT(widget != NULL, "Could not find widget");
 
-    text_show(list->surface, FONT("arial", 10), "[b]Experience[/b]", 167, widget->h - 47, COLOR_WHITE, TEXT_MARKUP, NULL);
-    player_draw_exp_progress(list->surface, 160, widget->h - 32, skill_list[skill_id]->exp, skill_list[skill_id]->level);
+    text_show(list->surface,
+              FONT("arial", 10),
+              "[b]Experience[/b]",
+              167,
+              widget->h - 47,
+              COLOR_WHITE,
+              TEXT_MARKUP,
+              NULL);
+    player_draw_exp_progress(list->surface,
+                             160,
+                             widget->h - 32,
+                             skill_list[skill_id]->exp,
+                             skill_list[skill_id]->level);
 
     box.h = 30;
     box.w = 35;
@@ -170,16 +182,14 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 }
 
 /** @copydoc list_struct::row_color_func */
-static void list_row_color(list_struct *list, int row, SDL_Rect box)
-{
+static void list_row_color(list_struct *list, int row, SDL_Rect box) {
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 25, 25, 25));
 }
 
 /**
  * Reload the skills list, due to a change of the skill type, for example.
  */
-static void skill_list_reload(void)
-{
+static void skill_list_reload(void) {
     size_t i;
     uint32_t offset, rows, selected;
 
@@ -193,7 +203,10 @@ static void skill_list_reload(void)
     list_clear(list_skills);
 
     for (i = 0; i < skill_list_num; i++) {
-        list_add(list_skills, list_skills->rows - (i % list_skills->cols == 0 ? 0 : 1), i % list_skills->cols, NULL);
+        list_add(list_skills,
+                 list_skills->rows - (i % list_skills->cols == 0 ? 0 : 1),
+                 i % list_skills->cols,
+                 NULL);
     }
 
     if (list_skills->rows == rows) {
@@ -214,8 +227,7 @@ static void skill_list_reload(void)
  * @return
  * 1 if the skill was found, 0 otherwise.
  */
-int skill_find(const char *name, size_t *id)
-{
+int skill_find(const char *name, size_t *id) {
     for (*id = 0; *id < skill_list_num; *id += 1) {
         if (!strncasecmp(skill_list[*id]->skill->s_name, name, strlen(name))) {
             return 1;
@@ -225,8 +237,7 @@ int skill_find(const char *name, size_t *id)
     return 0;
 }
 
-int skill_find_object(object *op, size_t *id)
-{
+int skill_find_object(object *op, size_t *id) {
     for (*id = 0; *id < skill_list_num; *id += 1) {
         if (skill_list[*id]->skill == op) {
             return 1;
@@ -243,17 +254,11 @@ int skill_find_object(object *op, size_t *id)
  * @return
  * The skill.
  */
-skill_entry_struct *skill_get(size_t id)
-{
+skill_entry_struct *skill_get(size_t id) {
     return skill_list[id];
 }
 
-void
-skills_update (object     *op,
-               uint8_t     level,
-               int64_t     xp,
-               const char *msg)
-{
+void skills_update(object *op, uint8_t level, int64_t xp, const char *msg) {
     size_t skill_id;
     skill_entry_struct *skill;
 
@@ -275,8 +280,7 @@ skills_update (object     *op,
     skill_list_reload();
 }
 
-void skills_remove(object *op)
-{
+void skills_remove(object *op) {
     size_t skill_id, i;
 
     if (!skill_find_object(op, &skill_id)) {
@@ -297,8 +301,7 @@ void skills_remove(object *op)
 }
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     SDL_Rect box;
     size_t i;
 
@@ -330,7 +333,14 @@ static void widget_draw(widgetdata *widget)
     if (widget->redraw) {
         box.h = 0;
         box.w = widget->w;
-        text_show(widget->surface, FONT_SERIF12, "Skills", 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+        text_show(widget->surface,
+                  FONT_SERIF12,
+                  "Skills",
+                  0,
+                  3,
+                  COLOR_HGOLD,
+                  TEXT_ALIGN_CENTER,
+                  &box);
         list_set_parent(list_skills, widget->x, widget->y);
         list_show(list_skills, 10, 2);
 
@@ -343,15 +353,15 @@ static void widget_draw(widgetdata *widget)
         buttons[BUTTON_CLOSE].y = 4;
         button_show(&buttons[BUTTON_CLOSE], "X");
 
-        buttons[BUTTON_HELP].x = widget->w - texture_surface(buttons[BUTTON_HELP].texture)->w * 2 - 4;
+        buttons[BUTTON_HELP].x =
+            widget->w - texture_surface(buttons[BUTTON_HELP].texture)->w * 2 - 4;
         buttons[BUTTON_HELP].y = 4;
         button_show(&buttons[BUTTON_HELP], "?");
     }
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget, int draw)
-{
+static void widget_background(widgetdata *widget, int draw) {
     if (!widget->redraw) {
         widget->redraw = list_need_redraw(list_skills);
     }
@@ -369,12 +379,12 @@ static void widget_background(widgetdata *widget, int draw)
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     uint32_t row, col;
     size_t i;
 
-    if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col)) {
+    if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT &&
+        list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col)) {
         size_t skill_id;
 
         skill_id = row * list_skills->cols + col;
@@ -387,7 +397,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                     return 1;
                 }
             } else if (event->type == SDL_MOUSEBUTTONDOWN) {
-                event_dragging_start(skill_list[skill_id]->skill->tag, event->motion.x, event->motion.y);
+                event_dragging_start(skill_list[skill_id]->skill->tag,
+                                     event->motion.x,
+                                     event->motion.y);
                 return 1;
             }
         }
@@ -400,17 +412,16 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         return 1;
     }
 
-
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&buttons[i], event)) {
             switch (i) {
-            case BUTTON_CLOSE:
-                widget->show = 0;
-                break;
+                case BUTTON_CLOSE:
+                    widget->show = 0;
+                    break;
 
-            case BUTTON_HELP:
-                help_show("skill list");
-                break;
+                case BUTTON_HELP:
+                    help_show("skill list");
+                    break;
             }
 
             widget->redraw = 1;
@@ -426,8 +437,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     if (list_skills != NULL) {
         list_remove(list_skills);
         list_skills = NULL;
@@ -441,8 +451,7 @@ static void widget_deinit(widgetdata *widget)
 /**
  * Initialize one skills widget.
  */
-void widget_skills_init(widgetdata *widget)
-{
+void widget_skills_init(widgetdata *widget) {
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;

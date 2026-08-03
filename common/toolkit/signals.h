@@ -44,7 +44,6 @@ TOOLKIT_FUNCS_DECLARE(signals);
  * @param prefix
  * Prefix to use, eg, 'atrinik-client', 'atrinik-server', etc.
  */
-extern void
-signals_set_traceback_prefix(const char *prefix);
+extern void signals_set_traceback_prefix(const char *prefix);
 
 #endif

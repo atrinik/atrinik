@@ -55,15 +55,15 @@ typedef enum logger_level {
     LOG_MAX
 } logger_level;
 
-#define log_error(...) \
-    do { \
-        logger_traceback(); \
+#define log_error(...)             \
+    do {                           \
+        logger_traceback();        \
         LOG(ERROR, ##__VA_ARGS__); \
     } while (0)
-#define LOG(_level, ...) \
-    do { \
-        logger_print(LOG_ ## _level, __FUNCTION__, __LINE__, ## __VA_ARGS__); \
-    } while(0)
+#define LOG(_level, ...)                                                   \
+    do {                                                                   \
+        logger_print(LOG_##_level, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+    } while (0)
 
 /* Prototypes */
 
@@ -76,8 +76,8 @@ void logger_set_filter_stdout(const char *str);
 void logger_set_filter_logfile(const char *str);
 void logger_set_print_func(logger_print_func func);
 void logger_do_print(const char *str);
-void logger_print(logger_level level, const char *function, uint64_t line,
-        const char *format, ...) __attribute__((format(printf, 4, 5)));
+void logger_print(logger_level level, const char *function, uint64_t line, const char *format, ...)
+    __attribute__((format(printf, 4, 5)));
 void logger_traceback(void);
 
 #endif

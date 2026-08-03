@@ -96,51 +96,47 @@ typedef struct path_visualization {
     UT_hash_handle hh; ///< Hash handle.
 } path_visualization_t;
 
-#define PATHFINDING_CHECK_ID(m, id) \
-    if ((m)->pathfinding_id != (id)) { \
-        (m)->pathfinding_id = (id); \
-        memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * \
-                sizeof(*(m)->bitmap)); \
-        memset((m)->path_nodes, 0, MAP_WIDTH(m) * MAP_HEIGHT(m) * \
-                sizeof(*(m)->path_nodes)); \
+#define PATHFINDING_CHECK_ID(m, id)                                                                \
+    if ((m)->pathfinding_id != (id)) {                                                             \
+        (m)->pathfinding_id = (id);                                                                \
+        memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(*(m)->bitmap)); \
+        memset((m)->path_nodes, 0, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(*(m)->path_nodes));       \
     }
 
 #define PATHFINDING_VISUALIZER_APPEND(visualizer, _m, _x, _y, _closed, _node) \
-    if (visualizer != NULL) { \
-        path_visualizer_t *__tmp; \
- \
-        __tmp = ecalloc(1, sizeof(*__tmp)); \
-        __tmp->map = (_m); \
-        __tmp->x = (_x); \
-        __tmp->y = (_y); \
-        __tmp->closed = (_closed); \
-        __tmp->node = (_node); \
-        __tmp->id = node_id++; \
-        DL_APPEND(*visualizer, __tmp); \
+    if (visualizer != NULL) {                                                 \
+        path_visualizer_t *__tmp;                                             \
+                                                                              \
+        __tmp = ecalloc(1, sizeof(*__tmp));                                   \
+        __tmp->map = (_m);                                                    \
+        __tmp->x = (_x);                                                      \
+        __tmp->y = (_y);                                                      \
+        __tmp->closed = (_closed);                                            \
+        __tmp->node = (_node);                                                \
+        __tmp->id = node_id++;                                                \
+        DL_APPEND(*visualizer, __tmp);                                        \
     }
 
-#define PATHFINDING_SET_CLOSED(m, x, y, id, visualizer) \
-    { \
-        PATHFINDING_CHECK_ID(m, id); \
-        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, true, NULL); \
-        (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= \
-                (1U << ((x) % 32)); \
+#define PATHFINDING_SET_CLOSED(m, x, y, id, visualizer)                                 \
+    {                                                                                   \
+        PATHFINDING_CHECK_ID(m, id);                                                    \
+        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, true, NULL);                 \
+        (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= (1U << ((x) % 32)); \
     }
 
 #define PATHFINDING_QUERY_CLOSED(m, x, y, id) \
-    ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + \
-            ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
+    ((m)->pathfinding_id == (id) &&           \
+     ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
 
-#define PATHFINDING_NODE_SET(m, x, y, id, node, visualizer) \
-    { \
-        PATHFINDING_CHECK_ID(m, id); \
+#define PATHFINDING_NODE_SET(m, x, y, id, node, visualizer)              \
+    {                                                                    \
+        PATHFINDING_CHECK_ID(m, id);                                     \
         PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, false, node); \
-        (m)->path_nodes[(x) + MAP_WIDTH(m) * (y)] = node; \
+        (m)->path_nodes[(x) + MAP_WIDTH(m) * (y)] = node;                \
     }
 
 #define PATHFINDING_NODE_GET(m, x, y, id) \
-    ((m)->pathfinding_id != (id) ? NULL : (m)->path_nodes[(x) + \
-            MAP_WIDTH(m) * (y)])
+    ((m)->pathfinding_id != (id) ? NULL : (m)->path_nodes[(x) + MAP_WIDTH(m) * (y)])
 
 /**
  * Pseudo-flag used to mark waypoints as "has requested path".

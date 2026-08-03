@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -53,7 +51,6 @@ move_on_func (object *op, object *victim, object *originator, int state)
 /**
  * Initialize the spinner type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(spinner)
-{
+OBJECT_TYPE_INIT_DEFINE(spinner) {
     OBJECT_METHODS(SPINNER)->move_on_func = move_on_func;
 }

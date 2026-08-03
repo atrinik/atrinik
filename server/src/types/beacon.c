@@ -51,9 +51,7 @@ typedef struct beacon {
 static beacon_t *beacons = NULL;
 
 /** @copydoc object_methods_t::init_func */
-static void
-init_func (object *op)
-{
+static void init_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     /* Figure out where the beacon is. */
@@ -79,9 +77,7 @@ init_func (object *op)
 }
 
 /** @copydoc object_methods_t::deinit_func */
-static void
-deinit_func (object *op)
-{
+static void deinit_func(object *op) {
     beacon_t *beacon;
     HASH_FIND(hh, beacons, &op->name, sizeof(shstr *), beacon);
     if (unlikely(beacon == NULL)) {
@@ -96,8 +92,7 @@ deinit_func (object *op)
 /**
  * Initialize the beacon type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(beacon)
-{
+OBJECT_TYPE_INIT_DEFINE(beacon) {
     OBJECT_METHODS(BEACON)->init_func = init_func;
     OBJECT_METHODS(BEACON)->deinit_func = deinit_func;
 }
@@ -110,9 +105,7 @@ OBJECT_TYPE_INIT_DEFINE(beacon)
  * @return
  * The beacon object if found, NULL otherwise.
  */
-object *
-beacon_locate (shstr *name)
-{
+object *beacon_locate(shstr *name) {
     HARD_ASSERT(name != NULL);
 
     beacon_t *beacon;

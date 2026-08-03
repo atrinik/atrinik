@@ -35,6 +35,4 @@
 /**
  * Initialize the experience type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(experience)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(experience) {}

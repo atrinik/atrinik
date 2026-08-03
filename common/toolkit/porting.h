@@ -35,14 +35,14 @@
 #endif
 
 #ifdef __GNUC__
-#define likely(x)           __builtin_expect(!!(x), 1)
-#define unlikely(x)         __builtin_expect(!!(x), 0)
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
 #else
 /* If we're not using GNU C, ignore __attribute__ */
-#define  __attribute__(x)
+#define __attribute__(x)
 /* Ignore likely/unlikely branch prediction when not using GNU C.*/
-#define likely(x)           (x)
-#define unlikely(x)         (x)
+#define likely(x) (x)
+#define unlikely(x) (x)
 #endif
 
 #ifdef WIN32
@@ -155,9 +155,7 @@
 
 #ifdef __MINGW32__
 #define _set_fmode(_mode) \
-        { \
-            _fmode = (_mode); \
-        }
+    { _fmode = (_mode); }
 #endif
 
 #undef X509_NAME

@@ -32,8 +32,7 @@
 #include <global.h>
 
 /** @copydoc command_func */
-void command_settime(object *op, const char *command, char *params)
-{
+void command_settime(object *op, const char *command, char *params) {
     int hour;
     timeofday_t tod;
 

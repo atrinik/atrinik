@@ -35,8 +35,7 @@
  * Player applies a torch on the ground. Ensure the torch is lit and not
  * applied.
  */
-START_TEST(test_light_apply_apply_1)
-{
+START_TEST(test_light_apply_apply_1) {
     mapstruct *map;
     object *pl, *torch;
 
@@ -54,8 +53,7 @@ END_TEST
  * Player applies a lit torch on the ground Ensure the torch is extinguished and
  * not applied.
  */
-START_TEST(test_light_apply_apply_2)
-{
+START_TEST(test_light_apply_apply_2) {
     mapstruct *map;
     object *pl, *torch;
 
@@ -73,8 +71,7 @@ END_TEST
 /*
  * Player applies a torch in his inventory. Ensure it's lit and applied.
  */
-START_TEST(test_light_apply_apply_3)
-{
+START_TEST(test_light_apply_apply_3) {
     mapstruct *map;
     object *pl, *torch;
 
@@ -92,8 +89,7 @@ END_TEST
  * Player applies a lit torch in his inventory. Ensure it was extinguished and
  * not applied.
  */
-START_TEST(test_light_apply_apply_4)
-{
+START_TEST(test_light_apply_apply_4) {
     mapstruct *map;
     object *pl, *torch;
 
@@ -121,8 +117,7 @@ END_TEST
  * Player applies a torch in his inventory, then a torch on the ground. Ensure
  * both torches are lit, but only the one in inventory is applied.
  */
-START_TEST(test_light_apply_apply_5)
-{
+START_TEST(test_light_apply_apply_5) {
     mapstruct *map;
     object *pl, *torch, *torch2;
 
@@ -154,8 +149,7 @@ END_TEST
  * the original is not lit. Then apply the original and ensure it's lit and
  * applied, and that the old one gets extinguished and not applied.
  */
-START_TEST(test_light_apply_apply_6)
-{
+START_TEST(test_light_apply_apply_6) {
     mapstruct *map;
     object *pl, *torch, *torch2;
 
@@ -187,8 +181,7 @@ START_TEST(test_light_apply_apply_6)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("light_apply");
     TCase *tc_core = tcase_create("Core");
 
@@ -206,7 +199,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_types_light_apply(void)
-{
+void check_types_light_apply(void) {
     check_run_suite(suite(), __FILE__);
 }

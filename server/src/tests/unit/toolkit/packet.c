@@ -29,18 +29,16 @@
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 
-#define packet_verify_data(packet, str) \
-{ \
-    char *hex; \
-    hex = emalloc(sizeof(*hex) * ((packet)->len * 2 + 1)); \
-    string_tohex((packet)->data, (packet)->len, hex, (packet)->len * 2 + 1, \
-                 false); \
-    ck_assert_str_eq(hex, (str)); \
-    efree(hex); \
-}
+#define packet_verify_data(packet, str)                                                 \
+    {                                                                                   \
+        char *hex;                                                                      \
+        hex = emalloc(sizeof(*hex) * ((packet)->len * 2 + 1));                          \
+        string_tohex((packet)->data, (packet)->len, hex, (packet)->len * 2 + 1, false); \
+        ck_assert_str_eq(hex, (str));                                                   \
+        efree(hex);                                                                     \
+    }
 
-START_TEST(test_packet_new)
-{
+START_TEST(test_packet_new) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -49,43 +47,42 @@ START_TEST(test_packet_new)
 
     packet = packet_new(0, 0, 0);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq((const char *) packet->data, "hello world");
+    ck_assert_str_eq((const char *)packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 5, 0);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq((const char *) packet->data, "hello world");
+    ck_assert_str_eq((const char *)packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 5, 5);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq((const char *) packet->data, "hello world");
+    ck_assert_str_eq((const char *)packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 5, 100);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq((const char *) packet->data, "hello world");
+    ck_assert_str_eq((const char *)packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 100, 0);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq((const char *) packet->data, "hello world");
+    ck_assert_str_eq((const char *)packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 100, 100);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq((const char *) packet->data, "hello world");
+    ck_assert_str_eq((const char *)packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 0, 100);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq((const char *) packet->data, "hello world");
+    ck_assert_str_eq((const char *)packet->data, "hello world");
     packet_free(packet);
 }
 END_TEST
 
-START_TEST(test_packet_dup)
-{
+START_TEST(test_packet_dup) {
     packet_struct *packet, *packet2;
 
     packet = packet_new(0, 0, 0);
@@ -105,8 +102,7 @@ START_TEST(test_packet_dup)
 }
 END_TEST
 
-START_TEST(test_packet_save)
-{
+START_TEST(test_packet_save) {
     packet_struct *packet;
     packet_save_t packet_save_buf;
 
@@ -131,8 +127,7 @@ START_TEST(test_packet_save)
 }
 END_TEST
 
-START_TEST(test_packet_load)
-{
+START_TEST(test_packet_load) {
     packet_struct *packet;
     packet_save_t packet_save_buf;
 
@@ -175,8 +170,7 @@ START_TEST(test_packet_load)
 }
 END_TEST
 
-START_TEST(test_packet_append_uint8)
-{
+START_TEST(test_packet_append_uint8) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -196,8 +190,7 @@ START_TEST(test_packet_append_uint8)
 }
 END_TEST
 
-START_TEST(test_packet_append_int8)
-{
+START_TEST(test_packet_append_int8) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -227,8 +220,7 @@ START_TEST(test_packet_append_int8)
 }
 END_TEST
 
-START_TEST(test_packet_append_uint16)
-{
+START_TEST(test_packet_append_uint16) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -248,8 +240,7 @@ START_TEST(test_packet_append_uint16)
 }
 END_TEST
 
-START_TEST(test_packet_append_int16)
-{
+START_TEST(test_packet_append_int16) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -279,8 +270,7 @@ START_TEST(test_packet_append_int16)
 }
 END_TEST
 
-START_TEST(test_packet_append_uint32)
-{
+START_TEST(test_packet_append_uint32) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -300,8 +290,7 @@ START_TEST(test_packet_append_uint32)
 }
 END_TEST
 
-START_TEST(test_packet_append_int32)
-{
+START_TEST(test_packet_append_int32) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -331,8 +320,7 @@ START_TEST(test_packet_append_int32)
 }
 END_TEST
 
-START_TEST(test_packet_append_uint64)
-{
+START_TEST(test_packet_append_uint64) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -352,8 +340,7 @@ START_TEST(test_packet_append_uint64)
 }
 END_TEST
 
-START_TEST(test_packet_append_int64)
-{
+START_TEST(test_packet_append_int64) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -383,8 +370,7 @@ START_TEST(test_packet_append_int64)
 }
 END_TEST
 
-START_TEST(test_packet_append_float)
-{
+START_TEST(test_packet_append_float) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -414,8 +400,7 @@ START_TEST(test_packet_append_float)
 }
 END_TEST
 
-START_TEST(test_packet_append_double)
-{
+START_TEST(test_packet_append_double) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -445,8 +430,7 @@ START_TEST(test_packet_append_double)
 }
 END_TEST
 
-START_TEST(test_packet_append_data_len)
-{
+START_TEST(test_packet_append_data_len) {
     packet_struct *packet;
     const uint8_t data[] = {0xff, 0x03, 0x00};
 
@@ -467,8 +451,7 @@ START_TEST(test_packet_append_data_len)
 }
 END_TEST
 
-START_TEST(test_packet_append_string_len)
-{
+START_TEST(test_packet_append_string_len) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -488,8 +471,7 @@ START_TEST(test_packet_append_string_len)
 }
 END_TEST
 
-START_TEST(test_packet_append_string)
-{
+START_TEST(test_packet_append_string) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -504,8 +486,7 @@ START_TEST(test_packet_append_string)
 }
 END_TEST
 
-START_TEST(test_packet_append_string_len_terminated)
-{
+START_TEST(test_packet_append_string_len_terminated) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -520,8 +501,7 @@ START_TEST(test_packet_append_string_len_terminated)
 }
 END_TEST
 
-START_TEST(test_packet_append_string_terminated)
-{
+START_TEST(test_packet_append_string_terminated) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -536,8 +516,7 @@ START_TEST(test_packet_append_string_terminated)
 }
 END_TEST
 
-START_TEST(test_packet_append_packet)
-{
+START_TEST(test_packet_append_packet) {
     packet_struct *packet, *packet2;
 
     packet = packet_new(0, 0, 0);
@@ -563,295 +542,281 @@ START_TEST(test_packet_append_packet)
 }
 END_TEST
 
-START_TEST(test_packet_to_uint8)
-{
+START_TEST(test_packet_to_uint8) {
     size_t pos;
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint8((uint8_t []) {0x00}, 1, &pos), 0);
+    ck_assert_uint_eq(packet_to_uint8((uint8_t[]){0x00}, 1, &pos), 0);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint8((uint8_t []) {0x2A}, 1, &pos), 42);
+    ck_assert_uint_eq(packet_to_uint8((uint8_t[]){0x2A}, 1, &pos), 42);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint8((uint8_t []) {0xFF}, 1, &pos), UINT8_MAX);
+    ck_assert_uint_eq(packet_to_uint8((uint8_t[]){0xFF}, 1, &pos), UINT8_MAX);
 }
 END_TEST
 
-START_TEST(test_packet_to_int8)
-{
+START_TEST(test_packet_to_int8) {
     size_t pos;
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int8((uint8_t []) {0x00}, 1, &pos), 0);
+    ck_assert_int_eq(packet_to_int8((uint8_t[]){0x00}, 1, &pos), 0);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int8((uint8_t []) {0x2A}, 1, &pos), 42);
+    ck_assert_int_eq(packet_to_int8((uint8_t[]){0x2A}, 1, &pos), 42);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int8((uint8_t []) {0x7F}, 1, &pos), INT8_MAX);
+    ck_assert_int_eq(packet_to_int8((uint8_t[]){0x7F}, 1, &pos), INT8_MAX);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int8((uint8_t []) {0x80}, 1, &pos), INT8_MIN);
+    ck_assert_int_eq(packet_to_int8((uint8_t[]){0x80}, 1, &pos), INT8_MIN);
 }
 END_TEST
 
-START_TEST(test_packet_to_uint16)
-{
+START_TEST(test_packet_to_uint16) {
     size_t pos;
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint16((uint8_t []) {0x00, 0x00}, 2, &pos), 0);
+    ck_assert_uint_eq(packet_to_uint16((uint8_t[]){0x00, 0x00}, 2, &pos), 0);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint16((uint8_t []) {0x00, 0x2A}, 2, &pos), 42);
+    ck_assert_uint_eq(packet_to_uint16((uint8_t[]){0x00, 0x2A}, 2, &pos), 42);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint16((uint8_t []) {0xFF, 0xFF}, 2, &pos),
-            UINT16_MAX);
+    ck_assert_uint_eq(packet_to_uint16((uint8_t[]){0xFF, 0xFF}, 2, &pos), UINT16_MAX);
 }
 END_TEST
 
-START_TEST(test_packet_to_int16)
-{
+START_TEST(test_packet_to_int16) {
     size_t pos;
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int16((uint8_t []) {0x00, 0x00}, 2, &pos), 0);
+    ck_assert_int_eq(packet_to_int16((uint8_t[]){0x00, 0x00}, 2, &pos), 0);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int16((uint8_t []) {0x00, 0x2A}, 2, &pos), 42);
+    ck_assert_int_eq(packet_to_int16((uint8_t[]){0x00, 0x2A}, 2, &pos), 42);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int16((uint8_t []) {0xFF, 0xD6}, 2, &pos), -42);
+    ck_assert_int_eq(packet_to_int16((uint8_t[]){0xFF, 0xD6}, 2, &pos), -42);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int16((uint8_t []) {0x7F, 0xFF}, 2, &pos),
-            INT16_MAX);
+    ck_assert_int_eq(packet_to_int16((uint8_t[]){0x7F, 0xFF}, 2, &pos), INT16_MAX);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int16((uint8_t []) {0x80, 0x00}, 2, &pos),
-            INT16_MIN);
+    ck_assert_int_eq(packet_to_int16((uint8_t[]){0x80, 0x00}, 2, &pos), INT16_MIN);
 }
 END_TEST
 
-START_TEST(test_packet_to_uint32)
-{
+START_TEST(test_packet_to_uint32) {
     size_t pos;
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint32((uint8_t []) {0x00, 0x00, 0x00, 0x00}, 4,
-            &pos), 0);
+    ck_assert_uint_eq(packet_to_uint32((uint8_t[]){0x00, 0x00, 0x00, 0x00}, 4, &pos), 0);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint32((uint8_t []) {0x00, 0x00, 0x00, 0x2A}, 4,
-            &pos), 42);
+    ck_assert_uint_eq(packet_to_uint32((uint8_t[]){0x00, 0x00, 0x00, 0x2A}, 4, &pos), 42);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint32((uint8_t []) {0xFF, 0xFF, 0xFF, 0xFF}, 4,
-            &pos), UINT32_MAX);
+    ck_assert_uint_eq(packet_to_uint32((uint8_t[]){0xFF, 0xFF, 0xFF, 0xFF}, 4, &pos), UINT32_MAX);
 }
 END_TEST
 
-START_TEST(test_packet_to_int32)
-{
+START_TEST(test_packet_to_int32) {
     size_t pos;
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int32((uint8_t []) {0x00, 0x00, 0x00, 0x00}, 4,
-            &pos), 0);
+    ck_assert_int_eq(packet_to_int32((uint8_t[]){0x00, 0x00, 0x00, 0x00}, 4, &pos), 0);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int32((uint8_t []) {0x00, 0x00, 0x00, 0x2A}, 4,
-            &pos), 42);
+    ck_assert_int_eq(packet_to_int32((uint8_t[]){0x00, 0x00, 0x00, 0x2A}, 4, &pos), 42);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int32((uint8_t []) {0xFF, 0xFF, 0xFF, 0xD6}, 4,
-            &pos), -42);
+    ck_assert_int_eq(packet_to_int32((uint8_t[]){0xFF, 0xFF, 0xFF, 0xD6}, 4, &pos), -42);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int32((uint8_t []) {0x7F, 0xFF, 0xFF, 0xFF}, 4,
-            &pos), INT32_MAX);
+    ck_assert_int_eq(packet_to_int32((uint8_t[]){0x7F, 0xFF, 0xFF, 0xFF}, 4, &pos), INT32_MAX);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int32((uint8_t []) {0x80, 0x00, 0x00, 0x00}, 4,
-            &pos), INT32_MIN);
+    ck_assert_int_eq(packet_to_int32((uint8_t[]){0x80, 0x00, 0x00, 0x00}, 4, &pos), INT32_MIN);
 }
 END_TEST
 
-START_TEST(test_packet_to_uint64)
-{
+START_TEST(test_packet_to_uint64) {
     size_t pos;
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint64((uint8_t []) {0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00}, 8, &pos), 0);
+    ck_assert_uint_eq(
+        packet_to_uint64((uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, &pos),
+        0);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint64((uint8_t []) {0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x2A}, 8, &pos), 42);
+    ck_assert_uint_eq(
+        packet_to_uint64((uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A}, 8, &pos),
+        42);
 
     pos = 0;
-    ck_assert_uint_eq(packet_to_uint64((uint8_t []) {0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF}, 8, &pos), UINT64_MAX);
+    ck_assert_uint_eq(
+        packet_to_uint64((uint8_t[]){0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, 8, &pos),
+        UINT64_MAX);
 }
 END_TEST
 
-START_TEST(test_packet_to_int64)
-{
+START_TEST(test_packet_to_int64) {
     size_t pos;
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int64((uint8_t []) {0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00}, 8, &pos), 0);
+    ck_assert_int_eq(
+        packet_to_int64((uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, &pos),
+        0);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int64((uint8_t []) {0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x2A}, 8, &pos), 42);
+    ck_assert_int_eq(
+        packet_to_int64((uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A}, 8, &pos),
+        42);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int64((uint8_t []) {0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xD6}, 8, &pos), -42);
+    ck_assert_int_eq(
+        packet_to_int64((uint8_t[]){0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xD6}, 8, &pos),
+        -42);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int64((uint8_t []) {0x7F, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF}, 8, &pos), INT64_MAX);
+    ck_assert_int_eq(
+        packet_to_int64((uint8_t[]){0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, 8, &pos),
+        INT64_MAX);
 
     pos = 0;
-    ck_assert_int_eq(packet_to_int64((uint8_t []) {0x80, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00}, 8, &pos), INT64_MIN);
+    ck_assert_int_eq(
+        packet_to_int64((uint8_t[]){0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, &pos),
+        INT64_MIN);
 }
 END_TEST
 
-START_TEST(test_packet_to_float)
-{
+START_TEST(test_packet_to_float) {
     size_t pos;
     char buf[MAX_BUF], buf2[MAX_BUF];
 
     pos = 0;
     snprintf(VS(buf), "%f", 1.0);
-    snprintf(VS(buf2), "%f", packet_to_float((uint8_t []) {0x3F, 0x80,
-            0x00, 0x00}, 4, &pos));
+    snprintf(VS(buf2), "%f", packet_to_float((uint8_t[]){0x3F, 0x80, 0x00, 0x00}, 4, &pos));
     ck_assert_str_eq(buf, buf2);
 
     pos = 0;
     snprintf(VS(buf), "%f", 0.0001);
-    snprintf(VS(buf2), "%f", packet_to_float((uint8_t []) {0x38, 0xD1,
-            0xB7, 0x17}, 4, &pos));
+    snprintf(VS(buf2), "%f", packet_to_float((uint8_t[]){0x38, 0xD1, 0xB7, 0x17}, 4, &pos));
     ck_assert_str_eq(buf, buf2);
 
     pos = 0;
     snprintf(VS(buf), "%f", -10.0);
-    snprintf(VS(buf2), "%f", packet_to_float((uint8_t []) {0xC1, 0x20,
-            0x00, 0x00}, 4, &pos));
+    snprintf(VS(buf2), "%f", packet_to_float((uint8_t[]){0xC1, 0x20, 0x00, 0x00}, 4, &pos));
     ck_assert_str_eq(buf, buf2);
 
     pos = 0;
     snprintf(VS(buf), "%f", 12345678.);
-    snprintf(VS(buf2), "%f", packet_to_float((uint8_t []) {0x4B, 0x3C,
-            0x61, 0x4E}, 4, &pos));
+    snprintf(VS(buf2), "%f", packet_to_float((uint8_t[]){0x4B, 0x3C, 0x61, 0x4E}, 4, &pos));
     ck_assert_str_eq(buf, buf2);
 }
 END_TEST
 
-START_TEST(test_packet_to_double)
-{
+START_TEST(test_packet_to_double) {
     size_t pos;
     char buf[MAX_BUF], buf2[MAX_BUF];
 
     pos = 0;
     snprintf(VS(buf), "%f", 1.0);
-    snprintf(VS(buf2), "%f", packet_to_double((uint8_t []) {0x3F, 0xF0,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, &pos));
+    snprintf(
+        VS(buf2),
+        "%f",
+        packet_to_double((uint8_t[]){0x3F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, &pos));
     ck_assert_str_eq(buf, buf2);
 
     pos = 0;
     snprintf(VS(buf), "%f", 0.0001);
-    snprintf(VS(buf2), "%f", packet_to_double((uint8_t []) {0x3F, 0x1A,
-            0x36, 0xE2, 0xEB, 0x1C, 0x43, 0x2D}, 8, &pos));
+    snprintf(
+        VS(buf2),
+        "%f",
+        packet_to_double((uint8_t[]){0x3F, 0x1A, 0x36, 0xE2, 0xEB, 0x1C, 0x43, 0x2D}, 8, &pos));
     ck_assert_str_eq(buf, buf2);
 
     pos = 0;
     snprintf(VS(buf), "%f", -10.0);
-    snprintf(VS(buf2), "%f", packet_to_double((uint8_t []) {0xC0, 0x24,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, &pos));
+    snprintf(
+        VS(buf2),
+        "%f",
+        packet_to_double((uint8_t[]){0xC0, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 8, &pos));
     ck_assert_str_eq(buf, buf2);
 
     pos = 0;
     snprintf(VS(buf), "%f", 123456789.0);
-    snprintf(VS(buf2), "%f", packet_to_double((uint8_t []) {0x41, 0x9D,
-            0x6F, 0x34, 0x54, 0x00, 0x00, 0x00}, 8, &pos));
+    snprintf(
+        VS(buf2),
+        "%f",
+        packet_to_double((uint8_t[]){0x41, 0x9D, 0x6F, 0x34, 0x54, 0x00, 0x00, 0x00}, 8, &pos));
     ck_assert_str_eq(buf, buf2);
 
     pos = 0;
     snprintf(VS(buf), "%f", -109.56);
-    snprintf(VS(buf2), "%f", packet_to_double((uint8_t []) {0xC0, 0x5B,
-            0x63, 0xD7, 0x0A, 0x3D, 0x70, 0xA4}, 8, &pos));
+    snprintf(
+        VS(buf2),
+        "%f",
+        packet_to_double((uint8_t[]){0xC0, 0x5B, 0x63, 0xD7, 0x0A, 0x3D, 0x70, 0xA4}, 8, &pos));
     ck_assert_str_eq(buf, buf2);
 }
 END_TEST
 
-START_TEST(test_packet_to_string)
-{
+START_TEST(test_packet_to_string) {
     size_t pos;
     char buf[MAX_BUF], buf2[2];
 
     pos = 0;
-    ck_assert_str_eq(packet_to_string((uint8_t []) {0x74, 0x65,
-            0x73, 0x74, 0x00}, 5, &pos, VS(buf)), "test");
+    ck_assert_str_eq(packet_to_string((uint8_t[]){0x74, 0x65, 0x73, 0x74, 0x00}, 5, &pos, VS(buf)),
+                     "test");
 
     pos = 0;
-    ck_assert_str_eq(packet_to_string((uint8_t []) {0x74, 0x65,
-            0x73, 0x74, 0x00}, 4, &pos, VS(buf)), "test");
+    ck_assert_str_eq(packet_to_string((uint8_t[]){0x74, 0x65, 0x73, 0x74, 0x00}, 4, &pos, VS(buf)),
+                     "test");
 
     pos = 0;
-    ck_assert_str_eq(packet_to_string((uint8_t []) {0x74, 0x65,
-            0x73, 0x74}, 4, &pos, VS(buf)), "test");
+    ck_assert_str_eq(packet_to_string((uint8_t[]){0x74, 0x65, 0x73, 0x74}, 4, &pos, VS(buf)),
+                     "test");
 
     pos = 0;
-    ck_assert_str_eq(packet_to_string((uint8_t []) {0x74, 0x65,
-            0x73, 0x74}, 4, &pos, VS(buf2)), "t");
+    ck_assert_str_eq(packet_to_string((uint8_t[]){0x74, 0x65, 0x73, 0x74}, 4, &pos, VS(buf2)), "t");
 
     pos = 0;
-    ck_assert_str_eq(packet_to_string((uint8_t []) {0x74, 0x65,
-            0x73, 0x74, 0x00}, 5, &pos, VS(buf2)), "t");
+    ck_assert_str_eq(packet_to_string((uint8_t[]){0x74, 0x65, 0x73, 0x74, 0x00}, 5, &pos, VS(buf2)),
+                     "t");
 }
 END_TEST
 
-START_TEST(test_packet_to_stringbuffer)
-{
+START_TEST(test_packet_to_stringbuffer) {
     size_t pos;
     StringBuffer *sb;
     char *cp;
 
     pos = 0;
     sb = stringbuffer_new();
-    packet_to_stringbuffer((uint8_t []) {0x74, 0x65, 0x73, 0x74, 0x00}, 5,
-            &pos, sb);
+    packet_to_stringbuffer((uint8_t[]){0x74, 0x65, 0x73, 0x74, 0x00}, 5, &pos, sb);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "test");
     efree(cp);
 
     pos = 0;
     sb = stringbuffer_new();
-    packet_to_stringbuffer((uint8_t []) {0x74, 0x65, 0x73, 0x74, 0x00}, 4,
-            &pos, sb);
+    packet_to_stringbuffer((uint8_t[]){0x74, 0x65, 0x73, 0x74, 0x00}, 4, &pos, sb);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "test");
     efree(cp);
 
     pos = 0;
     sb = stringbuffer_new();
-    packet_to_stringbuffer((uint8_t []) {0x74, 0x65, 0x73, 0x74}, 4,
-            &pos, sb);
+    packet_to_stringbuffer((uint8_t[]){0x74, 0x65, 0x73, 0x74}, 4, &pos, sb);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "test");
     efree(cp);
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("packet");
     TCase *tc_core = tcase_create("Core");
 
@@ -895,7 +860,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_packet(void)
-{
+void check_server_packet(void) {
     check_run_suite(suite(), __FILE__);
 }

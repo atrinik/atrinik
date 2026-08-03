@@ -62,8 +62,7 @@ typedef struct widget_fps_struct {
 } widget_fps_struct;
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     widget_fps_struct *tmp;
 
     if (!widget->redraw) {
@@ -72,13 +71,20 @@ static void widget_draw(widgetdata *widget)
 
     tmp = widget->subwidget;
 
-    text_show_format(widget->surface, FONT_ARIAL11, 4, 4, COLOR_WHITE, 0, NULL,
-            "%d (%d)", tmp->current, tmp->current_real);
+    text_show_format(widget->surface,
+                     FONT_ARIAL11,
+                     4,
+                     4,
+                     COLOR_WHITE,
+                     0,
+                     NULL,
+                     "%d (%d)",
+                     tmp->current,
+                     tmp->current_real);
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget, int draw)
-{
+static void widget_background(widgetdata *widget, int draw) {
     widget_fps_struct *tmp;
     uint32_t ticks;
 
@@ -88,8 +94,7 @@ static void widget_background(widgetdata *widget, int draw)
     ticks = SDL_GetTicks();
 
     if (tmp->lasttime < ticks - 1000) {
-        if (tmp->current != tmp->frames ||
-                tmp->current_real != tmp->frames_real) {
+        if (tmp->current != tmp->frames || tmp->current_real != tmp->frames_real) {
             widget->redraw = 1;
         }
 
@@ -104,8 +109,7 @@ static void widget_background(widgetdata *widget, int draw)
 /**
  * Initialize one FPS widget.
  */
-void widget_fps_init(widgetdata *widget)
-{
+void widget_fps_init(widgetdata *widget) {
     widget_fps_struct *tmp;
 
     widget->draw_func = widget_draw;

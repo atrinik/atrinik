@@ -67,12 +67,12 @@ typedef struct artifact {
      * If set, the artifact will be directly copied to the object,
      * instead of just having the extra attributes added.
      */
-    bool copy_artifact:1;
+    bool copy_artifact : 1;
 
     /**
      * If true, artifact::allowed is a list of disallowed archetypes.
      */
-    bool disallowed:1;
+    bool disallowed : 1;
 } artifact_t;
 
 /**
@@ -93,19 +93,11 @@ typedef struct artifact_list {
 
 /* Prototypes */
 
-void
-artifact_init(void);
-void
-artifact_deinit(void);
-artifact_list_t *
-artifact_list_find(uint8_t type);
-artifact_t *
-artifact_find_type(const char *name, uint8_t type);
-void
-artifact_change_object(artifact_t *art, object *op);
-bool
-artifact_generate(object              *op,
-                  int                  difficulty,
-                  treasure_affinity_t *affinity);
+void artifact_init(void);
+void artifact_deinit(void);
+artifact_list_t *artifact_list_find(uint8_t type);
+artifact_t *artifact_find_type(const char *name, uint8_t type);
+void artifact_change_object(artifact_t *art, object *op);
+bool artifact_generate(object *op, int difficulty, treasure_affinity_t *affinity);
 
 #endif

@@ -55,9 +55,7 @@
  * @param applier
  * Who is applying the potion.
  */
-static void
-potion_apply_spell (object *op, object *applier)
-{
+static void potion_apply_spell(object *op, object *applier) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -75,17 +73,8 @@ potion_apply_spell (object *op, object *applier)
             drain_stat(applier);
         }
 
-        insert_spell_effect("meffect_purple",
-                            applier->map,
-                            applier->x,
-                            applier->y);
-        play_sound_map(applier->map,
-                       CMD_SOUND_EFFECT,
-                       "poison.ogg",
-                       applier->x,
-                       applier->y,
-                       0,
-                       0);
+        insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
+        play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
         return;
     }
 
@@ -96,13 +85,7 @@ potion_apply_spell (object *op, object *applier)
         direction = applier->direction;
     }
 
-    cast_spell(applier,
-               op,
-               direction,
-               op->stats.sp,
-               1,
-               CAST_POTION,
-               NULL);
+    cast_spell(applier, op, direction, op->stats.sp, 1, CAST_POTION, NULL);
 }
 
 /**
@@ -113,9 +96,7 @@ potion_apply_spell (object *op, object *applier)
  * @param applier
  * Who is applying the potion.
  */
-static void
-potion_apply_effects (object *op, object *applier)
-{
+static void potion_apply_effects(object *op, object *applier) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -154,25 +135,13 @@ potion_apply_effects (object *op, object *applier)
             force->protection[i] = MIN(100, MAX(-100, protection));
         }
 
-        insert_spell_effect("meffect_purple",
-                            applier->map,
-                            applier->x,
-                            applier->y);
-        play_sound_map(applier->map,
-                       CMD_SOUND_EFFECT,
-                       "poison.ogg",
-                       applier->x,
-                       applier->y,
-                       0,
-                       0);
+        insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
+        play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
     } else {
         memcpy(force->protection, op->protection, sizeof(op->protection));
         memcpy(force->attack, op->attack, sizeof(op->attack));
 
-        insert_spell_effect("meffect_green",
-                            applier->map,
-                            applier->x,
-                            applier->y);
+        insert_spell_effect("meffect_green", applier->map, applier->x, applier->y);
         play_sound_map(applier->map,
                        CMD_SOUND_EFFECT,
                        "magic_default.ogg",
@@ -204,9 +173,7 @@ potion_apply_effects (object *op, object *applier)
 
         /* Now set the stat value of the force to the one calculate
          * above, but make sure it doesn't overflow an int8_t. */
-        change_attr_value(&force->stats,
-                          i,
-                          MIN(INT8_MAX, MAX(INT8_MIN, val)));
+        change_attr_value(&force->stats, i, MIN(INT8_MAX, MAX(INT8_MIN, val)));
     }
 
     /* Insert the force into the player and apply it. */
@@ -223,9 +190,7 @@ potion_apply_effects (object *op, object *applier)
 }
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -264,13 +229,11 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -281,25 +244,24 @@ process_treasure_func (object              *op,
 
     bool generated_art = false;
     switch (op->sub_type) {
-    case POTION_NORMAL:
-        generated_art = artifact_generate(op, difficulty, affinity);
-        break;
+        case POTION_NORMAL:
+            generated_art = artifact_generate(op, difficulty, affinity);
+            break;
 
-    case POTION_BALM:
-        op->stats.sp = spell_get_random(difficulty, SPELL_USE_BALM);
-        break;
+        case POTION_BALM:
+            op->stats.sp = spell_get_random(difficulty, SPELL_USE_BALM);
+            break;
 
-    case POTION_DUST:
-        op->stats.sp = spell_get_random(difficulty, SPELL_USE_DUST);
-        break;
+        case POTION_DUST:
+            op->stats.sp = spell_get_random(difficulty, SPELL_USE_DUST);
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
     if (op->stats.sp == SP_NO_SPELL && !generated_art) {
-        log_error("Failed to generate a spell/artifact for potion: %s",
-                  object_get_str(op));
+        log_error("Failed to generate a spell/artifact for potion: %s", object_get_str(op));
         object_remove(op, 0);
         object_destroy(op);
         return OBJECT_METHOD_ERROR;
@@ -315,8 +277,7 @@ process_treasure_func (object              *op,
 
     /* Chance to make special potions damned/cursed, unless we're only
      * generating good treasures. */
-    if (op->stats.sp == SP_NO_SPELL &&
-        !(flags & GT_ONLY_GOOD) &&
+    if (op->stats.sp == SP_NO_SPELL && !(flags & GT_ONLY_GOOD) &&
         rndm_chance(POTION_CHANCE_CURSED)) {
         if (rndm_chance(POTION_CHANCE_DAMNED)) {
             SET_FLAG(op, FLAG_DAMNED);
@@ -331,8 +292,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the potion type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(potion)
-{
+OBJECT_TYPE_INIT_DEFINE(potion) {
     OBJECT_METHODS(POTION)->apply_func = apply_func;
     OBJECT_METHODS(POTION)->process_treasure_func = process_treasure_func;
     OBJECT_METHODS(POTION)->override_treasure_processing = true;

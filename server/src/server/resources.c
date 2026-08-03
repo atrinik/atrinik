@@ -47,9 +47,7 @@ static resource_t *resources = NULL;
  * @param path
  * Path to the directory.
  */
-static void
-resources_traverse (DIR *dir, const char *path)
-{
+static void resources_traverse(DIR *dir, const char *path) {
     HARD_ASSERT(dir != NULL);
     HARD_ASSERT(path != NULL);
 
@@ -64,8 +62,7 @@ resources_traverse (DIR *dir, const char *path)
         DIR *dir_curr = opendir(path_curr);
         if (dir_curr == NULL) {
             if (errno != ENOTDIR) {
-                LOG(ERROR, "Failed to open %s: %s (%d)",
-                    path_curr, strerror(errno), errno);
+                LOG(ERROR, "Failed to open %s: %s (%d)", path_curr, strerror(errno), errno);
                 exit(1);
             }
         } else {
@@ -81,38 +78,29 @@ resources_traverse (DIR *dir, const char *path)
 
         resource_t *resource = ecalloc(1, sizeof(*resource));
         resource->name = cp;
-        HASH_ADD_KEYPTR(hh,
-                        resources,
-                        resource->name,
-                        strlen(resource->name),
-                        resource);
+        HASH_ADD_KEYPTR(hh, resources, resource->name, strlen(resource->name), resource);
 
         SHA512_CTX ctx;
         SOFT_ASSERT(SHA512_Init(&ctx) == 1, "SHA512_Init() failed");
 
         FILE *fp = fopen(path_curr, "rb");
         if (fp == NULL) {
-            LOG(ERROR, "Failed to open %s for reading: %s (%d)",
-                path_curr, strerror(errno), errno);
+            LOG(ERROR, "Failed to open %s for reading: %s (%d)", path_curr, strerror(errno), errno);
             exit(1);
         }
 
         size_t num_read;
         unsigned char buffer[1024 * 64];
         while ((num_read = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
-            SOFT_ASSERT(SHA512_Update(&ctx, buffer, num_read) == 1,
-                        "SHA512_Update() failed");
+            SOFT_ASSERT(SHA512_Update(&ctx, buffer, num_read) == 1, "SHA512_Update() failed");
         }
 
         fclose(fp);
-        SOFT_ASSERT(SHA512_Final(resource->md, &ctx) == 1,
-                    "SHA512_Final() failed");
+        SOFT_ASSERT(SHA512_Final(resource->md, &ctx) == 1, "SHA512_Final() failed");
 
         char key[sizeof(resource->md) * 2 + 1];
-        SOFT_ASSERT(string_tohex(VS(resource->md),
-                                       VS(key),
-                                       false) == sizeof(key) - 1,
-                          "string_tohex failed");
+        SOFT_ASSERT(string_tohex(VS(resource->md), VS(key), false) == sizeof(key) - 1,
+                    "string_tohex failed");
         string_tolower(key);
     }
 
@@ -122,9 +110,7 @@ resources_traverse (DIR *dir, const char *path)
 /**
  * Initialize the resource files database.
  */
-void
-resources_init (void)
-{
+void resources_init(void) {
     DIR *dir = opendir(settings.resourcespath);
     if (dir == NULL) {
         LOG(INFO,
@@ -139,9 +125,7 @@ resources_init (void)
 /**
  * Deinitialize the resource files database.
  */
-void
-resources_deinit (void)
-{
+void resources_deinit(void) {
     resource_t *resource, *tmp;
     HASH_ITER(hh, resources, resource, tmp) {
         HASH_DEL(resources, resource);
@@ -158,9 +142,7 @@ resources_deinit (void)
  * @return
  * Resource if found, NULL otherwise.
  */
-resource_t *
-resources_find (const char *name)
-{
+resource_t *resources_find(const char *name) {
     if (name == NULL) {
         return NULL;
     }
@@ -178,10 +160,7 @@ resources_find (const char *name)
  * @param ns
  * Client to send to.
  */
-void
-resources_send (resource_t    *resource,
-                socket_struct *ns)
-{
+void resources_send(resource_t *resource, socket_struct *ns) {
     HARD_ASSERT(resource != NULL);
     HARD_ASSERT(ns != NULL);
 

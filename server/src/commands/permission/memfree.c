@@ -32,8 +32,7 @@
 #include <global.h>
 
 /** @copydoc command_func */
-void command_memfree(object *op, const char *command, char *params)
-{
+void command_memfree(object *op, const char *command, char *params) {
     size_t freed;
     mempool_struct *pool;
 
@@ -50,6 +49,5 @@ void command_memfree(object *op, const char *command, char *params)
     }
 
     freed = mempool_reclaim(pool);
-    draw_info_format(COLOR_WHITE, op, "Freed %"PRId64" puddles.",
-            (uint64_t) freed);
+    draw_info_format(COLOR_WHITE, op, "Freed %" PRId64 " puddles.", (uint64_t)freed);
 }

@@ -49,7 +49,7 @@ struct bmappair {
     char *name;
 
     unsigned int number;
-} ;
+};
 
 /**
  * The xbm array (which contains name and number information, and is then
@@ -69,9 +69,8 @@ int nrofpixmaps = 0;
 /**
  * Used for bsearch searching.
  */
-static int compar(const void *a, const void *b)
-{
-    return strcmp(((const struct bmappair *) a)->name, ((const struct bmappair *) b)->name);
+static int compar(const void *a, const void *b) {
+    return strcmp(((const struct bmappair *)a)->name, ((const struct bmappair *)b)->name);
 }
 
 /**
@@ -79,8 +78,7 @@ static int compar(const void *a, const void *b)
  * only needs to be done once, because it is player independent (ie, what
  * display the person is on will not make a difference).
  */
-int read_bmap_names(void)
-{
+int read_bmap_names(void) {
     char buf[MAX_BUF], *cp;
     FILE *fp;
     int nrofbmaps = 0, i;
@@ -132,7 +130,7 @@ int read_bmap_names(void)
 
         nroffiles++;
 
-        if ((int) line > nrofpixmaps) {
+        if ((int)line > nrofpixmaps) {
             nrofpixmaps++;
         }
 
@@ -169,19 +167,17 @@ int read_bmap_names(void)
  * @param error
  * Value to return if face was not found.
  */
-int find_face(const char *name, int error)
-{
+int find_face(const char *name, int error) {
     struct bmappair *bp, tmp;
 
-    tmp.name = (char *) name;
+    tmp.name = (char *)name;
     bp = bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), compar);
 
-    return bp ? bp->number : (unsigned int) error;
+    return bp ? bp->number : (unsigned int)error;
 }
 
 /** Deallocates memory allocated by read_bmap_names(). */
-void free_all_images(void)
-{
+void free_all_images(void) {
     int i;
 
     for (i = 0; i < nroffiles; i++) {

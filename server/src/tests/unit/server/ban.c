@@ -29,43 +29,32 @@
 #include <ban.h>
 #include <player.h>
 
-START_TEST(test_ban_add)
-{
+START_TEST(test_ban_add) {
     ban_reset();
     ck_assert_int_eq(ban_add("   "), BAN_BADSYNTAX);
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_OK);
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_EXIST);
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " *"), BAN_EXIST);
-    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME),
-            BAN_OK);
-    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME),
-            BAN_EXIST);
-    ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" "
-            ACCOUNT_TESTING_NAME), BAN_OK);
-    ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" "
-            ACCOUNT_TESTING_NAME), BAN_EXIST);
+    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME), BAN_OK);
+    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME), BAN_EXIST);
+    ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" " ACCOUNT_TESTING_NAME), BAN_OK);
+    ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" " ACCOUNT_TESTING_NAME), BAN_EXIST);
     ck_assert_int_eq(ban_add("* * unexpected"), BAN_BADSYNTAX);
     ban_reset();
 }
 END_TEST
 
-START_TEST(test_ban_remove)
-{
+START_TEST(test_ban_remove) {
     ban_reset();
     ck_assert_int_eq(ban_remove("   "), BAN_BADSYNTAX);
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_OK);
     ck_assert_int_eq(ban_remove(PLAYER_TESTING_NAME1), BAN_OK);
     ck_assert_int_eq(ban_remove(PLAYER_TESTING_NAME1), BAN_NOTEXIST);
-    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME),
-            BAN_OK);
-    ck_assert_int_eq(ban_remove(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME),
-            BAN_OK);
-    ck_assert_int_eq(ban_remove(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME),
-            BAN_NOTEXIST);
-    ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" "
-            ACCOUNT_TESTING_NAME), BAN_OK);
-    ck_assert_int_eq(ban_remove("\"" PLAYER_TESTING_NAME2 "\" "
-            ACCOUNT_TESTING_NAME), BAN_OK);
+    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME), BAN_OK);
+    ck_assert_int_eq(ban_remove(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME), BAN_OK);
+    ck_assert_int_eq(ban_remove(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME), BAN_NOTEXIST);
+    ck_assert_int_eq(ban_add("\"" PLAYER_TESTING_NAME2 "\" " ACCOUNT_TESTING_NAME), BAN_OK);
+    ck_assert_int_eq(ban_remove("\"" PLAYER_TESTING_NAME2 "\" " ACCOUNT_TESTING_NAME), BAN_OK);
     ban_reset();
     ck_assert_int_eq(ban_remove("#1"), BAN_BADID);
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_OK);
@@ -77,8 +66,7 @@ START_TEST(test_ban_remove)
 }
 END_TEST
 
-START_TEST(test_ban_check)
-{
+START_TEST(test_ban_check) {
     ban_reset();
     ck_assert(!ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_OK);
@@ -93,8 +81,7 @@ START_TEST(test_ban_check)
     ck_assert(ban_check(NULL, ACCOUNT_TESTING_NAME));
     ck_assert(!ban_check(PLAYER_TESTING_NAME1, "another-account"));
     ban_reset();
-    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME),
-            BAN_OK);
+    ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1 " " ACCOUNT_TESTING_NAME), BAN_OK);
     ck_assert(ban_check(PLAYER_TESTING_NAME1, ACCOUNT_TESTING_NAME));
     ck_assert(!ban_check(PLAYER_TESTING_NAME1, "another-account"));
     ck_assert(!ban_check(PLAYER_TESTING_NAME2, ACCOUNT_TESTING_NAME));
@@ -106,8 +93,7 @@ START_TEST(test_ban_check)
 }
 END_TEST
 
-START_TEST(test_ban_reset)
-{
+START_TEST(test_ban_reset) {
     ban_reset();
     ck_assert_int_eq(ban_add(PLAYER_TESTING_NAME1), BAN_OK);
     ban_reset();
@@ -117,8 +103,7 @@ START_TEST(test_ban_reset)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("ban");
     TCase *tc_core = tcase_create("Core");
 
@@ -134,7 +119,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_ban(void)
-{
+void check_server_ban(void) {
     check_run_suite(suite(), __FILE__);
 }

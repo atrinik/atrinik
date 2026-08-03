@@ -35,27 +35,20 @@
 #include <key.h>
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
     if (op->slaying != NULL) {
         if (key_match(applier, op) == NULL) {
-            draw_info_format(COLOR_WHITE, applier,
-                             "The %s is locked.",
-                             op->name);
+            draw_info_format(COLOR_WHITE, applier, "The %s is locked.", op->name);
             return OBJECT_METHOD_OK;
         }
-    } else if (!DBL_EQUAL(op->speed, 0.0) ||
-               (op->stats.exp == -1 && op->value != 0)) {
+    } else if (!DBL_EQUAL(op->speed, 0.0) || (op->stats.exp == -1 && op->value != 0)) {
         if (op->msg != NULL) {
             draw_info(COLOR_WHITE, applier, op->msg);
         } else {
-            draw_info_format(COLOR_WHITE, applier,
-                             "The %s won't budge.",
-                             op->name);
+            draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
         }
 
         return OBJECT_METHOD_OK;
@@ -64,24 +57,15 @@ apply_func (object *op, object *applier, int aflags)
     /* Toggle the state. */
     op->value = !op->value;
     op->state = op->value;
-    SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
-                        op->direction) + op->value));
+    SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value));
     object_update(op, UP_OBJ_FACE);
 
     /* Inform the applier. */
     if (op->msg != NULL) {
         draw_info(COLOR_WHITE, applier, op->msg);
     } else {
-        draw_info_format(COLOR_WHITE, applier,
-                         "You turn the %s.",
-                         op->name);
-        play_sound_map(op->map,
-                       CMD_SOUND_EFFECT,
-                       "pull.ogg",
-                       op->x,
-                       op->y,
-                       0,
-                       0);
+        draw_info_format(COLOR_WHITE, applier, "You turn the %s.", op->name);
+        play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
     }
 
     connection_trigger(op, op->value);
@@ -98,30 +82,24 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
-    if (!DBL_EQUAL(op->speed, 0.0) ||
-        (op->stats.exp == -1 && op->value != 0)) {
+    if (!DBL_EQUAL(op->speed, 0.0) || (op->stats.exp == -1 && op->value != 0)) {
         return OBJECT_METHOD_OK;
     }
 
     op->value = state;
     op->state = op->value;
-    SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
-                        op->direction) + op->value));
+    SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value));
     object_update(op, UP_OBJ_FACE);
 
     return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     op->speed = 0;
@@ -133,8 +111,7 @@ process_func (object *op)
 
     op->value = 0;
     op->state = op->value;
-    SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
-                        op->direction) + op->value));
+    SET_ANIMATION(op, (((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->value));
     object_update(op, UP_OBJ_FACE);
 
     connection_trigger(op, op->value);
@@ -143,8 +120,7 @@ process_func (object *op)
 /**
  * Initialize the handle type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(handle)
-{
+OBJECT_TYPE_INIT_DEFINE(handle) {
     OBJECT_METHODS(TYPE_HANDLE)->apply_func = apply_func;
     OBJECT_METHODS(TYPE_HANDLE)->trigger_func = trigger_func;
     OBJECT_METHODS(TYPE_HANDLE)->process_func = process_func;

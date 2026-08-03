@@ -35,6 +35,4 @@
 /**
  * Initialize the inorganic type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(inorganic)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(inorganic) {}

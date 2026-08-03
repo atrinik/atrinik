@@ -66,9 +66,7 @@
  * @param force
  * The force object.
  */
-static void
-food_create_force (object *who, object *food, object *force)
-{
+static void food_create_force(object *who, object *food, object *force) {
     HARD_ASSERT(who != NULL);
     HARD_ASSERT(food != NULL);
     HARD_ASSERT(force != NULL);
@@ -139,9 +137,7 @@ food_create_force (object *who, object *food, object *force)
  * @param food
  * The food object.
  */
-static void
-food_eat_special (object *who, object *food)
-{
+static void food_eat_special(object *who, object *food) {
     HARD_ASSERT(who != NULL);
     HARD_ASSERT(food != NULL);
 
@@ -220,9 +216,7 @@ food_eat_special (object *who, object *food)
 }
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -231,19 +225,19 @@ apply_func (object *op, object *applier, int aflags)
     }
 
     if (applier->stats.food + op->stats.food > FOOD_MAX) {
-        if ((applier->stats.food + op->stats.food) - FOOD_MAX >
-            op->stats.food / 5) {
-            draw_info_format(COLOR_WHITE, applier,
+        if ((applier->stats.food + op->stats.food) - FOOD_MAX > op->stats.food / 5) {
+            draw_info_format(COLOR_WHITE,
+                             applier,
                              "You are too full to %s this right now!",
                              op->type == DRINK ? "drink" : "eat");
             return OBJECT_METHOD_OK;
         }
 
         if (op->type == FOOD || op->type == FLESH) {
-            draw_info(COLOR_WHITE, applier,
-                      "You feel full, but what a waste of food!");
+            draw_info(COLOR_WHITE, applier, "You feel full, but what a waste of food!");
         } else {
-            draw_info(COLOR_WHITE, applier,
+            draw_info(COLOR_WHITE,
+                      applier,
                       "Most of the drink goes down your face not your throat!");
         }
     }
@@ -251,18 +245,16 @@ apply_func (object *op, object *applier, int aflags)
     if (!QUERY_FLAG(op, FLAG_CURSED) && !QUERY_FLAG(op, FLAG_DAMNED)) {
         int capacity_remaining = FOOD_MAX - applier->stats.food;
         if (op->type == DRINK) {
-            draw_info_format(COLOR_WHITE, applier,
-                             "Ahhh... that %s tasted good.",
-                             op->name);
+            draw_info_format(COLOR_WHITE, applier, "Ahhh... that %s tasted good.", op->name);
         } else {
-            draw_info_format(COLOR_WHITE, applier,
+            draw_info_format(COLOR_WHITE,
+                             applier,
                              "The %s tasted %s",
                              op->name,
                              op->type == FLESH ? "terrible!" : "good.");
         }
 
-        applier->stats.food =
-            MAX(0, MIN(FOOD_MAX, applier->stats.food + ABS(op->stats.food)));
+        applier->stats.food = MAX(0, MIN(FOOD_MAX, applier->stats.food + ABS(op->stats.food)));
         CONTR(applier)->stat_food_consumed += op->stats.food;
 
         /* Heal for a bit */
@@ -271,18 +263,13 @@ apply_func (object *op, object *applier, int aflags)
             applier->stats.hp = applier->stats.maxhp;
         }
     } else {
-        draw_info_format(COLOR_WHITE, applier,
-                         "The %s tasted terrible!",
-                         op->name);
-        applier->stats.food =
-            MAX(0, MIN(FOOD_MAX, applier->stats.food - ABS(op->stats.food)));
+        draw_info_format(COLOR_WHITE, applier, "The %s tasted terrible!", op->name);
+        applier->stats.food = MAX(0, MIN(FOOD_MAX, applier->stats.food - ABS(op->stats.food)));
     }
 
     CONTR(applier)->stat_food_num_consumed++;
 
-    if (op->title != NULL ||
-        QUERY_FLAG(op, FLAG_CURSED) ||
-        QUERY_FLAG(op, FLAG_DAMNED)) {
+    if (op->title != NULL || QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) {
         food_eat_special(applier, op);
     }
 
@@ -291,13 +278,11 @@ apply_func (object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -369,8 +354,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the food type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(food)
-{
+OBJECT_TYPE_INIT_DEFINE(food) {
     OBJECT_METHODS(FOOD)->apply_func = apply_func;
     OBJECT_METHODS(FOOD)->process_treasure_func = process_treasure_func;
     OBJECT_METHODS(FOOD)->override_treasure_processing = true;

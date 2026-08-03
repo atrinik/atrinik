@@ -54,11 +54,10 @@
  * @return
  * 1 if both strings are equal, 0 otherwise.
  */
-#define XML_STR_EQUAL(s1, s2) \
-    xmlStrEqual((const xmlChar *) s1, (const xmlChar *) s2)
+#define XML_STR_EQUAL(s1, s2) xmlStrEqual((const xmlChar *)s1, (const xmlChar *)s2)
 
 #ifdef __MINGW32__
-#   define xmlFree free
+#define xmlFree free
 #endif
 
 /** Are we connecting to the metaserver? */
@@ -85,8 +84,7 @@ static const char *cert_end_str = "=========================="
 /**
  * Initialize the metaserver data.
  */
-void metaserver_init(void)
-{
+void metaserver_init(void) {
     /* Initialize the data. */
     server_head = NULL;
     server_count = 0;
@@ -102,8 +100,7 @@ void metaserver_init(void)
 /**
  * Disable the metaserver.
  */
-void metaserver_disable(void)
-{
+void metaserver_disable(void) {
     enabled = 0;
     metaserver_connecting = 0;
 }
@@ -114,9 +111,7 @@ void metaserver_disable(void)
  * @param info
  * What to free.
  */
-static void
-metaserver_cert_free (server_cert_info_t *info)
-{
+static void metaserver_cert_free(server_cert_info_t *info) {
     HARD_ASSERT(info != NULL);
 
     if (info->name != NULL) {
@@ -148,9 +143,7 @@ metaserver_cert_free (server_cert_info_t *info)
  * @param server
  * Node to free.
  */
-void
-metaserver_server_free (server_struct *server)
-{
+void metaserver_server_free(server_struct *server) {
     HARD_ASSERT(server != NULL);
 
     if (server->hostname != NULL) {
@@ -170,8 +163,7 @@ metaserver_server_free (server_struct *server)
     }
 
     if (server->join_password != NULL) {
-        OPENSSL_cleanse(server->join_password,
-                        strlen(server->join_password));
+        OPENSSL_cleanse(server->join_password, strlen(server->join_password));
         efree(server->join_password);
     }
 
@@ -206,9 +198,7 @@ metaserver_server_free (server_struct *server)
     efree(server);
 }
 
-void
-metaserver_server_add (server_struct *server)
-{
+void metaserver_server_add(server_struct *server) {
     HARD_ASSERT(server != NULL);
 
     SDL_LockMutex(server_head_mutex);
@@ -225,9 +215,7 @@ metaserver_server_add (server_struct *server)
  * @return
  * True on success, false on failure.
  */
-static bool
-parse_metaserver_cert (server_struct *server)
-{
+static bool parse_metaserver_cert(server_struct *server) {
     HARD_ASSERT(server != NULL);
 
     if (server->cert == NULL || server->cert_sig == NULL) {
@@ -237,18 +225,13 @@ parse_metaserver_cert (server_struct *server)
 
     /* Generate a SHA512 hash of the certificate's contents. */
     unsigned char cert_digest[SHA512_DIGEST_LENGTH];
-    if (SHA512((unsigned char *) server->cert,
-               strlen(server->cert),
-               cert_digest) == NULL) {
-        LOG(ERROR, "SHA512() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+    if (SHA512((unsigned char *)server->cert, strlen(server->cert), cert_digest) == NULL) {
+        LOG(ERROR, "SHA512() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         return false;
     }
 
     char cert_hash[SHA512_DIGEST_LENGTH * 2 + 1];
-    SOFT_ASSERT_RC(string_tohex(VS(cert_digest),
-                                VS(cert_hash),
-                                false) == sizeof(cert_hash) - 1,
+    SOFT_ASSERT_RC(string_tohex(VS(cert_digest), VS(cert_hash), false) == sizeof(cert_hash) - 1,
                    false,
                    "string_tohex failed");
     string_tolower(cert_hash);
@@ -309,18 +292,11 @@ parse_metaserver_cert (server_struct *server)
             content = &info->pubkey;
         } else if (strcmp(key, "port") == 0) {
             uint64_t parsed;
-            info->port = string_parse_uint64(value,
-                                             10,
-                                             1,
-                                             UINT16_MAX,
-                                             &parsed) ? (int) parsed : 0;
+            info->port = string_parse_uint64(value, 10, 1, UINT16_MAX, &parsed) ? (int)parsed : 0;
         } else if (strcmp(key, "crypto port") == 0) {
             uint64_t parsed;
-            info->port_crypto = string_parse_uint64(value,
-                                                    10,
-                                                    1,
-                                                    UINT16_MAX,
-                                                    &parsed) ? (int) parsed : 0;
+            info->port_crypto =
+                string_parse_uint64(value, 10, 1, UINT16_MAX, &parsed) ? (int)parsed : 0;
         } else {
             LOG(DEVEL, "Unrecognized key: %s", key);
             continue;
@@ -341,39 +317,30 @@ parse_metaserver_cert (server_struct *server)
     }
 
     /* Ensure we got the data we need. */
-    if (info->name == NULL ||
-        info->hostname == NULL ||
-        info->pubkey == NULL ||
-        info->port <= 0 ||
-        info->port_crypto <= 0 ||
-        (info->ipv4_address == NULL) != (info->ipv6_address == NULL)) {
-        LOG(ERROR,
-            "Certificate is missing required data.");
+    if (info->name == NULL || info->hostname == NULL || info->pubkey == NULL || info->port <= 0 ||
+        info->port_crypto <= 0 || (info->ipv4_address == NULL) != (info->ipv6_address == NULL)) {
+        LOG(ERROR, "Certificate is missing required data.");
         goto error;
     }
 
     /* Ensure certificate attributes match the advertised ones. */
     if (strcmp(info->hostname, server->hostname) != 0) {
-        LOG(ERROR,
-            "Certificate hostname does not match advertised hostname.");
+        LOG(ERROR, "Certificate hostname does not match advertised hostname.");
         goto error;
     }
 
     if (strcmp(info->name, server->name) != 0) {
-        LOG(ERROR,
-            "Certificate name does not match advertised name.");
+        LOG(ERROR, "Certificate name does not match advertised name.");
         goto error;
     }
 
     if (info->port != server->port) {
-        LOG(ERROR,
-            "Certificate port does not match advertised port.");
+        LOG(ERROR, "Certificate port does not match advertised port.");
         goto error;
     }
 
     if (info->port_crypto != server->port_crypto) {
-        LOG(ERROR,
-            "Certificate crypto port does not match advertised crypto port.");
+        LOG(ERROR, "Certificate crypto port does not match advertised crypto port.");
         goto error;
     }
 
@@ -395,75 +362,59 @@ error:
  * @return
  * True on success, false on failure.
  */
-static bool
-parse_metaserver_data_node (xmlNodePtr node, server_struct *server)
-{
+static bool parse_metaserver_data_node(xmlNodePtr node, server_struct *server) {
     HARD_ASSERT(node != NULL);
     HARD_ASSERT(server != NULL);
 
     xmlChar *content = xmlNodeGetContent(node);
-    SOFT_ASSERT_LABEL(content != NULL && *content != '\0',
-                      error,
-                      "Parsing error");
+    SOFT_ASSERT_LABEL(content != NULL && *content != '\0', error, "Parsing error");
 
     if (XML_STR_EQUAL(node->name, "Hostname")) {
         SOFT_ASSERT_LABEL(server->hostname == NULL, error, "Parsing error");
-        server->hostname = estrdup((const char *) content);
+        server->hostname = estrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "Port")) {
         SOFT_ASSERT_LABEL(server->port == 0, error, "Parsing error");
         uint64_t value;
-        SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
-                                              10,
-                                              1,
-                                              UINT16_MAX,
-                                              &value),
+        SOFT_ASSERT_LABEL(string_parse_uint64((const char *)content, 10, 1, UINT16_MAX, &value),
                           error,
                           "Invalid metaserver port");
-        server->port = (int) value;
+        server->port = (int)value;
     } else if (XML_STR_EQUAL(node->name, "PortCrypto")) {
         SOFT_ASSERT_LABEL(server->port_crypto == -1, error, "Parsing error");
-        if (strcmp((const char *) content, "-1") != 0) {
+        if (strcmp((const char *)content, "-1") != 0) {
             uint64_t value;
-            SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
-                                                  10,
-                                                  1,
-                                                  UINT16_MAX,
-                                                  &value),
+            SOFT_ASSERT_LABEL(string_parse_uint64((const char *)content, 10, 1, UINT16_MAX, &value),
                               error,
                               "Invalid metaserver crypto port");
-            server->port_crypto = (int) value;
+            server->port_crypto = (int)value;
         }
     } else if (XML_STR_EQUAL(node->name, "Name")) {
         SOFT_ASSERT_LABEL(server->name == NULL, error, "Parsing error");
-        server->name = estrdup((const char *) content);
+        server->name = estrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "PlayersCount")) {
         SOFT_ASSERT_LABEL(server->player == 0, error, "Parsing error");
         uint64_t value;
-        SOFT_ASSERT_LABEL(string_parse_uint64((const char *) content,
-                                              10,
-                                              0,
-                                              INT_MAX,
-                                              &value),
+        SOFT_ASSERT_LABEL(string_parse_uint64((const char *)content, 10, 0, INT_MAX, &value),
                           error,
                           "Invalid metaserver player count");
-        server->player = (int) value;
+        server->player = (int)value;
     } else if (XML_STR_EQUAL(node->name, "Version")) {
         SOFT_ASSERT_LABEL(server->version == NULL, error, "Parsing error");
-        server->version = estrdup((const char *) content);
+        server->version = estrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "TextComment")) {
         SOFT_ASSERT_LABEL(server->desc == NULL, error, "Parsing error");
-        server->desc = estrdup((const char *) content);
+        server->desc = estrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "CertificatePublicKey")) {
         SOFT_ASSERT_LABEL(server->cert_pubkey == NULL, error, "Parsing error");
-        server->cert_pubkey = estrdup((const char *) content);
+        server->cert_pubkey = estrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "Certificate")) {
         SOFT_ASSERT_LABEL(server->cert == NULL, error, "Parsing error");
-        server->cert = estrdup((const char *) content);
+        server->cert = estrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "CertificateSignature")) {
         SOFT_ASSERT_LABEL(server->cert_sig == NULL, error, "Parsing error");
         unsigned char *sig;
         size_t sig_len;
-        if (!math_base64_decode((const char *) content, &sig, &sig_len)) {
+        if (!math_base64_decode((const char *)content, &sig, &sig_len)) {
             LOG(ERROR, "Error decoding BASE64 certificate signature");
             goto error;
         }
@@ -471,7 +422,7 @@ parse_metaserver_data_node (xmlNodePtr node, server_struct *server)
         server->cert_sig = sig;
         server->cert_sig_len = sig_len;
     } else {
-        LOG(DEVEL, "Unrecognized node: %s", (const char *) node->name);
+        LOG(DEVEL, "Unrecognized node: %s", (const char *)node->name);
     }
 
     bool ret = true;
@@ -494,9 +445,7 @@ out:
  * @param node
  * Node to parse.
  */
-static void
-parse_metaserver_node (xmlNodePtr node)
-{
+static void parse_metaserver_node(xmlNodePtr node) {
     HARD_ASSERT(node != NULL);
 
     server_struct *server = ecalloc(1, sizeof(*server));
@@ -509,11 +458,8 @@ parse_metaserver_node (xmlNodePtr node)
         }
     }
 
-    if (server->hostname == NULL ||
-        server->port == 0 ||
-        server->name == NULL ||
-        server->version == NULL ||
-        server->desc == NULL) {
+    if (server->hostname == NULL || server->port == 0 || server->name == NULL ||
+        server->version == NULL || server->desc == NULL) {
         LOG(ERROR, "Incomplete data from metaserver");
         goto error;
     }
@@ -543,9 +489,7 @@ error:
  * @param ...
  * Variable arguments.
  */
-static void
-parse_metaserver_data_error (void *ctx, const char *format, ...)
-{
+static void parse_metaserver_data_error(void *ctx, const char *format, ...) {
     va_list args;
     va_start(args, format);
     char formatted[HUGE_BUF * 32];
@@ -563,9 +507,7 @@ parse_metaserver_data_error (void *ctx, const char *format, ...)
  * @param body_size
  * Length of the body.
  */
-static void
-parse_metaserver_data (const char *body, size_t body_size)
-{
+static void parse_metaserver_data(const char *body, size_t body_size) {
     HARD_ASSERT(body != NULL);
 
     xmlSchemaParserCtxtPtr parser_ctx = NULL;
@@ -627,7 +569,7 @@ parse_metaserver_data (const char *body, size_t body_size)
 
 out:
     if (doc != NULL) {
-            xmlFreeDoc(doc);
+        xmlFreeDoc(doc);
     }
 
     if (parser_ctx != NULL) {
@@ -643,15 +585,8 @@ out:
     }
 }
 
-
-
-bool
-metaserver_rendezvous_url (const server_struct *server,
-                           char                *url,
-                           size_t               url_size)
-{
-    if (server == NULL || server->server_id == NULL ||
-        server->rendezvous_origin == NULL) {
+bool metaserver_rendezvous_url(const server_struct *server, char *url, size_t url_size) {
+    if (server == NULL || server->server_id == NULL || server->rendezvous_origin == NULL) {
         return false;
     }
     return socket_rendezvous_url(server->rendezvous_origin,
@@ -673,9 +608,7 @@ metaserver_rendezvous_url (const server_struct *server,
  * True if the resolved address is equal to the one in the certificate,
  * false otherwise.
  */
-bool
-metaserver_cert_verify_host (server_struct *server, const char *host)
-{
+bool metaserver_cert_verify_host(server_struct *server, const char *host) {
     HARD_ASSERT(server != NULL);
     HARD_ASSERT(host != NULL);
 
@@ -685,32 +618,35 @@ metaserver_cert_verify_host (server_struct *server, const char *host)
     }
 
     struct sockaddr_storage addr;
-    SOFT_ASSERT_RC(socket_host2addr(host, &addr), false,
-                   "Failed to convert host to IP address");
+    SOFT_ASSERT_RC(socket_host2addr(host, &addr), false, "Failed to convert host to IP address");
 
-    int family = ((struct sockaddr *) &addr)->sa_family;
+    int family = ((struct sockaddr *)&addr)->sa_family;
     switch (family) {
-    case AF_INET:
-        if (strcmp(host, server->cert_info->ipv4_address) != 0) {
-            LOG(ERROR, "!!! Certificate IPv4 address error: %s != %s !!!",
-                host, server->cert_info->ipv4_address);
+        case AF_INET:
+            if (strcmp(host, server->cert_info->ipv4_address) != 0) {
+                LOG(ERROR,
+                    "!!! Certificate IPv4 address error: %s != %s !!!",
+                    host,
+                    server->cert_info->ipv4_address);
+                return false;
+            }
+
+            break;
+
+        case AF_INET6:
+            if (strcmp(host, server->cert_info->ipv6_address) != 0) {
+                LOG(ERROR,
+                    "!!! Certificate IPv6 address error: %s != %s !!!",
+                    host,
+                    server->cert_info->ipv6_address);
+                return false;
+            }
+
+            break;
+
+        default:
+            LOG(ERROR, "!!! Unknown address family %u !!!", family);
             return false;
-        }
-
-        break;
-
-    case AF_INET6:
-        if (strcmp(host, server->cert_info->ipv6_address) != 0) {
-            LOG(ERROR, "!!! Certificate IPv6 address error: %s != %s !!!",
-                host, server->cert_info->ipv6_address);
-            return false;
-        }
-
-        break;
-
-    default:
-        LOG(ERROR, "!!! Unknown address family %u !!!", family);
-        return false;
     }
 
     return true;
@@ -723,8 +659,7 @@ metaserver_cert_verify_host (server_struct *server, const char *host)
  * @return
  * The server if found, NULL otherwise.
  */
-server_struct *server_get_id(size_t num)
-{
+server_struct *server_get_id(size_t num) {
     server_struct *node;
     size_t i;
 
@@ -745,8 +680,7 @@ server_struct *server_get_id(size_t num)
  * @return
  * The number.
  */
-size_t server_get_count(void)
-{
+size_t server_get_count(void) {
     size_t count;
 
     SDL_LockMutex(server_head_mutex);
@@ -762,8 +696,7 @@ size_t server_get_count(void)
  * @return
  * 1 if we're connecting to the metaserver, 0 otherwise.
  */
-int ms_connecting(int val)
-{
+int ms_connecting(int val) {
     int connecting;
 
     SDL_LockMutex(metaserver_connecting_mutex);
@@ -781,14 +714,12 @@ int ms_connecting(int val)
 /**
  * Clear all data in the linked list of servers reported by metaserver.
  */
-void metaserver_clear_data(void)
-{
+void metaserver_clear_data(void) {
     server_struct *node, *tmp;
 
     SDL_LockMutex(server_head_mutex);
 
-    DL_FOREACH_SAFE(server_head, node, tmp)
-    {
+    DL_FOREACH_SAFE(server_head, node, tmp) {
         DL_DELETE(server_head, node);
         metaserver_server_free(node);
     }
@@ -814,14 +745,12 @@ void metaserver_clear_data(void)
  * @param desc
  * Description of the server.
  */
-server_struct *
-metaserver_add (const char *hostname,
-                int         port,
-                int         port_crypto,
-                const char *name,
-                const char *version,
-                const char *desc)
-{
+server_struct *metaserver_add(const char *hostname,
+                              int port,
+                              int port_crypto,
+                              const char *name,
+                              const char *version,
+                              const char *desc) {
     server_struct *node = ecalloc(1, sizeof(*node));
     node->player = -1;
     node->port = port;
@@ -850,14 +779,12 @@ metaserver_add (const char *hostname,
  * @return
  * Always returns 0.
  */
-int metaserver_thread(void *dummy)
-{
+int metaserver_thread(void *dummy) {
     /* Go through all the metaservers in the list */
     for (size_t i = clioption_settings.metaservers_num; i > 0; i--) {
         /* Send a GET request to the metaserver */
         curl_request_t *request =
-            curl_request_create(clioption_settings.metaservers[i - 1],
-                                CURL_PKEY_TRUST_SYSTEM);
+            curl_request_create(clioption_settings.metaservers[i - 1], CURL_PKEY_TRUST_SYSTEM);
         curl_request_do_get(request);
 
         /* If the request succeeded, parse the metaserver data and break out. */
@@ -869,16 +796,12 @@ int metaserver_thread(void *dummy)
             curl_request_free(request);
 
             char direct_url[MAX_BUF];
-            metaserver_direct_url(clioption_settings.metaservers[i - 1],
-                                  VS(direct_url));
-            curl_request_t *direct =
-                curl_request_create(direct_url, CURL_PKEY_TRUST_SYSTEM);
+            metaserver_direct_url(clioption_settings.metaservers[i - 1], VS(direct_url));
+            curl_request_t *direct = curl_request_create(direct_url, CURL_PKEY_TRUST_SYSTEM);
             curl_request_do_get(direct);
             body = curl_request_get_body(direct, &body_size);
             if (curl_request_get_http_code(direct) == 200 && body != NULL) {
-                metaserver_direct_parse(body,
-                                        body_size,
-                                        clioption_settings.metaservers[i - 1]);
+                metaserver_direct_parse(body, body_size, clioption_settings.metaservers[i - 1]);
             } else {
                 LOG(INFO, "Direct server directory is unavailable");
             }
@@ -901,8 +824,7 @@ int metaserver_thread(void *dummy)
  *
  * Works in a thread using SDL_CreateThread().
  */
-void metaserver_get_servers(void)
-{
+void metaserver_get_servers(void) {
     SDL_Thread *thread;
 
     if (!enabled) {

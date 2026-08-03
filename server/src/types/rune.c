@@ -44,9 +44,7 @@
  * @param victim
  * Victim of the rune.
  */
-void
-rune_spring (object *op, object *victim)
-{
+void rune_spring(object *op, object *victim) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -94,22 +92,18 @@ rune_spring (object *op, object *victim)
                     disease_infect(tmp, victim, 1);
                     object_remove(tmp, 0);
                     object_destroy(tmp);
-                } FOR_INV_FINISH();
+                }
+                FOR_INV_FINISH();
             }
 
             if (OBJECTS_DESTROYED(op)) {
                 return;
             }
-        } OBJECTS_DESTROYED_END();
+        }
+        OBJECTS_DESTROYED_END();
     } else {
         /* Spell. */
-        cast_spell(env,
-                   op,
-                   op->stats.maxsp,
-                   op->stats.sp,
-                   1,
-                   CAST_NORMAL,
-                   NULL);
+        cast_spell(env, op, op->stats.maxsp, op->stats.sp, 1, CAST_NORMAL, NULL);
     }
 
     /* Decrement detonation count and see if it's the last one, but only
@@ -131,9 +125,7 @@ rune_spring (object *op, object *victim)
 }
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -142,17 +134,15 @@ move_on_func (object *op, object *victim, object *originator, int state)
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
-    int off = (int) ((float) difficulty * 0.2f);
+    int off = (int)((float)difficulty * 0.2f);
     int level = rndm(difficulty - off, difficulty + off);
     level = MAX(1, MIN(level, MAXLEVEL));
     int hide = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
@@ -167,8 +157,7 @@ process_treasure_func (object              *op,
 /**
  * Initialize the rune type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(rune)
-{
+OBJECT_TYPE_INIT_DEFINE(rune) {
     OBJECT_METHODS(RUNE)->move_on_func = move_on_func;
     OBJECT_METHODS(RUNE)->process_treasure_func = process_treasure_func;
 }

@@ -35,6 +35,4 @@
 /**
  * Initialize the random drop type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(random_drop)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(random_drop) {}

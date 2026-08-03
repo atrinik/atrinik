@@ -72,8 +72,7 @@ typedef struct widget_active_effects_struct {
 } widget_active_effects_struct;
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     widget_active_effects_struct *tmp;
     active_effect_struct *effect;
     SDL_Rect box;
@@ -88,8 +87,7 @@ static void widget_draw(widgetdata *widget)
         sec = (SDL_GetTicks() - tmp->update_ticks) / 1000;
         tmp->update_ticks = SDL_GetTicks();
 
-        DL_FOREACH(tmp->active_effects, effect)
-        {
+        DL_FOREACH(tmp->active_effects, effect) {
             if (effect->sec > 0) {
                 effect->sec -= sec;
 
@@ -109,7 +107,14 @@ static void widget_draw(widgetdata *widget)
             SDL_FreeSurface(widget->surface);
         }
 
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(), widget->w, widget->h, video_get_bpp(), 0, 0, 0, 0);
+        widget->surface = SDL_CreateRGBSurface(get_video_flags(),
+                                               widget->w,
+                                               widget->h,
+                                               video_get_bpp(),
+                                               0,
+                                               0,
+                                               0,
+                                               0);
         SDL_SetColorKey(widget->surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
     }
 
@@ -121,8 +126,7 @@ static void widget_draw(widgetdata *widget)
 
         SDL_FillRect(widget->surface, NULL, 0);
 
-        DL_FOREACH(tmp->active_effects, effect)
-        {
+        DL_FOREACH(tmp->active_effects, effect) {
             sprite = image_get_sprite(effect->op->face);
 
             if (!sprite) {
@@ -140,7 +144,10 @@ static void widget_draw(widgetdata *widget)
             }
 
             if (image_get_sprite(effect->op->face) != NULL) {
-                surface_show(widget->surface, x, y, NULL,
+                surface_show(widget->surface,
+                             x,
+                             y,
+                             NULL,
                              image_get_sprite(effect->op->face)->bitmap);
             }
 
@@ -156,7 +163,14 @@ static void widget_draw(widgetdata *widget)
                     snprintf(buf, sizeof(buf), "%d", effect->sec);
                 }
 
-                text_show(widget->surface, FONT_MONO8, buf, x, y + sprite->bitmap->h - FONT_HEIGHT(FONT_MONO8), COLOR_WHITE, TEXT_OUTLINE | TEXT_ALIGN_CENTER, &textbox);
+                text_show(widget->surface,
+                          FONT_MONO8,
+                          buf,
+                          x,
+                          y + sprite->bitmap->h - FONT_HEIGHT(FONT_MONO8),
+                          COLOR_WHITE,
+                          TEXT_OUTLINE | TEXT_ALIGN_CENTER,
+                          &textbox);
             }
 
             x += sprite->bitmap->w + 5;
@@ -169,8 +183,7 @@ static void widget_draw(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     widget_active_effects_struct *tmp;
 
     tmp = widget->subwidget;
@@ -182,8 +195,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
         x = y = 0;
 
-        DL_FOREACH(tmp->active_effects, effect)
-        {
+        DL_FOREACH(tmp->active_effects, effect) {
             sprite = image_get_sprite(effect->op->face);
 
             if (!sprite) {
@@ -195,10 +207,18 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 y += sprite->bitmap->h + 5;
             }
 
-            if (event->motion.x >= widget->x + x && event->motion.x < widget->x + x + sprite->bitmap->w && event->motion.y >= widget->y + y && event->motion.y < widget->y + y + sprite->bitmap->h) {
+            if (event->motion.x >= widget->x + x &&
+                event->motion.x < widget->x + x + sprite->bitmap->w &&
+                event->motion.y >= widget->y + y &&
+                event->motion.y < widget->y + y + sprite->bitmap->h) {
                 char buf[HUGE_BUF];
 
-                snprintf(buf, sizeof(buf), "[b]%s[/b]%s%s", effect->op->s_name, effect->msg[0] != '\0' ? "\n" : "", effect->msg);
+                snprintf(buf,
+                         sizeof(buf),
+                         "[b]%s[/b]%s%s",
+                         effect->op->s_name,
+                         effect->msg[0] != '\0' ? "\n" : "",
+                         effect->msg);
                 tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
                 tooltip_multiline(200);
                 break;
@@ -211,8 +231,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
-void widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, const char *msg)
-{
+void widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, const char *msg) {
     widget_active_effects_struct *tmp;
     active_effect_struct *effect;
 
@@ -222,8 +241,7 @@ void widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, c
         return;
     }
 
-    DL_FOREACH(tmp->active_effects, effect)
-    {
+    DL_FOREACH(tmp->active_effects, effect) {
         if (effect->op == op) {
             break;
         }
@@ -243,15 +261,13 @@ void widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, c
     WIDGET_REDRAW(widget);
 }
 
-void widget_active_effects_remove(widgetdata *widget, object *op)
-{
+void widget_active_effects_remove(widgetdata *widget, object *op) {
     widget_active_effects_struct *tmp;
     active_effect_struct *effect, *next;
 
     tmp = widget->subwidget;
 
-    DL_FOREACH_SAFE(tmp->active_effects, effect, next)
-    {
+    DL_FOREACH_SAFE(tmp->active_effects, effect, next) {
         if (effect->op == op) {
             DL_DELETE(tmp->active_effects, effect);
             efree(effect->msg);
@@ -265,8 +281,7 @@ void widget_active_effects_remove(widgetdata *widget, object *op)
 /**
  * Initialize one active effects widget.
  */
-void widget_active_effects_init(widgetdata *widget)
-{
+void widget_active_effects_init(widgetdata *widget) {
     widget_active_effects_struct *tmp;
 
     tmp = ecalloc(1, sizeof(*tmp));

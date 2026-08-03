@@ -61,8 +61,7 @@ static const int register_signals[] = {
     SIGFPE,
     SIGILL,
     SIGTERM,
-    SIGABRT
-};
+    SIGABRT};
 
 /**
  * Prefix to use for generatedtraceback files.
@@ -76,8 +75,7 @@ TOOLKIT_API();
  * @param signum
  * ID of the signal being intercepted.
  */
-static void simple_signal_handler(int signum)
-{
+static void simple_signal_handler(int signum) {
     if (signum == SIGABRT) {
 #ifdef WIN32
         RaiseException(STATUS_ACCESS_VIOLATION, 0, 0, 0);
@@ -119,8 +117,7 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
     tm = localtime(&t);
 
     strftime(VS(date), "%Y_%m_%d_%H-%M-%S", tm);
-    snprintf(VS(path), "%s/.atrinik/%s-traceback-%s.txt", homedir,
-             traceback_prefix, date);
+    snprintf(VS(path), "%s/.atrinik/%s-traceback-%s.txt", homedir, traceback_prefix, date);
     fp = fopen(path, "a");
 
     if (fp == NULL) {
@@ -134,146 +131,145 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 
 #ifdef WIN32
     switch (ExceptionInfo->ExceptionRecord->ExceptionCode) {
-    case EXCEPTION_ACCESS_VIOLATION:
-        fputs("Error: EXCEPTION_ACCESS_VIOLATION\n", fp);
-        break;
-    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-        fputs("Error: EXCEPTION_ARRAY_BOUNDS_EXCEEDED\n", fp);
-        break;
-    case EXCEPTION_BREAKPOINT:
-        fputs("Error: EXCEPTION_BREAKPOINT\n", fp);
-        break;
-    case EXCEPTION_DATATYPE_MISALIGNMENT:
-        fputs("Error: EXCEPTION_DATATYPE_MISALIGNMENT\n", fp);
-        break;
-    case EXCEPTION_FLT_DENORMAL_OPERAND:
-        fputs("Error: EXCEPTION_FLT_DENORMAL_OPERAND\n", fp);
-        break;
-    case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-        fputs("Error: EXCEPTION_FLT_DIVIDE_BY_ZERO\n", fp);
-        break;
-    case EXCEPTION_FLT_INEXACT_RESULT:
-        fputs("Error: EXCEPTION_FLT_INEXACT_RESULT\n", fp);
-        break;
-    case EXCEPTION_FLT_INVALID_OPERATION:
-        fputs("Error: EXCEPTION_FLT_INVALID_OPERATION\n", fp);
-        break;
-    case EXCEPTION_FLT_OVERFLOW:
-        fputs("Error: EXCEPTION_FLT_OVERFLOW\n", fp);
-        break;
-    case EXCEPTION_FLT_STACK_CHECK:
-        fputs("Error: EXCEPTION_FLT_STACK_CHECK\n", fp);
-        break;
-    case EXCEPTION_FLT_UNDERFLOW:
-        fputs("Error: EXCEPTION_FLT_UNDERFLOW\n", fp);
-        break;
-    case EXCEPTION_ILLEGAL_INSTRUCTION:
-        fputs("Error: EXCEPTION_ILLEGAL_INSTRUCTION\n", fp);
-        break;
-    case EXCEPTION_IN_PAGE_ERROR:
-        fputs("Error: EXCEPTION_IN_PAGE_ERROR\n", fp);
-        break;
-    case EXCEPTION_INT_DIVIDE_BY_ZERO:
-        fputs("Error: EXCEPTION_INT_DIVIDE_BY_ZERO\n", fp);
-        break;
-    case EXCEPTION_INT_OVERFLOW:
-        fputs("Error: EXCEPTION_INT_OVERFLOW\n", fp);
-        break;
-    case EXCEPTION_INVALID_DISPOSITION:
-        fputs("Error: EXCEPTION_INVALID_DISPOSITION\n", fp);
-        break;
-    case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-        fputs("Error: EXCEPTION_NONCONTINUABLE_EXCEPTION\n", fp);
-        break;
-    case EXCEPTION_PRIV_INSTRUCTION:
-        fputs("Error: EXCEPTION_PRIV_INSTRUCTION\n", fp);
-        break;
-    case EXCEPTION_SINGLE_STEP:
-        fputs("Error: EXCEPTION_SINGLE_STEP\n", fp);
-        break;
-    case EXCEPTION_STACK_OVERFLOW:
-        fputs("Error: EXCEPTION_STACK_OVERFLOW\n", fp);
-        break;
-    default:
-        fputs("Error: Unrecognized Exception\n", fp);
-        break;
+        case EXCEPTION_ACCESS_VIOLATION:
+            fputs("Error: EXCEPTION_ACCESS_VIOLATION\n", fp);
+            break;
+        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+            fputs("Error: EXCEPTION_ARRAY_BOUNDS_EXCEEDED\n", fp);
+            break;
+        case EXCEPTION_BREAKPOINT:
+            fputs("Error: EXCEPTION_BREAKPOINT\n", fp);
+            break;
+        case EXCEPTION_DATATYPE_MISALIGNMENT:
+            fputs("Error: EXCEPTION_DATATYPE_MISALIGNMENT\n", fp);
+            break;
+        case EXCEPTION_FLT_DENORMAL_OPERAND:
+            fputs("Error: EXCEPTION_FLT_DENORMAL_OPERAND\n", fp);
+            break;
+        case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+            fputs("Error: EXCEPTION_FLT_DIVIDE_BY_ZERO\n", fp);
+            break;
+        case EXCEPTION_FLT_INEXACT_RESULT:
+            fputs("Error: EXCEPTION_FLT_INEXACT_RESULT\n", fp);
+            break;
+        case EXCEPTION_FLT_INVALID_OPERATION:
+            fputs("Error: EXCEPTION_FLT_INVALID_OPERATION\n", fp);
+            break;
+        case EXCEPTION_FLT_OVERFLOW:
+            fputs("Error: EXCEPTION_FLT_OVERFLOW\n", fp);
+            break;
+        case EXCEPTION_FLT_STACK_CHECK:
+            fputs("Error: EXCEPTION_FLT_STACK_CHECK\n", fp);
+            break;
+        case EXCEPTION_FLT_UNDERFLOW:
+            fputs("Error: EXCEPTION_FLT_UNDERFLOW\n", fp);
+            break;
+        case EXCEPTION_ILLEGAL_INSTRUCTION:
+            fputs("Error: EXCEPTION_ILLEGAL_INSTRUCTION\n", fp);
+            break;
+        case EXCEPTION_IN_PAGE_ERROR:
+            fputs("Error: EXCEPTION_IN_PAGE_ERROR\n", fp);
+            break;
+        case EXCEPTION_INT_DIVIDE_BY_ZERO:
+            fputs("Error: EXCEPTION_INT_DIVIDE_BY_ZERO\n", fp);
+            break;
+        case EXCEPTION_INT_OVERFLOW:
+            fputs("Error: EXCEPTION_INT_OVERFLOW\n", fp);
+            break;
+        case EXCEPTION_INVALID_DISPOSITION:
+            fputs("Error: EXCEPTION_INVALID_DISPOSITION\n", fp);
+            break;
+        case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+            fputs("Error: EXCEPTION_NONCONTINUABLE_EXCEPTION\n", fp);
+            break;
+        case EXCEPTION_PRIV_INSTRUCTION:
+            fputs("Error: EXCEPTION_PRIV_INSTRUCTION\n", fp);
+            break;
+        case EXCEPTION_SINGLE_STEP:
+            fputs("Error: EXCEPTION_SINGLE_STEP\n", fp);
+            break;
+        case EXCEPTION_STACK_OVERFLOW:
+            fputs("Error: EXCEPTION_STACK_OVERFLOW\n", fp);
+            break;
+        default:
+            fputs("Error: Unrecognized Exception\n", fp);
+            break;
     }
 #else
     switch (sig) {
-    case SIGSEGV:
-        fputs("Caught SIGSEGV: Segmentation Fault\n", fp);
-        break;
-    case SIGFPE:
-        switch (siginfo->si_code) {
-        case FPE_INTDIV:
-            fputs("Caught SIGFPE: (integer divide by zero)\n", fp);
+        case SIGSEGV:
+            fputs("Caught SIGSEGV: Segmentation Fault\n", fp);
             break;
-        case FPE_INTOVF:
-            fputs("Caught SIGFPE: (integer overflow)\n", fp);
+        case SIGFPE:
+            switch (siginfo->si_code) {
+                case FPE_INTDIV:
+                    fputs("Caught SIGFPE: (integer divide by zero)\n", fp);
+                    break;
+                case FPE_INTOVF:
+                    fputs("Caught SIGFPE: (integer overflow)\n", fp);
+                    break;
+                case FPE_FLTDIV:
+                    fputs("Caught SIGFPE: (floating-point divide by zero)\n", fp);
+                    break;
+                case FPE_FLTOVF:
+                    fputs("Caught SIGFPE: (floating-point overflow)\n", fp);
+                    break;
+                case FPE_FLTUND:
+                    fputs("Caught SIGFPE: (floating-point underflow)\n", fp);
+                    break;
+                case FPE_FLTRES:
+                    fputs("Caught SIGFPE: (floating-point inexact result)\n", fp);
+                    break;
+                case FPE_FLTINV:
+                    fputs("Caught SIGFPE: (floating-point invalid operation)\n", fp);
+                    break;
+                case FPE_FLTSUB:
+                    fputs("Caught SIGFPE: (subscript out of range)\n", fp);
+                    break;
+                default:
+                    fputs("Caught SIGFPE: Arithmetic Exception\n", fp);
+                    break;
+            }
             break;
-        case FPE_FLTDIV:
-            fputs("Caught SIGFPE: (floating-point divide by zero)\n", fp);
+        case SIGILL:
+            switch (siginfo->si_code) {
+                case ILL_ILLOPC:
+                    fputs("Caught SIGILL: (illegal opcode)\n", fp);
+                    break;
+                case ILL_ILLOPN:
+                    fputs("Caught SIGILL: (illegal operand)\n", fp);
+                    break;
+                case ILL_ILLADR:
+                    fputs("Caught SIGILL: (illegal addressing mode)\n", fp);
+                    break;
+                case ILL_ILLTRP:
+                    fputs("Caught SIGILL: (illegal trap)\n", fp);
+                    break;
+                case ILL_PRVOPC:
+                    fputs("Caught SIGILL: (privileged opcode)\n", fp);
+                    break;
+                case ILL_PRVREG:
+                    fputs("Caught SIGILL: (privileged register)\n", fp);
+                    break;
+                case ILL_COPROC:
+                    fputs("Caught SIGILL: (coprocessor error)\n", fp);
+                    break;
+                case ILL_BADSTK:
+                    fputs("Caught SIGILL: (internal stack error)\n", fp);
+                    break;
+                default:
+                    fputs("Caught SIGILL: Illegal Instruction\n", fp);
+                    break;
+            }
             break;
-        case FPE_FLTOVF:
-            fputs("Caught SIGFPE: (floating-point overflow)\n", fp);
+        case SIGTERM:
+            fputs("Caught SIGTERM: a termination request was sent to the program\n", fp);
             break;
-        case FPE_FLTUND:
-            fputs("Caught SIGFPE: (floating-point underflow)\n", fp);
-            break;
-        case FPE_FLTRES:
-            fputs("Caught SIGFPE: (floating-point inexact result)\n", fp);
-            break;
-        case FPE_FLTINV:
-            fputs("Caught SIGFPE: (floating-point invalid operation)\n", fp);
-            break;
-        case FPE_FLTSUB:
-            fputs("Caught SIGFPE: (subscript out of range)\n", fp);
+        case SIGABRT:
+            fputs("Caught SIGABRT: usually caused by an abort() or assert()\n", fp);
             break;
         default:
-            fputs("Caught SIGFPE: Arithmetic Exception\n", fp);
             break;
-        }
-        break;
-    case SIGILL:
-        switch (siginfo->si_code) {
-        case ILL_ILLOPC:
-            fputs("Caught SIGILL: (illegal opcode)\n", fp);
-            break;
-        case ILL_ILLOPN:
-            fputs("Caught SIGILL: (illegal operand)\n", fp);
-            break;
-        case ILL_ILLADR:
-            fputs("Caught SIGILL: (illegal addressing mode)\n", fp);
-            break;
-        case ILL_ILLTRP:
-            fputs("Caught SIGILL: (illegal trap)\n", fp);
-            break;
-        case ILL_PRVOPC:
-            fputs("Caught SIGILL: (privileged opcode)\n", fp);
-            break;
-        case ILL_PRVREG:
-            fputs("Caught SIGILL: (privileged register)\n", fp);
-            break;
-        case ILL_COPROC:
-            fputs("Caught SIGILL: (coprocessor error)\n", fp);
-            break;
-        case ILL_BADSTK:
-            fputs("Caught SIGILL: (internal stack error)\n", fp);
-            break;
-        default:
-            fputs("Caught SIGILL: Illegal Instruction\n", fp);
-            break;
-        }
-        break;
-    case SIGTERM:
-        fputs("Caught SIGTERM: a termination request was sent to the program\n",
-                fp);
-        break;
-    case SIGABRT:
-        fputs("Caught SIGABRT: usually caused by an abort() or assert()\n", fp);
-        break;
-    default:
-        break;
     }
 #endif
 
@@ -290,8 +286,7 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
     program_counter = ExceptionInfo->ContextRecord->Eip;
 #endif
 
-    if (EXCEPTION_STACK_OVERFLOW !=
-            ExceptionInfo->ExceptionRecord->ExceptionCode) {
+    if (EXCEPTION_STACK_OVERFLOW != ExceptionInfo->ExceptionRecord->ExceptionCode) {
         STACKFRAME64 frame;
         int i;
 
@@ -312,17 +307,22 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 
         i = 0;
 
-        while (StackWalk64(machine_type, GetCurrentProcess(),
-                GetCurrentThread(), &frame, ExceptionInfo->ContextRecord, 0,
-                SymFunctionTableAccess64, SymGetModuleBase64, 0)) {
-            fprintf(fp, "%d: %p\n", i,
-                    (void *) (uintptr_t) frame.AddrPC.Offset);
+        while (StackWalk64(machine_type,
+                           GetCurrentProcess(),
+                           GetCurrentThread(),
+                           &frame,
+                           ExceptionInfo->ContextRecord,
+                           0,
+                           SymFunctionTableAccess64,
+                           SymGetModuleBase64,
+                           0)) {
+            fprintf(fp, "%d: %p\n", i, (void *)(uintptr_t)frame.AddrPC.Offset);
             i++;
         }
 
         SymCleanup(GetCurrentProcess());
     } else {
-        fprintf(fp, "%p\n", (void *) (uintptr_t) program_counter);
+        fprintf(fp, "%p\n", (void *)(uintptr_t)program_counter);
     }
 #else
     {
@@ -358,8 +358,7 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 
 #endif
 
-TOOLKIT_INIT_FUNC(signals)
-{
+TOOLKIT_INIT_FUNC(signals) {
     size_t i;
 #ifdef HAVE_SIGACTION
     stack_t ss;
@@ -390,8 +389,7 @@ TOOLKIT_INIT_FUNC(signals)
         sig_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
 
         if (sigaction(register_signals[i], &sig_action, NULL) != 0) {
-            LOG(ERROR, "Could not register signal: %d",
-                    register_signals[i]);
+            LOG(ERROR, "Could not register signal: %d", register_signals[i]);
             exit(1);
         }
 #else
@@ -409,13 +407,9 @@ TOOLKIT_INIT_FUNC(signals)
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(signals)
-{
-}
+TOOLKIT_DEINIT_FUNC(signals) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
-void
-signals_set_traceback_prefix (const char *prefix)
-{
+void signals_set_traceback_prefix(const char *prefix) {
     snprintf(VS(traceback_prefix), "%s", prefix);
 }

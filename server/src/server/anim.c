@@ -36,8 +36,7 @@ int num_animations = 0, animations_allocated;
 /**
  * Free all animations loaded
  */
-void free_all_anim(void)
-{
+void free_all_anim(void) {
     int i;
 
     if (animations) {
@@ -54,8 +53,7 @@ void free_all_anim(void)
  * Initialize animations structure, read the animations
  * data from a file.
  */
-void init_anim(void)
-{
+void init_anim(void) {
     char buf[MAX_BUF];
     FILE *fp;
     static int anim_init = 0;
@@ -76,7 +74,7 @@ void init_anim(void)
      * Put # at start so it will be first in alphabetical
      * order. */
     animations[0].name = NULL;
-    FREE_AND_COPY_HASH(animations[0].name, "###none" );
+    FREE_AND_COPY_HASH(animations[0].name, "###none");
     animations[0].num_animations = 1;
     animations[0].faces = emalloc(sizeof(Fontindex));
     animations[0].faces[0] = 0;
@@ -125,23 +123,37 @@ void init_anim(void)
             animations[num_animations].num_animations = num_frames;
 
             if (num_frames % animations[num_animations].facings) {
-                LOG(DEBUG, "Animation %s frame numbers (%d) is not a multiple of facings (%d)", STRING_SAFE(animations[num_animations].name), num_frames, animations[num_animations].facings);
+                LOG(DEBUG,
+                    "Animation %s frame numbers (%d) is not a multiple of facings (%d)",
+                    STRING_SAFE(animations[num_animations].name),
+                    num_frames,
+                    animations[num_animations].facings);
             }
 
             num_frames = 0;
         } else if (!strncmp(buf, "facings", 7)) {
             if (!(animations[num_animations].facings = atoi(buf + 7))) {
-                LOG(DEBUG, "Animation %s has 0 facings, line=%s", STRING_SAFE(animations[num_animations].name), buf);
+                LOG(DEBUG,
+                    "Animation %s has 0 facings, line=%s",
+                    STRING_SAFE(animations[num_animations].name),
+                    buf);
                 animations[num_animations].facings = 1;
             }
 
-            if (animations[num_animations].facings != 9 && animations[num_animations].facings != 25) {
-                LOG(DEBUG, "Animation %s has invalid facings parameter (%d - allowed are 9 or 25 only).", STRING_SAFE(animations[num_animations].name), animations[num_animations].facings);
+            if (animations[num_animations].facings != 9 &&
+                animations[num_animations].facings != 25) {
+                LOG(DEBUG,
+                    "Animation %s has invalid facings parameter (%d - allowed are 9 or 25 only).",
+                    STRING_SAFE(animations[num_animations].name),
+                    animations[num_animations].facings);
                 animations[num_animations].facings = 1;
             }
         } else {
             if (!(faces[num_frames++] = find_face(buf, 0))) {
-                LOG(BUG, "Could not find face %s for animation %s", buf, STRING_SAFE(animations[num_animations].name));
+                LOG(BUG,
+                    "Could not find face %s for animation %s",
+                    buf,
+                    STRING_SAFE(animations[num_animations].name));
             }
         }
     }
@@ -160,9 +172,8 @@ void init_anim(void)
  * @return
  * Return value of strcmp for the animation names
  */
-static int anim_compare(const void *a, const void *b)
-{
-    return strcmp(((const Animations *) a)->name, ((const Animations *) b)->name);
+static int anim_compare(const void *a, const void *b) {
+    return strcmp(((const Animations *)a)->name, ((const Animations *)b)->name);
 }
 
 /**
@@ -173,11 +184,10 @@ static int anim_compare(const void *a, const void *b)
  * ID of the animation if found, 0 otherwise (animation 0 is
  * initialized as the 'bug' face).
  */
-int find_animation(const char *name)
-{
+int find_animation(const char *name) {
     Animations search, *match;
 
-    search.name = (char *) name;
+    search.name = (char *)name;
 
     match = bsearch(&search, animations, (num_animations + 1), sizeof(Animations), anim_compare);
 
@@ -194,8 +204,7 @@ int find_animation(const char *name)
  * @param op
  * Object.
  */
-void animate_object(object *op)
-{
+void animate_object(object *op) {
     if (op->animation_id == 0 || NUM_ANIMATIONS(op) == 0 || op->head != NULL) {
         return;
     }
@@ -213,8 +222,7 @@ void animate_object(object *op)
  * @param op
  * Object to animate.
  */
-void animate_turning(object *op)
-{
+void animate_turning(object *op) {
     SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction) + op->state);
     object_update(op, UP_OBJ_FACE);
 }

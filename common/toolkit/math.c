@@ -41,9 +41,9 @@
  *
  * Flags that determine which DRNG instructions are available.
  *@{*/
-#define DRNG_NO_SUPPORT	0x0 ///< DRNG is not supported.
-#define DRNG_HAS_RDRAND	0x1 ///< RDRAND is available.
-#define DRNG_HAS_RDSEED	0x2 ///< RDSEED is available.
+#define DRNG_NO_SUPPORT 0x0 ///< DRNG is not supported.
+#define DRNG_HAS_RDRAND 0x1 ///< RDRAND is available.
+#define DRNG_HAS_RDSEED 0x2 ///< RDSEED is available.
 /*@}*/
 
 #ifndef __arm__
@@ -56,11 +56,10 @@
 /**
  * Used by nearest_pow_two_exp() for a fast lookup.
  */
-static const size_t exp_lookup[65] = {
-    0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
-};
+static const size_t exp_lookup[65] = {0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
+                                      5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
+                                      6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+                                      6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
 
 #ifdef INTEL_DRNG
 /**
@@ -71,21 +70,17 @@ static int drng_features;
 
 #ifndef __arm__
 /* Prototypes */
-static uint64_t
-rdtsc(void);
+static uint64_t rdtsc(void);
 #endif
 
 #ifdef INTEL_DRNG
-static int
-get_drng_features(void);
-static bool
-rdseed64_step(uint64_t *seed);
+static int get_drng_features(void);
+static bool rdseed64_step(uint64_t *seed);
 #endif
 
 TOOLKIT_API(DEPENDS(logger));
 
-TOOLKIT_INIT_FUNC(math)
-{
+TOOLKIT_INIT_FUNC(math) {
     uint64_t seed = time(NULL);
 
 #ifdef INTEL_DRNG
@@ -121,9 +116,7 @@ TOOLKIT_INIT_FUNC(math)
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(math)
-{
-}
+TOOLKIT_DEINIT_FUNC(math) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 #ifndef __arm__
@@ -133,13 +126,10 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * Processor time stamp.
  */
-static uint64_t
-rdtsc (void)
-{
+static uint64_t rdtsc(void) {
     unsigned int lo, hi;
-    asm volatile ("rdtsc"
-                  : "=a" (lo), "=d" (hi));
-    return ((uint64_t) hi << 32) | lo;
+    asm volatile("rdtsc" : "=a"(lo), "=d"(hi));
+    return ((uint64_t)hi << 32) | lo;
 }
 #endif
 
@@ -165,17 +155,11 @@ typedef struct cpuid {
  * @param subleaf
  * Sub-leaf information (the ECX register).
  */
-static void
-cpuid (cpuid_t *info, unsigned int leaf, unsigned int subleaf)
-{
+static void cpuid(cpuid_t *info, unsigned int leaf, unsigned int subleaf) {
     HARD_ASSERT(info != NULL);
-    asm volatile ("cpuid"
-                  : "=a" (info->eax),
-                    "=b" (info->ebx),
-                    "=c" (info->ecx),
-                    "=d" (info->edx)
-                  : "a" (leaf),
-                    "c" (subleaf));
+    asm volatile("cpuid"
+                 : "=a"(info->eax), "=b"(info->ebx), "=c"(info->ecx), "=d"(info->edx)
+                 : "a"(leaf), "c"(subleaf));
 }
 
 /**
@@ -184,16 +168,13 @@ cpuid (cpuid_t *info, unsigned int leaf, unsigned int subleaf)
  * @return
  * Whether the system is running under an Intel CPU.
  */
-static bool
-is_intel_cpu (void)
-{
+static bool is_intel_cpu(void) {
 #ifndef __arm__
     cpuid_t info;
     cpuid(&info, 0, 0);
 
-    if (memcmp((char *) &info.ebx, "Genu", 4) == 0 &&
-        memcmp((char *) &info.edx, "ineI", 4) == 0 &&
-        memcmp((char *) &info.ecx, "ntel", 4) == 0) {
+    if (memcmp((char *)&info.ebx, "Genu", 4) == 0 && memcmp((char *)&info.edx, "ineI", 4) == 0 &&
+        memcmp((char *)&info.ecx, "ntel", 4) == 0) {
         return true;
     }
 #endif
@@ -207,9 +188,7 @@ is_intel_cpu (void)
  * @return
  * A combination of @ref DRNG_xxx "DRNG flags".
  */
-static int
-get_drng_features (void)
-{
+static int get_drng_features(void) {
     if (!is_intel_cpu()) {
         /* Not an Intel CPU; no support for DRNG. */
         return DRNG_NO_SUPPORT;
@@ -245,14 +224,11 @@ get_drng_features (void)
  * @return
  * True on success, false on failure.
  */
-static bool
-rdseed64_step (uint64_t *seed)
-{
+static bool rdseed64_step(uint64_t *seed) {
     HARD_ASSERT(seed != NULL);
 
     unsigned char ok;
-    asm volatile ("rdseed %0; setc %1"
-                  : "=r" (*seed), "=qm" (ok));
+    asm volatile("rdseed %0; setc %1" : "=r"(*seed), "=qm"(ok));
     return !!ok;
 }
 
@@ -264,27 +240,23 @@ rdseed64_step (uint64_t *seed)
  * @return
  * True on success, false on failure.
  */
-static bool
-rdrand64_step (unsigned long long int *number)
-{
+static bool rdrand64_step(unsigned long long int *number) {
     HARD_ASSERT(number != NULL);
 
 #if !defined(__x86_64__)
     unsigned char ok;
-    asm volatile ("rdrand %0; setc %1"
-                  : "=r" (*number), "=qm" (ok));
+    asm volatile("rdrand %0; setc %1" : "=r"(*number), "=qm"(ok));
     return !!ok;
 #else
     unsigned long long int i;
     int ok;
 
-    asm volatile ("rdrand %%rax; \
+    asm volatile("rdrand %%rax; \
                    mov $1,%%edx; \
                    cmovae %%rax,%%rdx; \
                    mov %%edx,%1; \
                    mov %%rax, %0;"
-                  : "=r" (i), "=r" (ok)
-                  :: "%rax", "%rdx");
+                 : "=r"(i), "=r"(ok)::"%rax", "%rdx");
     *number = i;
     return !!ok;
 #endif
@@ -300,9 +272,7 @@ rdrand64_step (unsigned long long int *number)
  * @return
  * Integer square root.
  */
-unsigned long
-isqrt (unsigned long n)
-{
+unsigned long isqrt(unsigned long n) {
     TOOLKIT_PROTECT();
 
     /* "one" starts at the highest power of four <= than the argument. */
@@ -344,9 +314,7 @@ isqrt (unsigned long n)
  * @return
  * The random number.
  */
-int
-rndm (int min, int max)
-{
+int rndm(int min, int max) {
     TOOLKIT_PROTECT();
 
     if (max - min + 1 < 1) {
@@ -378,9 +346,7 @@ rndm (int min, int max)
  * @return
  * 1 if the chance of 1/n was successful, 0 otherwise.
  */
-int
-rndm_chance (uint32_t n)
-{
+int rndm_chance(uint32_t n) {
     TOOLKIT_PROTECT();
 
     if (n == 0) {
@@ -397,7 +363,7 @@ rndm_chance (uint32_t n)
     }
 #endif
 
-    return (uint32_t) RANDOM() < (RAND_MAX + 1U) / n;
+    return (uint32_t)RANDOM() < (RAND_MAX + 1U) / n;
 }
 
 /**
@@ -406,9 +372,7 @@ rndm_chance (uint32_t n)
  * @return
  * 64-bit unsigned number.
  */
-uint64_t
-rndm_u64 (void)
-{
+uint64_t rndm_u64(void) {
 #ifdef INTEL_DRNG
     if (drng_features & DRNG_HAS_RDRAND) {
         unsigned long long int i;
@@ -420,7 +384,7 @@ rndm_u64 (void)
 
     union {
         uint64_t u64;
-        uint8_t  u8[64 / CHAR_BIT];
+        uint8_t u8[64 / CHAR_BIT];
     } num;
 
     for (size_t i = 0; i < arraysize(num.u8); i++) {
@@ -471,14 +435,12 @@ rndm_u64 (void)
  * It is permissible to sort an empty list. If first == end_marker, the returned
  * value will also be end_marker.
  */
-void *
-sort_linked_list (void          *p,
-                  unsigned      index,
-                  int          (*compare)(void *, void *, void *),
-                  void          *pointer,
-                  unsigned long *pcount,
-                  void          *end_marker)
-{
+void *sort_linked_list(void *p,
+                       unsigned index,
+                       int (*compare)(void *, void *, void *),
+                       void *pointer,
+                       unsigned long *pcount,
+                       void *end_marker) {
     unsigned base;
     unsigned long block_size;
     struct record {
@@ -496,9 +458,9 @@ sort_linked_list (void          *p,
     base = 0;
 
     while (p != end_marker) {
-        struct record  *next = ((struct record *) p)->next[index];
-        ((struct record *) p)->next[index] = tape[base].first;
-        tape[base].first = ((struct record *) p);
+        struct record *next = ((struct record *)p)->next[index];
+        ((struct record *)p)->next[index] = tape[base].first;
+        tape[base].first = ((struct record *)p);
         tape[base].count++;
         p = next;
         base ^= 1;
@@ -506,8 +468,7 @@ sort_linked_list (void          *p,
 
     /* If the list is empty or contains only a single record, then */
     /* tape[1].count == 0L and this part is vacuous.               */
-    for (base = 0, block_size = 1L; tape[base + 1].count != 0L;
-         base ^= 2, block_size <<= 1) {
+    for (base = 0, block_size = 1L; tape[base + 1].count != 0L; base ^= 2, block_size <<= 1) {
         int dest;
         struct tape *tape0, *tape1;
 
@@ -536,8 +497,7 @@ sort_linked_list (void          *p,
                 } else if (n1 == 0 || tape1->count == 0) {
                     chosen_tape = tape0;
                     n0--;
-                } else if ((*compare)(tape0->first, tape1->first,
-                                      pointer) > 0) {
+                } else if ((*compare)(tape0->first, tape1->first, pointer) > 0) {
                     chosen_tape = tape1;
                     n1--;
                 } else {
@@ -576,9 +536,7 @@ sort_linked_list (void          *p,
  * Return the exponent exp needed to round n up to the nearest power of two, so
  * that (1 << exp) >= n and (1 << (exp - 1)) \< n
  */
-size_t
-nearest_pow_two_exp (size_t n)
-{
+size_t nearest_pow_two_exp(size_t n) {
     TOOLKIT_PROTECT();
 
     if (n <= 64) {
@@ -586,8 +544,7 @@ nearest_pow_two_exp (size_t n)
     }
 
     size_t i;
-    for (i = 7; (1U << i) < n; i++) {
-    }
+    for (i = 7; (1U << i) < n; i++) {}
 
     return i;
 }
@@ -612,15 +569,7 @@ nearest_pow_two_exp (size_t n)
  * @return
  * True if the point is inside the ellipse, false otherwise.
  */
-bool
-math_point_in_ellipse (int    x,
-                       int    y,
-                       double cx,
-                       double cy,
-                       int    dx,
-                       int    dy,
-                       double angle)
-{
+bool math_point_in_ellipse(int x, int y, double cx, double cy, int dx, int dy, double angle) {
     double sin_angle, cos_angle;
     sincos(angle, &sin_angle, &cos_angle);
 
@@ -653,16 +602,14 @@ math_point_in_ellipse (int    x,
  * @return
  * True if the point is on the edge of the ellipse, false otherwise.
  */
-bool
-math_point_edge_ellipse (int    x,
-                         int    y,
-                         double cx,
-                         double cy,
-                         int    dx,
-                         int    dy,
-                         double angle,
-                         int   *deg)
-{
+bool math_point_edge_ellipse(int x,
+                             int y,
+                             double cx,
+                             double cy,
+                             int dx,
+                             int dy,
+                             double angle,
+                             int *deg) {
     double sin_angle, cos_angle;
     sincos(angle, &sin_angle, &cos_angle);
 
@@ -697,11 +644,7 @@ math_point_edge_ellipse (int    x,
  * @todo
  * This should really go in a new API.
  */
-bool
-math_base64_decode (const char     *str,
-                    unsigned char **buf,
-                    size_t         *buf_len)
-{
+bool math_base64_decode(const char *str, unsigned char **buf, size_t *buf_len) {
     HARD_ASSERT(str != NULL);
     HARD_ASSERT(buf != NULL);
     HARD_ASSERT(buf_len != NULL);
@@ -714,15 +657,13 @@ math_base64_decode (const char     *str,
 
     BIO *bio = BIO_new_mem_buf(cp, len);
     if (bio == NULL) {
-        LOG(ERROR, "BIO_new_mem_buf() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "BIO_new_mem_buf() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 
     BIO *bio_base64 = BIO_new(BIO_f_base64());
     if (bio_base64 == NULL) {
-        LOG(ERROR, "BIO_new() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "BIO_new() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error;
     }
 

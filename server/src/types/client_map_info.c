@@ -35,6 +35,4 @@
 /**
  * Initialize the client map info type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(client_map_info)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(client_map_info) {}

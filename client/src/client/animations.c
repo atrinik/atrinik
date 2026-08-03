@@ -32,8 +32,7 @@
 /**
  * Load animations.
  */
-void read_anims(void)
-{
+void read_anims(void) {
     anims_deinit();
 
     size_t count = 0;
@@ -41,8 +40,8 @@ void read_anims(void)
 
     /* Animation #0 is like face id #0. */
     uint8_t anim_cmd[2048];
-    anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
-    anim_cmd[1] = (uint8_t) (count & 0xff);
+    anim_cmd[0] = (uint8_t)((count >> 8) & 0xff);
+    anim_cmd[1] = (uint8_t)(count & 0xff);
     anim_cmd[2] = 0;
     anim_cmd[3] = 1;
     anim_cmd[4] = 0;
@@ -67,8 +66,8 @@ void read_anims(void)
         if (!in_anim) {
             if (strncmp(buf, "anim ", 5) == 0) {
                 in_anim = true;
-                anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
-                anim_cmd[1] = (uint8_t) (count & 0xff);
+                anim_cmd[0] = (uint8_t)((count >> 8) & 0xff);
+                anim_cmd[1] = (uint8_t)(count & 0xff);
                 faces = 1;
                 anim_len = 4;
             } else {
@@ -79,8 +78,7 @@ void read_anims(void)
             if (!strncmp(buf, "facings ", 8)) {
                 faces = atoi(buf + 8);
             } else if (!strncmp(buf, "mina", 4)) {
-                anim_table = erealloc(anim_table, sizeof(*anim_table) *
-                        (count + 1));
+                anim_table = erealloc(anim_table, sizeof(*anim_table) * (count + 1));
                 anim_cmd[2] = 0;
                 anim_cmd[3] = faces;
                 anim_table[count].len = anim_len;
@@ -90,8 +88,8 @@ void read_anims(void)
                 in_anim = false;
             } else {
                 uint16_t face_id = atoi(buf);
-                anim_cmd[anim_len++] = (uint8_t) ((face_id >> 8) & 0xff);
-                anim_cmd[anim_len++] = (uint8_t) (face_id & 0xff);
+                anim_cmd[anim_len++] = (uint8_t)((face_id >> 8) & 0xff);
+                anim_cmd[anim_len++] = (uint8_t)(face_id & 0xff);
             }
         }
     }
@@ -104,8 +102,7 @@ void read_anims(void)
 /**
  * Deinitialize the animations.
  */
-void anims_deinit(void)
-{
+void anims_deinit(void) {
     /* Clear both animation tables. */
     for (size_t i = 0; i < animations_num; i++) {
         if (animations[i].faces != NULL) {
@@ -135,8 +132,7 @@ void anims_deinit(void)
  * Reset the necessary values in animations table instead of reloading
  * them from file.
  */
-void anims_reset(void)
-{
+void anims_reset(void) {
     size_t i;
 
     for (i = 0; i < animations_num; i++) {
@@ -149,18 +145,15 @@ void anims_reset(void)
         }
     }
 }
-Animations *
-animation_get (uint16_t animation_id)
-{
+Animations *animation_get(uint16_t animation_id) {
     if (!check_animation_status(animation_id)) {
         return NULL;
     }
 
     Animations *animation = &animations[animation_id];
-    if (animation->faces == NULL || animation->num_animations == 0 ||
-            animation->facings == 0 || animation->frame == 0 ||
-            animation->frame != animation->num_animations /
-            animation->facings) {
+    if (animation->faces == NULL || animation->num_animations == 0 || animation->facings == 0 ||
+        animation->frame == 0 ||
+        animation->frame != animation->num_animations / animation->facings) {
         LOG(ERROR, "Animation %u has inconsistent frame data", animation_id);
         return NULL;
     }
@@ -171,10 +164,7 @@ animation_get (uint16_t animation_id)
 /**
  * Resolve one animation frame without allowing an out-of-bounds access.
  */
-bool
-animation_get_face (uint16_t animation_id, uint8_t direction, size_t state,
-                    uint16_t *face)
-{
+bool animation_get_face(uint16_t animation_id, uint8_t direction, size_t state, uint16_t *face) {
     HARD_ASSERT(face != NULL);
 
     Animations *animation = animation_get(animation_id);
@@ -184,24 +174,29 @@ animation_get_face (uint16_t animation_id, uint8_t direction, size_t state,
 
     size_t facing = direction < animation->facings ? direction : 0;
     if (state >= animation->frame) {
-        LOG(ERROR, "Invalid animation state (animation: %u, direction: %u, "
-            "state: %" PRIu64 ", frames: %" PRIu64 ")", animation_id,
-            direction, (uint64_t) state, (uint64_t) animation->frame);
+        LOG(ERROR,
+            "Invalid animation state (animation: %u, direction: %u, "
+            "state: %" PRIu64 ", frames: %" PRIu64 ")",
+            animation_id,
+            direction,
+            (uint64_t)state,
+            (uint64_t)animation->frame);
         return false;
     }
 
     size_t index = facing * animation->frame + state;
     if (index >= animation->num_animations) {
-        LOG(ERROR, "Invalid animation frame index (animation: %u, index: %"
-            PRIu64 ", count: %" PRIu64 ")", animation_id, (uint64_t) index,
-            (uint64_t) animation->num_animations);
+        LOG(ERROR,
+            "Invalid animation frame index (animation: %u, index: %" PRIu64 ", count: %" PRIu64 ")",
+            animation_id,
+            (uint64_t)index,
+            (uint64_t)animation->num_animations);
         return false;
     }
 
     uint16_t candidate = animation->faces[index] & FACE_ID_MASK;
     if (!image_face_valid(candidate)) {
-        LOG(ERROR, "Animation %u resolved to invalid face ID %u",
-            animation_id, candidate);
+        LOG(ERROR, "Animation %u resolved to invalid face ID %u", animation_id, candidate);
         return false;
     }
 

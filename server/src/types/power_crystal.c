@@ -38,9 +38,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -65,7 +63,6 @@ apply_func (object *op, object *applier, int aflags)
 /**
  * Initialize the power crystal type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(power_crystal)
-{
+OBJECT_TYPE_INIT_DEFINE(power_crystal) {
     OBJECT_METHODS(POWER_CRYSTAL)->apply_func = apply_func;
 }

@@ -37,9 +37,7 @@
 #include "common/process_treasure.h"
 
 /** @copydoc object_methods_t::ranged_fire_func */
-static int
-ranged_fire_func (object *op, object *shooter, int dir, double *delay)
-{
+static int ranged_fire_func(object *op, object *shooter, int dir, double *delay) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(shooter != NULL);
 
@@ -62,8 +60,7 @@ ranged_fire_func (object *op, object *shooter, int dir, double *delay)
 
     if (QUERY_FLAG(op, FLAG_APPLIED) && OBJECT_CURSED(op)) {
         char *name = object_get_base_name_s(op, shooter);
-        draw_info_format(COLOR_WHITE, shooter, "The %s sticks to your hand!",
-                         name);
+        draw_info_format(COLOR_WHITE, shooter, "The %s sticks to your hand!", name);
         efree(name);
         return OBJECT_METHOD_UNHANDLED;
     }
@@ -119,24 +116,16 @@ ranged_fire_func (object *op, object *shooter, int dir, double *delay)
         CONTR(shooter)->stat_missiles_thrown++;
     }
 
-    play_sound_map(shooter->map,
-                   CMD_SOUND_EFFECT,
-                   "throw.ogg",
-                   shooter->x,
-                   shooter->y,
-                   0,
-                   0);
+    play_sound_map(shooter->map, CMD_SOUND_EFFECT, "throw.ogg", shooter->x, shooter->y, 0, 0);
     return OBJECT_METHOD_OK;
 }
 
 /** @copydoc object_methods_t::process_treasure_func */
-static int
-process_treasure_func (object              *op,
-                       object             **ret,
-                       int                  difficulty,
-                       treasure_affinity_t *affinity,
-                       int                  flags)
-{
+static int process_treasure_func(object *op,
+                                 object **ret,
+                                 int difficulty,
+                                 treasure_affinity_t *affinity,
+                                 int flags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(difficulty > 0);
 
@@ -162,26 +151,16 @@ process_treasure_func (object              *op,
 /**
  * Initialize the arrow type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(arrow)
-{
-    OBJECT_METHODS(ARROW)->apply_func =
-        object_apply_item;
-    OBJECT_METHODS(ARROW)->ranged_fire_func =
-        ranged_fire_func;
-    OBJECT_METHODS(ARROW)->projectile_stop_func =
-        common_object_projectile_stop_missile;
-    OBJECT_METHODS(ARROW)->process_func =
-        common_object_projectile_process;
-    OBJECT_METHODS(ARROW)->projectile_move_func =
-        common_object_projectile_move;
-    OBJECT_METHODS(ARROW)->projectile_fire_func =
-        common_object_projectile_fire_missile;
-    OBJECT_METHODS(ARROW)->projectile_hit_func =
-        common_object_projectile_hit;
-    OBJECT_METHODS(ARROW)->move_on_func =
-        common_object_projectile_move_on;
-    OBJECT_METHODS(ARROW)->process_treasure_func =
-        process_treasure_func;
+OBJECT_TYPE_INIT_DEFINE(arrow) {
+    OBJECT_METHODS(ARROW)->apply_func = object_apply_item;
+    OBJECT_METHODS(ARROW)->ranged_fire_func = ranged_fire_func;
+    OBJECT_METHODS(ARROW)->projectile_stop_func = common_object_projectile_stop_missile;
+    OBJECT_METHODS(ARROW)->process_func = common_object_projectile_process;
+    OBJECT_METHODS(ARROW)->projectile_move_func = common_object_projectile_move;
+    OBJECT_METHODS(ARROW)->projectile_fire_func = common_object_projectile_fire_missile;
+    OBJECT_METHODS(ARROW)->projectile_hit_func = common_object_projectile_hit;
+    OBJECT_METHODS(ARROW)->move_on_func = common_object_projectile_move_on;
+    OBJECT_METHODS(ARROW)->process_treasure_func = process_treasure_func;
 }
 
 /**
@@ -196,9 +175,7 @@ OBJECT_TYPE_INIT_DEFINE(arrow)
  * @return
  * The arrow's wc.
  */
-int16_t
-arrow_get_wc (object *op, object *bow, object *arrow)
-{
+int16_t arrow_get_wc(object *op, object *bow, object *arrow) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(bow != NULL);
     HARD_ASSERT(arrow != NULL);
@@ -217,8 +194,8 @@ arrow_get_wc (object *op, object *bow, object *arrow)
         level = op->level;
     }
 
-    return (arrow->stats.wc + bow->magic + arrow->magic + level +
-            wc_bonus[op->stats.Dex] + bow->stats.wc);
+    return (arrow->stats.wc + bow->magic + arrow->magic + level + wc_bonus[op->stats.Dex] +
+            bow->stats.wc);
 }
 
 /**
@@ -233,9 +210,7 @@ arrow_get_wc (object *op, object *bow, object *arrow)
  * @return
  * The arrow's damage.
  */
-int16_t
-arrow_get_damage (object *op, object *bow, object *arrow)
-{
+int16_t arrow_get_damage(object *op, object *bow, object *arrow) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(bow != NULL);
     HARD_ASSERT(arrow != NULL);
@@ -290,9 +265,7 @@ arrow_get_damage (object *op, object *bow, object *arrow)
  * @return
  * Pointer to the arrow, NULL if not found.
  */
-object *
-arrow_find (object *op, shstr *type)
-{
+object *arrow_find(object *op, shstr *type) {
     HARD_ASSERT(op != NULL);
 
     /* For non-players, little more work is necessary to find an arrow. */
@@ -308,7 +281,8 @@ arrow_find (object *op, shstr *type)
                     return arrow;
                 }
             }
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
 
         return NULL;
     }

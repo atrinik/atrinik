@@ -35,6 +35,4 @@
 /**
  * Initialize the base info type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(base_info)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(base_info) {}

@@ -93,12 +93,9 @@ static int get_top_floor_height(struct MapCell *cell, int sub_layer);
  * Description of the --tiles_debug command.
  */
 static const char *clioptions_option_tiles_debug_desc =
-"Enable map tiles debugging (shows tile coordinates).";
+    "Enable map tiles debugging (shows tile coordinates).";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_tiles_debug (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_tiles_debug(const char *arg, char **errmsg) {
     tiles_debug = true;
     return true;
 }
@@ -106,8 +103,7 @@ clioptions_option_tiles_debug (const char *arg,
 /**
  * Loads multi-arch object data offsets.
  */
-void load_mapdef_dat(void)
-{
+void load_mapdef_dat(void) {
     FILE *stream;
     int i, ii, x, y, d[32];
     char line[MAX_BUF];
@@ -128,12 +124,42 @@ void load_mapdef_dat(void)
         }
 
         sscanf(line,
-                "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
-                "%d %d %d %d %d %d %d %d %d %d %d %d %d %d", &x, &y, &d[0],
-                &d[1], &d[2], &d[3], &d[4], &d[5], &d[6], &d[7], &d[8], &d[9],
-                &d[10], &d[11], &d[12], &d[13], &d[14], &d[15], &d[16], &d[17],
-                &d[18], &d[19], &d[20], &d[21], &d[22], &d[23], &d[24], &d[25],
-                &d[26], &d[27], &d[28], &d[29], &d[30], &d[31]);
+               "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
+               "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+               &x,
+               &y,
+               &d[0],
+               &d[1],
+               &d[2],
+               &d[3],
+               &d[4],
+               &d[5],
+               &d[6],
+               &d[7],
+               &d[8],
+               &d[9],
+               &d[10],
+               &d[11],
+               &d[12],
+               &d[13],
+               &d[14],
+               &d[15],
+               &d[16],
+               &d[17],
+               &d[18],
+               &d[19],
+               &d[20],
+               &d[21],
+               &d[22],
+               &d[23],
+               &d[24],
+               &d[25],
+               &d[26],
+               &d[27],
+               &d[28],
+               &d[29],
+               &d[30],
+               &d[31]);
         MultiArchs[i].xlen = x;
         MultiArchs[i].ylen = y;
 
@@ -151,16 +177,14 @@ void load_mapdef_dat(void)
  * @param hard
  * Hard reset
  */
-void clear_map(bool hard)
-{
+void clear_map(bool hard) {
     size_t cells_size;
 
     /* Cache the map width and height. */
     map_width = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH);
     map_height = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT);
 
-    cells_size = sizeof(*cells) * map_width * MAP_FOW_SIZE * map_height *
-            MAP_FOW_SIZE;
+    cells_size = sizeof(*cells) * map_width * MAP_FOW_SIZE * map_height * MAP_FOW_SIZE;
 
     if (cells == NULL) {
         cells = emalloc(cells_size);
@@ -186,9 +210,7 @@ void clear_map(bool hard)
  * @param h
  * New height.
  */
-void
-map_update_size (int w, int h)
-{
+void map_update_size(int w, int h) {
     int old_w = map_width;
     int old_h = map_height;
 
@@ -217,8 +239,7 @@ map_update_size (int w, int h)
  * @param old_h
  * Old height. 0 if height hasn't changed.
  */
-void display_mapscroll(int dx, int dy, int old_w, int old_h)
-{
+void display_mapscroll(int dx, int dy, int old_w, int old_h) {
     int x, y, w, h;
     struct MapCell *cells_old;
 
@@ -238,19 +259,18 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h)
 
     for (x = 0; x < w; x++) {
         for (y = 0; y < h; y++) {
-            if (x + dx < 0 || x + dx >= old_w || y + dy < 0 ||
-                    y + dy >= old_h) {
+            if (x + dx < 0 || x + dx >= old_w || y + dy < 0 || y + dy >= old_h) {
                 memset(&(cells[y * w + x]), 0, sizeof(struct MapCell));
             } else {
                 memcpy(&(cells[y * w + x]),
-                        &(cells_old[(y + dy) * old_w + x + dx]),
-                        sizeof(struct MapCell));
+                       &(cells_old[(y + dy) * old_w + x + dx]),
+                       sizeof(struct MapCell));
             }
 
             if (x < map_width * (MAP_FOW_SIZE / 2) ||
-                    x >= map_width + map_width * (MAP_FOW_SIZE / 2) ||
-                    y < map_height * (MAP_FOW_SIZE / 2) ||
-                    y >= map_height + map_height * (MAP_FOW_SIZE / 2)) {
+                x >= map_width + map_width * (MAP_FOW_SIZE / 2) ||
+                y < map_height * (MAP_FOW_SIZE / 2) ||
+                y >= map_height + map_height * (MAP_FOW_SIZE / 2)) {
                 cells[y * w + x].fow = 1;
             }
         }
@@ -268,8 +288,7 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h)
  * @param name
  * New map name.
  */
-void update_map_name(const char *name)
-{
+void update_map_name(const char *name) {
     snprintf(MapData.name_new, sizeof(MapData.name_new), "%s", name);
 }
 
@@ -278,16 +297,14 @@ void update_map_name(const char *name)
  * @param weather
  * New weather.
  */
-void update_map_weather(const char *weather)
-{
+void update_map_weather(const char *weather) {
     effect_start(weather);
 }
 
 /**
  * Update map's height difference rendering flag.
  */
-void update_map_height_diff(uint8_t height_diff)
-{
+void update_map_height_diff(uint8_t height_diff) {
     MapData.height_diff = height_diff;
 }
 
@@ -296,8 +313,7 @@ void update_map_height_diff(uint8_t height_diff)
  * @param region_name
  * New region name.
  */
-void update_map_region_name(const char *region_name)
-{
+void update_map_region_name(const char *region_name) {
     if (strcmp(MapData.region_name, region_name) == 0) {
         return;
     }
@@ -311,8 +327,7 @@ void update_map_region_name(const char *region_name)
  * @param region_longname
  * New region long name.
  */
-void update_map_region_longname(const char *region_longname)
-{
+void update_map_region_longname(const char *region_longname) {
     snprintf(VS(MapData.region_longname), "%s", region_longname);
 }
 
@@ -321,8 +336,7 @@ void update_map_region_longname(const char *region_longname)
  * @param map_path
  * New map path.
  */
-void update_map_path(const char *map_path)
-{
+void update_map_path(const char *map_path) {
     snprintf(VS(MapData.map_path), "%s", map_path);
 }
 
@@ -334,8 +348,7 @@ void update_map_path(const char *map_path)
  * @param in_building
  * New in_building state.
  */
-void map_update_in_building(uint8_t in_building)
-{
+void map_update_in_building(uint8_t in_building) {
     if (in_building && !MapData.in_building) {
         int x, y;
         struct MapCell *cell;
@@ -349,8 +362,8 @@ void map_update_in_building(uint8_t in_building)
                     continue;
                 }
 
-                for (sub_layer = MapData.player_sub_layer + 1;
-                        sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                for (sub_layer = MapData.player_sub_layer + 1; sub_layer < NUM_SUB_LAYERS;
+                     sub_layer++) {
                     for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
                         cell->faces[GET_MAP_LAYER(layer, sub_layer)] = 0;
                     }
@@ -367,16 +380,13 @@ void map_update_in_building(uint8_t in_building)
  * @return
  * Player's direction.
  */
-int map_get_player_direction(void)
-{
+int map_get_player_direction(void) {
     struct MapCell *cell;
     int direction;
 
-    cell = MAP_CELL_GET_MIDDLE(map_width - (map_width / 2) - 1,
-            map_height - (map_height / 2) - 1);
+    cell = MAP_CELL_GET_MIDDLE(map_width - (map_width / 2) - 1, map_height - (map_height / 2) - 1);
 
-    direction = cell->anim_facing[GET_MAP_LAYER(LAYER_LIVING,
-            MapData.player_sub_layer)];
+    direction = cell->anim_facing[GET_MAP_LAYER(LAYER_LIVING, MapData.player_sub_layer)];
 
     if (direction == 0) {
         return 1;
@@ -390,8 +400,7 @@ int map_get_player_direction(void)
  * @param[out] x Will contain X coordinate.
  * @param[out] y Will contain Y coordinate.
  */
-void map_get_real_coords(int *x, int *y)
-{
+void map_get_real_coords(int *x, int *y) {
     *x = MapData.posx - (map_width / 2);
     *y = MapData.posy - (map_height / 2);
 }
@@ -407,8 +416,7 @@ void map_get_real_coords(int *x, int *y)
  * @param py
  * Player's Y position.
  */
-void init_map_data(int xl, int yl, int px, int py)
-{
+void init_map_data(int xl, int yl, int px, int py) {
     if (xl != -1) {
         MapData.xlen = xl;
     }
@@ -448,16 +456,13 @@ void init_map_data(int xl, int yl, int px, int py)
  * @return
  * The height.
  */
-static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer,
-        int my_height)
-{
+static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer, int my_height) {
     if (x >= 0 && x < w && y >= 0 && y < h) {
         bool is_building_wall = false;
 
         for (int i = 1; i < NUM_SUB_LAYERS; i++) {
             if (cells[y * w + x].faces[GET_MAP_LAYER(LAYER_EFFECT, i)] != 0 &&
-                    cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, i)]
-                    != 0) {
+                cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, i)] != 0) {
                 is_building_wall = true;
                 break;
             }
@@ -465,8 +470,7 @@ static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer,
 
         if (my_height < 0 && (sub_layer != 0 || is_building_wall)) {
             for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0; sub_layer--) {
-                int height = cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR,
-                        sub_layer)];
+                int height = cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
 
                 if (height != 0) {
                     return height;
@@ -495,12 +499,11 @@ static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer,
  * @param sub_layer
  * Sub-layer.
  */
-static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
-{
+static void align_tile_stretch(int x, int y, int w, int h, int sub_layer) {
     int top, bottom, right, left, min_ht;
     int32_t stretch;
-    int nw_height, n_height, ne_height, sw_height, s_height, se_height,
-            w_height, e_height, my_height;
+    int nw_height, n_height, ne_height, sw_height, s_height, se_height, w_height, e_height,
+        my_height;
 
     if (x < 0 || y < 0 || x >= w || y >= h) {
         return;
@@ -621,8 +624,7 @@ static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
  * command doesn't send us the whole map all over again, but only new/changes
  * parts.
  */
-void adjust_tile_stretch(void)
-{
+void adjust_tile_stretch(void) {
     int xoff, yoff, w, h, x, y, sub_layer;
 
     xoff = map_width * (MAP_FOW_SIZE / 2);
@@ -672,15 +674,33 @@ void adjust_tile_stretch(void)
  * @param infravision
  * Whether to show the object in red.
  */
-void map_set_data(int x, int y, int layer, int16_t face,
-        uint8_t quick_pos, uint8_t obj_flags, const char *name,
-        const char *name_color, int16_t height, uint8_t probe, int16_t zoom_x,
-        int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha,
-        int16_t rotate, uint8_t infravision, uint32_t target_object_count,
-        uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing,
-        uint8_t anim_flags, uint8_t anim_state, uint8_t priority,
-        uint8_t secondpass, const char *glow, uint8_t glow_speed)
-{
+void map_set_data(int x,
+                  int y,
+                  int layer,
+                  int16_t face,
+                  uint8_t quick_pos,
+                  uint8_t obj_flags,
+                  const char *name,
+                  const char *name_color,
+                  int16_t height,
+                  uint8_t probe,
+                  int16_t zoom_x,
+                  int16_t zoom_y,
+                  int16_t align,
+                  uint8_t draw_double,
+                  uint8_t alpha,
+                  int16_t rotate,
+                  uint8_t infravision,
+                  uint32_t target_object_count,
+                  uint8_t target_is_friend,
+                  uint8_t anim_speed,
+                  uint8_t anim_facing,
+                  uint8_t anim_flags,
+                  uint8_t anim_state,
+                  uint8_t priority,
+                  uint8_t secondpass,
+                  const char *glow,
+                  uint8_t glow_speed) {
     struct MapCell *cell;
     int sub_layer;
 
@@ -720,8 +740,7 @@ void map_set_data(int x, int y, int layer, int16_t face,
     }
 
     cell->priority[sub_layer] |= priority << (((layer % NUM_LAYERS) + 1) - 1);
-    cell->secondpass[sub_layer] |= secondpass << (((layer % NUM_LAYERS) + 1) -
-            1);
+    cell->secondpass[sub_layer] |= secondpass << (((layer % NUM_LAYERS) + 1) - 1);
 
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
@@ -744,7 +763,7 @@ void map_set_data(int x, int y, int layer, int16_t face,
     cell->glow_speed[layer] = glow_speed;
 
     if (cell->target_object_count[layer] != target_object_count ||
-            cell->target_is_friend[layer] != target_is_friend) {
+        cell->target_is_friend[layer] != target_is_friend) {
         cpl.target_object_index = 0;
     }
 
@@ -756,10 +775,10 @@ void map_set_data(int x, int y, int layer, int16_t face,
 
     if (((layer % NUM_LAYERS) + 1) == LAYER_LIVING) {
         if (anim_flags & ANIM_FLAG_ATTACKING &&
-                !(cell->anim_flags[sub_layer] & ANIM_FLAG_ATTACKING)) {
+            !(cell->anim_flags[sub_layer] & ANIM_FLAG_ATTACKING)) {
             cell->anim_state[layer] = 0;
         } else if (anim_flags & ANIM_FLAG_MOVING &&
-                !(cell->anim_flags[sub_layer] & ANIM_FLAG_MOVING)) {
+                   !(cell->anim_flags[sub_layer] & ANIM_FLAG_MOVING)) {
             cell->anim_state[layer] = anim_state;
         }
 
@@ -786,8 +805,7 @@ void map_set_data(int x, int y, int layer, int16_t face,
  * @param y
  * Y of the cell.
  */
-void map_clear_cell(int x, int y)
-{
+void map_clear_cell(int x, int y) {
     struct MapCell *cell;
     int layer;
 
@@ -813,8 +831,7 @@ void map_clear_cell(int x, int y)
  * @param darkness
  * Darkness to set.
  */
-void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness)
-{
+void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness) {
     struct MapCell *cell;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
@@ -830,8 +847,7 @@ void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness)
  * @return
  * The height.
  */
-static int get_top_floor_height(struct MapCell *cell, int sub_layer)
-{
+static int get_top_floor_height(struct MapCell *cell, int sub_layer) {
     int16_t height;
 
     height = cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
@@ -839,12 +855,10 @@ static int get_top_floor_height(struct MapCell *cell, int sub_layer)
     return MAX(0, height);
 }
 
-static void map_animate_object(struct MapCell *cell, int layer)
-{
+static void map_animate_object(struct MapCell *cell, int layer) {
     Animations *animation;
 
-    if (cell->faces[layer] == 0 || cell->anim_speed[layer] == 0 ||
-            cell->anim_facing[layer] == 0) {
+    if (cell->faces[layer] == 0 || cell->anim_speed[layer] == 0 || cell->anim_facing[layer] == 0) {
         return;
     }
 
@@ -855,8 +869,7 @@ static void map_animate_object(struct MapCell *cell, int layer)
         return;
     }
 
-    if (!(cell->flags[layer] & FFLAG_SLEEP) &&
-            !(cell->flags[layer] & FFLAG_PARALYZED)) {
+    if (!(cell->flags[layer] & FFLAG_SLEEP) && !(cell->flags[layer] & FFLAG_PARALYZED)) {
         cell->anim_state[layer]++;
         map_redraw_flag = 1;
     }
@@ -867,8 +880,7 @@ static void map_animate_object(struct MapCell *cell, int layer)
     }
 }
 
-void map_animate(void)
-{
+void map_animate(void) {
     int x, y, layer;
     struct MapCell *cell;
 
@@ -905,8 +917,7 @@ void map_animate(void)
     }
 }
 
-static uint16_t map_object_get_face(struct MapCell *cell, int layer)
-{
+static uint16_t map_object_get_face(struct MapCell *cell, int layer) {
     int sub_layer, dir;
     Animations *animation;
     uint16_t face;
@@ -931,8 +942,7 @@ static uint16_t map_object_get_face(struct MapCell *cell, int layer)
         }
     }
 
-    return animation_get_face(cell->faces[layer], dir,
-            cell->anim_state[layer], &face) ? face : 0;
+    return animation_get_face(cell->faces[layer], dir, cell->anim_state[layer], &face) ? face : 0;
 }
 
 /**
@@ -974,9 +984,7 @@ typedef struct map_render_data {
  * @param data
  * Rendering data. May be modified.
  */
-static void
-draw_map_object (SDL_Surface *surface, map_render_data_t *data)
-{
+static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     HARD_ASSERT(surface != NULL);
     HARD_ASSERT(data != NULL);
 
@@ -994,10 +1002,9 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
     /* When rendering on the map surface, avoid rendering the object
      * when it's too high up and either in the FoW or the map has the
      * "height difference" feature enabled. */
-    if (surface == cur_widget[MAP_ID]->surface &&
-        (data->cell->fow || MapData.height_diff) &&
-        abs(get_top_floor_height(data->cell, data->sub_layer) -
-            data->player_height_offset) > HEIGHT_MAX_RENDER) {
+    if (surface == cur_widget[MAP_ID]->surface && (data->cell->fow || MapData.height_diff) &&
+        abs(get_top_floor_height(data->cell, data->sub_layer) - data->player_height_offset) >
+            HEIGHT_MAX_RENDER) {
         return;
     }
 
@@ -1013,10 +1020,8 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
         rotozoomSurfaceSizeXY(bitmap_w,
                               bitmap_h,
                               effects.rotate,
-                              effects.zoom_x != 0 ? effects.zoom_x / 100.0 :
-                                  1.0,
-                              effects.zoom_y != 0 ? effects.zoom_y / 100.0 :
-                                  1.0,
+                              effects.zoom_x != 0 ? effects.zoom_x / 100.0 : 1.0,
+                              effects.zoom_y != 0 ? effects.zoom_y / 100.0 : 1.0,
                               &bitmap_w,
                               &bitmap_h);
     } else if ((effects.zoom_x != 0 && effects.zoom_x != 100) ||
@@ -1039,8 +1044,7 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
         uint8_t mid = mnr >> 4;
         mnr &= 0x0f;
         xlen = MultiArchs[mid].xlen;
-        yl = data->ypos - MultiArchs[mid].part[mnr].yoff +
-             MultiArchs[mid].ylen - bitmap_h;
+        yl = data->ypos - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - bitmap_h;
 
         /* Center overlapping X borders */
         xl = 0;
@@ -1082,8 +1086,7 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
     }
 
     if (surface != cur_widget[MAP_ID]->surface) {
-        BITMASK_CLEAR(effects.flags,
-                      BIT_MASK(SPRITE_FLAG_RED) | BIT_MASK(SPRITE_FLAG_FOW));
+        BITMASK_CLEAR(effects.flags, BIT_MASK(SPRITE_FLAG_RED) | BIT_MASK(SPRITE_FLAG_FOW));
         BIT_SET(effects.flags, SPRITE_FLAG_DARK);
     }
 
@@ -1106,9 +1109,7 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
         effects.stretch = data->cell->stretch[data->sub_layer];
     }
 
-    if (data->layer == LAYER_LIVING ||
-        data->layer == LAYER_EFFECT ||
-        data->layer == LAYER_ITEM ||
+    if (data->layer == LAYER_LIVING || data->layer == LAYER_EFFECT || data->layer == LAYER_ITEM ||
         data->layer == LAYER_ITEM2) {
         yl -= get_top_floor_height(data->cell, data->sub_layer);
     } else {
@@ -1129,8 +1130,7 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
      * on the screen than the player. This simulates high walls without
      * obscuring the user's view. */
     if (data->cell->draw_double[map_layer]) {
-        surface_show_effects(surface, xl, yl - 22, NULL, face_sprite->bitmap,
-                             &effects);
+        surface_show_effects(surface, xl, yl - 22, NULL, face_sprite->bitmap, &effects);
     }
 
     /* Rest of the code deals with rendering on the map widget. */
@@ -1140,14 +1140,13 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
 
     int xoff2;
     if (xlen == MAP_TILE_POS_XOFF) {
-        xoff2 = (int) (((double) xlen / 100.0) * 25.0);
+        xoff2 = (int)(((double)xlen / 100.0) * 25.0);
     } else {
-        xoff2 = (int) (((double) xlen / 100.0) * 20.0);
+        xoff2 = (int)(((double)xlen / 100.0) * 20.0);
     }
 
     /* Do we have a playername? Then print it! */
-    if (data->cell->pname[map_layer][0] != '\0' &&
-        setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES)) {
+    if (data->cell->pname[map_layer][0] != '\0' && setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES)) {
         bool draw_name = false;
         char *name = data->cell->pname[map_layer];
 
@@ -1232,8 +1231,7 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
     }
 
     if (data->layer == LAYER_FLOOR && tiles_debug) {
-        data->tiles = erealloc(data->tiles,
-                               sizeof(*data->tiles) * ((data->tiles_num) + 1));
+        data->tiles = erealloc(data->tiles, sizeof(*data->tiles) * ((data->tiles_num) + 1));
         data->tiles[data->tiles_num].x = xl;
         data->tiles[data->tiles_num].y = yl;
         data->tiles[data->tiles_num].w = data->x;
@@ -1241,8 +1239,7 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
         data->tiles_num++;
     }
 
-    if (!data->cell->fow &&
-        data->cell->probe[map_layer] != 0) {
+    if (!data->cell->fow && data->cell->probe[map_layer] != 0) {
         data->target_cell = data->cell;
         data->target_layer = map_layer;
         data->target_rect.x = xoff + xoff2;
@@ -1266,9 +1263,7 @@ draw_map_object (SDL_Surface *surface, map_render_data_t *data)
  * @return
  * Whether the coordinates @p dx and @p dy are behind a wall or not.
  */
-static bool
-obj_is_behind_wall (int dx, int dy, int sx, int sy)
-{
+static bool obj_is_behind_wall(int dx, int dy, int sx, int sy) {
     int fraction, dx2, dy2, stepx, stepy;
     int x = sx, y = sy;
     int distance_x = dx - sx;
@@ -1307,34 +1302,26 @@ obj_is_behind_wall (int dx, int dy, int sx, int sy)
  * @return
  * Whether the object should be culled.
  */
-static bool
-map_should_cull (SDL_Surface           *surface,
-                 map_render_data_t     *data)
-{
+static bool map_should_cull(SDL_Surface *surface, map_render_data_t *data) {
     /* Determine the distance of the object relative to the PC. */
     int distance_x = data->x - map_width * MAP_FOW_SIZE / 2;
     int distance_y = data->y - map_height * MAP_FOW_SIZE / 2;
-    int distance = isqrt(distance_x * distance_x +
-                         distance_y * distance_y);
+    int distance = isqrt(distance_x * distance_x + distance_y * distance_y);
     if (distance > 3) {
         /* Too far away, no culling. */
         return false;
     }
 
     /* Must be in the southern or eastern quadrant to be culled. */
-    if (data->x < map_width * MAP_FOW_SIZE / 2 ||
-        data->y < map_height * MAP_FOW_SIZE / 2) {
+    if (data->x < map_width * MAP_FOW_SIZE / 2 || data->y < map_height * MAP_FOW_SIZE / 2) {
         return false;
     }
 
     bool cull = false;
     int range = 2;
 
-    for (int sub_layer2 = NUM_SUB_LAYERS - 1;
-         sub_layer2 > 0;
-         sub_layer2--) {
-        int16_t height = data->cell->height[GET_MAP_LAYER(LAYER_EFFECT,
-                                                          sub_layer2)];
+    for (int sub_layer2 = NUM_SUB_LAYERS - 1; sub_layer2 > 0; sub_layer2--) {
+        int16_t height = data->cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer2)];
         if (height - data->player_height_offset > 50) {
             range = 0;
         }
@@ -1348,9 +1335,7 @@ map_should_cull (SDL_Surface           *surface,
         for (int ny = data->y - range; ny <= data->y && !cull; ny++) {
             MapCell *cell2 = MAP_CELL_GET(nx, ny);
 
-            for (int sub_layer2 = 0;
-                 sub_layer2 < NUM_SUB_LAYERS;
-                 sub_layer2++) {
+            for (int sub_layer2 = 0; sub_layer2 < NUM_SUB_LAYERS; sub_layer2++) {
                 if (cell2->secondpass[sub_layer2] & (1 << (LAYER_WALL - 1)) &&
                     !obj_is_behind_wall(nx,
                                         ny,
@@ -1378,22 +1363,17 @@ map_should_cull (SDL_Surface           *surface,
  * @return
  * Whether the tile should be rendered.
  */
-static bool
-map_should_draw (SDL_Surface *surface, map_render_data_t *data)
-{
+static bool map_should_draw(SDL_Surface *surface, map_render_data_t *data) {
     HARD_ASSERT(surface != NULL);
     HARD_ASSERT(data != NULL);
 
-    data->xpos = surface->w / 2 - MAP_TILE_POS_XOFF / 2 +
-                 (data->x - data->midx) * MAP_TILE_YOFF -
+    data->xpos = surface->w / 2 - MAP_TILE_POS_XOFF / 2 + (data->x - data->midx) * MAP_TILE_YOFF -
                  (data->y - data->midy) * MAP_TILE_YOFF;
-    data->ypos = surface->h / 2 - MAP_TILE_POS_YOFF / 2 +
-                 (data->x - data->midx) * MAP_TILE_XOFF +
+    data->ypos = surface->h / 2 - MAP_TILE_POS_YOFF / 2 + (data->x - data->midx) * MAP_TILE_XOFF +
                  (data->y - data->midy) * MAP_TILE_XOFF;
 
     if (surface != cur_widget[MAP_ID]->surface) {
-        data->ypos -= map_width * MAP_TILE_XOFF + map_height *
-                      MAP_TILE_XOFF * (MAP_FOW_SIZE / 2);
+        data->ypos -= map_width * MAP_TILE_XOFF + map_height * MAP_TILE_XOFF * (MAP_FOW_SIZE / 2);
         data->ypos -= map_height * MAP_TILE_YOFF;
     }
 
@@ -1436,23 +1416,19 @@ map_should_draw (SDL_Surface *surface, map_render_data_t *data)
  * @param[out] w Maximum width. Can be NULL.
  * @param[out] h Maximum height. Can be NULL.
  */
-static void
-map_setup_render_data (SDL_Surface       *surface,
-                       map_render_data_t *data,
-                       int               *x,
-                       int               *y,
-                       int               *w,
-                       int               *h)
-{
+static void map_setup_render_data(SDL_Surface *surface,
+                                  map_render_data_t *data,
+                                  int *x,
+                                  int *y,
+                                  int *w,
+                                  int *h) {
     HARD_ASSERT(surface != NULL);
     HARD_ASSERT(data != NULL);
 
     data->x = map_width - (map_width / 2) - 1;
     data->y = map_height - (map_height / 2) - 1;
     data->cell = MAP_CELL_GET_MIDDLE(data->x, data->y);
-    data->player_height_offset = get_top_floor_height(data->cell,
-                                                      MapData.player_sub_layer);
-
+    data->player_height_offset = get_top_floor_height(data->cell, MapData.player_sub_layer);
 
     if (surface == cur_widget[MAP_ID]->surface) {
         data->midx = map_width * MAP_FOW_SIZE / 2;
@@ -1506,7 +1482,6 @@ map_setup_render_data (SDL_Surface       *surface,
             *h = map_height * MAP_FOW_SIZE;
         }
     }
-
 }
 
 /**
@@ -1515,9 +1490,7 @@ map_setup_render_data (SDL_Surface       *surface,
  * @param surface
  * Surface to render on.
  */
-void
-map_draw_map (SDL_Surface *surface)
-{
+void map_draw_map(SDL_Surface *surface) {
     HARD_ASSERT(surface != NULL);
 
     map_render_data_t data = {0};
@@ -1531,9 +1504,7 @@ map_draw_map (SDL_Surface *surface)
                 continue;
             }
 
-            for (data.layer = LAYER_FLOOR;
-                 data.layer <= LAYER_FMASK;
-                 data.layer++) {
+            for (data.layer = LAYER_FLOOR; data.layer <= LAYER_FMASK; data.layer++) {
                 if (data.cell->priority[0] & (1 << (data.layer - 1))) {
                     continue;
                 }
@@ -1543,8 +1514,7 @@ map_draw_map (SDL_Surface *surface)
         }
     }
 
-    uint8_t floor_layer_pl = GET_MAP_LAYER(LAYER_FLOOR,
-                                           MapData.player_sub_layer);
+    uint8_t floor_layer_pl = GET_MAP_LAYER(LAYER_FLOOR, MapData.player_sub_layer);
 
     /* Now draw everything else. */
     for (data.x = x; data.x < w; data.x++) {
@@ -1553,34 +1523,24 @@ map_draw_map (SDL_Surface *surface)
                 continue;
             }
 
-            for (data.layer = LAYER_FLOOR;
-                 data.layer <= NUM_LAYERS;
-                 data.layer++) {
-                for (data.sub_layer = 0;
-                     data.sub_layer < NUM_SUB_LAYERS;
-                     data.sub_layer++) {
+            for (data.layer = LAYER_FLOOR; data.layer <= NUM_LAYERS; data.layer++) {
+                for (data.sub_layer = 0; data.sub_layer < NUM_SUB_LAYERS; data.sub_layer++) {
                     if (data.sub_layer == 0 &&
-                        (data.layer == LAYER_FLOOR ||
-                         data.layer == LAYER_FMASK)) {
+                        (data.layer == LAYER_FLOOR || data.layer == LAYER_FMASK)) {
                         continue;
                     }
 
                     /* Skip objects on the effect layer with non-zero sub-layer
                      * because they will be rendered later. */
                     if (data.layer == LAYER_EFFECT && data.sub_layer != 0) {
-                        uint8_t effect_layer =
-                            GET_MAP_LAYER(LAYER_EFFECT, data.sub_layer);
-                        uint8_t floor_layer =
-                            GET_MAP_LAYER(LAYER_FLOOR,
-                                          MapData.player_sub_layer);
-                        if (data.cell->height[effect_layer] >=
-                            data.cell->height[floor_layer]) {
+                        uint8_t effect_layer = GET_MAP_LAYER(LAYER_EFFECT, data.sub_layer);
+                        uint8_t floor_layer = GET_MAP_LAYER(LAYER_FLOOR, MapData.player_sub_layer);
+                        if (data.cell->height[effect_layer] >= data.cell->height[floor_layer]) {
                             continue;
                         }
                     }
 
-                    if (data.cell->priority[data.sub_layer] &
-                        (1 << (data.layer - 1))) {
+                    if (data.cell->priority[data.sub_layer] & (1 << (data.layer - 1))) {
                         continue;
                     }
 
@@ -1588,29 +1548,20 @@ map_draw_map (SDL_Surface *surface)
                 }
             }
 
-            for (data.sub_layer = 0;
-                 data.sub_layer < NUM_SUB_LAYERS;
-                 data.sub_layer++) {
-                uint8_t map_layer = GET_MAP_LAYER(LAYER_FLOOR,
-                                                  data.sub_layer);
-                if (data.cell->height[map_layer] >
-                    data.cell->height[floor_layer_pl]) {
+            for (data.sub_layer = 0; data.sub_layer < NUM_SUB_LAYERS; data.sub_layer++) {
+                uint8_t map_layer = GET_MAP_LAYER(LAYER_FLOOR, data.sub_layer);
+                if (data.cell->height[map_layer] > data.cell->height[floor_layer_pl]) {
                     continue;
                 }
 
-                for (data.layer = LAYER_FLOOR;
-                     data.layer <= NUM_LAYERS;
-                     data.layer++) {
-                    if (!(data.cell->priority[data.sub_layer] &
-                          (1 << (data.layer - 1)))) {
+                for (data.layer = LAYER_FLOOR; data.layer <= NUM_LAYERS; data.layer++) {
+                    if (!(data.cell->priority[data.sub_layer] & (1 << (data.layer - 1)))) {
                         continue;
                     }
 
                     if (data.layer == LAYER_EFFECT && data.sub_layer != 0) {
-                        map_layer = GET_MAP_LAYER(LAYER_EFFECT,
-                                                  data.sub_layer);
-                        if (data.cell->height[map_layer] >=
-                            data.cell->height[floor_layer_pl]) {
+                        map_layer = GET_MAP_LAYER(LAYER_EFFECT, data.sub_layer);
+                        if (data.cell->height[map_layer] >= data.cell->height[floor_layer_pl]) {
                             continue;
                         }
                     }
@@ -1619,9 +1570,7 @@ map_draw_map (SDL_Surface *surface)
                 }
             }
 
-            for (data.layer = LAYER_FLOOR;
-                 data.layer <= NUM_LAYERS;
-                 data.layer++) {
+            for (data.layer = LAYER_FLOOR; data.layer <= NUM_LAYERS; data.layer++) {
                 if (!(data.cell->priority[0] & (1 << (data.layer - 1)))) {
                     continue;
                 }
@@ -1631,43 +1580,31 @@ map_draw_map (SDL_Surface *surface)
 
             data.layer = LAYER_EFFECT;
 
-            for (data.sub_layer = NUM_SUB_LAYERS - 1;
-                 data.sub_layer >= 1;
-                 data.sub_layer--) {
-                if (data.cell->priority[data.sub_layer] &
-                    (1 << (LAYER_EFFECT - 1))) {
+            for (data.sub_layer = NUM_SUB_LAYERS - 1; data.sub_layer >= 1; data.sub_layer--) {
+                if (data.cell->priority[data.sub_layer] & (1 << (LAYER_EFFECT - 1))) {
                     continue;
                 }
 
                 uint8_t map_layer = GET_MAP_LAYER(LAYER_EFFECT, data.sub_layer);
-                if (data.cell->height[map_layer] <
-                    data.cell->height[floor_layer_pl]) {
+                if (data.cell->height[map_layer] < data.cell->height[floor_layer_pl]) {
                     continue;
                 }
 
-                if (surface == cur_widget[MAP_ID]->surface &&
-                    map_should_cull(surface, &data)) {
+                if (surface == cur_widget[MAP_ID]->surface && map_should_cull(surface, &data)) {
                     continue;
                 }
 
                 draw_map_object(surface, &data);
             }
 
-            for (data.sub_layer = 0;
-                 data.sub_layer < NUM_SUB_LAYERS;
-                 data.sub_layer++) {
-                uint8_t map_layer = GET_MAP_LAYER(LAYER_FLOOR,
-                                                  data.sub_layer);
-                if (data.cell->height[map_layer] <=
-                    data.cell->height[floor_layer_pl]) {
+            for (data.sub_layer = 0; data.sub_layer < NUM_SUB_LAYERS; data.sub_layer++) {
+                uint8_t map_layer = GET_MAP_LAYER(LAYER_FLOOR, data.sub_layer);
+                if (data.cell->height[map_layer] <= data.cell->height[floor_layer_pl]) {
                     continue;
                 }
 
-                for (data.layer = LAYER_FLOOR;
-                     data.layer <= NUM_LAYERS;
-                     data.layer++) {
-                    if (!(data.cell->priority[data.sub_layer] &
-                          (1 << (data.layer - 1)))) {
+                for (data.layer = LAYER_FLOOR; data.layer <= NUM_LAYERS; data.layer++) {
+                    if (!(data.cell->priority[data.sub_layer] & (1 << (data.layer - 1)))) {
                         continue;
                     }
 
@@ -1677,32 +1614,23 @@ map_draw_map (SDL_Surface *surface)
 
             data.layer = LAYER_EFFECT;
 
-            for (data.sub_layer = NUM_SUB_LAYERS - 1;
-                 data.sub_layer >= 1;
-                 data.sub_layer--) {
-                uint8_t map_layer = GET_MAP_LAYER(LAYER_EFFECT,
-                                                  data.sub_layer);
-                if (data.cell->height[map_layer] <
-                    data.cell->height[floor_layer_pl]) {
+            for (data.sub_layer = NUM_SUB_LAYERS - 1; data.sub_layer >= 1; data.sub_layer--) {
+                uint8_t map_layer = GET_MAP_LAYER(LAYER_EFFECT, data.sub_layer);
+                if (data.cell->height[map_layer] < data.cell->height[floor_layer_pl]) {
                     continue;
                 }
 
-                uint8_t map_layer2 = GET_MAP_LAYER(LAYER_FLOOR,
-                                                   data.sub_layer - 1);
-                if (data.cell->height[map_layer] <=
-                    data.cell->height[map_layer2]) {
+                uint8_t map_layer2 = GET_MAP_LAYER(LAYER_FLOOR, data.sub_layer - 1);
+                if (data.cell->height[map_layer] <= data.cell->height[map_layer2]) {
                     continue;
                 }
 
-                map_layer2 = GET_MAP_LAYER(LAYER_EFFECT,
-                                           data.sub_layer - 1);
-                if (data.cell->height[map_layer] <=
-                    data.cell->height[map_layer2]) {
+                map_layer2 = GET_MAP_LAYER(LAYER_EFFECT, data.sub_layer - 1);
+                if (data.cell->height[map_layer] <= data.cell->height[map_layer2]) {
                     continue;
                 }
 
-                if (surface == cur_widget[MAP_ID]->surface &&
-                    map_should_cull(surface, &data)) {
+                if (surface == cur_widget[MAP_ID]->surface && map_should_cull(surface, &data)) {
                     continue;
                 }
 
@@ -1728,12 +1656,9 @@ map_draw_map (SDL_Surface *surface)
                 continue;
             }
 
-            for (data.sub_layer = NUM_SUB_LAYERS - 1;
-                 data.sub_layer >= 1;
-                 data.sub_layer--) {
+            for (data.sub_layer = NUM_SUB_LAYERS - 1; data.sub_layer >= 1; data.sub_layer--) {
                 uint8_t map_layer = GET_MAP_LAYER(LAYER_EFFECT, data.sub_layer);
-                if (data.cell->height[map_layer] != 0 &&
-                    data.cell->faces[map_layer] != 0) {
+                if (data.cell->height[map_layer] != 0 && data.cell->faces[map_layer] != 0) {
                     data.cell = NULL;
                     break;
                 }
@@ -1746,9 +1671,7 @@ map_draw_map (SDL_Surface *surface)
             data.layer = LAYER_LIVING;
             data.alpha_forced = 100;
 
-            for (data.sub_layer = 0;
-                 data.sub_layer < NUM_SUB_LAYERS;
-                 data.sub_layer++) {
+            for (data.sub_layer = 0; data.sub_layer < NUM_SUB_LAYERS; data.sub_layer++) {
                 draw_map_object(surface, &data);
             }
         }
@@ -1766,8 +1689,7 @@ map_draw_map (SDL_Surface *surface)
                              box.x,
                              box.y,
                              COLOR_WHITE,
-                             TEXT_OUTLINE | TEXT_VALIGN_CENTER |
-                                 TEXT_ALIGN_CENTER,
+                             TEXT_OUTLINE | TEXT_VALIGN_CENTER | TEXT_ALIGN_CENTER,
                              &box,
                              "%d,%d",
                              data.tiles[i].w,
@@ -1807,24 +1729,9 @@ map_draw_map (SDL_Surface *surface)
                       NULL);
         }
 
-        rectangle_create(surface,
-                         data.target_rect.x - 2,
-                         data.target_rect.y - 2,
-                         1,
-                         5,
-                         hp_color);
-        rectangle_create(surface,
-                         data.target_rect.x - 2,
-                         data.target_rect.y - 2,
-                         3,
-                         1,
-                         hp_color);
-        rectangle_create(surface,
-                         data.target_rect.x - 2,
-                         data.target_rect.y + 2,
-                         3,
-                         1,
-                         hp_color);
+        rectangle_create(surface, data.target_rect.x - 2, data.target_rect.y - 2, 1, 5, hp_color);
+        rectangle_create(surface, data.target_rect.x - 2, data.target_rect.y - 2, 3, 1, hp_color);
+        rectangle_create(surface, data.target_rect.x - 2, data.target_rect.y + 2, 3, 1, hp_color);
         rectangle_create(surface,
                          data.target_rect.x + data.target_rect.w + 1,
                          data.target_rect.y - 2,
@@ -1844,8 +1751,8 @@ map_draw_map (SDL_Surface *surface)
                          1,
                          hp_color);
 
-        data.target_rect.w = data.target_rect.w / 100.0 *
-                             data.target_cell->probe[data.target_layer];
+        data.target_rect.w =
+            data.target_rect.w / 100.0 * data.target_cell->probe[data.target_layer];
         data.target_rect.w = MAX(1, MIN(100, data.target_rect.w));
         rectangle_create(surface,
                          data.target_rect.x,
@@ -1867,12 +1774,10 @@ map_draw_map (SDL_Surface *surface)
  * @param surface
  * What to draw.
  */
-void map_draw_one(int x, int y, SDL_Surface *surface)
-{
+void map_draw_one(int x, int y, SDL_Surface *surface) {
     map_render_data_t data = {0};
 
-    map_setup_render_data(cur_widget[MAP_ID]->surface, &data,
-                          NULL, NULL, NULL, NULL);
+    map_setup_render_data(cur_widget[MAP_ID]->surface, &data, NULL, NULL, NULL, NULL);
 
     data.x = x;
     data.y = y;
@@ -1898,10 +1803,8 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
 
     /* Outside of the "visible" area; always render as fog of war
      * (grayscale). */
-    if (x < map_width * (MAP_FOW_SIZE / 2) ||
-        x >= map_width * (MAP_FOW_SIZE / 2) + map_width ||
-        y < map_height * (MAP_FOW_SIZE / 2) ||
-        y >= map_height * (MAP_FOW_SIZE / 2) + map_height) {
+    if (x < map_width * (MAP_FOW_SIZE / 2) || x >= map_width * (MAP_FOW_SIZE / 2) + map_width ||
+        y < map_height * (MAP_FOW_SIZE / 2) || y >= map_height * (MAP_FOW_SIZE / 2) + map_height) {
         BIT_SET(effects.flags, SPRITE_FLAG_FOW);
     }
 
@@ -1921,9 +1824,7 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
  * @param ty
  * Square Y position.
  */
-static void
-send_move_path (int tx, int ty)
-{
+static void send_move_path(int tx, int ty) {
     packet_struct *packet;
 
     if (tx < 0 || ty < 0 || tx >= map_width || ty >= map_height) {
@@ -1945,12 +1846,10 @@ send_move_path (int tx, int ty)
  * @param count
  * NPC's UID.
  */
-static void send_target(int x, int y, uint32_t count)
-{
+static void send_target(int x, int y, uint32_t count) {
     packet_struct *packet;
 
-    if ((x < 0 || y < 0 || x >= map_width || y >= map_height) &&
-        !(x == -1 && y == -1)) {
+    if ((x < 0 || y < 0 || x >= map_width || y >= map_height) && !(x == -1 && y == -1)) {
         return;
     }
 
@@ -1977,16 +1876,15 @@ static void send_target(int x, int y, uint32_t count)
  * @return
  * Comparison result.
  */
-static int map_target_cmp(const void *a, const void *b)
-{
+static int map_target_cmp(const void *a, const void *b) {
     double x, y, x2, y2;
     unsigned long dist1, dist2;
 
-    x = ((const map_target_struct *) a)->x - (map_width / 2.0f);
-    y = ((const map_target_struct *) a)->y - (map_height / 2.0f);
+    x = ((const map_target_struct *)a)->x - (map_width / 2.0f);
+    y = ((const map_target_struct *)a)->y - (map_height / 2.0f);
 
-    x2 = ((const map_target_struct *) b)->x - (map_width / 2.0f);
-    y2 = ((const map_target_struct *) b)->y - (map_height / 2.0f);
+    x2 = ((const map_target_struct *)b)->x - (map_width / 2.0f);
+    y2 = ((const map_target_struct *)b)->y - (map_height / 2.0f);
 
     dist1 = isqrt(x * x + y * y);
     dist2 = isqrt(x2 * x2 + y2 * y2);
@@ -2005,8 +1903,7 @@ static int map_target_cmp(const void *a, const void *b)
  * @param is_friend
  * 1 if targeting friendlies only.
  */
-void map_target_handle(uint8_t is_friend)
-{
+void map_target_handle(uint8_t is_friend) {
     int x, y, layer;
     struct MapCell *cell;
     UT_array *targets;
@@ -2031,7 +1928,7 @@ void map_target_handle(uint8_t is_friend)
 
             for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
                 if (cell->faces[layer] && cell->target_object_count[layer] &&
-                        cell->target_is_friend[layer] == is_friend) {
+                    cell->target_is_friend[layer] == is_friend) {
                     map_target_struct target;
 
                     target.count = cell->target_object_count[layer];
@@ -2054,14 +1951,14 @@ void map_target_handle(uint8_t is_friend)
     }
 
     if (cpl.target_object_index == 0) {
-        p = (map_target_struct *) utarray_front(targets);
+        p = (map_target_struct *)utarray_front(targets);
 
         if (p != NULL && p->count == curr_target) {
             cpl.target_object_index++;
         }
     }
 
-    p = (map_target_struct *) utarray_eltptr(targets, cpl.target_object_index);
+    p = (map_target_struct *)utarray_eltptr(targets, cpl.target_object_index);
 
     if (p != NULL) {
         send_target(p->x, p->y, p->count);
@@ -2090,9 +1987,7 @@ void map_target_handle(uint8_t is_friend)
  * @return
  * True on success, false on failure.
  */
-bool
-mouse_to_tile_coords (int mx, int my, int *tx, int *ty)
-{
+bool mouse_to_tile_coords(int mx, int my, int *tx, int *ty) {
     map_render_data_t data = {0};
     int x, y, w, h;
     map_setup_render_data(cur_widget[MAP_ID]->surface, &data, &x, &y, &w, &h);
@@ -2118,10 +2013,8 @@ mouse_to_tile_coords (int mx, int my, int *tx, int *ty)
             data.ypos *= zoom;
 
             if (data.cell->faces[0] != 0) {
-                int height = get_top_floor_height(data.cell,
-                                                  MapData.player_sub_layer);
-                data.ypos = (data.ypos - height * zoom) +
-                            data.player_height_offset * zoom;
+                int height = get_top_floor_height(data.cell, MapData.player_sub_layer);
+                data.ypos = (data.ypos - height * zoom) + data.player_height_offset * zoom;
             }
 
             uint32_t stretch = 0;
@@ -2138,10 +2031,8 @@ mouse_to_tile_coords (int mx, int my, int *tx, int *ty)
             int stretch_height = (stretch >> 24) & 0xff;
 
             /* See if this square matches our 48x24 box shape. */
-            if (mx >= data.xpos &&
-                mx <= data.xpos + (MAP_TILE_POS_XOFF * zoom) &&
-                my >= data.ypos &&
-                my <= data.ypos + (MAP_TILE_YOFF + stretch_height) * zoom) {
+            if (mx >= data.xpos && mx <= data.xpos + (MAP_TILE_POS_XOFF * zoom) &&
+                my >= data.ypos && my <= data.ypos + (MAP_TILE_YOFF + stretch_height) * zoom) {
                 if (tilestretcher_coords_in_tile(stretch,
                                                  (mx - data.xpos) / zoom,
                                                  (my - data.ypos) / zoom)) {
@@ -2168,14 +2059,11 @@ mouse_to_tile_coords (int mx, int my, int *tx, int *ty)
  * @return
  * True if the gesture was handled, false otherwise.
  */
-bool
-map_mouse_fire (void)
-{
+bool map_mouse_fire(void) {
     int x, y;
     Uint8 state = SDL_GetMouseState(&x, &y);
 
-    if ((state != (SDL_BUTTON(SDL_BUTTON_RIGHT) |
-                   SDL_BUTTON(SDL_BUTTON_LEFT)) &&
+    if ((state != (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) &&
          state != SDL_BUTTON(SDL_BUTTON_MIDDLE))) {
         return false;
     }
@@ -2203,13 +2091,10 @@ map_mouse_fire (void)
  * @param event
  * Event.
  */
-static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem,
-        SDL_Event *event)
-{
+static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem, SDL_Event *event) {
     int tx, ty;
 
-    if (mouse_to_tile_coords(cur_widget[MENU_ID]->x, cur_widget[MENU_ID]->y,
-            &tx, &ty)) {
+    if (mouse_to_tile_coords(cur_widget[MENU_ID]->x, cur_widget[MENU_ID]->y, &tx, &ty)) {
         int rx = tx - map_width * (MAP_FOW_SIZE / 2);
         int ry = ty - map_height * (MAP_FOW_SIZE / 2);
         send_move_path(rx, ry);
@@ -2225,13 +2110,10 @@ static void menu_map_walk_here(widgetdata *widget, widgetdata *menuitem,
  * @param event
  * Event.
  */
-static void menu_map_talk_to(widgetdata *widget, widgetdata *menuitem,
-        SDL_Event *event)
-{
+static void menu_map_talk_to(widgetdata *widget, widgetdata *menuitem, SDL_Event *event) {
     int tx, ty;
 
-    if (mouse_to_tile_coords(cur_widget[MENU_ID]->x, cur_widget[MENU_ID]->y,
-            &tx, &ty)) {
+    if (mouse_to_tile_coords(cur_widget[MENU_ID]->x, cur_widget[MENU_ID]->y, &tx, &ty)) {
         int rx = tx - map_width * (MAP_FOW_SIZE / 2);
         int ry = ty - map_height * (MAP_FOW_SIZE / 2);
         send_target(rx, ry, 0);
@@ -2240,14 +2122,12 @@ static void menu_map_talk_to(widgetdata *widget, widgetdata *menuitem,
 }
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     static int gfx_toggle = 0;
     SDL_Rect box;
     int mx, my;
 
-    if (widget->surface == NULL ||
-        widget->surface->w != widget->w ||
+    if (widget->surface == NULL || widget->surface->w != widget->w ||
         widget->surface->h != widget->h) {
         if (widget->surface != NULL) {
             SDL_FreeSurface(widget->surface);
@@ -2285,9 +2165,9 @@ static void widget_draw(widgetdata *widget)
             }
 
             zoomed = zoomSurface(widget->surface,
-                    setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0,
-                    setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0,
-                    setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+                                 setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0,
+                                 setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0,
+                                 setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
         }
     }
 
@@ -2322,7 +2202,7 @@ static void widget_draw(widgetdata *widget)
     /* Draw warning icons above player */
     if ((gfx_toggle++ & 63) < 25) {
         int warn = setting_get_int(OPT_CAT_MAP, OPT_HEALTH_WARNING);
-        double hp_percent = (double) cpl.stats.hp / cpl.stats.maxhp * 100.0;
+        double hp_percent = (double)cpl.stats.hp / cpl.stats.maxhp * 100.0;
         if (warn != 0 && warn >= hp_percent) {
             SDL_Surface *texture = TEXTURE_CLIENT("warn_hp");
             surface_show(ScreenSurface,
@@ -2333,7 +2213,7 @@ static void widget_draw(widgetdata *widget)
         }
     } else {
         int warn = setting_get_int(OPT_CAT_MAP, OPT_FOOD_WARNING);
-        double food_percent = (double) cpl.stats.food / 1000.0 * 100.0;
+        double food_percent = (double)cpl.stats.food / 1000.0 * 100.0;
         if (warn != 0 && warn >= food_percent) {
             SDL_Surface *texture = TEXTURE_CLIENT("warn_food");
             surface_show(ScreenSurface,
@@ -2350,21 +2230,24 @@ static void widget_draw(widgetdata *widget)
             int bmoff, y_offset;
             char *msg, *cp;
 
-            bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick)
-                    / 1000.0f) * ((float) (LastTick - msg_anim.tick) /
-                    1000.0f) + ((int) (150.0f * ((float) (LastTick -
-                    msg_anim.tick) / 3000.0f))));
+            bmoff = (int)((50.0f / 3.0f) * ((float)(LastTick - msg_anim.tick) / 1000.0f) *
+                              ((float)(LastTick - msg_anim.tick) / 1000.0f) +
+                          ((int)(150.0f * ((float)(LastTick - msg_anim.tick) / 3000.0f))));
             y_offset = 0;
             msg = estrdup(msg_anim.message);
 
             cp = strtok(msg, "\n");
 
             while (cp) {
-                text_show(ScreenSurface, FONT_SERIF16, cp, widget_x(widget) +
-                        widget_w(widget) / 2 - text_get_width(FONT_SERIF16,
-                        cp, TEXT_OUTLINE) / 2, widget_y(widget) + 300 - bmoff +
-                        y_offset, msg_anim.color, TEXT_OUTLINE | TEXT_MARKUP,
-                        NULL);
+                text_show(ScreenSurface,
+                          FONT_SERIF16,
+                          cp,
+                          widget_x(widget) + widget_w(widget) / 2 -
+                              text_get_width(FONT_SERIF16, cp, TEXT_OUTLINE) / 2,
+                          widget_y(widget) + 300 - bmoff + y_offset,
+                          msg_anim.color,
+                          TEXT_OUTLINE | TEXT_MARKUP,
+                          NULL);
                 y_offset += FONT_HEIGHT(FONT_SERIF16);
                 cp = strtok(NULL, "\n");
             }
@@ -2377,9 +2260,8 @@ static void widget_draw(widgetdata *widget)
     }
 
     /* Holding the right mouse button for some time, create a menu. */
-    if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_RIGHT) &&
-            right_click_ticks != -1 &&
-            SDL_GetTicks() - right_click_ticks > 500) {
+    if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_RIGHT) && right_click_ticks != -1 &&
+        SDL_GetTicks() - right_click_ticks > 500) {
         widgetdata *menu;
 
         menu = create_menu(mx, my, widget);
@@ -2392,8 +2274,7 @@ static void widget_draw(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     if (!EVENT_IS_MOUSE(event)) {
         return 0;
     }
@@ -2410,8 +2291,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     if (event->type == SDL_MOUSEBUTTONUP) {
         /* Send target command if we released the right button in time;
          * otherwise the widget menu will be created. */
-        if (event->button.button == SDL_BUTTON_RIGHT &&
-                SDL_GetTicks() - right_click_ticks < 500) {
+        if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500) {
             send_target(rx, ry, 0);
         }
 
@@ -2445,16 +2325,14 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget, int draw)
-{
+static void widget_background(widgetdata *widget, int draw) {
     if (!widget->redraw) {
         region_map_ready(MapData.region_map);
     }
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     if (cells != NULL) {
         efree(cells);
         cells = NULL;
@@ -2467,8 +2345,7 @@ static void widget_deinit(widgetdata *widget)
 /**
  * Initialize one map widget.
  */
-void widget_map_init(widgetdata *widget)
-{
+void widget_map_init(widgetdata *widget) {
     HARD_ASSERT(MapData.region_map == NULL);
 
     MapData.region_map = region_map_create();
@@ -2497,9 +2374,7 @@ void widget_map_init(widgetdata *widget)
  * @return
  * Created animation.
  */
-struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer,
-        int value)
-{
+struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int value) {
     map_anim_t *anim;
     int num_ticks;
 
@@ -2523,21 +2398,21 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer,
     anim->start_tick = LastTick;
 
     switch (type) {
-    case ANIM_DAMAGE:
-        /* How many ticks to display */
-        num_ticks = 850;
-        anim->last_tick = anim->start_tick + num_ticks;
-        /* 850 ticks 25 pixel move up */
-        anim->yoff = -(25.0f / 850.0f);
-        break;
+        case ANIM_DAMAGE:
+            /* How many ticks to display */
+            num_ticks = 850;
+            anim->last_tick = anim->start_tick + num_ticks;
+            /* 850 ticks 25 pixel move up */
+            anim->yoff = -(25.0f / 850.0f);
+            break;
 
-    case ANIM_KILL:
-        /* How many ticks to display */
-        num_ticks = 850;
-        anim->last_tick = anim->start_tick + num_ticks;
-        /* 850 ticks 25 pixel move up */
-        anim->yoff = -(25.0f / 850.0f);
-        break;
+        case ANIM_KILL:
+            /* How many ticks to display */
+            num_ticks = 850;
+            anim->last_tick = anim->start_tick + num_ticks;
+            /* 850 ticks 25 pixel move up */
+            anim->yoff = -(25.0f / 850.0f);
+            break;
     }
 
     return anim;
@@ -2548,8 +2423,7 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer,
  * @param anim
  * The animation to remove.
  */
-void maps_anims_remove(map_anim_t *anim)
-{
+void maps_anims_remove(map_anim_t *anim) {
     HARD_ASSERT(anim != NULL);
 
     DL_DELETE(first_anim, anim);
@@ -2564,8 +2438,7 @@ void maps_anims_remove(map_anim_t *anim)
  * @param Yoff
  * Y offset.
  */
-void map_anims_mapscroll(int xoff, int yoff)
-{
+void map_anims_mapscroll(int xoff, int yoff) {
     map_anim_t *anim;
     DL_FOREACH(first_anim, anim) {
         anim->mapx -= xoff;
@@ -2576,8 +2449,7 @@ void map_anims_mapscroll(int xoff, int yoff)
 /**
  * Clear map animations.
  */
-void map_anims_clear(void)
-{
+void map_anims_clear(void) {
     map_anim_t *anim, *tmp;
     DL_FOREACH_SAFE(first_anim, anim, tmp) {
         maps_anims_remove(anim);
@@ -2587,11 +2459,9 @@ void map_anims_clear(void)
 /**
  * Play map animations.
  */
-void map_anims_play(void)
-{
+void map_anims_play(void) {
     map_render_data_t data = {0};
-    map_setup_render_data(cur_widget[MAP_ID]->surface, &data,
-                          NULL, NULL, NULL, NULL);
+    map_setup_render_data(cur_widget[MAP_ID]->surface, &data, NULL, NULL, NULL, NULL);
 
     map_anim_t *anim, *tmp;
     DL_FOREACH_SAFE(first_anim, anim, tmp) {
@@ -2616,48 +2486,48 @@ void map_anims_play(void)
 
         char buf[32];
         switch (anim->type) {
-        case ANIM_DAMAGE: {
-            snprintf(VS(buf), "%d", abs(anim->value));
-            int wd = text_get_width(FONT_MONO10, buf, TEXT_OUTLINE);
-            const char *color = anim->value < 0 ? COLOR_GREEN : COLOR_ORANGE;
+            case ANIM_DAMAGE: {
+                snprintf(VS(buf), "%d", abs(anim->value));
+                int wd = text_get_width(FONT_MONO10, buf, TEXT_OUTLINE);
+                const char *color = anim->value < 0 ? COLOR_GREEN : COLOR_ORANGE;
 
-            text_show(ScreenSurface,
-                      FONT_MONO10,
-                      buf,
-                      data.xpos - wd / 2,
-                      data.ypos,
-                      color,
-                      TEXT_OUTLINE,
-                      NULL);
-            break;
-        }
+                text_show(ScreenSurface,
+                          FONT_MONO10,
+                          buf,
+                          data.xpos - wd / 2,
+                          data.ypos,
+                          color,
+                          TEXT_OUTLINE,
+                          NULL);
+                break;
+            }
 
-        case ANIM_KILL: {
-            snprintf(VS(buf), "%d", anim->value);
-            int wd = text_get_width(FONT_MONO10, buf, TEXT_OUTLINE);
-            int ht = text_get_height(FONT_MONO10, buf, 0);
-            SDL_Surface *texture = TEXTURE_CLIENT("death");
-            surface_show(ScreenSurface,
-                         data.xpos - texture->w / 2,
-                         data.ypos - ht / 2 + 2,
-                         NULL,
-                         texture);
+            case ANIM_KILL: {
+                snprintf(VS(buf), "%d", anim->value);
+                int wd = text_get_width(FONT_MONO10, buf, TEXT_OUTLINE);
+                int ht = text_get_height(FONT_MONO10, buf, 0);
+                SDL_Surface *texture = TEXTURE_CLIENT("death");
+                surface_show(ScreenSurface,
+                             data.xpos - texture->w / 2,
+                             data.ypos - ht / 2 + 2,
+                             NULL,
+                             texture);
 
-            text_show(ScreenSurface,
-                      FONT_MONO10,
-                      buf,
-                      data.xpos - wd / 2,
-                      data.ypos,
-                      COLOR_ORANGE,
-                      TEXT_OUTLINE,
-                      NULL);
+                text_show(ScreenSurface,
+                          FONT_MONO10,
+                          buf,
+                          data.xpos - wd / 2,
+                          data.ypos,
+                          COLOR_ORANGE,
+                          TEXT_OUTLINE,
+                          NULL);
 
-            break;
-        }
+                break;
+            }
 
-        default:
-            LOG(ERROR, "Unknown animation type: %d", anim->type);
-            break;
+            default:
+                LOG(ERROR, "Unknown animation type: %d", anim->type);
+                break;
         }
     }
 }
@@ -2667,7 +2537,6 @@ void map_anims_play(void)
  * @return
  * 1 if the damage animations need redrawing, 0 otherwise.
  */
-int map_anims_need_redraw(void)
-{
+int map_anims_need_redraw(void) {
     return first_anim != NULL;
 }

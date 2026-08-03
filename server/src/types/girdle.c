@@ -35,7 +35,6 @@
 /**
  * Initialize the girdle type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(girdle)
-{
+OBJECT_TYPE_INIT_DEFINE(girdle) {
     OBJECT_METHODS(GIRDLE)->apply_func = object_apply_item;
 }

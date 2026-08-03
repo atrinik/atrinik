@@ -56,16 +56,14 @@ static scrollbar_struct scrollbar;
  * @param len
  * Length of the name.
  */
-void book_name_change(const char *name, size_t len)
-{
+void book_name_change(const char *name, size_t len) {
     len = MIN(sizeof(book_name) - 1, len);
     strncpy(book_name, name, len);
     book_name[len] = '\0';
 }
 
 /** @copydoc popup_struct::draw_func */
-static int popup_draw_func(popup_struct *popup)
-{
+static int popup_draw_func(popup_struct *popup) {
     if (popup->redraw) {
         SDL_Rect box;
 
@@ -74,15 +72,31 @@ static int popup_draw_func(popup_struct *popup)
         /* Draw the book name. */
         box.w = BOOK_TITLE_WIDTH;
         box.h = BOOK_TITLE_HEIGHT;
-        text_show(popup->surface, FONT_SERIF16, book_name, BOOK_TITLE_STARTX, BOOK_TITLE_STARTY, COLOR_HGOLD, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
+        text_show(popup->surface,
+                  FONT_SERIF16,
+                  book_name,
+                  BOOK_TITLE_STARTX,
+                  BOOK_TITLE_STARTY,
+                  COLOR_HGOLD,
+                  TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_ALIGN_CENTER,
+                  &box);
 
         /* Draw the content. */
         box.w = BOOK_TEXT_WIDTH;
         box.h = BOOK_TEXT_HEIGHT;
         box.y = book_scroll;
         text_color_set(0, 0, 255);
-        text_set_selection(&popup->selection_start, &popup->selection_end, &popup->selection_started);
-        text_show(popup->surface, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_BLACK, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP, &box);
+        text_set_selection(&popup->selection_start,
+                           &popup->selection_end,
+                           &popup->selection_started);
+        text_show(popup->surface,
+                  FONT_ARIAL11,
+                  book_content,
+                  BOOK_TEXT_STARTX,
+                  BOOK_TEXT_STARTY,
+                  COLOR_BLACK,
+                  TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_SKIP,
+                  &box);
         text_set_selection(NULL, NULL, NULL);
 
         popup->redraw = 0;
@@ -92,20 +106,21 @@ static int popup_draw_func(popup_struct *popup)
 }
 
 /** @copydoc popup_struct::draw_post_func */
-static int popup_draw_post_func(popup_struct *popup)
-{
-    scrollbar_show(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
+static int popup_draw_post_func(popup_struct *popup) {
+    scrollbar_show(&scrollbar,
+                   ScreenSurface,
+                   popup->x + BOOK_SCROLLBAR_STARTX,
+                   popup->y + BOOK_SCROLLBAR_STARTY);
     surface_show(ScreenSurface, popup->x, popup->y, NULL, TEXTURE_CLIENT("book_border"));
 
     return 1;
 }
 
 /** @copydoc popup_button::event_func */
-static int popup_button_event_func(popup_button *button)
-{
+static int popup_button_event_func(popup_button *button) {
     size_t len;
 
-    (void) button;
+    (void)button;
 
     len = utarray_len(book_help_history);
 
@@ -114,7 +129,7 @@ static int popup_button_event_func(popup_button *button)
         char **p;
 
         pos = len - 2;
-        p = (char **) utarray_eltptr(book_help_history, pos);
+        p = (char **)utarray_eltptr(book_help_history, pos);
 
         if (p) {
             help_show(*p);
@@ -129,21 +144,20 @@ static int popup_button_event_func(popup_button *button)
 }
 
 /** @copydoc popup_struct::event_func */
-static int popup_event_func(popup_struct *popup, SDL_Event *event)
-{
+static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     if (scrollbar_event(&scrollbar, event)) {
         return 1;
     }
 
-    if (book_help_history_enabled &&
-            BUTTON_CHECK_TOOLTIP(&popup->button_left.button)) {
-        tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
-                "Go back");
+    if (book_help_history_enabled && BUTTON_CHECK_TOOLTIP(&popup->button_left.button)) {
+        tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, "Go back");
         tooltip_enable_delay(300);
     }
 
     /* Mouse event and the mouse is inside the book. */
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + popup->surface->w && event->motion.y >= popup->y && event->motion.y < popup->y + popup->surface->h) {
+    if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x &&
+        event->motion.x < popup->x + popup->surface->w && event->motion.y >= popup->y &&
+        event->motion.y < popup->y + popup->surface->h) {
         /* Scroll the book. */
         if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&scrollbar, 1);
@@ -173,9 +187,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
-static int popup_destroy_callback(popup_struct *popup)
-{
-    (void) popup;
+static int popup_destroy_callback(popup_struct *popup) {
+    (void)popup;
 
     if (book_help_history) {
         utarray_free(book_help_history);
@@ -193,9 +206,8 @@ static int popup_destroy_callback(popup_struct *popup)
 }
 
 /** @copydoc popup_struct::clipboard_copy_func */
-static const char *popup_clipboard_copy_func(popup_struct *popup)
-{
-    (void) popup;
+static const char *popup_clipboard_copy_func(popup_struct *popup) {
+    (void)popup;
     return book_content;
 }
 
@@ -206,8 +218,7 @@ static const char *popup_clipboard_copy_func(popup_struct *popup)
  * @param len
  * Length of 'data'.
  */
-void book_load(const char *data, int len)
-{
+void book_load(const char *data, int len) {
     SDL_Rect box;
     int pos;
 
@@ -246,12 +257,20 @@ void book_load(const char *data, int len)
     /* Calculate the line numbers. */
     box.w = BOOK_TEXT_WIDTH;
     box.h = BOOK_TEXT_HEIGHT;
-    text_show(NULL, FONT_ARIAL11, book_content, BOOK_TEXT_STARTX, BOOK_TEXT_STARTY, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
+    text_show(NULL,
+              FONT_ARIAL11,
+              book_content,
+              BOOK_TEXT_STARTX,
+              BOOK_TEXT_STARTY,
+              COLOR_WHITE,
+              TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC,
+              &box);
     book_lines = box.h;
     book_scroll_lines = box.y;
 
     /* Create the book popup if it doesn't exist yet. */
-    if (!popup_get_head() || popup_get_head()->texture != texture_get(TEXTURE_TYPE_CLIENT, "book")) {
+    if (!popup_get_head() ||
+        popup_get_head()->texture != texture_get(TEXTURE_TYPE_CLIENT, "book")) {
         popup_struct *popup;
 
         popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "book"));
@@ -274,7 +293,12 @@ void book_load(const char *data, int len)
         popup->button_right.y = 25;
     }
 
-    scrollbar_create(&scrollbar, BOOK_SCROLLBAR_WIDTH, BOOK_SCROLLBAR_HEIGHT, &book_scroll, &book_lines, book_scroll_lines);
+    scrollbar_create(&scrollbar,
+                     BOOK_SCROLLBAR_WIDTH,
+                     BOOK_SCROLLBAR_HEIGHT,
+                     &book_scroll,
+                     &book_lines,
+                     book_scroll_lines);
     scrollbar.redraw = &popup_get_head()->redraw;
 
     popup_get_head()->redraw = 1;
@@ -283,8 +307,7 @@ void book_load(const char *data, int len)
 /**
  * Redraw the book GUI.
  */
-void book_redraw(void)
-{
+void book_redraw(void) {
     if (popup_get_head() && popup_get_head()->texture == texture_get(TEXTURE_TYPE_CLIENT, "book")) {
         popup_get_head()->redraw = 1;
     }
@@ -293,8 +316,7 @@ void book_redraw(void)
 /**
  * Enable book help history.
  */
-void book_add_help_history(const char *name)
-{
+void book_add_help_history(const char *name) {
     if (!book_help_history_enabled) {
         book_help_history_enabled = 1;
         utarray_new(book_help_history, &ut_str_icd);

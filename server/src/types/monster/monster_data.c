@@ -45,11 +45,9 @@ static void monster_data_dialogs_free(monster_data_dialog_t *dialog);
  * @param op
  * Monster.
  */
-void monster_data_init(object *op)
-{
+void monster_data_init(object *op) {
     HARD_ASSERT(op != NULL);
-    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s",
-                object_get_str(op));
+    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s", object_get_str(op));
 
     op->custom_attrset = ecalloc(1, sizeof(monster_data_t));
 }
@@ -59,15 +57,12 @@ void monster_data_init(object *op)
  * @param op
  * Monster.
  */
-void monster_data_deinit(object *op)
-{
+void monster_data_deinit(object *op) {
     HARD_ASSERT(op != NULL);
-    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s",
-                object_get_str(op));
+    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s", object_get_str(op));
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
-                object_get_str(op));
+    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s", object_get_str(op));
 
     monster_data_dialog_t *dialog, *tmp;
 
@@ -86,15 +81,12 @@ void monster_data_deinit(object *op)
  * Enemy. Can be NULL, in which case the coordinates will be
  * cleared.
  */
-void monster_data_enemy_update(object *op, object *enemy)
-{
+void monster_data_enemy_update(object *op, object *enemy) {
     HARD_ASSERT(op != NULL);
-    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s",
-                object_get_str(op));
+    SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s", object_get_str(op));
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
-                object_get_str(op));
+    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s", object_get_str(op));
 
     if (enemy == NULL) {
         monster_data->enemy_coords.map = NULL;
@@ -117,16 +109,12 @@ void monster_data_enemy_update(object *op, object *enemy)
  * @return
  * True if the coordinates were acquired, false otherwise.
  */
-bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x,
-        uint16_t *y)
-{
+bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x, uint16_t *y) {
     HARD_ASSERT(op != NULL);
-    SOFT_ASSERT_RC(op->type == MONSTER, false, "Object is not a monster: %s",
-                   object_get_str(op));
+    SOFT_ASSERT_RC(op->type == MONSTER, false, "Object is not a monster: %s", object_get_str(op));
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT_RC(monster_data != NULL, false, "Missing monster data for: %s",
-                   object_get_str(op));
+    SOFT_ASSERT_RC(monster_data != NULL, false, "Missing monster data for: %s", object_get_str(op));
 
     if (monster_data->enemy_coords.map == NULL) {
         return false;
@@ -144,8 +132,7 @@ bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x,
  * @param dialog
  * The dialog.
  */
-static void monster_data_dialogs_free(monster_data_dialog_t *dialog)
-{
+static void monster_data_dialogs_free(monster_data_dialog_t *dialog) {
     HARD_ASSERT(dialog != NULL);
     efree(dialog);
 }
@@ -155,8 +142,7 @@ static void monster_data_dialogs_free(monster_data_dialog_t *dialog)
  * @param dialog
  * Dialog.
  */
-static void monster_data_dialogs_close(monster_data_dialog_t *dialog)
-{
+static void monster_data_dialogs_close(monster_data_dialog_t *dialog) {
     HARD_ASSERT(dialog != NULL);
 
     if (dialog->ob->type != PLAYER) {
@@ -178,8 +164,7 @@ static void monster_data_dialogs_close(monster_data_dialog_t *dialog)
  * True if the dialog is still OK, false otherwise.
  */
 static bool monster_data_dialogs_verify(monster_data_t *monster_data,
-        monster_data_dialog_t *dialog)
-{
+                                        monster_data_dialog_t *dialog) {
     HARD_ASSERT(monster_data != NULL);
     HARD_ASSERT(dialog != NULL);
 
@@ -211,14 +196,12 @@ invalid:
  * Seconds the dialog should remain open for.
  * @ref MONSTER_DATA_INTERFACE_TIMEOUT is added to this value automatically.
  */
-void monster_data_dialogs_add(object *op, object *activator, uint32_t secs)
-{
+void monster_data_dialogs_add(object *op, object *activator, uint32_t secs) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(activator != NULL);
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
-                object_get_str(op));
+    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s", object_get_str(op));
 
     monster_data_dialog_t *dialog, *tmp;
     long expire = pticks + (secs + MONSTER_DATA_INTERFACE_TIMEOUT) * MAX_TICKS;
@@ -251,14 +234,12 @@ void monster_data_dialogs_add(object *op, object *activator, uint32_t secs)
  * @param activator
  * Interface activator to try and remove.
  */
-void monster_data_dialogs_remove(object *op, object *activator)
-{
+void monster_data_dialogs_remove(object *op, object *activator) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(activator != NULL);
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
-                object_get_str(op));
+    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s", object_get_str(op));
 
     monster_data_dialog_t *dialog, *tmp;
 
@@ -287,14 +268,12 @@ void monster_data_dialogs_remove(object *op, object *activator)
  * True if there is a dialog open with the specified object,
  * false otherwise.
  */
-bool monster_data_dialogs_check(object *op, object *activator)
-{
+bool monster_data_dialogs_check(object *op, object *activator) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(activator != NULL);
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT_RC(monster_data != NULL, false, "Missing monster data for: %s",
-                   object_get_str(op));
+    SOFT_ASSERT_RC(monster_data != NULL, false, "Missing monster data for: %s", object_get_str(op));
 
     monster_data_dialog_t *dialog, *tmp;
 
@@ -318,13 +297,11 @@ bool monster_data_dialogs_check(object *op, object *activator)
  * @return
  * Number of open dialogs.
  */
-size_t monster_data_dialogs_num(object *op)
-{
+size_t monster_data_dialogs_num(object *op) {
     HARD_ASSERT(op != NULL);
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT_RC(monster_data != NULL, 0, "Missing monster data for: %s",
-                   object_get_str(op));
+    SOFT_ASSERT_RC(monster_data != NULL, 0, "Missing monster data for: %s", object_get_str(op));
 
     monster_data_dialog_t *dialog, *tmp;
     size_t num = 0;
@@ -346,16 +323,13 @@ size_t monster_data_dialogs_num(object *op)
  * @param op
  * Monster.
  */
-void monster_data_dialogs_cleanup(object *op)
-{
+void monster_data_dialogs_cleanup(object *op) {
     HARD_ASSERT(op != NULL);
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
-                object_get_str(op));
+    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s", object_get_str(op));
 
-    if (pticks - monster_data->last_cleanup < MONSTER_DATA_INTERFACE_CLEANUP *
-            MAX_TICKS) {
+    if (pticks - monster_data->last_cleanup < MONSTER_DATA_INTERFACE_CLEANUP * MAX_TICKS) {
         return;
     }
 
@@ -371,7 +345,7 @@ void monster_data_dialogs_cleanup(object *op)
         rv_vector rv;
 
         if (get_rangevector(op, dialog->ob, &rv, RV_MANHATTAN_DISTANCE) &&
-                rv.distance <= MONSTER_DATA_INTERFACE_DISTANCE) {
+            rv.distance <= MONSTER_DATA_INTERFACE_DISTANCE) {
             continue;
         }
 
@@ -386,13 +360,11 @@ void monster_data_dialogs_cleanup(object *op)
  * @param op
  * Monster.
  */
-void monster_data_dialogs_purge(object *op)
-{
+void monster_data_dialogs_purge(object *op) {
     HARD_ASSERT(op != NULL);
 
     monster_data_t *monster_data = MONSTER_DATA(op);
-    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
-                object_get_str(op));
+    SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s", object_get_str(op));
 
     monster_data_dialog_t *dialog, *tmp;
 

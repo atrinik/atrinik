@@ -45,6 +45,7 @@ Build one component or generate region maps from the repository root:
 ./build.sh atrinik
 ./build.sh atrinik-server
 ./generate-region-maps.sh
+tools/clang-format.sh --check
 ```
 
 See `INSTALL` for dependencies, CMake presets, tests, release builds, and

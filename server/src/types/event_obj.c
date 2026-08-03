@@ -35,6 +35,4 @@
 /**
  * Initialize the event object type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(event_obj)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(event_obj) {}

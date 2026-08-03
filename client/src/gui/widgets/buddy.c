@@ -72,18 +72,17 @@ typedef struct buddy_struct {
     text_input_struct text_input;
 } buddy_struct;
 
-#define WIDGET_BUDDY(_widget) ((buddy_struct *) (_widget)->subwidget)
+#define WIDGET_BUDDY(_widget) ((buddy_struct *)(_widget)->subwidget)
 
 /** @copydoc list_struct::handle_enter_func */
-static void list_handle_enter(list_struct *list, SDL_Event *event)
-{
+static void list_handle_enter(list_struct *list, SDL_Event *event) {
     widgetdata *widget;
 
     widget = widget_find(NULL, -1, NULL, list->surface);
 
     if (strcmp(widget->id, "buddy") == 0) {
         textwin_tab_open(widget_find(NULL, CHATWIN_ID, NULL, NULL),
-                list->text[list->row_selected - 1][0]);
+                         list->text[list->row_selected - 1][0]);
     }
 }
 
@@ -96,8 +95,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
  * @param sort
  * If 1, sort the buddy list.
  */
-void widget_buddy_add(widgetdata *widget, const char *name, uint8_t sort)
-{
+void widget_buddy_add(widgetdata *widget, const char *name, uint8_t sort) {
     buddy_struct *tmp;
 
     tmp = WIDGET_BUDDY(widget);
@@ -123,8 +121,7 @@ void widget_buddy_add(widgetdata *widget, const char *name, uint8_t sort)
  * @param name
  * Buddy's name.
  */
-void widget_buddy_remove(widgetdata *widget, const char *name)
-{
+void widget_buddy_remove(widgetdata *widget, const char *name) {
     ssize_t idx;
 
     idx = widget_buddy_check(widget, name);
@@ -134,7 +131,7 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
         uint32_t row;
 
         tmp = WIDGET_BUDDY(widget);
-        utarray_erase(tmp->names, (size_t) idx, 1);
+        utarray_erase(tmp->names, (size_t)idx, 1);
 
         for (row = 0; row < tmp->list->rows; row++) {
             if (strcmp(tmp->list->text[row][0], name) == 0) {
@@ -157,8 +154,7 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
  * -1 if the character name is not a buddy, index in the character
  * names array otherwise.
  */
-ssize_t widget_buddy_check(widgetdata *widget, const char *name)
-{
+ssize_t widget_buddy_check(widgetdata *widget, const char *name) {
     char **p;
 
     if (!widget) {
@@ -167,7 +163,7 @@ ssize_t widget_buddy_check(widgetdata *widget, const char *name)
 
     p = NULL;
 
-    while ((p = (char **) utarray_next(WIDGET_BUDDY(widget)->names, p))) {
+    while ((p = (char **)utarray_next(WIDGET_BUDDY(widget)->names, p))) {
         if (strcasecmp(*p, name) == 0) {
             return utarray_eltidx(WIDGET_BUDDY(widget)->names, p);
         }
@@ -181,8 +177,7 @@ ssize_t widget_buddy_check(widgetdata *widget, const char *name)
  * @param widget
  * The buddy widget.
  */
-static void widget_buddy_load(widgetdata *widget)
-{
+static void widget_buddy_load(widgetdata *widget) {
     char buf[MAX_BUF], *end;
     buddy_struct *tmp;
     FILE *fp;
@@ -221,8 +216,7 @@ static void widget_buddy_load(widgetdata *widget)
  * @param widget
  * The buddy widget.
  */
-static void widget_buddy_save(widgetdata *widget)
-{
+static void widget_buddy_save(widgetdata *widget) {
     buddy_struct *tmp;
     FILE *fp;
 
@@ -235,14 +229,13 @@ static void widget_buddy_save(widgetdata *widget)
     fp = path_fopen(tmp->path, "w");
 
     if (!fp) {
-        LOG(BUG, "Could not open file for writing: %s",
-                tmp->path);
+        LOG(BUG, "Could not open file for writing: %s", tmp->path);
     } else {
         char **p;
 
         p = NULL;
 
-        while ((p = (char **) utarray_next(tmp->names, p))) {
+        while ((p = (char **)utarray_next(tmp->names, p))) {
             fprintf(fp, "%s\n", *p);
         }
 
@@ -254,8 +247,7 @@ static void widget_buddy_save(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     buddy_struct *tmp;
 
     tmp = WIDGET_BUDDY(widget);
@@ -269,8 +261,7 @@ static void widget_draw(widgetdata *widget)
         box.h = 0;
         snprintf(buf, sizeof(buf), "%s list", widget->id);
         string_title(buf);
-        text_show(widget->surface, FONT_SERIF12, buf, 0, 3, COLOR_HGOLD,
-                TEXT_ALIGN_CENTER, &box);
+        text_show(widget->surface, FONT_SERIF12, buf, 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
         tmp->list->surface = widget->surface;
         list_set_parent(tmp->list, widget->x, widget->y);
@@ -281,14 +272,14 @@ static void widget_draw(widgetdata *widget)
             button_set_parent(&tmp->buttons[i], widget->x, widget->y);
         }
 
-        tmp->buttons[BUTTON_CLOSE].x = widget->w -
-                texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
+        tmp->buttons[BUTTON_CLOSE].x =
+            widget->w - texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
         tmp->buttons[BUTTON_CLOSE].y = 4;
         button_show(&tmp->buttons[BUTTON_CLOSE], "X");
 
         tmp->buttons[BUTTON_HELP].x = widget->w -
-                texture_surface(tmp->buttons[BUTTON_HELP].texture)->w -
-                texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
+                                      texture_surface(tmp->buttons[BUTTON_HELP].texture)->w -
+                                      texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
         tmp->buttons[BUTTON_HELP].y = 4;
         button_show(&tmp->buttons[BUTTON_HELP], "?");
 
@@ -297,21 +288,21 @@ static void widget_draw(widgetdata *widget)
         button_show(&tmp->buttons[BUTTON_REMOVE], "Remove");
 
         tmp->buttons[BUTTON_ADD].x = tmp->buttons[BUTTON_REMOVE].x +
-                texture_surface(tmp->buttons[BUTTON_REMOVE].texture)->w + 5;
+                                     texture_surface(tmp->buttons[BUTTON_REMOVE].texture)->w + 5;
         tmp->buttons[BUTTON_ADD].y = tmp->buttons[BUTTON_REMOVE].y;
         button_show(&tmp->buttons[BUTTON_ADD], "Add");
 
         text_input_set_parent(&tmp->text_input, widget->x, widget->y);
-        text_input_show(&tmp->text_input, widget->surface,
-                tmp->buttons[BUTTON_ADD].x +
-                texture_surface(tmp->buttons[BUTTON_REMOVE].texture)->w + 5,
-                tmp->buttons[BUTTON_ADD].y);
+        text_input_show(&tmp->text_input,
+                        widget->surface,
+                        tmp->buttons[BUTTON_ADD].x +
+                            texture_surface(tmp->buttons[BUTTON_REMOVE].texture)->w + 5,
+                        tmp->buttons[BUTTON_ADD].y);
     }
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget, int draw)
-{
+static void widget_background(widgetdata *widget, int draw) {
     buddy_struct *tmp;
 
     tmp = WIDGET_BUDDY(widget);
@@ -343,8 +334,7 @@ static void widget_background(widgetdata *widget, int draw)
  * @param widget
  * The buddy widget.
  */
-static void widget_event_buddy_add(widgetdata *widget)
-{
+static void widget_event_buddy_add(widgetdata *widget) {
     buddy_struct *tmp;
 
     tmp = WIDGET_BUDDY(widget);
@@ -358,8 +348,7 @@ static void widget_event_buddy_add(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::event_func */
-static int widget_event(widgetdata *widget, SDL_Event *event)
-{
+static int widget_event(widgetdata *widget, SDL_Event *event) {
     buddy_struct *tmp;
     size_t i;
 
@@ -373,40 +362,38 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&tmp->buttons[i], event)) {
             switch (i) {
-            case BUTTON_ADD:
-                if (tmp->text_input.focus) {
-                    widget_event_buddy_add(widget);
-                } else {
-                    tmp->text_input.focus = 1;
+                case BUTTON_ADD:
+                    if (tmp->text_input.focus) {
+                        widget_event_buddy_add(widget);
+                    } else {
+                        tmp->text_input.focus = 1;
+                    }
+
+                    break;
+
+                case BUTTON_REMOVE: {
+                    const char *selected;
+
+                    selected = list_get_selected(tmp->list, 0);
+
+                    if (selected != NULL) {
+                        widget_buddy_remove(widget, selected);
+                    }
+
+                    break;
                 }
 
-                break;
+                case BUTTON_CLOSE:
+                    widget->show = 0;
+                    break;
 
-            case BUTTON_REMOVE:
-            {
-                const char *selected;
+                case BUTTON_HELP: {
+                    char buf[MAX_BUF];
 
-                selected = list_get_selected(tmp->list, 0);
-
-                if (selected != NULL) {
-                    widget_buddy_remove(widget, selected);
+                    snprintf(buf, sizeof(buf), "%s list", widget->id);
+                    help_show(buf);
+                    break;
                 }
-
-                break;
-            }
-
-            case BUTTON_CLOSE:
-                widget->show = 0;
-                break;
-
-            case BUTTON_HELP:
-            {
-                char buf[MAX_BUF];
-
-                snprintf(buf, sizeof(buf), "%s list", widget->id);
-                help_show(buf);
-                break;
-            }
             }
 
             widget->redraw = 1;
@@ -437,8 +424,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
     if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_LEFT &&
-                text_input_mouse_over(&tmp->text_input, event->motion.x,
-                event->motion.y)) {
+            text_input_mouse_over(&tmp->text_input, event->motion.x, event->motion.y)) {
             tmp->text_input.focus = 1;
             widget->redraw = 1;
             return 1;
@@ -454,8 +440,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     buddy_struct *tmp;
 
     widget_buddy_save(widget);
@@ -474,8 +459,7 @@ static void widget_deinit(widgetdata *widget)
 /**
  * Initialize one buddy widget.
  */
-void widget_buddy_init(widgetdata *widget)
-{
+void widget_buddy_init(widgetdata *widget) {
     buddy_struct *tmp;
     size_t i;
 
@@ -491,25 +475,26 @@ void widget_buddy_init(widgetdata *widget)
     tmp->list = list_create(12, 1, 8);
     tmp->list->handle_enter_func = list_handle_enter;
     list_scrollbar_enable(tmp->list);
-    list_set_column(tmp->list, 0, widget->w - 10 * 2 -
-            LIST_WIDTH_FULL(tmp->list) - tmp->list->frame_offset, 0, NULL, -1);
+    list_set_column(tmp->list,
+                    0,
+                    widget->w - 10 * 2 - LIST_WIDTH_FULL(tmp->list) - tmp->list->frame_offset,
+                    0,
+                    NULL,
+                    -1);
     list_set_font(tmp->list, FONT_ARIAL10);
 
     for (i = 0; i < BUTTON_NUM; i++) {
         button_create(&tmp->buttons[i]);
 
         if (i == BUTTON_CLOSE || i == BUTTON_HELP) {
-            tmp->buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT,
-                    "button_round");
-            tmp->buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT,
-                    "button_round_down");
-            tmp->buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT,
-                    "button_round_over");
+            tmp->buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
+            tmp->buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
+            tmp->buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
         }
     }
 
     text_input_create(&tmp->text_input);
     tmp->text_input.focus = 0;
     tmp->text_input.coords.w = LIST_WIDTH_FULL(tmp->list) -
-            texture_surface(tmp->buttons[BUTTON_ADD].texture)->w * 2 - 5 * 2;
+                               texture_surface(tmp->buttons[BUTTON_ADD].texture)->w * 2 - 5 * 2;
 }

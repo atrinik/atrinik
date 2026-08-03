@@ -36,8 +36,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_party(object *op, const char *command, char *params)
-{
+void command_party(object *op, const char *command, char *params) {
     char buf[MAX_BUF];
 
     if (!params) {
@@ -45,7 +44,11 @@ void command_party(object *op, const char *command, char *params)
             draw_info(COLOR_WHITE, op, "You are not a member of any party.");
             draw_info(COLOR_WHITE, op, "For help try: /party help");
         } else {
-            draw_info_format(COLOR_WHITE, op, "You are a member of party %s (leader: %s).", CONTR(op)->party->name, CONTR(op)->party->leader);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "You are a member of party %s (leader: %s).",
+                             CONTR(op)->party->name,
+                             CONTR(op)->party->leader);
         }
     } else if (!strcmp(params, "help")) {
         draw_info(COLOR_WHITE, op, "To form a party type: /party form <partyname>");
@@ -53,9 +56,13 @@ void command_party(object *op, const char *command, char *params)
         draw_info(COLOR_WHITE, op, "If the party has a password, it will prompt you for it.");
         draw_info(COLOR_WHITE, op, "For a list of current parties type: /party list");
         draw_info(COLOR_WHITE, op, "To leave a party type: /party leave");
-        draw_info(COLOR_WHITE, op, "To change a password for a party type: /party password <password>");
+        draw_info(COLOR_WHITE,
+                  op,
+                  "To change a password for a party type: /party password <password>");
         draw_info(COLOR_WHITE, op, "There is a 8 character max for password.");
-        draw_info(COLOR_WHITE, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
+        draw_info(COLOR_WHITE,
+                  op,
+                  "To talk to party members type: /party say <msg> or /gsay <msg>");
         draw_info(COLOR_WHITE, op, "To see who is in your party: /party who");
         draw_info(COLOR_WHITE, op, "To change the party's looting mode: /party loot mode");
         draw_info(COLOR_WHITE, op, "To kick another player from your party: /party kick <name>");
@@ -98,7 +105,11 @@ void command_party(object *op, const char *command, char *params)
         }
 
         strncpy(CONTR(op)->party->passwd, params + 9, sizeof(CONTR(op)->party->passwd) - 1);
-        snprintf(buf, sizeof(buf), "The password for party %s changed to '%s'.", CONTR(op)->party->name, CONTR(op)->party->passwd);
+        snprintf(buf,
+                 sizeof(buf),
+                 "The password for party %s changed to '%s'.",
+                 CONTR(op)->party->name,
+                 CONTR(op)->party->passwd);
         send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
     } else if (!strncmp(params, "form ", 5)) {
         params = player_sanitize_input(params + 5);
@@ -114,7 +125,10 @@ void command_party(object *op, const char *command, char *params)
         }
 
         if (find_party(params)) {
-            draw_info_format(COLOR_WHITE, op, "The party %s already exists, pick another name.", params);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "The party %s already exists, pick another name.",
+                             params);
             return;
         }
 
@@ -130,7 +144,10 @@ void command_party(object *op, const char *command, char *params)
         params = player_sanitize_input(params + 4);
 
         if (!params) {
-            draw_info_format(COLOR_WHITE, op, "Current looting mode: [green]%s[/green].", party_loot_modes[CONTR(op)->party->loot]);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "Current looting mode: [green]%s[/green].",
+                             party_loot_modes[CONTR(op)->party->loot]);
             return;
         }
 
@@ -142,7 +159,10 @@ void command_party(object *op, const char *command, char *params)
         for (i = 0; i < PARTY_LOOT_MAX; i++) {
             if (!strcmp(params, party_loot_modes[i])) {
                 CONTR(op)->party->loot = i;
-                snprintf(buf, sizeof(buf), "Party looting mode changed to '%s'.", party_loot_modes[i]);
+                snprintf(buf,
+                         sizeof(buf),
+                         "Party looting mode changed to '%s'.",
+                         party_loot_modes[i]);
                 send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
                 return;
             }
@@ -151,7 +171,11 @@ void command_party(object *op, const char *command, char *params)
         draw_info(COLOR_WHITE, op, "Invalid looting mode. Valid modes are:");
 
         for (i = 0; i < PARTY_LOOT_MAX; i++) {
-            draw_info_format(COLOR_WHITE, op, "[green]%s[/green]: %s.", party_loot_modes[i], party_loot_modes_help[i]);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "[green]%s[/green]: %s.",
+                             party_loot_modes[i],
+                             party_loot_modes_help[i]);
         }
     } else if (!strncmp(params, "kick", 4)) {
         objectlink *ol;
@@ -162,7 +186,9 @@ void command_party(object *op, const char *command, char *params)
         }
 
         if (CONTR(op)->party->leader != op->name) {
-            draw_info(COLOR_RED, op, "Only the party's leader can kick other members of the party.");
+            draw_info(COLOR_RED,
+                      op,
+                      "Only the party's leader can kick other members of the party.");
             return;
         }
 
@@ -181,9 +207,15 @@ void command_party(object *op, const char *command, char *params)
         for (ol = CONTR(op)->party->members; ol; ol = ol->next) {
             if (strcasecmp(ol->objlink.ob->name, params) == 0) {
                 remove_party_member(CONTR(op)->party, ol->objlink.ob);
-                snprintf(buf, sizeof(buf), "%s has been kicked from the party.", ol->objlink.ob->name);
+                snprintf(buf,
+                         sizeof(buf),
+                         "%s has been kicked from the party.",
+                         ol->objlink.ob->name);
                 send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
-                draw_info_format(COLOR_RED, ol->objlink.ob, "You have been kicked from the party '%s'.", CONTR(op)->party->name);
+                draw_info_format(COLOR_RED,
+                                 ol->objlink.ob,
+                                 "You have been kicked from the party '%s'.",
+                                 CONTR(op)->party->name);
                 return;
             }
         }
@@ -220,7 +252,10 @@ void command_party(object *op, const char *command, char *params)
         }
 
         FREE_AND_ADD_REF_HASH(pl->party->leader, pl->ob->name);
-        draw_info_format(COLOR_WHITE, pl->ob, "You are the new leader of party %s!", pl->party->name);
+        draw_info_format(COLOR_WHITE,
+                         pl->ob,
+                         "You are the new leader of party %s!",
+                         pl->party->name);
         draw_info_format(COLOR_GREEN, op, "%s is the new leader of your party.", pl->ob->name);
     } else {
         packet_struct *packet;
@@ -255,13 +290,17 @@ void command_party(object *op, const char *command, char *params)
                 packet_debug_data(packet, 0, "\nMember name");
                 packet_append_string_terminated(packet, ol->objlink.ob->name);
                 packet_debug_data(packet, 0, "Health");
-                packet_append_uint8(packet, MAX(1, MIN(
-                        (double) ol->objlink.ob->stats.hp /
-                        ol->objlink.ob->stats.maxhp * 100.0f, 100)));
+                packet_append_uint8(
+                    packet,
+                    MAX(1,
+                        MIN((double)ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f,
+                            100)));
                 packet_debug_data(packet, 0, "Mana");
-                packet_append_uint8(packet, MAX(1, MIN(
-                        (double) ol->objlink.ob->stats.sp /
-                        ol->objlink.ob->stats.maxsp * 100.0f, 100)));
+                packet_append_uint8(
+                    packet,
+                    MAX(1,
+                        MIN((double)ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f,
+                            100)));
             }
 
             socket_send_packet(CONTR(op)->cs, packet);
@@ -269,7 +308,9 @@ void command_party(object *op, const char *command, char *params)
             char *cps[2];
 
             if (CONTR(op)->party) {
-                draw_info(COLOR_WHITE, op, "You must leave your current party before joining another.");
+                draw_info(COLOR_WHITE,
+                          op,
+                          "You must leave your current party before joining another.");
                 return;
             }
 
@@ -295,7 +336,10 @@ void command_party(object *op, const char *command, char *params)
                 return;
             } else {
                 /* Otherwise ask them to type the password */
-                draw_info(COLOR_YELLOW, op, "That party requires a password. Type it now, or press ESC to cancel joining.");
+                draw_info(
+                    COLOR_YELLOW,
+                    op,
+                    "That party requires a password. Type it now, or press ESC to cancel joining.");
                 packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
                 packet_debug_data(packet, 0, "Party command type");
                 packet_append_uint8(packet, CMD_PARTY_PASSWORD);

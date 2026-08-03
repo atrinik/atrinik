@@ -35,6 +35,4 @@
 /**
  * Initialize the potion effect type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(potion_effect)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(potion_effect) {}

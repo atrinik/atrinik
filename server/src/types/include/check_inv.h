@@ -32,7 +32,6 @@
 
 /* Prototypes */
 
-object *
-check_inv(object *op, object *ob);
+object *check_inv(object *op, object *ob);
 
 #endif

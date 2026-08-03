@@ -28,13 +28,11 @@
  */
 
 #ifdef OBJECT_TYPE_DECLARE
-#   undef OBJECT_TYPE_INIT
-#   define OBJECT_TYPE_INIT(what) \
-        void CONCAT(object_type_init_, what)(void)
+#undef OBJECT_TYPE_INIT
+#define OBJECT_TYPE_INIT(what) void CONCAT(object_type_init_, what)(void)
 #else
-#   undef OBJECT_TYPE_INIT
-#   define OBJECT_TYPE_INIT(what) \
-        CONCAT(object_type_init_, what)();
+#undef OBJECT_TYPE_INIT
+#define OBJECT_TYPE_INIT(what) CONCAT(object_type_init_, what)();
 #endif
 
 OBJECT_TYPE_INIT(ability);

@@ -106,8 +106,7 @@ static int keepalive_ping_num; ///< Number of keepalive pings.
 /**
  * Reset keepalive data.
  */
-static void keepalive_reset(void)
-{
+static void keepalive_reset(void) {
     keepalive_data_struct *keepalive, *tmp;
 
     last_keepalive = SDL_GetTicks();
@@ -116,8 +115,7 @@ static void keepalive_reset(void)
     keepalive_ping_avg = 0;
     keepalive_ping_num = 0;
 
-    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp)
-    {
+    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp) {
         LL_DELETE(keepalive_data, keepalive);
         efree(keepalive);
     }
@@ -126,8 +124,7 @@ static void keepalive_reset(void)
 /**
  * Send a keepalive packet.
  */
-static void keepalive_send(void)
-{
+static void keepalive_send(void) {
     keepalive_data_struct *keepalive;
     packet_struct *packet;
 
@@ -146,34 +143,33 @@ static void keepalive_send(void)
 /**
  * Display ping statistics.
  */
-void keepalive_ping_stats(void)
-{
+void keepalive_ping_stats(void) {
     draw_info(COLOR_WHITE, "\nPing statistics this session:");
-    draw_info_format(COLOR_WHITE, "Keepalive TX: %d, RX: %d, missed: %d",
-            keepalive_id, keepalive_ping_num,
-            keepalive_id - keepalive_ping_num);
+    draw_info_format(COLOR_WHITE,
+                     "Keepalive TX: %d, RX: %d, missed: %d",
+                     keepalive_id,
+                     keepalive_ping_num,
+                     keepalive_id - keepalive_ping_num);
     draw_info_format(COLOR_WHITE, "Average ping: %d", keepalive_ping_avg);
     draw_info_format(COLOR_WHITE, "Last ping: %d", keepalive_ping);
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_keepalive(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_keepalive(uint8_t *data, size_t len, size_t pos) {
     uint32_t id, ticks;
     keepalive_data_struct *keepalive, *tmp;
 
     id = packet_to_uint32(data, len, &pos);
     ticks = SDL_GetTicks();
 
-    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp)
-    {
+    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp) {
         if (id == keepalive->id) {
             LL_DELETE(keepalive_data, keepalive);
 
             keepalive_ping = ticks - keepalive->ticks;
             keepalive_ping_num++;
-            keepalive_ping_avg = keepalive_ping_avg + ((keepalive_ping -
-                    keepalive_ping_avg) / keepalive_ping_num);
+            keepalive_ping_avg =
+                keepalive_ping_avg + ((keepalive_ping - keepalive_ping_avg) / keepalive_ping_num);
             efree(keepalive);
 
             return;
@@ -186,8 +182,7 @@ void socket_command_keepalive(uint8_t *data, size_t len, size_t pos)
 /**
  * Initialize game data.
  */
-static void init_game_data(void)
-{
+static void init_game_data(void) {
     init_map_data(0, 0, 0, 0);
     memset(FaceList, 0, sizeof(struct _face_struct) * MAX_FACE_TILES);
 
@@ -214,8 +209,7 @@ static void init_game_data(void)
  * @return
  * 1.
  */
-static int game_status_chain(void)
-{
+static int game_status_chain(void) {
     if (cpl.state == ST_INIT) {
         clear_map(true);
         cpl.state = ST_META;
@@ -232,65 +226,34 @@ static int game_status_chain(void)
         for (size_t i = 0; i < clioption_settings.servers_num; i++) {
             size_t pos = 0;
             char host[MAX_BUF];
-            string_get_word(clioption_settings.servers[i],
-                            &pos,
-                            ' ',
-                            VS(host),
-                            0);
+            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(host), 0);
             char port[MAX_BUF];
-            string_get_word(clioption_settings.servers[i],
-                            &pos,
-                            ' ',
-                            VS(port),
-                            0);
+            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(port), 0);
             char port_crypto[MAX_BUF];
-            string_get_word(clioption_settings.servers[i],
-                            &pos,
-                            ' ',
-                            VS(port_crypto),
-                            0);
+            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(port_crypto), 0);
             char quic_fingerprint[65];
-            string_get_word(clioption_settings.servers[i],
-                            &pos,
-                            ' ',
-                            VS(quic_fingerprint),
-                            0);
+            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(quic_fingerprint), 0);
             uint64_t port_num = 0;
             uint64_t port_crypto_num = 0;
-            if ((*port != '\0' &&
-                 !string_parse_uint64(port,
-                                      10,
-                                      0,
-                                      UINT16_MAX,
-                                      &port_num)) ||
-                    (*port_crypto != '\0' &&
-                     !string_parse_uint64(port_crypto,
-                                          10,
-                                          0,
-                                          UINT16_MAX,
-                                          &port_crypto_num))) {
-                LOG(ERROR,
-                    "Ignoring command-line server %s with an invalid port",
-                    host);
+            if ((*port != '\0' && !string_parse_uint64(port, 10, 0, UINT16_MAX, &port_num)) ||
+                (*port_crypto != '\0' &&
+                 !string_parse_uint64(port_crypto, 10, 0, UINT16_MAX, &port_crypto_num))) {
+                LOG(ERROR, "Ignoring command-line server %s with an invalid port", host);
                 continue;
             }
-            server_struct *server = metaserver_add(
-                host,
-                port_num != 0 ? (uint16_t) port_num : 1728,
-                port_crypto_num != 0 ? (int) port_crypto_num : -1,
-                host,
-                "user server",
-                "Server from command line --server option.");
+            server_struct *server = metaserver_add(host,
+                                                   port_num != 0 ? (uint16_t)port_num : 1728,
+                                                   port_crypto_num != 0 ? (int)port_crypto_num : -1,
+                                                   host,
+                                                   "user server",
+                                                   "Server from command line --server option.");
             if (string_is_hex_fixed(quic_fingerprint, 64, false)) {
                 string_tolower(quic_fingerprint);
-                server->quic_certificate_sha256 =
-                    estrdup(quic_fingerprint);
+                server->quic_certificate_sha256 = estrdup(quic_fingerprint);
                 server->port_crypto = -1;
                 server->direct = true;
             } else if (*quic_fingerprint != '\0') {
-                LOG(ERROR,
-                    "Ignoring invalid QUIC certificate fingerprint for %s",
-                    host);
+                LOG(ERROR, "Ignoring invalid QUIC certificate fingerprint for %s", host);
             }
         }
 
@@ -311,10 +274,7 @@ static int game_status_chain(void)
         if (selected_server->port_crypto != -1) {
             port = selected_server->port_crypto;
         }
-        draw_info_format(COLOR_GREEN,
-                         "Trying server %s (%d)...",
-                         selected_server->name,
-                         port);
+        draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, port);
         keepalive_reset();
         cpl.state = ST_CONNECT;
     } else if (cpl.state == ST_CONNECT) {
@@ -348,11 +308,11 @@ static int game_status_chain(void)
         }
 
         if (!selected_server->direct &&
-            !metaserver_cert_verify_host(selected_server,
-                                         socket_get_addr(csocket.sc))) {
-            draw_info(COLOR_RED, "Failed to verify the IP address of the "
-                                 "specified server - it is very likely the "
-                                 "server has been compromised!");
+            !metaserver_cert_verify_host(selected_server, socket_get_addr(csocket.sc))) {
+            draw_info(COLOR_RED,
+                      "Failed to verify the IP address of the "
+                      "specified server - it is very likely the "
+                      "server has been compromised!");
             cpl.state = ST_START;
             return 1;
         }
@@ -388,20 +348,19 @@ static int game_status_chain(void)
         packet_append_string_terminated(packet, "");
         packet_append_uint8(packet, CMD_SETUP_JOIN_PASSWORD);
         const char *join_password = selected_server->join_password != NULL
-            ? selected_server->join_password
-            : clioption_settings.join_password;
+                                        ? selected_server->join_password
+                                        : clioption_settings.join_password;
         packet_append_string_terminated(
             packet,
-            join_password != NULL &&
-            (socket_is_quic(csocket.sc) || socket_is_secure(csocket.sc))
-                ? join_password : "");
+            join_password != NULL && (socket_is_quic(csocket.sc) || socket_is_secure(csocket.sc))
+                ? join_password
+                : "");
         if (cpl.server_socket_version >= ASSET_TRANSPORT_SOCKET_VERSION) {
             packet_append_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
         }
         if (socket_is_quic(csocket.sc)) {
             packet_append_uint8(packet, CMD_SETUP_CONNECTION_MODE);
-            packet_append_uint8(packet,
-                                socket_connection_mode_get(csocket.sc));
+            packet_append_uint8(packet, socket_connection_mode_get(csocket.sc));
         }
         socket_send_packet(packet);
 
@@ -431,8 +390,7 @@ static int game_status_chain(void)
 /**
  * Play various action sounds.
  */
-static void play_action_sounds(void)
-{
+static void play_action_sounds(void) {
     if (cpl.warn_statdown) {
         sound_play_effect("warning_statdown.ogg", 100);
         cpl.warn_statdown = 0;
@@ -457,15 +415,14 @@ static void play_action_sounds(void)
 /**
  * List video modes available.
  */
-void list_vid_modes(void)
-{
+void list_vid_modes(void) {
     SDL_Rect **modes;
 
     /* Get available fullscreen/hardware modes */
     modes = SDL_ListModes(NULL, SDL_HWACCEL);
 
     /* Check if there are any modes available */
-    if (modes == (SDL_Rect **) 0) {
+    if (modes == (SDL_Rect **)0) {
         LOG(ERROR, "No video modes available!");
         exit(1);
     }
@@ -474,13 +431,11 @@ void list_vid_modes(void)
 /**
  * Hook for detecting background music changes.
  */
-static void sound_background_hook(void)
-{
+static void sound_background_hook(void) {
     WIDGET_REDRAW_ALL(MPLAYER_ID);
 }
 
-void clioption_settings_deinit(void)
-{
+void clioption_settings_deinit(void) {
     size_t i;
 
     for (i = 0; i < clioption_settings.servers_num; i++) {
@@ -510,8 +465,7 @@ void clioption_settings_deinit(void)
     }
 
     if (clioption_settings.join_password != NULL) {
-        OPENSSL_cleanse(clioption_settings.join_password,
-                        strlen(clioption_settings.join_password));
+        OPENSSL_cleanse(clioption_settings.join_password, strlen(clioption_settings.join_password));
         efree(clioption_settings.join_password);
     }
 
@@ -524,22 +478,17 @@ void clioption_settings_deinit(void)
  * Description of the --server command.
  */
 static const char *const clioptions_option_server_desc =
-"Adds a server to the list of servers.\n\n"
-"Usage:\n"
-" --server=\"HOST [PORT [CRYPTO_PORT [QUIC_SHA256]]]\"\n\n"
-"For a pinned local QUIC server, use its UDP port, -1 for CRYPTO_PORT, and "
-"the 64-character certificate SHA-256 fingerprint.";
+    "Adds a server to the list of servers.\n\n"
+    "Usage:\n"
+    " --server=\"HOST [PORT [CRYPTO_PORT [QUIC_SHA256]]]\"\n\n"
+    "For a pinned local QUIC server, use its UDP port, -1 for CRYPTO_PORT, and "
+    "the 64-character certificate SHA-256 fingerprint.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_server (const char *arg,
-                          char      **errmsg)
-{
+static bool clioptions_option_server(const char *arg, char **errmsg) {
     clioption_settings.servers =
         erealloc(clioption_settings.servers,
-                 sizeof(*clioption_settings.servers) *
-                     (clioption_settings.servers_num + 1));
-    clioption_settings.servers[clioption_settings.servers_num] =
-        estrdup(arg);
+                 sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
+    clioption_settings.servers[clioption_settings.servers_num] = estrdup(arg);
     clioption_settings.servers_num++;
     return true;
 }
@@ -548,20 +497,15 @@ clioptions_option_server (const char *arg,
  * Description of the --metaserver command.
  */
 static const char *const clioptions_option_metaserver_desc =
-"Adds a metaserver to the list of metaserver that will be tried.\n\n"
-"Usage:\n"
-" --metaserver=example.com";
+    "Adds a metaserver to the list of metaserver that will be tried.\n\n"
+    "Usage:\n"
+    " --metaserver=example.com";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_metaserver (const char *arg,
-                              char      **errmsg)
-{
-    clioption_settings.metaservers =
-        erealloc(clioption_settings.metaservers,
-                 sizeof(*clioption_settings.metaservers) *
-                     (clioption_settings.metaservers_num + 1));
-    clioption_settings.metaservers[clioption_settings.metaservers_num] =
-        estrdup(arg);
+static bool clioptions_option_metaserver(const char *arg, char **errmsg) {
+    clioption_settings.metaservers = erealloc(clioption_settings.metaservers,
+                                              sizeof(*clioption_settings.metaservers) *
+                                                  (clioption_settings.metaservers_num + 1));
+    clioption_settings.metaservers[clioption_settings.metaservers_num] = estrdup(arg);
     clioption_settings.metaservers_num++;
     return true;
 }
@@ -570,18 +514,15 @@ clioptions_option_metaserver (const char *arg,
  * Description of the --connect command.
  */
 static const char *const clioptions_option_connect_desc =
-"Automatically connects to a server.\n\n"
-"Usage:\n"
-" --connect=<server>:<account>:<password>:<character>\n\n"
-"Everything past the server is optional; you could for example only specify "
-"the account, or specify everything but leave the password field empty to "
-"still get a prompt for the password but still select the character "
-"automatically.";
+    "Automatically connects to a server.\n\n"
+    "Usage:\n"
+    " --connect=<server>:<account>:<password>:<character>\n\n"
+    "Everything past the server is optional; you could for example only specify "
+    "the account, or specify everything but leave the password field empty to "
+    "still get a prompt for the password but still select the character "
+    "automatically.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_connect (const char *arg,
-                           char      **errmsg)
-{
+static bool clioptions_option_connect(const char *arg, char **errmsg) {
     char *cp = estrdup(arg);
     char *cps[4];
     size_t num = string_split(cp, cps, arraysize(cps), ':');
@@ -602,20 +543,16 @@ clioptions_option_connect (const char *arg,
  * Description of the --join_password command.
  */
 static const char *const clioptions_option_join_password_desc =
-"Password used to join a private game server.";
+    "Password used to join a private game server.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_join_password (const char *arg,
-                                 char      **errmsg)
-{
+static bool clioptions_option_join_password(const char *arg, char **errmsg) {
     if (strlen(arg) >= MAX_BUF) {
         *errmsg = estrdup("Join password is too long");
         return false;
     }
 
     if (clioption_settings.join_password != NULL) {
-        OPENSSL_cleanse(clioption_settings.join_password,
-                        strlen(clioption_settings.join_password));
+        OPENSSL_cleanse(clioption_settings.join_password, strlen(clioption_settings.join_password));
         efree(clioption_settings.join_password);
     }
     clioption_settings.join_password = estrdup(arg);
@@ -623,17 +560,12 @@ clioptions_option_join_password (const char *arg,
 }
 
 static const char *const clioptions_option_join_password_file_desc =
-"Read the private server password from a file.";
+    "Read the private server password from a file.";
 
-static bool
-clioptions_option_join_password_file (const char *arg,
-                                      char      **errmsg)
-{
+static bool clioptions_option_join_password_file(const char *arg, char **errmsg) {
     char password[MAX_BUF];
     bool permissive_mode;
-    path_secret_error_t error = path_read_secret(arg,
-                                                 VS(password),
-                                                 &permissive_mode);
+    path_secret_error_t error = path_read_secret(arg, VS(password), &permissive_mode);
     if (error != PATH_SECRET_OK) {
         string_fmt(*errmsg,
                    "Cannot use join password file %s: %s",
@@ -654,12 +586,9 @@ clioptions_option_join_password_file (const char *arg,
 }
 
 static const char *const clioptions_option_stun_server_desc =
-"Optional STUN endpoint used for direct rendezvous, or 'off'.";
+    "Optional STUN endpoint used for direct rendezvous, or 'off'.";
 
-static bool
-clioptions_option_stun_server (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_stun_server(const char *arg, char **errmsg) {
     if (strlen(arg) >= MAX_BUF) {
         *errmsg = estrdup("STUN endpoint is too long");
         return false;
@@ -667,21 +596,16 @@ clioptions_option_stun_server (const char *arg,
     if (clioption_settings.stun_server != NULL) {
         efree(clioption_settings.stun_server);
     }
-    clioption_settings.stun_server = strcmp(arg, "off") == 0
-        ? NULL : estrdup(arg);
+    clioption_settings.stun_server = strcmp(arg, "off") == 0 ? NULL : estrdup(arg);
     return true;
 }
 
 /**
  * Description of the --nometa command.
  */
-static const char *clioptions_option_nometa_desc =
-"Do not query the metaserver.";
+static const char *clioptions_option_nometa_desc = "Do not query the metaserver.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_nometa (const char *arg,
-                          char      **errmsg)
-{
+static bool clioptions_option_nometa(const char *arg, char **errmsg) {
     metaserver_disable();
     return true;
 }
@@ -690,12 +614,9 @@ clioptions_option_nometa (const char *arg,
  * Description of the --text_debug command.
  */
 static const char *clioptions_option_text_debug_desc =
-"Enable text API debugging (shows bounding boxes for text that uses them).";
+    "Enable text API debugging (shows bounding boxes for text that uses them).";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_text_debug (const char *arg,
-                              char      **errmsg)
-{
+static bool clioptions_option_text_debug(const char *arg, char **errmsg) {
     text_enable_debug();
     return true;
 }
@@ -704,13 +625,10 @@ clioptions_option_text_debug (const char *arg,
  * Description of the --widget_render_debug command.
  */
 static const char *clioptions_option_widget_render_debug_desc =
-"Enable widget rendering debugging (highlights widgets whenever they get "
-"re-rendered).";
+    "Enable widget rendering debugging (highlights widgets whenever they get "
+    "re-rendered).";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_widget_render_debug (const char *arg,
-                                       char      **errmsg)
-{
+static bool clioptions_option_widget_render_debug(const char *arg, char **errmsg) {
     widget_render_enable_debug();
     return true;
 }
@@ -719,12 +637,9 @@ clioptions_option_widget_render_debug (const char *arg,
  * Description of the --game_news_url command.
  */
 static const char *clioptions_option_game_news_url_desc =
-"Sets the game news URL. Typically this doesn't need to be changed.";
+    "Sets the game news URL. Typically this doesn't need to be changed.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_game_news_url (const char *arg,
-                                 char      **errmsg)
-{
+static bool clioptions_option_game_news_url(const char *arg, char **errmsg) {
     clioption_settings.game_news_url = estrdup(arg);
     return true;
 }
@@ -733,13 +648,10 @@ clioptions_option_game_news_url (const char *arg,
  * Description of the --reconnect command.
  */
 static const char *clioptions_option_reconnect_desc =
-"On disconnect, will automatically attempt to reconnect to the "
-"server/account/etc as specified with --connect.";
+    "On disconnect, will automatically attempt to reconnect to the "
+    "server/account/etc as specified with --connect.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_reconnect (const char *arg,
-                             char      **errmsg)
-{
+static bool clioptions_option_reconnect(const char *arg, char **errmsg) {
     clioption_settings.reconnect = 1;
     return true;
 }
@@ -753,12 +665,11 @@ clioptions_option_reconnect (const char *arg,
  * @return
  * 0
  */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     char *path;
     int done = 0, update, frames;
-    uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit,
-            last_frame_ticks, last_memory_check;
+    uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit, last_frame_ticks,
+        last_memory_check;
     int fps_limits[] = {30, 60, 120, 0};
 
     toolkit_import(signals);
@@ -812,16 +723,14 @@ int main(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, connect, "Connect to the specified server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, game_news_url, "Set game news URL");
     CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               join_password_file,
-                               "Private server password file");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, join_password_file, "Private server password file");
     CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "Direct rendezvous STUN endpoint");
 
     /* Argument options*/
     CLIOPTIONS_CREATE(cli, nometa, "Disable querying the metaserver");
     CLIOPTIONS_CREATE(cli, text_debug, "Enable text API debugging");
-    CLIOPTIONS_CREATE(cli, widget_render_debug,  "Enable widget debugging");
-    CLIOPTIONS_CREATE(cli, reconnect,  "Reconnect automatically");
+    CLIOPTIONS_CREATE(cli, widget_render_debug, "Enable widget debugging");
+    CLIOPTIONS_CREATE(cli, reconnect, "Reconnect automatically");
 
     memset(&clioption_settings, 0, sizeof(clioption_settings));
 
@@ -863,10 +772,7 @@ int main(int argc, char *argv[])
     resources_init();
 
     StringBuffer *sb = stringbuffer_new();
-    stringbuffer_append_printf(sb,
-                               "%s/.atrinik/%s",
-                               get_config_dir(),
-                               version);
+    stringbuffer_append_printf(sb, "%s/.atrinik/%s", get_config_dir(), version);
     path = stringbuffer_finish(sb);
     socket_crypto_set_path(path);
     efree(path);
@@ -874,14 +780,17 @@ int main(int argc, char *argv[])
     char buf[HUGE_BUF];
     snprintf(VS(buf), "Welcome to Atrinik version %s", version);
 #ifdef GITVERSION
-    snprintfcat(VS(buf), "%s",
-                " (" STRINGIFY(GITBRANCH) "/" STRINGIFY(GITVERSION)
-                " by " STRINGIFY(GITAUTHOR) ")");
+    snprintfcat(
+        VS(buf),
+        "%s",
+        " (" STRINGIFY(GITBRANCH) "/" STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
 #endif
     draw_info(COLOR_HGOLD, buf);
 
     if (!x11_clipboard_register_events()) {
-        draw_info(COLOR_RED, "Failed to initialize clipboard support, clipboard actions will not be possible.");
+        draw_info(
+            COLOR_RED,
+            "Failed to initialize clipboard support, clipboard actions will not be possible.");
     }
 
     settings_apply();
@@ -894,8 +803,7 @@ int main(int argc, char *argv[])
 
     sound_background_hook_register(sound_background_hook);
 
-    LastTick = anim_tick = last_frame_ticks = last_memory_check =
-            SDL_GetTicks();
+    LastTick = anim_tick = last_frame_ticks = last_memory_check = SDL_GetTicks();
     frames = 0;
 
     while (!done) {
@@ -932,8 +840,12 @@ int main(int argc, char *argv[])
          * action */
         if (cpl.state != ST_PLAY) {
             if (!game_status_chain()) {
-                LOG(ERROR, "Error connecting: cpl.state: %d SocketError: %s "
-                        "(%d)", cpl.state, strerror(s_errno), s_errno);
+                LOG(ERROR,
+                    "Error connecting: cpl.state: %d SocketError: %s "
+                    "(%d)",
+                    cpl.state,
+                    strerror(s_errno),
+                    s_errno);
             }
         } else if (SDL_GetAppState() & SDL_APPACTIVE) {
             if (LastTick - anim_tick > 125) {
@@ -990,13 +902,17 @@ int main(int argc, char *argv[])
             int mx, my;
 
             SDL_GetMouseState(&mx, &my);
-            object_show_centered(ScreenSurface, object_find(cpl.dragging_tag),
-                    mx, my, INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE, false);
+            object_show_centered(ScreenSurface,
+                                 object_find(cpl.dragging_tag),
+                                 mx,
+                                 my,
+                                 INVENTORY_ICON_SIZE,
+                                 INVENTORY_ICON_SIZE,
+                                 false);
         }
 
-        if (!setting_get_int(OPT_CAT_CLIENT, OPT_SYSTEM_CURSOR) &&
-            cursor_x != -1 && cursor_y != -1 &&
-            SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
+        if (!setting_get_int(OPT_CAT_CLIENT, OPT_SYSTEM_CURSOR) && cursor_x != -1 &&
+            cursor_y != -1 && SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
             surface_show(ScreenSurface,
                          cursor_x - texture_surface(cursor_texture)->w / 2,
                          cursor_y - texture_surface(cursor_texture)->h / 2,
@@ -1032,7 +948,8 @@ int main(int argc, char *argv[])
                 if (elapsed_time < 1000 / fps_limit) {
                     SDL_Delay(MAX(1, 1000 / fps_limit - elapsed_time));
 
-                    if (!(SDL_GetAppState() & SDL_APPACTIVE) && SDL_GetTicks() - frame_start_time < 1000) {
+                    if (!(SDL_GetAppState() & SDL_APPACTIVE) &&
+                        SDL_GetTicks() - frame_start_time < 1000) {
                         SDL_PumpEvents();
                         continue;
                     }

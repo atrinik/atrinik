@@ -32,15 +32,10 @@
 
 /* Prototypes */
 
-object *
-waypoint_get_active(object *npc);
-object *
-waypoint_get_aggro(object *npc);
-object *
-waypoint_get_home(object *npc);
-void
-waypoint_compute_path(object *op);
-void
-waypoint_move(object *op, object *npc);
+object *waypoint_get_active(object *npc);
+object *waypoint_get_aggro(object *npc);
+object *waypoint_get_home(object *npc);
+void waypoint_compute_path(object *op);
+void waypoint_move(object *op, object *npc);
 
 #endif

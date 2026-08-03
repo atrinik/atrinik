@@ -34,28 +34,62 @@
 /**
  * Region fields.
  */
-static fields_struct fields[] = {
-    {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0,
-            "Next region in a linked list.; Atrinik.Region.Region or None "
-            "(readonly)"},
-    {"parent", FIELDTYPE_REGION, offsetof(region_struct, parent), 0, 0,
-            "Region's parent.; Atrinik.Region.Region or None (readonly)"},
-    {"name", FIELDTYPE_CSTR, offsetof(region_struct, name), 0, 0,
-            "Name of the region (eg, 'world').; str (readonly)"},
-    {"longname", FIELDTYPE_CSTR, offsetof(region_struct, longname), 0, 0,
-            "Long name (eg, 'Strakewood Island').; str or None (readonly)"},
-    {"msg", FIELDTYPE_CSTR, offsetof(region_struct, msg), 0, 0,
-            "Description of the region.; str or None (readonly)"},
-    {"jailmap", FIELDTYPE_CSTR, offsetof(region_struct, jailmap), 0, 0,
-            "Path to the region's jail map.; str or None (readonly)"},
-    {"jailx", FIELDTYPE_INT16, offsetof(region_struct, jailx), 0, 0,
-            "X coordinate of the region's jail.; int (readonly)"},
-    {"jaily", FIELDTYPE_INT16, offsetof(region_struct, jaily), 0, 0,
-            "Y coordinate of the region's jail.; int (readonly)"},
-    {"map_first", FIELDTYPE_CSTR, offsetof(region_struct, map_first), 0, 0,
-            "Path to some beginning map in the region. Used for world maker "
-            "generation purposes.; str or None (readonly)"}
-};
+static fields_struct fields[] = {{"next",
+                                  FIELDTYPE_REGION,
+                                  offsetof(region_struct, next),
+                                  0,
+                                  0,
+                                  "Next region in a linked list.; Atrinik.Region.Region or None "
+                                  "(readonly)"},
+                                 {"parent",
+                                  FIELDTYPE_REGION,
+                                  offsetof(region_struct, parent),
+                                  0,
+                                  0,
+                                  "Region's parent.; Atrinik.Region.Region or None (readonly)"},
+                                 {"name",
+                                  FIELDTYPE_CSTR,
+                                  offsetof(region_struct, name),
+                                  0,
+                                  0,
+                                  "Name of the region (eg, 'world').; str (readonly)"},
+                                 {"longname",
+                                  FIELDTYPE_CSTR,
+                                  offsetof(region_struct, longname),
+                                  0,
+                                  0,
+                                  "Long name (eg, 'Strakewood Island').; str or None (readonly)"},
+                                 {"msg",
+                                  FIELDTYPE_CSTR,
+                                  offsetof(region_struct, msg),
+                                  0,
+                                  0,
+                                  "Description of the region.; str or None (readonly)"},
+                                 {"jailmap",
+                                  FIELDTYPE_CSTR,
+                                  offsetof(region_struct, jailmap),
+                                  0,
+                                  0,
+                                  "Path to the region's jail map.; str or None (readonly)"},
+                                 {"jailx",
+                                  FIELDTYPE_INT16,
+                                  offsetof(region_struct, jailx),
+                                  0,
+                                  0,
+                                  "X coordinate of the region's jail.; int (readonly)"},
+                                 {"jaily",
+                                  FIELDTYPE_INT16,
+                                  offsetof(region_struct, jaily),
+                                  0,
+                                  0,
+                                  "Y coordinate of the region's jail.; int (readonly)"},
+                                 {"map_first",
+                                  FIELDTYPE_CSTR,
+                                  offsetof(region_struct, map_first),
+                                  0,
+                                  0,
+                                  "Path to some beginning map in the region. Used for world maker "
+                                  "generation purposes.; str or None (readonly)"}};
 
 /**
  * Get region's attribute.
@@ -66,8 +100,7 @@ static fields_struct fields[] = {
  * @return
  * Python object with the attribute value, NULL on failure.
  */
-static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
-{
+static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context) {
     return generic_field_getter(context, r->region);
 }
 
@@ -82,15 +115,13 @@ static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
  * @return
  * The new wrapper.
  */
-static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args,
-        PyObject *kwds)
-{
-    Atrinik_Region *self = (Atrinik_Region *) type->tp_alloc(type, 0);
+static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+    Atrinik_Region *self = (Atrinik_Region *)type->tp_alloc(type, 0);
     if (self != NULL) {
         self->region = NULL;
     }
 
-    return (PyObject *) self;
+    return (PyObject *)self;
 }
 
 /**
@@ -98,13 +129,12 @@ static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args,
  * @param self
  * The wrapper to free.
  */
-static void Atrinik_Region_dealloc(Atrinik_Region *self)
-{
+static void Atrinik_Region_dealloc(Atrinik_Region *self) {
     self->region = NULL;
 #ifndef IS_PY_LEGACY
-    Py_TYPE(self)->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 #else
-    self->ob_type->tp_free((PyObject *) self);
+    self->ob_type->tp_free((PyObject *)self);
 #endif
 }
 
@@ -115,30 +145,23 @@ static void Atrinik_Region_dealloc(Atrinik_Region *self)
  * @return
  * Python object containing the name of the region.
  */
-static PyObject *Atrinik_Region_str(Atrinik_Region *self)
-{
+static PyObject *Atrinik_Region_str(Atrinik_Region *self) {
     return Py_BuildValue("s", self->region->name);
 }
 
-static int Atrinik_Region_InternalCompare(Atrinik_Region *left,
-        Atrinik_Region *right)
-{
-    return (left->region < right->region ? -1 :
-        (left->region == right->region ? 0 : 1));
+static int Atrinik_Region_InternalCompare(Atrinik_Region *left, Atrinik_Region *right) {
+    return (left->region < right->region ? -1 : (left->region == right->region ? 0 : 1));
 }
 
-static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left,
-        Atrinik_Region *right, int op)
-{
+static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left, Atrinik_Region *right, int op) {
     if (left == NULL || right == NULL ||
-            !PyObject_TypeCheck((PyObject *) left, &Atrinik_RegionType) ||
-            !PyObject_TypeCheck((PyObject *) right, &Atrinik_RegionType)) {
+        !PyObject_TypeCheck((PyObject *)left, &Atrinik_RegionType) ||
+        !PyObject_TypeCheck((PyObject *)right, &Atrinik_RegionType)) {
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
 
-    return generic_rich_compare(op,
-            Atrinik_Region_InternalCompare(left, right));
+    return generic_rich_compare(op, Atrinik_Region_InternalCompare(left, right));
 }
 
 /**
@@ -148,14 +171,13 @@ static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python RegionType. */
 PyTypeObject Atrinik_RegionType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "Atrinik.Region",
+    PyVarObject_HEAD_INIT(NULL, 0).tp_name = "Atrinik.Region",
     .tp_basicsize = sizeof(Atrinik_Region),
-    .tp_dealloc = (destructor) Atrinik_Region_dealloc,
-    .tp_str = (reprfunc) Atrinik_Region_str,
+    .tp_dealloc = (destructor)Atrinik_Region_dealloc,
+    .tp_str = (reprfunc)Atrinik_Region_str,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Atrinik regions",
-    .tp_richcompare = (richcmpfunc) Atrinik_Region_RichCompare,
+    .tp_richcompare = (richcmpfunc)Atrinik_Region_RichCompare,
     .tp_getset = getseters,
     .tp_new = Atrinik_Region_new,
 };
@@ -167,8 +189,7 @@ PyTypeObject Atrinik_RegionType = {
  * @return
  * 1 on success, 0 on failure.
  */
-int Atrinik_Region_init(PyObject *module)
-{
+int Atrinik_Region_init(PyObject *module) {
     size_t i;
 
     /* Field getters */
@@ -176,7 +197,7 @@ int Atrinik_Region_init(PyObject *module)
         PyGetSetDef *def = &getseters[i];
 
         def->name = fields[i].name;
-        def->get = (getter) Region_GetAttribute;
+        def->get = (getter)Region_GetAttribute;
         def->set = NULL;
         def->doc = fields[i].doc;
         def->closure = &fields[i];
@@ -191,7 +212,7 @@ int Atrinik_Region_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_RegionType);
-    PyModule_AddObject(module, "Region", (PyObject *) &Atrinik_RegionType);
+    PyModule_AddObject(module, "Region", (PyObject *)&Atrinik_RegionType);
 
     return 1;
 }
@@ -203,8 +224,7 @@ int Atrinik_Region_init(PyObject *module)
  * @return
  * Python object wrapping the real region.
  */
-PyObject *wrap_region(region_struct *what)
-{
+PyObject *wrap_region(region_struct *what) {
     /* Return None if no region was to be wrapped. */
     if (what == NULL) {
         Py_INCREF(Py_None);
@@ -216,5 +236,5 @@ PyObject *wrap_region(region_struct *what)
         wrapper->region = what;
     }
 
-    return (PyObject *) wrapper;
+    return (PyObject *)wrapper;
 }

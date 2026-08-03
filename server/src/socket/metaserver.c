@@ -87,23 +87,16 @@ static uint32_t request_num_players = 0;
  */
 static bool key_is_new = false;
 
-static bool
-metaserver_direct_mode (void)
-{
+static bool metaserver_direct_mode(void) {
     return strcmp(settings.connectivity_mode, "legacy_tcp") != 0;
 }
 
-static bool
-metaserver_identity (char *identity, size_t identity_size)
-{
+static bool metaserver_identity(char *identity, size_t identity_size) {
     if (!metaserver_direct_mode()) {
         if (*settings.server_host == '\0') {
             return false;
         }
-        return snprintf(identity,
-                        identity_size,
-                        "%s",
-                        settings.server_host) < (int) identity_size;
+        return snprintf(identity, identity_size, "%s", settings.server_host) < (int)identity_size;
     }
 
     char host[MAX_BUF];
@@ -111,23 +104,15 @@ metaserver_identity (char *identity, size_t identity_size)
     return socket_server_quic_info(VS(host), &port, identity);
 }
 
-static void
-metaserver_key_path (char *path, size_t path_size)
-{
+static void metaserver_key_path(char *path, size_t path_size) {
     snprintf(path,
              path_size,
              "%s/%s",
              settings.datapath,
-             metaserver_direct_mode()
-                 ? METASERVER_DIRECT_KEY_FILE
-                 : METASERVER_KEY_FILE);
+             metaserver_direct_mode() ? METASERVER_DIRECT_KEY_FILE : METASERVER_KEY_FILE);
 }
 
-bool
-metaserver_rendezvous_token_parse (const char *body,
-                                   size_t      body_size,
-                                   char        token[65])
-{
+bool metaserver_rendezvous_token_parse(const char *body, size_t body_size, char token[65]) {
     HARD_ASSERT(token != NULL);
 
     OPENSSL_cleanse(token, 65);
@@ -155,7 +140,6 @@ metaserver_rendezvous_token_parse (const char *body,
 
     return false;
 }
-
 
 #if LIBCURL_VERSION_NUM >= 0x075600
 #define RENDEZVOUS_PUNCH_JOBS_MAX 64
@@ -187,9 +171,7 @@ typedef struct rendezvous_punch_job {
     char ticket[65];
 } rendezvous_punch_job_t;
 
-static bool
-metaserver_rendezvous_send_complete (CURL *curl, const char *ticket)
-{
+static bool metaserver_rendezvous_send_complete(CURL *curl, const char *ticket) {
     char complete[128];
     if (!socket_rendezvous_message_render(VS(complete),
                                           "complete",
@@ -200,24 +182,15 @@ metaserver_rendezvous_send_complete (CURL *curl, const char *ticket)
         return false;
     }
     size_t sent = 0;
-    return curl_ws_send(curl,
-                        complete,
-                        strlen(complete),
-                        &sent,
-                        0,
-                        CURLWS_TEXT) == CURLE_OK &&
+    return curl_ws_send(curl, complete, strlen(complete), &sent, 0, CURLWS_TEXT) == CURLE_OK &&
            sent == strlen(complete);
 }
 
-static bool
-metaserver_rendezvous_punch_update (CURL                     *curl,
-                                    rendezvous_punch_job_t *jobs)
-{
+static bool metaserver_rendezvous_punch_update(CURL *curl, rendezvous_punch_job_t *jobs) {
     uint64_t now = datetime_monotonic_ms();
     for (size_t i = 0; i < RENDEZVOUS_PUNCH_JOBS_MAX; i++) {
         rendezvous_punch_job_t *job = &jobs[i];
-        socket_punch_action_t action = socket_punch_pacer_poll(&job->pacer,
-                                                               now);
+        socket_punch_action_t action = socket_punch_pacer_poll(&job->pacer, now);
         if (action == SOCKET_PUNCH_WAIT) {
             continue;
         }
@@ -234,8 +207,7 @@ metaserver_rendezvous_punch_update (CURL                     *curl,
             return false;
         }
         LOG(DEBUG,
-            "Completed rendezvous UDP punch window to %s:%" PRIu16
-            " (sent %d/%d probes)",
+            "Completed rendezvous UDP punch window to %s:%" PRIu16 " (sent %d/%d probes)",
             job->host,
             job->port,
             job->punches_sent,
@@ -245,12 +217,10 @@ metaserver_rendezvous_punch_update (CURL                     *curl,
     return true;
 }
 
-static bool
-metaserver_rendezvous_punch_schedule (rendezvous_punch_job_t *jobs,
-                                      const char              *host,
-                                      uint16_t                 port,
-                                      const char              *ticket)
-{
+static bool metaserver_rendezvous_punch_schedule(rendezvous_punch_job_t *jobs,
+                                                 const char *host,
+                                                 uint16_t port,
+                                                 const char *ticket) {
     rendezvous_punch_job_t *available = NULL;
     for (size_t i = 0; i < RENDEZVOUS_PUNCH_JOBS_MAX; i++) {
         if (jobs[i].pacer.active && strcmp(jobs[i].ticket, ticket) == 0) {
@@ -269,69 +239,51 @@ metaserver_rendezvous_punch_schedule (rendezvous_punch_job_t *jobs,
     snprintf(VS(available->ticket), "%s", ticket);
     available->port = port;
     available->punches_sent = 0;
-    socket_punch_pacer_start(&available->pacer,
-                             datetime_monotonic_ms(),
-                             RENDEZVOUS_PUNCH_GRACE_MS);
+    socket_punch_pacer_start(&available->pacer, datetime_monotonic_ms(), RENDEZVOUS_PUNCH_GRACE_MS);
     return true;
 }
 
-static bool
-metaserver_rendezvous_current (uint64_t generation)
-{
+static bool metaserver_rendezvous_current(uint64_t generation) {
     pthread_mutex_lock(&rendezvous_lock);
-    bool current = !rendezvous_shutdown &&
-                   generation == rendezvous_generation;
+    bool current = !rendezvous_shutdown && generation == rendezvous_generation;
     pthread_mutex_unlock(&rendezvous_lock);
     return current;
 }
 
-static bool
-metaserver_rendezvous_wait (uint64_t generation, unsigned int timeout_ms)
-{
+static bool metaserver_rendezvous_wait(uint64_t generation, unsigned int timeout_ms) {
     struct timeval now;
     GETTIMEOFDAY(&now);
-    uint64_t deadline_ns = (uint64_t) now.tv_usec * 1000 +
-                           (uint64_t) timeout_ms * 1000000;
-    struct timespec deadline = {
-        .tv_sec = now.tv_sec + (time_t) (deadline_ns / 1000000000),
-        .tv_nsec = (long) (deadline_ns % 1000000000)
-    };
+    uint64_t deadline_ns = (uint64_t)now.tv_usec * 1000 + (uint64_t)timeout_ms * 1000000;
+    struct timespec deadline = {.tv_sec = now.tv_sec + (time_t)(deadline_ns / 1000000000),
+                                .tv_nsec = (long)(deadline_ns % 1000000000)};
 
     pthread_mutex_lock(&rendezvous_lock);
     if (!rendezvous_shutdown && generation == rendezvous_generation) {
-        pthread_cond_timedwait(&rendezvous_condition,
-                               &rendezvous_lock,
-                               &deadline);
+        pthread_cond_timedwait(&rendezvous_condition, &rendezvous_lock, &deadline);
     }
-    bool current = !rendezvous_shutdown &&
-                   generation == rendezvous_generation;
+    bool current = !rendezvous_shutdown && generation == rendezvous_generation;
     pthread_mutex_unlock(&rendezvous_lock);
     return current;
 }
 
-static int
-metaserver_rendezvous_progress (void       *data,
-                                curl_off_t  download_total,
-                                curl_off_t  download_now,
-                                curl_off_t  upload_total,
-                                curl_off_t  upload_now)
-{
-    (void) download_total;
-    (void) download_now;
-    (void) upload_total;
-    (void) upload_now;
+static int metaserver_rendezvous_progress(void *data,
+                                          curl_off_t download_total,
+                                          curl_off_t download_now,
+                                          curl_off_t upload_total,
+                                          curl_off_t upload_now) {
+    (void)download_total;
+    (void)download_now;
+    (void)upload_total;
+    (void)upload_now;
 
     rendezvous_args_t *args = data;
     return metaserver_rendezvous_current(args->generation) ? 0 : 1;
 }
 
-static void *
-metaserver_rendezvous_thread (void *data)
-{
+static void *metaserver_rendezvous_thread(void *data) {
     rendezvous_args_t *args = data;
 
-reconnect:
-    ;
+reconnect:;
     CURL *curl = curl_easy_init();
     if (curl == NULL) {
         goto done;
@@ -352,17 +304,14 @@ reconnect:
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 2L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-    curl_easy_setopt(curl,
-                     CURLOPT_XFERINFOFUNCTION,
-                     metaserver_rendezvous_progress);
+    curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, metaserver_rendezvous_progress);
     curl_easy_setopt(curl, CURLOPT_XFERINFODATA, args);
 #ifdef WIN32
     curl_easy_setopt(curl, CURLOPT_CAINFO, "ca-bundle.crt");
 #endif
     CURLcode result = curl_easy_perform(curl);
     if (result != CURLE_OK) {
-        LOG(ERROR, "Rendezvous connection failed: %s",
-            curl_easy_strerror(result));
+        LOG(ERROR, "Rendezvous connection failed: %s", curl_easy_strerror(result));
         curl_easy_cleanup(curl);
         curl_slist_free_all(headers);
         OPENSSL_cleanse(authorization, sizeof(authorization));
@@ -400,46 +349,29 @@ reconnect:
 
         char host[65], ticket[65];
         uint16_t port;
-        if (socket_rendezvous_client_candidate_parse(message,
-                                                      VS(host),
-                                                      &port,
-                                                      ticket)) {
-            socket_direct_candidate_t
-                candidates[SOCKET_DIRECT_MAX_CANDIDATES];
-            size_t count = socket_server_quic_candidates(
-                candidates,
-                arraysize(candidates));
+        if (socket_rendezvous_client_candidate_parse(message, VS(host), &port, ticket)) {
+            socket_direct_candidate_t candidates[SOCKET_DIRECT_MAX_CANDIDATES];
+            size_t count = socket_server_quic_candidates(candidates, arraysize(candidates));
             for (size_t i = 0; i < count; i++) {
                 char response[256];
-                if (!socket_rendezvous_message_render(
-                        VS(response),
-                        "server_candidate",
-                        candidates[i].host,
-                        candidates[i].port,
-                        candidates[i].kind,
-                        ticket)) {
+                if (!socket_rendezvous_message_render(VS(response),
+                                                      "server_candidate",
+                                                      candidates[i].host,
+                                                      candidates[i].port,
+                                                      candidates[i].kind,
+                                                      ticket)) {
                     break;
                 }
                 size_t sent = 0;
-                if (curl_ws_send(curl,
-                                 response,
-                                 strlen(response),
-                                 &sent,
-                                 0,
-                                 CURLWS_TEXT) != CURLE_OK ||
+                if (curl_ws_send(curl, response, strlen(response), &sent, 0, CURLWS_TEXT) !=
+                        CURLE_OK ||
                     sent != strlen(response)) {
                     break;
                 }
             }
 
-            LOG(INFO,
-                "Opening a rendezvous UDP path to client candidate %s:%" PRIu16,
-                host,
-                port);
-            if (!metaserver_rendezvous_punch_schedule(punch_jobs,
-                                                       host,
-                                                       port,
-                                                       ticket)) {
+            LOG(INFO, "Opening a rendezvous UDP path to client candidate %s:%" PRIu16, host, port);
+            if (!metaserver_rendezvous_punch_schedule(punch_jobs, host, port, ticket)) {
                 LOG(ERROR, "Rendezvous UDP punch queue is full");
                 metaserver_rendezvous_send_complete(curl, ticket);
             }
@@ -467,14 +399,10 @@ done:
     return NULL;
 }
 
-static bool
-metaserver_rendezvous_url (char       *url,
-                           size_t      url_size)
-{
+static bool metaserver_rendezvous_url(char *url, size_t url_size) {
     char host[MAX_BUF], quic_fingerprint[65];
     uint16_t port;
-    if (!settings.server_public ||
-        !socket_server_quic_info(VS(host), &port, quic_fingerprint)) {
+    if (!settings.server_public || !socket_server_quic_info(VS(host), &port, quic_fingerprint)) {
         return false;
     }
 
@@ -485,9 +413,7 @@ metaserver_rendezvous_url (char       *url,
                                  url_size);
 }
 
-static void
-metaserver_rendezvous_start (const char *token)
-{
+static void metaserver_rendezvous_start(const char *token) {
     rendezvous_args_t *args = ecalloc(1, sizeof(*args));
     snprintf(VS(args->token), "%s", token);
     if (!metaserver_rendezvous_url(VS(args->url))) {
@@ -516,10 +442,7 @@ metaserver_rendezvous_start (const char *token)
         efree(args);
         return;
     }
-    int error = pthread_create(&rendezvous_thread,
-                               NULL,
-                               metaserver_rendezvous_thread,
-                               args);
+    int error = pthread_create(&rendezvous_thread, NULL, metaserver_rendezvous_thread, args);
     if (error != 0) {
         LOG(ERROR, "Failed to start the rendezvous thread");
         rendezvous_thread_state = RENDEZVOUS_THREAD_STOPPED;
@@ -532,9 +455,7 @@ metaserver_rendezvous_start (const char *token)
     pthread_mutex_unlock(&rendezvous_lock);
 }
 
-static void
-metaserver_rendezvous_response (curl_request_t *request)
-{
+static void metaserver_rendezvous_response(curl_request_t *request) {
     size_t body_size = 0;
     char *body = curl_request_get_body(request, &body_size);
     char value[65];
@@ -552,9 +473,7 @@ metaserver_rendezvous_response (curl_request_t *request)
  * @return
  * True if the meta-server is enabled, false otherwise.
  */
-static bool
-metaserver_enabled (void)
-{
+static bool metaserver_enabled(void) {
     char identity[MAX_BUF];
     if (!metaserver_identity(VS(identity))) {
         return false;
@@ -570,9 +489,7 @@ metaserver_enabled (void)
 /**
  * Initialize the metaserver.
  */
-void
-metaserver_init (void)
-{
+void metaserver_init(void) {
     if (!metaserver_enabled()) {
         return;
     }
@@ -592,9 +509,7 @@ metaserver_init (void)
 /**
  * Deinitialize the metaserver.
  */
-void
-metaserver_deinit (void)
-{
+void metaserver_deinit(void) {
     if (!metaserver_enabled()) {
         return;
     }
@@ -629,8 +544,7 @@ metaserver_deinit (void)
     rendezvous_shutdown = true;
     rendezvous_generation++;
     pthread_cond_broadcast(&rendezvous_condition);
-    bool join_rendezvous =
-        rendezvous_thread_state != RENDEZVOUS_THREAD_STOPPED;
+    bool join_rendezvous = rendezvous_thread_state != RENDEZVOUS_THREAD_STOPPED;
     pthread_t thread = rendezvous_thread;
     pthread_mutex_unlock(&rendezvous_lock);
     if (join_rendezvous) {
@@ -660,9 +574,7 @@ metaserver_deinit (void)
  * @return
  * True if an error was processed, false otherwise.
  */
-static bool
-metaserver_request_process_error (curl_request_t *request)
-{
+static bool metaserver_request_process_error(curl_request_t *request) {
     HARD_ASSERT(request != NULL);
 
     curl_state_t state = curl_request_get_state(request);
@@ -693,9 +605,7 @@ metaserver_request_process_error (curl_request_t *request)
  * @param user_data
  * NULL.
  */
-static void
-metaserver_update_request (curl_request_t *request, void *user_data)
-{
+static void metaserver_update_request(curl_request_t *request, void *user_data) {
     pthread_mutex_lock(&request_lock);
     current_request = NULL;
 
@@ -707,8 +617,7 @@ metaserver_update_request (curl_request_t *request, void *user_data)
             metaserver_key_path(VS(path));
 
             if (unlink(path) != 0) {
-                LOG(ERROR, "Failed to unlink %s: %s (%d)",
-                    path, strerror(errno), errno);
+                LOG(ERROR, "Failed to unlink %s: %s (%d)", path, strerror(errno), errno);
             }
 
             key_is_new = false;
@@ -745,12 +654,7 @@ out:
  * @return
  * True on success, false on failure.
  */
-static bool
-metaserver_get_key (char       *key,
-                    size_t      key_size,
-                    const char *otp,
-                    const char *cotp)
-{
+static bool metaserver_get_key(char *key, size_t key_size, const char *otp, const char *cotp) {
     HARD_ASSERT(key != NULL);
     HARD_ASSERT(key_size == SHA512_DIGEST_LENGTH * 2 + 1);
 
@@ -761,12 +665,9 @@ metaserver_get_key (char       *key,
     metaserver_key_path(VS(path));
     FILE *fp = fopen(path, "rb");
     if (fp == NULL && errno == ENOENT) {
-        int fd = open(path,
-                      O_WRONLY | O_CREAT | O_EXCL,
-                      S_IRUSR | S_IWUSR);
+        int fd = open(path, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
         if (fd == -1) {
-            LOG(ERROR, "Failed to create %s: %s (%d)",
-                path, strerror(errno), errno);
+            LOG(ERROR, "Failed to create %s: %s (%d)", path, strerror(errno), errno);
             return false;
         }
 
@@ -775,25 +676,25 @@ metaserver_get_key (char       *key,
             int saved_errno = errno;
             close(fd);
             if (unlink(path) != 0) {
-                LOG(ERROR, "Failed to unlink %s: %s (%d)",
-                    path, strerror(errno), errno);
+                LOG(ERROR, "Failed to unlink %s: %s (%d)", path, strerror(errno), errno);
             }
-            LOG(ERROR, "Failed to open %s for writing: %s (%d)",
-                path, strerror(saved_errno), saved_errno);
+            LOG(ERROR,
+                "Failed to open %s for writing: %s (%d)",
+                path,
+                strerror(saved_errno),
+                saved_errno);
             return false;
         }
 
         unsigned char bytes[64];
 
         if (RAND_bytes(VS(bytes)) != 1) {
-            LOG(ERROR, "RAND_bytes() failed: %s",
-                ERR_error_string(ERR_get_error(), NULL));
+            LOG(ERROR, "RAND_bytes() failed: %s", ERR_error_string(ERR_get_error(), NULL));
             goto error_creating;
         }
 
         if (SHA512(VS(bytes), tmp_key) == NULL) {
-            LOG(ERROR, "SHA512() failed: %s",
-                ERR_error_string(ERR_get_error(), NULL));
+            LOG(ERROR, "SHA512() failed: %s", ERR_error_string(ERR_get_error(), NULL));
             goto error_creating;
         }
 
@@ -801,23 +702,18 @@ metaserver_get_key (char       *key,
         key[SHA512_DIGEST_LENGTH] = '\0';
 
         if (fwrite(VS(tmp_key), 1, fp) != 1) {
-            LOG(ERROR, "Failed to write to %s: %s (%d)",
-                path, strerror(errno), errno);
+            LOG(ERROR, "Failed to write to %s: %s (%d)", path, strerror(errno), errno);
             goto error_creating;
         }
 
         int close_result = fclose(fp);
         fp = NULL;
         if (close_result != 0) {
-            LOG(ERROR, "Failed to close %s: %s (%d)",
-                path, strerror(errno), errno);
+            LOG(ERROR, "Failed to close %s: %s (%d)", path, strerror(errno), errno);
             goto error_creating;
         }
 
-        SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
-                                       key,
-                                       key_size,
-                                       false) == key_size - 1,
+        SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key), key, key_size, false) == key_size - 1,
                           error_creating,
                           "string_tohex failed");
         string_tolower(key);
@@ -825,10 +721,9 @@ metaserver_get_key (char       *key,
 
         return true;
 
-error_creating:
+    error_creating:
         if (unlink(path) != 0) {
-            LOG(ERROR, "Failed to unlink %s: %s (%d)",
-                path, strerror(errno), errno);
+            LOG(ERROR, "Failed to unlink %s: %s (%d)", path, strerror(errno), errno);
         }
 
         if (fp != NULL) {
@@ -840,57 +735,45 @@ error_creating:
         memset(key, 0, key_size);
         return false;
     } else if (fp == NULL) {
-        LOG(ERROR, "Failed to open %s for reading: %s (%d)",
-            path, strerror(errno), errno);
+        LOG(ERROR, "Failed to open %s for reading: %s (%d)", path, strerror(errno), errno);
         return false;
     }
 
     key_is_new = false;
 
     if (fread(VS(tmp_key), 1, fp) != 1) {
-        LOG(ERROR, "Failed to read from %s: %s (%d)",
-            path, strerror(errno), errno);
+        LOG(ERROR, "Failed to read from %s: %s (%d)", path, strerror(errno), errno);
         goto error_reading;
     }
 
-    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
-                                   key,
-                                   key_size,
-                                   false) == key_size - 1,
+    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key), key, key_size, false) == key_size - 1,
                       error_reading,
                       "string_tohex failed");
     string_tolower(key);
 
     if (SHA512_Init(&ctx) != 1) {
-        LOG(ERROR, "SHA512_Init() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
     if (SHA512_Update(&ctx, key, key_size - 1) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
     char identity[65];
     if (!metaserver_identity(VS(identity)) ||
         SHA512_Update(&ctx, identity, strlen(identity)) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
     if (SHA512_Final(tmp_key, &ctx) != 1) {
-        LOG(ERROR, "SHA512_Final() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Final() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
-    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
-                                   key,
-                                   key_size,
-                                   false) == key_size - 1,
+    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key), key, key_size, false) == key_size - 1,
                       error_reading,
                       "string_tohex failed");
     string_tolower(key);
@@ -898,45 +781,36 @@ error_creating:
     int close_result = fclose(fp);
     fp = NULL;
     if (close_result != 0) {
-        LOG(ERROR, "Failed to close %s: %s (%d)",
-            path, strerror(errno), errno);
+        LOG(ERROR, "Failed to close %s: %s (%d)", path, strerror(errno), errno);
         goto error_reading;
     }
 
     if (SHA512_Init(&ctx) != 1) {
-        LOG(ERROR, "SHA512_Init() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Init() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
     if (SHA512_Update(&ctx, otp, strlen(otp)) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
     if (SHA512_Update(&ctx, key, key_size - 1) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
     if (SHA512_Update(&ctx, cotp, strlen(cotp)) != 1) {
-        LOG(ERROR, "SHA512_Update() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Update() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
     if (SHA512_Final(tmp_key, &ctx) != 1) {
-        LOG(ERROR, "SHA512_Final() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512_Final() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto error_reading;
     }
 
-    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key),
-                                   key,
-                                   key_size,
-                                   false) == key_size - 1,
+    SOFT_ASSERT_LABEL(string_tohex(VS(tmp_key), key, key_size, false) == key_size - 1,
                       error_reading,
                       "string_tohex failed");
     string_tolower(key);
@@ -962,9 +836,7 @@ error_reading:
  * @param user_data
  * NULL.
  */
-static void
-metaserver_otp_request (curl_request_t *request, void *user_data)
-{
+static void metaserver_otp_request(curl_request_t *request, void *user_data) {
     pthread_mutex_lock(&request_lock);
     current_request = NULL;
 
@@ -1002,22 +874,18 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
 
     unsigned char cotp[32];
     if (RAND_bytes(VS(cotp)) != 1) {
-        LOG(ERROR, "RAND_bytes() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "RAND_bytes() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto out;
     }
 
     unsigned char cotp_digest[SHA512_DIGEST_LENGTH];
     if (SHA512(VS(cotp), cotp_digest) == NULL) {
-        LOG(ERROR, "SHA512() failed: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+        LOG(ERROR, "SHA512() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto out;
     }
 
     char cotp_hash[SHA512_DIGEST_LENGTH * 2 + 1];
-    SOFT_ASSERT_LABEL(string_tohex(VS(cotp_digest),
-                                   VS(cotp_hash),
-                                   false) == sizeof(cotp_hash) - 1,
+    SOFT_ASSERT_LABEL(string_tohex(VS(cotp_digest), VS(cotp_hash), false) == sizeof(cotp_hash) - 1,
                       out,
                       "string_tohex failed");
     string_tolower(cotp_hash);
@@ -1036,38 +904,23 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
     curl_request_set_cb(current_request, metaserver_update_request, NULL);
 
     if (*settings.server_host != '\0') {
-        curl_request_form_add(current_request,
-                              "hostname",
-                              settings.server_host);
+        curl_request_form_add(current_request, "hostname", settings.server_host);
     }
-    curl_request_form_add(current_request, "version",
-                          PACKAGE_VERSION);
-    curl_request_form_add(current_request, "text_comment",
-                          settings.server_desc);
-    curl_request_form_add(current_request, "name",
-                          settings.server_name);
-    curl_request_form_add(current_request, "otp",
-                          otp);
-    curl_request_form_add(current_request, "cotp",
-                          cotp_hash);
-    curl_request_form_add(current_request, "key",
-                          key);
-    curl_request_form_add(current_request, "registration",
-                          key_is_new ? "1" : "0");
-    curl_request_form_add(current_request, "ptr_check",
-                          "");
-    curl_request_form_add(current_request, "players",
-                          request_players);
+    curl_request_form_add(current_request, "version", PACKAGE_VERSION);
+    curl_request_form_add(current_request, "text_comment", settings.server_desc);
+    curl_request_form_add(current_request, "name", settings.server_name);
+    curl_request_form_add(current_request, "otp", otp);
+    curl_request_form_add(current_request, "cotp", cotp_hash);
+    curl_request_form_add(current_request, "key", key);
+    curl_request_form_add(current_request, "registration", key_is_new ? "1" : "0");
+    curl_request_form_add(current_request, "ptr_check", "");
+    curl_request_form_add(current_request, "players", request_players);
 
     char buf[32];
     snprintf(VS(buf), "%" PRIu32, request_num_players);
     curl_request_form_add(current_request, "num_players", buf);
-    curl_request_form_add(current_request,
-                          "public",
-                          settings.server_public ? "1" : "0");
-    curl_request_form_add(current_request,
-                          "connectivity_mode",
-                          settings.connectivity_mode);
+    curl_request_form_add(current_request, "public", settings.server_public ? "1" : "0");
+    curl_request_form_add(current_request, "connectivity_mode", settings.connectivity_mode);
     curl_request_form_add(current_request,
                           "password_required",
                           *settings.join_password != '\0' ? "1" : "0");
@@ -1075,18 +928,12 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
     char quic_host[MAX_BUF];
     uint16_t quic_port;
     char quic_fingerprint[65];
-    if (socket_server_quic_info(VS(quic_host),
-                                &quic_port,
-                                quic_fingerprint)) {
+    if (socket_server_quic_info(VS(quic_host), &quic_port, quic_fingerprint)) {
         curl_request_form_add(current_request, "server_id", quic_fingerprint);
-        curl_request_form_add(current_request,
-                              "quic_host",
-                              quic_host);
+        curl_request_form_add(current_request, "quic_host", quic_host);
         snprintf(VS(buf), "%" PRIu16, quic_port);
         curl_request_form_add(current_request, "quic_port", buf);
-        curl_request_form_add(current_request,
-                              "quic_cert_sha256",
-                              quic_fingerprint);
+        curl_request_form_add(current_request, "quic_cert_sha256", quic_fingerprint);
     }
 
     snprintf(VS(buf), "%" PRIu16, settings.port);
@@ -1102,14 +949,9 @@ metaserver_otp_request (curl_request_t *request, void *user_data)
         }
 
         /* Add the server certificate and its signature, if configured. */
-        if (settings.server_cert != NULL &&
-            settings.server_cert_sig != NULL) {
-            curl_request_form_add(current_request,
-                                  "server_cert",
-                                  settings.server_cert);
-            curl_request_form_add(current_request,
-                                  "server_cert_sig",
-                                  settings.server_cert_sig);
+        if (settings.server_cert != NULL && settings.server_cert_sig != NULL) {
+            curl_request_form_add(current_request, "server_cert", settings.server_cert);
+            curl_request_form_add(current_request, "server_cert_sig", settings.server_cert_sig);
         }
     }
 
@@ -1126,9 +968,7 @@ out:
 /**
  * Updates the metaserver information.
  */
-void
-metaserver_info_update (void)
-{
+void metaserver_info_update(void) {
     if (!metaserver_enabled()) {
         return;
     }
@@ -1181,26 +1021,19 @@ metaserver_info_update (void)
  * @param size
  * Size of 'buf'.
  */
-void
-metaserver_stats (char *buf, size_t size)
-{
+void metaserver_stats(char *buf, size_t size) {
     pthread_mutex_lock(&stats_lock);
     snprintfcat(buf, size, "\n=== METASERVER ===\n");
     snprintfcat(buf, size, "\nUpdates: %" PRIu64, stats.num);
     snprintfcat(buf, size, "\nFailed: %" PRIu64, stats.num_failed);
-    snprintfcat(buf,
-                size,
-                "\nRendezvous reconnects: %" PRIu64,
-                stats.rendezvous_reconnects);
+    snprintfcat(buf, size, "\nRendezvous reconnects: %" PRIu64, stats.rendezvous_reconnects);
 
     if (stats.last != 0) {
         snprintfcat(buf, size, "\nLast update: %.19s", ctime(&stats.last));
     }
 
     if (stats.last_failed != 0) {
-        snprintfcat(buf, size,
-                    "\nLast failure: %.19s",
-                    ctime(&stats.last_failed));
+        snprintfcat(buf, size, "\nLast failure: %.19s", ctime(&stats.last_failed));
     }
 
     snprintfcat(buf, size, "\n");

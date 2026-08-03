@@ -146,11 +146,11 @@ typedef struct arena_maps_struct {
  * Flags used to determine various usages of the Arena plugin.
  *@{*/
 /** No flags. */
-#define ARENA_FLAG_NONE             0
+#define ARENA_FLAG_NONE 0
 /** The arena is a party arena. */
-#define ARENA_FLAG_PARTY            1
+#define ARENA_FLAG_PARTY 1
 /** The arena is a party players arena. */
-#define ARENA_FLAG_PARTY_PLAYERS    2
+#define ARENA_FLAG_PARTY_PLAYERS 2
 /*@}*/
 
 /** The arena maps. */
@@ -159,17 +159,13 @@ arena_maps_struct *arena_maps;
 /** Hooks. */
 struct plugin_hooklist *hooks;
 
-MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
-{
+MODULEAPI void initPlugin(struct plugin_hooklist *hooklist) {
     hooks = hooklist;
 }
 
-MODULEAPI void closePlugin(void)
-{
-}
+MODULEAPI void closePlugin(void) {}
 
-MODULEAPI void getPluginProperty(int *type, ...)
-{
+MODULEAPI void getPluginProperty(int *type, ...) {
     va_list args;
     const char *propname;
     int size;
@@ -193,8 +189,7 @@ MODULEAPI void getPluginProperty(int *type, ...)
     va_end(args);
 }
 
-MODULEAPI void postinitPlugin(void)
-{
+MODULEAPI void postinitPlugin(void) {
     hooks->register_global_event(PLUGIN_NAME, GEVENT_LOGOUT);
 }
 
@@ -207,8 +202,7 @@ MODULEAPI void postinitPlugin(void)
  * @return
  * 1 if the player is in the list, 0 otherwise.
  */
-static int check_arena_player(object *op, arena_map_players *player_list)
-{
+static int check_arena_player(object *op, arena_map_players *player_list) {
     arena_map_players *player_list_tmp;
 
     /* Go through the list of players. */
@@ -228,8 +222,7 @@ static int check_arena_player(object *op, arena_map_players *player_list)
  * @param player_list
  * The player list from where to remove.
  */
-static void remove_arena_player(object *op, arena_map_players **player_list)
-{
+static void remove_arena_player(object *op, arena_map_players **player_list) {
     arena_map_players *currP, *prevP = NULL;
 
     for (currP = *player_list; currP; prevP = currP, currP = currP->next) {
@@ -253,8 +246,7 @@ static void remove_arena_player(object *op, arena_map_players **player_list)
  * @param line
  * The line to parse.
  */
-static void arena_map_parse_line(arena_maps_struct *arena_map, const char *line)
-{
+static void arena_map_parse_line(arena_maps_struct *arena_map, const char *line) {
     /* Maximum number of players */
     if (strncmp(line, "max_players ", 12) == 0) {
         arena_map->max_players = atoi(line + 12);
@@ -277,10 +269,14 @@ static void arena_map_parse_line(arena_maps_struct *arena_map, const char *line)
         }
     } else if (strncmp(line, "message_full ", 13) == 0) {
         /* Message for when the arena is full */
-        strncpy(arena_map->message_arena_full, line + 13, sizeof(arena_map->message_arena_full) - 1);
+        strncpy(arena_map->message_arena_full,
+                line + 13,
+                sizeof(arena_map->message_arena_full) - 1);
     } else if (strncmp(line, "message_party ", 14) == 0) {
         /* Message when you need to join a party to enter */
-        strncpy(arena_map->message_arena_party, line + 13, sizeof(arena_map->message_arena_party) - 1);
+        strncpy(arena_map->message_arena_party,
+                line + 13,
+                sizeof(arena_map->message_arena_party) - 1);
     }
 }
 
@@ -293,8 +289,8 @@ static void arena_map_parse_line(arena_maps_struct *arena_map, const char *line)
  * @param arena_map
  * The arena map structure
  */
-static void arena_map_parse_script(const char *arena_script, object *exit_ob, arena_maps_struct *arena_map)
-{
+static void
+arena_map_parse_script(const char *arena_script, object *exit_ob, arena_maps_struct *arena_map) {
     FILE *fh;
     char buf[MAX_BUF], *path, *arena_script_path;
 
@@ -308,8 +304,12 @@ static void arena_map_parse_script(const char *arena_script, object *exit_ob, ar
     arena_map->players = 0;
     arena_map->parties = 0;
     arena_map->flags = ARENA_FLAG_NONE;
-    strncpy(arena_map->message_arena_full, "Sorry, this arena seems to be full.", sizeof(arena_map->message_arena_full) - 1);
-    strncpy(arena_map->message_arena_party, "You must be in a party in order to enter this arena.", sizeof(arena_map->message_arena_party) - 1);
+    strncpy(arena_map->message_arena_full,
+            "Sorry, this arena seems to be full.",
+            sizeof(arena_map->message_arena_full) - 1);
+    strncpy(arena_map->message_arena_party,
+            "You must be in a party in order to enter this arena.",
+            sizeof(arena_map->message_arena_party) - 1);
 
     fh = fopen(arena_script_path, "r");
 
@@ -341,16 +341,17 @@ static void arena_map_parse_script(const char *arena_script, object *exit_ob, ar
  * @return
  * 1 if the arena is full, 0 otherwise.
  */
-static int arena_full(arena_maps_struct *arena_map)
-{
+static int arena_full(arena_maps_struct *arena_map) {
     /* Simple case: The map has nothing to do with parties. */
-    if (!(arena_map->flags & ARENA_FLAG_PARTY) && !(arena_map->flags & ARENA_FLAG_PARTY_PLAYERS) && arena_map->players == arena_map->max_players) {
+    if (!(arena_map->flags & ARENA_FLAG_PARTY) && !(arena_map->flags & ARENA_FLAG_PARTY_PLAYERS) &&
+        arena_map->players == arena_map->max_players) {
         return 1;
     } else if (arena_map->flags & ARENA_FLAG_PARTY) {
         /* Otherwise a party map. */
 
         /* If this is party players arena, count in players. */
-        if (arena_map->flags & ARENA_FLAG_PARTY_PLAYERS && arena_map->players == arena_map->max_players) {
+        if (arena_map->flags & ARENA_FLAG_PARTY_PLAYERS &&
+            arena_map->players == arena_map->max_players) {
             return 1;
         }
 
@@ -375,8 +376,7 @@ static int arena_full(arena_maps_struct *arena_map)
  * @return
  * 0 to operate the entrance (teleport the player), 1 otherwise.
  */
-static int arena_enter(object *who, object *exit_ob, const char *arena_script)
-{
+static int arena_enter(object *who, object *exit_ob, const char *arena_script) {
     char *path;
     arena_maps_struct *arena_maps_tmp;
 
@@ -385,7 +385,8 @@ static int arena_enter(object *who, object *exit_ob, const char *arena_script)
         return 0;
     }
 
-    path = hooks->map_get_path(exit_ob->map, EXIT_PATH(exit_ob), MAP_UNIQUE(exit_ob->map), who->name);
+    path =
+        hooks->map_get_path(exit_ob->map, EXIT_PATH(exit_ob), MAP_UNIQUE(exit_ob->map), who->name);
 
     /* Go through the list of arenas */
     for (arena_maps_tmp = arena_maps; arena_maps_tmp; arena_maps_tmp = arena_maps_tmp->next) {
@@ -413,10 +414,12 @@ static int arena_enter(object *who, object *exit_ob, const char *arena_script)
                     int new_party = 1;
 
                     /* Loop through the player list */
-                    for (player_list_party = arena_maps_tmp->player_list; player_list_party; player_list_party = player_list_party->next) {
+                    for (player_list_party = arena_maps_tmp->player_list; player_list_party;
+                         player_list_party = player_list_party->next) {
                         /* If we found a match for this party number, do not
                          * increase the count */
-                        if (CONTR(who)->party && CONTR(who)->party == CONTR(player_list_party->op)->party) {
+                        if (CONTR(who)->party &&
+                            CONTR(who)->party == CONTR(player_list_party->op)->party) {
                             new_party = 0;
                             break;
                         }
@@ -494,8 +497,7 @@ static int arena_enter(object *who, object *exit_ob, const char *arena_script)
  * @return
  * Always returns 1, to never output sign message.
  */
-static int arena_sign(object *who, const char *path)
-{
+static int arena_sign(object *who, const char *path) {
     arena_maps_struct *arena_maps_tmp;
 
     /* Sanity check */
@@ -511,16 +513,31 @@ static int arena_sign(object *who, const char *path)
             hooks->draw_info(COLOR_YELLOW, who, "This arena has the following players in:\n");
 
             /* Now go through the list of players in this arena */
-            for (player_list_tmp = arena_maps_tmp->player_list; player_list_tmp; player_list_tmp = player_list_tmp->next) {
-                hooks->draw_info_format(COLOR_YELLOW, who, "%s (level %d)", player_list_tmp->op->name, player_list_tmp->op->level);
+            for (player_list_tmp = arena_maps_tmp->player_list; player_list_tmp;
+                 player_list_tmp = player_list_tmp->next) {
+                hooks->draw_info_format(COLOR_YELLOW,
+                                        who,
+                                        "%s (level %d)",
+                                        player_list_tmp->op->name,
+                                        player_list_tmp->op->level);
             }
 
-            if (!(arena_maps_tmp->flags & ARENA_FLAG_PARTY) || (arena_maps_tmp->flags & ARENA_FLAG_PARTY && arena_maps_tmp->flags & ARENA_FLAG_PARTY_PLAYERS)) {
-                hooks->draw_info_format(COLOR_YELLOW, who, "\nTotal players: %d\nMaximum players:  %d", arena_maps_tmp->players, arena_maps_tmp->max_players);
+            if (!(arena_maps_tmp->flags & ARENA_FLAG_PARTY) ||
+                (arena_maps_tmp->flags & ARENA_FLAG_PARTY &&
+                 arena_maps_tmp->flags & ARENA_FLAG_PARTY_PLAYERS)) {
+                hooks->draw_info_format(COLOR_YELLOW,
+                                        who,
+                                        "\nTotal players: %d\nMaximum players:  %d",
+                                        arena_maps_tmp->players,
+                                        arena_maps_tmp->max_players);
             }
 
             if (arena_maps_tmp->flags & ARENA_FLAG_PARTY) {
-                hooks->draw_info_format(COLOR_YELLOW, who, "\nTotal parties: %d\nMaximum parties:  %d", arena_maps_tmp->parties, arena_maps_tmp->max_parties);
+                hooks->draw_info_format(COLOR_YELLOW,
+                                        who,
+                                        "\nTotal parties: %d\nMaximum parties:  %d",
+                                        arena_maps_tmp->parties,
+                                        arena_maps_tmp->max_parties);
             }
 
             return 1;
@@ -536,8 +553,8 @@ static int arena_sign(object *who, const char *path)
  * @return
  * 1 to stop normal execution of the object, 0 to continue.
  */
-static int arena_event(object *who, object *exit_ob, const char *event_options, const char *arena_script)
-{
+static int
+arena_event(object *who, object *exit_ob, const char *event_options, const char *arena_script) {
     /* If the first 5 characters are "sign|", this is an arena sign */
     if (event_options && !strncmp(event_options, "sign|", 5)) {
         event_options += 5;
@@ -555,8 +572,7 @@ static int arena_event(object *who, object *exit_ob, const char *event_options, 
  * @return
  * Always returns 0.
  */
-static int arena_leave(object *who)
-{
+static int arena_leave(object *who) {
     arena_maps_struct *arena_maps_tmp;
 
     /* Sanity checks */
@@ -567,7 +583,8 @@ static int arena_leave(object *who)
     /* Go through the list of arenas */
     for (arena_maps_tmp = arena_maps; arena_maps_tmp; arena_maps_tmp = arena_maps_tmp->next) {
         /* If it matches, and the player really is in the arena */
-        if (!strcmp(arena_maps_tmp->path, who->map->path) && check_arena_player(who, arena_maps_tmp->player_list)) {
+        if (!strcmp(arena_maps_tmp->path, who->map->path) &&
+            check_arena_player(who, arena_maps_tmp->player_list)) {
             /* If this is party arena, we will want to see if we have to
              * decrease the parties count */
             if (arena_maps_tmp->flags & ARENA_FLAG_PARTY) {
@@ -575,10 +592,12 @@ static int arena_leave(object *who)
                 int do_remove = 1;
 
                 /* Loop through the player list for this map */
-                for (player_list_party = arena_maps_tmp->player_list; player_list_party; player_list_party = player_list_party->next) {
+                for (player_list_party = arena_maps_tmp->player_list; player_list_party;
+                     player_list_party = player_list_party->next) {
                     /* If the party number matches, we're not going to remove
                      * this party */
-                    if (player_list_party->op != who && CONTR(who)->party && CONTR(who)->party == CONTR(player_list_party->op)->party) {
+                    if (player_list_party->op != who && CONTR(who)->party &&
+                        CONTR(who)->party == CONTR(player_list_party->op)->party) {
                         do_remove = 0;
                         break;
                     }
@@ -602,8 +621,7 @@ static int arena_leave(object *who)
     return 0;
 }
 
-MODULEAPI void *triggerEvent(int *type, ...)
-{
+MODULEAPI void *triggerEvent(int *type, ...) {
     object *activator, *who, *other, *event;
     va_list args;
     int eventcode, event_type;
@@ -621,47 +639,46 @@ MODULEAPI void *triggerEvent(int *type, ...)
 
     if (event_type == PLUGIN_EVENT_NORMAL) {
         switch (eventcode) {
-        case EVENT_APPLY:
-        case EVENT_TRIGGER:
-        {
-            char *text, *script, *options;
-            int parm1, parm2, parm3, parm4;
+            case EVENT_APPLY:
+            case EVENT_TRIGGER: {
+                char *text, *script, *options;
+                int parm1, parm2, parm3, parm4;
 
-            who = va_arg(args, object *);
-            other = va_arg(args, object *);
-            event = va_arg(args, object *);
-            text = va_arg(args, char *);
-            parm1 = va_arg(args, int);
-            parm2 = va_arg(args, int);
-            parm3 = va_arg(args, int);
-            parm4 = va_arg(args, int);
-            script = va_arg(args, char *);
-            options = va_arg(args, char *);
+                who = va_arg(args, object *);
+                other = va_arg(args, object *);
+                event = va_arg(args, object *);
+                text = va_arg(args, char *);
+                parm1 = va_arg(args, int);
+                parm2 = va_arg(args, int);
+                parm3 = va_arg(args, int);
+                parm4 = va_arg(args, int);
+                script = va_arg(args, char *);
+                options = va_arg(args, char *);
 
-            (void) other;
-            (void) event;
-            (void) text;
-            (void) parm1;
-            (void) parm2;
-            (void) parm3;
-            (void) parm4;
+                (void)other;
+                (void)event;
+                (void)text;
+                (void)parm1;
+                (void)parm2;
+                (void)parm3;
+                (void)parm4;
 
-            result = arena_event(activator, who, options, script);
-            break;
-        }
+                result = arena_event(activator, who, options, script);
+                break;
+            }
         }
     } else if (event_type == PLUGIN_EVENT_MAP) {
         switch (eventcode) {
-        case MEVENT_LEAVE:
-            result = arena_leave(activator);
-            break;
+            case MEVENT_LEAVE:
+                result = arena_leave(activator);
+                break;
         }
     } else if (event_type == PLUGIN_EVENT_GLOBAL) {
         switch (eventcode) {
-        case GEVENT_PLAYER_DEATH:
-        case GEVENT_LOGOUT:
-            result = arena_leave(activator);
-            break;
+            case GEVENT_PLAYER_DEATH:
+            case GEVENT_LOGOUT:
+                result = arena_leave(activator);
+                break;
         }
     }
 

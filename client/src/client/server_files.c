@@ -43,9 +43,7 @@ static asset_source_t *listing_source;
 /**
  * Initialize the server files API.
  */
-void
-server_files_init (void)
-{
+void server_files_init(void) {
     server_files_struct *tmp;
 
     server_files = NULL;
@@ -77,9 +75,7 @@ server_files_init (void)
 /**
  * De-initialize the server files API.
  */
-void
-server_files_deinit (void)
-{
+void server_files_deinit(void) {
     asset_source_free(listing_source);
     listing_source = NULL;
 
@@ -95,9 +91,7 @@ server_files_deinit (void)
 /**
  * Init all of the available server files.
  */
-void
-server_files_init_all (void)
-{
+void server_files_init_all(void) {
     server_files_struct *curr, *tmp;
     HASH_ITER(hh, server_files, curr, tmp) {
         if (curr->init_func) {
@@ -116,9 +110,7 @@ server_files_init_all (void)
  * @return
  * Created server file.
  */
-server_files_struct *
-server_files_create (const char *name)
-{
+server_files_struct *server_files_create(const char *name) {
     server_files_struct *tmp;
 
     tmp = ecalloc(1, sizeof(*tmp));
@@ -136,9 +128,7 @@ server_files_create (const char *name)
  * @return
  * Server file if found, NULL otherwise.
  */
-server_files_struct *
-server_files_find (const char *name)
-{
+server_files_struct *server_files_find(const char *name) {
     server_files_struct *tmp;
     HASH_FIND(hh, server_files, name, strlen(name), tmp);
     return tmp;
@@ -151,9 +141,7 @@ server_files_find (const char *name)
  * @param post_load
  * Unless 1, (re-)parsing the server files will not be done.
  */
-void
-server_files_load (int post_load)
-{
+void server_files_load(int post_load) {
     server_files_struct *curr, *tmp;
     FILE *fp;
     struct stat sb;
@@ -189,7 +177,7 @@ server_files_load (int post_load)
 
         /* Calculate and store the checksum, free the temporary buffer
          * and close the file pointer. */
-        curr->crc32 = crc32(1L, (const unsigned char FAR *) contents, numread);
+        curr->crc32 = crc32(1L, (const unsigned char FAR *)contents, numread);
         efree(contents);
         fclose(fp);
 
@@ -207,9 +195,7 @@ server_files_load (int post_load)
 /**
  * Begin downloading the listing file.
  */
-void
-server_files_listing_retrieve (void)
-{
+void server_files_listing_retrieve(void) {
     asset_source_free(listing_source);
     listing_source = asset_source_start("data/listing.txt", NULL);
     if (asset_source_get_state(listing_source) == ASSET_SOURCE_ERROR) {
@@ -223,9 +209,7 @@ server_files_listing_retrieve (void)
  * @return
  * 1 if it has been processed, 0 otherwise.
  */
-int
-server_files_listing_processed (void)
-{
+int server_files_listing_processed(void) {
     const uint8_t *body = NULL;
     size_t body_size = 0;
 
@@ -246,7 +230,7 @@ server_files_listing_processed (void)
         return 0;
     }
 
-    char *manifest = estrndup((const char *) body, body_size);
+    char *manifest = estrndup((const char *)body, body_size);
     char word[HUGE_BUF];
     size_t pos = 0;
     while (string_get_word(manifest, &pos, '\n', VS(word), 0)) {
@@ -263,25 +247,24 @@ server_files_listing_processed (void)
         uint64_t crc_value;
         uint64_t size_value;
         if (!string_parse_uint64(cps[1], 16, 0, UINT32_MAX, &crc_value) ||
-                !string_parse_uint64(cps[2], 16, 0, SIZE_MAX, &size_value)) {
+            !string_parse_uint64(cps[2], 16, 0, SIZE_MAX, &size_value)) {
             LOG(ERROR, "Invalid asset manifest entry for %s", cps[0]);
             continue;
         }
-        unsigned long crc = (unsigned long) crc_value;
-        size_t fsize = (size_t) size_value;
+        unsigned long crc = (unsigned long)crc_value;
+        size_t fsize = (size_t)size_value;
 
         if (tmp->crc32 != crc || tmp->size != fsize) {
             tmp->update = 1;
         }
 
         LOG(DEVEL,
-            "%-10s CRC32: %lu (local: %lu) Size: %" PRIu64 " (local: %" PRIu64
-            ") Update: %d",
+            "%-10s CRC32: %lu (local: %lu) Size: %" PRIu64 " (local: %" PRIu64 ") Update: %d",
             tmp->name,
             crc,
             tmp->crc32,
-            (uint64_t) fsize,
-            (uint64_t) tmp->size,
+            (uint64_t)fsize,
+            (uint64_t)tmp->size,
             tmp->update);
 
         tmp->crc32 = crc;
@@ -303,9 +286,7 @@ server_files_listing_processed (void)
  * @return
  * 1 if the file is being processed, 0 otherwise.
  */
-static int
-server_file_process (server_files_struct *tmp)
-{
+static int server_file_process(server_files_struct *tmp) {
     if (tmp->update == 0) {
         return 0;
     }
@@ -334,10 +315,8 @@ server_file_process (server_files_struct *tmp)
     } else {
         unsigned long len_ucomp = tmp->size;
         unsigned char *dest = emalloc(len_ucomp);
-        int result = uncompress((Bytef *) dest,
-                                (uLongf *) &len_ucomp,
-                                (const Bytef *) body,
-                                (uLong) body_size);
+        int result =
+            uncompress((Bytef *)dest, (uLongf *)&len_ucomp, (const Bytef *)body, (uLong)body_size);
         if (result != Z_OK || len_ucomp != tmp->size) {
             LOG(ERROR, "Invalid compressed server file %s", tmp->name);
             cpl.state = ST_INIT;
@@ -360,9 +339,7 @@ server_file_process (server_files_struct *tmp)
  * @return
  * 1 if they all have been processed, 0 otherwise.
  */
-int
-server_files_processed (void)
-{
+int server_files_processed(void) {
     server_files_struct *curr, *tmp;
     /* Check all files. */
     HASH_ITER(hh, server_files, curr, tmp) {
@@ -388,9 +365,7 @@ server_files_processed (void)
  * @return
  * 'buf'.
  */
-static char
-*server_file_path (server_files_struct *tmp, char *buf, size_t buf_size)
-{
+static char *server_file_path(server_files_struct *tmp, char *buf, size_t buf_size) {
     snprintf(buf, buf_size, "srv_files/%s", tmp->name);
     return buf;
 }
@@ -403,9 +378,7 @@ static char
  * @return
  * The file pointer, or NULL on failure of opening the file.
  */
-FILE *
-server_file_open (server_files_struct *tmp)
-{
+FILE *server_file_open(server_files_struct *tmp) {
     if (tmp == NULL) {
         return NULL;
     }
@@ -423,9 +396,7 @@ server_file_open (server_files_struct *tmp)
  * @return
  * Opened file pointer, NULL on failure.
  */
-FILE *
-server_file_open_name (const char *name)
-{
+FILE *server_file_open_name(const char *name) {
     return server_file_open(server_files_find(name));
 }
 
@@ -441,9 +412,7 @@ server_file_open_name (const char *name)
  * @return
  * True on success, false on failure.
  */
-bool
-server_file_save (server_files_struct *tmp, unsigned char *data, size_t len)
-{
+bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len) {
     char path[MAX_BUF];
     server_file_path(tmp, VS(path));
     char *resolved = file_path(path, "wb");

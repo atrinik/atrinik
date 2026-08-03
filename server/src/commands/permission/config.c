@@ -35,32 +35,26 @@
 #include <toolkit/clioptions.h>
 
 /** @copydoc command_func */
-void
-command_config (object *op, const char *command, char *params)
-{
+void command_config(object *op, const char *command, char *params) {
     if (params == NULL) {
-        draw_info(COLOR_WHITE, op,
-                  "Usage: /config <name>, /config <name> = <value>");
+        draw_info(COLOR_WHITE, op, "Usage: /config <name>, /config <name> = <value>");
         return;
     }
 
     if (strchr(params, '=') == NULL) {
         const char *value = clioptions_get(params);
         if (value == NULL) {
-            draw_info_format(COLOR_WHITE, op,
-                             "No such option: %s",
-                             params);
+            draw_info_format(COLOR_WHITE, op, "No such option: %s", params);
         } else {
-            draw_info_format(COLOR_WHITE, op,
-                             "Configuration: %s = %s",
-                             params, value);
+            draw_info_format(COLOR_WHITE, op, "Configuration: %s = %s", params, value);
         }
     } else {
         char *errmsg;
         if (clioptions_load_str(params, &errmsg)) {
             draw_info(COLOR_WHITE, op, "Configuration successful.");
         } else {
-            draw_info_format(COLOR_WHITE, op,
+            draw_info_format(COLOR_WHITE,
+                             op,
                              "Configuration failed: %s",
                              errmsg != NULL ? errmsg : "<no error message>");
             if (errmsg != NULL) {

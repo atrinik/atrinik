@@ -44,23 +44,17 @@
  * @warning Cannot contain spaces. Use underscores instead.
  */
 const char *const attack_save[NROFATTACKS] = {
-    "impact",   "slash",     "cleave",      "pierce",    "weaponmagic",
-    "fire",     "cold",      "electricity", "poison",    "acid",
-    "magic",    "lifesteal", "blind",       "paralyze",  "force",
-    "godpower", "chaos",     "drain",       "slow",      "confusion",
-    "internal"
-};
+    "impact",      "slash",    "cleave", "pierce", "weaponmagic", "fire",      "cold",
+    "electricity", "poison",   "acid",   "magic",  "lifesteal",   "blind",     "paralyze",
+    "force",       "godpower", "chaos",  "drain",  "slow",        "confusion", "internal"};
 
 /**
  * Short description of names of the attack types.
  */
 const char *const attack_name[NROFATTACKS] = {
-    "impact",   "slash",     "cleave",      "pierce",    "weapon magic",
-    "fire",     "cold",      "electricity", "poison",    "acid",
-    "magic",    "lifesteal", "blind",       "paralyze",  "force",
-    "godpower", "chaos",     "drain",       "slow",      "confusion",
-    "internal"
-};
+    "impact",      "slash",    "cleave", "pierce", "weapon magic", "fire",      "cold",
+    "electricity", "poison",   "acid",   "magic",  "lifesteal",    "blind",     "paralyze",
+    "force",       "godpower", "chaos",  "drain",  "slow",         "confusion", "internal"};
 
 /**
  * Perform sanity checks to make sure the attacker can actually attack the
@@ -76,9 +70,7 @@ const char *const attack_name[NROFATTACKS] = {
  * @return
  * True if the attacker can hit the victim, false otherwise.
  */
-static int
-attack_check_sanity (object *op, object *hitter, bool *attack_map)
-{
+static int attack_check_sanity(object *op, object *hitter, bool *attack_map) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
@@ -86,8 +78,7 @@ attack_check_sanity (object *op, object *hitter, bool *attack_map)
         return false;
     }
 
-    if (hitter->env != NULL || op->env != NULL ||
-        hitter->map == NULL || op->map == NULL) {
+    if (hitter->env != NULL || op->env != NULL || hitter->map == NULL || op->map == NULL) {
         if (attack_map != NULL) {
             *attack_map = false;
         }
@@ -119,17 +110,13 @@ attack_check_sanity (object *op, object *hitter, bool *attack_map)
  * @return
  * true if the relation has changed, false otherwise.
  */
-static bool
-attack_check_abort (object *op, object *hitter, bool attack_map)
-{
+static bool attack_check_abort(object *op, object *hitter, bool attack_map) {
     bool new_attack_map;
 
     if (hitter->env == op || op->env == hitter) {
         new_attack_map = false;
-    } else if (QUERY_FLAG(op, FLAG_REMOVED) ||
-               QUERY_FLAG(hitter, FLAG_REMOVED) ||
-               hitter->map == NULL ||
-               op->map == NULL) {
+    } else if (QUERY_FLAG(op, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) ||
+               hitter->map == NULL || op->map == NULL) {
         return true;
     } else {
         new_attack_map = true;
@@ -150,15 +137,11 @@ attack_check_abort (object *op, object *hitter, bool attack_map)
  * @return
  * Adjustment to attack roll.
  */
-static int
-attack_roll_adjust (object *op, object *hitter)
-{
+static int attack_roll_adjust(object *op, object *hitter) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
-    SOFT_ASSERT_RC(op->map != NULL, 0, "Object without map: %s",
-                   object_get_str(op));
-    SOFT_ASSERT_RC(hitter->map != NULL, 0, "Object without map: %s",
-                   object_get_str(hitter));
+    SOFT_ASSERT_RC(op->map != NULL, 0, "Object without map: %s", object_get_str(op));
+    SOFT_ASSERT_RC(hitter->map != NULL, 0, "Object without map: %s", object_get_str(hitter));
 
     if (!on_same_map(op, hitter)) {
         return 0;
@@ -221,10 +204,7 @@ attack_roll_adjust (object *op, object *hitter)
     mapstruct *enemy_map;
     uint16_t enemy_x, enemy_y;
     if (hitter->type == MONSTER &&
-        monster_data_enemy_get_coords(hitter,
-                                      &enemy_map,
-                                      &enemy_x,
-                                      &enemy_y)) {
+        monster_data_enemy_get_coords(hitter, &enemy_map, &enemy_x, &enemy_y)) {
         rv_vector rv;
         if (!get_rangevector_from_mapcoords(hitter->map,
                                             hitter->x,
@@ -256,9 +236,7 @@ attack_roll_adjust (object *op, object *hitter)
  * @return
  * Dealt damage.
  */
-int
-attack_object (object *op, object *hitter)
-{
+int attack_object(object *op, object *hitter) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
@@ -312,15 +290,13 @@ attack_object (object *op, object *hitter)
     }
 
     if (hitter->stats.wc_range == 0) {
-        log_error("Hitter with no wc_range, fixing: %s",
-                  object_get_str(hitter));
+        log_error("Hitter with no wc_range, fixing: %s", object_get_str(hitter));
         hitter->stats.wc_range = 20;
     }
 
     /* Roll to try to hit the creature. */
     int roll = rndm(1, hitter->stats.wc_range);
-    if (roll != hitter->stats.wc_range &&
-        op->stats.ac > hitter->stats.wc + roll + roll_adjust) {
+    if (roll != hitter->stats.wc_range && op->stats.ac > hitter->stats.wc + roll + roll_adjust) {
         /* We missed. */
         if (hitter->type == ARROW) {
             return 0;
@@ -367,20 +343,13 @@ attack_object (object *op, object *hitter)
     }
 
     /* Play a hit sound. */
-    play_sound_map(hitter->map,
-                   CMD_SOUND_EFFECT,
-                   sound,
-                   hitter->x,
-                   hitter->y,
-                   0,
-                   0);
+    play_sound_map(hitter->map, CMD_SOUND_EFFECT, sound, hitter->x, hitter->y, 0, 0);
 
     int dam;
     OBJECTS_DESTROYED_BEGIN(op, hitter) {
         if (attack_map && QUERY_FLAG(op, FLAG_HITBACK) && IS_LIVE(hitter)) {
             dam = attack_hit(hitter, op, rndm(0, op->stats.dam));
-            if (OBJECTS_DESTROYED_ANY(op, hitter) ||
-                attack_check_abort(op, hitter, attack_map)) {
+            if (OBJECTS_DESTROYED_ANY(op, hitter) || attack_check_abort(op, hitter, attack_map)) {
                 return dam;
             }
         }
@@ -396,7 +365,8 @@ attack_object (object *op, object *hitter)
             return dam;
         }
 #endif
-    } OBJECTS_DESTROYED_END();
+    }
+    OBJECTS_DESTROYED_END();
 
     return dam;
 }
@@ -413,9 +383,7 @@ attack_object (object *op, object *hitter)
  * @return
  * True if the attack was completely blocked, false otherwise.
  */
-static bool
-attack_block_hit (object *op, object *hitter, double *damage)
-{
+static bool attack_block_hit(object *op, object *hitter, double *damage) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
     HARD_ASSERT(damage != NULL);
@@ -468,32 +436,28 @@ attack_block_hit (object *op, object *hitter, double *damage)
  * How much damage should have been done, not counting protections.
  */
 static void
-send_attack_msg (object *op,
-                 object *hitter,
-                 atnr_t  atnr,
-                 double  dam_done,
-                 double  dam_orig)
-{
+send_attack_msg(object *op, object *hitter, atnr_t atnr, double dam_done, double dam_orig) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
     if (op->type == PLAYER) {
-        draw_info_format(COLOR_PURPLE, op,
+        draw_info_format(COLOR_PURPLE,
+                         op,
                          "%s hit you for %d (%d) damage.",
                          hitter->name,
-                         (int) (dam_done + 0.5),
-                         (int) (dam_done - dam_orig + 0.5));
+                         (int)(dam_done + 0.5),
+                         (int)(dam_done - dam_orig + 0.5));
     }
 
-    const char *hitter_name =
-        atnr == ATNR_INTERNAL ? hitter->name : attack_name[atnr];
-    if (hitter->type == PLAYER || ((hitter = object_owner(hitter)) != NULL &&
-                                   hitter->type == PLAYER)) {
-        draw_info_format(COLOR_ORANGE, hitter,
+    const char *hitter_name = atnr == ATNR_INTERNAL ? hitter->name : attack_name[atnr];
+    if (hitter->type == PLAYER ||
+        ((hitter = object_owner(hitter)) != NULL && hitter->type == PLAYER)) {
+        draw_info_format(COLOR_ORANGE,
+                         hitter,
                          "You hit %s for %d (%d) with %s.",
                          op->name,
-                         (int) (dam_done + 0.5),
-                         (int) (dam_done - dam_orig + 0.5),
+                         (int)(dam_done + 0.5),
+                         (int)(dam_done - dam_orig + 0.5),
                          hitter_name);
     }
 }
@@ -519,12 +483,7 @@ send_attack_msg (object *op,
  * Damage to actually do.
  */
 static double
-attack_hit_attacktype (object *op,
-                       object *hitter,
-                       double  dam,
-                       double  dam_orig,
-                       atnr_t  atnr)
-{
+attack_hit_attacktype(object *op, object *hitter, double dam, double dam_orig, atnr_t atnr) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
     HARD_ASSERT(dam >= 0.0);
@@ -538,9 +497,9 @@ attack_hit_attacktype (object *op,
 
     dam_orig *= modifier;
 
-#define ATTACK_PROTECT_DAMAGE()                         \
-    do {                                                \
-        dam *= (100.0 - op->protection[atnr]) / 100.0;  \
+#define ATTACK_PROTECT_DAMAGE()                        \
+    do {                                               \
+        dam *= (100.0 - op->protection[atnr]) / 100.0; \
     } while (0)
 
     /* AT_INTERNAL is supposed to do exactly 'dam' amount of damage. */
@@ -569,82 +528,74 @@ attack_hit_attacktype (object *op,
     }
 
     switch (atnr) {
-    case ATNR_IMPACT:
-    case ATNR_SLASH:
-    case ATNR_CLEAVE:
-    case ATNR_PIERCE:
-        disease_physically_infect(op, hitter);
-        ATTACK_PROTECT_DAMAGE();
-        send_attack_msg(op, hitter, atnr, dam, dam_orig);
-        break;
+        case ATNR_IMPACT:
+        case ATNR_SLASH:
+        case ATNR_CLEAVE:
+        case ATNR_PIERCE:
+            disease_physically_infect(op, hitter);
+            ATTACK_PROTECT_DAMAGE();
+            send_attack_msg(op, hitter, atnr, dam, dam_orig);
+            break;
 
-    case ATNR_POISON:
-        ATTACK_PROTECT_DAMAGE();
-        send_attack_msg(op, hitter, atnr, dam, dam_orig);
+        case ATNR_POISON:
+            ATTACK_PROTECT_DAMAGE();
+            send_attack_msg(op, hitter, atnr, dam, dam_orig);
 
-        if (dam > 0.0 && IS_LIVE(op)) {
-            attack_perform_poison(op, hitter, dam);
-        }
-
-        break;
-
-    case ATNR_CONFUSION:
-    case ATNR_SLOW:
-    case ATNR_PARALYZE:
-    case ATNR_BLIND: {
-        int ldiff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
-
-        if (!DBL_EQUAL(op->speed, 0.0) && IS_LIVE(op) &&
-            rndm_chance(atnr == ATNR_SLOW ? 6 : 3) &&
-            ((rndm(1, 20) + op->protection[atnr] / 10) < savethrow[ldiff])) {
-            if (atnr == ATNR_CONFUSION) {
-                draw_info_format(COLOR_ORANGE, hitter,
-                                 "You confuse %s!", op->name);
-                draw_info_format(COLOR_PURPLE, op,
-                                 "%s confused you!", hitter->name);
-                attack_perform_confusion(op);
-            } else if (atnr == ATNR_SLOW) {
-                draw_info_format(COLOR_ORANGE, hitter,
-                                 "You slow %s!", op->name);
-                draw_info_format(COLOR_PURPLE, op,
-                                 "%s slowed you!", hitter->name);
-                attack_perform_slow(op);
-            } else if (atnr == ATNR_PARALYZE) {
-                draw_info_format(COLOR_ORANGE, hitter,
-                                 "You paralyze %s!", op->name);
-                draw_info_format(COLOR_PURPLE, op,
-                                 "%s paralyzed you!", hitter->name);
-                attack_peform_paralyze(op, dam);
-            } else if (atnr == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD)) {
-                draw_info_format(COLOR_ORANGE, hitter,
-                                 "You blind %s!", op->name);
-                draw_info_format(COLOR_PURPLE, op,
-                                 "%s blinded you!", hitter->name);
-                attack_perform_blind(op, hitter, dam);
+            if (dam > 0.0 && IS_LIVE(op)) {
+                attack_perform_poison(op, hitter, dam);
             }
+
+            break;
+
+        case ATNR_CONFUSION:
+        case ATNR_SLOW:
+        case ATNR_PARALYZE:
+        case ATNR_BLIND: {
+            int ldiff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
+
+            if (!DBL_EQUAL(op->speed, 0.0) && IS_LIVE(op) &&
+                rndm_chance(atnr == ATNR_SLOW ? 6 : 3) &&
+                ((rndm(1, 20) + op->protection[atnr] / 10) < savethrow[ldiff])) {
+                if (atnr == ATNR_CONFUSION) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", op->name);
+                    draw_info_format(COLOR_PURPLE, op, "%s confused you!", hitter->name);
+                    attack_perform_confusion(op);
+                } else if (atnr == ATNR_SLOW) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You slow %s!", op->name);
+                    draw_info_format(COLOR_PURPLE, op, "%s slowed you!", hitter->name);
+                    attack_perform_slow(op);
+                } else if (atnr == ATNR_PARALYZE) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You paralyze %s!", op->name);
+                    draw_info_format(COLOR_PURPLE, op, "%s paralyzed you!", hitter->name);
+                    attack_peform_paralyze(op, dam);
+                } else if (atnr == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD)) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You blind %s!", op->name);
+                    draw_info_format(COLOR_PURPLE, op, "%s blinded you!", hitter->name);
+                    attack_perform_blind(op, hitter, dam);
+                }
+            }
+
+            dam = 0.0;
+            break;
         }
 
-        dam = 0.0;
-        break;
-    }
+        case ATNR_LIFESTEAL: {
+            ATTACK_PROTECT_DAMAGE();
+            send_attack_msg(op, hitter, atnr, dam, dam_orig);
 
-    case ATNR_LIFESTEAL: {
-        ATTACK_PROTECT_DAMAGE();
-        send_attack_msg(op, hitter, atnr, dam, dam_orig);
+            object *owner = OWNER(hitter);
+            owner->stats.hp += dam;
+            if (owner->stats.hp > owner->stats.maxhp) {
+                owner->stats.hp = owner->stats.maxhp;
+            }
 
-        object *owner = OWNER(hitter);
-        owner->stats.hp += dam;
-        if (owner->stats.hp > owner->stats.maxhp) {
-            owner->stats.hp = owner->stats.maxhp;
+            break;
         }
 
-        break;
-    }
-
-    default:
-        ATTACK_PROTECT_DAMAGE();
-        send_attack_msg(op, hitter, atnr, dam, dam_orig);
-        break;
+        default:
+            ATTACK_PROTECT_DAMAGE();
+            send_attack_msg(op, hitter, atnr, dam, dam_orig);
+            break;
     }
 
     return dam;
@@ -665,9 +616,7 @@ attack_hit_attacktype (object *op,
  * @return
  * Dealt damage.
  */
-int
-attack_hit (object *op, object *hitter, int dam)
-{
+int attack_hit(object *op, object *hitter, int dam) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
@@ -714,8 +663,7 @@ attack_hit (object *op, object *hitter, int dam)
     }
 
     /* Check for PVP areas. */
-    if (op->type == PLAYER && hitter_owner->type == PLAYER &&
-        !pvp_area(op, hitter_owner)) {
+    if (op->type == PLAYER && hitter_owner->type == PLAYER && !pvp_area(op, hitter_owner)) {
         return 0;
     }
 
@@ -743,10 +691,8 @@ attack_hit (object *op, object *hitter, int dam)
 
     /* Try to block the attack. */
     if (attack_block_hit(op, hitter, &damage)) {
-        draw_info_format(COLOR_PURPLE, hitter, "%s blocked your attack!",
-                         op->name);
-        draw_info_format(COLOR_ORANGE, op, "You block %s!",
-                         hitter->name);
+        draw_info_format(COLOR_PURPLE, hitter, "%s blocked your attack!", op->name);
+        draw_info_format(COLOR_ORANGE, op, "You block %s!", hitter->name);
     } else if (damage > 0.0) {
         /* Go through and hit the player with each attacktype, one by one.
          * hit_player_attacktype only figures out the damage, doesn't inflict
@@ -754,18 +700,13 @@ attack_hit (object *op, object *hitter, int dam)
          * effects (slow, paralization, etc). */
         for (atnr_t atnr = 0; atnr < NROFATTACKS; atnr++) {
             if (hitter->attack[atnr] != 0) {
-                maxdam += attack_hit_attacktype(op,
-                                                hitter,
-                                                damage,
-                                                dam_orig,
-                                                atnr);
+                maxdam += attack_hit_attacktype(op, hitter, damage, dam_orig, atnr);
             }
         }
     }
 
     /* If one gets attacked, the attacker will become the enemy */
-    if (!OBJECT_VALID(op->enemy, op->enemy_count) &&
-        !IS_INVISIBLE(hitter_owner, op) &&
+    if (!OBJECT_VALID(op->enemy, op->enemy_count) && !IS_INVISIBLE(hitter_owner, op) &&
         !QUERY_FLAG(op, FLAG_INVULNERABLE)) {
         set_npc_enemy(op, hitter_owner, NULL);
     }
@@ -826,9 +767,7 @@ attack_hit (object *op, object *hitter, int dam)
  * 1/4 of the damage, making cone spells more fair against multi-arch
  * monsters.
  */
-void
-attack_hit_map (object *op, int dir, bool multi_reduce)
-{
+void attack_hit_map(object *op, int dir, bool multi_reduce) {
     HARD_ASSERT(op != NULL);
 
     if (OBJECT_FREE(op)) {
@@ -871,7 +810,8 @@ attack_hit_map (object *op, int dir, bool multi_reduce)
         }
 
         attack_hit(tmp, op, dam);
-    } FOR_MAP_LAYER_END
+    }
+    FOR_MAP_LAYER_END
 }
 
 /**
@@ -884,17 +824,14 @@ attack_hit_map (object *op, int dir, bool multi_reduce)
  * @param skill
  * Skill that was used to kill the monster.
  */
-static inline void
-share_kill_exp_one (object *op, int64_t exp_gain, object *skill)
-{
+static inline void share_kill_exp_one(object *op, int64_t exp_gain, object *skill) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(skill != NULL);
 
     if (exp_gain != 0) {
         add_exp(op, exp_gain, skill->stats.sp, 0);
     } else {
-        draw_info(COLOR_WHITE, op,
-                  "Your enemy wasn't worth any experience to you.");
+        draw_info(COLOR_WHITE, op, "Your enemy wasn't worth any experience to you.");
     }
 }
 
@@ -910,9 +847,7 @@ share_kill_exp_one (object *op, int64_t exp_gain, object *skill)
  * @param skill
  * Skill that was used to kill the monster.
  */
-static void
-share_kill_exp (object *op, int64_t exp_gain, object *skill)
-{
+static void share_kill_exp(object *op, int64_t exp_gain, object *skill) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(skill != NULL);
 
@@ -930,8 +865,7 @@ share_kill_exp (object *op, int64_t exp_gain, object *skill)
             continue;
         }
 
-        object *player_skill =
-            CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp];
+        object *player_skill = CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp];
         if (player_skill == NULL) {
             continue;
         }
@@ -950,16 +884,12 @@ share_kill_exp (object *op, int64_t exp_gain, object *skill)
                 continue;
             }
 
-            object *player_skill =
-                CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp];
+            object *player_skill = CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp];
             if (player_skill == NULL) {
                 continue;
             }
 
-            given += add_exp(ol->objlink.ob,
-                             (player_skill->level + 4) * share,
-                             skill->stats.sp,
-                             0);
+            given += add_exp(ol->objlink.ob, (player_skill->level + 4) * share, skill->stats.sp, 0);
         }
 
         exp_gain -= given;
@@ -977,9 +907,7 @@ share_kill_exp (object *op, int64_t exp_gain, object *skill)
  * @retval true Object was killed.
  * @retval false Object was not killed.
  */
-bool
-attack_kill (object *op, object *hitter)
-{
+bool attack_kill(object *op, object *hitter) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
@@ -1000,13 +928,7 @@ attack_kill (object *op, object *hitter)
     }
 
     if (op->map != NULL) {
-        play_sound_map(op->map,
-                       CMD_SOUND_EFFECT,
-                       "kill.ogg",
-                       op->x,
-                       op->y,
-                       0,
-                       0);
+        play_sound_map(op->map, CMD_SOUND_EFFECT, "kill.ogg", op->x, op->y, 0, 0);
     }
 
     /* Figure out who to credit for the kill. */
@@ -1017,8 +939,7 @@ attack_kill (object *op, object *hitter)
         char *name = object_get_name_s(op, owner);
         if (owner != hitter) {
             char *hitter_name = object_get_name_s(hitter, owner);
-            draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", name,
-                             hitter_name);
+            draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", name, hitter_name);
             efree(hitter_name);
         } else {
             draw_info_format(COLOR_WHITE, owner, "You killed %s.", name);
@@ -1036,8 +957,7 @@ attack_kill (object *op, object *hitter)
                     if (faction != NULL) {
                         faction_update_kill(faction, CONTR(owner));
                     } else {
-                        LOG(ERROR, "Invalid faction: %s for %s", faction_name,
-                            object_get_str(op));
+                        LOG(ERROR, "Invalid faction: %s for %s", faction_name, object_get_str(op));
                     }
                 }
             }
@@ -1082,13 +1002,17 @@ attack_kill (object *op, object *hitter)
         char *owner_name = object_get_name_s(owner, NULL);
 
         if (owner != hitter) {
-            draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.",
+            draw_info_format(COLOR_WHITE,
+                             NULL,
+                             "%s killed %s with %s%s.",
                              owner_name,
                              name,
                              hitter_name,
                              is_pvp ? " (duel)" : "");
         } else {
-            draw_info_format(COLOR_WHITE, NULL, "%s killed %s%s.",
+            draw_info_format(COLOR_WHITE,
+                             NULL,
+                             "%s killed %s%s.",
                              hitter_name,
                              name,
                              is_pvp ? " (duel)" : "");
@@ -1098,14 +1022,9 @@ attack_kill (object *op, object *hitter)
 
         /* Update player's killer. */
         if (owner->type == PLAYER) {
-            stringbuffer_append_printf(sb,
-                                       "%s the %s",
-                                       owner_name,
-                                       owner->race);
+            stringbuffer_append_printf(sb, "%s the %s", owner_name, owner->race);
         } else {
-            stringbuffer_append_printf(sb,
-                                       "%s",
-                                       owner_name);
+            stringbuffer_append_printf(sb, "%s", owner_name);
         }
 
         char *cp = stringbuffer_finish(sb);
@@ -1131,9 +1050,7 @@ attack_kill (object *op, object *hitter)
          * 2. NPC kill hit will overwrite player target on drop.
          * 3. Kill hit will count if target was an NPC.
          */
-        if (owner->type != PLAYER ||
-            op->enemy == NULL ||
-            op->enemy->type != PLAYER) {
+        if (owner->type != PLAYER || op->enemy == NULL || op->enemy->type != PLAYER) {
             op->enemy = owner;
             op->enemy_count = owner->count;
         }
@@ -1165,9 +1082,7 @@ attack_kill (object *op, object *hitter)
  * @param dam
  * Damage to deal.
  */
-void
-attack_perform_poison (object *op, object *hitter, double dam)
-{
+void attack_perform_poison(object *op, object *hitter, double dam) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
@@ -1212,8 +1127,7 @@ attack_perform_poison (object *op, object *hitter, double dam)
 
         SET_FLAG(tmp, FLAG_APPLIED);
         tmp = object_insert_into(tmp, op, 0);
-        SOFT_ASSERT(tmp != NULL, "Failed to insert poisoning into %s",
-                    object_get_str(op));
+        SOFT_ASSERT(tmp != NULL, "Failed to insert poisoning into %s", object_get_str(op));
 
         if (op->type == PLAYER) {
             char *name = object_get_name_s(hitter, op);
@@ -1224,12 +1138,10 @@ attack_perform_poison (object *op, object *hitter, double dam)
                 char *name = object_get_name_s(op, hitter);
                 draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", name);
                 efree(name);
-            } else if (object_owner(hitter) != NULL &&
-                       hitter->owner->type == PLAYER) {
+            } else if (object_owner(hitter) != NULL && hitter->owner->type == PLAYER) {
                 char *name = object_get_name_s(op, hitter->owner);
                 char *hitter_name = object_get_name_s(hitter, hitter->owner);
-                draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!",
-                                 hitter_name, name);
+                draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", hitter_name, name);
                 efree(name);
                 efree(hitter_name);
             }
@@ -1252,9 +1164,7 @@ attack_perform_poison (object *op, object *hitter, double dam)
  * @param op
  * Victim.
  */
-void
-attack_perform_slow (object *op)
-{
+void attack_perform_slow(object *op) {
     HARD_ASSERT(op != NULL);
 
     static archetype_t *at = NULL;
@@ -1273,8 +1183,7 @@ attack_perform_slow (object *op)
         tmp = arch_to_object(at);
         SET_FLAG(tmp, FLAG_APPLIED);
         tmp = object_insert_into(tmp, op, 0);
-        SOFT_ASSERT(tmp != NULL, "Failed to insert slowness into %s",
-                    object_get_str(op));
+        SOFT_ASSERT(tmp != NULL, "Failed to insert slowness into %s", object_get_str(op));
         draw_info(COLOR_WHITE, op, "The world suddenly moves very fast!");
     } else {
         tmp->stats.food++;
@@ -1290,9 +1199,7 @@ attack_perform_slow (object *op)
  * @param op
  * Victim.
  */
-void
-attack_perform_confusion (object *op)
-{
+void attack_perform_confusion(object *op) {
     HARD_ASSERT(op != NULL);
 
     static archetype_t *at = NULL;
@@ -1311,8 +1218,7 @@ attack_perform_confusion (object *op)
         tmp = arch_to_object(at);
         SET_FLAG(tmp, FLAG_APPLIED);
         tmp = object_insert_into(tmp, op, 0);
-        SOFT_ASSERT(tmp != NULL, "Could not insert confusion into %s",
-                    object_get_str(op));
+        SOFT_ASSERT(tmp != NULL, "Could not insert confusion into %s", object_get_str(op));
     }
 
     /* Duration added per hit and max. duration of confusion both depend
@@ -1338,9 +1244,7 @@ attack_perform_confusion (object *op)
  * @param dam
  * Damage to deal.
  */
-void
-attack_perform_blind (object *op, object *hitter, double dam)
-{
+void attack_perform_blind(object *op, object *hitter, double dam) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(hitter != NULL);
 
@@ -1361,8 +1265,7 @@ attack_perform_blind (object *op, object *hitter, double dam)
         SET_FLAG(tmp, FLAG_APPLIED);
         tmp->speed = tmp->speed * (100.0 - op->protection[ATNR_BLIND]) / 100.0;
         tmp = object_insert_into(tmp, op, 0);
-        SOFT_ASSERT(tmp != NULL, "Failed to insert blindness into %s",
-                    object_get_str(op));
+        SOFT_ASSERT(tmp != NULL, "Failed to insert blindness into %s", object_get_str(op));
 
         if (hitter != op) {
             object *owner = object_owner(hitter);
@@ -1371,8 +1274,7 @@ attack_perform_blind (object *op, object *hitter, double dam)
             }
 
             char *name = object_get_name_s(op, owner);
-            draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!",
-                             name);
+            draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", name);
             efree(name);
         }
     }
@@ -1395,9 +1297,7 @@ attack_perform_blind (object *op, object *hitter, double dam)
  * @param dam
  * Damage to deal.
  */
-void
-attack_peform_paralyze (object *op, double dam)
-{
+void attack_peform_paralyze(object *op, double dam) {
     HARD_ASSERT(op != NULL);
 
     /* Save some work if we know it isn't going to affect the player */
@@ -1406,7 +1306,7 @@ attack_peform_paralyze (object *op, double dam)
     }
 
     double effect = dam * 3.0;
-    effect *= (100.0 - (double) op->protection[ATNR_PARALYZE]) / 100.0;
+    effect *= (100.0 - (double)op->protection[ATNR_PARALYZE]) / 100.0;
     if (DBL_EQUAL(effect, 0.0)) {
         return;
     }
@@ -1431,9 +1331,7 @@ attack_peform_paralyze (object *op, double dam)
  * @param fall_floors
  * Number of floors the object fell down.
  */
-void
-attack_perform_fall (object *op, int fall_floors)
-{
+void attack_perform_fall(object *op, int fall_floors) {
     HARD_ASSERT(op != NULL);
     SOFT_ASSERT(IS_LIVE(op), "Object is not alive: %s", object_get_str(op));
 
@@ -1455,8 +1353,7 @@ attack_perform_fall (object *op, int fall_floors)
     }
 
     damager->stats.dam = dam;
-    damager->stats.dam = rndm(damager->stats.dam / 2.0 + 1.0,
-                              damager->stats.dam);
+    damager->stats.dam = rndm(damager->stats.dam / 2.0 + 1.0, damager->stats.dam);
 
     attack_hit(op, damager, damager->stats.dam);
     object_destroy(damager);
@@ -1472,20 +1369,14 @@ attack_perform_fall (object *op, int fall_floors)
  * @return
  * True if the target is in melee range, false otherwise.
  */
-bool
-attack_is_melee_range (object *hitter, object *enemy)
-{
+bool attack_is_melee_range(object *hitter, object *enemy) {
     HARD_ASSERT(hitter != NULL);
     HARD_ASSERT(enemy != NULL);
 
-    SOFT_ASSERT_RC(hitter->head == NULL, false, "Called on tail part: %s",
-                   object_get_str(hitter));
-    SOFT_ASSERT_RC(enemy->head == NULL, false, "Called on tail part: %s",
-                   object_get_str(enemy));
+    SOFT_ASSERT_RC(hitter->head == NULL, false, "Called on tail part: %s", object_get_str(hitter));
+    SOFT_ASSERT_RC(enemy->head == NULL, false, "Called on tail part: %s", object_get_str(enemy));
 
-    for (object *hitter_part = hitter;
-         hitter_part != NULL;
-         hitter_part = hitter_part->more) {
+    for (object *hitter_part = hitter; hitter_part != NULL; hitter_part = hitter_part->more) {
         for (int i = 0; i <= SIZEOFFREE1; i++) {
             int x = hitter_part->x + freearr_x[i];
             int y = hitter_part->y + freearr_y[i];
@@ -1494,12 +1385,8 @@ attack_is_melee_range (object *hitter, object *enemy)
                 continue;
             }
 
-            for (object *enemy_part = enemy;
-                 enemy_part != NULL;
-                 enemy_part = enemy_part->more) {
-                if (enemy_part->map == m &&
-                    enemy_part->x == x &&
-                    enemy_part->y == y) {
+            for (object *enemy_part = enemy; enemy_part != NULL; enemy_part = enemy_part->more) {
+                if (enemy_part->map == m && enemy_part->x == x && enemy_part->y == y) {
                     return true;
                 }
             }

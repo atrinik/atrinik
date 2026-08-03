@@ -45,9 +45,7 @@
  * @return
  * Object that matches, NULL if none matched.
  */
-object *
-check_inv (object *op, object *ob)
-{
+object *check_inv(object *op, object *ob) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(ob != NULL);
 
@@ -80,15 +78,14 @@ check_inv (object *op, object *ob)
 
             return tmp;
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     return NULL;
 }
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -113,7 +110,6 @@ move_on_func (object *op, object *victim, object *originator, int state)
 /**
  * Initialize the inventory checker type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(check_inv)
-{
+OBJECT_TYPE_INIT_DEFINE(check_inv) {
     OBJECT_METHODS(CHECK_INV)->move_on_func = move_on_func;
 }

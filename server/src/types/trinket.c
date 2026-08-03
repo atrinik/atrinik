@@ -35,7 +35,6 @@
 /**
  * Initialize the trinket type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(trinket)
-{
+OBJECT_TYPE_INIT_DEFINE(trinket) {
     OBJECT_METHODS(TRINKET)->apply_func = object_apply_item;
 }

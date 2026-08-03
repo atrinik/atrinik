@@ -36,9 +36,8 @@
 /**
  * Start the base system, setting caption name and window icon.
  */
-void system_start(void)
-{
-    SDL_Surface *icon = IMG_Load_wrapper("textures/"CLIENT_ICON_NAME);
+void system_start(void) {
+    SDL_Surface *icon = IMG_Load_wrapper("textures/" CLIENT_ICON_NAME);
     if (icon != NULL) {
         video_set_icon(icon);
     }
@@ -49,8 +48,7 @@ void system_start(void)
 /**
  * End the system.
  */
-void system_end(void)
-{
+void system_end(void) {
     tooltip_dismiss();
     object_deinit();
     notification_destroy();
@@ -92,8 +90,7 @@ void system_end(void)
  * @return
  * 0 on success, -1 otherwise
  */
-static int mkdir_recurse(const char *path)
-{
+static int mkdir_recurse(const char *path) {
     char *copy, *p;
 
     p = copy = estrdup(path);
@@ -129,8 +126,7 @@ static int mkdir_recurse(const char *path)
  * @param path
  * The path to ensure.
  */
-void mkdir_ensure(const char *path)
-{
+void mkdir_ensure(const char *path) {
     char *stmp;
 
     stmp = strrchr(path, '/');
@@ -152,8 +148,7 @@ void mkdir_ensure(const char *path)
  * @param filename_out
  * Destination file.
  */
-void copy_file(const char *filename, const char *filename_out)
-{
+void copy_file(const char *filename, const char *filename_out) {
     FILE *fp, *fp_out;
     char buf[HUGE_BUF];
 
@@ -193,8 +188,7 @@ void copy_file(const char *filename, const char *filename_out)
  * @param dst
  * Where to copy the file/directory to.
  */
-void copy_if_exists(const char *from, const char *to, const char *src, const char *dst)
-{
+void copy_if_exists(const char *from, const char *to, const char *src, const char *dst) {
     char src_path[HUGE_BUF], dst_path[HUGE_BUF];
 
     snprintf(src_path, sizeof(src_path), "%s/%s", from, src);
@@ -213,15 +207,12 @@ void copy_if_exists(const char *from, const char *to, const char *src, const cha
  * @param path
  * Path to the directory.
  */
-static void
-_rmrf (DIR *dir, const char *path)
-{
+static void _rmrf(DIR *dir, const char *path) {
     HARD_ASSERT(dir != NULL);
 
     struct dirent *file;
     while ((file = readdir(dir)) != NULL) {
-        if (strcmp(file->d_name, ".") == 0 ||
-            strcmp(file->d_name, "..") == 0) {
+        if (strcmp(file->d_name, ".") == 0 || strcmp(file->d_name, "..") == 0) {
             continue;
         }
 
@@ -247,8 +238,7 @@ _rmrf (DIR *dir, const char *path)
  * @param path
  * What to remove.
  */
-void rmrf(const char *path)
-{
+void rmrf(const char *path) {
     HARD_ASSERT(path != NULL);
 
     DIR *dir = opendir(path);
@@ -268,8 +258,7 @@ void rmrf(const char *path)
  * @param dst
  * Where to copy to.
  */
-void copy_rec(const char *src, const char *dst)
-{
+void copy_rec(const char *src, const char *dst) {
     /* Copy directory contents. */
     DIR *dir = opendir(src);
     if (dir != NULL) {
@@ -302,8 +291,7 @@ void copy_rec(const char *src, const char *dst)
  * @return
  * The configuration directory.
  */
-const char *get_config_dir(void)
-{
+const char *get_config_dir(void) {
     const char *desc;
 
 #ifndef WIN32
@@ -330,8 +318,7 @@ const char *get_config_dir(void)
  * @param fname
  * File.
  */
-void get_data_dir_file(char *buf, size_t len, const char *fname)
-{
+void get_data_dir_file(char *buf, size_t len, const char *fname) {
     /* Try the current directory first. */
     snprintf(buf, len, "./%s", fname);
 
@@ -344,7 +331,7 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
         /* Get the prefix. */
         prefix = binreloc_find_prefix("./");
         /* Construct the path. */
-        snprintf(buf, len, "%s/"INSTALL_SUBDIR_SHARE "/%s", prefix, fname);
+        snprintf(buf, len, "%s/" INSTALL_SUBDIR_SHARE "/%s", prefix, fname);
         efree(prefix);
     }
 #endif
@@ -368,8 +355,7 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
  * @return
  * The absolute path. Must be freed.
  */
-char *file_path(const char *path, const char *mode)
-{
+char *file_path(const char *path, const char *mode) {
     bool is_write, is_append;
     StringBuffer *sb;
     char version[MAX_BUF], client_path[HUGE_BUF], *new_path;
@@ -377,12 +363,14 @@ char *file_path(const char *path, const char *mode)
     HARD_ASSERT(path != NULL);
     HARD_ASSERT(mode != NULL);
 
-    SOFT_ASSERT_RC(path[0] != '/', estrdup(path),
-            "Path is already absolute: %s", path);
+    SOFT_ASSERT_RC(path[0] != '/', estrdup(path), "Path is already absolute: %s", path);
 
     sb = stringbuffer_new();
-    stringbuffer_append_printf(sb, "%s/.atrinik/%s/%s", get_config_dir(),
-            package_get_version_partial(VS(version)), path);
+    stringbuffer_append_printf(sb,
+                               "%s/.atrinik/%s/%s",
+                               get_config_dir(),
+                               package_get_version_partial(VS(version)),
+                               path);
     new_path = stringbuffer_sub(sb, 0, 0);
 
     is_write = is_append = false;
@@ -427,10 +415,10 @@ char *file_path(const char *path, const char *mode)
  * @return
  *
  */
-static StringBuffer *file_path_server_internal(void)
-{
+static StringBuffer *file_path_server_internal(void) {
     SOFT_ASSERT_RC(selected_server != NULL, NULL, "Selected server is NULL.");
-    SOFT_ASSERT_RC(!string_isempty(selected_server->hostname), NULL,
+    SOFT_ASSERT_RC(!string_isempty(selected_server->hostname),
+                   NULL,
                    "Selected server has empty hostname.");
 
     StringBuffer *sb = stringbuffer_new();
@@ -440,9 +428,7 @@ static StringBuffer *file_path_server_internal(void)
     const char *identity = NULL;
     if (string_is_hex_fixed(selected_server->server_id, 64, true)) {
         identity = selected_server->server_id;
-    } else if (string_is_hex_fixed(selected_server->quic_certificate_sha256,
-                                   64,
-                                   false)) {
+    } else if (string_is_hex_fixed(selected_server->quic_certificate_sha256, 64, false)) {
         identity = selected_server->quic_certificate_sha256;
     }
 
@@ -453,19 +439,14 @@ static StringBuffer *file_path_server_internal(void)
         EVP_MD_CTX *context = EVP_MD_CTX_new();
         unsigned char digest[EVP_MAX_MD_SIZE];
         unsigned int digest_size = 0;
-        uint16_t port = htons((uint16_t) selected_server->port);
-        bool ok = context != NULL &&
-                  EVP_DigestInit_ex(context, EVP_sha256(), NULL) == 1 &&
+        uint16_t port = htons((uint16_t)selected_server->port);
+        bool ok = context != NULL && EVP_DigestInit_ex(context, EVP_sha256(), NULL) == 1 &&
                   EVP_DigestUpdate(context,
                                    selected_server->hostname,
                                    strlen(selected_server->hostname) + 1) == 1 &&
                   EVP_DigestUpdate(context, &port, sizeof(port)) == 1 &&
-                  EVP_DigestFinal_ex(context, digest, &digest_size) == 1 &&
-                  digest_size == 32 &&
-                  string_tohex(digest,
-                               digest_size,
-                               VS(scope),
-                               false) == 64;
+                  EVP_DigestFinal_ex(context, digest, &digest_size) == 1 && digest_size == 32 &&
+                  string_tohex(digest, digest_size, VS(scope), false) == 64;
         EVP_MD_CTX_free(context);
         if (!ok) {
             LOG(ERROR, "Could not derive the server cache scope.");
@@ -487,8 +468,7 @@ static StringBuffer *file_path_server_internal(void)
  * @return
  * New path. Must be freed.
  */
-char *file_path_player(const char *path)
-{
+char *file_path_player(const char *path) {
     HARD_ASSERT(path != NULL);
     if (!path_is_safe_relative(path)) {
         LOG(ERROR, "Refusing unsafe per-player cache path: %s", path);
@@ -509,18 +489,11 @@ char *file_path_player(const char *path)
     unsigned char digest[EVP_MAX_MD_SIZE];
     unsigned int digest_size = 0;
     char player_scope[65];
-    bool ok = context != NULL &&
-              EVP_DigestInit_ex(context, EVP_sha256(), NULL) == 1 &&
-              EVP_DigestUpdate(context,
-                               cpl.account,
-                               strlen(cpl.account) + 1) == 1 &&
+    bool ok = context != NULL && EVP_DigestInit_ex(context, EVP_sha256(), NULL) == 1 &&
+              EVP_DigestUpdate(context, cpl.account, strlen(cpl.account) + 1) == 1 &&
               EVP_DigestUpdate(context, cpl.name, strlen(cpl.name)) == 1 &&
-              EVP_DigestFinal_ex(context, digest, &digest_size) == 1 &&
-              digest_size == 32 &&
-              string_tohex(digest,
-                           digest_size,
-                           VS(player_scope),
-                           false) == 64;
+              EVP_DigestFinal_ex(context, digest, &digest_size) == 1 && digest_size == 32 &&
+              string_tohex(digest, digest_size, VS(player_scope), false) == 64;
     EVP_MD_CTX_free(context);
     if (!ok) {
         LOG(ERROR, "Could not derive the player cache scope.");
@@ -540,8 +513,7 @@ char *file_path_player(const char *path)
  * @return
  * New path. Must be freed.
  */
-char *file_path_server(const char *path)
-{
+char *file_path_server(const char *path) {
     HARD_ASSERT(path != NULL);
     if (!path_is_safe_relative(path)) {
         LOG(ERROR, "Refusing unsafe per-server cache path: %s", path);
@@ -576,9 +548,7 @@ char *file_path_server(const char *path)
  * @return
  * Return value of fopen().
  */
-FILE *
-client_fopen_wrapper (const char *fname, const char *mode)
-{
+FILE *client_fopen_wrapper(const char *fname, const char *mode) {
     char *path = file_path(fname, mode);
     FILE *fp = fopen(path, mode);
     efree(path);
@@ -593,8 +563,7 @@ client_fopen_wrapper (const char *fname, const char *mode)
  * @return
  * Return value of IMG_Load().
  */
-SDL_Surface *IMG_Load_wrapper(const char *file)
-{
+SDL_Surface *IMG_Load_wrapper(const char *file) {
     char *path;
     SDL_Surface *surface;
 
@@ -614,8 +583,7 @@ SDL_Surface *IMG_Load_wrapper(const char *file)
  * @return
  * Return value of TTF_OpenFont().
  */
-TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize)
-{
+TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize) {
     char *path;
     TTF_Font *font;
 

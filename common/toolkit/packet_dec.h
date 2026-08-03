@@ -34,5 +34,4 @@
 
 typedef struct packet_struct packet_struct;
 
-
 #endif

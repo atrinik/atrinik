@@ -47,8 +47,7 @@ static struct sockaddr_in insock;
 /**
  * Initialize statistics; sets up the datagram file descriptor, etc.
  */
-void statistics_init(void)
-{
+void statistics_init(void) {
     struct protoent *protoent;
 
     protoent = getprotobyname("udp");
@@ -64,7 +63,7 @@ void statistics_init(void)
     }
 
     insock.sin_family = AF_INET;
-    insock.sin_port = htons((unsigned short) 13324);
+    insock.sin_port = htons((unsigned short)13324);
     insock.sin_addr.s_addr = inet_addr("127.0.0.1");
 }
 
@@ -80,8 +79,7 @@ void statistics_init(void)
  * @param buf
  * Optional string buffer to send.
  */
-void statistic_update(const char *type, object *op, int64_t i, const char *buf)
-{
+void statistic_update(const char *type, object *op, int64_t i, const char *buf) {
     packet_struct *packet;
 
     if (!i || fd == -1) {
@@ -97,8 +95,12 @@ void statistic_update(const char *type, object *op, int64_t i, const char *buf)
         packet_append_string_terminated(packet, buf);
     }
 
-    sendto(fd, (const void *) packet->data, packet->len, 0,
-            (struct sockaddr *) &insock, sizeof(insock));
+    sendto(fd,
+           (const void *)packet->data,
+           packet->len,
+           0,
+           (struct sockaddr *)&insock,
+           sizeof(insock));
     packet_free(packet);
 }
 
@@ -108,8 +110,7 @@ void statistic_update(const char *type, object *op, int64_t i, const char *buf)
  * @param pl
  * The player.
  */
-void statistics_player_logout(player *pl)
-{
+void statistics_player_logout(player *pl) {
     statistic_update("deaths", pl->ob, pl->stat_deaths, NULL);
     statistic_update("kills_mob", pl->ob, pl->stat_kills_mob, NULL);
     statistic_update("kills_pvp", pl->ob, pl->stat_kills_pvp, NULL);

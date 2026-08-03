@@ -46,9 +46,7 @@ typedef struct sprite_cache {
 SDL_Surface *FormatHolder;
 
 /** Darkness alpha values. */
-static int dark_alpha[DARK_LEVELS] = {
-    0, 44, 80, 117, 153, 190, 226
-};
+static int dark_alpha[DARK_LEVELS] = {0, 44, 80, 117, 153, 190, 226};
 
 /**
  * The sprite cache hash table.
@@ -58,9 +56,7 @@ static sprite_cache_t *sprites_cache = NULL;
 /**
  * Initialize the sprite system.
  */
-void
-sprite_init_system (void)
-{
+void sprite_init_system(void) {
     FormatHolder = SDL_CreateRGBSurface(SDL_SRCALPHA,
                                         1,
                                         1,
@@ -82,9 +78,7 @@ sprite_init_system (void)
  * @return
  * NULL if failed, the sprite otherwise.
  */
-sprite_struct *
-sprite_load_file (char *fname, uint32_t flags)
-{
+sprite_struct *sprite_load_file(char *fname, uint32_t flags) {
     sprite_struct *sprite = sprite_tryload_file(fname, flags, NULL);
     if (sprite == NULL) {
         LOG(ERROR, "Can't load sprite %s", fname);
@@ -106,9 +100,7 @@ sprite_load_file (char *fname, uint32_t flags)
  * @return
  * The sprite if success, NULL otherwise
  */
-sprite_struct *
-sprite_tryload_file (char *fname, uint32_t flag, SDL_RWops *rwop)
-{
+sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop) {
     SDL_Surface *bitmap;
     if (fname != NULL) {
         bitmap = IMG_Load_wrapper(fname);
@@ -160,9 +152,7 @@ sprite_tryload_file (char *fname, uint32_t flag, SDL_RWops *rwop)
  * @param sprite
  * Sprite to free.
  */
-void
-sprite_free_sprite (sprite_struct *sprite)
-{
+void sprite_free_sprite(sprite_struct *sprite) {
     if (sprite == NULL) {
         return;
     }
@@ -182,9 +172,7 @@ sprite_free_sprite (sprite_struct *sprite)
  * @return
  * Sprite if found, NULL otherwise.
  */
-static sprite_cache_t *
-sprite_cache_find (const char *name)
-{
+static sprite_cache_t *sprite_cache_find(const char *name) {
     HARD_ASSERT(name != NULL);
 
     sprite_cache_t *cache;
@@ -205,9 +193,7 @@ sprite_cache_find (const char *name)
  * @return
  * Created sprite entry.
  */
-static sprite_cache_t *
-sprite_cache_create (const char *name)
-{
+static sprite_cache_t *sprite_cache_create(const char *name) {
     HARD_ASSERT(name != NULL);
 
     sprite_cache_t *cache = ecalloc(1, sizeof(*cache));
@@ -222,9 +208,7 @@ sprite_cache_create (const char *name)
  * @param cache
  * Cache entry to add.
  */
-static void
-sprite_cache_add (sprite_cache_t *cache)
-{
+static void sprite_cache_add(sprite_cache_t *cache) {
     HARD_ASSERT(cache != NULL);
     HASH_ADD_KEYPTR(hh, sprites_cache, cache->name, strlen(cache->name), cache);
 }
@@ -235,9 +219,7 @@ sprite_cache_add (sprite_cache_t *cache)
  * @param cache
  * Cache entry to remove.
  */
-static void
-sprite_cache_remove (sprite_cache_t *cache)
-{
+static void sprite_cache_remove(sprite_cache_t *cache) {
     HARD_ASSERT(cache != NULL);
     HASH_DEL(sprites_cache, cache);
 }
@@ -246,9 +228,7 @@ sprite_cache_remove (sprite_cache_t *cache)
  * Free the specified sprite cache entry.
  * @param cache
  */
-static void
-sprite_cache_free (sprite_cache_t *cache)
-{
+static void sprite_cache_free(sprite_cache_t *cache) {
     HARD_ASSERT(cache != NULL);
 
     efree(cache->name);
@@ -259,8 +239,7 @@ sprite_cache_free (sprite_cache_t *cache)
 /**
  * Free all the sprite cache entries.
  */
-void sprite_cache_free_all(void)
-{
+void sprite_cache_free_all(void) {
     sprite_cache_t *cache, *tmp;
     HASH_ITER(hh, sprites_cache, cache, tmp) {
         sprite_cache_remove(cache);
@@ -271,8 +250,7 @@ void sprite_cache_free_all(void)
 /**
  * Free unused sprite cache entries.
  */
-void sprite_cache_gc(void)
-{
+void sprite_cache_gc(void) {
     if (!rndm_chance(SPRITE_CACHE_GC_CHANCE)) {
         return;
     }
@@ -308,12 +286,8 @@ void sprite_cache_gc(void)
  * @return
  * New surface.
  */
-static SDL_Surface *
-sprite_effect_red (SDL_Surface *surface)
-{
-    SDL_Surface *tmp = SDL_ConvertSurface(surface,
-                                          FormatHolder->format,
-                                          FormatHolder->flags);
+static SDL_Surface *sprite_effect_red(SDL_Surface *surface) {
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format, FormatHolder->flags);
     if (tmp == NULL) {
         return NULL;
     }
@@ -322,7 +296,7 @@ sprite_effect_red (SDL_Surface *surface)
         for (int x = 0; x < tmp->w; x++) {
             Uint8 r, g, b, a;
             SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
-            r = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            r = (Uint8)(0.212671 * r + 0.715160 * g + 0.072169 * b);
             g = b = 0;
             putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
         }
@@ -343,12 +317,8 @@ sprite_effect_red (SDL_Surface *surface)
  * @return
  * New surface.
  */
-static SDL_Surface *
-sprite_effect_gray (SDL_Surface *surface)
-{
-    SDL_Surface *tmp = SDL_ConvertSurface(surface,
-                                          FormatHolder->format,
-                                          FormatHolder->flags);
+static SDL_Surface *sprite_effect_gray(SDL_Surface *surface) {
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format, FormatHolder->flags);
     if (tmp == NULL) {
         return NULL;
     }
@@ -357,7 +327,7 @@ sprite_effect_gray (SDL_Surface *surface)
         for (int x = 0; x < tmp->w; x++) {
             Uint8 r, g, b, a;
             SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
-            r = g = b = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            r = g = b = (Uint8)(0.212671 * r + 0.715160 * g + 0.072169 * b);
             putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
         }
     }
@@ -377,12 +347,8 @@ sprite_effect_gray (SDL_Surface *surface)
  * @return
  * New surface.
  */
-static SDL_Surface *
-sprite_effect_fow (SDL_Surface *surface)
-{
-    SDL_Surface *tmp = SDL_ConvertSurface(surface,
-                                          FormatHolder->format,
-                                          FormatHolder->flags);
+static SDL_Surface *sprite_effect_fow(SDL_Surface *surface) {
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format, FormatHolder->flags);
     if (tmp == NULL) {
         return NULL;
     }
@@ -391,7 +357,7 @@ sprite_effect_fow (SDL_Surface *surface)
         for (int x = 0; x < tmp->w; x++) {
             Uint8 r, g, b, a;
             SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
-            r = (Uint8) ((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
+            r = (Uint8)((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
             g = b = r;
             b += 16;
             putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
@@ -418,11 +384,7 @@ sprite_effect_fow (SDL_Surface *surface)
  * New surface.
  */
 static SDL_Surface *
-sprite_effect_glow (SDL_Surface     *surface,
-                    const SDL_Color *color,
-                    double           speed,
-                    double           state)
-{
+sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, double state) {
     SDL_Surface *tmp = SDL_CreateRGBSurface(surface->flags,
                                             surface->w + SPRITE_GLOW_SIZE * 2,
                                             surface->h + SPRITE_GLOW_SIZE * 2,
@@ -435,9 +397,9 @@ sprite_effect_glow (SDL_Surface     *surface,
         return NULL;
     }
 
-#define GLOW_GRID_PIXEL_NONE    0 ///< No data.
+#define GLOW_GRID_PIXEL_NONE 0 ///< No data.
 #define GLOW_GRID_PIXEL_VISIBLE 1 ///< A visible pixel.
-#define GLOW_GRID_PIXEL_GLOW    2 ///< Added glow pixel.
+#define GLOW_GRID_PIXEL_GLOW 2 ///< Added glow pixel.
 #define GLOW_GRID_PIXEL_OUTLINE 3 ///< Added glow outline pixel.
 
     /* Create a 2D grid representation of the sprite's pixel surface for
@@ -493,11 +455,8 @@ sprite_effect_glow (SDL_Surface     *surface,
         hsv2[2] = MIN(1.0, MAX(0.0, hsv2[2]));
         colorspace_hsv2rgb(hsv2, rgb2);
 
-        pixels[i] = SDL_MapRGBA(tmp->format,
-                                rgb2[0] * 255.0,
-                                rgb2[1] * 255.0,
-                                rgb2[2] * 255.0,
-                                alpha);
+        pixels[i] =
+            SDL_MapRGBA(tmp->format, rgb2[0] * 255.0, rgb2[1] * 255.0, rgb2[2] * 255.0, alpha);
     }
 
     hsv[1] += 0.10;
@@ -561,8 +520,7 @@ sprite_effect_glow (SDL_Surface     *surface,
                         uint8_t *point = &grid[tmp->w * ty + tx];
                         /* Only adjust pixels that don't have a visible pixel,
                          * or if they have been added a glow outline before. */
-                        if (*point == GLOW_GRID_PIXEL_NONE ||
-                            *point == GLOW_GRID_PIXEL_OUTLINE) {
+                        if (*point == GLOW_GRID_PIXEL_NONE || *point == GLOW_GRID_PIXEL_OUTLINE) {
                             Uint32 pixel;
                             if (off == 1) {
                                 /* Glow pixel processing. */
@@ -605,16 +563,14 @@ sprite_effect_glow (SDL_Surface     *surface,
  * @return
  * New surface, NULL on failure.
  */
-static SDL_Surface *
-sprite_effects_create (SDL_Surface *surface, const sprite_effects_t *effects)
-{
-#define FREE_TMP_SURFACE()      \
-do {                            \
-    if (tmp != NULL) {          \
-        SDL_FreeSurface(tmp);   \
-    }                           \
-    tmp = surface;              \
-} while (0)
+static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_effects_t *effects) {
+#define FREE_TMP_SURFACE()        \
+    do {                          \
+        if (tmp != NULL) {        \
+            SDL_FreeSurface(tmp); \
+        }                         \
+        tmp = surface;            \
+    } while (0)
 
     SDL_Surface *tmp = NULL;
 
@@ -634,11 +590,8 @@ do {                            \
         }
 
         char buf[MAX_BUF];
-        snprintf(VS(buf),
-                 "rectangle:500,500,%d",
-                 dark_alpha[effects->dark_level]);
-        SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE,
-                                                    buf)),
+        snprintf(VS(buf), "rectangle:500,500,%d", dark_alpha[effects->dark_level]);
+        SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE, buf)),
                         NULL,
                         surface,
                         NULL);
@@ -683,12 +636,10 @@ do {                            \
 
     /* Apply zoom and/or rotate effects. */
     if ((effects->zoom_x != 0 && effects->zoom_x != 100) ||
-        (effects->zoom_y != 0 && effects->zoom_y != 100) ||
-        effects->rotate != 0) {
+        (effects->zoom_y != 0 && effects->zoom_y != 100) || effects->rotate != 0) {
         bool smooth;
         /* Figure out whether to use smoothing. */
-        if (effects->rotate == 0 &&
-            (effects->zoom_x == 0 || abs(effects->zoom_x) == 100) &&
+        if (effects->rotate == 0 && (effects->zoom_x == 0 || abs(effects->zoom_x) == 100) &&
             (effects->zoom_y == 0 || abs(effects->zoom_y) == 100)) {
             smooth = false;
         } else {
@@ -697,11 +648,7 @@ do {                            \
 
         double zoom_x = effects->zoom_x != 0 ? effects->zoom_x / 100.0 : 1.0;
         double zoom_y = effects->zoom_y != 0 ? effects->zoom_y / 100.0 : 1.0;
-        surface = rotozoomSurfaceXY(surface,
-                                    effects->rotate,
-                                    zoom_x,
-                                    zoom_y,
-                                    smooth);
+        surface = rotozoomSurfaceXY(surface, effects->rotate, zoom_x, zoom_y, smooth);
         if (surface == NULL) {
             goto done;
         }
@@ -713,10 +660,7 @@ do {                            \
     if (effects->glow[0] != '\0') {
         SDL_Color color;
         if (text_color_parse(effects->glow, &color)) {
-            surface = sprite_effect_glow(surface,
-                                         &color,
-                                         effects->glow_speed,
-                                         effects->glow_state);
+            surface = sprite_effect_glow(surface, &color, effects->glow_speed, effects->glow_state);
             if (surface == NULL) {
                 goto done;
             }
@@ -757,13 +701,7 @@ done:
  * @param src
  * Source surface to render.
  */
-void
-surface_show (SDL_Surface *surface,
-              int          x,
-              int          y,
-              SDL_Rect    *srcrect,
-              SDL_Surface *src)
-{
+void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src) {
     SDL_Rect dstrect;
     dstrect.x = x;
     dstrect.y = y;
@@ -788,14 +726,12 @@ surface_show (SDL_Surface *surface,
  * @param box
  * Specifies maximum width and height to render.
  */
-void
-surface_show_fill (SDL_Surface *surface,
-                   int          x,
-                   int          y,
-                   SDL_Rect    *srcsize,
-                   SDL_Surface *src,
-                   SDL_Rect    *box)
-{
+void surface_show_fill(SDL_Surface *surface,
+                       int x,
+                       int y,
+                       SDL_Rect *srcsize,
+                       SDL_Surface *src,
+                       SDL_Rect *box) {
     int w = srcsize != NULL ? srcsize->w : src->w;
     int h = srcsize != NULL ? srcsize->h : src->h;
     for (int tx = 0; tx < box->w; tx += w) {
@@ -826,14 +762,12 @@ surface_show_fill (SDL_Surface *surface,
  * @param effects
  * Effects to apply.
  */
-void
-surface_show_effects (SDL_Surface            *surface,
-                      int                     x,
-                      int                     y,
-                      SDL_Rect               *srcrect,
-                      SDL_Surface            *src,
-                      const sprite_effects_t *effects)
-{
+void surface_show_effects(SDL_Surface *surface,
+                          int x,
+                          int y,
+                          SDL_Rect *srcrect,
+                          SDL_Surface *src,
+                          const sprite_effects_t *effects) {
     HARD_ASSERT(surface != NULL);
 
     if (src == NULL) {
@@ -842,8 +776,7 @@ surface_show_effects (SDL_Surface            *surface,
 
     if (effects != NULL && SPRITE_EFFECTS_NEED_RENDERING(effects)) {
         /* Maximum darkness; do not render at all. */
-        if (BIT_QUERY(effects->flags, SPRITE_FLAG_DARK) &&
-            effects->dark_level == DARK_LEVELS) {
+        if (BIT_QUERY(effects->flags, SPRITE_FLAG_DARK) && effects->dark_level == DARK_LEVELS) {
             return;
         }
 
@@ -906,29 +839,27 @@ surface_show_effects (SDL_Surface            *surface,
  * @return
  * The pixel.
  */
-Uint32
-getpixel (SDL_Surface *surface, int x, int y)
-{
+Uint32 getpixel(SDL_Surface *surface, int x, int y) {
     int bpp = surface->format->BytesPerPixel;
     /* The address to the pixel we want to retrieve. */
-    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch (bpp) {
-    case 1:
-        return *p;
+        case 1:
+            return *p;
 
-    case 2:
-        return *(Uint16 *) p;
+        case 2:
+            return *(Uint16 *)p;
 
-    case 3:
-        if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-            return p[0] << 16 | p[1] << 8 | p[2];
-        } else {
-            return p[0] | p[1] << 8 | p[2] << 16;
-        }
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                return p[0] << 16 | p[1] << 8 | p[2];
+            } else {
+                return p[0] | p[1] << 8 | p[2] << 16;
+            }
 
-    case 4:
-        return *(Uint32 *) p;
+        case 4:
+            return *(Uint32 *)p;
     }
 
     return 0;
@@ -946,38 +877,36 @@ getpixel (SDL_Surface *surface, int x, int y)
  * @param pixel
  * Pixel to put.
  */
-void
-putpixel (SDL_Surface *surface, int x, int y, Uint32 pixel)
-{
+void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
     int bpp = surface->format->BytesPerPixel;
     /* The address to the pixel we want to set. */
-    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
     switch (bpp) {
-    case 1:
-        *p = pixel;
-        break;
+        case 1:
+            *p = pixel;
+            break;
 
-    case 2:
-        *(Uint16 *) p = pixel;
-        break;
+        case 2:
+            *(Uint16 *)p = pixel;
+            break;
 
-    case 3:
-        if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-            p[0] = (pixel >> 16) & 0xff;
-            p[1] = (pixel >> 8) & 0xff;
-            p[2] = pixel & 0xff;
-        } else {
-            p[0] = pixel & 0xff;
-            p[1] = (pixel >> 8) & 0xff;
-            p[2] = (pixel >> 16) & 0xff;
-        }
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                p[0] = (pixel >> 16) & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = pixel & 0xff;
+            } else {
+                p[0] = pixel & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = (pixel >> 16) & 0xff;
+            }
 
-        break;
+            break;
 
-    case 4:
-        *(Uint32 *) p = pixel;
-        break;
+        case 4:
+            *(Uint32 *)p = pixel;
+            break;
     }
 }
 
@@ -994,9 +923,7 @@ putpixel (SDL_Surface *surface, int x, int y, Uint32 pixel)
  * @return
  * True if the border was found, false otherwise.
  */
-static bool
-surface_border_get_left (SDL_Surface *surface, int *pos, uint32_t color)
-{
+static bool surface_border_get_left(SDL_Surface *surface, int *pos, uint32_t color) {
     for (int x = 0; x < surface->w; x++) {
         for (int y = 0; y < surface->h; y++) {
             if (getpixel(surface, x, y) != color) {
@@ -1022,9 +949,7 @@ surface_border_get_left (SDL_Surface *surface, int *pos, uint32_t color)
  * @return
  * True if the border was found, false otherwise.
  */
-static bool
-surface_border_get_right(SDL_Surface *surface, int *pos, uint32_t color)
-{
+static bool surface_border_get_right(SDL_Surface *surface, int *pos, uint32_t color) {
     for (int x = surface->w - 1; x >= 0; x--) {
         for (int y = 0; y < surface->h; y++) {
             if (getpixel(surface, x, y) != color) {
@@ -1050,9 +975,7 @@ surface_border_get_right(SDL_Surface *surface, int *pos, uint32_t color)
  * @return
  * True if the border was found, false otherwise.
  */
-static bool
-surface_border_get_top (SDL_Surface *surface, int *pos, uint32_t color)
-{
+static bool surface_border_get_top(SDL_Surface *surface, int *pos, uint32_t color) {
     for (int y = 0; y < surface->h; y++) {
         for (int x = 0; x < surface->w; x++) {
             if (getpixel(surface, x, y) != color) {
@@ -1078,9 +1001,7 @@ surface_border_get_top (SDL_Surface *surface, int *pos, uint32_t color)
  * @return
  * True if the border was found, false otherwise.
  */
-static bool
-surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32_t color)
-{
+static bool surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32_t color) {
     for (int y = surface->h - 1; y >= 0; y--) {
         for (int x = 0; x < surface->w; x++) {
             if (getpixel(surface, x, y) != color) {
@@ -1113,14 +1034,12 @@ surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32_t color)
  * 1 if the borders were found, 0 otherwise (image is all filled with 'color'
  * color).
  */
-int
-surface_borders_get (SDL_Surface *surface,
-                     int         *top,
-                     int         *bottom,
-                     int         *left,
-                     int         *right,
-                     uint32_t     color)
-{
+int surface_borders_get(SDL_Surface *surface,
+                        int *top,
+                        int *bottom,
+                        int *left,
+                        int *right,
+                        uint32_t color) {
     *top = 0;
     *bottom = 0;
     *left = 0;
@@ -1147,11 +1066,9 @@ surface_borders_get (SDL_Surface *surface,
  * @param box
  * Coordinates.
  */
-void
-surface_pan (SDL_Surface *surface, SDL_Rect *box)
-{
+void surface_pan(SDL_Surface *surface, SDL_Rect *box) {
     if (box->x >= surface->w - box->w) {
-        box->x = (Sint16) (surface->w - box->w);
+        box->x = (Sint16)(surface->w - box->w);
     }
 
     if (box->x < 0) {
@@ -1159,7 +1076,7 @@ surface_pan (SDL_Surface *surface, SDL_Rect *box)
     }
 
     if (box->y >= surface->h - box->h) {
-        box->y = (Sint16) (surface->h - box->h);
+        box->y = (Sint16)(surface->h - box->h);
     }
 
     if (box->y < 0) {
@@ -1181,9 +1098,7 @@ surface_pan (SDL_Surface *surface, SDL_Rect *box)
  * @param h
  * Height of the frame.
  */
-void
-draw_frame (SDL_Surface *surface, int x, int y, int w, int h)
-{
+void draw_frame(SDL_Surface *surface, int x, int y, int w, int h) {
     SDL_Rect box;
 
     box.x = x;
@@ -1222,15 +1137,7 @@ draw_frame (SDL_Surface *surface, int x, int y, int w, int h)
  * @param size
  * Border's size.
  */
-void
-border_create (SDL_Surface *surface,
-               int          x,
-               int          y,
-               int          w,
-               int          h,
-               int          color,
-               int          size)
-{
+void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size) {
     SDL_Rect box;
 
     /* Left border. */
@@ -1273,14 +1180,7 @@ border_create (SDL_Surface *surface,
  * @param color
  * Color of the line.
  */
-void
-border_create_line (SDL_Surface *surface,
-                    int          x,
-                    int          y,
-                    int          w,
-                    int          h,
-                    uint32_t     color)
-{
+void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32_t color) {
     SDL_Rect dst;
 
     dst.x = x;
@@ -1302,24 +1202,13 @@ border_create_line (SDL_Surface *surface,
  * @param color
  * Border color.
  */
-void
-border_create_sdl_color (SDL_Surface *surface,
-                         SDL_Rect    *coords,
-                         int          thickness,
-                         SDL_Color   *color)
-{
-    uint32_t color_mapped = SDL_MapRGB(surface->format,
-                                       color->r,
-                                       color->g,
-                                       color->b);
+void border_create_sdl_color(SDL_Surface *surface,
+                             SDL_Rect *coords,
+                             int thickness,
+                             SDL_Color *color) {
+    uint32_t color_mapped = SDL_MapRGB(surface->format, color->r, color->g, color->b);
 
-    BORDER_CREATE_TOP(surface,
-                      coords->x,
-                      coords->y,
-                      coords->w,
-                      coords->h,
-                      color_mapped,
-                      thickness);
+    BORDER_CREATE_TOP(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
     BORDER_CREATE_BOTTOM(surface,
                          coords->x,
                          coords->y,
@@ -1355,12 +1244,10 @@ border_create_sdl_color (SDL_Surface *surface,
  * @param color_notation
  * Border color, eg, "ff0000".
  */
-void
-border_create_color (SDL_Surface *surface,
-                     SDL_Rect    *coords,
-                     int          thickness,
-                     const char  *color_notation)
-{
+void border_create_color(SDL_Surface *surface,
+                         SDL_Rect *coords,
+                         int thickness,
+                         const char *color_notation) {
     SDL_Color color;
     if (!text_color_parse(color_notation, &color)) {
         LOG(ERROR, "Invalid color: %s", color_notation);
@@ -1384,43 +1271,21 @@ border_create_color (SDL_Surface *surface,
  * @param texture
  * Border texture.
  */
-void
-border_create_texture (SDL_Surface *surface,
-                       SDL_Rect    *coords,
-                       int          thickness,
-                       SDL_Surface *texture)
-{
+void border_create_texture(SDL_Surface *surface,
+                           SDL_Rect *coords,
+                           int thickness,
+                           SDL_Surface *texture) {
     SDL_Rect box;
 
     box.w = coords->w;
     box.h = thickness;
-    surface_show_fill(surface,
-                      coords->x,
-                      coords->y,
-                      NULL,
-                      texture,
-                      &box);
-    surface_show_fill(surface,
-                      coords->x,
-                      coords->y + coords->h - thickness,
-                      NULL,
-                      texture,
-                      &box);
+    surface_show_fill(surface, coords->x, coords->y, NULL, texture, &box);
+    surface_show_fill(surface, coords->x, coords->y + coords->h - thickness, NULL, texture, &box);
 
     box.w = thickness;
     box.h = coords->h;
-    surface_show_fill(surface,
-                      coords->x,
-                      coords->y,
-                      NULL,
-                      texture,
-                      &box);
-    surface_show_fill(surface,
-                      coords->x + coords->w - thickness,
-                      coords->y,
-                      NULL,
-                      texture,
-                      &box);
+    surface_show_fill(surface, coords->x, coords->y, NULL, texture, &box);
+    surface_show_fill(surface, coords->x + coords->w - thickness, coords->y, NULL, texture, &box);
 }
 
 /**
@@ -1439,26 +1304,19 @@ border_create_texture (SDL_Surface *surface,
  * @param color_notation
  * Color of the rectangle, eg, "ff0000".
  */
-void
-rectangle_create (SDL_Surface *surface,
-                  int          x,
-                  int          y,
-                  int          w,
-                  int          h,
-                  const char  *color_notation)
-{
+void rectangle_create(SDL_Surface *surface,
+                      int x,
+                      int y,
+                      int w,
+                      int h,
+                      const char *color_notation) {
     SDL_Color color;
     if (!text_color_parse(color_notation, &color)) {
         LOG(BUG, "Invalid color: %s", color_notation);
         return;
     }
 
-    border_create_line(surface,
-                       x,
-                       y,
-                       w,
-                       h,
-                       SDL_MapRGB(surface->format, color.r, color.g, color.b));
+    border_create_line(surface, x, y, w, h, SDL_MapRGB(surface->format, color.r, color.g, color.b));
 }
 
 /**
@@ -1472,9 +1330,7 @@ rectangle_create (SDL_Surface *surface,
  * @param alpha
  * Alpha value to set.
  */
-void
-surface_set_alpha (SDL_Surface *surface, uint8_t alpha)
-{
+void surface_set_alpha(SDL_Surface *surface, uint8_t alpha) {
     SDL_PixelFormat *fmt = surface->format;
 
     if (fmt->Amask == 0) {
@@ -1488,12 +1344,11 @@ surface_set_alpha (SDL_Surface *surface, uint8_t alpha)
         for (int y = 0; y < surface->h; y++) {
             for (int x = 0; x < surface->w; x++) {
                 Uint8 r, g, b, a;
-                Uint32 *pixel_ptr = (Uint32 *) ((Uint8 *) surface->pixels + y *
-                                                surface->pitch + x * bpp);
+                Uint32 *pixel_ptr =
+                    (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * bpp);
                 SDL_GetRGBA(*pixel_ptr, fmt, &r, &g, &b, &a);
                 *pixel_ptr = SDL_MapRGBA(fmt, r, g, b, scale * a);
             }
-
         }
 
         SDL_UnlockSurface(surface);
@@ -1519,23 +1374,20 @@ surface_set_alpha (SDL_Surface *surface, uint8_t alpha)
  * @return
  * 1 if the coordinates are in the polygon, 0 otherwise.
  */
-int
-polygon_check_coords (double x,
-                      double y,
-                      double corners_x[],
-                      double corners_y[],
-                      int    corners_num)
-{
+int polygon_check_coords(double x,
+                         double y,
+                         double corners_x[],
+                         double corners_y[],
+                         int corners_num) {
     int j = corners_num - 1;
     int odd_nodes = 0;
 
     for (int i = 0; i < corners_num; i++) {
-        if (((corners_y[i] < y && corners_y[j] >= y) ||
-             (corners_y[j] < y && corners_y[i] >= y)) &&
+        if (((corners_y[i] < y && corners_y[j] >= y) || (corners_y[j] < y && corners_y[i] >= y)) &&
             (corners_x[i] <= x || corners_x[j] <= x)) {
-            odd_nodes ^= (corners_x[i] + (y - corners_y[i]) /
-                          (corners_y[j] - corners_y[i]) *
-                          (corners_x[j] - corners_x[i]) < x);
+            odd_nodes ^= (corners_x[i] + (y - corners_y[i]) / (corners_y[j] - corners_y[i]) *
+                                             (corners_x[j] - corners_x[i]) <
+                          x);
         }
 
         j = i;

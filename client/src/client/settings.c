@@ -35,9 +35,8 @@
 #include <toolkit/path.h>
 
 /** Text representations of the setting types. */
-static const char *const opt_types[OPT_TYPE_NUM] = {
-    "bool", "input_num", "input_text", "range", "select", "int", "color"
-};
+static const char *const opt_types[OPT_TYPE_NUM] =
+    {"bool", "input_num", "input_text", "range", "select", "int", "color"};
 
 /** List of setting categories. */
 setting_category **setting_categories = NULL;
@@ -56,45 +55,43 @@ static uint8_t setting_update_mapsize = 0;
  * @param str
  * The value to load.
  */
-static void setting_load_value(setting_struct *setting, const char *str)
-{
+static void setting_load_value(setting_struct *setting, const char *str) {
     switch (setting->type) {
-    case OPT_TYPE_BOOL:
+        case OPT_TYPE_BOOL:
 
-        if (KEYWORD_IS_TRUE(str)) {
-            setting->val.i = 1;
-        } else if (KEYWORD_IS_FALSE(str)) {
-            setting->val.i = 0;
-        } else {
+            if (KEYWORD_IS_TRUE(str)) {
+                setting->val.i = 1;
+            } else if (KEYWORD_IS_FALSE(str)) {
+                setting->val.i = 0;
+            } else {
+                setting->val.i = atoi(str);
+            }
+
+            break;
+
+        case OPT_TYPE_INPUT_NUM:
+        case OPT_TYPE_RANGE:
+        case OPT_TYPE_INT:
+        case OPT_TYPE_SELECT:
             setting->val.i = atoi(str);
-        }
+            break;
 
-        break;
+        case OPT_TYPE_INPUT_TEXT:
+        case OPT_TYPE_COLOR:
 
-    case OPT_TYPE_INPUT_NUM:
-    case OPT_TYPE_RANGE:
-    case OPT_TYPE_INT:
-    case OPT_TYPE_SELECT:
-        setting->val.i = atoi(str);
-        break;
+            if (setting->val.str) {
+                efree(setting->val.str);
+            }
 
-    case OPT_TYPE_INPUT_TEXT:
-    case OPT_TYPE_COLOR:
-
-        if (setting->val.str) {
-            efree(setting->val.str);
-        }
-
-        setting->val.str = estrdup(str);
-        break;
+            setting->val.str = estrdup(str);
+            break;
     }
 }
 
 /**
  * Initialize the setting defaults.
  */
-void settings_init(void)
-{
+void settings_init(void) {
     FILE *fp;
     char buf[HUGE_BUF], *cp;
     setting_category *category;
@@ -103,7 +100,7 @@ void settings_init(void)
     fp = path_fopen(FILE_SETTINGS_TXT, "r");
 
     if (!fp) {
-        LOG(ERROR, "Missing "FILE_SETTINGS_TXT ", cannot continue.");
+        LOG(ERROR, "Missing " FILE_SETTINGS_TXT ", cannot continue.");
         exit(1);
     }
 
@@ -135,12 +132,16 @@ void settings_init(void)
 
         if (!strcmp(cp, "end")) {
             if (setting) {
-                category->settings = erealloc(category->settings, sizeof(*category->settings) * (category->settings_num + 1));
+                category->settings =
+                    erealloc(category->settings,
+                             sizeof(*category->settings) * (category->settings_num + 1));
                 category->settings[category->settings_num] = setting;
                 category->settings_num++;
                 setting = NULL;
             } else if (category) {
-                setting_categories = erealloc(setting_categories, sizeof(*setting_categories) * (setting_categories_num + 1));
+                setting_categories =
+                    erealloc(setting_categories,
+                             sizeof(*setting_categories) * (setting_categories_num + 1));
                 setting_categories[setting_categories_num] = category;
                 setting_categories_num++;
                 category = NULL;
@@ -174,14 +175,16 @@ void settings_init(void)
             } else if (setting->type == OPT_TYPE_SELECT && !strncmp(cp, "option ", 7)) {
                 setting_select *s_select = SETTING_SELECT(setting);
 
-                s_select->options = erealloc(s_select->options, sizeof(*s_select->options) * (s_select->options_len + 1));
+                s_select->options =
+                    erealloc(s_select->options,
+                             sizeof(*s_select->options) * (s_select->options_len + 1));
                 s_select->options[s_select->options_len] = estrdup(cp + 7);
                 s_select->options_len++;
             } else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "range ", 6)) {
                 setting_range *range = SETTING_RANGE(setting);
                 int64_t min, max;
 
-                if (sscanf(cp + 6, "%"PRId64 " - %"PRId64, &min, &max) == 2) {
+                if (sscanf(cp + 6, "%" PRId64 " - %" PRId64, &min, &max) == 2) {
                     range->min = min;
                     range->max = max;
                 } else {
@@ -214,8 +217,7 @@ void settings_init(void)
 /**
  * Load user's settings (if any).
  */
-void settings_load(void)
-{
+void settings_load(void) {
     FILE *fp;
     char buf[HUGE_BUF], *cp;
     int64_t cat = 0, setting = 0;
@@ -270,8 +272,7 @@ void settings_load(void)
 /**
  * Save the user's settings to file.
  */
-void settings_save(void)
-{
+void settings_save(void) {
     FILE *fp;
     size_t cat, set;
     setting_struct *setting;
@@ -279,7 +280,7 @@ void settings_save(void)
     fp = path_fopen(FILE_SETTINGS_DAT, "w");
 
     if (!fp) {
-        LOG(BUG, "Could not open settings file ("FILE_SETTINGS_DAT ").");
+        LOG(BUG, "Could not open settings file (" FILE_SETTINGS_DAT ").");
         return;
     }
 
@@ -294,7 +295,7 @@ void settings_save(void)
             if (setting_is_text(setting)) {
                 fprintf(fp, "%s\n", setting->val.str);
             } else {
-                fprintf(fp, "%"PRId64 "\n", setting->val.i);
+                fprintf(fp, "%" PRId64 "\n", setting->val.i);
             }
         }
     }
@@ -307,8 +308,7 @@ void settings_save(void)
  *
  * User's settings are also saved to file using settings_save().
  */
-void settings_deinit(void)
-{
+void settings_deinit(void) {
     size_t cat, setting;
 
     /* Save the user's settings first. */
@@ -328,7 +328,8 @@ void settings_deinit(void)
             }
 
             if (setting_categories[cat]->settings[setting]->type == OPT_TYPE_SELECT) {
-                setting_select *s_select = SETTING_SELECT(setting_categories[cat]->settings[setting]);
+                setting_select *s_select =
+                    SETTING_SELECT(setting_categories[cat]->settings[setting]);
                 size_t option;
 
                 for (option = 0; option < s_select->options_len; option++) {
@@ -370,19 +371,18 @@ void settings_deinit(void)
  * @return
  * Pointer to the setting's value.
  */
-void *setting_get(setting_struct *setting)
-{
+void *setting_get(setting_struct *setting) {
     switch (setting->type) {
-    case OPT_TYPE_BOOL:
-    case OPT_TYPE_INPUT_NUM:
-    case OPT_TYPE_RANGE:
-    case OPT_TYPE_INT:
-    case OPT_TYPE_SELECT:
-        return &setting->val.i;
+        case OPT_TYPE_BOOL:
+        case OPT_TYPE_INPUT_NUM:
+        case OPT_TYPE_RANGE:
+        case OPT_TYPE_INT:
+        case OPT_TYPE_SELECT:
+            return &setting->val.i;
 
-    case OPT_TYPE_INPUT_TEXT:
-    case OPT_TYPE_COLOR:
-        return setting->val.str;
+        case OPT_TYPE_INPUT_TEXT:
+        case OPT_TYPE_COLOR:
+            return setting->val.str;
     }
 
     return NULL;
@@ -397,8 +397,7 @@ void *setting_get(setting_struct *setting)
  * @return
  * The setting's string value.
  */
-const char *setting_get_str(int cat, int setting)
-{
+const char *setting_get_str(int cat, int setting) {
     return setting_get(setting_categories[cat]->settings[setting]);
 }
 
@@ -411,9 +410,8 @@ const char *setting_get_str(int cat, int setting)
  * @return
  * The setting's integer value.
  */
-int64_t setting_get_int(int cat, int setting)
-{
-    return *(int64_t *) setting_get(setting_categories[cat]->settings[setting]);
+int64_t setting_get_int(int cat, int setting) {
+    return *(int64_t *)setting_get(setting_categories[cat]->settings[setting]);
 }
 
 /**
@@ -426,32 +424,31 @@ int64_t setting_get_int(int cat, int setting)
  * @return
  * 1 if the change was handled, 0 otherwise.
  */
-static int setting_apply_always(int cat, int setting)
-{
+static int setting_apply_always(int cat, int setting) {
     switch (cat) {
-    case OPT_CAT_CLIENT:
-        switch (setting) {
-        /* Need to hide/show the network graph widget. */
-        case OPT_SHOW_NETWORK_GRAPH:
-            WIDGET_SHOW_CHANGE(NETWORK_GRAPH_ID, setting_get_int(cat, setting));
-            return 1;
+        case OPT_CAT_CLIENT:
+            switch (setting) {
+                /* Need to hide/show the network graph widget. */
+                case OPT_SHOW_NETWORK_GRAPH:
+                    WIDGET_SHOW_CHANGE(NETWORK_GRAPH_ID, setting_get_int(cat, setting));
+                    return 1;
 
-        case OPT_SYSTEM_CURSOR:
-            SDL_ShowCursor(setting_get_int(cat, setting));
-            return 1;
-        }
+                case OPT_SYSTEM_CURSOR:
+                    SDL_ShowCursor(setting_get_int(cat, setting));
+                    return 1;
+            }
 
-        break;
+            break;
 
-    case OPT_CAT_DEVEL:
-        switch (setting) {
-        /* Need to hide/show the fps widget. */
-        case OPT_SHOW_FPS:
-            WIDGET_SHOW_CHANGE(FPS_ID, setting_get_int(cat, setting));
-            return 1;
-        }
+        case OPT_CAT_DEVEL:
+            switch (setting) {
+                /* Need to hide/show the fps widget. */
+                case OPT_SHOW_FPS:
+                    WIDGET_SHOW_CHANGE(FPS_ID, setting_get_int(cat, setting));
+                    return 1;
+            }
 
-        break;
+            break;
     }
 
     return 0;
@@ -464,89 +461,94 @@ static int setting_apply_always(int cat, int setting)
  * @param setting
  * Setting ID inside the category.
  */
-static void setting_apply_runtime(int cat, int setting)
-{
+static void setting_apply_runtime(int cat, int setting) {
     /* Try both run-time and startup-time changes first. */
     if (setting_apply_always(cat, setting)) {
         return;
     }
 
     switch (cat) {
-    case OPT_CAT_GENERAL:
-        switch (setting) {
-            /* Changed how exp display shows its data, redraw the
-             * widget. */
-        case OPT_EXP_DISPLAY:
-            break;
-        }
-
-        break;
-
-    case OPT_CAT_CLIENT:
-        switch (setting) {
-            /* Resolution change. */
-        case OPT_RESOLUTION:
-        {
-            int w, h;
-
-            if (sscanf(SETTING_SELECT(setting_categories[cat]->settings[setting])->options[setting_get_int(cat, setting)], "%dx%d", &w, &h) == 2 && (ScreenSurface->w != w || ScreenSurface->h != h)) {
-                resize_window(w, h);
-                video_set_size();
+        case OPT_CAT_GENERAL:
+            switch (setting) {
+                    /* Changed how exp display shows its data, redraw the
+                     * widget. */
+                case OPT_EXP_DISPLAY:
+                    break;
             }
 
             break;
-        }
 
-            /* Fullscreen change. */
-        case OPT_FULLSCREEN:
+        case OPT_CAT_CLIENT:
+            switch (setting) {
+                    /* Resolution change. */
+                case OPT_RESOLUTION: {
+                    int w, h;
 
-            if ((setting_get_int(cat, setting) && !(ScreenSurface->flags & SDL_FULLSCREEN)) || (!setting_get_int(cat, setting) && ScreenSurface->flags & SDL_FULLSCREEN)) {
-                video_fullscreen_toggle(&ScreenSurface, NULL);
+                    if (sscanf(SETTING_SELECT(setting_categories[cat]->settings[setting])
+                                   ->options[setting_get_int(cat, setting)],
+                               "%dx%d",
+                               &w,
+                               &h) == 2 &&
+                        (ScreenSurface->w != w || ScreenSurface->h != h)) {
+                        resize_window(w, h);
+                        video_set_size();
+                    }
+
+                    break;
+                }
+
+                    /* Fullscreen change. */
+                case OPT_FULLSCREEN:
+
+                    if ((setting_get_int(cat, setting) &&
+                         !(ScreenSurface->flags & SDL_FULLSCREEN)) ||
+                        (!setting_get_int(cat, setting) && ScreenSurface->flags & SDL_FULLSCREEN)) {
+                        video_fullscreen_toggle(&ScreenSurface, NULL);
+                    }
+
+                    break;
             }
 
             break;
-        }
 
-        break;
+        case OPT_CAT_MAP:
+            switch (setting) {
+                    /* Map width/height change. */
+                case OPT_MAP_WIDTH:
+                case OPT_MAP_HEIGHT:
 
-    case OPT_CAT_MAP:
-        switch (setting) {
-            /* Map width/height change. */
-        case OPT_MAP_WIDTH:
-        case OPT_MAP_HEIGHT:
+                    if (setting_update_mapsize) {
+                        int w, h;
+                        packet_struct *packet;
 
-            if (setting_update_mapsize) {
-                int w, h;
-                packet_struct *packet;
+                        w = setting_get_int(cat, OPT_MAP_WIDTH);
+                        h = setting_get_int(cat, OPT_MAP_HEIGHT);
 
-                w = setting_get_int(cat, OPT_MAP_WIDTH);
-                h = setting_get_int(cat, OPT_MAP_HEIGHT);
+                        packet = packet_new(SERVER_CMD_SETUP, 32, 0);
+                        packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
+                        packet_append_uint8(packet, w);
+                        packet_append_uint8(packet, h);
+                        socket_send_packet(packet);
 
-                packet = packet_new(SERVER_CMD_SETUP, 32, 0);
-                packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
-                packet_append_uint8(packet, w);
-                packet_append_uint8(packet, h);
-                socket_send_packet(packet);
+                        map_update_size(w, h);
 
-                map_update_size(w, h);
+                        setting_update_mapsize = 0;
+                    }
 
-                setting_update_mapsize = 0;
+                    break;
             }
 
             break;
-        }
 
-        break;
+        case OPT_CAT_SOUND:
+            switch (setting) {
+                    /* Music volume change. */
+                case OPT_VOLUME_MUSIC:
+                    sound_update_volume();
+                    break;
+            }
 
-    case OPT_CAT_SOUND:
-        switch (setting) {
-            /* Music volume change. */
-        case OPT_VOLUME_MUSIC:
-            sound_update_volume();
             break;
-        }
-
-        break;
     }
 }
 
@@ -554,8 +556,7 @@ static void setting_apply_runtime(int cat, int setting)
  * Apply all settings that need to be applied at start-time (after
  * everything has been initialized successfully).
  */
-void settings_apply(void)
-{
+void settings_apply(void) {
     size_t i, j;
 
     for (i = 0; i < setting_categories_num; i++) {
@@ -569,8 +570,7 @@ void settings_apply(void)
  * Apply a change of settings at run-time (through the settings GUI, for
  * example).
  */
-void settings_apply_change(void)
-{
+void settings_apply_change(void) {
     size_t cat, setting;
 
     for (cat = 0; cat < setting_categories_num; cat++) {
@@ -589,14 +589,13 @@ void settings_apply_change(void)
  * @param val
  * Value to set.
  */
-void setting_set_int(int cat, int setting, int64_t val)
-{
+void setting_set_int(int cat, int setting, int64_t val) {
     void *dst = setting_get(setting_categories[cat]->settings[setting]);
-    if ((*(int64_t *) dst) == val) {
+    if ((*(int64_t *)dst) == val) {
         return;
     }
 
-    (*(int64_t *) dst) = val;
+    (*(int64_t *)dst) = val;
 
     /* Map width/height, mark for update. */
     if (cat == OPT_CAT_MAP && (setting == OPT_MAP_WIDTH || setting == OPT_MAP_HEIGHT)) {
@@ -613,8 +612,7 @@ void setting_set_int(int cat, int setting, int64_t val)
  * @param val
  * Value to set.
  */
-void setting_set_str(int cat, int setting, const char *val)
-{
+void setting_set_str(int cat, int setting, const char *val) {
     setting_struct *set;
 
     set = setting_categories[cat]->settings[setting];
@@ -633,12 +631,11 @@ void setting_set_str(int cat, int setting, const char *val)
  * @return
  * 1 if it has a string value, 0 otherwise.
  */
-int setting_is_text(setting_struct *setting)
-{
+int setting_is_text(setting_struct *setting) {
     switch (setting->type) {
-    case OPT_TYPE_INPUT_TEXT:
-    case OPT_TYPE_COLOR:
-        return 1;
+        case OPT_TYPE_INPUT_TEXT:
+        case OPT_TYPE_COLOR:
+            return 1;
     }
 
     return 0;
@@ -651,8 +648,7 @@ int setting_is_text(setting_struct *setting)
  * @return
  * Category ID if found, -1 otherwise.
  */
-int64_t category_from_name(const char *name)
-{
+int64_t category_from_name(const char *name) {
     size_t cat;
 
     for (cat = 0; cat < setting_categories_num; cat++) {
@@ -673,8 +669,7 @@ int64_t category_from_name(const char *name)
  * @return
  * Setting ID if found, -1 otherwise.
  */
-int64_t setting_from_name(const char *name)
-{
+int64_t setting_from_name(const char *name) {
     size_t cat, setting;
 
     for (cat = 0; cat < setting_categories_num; cat++) {

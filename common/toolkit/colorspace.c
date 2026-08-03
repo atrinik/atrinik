@@ -33,22 +33,16 @@
 
 TOOLKIT_API();
 
-TOOLKIT_INIT_FUNC(colorspace)
-{
-}
+TOOLKIT_INIT_FUNC(colorspace) {}
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(colorspace)
-{
-}
+TOOLKIT_DEINIT_FUNC(colorspace) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-double
-colorspace_rgb_max (const double rgb[3])
-{
+double colorspace_rgb_max(const double rgb[3]) {
     TOOLKIT_PROTECT();
 
     if (rgb[0] > rgb[1]) {
@@ -61,9 +55,7 @@ colorspace_rgb_max (const double rgb[3])
 /**
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-double
-colorspace_rgb_min (const double rgb[3])
-{
+double colorspace_rgb_min(const double rgb[3]) {
     TOOLKIT_PROTECT();
 
     if (rgb[0] < rgb[1]) {
@@ -76,9 +68,7 @@ colorspace_rgb_min (const double rgb[3])
 /**
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-void
-colorspace_rgb2hsv (const double rgb[3], double hsv[3])
-{
+void colorspace_rgb2hsv(const double rgb[3], double hsv[3]) {
     double max, min, delta;
 
     TOOLKIT_PROTECT();
@@ -113,9 +103,7 @@ colorspace_rgb2hsv (const double rgb[3], double hsv[3])
 /**
  * @author LIBGIMP (GNU LGPL 3.0)
  */
-void
-colorspace_hsv2rgb (const double hsv[3], double rgb[3])
-{
+void colorspace_hsv2rgb(const double hsv[3], double rgb[3]) {
     int i;
     double f, w, q, t;
     double hue;
@@ -135,48 +123,48 @@ colorspace_hsv2rgb (const double hsv[3], double rgb[3])
 
         hue *= 6.0;
 
-        i = (int) hue;
+        i = (int)hue;
         f = hue - i;
         w = hsv[2] * (1.0 - hsv[1]);
         q = hsv[2] * (1.0 - (hsv[1] * f));
         t = hsv[2] * (1.0 - (hsv[1] * (1.0 - f)));
 
         switch (i) {
-        case 0:
-            rgb[0] = hsv[2];
-            rgb[1] = t;
-            rgb[2] = w;
-            break;
+            case 0:
+                rgb[0] = hsv[2];
+                rgb[1] = t;
+                rgb[2] = w;
+                break;
 
-        case 1:
-            rgb[0] = q;
-            rgb[1] = hsv[2];
-            rgb[2] = w;
-            break;
+            case 1:
+                rgb[0] = q;
+                rgb[1] = hsv[2];
+                rgb[2] = w;
+                break;
 
-        case 2:
-            rgb[0] = w;
-            rgb[1] = hsv[2];
-            rgb[2] = t;
-            break;
+            case 2:
+                rgb[0] = w;
+                rgb[1] = hsv[2];
+                rgb[2] = t;
+                break;
 
-        case 3:
-            rgb[0] = w;
-            rgb[1] = q;
-            rgb[2] = hsv[2];
-            break;
+            case 3:
+                rgb[0] = w;
+                rgb[1] = q;
+                rgb[2] = hsv[2];
+                break;
 
-        case 4:
-            rgb[0] = t;
-            rgb[1] = w;
-            rgb[2] = hsv[2];
-            break;
+            case 4:
+                rgb[0] = t;
+                rgb[1] = w;
+                rgb[2] = hsv[2];
+                break;
 
-        case 5:
-            rgb[0] = hsv[2];
-            rgb[1] = w;
-            rgb[2] = q;
-            break;
+            case 5:
+                rgb[0] = hsv[2];
+                rgb[1] = w;
+                rgb[2] = q;
+                break;
         }
     }
 }

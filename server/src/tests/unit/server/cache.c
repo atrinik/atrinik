@@ -28,8 +28,7 @@
 #include <check_proto.h>
 #include <toolkit/string.h>
 
-START_TEST(test_cache)
-{
+START_TEST(test_cache) {
     char *str = estrdup("hello world");
     cache_struct *res;
     int i;
@@ -97,8 +96,7 @@ START_TEST(test_cache)
 
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("cache");
     TCase *tc_core = tcase_create("Core");
 
@@ -111,7 +109,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_cache(void)
-{
+void check_server_cache(void) {
     check_run_suite(suite(), __FILE__);
 }

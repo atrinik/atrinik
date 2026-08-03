@@ -35,6 +35,4 @@
 /**
  * Initialize the spawn point mob type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(spawn_point_mob)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(spawn_point_mob) {}

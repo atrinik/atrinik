@@ -35,9 +35,7 @@
 #include <pedestal.h>
 
 /** @copydoc object_methods_t::move_on_func */
-static int
-move_on_func (object *op, object *victim, object *originator, int state)
-{
+static int move_on_func(object *op, object *victim, object *originator, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(victim != NULL);
 
@@ -55,7 +53,6 @@ move_on_func (object *op, object *victim, object *originator, int state)
 /**
  * Initialize the detector type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(detector)
-{
+OBJECT_TYPE_INIT_DEFINE(detector) {
     OBJECT_METHODS(DETECTOR)->move_on_func = move_on_func;
 }

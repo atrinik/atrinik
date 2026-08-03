@@ -33,20 +33,25 @@
 #include <global.h>
 
 /** @copydoc widgetdata::draw_func */
-static void widget_draw(widgetdata *widget)
-{
+static void widget_draw(widgetdata *widget) {
     _widget_label *label;
 
     label = widget->subwidget;
 
     if (label->text) {
-        text_show(ScreenSurface, label->font, label->text, widget->x, widget->y, label->color, TEXT_MARKUP, NULL);
+        text_show(ScreenSurface,
+                  label->font,
+                  label->text,
+                  widget->x,
+                  widget->y,
+                  label->color,
+                  TEXT_MARKUP,
+                  NULL);
     }
 }
 
 /** @copydoc widgetdata::deinit_func */
-static void widget_deinit(widgetdata *widget)
-{
+static void widget_deinit(widgetdata *widget) {
     _widget_label *label;
 
     label = widget->subwidget;
@@ -61,8 +66,7 @@ static void widget_deinit(widgetdata *widget)
 /**
  * Initialize one label widget.
  */
-void widget_label_init(widgetdata *widget)
-{
+void widget_label_init(widgetdata *widget) {
     _widget_label *label;
 
     label = ecalloc(1, sizeof(*label));

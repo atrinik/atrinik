@@ -45,8 +45,7 @@
  * @return
  * 1 if 'new_item' can be built on the spot, 0 otherwise.
  */
-static int can_build_over(mapstruct *m, object *new_item, int x, int y)
-{
+static int can_build_over(mapstruct *m, object *new_item, int x, int y) {
     object *tmp;
 
     for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above) {
@@ -57,23 +56,26 @@ static int can_build_over(mapstruct *m, object *new_item, int x, int y)
         }
 
         switch (new_item->type) {
-        case SIGN:
+            case SIGN:
 
-            /* Allow signs to be built on books. */
-            if (tmp->type != BOOK) {
+                /* Allow signs to be built on books. */
+                if (tmp->type != BOOK) {
+                    return 0;
+                }
+
+                break;
+
+            default:
                 return 0;
-            }
-
-            break;
-
-        default:
-            return 0;
         }
     }
 
     /* If item being built is multi-tile, need to check other parts too. */
     if (new_item->more) {
-        return can_build_over(m, new_item->more, x + new_item->more->arch->clone.x - new_item->arch->clone.x, y + new_item->more->arch->clone.y - new_item->arch->clone.y);
+        return can_build_over(m,
+                              new_item->more,
+                              x + new_item->more->arch->clone.x - new_item->arch->clone.x,
+                              y + new_item->more->arch->clone.y - new_item->arch->clone.y);
     }
 
     return 1;
@@ -90,11 +92,11 @@ static int can_build_over(mapstruct *m, object *new_item, int x, int y)
  * @return
  * The wall if found, NULL otherwise.
  */
-static object *get_wall(mapstruct *m, int x, int y)
-{
+static object *get_wall(mapstruct *m, int x, int y) {
     object *tmp;
 
-    for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_WALL, 0); tmp && tmp->layer == LAYER_WALL; tmp = tmp->above) {
+    for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_WALL, 0); tmp && tmp->layer == LAYER_WALL;
+         tmp = tmp->above) {
         if (tmp->type == WALL) {
             return tmp;
         }
@@ -116,8 +118,7 @@ static object *get_wall(mapstruct *m, int x, int y)
  * @return
  * 1 if the floor was built, 0 otherwise.
  */
-static int builder_floor(object *op, object *new_floor, int x, int y)
-{
+static int builder_floor(object *op, object *new_floor, int x, int y) {
     object *tmp;
     FOR_MAP_LAYER_BEGIN(op->map, x, y, LAYER_FLOOR, -1, tmp) {
         if (tmp->type != FLOOR && !QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
@@ -125,8 +126,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
         }
 
         if (tmp->arch == new_floor->arch) {
-            draw_info(COLOR_WHITE, op,
-                      "You feel too lazy to redo the exact same floor.");
+            draw_info(COLOR_WHITE, op, "You feel too lazy to redo the exact same floor.");
             return 0;
         }
 
@@ -136,7 +136,8 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
 
         object_remove(tmp, 0);
         object_destroy(tmp);
-    } FOR_MAP_LAYER_END
+    }
+    FOR_MAP_LAYER_END
 
     SET_FLAG(new_floor, FLAG_IS_FLOOR);
     new_floor->type = FLOOR;
@@ -161,8 +162,7 @@ static int builder_floor(object *op, object *new_floor, int x, int y)
  * @return
  * 1 if the item was built, 0 otherwise.
  */
-static int builder_item(object *op, object *new_item, int x, int y)
-{
+static int builder_item(object *op, object *new_item, int x, int y) {
     object *floor_ob;
     int w = wall_blocked(op->map, x, y);
 
@@ -170,8 +170,11 @@ static int builder_item(object *op, object *new_item, int x, int y)
      * */
     if (new_item->type != WALL && w) {
         char *name = object_get_name_s(new_item, op);
-        draw_info_format(COLOR_WHITE, op, "Something is blocking you from "
-                "building the %s on that square.", name);
+        draw_info_format(COLOR_WHITE,
+                         op,
+                         "Something is blocking you from "
+                         "building the %s on that square.",
+                         name);
         efree(name);
         return 0;
     } else if (new_item->type == WALL) {
@@ -182,21 +185,29 @@ static int builder_item(object *op, object *new_item, int x, int y)
 
         if (!w || !wall_ob) {
             char *name = object_get_name_s(new_item, op);
-            draw_info_format(COLOR_WHITE, op, "The %s can only be built on "
-                    "top of a wall.", name);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "The %s can only be built on "
+                             "top of a wall.",
+                             name);
             efree(name);
             return 0;
         } else if (wall_ob->above && wall_ob->above->type == WALL) {
             char *name = object_get_name_s(wall_ob->above, op);
-            draw_info_format(COLOR_WHITE, op, "You first need to remove the %s "
-                    "before building on top of that wall again.", name);
+            draw_info_format(COLOR_WHITE,
+                             op,
+                             "You first need to remove the %s "
+                             "before building on top of that wall again.",
+                             name);
             efree(name);
             return 0;
         }
     }
 
     /* Only allow building if there is a floor. */
-    for (floor_ob = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR, 0); floor_ob && floor_ob->layer == LAYER_FLOOR; floor_ob = floor_ob->above) {
+    for (floor_ob = GET_MAP_OB_LAYER(op->map, x, y, LAYER_FLOOR, 0);
+         floor_ob && floor_ob->layer == LAYER_FLOOR;
+         floor_ob = floor_ob->above) {
         if (floor_ob->type == FLOOR || QUERY_FLAG(floor_ob, FLAG_IS_FLOOR)) {
             break;
         }
@@ -218,7 +229,9 @@ static int builder_item(object *op, object *new_item, int x, int y)
         }
 
         if (!book || (!book->msg && !book->custom_name)) {
-            draw_info(COLOR_WHITE, op, "You need to put a book with your message (or custom name) on the floor.");
+            draw_info(COLOR_WHITE,
+                      op,
+                      "You need to put a book with your message (or custom name) on the floor.");
             return 0;
         }
 
@@ -239,7 +252,8 @@ static int builder_item(object *op, object *new_item, int x, int y)
     /* If the item is turnable, adjust direction. */
     if (QUERY_FLAG(new_item, FLAG_IS_TURNABLE) && op->direction) {
         new_item->direction = op->direction;
-        SET_ANIMATION(new_item, (NUM_ANIMATIONS(new_item) / NUM_FACINGS(new_item)) * new_item->direction);
+        SET_ANIMATION(new_item,
+                      (NUM_ANIMATIONS(new_item) / NUM_FACINGS(new_item)) * new_item->direction);
     }
 
     SET_FLAG(new_item, FLAG_NO_PICK);
@@ -268,8 +282,11 @@ static int builder_item(object *op, object *new_item, int x, int y)
  * @return
  * 1 on success, 0 on failure.
  */
-static int wall_split_orientation(const object *wall_ob, char *wall_name, size_t wall_name_size, char *orientation, size_t orientation_size)
-{
+static int wall_split_orientation(const object *wall_ob,
+                                  char *wall_name,
+                                  size_t wall_name_size,
+                                  char *orientation,
+                                  size_t orientation_size) {
     int l;
 
     strncpy(wall_name, wall_ob->arch->name, wall_name_size - 1);
@@ -299,8 +316,7 @@ static int wall_split_orientation(const object *wall_ob, char *wall_name, size_t
  * @param y
  * Y where to fix.
  */
-static void fix_walls(mapstruct *map, int x, int y)
-{
+static void fix_walls(mapstruct *map, int x, int y) {
     int connect_val;
     object *wall_ob;
     char wall_name[MAX_BUF], orientation[MAX_BUF];
@@ -311,7 +327,11 @@ static void fix_walls(mapstruct *map, int x, int y)
     /* First, find the wall on that spot */
     wall_ob = get_wall(map, x, y);
 
-    if (!wall_ob || !wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation))) {
+    if (!wall_ob || !wall_split_orientation(wall_ob,
+                                            wall_name,
+                                            sizeof(wall_name),
+                                            orientation,
+                                            sizeof(orientation))) {
         return;
     }
 
@@ -334,35 +354,35 @@ static void fix_walls(mapstruct *map, int x, int y)
     }
 
     switch (connect_val) {
-    case 0:
-        return;
+        case 0:
+            return;
 
-    case 10:
-    case 8:
-    case 2:
-        strncat(wall_name, "_8", sizeof(wall_name) - strlen(wall_name) - 1);
-        break;
+        case 10:
+        case 8:
+        case 2:
+            strncat(wall_name, "_8", sizeof(wall_name) - strlen(wall_name) - 1);
+            break;
 
-    case 11:
-    case 9:
-    case 3:
-    case 1:
-        strncat(wall_name, "_1", sizeof(wall_name) - strlen(wall_name) - 1);
-        break;
+        case 11:
+        case 9:
+        case 3:
+        case 1:
+            strncat(wall_name, "_1", sizeof(wall_name) - strlen(wall_name) - 1);
+            break;
 
-    case 12:
-    case 4:
-    case 14:
-    case 6:
-        strncat(wall_name, "_3", sizeof(wall_name) - strlen(wall_name) - 1);
-        break;
+        case 12:
+        case 4:
+        case 14:
+        case 6:
+            strncat(wall_name, "_3", sizeof(wall_name) - strlen(wall_name) - 1);
+            break;
 
-    case 5:
-    case 7:
-    case 13:
-    case 15:
-        strncat(wall_name, "_4", sizeof(wall_name) - strlen(wall_name) - 1);
-        break;
+        case 5:
+        case 7:
+        case 13:
+        case 15:
+            strncat(wall_name, "_4", sizeof(wall_name) - strlen(wall_name) - 1);
+            break;
     }
 
     /* No need to change anything if the old and new names are identical. */
@@ -410,14 +430,17 @@ static void fix_walls(mapstruct *map, int x, int y)
  * @return
  * 1 if the wall was built, 0 otherwise.
  */
-static int builder_wall(object *op, object *new_wall, int x, int y)
-{
+static int builder_wall(object *op, object *new_wall, int x, int y) {
     object *wall_ob = get_wall(op->map, x, y);
 
     if (wall_ob) {
         char wall_name[MAX_BUF], orientation[MAX_BUF];
 
-        if (!wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation))) {
+        if (!wall_split_orientation(wall_ob,
+                                    wall_name,
+                                    sizeof(wall_name),
+                                    orientation,
+                                    sizeof(orientation))) {
             draw_info(COLOR_WHITE, op, "You don't see a way to redecorate that wall.");
             return 0;
         }
@@ -475,8 +498,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
  * @return
  * 1 if the window was built, 0 otherwise.
  */
-static int builder_window(object *op, int x, int y)
-{
+static int builder_window(object *op, int x, int y) {
     object *wall_ob;
     char wall_name[MAX_BUF], orientation[MAX_BUF];
     archetype_t *new_arch;
@@ -491,11 +513,14 @@ static int builder_window(object *op, int x, int y)
         return 0;
     }
 
-    if (!wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation))) {
+    if (!wall_split_orientation(wall_ob,
+                                wall_name,
+                                sizeof(wall_name),
+                                orientation,
+                                sizeof(orientation))) {
         draw_info(COLOR_WHITE, op, "You don't see a way to build a window in that wall.");
         return 0;
-    } else if (strcmp(orientation, "_1") != 0 &&
-               strcmp(orientation, "_3") != 0) {
+    } else if (strcmp(orientation, "_1") != 0 && strcmp(orientation, "_3") != 0) {
         draw_info(COLOR_WHITE, op, "You cannot build a window in that wall.");
         return 0;
     }
@@ -544,8 +569,7 @@ static int builder_window(object *op, int x, int y)
  * @param y
  * Y where to build.
  */
-static void construction_builder(object *op, int x, int y)
-{
+static void construction_builder(object *op, int x, int y) {
     object *material, *new_item;
     archetype_t *new_arch;
     int built = 0;
@@ -582,27 +606,27 @@ static void construction_builder(object *op, int x, int y)
 
     /* Insert the new object in the map. */
     switch (material->sub_type) {
-    case ST_MAT_FLOOR:
-        built = builder_floor(op, new_item, x, y);
-        break;
+        case ST_MAT_FLOOR:
+            built = builder_floor(op, new_item, x, y);
+            break;
 
-    case ST_MAT_WALL:
-        built = builder_wall(op, new_item, x, y);
-        break;
+        case ST_MAT_WALL:
+            built = builder_wall(op, new_item, x, y);
+            break;
 
-    case ST_MAT_ITEM:
-        built = builder_item(op, new_item, x, y);
-        break;
+        case ST_MAT_ITEM:
+            built = builder_item(op, new_item, x, y);
+            break;
 
-    case ST_MAT_WIN:
-        built = builder_window(op, x, y);
-        object_destroy(new_item);
-        break;
+        case ST_MAT_WIN:
+            built = builder_window(op, x, y);
+            object_destroy(new_item);
+            break;
 
-    default:
-        LOG(BUG, "Invalid material subtype %d.", material->sub_type);
-        draw_info(COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
-        break;
+        default:
+            LOG(BUG, "Invalid material subtype %d.", material->sub_type);
+            draw_info(COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
+            break;
     }
 
     if (built) {
@@ -622,8 +646,7 @@ static void construction_builder(object *op, int x, int y)
  * @param y
  * Y where to remove.
  */
-static void construction_destroyer(object *op, int x, int y)
-{
+static void construction_destroyer(object *op, int x, int y) {
     object *item;
 
     for (item = GET_MAP_OB_LAST(op->map, x, y); item; item = item->below) {
@@ -644,8 +667,11 @@ static void construction_destroyer(object *op, int x, int y)
     /* Do not allow destroying containers with inventory. */
     if (item->type == CONTAINER && item->inv) {
         char *name = object_get_name_s(item, op);
-        draw_info_format(COLOR_WHITE, op, "You cannot remove the %s, since it "
-                "contains items.", name);
+        draw_info_format(COLOR_WHITE,
+                         op,
+                         "You cannot remove the %s, since it "
+                         "contains items.",
+                         name);
         efree(name);
         return;
     }
@@ -678,8 +704,7 @@ static void construction_destroyer(object *op, int x, int y)
  * @param op
  * Player.
  */
-void construction_do(object *op, int dir)
-{
+void construction_do(object *op, int dir) {
     object *skill_item, *floor_ob, *tmp;
     int x, y;
 
@@ -696,8 +721,11 @@ void construction_do(object *op, int dir)
 
     if (skill_item->stats.sp != SK_CONSTRUCTION) {
         char *name = object_get_name_s(skill_item, op);
-        draw_info_format(COLOR_WHITE, op, "The %s cannot be used with the "
-                "construction skill.", name);
+        draw_info_format(COLOR_WHITE,
+                         op,
+                         "The %s cannot be used with the "
+                         "construction skill.",
+                         name);
         efree(name);
         return;
     }
@@ -756,18 +784,17 @@ void construction_do(object *op, int dir)
     }
 
     switch (skill_item->sub_type) {
-    case ST_BD_REMOVE:
-        construction_destroyer(op, x, y);
-        break;
+        case ST_BD_REMOVE:
+            construction_destroyer(op, x, y);
+            break;
 
-    case ST_BD_BUILD:
-        construction_builder(op, x, y);
-        break;
+        case ST_BD_BUILD:
+            construction_builder(op, x, y);
+            break;
 
-    default:
-        LOG(ERROR, "Skill item %s has invalid subtype.",
-                object_get_str(skill_item));
-        draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
-        break;
+        default:
+            LOG(ERROR, "Skill item %s has invalid subtype.", object_get_str(skill_item));
+            draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
+            break;
     }
 }

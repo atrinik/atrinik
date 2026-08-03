@@ -35,7 +35,6 @@
 /**
  * Initialize the boots type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(boots)
-{
+OBJECT_TYPE_INIT_DEFINE(boots) {
     OBJECT_METHODS(BOOTS)->apply_func = object_apply_item;
 }

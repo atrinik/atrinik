@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_say(object *op, const char *command, char *params)
-{
+void command_say(object *op, const char *command, char *params) {
     params = player_sanitize_input(params);
 
     if (!params) {
@@ -43,5 +42,14 @@ void command_say(object *op, const char *command, char *params)
     }
 
     LOG(CHAT, "[SAY] [%s] %s", op->name, params);
-    draw_info_map(CHAT_TYPE_LOCAL, op->name, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, NULL, NULL, params);
+    draw_info_map(CHAT_TYPE_LOCAL,
+                  op->name,
+                  COLOR_WHITE,
+                  op->map,
+                  op->x,
+                  op->y,
+                  MAP_INFO_NORMAL,
+                  NULL,
+                  NULL,
+                  params);
 }

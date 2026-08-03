@@ -32,7 +32,6 @@
 
 /* Prototypes */
 
-bool
-pedestal_matches_obj(object *op, object *tmp);
+bool pedestal_matches_obj(object *op, object *tmp);
 
 #endif

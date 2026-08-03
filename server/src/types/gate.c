@@ -34,9 +34,7 @@
 #include <object_methods.h>
 
 /** @copydoc object_methods_t::process_func */
-static void
-process_func (object *op)
-{
+static void process_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->stats.maxhp != 0 && op->stats.hp != 0) {
@@ -81,17 +79,10 @@ process_func (object *op)
 
                 if (IS_LIVE(tmp)) {
                     attack_hit(tmp, op, op->stats.dam);
-                    draw_info_format(COLOR_WHITE, tmp,
-                                     "You are crushed by the %s!",
-                                     op->name);
+                    draw_info_format(COLOR_WHITE, tmp, "You are crushed by the %s!", op->name);
                 }
 
-                int i = map_free_spot(op->map,
-                                       op->x,
-                                       op->y,
-                                       1,
-                                       SIZEOFFREE1, tmp->arch,
-                                       tmp);
+                int i = map_free_spot(op->map, op->x, op->y, 1, SIZEOFFREE1, tmp->arch, tmp);
                 /* If there is a free spot, move the object someplace. */
                 if (i != -1) {
                     object_remove(tmp, 0);
@@ -102,7 +93,8 @@ process_func (object *op)
                     /* No free spot, so the gate is blocked. */
                     is_blocked = true;
                 }
-            } FOR_MAP_FINISH();
+            }
+            FOR_MAP_FINISH();
 
             if (is_blocked) {
                 op->stats.wc--;
@@ -129,15 +121,12 @@ process_func (object *op)
     }
 
     op->state = op->stats.wc;
-    SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) *
-                       op->direction + op->stats.wc));
+    SET_ANIMATION(op, ((NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction + op->stats.wc));
     object_update(op, UP_OBJ_FACE);
 }
 
 /** @copydoc object_methods_t::trigger_func */
-static int
-trigger_func (object *op, object *cause, int state)
-{
+static int trigger_func(object *op, object *cause, int state) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(cause != NULL);
 
@@ -161,8 +150,7 @@ trigger_func (object *op, object *cause, int state)
 /**
  * Initialize the gate type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(gate)
-{
+OBJECT_TYPE_INIT_DEFINE(gate) {
     OBJECT_METHODS(GATE)->trigger_func = trigger_func;
     OBJECT_METHODS(GATE)->process_func = process_func;
 }

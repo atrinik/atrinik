@@ -38,12 +38,9 @@
 /**
  * Directions to fire into.
  */
-static const int directions_fire[DIRECTIONS_NUM] = {
-    6, 5, 4, 7, 0, 3, 8, 1, 2
-};
+static const int directions_fire[DIRECTIONS_NUM] = {6, 5, 4, 7, 0, 3, 8, 1, 2};
 
-void client_send_fire(int num, tag_t tag)
-{
+void client_send_fire(int num, tag_t tag) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_FIRE, 64, 64);
@@ -56,8 +53,7 @@ void client_send_fire(int num, tag_t tag)
     socket_send_packet(packet);
 }
 
-void move_keys(int num)
-{
+void move_keys(int num) {
     if (cpl.fire_on) {
         client_send_fire(num, 0);
     } else {
@@ -86,9 +82,9 @@ void move_keys(int num)
  * @return
  * The direction, 1-9.
  */
-int dir_from_tile_coords(int tx, int ty)
-{
-    int player_tile_x = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2, player_tile_y = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
+int dir_from_tile_coords(int tx, int ty) {
+    int player_tile_x = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2,
+        player_tile_y = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
     int q, x, y;
 
     if (tx == player_tile_x && ty == player_tile_y) {

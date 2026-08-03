@@ -38,15 +38,13 @@
 #include <toolkit/socket_crypto.h>
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_book(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_book(uint8_t *data, size_t len, size_t pos) {
     sound_play_effect("book.ogg", 100);
-    book_load((char *) data + pos, len);
+    book_load((char *)data + pos, len);
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_setup(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_setup(uint8_t *data, size_t len, size_t pos) {
     uint8_t type;
 
     while (pos < len) {
@@ -63,16 +61,14 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
             setting_set_int(OPT_CAT_MAP, OPT_MAP_WIDTH, x);
             setting_set_int(OPT_CAT_MAP, OPT_MAP_HEIGHT, y);
         } else if (type == CMD_SETUP_DATA_URL) {
-            packet_to_string(data, len, &pos, cpl.http_url,
-                    sizeof(cpl.http_url));
+            packet_to_string(data, len, &pos, cpl.http_url, sizeof(cpl.http_url));
         } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
             cpl.asset_transport = packet_to_uint8(data, len, &pos) != 0;
         } else if (type == CMD_SETUP_CONNECTION_MODE) {
             packet_to_uint8(data, len, &pos);
         } else if (type == CMD_SETUP_JOIN_PASSWORD) {
             if (packet_to_uint8(data, len, &pos) == 0) {
-                if (selected_server != NULL &&
-                    selected_server->join_password != NULL) {
+                if (selected_server != NULL && selected_server->join_password != NULL) {
                     OPENSSL_cleanse(selected_server->join_password,
                                     strlen(selected_server->join_password));
                     efree(selected_server->join_password);
@@ -84,8 +80,7 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
                     efree(clioption_settings.join_password);
                     clioption_settings.join_password = NULL;
                 }
-                draw_info(COLOR_RED,
-                          "The server rejected the join password.");
+                draw_info(COLOR_RED, "The server rejected the join password.");
                 cpl.state = ST_START;
                 return;
             }
@@ -98,8 +93,7 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_anim(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_anim(uint8_t *data, size_t len, size_t pos) {
     if (pos > len || len - pos < 4) {
         LOG(ERROR, "Ignoring truncated animation packet");
         return;
@@ -110,16 +104,20 @@ void socket_command_anim(uint8_t *data, size_t len, size_t pos)
     uint8_t facings = packet_to_uint8(data, len, &pos);
 
     if (anim_id >= animations_num || animations == NULL) {
-        LOG(ERROR, "Ignoring invalid animation ID %u (count: %" PRIu64 ")",
-            anim_id, (uint64_t) animations_num);
+        LOG(ERROR,
+            "Ignoring invalid animation ID %u (count: %" PRIu64 ")",
+            anim_id,
+            (uint64_t)animations_num);
         return;
     }
 
     size_t num_animations = (len - pos) / 2;
     if ((len - pos) % 2 != 0 || num_animations == 0 || facings == 0 ||
-            num_animations % facings != 0) {
-        LOG(ERROR, "Ignoring malformed animation %u (%" PRIu64
-            " faces, %u facings)", anim_id, (uint64_t) num_animations,
+        num_animations % facings != 0) {
+        LOG(ERROR,
+            "Ignoring malformed animation %u (%" PRIu64 " faces, %u facings)",
+            anim_id,
+            (uint64_t)num_animations,
             facings);
         return;
     }
@@ -135,8 +133,7 @@ void socket_command_anim(uint8_t *data, size_t len, size_t pos)
     for (size_t i = 0; i < num_animations; i++) {
         uint16_t face = packet_to_uint16(data, len, &pos) & FACE_ID_MASK;
         if (!image_face_valid(face)) {
-            LOG(ERROR, "Animation %u contains invalid face ID %u", anim_id,
-                face);
+            LOG(ERROR, "Animation %u contains invalid face ID %u", anim_id, face);
             face = 0;
         }
 
@@ -148,8 +145,7 @@ void socket_command_anim(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_image(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_image(uint8_t *data, size_t len, size_t pos) {
     uint32_t facenum, filesize;
     char buf[HUGE_BUF];
     FILE *fp;
@@ -163,16 +159,18 @@ void socket_command_image(uint8_t *data, size_t len, size_t pos)
     filesize = packet_to_uint32(data, len, &pos);
 
     if (!image_face_valid(facenum) || image_get_face_name(facenum) == NULL ||
-            filesize > len - pos) {
-        LOG(ERROR, "Ignoring invalid image packet (face: %" PRIu32
-            ", size: %" PRIu32 ", remaining: %" PRIu64 ")",
-            facenum, filesize, (uint64_t) (len - pos));
+        filesize > len - pos) {
+        LOG(ERROR,
+            "Ignoring invalid image packet (face: %" PRIu32 ", size: %" PRIu32
+            ", remaining: %" PRIu64 ")",
+            facenum,
+            filesize,
+            (uint64_t)(len - pos));
         return;
     }
 
     /* Save picture to cache and load it to FaceList. */
-    snprintf(buf, sizeof(buf), DIRECTORY_CACHE "/%s",
-            image_get_face_name(facenum));
+    snprintf(buf, sizeof(buf), DIRECTORY_CACHE "/%s", image_get_face_name(facenum));
 
     fp = path_fopen(buf, "wb+");
 
@@ -195,8 +193,7 @@ void socket_command_image(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos) {
     uint8_t type;
     char color[COLOR_BUF], *str;
     StringBuffer *sb;
@@ -214,8 +211,7 @@ void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_target(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_target(uint8_t *data, size_t len, size_t pos) {
     cpl.target_code = packet_to_uint8(data, len, &pos);
     packet_to_string(data, len, &pos, cpl.target_color, sizeof(cpl.target_color));
     packet_to_string(data, len, &pos, cpl.target_name, sizeof(cpl.target_name));
@@ -227,8 +223,7 @@ void socket_command_target(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_stats(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_stats(uint8_t *data, size_t len, size_t pos) {
     uint8_t type;
     int temp;
 
@@ -239,176 +234,173 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
             cpl.equipment[type - CS_STAT_EQUIP_START] = packet_to_uint32(data, len, &pos);
             WIDGET_REDRAW_ALL(PDOLL_ID);
         } else if (type >= CS_STAT_PROT_START && type <= CS_STAT_PROT_END) {
-            cpl.stats.protection[type - CS_STAT_PROT_START] =
-                    packet_to_int8(data, len, &pos);
+            cpl.stats.protection[type - CS_STAT_PROT_START] = packet_to_int8(data, len, &pos);
             WIDGET_REDRAW_ALL(PROTECTIONS_ID);
         } else {
             switch (type) {
-            case CS_STAT_TARGET_HP:
-                cpl.target_hp = packet_to_uint8(data, len, &pos);
-                WIDGET_REDRAW_ALL(TARGET_ID);
-                break;
+                case CS_STAT_TARGET_HP:
+                    cpl.target_hp = packet_to_uint8(data, len, &pos);
+                    WIDGET_REDRAW_ALL(TARGET_ID);
+                    break;
 
-            case CS_STAT_REG_HP:
-                cpl.gen_hp = packet_to_uint16(data, len, &pos) / 10.0f;
-                widget_redraw_type_id(STAT_ID, "health");
-                break;
+                case CS_STAT_REG_HP:
+                    cpl.gen_hp = packet_to_uint16(data, len, &pos) / 10.0f;
+                    widget_redraw_type_id(STAT_ID, "health");
+                    break;
 
-            case CS_STAT_REG_MANA:
-                cpl.gen_sp = packet_to_uint16(data, len, &pos) / 10.0f;
-                widget_redraw_type_id(STAT_ID, "mana");
-                break;
+                case CS_STAT_REG_MANA:
+                    cpl.gen_sp = packet_to_uint16(data, len, &pos) / 10.0f;
+                    widget_redraw_type_id(STAT_ID, "mana");
+                    break;
 
-            case CS_STAT_HP:
-                temp = packet_to_int32(data, len, &pos);
+                case CS_STAT_HP:
+                    temp = packet_to_int32(data, len, &pos);
 
-                if (temp < cpl.stats.hp && cpl.stats.food) {
-                    cpl.warn_hp = 1;
+                    if (temp < cpl.stats.hp && cpl.stats.food) {
+                        cpl.warn_hp = 1;
 
-                    if (cpl.stats.maxhp / 12 <= cpl.stats.hp - temp) {
-                        cpl.warn_hp = 2;
+                        if (cpl.stats.maxhp / 12 <= cpl.stats.hp - temp) {
+                            cpl.warn_hp = 2;
+                        }
                     }
+
+                    cpl.stats.hp = temp;
+                    widget_redraw_type_id(STAT_ID, "health");
+                    break;
+
+                case CS_STAT_MAXHP:
+                    cpl.stats.maxhp = packet_to_int32(data, len, &pos);
+                    widget_redraw_type_id(STAT_ID, "health");
+                    break;
+
+                case CS_STAT_SP:
+                    cpl.stats.sp = packet_to_int16(data, len, &pos);
+                    widget_redraw_type_id(STAT_ID, "mana");
+                    break;
+
+                case CS_STAT_MAXSP:
+                    cpl.stats.maxsp = packet_to_int16(data, len, &pos);
+                    widget_redraw_type_id(STAT_ID, "mana");
+                    break;
+
+                case CS_STAT_STR:
+                case CS_STAT_INT:
+                case CS_STAT_POW:
+                case CS_STAT_DEX:
+                case CS_STAT_CON: {
+                    int8_t *stat_curr;
+                    uint8_t stat_new;
+
+                    stat_curr = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
+                    stat_new = packet_to_uint8(data, len, &pos);
+
+                    if (*stat_curr != -1) {
+                        if (stat_new > *stat_curr) {
+                            cpl.warn_statup = 1;
+                        } else if (stat_new < *stat_curr) {
+                            cpl.warn_statdown = 1;
+                        }
+                    }
+
+                    *stat_curr = stat_new;
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
                 }
 
-                cpl.stats.hp = temp;
-                widget_redraw_type_id(STAT_ID, "health");
-                break;
+                case CS_STAT_PATH_ATTUNED:
+                    cpl.path_attuned = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(SPELLS_ID);
+                    break;
 
-            case CS_STAT_MAXHP:
-                cpl.stats.maxhp = packet_to_int32(data, len, &pos);
-                widget_redraw_type_id(STAT_ID, "health");
-                break;
+                case CS_STAT_PATH_REPELLED:
+                    cpl.path_repelled = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(SPELLS_ID);
+                    break;
 
-            case CS_STAT_SP:
-                cpl.stats.sp = packet_to_int16(data, len, &pos);
-                widget_redraw_type_id(STAT_ID, "mana");
-                break;
+                case CS_STAT_PATH_DENIED:
+                    cpl.path_denied = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(SPELLS_ID);
+                    break;
 
-            case CS_STAT_MAXSP:
-                cpl.stats.maxsp = packet_to_int16(data, len, &pos);
-                widget_redraw_type_id(STAT_ID, "mana");
-                break;
+                case CS_STAT_EXP:
+                    cpl.stats.exp = packet_to_uint64(data, len, &pos);
+                    widget_redraw_type_id(STAT_ID, "exp");
+                    break;
 
-            case CS_STAT_STR:
-            case CS_STAT_INT:
-            case CS_STAT_POW:
-            case CS_STAT_DEX:
-            case CS_STAT_CON:
-            {
-                int8_t *stat_curr;
-                uint8_t stat_new;
+                case CS_STAT_LEVEL:
+                    cpl.stats.level = packet_to_uint8(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
+                    break;
 
-                stat_curr = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
-                stat_new = packet_to_uint8(data, len, &pos);
+                case CS_STAT_WC:
+                    cpl.stats.wc = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-                if (*stat_curr != -1) {
-                    if (stat_new > *stat_curr) {
-                        cpl.warn_statup = 1;
-                    } else if (stat_new < *stat_curr) {
-                        cpl.warn_statdown = 1;
-                    }
-                }
+                case CS_STAT_AC:
+                    cpl.stats.ac = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-                *stat_curr = stat_new;
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
-            }
+                case CS_STAT_DAM:
+                    cpl.stats.dam = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-            case CS_STAT_PATH_ATTUNED:
-                cpl.path_attuned = packet_to_uint32(data, len, &pos);
-                WIDGET_REDRAW_ALL(SPELLS_ID);
-                break;
+                case CS_STAT_SPEED:
+                    cpl.stats.speed = packet_to_double(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-            case CS_STAT_PATH_REPELLED:
-                cpl.path_repelled = packet_to_uint32(data, len, &pos);
-                WIDGET_REDRAW_ALL(SPELLS_ID);
-                break;
+                case CS_STAT_FOOD:
+                    cpl.stats.food = packet_to_uint16(data, len, &pos);
+                    widget_redraw_type_id(STAT_ID, "food");
+                    break;
 
-            case CS_STAT_PATH_DENIED:
-                cpl.path_denied = packet_to_uint32(data, len, &pos);
-                WIDGET_REDRAW_ALL(SPELLS_ID);
-                break;
+                case CS_STAT_WEAPON_SPEED:
+                    cpl.stats.weapon_speed = packet_to_double(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-            case CS_STAT_EXP:
-                cpl.stats.exp = packet_to_uint64(data, len, &pos);
-                widget_redraw_type_id(STAT_ID, "exp");
-                break;
+                case CS_STAT_FLAGS:
+                    cpl.stats.flags = packet_to_uint16(data, len, &pos);
+                    break;
 
-            case CS_STAT_LEVEL:
-                cpl.stats.level = packet_to_uint8(data, len, &pos);
-                WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
-                break;
+                case CS_STAT_WEIGHT_LIM:
+                    cpl.weight_limit = packet_to_uint32(data, len, &pos) / 1000.0;
+                    break;
 
-            case CS_STAT_WC:
-                cpl.stats.wc = packet_to_uint16(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
+                case CS_STAT_ACTION_TIME:
+                    cpl.action_timer = packet_to_float(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
+                    break;
 
-            case CS_STAT_AC:
-                cpl.stats.ac = packet_to_uint16(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
+                case CS_STAT_GENDER:
+                    cpl.gender = packet_to_uint8(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-            case CS_STAT_DAM:
-                cpl.stats.dam = packet_to_uint16(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
+                case CS_STAT_RANGED_DAM:
+                    cpl.stats.ranged_dam = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-            case CS_STAT_SPEED:
-                cpl.stats.speed = packet_to_double(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
+                case CS_STAT_RANGED_WC:
+                    cpl.stats.ranged_wc = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
 
-            case CS_STAT_FOOD:
-                cpl.stats.food = packet_to_uint16(data, len, &pos);
-                widget_redraw_type_id(STAT_ID, "food");
-                break;
-
-            case CS_STAT_WEAPON_SPEED:
-                cpl.stats.weapon_speed = packet_to_double(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
-
-            case CS_STAT_FLAGS:
-                cpl.stats.flags = packet_to_uint16(data, len, &pos);
-                break;
-
-            case CS_STAT_WEIGHT_LIM:
-                cpl.weight_limit = packet_to_uint32(data, len, &pos) / 1000.0;
-                break;
-
-            case CS_STAT_ACTION_TIME:
-                cpl.action_timer = packet_to_float(data, len, &pos);
-                WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
-                break;
-
-            case CS_STAT_GENDER:
-                cpl.gender = packet_to_uint8(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
-
-            case CS_STAT_RANGED_DAM:
-                cpl.stats.ranged_dam = packet_to_uint16(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
-
-            case CS_STAT_RANGED_WC:
-                cpl.stats.ranged_wc = packet_to_uint16(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
-
-            case CS_STAT_RANGED_WS:
-                cpl.stats.ranged_ws = packet_to_float(data, len, &pos);
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-                break;
+                case CS_STAT_RANGED_WS:
+                    cpl.stats.ranged_ws = packet_to_float(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
+                    break;
             }
         }
     }
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_player(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_player(uint8_t *data, size_t len, size_t pos) {
     int tag, weight;
 
     tag = packet_to_uint32(data, len, &pos);
@@ -416,8 +408,7 @@ void socket_command_player(uint8_t *data, size_t len, size_t pos)
     uint32_t raw_face = packet_to_uint32(data, len, &pos);
     uint16_t face = raw_face & FACE_ID_MASK;
     if (!image_face_valid(face)) {
-        LOG(ERROR, "Player %d received invalid face ID %" PRIu32, tag,
-            raw_face);
+        LOG(ERROR, "Player %d received invalid face ID %" PRIu32, tag, raw_face);
         face = 0;
     }
 
@@ -436,8 +427,7 @@ void socket_command_player(uint8_t *data, size_t len, size_t pos)
     cpl.state = ST_PLAY;
 }
 
-void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp)
-{
+void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp) {
     bool force_anim = false;
 
     if (flags & UPD_LOCATION) {
@@ -457,9 +447,13 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
         uint16_t raw_face = packet_to_uint16(data, len, pos);
         uint16_t face = raw_face & FACE_ID_MASK;
         if (!image_face_valid(face)) {
-            LOG(ERROR, "Object %" PRIu32 " received invalid face ID %u "
-                "(animation: %u, direction: %u)", tmp->tag, raw_face,
-                tmp->animation_id, tmp->direction);
+            LOG(ERROR,
+                "Object %" PRIu32 " received invalid face ID %u "
+                "(animation: %u, direction: %u)",
+                tmp->tag,
+                raw_face,
+                tmp->animation_id,
+                tmp->direction);
             face = 0;
         }
 
@@ -491,9 +485,13 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
         uint16_t animation_id = packet_to_uint16(data, len, pos);
 
         if (animation_id >= animations_num) {
-            LOG(ERROR, "Object %" PRIu32 " received invalid animation ID %u "
-                "(face: %u, direction: %u)", tmp->tag, animation_id,
-                tmp->face, tmp->direction);
+            LOG(ERROR,
+                "Object %" PRIu32 " received invalid animation ID %u "
+                "(face: %u, direction: %u)",
+                tmp->tag,
+                animation_id,
+                tmp->face,
+                tmp->direction);
             animation_id = 0;
         }
 
@@ -576,8 +574,7 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_item(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_item(uint8_t *data, size_t len, size_t pos) {
     bool delete_env = packet_to_uint8(data, len, &pos) == 1;
     if (delete_env) {
         tag_t loc_delete = packet_to_uint32(data, len, &pos);
@@ -637,8 +634,8 @@ void socket_command_item(uint8_t *data, size_t len, size_t pos)
             }
         }
 
-        uint32_t flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION |
-                UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_GLOW;
+        uint32_t flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM |
+                         UPD_ANIMSPEED | UPD_NROF | UPD_GLOW;
 
         if (loc > 0) {
             flags |= UPD_TYPE | UPD_EXTRA;
@@ -649,8 +646,7 @@ void socket_command_item(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_item_update(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_item_update(uint8_t *data, size_t len, size_t pos) {
     uint32_t flags, tag;
     object *tmp;
 
@@ -667,8 +663,7 @@ void socket_command_item_update(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_item_delete(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_item_delete(uint8_t *data, size_t len, size_t pos) {
     tag_t tag;
 
     while (pos < len) {
@@ -680,8 +675,7 @@ void socket_command_item_delete(uint8_t *data, size_t len, size_t pos)
 /**
  * Plays the footstep sounds when moving on the map.
  */
-static void map_play_footstep(void)
-{
+static void map_play_footstep(void) {
     static int step = 0;
     static uint32_t tick = 0;
 
@@ -700,8 +694,7 @@ static void map_play_footstep(void)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_mapstats(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_mapstats(uint8_t *data, size_t len, size_t pos) {
     uint8_t type;
     char buf[HUGE_BUF];
 
@@ -730,8 +723,7 @@ void socket_command_mapstats(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_map(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_map(uint8_t *data, size_t len, size_t pos) {
     static int mx = 0, my = 0;
     int mask, x, y, rx, ry;
     int mapstat;
@@ -744,9 +736,8 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
     mapstat = packet_to_uint8(data, len, &pos);
 
     if (mapstat != MAP_UPDATE_CMD_SAME) {
-        char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF],
-                region_name[MAX_BUF], region_longname[MAX_BUF],
-                mappath[HUGE_BUF];
+        char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF], region_name[MAX_BUF],
+            region_longname[MAX_BUF], mappath[HUGE_BUF];
         uint8_t height_diff;
 
         packet_to_string(data, len, &pos, mapname, sizeof(mapname));
@@ -826,8 +817,11 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
         }
 
         if (MapData.region_name[0] != '\0') {
-            if (region_map_fow_set_visited(MapData.region_map, def_map,
-                    MapData.map_path, rx + x, ry + y)) {
+            if (region_map_fow_set_visited(MapData.region_map,
+                                           def_map,
+                                           MapData.map_path,
+                                           rx + x,
+                                           ry + y)) {
                 region_map_fow_need_update = true;
             }
         }
@@ -841,8 +835,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
             int sub_layer;
 
             for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                map_set_darkness(x, y, sub_layer, packet_to_uint8(data, len,
-                        &pos));
+                map_set_darkness(x, y, sub_layer, packet_to_uint8(data, len, &pos));
             }
         }
 
@@ -856,13 +849,39 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 
             /* Clear this layer. */
             if (type == MAP2_LAYER_CLEAR) {
-                map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0,
-                        "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, "", 0);
+                map_set_data(x,
+                             y,
+                             packet_to_uint8(data, len, &pos),
+                             0,
+                             0,
+                             0,
+                             "",
+                             "",
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             "",
+                             0);
             } else { /* We have some data. */
                 int16_t face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
-                uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0, target_is_friend = 0;
-                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass, glow_speed;
+                uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0,
+                                          infravision = 0, target_is_friend = 0;
+                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass,
+                    glow_speed;
                 char player_name[64], player_color[COLOR_BUF], glow[COLOR_BUF];
                 uint32_t target_object_count = 0;
 
@@ -964,12 +983,33 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
                 }
 
                 /* Set the data we figured out. */
-                map_set_data(x, y, type, face, quick_pos, obj_flags,
-                        player_name, player_color, height, probe, zoom_x,
-                        zoom_y, align, draw_double, alpha, rotate, infravision,
-                        target_object_count, target_is_friend, anim_speed,
-                        anim_facing, anim_flags, anim_state, priority,
-                        secondpass, glow, glow_speed);
+                map_set_data(x,
+                             y,
+                             type,
+                             face,
+                             quick_pos,
+                             obj_flags,
+                             player_name,
+                             player_color,
+                             height,
+                             probe,
+                             zoom_x,
+                             zoom_y,
+                             align,
+                             draw_double,
+                             alpha,
+                             rotate,
+                             infravision,
+                             target_object_count,
+                             target_is_friend,
+                             anim_speed,
+                             anim_facing,
+                             anim_flags,
+                             anim_state,
+                             priority,
+                             secondpass,
+                             glow,
+                             glow_speed);
             }
         }
 
@@ -1000,11 +1040,13 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_version(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_version(uint8_t *data, size_t len, size_t pos) {
     if (cpl.state != ST_WAITVERSION) {
-        LOG(BUG, "Received version command when not in proper "
-                "state: %d, should be: %d.", cpl.state, ST_WAITVERSION);
+        LOG(BUG,
+            "Received version command when not in proper "
+            "state: %d, should be: %d.",
+            cpl.state,
+            ST_WAITVERSION);
         return;
     }
 
@@ -1013,8 +1055,7 @@ void socket_command_version(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_compressed(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_compressed(uint8_t *data, size_t len, size_t pos) {
     unsigned long ucomp_len;
     uint8_t type, *dest;
     size_t dest_size;
@@ -1026,8 +1067,10 @@ void socket_command_compressed(uint8_t *data, size_t len, size_t pos)
     dest = emalloc(dest_size);
     dest[0] = type;
 
-    if (uncompress((Bytef *) dest + 1, (uLongf *) & ucomp_len,
-            (const Bytef *) data + pos, (uLong) len - pos) == Z_OK) {
+    if (uncompress((Bytef *)dest + 1,
+                   (uLongf *)&ucomp_len,
+                   (const Bytef *)data + pos,
+                   (uLong)len - pos) == Z_OK) {
         command_buffer *buf;
 
         buf = command_buffer_new(ucomp_len + 1, dest);
@@ -1038,8 +1081,7 @@ void socket_command_compressed(uint8_t *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_control(uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_control(uint8_t *data, size_t len, size_t pos) {
     char app_name[MAX_BUF];
     uint8_t type, sub_type;
 
@@ -1095,9 +1137,7 @@ static const int socket_crypto_popup_delays[] = {
 CASSERT_ARRAY(socket_crypto_popup_delays, SOCKET_CRYPTO_CB_MAX);
 
 /** @copydoc popup_struct::draw_func */
-static int
-popup_draw (popup_struct *popup)
-{
+static int popup_draw(popup_struct *popup) {
     socket_crypto_popup_t *data = popup->custom_data;
 
     int delay = socket_crypto_popup_delays[data->ctx.id];
@@ -1169,18 +1209,15 @@ popup_draw (popup_struct *popup)
         snprintfcat(VS(buf), " (%d)", delay - data->seconds);
     }
 
-    data->button_ok.x = popup->surface->w / 4 -
-                        data->button_ok.texture->surface->w;
-    data->button_ok.y = popup->surface->h -
-                        data->button_ok.texture->surface->h * 2;
+    data->button_ok.x = popup->surface->w / 4 - data->button_ok.texture->surface->w;
+    data->button_ok.y = popup->surface->h - data->button_ok.texture->surface->h * 2;
     data->button_ok.surface = popup->surface;
     data->button_ok.px = popup->x;
     data->button_ok.py = popup->y;
     button_show(&data->button_ok, buf);
 
     data->button_close.x = popup->surface->w - popup->surface->w / 4;
-    data->button_close.y = popup->surface->h -
-                           data->button_close.texture->surface->h * 2;
+    data->button_close.y = popup->surface->h - data->button_close.texture->surface->h * 2;
     data->button_close.surface = popup->surface;
     data->button_close.px = popup->x;
     data->button_close.py = popup->y;
@@ -1190,15 +1227,12 @@ popup_draw (popup_struct *popup)
 }
 
 /** @copydoc popup_struct::event_func */
-static int
-popup_event (popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     socket_crypto_popup_t *data = popup->custom_data;
 
     if (button_event(&data->button_ok, event) ||
         (event->type == SDL_KEYDOWN &&
-         (event->key.keysym.sym == SDLK_RETURN ||
-          event->key.keysym.sym == SDLK_KP_ENTER))) {
+         (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER))) {
         char *errmsg;
         if (!socket_crypto_handle_cb(&data->ctx, &errmsg)) {
             draw_info(COLOR_RED, errmsg);
@@ -1221,9 +1255,7 @@ popup_event (popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
-static int
-popup_destroy_callback (popup_struct *popup)
-{
+static int popup_destroy_callback(popup_struct *popup) {
     if (cpl.state != ST_WAITLOOP) {
         return 0;
     }
@@ -1236,17 +1268,13 @@ popup_destroy_callback (popup_struct *popup)
 }
 
 /** @copydoc popup_struct::clipboard_copy_func */
-static const char *
-popup_clipboard_copy_func (popup_struct *popup)
-{
+static const char *popup_clipboard_copy_func(popup_struct *popup) {
     socket_crypto_popup_t *data = popup->custom_data;
     return data->ctx.fingerprint != NULL ? data->ctx.fingerprint : "";
 }
 
 /** @copydoc socket_crypto_cb_t */
-static void
-socket_crypto_cb (socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx)
-{
+static void socket_crypto_cb(socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx) {
     socket_crypto_popup_t *data = ecalloc(1, sizeof(*data));
     data->ctx = *ctx;
     data->ticks = SDL_GetTicks();
@@ -1255,8 +1283,7 @@ socket_crypto_cb (socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx)
     data->button_ok.disabled = true;
     button_create(&data->button_close);
 
-    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT,
-                                                   "popup"));
+    popup_struct *popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
     popup->draw_func = popup_draw;
     popup->event_func = popup_event;
     popup->destroy_callback_func = popup_destroy_callback;
@@ -1268,9 +1295,7 @@ socket_crypto_cb (socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx)
 /**
  * Aborts the connection due to a crypto error.
  */
-static void
-socket_command_crypto_abort (void)
-{
+static void socket_command_crypto_abort(void) {
     cpl.state = ST_START;
     draw_info_format(COLOR_RED,
                      "Failed to establish a secure connection with %s; see the "
@@ -1283,9 +1308,7 @@ socket_command_crypto_abort (void)
  *
  * @copydoc socket_command_struct::handle_func
  */
-static void
-socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
-{
+static void socket_command_crypto_hello(uint8_t *data, size_t len, size_t pos) {
     StringBuffer *sb = stringbuffer_new();
     packet_to_stringbuffer(data, len, &pos, sb);
     char *cert = stringbuffer_finish(sb);
@@ -1361,15 +1384,12 @@ socket_command_crypto_hello (uint8_t *data, size_t len, size_t pos)
  *
  * @copydoc socket_command_struct::handle_func
  */
-static void
-socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
-{
+static void socket_command_crypto_key(uint8_t *data, size_t len, size_t pos) {
     socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (len == pos) {
-        LOG(PACKET, "Server sent malformed crypto key command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto key command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1387,8 +1407,7 @@ socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
     pos += recv_iv_len;
 
     if (len != pos) {
-        LOG(PACKET, "Server sent malformed crypto key command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto key command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1416,9 +1435,7 @@ socket_command_crypto_key (uint8_t *data, size_t len, size_t pos)
  *
  * @copydoc socket_command_struct::handle_func
  */
-static void
-socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
-{
+static void socket_command_crypto_curves(uint8_t *data, size_t len, size_t pos) {
     socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
@@ -1431,25 +1448,21 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
             uint8_t iv_size;
             const unsigned char *iv = socket_crypto_gen_iv(crypto, &iv_size);
             if (iv == NULL) {
-                LOG(SYSTEM, "Failed to generate IV buffer: %s",
-                    socket_get_id(csocket.sc));
+                LOG(SYSTEM, "Failed to generate IV buffer: %s", socket_get_id(csocket.sc));
                 socket_command_crypto_abort();
                 return;
             }
 
             size_t pubkey_len;
-            unsigned char *pubkey = socket_crypto_gen_pubkey(crypto,
-                                                             &pubkey_len);
+            unsigned char *pubkey = socket_crypto_gen_pubkey(crypto, &pubkey_len);
             if (pubkey == NULL) {
-                LOG(SYSTEM, "Failed to generate a public key: %s",
-                    socket_get_id(csocket.sc));
+                LOG(SYSTEM, "Failed to generate a public key: %s", socket_get_id(csocket.sc));
                 socket_command_crypto_abort();
                 return;
             }
 
             if (pubkey_len > INT16_MAX) {
-                LOG(SYSTEM, "Public key too long: %s",
-                    socket_get_id(csocket.sc));
+                LOG(SYSTEM, "Public key too long: %s", socket_get_id(csocket.sc));
                 socket_command_crypto_abort();
                 efree(pubkey);
                 return;
@@ -1457,7 +1470,7 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
 
             packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 512, 0);
             packet_append_uint8(packet, CMD_CRYPTO_PUBKEY);
-            packet_append_uint16(packet, (uint16_t) pubkey_len);
+            packet_append_uint16(packet, (uint16_t)pubkey_len);
             packet_append_data_len(packet, pubkey, pubkey_len);
             packet_append_uint8(packet, iv_size);
             packet_append_data_len(packet, iv, iv_size);
@@ -1479,15 +1492,12 @@ socket_command_crypto_curves (uint8_t *data, size_t len, size_t pos)
  *
  * @copydoc socket_command_struct::handle_func
  */
-static void
-socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
-{
+static void socket_command_crypto_pubkey(uint8_t *data, size_t len, size_t pos) {
     socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (len == pos) {
-        LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto pubkey command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1502,22 +1512,19 @@ socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
     pos += iv_len;
 
     if (!socket_crypto_derive(crypto, pubkey, pubkey_len, iv, iv_len)) {
-        LOG(SYSTEM, "Couldn't derive shared secret key: %s",
-            socket_get_id(csocket.sc));
+        LOG(SYSTEM, "Couldn't derive shared secret key: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
 
     if (len != pos) {
-        LOG(PACKET, "Server sent malformed crypto pubkey command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto pubkey command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
 
     uint8_t secret_len;
-    const unsigned char *secret = socket_crypto_create_secret(crypto,
-                                                              &secret_len);
+    const unsigned char *secret = socket_crypto_create_secret(crypto, &secret_len);
     if (secret == NULL) {
         LOG(ERROR, "Failed to generate a secret");
         socket_command_crypto_abort();
@@ -1536,15 +1543,12 @@ socket_command_crypto_pubkey (uint8_t *data, size_t len, size_t pos)
  *
  * @copydoc socket_command_struct::handle_func
  */
-static void
-socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
-{
+static void socket_command_crypto_secret(uint8_t *data, size_t len, size_t pos) {
     socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (len == pos) {
-        LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto secret command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1553,8 +1557,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
     secret_len = MIN(secret_len, len - pos);
 
     if (!socket_crypto_set_secret(crypto, data + pos, secret_len)) {
-        LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto secret command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1562,8 +1565,7 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
     pos += secret_len;
 
     if (len != pos) {
-        LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto secret command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1578,15 +1580,12 @@ socket_command_crypto_secret (uint8_t *data, size_t len, size_t pos)
  *
  * @copydoc socket_command_struct::handle_func
  */
-static void
-socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
-{
+static void socket_command_crypto_done(uint8_t *data, size_t len, size_t pos) {
     socket_crypto_t *crypto = socket_get_crypto(csocket.sc);
     SOFT_ASSERT(crypto != NULL, "crypto is NULL");
 
     if (len != pos) {
-        LOG(PACKET, "Server sent malformed crypto secret command: %s",
-            socket_get_id(csocket.sc));
+        LOG(PACKET, "Server sent malformed crypto secret command: %s", socket_get_id(csocket.sc));
         socket_command_crypto_abort();
         return;
     }
@@ -1599,8 +1598,7 @@ socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
 
     /* Begin game data communications */
     cpl.state = ST_START_DATA;
-    LOG(SYSTEM, "Connection: established a secure channel with %s",
-        socket_get_id(csocket.sc));
+    LOG(SYSTEM, "Connection: established a secure channel with %s", socket_get_id(csocket.sc));
 }
 
 /**
@@ -1608,9 +1606,7 @@ socket_command_crypto_done (uint8_t *data, size_t len, size_t pos)
  *
  * @copydoc socket_command_struct::handle_func
  */
-void
-socket_command_crypto (uint8_t *data, size_t len, size_t pos)
-{
+void socket_command_crypto(uint8_t *data, size_t len, size_t pos) {
     uint8_t type = packet_to_uint8(data, len, &pos);
     if (!socket_crypto_check_cmd(type, socket_get_crypto(csocket.sc))) {
         LOG(PACKET, "Received crypto command in invalid state: %u", type);
@@ -1618,32 +1614,32 @@ socket_command_crypto (uint8_t *data, size_t len, size_t pos)
     }
 
     switch (type) {
-    case CMD_CRYPTO_HELLO:
-        socket_command_crypto_hello(data, len, pos);
-        break;
+        case CMD_CRYPTO_HELLO:
+            socket_command_crypto_hello(data, len, pos);
+            break;
 
-    case CMD_CRYPTO_KEY:
-        socket_command_crypto_key(data, len, pos);
-        break;
+        case CMD_CRYPTO_KEY:
+            socket_command_crypto_key(data, len, pos);
+            break;
 
-    case CMD_CRYPTO_CURVES:
-        socket_command_crypto_curves(data, len, pos);
-        break;
+        case CMD_CRYPTO_CURVES:
+            socket_command_crypto_curves(data, len, pos);
+            break;
 
-    case CMD_CRYPTO_PUBKEY:
-        socket_command_crypto_pubkey(data, len, pos);
-        break;
+        case CMD_CRYPTO_PUBKEY:
+            socket_command_crypto_pubkey(data, len, pos);
+            break;
 
-    case CMD_CRYPTO_SECRET:
-        socket_command_crypto_secret(data, len, pos);
-        break;
+        case CMD_CRYPTO_SECRET:
+            socket_command_crypto_secret(data, len, pos);
+            break;
 
-    case CMD_CRYPTO_DONE:
-        socket_command_crypto_done(data, len, pos);
-        break;
+        case CMD_CRYPTO_DONE:
+            socket_command_crypto_done(data, len, pos);
+            break;
 
-    default:
-        LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
-        break;
+        default:
+            LOG(PACKET, "Received unknown security sub-command: %" PRIu8, type);
+            break;
     }
 }

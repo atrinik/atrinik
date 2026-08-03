@@ -34,15 +34,15 @@
 #include <asset.h>
 #include <asset_source.h>
 
-#define SERVER_FILES_HTTP_DIR       "data"
-#define SERVER_FILES_HTTP_LISTING   "listing.txt"
+#define SERVER_FILES_HTTP_DIR "data"
+#define SERVER_FILES_HTTP_LISTING "listing.txt"
 
-#define SERVER_FILE_ANIMS           "anims"
-#define SERVER_FILE_BMAPS           "bmaps"
-#define SERVER_FILE_UPDATES         "updates"
-#define SERVER_FILE_SETTINGS        "settings"
-#define SERVER_FILE_EFFECTS         "effects"
-#define SERVER_FILE_HFILES          "hfiles"
+#define SERVER_FILE_ANIMS "anims"
+#define SERVER_FILE_BMAPS "bmaps"
+#define SERVER_FILE_UPDATES "updates"
+#define SERVER_FILE_SETTINGS "settings"
+#define SERVER_FILE_EFFECTS "effects"
+#define SERVER_FILE_HFILES "hfiles"
 
 /** One server file. */
 typedef struct server_files_struct {

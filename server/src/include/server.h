@@ -47,42 +47,25 @@
  * @param pos
  * Position where to start parsing command-specific data.
  */
-typedef void (*socket_command_func)(socket_struct *cs,
-                                    player        *pl,
-                                    uint8_t       *data,
-                                    size_t         len,
-                                    size_t         pos);
+typedef void (
+    *socket_command_func)(socket_struct *cs, player *pl, uint8_t *data, size_t len, size_t pos);
 
 /* Prototypes */
 
 TOOLKIT_FUNCS_DECLARE(socket_server);
 
-void
-socket_server_handle_client(player *pl);
-bool
-socket_server_remove(socket_struct *cs);
-void
-socket_server_process(void);
-void
-socket_server_post_process(void);
-bool
-socket_server_quic_info(char     *host,
-                        size_t    host_size,
-                        uint16_t *port,
-                        char      certificate_sha256[65]);
-bool
-socket_server_quic_punch(const char *host, uint16_t port);
-size_t
-socket_server_quic_candidates(socket_direct_candidate_t *candidates,
-                              size_t                      capacity);
-bool
-socket_port_mapping_init(uint16_t port,
-                         char    *host,
-                         size_t   host_size,
-                         uint16_t *external_port);
-void
-socket_port_mapping_process(void);
-void
-socket_port_mapping_deinit(void);
+void socket_server_handle_client(player *pl);
+bool socket_server_remove(socket_struct *cs);
+void socket_server_process(void);
+void socket_server_post_process(void);
+bool socket_server_quic_info(char *host,
+                             size_t host_size,
+                             uint16_t *port,
+                             char certificate_sha256[65]);
+bool socket_server_quic_punch(const char *host, uint16_t port);
+size_t socket_server_quic_candidates(socket_direct_candidate_t *candidates, size_t capacity);
+bool socket_port_mapping_init(uint16_t port, char *host, size_t host_size, uint16_t *external_port);
+void socket_port_mapping_process(void);
+void socket_port_mapping_deinit(void);
 
 #endif

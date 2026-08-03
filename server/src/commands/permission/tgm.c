@@ -34,8 +34,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_tgm(object *op, const char *command, char *params)
-{
+void command_tgm(object *op, const char *command, char *params) {
     CONTR(op)->tgm = !CONTR(op)->tgm;
     draw_info_format(COLOR_WHITE, op, "Toggled god mode %s.", CONTR(op)->tgm ? "on" : "off");
 }

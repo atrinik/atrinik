@@ -35,6 +35,4 @@
 /**
  * Initialize the jewel type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(jewel)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(jewel) {}

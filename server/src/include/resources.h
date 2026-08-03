@@ -45,14 +45,9 @@ typedef struct resource {
 
 /* Function prototypes */
 
-void
-resources_init(void);
-void
-resources_deinit(void);
-resource_t *
-resources_find(const char *name);
-void
-resources_send(resource_t    *resource,
-               socket_struct *ns);
+void resources_init(void);
+void resources_deinit(void);
+resource_t *resources_find(const char *name);
+void resources_send(resource_t *resource, socket_struct *ns);
 
 #endif

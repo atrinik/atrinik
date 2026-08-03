@@ -58,15 +58,13 @@ const char *season_name[SEASONS_PER_YEAR] = {
 };
 
 /** Days of the week. */
-const char *weekdays[DAYS_PER_WEEK] = {
-    "Day of the Moon",
-    "Day of the Bull",
-    "Day of the Deception",
-    "Day of Thunder",
-    "Day of Freedom",
-    "Day of the Great Gods",
-    "Day of the Sun"
-};
+const char *weekdays[DAYS_PER_WEEK] = {"Day of the Moon",
+                                       "Day of the Bull",
+                                       "Day of the Deception",
+                                       "Day of Thunder",
+                                       "Day of Freedom",
+                                       "Day of the Great Gods",
+                                       "Day of the Sun"};
 
 /** Months. */
 const char *month_name[MONTHS_PER_YEAR] = {
@@ -85,18 +83,16 @@ const char *month_name[MONTHS_PER_YEAR] = {
 };
 
 /** Periods of day. */
-const char *periodsofday[PERIODS_PER_DAY] = {
-    "midnight",
-    "late night",
-    "dawn",
-    "morning",
-    "late morning",
-    "noon",
-    "afternoon",
-    "dusk",
-    "evening",
-    "night"
-};
+const char *periodsofday[PERIODS_PER_DAY] = {"midnight",
+                                             "late night",
+                                             "dawn",
+                                             "morning",
+                                             "late morning",
+                                             "noon",
+                                             "afternoon",
+                                             "dusk",
+                                             "evening",
+                                             "night"};
 
 /**
  * Period of the day at each hour in the day.
@@ -105,30 +101,42 @@ const int periodsofday_hours[HOURS_PER_DAY] = {
     /* 24: Midnight */
     0,
     /* 1 - 4: Late night */
-    1, 1, 1, 1,
+    1,
+    1,
+    1,
+    1,
     /* 5: Dawn */
     2,
     /* 6 - 9: Morning */
-    3, 3, 3, 3,
+    3,
+    3,
+    3,
+    3,
     /* 10 - 11: Late morning */
-    4, 4,
+    4,
+    4,
     /* 12: Noon */
     5,
     /* 13 - 17: Afternoon */
-    6, 6, 6, 6, 6,
+    6,
+    6,
+    6,
+    6,
+    6,
     /* 18: Dusk */
     7,
     /* 19 - 21: Evening */
-    8, 8, 8,
+    8,
+    8,
+    8,
     /* 22 - 23: Night */
-    9, 9
-};
+    9,
+    9};
 
 /**
  * Initialize all variables used in the timing routines.
  */
-void reset_sleep(void)
-{
+void reset_sleep(void) {
     int i;
 
     for (i = 0; i < PBUFLEN; i++) {
@@ -141,14 +149,13 @@ void reset_sleep(void)
     process_tot_mtime = 0;
     pticks = 1;
 
-    (void) GETTIMEOFDAY(&last_time);
+    (void)GETTIMEOFDAY(&last_time);
 }
 
 /**
  * Adds time to our history list.
  */
-static void log_time(long process_utime)
-{
+static void log_time(long process_utime) {
     if (++psaveind >= PBUFLEN) {
         psaveind = 0;
     }
@@ -171,8 +178,7 @@ static void log_time(long process_utime)
  * If it is less than max_time, the remaining time is slept with
  * select().
  */
-void sleep_delta(void)
-{
+void sleep_delta(void) {
     static struct timeval new_time;
     long sleep_sec, sleep_usec;
 
@@ -208,7 +214,7 @@ void sleep_delta(void)
             Sleep(sleep_time.tv_sec * 1000);
         }
 
-        Sleep((int) (sleep_time.tv_usec / 1000.0));
+        Sleep((int)(sleep_time.tv_usec / 1000.0));
 #endif
     } else {
         process_utime_long_count++;
@@ -224,7 +230,8 @@ void sleep_delta(void)
 
     /* Don't do too much catching up:
      * (Things can still get jerky on a slow/loaded computer) */
-    if ((last_time.tv_sec - new_time.tv_sec) * 1000000 + (last_time.tv_usec - new_time.tv_usec) < 0) {
+    if ((last_time.tv_sec - new_time.tv_sec) * 1000000 + (last_time.tv_usec - new_time.tv_usec) <
+        0) {
         last_time.tv_sec = new_time.tv_sec;
         last_time.tv_usec = new_time.tv_usec;
     }
@@ -236,16 +243,14 @@ void sleep_delta(void)
  * @param t
  * New speed.
  */
-void set_max_time(long t)
-{
+void set_max_time(long t) {
     if (max_time == t) {
         return;
     }
 
-    LOG(INFO,
-        "The speed has been changed from %ld to %ld.",
-        max_time, t);
-    draw_info(COLOR_GRAY, NULL,
+    LOG(INFO, "The speed has been changed from %ld to %ld.", max_time, t);
+    draw_info(COLOR_GRAY,
+              NULL,
               "You feel a sudden and inexplicable change in the fabric of "
               "time and space...");
     max_time = t;
@@ -256,16 +261,14 @@ void set_max_time(long t)
  * @param t
  * New speed multiplier.
  */
-void set_max_time_multiplier(int t)
-{
+void set_max_time_multiplier(int t) {
     if (max_time_multiplier == t) {
         return;
     }
 
-    LOG(INFO,
-        "The speed multiplier has been changed from %d to %d.",
-        max_time_multiplier, t);
-    draw_info(COLOR_GRAY, NULL,
+    LOG(INFO, "The speed multiplier has been changed from %d to %d.", max_time_multiplier, t);
+    draw_info(COLOR_GRAY,
+              NULL,
               "You feel a sudden and inexplicable change in the fabric of "
               "time and space...");
     max_time_multiplier = t;
@@ -276,8 +279,7 @@ void set_max_time_multiplier(int t)
  * @param tod
  * Where to store information. Must not be NULL.
  */
-void get_tod(timeofday_t *tod)
-{
+void get_tod(timeofday_t *tod) {
     tod->year = todtick / HOURS_PER_YEAR;
     tod->month = (todtick / HOURS_PER_MONTH) % MONTHS_PER_YEAR;
     tod->season = tod->month / MONTHS_PER_SEASON;
@@ -298,11 +300,19 @@ void get_tod(timeofday_t *tod)
  * @param op
  * Player who requested time.
  */
-void print_tod(object *op)
-{
+void print_tod(object *op) {
     timeofday_t tod;
     get_tod(&tod);
-    draw_info_format(COLOR_WHITE, op, "It is %s, %d minute%s past %d o'clock %s, on the %s.", periodsofday[tod.periodofday], tod.minute, ((tod.minute == 1) ? "" : "s"), ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2) : ((tod.hour) % (HOURS_PER_DAY / 2))), ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"), weekdays[tod.dayofweek]);
+    draw_info_format(COLOR_WHITE,
+                     op,
+                     "It is %s, %d minute%s past %d o'clock %s, on the %s.",
+                     periodsofday[tod.periodofday],
+                     tod.minute,
+                     ((tod.minute == 1) ? "" : "s"),
+                     ((tod.hour % (HOURS_PER_DAY / 2) == 0) ? (HOURS_PER_DAY / 2)
+                                                            : ((tod.hour) % (HOURS_PER_DAY / 2))),
+                     ((tod.hour >= (HOURS_PER_DAY / 2)) ? "pm" : "am"),
+                     weekdays[tod.dayofweek]);
 
     int day = tod.day + 1;
 
@@ -317,7 +327,14 @@ void print_tod(object *op)
         suf = "th";
     }
 
-    draw_info_format(COLOR_WHITE, op, "The %d%s Day of the %s, Year %d, in the %s.", day, suf, month_name[tod.month], tod.year + 1, season_name[tod.season]);
+    draw_info_format(COLOR_WHITE,
+                     op,
+                     "The %d%s Day of the %s, Year %d, in the %s.",
+                     day,
+                     suf,
+                     month_name[tod.month],
+                     tod.year + 1,
+                     season_name[tod.season]);
 }
 
 /**
@@ -325,8 +342,7 @@ void print_tod(object *op)
  * @param op
  * Player who requested time.
  */
-void time_info(object *op)
-{
+void time_info(object *op) {
     print_tod(op);
 }
 
@@ -335,10 +351,9 @@ void time_info(object *op)
  * @return
  * Seconds.
  */
-long seconds(void)
-{
+long seconds(void) {
     struct timeval now;
 
-    (void) GETTIMEOFDAY(&now);
+    (void)GETTIMEOFDAY(&now);
     return now.tv_sec;
 }

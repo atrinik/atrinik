@@ -34,8 +34,7 @@
 #include <player.h>
 
 /** @copydoc command_func */
-void command_shutdown(object *op, const char *command, char *params)
-{
+void command_shutdown(object *op, const char *command, char *params) {
     char when[MAX_BUF];
     int mins, secs;
     size_t pos;
@@ -48,7 +47,11 @@ void command_shutdown(object *op, const char *command, char *params)
 
     if (strcasecmp(when, "stop") == 0) {
         shutdown_timer_stop();
-        draw_info_type(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server shut down stopped.");
+        draw_info_type(CHAT_TYPE_CHAT,
+                       NULL,
+                       COLOR_GREEN,
+                       NULL,
+                       "[Server]: Server shut down stopped.");
     } else if (sscanf(when, "%d:%d", &mins, &secs) == 2) {
         char *reason;
 
@@ -56,7 +59,14 @@ void command_shutdown(object *op, const char *command, char *params)
         reason = player_sanitize_input(params + pos);
 
         shutdown_timer_start(secs);
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server shut down started; will shut down in %02d:%02d minutes.", secs / 60, secs % 60);
+        draw_info_type_format(
+            CHAT_TYPE_CHAT,
+            NULL,
+            COLOR_GREEN,
+            NULL,
+            "[Server]: Server shut down started; will shut down in %02d:%02d minutes.",
+            secs / 60,
+            secs % 60);
 
         if (reason) {
             draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: %s", reason);

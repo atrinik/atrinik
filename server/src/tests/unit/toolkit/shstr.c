@@ -27,8 +27,7 @@
 #include <checkstd.h>
 #include <check_proto.h>
 
-START_TEST(test_add_string)
-{
+START_TEST(test_add_string) {
     shstr *str1, *str2, *str3;
     char *temp;
 
@@ -49,8 +48,7 @@ START_TEST(test_add_string)
 
 END_TEST
 
-START_TEST(test_add_refcount)
-{
+START_TEST(test_add_refcount) {
     shstr *str1, *str2;
 
     str1 = add_string("Refcount testing//..");
@@ -64,8 +62,7 @@ START_TEST(test_add_refcount)
 
 END_TEST
 
-START_TEST(test_query_refcount)
-{
+START_TEST(test_query_refcount) {
     shstr *str1;
 
     str1 = add_string("Hello World");
@@ -82,8 +79,7 @@ START_TEST(test_query_refcount)
 
 END_TEST
 
-START_TEST(test_find_string)
-{
+START_TEST(test_find_string) {
     shstr *str1, *str2, *str3, *result;
 
     str1 = add_string("Hello world");
@@ -107,8 +103,7 @@ START_TEST(test_find_string)
 
 END_TEST
 
-START_TEST(test_free_string_shared)
-{
+START_TEST(test_free_string_shared) {
     shstr *str1, *str2;
 
     str1 = add_string("l33t");
@@ -127,8 +122,7 @@ START_TEST(test_free_string_shared)
 
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("shstr");
     TCase *tc_core = tcase_create("Core");
 
@@ -145,7 +139,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_shstr(void)
-{
+void check_server_shstr(void) {
     check_run_suite(suite(), __FILE__);
 }

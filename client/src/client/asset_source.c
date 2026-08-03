@@ -23,46 +23,37 @@ struct asset_source {
     asset_source_state_t state;
 };
 
-static bool
-asset_source_url (const char *asset_path, char *url, size_t size)
-{
+static bool asset_source_url(const char *asset_path, char *url, size_t size) {
     CURLU *parsed = curl_url();
     char *base_path = NULL;
     char *scheme = NULL;
     char *host = NULL;
     char *rendered = NULL;
-    bool ok = parsed != NULL &&
-              curl_url_set(parsed, CURLUPART_URL, cpl.http_url, 0) == CURLUE_OK;
+    bool ok = parsed != NULL && curl_url_set(parsed, CURLUPART_URL, cpl.http_url, 0) == CURLUE_OK;
     if (ok) {
         ok = curl_url_get(parsed, CURLUPART_SCHEME, &scheme, 0) == CURLUE_OK &&
              curl_url_get(parsed, CURLUPART_HOST, &host, 0) == CURLUE_OK &&
              (strcasecmp(scheme, "https") == 0 ||
               (strcasecmp(scheme, "http") == 0 &&
-               (strcasecmp(host, "localhost") == 0 ||
-                strcmp(host, "127.0.0.1") == 0 ||
-                strcmp(host, "::1") == 0 ||
-                strcmp(host, "[::1]") == 0)));
+               (strcasecmp(host, "localhost") == 0 || strcmp(host, "127.0.0.1") == 0 ||
+                strcmp(host, "::1") == 0 || strcmp(host, "[::1]") == 0)));
         if (!ok) {
-            LOG(ERROR,
-                "Refusing non-HTTPS asset URL outside the local machine");
+            LOG(ERROR, "Refusing non-HTTPS asset URL outside the local machine");
         }
     }
-    if (ok && curl_url_get(parsed,
-                           CURLUPART_PATH,
-                           &base_path,
-                           CURLU_URLDECODE) != CURLUE_OK) {
+    if (ok && curl_url_get(parsed, CURLUPART_PATH, &base_path, CURLU_URLDECODE) != CURLUE_OK) {
         ok = false;
     }
     char path[HUGE_BUF];
     if (ok) {
-        int length = snprintf(VS(path),
-                              "%s%s%s",
-                              base_path != NULL ? base_path : "",
-                              base_path != NULL && *base_path != '\0' &&
-                              base_path[strlen(base_path) - 1] != '/'
-                                  ? "/" : "",
-                              asset_path);
-        ok = length >= 0 && (size_t) length < sizeof(path) &&
+        int length = snprintf(
+            VS(path),
+            "%s%s%s",
+            base_path != NULL ? base_path : "",
+            base_path != NULL && *base_path != '\0' && base_path[strlen(base_path) - 1] != '/' ? "/"
+                                                                                               : "",
+            asset_path);
+        ok = length >= 0 && (size_t)length < sizeof(path) &&
              curl_url_set(parsed, CURLUPART_PATH, path, 0) == CURLUE_OK &&
              curl_url_set(parsed, CURLUPART_QUERY, NULL, 0) == CURLUE_OK &&
              curl_url_set(parsed, CURLUPART_FRAGMENT, NULL, 0) == CURLUE_OK &&
@@ -70,7 +61,7 @@ asset_source_url (const char *asset_path, char *url, size_t size)
     }
     if (ok) {
         int length = snprintf(url, size, "%s", rendered);
-        ok = length >= 0 && (size_t) length < size;
+        ok = length >= 0 && (size_t)length < size;
     }
     curl_free(base_path);
     curl_free(scheme);
@@ -82,11 +73,8 @@ asset_source_url (const char *asset_path, char *url, size_t size)
     return ok;
 }
 
-static void
-asset_source_start_http (asset_source_t *source)
-{
-    source->http = curl_request_create(source->http_url,
-                                       CURL_PKEY_TRUST_APPLICATION);
+static void asset_source_start_http(asset_source_t *source) {
+    source->http = curl_request_create(source->http_url, CURL_PKEY_TRUST_APPLICATION);
     curl_request_set_max_body(source->http, ASSET_MAX_SIZE);
     /*
      * Do not let the generic cURL layer persist an unverified response. The
@@ -95,18 +83,14 @@ asset_source_start_http (asset_source_t *source)
     curl_request_start_get(source->http);
 }
 
-static bool
-asset_source_start_inband (asset_source_t *source)
-{
+static bool asset_source_start_inband(asset_source_t *source) {
     source->inband = source->cache_path != NULL
-        ? asset_request_start_cached(source->asset_path, source->cache_path)
-        : asset_request_start(source->asset_path);
+                         ? asset_request_start_cached(source->asset_path, source->cache_path)
+                         : asset_request_start(source->asset_path);
     return source->inband != NULL;
 }
 
-asset_source_t *
-asset_source_start (const char *asset_path, const char *cache_path)
-{
+asset_source_t *asset_source_start(const char *asset_path, const char *cache_path) {
     HARD_ASSERT(asset_path != NULL);
 
     asset_source_t *source = ecalloc(1, sizeof(*source));
@@ -116,9 +100,8 @@ asset_source_start (const char *asset_path, const char *cache_path)
 
     if (*cpl.http_url != '\0') {
         char url[HUGE_BUF];
-        if (asset_source_url(asset_path, VS(url)) &&
-                cpl.asset_transport && csocket.sc != NULL &&
-                socket_is_quic(csocket.sc)) {
+        if (asset_source_url(asset_path, VS(url)) && cpl.asset_transport && csocket.sc != NULL &&
+            socket_is_quic(csocket.sc)) {
             source->http_url = estrdup(url);
             source->inband = asset_request_start_metadata(asset_path);
             if (source->inband != NULL) {
@@ -134,9 +117,7 @@ asset_source_start (const char *asset_path, const char *cache_path)
     return source;
 }
 
-asset_source_state_t
-asset_source_get_state (asset_source_t *source)
-{
+asset_source_state_t asset_source_get_state(asset_source_t *source) {
     HARD_ASSERT(source != NULL);
     if (source->state != ASSET_SOURCE_PENDING) {
         return source->state;
@@ -148,9 +129,9 @@ asset_source_get_state (asset_source_t *source)
             return source->state;
         }
         if (state == ASSET_REQUEST_COMPLETE &&
-                asset_request_get_metadata(source->inband,
-                                           &source->expected_size,
-                                           source->expected_digest)) {
+            asset_request_get_metadata(source->inband,
+                                       &source->expected_size,
+                                       source->expected_digest)) {
             asset_request_free(source->inband);
             source->inband = NULL;
             source->metadata_request = false;
@@ -165,8 +146,7 @@ asset_source_get_state (asset_source_t *source)
             return source->state;
         }
         source->state = ASSET_SOURCE_ERROR;
-        snprintf(VS(source->error),
-                 "Authenticated asset metadata is unavailable");
+        snprintf(VS(source->error), "Authenticated asset metadata is unavailable");
         return source->state;
     }
 
@@ -177,20 +157,13 @@ asset_source_get_state (asset_source_t *source)
         size_t size = 0;
         const void *body = curl_request_get_body(source->http, &size);
         bool verified = false;
-        if (curl_request_get_http_code(source->http) == 200 &&
-                body != NULL && size == source->expected_size) {
+        if (curl_request_get_http_code(source->http) == 200 && body != NULL &&
+            size == source->expected_size) {
             uint8_t digest[ASSET_DIGEST_SIZE];
             unsigned int digest_size = 0;
-            verified = EVP_Digest(body,
-                                  size,
-                                  digest,
-                                  &digest_size,
-                                  EVP_sha256(),
-                                  NULL) == 1 &&
+            verified = EVP_Digest(body, size, digest, &digest_size, EVP_sha256(), NULL) == 1 &&
                        digest_size == ASSET_DIGEST_SIZE &&
-                       memcmp(digest,
-                              source->expected_digest,
-                              ASSET_DIGEST_SIZE) == 0;
+                       memcmp(digest, source->expected_digest, ASSET_DIGEST_SIZE) == 0;
         }
         if (verified) {
             if (source->cache_path != NULL) {
@@ -214,8 +187,7 @@ asset_source_get_state (asset_source_t *source)
             return source->state;
         }
         source->state = ASSET_SOURCE_ERROR;
-        snprintf(VS(source->error),
-                 "HTTP failed and QUIC fallback is unavailable");
+        snprintf(VS(source->error), "HTTP failed and QUIC fallback is unavailable");
         return source->state;
     }
 
@@ -231,28 +203,22 @@ asset_source_get_state (asset_source_t *source)
     return source->state;
 }
 
-const uint8_t *
-asset_source_get_data (asset_source_t *source, size_t *size)
-{
+const uint8_t *asset_source_get_data(asset_source_t *source, size_t *size) {
     if (asset_source_get_state(source) != ASSET_SOURCE_COMPLETE) {
         return NULL;
     }
     if (source->http != NULL) {
-        return (const uint8_t *) curl_request_get_body(source->http, size);
+        return (const uint8_t *)curl_request_get_body(source->http, size);
     }
     return asset_request_get_data(source->inband, size);
 }
 
-const char *
-asset_source_get_error (const asset_source_t *source)
-{
+const char *asset_source_get_error(const asset_source_t *source) {
     HARD_ASSERT(source != NULL);
     return source->error;
 }
 
-char *
-asset_source_speedinfo (asset_source_t *source, char *buffer, size_t size)
-{
+char *asset_source_speedinfo(asset_source_t *source, char *buffer, size_t size) {
     HARD_ASSERT(source != NULL);
     HARD_ASSERT(buffer != NULL);
     if (source->http != NULL) {
@@ -261,15 +227,11 @@ asset_source_speedinfo (asset_source_t *source, char *buffer, size_t size)
     snprintf(buffer,
              size,
              "%s",
-             source->inband != NULL
-                 ? "Using the game connection"
-                 : source->error);
+             source->inband != NULL ? "Using the game connection" : source->error);
     return buffer;
 }
 
-void
-asset_source_free (asset_source_t *source)
-{
+void asset_source_free(asset_source_t *source) {
     if (source == NULL) {
         return;
     }

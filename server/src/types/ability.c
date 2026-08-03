@@ -35,6 +35,4 @@
 /**
  * Initialize the ability type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(ability)
-{
-}
+OBJECT_TYPE_INIT_DEFINE(ability) {}

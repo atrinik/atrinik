@@ -83,8 +83,7 @@ static void init_clocks(void);
 /**
  * Initialize the ::shstr_cons structure.
  */
-static void init_strings(void)
-{
+static void init_strings(void) {
     shstr_cons.none = add_string("none");
     shstr_cons.NONE = add_string("NONE");
     shstr_cons.home = add_string("- home -");
@@ -102,10 +101,9 @@ static void init_strings(void)
 /**
  * Free the string constants.
  */
-void free_strings(void)
-{
+void free_strings(void) {
     int nrof_strings = sizeof(shstr_cons) / sizeof(const char *);
-    const char **ptr = (const char **) &shstr_cons;
+    const char **ptr = (const char **)&shstr_cons;
     int i = 0;
 
     for (i = 0; i < nrof_strings; i++) {
@@ -116,9 +114,7 @@ void free_strings(void)
 /**
  * Free the server settings.
  */
-static void
-free_settings (void)
-{
+static void free_settings(void) {
     if (settings.server_cert != NULL) {
         efree(settings.server_cert);
     }
@@ -128,14 +124,11 @@ free_settings (void)
     }
 }
 
-static void console_command_shutdown(const char *params)
-{
+static void console_command_shutdown(const char *params) {
     server_shutdown();
 }
 
-static void
-console_command_config (const char *params)
-{
+static void console_command_config(const char *params) {
     if (params == NULL) {
         LOG(INFO,
             "Usage: 'config <name> = <value>' to write config, "
@@ -155,8 +148,7 @@ console_command_config (const char *params)
         if (clioptions_load_str(params, &errmsg)) {
             LOG(INFO, "Configuration successful.");
         } else {
-            LOG(INFO, "Configuration failed: %s",
-                errmsg != NULL ? errmsg : "<no error message>");
+            LOG(INFO, "Configuration failed: %s", errmsg != NULL ? errmsg : "<no error message>");
             if (errmsg != NULL) {
                 efree(errmsg);
             }
@@ -170,9 +162,7 @@ console_command_config (const char *params)
  * @param params
  * Parameters from the console.
  */
-static void
-console_command_active_objects (const char *params)
-{
+static void console_command_active_objects(const char *params) {
     bool show_list = params != NULL && strcmp(params, "list") == 0;
     if (show_list) {
         LOG(INFO, "=== Active objects list ===");
@@ -192,8 +182,7 @@ console_command_active_objects (const char *params)
 /**
  * Free all data before exiting.
  */
-void cleanup(void)
-{
+void cleanup(void) {
     cache_remove_all();
     remove_plugins();
     player_deinit();
@@ -228,13 +217,10 @@ void cleanup(void)
  * Description of the --unit command.
  */
 static const char *clioptions_option_unit_desc =
-"Runs the unit tests. Resulting logs will be stored in 'tests/**/*.out', with "
-"XML results in 'tests/**/*.xml'.";
+    "Runs the unit tests. Resulting logs will be stored in 'tests/**/*.out', with "
+    "XML results in 'tests/**/*.xml'.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_unit (const char *arg,
-                        char      **errmsg)
-{
+static bool clioptions_option_unit(const char *arg, char **errmsg) {
     settings.unit_tests = 1;
     return true;
 }
@@ -243,13 +229,10 @@ clioptions_option_unit (const char *arg,
  * Description of the --plugin_unit command.
  */
 static const char *clioptions_option_plugin_unit_desc =
-"Runs the plugin unit tests. Resulting XMLs will be stored in "
-"'tests/unit/plugins/**/*.xml'.";
+    "Runs the plugin unit tests. Resulting XMLs will be stored in "
+    "'tests/unit/plugins/**/*.xml'.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_plugin_unit (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_plugin_unit(const char *arg, char **errmsg) {
     settings.plugin_unit_tests = 1;
 
     if (arg != NULL) {
@@ -263,13 +246,10 @@ clioptions_option_plugin_unit (const char *arg,
  * Description of the --worldmaker command.
  */
 static const char *clioptions_option_worldmaker_desc =
-"Generates the region maps using the world maker module.\n\n"
-"This should be done before starting up production servers.";
+    "Generates the region maps using the world maker module.\n\n"
+    "This should be done before starting up production servers.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_worldmaker (const char *arg,
-                              char      **errmsg)
-{
+static bool clioptions_option_worldmaker(const char *arg, char **errmsg) {
     settings.world_maker = 1;
     return true;
 }
@@ -278,13 +258,10 @@ clioptions_option_worldmaker (const char *arg,
  * Description of the --no_console command.
  */
 static const char *clioptions_option_no_console_desc =
-"Disables the interactive console. Useful when debugging or "
-"running the server non-interactively.";
+    "Disables the interactive console. Useful when debugging or "
+    "running the server non-interactively.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_no_console (const char *arg,
-                              char      **errmsg)
-{
+static bool clioptions_option_no_console(const char *arg, char **errmsg) {
     settings.no_console = true;
     return true;
 }
@@ -292,13 +269,9 @@ clioptions_option_no_console (const char *arg,
 /**
  * Description of the --version command.
  */
-static const char *clioptions_option_version_desc =
-"Displays the server version and exits.";
+static const char *clioptions_option_version_desc = "Displays the server version and exits.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_version (const char *arg,
-                           char      **errmsg)
-{
+static bool clioptions_option_version(const char *arg, char **errmsg) {
     version(NULL);
     exit(0);
 
@@ -310,18 +283,12 @@ clioptions_option_version (const char *arg,
  * Description of the --port command.
  */
 static const char *clioptions_option_port_desc =
-"Sets the port to use for server/client communication. Set to zero to disable.";
+    "Sets the port to use for server/client communication. Set to zero to disable.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_port (const char *arg,
-                        char      **errmsg)
-{
+static bool clioptions_option_port(const char *arg, char **errmsg) {
     int val = atoi(arg);
     if (val < 0 || val > UINT16_MAX) {
-        string_fmt(*errmsg,
-                   "%d is an invalid port number, must be 1-%d",
-                   val,
-                   UINT16_MAX);
+        string_fmt(*errmsg, "%d is an invalid port number, must be 1-%d", val, UINT16_MAX);
         return false;
     }
 
@@ -333,23 +300,17 @@ clioptions_option_port (const char *arg,
  * Description of the --port_crypto command.
  */
 static const char *clioptions_option_port_crypto_desc =
-"Sets the port to use for crypto server/client communication. Set to zero to "
-"disable.";
+    "Sets the port to use for crypto server/client communication. Set to zero to "
+    "disable.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_port_crypto (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_port_crypto(const char *arg, char **errmsg) {
     uint64_t val;
     if (!string_parse_uint64(arg, 10, 0, UINT16_MAX, &val)) {
-        string_fmt(*errmsg,
-                   "%s is an invalid port number, must be 0-%d",
-                   arg,
-                   UINT16_MAX);
+        string_fmt(*errmsg, "%s is an invalid port number, must be 0-%d", arg, UINT16_MAX);
         return false;
     }
 
-    settings.port_crypto = (uint16_t) val;
+    settings.port_crypto = (uint16_t)val;
     return true;
 }
 
@@ -357,22 +318,16 @@ clioptions_option_port_crypto (const char *arg,
  * Description of the --port_quic command.
  */
 static const char *clioptions_option_port_quic_desc =
-"Sets the UDP port used for direct QUIC connections. Set to zero to disable.";
+    "Sets the UDP port used for direct QUIC connections. Set to zero to disable.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_port_quic (const char *arg,
-                             char      **errmsg)
-{
+static bool clioptions_option_port_quic(const char *arg, char **errmsg) {
     uint64_t val;
     if (!string_parse_uint64(arg, 10, 0, UINT16_MAX, &val)) {
-        string_fmt(*errmsg,
-                   "%s is an invalid port number, must be 0-%d",
-                   arg,
-                   UINT16_MAX);
+        string_fmt(*errmsg, "%s is an invalid port number, must be 0-%d", arg, UINT16_MAX);
         return false;
     }
 
-    settings.port_quic = (uint16_t) val;
+    settings.port_quic = (uint16_t)val;
     return true;
 }
 
@@ -380,13 +335,10 @@ clioptions_option_port_quic (const char *arg,
  * Description of the --libpath command.
  */
 static const char *clioptions_option_libpath_desc =
-"Where the read-only files such as the collected treasures, artifacts,"
-"archetypes etc reside.";
+    "Where the read-only files such as the collected treasures, artifacts,"
+    "archetypes etc reside.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_libpath (const char *arg,
-                           char      **errmsg)
-{
+static bool clioptions_option_libpath(const char *arg, char **errmsg) {
     snprintf(VS(settings.libpath), "%s", arg);
     return true;
 }
@@ -395,12 +347,9 @@ clioptions_option_libpath (const char *arg,
  * Description of the --datapath command.
  */
 static const char *clioptions_option_datapath_desc =
-"Where to read and write player data, unique maps, etc.";
+    "Where to read and write player data, unique maps, etc.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_datapath (const char *arg,
-                            char      **errmsg)
-{
+static bool clioptions_option_datapath(const char *arg, char **errmsg) {
     snprintf(VS(settings.datapath), "%s", arg);
     return true;
 }
@@ -408,13 +357,9 @@ clioptions_option_datapath (const char *arg,
 /**
  * Description of the --mapspath command.
  */
-static const char *clioptions_option_mapspath_desc =
-"Where the maps, Python scripts, etc reside.";
+static const char *clioptions_option_mapspath_desc = "Where the maps, Python scripts, etc reside.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_mapspath (const char *arg,
-                            char      **errmsg)
-{
+static bool clioptions_option_mapspath(const char *arg, char **errmsg) {
     snprintf(VS(settings.mapspath), "%s", arg);
     return true;
 }
@@ -423,14 +368,11 @@ clioptions_option_mapspath (const char *arg,
  * Description of the --httppath command.
  */
 static const char *clioptions_option_httppath_desc =
-"Where the HTTP server data files reside.\n\n"
-"The server must have read/write access to this directory, as it will create "
-"files inside it.";
+    "Where the HTTP server data files reside.\n\n"
+    "The server must have read/write access to this directory, as it will create "
+    "files inside it.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_httppath (const char *arg,
-                            char      **errmsg)
-{
+static bool clioptions_option_httppath(const char *arg, char **errmsg) {
     snprintf(VS(settings.httppath), "%s", arg);
     return true;
 }
@@ -439,13 +381,10 @@ clioptions_option_httppath (const char *arg,
  * Description of the --resourcespath command.
  */
 static const char *clioptions_option_resourcespath_desc =
-"Where the resource data files reside.\n\n"
-"The server must have read access to this directory.";
+    "Where the resource data files reside.\n\n"
+    "The server must have read access to this directory.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_resourcespath (const char *arg,
-                                 char      **errmsg)
-{
+static bool clioptions_option_resourcespath(const char *arg, char **errmsg) {
     snprintf(VS(settings.resourcespath), "%s", arg);
     return true;
 }
@@ -454,13 +393,10 @@ clioptions_option_resourcespath (const char *arg,
  * Description of the --metaserver_url command.
  */
 static const char *clioptions_option_metaserver_url_desc =
-"URL of the metaserver. The server will send POST requests to this URL to "
-"update the metaserver data.";
+    "URL of the metaserver. The server will send POST requests to this URL to "
+    "update the metaserver data.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_metaserver_url (const char *arg,
-                                  char      **errmsg)
-{
+static bool clioptions_option_metaserver_url(const char *arg, char **errmsg) {
     snprintf(VS(settings.metaserver_url), "%s", arg);
     return true;
 }
@@ -469,14 +405,10 @@ clioptions_option_metaserver_url (const char *arg,
  * Description of the --connectivity_mode command.
  */
 static const char *clioptions_option_connectivity_mode_desc =
-"Connection policy: direct_only, direct_preferred, or legacy_tcp.";
+    "Connection policy: direct_only, direct_preferred, or legacy_tcp.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_connectivity_mode (const char *arg,
-                                     char      **errmsg)
-{
-    if (strcmp(arg, "direct_only") != 0 &&
-        strcmp(arg, "direct_preferred") != 0 &&
+static bool clioptions_option_connectivity_mode(const char *arg, char **errmsg) {
+    if (strcmp(arg, "direct_only") != 0 && strcmp(arg, "direct_preferred") != 0 &&
         strcmp(arg, "legacy_tcp") != 0) {
         *errmsg = estrdup("Expected direct_only, direct_preferred, or "
                           "legacy_tcp");
@@ -491,12 +423,9 @@ clioptions_option_connectivity_mode (const char *arg,
  * Description of the --stun_server command.
  */
 static const char *clioptions_option_stun_server_desc =
-"STUN server as hostname:port for public UDP candidate discovery, or off.";
+    "STUN server as hostname:port for public UDP candidate discovery, or off.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_stun_server (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_stun_server(const char *arg, char **errmsg) {
     snprintf(VS(settings.stun_server), "%s", arg);
     return true;
 }
@@ -505,12 +434,9 @@ clioptions_option_stun_server (const char *arg,
  * Description of the --port_mapping command.
  */
 static const char *clioptions_option_port_mapping_desc =
-"Automatic router mapping policy: auto or off.";
+    "Automatic router mapping policy: auto or off.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_port_mapping (const char *arg,
-                                char      **errmsg)
-{
+static bool clioptions_option_port_mapping(const char *arg, char **errmsg) {
     if (strcmp(arg, "auto") != 0 && strcmp(arg, "off") != 0) {
         *errmsg = estrdup("Expected auto or off");
         return false;
@@ -523,12 +449,9 @@ clioptions_option_port_mapping (const char *arg,
  * Description of the --join_password command.
  */
 static const char *clioptions_option_join_password_desc =
-"Optional password required before clients may join this server.";
+    "Optional password required before clients may join this server.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_join_password (const char *arg,
-                                 char      **errmsg)
-{
+static bool clioptions_option_join_password(const char *arg, char **errmsg) {
     if (strlen(arg) >= sizeof(settings.join_password)) {
         *errmsg = estrdup("Join password is too long");
         return false;
@@ -540,17 +463,12 @@ clioptions_option_join_password (const char *arg,
 }
 
 static const char *clioptions_option_join_password_file_desc =
-"Read the private server password from a file.";
+    "Read the private server password from a file.";
 
-static bool
-clioptions_option_join_password_file (const char *arg,
-                                      char      **errmsg)
-{
+static bool clioptions_option_join_password_file(const char *arg, char **errmsg) {
     char password[MAX_BUF];
     bool permissive_mode;
-    path_secret_error_t error = path_read_secret(arg,
-                                                 VS(password),
-                                                 &permissive_mode);
+    path_secret_error_t error = path_read_secret(arg, VS(password), &permissive_mode);
     if (error != PATH_SECRET_OK) {
         string_fmt(*errmsg,
                    "Cannot use join password file %s: %s",
@@ -574,12 +492,9 @@ clioptions_option_join_password_file (const char *arg,
  * Description of the --server_public command.
  */
 static const char *clioptions_option_server_public_desc =
-"Whether this server is listed publicly by the metaserver.";
+    "Whether this server is listed publicly by the metaserver.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_server_public (const char *arg,
-                                 char      **errmsg)
-{
+static bool clioptions_option_server_public(const char *arg, char **errmsg) {
     if (KEYWORD_IS_TRUE(arg)) {
         settings.server_public = true;
     } else if (KEYWORD_IS_FALSE(arg)) {
@@ -596,14 +511,11 @@ clioptions_option_server_public (const char *arg,
  * Description of the --server_host command.
  */
 static const char *clioptions_option_server_host_desc =
-"Hostname of a legacy TCP server published through the metaserver. Direct "
-"QUIC servers use their certificate identity instead.\n\n"
-"Updates will be refused if the hostname does not resolve to the incoming IP.";
+    "Hostname of a legacy TCP server published through the metaserver. Direct "
+    "QUIC servers use their certificate identity instead.\n\n"
+    "Updates will be refused if the hostname does not resolve to the incoming IP.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_server_host (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_server_host(const char *arg, char **errmsg) {
     snprintf(VS(settings.server_host), "%s", arg);
     string_tolower(settings.server_host);
 
@@ -619,13 +531,10 @@ clioptions_option_server_host (const char *arg,
  * Description of the --server_name command.
  */
 static const char *clioptions_option_server_name_desc =
-"Name of the server. This is how the server will be named in the list of "
-"servers (the metaserver)";
+    "Name of the server. This is how the server will be named in the list of "
+    "servers (the metaserver)";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_server_name (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_server_name(const char *arg, char **errmsg) {
     snprintf(VS(settings.server_name), "%s", arg);
     return true;
 }
@@ -634,12 +543,9 @@ clioptions_option_server_name (const char *arg,
  * Description of the --server_desc command.
  */
 static const char *clioptions_option_server_desc_desc =
-"Description of the server. This should describe the server to players.";
+    "Description of the server. This should describe the server to players.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_server_desc (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_server_desc(const char *arg, char **errmsg) {
     snprintf(VS(settings.server_desc), "%s", arg);
     return true;
 }
@@ -648,13 +554,10 @@ clioptions_option_server_desc (const char *arg,
  * Description of the --server_cert command.
  */
 static const char *clioptions_option_server_cert_desc =
-"Server certificate, in the format specified by ADS-7. Void unless signed by "
-"the Atrinik staff.";
+    "Server certificate, in the format specified by ADS-7. Void unless signed by "
+    "the Atrinik staff.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_server_cert (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_server_cert(const char *arg, char **errmsg) {
     if (settings.server_cert != NULL) {
         efree(settings.server_cert);
     }
@@ -667,12 +570,9 @@ clioptions_option_server_cert (const char *arg,
  * Description of the --server_cert_sig command.
  */
 static const char *clioptions_option_server_cert_sig_desc =
-"Signature of the server certificate, as provided by the Atrinik staff.";
+    "Signature of the server certificate, as provided by the Atrinik staff.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_server_cert_sig (const char *arg,
-                                   char      **errmsg)
-{
+static bool clioptions_option_server_cert_sig(const char *arg, char **errmsg) {
     if (settings.server_cert_sig != NULL) {
         efree(settings.server_cert_sig);
     }
@@ -685,17 +585,12 @@ clioptions_option_server_cert_sig (const char *arg,
  * Description of the --magic_devices_level command.
  */
 static const char *clioptions_option_magic_devices_level_desc =
-"Adjustment to maximum magical device level the player may use.";
+    "Adjustment to maximum magical device level the player may use.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_magic_devices_level (const char *arg,
-                                       char      **errmsg)
-{
+static bool clioptions_option_magic_devices_level(const char *arg, char **errmsg) {
     int val = atoi(arg);
     if (val < INT8_MIN || val > INT8_MAX) {
-        string_fmt(*errmsg,
-                   "Invalid value: %d; must be %d-%d",
-                   val, INT8_MIN, INT8_MAX);
+        string_fmt(*errmsg, "Invalid value: %d; must be %d-%d", val, INT8_MIN, INT8_MAX);
         return false;
     }
 
@@ -707,17 +602,14 @@ clioptions_option_magic_devices_level (const char *arg,
  * Description of the --item_power_factor command.
  */
 static const char *clioptions_option_item_power_factor_desc =
-"Item power factor is the relation of how the player's equipped item_power "
-"total relates to their overall level. If 1.0, then sum of the character's "
-"equipped item's item_power can not be greater than their overall level. "
-"If 2.0, then that sum can not exceed twice the character's overall level. "
-"By setting this to a high enough value, you can effectively disable "
-"the item_power code.";
+    "Item power factor is the relation of how the player's equipped item_power "
+    "total relates to their overall level. If 1.0, then sum of the character's "
+    "equipped item's item_power can not be greater than their overall level. "
+    "If 2.0, then that sum can not exceed twice the character's overall level. "
+    "By setting this to a high enough value, you can effectively disable "
+    "the item_power code.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_item_power_factor (const char *arg,
-                                     char      **errmsg)
-{
+static bool clioptions_option_item_power_factor(const char *arg, char **errmsg) {
     settings.item_power_factor = atof(arg);
     return true;
 }
@@ -726,15 +618,12 @@ clioptions_option_item_power_factor (const char *arg,
  * Description of the --python_reload_modules command.
  */
 static const char *clioptions_option_python_reload_modules_desc =
-"Whether to reload Python user modules (eg Interface.py and the like) "
-"each time a Python script executes. If enabled, executing scripts will "
-"be slower, but allows for easy development of modules. This should not "
-"be enabled on production servers.";
+    "Whether to reload Python user modules (eg Interface.py and the like) "
+    "each time a Python script executes. If enabled, executing scripts will "
+    "be slower, but allows for easy development of modules. This should not "
+    "be enabled on production servers.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_python_reload_modules (const char *arg,
-                                         char      **errmsg)
-{
+static bool clioptions_option_python_reload_modules(const char *arg, char **errmsg) {
     if (KEYWORD_IS_TRUE(arg)) {
         settings.python_reload_modules = 1;
     } else if (KEYWORD_IS_FALSE(arg)) {
@@ -751,18 +640,17 @@ clioptions_option_python_reload_modules (const char *arg,
  * Description of the --default_permission_groups command.
  */
 static const char *clioptions_option_default_permission_groups_desc =
-"Comma-delimited list of permission groups that every player will be "
-"able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using "
-"the option in the first place, ie, no default permission groups.";
+    "Comma-delimited list of permission groups that every player will be "
+    "able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using "
+    "the option in the first place, ie, no default permission groups.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_default_permission_groups (const char *arg,
-                                             char      **errmsg)
-{
+static bool clioptions_option_default_permission_groups(const char *arg, char **errmsg) {
     if (strcmp(arg, "None") == 0) {
         settings.default_permission_groups[0] = '\0';
     } else {
-        strncpy(settings.default_permission_groups, arg, sizeof(settings.default_permission_groups) - 1);
+        strncpy(settings.default_permission_groups,
+                arg,
+                sizeof(settings.default_permission_groups) - 1);
         settings.default_permission_groups[sizeof(settings.default_permission_groups) - 1] = '\0';
     }
 
@@ -773,57 +661,52 @@ clioptions_option_default_permission_groups (const char *arg,
  * Description of the --allowed_chars command.
  */
 static const char *clioptions_option_allowed_chars_desc =
-"Sets limits for allowed characters in account names/passwords, character "
-"names, and their maximum length.\n\n"
-"!!! DO NOT CHANGE FROM THE DEFAULTS UNLESS YOU ARE ABSOLUTELY SURE OF THE "
-"CONSEQUENCES !!!\n\n"
-"Removing characters from the sets will make players using the characters "
-"unable to log in.\n\n"
-"Adding special characters to account/character name limitations could pose "
-"a security risk depending on the file-system you're using (eg, dots and "
-"slashes or colons on Windows)."
-"The syntax is:\n"
-"<limit name>:<min>-<max> [characters] [characters2] ...\n\n"
-"For example:\n"
-"charname:4-20 [:alphaupper:] [:alphalower:] [:numeric:] [:space:] ['-]\n\n"
-"The above sets the following rules for character names:\n"
-" - Length must be at least four"
-" - Length must be no more than twenty"
-" - Characters may contain upper/lower-case letters, digits, spaces, "
-"single-quotes and dashes.\n\n"
-"The recognized values for the 'limit name' are: account, charname and "
-"password\n"
-"The special syntax allowed in the characters list expands to:\n"
-" - :alphalower: All lower-case letters in ASCII\n"
-" - :alphaupper: All upper-case letters in ASCII\n"
-" - :numeric: All digits\n"
-" - :print: All printable characters (does not include whitespace)\n"
-" - :space: Space (you can't use a regular space in the list since spaces are "
-"used to separate the entries)";
+    "Sets limits for allowed characters in account names/passwords, character "
+    "names, and their maximum length.\n\n"
+    "!!! DO NOT CHANGE FROM THE DEFAULTS UNLESS YOU ARE ABSOLUTELY SURE OF THE "
+    "CONSEQUENCES !!!\n\n"
+    "Removing characters from the sets will make players using the characters "
+    "unable to log in.\n\n"
+    "Adding special characters to account/character name limitations could pose "
+    "a security risk depending on the file-system you're using (eg, dots and "
+    "slashes or colons on Windows)."
+    "The syntax is:\n"
+    "<limit name>:<min>-<max> [characters] [characters2] ...\n\n"
+    "For example:\n"
+    "charname:4-20 [:alphaupper:] [:alphalower:] [:numeric:] [:space:] ['-]\n\n"
+    "The above sets the following rules for character names:\n"
+    " - Length must be at least four"
+    " - Length must be no more than twenty"
+    " - Characters may contain upper/lower-case letters, digits, spaces, "
+    "single-quotes and dashes.\n\n"
+    "The recognized values for the 'limit name' are: account, charname and "
+    "password\n"
+    "The special syntax allowed in the characters list expands to:\n"
+    " - :alphalower: All lower-case letters in ASCII\n"
+    " - :alphaupper: All upper-case letters in ASCII\n"
+    " - :numeric: All digits\n"
+    " - :print: All printable characters (does not include whitespace)\n"
+    " - :space: Space (you can't use a regular space in the list since spaces are "
+    "used to separate the entries)";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_allowed_chars (const char *arg,
-                                 char      **errmsg)
-{
+static bool clioptions_option_allowed_chars(const char *arg, char **errmsg) {
     static const char *allowed_chars_names[] = {
-        "account", "charname", "password",
+        "account",
+        "charname",
+        "password",
     };
     CASSERT_ARRAY(allowed_chars_names, ALLOWED_CHARS_NUM);
 
     char word[MAX_BUF];
     size_t pos = 0;
     if (!string_get_word(arg, &pos, ' ', word, sizeof(word), 0)) {
-        string_fmt(*errmsg,
-                   "Invalid argument for allowed_chars option: %s",
-                   arg);
+        string_fmt(*errmsg, "Invalid argument for allowed_chars option: %s", arg);
         return false;
     }
 
     char *cps[2];
     if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps)) {
-        string_fmt(*errmsg,
-                   "Invalid word in allowed_chars option: %s",
-                   word);
+        string_fmt(*errmsg, "Invalid word in allowed_chars option: %s", word);
         return false;
     }
 
@@ -835,9 +718,7 @@ clioptions_option_allowed_chars (const char *arg,
     }
 
     if (type == ALLOWED_CHARS_NUM) {
-        string_fmt(*errmsg,
-                   "Invalid allowed_chars option type: %s",
-                   cps[0]);
+        string_fmt(*errmsg, "Invalid allowed_chars option type: %s", cps[0]);
         return false;
     }
 
@@ -900,13 +781,10 @@ clioptions_option_allowed_chars (const char *arg,
  * Description of the --control_allowed_ips command.
  */
 static const char *clioptions_option_control_allowed_ips_desc =
-"Comma-separated list of IPs that are allowed to send special control-related "
-"commands to the server.";
+    "Comma-separated list of IPs that are allowed to send special control-related "
+    "commands to the server.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_control_allowed_ips (const char *arg,
-                                       char      **errmsg)
-{
+static bool clioptions_option_control_allowed_ips(const char *arg, char **errmsg) {
     snprintf(VS(settings.control_allowed_ips), "%s", arg);
     return true;
 }
@@ -915,14 +793,11 @@ clioptions_option_control_allowed_ips (const char *arg,
  * Description of the --control_player command.
  */
 static const char *clioptions_option_control_player_desc =
-"Player name that will be used to perform specific control-related operations "
-"if none is supplied in the control commands sent to the server.\n\n"
-"The first player is used if this option is not specified.";
+    "Player name that will be used to perform specific control-related operations "
+    "if none is supplied in the control commands sent to the server.\n\n"
+    "The first player is used if this option is not specified.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_control_player (const char *arg,
-                                  char      **errmsg)
-{
+static bool clioptions_option_control_player(const char *arg, char **errmsg) {
     snprintf(VS(settings.control_player), "%s", arg);
     return true;
 }
@@ -931,14 +806,11 @@ clioptions_option_control_player (const char *arg,
  * Description of the --recycle_tmp_maps command.
  */
 static const char *clioptions_option_recycle_tmp_maps_desc =
-"If set, will preserve temporary maps across restarts.\n\n"
-"This effectively means the state of maps (eg, items dropped on the ground) is "
-"preserved across server restarts.";
+    "If set, will preserve temporary maps across restarts.\n\n"
+    "This effectively means the state of maps (eg, items dropped on the ground) is "
+    "preserved across server restarts.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_recycle_tmp_maps (const char *arg,
-                                    char      **errmsg)
-{
+static bool clioptions_option_recycle_tmp_maps(const char *arg, char **errmsg) {
     settings.recycle_tmp_maps = true;
     return true;
 }
@@ -947,18 +819,14 @@ clioptions_option_recycle_tmp_maps (const char *arg,
  * Description of the --http_url command.
  */
 static const char *clioptions_option_http_url_desc =
-"Specifies the URL to use for data HTTP requests, or 'off' to use in-band "
-"QUIC asset delivery. The files under the "
-"directory specified by --httppath must be reachable using this URL.\n\n"
-"If this URL is incorrect or inaccessible from the public network, clients "
-"will fall back to QUIC when available.";
+    "Specifies the URL to use for data HTTP requests, or 'off' to use in-band "
+    "QUIC asset delivery. The files under the "
+    "directory specified by --httppath must be reachable using this URL.\n\n"
+    "If this URL is incorrect or inaccessible from the public network, clients "
+    "will fall back to QUIC when available.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_http_url (const char *arg,
-                            char      **errmsg)
-{
-    snprintf(VS(settings.http_url), "%s",
-             strcmp(arg, "off") == 0 ? "" : arg);
+static bool clioptions_option_http_url(const char *arg, char **errmsg) {
+    snprintf(VS(settings.http_url), "%s", strcmp(arg, "off") == 0 ? "" : arg);
     return true;
 }
 
@@ -966,13 +834,10 @@ clioptions_option_http_url (const char *arg,
  * Description of the --speed command.
  */
 static const char *clioptions_option_speed_desc =
-"Specifies the number of microseconds each tick lasts for, eg, a value of "
-"125000 results in an effective server tick rate of 8 ticks per second.";
+    "Specifies the number of microseconds each tick lasts for, eg, a value of "
+    "125000 results in an effective server tick rate of 8 ticks per second.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_speed (const char *arg,
-                         char      **errmsg)
-{
+static bool clioptions_option_speed(const char *arg, char **errmsg) {
     set_max_time(atol(arg));
     return true;
 }
@@ -981,17 +846,14 @@ clioptions_option_speed (const char *arg,
  * Description of the --speed_multiplier command.
  */
 static const char *clioptions_option_speed_multiplier_desc =
-"This command is used to increase the server processing speed, without "
-"affecting the effective game tick-rate. This means the server will be able "
-"to send out priority packets with slightly less delay, possibly improving "
-"network latency.\n\n"
-"For example, a value of two doubles the amount of processing, three triples "
-"it and so on.";
+    "This command is used to increase the server processing speed, without "
+    "affecting the effective game tick-rate. This means the server will be able "
+    "to send out priority packets with slightly less delay, possibly improving "
+    "network latency.\n\n"
+    "For example, a value of two doubles the amount of processing, three triples "
+    "it and so on.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_speed_multiplier (const char *arg,
-                                    char      **errmsg)
-{
+static bool clioptions_option_speed_multiplier(const char *arg, char **errmsg) {
     set_max_time_multiplier(atoi(arg));
     return true;
 }
@@ -1000,17 +862,14 @@ clioptions_option_speed_multiplier (const char *arg,
  * Description of the --network_stack command.
  */
 static const char *clioptions_option_network_stack_desc =
-"Selects the network stack to use. This is a comma-separated list of address "
-"families to listen on, for example: ipv4, ipv6\n\n"
-"It is also possible to specify IP addresses to bind to, for example: "
-"ipv4=127.0.0.1, ipv6=::1\n\n"
-"A value of 'dual' can be used to enable dual-stack IPv6 system with IPv4 "
-"tunneling (this may not be supported on all systems).";
+    "Selects the network stack to use. This is a comma-separated list of address "
+    "families to listen on, for example: ipv4, ipv6\n\n"
+    "It is also possible to specify IP addresses to bind to, for example: "
+    "ipv4=127.0.0.1, ipv6=::1\n\n"
+    "A value of 'dual' can be used to enable dual-stack IPv6 system with IPv4 "
+    "tunneling (this may not be supported on all systems).";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_network_stack (const char *arg,
-                                 char      **errmsg)
-{
+static bool clioptions_option_network_stack(const char *arg, char **errmsg) {
     snprintf(VS(settings.network_stack), "%s", arg);
     return true;
 }
@@ -1019,15 +878,12 @@ clioptions_option_network_stack (const char *arg,
  * Description of the --http_server command.
  */
 static const char *clioptions_option_http_server_desc =
-"Enables/disables the bundled HTTP server, which is required in order to "
-"connect to the server (by most clients). Refer to the README file for "
-"information related to running your own HTTP server instead of the bundled "
-"one.";
+    "Enables/disables the bundled HTTP server, which is required in order to "
+    "connect to the server (by most clients). Refer to the README file for "
+    "information related to running your own HTTP server instead of the bundled "
+    "one.";
 /** @copydoc clioptions_handler_func */
-static bool
-clioptions_option_http_server (const char *arg,
-                               char      **errmsg)
-{
+static bool clioptions_option_http_server(const char *arg, char **errmsg) {
     if (KEYWORD_IS_TRUE(arg)) {
         settings.http_server = true;
     } else if (KEYWORD_IS_FALSE(arg)) {
@@ -1049,8 +905,7 @@ clioptions_option_http_server (const char *arg,
  * init_function_pointers(). Good idea to also call init_vars() and
  * init_hash_table() if you are doing any object loading.
  */
-static void init_library(int argc, char *argv[])
-{
+static void init_library(int argc, char *argv[]) {
     toolkit_import(memory);
     toolkit_import(signals);
     signals_set_traceback_prefix(EXECUTABLE);
@@ -1074,14 +929,11 @@ static void init_library(int argc, char *argv[])
      * the server or a Windows one. */
     char user_agent[MAX_BUF];
 #if defined(WIN32)
-    snprintf(VS(user_agent), "Atrinik Server (Win32)/%s (%d)",
-             PACKAGE_VERSION, SOCKET_VERSION);
+    snprintf(VS(user_agent), "Atrinik Server (Win32)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
 #elif defined(__GNUC__)
-    snprintf(VS(user_agent), "Atrinik Server (GNU/Linux)/%s (%d)",
-             PACKAGE_VERSION, SOCKET_VERSION);
+    snprintf(VS(user_agent), "Atrinik Server (GNU/Linux)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
 #else
-    snprintf(VS(user_agent), "Atrinik Server (Unknown)/%s (%d)",
-             PACKAGE_VERSION, SOCKET_VERSION);
+    snprintf(VS(user_agent), "Atrinik Server (Unknown)/%s (%d)", PACKAGE_VERSION, SOCKET_VERSION);
 #endif
 
     curl_set_user_agent(user_agent);
@@ -1128,15 +980,11 @@ static void init_library(int argc, char *argv[])
     CLIOPTIONS_CREATE_ARGUMENT(cli, resourcespath, "Resource files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver_url, "URL of the metaserver");
     CLIOPTIONS_CREATE_ARGUMENT(cli, http_url, "URL of the HTTP server");
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               connectivity_mode,
-                               "Direct connection policy");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, connectivity_mode, "Direct connection policy");
     CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "STUN discovery endpoint");
     CLIOPTIONS_CREATE_ARGUMENT(cli, port_mapping, "Router port mapping policy");
     CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               join_password_file,
-                               "Private server password file");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, join_password_file, "Private server password file");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_public, "Public server listing");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_name, "Name of the server");
@@ -1150,25 +998,17 @@ static void init_library(int argc, char *argv[])
     clioptions_enable_changeable(cli);
     CLIOPTIONS_CREATE_ARGUMENT(cli, item_power_factor, "Item power factor");
     clioptions_enable_changeable(cli);
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               python_reload_modules,
-                               "Whether to reload Python modules");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, python_reload_modules, "Whether to reload Python modules");
     clioptions_enable_changeable(cli);
     CLIOPTIONS_CREATE_ARGUMENT(cli,
                                default_permission_groups,
                                "Permission groups applied to all players");
     clioptions_enable_changeable(cli);
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               control_allowed_ips,
-                               "IP allowed to control the server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, control_allowed_ips, "IP allowed to control the server");
     clioptions_enable_changeable(cli);
-    CLIOPTIONS_CREATE_ARGUMENT(cli,
-                               control_player,
-                               "Default player for control commands");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, control_player, "Default player for control commands");
     clioptions_enable_changeable(cli);
-    CLIOPTIONS_CREATE(cli,
-                      recycle_tmp_maps,
-                      "Preserve loaded map state across restarts");
+    CLIOPTIONS_CREATE(cli, recycle_tmp_maps, "Preserve loaded map state across restarts");
     clioptions_enable_changeable(cli);
     CLIOPTIONS_CREATE_ARGUMENT(cli, speed, "Server speed");
     clioptions_enable_changeable(cli);
@@ -1196,14 +1036,12 @@ static void init_library(int argc, char *argv[])
     if (dir == NULL) {
         if (errno == ENOENT) {
 #ifdef WIN32
-#   define STARTUP_SCRIPT "server.bat"
+#define STARTUP_SCRIPT "server.bat"
 #else
-#   define STARTUP_SCRIPT "./server.sh"
+#define STARTUP_SCRIPT "./server.sh"
 #endif
 
-            LOG(ERROR,
-                "The data directory %s does not exist.",
-                settings.datapath);
+            LOG(ERROR, "The data directory %s does not exist.", settings.datapath);
             LOG(ERROR,
                 "Please refer to the README file on the proper way of "
                 "launching the Atrinik server, or use " STARTUP_SCRIPT " to "
@@ -1226,7 +1064,8 @@ static void init_library(int argc, char *argv[])
 #ifndef WIN32
     struct stat statbuf;
     if (stat(settings.datapath, &statbuf) != 0) {
-        LOG(ERROR, "Failed to stat the data directory %s: %s (%d)",
+        LOG(ERROR,
+            "Failed to stat the data directory %s: %s (%d)",
             settings.datapath,
             strerror(errno),
             errno);
@@ -1263,9 +1102,7 @@ static void init_library(int argc, char *argv[])
     toolkit_import(ban);
     toolkit_import(faction);
 
-    if (!settings.world_maker &&
-        !settings.unit_tests &&
-        !settings.plugin_unit_tests) {
+    if (!settings.world_maker && !settings.unit_tests && !settings.plugin_unit_tests) {
         toolkit_import(socket_server);
         toolkit_import(http_server);
     }
@@ -1287,9 +1124,7 @@ static void init_library(int argc, char *argv[])
     init_clocks();
     account_init();
     resources_init();
-    if (!settings.world_maker &&
-        !settings.unit_tests &&
-        !settings.plugin_unit_tests &&
+    if (!settings.world_maker && !settings.unit_tests && !settings.plugin_unit_tests &&
         strcmp(settings.connectivity_mode, "legacy_tcp") != 0) {
         socket_assets_init();
     }
@@ -1299,8 +1134,7 @@ static void init_library(int argc, char *argv[])
  * Initializes all global variables.
  * Might use environment variables as default for some of them.
  */
-void init_globals(void)
-{
+void init_globals(void) {
     /* Global round ticker */
     global_round_tag = 1;
 
@@ -1320,8 +1154,7 @@ void init_globals(void)
 /**
  * Initializes first_map_path from the archetype collection.
  */
-static void init_dynamic(void)
-{
+static void init_dynamic(void) {
     archetype_t *at, *tmp;
     HASH_ITER(hh, arch_table, at, tmp) {
         if (at->clone.type == MAP && EXIT_PATH(&at->clone) != NULL) {
@@ -1332,8 +1165,9 @@ static void init_dynamic(void)
         }
     }
 
-    LOG(ERROR, "You need an archetype called 'map' and it has to contain "
-            "start map.");
+    LOG(ERROR,
+        "You need an archetype called 'map' and it has to contain "
+        "start map.");
     exit(1);
 }
 
@@ -1341,8 +1175,7 @@ static void init_dynamic(void)
  * Write out the current time to a file so time does not reset every
  * time the server reboots.
  */
-void write_todclock(void)
-{
+void write_todclock(void) {
     char filename[MAX_BUF];
     FILE *fp;
 
@@ -1362,8 +1195,7 @@ void write_todclock(void)
  *
  * Called by init_library().
  */
-static void init_clocks(void)
-{
+static void init_clocks(void) {
     char filename[MAX_BUF];
     FILE *fp;
     static int has_been_done = 0;
@@ -1383,8 +1215,7 @@ static void init_clocks(void)
         return;
     }
 
-    if (fscanf(fp, "%lu", &todtick)) {
-    }
+    if (fscanf(fp, "%lu", &todtick)) {}
 
     fclose(fp);
 }
@@ -1398,10 +1229,9 @@ static void init_clocks(void)
  * @param argv
  * Arguments.
  */
-void init(int argc, char **argv)
-{
+void init(int argc, char **argv) {
     /* We don't want to be affected by players' umask */
-    (void) umask(0);
+    (void)umask(0);
 
     /* Must be called early */
     init_library(argc, argv);
@@ -1425,8 +1255,7 @@ void init(int argc, char **argv)
 /**
  * Initialize before playing.
  */
-static void init_beforeplay(void)
-{
+static void init_beforeplay(void) {
     init_spells();
     race_init();
     init_readable();

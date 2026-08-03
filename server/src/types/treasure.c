@@ -34,9 +34,7 @@
 #include <object.h>
 
 /** @copydoc object_methods_t::auto_apply_func */
-static void
-auto_apply_func (object *op)
-{
+static void auto_apply_func(object *op) {
     HARD_ASSERT(op != NULL);
 
     if (op->randomitems == NULL) {
@@ -50,10 +48,7 @@ auto_apply_func (object *op)
         level = get_environment_level(op);
     }
 
-    treasure_generate(op->randomitems,
-                      op,
-                      level,
-                      op->map != NULL ? GT_ENVIRONMENT : 0);
+    treasure_generate(op->randomitems, op, level, op->map != NULL ? GT_ENVIRONMENT : 0);
 
     /* If we generated on object and put it in this object inventory,
      * move it to the parent object as the current object is about
@@ -63,7 +58,8 @@ auto_apply_func (object *op)
         FOR_INV_PREPARE(op, tmp) {
             object_remove(tmp, 0);
             object_insert_into(tmp, op->env, 0);
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
     }
 
     object_remove(op, 0);
@@ -71,9 +67,7 @@ auto_apply_func (object *op)
 }
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -89,7 +83,8 @@ apply_func (object *op, object *applier, int aflags)
         } else {
             object_destroy(tmp);
         }
-    } FOR_INV_FINISH();
+    }
+    FOR_INV_FINISH();
 
     if (op->msg != NULL) {
         draw_info(COLOR_WHITE, applier, op->msg);
@@ -104,8 +99,7 @@ apply_func (object *op, object *applier, int aflags)
 /**
  * Initialize the treasure type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(treasure_t)
-{
+OBJECT_TYPE_INIT_DEFINE(treasure_t) {
     OBJECT_METHODS(TREASURE)->auto_apply_func = auto_apply_func;
     OBJECT_METHODS(TREASURE)->apply_func = apply_func;
 }

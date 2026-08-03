@@ -28,8 +28,7 @@
 #include <check_proto.h>
 #include <toolkit/string.h>
 
-START_TEST(test_stringbuffer_new)
-{
+START_TEST(test_stringbuffer_new) {
     StringBuffer *sb;
 
     sb = stringbuffer_new();
@@ -38,8 +37,7 @@ START_TEST(test_stringbuffer_new)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_free)
-{
+START_TEST(test_stringbuffer_free) {
     StringBuffer *sb = stringbuffer_new();
     ck_assert_ptr_ne(sb, NULL);
 
@@ -55,8 +53,7 @@ START_TEST(test_stringbuffer_free)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_finish)
-{
+START_TEST(test_stringbuffer_finish) {
     StringBuffer *sb;
     char *cp;
 
@@ -74,8 +71,7 @@ START_TEST(test_stringbuffer_finish)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_finish_shared)
-{
+START_TEST(test_stringbuffer_finish_shared) {
     StringBuffer *sb;
     shstr *cp;
 
@@ -95,8 +91,7 @@ START_TEST(test_stringbuffer_finish_shared)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_append_string_len)
-{
+START_TEST(test_stringbuffer_append_string_len) {
     StringBuffer *sb;
     char *cp;
 
@@ -127,8 +122,7 @@ START_TEST(test_stringbuffer_append_string_len)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_append_string)
-{
+START_TEST(test_stringbuffer_append_string) {
     StringBuffer *sb;
     char *cp, *cp2;
 
@@ -155,8 +149,7 @@ START_TEST(test_stringbuffer_append_string)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_append_printf)
-{
+START_TEST(test_stringbuffer_append_printf) {
     StringBuffer *sb;
     char *cp, *cp2;
 
@@ -195,8 +188,7 @@ START_TEST(test_stringbuffer_append_printf)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_append_stringbuffer)
-{
+START_TEST(test_stringbuffer_append_stringbuffer) {
     StringBuffer *sb, *sb2, *sb3;
     char *cp;
 
@@ -224,8 +216,7 @@ START_TEST(test_stringbuffer_append_stringbuffer)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_append_char)
-{
+START_TEST(test_stringbuffer_append_char) {
     StringBuffer *sb;
     char *cp;
 
@@ -247,8 +238,7 @@ START_TEST(test_stringbuffer_append_char)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_data)
-{
+START_TEST(test_stringbuffer_data) {
     StringBuffer *sb = stringbuffer_new();
     ck_assert_ptr_ne(stringbuffer_data(sb), NULL);
     stringbuffer_append_string(sb, "hello");
@@ -259,8 +249,7 @@ START_TEST(test_stringbuffer_data)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_length)
-{
+START_TEST(test_stringbuffer_length) {
     StringBuffer *sb;
     char *cp;
 
@@ -274,8 +263,7 @@ START_TEST(test_stringbuffer_length)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_seek)
-{
+START_TEST(test_stringbuffer_seek) {
     StringBuffer *sb = stringbuffer_new();
     stringbuffer_append_string(sb, "hello");
     stringbuffer_seek(sb, 0);
@@ -286,8 +274,7 @@ START_TEST(test_stringbuffer_seek)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_index)
-{
+START_TEST(test_stringbuffer_index) {
     StringBuffer *sb;
     char *cp;
 
@@ -306,8 +293,7 @@ START_TEST(test_stringbuffer_index)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_rindex)
-{
+START_TEST(test_stringbuffer_rindex) {
     StringBuffer *sb;
     char *cp;
 
@@ -326,8 +312,7 @@ START_TEST(test_stringbuffer_rindex)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_sub)
-{
+START_TEST(test_stringbuffer_sub) {
     StringBuffer *sb;
     char *cp;
 
@@ -396,8 +381,7 @@ START_TEST(test_stringbuffer_sub)
 }
 END_TEST
 
-START_TEST(test_stringbuffer_1)
-{
+START_TEST(test_stringbuffer_1) {
     StringBuffer *sb, *sb2;
     char *cp;
 
@@ -418,8 +402,7 @@ START_TEST(test_stringbuffer_1)
 }
 END_TEST
 
-static Suite *suite(void)
-{
+static Suite *suite(void) {
     Suite *s = suite_create("stringbuffer");
     TCase *tc_core = tcase_create("Core");
 
@@ -447,7 +430,6 @@ static Suite *suite(void)
     return s;
 }
 
-void check_server_stringbuffer(void)
-{
+void check_server_stringbuffer(void) {
     check_run_suite(suite(), __FILE__);
 }

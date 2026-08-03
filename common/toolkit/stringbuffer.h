@@ -41,13 +41,11 @@ StringBuffer *stringbuffer_new(void);
 void stringbuffer_free(StringBuffer *sb);
 char *stringbuffer_finish(StringBuffer *sb);
 const char *stringbuffer_finish_shared(StringBuffer *sb);
-void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
-        size_t len);
+void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len);
 void stringbuffer_append_string(StringBuffer *sb, const char *str);
-void stringbuffer_append_printf(StringBuffer *sb, const char *format,
-        ...) __attribute__((format(printf, 2, 3)));
-void stringbuffer_append_stringbuffer(StringBuffer *sb,
-        const StringBuffer *sb2);
+void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
+    __attribute__((format(printf, 2, 3)));
+void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2);
 void stringbuffer_append_char(StringBuffer *sb, const char c);
 const char *stringbuffer_data(StringBuffer *sb);
 size_t stringbuffer_length(StringBuffer *sb);

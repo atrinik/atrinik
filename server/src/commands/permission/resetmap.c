@@ -33,8 +33,7 @@
 #include <object.h>
 
 /** @copydoc command_func */
-void command_resetmap(object *op, const char *command, char *params)
-{
+void command_resetmap(object *op, const char *command, char *params) {
     mapstruct *m, *newmap;
     shstr *mappath;
 
@@ -70,6 +69,5 @@ void command_resetmap(object *op, const char *command, char *params)
         return;
     }
 
-    draw_info_format(COLOR_WHITE, op, "Successfully reset map: %s",
-            newmap->path);
+    draw_info_format(COLOR_WHITE, op, "Successfully reset map: %s", newmap->path);
 }

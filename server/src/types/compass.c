@@ -37,14 +37,18 @@
  * String representations of the in-game directions.
  */
 static const char *const direction_names[] = {
-    "north", "northeast", "east", "southeast",
-    "south", "southwest", "west", "northwest",
+    "north",
+    "northeast",
+    "east",
+    "southeast",
+    "south",
+    "southwest",
+    "west",
+    "northwest",
 };
 
 /** @copydoc object_methods_t::apply_func */
-static int
-apply_func (object *op, object *applier, int aflags)
-{
+static int apply_func(object *op, object *applier, int aflags) {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(applier != NULL);
 
@@ -52,7 +56,8 @@ apply_func (object *op, object *applier, int aflags)
         return OBJECT_METHOD_OK;
     }
 
-    draw_info_format(COLOR_WHITE, applier,
+    draw_info_format(COLOR_WHITE,
+                     applier,
                      "You are facing %s.",
                      direction_names[absdir(applier->direction) - 1]);
     return OBJECT_METHOD_OK;
@@ -61,7 +66,6 @@ apply_func (object *op, object *applier, int aflags)
 /**
  * Initialize the compass type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(compass)
-{
+OBJECT_TYPE_INIT_DEFINE(compass) {
     OBJECT_METHODS(COMPASS)->apply_func = apply_func;
 }

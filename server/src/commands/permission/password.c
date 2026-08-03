@@ -33,8 +33,7 @@
 #include <toolkit/string.h>
 
 /** @copydoc command_func */
-void command_password(object *op, const char *command, char *params)
-{
+void command_password(object *op, const char *command, char *params) {
     char *cps[2];
 
     if (string_split(params, cps, arraysize(cps), ' ') != arraysize(cps)) {

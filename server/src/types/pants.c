@@ -35,7 +35,6 @@
 /**
  * Initialize the pants type object methods.
  */
-OBJECT_TYPE_INIT_DEFINE(pants)
-{
+OBJECT_TYPE_INIT_DEFINE(pants) {
     OBJECT_METHODS(PANTS)->apply_func = object_apply_item;
 }

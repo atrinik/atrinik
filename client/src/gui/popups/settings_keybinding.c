@@ -35,7 +35,7 @@ enum {
     KEYBINDING_STATE_LIST,
     KEYBINDING_STATE_ADD,
     KEYBINDING_STATE_EDIT
-} ;
+};
 
 /**
  * Button buffer.
@@ -58,8 +58,7 @@ static size_t keybinding_id;
  */
 static list_struct *list_keybindings;
 
-static void keybinding_list_reload(void)
-{
+static void keybinding_list_reload(void) {
     size_t i;
     char buf[MAX_BUF];
 
@@ -68,15 +67,18 @@ static void keybinding_list_reload(void)
 
     for (i = 0; i < keybindings_num; i++) {
         list_add(list_keybindings, i, 0, keybindings[i]->command);
-        list_add(list_keybindings, i, 1, keybind_get_key_shortcut(keybindings[i]->key, keybindings[i]->mod, buf, sizeof(buf)));
+        list_add(
+            list_keybindings,
+            i,
+            1,
+            keybind_get_key_shortcut(keybindings[i]->key, keybindings[i]->mod, buf, sizeof(buf)));
         list_add(list_keybindings, i, 2, keybindings[i]->repeat ? "on" : "off");
     }
 
     list_offsets_ensure(list_keybindings);
 }
 
-static void keybinding_apply(void)
-{
+static void keybinding_apply(void) {
     int key, mod;
 
     /* Nothing to apply. */
@@ -88,7 +90,8 @@ static void keybinding_apply(void)
         keybind_add(key, mod, text_input_command.str);
         /* It'll be added to the end, so select it. */
         list_keybindings->row_selected = list_keybindings->rows + 1;
-        list_keybindings->row_offset = MIN(list_keybindings->rows + 1 - list_keybindings->max_rows, list_keybindings->row_selected - 1);
+        list_keybindings->row_offset = MIN(list_keybindings->rows + 1 - list_keybindings->max_rows,
+                                           list_keybindings->row_selected - 1);
     } else if (keybinding_state == KEYBINDING_STATE_EDIT) {
         keybind_edit(keybinding_id, key, mod, text_input_command.str);
     }
@@ -104,8 +107,7 @@ static void keybinding_apply(void)
  * @return
  * 1 if the key was handled, 0 otherwise.
  */
-static int keybinding_action(SDLKey key)
-{
+static int keybinding_action(SDLKey key) {
     if (key == SDLK_n) {
         /* Create a new keybinding. */
         keybinding_state = KEYBINDING_STATE_ADD;
@@ -130,8 +132,7 @@ static int keybinding_action(SDLKey key)
 }
 
 /** @copydoc list_struct::handle_enter_func */
-static void list_handle_enter(list_struct *list, SDL_Event *event)
-{
+static void list_handle_enter(list_struct *list, SDL_Event *event) {
     if (list->row_selected) {
         char buf[MAX_BUF];
 
@@ -142,25 +143,34 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 
         text_input_command.focus = !EVENT_IS_KEY(event);
         text_input_set(&text_input_command, keybindings[keybinding_id]->command);
-        snprintf(buf, sizeof(buf), "%d %d", keybindings[keybinding_id]->key, keybindings[keybinding_id]->mod);
+        snprintf(buf,
+                 sizeof(buf),
+                 "%d %d",
+                 keybindings[keybinding_id]->key,
+                 keybindings[keybinding_id]->mod);
         text_input_set(&text_input_key, buf);
     }
 }
 
 /** @copydoc text_input_struct::show_edit_func */
-static void text_input_show_edit(text_input_struct *text_input)
-{
+static void text_input_show_edit(text_input_struct *text_input) {
     *text_input->str = '\0';
 }
 
 /** @copydoc popup_struct::draw_func */
-static int popup_draw(popup_struct *popup)
-{
+static int popup_draw(popup_struct *popup) {
     SDL_Rect box;
 
     box.w = popup->surface->w;
     box.h = 38;
-    text_show(popup->surface, FONT_SERIF20, "Keybinding Settings", 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
+    text_show(popup->surface,
+              FONT_SERIF20,
+              "Keybinding Settings",
+              0,
+              0,
+              COLOR_HGOLD,
+              TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER,
+              &box);
 
     list_show(list_keybindings, 30, 50);
     list_set_parent(list_keybindings, popup->x, popup->y);
@@ -180,9 +190,36 @@ static int popup_draw(popup_struct *popup)
     if (keybinding_state == KEYBINDING_STATE_ADD || keybinding_state == KEYBINDING_STATE_EDIT) {
         int key, mod;
 
-        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 72, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "[hcenter=%d]Command: [/hcenter]", text_input_command.coords.h);
-        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 49, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "[hcenter=%d]Key: [/hcenter]", text_input_command.coords.h);
-        text_show_shadow_format(popup->surface, FONT_ARIAL10, 160, text_input_key.coords.y + text_input_key.coords.h + 5, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "[hcenter=%d]Press ESC to cancel.[/hcenter]", button_apply.texture->surface->h);
+        text_show_shadow_format(popup->surface,
+                                FONT_ARIAL11,
+                                100,
+                                popup->surface->h - 72,
+                                COLOR_WHITE,
+                                COLOR_BLACK,
+                                TEXT_MARKUP,
+                                NULL,
+                                "[hcenter=%d]Command: [/hcenter]",
+                                text_input_command.coords.h);
+        text_show_shadow_format(popup->surface,
+                                FONT_ARIAL11,
+                                100,
+                                popup->surface->h - 49,
+                                COLOR_WHITE,
+                                COLOR_BLACK,
+                                TEXT_MARKUP,
+                                NULL,
+                                "[hcenter=%d]Key: [/hcenter]",
+                                text_input_command.coords.h);
+        text_show_shadow_format(popup->surface,
+                                FONT_ARIAL10,
+                                160,
+                                text_input_key.coords.y + text_input_key.coords.h + 5,
+                                COLOR_WHITE,
+                                COLOR_BLACK,
+                                TEXT_MARKUP,
+                                NULL,
+                                "[hcenter=%d]Press ESC to cancel.[/hcenter]",
+                                button_apply.texture->surface->h);
 
         text_input_set_parent(&text_input_command, popup->x, popup->y);
         text_input_set_parent(&text_input_key, popup->x, popup->y);
@@ -197,12 +234,27 @@ static int popup_draw(popup_struct *popup)
             char buf[MAX_BUF];
 
             keybind_get_key_shortcut(key, mod, buf, sizeof(buf));
-            text_show(popup->surface, text_input_key.font, buf, text_input_key.coords.x, text_input_key.coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+            text_show(popup->surface,
+                      text_input_key.font,
+                      buf,
+                      text_input_key.coords.x,
+                      text_input_key.coords.y + TEXT_INPUT_PADDING,
+                      COLOR_WHITE,
+                      TEXT_ALIGN_CENTER,
+                      &box);
         } else if (text_input_key.focus) {
-            text_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.coords.x, text_input_key.coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
+            text_show(popup->surface,
+                      text_input_key.font,
+                      "Press keyboard shortcut",
+                      text_input_key.coords.x,
+                      text_input_key.coords.y + TEXT_INPUT_PADDING,
+                      COLOR_WHITE,
+                      TEXT_ALIGN_CENTER,
+                      &box);
         }
 
-        button_apply.x = text_input_key.coords.x + text_input_key.coords.w - texture_surface(button_apply.texture)->w;
+        button_apply.x = text_input_key.coords.x + text_input_key.coords.w -
+                         texture_surface(button_apply.texture)->w;
         button_apply.y = text_input_key.coords.y + text_input_key.coords.h + 5;
         button_show(&button_apply, "Apply");
     }
@@ -211,8 +263,7 @@ static int popup_draw(popup_struct *popup)
 }
 
 /** @copydoc popup_struct::event_func */
-static int popup_event(popup_struct *popup, SDL_Event *event)
-{
+static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (keybinding_state == KEYBINDING_STATE_ADD || keybinding_state == KEYBINDING_STATE_EDIT) {
         if (event->type == SDL_KEYDOWN) {
             if (event->key.keysym.sym == SDLK_ESCAPE) {
@@ -241,7 +292,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 if (strcmp(text_input_key.str, "0 0") == 0) {
                     char buf[MAX_BUF];
 
-                    snprintf(buf, sizeof(buf), "%d %d", event->key.keysym.sym, event->key.keysym.mod);
+                    snprintf(buf,
+                             sizeof(buf),
+                             "%d %d",
+                             event->key.keysym.sym,
+                             event->key.keysym.mod);
                     text_input_set(&text_input_key, buf);
                     return 1;
                 } else if (IS_ENTER(event->key.keysym.sym)) {
@@ -272,10 +327,15 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
                 /* If we are editing and we switched from the key text
                  * input, restore the original value. */
-                if (keybinding_state == KEYBINDING_STATE_EDIT && strcmp(text_input_key.str, "0 0") == 0) {
+                if (keybinding_state == KEYBINDING_STATE_EDIT &&
+                    strcmp(text_input_key.str, "0 0") == 0) {
                     char buf[MAX_BUF];
 
-                    snprintf(buf, sizeof(buf), "%d %d", keybindings[keybinding_id]->key, keybindings[keybinding_id]->mod);
+                    snprintf(buf,
+                             sizeof(buf),
+                             "%d %d",
+                             keybindings[keybinding_id]->key,
+                             keybindings[keybinding_id]->mod);
                     text_input_set(&text_input_key, buf);
                 }
 
@@ -285,7 +345,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 text_input_key.focus = 1;
                 text_input_command.focus = 0;
                 return 1;
-            } else if (list_mouse_get_pos(list_keybindings, event->motion.x, event->motion.y, &row, &col)) {
+            } else if (list_mouse_get_pos(list_keybindings,
+                                          event->motion.x,
+                                          event->motion.y,
+                                          &row,
+                                          &col)) {
                 if (col == 2) {
                     keybind_repeat_toggle(row);
                     keybinding_list_reload();
@@ -313,8 +377,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 }
 
 /** @copydoc popup_struct::destroy_callback_func */
-static int popup_destroy_callback(popup_struct *popup)
-{
+static int popup_destroy_callback(popup_struct *popup) {
     list_remove(list_keybindings);
     list_keybindings = NULL;
     keybind_save();
@@ -330,14 +393,12 @@ static int popup_destroy_callback(popup_struct *popup)
 }
 
 /** @copydoc popup_button::event_func */
-static int popup_button_event(popup_button *button)
-{
+static int popup_button_event(popup_button *button) {
     help_show("keybinding settings");
     return 1;
 }
 
-void settings_keybinding_open(void)
-{
+void settings_keybinding_open(void) {
     popup_struct *popup;
 
     popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
