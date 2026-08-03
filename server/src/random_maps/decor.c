@@ -50,7 +50,7 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP) {
     }
 
     snprintf(style_name, sizeof(style_name), "/styles/decorstyles");
-    decor_map = find_style(style_name, RP->decorstyle, -1);
+    decor_map = find_style(style_name, RP->decorstyle, -1, &RP->rng);
 
     if (decor_map == NULL) {
         return;
@@ -58,11 +58,11 @@ void put_decor(mapstruct *map, char **layout, RMParms *RP) {
 
     for (i = 0; i < RP->Xsize - 1; i++) {
         for (j = 0; j < RP->Ysize - 1; j++) {
-            if (RP->decorchance > 0 && !rndm_chance(RP->decorchance)) {
+            if (RP->decorchance > 0 && !rng_chance(&RP->rng, RP->decorchance)) {
                 continue;
             }
 
-            new_decor_object = pick_random_object(decor_map);
+            new_decor_object = pick_random_object(decor_map, &RP->rng);
 
             if (layout[i][j] ==
                 (new_decor_object->type == WALL && QUERY_FLAG(new_decor_object, FLAG_IS_TURNABLE)

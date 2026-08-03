@@ -118,6 +118,9 @@ typedef struct {
     /** Random seed value. */
     int random_seed;
 
+    /** Deterministic stream used only while generating this map. */
+    rng_state_t rng;
+
     /** Map layout style. */
     int map_layout_style;
 
@@ -186,11 +189,5 @@ typedef struct {
 /** Reflection. */
 #define XY_SYM 4
 /*@}*/
-
-/**
- * Macro to get a strongly centered random distribution, from 0 to x,
- * centered at x / 2.
- */
-#define BC_RANDOM(x) ((int)((RANDOM() % (x) + RANDOM() % (x) + RANDOM() % (x)) / 3.))
 
 #endif

@@ -35,23 +35,7 @@
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
-
-/**
- * @defgroup DRNG_xxx Intel DRNG support flags
- *
- * Flags that determine which DRNG instructions are available.
- *@{*/
-#define DRNG_NO_SUPPORT 0x0 ///< DRNG is not supported.
-#define DRNG_HAS_RDRAND 0x1 ///< RDRAND is available.
-#define DRNG_HAS_RDSEED 0x2 ///< RDSEED is available.
-/*@}*/
-
-#ifndef __arm__
-/**
- * When defined, Intel's DRNG is compiled.
- */
-#define INTEL_DRNG
-#endif
+#include <openssl/rand.h>
 
 /**
  * Used by nearest_pow_two_exp() for a fast lookup.
@@ -61,208 +45,154 @@ static const size_t exp_lookup[65] = {0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 
                                       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
                                       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6};
 
-#ifdef INTEL_DRNG
-/**
- * Combination of @ref DRNG_xxx.
- */
-static int drng_features;
-#endif
-
-#ifndef __arm__
-/* Prototypes */
-static uint64_t rdtsc(void);
-#endif
-
-#ifdef INTEL_DRNG
-static int get_drng_features(void);
-static bool rdseed64_step(uint64_t *seed);
-#endif
+/** Default gameplay random number stream. */
+static rng_state_t gameplay_rng;
+/** Serializes access to the default gameplay stream. */
+static pthread_mutex_t gameplay_rng_mutex;
 
 TOOLKIT_API(DEPENDS(logger));
 
 TOOLKIT_INIT_FUNC(math) {
-    uint64_t seed = time(NULL);
+    uint64_t seed;
 
-#ifdef INTEL_DRNG
-    drng_features = get_drng_features();
-    if (drng_features & DRNG_HAS_RDSEED) {
-        LOG(DEVEL, "CPU supports RDSEED opcode, attempting to generate a seed");
-        uint64_t new_seed;
-        /* Give it ten tries... */
-        for (int i = 0; i < 10; i++) {
-            if (rdseed64_step(&new_seed)) {
-                seed = new_seed;
-                LOG(DEVEL, "RDSEED generated seed: %" PRIu64, seed);
-                break;
-            }
-        }
-    } else
-#endif
-#ifndef __arm__
-    {
-        LOG(DEVEL, "CPU supports RDTSC opcode, attempting to generate a seed");
-        seed = rdtsc();
-        LOG(DEVEL, "RDTSC generated seed: %" PRIu64, seed);
+    if (RAND_bytes((unsigned char *)&seed, sizeof(seed)) != 1) {
+        LOG(ERROR,
+            "RAND_bytes() failed while seeding gameplay RNG: %s; falling back to wall-clock time",
+            ERR_error_string(ERR_get_error(), NULL));
+        seed = (uint64_t)time(NULL);
     }
-#endif
 
-#ifdef INTEL_DRNG
-    if (drng_features & DRNG_HAS_RDRAND) {
-        LOG(DEVEL, "CPU supports RDRAND opcode, will use DRNG for RNG");
-    }
-#endif
-
-    SRANDOM(seed);
+    rng_seed(&gameplay_rng, seed);
+    pthread_mutex_init(&gameplay_rng_mutex, NULL);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(math) {}
+TOOLKIT_DEINIT_FUNC(math) {
+    pthread_mutex_destroy(&gameplay_rng_mutex);
+}
 TOOLKIT_DEINIT_FUNC_FINISH
 
-#ifndef __arm__
 /**
- * Acquire the processor time stamp using the rdtsc opcode.
+ * Advance a PCG-XSH-RR stream and return 32 random bits.
  *
+ * @param rng
+ * Random number stream.
  * @return
- * Processor time stamp.
+ * Random value.
  */
-static uint64_t rdtsc(void) {
-    unsigned int lo, hi;
-    asm volatile("rdtsc" : "=a"(lo), "=d"(hi));
-    return ((uint64_t)hi << 32) | lo;
-}
-#endif
+static uint32_t rng_u32(rng_state_t *rng) {
+    uint64_t old_state = rng->state;
+    uint32_t xor_shifted = (uint32_t)(((old_state >> 18U) ^ old_state) >> 27U);
+    uint32_t rotation = (uint32_t)(old_state >> 59U);
 
-#ifdef INTEL_DRNG
-/**
- * CPU ID information structure.
- */
-typedef struct cpuid {
-    unsigned int eax;
-    unsigned int ebx;
-    unsigned int ecx;
-    unsigned int edx;
-} cpuid_t;
-
-/**
- * Executes the cpuid opcode, acquiring information about the current CPU
- * into the specified cpuid_t structure.
- *
- * @param info
- * Where to store the information.
- * @param leaf
- * Leaf information (the EAX register).
- * @param subleaf
- * Sub-leaf information (the ECX register).
- */
-static void cpuid(cpuid_t *info, unsigned int leaf, unsigned int subleaf) {
-    HARD_ASSERT(info != NULL);
-    asm volatile("cpuid"
-                 : "=a"(info->eax), "=b"(info->ebx), "=c"(info->ecx), "=d"(info->edx)
-                 : "a"(leaf), "c"(subleaf));
+    rng->state = old_state * UINT64_C(6364136223846793005) + UINT64_C(1442695040888963407);
+    return (xor_shifted >> rotation) | (xor_shifted << ((-rotation) & 31U));
 }
 
 /**
- * Determine if the system is running under an Intel CPU.
+ * Seed a deterministic random number stream.
  *
- * @return
- * Whether the system is running under an Intel CPU.
- */
-static bool is_intel_cpu(void) {
-#ifndef __arm__
-    cpuid_t info;
-    cpuid(&info, 0, 0);
-
-    if (memcmp((char *)&info.ebx, "Genu", 4) == 0 && memcmp((char *)&info.edx, "ineI", 4) == 0 &&
-        memcmp((char *)&info.ecx, "ntel", 4) == 0) {
-        return true;
-    }
-#endif
-
-    return false;
-}
-
-/**
- * Acquire the DRNG features supported by the CPU.
- *
- * @return
- * A combination of @ref DRNG_xxx "DRNG flags".
- */
-static int get_drng_features(void) {
-    if (!is_intel_cpu()) {
-        /* Not an Intel CPU; no support for DRNG. */
-        return DRNG_NO_SUPPORT;
-    }
-
-    int features = DRNG_NO_SUPPORT;
-
-    cpuid_t info;
-    /* Get the feature bits leaf */
-    cpuid(&info, 1, 0);
-
-    /* RDRAND instruction is bit #30 in the ECX register */
-    if (BIT_QUERY(info.ecx, 30)) {
-        features |= DRNG_HAS_RDRAND;
-    }
-
-    /* Get the extended feature flags leaf */
-    cpuid(&info, 7, 0);
-
-    /* RDSEED instruction is bit #18 in the EBX register */
-    if (BIT_QUERY(info.ebx, 18)) {
-        features |= DRNG_HAS_RDSEED;
-    }
-
-    return features;
-}
-
-/**
- * Seeds the Intel DRNG number generator.
- *
+ * @param rng
+ * Random number stream.
  * @param seed
- * The seed to seed with.
- * @return
- * True on success, false on failure.
+ * Stream seed. Equal seeds produce equal sequences.
  */
-static bool rdseed64_step(uint64_t *seed) {
-    HARD_ASSERT(seed != NULL);
+void rng_seed(rng_state_t *rng, uint64_t seed) {
+    HARD_ASSERT(rng != NULL);
 
-    unsigned char ok;
-    asm volatile("rdseed %0; setc %1" : "=r"(*seed), "=qm"(ok));
-    return !!ok;
+    rng->state = 0;
+    rng_u32(rng);
+    rng->state += seed;
+    rng_u32(rng);
 }
 
 /**
- * Generates a random number using the Intel rdrand opcode.
+ * Generate 64 random bits from a deterministic stream.
  *
- * @param number
- * Will contain the random number on success.
+ * @param rng
+ * Random number stream.
  * @return
- * True on success, false on failure.
+ * Random value.
  */
-static bool rdrand64_step(unsigned long long int *number) {
-    HARD_ASSERT(number != NULL);
+uint64_t rng_u64(rng_state_t *rng) {
+    HARD_ASSERT(rng != NULL);
 
-#if !defined(__x86_64__)
-    unsigned char ok;
-    asm volatile("rdrand %0; setc %1" : "=r"(*number), "=qm"(ok));
-    return !!ok;
-#else
-    unsigned long long int i;
-    int ok;
-
-    asm volatile("rdrand %%rax; \
-                   mov $1,%%edx; \
-                   cmovae %%rax,%%rdx; \
-                   mov %%edx,%1; \
-                   mov %%rax, %0;"
-                 : "=r"(i), "=r"(ok)::"%rax", "%rdx");
-    *number = i;
-    return !!ok;
-#endif
+    uint64_t high = rng_u32(rng);
+    uint64_t low = rng_u32(rng);
+    return (high << 32U) | low;
 }
 
-#endif
+/**
+ * Generate an unbiased random integer in an inclusive range.
+ *
+ * @param rng
+ * Random number stream.
+ * @param min
+ * Minimum result.
+ * @param max
+ * Maximum result.
+ * @return
+ * Random value, or min if the range is invalid.
+ */
+int rng_range(rng_state_t *rng, int min, int max) {
+    HARD_ASSERT(rng != NULL);
+
+    if (max < min) {
+        log_error("Calling rng_range() with min=%d max=%d", min, max);
+        return min;
+    }
+
+    uint64_t span = (uint64_t)((int64_t)max - (int64_t)min) + 1U;
+    uint64_t threshold = -span % span;
+    uint64_t value;
+
+    do {
+        value = rng_u64(rng);
+    } while (value < threshold);
+
+    return (int)((int64_t)min + (int64_t)(value % span));
+}
+
+/**
+ * Calculate a chance of one in n using a deterministic stream.
+ *
+ * @param rng
+ * Random number stream.
+ * @param n
+ * Chance denominator.
+ * @return
+ * 1 on success, 0 otherwise or if n is zero.
+ */
+int rng_chance(rng_state_t *rng, uint32_t n) {
+    HARD_ASSERT(rng != NULL);
+
+    if (n == 0) {
+        log_error("Calling rng_chance() with n=0.");
+        return 0;
+    }
+
+    uint64_t span = n;
+    uint64_t threshold = -span % span;
+    uint64_t value;
+
+    do {
+        value = rng_u64(rng);
+    } while (value < threshold);
+
+    return value % span == 0;
+}
+
+/**
+ * Generate a deterministic real number in the half-open range [0, 1).
+ *
+ * @param rng
+ * Random number stream.
+ * @return
+ * Random value.
+ */
+double rng_real(rng_state_t *rng) {
+    return (double)(rng_u64(rng) >> 11U) * 0x1.0p-53;
+}
 
 /**
  * Computes the integer square root.
@@ -301,11 +231,8 @@ unsigned long isqrt(unsigned long n) {
 /**
  * Calculates a random number between min and max.
  *
- * It is suggested one uses this function rather than RANDOM()%, as it
- * would appear that a number of off-by-one-errors exist due to improper
- * use of %.
- *
- * This should also prevent SIGFPE.
+ * This function uses rejection sampling so every value in the requested
+ * range has the same probability.
  *
  * @param min
  * Starting range.
@@ -317,25 +244,10 @@ unsigned long isqrt(unsigned long n) {
 int rndm(int min, int max) {
     TOOLKIT_PROTECT();
 
-    if (max - min + 1 < 1) {
-        log_error("Calling rndm() with min=%d max=%d", min, max);
-        return min;
-    }
-
-    if (max == 0) {
-        return min;
-    }
-
-#ifdef INTEL_DRNG
-    if (drng_features & DRNG_HAS_RDRAND) {
-        unsigned long long int i;
-        if (rdrand64_step(&i)) {
-            return min + i % (max - min + 1);
-        }
-    }
-#endif
-
-    return min + RANDOM() / (RAND_MAX / (max - min + 1) + 1);
+    pthread_mutex_lock(&gameplay_rng_mutex);
+    int result = rng_range(&gameplay_rng, min, max);
+    pthread_mutex_unlock(&gameplay_rng_mutex);
+    return result;
 }
 
 /**
@@ -349,21 +261,10 @@ int rndm(int min, int max) {
 int rndm_chance(uint32_t n) {
     TOOLKIT_PROTECT();
 
-    if (n == 0) {
-        log_error("Calling rndm_chance() with n=0.");
-        return 0;
-    }
-
-#ifdef INTEL_DRNG
-    if (drng_features & DRNG_HAS_RDRAND) {
-        unsigned long long int i;
-        if (rdrand64_step(&i)) {
-            return (i % n) == 0;
-        }
-    }
-#endif
-
-    return (uint32_t)RANDOM() < (RAND_MAX + 1U) / n;
+    pthread_mutex_lock(&gameplay_rng_mutex);
+    int result = rng_chance(&gameplay_rng, n);
+    pthread_mutex_unlock(&gameplay_rng_mutex);
+    return result;
 }
 
 /**
@@ -373,25 +274,27 @@ int rndm_chance(uint32_t n) {
  * 64-bit unsigned number.
  */
 uint64_t rndm_u64(void) {
-#ifdef INTEL_DRNG
-    if (drng_features & DRNG_HAS_RDRAND) {
-        unsigned long long int i;
-        if (rdrand64_step(&i)) {
-            return i;
-        }
-    }
-#endif
+    TOOLKIT_PROTECT();
 
-    union {
-        uint64_t u64;
-        uint8_t u8[64 / CHAR_BIT];
-    } num;
+    pthread_mutex_lock(&gameplay_rng_mutex);
+    uint64_t result = rng_u64(&gameplay_rng);
+    pthread_mutex_unlock(&gameplay_rng_mutex);
+    return result;
+}
 
-    for (size_t i = 0; i < arraysize(num.u8); i++) {
-        num.u8[i] = rndm(0, UINT8_MAX);
-    }
+/**
+ * Generate a random real number in the half-open range [0, 1).
+ *
+ * @return
+ * Random value.
+ */
+double rndm_real(void) {
+    TOOLKIT_PROTECT();
 
-    return num.u64;
+    pthread_mutex_lock(&gameplay_rng_mutex);
+    double result = rng_real(&gameplay_rng);
+    pthread_mutex_unlock(&gameplay_rng_mutex);
+    return result;
 }
 
 /**

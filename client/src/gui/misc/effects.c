@@ -504,14 +504,14 @@ void effect_sprites_play(void) {
         if (!tmp->def->delay || !tmp->delay_ticks || ticks - tmp->delay_ticks > tmp->def->delay) {
             int xpos, ypos;
 
-            xpos = (-1.0 + 3.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wiggle;
+            xpos = (-1.0 + 3.0 * rndm_real()) * tmp->def->wiggle;
             ypos = tmp->def->weight * tmp->def->weight_mod;
 
             /* Apply wind. */
             if (tmp->def->wind && current_effect->wind_blow_dir != WIND_BLOW_NONE) {
                 xpos += ((double)current_effect->wind / tmp->def->weight +
                          tmp->def->weight * tmp->def->weight_mod *
-                             ((-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wind_mod));
+                             ((-1.0 + 2.0 * rndm_real()) * tmp->def->wind_mod));
             }
 
             if (tmp->def->reverse) {
@@ -530,9 +530,8 @@ void effect_sprites_play(void) {
     if (current_effect->wind_blow_dir == WIND_BLOW_RANDOM &&
         !DBL_EQUAL(current_effect->wind_chance, 1.0) &&
         (DBL_EQUAL(current_effect->wind_chance, 0.0) ||
-         RANDOM() / (RAND_MAX + 1.0) >= current_effect->wind_chance)) {
-        current_effect->wind +=
-            (-2.0 + 4.0 * RANDOM() / (RAND_MAX + 1.0)) * current_effect->wind_mod;
+         rndm_real() >= current_effect->wind_chance)) {
+        current_effect->wind += (-2.0 + 4.0 * rndm_real()) * current_effect->wind_mod;
     }
 
     if (current_effect->wind_blow_dir == WIND_BLOW_LEFT) {
@@ -544,7 +543,7 @@ void effect_sprites_play(void) {
     if ((current_effect->max_sprites == -1 || num_sprites < current_effect->max_sprites) &&
         (!current_effect->delay || !current_effect->delay_ticks ||
          ticks - current_effect->delay_ticks > current_effect->delay) &&
-        RANDOM() / (RAND_MAX + 1.0) >= (100.0 - current_effect->sprite_chance) / 100.0) {
+        rndm_real() >= (100.0 - current_effect->sprite_chance) / 100.0) {
         int i;
         effect_sprite *sprite;
 
@@ -567,8 +566,7 @@ void effect_sprites_play(void) {
                 sprite->x = sprite->def->x;
             } else {
                 /* Calculate where to put the sprite. */
-                sprite->x = (double)cur_widget[MAP_ID]->w * RANDOM() / (RAND_MAX + 1.0) *
-                            sprite->def->x_mod;
+                sprite->x = (double)cur_widget[MAP_ID]->w * rndm_real() * sprite->def->x_mod;
             }
 
             if (sprite->def->reverse) {
@@ -577,7 +575,7 @@ void effect_sprites_play(void) {
                 sprite->y = sprite->def->y;
             }
 
-            sprite->y += sprite->def->y_rndm * (RANDOM() / (RAND_MAX + 1.0) * sprite->def->y_mod);
+            sprite->y += sprite->def->y_rndm * (rndm_real() * sprite->def->y_mod);
 
             sprite->x += sprite->def->xpos;
             sprite->y += sprite->def->ypos;

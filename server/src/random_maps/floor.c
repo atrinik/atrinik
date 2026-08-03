@@ -51,7 +51,7 @@ mapstruct *make_map_floor(char *floorstyle, RMParms *RP) {
     /* Get the style map */
     strncpy(styledirname, "/styles/floorstyles", sizeof(styledirname) - 1);
     snprintf(stylefilepath, sizeof(stylefilepath), "%s/%s", styledirname, floorstyle);
-    style_map = find_style(styledirname, floorstyle, -1);
+    style_map = find_style(styledirname, floorstyle, -1, &RP->rng);
 
     if (style_map == NULL) {
         return newMap;
@@ -60,7 +60,7 @@ mapstruct *make_map_floor(char *floorstyle, RMParms *RP) {
     /* Fill up the map with the given floor style */
     for (x = 0; x < RP->Xsize; x++) {
         for (y = 0; y < RP->Ysize; y++) {
-            object *the_floor = pick_random_object(style_map), *thisfloor = object_get();
+            object *the_floor = pick_random_object(style_map, &RP->rng), *thisfloor = object_get();
 
             object_copy(thisfloor, the_floor, false);
             thisfloor->x = x;

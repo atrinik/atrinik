@@ -54,7 +54,7 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
 
     /* if a starting point isn't given, pick one */
     if (mode < 1 || mode > 4) {
-        M = rndm(1, 4);
+        M = rng_range(&RP->rng, 1, 4);
     } else {
         M = mode;
     }
@@ -158,24 +158,24 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     int downx = -1, downy = -1, j;
 
     if (orientation == 0) {
-        orientation = rndm(1, 3);
+        orientation = rng_range(&RP->rng, 1, 3);
     }
 
     switch (orientation) {
         case 1:
-            style_map_up = find_style("/styles/exitstyles/up", exitstyle, -1);
-            style_map_down = find_style("/styles/exitstyles/down", exitstyle, -1);
+            style_map_up = find_style("/styles/exitstyles/up", exitstyle, -1, &RP->rng);
+            style_map_down = find_style("/styles/exitstyles/down", exitstyle, -1, &RP->rng);
 
             break;
 
         case 2:
-            style_map_up = find_style("/styles/exitstyles/down", exitstyle, -1);
-            style_map_down = find_style("/styles/exitstyles/up", exitstyle, -1);
+            style_map_up = find_style("/styles/exitstyles/down", exitstyle, -1, &RP->rng);
+            style_map_down = find_style("/styles/exitstyles/up", exitstyle, -1, &RP->rng);
 
             break;
 
         default:
-            style_map_up = find_style("/styles/exitstyles/generic", exitstyle, -1);
+            style_map_up = find_style("/styles/exitstyles/generic", exitstyle, -1, &RP->rng);
             style_map_down = style_map_up;
 
             break;
@@ -184,7 +184,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     if (style_map_up == NULL) {
         the_exit_up = arch_to_object(arch_find("exit"));
     } else {
-        object *tmp = pick_random_object(style_map_up);
+        object *tmp = pick_random_object(style_map_up, &RP->rng);
         the_exit_up = arch_to_object(tmp->arch);
     }
 
@@ -193,7 +193,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
         if (style_map_down == NULL) {
             the_exit_down = arch_to_object(arch_find("exit"));
         } else {
-            object *tmp = pick_random_object(style_map_down);
+            object *tmp = pick_random_object(style_map_down, &RP->rng);
             the_exit_down = arch_to_object(tmp->arch);
         }
     } else {

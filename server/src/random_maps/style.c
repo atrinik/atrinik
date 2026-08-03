@@ -162,7 +162,8 @@ mapstruct *load_style_map(char *style_name) {
  * @return
  * Style, or NULL if none suitable.
  */
-mapstruct *find_style(const char *dirname, const char *stylename, int difficulty) {
+mapstruct *
+find_style(const char *dirname, const char *stylename, int difficulty, rng_state_t *rng) {
     char style_file_path[256], style_file_full_path[256];
     mapstruct *style_map = NULL;
     struct stat file_stat;
@@ -223,7 +224,7 @@ mapstruct *find_style(const char *dirname, const char *stylename, int difficulty
                 style_map = NULL;
             } else {
                 strcat(style_file_path, "/");
-                strcat(style_file_path, namelist[RANDOM() % n]);
+                strcat(style_file_path, namelist[rng_range(rng, 0, n - 1)]);
 
                 style_map = load_style_map(style_file_path);
             }
@@ -241,7 +242,10 @@ mapstruct *find_style(const char *dirname, const char *stylename, int difficulty
                 if ((mfile_name - 1) == NULL) {
                     int q;
 
-                    style_map = find_style(style_file_path, namelist[RANDOM() % n], difficulty);
+                    style_map = find_style(style_file_path,
+                                           namelist[rng_range(rng, 0, n - 1)],
+                                           difficulty,
+                                           rng);
 
                     for (q = 0; q < n; q++) {
                         efree(namelist[q]);
@@ -285,7 +289,7 @@ mapstruct *find_style(const char *dirname, const char *stylename, int difficulty
  * @return
  * The random object. Can be NULL.
  */
-object *pick_random_object(mapstruct *style) {
+object *pick_random_object(mapstruct *style, rng_state_t *rng) {
     int x, y, i;
     object *new_obj;
 
@@ -293,7 +297,7 @@ object *pick_random_object(mapstruct *style) {
      * but the callers will crash if we return a NULL object, so either
      * way is not good. */
     do {
-        i = RANDOM() % (MAP_WIDTH(style) * MAP_HEIGHT(style));
+        i = rng_range(rng, 0, MAP_WIDTH(style) * MAP_HEIGHT(style) - 1);
 
         x = i / MAP_HEIGHT(style);
         y = i % MAP_HEIGHT(style);

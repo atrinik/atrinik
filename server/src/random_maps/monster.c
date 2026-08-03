@@ -47,22 +47,22 @@ void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms 
     mapstruct *style_map = NULL;
     int failed_placements = 0, number_monsters = 0;
 
-    style_map = find_style("/styles/monsterstyles", monsterstyle, difficulty);
+    style_map = find_style("/styles/monsterstyles", monsterstyle, difficulty, &RP->rng);
 
     if (style_map == NULL) {
         return;
     }
 
     while (number_monsters < RP->num_monsters && failed_placements < 100) {
-        object *this_monster = pick_random_object(style_map);
+        object *this_monster = pick_random_object(style_map, &RP->rng);
         int x, y, freeindex;
 
         if (this_monster == NULL) {
             return;
         }
 
-        x = rndm(0, RP->Xsize - 1);
-        y = rndm(0, RP->Ysize - 1);
+        x = rng_range(&RP->rng, 0, RP->Xsize - 1);
+        y = rng_range(&RP->rng, 0, RP->Ysize - 1);
         freeindex = map_free_spot_first(map, x, y, this_monster->arch, NULL);
 
         if (freeindex != -1) {

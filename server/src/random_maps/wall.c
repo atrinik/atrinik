@@ -199,14 +199,14 @@ void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP) {
     strncpy(styledirname, "/styles/wallstyles", sizeof(styledirname) - 1);
 
     snprintf(stylefilepath, sizeof(stylefilepath), "%s/%s", styledirname, w_style);
-    style_map = find_style(styledirname, w_style, -1);
+    style_map = find_style(styledirname, w_style, -1, &RP->rng);
 
     if (style_map == 0) {
         return;
     }
 
     /* Fill up the map with the given wall style */
-    if ((the_wall = pick_random_object(style_map)) != NULL) {
+    if ((the_wall = pick_random_object(style_map, &RP->rng)) != NULL) {
         int i, j;
         char *cp;
 
