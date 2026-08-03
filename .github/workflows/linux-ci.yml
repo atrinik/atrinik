@@ -1,0 +1,99 @@
+name: Linux CI
+
+on:
+  pull_request:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref to build
+        required: false
+        type: string
+      package-version:
+        description: Package version without the leading v
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-ci-${{ github.workflow }}-${{ github.event.pull_request.number || inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and server tests
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    env:
+      ATRINIK_PACKAGE_VERSION: ${{ inputs.package-version }}
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential ccache check cmake flex libcurl4-openssl-dev \
+            libgd-dev libminiupnpc-dev libreadline-dev libsdl-image1.2-dev \
+            libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev \
+            libssl-dev libsubunit-dev libx11-dev libxml2-dev libxmu-dev \
+            pkgconf python3-dev zlib1g-dev
+
+      - name: Install libpcpnatpmp
+        env:
+          PCPNATPMP_COMMIT: 866d283da99f5e98eecff702a8df63e2ae57ffca
+        run: |
+          git clone --filter=blob:none \
+            https://github.com/libpcpnatpmp/libpcpnatpmp.git \
+            "${RUNNER_TEMP}/libpcpnatpmp"
+          git -C "${RUNNER_TEMP}/libpcpnatpmp" checkout "${PCPNATPMP_COMMIT}"
+          cmake \
+            -S "${RUNNER_TEMP}/libpcpnatpmp" \
+            -B "${RUNNER_TEMP}/libpcpnatpmp/build" \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_CLI_CLIENT=OFF \
+            -DBUILD_SERVER=OFF \
+            -DBUILD_TESTS=OFF
+          cmake --build "${RUNNER_TEMP}/libpcpnatpmp/build" --parallel
+          sudo cmake --install "${RUNNER_TEMP}/libpcpnatpmp/build"
+
+      - name: Restore compiler cache
+        uses: actions/cache@v6
+        with:
+          path: .ccache
+          key: ccache-linux-${{ hashFiles('CMakeLists.txt', 'build.config', 'CMakePresets.json', 'client/**', 'common/**', 'server/**') }}
+          restore-keys: |
+            ccache-linux-
+
+      - name: Configure
+        run: |
+          cmake --preset linux-debug \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Build client and server
+        run: cmake --build --preset linux-debug --parallel
+
+      - name: Prepare server test runtime
+        run: |
+          python3 tools/collect.py --dir . --out server/lib
+          cp -R server/install_data server/data
+          mkdir -p server/data/tmp
+          ln -s "${GITHUB_WORKSPACE}/build/linux-debug/server/atrinik-server" \
+            server/atrinik-server
+          ln -s "${GITHUB_WORKSPACE}/build/linux-debug/server/libplugin_arena.so" \
+            server/libplugin_arena.so
+          ln -s "${GITHUB_WORKSPACE}/build/linux-debug/server/libplugin_python.so" \
+            server/libplugin_python.so
+
+      - name: Run server tests
+        run: cmake --build --preset linux-debug --target check
+
+      - name: Report compiler cache statistics
+        if: always()
+        run: ccache --show-stats
