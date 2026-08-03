@@ -22,12 +22,13 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
     steps:
-      # This write-capable workflow must only check out the commit that GitHub
-      # has already merged into master, never the pull request head.
+      # This write-capable workflow checks out only the trusted base branch.
+      # The event's merge commit is validated against that branch below before
+      # it is read or tagged.
       - name: Check out source and tags
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: master
           fetch-depth: 0
 
       - name: Create merge tag
@@ -35,9 +36,20 @@ jobs:
         env:
           COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
-          base_version=$(sed -n \
+          if [[ ! "${COMMIT_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid merged commit SHA: ${COMMIT_SHA}" >&2
+            exit 1
+          fi
+
+          if ! git merge-base --is-ancestor \
+              "${COMMIT_SHA}" refs/remotes/origin/master; then
+            echo "Merged commit ${COMMIT_SHA} is not on master." >&2
+            exit 1
+          fi
+
+          base_version=$(git show "${COMMIT_SHA}:build.config" | sed -n \
             's/^set(PACKAGE_VERSION "\([0-9][0-9]*\.[0-9][0-9]*\)".*$/\1/p' \
-            build.config)
+          )
           if [[ -z "${base_version}" ]]; then
             echo "Could not read a MAJOR.MINOR release line from build.config." >&2
             exit 1
