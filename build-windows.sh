@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# windows-build:0.0.2 contains MXE's real compiler drivers here, while the
+# toolchain's compiler path is a ccache symlink that locates them through PATH.
+if [[ -d /opt/mxe/usr/bin && ":${PATH}:" != *":/opt/mxe/usr/bin:"* ]]; then
+    export PATH="/opt/mxe/usr/bin:${PATH}"
+fi
+
 if [[ -z "${MXE_TOOLCHAIN_FILE:-}" || ! -f "${MXE_TOOLCHAIN_FILE}" ]]; then
     echo "MXE_TOOLCHAIN_FILE does not point to an MXE toolchain." >&2
     echo "Run this script in the 'Atrinik Windows cross-build (MXE)' devcontainer." >&2
@@ -9,6 +15,12 @@ fi
 
 if [[ -z "${MXE_RUNTIME_DIR:-}" || ! -d "${MXE_RUNTIME_DIR}" ]]; then
     echo "MXE_RUNTIME_DIR does not point to the shared MXE runtime directory." >&2
+    exit 1
+fi
+
+MXE_CMAKE="${MXE_TARGET:-x86_64-w64-mingw32.shared}-cmake"
+if ! command -v "${MXE_CMAKE}" >/dev/null; then
+    echo "MXE CMake wrapper is unavailable: ${MXE_CMAKE}" >&2
     exit 1
 fi
 
@@ -140,7 +152,7 @@ prepare_server_content() {
 
 mkdir -p "${PACKAGE_DIR}"
 if [[ "${TARGET}" == all || "${TARGET}" == client ]]; then
-    cmake --preset windows-mxe-release
+    "${MXE_CMAKE}" --no-warn-unused-cli --preset windows-mxe-release
     cmake --build --preset windows-mxe-release --parallel "${JOBS}"
     cpack --config build/windows-mxe-release/CPackConfig.cmake \
         -G ZIP \
@@ -148,7 +160,7 @@ if [[ "${TARGET}" == all || "${TARGET}" == client ]]; then
 fi
 if [[ "${TARGET}" == all || "${TARGET}" == server ]]; then
     prepare_server_content
-    cmake --preset windows-mxe-server-release
+    "${MXE_CMAKE}" --no-warn-unused-cli --preset windows-mxe-server-release
     cmake --build --preset windows-mxe-server-release --parallel "${JOBS}"
     cpack --config build/windows-mxe-server-release/CPackConfig.cmake \
         -G ZIP \

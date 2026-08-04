@@ -3,7 +3,7 @@
     "configurePresets": [
         {
             "name": "linux-debug",
-            "displayName": "Linux Debug",
+            "displayName": "Linux Debug (legacy Make workflow)",
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build/linux-debug",
             "cacheVariables": {
@@ -21,6 +21,64 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": true,
                 "PACKAGE_TYPE": "none"
+            }
+        },
+        {
+            "name": "gcc-debug",
+            "displayName": "GCC Debug and Tests",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/gcc-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+                "BUILD_TESTING": true,
+                "PACKAGE_TYPE": "none"
+            }
+        },
+        {
+            "name": "clang-asan",
+            "displayName": "Clang Address/Undefined Sanitizers",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/clang-asan",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+                "BUILD_TESTING": true,
+                "ENABLE_SANITIZERS": true,
+                "PACKAGE_TYPE": "none"
+            }
+        },
+        {
+            "name": "windows-mxe-ci-client",
+            "displayName": "Windows x86_64 Client CI (MXE)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/windows-mxe-ci-client",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "$env{MXE_TOOLCHAIN_FILE}",
+                "BUILD_CLIENT": true,
+                "BUILD_SERVER": false,
+                "BUILD_TESTING": false,
+                "PACKAGE_TYPE": "none",
+                "ATRINIK_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt"
+            }
+        },
+        {
+            "name": "windows-mxe-ci-server",
+            "displayName": "Windows x86_64 Server CI (MXE)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/windows-mxe-ci-server",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "$env{MXE_TOOLCHAIN_FILE}",
+                "BUILD_CLIENT": false,
+                "BUILD_SERVER": true,
+                "BUILD_TESTING": false,
+                "PACKAGE_TYPE": "none",
+                "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR": "$env{ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR}",
+                "ATRINIK_WINDOWS_PYTHON_LIBRARY": "$env{ATRINIK_WINDOWS_PYTHON_LIBRARY}"
             }
         },
         {
@@ -79,12 +137,48 @@
             "configurePreset": "linux-release"
         },
         {
+            "name": "gcc-debug",
+            "configurePreset": "gcc-debug"
+        },
+        {
+            "name": "clang-asan",
+            "configurePreset": "clang-asan"
+        },
+        {
+            "name": "windows-mxe-ci-client",
+            "configurePreset": "windows-mxe-ci-client"
+        },
+        {
+            "name": "windows-mxe-ci-server",
+            "configurePreset": "windows-mxe-ci-server"
+        },
+        {
             "name": "windows-mxe-release",
             "configurePreset": "windows-mxe-release"
         },
         {
             "name": "windows-mxe-server-release",
             "configurePreset": "windows-mxe-server-release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "gcc-debug",
+            "configurePreset": "gcc-debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "clang-asan",
+            "configurePreset": "clang-asan",
+            "environment": {
+                "ASAN_OPTIONS": "detect_leaks=0",
+                "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "output": {
+                "outputOnFailure": true
+            }
         }
     ]
 }

@@ -6,49 +6,5 @@ extern void check_test_setup(void);
 extern void check_test_teardown(void);
 extern void check_setup_env_pl(mapstruct **map, object **pl);
 extern void check_run_suite(Suite *suite, const char *file);
-extern void check_main(int argc, char **argv);
-/* src/tests/bugs/cursed_treasures.c */
-extern void check_bug_cursed_treasures(void);
-/* src/tests/unit/commands/object.c */
-extern void check_commands_object(void);
-/* src/tests/unit/server/arch.c */
-extern void check_server_arch(void);
-/* src/tests/unit/server/attack.c */
-extern void check_server_attack(void);
-/* src/tests/unit/server/ban.c */
-extern void check_server_ban(void);
-/* src/tests/unit/server/bank.c */
-extern void check_server_bank(void);
-/* src/tests/unit/server/cache.c */
-extern void check_server_cache(void);
-/* src/tests/unit/server/living.c */
-extern void check_server_living(void);
-/* src/tests/unit/server/object.c */
-extern void check_server_object(void);
-/* src/tests/unit/server/re_cmp.c */
-extern void check_server_re_cmp(void);
-/* src/tests/unit/server/rune.c */
-extern void check_server_rune(void);
-/* src/tests/unit/server/shop.c */
-extern void check_server_shop(void);
-/* src/tests/unit/toolkit/math.c */
-extern void check_server_math(void);
-/* src/tests/unit/toolkit/memory.c */
-extern void check_server_memory(void);
-/* src/tests/unit/toolkit/packet.c */
-extern void check_server_packet(void);
-/* src/tests/unit/toolkit/pbkdf2.c */
-extern void check_server_pbkdf2(void);
-/* src/tests/unit/toolkit/shstr.c */
-extern void check_server_shstr(void);
-/* src/tests/unit/toolkit/socket_asset.c */
-extern void check_server_socket_asset(void);
-/* src/tests/unit/toolkit/string.c */
-extern void check_server_string(void);
-/* src/tests/unit/toolkit/stringbuffer.c */
-extern void check_server_stringbuffer(void);
-/* src/tests/unit/types/light_apply.c */
-extern void check_types_light_apply(void);
-/* src/tests/unit/types/sound_ambient.c */
-extern void check_types_sound_ambient(void);
+extern int check_main(int argc, char **argv);
 #endif

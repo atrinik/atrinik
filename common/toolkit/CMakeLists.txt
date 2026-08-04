@@ -1,18 +1,12 @@
 # The Atrinik toolkit CMakeLists file.
 
-cmake_minimum_required(VERSION 3.10)
-project(atrinik-toolkit C)
 set(ATRINIK_TOOLKIT atrinik-toolkit)
-
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # cURL is required by the metaserver.
 find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
 set(HAVE_CURL true)
 
 find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIR})
 set(HAVE_ZLIB true)
 
 # Try to find some GNU/Linux libraries.
@@ -26,7 +20,6 @@ if (UNIX)
     find_package(X11)
 
     if (X11_FOUND)
-        include_directories(${X11_INCLUDE_DIR})
         set(HAVE_X11 true)
 
         # Try to find X11 XMU.
@@ -58,21 +51,7 @@ else ()
     message(STATUS "Could not find readline library, simple interactive console will be compiled instead.")
 endif ()
 
-find_package(PkgConfig QUIET)
-if (PKG_CONFIG_FOUND)
-    pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
-endif ()
-
-find_library(CHECK_LIBRARY check)
-
-if (CHECK_PKG_FOUND OR CHECK_LIBRARY)
-    set(HAVE_CHECK true)
-else ()
-    message(STATUS "Could not find check library, unit tests will not be compiled.")
-endif ()
-
 find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
 
 # This is very ugly. There is essentially a namespace clash between newer
 # MinGW and the Windows port of pthreads, and they both define a timespec
@@ -89,11 +68,11 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 # Also, we need it here, otherwise the threads check below will not set the
 # correct libraries to use.
 if (MINGW)
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -DHAVE_STRUCT_TIMESPEC)
-    add_definitions(-DHAVE_STRUCT_TIMESPEC)
+    set(CMAKE_REQUIRED_DEFINITIONS -DHAVE_STRUCT_TIMESPEC)
 endif ()
 
 find_package(Threads REQUIRED)
+unset(CMAKE_REQUIRED_DEFINITIONS)
 
 if (POLICY CMP0075)
     cmake_policy(SET CMP0075 NEW)
@@ -186,7 +165,6 @@ else ()
 endif ()
 
 add_custom_target(git_branch DEPENDS ${GITVERSION_H})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(TOOLKIT_SOURCES
     binreloc.c
@@ -219,66 +197,73 @@ set(TOOLKIT_SOURCES
     )
 
 add_library(${ATRINIK_TOOLKIT} STATIC ${TOOLKIT_SOURCES})
+atrinik_configure_target(${ATRINIK_TOOLKIT})
+target_include_directories(${ATRINIK_TOOLKIT}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+
+if (CURL_INCLUDE_DIRS)
+    target_include_directories(${ATRINIK_TOOLKIT} PRIVATE ${CURL_INCLUDE_DIRS})
+endif ()
+if (ZLIB_INCLUDE_DIRS)
+    target_include_directories(${ATRINIK_TOOLKIT} PRIVATE ${ZLIB_INCLUDE_DIRS})
+endif ()
+if (OPENSSL_INCLUDE_DIR)
+    target_include_directories(${ATRINIK_TOOLKIT} PRIVATE ${OPENSSL_INCLUDE_DIR})
+endif ()
+if (X11_FOUND)
+    target_include_directories(${ATRINIK_TOOLKIT} PRIVATE ${X11_INCLUDE_DIR})
+endif ()
 
 if (TARGET CURL::libcurl)
-    target_link_libraries(${ATRINIK_TOOLKIT} CURL::libcurl)
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE CURL::libcurl)
 else ()
-    target_link_libraries(${ATRINIK_TOOLKIT} ${CURL_LIBRARIES})
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${CURL_LIBRARIES})
 endif ()
-target_link_libraries(${ATRINIK_TOOLKIT} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE Threads::Threads)
 
 if (MINGW)
-    target_link_libraries(${ATRINIK_TOOLKIT} wsock32 wldap32 winmm ws2_32
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE wsock32 wldap32 winmm ws2_32
             imagehlp iphlpapi)
 endif ()
 
 if (TARGET ZLIB::ZLIB)
-    target_link_libraries(${ATRINIK_TOOLKIT} ZLIB::ZLIB)
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ZLIB::ZLIB)
 else ()
-    target_link_libraries(${ATRINIK_TOOLKIT} ${ZLIB_LIBRARIES})
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${ZLIB_LIBRARIES})
 endif ()
 
 # Link math...
 if (MATH_LIBRARY)
-    target_link_libraries(${ATRINIK_TOOLKIT} ${MATH_LIBRARY})
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${MATH_LIBRARY})
 endif ()
 
 # Link crypt.
 if (CRYPT_LIBRARY)
-    target_link_libraries(${ATRINIK_TOOLKIT} ${CRYPT_LIBRARY})
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${CRYPT_LIBRARY})
 endif ()
 
 # Link readline if available.
 if (HAVE_READLINE)
-    target_link_libraries(${ATRINIK_TOOLKIT} ${READLINE_LIBRARY})
-endif ()
-
-if (HAVE_CHECK)
-    if (CHECK_PKG_FOUND)
-        target_link_libraries(${ATRINIK_TOOLKIT} PkgConfig::CHECK_PKG)
-    else ()
-        target_link_libraries(${ATRINIK_TOOLKIT} ${CHECK_LIBRARY})
-
-        if (UNIX AND NOT APPLE)
-            target_link_libraries(${ATRINIK_TOOLKIT} rt)
-        endif ()
-    endif ()
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${READLINE_LIBRARY})
 endif ()
 
 # Link X11 if available.
 if (HAVE_X11)
-    target_link_libraries(${ATRINIK_TOOLKIT} ${X11_LIBRARIES})
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${X11_LIBRARIES})
 endif ()
 
 # Link X11 XMU if available.
 if (HAVE_X11_XMU)
-    target_link_libraries(${ATRINIK_TOOLKIT} ${X11_XMU_LIBRARY})
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${X11_XMU_LIBRARY})
 endif ()
 
 if (TARGET OpenSSL::SSL AND TARGET OpenSSL::Crypto)
-    target_link_libraries(${ATRINIK_TOOLKIT} OpenSSL::SSL OpenSSL::Crypto)
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 else ()
-    target_link_libraries(${ATRINIK_TOOLKIT} ${OPENSSL_LIBRARIES})
+    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${OPENSSL_LIBRARIES})
 endif ()
 
 add_dependencies(${ATRINIK_TOOLKIT} git_branch)

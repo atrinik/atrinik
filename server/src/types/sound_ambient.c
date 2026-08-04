@@ -94,9 +94,9 @@ typedef struct sound_ambient_match {
         } operation;
     } data; ///< Data about the rule.
 
-    int is_group : 1; ///< Whether the data union points to a group of rules.
+    unsigned int is_group : 1; ///< Whether the data union points to a group of rules.
 
-    int is_and : 1; ///< Whether this is an AND rule.
+    unsigned int is_and : 1; ///< Whether this is an AND rule.
 } __attribute__((packed)) sound_ambient_match_t;
 
 /**
@@ -111,7 +111,7 @@ static void sound_ambient_match_free(sound_ambient_match_t *match) {
     for (sound_ambient_match_t *tmp = match, *next; tmp != NULL; tmp = next) {
         next = tmp->next;
 
-        if (tmp->is_group) {
+        if (tmp->is_group && tmp->data.group != NULL) {
             sound_ambient_match_free(tmp->data.group);
         }
 
@@ -406,8 +406,7 @@ void sound_ambient_match_parse(object *op, const char *str) {
     }
 
     sound_ambient_match_t *match = NULL;
-    sound_ambient_match_t *match_stack[10];
-    memset(match_stack, 0, 10 * sizeof(*match_stack));
+    sound_ambient_match_t *match_stack[10] = {0};
     size_t stack_id = 0;
     size_t group_num = 0;
     size_t group_end_num = 0;
@@ -419,6 +418,11 @@ void sound_ambient_match_parse(object *op, const char *str) {
         char *cp = word;
 
         while (string_startswith(cp, "(")) {
+            if (stack_id + 1 >= arraysize(match_stack)) {
+                LOG(BUG, "Ambient sound match nesting is too deep: %s", str);
+                goto parse_error;
+            }
+
             cp++;
             stack_id++;
 
@@ -436,6 +440,9 @@ void sound_ambient_match_parse(object *op, const char *str) {
 
             match_stack[stack_id] = tmp;
             match_stack[stack_id - 1] = tmp;
+            if (op->custom_attrset == NULL) {
+                op->custom_attrset = tmp;
+            }
             group_num++;
         }
 
@@ -445,10 +452,20 @@ void sound_ambient_match_parse(object *op, const char *str) {
         }
 
         if (strcmp(cp, "&&") == 0) {
+            if (match_stack[stack_id] == NULL) {
+                LOG(BUG, "Ambient sound match starts with an operator: %s", str);
+                goto parse_error;
+            }
+
             match_stack[stack_id]->is_and = 1;
             match = NULL;
             continue;
         } else if (strcmp(cp, "||") == 0) {
+            if (match_stack[stack_id] == NULL) {
+                LOG(BUG, "Ambient sound match starts with an operator: %s", str);
+                goto parse_error;
+            }
+
             match = NULL;
             continue;
         }
@@ -518,15 +535,30 @@ void sound_ambient_match_parse(object *op, const char *str) {
         }
 
         if (group_end_num != 0) {
-            if (stack_id > 0) {
-                stack_id -= group_end_num;
+            if (group_end_num > stack_id || group_end_num > group_num) {
+                LOG(BUG, "Ambient sound match has an unmatched closing group: %s", str);
+                goto parse_error;
             }
 
+            stack_id -= group_end_num;
             group_num -= group_end_num;
             group_end_num = 0;
             match = NULL;
         }
 
         word_num++;
+    }
+
+    if (stack_id != 0 || group_num != 0) {
+        LOG(BUG, "Ambient sound match has an unclosed group: %s", str);
+        goto parse_error;
+    }
+
+    return;
+
+parse_error:
+    if (op->custom_attrset != NULL) {
+        sound_ambient_match_free(op->custom_attrset);
+        op->custom_attrset = NULL;
     }
 }

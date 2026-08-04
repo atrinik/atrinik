@@ -157,7 +157,8 @@ typedef struct arena_maps_struct {
 arena_maps_struct *arena_maps;
 
 /** Hooks. */
-struct plugin_hooklist *hooks;
+static struct plugin_hooklist *arena_hooks;
+#define hooks arena_hooks
 
 MODULEAPI void initPlugin(struct plugin_hooklist *hooklist) {
     hooks = hooklist;

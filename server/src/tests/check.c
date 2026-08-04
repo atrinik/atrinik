@@ -29,6 +29,7 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
+#include <check_suites.h>
 #include <toolkit/string.h>
 #include <player.h>
 #include <object.h>
@@ -38,6 +39,17 @@ static int saved_argc; ///< Stored argc.
 static char **saved_argv; ///< Stored argv.
 static enum fork_status fork_st; ///< Current fork status.
 static int failed_tests; ///< Number of failed tests across all suites.
+
+typedef void (*check_suite_func)(void);
+
+typedef struct check_suite_entry {
+    const char *name;
+    check_suite_func run;
+} check_suite_entry;
+
+static const check_suite_entry check_suites[] = {
+#include <check_suites.inc>
+};
 
 /*
  * Setup function.
@@ -140,8 +152,9 @@ void check_run_suite(Suite *suite, const char *file) {
 
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
-void check_main(int argc, char **argv) {
+int check_main(int argc, char **argv) {
     int i;
+    const char *selected_suite;
 
     toolkit_import(string);
     failed_tests = 0;
@@ -163,37 +176,22 @@ void check_main(int argc, char **argv) {
         }
     }
 
-    /* bugs */
-    check_bug_cursed_treasures();
+    selected_suite = getenv("ATRINIK_TEST_SUITE");
+    bool suite_found = selected_suite == NULL || *selected_suite == '\0';
+    for (size_t suite = 0; suite < arraysize(check_suites); suite++) {
+        if (suite_found || strcmp(selected_suite, check_suites[suite].name) == 0) {
+            check_suites[suite].run();
+            if (!suite_found) {
+                suite_found = true;
+                break;
+            }
+        }
+    }
 
-    /* unit/commands */
-    check_commands_object();
-
-    /* unit/server */
-    check_server_arch();
-    check_server_attack();
-    check_server_ban();
-    check_server_bank();
-    check_server_cache();
-    check_server_living();
-    check_server_object();
-    check_server_re_cmp();
-    check_server_rune();
-    check_server_shop();
-
-    /* unit/toolkit */
-    check_server_math();
-    check_server_memory();
-    check_server_packet();
-    check_server_pbkdf2();
-    check_server_shstr();
-    check_server_socket_asset();
-    check_server_string();
-    check_server_stringbuffer();
-
-    /* unit/types */
-    check_types_light_apply();
-    check_types_sound_ambient();
+    if (!suite_found) {
+        fprintf(stderr, "Unknown test suite: %s\n", selected_suite);
+        failed_tests++;
+    }
 
     for (i = 0; i < argc; i++) {
         free(saved_argv[i]);
@@ -201,7 +199,5 @@ void check_main(int argc, char **argv) {
 
     free(saved_argv);
 
-    if (failed_tests != 0) {
-        exit(EXIT_FAILURE);
-    }
+    return failed_tests == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -388,7 +388,7 @@ START_TEST(test_object_reverse_inventory) {
     object *ob;
     StringBuffer *sb;
 
-    cp = path_file_contents("src/tests/data/test_object_reverse_inventory.arc");
+    cp = path_file_contents(ATRINIK_TEST_DATA_DIR "/test_object_reverse_inventory.arc");
     ob = object_load_str(cp);
 
     object_reverse_inventory(ob);

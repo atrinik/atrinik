@@ -453,7 +453,8 @@ const char *object_flag_names[NUM_FLAGS + 1] = {"sleep",
                                                 NULL};
 
 /** @copydoc chunk_debugger */
-static void object_debugger(object *op, char *buf, size_t size) {
+static void object_debugger(void *ptr, char *buf, size_t size) {
+    object *op = ptr;
     snprintf(buf, size, "count: %d", op->count);
 
     if (op->name != NULL) {
@@ -467,7 +468,8 @@ static void object_debugger(object *op, char *buf, size_t size) {
 }
 
 /** @copydoc chunk_validator */
-static bool object_validator(object *op) {
+static bool object_validator(void *ptr) {
+    object *op = ptr;
     return op->count != 0 && !QUERY_FLAG(op, FLAG_REMOVED);
 }
 
@@ -483,8 +485,8 @@ void object_init(void) {
                                  NULL,
                                  NULL,
                                  NULL);
-    mempool_set_debugger(pool_object, (chunk_debugger)object_debugger);
-    mempool_set_validator(pool_object, (chunk_validator)object_validator);
+    mempool_set_debugger(pool_object, object_debugger);
+    mempool_set_validator(pool_object, object_validator);
 }
 
 /**

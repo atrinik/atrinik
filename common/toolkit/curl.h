@@ -37,7 +37,7 @@
 /**
  * Connection timeout in seconds.
  */
-#define CURL_TIMEOUT 15
+#define CURL_TIMEOUT 15L
 
 /**
  * Possible cURL request states.

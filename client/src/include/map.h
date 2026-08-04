@@ -150,12 +150,12 @@ typedef struct _mapdata {
      * If set, height difference will be taken into account when rendering
      * tiles (even if they are not FoW tiles).
      */
-    int height_diff : 1;
+    unsigned int height_diff : 1;
 
     /**
      * If 1, the player is currently in a building.
      */
-    int in_building : 1;
+    unsigned int in_building : 1;
 
     /**
      * Player's current sub-layer.

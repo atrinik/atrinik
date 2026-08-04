@@ -15,8 +15,11 @@ function(atrinik_add_pcpnatpmp)
         find_package(Git REQUIRED)
         set(pcpnatpmp_patch_args
             PATCH_COMMAND
-                "${GIT_EXECUTABLE}" apply --unidiff-zero --whitespace=nowarn
-                "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/patches/libpcpnatpmp-mingw.patch")
+                ${CMAKE_COMMAND}
+                -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
+                -DSOURCE_DIR=<SOURCE_DIR>
+                -DPATCH_FILE=${CMAKE_CURRENT_FUNCTION_LIST_DIR}/patches/libpcpnatpmp-mingw.patch
+                -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/apply_patch_idempotent.cmake)
     endif ()
 
     FetchContent_Declare(libpcpnatpmp

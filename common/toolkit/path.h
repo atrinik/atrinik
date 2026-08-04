@@ -57,7 +57,7 @@ typedef enum path_secret_error {
 
 /* Prototypes */
 
-path_fopen_t path_fopen;
+extern path_fopen_t path_fopen;
 
 TOOLKIT_FUNCS_DECLARE(path);
 

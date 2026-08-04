@@ -72,10 +72,9 @@ enum {
 
 #ifndef __CPROTO__
 
-archetype_t *arch_table;
-archetype_t *arches[ARCH_MAX];
-bool arch_in_init;
-archetype_t *wp_archetype;
+extern archetype_t *arch_table;
+extern archetype_t *arches[ARCH_MAX];
+extern bool arch_in_init;
 
 void arch_init(void);
 void arch_deinit(void);

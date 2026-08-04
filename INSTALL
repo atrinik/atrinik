@@ -87,6 +87,21 @@ cmake --preset linux-debug
 cmake --build --preset linux-debug
 ```
 
+The CI-equivalent GCC/Ninja build, including dedicated test executables, uses:
+
+```sh
+cmake --preset gcc-debug
+cmake --build --preset gcc-debug
+ctest --preset gcc-debug
+```
+
+`clang-asan` selects Clang with AddressSanitizer, LeakSanitizer, and
+UndefinedBehaviorSanitizer. It requires Clang and compiler-rt. Core C tests do
+not load plugins they do not exercise, so retained embedded-Python state does
+not mask native leaks. The normal Check suites retain per-test subprocess
+isolation with leak scans disabled; a dedicated no-fork lifecycle smoke test
+runs LeakSanitizer once. UBSan runs fail-fast.
+
 For an optimized build, use `linux-release` in both commands. You can also
 build an individual target:
 
@@ -113,17 +128,21 @@ formatting.
 
 ## Tests
 
-The server test target is named `check` because modern CMake reserves the name
-`test`:
+Server tests are compiled into `atrinik-server-tests`, registered as individual
+CTest suites, and executed from an isolated runtime under the selected build
+directory. The runtime is collected automatically and does not modify
+`server/data`, `server/lib`, or source-tree plugin links. The compatibility
+target remains named `check` because modern CMake reserves `test`:
 
 ```sh
 ./build.sh check
 ```
 
-The target starts the server in unit-test modes and therefore needs the normal
-server runtime files, including `permissions.cfg`, `data`, collected resources,
-and built plugins. A successful ordinary build verifies compilation even when
-that runtime setup has not yet been prepared. See `server/README` for setup.
+Run all registered tests directly with `ctest --preset gcc-debug`. Use
+`ctest --test-dir build/gcc-debug -N` to list them, or `-R <regex>` to select a
+single suite. The production server executable is used only for plugin runtime
+tests; C unit tests no longer share its `main()` or depend on cproto-generated
+prototypes.
 
 The direct-network end-to-end suite is independent of the server runtime. It
 uses temporary identities, fake STUN and port-mapping backends, and isolated
@@ -133,6 +152,8 @@ loopback UDP sockets:
 cmake --build --preset linux-debug --target network-e2e
 ```
 
+It is also registered as the `network-e2e` CTest test.
+
 This covers a real OpenSSL QUIC handshake and application-data exchange,
 certificate pinning and identity persistence, STUN discovery, bilateral UDP
 punching, and PCP/NAT-PMP-first mapping orchestration with UPnP fallback. See
@@ -141,9 +162,10 @@ and opt-in physical-router interoperability tests.
 
 ## Continuous integration and releases
 
-GitHub Actions builds the Linux client and server and runs the server tests for
-every pull request. The same validation runs again for every automatically
-tagged pull request merged into `master`.
+GitHub Actions validates every pull request with GCC on Linux, Clang
+ASan/UBSan on Linux, and separate MinGW client/server builds. All lanes use the
+pinned build containers. Tagged releases reuse the GCC validation before
+packaging.
 
 The Linux and Windows build environments are published independently from the
 `atrinik/devcontainer` repository. Its change-aware auto-tag workflow updates
@@ -246,22 +268,30 @@ Inside the Windows cross-build container, configure or compile without
 packaging with:
 
 ```sh
-cmake --preset windows-mxe-release
+x86_64-w64-mingw32.shared-cmake --no-warn-unused-cli \
+    --preset windows-mxe-release
 cmake --build --preset windows-mxe-release
-cmake --preset windows-mxe-server-release
+x86_64-w64-mingw32.shared-cmake --no-warn-unused-cli \
+    --preset windows-mxe-server-release
 cmake --build --preset windows-mxe-server-release
 ```
+
+The non-packaging PR equivalents are `windows-mxe-ci-client` and
+`windows-mxe-ci-server`. Use the same MXE-prefixed CMake wrapper to configure
+them; it loads MXE's toolchain, cached run results, and policy defaults without
+the deprecated direct-toolchain warning.
 
 ## Build configuration notes
 
 - The Python server plugin is enabled by default because NPC and map scripts
   depend on it. Set `-DENABLE_PYTHON_PLUGIN=false` only for a build that
   deliberately omits scripted game behavior.
-- GCC and Clang builds use `-fcommon` because this legacy codebase has
-  tentative global definitions in headers that GCC 10 and newer reject by
-  default.
+- Authored targets require C17, compile with `-fno-common`, and receive warning,
+  hardening, and optional sanitizer settings through target-scoped CMake
+  interface libraries. Headers declare shared globals with `extern`; one C file
+  owns each definition.
 - `PACKAGE_TYPE` defaults to `deb` in `build.config`; the presets and
   `build.sh` set it to `none` so ordinary development builds do not create
   legacy packages.
-- CMake writes some generated compatibility headers into the source tree,
-  matching the project's historical layout.
+- Generated compatibility headers and Flex outputs are written to the selected
+  build tree, leaving authored source directories unchanged.

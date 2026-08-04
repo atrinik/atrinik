@@ -18,6 +18,21 @@
 
  The executable and plugins are written to build/linux-debug/server/.
 
+ Dedicated C tests use an isolated generated runtime and require no source-tree
+ setup:
+  $ cmake --preset gcc-debug
+  $ cmake --build --preset gcc-debug
+  $ ctest --preset gcc-debug
+
+ Each C suite is a separately addressable CTest test. List or select suites
+ with:
+  $ ctest --test-dir build/gcc-debug -N
+  $ ctest --test-dir build/gcc-debug --output-on-failure \
+      -R '^server-unit-toolkit.packet$'
+
+ The `check` build target remains available for compatibility and prepares the
+ same build-owned runtime automatically.
+
 =================================================
 = 2. Running the server                         =
 =================================================

@@ -126,8 +126,8 @@ typedef struct material_real {
 
 /* Prototypes */
 
-material_t materials[NROFMATERIALS];
-material_real_t materials_real[NUM_MATERIALS_REAL];
+extern material_t materials[NROFMATERIALS];
+extern material_real_t materials_real[NUM_MATERIALS_REAL];
 
 void material_init(void);
 

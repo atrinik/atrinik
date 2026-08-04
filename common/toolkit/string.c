@@ -344,11 +344,11 @@ char *string_whitespace_trim(char *str) {
     cp = str;
     len = strlen(cp);
 
-    while (isspace(cp[len - 1])) {
+    while (len > 0 && isspace((unsigned char)cp[len - 1])) {
         cp[--len] = '\0';
     }
 
-    while (isspace(*cp)) {
+    while (len > 0 && isspace((unsigned char)*cp)) {
         cp++;
         len--;
     }

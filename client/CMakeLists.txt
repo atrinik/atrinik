@@ -1,20 +1,7 @@
 # The Atrinik CMakeLists file.
 
-cmake_minimum_required(VERSION 3.21)
-project(atrinik C)
 set(EXECUTABLE atrinik)
 set(PACKAGE_NAME "Atrinik Client")
-
-# Add our includes.
-include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}/src/include)
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
-include_directories(${CMAKE_BINARY_DIR}/common/toolkit)
-include_directories(src/gui/toolkit/include)
-include_directories(src)
-
-if (MINGW)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
-endif ()
 
 # SDL is required to run the client.
 find_package(SDL REQUIRED)
@@ -24,7 +11,6 @@ endif ()
 if (NOT SDL_LIBRARY AND SDL_LIBRARIES)
     set(SDL_LIBRARY ${SDL_LIBRARIES})
 endif ()
-include_directories(${SDL_INCLUDE_DIR})
 set(HAVE_SDL true)
 
 # SDL_image is also required, otherwise no bitmaps or map images could be
@@ -36,7 +22,6 @@ endif ()
 if (NOT SDLIMAGE_LIBRARY AND SDL_IMAGE_LIBRARIES)
     set(SDLIMAGE_LIBRARY ${SDL_IMAGE_LIBRARIES})
 endif ()
-include_directories(${SDLIMAGE_INCLUDE_DIR})
 set(HAVE_SDL_IMAGE true)
 
 # SDL_ttf is used for all text drawing, so it's required.
@@ -47,12 +32,10 @@ endif ()
 if (NOT SDLTTF_LIBRARY AND SDL_TTF_LIBRARIES)
     set(SDLTTF_LIBRARY ${SDL_TTF_LIBRARIES})
 endif ()
-include_directories(${SDLTTF_INCLUDE_DIR})
 set(HAVE_SDL_TTF true)
 
 # LibXML2 is required.
 find_package(LibXml2 REQUIRED)
-include_directories(${LIBXML2_INCLUDE_DIR})
 
 # SDL_mixer is optional, as sound is not a must-have.
 find_package(SDL_mixer)
@@ -68,7 +51,6 @@ if (NOT SDLMIXER_LIBRARY AND SDL_MIXER_LIBRARIES)
 endif ()
 
 if (SDLMIXER_FOUND)
-    include_directories(${SDLMIXER_INCLUDE_DIR})
     set(HAVE_SDL_MIXER true)
 else ()
     message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
@@ -88,33 +70,37 @@ endif ()
 
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} WIN32 ${SOURCES})
-target_link_libraries(${EXECUTABLE} atrinik-toolkit)
+atrinik_configure_target(${EXECUTABLE})
+target_include_directories(${EXECUTABLE} BEFORE PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}/src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/toolkit/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${SDL_INCLUDE_DIR}
+    ${SDLIMAGE_INCLUDE_DIR}
+    ${SDLTTF_INCLUDE_DIR}
+    ${LIBXML2_INCLUDE_DIR})
+if (SDLMIXER_FOUND)
+    target_include_directories(${EXECUTABLE} PRIVATE ${SDLMIXER_INCLUDE_DIR})
+endif ()
+
+target_link_libraries(${EXECUTABLE} PRIVATE atrinik-toolkit)
 
 # Link all the available libraries.
-target_link_libraries(${EXECUTABLE} ${SDL_LIBRARY})
-target_link_libraries(${EXECUTABLE} ${SDLIMAGE_LIBRARY})
-target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
-target_link_libraries(${EXECUTABLE} ${LIBXML2_LIBRARIES})
+target_link_libraries(${EXECUTABLE} PRIVATE
+    ${SDL_LIBRARY}
+    ${SDLIMAGE_LIBRARY}
+    ${SDLTTF_LIBRARY})
+if (TARGET LibXml2::LibXml2)
+    target_link_libraries(${EXECUTABLE} PRIVATE LibXml2::LibXml2)
+else ()
+    target_link_libraries(${EXECUTABLE} PRIVATE ${LIBXML2_LIBRARIES})
+endif ()
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
-    target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
+    target_link_libraries(${EXECUTABLE} PRIVATE ${SDLMIXER_LIBRARY})
 endif ()
-
-# Get all the include directories used to compile the client.
-get_directory_property(INCLUDES INCLUDE_DIRECTORIES)
-
-# Go through the include directories and construct a string.
-foreach (var ${INCLUDES})
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-    set(INCLUDES_STRING "${INCLUDES_STRING} -I${var}")
-endforeach ()
-
-# Go through the source files and construct a string.
-foreach (var ${SOURCES})
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-    set(SOURCES_STRING "${SOURCES_STRING};${var}")
-endforeach ()
 
 # Installer.
 if (WIN32 AND NOT UNIX)
@@ -141,7 +127,7 @@ if (WIN32 AND NOT UNIX)
             message(FATAL_ERROR
                 "No DLLs found in ATRINIK_WINDOWS_RUNTIME_DIR: ${ATRINIK_WINDOWS_RUNTIME_DIR}")
         endif ()
-    else ()
+    elseif (PACKAGE_TYPE STREQUAL "zip")
         message(WARNING "ATRINIK_WINDOWS_RUNTIME_DIR is empty; portable packages will not include dependency DLLs")
     endif ()
 
@@ -230,5 +216,5 @@ include(CPack)
 
 # Configure the .h file with the configuration options (size of long,
 # package version, etc).
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/include/cmake.h.def ${CMAKE_CURRENT_SOURCE_DIR}/src/include/cmake.h)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h.def ${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h)
+configure_file(src/include/cmake.h.def src/include/cmake.h)
+configure_file(src/include/version.h.def src/include/version.h)
