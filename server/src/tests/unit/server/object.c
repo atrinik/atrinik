@@ -195,7 +195,7 @@ START_TEST(test_object_dump) {
     object_dump(ob1, sb);
     result = stringbuffer_finish(sb);
     ck_assert(string_startswith(result, "arch"));
-    efree(result);
+    free(result);
     object_destroy(ob1);
 }
 END_TEST
@@ -400,8 +400,8 @@ START_TEST(test_object_reverse_inventory) {
     ck_assert_str_eq(cp, cp2);
 
     object_destroy(ob);
-    efree(cp);
-    efree(cp2);
+    free(cp);
+    free(cp2);
 }
 END_TEST
 

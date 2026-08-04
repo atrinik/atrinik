@@ -32,10 +32,10 @@
 #define packet_verify_data(packet, str)                                                 \
     {                                                                                   \
         char *hex;                                                                      \
-        hex = emalloc(sizeof(*hex) * ((packet)->len * 2 + 1));                          \
+        hex = xmalloc(sizeof(*hex) * ((packet)->len * 2 + 1));                          \
         string_tohex((packet)->data, (packet)->len, hex, (packet)->len * 2 + 1, false); \
         ck_assert_str_eq(hex, (str));                                                   \
-        efree(hex);                                                                     \
+        free(hex);                                                                      \
     }
 
 START_TEST(test_packet_new) {
@@ -798,21 +798,21 @@ START_TEST(test_packet_to_stringbuffer) {
     packet_to_stringbuffer((uint8_t[]){0x74, 0x65, 0x73, 0x74, 0x00}, 5, &pos, sb);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "test");
-    efree(cp);
+    free(cp);
 
     pos = 0;
     sb = stringbuffer_new();
     packet_to_stringbuffer((uint8_t[]){0x74, 0x65, 0x73, 0x74, 0x00}, 4, &pos, sb);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "test");
-    efree(cp);
+    free(cp);
 
     pos = 0;
     sb = stringbuffer_new();
     packet_to_stringbuffer((uint8_t[]){0x74, 0x65, 0x73, 0x74}, 4, &pos, sb);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "test");
-    efree(cp);
+    free(cp);
 }
 END_TEST
 

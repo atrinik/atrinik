@@ -110,7 +110,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  */
 socket_t *
 socket_create(const char *host, uint16_t port, bool secure, socket_role_t role, bool dual_stack) {
-    socket_t *sc = ecalloc(1, sizeof(*sc));
+    socket_t *sc = xcalloc(1, sizeof(*sc));
     sc->handle = -1;
     sc->owns_handle = true;
     sc->secure = !!secure;
@@ -226,12 +226,12 @@ socket_create(const char *host, uint16_t port, bool secure, socket_role_t role, 
         goto error;
     }
 
-    sc->host = host != NULL ? estrdup(host) : NULL;
+    sc->host = host != NULL ? xstrdup(host) : NULL;
     sc->port = port;
     return sc;
 
 error:
-    efree(sc);
+    free(sc);
     return NULL;
 }
 
@@ -587,7 +587,7 @@ socket_t *socket_accept(socket_t *sc) {
             return NULL;
         }
 
-        socket_t *tmp = ecalloc(1, sizeof(*tmp));
+        socket_t *tmp = xcalloc(1, sizeof(*tmp));
         tmp->handle = sc->handle;
         tmp->owns_handle = false;
         tmp->transport = SOCKET_TRANSPORT_QUIC_CONNECTION;
@@ -626,12 +626,12 @@ socket_t *socket_accept(socket_t *sc) {
 
     SOFT_ASSERT_RC(sc->handle != -1, NULL, "Invalid socket file handle");
 
-    socket_t *tmp = ecalloc(1, sizeof(*tmp));
+    socket_t *tmp = xcalloc(1, sizeof(*tmp));
     tmp->owns_handle = true;
     socklen_t addrlen = sizeof(tmp->addr);
     tmp->handle = accept(sc->handle, (struct sockaddr *)&tmp->addr, &addrlen);
     if (tmp->handle == -1) {
-        efree(tmp);
+        free(tmp);
         return NULL;
     }
 
@@ -1086,16 +1086,14 @@ bool socket_opt_recv_buffer(socket_t *sc, int bufsize) {
 void socket_destroy(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
-    if (sc->host != NULL) {
-        efree(sc->host);
-    }
+    free(sc->host);
 
     if (sc->crypto != NULL) {
         socket_crypto_free(sc->crypto);
     }
 
     socket_close(sc);
-    efree(sc);
+    free(sc);
 }
 
 /**

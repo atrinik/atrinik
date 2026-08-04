@@ -103,7 +103,7 @@ int read_bmap_names(void) {
     nrofpixmaps = 0;
     nroffiles = 0;
 
-    xbm = emalloc(sizeof(struct bmappair) * (nrofbmaps + 1));
+    xbm = xmallocarray(nrofbmaps + 1, sizeof(*xbm));
     memset(xbm, 0, sizeof(struct bmappair) * (nrofbmaps + 1));
 
     while (fgets(buf, sizeof(buf) - 1, fp)) {
@@ -121,9 +121,9 @@ int read_bmap_names(void) {
 
         if (cp) {
             cp++;
-            xbm[nroffiles].name = estrdup(cp);
+            xbm[nroffiles].name = xstrdup(cp);
         } else {
-            xbm[nroffiles].name = estrdup(buf);
+            xbm[nroffiles].name = xstrdup(buf);
         }
 
         xbm[nroffiles].number = line;
@@ -139,7 +139,7 @@ int read_bmap_names(void) {
 
     fclose(fp);
 
-    new_faces = emalloc(sizeof(New_Face) * (nrofpixmaps + 1));
+    new_faces = xmallocarray(nrofpixmaps + 1, sizeof(*new_faces));
 
     for (i = 0; i < nrofpixmaps + 1; i++) {
         new_faces[i].name = "";
@@ -181,9 +181,9 @@ void free_all_images(void) {
     int i;
 
     for (i = 0; i < nroffiles; i++) {
-        efree(xbm[i].name);
+        free(xbm[i].name);
     }
 
-    efree(xbm);
-    efree(new_faces);
+    free(xbm);
+    free(new_faces);
 }

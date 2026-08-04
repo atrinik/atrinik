@@ -60,7 +60,7 @@ void command_rename(object *op, const char *command, char *params) {
                          "You stop calling your %s with weird "
                          "names.",
                          name);
-        efree(name);
+        free(name);
     } else {
         if (tmp->type == MONEY) {
             draw_info(COLOR_WHITE, op, "You cannot rename that item.");
@@ -80,7 +80,7 @@ void command_rename(object *op, const char *command, char *params) {
                              "You keep calling your %s %s.",
                              name,
                              tmp->custom_name);
-            efree(name);
+            free(name);
             return;
         }
 
@@ -88,7 +88,7 @@ void command_rename(object *op, const char *command, char *params) {
         FREE_AND_COPY_HASH(tmp->custom_name, params);
         draw_info_format(COLOR_WHITE, op, "Your %s will now be called %s.", name, tmp->custom_name);
         CONTR(op)->stat_renamed_items++;
-        efree(name);
+        free(name);
     }
 
     esrv_update_item(UPD_NAME, tmp);

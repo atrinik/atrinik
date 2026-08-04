@@ -184,7 +184,7 @@ int object_apply_item(object *op, object *applier, int aflags) {
                 break;
         }
 
-        efree(name);
+        free(name);
         living_update(applier);
 
         if (!(aflags & APPLY_NO_MERGE)) {
@@ -231,7 +231,7 @@ int object_apply_item(object *op, object *applier, int aflags) {
         case WEAPON:
             if (!QUERY_FLAG(applier, FLAG_USE_WEAPON)) {
                 draw_info_format(COLOR_WHITE, applier, "You can't use %s.", name);
-                efree(name);
+                free(name);
                 return OBJECT_METHOD_ERROR;
             }
 
@@ -251,7 +251,7 @@ int object_apply_item(object *op, object *applier, int aflags) {
         case PANTS:
             if (!QUERY_FLAG(applier, FLAG_USE_ARMOUR)) {
                 draw_info_format(COLOR_WHITE, applier, "You can't use %s.", name);
-                efree(name);
+                free(name);
                 return OBJECT_METHOD_ERROR;
             }
 
@@ -276,7 +276,7 @@ int object_apply_item(object *op, object *applier, int aflags) {
                                  applier,
                                  "Your wizardry spells skill is too low to use %s.",
                                  name);
-                efree(name);
+                free(name);
                 return OBJECT_METHOD_ERROR;
             }
 
@@ -297,7 +297,7 @@ int object_apply_item(object *op, object *applier, int aflags) {
             draw_info_format(COLOR_WHITE, applier, "You apply %s.", name);
     }
 
-    efree(name);
+    free(name);
 
     if (!QUERY_FLAG(op, FLAG_APPLIED)) {
         SET_FLAG(op, FLAG_APPLIED);

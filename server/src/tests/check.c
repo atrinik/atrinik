@@ -63,21 +63,6 @@ void check_setup(void) {
  */
 void check_teardown(void) {
     cleanup();
-
-    if (fork_st != CK_FORK) {
-        size_t num = memory_check_leak(false);
-
-        if (num != 0) {
-            fprintf(stderr, "%" PRIu64 " memory leaks detected!\n", (uint64_t)num);
-            abort();
-        }
-    } else {
-        size_t num = memory_check_leak(true);
-
-        if (num != 0) {
-            ck_abort_msg("%" PRIu64 " memory leaks detected!", (uint64_t)num);
-        }
-    }
 }
 
 /*
@@ -143,7 +128,7 @@ void check_run_suite(Suite *suite, const char *file) {
     srunner_set_xml(srunner, buf2);
     snprintf(VS(buf), "%s.out", sub);
     srunner_set_log(srunner, buf);
-    efree(sub);
+    free(sub);
 
     srunner_run_all(srunner, CK_ENV);
     failed_tests += srunner_ntests_failed(srunner);
@@ -160,20 +145,10 @@ int check_main(int argc, char **argv) {
     failed_tests = 0;
 
     saved_argc = argc;
-    saved_argv = malloc(sizeof(*argv) * argc);
-
-    if (saved_argv == NULL) {
-        log_error("OOM.");
-        abort();
-    }
+    saved_argv = xreallocarray(NULL, argc, sizeof(*saved_argv));
 
     for (i = 0; i < argc; i++) {
-        saved_argv[i] = strdup(argv[i]);
-
-        if (saved_argv[i] == NULL) {
-            log_error("OOM.");
-            abort();
-        }
+        saved_argv[i] = xstrdup(argv[i]);
     }
 
     selected_suite = getenv("ATRINIK_TEST_SUITE");

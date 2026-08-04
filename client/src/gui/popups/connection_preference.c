@@ -157,14 +157,10 @@ static int popup_destroy_callback(popup_struct *popup) {
     preference_list = NULL;
     button_destroy(&button_use);
     preference_popup = NULL;
-    efree(preference_server->name);
-    if (preference_server->hostname != NULL) {
-        efree(preference_server->hostname);
-    }
-    if (preference_server->server_id != NULL) {
-        efree(preference_server->server_id);
-    }
-    efree(preference_server);
+    free(preference_server->name);
+    free(preference_server->hostname);
+    free(preference_server->server_id);
+    free(preference_server);
     preference_server = NULL;
     return 1;
 }
@@ -172,13 +168,13 @@ static int popup_destroy_callback(popup_struct *popup) {
 void connection_preference_open(server_struct *server) {
     HARD_ASSERT(server != NULL);
 
-    preference_server = ecalloc(1, sizeof(*preference_server));
-    preference_server->name = estrdup(server->name);
+    preference_server = xcalloc(1, sizeof(*preference_server));
+    preference_server->name = xstrdup(server->name);
     if (server->hostname != NULL) {
-        preference_server->hostname = estrdup(server->hostname);
+        preference_server->hostname = xstrdup(server->hostname);
     }
     if (server->server_id != NULL) {
-        preference_server->server_id = estrdup(server->server_id);
+        preference_server->server_id = xstrdup(server->server_id);
     }
     preference_server->port = server->port;
     preference_popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));

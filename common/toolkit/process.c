@@ -159,7 +159,7 @@ process_t *process_create(const char *executable) {
 
     static uint32_t uid = 0;
 
-    process_t *process = ecalloc(1, sizeof(*process));
+    process_t *process = xcalloc(1, sizeof(*process));
     process->uid = uid++;
     process_add_arg(process, executable);
 
@@ -197,11 +197,11 @@ void process_free(process_t *process) {
     }
 
     for (size_t i = 0; i < process->num_args; i++) {
-        efree(process->args[i]);
+        free(process->args[i]);
     }
 
-    efree(process->args);
-    efree(process);
+    free(process->args);
+    free(process);
 }
 
 /**
@@ -219,8 +219,8 @@ void process_add_arg(process_t *process, const char *arg) {
     HARD_ASSERT(arg != NULL);
 
     /* +2 = 1 for the new argument, 1 for the NULL */
-    process->args = erealloc(process->args, sizeof(*process->args) * (process->num_args + 2));
-    process->args[process->num_args] = estrdup(arg);
+    process->args = xreallocarray(process->args, (process->num_args + 2), sizeof(*process->args));
+    process->args[process->num_args] = xstrdup(arg);
     process->args[process->num_args + 1] = NULL;
     process->num_args++;
 }
@@ -539,12 +539,12 @@ bool process_start(process_t *process) {
     si.wShowWindow = SW_HIDE;
 
     if (!CreateProcess(NULL, cmdline, NULL, NULL, true, 0, NULL, NULL, &si, &process->pi)) {
-        efree(cmdline);
+        free(cmdline);
         LOG(ERROR, "CreateProcess() failed");
         goto error;
     }
 
-    efree(cmdline);
+    free(cmdline);
 #endif
 
     PROCESS_PIPE_CLOSE(pipes[PROCESS_PIPE_IN][PROCESS_COMM_PIPE_RX]);
@@ -773,7 +773,7 @@ static void process_check_internal_begin(process_t *process, struct pollfd **fds
 
     /* Set up events for all the pipes of the process that will be
      * polled. */
-    *fds = realloc(*fds, sizeof(**fds) * ((*nfds) + PROCESS_PIPE_NUM));
+    *fds = xreallocarray(*fds, *nfds + PROCESS_PIPE_NUM, sizeof(**fds));
     (*fds)[*nfds].fd = process->pipes[PROCESS_PIPE_IN];
     (*fds)[*nfds].events = process->packets != NULL ? POLLOUT : 0;
     (*nfds)++;

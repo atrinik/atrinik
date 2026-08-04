@@ -101,7 +101,7 @@ static void race_add(shstr *race_name, object *ob) {
     if (!race) {
         size_t i, ii;
 
-        races = erealloc(races, sizeof(ob_race) * (num_races + 1));
+        races = xreallocarray(races, (num_races + 1), sizeof(ob_race));
 
         /* Now, insert the race into the correct spot in the array. */
         for (i = 0; i < num_races; i++) {
@@ -237,5 +237,5 @@ void race_free(void) {
         }
     }
 
-    efree(races);
+    free(races);
 }

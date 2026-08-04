@@ -110,7 +110,7 @@ void list_set_parent(list_struct *list, int px, int py) {
  * The created list.
  */
 list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing) {
-    list_struct *list = ecalloc(1, sizeof(list_struct));
+    list_struct *list = xcalloc(1, sizeof(list_struct));
 
     if (max_rows == 0) {
         LOG(BUG, "Attempted to create a list with 0 max rows, changing to 1.");
@@ -136,10 +136,10 @@ list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing) {
     list->row_selected_func = list_row_selected;
 
     /* Initialize column data. */
-    list->col_widths = ecalloc(1, sizeof(*list->col_widths) * list->cols);
-    list->col_spacings = ecalloc(1, sizeof(*list->col_spacings) * list->cols);
-    list->col_names = ecalloc(1, sizeof(*list->col_names) * list->cols);
-    list->col_centered = ecalloc(1, sizeof(*list->col_centered) * list->cols);
+    list->col_widths = xcalloc(list->cols, sizeof(*list->col_widths));
+    list->col_spacings = xcalloc(list->cols, sizeof(*list->col_spacings));
+    list->col_names = xcalloc(list->cols, sizeof(*list->col_names));
+    list->col_centered = xcalloc(list->cols, sizeof(*list->col_centered));
 
     list_set_font(list, FONT_SANS10);
 
@@ -174,15 +174,15 @@ void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str) {
 
         /* Update rows count and resize the array of rows. */
         list->rows = row + 1;
-        list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
+        list->text = xreallocarray(list->text, list->rows, sizeof(*list->text));
 
         /* Allocate columns for the new row(s). */
         for (i = row; i < list->rows; i++) {
-            list->text[i] = ecalloc(1, sizeof(**list->text) * list->cols);
+            list->text[i] = xcalloc(list->cols, sizeof(**list->text));
         }
     }
 
-    list->text[row][col] = str ? estrdup(str) : NULL;
+    list->text[row][col] = str ? xstrdup(str) : NULL;
 }
 
 /**
@@ -202,7 +202,7 @@ void list_remove_row(list_struct *list, uint32_t row) {
 
     /* Free the columns of the row that is being removed. */
     for (col = 0; col < list->cols; col++) {
-        efree(list->text[row][col]);
+        free(list->text[row][col]);
     }
 
     /* If there are any rows below the one that is being removed, they
@@ -214,7 +214,7 @@ void list_remove_row(list_struct *list, uint32_t row) {
     }
 
     list->rows--;
-    list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
+    list->text = xreallocarray(list->text, list->rows, sizeof(*list->text));
 
     list_offsets_ensure(list);
 }
@@ -261,11 +261,9 @@ void list_set_column(list_struct *list,
     /* Set the column's name. */
     if (name) {
         /* There shouldn't be one previously, but just in case. */
-        if (list->col_names[col]) {
-            efree(list->col_names[col]);
-        }
+        free(list->col_names[col]);
 
-        list->col_names[col] = estrdup(name);
+        list->col_names[col] = xstrdup(name);
     }
 
     /* Is the column centered? */
@@ -495,15 +493,13 @@ void list_clear_rows(list_struct *list) {
     /* Free the texts. */
     for (row = 0; row < list->rows; row++) {
         for (col = 0; col < list->cols; col++) {
-            if (list->text[row][col]) {
-                efree(list->text[row][col]);
-            }
+            free(list->text[row][col]);
         }
 
-        efree(list->text[row]);
+        free(list->text[row]);
     }
 
-    efree(list->text);
+    free(list->text);
     list->text = NULL;
     list->rows = 0;
 }
@@ -554,29 +550,25 @@ void list_remove(list_struct *list) {
         return;
     }
 
-    if (list->data) {
-        efree(list->data);
-    }
+    free(list->data);
 
     list_clear(list);
 
-    efree(list->col_widths);
-    efree(list->col_spacings);
-    efree(list->col_centered);
+    free(list->col_widths);
+    free(list->col_spacings);
+    free(list->col_centered);
 
     /* Free column names. */
     for (col = 0; col < list->cols; col++) {
-        if (list->col_names[col]) {
-            efree(list->col_names[col]);
-        }
+        free(list->col_names[col]);
     }
 
     if (list->font != NULL) {
         font_free(list->font);
     }
 
-    efree(list->col_names);
-    efree(list);
+    free(list->col_names);
+    free(list);
 }
 
 /**

@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <memory.h>
+#include <toolkit/memory.h>
 #include <limits.h>
 #include <re-cmp.h>
 #include <ctype.h>
@@ -230,7 +230,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
         re_token_depth = slot;
 
         if (re_token[slot] == NULL) {
-            re_token[slot] = malloc(sizeof(selection));
+            re_token[slot] = xmalloc(sizeof(selection));
         }
 
         next_regexp = re_get_token(re_token[slot], regexp);
@@ -314,7 +314,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
 static void re_init(void) {
     int i;
 
-    re_token[0] = malloc(sizeof(selection));
+    re_token[0] = xmalloc(sizeof(selection));
 
     for (i = 1; i < RE_TOKEN_MAX; i++) {
         re_token[i] = NULL;

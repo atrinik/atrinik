@@ -79,5 +79,5 @@ void command_push(object *op, const char *command, char *params) {
 
     /* Now we move the player who was pushing the object. */
     move_ob(op, dir, op);
-    efree(name);
+    free(name);
 }

@@ -65,11 +65,7 @@ static size_t pools_num; ///< Number of ::pools.
  */
 static bool deiniting;
 
-TOOLKIT_API(DEPENDS(math),
-            DEPENDS(memory),
-            DEPENDS(logger),
-            DEPENDS(string),
-            DEPENDS(stringbuffer));
+TOOLKIT_API(DEPENDS(math), DEPENDS(logger), DEPENDS(string), DEPENDS(stringbuffer));
 
 TOOLKIT_INIT_FUNC(mempool) {
     pools = NULL;
@@ -100,7 +96,7 @@ TOOLKIT_DEINIT_FUNC(mempool) {
 
     mempool_free(pool_puddle);
 
-    efree(pools);
+    free(pools);
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
@@ -174,7 +170,7 @@ static size_t mempool_free_puddles(mempool_struct *pool) {
             /* Can we actually free this puddle? */
             if (puddle->nrof_free == nrof_arrays || (deiniting && pool == pool_puddle)) {
                 /* Yup. Forget about it. */
-                efree(puddle->first_chunk);
+                free(puddle->first_chunk);
 
                 if (!deiniting || pool != pool_puddle) {
                     mempool_return(pool_puddle, puddle);
@@ -231,7 +227,7 @@ mempool_struct *mempool_create(const char *description,
 
     TOOLKIT_PROTECT();
 
-    pool = ecalloc(1, sizeof(*pool));
+    pool = xcalloc(1, sizeof(*pool));
 
     pool->chunk_description = description;
     pool->expand_size = expand;
@@ -248,7 +244,7 @@ mempool_struct *mempool_create(const char *description,
         pool->nrof_allocated[i] = 0;
     }
 
-    pools = erealloc(pools, sizeof(*pools) * (pools_num + 1));
+    pools = xreallocarray(pools, (pools_num + 1), sizeof(*pools));
     pools[pools_num] = pool;
     pools_num++;
 
@@ -351,11 +347,11 @@ static void mempool_free(mempool_struct *pool) {
         cp = strtok(NULL, "\n");
     }
 
-    efree(info);
+    free(info);
 
     mempool_free_puddles(pool);
 
-    efree(pool);
+    free(pool);
 }
 
 void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger) {
@@ -480,7 +476,7 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp) {
     }
 
     chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp);
-    first = ecalloc(1, nrof_arrays * chunksize_real);
+    first = xcalloc(nrof_arrays, chunksize_real);
 
     pool->freelist[arraysize_exp] = first;
     pool->nrof_allocated[arraysize_exp] += nrof_arrays;
@@ -520,7 +516,7 @@ void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp) {
     pool->calls_get++;
 
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
-        new_obj = ecalloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
+        new_obj = xcalloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
         pool->nrof_allocated[arraysize_exp]++;
     } else {
         if (pool->nrof_free[arraysize_exp] == 0) {
@@ -572,7 +568,7 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data
             pool->deinitialisator(MEM_USERDATA(chunk));
         }
 
-        efree(chunk);
+        free(chunk);
         pool->nrof_allocated[arraysize_exp]--;
     } else {
         chunk->next = pool->freelist[arraysize_exp];

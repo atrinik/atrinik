@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Memory API header file.
+ * Fail-fast allocation helpers.
  */
 
 #ifndef TOOLKIT_MEMORY_H
@@ -32,46 +32,31 @@
 
 #include "toolkit.h"
 
-/* Map the error-checking memory allocating/freeing functions into the toolkit
- * variants. This is done for convenience, and because the functions can't be
- * defined as emalloc as they will conflict with functions from other libraries
- * such as libcheck. */
-#ifndef NDEBUG
-#define MEMORY_DEBUG_INFO , __FILE__, __LINE__
-#define MEMORY_DEBUG_PROTO , const char *file, uint32_t line
-#define MEMORY_DEBUG_PARAM , file, line
-#else
-#define MEMORY_DEBUG_INFO
-#define MEMORY_DEBUG_PROTO
-#define MEMORY_DEBUG_PARAM
-#endif
+/** Allocate at least one byte, aborting on failure. */
+void *xmalloc(size_t size);
+/** Allocate an array with checked multiplication. */
+void *xmallocarray(size_t nmemb, size_t size);
+/** Allocate zeroed storage, checking multiplication and aborting on failure. */
+void *xcalloc(size_t nmemb, size_t size);
+/**
+ * Resize storage, aborting on failure. A zero size frees the storage and
+ * returns NULL.
+ */
+void *xrealloc(void *ptr, size_t size);
+/** Resize an array with checked multiplication. */
+void *xreallocarray(void *ptr, size_t nmemb, size_t size);
+/** Duplicate a non-NULL string, aborting on failure. */
+char *xstrdup(const char *str);
+/** Duplicate at most max_length bytes of a non-NULL string. */
+char *xstrndup(const char *str, size_t max_length);
 
-#define emalloc(_size) memory_emalloc(_size MEMORY_DEBUG_INFO)
-#define efree(_ptr) memory_efree(_ptr MEMORY_DEBUG_INFO)
-#define ecalloc(_nmemb, _size) memory_ecalloc(_nmemb, _size MEMORY_DEBUG_INFO)
-#define erealloc(_ptr, _size) memory_erealloc(_ptr, _size MEMORY_DEBUG_INFO)
-#define ereallocz(_ptr, _old_size, _new_size) \
-    memory_reallocz(_ptr, _old_size, _new_size MEMORY_DEBUG_INFO)
-
-typedef enum memory_status {
-    MEMORY_STATUS_DISABLED = -1,
-    MEMORY_STATUS_OK = 0,
-    MEMORY_STATUS_FREE = 1
-} memory_status_t;
-
-/* Prototypes */
-
-TOOLKIT_FUNCS_DECLARE(memory);
-
-void *memory_emalloc(size_t size MEMORY_DEBUG_PROTO);
-void memory_efree(void *ptr MEMORY_DEBUG_PROTO);
-void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO);
-void *memory_erealloc(void *ptr, size_t size MEMORY_DEBUG_PROTO);
-void *memory_reallocz(void *ptr, size_t old_size, size_t new_size MEMORY_DEBUG_PROTO);
-void memory_check_all(void);
-bool memory_check(void *ptr);
-bool memory_get_status(void *ptr, memory_status_t *status);
-bool memory_get_size(void *ptr, size_t *size);
-size_t memory_check_leak(bool verbose);
+/**
+ * Release storage in the module that allocated it.
+ *
+ * Core code should call free() directly. This function exists for plugin
+ * hooks, where allocation and deallocation can cross a shared-library boundary
+ * on Windows.
+ */
+void xfree(void *ptr);
 
 #endif

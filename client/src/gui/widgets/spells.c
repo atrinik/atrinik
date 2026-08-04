@@ -83,12 +83,10 @@ void spells_init(void) {
 void spells_deinit(void) {
     for (size_t spell_path = 0; spell_path < SPELL_PATH_NUM - 1; spell_path++) {
         for (size_t spell_id = 0; spell_id < spell_list_num[spell_path]; spell_id++) {
-            efree(spell_list[spell_path][spell_id]);
+            free(spell_list[spell_path][spell_id]);
         }
 
-        if (spell_list[spell_path] != NULL) {
-            efree(spell_list[spell_path]);
-        }
+        free(spell_list[spell_path]);
     }
 }
 
@@ -308,12 +306,12 @@ void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags, con
     }
 
     if (spell == NULL) {
-        spell = ecalloc(1, sizeof(*spell));
+        spell = xcalloc(1, sizeof(*spell));
         spell->spell = op;
 
-        spell_list[path_real] =
-            erealloc(spell_list[path_real],
-                     sizeof(*spell_list[path_real]) * (spell_list_num[path_real] + 1));
+        spell_list[path_real] = xreallocarray(spell_list[path_real],
+                                              spell_list_num[path_real] + 1,
+                                              sizeof(*spell_list[path_real]));
         spell_list[path_real][spell_list_num[path_real]] = spell;
         spell_list_num[path_real]++;
     }
@@ -334,15 +332,15 @@ void spells_remove(object *op) {
         return;
     }
 
-    efree(spell_list[spell_path][spell_id]);
+    free(spell_list[spell_path][spell_id]);
 
     for (i = spell_id + 1; i < spell_list_num[spell_path]; i++) {
         spell_list[spell_path][i - 1] = spell_list[spell_path][i];
     }
 
-    spell_list[spell_path] =
-        erealloc(spell_list[spell_path],
-                 sizeof(*spell_list[spell_path]) * (spell_list_num[spell_path] - 1));
+    spell_list[spell_path] = xreallocarray(spell_list[spell_path],
+                                           spell_list_num[spell_path] - 1,
+                                           sizeof(*spell_list[spell_path]));
     spell_list_num[spell_path]--;
 
     spell_list_reload();

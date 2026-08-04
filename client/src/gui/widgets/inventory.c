@@ -667,7 +667,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
  * Initialize one inventory widget.
  */
 void widget_inventory_init(widgetdata *widget) {
-    inventory_struct *inventory = ecalloc(1, sizeof(*inventory));
+    inventory_struct *inventory = xcalloc(1, sizeof(*inventory));
     scrollbar_info_create(&inventory->scrollbar_info);
 
     widget->draw_func = widget_draw;

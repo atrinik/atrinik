@@ -75,7 +75,7 @@ static int apply_func(object *op, object *applier, int aflags) {
     packet_append_string_terminated(packet, op->slaying);
     char *name = object_get_base_name_s(op, applier);
     packet_append_string_terminated(packet, name);
-    efree(name);
+    free(name);
 
     if (op->msg != NULL) {
         if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {

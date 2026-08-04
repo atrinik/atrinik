@@ -127,7 +127,7 @@ void arch_deinit(void) {
 static archetype_t *arch_new(void) {
     HARD_ASSERT(arch_in_init == true);
 
-    archetype_t *new = ecalloc(1, sizeof(*new));
+    archetype_t *new = xcalloc(1, sizeof(*new));
     memcpy(&new->clone, clone_op, sizeof(new->clone));
 
     return new;
@@ -151,7 +151,7 @@ static void arch_free(archetype_t *at) {
     FREE_AND_CLEAR_HASH(at->clone.custom_name);
     FREE_AND_CLEAR_HASH(at->clone.glow);
     object_free_key_values(&at->clone);
-    efree(at);
+    free(at);
 }
 
 /**
@@ -198,7 +198,7 @@ static void arch_pass_first(FILE *fp) {
     }
 
     delete_loader_buffer(buffer);
-    efree(at);
+    free(at);
 }
 
 /**
@@ -463,7 +463,7 @@ archetype_t *arch_clone(archetype_t *at) {
     HARD_ASSERT(at != NULL);
     HARD_ASSERT(arch_in_init == true);
 
-    archetype_t *new = ecalloc(1, sizeof(*new));
+    archetype_t *new = xcalloc(1, sizeof(*new));
     memcpy(&new->clone, &at->clone, sizeof(new->clone));
     ADD_REF_NOT_NULL_HASH(new->clone.name);
     ADD_REF_NOT_NULL_HASH(new->clone.title);

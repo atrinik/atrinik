@@ -102,10 +102,10 @@ static bool asset_cache_add(const char *name, const char *path) {
         return false;
     }
 
-    asset_cache_entry_t *entry = ecalloc(1, sizeof(*entry));
-    entry->name = estrdup(name);
+    asset_cache_entry_t *entry = xcalloc(1, sizeof(*entry));
+    entry->name = xstrdup(name);
     entry->size = (uint32_t)sb.st_size;
-    entry->data = emalloc(MAX((size_t)entry->size, (size_t)1));
+    entry->data = xmalloc(MAX((size_t)entry->size, (size_t)1));
     bool ok = fread(entry->data, 1, entry->size, fp) == entry->size;
     if (fclose(fp) != 0) {
         ok = false;
@@ -117,9 +117,9 @@ static bool asset_cache_add(const char *name, const char *path) {
          digest_size == ASSET_DIGEST_SIZE;
     if (!ok) {
         LOG(ERROR, "Cannot read or hash game asset %s from %s", name, path);
-        efree(entry->data);
-        efree(entry->name);
-        efree(entry);
+        free(entry->data);
+        free(entry->name);
+        free(entry);
         return false;
     }
 
@@ -201,9 +201,9 @@ void socket_assets_deinit(void) {
     asset_cache_entry_t *entry, *next;
     HASH_ITER(hh, asset_cache, entry, next) {
         HASH_DEL(asset_cache, entry);
-        efree(entry->data);
-        efree(entry->name);
-        efree(entry);
+        free(entry->data);
+        free(entry->name);
+        free(entry);
     }
     asset_cache_size = 0;
     asset_cache_rss = 0;

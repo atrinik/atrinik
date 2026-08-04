@@ -89,10 +89,10 @@ char **maze_gen(int xsize, int ysize, int option, rng_state_t *rng) {
     int i, j;
     struct free_walls_struct free_walls;
     /* allocate that array, set it up */
-    char **maze = ecalloc(sizeof(char *), xsize);
+    char **maze = xcalloc(xsize, sizeof(*maze));
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = ecalloc(sizeof(char), ysize);
+        maze[i] = xcalloc(sizeof(char), ysize);
     }
 
     /* Write the outer walls */
@@ -130,8 +130,8 @@ char **maze_gen(int xsize, int ysize, int option, rng_state_t *rng) {
     }
 
     /* clean up our intermediate data structures. */
-    efree(free_walls.wall_x_list);
-    efree(free_walls.wall_y_list);
+    free(free_walls.wall_x_list);
+    free(free_walls.wall_y_list);
 
     return maze;
 }
@@ -157,8 +157,8 @@ static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_wa
     }
 
     /* allocate it */
-    free_walls->wall_x_list = ecalloc(sizeof(int), free_walls->wall_free_size);
-    free_walls->wall_y_list = ecalloc(sizeof(int), free_walls->wall_free_size);
+    free_walls->wall_x_list = xcalloc(sizeof(int), free_walls->wall_free_size);
+    free_walls->wall_y_list = xcalloc(sizeof(int), free_walls->wall_free_size);
 
     /* top and bottom wall */
     for (i = 2; i < xsize - 2; i++) {

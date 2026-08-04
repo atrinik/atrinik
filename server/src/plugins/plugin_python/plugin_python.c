@@ -568,7 +568,7 @@ static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *local
         hooks->stringbuffer_append_printf(sb, "exec(open('%s').read())", fullpath);
         cp = hooks->stringbuffer_finish(sb);
         PyRun_String(cp, Py_file_input, globals, locals);
-        efree(cp);
+        xfree(cp);
 #else
         ret = PyRun_File(fp, fullpath, Py_file_input, globals, locals);
         fclose(fp);
@@ -733,7 +733,7 @@ static int do_script(PythonContext *context, const char *filename) {
 
         path = hooks->map_get_path(env->map, filename, 0, NULL);
         FREE_AND_COPY_HASH(context->event->race, path);
-        efree(path);
+        xfree(path);
     }
 
     if (context->event != NULL && hooks->string_endswith(filename, ".xml")) {
@@ -760,17 +760,17 @@ static int do_script(PythonContext *context, const char *filename) {
 
             dirname = hooks->path_dirname(filename);
             path = hooks->path_join(dirname, inf_filename);
-            efree(dirname);
+            xfree(dirname);
         } else {
             char *cp;
 
-            cp = hooks->string_sub(filename, 0, -3 MEMORY_DEBUG_INFO);
+            cp = hooks->string_sub(filename, 0, -3);
             path = hooks->string_join("", cp, "py", NULL);
-            efree(cp);
+            xfree(cp);
         }
 
         FREE_AND_COPY_HASH(context->event->race, path);
-        efree(path);
+        xfree(path);
     }
 
     gilstate = PyGILState_Ensure();
@@ -1793,7 +1793,7 @@ static PyObject *Atrinik_print(PyObject *self, PyObject *args) {
 
     PyObject *locals = PyDict_New();
     PyDict_SetItemString(locals, "print_msg", Py_BuildValue("s", cp));
-    efree(cp);
+    xfree(cp);
 
     py_runfile_simple("/python/events/python_print.py", locals);
     Py_DECREF(locals);
@@ -2612,13 +2612,13 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value) {
         case FIELDTYPE_CSTR:
             if (value == Py_None || PyString_Check(value)) {
                 if (*(char **)field_ptr != NULL) {
-                    efree(*(char **)field_ptr);
+                    xfree(*(char **)field_ptr);
                 }
 
                 if (value == Py_None) {
                     *(char **)field_ptr = NULL;
                 } else {
-                    *(char **)field_ptr = estrdup(PyString_AsString(value));
+                    *(char **)field_ptr = xstrdup(PyString_AsString(value));
                 }
             } else {
                 INTRAISE("Illegal value for C string field.");

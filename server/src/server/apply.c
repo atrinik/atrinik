@@ -141,7 +141,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet) {
                              "I don't know how to apply the "
                              "%s.",
                              name);
-            efree(name);
+            free(name);
         } else if (tmp == OBJECT_METHOD_ERROR) {
             if (op->env != pl) {
                 draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");

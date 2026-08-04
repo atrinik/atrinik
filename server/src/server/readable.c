@@ -287,8 +287,8 @@ static void init_msgfile(void) {
                     }
 
                     num_msgs++;
-                    msgs = erealloc(msgs, sizeof(char *) * num_msgs);
-                    msgs[num_msgs - 1] = estrdup(msgbuf);
+                    msgs = xreallocarray(msgs, num_msgs, sizeof(char *));
+                    msgs[num_msgs - 1] = xstrdup(msgbuf);
                     in_msg = 0;
                 } else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1)) {
                     strcat(msgbuf, buf);
@@ -323,7 +323,7 @@ static void init_mon_info(void) {
             continue;
         }
 
-        monsters = erealloc(monsters, sizeof(*monsters) * (num_monsters + 1));
+        monsters = xreallocarray(monsters, (num_monsters + 1), sizeof(*monsters));
         monsters[num_monsters] = &at->clone;
         num_monsters++;
     }
@@ -471,7 +471,7 @@ object *get_random_mon(void) {
 static char *mon_desc(object *mon, char *buf, size_t size) {
     char *desc = object_get_description_s(mon, NULL);
     snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, desc);
-    efree(desc);
+    free(desc);
     return buf;
 }
 
@@ -620,12 +620,12 @@ static char *artifact_msg(int level, char *buf, size_t booksize) {
 
         /* Add the buf if it will fit. */
         if (book_overflow(buf, final, booksize)) {
-            efree(final);
+            free(final);
             break;
         }
 
         snprintf(buf + strlen(buf), booksize - strlen(buf), "%s", final);
-        efree(final);
+        free(final);
 
         art = art->next;
         book_entries--;
@@ -694,7 +694,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize) {
         snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n", final);
     }
 
-    efree(final);
+    free(final);
     return buf;
 }
 
@@ -793,9 +793,9 @@ void free_all_readable(void) {
     size_t i;
 
     for (i = 0; i < num_msgs; i++) {
-        efree(msgs[i]);
+        free(msgs[i]);
     }
 
-    efree(msgs);
-    efree(monsters);
+    free(msgs);
+    free(monsters);
 }

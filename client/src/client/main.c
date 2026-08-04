@@ -117,7 +117,7 @@ static void keepalive_reset(void) {
 
     LL_FOREACH_SAFE(keepalive_data, keepalive, tmp) {
         LL_DELETE(keepalive_data, keepalive);
-        efree(keepalive);
+        free(keepalive);
     }
 }
 
@@ -128,7 +128,7 @@ static void keepalive_send(void) {
     keepalive_data_struct *keepalive;
     packet_struct *packet;
 
-    keepalive = emalloc(sizeof(*keepalive));
+    keepalive = xmalloc(sizeof(*keepalive));
     keepalive->ticks = SDL_GetTicks();
     keepalive->id = ++keepalive_id;
     LL_PREPEND(keepalive_data, keepalive);
@@ -170,7 +170,7 @@ void socket_command_keepalive(uint8_t *data, size_t len, size_t pos) {
             keepalive_ping_num++;
             keepalive_ping_avg =
                 keepalive_ping_avg + ((keepalive_ping - keepalive_ping_avg) / keepalive_ping_num);
-            efree(keepalive);
+            free(keepalive);
 
             return;
         }
@@ -249,7 +249,7 @@ static int game_status_chain(void) {
                                                    "Server from command line --server option.");
             if (string_is_hex_fixed(quic_fingerprint, 64, false)) {
                 string_tolower(quic_fingerprint);
-                server->quic_certificate_sha256 = estrdup(quic_fingerprint);
+                server->quic_certificate_sha256 = xstrdup(quic_fingerprint);
                 server->port_crypto = -1;
                 server->direct = true;
             } else if (*quic_fingerprint != '\0') {
@@ -439,39 +439,29 @@ void clioption_settings_deinit(void) {
     size_t i;
 
     for (i = 0; i < clioption_settings.servers_num; i++) {
-        efree(clioption_settings.servers[i]);
+        free(clioption_settings.servers[i]);
     }
 
-    if (clioption_settings.servers) {
-        efree(clioption_settings.servers);
-    }
+    free(clioption_settings.servers);
 
     for (i = 0; i < clioption_settings.metaservers_num; i++) {
-        efree(clioption_settings.metaservers[i]);
+        free(clioption_settings.metaservers[i]);
     }
 
-    if (clioption_settings.metaservers) {
-        efree(clioption_settings.metaservers);
-    }
+    free(clioption_settings.metaservers);
 
     for (i = 0; i < arraysize(clioption_settings.connect); i++) {
-        if (clioption_settings.connect[i]) {
-            efree(clioption_settings.connect[i]);
-        }
+        free(clioption_settings.connect[i]);
     }
 
-    if (clioption_settings.game_news_url) {
-        efree(clioption_settings.game_news_url);
-    }
+    free(clioption_settings.game_news_url);
 
     if (clioption_settings.join_password != NULL) {
         OPENSSL_cleanse(clioption_settings.join_password, strlen(clioption_settings.join_password));
-        efree(clioption_settings.join_password);
+        free(clioption_settings.join_password);
     }
 
-    if (clioption_settings.stun_server != NULL) {
-        efree(clioption_settings.stun_server);
-    }
+    free(clioption_settings.stun_server);
 }
 
 /**
@@ -485,10 +475,10 @@ static const char *const clioptions_option_server_desc =
     "the 64-character certificate SHA-256 fingerprint.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_server(const char *arg, char **errmsg) {
-    clioption_settings.servers =
-        erealloc(clioption_settings.servers,
-                 sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
-    clioption_settings.servers[clioption_settings.servers_num] = estrdup(arg);
+    clioption_settings.servers = xreallocarray(clioption_settings.servers,
+                                               clioption_settings.servers_num + 1,
+                                               sizeof(*clioption_settings.servers));
+    clioption_settings.servers[clioption_settings.servers_num] = xstrdup(arg);
     clioption_settings.servers_num++;
     return true;
 }
@@ -502,10 +492,10 @@ static const char *const clioptions_option_metaserver_desc =
     " --metaserver=example.com";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_metaserver(const char *arg, char **errmsg) {
-    clioption_settings.metaservers = erealloc(clioption_settings.metaservers,
-                                              sizeof(*clioption_settings.metaservers) *
-                                                  (clioption_settings.metaservers_num + 1));
-    clioption_settings.metaservers[clioption_settings.metaservers_num] = estrdup(arg);
+    clioption_settings.metaservers = xreallocarray(clioption_settings.metaservers,
+                                                   clioption_settings.metaservers_num + 1,
+                                                   sizeof(*clioption_settings.metaservers));
+    clioption_settings.metaservers[clioption_settings.metaservers_num] = xstrdup(arg);
     clioption_settings.metaservers_num++;
     return true;
 }
@@ -523,7 +513,7 @@ static const char *const clioptions_option_connect_desc =
     "automatically.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_connect(const char *arg, char **errmsg) {
-    char *cp = estrdup(arg);
+    char *cp = xstrdup(arg);
     char *cps[4];
     size_t num = string_split(cp, cps, arraysize(cps), ':');
 
@@ -532,10 +522,10 @@ static bool clioptions_option_connect(const char *arg, char **errmsg) {
             continue;
         }
 
-        clioption_settings.connect[i] = estrdup(cps[i]);
+        clioption_settings.connect[i] = xstrdup(cps[i]);
     }
 
-    efree(cp);
+    free(cp);
     return true;
 }
 
@@ -547,15 +537,15 @@ static const char *const clioptions_option_join_password_desc =
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_join_password(const char *arg, char **errmsg) {
     if (strlen(arg) >= MAX_BUF) {
-        *errmsg = estrdup("Join password is too long");
+        *errmsg = xstrdup("Join password is too long");
         return false;
     }
 
     if (clioption_settings.join_password != NULL) {
         OPENSSL_cleanse(clioption_settings.join_password, strlen(clioption_settings.join_password));
-        efree(clioption_settings.join_password);
+        free(clioption_settings.join_password);
     }
-    clioption_settings.join_password = estrdup(arg);
+    clioption_settings.join_password = xstrdup(arg);
     return true;
 }
 
@@ -590,13 +580,11 @@ static const char *const clioptions_option_stun_server_desc =
 
 static bool clioptions_option_stun_server(const char *arg, char **errmsg) {
     if (strlen(arg) >= MAX_BUF) {
-        *errmsg = estrdup("STUN endpoint is too long");
+        *errmsg = xstrdup("STUN endpoint is too long");
         return false;
     }
-    if (clioption_settings.stun_server != NULL) {
-        efree(clioption_settings.stun_server);
-    }
-    clioption_settings.stun_server = strcmp(arg, "off") == 0 ? NULL : estrdup(arg);
+    free(clioption_settings.stun_server);
+    clioption_settings.stun_server = strcmp(arg, "off") == 0 ? NULL : xstrdup(arg);
     return true;
 }
 
@@ -640,7 +628,7 @@ static const char *clioptions_option_game_news_url_desc =
     "Sets the game news URL. Typically this doesn't need to be changed.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_game_news_url(const char *arg, char **errmsg) {
-    clioption_settings.game_news_url = estrdup(arg);
+    clioption_settings.game_news_url = xstrdup(arg);
     return true;
 }
 
@@ -668,8 +656,7 @@ static bool clioptions_option_reconnect(const char *arg, char **errmsg) {
 int main(int argc, char *argv[]) {
     char *path;
     int done = 0, update, frames;
-    uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit, last_frame_ticks,
-        last_memory_check;
+    uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit, last_frame_ticks;
     int fps_limits[] = {30, 60, 120, 0};
 
     toolkit_import(signals);
@@ -682,7 +669,6 @@ int main(int argc, char *argv[]) {
     toolkit_import(datetime);
     toolkit_import(logger);
     toolkit_import(math);
-    toolkit_import(memory);
     toolkit_import(packet);
     toolkit_import(socket);
     toolkit_import(socket_crypto);
@@ -712,7 +698,7 @@ int main(int argc, char *argv[]) {
                                SOCKET_VERSION);
     char *user_agent = stringbuffer_finish(user_agent_builder);
     curl_set_user_agent(user_agent);
-    efree(user_agent);
+    free(user_agent);
 
     clioption_t *cli;
 
@@ -735,10 +721,10 @@ int main(int argc, char *argv[]) {
 
     path = file_path("client.cfg", "r");
     clioptions_load(path, NULL);
-    efree(path);
+    free(path);
     path = file_path("client-custom.cfg", "r");
     clioptions_load(path, NULL);
-    efree(path);
+    free(path);
 
     clioptions_parse(argc, argv);
 
@@ -774,7 +760,7 @@ int main(int argc, char *argv[]) {
     stringbuffer_append_printf(sb, "%s/.atrinik/%s", get_config_dir(), version);
     path = stringbuffer_finish(sb);
     socket_crypto_set_path(path);
-    efree(path);
+    free(path);
 
     char buf[HUGE_BUF];
     snprintf(VS(buf), "Welcome to Atrinik version %s", version);
@@ -802,7 +788,7 @@ int main(int argc, char *argv[]) {
 
     sound_background_hook_register(sound_background_hook);
 
-    LastTick = anim_tick = last_frame_ticks = last_memory_check = SDL_GetTicks();
+    LastTick = anim_tick = last_frame_ticks = SDL_GetTicks();
     frames = 0;
 
     while (!done) {
@@ -818,12 +804,6 @@ int main(int argc, char *argv[]) {
             }
 
             continue;
-        }
-
-        /* Check the memory every 10 seconds. */
-        if (SDL_GetTicks() - last_memory_check > 10 * 1000) {
-            memory_check_all();
-            last_memory_check = SDL_GetTicks();
         }
 
         if (cpl.state > ST_CONNECT) {

@@ -71,7 +71,7 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos) {
     len -= pos;
 
     /* Uncompress it. */
-    dest = emalloc(ucomp_len);
+    dest = xmalloc(ucomp_len);
     uncompress((Bytef *)dest, (uLongf *)&ucomp_len, (const Bytef *)data + pos, (uLong)len);
     data = dest;
     len = ucomp_len;
@@ -80,14 +80,14 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos) {
 
     if (!fp) {
         LOG(BUG, "Could not open file '%s' for writing.", filename);
-        efree(dest);
+        free(dest);
         return;
     }
 
     /* Update the file. */
     fwrite(data, 1, len, fp);
     fclose(fp);
-    efree(dest);
+    free(dest);
 }
 
 /**
@@ -139,13 +139,13 @@ void file_updates_parse(void) {
 
         fstat(fileno(fp2), &sb);
         st_size = sb.st_size;
-        contents = emalloc(st_size);
+        contents = xmalloc(st_size);
         numread = fread(contents, 1, st_size, fp2);
         fclose(fp2);
 
         /* Get the CRC32... */
         crc = crc32(1L, (const unsigned char FAR *)contents, numread);
-        efree(contents);
+        free(contents);
 
         /* If the checksum or the size doesn't match, we'll want to update it.
          * */

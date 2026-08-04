@@ -186,7 +186,7 @@ int client_command_check(const char *cmd) {
             stringbuffer_append_string(sb, buf);
             cp = stringbuffer_finish(sb);
             send_command(cp);
-            efree(cp);
+            free(cp);
         }
 
         send_command("/console noinf::");
@@ -238,18 +238,18 @@ int client_command_check(const char *cmd) {
         return 1;
     } else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
         char *cps[3];
-        char *params = estrdup(strchr(cmd, ' ') + 1);
+        char *params = xstrdup(strchr(cmd, ' ') + 1);
         unsigned long int loc, tag, num;
 
         if (string_split(params, cps, arraysize(cps), ' ') != arraysize(cps)) {
-            efree(params);
+            free(params);
             return 1;
         }
 
         loc = strtoul(cps[0], NULL, 10);
         tag = strtoul(cps[1], NULL, 10);
         num = strtoul(cps[2], NULL, 10);
-        efree(params);
+        free(params);
         client_send_move(loc, tag, num);
 
         if (string_startswith(cmd, "/gettag ")) {

@@ -16,7 +16,7 @@ START_TEST(test_depletion_tooltip_lists_current_stats) {
     char *tooltip = stringbuffer_finish(depletion_get_tooltip(depletion, NULL));
     ck_assert_ptr_nonnull(strstr(tooltip, "Currently depleted: strength (1), constitution (3)."));
 
-    efree(tooltip);
+    free(tooltip);
     object_destroy(depletion);
 }
 END_TEST

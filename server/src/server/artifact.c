@@ -67,7 +67,7 @@ void artifact_deinit(void) {
  * New structure.
  */
 static artifact_t *artifact_new(void) {
-    artifact_t *art = ecalloc(1, sizeof(*art));
+    artifact_t *art = xcalloc(1, sizeof(*art));
     return art;
 }
 
@@ -83,15 +83,13 @@ static void artifact_free(artifact_t *art) {
 
     SHSTR_LIST_CLEAR(art->allowed);
 
-    if (art->parse_text != NULL) {
-        efree(art->parse_text);
-    }
+    free(art->parse_text);
 
     if (art->affinity != NULL) {
         free_string_shared(art->affinity);
     }
 
-    efree(art);
+    free(art);
 }
 
 /**
@@ -100,7 +98,7 @@ static void artifact_free(artifact_t *art) {
  * New structure.
  */
 static artifact_list_t *artifact_list_new(void) {
-    artifact_list_t *al = ecalloc(1, sizeof(*al));
+    artifact_list_t *al = xcalloc(1, sizeof(*al));
     return al;
 }
 
@@ -116,7 +114,7 @@ static void artifact_list_free(artifact_list_t *al) {
         artifact_free(art);
     }
 
-    efree(al);
+    free(al);
 }
 
 /**

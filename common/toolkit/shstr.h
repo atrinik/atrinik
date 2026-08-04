@@ -147,7 +147,7 @@ typedef struct shstr_list {
  */
 #define SHSTR_LIST_PREPEND(list_, value_)                        \
     do {                                                         \
-        shstr_list_t *shstr_list = emalloc(sizeof(*shstr_list)); \
+        shstr_list_t *shstr_list = xmalloc(sizeof(*shstr_list)); \
         shstr_list->next = NULL;                                 \
         shstr_list->value = add_string(value_);                  \
         LL_PREPEND(list_, shstr_list);                           \
@@ -169,7 +169,7 @@ typedef struct shstr_list {
         shstr_list_t *shstr_list, *shstr_list_tmp;           \
         LL_FOREACH_SAFE(list_, shstr_list, shstr_list_tmp) { \
             free_string_shared(shstr_list->value);           \
-            efree(shstr_list);                               \
+            free(shstr_list);                                \
         }                                                    \
         list_ = NULL;                                        \
     } while (0)

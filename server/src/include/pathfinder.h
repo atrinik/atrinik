@@ -107,7 +107,7 @@ typedef struct path_visualization {
     if (visualizer != NULL) {                                                 \
         path_visualizer_t *__tmp;                                             \
                                                                               \
-        __tmp = ecalloc(1, sizeof(*__tmp));                                   \
+        __tmp = xcalloc(1, sizeof(*__tmp));                                   \
         __tmp->map = (_m);                                                    \
         __tmp->x = (_x);                                                      \
         __tmp->y = (_y);                                                      \

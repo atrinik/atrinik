@@ -57,9 +57,7 @@ void command_config(object *op, const char *command, char *params) {
                              op,
                              "Configuration failed: %s",
                              errmsg != NULL ? errmsg : "<no error message>");
-            if (errmsg != NULL) {
-                efree(errmsg);
-            }
+            free(errmsg);
         }
     }
 }

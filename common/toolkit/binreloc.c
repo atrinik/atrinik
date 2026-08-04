@@ -53,10 +53,8 @@ TOOLKIT_INIT_FUNC(binreloc) {
 TOOLKIT_INIT_FUNC_FINISH
 
 TOOLKIT_DEINIT_FUNC(binreloc) {
-    if (exe != NULL) {
-        efree(exe);
-        exe = NULL;
-    }
+    free(exe);
+    exe = NULL;
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
@@ -86,8 +84,8 @@ static char *_binreloc_find_exe(void) {
         buf_size = PATH_MAX - 1;
     }
 
-    path = emalloc(buf_size);
-    path2 = emalloc(buf_size);
+    path = xmalloc(buf_size);
+    path2 = xmalloc(buf_size);
 
     strncpy(path2, "/proc/self/exe", buf_size - 1);
 
@@ -111,14 +109,14 @@ static char *_binreloc_find_exe(void) {
 
         if (i == -1) {
             /* Error. */
-            efree(path2);
+            free(path2);
             break;
         }
 
         /* stat() success. */
         if (!S_ISLNK(stat_buf.st_mode)) {
             /* path is not a symlink. Done. */
-            efree(path2);
+            free(path2);
             return path;
         }
 
@@ -129,12 +127,12 @@ static char *_binreloc_find_exe(void) {
     /* readlink() or stat() failed; this can happen when the program is
      * running in Valgrind 2.2. Read from /proc/self/maps as fallback. */
     buf_size = PATH_MAX + 128;
-    line = erealloc(path, buf_size);
+    line = xrealloc(path, buf_size);
 
     f = fopen("/proc/self/maps", "r");
 
     if (!f) {
-        efree(line);
+        free(line);
         return NULL;
     }
 
@@ -143,7 +141,7 @@ static char *_binreloc_find_exe(void) {
 
     if (!result) {
         fclose(f);
-        efree(line);
+        free(line);
         return NULL;
     }
 
@@ -153,7 +151,7 @@ static char *_binreloc_find_exe(void) {
     if (buf_size <= 0) {
         /* Huh? An empty string? */
         fclose(f);
-        efree(line);
+        free(line);
         return NULL;
     }
 
@@ -167,12 +165,12 @@ static char *_binreloc_find_exe(void) {
     /* Sanity check. */
     if (strstr(line, " r-xp ") == NULL || !path) {
         fclose(f);
-        efree(line);
+        free(line);
         return NULL;
     }
 
-    path = estrdup(path);
-    efree(line);
+    path = xstrdup(path);
+    free(line);
     fclose(f);
     return path;
 #endif
@@ -182,11 +180,11 @@ char *binreloc_find_exe(const char *default_exe) {
     TOOLKIT_PROTECT();
 
     if (exe) {
-        return estrdup(exe);
+        return xstrdup(exe);
     }
 
     if (default_exe) {
-        return estrdup(default_exe);
+        return xstrdup(default_exe);
     }
 
     return NULL;
@@ -200,7 +198,7 @@ char *binreloc_find_exe_dir(const char *default_dir) {
     }
 
     if (default_dir) {
-        return estrdup(default_dir);
+        return xstrdup(default_dir);
     }
 
     return NULL;
@@ -214,12 +212,12 @@ char *binreloc_find_prefix(const char *default_prefix) {
 
         dir1 = path_dirname(exe);
         dir2 = path_dirname(dir1);
-        efree(dir1);
+        free(dir1);
         return dir2;
     }
 
     if (default_prefix) {
-        return estrdup(default_prefix);
+        return xstrdup(default_prefix);
     }
 
     return NULL;
@@ -234,14 +232,14 @@ char *binreloc_find_bin_dir(const char *default_bin_dir) {
 
     if (!prefix) {
         if (default_bin_dir) {
-            return estrdup(default_bin_dir);
+            return xstrdup(default_bin_dir);
         }
 
         return NULL;
     }
 
     dir = path_join(prefix, "bin");
-    efree(prefix);
+    free(prefix);
     return dir;
 }
 
@@ -254,14 +252,14 @@ char *binreloc_find_sbin_dir(const char *default_sbin_dir) {
 
     if (!prefix) {
         if (default_sbin_dir) {
-            return estrdup(default_sbin_dir);
+            return xstrdup(default_sbin_dir);
         }
 
         return NULL;
     }
 
     dir = path_join(prefix, "sbin");
-    efree(prefix);
+    free(prefix);
     return dir;
 }
 
@@ -274,14 +272,14 @@ char *binreloc_find_data_dir(const char *default_data_dir) {
 
     if (!prefix) {
         if (default_data_dir) {
-            return estrdup(default_data_dir);
+            return xstrdup(default_data_dir);
         }
 
         return NULL;
     }
 
     dir = path_join(prefix, "share");
-    efree(prefix);
+    free(prefix);
     return dir;
 }
 
@@ -294,14 +292,14 @@ char *binreloc_find_locale_dir(const char *default_locale_dir) {
 
     if (!data_dir) {
         if (default_locale_dir) {
-            return estrdup(default_locale_dir);
+            return xstrdup(default_locale_dir);
         }
 
         return NULL;
     }
 
     dir = path_join(data_dir, "locale");
-    efree(data_dir);
+    free(data_dir);
     return dir;
 }
 
@@ -314,14 +312,14 @@ char *binreloc_find_lib_dir(const char *default_lib_dir) {
 
     if (!prefix) {
         if (default_lib_dir) {
-            return estrdup(default_lib_dir);
+            return xstrdup(default_lib_dir);
         }
 
         return NULL;
     }
 
     dir = path_join(prefix, "lib");
-    efree(prefix);
+    free(prefix);
     return dir;
 }
 
@@ -334,14 +332,14 @@ char *binreloc_find_libexec_dir(const char *default_libexec_dir) {
 
     if (!prefix) {
         if (default_libexec_dir) {
-            return estrdup(default_libexec_dir);
+            return xstrdup(default_libexec_dir);
         }
 
         return NULL;
     }
 
     dir = path_join(prefix, "libexec");
-    efree(prefix);
+    free(prefix);
     return dir;
 }
 
@@ -354,13 +352,13 @@ char *binreloc_find_etc_dir(const char *default_etc_dir) {
 
     if (!prefix) {
         if (default_etc_dir) {
-            return estrdup(default_etc_dir);
+            return xstrdup(default_etc_dir);
         }
 
         return NULL;
     }
 
     dir = path_join(prefix, "etc");
-    efree(prefix);
+    free(prefix);
     return dir;
 }

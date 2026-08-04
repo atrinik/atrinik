@@ -80,7 +80,7 @@ int recharge(object *op) {
 
     if (wand->stats.sp < 0 || wand->stats.sp >= NROFREALSPELLS || !spells[wand->stats.sp].charges) {
         draw_info_format(COLOR_RED, op, "The %s cannot be recharged.", name);
-        efree(name);
+        free(name);
         return 0;
     }
 
@@ -93,7 +93,7 @@ int recharge(object *op) {
         play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
         object_remove(wand, 0);
         object_destroy(wand);
-        efree(name);
+        free(name);
         return 1;
     }
 
@@ -113,7 +113,7 @@ int recharge(object *op) {
         object_update_speed(wand);
     }
 
-    efree(name);
+    free(name);
     return 1;
 }
 
@@ -832,7 +832,7 @@ int cast_remove_depletion(object *op, object *target) {
     if (target->type != PLAYER) {
         char *name = object_get_base_name_s(target, op);
         draw_info_format(COLOR_WHITE, op, "You cast remove depletion on %s.", name);
-        efree(name);
+        free(name);
         draw_info(COLOR_WHITE, op, "There is no depletion.");
         return 0;
     }
@@ -841,11 +841,11 @@ int cast_remove_depletion(object *op, object *target) {
         if (op->type == PLAYER) {
             char *name = object_get_base_name_s(target, op);
             draw_info_format(COLOR_WHITE, op, "You cast remove depletion on %s.", name);
-            efree(name);
+            free(name);
         } else if (target->type == PLAYER) {
             char *name = object_get_base_name_s(op, target);
             draw_info_format(COLOR_WHITE, target, "%s casts remove depletion on you.", name);
-            efree(name);
+            free(name);
         }
     }
 
@@ -914,7 +914,7 @@ int remove_curse(object *op, object *target, int type, int src) {
                              "You cast remove %s on %s.",
                              type == SP_REMOVE_CURSE ? "curse" : "damnation",
                              name);
-            efree(name);
+            free(name);
         } else if (target->type == PLAYER) {
             char *name = object_get_base_name_s(op, target);
             draw_info_format(COLOR_WHITE,
@@ -922,7 +922,7 @@ int remove_curse(object *op, object *target, int type, int src) {
                              "%s casts remove %s on you.",
                              name,
                              type == SP_REMOVE_CURSE ? "curse" : "damnation");
-            efree(name);
+            free(name);
         }
     }
 
@@ -950,7 +950,7 @@ int remove_curse(object *op, object *target, int type, int src) {
                                      "The %s's curse is "
                                      "stronger than the spell!",
                                      name);
-                    efree(name);
+                    free(name);
                 } else if (op != target && op->type == PLAYER) {
                     char *name = object_get_base_name_s(tmp, op);
                     char *target_name = object_get_base_name_s(target, op);
@@ -960,8 +960,8 @@ int remove_curse(object *op, object *target, int type, int src) {
                                      "stronger than your spell!",
                                      name,
                                      target_name);
-                    efree(name);
-                    efree(target_name);
+                    free(name);
+                    free(target_name);
                 }
             }
         }
@@ -973,7 +973,7 @@ int remove_curse(object *op, object *target, int type, int src) {
         } else {
             char *name = object_get_base_name_s(target, op);
             draw_info_format(COLOR_WHITE, op, "%s's items seem uncursed.", name);
-            efree(name);
+            free(name);
         }
     }
 
@@ -1021,7 +1021,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level) {
                              "The %s is too powerful for this "
                              "identify!",
                              name);
-            efree(name);
+            free(name);
         }
     } else {
         identify(tmp);
@@ -1029,7 +1029,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level) {
         if (op->type == PLAYER) {
             char *name = object_get_name_description_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You have %s.", name);
-            efree(name);
+            free(name);
 
             if (tmp->msg != NULL && tmp->type != BOOK) {
                 draw_info(COLOR_WHITE, op, "The item has a story:");
@@ -1193,7 +1193,7 @@ int finger_of_death(object *op, object *target) {
                          "The spell seems ineffective against "
                          "the %s!",
                          name);
-        efree(name);
+        free(name);
 
         if (!OBJECT_VALID(target->enemy, target->enemy_count)) {
             set_npc_enemy(target, op, NULL);
@@ -1387,7 +1387,7 @@ int cast_transform_wealth(object *op) {
                          "You don't see a way to transform "
                          "%s.",
                          name);
-        efree(name);
+        free(name);
         return 0;
     }
 
@@ -1398,6 +1398,6 @@ int cast_transform_wealth(object *op) {
     /* Now give the player the new money. */
     shop_insert_coins(op, val);
     draw_info_format(COLOR_WHITE, op, "You transform %s into %s.", name, shop_get_cost_string(val));
-    efree(name);
+    free(name);
     return 1;
 }

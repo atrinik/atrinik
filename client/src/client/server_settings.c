@@ -45,7 +45,7 @@ void server_settings_init(void) {
     }
 
     server_settings_deinit();
-    s_settings = ecalloc(1, sizeof(server_settings));
+    s_settings = xcalloc(1, sizeof(server_settings));
 
     char_struct *cur_char = NULL;
     size_t text_id = 0;
@@ -74,13 +74,13 @@ void server_settings_init(void) {
                 goto error;
             }
 
-            s_settings->characters =
-                ereallocz(s_settings->characters,
-                          sizeof(*s_settings->characters) * s_settings->num_characters,
-                          sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
+            s_settings->characters = xreallocarray(s_settings->characters,
+                                                   s_settings->num_characters + 1,
+                                                   sizeof(*s_settings->characters));
             cur_char = &s_settings->characters[s_settings->num_characters];
+            memset(cur_char, 0, sizeof(*cur_char));
             s_settings->num_characters++;
-            cur_char->name = estrdup(value);
+            cur_char->name = xstrdup(value);
         } else if (string_isempty(value)) {
             if (strcmp(key, "end") == 0) {
                 if (cur_char == NULL) {
@@ -97,17 +97,17 @@ void server_settings_init(void) {
                 if (string_split(value, cps2, arraysize(cps2), ' ') == 3) {
                     int gender_id = gender_to_id(cps2[0]);
                     if (gender_id != -1) {
-                        cur_char->gender_archetypes[gender_id] = estrdup(cps2[1]);
-                        cur_char->gender_faces[gender_id] = estrdup(cps2[2]);
+                        cur_char->gender_archetypes[gender_id] = xstrdup(cps2[1]);
+                        cur_char->gender_faces[gender_id] = xstrdup(cps2[2]);
                     }
                 }
             } else if (strcmp(key, "desc") == 0) {
-                cur_char->desc = estrdup(value);
+                cur_char->desc = xstrdup(value);
             }
         } else if (strcmp(key, "level") == 0) {
             s_settings->max_level = atoi(value);
             s_settings->level_exp =
-                emalloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
+                xmallocarray(s_settings->max_level + 2, sizeof(*s_settings->level_exp));
 
             for (uint32_t lev = 0; lev <= s_settings->max_level; lev++) {
                 if (fgets(VS(buf), fp) == NULL) {
@@ -124,7 +124,7 @@ void server_settings_init(void) {
                 goto error;
             }
 
-            s_settings->text[text_id] = estrdup(value);
+            s_settings->text[text_id] = xstrdup(value);
             string_newline_to_literal(s_settings->text[text_id]);
 
             if (text_id == SERVER_TEXT_PROTECTION_GROUPS ||
@@ -155,7 +155,7 @@ void server_settings_init(void) {
                         goto error;
                     }
 
-                    dst[i++] = estrdup(buf);
+                    dst[i++] = xstrdup(buf);
                 }
             }
 
@@ -175,7 +175,7 @@ void server_settings_init(void) {
     }
 
     for (size_t i = text_id; i < SERVER_TEXT_MAX; i++) {
-        s_settings->text[i] = estrdup("???");
+        s_settings->text[i] = xstrdup("???");
     }
 
     fclose(fp);
@@ -189,64 +189,42 @@ void server_settings_deinit(void) {
         return;
     }
 
-    if (s_settings->level_exp != NULL) {
-        efree(s_settings->level_exp);
-    }
+    free(s_settings->level_exp);
 
     for (size_t i = 0; i < s_settings->num_characters; i++) {
-        if (s_settings->characters[i].name != NULL) {
-            efree(s_settings->characters[i].name);
-        }
+        free(s_settings->characters[i].name);
 
-        if (s_settings->characters[i].desc != NULL) {
-            efree(s_settings->characters[i].desc);
-        }
+        free(s_settings->characters[i].desc);
 
         for (size_t gender = 0; gender < GENDER_MAX; gender++) {
-            if (s_settings->characters[i].gender_archetypes[gender] != NULL) {
-                efree(s_settings->characters[i].gender_archetypes[gender]);
-            }
+            free(s_settings->characters[i].gender_archetypes[gender]);
 
-            if (s_settings->characters[i].gender_faces[gender] != NULL) {
-                efree(s_settings->characters[i].gender_faces[gender]);
-            }
+            free(s_settings->characters[i].gender_faces[gender]);
         }
     }
 
-    if (s_settings->characters != NULL) {
-        efree(s_settings->characters);
-    }
+    free(s_settings->characters);
 
     for (size_t i = 0; i < SERVER_TEXT_MAX; i++) {
-        if (s_settings->text[i] != NULL) {
-            efree(s_settings->text[i]);
-        }
+        free(s_settings->text[i]);
     }
 
     for (size_t i = 0; i < arraysize(s_settings->protection_groups); i++) {
-        if (s_settings->protection_groups[i] != NULL) {
-            efree(s_settings->protection_groups[i]);
-        }
+        free(s_settings->protection_groups[i]);
     }
 
     for (size_t i = 0; i < arraysize(s_settings->protection_letters); i++) {
-        if (s_settings->protection_letters[i] != NULL) {
-            efree(s_settings->protection_letters[i]);
-        }
+        free(s_settings->protection_letters[i]);
     }
 
     for (size_t i = 0; i < arraysize(s_settings->protection_full); i++) {
-        if (s_settings->protection_full[i] != NULL) {
-            efree(s_settings->protection_full[i]);
-        }
+        free(s_settings->protection_full[i]);
     }
 
     for (size_t i = 0; i < arraysize(s_settings->spell_paths); i++) {
-        if (s_settings->spell_paths[i] != NULL) {
-            efree(s_settings->spell_paths[i]);
-        }
+        free(s_settings->spell_paths[i]);
     }
 
-    efree(s_settings);
+    free(s_settings);
     s_settings = NULL;
 }

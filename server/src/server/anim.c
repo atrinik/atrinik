@@ -42,10 +42,10 @@ void free_all_anim(void) {
     if (animations) {
         for (i = 0; i <= num_animations; i++) {
             FREE_AND_CLEAR_HASH(animations[i].name);
-            efree(animations[i].faces);
+            free(animations[i].faces);
         }
 
-        efree(animations);
+        free(animations);
     }
 }
 
@@ -69,14 +69,14 @@ void init_anim(void) {
     /* Make a default.  New animations start at one, so if something
      * thinks it is animated but hasn't set the animation_id properly,
      * it will have a default value that should be pretty obvious. */
-    animations = emalloc(10 * sizeof(Animations));
+    animations = xmallocarray(10, sizeof(*animations));
     /* set the name so we don't try to dereference null.
      * Put # at start so it will be first in alphabetical
      * order. */
     animations[0].name = NULL;
     FREE_AND_COPY_HASH(animations[0].name, "###none");
     animations[0].num_animations = 1;
-    animations[0].faces = emalloc(sizeof(Fontindex));
+    animations[0].faces = xmalloc(sizeof(Fontindex));
     animations[0].faces[0] = 0;
     animations[0].facings = 0;
 
@@ -104,7 +104,8 @@ void init_anim(void) {
             num_animations++;
 
             if (num_animations == animations_allocated) {
-                animations = erealloc(animations, sizeof(Animations) * (animations_allocated + 10));
+                animations =
+                    xreallocarray(animations, (animations_allocated + 10), sizeof(Animations));
                 animations_allocated += 10;
             }
 
@@ -114,7 +115,7 @@ void init_anim(void) {
             animations[num_animations].num = num_animations;
             animations[num_animations].facings = 1;
         } else if (!strncmp(buf, "mina", 4)) {
-            animations[num_animations].faces = emalloc(sizeof(Fontindex) * num_frames);
+            animations[num_animations].faces = xmallocarray(num_frames, sizeof(Fontindex));
 
             for (i = 0; i < num_frames; i++) {
                 animations[num_animations].faces[i] = faces[i];

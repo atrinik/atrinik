@@ -103,7 +103,7 @@ text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void 
             stringbuffer_append_printf(sb, "/tell \"%s\" ", buf);
             cp = stringbuffer_finish(sb);
             widget_textwin_handle_console(cp);
-            efree(cp);
+            free(cp);
         }
 
         return 1;
@@ -168,7 +168,7 @@ static void textwin_tab_append(widgetdata *widget,
     if (textwin->tabs[id].type == CHAT_TYPE_ALL) {
         cp = text_escape_markup(textwin_tab_names[type - 1]);
         snprintf(tabname, sizeof(tabname), "%s ", cp);
-        efree(cp);
+        free(cp);
     } else if (textwin->tabs[textwin->tab_selected].type != CHAT_TYPE_ALL) {
         textwin->tabs[id].unread = 1;
     }
@@ -177,7 +177,7 @@ static void textwin_tab_append(widgetdata *widget,
     len = strlen(cp);
     /* Resize the characters array as needed. */
     textwin->tabs[id].entries =
-        erealloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
+        xrealloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
     memcpy(textwin->tabs[id].entries + textwin->tabs[id].entries_size, cp, len);
     textwin->tabs[id].entries[textwin->tabs[id].entries_size + len] = '\0';
     textwin->tabs[id].entries_size += len;
@@ -194,7 +194,7 @@ static void textwin_tab_append(widgetdata *widget,
               &box);
     scroll = box.h - 1;
 
-    efree(cp);
+    free(cp);
 
     /* Adjust the counts. */
     textwin->tabs[id].num_lines += scroll;
@@ -207,7 +207,7 @@ static void textwin_tab_append(widgetdata *widget,
                    (size_t)setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES) &&
                (cp = strchr(textwin->tabs[id].entries, '\n'))) {
             size_t pos = cp - textwin->tabs[id].entries + 1;
-            char *buf = emalloc(pos + 1);
+            char *buf = xmalloc(pos + 1);
 
             /* Copy the string together with the newline to a temporary
              * buffer. */
@@ -226,7 +226,7 @@ static void textwin_tab_append(widgetdata *widget,
                       &box);
             scroll = box.h - 1;
 
-            efree(buf);
+            free(buf);
 
             /* Move the string after the found newline to the beginning,
              * effectively erasing the previous line. */
@@ -272,17 +272,11 @@ size_t textwin_tab_name_to_id(const char *name) {
 }
 
 void textwin_tab_free(textwin_tab_struct *tab) {
-    if (tab->name) {
-        efree(tab->name);
-    }
+    free(tab->name);
 
-    if (tab->entries) {
-        efree(tab->entries);
-    }
+    free(tab->entries);
 
-    if (tab->charnames) {
-        efree(tab->charnames);
-    }
+    free(tab->charnames);
 
     text_input_destroy(&tab->text_input);
     text_input_history_free(tab->text_input_history);
@@ -306,7 +300,8 @@ void textwin_tab_remove(widgetdata *widget, const char *name) {
             textwin->tabs[i - 1] = textwin->tabs[i];
         }
 
-        textwin->tabs = erealloc(textwin->tabs, sizeof(*textwin->tabs) * (textwin->tabs_num - 1));
+        textwin->tabs =
+            xreallocarray(textwin->tabs, (textwin->tabs_num - 1), sizeof(*textwin->tabs));
         textwin->tabs_num--;
         textwin->tab_selected = MIN(textwin->tab_selected, textwin->tabs_num - 1);
         textwin_readjust(widget);
@@ -320,14 +315,13 @@ void textwin_tab_add(widgetdata *widget, const char *name) {
     char buf[MAX_BUF];
 
     textwin = TEXTWIN(widget);
-    textwin->tabs = ereallocz(textwin->tabs,
-                              sizeof(*textwin->tabs) * textwin->tabs_num,
-                              sizeof(*textwin->tabs) * (textwin->tabs_num + 1));
+    textwin->tabs = xreallocarray(textwin->tabs, textwin->tabs_num + 1, sizeof(*textwin->tabs));
+    memset(&textwin->tabs[textwin->tabs_num], 0, sizeof(*textwin->tabs));
 
     textwin->tabs[textwin->tabs_num].type = textwin_tab_name_to_id(name);
 
     if (!string_startswith(name, "[") && !string_endswith(name, "]")) {
-        textwin->tabs[textwin->tabs_num].name = estrdup(name);
+        textwin->tabs[textwin->tabs_num].name = xstrdup(name);
     }
 
     button_create(&textwin->tabs[textwin->tabs_num].button);
@@ -407,7 +401,7 @@ void draw_info_tab(size_t type, const char *color, const char *str) {
         ignore_widget = widget_find_create_id(BUDDY_ID, "ignore");
 
         if (widget_buddy_check(ignore_widget, name) != -1) {
-            efree(name);
+            free(name);
             return;
         }
     }
@@ -444,7 +438,7 @@ void draw_info_tab(size_t type, const char *color, const char *str) {
         }
     }
 
-    efree(name);
+    free(name);
 }
 
 /**
@@ -511,11 +505,11 @@ void textwin_handle_copy(widgetdata *widget) {
     }
 
     /* Get the string to copy, depending on the start and end positions. */
-    str = emalloc(sizeof(char) * (end - start + 1 + 1));
+    str = xmalloc(sizeof(char) * (end - start + 1 + 1));
     memcpy(str, textwin->tabs[textwin->tab_selected].entries + start, end - start + 1);
     str[end - start + 1] = '\0';
 
-    cp = emalloc(sizeof(char) * (end - start + 1 + 1));
+    cp = xmalloc(sizeof(char) * (end - start + 1 + 1));
     i = 0;
 
     /* Remove the special \r color changers. */
@@ -527,8 +521,8 @@ void textwin_handle_copy(widgetdata *widget) {
     cp = text_strip_markup(cp, NULL, 1);
 
     x11_clipboard_set(SDL_display, SDL_window, cp);
-    efree(str);
-    efree(cp);
+    free(str);
+    free(cp);
 }
 
 /**
@@ -763,9 +757,7 @@ static void widget_draw(widgetdata *widget) {
 
                 charnames = stringbuffer_finish(sb);
 
-                if (textwin->tabs[textwin->tab_selected].charnames) {
-                    efree(textwin->tabs[textwin->tab_selected].charnames);
-                }
+                free(textwin->tabs[textwin->tab_selected].charnames);
 
                 textwin->tabs[textwin->tab_selected].charnames = charnames;
             }
@@ -888,11 +880,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 
             str = text_escape_markup(textwin->tabs[textwin->tab_selected].text_input.str);
             stringbuffer_append_string(sb, str);
-            efree(str);
+            free(str);
 
             cp = stringbuffer_finish(sb);
             send_command_check(cp);
-            efree(cp);
+            free(cp);
         }
 
         if (event->key.keysym.sym == SDLK_ESCAPE) {
@@ -973,9 +965,7 @@ static void widget_deinit(widgetdata *widget) {
         textwin_tab_free(&textwin->tabs[i]);
     }
 
-    if (textwin->tabs) {
-        efree(textwin->tabs);
-    }
+    free(textwin->tabs);
 
     font_free(textwin->font);
 }
@@ -1061,7 +1051,7 @@ static void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Eve
         return;
     }
 
-    efree(textwin->tabs[textwin->tab_selected].entries);
+    free(textwin->tabs[textwin->tab_selected].entries);
     textwin->tabs[textwin->tab_selected].entries = NULL;
     textwin->tabs[textwin->tab_selected].num_lines =
         textwin->tabs[textwin->tab_selected].entries_size =
@@ -1121,7 +1111,7 @@ static void menu_textwin_tabs_one(widgetdata *widget, widgetdata *menuitem, SDL_
                 textwin_tab_add(widget, cp);
             }
 
-            efree(cp);
+            free(cp);
             WIDGET_REDRAW(widget);
             break;
         }
@@ -1149,7 +1139,7 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
                      &menu_textwin_tabs_one,
                      MENU_CHECKBOX,
                      textwin_tab_find(widget, i + 1, NULL, &id));
-        efree(cp);
+        free(cp);
     }
 
     for (tmp = cur_widget[CHATWIN_ID]; tmp; tmp = tmp->type_next) {
@@ -1263,7 +1253,7 @@ static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, S
                          : "Unignore");
             add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
-            efree(cp);
+            free(cp);
             break;
         }
     }
@@ -1336,7 +1326,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
 void widget_textwin_init(widgetdata *widget) {
     textwin_struct *textwin;
 
-    textwin = ecalloc(1, sizeof(*textwin));
+    textwin = xcalloc(1, sizeof(*textwin));
     textwin->font = font_get("arial", 11);
     textwin->selection_start = -1;
     textwin->selection_end = -1;
@@ -1355,26 +1345,21 @@ void widget_textwin_init(widgetdata *widget) {
 
 void widget_textwin_handle_console(const char *text) {
     widgetdata *widget;
-    textwin_struct *textwin;
+    textwin_struct *textwin = NULL;
 
-    widget = NULL;
-
-    while (widget == NULL || widget->next != NULL) {
-        widget = widget_find(widget != NULL ? widget->next : NULL, CHATWIN_ID, NULL, NULL);
-
-        if (widget == NULL) {
-            break;
-        }
-
+    for (widget = widget_find(NULL, CHATWIN_ID, NULL, NULL); widget != NULL;
+         widget = widget_find(widget->next, CHATWIN_ID, NULL, NULL)) {
         textwin = TEXTWIN(widget);
 
-        if (textwin->tabs != NULL &&
+        if (textwin->tabs != NULL && textwin->tab_selected < textwin->tabs_num &&
+            textwin->tabs[textwin->tab_selected].type > 0 &&
+            (size_t)textwin->tabs[textwin->tab_selected].type <= arraysize(textwin_tab_commands) &&
             textwin_tab_commands[textwin->tabs[textwin->tab_selected].type - 1] != NULL) {
             break;
         }
     }
 
-    if (widget == NULL) {
+    if (widget == NULL || textwin == NULL) {
         LOG(BUG, "Failed to find a text window.");
         return;
     }

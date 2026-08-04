@@ -127,7 +127,7 @@ lex_error = 0;
 <MESSAGE>^endmsg{WS} {
     BEGIN(INITIAL);
 
-    m->msg = estrdup(msgbuf);
+    m->msg = xstrdup(msgbuf);
 }
 <MESSAGE>.*          {
     if (msg_flag) {

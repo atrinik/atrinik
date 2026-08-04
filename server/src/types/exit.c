@@ -209,7 +209,7 @@ static int apply_func(object *op, object *applier, int aflags) {
         if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
             char *name = object_get_name_s(op, applier);
             draw_info_format(COLOR_WHITE, applier, "The %s is closed.", name);
-            efree(name);
+            free(name);
         }
 
         log_error("Exit %s leads nowhere, applier: %s",
@@ -275,7 +275,7 @@ static void insert_map_func(object *op) {
         bool is_unique = MAP_UNIQUE(op->map) && !map_path_isabs(EXIT_PATH(op));
         char *path = map_get_path(op->map, EXIT_PATH(op), is_unique, NULL);
         FREE_AND_COPY_HASH(EXIT_PATH(op), path);
-        efree(path);
+        free(path);
     } else if (op->last_heal > 0 && op->last_heal <= TILED_NUM &&
                op->map->tile_path[op->last_heal - 1] != NULL) {
         FREE_AND_ADD_REF_HASH(EXIT_PATH(op), op->map->tile_path[op->last_heal - 1]);
@@ -301,7 +301,7 @@ static void insert_map_func(object *op) {
 
     /* If the exit has a usable path, add it to the map's list of exits. */
     if (EXIT_PATH(op) != NULL) {
-        map_exit_t *exit = ecalloc(1, sizeof(*exit));
+        map_exit_t *exit = xcalloc(1, sizeof(*exit));
         exit->obj = op;
         DL_APPEND(op->map->exits, exit);
     }
@@ -315,7 +315,7 @@ static void remove_map_func(object *op) {
     DL_FOREACH_SAFE(op->map->exits, exit, tmp) {
         if (exit->obj == op) {
             DL_DELETE(op->map->exits, exit);
-            efree(exit);
+            free(exit);
             break;
         }
     }

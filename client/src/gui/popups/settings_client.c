@@ -218,14 +218,20 @@ static void settings_list_clear(void) {
  */
 static void settings_list_reload(void) {
     size_t i;
+    size_t old_rows;
+    size_t new_rows;
     setting_struct *setting;
 
     text_input_focused = text_input_selected = NULL;
+    old_rows = list_settings->rows;
+    new_rows = setting_categories[setting_category_selected]->settings_num;
     list_settings->data =
-        ereallocz(list_settings->data,
-                  sizeof(list_settings_graphic_union) * list_settings->rows,
-                  sizeof(list_settings_graphic_union) *
-                      setting_categories[setting_category_selected]->settings_num);
+        xreallocarray(list_settings->data, new_rows, sizeof(list_settings_graphic_union));
+    if (new_rows > old_rows) {
+        memset((list_settings_graphic_union *)list_settings->data + old_rows,
+               0,
+               (new_rows - old_rows) * sizeof(list_settings_graphic_union));
+    }
 
     /* Clear all the rows. */
     list_clear_rows(list_settings);

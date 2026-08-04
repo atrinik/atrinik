@@ -45,7 +45,7 @@
 #include <openssl/core_names.h>
 #include <openssl/params.h>
 
-TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger), DEPENDS(memory));
+TOOLKIT_API(DEPENDS(clioptions), DEPENDS(logger));
 
 /**
  * Structure that contains all the necessary information for the  crypto
@@ -126,8 +126,8 @@ static STACK_OF(X509) *crypto_trusted_certs = NULL;
 static void socket_crypto_curves_free(void) {
     crypto_curve_t *curve, *tmp;
     LL_FOREACH_SAFE(crypto_curves, curve, tmp) {
-        efree(curve->name);
-        efree(curve);
+        free(curve->name);
+        free(curve);
     }
 
     crypto_curves = NULL;
@@ -142,11 +142,11 @@ static void socket_crypto_curves_free(void) {
  * Certificate on success, NULL on failure.
  */
 static X509 *crypto_read_pem_x509(const char *pem) {
-    char *cp = estrdup(pem);
+    char *cp = xstrdup(pem);
     BIO *bio = BIO_new_mem_buf(cp, -1);
     if (bio == NULL) {
         LOG(ERROR, "BIO_new_mem_buf() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        efree(cp);
+        free(cp);
         return false;
     }
 
@@ -157,7 +157,7 @@ static X509 *crypto_read_pem_x509(const char *pem) {
     }
 
     BIO_free(bio);
-    efree(cp);
+    free(cp);
     return cert;
 }
 
@@ -172,7 +172,7 @@ static bool clioptions_option_crypto(const char *arg, char **errmsg) {
     } else if (KEYWORD_IS_FALSE(arg)) {
         crypto_enabled = false;
     } else {
-        *errmsg = estrdup("Invalid value supplied");
+        *errmsg = xstrdup("Invalid value supplied");
         return false;
     }
 
@@ -199,8 +199,8 @@ static bool clioptions_option_crypto_curves(const char *arg, char **errmsg) {
             continue;
         }
 
-        crypto_curve_t *curve = ecalloc(1, sizeof(*curve));
-        curve->name = estrdup(name);
+        crypto_curve_t *curve = xcalloc(1, sizeof(*curve));
+        curve->name = xstrdup(name);
         curve->nid = nid;
         LL_APPEND(crypto_curves, curve);
     }
@@ -216,7 +216,7 @@ static bool clioptions_option_crypto_curves(const char *arg, char **errmsg) {
 
     char *cp = stringbuffer_finish(sb);
     LOG(INFO, "Determined supported crypto curves: %s", cp);
-    efree(cp);
+    free(cp);
 
     return true;
 }
@@ -230,14 +230,14 @@ static const char *clioptions_option_crypto_cert_desc =
 static bool clioptions_option_crypto_cert(const char *arg, char **errmsg) {
     X509 *cert = crypto_read_pem_x509(arg);
     if (cert == NULL) {
-        *errmsg = estrdup("Failed to read certificate; ensure it's in "
+        *errmsg = xstrdup("Failed to read certificate; ensure it's in "
                           "PEM format");
         return false;
     }
 
     EVP_PKEY *pubkey = X509_get_pubkey(cert);
     if (pubkey == NULL) {
-        *errmsg = estrdup("Failed to get public key from the certificate");
+        *errmsg = xstrdup("Failed to get public key from the certificate");
         X509_free(cert);
         return false;
     }
@@ -248,13 +248,13 @@ static bool clioptions_option_crypto_cert(const char *arg, char **errmsg) {
 
     BIO *bio = BIO_new(BIO_s_mem());
     if (bio == NULL) {
-        *errmsg = estrdup("Failed to create a new BIO");
+        *errmsg = xstrdup("Failed to create a new BIO");
         EVP_PKEY_free(pubkey);
         return false;
     }
 
     if (PEM_write_bio_PUBKEY(bio, pubkey) != 1) {
-        *errmsg = estrdup("Failed to write out public key in PEM format");
+        *errmsg = xstrdup("Failed to write out public key in PEM format");
         EVP_PKEY_free(pubkey);
         BIO_free(bio);
         return false;
@@ -265,23 +265,19 @@ static bool clioptions_option_crypto_cert(const char *arg, char **errmsg) {
     char *pem = NULL;
     long pem_len = BIO_get_mem_data(bio, &pem);
     if (pem == NULL) {
-        *errmsg = estrdup("BIO_get_mem_data() failed");
+        *errmsg = xstrdup("BIO_get_mem_data() failed");
         BIO_free(bio);
         return false;
     }
 
-    if (crypto_cert_pubkey != NULL) {
-        efree(crypto_cert_pubkey);
-    }
+    free(crypto_cert_pubkey);
 
-    crypto_cert_pubkey = estrndup(pem, pem_len);
+    crypto_cert_pubkey = xstrndup(pem, pem_len);
     BIO_free(bio);
 
-    if (crypto_cert != NULL) {
-        efree(crypto_cert);
-    }
+    free(crypto_cert);
 
-    crypto_cert = estrdup(arg);
+    crypto_cert = xstrdup(arg);
     return true;
 }
 
@@ -292,11 +288,11 @@ static const char *clioptions_option_crypto_cert_chain_desc =
     "Specify the certificate chain to use when acting as a server.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_crypto_cert_chain(const char *arg, char **errmsg) {
-    char *cp = estrdup(arg);
+    char *cp = xstrdup(arg);
     BIO *bio = BIO_new_mem_buf(cp, -1);
     if (bio == NULL) {
-        *errmsg = estrdup("BIO_new_mem_buf() failed");
-        efree(cp);
+        *errmsg = xstrdup("BIO_new_mem_buf() failed");
+        free(cp);
         return false;
     }
 
@@ -307,13 +303,11 @@ static bool clioptions_option_crypto_cert_chain(const char *arg, char **errmsg) 
                    "format: %s",
                    ERR_error_string(ERR_get_error(), NULL));
         BIO_free(bio);
-        efree(cp);
+        free(cp);
         return false;
     }
 
-    if (crypto_cert_chain != NULL) {
-        efree(crypto_cert_chain);
-    }
+    free(crypto_cert_chain);
 
     crypto_cert_chain = cp;
     X509_free(cert);
@@ -329,11 +323,11 @@ static const char *clioptions_option_crypto_cert_key_desc =
     "Specify the private key that was used to generate the certificate.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_crypto_cert_key(const char *arg, char **errmsg) {
-    char *cp = estrdup(arg);
+    char *cp = xstrdup(arg);
     BIO *bio = BIO_new_mem_buf(cp, -1);
     if (bio == NULL) {
-        *errmsg = estrdup("BIO_new_mem_buf() failed");
-        efree(cp);
+        *errmsg = xstrdup("BIO_new_mem_buf() failed");
+        free(cp);
         return false;
     }
 
@@ -343,17 +337,15 @@ static bool clioptions_option_crypto_cert_key(const char *arg, char **errmsg) {
                    "Failed to read private key; ensure it's in PEM format: %s",
                    ERR_error_string(ERR_get_error(), NULL));
         BIO_free(bio);
-        efree(cp);
+        free(cp);
         return false;
     }
 
     BIO_free(bio);
-    efree(cp);
+    free(cp);
 
-    if (crypto_cert_key != NULL) {
-        efree(crypto_cert_key);
-    }
-    crypto_cert_key = estrdup(arg);
+    free(crypto_cert_key);
+    crypto_cert_key = xstrdup(arg);
 
     if (crypto_cert_ctx != NULL) {
         EVP_PKEY_CTX_free(crypto_cert_ctx);
@@ -460,25 +452,17 @@ TOOLKIT_INIT_FUNC_FINISH
 TOOLKIT_DEINIT_FUNC(socket_crypto) {
     socket_crypto_curves_free();
 
-    if (crypto_cert != NULL) {
-        efree(crypto_cert);
-        crypto_cert = NULL;
-    }
+    free(crypto_cert);
+    crypto_cert = NULL;
 
-    if (crypto_cert_chain != NULL) {
-        efree(crypto_cert_chain);
-        crypto_cert_chain = NULL;
-    }
+    free(crypto_cert_chain);
+    crypto_cert_chain = NULL;
 
-    if (crypto_cert_pubkey != NULL) {
-        efree(crypto_cert_pubkey);
-        crypto_cert_pubkey = NULL;
-    }
+    free(crypto_cert_pubkey);
+    crypto_cert_pubkey = NULL;
 
-    if (crypto_cert_key != NULL) {
-        efree(crypto_cert_key);
-        crypto_cert_key = NULL;
-    }
+    free(crypto_cert_key);
+    crypto_cert_key = NULL;
 
     if (crypto_cert_ctx != NULL) {
         EVP_PKEY_CTX_free(crypto_cert_ctx);
@@ -490,10 +474,8 @@ TOOLKIT_DEINIT_FUNC(socket_crypto) {
         crypto_store = NULL;
     }
 
-    if (crypto_data_path != NULL) {
-        efree(crypto_data_path);
-        crypto_data_path = NULL;
-    }
+    free(crypto_data_path);
+    crypto_data_path = NULL;
 
     if (crypto_trusted_certs != NULL) {
         X509 *cert;
@@ -549,12 +531,12 @@ static void socket_crypto_load_trusted(void) {
 
         X509 *cert = crypto_read_pem_x509(contents);
         if (cert == NULL) {
-            efree(contents);
+            free(contents);
             /* Logging already done */
             continue;
         }
 
-        efree(contents);
+        free(contents);
 
         if (sk_X509_push(crypto_trusted_certs, cert) < 1) {
             LOG(ERROR, "sk_X509_push() failed: %s", ERR_error_string(ERR_get_error(), NULL));
@@ -634,7 +616,7 @@ static bool socket_crypto_add_trusted(X509 *cert, const char *hostname, char **e
     char *pem = NULL;
     size_t pem_len = BIO_get_mem_data(bio, &pem);
     if (pem == NULL) {
-        *errmsg = estrdup("BIO_get_mem_data() failed");
+        *errmsg = xstrdup("BIO_get_mem_data() failed");
         fclose(fp);
         BIO_free(bio);
         return false;
@@ -708,7 +690,7 @@ socket_crypto_verify_pubkey(socket_crypto_t *crypto, EVP_PKEY *pubkey, const cha
 
     if (fclose(fp) != 0) {
         LOG(ERROR, "Failed to close %s: %s (%d)", path, strerror(errno), errno);
-        efree(cp);
+        free(cp);
         return false;
     }
 
@@ -718,7 +700,7 @@ socket_crypto_verify_pubkey(socket_crypto_t *crypto, EVP_PKEY *pubkey, const cha
             "BIO_new_mem_buf() failed for %s: %s",
             path,
             ERR_error_string(ERR_get_error(), NULL));
-        efree(cp);
+        free(cp);
         return false;
     }
 
@@ -729,12 +711,12 @@ socket_crypto_verify_pubkey(socket_crypto_t *crypto, EVP_PKEY *pubkey, const cha
             path,
             ERR_error_string(ERR_get_error(), NULL));
         BIO_free(bio);
-        efree(cp);
+        free(cp);
         return false;
     }
 
     BIO_free(bio);
-    efree(cp);
+    free(cp);
 
     if (EVP_PKEY_eq(pubkey_cached, pubkey) != 1) {
         LOG(SYSTEM, "!!! CERTIFICATE ERROR !!!");
@@ -982,7 +964,7 @@ void socket_crypto_set_path(const char *path) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(path != NULL);
     SOFT_ASSERT(crypto_data_path == NULL, "Path already set");
-    crypto_data_path = estrdup(path);
+    crypto_data_path = xstrdup(path);
     socket_crypto_load_trusted();
 }
 
@@ -1038,7 +1020,7 @@ socket_crypto_t *socket_crypto_create(socket_t *sc) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sc != NULL);
 
-    socket_crypto_t *crypto = ecalloc(1, sizeof(*crypto));
+    socket_crypto_t *crypto = xcalloc(1, sizeof(*crypto));
     crypto->nid = NID_undef;
     crypto->sc = sc;
     crypto->last_cmd = CMD_CRYPTO_HELLO;
@@ -1106,7 +1088,7 @@ bool socket_crypto_handle_cb(const socket_crypto_cb_ctx_t *ctx, char **errmsg) {
             break;
     }
 
-    *errmsg = estrdup("Internal error");
+    *errmsg = xstrdup("Internal error");
     return false;
 }
 
@@ -1120,11 +1102,9 @@ void socket_crypto_free_cb(const socket_crypto_cb_ctx_t *ctx) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(ctx != NULL);
 
-    efree(ctx->hostname);
+    free(ctx->hostname);
 
-    if (ctx->fingerprint != NULL) {
-        efree(ctx->fingerprint);
-    }
+    free(ctx->fingerprint);
 
     switch (ctx->id) {
         case SOCKET_CRYPTO_CB_SELFSIGNED:
@@ -1162,11 +1142,9 @@ void socket_crypto_free(socket_crypto_t *crypto) {
         EVP_PKEY_CTX_free(crypto->pkey_ctx);
     }
 
-    if (crypto->key != NULL) {
-        efree(crypto->key);
-    }
+    free(crypto->key);
 
-    efree(crypto);
+    free(crypto);
 }
 
 /**
@@ -1220,7 +1198,7 @@ socket_crypto_call_cb(socket_crypto_t *crypto, socket_crypto_cb_ctx_t *ctx, X509
         } else {
             char fingerprint[sizeof(md) * 3 + 1];
             string_tohex(VS(md), VS(fingerprint), true);
-            ctx->fingerprint = estrdup(fingerprint);
+            ctx->fingerprint = xstrdup(fingerprint);
         }
     }
 
@@ -1299,7 +1277,7 @@ bool socket_crypto_load_cert(socket_crypto_t *crypto, const char *cert_str, cons
             if (crypto->cb != NULL) {
                 socket_crypto_cb_ctx_t ctx;
                 ctx.id = SOCKET_CRYPTO_CB_SELFSIGNED;
-                ctx.hostname = estrdup(host);
+                ctx.hostname = xstrdup(host);
                 ctx.data.ptr = X509_dup(cert);
                 SOFT_ASSERT_LABEL(ctx.data.ptr != NULL,
                                   error,
@@ -1379,7 +1357,7 @@ bool socket_crypto_load_cert(socket_crypto_t *crypto, const char *cert_str, cons
         if (crypto->cb != NULL) {
             socket_crypto_cb_ctx_t ctx;
             ctx.id = SOCKET_CRYPTO_CB_PUBCHANGED;
-            ctx.hostname = estrdup(host);
+            ctx.hostname = xstrdup(host);
             socket_crypto_call_cb(crypto, &ctx, cert);
         }
 
@@ -1454,11 +1432,11 @@ bool socket_crypto_load_pubkey(socket_crypto_t *crypto, const char *buf) {
     SOFT_ASSERT_RC(crypto->key == NULL, false, "Crypto socket already has a key");
     SOFT_ASSERT_RC(crypto->cipher_ctx == NULL, false, "Crypto socket already has a cipher context");
 
-    char *cp = estrdup(buf);
+    char *cp = xstrdup(buf);
     BIO *bio = BIO_new_mem_buf(cp, -1);
     if (bio == NULL) {
         LOG(ERROR, "BIO_new_mem_buf() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        efree(cp);
+        free(cp);
         return false;
     }
 
@@ -1466,7 +1444,7 @@ bool socket_crypto_load_pubkey(socket_crypto_t *crypto, const char *buf) {
     if (PEM_read_bio_PUBKEY(bio, &pkey, NULL, NULL) == NULL) {
         LOG(ERROR, "PEM_read_bio_PUBKEY() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         BIO_free(bio);
-        efree(cp);
+        free(cp);
         return false;
     }
 
@@ -1495,7 +1473,7 @@ bool socket_crypto_load_pubkey(socket_crypto_t *crypto, const char *buf) {
     crypto->pkey_ctx = pkey_ctx;
 
     BIO_free(bio);
-    efree(cp);
+    free(cp);
     return true;
 }
 
@@ -1563,7 +1541,7 @@ unsigned char *socket_crypto_gen_pubkey(socket_crypto_t *crypto, size_t *pubkey_
         return NULL;
     }
 
-    unsigned char *pubkey = emalloc(*pubkey_len);
+    unsigned char *pubkey = xmalloc(*pubkey_len);
     if (EVP_PKEY_get_octet_string_param(pkey,
                                         OSSL_PKEY_PARAM_PUB_KEY,
                                         pubkey,
@@ -1572,7 +1550,7 @@ unsigned char *socket_crypto_gen_pubkey(socket_crypto_t *crypto, size_t *pubkey_
         LOG(ERROR, "Failed to encode EC public key: %s", ERR_error_string(ERR_get_error(), NULL));
         EVP_PKEY_CTX_free(ctx);
         EVP_PKEY_free(pkey);
-        efree(pubkey);
+        free(pubkey);
         return NULL;
     }
 
@@ -1671,7 +1649,7 @@ bool socket_crypto_set_key(socket_crypto_t *crypto,
                    "Crypto socket already has a key: %s",
                    socket_get_id(crypto->sc));
 
-    crypto->key = emalloc(key_len);
+    crypto->key = xmalloc(key_len);
     memcpy(crypto->key, key, key_len);
 
     if (crypto->cipher_ctx != NULL) {
@@ -1694,10 +1672,8 @@ bool socket_crypto_set_key(socket_crypto_t *crypto,
     return true;
 
 error:
-    if (crypto->key != NULL) {
-        efree(crypto->key);
-        crypto->key = NULL;
-    }
+    free(crypto->key);
+    crypto->key = NULL;
 
     if (crypto->cipher_ctx != NULL) {
         EVP_CIPHER_CTX_free(crypto->cipher_ctx);
@@ -1950,10 +1926,10 @@ bool socket_crypto_derive(socket_crypto_t *crypto,
         goto error;
     }
 
-    unsigned char *key = emalloc(key_len);
+    unsigned char *key = xmalloc(key_len);
     if (EVP_PKEY_derive(ctx, key, &key_len) != 1) {
         LOG(ERROR, "EVP_PKEY_derive() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        efree(key);
+        free(key);
         goto error;
     }
 
@@ -1967,7 +1943,7 @@ bool socket_crypto_derive(socket_crypto_t *crypto,
                           sizeof(digest),
                           digest) != 1) {
         LOG(ERROR, "PKCS5_PBKDF2_HMAC() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        efree(key);
+        free(key);
         goto error;
     }
 
@@ -1980,8 +1956,8 @@ bool socket_crypto_derive(socket_crypto_t *crypto,
     memcpy(crypto->iv, crypto->iv2, sizeof(crypto->iv));
     memset(crypto->iv2, 0, sizeof(crypto->iv2));
 
-    efree(key);
-    efree(crypto->key);
+    free(key);
+    free(crypto->key);
     crypto->key = NULL;
 
     if (!socket_crypto_set_key(crypto, VS(digest), false)) {
@@ -2339,7 +2315,7 @@ bool socket_crypto_decrypt(socket_t *sc,
     }
 
     *len_out = len - pos - SHA256_DIGEST_LENGTH;
-    *data_out = emalloc(*len_out);
+    *data_out = xmalloc(*len_out);
     memcpy(*data_out, data + pos, *len_out);
     pos += *len_out;
 
@@ -2395,7 +2371,7 @@ bool socket_crypto_decrypt(socket_t *sc,
             goto error;
         }
 
-        decrypted = emalloc(enc_len + 1);
+        decrypted = xmalloc(enc_len + 1);
         if (EVP_PKEY_decrypt(crypto_cert_ctx,
                              decrypted + 1,
                              &enc_len,
@@ -2406,7 +2382,7 @@ bool socket_crypto_decrypt(socket_t *sc,
         }
 
         decrypted[0] = *data_out[0];
-        efree(*data_out);
+        free(*data_out);
         *data_out = decrypted;
         *len_out = enc_len + 1;
 
@@ -2432,7 +2408,7 @@ bool socket_crypto_decrypt(socket_t *sc,
         goto error;
     }
 
-    decrypted = emalloc(*len_out);
+    decrypted = xmalloc(*len_out);
 
     int new_len = 0;
     size_t dec_len = 0;
@@ -2464,20 +2440,16 @@ bool socket_crypto_decrypt(socket_t *sc,
         goto error;
     }
 
-    efree(*data_out);
+    free(*data_out);
     *data_out = decrypted;
     *len_out = decrypted_len;
 
     return true;
 
 error:
-    if (*data_out != NULL) {
-        efree(*data_out);
-    }
+    free(*data_out);
 
-    if (decrypted != NULL) {
-        efree(decrypted);
-    }
+    free(decrypted);
 
     *len_out = 0;
 

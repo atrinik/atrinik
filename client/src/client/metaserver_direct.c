@@ -33,13 +33,13 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
         if (server->server_id != NULL) {
             ok = false;
         } else {
-            server->server_id = estrdup(value);
+            server->server_id = xstrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "Address") || XML_STR_EQUAL(node->name, "Hostname")) {
         if (server->hostname != NULL) {
             ok = false;
         } else {
-            server->hostname = estrdup(value);
+            server->hostname = xstrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "Port")) {
         uint64_t port;
@@ -52,7 +52,7 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
         if (server->name != NULL) {
             ok = false;
         } else {
-            server->name = estrdup(value);
+            server->name = xstrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "PlayersCount")) {
         uint64_t players;
@@ -65,13 +65,13 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
         if (server->version != NULL) {
             ok = false;
         } else {
-            server->version = estrdup(value);
+            server->version = xstrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "TextComment")) {
         if (server->desc != NULL) {
             ok = false;
         } else {
-            server->desc = estrdup(value);
+            server->desc = xstrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "ConnectivityMode")) {
         ok = strcmp(value, "direct_only") == 0 || strcmp(value, "direct_preferred") == 0;
@@ -79,7 +79,7 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
         if (server->quic_certificate_sha256 != NULL) {
             ok = false;
         } else {
-            server->quic_certificate_sha256 = estrdup(value);
+            server->quic_certificate_sha256 = xstrdup(value);
         }
     } else if (XML_STR_EQUAL(node->name, "PasswordRequired")) {
         if (strcmp(value, "true") == 0) {
@@ -94,11 +94,11 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
 }
 
 static void parse_direct_server(xmlNodePtr node, const char *origin) {
-    server_struct *server = ecalloc(1, sizeof(*server));
+    server_struct *server = xcalloc(1, sizeof(*server));
     server->port_crypto = -1;
     server->is_meta = true;
     server->direct = true;
-    server->rendezvous_origin = estrdup(origin);
+    server->rendezvous_origin = xstrdup(origin);
 
     for (xmlNodePtr field = node->children; field != NULL; field = field->next) {
         if (!parse_direct_server_field(field, server)) {

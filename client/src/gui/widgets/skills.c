@@ -74,14 +74,12 @@ void skills_init(void) {
  */
 void skills_deinit(void) {
     for (size_t i = 0; i < skill_list_num; i++) {
-        efree(skill_list[i]);
+        free(skill_list[i]);
     }
 
     skill_list_num = 0;
 
-    if (skill_list != NULL) {
-        efree(skill_list);
-    }
+    free(skill_list);
 }
 
 /** @copydoc list_struct::post_column_func */
@@ -265,10 +263,10 @@ void skills_update(object *op, uint8_t level, int64_t xp, const char *msg) {
     if (skill_find_object(op, &skill_id)) {
         skill = skill_get(skill_id);
     } else {
-        skill = ecalloc(1, sizeof(*skill));
+        skill = xcalloc(1, sizeof(*skill));
         skill->skill = op;
 
-        skill_list = erealloc(skill_list, sizeof(*skill_list) * (skill_list_num + 1));
+        skill_list = xreallocarray(skill_list, (skill_list_num + 1), sizeof(*skill_list));
         skill_list[skill_list_num] = skill;
         skill_list_num++;
     }
@@ -288,13 +286,13 @@ void skills_remove(object *op) {
         return;
     }
 
-    efree(skill_list[skill_id]);
+    free(skill_list[skill_id]);
 
     for (i = skill_id + 1; i < skill_list_num; i++) {
         skill_list[i - 1] = skill_list[i];
     }
 
-    skill_list = erealloc(skill_list, sizeof(*skill_list) * (skill_list_num - 1));
+    skill_list = xreallocarray(skill_list, (skill_list_num - 1), sizeof(*skill_list));
     skill_list_num--;
 
     skill_list_reload();

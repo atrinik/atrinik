@@ -139,8 +139,8 @@ static void container_open(object *applier, object *op) {
                                      "A %s jumps out of the %s!",
                                      monster_name,
                                      name);
-                    efree(name);
-                    efree(monster_name);
+                    free(name);
+                    free(monster_name);
                 }
             }
         }
@@ -278,7 +278,7 @@ static int apply_func(object *op, object *applier, int aflags) {
         } else {
             draw_info_format(COLOR_WHITE, applier, "You leave %s.", name);
         }
-        efree(name);
+        free(name);
 
         /* Applied the one we just closed, no need to go on. */
         if (container == op) {
@@ -295,7 +295,7 @@ static int apply_func(object *op, object *applier, int aflags) {
             } else {
                 char *name = object_get_base_name_s(op, applier);
                 draw_info_format(COLOR_WHITE, applier, "You unready %s.", name);
-                efree(name);
+                free(name);
                 CLEAR_FLAG(op, FLAG_APPLIED);
             }
         }
@@ -319,18 +319,18 @@ static int apply_func(object *op, object *applier, int aflags) {
                                      "You unlock %s with %s.",
                                      name,
                                      key_name);
-                    efree(key_name);
+                    free(key_name);
                 } else if (tmp->type == FORCE) {
                     draw_info_format(COLOR_WHITE, applier, "The %s is unlocked for you.", name);
                 }
 
-                efree(name);
+                free(name);
             } else {
                 draw_info_format(COLOR_WHITE,
                                  applier,
                                  "You don't have the key to unlock %s.",
                                  name);
-                efree(name);
+                free(name);
                 return OBJECT_METHOD_OK;
             }
         } else {
@@ -353,7 +353,7 @@ static int apply_func(object *op, object *applier, int aflags) {
          * can't open it. */
         if (op->env != NULL) {
             draw_info_format(COLOR_WHITE, applier, "You can't open %s.", name);
-            efree(name);
+            free(name);
             return OBJECT_METHOD_OK;
         }
 
@@ -382,7 +382,7 @@ static int apply_func(object *op, object *applier, int aflags) {
         }
     }
 
-    efree(name);
+    free(name);
 
     /* If it's a corpse and it has not been searched before, add to
      * player's statistics. */

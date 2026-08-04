@@ -87,6 +87,10 @@ unsigned int query_flags(object *op) {
         flags |= CS_FLAG_WEAPON_2H;
     }
 
+    if (op->type == BOOK && QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
+        flags |= CS_FLAG_NO_SKILL_IDENT;
+    }
+
     return flags;
 }
 
@@ -872,7 +876,7 @@ void socket_command_item_examine(socket_struct *ns,
         object_dump(op, sb);
         cp = stringbuffer_finish(sb);
         draw_info(COLOR_WHITE, pl->ob, cp);
-        efree(cp);
+        free(cp);
     }
 }
 
@@ -1044,7 +1048,7 @@ void socket_command_item_mark(socket_struct *ns,
         pl->mark = op;
     }
 
-    efree(name);
+    free(name);
 }
 
 /**

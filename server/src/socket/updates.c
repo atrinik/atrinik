@@ -53,11 +53,11 @@ static void updates_file_new(const char *filename, struct stat *sb) {
     size_t st_size, numread;
     FILE *fp;
 
-    update_files = erealloc(update_files, sizeof(update_file_struct) * (update_files_num + 1));
+    update_files = xreallocarray(update_files, (update_files_num + 1), sizeof(update_file_struct));
 
     st_size = sb->st_size;
     /* Allocate a buffer to hold the whole file. */
-    contents = emalloc(st_size);
+    contents = xmalloc(st_size);
 
     fp = fopen(filename, "rb");
 
@@ -69,26 +69,26 @@ static void updates_file_new(const char *filename, struct stat *sb) {
     numread = fread(contents, 1, st_size, fp);
     fclose(fp);
 
-    update_files[update_files_num].filename = estrdup(filename + strlen(UPDATES_DIR_NAME) + 1);
+    update_files[update_files_num].filename = xstrdup(filename + strlen(UPDATES_DIR_NAME) + 1);
     update_files[update_files_num].checksum =
         crc32(1L, (const unsigned char FAR *)contents, numread);
     update_files[update_files_num].ucomp_len = numread;
     /* Calculate the upper bound of the compressed size. */
     numread = compressBound(st_size);
     /* Allocate a buffer to hold the compressed file. */
-    compressed = emalloc(numread);
+    compressed = xmalloc(numread);
     compress2((Bytef *)compressed,
               (uLong *)&numread,
               (const unsigned char FAR *)contents,
               st_size,
               Z_BEST_COMPRESSION);
-    update_files[update_files_num].contents = emalloc(numread);
+    update_files[update_files_num].contents = xmalloc(numread);
     memcpy(update_files[update_files_num].contents, compressed, numread);
     update_files[update_files_num].len = numread;
 
     /* Free temporary buffers. */
-    efree(contents);
-    efree(compressed);
+    free(contents);
+    free(compressed);
 
     update_files[update_files_num].packet = packet_new(CLIENT_CMD_FILE_UPDATE, 0, 0);
     packet_debug_data(update_files[update_files_num].packet, 0, "Filename");

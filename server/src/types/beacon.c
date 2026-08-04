@@ -66,12 +66,12 @@ static void init_func(object *op) {
 
         FREE_AND_COPY_HASH(op->name, joined);
 
-        efree(joined);
-        efree(pl_name);
-        efree(filedir);
+        free(joined);
+        free(pl_name);
+        free(filedir);
     }
 
-    beacon_t *beacon = emalloc(sizeof(*beacon));
+    beacon_t *beacon = xmalloc(sizeof(*beacon));
     beacon->obj = op;
     HASH_ADD(hh, beacons, obj->name, sizeof(shstr *), beacon);
 }
@@ -86,7 +86,7 @@ static void deinit_func(object *op) {
     }
 
     HASH_DEL(beacons, beacon);
-    efree(beacon);
+    free(beacon);
 }
 
 /**

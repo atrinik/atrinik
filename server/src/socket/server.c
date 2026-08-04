@@ -612,10 +612,10 @@ static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t 
     char *cp;
 
     LOG(DUMPRX, "Received packet with command type %d (%" PRIu64 " bytes):", type, (uint64_t)len);
-    cp = emalloc(sizeof(*cp) * (len * 3 + 1));
+    cp = xmalloc(sizeof(*cp) * (len * 3 + 1));
     string_tohex(data, len, cp, len * 3 + 1, true);
     LOG(DUMPRX, "  Hexadecimal: %s", cp);
-    efree(cp);
+    free(cp);
 #endif
 
     if (type >= SERVER_CMD_NROF || socket_commands[type].handle_func == NULL) {
@@ -647,8 +647,8 @@ static void socket_server_csocket_create(socket_t *server_socket) {
         socket_destroy(accepted);
         return;
     }
-    csocket_entry_t *entry = ecalloc(1, sizeof(*entry));
-    entry->cs = ecalloc(1, sizeof(*entry->cs));
+    csocket_entry_t *entry = xcalloc(1, sizeof(*entry));
+    entry->cs = xcalloc(1, sizeof(*entry->cs));
     entry->cs->sc = accepted;
 
     init_connection(entry->cs);
@@ -676,7 +676,7 @@ static void socket_server_csocket_free(csocket_entry_t *entry) {
     HARD_ASSERT(client_sockets_count != 0);
     client_sockets_count--;
     server_metrics_pending_changed(client_sockets_count);
-    efree(entry);
+    free(entry);
 }
 
 /**
@@ -782,7 +782,7 @@ bool socket_server_remove(socket_struct *cs) {
             HARD_ASSERT(client_sockets_count != 0);
             client_sockets_count--;
             server_metrics_pending_changed(client_sockets_count);
-            efree(entry);
+            free(entry);
             return true;
         }
     }
@@ -873,7 +873,7 @@ static inline void socket_server_csocket_read(socket_struct *cs) {
         }
 
         if (was_decrypted) {
-            efree(decrypted_data);
+            free(decrypted_data);
         }
 
         packet_delete(cs->packet_recv, 0, size);

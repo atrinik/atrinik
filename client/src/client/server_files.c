@@ -83,8 +83,8 @@ void server_files_deinit(void) {
     HASH_ITER(hh, server_files, curr, tmp) {
         HASH_DEL(server_files, curr);
         asset_source_free(curr->source);
-        efree(curr->name);
-        efree(curr);
+        free(curr->name);
+        free(curr);
     }
 }
 
@@ -113,8 +113,8 @@ void server_files_init_all(void) {
 server_files_struct *server_files_create(const char *name) {
     server_files_struct *tmp;
 
-    tmp = ecalloc(1, sizeof(*tmp));
-    tmp->name = estrdup(name);
+    tmp = xcalloc(1, sizeof(*tmp));
+    tmp->name = xstrdup(name);
     HASH_ADD_KEYPTR(hh, server_files, tmp->name, strlen(tmp->name), tmp);
 
     return tmp;
@@ -172,13 +172,13 @@ void server_files_load(int post_load) {
         curr->size = st_size;
 
         /* Allocate temporary buffer and read into it the file. */
-        contents = emalloc(st_size);
+        contents = xmalloc(st_size);
         numread = fread(contents, 1, st_size, fp);
 
         /* Calculate and store the checksum, free the temporary buffer
          * and close the file pointer. */
         curr->crc32 = crc32(1L, (const unsigned char FAR *)contents, numread);
-        efree(contents);
+        free(contents);
         fclose(fp);
 
         if (post_load) {
@@ -230,7 +230,7 @@ int server_files_listing_processed(void) {
         return 0;
     }
 
-    char *manifest = estrndup((const char *)body, body_size);
+    char *manifest = xstrndup((const char *)body, body_size);
     char word[HUGE_BUF];
     size_t pos = 0;
     while (string_get_word(manifest, &pos, '\n', VS(word), 0)) {
@@ -270,7 +270,7 @@ int server_files_listing_processed(void) {
         tmp->crc32 = crc;
         tmp->size = fsize;
     }
-    efree(manifest);
+    free(manifest);
 
     asset_source_free(listing_source);
     listing_source = NULL;
@@ -314,7 +314,7 @@ static int server_file_process(server_files_struct *tmp) {
         cpl.state = ST_INIT;
     } else {
         unsigned long len_ucomp = tmp->size;
-        unsigned char *dest = emalloc(len_ucomp);
+        unsigned char *dest = xmalloc(len_ucomp);
         int result =
             uncompress((Bytef *)dest, (uLongf *)&len_ucomp, (const Bytef *)body, (uLong)body_size);
         if (result != Z_OK || len_ucomp != tmp->size) {
@@ -323,7 +323,7 @@ static int server_file_process(server_files_struct *tmp) {
         } else if (server_file_save(tmp, dest, len_ucomp)) {
             tmp->loaded = 0;
         }
-        efree(dest);
+        free(dest);
     }
 
     tmp->update = 0;
@@ -417,7 +417,7 @@ bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
     server_file_path(tmp, VS(path));
     char *resolved = file_path(path, "wb");
     bool ok = path_write_atomic(resolved, data, len, 0600);
-    efree(resolved);
+    free(resolved);
     if (!ok) {
         LOG(ERROR, "Could not atomically write %s.", path);
     }

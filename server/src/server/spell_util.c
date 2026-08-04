@@ -326,7 +326,7 @@ int cast_spell(object *op,
                                  "Something blocks the magic "
                                  "of your %s.",
                                  name);
-                efree(name);
+                free(name);
             }
 
             return 0;

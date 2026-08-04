@@ -135,11 +135,9 @@ static void widget_deinit(widgetdata *widget) {
     if (container->subcontainer != NULL) {
         _widget_container_strip *container_strip = container->subcontainer;
 
-        if (container_strip->subcontainer_strip != NULL) {
-            efree(container_strip->subcontainer_strip);
-        }
+        free(container_strip->subcontainer_strip);
 
-        efree(container->subcontainer);
+        free(container->subcontainer);
     }
 }
 
@@ -151,7 +149,7 @@ static void widget_deinit(widgetdata *widget) {
 void widget_container_init(widgetdata *widget) {
     _widget_container *container;
 
-    container = ecalloc(1, sizeof(_widget_container));
+    container = xcalloc(1, sizeof(_widget_container));
     container->widget_type = -1;
 
     widget->draw_func = widget_draw;
@@ -165,7 +163,7 @@ void widget_container_init(widgetdata *widget) {
         widget->sub_type == MENUITEM_ID) {
         _widget_container_strip *container_strip;
 
-        container_strip = ecalloc(1, sizeof(_widget_container_strip));
+        container_strip = xcalloc(1, sizeof(_widget_container_strip));
         container_strip->inner_padding = 10;
 
         container->subcontainer = container_strip;
@@ -173,12 +171,12 @@ void widget_container_init(widgetdata *widget) {
         if (widget->sub_type == MENU_ID) {
             _menu *menu;
 
-            menu = ecalloc(1, sizeof(_menu));
+            menu = xcalloc(1, sizeof(_menu));
             container_strip->subcontainer_strip = menu;
         } else if (widget->sub_type == MENUITEM_ID) {
             _menuitem *menuitem;
 
-            menuitem = emalloc(sizeof(_menuitem));
+            menuitem = xmalloc(sizeof(_menuitem));
             menuitem->menu_type = MENU_NORMAL;
 
             container_strip->subcontainer_strip = menuitem;

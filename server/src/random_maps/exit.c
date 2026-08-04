@@ -372,7 +372,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
             char *params = write_map_parameters_to_string(RP);
 
             FREE_AND_COPY_HASH(the_exit_down->msg, params);
-            efree(params);
+            free(params);
             FREE_AND_COPY_HASH(the_exit_down->slaying, "/random/");
             the_exit_down->stats.hp = 0;
             the_exit_down->stats.sp = 0;

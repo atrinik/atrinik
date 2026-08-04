@@ -102,7 +102,7 @@ static void cmd_aliases_load(const char *path) {
                                 cmd_alias);
             }
 
-            cmd_alias = ecalloc(1, sizeof(*cmd_alias));
+            cmd_alias = xcalloc(1, sizeof(*cmd_alias));
             cmd_alias->name = string_sub(cp, 1, -1);
 
             if (string_isempty(cmd_alias->name)) {
@@ -136,9 +136,9 @@ static void cmd_aliases_load(const char *path) {
             error_str = "expected command alias definition";
             goto error;
         } else if (strcmp(key, "arg") == 0) {
-            cmd_alias->arg = estrdup(value);
+            cmd_alias->arg = xstrdup(value);
         } else if (strcmp(key, "noarg") == 0) {
-            cmd_alias->noarg = estrdup(value);
+            cmd_alias->noarg = xstrdup(value);
         } else {
             error_str = "unknown attribute";
             goto error;
@@ -182,17 +182,13 @@ void cmd_aliases_deinit(void) {
     HASH_ITER(hh, cmd_aliases, curr, tmp) {
         HASH_DEL(cmd_aliases, curr);
 
-        efree(curr->name);
+        free(curr->name);
 
-        if (curr->arg) {
-            efree(curr->arg);
-        }
+        free(curr->arg);
 
-        if (curr->noarg) {
-            efree(curr->noarg);
-        }
+        free(curr->noarg);
 
-        efree(curr);
+        free(curr);
     }
 }
 
@@ -232,15 +228,15 @@ static void cmd_aliases_execute(const char *cmd, const char *params) {
                     }
 
                     if (strcmp(cps2[0], "arg") == 0) {
-                        str = estrdup(params ? params : "");
+                        str = xstrdup(params ? params : "");
                     } else if (strcmp(cps2[0], "mplayer") == 0) {
                         if (sound_map_background(-1) && sound_playing_music()) {
-                            str = estrdup(sound_get_bg_music_basename());
+                            str = xstrdup(sound_get_bg_music_basename());
                         } else {
-                            str = estrdup("nothing");
+                            str = xstrdup("nothing");
                         }
                     } else {
-                        str = estrdup("???");
+                        str = xstrdup("???");
                     }
 
                     if (cps2[1]) {
@@ -256,7 +252,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params) {
                     }
 
                     stringbuffer_append_string(sb, str);
-                    efree(str);
+                    free(str);
                 } else if (strcmp(cps[0], "gender") == 0) {
                     if (strcmp(cps[1], "possessive") == 0) {
                         stringbuffer_append_string(sb, gender_possessive[cpl.gender]);
@@ -296,7 +292,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params) {
                 }
             }
 
-            efree(func);
+            free(func);
 
             stringbuffer_append_string(sb, func_end + 1);
         } else {
@@ -306,7 +302,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params) {
 
     cp = stringbuffer_finish(sb);
     send_command(cp);
-    efree(cp);
+    free(cp);
 }
 
 /**

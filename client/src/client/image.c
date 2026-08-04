@@ -72,7 +72,7 @@ const char *image_get_face_name(int face) {
  */
 static void bmap_free(bmap_t *bmap) {
     HARD_ASSERT(bmap != NULL);
-    efree(bmap->name);
+    free(bmap->name);
 }
 
 /**
@@ -85,7 +85,7 @@ void image_init(void) {
     }
 
     size_t tmp_buf_size = 24 * 1024;
-    char *tmp_buf = emalloc(tmp_buf_size);
+    char *tmp_buf = xmalloc(tmp_buf_size);
 
     char buf[HUGE_BUF];
     while (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -106,7 +106,7 @@ void image_init(void) {
         /* Adjust the buffer if necessary. */
         if (len > tmp_buf_size) {
             tmp_buf_size = len;
-            tmp_buf = erealloc(tmp_buf, tmp_buf_size);
+            tmp_buf = xrealloc(tmp_buf, tmp_buf_size);
         }
 
         long pos = ftell(fp);
@@ -121,15 +121,15 @@ void image_init(void) {
             cp++;
         }
 
-        bmap_hash_t *bmap = ecalloc(1, sizeof(*bmap));
-        bmap->bmap.name = estrdup(cp);
+        bmap_hash_t *bmap = xcalloc(1, sizeof(*bmap));
+        bmap->bmap.name = xstrdup(cp);
         bmap->bmap.crc32 = crc32(1L, (const unsigned char FAR *)tmp_buf, len);
         bmap->bmap.len = len;
         bmap->bmap.pos = pos;
         HASH_ADD_KEYPTR(hh, image_bmap_packs, bmap->bmap.name, strlen(bmap->bmap.name), bmap);
     }
 
-    efree(tmp_buf);
+    free(tmp_buf);
     fclose(fp);
 }
 
@@ -142,7 +142,7 @@ void image_deinit(void) {
     HASH_ITER(hh, image_bmap_packs, curr, tmp) {
         HASH_DEL(image_bmap_packs, curr);
         bmap_free(&curr->bmap);
-        efree(curr);
+        free(curr);
     }
 }
 
@@ -171,7 +171,7 @@ void image_bmaps_init(void) {
         HASH_FIND_STR(image_bmap_packs, name, bmap);
 
         /* Expand the array. */
-        image_bmaps = erealloc(image_bmaps, sizeof(*image_bmaps) * (image_bmaps_size + 1));
+        image_bmaps = xreallocarray(image_bmaps, (image_bmaps_size + 1), sizeof(*image_bmaps));
 
         /* Does it exist, and the lengths and checksums match? */
         if (bmap != NULL && bmap->bmap.len == len && bmap->bmap.crc32 == crc) {
@@ -183,7 +183,7 @@ void image_bmaps_init(void) {
 
         image_bmaps[image_bmaps_size].len = len;
         image_bmaps[image_bmaps_size].crc32 = crc;
-        image_bmaps[image_bmaps_size].name = estrdup(name);
+        image_bmaps[image_bmaps_size].name = xstrdup(name);
 
         image_bmaps_size++;
     }
@@ -197,17 +197,17 @@ void image_bmaps_init(void) {
 void image_bmaps_deinit(void) {
     if (image_bmaps != NULL) {
         for (size_t i = 0; i < image_bmaps_size; i++) {
-            efree(image_bmaps[i].name);
+            free(image_bmaps[i].name);
         }
 
-        efree(image_bmaps);
+        free(image_bmaps);
         image_bmaps = NULL;
         image_bmaps_size = 0;
     }
 
     for (size_t i = 0; i < MAX_FACE_TILES; i++) {
         if (FaceList[i].name != NULL) {
-            efree(FaceList[i].name);
+            free(FaceList[i].name);
             FaceList[i].name = NULL;
             sprite_free_sprite(FaceList[i].sprite);
             FaceList[i].sprite = NULL;
@@ -248,7 +248,7 @@ void finish_face_cmd(int facenum, uint32_t checksum, const char *face) {
         }
 
         /* Something is different. */
-        efree(FaceList[facenum].name);
+        free(FaceList[facenum].name);
         FaceList[facenum].name = NULL;
         sprite_free_sprite(FaceList[facenum].sprite);
         FaceList[facenum].sprite = NULL;
@@ -256,7 +256,7 @@ void finish_face_cmd(int facenum, uint32_t checksum, const char *face) {
 
     char buf[HUGE_BUF];
     snprintf(VS(buf), "%s.png", face);
-    FaceList[facenum].name = estrdup(buf);
+    FaceList[facenum].name = xstrdup(buf);
     FaceList[facenum].checksum = checksum;
 
     /* Check private cache first */
@@ -267,7 +267,7 @@ void finish_face_cmd(int facenum, uint32_t checksum, const char *face) {
         struct stat statbuf;
         fstat(fileno(fp), &statbuf);
         size_t len = statbuf.st_size;
-        unsigned char *data = emalloc(len);
+        unsigned char *data = xmalloc(len);
         len = fread(data, 1, len, fp);
         fclose(fp);
         uint32_t newsum = 0;
@@ -281,7 +281,7 @@ void finish_face_cmd(int facenum, uint32_t checksum, const char *face) {
             newsum = crc32(1L, data, len);
         }
 
-        efree(data);
+        free(data);
 
         if (newsum == checksum) {
             FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
@@ -315,14 +315,14 @@ static void load_picture_from_pack(int num) {
         return;
     }
 
-    char *buf = emalloc(image_bmaps[num].len);
+    char *buf = xmalloc(image_bmaps[num].len);
     size_t num_read = fread(buf, 1, image_bmaps[num].len, fp);
     if (num_read != image_bmaps[num].len) {
         LOG(ERROR,
             "Expected %" PRIu64 " bytes but read %" PRIu64 " bytes",
             (uint64_t)image_bmaps[num].len,
             (uint64_t)num_read);
-        efree(buf);
+        free(buf);
         fclose(fp);
         return;
     }
@@ -337,7 +337,7 @@ static void load_picture_from_pack(int num) {
         SDL_FreeRW(rwop);
     }
 
-    efree(buf);
+    free(buf);
 }
 
 /**
@@ -361,7 +361,7 @@ static bool load_gfx_user_face(uint16_t num) {
     struct stat statbuf;
     fstat(fileno(fp), &statbuf);
     size_t len = statbuf.st_size;
-    unsigned char *data = emalloc(len);
+    unsigned char *data = xmalloc(len);
     len = fread(data, 1, len, fp);
 
     bool ret = false;
@@ -373,10 +373,8 @@ static bool load_gfx_user_face(uint16_t num) {
         sprite_free_sprite(FaceList[num].sprite);
     }
 
-    if (FaceList[num].name != NULL) {
-        efree(FaceList[num].name);
-        FaceList[num].name = NULL;
-    }
+    free(FaceList[num].name);
+    FaceList[num].name = NULL;
 
     /* Try to load it. */
     FaceList[num].sprite = sprite_tryload_file(buf, 0, NULL);
@@ -384,12 +382,12 @@ static bool load_gfx_user_face(uint16_t num) {
         goto out;
     }
 
-    FaceList[num].name = estrdup(buf);
+    FaceList[num].name = xstrdup(buf);
     FaceList[num].checksum = crc32(1L, data, len);
     ret = true;
 
 out:
-    efree(data);
+    free(data);
     fclose(fp);
 
     return ret;
@@ -430,7 +428,7 @@ void image_request_face(int pnum) {
 
     if (image_bmaps[num].pos != -1) {
         snprintf(VS(buf), "%s.png", image_bmaps[num].name);
-        FaceList[num].name = estrdup(buf);
+        FaceList[num].name = xstrdup(buf);
         FaceList[num].checksum = image_bmaps[num].crc32;
         load_picture_from_pack(num);
     } else {
