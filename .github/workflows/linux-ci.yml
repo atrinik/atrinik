@@ -160,6 +160,8 @@ jobs:
             --user "$(id -u):$(id -g)" \
             --env HOME=/tmp \
             --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+            --env CCACHE_DIR=/tmp/atrinik-ccache \
+            --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
             ghcr.io/atrinik/windows-build:0.0.3 \
