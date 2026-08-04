@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.4: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.5: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -832,6 +832,44 @@
   See section 3.29.
  ASSET:
   See section 3.30.
+
+===============================================================================
+= 3.1. Client command MAP                                                     =
+===============================================================================
+ This server-to-client command updates the visible isometric map. The smooth
+ light-level contract described here is available beginning with socket
+ protocol version 1068. A server MUST reject older clients before sending MAP
+ data, and a client MUST reject an older server before requesting game state.
+
+ After the map metadata and player-position fields, the remainder contains
+ zero or more tile records. Each tile record begins with a mask (uint16). Bits
+ 15 through 11 contain the client-local X coordinate, and bits 10 through 6
+ contain the client-local Y coordinate. The following mask bits affect light
+ data:
+
+  - 0x0002 (CLEAR):
+     Clear the complete cell. No fields follow this record.
+  - 0x0004 (LIGHT_LEVEL):
+     One light_level (uint8) for sub-layer zero follows the mask.
+  - 0x0008 (LIGHT_LEVEL_MORE):
+     Six light_level values (uint8), ordered by sub-layer one through six,
+     follow the mask.
+
+ LIGHT_LEVEL and LIGHT_LEVEL_MORE are independent and, when both are present,
+ the sub-layer-zero byte comes first. Light data is followed by num_layers
+ (uint8) and the layer records selected by that count.
+
+ A light_level of zero means completely unlit and 255 means fully lit. Values
+ between those endpoints are perceptually normalized scalar illumination and
+ clients SHOULD interpolate them spatially for presentation. The level is
+ cosmetic: the server remains authoritative for line of sight and whether an
+ object is included in the layer records. A client MUST NOT infer visibility
+ from interpolation or reveal an object omitted by the server.
+
+ The server sends a light field only when its mask bit is present. Otherwise
+ the client retains the previous value for that cell and sub-layer. A client
+ MUST discard a MAP command with a truncated tile mask, light field, or layer
+ count instead of synthesizing missing light bytes.
 
 ===============================================================================
 = 3.20. Client command CHARACTERS                                             =

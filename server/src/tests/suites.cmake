@@ -8,6 +8,7 @@ set(ATRINIK_SERVER_TEST_SUITES
     "server.bank|check_server_bank|src/tests/unit/server/bank.c"
     "server.cache|check_server_cache|src/tests/unit/server/cache.c"
     "server.living|check_server_living|src/tests/unit/server/living.c"
+    "server.light|check_server_light|src/tests/unit/server/light.c"
     "server.object|check_server_object|src/tests/unit/server/object.c"
     "server.re_cmp|check_server_re_cmp|src/tests/unit/server/re_cmp.c"
     "server.rune|check_server_rune|src/tests/unit/server/rune.c"

@@ -1185,7 +1185,7 @@ extern void map_set_data(int x,
                          const char *glow,
                          uint8_t glow_speed);
 extern void map_clear_cell(int x, int y);
-extern void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness);
+extern void map_set_light_level(int x, int y, int sub_layer, uint8_t light_level);
 extern void map_animate(void);
 extern void map_draw_map(SDL_Surface *surface);
 extern void map_draw_one(int x, int y, SDL_Surface *surface);

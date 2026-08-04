@@ -821,21 +821,21 @@ void map_clear_cell(int x, int y) {
 }
 
 /**
- * Set darkness for map's cell.
+ * Set normalized light level for a map cell.
  * @param x
  * X of the cell.
  * @param y
  * Y of the cell.
  * @param sub_layer
  * Sub-layer.
- * @param darkness
- * Darkness to set.
+ * @param light_level
+ * Light level to set: zero is unlit and 255 is fully lit.
  */
-void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness) {
+void map_set_light_level(int x, int y, int sub_layer, uint8_t light_level) {
     struct MapCell *cell;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
-    cell->darkness[sub_layer] = darkness;
+    cell->light_level[sub_layer] = light_level;
 }
 
 /**
@@ -945,6 +945,19 @@ static uint16_t map_object_get_face(struct MapCell *cell, int layer) {
     return animation_get_face(cell->faces[layer], dir, cell->anim_state[layer], &face) ? face : 0;
 }
 
+/** Deferred UI annotation associated with a rendered map object. */
+typedef struct map_annotation {
+    struct MapCell *cell;
+    sprite_effects_t effects;
+    int32_t xl;
+    int32_t yl;
+    int32_t xoff;
+    int32_t xoff2;
+    int32_t xlen;
+    int32_t bitmap_w;
+    uint8_t map_layer;
+} map_annotation_t;
+
 /**
  * Structure used to pass data between the rendering loops in map_draw_map()
  * and the actual rendering logic in draw_map_object().
@@ -965,8 +978,10 @@ typedef struct map_render_data {
     struct MapCell *cell; ///< Cell that is being rendered.
     struct MapCell *target_cell; ///< Cell with the player's target.
     SDL_Rect *tiles; ///< Floor tile coordinates and IDs. Used for debugging.
+    map_annotation_t *annotations; ///< Deferred names and status icons.
 
     size_t tiles_num; ///< Number of tiles.
+    size_t annotations_num; ///< Number of deferred annotations.
 
     SDL_Rect target_rect; ///< Coordinate information for player's target.
 
@@ -974,6 +989,7 @@ typedef struct map_render_data {
     uint8_t sub_layer; ///< Sub-layer to render on.
     uint8_t alpha_forced; ///< Force applying the specified alpha value.
     uint8_t target_layer; ///< Target's layer.
+    bool smooth_lighting; ///< Whether the map lightmap owns world darkness.
 } map_render_data_t;
 
 /**
@@ -1081,7 +1097,7 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         BIT_SET(effects.flags, SPRITE_FLAG_RED);
     } else if (data->cell->flags[map_layer] & FFLAG_INVISIBLE) {
         BIT_SET(effects.flags, SPRITE_FLAG_GRAY);
-    } else {
+    } else if (!data->smooth_lighting) {
         BIT_SET(effects.flags, SPRITE_FLAG_DARK);
     }
 
@@ -1091,7 +1107,8 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     }
 
     if (BIT_QUERY(effects.flags, SPRITE_FLAG_DARK)) {
-        effects.dark_level = 7 - data->cell->darkness[data->sub_layer] / 30;
+        effects.dark_level =
+            (UINT8_MAX - data->cell->light_level[data->sub_layer]) * DARK_LEVELS / UINT8_MAX;
     }
 
     effects.alpha = data->cell->alpha[map_layer];
@@ -1145,89 +1162,25 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         xoff2 = (int)(((double)xlen / 100.0) * 20.0);
     }
 
-    /* Do we have a playername? Then print it! */
-    if (data->cell->pname[map_layer][0] != '\0' && setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES)) {
-        bool draw_name = false;
-        char *name = data->cell->pname[map_layer];
-
-        if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1) {
-            draw_name = true;
-        } else if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2) {
-            if (strncasecmp(name, cpl.name, strlen(name)) != 0) {
-                draw_name = true;
-            }
-        } else if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3) {
-            if (strncasecmp(name, cpl.name, strlen(name)) == 0) {
-                draw_name = true;
-            }
-        }
-
-        if (draw_name) {
-            text_show(surface,
-                      FONT_SANS9,
-                      name,
-                      xoff + xoff2 + (xlen - xoff2 * 2) / 2 -
-                          text_get_width(FONT_SANS9, name, 0) / 2 - 2,
-                      yl - 24,
-                      data->cell->pcolor[map_layer],
-                      TEXT_OUTLINE,
-                      NULL);
-        }
-    }
-
-    /* Show the status effect, if any, */
-    if (data->cell->flags[map_layer]) {
-        sprite_effects_t effects2 = {0};
-        effects2.alpha = effects.alpha;
-        effects2.stretch = effects.stretch;
-        effects2.zoom_x = effects.zoom_x;
-        effects2.zoom_y = effects.zoom_y;
-        effects2.rotate = effects.rotate;
-
-        if (data->cell->flags[map_layer] & FFLAG_SLEEP) {
-            surface_show_effects(surface,
-                                 xl + bitmap_w / 2,
-                                 yl - 5,
-                                 NULL,
-                                 TEXTURE_CLIENT("sleep"),
-                                 &effects2);
-        }
-
-        if (data->cell->flags[map_layer] & FFLAG_CONFUSED) {
-            surface_show_effects(surface,
-                                 xl + bitmap_w / 2 - 1,
-                                 yl - 4,
-                                 NULL,
-                                 TEXTURE_CLIENT("confused"),
-                                 &effects2);
-        }
-
-        if (data->cell->flags[map_layer] & FFLAG_SCARED) {
-            surface_show_effects(surface,
-                                 xl + bitmap_w / 2 + 10,
-                                 yl - 4,
-                                 NULL,
-                                 TEXTURE_CLIENT("scared"),
-                                 &effects2);
-        }
-
-        if (data->cell->flags[map_layer] & FFLAG_BLINDED) {
-            surface_show_effects(surface,
-                                 xl + bitmap_w / 2 + 3,
-                                 yl - 6,
-                                 NULL,
-                                 TEXTURE_CLIENT("blind"),
-                                 &effects2);
-        }
-
-        if (data->cell->flags[map_layer] & FFLAG_PARALYZED) {
-            surface_show_effects(surface,
-                                 xl + bitmap_w / 2 + 3,
-                                 yl + 3,
-                                 NULL,
-                                 TEXTURE_CLIENT("paralyzed"),
-                                 &effects2);
-        }
+    if (data->cell->pname[map_layer][0] != '\0' || data->cell->flags[map_layer] != 0) {
+        data->annotations =
+            erealloc(data->annotations, (data->annotations_num + 1) * sizeof(*data->annotations));
+        map_annotation_t *annotation = &data->annotations[data->annotations_num++];
+        *annotation = (map_annotation_t){
+            .cell = data->cell,
+            .xl = xl,
+            .yl = yl,
+            .xoff = xoff,
+            .xoff2 = xoff2,
+            .xlen = xlen,
+            .bitmap_w = bitmap_w,
+            .map_layer = map_layer,
+        };
+        annotation->effects.alpha = effects.alpha;
+        annotation->effects.stretch = effects.stretch;
+        annotation->effects.zoom_x = effects.zoom_x;
+        annotation->effects.zoom_y = effects.zoom_y;
+        annotation->effects.rotate = effects.rotate;
     }
 
     if (data->layer == LAYER_FLOOR && tiles_debug) {
@@ -1247,6 +1200,95 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         data->target_rect.w = (xlen - xoff2 * 2);
         data->target_rect.h = 1;
     }
+}
+
+/** Draw names and status icons after world lighting has been composited. */
+static void map_draw_annotations(SDL_Surface *surface, map_render_data_t *data) {
+    HARD_ASSERT(surface != NULL);
+    HARD_ASSERT(data != NULL);
+
+    for (size_t i = 0; i < data->annotations_num; i++) {
+        map_annotation_t *annotation = &data->annotations[i];
+        struct MapCell *cell = annotation->cell;
+        uint8_t map_layer = annotation->map_layer;
+
+        if (cell->pname[map_layer][0] != '\0' && setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES)) {
+            bool draw_name = false;
+            char *name = cell->pname[map_layer];
+
+            if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1) {
+                draw_name = true;
+            } else if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2) {
+                draw_name = strncasecmp(name, cpl.name, strlen(name)) != 0;
+            } else if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3) {
+                draw_name = strncasecmp(name, cpl.name, strlen(name)) == 0;
+            }
+
+            if (draw_name) {
+                text_show(surface,
+                          FONT_SANS9,
+                          name,
+                          annotation->xoff + annotation->xoff2 +
+                              (annotation->xlen - annotation->xoff2 * 2) / 2 -
+                              text_get_width(FONT_SANS9, name, 0) / 2 - 2,
+                          annotation->yl - 24,
+                          cell->pcolor[map_layer],
+                          TEXT_OUTLINE,
+                          NULL);
+            }
+        }
+
+        if (cell->flags[map_layer] & FFLAG_SLEEP) {
+            surface_show_effects(surface,
+                                 annotation->xl + annotation->bitmap_w / 2,
+                                 annotation->yl - 5,
+                                 NULL,
+                                 TEXTURE_CLIENT("sleep"),
+                                 &annotation->effects);
+        }
+
+        if (cell->flags[map_layer] & FFLAG_CONFUSED) {
+            surface_show_effects(surface,
+                                 annotation->xl + annotation->bitmap_w / 2 - 1,
+                                 annotation->yl - 4,
+                                 NULL,
+                                 TEXTURE_CLIENT("confused"),
+                                 &annotation->effects);
+        }
+
+        if (cell->flags[map_layer] & FFLAG_SCARED) {
+            surface_show_effects(surface,
+                                 annotation->xl + annotation->bitmap_w / 2 + 10,
+                                 annotation->yl - 4,
+                                 NULL,
+                                 TEXTURE_CLIENT("scared"),
+                                 &annotation->effects);
+        }
+
+        if (cell->flags[map_layer] & FFLAG_BLINDED) {
+            surface_show_effects(surface,
+                                 annotation->xl + annotation->bitmap_w / 2 + 3,
+                                 annotation->yl - 6,
+                                 NULL,
+                                 TEXTURE_CLIENT("blind"),
+                                 &annotation->effects);
+        }
+
+        if (cell->flags[map_layer] & FFLAG_PARALYZED) {
+            surface_show_effects(surface,
+                                 annotation->xl + annotation->bitmap_w / 2 + 3,
+                                 annotation->yl + 3,
+                                 NULL,
+                                 TEXTURE_CLIENT("paralyzed"),
+                                 &annotation->effects);
+        }
+    }
+
+    if (data->annotations != NULL) {
+        efree(data->annotations);
+    }
+    data->annotations = NULL;
+    data->annotations_num = 0;
 }
 
 /**
@@ -1484,6 +1526,73 @@ static void map_setup_render_data(SDL_Surface *surface,
     }
 }
 
+/** Choose the visible floor whose light sample represents a map cell. */
+static uint8_t map_lighting_sub_layer(const struct MapCell *cell) {
+    uint8_t selected = MIN(MapData.player_sub_layer, NUM_SUB_LAYERS - 1);
+    int selected_height = cell->height[GET_MAP_LAYER(LAYER_FLOOR, selected)];
+
+    for (uint8_t sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+        uint8_t floor_layer = GET_MAP_LAYER(LAYER_FLOOR, sub_layer);
+        int height = cell->height[floor_layer];
+
+        if (cell->faces[floor_layer] != 0 && height >= selected_height) {
+            selected = sub_layer;
+            selected_height = height;
+        }
+    }
+
+    return selected;
+}
+
+/** Project one cell's selected light sample into map-widget coordinates. */
+static lighting_vertex_t
+map_lighting_vertex(SDL_Surface *surface, const map_render_data_t *data, int x, int y) {
+    struct MapCell *cell = MAP_CELL_GET(x, y);
+    uint8_t sub_layer = map_lighting_sub_layer(cell);
+    int height = MAX(0, cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)]);
+
+    lighting_vertex_t vertex = {
+        .x = surface->w / 2 + (x - data->midx) * MAP_TILE_YOFF - (y - data->midy) * MAP_TILE_YOFF,
+        .y = surface->h / 2 + (x - data->midx) * MAP_TILE_XOFF + (y - data->midy) * MAP_TILE_XOFF -
+             height + data->player_height_offset,
+        .level = cell->light_level[sub_layer],
+    };
+    return vertex;
+}
+
+/** Rasterize and composite the interpolated map light field. */
+static void
+map_draw_lighting(SDL_Surface *surface, map_render_data_t *data, int x, int y, int w, int h) {
+    int cache_width = map_width * MAP_FOW_SIZE;
+    int cache_height = map_height * MAP_FOW_SIZE;
+    int start_x = MAX(0, x - 2);
+    int start_y = MAX(0, y - 2);
+    int end_x = MIN(cache_width - 1, w + 1);
+    int end_y = MIN(cache_height - 1, h + 1);
+
+    for (int cell_x = start_x; cell_x < end_x; cell_x++) {
+        for (int cell_y = start_y; cell_y < end_y; cell_y++) {
+            int left = surface->w / 2 + (cell_x - data->midx) * MAP_TILE_YOFF -
+                       (cell_y + 1 - data->midy) * MAP_TILE_YOFF;
+            int right = surface->w / 2 + (cell_x + 1 - data->midx) * MAP_TILE_YOFF -
+                        (cell_y - data->midy) * MAP_TILE_YOFF;
+            if (right < 0 || left >= surface->w) {
+                continue;
+            }
+
+            lighting_vertex_t vertices[4] = {
+                map_lighting_vertex(surface, data, cell_x, cell_y),
+                map_lighting_vertex(surface, data, cell_x + 1, cell_y),
+                map_lighting_vertex(surface, data, cell_x + 1, cell_y + 1),
+                map_lighting_vertex(surface, data, cell_x, cell_y + 1),
+            };
+            lighting_draw_quad(vertices);
+        }
+    }
+
+    lighting_render(surface);
+}
+
 /**
  * Draw the map.
  *
@@ -1493,11 +1602,18 @@ static void map_setup_render_data(SDL_Surface *surface,
 void map_draw_map(SDL_Surface *surface) {
     HARD_ASSERT(surface != NULL);
 
+    bool profile_map = surface == cur_widget[MAP_ID]->surface;
+    uint64_t profile_map_started = profile_map ? render_profiler_begin() : 0;
+
     map_render_data_t data = {0};
     int x, y, w, h;
     map_setup_render_data(surface, &data, &x, &y, &w, &h);
+    data.smooth_lighting = surface == cur_widget[MAP_ID]->surface &&
+                           setting_get_int(OPT_CAT_MAP, OPT_SMOOTH_LIGHTING) &&
+                           lighting_begin(surface->w, surface->h);
 
     /* Draw floor and fmasks. */
+    uint64_t profile_ground_started = profile_map ? render_profiler_begin() : 0;
     for (data.x = x; data.x < w; data.x++) {
         for (data.y = y; data.y < h; data.y++) {
             if (!map_should_draw(surface, &data)) {
@@ -1513,10 +1629,22 @@ void map_draw_map(SDL_Surface *surface) {
             }
         }
     }
+    render_profiler_end(RENDER_PROFILE_MAP_GROUND, profile_ground_started);
+
+    /* The screen-space lightmap is correct for ground geometry. Elevated
+     * sprites project over unrelated cells, so light those using the owning
+     * tile's level instead of applying the ground field over them. */
+    if (data.smooth_lighting) {
+        uint64_t profile_lighting_started = render_profiler_begin();
+        map_draw_lighting(surface, &data, x, y, w, h);
+        render_profiler_end(RENDER_PROFILE_LIGHTING, profile_lighting_started);
+        data.smooth_lighting = false;
+    }
 
     uint8_t floor_layer_pl = GET_MAP_LAYER(LAYER_FLOOR, MapData.player_sub_layer);
 
     /* Now draw everything else. */
+    uint64_t profile_objects_started = profile_map ? render_profiler_begin() : 0;
     for (data.x = x; data.x < w; data.x++) {
         for (data.y = y; data.y < h; data.y++) {
             if (!map_should_draw(surface, &data)) {
@@ -1647,6 +1775,9 @@ void map_draw_map(SDL_Surface *surface) {
     }
 
     if (surface != cur_widget[MAP_ID]->surface) {
+        render_profiler_end(RENDER_PROFILE_MAP_OBJECTS, profile_objects_started);
+        map_draw_annotations(surface, &data);
+        render_profiler_end(RENDER_PROFILE_MAP, profile_map_started);
         return;
     }
 
@@ -1676,6 +1807,10 @@ void map_draw_map(SDL_Surface *surface) {
             }
         }
     }
+    render_profiler_end(RENDER_PROFILE_MAP_OBJECTS, profile_objects_started);
+
+    uint64_t profile_ui_started = render_profiler_begin();
+    map_draw_annotations(surface, &data);
 
     if (data.tiles != NULL) {
         for (size_t i = 0; i < data.tiles_num; i++) {
@@ -1761,6 +1896,9 @@ void map_draw_map(SDL_Surface *surface) {
                          data.target_rect.h,
                          hp_color);
     }
+
+    render_profiler_end(RENDER_PROFILE_MAP_UI, profile_ui_started);
+    render_profiler_end(RENDER_PROFILE_MAP, profile_map_started);
 
 #undef CALCULATE_POSITIONS
 }
@@ -2333,6 +2471,8 @@ static void widget_background(widgetdata *widget, int draw) {
 
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget) {
+    lighting_deinit();
+
     if (cells != NULL) {
         efree(cells);
         cells = NULL;

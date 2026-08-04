@@ -806,8 +806,14 @@ int main(int argc, char *argv[]) {
     frames = 0;
 
     while (!done) {
+        uint64_t profile_frame_started = render_profiler_begin();
         frame_start_time = SDL_GetTicks();
+
+        uint64_t profile_events_started = render_profiler_begin();
         done = Event_PollInputDevice();
+        render_profiler_end(RENDER_PROFILE_EVENTS, profile_events_started);
+
+        uint64_t profile_game_started = render_profiler_begin();
 
         /* Have we been shutdown? */
         if (handle_socket_shutdown()) {
@@ -817,6 +823,9 @@ int main(int argc, char *argv[]) {
                 popup_destroy_all();
             }
 
+            render_profiler_end(RENDER_PROFILE_GAME, profile_game_started);
+            render_profiler_end(RENDER_PROFILE_FRAME, profile_frame_started);
+            render_profiler_frame_finished(false);
             continue;
         }
 
@@ -855,6 +864,7 @@ int main(int argc, char *argv[]) {
 
             play_action_sounds();
         }
+        render_profiler_end(RENDER_PROFILE_GAME, profile_game_started);
 
         update = 0;
 
@@ -887,12 +897,15 @@ int main(int argc, char *argv[]) {
             SDL_FillRect(ScreenSurface, NULL, 0);
         }
 
+        uint64_t profile_widgets_started = render_profiler_begin();
         if (cpl.state <= ST_WAITFORPLAY) {
             intro_show();
         } else if (cpl.state == ST_PLAY) {
             process_widgets(update);
         }
+        render_profiler_end(RENDER_PROFILE_WIDGETS, profile_widgets_started);
 
+        uint64_t profile_overlays_started = render_profiler_begin();
         popup_render_all();
         tooltip_show();
 
@@ -918,14 +931,19 @@ int main(int argc, char *argv[]) {
                          NULL,
                          texture_surface(cursor_texture));
         }
+        render_profiler_end(RENDER_PROFILE_OVERLAYS, profile_overlays_started);
 
+        uint64_t profile_maintenance_started = render_profiler_begin();
         texture_gc();
         font_gc();
         sprite_cache_gc();
+        render_profiler_end(RENDER_PROFILE_MAINTENANCE, profile_maintenance_started);
 
+        uint64_t profile_present_started = render_profiler_begin();
         if (update) {
             SDL_Flip(ScreenSurface);
         }
+        render_profiler_end(RENDER_PROFILE_PRESENT, profile_present_started);
 
         LastTick = SDL_GetTicks();
 
@@ -942,6 +960,7 @@ int main(int argc, char *argv[]) {
         elapsed_time = SDL_GetTicks() - frame_start_time;
         fps_limit = fps_limits[setting_get_int(OPT_CAT_CLIENT, OPT_FPS_LIMIT)];
 
+        uint64_t profile_wait_started = render_profiler_begin();
         if (fps_limit != 0) {
             while (1) {
                 if (elapsed_time < 1000 / fps_limit) {
@@ -957,6 +976,9 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
+        render_profiler_end(RENDER_PROFILE_WAIT, profile_wait_started);
+        render_profiler_end(RENDER_PROFILE_FRAME, profile_frame_started);
+        render_profiler_frame_finished(update != 0);
     }
 
     return 0;

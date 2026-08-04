@@ -259,14 +259,13 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     ver = packet_to_uint32(data, len, &pos);
 
-    if (ver == 0 || ver == 991017 || ver == 1055) {
+    if (ver < SOCKET_VERSION) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
                        COLOR_RED,
                        ns,
-                       "Your client is "
-                       "outdated!\nGo to http://www.atrinik.org/ and download the latest "
-                       "Atrinik client.");
+                       "Your client uses an incompatible map lighting protocol.\n"
+                       "Please update to the latest Atrinik client.");
         ns->state = ST_ZOMBIE;
         return;
     }
@@ -791,7 +790,8 @@ void draw_client_map2(object *pl) {
     int have_down, draw_up, blocksview;
     int special_vision, is_building_wall;
     uint16_t mask;
-    int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
+    int layer, raw_light[NUM_SUB_LAYERS], light_set[NUM_SUB_LAYERS];
+    uint8_t light_level[NUM_SUB_LAYERS];
     int ext_flags, anim_num;
     int num_layers;
     object *mirror = NULL, *tmp, *tmp2;
@@ -1016,7 +1016,8 @@ void draw_client_map2(object *pl) {
             map_get_darkness(m, nx, ny, &mirror);
 
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                dark_set[sub_layer] = 0;
+                light_set[sub_layer] = 0;
+                light_level[sub_layer] = 0;
             }
 
             /* Initialize default values for some variables. */
@@ -1410,17 +1411,17 @@ void draw_client_map2(object *pl) {
                     }
 
                     if (tmp != NULL &&
-                        (!dark_set[sub_layer] || (layer == LAYER_EFFECT && sub_layer > 0))) {
-                        dark_set[sub_layer] = 1;
-                        dark[sub_layer] = map_get_darkness(tmp->map, tmp->x, tmp->y, NULL);
+                        (!light_set[sub_layer] || (layer == LAYER_EFFECT && sub_layer > 0))) {
+                        light_set[sub_layer] = 1;
+                        raw_light[sub_layer] = map_get_darkness(tmp->map, tmp->x, tmp->y, NULL);
 
                         if (CONTR(pl)->tli) {
-                            dark[sub_layer] += global_darkness_table[MAX_DARKNESS];
+                            raw_light[sub_layer] += global_darkness_table[MAX_DARKNESS];
                         }
 
-                        if (dark[sub_layer] < 100) {
+                        if (raw_light[sub_layer] < 100) {
                             if (QUERY_FLAG(tmp, FLAG_HIDDEN) || special_vision & 1) {
-                                dark[sub_layer] = 100;
+                                raw_light[sub_layer] = 100;
                             }
                         }
 
@@ -1437,23 +1438,25 @@ void draw_client_map2(object *pl) {
                                 d = MAP_BUILDING_DARKNESS;
                             }
 
-                            dark[sub_layer] -= global_darkness_table[world_darkness];
-                            dark[sub_layer] += global_darkness_table[d];
+                            raw_light[sub_layer] -= global_darkness_table[world_darkness];
+                            raw_light[sub_layer] += global_darkness_table[d];
                         }
+
+                        light_level[sub_layer] = light_level_from_raw(raw_light[sub_layer]);
                     }
 
-                    if (tmp != NULL && dark[sub_layer] <= 0) {
+                    if (tmp != NULL && raw_light[sub_layer] <= 0) {
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && dark[sub_layer] != mp->darkness[sub_layer]) {
+                    if (tmp != NULL && light_level[sub_layer] != mp->light_level[sub_layer]) {
                         if (sub_layer == 0) {
-                            mask |= MAP2_MASK_DARKNESS;
+                            mask |= MAP2_MASK_LIGHT_LEVEL;
                         } else {
-                            mask |= MAP2_MASK_DARKNESS_MORE;
+                            mask |= MAP2_MASK_LIGHT_LEVEL_MORE;
                         }
 
-                        mp->darkness[sub_layer] = dark[sub_layer];
+                        mp->light_level[sub_layer] = light_level[sub_layer];
                     }
 
                     if (tmp != NULL && tmp->map != m && anim_type[sub_layer] == 0 &&
@@ -1557,7 +1560,7 @@ void draw_client_map2(object *pl) {
                         }
 
                         if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) &&
-                            ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) ||
+                            ((head->layer == LAYER_LIVING && raw_light[sub_layer] < 150) ||
                              (head->type == CONTAINER && head->sub_type == ST1_CONTAINER_CORPSE &&
                               QUERY_FLAG(head, FLAG_IS_USED_UP) &&
                               (float)head->stats.food / head->last_eat >=
@@ -1862,35 +1865,18 @@ void draw_client_map2(object *pl) {
             packet_append_uint16(packet, mask);
 
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                if ((sub_layer == 0 && !(mask & MAP2_MASK_DARKNESS)) ||
-                    (sub_layer != 0 && !(mask & MAP2_MASK_DARKNESS_MORE))) {
-                    if (!dark_set[sub_layer] && mp->darkness[sub_layer] != 0) {
-                        mp->darkness[sub_layer] = 0;
+                if ((sub_layer == 0 && !(mask & MAP2_MASK_LIGHT_LEVEL)) ||
+                    (sub_layer != 0 && !(mask & MAP2_MASK_LIGHT_LEVEL_MORE))) {
+                    if (!light_set[sub_layer] && mp->light_level[sub_layer] != 0) {
+                        mp->light_level[sub_layer] = 0;
                     }
 
                     continue;
                 }
 
-                if (!dark_set[sub_layer]) {
-                    d = 0;
-                } else if (dark[sub_layer] > 640) {
-                    d = 210;
-                } else if (dark[sub_layer] > 320) {
-                    d = 180;
-                } else if (dark[sub_layer] > 160) {
-                    d = 150;
-                } else if (dark[sub_layer] > 80) {
-                    d = 120;
-                } else if (dark[sub_layer] > 40) {
-                    d = 90;
-                } else if (dark[sub_layer] > 20) {
-                    d = 60;
-                } else {
-                    d = 30;
-                }
-
-                packet_debug_data(packet, 1, "Darkness (sub-layer: %d)", sub_layer);
-                packet_append_uint8(packet, d);
+                packet_debug_data(packet, 1, "Light level (sub-layer: %d)", sub_layer);
+                mp->light_level[sub_layer] = light_set[sub_layer] ? light_level[sub_layer] : 0;
+                packet_append_uint8(packet, mp->light_level[sub_layer]);
             }
 
             packet_debug_data(packet, 1, "Number of layers");

@@ -49,8 +49,8 @@ typedef struct MapCell_struct {
 
     uint8_t cleared;
 
-    /** Darkness cache. */
-    uint16_t darkness[NUM_SUB_LAYERS];
+    /** Last normalized light levels sent to the client. */
+    uint8_t light_level[NUM_SUB_LAYERS];
 
     /** Faces we sent. */
     int16_t faces[NUM_REAL_LAYERS];

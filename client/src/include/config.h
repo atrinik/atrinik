@@ -31,7 +31,7 @@
 #define CONFIG_H
 
 /** Socket version. */
-#define SOCKET_VERSION 1067
+#define SOCKET_VERSION 1068
 
 /** File the the arch definitions. */
 #define ARCHDEF_FILE "data/archdef.dat"
@@ -64,11 +64,7 @@
  */
 #define MAP_FOW_SIZE 5
 
-/**
- * The number of our dark levels.
- *
- * For each level we store an own bitmap copy.
- */
+/** Number of discrete darkness levels used by non-map preview surfaces. */
 #define DARK_LEVELS 7
 
 #define DIRECTORY_SFX "sound/effects"

@@ -76,6 +76,8 @@
 #include <ignore.h>
 #include <sound.h>
 #include <map.h>
+#include <lighting.h>
+#include <render_profiler.h>
 #include <inventory.h>
 #include <menu.h>
 #include <list.h>

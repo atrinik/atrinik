@@ -34,6 +34,50 @@
 #define NR_LIGHT_MASK 10
 #define MAX_LIGHT_SOURCE 13
 
+/**
+ * Convert authoritative raw map illumination to a perceptual client light
+ * level.
+ *
+ * The anchor points keep low illumination visibly dark while giving local
+ * light sources enough midrange contrast to illuminate their own and adjacent
+ * tiles. Interpolation retains information from overlapping light sources.
+ * Values above the brightest ambient level are saturated.
+ *
+ * @param raw_light Raw illumination returned by map_get_darkness().
+ * @return Normalized light level: zero is unlit and 255 is fully lit.
+ */
+uint8_t light_level_from_raw(int raw_light) {
+    static const struct {
+        int raw;
+        uint8_t level;
+    } anchors[] = {
+        {0, 0},
+        {20, 45},
+        {40, 80},
+        {80, 120},
+        {160, 165},
+        {320, 215},
+        {640, 245},
+        {1280, 255},
+    };
+
+    if (raw_light <= anchors[0].raw) {
+        return anchors[0].level;
+    }
+
+    for (size_t i = 1; i < arraysize(anchors); i++) {
+        if (raw_light <= anchors[i].raw) {
+            int raw_range = anchors[i].raw - anchors[i - 1].raw;
+            int level_range = anchors[i].level - anchors[i - 1].level;
+            int offset = raw_light - anchors[i - 1].raw;
+
+            return anchors[i - 1].level + (offset * level_range + raw_range / 2) / raw_range;
+        }
+    }
+
+    return UINT8_MAX;
+}
+
 static int lmask_x[MAX_MASK_SIZE] = {
     0,  0,  1,  1,  1,  0,  -1, -1, -1, 0,  1,  2,  2,  2,  2,  2,  1,  0,  -1, -2, -2,
     -2, -2, -2, -1, 0,  1,  2,  3,  3,  3,  3,  3,  3,  3,  2,  1,  0,  -1, -2, -3, -3,

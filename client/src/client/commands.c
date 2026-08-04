@@ -808,6 +808,11 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
     region_map_fow_need_update = false;
 
     while (pos < len) {
+        if (len - pos < sizeof(uint16_t)) {
+            LOG(PACKET, "Truncated map tile mask.");
+            return;
+        }
+
         mask = packet_to_uint16(data, len, &pos);
         x = (mask >> 11) & 0x1f;
         y = (mask >> 6) & 0x1f;
@@ -828,16 +833,28 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
             }
         }
 
-        /* Do we have darkness information? */
-        if (mask & MAP2_MASK_DARKNESS) {
-            map_set_darkness(x, y, 0, packet_to_uint8(data, len, &pos));
+        size_t light_values = 0;
+        if (mask & MAP2_MASK_LIGHT_LEVEL) {
+            light_values++;
+        }
+        if (mask & MAP2_MASK_LIGHT_LEVEL_MORE) {
+            light_values += NUM_SUB_LAYERS - 1;
+        }
+        if (len - pos < light_values + sizeof(num_layers)) {
+            LOG(PACKET, "Truncated map tile light levels.");
+            return;
         }
 
-        if (mask & MAP2_MASK_DARKNESS_MORE) {
+        /* Do we have light-level information? */
+        if (mask & MAP2_MASK_LIGHT_LEVEL) {
+            map_set_light_level(x, y, 0, packet_to_uint8(data, len, &pos));
+        }
+
+        if (mask & MAP2_MASK_LIGHT_LEVEL_MORE) {
             int sub_layer;
 
             for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                map_set_darkness(x, y, sub_layer, packet_to_uint8(data, len, &pos));
+                map_set_light_level(x, y, sub_layer, packet_to_uint8(data, len, &pos));
             }
         }
 
@@ -1053,6 +1070,14 @@ void socket_command_version(uint8_t *data, size_t len, size_t pos) {
     }
 
     cpl.server_socket_version = packet_to_uint32(data, len, &pos);
+    if (cpl.server_socket_version < SOCKET_VERSION) {
+        draw_info(COLOR_RED,
+                  "The server uses an incompatible map lighting protocol. Please update the "
+                  "server.");
+        cpl.state = ST_START;
+        return;
+    }
+
     cpl.state = ST_VERSION;
 }
 

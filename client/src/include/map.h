@@ -184,8 +184,8 @@ typedef struct MapCell {
     /** If this is where our enemy is. */
     uint8_t probe[NUM_REAL_LAYERS];
 
-    /** Cell darkness. */
-    uint8_t darkness[NUM_SUB_LAYERS];
+    /** Normalized cell light levels: zero is unlit, 255 is fully lit. */
+    uint8_t light_level[NUM_SUB_LAYERS];
 
     /** Object flags. */
     uint8_t flags[NUM_REAL_LAYERS];

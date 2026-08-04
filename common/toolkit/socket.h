@@ -368,8 +368,10 @@ typedef struct socket_asset_response {
  *@{*/
 /** Clear cell, with all layers. */
 #define MAP2_MASK_CLEAR 0x2
-#define MAP2_MASK_DARKNESS 0x4
-#define MAP2_MASK_DARKNESS_MORE 0x8
+/** Tile light level for sub-layer zero follows the mask. */
+#define MAP2_MASK_LIGHT_LEVEL 0x4
+/** Tile light levels for sub-layers one through six follow the mask. */
+#define MAP2_MASK_LIGHT_LEVEL_MORE 0x8
 /*@}*/
 
 /**

@@ -9,6 +9,7 @@ set(SOURCES
 	src/client/image.c
 	src/client/item.c
 	src/client/keybind.c
+	src/client/lighting.c
 	src/client/main.c
 	src/client/menu.c
 	src/client/metaserver.c
@@ -83,6 +84,7 @@ set(SOURCES
 	src/gui/widgets/playerinfo.c
 	src/gui/widgets/protections.c
 	src/gui/widgets/quickslots.c
+	src/gui/widgets/render_profiler.c
 	src/gui/widgets/skills.c
 	src/gui/widgets/spells.c
 	src/gui/widgets/stat.c

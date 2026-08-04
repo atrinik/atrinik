@@ -446,6 +446,14 @@ static int setting_apply_always(int cat, int setting) {
                 case OPT_SHOW_FPS:
                     WIDGET_SHOW_CHANGE(FPS_ID, setting_get_int(cat, setting));
                     return 1;
+
+                case OPT_SHOW_RENDER_PROFILER:
+                    render_profiler_set_enabled(setting_get_int(cat, setting));
+                    WIDGET_SHOW_CHANGE(RENDER_PROFILER_ID, setting_get_int(cat, setting));
+                    if (setting_get_int(cat, setting)) {
+                        SetPriorityWidget(cur_widget[RENDER_PROFILER_ID]);
+                    }
+                    return 1;
             }
 
             break;
@@ -513,6 +521,13 @@ static void setting_apply_runtime(int cat, int setting) {
 
         case OPT_CAT_MAP:
             switch (setting) {
+                case OPT_SMOOTH_LIGHTING:
+                    if (!setting_get_int(cat, setting)) {
+                        lighting_deinit();
+                    }
+                    map_redraw_flag = 1;
+                    break;
+
                     /* Map width/height change. */
                 case OPT_MAP_WIDTH:
                 case OPT_MAP_HEIGHT:
