@@ -23,6 +23,8 @@ if (NOT PACKAGE_VERSION MATCHES
         "PACKAGE_VERSION must have the form MAJOR.MINOR or MAJOR.MINOR.PATCH")
 endif ()
 
+# Preserve the regex captures before later MATCHES expressions overwrite
+# CMake's shared CMAKE_MATCH_<n> variables.
 set(PACKAGE_VERSION_MAJOR "${CMAKE_MATCH_1}")
 set(PACKAGE_VERSION_MINOR "${CMAKE_MATCH_2}")
 if ("${CMAKE_MATCH_4}" STREQUAL "")
@@ -31,84 +33,113 @@ else ()
     set(PACKAGE_VERSION_PATCH "${CMAKE_MATCH_4}")
 endif ()
 
+include(CTest)
+
+add_library(atrinik-build-options INTERFACE)
+target_compile_features(atrinik-build-options INTERFACE c_std_17)
+target_compile_definitions(atrinik-build-options INTERFACE _GNU_SOURCE)
+
+if (MINGW)
+    target_compile_definitions(atrinik-build-options INTERFACE
+        HAVE_STRUCT_TIMESPEC
+        NOCRYPT
+        __USE_MINGW_ANSI_STDIO=0)
+else ()
+    set(LINUX true)
+endif ()
+
+add_library(atrinik-warnings INTERFACE)
+if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(atrinik-warnings INTERFACE
+        -Wall
+        -Wextra
+        -Wno-unused-parameter
+        -fno-common)
+
+    if (CUSTOM_WARNINGS)
+        target_compile_options(atrinik-warnings INTERFACE ${CUSTOM_WARNINGS})
+    endif ()
+
+    if (ENABLE_EXTRA_WARNINGS)
+        target_compile_options(atrinik-warnings INTERFACE
+            -Wundef
+            -Wpointer-arith
+            -Wbad-function-cast
+            -Wnested-externs
+            -Wunreachable-code
+            -Wformat=2
+            -Wno-format-nonliteral
+            -Winit-self
+            -Wshadow
+            -Wmissing-declarations
+            -Wuninitialized
+            -Wfloat-equal)
+
+        if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+            target_compile_options(atrinik-warnings INTERFACE
+                -Wlogical-op
+                -Wcast-align)
+        endif ()
+    endif ()
+
+    if (ENABLE_AGGRESSIVE_WARNINGS)
+        target_compile_options(atrinik-warnings INTERFACE
+            -Wcast-qual
+            -Wsign-conversion
+            -Wunsafe-loop-optimizations
+            -Wredundant-decls)
+    endif ()
+
+    if (ENABLE_WARNING_ERRORS)
+        target_compile_options(atrinik-warnings INTERFACE -Werror)
+    endif ()
+endif ()
+
+add_library(atrinik-hardening INTERFACE)
+if (NOT MINGW AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    if (ENABLE_STACK_PROTECTOR)
+        target_compile_options(atrinik-hardening INTERFACE
+            -fstack-protector-all
+            -Wstack-protector)
+    else ()
+        target_compile_options(atrinik-hardening INTERFACE
+            -fno-stack-protector)
+    endif ()
+endif ()
+
+add_library(atrinik-sanitizers INTERFACE)
+if (ENABLE_SANITIZERS)
+    if (MINGW OR NOT CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+        message(FATAL_ERROR
+            "ENABLE_SANITIZERS requires a native GCC or Clang build")
+    endif ()
+
+    target_compile_options(atrinik-sanitizers INTERFACE
+        -fsanitize=address,undefined
+        -fno-omit-frame-pointer)
+    target_link_options(atrinik-sanitizers INTERFACE
+        -fsanitize=address,undefined
+        -fno-omit-frame-pointer)
+endif ()
+
+add_library(atrinik-project-options INTERFACE)
+target_link_libraries(atrinik-project-options INTERFACE
+    atrinik-build-options
+    atrinik-warnings
+    atrinik-hardening
+    atrinik-sanitizers)
+
+function(atrinik_configure_target target)
+    target_link_libraries(${target} PRIVATE atrinik-project-options)
+endfunction()
+
 if (BUILD_SERVER)
     include(cmake/pcpnatpmp.cmake)
 endif ()
 
-include_directories(common)
-include_directories(${CMAKE_BINARY_DIR}/common)
-
-if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-fcommon)
-endif ()
-
-# Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
-add_definitions(${CUSTOM_WARNINGS})
-
-if (NOT MINGW)
-    if (ENABLE_STACK_PROTECTOR)
-        add_definitions(-fstack-protector-all -Wstack-protector)
-    else ()
-        add_definitions(-fno-stack-protector)
-    endif ()
-endif ()
-
-if (ENABLE_EXTRA_WARNINGS)
-    # Non-macro identifiers inside #if outside of defined()
-    add_definitions(-Wundef)
-    # sizeof() on function types or void
-    add_definitions(-Wpointer-arith)
-    # Casting function types to non-matching types
-    add_definitions(-Wbad-function-cast)
-    # extern declaration within a function
-    add_definitions(-Wnested-externs)
-    # Dead code (removed in newer versions of GCC, might still be in clang)
-    add_definitions(-Wunreachable-code)
-    # Additional format checks for printf/scanf/etc not enabled by -Wall
-    add_definitions(-Wformat=2 -Wno-format-nonliteral)
-    # Declarations like int i = i
-    add_definitions(-Winit-self)
-    # Local variables or types that shadow another variable, parameter, type,
-    # built-in function, etc.
-    add_definitions(-Wshadow)
-    # Global function defined without a previous declaration.
-    add_definitions(-Wmissing-declarations)
-    # Variable that may be clobbered by a setjmp call
-    add_definitions(-Wuninitialized)
-    # Testing floating point values for equality
-    add_definitions(-Wfloat-equal)
-
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        # Suspicious uses of logical operators in expressions
-        add_definitions(-Wlogical-op)
-        # Pointer casting with increased alignment (char * -> int *)
-        add_definitions(-Wcast-align)
-    endif ()
-endif ()
-
-if (ENABLE_AGGRESSIVE_WARNINGS)
-    # Casting const char * to char *
-    add_definitions(-Wcast-qual)
-    # Assigning signed int to unsigned int
-    add_definitions(-Wsign-conversion)
-    # Loop indices that could potentially overflow
-    add_definitions(-Wunsafe-loop-optimizations)
-    # Redundant (multiple same) declarations
-    add_definitions(-Wredundant-decls)
-endif ()
-
-# Turn warnings into errors?
-if (ENABLE_WARNING_ERRORS)
-    add_definitions(-Werror)
-endif ()
-
 if (MINGW)
-    add_definitions(-DNOCRYPT)
     set(PLUGIN_SUFFIX ".dll")
 else ()
-    # Compiling on GNU/Linux.
-    set(LINUX true)
     set(PLUGIN_SUFFIX ".so")
 endif ()
 

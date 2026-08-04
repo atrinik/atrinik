@@ -107,7 +107,8 @@ typedef PyObject *(*PyMethod_OBJECT)(PyObject *self, PyObject *what);
  */
 typedef PyObject *(*PyMethod_VARARGS_KEYWORDS)(PyObject *self, PyObject *args, PyObject *keywds);
 
-extern struct plugin_hooklist *hooks;
+extern struct plugin_hooklist *python_hooks;
+#define hooks python_hooks
 
 /**
  * @defgroup AROUND_xxx Types for object.SquaresAround()
@@ -352,9 +353,9 @@ typedef enum {
 #define FIELDFLAG_PLAYER_FIX 4
 /*@}*/
 
-PyTypeObject Atrinik_ObjectType;
+extern PyTypeObject Atrinik_ObjectType;
 PyObject *wrap_object(object *what);
-PyTypeObject Atrinik_ObjectIteratorType;
+extern PyTypeObject Atrinik_ObjectIteratorType;
 PyObject *wrap_object_iterator(object *what);
 int Atrinik_Object_init(PyObject *module);
 
@@ -400,7 +401,7 @@ typedef struct Atrinik_ObjectIterator {
     uint8_t iterated : 1;
 } Atrinik_ObjectIterator;
 
-PyTypeObject Atrinik_MapType;
+extern PyTypeObject Atrinik_MapType;
 PyObject *wrap_map(mapstruct *map);
 int Atrinik_Map_init(PyObject *module);
 
@@ -411,7 +412,7 @@ typedef struct {
         mapstruct *map;
 } Atrinik_Map;
 
-PyTypeObject Atrinik_PartyType;
+extern PyTypeObject Atrinik_PartyType;
 PyObject *wrap_party(party_struct *party);
 int Atrinik_Party_init(PyObject *module);
 
@@ -422,7 +423,7 @@ typedef struct {
         party_struct *party;
 } Atrinik_Party;
 
-PyTypeObject Atrinik_RegionType;
+extern PyTypeObject Atrinik_RegionType;
 PyObject *wrap_region(region_struct *region);
 int Atrinik_Region_init(PyObject *module);
 
@@ -433,7 +434,7 @@ typedef struct {
         region_struct *region;
 } Atrinik_Region;
 
-PyTypeObject Atrinik_PlayerType;
+extern PyTypeObject Atrinik_PlayerType;
 PyObject *wrap_player(player *pl);
 int Atrinik_Player_init(PyObject *module);
 
@@ -444,7 +445,7 @@ typedef struct {
         player *pl;
 } Atrinik_Player;
 
-PyTypeObject Atrinik_ArchetypeType;
+extern PyTypeObject Atrinik_ArchetypeType;
 PyObject *wrap_archetype(archetype_t *at);
 int Atrinik_Archetype_init(PyObject *module);
 
@@ -455,7 +456,7 @@ typedef struct {
         archetype_t *at;
 } Atrinik_Archetype;
 
-PyTypeObject Atrinik_AttrListType;
+extern PyTypeObject Atrinik_AttrListType;
 PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field);
 int Atrinik_AttrList_init(PyObject *module);
 

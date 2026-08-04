@@ -37,7 +37,8 @@
 mempool_struct *pool_objectlink;
 
 /** @copydoc chunk_debugger */
-static void objectlink_debugger(objectlink *ol, char *buf, size_t size) {
+static void objectlink_debugger(void *ptr, char *buf, size_t size) {
+    objectlink *ol = ptr;
     snprintf(buf, size, "ID: %d", ol->id);
     snprintfcat(buf, size, " value: %ld", ol->value);
 
@@ -58,7 +59,7 @@ void objectlink_init(void) {
                                      NULL,
                                      NULL,
                                      NULL);
-    mempool_set_debugger(pool_objectlink, (chunk_debugger)objectlink_debugger);
+    mempool_set_debugger(pool_objectlink, objectlink_debugger);
 }
 
 /**

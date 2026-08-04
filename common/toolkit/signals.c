@@ -68,6 +68,16 @@ static const int register_signals[] = {
  */
 static char traceback_prefix[64] = {"atrinik"};
 
+#ifdef HAVE_SIGACTION
+/** Alternate stack used by POSIX signal handlers. */
+static void *alternate_signal_stack;
+#endif
+
+#ifdef WIN32
+/** Registered Windows vectored exception handler. */
+static PVOID vectored_exception_handler;
+#endif
+
 TOOLKIT_API();
 
 /**
@@ -363,17 +373,21 @@ TOOLKIT_INIT_FUNC(signals) {
 #ifdef HAVE_SIGACTION
     stack_t ss;
 
-    ss.ss_sp = malloc(SIGSTKSZ * 4);
+    HARD_ASSERT(alternate_signal_stack == NULL);
+    alternate_signal_stack = malloc(SIGSTKSZ * 4);
 
-    if (ss.ss_sp == NULL) {
+    if (alternate_signal_stack == NULL) {
         log_error("OOM.");
         abort();
     }
 
+    ss.ss_sp = alternate_signal_stack;
     ss.ss_size = SIGSTKSZ * 4;
     ss.ss_flags = 0;
 
     if (sigaltstack(&ss, NULL) != 0) {
+        free(alternate_signal_stack);
+        alternate_signal_stack = NULL;
         LOG(ERROR, "Could not set up alternate stack.");
         exit(1);
     }
@@ -402,12 +416,40 @@ TOOLKIT_INIT_FUNC(signals) {
 #endif
 
 #ifdef WIN32
-    AddVectoredExceptionHandler(1, signal_handler);
+    HARD_ASSERT(vectored_exception_handler == NULL);
+    vectored_exception_handler = AddVectoredExceptionHandler(1, signal_handler);
+    if (vectored_exception_handler == NULL) {
+        LOG(ERROR, "Could not register vectored exception handler.");
+        exit(1);
+    }
 #endif
 }
 TOOLKIT_INIT_FUNC_FINISH
 
-TOOLKIT_DEINIT_FUNC(signals) {}
+TOOLKIT_DEINIT_FUNC(signals) {
+#ifdef HAVE_SIGACTION
+    stack_t ss = {
+        .ss_flags = SS_DISABLE,
+    };
+
+    if (sigaltstack(&ss, NULL) != 0) {
+        LOG(ERROR, "Could not disable alternate signal stack.");
+    } else {
+        free(alternate_signal_stack);
+        alternate_signal_stack = NULL;
+    }
+#endif
+
+#ifdef WIN32
+    if (vectored_exception_handler != NULL) {
+        if (RemoveVectoredExceptionHandler(vectored_exception_handler) == 0) {
+            LOG(ERROR, "Could not remove vectored exception handler.");
+        } else {
+            vectored_exception_handler = NULL;
+        }
+    }
+#endif
+}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 void signals_set_traceback_prefix(const char *prefix) {

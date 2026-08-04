@@ -1249,7 +1249,9 @@ void init(int argc, char **argv) {
     metaserver_init();
     statistics_init();
     reset_sleep();
-    init_plugins();
+    if (!settings.unit_tests) {
+        init_plugins();
+    }
 }
 
 /**

@@ -94,8 +94,8 @@ typedef enum atnr {
 #define LAST_PROTECTION (ATNR_CONFUSION + 1)
 
 /* Prototypes */
-const char *const attack_save[NROFATTACKS];
-const char *const attack_name[NROFATTACKS];
+extern const char *const attack_save[NROFATTACKS];
+extern const char *const attack_name[NROFATTACKS];
 
 int attack_object(object *op, object *hitter);
 int attack_hit(object *op, object *hitter, int dam);

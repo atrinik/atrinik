@@ -579,7 +579,7 @@ struct pl_player {
 
 /* Prototypes */
 
-mempool_struct *pool_player;
+extern mempool_struct *pool_player;
 
 void player_init(void);
 void player_deinit(void);

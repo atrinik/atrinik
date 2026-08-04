@@ -1,4 +1,4 @@
-set(SOURCES
+set(SERVER_CORE_SOURCES
 	src/commands/permission/arrest.c
 	src/commands/permission/ban.c
 	src/commands/permission/config.c
@@ -48,9 +48,6 @@ set(SOURCES
 	src/commands/player/whereami.c
 	src/commands/player/who.c
 	src/http_server/http_server.c
-	src/loaders/map_header.c
-	src/loaders/object.c
-	src/loaders/random_map.c
 	src/random_maps/decor.c
 	src/random_maps/door.c
 	src/random_maps/exit.c
@@ -240,5 +237,4 @@ set(SOURCES
 	src/types/waypoint.c
 	src/types/wealth.c
 	src/types/weapon.c
-	src/types/word_of_recall.c
-	${SOURCES_TOOLKIT})
+	src/types/word_of_recall.c)

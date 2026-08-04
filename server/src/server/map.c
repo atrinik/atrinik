@@ -84,7 +84,8 @@ static void allocate_map(mapstruct *m);
 static void free_all_objects(mapstruct *m);
 
 /** @copydoc chunk_debugger */
-static void map_debugger(mapstruct *map, char *buf, size_t size) {
+static void map_debugger(void *ptr, char *buf, size_t size) {
+    mapstruct *map = ptr;
     snprintf(buf, size, "count: %d", map->count);
 
     if (map->name != NULL) {
@@ -97,12 +98,14 @@ static void map_debugger(mapstruct *map, char *buf, size_t size) {
 }
 
 /** @copydoc chunk_validator */
-static bool map_validator(mapstruct *map) {
+static bool map_validator(void *ptr) {
+    mapstruct *map = ptr;
     return map->count != 0;
 }
 
 /** @copydoc chunk_constructor */
-static void map_constructor(mapstruct *map) {
+static void map_constructor(void *ptr) {
+    mapstruct *map = ptr;
     DL_APPEND(first_map, map);
 
     map->in_memory = MAP_SWAPPED;
@@ -122,7 +125,8 @@ static void map_constructor(mapstruct *map) {
 }
 
 /** @copydoc chunk_constructor */
-static void map_destructor(mapstruct *map) {
+static void map_destructor(void *ptr) {
+    mapstruct *map = ptr;
     if (!map->global_removed) {
         DL_DELETE(first_map, map);
     }
@@ -147,10 +151,10 @@ void map_init(void) {
                               MEMPOOL_ALLOW_FREEING,
                               NULL,
                               NULL,
-                              (chunk_constructor)map_constructor,
-                              (chunk_destructor)map_destructor);
-    mempool_set_debugger(pool_map, (chunk_debugger)map_debugger);
-    mempool_set_validator(pool_map, (chunk_validator)map_validator);
+                              map_constructor,
+                              map_destructor);
+    mempool_set_debugger(pool_map, map_debugger);
+    mempool_set_validator(pool_map, map_validator);
 }
 
 /**

@@ -40,7 +40,7 @@
  */
 static mempool_struct *pool_packet;
 
-static void packet_debugger(packet_struct *packet, char *buf, size_t size);
+static void packet_debugger(void *ptr, char *buf, size_t size);
 
 TOOLKIT_API(DEPENDS(mempool));
 
@@ -53,7 +53,7 @@ TOOLKIT_INIT_FUNC(packet) {
                                  NULL,
                                  NULL,
                                  NULL);
-    mempool_set_debugger(pool_packet, (chunk_debugger)packet_debugger);
+    mempool_set_debugger(pool_packet, packet_debugger);
 }
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -61,7 +61,8 @@ TOOLKIT_DEINIT_FUNC(packet) {}
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /** @copydoc chunk_debugger */
-static void packet_debugger(packet_struct *packet, char *buf, size_t size) {
+static void packet_debugger(void *ptr, char *buf, size_t size) {
+    packet_struct *packet = ptr;
     snprintf(buf,
              size,
              "type: %d length: %" PRIu64 " size: %" PRIu64,
@@ -525,7 +526,7 @@ uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos) {
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 1) {
+    if (*pos >= len) {
         *pos = len;
         return 0;
     }
@@ -537,17 +538,19 @@ uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos) {
 }
 
 int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos) {
+    uint8_t value;
     int8_t ret;
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 1) {
+    if (*pos >= len) {
         *pos = len;
         return 0;
     }
 
-    ret = data[*pos];
+    value = data[*pos];
     *pos += 1;
+    memcpy(&ret, &value, sizeof(ret));
 
     return ret;
 }
@@ -557,29 +560,31 @@ uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos) {
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 2) {
+    if (*pos > len || len - *pos < 2) {
         *pos = len;
         return 0;
     }
 
-    ret = (data[*pos] << 8) + data[*pos + 1];
+    ret = ((uint16_t)data[*pos] << 8) | (uint16_t)data[*pos + 1];
     *pos += 2;
 
     return ret;
 }
 
 int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos) {
+    uint16_t value;
     int16_t ret;
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 2) {
+    if (*pos > len || len - *pos < 2) {
         *pos = len;
         return 0;
     }
 
-    ret = (data[*pos] << 8) + data[*pos + 1];
+    value = ((uint16_t)data[*pos] << 8) | (uint16_t)data[*pos + 1];
     *pos += 2;
+    memcpy(&ret, &value, sizeof(ret));
 
     return ret;
 }
@@ -589,29 +594,26 @@ uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos) {
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 4) {
+    if (*pos > len || len - *pos < 4) {
         *pos = len;
         return 0;
     }
 
-    ret = (data[*pos] << 24) + (data[*pos + 1] << 16) + (data[*pos + 2] << 8) + data[*pos + 3];
+    ret = ((uint32_t)data[*pos] << 24) | ((uint32_t)data[*pos + 1] << 16) |
+          ((uint32_t)data[*pos + 2] << 8) | (uint32_t)data[*pos + 3];
     *pos += 4;
 
     return ret;
 }
 
 int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos) {
+    uint32_t value;
     int32_t ret;
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 4) {
-        *pos = len;
-        return 0;
-    }
-
-    ret = (data[*pos] << 24) + (data[*pos + 1] << 16) + (data[*pos + 2] << 8) + data[*pos + 3];
-    *pos += 4;
+    value = packet_to_uint32(data, len, pos);
+    memcpy(&ret, &value, sizeof(ret));
 
     return ret;
 }
@@ -621,35 +623,28 @@ uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos) {
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 8) {
+    if (*pos > len || len - *pos < 8) {
         *pos = len;
         return 0;
     }
 
-    ret = ((uint64_t)data[*pos] << 56) + ((uint64_t)data[*pos + 1] << 48) +
-          ((uint64_t)data[*pos + 2] << 40) + ((uint64_t)data[*pos + 3] << 32) +
-          ((uint64_t)data[*pos + 4] << 24) + ((uint64_t)data[*pos + 5] << 16) +
-          ((uint64_t)data[*pos + 6] << 8) + (uint64_t)data[*pos + 7];
+    ret = ((uint64_t)data[*pos] << 56) | ((uint64_t)data[*pos + 1] << 48) |
+          ((uint64_t)data[*pos + 2] << 40) | ((uint64_t)data[*pos + 3] << 32) |
+          ((uint64_t)data[*pos + 4] << 24) | ((uint64_t)data[*pos + 5] << 16) |
+          ((uint64_t)data[*pos + 6] << 8) | (uint64_t)data[*pos + 7];
     *pos += 8;
 
     return ret;
 }
 
 int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos) {
+    uint64_t value;
     int64_t ret;
 
     TOOLKIT_PROTECT();
 
-    if (len - *pos < 8) {
-        *pos = len;
-        return 0;
-    }
-
-    ret = ((int64_t)data[*pos] << 56) + ((int64_t)data[*pos + 1] << 48) +
-          ((int64_t)data[*pos + 2] << 40) + ((int64_t)data[*pos + 3] << 32) +
-          ((int64_t)data[*pos + 4] << 24) + ((int64_t)data[*pos + 5] << 16) +
-          ((int64_t)data[*pos + 6] << 8) + (int64_t)data[*pos + 7];
-    *pos += 8;
+    value = packet_to_uint64(data, len, pos);
+    memcpy(&ret, &value, sizeof(ret));
 
     return ret;
 }
@@ -684,6 +679,9 @@ char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_
 
     TOOLKIT_PROTECT();
 
+    HARD_ASSERT(dest != NULL);
+    HARD_ASSERT(dest_size > 0);
+
     while (*pos < len && (c = (char)(data[(*pos)++]))) {
         if (i < dest_size - 1) {
             dest[i++] = c;
@@ -702,6 +700,11 @@ void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer
     }
 
     char *str = (char *)(data + *pos);
-    stringbuffer_append_string_len(sb, str, strnlen(str, len - *pos));
-    *pos += strlen(str) + 1;
+    size_t remaining = len - *pos;
+    size_t string_len = strnlen(str, remaining);
+    stringbuffer_append_string_len(sb, str, string_len);
+    *pos += string_len;
+    if (string_len < remaining) {
+        (*pos)++;
+    }
 }

@@ -79,30 +79,30 @@ typedef struct toolkit_dependency {
 /**
  * Defines an initialization function.
  */
-#define TOOLKIT_INIT_FUNC(__api_name)                                   \
-    void TOOLKIT_FUNC(__api_name, _init)(void) {                        \
-        toolkit_func _deinit_func_ = TOOLKIT_FUNC(__api_name, _deinit); \
-        const char *const _api_name_ = STRINGIFY(__api_name);           \
-        if (toolkit_check_imported(_deinit_func_)) {                    \
-            return;                                                     \
-        }                                                               \
-        _did_init_ = true;                                              \
-        for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
-            if (_dependencies_[_i_].depends) {                          \
-                _dependencies_[_i_].func();                             \
-            }                                                           \
-        }                                                               \
+#define TOOLKIT_INIT_FUNC(__api_name)                                      \
+    void TOOLKIT_FUNC(__api_name, _init)(void) {                           \
+        toolkit_func _deinit_func_ = TOOLKIT_FUNC(__api_name, _deinit);    \
+        const char *const _api_name_ = STRINGIFY(__api_name);              \
+        if (toolkit_check_imported(_deinit_func_)) {                       \
+            return;                                                        \
+        }                                                                  \
+        _did_init_ = true;                                                 \
+        for (size_t _i_ = 1; _i_ + 1 < arraysize(_dependencies_); _i_++) { \
+            if (_dependencies_[_i_].depends) {                             \
+                _dependencies_[_i_].func();                                \
+            }                                                              \
+        }                                                                  \
         toolkit_import_register(_api_name_, _deinit_func_);
 
 /**
  * Finishes a previously defined initialization function.
  */
-#define TOOLKIT_INIT_FUNC_FINISH                                    \
-    for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
-        if (!_dependencies_[_i_].depends) {                         \
-            _dependencies_[_i_].func();                             \
-        }                                                           \
-    }                                                               \
+#define TOOLKIT_INIT_FUNC_FINISH                                       \
+    for (size_t _i_ = 1; _i_ + 1 < arraysize(_dependencies_); _i_++) { \
+        if (!_dependencies_[_i_].depends) {                            \
+            _dependencies_[_i_].func();                                \
+        }                                                              \
+    }                                                                  \
     }
 
 /**

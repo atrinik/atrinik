@@ -26,7 +26,6 @@
 #define TOOLKIT_CMAKE_H
 
 /* Is libcheck (unit tests) available? */
-#cmakedefine HAVE_CHECK
 
 /* Plugin suffix. */
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"

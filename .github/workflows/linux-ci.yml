@@ -25,8 +25,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
-    name: Build and server tests
+  gcc:
+    name: GCC build and CTest
     runs-on: ubuntu-26.04
     container:
       image: ghcr.io/atrinik/linux-build:0.0.2
@@ -75,31 +75,104 @@ jobs:
 
       - name: Configure
         run: |
-          cmake --preset linux-debug \
+          cmake --preset gcc-debug \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache
 
       - name: Build client and server
-        run: cmake --build --preset linux-debug --parallel
+        run: cmake --build --preset gcc-debug --parallel
 
-      - name: Run direct-network end-to-end tests
-        run: cmake --build --preset linux-debug --target network-e2e
-
-      - name: Prepare server test runtime
-        run: |
-          mkdir -p server/lib
-          python3 tools/collect.py --dir . --out server/lib
-          cp -R server/install_data server/data
-          mkdir -p server/data/tmp
-          ln -s "${GITHUB_WORKSPACE}/build/linux-debug/server/atrinik-server" \
-            server/atrinik-server
-          ln -s "${GITHUB_WORKSPACE}/build/linux-debug/server/libplugin_arena.so" \
-            server/libplugin_arena.so
-          ln -s "${GITHUB_WORKSPACE}/build/linux-debug/server/libplugin_python.so" \
-            server/libplugin_python.so
-
-      - name: Run server tests
-        run: cmake --build --preset linux-debug --target check
+      - name: Run CTest suites
+        run: ctest --preset gcc-debug
 
       - name: Report compiler cache statistics
         if: always()
         run: ccache --show-stats
+
+  clang-sanitizers:
+    name: Clang ASan/UBSan
+    if: github.event_name != 'workflow_call'
+    runs-on: ubuntu-26.04
+    container:
+      image: ghcr.io/atrinik/linux-build:0.0.2
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      options: --user 0
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 30
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache-clang
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Trust checked-out workspace
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      # linux-build:0.0.2 does not include Clang. Install it in the pinned,
+      # ephemeral job container until the next build-image release.
+      - name: Install Clang
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends clang libclang-rt-dev llvm
+
+      - name: Configure
+        run: |
+          cmake --preset clang-asan \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Build client and server
+        run: cmake --build --preset clang-asan --parallel
+
+      - name: Run unit and end-to-end tests
+        run: ctest --preset clang-asan -L 'unit|e2e'
+
+      - name: Report compiler cache statistics
+        if: always()
+        run: ccache --show-stats
+
+  windows:
+    name: Windows ${{ matrix.component }} (MinGW)
+    if: github.event_name != 'workflow_call'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - client
+          - server
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build with pinned MinGW image
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp \
+            --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+            --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
+            --workdir /workspaces/atrinik \
+            ghcr.io/atrinik/windows-build:0.0.2 \
+            bash -c \
+              'x86_64-w64-mingw32.shared-cmake \
+                 --no-warn-unused-cli \
+                 --preset "windows-mxe-ci-${1}" && \
+               cmake --build --preset "windows-mxe-ci-${1}" --parallel' \
+            bash "${COMPONENT}"

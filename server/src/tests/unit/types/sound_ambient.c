@@ -90,6 +90,28 @@ START_TEST(test_sound_ambient_match_parse) {
 
 END_TEST
 
+START_TEST(test_sound_ambient_match_parse_rejects_unsafe_groups) {
+    object *ob = arch_get("sound_ambient");
+    ck_assert_ptr_ne(ob, NULL);
+
+    const char *invalid_matches[] = {
+        "&& hour == 1",
+        "|| hour == 1",
+        "hour == 1)",
+        "(hour == 1",
+        "((((((((((hour == 1))))))))))",
+    };
+
+    for (size_t i = 0; i < arraysize(invalid_matches); i++) {
+        sound_ambient_match_parse(ob, invalid_matches[i]);
+        ck_assert_ptr_null(ob->custom_attrset);
+    }
+
+    object_destroy(ob);
+}
+
+END_TEST
+
 static Suite *suite(void) {
     Suite *s = suite_create("sound_ambient");
     TCase *tc_core = tcase_create("Core");
@@ -99,6 +121,7 @@ static Suite *suite(void) {
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_sound_ambient_match_parse);
+    tcase_add_test(tc_core, test_sound_ambient_match_parse_rejects_unsafe_groups);
 
     return s;
 }

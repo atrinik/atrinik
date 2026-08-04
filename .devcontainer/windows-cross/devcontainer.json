@@ -3,6 +3,9 @@
   "image": "ghcr.io/atrinik/windows-build:0.0.2",
   "workspaceFolder": "/workspaces/atrinik",
   "remoteUser": "vscode",
+  "remoteEnv": {
+    "PATH": "/opt/mxe/usr/bin:${containerEnv:PATH}"
+  },
   "postCreateCommand": "git submodule update --init --recursive || true",
   "customizations": {
     "vscode": {
@@ -11,6 +14,10 @@
         "ms-vscode.cpptools"
       ],
       "settings": {
+        "cmake.cmakePath": "/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-cmake",
+        "cmake.configureArgs": [
+          "--no-warn-unused-cli"
+        ],
         "cmake.configurePreset": "windows-mxe-release",
         "cmake.buildPreset": "windows-mxe-release"
       }

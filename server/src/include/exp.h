@@ -56,8 +56,8 @@ typedef struct level_color {
 } level_color_t;
 
 /* Prototypes */
-uint64_t new_levels[MAXLEVEL + 2];
-level_color_t level_color[201];
+extern uint64_t new_levels[MAXLEVEL + 2];
+extern level_color_t level_color[201];
 
 uint64_t level_exp(int level, double expmul);
 int64_t skill_exp_to_character_exp(const object *skill, int skill_nr);

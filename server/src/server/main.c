@@ -38,17 +38,13 @@
 #include <object_methods.h>
 #include <waypoint.h>
 #include <server.h>
+#include <server_main.h>
 #include <network_metrics.h>
 #include <toolkit/datetime.h>
 #include <cmake.h>
 
 #include <toolkit/process.h>
 #include <toolkit/console.h>
-
-#ifdef HAVE_CHECK
-#include <check.h>
-#include <check_proto.h>
-#endif
 
 /** Object used in process_events(). */
 static object marker;
@@ -575,7 +571,7 @@ void main_process(void) {
  * @return
  * 0.
  */
-int main(int argc, char **argv) {
+int server_run(int argc, char **argv) {
 #ifdef WIN32
     /* Open all files in binary mode by default. */
     _set_fmode(_O_BINARY);
@@ -597,15 +593,9 @@ int main(int argc, char **argv) {
     }
 
     if (settings.unit_tests) {
-#ifdef HAVE_CHECK
-        LOG(INFO, "Running unit tests...");
+        LOG(ERROR, "Unit tests are provided by the atrinik-server-tests executable.");
         cleanup();
-        check_main(argc, argv);
-        exit(0);
-#else
-        LOG(ERROR, "Unit tests have not been compiled, aborting.");
-        exit(1);
-#endif
+        return EXIT_FAILURE;
     }
 
     atexit(cleanup);

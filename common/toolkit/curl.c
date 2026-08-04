@@ -1267,8 +1267,8 @@ static curl_state_t curl_request_setup(curl_request_t *request) {
     /* Disable signals since we are in a thread. See
      * http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTNOSIGNAL
      * for details. */
-    CURL_SETOPT(request->handle, CURLOPT_NOSIGNAL, 1);
-    CURL_SETOPT(request->handle, CURLOPT_FOLLOWLOCATION, 1);
+    CURL_SETOPT(request->handle, CURLOPT_NOSIGNAL, 1L);
+    CURL_SETOPT(request->handle, CURLOPT_FOLLOWLOCATION, 1L);
 
     if (request->max_body_size != SIZE_MAX) {
         CURL_SETOPT(request->handle, CURLOPT_MAXFILESIZE_LARGE, (curl_off_t)request->max_body_size);

@@ -1,115 +1,64 @@
 # The Atrinik server CMakeLists file.
 
-cmake_minimum_required(VERSION 3.10)
-project(atrinik-server C)
 set(EXECUTABLE atrinik-server)
 set(PACKAGE_NAME "Atrinik Server")
 
-# Need Flex...
+set(ATRINIK_SERVER_INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_BINARY_DIR}/common
+    ${CMAKE_BINARY_DIR}/common/toolkit
+    ${CMAKE_CURRENT_BINARY_DIR}/src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/http_server
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/random_maps
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/types/monster/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/types/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 find_package(FLEX REQUIRED)
-
-# libdl is required.
-find_library(DL_LIBRARY dl)
-
-if (NOT DL_LIBRARY AND NOT MINGW)
-    message(FATAL_ERROR "Could not find dl library.")
-endif ()
-
-# Add our includes.
-include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}/src/include)
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
-include_directories(${CMAKE_BINARY_DIR}/common/toolkit)
-include_directories(src/http_server)
-include_directories(src/random_maps)
-include_directories(src/tests)
-include_directories(src/types/monster/include)
-include_directories(src/types/include)
-include_directories(src)
-
-# Scan for lexers.
-set(LEXERS
-    src/loaders/map_header.l
-    src/loaders/object.l
-    src/loaders/random_map.l)
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/src/loaders")
 set(LEXERS_OUT)
+foreach (name map_header object random_map)
+    set(src "${CMAKE_CURRENT_SOURCE_DIR}/src/loaders/${name}.l")
+    set(dst "${CMAKE_CURRENT_BINARY_DIR}/src/loaders/${name}.c")
+    flex_target(${name} "${src}" "${dst}"
+        COMPILE_FLAGS "-Cfa -i --prefix yy_${name}")
+    list(APPEND LEXERS_OUT ${FLEX_${name}_OUTPUTS})
+endforeach ()
 
-# Add command to parse the lexer files with flex.
-foreach (name ${LEXERS})
-    string(REPLACE ".l" "" name ${name})
-    set(src "${name}.l")
-    set(dst "${name}.c")
-    string(REPLACE "src/loaders/" "" name ${name})
-    flex_target(${name} "${PROJECT_SOURCE_DIR}/${src}" "${PROJECT_SOURCE_DIR}/${dst}" COMPILE_FLAGS "-Cfa -i --prefix yy_${name}")
-    get_property(out VARIABLE PROPERTY FLEX_${name}_OUTPUTS)
-    set(LEXERS_OUT ${LEXERS_OUT} ${out})
-endforeach (name)
-
-# Add sources.
 include(src/cmake.txt)
-
-# Check is used for unit tests, but is optional.
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
 
 if (NOT MINGW)
     pkg_check_modules(MINIUPNPC REQUIRED IMPORTED_TARGET miniupnpc)
 endif ()
 
-find_library(CHECK_LIBRARY check)
-
-if (CHECK_PKG_FOUND OR CHECK_LIBRARY)
-    set(HAVE_CHECK true)
-else ()
-    message(STATUS "Could not find check library, unit tests will be disabled.")
+find_library(DL_LIBRARY dl)
+if (NOT DL_LIBRARY AND NOT MINGW)
+    message(FATAL_ERROR "Could not find dl library.")
 endif ()
 
-# GD is used for world maker, but like unit tests, is also optional.
 find_library(GD_LIBRARY gd)
-
 if (GD_LIBRARY)
     set(HAVE_WORLD_MAKER true)
+    set(SOURCES_WORLD_MAKER src/modules/world_maker.c)
 else ()
     message(STATUS "Could not find gd library, world maker module will be disabled.")
 endif ()
 
-# Find unit test source files if check is installed.
-if (CHECK_LIBRARY)
-    set(SOURCES_CHECK
-        src/tests/check.c
-        src/tests/bugs/cursed_treasures.c
-        src/tests/unit/commands/object.c
-        src/tests/unit/server/arch.c
-        src/tests/unit/server/attack.c
-        src/tests/unit/server/ban.c
-        src/tests/unit/server/bank.c
-        src/tests/unit/server/cache.c
-        src/tests/unit/server/living.c
-        src/tests/unit/server/object.c
-        src/tests/unit/server/re_cmp.c
-        src/tests/unit/server/rune.c
-        src/tests/unit/server/shop.c
-        src/tests/unit/toolkit/math.c
-        src/tests/unit/toolkit/memory.c
-        src/tests/unit/toolkit/packet.c
-        src/tests/unit/toolkit/pbkdf2.c
-        src/tests/unit/toolkit/shstr.c
-        src/tests/unit/toolkit/socket_asset.c
-        src/tests/unit/toolkit/string.c
-        src/tests/unit/toolkit/stringbuffer.c
-        src/tests/unit/types/light_apply.c
-        src/tests/unit/types/sound_ambient.c)
-endif ()
+configure_file(src/include/cmake.h.def src/include/cmake.h)
+configure_file(src/include/version.h.def src/include/version.h)
 
-# Find the world maker files, if enabled.
-if (HAVE_WORLD_MAKER)
-    set(SOURCES_WORLD_MAKER
-        src/modules/world_maker.c)
-endif ()
-
-# Compile the sources into an executable.
-add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
-target_link_libraries(${EXECUTABLE} atrinik-toolkit)
-target_link_libraries(${EXECUTABLE}
+add_library(atrinik-server-core OBJECT
+    ${SERVER_CORE_SOURCES}
+    ${SOURCES_WORLD_MAKER}
+    ${LEXERS_OUT})
+atrinik_configure_target(atrinik-server-core)
+target_include_directories(atrinik-server-core BEFORE PRIVATE
+    ${ATRINIK_SERVER_INCLUDE_DIRS})
+target_link_libraries(atrinik-server-core PRIVATE
+    atrinik-toolkit
     pcpnatpmp::pcpnatpmp)
 
 if (MINGW)
@@ -118,90 +67,37 @@ if (MINGW)
         message(FATAL_ERROR "Could not find the static MiniUPnPc library.")
     endif ()
 
-    target_compile_definitions(${EXECUTABLE} PRIVATE MINIUPNP_STATICLIB)
-    target_link_libraries(${EXECUTABLE}
+    target_compile_definitions(atrinik-server-core PRIVATE MINIUPNP_STATICLIB)
+    target_link_libraries(atrinik-server-core PRIVATE
         ${ATRINIK_MINIUPNPC_STATIC_LIBRARY}
         ws2_32
         iphlpapi)
 else ()
-    target_link_libraries(${EXECUTABLE} PkgConfig::MINIUPNPC)
+    target_link_libraries(atrinik-server-core PRIVATE PkgConfig::MINIUPNPC)
 endif ()
 
-# Link libraries.
 if (DL_LIBRARY)
-    target_link_libraries(${EXECUTABLE} ${DL_LIBRARY})
+    target_link_libraries(atrinik-server-core PRIVATE ${DL_LIBRARY})
 endif ()
 
-# Link check.
-if (HAVE_CHECK)
-    if (CHECK_PKG_FOUND)
-        target_link_libraries(${EXECUTABLE} PkgConfig::CHECK_PKG)
-    else ()
-        target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
-
-        if (UNIX AND NOT APPLE)
-            target_link_libraries(${EXECUTABLE} rt)
-        endif ()
-    endif ()
-endif ()
-
-# Link GD.
 if (GD_LIBRARY)
-    target_link_libraries(${EXECUTABLE} ${GD_LIBRARY})
-
+    target_link_libraries(atrinik-server-core PRIVATE ${GD_LIBRARY})
     if (MINGW)
-        target_link_libraries(${EXECUTABLE} png)
+        target_link_libraries(atrinik-server-core PRIVATE png)
     endif ()
 endif ()
 
-# Get all the include directories used to compile the server.
-get_directory_property(INCLUDES INCLUDE_DIRECTORIES)
+add_executable(${EXECUTABLE} src/server/entrypoint.c)
+atrinik_configure_target(${EXECUTABLE})
+target_include_directories(${EXECUTABLE} BEFORE PRIVATE
+    ${ATRINIK_SERVER_INCLUDE_DIRS})
+target_link_libraries(${EXECUTABLE} PRIVATE atrinik-server-core)
 
-# Go through the include directories and construct a string.
-foreach (var ${INCLUDES})
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-    set(INCLUDES_STRING "${INCLUDES_STRING} -I${var}")
-endforeach (var)
-
-# Go through the source files and construct a string.
-foreach (var ${SOURCES} ${LEXERS_OUT})
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-    set(SOURCES_STRING "${SOURCES_STRING};${var}")
-endforeach (var)
-
-add_custom_target(check
-    COMMAND ${EXECUTABLE} --unit --logger_filter_stdout=-info,-devel
-        --port_mapping=off
-    COMMAND ${EXECUTABLE} --plugin_unit --port_mapping=off
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Executing unit tests..."
-    VERBATIM
-)
-
-if (HAVE_CHECK)
-    # Go through the source files and construct a string.
-    foreach (var ${SOURCES_CHECK})
-        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-        set(SOURCES_CHECK_STRING "${SOURCES_CHECK_STRING};${var}")
-    endforeach (var)
-
-    # Create a 'proto' build target, which generates the proto.h file.
-    add_custom_target(proto_unit
-        cproto -ve -o src/tests/check_proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_CHECK_STRING}
-        COMMAND cmake -E echo "#ifndef __CPROTO__" > src/tests/check_proto.h
-        COMMAND sed -e "s/\"\" //g" < src/tests/check_proto.h.bak >> src/tests/check_proto.h
-        COMMAND cmake -E echo "#endif" >> src/tests/check_proto.h
-        COMMAND cmake -E remove -f src/tests/check_proto.h.bak
-        COMMAND python src/toolkit/adjust_proto.py src/tests/check_proto.h || exit 5
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMENT "Generating unit test prototypes..."
-        VERBATIM)
-endif ()
-
-# Create the Arena plugin.
-set(SOURCES_PLUGIN_ARENA
+add_library(plugin_arena MODULE
     src/plugins/plugin_arena/plugin_arena.c)
-add_library(plugin_arena MODULE ${SOURCES_PLUGIN_ARENA})
+atrinik_configure_target(plugin_arena)
+target_include_directories(plugin_arena BEFORE PRIVATE
+    ${ATRINIK_SERVER_INCLUDE_DIRS})
 
 # Create the Python plugin, if requested and Python was found.
 if (ENABLE_PYTHON_PLUGIN)
@@ -222,15 +118,10 @@ if (ENABLE_PYTHON_PLUGIN)
             set(PYTHONLIBS_FOUND true)
             set(PYTHON_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
             set(PYTHON_LIBRARIES Python::Python)
-        else ()
-            # Older CMake versions do not provide FindPython.
-            find_package(PythonLibs)
         endif ()
     endif ()
 
     if (PYTHONLIBS_FOUND)
-        include_directories(${PYTHON_INCLUDE_DIRS})
-        include_directories(src/plugins/plugin_python/include)
         set(HAVE_PYTHON true)
 
         set(SOURCES_PLUGIN_PYTHON
@@ -243,7 +134,12 @@ if (ENABLE_PYTHON_PLUGIN)
             src/plugins/plugin_python/attr_list.c
             src/plugins/plugin_python/plugin_python.c)
         add_library(plugin_python MODULE ${SOURCES_PLUGIN_PYTHON})
-        target_link_libraries(plugin_python ${PYTHON_LIBRARIES})
+        atrinik_configure_target(plugin_python)
+        target_include_directories(plugin_python BEFORE PRIVATE
+            ${ATRINIK_SERVER_INCLUDE_DIRS}
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/plugin_python/include
+            ${PYTHON_INCLUDE_DIRS})
+        target_link_libraries(plugin_python PRIVATE ${PYTHON_LIBRARIES})
         add_dependencies(${EXECUTABLE} plugin_python)
     else ()
         message(FATAL_ERROR "Python development files are required for the Python plugin.")
@@ -252,9 +148,154 @@ else ()
     message(STATUS "Python plugin disabled by ENABLE_PYTHON_PLUGIN=false.")
 endif ()
 
-add_dependencies(check ${EXECUTABLE} plugin_arena)
-if (TARGET plugin_python)
-    add_dependencies(check plugin_python)
+if (BUILD_TESTING AND NOT MINGW)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
+
+    if (CHECK_PKG_FOUND)
+        include(src/tests/suites.cmake)
+        set(SOURCES_CHECK
+            src/tests/main.c
+            src/tests/check.c)
+        set(ATRINIK_SERVER_UNIT_SUITES)
+        set(ATRINIK_SERVER_TEST_SUITE_DECLARATIONS)
+        set(ATRINIK_SERVER_TEST_SUITE_ENTRIES)
+        foreach (suite_record IN LISTS ATRINIK_SERVER_TEST_SUITES)
+            string(REPLACE "|" ";" suite_fields "${suite_record}")
+            list(LENGTH suite_fields suite_field_count)
+            if (NOT suite_field_count EQUAL 3)
+                message(FATAL_ERROR "Invalid server test suite: ${suite_record}")
+            endif ()
+
+            list(GET suite_fields 0 suite_name)
+            list(GET suite_fields 1 suite_function)
+            list(GET suite_fields 2 suite_source)
+            list(APPEND ATRINIK_SERVER_UNIT_SUITES "${suite_name}")
+            list(APPEND SOURCES_CHECK "${suite_source}")
+            string(APPEND ATRINIK_SERVER_TEST_SUITE_DECLARATIONS
+                "extern void ${suite_function}(void);\n")
+            string(APPEND ATRINIK_SERVER_TEST_SUITE_ENTRIES
+                "    {\"${suite_name}\", ${suite_function}},\n")
+        endforeach ()
+
+        configure_file(
+            src/tests/check_suites.h.in
+            src/include/check_suites.h
+            @ONLY)
+        configure_file(
+            src/tests/check_suites.inc.in
+            src/include/check_suites.inc
+            @ONLY)
+
+        add_executable(atrinik-server-tests ${SOURCES_CHECK})
+        atrinik_configure_target(atrinik-server-tests)
+        target_include_directories(atrinik-server-tests BEFORE PRIVATE
+            ${ATRINIK_SERVER_INCLUDE_DIRS})
+        target_compile_definitions(atrinik-server-tests PRIVATE
+            ATRINIK_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src/tests/data")
+        target_link_libraries(atrinik-server-tests PRIVATE
+            atrinik-server-core
+            PkgConfig::CHECK_PKG)
+
+        set(ATRINIK_SERVER_TEST_RUNTIME
+            "${CMAKE_BINARY_DIR}/server-test-runtime")
+        set(ATRINIK_SERVER_TEST_RUNTIME_STAMP
+            "${ATRINIK_SERVER_TEST_RUNTIME}/.prepared")
+        set(ATRINIK_SERVER_TEST_RUNTIME_ARGS
+            -DATRINIK_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+            -DATRINIK_BINARY_DIR=${CMAKE_BINARY_DIR}
+            -DATRINIK_RUNTIME_DIR=${ATRINIK_SERVER_TEST_RUNTIME}
+            -DATRINIK_ARENA_PLUGIN=$<TARGET_FILE:plugin_arena>
+            -DPython3_EXECUTABLE=${Python3_EXECUTABLE})
+        set(ATRINIK_SERVER_TEST_RUNTIME_DEPENDS plugin_arena)
+        if (TARGET plugin_python)
+            list(APPEND ATRINIK_SERVER_TEST_RUNTIME_ARGS
+                -DATRINIK_PYTHON_PLUGIN=$<TARGET_FILE:plugin_python>)
+            list(APPEND ATRINIK_SERVER_TEST_RUNTIME_DEPENDS plugin_python)
+        endif ()
+
+        file(GLOB_RECURSE ATRINIK_SERVER_TEST_RESOURCE_INPUTS
+            CONFIGURE_DEPENDS
+            LIST_DIRECTORIES false
+            "${CMAKE_SOURCE_DIR}/arch/*"
+            "${CMAKE_SOURCE_DIR}/server/install_data/*"
+            "${CMAKE_SOURCE_DIR}/tools/compilers/*.py")
+        list(APPEND ATRINIK_SERVER_TEST_RESOURCE_INPUTS
+            ${CMAKE_SOURCE_DIR}/server/ca-bundle.crt
+            ${CMAKE_SOURCE_DIR}/server/permissions.cfg
+            ${CMAKE_SOURCE_DIR}/server/server.cfg
+            ${CMAKE_SOURCE_DIR}/tools/collect.py
+            ${CMAKE_SOURCE_DIR}/tools/utils.py)
+
+        add_custom_command(
+            OUTPUT "${ATRINIK_SERVER_TEST_RUNTIME_STAMP}"
+            COMMAND ${CMAKE_COMMAND}
+                ${ATRINIK_SERVER_TEST_RUNTIME_ARGS}
+                -P ${CMAKE_SOURCE_DIR}/cmake/prepare_server_test_runtime.cmake
+            DEPENDS
+                ${ATRINIK_SERVER_TEST_RUNTIME_DEPENDS}
+                ${ATRINIK_SERVER_TEST_RESOURCE_INPUTS}
+                ${CMAKE_SOURCE_DIR}/cmake/prepare_server_test_runtime.cmake
+            COMMENT "Preparing isolated server test runtime..."
+            VERBATIM)
+        add_custom_target(server-test-runtime
+            DEPENDS "${ATRINIK_SERVER_TEST_RUNTIME_STAMP}")
+        add_dependencies(atrinik-server-tests server-test-runtime)
+
+        foreach (suite IN LISTS ATRINIK_SERVER_UNIT_SUITES)
+            add_test(NAME server-unit-${suite}
+                COMMAND atrinik-server-tests
+                    --unit
+                    --logger_filter_stdout=-info,-devel
+                    --port_mapping=off)
+            set_tests_properties(server-unit-${suite} PROPERTIES
+                ENVIRONMENT "ATRINIK_TEST_SUITE=${suite}"
+                LABELS "server;unit"
+                RESOURCE_LOCK server-test-runtime
+                TIMEOUT 300
+                WORKING_DIRECTORY "${ATRINIK_SERVER_TEST_RUNTIME}/server")
+        endforeach ()
+
+        if (ENABLE_SANITIZERS)
+            add_test(NAME server-lsan-smoke
+                COMMAND atrinik-server-tests
+                    --unit
+                    --logger_filter_stdout=-info,-devel
+                    --port_mapping=off)
+            set_tests_properties(server-lsan-smoke PROPERTIES
+                ENVIRONMENT
+                    "ASAN_OPTIONS=detect_leaks=1;ATRINIK_TEST_SUITE=toolkit.string;CK_FORK=no"
+                LABELS "server;unit;sanitizer;lsan"
+                RESOURCE_LOCK server-test-runtime
+                TIMEOUT 300
+                WORKING_DIRECTORY "${ATRINIK_SERVER_TEST_RUNTIME}/server")
+        endif ()
+
+        if (TARGET plugin_python)
+            add_test(NAME server-plugin-python
+                COMMAND ${EXECUTABLE} --plugin_unit --port_mapping=off)
+            set_tests_properties(server-plugin-python PROPERTIES
+                LABELS "server;plugin;runtime"
+                RESOURCE_LOCK server-test-runtime
+                TIMEOUT 300
+                WORKING_DIRECTORY "${ATRINIK_SERVER_TEST_RUNTIME}/server")
+        endif ()
+
+        add_custom_target(check
+            COMMAND ${CMAKE_CTEST_COMMAND}
+                --test-dir ${CMAKE_BINARY_DIR}
+                --output-on-failure
+                -L server
+            DEPENDS
+                atrinik-server-tests
+                ${EXECUTABLE}
+                server-test-runtime
+            COMMENT "Executing server tests..."
+            VERBATIM)
+    else ()
+        message(WARNING
+            "Check was not found; dedicated server tests will not be built.")
+    endif ()
 endif ()
 
 if (MINGW AND ${PACKAGE_TYPE} STREQUAL "zip")
@@ -340,8 +381,3 @@ if (MINGW AND ${PACKAGE_TYPE} STREQUAL "zip")
     set(CPACK_BINARY_TZ OFF)
     include(CPack)
 endif ()
-
-# Configure the .h file with the configuration options (size of long,
-# package version, etc).
-configure_file(src/include/cmake.h.def src/include/cmake.h)
-configure_file(src/include/version.h.def src/include/version.h)
