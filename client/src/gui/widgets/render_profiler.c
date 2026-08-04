@@ -118,7 +118,7 @@ static void widget_draw(widgetdata *widget) {
                      "GC %8.2f  present %5.2f\n"
                      "[c=#ffd060]Map[/c] %8.2f ms @ %.1f/s\n"
                      " ground %5.2f  lighting %5.2f\n"
-                     " objects %4.2f  UI %9.2f",
+                     " objects %4.2f  paint %4.2f  UI %4.2f",
                      snapshot->interval_us / 1000000.0,
                      render_profile_rate(snapshot, snapshot->frames),
                      render_profile_rate(snapshot, snapshot->drawn_frames),
@@ -136,6 +136,7 @@ static void widget_draw(widgetdata *widget) {
                      render_profile_average_ms(snapshot, RENDER_PROFILE_MAP_GROUND),
                      render_profile_average_ms(snapshot, RENDER_PROFILE_LIGHTING),
                      render_profile_average_ms(snapshot, RENDER_PROFILE_MAP_OBJECTS),
+                     render_profile_average_ms(snapshot, RENDER_PROFILE_MAP_PAINT),
                      render_profile_average_ms(snapshot, RENDER_PROFILE_MAP_UI));
 }
 

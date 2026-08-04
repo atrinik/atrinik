@@ -56,10 +56,13 @@ typedef struct sprite_effects {
     int32_t smooth_dark_y; ///< Lightmap row used for smooth structural lighting.
 } sprite_effects_t;
 
-#define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                                 \
-    (((_effects)->flags & ~BIT_MASK(SPRITE_FLAG_SMOOTH_DARK)) != 0 || (_effects)->alpha != 0 || \
-     (_effects)->stretch != 0 || ((_effects)->zoom_x != 0 && (_effects)->zoom_x != 100) ||      \
-     ((_effects)->zoom_y != 0 && (_effects)->zoom_y != 100) || (_effects)->rotate != 0 ||       \
+#define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                           \
+    (((_effects)->flags &                                                               \
+       ~(BIT_MASK(SPRITE_FLAG_SMOOTH_DARK) | BIT_MASK(SPRITE_FLAG_SMOOTH_DARK_SURFACE))) != \
+          0 ||                                                                          \
+      (_effects)->alpha != 0 || (_effects)->stretch != 0 ||                             \
+      ((_effects)->zoom_x != 0 && (_effects)->zoom_x != 100) ||                         \
+      ((_effects)->zoom_y != 0 && (_effects)->zoom_y != 100) || (_effects)->rotate != 0 || \
      (_effects)->glow[0] != '\0')
 
 /**
@@ -78,6 +81,8 @@ typedef struct sprite_effects {
 #define SPRITE_FLAG_EFFECTS 4
 /** Smooth darkness sampled along an object's map-space base. */
 #define SPRITE_FLAG_SMOOTH_DARK 5
+/** Smooth darkness sampled at each projected sprite pixel. */
+#define SPRITE_FLAG_SMOOTH_DARK_SURFACE 6
 /*@}*/
 
 /** Sprite structure. */

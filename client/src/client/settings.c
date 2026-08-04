@@ -529,11 +529,11 @@ static void setting_apply_runtime(int cat, int setting) {
 
                         packet = packet_new(SERVER_CMD_SETUP, 32, 0);
                         packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
-                        packet_append_uint8(packet, w);
-                        packet_append_uint8(packet, h);
+                        packet_append_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(w));
+                        packet_append_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(h));
                         socket_send_packet(packet);
 
-                        map_update_size(w, h);
+                        map_update_size(MAP_LOOK_TO_WIRE_SIZE(w), MAP_LOOK_TO_WIRE_SIZE(h));
 
                         setting_update_mapsize = 0;
                     }

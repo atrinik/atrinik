@@ -44,7 +44,6 @@
 #include <exp.h>
 #include <arrow.h>
 #include <bow.h>
-#include <magic_mirror.h>
 #include <sound_ambient.h>
 #include <object_methods.h>
 #include <resources.h>
@@ -150,7 +149,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             x = packet_to_uint8(data, len, &pos);
             y = packet_to_uint8(data, len, &pos);
 
-            if (x < 9 || y < 9 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y) {
+            if (x < 13 || y < 13 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y) {
                 LOG(PACKET, "X/Y not in range: %d, %d", x, y);
                 x = MAP_CLIENT_X;
                 y = MAP_CLIENT_Y;
@@ -483,7 +482,7 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map) {
         return 0;
     }
 
-    for (i = 0; i < TILED_NUM_DIR; i++) {
+    for (i = 0; i < TILED_NUM; i++) {
         if (pl->last_update->tile_path[i] == map->path) {
             return i + 1;
         }
@@ -501,22 +500,38 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map) {
  * @param dy
  * Y.
  */
-static inline void copy_lastmap(socket_struct *ns, int dx, int dy) {
-    struct Map newmap;
-    int x, y;
+static inline void copy_lastmap(socket_struct *ns, int dx, int dy, int dz) {
+    struct Map newmap = {0};
+    int depth, x, y;
 
-    for (x = 0; x < ns->mapx; x++) {
-        for (y = 0; y < ns->mapy; y++) {
-            if (x + dx < 0 || x + dx >= ns->mapx || y + dy < 0 || y + dy >= ns->mapy) {
-                memset(&(newmap.cells[x][y]), 0, sizeof(MapCell));
-                continue;
+    for (depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
+        int source_depth = depth + dz;
+
+        if (source_depth < -MAP2_MAX_DEPTH || source_depth > MAP2_MAX_DEPTH) {
+            continue;
+        }
+
+        MapCell *source = ns->lastmap.levels[MAP2_DEPTH_INDEX(source_depth)];
+        if (source == NULL) {
+            continue;
+        }
+
+        for (x = 0; x < ns->mapx; x++) {
+            for (y = 0; y < ns->mapy; y++) {
+                if (x + dx < 0 || x + dx >= ns->mapx || y + dy < 0 || y + dy >= ns->mapy) {
+                    continue;
+                }
+
+                MapCell *destination = map_client_cache_cell(&newmap, depth, x, y, true);
+                memcpy(destination,
+                       &source[(size_t)(x + dx) * MAP_CLIENT_Y + y + dy],
+                       sizeof(*destination));
             }
-
-            memcpy(&(newmap.cells[x][y]), &(ns->lastmap.cells[x + dx][y + dy]), sizeof(MapCell));
         }
     }
 
-    memcpy(&(ns->lastmap), &newmap, sizeof(struct Map));
+    map_client_cache_free(&ns->lastmap);
+    ns->lastmap = newmap;
 }
 
 void draw_map_text_anim(object *pl, const char *color, const char *text) {
@@ -561,12 +576,13 @@ void draw_client_map(object *pl) {
         /* Are we on a new map? */
         if (!CONTR(pl)->last_update || !tile_map) {
             CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_NEW;
-            memset(&(CONTR(pl)->cs->lastmap), 0, sizeof(struct Map));
+            map_client_cache_clear(&CONTR(pl)->cs->lastmap);
             CONTR(pl)->last_update = pl->map;
             redraw_below = 1;
         } else {
             CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_CONNECTED;
             CONTR(pl)->map_update_tile = tile_map;
+            CONTR(pl)->map_off_z = 0;
             redraw_below = 1;
 
             /* We have moved to a tiled map. Let's calculate the offsets. */
@@ -610,16 +626,32 @@ void draw_client_map(object *pl) {
                     CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
                     CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
                     break;
+
+                case TILED_UP:
+                    CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+                    CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+                    CONTR(pl)->map_off_z = 1;
+                    break;
+
+                case TILED_DOWN:
+                    CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+                    CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+                    CONTR(pl)->map_off_z = -1;
+                    break;
             }
 
-            copy_lastmap(CONTR(pl)->cs, CONTR(pl)->map_off_x, CONTR(pl)->map_off_y);
+            copy_lastmap(CONTR(pl)->cs,
+                         CONTR(pl)->map_off_x,
+                         CONTR(pl)->map_off_y,
+                         CONTR(pl)->map_off_z);
             CONTR(pl)->last_update = pl->map;
         }
     } else {
         if (CONTR(pl)->map_tile_x != pl->x || CONTR(pl)->map_tile_y != pl->y) {
             copy_lastmap(CONTR(pl)->cs,
                          pl->x - CONTR(pl)->map_tile_x,
-                         pl->y - CONTR(pl)->map_tile_y);
+                         pl->y - CONTR(pl)->map_tile_y,
+                         0);
             redraw_below = 1;
         }
     }
@@ -770,36 +802,296 @@ void packet_append_map_weather(struct packet_struct *packet, object *op, object 
         (_cell_)->cleared = 1;                                          \
     }
 
+typedef enum map_level_visibility {
+    MAP_LEVEL_HIDDEN,
+    MAP_LEVEL_WALL_BOUNDARY,
+    MAP_LEVEL_BOUNDARY,
+    MAP_LEVEL_VISIBLE,
+} map_level_visibility;
+
+static bool map_space_blocks_vertical_view(mapstruct *map, int x, int y) {
+    if (GET_MAP_FLAGS(map, x, y) & P_BLOCKSVIEW) {
+        return true;
+    }
+
+    for (object *tmp = GET_MAP_OB(map, x, y); tmp != NULL; tmp = tmp->above) {
+        if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/** A surface that occludes lower map levels from the isometric camera. */
+static bool map_space_blocks_camera_view(mapstruct *map, int x, int y) {
+    if (map_space_blocks_vertical_view(map, x, y)) {
+        return true;
+    }
+
+    for (object *tmp = GET_MAP_OB(map, x, y); tmp != NULL; tmp = tmp->above) {
+        /* Roof archetypes deliberately use the hidden wall layer rather than
+         * blocksview: they are camera occluders, not gameplay LOS blockers. */
+        if (tmp->layer == LAYER_WALL && QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool map_level_layer_visible(map_level_visibility visibility, int layer) {
+    if (visibility == MAP_LEVEL_WALL_BOUNDARY) {
+        return layer == LAYER_WALL;
+    }
+
+    if (visibility == MAP_LEVEL_BOUNDARY) {
+        return layer == LAYER_FLOOR || layer == LAYER_FMASK || layer == LAYER_WALL;
+    }
+
+    return visibility == MAP_LEVEL_VISIBLE;
+}
+
+static bool map_space_has_client_content(MapSpace *msp, map_level_visibility visibility) {
+    for (int layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
+        if (!map_level_layer_visible(visibility, layer)) {
+            continue;
+        }
+
+        for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+            if (GET_MAP_SPACE_LAYER(msp, layer, sub_layer) != NULL) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/** Whether a map space contains structural wall content. */
+static bool map_space_has_wall(MapSpace *msp) {
+    for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+        if (GET_MAP_SPACE_LAYER(msp, LAYER_WALL, sub_layer) != NULL) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/** Resolve one linked map depth without applying camera visibility. */
+static mapstruct *map_resolve_raw_level(mapstruct *base, int depth) {
+    mapstruct *level = base;
+    int direction = depth > 0 ? TILED_UP : TILED_DOWN;
+
+    for (int current_depth = depth > 0 ? 1 : -1; current_depth != depth + (depth > 0 ? 1 : -1);
+         current_depth += depth > 0 ? 1 : -1) {
+        level = get_map_from_tiled(level, direction);
+        if (level == NULL || !MAP_TILE_IS_SAME_LEVEL(base, current_depth)) {
+            return NULL;
+        }
+    }
+
+    return level;
+}
+
+/** Resolve one physical linked level and enforce vertical information occlusion. */
+static map_level_visibility
+map_resolve_level(mapstruct *base, int x, int y, int depth, mapstruct **resolved) {
+    mapstruct *level = base;
+
+    if (depth > 0) {
+        level = map_resolve_raw_level(base, depth);
+        if (level == NULL) {
+            return MAP_LEVEL_HIDDEN;
+        }
+
+        *resolved = level;
+        map_level_visibility visibility =
+            map_space_blocks_camera_view(level, x, y) ? MAP_LEVEL_BOUNDARY : MAP_LEVEL_VISIBLE;
+
+        /* The camera looks down through the stack. A surface above the target
+         * hides the target; a floor or wall below it must never hide a roof or
+         * higher storey. */
+        for (int current_depth = depth + 1; current_depth <= MAP2_MAX_DEPTH; current_depth++) {
+            level = get_map_from_tiled(level, TILED_UP);
+            if (level == NULL || !MAP_TILE_IS_SAME_LEVEL(base, current_depth)) {
+                break;
+            }
+
+            if (map_space_blocks_camera_view(level, x, y)) {
+                /* Keep only the target storey's exterior wall. The covering
+                 * roof hides its floor and floor mask as well as enclosed
+                 * objects; sending those horizontal surfaces makes them cut
+                 * holes through the roof in projected painter order. */
+                return MAP_LEVEL_WALL_BOUNDARY;
+            }
+        }
+
+        return visibility;
+    } else if (depth < 0) {
+        for (int current_depth = -1; current_depth >= depth; current_depth--) {
+            if (map_space_blocks_vertical_view(level, x, y)) {
+                return MAP_LEVEL_HIDDEN;
+            }
+
+            level = get_map_from_tiled(level, TILED_DOWN);
+            if (level == NULL || !MAP_TILE_IS_SAME_LEVEL(base, current_depth)) {
+                return MAP_LEVEL_HIDDEN;
+            }
+        }
+    }
+
+    *resolved = level;
+    return MAP_LEVEL_VISIBLE;
+}
+
+/**
+ * Find connected overhead components covering the player.
+ *
+ * These components are omitted as a camera cutaway while the player is inside
+ * them. The relationship comes entirely from solid floors, opaque cells, and
+ * roof objects on the linked maps; no authored building flags are required.
+ */
+static void map_build_level_cutaway(object *pl,
+                                    bool cutaway[MAP2_LEVELS][MAP_CLIENT_X][MAP_CLIENT_Y]) {
+    bool blockers[MAP_CLIENT_X][MAP_CLIENT_Y];
+    bool walls[MAP_CLIENT_X][MAP_CLIENT_Y];
+    bool boundary[MAP_CLIENT_X][MAP_CLIENT_Y];
+    int queue_x[MAP_CLIENT_X * MAP_CLIENT_Y];
+    int queue_y[MAP_CLIENT_X * MAP_CLIENT_Y];
+
+    memset(cutaway, 0, sizeof(bool) * MAP2_LEVELS * MAP_CLIENT_X * MAP_CLIENT_Y);
+
+    for (int depth = 1; depth <= MAP2_MAX_DEPTH; depth++) {
+        mapstruct *center_level = map_resolve_raw_level(pl->map, depth);
+        if (center_level == NULL || !map_space_blocks_camera_view(center_level, pl->x, pl->y)) {
+            continue;
+        }
+
+        memset(blockers, 0, sizeof(blockers));
+        memset(walls, 0, sizeof(walls));
+
+        for (int ay = CONTR(pl)->cs->mapy - 1, y = (pl->y + (CONTR(pl)->cs->mapy + 1) / 2) - 1;
+             y >= pl->y - CONTR(pl)->cs->mapy_2;
+             y--, ay--) {
+            int ax = CONTR(pl)->cs->mapx - 1;
+
+            for (int x = (pl->x + (CONTR(pl)->cs->mapx + 1) / 2) - 1;
+                 x >= pl->x - CONTR(pl)->cs->mapx_2;
+                 x--, ax--) {
+                int nx = x;
+                int ny = y;
+                mapstruct *base = get_map_from_coord(pl->map, &nx, &ny);
+                if (base == NULL) {
+                    continue;
+                }
+
+                mapstruct *level = map_resolve_raw_level(base, depth);
+                if (level != NULL) {
+                    blockers[ax][ay] = map_space_blocks_camera_view(level, nx, ny);
+                    walls[ax][ay] = map_space_has_wall(GET_MAP_SPACE_PTR(level, nx, ny));
+                }
+            }
+        }
+
+        int center_x = CONTR(pl)->cs->mapx_2;
+        int center_y = CONTR(pl)->cs->mapy_2;
+
+        size_t queue_first = 0;
+        size_t queue_last = 0;
+        size_t depth_index = MAP2_DEPTH_INDEX(depth);
+        queue_x[queue_last] = center_x;
+        queue_y[queue_last++] = center_y;
+        cutaway[depth_index][center_x][center_y] = true;
+
+        static const int neighbors_x[] = {-1, 1, 0, 0};
+        static const int neighbors_y[] = {0, 0, -1, 1};
+        while (queue_first < queue_last) {
+            int current_x = queue_x[queue_first];
+            int current_y = queue_y[queue_first++];
+
+            for (size_t neighbor = 0; neighbor < arraysize(neighbors_x); neighbor++) {
+                int next_x = current_x + neighbors_x[neighbor];
+                int next_y = current_y + neighbors_y[neighbor];
+                if (next_x < 0 || next_x >= CONTR(pl)->cs->mapx || next_y < 0 ||
+                    next_y >= CONTR(pl)->cs->mapy || !blockers[next_x][next_y] ||
+                    cutaway[depth_index][next_x][next_y]) {
+                    continue;
+                }
+
+                cutaway[depth_index][next_x][next_y] = true;
+                queue_x[queue_last] = next_x;
+                queue_y[queue_last++] = next_y;
+            }
+        }
+
+        /* Perimeter walls commonly occupy a neighboring cell without a floor
+         * of their own. Include the one-cell structural boundary around the
+         * connected overhead component; otherwise those upper-storey walls
+         * remain as a floating lattice after the roof is cut away. Keep the
+         * expansion non-recursive so it cannot consume a separate building
+         * through a chain of nearby wall cells. */
+        memset(boundary, 0, sizeof(boundary));
+        for (int ay = 0; ay < CONTR(pl)->cs->mapy; ay++) {
+            for (int ax = 0; ax < CONTR(pl)->cs->mapx; ax++) {
+                if (!walls[ax][ay] || cutaway[depth_index][ax][ay]) {
+                    continue;
+                }
+
+                for (int offset_y = -1; offset_y <= 1 && !boundary[ax][ay]; offset_y++) {
+                    for (int offset_x = -1; offset_x <= 1; offset_x++) {
+                        int neighbor_x = ax + offset_x;
+                        int neighbor_y = ay + offset_y;
+                        if (neighbor_x >= 0 && neighbor_x < CONTR(pl)->cs->mapx &&
+                            neighbor_y >= 0 && neighbor_y < CONTR(pl)->cs->mapy &&
+                            cutaway[depth_index][neighbor_x][neighbor_y]) {
+                            boundary[ax][ay] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int ay = 0; ay < CONTR(pl)->cs->mapy; ay++) {
+            for (int ax = 0; ax < CONTR(pl)->cs->mapx; ax++) {
+                cutaway[depth_index][ax][ay] |= boundary[ax][ay];
+            }
+        }
+    }
+}
+
 /** Clear a map cell, but only if it has not been cleared before. */
-#define map_if_clearcell()                                                     \
-    {                                                                          \
-        if (CONTR(pl)->cs->lastmap.cells[ax][ay].cleared != 1) {               \
-            packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay); \
-            packet_append_uint16(packet, mask | MAP2_MASK_CLEAR);              \
-            map_clearcell(&CONTR(pl)->cs->lastmap.cells[ax][ay]);              \
-        }                                                                      \
+#define map_if_clearcell(_hard_)                                                                  \
+    {                                                                                             \
+        MapCell *cached = map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, false);   \
+        if (cached != NULL && cached->cleared != 1) {                                             \
+            packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay);                    \
+            packet_append_uint16(packet,                                                          \
+                                 mask | MAP2_MASK_CLEAR | ((_hard_) ? MAP2_MASK_HARD_CLEAR : 0)); \
+            map_clearcell(cached);                                                                \
+        }                                                                                         \
     }
 
 /** Draw the client map. */
 void draw_client_map2(object *pl) {
     static uint32_t map2_count = 0;
     MapCell *mp;
-    MapSpace *msp, *msp_pl, *msp_tmp;
-    mapstruct *m, *tiled;
+    MapSpace *msp;
+    mapstruct *m;
     int x, y, ax, ay, d, nx, ny;
-    int have_down, draw_up, blocksview;
-    int special_vision, is_building_wall;
+    int blocksview;
+    int special_vision;
     uint16_t mask;
     int layer, raw_light[NUM_SUB_LAYERS], light_set[NUM_SUB_LAYERS];
     uint8_t light_level[NUM_SUB_LAYERS];
     int ext_flags, anim_num;
     int num_layers;
-    object *mirror = NULL, *tmp, *tmp2;
+    object *tmp, *tmp2;
     uint8_t have_sound_ambient;
-    packet_struct *packet, *packet_layer, *packet_sound;
-    uint8_t floor_z_down, floor_z_up;
-    int sub_layer, sub_layer2, socket_layer, tiled_dir, tiled_depth, zadj;
-    int force_draw_double, priority, tiled_z, is_in_building;
+    packet_struct *packet, *packet_header, *packet_levels, *packet_layer, *packet_sound;
+    int sub_layer, socket_layer;
     packet_save_t packet_save_buf;
 
     /* Any kind of special vision? */
@@ -890,6 +1182,8 @@ void draw_client_map2(object *pl) {
             packet_append_int8(packet, CONTR(pl)->map_off_x);
             packet_debug_data(packet, 0, "Map Y offset");
             packet_append_int8(packet, CONTR(pl)->map_off_y);
+            packet_debug_data(packet, 0, "Map depth offset");
+            packet_append_int8(packet, CONTR(pl)->map_off_z);
         } else {
             packet_debug_data(packet, 0, "Map width");
             packet_append_uint8(packet, pl->map->width);
@@ -898,1063 +1192,729 @@ void draw_client_map2(object *pl) {
         }
     }
 
-    msp_pl = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
-    /* Figure out whether the player is in a building, but not on a balcony. */
-    is_in_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
-                     MSP_EXTRA_IS_BUILDING;
-
     packet_debug_data(packet, 0, "Player's X coordinate");
     packet_append_uint8(packet, pl->x);
     packet_debug_data(packet, 0, "Player's Y coordinate");
     packet_append_uint8(packet, pl->y);
     packet_debug_data(packet, 0, "Player's sub-layer");
     packet_append_uint8(packet, pl->sub_layer);
-    packet_debug_data(packet, 0, "Player is in building");
-    packet_append_uint8(packet, is_in_building);
 
-    for (ay = CONTR(pl)->cs->mapy - 1, y = (pl->y + (CONTR(pl)->cs->mapy + 1) / 2) - 1;
-         y >= pl->y - CONTR(pl)->cs->mapy_2;
-         y--, ay--) {
-        ax = CONTR(pl)->cs->mapx - 1;
+    packet_header = packet;
+    packet_levels = packet_new(0, 0, 512);
+    uint8_t level_count = 0;
+    bool level_cutaway[MAP2_LEVELS][MAP_CLIENT_X][MAP_CLIENT_Y];
+    map_build_level_cutaway(pl, level_cutaway);
 
-        for (x = (pl->x + (CONTR(pl)->cs->mapx + 1) / 2) - 1; x >= pl->x - CONTR(pl)->cs->mapx_2;
-             x--, ax--) {
-            d = CONTR(pl)->blocked_los[ax][ay];
-            /* Form the data packet for x and y positions. */
-            mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
-            mp = &(CONTR(pl)->cs->lastmap.cells[ax][ay]);
+    for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
+        bool level_present = false;
+        packet = packet_new(0, 0, 512);
 
-            /* Space is out of map or blocked. Update space and clear values if
-             * needed. */
-            if (d & BLOCKED_LOS_OUT_OF_MAP) {
-                map_if_clearcell();
-                continue;
-            }
+        for (ay = CONTR(pl)->cs->mapy - 1, y = (pl->y + (CONTR(pl)->cs->mapy + 1) / 2) - 1;
+             y >= pl->y - CONTR(pl)->cs->mapy_2;
+             y--, ay--) {
+            ax = CONTR(pl)->cs->mapx - 1;
 
-            nx = x;
-            ny = y;
-
-            if (!(m = get_map_from_coord(pl->map, &nx, &ny))) {
-                map_if_clearcell();
-                continue;
-            }
-
-            msp = GET_MAP_SPACE_PTR(m, nx, ny);
-            /* Check whether there is ambient sound effect on this tile. */
-            have_sound_ambient =
-                msp->sound_ambient && OBJECT_VALID(msp->sound_ambient, msp->sound_ambient_count);
-
-            /* If there is an ambient sound effect but it cannot be heard
-             * through walls due to its configuration, we will pretend
-             * there is no sound effect here. */
-            if (have_sound_ambient &&
-                ((!QUERY_FLAG(msp->sound_ambient, FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED) ||
-                 !sound_ambient_match(msp->sound_ambient))) {
-                have_sound_ambient = 0;
-            }
-
-            /* If there is an ambient sound effect and we haven't sent it
-             * before, or there isn't one but it was sent before, send an
-             * update. */
-            if ((have_sound_ambient && mp->sound_ambient_count != msp->sound_ambient->count) ||
-                (!have_sound_ambient && mp->sound_ambient_count)) {
-                packet_debug(packet_sound, 0, "\nSound tile data:");
-                packet_debug_data(packet_sound, 1, "X coordinate");
-                packet_append_uint8(packet_sound, ax);
-                packet_debug_data(packet_sound, 1, "Y coordinate");
-                packet_append_uint8(packet_sound, ay);
-                packet_debug_data(packet_sound, 1, "Last sound object ID");
-                packet_append_uint32(packet_sound, mp->sound_ambient_count);
-                packet_debug_data(packet_sound, 1, "Sound object ID");
-
-                if (have_sound_ambient) {
-                    packet_append_uint32(packet_sound, msp->sound_ambient->count);
-                    packet_debug_data(packet_sound, 1, "Sound filename");
-                    packet_append_string_terminated(packet_sound, msp->sound_ambient->race);
-                    packet_debug_data(packet_sound, 1, "Volume");
-                    packet_append_uint8(packet_sound, msp->sound_ambient->item_condition);
-                    packet_debug_data(packet_sound, 1, "Max range");
-                    packet_append_uint8(packet_sound, msp->sound_ambient->item_level);
-
-                    mp->sound_ambient_count = msp->sound_ambient->count;
-                } else {
-                    packet_append_uint32(packet_sound, 0);
-
-                    mp->sound_ambient_count = 0;
+            for (x = (pl->x + (CONTR(pl)->cs->mapx + 1) / 2) - 1;
+                 x >= pl->x - CONTR(pl)->cs->mapx_2;
+                 x--, ax--) {
+                d = CONTR(pl)->blocked_los[ax][ay];
+                /* Form the data packet for x and y positions. */
+                mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
+                /* Space is out of map or blocked. Update space and clear values if
+                 * needed. */
+                if (d & BLOCKED_LOS_OUT_OF_MAP) {
+                    map_if_clearcell(false);
+                    continue;
                 }
-            }
 
-            blocksview = d & BLOCKED_LOS_BLOCKED;
+                if (depth > 0 && level_cutaway[MAP2_DEPTH_INDEX(depth)][ax][ay]) {
+                    map_if_clearcell(true);
+                    continue;
+                }
 
-            if (blocksview &&
-                (is_in_building ||
-                 !(msp->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ||
-                 (msp->map_info != NULL && (msp->extra_flags & MSP_EXTRA_IS_BUILDING) &&
-                  msp_pl->map_info != NULL && (msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING) &&
-                  msp->map_info->name != msp_pl->map_info->name))) {
-                map_if_clearcell();
-                continue;
-            }
+                nx = x;
+                ny = y;
 
-            /* Any map_if_clearcell() calls should go above this line. */
-            mp->cleared = 0;
+                if (!(m = get_map_from_coord(pl->map, &nx, &ny))) {
+                    map_if_clearcell(false);
+                    continue;
+                }
 
-            /* Border tile, we can ignore every LOS change */
-            if (!(d & BLOCKED_LOS_IGNORE)) {
-                /* Tile has blocksview set? */
-                if (msp->flags & P_BLOCKSVIEW) {
-                    if (!d) {
-                        CONTR(pl)->update_los = 1;
-                    }
-                } else {
-                    if (d & BLOCKED_LOS_BLOCKSVIEW) {
-                        CONTR(pl)->update_los = 1;
+                mapstruct *level_map = NULL;
+                map_level_visibility level_visibility =
+                    map_resolve_level(m, nx, ny, depth, &level_map);
+                if (level_visibility == MAP_LEVEL_HIDDEN) {
+                    map_if_clearcell(depth != 0);
+                    continue;
+                }
+
+                m = level_map;
+                msp = GET_MAP_SPACE_PTR(m, nx, ny);
+
+                blocksview = d & BLOCKED_LOS_BLOCKED;
+                /* A lower level behind gameplay LOS cannot disclose content.
+                 * It has no structural shell that the top-down camera needs to
+                 * preserve, so discard the complete cached cell. */
+                if (depth < 0 && blocksview) {
+                    map_if_clearcell(true);
+                    continue;
+                }
+
+                /* Base-level LOS uses the normal explored-map cache: a cell
+                 * that has never been sent remains empty, while previously
+                 * seen contents are retained and rendered as grayscale FOW. */
+                if (depth == 0 && blocksview) {
+                    map_if_clearcell(false);
+                    continue;
+                }
+
+                /* Gameplay LOS protects actors, items, and effects at and
+                 * above the player's level. Positive depths retain floors,
+                 * masks, and walls so clearing their complete cells does not
+                 * slice roofs into the base level's LOS silhouette. */
+                if (depth > 0 && blocksview && level_visibility == MAP_LEVEL_VISIBLE) {
+                    level_visibility = MAP_LEVEL_BOUNDARY;
+                }
+
+                if (!map_space_has_client_content(msp, level_visibility)) {
+                    map_if_clearcell(false);
+                    continue;
+                }
+
+                level_present = true;
+                mp = map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, true);
+
+                /* Check whether there is ambient sound effect on this tile. */
+                have_sound_ambient = msp->sound_ambient &&
+                                     OBJECT_VALID(msp->sound_ambient, msp->sound_ambient_count);
+
+                /* If there is an ambient sound effect but it cannot be heard
+                 * through walls due to its configuration, we will pretend
+                 * there is no sound effect here. */
+                if (have_sound_ambient &&
+                    ((!QUERY_FLAG(msp->sound_ambient, FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED) ||
+                     !sound_ambient_match(msp->sound_ambient))) {
+                    have_sound_ambient = 0;
+                }
+
+                /* If there is an ambient sound effect and we haven't sent it
+                 * before, or there isn't one but it was sent before, send an
+                 * update. */
+                if (depth == 0 &&
+                    ((have_sound_ambient && mp->sound_ambient_count != msp->sound_ambient->count) ||
+                     (!have_sound_ambient && mp->sound_ambient_count))) {
+                    packet_debug(packet_sound, 0, "\nSound tile data:");
+                    packet_debug_data(packet_sound, 1, "X coordinate");
+                    packet_append_uint8(packet_sound, ax);
+                    packet_debug_data(packet_sound, 1, "Y coordinate");
+                    packet_append_uint8(packet_sound, ay);
+                    packet_debug_data(packet_sound, 1, "Last sound object ID");
+                    packet_append_uint32(packet_sound, mp->sound_ambient_count);
+                    packet_debug_data(packet_sound, 1, "Sound object ID");
+
+                    if (have_sound_ambient) {
+                        packet_append_uint32(packet_sound, msp->sound_ambient->count);
+                        packet_debug_data(packet_sound, 1, "Sound filename");
+                        packet_append_string_terminated(packet_sound, msp->sound_ambient->race);
+                        packet_debug_data(packet_sound, 1, "Volume");
+                        packet_append_uint8(packet_sound, msp->sound_ambient->item_condition);
+                        packet_debug_data(packet_sound, 1, "Max range");
+                        packet_append_uint8(packet_sound, msp->sound_ambient->item_level);
+
+                        mp->sound_ambient_count = msp->sound_ambient->count;
+                    } else {
+                        packet_append_uint32(packet_sound, 0);
+
+                        mp->sound_ambient_count = 0;
                     }
                 }
-            }
 
-            map_get_darkness(m, nx, ny, &mirror);
+                /* Any map_if_clearcell() calls should go above this line. */
+                mp->cleared = 0;
 
-            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                light_set[sub_layer] = 0;
-                light_level[sub_layer] = 0;
-            }
-
-            /* Initialize default values for some variables. */
-            ext_flags = 0;
-            packet_save(packet, &packet_save_buf);
-            anim_num = 0;
-            have_down = 0;
-            floor_z_down = floor_z_up = 0;
-            zadj = 0;
-
-            uint8_t anim_type[NUM_SUB_LAYERS] = {0};
-            int16_t anim_value[NUM_SUB_LAYERS] = {0};
-
-            /* Check if we have a map under this tile. */
-            if (get_map_from_tiled(m, TILED_DOWN) != NULL && MAP_TILE_IS_SAME_LEVEL(m, -1)) {
-                have_down = 1;
-            }
-
-            bool override_rendering = true;
-            mapstruct *bottom_map = NULL;
-            int bottom_map_depth = 0;
-
-            for (tiled_dir = TILED_DOWN; tiled_dir >= TILED_UP; tiled_dir--) {
-                tiled = m;
-                tiled_depth = 0;
-
-                do {
-                    if (m != tiled) {
-                        tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
-
-                        if (!MAP_TILE_IS_SAME_LEVEL(m, tiled_depth)) {
-                            break;
+                /* Border tile, we can ignore every LOS change */
+                if (!(d & BLOCKED_LOS_IGNORE)) {
+                    /* Tile has blocksview set? */
+                    if (msp->flags & P_BLOCKSVIEW) {
+                        if (!d) {
+                            CONTR(pl)->update_los = 1;
+                        }
+                    } else {
+                        if (d & BLOCKED_LOS_BLOCKSVIEW) {
+                            CONTR(pl)->update_los = 1;
                         }
                     }
+                }
 
-                    msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
+                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    light_set[sub_layer] = 0;
+                    light_level[sub_layer] = 0;
+                }
 
-                    if (OBJECT_VALID(msp_tmp->map_info, msp_tmp->map_info_count) &&
-                        msp_tmp->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY |
-                                                MSP_EXTRA_IS_OVERLOOK)) {
-                        override_rendering = false;
-                    }
+                /* Initialize default values for some variables. */
+                ext_flags = 0;
+                packet_save(packet, &packet_save_buf);
+                anim_num = 0;
+                uint8_t anim_type[NUM_SUB_LAYERS] = {0};
+                int16_t anim_value[NUM_SUB_LAYERS] = {0};
 
-                    if (tiled_dir == TILED_DOWN) {
-                        if (m != tiled) {
-                            bottom_map = tiled;
-                            bottom_map_depth--;
+                packet_layer = packet_new(0, 0, 128);
+                num_layers = 0;
+
+                /* Go through the visible layers. */
+                for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
+                    for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                        tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
+
+                        if (!map_level_layer_visible(level_visibility, layer)) {
+                            tmp = NULL;
                         }
 
-                        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                            tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR, sub_layer);
+                        /* This is done so that the player image is always shown
+                         * to the player, even if they are standing on top of
+                         * another
+                         * player or monster. */
+                        if (depth == 0 && tmp != NULL && layer == pl->layer &&
+                            sub_layer == pl->sub_layer && pl->x == nx && pl->y == ny) {
+                            tmp = pl;
+                        }
 
-                            if (tmp == NULL) {
+                        /* If the object is invisible but the player cannot see
+                         * invisible tiles, attempt to find a different object
+                         * that is not invisible on the same layer and sub-layer. */
+                        if (tmp != NULL && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) &&
+                            !QUERY_FLAG(pl, FLAG_SEE_INVISIBLE)) {
+                            for (tmp2 = tmp, tmp = NULL; tmp2 != NULL && tmp2->layer == layer &&
+                                                         tmp2->sub_layer == sub_layer;
+                                 tmp2 = tmp2->above) {
+                                if (!QUERY_FLAG(tmp2, FLAG_IS_INVISIBLE)) {
+                                    tmp = tmp2;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (tmp != NULL && tmp->layer != LAYER_WALL &&
+                            QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+                            tmp = NULL;
+                        }
+
+                        /* Handle objects that are shown based on their direction
+                         * and the player's position. */
+                        if (tmp && QUERY_FLAG(tmp, FLAG_DRAW_DIRECTION)) {
+                            /* If the object is dir [0124568] and not in the top
+                             * or right quadrant or on the central square, do not
+                             * show it. */
+                            if ((!tmp->direction || tmp->direction == NORTH ||
+                                 tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST ||
+                                 tmp->direction == SOUTH || tmp->direction == SOUTHWEST ||
+                                 tmp->direction == NORTHWEST) &&
+                                !((ax <= CONTR(pl)->cs->mapx_2) && (ay <= CONTR(pl)->cs->mapy_2)) &&
+                                !((ax > CONTR(pl)->cs->mapx_2) && (ay < CONTR(pl)->cs->mapy_2))) {
+                                tmp = NULL;
+                            } else if ((!tmp->direction || tmp->direction == NORTHEAST ||
+                                        tmp->direction == EAST || tmp->direction == SOUTHEAST ||
+                                        tmp->direction == SOUTHWEST || tmp->direction == WEST ||
+                                        tmp->direction == NORTHWEST) &&
+                                       !((ax <= CONTR(pl)->cs->mapx_2) &&
+                                         (ay <= CONTR(pl)->cs->mapy_2)) &&
+                                       !((ax < CONTR(pl)->cs->mapx_2) &&
+                                         (ay > CONTR(pl)->cs->mapy_2))) {
+                                /* If the object is dir [0234768] and not in the top
+                                 * or left quadrant or on the central square, do not
+                                 * show it. */
+                                tmp = NULL;
+                            }
+                        }
+
+                        if (tmp != NULL &&
+                            (!light_set[sub_layer] || (layer == LAYER_EFFECT && sub_layer > 0))) {
+                            light_set[sub_layer] = 1;
+                            raw_light[sub_layer] = map_get_darkness(tmp->map, tmp->x, tmp->y, NULL);
+
+                            if (CONTR(pl)->tli) {
+                                raw_light[sub_layer] += global_darkness_table[MAX_DARKNESS];
+                            }
+
+                            if (raw_light[sub_layer] < 100) {
+                                if (QUERY_FLAG(tmp, FLAG_HIDDEN) || special_vision & 1) {
+                                    raw_light[sub_layer] = 100;
+                                }
+                            }
+
+                            light_level[sub_layer] = light_level_from_raw(raw_light[sub_layer]);
+                        }
+
+                        if (tmp != NULL && raw_light[sub_layer] <= 0) {
+                            tmp = NULL;
+                        }
+
+                        if (tmp != NULL && tmp->map != m && anim_type[sub_layer] == 0 &&
+                            GET_MAP_RTAG(tmp->map, tmp->x, tmp->y, sub_layer) == global_round_tag) {
+                            anim_type[sub_layer] = ANIM_KILL;
+                            anim_value[sub_layer] =
+                                GET_MAP_DAMAGE(tmp->map, tmp->x, tmp->y, sub_layer);
+                            anim_num++;
+                        }
+
+                        socket_layer = NUM_LAYERS * sub_layer + layer - 1;
+
+                        /* Found something. */
+                        if (tmp) {
+                            int16_t face;
+                            uint8_t quick_pos = tmp->quick_pos;
+                            uint8_t flags = 0, probe_val = 0;
+                            uint32_t flags2 = 0;
+                            object *head = tmp->head ? tmp->head : tmp, *face_obj;
+                            tag_t target_object_count = 0;
+                            uint8_t anim_speed, anim_facing, anim_flags;
+                            uint8_t client_flags;
+                            int is_friend = 0;
+                            uint8_t is_roof = 0;
+
+                            face_obj = NULL;
+                            anim_speed = anim_facing = anim_flags = 0;
+
+                            /* If we have a multi-arch object. */
+                            if (quick_pos) {
+                                flags |= MAP2_FLAG_MULTI;
+
+                                /* Tail? */
+                                if (tmp->head) {
+                                    /* If true, we have sent a part of this in this
+                                     * map
+                                     * update before, so skip it. */
+                                    if (head->update_tag == map2_count) {
+                                        face = 0;
+                                    } else {
+                                        /* Mark this object as sent. */
+                                        head->update_tag = map2_count;
+                                        face_obj = head;
+                                    }
+                                } else {
+                                    /* Head. */
+
+                                    if (tmp->update_tag == map2_count) {
+                                        face = 0;
+                                    } else {
+                                        tmp->update_tag = map2_count;
+                                        face_obj = tmp;
+                                    }
+                                }
+                            } else {
+                                face_obj = tmp;
+                            }
+
+                            if (face_obj != NULL) {
+                                if (QUERY_FLAG(face_obj, FLAG_ANIMATE)) {
+                                    flags |= MAP2_FLAG_ANIMATION;
+                                    face = face_obj->animation_id;
+                                    anim_speed = face_obj->anim_speed;
+                                    anim_facing = face_obj->direction + 1;
+                                    anim_flags = face_obj->anim_flags & ~ANIM_FLAG_STOP_MOVING;
+                                } else {
+                                    face = face_obj->face->number;
+                                }
+                            }
+
+                            client_flags = GET_CLIENT_FLAGS(head);
+
+                            /* Player? So we want to send their name. */
+                            if (tmp->type == PLAYER) {
+                                flags |= MAP2_FLAG_NAME;
+                            }
+
+                            /* If our player has this object as their target, we
+                             * want to
+                             * know its HP percent. */
+                            if (head->count == CONTR(pl)->target_object_count) {
+                                flags2 |= MAP2_FLAG2_PROBE;
+                                probe_val = MAX(
+                                    1,
+                                    ((double)head->stats.hp / ((double)head->stats.maxhp / 100.0)));
+                            }
+
+                            /* Z position set? */
+                            if (head->z != 0) {
+                                flags |= MAP2_FLAG_HEIGHT;
+                            }
+
+                            if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) &&
+                                ((head->layer == LAYER_LIVING && raw_light[sub_layer] < 150) ||
+                                 (head->type == CONTAINER &&
+                                  head->sub_type == ST1_CONTAINER_CORPSE &&
+                                  QUERY_FLAG(head, FLAG_IS_USED_UP) &&
+                                  (float)head->stats.food / head->last_eat >=
+                                      CORPSE_INFRAVISION_PERCENT / 100.0))) {
+                                flags |= MAP2_FLAG_INFRAVISION;
+                            }
+
+                            if (head->align) {
+                                flags |= MAP2_FLAG_ALIGN;
+                            }
+
+                            /* Draw the object twice if set, but only if it's not
+                             * in the bottom quadrant of the map. */
+                            if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) &&
+                                 (ax < CONTR(pl)->cs->mapx_2 || ay < CONTR(pl)->cs->mapy_2)) ||
+                                QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
+                                flags |= MAP2_FLAG_DOUBLE;
+                            }
+
+                            if (head->alpha) {
+                                flags2 |= MAP2_FLAG2_ALPHA;
+                            }
+
+                            if (head->rotate) {
+                                flags2 |= MAP2_FLAG2_ROTATE;
+                            }
+
+                            /* Check if the object has zoom. */
+                            if ((head->zoom_x && head->zoom_x != 100) ||
+                                (head->zoom_y && head->zoom_y != 100)) {
+                                flags2 |= MAP2_FLAG2_ZOOM;
+                            }
+
+                            if (head != pl && layer == LAYER_LIVING && IS_LIVE(head)) {
+                                flags2 |= MAP2_FLAG2_TARGET;
+                                target_object_count = head->count;
+                                is_friend = is_friend_of(pl, head);
+                            }
+
+                            if (head->type == DOOR || layer == LAYER_LIVING) {
+                                flags2 |= MAP2_FLAG2_SECONDPASS;
+                            }
+
+                            if (head->glow != NULL && CONTR(pl)->cs->socket_version >= 1060) {
+                                flags2 |= MAP2_FLAG2_GLOW;
+                            }
+
+                            if (layer == LAYER_WALL && QUERY_FLAG(head, FLAG_HIDDEN)) {
+                                flags2 |= MAP2_FLAG2_ROOF;
+                                is_roof = 1;
+                            }
+
+                            if (flags2) {
+                                flags |= MAP2_FLAG_MORE;
+                            }
+
+                            /* Damage animation? Store it for later. */
+                            if (tmp->last_damage && tmp->damage_round_tag == global_round_tag) {
+                                if (anim_type[sub_layer] == 0) {
+                                    anim_num++;
+                                }
+
+                                anim_type[sub_layer] = ANIM_DAMAGE;
+                                anim_value[sub_layer] = tmp->last_damage;
+                            }
+
+                            /* Now, check if we have cached this. */
+                            if (mp->faces[socket_layer] == face &&
+                                mp->quick_pos[socket_layer] == quick_pos &&
+                                mp->flags[socket_layer] == flags &&
+                                mp->roof[socket_layer] == is_roof &&
+                                (layer != LAYER_LIVING || !IS_LIVE(head) ||
+                                 (mp->probe == probe_val &&
+                                  mp->target_object_count == target_object_count)) &&
+                                mp->anim_speed[socket_layer] == anim_speed &&
+                                mp->anim_facing[socket_layer] == anim_facing &&
+                                (layer != LAYER_LIVING ||
+                                 (mp->anim_flags[sub_layer] == anim_flags &&
+                                  mp->client_flags[sub_layer] == client_flags)) &&
+                                (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->cs->ext_title_flag) &&
+                                (!(flags2 & MAP2_FLAG2_TARGET) ||
+                                 ((mp->is_friend & (1 << sub_layer)) != 0) == is_friend)) {
                                 continue;
                             }
 
-                            if (tmp->z > zadj) {
-                                zadj = tmp->z;
-                            }
-                        }
-                    }
+                            /* Different from cache, add it to the cache now. */
+                            mp->faces[socket_layer] = face;
+                            mp->quick_pos[socket_layer] = quick_pos;
+                            mp->flags[socket_layer] = flags;
+                            mp->roof[socket_layer] = is_roof;
+                            mp->anim_speed[socket_layer] = anim_speed;
+                            mp->anim_facing[socket_layer] = anim_facing;
 
-                    tiled = get_map_from_tiled(tiled, tiled_dir);
-                } while (tiled != NULL);
-            }
-
-            if (override_rendering) {
-                tiled_dir = TILED_DOWN;
-                tiled_depth = bottom_map_depth;
-            }
-
-            draw_up = m->tile_map[TILED_UP] != NULL;
-
-            /* If the player is inside a building, and we're currently on the
-             * map square that is part of that building, do not send objects
-             * on the upper floors.
-             *
-             * This means that if a player is for example on the ground floor,
-             * anything above that will not be visible while they're in the
-             * building, *but*, only for that building - other buildings will
-             * have the upper floors. */
-            if (!MAP_TILE_IS_SAME_LEVEL(m, 1) ||
-                (OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
-                 OBJECT_VALID(msp->map_info, msp->map_info_count) &&
-                 msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING &&
-                 msp->extra_flags & (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY) &&
-                 (!(msp_pl->extra_flags & MSP_EXTRA_IS_BALCONY) ||
-                  msp_pl->map_info == msp->map_info))) {
-                draw_up = 0;
-            }
-
-            packet_layer = packet_new(0, 0, 128);
-            num_layers = 0;
-
-            /* Go through the visible layers. */
-            for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                if (!override_rendering) {
-                    tiled_depth = 0;
-                    tiled_dir = TILED_UP;
-                }
-
-                tiled = m;
-
-                for (int sub_layer_tmp = 0; sub_layer_tmp < NUM_SUB_LAYERS; sub_layer_tmp++) {
-                    if (override_rendering) {
-                        sub_layer = sub_layer_tmp;
-                    } else {
-                        sub_layer = NUM_SUB_LAYERS - 1 - sub_layer_tmp;
-                    }
-
-                    tmp = NULL;
-                    priority = 0;
-                    is_building_wall = 0;
-                    tiled_z = 0;
-                    /* Force drawing of double faces for walls and such if we're
-                     * sending the upper floors of a building. */
-                    force_draw_double = draw_up;
-
-                    if (sub_layer != 0 && tiled != NULL && !override_rendering) {
-                        tiled = get_map_from_tiled(tiled, tiled_dir);
-
-                        if (tiled == NULL && tiled_dir == TILED_UP) {
-                            tiled_depth = 0;
-                            tiled_dir = TILED_DOWN;
-                            tiled = get_map_from_tiled(m, tiled_dir);
-                        }
-
-                        if (tiled != NULL && !MAP_TILE_IS_SAME_LEVEL(
-                                                 m,
-                                                 tiled_depth + (tiled_dir == TILED_UP ? 1 : -1))) {
-                            tiled = NULL;
-                        }
-
-                        if (tiled != NULL && (draw_up || tiled_dir == TILED_DOWN)) {
-                            msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
-
-                            if (layer == LAYER_EFFECT) {
-                                tmp = GET_MAP_SPACE_LAYER(msp_tmp, LAYER_WALL, 0);
+                            if (layer == LAYER_LIVING) {
+                                mp->anim_flags[sub_layer] = anim_flags;
+                                mp->client_flags[sub_layer] = client_flags;
                             }
 
-                            if (tmp != NULL && layer == LAYER_EFFECT && tmp->type != WALL &&
-                                tmp->type != DOOR) {
-                                tmp = NULL;
-                            }
-
-                            if (tmp == NULL) {
-                                for (sub_layer2 = NUM_SUB_LAYERS - 1; sub_layer2 >= 0;
-                                     sub_layer2--) {
-                                    tmp = GET_MAP_SPACE_LAYER(msp_tmp, layer, sub_layer2);
-
-                                    if (tmp != NULL) {
-                                        break;
-                                    }
-                                }
-                            }
-
-                            tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
-                            force_draw_double = 1;
-
-                            if (tmp != NULL && layer == LAYER_WALL &&
-                                (tmp->type == WALL || tmp->type == DOOR) && tmp->sub_layer == 0 &&
-                                (tmp->map != m || !(msp->extra_flags & MSP_EXTRA_IS_BALCONY)) &&
-                                ((msp_tmp->extra_flags &
-                                  (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ||
-                                 QUERY_FLAG(tmp, FLAG_HIDDEN))) {
-                                tmp = NULL;
-                            }
-
-                            if (tmp != NULL && layer == LAYER_FLOOR && tiled_dir == TILED_UP &&
-                                (msp_tmp->extra_flags &
-                                 (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
-                                    MSP_EXTRA_IS_BUILDING) {
-                                tmp = NULL;
-                            }
-
-                            if (tmp != NULL && layer == LAYER_FLOOR &&
-                                QUERY_FLAG(tmp, FLAG_HIDDEN)) {
-                                tmp = NULL;
-                            }
-
-                            if (tmp != NULL && tiled_dir == TILED_UP && is_in_building &&
-                                (msp_tmp->extra_flags & MSP_EXTRA_IS_BALCONY) &&
-                                !(msp_pl->extra_flags & MSP_EXTRA_IS_BALCONY)) {
-                                tmp = NULL;
-                            }
-
-                            if (tmp != NULL && (msp_tmp->extra_flags &
-                                                (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
-                                                   MSP_EXTRA_IS_BALCONY) {
-                                priority = 1;
-                            }
-                        }
-                    }
-
-                    if (bottom_map != NULL && override_rendering) {
-                        tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(bottom_map, nx, ny),
-                                                  layer,
-                                                  sub_layer);
-                    }
-
-                    if (tmp != NULL && layer == LAYER_FLOOR) {
-                        if (tiled_dir == TILED_DOWN) {
-                            floor_z_down |= 1 << sub_layer;
-                        } else {
-                            floor_z_up |= 1 << sub_layer;
-                        }
-                    }
-
-                    if (tmp != NULL &&
-                        (layer != LAYER_WALL || tmp->sub_layer != 0 || override_rendering)) {
-                        tiled_z = 1;
-
-                        if (layer != LAYER_FLOOR) {
-                            if (tiled_dir == TILED_UP && (floor_z_up & (1 << sub_layer))) {
-                                tiled_z = 0;
-                            } else if (layer != LAYER_EFFECT && layer != LAYER_LIVING &&
-                                       layer != LAYER_ITEM && layer != LAYER_ITEM2 &&
-                                       tiled_dir == TILED_DOWN &&
-                                       (floor_z_down & (1 << sub_layer))) {
-                                tiled_z = 0;
-                            }
-                        }
-                    }
-
-                    if (tmp == NULL) {
-                        tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
-
-                        if (tmp != NULL) {
-                            if (have_down) {
-                                priority = 1;
-                            }
-                        }
-                    }
-
-                    /* This is done so that the player image is always shown
-                     * to the player, even if they are standing on top of
-                     * another
-                     * player or monster. */
-                    if (tmp != NULL && layer == pl->layer && sub_layer == pl->sub_layer &&
-                        pl->x == nx && pl->y == ny) {
-                        tmp = pl;
-                    }
-
-                    /* Still nothing, but there's a magic mirror on this tile?
-                     * */
-                    if (!tmp && mirror) {
-                        magic_mirror_struct *m_data = MMIRROR(mirror);
-                        mapstruct *mirror_map;
-
-                        if (m_data && (mirror_map = magic_mirror_get_map(mirror)) &&
-                            !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
-                            tmp = GET_MAP_SPACE_LAYER(
-                                GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y),
-                                layer,
-                                sub_layer);
-                        }
-                    }
-
-                    /* If the object is invisible but the player cannot see
-                     * invisible tiles, attempt to find a different object
-                     * that is not invisible on the same layer and sub-layer. */
-                    if (tmp != NULL && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) &&
-                        !QUERY_FLAG(pl, FLAG_SEE_INVISIBLE)) {
-                        for (tmp2 = tmp, tmp = NULL;
-                             tmp2 != NULL && tmp2->layer == layer && tmp2->sub_layer == sub_layer;
-                             tmp2 = tmp2->above) {
-                            if (!QUERY_FLAG(tmp2, FLAG_IS_INVISIBLE)) {
-                                tmp = tmp2;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (tmp != NULL && tmp->layer != LAYER_WALL && QUERY_FLAG(tmp, FLAG_HIDDEN)) {
-                        tmp = NULL;
-                    }
-
-                    /* Handle objects that are shown based on their direction
-                     * and the player's position. */
-                    if (tmp && QUERY_FLAG(tmp, FLAG_DRAW_DIRECTION)) {
-                        /* If the object is dir [0124568] and not in the top
-                         * or right quadrant or on the central square, do not
-                         * show it. */
-                        if ((!tmp->direction || tmp->direction == NORTH ||
-                             tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST ||
-                             tmp->direction == SOUTH || tmp->direction == SOUTHWEST ||
-                             tmp->direction == NORTHWEST) &&
-                            !((ax <= CONTR(pl)->cs->mapx_2) && (ay <= CONTR(pl)->cs->mapy_2)) &&
-                            !((ax > CONTR(pl)->cs->mapx_2) && (ay < CONTR(pl)->cs->mapy_2))) {
-                            tmp = NULL;
-                        } else if ((!tmp->direction || tmp->direction == NORTHEAST ||
-                                    tmp->direction == EAST || tmp->direction == SOUTHEAST ||
-                                    tmp->direction == SOUTHWEST || tmp->direction == WEST ||
-                                    tmp->direction == NORTHWEST) &&
-                                   !((ax <= CONTR(pl)->cs->mapx_2) &&
-                                     (ay <= CONTR(pl)->cs->mapy_2)) &&
-                                   !((ax < CONTR(pl)->cs->mapx_2) &&
-                                     (ay > CONTR(pl)->cs->mapy_2))) {
-                            /* If the object is dir [0234768] and not in the top
-                             * or left quadrant or on the central square, do not
-                             * show it. */
-                            tmp = NULL;
-                        }
-                    }
-
-                    if (tmp != NULL &&
-                        (msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y))->extra_flags &
-                            MSP_EXTRA_IS_BUILDING &&
-                        OBJECT_VALID(msp_tmp->map_info, msp_tmp->map_info_count)) {
-                        int match_x, match_y, match_x2, match_y2, match_x3, match_y3;
-
-                        match_x = tmp->x >= msp_tmp->map_info->x &&
-                                  tmp->x <= msp_tmp->map_info->x + msp_tmp->map_info->stats.hp;
-                        match_y = tmp->y >= msp_tmp->map_info->y &&
-                                  tmp->y <= msp_tmp->map_info->y + msp_tmp->map_info->stats.sp;
-                        match_x2 = tmp->x == msp_tmp->map_info->x + msp_tmp->map_info->stats.hp;
-                        match_y2 = tmp->y == msp_tmp->map_info->y + msp_tmp->map_info->stats.sp;
-                        match_x3 = tmp->x == msp_tmp->map_info->x;
-                        match_y3 = tmp->y == msp_tmp->map_info->y;
-
-                        if (match_x == match_y2 || match_y == match_x2 || match_x == match_y3 ||
-                            match_y == match_x3) {
-                            is_building_wall = 1;
-                        }
-
-                        if (is_building_wall) {
-                            int idx;
-                            mapstruct *m2;
-                            int x2, y2;
-
-                            for (idx = 1; idx <= SIZEOFFREE1; idx++) {
-                                x2 = tmp->x + freearr_x[idx];
-                                y2 = tmp->y + freearr_y[idx];
-                                m2 = get_map_from_coord2(tmp->map, &x2, &y2);
-
-                                if (m2 == NULL) {
-                                    break;
-                                }
-
-                                msp_tmp = GET_MAP_SPACE_PTR(m2, x2, y2);
-
-                                if (!(msp_tmp->extra_flags & MSP_EXTRA_IS_BUILDING) ||
-                                    msp_tmp->extra_flags & MSP_EXTRA_IS_BALCONY) {
-                                    break;
-                                }
-                            }
-
-                            if (idx > SIZEOFFREE1) {
-                                is_building_wall = 0;
-                            }
-                        }
-                    }
-
-                    if (tmp != NULL && blocksview && tmp->map == m &&
-                        (layer != LAYER_FLOOR || !is_building_wall) &&
-                        ((layer != LAYER_WALL && tmp->type != WALL) || !is_building_wall) &&
-                        (layer != LAYER_EFFECT || sub_layer == 0) &&
-                        !(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
-                          MSP_EXTRA_IS_BALCONY)) {
-                        tmp = NULL;
-                    }
-
-                    if (tmp != NULL &&
-                        ((tiled_depth > 0 && is_in_building) || blocksview ||
-                         (tiled_depth < 0 &&
-                          GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->map_info != NULL &&
-                          QUERY_FLAG(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->map_info,
-                                     FLAG_CURSED))) &&
-                        !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                        !(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
-                          (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY))) {
-                        tmp = NULL;
-                    }
-
-                    if (tmp != NULL && tiled_depth != 0 && !is_building_wall &&
-                        (tmp->type == WALL || tmp->type == DOOR) && layer == LAYER_EFFECT &&
-                        sub_layer != 0 && !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                        !(GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
-                          MSP_EXTRA_IS_BALCONY) &&
-                        !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
-                        tmp = NULL;
-                    }
-
-                    if (tmp != NULL && layer != LAYER_EFFECT && sub_layer != 0 &&
-                        (!is_building_wall || (tmp->type != WALL && tmp->type != DOOR)) &&
-                        (tmp->type != FLOOR || !is_building_wall) && tmp->map != m &&
-                        (GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y)->extra_flags &
-                         (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING &&
-                        !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
-                        tmp = NULL;
-                    }
-
-                    if (tmp != NULL &&
-                        (!light_set[sub_layer] || (layer == LAYER_EFFECT && sub_layer > 0))) {
-                        light_set[sub_layer] = 1;
-                        raw_light[sub_layer] = map_get_darkness(tmp->map, tmp->x, tmp->y, NULL);
-
-                        if (CONTR(pl)->tli) {
-                            raw_light[sub_layer] += global_darkness_table[MAX_DARKNESS];
-                        }
-
-                        if (raw_light[sub_layer] < 100) {
-                            if (QUERY_FLAG(tmp, FLAG_HIDDEN) || special_vision & 1) {
-                                raw_light[sub_layer] = 100;
-                            }
-                        }
-
-                        msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
-
-                        if ((tmp->map->coords[2] != 0 || !is_building_wall) &&
-                            (msp_tmp->extra_flags &
-                             (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
-                                MSP_EXTRA_IS_BUILDING &&
-                            msp_tmp->map_info != NULL && msp_tmp->map_info->item_power == -1) {
-                            if (is_building_wall) {
-                                d = MAX(world_darkness, MAP_BUILDING_DARKNESS_WALL);
-                            } else {
-                                d = MAP_BUILDING_DARKNESS;
-                            }
-
-                            raw_light[sub_layer] -= global_darkness_table[world_darkness];
-                            raw_light[sub_layer] += global_darkness_table[d];
-                        }
-
-                        light_level[sub_layer] = light_level_from_raw(raw_light[sub_layer]);
-                    }
-
-                    if (tmp != NULL && raw_light[sub_layer] <= 0) {
-                        tmp = NULL;
-                    }
-
-                    if (tmp != NULL && tmp->map != m && anim_type[sub_layer] == 0 &&
-                        GET_MAP_RTAG(tmp->map, tmp->x, tmp->y, sub_layer) == global_round_tag) {
-                        anim_type[sub_layer] = ANIM_KILL;
-                        anim_value[sub_layer] = GET_MAP_DAMAGE(tmp->map, tmp->x, tmp->y, sub_layer);
-                        anim_num++;
-                    }
-
-                    if (tmp == NULL && layer == LAYER_FLOOR && sub_layer != 0) {
-                        if (tiled_dir == TILED_DOWN) {
-                            floor_z_down &= ~(1 << sub_layer);
-                        } else {
-                            floor_z_up &= ~(1 << sub_layer);
-                        }
-                    }
-
-                    socket_layer = NUM_LAYERS * sub_layer + layer - 1;
-
-                    /* Found something. */
-                    if (tmp) {
-                        int16_t face;
-                        uint8_t quick_pos = tmp->quick_pos;
-                        uint8_t flags = 0, probe_val = 0;
-                        uint32_t flags2 = 0;
-                        object *head = tmp->head ? tmp->head : tmp, *face_obj;
-                        tag_t target_object_count = 0;
-                        uint8_t anim_speed, anim_facing, anim_flags;
-                        uint8_t client_flags;
-                        int is_friend = 0;
-
-                        face_obj = NULL;
-                        anim_speed = anim_facing = anim_flags = 0;
-
-                        /* If we have a multi-arch object. */
-                        if (quick_pos) {
-                            flags |= MAP2_FLAG_MULTI;
-
-                            /* Tail? */
-                            if (tmp->head) {
-                                /* If true, we have sent a part of this in this
-                                 * map
-                                 * update before, so skip it. */
-                                if (head->update_tag == map2_count) {
-                                    face = 0;
-                                } else {
-                                    /* Mark this object as sent. */
-                                    head->update_tag = map2_count;
-                                    face_obj = head;
-                                }
-                            } else {
-                                /* Head. */
-
-                                if (tmp->update_tag == map2_count) {
-                                    face = 0;
-                                } else {
-                                    tmp->update_tag = map2_count;
-                                    face_obj = tmp;
-                                }
-                            }
-                        } else {
-                            face_obj = tmp;
-                        }
-
-                        if (face_obj != NULL) {
-                            if (QUERY_FLAG(face_obj, FLAG_ANIMATE)) {
-                                flags |= MAP2_FLAG_ANIMATION;
-                                face = face_obj->animation_id;
-                                anim_speed = face_obj->anim_speed;
-                                anim_facing = face_obj->direction + 1;
-                                anim_flags = face_obj->anim_flags & ~ANIM_FLAG_STOP_MOVING;
-                            } else {
-                                face = face_obj->face->number;
-                            }
-                        }
-
-                        client_flags = GET_CLIENT_FLAGS(head);
-
-                        /* Player? So we want to send their name. */
-                        if (tmp->type == PLAYER) {
-                            flags |= MAP2_FLAG_NAME;
-                        }
-
-                        /* If our player has this object as their target, we
-                         * want to
-                         * know its HP percent. */
-                        if (head->count == CONTR(pl)->target_object_count) {
-                            flags2 |= MAP2_FLAG2_PROBE;
-                            probe_val =
-                                MAX(1,
-                                    ((double)head->stats.hp / ((double)head->stats.maxhp / 100.0)));
-                        }
-
-                        /* Z position set? */
-                        if (head->z != 0 || tiled_z ||
-                            (zadj != 0 && tmp->map->coords[2] != m->level_min &&
-                             (layer == LAYER_FLOOR ||
-                              (QUERY_FLAG(head, FLAG_HIDDEN) && sub_layer == 0)) &&
-                             !override_rendering)) {
-                            flags |= MAP2_FLAG_HEIGHT;
-                        }
-
-                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) &&
-                            ((head->layer == LAYER_LIVING && raw_light[sub_layer] < 150) ||
-                             (head->type == CONTAINER && head->sub_type == ST1_CONTAINER_CORPSE &&
-                              QUERY_FLAG(head, FLAG_IS_USED_UP) &&
-                              (float)head->stats.food / head->last_eat >=
-                                  CORPSE_INFRAVISION_PERCENT / 100.0))) {
-                            flags |= MAP2_FLAG_INFRAVISION;
-                        }
-
-                        if (head->align || (mirror && mirror->align)) {
-                            flags |= MAP2_FLAG_ALIGN;
-                        }
-
-                        /* Draw the object twice if set, but only if it's not
-                         * in the bottom quadrant of the map. */
-                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) &&
-                             (force_draw_double ||
-                              (ax < CONTR(pl)->cs->mapx_2 || ay < CONTR(pl)->cs->mapy_2))) ||
-                            QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
-                            flags |= MAP2_FLAG_DOUBLE;
-                        }
-
-                        if (head->alpha) {
-                            flags2 |= MAP2_FLAG2_ALPHA;
-                        }
-
-                        if (head->rotate) {
-                            flags2 |= MAP2_FLAG2_ROTATE;
-                        }
-
-                        /* Check if the object has zoom, or check if the magic
-                         * mirror
-                         * should affect the zoom value of this layer. */
-                        if ((head->zoom_x && head->zoom_x != 100) ||
-                            (head->zoom_y && head->zoom_y != 100) ||
-                            (mirror && mirror->last_heal && mirror->last_heal != 100 &&
-                             mirror->path_attuned & (1U << (layer - 1)))) {
-                            flags2 |= MAP2_FLAG2_ZOOM;
-                        }
-
-                        if (head != pl && layer == LAYER_LIVING && IS_LIVE(head)) {
-                            flags2 |= MAP2_FLAG2_TARGET;
-                            target_object_count = head->count;
-                            is_friend = is_friend_of(pl, head);
-                        }
-
-                        if (priority) {
-                            flags2 |= MAP2_FLAG2_PRIORITY;
-                        }
-
-                        if (head->type == DOOR ||
-                            (layer == LAYER_LIVING &&
-                             !(GET_MAP_SPACE_PTR(head->map, head->x, head->y)->extra_flags &
-                               MSP_EXTRA_IS_BUILDING))) {
-                            flags2 |= MAP2_FLAG2_SECONDPASS;
-                        }
-
-                        if (head->glow != NULL && CONTR(pl)->cs->socket_version >= 1060) {
-                            flags2 |= MAP2_FLAG2_GLOW;
-                        }
-
-                        if (flags2) {
-                            flags |= MAP2_FLAG_MORE;
-                        }
-
-                        /* Damage animation? Store it for later. */
-                        if (tmp->last_damage && tmp->damage_round_tag == global_round_tag) {
-                            if (anim_type[sub_layer] == 0) {
-                                anim_num++;
-                            }
-
-                            anim_type[sub_layer] = ANIM_DAMAGE;
-                            anim_value[sub_layer] = tmp->last_damage;
-                        }
-
-                        /* Now, check if we have cached this. */
-                        if (mp->faces[socket_layer] == face &&
-                            mp->quick_pos[socket_layer] == quick_pos &&
-                            mp->flags[socket_layer] == flags &&
-                            (layer != LAYER_LIVING || !IS_LIVE(head) ||
-                             (mp->probe == probe_val &&
-                              mp->target_object_count == target_object_count)) &&
-                            mp->anim_speed[socket_layer] == anim_speed &&
-                            mp->anim_facing[socket_layer] == anim_facing &&
-                            (layer != LAYER_LIVING ||
-                             (mp->anim_flags[sub_layer] == anim_flags &&
-                              mp->client_flags[sub_layer] == client_flags)) &&
-                            (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->cs->ext_title_flag) &&
-                            (!(flags2 & MAP2_FLAG2_TARGET) ||
-                             ((mp->is_friend & (1 << sub_layer)) != 0) == is_friend)) {
-                            continue;
-                        }
-
-                        /* Different from cache, add it to the cache now. */
-                        mp->faces[socket_layer] = face;
-                        mp->quick_pos[socket_layer] = quick_pos;
-                        mp->flags[socket_layer] = flags;
-                        mp->anim_speed[socket_layer] = anim_speed;
-                        mp->anim_facing[socket_layer] = anim_facing;
-
-                        if (layer == LAYER_LIVING) {
-                            mp->anim_flags[sub_layer] = anim_flags;
-                            mp->client_flags[sub_layer] = client_flags;
-                        }
-
-                        if (layer == LAYER_LIVING) {
-                            mp->probe = probe_val;
-                            mp->target_object_count = target_object_count;
-
-                            if (flags2 & MAP2_FLAG2_TARGET) {
-                                if (is_friend) {
-                                    mp->is_friend |= 1 << sub_layer;
-                                } else {
-                                    mp->is_friend &= ~(1 << sub_layer);
-                                }
-                            }
-                        }
-
-                        if (OBJECT_IS_HIDDEN(pl, head)) {
-                            /* Update target if applicable. */
-                            if (flags2 & MAP2_FLAG2_PROBE) {
-                                CONTR(pl)->target_object = NULL;
-                                CONTR(pl)->target_object_count = 0;
-                                send_target_command(CONTR(pl));
-                            }
-
-                            if (mp->faces[socket_layer]) {
-                                packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
-                                packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
-                                packet_debug_data(packet_layer, 1, "Actual socket layer");
-                                packet_append_uint8(packet_layer, socket_layer);
-                                num_layers++;
-                            }
-
-                            continue;
-                        }
-
-                        num_layers++;
-
-                        packet_debug_data(packet_layer,
-                                          1,
-                                          "Socket layer (layer: %d, sub-layer: %d)",
-                                          layer,
-                                          sub_layer);
-                        packet_append_uint8(packet_layer, socket_layer);
-                        packet_debug_data(packet_layer, 2, "Face ID");
-                        packet_append_uint16(packet_layer, face);
-                        packet_debug_data(packet_layer, 2, "Client flags");
-                        packet_append_uint8(packet_layer, client_flags);
-                        packet_debug_data(packet_layer, 2, "Socket flags");
-                        packet_append_uint8(packet_layer, flags);
-
-                        /* Multi-arch? Add it's quick pos. */
-                        if (flags & MAP2_FLAG_MULTI) {
-                            packet_debug_data(packet_layer, 2, "Quick pos");
-                            packet_append_uint8(packet_layer, quick_pos);
-                        }
-
-                        /* Player name? Add the player's name, and their player
-                         * name color. */
-                        if (flags & MAP2_FLAG_NAME) {
-                            packet_debug_data(packet_layer, 2, "Player name");
-                            packet_append_string_terminated(packet_layer, CONTR(tmp)->quick_name);
-                            packet_debug_data(packet_layer, 2, "Player name color");
-                            packet_append_string_terminated(packet_layer,
-                                                            get_playername_color(pl, tmp));
-                        }
-
-                        if (flags & MAP2_FLAG_ANIMATION) {
-                            packet_debug(packet_layer, 2, "Animation\n");
-                            packet_debug_data(packet_layer, 3, "Speed");
-                            packet_append_uint8(packet_layer, anim_speed);
-                            packet_debug_data(packet_layer, 3, "Facing");
-                            packet_append_uint8(packet_layer, anim_facing);
-                            packet_debug_data(packet_layer, 3, "Flags");
-                            packet_append_uint8(packet_layer, anim_flags);
-
-                            if (anim_flags & ANIM_FLAG_MOVING) {
-                                packet_debug_data(packet_layer, 3, "State");
-                                packet_append_uint8(packet_layer, face_obj->state);
-                            }
-                        }
-
-                        /* Z position. */
-                        if (flags & MAP2_FLAG_HEIGHT) {
-                            int16_t z;
-
-                            z = head->z;
-
-                            if (tmp->map->coords[2] != m->level_min &&
-                                (layer == LAYER_FLOOR ||
-                                 (QUERY_FLAG(head, FLAG_HIDDEN) && sub_layer == 0)) &&
-                                !override_rendering) {
-                                z += zadj;
-                            }
-
-                            if (mirror && mirror->last_eat) {
-                                z += mirror->last_eat;
-                            }
-
-                            if (tiled_z) {
-                                z += 46 * tiled_depth;
-
-                                if (layer != LAYER_FLOOR &&
-                                    (layer != LAYER_WALL || !override_rendering)) {
-                                    if (tiled_depth < 0) {
-                                        z += MIN(zadj, 46 * -tiled_depth);
+                            if (layer == LAYER_LIVING) {
+                                mp->probe = probe_val;
+                                mp->target_object_count = target_object_count;
+
+                                if (flags2 & MAP2_FLAG2_TARGET) {
+                                    if (is_friend) {
+                                        mp->is_friend |= 1 << sub_layer;
                                     } else {
-                                        z += zadj;
+                                        mp->is_friend &= ~(1 << sub_layer);
                                     }
                                 }
                             }
 
-                            packet_debug_data(packet_layer, 2, "Z");
-                            packet_append_int16(packet_layer, z);
-                        }
+                            if (OBJECT_IS_HIDDEN(pl, head)) {
+                                /* Update target if applicable. */
+                                if (flags2 & MAP2_FLAG2_PROBE) {
+                                    CONTR(pl)->target_object = NULL;
+                                    CONTR(pl)->target_object_count = 0;
+                                    send_target_command(CONTR(pl));
+                                }
 
-                        if (flags & MAP2_FLAG_ALIGN) {
-                            packet_debug_data(packet_layer, 2, "Align");
+                                if (mp->faces[socket_layer]) {
+                                    packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
+                                    packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+                                    packet_debug_data(packet_layer, 1, "Actual socket layer");
+                                    packet_append_uint8(packet_layer, socket_layer);
+                                    num_layers++;
+                                }
 
-                            if (mirror && mirror->align) {
-                                packet_append_int16(packet_layer, head->align + mirror->align);
-                            } else {
+                                continue;
+                            }
+
+                            num_layers++;
+
+                            packet_debug_data(packet_layer,
+                                              1,
+                                              "Socket layer (layer: %d, sub-layer: %d)",
+                                              layer,
+                                              sub_layer);
+                            packet_append_uint8(packet_layer, socket_layer);
+                            packet_debug_data(packet_layer, 2, "Face ID");
+                            packet_append_uint16(packet_layer, face);
+                            packet_debug_data(packet_layer, 2, "Client flags");
+                            packet_append_uint8(packet_layer, client_flags);
+                            packet_debug_data(packet_layer, 2, "Socket flags");
+                            packet_append_uint8(packet_layer, flags);
+
+                            /* Multi-arch? Add it's quick pos. */
+                            if (flags & MAP2_FLAG_MULTI) {
+                                packet_debug_data(packet_layer, 2, "Quick pos");
+                                packet_append_uint8(packet_layer, quick_pos);
+                            }
+
+                            /* Player name? Add the player's name, and their player
+                             * name color. */
+                            if (flags & MAP2_FLAG_NAME) {
+                                packet_debug_data(packet_layer, 2, "Player name");
+                                packet_append_string_terminated(packet_layer,
+                                                                CONTR(tmp)->quick_name);
+                                packet_debug_data(packet_layer, 2, "Player name color");
+                                packet_append_string_terminated(packet_layer,
+                                                                get_playername_color(pl, tmp));
+                            }
+
+                            if (flags & MAP2_FLAG_ANIMATION) {
+                                packet_debug(packet_layer, 2, "Animation\n");
+                                packet_debug_data(packet_layer, 3, "Speed");
+                                packet_append_uint8(packet_layer, anim_speed);
+                                packet_debug_data(packet_layer, 3, "Facing");
+                                packet_append_uint8(packet_layer, anim_facing);
+                                packet_debug_data(packet_layer, 3, "Flags");
+                                packet_append_uint8(packet_layer, anim_flags);
+
+                                if (anim_flags & ANIM_FLAG_MOVING) {
+                                    packet_debug_data(packet_layer, 3, "State");
+                                    packet_append_uint8(packet_layer, face_obj->state);
+                                }
+                            }
+
+                            /* Z position. */
+                            if (flags & MAP2_FLAG_HEIGHT) {
+                                int16_t z;
+
+                                z = head->z;
+
+                                packet_debug_data(packet_layer, 2, "Z");
+                                packet_append_int16(packet_layer, z);
+                            }
+
+                            if (flags & MAP2_FLAG_ALIGN) {
+                                packet_debug_data(packet_layer, 2, "Align");
+
                                 packet_append_int16(packet_layer, head->align);
                             }
-                        }
 
-                        if (flags & MAP2_FLAG_MORE) {
-                            packet_debug(packet_layer, 2, "Extended info:\n");
-                            packet_debug_data(packet_layer, 3, "Flags");
-                            packet_append_uint32(packet_layer, flags2);
+                            if (flags & MAP2_FLAG_MORE) {
+                                packet_debug(packet_layer, 2, "Extended info:\n");
+                                packet_debug_data(packet_layer, 3, "Flags");
+                                packet_append_uint32(packet_layer, flags2);
 
-                            if (flags2 & MAP2_FLAG2_ALPHA) {
-                                packet_debug_data(packet_layer, 3, "Alpha");
-                                packet_append_uint8(packet_layer, head->alpha);
-                            }
+                                if (flags2 & MAP2_FLAG2_ALPHA) {
+                                    packet_debug_data(packet_layer, 3, "Alpha");
+                                    packet_append_uint8(packet_layer, head->alpha);
+                                }
 
-                            if (flags2 & MAP2_FLAG2_ROTATE) {
-                                packet_debug_data(packet_layer, 3, "Rotate");
-                                packet_append_int16(packet_layer, head->rotate);
-                            }
+                                if (flags2 & MAP2_FLAG2_ROTATE) {
+                                    packet_debug_data(packet_layer, 3, "Rotate");
+                                    packet_append_int16(packet_layer, head->rotate);
+                                }
 
-                            if (flags2 & MAP2_FLAG2_ZOOM) {
-                                /* First check mirror, even if the object *does*
-                                 * have custom zoom. */
-                                if (mirror && mirror->last_heal) {
-                                    packet_debug_data(packet_layer, 3, "X zoom");
-                                    packet_append_uint16(packet_layer, mirror->last_heal);
-                                    packet_debug_data(packet_layer, 3, "Y zoom");
-                                    packet_append_uint16(packet_layer, mirror->last_heal);
-                                } else {
+                                if (flags2 & MAP2_FLAG2_ZOOM) {
                                     packet_debug_data(packet_layer, 3, "X zoom");
                                     packet_append_uint16(packet_layer, head->zoom_x);
                                     packet_debug_data(packet_layer, 3, "Y zoom");
                                     packet_append_uint16(packet_layer, head->zoom_y);
                                 }
+
+                                if (flags2 & MAP2_FLAG2_TARGET) {
+                                    packet_debug_data(packet_layer, 3, "Target object ID");
+                                    packet_append_uint32(packet_layer, target_object_count);
+                                    packet_debug_data(packet_layer, 3, "Target is friend");
+                                    packet_append_uint8(packet_layer, is_friend);
+                                }
+
+                                /* Target's HP bar. */
+                                if (flags2 & MAP2_FLAG2_PROBE) {
+                                    packet_debug_data(packet_layer, 3, "HP percentage");
+                                    packet_append_uint8(packet_layer, probe_val);
+                                }
+
+                                /* Target's HP bar. */
+                                if (flags2 & MAP2_FLAG2_GLOW) {
+                                    packet_debug_data(packet_layer, 3, "Glow color");
+                                    packet_append_string_terminated(packet_layer, head->glow);
+                                    packet_debug_data(packet_layer, 3, "Glow speed");
+                                    packet_append_uint8(packet_layer, head->glow_speed);
+                                }
+                            }
+                        } else if (mp->faces[socket_layer]) {
+                            /* Didn't find anything. Now, if we have previously seen
+                             * a face on this layer, we will want the client to
+                             * clear it. */
+                            mp->faces[socket_layer] = 0;
+                            mp->quick_pos[socket_layer] = 0;
+                            mp->flags[socket_layer] = 0;
+                            mp->roof[socket_layer] = 0;
+                            mp->anim_speed[socket_layer] = 0;
+                            mp->anim_facing[socket_layer] = 0;
+
+                            if (layer == LAYER_LIVING) {
+                                mp->anim_flags[sub_layer] = 0;
                             }
 
-                            if (flags2 & MAP2_FLAG2_TARGET) {
-                                packet_debug_data(packet_layer, 3, "Target object ID");
-                                packet_append_uint32(packet_layer, target_object_count);
-                                packet_debug_data(packet_layer, 3, "Target is friend");
-                                packet_append_uint8(packet_layer, is_friend);
-                            }
-
-                            /* Target's HP bar. */
-                            if (flags2 & MAP2_FLAG2_PROBE) {
-                                packet_debug_data(packet_layer, 3, "HP percentage");
-                                packet_append_uint8(packet_layer, probe_val);
-                            }
-
-                            /* Target's HP bar. */
-                            if (flags2 & MAP2_FLAG2_GLOW) {
-                                packet_debug_data(packet_layer, 3, "Glow color");
-                                packet_append_string_terminated(packet_layer, head->glow);
-                                packet_debug_data(packet_layer, 3, "Glow speed");
-                                packet_append_uint8(packet_layer, head->glow_speed);
-                            }
+                            packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
+                            packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+                            packet_debug_data(packet_layer, 1, "Actual socket layer");
+                            packet_append_uint8(packet_layer, socket_layer);
+                            num_layers++;
                         }
-                    } else if (mp->faces[socket_layer]) {
-                        /* Didn't find anything. Now, if we have previously seen
-                         * a face on this layer, we will want the client to
-                         * clear it. */
-                        mp->faces[socket_layer] = 0;
-                        mp->quick_pos[socket_layer] = 0;
-                        mp->anim_speed[socket_layer] = 0;
-                        mp->anim_facing[socket_layer] = 0;
+                    }
+                }
 
-                        if (layer == LAYER_LIVING) {
-                            mp->anim_flags[sub_layer] = 0;
+                /* A zero-valued sample is meaningful too. Compare the completed
+                 * light field independently of whether a dark tile had a drawable
+                 * object, and send every visible sub-layer at least once. */
+                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    uint8_t resolved_light = light_set[sub_layer] ? light_level[sub_layer] : 0;
+
+                    if (!mp->light_known[sub_layer] ||
+                        resolved_light != mp->light_level[sub_layer]) {
+                        if (sub_layer == 0) {
+                            mask |= MAP2_MASK_LIGHT_LEVEL;
+                        } else {
+                            mask |= MAP2_MASK_LIGHT_LEVEL_MORE;
                         }
-
-                        packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
-                        packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
-                        packet_debug_data(packet_layer, 1, "Actual socket layer");
-                        packet_append_uint8(packet_layer, socket_layer);
-                        num_layers++;
                     }
                 }
-            }
 
-            /* A zero-valued sample is meaningful too. Compare the completed
-             * light field independently of whether a dark tile had a drawable
-             * object, and send every visible sub-layer at least once. */
-            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                uint8_t resolved_light = light_set[sub_layer] ? light_level[sub_layer] : 0;
-
-                if (!mp->light_known[sub_layer] || resolved_light != mp->light_level[sub_layer]) {
-                    if (sub_layer == 0) {
-                        mask |= MAP2_MASK_LIGHT_LEVEL;
-                    } else {
-                        mask |= MAP2_MASK_LIGHT_LEVEL_MORE;
-                    }
-                }
-            }
-
-            /* Add the mask. Any mask changes should go above this line. */
-            packet_debug_data(packet, 0, "Tile %d,%d data, mask", ax, ay);
-            packet_append_uint16(packet, mask);
-
-            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                if ((sub_layer == 0 && !(mask & MAP2_MASK_LIGHT_LEVEL)) ||
-                    (sub_layer != 0 && !(mask & MAP2_MASK_LIGHT_LEVEL_MORE))) {
-                    if (!light_set[sub_layer] && mp->light_level[sub_layer] != 0) {
-                        mp->light_level[sub_layer] = 0;
-                    }
-
-                    continue;
-                }
-
-                packet_debug_data(packet, 1, "Light level (sub-layer: %d)", sub_layer);
-                mp->light_level[sub_layer] = light_set[sub_layer] ? light_level[sub_layer] : 0;
-                mp->light_known[sub_layer] = 1;
-                packet_append_uint8(packet, mp->light_level[sub_layer]);
-            }
-
-            packet_debug_data(packet, 1, "Number of layers");
-            packet_append_uint8(packet, num_layers);
-
-            packet_append_packet(packet, packet_layer);
-            packet_free(packet_layer);
-
-            /* Kill animations? */
-            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                if (GET_MAP_RTAG(m, nx, ny, sub_layer) == global_round_tag) {
-                    if (anim_type[sub_layer] == 0) {
-                        anim_num++;
-                    }
-
-                    anim_type[sub_layer] = ANIM_KILL;
-                    anim_value[sub_layer] = GET_MAP_DAMAGE(m, nx, ny, sub_layer);
-                }
-            }
-
-            if (anim_num != 0) {
-                ext_flags |= MAP2_FLAG_EXT_ANIM;
-            }
-
-            if (ext_flags == mp->ext_flags && anim_num == mp->anim_num && process_delay != 0) {
-                ext_flags = 0;
-            } else {
-                mp->ext_flags = ext_flags;
-                mp->anim_num = anim_num;
-            }
-
-            /* Add flags for this tile. */
-            packet_debug_data(packet, 1, "Extended tile flags");
-            packet_append_uint8(packet, ext_flags);
-
-            /* Animation? Add its type and value. */
-            if (ext_flags & MAP2_FLAG_EXT_ANIM) {
-                packet_debug_data(packet, 1, "Number of animations");
-                packet_append_uint8(packet, anim_num);
+                /* Add the mask. Any mask changes should go above this line. */
+                packet_debug_data(packet, 0, "Tile %d,%d data, mask", ax, ay);
+                packet_append_uint16(packet, mask);
 
                 for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                    if (anim_type[sub_layer] == 0) {
+                    if ((sub_layer == 0 && !(mask & MAP2_MASK_LIGHT_LEVEL)) ||
+                        (sub_layer != 0 && !(mask & MAP2_MASK_LIGHT_LEVEL_MORE))) {
+                        if (!light_set[sub_layer] && mp->light_level[sub_layer] != 0) {
+                            mp->light_level[sub_layer] = 0;
+                        }
+
                         continue;
                     }
 
-                    packet_debug_data(packet, 1, "Animation sub-layer");
-                    packet_append_uint8(packet, sub_layer);
-                    packet_debug_data(packet, 1, "Animation type");
-                    packet_append_uint8(packet, anim_type[sub_layer]);
-                    packet_debug_data(packet, 1, "Animation value");
-                    packet_append_int16(packet, anim_value[sub_layer]);
+                    packet_debug_data(packet, 1, "Light level (sub-layer: %d)", sub_layer);
+                    mp->light_level[sub_layer] = light_set[sub_layer] ? light_level[sub_layer] : 0;
+                    mp->light_known[sub_layer] = 1;
+                    packet_append_uint8(packet, mp->light_level[sub_layer]);
+                }
+
+                packet_debug_data(packet, 1, "Number of layers");
+                packet_append_uint8(packet, num_layers);
+
+                packet_append_packet(packet, packet_layer);
+                packet_free(packet_layer);
+
+                /* Kill animations? */
+                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    if (GET_MAP_RTAG(m, nx, ny, sub_layer) == global_round_tag) {
+                        if (anim_type[sub_layer] == 0) {
+                            anim_num++;
+                        }
+
+                        anim_type[sub_layer] = ANIM_KILL;
+                        anim_value[sub_layer] = GET_MAP_DAMAGE(m, nx, ny, sub_layer);
+                    }
+                }
+
+                if (anim_num != 0) {
+                    ext_flags |= MAP2_FLAG_EXT_ANIM;
+                }
+
+                if (ext_flags == mp->ext_flags && anim_num == mp->anim_num && process_delay != 0) {
+                    ext_flags = 0;
+                } else {
+                    mp->ext_flags = ext_flags;
+                    mp->anim_num = anim_num;
+                }
+
+                /* Add flags for this tile. */
+                packet_debug_data(packet, 1, "Extended tile flags");
+                packet_append_uint8(packet, ext_flags);
+
+                /* Animation? Add its type and value. */
+                if (ext_flags & MAP2_FLAG_EXT_ANIM) {
+                    packet_debug_data(packet, 1, "Number of animations");
+                    packet_append_uint8(packet, anim_num);
+
+                    for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                        if (anim_type[sub_layer] == 0) {
+                            continue;
+                        }
+
+                        packet_debug_data(packet, 1, "Animation sub-layer");
+                        packet_append_uint8(packet, sub_layer);
+                        packet_debug_data(packet, 1, "Animation type");
+                        packet_append_uint8(packet, anim_type[sub_layer]);
+                        packet_debug_data(packet, 1, "Animation value");
+                        packet_append_int16(packet, anim_value[sub_layer]);
+                    }
+                }
+
+                /* If nothing has really changed, go back to the old position
+                 * in the packet. */
+                if (!(mask & 0x3f) && !num_layers && !ext_flags) {
+                    packet_load(packet, &packet_save_buf);
                 }
             }
-
-            /* If nothing has really changed, go back to the old position
-             * in the packet. */
-            if (!(mask & 0x3f) && !num_layers && !ext_flags) {
-                packet_load(packet, &packet_save_buf);
-            }
-
-            /* Set 'mirror' back to NULL, so we'll try to re-find it on another
-             * tile. */
-            mirror = NULL;
         }
-    }
 
-    /* Verify that we in fact do need to send this. */
-    if (packet->len >= 6) {
-        socket_send_packet(CONTR(pl)->cs, packet);
-    } else {
+        if (level_present) {
+            packet_debug_data(packet_levels, 0, "Map level depth");
+            packet_append_int8(packet_levels, depth);
+            packet_debug_data(packet_levels, 0, "Map level payload size");
+            packet_append_uint32(packet_levels, packet->len);
+            packet_append_packet(packet_levels, packet);
+            level_count++;
+        }
+
         packet_free(packet);
     }
+
+    packet_debug_data(packet_header, 0, "Number of map levels");
+    packet_append_uint8(packet_header, level_count);
+    packet_append_packet(packet_header, packet_levels);
+    packet_free(packet_levels);
+    socket_send_packet(CONTR(pl)->cs, packet_header);
 
     if (packet_sound->len >= 1) {
         socket_send_packet(CONTR(pl)->cs, packet_sound);

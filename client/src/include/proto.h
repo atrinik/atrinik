@@ -1136,7 +1136,8 @@ extern void widget_label_init(widgetdata *widget);
 /* src/gui/widgets/map.c */
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
-extern struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int value);
+extern struct map_anim *
+map_anims_add(int type, int mapx, int mapy, int sub_layer, int depth, int value);
 extern void maps_anims_remove(map_anim_t *anim);
 extern void map_anims_mapscroll(int xoff, int yoff);
 extern void map_anims_clear(void);
@@ -1152,7 +1153,6 @@ extern void update_map_height_diff(uint8_t height_diff);
 extern void update_map_region_name(const char *region_name);
 extern void update_map_region_longname(const char *region_longname);
 extern void update_map_path(const char *map_path);
-extern void map_update_in_building(uint8_t in_building);
 extern int map_get_player_direction(void);
 extern void map_get_real_coords(int *x, int *y);
 extern void init_map_data(int xl, int yl, int px, int py);
@@ -1182,9 +1182,13 @@ extern void map_set_data(int x,
                          uint8_t anim_state,
                          uint8_t priority,
                          uint8_t secondpass,
+                         uint8_t roof,
                          const char *glow,
                          uint8_t glow_speed);
-extern void map_clear_cell(int x, int y);
+extern bool map_select_level(int depth, bool create);
+extern void map_set_level_mask(uint16_t mask);
+extern void map_level_scroll(int dz);
+extern void map_clear_cell(int x, int y, bool hard);
 extern void map_set_light_level(int x, int y, int sub_layer, uint8_t light_level);
 extern void map_animate(void);
 extern void map_draw_map(SDL_Surface *surface);

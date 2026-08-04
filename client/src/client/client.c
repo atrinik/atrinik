@@ -43,8 +43,12 @@
 
 #include <global.h>
 #include <resources.h>
+#include <toolkit/datetime.h>
 #include <toolkit/socket_crypto.h>
 #include <toolkit/packet.h>
+
+/** Maximum time spent draining server commands before yielding to rendering. */
+#define CLIENT_COMMAND_BUDGET_US UINT64_C(4000)
 
 /** Client player structure with things like stats, damage, etc */
 Client_Player cpl;
@@ -89,6 +93,8 @@ static socket_command_struct commands[CLIENT_CMD_NROF] = {
  */
 void DoClient(void) {
     command_buffer *cmd;
+    uint64_t commands_started = datetime_monotonic_us();
+
     /* Handle all enqueued commands */
     while ((cmd = get_next_input_command()) != NULL) {
         uint8_t *data = cmd->data;
@@ -134,6 +140,14 @@ void DoClient(void) {
         }
 
         command_buffer_free(cmd);
+
+        /* A sustained stream of multi-level map updates must not starve the
+         * main loop's render/present phases. Packet order is retained; the
+         * remaining queue resumes on the next frame. Always finish at least
+         * the command already dequeued, even when it exceeds this budget. */
+        if (datetime_monotonic_us() - commands_started >= CLIENT_COMMAND_BUDGET_US) {
+            break;
+        }
     }
 }
 

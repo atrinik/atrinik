@@ -64,6 +64,9 @@ typedef struct MapCell_struct {
     /** Flags cache. */
     uint8_t flags[NUM_REAL_LAYERS];
 
+    /** Whether a wall-layer object is a roof/camera surface. */
+    uint8_t roof[NUM_REAL_LAYERS];
+
     uint8_t anim_speed[NUM_REAL_LAYERS];
 
     uint8_t anim_facing[NUM_REAL_LAYERS];
@@ -92,9 +95,13 @@ typedef struct MapCell_struct {
 
 /** One map for a player. */
 struct Map {
-    /** The map cells. */
-    struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
+    /** Lazily allocated cells for each linked-map depth. */
+    struct MapCell_struct *levels[MAP2_LEVELS];
 };
+
+MapCell *map_client_cache_cell(struct Map *cache, int depth, int x, int y, bool create);
+void map_client_cache_clear(struct Map *cache);
+void map_client_cache_free(struct Map *cache);
 
 /** Possible socket statuses. */
 enum {

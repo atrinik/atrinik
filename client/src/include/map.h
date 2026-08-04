@@ -49,6 +49,19 @@
 #define MAP_TILE_YOFF 24
 
 /**
+ * Number of off-screen tile anchors requested on each edge of the logical
+ * look window. Large isometric sprites can project into the viewport from
+ * these tiles even though their owning tile is outside it.
+ */
+#define MAP_RENDER_OVERSCAN 2
+
+/** Convert a user-selected logical look size to the map protocol size. */
+#define MAP_LOOK_TO_WIRE_SIZE(_size) ((_size) + MAP_RENDER_OVERSCAN * 2)
+
+/** Convert a map protocol size back to the user-selected logical look size. */
+#define MAP_WIRE_TO_LOOK_SIZE(_size) ((_size) - MAP_RENDER_OVERSCAN * 2)
+
+/**
  * @defgroup LAYER_xxx Layer types
  * The layer types used for different objects.
  *@{*/
@@ -155,7 +168,6 @@ typedef struct _mapdata {
     /**
      * If 1, the player is currently in a building.
      */
-    unsigned int in_building : 1;
 
     /**
      * Player's current sub-layer.
@@ -192,6 +204,24 @@ typedef struct MapCell {
 
     /** Object flags. */
     uint8_t flags[NUM_REAL_LAYERS];
+
+    /** Whether terrain stretch must be recomputed for this cell. */
+    uint8_t stretch_dirty;
+
+    /** Topmost nonzero floor height, cached for negative terrain seams. */
+    int16_t stretch_top_height;
+
+    /** Topmost nonzero floor height above the base sub-layer. */
+    int16_t stretch_upper_height;
+
+    /** Maximum nonnegative floor elevation supporting linked upper levels. */
+    int16_t level_support_height;
+
+    /** Maximum floor/effect elevation used for screen-space rejection. */
+    int16_t render_max_height;
+
+    /** Whether a wall-layer object is a roof/camera surface. */
+    uint8_t roof[NUM_REAL_LAYERS];
 
     /** Double drawing. */
     uint8_t draw_double[NUM_REAL_LAYERS];
@@ -262,11 +292,6 @@ typedef struct MapCell {
 #define MAP_WIDTH map_width
 #define MAP_HEIGHT map_height
 
-#define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])
-#define MAP_CELL_GET_MIDDLE(_x, _y)                                                        \
-    (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * (map_width * MAP_FOW_SIZE) + (_x) + \
-            map_width * (MAP_FOW_SIZE / 2)])
-
 typedef struct map_target_struct {
     uint32_t count;
     int x;
@@ -309,6 +334,7 @@ typedef struct map_anim {
 
     int type; ///< Type of the animation, one of @ref ANIM_xxx.
     int sub_layer; ///< Sub-layer the damage is happening on.
+    int8_t depth; ///< Linked-map depth where the animation occurred.
     int value; ///< This is the number to display.
     int mapx; ///< Map position X.
     int mapy; ///< Map position Y.

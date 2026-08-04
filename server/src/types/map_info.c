@@ -64,18 +64,6 @@ static void init_func(object *op) {
             if (QUERY_FLAG(op, FLAG_STAND_STILL)) {
                 msp->extra_flags |= MSP_EXTRA_NO_HARM;
             }
-
-            if (QUERY_FLAG(op, FLAG_CURSED)) {
-                msp->extra_flags ^= MSP_EXTRA_IS_BUILDING;
-            }
-
-            if (QUERY_FLAG(op, FLAG_IS_MAGICAL)) {
-                msp->extra_flags ^= MSP_EXTRA_IS_BALCONY;
-            }
-
-            if (QUERY_FLAG(op, FLAG_DAMNED)) {
-                msp->extra_flags ^= MSP_EXTRA_IS_OVERLOOK;
-            }
         }
     }
 }

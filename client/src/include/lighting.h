@@ -12,6 +12,11 @@
 #ifndef LIGHTING_H
 #define LIGHTING_H
 
+typedef enum lighting_surface_mode {
+    LIGHTING_SURFACE_STRUCTURE,
+    LIGHTING_SURFACE_PROJECTED,
+} lighting_surface_mode_t;
+
 /** One light sample projected into map-widget coordinates. */
 typedef struct lighting_vertex {
     int x;
@@ -20,6 +25,9 @@ typedef struct lighting_vertex {
 } lighting_vertex_t;
 
 bool lighting_begin(int width, int height, uint64_t cache_key);
+bool lighting_select_level(int depth);
+void lighting_set_level_mask(uint16_t mask);
+void lighting_level_scroll(int dz);
 bool lighting_needs_update(void);
 void lighting_draw_quad(const lighting_vertex_t vertices[4]);
 void lighting_render(SDL_Surface *destination);
@@ -28,7 +36,9 @@ void lighting_show_surface(SDL_Surface *destination,
                            int y,
                            SDL_Rect *srcrect,
                            SDL_Surface *source,
-                           int sample_y);
+                           int sample_y,
+                           lighting_surface_mode_t mode);
+void lighting_clear_sprite_cache(void);
 void lighting_deinit(void);
 
 #endif

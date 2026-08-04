@@ -304,12 +304,6 @@
 #define MSP_EXTRA_NO_PVP 2
 /** No magic. */
 #define MSP_EXTRA_NO_MAGIC 4
-/** The tile is part of a building. */
-#define MSP_EXTRA_IS_BUILDING 8
-/** The tile is a balcony. */
-#define MSP_EXTRA_IS_BALCONY 16
-/** The tile shows objects under it in a building. */
-#define MSP_EXTRA_IS_OVERLOOK 32
 /*@}*/
 
 /** Single tile on a map */
@@ -355,6 +349,10 @@ typedef struct MapSpace_s {
      * 255+ = full daylight.
      */
     int32_t light_value;
+
+    /** Illumination contributed by light sources. Kept separate so masks can
+     * be rebuilt when opaque geometry changes. */
+    int32_t light_source_value;
 
     /**
      * Flags about this space
@@ -831,15 +829,6 @@ typedef struct rv_vector_s {
 #define OBJECT_IS_HIDDEN(pl, ob)        \
     (HAS_EVENT((ob), EVENT_ASK_SHOW) && \
      trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
-
-/**
- * Maximum darkness of building walls.
- */
-#define MAP_BUILDING_DARKNESS_WALL 4
-/**
- * Darkness of building interiors.
- */
-#define MAP_BUILDING_DARKNESS 3
 
 /* Prototypes */
 

@@ -57,8 +57,8 @@
  * need to spend to figure this out in addition to bandwidth needs.
  * The server CPU time should be pretty trivial.
  */
-#define MAP_CLIENT_X 17
-#define MAP_CLIENT_Y 17
+#define MAP_CLIENT_X 21
+#define MAP_CLIENT_Y 21
 
 /**
  * If you feel the game is too fast or too slow, change MAX_TIME.

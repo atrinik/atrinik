@@ -342,8 +342,12 @@ static int game_status_chain(void) {
         packet_append_uint8(packet, CMD_SETUP_SOUND);
         packet_append_uint8(packet, 1);
         packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
-        packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH));
-        packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
+        packet_append_uint8(
+            packet,
+            MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH)));
+        packet_append_uint8(
+            packet,
+            MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)));
         packet_append_uint8(packet, CMD_SETUP_DATA_URL);
         packet_append_string_terminated(packet, "");
         packet_append_uint8(packet, CMD_SETUP_JOIN_PASSWORD);

@@ -121,6 +121,22 @@ typedef enum socket_role {
 #define MAP_UPDATE_CMD_CONNECTED 2
 
 /**
+ * Maximum linked-map depth carried by one map update.
+ *
+ * CLIENT_CMD_MAP sends the usual map metadata and player position followed by
+ * a uint8 level count. Each level block contains an int8 depth relative to the
+ * player's physical map, a uint32 payload size, and an independently cached
+ * stream of MAP2 tile records. Depth zero is the player's map, negative depths
+ * are TILED_DOWN links, and positive depths are TILED_UP links. Connected
+ * updates additionally carry an int8 depth offset so both endpoints can shift
+ * their caches when the player changes levels without forcing a full refresh.
+ */
+#define MAP2_MAX_DEPTH 6
+/** Number of independently cached linked-map levels. */
+#define MAP2_LEVELS (MAP2_MAX_DEPTH * 2 + 1)
+#define MAP2_DEPTH_INDEX(_depth) ((_depth) + MAP2_MAX_DEPTH)
+
+/**
  * @defgroup CMD_TARGET_xxx Target command types
  * Target command types; informs the client about whether the target is a
  * friend, enemy, etc.
@@ -341,6 +357,8 @@ typedef struct socket_asset_response {
 #define MAP2_FLAG2_SECONDPASS 64
 /** The object glows. */
 #define MAP2_FLAG2_GLOW 128
+/** The wall-layer object is a roof/camera surface. */
+#define MAP2_FLAG2_ROOF 256
 /*@}*/
 
 /**
@@ -368,6 +386,8 @@ typedef struct socket_asset_response {
  *@{*/
 /** Clear cell, with all layers. */
 #define MAP2_MASK_CLEAR 0x2
+/** Clear cell and discard cached fog-of-war geometry. */
+#define MAP2_MASK_HARD_CLEAR 0x10
 /** Tile light level for sub-layer zero follows the mask. */
 #define MAP2_MASK_LIGHT_LEVEL 0x4
 /** Tile light levels for sub-layers one through six follow the mask. */

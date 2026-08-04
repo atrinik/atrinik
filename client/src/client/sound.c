@@ -790,8 +790,8 @@ static void sound_ambient_set_position(sound_ambient_struct *tmp) {
 #ifdef HAVE_SDL_MIXER
     int x, y, angle, distance, cx, cy;
 
-    cx = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2;
-    cy = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
+    cx = MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH)) / 2;
+    cy = MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) / 2;
 
     /* The x/y positions stored in the sound effect structure are the
      * positions on the map, so we have to convert it to coordinates
@@ -835,9 +835,11 @@ void sound_ambient_mapcroll(int xoff, int yoff) {
 
         /* If the sound effect is now off-screen, remove it. */
         if (sound_ambient->x < 0 ||
-            sound_ambient->x >= setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) ||
+            sound_ambient->x >=
+                MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH)) ||
             sound_ambient->y < 0 ||
-            sound_ambient->y >= setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) {
+            sound_ambient->y >=
+                MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT))) {
             sound_ambient_free(sound_ambient);
             continue;
         }

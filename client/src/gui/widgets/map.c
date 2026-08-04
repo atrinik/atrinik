@@ -41,18 +41,108 @@
  * Map cells.
  */
 static struct MapCell *cells;
-/**
- * Map's width.
- */
+static struct MapCell *level_cells[MAP2_LEVELS];
+static uint64_t level_lighting_revision[MAP2_LEVELS];
+static size_t current_level_index = MAP2_DEPTH_INDEX(0);
+static uint16_t map_level_mask;
 static int map_width;
-/**
- * Map's height.
- */
 static int map_height;
+static int map_cache_origin_x;
+static int map_cache_origin_y;
+
+/** Return a logical cell from the circular fog-of-war cache. */
+static struct MapCell *map_cache_cell_at(struct MapCell *level,
+                                         int x,
+                                         int y,
+                                         int width,
+                                         int height,
+                                         int origin_x,
+                                         int origin_y) {
+    HARD_ASSERT(level != NULL);
+    HARD_ASSERT(x >= 0 && x < width);
+    HARD_ASSERT(y >= 0 && y < height);
+
+    int physical_x = (x + origin_x) % width;
+    int physical_y = (y + origin_y) % height;
+    return &level[(size_t)physical_y * width + physical_x];
+}
+
+static struct MapCell *map_cache_cell(struct MapCell *level, int x, int y) {
+    return map_cache_cell_at(level,
+                             x,
+                             y,
+                             map_width * MAP_FOW_SIZE,
+                             map_height * MAP_FOW_SIZE,
+                             map_cache_origin_x,
+                             map_cache_origin_y);
+}
+
+/** Mark the clipped logical rectangle as explored fog. */
+static void map_cache_mark_fow(struct MapCell *level,
+                               int x_start,
+                               int x_end,
+                               int y_start,
+                               int y_end,
+                               int width,
+                               int height) {
+    x_start = MAX(0, x_start);
+    x_end = MIN(width, x_end);
+    y_start = MAX(0, y_start);
+    y_end = MIN(height, y_end);
+
+    for (int x = x_start; x < x_end; x++) {
+        for (int y = y_start; y < y_end; y++) {
+            map_cache_cell(level, x, y)->fow = 1;
+        }
+    }
+}
+
+#define MAP_CELL_GET(_x, _y) map_cache_cell(cells, (_x), (_y))
+#define MAP_CELL_GET_MIDDLE(_x, _y) MAP_CELL_GET((_x) + MAP_STARTX, (_y) + MAP_STARTY)
+
+/** Vertical screen projection of one linked physical map level. */
+#define MAP_LEVEL_PIXEL_HEIGHT 46
+
+/** Select one protocol map depth, allocating its cache on demand. */
+bool map_select_level(int depth, bool create) {
+    if (depth < -MAP2_MAX_DEPTH || depth > MAP2_MAX_DEPTH) {
+        return false;
+    }
+
+    size_t index = (size_t)MAP2_DEPTH_INDEX(depth);
+    if (level_cells[index] == NULL && create) {
+        size_t count = (size_t)map_width * MAP_FOW_SIZE * (size_t)map_height * MAP_FOW_SIZE;
+        level_cells[index] = xcalloc(count, sizeof(*level_cells[index]));
+    }
+
+    current_level_index = index;
+    cells = level_cells[index];
+    return cells != NULL;
+}
+
+void map_set_level_mask(uint16_t mask) {
+    uint16_t old_mask = map_level_mask;
+    map_level_mask = mask;
+
+    for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
+        size_t index = (size_t)MAP2_DEPTH_INDEX(depth);
+
+        uint16_t bit = UINT16_C(1) << index;
+        if ((old_mask & bit) && !(mask & bit) && level_cells[index] != NULL) {
+            size_t count = (size_t)map_width * MAP_FOW_SIZE * (size_t)map_height * MAP_FOW_SIZE;
+            memset(level_cells[index], 0, count * sizeof(*level_cells[index]));
+            level_lighting_revision[index]++;
+        }
+    }
+
+    lighting_set_level_mask(mask);
+    map_select_level(0, true);
+}
 /**
  * Zoomed map.
  */
 static SDL_Surface *zoomed = NULL;
+static SDL_Surface *map_level_surfaces[2];
 /**
  * Map animation queue.
  */
@@ -181,16 +271,22 @@ void clear_map(bool hard) {
     size_t cells_size;
 
     /* Cache the map width and height. */
-    map_width = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH);
-    map_height = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT);
+    map_width = MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH));
+    map_height = MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
 
     cells_size = sizeof(*cells) * map_width * MAP_FOW_SIZE * map_height * MAP_FOW_SIZE;
 
-    if (cells == NULL) {
-        cells = xmalloc(cells_size);
+    for (size_t i = 0; i < arraysize(level_cells); i++) {
+        if (level_cells[i] != NULL) {
+            memset(level_cells[i], 0, cells_size);
+            level_lighting_revision[i]++;
+        }
     }
 
-    memset(cells, 0, cells_size);
+    map_level_mask = UINT16_C(1) << MAP2_DEPTH_INDEX(0);
+    map_cache_origin_x = 0;
+    map_cache_origin_y = 0;
+    map_select_level(0, true);
     sound_ambient_clear();
     map_anims_clear();
 
@@ -240,47 +336,163 @@ void map_update_size(int w, int h) {
  * Old height. 0 if height hasn't changed.
  */
 void display_mapscroll(int dx, int dy, int old_w, int old_h) {
-    int x, y, w, h;
-    struct MapCell *cells_old;
+    int width = map_width * MAP_FOW_SIZE;
+    int height = map_height * MAP_FOW_SIZE;
 
-    w = map_width * MAP_FOW_SIZE;
-    h = map_height * MAP_FOW_SIZE;
+    if (old_w != 0 && old_h != 0 && (old_w != width || old_h != height)) {
+        int old_origin_x = map_cache_origin_x;
+        int old_origin_y = map_cache_origin_y;
 
-    if (old_w == 0) {
-        old_w = w;
-    }
-
-    if (old_h == 0) {
-        old_h = h;
-    }
-
-    cells_old = cells;
-    cells = xmallocarray((size_t)w * (size_t)h, sizeof(*cells));
-
-    for (x = 0; x < w; x++) {
-        for (y = 0; y < h; y++) {
-            if (x + dx < 0 || x + dx >= old_w || y + dy < 0 || y + dy >= old_h) {
-                memset(&(cells[y * w + x]), 0, sizeof(struct MapCell));
-            } else {
-                memcpy(&(cells[y * w + x]),
-                       &(cells_old[(y + dy) * old_w + x + dx]),
-                       sizeof(struct MapCell));
+        for (size_t level = 0; level < arraysize(level_cells); level++) {
+            if (level_cells[level] == NULL) {
+                continue;
             }
 
-            if (x < map_width * (MAP_FOW_SIZE / 2) ||
-                x >= map_width + map_width * (MAP_FOW_SIZE / 2) ||
-                y < map_height * (MAP_FOW_SIZE / 2) ||
-                y >= map_height + map_height * (MAP_FOW_SIZE / 2)) {
-                cells[y * w + x].fow = 1;
+            struct MapCell *old_cells = level_cells[level];
+            struct MapCell *new_cells = xcalloc((size_t)width * height, sizeof(*new_cells));
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    int source_x = x + dx;
+                    int source_y = y + dy;
+                    if (source_x < 0 || source_x >= old_w || source_y < 0 || source_y >= old_h) {
+                        continue;
+                    }
+
+                    new_cells[(size_t)y * width + x] = *map_cache_cell_at(old_cells,
+                                                                          source_x,
+                                                                          source_y,
+                                                                          old_w,
+                                                                          old_h,
+                                                                          old_origin_x,
+                                                                          old_origin_y);
+                }
+            }
+
+            free(old_cells);
+            level_cells[level] = new_cells;
+            level_lighting_revision[level]++;
+        }
+
+        map_cache_origin_x = 0;
+        map_cache_origin_y = 0;
+    } else {
+        if (abs(dx) >= width || abs(dy) >= height) {
+            for (size_t level = 0; level < arraysize(level_cells); level++) {
+                if (level_cells[level] != NULL) {
+                    memset(level_cells[level],
+                           0,
+                           (size_t)width * height * sizeof(*level_cells[level]));
+                    level_lighting_revision[level]++;
+                }
+            }
+            map_cache_origin_x = 0;
+            map_cache_origin_y = 0;
+        } else if (dx != 0 || dy != 0) {
+            map_cache_origin_x = (map_cache_origin_x + dx + width) % width;
+            map_cache_origin_y = (map_cache_origin_y + dy + height) % height;
+
+            int view_x = map_width * (MAP_FOW_SIZE / 2);
+            int view_y = map_height * (MAP_FOW_SIZE / 2);
+            for (size_t level = 0; level < arraysize(level_cells); level++) {
+                if (level_cells[level] == NULL) {
+                    continue;
+                }
+
+                struct MapCell *level_cells_current = level_cells[level];
+
+                /* Clear only the cache strips newly exposed by the scroll.
+                 * The old implementation allocated and copied the complete
+                 * five-window FOW cache for every map level on every step. */
+                int clear_x_start = dx > 0 ? width - dx : 0;
+                int clear_x_end = dx > 0 ? width : -dx;
+                for (int x = clear_x_start; x < clear_x_end; x++) {
+                    for (int y = 0; y < height; y++) {
+                        memset(map_cache_cell(level_cells_current, x, y),
+                               0,
+                               sizeof(struct MapCell));
+                    }
+                }
+
+                int clear_y_start = dy > 0 ? height - dy : 0;
+                int clear_y_end = dy > 0 ? height : -dy;
+                for (int y = clear_y_start; y < clear_y_end; y++) {
+                    for (int x = 0; x < width; x++) {
+                        memset(map_cache_cell(level_cells_current, x, y),
+                               0,
+                               sizeof(struct MapCell));
+                    }
+                }
+
+                /* Cells leaving the visible window become explored FOW. The
+                 * rest of the history already carries its prior FOW state. */
+                int shifted_view_x = view_x - dx;
+                int shifted_view_y = view_y - dy;
+                int fow_x_start = dx > 0 ? shifted_view_x : view_x + map_width;
+                int fow_x_end = dx > 0 ? view_x : shifted_view_x + map_width;
+                map_cache_mark_fow(level_cells_current,
+                                   fow_x_start,
+                                   fow_x_end,
+                                   shifted_view_y,
+                                   shifted_view_y + map_height,
+                                   width,
+                                   height);
+
+                int fow_y_start = dy > 0 ? shifted_view_y : view_y + map_height;
+                int fow_y_end = dy > 0 ? view_y : shifted_view_y + map_height;
+                map_cache_mark_fow(level_cells_current,
+                                   shifted_view_x,
+                                   shifted_view_x + map_width,
+                                   fow_y_start,
+                                   fow_y_end,
+                                   width,
+                                   height);
+
+                level_lighting_revision[level]++;
             }
         }
     }
 
-    free(cells_old);
+    map_select_level(0, true);
 
     sound_ambient_mapcroll(dx, dy);
     map_anims_mapscroll(dx, dy);
     cpl.target_object_index = 0;
+}
+
+/** Shift independently cached levels after moving through an up/down link. */
+void map_level_scroll(int dz) {
+    if (dz == 0) {
+        return;
+    }
+
+    struct MapCell *shifted[MAP2_LEVELS] = {0};
+    uint64_t shifted_revisions[MAP2_LEVELS] = {0};
+    for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
+        int source_depth = depth + dz;
+
+        if (source_depth >= -MAP2_MAX_DEPTH && source_depth <= MAP2_MAX_DEPTH) {
+            shifted[MAP2_DEPTH_INDEX(depth)] = level_cells[MAP2_DEPTH_INDEX(source_depth)];
+            shifted_revisions[MAP2_DEPTH_INDEX(depth)] =
+                level_lighting_revision[MAP2_DEPTH_INDEX(source_depth)];
+            level_cells[MAP2_DEPTH_INDEX(source_depth)] = NULL;
+        }
+    }
+
+    for (size_t i = 0; i < arraysize(level_cells); i++) {
+        free(level_cells[i]);
+        level_cells[i] = shifted[i];
+        level_lighting_revision[i] = shifted_revisions[i];
+    }
+
+    if (dz > 0) {
+        map_level_mask >>= dz;
+    } else {
+        map_level_mask <<= -dz;
+    }
+    map_level_mask &= (UINT16_C(1) << MAP2_LEVELS) - 1;
+    lighting_level_scroll(dz);
+    map_select_level(0, true);
+    map_anims_clear();
 }
 
 /**
@@ -338,41 +550,6 @@ void update_map_region_longname(const char *region_longname) {
  */
 void update_map_path(const char *map_path) {
     snprintf(VS(MapData.map_path), "%s", map_path);
-}
-
-/**
- * Updates the map's in_building state flag.
- *
- * When entering a building, clears FoW objects from effect layer with non-zero
- * sub-layer.
- * @param in_building
- * New in_building state.
- */
-void map_update_in_building(uint8_t in_building) {
-    if (in_building && !MapData.in_building) {
-        int x, y;
-        struct MapCell *cell;
-        int layer, sub_layer;
-
-        for (x = 0; x < map_width * MAP_FOW_SIZE; x++) {
-            for (y = 0; y < map_height * MAP_FOW_SIZE; y++) {
-                cell = MAP_CELL_GET(x, y);
-
-                if (!cell->fow) {
-                    continue;
-                }
-
-                for (sub_layer = MapData.player_sub_layer + 1; sub_layer < NUM_SUB_LAYERS;
-                     sub_layer++) {
-                    for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                        cell->faces[GET_MAP_LAYER(layer, sub_layer)] = 0;
-                    }
-                }
-            }
-        }
-    }
-
-    MapData.in_building = in_building;
 }
 
 /**
@@ -441,49 +618,28 @@ void init_map_data(int xl, int yl, int px, int py) {
 #define MAX_STRETCH 8
 #define MAX_STRETCH_DIAG 12
 
-/**
- * Calculate height of X/Y coordinate on the specified cell.
- *
- * Checks for X/Y overflows.
- * @param x
- * X position.
- * @param y
- * Y position.
- * @param w
- * Max width.
- * @param h
- * Max height.
- * @return
- * The height.
- */
-static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer, int my_height) {
-    if (x >= 0 && x < w && y >= 0 && y < h) {
-        bool is_building_wall = false;
-
-        for (int i = 1; i < NUM_SUB_LAYERS; i++) {
-            if (cells[y * w + x].faces[GET_MAP_LAYER(LAYER_EFFECT, i)] != 0 &&
-                cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, i)] != 0) {
-                is_building_wall = true;
-                break;
-            }
-        }
-
-        if (my_height < 0 && (sub_layer != 0 || is_building_wall)) {
-            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0; sub_layer--) {
-                int height = cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
-
-                if (height != 0) {
-                    return height;
-                }
-            }
-
-            return 0;
-        }
-
-        return cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
+/** Return one floor height used to join a stretched tile to its neighbor. */
+static int map_cell_stretch_height(int x, int y, int w, int h, int sub_layer, int my_height) {
+    if (x < 0 || x >= w || y < 0 || y >= h) {
+        return 0;
     }
 
-    return 0;
+    struct MapCell *cell = map_cache_cell(cells, x, y);
+
+    /* A negative floor beside stacked terrain joins to that terrain's top
+     * floor. This used to infer stacked terrain from LAYER_EFFECT objects;
+     * floor geometry itself is the authoritative source. */
+    if (my_height < 0) {
+        if (cell->stretch_upper_height != 0) {
+            return cell->stretch_upper_height;
+        }
+
+        if (sub_layer != 0) {
+            return cell->stretch_top_height;
+        }
+    }
+
+    return cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
 }
 
 /**
@@ -509,15 +665,15 @@ static void align_tile_stretch(int x, int y, int w, int h, int sub_layer) {
         return;
     }
 
-    my_height = calc_map_cell_height(x, y, w, h, sub_layer, 0);
-    nw_height = calc_map_cell_height(x - 1, y - 1, w, h, sub_layer, my_height);
-    n_height = calc_map_cell_height(x, y - 1, w, h, sub_layer, my_height);
-    ne_height = calc_map_cell_height(x + 1, y - 1, w, h, sub_layer, my_height);
-    sw_height = calc_map_cell_height(x - 1, y + 1, w, h, sub_layer, my_height);
-    s_height = calc_map_cell_height(x, y + 1, w, h, sub_layer, my_height);
-    se_height = calc_map_cell_height(x + 1, y + 1, w, h, sub_layer, my_height);
-    w_height = calc_map_cell_height(x - 1, y, w, h, sub_layer, my_height);
-    e_height = calc_map_cell_height(x + 1, y, w, h, sub_layer, my_height);
+    my_height = map_cell_stretch_height(x, y, w, h, sub_layer, 0);
+    nw_height = map_cell_stretch_height(x - 1, y - 1, w, h, sub_layer, my_height);
+    n_height = map_cell_stretch_height(x, y - 1, w, h, sub_layer, my_height);
+    ne_height = map_cell_stretch_height(x + 1, y - 1, w, h, sub_layer, my_height);
+    sw_height = map_cell_stretch_height(x - 1, y + 1, w, h, sub_layer, my_height);
+    s_height = map_cell_stretch_height(x, y + 1, w, h, sub_layer, my_height);
+    se_height = map_cell_stretch_height(x + 1, y + 1, w, h, sub_layer, my_height);
+    w_height = map_cell_stretch_height(x - 1, y, w, h, sub_layer, my_height);
+    e_height = map_cell_stretch_height(x + 1, y, w, h, sub_layer, my_height);
 
     if (abs(my_height - e_height) > MAX_STRETCH) {
         e_height = my_height;
@@ -613,16 +769,15 @@ static void align_tile_stretch(int x, int y, int w, int h, int sub_layer) {
     right -= min_ht;
 
     stretch = abs(bottom) + (abs(left) << 8) + (abs(right) << 16) + (abs(top) << 24);
-    cells[y * w + x].stretch[sub_layer] = stretch;
+    map_cache_cell(cells, x, y)->stretch[sub_layer] = stretch;
 }
 
 /**
  * Adjust the tile stretch of a map.
  *
- * Goes through the whole map and for each coordinate calls align_tile_stretch()
- * in all directions. This is done to fix any inconsistencies, since the map
- * command doesn't send us the whole map all over again, but only new/changes
- * parts.
+ * Scans the visible window and updates only cells marked dirty by incremental
+ * map changes. A tile's stretch depends on its eight neighbors, so the setter
+ * propagates dirtiness to that complete neighborhood.
  */
 void adjust_tile_stretch(void) {
     int xoff, yoff, w, h, x, y, sub_layer;
@@ -634,10 +789,68 @@ void adjust_tile_stretch(void) {
 
     for (x = xoff; x < xoff + map_width; x++) {
         for (y = yoff; y < yoff + map_height; y++) {
+            struct MapCell *cell = MAP_CELL_GET(x, y);
+            if (!cell->stretch_dirty) {
+                continue;
+            }
+
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                 align_tile_stretch(x, y, w, h, sub_layer);
             }
+            cell->stretch_dirty = 0;
         }
+    }
+}
+
+/** Mark every stretch result affected by one changed map cell. */
+static void map_mark_stretch_dirty(int x, int y) {
+    int cache_width = map_width * MAP_FOW_SIZE;
+    int cache_height = map_height * MAP_FOW_SIZE;
+    int cache_x = x + map_width * (MAP_FOW_SIZE / 2);
+    int cache_y = y + map_height * (MAP_FOW_SIZE / 2);
+
+    for (int neighbor_x = cache_x - 1; neighbor_x <= cache_x + 1; neighbor_x++) {
+        for (int neighbor_y = cache_y - 1; neighbor_y <= cache_y + 1; neighbor_y++) {
+            if (neighbor_x >= 0 && neighbor_x < cache_width && neighbor_y >= 0 &&
+                neighbor_y < cache_height) {
+                MAP_CELL_GET(neighbor_x, neighbor_y)->stretch_dirty = 1;
+            }
+        }
+    }
+}
+
+/** Refresh the floor-only geometry summary used by the tilestretcher. */
+static void map_update_stretch_geometry(struct MapCell *cell) {
+    cell->stretch_top_height = 0;
+    cell->stretch_upper_height = 0;
+    cell->level_support_height = 0;
+
+    for (int sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0; sub_layer--) {
+        int16_t height = cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
+        cell->level_support_height = MAX(cell->level_support_height, height);
+        if (height == 0) {
+            continue;
+        }
+
+        if (cell->stretch_top_height == 0) {
+            cell->stretch_top_height = height;
+        }
+
+        if (sub_layer != 0 && cell->stretch_upper_height == 0) {
+            cell->stretch_upper_height = height;
+        }
+    }
+}
+
+/** Refresh the maximum elevation used for whole-cell screen rejection. */
+static void map_update_render_height(struct MapCell *cell) {
+    cell->render_max_height = 0;
+
+    for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+        cell->render_max_height =
+            MAX(cell->render_max_height, cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)]);
+        cell->render_max_height =
+            MAX(cell->render_max_height, cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)]);
     }
 }
 
@@ -699,13 +912,24 @@ void map_set_data(int x,
                   uint8_t anim_state,
                   uint8_t priority,
                   uint8_t secondpass,
+                  uint8_t roof,
                   const char *glow,
                   uint8_t glow_speed) {
     struct MapCell *cell;
     int sub_layer;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
+    bool stretch_geometry_reset = cell->fow != 0;
     sub_layer = layer / NUM_LAYERS;
+    int object_layer = (layer % NUM_LAYERS) + 1;
+    bool stretch_geometry_changed =
+        stretch_geometry_reset || (object_layer == LAYER_FLOOR &&
+                                   (cell->faces[layer] != face || cell->height[layer] != height));
+    bool lighting_geometry_changed = object_layer == LAYER_FLOOR &&
+                                     (cell->faces[layer] != face || cell->height[layer] != height);
+    bool render_height_changed =
+        stretch_geometry_reset || ((object_layer == LAYER_FLOOR || object_layer == LAYER_EFFECT) &&
+                                   cell->height[layer] != height);
 
     if (cell->fow) {
         int i;
@@ -715,6 +939,7 @@ void map_set_data(int x,
         for (i = 0; i < NUM_REAL_LAYERS; i++) {
             cell->faces[i] = 0;
             cell->flags[i] = 0;
+            cell->roof[i] = 0;
             cell->quick_pos[i] = 0;
             cell->height[i] = 0;
             cell->zoom_x[i] = 0;
@@ -744,6 +969,7 @@ void map_set_data(int x,
 
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
+    cell->roof[layer] = roof;
 
     cell->probe[layer] = probe;
     cell->quick_pos[layer] = quick_pos;
@@ -761,6 +987,15 @@ void map_set_data(int x,
     cell->rotate[layer] = rotate;
     cell->infravision[layer] = infravision;
     cell->glow_speed[layer] = glow_speed;
+
+    if (stretch_geometry_changed) {
+        map_update_stretch_geometry(cell);
+        map_mark_stretch_dirty(x, y);
+    }
+
+    if (render_height_changed) {
+        map_update_render_height(cell);
+    }
 
     if (cell->target_object_count[layer] != target_object_count ||
         cell->target_is_friend[layer] != target_is_friend) {
@@ -793,6 +1028,10 @@ void map_set_data(int x,
     } else {
         image_request_face(face);
     }
+
+    if (lighting_geometry_changed) {
+        level_lighting_revision[current_level_index]++;
+    }
 }
 
 /**
@@ -800,16 +1039,40 @@ void map_set_data(int x,
  *
  * In reality, this only clears some data on the cell, and sets the FOW flag
  * to mark that the cell is actually FOW.
- * @param x
- * X of the cell.
- * @param y
- * Y of the cell.
+ * @param x X of the cell.
+ * @param y Y of the cell.
+ * @param hard Whether to discard cached geometry instead of retaining FOW.
  */
-void map_clear_cell(int x, int y) {
+void map_clear_cell(int x, int y, bool hard) {
     struct MapCell *cell;
     int layer;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
+    bool had_known_light = false;
+    for (size_t sub_layer = 0; sub_layer < arraysize(cell->light_known); sub_layer++) {
+        had_known_light |= cell->light_known[sub_layer] != 0;
+    }
+
+    if (hard) {
+        bool had_floor_geometry = false;
+        for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+            had_floor_geometry |= cell->faces[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)] != 0;
+        }
+
+        memset(cell, 0, sizeof(*cell));
+        cell->fow = 1;
+
+        if (had_floor_geometry) {
+            map_mark_stretch_dirty(x, y);
+        }
+
+        if (had_known_light || had_floor_geometry) {
+            level_lighting_revision[current_level_index]++;
+        }
+
+        return;
+    }
+
     cell->fow = 1;
     memset(cell->light_known, 0, sizeof(cell->light_known));
 
@@ -818,6 +1081,10 @@ void map_clear_cell(int x, int y) {
         cell->target_object_count[layer] = 0;
         cell->target_is_friend[layer] = 0;
         cell->pname[layer][0] = '\0';
+    }
+
+    if (had_known_light) {
+        level_lighting_revision[current_level_index]++;
     }
 }
 
@@ -836,8 +1103,12 @@ void map_set_light_level(int x, int y, int sub_layer, uint8_t light_level) {
     struct MapCell *cell;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
+    bool changed = !cell->light_known[sub_layer] || cell->light_level[sub_layer] != light_level;
     cell->light_level[sub_layer] = light_level;
     cell->light_known[sub_layer] = 1;
+    if (changed) {
+        level_lighting_revision[current_level_index]++;
+    }
 }
 
 /**
@@ -886,37 +1157,46 @@ void map_animate(void) {
     int x, y, layer;
     struct MapCell *cell;
 
-    for (x = 0; x < map_width; x++) {
-        for (y = 0; y < map_height; y++) {
-            cell = MAP_CELL_GET_MIDDLE(x, y);
+    for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
+        if (!(map_level_mask & (UINT16_C(1) << MAP2_DEPTH_INDEX(depth))) ||
+            !map_select_level(depth, false)) {
+            continue;
+        }
 
-            if (cell->fow) {
-                continue;
-            }
+        for (x = 0; x < map_width; x++) {
+            for (y = 0; y < map_height; y++) {
+                cell = MAP_CELL_GET_MIDDLE(x, y);
 
-            for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
-                if (cell->glow_speed[layer] > 1) {
-                    cell->glow_state[layer]++;
-                    map_redraw_flag = 1;
-
-                    if (cell->glow_state[layer] > cell->glow_speed[layer]) {
-                        cell->glow_state[layer] = 0;
-                    }
-                }
-
-                if (cell->anim_speed[layer] == 0) {
+                if (cell->fow) {
                     continue;
                 }
 
-                if (cell->anim_last[layer] >= cell->anim_speed[layer]) {
-                    map_animate_object(cell, layer);
-                    cell->anim_last[layer] = 1;
-                } else {
-                    cell->anim_last[layer]++;
+                for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
+                    if (cell->glow_speed[layer] > 1) {
+                        cell->glow_state[layer]++;
+                        map_redraw_flag = 1;
+
+                        if (cell->glow_state[layer] > cell->glow_speed[layer]) {
+                            cell->glow_state[layer] = 0;
+                        }
+                    }
+
+                    if (cell->anim_speed[layer] == 0) {
+                        continue;
+                    }
+
+                    if (cell->anim_last[layer] >= cell->anim_speed[layer]) {
+                        map_animate_object(cell, layer);
+                        cell->anim_last[layer] = 1;
+                    } else {
+                        cell->anim_last[layer]++;
+                    }
                 }
             }
         }
     }
+
+    map_select_level(0, true);
 }
 
 static uint16_t map_object_get_face(struct MapCell *cell, int layer) {
@@ -960,6 +1240,35 @@ typedef struct map_annotation {
     uint8_t map_layer;
 } map_annotation_t;
 
+/** One sprite deferred into the unified isometric painter order. */
+typedef struct map_render_command {
+    SDL_Surface *source;
+    sprite_effects_t effects;
+    int32_t x;
+    int32_t y;
+    int32_t sort_x;
+    int32_t sort_y;
+    size_t sequence;
+    int8_t depth;
+    bool draw_double;
+} map_render_command_t;
+
+/** Output accumulated while traversing independently cached map levels. */
+typedef struct map_render_context {
+    map_render_command_t *commands;
+    map_annotation_t *annotations;
+    SDL_Rect *tiles;
+    size_t commands_num;
+    size_t commands_capacity;
+    size_t annotations_num;
+    size_t annotations_capacity;
+    size_t tiles_num;
+    size_t tiles_capacity;
+    struct MapCell *target_cell;
+    SDL_Rect target_rect;
+    uint8_t target_layer;
+} map_render_context_t;
+
 /**
  * Structure used to pass data between the rendering loops in map_draw_map()
  * and the actual rendering logic in draw_map_object().
@@ -976,23 +1285,20 @@ typedef struct map_render_data {
     int32_t xpos; ///< X coordinate where to render.
     int32_t ypos; ///< Y coordinate where to render.
     int32_t player_height_offset; ///< Player height offset.
+    int32_t level_support_height; ///< Ground elevation supporting an upper level.
 
     struct MapCell *cell; ///< Cell that is being rendered.
-    struct MapCell *target_cell; ///< Cell with the player's target.
-    SDL_Rect *tiles; ///< Floor tile coordinates and IDs. Used for debugging.
-    map_annotation_t *annotations; ///< Deferred names and status icons.
-
-    size_t tiles_num; ///< Number of tiles.
-    size_t annotations_num; ///< Number of deferred annotations.
-
-    SDL_Rect target_rect; ///< Coordinate information for player's target.
+    map_render_context_t *render_context; ///< Unified output for every physical level.
 
     uint8_t layer; ///< Layer to render on.
     uint8_t sub_layer; ///< Sub-layer to render on.
     uint8_t alpha_forced; ///< Force applying the specified alpha value.
-    uint8_t target_layer; ///< Target's layer.
     bool smooth_lighting; ///< Whether smooth world lighting is enabled.
     bool lightmap_pending; ///< Whether the ground lightmap has not been composited yet.
+    bool defer_rendering; ///< Queue this sprite in the global painter order.
+    bool world_surface; ///< Whether this is a world-rendering surface.
+    bool primary_level; ///< Whether this is the player's physical level.
+    int8_t depth; ///< Linked-map depth relative to the player.
 } map_render_data_t;
 
 /**
@@ -1021,7 +1327,7 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     /* When rendering on the map surface, avoid rendering the object
      * when it's too high up and either in the FoW or the map has the
      * "height difference" feature enabled. */
-    if (surface == cur_widget[MAP_ID]->surface && (data->cell->fow || MapData.height_diff) &&
+    if (data->world_surface && (data->cell->fow || MapData.height_diff) &&
         abs(get_top_floor_height(data->cell, data->sub_layer) - data->player_height_offset) >
             HEIGHT_MAX_RENDER) {
         return;
@@ -1101,15 +1407,20 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     } else if (data->cell->flags[map_layer] & FFLAG_INVISIBLE) {
         BIT_SET(effects.flags, SPRITE_FLAG_GRAY);
     } else if (data->smooth_lighting && !data->lightmap_pending && data->layer == LAYER_WALL) {
-        BIT_SET(effects.flags, SPRITE_FLAG_SMOOTH_DARK);
-        effects.smooth_dark_y = data->ypos + MAP_TILE_POS_YOFF -
-                                data->cell->height[GET_MAP_LAYER(LAYER_FLOOR, data->sub_layer)] +
-                                data->player_height_offset;
+        if (data->cell->roof[map_layer]) {
+            BIT_SET(effects.flags, SPRITE_FLAG_SMOOTH_DARK_SURFACE);
+        } else {
+            BIT_SET(effects.flags, SPRITE_FLAG_SMOOTH_DARK);
+            effects.smooth_dark_y =
+                data->ypos + MAP_TILE_POS_YOFF -
+                data->cell->height[GET_MAP_LAYER(LAYER_FLOOR, data->sub_layer)] +
+                data->player_height_offset;
+        }
     } else if (!data->lightmap_pending) {
         BIT_SET(effects.flags, SPRITE_FLAG_DARK);
     }
 
-    if (surface != cur_widget[MAP_ID]->surface) {
+    if (!data->world_surface) {
         BITMASK_CLEAR(effects.flags, BIT_MASK(SPRITE_FLAG_RED) | BIT_MASK(SPRITE_FLAG_FOW));
         BIT_SET(effects.flags, SPRITE_FLAG_DARK);
     }
@@ -1149,17 +1460,46 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         yl -= data->cell->height[map_layer];
     }
 
-    surface_show_effects(surface, xl, yl, NULL, face_sprite->bitmap, &effects);
+    if (data->defer_rendering) {
+        map_render_context_t *context = data->render_context;
+        HARD_ASSERT(context != NULL);
+        if (context->commands_num == context->commands_capacity) {
+            context->commands_capacity =
+                context->commands_capacity == 0 ? 256 : context->commands_capacity * 2;
+            context->commands = xreallocarray(context->commands,
+                                              context->commands_capacity,
+                                              sizeof(*context->commands));
+        }
+        context->commands[context->commands_num] = (map_render_command_t){
+            .source = face_sprite->bitmap,
+            .effects = effects,
+            .x = xl,
+            .y = yl,
+            .sort_x = data->xpos,
+            /* Preserve the legacy world-tile traversal from the top corner
+             * down. The physical level's 46-pixel display lift must not move
+             * that tile earlier or later in painter order; levels sharing the
+             * same world diagonal retain their low-to-high queue sequence. */
+            .sort_y =
+                data->ypos + data->depth * MAP_LEVEL_PIXEL_HEIGHT + data->level_support_height,
+            .sequence = context->commands_num,
+            .depth = data->depth,
+            .draw_double = data->cell->draw_double[map_layer],
+        };
+        context->commands_num++;
+    } else {
+        surface_show_effects(surface, xl, yl, NULL, face_sprite->bitmap, &effects);
 
-    /* Double faces are shown twice, one above the other, when not lower
-     * on the screen than the player. This simulates high walls without
-     * obscuring the user's view. */
-    if (data->cell->draw_double[map_layer]) {
-        surface_show_effects(surface, xl, yl - 22, NULL, face_sprite->bitmap, &effects);
+        /* Double faces are shown twice, one above the other, when not lower
+         * on the screen than the player. This simulates high walls without
+         * obscuring the user's view. */
+        if (data->cell->draw_double[map_layer]) {
+            surface_show_effects(surface, xl, yl - 22, NULL, face_sprite->bitmap, &effects);
+        }
     }
 
     /* Rest of the code deals with rendering on the map widget. */
-    if (surface != cur_widget[MAP_ID]->surface) {
+    if (!data->world_surface) {
         return;
     }
 
@@ -1171,9 +1511,15 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     }
 
     if (data->cell->pname[map_layer][0] != '\0' || data->cell->flags[map_layer] != 0) {
-        data->annotations =
-            xreallocarray(data->annotations, data->annotations_num + 1, sizeof(*data->annotations));
-        map_annotation_t *annotation = &data->annotations[data->annotations_num++];
+        map_render_context_t *context = data->render_context;
+        if (context->annotations_num == context->annotations_capacity) {
+            context->annotations_capacity =
+                context->annotations_capacity == 0 ? 64 : context->annotations_capacity * 2;
+            context->annotations = xreallocarray(context->annotations,
+                                                 context->annotations_capacity,
+                                                 sizeof(*context->annotations));
+        }
+        map_annotation_t *annotation = &context->annotations[context->annotations_num++];
         *annotation = (map_annotation_t){
             .cell = data->cell,
             .xl = xl,
@@ -1192,31 +1538,38 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     }
 
     if (data->layer == LAYER_FLOOR && tiles_debug) {
-        data->tiles = xreallocarray(data->tiles, ((data->tiles_num) + 1), sizeof(*data->tiles));
-        data->tiles[data->tiles_num].x = xl;
-        data->tiles[data->tiles_num].y = yl;
-        data->tiles[data->tiles_num].w = data->x;
-        data->tiles[data->tiles_num].h = data->y;
-        data->tiles_num++;
+        map_render_context_t *context = data->render_context;
+        if (context->tiles_num == context->tiles_capacity) {
+            context->tiles_capacity =
+                context->tiles_capacity == 0 ? 128 : context->tiles_capacity * 2;
+            context->tiles =
+                xreallocarray(context->tiles, context->tiles_capacity, sizeof(*context->tiles));
+        }
+        context->tiles[context->tiles_num].x = xl;
+        context->tiles[context->tiles_num].y = yl;
+        context->tiles[context->tiles_num].w = data->x;
+        context->tiles[context->tiles_num].h = data->y;
+        context->tiles_num++;
     }
 
-    if (!data->cell->fow && data->cell->probe[map_layer] != 0) {
-        data->target_cell = data->cell;
-        data->target_layer = map_layer;
-        data->target_rect.x = xoff + xoff2;
-        data->target_rect.y = yl - 9;
-        data->target_rect.w = (xlen - xoff2 * 2);
-        data->target_rect.h = 1;
+    if (data->primary_level && !data->cell->fow && data->cell->probe[map_layer] != 0) {
+        map_render_context_t *context = data->render_context;
+        context->target_cell = data->cell;
+        context->target_layer = map_layer;
+        context->target_rect.x = xoff + xoff2;
+        context->target_rect.y = yl - 9;
+        context->target_rect.w = (xlen - xoff2 * 2);
+        context->target_rect.h = 1;
     }
 }
 
 /** Draw names and status icons after world lighting has been composited. */
-static void map_draw_annotations(SDL_Surface *surface, map_render_data_t *data) {
+static void map_draw_annotations(SDL_Surface *surface, map_render_context_t *context) {
     HARD_ASSERT(surface != NULL);
-    HARD_ASSERT(data != NULL);
+    HARD_ASSERT(context != NULL);
 
-    for (size_t i = 0; i < data->annotations_num; i++) {
-        map_annotation_t *annotation = &data->annotations[i];
+    for (size_t i = 0; i < context->annotations_num; i++) {
+        map_annotation_t *annotation = &context->annotations[i];
         struct MapCell *cell = annotation->cell;
         uint8_t map_layer = annotation->map_layer;
 
@@ -1292,9 +1645,9 @@ static void map_draw_annotations(SDL_Surface *surface, map_render_data_t *data) 
         }
     }
 
-    free(data->annotations);
-    data->annotations = NULL;
-    data->annotations_num = 0;
+    free(context->annotations);
+    context->annotations = NULL;
+    context->annotations_num = 0;
 }
 
 /**
@@ -1338,6 +1691,22 @@ static bool obj_is_behind_wall(int dx, int dy, int sx, int sy) {
 
         BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
     }
+}
+
+/** Return the base-map elevation that supports a linked level at one tile. */
+static int map_level_support_height(int x, int y, int depth) {
+    if (depth <= 0) {
+        return 0;
+    }
+
+    struct MapCell *base_cells = level_cells[MAP2_DEPTH_INDEX(0)];
+    int cache_width = map_width * MAP_FOW_SIZE;
+    int cache_height = map_height * MAP_FOW_SIZE;
+    if (base_cells == NULL || x < 0 || x >= cache_width || y < 0 || y >= cache_height) {
+        return 0;
+    }
+
+    return map_cache_cell(base_cells, x, y)->level_support_height;
 }
 
 /**
@@ -1419,8 +1788,11 @@ static bool map_should_draw(SDL_Surface *surface, map_render_data_t *data) {
                  (data->y - data->midy) * MAP_TILE_YOFF;
     data->ypos = surface->h / 2 - MAP_TILE_POS_YOFF / 2 + (data->x - data->midx) * MAP_TILE_XOFF +
                  (data->y - data->midy) * MAP_TILE_XOFF;
+    data->level_support_height = map_level_support_height(data->x, data->y, data->depth);
+    data->ypos -= data->depth * MAP_LEVEL_PIXEL_HEIGHT;
+    data->ypos -= data->level_support_height;
 
-    if (surface != cur_widget[MAP_ID]->surface) {
+    if (!data->world_surface) {
         data->ypos -= map_width * MAP_TILE_XOFF + map_height * MAP_TILE_XOFF * (MAP_FOW_SIZE / 2);
         data->ypos -= map_height * MAP_TILE_YOFF;
     }
@@ -1432,20 +1804,7 @@ static bool map_should_draw(SDL_Surface *surface, map_render_data_t *data) {
 
     data->cell = MAP_CELL_GET(data->x, data->y);
 
-    int height = 0;
-    for (uint8_t sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-        uint8_t map_layer = GET_MAP_LAYER(LAYER_FLOOR, sub_layer);
-        if (data->cell->height[map_layer] > height) {
-            height = data->cell->height[map_layer];
-        }
-
-        map_layer = GET_MAP_LAYER(LAYER_EFFECT, sub_layer);
-        if (data->cell->height[map_layer] > height) {
-            height = data->cell->height[map_layer];
-        }
-    }
-
-    if (data->ypos - height > surface->h) {
+    if (data->ypos - data->cell->render_max_height > surface->h) {
         return false;
     }
 
@@ -1476,9 +1835,16 @@ static void map_setup_render_data(SDL_Surface *surface,
     data->x = map_width - (map_width / 2) - 1;
     data->y = map_height - (map_height / 2) - 1;
     data->cell = MAP_CELL_GET_MIDDLE(data->x, data->y);
-    data->player_height_offset = get_top_floor_height(data->cell, MapData.player_sub_layer);
+    struct MapCell *base_cells = level_cells[MAP2_DEPTH_INDEX(0)];
+    if (data->world_surface && base_cells != NULL) {
+        struct MapCell *base_cell =
+            map_cache_cell(base_cells, data->x + MAP_STARTX, data->y + MAP_STARTY);
+        data->player_height_offset = get_top_floor_height(base_cell, MapData.player_sub_layer);
+    } else {
+        data->player_height_offset = get_top_floor_height(data->cell, MapData.player_sub_layer);
+    }
 
-    if (surface == cur_widget[MAP_ID]->surface) {
+    if (data->world_surface) {
         data->midx = map_width * MAP_FOW_SIZE / 2;
         data->midy = map_height * MAP_FOW_SIZE / 2;
 
@@ -1619,7 +1985,8 @@ map_lighting_vertex(SDL_Surface *surface, const map_render_data_t *data, int x, 
     lighting_vertex_t vertex = {
         .x = surface->w / 2 + (x - data->midx) * MAP_TILE_YOFF - (y - data->midy) * MAP_TILE_YOFF,
         .y = surface->h / 2 + (x - data->midx) * MAP_TILE_XOFF + (y - data->midy) * MAP_TILE_XOFF -
-             height + data->player_height_offset,
+             height + data->player_height_offset - data->depth * MAP_LEVEL_PIXEL_HEIGHT -
+             map_level_support_height(x, y, data->depth),
         .level = map_lighting_level(x, y),
     };
     return vertex;
@@ -1636,41 +2003,44 @@ static uint64_t map_lighting_hash_value(uint64_t hash, uint64_t value) {
     return hash;
 }
 
-/** Hash every projected sample that can affect the current lightmap. */
+/** Build a constant-time key from explicit map-lighting invalidation state. */
 static uint64_t map_lighting_cache_key(SDL_Surface *surface,
                                        const map_render_data_t *data,
                                        int x,
                                        int y,
                                        int w,
                                        int h) {
-    int cache_width = map_width * MAP_FOW_SIZE;
-    int cache_height = map_height * MAP_FOW_SIZE;
-    int start_x = MAX(0, x - 2);
-    int start_y = MAX(0, y - 2);
-    int end_x = MIN(cache_width - 1, w + 1);
-    int end_y = MIN(cache_height - 1, h + 1);
     uint64_t hash = UINT64_C(14695981039346656037);
 
-    hash = map_lighting_hash_value(hash, (uint32_t)start_x);
-    hash = map_lighting_hash_value(hash, (uint32_t)start_y);
-    hash = map_lighting_hash_value(hash, (uint32_t)end_x);
-    hash = map_lighting_hash_value(hash, (uint32_t)end_y);
-
-    for (int cell_x = start_x; cell_x <= end_x; cell_x++) {
-        for (int cell_y = start_y; cell_y <= end_y; cell_y++) {
-            lighting_vertex_t vertex = map_lighting_vertex(surface, data, cell_x, cell_y);
-            hash = map_lighting_hash_value(hash, (uint32_t)vertex.x);
-            hash = map_lighting_hash_value(hash, (uint32_t)vertex.y);
-            hash = map_lighting_hash_value(hash, vertex.level);
-        }
+    hash = map_lighting_hash_value(hash, level_lighting_revision[current_level_index]);
+    if (data->depth > 0) {
+        hash = map_lighting_hash_value(hash, level_lighting_revision[MAP2_DEPTH_INDEX(0)]);
     }
+    hash = map_lighting_hash_value(hash, (uint32_t)surface->w);
+    hash = map_lighting_hash_value(hash, (uint32_t)surface->h);
+    hash = map_lighting_hash_value(hash, (uint32_t)map_width);
+    hash = map_lighting_hash_value(hash, (uint32_t)map_height);
+    hash = map_lighting_hash_value(hash, (uint32_t)data->midx);
+    hash = map_lighting_hash_value(hash, (uint32_t)data->midy);
+    hash = map_lighting_hash_value(hash, (uint32_t)data->player_height_offset);
+    hash = map_lighting_hash_value(hash, (uint8_t)data->depth);
+    hash = map_lighting_hash_value(hash, MapData.player_sub_layer);
+    hash = map_lighting_hash_value(hash, (uint32_t)x);
+    hash = map_lighting_hash_value(hash, (uint32_t)y);
+    hash = map_lighting_hash_value(hash, (uint32_t)w);
+    hash = map_lighting_hash_value(hash, (uint32_t)h);
 
     return hash;
 }
 
 /** Rasterize and composite the interpolated map light field. */
-static void
-map_draw_lighting(SDL_Surface *surface, map_render_data_t *data, int x, int y, int w, int h) {
+static void map_draw_lighting(SDL_Surface *surface,
+                              SDL_Surface *destination,
+                              map_render_data_t *data,
+                              int x,
+                              int y,
+                              int w,
+                              int h) {
     int cache_width = map_width * MAP_FOW_SIZE;
     int cache_height = map_height * MAP_FOW_SIZE;
     int start_x = MAX(0, x - 2);
@@ -1700,7 +2070,7 @@ map_draw_lighting(SDL_Surface *surface, map_render_data_t *data, int x, int y, i
         }
     }
 
-    lighting_render(surface);
+    lighting_render(destination);
 }
 
 /**
@@ -1709,25 +2079,44 @@ map_draw_lighting(SDL_Surface *surface, map_render_data_t *data, int x, int y, i
  * @param surface
  * Surface to render on.
  */
-void map_draw_map(SDL_Surface *surface) {
+static void map_draw_level(SDL_Surface *surface,
+                           SDL_Surface *ground_surface,
+                           int depth,
+                           bool primary_level,
+                           bool allow_smooth_lighting,
+                           map_render_context_t *render_context) {
     HARD_ASSERT(surface != NULL);
+    HARD_ASSERT(ground_surface != NULL);
 
-    bool profile_map = surface == cur_widget[MAP_ID]->surface;
-    uint64_t profile_map_started = profile_map ? render_profiler_begin() : 0;
-
-    map_render_data_t data = {0};
+    map_render_data_t data = {
+        .world_surface = true,
+        .primary_level = primary_level,
+        .depth = depth,
+        .render_context = render_context,
+    };
     int x, y, w, h;
     map_setup_render_data(surface, &data, &x, &y, &w, &h);
     data.smooth_lighting =
-        surface == cur_widget[MAP_ID]->surface && setting_get_int(OPT_CAT_MAP, OPT_SMOOTH_LIGHTING);
+        allow_smooth_lighting && setting_get_int(OPT_CAT_MAP, OPT_SMOOTH_LIGHTING);
     if (data.smooth_lighting) {
         uint64_t cache_key = map_lighting_cache_key(surface, &data, x, y, w, h);
         data.smooth_lighting = lighting_begin(surface->w, surface->h, cache_key);
         data.lightmap_pending = data.smooth_lighting;
+
+        /* Positive-depth ground is composited through a color-keyed scratch
+         * surface. Applying the screen-sized alpha lightmap to that surface
+         * changes transparent background pixels on SDL 1.2 and makes the
+         * higher level erase parts of the levels below it. Keep those floor
+         * sprites on the discrete path while still building the continuous
+         * field used by their wall faces. */
+        if (!primary_level) {
+            data.lightmap_pending = false;
+        }
     }
 
     /* Draw floor and fmasks. */
-    uint64_t profile_ground_started = profile_map ? render_profiler_begin() : 0;
+    bool ground_present = false;
+    uint64_t profile_ground_started = render_profiler_begin();
     for (data.x = x; data.x < w; data.x++) {
         for (data.y = y; data.y < h; data.y++) {
             if (!map_should_draw(surface, &data)) {
@@ -1739,7 +2128,14 @@ void map_draw_map(SDL_Surface *surface) {
                     continue;
                 }
 
-                draw_map_object(surface, &data);
+                ground_present |= data.cell->faces[GET_MAP_LAYER(data.layer, data.sub_layer)] != 0;
+                if (primary_level) {
+                    draw_map_object(ground_surface, &data);
+                } else {
+                    data.defer_rendering = true;
+                    draw_map_object(surface, &data);
+                    data.defer_rendering = false;
+                }
             }
         }
     }
@@ -1750,15 +2146,26 @@ void map_draw_map(SDL_Surface *surface) {
      * tile's level instead of applying the ground field over them. */
     if (data.smooth_lighting) {
         uint64_t profile_lighting_started = render_profiler_begin();
-        map_draw_lighting(surface, &data, x, y, w, h);
+        map_draw_lighting(surface,
+                          primary_level && ground_present ? ground_surface : NULL,
+                          &data,
+                          x,
+                          y,
+                          w,
+                          h);
         render_profiler_end(RENDER_PROFILE_LIGHTING, profile_lighting_started);
         data.lightmap_pending = false;
+    }
+
+    if (primary_level && ground_present) {
+        surface_show(surface, 0, 0, NULL, ground_surface);
     }
 
     uint8_t floor_layer_pl = GET_MAP_LAYER(LAYER_FLOOR, MapData.player_sub_layer);
 
     /* Now draw everything else. */
-    uint64_t profile_objects_started = profile_map ? render_profiler_begin() : 0;
+    data.defer_rendering = true;
+    uint64_t profile_objects_started = render_profiler_begin();
     for (data.x = x; data.x < w; data.x++) {
         for (data.y = y; data.y < h; data.y++) {
             if (!map_should_draw(surface, &data)) {
@@ -1832,7 +2239,7 @@ void map_draw_map(SDL_Surface *surface) {
                     continue;
                 }
 
-                if (surface == cur_widget[MAP_ID]->surface && map_should_cull(surface, &data)) {
+                if (data.world_surface && map_should_cull(surface, &data)) {
                     continue;
                 }
 
@@ -1872,7 +2279,7 @@ void map_draw_map(SDL_Surface *surface) {
                     continue;
                 }
 
-                if (surface == cur_widget[MAP_ID]->surface && map_should_cull(surface, &data)) {
+                if (data.world_surface && map_should_cull(surface, &data)) {
                     continue;
                 }
 
@@ -1888,10 +2295,8 @@ void map_draw_map(SDL_Surface *surface) {
         }
     }
 
-    if (surface != cur_widget[MAP_ID]->surface) {
+    if (!primary_level) {
         render_profiler_end(RENDER_PROFILE_MAP_OBJECTS, profile_objects_started);
-        map_draw_annotations(surface, &data);
-        render_profiler_end(RENDER_PROFILE_MAP, profile_map_started);
         return;
     }
 
@@ -1923,32 +2328,99 @@ void map_draw_map(SDL_Surface *surface) {
     }
     render_profiler_end(RENDER_PROFILE_MAP_OBJECTS, profile_objects_started);
 
-    uint64_t profile_ui_started = render_profiler_begin();
-    map_draw_annotations(surface, &data);
+#undef CALCULATE_POSITIONS
+}
 
-    if (data.tiles != NULL) {
-        for (size_t i = 0; i < data.tiles_num; i++) {
-            SDL_Rect box;
-            box.x = data.tiles[i].x;
-            box.y = data.tiles[i].y;
-            box.w = MAP_TILE_POS_XOFF;
-            box.h = MAP_TILE_POS_YOFF;
-            text_show_format(surface,
-                             FONT("arial", 9),
-                             box.x,
-                             box.y,
-                             COLOR_WHITE,
-                             TEXT_OUTLINE | TEXT_VALIGN_CENTER | TEXT_ALIGN_CENTER,
-                             &box,
-                             "%d,%d",
-                             data.tiles[i].w,
-                             data.tiles[i].h);
-        }
+/** Sort projected map sprites back-to-front across every physical level. */
+static int map_render_command_compare(const void *left_ptr, const void *right_ptr) {
+    const map_render_command_t *left = left_ptr;
+    const map_render_command_t *right = right_ptr;
 
-        free(data.tiles);
+    if (left->sort_y != right->sort_y) {
+        return left->sort_y < right->sort_y ? -1 : 1;
     }
 
-    if (data.target_cell != NULL && cpl.target_code != 0) {
+    if (left->sort_x != right->sort_x) {
+        return left->sort_x < right->sort_x ? -1 : 1;
+    }
+
+    if (left->sequence != right->sequence) {
+        return left->sequence < right->sequence ? -1 : 1;
+    }
+
+    return 0;
+}
+
+/** Paint all projected sprites in one isometric order. */
+static void map_render_commands(SDL_Surface *surface, map_render_context_t *context) {
+    uint64_t profile_paint_started = render_profiler_begin();
+    if (context->commands_num > 1) {
+        qsort(context->commands,
+              context->commands_num,
+              sizeof(*context->commands),
+              map_render_command_compare);
+    }
+
+    int selected_depth = MAP2_MAX_DEPTH + 1;
+    for (size_t i = 0; i < context->commands_num; i++) {
+        map_render_command_t *command = &context->commands[i];
+        if (selected_depth != command->depth) {
+            SOFT_ASSERT(lighting_select_level(command->depth),
+                        "Could not select lighting context for depth %d",
+                        command->depth);
+            selected_depth = command->depth;
+        }
+
+        surface_show_effects(surface,
+                             command->x,
+                             command->y,
+                             NULL,
+                             command->source,
+                             &command->effects);
+        if (command->draw_double) {
+            surface_show_effects(surface,
+                                 command->x,
+                                 command->y - 22,
+                                 NULL,
+                                 command->source,
+                                 &command->effects);
+        }
+    }
+
+    free(context->commands);
+    context->commands = NULL;
+    context->commands_num = 0;
+    render_profiler_end(RENDER_PROFILE_MAP_PAINT, profile_paint_started);
+}
+
+/** Draw map annotations and target UI after the unified world pass. */
+static void map_draw_ui(SDL_Surface *surface, map_render_context_t *context) {
+    uint64_t profile_ui_started = render_profiler_begin();
+    map_draw_annotations(surface, context);
+
+    for (size_t i = 0; i < context->tiles_num; i++) {
+        SDL_Rect box = {
+            .x = context->tiles[i].x,
+            .y = context->tiles[i].y,
+            .w = MAP_TILE_POS_XOFF,
+            .h = MAP_TILE_POS_YOFF,
+        };
+        text_show_format(surface,
+                         FONT("arial", 9),
+                         box.x,
+                         box.y,
+                         COLOR_WHITE,
+                         TEXT_OUTLINE | TEXT_VALIGN_CENTER | TEXT_ALIGN_CENTER,
+                         &box,
+                         "%d,%d",
+                         context->tiles[i].w,
+                         context->tiles[i].h);
+    }
+    free(context->tiles);
+    context->tiles = NULL;
+    context->tiles_num = 0;
+
+    if (context->target_cell != NULL && cpl.target_code != 0) {
         const char *hp_color;
 
         if (cpl.target_hp > 90) {
@@ -1966,55 +2438,126 @@ void map_draw_map(SDL_Surface *surface) {
         }
 
         if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) &&
-              data.target_cell->pname[data.target_layer][0] != '\0')) {
+              context->target_cell->pname[context->target_layer][0] != '\0')) {
             text_show(surface,
                       FONT_SANS9,
                       cpl.target_name,
-                      data.target_rect.x + data.target_rect.w / 2 -
+                      context->target_rect.x + context->target_rect.w / 2 -
                           text_get_width(FONT_SANS9, cpl.target_name, 0) / 2,
-                      data.target_rect.y - 15,
+                      context->target_rect.y - 15,
                       cpl.target_color,
                       TEXT_OUTLINE,
                       NULL);
         }
 
-        rectangle_create(surface, data.target_rect.x - 2, data.target_rect.y - 2, 1, 5, hp_color);
-        rectangle_create(surface, data.target_rect.x - 2, data.target_rect.y - 2, 3, 1, hp_color);
-        rectangle_create(surface, data.target_rect.x - 2, data.target_rect.y + 2, 3, 1, hp_color);
         rectangle_create(surface,
-                         data.target_rect.x + data.target_rect.w + 1,
-                         data.target_rect.y - 2,
+                         context->target_rect.x - 2,
+                         context->target_rect.y - 2,
                          1,
                          5,
                          hp_color);
         rectangle_create(surface,
-                         data.target_rect.x + data.target_rect.w - 1,
-                         data.target_rect.y - 2,
+                         context->target_rect.x - 2,
+                         context->target_rect.y - 2,
                          3,
                          1,
                          hp_color);
         rectangle_create(surface,
-                         data.target_rect.x + data.target_rect.w - 1,
-                         data.target_rect.y + 2,
+                         context->target_rect.x - 2,
+                         context->target_rect.y + 2,
+                         3,
+                         1,
+                         hp_color);
+        rectangle_create(surface,
+                         context->target_rect.x + context->target_rect.w + 1,
+                         context->target_rect.y - 2,
+                         1,
+                         5,
+                         hp_color);
+        rectangle_create(surface,
+                         context->target_rect.x + context->target_rect.w - 1,
+                         context->target_rect.y - 2,
+                         3,
+                         1,
+                         hp_color);
+        rectangle_create(surface,
+                         context->target_rect.x + context->target_rect.w - 1,
+                         context->target_rect.y + 2,
                          3,
                          1,
                          hp_color);
 
-        data.target_rect.w =
-            data.target_rect.w / 100.0 * data.target_cell->probe[data.target_layer];
-        data.target_rect.w = MAX(1, MIN(100, data.target_rect.w));
+        context->target_rect.w =
+            context->target_rect.w / 100.0 * context->target_cell->probe[context->target_layer];
+        context->target_rect.w = MAX(1, MIN(100, context->target_rect.w));
         rectangle_create(surface,
-                         data.target_rect.x,
-                         data.target_rect.y,
-                         data.target_rect.w,
-                         data.target_rect.h,
+                         context->target_rect.x,
+                         context->target_rect.y,
+                         context->target_rect.w,
+                         context->target_rect.h,
                          hp_color);
     }
 
     render_profiler_end(RENDER_PROFILE_MAP_UI, profile_ui_started);
-    render_profiler_end(RENDER_PROFILE_MAP, profile_map_started);
+}
 
-#undef CALCULATE_POSITIONS
+/** Draw independently cached levels through one projected painter order. */
+void map_draw_map(SDL_Surface *surface) {
+    HARD_ASSERT(surface != NULL);
+
+    uint64_t profile_map_started = render_profiler_begin();
+
+    bool primary_surface = cur_widget[MAP_ID] != NULL && surface == cur_widget[MAP_ID]->surface;
+    size_t surface_index = primary_surface ? 0 : 1;
+    SDL_Surface **level_surface = &map_level_surfaces[surface_index];
+    map_render_context_t render_context = {0};
+
+    if (*level_surface == NULL || (*level_surface)->w != surface->w ||
+        (*level_surface)->h != surface->h) {
+        if (*level_surface != NULL) {
+            SDL_FreeSurface(*level_surface);
+        }
+
+        *level_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                              surface->w,
+                                              surface->h,
+                                              surface->format->BitsPerPixel,
+                                              surface->format->Rmask,
+                                              surface->format->Gmask,
+                                              surface->format->Bmask,
+                                              surface->format->Amask);
+        if (*level_surface == NULL) {
+            LOG(ERROR, "Could not create map level surface: %s", SDL_GetError());
+            render_profiler_end(RENDER_PROFILE_MAP, profile_map_started);
+            return;
+        }
+        Uint32 black = SDL_MapRGB((*level_surface)->format, 0, 0, 0);
+        SDL_SetColorKey(*level_surface, SDL_SRCCOLORKEY, black);
+    }
+
+    for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
+        uint16_t bit = UINT16_C(1) << MAP2_DEPTH_INDEX(depth);
+        if (!(map_level_mask & bit) || !map_select_level(depth, false) ||
+            !lighting_select_level(depth)) {
+            continue;
+        }
+
+        if (depth == 0) {
+            SDL_FillRect(*level_surface, NULL, SDL_MapRGB((*level_surface)->format, 0, 0, 0));
+        }
+        map_draw_level(surface,
+                       *level_surface,
+                       depth,
+                       depth == 0,
+                       primary_surface,
+                       &render_context);
+    }
+
+    map_render_commands(surface, &render_context);
+    map_draw_ui(surface, &render_context);
+    map_select_level(0, true);
+    lighting_select_level(0);
+    render_profiler_end(RENDER_PROFILE_MAP, profile_map_started);
 }
 
 /**
@@ -2587,7 +3130,17 @@ static void widget_background(widgetdata *widget, int draw) {
 static void widget_deinit(widgetdata *widget) {
     lighting_deinit();
 
-    free(cells);
+    for (size_t i = 0; i < arraysize(map_level_surfaces); i++) {
+        if (map_level_surfaces[i] != NULL) {
+            SDL_FreeSurface(map_level_surfaces[i]);
+            map_level_surfaces[i] = NULL;
+        }
+    }
+
+    for (size_t i = 0; i < arraysize(level_cells); i++) {
+        free(level_cells[i]);
+        level_cells[i] = NULL;
+    }
     cells = NULL;
 
     region_map_free(MapData.region_map);
@@ -2626,7 +3179,7 @@ void widget_map_init(widgetdata *widget) {
  * @return
  * Created animation.
  */
-struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int value) {
+struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int depth, int value) {
     map_anim_t *anim;
     int num_ticks;
 
@@ -2643,6 +3196,7 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int 
 
     /* Sub-layer. */
     anim->sub_layer = sub_layer;
+    anim->depth = depth;
     /* Amount of damage */
     anim->value = value;
 
@@ -2712,7 +3266,8 @@ void map_anims_clear(void) {
  * Play map animations.
  */
 void map_anims_play(void) {
-    map_render_data_t data = {0};
+    map_render_data_t data = {.world_surface = true, .primary_level = true};
+    map_select_level(0, true);
     map_setup_render_data(cur_widget[MAP_ID]->surface, &data, NULL, NULL, NULL, NULL);
 
     map_anim_t *anim, *tmp;
@@ -2723,6 +3278,11 @@ void map_anims_play(void) {
             continue;
         }
 
+        if (!map_select_level(anim->depth, false)) {
+            continue;
+        }
+
+        data.depth = anim->depth;
         data.x = anim->mapx;
         data.y = anim->mapy;
         if (!map_should_draw(cur_widget[MAP_ID]->surface, &data)) {
@@ -2782,6 +3342,8 @@ void map_anims_play(void) {
                 break;
         }
     }
+
+    map_select_level(0, true);
 }
 
 /**

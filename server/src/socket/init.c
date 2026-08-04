@@ -65,10 +65,10 @@ bool init_connection(socket_struct *ns) {
     ns->sound = 0;
     ns->ext_title_flag = 1;
     ns->state = ST_LOGIN;
-    ns->mapx = 17;
-    ns->mapy = 17;
-    ns->mapx_2 = 8;
-    ns->mapy_2 = 8;
+    ns->mapx = MAP_CLIENT_X;
+    ns->mapy = MAP_CLIENT_Y;
+    ns->mapx_2 = MAP_CLIENT_X / 2;
+    ns->mapy_2 = MAP_CLIENT_Y / 2;
     ns->password_fails = 0;
     ns->is_bot = 0;
     ns->connection_mode = socket_connection_mode_get(ns->sc);
@@ -112,6 +112,8 @@ void free_all_newserver(void) {
  */
 void free_newsocket(socket_struct *ns) {
     socket_destroy(ns->sc);
+
+    map_client_cache_free(&ns->lastmap);
 
     free(ns->account);
 

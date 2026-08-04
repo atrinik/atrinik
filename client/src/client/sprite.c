@@ -245,6 +245,8 @@ void sprite_cache_free_all(void) {
         sprite_cache_remove(cache);
         sprite_cache_free(cache);
     }
+
+    lighting_clear_sprite_cache();
 }
 
 /**
@@ -261,10 +263,12 @@ void sprite_cache_gc(void) {
     gettimeofday(&tv1, NULL);
 
     sprite_cache_t *cache, *tmp;
+    bool removed = false;
     HASH_ITER(hh, sprites_cache, cache, tmp) {
         if (now - cache->last_used >= SPRITE_CACHE_GC_FREE_TIME) {
             sprite_cache_remove(cache);
             sprite_cache_free(cache);
+            removed = true;
         }
 
         /* Avoid executing this loop for too long. */
@@ -273,6 +277,10 @@ void sprite_cache_gc(void) {
             tv2.tv_usec - tv1.tv_usec >= SPRITE_CACHE_GC_MAX_TIME) {
             break;
         }
+    }
+
+    if (removed) {
+        lighting_clear_sprite_cache();
     }
 }
 
@@ -825,7 +833,16 @@ void surface_show_effects(SDL_Surface *surface,
     }
 
     if (effects != NULL && BIT_QUERY(effects->flags, SPRITE_FLAG_SMOOTH_DARK)) {
-        lighting_show_surface(surface, x, y, srcrect, src, effects->smooth_dark_y);
+        lighting_show_surface(surface,
+                              x,
+                              y,
+                              srcrect,
+                              src,
+                              effects->smooth_dark_y,
+                              LIGHTING_SURFACE_STRUCTURE);
+    } else if (effects != NULL &&
+               BIT_QUERY(effects->flags, SPRITE_FLAG_SMOOTH_DARK_SURFACE)) {
+        lighting_show_surface(surface, x, y, srcrect, src, 0, LIGHTING_SURFACE_PROJECTED);
     } else {
         surface_show(surface, x, y, srcrect, src);
     }
